@@ -1,4 +1,13 @@
 import { fetchSharedEspnScoreboard, fetchSharedEspnSummary, safeEspnDate, parseEspnNumber } from "../_shared/espn.ts";
+import {
+  FREE_SOURCE_QUALITY,
+  collectFreeLiveProviders,
+  fetchSportScoreDetail,
+  normalizeSportScoreDetail,
+  fetchTheSportsDbStats,
+  resolveTheSportsDbEvent,
+  matchProvider,
+} from "../_shared/football_sources.ts";
 // live.ts (Supabase Edge Function / Deno)
 // =======================================================
 // PATCHES inclus :
@@ -421,7 +430,7 @@ function getSourceMatchId(match: any, sourceName: string) {
   return String(match?.id || match?.source_match_id || "");
 }
 
-function sourceRowFromMatch(match: any, sourceName: "api_original" | "espn") {
+function sourceRowFromMatch(match: any, sourceName: string) {
   const liveStats = ensureLiveStatsShape(getMatchLiveStats(match));
   const canonical = buildCanonicalMatchId(match);
 
@@ -3933,6 +3942,309 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[],
   };
 }
 
+function mergeAdditionalProviderMatches(
+  baseMatches: any[],
+  providerMatches: any[],
+  providerName: "sportscore" | "thesportsdb" | "openligadb",
+) {
+  const out = [...(baseMatches || [])];
+  const sourceRows: any[] = [];
+  let merged = 0;
+  let providerOnly = 0;
+  const quality = safeNumber(FREE_SOURCE_QUALITY?.[providerName]?.overall, 60);
+
+  for (const provider of providerMatches || []) {
+    sourceRows.push(sourceRowFromMatch(provider, providerName));
+    let bestIndex = -1;
+    let bestScore = 0;
+    for (let i = 0; i < out.length; i++) {
+      const score = sameMatchScore(out[i], provider);
+      if (score > bestScore) {
+        bestScore = score;
+        bestIndex = i;
+      }
+    }
+
+    if (bestIndex >= 0 && bestScore >= 0.72) {
+      const current = out[bestIndex];
+      const currentStats = getMatchLiveStats(current);
+      const providerStats = getMatchLiveStats(provider);
+      const currentMinute = safeNumber(current?.current_minute ?? current?.minute, 0);
+      const providerMinute = safeNumber(provider?.current_minute ?? provider?.minute, 0);
+      const refs = {
+        ...(current?.raw_data?.provider_refs || {}),
+        [providerName]: {
+          id: String(provider?.source_match_id || provider?.id || ""),
+          slug: String(provider?.raw_data?.sportscore_slug || ""),
+          quality,
+        },
+      };
+      const sources = [
+        ...new Set([
+          ...((current?.raw_data?.merge_meta?.sources || []) as string[]),
+          providerName,
+        ]),
+      ];
+      const providerIsFresher = providerMinute >= currentMinute &&
+        Boolean(provider?.is_live || provider?.is_finished);
+
+      out[bestIndex] = {
+        ...current,
+        current_minute: Math.max(currentMinute, providerMinute),
+        home_score:
+          (current?.home_score == null || providerIsFresher)
+            ? (provider?.home_score ?? current?.home_score)
+            : current?.home_score,
+        away_score:
+          (current?.away_score == null || providerIsFresher)
+            ? (provider?.away_score ?? current?.away_score)
+            : current?.away_score,
+        home_logo: current?.home_logo || provider?.home_logo || null,
+        away_logo: current?.away_logo || provider?.away_logo || null,
+        live_stats: mergeLiveStats(currentStats, providerStats),
+        stats_last_updated_at:
+          provider?.stats_last_updated_at ||
+          current?.stats_last_updated_at ||
+          null,
+        raw_data: {
+          ...(current?.raw_data || {}),
+          provider_refs: refs,
+          merge_meta: {
+            ...(current?.raw_data?.merge_meta || {}),
+            canonical_match_id:
+              current?.raw_data?.merge_meta?.canonical_match_id ||
+              buildCanonicalMatchId(current),
+            sources,
+            confidence_score: Math.max(
+              safeNumber(current?.raw_data?.merge_meta?.confidence_score, 0),
+              Math.round(bestScore * 100),
+              Math.min(95, quality),
+            ),
+            primary_source:
+              current?.raw_data?.merge_meta?.primary_source || "api_original",
+            merged_at: nowIso(),
+          },
+        },
+      };
+      merged++;
+    } else if (provider?.is_live === true) {
+      const stats = ensureLiveStatsShape(getMatchLiveStats(provider));
+      out.push({
+        ...provider,
+        live_stats: stats,
+        raw_data: {
+          ...(provider?.raw_data || {}),
+          provider_refs: {
+            [providerName]: {
+              id: String(provider?.source_match_id || provider?.id || ""),
+              slug: String(provider?.raw_data?.sportscore_slug || ""),
+              quality,
+            },
+          },
+          merge_meta: {
+            canonical_match_id: buildCanonicalMatchId(provider),
+            sources: [providerName],
+            confidence_score: Math.min(90, quality),
+            primary_source: providerName,
+            merged_at: nowIso(),
+          },
+          live_stats: stats,
+        },
+      });
+      providerOnly++;
+    }
+  }
+
+  return { matches: out, sourceRows, merged, providerOnly };
+}
+
+async function enrichLiveMatchesWithFreeStats(matches: any[]) {
+  const out = [...(matches || [])];
+  let sportscoreCalls = 0;
+  let thesportsdbCalls = 0;
+  let thesportsdbResolveCalls = 0;
+  let enriched = 0;
+  let oddsSectionsDetected = 0;
+  const maxSportScore = Math.max(
+    0,
+    Math.min(8, safeEnvInt("SPORTSCORE_STATS_MAX_CALLS_PER_REFRESH", 4)),
+  );
+  const maxTsdb = Math.max(
+    0,
+    Math.min(5, safeEnvInt("THESPORTSDB_STATS_MAX_CALLS_PER_REFRESH", 2)),
+  );
+  const maxTsdbResolve = Math.max(
+    0,
+    Math.min(3, safeEnvInt("THESPORTSDB_RESOLVE_MAX_CALLS_PER_REFRESH", 2)),
+  );
+
+  const candidates = out
+    .map((m: any, index: number) => ({ m, index }))
+    .filter(({ m }) => {
+      const minute = safeNumber(m?.current_minute ?? m?.minute, 0);
+      if (minute < 5 || minute > 90) return false;
+      return statsCompleteness(getMatchLiveStats(m)).core_complete < 3;
+    })
+    .sort((a, b) =>
+      statsCompleteness(getMatchLiveStats(a.m)).core_complete -
+      statsCompleteness(getMatchLiveStats(b.m)).core_complete
+    );
+
+  for (const { m, index } of candidates) {
+    let current = out[index];
+    let before = statsCompleteness(getMatchLiveStats(current)).core_complete;
+    const refs = current?.raw_data?.provider_refs || {};
+    let thesportsdbRefId = refs?.thesportsdb?.id
+      ? String(refs.thesportsdb.id).replace(/^thesportsdb:/, "")
+      : "";
+
+    if (
+      before < 3 &&
+      sportscoreCalls < maxSportScore &&
+      refs?.sportscore?.slug
+    ) {
+      try {
+        sportscoreCalls++;
+        const payload = await fetchSportScoreDetail(String(refs.sportscore.slug));
+        const detail = normalizeSportScoreDetail(payload);
+        if (detail?.odds_probe?.available) oddsSectionsDetected++;
+        const mergedStats = mergeLiveStats(
+          getMatchLiveStats(current),
+          detail?.stats || {},
+          true,
+        );
+        const after = statsCompleteness(mergedStats).core_complete;
+        if (after > before) {
+          current = {
+            ...current,
+            live_stats: mergedStats,
+            stats_last_updated_at: nowIso(),
+            raw_data: {
+              ...(current?.raw_data || {}),
+              live_stats: mergedStats,
+              sportscore_detail: {
+                has_lineups: Boolean(detail?.lineups),
+                timeline_count: Array.isArray(detail?.timeline)
+                  ? detail.timeline.length
+                  : 0,
+                odds_probe: detail?.odds_probe || null,
+              },
+              stats_sources: [
+                ...new Set([
+                  ...((current?.raw_data?.stats_sources || []) as string[]),
+                  "sportscore_stats",
+                ]),
+              ],
+              stats_authority: "sportscore_stats",
+            },
+          };
+          before = after;
+          enriched++;
+        } else if (detail?.odds_probe?.available) {
+          current = {
+            ...current,
+            raw_data: {
+              ...(current?.raw_data || {}),
+              sportscore_detail: {
+                ...((current?.raw_data?.sportscore_detail || {}) as any),
+                odds_probe: detail.odds_probe,
+              },
+            },
+          };
+        }
+      } catch (e) {
+        console.warn("SportScore detail unavailable", refs?.sportscore?.slug, e);
+      }
+    }
+
+    if (
+      before < 3 &&
+      !/^\d+$/.test(thesportsdbRefId) &&
+      thesportsdbResolveCalls < maxTsdbResolve
+    ) {
+      try {
+        const eventKickoff = safeEspnDate(getMatchEventDate(current)) || undefined;
+        const home = String(current?.home_team?.name ?? current?.home_team ?? "");
+        const away = String(current?.away_team?.name ?? current?.away_team ?? "");
+        if (home && away) {
+          thesportsdbResolveCalls++;
+          const resolvedId = await resolveTheSportsDbEvent(home, away, eventKickoff);
+          if (resolvedId && /^\d+$/.test(resolvedId)) {
+            thesportsdbRefId = resolvedId;
+            current = {
+              ...current,
+              raw_data: {
+                ...(current?.raw_data || {}),
+                provider_refs: {
+                  ...((current?.raw_data?.provider_refs || {}) as any),
+                  thesportsdb: {
+                    id: resolvedId,
+                    quality: safeNumber(FREE_SOURCE_QUALITY?.thesportsdb?.overall, 79),
+                    resolved: true,
+                  },
+                },
+              },
+            };
+          }
+        }
+      } catch (e) {
+        console.warn("TheSportsDB event resolution unavailable", current?.id, e);
+      }
+    }
+
+    if (
+      before < 3 &&
+      thesportsdbCalls < maxTsdb &&
+      /^\d+$/.test(thesportsdbRefId)
+    ) {
+      try {
+        thesportsdbCalls++;
+        const detail = await fetchTheSportsDbStats(thesportsdbRefId);
+        const mergedStats = mergeLiveStats(
+          getMatchLiveStats(current),
+          detail?.stats || {},
+          true,
+        );
+        const after = statsCompleteness(mergedStats).core_complete;
+        if (after > before) {
+          current = {
+            ...current,
+            live_stats: mergedStats,
+            stats_last_updated_at: nowIso(),
+            raw_data: {
+              ...(current?.raw_data || {}),
+              live_stats: mergedStats,
+              stats_sources: [
+                ...new Set([
+                  ...((current?.raw_data?.stats_sources || []) as string[]),
+                  "thesportsdb_stats",
+                ]),
+              ],
+              stats_authority: "thesportsdb_stats",
+            },
+          };
+          before = after;
+          enriched++;
+        }
+      } catch (e) {
+        console.warn("TheSportsDB stats unavailable", thesportsdbRefId, e);
+      }
+    }
+
+    out[index] = current;
+  }
+
+  return {
+    matches: out,
+    calls: sportscoreCalls + thesportsdbResolveCalls + thesportsdbCalls,
+    sportscore_calls: sportscoreCalls,
+    thesportsdb_resolve_calls: thesportsdbResolveCalls,
+    thesportsdb_calls: thesportsdbCalls,
+    enriched,
+    odds_sections_detected: oddsSectionsDetected,
+  };
+}
+
 function applyPredictionQualityContext(match: any, pred: any) {
   if (!pred) return pred;
   const mergeMeta = match?.raw_data?.merge_meta || {};
@@ -5757,7 +6069,28 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     coverage = await fetchBSDCoverage();
     const liveNow = safeNumber(coverage?.live_now, -1);
 
-    if (!options.skipBsd && liveNow !== 0) {
+    // Free providers are collected before the quota-consuming BSD live feed.
+    // BSD is skipped only when BOTH ESPN and SportScore independently cover
+    // at least the live match count reported by BSD coverage.
+    const [espnResult, freeProviderData] = await Promise.all([
+      fetchEspnLiveMatchesForMerge(),
+      collectFreeLiveProviders(),
+    ]);
+    espnError = espnResult.error;
+
+    const sportscoreRows = freeProviderData?.sportscore || [];
+    const tsdbRows = freeProviderData?.thesportsdb || [];
+    const openligaRows = freeProviderData?.openligadb || [];
+    const freeCoverageStrong =
+      liveNow > 0 &&
+      (espnResult.matches || []).length >= liveNow &&
+      sportscoreRows.length >= liveNow;
+    const skipBsdLive =
+      options.skipBsd === true ||
+      liveNow === 0 ||
+      freeCoverageStrong;
+
+    if (!skipBsdLive) {
       try {
         const liveData = await fetchBSD("/events/live/");
         originalRawMatches = bsdResults(liveData);
@@ -5765,15 +6098,18 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
         bsdError = e?.message || String(e);
         bsdRateLimited = isBSDQuotaError(e);
         if (bsdRateLimited) {
-          console.warn("⚠️ Quota BSD épuisé: ESPN + cache prennent le relais");
+          console.warn("⚠️ Quota BSD épuisé: sources gratuites + cache prennent le relais");
         } else {
-          console.error("⚠️ BSD v2 live indisponible: ESPN prend le relais", e);
+          console.error("⚠️ BSD v2 live indisponible: sources gratuites prennent le relais", e);
         }
       }
+    } else if (freeCoverageStrong) {
+      console.info("BSD_LIVE_CALL_SAVED", {
+        live_now: liveNow,
+        espn: (espnResult.matches || []).length,
+        sportscore: sportscoreRows.length,
+      });
     }
-
-    const espnResult = await fetchEspnLiveMatchesForMerge();
-    espnError = espnResult.error;
 
     const incomingEspnIds = (espnResult.matches || [])
       .map((m: any) => String(m?.source_match_id || m?.raw_data?.event_id || ""))
@@ -5804,24 +6140,63 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       if (mapWriteError) console.warn("ESPN provider mapping persistence failed", mapWriteError);
     }
 
-    allRawMatches = sortMatchesForRefresh(merged.mergedMatches);
-    sourceRows = merged.sourceRows || [];
-    sourceMeta = merged.meta || sourceMeta;
+    let providerMerged = merged.mergedMatches;
+    sourceRows = [...(merged.sourceRows || [])];
+    const providerMeta: any = {};
 
-    // /events/live/ est compact et ne fournit pas les stats détaillées.
-    // 1) on réutilise d'abord notre dernier snapshot connu;
-    // 2) ESPN complète gratuitement ce qu'il possède;
-    // 3) BSD /stats/ enrichit seulement quelques matchs prioritaires par cycle.
+    for (const [providerName, rows] of [
+      ["sportscore", sportscoreRows],
+      ["thesportsdb", tsdbRows],
+      ["openligadb", openligaRows],
+    ] as const) {
+      const result = mergeAdditionalProviderMatches(
+        providerMerged,
+        rows,
+        providerName,
+      );
+      providerMerged = result.matches;
+      sourceRows.push(...result.sourceRows);
+      providerMeta[providerName + "_source_matches"] = rows.length;
+      providerMeta[providerName + "_merged"] = result.merged;
+      providerMeta[providerName + "_only_live"] = result.providerOnly;
+    }
+
+    allRawMatches = sortMatchesForRefresh(providerMerged);
+    sourceMeta = {
+      ...(merged.meta || sourceMeta),
+      ...providerMeta,
+      bsd_live_call_saved: freeCoverageStrong,
+      free_provider_errors: freeProviderData?.errors || {},
+    };
+
+    // Detail enrichment order:
+    // cache -> ESPN scoreboard stats -> SportScore detail -> TheSportsDB stats -> BSD /stats/.
+    // BSD is now the last resort for incomplete live statistical pairs.
     allRawMatches = await reuseCachedStats(allRawMatches);
+
+    const freeStatsEnrichment =
+      await enrichLiveMatchesWithFreeStats(allRawMatches);
+    allRawMatches = sortMatchesForRefresh(freeStatsEnrichment.matches);
 
     const statsEnrichment = await enrichLiveMatchesWithBsdStats(allRawMatches);
     allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
     sourceMeta = {
       ...sourceMeta,
+      free_stats_calls: freeStatsEnrichment.calls,
+      free_stats_enriched: freeStatsEnrichment.enriched,
+      sportscore_stats_calls: freeStatsEnrichment.sportscore_calls,
+      thesportsdb_resolve_calls: freeStatsEnrichment.thesportsdb_resolve_calls,
+      thesportsdb_stats_calls: freeStatsEnrichment.thesportsdb_calls,
+      sportscore_odds_sections_detected:
+        freeStatsEnrichment.odds_sections_detected,
       bsd_stats_calls: statsEnrichment.calls,
       bsd_stats_enriched: statsEnrichment.enriched,
       bsd_stats_failed: statsEnrichment.failed,
       bsd_stats_skipped_quota: statsEnrichment.skipped_quota,
+      bsd_stats_calls_saved_estimate: Math.max(
+        0,
+        freeStatsEnrichment.enriched,
+      ),
       bsd_quota_remaining: bsdQuotaRemaining,
       bsd_quota_reset_seconds: bsdQuotaResetSeconds,
     };
@@ -5863,6 +6238,19 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
         next_cursor: nextCursor,
         original_source_matches: safeNumber(sourceMeta.original_source_matches, 0),
         espn_source_matches: safeNumber(sourceMeta.espn_source_matches, 0),
+        sportscore_source_matches: safeNumber(sourceMeta.sportscore_source_matches, 0),
+        thesportsdb_source_matches: safeNumber(sourceMeta.thesportsdb_source_matches, 0),
+        openligadb_source_matches: safeNumber(sourceMeta.openligadb_source_matches, 0),
+        sportscore_merged: safeNumber(sourceMeta.sportscore_merged, 0),
+        thesportsdb_merged: safeNumber(sourceMeta.thesportsdb_merged, 0),
+        openligadb_merged: safeNumber(sourceMeta.openligadb_merged, 0),
+        free_stats_calls: safeNumber(sourceMeta.free_stats_calls, 0),
+        free_stats_enriched: safeNumber(sourceMeta.free_stats_enriched, 0),
+        sportscore_stats_calls: safeNumber(sourceMeta.sportscore_stats_calls, 0),
+        thesportsdb_stats_calls: safeNumber(sourceMeta.thesportsdb_stats_calls, 0),
+        bsd_live_call_saved: Boolean(sourceMeta.bsd_live_call_saved),
+        bsd_stats_calls_saved_estimate: safeNumber(sourceMeta.bsd_stats_calls_saved_estimate, 0),
+        sportscore_odds_sections_detected: safeNumber(sourceMeta.sportscore_odds_sections_detected, 0),
         bsd_stats_calls: safeNumber(sourceMeta.bsd_stats_calls, 0),
         bsd_stats_enriched: safeNumber(sourceMeta.bsd_stats_enriched, 0),
         bsd_stats_failed: safeNumber(sourceMeta.bsd_stats_failed, 0),
@@ -5940,6 +6328,19 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       has_more: hasMore,
       original_source_matches: safeNumber(sourceMeta.original_source_matches, 0),
       espn_source_matches: safeNumber(sourceMeta.espn_source_matches, 0),
+      sportscore_source_matches: safeNumber(sourceMeta.sportscore_source_matches, 0),
+      thesportsdb_source_matches: safeNumber(sourceMeta.thesportsdb_source_matches, 0),
+      openligadb_source_matches: safeNumber(sourceMeta.openligadb_source_matches, 0),
+      sportscore_merged: safeNumber(sourceMeta.sportscore_merged, 0),
+      thesportsdb_merged: safeNumber(sourceMeta.thesportsdb_merged, 0),
+      openligadb_merged: safeNumber(sourceMeta.openligadb_merged, 0),
+      free_stats_calls: safeNumber(sourceMeta.free_stats_calls, 0),
+      free_stats_enriched: safeNumber(sourceMeta.free_stats_enriched, 0),
+      sportscore_stats_calls: safeNumber(sourceMeta.sportscore_stats_calls, 0),
+      thesportsdb_stats_calls: safeNumber(sourceMeta.thesportsdb_stats_calls, 0),
+      bsd_live_call_saved: Boolean(sourceMeta.bsd_live_call_saved),
+      bsd_stats_calls_saved_estimate: safeNumber(sourceMeta.bsd_stats_calls_saved_estimate, 0),
+      sportscore_odds_sections_detected: safeNumber(sourceMeta.sportscore_odds_sections_detected, 0),
       bsd_stats_calls: safeNumber(sourceMeta.bsd_stats_calls, 0),
       bsd_stats_enriched: safeNumber(sourceMeta.bsd_stats_enriched, 0),
       bsd_stats_failed: safeNumber(sourceMeta.bsd_stats_failed, 0),

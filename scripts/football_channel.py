@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Mr XPRONOS : six rubriques de football vers un canal Telegram distinct.
 
-Le RSS Foot Mercato vient du projet Actu Poster. Les rencontres proviennent
-exclusivement du client BSD V2 du dépôt principal. Aucune opération sur data.json.
+Le RSS Foot Mercato vient du projet Actu Poster. Les rencontres utilisent
+désormais ESPN + SportScore + TheSportsDB + OpenLigaDB en priorité éditoriale,
+avec BSD V2 comme filet de couverture et pour les identifiants/modèles historiques.
+Aucune opération sur data.json.
 Lancer depuis la racine : python scripts/football_channel.py --dry-run
 """
 from __future__ import annotations
@@ -31,6 +33,13 @@ sys.path.insert(0, str(ROOT / "bsd"))
 sys.path.insert(0, str(ROOT / "scripts"))
 from bsd_api import BSDClient, BSDAPIError  # noqa: E402
 from bsd_h2h import hybrid_h2h  # noqa: E402
+from free_football_sources import (  # noqa: E402
+    collect_free_day,
+    preferred_day_events,
+    fetch_sportscore_h2h,
+    summarize_h2h,
+    SOURCE_QUALITY,
+)
 from telegram_rich import post_photo, post_text, post_animation  # noqa: E402
 from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish)  # noqa: E402
 import football_followup as followup  # noqa: E402
@@ -1037,10 +1046,12 @@ def form(team_id: Any, name: str, events: list[dict], before: datetime) -> str:
             current = e.get(side_name + "_team")
             current_id = (current.get("id") if isinstance(current, dict) else
                           e.get(side_name + "_team_id"))
-            if team_id is not None and str(current_id) == str(team_id):
+            if team_id is not None and current_id is not None and str(current_id) == str(team_id):
                 side = side_name
                 break
-            if team_id is None and team(e, side_name).casefold() == name.casefold():
+            # Les fournisseurs gratuits n'utilisent pas les IDs BSD : le nom
+            # normalisé reste un fallback sûr pour calculer la forme.
+            if _norm_team(team(e, side_name)) == _norm_team(name):
                 side = side_name
                 break
         if side:
@@ -1927,16 +1938,34 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         nonlocal client
         name = day.isoformat()
         if name not in cache:
-            if client is None:
-                client = BSDClient(max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
-                                   max_retries=1)
-            page = client.list_events(day, day, max_pages=7, ttl=0)
-            if not page.complete:
-                raise BSDAPIError("BSD: journée incomplète " + name + " (" +
-                                  str(len(page.events)) + "/" + str(page.total_reported) + ")")
-            cache[name] = page.events
-            print("BSD_JOUR", name, "rencontres", len(page.events),
-                  "requêtes", client.requests_made)
+            snapshots = collect_free_day(sender.session, day, include_espn=True)
+            free_events = preferred_day_events(snapshots)
+            source_counts = {key: len(value.rows) for key, value in snapshots.items()}
+            min_free = max(1, int(os.getenv("FOOTBALL_FREE_MIN_MATCHES", "5")))
+            force_bsd = os.getenv("FOOTBALL_FORCE_BSD_DAY", "0") == "1"
+            if len(free_events) >= min_free and not force_bsd:
+                cache[name] = free_events
+                print("MULTI_SOURCE_JOUR", name, "rencontres", len(free_events),
+                      "sources", json.dumps(source_counts, ensure_ascii=False),
+                      "bsd_calls", 0)
+            else:
+                if client is None:
+                    client = BSDClient(
+                        max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
+                        max_retries=1,
+                    )
+                page = client.list_events(day, day, max_pages=7, ttl=0)
+                if not page.complete:
+                    if free_events:
+                        cache[name] = free_events
+                        print("BSD_INCOMPLET_FREE_FALLBACK", name, len(free_events))
+                        return cache[name]
+                    raise BSDAPIError("BSD: journée incomplète " + name + " (" +
+                                      str(len(page.events)) + "/" + str(page.total_reported) + ")")
+                cache[name] = page.events
+                print("BSD_JOUR", name, "rencontres", len(page.events),
+                      "requêtes", client.requests_made,
+                      "free_sources", json.dumps(source_counts, ensure_ascii=False))
         return cache[name]
 
     def publish(item: Publication | None, *, follow_event: dict | None = None,
@@ -2083,11 +2112,28 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                         forms = fetch_prematch_forms(client, selected)
                         h2h_values = {}
                         try:
-                            h2h_values = hybrid_h2h(
-                                client, selected, [], min_local_meetings=3,
-                                allow_api=True, now=now,
+                            free_h2h_rows = fetch_sportscore_h2h(
+                                sender.session,
+                                team(selected, "home"),
+                                team(selected, "away"),
+                                limit=20,
+                                ttl=1800,
                             )
-                        except (BSDAPIError, ValueError, TypeError) as exc:
+                            free_h2h = summarize_h2h(
+                                free_h2h_rows,
+                                team(selected, "home"),
+                                team(selected, "away"),
+                            )
+                            if int(free_h2h.get("total_matches") or 0) >= 3:
+                                h2h_values = free_h2h
+                                print("H2H_SOURCE", "sportscore", h2h_values["total_matches"])
+                            else:
+                                h2h_values = hybrid_h2h(
+                                    client, selected, [], min_local_meetings=3,
+                                    allow_api=True, now=now,
+                                )
+                                print("H2H_SOURCE", h2h_values.get("source", "bsd"))
+                        except (BSDAPIError, ValueError, TypeError, requests.RequestException) as exc:
                             print("H2H_AVANT_MATCH_INDISPONIBLE", type(exc).__name__, str(exc)[:140])
                         post = avant_match([selected], state, now, [], forms, h2h_values)
                         publish(post, follow_event=selected)
