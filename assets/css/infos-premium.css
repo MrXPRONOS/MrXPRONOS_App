@@ -525,3 +525,54 @@
   .mx-infos-page .mx-infos-hero-inner{min-height:99px!important;height:99px!important}
   .mx-infos-page .mx-infos-copy h1{font-size:24px!important}
 }
+
+
+/* =========================================================
+   News Football engine v1 — vraies images + lecture complète
+========================================================= */
+.mx-infos-page .news-media img{object-position:center center}
+.mx-infos-page .modal-content{width:min(92vw,860px);max-height:88vh;overflow:auto}
+.mx-infos-page .modal-image{
+  display:block;width:100%;aspect-ratio:16/9;max-height:none;object-fit:cover;
+  background:#03101a;border:1px solid rgba(255,255,255,.07)
+}
+.mx-infos-page #news-modal-content{padding-bottom:4px}
+.mx-infos-page .news-detail-meta{
+  display:flex;flex-wrap:wrap;gap:7px 9px;margin:5px 0 15px
+}
+.mx-infos-page .news-detail-meta span{
+  display:inline-flex;align-items:center;min-height:25px;padding:5px 9px;
+  border:1px solid #28536b;border-radius:999px;background:#061b29;
+  color:#b8c9d4;font-size:10px;font-weight:700
+}
+.mx-infos-page .news-detail-meta span:first-child{
+  border-color:#9f7937;background:rgba(197,145,48,.13);color:#f2ca77
+}
+.mx-infos-page .news-detail-lead{
+  margin:0 0 17px;padding:13px 15px;border-left:3px solid #e7b24f;
+  border-radius:0 9px 9px 0;background:#0b2637;color:#edf3f6;
+  font-size:14px;line-height:1.58
+}
+.mx-infos-page .news-detail-points{
+  margin:0 0 18px;padding:14px 16px;border:1px solid #244a60;
+  border-radius:11px;background:#061b28
+}
+.mx-infos-page .news-detail-points h4{
+  margin:0 0 9px;color:#efbd58;font-size:13px;text-transform:uppercase;letter-spacing:.07em
+}
+.mx-infos-page .news-detail-points ul{margin:0;padding-left:19px}
+.mx-infos-page .news-detail-points li{margin:6px 0;color:#d9e2e8;font-size:13px;line-height:1.5}
+.mx-infos-page .news-detail-body p{
+  margin:0 0 13px;color:#e1e7eb;font-size:14px;line-height:1.68
+}
+.mx-infos-page .news-detail-attribution{
+  margin:18px 0 7px;padding-top:13px;border-top:1px solid #1b4258;
+  color:#91a7b5;font-size:10.5px;line-height:1.5
+}
+.mx-infos-page #news-modal-link{align-items:center;justify-content:center;text-decoration:none}
+@media(max-width:700px){
+  .mx-infos-page .modal-content{width:94vw;max-height:91vh;padding:14px}
+  .mx-infos-page .modal-image{border-radius:10px}
+  .mx-infos-page .news-detail-lead,.mx-infos-page .news-detail-body p{font-size:12.5px}
+  .mx-infos-page .news-detail-points li{font-size:12px}
+}
