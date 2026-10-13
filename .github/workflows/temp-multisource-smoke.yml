@@ -105,5 +105,16 @@ jobs:
                   for key in ("stats","statistics","lineups","timeline","events","incidents"):
                       if key in detail["match"]:
                           print("SPORTSCORE_MATCH_SECTION", key, json.dumps(detail["match"][key], ensure_ascii=False, default=str)[:5000])
+          if ts:
+              event_id = str(ts[0].get("source_match_id") or "")
+              for endpoint in ("lookupeventstats.php", "lookuplineup.php", "lookuptimeline.php"):
+                  response = requests.get(
+                      "https://www.thesportsdb.com/api/v1/json/123/" + endpoint,
+                      params={"id": event_id},
+                      headers={"Accept": "application/json", "User-Agent": "MrXPRONOS-MultiSource-Probe/1.0"},
+                      timeout=15,
+                  )
+                  print("THESPORTSDB_PROBE", endpoint, event_id, response.status_code, response.text[:1200].replace("\n"," "))
+
           print("DIAGNOSTICS", json.dumps(hub.diagnostics(), ensure_ascii=False))
           PY
