@@ -78,10 +78,18 @@ export async function fetchSportScoreDay(date: string, liveOnly = false) {
     if (Array.isArray(payload)) rows = payload;
     else if (Array.isArray(payload?.matches)) rows = payload.matches;
     else if (Array.isArray(payload?.fixtures)) rows = payload.fixtures;
-    return rows.map((r: any) => ({
-      id: "sportscore:" + text(r?.id || r?.slug),
-      source_match_id: text(r?.id || r?.slug),
-      source_slug: text(r?.slug),
+    return rows.map((r: any) => {
+      const sourceUrl = text(r?.url);
+      const parts = sourceUrl.split("/").filter(Boolean);
+      const matchIndex = parts.lastIndexOf("match");
+      const urlSlug = matchIndex >= 0 && parts.length > matchIndex + 2 ? parts[parts.length - 2] : "";
+      const urlId = parts.length ? parts[parts.length - 1] : "";
+      const sourceSlug = text(r?.slug || urlSlug);
+      const sourceId = text(r?.id || urlId);
+      return {
+      id: "sportscore:" + (sourceId || sourceSlug),
+      source_match_id: sourceId,
+      source_slug: sourceSlug,
       source_name: "sportscore",
       home_team: text(r?.home || r?.home_team || r?.home_name),
       away_team: text(r?.away || r?.away_team || r?.away_name),
@@ -94,7 +102,8 @@ export async function fetchSportScoreDay(date: string, liveOnly = false) {
       home_logo: text(r?.home_logo),
       away_logo: text(r?.away_logo),
       raw_data: { source: "sportscore", provider_raw: r },
-    })).filter((m: any) => m.home_team && m.away_team);
+    };
+    }).filter((m: any) => m.home_team && m.away_team);
   } catch (e) {
     console.warn("SportScore fixtures unavailable", e);
     return [];
