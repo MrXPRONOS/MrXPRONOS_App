@@ -43,6 +43,15 @@ def _score(value: Any) -> int | None:
         return None
 
 
+def _minute(value: Any) -> int:
+    if value in (None, "", "None"):
+        return 0
+    if isinstance(value, (int, float)):
+        return max(0, int(value))
+    match = re.search(r"\d+", str(value))
+    return max(0, int(match.group())) if match else 0
+
+
 def _moment(value: Any) -> datetime | None:
     if not value:
         return None
@@ -139,7 +148,7 @@ def parse_espn_event(event: dict) -> dict | None:
         state = "post"
     team_h = home.get("team") if isinstance(home.get("team"), dict) else {}
     team_a = away.get("team") if isinstance(away.get("team"), dict) else {}
-    minute = _score(status.get("displayClock") or status.get("clock") or 0) or 0
+    minute = _minute(status.get("displayClock") or status.get("clock") or 0)
     period = _score(status.get("period") or competition.get("period") or 0) or 0
     return {
         "source": "espn",
