@@ -1,12 +1,12 @@
 // Free football providers used before BSD to reduce paid/quota-sensitive traffic.
-// Quality authority: ESPN 100 > BSD 96 > SportScore 92 > TheSportsDB 76 > OpenLigaDB 72.
+// Quality authority: ESPN 100 > BSD 96 > SportScore 92 > OpenLigaDB 86 > TheSportsDB 80.
 // Fetch order can differ from authority: free sources are attempted before BSD.
 export const FOOTBALL_PROVIDER_QUALITY: Record<string, number> = {
   espn: 100,
   bsd: 96,
   sportscore: 92,
-  thesportsdb: 76,
-  openligadb: 72,
+  openligadb: 86,
+  thesportsdb: 80,
 };
 
 export const SPORTSCORE_ATTRIBUTION_URL = "https://sportscore.com/";
@@ -145,8 +145,8 @@ function providerMatch(args: any) {
     source_name: source,
     home_team: text(args.home),
     away_team: text(args.away),
-    home_score: num(args.home_score) ?? 0,
-    away_score: num(args.away_score) ?? 0,
+    home_score: num(args.home_score),
+    away_score: num(args.away_score),
     current_minute: num(args.minute) ?? 0,
     league_name: text(args.league) || "Football",
     league: { name: text(args.league) || "Football" },
@@ -166,9 +166,12 @@ function providerMatch(args: any) {
       provider_quality: FOOTBALL_PROVIDER_QUALITY[source] || 0,
       provider_slug: text(args.slug),
       provider_payload: args.raw,
-      sportscore_odds: source === "sportscore" && (args.raw?.odds || args.odds)
-        ? (args.raw?.odds || args.odds)
-        : null,
+      // Never expose undocumented SportScore odds as a betting price.
+      sportscore_odds: null,
+      sportscore_odds_api_documented: false,
+      sportscore_odds_observed:
+        source === "sportscore" &&
+        Boolean(args.raw?.odds || args.raw?.detail?.odds || args.odds),
       live_stats: args.live_stats || emptyStats(),
       stats_sources: [source],
     },
@@ -234,7 +237,6 @@ export async function fetchSportScoreLive(maxDetails = 4) {
         live_stats: stats,
         stats_updated_at: Object.values(stats.home).some((v) => v != null) ? new Date().toISOString() : null,
         raw: detail ? { ...row, detail } : row,
-        odds: detail?.odds,
       });
       if (match && match.is_live && !match.is_finished) normalized.push(match);
     }
