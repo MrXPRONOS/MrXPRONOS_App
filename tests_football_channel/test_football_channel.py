@@ -66,7 +66,8 @@ class FootballChannelTests(unittest.TestCase):
                 post.keyboard["inline_keyboard"][0][0]["url"],
                 "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=test-news",
             )
-            self.assertIsNone(post.card)
+            self.assertIsNotNone(post.card)
+            self.assertEqual(post.card["image_path"], "assets/images/footnews/test-news.webp")
             self.history.mark(post.key, post.category, NOW)
             self.assertIsNone(m.flash(articles, self.history, NOW))
         finally:
