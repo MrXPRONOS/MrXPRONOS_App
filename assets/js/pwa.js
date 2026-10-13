@@ -187,45 +187,25 @@
     localStorage.setItem("mx_update_toast", Date.now().toString());
 
     const toast = document.createElement("div");
-    toast.textContent = "Nouvelle version disponible. Touchez pour rafraîchir.";
-    toast.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      right: 20px;
-      background: #D4AF37;
-      color: #000;
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-weight: 700;
-      text-align: center;
-      z-index: 10001;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    `;
-
-    toast.onclick = () => window.location.reload();
+    toast.className = "mx-toast mx-toast--update";
+    toast.setAttribute("role", "button");
+    toast.setAttribute("tabindex", "0");
+    toast.textContent = "Nouvelle version disponible · Touchez pour actualiser";
+    const reload = () => window.location.reload();
+    toast.onclick = reload;
+    toast.onkeydown = (event) => {
+      if (event.key === "Enter" || event.key === " ") reload();
+    };
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 8000);
   }
 
   function showInstallSuccessToast() {
     const toast = document.createElement("div");
-    toast.textContent = "Mr XPRONOS est installé sur votre appareil !";
-    toast.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      right: 20px;
-      background: #4CAF50;
-      color: white;
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-weight: 700;
-      text-align: center;
-      z-index: 10001;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    `;
+    toast.className = "mx-toast mx-toast--success";
+    toast.setAttribute("role", "status");
+    toast.setAttribute("aria-live", "polite");
+    toast.textContent = "Mr XPRONOS est installé sur votre appareil.";
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 5000);
   }

@@ -81,9 +81,9 @@
         </div>
     </main>
 
-    <div id="bonus-modal" class="modal" onclick="closeBonusModal()">
+    <div id="bonus-modal" class="modal" role="dialog" aria-modal="true" onclick="closeBonusModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <span class="close" onclick="closeBonusModal()">&times;</span>
+            <button class="close" type="button" aria-label="Fermer" onclick="closeBonusModal()">&times;</button>
             <img id="bonus-modal-image" src="" alt="" class="modal-image" loading="lazy">
             <h3 id="bonus-modal-title"></h3>
             <div id="bonus-modal-description"></div>
@@ -92,7 +92,7 @@
         </div>
     </div>
 
-    <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
+    <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;" role="dialog" aria-modal="true" aria-label="Installer Mr XPRONOS sur iPhone">
         <div class="ios-guide-content">
             <h3>📱 Installer Mr XPRONOS sur iPhone</h3>
             <div class="ios-guide-steps">

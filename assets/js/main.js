@@ -312,22 +312,10 @@ function renderSafeRichContent(content = "") {
 ======================================================= */
 function showToast(message, type = "info", duration = 4000) {
   const toast = document.createElement("div");
+  toast.className = `mx-toast mx-toast--${type}`;
+  toast.setAttribute("role", "status");
+  toast.setAttribute("aria-live", "polite");
   toast.textContent = message;
-  toast.style.cssText = `
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: ${
-      type === "success" ? "#4CAF50" : type === "error" ? "#f44336" : "#2196F3"
-    };
-    color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    z-index: 10000;
-    font-weight: 600;
-    max-width: 90vw;
-  `;
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), duration);
 }
@@ -604,14 +592,9 @@ function buildPushPromptEl() {
 
   el = document.createElement("div");
   el.id = "push-permission";
-  el.style.cssText = `
-    position: fixed;
-    left: 12px;
-    right: 12px;
-    bottom: 14px;
-    z-index: 10060;
-    display: none;
-  `;
+  el.setAttribute("role", "dialog");
+  el.setAttribute("aria-live", "polite");
+  el.style.display = "none";
   document.body.appendChild(el);
   return el;
 }
@@ -624,23 +607,16 @@ function showPushPrompt() {
 
   if (mode === "denied") {
     el.innerHTML = `
-      <div style="
-        background:#1A1A1A;
-        border:1px solid rgba(212,175,55,.55);
-        border-radius:16px;
-        padding:12px;
-        box-shadow:0 18px 60px rgba(0,0,0,.6);
-      ">
-        <div style="font-weight:900;color:#D4AF37;margin-bottom:6px;">Notifications bloquées</div>
-        <div style="color:#ddd;font-size:.92rem;margin-bottom:10px;">
-          Vous avez bloqué les notifications pour ce site.
-          <br><br>
-          <strong>Pour réactiver :</strong><br>
-          Chrome → (i) / cadenas → Paramètres du site → Notifications → Autoriser
+      <div class="mx-push-card is-denied">
+        <div class="mx-push-kicker">MR XPRONOS · ALERTES</div>
+        <div class="mx-push-title">Notifications bloquées</div>
+        <div class="mx-push-text">
+          Les notifications sont désactivées dans votre navigateur.<br>
+          Pour les réactiver : paramètres du site → Notifications → Autoriser.
         </div>
-        <div style="display:flex;gap:10px;">
-          <button type="button" id="push-close" class="btn btn-secondary" style="flex:1;">Fermer</button>
-          <button type="button" id="push-remind" class="btn btn-primary" style="flex:1;">Me le rappeler</button>
+        <div class="mx-popup-actions">
+          <button type="button" id="push-close" class="btn btn-secondary">Fermer</button>
+          <button type="button" id="push-remind" class="btn btn-primary">Me le rappeler</button>
         </div>
       </div>
     `;
@@ -656,20 +632,13 @@ function showPushPrompt() {
   }
 
   el.innerHTML = `
-    <div style="
-      background:#1A1A1A;
-      border:1px solid rgba(212,175,55,.55);
-      border-radius:16px;
-      padding:12px;
-      box-shadow:0 18px 60px rgba(0,0,0,.6);
-    ">
-      <div style="font-weight:900;color:#D4AF37;margin-bottom:6px;">Activer les notifications ?</div>
-      <div style="color:#ddd;font-size:.92rem;margin-bottom:10px;">
-        Recevez une alerte quand de nouveaux coupons sont disponibles.
-      </div>
-      <div style="display:flex;gap:10px;">
-        <button type="button" id="push-allow" class="btn btn-primary" style="flex:1;">Activer</button>
-        <button type="button" id="push-later" class="btn btn-secondary" style="flex:1;">Plus tard</button>
+    <div class="mx-push-card">
+      <div class="mx-push-kicker">MR XPRONOS · ALERTES</div>
+      <div class="mx-push-title">Activer les notifications ?</div>
+      <div class="mx-push-text">Recevez une alerte lorsqu’un nouveau coupon est disponible.</div>
+      <div class="mx-popup-actions">
+        <button type="button" id="push-allow" class="btn btn-primary">Activer</button>
+        <button type="button" id="push-later" class="btn btn-secondary">Plus tard</button>
       </div>
     </div>
   `;

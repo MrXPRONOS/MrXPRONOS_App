@@ -1139,7 +1139,7 @@
       const leagueLogo = getLeagueLogo(match);
 
       return (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3">
+        <div className="mx-live-modal-backdrop fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3" role="dialog" aria-modal="true">
           <div className="mx-live-modal w-full max-w-5xl max-h-[92vh] overflow-hidden">
             <div className="p-4 border-b border-[#2a2a2a]">
               <div className="flex justify-between items-start gap-3">
@@ -1164,7 +1164,7 @@
                   </div>
                 </div>
 
-                <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#1a1a1a] shrink-0" type="button">
+                <button onClick={onClose} className="mx-live-modal-close p-2 rounded-lg hover:bg-[#1a1a1a] shrink-0" type="button" aria-label="Fermer">
                   <UiIcon name="x" />
                 </button>
               </div>
@@ -1302,7 +1302,7 @@
       const isSuccess = item?.outcome === "success";
 
       return (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3">
+        <div className="mx-live-modal-backdrop fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3" role="dialog" aria-modal="true">
           <div className="mx-live-modal w-full max-w-4xl max-h-[92vh] overflow-hidden">
             <div className="p-4 border-b border-[#2a2a2a]">
               <div className="flex justify-between items-start gap-3">
@@ -1335,7 +1335,7 @@
                   </div>
                 </div>
 
-                <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#1a1a1a] shrink-0" type="button">
+                <button onClick={onClose} className="mx-live-modal-close p-2 rounded-lg hover:bg-[#1a1a1a] shrink-0" type="button" aria-label="Fermer">
                   <UiIcon name="x" />
                 </button>
               </div>
@@ -2059,7 +2059,7 @@
           />
 
           {toast && (
-            <div className="fixed top-4 right-3 left-3 md:left-auto md:right-4 z-50 md:w-full md:max-w-sm bg-[#121212] border border-[#2b2b2b] border-l-4 border-[#D4AF37] rounded-2xl shadow-2xl p-4">
+            <div className="mx-live-toast fixed top-4 right-3 left-3 md:left-auto md:right-4 z-50 md:w-full md:max-w-sm bg-[#121212] border border-[#2b2b2b] border-l-4 border-[#D4AF37] rounded-2xl shadow-2xl p-4">
               <div className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-xl bg-[#D4AF37]/12 border border-[#D4AF37]/25 flex items-center justify-center shrink-0">
                   <UiIcon name="bell" className="text-[#D4AF37]" />
@@ -2068,7 +2068,7 @@
                   <div className="font-bold text-sm">{toast.title}</div>
                   <div className="text-xs text-gray-300 mt-1 whitespace-pre-line safe-wrap">{toast.message}</div>
                 </div>
-                <button onClick={() => setToast(null)} className="text-gray-500 hover:text-white shrink-0" type="button">
+                <button onClick={() => setToast(null)} className="mx-live-toast-close text-gray-500 hover:text-white shrink-0" type="button" aria-label="Fermer la notification">
                   <UiIcon name="x" />
                 </button>
               </div>

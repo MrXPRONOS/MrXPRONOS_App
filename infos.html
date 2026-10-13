@@ -109,9 +109,9 @@
         </div>
     </main>
 
-    <div id="news-modal" class="modal" onclick="closeNewsModal()">
+    <div id="news-modal" class="modal" role="dialog" aria-modal="true" onclick="closeNewsModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <span class="close" onclick="closeNewsModal()">&times;</span>
+            <button class="close" type="button" aria-label="Fermer" onclick="closeNewsModal()">&times;</button>
             <img id="news-modal-image" src="" alt="" class="modal-image" loading="lazy">
             <h3 id="news-modal-title"></h3>
             <div id="news-modal-content"></div>
@@ -119,7 +119,7 @@
         </div>
     </div>
 
-    <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
+    <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;" role="dialog" aria-modal="true" aria-label="Installer Mr XPRONOS sur iPhone">
         <div class="ios-guide-content">
             <h3>📱 Installer Mr XPRONOS sur iPhone</h3>
             <div class="ios-guide-steps">
