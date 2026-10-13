@@ -1,4 +1,5 @@
 import { fetchSharedEspnScoreboard, fetchSharedEspnSummary, safeEspnDate, parseEspnNumber } from "../_shared/espn.ts";
+import { fetchFreeLiveProviders, FOOTBALL_PROVIDER_QUALITY } from "../_shared/football_free_sources.ts";
 // live.ts (Supabase Edge Function / Deno)
 // =======================================================
 // PATCHES inclus :
@@ -419,7 +420,7 @@ function getSourceMatchId(match: any, sourceName: string) {
   return String(match?.id || match?.source_match_id || "");
 }
 
-function sourceRowFromMatch(match: any, sourceName: "api_original" | "espn") {
+function sourceRowFromMatch(match: any, sourceName: string) {
   const liveStats = ensureLiveStatsShape(getMatchLiveStats(match));
   const canonical = buildCanonicalMatchId(match);
 
@@ -440,6 +441,117 @@ function sourceRowFromMatch(match: any, sourceName: "api_original" | "espn") {
     raw_json: match,
     updated_at: nowIso(),
   };
+}
+
+function providerName(match: any): string {
+  const explicit = String(
+    match?.source_name || match?.raw_data?.source || match?.provider || "",
+  ).toLowerCase();
+  if (explicit) return explicit === "api_original" ? "bsd" : explicit;
+  if (/^\d+$/.test(String(match?.id || ""))) return "bsd";
+  const prefix = String(match?.id || "").split(":")[0].toLowerCase();
+  return prefix || "unknown";
+}
+
+function providerQuality(match: any): number {
+  const name = providerName(match);
+  return FOOTBALL_PROVIDER_QUALITY[name] ?? (name === "bsd" ? 96 : 60);
+}
+
+function mergeProviderRows(rows: any[]) {
+  const sourceRows: any[] = [];
+  const sorted = [...(rows || [])].sort((a, b) => providerQuality(b) - providerQuality(a));
+  const merged: any[] = [];
+
+  for (const incoming of sorted) {
+    const source = providerName(incoming);
+    sourceRows.push(sourceRowFromMatch(incoming, source));
+
+    let bestIndex = -1;
+    let bestScore = 0;
+    for (let i = 0; i < merged.length; i++) {
+      const score = sameMatchScore(merged[i], incoming);
+      if (score > bestScore) {
+        bestIndex = i;
+        bestScore = score;
+      }
+    }
+
+    if (bestIndex < 0 || bestScore < 0.72) {
+      merged.push({
+        ...incoming,
+        raw_data: {
+          ...(incoming?.raw_data || {}),
+          merge_meta: {
+            ...(incoming?.raw_data?.merge_meta || {}),
+            canonical_match_id: buildCanonicalMatchId(incoming),
+            sources: [source],
+            confidence_score: providerQuality(incoming),
+            primary_source: source,
+            merged_at: nowIso(),
+          },
+          stats_sources: [
+            ...new Set([
+              ...((incoming?.raw_data?.stats_sources || []) as string[]),
+              ...(statsCompleteness(getMatchLiveStats(incoming)).core_complete > 0 ? [source] : []),
+            ]),
+          ],
+        },
+      });
+      continue;
+    }
+
+    const current = merged[bestIndex];
+    const currentSource = providerName(current);
+    const currentQuality = providerQuality(current);
+    const incomingQuality = providerQuality(incoming);
+    const base = incomingQuality > currentQuality ? incoming : current;
+    const extra = incomingQuality > currentQuality ? current : incoming;
+    const combinedStats = mergeLiveStats(getMatchLiveStats(base), getMatchLiveStats(extra), false);
+    const sources = [
+      ...new Set([
+        ...((current?.raw_data?.merge_meta?.sources || [currentSource]) as string[]),
+        source,
+      ]),
+    ];
+    const statsSources = [
+      ...new Set([
+        ...((current?.raw_data?.stats_sources || []) as string[]),
+        ...((incoming?.raw_data?.stats_sources || []) as string[]),
+        ...(statsCompleteness(getMatchLiveStats(incoming)).core_complete > 0 ? [source] : []),
+      ]),
+    ];
+
+    merged[bestIndex] = {
+      ...base,
+      // Fill metadata gaps without downgrading the highest-authority provider.
+      home_logo: base?.home_logo || extra?.home_logo || null,
+      away_logo: base?.away_logo || extra?.away_logo || null,
+      league_name: base?.league_name || extra?.league_name || "Football",
+      current_minute: Math.max(
+        safeNumber(base?.current_minute ?? base?.minute, 0),
+        safeNumber(extra?.current_minute ?? extra?.minute, 0),
+      ),
+      live_stats: combinedStats,
+      stats_last_updated_at:
+        base?.stats_last_updated_at || extra?.stats_last_updated_at || null,
+      raw_data: {
+        ...(extra?.raw_data || {}),
+        ...(base?.raw_data || {}),
+        live_stats: combinedStats,
+        stats_sources: statsSources,
+        merge_meta: {
+          ...(current?.raw_data?.merge_meta || {}),
+          canonical_match_id: buildCanonicalMatchId(base),
+          sources,
+          confidence_score: Math.min(100, Math.max(currentQuality, incomingQuality) + (sources.length - 1) * 2),
+          primary_source: providerName(base),
+          merged_at: nowIso(),
+        },
+      },
+    };
+  }
+  return { matches: merged, sourceRows };
 }
 
 function mergedRowFromMatch(match: any) {
@@ -3841,22 +3953,30 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[],
 
   for (const original of originalMatches || []) {
     const key = buildCanonicalMatchId(original);
+    const originalSource = providerName(original);
+    const existingSources = Array.isArray(original?.raw_data?.merge_meta?.sources)
+      ? original.raw_data.merge_meta.sources
+      : [originalSource];
     const match = {
       ...original,
       raw_data: {
         ...(original?.raw_data || {}),
         merge_meta: {
+          ...(original?.raw_data?.merge_meta || {}),
           canonical_match_id: key,
-          sources: ["api_original"],
-          confidence_score: 70,
-          primary_source: "api_original",
+          sources: existingSources,
+          confidence_score: safeNumber(
+            original?.raw_data?.merge_meta?.confidence_score,
+            providerQuality(original),
+          ),
+          primary_source: original?.raw_data?.merge_meta?.primary_source || originalSource,
           merged_at: nowIso(),
         },
       },
     };
 
     entries.push({ key, match, source: "api_original" });
-    sourceRows.push(sourceRowFromMatch(original, "api_original"));
+    sourceRows.push(sourceRowFromMatch(original, originalSource));
   }
 
   let duplicatesMerged = 0;
