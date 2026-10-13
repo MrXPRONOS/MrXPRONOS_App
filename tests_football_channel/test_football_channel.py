@@ -109,6 +109,70 @@ class FootballChannelTests(unittest.TestCase):
         finally:
             m.ROOT = old_root
 
+    @patch.object(m, "verify_espn_fixtures_before_publish")
+    def test_preflight_avant_match_applique_horaire_et_stade_espn(self, verify):
+        verify.return_value = {
+            "ok": True,
+            "quality": 100,
+            "reason": "confirmed",
+            "covered": 1,
+            "missing": 0,
+            "total": 1,
+            "verified": [{
+                "home": "Arsenal",
+                "away": "Chelsea",
+                "event_date": "2026-10-10T18:30:00+00:00",
+                "venue": "Emirates Stadium",
+            }],
+            "enrichment": {},
+        }
+        item = m.Publication(
+            "avant_match",
+            "avant_match:1",
+            "<p>Avant-match</p>",
+            card={"home": "Arsenal", "away": "Chelsea", "time": "18:00"},
+            verification={
+                "type": "fixture_list",
+                "kind": "avant_match",
+                "fixtures": [{
+                    "home": "Arsenal",
+                    "away": "Chelsea",
+                    "event_date": "2026-10-10T18:00:00+00:00",
+                }],
+            },
+        )
+        sender = type("S", (), {"session": object()})()
+        self.assertTrue(m.espn_preflight(sender, item))
+        self.assertEqual(item.card["time"], "18:30")
+        self.assertIn("Emirates Stadium", item.text)
+
+    @patch.object(m, "verify_espn_before_publish")
+    def test_preflight_mi_temps_ajoute_stats_espn_fraiches(self, verify):
+        verify.return_value = {
+            "ok": True,
+            "quality": 100,
+            "reason": "confirmed",
+            "event_id": "401",
+            "enrichment": {
+                "stats": {
+                    "home": {"shots_on_target": "5", "corners": "4", "possession": "61%"},
+                    "away": {"shots_on_target": "2", "corners": "1", "possession": "39%"},
+                },
+                "info": {},
+            },
+        }
+        item = m.Publication(
+            "mi_temps",
+            "ht:401",
+            "<p>Mi-temps</p>",
+            verification={"event_id": "401", "kind": "mi_temps"},
+        )
+        sender = type("S", (), {"session": object()})()
+        self.assertTrue(m.espn_preflight(sender, item))
+        self.assertIn("Données ESPN à la pause", item.text)
+        self.assertIn("Tirs cadrés", item.text)
+        self.assertIn("5 – 2", item.text)
+
     @patch.object(m, "verify_espn_before_publish")
     def test_preflight_match_bloque_si_espn_ne_confirme_pas(self, verify):
         verify.return_value = {"ok": False, "quality": 0, "reason": "score_mismatch"}
