@@ -1,0 +1,415 @@
+"""Audited MR XPRONOS Actu Foot event templates (batch 1).
+
+This module renders only verified dynamic data on top of the five 1122x1402
+backgrounds generated for the Actu Foot event library.
+
+Important:
+- backgrounds already contain all decoration and titles;
+- this code never redraws frames;
+- coordinates are safe interior boxes from the 2026-10-13 visual audit;
+- absent data stays absent: never invent a score, player, reason or source.
+"""
+from __future__ import annotations
+
+import re
+from functools import lru_cache
+from pathlib import Path
+from typing import Any
+
+from PIL import Image, ImageDraw, ImageFont
+
+ROOT = Path(__file__).resolve().parents[1]
+ASSETS = ROOT / "assets" / "images" / "arty_football" / "events"
+W, H = 1122, 1402
+
+PALE = (247, 249, 252)
+GOLD = (241, 193, 92)
+MUTED = (190, 198, 207)
+
+FONT_BOLD = (
+    "/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed-Bold.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    "/usr/share/fonts/truetype/lato/Lato-Bold.ttf",
+    "C:/Windows/Fonts/arialbd.ttf",
+)
+FONT_REG = (
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "/usr/share/fonts/truetype/lato/Lato-Regular.ttf",
+    "C:/Windows/Fonts/arial.ttf",
+)
+
+EVENT_TEMPLATE_FILES = {
+    "poteau": "poteau.png",
+    "occasion_manquee": "occasion_manquee.png",
+    "arret_decisif": "arret_decisif.png",
+    "carton_jaune_full": "carton_jaune_full.png",
+    "carton_jaune_unknown": "carton_jaune_unknown.png",
+}
+EVENT_CATEGORIES = tuple(EVENT_TEMPLATE_FILES)
+EVENT_ALIASES = {"carton_jaune"}
+
+# Each box is the safe interior area, not the visible outer gold frame.
+SPECS: dict[str, dict[str, tuple[int, int, int, int]]] = {
+    "poteau": {
+        "logo_home": (86, 816, 186, 916),
+        "team_home": (72, 922, 332, 960),
+        "score_home": (398, 820, 516, 925),
+        "score_away": (594, 820, 712, 925),
+        "logo_away": (936, 816, 1036, 916),
+        "team_away": (785, 922, 1045, 960),
+        "minute": (433, 956, 687, 1001),
+        "competition": (130, 1050, 992, 1094),
+        "player": (100, 1125, 1022, 1180),
+        "player_team": (170, 1190, 952, 1235),
+        "info": (90, 1245, 1032, 1318),
+    },
+    "occasion_manquee": {
+        "logo_home": (86, 790, 184, 884),
+        "team_home": (70, 888, 332, 924),
+        "score_home": (394, 788, 514, 894),
+        "score_away": (593, 788, 713, 894),
+        "logo_away": (938, 790, 1036, 884),
+        "team_away": (786, 888, 1048, 924),
+        "player": (70, 936, 410, 985),
+        "minute": (462, 936, 660, 985),
+        "player_team": (718, 936, 1050, 985),
+        "competition": (405, 1005, 765, 1046),
+        "info": (75, 1070, 1047, 1315),
+    },
+    "arret_decisif": {
+        "logo_home": (86, 812, 184, 906),
+        "team_home": (70, 914, 332, 952),
+        "score_home": (394, 807, 516, 920),
+        "score_away": (592, 807, 714, 920),
+        "logo_away": (938, 812, 1036, 906),
+        "team_away": (786, 914, 1048, 952),
+        "minute": (426, 949, 693, 994),
+        "competition": (130, 1045, 992, 1090),
+        "player": (100, 1120, 1022, 1178),
+        "player_team": (170, 1190, 952, 1235),
+        "info": (90, 1245, 1032, 1315),
+    },
+    "carton_jaune_full": {
+        "logo_home": (84, 777, 182, 875),
+        "team_home": (70, 884, 333, 922),
+        "score_home": (395, 775, 517, 878),
+        "score_away": (592, 775, 714, 878),
+        "logo_away": (940, 777, 1038, 875),
+        "team_away": (786, 884, 1050, 922),
+        "minute": (458, 906, 700, 952),
+        "player": (188, 999, 606, 1053),
+        "reason": (714, 999, 1044, 1053),
+        "competition": (130, 1105, 992, 1145),
+        "info": (85, 1160, 1037, 1295),
+    },
+    "carton_jaune_unknown": {
+        "logo_home": (84, 777, 182, 875),
+        "team_home": (70, 884, 333, 922),
+        "score_home": (395, 775, 517, 878),
+        "score_away": (592, 775, 714, 878),
+        "logo_away": (940, 777, 1038, 875),
+        "team_away": (786, 884, 1050, 922),
+        "minute": (458, 906, 700, 952),
+        "competition": (270, 1045, 1038, 1090),
+        "context": (270, 1110, 1038, 1210),
+        "source": (270, 1230, 1038, 1280),
+    },
+}
+
+# Audit-derived typography rules.
+TEXT_STYLE = {
+    "team": dict(size=29, min_size=16, max_lines=1, bold=True),
+    "score": dict(size=78, min_size=38, max_lines=1, bold=True, color=PALE),
+    "minute": dict(size=28, min_size=16, max_lines=1, bold=True, color=GOLD),
+    "competition": dict(size=25, min_size=15, max_lines=1, bold=True, color=GOLD),
+    "player": dict(size=35, min_size=18, max_lines=1, bold=True),
+    "player_small": dict(size=27, min_size=15, max_lines=1, bold=True),
+    "team_context": dict(size=24, min_size=15, max_lines=1, bold=True),
+    "reason": dict(size=24, min_size=15, max_lines=1, bold=True),
+    "info": dict(size=25, min_size=15, max_lines=2, bold=False),
+    "info_large": dict(size=31, min_size=16, max_lines=6, bold=False),
+    "context": dict(size=29, min_size=16, max_lines=3, bold=True),
+    "source": dict(size=20, min_size=14, max_lines=1, bold=False, color=MUTED),
+}
+
+
+def clean(value: Any, cap: int = 1000) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]*>", "", str(value or ""))).strip()[:cap]
+
+
+@lru_cache(maxsize=128)
+def _font(size: int, bold: bool = True) -> ImageFont.ImageFont:
+    for path in (FONT_BOLD if bold else FONT_REG):
+        if Path(path).is_file():
+            return ImageFont.truetype(path, size)
+    return ImageFont.load_default()
+
+
+def _wrap(draw: ImageDraw.ImageDraw, text: str, face: ImageFont.ImageFont, width: int) -> list[str]:
+    words = text.split()
+    if not words:
+        return []
+    lines: list[str] = []
+    row = ""
+    for word in words:
+        candidate = (row + " " + word).strip()
+        bb = draw.textbbox((0, 0), candidate, font=face)
+        if bb[2] - bb[0] <= width:
+            row = candidate
+        elif row:
+            lines.append(row)
+            row = word
+        else:
+            # One unbreakable token: keep it and let the minimum-size fallback ellipsize.
+            lines.append(word)
+            row = ""
+    if row:
+        lines.append(row)
+    return lines
+
+
+def draw_fit(
+    draw: ImageDraw.ImageDraw,
+    value: Any,
+    box: tuple[int, int, int, int],
+    *,
+    size: int,
+    min_size: int,
+    max_lines: int = 1,
+    bold: bool = True,
+    color=PALE,
+    align: str = "center",
+) -> str:
+    text = clean(value)
+    if not text:
+        return ""
+    x1, y1, x2, y2 = box
+    safe_x = 10
+    safe_y = 6
+    avail_w = max(1, x2 - x1 - safe_x * 2)
+    avail_h = max(1, y2 - y1 - safe_y * 2)
+
+    lines: list[str] = []
+    face = _font(min_size, bold)
+    line_h = min_size + 4
+    for px in range(size, min_size - 1, -1):
+        candidate_face = _font(px, bold)
+        candidate_lines = _wrap(draw, text, candidate_face, avail_w)
+        bb = draw.textbbox((0, 0), "Ag", font=candidate_face)
+        candidate_h = max(1, bb[3] - bb[1]) + max(3, int(px * 0.20))
+        if (
+            candidate_lines
+            and len(candidate_lines) <= max_lines
+            and candidate_h * len(candidate_lines) <= avail_h
+            and all(
+                draw.textbbox((0, 0), row, font=candidate_face)[2]
+                - draw.textbbox((0, 0), row, font=candidate_face)[0]
+                <= avail_w
+                for row in candidate_lines
+            )
+        ):
+            face = candidate_face
+            lines = candidate_lines
+            line_h = candidate_h
+            break
+
+    if not lines:
+        face = _font(min_size, bold)
+        lines = _wrap(draw, text, face, avail_w)[:max_lines] or [text]
+        # Ellipsize the final visible line if the content still overflows.
+        visible = " ".join(lines)
+        if len(visible) < len(text) or any(
+            draw.textbbox((0, 0), row, font=face)[2] > avail_w for row in lines
+        ):
+            last = lines[-1]
+            while last and draw.textbbox((0, 0), last + "…", font=face)[2] > avail_w:
+                last = last[:-1]
+            lines[-1] = (last.rstrip() + "…") if last else "…"
+        bb = draw.textbbox((0, 0), "Ag", font=face)
+        line_h = max(1, bb[3] - bb[1]) + max(3, int(min_size * 0.20))
+
+    total_h = line_h * len(lines)
+    yy = (y1 + y2 - total_h) / 2 + line_h / 2
+    for row in lines:
+        if align == "left":
+            xx, anchor = x1 + safe_x, "lm"
+        elif align == "right":
+            xx, anchor = x2 - safe_x, "rm"
+        else:
+            xx, anchor = (x1 + x2) / 2, "mm"
+        draw.text((xx, yy), row, font=face, fill=color, anchor=anchor)
+        yy += line_h
+    return "\n".join(lines)
+
+
+def _logo(image: Image.Image, value: Any, box: tuple[int, int, int, int], padding: int = 10) -> bool:
+    url = clean(value, 500)
+    if not url:
+        return False
+    from programme_styles import load_logo
+
+    x1, y1, x2, y2 = box
+    max_w = max(1, x2 - x1 - padding * 2)
+    max_h = max(1, y2 - y1 - padding * 2)
+    source = load_logo(url, max(max_w, max_h))
+    if source is None:
+        return False
+    source = source.convert("RGBA")
+    source.thumbnail((max_w, max_h), Image.Resampling.LANCZOS)
+    cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
+    image.paste(source, (cx - source.width // 2, cy - source.height // 2), source)
+    return True
+
+
+def _score_pair(payload: dict[str, Any]) -> tuple[str, str]:
+    scores = payload.get("scores")
+    if isinstance(scores, (tuple, list)) and len(scores) >= 2:
+        return clean(scores[0], 4), clean(scores[1], 4)
+    home_score = clean(payload.get("home_score"), 4)
+    away_score = clean(payload.get("away_score"), 4)
+    if home_score or away_score:
+        return home_score, away_score
+    raw = clean(payload.get("score"), 20)
+    match = re.search(r"(\d{1,3})\s*[-–—:]\s*(\d{1,3})", raw)
+    return (match.group(1), match.group(2)) if match else ("", "")
+
+
+def _category(category: str, payload: dict[str, Any]) -> str:
+    if category != "carton_jaune":
+        return category
+    player = clean(
+        payload.get("player")
+        or payload.get("card_player")
+        or payload.get("booked_player")
+    )
+    return "carton_jaune_full" if player else "carton_jaune_unknown"
+
+
+def is_event_category(category: str) -> bool:
+    return category in EVENT_TEMPLATE_FILES or category in EVENT_ALIASES
+
+
+def template_path(category: str, payload: dict[str, Any] | None = None) -> Path:
+    resolved = _category(category, payload or {})
+    if resolved not in EVENT_TEMPLATE_FILES:
+        raise ValueError("Unknown Actu Foot event template: " + str(category))
+    return ASSETS / EVENT_TEMPLATE_FILES[resolved]
+
+
+def background(category: str, payload: dict[str, Any] | None = None) -> Image.Image:
+    path = template_path(category, payload)
+    if not path.is_file():
+        raise FileNotFoundError("Missing audited Actu Foot template asset: " + str(path))
+    with Image.open(path) as source:
+        image = source.convert("RGB")
+    if image.size != (W, H):
+        raise ValueError(f"Invalid Actu Foot template size for {path.name}: {image.size}")
+    return image
+
+
+def _common(
+    image: Image.Image,
+    draw: ImageDraw.ImageDraw,
+    spec: dict[str, tuple[int, int, int, int]],
+    payload: dict[str, Any],
+) -> None:
+    home = clean(payload.get("home"), 80)
+    away = clean(payload.get("away"), 80)
+    hs, aws = _score_pair(payload)
+    _logo(image, payload.get("home_logo"), spec["logo_home"])
+    _logo(image, payload.get("away_logo"), spec["logo_away"])
+    draw_fit(draw, home, spec["team_home"], **TEXT_STYLE["team"])
+    draw_fit(draw, away, spec["team_away"], **TEXT_STYLE["team"])
+    if hs:
+        draw_fit(draw, hs, spec["score_home"], **TEXT_STYLE["score"])
+    if aws:
+        draw_fit(draw, aws, spec["score_away"], **TEXT_STYLE["score"])
+    if "minute" in spec:
+        minute = clean(payload.get("minute") or payload.get("time"), 25)
+        if minute and minute.isdigit():
+            minute += "'"
+        draw_fit(draw, minute, spec["minute"], **TEXT_STYLE["minute"])
+
+
+def render_event(category: str, payload: dict[str, Any]) -> Image.Image:
+    resolved = _category(category, payload)
+    if resolved not in EVENT_TEMPLATE_FILES:
+        raise ValueError("Unknown Actu Foot event template: " + str(category))
+
+    image = background(resolved, payload)
+    draw = ImageDraw.Draw(image)
+    spec = SPECS[resolved]
+    _common(image, draw, spec, payload)
+
+    competition = clean(payload.get("competition") or payload.get("league"), 100)
+    source = clean(payload.get("source"), 120)
+    info = clean(
+        payload.get("info")
+        or payload.get("commentary")
+        or payload.get("description")
+        or payload.get("status"),
+        700,
+    )
+
+    if resolved == "poteau":
+        player = clean(payload.get("player") or payload.get("shooter"), 100)
+        player_team = clean(payload.get("player_team") or payload.get("team"), 100)
+        draw_fit(draw, competition, spec["competition"], **TEXT_STYLE["competition"])
+        draw_fit(draw, player, spec["player"], **TEXT_STYLE["player"])
+        draw_fit(draw, player_team, spec["player_team"], **TEXT_STYLE["team_context"])
+        draw_fit(draw, info or source, spec["info"], **TEXT_STYLE["info"])
+    elif resolved == "occasion_manquee":
+        player = clean(payload.get("player") or payload.get("shooter"), 100)
+        player_team = clean(payload.get("player_team") or payload.get("team"), 100)
+        draw_fit(draw, player, spec["player"], **TEXT_STYLE["player_small"])
+        draw_fit(draw, player_team, spec["player_team"], **TEXT_STYLE["team_context"])
+        draw_fit(draw, competition, spec["competition"], size=22, min_size=15, max_lines=1,
+                 bold=True, color=GOLD)
+        draw_fit(draw, info or source, spec["info"], **TEXT_STYLE["info_large"])
+    elif resolved == "arret_decisif":
+        goalkeeper = clean(
+            payload.get("goalkeeper")
+            or payload.get("keeper")
+            or payload.get("player"),
+            100,
+        )
+        goalkeeper_team = clean(
+            payload.get("goalkeeper_team")
+            or payload.get("player_team")
+            or payload.get("team"),
+            100,
+        )
+        draw_fit(draw, competition, spec["competition"], **TEXT_STYLE["competition"])
+        draw_fit(draw, goalkeeper, spec["player"], **TEXT_STYLE["player"])
+        draw_fit(draw, goalkeeper_team, spec["player_team"], **TEXT_STYLE["team_context"])
+        draw_fit(draw, info or source, spec["info"], **TEXT_STYLE["info"])
+    elif resolved == "carton_jaune_full":
+        player = clean(
+            payload.get("player")
+            or payload.get("card_player")
+            or payload.get("booked_player"),
+            100,
+        )
+        reason = clean(payload.get("reason") or payload.get("foul") or payload.get("detail"), 180)
+        detail = info
+        if source and source not in detail:
+            detail = (detail + " • " + source).strip(" •")
+        draw_fit(draw, player, spec["player"], **TEXT_STYLE["player_small"], align="left")
+        draw_fit(draw, reason, spec["reason"], **TEXT_STYLE["reason"], align="left")
+        draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
+                 max_lines=1, bold=True, color=GOLD)
+        draw_fit(draw, detail, spec["info"], size=27, min_size=15, max_lines=4, bold=False)
+    else:
+        context = clean(payload.get("reason") or payload.get("detail") or info, 400)
+        draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
+                 max_lines=1, bold=True, color=GOLD, align="left")
+        draw_fit(draw, context, spec["context"], **TEXT_STYLE["context"], align="left")
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"], align="left")
+
+    return image
+
+
+__all__ = [
+    "W", "H", "EVENT_CATEGORIES", "EVENT_TEMPLATE_FILES", "SPECS",
+    "is_event_category", "template_path", "background", "render_event",
+]

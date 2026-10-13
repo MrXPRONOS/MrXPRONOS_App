@@ -1429,8 +1429,17 @@ RENDERERS = {
 
 
 def render(category: str, payload: dict[str, Any]) -> Image.Image:
+    # 1122x1402 Actu Foot event backgrounds are audited separately from the
+    # legacy 1080x1350 Arty set. Route them first and never rescale them.
+    from actu_foot_event_templates import is_event_category, render_event
+    if is_event_category(category):
+        image = render_event(category, payload)
+        if image.size != (1122, 1402):
+            raise AssertionError("Actu Foot event graphic must be 1122x1402")
+        return image
+
     # Single pass: all decoration is baked into the blank background;
-    # the new renderer only draws verified dynamic fields and logos.
+    # the legacy renderer only draws verified dynamic fields and logos.
     from arty_football_templates import SUPPORTED as ARTY_CATEGORIES, overlay
     if category in ARTY_CATEGORIES:
         image = overlay(category, payload)
