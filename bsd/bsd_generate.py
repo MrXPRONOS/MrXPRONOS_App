@@ -12,6 +12,7 @@ from bsd_archive import MATCHES_FILE, _read_json
 from bsd_predict import HistoryIndex, predict_fixture
 from bsd_markets import MarketCalibrator
 from bsd_enrich import enrich_leagues
+from free_football_providers import FreeFootballProviders
 
 OUTPUT = Path("bsd/data_bsd.json")
 
@@ -65,7 +66,37 @@ def main():
             raise RuntimeError("Journee BSD incomplete : %s (%d/%d)" %
                                (d, len(batch.events), batch.total_reported))
         fixtures.extend(batch.events)
+    # Conserver les IDs BSD indispensables au moteur, mais tenter d'abord
+    # les sources gratuites pour les noms/logos de compétition afin d'éviter
+    # un appel catalogue BSD purement métadonnées.
+    free_hub = FreeFootballProviders(session=client.session)
+    free_matches = []
+    for i in range(args.days):
+        d = target + timedelta(days=i)
+        for result in free_hub.day(d):
+            free_matches.extend(result.events)
+    free_metadata_matches = 0
+    for fixture in fixtures:
+        base = {
+            "home_team": (fixture.get("home_team") or {}).get("name")
+                if isinstance(fixture.get("home_team"), dict) else fixture.get("home_team"),
+            "away_team": (fixture.get("away_team") or {}).get("name")
+                if isinstance(fixture.get("away_team"), dict) else fixture.get("away_team"),
+            "event_date": fixture.get("event_date"),
+        }
+        match = free_hub.best_match(base, free_matches, threshold=.68)
+        if not match:
+            continue
+        if not fixture.get("league_name") and match.get("league"):
+            fixture["league_name"] = match["league"]
+        for side in ("home", "away"):
+            if not fixture.get(side + "_logo") and match.get(side + "_logo"):
+                fixture[side + "_logo"] = match[side + "_logo"]
+        free_metadata_matches += 1
+
     league_diag = enrich_leagues(fixtures, client)
+    league_diag["free_metadata_matches"] = free_metadata_matches
+    league_diag["free_provider_calls"] = dict(free_hub.calls)
     calibration_path = Path('bsd/calibration_bsd.json')
     if not calibration_path.exists():
         raise RuntimeError('Calibration BSD absente : lancer bsd_calibrate.py --year 2025')
