@@ -1903,6 +1903,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                             "home_logo": obj_home.get("logo") if isinstance(obj_home, dict) else "",
                             "away_logo": obj_away.get("logo") if isinstance(obj_away, dict) else "",
                             "source": "BSD V2", "day": now.strftime("%d/%m/%Y"),
+                            "event_date": kick(event).astimezone(timezone.utc).isoformat(),
                         }
                         if publish(followed_final_publication(sig), ref=ref):
                             break
