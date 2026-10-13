@@ -53,7 +53,7 @@ MAX_MESSAGES_PER_RUN = 2
 LIMITS = {"flash": 2, "programme": 1, "avant_match": 2, "resultat": 2,
           "statistique": 1, "sondage": 1, "quiz": 1, "debat": 1,
           "reaction": 1, "viral": 1, "composition": 6, "kickoff": 8,
-          "goal": 14, "mi_temps": 8, "score_update": 32}
+          "goal": 14, "mi_temps": 8, "score_update": 32, "suivi_interrompu": 8}
 LEAGUE_TERMS = (
     "champions league", "premier league", "ligue 1", "la liga", "laliga",
     "serie a", "bundesliga", "europa league", "coupe du monde", "world cup",
@@ -94,6 +94,7 @@ CATEGORY_LABELS = {
     "kickoff": "▶️ COUP D’ENVOI",
     "goal": "⚽ BUT",
     "score_update": "📊 SCORE LIVE",
+    "suivi_interrompu": "⚠️ RENCONTRE INTERROMPUE",
     "mi_temps": "⏸️ MI-TEMPS",
 }
 
@@ -1290,6 +1291,21 @@ def lifecycle_publication(signal: dict) -> Publication | None:
     )
 
 
+def followed_interruption_publication(signal: dict) -> Publication | None:
+    home, away = plain(signal.get("home"), 55), plain(signal.get("away"), 55)
+    if not home or not away:
+        return None
+    detail = plain(signal.get("status"), 90)
+    text = (
+        "<h3>⚠️ CHANGEMENT DE PROGRAMME • MATCH SUIVI</h3>"
+        "<p><b>" + esc(home) + " – " + esc(away) + "</b></p>"
+        "<p>La rencontre est reportée, suspendue ou annulée selon la source."
+        " Nous arrêtons les alertes de ce match tant que sa reprise n'est pas confirmée.</p>"
+        "<p><i>Statut : " + esc(detail or "changement signalé") + "</i></p>"
+    )
+    return Publication("suivi_interrompu", str(signal.get("key") or ""), post_label(text))
+
+
 def followed_final_publication(signal: dict) -> Publication | None:
     """Résultat du même match suivi, confirmé par source live."""
     home, away = plain(signal.get("home"), 55), plain(signal.get("away"), 55)
@@ -1351,6 +1367,8 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             state.mark(item.key, item.category, now)
             if item.category == "resultat" and ref:
                 followup.completed(state.followed, ref, now)
+            if item.category == "suivi_interrompu" and ref:
+                state.followed[ref]["cancelled"] = True
             state.save(now)
 
     try:
@@ -1375,7 +1393,9 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             match_key = ref
             if match_key in used_matches:
                 continue
-            post = followed_final_publication(signal) if kind == "resultat_final" else lifecycle_publication(signal)
+            post = (followed_final_publication(signal) if kind == "resultat_final"
+                    else followed_interruption_publication(signal) if kind == "suivi_interrompu"
+                    else lifecycle_publication(signal))
             if post is None:
                 continue
             publish(post, ref=ref)
@@ -1444,6 +1464,9 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
             if item.category == "resultat" and ref:
                 followup.completed(state.followed, ref, now)
                 print("FOLLOWUP_FINISHED", ref)
+            if item.category == "suivi_interrompu" and ref:
+                state.followed[ref]["cancelled"] = True
+                print("FOLLOWUP_INTERRUPTED", ref)
             state.save(now)
         return True
 
@@ -1581,6 +1604,8 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                             continue
                         post = (followed_final_publication(signal)
                                 if signal.get("kind") == "resultat_final"
+                                else followed_interruption_publication(signal)
+                                if signal.get("kind") == "suivi_interrompu"
                                 else lifecycle_publication(signal))
                         if post and publish(post, ref=ref):
                             used_matches.add(ref)
