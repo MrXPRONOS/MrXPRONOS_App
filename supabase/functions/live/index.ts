@@ -1,4 +1,11 @@
 import { fetchSharedEspnScoreboard, fetchSharedEspnSummary, safeEspnDate, parseEspnNumber } from "../_shared/espn.ts";
+import {
+  collectFreeMatchesForDate,
+  enrichMatchWithFreeStats,
+  mergeFreeProviderMatches,
+  FOOTBALL_PROVIDER_RANK,
+} from "../_shared/free_football.ts";
+
 // live.ts (Supabase Edge Function / Deno)
 // =======================================================
 // PATCHES inclus :
@@ -5564,6 +5571,57 @@ function statsAgeSeconds(match: any) {
   if (!Number.isFinite(ts)) return Number.POSITIVE_INFINITY;
   return Math.max(0, Math.floor((Date.now() - ts) / 1000));
 }
+
+async function enrichLiveMatchesWithFreeStats(matches: any[]) {
+  const maxMatches = Math.max(
+    1,
+    Math.min(12, safeEnvInt("FREE_STATS_MAX_MATCHES_PER_REFRESH", 6)),
+  );
+  const candidates = (matches || [])
+    .filter((m: any) => {
+      const minute = safeNumber(m?.current_minute ?? m?.minute, 0);
+      if (minute < 5 || minute > 90) return false;
+      return statsCompleteness(getMatchLiveStats(m)).core_complete < 3;
+    })
+    .sort((a: any, b: any) =>
+      statsCompleteness(getMatchLiveStats(a)).core_complete -
+      statsCompleteness(getMatchLiveStats(b)).core_complete
+    )
+    .slice(0, maxMatches);
+
+  const out = [...(matches || [])];
+  const indexById = new Map(out.map((m: any, i: number) => [String(m?.id), i]));
+  let calls = 0;
+  let enriched = 0;
+  const bySource: Record<string, number> = {};
+
+  for (const match of candidates) {
+    try {
+      const result = await enrichMatchWithFreeStats(match);
+      calls += safeNumber(result?.calls, 0);
+      if (!result?.source || safeNumber(result?.score, 0) <= 0) continue;
+      const idx = indexById.get(String(match?.id));
+      if (idx == null) continue;
+      out[idx] = {
+        ...out[idx],
+        ...result.match,
+        live_stats: mergeLiveStats(
+          getMatchLiveStats(out[idx]),
+          getMatchLiveStats(result.match),
+          false,
+        ),
+      };
+      const source = String(result.source);
+      bySource[source] = (bySource[source] || 0) + 1;
+      enriched++;
+    } catch (error) {
+      console.warn("Free stats enrichment unavailable", match?.id, error);
+    }
+  }
+
+  return { matches: out, calls, enriched, by_source: bySource };
+}
+
 
 async function enrichLiveMatchesWithBsdStats(matches: any[]) {
   const budget = bsdStatsCallBudget();
