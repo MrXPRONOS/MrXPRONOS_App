@@ -1,0 +1,101 @@
+name: Shorts - Coupons + validations - Test Telegram
+
+on:
+  push:
+    branches:
+      - feat/shorts-from-telegram-coupons-20261013
+    paths:
+      - 'config/shorts_validation_test_trigger.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shorts-coupons-validation-test-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout test branch with history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install free dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "numpy<2" "pillow<12" requests "moviepy==1.0.3"
+
+      - name: Build corrected prediction video
+        run: |
+          python scripts/create_short_from_telegram_coupons.py \
+            --data data.json \
+            --slot preview \
+            --max 5 \
+            --out prediction_coupon_short_safe_test.mp4 \
+            --work-dir telegram_out/video_coupon_short_safe
+
+      - name: Build validation videos from exact current Telegram validator
+        run: |
+          python scripts/create_validation_shorts_from_telegram.py \
+            --feed data.json \
+            --work-dir telegram_out/validation_shorts
+
+      - name: Verify exact Telegram test destination
+        env:
+          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: python scripts/telegram_test_guard.py
+
+      - name: Send corrected prediction video
+        env:
+          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          python scripts/send_video_test_telegram.py \
+            --video prediction_coupon_short_safe_test.mp4 \
+            --caption "🧪 TEST — Sélection corrigée
+          CTA remonté dans la safe zone.
+          Coupons réduits proportionnellement, sans étirement.
+          Priorité aux cotes les plus élevées."
+
+      - name: Send validation video - no loss
+        env:
+          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          python scripts/send_video_test_telegram.py \
+            --video telegram_out/validation_shorts/validation_all-win.mp4 \
+            --caption "🧪 TEST VALIDATION — Aucun pronostic perdu
+          Cartes gagnantes générées par le système de validation Telegram actuel, sans modification."
+
+      - name: Send validation video - one loss
+        env:
+          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          python scripts/send_video_test_telegram.py \
+            --video telegram_out/validation_shorts/validation_one-loss.mp4 \
+            --caption "🧪 TEST VALIDATION — Un seul pronostic perdu
+          Le système Telegram actuel reste silencieux sur la défaite : seules les cartes réellement validées gagnantes sont affichées."
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shorts-coupons-validation-test
+          path: |
+            prediction_coupon_short_safe_test.mp4
+            telegram_out/video_coupon_short_safe/
+            telegram_out/validation_shorts/
+          retention-days: 7
+          if-no-files-found: warn
