@@ -51,16 +51,16 @@
     }
   },
   "delivery": {
-    "items": 206,
+    "items": 209,
     "active_items": 194,
-    "retired_items": 12,
+    "retired_items": 15,
     "platform_states": {
-      "facebook:not_requested": 206,
-      "instagram:not_requested": 206,
-      "telegram:not_requested": 206,
-      "threads:not_requested": 206,
-      "tiktok:not_requested": 206,
-      "youtube:not_requested": 206
+      "facebook:not_requested": 209,
+      "instagram:not_requested": 209,
+      "telegram:not_requested": 209,
+      "threads:not_requested": 209,
+      "tiktok:not_requested": 209,
+      "youtube:not_requested": 209
     }
   },
   "assets": {
