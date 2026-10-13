@@ -277,6 +277,179 @@ def fetch_sportscore_live_recent(
     return out
 
 
+def find_sportscore_team_slug(session: requests.Session, team_name: str) -> str:
+    """Resolve a team name to the public SportScore team slug."""
+    name = _text(team_name)
+    if len(name) < 2:
+        return ""
+    payload = _cached_json(
+        session,
+        f"{SPORTSCORE_BASE}/api/v1/search/",
+        params={"q": name, "sport": "football", "limit": 8, "src": "mrxpronos"},
+        ttl=6 * 3600.0,
+    )
+    candidates = []
+    if isinstance(payload, dict):
+        candidates = payload.get("teams") or payload.get("results") or payload.get("data") or []
+    if not isinstance(candidates, list):
+        return ""
+    best_slug = ""
+    best_score = 0.0
+    for row in candidates:
+        if not isinstance(row, dict):
+            continue
+        row_name = _text(row.get("name") or row.get("team") or row.get("title"))
+        score = _similar(name, row_name)
+        slug = _text(row.get("slug"))
+        if not slug:
+            url = _text(row.get("url"))
+            parts = [part for part in url.split("/") if part]
+            if "team" in parts:
+                idx = parts.index("team")
+                if idx + 1 < len(parts):
+                    slug = parts[idx + 1]
+        if slug and score > best_score:
+            best_slug, best_score = slug, score
+    return best_slug if best_score >= 0.45 else ""
+
+
+def fetch_sportscore_team_schedule(
+    session: requests.Session,
+    team_name: str,
+    *,
+    limit: int = 12,
+) -> list[dict]:
+    slug = find_sportscore_team_slug(session, team_name)
+    if not slug:
+        return []
+    payload = _cached_json(
+        session,
+        f"{SPORTSCORE_BASE}/api/v1/team/",
+        params={
+            "sport": "football",
+            "slug": slug,
+            "limit": max(1, min(50, int(limit))),
+            "src": "mrxpronos",
+        },
+        ttl=900.0,
+    )
+    rows = []
+    if isinstance(payload, dict):
+        rows = (
+            payload.get("matches") or payload.get("fixtures") or payload.get("events")
+            or payload.get("recent") or payload.get("results") or []
+        )
+    out: list[dict] = []
+    for item in rows if isinstance(rows, list) else []:
+        if not isinstance(item, dict):
+            continue
+        source_id, match_slug = _sportscore_identity(item)
+        row = _canonical(
+            source="sportscore",
+            source_id=source_id,
+            home=item.get("home"),
+            away=item.get("away"),
+            event_date=item.get("time") or item.get("start_time"),
+            home_score=item.get("home_score"),
+            away_score=item.get("away_score"),
+            status=" ".join(filter(None, (_text(item.get("status")), _text(item.get("status_text"))))),
+            league=item.get("league") or item.get("competition"),
+            home_logo=item.get("home_logo"),
+            away_logo=item.get("away_logo"),
+            slug=match_slug,
+            raw=item,
+        )
+        if row:
+            out.append(row)
+    return out
+
+
+def fetch_sportscore_h2h(
+    session: requests.Session,
+    home_name: str,
+    away_name: str,
+    *,
+    limit: int = 20,
+) -> dict[str, Any]:
+    home_slug = find_sportscore_team_slug(session, home_name)
+    away_slug = find_sportscore_team_slug(session, away_name)
+    if not home_slug or not away_slug:
+        return {}
+    payload = _cached_json(
+        session,
+        f"{SPORTSCORE_BASE}/api/v1/h2h/",
+        params={
+            "sport": "football",
+            "team1": home_slug,
+            "team2": away_slug,
+            "limit": max(2, min(50, int(limit))),
+            "src": "mrxpronos",
+        },
+        ttl=1800.0,
+    )
+    if not isinstance(payload, dict):
+        return {}
+    meetings = payload.get("meetings") or payload.get("matches") or payload.get("results") or []
+    if not isinstance(meetings, list):
+        meetings = []
+
+    home_wins = away_wins = draws = 0
+    totals: list[int] = []
+    valid = 0
+    home_key, away_key = _norm(home_name), _norm(away_name)
+    for item in meetings:
+        if not isinstance(item, dict):
+            continue
+        h = _text(item.get("home"))
+        a = _text(item.get("away"))
+        hs, aws = _number(item.get("home_score")), _number(item.get("away_score"))
+        if hs is None or aws is None:
+            continue
+        hs, aws = int(hs), int(aws)
+        hkey, akey = _norm(h), _norm(a)
+        if not ({hkey, akey} & {home_key, away_key}):
+            continue
+        valid += 1
+        totals.append(hs + aws)
+        if hs == aws:
+            draws += 1
+        elif (hkey == home_key and hs > aws) or (akey == home_key and aws > hs):
+            home_wins += 1
+        else:
+            away_wins += 1
+
+    # Some SportScore responses also include a ready-made summary; meetings are
+    # preferred because they are independently checkable.
+    if valid < 2:
+        summary = payload.get("summary") if isinstance(payload.get("summary"), dict) else {}
+        try:
+            total = int(summary.get("total") or summary.get("meetings") or 0)
+            team1_wins = int(summary.get("team1_wins") or summary.get("home_wins") or 0)
+            team2_wins = int(summary.get("team2_wins") or summary.get("away_wins") or 0)
+            summary_draws = int(summary.get("draws") or 0)
+            if total >= 2 and team1_wins + team2_wins + summary_draws == total:
+                return {
+                    "total_matches": total,
+                    "home_wins": team1_wins,
+                    "away_wins": team2_wins,
+                    "draws": summary_draws,
+                    "avg_total_goals": summary.get("avg_total_goals"),
+                    "source": "sportscore",
+                }
+        except (TypeError, ValueError):
+            pass
+        return {}
+
+    return {
+        "total_matches": valid,
+        "home_wins": home_wins,
+        "away_wins": away_wins,
+        "draws": draws,
+        "avg_total_goals": (sum(totals) / len(totals)) if totals else None,
+        "source": "sportscore",
+    }
+
+
 def fetch_sportscore_detail(session: requests.Session, slug: str) -> dict:
     slug = _text(slug)
     if not slug:
