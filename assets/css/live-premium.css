@@ -1632,3 +1632,120 @@ body.mx-live-page{
     font-size:12px!important;
   }
 }
+
+
+/* =========================================================
+   PRONO LIVE — premium modal + realtime toast system
+========================================================= */
+.mx-live-page .mx-live-modal-backdrop{
+  z-index:2147482400!important;
+  padding:22px!important;
+  background:
+    radial-gradient(circle at 50% 8%,rgba(231,181,75,.07),transparent 30%),
+    rgba(1,7,12,.86)!important;
+  backdrop-filter:blur(13px) saturate(1.1)!important;
+  -webkit-backdrop-filter:blur(13px) saturate(1.1)!important;
+}
+.mx-live-page .mx-live-modal{
+  position:relative;
+  max-height:min(88dvh,880px)!important;
+  border:1px solid rgba(231,181,75,.26)!important;
+  border-radius:24px!important;
+  background:
+    radial-gradient(circle at 88% -10%,rgba(231,181,75,.11),transparent 28%),
+    linear-gradient(155deg,#0d1d29,#06131d)!important;
+  box-shadow:0 30px 90px rgba(0,0,0,.68),0 1px 0 rgba(255,255,255,.03) inset!important;
+  animation:mxLiveModalRise .22s ease-out both;
+}
+.mx-live-page .mx-live-modal::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:24px;
+  right:24px;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(239,189,84,.78),transparent);
+  pointer-events:none;
+  z-index:3;
+}
+@keyframes mxLiveModalRise{
+  from{opacity:0;transform:translateY(12px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.mx-live-page .mx-live-modal-close{
+  width:38px!important;
+  height:38px!important;
+  padding:0!important;
+  display:grid!important;
+  place-items:center!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-radius:12px!important;
+  background:rgba(4,15,23,.84)!important;
+  color:#c8d1d9!important;
+  transition:all .18s ease!important;
+}
+.mx-live-page .mx-live-modal-close:hover{
+  color:#efbd54!important;
+  border-color:rgba(239,189,84,.38)!important;
+  background:rgba(239,189,84,.07)!important;
+}
+.mx-live-page .mx-live-toast{
+  z-index:2147482250!important;
+  top:18px!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-left:3px solid #efbd54!important;
+  border-radius:16px!important;
+  background:
+    radial-gradient(circle at 90% -20%,rgba(239,189,84,.09),transparent 35%),
+    linear-gradient(150deg,rgba(13,29,41,.985),rgba(6,18,28,.985))!important;
+  box-shadow:0 20px 55px rgba(0,0,0,.5)!important;
+}
+.mx-live-page .mx-live-toast-close{
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border-radius:9px;
+  transition:background .18s ease,color .18s ease;
+}
+.mx-live-page .mx-live-toast-close:hover{
+  background:rgba(255,255,255,.05);
+}
+@media(max-width:700px){
+  .mx-live-page .mx-live-modal-backdrop{
+    padding:0!important;
+    align-items:flex-end!important;
+  }
+  .mx-live-page .mx-live-modal{
+    width:100%!important;
+    max-width:none!important;
+    max-height:calc(91dvh - env(safe-area-inset-bottom))!important;
+    border-left:0!important;
+    border-right:0!important;
+    border-bottom:0!important;
+    border-radius:22px 22px 0 0!important;
+  }
+  .mx-live-page .mx-live-modal::before{
+    top:7px;
+    left:42%;
+    right:42%;
+    height:3px;
+    border-radius:999px;
+    background:rgba(239,189,84,.48);
+  }
+  .mx-live-page .mx-live-modal-close{
+    width:35px!important;
+    height:35px!important;
+    border-radius:11px!important;
+  }
+  .mx-live-page .mx-live-toast{
+    top:10px!important;
+    left:9px!important;
+    right:9px!important;
+    padding:11px!important;
+    border-radius:14px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .mx-live-page .mx-live-modal{animation:none!important}
+}
