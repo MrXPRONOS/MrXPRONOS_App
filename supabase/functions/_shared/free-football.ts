@@ -3,9 +3,13 @@
 // Public SportScore API does NOT document betting-odds endpoints (2026-10-13).
 
 export const PROVIDER_QUALITY: Record<string, number> = {
+  // Internal routing weights, not vendor quality claims.
   espn: 98,
   bsd: 96,
+  "football-data.org": 94,
   sportscore: 91,
+  "api-football": 90,
+  sportsapipro: 88,
   openligadb: 84,
   thesportsdb: 80,
 };
