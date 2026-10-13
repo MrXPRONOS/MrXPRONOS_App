@@ -69,8 +69,8 @@ class MultiSourceTests(unittest.TestCase):
     def test_quality_and_fetch_order_are_intentional(self):
         self.assertGreater(PROVIDER_QUALITY["espn"], PROVIDER_QUALITY["bsd"])
         self.assertGreater(PROVIDER_QUALITY["bsd"], PROVIDER_QUALITY["sportscore"])
-        self.assertGreater(PROVIDER_QUALITY["sportscore"], PROVIDER_QUALITY["thesportsdb"])
-        self.assertGreater(PROVIDER_QUALITY["thesportsdb"], PROVIDER_QUALITY["openligadb"])
+        self.assertGreater(PROVIDER_QUALITY["sportscore"], PROVIDER_QUALITY["openligadb"])
+        self.assertGreater(PROVIDER_QUALITY["openligadb"], PROVIDER_QUALITY["thesportsdb"])
         self.assertEqual(FETCH_PRIORITY[-1], "bsd")
 
     def test_bsd_is_not_called_when_free_coverage_is_enough(self):
