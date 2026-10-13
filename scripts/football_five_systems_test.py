@@ -47,16 +47,17 @@ def main() -> int:
     unavailable: dict[str, str] = {}
     errors: dict[str, str] = {}
     cache: dict[str, list[dict]] = {}
-    api = ch.BSDClient(max_requests=45, max_retries=1)
+    api = ch.FreeFirstFootballClient(session=session)
 
     def matches(day):
         key = day.isoformat()
         if key not in cache:
             page = api.list_events(day, day, max_pages=8, ttl=0)
-            if not page.complete:
-                raise RuntimeError("Calendrier BSD incomplet pour " + key)
+            if not page.events:
+                raise RuntimeError("Calendrier provider mesh vide pour " + key)
             cache[key] = page.events
-            print("TEST_SOURCE_BSD", key, len(page.events), flush=True)
+            print("TEST_SOURCE_PROVIDER_MESH", key, len(page.events),
+                  page.source_counts, "bsd_used", page.bsd_used, flush=True)
         return cache[key]
 
     def deliver(name: str, builder, *, historical: str = "") -> None:
@@ -115,7 +116,7 @@ def main() -> int:
         deliver("community_vote", lambda: ch.community_vote_publication([first], virtual_time),
                 historical="scénario avant-match basé sur une vraie rencontre à venir")
     else:
-        unavailable["community_vote"] = "Aucun match à venir dans le calendrier BSD"
+        unavailable["community_vote"] = "Aucun match à venir dans le calendrier multi-source"
 
     finished = [e for e in ch.candidates(previous) if ch.final_score(e) is not None]
     if finished:

@@ -1,4 +1,19 @@
 import { fetchSharedEspnScoreboard, fetchSharedEspnSummary, safeEspnDate, parseEspnNumber } from "../_shared/espn.ts";
+import {
+  PROVIDER_QUALITY,
+  CAPABILITY_PRIORITY,
+  fetchSportScoreLive,
+  fetchSportScoreDay,
+  fetchSportScoreDetail,
+  fetchTheSportsDbDay,
+  findFreeProviderMatch,
+  mergeProviderEvents,
+  providerMatchScore,
+  explicitSportScoreOdds,
+  fetchFreeMatchStats,
+  fetchTheSportsDbEvent,
+  normalizeProviderStats,
+} from "../_shared/football_providers.ts";
 // live.ts (Supabase Edge Function / Deno)
 // =======================================================
 // PATCHES inclus :
@@ -97,6 +112,14 @@ const BSD_STATS_REFRESH_SECONDS = Math.max(
 const BSD_STATS_QUOTA_RESERVE = Math.max(
   250,
   Math.min(3000, safeEnvInt("BSD_STATS_QUOTA_RESERVE", 900)),
+);
+const BSD_LIVE_BACKFILL_SECONDS = Math.max(
+  120,
+  Math.min(3600, safeEnvInt("BSD_LIVE_BACKFILL_SECONDS", 600)),
+);
+const FREE_LIVE_MIN_MATCHES = Math.max(
+  0,
+  Math.min(20, safeEnvInt("FREE_LIVE_MIN_MATCHES", 2)),
 );
 
 const T_STATS_SOURCES = "live_stats_sources";
@@ -419,7 +442,7 @@ function getSourceMatchId(match: any, sourceName: string) {
   return String(match?.id || match?.source_match_id || "");
 }
 
-function sourceRowFromMatch(match: any, sourceName: "api_original" | "espn") {
+function sourceRowFromMatch(match: any, sourceName: string) {
   const liveStats = ensureLiveStatsShape(getMatchLiveStats(match));
   const canonical = buildCanonicalMatchId(match);
 
@@ -593,6 +616,77 @@ function bsdResults(payload: any): any[] {
   if (Array.isArray(payload?.data)) return payload.data;
   if (Array.isArray(payload?.events)) return payload.events;
   return [];
+}
+
+async function providerState(key: string) {
+  const { data, error } = await supabase
+    .from("football_provider_state")
+    .select("*")
+    .eq("key", key)
+    .maybeSingle();
+  if (error) {
+    console.warn("Provider state unavailable:", key, error.message);
+    return null;
+  }
+  return data;
+}
+
+async function setProviderState(
+  key: string,
+  provider: string,
+  values: { success?: boolean; count?: number; error?: string | null; meta?: any } = {},
+) {
+  const now = nowIso();
+  const row: any = {
+    key,
+    provider,
+    last_attempt_at: now,
+    last_count: Math.max(0, safeNumber(values.count, 0)),
+    last_error: values.error || null,
+    meta: values.meta || {},
+    updated_at: now,
+  };
+  if (values.success) row.last_success_at = now;
+  const { error } = await supabase
+    .from("football_provider_state")
+    .upsert(row, { onConflict: "key" });
+  if (error) console.warn("Provider state write failed:", key, error.message);
+}
+
+async function shouldCallBsdLive(freeMatches: any[]) {
+  if (!BSD_API_TOKEN) return false;
+  if ((freeMatches || []).length < FREE_LIVE_MIN_MATCHES) return true;
+  const state = await providerState("bsd_live_backfill");
+  const last = Date.parse(String(state?.last_success_at || ""));
+  if (!Number.isFinite(last)) return true;
+  return Date.now() - last >= BSD_LIVE_BACKFILL_SECONDS * 1000;
+}
+
+async function fetchFreeLiveProviders() {
+  const errors: Record<string, string> = {};
+  let sportscore: any[] = [];
+  let thesportsdb: any[] = [];
+  try {
+    sportscore = await fetchSportScoreLive();
+    await setProviderState("sportscore_live", "sportscore", { success: true, count: sportscore.length });
+  } catch (e: any) {
+    errors.sportscore = e?.message || String(e);
+    await setProviderState("sportscore_live", "sportscore", { error: errors.sportscore });
+  }
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const rows = await fetchTheSportsDbDay(today);
+    thesportsdb = rows.filter((m: any) => Boolean(m?.is_live));
+    await setProviderState("thesportsdb_live", "thesportsdb", { success: true, count: thesportsdb.length });
+  } catch (e: any) {
+    errors.thesportsdb = e?.message || String(e);
+    await setProviderState("thesportsdb_live", "thesportsdb", { error: errors.thesportsdb });
+  }
+  return {
+    matches: mergeProviderEvents([...sportscore, ...thesportsdb]),
+    counts: { sportscore: sportscore.length, thesportsdb: thesportsdb.length },
+    errors,
+  };
 }
 
 async function fetchBSDCoverage() {
@@ -3836,27 +3930,31 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[],
   const entries: Array<{
     key: string;
     match: any;
-    source: "api_original" | "espn" | "merged";
+    source: string;
   }> = [];
 
   for (const original of originalMatches || []) {
     const key = buildCanonicalMatchId(original);
+    const provider = String(
+      original?.source_name || original?.raw_data?.source || original?.source || "api_original",
+    ).toLowerCase();
+    const confidence = PROVIDER_QUALITY[provider] || safeNumber(original?.provider_quality, 70);
     const match = {
       ...original,
       raw_data: {
         ...(original?.raw_data || {}),
         merge_meta: {
           canonical_match_id: key,
-          sources: ["api_original"],
-          confidence_score: 70,
-          primary_source: "api_original",
+          sources: [provider],
+          confidence_score: confidence,
+          primary_source: provider,
           merged_at: nowIso(),
         },
       },
     };
 
-    entries.push({ key, match, source: "api_original" });
-    sourceRows.push(sourceRowFromMatch(original, "api_original"));
+    entries.push({ key, match, source: provider });
+    sourceRows.push(sourceRowFromMatch(original, provider));
   }
 
   let duplicatesMerged = 0;
@@ -5539,8 +5637,62 @@ async function reuseCachedStats(matches: any[]) {
   });
 }
 
+function bsdEventIdForMatch(match: any) {
+  const candidate =
+    match?.provider_ids?.bsd ??
+    match?.raw_data?.provider_ids?.bsd ??
+    (String(match?.source_name || match?.raw_data?.source || "").toLowerCase() === "bsd"
+      ? match?.source_match_id ?? match?.id
+      : null);
+  return /^\d+$/.test(String(candidate || "")) ? String(candidate) : "";
+}
+
 function isBsdNumericEvent(match: any) {
-  return /^\d+$/.test(String(match?.id || ""));
+  return Boolean(bsdEventIdForMatch(match));
+}
+
+const bsdIdLookupCache = new Map<string, string>();
+
+async function resolveBsdEventIdForMatch(match: any) {
+  const existing = bsdEventIdForMatch(match);
+  if (existing) return existing;
+  if (!BSD_API_TOKEN) return "";
+
+  const canonical = buildCanonicalMatchId(match);
+  if (bsdIdLookupCache.has(canonical)) return bsdIdLookupCache.get(canonical) || "";
+
+  const eventDate = safeEspnDate(getMatchEventDate(match));
+  const home = String(match?.home_team || "");
+  if (!eventDate || !home) {
+    bsdIdLookupCache.set(canonical, "");
+    return "";
+  }
+  const day = eventDate.slice(0, 10);
+
+  try {
+    const payload = await fetchBSD("/events/", {
+      date_from: day,
+      date_to: day,
+      team_name: home,
+      limit: "50",
+    });
+    let bestId = "";
+    let bestScore = 0;
+    for (const candidate of bsdResults(payload)) {
+      const score = sameMatchScore(match, candidate);
+      if (score > bestScore && candidate?.id != null) {
+        bestScore = score;
+        bestId = String(candidate.id);
+      }
+    }
+    if (bestScore < 0.72) bestId = "";
+    bsdIdLookupCache.set(canonical, bestId);
+    return bestId;
+  } catch (e) {
+    console.warn("BSD targeted id lookup unavailable", e);
+    bsdIdLookupCache.set(canonical, "");
+    return "";
+  }
 }
 
 function statsAgeSeconds(match: any) {
@@ -5552,6 +5704,68 @@ function statsAgeSeconds(match: any) {
   const ts = new Date(raw).getTime();
   if (!Number.isFinite(ts)) return Number.POSITIVE_INFINITY;
   return Math.max(0, Math.floor((Date.now() - ts) / 1000));
+}
+
+async function enrichLiveMatchesWithFreeStats(matches: any[]) {
+  const out = [...(matches || [])];
+  let calls = 0;
+  let enriched = 0;
+  let failed = 0;
+
+  const candidates = out
+    .map((match: any, index: number) => ({ match, index }))
+    .filter(({ match }) => {
+      const minute = safeNumber(match?.current_minute ?? match?.minute, 0);
+      if (minute < 5 || minute > 90) return false;
+      const completeness = statsCompleteness(getMatchLiveStats(match));
+      return completeness.core_complete < 3 || statsAgeSeconds(match) >= BSD_STATS_REFRESH_SECONDS;
+    })
+    .sort((a, b) => {
+      const ca = statsCompleteness(getMatchLiveStats(a.match)).core_complete;
+      const cb = statsCompleteness(getMatchLiveStats(b.match)).core_complete;
+      if (ca !== cb) return ca - cb;
+      return statsAgeSeconds(b.match) - statsAgeSeconds(a.match);
+    })
+    .slice(0, 6);
+
+  for (const { match, index } of candidates) {
+    try {
+      calls++;
+      const resolved = await fetchFreeMatchStats(match);
+      if (!resolved?.stats) continue;
+      const normalized = ensureLiveStatsShape(resolved.stats);
+      if (statsCompleteness(normalized).core_complete <= 0) continue;
+      const mergedStats = mergeLiveStats(getMatchLiveStats(match), normalized, true);
+      const source = String(resolved.source || "free_provider") + "_stats";
+      out[index] = {
+        ...out[index],
+        live_stats: mergedStats,
+        stats_last_updated_at: nowIso(),
+        raw_data: {
+          ...(out[index]?.raw_data || {}),
+          live_stats: mergedStats,
+          stats_last_updated_at: nowIso(),
+          stats_sources: [
+            ...new Set([
+              ...((out[index]?.raw_data?.stats_sources || []) as string[]),
+              source,
+            ]),
+          ],
+          stats_authority: source,
+          stats_corrected_at: nowIso(),
+        },
+      };
+      enriched++;
+    } catch (e: any) {
+      failed++;
+      console.warn("Free stats provider unavailable", {
+        match_id: match?.id,
+        error: e?.message || String(e),
+      });
+    }
+  }
+
+  return { matches: out, calls, enriched, failed };
 }
 
 async function enrichLiveMatchesWithBsdStats(matches: any[]) {
@@ -5568,7 +5782,6 @@ async function enrichLiveMatchesWithBsdStats(matches: any[]) {
 
   const candidates = (matches || [])
     .filter((m: any) => {
-      if (!isBsdNumericEvent(m)) return false;
       const minute = safeNumber(m?.current_minute ?? m?.minute, 0);
       if (minute < 10 || minute > 88) return false;
 
@@ -5595,8 +5808,10 @@ async function enrichLiveMatchesWithBsdStats(matches: any[]) {
 
   for (const match of candidates) {
     try {
+      const bsdEventId = await resolveBsdEventIdForMatch(match);
+      if (!bsdEventId) continue;
       calls++;
-      const payload = await fetchBSD(`/events/${match.id}/stats/`);
+      const payload = await fetchBSD(`/events/${bsdEventId}/stats/`);
       const freshStats = normalizeBsdStatsPayload(payload);
       const mergedStats = mergeLiveStats(getMatchLiveStats(match), freshStats, true);
       const idx = indexById.get(String(match.id));
@@ -5719,6 +5934,9 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
   let espnError: string | null = null;
   let bsdError: string | null = null;
   let bsdRateLimited = false;
+  let bsdLiveBackfillUsed = false;
+  let freeProviderCounts: Record<string, number> = { sportscore: 0, thesportsdb: 0 };
+  let freeProviderErrors: Record<string, string> = {};
   let snapshotReused = false;
   let coverage: any = null;
 
@@ -5730,28 +5948,59 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
   }
 
   if (!snapshotReused) {
-    let originalRawMatches: any[] = [];
+    // Free-first: ESPN + SportScore + TheSportsDB refreshent à chaque cycle.
+    // BSD n'est plus la source de découverte systématique: il backfill périodiquement
+    // ou lorsque la couverture gratuite est insuffisante.
+    const espnResult = await fetchEspnLiveMatchesForMerge();
+    espnError = espnResult.error;
 
-    coverage = await fetchBSDCoverage();
-    const liveNow = safeNumber(coverage?.live_now, -1);
+    const freeProviders = await fetchFreeLiveProviders();
+    freeProviderCounts = freeProviders.counts;
+    freeProviderErrors = freeProviders.errors;
+    let originalRawMatches: any[] = [...(freeProviders.matches || [])];
 
-    if (!options.skipBsd && liveNow !== 0) {
-      try {
-        const liveData = await fetchBSD("/events/live/");
-        originalRawMatches = bsdResults(liveData);
-      } catch (e: any) {
-        bsdError = e?.message || String(e);
-        bsdRateLimited = isBSDQuotaError(e);
-        if (bsdRateLimited) {
-          console.warn("⚠️ Quota BSD épuisé: ESPN + cache prennent le relais");
-        } else {
-          console.error("⚠️ BSD v2 live indisponible: ESPN prend le relais", e);
+    const freeCoveragePool = mergeProviderEvents([
+      ...originalRawMatches,
+      ...(espnResult.matches || []),
+    ]);
+    const callBsd = !options.skipBsd && await shouldCallBsdLive(freeCoveragePool);
+
+    if (callBsd) {
+      coverage = await fetchBSDCoverage();
+      const liveNow = safeNumber(coverage?.live_now, -1);
+      if (liveNow !== 0) {
+        try {
+          const liveData = await fetchBSD("/events/live/");
+          const bsdRows = bsdResults(liveData).map((m: any) => ({
+            ...m,
+            source_name: "bsd",
+            provider_quality: PROVIDER_QUALITY.bsd,
+            provider_ids: { ...(m?.provider_ids || {}), bsd: String(m?.id || "") },
+            raw_data: {
+              ...(m?.raw_data || {}),
+              source: "bsd",
+              provider_ids: { ...(m?.raw_data?.provider_ids || {}), bsd: String(m?.id || "") },
+            },
+          }));
+          originalRawMatches = mergeProviderEvents([...originalRawMatches, ...bsdRows]);
+          bsdLiveBackfillUsed = true;
+          await setProviderState("bsd_live_backfill", "bsd", {
+            success: true,
+            count: bsdRows.length,
+            meta: { reason: freeCoveragePool.length < FREE_LIVE_MIN_MATCHES ? "low_free_coverage" : "periodic_backfill" },
+          });
+        } catch (e: any) {
+          bsdError = e?.message || String(e);
+          bsdRateLimited = isBSDQuotaError(e);
+          await setProviderState("bsd_live_backfill", "bsd", { error: bsdError });
+          if (bsdRateLimited) {
+            console.warn("⚠️ Quota BSD épuisé: sources gratuites + cache prennent le relais");
+          } else {
+            console.error("⚠️ BSD v2 live indisponible: sources gratuites prennent le relais", e);
+          }
         }
       }
     }
-
-    const espnResult = await fetchEspnLiveMatchesForMerge();
-    espnError = espnResult.error;
 
     const incomingEspnIds = (espnResult.matches || [])
       .map((m: any) => String(m?.source_match_id || m?.raw_data?.event_id || ""))
@@ -5786,22 +6035,31 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     sourceRows = merged.sourceRows || [];
     sourceMeta = merged.meta || sourceMeta;
 
-    // /events/live/ est compact et ne fournit pas les stats détaillées.
-    // 1) on réutilise d'abord notre dernier snapshot connu;
-    // 2) ESPN complète gratuitement ce qu'il possède;
-    // 3) BSD /stats/ enrichit seulement quelques matchs prioritaires par cycle.
+    // Stats: cache -> fournisseurs gratuits -> BSD uniquement pour les trous restants.
     allRawMatches = await reuseCachedStats(allRawMatches);
+
+    const freeStats = await enrichLiveMatchesWithFreeStats(allRawMatches);
+    allRawMatches = freeStats.matches;
 
     const statsEnrichment = await enrichLiveMatchesWithBsdStats(allRawMatches);
     allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
     sourceMeta = {
       ...sourceMeta,
+      free_stats_calls: freeStats.calls,
+      free_stats_enriched: freeStats.enriched,
+      free_stats_failed: freeStats.failed,
       bsd_stats_calls: statsEnrichment.calls,
       bsd_stats_enriched: statsEnrichment.enriched,
       bsd_stats_failed: statsEnrichment.failed,
       bsd_stats_skipped_quota: statsEnrichment.skipped_quota,
       bsd_quota_remaining: bsdQuotaRemaining,
       bsd_quota_reset_seconds: bsdQuotaResetSeconds,
+      sportscore_live_matches: freeProviderCounts.sportscore || 0,
+      thesportsdb_live_matches: freeProviderCounts.thesportsdb || 0,
+      free_provider_errors: freeProviderErrors,
+      bsd_live_backfill_used: bsdLiveBackfillUsed,
+      provider_quality: PROVIDER_QUALITY,
+      capability_priority: CAPABILITY_PRIORITY,
     };
 
     // Snapshot COMPLET persistant avant de découper en lots.
@@ -5851,7 +6109,13 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
         espn_error: espnError,
         bsd_error: bsdError,
         bsd_rate_limited: bsdRateLimited,
-        bsd_skipped: options.skipBsd === true || safeNumber(coverage?.live_now, -1) === 0,
+        bsd_skipped: options.skipBsd === true || !bsdLiveBackfillUsed,
+        bsd_live_backfill_used: bsdLiveBackfillUsed,
+        sportscore_live_matches: freeProviderCounts.sportscore || 0,
+        thesportsdb_live_matches: freeProviderCounts.thesportsdb || 0,
+        free_provider_errors: freeProviderErrors,
+        provider_quality: PROVIDER_QUALITY,
+        capability_priority: CAPABILITY_PRIORITY,
         snapshot_reused: snapshotReused,
         telegram_in_refresh: allowTelegram,
         predictions_created: 0,
@@ -5928,7 +6192,13 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       espn_error: espnError,
       bsd_error: bsdError,
       bsd_rate_limited: bsdRateLimited,
-      bsd_skipped: options.skipBsd === true || safeNumber(coverage?.live_now, -1) === 0,
+      bsd_skipped: options.skipBsd === true || !bsdLiveBackfillUsed,
+        bsd_live_backfill_used: bsdLiveBackfillUsed,
+        sportscore_live_matches: freeProviderCounts.sportscore || 0,
+        thesportsdb_live_matches: freeProviderCounts.thesportsdb || 0,
+        free_provider_errors: freeProviderErrors,
+        provider_quality: PROVIDER_QUALITY,
+        capability_priority: CAPABILITY_PRIORITY,
       snapshot_reused: snapshotReused,
       telegram_in_refresh: allowTelegram,
       predictions_created: createdPreds,
@@ -6257,35 +6527,40 @@ async function resolveFinalEventAndStats(pred: any, storedOverride: any = undefi
     ? await getStoredMergedContextForPrediction(pred)
     : storedOverride;
 
-  // Pour l’historique déjà validé, ESPN est plus fiable que BSD pour retrouver
-  // un match qui a disparu du catalogue événementiel BSD.
-  if (isHistoricalValidated) {
-    const espn = await fetchEspnFinalForPrediction(pred, stored);
-    if (espn) return { event: espn, stats: espn.live_stats, source: "espn_final" };
+  // 1) ESPN: autorité principale pour les fins de match quand disponible.
+  const espnFirst = await fetchEspnFinalForPrediction(pred, stored);
+  if (espnFirst && hasRequiredFinalStats(espnFirst.live_stats, predictionType)) {
+    return { event: espnFirst, stats: espnFirst.live_stats, source: "espn_final" };
   }
 
+  // 2) Fournisseurs gratuits: SportScore détail/stats, puis TheSportsDB.
+  const probe = {
+    id: pred?.match_id,
+    home_team: stored?.home_team || pred?.home_team,
+    away_team: stored?.away_team || pred?.away_team,
+    event_date: stored?.event_date || pred?.event_date || pred?.created_at,
+  };
   try {
-    const bsdEvent = await fetchBSD(`/events/${pred.match_id}/`);
-    if (isFinishedEvent(bsdEvent)) {
-      let stats = bsdEvent?.live_stats || null;
-      if (!hasRequiredFinalStats(stats, predictionType)) {
-        try {
-          const finalStatsPayload = await fetchBSD(`/events/${pred.match_id}/stats/`);
-          stats = normalizeBsdStatsPayload(finalStatsPayload);
-        } catch {}
+    const freeEvent = await findFreeProviderMatch(probe);
+    if (freeEvent && isFinishedEvent(freeEvent)) {
+      const free = await fetchFreeMatchStats(freeEvent);
+      let stats = free?.stats ? ensureLiveStatsShape(free.stats) : null;
+      if (stats && stored?.merged_stats) {
+        stats = mergeLiveStats(stored.merged_stats, stats, true);
       }
       if (hasRequiredFinalStats(stats, predictionType)) {
-        return { event: bsdEvent, stats, source: "bsd_final" };
+        return {
+          event: { ...freeEvent, live_stats: stats },
+          stats,
+          source: `${free?.source || freeEvent?.source_name || "free_provider"}_final`,
+        };
       }
     }
-  } catch {}
-
-  if (!isHistoricalValidated) {
-    const espn = await fetchEspnFinalForPrediction(pred, stored);
-    if (espn) return { event: espn, stats: espn.live_stats, source: "espn_final" };
+  } catch (e) {
+    console.warn("Free final provider unavailable", e);
   }
 
-  // Dernier recours uniquement si notre snapshot fusionné est explicitement FT.
+  // 3) Snapshot final déjà consolidé: zéro requête supplémentaire.
   if (stored?.is_finished === true && hasRequiredFinalStats(stored?.merged_stats, predictionType)) {
     const event = stored?.merged_match_json || {
       id: pred?.match_id,
@@ -6297,6 +6572,36 @@ async function resolveFinalEventAndStats(pred: any, storedOverride: any = undefi
     return { event, stats: stored.merged_stats, source: "stored_final" };
   }
 
+  // 4) BSD n'intervient plus qu'en dernier recours.
+  const storedMatch = stored?.merged_match_json || {};
+  const bsdId =
+    await resolveBsdEventIdForMatch(storedMatch) ||
+    (/^\d+$/.test(String(pred?.match_id || "")) ? String(pred.match_id) : "");
+  if (bsdId) {
+    try {
+      const bsdEvent = await fetchBSD(`/events/${bsdId}/`);
+      if (isFinishedEvent(bsdEvent)) {
+        let stats = bsdEvent?.live_stats || null;
+        if (!hasRequiredFinalStats(stats, predictionType)) {
+          try {
+            const finalStatsPayload = await fetchBSD(`/events/${bsdId}/stats/`);
+            stats = normalizeBsdStatsPayload(finalStatsPayload);
+          } catch {}
+        }
+        if (hasRequiredFinalStats(stats, predictionType)) {
+          return { event: bsdEvent, stats, source: "bsd_final_fallback" };
+        }
+      }
+    } catch {}
+  }
+
+  // Un dernier essai ESPN seulement si le premier n'avait pas de stats suffisantes.
+  if (!isHistoricalValidated) {
+    const espn = await fetchEspnFinalForPrediction(pred, stored);
+    if (espn && hasRequiredFinalStats(espn.live_stats, predictionType)) {
+      return { event: espn, stats: espn.live_stats, source: "espn_final_retry" };
+    }
+  }
   return null;
 }
 
@@ -7207,7 +7512,35 @@ async function dailyGetForUi(date: string) {
 }
 
 
-async function dailyFetchAllEventsForDate(date: string) {
+async function dailyFetchFreeEventsForDate(date: string) {
+  const rows: any[] = [];
+
+  try {
+    const scoreboard = await fetchEspnScoreboard(date.replace(/-/g, ""), false);
+    for (const event of scoreboard?.events || []) {
+      const normalized = normalizeEspnEventToOriginalMatch(event);
+      if (normalized) rows.push(normalized);
+    }
+  } catch (e) {
+    console.warn("Daily free events ESPN unavailable", e);
+  }
+
+  try {
+    rows.push(...await fetchSportScoreDay(date));
+  } catch (e) {
+    console.warn("Daily free events SportScore unavailable", e);
+  }
+
+  try {
+    rows.push(...await fetchTheSportsDbDay(date));
+  } catch (e) {
+    console.warn("Daily free events TheSportsDB unavailable", e);
+  }
+
+  return mergeProviderEvents(rows);
+}
+
+async function dailyFetchBsdEventsForDate(date: string) {
   const all: any[] = [];
   const pageSize = 200;
 
@@ -7220,13 +7553,67 @@ async function dailyFetchAllEventsForDate(date: string) {
     });
 
     const rows = dailyResultRows(payload);
-    all.push(...rows);
+    all.push(...rows.map((m: any) => ({
+      ...m,
+      source_name: "bsd",
+      provider_quality: PROVIDER_QUALITY.bsd,
+      provider_ids: { ...(m?.provider_ids || {}), bsd: String(m?.id || "") },
+      raw_data: {
+        ...(m?.raw_data || {}),
+        source: "bsd",
+        provider_ids: { ...(m?.raw_data?.provider_ids || {}), bsd: String(m?.id || "") },
+      },
+    })));
 
     const total = safeNumber(payload?.count, all.length);
     if (rows.length < pageSize || all.length >= total) break;
   }
 
   return all;
+}
+
+async function dailyFetchAllEventsForDate(date: string, includeBsd = false) {
+  const free = await dailyFetchFreeEventsForDate(date);
+  if (!includeBsd || !BSD_API_TOKEN) return free;
+  const bsd = await dailyFetchBsdEventsForDate(date);
+  return mergeProviderEvents([...free, ...bsd]);
+}
+
+function dailyBsdEventId(ev: any) {
+  const id =
+    ev?.provider_ids?.bsd ??
+    ev?.raw_data?.provider_ids?.bsd ??
+    (String(ev?.source_name || ev?.raw_data?.source || "").toLowerCase() === "bsd"
+      ? ev?.source_match_id ?? ev?.id
+      : null);
+  return /^\d+$/.test(String(id || "")) ? String(id) : "";
+}
+
+async function dailyFetchSportScoreDoubleChance(ev: any, outcome: string) {
+  const target = String(outcome || "").toUpperCase();
+  if (!["1X", "12", "X2"].includes(target)) return null;
+  const meta = ev?.provider_meta?.sportscore || ev?.raw_data?.provider_meta?.sportscore || {};
+  const slug = String(meta?.slug || "");
+  if (!slug) return null;
+
+  const detail = await fetchSportScoreDetail(slug, false);
+  const candidates = explicitSportScoreOdds(detail).filter((row: any) => {
+    const market = String(row?.market || "").toLowerCase().replace(/[_-]+/g, " ");
+    const selection = String(row?.outcome || "").toUpperCase().replace(/\s+/g, "");
+    const doubleChance = market.includes("double chance") || market.includes("doublechance");
+    return doubleChance && selection === target && safeNumber(row?.odds, 0) > 1.01;
+  });
+  if (!candidates.length) return null;
+
+  // Sans consensus documenté, on privilégie la médiane pour ne pas capturer une cote aberrante.
+  const sorted = candidates.map((x: any) => safeNumber(x.odds, 0)).filter((x: number) => x > 1.01).sort((a: number,b: number)=>a-b);
+  const odds = sorted[Math.floor(sorted.length / 2)];
+  return {
+    odds: Number(odds.toFixed(2)),
+    source: "sportscore_explicit_json",
+    bookmaker_count: candidates.length,
+    documented_endpoint: false,
+  };
 }
 
 async function dailyFetchBsdConsensusDoubleChance(
@@ -7313,24 +7700,43 @@ async function dailyGenerateSnapshots() {
   }
 
   let events: any[] = [];
+  let bsdCalendarBackfillUsed = false;
+  let bsdOddsEvents: any[] | null = null;
   try {
-    // Une journée peut dépasser 200 événements. On parcourt toutes les pages
-    // pour éviter de rater les matchs situés après la première page.
-    events = await dailyFetchAllEventsForDate(date);
-  } catch (e: any) {
-    const quotaExhausted = isBSDQuotaError(e);
-    const nextMidnight = new Date();
-    nextMidnight.setUTCDate(nextMidnight.getUTCDate() + 1);
-    nextMidnight.setUTCHours(0, 0, 0, 0);
+    events = await dailyFetchAllEventsForDate(date, false);
 
+    // BSD charge le calendrier uniquement si au moins un prono n'est pas
+    // identifiable dans les sources gratuites.
+    let freeUnmatched = pronos.filter((p: any) => !dailyFindEventForProno(p, events));
+
+    // Recherche ciblée gratuite (inclut OpenLigaDB) avant toute journée BSD.
+    const targetedFree: any[] = [];
+    for (const p of freeUnmatched.slice(0, 12)) {
+      try {
+        const found = await findFreeProviderMatch({
+          home_team: p?.home_team,
+          away_team: p?.away_team,
+          event_date: p?.event_date || `${date}T12:00:00Z`,
+        });
+        if (found) targetedFree.push(found);
+      } catch {}
+    }
+    if (targetedFree.length) {
+      events = mergeProviderEvents([...events, ...targetedFree]);
+      freeUnmatched = pronos.filter((p: any) => !dailyFindEventForProno(p, events));
+    }
+
+    if (freeUnmatched.length && BSD_API_TOKEN) {
+      events = await dailyFetchAllEventsForDate(date, true);
+      bsdCalendarBackfillUsed = true;
+    }
+  } catch (e: any) {
     return {
       date,
       source_count: pronos.length,
       inserted: 0,
       skipped: pronos.length,
       fallback_available: true,
-      quota_exhausted: quotaExhausted,
-      retry_after_utc: quotaExhausted ? nextMidnight.toISOString() : null,
       events_error: e?.message || String(e),
     };
   }
@@ -7363,51 +7769,61 @@ async function dailyGenerateSnapshots() {
       continue;
     }
 
-    const ev = dailyFindEventForProno(p, events);
+    let ev = dailyFindEventForProno(p, events);
     if (!ev) {
       skipped++;
       details.push({
         match_id: p?.match_id,
-        status: "bsd_event_not_found",
+        status: "provider_event_not_found",
       });
       continue;
     }
 
     let picked: any = null;
     let oddsError: string | null = null;
-    const bsdEventId = dailyEventId(ev);
 
-    // Endpoint documenté pour la clé gratuite BSD:
-    // /api/v2/odds/?event_id=...&market=double_chance&outcome=1X|12|X2
-    // La clé gratuite renvoie une ligne de consensus.
-    try {
-      picked = await dailyFetchBsdConsensusDoubleChance(
-        bsdEventId,
-        outcome,
-      );
-    } catch (e: any) {
-      oddsError = e?.message || String(e);
-      if (isBSDQuotaError(e)) {
-        details.push({
-          match_id: p?.match_id,
-          status: "odds_quota_exhausted",
-          bsd_event_id: bsdEventId,
-          error: oddsError,
-        });
-        break;
+    // SportScore n'expose actuellement aucun endpoint odds documenté.
+    // On n'utilise donc pas ses probabilités/prédictions comme cote bookmaker.
+    // Une cote déjà embarquée par une source officielle du snapshot reste utilisable.
+    picked = dailyPickDoubleChanceOdds(ev, outcome);
+
+    let bsdEventId = dailyBsdEventId(ev);
+
+    // Si SportScore n'a pas fourni de cote, on charge BSD UNE seule fois pour
+    // la journée afin de retrouver l'ID nécessaire au fallback odds.
+    if (!picked && !bsdEventId && BSD_API_TOKEN) {
+      try {
+        if (bsdOddsEvents == null) bsdOddsEvents = await dailyFetchBsdEventsForDate(date);
+        const bsdMatch = dailyFindEventForProno(p, bsdOddsEvents);
+        if (bsdMatch) {
+          bsdEventId = dailyBsdEventId(bsdMatch) || String(dailyEventId(bsdMatch) || "");
+          ev = mergeProviderEvents([ev, bsdMatch])[0] || ev;
+        }
+      } catch (e: any) {
+        oddsError = e?.message || String(e);
       }
     }
 
-    // Secours: anciennes formes embarquées / raccourci événement.
-    if (!picked) {
-      picked = dailyPickDoubleChanceOdds(ev, outcome);
+    if (!picked && bsdEventId) {
+      try {
+        picked = await dailyFetchBsdConsensusDoubleChance(bsdEventId, outcome);
+      } catch (e: any) {
+        oddsError = e?.message || String(e);
+        if (isBSDQuotaError(e)) {
+          details.push({
+            match_id: p?.match_id,
+            status: "odds_quota_exhausted",
+            bsd_event_id: bsdEventId,
+            error: oddsError,
+          });
+          break;
+        }
+      }
     }
 
-    if (!picked && !oddsError) {
+    if (!picked && bsdEventId && !oddsError) {
       try {
-        const oddsPayload = await fetchBSD(
-          `/events/${bsdEventId}/odds/`,
-        );
+        const oddsPayload = await fetchBSD(`/events/${bsdEventId}/odds/`);
         picked = dailyPickDoubleChanceOdds(oddsPayload, outcome);
       } catch (e: any) {
         oddsError = e?.message || String(e);
@@ -7428,7 +7844,7 @@ async function dailyGenerateSnapshots() {
     const stake = DAILY_DEFAULT_STAKE;
     const odds = Number(picked.odds.toFixed(2));
     const gain = Math.round(stake * odds);
-    const rawBsdId = dailyEventId(ev);
+    const rawBsdId = bsdEventId || dailyBsdEventId(ev);
     const numericBsdId = Number(rawBsdId);
 
     const row = {
@@ -7497,12 +7913,14 @@ async function dailyGenerateSnapshots() {
   return {
     date,
     source_count: pronos.length,
-    bsd_events_count: events.length,
+    provider_events_count: events.length,
+    bsd_calendar_backfill_used: bsdCalendarBackfillUsed,
+    bsd_odds_calendar_loaded: bsdOddsEvents != null,
     matched_events: details.filter((d: any) =>
-      String(d?.status) !== "bsd_event_not_found"
+      String(d?.status) !== "provider_event_not_found"
     ).length,
     unmatched_events: details.filter((d: any) =>
-      String(d?.status) === "bsd_event_not_found"
+      String(d?.status) === "provider_event_not_found"
     ).length,
     inserted,
     skipped,
@@ -7557,27 +7975,40 @@ async function dailyValidateSnapshots() {
     let events: any[] = [];
 
     try {
-      const payload = await fetchBSD("/events/", {
-        status: "finished",
-        date_from: date,
-        date_to: date,
-        limit: "200",
-      });
+      events = (await dailyFetchAllEventsForDate(date, false)).filter(isFinishedEvent);
 
-      events = dailyResultRows(payload).filter(isFinishedEvent);
+      let unmatched = preds.filter((p: any) => !dailyFindEventForProno(p, events));
+      const targeted: any[] = [];
+      for (const p of unmatched.slice(0, 12)) {
+        try {
+          const found = await findFreeProviderMatch({
+            home_team: p?.home_team,
+            away_team: p?.away_team,
+            event_date: p?.kickoff || `${date}T12:00:00Z`,
+          });
+          if (found?.is_finished || isFinishedEvent(found)) targeted.push(found);
+        } catch {}
+      }
+      if (targeted.length) {
+        events = mergeProviderEvents([...events, ...targeted]).filter(isFinishedEvent);
+        unmatched = preds.filter((p: any) => !dailyFindEventForProno(p, events));
+      }
+      if (unmatched.length && BSD_API_TOKEN) {
+        events = (await dailyFetchAllEventsForDate(date, true)).filter(isFinishedEvent);
+      }
     } catch (e) {
-      console.warn("Validation daily: événements terminés indisponibles", e);
+      console.warn("Validation daily: événements terminés multi-source indisponibles", e);
       continue;
     }
 
     for (const p of preds) {
       checked++;
 
-      let ev = events.find(
-        (x: any) =>
-          String(dailyEventId(x)) ===
-          String(p?.bsd_event_id),
-      );
+      let ev = p?.bsd_event_id
+        ? events.find((x: any) =>
+            dailyBsdEventId(x) === String(p?.bsd_event_id)
+          )
+        : null;
 
       if (!ev) ev = dailyFindEventForProno(p, events);
       if (!ev || !isFinishedEvent(ev)) continue;
@@ -7677,33 +8108,35 @@ serve(async (req) => {
     if (path === "/debug/events-finished" && req.method === "GET") {
       requireDebugAuth(url);
 
-      const date = url.searchParams.get("date") || "2026-03-29";
-      const tz = url.searchParams.get("tz") || DEFAULT_TZ;
-      const raw = url.searchParams.get("raw") === "1";
+      const date = url.searchParams.get("date") || new Date().toISOString().slice(0, 10);
+      const includeBsd = url.searchParams.get("bsd") === "1";
+      const rows = (await dailyFetchAllEventsForDate(date, includeBsd)).filter(isFinishedEvent);
 
-      const data = await fetchBSD("/events/", {
-        status: "finished",
-        date_from: date,
-        date_to: date,
-        tz,
-      });
+      if (url.searchParams.get("raw") === "1") {
+        return json({
+          date,
+          include_bsd: includeBsd,
+          provider_quality: PROVIDER_QUALITY,
+          results: rows,
+        });
+      }
 
-      if (raw) return json(data);
-
-      const compact = (data?.results || []).map((m: any) => ({
+      const compact = rows.map((m: any) => ({
         id: m.id,
+        source: m?.source_name || m?.raw_data?.source || m?.source || null,
+        sources: m?.raw_data?.sources || [],
         event_date: m.event_date,
         status: m.status,
-        period: m.period ?? null,
         home_team: m.home_team,
         away_team: m.away_team,
         score: `${m.home_score ?? "-"}-${m.away_score ?? "-"}`,
-        has_live_stats: !!m.live_stats,
+        has_live_stats: !!(m.live_stats || m?.raw_data?.live_stats),
       }));
 
       return json({
-        query: { status: "finished", date_from: date, date_to: date, tz },
-        count: data?.count ?? compact.length,
+        query: { date, include_bsd: includeBsd },
+        provider_quality: PROVIDER_QUALITY,
+        count: compact.length,
         results: compact,
       });
     }
@@ -7738,6 +8171,28 @@ serve(async (req) => {
 
       if (error) throw error;
       return json({ merged: data || [] });
+    }
+
+    if (path === "/providers/health" && req.method === "GET") {
+      requireDebugAuth(url);
+      const { data, error } = await supabase
+        .from("football_provider_state")
+        .select("*")
+        .order("updated_at", { ascending: false });
+      if (error) throw error;
+
+      return json({
+        fetch_strategy: ["espn", "sportscore", "thesportsdb", "openligadb", "bsd_fallback"],
+        provider_quality: PROVIDER_QUALITY,
+        capability_priority: CAPABILITY_PRIORITY,
+        sportscore_odds: {
+          documented_public_endpoint: false,
+          production_source: false,
+          note: "SportScore public API documents match data but no bookmaker-odds endpoint; BSD/external remains official odds source.",
+        },
+        bsd_live_backfill_seconds: BSD_LIVE_BACKFILL_SECONDS,
+        states: data || [],
+      });
     }
 
     // Un lot interne : maximum 5 matchs.
