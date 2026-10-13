@@ -1,0 +1,55 @@
+name: Telegram test channel routing - Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/football-production.yml'
+      - '.github/workflows/football-live-test-once.yml'
+      - '.github/workflows/football-visual-live-test-once.yml'
+      - '.github/workflows/football-premium-validation-once.yml'
+      - '.github/workflows/bsd-v2-telegram-hourly.yml'
+      - '.github/workflows/editorial-telegram.yml'
+      - '.github/workflows/telegram-test-channel-smoke.yml'
+      - 'scripts/editorial_telegram.py'
+      - 'scripts/telegram_test_smoke.py'
+      - 'tests/test_telegram_test_routing.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer dépendances gratuites
+        run: python -m pip install Pillow requests PyYAML
+      - name: Vérifier la syntaxe YAML des workflows modifiés
+        run: |
+          python - <<'PY'
+          import yaml
+          from pathlib import Path
+          files=[
+            ".github/workflows/football-production.yml",
+            ".github/workflows/football-live-test-once.yml",
+            ".github/workflows/football-visual-live-test-once.yml",
+            ".github/workflows/football-premium-validation-once.yml",
+            ".github/workflows/bsd-v2-telegram-hourly.yml",
+            ".github/workflows/editorial-telegram.yml",
+            ".github/workflows/telegram-test-channel-smoke.yml",
+          ]
+          for name in files:
+              data=yaml.safe_load(Path(name).read_text(encoding="utf-8"))
+              assert isinstance(data,dict),name
+              print("YAML_OK",name)
+          PY
+      - name: Vérifier les garanties de séparation test / production
+        run: python -m unittest discover -s tests -p 'test_telegram_test_routing.py' -v
+      - name: Compiler les scripts de test Telegram
+        run: python -m py_compile scripts/editorial_telegram.py scripts/telegram_test_smoke.py
