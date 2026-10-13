@@ -140,6 +140,7 @@ def _canonical(
         "home_score": _number(home_score),
         "away_score": _number(away_score),
         "state": state,
+        "status": "finished" if state == "post" else "live" if state == "in" else "scheduled",
         "status_detail": _text(status),
         "event_date": event_date,
         "league": _text(league),
