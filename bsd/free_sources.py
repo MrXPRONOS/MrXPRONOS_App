@@ -175,11 +175,17 @@ class FreeFootballHub:
             when = row.get("time") or row.get("start_time") or row.get("date")
             if not home or not away or not when:
                 continue
+            source_url = _plain(row.get("url"))
+            source_parts = [part for part in source_url.split("/") if part]
+            url_slug = source_parts[-2] if len(source_parts) >= 2 and "match" in source_parts else ""
+            url_id = source_parts[-1] if source_parts else ""
+            source_slug = _plain(row.get("slug") or url_slug)
+            source_id = _plain(row.get("id") or url_id)
             out.append({
-                "id": "sportscore:" + _plain(row.get("id") or row.get("slug") or f"{_slug(home)}-{_slug(away)}-{day}"),
+                "id": "sportscore:" + (source_id or source_slug or f"{_slug(home)}-{_slug(away)}-{day}"),
                 "source": "sportscore",
-                "source_match_id": _plain(row.get("id") or row.get("slug")),
-                "source_slug": _plain(row.get("slug")),
+                "source_match_id": source_id,
+                "source_slug": source_slug,
                 "home_team": home,
                 "away_team": away,
                 "home_team_id": _stable_team_id(home),
