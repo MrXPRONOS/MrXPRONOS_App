@@ -54,6 +54,9 @@ jobs:
           assert isinstance(ol, list)
 
           if ss:
+              print("SPORTSCORE_FIRST_NORMALIZED", json.dumps(ss[0], ensure_ascii=False, default=str)[:4000])
+              raw = (ss[0].get("raw_data") or {})
+              print("SPORTSCORE_FIRST_RAW_KEYS", sorted(raw.keys()) if isinstance(raw, dict) else type(raw).__name__)
               slug = ss[0].get("source_slug")
               detail = None
               if slug:
