@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Mr XPRONOS : six rubriques de football vers un canal Telegram distinct.
 
-Le RSS Foot Mercato vient du projet Actu Poster. Les rencontres proviennent
-exclusivement du client BSD V2 du dépôt principal. Aucune opération sur data.json.
+Le RSS Foot Mercato vient du projet Actu Poster. Les rencontres passent par
+l'agrégateur ESPN + SportScore + OpenLigaDB + TheSportsDB, avec BSD V2 en
+fallback lorsque la couverture gratuite est insuffisante. Aucune opération sur data.json.
 Lancer depuis la racine : python scripts/football_channel.py --dry-run
 """
 from __future__ import annotations
@@ -30,6 +31,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "bsd"))
 sys.path.insert(0, str(ROOT / "scripts"))
 from bsd_api import BSDClient, BSDAPIError  # noqa: E402
+from football_multisource import MultiSourceFootballClient  # noqa: E402
 from bsd_h2h import hybrid_h2h  # noqa: E402
 from telegram_rich import post_photo, post_text, post_animation  # noqa: E402
 from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish)  # noqa: E402
@@ -1055,8 +1057,8 @@ def form(team_id: Any, name: str, events: list[dict], before: datetime) -> str:
     return " • ".join(vals) + "  |  " + str(points) + "/" + str(len(vals) * 3) + " pts"
 
 
-def fetch_prematch_forms(client: BSDClient, event: dict) -> dict[str, str]:
-    """Charge les derniers matchs de chaque équipe directement via BSD."""
+def fetch_prematch_forms(client: Any, event: dict) -> dict[str, str]:
+    """Charge la forme via les sources gratuites, BSD seulement en dernier recours."""
     before = kick(event)
     if before is None:
         return {"home": "", "away": ""}
@@ -1918,7 +1920,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
     hour = now.astimezone(TZ).hour
     state = History()
     sender = Sender(dry_run=dry_run)
-    client: BSDClient | None = None
+    client: MultiSourceFootballClient | None = None
     cache: dict[str, list[dict]] = {}
     counter = {"sent": 0, "skipped": 0, "errors": 0}
     max_send = MAX_MESSAGES_PER_RUN
@@ -1928,15 +1930,26 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         name = day.isoformat()
         if name not in cache:
             if client is None:
-                client = BSDClient(max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
-                                   max_retries=1)
+                bsd = None
+                if (os.getenv("BSD_API_KEY") or "").strip():
+                    bsd = BSDClient(
+                        max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
+                        max_retries=1,
+                    )
+                client = MultiSourceFootballClient(
+                    bsd=bsd,
+                    session=sender.session,
+                    max_free_requests=int(os.getenv("FOOTBALL_FREE_SOURCE_BUDGET", "45")),
+                )
             page = client.list_events(day, day, max_pages=7, ttl=0)
             if not page.complete:
-                raise BSDAPIError("BSD: journée incomplète " + name + " (" +
-                                  str(len(page.events)) + "/" + str(page.total_reported) + ")")
+                raise BSDAPIError("Multi-source: journée incomplète " + name)
             cache[name] = page.events
-            print("BSD_JOUR", name, "rencontres", len(page.events),
-                  "requêtes", client.requests_made)
+            print(
+                "MULTISOURCE_JOUR", name, "rencontres", len(page.events),
+                "requêtes_gratuites", client.free_requests,
+                "sources", json.dumps(client.source_report, ensure_ascii=False),
+            )
         return cache[name]
 
     def publish(item: Publication | None, *, follow_event: dict | None = None,
@@ -2071,9 +2084,16 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                         and followup.selection_allowed(state.followed, now)
                         and (force or enough(state, "avant_match", now))):
                     if client is None:
-                        client = BSDClient(
-                            max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
-                            max_retries=1,
+                        bsd = None
+                        if (os.getenv("BSD_API_KEY") or "").strip():
+                            bsd = BSDClient(
+                                max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
+                                max_retries=1,
+                            )
+                        client = MultiSourceFootballClient(
+                            bsd=bsd,
+                            session=sender.session,
+                            max_free_requests=int(os.getenv("FOOTBALL_FREE_SOURCE_BUDGET", "45")),
                         )
                     selected = next(
                         (e for e in upcoming[:12] if has_two_team_logos(e, allow_remote=True)),
