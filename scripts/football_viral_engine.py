@@ -335,6 +335,104 @@ def _wrap(text: str, font: ImageFont.ImageFont, width: int, draw: ImageDraw.Imag
     return lines
 
 
+def _smart_trim(value: Any, limit: int) -> str:
+    text = plain(value, max(limit * 2, limit + 20))
+    if len(text) <= limit:
+        return text
+    cut = text[: max(1, limit - 1)].rstrip()
+    if " " in cut:
+        cut = cut.rsplit(" ", 1)[0].rstrip()
+    return (cut or text[: max(1, limit - 1)]).rstrip(" .,;:-") + "…"
+
+
+def _line_height(draw: ImageDraw.ImageDraw, line: str, font: ImageFont.ImageFont) -> int:
+    box = draw.textbbox((0, 0), line or "Ag", font=font)
+    return max(1, box[3] - box[1])
+
+
+def _fit_text_layout(
+    draw: ImageDraw.ImageDraw,
+    text: str,
+    *,
+    max_width: int,
+    max_height: int,
+    max_lines: int,
+    max_size: int,
+    min_size: int,
+    bold: bool = False,
+    gap: int = 8,
+) -> tuple[ImageFont.ImageFont, list[str], int]:
+    clean = plain(text, 500)
+    if not clean:
+        font = _font(min_size, bold)
+        return font, [], min_size
+
+    for size in range(max_size, min_size - 1, -1):
+        font = _font(size, bold)
+        lines = _wrap(clean, font, max_width, draw)
+        if not lines or len(lines) > max_lines:
+            continue
+        total = sum(_line_height(draw, line, font) for line in lines)
+        total += gap * max(0, len(lines) - 1)
+        if total <= max_height:
+            return font, lines, size
+
+    font = _font(min_size, bold)
+    lines = _wrap(clean, font, max_width, draw)
+    if len(lines) > max_lines:
+        lines = lines[:max_lines]
+        final = lines[-1]
+        while final:
+            candidate = final.rstrip(" .,:;-") + "…"
+            if draw.textbbox((0, 0), candidate, font=font)[2] <= max_width:
+                lines[-1] = candidate
+                break
+            final = final[:-1].rstrip()
+        if not final:
+            lines[-1] = "…"
+    return font, lines, min_size
+
+
+def _draw_text_box(
+    draw: ImageDraw.ImageDraw,
+    text: str,
+    box: tuple[int, int, int, int],
+    *,
+    max_size: int,
+    min_size: int,
+    max_lines: int,
+    bold: bool = False,
+    fill=(255, 255, 255, 255),
+    gap: int = 8,
+    align: str = "left",
+) -> int:
+    x0, y0, x1, y1 = box
+    font, lines, _ = _fit_text_layout(
+        draw,
+        text,
+        max_width=max(1, x1 - x0),
+        max_height=max(1, y1 - y0),
+        max_lines=max_lines,
+        max_size=max_size,
+        min_size=min_size,
+        bold=bold,
+        gap=gap,
+    )
+    y = y0
+    for line in lines:
+        line_box = draw.textbbox((0, 0), line, font=font)
+        width = line_box[2] - line_box[0]
+        if align == "center":
+            x = x0 + max(0, (x1 - x0 - width) / 2)
+        elif align == "right":
+            x = x1 - width
+        else:
+            x = x0
+        draw.text((x, y), line, font=font, fill=fill)
+        y += _line_height(draw, line, font) + gap
+    return y
+
+
 def _draw_centered(
     draw: ImageDraw.ImageDraw,
     text: str,
@@ -347,14 +445,18 @@ def _draw_centered(
     max_lines: int = 3,
     gap: int = 8,
 ) -> int:
-    font = _font(size, bold)
-    lines = _wrap(text, font, max_width, draw)[:max_lines]
-    cur = y
-    for line in lines:
-        box = draw.textbbox((0, 0), line, font=font)
-        draw.text(((W - (box[2] - box[0])) / 2, cur), line, font=font, fill=fill)
-        cur += box[3] - box[1] + gap
-    return cur
+    return _draw_text_box(
+        draw,
+        text,
+        ((W - max_width) // 2, y, (W + max_width) // 2, H - 70),
+        max_size=size,
+        min_size=max(14, size - 12),
+        max_lines=max_lines,
+        bold=bold,
+        fill=fill,
+        gap=gap,
+        align="center",
+    )
 
 
 def _gradient_frame(progress: float) -> Image.Image:
@@ -419,9 +521,38 @@ def _base_frame(session: requests.Session, media: dict, progress: float) -> Imag
 
 
 def _brand(draw: ImageDraw.ImageDraw) -> None:
-    draw.rounded_rectangle((28, 24, 214, 70), radius=18, fill=(6, 20, 33, 225), outline=(224, 166, 54), width=2)
-    draw.text((47, 37), "MR XPRONOS", font=_font(21, True), fill=(244, 216, 151))
-    draw.text((W - 30, 39), "ACTU FOOT", font=_font(16, True), fill=(190, 203, 214), anchor="ra")
+    draw.rounded_rectangle(
+        (30, 26, 205, 70),
+        radius=14,
+        fill=(5, 18, 30, 235),
+        outline=(231, 183, 73, 235),
+        width=2,
+    )
+    draw.text((48, 39), "MR XPRONOS", font=_font(18, True), fill=(248, 226, 172))
+    draw.text(
+        (W - 32, 42),
+        "ACTU FOOT",
+        font=_font(14, True),
+        fill=(184, 201, 214),
+        anchor="ra",
+    )
+
+
+def _source_pill(draw: ImageDraw.ImageDraw, source: str, y: int) -> None:
+    source = _smart_trim(source or "Source vérifiée", 34)
+    label_font = _font(11, True)
+    value_font = _font(15, True)
+    draw.text((60, y), "SOURCE", font=label_font, fill=(135, 153, 168, 255))
+    box = draw.textbbox((0, 0), source, font=value_font)
+    width = min(250, max(118, box[2] - box[0] + 34))
+    draw.rounded_rectangle(
+        (60, y + 22, 60 + width, y + 58),
+        radius=12,
+        fill=(231, 183, 73, 28),
+        outline=(231, 183, 73, 95),
+        width=1,
+    )
+    draw.text((76, y + 31), source, font=value_font, fill=(245, 218, 158, 255))
 
 
 def render_animation(
@@ -429,85 +560,191 @@ def render_animation(
     output: str | Path,
     session: requests.Session,
 ) -> Path:
-    """Produit un GIF carré original léger, compatible Telegram sendAnimation."""
+    """Produit un GIF carré premium, lisible et compatible Telegram.
+
+    L'animation porte une seule idée forte. Le contexte détaillé reste dans la
+    légende Telegram au lieu d'être répété en petit dans la vidéo.
+    """
     destination = Path(output)
     destination.parent.mkdir(parents=True, exist_ok=True)
     media = payload.get("media") if isinstance(payload.get("media"), dict) else {}
     frames: list[Image.Image] = []
     kind = plain(payload.get("kind"), 40)
 
-    # Le background n'est téléchargé qu'une fois.
-    downloaded = _load_background(session, media) if media else None
+    # Pour une news, un fond générique peut induire en erreur. On privilégie
+    # donc le fond graphique de marque. Matchs et stats peuvent garder un fond
+    # licencié fortement assombri.
+    downloaded = None
+    if media and kind != "news_pulse":
+        downloaded = _load_background(session, media)
 
     for index in range(FRAMES):
         progress = index / max(1, FRAMES - 1)
         if downloaded is not None:
-            zoom = 1.00 + 0.035 * progress
-            scaled = downloaded.resize((int(W * zoom), int(H * zoom)), Image.Resampling.LANCZOS)
-            left = max(0, (scaled.width - W) // 2 + int(7 * math.sin(progress * math.pi)))
+            zoom = 1.02 + 0.025 * progress
+            scaled = downloaded.resize(
+                (int(W * zoom), int(H * zoom)),
+                Image.Resampling.LANCZOS,
+            )
+            left = max(0, (scaled.width - W) // 2 + int(5 * math.sin(progress * math.pi)))
             top = max(0, (scaled.height - H) // 2)
             frame = scaled.crop((left, top, left + W, top + H))
-            frame = Image.blend(frame, Image.new("RGB", (W, H), "#04101b"), 0.60)
+            frame = frame.filter(ImageFilter.GaussianBlur(1.1))
+            frame = Image.blend(frame, Image.new("RGB", (W, H), "#061420"), 0.72)
         else:
             frame = _gradient_frame(progress)
+
         draw = ImageDraw.Draw(frame, "RGBA")
         _brand(draw)
 
-        # Barre de progression / mouvement visuel.
-        draw.rounded_rectangle((36, H - 48, W - 36, H - 34), radius=7, fill=(255, 255, 255, 35))
-        draw.rounded_rectangle(
-            (36, H - 48, 36 + int((W - 72) * progress), H - 34),
-            radius=7,
-            fill=(224, 166, 54, 235),
-        )
+        fade = min(1.0, max(0.0, progress * 3.4))
+        alpha = int(255 * fade)
+        gold = (237, 188, 76, alpha)
+        white = (255, 255, 255, alpha)
+        muted = (184, 201, 214, int(235 * fade))
+        panel = (2, 11, 19, int(224 * fade))
 
-        fade = min(1.0, progress * 3.0)
-        gold = (244, 201, 104, int(255 * fade))
-        white = (255, 255, 255, int(255 * fade))
-        muted = (188, 202, 212, int(230 * fade))
+        accent_w = 18 + int(30 * min(1.0, progress * 2.4))
+        draw.rounded_rectangle((36, 116, 36 + accent_w, 122), radius=3, fill=gold)
 
-        if kind == "match_fou":
-            draw.text((W // 2, 112), "🔥 MATCH FOU", font=_font(34, True), fill=gold, anchor="ma")
+        if kind == "news_pulse":
+            draw.text((36, 140), "À RETENIR", font=_font(18, True), fill=gold)
+            draw.rounded_rectangle(
+                (28, 184, W - 28, 520),
+                radius=28,
+                fill=panel,
+                outline=(255, 255, 255, int(22 * fade)),
+                width=1,
+            )
+            display_title = _smart_trim(payload.get("title"), 150)
+            _draw_text_box(
+                draw,
+                display_title,
+                (60, 232, W - 58, 410),
+                max_size=38,
+                min_size=25,
+                max_lines=4,
+                bold=True,
+                fill=white,
+                gap=10,
+            )
+            _source_pill(draw, plain(payload.get("data_source"), 80), 455)
+
+        elif kind == "match_fou":
+            draw.text((36, 140), "MATCH FOU", font=_font(18, True), fill=gold)
+            draw.rounded_rectangle(
+                (28, 184, W - 28, 532),
+                radius=28,
+                fill=panel,
+                outline=(255, 255, 255, int(22 * fade)),
+                width=1,
+            )
             score_text = plain(payload.get("score"), 24)
-            score_size = 108 + int(10 * math.sin(progress * math.pi))
-            draw.text((W // 2, 205), score_text, font=_font(score_size, True), fill=white, anchor="ma")
-            _draw_centered(draw, plain(payload.get("home"), 60), 338, size=29, bold=True, fill=white, max_width=510, max_lines=2)
-            draw.text((W // 2, 417), "VS", font=_font(18, True), fill=muted, anchor="ma")
-            _draw_centered(draw, plain(payload.get("away"), 60), 452, size=29, bold=True, fill=white, max_width=510, max_lines=2)
-            draw.text(
-                (W // 2, 540),
-                plain(payload.get("league"), 75),
-                font=_font(17, True), fill=muted, anchor="ma"
+            score_font, score_lines, _ = _fit_text_layout(
+                draw,
+                score_text,
+                max_width=500,
+                max_height=100,
+                max_lines=1,
+                max_size=92,
+                min_size=64,
+                bold=True,
+                gap=0,
             )
-
-        elif kind == "news_pulse":
-            draw.text((W // 2, 112), "🚨 À RETENIR", font=_font(32, True), fill=gold, anchor="ma")
-            end_y = _draw_centered(
-                draw, plain(payload.get("title"), 230), 185,
-                size=32, bold=True, fill=white, max_width=550, max_lines=4, gap=10
+            score = score_lines[0] if score_lines else score_text
+            draw.text((W // 2, 225), score, font=score_font, fill=white, anchor="ma")
+            _draw_text_box(
+                draw,
+                plain(payload.get("home"), 70),
+                (64, 335, W - 64, 386),
+                max_size=27,
+                min_size=20,
+                max_lines=2,
+                bold=True,
+                fill=white,
+                gap=6,
+                align="center",
             )
-            summary = plain(payload.get("summary"), 260)
-            _draw_centered(
-                draw, summary, min(end_y + 28, 420),
-                size=20, fill=muted, max_width=520, max_lines=4, gap=8
+            draw.text((W // 2, 405), "—", font=_font(18, True), fill=gold, anchor="ma")
+            _draw_text_box(
+                draw,
+                plain(payload.get("away"), 70),
+                (64, 430, W - 64, 480),
+                max_size=27,
+                min_size=20,
+                max_lines=2,
+                bold=True,
+                fill=white,
+                gap=6,
+                align="center",
             )
+            league = _smart_trim(payload.get("league"), 52)
+            draw.text((W // 2, 505), league, font=_font(14, True), fill=muted, anchor="ma")
 
         else:
-            draw.text((W // 2, 112), "📊 STAT QUI CLAQUE", font=_font(30, True), fill=gold, anchor="ma")
-            _draw_centered(
-                draw, plain(payload.get("headline"), 240), 205,
-                size=38, bold=True, fill=white, max_width=550, max_lines=4, gap=10
+            draw.text((36, 140), "STAT À RETENIR", font=_font(18, True), fill=gold)
+            draw.rounded_rectangle(
+                (28, 184, W - 28, 532),
+                radius=28,
+                fill=panel,
+                outline=(255, 255, 255, int(22 * fade)),
+                width=1,
             )
-            y = 430
-            for line in (payload.get("lines") or [])[:3]:
-                clean = plain(line, 120)
-                if not clean:
+            headline = _smart_trim(payload.get("headline"), 155)
+            end_y = _draw_text_box(
+                draw,
+                headline,
+                (60, 224, W - 60, 370),
+                max_size=34,
+                min_size=23,
+                max_lines=4,
+                bold=True,
+                fill=white,
+                gap=9,
+            )
+            y = max(390, end_y + 12)
+            for line in (payload.get("lines") or [])[:2]:
+                clean = _smart_trim(line, 72)
+                if not clean or y > 490:
                     continue
-                draw.rounded_rectangle((72, y - 8, W - 72, y + 44), radius=18, fill=(6, 22, 35, 190), outline=(224, 166, 54, 110))
-                draw.text((W // 2, y + 7), clean, font=_font(18, True), fill=muted, anchor="ma")
-                y += 66
+                draw.rounded_rectangle(
+                    (60, y, W - 60, y + 44),
+                    radius=14,
+                    fill=(255, 255, 255, int(14 * fade)),
+                    outline=(231, 183, 73, int(50 * fade)),
+                )
+                _draw_text_box(
+                    draw,
+                    clean,
+                    (78, y + 10, W - 78, y + 37),
+                    max_size=15,
+                    min_size=12,
+                    max_lines=1,
+                    bold=True,
+                    fill=muted,
+                    gap=0,
+                    align="center",
+                )
+                y += 54
 
-        frame = frame.convert("P", palette=Image.Palette.ADAPTIVE, colors=128)
+        draw.text(
+            (36, H - 64),
+            "L’ESSENTIEL. CLAIR. RAPIDE.",
+            font=_font(13, True),
+            fill=muted,
+        )
+        draw.rounded_rectangle(
+            (36, H - 36, W - 36, H - 32),
+            radius=2,
+            fill=(255, 255, 255, int(24 * fade)),
+        )
+        draw.rounded_rectangle(
+            (36, H - 36, 36 + int((W - 72) * progress), H - 32),
+            radius=2,
+            fill=gold,
+        )
+
+        frame = frame.convert("P", palette=Image.Palette.ADAPTIVE, colors=112)
         frames.append(frame)
 
     frames[0].save(
@@ -520,8 +757,10 @@ def render_animation(
         disposal=2,
     )
     if destination.stat().st_size > 14_000_000:
-        # Repli compact: moins de couleurs et une image sur deux.
-        compact = [frame.convert("P", palette=Image.Palette.ADAPTIVE, colors=64) for frame in frames[::2]]
+        compact = [
+            frame.convert("P", palette=Image.Palette.ADAPTIVE, colors=64)
+            for frame in frames[::2]
+        ]
         compact[0].save(
             destination,
             save_all=True,
@@ -626,7 +865,7 @@ def build_viral_payload(
             "data_source": plain(item.get("source"), 80),
             "target_url": plain(item.get("site_url"), 500),
         }
-        payload["media"] = _licensed_media_for_payload(session, payload["kind"])
+        payload["media"] = {}
         return payload
 
     # 3) Statistique fiable comme dernier format.
