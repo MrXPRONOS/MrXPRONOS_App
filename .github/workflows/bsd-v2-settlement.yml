@@ -40,6 +40,7 @@ jobs:
       - name: Settle older immutable shadow snapshots against BSD scores
         env:
           BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+          BSD_FREE_SOURCES: '1'
           GH_TOKEN: '${{ github.token }}'
         run: python bsd/bsd_v2_settle.py --repo "${{ github.repository }}"
       - name: Upload prospective settlement report
