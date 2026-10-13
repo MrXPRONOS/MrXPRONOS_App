@@ -488,6 +488,160 @@ def summarize_h2h(rows: List[Dict[str, Any]], home_name: str, away_name: str) ->
     }
 
 
+def _generic_player_name(value: Any) -> str:
+    if isinstance(value, str):
+        return _plain(value)
+    if not isinstance(value, dict):
+        return ""
+    nested = value.get("player") if isinstance(value.get("player"), dict) else value.get("athlete") if isinstance(value.get("athlete"), dict) else value
+    return _plain(nested.get("name") or nested.get("displayName") or nested.get("strPlayer") or nested.get("player_name"))
+
+
+def sportscore_lineups(payload: Dict[str, Any]) -> Dict[str, List[str]]:
+    root = payload.get("match") if isinstance(payload.get("match"), dict) else payload
+    lineups = root.get("lineups") if isinstance(root, dict) else None
+    result: Dict[str, List[str]] = {"home": [], "away": []}
+    if isinstance(lineups, dict):
+        for side in ("home", "away"):
+            group = lineups.get(side)
+            if isinstance(group, dict):
+                group = group.get("players") or group.get("starters") or group.get("lineup")
+            if isinstance(group, list):
+                names = []
+                for item in group:
+                    if isinstance(item, dict) and item.get("starter") is False:
+                        continue
+                    name = _generic_player_name(item)
+                    if name:
+                        names.append(name)
+                result[side] = names[:11] if len(names) >= 11 else []
+    elif isinstance(lineups, list):
+        for entry in lineups:
+            if not isinstance(entry, dict):
+                continue
+            side = _plain(entry.get("side") or entry.get("homeAway")).lower()
+            if side not in result:
+                team = _plain(entry.get("team")).lower()
+                side = "home" if team == "home" else "away" if team == "away" else ""
+            if not side:
+                continue
+            players = entry.get("players") or entry.get("starters") or []
+            names = [_generic_player_name(x) for x in players if _generic_player_name(x)] if isinstance(players, list) else []
+            result[side] = names[:11] if len(names) >= 11 else []
+    return result
+
+
+def sportscore_timeline(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
+    root = payload.get("match") if isinstance(payload.get("match"), dict) else payload
+    timeline = root.get("timeline") if isinstance(root, dict) else None
+    if not isinstance(timeline, list):
+        timeline = root.get("events") if isinstance(root, dict) and isinstance(root.get("events"), list) else []
+    out: List[Dict[str, Any]] = []
+    for item in timeline:
+        if not isinstance(item, dict):
+            continue
+        kind = _plain(item.get("type") or item.get("event_type") or item.get("kind")).lower()
+        minute_raw = item.get("minute") or item.get("time") or item.get("clock")
+        minute = None
+        match = re.search(r"\d+", _plain(minute_raw))
+        if match:
+            minute = int(match.group())
+        player = _generic_player_name(item.get("player") or item.get("athlete") or item.get("scorer"))
+        assist = _generic_player_name(item.get("assist") or item.get("assistant"))
+        out.append({
+            "kind": "goal" if "goal" in kind else "card" if "card" in kind else "substitution" if "sub" in kind else kind,
+            "player": player,
+            "assists": [assist] if assist else [],
+            "minute": minute,
+            "minute_total": minute,
+            "minute_text": _plain(minute_raw),
+            "penalty": bool(item.get("penalty")) or "pen" in kind,
+            "own_goal": bool(item.get("own_goal") or item.get("ownGoal")),
+            "team": _plain(item.get("team")),
+            "raw": item,
+        })
+    return out
+
+
+def sportscore_goals(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
+    return [x for x in sportscore_timeline(payload) if x.get("kind") == "goal"]
+
+
+def fetch_thesportsdb_event_detail(session: requests.Session, event_id: str, *, ttl: int = 120) -> Dict[str, Any]:
+    event_id = re.sub(r"[^0-9]", "", str(event_id or ""))
+    if not event_id:
+        return {}
+    result: Dict[str, Any] = {}
+    endpoints = {
+        "event": "lookupevent.php",
+        "lineup": "lookuplineup.php",
+        "timeline": "lookuptimeline.php",
+        "stats": "lookupeventstats.php",
+    }
+    for key, endpoint in endpoints.items():
+        try:
+            payload = _json_get(session, "thesportsdb", THESPORTSDB_BASE + "/" + endpoint, params={"id": event_id}, ttl=ttl)
+            result[key] = payload
+        except Exception:
+            result[key] = {}
+    return result
+
+
+def thesportsdb_lineups(detail: Dict[str, Any]) -> Dict[str, List[str]]:
+    result: Dict[str, List[str]] = {"home": [], "away": []}
+    payload = detail.get("lineup") if isinstance(detail, dict) else {}
+    rows = payload.get("lineup") if isinstance(payload, dict) else None
+    if not isinstance(rows, list):
+        rows = payload.get("players") if isinstance(payload, dict) else None
+    if not isinstance(rows, list):
+        return result
+    for item in rows:
+        if not isinstance(item, dict):
+            continue
+        side_raw = _plain(item.get("strHomeAway") or item.get("homeAway") or item.get("strTeam")).lower()
+        side = "home" if "home" in side_raw else "away" if "away" in side_raw else ""
+        if not side:
+            continue
+        starter = item.get("strSubstitute")
+        if starter and _plain(starter).lower() in {"yes", "true", "1"}:
+            continue
+        name = _plain(item.get("strPlayer") or item.get("strPlayerName") or item.get("name"))
+        if name:
+            result[side].append(name)
+    for side in result:
+        result[side] = result[side][:11] if len(result[side]) >= 11 else []
+    return result
+
+
+def thesportsdb_timeline(detail: Dict[str, Any]) -> List[Dict[str, Any]]:
+    payload = detail.get("timeline") if isinstance(detail, dict) else {}
+    rows = payload.get("timeline") if isinstance(payload, dict) else None
+    if not isinstance(rows, list):
+        rows = payload.get("events") if isinstance(payload, dict) else None
+    if not isinstance(rows, list):
+        return []
+    out = []
+    for item in rows:
+        if not isinstance(item, dict):
+            continue
+        kind = _plain(item.get("strTimeline") or item.get("strType") or item.get("type")).lower()
+        minute_text = _plain(item.get("intTime") or item.get("strTime") or item.get("minute"))
+        m = re.search(r"\d+", minute_text)
+        out.append({
+            "kind": "goal" if "goal" in kind else "card" if "card" in kind else "substitution" if "sub" in kind else kind,
+            "player": _plain(item.get("strPlayer") or item.get("strPlayer1")),
+            "assists": [_plain(item.get("strAssist"))] if _plain(item.get("strAssist")) else [],
+            "minute": int(m.group()) if m else None,
+            "minute_total": int(m.group()) if m else None,
+            "minute_text": minute_text,
+            "penalty": "pen" in kind,
+            "own_goal": "own" in kind,
+            "team": _plain(item.get("strTeam")),
+            "raw": item,
+        })
+    return out
+
+
 def sportscore_detail_enrichment(payload: Dict[str, Any]) -> Dict[str, Any]:
     if not isinstance(payload, dict):
         return {}
