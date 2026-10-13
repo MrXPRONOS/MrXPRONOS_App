@@ -959,26 +959,45 @@ serve(async (req) => {
       return await answerNow(ans,"contact");
     }
     if(intent==="live"){
-      const normalized=normalizeQuestion(question);
-      if(/momentum|pression/.test(normalized)){
-        return await answerNow('<p>Le <strong>momentum</strong> traduit la dynamique récente du match. La <strong>pression offensive</strong> estime l’intensité des actions dangereuses selon les données utilisées. Ce ne sont pas des garanties de but.</p><p>Consulte '+publicLink("live.html","les statistiques LIVE à jour")+'.</p>',"site");
-      }
+      const q=normalizeQuestion(question);
+      if(/ne s.affichent pas|n.apparaissent pas|aucun signal|signaux ne|bug|erreur/.test(q))
+        return await answerNow('<p>Un signal peut ne pas apparaître si aucun match ne répond aux critères, si les données ont du retard ou si un filtre masque les résultats. Recharge la page, vérifie la connexion et les filtres; contacte le support si cela continue.</p><p>'+publicLink("live.html","Vérifier la page LIVE")+'</p>',"site");
+      if(/actualis|rafraich|mettre a jour/.test(q))
+        return await answerNow('<p>Sur le LIVE, recharge la page ou utilise le contrôle d’actualisation disponible. Vérifie toujours la date et la minute des données affichées.</p><p>'+publicLink("live.html","Ouvrir le LIVE")+'</p>',"site");
+      if(/score live|score en direct/.test(q))
+        return await answerNow('<p>Je ne peux pas confirmer ici le score d’une équipe en temps réel. Consulte les informations directement sur '+publicLink("live.html","la page LIVE")+'.</p>',"site");
+      if(/momentum|pression/.test(q))
+        return await answerNow('<p>Le momentum décrit la dynamique récente du match; la pression offensive est un indicateur construit à partir des actions dangereuses. Aucun des deux ne garantit un but.</p><p>'+publicLink("live.html","Voir les statistiques LIVE")+'</p>',"guide");
       return await answerNow(renderLiveResponse(),"site");
     }
     if(intent==="prono"){
-      if(/garanti|100\s*%|certain|sans risque/i.test(question)){
-        return await answerNow('<p>Aucun pronostic n’est garanti : un match peut toujours produire un résultat inattendu. '+publicLink("pronos.html","Consulte les pronostics publiés")+' et vérifie la date et le statut de chaque sélection.</p>',"safety");
-      }
+      if(/garanti|100\s*%|certain|sans risque|matchs?\s+s[uû]rs?/i.test(question))
+        return await answerNow('<p>Aucun pronostic n’est garanti, même avec de bonnes statistiques. '+publicLink("pronos.html","Consulter les pronostics officiels")+' et leurs dates de mise à jour.</p>',"safety");
       return await answerNow(await answerPublishedMatches(question),"data.json");
     }
-    if(intent==="results")return await answerNow(await answerPublishedHistory(question),"data.json");
+    if(intent==="results"){
+      if(/garanti|garantissent|sans risque/i.test(question))
+        return await answerNow('<p>Non. Les résultats passés ne garantissent jamais des résultats futurs. Ils servent à décrire les performances, pas à certifier un gain.</p>',"guide");
+      if(/ou est|où est|ou voir|où voir|comment consulter|ou trouver/i.test(normalizeQuestion(question)))
+        return await answerNow('<p>Tu peux retrouver les résultats précédents sur '+publicLink("historique.html","la page Historique")+'.</p>',"site");
+      return await answerNow(await answerPublishedHistory(question),"data.json");
+    }
     if(intent==="knowledge"){
       const q=normalizeQuestion(question);
-      if(/momentum|pression/.test(q))return await answerNow('<p>Le momentum désigne la dynamique récente du jeu; la pression offensive est un indicateur dépendant du fournisseur des statistiques. Aucun des deux ne garantit un but.</p>',"guide");
+      if(/xg/i.test(q)&&/1x2/i.test(q))
+        return await answerNow('<p><strong>xG</strong> mesure statistiquement la qualité des occasions de tir. <strong>1X2</strong> est un marché à trois issues : victoire à domicile (1), nul (X), victoire à l’extérieur (2). Ce ne sont pas deux mesures comparables.</p>',"guide");
+      if(/en attente/i.test(q))
+        return await answerNow('<p>Un pronostic <strong>en attente</strong> n’est pas encore validé comme gagné ou perdu. Il ne doit pas entrer dans le calcul des taux de réussite avant une vérification.</p>',"guide");
+      if(/valid[eé]|validation/i.test(q))
+        return await answerNow('<p>La validation d’un pronostic consiste à vérifier son issue après l’événement. Vérifie le statut exact sur '+publicLink("historique.html","la page Historique")+' : réussi, échoué ou en attente.</p>',"guide");
+      if(/momentum|pression/i.test(q))
+        return await answerNow('<p>Le momentum désigne la dynamique du jeu; la pression offensive dépend de la définition du fournisseur des statistiques. Aucun indicateur n’est une garantie de but.</p>',"guide");
       const exactFAQ=await answerOfficialFAQ(question);
       if(exactFAQ)return await answerNow(exactFAQ,"faq");
-      if(/over|plus de 2/.test(q))return await answerNow('<p>« Plus de 2,5 buts » nécessite au moins trois buts marqués au total; le règlement du marché fait foi.</p>',"guide");
-      return await answerNow('<p>Peux-tu préciser le terme football que tu souhaites comprendre ? Je peux expliquer xG, BTTS, 1X2, corners et les handicaps.</p>',"guide");
+      if(/corners?/i.test(q))return await answerNow('<p>Un corner est un coup de pied de coin accordé quand le ballon franchit la ligne de but après avoir été touché en dernier par un défenseur, sans but marqué.</p>',"guide");
+      if(/over|plus de 2/i.test(q))
+        return await answerNow('<p>« Plus de 2,5 buts » signifie au moins trois buts au total dans le match. Vérifie toujours la période comptée par l’opérateur.</p>',"guide");
+      return await answerNow('<p>Peux-tu préciser le terme football ? Je peux expliquer xG, xA, BTTS, 1X2, corners, handicaps et autres marchés.</p>',"guide");
     }
     if(intent==="generic"){
       const q=normalizeQuestion(question);
