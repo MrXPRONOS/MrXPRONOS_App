@@ -969,6 +969,7 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
         "<p><b>💬 Quel match attendez-vous le plus ?</b></p>"
         "<p><i>Heure du Togo (GMT) • Le programme complet est sur l'image.</i></p>"
     )
+    message += sportscore_credit(chosen)
     card = {"day": today.strftime("%d/%m/%Y"), "matches": [
         {"home": team(e, "home"), "away": team(e, "away"), "time": time_label(kick(e)),
          "league": league(e), "importance": importance(e),
@@ -1032,6 +1033,7 @@ def resultat(events: list[dict], history: History, now: datetime) -> Publication
                 "score": f"{a}-{b}",
             }],
         }
+        text += sportscore_credit(e)
         return Publication("resultat", key, text, card=card, verification=verification)
     return None
 
@@ -1186,6 +1188,7 @@ def avant_match(events: list[dict], history: History, now: datetime,
             "event_date": kick(e).astimezone(timezone.utc).isoformat(),
         }],
     }
+    message += sportscore_credit(e)
     return Publication(
         "avant_match", "avant_match:" + str(e["id"]),
         message, card=card, verification=verification,
@@ -1314,6 +1317,7 @@ def statistique(events: list[dict], reference_day: date) -> Publication | None:
         + "<i>" + esc(league(e) or "Football") + "</i></blockquote>"
         "<p><b>💬 Quelle autre statistique récente vous a marqué ?</b></p>"
     )
+    message += sportscore_credit(e)
     selected_day = kick(e).astimezone(TZ).date()
     card = {"day": selected_day.strftime("%d/%m/%Y"), "league": league(e),
             "home": team(e, "home"), "away": team(e, "away"), "scores": (h, a),
@@ -1361,6 +1365,7 @@ def community_vote_publication(events: list[dict], now: datetime) -> Publication
         poll_description=(
             plain(payload.get("league"), 70)
             + " • Vote avant le coup d'envoi • Mr XPRONOS"
+            + (" • Data: https://sportscore.com/" if chosen and str(chosen.get("source") or "").casefold() == "sportscore" else "")
         ),
         poll_allows_revoting=True,
         card={
