@@ -47,6 +47,11 @@ desired=[
     {"title":"Mr XPRONOS – Refresh social tokens","workflow":"refresh-social-tokens.yml","schedule":sched([4],[20]),"inputs":None},
     {"title":"Mr XPRONOS – Update football news","workflow":"update-footnews.yml","schedule":sched([0,3,6,9,12,15,18,21],[23]),"inputs":None},
     {"title":"Mr XPRONOS – Validation predictions","workflow":"validate_predictions.yml","schedule":sched([-1],[0,5,10,15,20,25,30,35,40,45,50,55]),"inputs":None},
+    {"title":"Editorial – Free Studio","workflow":"editorial-free.yml","schedule":sched([5],[41]),"inputs":None},
+    {"title":"Editorial – Analytics","workflow":"editorial-analytics.yml","schedule":sched([6],[17]),"inputs":None},
+    {"title":"Editorial – Telegram","workflow":"editorial-telegram.yml","schedule":sched([8],[12]),"inputs":{"trigger_source":"cron-job.org","publish":False}},
+    {"title":"Editorial – Facebook","workflow":"editorial-facebook.yml","schedule":sched([9],[12]),"inputs":{"trigger_source":"cron-job.org","publish":False}},
+    {"title":"Editorial – Threads","workflow":"editorial-threads.yml","schedule":sched([10],[22]),"inputs":{"trigger_source":"cron-job.org","publish":False}},
 ]
 
 listing=req("GET","/jobs").get("jobs",[])
