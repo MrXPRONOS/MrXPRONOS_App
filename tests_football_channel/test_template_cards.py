@@ -140,11 +140,14 @@ class TemplateCardsTests(unittest.TestCase):
 
         with patch.object(programme_styles, "load_logo", return_value=fake_logo):
             image = tc.render("composition", payload)
+            fitted_logo = tc._load_logo("https://test/home.png", 158)
 
         self.assertEqual(image.size, (1374, 1145))
         self.assertEqual(image.mode, "RGB")
         self.assertEqual(len(tc.COMPOSITION_ROWS), 11)
-        self.assertLessEqual(tc._load_logo("https://test/home.png", 158).width, 158)
+        self.assertLessEqual(fitted_logo.width, 158)
+        self.assertLessEqual(fitted_logo.height, 158)
+        self.assertEqual(fitted_logo.size, (158, 79))
 
     def test_template_composition_refuse_une_liste_incomplete(self):
         import programme_styles
