@@ -1722,11 +1722,86 @@ async function loadPublishedExtras() {
 }
 
 /* =======================================================
+ EXPÉRIENCE A/B VISUELS ÉDITORIAUX (A/B PAR SESSION)
+ Les images et les données restent strictement identiques sauf le design.
+======================================================= */
+const editorialAbExposures = new Set();
+const editorialAbPending = [];
+function editorialAbVariant(kind, article) {
+  if (!article?.slug || !article.ab_image_url) return "a";
+  const key = `mx_editorial_ab_${kind}_${article.slug}`;
+  try {
+    let selected = sessionStorage.getItem(key);
+    if (selected !== "a" && selected !== "b") {
+      selected = Math.random() < 0.5 ? "a" : "b";
+      sessionStorage.setItem(key, selected);
+    }
+    return selected;
+  } catch (_) {
+    return "a";
+  }
+}
+function editorialAbCover(kind, article) {
+  return editorialAbVariant(kind,article) === "b" && article.ab_image_url
+    ? article.ab_image_url : article.image_url;
+}
+async function postEditorialAbEvent(kind, slug, variant, eventType) {
+  if (!["article","conseil"].includes(kind)) return;
+  if (!/^[a-z0-9_-]{2,180}$/i.test(String(slug)) || !["a","b"].includes(variant)) return;
+  if (!["editorial_ab_exposure","editorial_ab_click"].includes(eventType)) return;
+  if (!supabaseAvailable || !supabase) {
+    if (editorialAbPending.length < 120) editorialAbPending.push({kind,slug,variant,eventType});
+    return;
+  }
+  try {
+    const { error } = await supabase.from("analytics").insert({
+      event_type: eventType,
+      user_id: null,
+      page: [kind,slug,"onsite",variant].join("|")
+    });
+    if (error) throw error;
+  } catch(e) {
+    console.warn("Mesure A/B non disponible :",e);
+  }
+}
+function flushEditorialAbPending() {
+  if (!supabaseAvailable || !supabase) return;
+  const waiting=editorialAbPending.splice(0,editorialAbPending.length);
+  waiting.forEach(row => { void postEditorialAbEvent(row.kind,row.slug,row.variant,row.eventType); });
+}
+function editorialAbOpened(kind,slug) {
+  if (!slug) return;
+  let v="a";
+  try { v=sessionStorage.getItem(`mx_editorial_ab_${kind}_${slug}`) || "a"; }
+  catch (_) {}
+  void postEditorialAbEvent(kind,slug,v,"editorial_ab_click");
+}
+function observeEditorialAbCards(container) {
+  if (!container || typeof IntersectionObserver === "undefined") return;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const element=entry.target;
+      observer.unobserve(element);
+      const kind=element.dataset.abKind;
+      const slug=element.dataset.abSlug;
+      const variant=element.dataset.abVariant;
+      const key=[kind,slug].join("|");
+      if (!slug || editorialAbExposures.has(key)) return;
+      editorialAbExposures.add(key);
+      void postEditorialAbEvent(kind,slug,variant,"editorial_ab_exposure");
+    });
+  }, {threshold:0.45});
+  container.querySelectorAll("[data-ab-kind][data-ab-slug]").forEach(node=>observer.observe(node));
+}
+
+/* =======================================================
  BLOG
 ======================================================= */
 window.showArticleDetail = function (index) {
   const article = window.articlesData?.[index];
   if (!article) return;
+  editorialAbOpened("article",article.slug || "");
 
   if (!DOM.articleModal) {
     const slug = article.slug || "";
@@ -1838,11 +1913,13 @@ function renderBlogPremiumCards() {
       const category = blogArticleCategory(article);
       const date = formatBlogDate(article.date || article.published_at);
       const categoryIcon = blogCategoryIcon(category);
-      const image = article.image_url || "assets/images/blog-premium/hero-blog.webp";
+      const image = editorialAbCover("article",article) || "assets/images/blog-premium/hero-blog.webp";
+      const abVariant = editorialAbVariant("article",article);
 
       return `
         <article class="blog-premium-card" role="button" tabindex="0"
           data-blog-category="${escapeAttribute(category)}"
+          data-ab-kind="article" data-ab-slug="${escapeAttribute(article.slug || "")}" data-ab-variant="${abVariant}"
           aria-label="Lire l'article ${escapeAttribute(title)}"
           onclick="showArticleDetail(${originalIndex})"
           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showArticleDetail(${originalIndex})}">
@@ -1862,6 +1939,7 @@ function renderBlogPremiumCards() {
       `;
     }).join("") ||
     '<div class="no-events">Aucun article ne correspond à votre recherche.</div>';
+  observeEditorialAbCards(DOM.blogList);
 }
 
 function setupBlogPremiumControls() {
@@ -2039,6 +2117,7 @@ async function displayBlogPost() {
 ======================================================= */
 window.openConseilPage = function (slug) {
   if (!slug) return;
+  editorialAbOpened("conseil",slug);
   window.location.href = `conseils/${encodeURIComponent(slug)}/`;
 };
 
@@ -2128,11 +2207,13 @@ async function displayConseils() {
         ).replace(title, "").trim().slice(0, 180);
         const visual = conseilVisualMeta(conseil);
         const slug = escapeAttribute(conseil.slug || "");
-        const cover = conseil.image_url || "assets/images/conseils-premium/hero-conseils.webp";
+        const cover = editorialAbCover("conseil",conseil) || "assets/images/conseils-premium/hero-conseils.webp";
+        const abVariant = editorialAbVariant("conseil",conseil);
 
         return `
           <article class="conseil-premium-card" role="link" tabindex="0"
             data-conseil-type="${escapeAttribute(visual.label)}"
+            data-ab-kind="conseil" data-ab-slug="${slug}" data-ab-variant="${abVariant}"
             aria-label="Lire le conseil ${escapeAttribute(title)}"
             onclick="openConseilPage('${slug}')"
             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openConseilPage('${slug}')}">
@@ -2153,6 +2234,7 @@ async function displayConseils() {
         `;
       })
       .join("") || '<div class="no-events">Aucun conseil disponible pour le moment.</div>';
+  observeEditorialAbCards(DOM.conseilsList);
 }
 
 async function displayConseilPost() {
@@ -3092,6 +3174,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     void (async () => {
       try {
         await initSupabase();
+        flushEditorialAbPending();
         await recordEditorialAttribution(page);
         await updateDisplayedCounters();
         subscribeToCounters();
