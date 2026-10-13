@@ -46,7 +46,10 @@ def main():
     if not token or not chat:
         raise SystemExit("FOOTBALL_NEWS_BOT_TOKEN ou TELEGRAM_TEST_CHAT_ID manquant")
     buf=io.BytesIO()
-    build().save(buf,"PNG",optimize=True)
+    test_image=build()
+    test_image.save(buf,"PNG",optimize=True)
+    test_path=Path("/tmp/mrxpronos-format-test.png")
+    test_image.save(test_path,"PNG",optimize=True)
     buf.seek(0)
     session=requests.Session()
     response=session.post(
@@ -73,9 +76,8 @@ def main():
              "prediction":{"selection_key":"OVER_15","type":"Plus de 1,5","odds":1.38}},
         ],
     }
-    buf.seek(0)
     combo_id=post_photo(
-        session,token,chat,buf,combo_caption(combo),
+        session,token,chat,test_path,combo_caption(combo),
         {"inline_keyboard":[]},timeout=60,mime="image/png"
     )
     print("TELEGRAM_TEST_COMBO_FORMAT_OK message_id",combo_id)
@@ -93,9 +95,8 @@ def main():
         "<blockquote>"+esc(summary)+"</blockquote>\n\n"
         "<i>Canal de test uniquement.</i>"
     )
-    buf.seek(0)
     news_id=post_photo(
-        session,token,chat,buf,news_caption,
+        session,token,chat,test_path,news_caption,
         {"inline_keyboard":[]},timeout=60,mime="image/png"
     )
     print("TELEGRAM_TEST_ACTU_FORMAT_OK message_id",news_id)
