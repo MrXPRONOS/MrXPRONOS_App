@@ -159,6 +159,21 @@ def _canonical(
     }
 
 
+def _sportscore_identity(item: dict) -> tuple[str, str]:
+    source_id = _text(item.get("id") or item.get("match_id"))
+    slug = _text(item.get("slug"))
+    url = _text(item.get("url"))
+    if url:
+        parts = [part for part in url.split("/") if part]
+        if "match" in parts:
+            idx = parts.index("match")
+            if not slug and idx + 1 < len(parts):
+                slug = parts[idx + 1]
+            if not source_id and idx + 2 < len(parts):
+                source_id = parts[idx + 2]
+    return source_id, slug
+
+
 def fetch_sportscore_day(
     session: requests.Session,
     day: date,
@@ -191,9 +206,10 @@ def fetch_sportscore_day(
         home_obj = item.get("home_team") if isinstance(item.get("home_team"), dict) else {}
         away_obj = item.get("away_team") if isinstance(item.get("away_team"), dict) else {}
         comp = item.get("competition") if isinstance(item.get("competition"), dict) else {}
+        source_id, slug = _sportscore_identity(item)
         match = _canonical(
             source="sportscore",
-            source_id=item.get("id") or item.get("match_id"),
+            source_id=source_id,
             home=item.get("home") or item.get("home_name") or home_obj.get("name"),
             away=item.get("away") or item.get("away_name") or away_obj.get("name"),
             event_date=item.get("time") or item.get("start_time") or item.get("kickoff") or item.get("date"),
@@ -206,7 +222,7 @@ def fetch_sportscore_day(
             league=item.get("league") or item.get("competition_name") or comp.get("name"),
             home_logo=item.get("home_logo") or home_obj.get("logo"),
             away_logo=item.get("away_logo") or away_obj.get("logo"),
-            slug=item.get("slug"),
+            slug=slug,
             raw=item,
         )
         if match:
@@ -237,9 +253,10 @@ def fetch_sportscore_live_recent(
     for item in rows if isinstance(rows, list) else []:
         if not isinstance(item, dict):
             continue
+        source_id, slug = _sportscore_identity(item)
         match = _canonical(
             source="sportscore",
-            source_id=item.get("id") or item.get("match_id"),
+            source_id=source_id,
             home=item.get("home"),
             away=item.get("away"),
             event_date=item.get("time") or item.get("start_time"),
@@ -252,7 +269,7 @@ def fetch_sportscore_live_recent(
             league=item.get("league") or item.get("competition"),
             home_logo=item.get("home_logo"),
             away_logo=item.get("away_logo"),
-            slug=item.get("slug"),
+            slug=slug,
             raw=item,
         )
         if match:
