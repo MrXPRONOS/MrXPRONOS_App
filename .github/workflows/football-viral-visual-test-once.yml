@@ -1,0 +1,62 @@
+name: Mr XPRONOS - Test visuel S5 Viral
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/football-viral-visual-test-once.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrxpronos-s5-viral-visual
+  cancel-in-progress: false
+
+jobs:
+  viral_visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      FOOTBALL_REQUIRE_COMMENTS: '0'
+      FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+      API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+      PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+      PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer les dépendances
+        run: python -m pip install requests Pillow feedparser
+      - name: Tester le renderer viral
+        run: |
+          python -m py_compile scripts/telegram_viral_visual_test.py scripts/football_viral_engine.py
+          python -m unittest tests_football_channel.test_viral_engine -v
+      - name: Actualiser les News Football
+        env:
+          MAX_ARTICLES: '30'
+          MAX_ARTICLES_PER_FEED: '8'
+          MAX_NEWS_AGE_HOURS: '168'
+        run: python fetch_foot_news.py
+      - name: Vérifier strictement le canal Telegram de test
+        run: python scripts/telegram_test_guard.py
+      - name: Générer et envoyer uniquement S5 Viral
+        run: python -u scripts/telegram_viral_visual_test.py
+      - name: Conserver le rendu pour revue visuelle
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: s5-viral-preview
+          path: artifacts/viral-preview.gif
+          if-no-files-found: error
+          retention-days: 2
