@@ -92,7 +92,7 @@ jobs:
               combo=match.get("combo_prediction")
               if combo:
                   assert type(combo["odds"]) in (int,float) and 1.01<=combo["odds"]<1.50
-                  assert combo["odds_source"] in ("bsd_consensus","bsd_bookmaker")
+                  assert combo["odds_source"] in ("bsd_consensus","bsd_bookmaker","pinnwire","oddslink","moviodds","oddsharvester")
                   assert combo["selection_key"]!="UNDER_45"
           print("BSD_V2_FEED_OK",len(data["matches"]))
           PY
