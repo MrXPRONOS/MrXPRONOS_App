@@ -210,6 +210,31 @@ export async function fetchSportScoreFixtures(
     .filter(Boolean) as any[];
 }
 
+export async function fetchSportScoreLiveRecent(limit = 50) {
+  const url = new URL(`${SPORT_SCORE_BASE}/api/widget/matches/`);
+  url.searchParams.set("sport", "football");
+  url.searchParams.set("limit", String(Math.max(1, Math.min(50, limit))));
+  url.searchParams.set("src", "mrxpronos");
+  const payload = await fetchJson(url, 55_000);
+  return rowsOf(payload)
+    .map((item: any) => canonical({
+      source: "sportscore",
+      sourceId: item?.id ?? item?.match_id,
+      home: item?.home,
+      away: item?.away,
+      eventDate: item?.time ?? item?.start_time,
+      homeScore: item?.home_score,
+      awayScore: item?.away_score,
+      status: [item?.status, item?.status_text].filter(Boolean).join(" "),
+      league: item?.league ?? item?.competition,
+      homeLogo: item?.home_logo,
+      awayLogo: item?.away_logo,
+      slug: item?.slug,
+      raw: item,
+    }))
+    .filter(Boolean) as any[];
+}
+
 export async function fetchSportScoreDetail(slug: string) {
   if (!slug) return null;
   const url = new URL(`${SPORT_SCORE_BASE}/api/v1/match/`);
@@ -430,7 +455,12 @@ export async function collectFreeMatchesForDate(
   status?: "live" | "finished" | "upcoming",
 ) {
   const requests: Array<{ name: string; promise: Promise<any[]> }> = [
-    { name: "sportscore", promise: fetchSportScoreFixtures(date, status) },
+    {
+      name: "sportscore",
+      promise: status === "live"
+        ? fetchSportScoreLiveRecent(50)
+        : fetchSportScoreFixtures(date, status),
+    },
     { name: "thesportsdb", promise: fetchTheSportsDbDay(date) },
   ];
   // OpenLigaDB is excellent for fixtures/results but does not expose a reliable
@@ -567,7 +597,9 @@ export async function enrichMatchWithFreeStats(match: any) {
   if (!sportSlug) {
     try {
       calls++;
-      const sportRows = await fetchSportScoreFixtures(date);
+      const sportRows = match?.is_live
+        ? await fetchSportScoreLiveRecent(50)
+        : await fetchSportScoreFixtures(date);
       let best: any = null;
       let bestMatchScore = 0;
       for (const row of sportRows) {
