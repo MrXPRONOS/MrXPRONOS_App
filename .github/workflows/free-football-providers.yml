@@ -1,0 +1,104 @@
+name: Free football providers CI
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/free_football_sources.py'
+      - 'scripts/football_channel.py'
+      - 'scripts/football_match_lifecycle.py'
+      - 'scripts/football_five_systems_test.py'
+      - 'supabase/functions/_shared/free_football.ts'
+      - 'supabase/functions/live/index.ts'
+      - 'supabase/functions/daily-pronos/index.ts'
+      - 'supabase/tests/free_football_test.ts'
+      - 'tests_football_channel/test_free_football_sources.py'
+      - 'live.html'
+      - '.github/workflows/free-football-providers.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/free_football_sources.py'
+      - 'scripts/football_channel.py'
+      - 'scripts/football_match_lifecycle.py'
+      - 'supabase/functions/_shared/free_football.ts'
+      - 'supabase/functions/live/index.ts'
+      - 'supabase/functions/daily-pronos/index.ts'
+      - 'supabase/tests/free_football_test.ts'
+      - 'tests_football_channel/test_free_football_sources.py'
+      - '.github/workflows/free-football-providers.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Python dependencies
+        run: python -m pip install --disable-pip-version-check requests Pillow feedparser imageio-ffmpeg
+      - name: Compile provider and football modules
+        run: |
+          python -m py_compile             scripts/free_football_sources.py             scripts/football_channel.py             scripts/football_match_lifecycle.py             scripts/football_five_systems_test.py
+      - name: Provider unit tests
+        run: python -m unittest tests_football_channel.test_free_football_sources -v
+      - name: Lifecycle regression tests
+        run: python -m unittest tests_football_channel.test_match_lifecycle -v
+
+  deno:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Check shared provider client
+        run: deno check supabase/functions/_shared/free_football.ts
+      - name: Provider unit tests
+        run: deno test supabase/tests/free_football_test.ts
+      - name: Check Edge entrypoints
+        run: |
+          deno check supabase/functions/daily-pronos/index.ts
+          deno check supabase/functions/live/index.ts
+
+  provider-smoke:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --disable-pip-version-check requests
+      - name: Public provider smoke tests
+        run: |
+          python - <<'PY'
+          from datetime import datetime, timezone
+          import sys
+          import requests
+          sys.path.insert(0, "scripts")
+          import free_football_sources as f
+
+          session = requests.Session()
+          today = datetime.now(timezone.utc).date()
+
+          sport = f.fetch_sportscore_day(session, today)
+          print("SPORTSCORE_OK", len(sport))
+
+          tsdb = f.fetch_thesportsdb_day(session, today)
+          print("THESPORTSDB_OK", len(tsdb))
+
+          openliga = f.fetch_openligadb_day(session, today)
+          print("OPENLIGADB_OK", len(openliga))
+
+          assert isinstance(sport, list)
+          assert isinstance(tsdb, list)
+          assert isinstance(openliga, list)
+          PY
