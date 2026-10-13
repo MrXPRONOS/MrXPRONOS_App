@@ -77,6 +77,7 @@ jobs:
       FOOTBALL_RSS_FEED: https://www.footmercato.net/flux-rss
       FOOTBALL_BSD_REQUEST_BUDGET: '18'
       FOOTBALL_REQUIRE_COMMENTS: '1'
+      FOOTBALL_VIRAL_MEDIA_CACHE: '.state/mrxpronos-football-media.json'
       PYTHONUNBUFFERED: '1'
       RUN_MODE: ${{ inputs.mode || 'full' }}
 
@@ -193,7 +194,9 @@ jobs:
       - name: Restaurer historique anti-doublon
         uses: actions/cache/restore@v4
         with:
-          path: ${{ steps.telegram_route.outputs.state_path }}
+          path: |
+            ${{ steps.telegram_route.outputs.state_path }}
+            .state/mrxpronos-football-media.json
           key: football-${{ steps.telegram_route.outputs.destination }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
             football-${{ steps.telegram_route.outputs.destination }}-
@@ -246,7 +249,9 @@ jobs:
         if: ${{ always() && github.event_name == 'workflow_dispatch' && steps.telegram_dispatch.outputs.effective_dry_run == 'false' }}
         uses: actions/cache/save@v4
         with:
-          path: ${{ steps.telegram_route.outputs.state_path }}
+          path: |
+            ${{ steps.telegram_route.outputs.state_path }}
+            .state/mrxpronos-football-media.json
           key: football-${{ steps.telegram_route.outputs.destination }}-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Publier les nouvelles Infos Foot sur le site
