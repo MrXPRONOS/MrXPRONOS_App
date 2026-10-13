@@ -7714,18 +7714,40 @@ async function dailyValidateSnapshots() {
 
   for (const [date, preds] of byDate.entries()) {
     let events: any[] = [];
-
+    let freeEvents: any[] = [];
     try {
-      const payload = await fetchBSD("/events/", {
-        status: "finished",
-        date_from: date,
-        date_to: date,
-        limit: "200",
-      });
+      const free = await collectFreeMatchesForDate(date, "finished");
+      freeEvents = (free.matches || []).filter(isFinishedEvent);
+      events = [...freeEvents];
+    } catch (error) {
+      console.warn("Validation daily: sources gratuites indisponibles", error);
+    }
 
-      events = dailyResultRows(payload).filter(isFinishedEvent);
-    } catch (e) {
-      console.warn("Validation daily: événements terminés indisponibles", e);
+    // BSD final results are fetched only when at least one pending prediction
+    // cannot be matched to a finished event from the free provider aggregate.
+    const missingFromFree = preds.some((p: any) =>
+      !dailyFindEventForProno(p, freeEvents)
+    );
+    if (missingFromFree) {
+      try {
+        const payload = await fetchBSD("/events/", {
+          status: "finished",
+          date_from: date,
+          date_to: date,
+          limit: "200",
+        });
+        const bsdFinished = dailyResultRows(payload).filter(isFinishedEvent);
+        events = [...events, ...bsdFinished];
+      } catch (e) {
+        console.warn(
+          "Validation daily: BSD final indisponible, validation gratuite uniquement",
+          e,
+        );
+      }
+    }
+
+    if (!events.length) {
+      console.warn("Validation daily: aucun événement terminé disponible", date);
       continue;
     }
 
