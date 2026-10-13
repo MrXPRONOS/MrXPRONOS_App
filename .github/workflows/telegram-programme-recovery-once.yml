@@ -1,0 +1,38 @@
+name: Telegram programme test recovery
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-programme-recovery-once.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-programme-recovery-once.yml'
+      - 'scripts/telegram_test_programme_recovery.py'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      FOOTBALL_REQUIRE_COMMENTS: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer les dépendances
+        run: python -m pip install requests Pillow
+      - name: Tests statiques
+        run: python -m py_compile scripts/telegram_test_programme_recovery.py
+      - name: Vérifier le canal de test
+        if: ${{ github.event_name == 'push' }}
+        run: python scripts/telegram_test_guard.py
+      - name: Tester le programme réel
+        if: ${{ github.event_name == 'push' }}
+        run: python scripts/telegram_test_programme_recovery.py
