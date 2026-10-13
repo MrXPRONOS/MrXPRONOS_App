@@ -749,6 +749,37 @@ async function recordEvent(type, page = "") {
   }
 }
 
+// Mesure de performance éditoriale : visites ATTRIBUÉES uniquement.
+// Ne stocke ni identifiant du lecteur, ni IP, ni URL libre, ni cookie.
+function editorialAttributionPayload(page) {
+  if (page !== "blog-post" && page !== "conseil-post") return null;
+  const query = new URLSearchParams(window.location.search);
+  const source = String(query.get("utm_source") || "").toLowerCase();
+  if (!["telegram", "facebook", "instagram", "threads", "whatsapp", "youtube", "tiktok"].includes(source)) return null;
+  const slug = String(query.get("slug") || "");
+  const variant = String(query.get("utm_content") || "legacy");
+  if (!/^[a-z0-9_-]{2,180}$/i.test(slug) || !/^(?:v[123]|legacy)$/i.test(variant)) return null;
+  const kind = page === "blog-post" ? "article" : "conseil";
+  return [kind, slug, source, variant].join("|");
+}
+
+async function recordEditorialAttribution(page) {
+  const payload = editorialAttributionPayload(page);
+  if (!payload || !supabaseAvailable || !supabase) return;
+  try {
+    // Même table analytics existante, mais user_id=null : aucun profilage individuel.
+    const { error } = await supabase.from("analytics").insert({
+      event_type: "editorial_view",
+      user_id: null,
+      page: payload,
+    });
+    if (error) throw error;
+  } catch (error) {
+    // L'échec des statistiques ne doit jamais empêcher la lecture de l'article.
+    console.warn("Mesure éditoriale indisponible :", error);
+  }
+}
+
 function countVisitOncePerDay() {
   const todayKey = getTodayString();
   const lastVisit = localStorage.getItem("mx_last_visit");
@@ -3050,6 +3081,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     void (async () => {
       try {
         await initSupabase();
+        await recordEditorialAttribution(page);
         await updateDisplayedCounters();
         subscribeToCounters();
         await registerUniqueUser();
