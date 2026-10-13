@@ -23,7 +23,6 @@ const OPENLIGA_CORE_COMPETITIONS = [
   ["bl3", "3. Liga"],
   ["ucl", "UEFA Champions League"],
   ["dfb", "DFB-Pokal"],
-  ["ffb1", "Frauen-Bundesliga"],
 ] as const;
 const OPENLIGA_2026_COMPETITIONS = [
   ["uel2026", "UEFA Europa League"],
@@ -58,6 +57,8 @@ function openLigaCompetitions(date: Date) {
   const season = seasonFor(date);
   const rows: Array<[string, string, number]> = OPENLIGA_CORE_COMPETITIONS
     .map(([shortcut, label]) => [shortcut, label, season]);
+  if (season === 2026) rows.push(["ffb1", "Frauen-Bundesliga", 2026]);
+  else if (season === 2025) rows.push(["fbl1", "Frauen-Bundesliga", 2025]);
   if (date.getUTCFullYear() === 2026) {
     rows.push(...OPENLIGA_2026_COMPETITIONS.map(([shortcut, label]) =>
       [shortcut, label, 2026] as [string, string, number]
