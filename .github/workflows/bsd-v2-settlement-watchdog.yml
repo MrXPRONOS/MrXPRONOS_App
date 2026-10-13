@@ -38,6 +38,7 @@ jobs:
       - name: Retry unresolved BSD settlements
         env:
           BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+          BSD_FREE_SOURCES: '1'
         run: python bsd/bsd_v2_settlement_watchdog.py --data data.json --max-requests 120
       - name: Validate and commit settlement-only changes
         run: |
