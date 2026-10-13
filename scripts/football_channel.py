@@ -30,6 +30,7 @@ sys.path.insert(0, str(ROOT / "bsd"))
 sys.path.insert(0, str(ROOT / "scripts"))
 from bsd_api import BSDClient, BSDAPIError  # noqa: E402
 from telegram_rich import post_photo, post_text  # noqa: E402
+from football_match_lifecycle import lifecycle_signals  # noqa: E402
 
 TZ = ZoneInfo("Africa/Lome")
 STATE_PATH = Path(os.getenv("FOOTBALL_NEWS_STATE", ".state/mrxpronos-football.json"))
@@ -37,7 +38,8 @@ RSS_URL = os.getenv("FOOTBALL_RSS_FEED", "https://www.footmercato.net/flux-rss")
 NEWS_CHAT_ENV = "FOOTBALL_NEWS_CHAT_ID"
 MAX_MESSAGES_PER_RUN = 2
 LIMITS = {"flash": 2, "programme": 1, "avant_match": 2, "resultat": 2,
-          "statistique": 1, "sondage": 1}
+          "statistique": 1, "sondage": 1, "composition": 6, "kickoff": 8,
+          "goal": 14, "mi_temps": 8}
 LEAGUE_TERMS = (
     "champions league", "premier league", "ligue 1", "la liga", "laliga",
     "serie a", "bundesliga", "europa league", "coupe du monde", "world cup",
@@ -70,6 +72,10 @@ CATEGORY_LABELS = {
     "resultat": "🏁 RÉSULTAT FINAL",
     "statistique": "📊 LA STAT DU JOUR",
     "sondage": "🗳️ LE DÉBAT XPRONOS",
+    "composition": "📋 COMPOSITIONS OFFICIELLES",
+    "kickoff": "▶️ COUP D’ENVOI",
+    "goal": "⚽ BUT",
+    "mi_temps": "⏸️ MI-TEMPS",
 }
 
 
@@ -886,8 +892,158 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
     )
 
 
+
+def lifecycle_publication(signal: dict) -> Publication | None:
+    """Transforme une transition de match vérifiée en post court Actu Foot."""
+    kind = str(signal.get("kind") or "")
+    home = plain(signal.get("home"), 55)
+    away = plain(signal.get("away"), 55)
+    competition = plain(signal.get("league") or "Football", 70)
+    source = plain(signal.get("source") or "données live", 50)
+    if not home or not away or kind not in {"composition", "kickoff", "goal", "mi_temps"}:
+        return None
+
+    button = {"inline_keyboard": [[{
+        "text": "Suivre les matchs LIVE ↗",
+        "url": "https://mrxpronos.github.io/MrXPRONOS_App/live.html",
+        "style": "primary",
+    }]]}
+
+    if kind == "composition":
+        lineups = signal.get("lineups") if isinstance(signal.get("lineups"), dict) else {}
+        home_players = [plain(x, 45) for x in lineups.get("home", []) if plain(x, 45)][:11]
+        away_players = [plain(x, 45) for x in lineups.get("away", []) if plain(x, 45)][:11]
+        if len(home_players) < 8 or len(away_players) < 8:
+            return None
+        kickoff_at = signal.get("kickoff")
+        kickoff_text = time_label(kickoff_at) if isinstance(kickoff_at, datetime) else ""
+        home_block = "<b>" + esc(home) + "</b>\n" + "\n".join(
+            str(i + 1) + ". " + esc(name) for i, name in enumerate(home_players)
+        )
+        away_block = "<b>" + esc(away) + "</b>\n" + "\n".join(
+            str(i + 1) + ". " + esc(name) for i, name in enumerate(away_players)
+        )
+        message = (
+            "<h3>📋 COMPOSITIONS OFFICIELLES</h3>"
+            "<p><i>" + esc(competition) + (" • " + esc(kickoff_text) if kickoff_text else "") + "</i></p>"
+            "<blockquote>" + home_block + "\n\n" + away_block + "</blockquote>"
+            "<p><i>Source : " + esc(source) + "</i></p>"
+        )
+    elif kind == "kickoff":
+        message = (
+            "<h3>▶️ COUP D’ENVOI</h3>"
+            "<p><i>" + esc(competition) + "</i></p>"
+            "<blockquote><b>⚽ " + esc(home) + " " + esc(signal.get("score") or "0-0")
+            + " " + esc(away) + "</b></blockquote>"
+            "<p>Le match est lancé"
+            + (" • " + esc(str(signal.get("minute"))) + "'" if signal.get("minute") else "")
+            + ".</p>"
+            "<p><i>Source live : " + esc(source) + "</i></p>"
+        )
+    elif kind == "mi_temps":
+        message = (
+            "<h3>⏸️ MI-TEMPS</h3>"
+            "<p><i>" + esc(competition) + "</i></p>"
+            "<blockquote><b>" + esc(home) + " " + esc(signal.get("score") or "—")
+            + " " + esc(away) + "</b></blockquote>"
+            "<p><b>💬 Votre avis sur cette première période ?</b></p>"
+            "<p><i>Source live : " + esc(source) + "</i></p>"
+        )
+    else:
+        goal = signal.get("goal") if isinstance(signal.get("goal"), dict) else {}
+        scorer = plain(goal.get("player"), 70)
+        minute = plain(goal.get("minute_text"), 16) or (
+            str(signal.get("minute")) + "'" if signal.get("minute") is not None else ""
+        )
+        qualifier = ""
+        if goal.get("penalty"):
+            qualifier = " (pen.)"
+        elif goal.get("own_goal"):
+            qualifier = " (c.s.c.)"
+        scorer_line = (
+            "<p><b>🎯 " + esc(scorer) + esc(qualifier) + (" • " + esc(minute) if minute else "") + "</b></p>"
+            if scorer else
+            ("<p><b>🕒 " + esc(minute) + "</b></p>" if minute else "")
+        )
+        message = (
+            "<h3>⚽ BUUUUT !</h3>"
+            "<p><i>" + esc(competition) + "</i></p>"
+            "<blockquote><b>" + esc(home) + " " + esc(signal.get("score") or "—")
+            + " " + esc(away) + "</b></blockquote>"
+            + scorer_line +
+            "<p><i>Source live : " + esc(source) + "</i></p>"
+        )
+
+    return Publication(
+        kind,
+        str(signal.get("key") or ""),
+        post_label(message),
+        keyboard=button,
+    )
+
+
 def enough(history: History, cat: str, now: datetime) -> bool:
     return history.count(cat, now.astimezone(TZ).date()) < LIMITS[cat]
+
+
+
+def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[str, int]:
+    """Passage léger Actu Foot : aucun RSS, aucune image site, aucun appel BSD.
+
+    Les transitions viennent d'ESPN public et, si disponible, du cache Supabase
+    déjà alimenté par notre moteur live BSD+ESPN.
+    """
+    now = now.astimezone(timezone.utc)
+    state = History()
+    sender = Sender(dry_run=dry_run)
+    counter = {"sent": 0, "skipped": 0, "errors": 0}
+    max_send = MAX_MESSAGES_PER_RUN
+
+    def publish(item: Publication | None) -> None:
+        if item is None or counter["sent"] >= max_send:
+            return
+        if not force and (state.seen(item.key) or not enough(state, item.category, now)):
+            counter["skipped"] += 1
+            return
+        sender.send(item)
+        counter["sent"] += 1
+        if not dry_run:
+            state.mark(item.key, item.category, now)
+            state.save(now)
+
+    try:
+        signals = lifecycle_signals(
+            [],
+            set(state.items.keys()),
+            now,
+            sender.session,
+            importance,
+        )
+        used_matches: set[str] = set()
+        for signal in signals:
+            match_key = (
+                plain(signal.get("home"), 55).casefold()
+                + "|"
+                + plain(signal.get("away"), 55).casefold()
+            )
+            if match_key in used_matches:
+                continue
+            post = lifecycle_publication(signal)
+            if post is None:
+                continue
+            publish(post)
+            used_matches.add(match_key)
+            if counter["sent"] >= max_send:
+                break
+    except (requests.RequestException, ValueError, TypeError) as exc:
+        counter["errors"] += 1
+        print("ERREUR_LIFECYCLE_ONLY", type(exc).__name__, str(exc)[:180])
+    finally:
+        if not dry_run:
+            state.save(now)
+
+    print("XPRONOS_LIFECYCLE", json.dumps(counter), "dry_run", dry_run)
+    return counter
 
 
 def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[str, int]:
@@ -979,6 +1135,34 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                 # En soirée on prépare aussi les matchs du lendemain.
                 if hour >= 20:
                     matches = matches + get_day(today + timedelta(days=1))
+
+                # Cycle du match Actu Foot : composition, coup d'envoi, but, mi-temps.
+                # BSD reste notre liste de référence; le moteur croise le cache live
+                # existant et les sources gratuites avant de publier.
+                if counter["sent"] < max_send:
+                    lifecycle_base = [
+                        event for event in candidates(matches)
+                        if importance(event) > 0
+                    ][:36]
+                    signals = lifecycle_signals(
+                        lifecycle_base,
+                        set(state.items.keys()),
+                        now,
+                        sender.session,
+                        importance,
+                    )
+                    used_matches: set[str] = set()
+                    for signal in signals:
+                        match_key = plain(signal.get("home"), 55).casefold() + "|" + plain(signal.get("away"), 55).casefold()
+                        if match_key in used_matches:
+                            continue
+                        post = lifecycle_publication(signal)
+                        if post is None:
+                            continue
+                        publish(post)
+                        used_matches.add(match_key)
+                        if counter["sent"] >= max_send:
+                            break
 
                 # Avant-match événementiel : publication 65 à 170 min avant le coup d'envoi.
                 upcoming = [
@@ -1224,22 +1408,26 @@ def main() -> None:
     parser.add_argument("--visual-test", action="store_true",
                         help="Envoie Matchs du jour + Statistique au vrai canal")
     parser.add_argument("--force", action="store_true", help="Ignorer les limites et l'historique (test manuel)")
+    parser.add_argument("--lifecycle-only", action="store_true",
+                        help="Surveille uniquement composition/kickoff/but/mi-temps, sans RSS ni BSD")
     args = parser.parse_args()
     now = datetime.now(timezone.utc)
     if args.check_comments:
-        if args.dry_run or args.force or args.live_test or args.visual_test:
+        if args.dry_run or args.force or args.live_test or args.visual_test or args.lifecycle_only:
             parser.error("--check-comments doit etre utilise seul")
         sender = Sender(dry_run=False)
         linked = sender.verify_discussion()
         print("XPRONOS_COMMENTS_OK", linked)
     elif args.visual_test:
-        if args.dry_run or args.force or args.live_test:
+        if args.dry_run or args.force or args.live_test or args.lifecycle_only:
             parser.error("--visual-test doit etre utilise seul")
         run_visual_live_test(now)
     elif args.live_test:
-        if args.dry_run or args.force:
-            parser.error("--live-test ne peut pas etre combine avec --dry-run/--force")
+        if args.dry_run or args.force or args.lifecycle_only:
+            parser.error("--live-test ne peut pas etre combine avec --dry-run/--force/--lifecycle-only")
         run_live_test(now)
+    elif args.lifecycle_only:
+        run_lifecycle_only(now, dry_run=args.dry_run, force=args.force)
     else:
         run(now, dry_run=args.dry_run, force=args.force)
 
