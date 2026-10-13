@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v99-prono-live-naming-20261013';
+const VERSION = 'v100-assistant-premium-ui-20261013';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -41,7 +41,7 @@ const STATIC_ASSETS = [
     './assets/css/bookmakers-premium.css',
     './assets/css/mobile-nav-premium.css',
     './assets/css/brand-signatures.css',
-    './assets/js/main.js',
+    './assets/js/main.js',\n    './assets/js/assistant.js',
     './assets/js/loading-ui.js',
     './assets/js/home-premium.js',
     './assets/js/pwa.js',
