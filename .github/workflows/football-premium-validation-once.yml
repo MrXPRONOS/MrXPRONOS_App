@@ -26,7 +26,7 @@ jobs:
     env:
       BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
       FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
-      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.FOOTBALL_NEWS_CHAT_ID }}
+      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID }}
       FOOTBALL_RSS_FEED: https://www.footmercato.net/flux-rss
       FOOTBALL_BSD_REQUEST_BUDGET: '18'
       FOOTBALL_REQUIRE_COMMENTS: '1'
@@ -44,5 +44,17 @@ jobs:
         run: |
           python scripts/football_cards.py --demo --out-dir /tmp/premium
           python scripts/football_cards.py --programme-styles --out-dir /tmp/styles
+      - name: Vérifier le canal Telegram de test
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        shell: bash
+        run: |
+          test -n "$FOOTBALL_NEWS_BOT_TOKEN"
+          if [ -z "$FOOTBALL_NEWS_CHAT_ID" ]; then
+            echo "::error::TELEGRAM_TEST_CHAT_ID manquant. Aucun test ne sera envoyé au canal de production."
+            exit 1
+          fi
+          echo "TELEGRAM_TEST_ROUTE_OK"
+
       - name: Envoyer les six formats premium
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: python scripts/football_channel.py --live-test

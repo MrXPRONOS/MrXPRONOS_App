@@ -25,7 +25,16 @@ on:
         description: "Simulation seulement (aucun envoi Telegram)"
         required: true
         type: boolean
-        default: true
+        default: false
+      destination:
+        description: "Destination d'un lancement manuel"
+        required: true
+        type: choice
+        default: "test"
+        options:
+          - "test"
+          - "dry-run"
+          - "production"
       force:
         description: "Ignorer exceptionnellement les fenêtres/quotas/historique"
         required: true
@@ -56,7 +65,8 @@ jobs:
     env:
       BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
       FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
-      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.FOOTBALL_NEWS_CHAT_ID }}
+      PROD_FOOTBALL_NEWS_CHAT_ID: ${{ secrets.FOOTBALL_NEWS_CHAT_ID }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID }}
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
@@ -85,12 +95,61 @@ jobs:
             python -m pip install --disable-pip-version-check requests Pillow feedparser
           fi
 
+      - name: Router canal Telegram production ou test
+        id: telegram_route
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          TRIGGER_SOURCE: ${{ inputs.trigger_source || '' }}
+          MANUAL_DESTINATION: ${{ inputs.destination || 'test' }}
+        run: |
+          set -euo pipefail
+          DESTINATION="$MANUAL_DESTINATION"
+
+          # Les vrais schedulers conservent toujours le canal de production.
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && { [ "$TRIGGER_SOURCE" = "cron-job.org" ] || [ "$TRIGGER_SOURCE" = "cron-job.org-lifecycle" ]; }; then
+            DESTINATION="production"
+          elif [ "$EVENT_NAME" = "push" ]; then
+            DESTINATION="dry-run"
+          fi
+
+          case "$DESTINATION" in
+            production)
+              test -n "$PROD_FOOTBALL_NEWS_CHAT_ID"
+              echo "FOOTBALL_NEWS_CHAT_ID=$PROD_FOOTBALL_NEWS_CHAT_ID" >> "$GITHUB_ENV"
+              STATE_PATH=".state/mrxpronos-football.json"
+              ;;
+            test)
+              if [ -z "$TELEGRAM_TEST_CHAT_ID" ]; then
+                echo "::error::TELEGRAM_TEST_CHAT_ID manquant. Le test n'est jamais redirigé vers le canal de production."
+                exit 1
+              fi
+              echo "FOOTBALL_NEWS_CHAT_ID=$TELEGRAM_TEST_CHAT_ID" >> "$GITHUB_ENV"
+              STATE_PATH=".state/mrxpronos-football-test.json"
+              ;;
+            dry-run)
+              # Aucun envoi : utiliser un état isolé pour éviter de toucher à la production.
+              STATE_PATH=".state/mrxpronos-football-dry-run.json"
+              ;;
+            *)
+              echo "::error::Destination Telegram inconnue: $DESTINATION"
+              exit 1
+              ;;
+          esac
+
+          echo "destination=$DESTINATION" >> "$GITHUB_OUTPUT"
+          echo "state_path=$STATE_PATH" >> "$GITHUB_OUTPUT"
+          echo "FOOTBALL_NEWS_STATE=$STATE_PATH" >> "$GITHUB_ENV"
+          echo "TELEGRAM_ROUTE destination=$DESTINATION state=$STATE_PATH"
+
       - name: Verifier les secrets de production
         shell: bash
         run: |
           set -euo pipefail
-          test -n "$FOOTBALL_NEWS_BOT_TOKEN"
-          test -n "$FOOTBALL_NEWS_CHAT_ID"
+          if [ "${{ steps.telegram_route.outputs.destination }}" != "dry-run" ]; then
+            test -n "$FOOTBALL_NEWS_BOT_TOKEN"
+            test -n "$FOOTBALL_NEWS_CHAT_ID"
+          fi
           if [ "$RUN_MODE" != "lifecycle" ]; then
             test -n "$BSD_API_KEY"
           fi
@@ -131,10 +190,10 @@ jobs:
       - name: Restaurer historique anti-doublon
         uses: actions/cache/restore@v4
         with:
-          path: .state/mrxpronos-football.json
-          key: football-production-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.telegram_route.outputs.state_path }}
+          key: football-${{ steps.telegram_route.outputs.destination }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
-            football-production-
+            football-${{ steps.telegram_route.outputs.destination }}-
 
       - name: Publier sur Telegram
         id: telegram_dispatch
@@ -144,6 +203,7 @@ jobs:
           MANUAL_DRY_RUN: ${{ inputs.dry_run || 'false' }}
           MANUAL_FORCE: ${{ inputs.force || 'false' }}
           TRIGGER_SOURCE: ${{ inputs.trigger_source || '' }}
+          ROUTED_DESTINATION: ${{ steps.telegram_route.outputs.destination }}
         run: |
           set -euo pipefail
           ARGS=()
@@ -156,7 +216,7 @@ jobs:
             CRON_PRODUCTION="true"
           fi
 
-          if [ "$EVENT_NAME" = "push" ]; then
+          if [ "$EVENT_NAME" = "push" ] || [ "$ROUTED_DESTINATION" = "dry-run" ]; then
             ARGS+=(--dry-run)
           elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_DRY_RUN" = "true" ] && [ "$CRON_PRODUCTION" != "true" ]; then
             ARGS+=(--dry-run)
@@ -183,11 +243,11 @@ jobs:
         if: ${{ always() && github.event_name == 'workflow_dispatch' && steps.telegram_dispatch.outputs.effective_dry_run == 'false' }}
         uses: actions/cache/save@v4
         with:
-          path: .state/mrxpronos-football.json
-          key: football-production-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.telegram_route.outputs.state_path }}
+          key: football-${{ steps.telegram_route.outputs.destination }}-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Publier les nouvelles Infos Foot sur le site
-        if: ${{ github.event_name == 'workflow_dispatch' && steps.telegram_dispatch.outputs.effective_dry_run == 'false' && inputs.mode != 'lifecycle' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && steps.telegram_dispatch.outputs.effective_dry_run == 'false' && steps.telegram_route.outputs.destination == 'production' && inputs.mode != 'lifecycle' }}
         shell: bash
         run: |
           set -euo pipefail

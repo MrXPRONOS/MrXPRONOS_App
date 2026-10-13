@@ -21,7 +21,7 @@ jobs:
     env:
       BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
       FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
-      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.FOOTBALL_NEWS_CHAT_ID }}
+      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID }}
       FOOTBALL_BSD_REQUEST_BUDGET: '18'
       PYTHONUNBUFFERED: '1'
     steps:
@@ -33,5 +33,17 @@ jobs:
         run: python -m pip install requests Pillow
       - name: Tests locaux sans Telegram
         run: python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
+      - name: Vérifier le canal Telegram de test
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        shell: bash
+        run: |
+          test -n "$FOOTBALL_NEWS_BOT_TOKEN"
+          if [ -z "$FOOTBALL_NEWS_CHAT_ID" ]; then
+            echo "::error::TELEGRAM_TEST_CHAT_ID manquant. Aucun test ne sera envoyé au canal de production."
+            exit 1
+          fi
+          echo "TELEGRAM_TEST_ROUTE_OK"
+
       - name: Envoyer les 6 vrais tests etiquetes
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: python scripts/football_channel.py --live-test

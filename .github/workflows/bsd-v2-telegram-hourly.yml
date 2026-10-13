@@ -10,6 +10,14 @@ on:
         required: false
         default: "manual"
         type: string
+      destination:
+        description: "Destination d'un lancement manuel"
+        required: true
+        default: "test"
+        type: choice
+        options:
+          - "test"
+          - "production"
 
 permissions:
   contents: read
@@ -40,10 +48,36 @@ jobs:
           python-version: '3.10'
       - name: Telegram HTTP dependency only
         run: python -m pip install requests pillow
+      - name: Router le canal Telegram
+        id: route
+        env:
+          TRIGGER_SOURCE: ${{ inputs.trigger_source || 'manual' }}
+          MANUAL_DESTINATION: ${{ inputs.destination || 'test' }}
+          PROD_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="$MANUAL_DESTINATION"
+          if [ "$TRIGGER_SOURCE" = "cron-job.org" ]; then
+            DEST="production"
+          fi
+          if [ "$DEST" = "production" ]; then
+            test -n "$PROD_CHAT_ID"
+            echo "TELEGRAM_CHAT_ID=$PROD_CHAT_ID" >> "$GITHUB_ENV"
+          else
+            if [ -z "$TEST_CHAT_ID" ]; then
+              echo "::error::TELEGRAM_TEST_CHAT_ID manquant. Le test ne peut pas retomber sur la production."
+              exit 1
+            fi
+            echo "TELEGRAM_CHAT_ID=$TEST_CHAT_ID" >> "$GITHUB_ENV"
+          fi
+          echo "destination=$DEST" >> "$GITHUB_OUTPUT"
+          echo "BSD_TELEGRAM_ROUTE destination=$DEST"
+
       - name: Send single picks and combinations around one hour before kickoff
         env:
           TELEGRAM_BOT_TOKEN: '${{ secrets.TELEGRAM_BOT_TOKEN }}'
-          TELEGRAM_CHAT_ID: '${{ secrets.TELEGRAM_CHAT_ID }}'
           SUPABASE_URL: '${{ secrets.SUPABASE_URL }}'
           SUPABASE_SERVICE_ROLE_KEY: '${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}'
           SUPABASE_KEY: '${{ secrets.SUPABASE_KEY }}'
