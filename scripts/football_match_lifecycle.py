@@ -1113,6 +1113,31 @@ def lifecycle_signals(
         ]
     signals: list[dict] = []
     summary_cache: dict[str, dict] = {}
+    detail_cache: dict[str, dict] = {}
+
+    def provider_detail(ext: dict) -> dict:
+        provider = str(ext.get("source") or "")
+        provider_id = str(ext.get("provider_event_id") or ext.get("id") or "").split(":")[-1]
+        cache_key = provider + ":" + provider_id + ":" + str(ext.get("sportscore_slug") or "")
+        if cache_key in detail_cache:
+            return detail_cache[cache_key]
+        detail: dict[str, Any] = {}
+        if provider == "sportscore":
+            payload = fetch_sportscore_match(session, str(ext.get("sportscore_slug") or ""), ttl=18)
+            detail = sportscore_detail_enrichment(payload)
+            detail["lineups"] = sportscore_lineups(payload)
+            detail["goals"] = sportscore_goals(payload)
+        elif provider == "thesportsdb":
+            payload = fetch_thesportsdb_event_detail(session, provider_id, ttl=45)
+            timeline = thesportsdb_timeline(payload)
+            detail = {
+                "lineups": thesportsdb_lineups(payload),
+                "goals": [x for x in timeline if x.get("kind") == "goal"],
+                "timeline": timeline,
+                "raw": payload,
+            }
+        detail_cache[cache_key] = detail
+        return detail
 
     def summary_for(event_id: str) -> dict:
         if event_id not in summary_cache:
@@ -1156,28 +1181,30 @@ def lifecycle_signals(
         # Composition: on ne demande le résumé ESPN que pour des matchs proches.
         if kickoff and -timedelta(minutes=8) <= kickoff - now <= timedelta(minutes=85):
             lineup_key = "composition:" + key_id
-            if lineup_key not in sent_keys and ext.get("source") == "espn":
-                summary = summary_for(event_id)
-                lineups = extract_lineups(summary)
-                if len(lineups["home"]) == 11 and len(lineups["away"]) == 11:
+            if lineup_key not in sent_keys and ext.get("source") in {"espn", "sportscore", "thesportsdb"}:
+                if ext.get("source") == "espn":
+                    summary = summary_for(event_id)
+                    lineups = extract_lineups(summary)
+                    match_data = extract_match_enrichment(summary)
+                    composition_source = "ESPN"
+                else:
+                    detail = provider_detail(ext)
+                    lineups = detail.get("lineups") if isinstance(detail.get("lineups"), dict) else {"home": [], "away": []}
+                    match_data = detail
+                    composition_source = "SportScore" if ext.get("source") == "sportscore" else "TheSportsDB"
+                if len(lineups.get("home", [])) == 11 and len(lineups.get("away", [])) == 11:
                     base_home = base.get("home_team")
                     base_away = base.get("away_team")
-                    home_logo = _plain(
-                        ext.get("home_logo")
-                        or (base_home.get("logo") if isinstance(base_home, dict) else "")
-                    )
-                    away_logo = _plain(
-                        ext.get("away_logo")
-                        or (base_away.get("logo") if isinstance(base_away, dict) else "")
-                    )
+                    home_logo = _plain(ext.get("home_logo") or (base_home.get("logo") if isinstance(base_home, dict) else ""))
+                    away_logo = _plain(ext.get("away_logo") or (base_away.get("logo") if isinstance(base_away, dict) else ""))
                     signals.append({
                         "kind": "composition", "key": lineup_key, "priority": 70 + importance,
                         "home": home, "away": away, "league": league, "kickoff": kickoff,
-                        "lineups": lineups, "source": "ESPN",
+                        "lineups": lineups, "source": composition_source,
                         "home_logo": home_logo, "away_logo": away_logo,
-                        "espn_event_id": espn_event_id or event_id,
-                        "espn_url": espn_url or espn_match_url(event_id),
-                        "match_data": extract_match_enrichment(summary),
+                        "espn_event_id": espn_event_id or "",
+                        "espn_url": espn_url or "",
+                        "match_data": match_data,
                     })
 
         # Coup d'envoi: uniquement au tout début.
@@ -1201,16 +1228,25 @@ def lifecycle_signals(
                     "score": score_text, "source": source,
                     "espn_event_id": espn_event_id,
                     "espn_url": espn_url,
-                    "match_data": extract_match_enrichment(summary_for(espn_event_id)) if espn_event_id else {},
+                    "match_data": (
+                        extract_match_enrichment(summary_for(espn_event_id))
+                        if espn_event_id else provider_detail(ext)
+                    ),
                 })
 
-        # But/changement de score: ESPN permet d'identifier le dernier buteur.
+        # But/changement de score: fournisseur détaillé requis pour identifier le buteur.
         if (
-            is_live(ext) and ext.get("source") == "espn"
+            is_live(ext) and ext.get("source") in {"espn", "sportscore", "thesportsdb"}
             and hs is not None and aws is not None and hs + aws > 0
         ):
-            summary = summary_for(event_id)
-            goals = extract_goals(summary)
+            if ext.get("source") == "espn":
+                summary = summary_for(event_id)
+                goals = extract_goals(summary)
+                goal_match_data = extract_match_enrichment(summary)
+            else:
+                detail = provider_detail(ext)
+                goals = detail.get("goals") if isinstance(detail.get("goals"), list) else []
+                goal_match_data = detail
             last_goal = goals[-1] if goals else {}
             goal_minute = last_goal.get("minute_total")
             if goal_minute is None:
@@ -1229,13 +1265,13 @@ def lifecycle_signals(
                 signals.append({
                     "kind": "goal", "key": key, "priority": 145 + importance,
                     "home": home, "away": away, "league": league, "minute": minute,
-                    "score": score_text, "source": "ESPN" if summary else source,
+                    "score": score_text, "source": source,
                     "goal": last_goal,
                     "home_team_id": ext.get("home_team_id"),
                     "away_team_id": ext.get("away_team_id"),
                     "espn_event_id": espn_event_id or event_id,
                     "espn_url": espn_url or espn_match_url(event_id),
-                    "match_data": extract_match_enrichment(summary),
+                    "match_data": goal_match_data,
                 })
 
         # Le match se conclut UNIQUEMENT avec un état final + un score confirmé.
@@ -1265,7 +1301,10 @@ def lifecycle_signals(
                         "day": now.strftime("%d/%m/%Y"),
                         "espn_event_id": espn_event_id,
                         "espn_url": espn_url,
-                        "match_data": extract_match_enrichment(summary_for(espn_event_id)) if espn_event_id else {},
+                        "match_data": (
+                            extract_match_enrichment(summary_for(espn_event_id))
+                            if espn_event_id else provider_detail(ext)
+                        ),
                     })
         for signal in signals[signal_start:]:
             signal["follow_ref"] = follow_ref
