@@ -6,6 +6,7 @@ La génération est idempotente par ID de match et respectueuse de la sélection
 """
 from __future__ import annotations
 import argparse,json,re
+from urllib.parse import urlsplit
 from datetime import datetime,timedelta,timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -29,6 +30,36 @@ def name(event,side):
     raw=event.get(side+"_team")
     if isinstance(raw,dict):raw=raw.get("name")
     return str(raw or "").strip()[:85]
+
+# Les emblèmes ne viennent que de champs du match BSD V2; jamais de recherche
+# arbitraire de clubs homonymes ni de remplacement par un faux badge.
+TRUSTED_BADGE_HOSTS = frozenset((
+    "r2.thesportsdb.com", "www.thesportsdb.com",
+    "media.api-sports.io", "cdn.sofascore.com", "api.sofascore.com",
+    "img.sofascore.com", "images.fotmob.com",
+))
+def verified_badge_url(raw):
+    if not isinstance(raw,str) or len(raw)>600:return ""
+    try:
+        parsed=urlsplit(raw)
+        if parsed.scheme!="https" or parsed.hostname not in TRUSTED_BADGE_HOSTS:
+            return ""
+        if parsed.username or parsed.password or parsed.port not in (None,443):return ""
+        if not parsed.path.startswith("/") or not parsed.path:return ""
+        return raw
+    except (ValueError,TypeError):
+        return ""
+
+def badge_url(match,side):
+    team=match.get(side+"_team")
+    options=[match.get(side+"_"+key) for key in ("team_logo","logo","team_badge","badge","team_image","image")]
+    if isinstance(team,dict):
+        options.extend(team.get(key) for key in ("logo","logo_url","badge","badge_url","crest","image","image_url"))
+    for value in options:
+        valid=verified_badge_url(value)
+        if valid:return valid
+    return ""
+
 
 def clean(value):
     return re.sub(r"\s+"," ",str(value or "")).strip()
@@ -83,13 +114,15 @@ def factual_article(match,now):
       "source":"bsd","match":f"{h} vs {a}","league":league,
       "bsd_event_id":str(match.get("source_event_id") or match["id"]),
       "bsd_match_date":dt.isoformat(),
+      "home_logo":badge_url(match,"home"),
+      "away_logo":badge_url(match,"away"),
     }
 
 def run(root=ROOT,now=None,limit=5,dry_run=False):
     now=now or datetime.now(timezone.utc)
     if now.tzinfo is None:now=now.replace(tzinfo=timezone.utc)
     data_path=root/"data.json";articles_path=root/"articles.json"
-    result={"source":"bsd-v2-isolated","selected":0,"created":0,"updated":0,"skipped":0,"dry_run":dry_run}
+    result={"source":"bsd-v2-isolated","selected":0,"created":0,"updated":0,"skipped":0,"badge_pairs":0,"dry_run":dry_run}
     try:
         dataset=json.loads(data_path.read_text(encoding="utf-8"))
         current=json.loads(articles_path.read_text(encoding="utf-8"))
@@ -102,11 +135,12 @@ def run(root=ROOT,now=None,limit=5,dry_run=False):
     additions=[]
     for event in selected:
         article=factual_article(event,now)
+        if article["home_logo"] and article["away_logo"]:result["badge_pairs"]+=1
         slug=article["slug"]
         previous=existing.get(slug)
         if previous is None:
             additions.append(article);result["created"]+=1
-        elif previous.get("content")!=article["content"]:
+        elif any(previous.get(key)!=article.get(key) for key in ("content","home_logo","away_logo","match","league","bsd_match_date")):
             previous.update({k:v for k,v in article.items() if k not in ("date",)})
             result["updated"]+=1
         else: result["skipped"]+=1

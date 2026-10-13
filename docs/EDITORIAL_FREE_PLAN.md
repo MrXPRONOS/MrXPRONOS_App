@@ -96,3 +96,12 @@ Le projet Supabase existant présente des tables publiques sans RLS et une polit
 - Le rapport \`editorial_performance.json\` présente désormais les impressions et ouvertures par article/conseil et variante. Le taux est fourni à titre descriptif, sans prétention statistique (au moins 30 impressions par variante pour le simple statut descriptif).
 - Les sessions répétées et les interactions interrompues ne permettent pas un décompte garanti de visiteurs uniques. Les événements sont anonymes; les tests A/B des **créations de réseaux sociaux** ne sont pas encore randomisés, seulement ceux des couvertures **affichées sur le site**.
 - Les images A/B utilisent Pillow local (gratuit), n'inventent aucune statistique de match. Aucune photographie soumise à des droits n'est automatiquement republiée.
+
+
+## Phase 5 — logos BSD V2 authentiques et visuels Flash Foot thématiques
+- Le raccord \`scripts/editorial_bsd_bridge.py\` ne récupère les blasons d'équipe que dans **les champs du match BSD V2 lui-même** (\`home_team.logo\`, \`away_team.logo\`, \`home_logo\`, etc.). Aucune recherche web ambiguë, aucune invention de badge.
+- Les URL autorisées passent par HTTPS et une liste limitée d'hôtes de logos déjà connus du projet (TheSportsDB, API-Sports, SofaScore, FotMob). Tous les badges absents, hôtes non autorisés ou échecs réseau sont ignorés; le visuel utilise alors uniquement les noms factuels.
+- Le studio dessine les deux badges lorsque **les deux** images sont réellement disponibles; jamais un écusson deviné. Téléchargement limité en taille, temps et résolution. Les anciennes métadonnées sont préservées par Git tant que les nouveaux fichiers ne sont pas validés.
+- Les illustrations Flash Foot sans photo de presse ont désormais cinq traitements distincts, selon la catégorie déduite du titre : MERCATO, COMPÉTITION, MATCH, DISCIPLINE et ACTUALITÉ. Ce sont des créations Pillow originales, pas des photographies téléchargées sans droits.
+- Cette phase ne modifie pas le modèle de pronostics ni les six workflows de publication football et n'autorise aucune nouvelle API payante.
+- Limite: il faut que BSD expose réellement des liens de badges reconnus pour bénéficier des deux écussons. La complétude des données sources est contrôlée, non inventée.
