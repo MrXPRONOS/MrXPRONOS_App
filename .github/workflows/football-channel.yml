@@ -139,6 +139,7 @@ jobs:
           assert commons.get("provider") == "Wikimedia Commons", commons
           assert commons.get("url", "").startswith("https://"), commons
           assert commons.get("license"), commons
+          assert "sa" not in commons.get("license", "").lower(), commons
           print("VIRAL_FREE_SOURCE_OK", {
               "provider": commons.get("provider"),
               "license": commons.get("license"),
