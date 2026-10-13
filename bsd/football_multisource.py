@@ -555,6 +555,19 @@ class MultiSourceFootballClient:
                     best.get("live_stats") or (best.get("raw_data") or {}).get("live_stats"),
                     row.get("live_stats") or (row.get("raw_data") or {}).get("live_stats"),
                 )
+            # Normalize logos at top-level too. Some providers expose them
+            # inside team objects while downstream cards read home_logo/away_logo.
+            for side in ("home", "away"):
+                if not _plain(best.get(side + "_logo")):
+                    logo = _logo_from(best, side)
+                    if not logo:
+                        logo = next((_logo_from(candidate, side) for candidate in ordered if _logo_from(candidate, side)), "")
+                    if logo:
+                        best[side + "_logo"] = logo
+                        team = best.get(side + "_team")
+                        if isinstance(team, dict) and not team.get("logo"):
+                            team["logo"] = logo
+
             sources = [str(r.get("source")) for r in ordered]
             best["source"] = "multisource" if len(sources) > 1 else sources[0]
             best["provider_sources"] = sources
