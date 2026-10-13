@@ -16,6 +16,8 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import requests
 
+from free_providers import FreeProviderHub, PROVIDER_QUALITY
+
 BASE_URL = "https://sports.bzzoiro.com/api/v2"
 DEFAULT_CACHE_DIR = Path("bsd/cache")
 
@@ -92,6 +94,14 @@ class BSDClient:
         self.rate_limit_remaining: Optional[int] = None
         self.rate_limit_header = ""
         self._last_call_at: Optional[float] = None
+        self.free = FreeProviderHub(
+            cache_dir=self.cache_dir / "free",
+            timeout=min(self.timeout, 18),
+        )
+        self.free_provider_matches = 0
+        self.free_provider_enriched = 0
+        self.free_provider_h2h_hits = 0
+        self._event_index: Dict[int, Dict[str, Any]] = {}
 
     def _cache_file(self, path: str, params: Dict[str, Any]) -> Path:
         key = json.dumps([path, params], sort_keys=True, separators=(",", ":"))
@@ -250,8 +260,32 @@ class BSDClient:
                     events.append(item)
             if len(events) >= total or not rows or len(rows) < page_size:
                 break
+        # BSD garde ses IDs canoniques, mais les sources gratuites complètent
+        # logos/scores absents et préparent les correspondances H2H. On ne remplace
+        # jamais un ID BSD par un ID externe.
+        for event in events:
+            try:
+                self._event_index[int(event["id"])] = event
+            except (KeyError, TypeError, ValueError):
+                continue
+
+        enriched = events
+        try:
+            if date_from == date_to and events:
+                before = json.dumps(events, sort_keys=True, default=str)
+                enriched = self.free.enrich_bsd_events(events, date_from)
+                self.free_provider_matches += sum(self.free.requests_made.values())
+                if json.dumps(enriched, sort_keys=True, default=str) != before:
+                    self.free_provider_enriched += sum(
+                        1 for row in enriched
+                        if isinstance(row, dict) and row.get("_free_provider_meta")
+                    )
+        except Exception as exc:
+            # Les fournisseurs gratuits ne doivent jamais casser le moteur BSD.
+            print("FREE_PROVIDER_ENRICH_ERROR:", type(exc).__name__, str(exc)[:140])
+
         return BSDPage(
-            events=events,
+            events=enriched,
             total_reported=total if total is not None else 0,
             pages_fetched=page_idx + 1,
             complete=len(events) >= (total if total is not None else 0),
@@ -359,4 +393,63 @@ class BSDClient:
     def get_h2h(self, event_id: int, *, ttl: int = 86400) -> Any:
         if int(event_id) <= 0:
             raise ValueError("Identifiant BSD invalide")
+
+        # SportScore fournit un H2H public documenté. Lorsqu'on connaît déjà
+        # les équipes du match BSD, on l'utilise avant l'endpoint H2H BSD.
+        event = self._event_index.get(int(event_id))
+        if isinstance(event, dict):
+            home = self._team_name(event, "home")
+            away = self._team_name(event, "away")
+            if home and away:
+                try:
+                    free_h2h = self.free.fetch_sportscore_h2h(home, away)
+                    if (
+                        isinstance(free_h2h, dict)
+                        and int(free_h2h.get("total_matches") or 0) > 0
+                    ):
+                        self.free_provider_h2h_hits += 1
+                        return {
+                            "head_to_head": {
+                                "total_matches": int(free_h2h["total_matches"]),
+                                "home_wins": int(free_h2h.get("home_wins") or 0),
+                                "away_wins": int(free_h2h.get("away_wins") or 0),
+                                "draws": int(free_h2h.get("draws") or 0),
+                                "recent_matches": free_h2h.get("recent_matches") or [],
+                                "provider": "sportscore",
+                                "provider_quality": PROVIDER_QUALITY["sportscore"],
+                            },
+                            "provider": "sportscore",
+                        }
+                except Exception as exc:
+                    print("SPORTSCORE_H2H_FALLBACK:", type(exc).__name__, str(exc)[:120])
+
         return self.get_json("/events/" + str(int(event_id)) + "/h2h/", ttl=ttl)
+
+    @staticmethod
+    def _team_name(event: Dict[str, Any], side: str) -> str:
+        value = event.get(side + "_team")
+        if isinstance(value, dict):
+            return str(
+                value.get("name")
+                or value.get("display_name")
+                or value.get("teamName")
+                or ""
+            ).strip()
+        return str(event.get(side + "_team_name") or value or "").strip()
+
+    def provider_report(self) -> Dict[str, Any]:
+        return {
+            "quality_order": [
+                {"provider": "espn", "score": PROVIDER_QUALITY["espn"]},
+                {"provider": "bsd", "score": PROVIDER_QUALITY["bsd"]},
+                {"provider": "sportscore", "score": PROVIDER_QUALITY["sportscore"]},
+                {"provider": "thesportsdb", "score": PROVIDER_QUALITY["thesportsdb"]},
+                {"provider": "openligadb", "score": PROVIDER_QUALITY["openligadb"]},
+            ],
+            "bsd_requests": self.requests_made,
+            "bsd_cache_hits": self.cache_hits,
+            "free_requests": dict(self.free.requests_made),
+            "free_cache_hits": self.free.cache_hits,
+            "free_matches_enriched": self.free_provider_enriched,
+            "free_h2h_hits": self.free_provider_h2h_hits,
+        }
