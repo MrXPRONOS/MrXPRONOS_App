@@ -1,0 +1,49 @@
+name: Pronostic share popup smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/main.js'
+      - 'assets/css/style.css'
+      - 'pronos.html'
+      - 'scripts/pronostic_share_visual_smoke.py'
+      - '.github/workflows/pronostic-share-visual-smoke.yml'
+  pull_request:
+    paths:
+      - 'assets/js/main.js'
+      - 'assets/css/style.css'
+      - 'pronos.html'
+      - 'scripts/pronostic_share_visual_smoke.py'
+      - '.github/workflows/pronostic-share-visual-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium automation
+        run: |
+          pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Start local website
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 > /tmp/pronostic-share-http.log 2>&1 &
+          sleep 2
+      - name: Verify premium share chooser
+        run: python scripts/pronostic_share_visual_smoke.py
+      - name: Save share popup screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pronostic-share-1024-768-390-320
+          path: artifacts/pronostic-share/
+          if-no-files-found: warn

@@ -28,6 +28,8 @@ let usingCachedData = false;
 
 let onlineChannel = null;
 let generatedContentPromise = null;
+let activePronosticShareMatch = null;
+let pronosticSharePreviousFocus = null;
 const activeChannels = new Set();
 
 
@@ -872,20 +874,221 @@ function openShareWindow(url) {
   window.open(url, "_blank", "noopener,noreferrer");
 }
 
-function sharePronostic(match) {
+function getPronosticShareDetails(match) {
+  const prediction = match?.prediction || {};
+  const label =
+    prediction.type ||
+    prediction.double_chance ||
+    prediction.bet ||
+    prediction.market ||
+    prediction.prediction ||
+    "Pronostic disponible";
+  const confidence = normalizeConfidence(prediction.confidence);
+  return { label, confidence };
+}
+
+function buildPronosticShareMessage(match) {
+  const { label, confidence } = getPronosticShareDetails(match);
+  const confidenceLine = confidence > 0 ? `\n📊 Confiance : ${confidence}%` : "";
+
+  return `🔥 PRONOSTIC Mr XPRONOS
+
+⚽ ${match.home_team} vs ${match.away_team}
+🎯 Pronostic : ${label}${confidenceLine}
+
+👉 Plus de pronostics :
+${BASE_SITE_URL}`;
+}
+
+function hasAnotherOpenOverlay(exceptId = "") {
+  return Array.from(document.querySelectorAll(".modal, .popup, .ios-guide-popup")).some((el) => {
+    if (el.id === exceptId) return false;
+    const current = window.getComputedStyle(el);
+    return current.display !== "none" && current.visibility !== "hidden";
+  });
+}
+
+function closePronosticSharePopup() {
+  const popup = document.getElementById("pronostic-share-popup");
+  if (!popup) return;
+
+  popup.classList.remove("active");
+  activePronosticShareMatch = null;
+
+  if (!hasAnotherOpenOverlay("pronostic-share-popup")) {
+    document.body?.classList.remove("mx-overlay-open");
+  }
+
+  if (pronosticSharePreviousFocus?.isConnected) {
+    pronosticSharePreviousFocus.focus({ preventScroll: true });
+  }
+  pronosticSharePreviousFocus = null;
+}
+
+function ensurePronosticSharePopup() {
+  let popup = document.getElementById("pronostic-share-popup");
+  if (popup) return popup;
+
+  popup = document.createElement("div");
+  popup.id = "pronostic-share-popup";
+  popup.className = "popup pronostic-share-popup";
+  popup.setAttribute("role", "dialog");
+  popup.setAttribute("aria-modal", "true");
+  popup.setAttribute("aria-labelledby", "pronostic-share-title");
+
+  popup.innerHTML = `
+    <div class="popup-content pronostic-share-sheet">
+      <button class="pronostic-share-close" type="button" aria-label="Fermer le partage">&times;</button>
+
+      <div class="pronostic-share-kicker">PARTAGER LE PRONOSTIC</div>
+      <h3 id="pronostic-share-title">Choisis où partager</h3>
+      <p class="pronostic-share-subtitle">Envoie ce pronostic en quelques secondes.</p>
+
+      <div class="pronostic-share-preview">
+        <div class="pronostic-share-teams">
+          <div class="pronostic-share-team">
+            <img id="pronostic-share-home-logo" src="assets/images/home.webp" alt="" loading="lazy">
+            <span id="pronostic-share-home">Équipe domicile</span>
+          </div>
+          <span class="pronostic-share-vs">VS</span>
+          <div class="pronostic-share-team pronostic-share-team--away">
+            <img id="pronostic-share-away-logo" src="assets/images/away.webp" alt="" loading="lazy">
+            <span id="pronostic-share-away">Équipe extérieure</span>
+          </div>
+        </div>
+
+        <div class="pronostic-share-pick">
+          <span class="pronostic-share-pick-label">PRONOSTIC</span>
+          <strong id="pronostic-share-pick">—</strong>
+          <span id="pronostic-share-confidence" class="pronostic-share-confidence"></span>
+        </div>
+      </div>
+
+      <div class="pronostic-share-options" aria-label="Plateformes de partage">
+        <button class="pronostic-share-option" type="button" data-share-platform="whatsapp">
+          <span class="pronostic-share-icon">
+            <img src="assets/images/whatsapp.webp" alt="" aria-hidden="true">
+          </span>
+          <span class="pronostic-share-option-copy">
+            <strong>WhatsApp</strong>
+            <small>Partager à un contact ou groupe</small>
+          </span>
+          <span class="pronostic-share-arrow" aria-hidden="true">→</span>
+        </button>
+
+        <button class="pronostic-share-option" type="button" data-share-platform="telegram">
+          <span class="pronostic-share-icon">
+            <img src="assets/images/telegram.webp" alt="" aria-hidden="true">
+          </span>
+          <span class="pronostic-share-option-copy">
+            <strong>Telegram</strong>
+            <small>Partager dans un chat ou canal</small>
+          </span>
+          <span class="pronostic-share-arrow" aria-hidden="true">→</span>
+        </button>
+      </div>
+
+      <button class="pronostic-share-cancel" type="button">Annuler</button>
+    </div>
+  `;
+
+  document.body.appendChild(popup);
+
+  popup.addEventListener("click", (event) => {
+    if (event.target === popup) closePronosticSharePopup();
+  });
+
+  popup.querySelector(".pronostic-share-close")?.addEventListener("click", closePronosticSharePopup);
+  popup.querySelector(".pronostic-share-cancel")?.addEventListener("click", closePronosticSharePopup);
+
+  popup.querySelectorAll("[data-share-platform]").forEach((button) => {
+    button.addEventListener("click", () => sharePronosticTo(button.dataset.sharePlatform));
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && popup.classList.contains("active")) {
+      closePronosticSharePopup();
+    }
+  });
+
+  return popup;
+}
+
+function showPronosticSharePopup(match) {
   if (!match || !match.prediction) return;
-  const msg = `⚽ COUPONS GRATUITS
-${match.home_team} vs ${match.away_team}
-Pronostic : ${match.prediction.type || match.prediction.double_chance || "-"} – Fiabilité ${match.prediction.confidence}%
-Plus de coupons : ${BASE_SITE_URL}`;
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-  const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(BASE_SITE_URL)}&text=${encodeURIComponent(msg)}`;
-  const useWhatsapp = confirm("Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)");
-  openShareWindow(useWhatsapp ? whatsappUrl : telegramUrl);
+
+  activePronosticShareMatch = match;
+  pronosticSharePreviousFocus = document.activeElement;
+
+  const popup = ensurePronosticSharePopup();
+  const { label, confidence } = getPronosticShareDetails(match);
+
+  const homeEl = popup.querySelector("#pronostic-share-home");
+  const awayEl = popup.querySelector("#pronostic-share-away");
+  const homeLogo = popup.querySelector("#pronostic-share-home-logo");
+  const awayLogo = popup.querySelector("#pronostic-share-away-logo");
+  const pickEl = popup.querySelector("#pronostic-share-pick");
+  const confidenceEl = popup.querySelector("#pronostic-share-confidence");
+
+  if (homeEl) homeEl.textContent = match.home_team || "Domicile";
+  if (awayEl) awayEl.textContent = match.away_team || "Extérieur";
+
+  if (homeLogo) {
+    homeLogo.src = match.home_logo || "assets/images/home.webp";
+    homeLogo.alt = match.home_team || "Équipe domicile";
+    homeLogo.onerror = () => {
+      homeLogo.onerror = null;
+      homeLogo.src = "assets/images/home.webp";
+    };
+  }
+
+  if (awayLogo) {
+    awayLogo.src = match.away_logo || "assets/images/away.webp";
+    awayLogo.alt = match.away_team || "Équipe extérieure";
+    awayLogo.onerror = () => {
+      awayLogo.onerror = null;
+      awayLogo.src = "assets/images/away.webp";
+    };
+  }
+
+  if (pickEl) pickEl.textContent = label;
+  if (confidenceEl) {
+    confidenceEl.textContent = confidence > 0 ? `Confiance ${confidence}%` : "";
+    confidenceEl.style.display = confidence > 0 ? "inline-flex" : "none";
+  }
+
+  popup.classList.add("active");
+  document.body?.classList.add("mx-overlay-open");
+
+  requestAnimationFrame(() => {
+    popup.querySelector('[data-share-platform="whatsapp"]')?.focus({ preventScroll: true });
+  });
+}
+
+function sharePronosticTo(platform) {
+  const match = activePronosticShareMatch;
+  if (!match) return;
+
+  const message = buildPronosticShareMessage(match);
+  const url =
+    platform === "telegram"
+      ? `https://t.me/share/url?url=${encodeURIComponent(BASE_SITE_URL)}&text=${encodeURIComponent(message)}`
+      : `https://wa.me/?text=${encodeURIComponent(message)}`;
+
+  // Cet appel reste directement lié au clic utilisateur pour éviter les bloqueurs de popup.
+  openShareWindow(url);
+
   // Mesure uniquement une intention volontaire de partage, jamais une condition d'accès.
   incrementCounter("total_shares");
   recordEvent("share", window.location.pathname);
+  recordEvent(platform === "telegram" ? "share_telegram" : "share_whatsapp", window.location.pathname);
   recordEvent("click_pronostic", window.location.pathname);
+
+  closePronosticSharePopup();
+}
+
+function sharePronostic(match) {
+  showPronosticSharePopup(match);
 }
 
 /* =======================================================
