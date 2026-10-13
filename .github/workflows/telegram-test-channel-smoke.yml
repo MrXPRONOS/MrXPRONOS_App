@@ -36,5 +36,9 @@ jobs:
           fi
       - name: Installer Pillow et requests
         run: python -m pip install Pillow requests
+      - name: Vérifier destination et bot de test sans publier
+        env:
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+        run: python scripts/telegram_test_guard.py
       - name: Envoyer une vraie carte uniquement dans le canal de test
         run: python scripts/telegram_test_smoke.py
