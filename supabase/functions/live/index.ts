@@ -439,7 +439,7 @@ function getSourceMatchId(match: any, sourceName: string) {
   return String(match?.id || match?.source_match_id || "");
 }
 
-function sourceRowFromMatch(match: any, sourceName: "api_original" | "espn") {
+function sourceRowFromMatch(match: any, sourceName: string) {
   const liveStats = ensureLiveStatsShape(getMatchLiveStats(match));
   const canonical = buildCanonicalMatchId(match);
 
@@ -3927,27 +3927,31 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[],
   const entries: Array<{
     key: string;
     match: any;
-    source: "api_original" | "espn" | "merged";
+    source: string;
   }> = [];
 
   for (const original of originalMatches || []) {
     const key = buildCanonicalMatchId(original);
+    const provider = String(
+      original?.source_name || original?.raw_data?.source || original?.source || "api_original",
+    ).toLowerCase();
+    const confidence = PROVIDER_QUALITY[provider] || safeNumber(original?.provider_quality, 70);
     const match = {
       ...original,
       raw_data: {
         ...(original?.raw_data || {}),
         merge_meta: {
           canonical_match_id: key,
-          sources: ["api_original"],
-          confidence_score: 70,
-          primary_source: "api_original",
+          sources: [provider],
+          confidence_score: confidence,
+          primary_source: provider,
           merged_at: nowIso(),
         },
       },
     };
 
-    entries.push({ key, match, source: "api_original" });
-    sourceRows.push(sourceRowFromMatch(original, "api_original"));
+    entries.push({ key, match, source: provider });
+    sourceRows.push(sourceRowFromMatch(original, provider));
   }
 
   let duplicatesMerged = 0;
