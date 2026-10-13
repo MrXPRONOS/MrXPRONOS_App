@@ -1,0 +1,38 @@
+name: Arty Football - 11 previews Telegram TEST only
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/arty-visual-test-once.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: arty-visual-test-safe
+  cancel-in-progress: false
+jobs:
+  telegram-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      FOOTBALL_REQUIRE_COMMENTS: '0'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install render dependencies
+        run: python -m pip install Pillow requests feedparser imageio-ffmpeg
+      - name: Verify code and visual tests before sending
+        run: |
+          python -m py_compile scripts/arty_visual_test_send.py scripts/arty_football_templates.py
+          python -m unittest discover -s tests_football_channel -p 'test_arty_visual_templates.py' -v
+      - name: Verify strict TEST-only Telegram route
+        run: python scripts/telegram_test_guard.py
+      - name: Send eleven simulated premium cards to Telegram test channel
+        run: python scripts/arty_visual_test_send.py
