@@ -1,0 +1,20 @@
+name: Assistant public LIVE production smoke
+on:
+  push:
+    branches: [assistant-qa50-live-fixes-20261013]
+    paths:
+      - 'tests/assistant_production_live_smoke.mjs'
+      - '.github/workflows/assistant-production-live-smoke.yml'
+jobs:
+  production-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install chromium --with-deps
+      - name: Verify live GitHub Pages site and assistant
+        run: node tests/assistant_production_live_smoke.mjs
