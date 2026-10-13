@@ -4163,12 +4163,12 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
       thesportsdbResolveCalls < maxTsdbResolve
     ) {
       try {
-        const eventDate = safeEspnDate(getMatchEventDate(current))?.slice(0, 10);
+        const eventKickoff = safeEspnDate(getMatchEventDate(current)) || undefined;
         const home = String(current?.home_team?.name ?? current?.home_team ?? "");
         const away = String(current?.away_team?.name ?? current?.away_team ?? "");
         if (home && away) {
           thesportsdbResolveCalls++;
-          const resolvedId = await resolveTheSportsDbEvent(home, away, eventDate);
+          const resolvedId = await resolveTheSportsDbEvent(home, away, eventKickoff);
           if (resolvedId && /^\d+$/.test(resolvedId)) {
             thesportsdbRefId = resolvedId;
             current = {
