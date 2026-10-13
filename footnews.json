@@ -1,5 +1,39 @@
 [
   {
+    "slug": "eaf96196de519e8f",
+    "title": "Mercato MHSC : Le Montpellier HSC annonce une prolongation de contrat (officiel)",
+    "summary": "Le MHSC a annoncé la prolongation de contrat de Viktor Dzodic.",
+    "summary_short": "Le MHSC a annoncé la prolongation de contrat de Viktor Dzodic.",
+    "content": "Le MHSC a annoncé la prolongation de contrat de Viktor Dzodic.",
+    "paragraphs": [
+      "Le MHSC a annoncé la prolongation de contrat de Viktor Dzodic."
+    ],
+    "key_points": [
+      "Le MHSC a annoncé la prolongation de contrat de Viktor Dzodic."
+    ],
+    "telegram_summary": "Le MHSC a annoncé la prolongation de contrat de Viktor Dzodic.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-mercato-mhsc-le-montpellier-hsc-annonce-une-prolongation-de-contrat-officiel-542068.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-mhsc-le-montpellier-hsc-annonce-une-prolongation-de-contrat-officiel-542068.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=eaf96196de519e8f",
+    "published": "2026-10-13T15:24:00+00:00",
+    "image": "assets/images/footnews/eaf96196de519e8f.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2018/une/l1-20181001101704-5679.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Officiel",
+    "category_emoji": "✅",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
     "slug": "580c828aee544bc3",
     "title": "Ballon d’Or : Cubarsí vote Lamine Yamal, mais s’invite aussi dans la course",
     "summary": "À quelques heures du déplacement du FC Barcelone sur la pelouse de Galatasaray, pour la deuxième journée de la phase de ligue de la Ligue des Champions, Pau Cubarsí a affiché son soutien à Lamine (…)",
@@ -603,7 +637,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T15:24:13.292462+00:00"
+      "checked_at": "2026-10-13T15:31:12.886156+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -734,7 +768,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T15:24:13.292462+00:00"
+      "checked_at": "2026-10-13T15:31:12.886156+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -830,7 +864,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T15:24:13.292462+00:00"
+      "checked_at": "2026-10-13T15:31:12.886156+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -890,7 +924,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T15:24:13.292462+00:00"
+      "checked_at": "2026-10-13T15:31:12.886156+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1054,7 +1088,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T15:24:13.292462+00:00"
+      "checked_at": "2026-10-13T15:31:12.886156+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1186,7 +1220,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T15:24:13.292462+00:00"
+      "checked_at": "2026-10-13T15:31:12.886156+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1286,7 +1320,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T15:24:13.292462+00:00"
+      "checked_at": "2026-10-13T15:31:12.886156+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1379,7 +1413,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T15:24:13.292462+00:00"
+      "checked_at": "2026-10-13T15:31:12.886156+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1714,7 +1748,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T15:24:13.292462+00:00"
+      "checked_at": "2026-10-13T15:31:12.886156+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1897,40 +1931,6 @@
     "quality_score": 82
   },
   {
-    "slug": "bdc81e9026427f70",
-    "title": "PSG : Deux énormes retours dans le groupe du PSG pour affronter Manchester City, un forfait !",
-    "summary": "Le groupe du Paris Saint-Germain pour affronter Manchester City (J2 Ligue des Champions), ce mercredi soir.",
-    "summary_short": "Le groupe du Paris Saint-Germain pour affronter Manchester City (J2 Ligue des Champions), ce mercredi soir.",
-    "content": "Le groupe du Paris Saint-Germain pour affronter Manchester City (J2 Ligue des Champions), ce mercredi soir.",
-    "paragraphs": [
-      "Le groupe du Paris Saint-Germain pour affronter Manchester City (J2 Ligue des Champions), ce mercredi soir."
-    ],
-    "key_points": [
-      "Le groupe du Paris Saint-Germain pour affronter Manchester City (J2 Ligue des Champions), ce mercredi soir."
-    ],
-    "telegram_summary": "Le groupe du Paris Saint-Germain pour affronter Manchester City (J2 Ligue des Champions), ce mercredi soir.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-psg-deux-enormes-retours-dans-le-groupe-du-psg-pour-affronter-manchester-city-un-forfait-542032.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-psg-deux-enormes-retours-dans-le-groupe-du-psg-pour-affronter-manchester-city-un-forfait-542032.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=bdc81e9026427f70",
-    "published": "2026-10-13T09:35:00+00:00",
-    "image": "assets/images/footnews/bdc81e9026427f70.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20260415104302-6866.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
     "slug": "8a471f840e7ebd5e",
     "title": "Barça : les feux d'artifice dingues éclatés par des supporters de Galatasaray devant l'hôtel des joueurs à 2h20 du matin",
     "summary": "Le FC Barcelone va devoir faire face à une ambiance de folie ce mardi soir à Istanbul contre Galatasaray (21h). Les supporters turcs ont déjà lancé les hostilités devant l'hôtel des joueurs barcelonais.",
@@ -2056,7 +2056,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-13T15:24:13.292462+00:00"
+      "checked_at": "2026-10-13T15:31:12.886156+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2190,7 +2190,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T15:24:13.292462+00:00"
+      "checked_at": "2026-10-13T15:31:12.886156+00:00"
     },
     "quality_sources": [
       "France 24",
