@@ -12,6 +12,9 @@ const SPORT_SCORE = "https://sportscore.com/api/v1";
 const TSDB = "https://www.thesportsdb.com/api/v1/json/123";
 const OPENLIGA = "https://api.openligadb.de";
 const memory = new Map<string,{until:number;data:any}>();
+function env(name:string,fallback=""){
+  try { return Deno.env.get(name) || fallback; } catch { return fallback; }
+}
 
 function text(v:any){ return String(v ?? "").trim(); }
 function num(v:any):number|null {
@@ -109,7 +112,7 @@ export function probeSportScoreOdds(payload:any){
   return {
     available:sections.length>0,
     contract_verified:false,
-    automation_allowed:Deno.env.get("SPORTSCORE_ALLOW_UNDOCUMENTED_ODDS")==="1",
+    automation_allowed:env("SPORTSCORE_ALLOW_UNDOCUMENTED_ODDS","0")==="1",
     raw_sections:sections.slice(0,8),
     warning:"SportScore public REST documentation does not currently specify an odds endpoint/schema.",
   };
@@ -124,7 +127,7 @@ function statTarget(name:string):string|null{
   if(["fouls","foulscommitted"].includes(name))return "fouls";
   if(["yellowcards"].includes(name))return "yellow_cards";
   if(["redcards"].includes(name))return "red_cards";
-  if(["possession","possessionpct","possessionpercentage"].includes(name))return "possession";
+  if(["possession","possessionpct","possessionpercentage"].includes(name))return "ball_possession";
   return null;
 }
 function applyStats(out:any, source:any){
@@ -184,7 +187,7 @@ export async function fetchTheSportsDbStats(eventId:string){
   return {stats,raw:payload};
 }
 
-const OPENLIGA_SHORTCUTS=(Deno.env.get("OPENLIGA_SHORTCUTS")||"bl1,bl2,dfb,cl").split(",").map(x=>x.trim()).filter(Boolean);
+const OPENLIGA_SHORTCUTS=env("OPENLIGA_SHORTCUTS","bl1,bl2,dfb,cl").split(",").map(x=>x.trim()).filter(Boolean);
 function seasonFor(d:Date){return d.getUTCMonth()>=6?d.getUTCFullYear():d.getUTCFullYear()-1;}
 export async function fetchOpenLigaDay(date:string){
   const d=new Date(date+"T00:00:00Z"), rows:any[]=[];
