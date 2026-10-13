@@ -75,6 +75,146 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertEqual(goals[-1]["player"], "Bukayo Saka")
         self.assertEqual(goals[-1]["minute"], 64)
 
+    def test_espn_enrichment_parses_stoppage_cards_subs_stats_and_match_info(self):
+        summary = {
+            "header": {
+                "id": "401",
+                "competitions": [{
+                    "id": "401",
+                    "date": "2026-10-13T18:00:00Z",
+                    "competitors": [
+                        {"homeAway": "home", "score": "2", "team": {"id": "1", "displayName": "Arsenal"}},
+                        {"homeAway": "away", "score": "1", "team": {"id": "2", "displayName": "Chelsea"}},
+                    ],
+                    "status": {"type": {"state": "post", "completed": True, "detail": "FT"}},
+                }],
+            },
+            "details": [
+                {
+                    "scoringPlay": True,
+                    "type": {"text": "Goal"},
+                    "clock": {"displayValue": "90'+2'"},
+                    "athletes": [
+                        {"displayName": "Bukayo Saka"},
+                        {"displayName": "Martin Odegaard", "type": "assist"},
+                    ],
+                    "team": {"id": "1"},
+                },
+                {
+                    "yellowCard": True,
+                    "type": {"text": "Yellow Card"},
+                    "clock": {"displayValue": "51'"},
+                    "athletes": [{"displayName": "Player Card"}],
+                    "team": {"id": "2"},
+                },
+                {
+                    "substitution": True,
+                    "type": {"text": "Substitution"},
+                    "clock": {"displayValue": "68'"},
+                    "athletes": [
+                        {"displayName": "Player In"},
+                        {"displayName": "Player Out"},
+                    ],
+                    "team": {"id": "1"},
+                },
+            ],
+            "boxscore": {
+                "teams": [
+                    {
+                        "team": {"id": "1"},
+                        "statistics": [
+                            {"name": "wonCorners", "displayValue": "7"},
+                            {"name": "totalShots", "displayValue": "15"},
+                            {"name": "shotsOnTarget", "displayValue": "6"},
+                            {"name": "possessionPct", "displayValue": "58%"},
+                            {"name": "foulsCommitted", "displayValue": "9"},
+                        ],
+                    },
+                    {
+                        "team": {"id": "2"},
+                        "statistics": [
+                            {"name": "wonCorners", "displayValue": "3"},
+                            {"name": "totalShots", "displayValue": "10"},
+                            {"name": "shotsOnTarget", "displayValue": "4"},
+                            {"name": "possessionPct", "displayValue": "42%"},
+                            {"name": "foulsCommitted", "displayValue": "12"},
+                        ],
+                    },
+                ]
+            },
+            "gameInfo": {
+                "venue": {"fullName": "Emirates Stadium", "address": {"city": "London", "country": "England"}},
+                "attendance": 60250,
+                "officials": [{"official": {"displayName": "Ref Example"}}],
+                "weather": {"displayValue": "Clear", "temperature": 18},
+            },
+        }
+        enriched = m.extract_match_enrichment(summary)
+        self.assertEqual(enriched["goals"][0]["player"], "Bukayo Saka")
+        self.assertEqual(enriched["goals"][0]["minute_total"], 92)
+        self.assertEqual(enriched["goals"][0]["assists"], ["Martin Odegaard"])
+        self.assertEqual(enriched["cards"][0]["type"], "yellow")
+        self.assertEqual(enriched["substitutions"][0]["players"], ["Player In", "Player Out"])
+        self.assertEqual(enriched["stats"]["home"]["corners"], "7")
+        self.assertEqual(enriched["stats"]["away"]["possession"], "42%")
+        self.assertEqual(enriched["info"]["venue"], "Emirates Stadium")
+        self.assertEqual(enriched["info"]["attendance"], 60250)
+        self.assertEqual(enriched["info"]["referees"], ["Ref Example"])
+
+    @patch("football_match_lifecycle.verify_espn_public_page")
+    @patch("football_match_lifecycle.fetch_espn_summary")
+    def test_prepublication_goal_is_revalidated_directly_on_espn(self, fetch_summary, verify_page):
+        fetch_summary.return_value = {
+            "header": {
+                "id": "401",
+                "competitions": [{
+                    "id": "401",
+                    "date": "2026-10-13T18:00:00Z",
+                    "competitors": [
+                        {"homeAway": "home", "score": "2", "team": {"id": "1", "displayName": "Arsenal"}},
+                        {"homeAway": "away", "score": "1", "team": {"id": "2", "displayName": "Chelsea"}},
+                    ],
+                    "status": {"type": {"state": "in", "completed": False, "detail": "67'"}},
+                }],
+            },
+            "details": [{
+                "scoringPlay": True,
+                "type": {"text": "Goal"},
+                "clock": {"displayValue": "64'"},
+                "athletes": [{"displayName": "Bukayo Saka"}],
+                "team": {"id": "1"},
+            }],
+        }
+        verify_page.return_value = {
+            "reachable": True,
+            "content_verified": True,
+            "url": "https://www.espn.com/soccer/match/_/gameId/401",
+            "status": 200,
+        }
+        result = m.verify_espn_before_publish(object(), {
+            "event_id": "401",
+            "kind": "goal",
+            "home": "Arsenal",
+            "away": "Chelsea",
+            "score": "2-1",
+            "goal": {"player": "Bukayo Saka", "minute": 64},
+        })
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["quality"], 100)
+        fetch_summary.assert_called_once_with(unittest.mock.ANY, "401", force=True)
+
+        rejected = m.verify_espn_before_publish(object(), {
+            "event_id": "401",
+            "kind": "goal",
+            "home": "Arsenal",
+            "away": "Chelsea",
+            "score": "2-1",
+            "goal": {"player": "Wrong Player", "minute": 64},
+        })
+        self.assertFalse(rejected["ok"])
+        self.assertEqual(rejected["reason"], "goal_not_confirmed")
+
+
     @patch("football_match_lifecycle.fetch_espn_summary")
     @patch("football_match_lifecycle.collect_external")
     def test_composition_signal_transporte_les_logos(self, collect_external, fetch_summary):
@@ -266,6 +406,34 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertIn("Bukayo Saka", post.text)
         self.assertIn("2-1", post.text)
         self.assertTrue(post.keyboard)
+
+    def test_goal_publication_carries_espn_verification_and_link(self):
+        post = channel.lifecycle_publication({
+            "kind": "goal",
+            "key": "goal:401:2-1:64:bukayo-saka",
+            "home": "Arsenal",
+            "away": "Chelsea",
+            "league": "Premier League",
+            "minute": 67,
+            "score": "2-1",
+            "source": "ESPN",
+            "espn_event_id": "401",
+            "espn_url": "https://www.espn.com/soccer/match/_/gameId/401",
+            "goal": {
+                "player": "Bukayo Saka",
+                "minute_text": "64'",
+                "minute_total": 64,
+                "assists": ["Martin Odegaard"],
+                "penalty": False,
+                "own_goal": False,
+            },
+        })
+        self.assertIsNotNone(post)
+        self.assertEqual(post.verification["event_id"], "401")
+        self.assertIn("Passe", post.text)
+        self.assertIn("Martin Odegaard", post.text)
+        buttons = [b for row in post.keyboard["inline_keyboard"] for b in row]
+        self.assertTrue(any("ESPN" in b["text"] for b in buttons))
 
     @patch("football_match_lifecycle.fetch_espn_summary", return_value={})
     @patch("football_match_lifecycle.collect_external")
