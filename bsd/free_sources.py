@@ -35,6 +35,29 @@ SOURCE_RANKINGS = {
     "openligadb": {"quality": 72, "reliability": 78, "rank": 5},
 }
 
+SOURCE_CAPABILITIES = {
+    "espn": {
+        "fixtures": True, "live": True, "scores": True, "stats": True,
+        "lineups": True, "incidents": True, "h2h": False, "odds": False,
+    },
+    "bsd": {
+        "fixtures": True, "live": True, "scores": True, "stats": True,
+        "lineups": False, "incidents": False, "h2h": True, "odds": True,
+    },
+    "sportscore": {
+        "fixtures": True, "live": True, "scores": True, "stats": "variable",
+        "lineups": True, "incidents": True, "h2h": True, "odds": False,
+    },
+    "thesportsdb": {
+        "fixtures": True, "live": False, "scores": True, "stats": "variable",
+        "lineups": "variable", "incidents": "variable", "h2h": False, "odds": False,
+    },
+    "openligadb": {
+        "fixtures": True, "live": False, "scores": True, "stats": False,
+        "lineups": False, "incidents": "goals", "h2h": False, "odds": False,
+    },
+}
+
 
 def _plain(value: Any) -> str:
     return re.sub(r"\s+", " ", str(value or "")).strip()
@@ -445,6 +468,7 @@ class FreeFootballHub:
     def diagnostics(self) -> Dict[str, Any]:
         return {
             "ranking": SOURCE_RANKINGS,
+            "capabilities": SOURCE_CAPABILITIES,
             "providers": {name: vars(diag) for name, diag in self.diag.items()},
             "sportscore_odds_api": {
                 "supported": False,
