@@ -340,7 +340,7 @@ def fetch_news() -> tuple[list[dict], dict]:
             if corroboration:
                 record["espn_verification"] = corroboration
                 record["quality_sources"] = [profile.name, "ESPN"]
-                record["quality_score"] = min(100, max(source.priority, 78) + 8)
+                record["quality_score"] = min(100, max(profile.priority, 78) + 8)
                 diagnostics["espn_corroborated"] += 1
             else:
                 record["espn_verification"] = {}
