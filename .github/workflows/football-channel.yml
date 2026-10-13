@@ -1,11 +1,26 @@
 name: Mr XPRONOS - CI media football
 
 on:
+  pull_request:
+    paths:
+      - 'scripts/football_channel.py'
+      - 'scripts/football_news_engine.py'
+      - 'fetch_foot_news.py'
+      - 'assets/js/main.js'
+      - 'assets/css/infos-premium.css'
+      - 'infos.html'
+      - 'tests_football_channel/**'
+      - '.github/workflows/football-channel.yml'
   # Verification CI sans envoi Telegram lors des modifications du diffuseur.
   push:
     branches: [main]
     paths:
       - 'scripts/football_channel.py'
+      - 'scripts/football_news_engine.py'
+      - 'fetch_foot_news.py'
+      - 'assets/js/main.js'
+      - 'assets/css/infos-premium.css'
+      - 'infos.html'
       - 'scripts/football_cards.py'
       - 'scripts/programme_styles.py'
       - 'scripts/template_cards.py'
@@ -47,6 +62,10 @@ jobs:
           python-version: '3.11'
       - name: Installer requests et Pillow
         run: python -m pip install requests Pillow
+      - name: Compiler le moteur News Football
+        run: python -m py_compile fetch_foot_news.py scripts/football_news_engine.py scripts/football_channel.py
+      - name: Vérifier le JavaScript Infos Foot
+        run: node --check assets/js/main.js
       - name: Verifier la presence des 6 templates premium
         run: |
           python - <<'PY'
