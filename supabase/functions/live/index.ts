@@ -10,6 +10,9 @@ import {
   mergeProviderEvents,
   providerMatchScore,
   explicitSportScoreOdds,
+  fetchFreeMatchStats,
+  fetchTheSportsDbEvent,
+  normalizeProviderStats,
 } from "../_shared/football_providers.ts";
 // live.ts (Supabase Edge Function / Deno)
 // =======================================================
