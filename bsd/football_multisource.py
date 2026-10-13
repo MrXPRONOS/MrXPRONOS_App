@@ -4,8 +4,8 @@ Ordre de QUALITÉ des données:
 1. ESPN       : 100 — référence live/détails quand couvert.
 2. BSD        : 96  — référence interne historique/IDs, utilisée en fallback.
 3. SportScore : 92  — bonne couverture live, détails, compos, timeline/stats.
-4. TheSportsDB: 76  — utile en corroboration; le live complet est premium.
-5. OpenLigaDB : 72  — très fiable sur ligues couvertes, couverture globale limitée.
+4. OpenLigaDB : 86  — très fiable sur les compétitions couvertes, couverture globale limitée.
+5. TheSportsDB: 80  — utile en corroboration; limitations plus fortes sur le gratuit.
 
 Ordre de COLLECTE (coût): ESPN -> SportScore -> OpenLigaDB -> TheSportsDB -> BSD.
 On sépare volontairement qualité et ordre d'appel: BSD garde une forte autorité
@@ -39,8 +39,8 @@ PROVIDER_QUALITY = {
     "espn": 100,
     "bsd": 96,
     "sportscore": 92,
-    "thesportsdb": 76,
-    "openligadb": 72,
+    "openligadb": 86,
+    "thesportsdb": 80,
 }
 FETCH_PRIORITY = ("espn", "sportscore", "openligadb", "thesportsdb", "bsd")
 
@@ -820,9 +820,11 @@ class MultiSourceFootballClient:
                 "attendance": root.get("attendance"),
                 "referees": self._players(root.get("officials") or root.get("referees") or []),
             },
-            # L'API publique documentée n'a pas de contrat odds. On ne consomme
-            # qu'un champ s'il apparaît explicitement dans le JSON de match.
-            "odds": root.get("odds") if isinstance(root.get("odds"), (dict, list)) else None,
+            # Diagnostic seulement : le contrat public ne documente aucun endpoint
+            # de cotes. Ces données éventuelles ne doivent jamais alimenter un pari.
+            "odds": None,
+            "odds_api_documented": False,
+            "odds_observed_in_payload": isinstance(root.get("odds"), (dict, list)),
         }
 
     def _thesportsdb_detail(self, event: dict) -> dict:
