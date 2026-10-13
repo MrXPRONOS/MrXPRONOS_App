@@ -6472,35 +6472,40 @@ async function resolveFinalEventAndStats(pred: any, storedOverride: any = undefi
     ? await getStoredMergedContextForPrediction(pred)
     : storedOverride;
 
-  // Pour l’historique déjà validé, ESPN est plus fiable que BSD pour retrouver
-  // un match qui a disparu du catalogue événementiel BSD.
-  if (isHistoricalValidated) {
-    const espn = await fetchEspnFinalForPrediction(pred, stored);
-    if (espn) return { event: espn, stats: espn.live_stats, source: "espn_final" };
+  // 1) ESPN: autorité principale pour les fins de match quand disponible.
+  const espnFirst = await fetchEspnFinalForPrediction(pred, stored);
+  if (espnFirst && hasRequiredFinalStats(espnFirst.live_stats, predictionType)) {
+    return { event: espnFirst, stats: espnFirst.live_stats, source: "espn_final" };
   }
 
+  // 2) Fournisseurs gratuits: SportScore détail/stats, puis TheSportsDB.
+  const probe = {
+    id: pred?.match_id,
+    home_team: stored?.home_team || pred?.home_team,
+    away_team: stored?.away_team || pred?.away_team,
+    event_date: stored?.event_date || pred?.event_date || pred?.created_at,
+  };
   try {
-    const bsdEvent = await fetchBSD(`/events/${pred.match_id}/`);
-    if (isFinishedEvent(bsdEvent)) {
-      let stats = bsdEvent?.live_stats || null;
-      if (!hasRequiredFinalStats(stats, predictionType)) {
-        try {
-          const finalStatsPayload = await fetchBSD(`/events/${pred.match_id}/stats/`);
-          stats = normalizeBsdStatsPayload(finalStatsPayload);
-        } catch {}
+    const freeEvent = await findFreeProviderMatch(probe);
+    if (freeEvent && isFinishedEvent(freeEvent)) {
+      const free = await fetchFreeMatchStats(freeEvent);
+      let stats = free?.stats ? ensureLiveStatsShape(free.stats) : null;
+      if (stats && stored?.merged_stats) {
+        stats = mergeLiveStats(stored.merged_stats, stats, true);
       }
       if (hasRequiredFinalStats(stats, predictionType)) {
-        return { event: bsdEvent, stats, source: "bsd_final" };
+        return {
+          event: { ...freeEvent, live_stats: stats },
+          stats,
+          source: `${free?.source || freeEvent?.source_name || "free_provider"}_final`,
+        };
       }
     }
-  } catch {}
-
-  if (!isHistoricalValidated) {
-    const espn = await fetchEspnFinalForPrediction(pred, stored);
-    if (espn) return { event: espn, stats: espn.live_stats, source: "espn_final" };
+  } catch (e) {
+    console.warn("Free final provider unavailable", e);
   }
 
-  // Dernier recours uniquement si notre snapshot fusionné est explicitement FT.
+  // 3) Snapshot final déjà consolidé: zéro requête supplémentaire.
   if (stored?.is_finished === true && hasRequiredFinalStats(stored?.merged_stats, predictionType)) {
     const event = stored?.merged_match_json || {
       id: pred?.match_id,
@@ -6512,6 +6517,36 @@ async function resolveFinalEventAndStats(pred: any, storedOverride: any = undefi
     return { event, stats: stored.merged_stats, source: "stored_final" };
   }
 
+  // 4) BSD n'intervient plus qu'en dernier recours.
+  const storedMatch = stored?.merged_match_json || {};
+  const bsdId =
+    bsdEventIdForMatch(storedMatch) ||
+    (/^\d+$/.test(String(pred?.match_id || "")) ? String(pred.match_id) : "");
+  if (bsdId) {
+    try {
+      const bsdEvent = await fetchBSD(`/events/${bsdId}/`);
+      if (isFinishedEvent(bsdEvent)) {
+        let stats = bsdEvent?.live_stats || null;
+        if (!hasRequiredFinalStats(stats, predictionType)) {
+          try {
+            const finalStatsPayload = await fetchBSD(`/events/${bsdId}/stats/`);
+            stats = normalizeBsdStatsPayload(finalStatsPayload);
+          } catch {}
+        }
+        if (hasRequiredFinalStats(stats, predictionType)) {
+          return { event: bsdEvent, stats, source: "bsd_final_fallback" };
+        }
+      }
+    } catch {}
+  }
+
+  // Un dernier essai ESPN seulement si le premier n'avait pas de stats suffisantes.
+  if (!isHistoricalValidated) {
+    const espn = await fetchEspnFinalForPrediction(pred, stored);
+    if (espn && hasRequiredFinalStats(espn.live_stats, predictionType)) {
+      return { event: espn, stats: espn.live_stats, source: "espn_final_retry" };
+    }
+  }
   return null;
 }
 
