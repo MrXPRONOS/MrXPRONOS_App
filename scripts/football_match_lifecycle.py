@@ -757,6 +757,187 @@ def verify_espn_before_publish(
     }
 
 
+
+def verify_espn_fixtures_before_publish(
+    session: requests.Session,
+    verification: dict[str, Any],
+) -> dict[str, Any]:
+    """Contrôle direct du scoreboard ESPN pour les publications issues d'autres sources.
+
+    L'absence de couverture ESPN n'est pas une contradiction. En revanche, si ESPN
+    retrouve le match et indique un horaire/score/statut incompatible, la publication
+    est rejetée.
+    """
+    fixtures = verification.get("fixtures")
+    if not isinstance(fixtures, list) or not fixtures:
+        return {"ok": True, "quality": 70, "reason": "no_fixtures_to_verify", "covered": 0}
+
+    kind = _plain(verification.get("kind")).lower()
+    by_day: dict[date, list[dict]] = {}
+    invalid = 0
+    for fixture in fixtures[:8]:
+        if not isinstance(fixture, dict):
+            invalid += 1
+            continue
+        when = _moment(fixture.get("event_date") or fixture.get("kickoff"))
+        home = _plain(fixture.get("home"))
+        away = _plain(fixture.get("away"))
+        if not when or not home or not away:
+            invalid += 1
+            continue
+        by_day.setdefault(when.astimezone(timezone.utc).date(), []).append(fixture)
+
+    if not by_day:
+        return {
+            "ok": True,
+            "quality": 65,
+            "reason": "fixtures_missing_identity",
+            "covered": 0,
+            "invalid": invalid,
+        }
+
+    covered = 0
+    missing = 0
+    contradictions: list[dict[str, Any]] = []
+    verified_rows: list[dict[str, Any]] = []
+    first_public_page: dict[str, Any] | None = None
+
+    for day, day_fixtures in by_day.items():
+        # force=True garantit un contrôle réseau ESPN au moment de publier.
+        rows = fetch_espn_day(session, day, force=True)
+        # Une rencontre proche de minuit peut être rangée sur le jour voisin selon
+        # le calendrier de la compétition. On tente seulement ce fallback si rien
+        # n'a été retrouvé sur le jour principal.
+        adjacent_cache: dict[date, list[dict]] = {}
+
+        for fixture in day_fixtures:
+            base = {
+                "home_team": _plain(fixture.get("home")),
+                "away_team": _plain(fixture.get("away")),
+                "event_date": fixture.get("event_date") or fixture.get("kickoff"),
+                "follow_ref": "espn-preflight",
+            }
+            match = best_external_match(base, rows)
+            if match is None:
+                when = _moment(base["event_date"])
+                if when and (when.hour <= 1 or when.hour >= 23):
+                    for alt_day in (day - timedelta(days=1), day + timedelta(days=1)):
+                        if alt_day not in adjacent_cache:
+                            adjacent_cache[alt_day] = fetch_espn_day(session, alt_day, force=True)
+                        match = best_external_match(base, adjacent_cache[alt_day])
+                        if match is not None:
+                            break
+
+            if match is None or match.get("source") != "espn":
+                missing += 1
+                continue
+
+            home_score = _tokens_similarity(base["home_team"], match.get("home_team", ""))
+            away_score = _tokens_similarity(base["away_team"], match.get("away_team", ""))
+            if min(home_score, away_score) < 0.45:
+                missing += 1
+                continue
+
+            expected_time = _moment(base["event_date"])
+            espn_time = _moment(match.get("event_date"))
+            if expected_time and espn_time:
+                delta_minutes = abs((expected_time - espn_time).total_seconds()) / 60
+                # Un changement ESPN >45 min signifie que notre horaire est trop ancien.
+                if delta_minutes > 45:
+                    contradictions.append({
+                        "reason": "kickoff_mismatch",
+                        "home": base["home_team"],
+                        "away": base["away_team"],
+                        "expected": expected_time.isoformat(),
+                        "espn": espn_time.isoformat(),
+                    })
+                    continue
+
+            detail = _plain(match.get("status_detail")).lower()
+            state = _plain(match.get("state")).lower()
+            if any(token in detail for token in ("cancel", "postpon", "abandon", "suspend")):
+                contradictions.append({
+                    "reason": "espn_fixture_not_playable",
+                    "home": base["home_team"],
+                    "away": base["away_team"],
+                    "status": match.get("status_detail"),
+                })
+                continue
+
+            expected_score = _plain(fixture.get("score"))
+            if expected_score and re.fullmatch(r"\d+-\d+", expected_score):
+                hs, aws = (int(value) for value in expected_score.split("-"))
+                if match.get("home_score") != hs or match.get("away_score") != aws:
+                    contradictions.append({
+                        "reason": "score_mismatch",
+                        "home": base["home_team"],
+                        "away": base["away_team"],
+                        "expected": expected_score,
+                        "espn": f"{match.get('home_score')}-{match.get('away_score')}",
+                    })
+                    continue
+
+            if kind in {"resultat", "resultat_final", "statistique_match"} and state != "post":
+                contradictions.append({
+                    "reason": "final_state_not_confirmed",
+                    "home": base["home_team"],
+                    "away": base["away_team"],
+                    "state": state,
+                })
+                continue
+            if kind in {"programme", "avant_match", "sondage"} and state == "post":
+                contradictions.append({
+                    "reason": "fixture_already_finished",
+                    "home": base["home_team"],
+                    "away": base["away_team"],
+                })
+                continue
+
+            covered += 1
+            row = {
+                "event_id": str(match.get("id") or ""),
+                "home": match.get("home_team"),
+                "away": match.get("away_team"),
+                "state": state,
+                "status": match.get("status_detail"),
+                "event_date": match.get("event_date"),
+                "espn_url": match.get("espn_url") or espn_match_url(str(match.get("id") or "")),
+            }
+            verified_rows.append(row)
+            if first_public_page is None and row["event_id"]:
+                first_public_page = verify_espn_public_page(
+                    session, row["event_id"], row["home"] or "", row["away"] or ""
+                )
+
+    total = sum(len(items) for items in by_day.values())
+    if contradictions:
+        return {
+            "ok": False,
+            "quality": 0,
+            "reason": "espn_fixture_contradiction",
+            "covered": covered,
+            "missing": missing,
+            "total": total,
+            "contradictions": contradictions,
+            "verified": verified_rows,
+        }
+
+    page_bonus = 5 if first_public_page and first_public_page.get("content_verified") else 0
+    coverage_ratio = covered / max(total, 1)
+    quality = min(100, round(72 + coverage_ratio * 23 + page_bonus))
+    reason = "confirmed" if covered == total else "partial_espn_coverage" if covered else "espn_not_covered"
+    return {
+        "ok": True,
+        "quality": quality,
+        "reason": reason,
+        "covered": covered,
+        "missing": missing,
+        "invalid": invalid,
+        "total": total,
+        "verified": verified_rows,
+        "page": first_public_page or {},
+    }
+
 def _season_for(day: date) -> int:
     return day.year if day.month >= 7 else day.year - 1
 
