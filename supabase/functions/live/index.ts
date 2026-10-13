@@ -5563,20 +5563,21 @@ function statsAgeSeconds(match: any) {
   return Math.max(0, Math.floor((Date.now() - ts) / 1000));
 }
 
-async function enrichLiveMatchesWithFreeStats(matches: any[]) {
+async function enrichLiveMatchesWithFreeStats(matches: any[], prefetchedSportScore: any[] = []) {
   const out = [...(matches || [])];
   if (!out.length) {
     return { matches: out, sportscore_calls: 0, thesportsdb_calls: 0, openligadb_matches: 0, enriched: 0 };
   }
 
   const today = new Date().toISOString().slice(0, 10);
-  const [sportscore, thesportsdb, openliga] = await Promise.all([
-    fetchSportScoreDay(today, true),
+  const [sportscoreFetched, thesportsdb, openliga] = await Promise.all([
+    prefetchedSportScore.length ? Promise.resolve(prefetchedSportScore) : fetchSportScoreDay(today, true),
     fetchTheSportsDbDay(today),
     fetchOpenLigaCurrent(),
   ]);
+  const sportscore = sportscoreFetched;
 
-  let sportscoreCalls = 1;
+  let sportscoreCalls = prefetchedSportScore.length ? 0 : 1;
   let thesportsdbCalls = 1;
   let enriched = 0;
   let sportscoreDetails = 0;
@@ -5896,6 +5897,8 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
   let bsdRateLimited = false;
   let snapshotReused = false;
   let coverage: any = null;
+  let sportscoreLivePrefetch: any[] = [];
+  let bsdEventCallSkippedByFreeCoverage = false;
 
   // Les lots 2+ réutilisent le snapshot complet créé par le premier lot.
   // C'est le point essentiel : un refresh = au maximum UN appel BSD /events/live/.
@@ -5910,19 +5913,44 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     coverage = await fetchBSDCoverage();
     const liveNow = safeNumber(coverage?.live_now, -1);
 
-    if (!options.skipBsd && liveNow !== 0) {
+    // Query the free live feed first. If it covers essentially everything BSD
+    // says is live, we avoid the quota-bearing BSD /events/live/ request.
+    sportscoreLivePrefetch = await fetchSportScoreDay(
+      new Date().toISOString().slice(0, 10),
+      true,
+    );
+    const freeCoverageIsEnough =
+      sportscoreLivePrefetch.length > 0 &&
+      (
+        liveNow < 0 ||
+        sportscoreLivePrefetch.length >= Math.max(1, Math.floor(liveNow * 0.90))
+      );
+
+    if (freeCoverageIsEnough) {
+      originalRawMatches = sportscoreLivePrefetch;
+      bsdEventCallSkippedByFreeCoverage = true;
+    } else if (!options.skipBsd && liveNow !== 0) {
       try {
         const liveData = await fetchBSD("/events/live/");
         originalRawMatches = bsdResults(liveData);
+        // SportScore still contributes matches BSD may not expose.
+        for (const freeMatch of sportscoreLivePrefetch) {
+          if (!originalRawMatches.some((m: any) => sameMatchScore(m, freeMatch) >= 0.72)) {
+            originalRawMatches.push(freeMatch);
+          }
+        }
       } catch (e: any) {
         bsdError = e?.message || String(e);
         bsdRateLimited = isBSDQuotaError(e);
+        originalRawMatches = [...sportscoreLivePrefetch];
         if (bsdRateLimited) {
-          console.warn("⚠️ Quota BSD épuisé: ESPN + cache prennent le relais");
+          console.warn("⚠️ Quota BSD épuisé: SportScore + ESPN + cache prennent le relais");
         } else {
-          console.error("⚠️ BSD v2 live indisponible: ESPN prend le relais", e);
+          console.error("⚠️ BSD v2 live indisponible: SportScore + ESPN prennent le relais", e);
         }
       }
+    } else {
+      originalRawMatches = [...sportscoreLivePrefetch];
     }
 
     const espnResult = await fetchEspnLiveMatchesForMerge();
@@ -5967,7 +5995,7 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     // 3) BSD /stats/ seulement pour les trous restants.
     allRawMatches = await reuseCachedStats(allRawMatches);
 
-    const freeEnrichment = await enrichLiveMatchesWithFreeStats(allRawMatches);
+    const freeEnrichment = await enrichLiveMatchesWithFreeStats(allRawMatches, sportscoreLivePrefetch);
     allRawMatches = sortMatchesForRefresh(freeEnrichment.matches);
 
     const statsEnrichment = await enrichLiveMatchesWithBsdStats(allRawMatches);
@@ -5978,6 +6006,7 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       thesportsdb_calls: freeEnrichment.thesportsdb_calls,
       openligadb_matches: freeEnrichment.openligadb_matches,
       free_stats_enriched: freeEnrichment.enriched,
+      bsd_events_call_skipped_free_coverage: bsdEventCallSkippedByFreeCoverage,
       bsd_stats_calls: statsEnrichment.calls,
       bsd_stats_enriched: statsEnrichment.enriched,
       bsd_stats_failed: statsEnrichment.failed,
