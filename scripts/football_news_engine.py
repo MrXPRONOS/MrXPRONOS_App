@@ -15,7 +15,7 @@ import re
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
 import requests
 from PIL import Image, ImageFilter, ImageOps
@@ -322,8 +322,6 @@ def prepare_real_image(raw: bytes, out: Path, size: tuple[int, int] = (1200, 675
     # Un écart supérieur à ~24 % utilise contain + arrière-plan flouté.
     if ratio < target_ratio * 0.76 or ratio > target_ratio * 1.24:
         background = _background_cover(image, size).filter(ImageFilter.GaussianBlur(34))
-        overlay = Image.new("RGB", size, (0, 0, 0))
-        overlay.putalpha if False else None
         # Légère assombrissement pour que l'image centrale soit bien lisible.
         dark = Image.new("RGB", size, (18, 22, 26))
         background = Image.blend(background, dark, 0.24)
