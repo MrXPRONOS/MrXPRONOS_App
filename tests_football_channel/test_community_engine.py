@@ -87,6 +87,21 @@ class CommunityEngineTests(unittest.TestCase):
         self.assertLess(index, 4)
         self.assertIn(quiz["options"][index], quiz["explanation"])
 
+    @patch("football_community_engine.fetch_tsdb_team_metadata")
+    def test_tsdb_fallback_quiz_has_verified_answer(self, metadata):
+        metadata.return_value = {
+            "source": "TheSportsDB",
+            "team": "Arsenal",
+            "stadium": "Emirates Stadium",
+            "formed_year": "1886",
+            "country": "England",
+        }
+        quiz = community.build_tsdb_club_quiz(FakeSession(), date(2026, 10, 14))
+        self.assertIsNotNone(quiz)
+        self.assertEqual(quiz["source"], "TheSportsDB")
+        index = quiz["correct_option_ids"][0]
+        self.assertIn(quiz["options"][index], quiz["explanation"])
+
     def test_news_debate_requires_real_recent_news(self):
         news = [{
             "slug": "abc",
