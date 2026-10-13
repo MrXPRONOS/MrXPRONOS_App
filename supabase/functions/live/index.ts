@@ -1,4 +1,13 @@
 import { fetchSharedEspnScoreboard, fetchSharedEspnSummary, safeEspnDate, parseEspnNumber } from "../_shared/espn.ts";
+import {
+  FREE_SOURCE_RANKING,
+  bestProviderMatch,
+  fetchOpenLigaCurrent,
+  fetchSportScoreDay,
+  fetchSportScoreMatchStats,
+  fetchTheSportsDbDay,
+  fetchTheSportsDbStats,
+} from "../_shared/free-football.ts";
 // live.ts (Supabase Edge Function / Deno)
 // =======================================================
 // PATCHES inclus :
@@ -419,7 +428,7 @@ function getSourceMatchId(match: any, sourceName: string) {
   return String(match?.id || match?.source_match_id || "");
 }
 
-function sourceRowFromMatch(match: any, sourceName: "api_original" | "espn") {
+function sourceRowFromMatch(match: any, sourceName: string) {
   const liveStats = ensureLiveStatsShape(getMatchLiveStats(match));
   const canonical = buildCanonicalMatchId(match);
 
@@ -5554,6 +5563,172 @@ function statsAgeSeconds(match: any) {
   return Math.max(0, Math.floor((Date.now() - ts) / 1000));
 }
 
+async function enrichLiveMatchesWithFreeStats(matches: any[]) {
+  const out = [...(matches || [])];
+  if (!out.length) {
+    return { matches: out, sportscore_calls: 0, thesportsdb_calls: 0, openligadb_matches: 0, enriched: 0 };
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const [sportscore, thesportsdb, openliga] = await Promise.all([
+    fetchSportScoreDay(today, true),
+    fetchTheSportsDbDay(today),
+    fetchOpenLigaCurrent(),
+  ]);
+
+  let sportscoreCalls = 1;
+  let thesportsdbCalls = 1;
+  let enriched = 0;
+  let sportscoreDetails = 0;
+  let tsdbDetails = 0;
+
+  for (let i = 0; i < out.length; i++) {
+    const match = out[i];
+    let current = { ...match };
+    const ss = bestProviderMatch(match, sportscore, 0.66);
+    const ts = bestProviderMatch(match, thesportsdb, 0.70);
+    const ol = bestProviderMatch(match, openliga, 0.72);
+
+    const providerSources = new Set<string>([
+      ...((current?.raw_data?.merge_meta?.sources || []) as string[]),
+      ...((current?.raw_data?.stats_sources || []) as string[]),
+    ]);
+
+    if (ss?.match) {
+      providerSources.add("sportscore");
+      current = {
+        ...current,
+        home_logo: current.home_logo || ss.match.home_logo,
+        away_logo: current.away_logo || ss.match.away_logo,
+        home_score: current.home_score ?? ss.match.home_score,
+        away_score: current.away_score ?? ss.match.away_score,
+        current_minute: safeNumber(current.current_minute ?? ss.match.current_minute, 0),
+        raw_data: {
+          ...(current.raw_data || {}),
+          provider_matches: {
+            ...(current.raw_data?.provider_matches || {}),
+            sportscore: {
+              id: ss.match.source_match_id,
+              slug: ss.match.source_slug,
+              similarity: Number(ss.score.toFixed(3)),
+            },
+          },
+        },
+      };
+
+      const completeness = statsCompleteness(getMatchLiveStats(current));
+      if (completeness.core_complete < 3 && ss.match.source_slug && sportscoreDetails < 3) {
+        sportscoreDetails++;
+        sportscoreCalls++;
+        const detail = await fetchSportScoreMatchStats(String(ss.match.source_slug));
+        if (detail?.stats) {
+          const mergedStats = mergeLiveStats(getMatchLiveStats(current), detail.stats, true);
+          current = {
+            ...current,
+            live_stats: mergedStats,
+            stats_last_updated_at: nowIso(),
+            raw_data: {
+              ...(current.raw_data || {}),
+              live_stats: mergedStats,
+              stats_last_updated_at: nowIso(),
+              stats_sources: [...new Set([...(current.raw_data?.stats_sources || []), "sportscore"])],
+              stats_authority: "sportscore",
+            },
+          };
+          enriched++;
+        }
+      }
+    }
+
+    if (ts?.match) {
+      providerSources.add("thesportsdb");
+      current = {
+        ...current,
+        home_logo: current.home_logo || ts.match.home_logo,
+        away_logo: current.away_logo || ts.match.away_logo,
+        raw_data: {
+          ...(current.raw_data || {}),
+          provider_matches: {
+            ...(current.raw_data?.provider_matches || {}),
+            thesportsdb: {
+              id: ts.match.source_match_id,
+              similarity: Number(ts.score.toFixed(3)),
+            },
+          },
+        },
+      };
+      const completeness = statsCompleteness(getMatchLiveStats(current));
+      if (completeness.core_complete < 3 && ts.match.source_match_id && tsdbDetails < 2) {
+        tsdbDetails++;
+        thesportsdbCalls++;
+        const detail = await fetchTheSportsDbStats(String(ts.match.source_match_id));
+        if (detail?.stats) {
+          const mergedStats = mergeLiveStats(getMatchLiveStats(current), detail.stats, true);
+          current = {
+            ...current,
+            live_stats: mergedStats,
+            stats_last_updated_at: nowIso(),
+            raw_data: {
+              ...(current.raw_data || {}),
+              live_stats: mergedStats,
+              stats_last_updated_at: nowIso(),
+              stats_sources: [...new Set([...(current.raw_data?.stats_sources || []), "thesportsdb"])],
+            },
+          };
+          enriched++;
+        }
+      }
+    }
+
+    if (ol?.match) {
+      providerSources.add("openligadb");
+      current = {
+        ...current,
+        home_score: current.home_score ?? ol.match.home_score,
+        away_score: current.away_score ?? ol.match.away_score,
+        raw_data: {
+          ...(current.raw_data || {}),
+          provider_matches: {
+            ...(current.raw_data?.provider_matches || {}),
+            openligadb: {
+              id: ol.match.source_match_id,
+              similarity: Number(ol.score.toFixed(3)),
+            },
+          },
+        },
+      };
+    }
+
+    const ranked = [...providerSources].sort((a, b) =>
+      (FREE_SOURCE_RANKING as any)[a]?.rank - (FREE_SOURCE_RANKING as any)[b]?.rank
+    );
+    current.raw_data = {
+      ...(current.raw_data || {}),
+      merge_meta: {
+        ...(current.raw_data?.merge_meta || {}),
+        sources: ranked,
+        provider_ranking: FREE_SOURCE_RANKING,
+        confidence_score: Math.min(
+          98,
+          Math.max(
+            safeNumber(current.raw_data?.merge_meta?.confidence_score, 65),
+            ranked.length >= 3 ? 90 : ranked.length >= 2 ? 82 : 68,
+          ),
+        ),
+      },
+    };
+    out[i] = current;
+  }
+
+  return {
+    matches: out,
+    sportscore_calls: sportscoreCalls,
+    thesportsdb_calls: thesportsdbCalls,
+    openligadb_matches: openliga.length,
+    enriched,
+  };
+}
+
 async function enrichLiveMatchesWithBsdStats(matches: any[]) {
   const budget = bsdStatsCallBudget();
   if (budget <= 0) {
@@ -5787,15 +5962,22 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     sourceMeta = merged.meta || sourceMeta;
 
     // /events/live/ est compact et ne fournit pas les stats détaillées.
-    // 1) on réutilise d'abord notre dernier snapshot connu;
-    // 2) ESPN complète gratuitement ce qu'il possède;
-    // 3) BSD /stats/ enrichit seulement quelques matchs prioritaires par cycle.
+    // 1) cache local;
+    // 2) SportScore/TheSportsDB/OpenLigaDB gratuits;
+    // 3) BSD /stats/ seulement pour les trous restants.
     allRawMatches = await reuseCachedStats(allRawMatches);
+
+    const freeEnrichment = await enrichLiveMatchesWithFreeStats(allRawMatches);
+    allRawMatches = sortMatchesForRefresh(freeEnrichment.matches);
 
     const statsEnrichment = await enrichLiveMatchesWithBsdStats(allRawMatches);
     allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
     sourceMeta = {
       ...sourceMeta,
+      sportscore_calls: freeEnrichment.sportscore_calls,
+      thesportsdb_calls: freeEnrichment.thesportsdb_calls,
+      openligadb_matches: freeEnrichment.openligadb_matches,
+      free_stats_enriched: freeEnrichment.enriched,
       bsd_stats_calls: statsEnrichment.calls,
       bsd_stats_enriched: statsEnrichment.enriched,
       bsd_stats_failed: statsEnrichment.failed,
