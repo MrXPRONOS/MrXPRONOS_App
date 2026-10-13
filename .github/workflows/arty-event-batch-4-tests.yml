@@ -38,3 +38,5 @@ jobs:
         run: PYTHONPATH=scripts python tests_football_channel/test_event_template_batch_3.py
       - name: Run batch 4 tests
         run: PYTHONPATH=scripts python tests_football_channel/test_event_template_batch_4.py
+
+# batch4-assets-present
