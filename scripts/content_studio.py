@@ -202,6 +202,13 @@ def save_cover(title: str, subtype: str, slug: str, subtitle: str = "", match_te
             cover.save(path, "WEBP", quality=86, method=5)
         result[{"og":"image_url","social":"social_image","story":"story_image"}[key]] = path.relative_to(ROOT).as_posix()
     result["og_image"] = result["image_url"]
+    if subtype in ("article","conseil","match"):
+        # Variante B: mêmes données, deuxième composition graphique originale.
+        ab_path = OUT / f"{subtype}-{safe_slug}-{stamp}-ab.webp"
+        if not dry_run and not ab_path.exists():
+            draw_cover(title,subtype,FORMATS["og"],(variant+1)%3,subtitle,match_teams).save(
+                ab_path,"WEBP",quality=84,method=5)
+        result["ab_image_url"] = ab_path.relative_to(ROOT).as_posix()
     return result
 
 
