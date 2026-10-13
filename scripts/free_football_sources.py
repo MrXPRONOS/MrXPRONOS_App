@@ -142,6 +142,7 @@ def _canonical(
         "state": state,
         "status": "finished" if state == "post" else "live" if state == "in" else "scheduled",
         "status_detail": _text(status),
+        "minute": _minute_value(status) or 0,
         "event_date": event_date,
         "league": _text(league),
         "home_logo": _text(home_logo),
