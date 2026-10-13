@@ -935,7 +935,9 @@ def lifecycle_publication(signal: dict) -> Publication | None:
             "<p><i>" + esc(competition) + "</i></p>"
             "<blockquote><b>⚽ " + esc(home) + " " + esc(signal.get("score") or "0-0")
             + " " + esc(away) + "</b></blockquote>"
-            "<p>Le match vient de commencer.</p>"
+            "<p>Le match est lancé"
+            + (" • " + esc(str(signal.get("minute"))) + "'" if signal.get("minute") else "")
+            + ".</p>"
             "<p><i>Source live : " + esc(source) + "</i></p>"
         )
     elif kind == "mi_temps":
