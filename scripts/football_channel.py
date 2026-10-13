@@ -437,6 +437,99 @@ def _verify_espn_news_reference(session: requests.Session, verification: dict[st
         }
 
 
+def _espn_stats_html(enrichment: dict[str, Any], title: str = "📊 Données ESPN") -> str:
+    stats = enrichment.get("stats") if isinstance(enrichment, dict) else None
+    stats = stats if isinstance(stats, dict) else {}
+    home = stats.get("home") if isinstance(stats.get("home"), dict) else {}
+    away = stats.get("away") if isinstance(stats.get("away"), dict) else {}
+    rows = []
+    for label, key in (
+        ("Tirs cadrés", "shots_on_target"),
+        ("Tirs", "shots"),
+        ("Corners", "corners"),
+        ("Possession", "possession"),
+        ("Fautes", "fouls"),
+        ("Hors-jeu", "offsides"),
+        ("Arrêts", "saves"),
+    ):
+        hv, av = home.get(key), away.get(key)
+        if hv not in (None, "") and av not in (None, ""):
+            rows.append(esc(label) + " : <b>" + esc(hv) + " – " + esc(av) + "</b>")
+    if not rows:
+        return ""
+    return "<p><b>" + esc(title) + "</b><br/>" + "<br/>".join(rows[:5]) + "</p>"
+
+
+def _apply_espn_preflight_enrichment(item: Publication, result: dict[str, Any]) -> None:
+    """Corrige/enrichit l'objet Publication avant que Sender ne génère l'image."""
+    if not isinstance(result, dict) or not result.get("ok"):
+        return
+
+    verified = result.get("verified") if isinstance(result.get("verified"), list) else []
+    if item.category == "programme" and item.card and verified:
+        matches = item.card.get("matches") if isinstance(item.card.get("matches"), list) else []
+        for card_match in matches:
+            if not isinstance(card_match, dict):
+                continue
+            best = next(
+                (
+                    row for row in verified
+                    if _norm_team(row.get("home")) == _norm_team(card_match.get("home"))
+                    and _norm_team(row.get("away")) == _norm_team(card_match.get("away"))
+                ),
+                None,
+            )
+            when = moment(best.get("event_date")) if isinstance(best, dict) else None
+            if when:
+                card_match["time"] = time_label(when)
+
+    if item.category == "avant_match" and verified:
+        row = verified[0] if isinstance(verified[0], dict) else {}
+        when = moment(row.get("event_date"))
+        if item.card and when:
+            item.card["time"] = time_label(when)
+        venue = plain(row.get("venue"), 100)
+        if venue and "🏟" not in item.text:
+            item.text += "<p>🏟 <b>" + esc(venue) + "</b></p>"
+
+    enrichment = result.get("enrichment") if isinstance(result.get("enrichment"), dict) else {}
+    info = enrichment.get("info") if isinstance(enrichment.get("info"), dict) else {}
+
+    if item.category == "composition":
+        context = []
+        venue = plain(info.get("venue"), 100)
+        if venue:
+            context.append("🏟 " + esc(venue))
+        referees = [plain(x, 70) for x in (info.get("referees") or []) if plain(x, 70)]
+        if referees:
+            context.append("👤 Arbitre : " + esc(referees[0]))
+        if context and "Arbitre :" not in item.text:
+            item.text += "<p>" + "<br/>".join(context) + "</p>"
+
+    if item.category == "mi_temps" and "Données ESPN à la pause" not in item.text:
+        block = _espn_stats_html(enrichment, "📊 Données ESPN à la pause")
+        if block:
+            item.text += block
+
+    if item.category == "resultat" and "📊 Repères du match" not in item.text:
+        block = _espn_stats_html(enrichment, "📊 Repères du match")
+        if block:
+            item.text += block
+        goals = enrichment.get("goals") if isinstance(enrichment.get("goals"), list) else []
+        if goals and "🎯 Buteurs" not in item.text:
+            lines = []
+            for goal in goals[:8]:
+                if not isinstance(goal, dict):
+                    continue
+                player = plain(goal.get("player"), 65)
+                minute = plain(goal.get("minute_text"), 18)
+                if player:
+                    suffix = " (pen.)" if goal.get("penalty") else " (c.s.c.)" if goal.get("own_goal") else ""
+                    lines.append("⚽ " + esc(player) + suffix + ((" • " + esc(minute)) if minute else ""))
+            if lines:
+                item.text += "<p><b>🎯 Buteurs ESPN</b><br/>" + "<br/>".join(lines) + "</p>"
+
+
 def espn_preflight(sender: "Sender", item: Publication, *, dry_run: bool = False) -> bool:
     """Contrôle ESPN juste avant envoi; bloquant pour les faits de match, informatif pour les news."""
     if dry_run or not item.verification:
@@ -458,6 +551,8 @@ def espn_preflight(sender: "Sender", item: Publication, *, dry_run: bool = False
             "total": result.get("total"),
             "contradictions": result.get("contradictions") or [],
         }, ensure_ascii=False))
+        if result.get("ok"):
+            _apply_espn_preflight_enrichment(item, result)
         return bool(result.get("ok"))
 
     result = verify_espn_before_publish(sender.session, item.verification)
@@ -469,7 +564,10 @@ def espn_preflight(sender: "Sender", item: Publication, *, dry_run: bool = False
         "page_verified": (result.get("page") or {}).get("content_verified"),
         "source_url": result.get("source_url"),
     }, ensure_ascii=False))
-    return bool(result.get("ok")) and int(result.get("quality") or 0) >= 90
+    accepted = bool(result.get("ok")) and int(result.get("quality") or 0) >= 90
+    if accepted:
+        _apply_espn_preflight_enrichment(item, result)
+    return accepted
 
 
 class Sender:
