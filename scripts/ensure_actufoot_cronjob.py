@@ -130,10 +130,30 @@ def ensure(title, minutes, mode, trigger):
 
     details = req("GET", f"/jobs/{job_id}").get("jobDetails", {})
     actual = details.get("schedule") or {}
+    extended = details.get("extendedData") or {}
+    body_raw = extended.get("body") or ""
+    try:
+        body = json.loads(body_raw)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(f"Corps GitHub invalide sur le job {job_id}") from exc
+    inputs = body.get("inputs") if isinstance(body, dict) else None
+    expected_inputs = {
+        "trigger_source": trigger,
+        "dry_run": False,
+        "force": False,
+        "mode": mode,
+    }
     assert details.get("enabled") is True
+    assert details.get("requestMethod") == 1
     assert wf_from_url(details.get("url")) == TARGET_WF
     assert actual.get("minutes") == minutes
     assert actual.get("hours") == list(range(7, 24))
+    assert body.get("ref") == "main"
+    assert inputs == expected_inputs, {
+        "jobId": job_id,
+        "expected": expected_inputs,
+        "actual": inputs,
+    }
     return {
         "action": action,
         "jobId": job_id,
@@ -141,6 +161,8 @@ def ensure(title, minutes, mode, trigger):
         "enabled": details.get("enabled"),
         "targetWorkflow": TARGET_WF,
         "mode": mode,
+        "dryRun": inputs.get("dry_run"),
+        "triggerSource": inputs.get("trigger_source"),
         "schedule": actual,
         "nextExecution": details.get("nextExecution"),
     }
