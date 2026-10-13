@@ -88,15 +88,22 @@ export async function fetchSportScoreFixtures(date:string,status?:string){
   });
 }
 export async function fetchSportScoreLive(){
-  const payload=await json(url(SPORT_SCORE+"/matches/",{sport:"football",limit:50}),45_000);
-  const rows=Array.isArray(payload?.matches)?payload.matches:[];
+  // The documented fixtures endpoint supports status=live and limit=200.
+  // This avoids the /matches/ alias (live + recent, max 50) undercounting live coverage.
+  const date=new Date().toISOString().slice(0,10);
+  const payload=await json(url(SPORT_SCORE+"/fixtures/",{sport:"football",date,status:"live",limit:200}),45_000);
+  const rows=Array.isArray(payload?.matches)?payload.matches:
+    Array.isArray(payload?.fixtures)?payload.fixtures:
+    Array.isArray(payload?.results)?payload.results:[];
   return rows.filter((x:any)=>state(x.status||x.status_text)==="in").map((x:any)=>{
     const home=text(typeof x.home==="object"?x.home?.name:x.home);
     const away=text(typeof x.away==="object"?x.away?.name:x.away);
     const slug=text(x.slug||x.match_slug||x.url_slug)||slugify(home+"-vs-"+away);
-    return liveShape("sportscore",text(x.id||x.match_id||slug),home,away,x.time,{
-      home_score:x.home_score,away_score:x.away_score,status:x.status,status_detail:x.status_text,
+    return liveShape("sportscore",text(x.id||x.match_id||slug),home,away,x.time||x.date||x.start_time,{
+      home_score:x.home_score??x.score_home,away_score:x.away_score??x.score_away,
+      status:x.status,status_detail:x.status_text||x.status,
       minute:x.minute,home_logo:x.home_logo,away_logo:x.away_logo,
+      league:typeof x.competition==="object"?x.competition?.name:x.competition||x.league,
       raw_data:{sportscore_slug:slug,raw:x},
     });
   });
