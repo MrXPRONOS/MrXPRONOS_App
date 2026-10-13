@@ -4024,7 +4024,7 @@ function mergeAdditionalProviderMatches(
         },
       };
       merged++;
-    } else {
+    } else if (provider?.is_live === true) {
       const stats = ensureLiveStatsShape(getMatchLiveStats(provider));
       out.push({
         ...provider,
