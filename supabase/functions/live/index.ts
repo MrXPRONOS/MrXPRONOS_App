@@ -1,3 +1,4 @@
+import { fetchSharedEspnScoreboard, fetchSharedEspnSummary, safeEspnDate, parseEspnNumber } from "../_shared/espn.ts";
 // live.ts (Supabase Edge Function / Deno)
 // =======================================================
 // PATCHES inclus :
@@ -500,7 +501,7 @@ function extractPath(url: URL, fnName = "live") {
 }
 
 function requireCronAuth(req: Request, url: URL) {
-  if (!CRON_SECRET) return; // public si non défini
+  if (!CRON_SECRET) throw new Error("CRON_SECRET not configured");
   const auth = req.headers.get("authorization") || "";
   const x = req.headers.get("x-cron-secret") || "";
   const q = url.searchParams.get("key") || "";
@@ -513,7 +514,7 @@ function requireCronAuth(req: Request, url: URL) {
 }
 
 function requireDebugAuth(url: URL) {
-  if (!DEBUG_KEY) return; // public si non défini
+  if (!DEBUG_KEY) throw new Error("DEBUG_KEY not configured");
   const key = url.searchParams.get("key") || "";
   if (key !== DEBUG_KEY) throw new Error("Unauthorized (DEBUG_KEY)");
 }
@@ -3486,40 +3487,19 @@ function computeValueScore(match: any, predictions: any[]) {
 // =======================================================
 // ESPN SCRAPING SOURCE — Normalisation vers le format du live original
 // =======================================================
-let espnMemCache: { at: number; date: string; data: any } | null = null;
-const ESPN_CACHE_TTL_MS = 15_000;
-
-async function fetchEspnScoreboard(dateYYYYMMDD: string, force = false) {
-  const now = Date.now();
-
-  if (
-    !force &&
-    espnMemCache &&
-    espnMemCache.date === dateYYYYMMDD &&
-    now - espnMemCache.at < ESPN_CACHE_TTL_MS
-  ) {
-    return espnMemCache.data;
-  }
-
-  const url = new URL(ESPN_SCOREBOARD_URL);
-  url.searchParams.set("dates", dateYYYYMMDD);
-  url.searchParams.set("limit", "500");
-
-  const res = await fetch(url.toString(), {
-    headers: {
-      "User-Agent": "Mozilla/5.0 MrXPRONOS-ESPN-Merge/1.0",
-      "Accept": "application/json,text/plain,*/*",
-    },
-  });
-
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(`ESPN HTTP ${res.status}: ${body || res.statusText}`);
-  }
-
-  const data = await res.json();
-  espnMemCache = { at: now, date: dateYYYYMMDD, data };
-  return data;
+const espnStore = {
+  async read(key: string) {
+    const { data, error } = await supabase.from("espn_feed_cache").select("*").eq("cache_key", key).maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+  async write(row: any) {
+    const { error } = await supabase.from("espn_feed_cache").upsert(row, { onConflict: "cache_key" });
+    if (error) throw error;
+  },
+};
+async function fetchEspnScoreboard(dateYYYYMMDD: string, _force = false) {
+  return fetchSharedEspnScoreboard(dateYYYYMMDD, espnStore);
 }
 
 function extractEspnMinute(status: any): number {
@@ -6087,16 +6067,8 @@ function hasRequiredFinalStats(stats: any, predictionType: string) {
 }
 
 async function fetchEspnSummary(eventId: string) {
-  const url = new URL(ESPN_SUMMARY_URL);
-  url.searchParams.set("event", eventId);
-  const res = await fetch(url.toString(), {
-    headers: {
-      "User-Agent": "Mozilla/5.0 MrXPRONOS-ESPN-Final/1.0",
-      "Accept": "application/json,text/plain,*/*",
-    },
-  });
-  if (!res.ok) return null;
-  return res.json().catch(() => null);
+  try { return await fetchSharedEspnSummary(eventId, espnStore); }
+  catch (error) { console.warn("ESPN summary unavailable:", eventId, error); return null; }
 }
 
 function mergeEspnSummaryStatsIntoEvent(event: any, summary: any) {
