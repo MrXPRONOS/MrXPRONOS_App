@@ -24,6 +24,7 @@ jobs:
       FOOTBALL_REQUIRE_COMMENTS: '0'
       FOOTBALL_BSD_REQUEST_BUDGET: '45'
       FOOTBALL_ESPN_REQUEST_BUDGET: '60'
+      FOOTBALL_FREE_MIN_MATCHES: '3'
       PYTHONUNBUFFERED: '1'
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +35,7 @@ jobs:
         run: python -m pip install requests Pillow feedparser imageio-ffmpeg
       - name: Controler syntaxe et tests de regression
         run: |
-          python -m py_compile scripts/football_five_systems_test.py scripts/football_channel.py scripts/football_match_lifecycle.py
+          python -m py_compile scripts/football_five_systems_test.py scripts/football_channel.py scripts/football_match_lifecycle.py scripts/football_provider_mesh.py
           python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
       - name: Verifier strictement le canal de test
         env:
