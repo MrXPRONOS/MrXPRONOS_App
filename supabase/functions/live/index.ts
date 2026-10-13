@@ -438,7 +438,7 @@ function getSourceMatchId(match: any, sourceName: string) {
   return String(match?.id || match?.source_match_id || "");
 }
 
-function sourceRowFromMatch(match: any, sourceName: "api_original" | "espn") {
+function sourceRowFromMatch(match: any, sourceName: string) {
   const liveStats = ensureLiveStatsShape(getMatchLiveStats(match));
   const canonical = buildCanonicalMatchId(match);
 
@@ -3860,22 +3860,31 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[],
 
   for (const original of originalMatches || []) {
     const key = buildCanonicalMatchId(original);
+    const originalProvider = providerNameOf(original) || "api_original";
+    const priorMeta = original?.raw_data?.merge_meta || {};
+    const priorSources = Array.isArray(priorMeta?.sources)
+      ? priorMeta.sources.map((x: unknown) => String(x))
+      : [originalProvider];
     const match = {
       ...original,
       raw_data: {
         ...(original?.raw_data || {}),
         merge_meta: {
+          ...priorMeta,
           canonical_match_id: key,
-          sources: ["api_original"],
-          confidence_score: 70,
-          primary_source: "api_original",
+          sources: [...new Set(priorSources)],
+          confidence_score: Math.max(
+            safeNumber(priorMeta?.confidence_score, 0),
+            safeNumber(original?.raw_data?.provider_quality, PROVIDER_QUALITY[originalProvider] || 70),
+          ),
+          primary_source: priorMeta?.primary_source || originalProvider,
           merged_at: nowIso(),
         },
       },
     };
 
     entries.push({ key, match, source: "api_original" });
-    sourceRows.push(sourceRowFromMatch(original, "api_original"));
+    sourceRows.push(sourceRowFromMatch(original, originalProvider));
   }
 
   let duplicatesMerged = 0;
@@ -3942,6 +3951,13 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[],
     meta: {
       original_source_matches: originalMatches.length,
       espn_source_matches: espnMatches.length,
+      original_source_breakdown: Object.fromEntries(
+        [...new Set((originalMatches || []).map((m: any) => providerNameOf(m) || "api_original"))]
+          .map((name: string) => [
+            name,
+            (originalMatches || []).filter((m: any) => (providerNameOf(m) || "api_original") === name).length,
+          ])
+      ),
       merged_matches: mergedMatches.length,
       duplicates_merged: duplicatesMerged,
       espn_only_matches: espnOnly,
