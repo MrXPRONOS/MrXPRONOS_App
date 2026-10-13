@@ -91,9 +91,33 @@ jobs:
 
           sport = f.fetch_sportscore_day(session, today)
           print("SPORTSCORE_OK", len(sport))
+          sport_detail_match = next(
+              (x for x in sport if x.get("provider_slug") and x.get("state") in {"in", "post"}),
+              next((x for x in sport if x.get("provider_slug")), None),
+          )
+          if sport_detail_match:
+              detail = f.fetch_sportscore_detail(session, sport_detail_match["provider_slug"])
+              enrichment = f.extract_sportscore_enrichment(detail)
+              print("SPORTSCORE_DETAIL_OK", sport_detail_match["provider_slug"], {
+                  "keys": sorted(detail.keys())[:20] if isinstance(detail, dict) else [],
+                  "home_lineup": len((enrichment.get("lineups") or {}).get("home") or []),
+                  "goals": len(enrichment.get("goals") or []),
+                  "timeline": len(enrichment.get("timeline") or []),
+                  "home_stats": len((enrichment.get("stats") or {}).get("home") or {}),
+              })
 
           tsdb = f.fetch_thesportsdb_day(session, today)
           print("THESPORTSDB_OK", len(tsdb))
+          tsdb_match = next((x for x in tsdb if x.get("source_match_id")), None)
+          if tsdb_match:
+              detail = f.fetch_thesportsdb_details(session, tsdb_match["source_match_id"])
+              enrichment = f.extract_thesportsdb_enrichment(detail)
+              print("THESPORTSDB_DETAIL_OK", tsdb_match["source_match_id"], {
+                  "sections": sorted(detail.keys()),
+                  "home_lineup": len((enrichment.get("lineups") or {}).get("home") or []),
+                  "timeline": len(enrichment.get("timeline") or []),
+                  "home_stats": len((enrichment.get("stats") or {}).get("home") or {}),
+              })
 
           openliga = f.fetch_openligadb_day(session, today)
           print("OPENLIGADB_OK", len(openliga))
