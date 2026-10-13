@@ -26,7 +26,7 @@ DARK = (5, 14, 26)
 SUPPORTED = (
     "composition", "kickoff", "goal", "mi_temps", "score_update",
     "statistique_avancee", "community_vote", "quiz", "debat", "reaction",
-    "suivi_interrompu",
+    "resultat_suivi", "suivi_interrompu",
 )
 HEADINGS = {
     "composition": "COMPOSITIONS OFFICIELLES",
@@ -39,6 +39,7 @@ HEADINGS = {
     "quiz": "QUIZ FOOT",
     "debat": "DÉBAT FOOT",
     "reaction": "RÉACTION APRÈS MATCH",
+    "resultat_suivi": "RÉSULTAT FINAL",
     "suivi_interrompu": "MATCH INTERROMPU",
 }
 
@@ -201,7 +202,7 @@ def make_background(category: str) -> Image.Image:
                 d.line((x1,yy+33,x2,yy+33),fill=(87,86,82),width=1)
         draw_text(d,"VS",(510,669,572,756),size=44,color=GOLD)
     elif category in {"kickoff","goal","mi_temps","score_update","reaction",
-                       "community_vote","suivi_interrompu"}:
+                       "community_vote","resultat_suivi","suivi_interrompu"}:
         y=452 if category!="reaction" else 440
         dark_circle(d,196,y,97)
         dark_circle(d,884,y,97)
@@ -318,7 +319,7 @@ def overlay(category: str,payload: dict[str,Any]) -> Image.Image:
                       size=24,min_size=15,align="left")
         return image
     if category in {"kickoff","goal","mi_temps","score_update","reaction",
-                    "community_vote","suivi_interrompu"}:
+                    "community_vote","resultat_suivi","suivi_interrompu"}:
         y=452 if category!="reaction" else 440
         logo(image,clean(payload.get("home_logo")),(196,y),167)
         logo(image,clean(payload.get("away_logo")),(884,y),167)
