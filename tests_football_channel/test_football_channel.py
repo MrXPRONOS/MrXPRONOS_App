@@ -73,6 +73,68 @@ class FootballChannelTests(unittest.TestCase):
             m.ROOT = old_root
 
 
+    def test_flash_ajoute_corroboration_espn_sans_remplacer_la_source(self):
+        old_root = m.ROOT
+        try:
+            m.ROOT = Path(self.directory.name)
+            image = m.ROOT / "assets/images/footnews/espn-news.webp"
+            image.parent.mkdir(parents=True, exist_ok=True)
+            image.write_bytes(b"fake-test-image")
+            articles = [{
+                "slug": "espn-news",
+                "title": "Arsenal avance sur un dossier important",
+                "telegram_summary": "Le média source rapporte une nouvelle étape dans le dossier.",
+                "published": (NOW - timedelta(hours=1)).isoformat(),
+                "source": "Foot Mercato",
+                "source_url": "https://example.com/source",
+                "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=espn-news",
+                "category": "Mercato",
+                "image": "assets/images/footnews/espn-news.webp",
+                "image_origin": "source",
+                "espn_verification": {
+                    "provider": "ESPN",
+                    "url": "https://www.espn.com/soccer/story/_/id/123/test",
+                    "score": 0.5,
+                    "matched_terms": ["arsenal", "dossier"],
+                },
+            }]
+            post = m.flash(articles, self.history, NOW)
+            self.assertIsNotNone(post)
+            self.assertEqual(post.verification["type"], "news")
+            self.assertEqual(post.verification["matched_terms"], ["arsenal", "dossier"])
+            self.assertIn("Foot Mercato", post.text)
+            self.assertIn("repérée chez ESPN", post.text)
+            buttons = [b for row in post.keyboard["inline_keyboard"] for b in row]
+            self.assertTrue(any("ESPN" in b["text"] for b in buttons))
+        finally:
+            m.ROOT = old_root
+
+    @patch.object(m, "verify_espn_before_publish")
+    def test_preflight_match_bloque_si_espn_ne_confirme_pas(self, verify):
+        verify.return_value = {"ok": False, "quality": 0, "reason": "score_mismatch"}
+        item = m.Publication(
+            "goal", "goal:401", "goal",
+            verification={"event_id": "401", "kind": "goal"},
+        )
+        sender = type("S", (), {"session": object()})()
+        self.assertFalse(m.espn_preflight(sender, item))
+        verify.assert_called_once()
+
+    @patch.object(m, "_verify_espn_news_reference")
+    def test_preflight_news_reste_non_bloquant_si_espn_page_indisponible(self, verify):
+        verify.return_value = {"ok": False, "quality": 75, "reason": "espn_news_page_unavailable"}
+        item = m.Publication(
+            "flash", "flash:abc", "news",
+            verification={
+                "type": "news",
+                "url": "https://www.espn.com/soccer/story/_/id/123/test",
+                "matched_terms": ["arsenal"],
+            },
+        )
+        sender = type("S", (), {"session": object()})()
+        self.assertTrue(m.espn_preflight(sender, item))
+        verify.assert_called_once()
+
     def test_fenetres_editoriales_production(self):
         self.assertTrue(m.in_editorial_window(
             "programme", datetime(2026, 10, 10, 7, 0, tzinfo=timezone.utc)
