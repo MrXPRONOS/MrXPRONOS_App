@@ -1,0 +1,31 @@
+name: Telegram - Vérifier les bots du canal test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/telegram_test_readiness.py'
+      - '.github/workflows/telegram-test-readiness.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      EDITORIAL_TELEGRAM_BOT_TOKEN: ${{ secrets.EDITORIAL_TELEGRAM_BOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer requests
+        run: python -m pip install requests
+      - name: Vérifier les droits de publication sans envoyer de message
+        run: python scripts/telegram_test_readiness.py
