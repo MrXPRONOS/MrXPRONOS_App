@@ -202,28 +202,28 @@ function cleanModelHtmlOutput(html: string): string {
 function renderVipResponse(): string {
   return `
     <h3>🔐 Accès VIP</h3>
-    <p>Le <strong>LIVE VIP</strong> est accessible avec un code VIP actif.</p>
+    <p>Le <strong>PRONO LIVE</strong> est accessible avec un code VIP actif.</p>
     <p><strong>Tarif actuel :</strong> ${BUSINESS_CONFIG.vip.price_fcfa.toLocaleString("fr-FR")} F CFA ${BUSINESS_CONFIG.vip.duration_label}.</p>
     <p>Pour obtenir ou activer ton accès VIP, passe uniquement par nos canaux officiels :</p>
     <ul>
       <li><a href="${BUSINESS_CONFIG.support.whatsapp}" target="_blank">WhatsApp</a></li>
       <li><a href="${BUSINESS_CONFIG.support.telegram}" target="_blank">Telegram</a></li>
     </ul>
-    <p><a href="${BUSINESS_CONFIG.vip.live_url}" target="_blank">Accéder à la page LIVE VIP</a></p>
+    <p><a href="${BUSINESS_CONFIG.vip.live_url}" target="_blank">Accéder à la page PRONO LIVE</a></p>
   `.trim();
 }
 
 function renderLiveResponse(): string {
   return `
-    <h3>🔴 LIVE VIP</h3>
-    <p>Le <strong>LIVE VIP</strong> te donne accès aux signaux et statistiques en direct.</p>
+    <h3>🔴 PRONO LIVE</h3>
+    <p>Le <strong>PRONO LIVE</strong> te donne accès aux signaux et statistiques en direct.</p>
     <p>Pour y accéder, il te faut un code VIP actif.</p>
     <p><strong>Tarif actuel :</strong> ${BUSINESS_CONFIG.vip.price_fcfa.toLocaleString("fr-FR")} F CFA ${BUSINESS_CONFIG.vip.duration_label}.</p>
     <ul>
       <li><a href="${BUSINESS_CONFIG.support.whatsapp}" target="_blank">WhatsApp</a></li>
       <li><a href="${BUSINESS_CONFIG.support.telegram}" target="_blank">Telegram</a></li>
     </ul>
-    <p><a href="${BUSINESS_CONFIG.vip.live_url}" target="_blank">Voir la page LIVE VIP</a></p>
+    <p><a href="${BUSINESS_CONFIG.vip.live_url}" target="_blank">Voir la page PRONO LIVE</a></p>
   `.trim();
 }
 
@@ -263,7 +263,7 @@ function renderGreetingResponse(): string {
     <ul>
       <li>Les <a href="${BASE_URL}/pronos.html" target="_blank">pronostics du jour</a></li>
       <li>Les <a href="${BASE_URL}/bonus.html" target="_blank">bonus bookmakers</a></li>
-      <li>Le <a href="${BASE_URL}/live.html" target="_blank">LIVE VIP</a></li>
+      <li>Le <a href="${BASE_URL}/live.html" target="_blank">PRONO LIVE</a></li>
       <li>Le <a href="${BASE_URL}/contact.html" target="_blank">support</a></li>
     </ul>
   `.trim();
@@ -506,7 +506,7 @@ async function saveAssistantCache(normalizedQuestion: string, question: string, 
 const FONCTIONNALITES = `
 1. Pronostics quotidiens : Simple, Pro, VIP.
 2. Analyses avancées : H2H, forme récente, score xPronos.
-3. LIVE VIP : statistiques et signaux en direct.
+3. PRONO LIVE : statistiques et signaux en direct.
 4. Déblocage Pro via partage.
 5. Assistant IA intégré.
 6. Bonus bookmakers avec code XPVIP.
