@@ -8,7 +8,7 @@ from __future__ import annotations
 import os
 from datetime import datetime, timedelta, timezone
 
-from scripts.football_channel import BSDClient, BSDAPIError, Sender, TZ, programme
+from football_channel import BSDClient, BSDAPIError, Sender, TZ, programme
 
 
 def main() -> None:
