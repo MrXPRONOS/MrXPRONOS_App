@@ -136,20 +136,28 @@ jobs:
             football-production-
 
       - name: Publier sur Telegram
+        id: telegram_dispatch
         shell: bash
         env:
           EVENT_NAME: ${{ github.event_name }}
           MANUAL_DRY_RUN: ${{ inputs.dry_run || 'false' }}
           MANUAL_FORCE: ${{ inputs.force || 'false' }}
+          TRIGGER_SOURCE: ${{ inputs.trigger_source || '' }}
         run: |
           set -euo pipefail
           ARGS=()
 
-          # Seuls les runs planifiés publient automatiquement.
-          # Un push valide toute la chaîne en dry-run.
+          # Les pushs restent toujours en simulation.
+          # Les deux tâches cron-job.org connues sont, elles, des exécutions de production.
+          # Le déclencheur *-test reste explicitement hors de cette liste.
+          CRON_PRODUCTION="false"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && { [ "$TRIGGER_SOURCE" = "cron-job.org" ] || [ "$TRIGGER_SOURCE" = "cron-job.org-lifecycle" ]; }; then
+            CRON_PRODUCTION="true"
+          fi
+
           if [ "$EVENT_NAME" = "push" ]; then
             ARGS+=(--dry-run)
-          elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_DRY_RUN" = "true" ]; then
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_DRY_RUN" = "true" ] && [ "$CRON_PRODUCTION" != "true" ]; then
             ARGS+=(--dry-run)
           fi
 
@@ -161,17 +169,24 @@ jobs:
             ARGS+=(--lifecycle-only)
           fi
 
+          EFFECTIVE_DRY_RUN="false"
+          for arg in "${ARGS[@]}"; do
+            if [ "$arg" = "--dry-run" ]; then EFFECTIVE_DRY_RUN="true"; fi
+          done
+          echo "effective_dry_run=$EFFECTIVE_DRY_RUN" >> "$GITHUB_OUTPUT"
+          echo "ACTUFOOT_MODE event=$EVENT_NAME source=$TRIGGER_SOURCE mode=$RUN_MODE effective_dry_run=$EFFECTIVE_DRY_RUN"
+
           python scripts/football_channel.py "${ARGS[@]}"
 
       - name: Sauvegarder historique anti-doublon
-        if: ${{ always() && github.event_name == 'workflow_dispatch' && inputs.dry_run == false }}
+        if: ${{ always() && github.event_name == 'workflow_dispatch' && steps.telegram_dispatch.outputs.effective_dry_run == 'false' }}
         uses: actions/cache/save@v4
         with:
           path: .state/mrxpronos-football.json
           key: football-production-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Publier les nouvelles Infos Foot sur le site
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == false && inputs.mode != 'lifecycle' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && steps.telegram_dispatch.outputs.effective_dry_run == 'false' && inputs.mode != 'lifecycle' }}
         shell: bash
         run: |
           set -euo pipefail
