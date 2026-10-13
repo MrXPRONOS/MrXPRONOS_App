@@ -8,6 +8,7 @@ on:
     paths:
       - 'scripts/football_channel.py'
       - 'scripts/football_news_engine.py'
+      - 'scripts/football_match_lifecycle.py'
       - 'fetch_foot_news.py'
       - 'scripts/template_cards.py'
       - '.github/workflows/football-production.yml'
@@ -46,6 +47,8 @@ jobs:
       BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
       FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
       FOOTBALL_NEWS_CHAT_ID: ${{ secrets.FOOTBALL_NEWS_CHAT_ID }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       FOOTBALL_RSS_FEED: https://www.footmercato.net/flux-rss
       FOOTBALL_BSD_REQUEST_BUDGET: '18'
       FOOTBALL_REQUIRE_COMMENTS: '1'
