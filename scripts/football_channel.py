@@ -528,8 +528,13 @@ class Sender:
         elif item.card:
             from football_cards import render_card
             with tempfile.TemporaryDirectory(prefix="xpronos-news-") as tmp:
+                graphic_style = (
+                    "statistique_avancee" if item.category == "statistique"
+                    and item.key.startswith("statistique-avancee:")
+                    else item.category
+                )
                 graphic = render_card(
-                    item.category, item.card, Path(tmp) / "publication.png"
+                    graphic_style, item.card, Path(tmp) / "publication.png"
                 )
                 identifier = post_photo(
                     self.session, self.token, self.chat, graphic,
