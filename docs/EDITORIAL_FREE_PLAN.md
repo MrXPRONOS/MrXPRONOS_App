@@ -52,3 +52,19 @@ python scripts/editorial_quality.py --strict
 - Le workflow \`Editorial - Facebook Page liens du site\` permet un test manuel \`publish=false\` ou une publication autorisée \`publish=true\`.
 - L'automatisation quotidienne de 09h12 (heure de Lomé) est inactive **tant que la variable GitHub Actions \`EDITORIAL_FACEBOOK_ENABLED=true\` n'a pas été activée**.
 - Chaque publication reçoit un \`post_id\` et des UTM \`utm_source=facebook\`. Les autres plateformes ne sont pas annoncées comme actives sans leurs autorisations de publication.
+
+
+## Phase 3 : sûreté des envois et première mesure d'attribution
+
+- Les pages \`articles/<slug>/\` et \`conseils/<slug>/\` restent compatibles avec les lecteurs sociaux Open Graph, mais transmettent maintenant les paramètres UTM autorisés lors de la redirection navigateur.
+- Les seuls paramètres UTM conservés sont \`utm_source\`, \`utm_medium\`, \`utm_campaign\` et \`utm_content\`, avec une validation stricte.
+- Après arrivée depuis Telegram, Facebook, Instagram, Threads, WhatsApp, YouTube ou TikTok, le navigateur enregistre anonymement un événement \`editorial_view\` dans la table \`analytics\` **déjà existante**. \`user_id\` est NULL pour ces événements. Une copie effective du code promo sur la page enregistre séparément \`editorial_promo_copy\`.
+- \`scripts/editorial_attribution.py\` lit ces événements via les secrets GitHub \`SUPABASE_URL\` et \`SUPABASE_SERVICE_ROLE_KEY\` **uniquement côté GitHub Actions**, puis publie uniquement des agrégats dans \`assets/data/editorial_performance.json\`.
+- Le workflow \`Editorial - Mesures de performance anonymes\` s'exécute à 06h17 UTC et calcule les 30 derniers jours, sans hébergement externe payant. En l'absence de credentials, il ne publie aucun chiffre fictif.
+- Les agrégats donnent les visites attribuées et les copies du code promo. Ils ne représentent pas des personnes uniques, des inscriptions, des dépôts, des bénéfices, ni une expérience A/B randomisée. Aucun classement des variantes n'est présenté comme causal sans assignation expérimentale.
+- Les workflows sociaux Telegram et Facebook utilisent un même groupe de concurrence pour ne pas modifier le registre de diffusion simultanément. Le script \`editorial_merge_receipts.py\` garde les confirmations \`sent\` après une actualisation concurrente de la file.
+- **Sécurité :** la publication automatique Telegram exige maintenant aussi \`EDITORIAL_TELEGRAM_ENABLED=true\` dans les Variables GitHub Actions du dépôt. Facebook continue d'exiger \`EDITORIAL_FACEBOOK_ENABLED=true\`. Une exécution manuelle \`publish=true\` reste possible. Les secrets ne sont jamais mis dans le dépôt.
+- Limite : comme tout envoi externe suivi d'un commit Git, une panne entre l'acceptation par Telegram/Meta et la sauvegarde du \`message_id\`/\`post_id\` peut laisser un résultat ambigu. Un opérateur doit vérifier l'historique avant toute relance forcée.
+
+### Confidentialité Supabase (audit indépendant)
+Le projet Supabase existant présente des tables publiques sans RLS et une politique de lecture anonyme ouverte sur \`analytics\`. Ces paramètres existaient avant la phase 3. Ils nécessitent une **revue de sécurité distincte** avant toute modification: activer RLS sans préparer les politiques pourrait casser le site. Cette phase n'a changé ni le schéma ni les politiques de la base.
