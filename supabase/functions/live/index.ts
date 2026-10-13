@@ -8081,33 +8081,35 @@ serve(async (req) => {
     if (path === "/debug/events-finished" && req.method === "GET") {
       requireDebugAuth(url);
 
-      const date = url.searchParams.get("date") || "2026-03-29";
-      const tz = url.searchParams.get("tz") || DEFAULT_TZ;
-      const raw = url.searchParams.get("raw") === "1";
+      const date = url.searchParams.get("date") || new Date().toISOString().slice(0, 10);
+      const includeBsd = url.searchParams.get("bsd") === "1";
+      const rows = (await dailyFetchAllEventsForDate(date, includeBsd)).filter(isFinishedEvent);
 
-      const data = await fetchBSD("/events/", {
-        status: "finished",
-        date_from: date,
-        date_to: date,
-        tz,
-      });
+      if (url.searchParams.get("raw") === "1") {
+        return json({
+          date,
+          include_bsd: includeBsd,
+          provider_quality: PROVIDER_QUALITY,
+          results: rows,
+        });
+      }
 
-      if (raw) return json(data);
-
-      const compact = (data?.results || []).map((m: any) => ({
+      const compact = rows.map((m: any) => ({
         id: m.id,
+        source: m?.source_name || m?.raw_data?.source || m?.source || null,
+        sources: m?.raw_data?.sources || [],
         event_date: m.event_date,
         status: m.status,
-        period: m.period ?? null,
         home_team: m.home_team,
         away_team: m.away_team,
         score: `${m.home_score ?? "-"}-${m.away_score ?? "-"}`,
-        has_live_stats: !!m.live_stats,
+        has_live_stats: !!(m.live_stats || m?.raw_data?.live_stats),
       }));
 
       return json({
-        query: { status: "finished", date_from: date, date_to: date, tz },
-        count: data?.count ?? compact.length,
+        query: { date, include_bsd: includeBsd },
+        provider_quality: PROVIDER_QUALITY,
+        count: compact.length,
         results: compact,
       });
     }
