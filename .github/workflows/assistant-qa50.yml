@@ -1,0 +1,29 @@
+name: Assistant QA 50 real questions
+on:
+  push:
+    branches: [assistant-qa50-live-fixes-20261013]
+    paths:
+      - 'tests/assistant_qa50_cases.json'
+      - 'tests/assistant_qa50_runner.mjs'
+      - '.github/workflows/assistant-qa50.yml'
+  workflow_dispatch:
+jobs:
+  real-questions:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        batch: [0, 1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Ask ten questions sequentially
+        run: node tests/assistant_qa50_runner.mjs ${{ matrix.batch }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: assistant-qa50-batch-${{ matrix.batch }}
+          path: assistant-qa50-results/batch-${{ matrix.batch }}.json
+          retention-days: 7
