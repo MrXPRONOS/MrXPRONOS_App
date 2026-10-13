@@ -30,6 +30,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "bsd"))
 sys.path.insert(0, str(ROOT / "scripts"))
 from bsd_api import BSDClient, BSDAPIError  # noqa: E402
+from football_provider_mesh import FreeFirstFootballClient, PROVIDER_QUALITY, CAPABILITY_PRIORITY  # noqa: E402
 from bsd_h2h import hybrid_h2h  # noqa: E402
 from telegram_rich import post_photo, post_text, post_animation  # noqa: E402
 from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish)  # noqa: E402
@@ -1895,24 +1896,29 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
     state = History()
     sender = Sender(dry_run=dry_run)
     client: BSDClient | None = None
+    provider_client: FreeFirstFootballClient | None = None
     cache: dict[str, list[dict]] = {}
     counter = {"sent": 0, "skipped": 0, "errors": 0}
     max_send = MAX_MESSAGES_PER_RUN
 
     def get_day(day: date) -> list[dict]:
-        nonlocal client
+        nonlocal provider_client
         name = day.isoformat()
         if name not in cache:
-            if client is None:
-                client = BSDClient(max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
-                                   max_retries=1)
-            page = client.list_events(day, day, max_pages=7, ttl=0)
-            if not page.complete:
-                raise BSDAPIError("BSD: journée incomplète " + name + " (" +
-                                  str(len(page.events)) + "/" + str(page.total_reported) + ")")
+            if provider_client is None:
+                provider_client = FreeFirstFootballClient(session=sender.session)
+            page = provider_client.list_events(day, day, max_pages=7, ttl=0)
+            if not page.events:
+                raise BSDAPIError("Aucune source football disponible pour " + name)
             cache[name] = page.events
-            print("BSD_JOUR", name, "rencontres", len(page.events),
-                  "requêtes", client.requests_made)
+            print(
+                "PROVIDER_MESH_DAY", name,
+                "matches", len(page.events),
+                "sources", json.dumps(page.source_counts, ensure_ascii=False),
+                "bsd_used", page.bsd_used,
+                "bsd_requests", page.bsd_requests,
+                "bsd_saved", provider_client.bsd_requests_saved,
+            )
         return cache[name]
 
     def publish(item: Publication | None, *, follow_event: dict | None = None,
