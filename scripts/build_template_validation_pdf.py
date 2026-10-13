@@ -226,7 +226,7 @@ def template_page(c, regular, bold, idx, key, label, source, tmpdir):
     c.setFont(bold, 8.5)
     c.drawString(20*mm, box_y+40*mm, "Décision")
 
-    form = c.acroform
+    form = c.acroForm
     form.checkbox(
         name=f"valid_{key}",
         tooltip=f"Valider {label}",
