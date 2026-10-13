@@ -31,32 +31,36 @@
       "with_social_image": 49
     },
     "footnews.json": {
-      "count": 20,
-      "unique_titles": 20,
-      "with_editorial_image": 20,
+      "count": 60,
+      "unique_titles": 60,
+      "with_editorial_image": 0,
       "visual_variants": {
-        "v1": 7,
-        "v2": 9,
-        "v3": 4
+        "legacy": 60
       },
       "source_types": {
-        "Foot Mercato : Info Transferts Football - Actu Foot Transfert": 8,
-        "MadeInFOOT.com": 12
+        "Foot Mercato": 16,
+        "France 24": 3,
+        "Franceinfo": 4,
+        "MadeInFoot": 16,
+        "Maxifoot": 2,
+        "Onze Mondial": 16,
+        "RFI": 2,
+        "So Foot": 1
       },
-      "with_social_image": 20
+      "with_social_image": 0
     }
   },
   "delivery": {
-    "items": 164,
-    "active_items": 154,
-    "retired_items": 10,
+    "items": 206,
+    "active_items": 194,
+    "retired_items": 12,
     "platform_states": {
-      "facebook:not_requested": 164,
-      "instagram:not_requested": 164,
-      "telegram:not_requested": 164,
-      "threads:not_requested": 164,
-      "tiktok:not_requested": 164,
-      "youtube:not_requested": 164
+      "facebook:not_requested": 206,
+      "instagram:not_requested": 206,
+      "telegram:not_requested": 206,
+      "threads:not_requested": 206,
+      "tiktok:not_requested": 206,
+      "youtube:not_requested": 206
     }
   },
   "assets": {
