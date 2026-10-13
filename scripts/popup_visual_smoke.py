@@ -41,6 +41,7 @@ def run_index_case(browser, width, height, label):
     modal = page.locator("#article-modal")
     content = modal.locator(".modal-content")
     content.wait_for(state="visible",timeout=3000)
+    page.wait_for_timeout(300)
     box=content.bounding_box()
     assert_box_in_viewport(box,width,height,label,"article modal")
     if width <= 700:
@@ -62,6 +63,7 @@ def run_index_case(browser, width, height, label):
     guide=page.locator("#ios-guide-popup")
     page.evaluate("document.getElementById('ios-guide-popup').style.display='flex'")
     guide.locator(".ios-guide-content").wait_for(state="visible",timeout=3000)
+    page.wait_for_timeout(300)
     gbox=guide.locator(".ios-guide-content").bounding_box()
     assert_box_in_viewport(gbox,width,height,label,"iOS guide")
     if guide.get_attribute("role") != "dialog":
