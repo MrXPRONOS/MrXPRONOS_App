@@ -7,6 +7,8 @@ on:
     branches: [main]
     paths:
       - 'scripts/football_channel.py'
+      - 'scripts/football_news_engine.py'
+      - 'fetch_foot_news.py'
       - 'scripts/template_cards.py'
       - '.github/workflows/football-production.yml'
   workflow_dispatch:
@@ -150,7 +152,8 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             python fetch_foot_news.py
-            git add footnews.json assets/images/footnews/
+            git add footnews.json
+            if [ -d assets/images/footnews ]; then git add -A assets/images/footnews; fi
             if git diff --cached --quiet; then
               echo "NEWS_SITE_UNCHANGED"
               exit 0
