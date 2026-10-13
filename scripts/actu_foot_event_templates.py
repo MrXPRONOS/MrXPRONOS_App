@@ -84,7 +84,7 @@ EVENT_ALIASES = {
     "tir_au_but_marqué", "tir_au_but_manqué", "fin_des_tirs_au_but",
     "composition_probable", "changement_de_composition",
     "absence_confirmée", "retour_dans_le_groupe",
-    "score_live_confirmé"
+    "score_live_confirmé", "score_live_confirme"
 }
 
 # Each box is the safe interior area, not the visible outer gold frame.
@@ -794,7 +794,7 @@ def _category(category: str, payload: dict[str, Any]) -> str:
         return "absence_confirmee"
     if category == "retour_dans_le_groupe":
         return "retour_groupe"
-    if category == "score_live_confirmé":
+    if category in {"score_live_confirmé", "score_live_confirme"}:
         if clean(payload.get("home_logo"), 500) and clean(payload.get("away_logo"), 500):
             return "score_live_two_logos"
         raise ValueError("Score live confirmé: cette variante exige deux logos disponibles")
