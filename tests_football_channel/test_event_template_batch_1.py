@@ -36,8 +36,14 @@ class ActuFootEventBatch1Tests(unittest.TestCase):
         }
 
     def test_five_assets_exist_at_native_size(self):
-        self.assertEqual(len(events.EVENT_CATEGORIES), 5)
-        for category in events.EVENT_CATEGORIES:
+        batch1 = (
+            "poteau",
+            "occasion_manquee",
+            "arret_decisif",
+            "carton_jaune_full",
+            "carton_jaune_unknown",
+        )
+        for category in batch1:
             with self.subTest(category=category):
                 path = events.template_path(category, self.payload)
                 self.assertTrue(path.is_file(), str(path))
@@ -45,9 +51,16 @@ class ActuFootEventBatch1Tests(unittest.TestCase):
                     self.assertEqual(image.size, (1122, 1402))
 
     def test_all_five_render_without_rescaling(self):
+        batch1 = (
+            "poteau",
+            "occasion_manquee",
+            "arret_decisif",
+            "carton_jaune_full",
+            "carton_jaune_unknown",
+        )
         dummy = Image.new("RGBA", (300, 150), (255, 255, 255, 255))
         with patch.object(programme_styles, "load_logo", return_value=dummy):
-            for category in events.EVENT_CATEGORIES:
+            for category in batch1:
                 with self.subTest(category=category):
                     image = template_cards.render(category, self.payload)
                     self.assertEqual(image.size, (1122, 1402))
@@ -80,9 +93,16 @@ class ActuFootEventBatch1Tests(unittest.TestCase):
             self.assertEqual(blank.crop(box).tobytes(), rendered.crop(box).tobytes())
 
     def test_structural_header_is_untouched(self):
+        batch1 = (
+            "poteau",
+            "occasion_manquee",
+            "arret_decisif",
+            "carton_jaune_full",
+            "carton_jaune_unknown",
+        )
         dummy = Image.new("RGBA", (200, 200), (255, 255, 255, 255))
         with patch.object(programme_styles, "load_logo", return_value=dummy):
-            for category in events.EVENT_CATEGORIES:
+            for category in batch1:
                 with self.subTest(category=category):
                     blank = events.background(category, self.payload)
                     rendered = events.render_event(category, self.payload)
