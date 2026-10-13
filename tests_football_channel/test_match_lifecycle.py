@@ -1,6 +1,6 @@
 import unittest
 from datetime import datetime, timedelta, timezone
-from unittest.mock import patch
+from unittest.mock import ANY, patch
 from pathlib import Path
 import sys
 
@@ -217,7 +217,7 @@ class MatchLifecycleTests(unittest.TestCase):
         })
         self.assertTrue(result["ok"])
         self.assertEqual(result["quality"], 100)
-        fetch_summary.assert_called_once_with(unittest.mock.ANY, "401", force=True)
+        fetch_summary.assert_called_once_with(ANY, "401", force=True)
 
         rejected = m.verify_espn_before_publish(object(), {
             "event_id": "401",
