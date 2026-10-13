@@ -560,6 +560,280 @@ class MultiSourceFootballClient:
                 pass
         return merged[-limit:]
 
+    @staticmethod
+    def _players(value: Any) -> list[str]:
+        rows = value if isinstance(value, list) else []
+        names: list[str] = []
+        for row in rows:
+            if isinstance(row, str):
+                name = _plain(row)
+            elif isinstance(row, dict):
+                athlete = row.get("athlete") if isinstance(row.get("athlete"), dict) else row
+                name = _plain(
+                    athlete.get("displayName") or athlete.get("name")
+                    or athlete.get("strPlayer") or athlete.get("player_name")
+                    or athlete.get("player")
+                )
+            else:
+                name = ""
+            if name and name not in names:
+                names.append(name)
+        return names[:18]
+
+    @staticmethod
+    def _minute_text(value: Any) -> str:
+        text = _plain(value)
+        if not text:
+            return ""
+        m = re.search(r"(\d+)(?:\D*\+\D*(\d+))?", text)
+        if not m:
+            return text[:18]
+        return m.group(1) + (("+" + m.group(2)) if m.group(2) else "") + "'"
+
+    def _sportscore_detail(self, event: dict) -> dict:
+        ids = event.get("provider_ids") if isinstance(event.get("provider_ids"), dict) else {}
+        raw_sources = event.get("raw_sources") if isinstance(event.get("raw_sources"), dict) else {}
+        raw = raw_sources.get("sportscore") if isinstance(raw_sources.get("sportscore"), dict) else {}
+        slug = _plain(
+            event.get("sportscore_slug") or raw.get("slug")
+            or ids.get("sportscore")
+            or (_slug(_team_name(event, "home")) + "-vs-" + _slug(_team_name(event, "away")))
+        )
+        if not slug:
+            return {}
+        payload = self._json(
+            "sportscore", SPORTSCORE_MATCH,
+            {"sport": "football", "slug": slug, "src": "mrxpronos"},
+            ttl=30,
+        )
+        root = payload.get("match") if isinstance(payload, dict) and isinstance(payload.get("match"), dict) else (
+            payload.get("data") if isinstance(payload, dict) and isinstance(payload.get("data"), dict) else payload
+        )
+        if not isinstance(root, dict):
+            return {}
+
+        lineups = {"home": [], "away": []}
+        lineup_root = root.get("lineups") or root.get("lineup")
+        if isinstance(lineup_root, dict):
+            for side in ("home", "away"):
+                side_value = lineup_root.get(side)
+                if isinstance(side_value, dict):
+                    side_value = side_value.get("starters") or side_value.get("players") or side_value.get("lineup")
+                lineups[side] = self._players(side_value)
+
+        timeline = root.get("timeline") or root.get("events") or root.get("incidents") or []
+        goals, cards, substitutions = [], [], []
+        for item in timeline if isinstance(timeline, list) else []:
+            if not isinstance(item, dict):
+                continue
+            label = _plain(item.get("type") or item.get("event") or item.get("name") or item.get("text")).lower()
+            minute_text = self._minute_text(
+                item.get("minute") or item.get("time") or item.get("clock") or item.get("minute_text")
+            )
+            minute_match = re.search(r"\d+", minute_text)
+            minute = int(minute_match.group()) if minute_match else None
+            player_obj = item.get("player") if isinstance(item.get("player"), dict) else {}
+            player = _plain(
+                player_obj.get("name") or player_obj.get("displayName")
+                or item.get("player_name") or item.get("player")
+            )
+            team = _plain(item.get("team") or item.get("team_name") or item.get("side"))
+            if "goal" in label or item.get("scoring") is True:
+                assists = self._players(item.get("assists") or ([item.get("assist")] if item.get("assist") else []))
+                goals.append({
+                    "player": player,
+                    "minute": minute,
+                    "minute_total": minute,
+                    "minute_text": minute_text,
+                    "team": team,
+                    "assists": assists,
+                    "penalty": "pen" in label or bool(item.get("penalty")),
+                    "own_goal": "own" in label or bool(item.get("own_goal")),
+                })
+            elif "yellow" in label or "red" in label or "card" in label:
+                cards.append({
+                    "player": player, "minute": minute, "minute_text": minute_text,
+                    "team": team, "type": "red" if "red" in label else "yellow",
+                })
+            elif "sub" in label:
+                substitutions.append({
+                    "players": self._players(item.get("players") or []),
+                    "minute": minute, "minute_text": minute_text, "team": team,
+                })
+
+        stats_out = {"home": {}, "away": {}}
+        stats = root.get("stats") or root.get("statistics")
+        aliases = {
+            "corners": ("corner",),
+            "shots": ("total shots", "shots"),
+            "shots_on_target": ("shots on target", "shotsontarget"),
+            "possession": ("possession",),
+            "fouls": ("fouls",),
+            "offsides": ("offsides",),
+            "saves": ("saves",),
+        }
+        if isinstance(stats, dict):
+            for side in ("home", "away"):
+                block = stats.get(side)
+                if isinstance(block, dict):
+                    lowered = {_norm(k): v for k, v in block.items()}
+                    for target, keys in aliases.items():
+                        for key in keys:
+                            normalized = _norm(key)
+                            match = next((v for k, v in lowered.items() if normalized in k), None)
+                            if match is not None:
+                                stats_out[side][target] = match
+                                break
+        elif isinstance(stats, list):
+            for item in stats:
+                if not isinstance(item, dict):
+                    continue
+                label = _norm(item.get("name") or item.get("label") or item.get("type"))
+                for target, keys in aliases.items():
+                    if any(_norm(key) in label for key in keys):
+                        stats_out["home"][target] = item.get("home") or item.get("home_value")
+                        stats_out["away"][target] = item.get("away") or item.get("away_value")
+                        break
+
+        info = root.get("venue") if isinstance(root.get("venue"), dict) else {}
+        return {
+            "source": "sportscore",
+            "lineups": lineups,
+            "goals": goals,
+            "cards": cards,
+            "substitutions": substitutions,
+            "timeline": timeline if isinstance(timeline, list) else [],
+            "stats": stats_out,
+            "info": {
+                "venue": _plain(info.get("name") or info.get("fullName") or root.get("venue_name")),
+                "attendance": root.get("attendance"),
+                "referees": self._players(root.get("officials") or root.get("referees") or []),
+            },
+            # L'API publique documentée n'a pas de contrat odds. On ne consomme
+            # qu'un champ s'il apparaît explicitement dans le JSON de match.
+            "odds": root.get("odds") if isinstance(root.get("odds"), (dict, list)) else None,
+        }
+
+    def _thesportsdb_detail(self, event: dict) -> dict:
+        ids = event.get("provider_ids") if isinstance(event.get("provider_ids"), dict) else {}
+        event_id = re.sub(r"[^0-9]", "", str(ids.get("thesportsdb") or ""))
+        if not event_id:
+            return {}
+        lineups_payload = self._json(
+            "thesportsdb", THESPORTSDB + "/lookuplineup.php", {"id": event_id}, ttl=300
+        )
+        timeline_payload = self._json(
+            "thesportsdb", THESPORTSDB + "/lookuptimeline.php", {"id": event_id}, ttl=120
+        )
+        stats_payload = self._json(
+            "thesportsdb", THESPORTSDB + "/lookupeventstats.php", {"id": event_id}, ttl=120
+        )
+        lineups = {"home": [], "away": []}
+        lineup_rows = []
+        if isinstance(lineups_payload, dict):
+            for key in ("lineup", "lineups", "players"):
+                if isinstance(lineups_payload.get(key), list):
+                    lineup_rows = lineups_payload[key]
+                    break
+        for item in lineup_rows:
+            if not isinstance(item, dict):
+                continue
+            side = _plain(item.get("strHomeAway") or item.get("strSide")).lower()
+            if side not in lineups:
+                team_name = _plain(item.get("strTeam"))
+                if _similarity(team_name, _team_name(event, "home")) >= .55:
+                    side = "home"
+                elif _similarity(team_name, _team_name(event, "away")) >= .55:
+                    side = "away"
+            if side in lineups:
+                name = _plain(item.get("strPlayer") or item.get("strPlayerName"))
+                position = _plain(item.get("strPosition"))
+                starter = item.get("strSubstitute") in (None, "", "No", "no", "0", 0, False)
+                if name and starter and "sub" not in position.lower():
+                    lineups[side].append(name)
+        for side in lineups:
+            lineups[side] = lineups[side][:11]
+
+        goals, cards, substitutions = [], [], []
+        timeline = []
+        if isinstance(timeline_payload, dict):
+            for key in ("timeline", "events", "results"):
+                if isinstance(timeline_payload.get(key), list):
+                    timeline = timeline_payload[key]
+                    break
+        for item in timeline:
+            if not isinstance(item, dict):
+                continue
+            label = _plain(item.get("strTimeline") or item.get("strType") or item.get("strEvent")).lower()
+            minute_text = self._minute_text(item.get("intTime") or item.get("strTime"))
+            minute_match = re.search(r"\d+", minute_text)
+            minute = int(minute_match.group()) if minute_match else None
+            player = _plain(item.get("strPlayer") or item.get("strPlayerName"))
+            if "goal" in label:
+                goals.append({
+                    "player": player, "minute": minute, "minute_total": minute,
+                    "minute_text": minute_text, "assists": [], "penalty": "pen" in label,
+                    "own_goal": "own" in label,
+                })
+            elif "card" in label:
+                cards.append({
+                    "player": player, "minute": minute, "minute_text": minute_text,
+                    "type": "red" if "red" in label else "yellow",
+                })
+            elif "sub" in label:
+                substitutions.append({"players": [player] if player else [], "minute": minute, "minute_text": minute_text})
+
+        stats_out = {"home": {}, "away": {}}
+        stat_rows = []
+        if isinstance(stats_payload, dict):
+            for key in ("eventstats", "stats", "statistics"):
+                if isinstance(stats_payload.get(key), list):
+                    stat_rows = stats_payload[key]
+                    break
+        aliases = {
+            "corners": ("corners",), "shots": ("shots", "total shots"),
+            "shots_on_target": ("shots on target",), "possession": ("possession",),
+            "fouls": ("fouls",), "offsides": ("offsides",), "saves": ("saves",),
+        }
+        for item in stat_rows:
+            if not isinstance(item, dict):
+                continue
+            label = _norm(item.get("strStat") or item.get("strStatName") or item.get("name"))
+            for target, keys in aliases.items():
+                if any(_norm(key) in label for key in keys):
+                    stats_out["home"][target] = item.get("intHome") or item.get("strHome")
+                    stats_out["away"][target] = item.get("intAway") or item.get("strAway")
+                    break
+        return {
+            "source": "thesportsdb", "lineups": lineups, "goals": goals,
+            "cards": cards, "substitutions": substitutions, "timeline": timeline,
+            "stats": stats_out, "info": {}, "odds": None,
+        }
+
+    def get_match_detail(self, event: dict) -> dict:
+        """Détail gratuit hors ESPN; SportScore d'abord, TheSportsDB en complément."""
+        sportscore = self._sportscore_detail(event)
+        tsdb = self._thesportsdb_detail(event)
+        if not sportscore:
+            return tsdb
+        if not tsdb:
+            return sportscore
+        merged = dict(sportscore)
+        merged["source"] = "sportscore+thesportsdb"
+        for key in ("lineups", "stats"):
+            if key == "lineups":
+                for side in ("home", "away"):
+                    if len((merged.get("lineups") or {}).get(side, [])) < 11:
+                        merged.setdefault("lineups", {})[side] = (tsdb.get("lineups") or {}).get(side, [])
+            else:
+                for side in ("home", "away"):
+                    for stat, value in ((tsdb.get("stats") or {}).get(side, {}) or {}).items():
+                        merged.setdefault("stats", {}).setdefault(side, {}).setdefault(stat, value)
+        for key in ("goals", "cards", "substitutions"):
+            if not merged.get(key):
+                merged[key] = tsdb.get(key) or []
+        return merged
+
     def get_h2h_for_fixture(self, fixture: dict, *, ttl: int = 86400) -> dict:
         home, away = _team_name(fixture, "home"), _team_name(fixture, "away")
         if home and away:
