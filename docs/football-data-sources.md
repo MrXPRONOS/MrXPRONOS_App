@@ -41,6 +41,23 @@ Ces notes sont des poids internes de routage Mr XPRONOS, pas des scores officiel
 6. Les appels BSD H2H sont évités si SportScore fournit au moins trois confrontations fiables.
 7. Le cache reste prioritaire pour ne pas rappeler un fournisseur inutilement.
 
+## Audit des usages BSD
+
+| Usage BSD actuel | Nouvelle stratégie | État |
+|---|---|---|
+| `/events/live/` | ESPN + SportScore live en premier ; BSD peut être sauté si les deux couvrent le volume live attendu | Réduit fortement |
+| `/events/{id}/stats/` | cache → ESPN → SportScore detail → TheSportsDB ciblé → BSD | BSD dernier recours |
+| `/events/?team_id/team_name` pour forme | SportScore team schedule en premier si au moins 5 matchs terminés exploitables | Réduit |
+| `/events/{id}/h2h/` | historique local → SportScore H2H → BSD | Réduit |
+| `/leagues/` pour nom de compétition | nom ESPN/SportScore/TheSportsDB/OpenLigaDB injecté lors du matching | Réduit |
+| journée éditoriale `/events/?date...` | fusion des quatre sources gratuites en premier ; BSD uniquement si couverture insuffisante | Réduit fortement |
+| `/odds/` pré-match | BSD/fournisseurs de cotes documentés restent utilisés | Conservé |
+| cotes live | failover bookmaker/documenté déjà présent dans le LIVE ; SportScore odds exclues | Conservé hors SportScore |
+| saisons/backfill/calibration `/events/?league_id&season_id` | les IDs/schémas BSD sont nécessaires aux modèles historiques | Conservé |
+| settlement lié aux IDs BSD | conservation pour garantir l'identité des prédictions déjà émises | Conservé |
+
+La règle est donc : **on économise BSD lorsque la donnée est substituable sans changer le sens du modèle ; on le conserve lorsque son identifiant ou son historique fait partie du modèle lui-même.**
+
 ## SportScore et les cotes
 
 Le site SportScore affiche des informations de paris et des cotes sur certaines pages. Cependant, au 13 octobre 2026, le contrat REST public documente les fixtures, résultats, détails de match, lineups, timeline, H2H, équipes, classements et meilleurs buteurs, mais **pas un endpoint ou un schéma de cotes**.
