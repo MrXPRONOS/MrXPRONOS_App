@@ -1,0 +1,47 @@
+name: Arty Football - Generate and store 11 premium blank assets
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/arty-football-assets.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: arty-football-assets-store
+  cancel-in-progress: false
+jobs:
+  build-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install Pillow requests
+      - name: Create clean blank PNG backgrounds with no overlapping overlays
+        run: |
+          PYTHONPATH=scripts python - <<'PY'
+          from arty_football_templates import export_blank_templates, W, H
+          from PIL import Image
+          output=export_blank_templates()
+          assert len(output)==11
+          for file in output:
+              with Image.open(file) as im:
+                  assert im.size==(W,H)
+              print('ARTY_ASSET_OK',file,file.stat().st_size)
+          PY
+      - name: Commit generated PNG assets into GitHub
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/images/arty_football/*.png
+          if git diff --cached --quiet; then
+            echo 'ARTY_ASSETS_UNCHANGED'
+          else
+            git commit -m 'assets(arty): add eleven premium blank background PNGs'
+            git push origin HEAD:main
+          fi
