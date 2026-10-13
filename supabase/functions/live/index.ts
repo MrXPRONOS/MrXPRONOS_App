@@ -1,3 +1,4 @@
+import { fetchSharedEspnScoreboard, fetchSharedEspnSummary, safeEspnDate, parseEspnNumber } from "../_shared/espn.ts";
 // live.ts (Supabase Edge Function / Deno)
 // =======================================================
 // PATCHES inclus :
@@ -254,11 +255,17 @@ function sameMatchScore(a: any, b: any) {
     (jaccardSimilarity(a?.home_team, b?.home_team) +
       jaccardSimilarity(a?.away_team, b?.away_team)) / 2;
 
-  const reversed =
-    (jaccardSimilarity(a?.home_team, b?.away_team) +
-      jaccardSimilarity(a?.away_team, b?.home_team)) / 2;
-
-  return Math.max(sameOrder, reversed);
+  // Reject home/away inversion: it can associate one fixture with another.
+  // The source league can be missing, so only enforce it when both are known.
+  const leagueA = normalizeTeamKey(a?.league_name || a?.league?.name || "");
+  const leagueB = normalizeTeamKey(b?.league_name || b?.league?.name || "");
+  if (leagueA && leagueB && leagueA !== leagueB &&
+      jaccardSimilarity(leagueA, leagueB) < 0.5) return 0;
+  const dateA = Date.parse(getMatchEventDate(a));
+  const dateB = Date.parse(getMatchEventDate(b));
+  if (Number.isFinite(dateA) && Number.isFinite(dateB) &&
+      Math.abs(dateA - dateB) > 4 * 3600000) return 0;
+  return sameOrder;
 }
 
 function getHomeStats(stats: any) {
@@ -270,9 +277,7 @@ function getAwayStats(stats: any) {
 }
 
 function nullableNumber(value: unknown): number | null {
-  if (value == null || value === "") return null;
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
+  return parseEspnNumber(value);
 }
 
 function hasCompleteStatPair(stats: any, key: string): boolean {
@@ -349,7 +354,7 @@ function ensureLiveStatsShape(stats: any) {
   return { ...stats, home, away, totals };
 }
 
-function applyStatPairIfBetter(base: any, extra: any, key: string, totalKey?: string) {
+function applyStatPairIfBetter(base: any, extra: any, key: string, totalKey?: string, preferFreshSource = false) {
   const tk = totalKey || key;
 
   const bh = nullableNumber(base?.home?.[key]);
@@ -364,9 +369,9 @@ function applyStatPairIfBetter(base: any, extra: any, key: string, totalKey?: st
     const baseTotal = baseComplete ? (bh! + ba!) : -1;
     const extraTotal = eh! + ea!;
 
-    // Une statistique cumulative ne doit jamais reculer. Une paire complète
-    // remplace une paire absente ou plus ancienne.
-    if (!baseComplete || extraTotal >= baseTotal) {
+    // A newly fetched authoritative stats endpoint may correct prior figures downwards.
+    // During mixed-provider merges preserve the existing conservative policy.
+    if (!baseComplete || preferFreshSource || extraTotal >= baseTotal) {
       base.home[key] = eh;
       base.away[key] = ea;
       base.totals[tk] = extraTotal;
@@ -383,16 +388,16 @@ function applyStatPairIfBetter(base: any, extra: any, key: string, totalKey?: st
   base.totals[tk] = nh != null && na != null ? nh + na : null;
 }
 
-function mergeLiveStats(primaryStats: any, secondaryStats: any) {
+function mergeLiveStats(primaryStats: any, secondaryStats: any, preferFreshSource = false) {
   const merged = ensureLiveStatsShape(primaryStats || {});
   const extra = ensureLiveStatsShape(secondaryStats || {});
 
-  applyStatPairIfBetter(merged, extra, "corner_kicks", "corners");
-  applyStatPairIfBetter(merged, extra, "fouls", "fouls");
-  applyStatPairIfBetter(merged, extra, "yellow_cards", "yellow_cards");
-  applyStatPairIfBetter(merged, extra, "red_cards", "red_cards");
-  applyStatPairIfBetter(merged, extra, "total_shots", "total_shots");
-  applyStatPairIfBetter(merged, extra, "shots_on_target", "shots_on_target");
+  applyStatPairIfBetter(merged, extra, "corner_kicks", "corners", preferFreshSource);
+  applyStatPairIfBetter(merged, extra, "fouls", "fouls", preferFreshSource);
+  applyStatPairIfBetter(merged, extra, "yellow_cards", "yellow_cards", preferFreshSource);
+  applyStatPairIfBetter(merged, extra, "red_cards", "red_cards", preferFreshSource);
+  applyStatPairIfBetter(merged, extra, "total_shots", "total_shots", preferFreshSource);
+  applyStatPairIfBetter(merged, extra, "shots_on_target", "shots_on_target", preferFreshSource);
 
   // Possession n'est pas cumulative ; on prend la valeur secondaire quand elle existe.
   const hp = nullableNumber(extra?.home?.ball_possession);
@@ -500,7 +505,7 @@ function extractPath(url: URL, fnName = "live") {
 }
 
 function requireCronAuth(req: Request, url: URL) {
-  if (!CRON_SECRET) return; // public si non défini
+  if (!CRON_SECRET) throw new Error("CRON_SECRET not configured");
   const auth = req.headers.get("authorization") || "";
   const x = req.headers.get("x-cron-secret") || "";
   const q = url.searchParams.get("key") || "";
@@ -513,7 +518,7 @@ function requireCronAuth(req: Request, url: URL) {
 }
 
 function requireDebugAuth(url: URL) {
-  if (!DEBUG_KEY) return; // public si non défini
+  if (!DEBUG_KEY) throw new Error("DEBUG_KEY not configured");
   const key = url.searchParams.get("key") || "";
   if (key !== DEBUG_KEY) throw new Error("Unauthorized (DEBUG_KEY)");
 }
@@ -3486,40 +3491,43 @@ function computeValueScore(match: any, predictions: any[]) {
 // =======================================================
 // ESPN SCRAPING SOURCE — Normalisation vers le format du live original
 // =======================================================
-let espnMemCache: { at: number; date: string; data: any } | null = null;
-const ESPN_CACHE_TTL_MS = 15_000;
-
-async function fetchEspnScoreboard(dateYYYYMMDD: string, force = false) {
-  const now = Date.now();
-
-  if (
-    !force &&
-    espnMemCache &&
-    espnMemCache.date === dateYYYYMMDD &&
-    now - espnMemCache.at < ESPN_CACHE_TTL_MS
-  ) {
-    return espnMemCache.data;
-  }
-
-  const url = new URL(ESPN_SCOREBOARD_URL);
-  url.searchParams.set("dates", dateYYYYMMDD);
-  url.searchParams.set("limit", "500");
-
-  const res = await fetch(url.toString(), {
-    headers: {
-      "User-Agent": "Mozilla/5.0 MrXPRONOS-ESPN-Merge/1.0",
-      "Accept": "application/json,text/plain,*/*",
-    },
-  });
-
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(`ESPN HTTP ${res.status}: ${body || res.statusText}`);
-  }
-
-  const data = await res.json();
-  espnMemCache = { at: now, date: dateYYYYMMDD, data };
-  return data;
+const espnStore = {
+  async read(key: string) {
+    const { data, error } = await supabase.from("espn_feed_cache").select("*").eq("cache_key", key).maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+  async write(row: any) {
+    const { error } = await supabase.from("espn_feed_cache").upsert(row, { onConflict: "cache_key" });
+    if (error) throw error;
+  },
+  async reserve(bucket: "scoreboard" | "summary") {
+    const { data, error } = await supabase.rpc("espn_take_request_slot", {
+      p_bucket: bucket,
+      p_max_calls: bucket === "summary" ? 8 : 30,
+      p_window_seconds: 60,
+    });
+    if (error) throw error;
+    return data === true;
+  },
+  async blockFor(bucket: "scoreboard" | "summary", seconds: number) {
+    const { error } = await supabase.rpc("espn_provider_backoff", {
+      p_bucket: bucket,
+      p_seconds: seconds,
+    });
+    if (error) throw error;
+  },
+};
+async function fetchEspnScoreboard(dateYYYYMMDD: string, _force = false) {
+  const scoreboard = await fetchSharedEspnScoreboard(dateYYYYMMDD, espnStore);
+  if (!scoreboard || !Array.isArray(scoreboard.events)) return scoreboard;
+  return {
+    ...scoreboard,
+    events: scoreboard.events.map((event: any) => ({
+      ...event,
+      __espn_feed_fetched_at: scoreboard._feed_fetched_at || null,
+    })),
+  };
 }
 
 function extractEspnMinute(status: any): number {
@@ -3613,8 +3621,9 @@ function normalizeEspnEventToOriginalMatch(event: any) {
   const homePossession = getEspnStatNullable(home, ["possessionPct", "possession"]);
   const awayPossession = getEspnStatNullable(away, ["possessionPct", "possession"]);
 
-  const homeCards = countEspnCards(details, homeTeamId);
-  const awayCards = countEspnCards(details, awayTeamId);
+  // Absence of disciplinary event details means unknown, not necessarily zero.
+  const homeCards = details.length ? countEspnCards(details, homeTeamId) : { yellow: null, red: null };
+  const awayCards = details.length ? countEspnCards(details, awayTeamId) : { yellow: null, red: null };
 
   const liveStats = ensureLiveStatsShape({
     home: {
@@ -3641,8 +3650,10 @@ function normalizeEspnEventToOriginalMatch(event: any) {
   const awayLogo = awayTeam?.logo || awayTeam?.logos?.[0]?.href || null;
   const leagueLogo = leagueObj?.logos?.[0]?.href || leagueObj?.logo || null;
 
-  const eventDate = event?.date ? new Date(event.date).toISOString() : nowIso();
-  const eventId = String(event?.id || crypto.randomUUID());
+  const eventDate = safeEspnDate(event?.date);
+  if (!eventDate) return null;
+  const eventId = String(event?.id || "");
+  if (!eventId) return null;
 
   return {
     id: `espn:${eventId}`,
@@ -3667,7 +3678,9 @@ function normalizeEspnEventToOriginalMatch(event: any) {
     league_logo: leagueLogo,
     live_stats: liveStats,
     stats_last_updated_at:
-      statsCompleteness(liveStats).core_complete > 0 ? nowIso() : null,
+      statsCompleteness(liveStats).core_complete > 0
+        ? (safeEspnDate(event?.__espn_feed_fetched_at) || null)
+        : null,
     raw_data: {
       source: "espn",
       event_id: eventId,
@@ -3817,8 +3830,9 @@ function prepareEspnOnlyMatch(espn: any) {
   };
 }
 
-function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[]) {
+function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[], knownMappings = new Map<string, string>()) {
   const sourceRows: any[] = [];
+  const providerMappings: any[] = [];
   const entries: Array<{
     key: string;
     match: any;
@@ -3850,20 +3864,46 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[])
 
   for (const espn of espnMatches || []) {
     sourceRows.push(sourceRowFromMatch(espn, "espn"));
+    const espnId = String(espn?.source_match_id || espn?.raw_data?.event_id || "");
 
     let bestIndex = -1;
     let bestScore = 0;
+    const knownPrimaryId = knownMappings.get(espnId);
+    if (knownPrimaryId) {
+      const mappedIndex = entries.findIndex((entry) =>
+        String(entry.match?.id || "") === knownPrimaryId &&
+        entry.source !== "espn" &&
+        sameMatchScore(entry.match, espn) >= 0.72
+      );
+      if (mappedIndex >= 0) {
+        bestIndex = mappedIndex;
+        bestScore = 1;
+      }
+    }
 
-    for (let i = 0; i < entries.length; i++) {
-      const score = sameMatchScore(entries[i].match, espn);
-
-      if (score > bestScore) {
-        bestScore = score;
-        bestIndex = i;
+    if (bestIndex < 0) {
+      for (let i = 0; i < entries.length; i++) {
+        if (entries[i].source === "espn") continue;
+        const score = sameMatchScore(entries[i].match, espn);
+        if (score > bestScore) {
+          bestScore = score;
+          bestIndex = i;
+        }
       }
     }
 
     if (bestIndex >= 0 && bestScore >= 0.72) {
+      // Record only high-confidence mappings (low-confidence matches may still merge temporarily).
+      if (espnId && bestScore >= 0.85) {
+        const date = safeEspnDate(getMatchEventDate(espn));
+        providerMappings.push({
+          espn_id: espnId,
+          primary_match_id: String(entries[bestIndex].match?.id || ""),
+          fixture_date: date ? date.slice(0, 10) : null,
+          confidence: Math.min(1, bestScore),
+          mapped_at: nowIso(),
+        });
+      }
       entries[bestIndex].match = mergeOneOriginalWithEspn(entries[bestIndex].match, espn);
       entries[bestIndex].source = "merged";
       duplicatesMerged++;
@@ -3879,6 +3919,7 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[])
   return {
     mergedMatches,
     sourceRows,
+    providerMappings,
     meta: {
       original_source_matches: originalMatches.length,
       espn_source_matches: espnMatches.length,
@@ -5081,7 +5122,7 @@ async function validatePredictionsInPlay(
 
   for (const pred of pending) {
     // Jamais valider avant la publication du coupon initial.
-    if(pred.telegram_sent!==true){ bumpSkip("telegram_not_sent"); continue; }
+    if (pred.telegram_sent !== true) { skipped++; continue; }
     const match = liveMap.get(String(pred.match_id));
     if (!match) {
       skipped++;
@@ -5557,7 +5598,7 @@ async function enrichLiveMatchesWithBsdStats(matches: any[]) {
       calls++;
       const payload = await fetchBSD(`/events/${match.id}/stats/`);
       const freshStats = normalizeBsdStatsPayload(payload);
-      const mergedStats = mergeLiveStats(getMatchLiveStats(match), freshStats);
+      const mergedStats = mergeLiveStats(getMatchLiveStats(match), freshStats, true);
       const idx = indexById.get(String(match.id));
       if (idx == null) continue;
 
@@ -5575,6 +5616,8 @@ async function enrichLiveMatchesWithBsdStats(matches: any[]) {
               "bsd_stats",
             ]),
           ],
+          stats_authority: "bsd_stats",
+          stats_corrected_at: nowIso(),
         },
       };
       enriched++;
@@ -5710,10 +5753,34 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     const espnResult = await fetchEspnLiveMatchesForMerge();
     espnError = espnResult.error;
 
+    const incomingEspnIds = (espnResult.matches || [])
+      .map((m: any) => String(m?.source_match_id || m?.raw_data?.event_id || ""))
+      .filter(Boolean);
+    const knownProviderMappings = new Map<string, string>();
+    if (incomingEspnIds.length) {
+      const { data: mappingRows, error: mapReadError } = await supabase
+        .from("espn_match_map").select("espn_id,primary_match_id")
+        .in("espn_id", [...new Set(incomingEspnIds)].slice(0, 500));
+      if (!mapReadError) {
+        for (const row of mappingRows || []) {
+          knownProviderMappings.set(String(row.espn_id), String(row.primary_match_id));
+        }
+      } else {
+        console.warn("ESPN provider mappings unavailable; using strict fixture matching", mapReadError);
+      }
+    }
+
     const merged = mergeOriginalAndEspnMatches(
       originalRawMatches,
       espnResult.matches || [],
+      knownProviderMappings,
     );
+    if (merged.providerMappings?.length) {
+      const { error: mapWriteError } = await supabase
+        .from("espn_match_map")
+        .upsert(merged.providerMappings, { onConflict: "espn_id" });
+      if (mapWriteError) console.warn("ESPN provider mapping persistence failed", mapWriteError);
+    }
 
     allRawMatches = sortMatchesForRefresh(merged.mergedMatches);
     sourceRows = merged.sourceRows || [];
@@ -5745,6 +5812,10 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     }
   }
 
+  // The resume cursor uses lexical ordering; keep the snapshot in the same order.
+  allRawMatches.sort((a: any, b: any) =>
+    stableRefreshMatchId(a).localeCompare(stableRefreshMatchId(b))
+  );
   const candidates = cursor
     ? allRawMatches.filter(
       (m: any) => stableRefreshMatchId(m).localeCompare(cursor) > 0,
@@ -5931,7 +6002,19 @@ async function invokeRefreshBatch(
  * une NOUVELLE invocation Edge avec son propre budget CPU.
  */
 async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
-  let cursor: string | null = null;
+  // Continue after the last processed fixture if the preceding cycle hit its batch cap.
+  // The 15-minute lease prevents simultaneous refresh coordinators.
+  const { data: progress, error: progressError } = await supabase
+    .from("live_refresh_control")
+    .select("cursor, updated_at")
+    .eq("key", "live_refresh")
+    .maybeSingle();
+  if (progressError) throw progressError;
+  const progressAt = Date.parse(String(progress?.updated_at || ""));
+  let cursor: string | null =
+    progress?.cursor && Number.isFinite(progressAt) && Date.now() - progressAt < 30 * 60000
+      ? String(progress.cursor)
+      : null;
   let batchNumber = 0;
   let processedMatches = 0;
   let hasMore = true;
@@ -6087,16 +6170,8 @@ function hasRequiredFinalStats(stats: any, predictionType: string) {
 }
 
 async function fetchEspnSummary(eventId: string) {
-  const url = new URL(ESPN_SUMMARY_URL);
-  url.searchParams.set("event", eventId);
-  const res = await fetch(url.toString(), {
-    headers: {
-      "User-Agent": "Mozilla/5.0 MrXPRONOS-ESPN-Final/1.0",
-      "Accept": "application/json,text/plain,*/*",
-    },
-  });
-  if (!res.ok) return null;
-  return res.json().catch(() => null);
+  try { return await fetchSharedEspnSummary(eventId, espnStore); }
+  catch (error) { console.warn("ESPN summary unavailable:", eventId, error); return null; }
 }
 
 function mergeEspnSummaryStatsIntoEvent(event: any, summary: any) {
@@ -6175,10 +6250,12 @@ async function fetchEspnFinalForPrediction(pred: any, stored: any) {
   }
 }
 
-async function resolveFinalEventAndStats(pred: any) {
+async function resolveFinalEventAndStats(pred: any, storedOverride: any = undefined) {
   const predictionType = String(pred?.prediction_type || "");
   const isHistoricalValidated = pred?.validated === true;
-  const stored = await getStoredMergedContextForPrediction(pred);
+  const stored = storedOverride === undefined
+    ? await getStoredMergedContextForPrediction(pred)
+    : storedOverride;
 
   // Pour l’historique déjà validé, ESPN est plus fiable que BSD pour retrouver
   // un match qui a disparu du catalogue événementiel BSD.
@@ -6277,6 +6354,34 @@ async function validatePredictionsNow() {
 
   if (!pending.length) return { validated: 0, finalized_existing: 0, skipped: 0, failed: 0 };
 
+  // Read final-match context for all pending predictions once instead of one DB call per bet.
+  const storedByMatch = new Map<string, any>();
+  let bulkContextLoaded = false;
+  const matchIds = [...new Set(pending.map((p: any) => String(p?.match_id || "")).filter(Boolean))];
+  if (matchIds.length) {
+    const { data: contexts, error: bulkError } = await supabase
+      .from(T_STATS_MERGED)
+      .select("primary_match_id, event_date, home_team, away_team, is_finished, minute, merged_stats, merged_match_json, updated_at")
+      .in("primary_match_id", matchIds)
+      .order("updated_at", { ascending: false })
+      .limit(200);
+    if (!bulkError) {
+      bulkContextLoaded = true;
+      for (const row of contexts || []) {
+        const matchId = String(row?.primary_match_id || "");
+        if (matchId && !storedByMatch.has(matchId)) storedByMatch.set(matchId, row);
+      }
+    } else {
+      console.warn("Bulk final contexts unavailable; using per-match fallback", bulkError);
+    }
+  }
+  // Date grouping improves cache locality when historical predictions span many matchdays.
+  pending.sort((a: any, b: any) => {
+    const left = storedByMatch.get(String(a?.match_id))?.event_date || a?.created_at;
+    const right = storedByMatch.get(String(b?.match_id))?.event_date || b?.created_at;
+    return toDateKey(left).localeCompare(toDateKey(right));
+  });
+
   let validated = 0;
   let finalizedExisting = 0;
   let skipped = 0;
@@ -6293,7 +6398,10 @@ async function validatePredictionsNow() {
     const isHistoricalPending =
       pred.validated !== true &&
       String(pred.created_at || "") < backlogCutoff;
-    const resolvedFinal = await resolveFinalEventAndStats(pred);
+    const stored = bulkContextLoaded
+      ? (storedByMatch.get(String(pred?.match_id)) || null)
+      : undefined;
+    const resolvedFinal = await resolveFinalEventAndStats(pred, stored);
     if (!resolvedFinal) {
       bumpSkip("final_source_unavailable");
       continue;
@@ -7732,12 +7840,25 @@ serve(async (req) => {
     if (path === "/refresh" && req.method === "POST") {
       requireCronAuth(req, url);
 
+      const lockOwner = crypto.randomUUID();
+      const { data: acquired, error: lockError } = await supabase.rpc(
+        "claim_live_refresh", { p_owner: lockOwner },
+      );
+      if (lockError) throw lockError;
+      if (!acquired) {
+        return json({ accepted: false, already_running: true, message: "Rafraîchissement déjà actif" }, 202);
+      }
+      const { data: previousProgress } = await supabase
+        .from("live_refresh_control")
+        .select("cursor").eq("key", "live_refresh").maybeSingle();
+      let releaseCursor: string | null = previousProgress?.cursor || null;
+
       const refreshTask = (async () => {
         try {
           const result = await refreshLiveDataInBatches(
             LIVE_REFRESH_BATCH_SIZE,
           );
-
+          releaseCursor = result.has_more ? result.next_cursor : null;
           await setCronRun("live_refresh", !result.has_more, {
             processed_matches: result.processed_matches,
             total_live_matches: result.total_live_matches,
@@ -7749,6 +7870,11 @@ serve(async (req) => {
             error: e?.message || String(e),
           });
           console.error("Background live refresh failed:", e);
+        } finally {
+          const { error: releaseError } = await supabase.rpc("release_live_refresh", {
+            p_owner: lockOwner, p_cursor: releaseCursor,
+          });
+          if (releaseError) console.error("Refresh lease release failed", releaseError);
         }
       })();
 
@@ -7762,17 +7888,10 @@ serve(async (req) => {
         }, 202);
       }
 
-      // Fallback local/non-Supabase : un seul lot borné pour éviter les timeouts.
-      const oneBatch = await refreshLiveDataBatch({
-        batchSize: LIVE_REFRESH_BATCH_SIZE,
-        allowTelegram: true,
-      });
-
-      return json({
-        accepted: true,
-        background: false,
-        ...oneBatch,
-      }, 200);
+      // Fallback: one bounded batch (background task already started).
+      // Avoid running a second batch while holding the same distributed lease.
+      await refreshTask;
+      return json({ accepted: true, background: false, message: "Refresh LIVE terminé" }, 200);
     }
 
     // ===================================================
@@ -7826,7 +7945,9 @@ serve(async (req) => {
 
       let events: any[] = [];
       try {
-        const scoreboard = await fetchEspnScoreboard(toDateKey(date), false);
+        // Lecture DB uniquement : jamais d'appel ESPN par visiteur.
+        const cached = await espnStore.read("scoreboard:" + toDateKey(date));
+        const scoreboard = cached?.payload;
         events = (scoreboard?.events || [])
           .map(normalizeEspnEventToOriginalMatch)
           .filter(Boolean);
@@ -7843,7 +7964,7 @@ serve(async (req) => {
           scheduled: { count: scheduled.length, matches: scheduled },
           finished: { count: finished.length, matches: finished.slice(0, 10) },
         },
-        meta: { source: "supabase+espn", bsd_calls: 0 },
+        meta: { source: "supabase+espn-cache", bsd_calls: 0, upstream_espn_calls: 0 },
       });
     }
     // ===================================================

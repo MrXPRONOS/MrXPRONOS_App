@@ -21,6 +21,7 @@ from datetime import datetime, date, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
 import requests
@@ -31,7 +32,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from bsd_api import BSDClient, BSDAPIError  # noqa: E402
 from bsd_h2h import hybrid_h2h  # noqa: E402
 from telegram_rich import post_photo, post_text, post_animation  # noqa: E402
-from football_match_lifecycle import lifecycle_signals  # noqa: E402
+from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish)  # noqa: E402
 import football_followup as followup  # noqa: E402
 from football_stats_engine import daily_insight  # noqa: E402
 from football_viral_engine import (  # noqa: E402
@@ -388,6 +389,185 @@ class Publication:
     poll_shuffle: bool = False
     poll_allows_revoting: bool = True
     animation_payload: dict[str, Any] | None = None
+    verification: dict[str, Any] | None = None
+
+
+def _verify_espn_news_reference(session: requests.Session, verification: dict[str, Any]) -> dict[str, Any]:
+    """Contrôle non bloquant d'une corroboration ESPN déjà trouvée par le collecteur."""
+    url = str(verification.get("url") or "").strip()
+    if not url.startswith("https://"):
+        return {"ok": False, "quality": 0, "reason": "missing_espn_news_url"}
+    host = (urlparse(url).hostname or "").lower()
+    if not host.endswith("espn.com"):
+        return {"ok": False, "quality": 0, "reason": "invalid_espn_host"}
+    expected_terms = {
+        plain(x, 50).casefold()
+        for x in (verification.get("matched_terms") or [])
+        if plain(x, 50)
+    }
+    try:
+        response = session.get(
+            url,
+            headers={
+                "User-Agent": "Mozilla/5.0 (compatible; MrXPRONOS-NewsVerifier/1.0)",
+                "Accept": "text/html,application/xhtml+xml",
+            },
+            timeout=(7, 15),
+            allow_redirects=True,
+        )
+        final_host = (urlparse(response.url).hostname or "").lower()
+        if not response.ok or not final_host.endswith("espn.com"):
+            return {"ok": False, "quality": 75, "reason": "espn_news_page_unavailable", "url": url}
+        body = plain(response.text[:600000], 600000).casefold()
+        matched = sum(1 for term in expected_terms if term in body)
+        content_ok = not expected_terms or matched >= min(2, len(expected_terms))
+        return {
+            "ok": content_ok,
+            "quality": 96 if content_ok else 82,
+            "reason": "espn_news_page_confirmed" if content_ok else "espn_news_terms_not_found",
+            "url": response.url,
+        }
+    except requests.RequestException as exc:
+        return {
+            "ok": False,
+            "quality": 75,
+            "reason": "espn_news_page_error",
+            "url": url,
+            "error": type(exc).__name__,
+        }
+
+
+def _espn_stats_html(enrichment: dict[str, Any], title: str = "📊 Données ESPN") -> str:
+    stats = enrichment.get("stats") if isinstance(enrichment, dict) else None
+    stats = stats if isinstance(stats, dict) else {}
+    home = stats.get("home") if isinstance(stats.get("home"), dict) else {}
+    away = stats.get("away") if isinstance(stats.get("away"), dict) else {}
+    rows = []
+    for label, key in (
+        ("Tirs cadrés", "shots_on_target"),
+        ("Tirs", "shots"),
+        ("Corners", "corners"),
+        ("Possession", "possession"),
+        ("Fautes", "fouls"),
+        ("Hors-jeu", "offsides"),
+        ("Arrêts", "saves"),
+    ):
+        hv, av = home.get(key), away.get(key)
+        if hv not in (None, "") and av not in (None, ""):
+            rows.append(esc(label) + " : <b>" + esc(hv) + " – " + esc(av) + "</b>")
+    if not rows:
+        return ""
+    return "<p><b>" + esc(title) + "</b><br/>" + "<br/>".join(rows[:5]) + "</p>"
+
+
+def _apply_espn_preflight_enrichment(item: Publication, result: dict[str, Any]) -> None:
+    """Corrige/enrichit l'objet Publication avant que Sender ne génère l'image."""
+    if not isinstance(result, dict) or not result.get("ok"):
+        return
+
+    verified = result.get("verified") if isinstance(result.get("verified"), list) else []
+    if item.category == "programme" and item.card and verified:
+        matches = item.card.get("matches") if isinstance(item.card.get("matches"), list) else []
+        for card_match in matches:
+            if not isinstance(card_match, dict):
+                continue
+            best = next(
+                (
+                    row for row in verified
+                    if _norm_team(row.get("home")) == _norm_team(card_match.get("home"))
+                    and _norm_team(row.get("away")) == _norm_team(card_match.get("away"))
+                ),
+                None,
+            )
+            when = moment(best.get("event_date")) if isinstance(best, dict) else None
+            if when:
+                card_match["time"] = time_label(when)
+
+    if item.category == "avant_match" and verified:
+        row = verified[0] if isinstance(verified[0], dict) else {}
+        when = moment(row.get("event_date"))
+        if item.card and when:
+            item.card["time"] = time_label(when)
+        venue = plain(row.get("venue"), 100)
+        if venue and "🏟" not in item.text:
+            item.text += "<p>🏟 <b>" + esc(venue) + "</b></p>"
+
+    enrichment = result.get("enrichment") if isinstance(result.get("enrichment"), dict) else {}
+    info = enrichment.get("info") if isinstance(enrichment.get("info"), dict) else {}
+
+    if item.category == "composition":
+        context = []
+        venue = plain(info.get("venue"), 100)
+        if venue:
+            context.append("🏟 " + esc(venue))
+        referees = [plain(x, 70) for x in (info.get("referees") or []) if plain(x, 70)]
+        if referees:
+            context.append("👤 Arbitre : " + esc(referees[0]))
+        if context and "Arbitre :" not in item.text:
+            item.text += "<p>" + "<br/>".join(context) + "</p>"
+
+    if item.category == "mi_temps" and "Données ESPN à la pause" not in item.text:
+        block = _espn_stats_html(enrichment, "📊 Données ESPN à la pause")
+        if block:
+            item.text += block
+
+    if item.category == "resultat" and "📊 Repères du match" not in item.text:
+        block = _espn_stats_html(enrichment, "📊 Repères du match")
+        if block:
+            item.text += block
+        goals = enrichment.get("goals") if isinstance(enrichment.get("goals"), list) else []
+        if goals and "🎯 Buteurs" not in item.text:
+            lines = []
+            for goal in goals[:8]:
+                if not isinstance(goal, dict):
+                    continue
+                player = plain(goal.get("player"), 65)
+                minute = plain(goal.get("minute_text"), 18)
+                if player:
+                    suffix = " (pen.)" if goal.get("penalty") else " (c.s.c.)" if goal.get("own_goal") else ""
+                    lines.append("⚽ " + esc(player) + suffix + ((" • " + esc(minute)) if minute else ""))
+            if lines:
+                item.text += "<p><b>🎯 Buteurs ESPN</b><br/>" + "<br/>".join(lines) + "</p>"
+
+
+def espn_preflight(sender: "Sender", item: Publication, *, dry_run: bool = False) -> bool:
+    """Contrôle ESPN juste avant envoi; bloquant pour les faits de match, informatif pour les news."""
+    if dry_run or not item.verification:
+        return True
+    if item.verification.get("type") == "news":
+        result = _verify_espn_news_reference(sender.session, item.verification)
+        print("ESPN_NEWS_PREFLIGHT", item.category, item.key, json.dumps(result, ensure_ascii=False))
+        # La news reste fondée sur sa source journalistique d'origine; ESPN est une corroboration.
+        return True
+
+    if item.verification.get("type") == "fixture_list":
+        result = verify_espn_fixtures_before_publish(sender.session, item.verification)
+        print("ESPN_FIXTURE_PREFLIGHT", item.category, item.key, json.dumps({
+            "ok": result.get("ok"),
+            "quality": result.get("quality"),
+            "reason": result.get("reason"),
+            "covered": result.get("covered"),
+            "missing": result.get("missing"),
+            "total": result.get("total"),
+            "contradictions": result.get("contradictions") or [],
+        }, ensure_ascii=False))
+        if result.get("ok"):
+            _apply_espn_preflight_enrichment(item, result)
+        return bool(result.get("ok"))
+
+    result = verify_espn_before_publish(sender.session, item.verification)
+    print("ESPN_PREFLIGHT", item.category, item.key, json.dumps({
+        "ok": result.get("ok"),
+        "quality": result.get("quality"),
+        "reason": result.get("reason"),
+        "event_id": result.get("event_id"),
+        "page_verified": (result.get("page") or {}).get("content_verified"),
+        "source_url": result.get("source_url"),
+    }, ensure_ascii=False))
+    accepted = bool(result.get("ok")) and int(result.get("quality") or 0) >= 90
+    if accepted:
+        _apply_espn_preflight_enrichment(item, result)
+    return accepted
 
 
 class Sender:
@@ -697,13 +877,32 @@ def flash(articles: list[dict], history: History, now: datetime) -> Publication 
             "<i>🗞️ Source : " + esc(source) + "</i>\n"
             "<a href=\"" + esc(site_url) + "\">Lire l’info complète sur Mr XPRONOS ↗</a>"
         )
-        keyboard = {"inline_keyboard": [[
+        keyboard_rows = [[
             {"text": "Lire l’info complète ↗", "url": site_url, "style": "primary"}
-        ]]}
+        ]]
+        verification = None
+        espn_verification = article.get("espn_verification")
+        if isinstance(espn_verification, dict):
+            espn_url = str(espn_verification.get("url") or "")
+            if espn_url.startswith("https://") and (urlparse(espn_url).hostname or "").lower().endswith("espn.com"):
+                keyboard_rows.append([{"text": "Corroboration ESPN ↗", "url": espn_url}])
+                verification = {
+                    "type": "news",
+                    "url": espn_url,
+                    "matched_terms": espn_verification.get("matched_terms") or [],
+                }
+                message += "\n<i>✅ Information aussi repérée chez ESPN.</i>"
+        keyboard = {"inline_keyboard": keyboard_rows}
         return Publication(
-            "flash", key, message, image_path=image_path, keyboard=keyboard,
-            card={"image_path": image_path, "title": title, "summary": summary,
-                  "source": source, "day": now.astimezone(TZ).strftime("%d/%m/%Y")},
+            "flash", key, message, image_path=image_path,
+            keyboard=keyboard, verification=verification,
+            card={
+                "image_path": image_path,
+                "title": title,
+                "summary": summary,
+                "source": source,
+                "day": now.astimezone(TZ).strftime("%d/%m/%Y"),
+            },
         )
     return None
 
@@ -740,8 +939,22 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
          "home_logo": team_visual_url(e, "home", allow_remote=True),
          "away_logo": team_visual_url(e, "away", allow_remote=True)}
         for e in chosen]}
-    return Publication("programme", "programme:" + today.isoformat(),
-                       message, card=card)
+    verification = {
+        "type": "fixture_list",
+        "kind": "programme",
+        "fixtures": [
+            {
+                "home": team(e, "home"),
+                "away": team(e, "away"),
+                "event_date": kick(e).astimezone(timezone.utc).isoformat(),
+            }
+            for e in chosen
+        ],
+    }
+    return Publication(
+        "programme", "programme:" + today.isoformat(),
+        message, card=card, verification=verification,
+    )
 
 
 def finished_recent(events: list[dict], now: datetime) -> list[dict]:
@@ -773,7 +986,17 @@ def resultat(events: list[dict], history: History, now: datetime) -> Publication
                 "away": team(e, "away"), "scores": (a, b),
                 "home_logo": team_visual_url(e, "home", allow_remote=True),
                 "away_logo": team_visual_url(e, "away", allow_remote=True)}
-        return Publication("resultat", key, text, card=card)
+        verification = {
+            "type": "fixture_list",
+            "kind": "resultat",
+            "fixtures": [{
+                "home": team(e, "home"),
+                "away": team(e, "away"),
+                "event_date": kick(e).astimezone(timezone.utc).isoformat(),
+                "score": f"{a}-{b}",
+            }],
+        }
+        return Publication("resultat", key, text, card=card, verification=verification)
     return None
 
 
@@ -905,7 +1128,19 @@ def avant_match(events: list[dict], history: History, now: datetime,
         "home_logo": team_visual_url(e, "home", allow_remote=True),
         "away_logo": team_visual_url(e, "away", allow_remote=True),
     }
-    return Publication("avant_match", "avant_match:" + str(e["id"]), message, card=card)
+    verification = {
+        "type": "fixture_list",
+        "kind": "avant_match",
+        "fixtures": [{
+            "home": h,
+            "away": a,
+            "event_date": kick(e).astimezone(timezone.utc).isoformat(),
+        }],
+    }
+    return Publication(
+        "avant_match", "avant_match:" + str(e["id"]),
+        message, card=card, verification=verification,
+    )
 
 
 
@@ -982,7 +1217,21 @@ def statistique_avancee(session: requests.Session, reference_day: date) -> Publi
         + ":"
         + plain(insight.get("kind"), 60)
     )
-    return Publication("statistique", key, post_label(message), card={"headline": headline, "title": title, "league": insight.get("league"), "source": source, "lines": lines, "value": insight.get("value") or "", "kind": insight.get("kind"), "confidence": confidence})
+    return Publication(
+        "statistique",
+        key,
+        post_label(message),
+        card={
+            "headline": headline,
+            "title": title,
+            "league": insight.get("league"),
+            "source": source,
+            "lines": lines,
+            "value": insight.get("value") or "",
+            "kind": insight.get("kind"),
+            "confidence": confidence,
+        },
+    )
 
 
 def statistique(events: list[dict], reference_day: date) -> Publication | None:
@@ -1021,8 +1270,20 @@ def statistique(events: list[dict], reference_day: date) -> Publication | None:
             "home": team(e, "home"), "away": team(e, "away"), "scores": (h, a),
             "home_logo": team_visual_url(e, "home", allow_remote=True),
             "away_logo": team_visual_url(e, "away", allow_remote=True)}
-    return Publication("statistique", "statistique:" + reference_day.isoformat(),
-                       message, card=card)
+    verification = {
+        "type": "fixture_list",
+        "kind": "statistique_match",
+        "fixtures": [{
+            "home": team(e, "home"),
+            "away": team(e, "away"),
+            "event_date": kick(e).astimezone(timezone.utc).isoformat(),
+            "score": f"{h}-{a}",
+        }],
+    }
+    return Publication(
+        "statistique", "statistique:" + reference_day.isoformat(),
+        message, card=card, verification=verification,
+    )
 
 
 
@@ -1034,9 +1295,14 @@ def community_vote_publication(events: list[dict], now: datetime) -> Publication
     options = [plain(x, 100) for x in payload.get("options", []) if plain(x, 100)]
     if not question or len(options) < 2:
         return None
-    chosen = next((event for event in events
-                   if team(event, "home") == payload.get("home")
-                   and team(event, "away") == payload.get("away")), None)
+    chosen = next(
+        (
+            event for event in events
+            if team(event, "home") == payload.get("home")
+            and team(event, "away") == payload.get("away")
+        ),
+        None,
+    )
     return Publication(
         "sondage",
         plain(payload.get("key"), 180),
@@ -1048,11 +1314,15 @@ def community_vote_publication(events: list[dict], now: datetime) -> Publication
             + " • Vote avant le coup d'envoi • Mr XPRONOS"
         ),
         poll_allows_revoting=True,
-        card={"home": payload.get("home"), "away": payload.get("away"),
-              "league": payload.get("league"), "question": question,
-              "options": options,
-              "home_logo": team_visual_url(chosen, "home") if chosen else "",
-              "away_logo": team_visual_url(chosen, "away") if chosen else ""},
+        card={
+            "home": payload.get("home"),
+            "away": payload.get("away"),
+            "league": payload.get("league"),
+            "question": question,
+            "options": options,
+            "home_logo": team_visual_url(chosen, "home") if chosen else "",
+            "away_logo": team_visual_url(chosen, "away") if chosen else "",
+        },
     )
 
 
@@ -1080,7 +1350,12 @@ def community_quiz_publication(session: requests.Session, day: date) -> Publicat
         ),
         poll_shuffle=True,
         poll_allows_revoting=False,
-        card={"question": question, "options": options, "league": payload.get("league"), "source": payload.get("source")},
+        card={
+            "question": question,
+            "options": options,
+            "league": payload.get("league"),
+            "source": payload.get("source"),
+        },
     )
 
 
@@ -1114,7 +1389,12 @@ def community_debate_publication(news: list[dict], day: date) -> Publication | N
         plain(payload.get("key"), 180),
         post_label(message),
         keyboard=keyboard,
-        card={"headline": title, "question": title, "summary": summary, "source": source},
+        card={
+            "headline": title,
+            "question": title,
+            "summary": summary,
+            "source": source,
+        },
     )
 
 
@@ -1137,10 +1417,16 @@ def community_reaction_publication(events: list[dict], now: datetime) -> Publica
             + " • Note le match • Mr XPRONOS"
         ),
         poll_allows_revoting=True,
-        card={"question": question, "reaction": question, "league": payload.get("league"),
-              "score": payload.get("score"), "home": payload.get("home"),
-              "away": payload.get("away"), "home_logo": payload.get("home_logo"),
-              "away_logo": payload.get("away_logo")},
+        card={
+            "question": question,
+            "reaction": question,
+            "league": payload.get("league"),
+            "score": payload.get("score"),
+            "home": payload.get("home"),
+            "away": payload.get("away"),
+            "home_logo": payload.get("home_logo"),
+            "away_logo": payload.get("away_logo"),
+        },
     )
 
 
@@ -1177,6 +1463,15 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
                     "home_logo": team_visual_url(e, "home", allow_remote=True),
                     "away_logo": team_visual_url(e, "away", allow_remote=True),
                 },
+                verification={
+                    "type": "fixture_list",
+                    "kind": "sondage",
+                    "fixtures": [{
+                        "home": h,
+                        "away": a,
+                        "event_date": kick(e).astimezone(timezone.utc).isoformat(),
+                    }],
+                },
             )
     topics = [
         ("Quel championnat aimez-vous suivre ?", ["Premier League", "Liga", "Ligue 1", "Autre"]),
@@ -1210,18 +1505,22 @@ def lifecycle_publication(signal: dict) -> Publication | None:
     if not home or not away or kind not in {"composition", "kickoff", "goal", "mi_temps", "score_update"}:
         return None
 
-    button = {"inline_keyboard": [[{
+    button_rows = [[{
         "text": "Suivre les matchs LIVE ↗",
         "url": "https://mrxpronos.github.io/MrXPRONOS_App/live.html",
         "style": "primary",
-    }]]}
+    }]]
+    espn_url = plain(signal.get("espn_url"), 500)
+    if espn_url.startswith("https://www.espn.com/"):
+        button_rows.append([{"text": "Vérifier sur ESPN ↗", "url": espn_url}])
+    button = {"inline_keyboard": button_rows}
     card: dict[str, Any] | None = None
 
     if kind == "composition":
         lineups = signal.get("lineups") if isinstance(signal.get("lineups"), dict) else {}
         home_players = [plain(x, 45) for x in lineups.get("home", []) if plain(x, 45)][:11]
         away_players = [plain(x, 45) for x in lineups.get("away", []) if plain(x, 45)][:11]
-        if len(home_players) < 8 or len(away_players) < 8:
+        if len(home_players) != 11 or len(away_players) != 11:
             return None
         kickoff_at = signal.get("kickoff")
         kickoff_text = time_label(kickoff_at) if isinstance(kickoff_at, datetime) else ""
@@ -1299,27 +1598,65 @@ def lifecycle_publication(signal: dict) -> Publication | None:
             if scorer else
             ("<p><b>🕒 " + esc(minute) + "</b></p>" if minute else "")
         )
+        assists = [plain(x, 60) for x in (goal.get("assists") or []) if plain(x, 60)]
+        assist_line = (
+            "<p>🅰️ Passe : " + esc(", ".join(assists[:2])) + "</p>"
+            if assists else ""
+        )
         message = (
             "<h3>⚽ BUUUUT !</h3>"
             "<p><i>" + esc(competition) + "</i></p>"
             "<blockquote><b>" + esc(home) + " " + esc(signal.get("score") or "—")
             + " " + esc(away) + "</b></blockquote>"
-            + scorer_line +
+            + scorer_line + assist_line +
             "<p><i>Source live : " + esc(source) + "</i></p>"
         )
 
     if card is None:
-        card = {"home": home, "away": away, "competition": competition,
-                "league": competition, "source": source, "score": plain(signal.get("score") or ""),
-                "minute": signal.get("minute"), "home_logo": plain(signal.get("home_logo") or "", 500),
-                "away_logo": plain(signal.get("away_logo") or "", 500), "goal": signal.get("goal") or {},
-                "time": plain(signal.get("time") or "", 40)}
+        card = {
+            "home": home,
+            "away": away,
+            "competition": competition,
+            "league": competition,
+            "source": source,
+            "score": plain(signal.get("score") or ""),
+            "minute": signal.get("minute"),
+            "home_logo": plain(signal.get("home_logo") or "", 500),
+            "away_logo": plain(signal.get("away_logo") or "", 500),
+            "goal": signal.get("goal") or {},
+            "time": plain(signal.get("time") or "", 40),
+        }
+
+    event_id = plain(signal.get("espn_event_id"), 32)
+    verification = None
+    if event_id:
+        verification = {
+            "event_id": event_id,
+            "kind": kind,
+            "home": home,
+            "away": away,
+            "score": plain(signal.get("score"), 20),
+            "goal": signal.get("goal") if isinstance(signal.get("goal"), dict) else {},
+        }
+    elif signal.get("event_date"):
+        verification = {
+            "type": "fixture_list",
+            "kind": "resultat" if kind == "resultat_final" else kind,
+            "fixtures": [{
+                "home": home,
+                "away": away,
+                "event_date": signal.get("event_date"),
+                "score": plain(signal.get("score"), 20),
+            }],
+        }
+
     return Publication(
         kind,
         str(signal.get("key") or ""),
         post_label(message + "<p><i>🔖 Match suivi par Mr XPRONOS</i></p>"),
         card=card,
         keyboard=button,
+        verification=verification,
     )
 
 
@@ -1335,12 +1672,24 @@ def followed_interruption_publication(signal: dict) -> Publication | None:
         " Nous arrêtons les alertes de ce match tant que sa reprise n'est pas confirmée.</p>"
         "<p><i>Statut : " + esc(detail or "changement signalé") + "</i></p>"
     )
-    return Publication("suivi_interrompu", str(signal.get("key") or ""), post_label(text),
-                       card={"home": home, "away": away, "league": signal.get("league"), "source": signal.get("source"), "status": detail, "home_logo": signal.get("home_logo"), "away_logo": signal.get("away_logo")})
+    return Publication(
+        "suivi_interrompu",
+        str(signal.get("key") or ""),
+        post_label(text),
+        card={
+            "home": home,
+            "away": away,
+            "league": signal.get("league"),
+            "source": signal.get("source"),
+            "status": detail,
+            "home_logo": signal.get("home_logo"),
+            "away_logo": signal.get("away_logo"),
+        },
+    )
 
 
 def followed_final_publication(signal: dict) -> Publication | None:
-    """Résultat du même match suivi, confirmé par source live."""
+    """Résultat suivi enrichi par les faits ESPN disponibles."""
     home, away = plain(signal.get("home"), 55), plain(signal.get("away"), 55)
     scores = plain(signal.get("score"), 12)
     if not home or not away or not re.fullmatch(r"\d+-\d+", scores):
@@ -1349,11 +1698,58 @@ def followed_final_publication(signal: dict) -> Publication | None:
     comp = plain(signal.get("league") or "Football", 80)
     result = ("🤝 Match nul" if h == a else
               "🏅 Victoire de " + esc(home if h > a else away))
+
+    match_data = signal.get("match_data") if isinstance(signal.get("match_data"), dict) else {}
+    goals = match_data.get("goals") if isinstance(match_data.get("goals"), list) else []
+    goal_lines = []
+    for goal in goals[:8]:
+        if not isinstance(goal, dict):
+            continue
+        player = plain(goal.get("player"), 65) or "Buteur non renseigné"
+        minute = plain(goal.get("minute_text"), 18)
+        suffix = " (pen.)" if goal.get("penalty") else " (c.s.c.)" if goal.get("own_goal") else ""
+        goal_lines.append("⚽ " + esc(player) + suffix + ((" • " + esc(minute)) if minute else ""))
+    goals_block = (
+        "<p><b>🎯 Buteurs</b><br/>" + "<br/>".join(goal_lines) + "</p>"
+        if goal_lines else ""
+    )
+
+    stats = match_data.get("stats") if isinstance(match_data.get("stats"), dict) else {}
+    home_stats = stats.get("home") if isinstance(stats.get("home"), dict) else {}
+    away_stats = stats.get("away") if isinstance(stats.get("away"), dict) else {}
+    stat_lines = []
+    for label, key in (
+        ("Tirs cadrés", "shots_on_target"),
+        ("Corners", "corners"),
+        ("Possession", "possession"),
+        ("Fautes", "fouls"),
+    ):
+        hv, av = home_stats.get(key), away_stats.get(key)
+        if hv not in (None, "") and av not in (None, ""):
+            stat_lines.append(esc(label) + " : <b>" + esc(hv) + " – " + esc(av) + "</b>")
+    stats_block = (
+        "<p><b>📊 Repères du match</b><br/>" + "<br/>".join(stat_lines[:4]) + "</p>"
+        if stat_lines else ""
+    )
+
+    info = match_data.get("info") if isinstance(match_data.get("info"), dict) else {}
+    context_lines = []
+    venue = plain(info.get("venue"), 100)
+    if venue:
+        context_lines.append("🏟 " + esc(venue))
+    if info.get("attendance") is not None:
+        context_lines.append("👥 " + esc(str(info.get("attendance"))) + " spectateurs")
+    referees = [plain(x, 70) for x in (info.get("referees") or []) if plain(x, 70)]
+    if referees:
+        context_lines.append("👤 Arbitre : " + esc(referees[0]))
+    context_block = "<p>" + "<br/>".join(context_lines) + "</p>" if context_lines else ""
+
     message = (
         "<h3>🏁 RÉSULTAT FINAL • MATCH SUIVI</h3>"
         "<p><i>" + esc(comp) + "</i></p>"
         "<blockquote><b>⚽ " + esc(home) + " " + scores.replace("-", " – ")
         + " " + esc(away) + "</b><br/>" + result + "</blockquote>"
+        + goals_block + stats_block + context_block +
         "<p>✅ Fin de notre suivi de cette rencontre.</p>"
         "<p><b>💬 Votre avis sur le match ?</b></p>"
         "<p><i>Score confirmé : " + esc(signal.get("source") or "source live") + "</i></p>"
@@ -1367,12 +1763,49 @@ def followed_final_publication(signal: dict) -> Publication | None:
                 "scores": (h, a), "home_logo": logo_home,
                 "away_logo": logo_away}
     if card is None:
-        card = {"_arty_format": "resultat_suivi", "home": home, "away": away,
-                "score": scores, "league": comp,
-                "source": signal.get("source") or "score confirmé",
-                "home_logo": logo_home, "away_logo": logo_away}
-    return Publication("resultat", str(signal.get("key") or ""),
-                       post_label(message), card=card)
+        card = {
+            "_arty_format": "resultat_suivi",
+            "home": home,
+            "away": away,
+            "score": scores,
+            "league": comp,
+            "source": signal.get("source") or "score confirmé",
+            "home_logo": logo_home,
+            "away_logo": logo_away,
+        }
+
+    espn_url = plain(signal.get("espn_url"), 500)
+    keyboard = None
+    if espn_url.startswith("https://www.espn.com/"):
+        keyboard = {"inline_keyboard": [[{"text": "Vérifier sur ESPN ↗", "url": espn_url}]]}
+    event_id = plain(signal.get("espn_event_id"), 32)
+    verification = {
+        "event_id": event_id,
+        "kind": "resultat_final",
+        "home": home,
+        "away": away,
+        "score": scores,
+    } if event_id else None
+    if verification is None and signal.get("event_date"):
+        verification = {
+            "type": "fixture_list",
+            "kind": "resultat",
+            "fixtures": [{
+                "home": home,
+                "away": away,
+                "event_date": signal.get("event_date"),
+                "score": scores,
+            }],
+        }
+
+    return Publication(
+        "resultat",
+        str(signal.get("key") or ""),
+        post_label(message),
+        card=card,
+        keyboard=keyboard,
+        verification=verification,
+    )
 
 
 def enough(history: History, cat: str, now: datetime) -> bool:
@@ -1398,6 +1831,10 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
         if not force and (state.seen(item.key) or
                           (item.category != "resultat" and not enough(state, item.category, now))):
             counter["skipped"] += 1
+            return
+        if not espn_preflight(sender, item, dry_run=dry_run):
+            counter["skipped"] += 1
+            print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
             return
         sender.send(item)
         counter["sent"] += 1
@@ -1492,6 +1929,10 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                 return False
             if followup.tracked_fixture(follow_event, state.followed, now):
                 return False
+        if not espn_preflight(sender, item, dry_run=dry_run):
+            counter["skipped"] += 1
+            print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
+            return False
         sender.send(item)
         counter["sent"] += 1
         if not dry_run:
@@ -1667,6 +2108,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                             "home_logo": obj_home.get("logo") if isinstance(obj_home, dict) else "",
                             "away_logo": obj_away.get("logo") if isinstance(obj_away, dict) else "",
                             "source": "BSD V2", "day": now.strftime("%d/%m/%Y"),
+                            "event_date": kick(event).astimezone(timezone.utc).isoformat(),
                         }
                         if publish(followed_final_publication(sig), ref=ref):
                             break
