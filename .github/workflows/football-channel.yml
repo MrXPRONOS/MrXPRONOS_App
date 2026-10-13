@@ -7,6 +7,7 @@ on:
       - 'scripts/football_channel.py'
       - 'scripts/football_news_engine.py'
       - 'scripts/football_match_lifecycle.py'
+      - 'bsd/free_football_providers.py'
       - 'scripts/football_stats_engine.py'
       - 'scripts/football_community_engine.py'
       - 'scripts/football_viral_engine.py'
@@ -105,7 +106,9 @@ jobs:
           import requests
           import sys
           sys.path.insert(0, "scripts")
+          sys.path.insert(0, "bsd")
           import football_match_lifecycle as lifecycle
+          from free_football_providers import FreeFootballProviders, provider_policy
 
           session = requests.Session()
           today = datetime.now(timezone.utc).date()
@@ -113,6 +116,22 @@ jobs:
           espn = lifecycle.fetch_espn_day(session, today)
           assert isinstance(espn, list)
           print("ESPN_FREE_OK", len(espn), "matchs", today.isoformat())
+
+          hub = FreeFootballProviders(session=session)
+          sportscore = hub.sportscore_day(today)
+          assert not sportscore.error, sportscore.error
+          assert isinstance(sportscore.events, list)
+          print("SPORTSCORE_FREE_OK", len(sportscore.events), "matchs", dict(hub.calls))
+
+          tsdb_day = hub.tsdb_day(today)
+          assert isinstance(tsdb_day.events, list)
+          print("THESPORTSDB_FREE_OK", len(tsdb_day.events), "matchs", tsdb_day.error or "ok")
+
+          policy = provider_policy()
+          assert policy["fetch_priority"][-1] == "bsd", policy
+          assert policy["odds_priority"] == ["bsd"], policy
+          assert policy["sportscore_odds_api_supported"] is False, policy
+          print("PROVIDER_POLICY_OK", policy)
 
           response = session.get(
               lifecycle.OPENLIGA_BASE + "/getavailableleagues",
