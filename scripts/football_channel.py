@@ -31,6 +31,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from bsd_api import BSDClient, BSDAPIError  # noqa: E402
 from telegram_rich import post_photo, post_text  # noqa: E402
 from football_match_lifecycle import lifecycle_signals  # noqa: E402
+from football_stats_engine import daily_insight  # noqa: E402
 
 TZ = ZoneInfo("Africa/Lome")
 STATE_PATH = Path(os.getenv("FOOTBALL_NEWS_STATE", ".state/mrxpronos-football.json"))
@@ -798,6 +799,45 @@ def avant_match(events: list[dict], history: History, now: datetime,
     return Publication("avant_match", "avant_match:" + str(e["id"]), message, card=card)
 
 
+
+def statistique_avancee(session: requests.Session, reference_day: date) -> Publication | None:
+    """Statistique quotidienne multi-source, avec fallback ailleurs si indisponible."""
+    insight = daily_insight(session, reference_day)
+    if not insight:
+        return None
+
+    title = plain(insight.get("title"), 120)
+    headline = plain(insight.get("headline"), 220)
+    lines = [
+        plain(line, 180)
+        for line in (insight.get("lines") or [])
+        if plain(line, 180)
+    ][:4]
+    source = plain(insight.get("source"), 120)
+    confidence = int(insight.get("confidence") or 0)
+    if not title or not headline or confidence < 70:
+        return None
+
+    details = "".join("<br/>• " + esc(line) for line in lines)
+    message = (
+        "<h3>" + esc(title) + "</h3>"
+        "<blockquote><b>" + esc(headline) + "</b>"
+        + details + "</blockquote>"
+        "<p><i>Sources : " + esc(source or "source statistique")
+        + " • confiance " + str(confidence) + "%</i></p>"
+        "<p><b>💬 Quelle statistique veux-tu voir demain ?</b></p>"
+    )
+    key = (
+        "statistique-avancee:"
+        + reference_day.isoformat()
+        + ":"
+        + plain(insight.get("league_key"), 60)
+        + ":"
+        + plain(insight.get("kind"), 60)
+    )
+    return Publication("statistique", key, post_label(message))
+
+
 def statistique(events: list[dict], reference_day: date) -> Publication | None:
     finished = [e for e in events if final_score(e) is not None and kick(e)]
     if not finished:
@@ -1108,12 +1148,15 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         if force or in_editorial_window("statistique", now):
             if counter["sent"] < max_send and (force or enough(state, "statistique", now)):
                 try:
-                    reference = today - timedelta(days=1)
-                    recent = get_day(reference) + get_day(today)
-                    post = statistique(recent, reference)
+                    reference = today
+                    post = statistique_avancee(sender.session, reference)
                     if post is None:
-                        older = reference - timedelta(days=1)
-                        post = statistique(get_day(older), reference)
+                        fallback_day = today - timedelta(days=1)
+                        recent = get_day(fallback_day) + get_day(today)
+                        post = statistique(recent, fallback_day)
+                        if post is None:
+                            older = fallback_day - timedelta(days=1)
+                            post = statistique(get_day(older), fallback_day)
                     publish(post)
                 except (BSDAPIError, requests.RequestException, ValueError) as exc:
                     counter["errors"] += 1
