@@ -353,6 +353,51 @@ class FreeFootballHub:
                 best, best_score = row, score
         return best if best_score >= 0.5 else None
 
+    def sportscore_team_schedule(self, name: str, *, limit: int = 20) -> List[dict]:
+        team = self.sportscore_team_search(name)
+        if not team:
+            return []
+        slug = _plain(team.get("slug") or team.get("id"))
+        if not slug:
+            return []
+        payload = self._get(
+            "sportscore",
+            SPORTSCORE_BASE + "/team/",
+            params={"sport": "football", "slug": slug, "limit": min(max(limit, 1), 50)},
+            ttl=900,
+        )
+        rows: List[dict] = []
+        if isinstance(payload, dict):
+            for key in ("matches", "fixtures", "events", "results"):
+                if isinstance(payload.get(key), list):
+                    rows.extend(payload[key])
+        elif isinstance(payload, list):
+            rows = payload
+
+        out = []
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            home = _plain(row.get("home") or row.get("home_team") or row.get("home_name"))
+            away = _plain(row.get("away") or row.get("away_team") or row.get("away_name"))
+            when = row.get("time") or row.get("start_time") or row.get("date")
+            if not home or not away or not when:
+                continue
+            out.append({
+                "id": "sportscore:" + _plain(row.get("id") or row.get("slug") or f"{_slug(home)}-{_slug(away)}"),
+                "source": "sportscore",
+                "home_team": home,
+                "away_team": away,
+                "home_team_id": _stable_team_id(home),
+                "away_team_id": _stable_team_id(away),
+                "home_score": _score(row.get("home_score")),
+                "away_score": _score(row.get("away_score")),
+                "status": _status(row.get("status") or row.get("status_text")),
+                "event_date": str(when),
+                "league_name": _plain(row.get("competition") or row.get("league")),
+            })
+        return out[:limit]
+
     def sportscore_h2h(self, home: str, away: str, *, limit: int = 20) -> List[dict]:
         h = self.sportscore_team_search(home)
         a = self.sportscore_team_search(away)
