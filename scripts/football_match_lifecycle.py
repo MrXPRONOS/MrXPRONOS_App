@@ -341,7 +341,7 @@ def parse_espn_summary_match(summary: dict) -> dict | None:
 
 
 def extract_lineups(summary: dict) -> dict[str, list[str]]:
-    """Retourne seulement des compositions suffisamment complètes (>=8 titulaires)."""
+    """Retourne uniquement les 11 titulaires confirmés par équipe."""
     result: dict[str, list[str]] = {"home": [], "away": []}
     rosters = summary.get("rosters") if isinstance(summary, dict) else None
     if not isinstance(rosters, list):
@@ -361,7 +361,7 @@ def extract_lineups(summary: dict) -> dict[str, list[str]]:
             name = _plain(athlete.get("displayName") or athlete.get("fullName") or athlete.get("name"))
             if name:
                 starters.append(name)
-        if len(starters) >= 8:
+        if len(starters) >= 11:
             result[side] = starters[:11]
     return result
 
