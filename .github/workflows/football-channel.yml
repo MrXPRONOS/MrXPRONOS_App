@@ -1,4 +1,5 @@
 name: Mr XPRONOS - CI media football
+# Synchronise les tests de rendu avec les 12 fonds Arty Football.
 
 on:
   pull_request:
