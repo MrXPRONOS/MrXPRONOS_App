@@ -29,6 +29,11 @@ TEMPLATES = {
     "statistique": "template_stat_du_jour.png",
     "flash": "template_flash_foot.png",
     "sondage": "template_sondage.png",
+    "composition": "template_compositions_officielles.webp",
+}
+
+TEMPLATE_SIZES = {
+    "composition": (1374, 1145),
 }
 
 WHITE = "#F7F9FC"
@@ -107,6 +112,21 @@ POLL_OPTION_BOXES = (
 )
 POLL_ICON_CENTERS = ((155, 534), (155, 660), (155, 786))
 POLL_DATE_BOX = (470, 864, 670, 912)
+
+# Template compositions officielles, conservé dans son ratio natif 1374 x 1145.
+COMPOSITION_HOME_LOGO = (312, 369)
+COMPOSITION_AWAY_LOGO = (1025, 369)
+COMPOSITION_HOME_NAME = (83, 449, 590, 516)
+COMPOSITION_AWAY_NAME = (783, 449, 1290, 516)
+COMPOSITION_COMPETITION_BOX = (510, 220, 764, 278)
+COMPOSITION_TIME_BOX = (795, 220, 948, 278)
+COMPOSITION_HOME_LIST = (82, 536, 590, 1042)
+COMPOSITION_AWAY_LIST = (783, 536, 1291, 1042)
+COMPOSITION_SOURCE_BOX = (78, 1080, 270, 1122)
+COMPOSITION_ROWS = tuple(
+    (536 + index * 46, 578 + index * 46)
+    for index in range(11)
+)
 
 
 def clean(value: Any) -> str:
@@ -317,8 +337,9 @@ def template(category: str) -> Image.Image:
             f"Template absent: {path}. Déposer {filename} dans assets/images/."
         )
     image = Image.open(path).convert("RGB")
-    if image.size != (W, H):
-        image = ImageOps.fit(image, (W, H), method=Image.Resampling.LANCZOS)
+    target_size = TEMPLATE_SIZES.get(category, (W, H))
+    if image.size != target_size:
+        image = ImageOps.fit(image, target_size, method=Image.Resampling.LANCZOS)
     return image
 
 
@@ -1073,6 +1094,158 @@ def _flash_editorial_illustration(dimensions: tuple[int, int], title: str = "") 
     return art
 
 
+def _draw_lineup_rows(
+    image: Image.Image,
+    players: list[str],
+    panel_box: tuple[int, int, int, int],
+) -> None:
+    """Redessine 11 lignes propres par-dessus les 9 placeholders du PNG source."""
+    draw = ImageDraw.Draw(image)
+    x1, _, x2, _ = panel_box
+
+    # Efface seulement l'intérieur des anciennes lignes, en préservant le cadre externe.
+    draw.rounded_rectangle(panel_box, radius=8, fill="#061A2E")
+
+    for index, (top, bottom) in enumerate(COMPOSITION_ROWS):
+        row_box = (x1, top, x2, bottom)
+        draw.rounded_rectangle(
+            row_box,
+            radius=9,
+            fill="#071D31",
+            outline="#617181",
+            width=1,
+        )
+        number_right = x1 + 66
+        draw.line((number_right, top + 1, number_right, bottom - 1), fill="#536879", width=1)
+        draw_single_line(
+            draw,
+            str(index + 1),
+            (x1 + 8, top + 2, number_right - 5, bottom - 2),
+            preferred_size=22,
+            min_size=17,
+            bold=True,
+            fill=GOLD,
+            max_chars=2,
+        )
+        player = clean(players[index]) if index < len(players) else ""
+        if player:
+            preferred = _preferred_size_by_chars(
+                player,
+                ((18, 22), (24, 20), (31, 18), (38, 16)),
+                15,
+            )
+            draw_single_line(
+                draw,
+                player,
+                (number_right + 8, top + 2, x2 - 8, bottom - 2),
+                preferred_size=preferred,
+                min_size=14,
+                bold=True,
+                fill=WHITE,
+                max_chars=46,
+                align="left",
+            )
+
+
+def render_composition(payload: dict[str, Any]) -> Image.Image:
+    image = template("composition")
+    draw = ImageDraw.Draw(image)
+
+    home = clean(payload.get("home"))
+    away = clean(payload.get("away"))
+    home_players = [clean(x) for x in (payload.get("home_players") or []) if clean(x)][:11]
+    away_players = [clean(x) for x in (payload.get("away_players") or []) if clean(x)][:11]
+    home_logo = clean(payload.get("home_logo"))
+    away_logo = clean(payload.get("away_logo"))
+
+    if not home or not away:
+        raise ValueError("Composition sans équipes")
+    if len(home_players) != 11 or len(away_players) != 11:
+        raise ValueError("Composition officielle incomplète: 11 titulaires requis par équipe")
+    if not home_logo or not away_logo:
+        raise ValueError("Composition officielle sans les deux logos")
+
+    # Les anciens placeholders équipe/compétition/heure sont masqués localement,
+    # sans redessiner le branding, le stade, les cadres ou le VS du template.
+    _local_dark_patch(image, (93, 451, 577, 514), radius=12, fill="#071D31")
+    _local_dark_patch(image, (793, 451, 1277, 514), radius=12, fill="#071D31")
+    _local_dark_patch(image, (505, 220, 765, 278), radius=4, fill="#071A29")
+    _local_dark_patch(image, (792, 220, 949, 278), radius=4, fill="#071A29")
+
+    draw_multiline(
+        draw,
+        home,
+        COMPOSITION_HOME_NAME,
+        preferred_size=32,
+        min_size=18,
+        max_lines=2,
+        bold=True,
+        fill=WHITE,
+        max_chars=55,
+        align="center",
+        line_gap=1,
+    )
+    draw_multiline(
+        draw,
+        away,
+        COMPOSITION_AWAY_NAME,
+        preferred_size=32,
+        min_size=18,
+        max_lines=2,
+        bold=True,
+        fill=WHITE,
+        max_chars=55,
+        align="center",
+        line_gap=1,
+    )
+
+    competition = clean(payload.get("competition") or payload.get("league") or "Football")
+    draw_single_line(
+        draw,
+        competition.upper(),
+        COMPOSITION_COMPETITION_BOX,
+        preferred_size=27,
+        min_size=16,
+        bold=True,
+        fill=WHITE,
+        max_chars=55,
+    )
+
+    kickoff = clean(payload.get("time")).replace("h", "H")
+    if kickoff:
+        draw_single_line(
+            draw,
+            kickoff,
+            COMPOSITION_TIME_BOX,
+            preferred_size=30,
+            min_size=20,
+            bold=True,
+            fill=GOLD,
+            max_chars=8,
+        )
+
+    paste_logo(image, home_logo, COMPOSITION_HOME_LOGO, 158)
+    paste_logo(image, away_logo, COMPOSITION_AWAY_LOGO, 158)
+
+    _draw_lineup_rows(image, home_players, COMPOSITION_HOME_LIST)
+    _draw_lineup_rows(image, away_players, COMPOSITION_AWAY_LIST)
+
+    source = clean(payload.get("source") or "ESPN")
+    _local_dark_patch(image, (78, 1076, 275, 1124), radius=2, fill="#04111F")
+    draw_single_line(
+        draw,
+        "Source : " + source,
+        COMPOSITION_SOURCE_BOX,
+        preferred_size=16,
+        min_size=13,
+        bold=False,
+        fill=WHITE,
+        max_chars=34,
+        align="left",
+    )
+    return image
+
+
 def render_flash(payload: dict[str, Any]) -> Image.Image:
     image = template("flash")
     draw = ImageDraw.Draw(image)
@@ -1240,6 +1413,7 @@ RENDERERS = {
     "statistique": render_stat,
     "flash": render_flash,
     "sondage": render_poll,
+    "composition": render_composition,
 }
 
 
@@ -1248,6 +1422,9 @@ def render(category: str, payload: dict[str, Any]) -> Image.Image:
     if renderer is None:
         raise ValueError("Rubrique sans template: " + category)
     image = renderer(payload)
-    if image.size != (W, H):
-        raise AssertionError("Le renderer doit toujours produire 1080x1080")
+    expected_size = TEMPLATE_SIZES.get(category, (W, H))
+    if image.size != expected_size:
+        raise AssertionError(
+            f"Le renderer {category} doit produire {expected_size}, reçu {image.size}"
+        )
     return image

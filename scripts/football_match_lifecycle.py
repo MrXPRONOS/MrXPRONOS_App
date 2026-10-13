@@ -422,10 +422,21 @@ def lifecycle_signals(
                 summary = summary_for(event_id)
                 lineups = extract_lineups(summary)
                 if len(lineups["home"]) >= 8 and len(lineups["away"]) >= 8:
+                    base_home = base.get("home_team")
+                    base_away = base.get("away_team")
+                    home_logo = _plain(
+                        ext.get("home_logo")
+                        or (base_home.get("logo") if isinstance(base_home, dict) else "")
+                    )
+                    away_logo = _plain(
+                        ext.get("away_logo")
+                        or (base_away.get("logo") if isinstance(base_away, dict) else "")
+                    )
                     signals.append({
                         "kind": "composition", "key": lineup_key, "priority": 70 + importance,
                         "home": home, "away": away, "league": league, "kickoff": kickoff,
                         "lineups": lineups, "source": "ESPN",
+                        "home_logo": home_logo, "away_logo": away_logo,
                     })
 
         # Coup d'envoi: uniquement au tout début.
