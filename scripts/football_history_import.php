@@ -9,7 +9,7 @@ declare(strict_types=1);
  * php scripts/football_history_import.php --source=openfootball --seasons=2024-25,2025-26,2026-27 --out=/tmp/history.jsonl --max-files=36
  */
 if (PHP_SAPI !== 'cli') { http_response_code(403); exit(1); }
-$opts = getopt('', ['source::', 'seasons::', 'out::', 'max-files::', 'self-test']);
+$opts = getopt('', ['source::', 'seasons::', 'out::', 'max-files::', 'league-codes::', 'self-test']);
 $source = (string)($opts['source'] ?? 'openfootball');
 $seasons = array_filter(array_map('trim', explode(',', (string)($opts['seasons'] ?? '2023-24,2024-25,2025-26,2026-27'))));
 $out = (string)($opts['out'] ?? (sys_get_temp_dir().'/mrxpronos-history.jsonl'));
@@ -30,6 +30,16 @@ $openLeagues = [
     'tr.1' => 'Turkish Super Lig',
 ];
 
+if (isset($opts['league-codes'])) {
+    $codes = array_values(array_unique(array_filter(array_map('trim', explode(',', (string)$opts['league-codes'])))));
+    if (!$codes) { fwrite(STDERR,"Missing league-codes\n"); exit(2); }
+    foreach ($codes as $code) {
+        if (!array_key_exists($code, $openLeagues)) {
+            fwrite(STDERR,"Unknown public-domain league code: ".$code."\n"); exit(2);
+        }
+    }
+    $openLeagues = array_intersect_key($openLeagues, array_fill_keys($codes, true));
+}
 function record(string $provider, string $season, string $league, string $date, string $home, string $away, int $hg, int $ag, array $stats = []): ?array {
     $date = trim($date);
     $home = trim($home);
