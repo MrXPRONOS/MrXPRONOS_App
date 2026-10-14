@@ -165,6 +165,31 @@ jobs:
           assert result['compared_to_bsd_v2'] is False
           print('FOUR_SEASON_OUT_OF_SAMPLE_RESEARCH', {'n':result['evaluable_games'], 'measures':result['scoring_metrics']})
           PY
+          # Multi-season real H2H proof, same original predict_v2() code.
+          python - <<'PY'
+          import json
+          fixture={'fixture_key':'h2h-research-2026','discovered_by':'sportscore',
+                   'sources':{'sportscore':{'id':'historical-proof-not-provider-id'}},
+                   'home_team':'Arsenal','away_team':'Chelsea',
+                   'league_labels':['Premier League'],'league_verified':True,
+                   'kickoff_utc':'2026-10-20T18:00:00Z','status':'prematch',
+                   'ambiguous_match':False,'scores_conflict':False,'league_conflict':False}
+          with open('tmp/h2h-four-season-synthetic-fixture.json','w') as f: json.dump([fixture],f)
+          PY
+          python scripts/football_external_bsd_v2_adapter.py --historical-jsonl=tmp/four-season-history.jsonl --daily-union=tmp/h2h-four-season-synthetic-fixture.json --analysis-at=2026-10-14T08:00:00Z --report=tmp/h2h-four-season-quality.json
+          python - <<'PY'
+          import json
+          result=json.load(open('tmp/h2h-four-season-quality.json'))
+          assert result['historical']['usable_historic_matches'] >= 900
+          assert result['fixtures']['ready_for_unchanged_core'] == 1
+          assert result['bsd_v2_core']['h2h_nonzero_fixtures'] == 1
+          assert result['bsd_v2_core']['core_predict_v2_function_used'] is True
+          assert result['bsd_v2_core']['calculation_module_modified'] is False
+          assert result['bsd_v2_core']['production_published'] is False
+          print('MULTI_SEASON_H2H_SAME_CORE_PASS',
+                {'historical_matches':result['historical']['usable_historic_matches'],
+                 'matches_with_h2h':result['bsd_v2_core']['h2h_nonzero_fixtures']})
+          PY
           python scripts/football_history_shadow.py --input=tmp/combined.jsonl --output=tmp/merged.json --report=tmp/quality.json
           python - <<'PY'
           import json
@@ -270,6 +295,7 @@ jobs:
             tmp/openfootball-holdout-quality.json
             tmp/four-season-holdout-quality.json
             tmp/unchanged-bsd-v2-research-report.json
+            tmp/h2h-four-season-quality.json
           retention-days: 7
 
   daily_source_probe:
