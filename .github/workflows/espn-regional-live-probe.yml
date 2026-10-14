@@ -19,10 +19,13 @@ jobs:
           python - <<'PY'
           from datetime import datetime,timezone
           import urllib.request,urllib.parse,json
-          today=datetime.now(timezone.utc).strftime("%Y%m%d")
-          slugs=("crc.1","conmebol.sudamericana","concacaf.caribbean","fifa.friendly.w")
+          from datetime import timedelta
+          now=datetime.now(timezone.utc)
+          days=[(now-timedelta(days=1)).strftime("%Y%m%d"),now.strftime("%Y%m%d")]
+          slugs=("all","crc.1","conmebol.sudamericana","fifa.friendly.w")
           for slug in slugs:
-              u="https://site.api.espn.com/apis/site/v2/sports/soccer/"+slug+"/scoreboard?"+urllib.parse.urlencode({"dates":today})
+           for day in days:
+              u="https://site.api.espn.com/apis/site/v2/sports/soccer/"+slug+"/scoreboard?"+urllib.parse.urlencode({"dates":day})
               try:
                   req=urllib.request.Request(u,headers={"Accept":"application/json","User-Agent":"MrXPRONOS-audit/1.0"})
                   with urllib.request.urlopen(req,timeout=11) as response:
@@ -34,7 +37,7 @@ jobs:
                           teams=[{"id":x.get("team",{}).get("id"),"name":x.get("team",{}).get("displayName"),
                                   "stats_keys":[t.get("name") for t in x.get("statistics") or [] if t.get("name") in ("wonCorners","totalShots","foulsCommitted")]} for x in cc]
                           matches.append({"id":ev.get("id"),"status":ev.get("status",{}).get("type",{}).get("state"),"teams":teams})
-                      print("REGIONAL_ESPN_PROBE",json.dumps({"league":slug,"http":response.status,"count":len(j.get("events") or []),"matches":matches}))
+                      print("REGIONAL_ESPN_PROBE",json.dumps({"league":slug,"day":day,"http":response.status,"count":len(j.get("events") or []),"matches":matches}))
               except Exception as e:
-                  print("REGIONAL_ESPN_PROBE",json.dumps({"league":slug,"error":type(e).__name__}))
+                  print("REGIONAL_ESPN_PROBE",json.dumps({"league":slug,"day":day,"error":type(e).__name__}))
           PY
