@@ -4,6 +4,7 @@ on:
   # Hourly at most: <= 72 API-Football requests / UTC day
   # (24 fixture-list requests + up to 48 coverage/statistics requests).
   # League/season coverage and empty statistics are now cached in Supabase.
+  # Rejected provider calls are retried only after an explicit cooldown.
   schedule:
     - cron: '10 * * * *'
   workflow_dispatch:
