@@ -25,7 +25,7 @@ def similarity(a: str, b: str) -> float:
 
 
 def propose(records: list[dict]) -> dict:
-    by_group = defaultdict(lambda: {"openfootball": [], "football_data": []})
+    by_group = defaultdict(lambda: {"openfootball": [], "licensed_csv": []})
     for row in records:
         if not valid(row):
             continue
@@ -33,7 +33,7 @@ def propose(records: list[dict]) -> dict:
         by_group[key][row["source"]].append(row)
     matches = []
     for key, group in by_group.items():
-        open_rows, csv_rows = group["openfootball"], group["football_data"]
+        open_rows, csv_rows = group["openfootball"], group["licensed_csv"]
         for row in open_rows:
             possible = []
             for other in csv_rows:
@@ -53,24 +53,24 @@ def propose(records: list[dict]) -> dict:
                 "season": key[0], "league": row["league"],
                 "date": row["match_date"], "score": [row["home_score"], row["away_score"]],
                 "openfootball": [row["home_team"], row["away_team"]],
-                "football_data": [other["home_team"], other["away_team"]],
+                "licensed_csv": [other["home_team"], other["away_team"]],
                 "similarity": best, "approved": False,
                 "reason": "Same date/score and plausible two-team names; may still be coincidental",
             })
     # Group recurring name mappings so each pair can be reviewed once.
     grouped = {}
     for m in matches:
-        key = (m["league"], *m["openfootball"], *m["football_data"])
+        key = (m["league"], *m["openfootball"], *m["licensed_csv"])
         if key not in grouped:
             grouped[key] = {
                 "league": m["league"], "openfootball": m["openfootball"],
-                "football_data": m["football_data"], "examples": [],
+                "licensed_csv": m["licensed_csv"], "examples": [],
                 "support_count": 0, "approved": False,
             }
         grouped[key]["support_count"] += 1
         if len(grouped[key]["examples"]) < 3:
             grouped[key]["examples"].append({"date": m["date"], "score": m["score"], "similarity": m["similarity"]})
-    proposals = sorted(grouped.values(), key=lambda m: (-m["support_count"], m["league"], m["openfootball"], m["football_data"]))
+    proposals = sorted(grouped.values(), key=lambda m: (-m["support_count"], m["league"], m["openfootball"], m["licensed_csv"]))
     return {
         "total_candidate_fixtures": len(matches),
         "distinct_alias_proposals": len(proposals),
@@ -97,7 +97,7 @@ def main() -> None:
     dest.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: v for k, v in report.items() if k != "proposals"}))
     for item in report["proposals"][:10]:
-        print("ALIAS_REVIEW_REQUIRED", item["support_count"], item["openfootball"], "->", item["football_data"])
+        print("ALIAS_REVIEW_REQUIRED", item["support_count"], item["openfootball"], "->", item["licensed_csv"])
 
 
 if __name__ == "__main__":
