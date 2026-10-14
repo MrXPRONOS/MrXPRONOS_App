@@ -40,7 +40,7 @@ jobs:
           import scripts.football_channel as channel
           import scripts.template_cards as cards
 
-          source = inspect.getsource(channel.flash_foot)
+          source = inspect.getsource(channel.flash)
           assert "image_path=image_path" in source
           assert "flash" not in cards.TEMPLATES
           assert "flash" not in cards.RENDERERS
