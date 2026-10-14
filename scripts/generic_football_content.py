@@ -47,14 +47,9 @@ def _score(payload: dict[str, Any]) -> str:
 
 
 def _source_line(payload: dict[str, Any]) -> str:
-    competition = _plain(payload.get("competition") or payload.get("league"), 80)
-    source = _plain(payload.get("source"), 80)
-    parts: list[str] = []
-    if competition:
-        parts.append(_esc(competition))
-    if source:
-        parts.append("Source : " + _esc(source))
-    return "<i>" + " • ".join(parts) + "</i>" if parts else ""
+    # Les fournisseurs techniques restent dans les métadonnées internes mais
+    # ne sont jamais affichés dans les captions Telegram.
+    return ""
 
 
 def _blockquote(lines: list[str]) -> str:
