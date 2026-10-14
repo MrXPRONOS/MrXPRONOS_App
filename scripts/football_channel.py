@@ -1647,6 +1647,9 @@ def lifecycle_publication(signal: dict) -> Publication | None:
             "time": kickoff_text,
             "home_players": home_players,
             "away_players": away_players,
+            "lineups": {"home": home_players, "away": away_players},
+            "lineup_home_hash": signal.get("lineup_home_hash") or "",
+            "lineup_away_hash": signal.get("lineup_away_hash") or "",
         }
         message = "<b>📋 COMPOSITIONS OFFICIELLES</b>\n<i>Les titulaires sont confirmés.</i>"
         keyboard = live_keyboard({"espn_url": espn_url})
