@@ -20,6 +20,10 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            supabase/functions
+            .github/workflows/test_football_sources.yml
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
