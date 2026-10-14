@@ -475,7 +475,7 @@ def render_club(category: str, payload: dict[str, Any]) -> Image.Image:
     layout = LAYOUT["club"]
 
     club = clean(payload.get("team") or payload.get("club") or payload.get("home"), 80) or "CLUB À CONFIRMER"
-    logo = payload.get("team_logo") or payload.get("club_logo") or payload.get("home_logo")
+    logo = payload.get("team_logo") or payload.get("club_logo") or payload.get("logo") or payload.get("home_logo")
     _logo(image, logo, layout["logo"], club)
 
     _fit_text(draw, club, layout["club"]["safe"], preferred=40, minimum=19, max_lines=2, bold=True)
