@@ -10,6 +10,7 @@ on:
       - 'scripts/generic_banner_test_send.py'
       - 'scripts/template_cards.py'
       - 'scripts/football_channel.py'
+      - 'scripts/football_match_lifecycle.py'
       - 'assets/images/generic_football_banners/**'
       - 'tests_football_channel/**'
       - '.github/workflows/generic-football-banners-test.yml'
@@ -47,7 +48,13 @@ jobs:
 
       - name: Compiler les fichiers modifiés
         run: |
-          python -m py_compile             scripts/generic_football_banners.py             scripts/generic_football_content.py             scripts/generic_banner_test_send.py             scripts/template_cards.py             scripts/football_channel.py
+          python -m py_compile \
+            scripts/generic_football_banners.py \
+            scripts/generic_football_content.py \
+            scripts/generic_banner_test_send.py \
+            scripts/template_cards.py \
+            scripts/football_channel.py \
+            scripts/football_match_lifecycle.py
 
       - name: Tests spécifiques des 3 bannières
         run: python -m unittest tests_football_channel.test_generic_football_banners -v
