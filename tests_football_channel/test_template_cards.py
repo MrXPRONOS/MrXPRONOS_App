@@ -169,11 +169,10 @@ class TemplateCardsTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 tc.render("composition", payload)
 
-    def test_six_templates_se_generent(self):
+    def test_quatre_templates_premium_se_generent(self):
         import programme_styles
 
         fake_logo = Image.new("RGBA", (180, 120), (255, 255, 255, 255))
-        fake_photo = Image.new("RGB", (922, 372), (40, 70, 110))
         logo = "https://test/logo.png"
 
         payloads = {
@@ -184,7 +183,7 @@ class TemplateCardsTests(unittest.TestCase):
                     {"home": "FC Barcelona", "away": "Getafe", "time": "16h30", "home_logo": logo, "away_logo": logo},
                     {"home": "Paris Saint-Germain", "away": "Le Mans", "time": "18h45", "home_logo": logo, "away_logo": logo},
                     {"home": "Real Madrid", "away": "Villarreal", "time": "19h00", "home_logo": logo, "away_logo": logo},
-                    {"home": "Borussia Mönchengladbach", "away": "Olympique de Marseille", "time": "20h00", "home_logo": logo, "away_logo": logo},
+                    {"home": "Inter Milan", "away": "AC Milan", "time": "21h00", "home_logo": logo, "away_logo": logo},
                 ],
             },
             "avant_match": {
@@ -202,42 +201,32 @@ class TemplateCardsTests(unittest.TestCase):
                 "home": "Chelsea",
                 "away": "Bournemouth",
                 "scores": (5, 1),
+                "source": "BSD V2",
                 "home_logo": logo,
                 "away_logo": logo,
             },
-            "statistique": {
-                "day": "10/10/2026",
-                "home": "Chelsea",
-                "away": "Bournemouth",
-                "scores": (5, 1),
+            "composition": {
+                "home": "Arsenal",
+                "away": "Chelsea",
+                "competition": "Premier League",
+                "time": "18h30",
+                "source": "ESPN",
                 "home_logo": logo,
                 "away_logo": logo,
-                "stat_value": "6",
-                "stat_label": "BUTS",
-            },
-            "flash": {
-                "day": "10/10/2026",
-                "title": "Le Portugal annonce le retour de Cristiano Ronaldo en novembre",
-                "source": "Foot Mercato",
-                "summary": "Une actualité courte et propre qui tient dans les trois lignes prévues par le template.",
-                "image_url": "https://test/photo.jpg",
-            },
-            "sondage": {
-                "day": "10/10/2026",
-                "image_question": "PSG vs Le Mans : qui va gagner ?",
-                "image_options": ["Paris Saint-Germain", "Match nul", "Le Mans"],
-                "home_logo": logo,
-                "away_logo": logo,
+                "home_players": [f"Home {i}" for i in range(1, 12)],
+                "away_players": [f"Away {i}" for i in range(1, 12)],
             },
         }
 
-        with patch.object(programme_styles, "load_logo", return_value=fake_logo),              patch.object(tc, "remote_photo", return_value=fake_photo):
+        expected = {
+            "programme": (1080, 1080),
+            "avant_match": (1080, 1080),
+            "resultat": (1080, 1080),
+            "composition": (1374, 1145),
+        }
+        with patch.object(programme_styles, "load_logo", return_value=fake_logo):
             for category, payload in payloads.items():
                 with self.subTest(category=category):
                     image = tc.render(category, payload)
-                    self.assertEqual(image.size, (1080, 1080))
+                    self.assertEqual(image.size, expected[category])
                     self.assertEqual(image.mode, "RGB")
-
-
-if __name__ == "__main__":
-    unittest.main()
