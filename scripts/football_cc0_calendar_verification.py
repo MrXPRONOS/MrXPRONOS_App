@@ -78,6 +78,11 @@ def corroborate(fixtures: list[dict], calendar: list[dict], *,
     if as_of.tzinfo is None:
         raise ValueError("As-of must contain timezone")
     key_leagues=defaultdict(set)
+    # These indexes ONLY explain missing calendar coverage; they NEVER
+    # confirm an alias, fixture, team or league by approximate matching.
+    clubs_by_day=defaultdict(set)
+    oriented_pairs_by_day=defaultdict(set)
+    days_by_oriented_pair=defaultdict(set)
     for row in calendar:
         if not isinstance(row,dict):
             continue
@@ -87,6 +92,9 @@ def corroborate(fixtures: list[dict], calendar: list[dict], *,
         day=str(row.get("day") or "")
         if home and away and league and day:
             key_leagues[(day,home,away)].add(league)
+            clubs_by_day[day].update((home,away))
+            oriented_pairs_by_day[day].add((home,away))
+            days_by_oriented_pair[(home,away)].add(day)
     reasons=Counter()
     by_discovery_source=defaultdict(Counter)
     enriched=[]
@@ -130,6 +138,22 @@ def corroborate(fixtures: list[dict], calendar: list[dict], *,
         else:
             reasons["no_cc0_schedule_match"]+=1
             by_discovery_source[provider]["no_calendar_match"]+=1
+            day,home,away=key
+            # Aggregate *reasons*, not unmatched club names/fixtures.
+            # UTC date mismatch and reversed sides are diagnostic only:
+            # neither is permission to change a fixture automatically.
+            if (away,home) in oriented_pairs_by_day.get(day,set()):
+                cause="reversed_home_away_same_day"
+            elif (home,away) in days_by_oriented_pair:
+                cause="exact_pair_on_other_calendar_day"
+            elif day not in clubs_by_day:
+                cause="calendar_day_absent"
+            else:
+                found=sum(name in clubs_by_day[day] for name in (home,away))
+                cause=("both_clubs_elsewhere_on_day" if found==2 else
+                       "one_club_on_day" if found==1 else
+                       "no_clubs_on_day")
+            by_discovery_source[provider]["unmatched_"+cause]+=1
         enriched.append(copy)
     return enriched,{
         "input_fixtures":len(fixtures),
