@@ -5,6 +5,9 @@ on:
     paths:
       - 'supabase/functions/_shared/football_sources.ts'
       - 'supabase/functions/_shared/football_sources.test.ts'
+      - 'supabase/functions/_shared/espn.ts'
+      - 'supabase/functions/_shared/espn.test.ts'
+      - 'supabase/functions/live/index.ts'
       - '.github/workflows/test_football_sources.yml'
   workflow_dispatch:
 
@@ -24,3 +27,7 @@ jobs:
         run: deno check supabase/functions/_shared/football_sources.ts
       - name: Run mocked provider regression tests
         run: deno test --allow-env supabase/functions/_shared/football_sources.test.ts
+      - name: Check LIVE Edge Function and ESPN client TypeScript
+        run: deno check supabase/functions/live/index.ts supabase/functions/_shared/espn.ts
+      - name: Test cross-day ESPN calendar handling
+        run: deno test supabase/functions/_shared/espn.test.ts
