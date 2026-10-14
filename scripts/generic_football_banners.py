@@ -21,7 +21,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "assets" / "images" / "generic_football_banners"
-W, H = 1024, 400
+W, H = 1600, 625
 
 WHITE = (247, 249, 252)
 GOLD = (245, 199, 91)
@@ -46,31 +46,30 @@ TEMPLATE_DIRS = {
     "general": ASSETS / "general.b64",
 }
 
-# Exact data surfaces were measured on the 2006x784 source art, then
-# projected to the 1024x400 Telegram source assets. The red audit boxes were:
+# Exact data surfaces measured on the generated 2006x784 source art and
+# projected to the 1600x625 Telegram assets. The red audit rectangles were:
 # match  : logo 96,241,331,472 | name 355,290,749,420 | event 798,290,1196,422 |
 #          name 1226,290,1641,420 | logo 1663,241,1899,472
 # club   : logo 83,276,343,475 | club 370,295,912,435 |
 #          event 963,294,1565,436 | meta 1606,294,1908,435
 # general: headline 170,267,1836,433 | meta 656,456,1353,539
-# LAYOUT below is the projected 1024x400 safe geometry.
 LAYOUT = {
     "match": {
-        "home_logo": {"surface": (49, 123, 169, 241), "safe": (53, 127, 165, 237), "center": (109, 182), "max_px": 104},
-        "home_name": {"surface": (181, 148, 382, 214), "safe": (188, 154, 375, 208)},
-        "event": {"surface": (407, 148, 611, 215), "safe": (414, 154, 604, 209)},
-        "away_name": {"surface": (626, 148, 838, 214), "safe": (633, 154, 831, 208)},
-        "away_logo": {"surface": (849, 123, 969, 241), "safe": (853, 127, 965, 237), "center": (909, 182), "max_px": 104},
+        "home_logo": {"surface": (77, 192, 264, 376), "safe": (84, 200, 257, 368), "center": (171, 284), "max_px": 160},
+        "home_name": {"surface": (283, 231, 597, 335), "safe": (294, 241, 586, 325)},
+        "event": {"surface": (636, 231, 954, 336), "safe": (647, 241, 943, 326)},
+        "away_name": {"surface": (978, 231, 1309, 335), "safe": (989, 241, 1298, 325)},
+        "away_logo": {"surface": (1326, 192, 1515, 376), "safe": (1333, 200, 1508, 368), "center": (1421, 284), "max_px": 160},
     },
     "club": {
-        "logo": {"surface": (42, 141, 175, 242), "safe": (48, 147, 169, 236), "center": (108, 191), "max_px": 84},
-        "club": {"surface": (189, 151, 466, 222), "safe": (198, 158, 457, 215)},
-        "event": {"surface": (492, 150, 799, 222), "safe": (501, 157, 790, 215)},
-        "meta": {"surface": (820, 150, 974, 222), "safe": (828, 157, 966, 215)},
+        "logo": {"surface": (66, 220, 274, 379), "safe": (74, 228, 266, 371), "center": (170, 300), "max_px": 144},
+        "club": {"surface": (295, 235, 727, 347), "safe": (308, 246, 714, 336)},
+        "event": {"surface": (768, 234, 1248, 348), "safe": (781, 245, 1235, 337)},
+        "meta": {"surface": (1281, 234, 1522, 347), "safe": (1292, 245, 1511, 336)},
     },
     "general": {
-        "headline": {"surface": (87, 136, 937, 221), "safe": (98, 146, 926, 211)},
-        "meta": {"surface": (335, 233, 691, 275), "safe": (346, 240, 680, 268)},
+        "headline": {"surface": (136, 213, 1464, 345), "safe": (153, 228, 1447, 330)},
+        "meta": {"surface": (523, 364, 1079, 430), "safe": (540, 374, 1062, 420)},
     },
 }
 
@@ -311,11 +310,11 @@ def render_match(category: str, payload: dict[str, Any]) -> Image.Image:
     away = clean(payload.get("away"), 70)
     _logo(image, payload.get("home_logo"), layout["home_logo"])
     _logo(image, payload.get("away_logo"), layout["away_logo"])
-    _fit_text(draw, home, layout["home_name"]["safe"], preferred=46, minimum=24, bold=True)
+    _fit_text(draw, home, layout["home_name"]["safe"], preferred=66, minimum=34, bold=True)
     _fit_text(draw, away, layout["away_name"]["safe"], preferred=46, minimum=24, bold=True)
     label = _event_label(category, payload)
-    preferred = 56 if len(label) <= 17 else 46 if len(label) <= 24 else 38
-    _fit_text(draw, label, layout["event"]["safe"], preferred=preferred, minimum=25, max_lines=2, bold=True, color=GOLD)
+    preferred = 66 if len(label) <= 17 else 56 if len(label) <= 24 else 46
+    _fit_text(draw, label, layout["event"]["safe"], preferred=preferred, minimum=32, max_lines=2, bold=True, color=GOLD)
     return image
 
 
@@ -326,12 +325,12 @@ def render_club(category: str, payload: dict[str, Any]) -> Image.Image:
     club = clean(payload.get("team") or payload.get("club") or payload.get("home"), 80)
     logo = payload.get("team_logo") or payload.get("club_logo") or payload.get("home_logo")
     _logo(image, logo, layout["logo"])
-    _fit_text(draw, club, layout["club"]["safe"], preferred=48, minimum=25, bold=True)
+    _fit_text(draw, club, layout["club"]["safe"], preferred=66, minimum=34, bold=True)
     label = _event_label(category, payload)
-    _fit_text(draw, label, layout["event"]["safe"], preferred=50, minimum=24, max_lines=2, bold=True, color=GOLD)
+    _fit_text(draw, label, layout["event"]["safe"], preferred=64, minimum=32, max_lines=2, bold=True, color=GOLD)
     meta = clean(payload.get("competition") or payload.get("league") or payload.get("meta"), 60)
     if meta:
-        _fit_text(draw, meta.upper(), layout["meta"]["safe"], preferred=30, minimum=18, max_lines=2, bold=True, color=MUTED)
+        _fit_text(draw, meta.upper(), layout["meta"]["safe"], preferred=38, minimum=22, max_lines=2, bold=True, color=MUTED)
     return image
 
 
@@ -346,8 +345,8 @@ def render_general(category: str, payload: dict[str, Any]) -> Image.Image:
         or _event_label(category, payload),
         220,
     )
-    preferred = 64 if len(headline) <= 42 else 52 if len(headline) <= 70 else 42
-    _fit_text(draw, headline, layout["headline"]["safe"], preferred=preferred, minimum=27, max_lines=2, bold=True)
+    preferred = 76 if len(headline) <= 42 else 62 if len(headline) <= 70 else 50
+    _fit_text(draw, headline, layout["headline"]["safe"], preferred=preferred, minimum=34, max_lines=2, bold=True)
     meta = clean(
         payload.get("meta")
         or payload.get("league")
@@ -356,7 +355,7 @@ def render_general(category: str, payload: dict[str, Any]) -> Image.Image:
         100,
     )
     if meta:
-        _fit_text(draw, meta.upper(), layout["meta"]["safe"], preferred=34, minimum=20, max_lines=1, bold=True, color=GOLD)
+        _fit_text(draw, meta.upper(), layout["meta"]["safe"], preferred=42, minimum=24, max_lines=1, bold=True, color=GOLD)
     return image
 
 
