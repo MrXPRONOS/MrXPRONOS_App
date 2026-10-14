@@ -142,8 +142,8 @@ EDITORIAL_WINDOWS = {
     "viral": ((19, 15), (20, 15)),             # cible 19h30/20h00
     "community_reaction": ((21, 0), (22, 45)), # après les grosses affiches
 }
-PRODUCTION_START_HOUR = 7
-PRODUCTION_END_HOUR = 23
+PRODUCTION_START_HOUR = 0
+PRODUCTION_END_HOUR = 24
 
 
 def _minutes_since_midnight(dt: datetime) -> int:
