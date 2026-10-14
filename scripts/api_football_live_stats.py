@@ -325,6 +325,11 @@ def main():
             record=probes.get(coverage_key)
             if record is not None:
                 covered=record.get("supports_stats")
+                if covered is None:
+                    # Previously rejected or unknown league coverage:
+                    # no statistics requests until its backoff expires.
+                    skipped_coverage+=1
+                    continue
             else:
                 # A published league-season flag avoids repeated empty
                 # /fixtures/statistics calls for unsupported competitions.
