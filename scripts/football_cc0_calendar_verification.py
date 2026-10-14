@@ -88,14 +88,18 @@ def corroborate(fixtures: list[dict], calendar: list[dict], *,
         if home and away and league and day:
             key_leagues[(day,home,away)].add(league)
     reasons=Counter()
+    by_discovery_source=defaultdict(Counter)
     enriched=[]
     for item in fixtures:
+        provider=str(item.get("discovered_by") or "unknown")
+        by_discovery_source[provider]["input"]+=1
         copy={**item}
         when=aware_time(item.get("kickoff_utc"))
         if (when is None or when<=as_of or item.get("status")!="prematch"
                 or item.get("ambiguous_match") or item.get("league_conflict")
                 or item.get("scores_conflict")):
             reasons["not_eligible_prematch"]+=1
+            by_discovery_source[provider]["not_eligible_prematch"]+=1
             enriched.append(copy)
             continue
         # Schedule's original date refers to local football calendar.
@@ -111,22 +115,27 @@ def corroborate(fixtures: list[dict], calendar: list[dict], *,
                 copy["league_conflict"]=True
                 copy["league_verified"]=False
                 reasons["schedule_conflicts_with_source_league"]+=1
+                by_discovery_source[provider]["league_conflict"]+=1
             else:
                 copy["league_labels"]=[league]
                 copy["league_verified"]=True
                 copy["_schedule_verified_by"]="openfootball_cc0"
                 reasons["schedule_exact_league_confirmed"]+=1
+                by_discovery_source[provider]["confirmed"]+=1
         elif len(eligible)>1:
             copy["league_conflict"]=True
             copy["league_verified"]=False
             reasons["multiple_calendar_leagues"]+=1
+            by_discovery_source[provider]["multiple_calendar_leagues"]+=1
         else:
             reasons["no_cc0_schedule_match"]+=1
+            by_discovery_source[provider]["no_calendar_match"]+=1
         enriched.append(copy)
     return enriched,{
         "input_fixtures":len(fixtures),
         "schedule_matches_confirmed":reasons["schedule_exact_league_confirmed"],
         "refused":dict(sorted(reasons.items())),
+        "by_discovery_source":{k:dict(sorted(v.items())) for k,v in sorted(by_discovery_source.items())},
         "no_time_inference":True,
         "not_betting_ready":True,
         "no_production_output_modified":True,
