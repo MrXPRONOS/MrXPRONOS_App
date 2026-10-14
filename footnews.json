@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T22:11:22+00:00",
+    "published": "2026-10-14T22:17:01+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -120,7 +120,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+      "checked_at": "2026-10-14T22:20:36.397774+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -184,7 +184,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+      "checked_at": "2026-10-14T22:20:36.397774+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -317,7 +317,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+      "checked_at": "2026-10-14T22:20:36.397774+00:00"
     },
     "quality_sources": [
       "Franceinfo",
@@ -411,7 +411,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+      "checked_at": "2026-10-14T22:20:36.397774+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -720,7 +720,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+      "checked_at": "2026-10-14T22:20:36.397774+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -799,6 +799,40 @@
     "quality_score": 86
   },
   {
+    "slug": "7628f643096931ac",
+    "title": "Ligue des champions : revivez la victoire spectaculaire du PSG sur la pelouse de Manchester City",
+    "summary": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
+    "summary_short": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
+    "content": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
+    "paragraphs": [
+      "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir."
+    ],
+    "key_points": [
+      "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir."
+    ],
+    "telegram_summary": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
+    "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
+    "published": "2026-10-14T22:17:00+00:00",
+    "image": "assets/images/footnews/7628f643096931ac.webp",
+    "source_image": "https://www.franceinfo.fr/pictures/5U3Wip1t6xJCEihksoGYiduzong/0x25:4673x2654/432x243/filters:format(jpg)/2026/10/14/6acfdbdf2c937182294865.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Franceinfo"
+    ],
+    "quality_score": 82
+  },
+  {
     "slug": "13fe6cffccaa40d8",
     "title": "Real Madrid : la revanche fracassante d’Endrick !",
     "summary": "Mis au placard par José Mourinho depuis le début de saison, Endrick a signé un retour fracassant face à l’AS Rome (4-3). Entré en jeu dans une situation désespérée, le Brésilien de 19 ans a été l’un (…)",
@@ -853,7 +887,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+      "checked_at": "2026-10-14T22:20:36.397774+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -862,38 +896,38 @@
     "quality_score": 100
   },
   {
-    "slug": "7628f643096931ac",
-    "title": "Ligue des champions : revivez la victoire spectaculaire du PSG sur la pelouse de Manchester City",
-    "summary": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
-    "summary_short": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
-    "content": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
+    "slug": "08b9b7ab48c73ac7",
+    "title": "Manchester City : Medhi Benatia allume Gianluigi Donnarumma après le récital du PSG contre Manchester City",
+    "summary": "Sur Canal+, Medhi Benatia a débriefé la prestation du PSG et s'est payé Gianluigi Donnarumma.",
+    "summary_short": "Sur Canal+, Medhi Benatia a débriefé la prestation du PSG et s'est payé Gianluigi Donnarumma.",
+    "content": "Sur Canal+, Medhi Benatia a débriefé la prestation du PSG et s'est payé Gianluigi Donnarumma.",
     "paragraphs": [
-      "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir."
+      "Sur Canal+, Medhi Benatia a débriefé la prestation du PSG et s'est payé Gianluigi Donnarumma."
     ],
     "key_points": [
-      "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir."
+      "Sur Canal+, Medhi Benatia a débriefé la prestation du PSG et s'est payé Gianluigi Donnarumma."
     ],
-    "telegram_summary": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
-    "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
-    "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
-    "published": "2026-10-14T22:11:22+00:00",
-    "image": "assets/images/footnews/7628f643096931ac.webp",
-    "source_image": "https://www.franceinfo.fr/pictures/5U3Wip1t6xJCEihksoGYiduzong/0x25:4673x2654/432x243/filters:format(jpg)/2026/10/14/6acfdbdf2c937182294865.jpg",
+    "telegram_summary": "Sur Canal+, Medhi Benatia a débriefé la prestation du PSG et s'est payé Gianluigi Donnarumma.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-manchester-city-medhi-benatia-allume-gianluigi-donnarumma-apres-le-recital-du-psg-contre-manchester-city-542273.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-manchester-city-medhi-benatia-allume-gianluigi-donnarumma-apres-le-recital-du-psg-contre-manchester-city-542273.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=08b9b7ab48c73ac7",
+    "published": "2026-10-14T22:13:00+00:00",
+    "image": "assets/images/footnews/08b9b7ab48c73ac7.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260307233201-6337.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
-    "source": "Franceinfo",
-    "source_priority": 82,
+    "source": "MadeInFoot",
+    "source_priority": 88,
     "source_region": "international",
-    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 3,
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
     "espn_verification": {},
     "quality_sources": [
-      "Franceinfo"
+      "MadeInFoot"
     ],
-    "quality_score": 82
+    "quality_score": 88
   },
   {
     "slug": "7b2eff1c5c8c0153",
@@ -949,7 +983,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+      "checked_at": "2026-10-14T22:20:36.397774+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1012,7 +1046,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+      "checked_at": "2026-10-14T22:20:36.397774+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1247,7 +1281,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+      "checked_at": "2026-10-14T22:20:36.397774+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1348,7 +1382,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+      "checked_at": "2026-10-14T22:20:36.397774+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1410,7 +1444,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+      "checked_at": "2026-10-14T22:20:36.397774+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1507,7 +1541,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+      "checked_at": "2026-10-14T22:20:36.397774+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1734,7 +1768,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+      "checked_at": "2026-10-14T22:20:36.397774+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1797,7 +1831,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+      "checked_at": "2026-10-14T22:20:36.397774+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2062,7 +2096,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+      "checked_at": "2026-10-14T22:20:36.397774+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -2160,7 +2194,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+      "checked_at": "2026-10-14T22:20:36.397774+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2288,7 +2322,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+      "checked_at": "2026-10-14T22:20:36.397774+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -2500,39 +2534,5 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "36a4674142fca7cb",
-    "title": "Manchester City - PSG : 3-0 à la pause et une démonstration totale... la première mi-temps absolument folle des Parisiens",
-    "summary": "Le PSG est en train de faire vivre une sale soirée à Manchester City.",
-    "summary_short": "Le PSG est en train de faire vivre une sale soirée à Manchester City.",
-    "content": "Le PSG est en train de faire vivre une sale soirée à Manchester City.",
-    "paragraphs": [
-      "Le PSG est en train de faire vivre une sale soirée à Manchester City."
-    ],
-    "key_points": [
-      "Le PSG est en train de faire vivre une sale soirée à Manchester City."
-    ],
-    "telegram_summary": "Le PSG est en train de faire vivre une sale soirée à Manchester City.",
-    "link": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-3-0-a-la-pause-et-une-demonstration-totale-la-premiere-mi-temps-absolument-folle-des-parisiens-1002646",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-3-0-a-la-pause-et-une-demonstration-totale-la-premiere-mi-temps-absolument-folle-des-parisiens-1002646",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=36a4674142fca7cb",
-    "published": "2026-10-14T19:50:00+00:00",
-    "image": "assets/images/footnews/36a4674142fca7cb.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002646/409422/1200-L-manchester-city-psg-3-0-la-pause-et-une-dmonstration-totale-la-premire-mi-temps-absolument-folle-des-parisiens.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
   }
 ]
