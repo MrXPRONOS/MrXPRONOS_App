@@ -143,3 +143,55 @@ La demande est **d'étendre les données d'entrée**, pas de créer une autre fo
 L'adaptateur est testé sur une fixture provenant d'une API tierce et sur plusieurs saisons anciennes ; il vérifie aussi l'absence de données futures et de doublons. Le job journalier expérimental appelle désormais l'adaptateur BSD V2 existant, pas un second calculateur Poisson.
 
 **Toujours non activé dans les pronostics publics.** Les données des championnats et des équipes absents de l'historique OpenFootball nécessitent d'autres fournisseurs historiques autorisés, avec correspondance vérifiée des équipes et compétitions. La seule découverte d'une rencontre ne suffit pas pour établir un H2H fiable.
+
+## Intégration de six archives historiques dans le format BSD V2 — 14 octobre 2026
+
+La préparation des archives externes se fait désormais via `scripts/football_multi_api_history_inputs.py`, sans nouvelle formule de calcul. Les six formats sont reconnus : ESPN, SportScore, TheSportsDB, OpenLigaDB, API-Football et BSD privé. Le résultat d'un match **terminé et validé depuis quatre heures** devient un événement compatible avec `V2History`, en conservant ses références fournisseurs.
+
+### Règles de validation
+1. L'API de découverte conserve son identifiant original; le moteur utilise un **identifiant interne numérique stable**, distinct des IDs BSD natifs.
+2. Le match doit présenter deux équipes clairement identifiées, un championnat contrôlé, une heure UTC, deux scores entiers et un statut définitif.
+3. Une observation ne peut pas être utilisée si elle a été reçue après l'heure d'analyse, ou si le résultat n'était pas encore validé.
+4. Des archives de différentes API sont fusionnées pour une même rencontre uniquement lorsque l'identité (compétition, date, équipes) et le score concordent. Un écart d'heure significatif ou des scores incompatibles entraîne une **mise en quarantaine**. La concordance entre fournisseurs ne prouve pas une indépendance de leurs sources en amont.
+5. Le système H2H existant `bsd_h2h.local_h2h` retrouve les affrontements anciens; il ne donne pas de nouvelle pondération H2H à la formule BSD V2.
+6. Les historiques privés BSD sont convertis sans être exportés en clair. Les identifiants authentiques d'équipes et de championnats du `data.json` existant servent d'indications d'identité **uniquement lorsqu'ils correspondent exactement et sans ambiguïté**.
+
+### Commande de validation sur snapshots légaux
+
+```bash
+python scripts/football_external_bsd_v2_adapter.py \
+  --historical-jsonl=tmp/openfootball-historical.jsonl \
+  --daily-union=tmp/fixtures-all-apis.json \
+  --provider-history-snapshots=/private/historical-snapshots.json \
+  --provider-rights-manifest=/private/confirmed-provider-rights.json \
+  --analysis-at=2026-10-14T10:00:00Z \
+  --report=/private/unchanged-bsd-v2-validation.json
+```
+
+Chaque snapshot contient `provider`, `observed_at`, puis `data` (réponse d'origine) ou `rows` (événements normalisés). Le manifeste d'autorisation est indexé par fournisseur et doit valider **l'usage historique pour calcul commercial**, le fondement réel des droits et les obligations d'attribution. Exemple de champs attendus, **valeurs fictives non utilisables comme preuve** :
+
+```json
+{
+  "sportscore": {
+    "approved": false,
+    "historical_model_use": false,
+    "commercial_product": false,
+    "legal_basis": "CONTRAT_OU_DISPOSITION_VERIFIEE",
+    "attribution_compliant": false
+  }
+}
+```
+
+Sans autorisation confirmée, `ingest()` ignore le fournisseur plutôt que de supposer qu'une API publique autorise l'entraînement ou l'exploitation commerciale. Les connecteurs existent mais **le système n'effectue aucun historique HTTP tiers automatique** ; cette collecte devra être activée fournisseur par fournisseur après validation réelle des droits, limites et endpoints.
+
+### Données BSD réelles : résultats de validation
+
+Un audit privé GitHub Actions du 14 octobre a restauré 49 733 résultats BSD. Le premier essai de normalisation, sans récupération des noms manquants, n'en rendait utilisables que 27. Après recoupement **strict des identifiants authentiques avec le flux public BSD**, **32 346 résultats historiques** sont désormais normalisés par l'adaptateur, sur **47 championnats et 495 identifiants d'équipes reconnus**. Les **17 018 résultats** sans championnat suffisamment reconnu restent non convertis. Ces données demeurent privées; les tests et rapports ne publient que des compteurs.
+
+Cela n'active pas automatiquement de nouveaux pronostics : l'audit de 284 rencontres découvertes chez les autres API n'a pas encore trouvé de nouveaux matchs remplissant toutes les conditions historiques et d'identification. Il faut étendre les droits/licences de données historiques par API et les tables de correspondance stables des équipes, puis tester avec les politiques, calibrations et cotes originales de BSD V2. Les six fichiers centraux du moteur BSD V2 restent inchangés.
+
+### Contraintes contractuelles complémentaires
+
+SportScore : utilisation de données dérivées permise sous conditions de provenance/attribution et de volumes; vérifier les endpoints réellement couverts et obtenir un accord commercial si nécessaire. TheSportsDB : API officielle et conditions d'utilisation spécifiques, y compris les droits sur les médias et les exigences pour applications publiées. OpenLigaDB : licence ODbL pour la base de données, avec attribution et obligations de partage de bases dérivées dans certains cas. **Ne pas mélanger une base ODbL et une archive propriétaire BSD en les redistribuant sans revue des obligations de licence.**
+
+La PR reste expérimentale et sans aucune modification du flux public, du moteur LIVE, de Telegram ou des seuils de sélection.
