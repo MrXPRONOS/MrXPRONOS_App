@@ -594,6 +594,9 @@ jobs:
           assert 'telegram' not in report
           assert report['input_api_fixtures'] == fixtures['total_fixtures']
           assert report['calendar_corroborated_fixtures'] <= calendar['coverage']['schedule_matches_confirmed']
+          by_source=calendar['coverage']['by_discovery_source']
+          assert sum(row['input'] for row in by_source.values()) == fixtures['total_fixtures']
+          assert sum(row.get('confirmed',0) for row in by_source.values()) == calendar['coverage']['schedule_matches_confirmed']
           assert report['qualified_external_fixtures'] <= report['calendar_corroborated_fixtures']
           assert report['raw_v2_candidates'] <= report['qualified_external_fixtures']
           assert 0 <= report['messages_ready'] <= 3
