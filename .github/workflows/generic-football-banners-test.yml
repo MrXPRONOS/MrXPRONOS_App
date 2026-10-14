@@ -35,7 +35,7 @@ jobs:
       PYTHONUNBUFFERED: '1'
       GENERIC_TEST_START_INDEX: '1'
       GENERIC_TEST_END_INDEX: '52'
-      GENERIC_TEST_SEND_TELEGRAM: '0'
+      GENERIC_TEST_SEND_TELEGRAM: '1'
       GENERIC_TEST_PREVIEW_DIR: '/tmp/generic-banner-previews'
     steps:
       - uses: actions/checkout@v4
