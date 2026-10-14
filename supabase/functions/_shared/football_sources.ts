@@ -19,10 +19,14 @@ function sportScoreRefs(x:any, home:string, away:string){
   return {id,slug};
 }
 function sportScoreMinute(x:any):number|null{
-  const values=[x.minute,x.match_minute,x.elapsed,x.elapsed_time,x.clock?.minute,x.clock?.elapsed];
+  const values=[x.live_minute,x.minute,x.match_minute,x.elapsed,x.elapsed_time,x.clock?.minute,x.clock?.elapsed];
   for(const v of values){
     const n=int(v);
     if(n!==null&&n<=130)return n;
+    // E.g. "45+" means extra time but does not specify added seconds/minutes:
+    // only the known elapsed lower bound (45) is preserved.
+    const stoppage=text(v).match(/^(\d{1,3})\+['’′]?$/);
+    if(stoppage&&Number(stoppage[1])<=130)return Number(stoppage[1]);
     const match=text(v).match(/^(\d{1,3})\s*\+\s*(\d{1,2})\s*['’′]?$/);
     if(match){const n=Number(match[1])+Number(match[2]);if(n<=130)return n;}
   }
@@ -184,11 +188,14 @@ function statKey(v:any){
 function statTarget(name:string):string|null{
   if(["woncorners","corners","cornerkicks"].includes(name))return "corner_kicks";
   if(["totalshots","shots","shotstotal"].includes(name))return "total_shots";
+  if(["shotsofftarget","offtargetshots"].includes(name))return "shots_off_target";
+  if(["attacks","totalattacks"].includes(name))return "attacks";
+  if(["dangerousattacks"].includes(name))return "dangerous_attacks";
   if(["shotsontarget","shotsongoal","shotsontargettotal"].includes(name))return "shots_on_target";
   if(["fouls","foulscommitted"].includes(name))return "fouls";
   if(["yellowcards"].includes(name))return "yellow_cards";
   if(["redcards"].includes(name))return "red_cards";
-  if(["possession","possessionpct","possessionpercentage"].includes(name))return "ball_possession";
+  if(["possession","possessionpct","possessionpercentage","ballpossession"].includes(name))return "ball_possession";
   return null;
 }
 function applyStats(out:any, source:any){
@@ -211,7 +218,17 @@ function applyStats(out:any, source:any){
     consume("away",source.away||source.away_team||source.awayTeam);
     if(Array.isArray(source)){
       for(const r of source){
-        const side=text(r?.side||r?.homeAway).toLowerCase();
+        if(!r||typeof r!=="object")continue;
+        const key=statTarget(statKey(r.label||r.name||r.type||r.stat));
+        // SportScore live detail: [{label:"Shots on Target",home:3,away:2}, ...]
+        if(key){
+          const home=num(r.home??r.homeValue);
+          const away=num(r.away??r.awayValue);
+          if(home!=null)out.home[key]=home;
+          if(away!=null)out.away[key]=away;
+          continue;
+        }
+        const side=text(r.side||r.homeAway).toLowerCase();
         if(side==="home"||side==="away")consume(side as any,[r]);
       }
     }
