@@ -15,7 +15,7 @@ from telegram_premium_templates import premium_sections, plain_text_sections
 class RichFormatUnavailable(Exception): pass
 
 def _retry_after(response):
-    if response.status_code != 429:
+    if int(getattr(response, "status_code", 200) or 200) != 429:
         return 0
     try:
         body=response.json()
