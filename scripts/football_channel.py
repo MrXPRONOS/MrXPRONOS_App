@@ -1842,25 +1842,22 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             importance,
             tracked_only=True,
         )
-        used_matches: set[str] = set()
+        match_counts: dict[str, int] = {}
         for signal in signals:
             ref = str(signal.get("follow_ref") or "")
             if not ref or ref not in followup.pending(state.followed, now):
                 continue
             kind = signal.get("kind")
-            # L'ordre final > but > mi-temps > score est conservé par le moteur.
             match_key = ref
-            if match_key in used_matches:
+            if match_counts.get(match_key, 0) >= 3:
                 continue
             post = (followed_final_publication(signal) if kind == "resultat_final"
                     else followed_interruption_publication(signal) if kind == "suivi_interrompu"
                     else lifecycle_publication(signal))
             if post is None:
                 continue
-            publish(post, ref=ref)
-            used_matches.add(match_key)
-            if counter["sent"] >= max_send:
-                break
+            if publish(post, ref=ref):
+                match_counts[match_key] = match_counts.get(match_key, 0) + 1
     except (requests.RequestException, ValueError, TypeError) as exc:
         counter["errors"] += 1
         print("ERREUR_LIFECYCLE_ONLY", type(exc).__name__, str(exc)[:180])
