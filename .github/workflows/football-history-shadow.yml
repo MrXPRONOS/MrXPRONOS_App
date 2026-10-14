@@ -20,6 +20,8 @@ on:
       - 'tests/test_football_prematch_probability_shadow.py'
       - 'scripts/football_public_domain_prematch.py'
       - 'tests/test_football_public_domain_prematch.py'
+      - 'scripts/football_public_domain_backtest.py'
+      - 'tests/test_football_public_domain_backtest.py'
       - '.github/workflows/football-history-shadow.yml'
   workflow_dispatch:
     inputs:
@@ -61,7 +63,7 @@ jobs:
         run: |
           php -l scripts/football_history_import.php
           php scripts/football_history_import.php --self-test
-          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py
+          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py
           python -m unittest discover -s tests -p 'test_football_history_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_daily_multisource_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_history_features.py' -v
@@ -69,6 +71,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_football_match_source_router.py' -v
           python -m unittest discover -s tests -p 'test_football_prematch_probability_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_public_domain_prematch.py' -v
+          python -m unittest discover -s tests -p 'test_football_public_domain_backtest.py' -v
   historical_probe:
     if: github.event_name == 'workflow_dispatch'
     needs: verify
@@ -133,6 +136,7 @@ jobs:
         run: |
           php scripts/football_history_import.php --source=openfootball --seasons=2024-25 --max-files=1 --out=tmp/openfootball.jsonl
           cp tmp/openfootball.jsonl tmp/combined.jsonl
+          python scripts/football_public_domain_backtest.py --history-jsonl=tmp/openfootball.jsonl --report=tmp/openfootball-holdout-quality.json
           python scripts/football_history_shadow.py --input=tmp/combined.jsonl --output=tmp/merged.json --report=tmp/quality.json
           python scripts/football_alias_candidates.py --input=tmp/combined.jsonl --out=tmp/aliases-to-review.json
           python - <<'PY'
@@ -193,6 +197,12 @@ jobs:
           python - <<'PY'
           import json
           report=json.load(open('tmp/quality.json'))
+          test=json.load(open('tmp/openfootball-holdout-quality.json'))
+          assert test['history_unique_matches'] >= 200
+          assert test['evaluable_games'] > 0
+          assert test['production_activation_allowed'] is False
+          assert test['compared_to_bsd_v2'] is False
+          print('OPENFOOTBALL_BACKTEST', {'n':test['evaluable_games'], 'metrics':test['scoring_metrics']})
           assert report['provider_rows']['openfootball'] >= 200
           assert report['unique_fixtures'] >= 200
           assert report['multi_source_agreement'] == 0
@@ -203,7 +213,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: openfootball-public-domain-probe
-          path: tmp/quality.json
+          path: |
+            tmp/quality.json
+            tmp/openfootball-holdout-quality.json
           retention-days: 7
 
   daily_source_probe:
