@@ -1954,8 +1954,8 @@ def lifecycle_publication(signal: dict) -> Publication | None:
         away_logo = base_card["away_logo"]
         if len(home_players) != 11 or len(away_players) != 11 or not home_logo or not away_logo:
             return None
-        kickoff_at = signal.get("kickoff")
-        kickoff_text = time_label(kickoff_at) if isinstance(kickoff_at, datetime) else ""
+        kickoff_at = moment(signal.get("kickoff"))
+        kickoff_text = time_label(kickoff_at) if kickoff_at is not None else ""
         card = {
             **base_card,
             "time": kickoff_text,
