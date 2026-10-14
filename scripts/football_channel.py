@@ -42,7 +42,7 @@ from free_football_sources import (  # noqa: E402
     SOURCE_QUALITY,
 )
 from telegram_rich import post_photo, post_text, post_animation, _post_rate_limited  # noqa: E402
-from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish, fetch_supabase_live)  # noqa: E402
+from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish, fetch_supabase_live, persist_canonical_live_events)  # noqa: E402
 import football_followup as followup  # noqa: E402
 from football_stats_engine import daily_insight  # noqa: E402
 from football_viral_engine import (  # noqa: E402
@@ -648,11 +648,91 @@ def espn_preflight(sender: "Sender", item: Publication, *, dry_run: bool = False
     return accepted
 
 
-class RemotePublicationLedger:
-    """Registre Supabase atomique contre les doublons entre runners/workflows.
+def publication_payload(item: Publication) -> dict[str, Any]:
+    return {
+        "category": item.category,
+        "key": item.key,
+        "text": item.text,
+        "poll": list(item.poll) if item.poll else None,
+        "card": item.card,
+        "image_path": item.image_path,
+        "keyboard": item.keyboard,
+        "poll_type": item.poll_type,
+        "correct_option_ids": item.correct_option_ids,
+        "poll_explanation": item.poll_explanation,
+        "poll_description": item.poll_description,
+        "poll_shuffle": item.poll_shuffle,
+        "poll_allows_revoting": item.poll_allows_revoting,
+        "animation_payload": item.animation_payload,
+        "verification": item.verification,
+    }
 
-    Le cache GitHub reste utile pour l'éditorial, mais ce registre est l'autorité
-    pour savoir si un event_key a déjà été réclamé en production.
+
+def publication_from_payload(payload: dict[str, Any]) -> Publication | None:
+    if not isinstance(payload, dict):
+        return None
+    category = plain(payload.get("category"), 80)
+    key = plain(payload.get("key"), 220)
+    if not category or not key:
+        return None
+    poll_raw = payload.get("poll")
+    poll = None
+    if isinstance(poll_raw, (list, tuple)) and len(poll_raw) == 2:
+        options = poll_raw[1] if isinstance(poll_raw[1], list) else []
+        poll = (str(poll_raw[0] or ""), [str(x) for x in options])
+    return Publication(
+        category=category,
+        key=key,
+        text=str(payload.get("text") or ""),
+        poll=poll,
+        card=payload.get("card") if isinstance(payload.get("card"), dict) else None,
+        image_path=str(payload.get("image_path") or "") or None,
+        keyboard=payload.get("keyboard") if isinstance(payload.get("keyboard"), dict) else None,
+        poll_type=str(payload.get("poll_type") or "regular"),
+        correct_option_ids=[
+            int(x) for x in (payload.get("correct_option_ids") or [])
+            if str(x).lstrip("-").isdigit()
+        ] or None,
+        poll_explanation=str(payload.get("poll_explanation") or ""),
+        poll_description=str(payload.get("poll_description") or ""),
+        poll_shuffle=bool(payload.get("poll_shuffle")),
+        poll_allows_revoting=bool(payload.get("poll_allows_revoting", True)),
+        animation_payload=payload.get("animation_payload")
+        if isinstance(payload.get("animation_payload"), dict) else None,
+        verification=payload.get("verification")
+        if isinstance(payload.get("verification"), dict) else None,
+    )
+
+
+def _publication_expiry(item: Publication, now: datetime) -> datetime:
+    cls = priority_class(item.category)
+    if cls == "P0":
+        return now + timedelta(minutes=45)
+    if cls == "P1":
+        return now + timedelta(minutes=35)
+    if cls == "P2":
+        return now + timedelta(minutes=25)
+    if cls == "P3":
+        return now + timedelta(hours=6)
+    return now + timedelta(hours=12)
+
+
+class DeliveryUncertainError(RuntimeError):
+    """Telegram a pu envoyer le message, mais l'état durable n'a pas été confirmé."""
+
+
+def _ambiguous_delivery_error(exc: Exception) -> bool:
+    return isinstance(exc, (requests.Timeout, requests.ConnectionError, DeliveryUncertainError))
+
+
+class RemotePublicationLedger:
+    """Outbox Supabase atomique, persistante et reprenable.
+
+    - claim() crée/réclame atomiquement une publication;
+    - retryable() restitue les échecs certains même si le signal source a expiré;
+    - mark_phase() persiste les sous-étapes media/poll;
+    - les erreurs réseau ambiguës restent en quarantaine "uncertain" pour
+      privilégier l'absence de doublon.
     """
 
     def __init__(self, session: requests.Session, *, enabled: bool):
@@ -661,7 +741,7 @@ class RemotePublicationLedger:
         self.url = (os.getenv("SUPABASE_URL") or "").rstrip("/")
         self.key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
         if self.enabled and (not self.url or not self.key):
-            raise RuntimeError("Registre Actu Foot requis mais secrets Supabase absents")
+            raise RuntimeError("Outbox Actu Foot requise mais secrets Supabase absents")
 
     @property
     def endpoint(self) -> str:
@@ -677,46 +757,116 @@ class RemotePublicationLedger:
             headers["Prefer"] = "return=minimal"
         return headers
 
-    def claim(self, item: Publication) -> bool:
+    def claim(self, item: Publication, now: datetime | None = None) -> dict[str, Any]:
         if not self.enabled:
-            return True
+            return {"can_send": True, "delivery_phase": "pending", "attempts": 1}
+        now = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
+        stored = publication_payload(item)
         payload_hash = hashlib.sha256(
-            json.dumps({
-                "category": item.category,
-                "key": item.key,
-                "text": item.text,
-                "card": item.card,
-            }, sort_keys=True, default=str, ensure_ascii=False).encode("utf-8")
+            json.dumps(stored, sort_keys=True, default=str, ensure_ascii=False).encode("utf-8")
         ).hexdigest()
         response = self.session.post(
-            self.endpoint,
-            headers=self._headers(),
+            self.url + "/rest/v1/rpc/actu_foot_claim_publication",
+            headers=self._headers(minimal=False),
             json={
-                "event_key": item.key,
-                "category": item.category,
-                "status": "claimed",
-                "payload_hash": payload_hash,
-                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "p_event_key": item.key,
+                "p_category": item.category,
+                "p_payload_hash": payload_hash,
+                "p_payload": stored,
+                "p_expires_at": _publication_expiry(item, now).isoformat(),
+                "p_max_attempts": 5,
             },
             timeout=(8, 20),
         )
-        if response.status_code == 409:
-            print("REMOTE_DEDUP_ALREADY_CLAIMED", item.category, item.key)
-            return False
         response.raise_for_status()
-        return True
+        result = response.json()
+        if not isinstance(result, dict):
+            raise RuntimeError("Réponse outbox invalide")
+        if not result.get("can_send"):
+            print(
+                "REMOTE_OUTBOX_NOT_CLAIMED", item.category, item.key,
+                "status", result.get("status"), "phase", result.get("delivery_phase"),
+            )
+        return result
 
-    def mark(self, item: Publication, status: str, message_id: int | None = None) -> None:
+    def retryable(self, limit: int = 12) -> list[Publication]:
+        if not self.enabled:
+            return []
+        response = self.session.post(
+            self.url + "/rest/v1/rpc/actu_foot_retryable_publications",
+            headers=self._headers(minimal=False),
+            json={"p_limit": max(1, min(50, int(limit)))},
+            timeout=(8, 20),
+        )
+        response.raise_for_status()
+        rows = response.json()
+        out: list[Publication] = []
+        for row in rows if isinstance(rows, list) else []:
+            item = publication_from_payload(row.get("payload") if isinstance(row, dict) else {})
+            if item:
+                out.append(item)
+        return out
+
+    def mark_phase(
+        self,
+        item: Publication,
+        phase: str,
+        *,
+        media_message_id: int | None = None,
+        poll_message_id: int | None = None,
+    ) -> None:
+        if not self.enabled:
+            return
+        payload: dict[str, Any] = {
+            "delivery_phase": phase,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+        if media_message_id is not None:
+            payload["media_message_id"] = int(media_message_id)
+        if poll_message_id is not None:
+            payload["poll_message_id"] = int(poll_message_id)
+        response = self.session.patch(
+            self.endpoint,
+            headers=self._headers(),
+            params={"event_key": "eq." + item.key},
+            json=payload,
+            timeout=(8, 20),
+        )
+        response.raise_for_status()
+
+    def mark(
+        self,
+        item: Publication,
+        status: str,
+        message_id: int | None = None,
+        *,
+        error: str = "",
+        retry_after_seconds: int = 45,
+        phase: str | None = None,
+    ) -> None:
         if not self.enabled:
             return
         payload: dict[str, Any] = {
             "status": status,
             "updated_at": datetime.now(timezone.utc).isoformat(),
+            "locked_at": None,
         }
+        if phase:
+            payload["delivery_phase"] = phase
         if status == "sent":
             payload["sent_at"] = datetime.now(timezone.utc).isoformat()
+            payload["delivery_phase"] = "complete"
+            payload["next_retry_at"] = None
+        elif status == "failed":
+            payload["next_retry_at"] = (
+                datetime.now(timezone.utc) + timedelta(seconds=max(5, retry_after_seconds))
+            ).isoformat()
+        elif status == "uncertain":
+            payload["next_retry_at"] = None
         if message_id is not None:
             payload["telegram_message_id"] = int(message_id)
+        if error:
+            payload["last_error"] = plain(error, 900)
         response = self.session.patch(
             self.endpoint,
             headers=self._headers(),
@@ -773,7 +923,15 @@ class Sender:
             print("COMMENTAIRES_NON_LIES publication autorisee car FOOTBALL_REQUIRE_COMMENTS=0")
         return self.linked_chat_id
 
-    def send(self, item: Publication) -> int | None:
+    def send(
+        self,
+        item: Publication,
+        *,
+        resume: dict[str, Any] | None = None,
+        progress_cb: Any = None,
+    ) -> int | None:
+        resume = resume or {}
+        phase = str(resume.get("delivery_phase") or "pending")
         if self.dry_run:
             print("DRY_RUN", item.category, item.key, plain(item.text, 900))
             if item.poll:
@@ -783,20 +941,42 @@ class Sender:
             return None
         self.verify_discussion()
 
+        def checkpoint(name: str, identifier: int | None = None) -> None:
+            if progress_cb is None:
+                return
+            try:
+                progress_cb(name, identifier)
+            except Exception as exc:
+                raise DeliveryUncertainError(
+                    "Telegram confirmé mais checkpoint outbox non persisté: " + name
+                ) from exc
+
+        # Une reprise après crash ne renvoie jamais une sous-étape déjà confirmée.
+        if phase == "complete":
+            return int(resume.get("poll_message_id") or resume.get("media_message_id")
+                       or resume.get("telegram_message_id") or 0) or None
+
         if item.poll:
             question, options = item.poll
-            if item.card:
+            media_id = resume.get("media_message_id")
+            if item.card and phase not in {"media_sent", "poll_sent", "complete"}:
                 from football_cards import render_card
                 with tempfile.TemporaryDirectory(prefix="xpronos-poll-") as tmp:
                     style = item.category if item.category in {"quiz", "reaction"} else (
                         "community_vote" if item.key.startswith("community-vote:") else "sondage"
                     )
                     graphic = render_card(style, item.card, Path(tmp) / "sondage.png")
-                    post_photo(
+                    media_id = post_photo(
                         self.session, self.token, self.chat, graphic,
                         item.text or "<b>🗳️ À VOUS DE VOTER</b>\n<i>Votez dans le sondage ci-dessous.</i>",
                         item.keyboard or {}, timeout=70, mime="image/png",
                     )
+                    checkpoint("media_sent", media_id)
+                    phase = "media_sent"
+
+            if phase == "poll_sent":
+                return int(resume.get("poll_message_id") or 0) or None
+
             poll_options = [{"text": plain(option, 100)} for option in options if plain(option, 100)]
             if len(poll_options) < 2:
                 raise RuntimeError("Sondage Telegram invalide: moins de deux options")
@@ -832,8 +1012,14 @@ class Sender:
             if payload.get("ok") is not True:
                 raise RuntimeError("Telegram n'a pas confirmé le sondage")
             identifier = payload.get("result", {}).get("message_id")
+            checkpoint("poll_sent", identifier)
             print("ENVOYE", item.category, item.key, "message_id", identifier)
             return identifier
+
+        # Si le message simple avait déjà été confirmé avant un crash DB,
+        # finaliser l'outbox sans le renvoyer à Telegram.
+        if phase == "single_sent":
+            return int(resume.get("media_message_id") or resume.get("telegram_message_id") or 0) or None
 
         if item.animation_payload:
             from football_viral_engine import render_animation
@@ -852,8 +1038,6 @@ class Sender:
             media = (ROOT / item.image_path).resolve()
             if not media.is_relative_to(ROOT.resolve()) or not media.is_file():
                 raise RuntimeError("Image News Football absente ou hors dépôt: " + str(item.image_path))
-            # Le site garde le WebP optimisé; Telegram reçoit la même vraie photo
-            # réencodée en JPEG pour une compatibilité sendPhoto maximale.
             from PIL import Image, ImageOps
             with tempfile.TemporaryDirectory(prefix="xpronos-real-news-") as tmp:
                 telegram_photo = Path(tmp) / "news.jpg"
@@ -888,8 +1072,110 @@ class Sender:
                 item.text[:3900], item.keyboard,
                 timeout=60, html=True,
             )
+        checkpoint("single_sent", identifier)
         print("ENVOYE", item.category, item.key, "message_id", identifier)
         return identifier
+
+
+def deliver_with_outbox(
+    sender: Sender,
+    ledger: RemotePublicationLedger,
+    item: Publication,
+    now: datetime,
+) -> dict[str, Any]:
+    claim = ledger.claim(item, now)
+    if not claim.get("can_send"):
+        return {"sent": False, "skipped": True, "error": False, "claim": claim}
+
+    phase_holder = {"phase": str(claim.get("delivery_phase") or "pending")}
+    id_holder: dict[str, int | None] = {"message_id": None}
+
+    def progress(phase: str, identifier: int | None) -> None:
+        phase_holder["phase"] = phase
+        id_holder["message_id"] = identifier
+        if phase == "media_sent":
+            ledger.mark_phase(item, phase, media_message_id=identifier)
+        elif phase == "poll_sent":
+            ledger.mark_phase(item, phase, poll_message_id=identifier)
+        elif phase == "single_sent":
+            ledger.mark_phase(item, phase, media_message_id=identifier)
+        else:
+            ledger.mark_phase(item, phase)
+
+    try:
+        identifier = sender.send(item, resume=claim, progress_cb=progress)
+    except Exception as exc:
+        phase = phase_holder["phase"]
+        # Telegram a déjà répondu OK, seul le checkpoint durable a échoué.
+        if isinstance(exc, DeliveryUncertainError) and phase in {"single_sent", "poll_sent"}:
+            try:
+                ledger.mark(item, "sent", id_holder.get("message_id"), phase="complete")
+                print("REMOTE_OUTBOX_RECOVERED_AFTER_CHECKPOINT", item.category, item.key, phase)
+                return {
+                    "sent": True, "skipped": False, "error": False,
+                    "message_id": id_holder.get("message_id"), "claim": claim,
+                }
+            except requests.RequestException:
+                pass
+
+        # L'image d'un sondage a été confirmée : on peut rejouer le poll seul.
+        if isinstance(exc, DeliveryUncertainError) and phase == "media_sent":
+            status = "failed"
+        else:
+            status = "uncertain" if _ambiguous_delivery_error(exc) else "failed"
+        try:
+            ledger.mark(
+                item,
+                status,
+                id_holder.get("message_id") if phase in {"single_sent", "poll_sent"} else None,
+                error=type(exc).__name__ + ": " + str(exc),
+                retry_after_seconds=45,
+                phase=phase,
+            )
+        except requests.RequestException as ledger_exc:
+            print("REMOTE_OUTBOX_MARK_ERROR", type(ledger_exc).__name__)
+        print("TELEGRAM_DELIVERY_FAILED", item.category, item.key, status, type(exc).__name__)
+        return {
+            "sent": False,
+            "skipped": False,
+            "error": True,
+            "uncertain": status == "uncertain",
+            "exception": exc,
+            "claim": claim,
+        }
+
+    try:
+        ledger.mark(item, "sent", identifier, phase="complete")
+    except requests.RequestException as exc:
+        # Le checkpoint single_sent/poll_sent a déjà été persisté. Le verrou
+        # expirera et la prochaine reprise finalisera sans renvoyer Telegram.
+        print("REMOTE_OUTBOX_FINALIZE_DEFERRED", item.category, item.key, type(exc).__name__)
+    return {"sent": True, "skipped": False, "error": False, "message_id": identifier, "claim": claim}
+
+
+def drain_retryable_outbox(
+    ledger: RemotePublicationLedger,
+    publish_fn: Any,
+    *,
+    limit: int = 8,
+) -> int:
+    if not ledger.enabled:
+        return 0
+    replayed = 0
+    try:
+        queued = ledger.retryable(limit)
+    except requests.RequestException as exc:
+        print("REMOTE_OUTBOX_RETRY_READ_ERROR", type(exc).__name__)
+        return 0
+    for item in queued:
+        try:
+            if publish_fn(item, replay=True):
+                replayed += 1
+        except Exception as exc:
+            print("REMOTE_OUTBOX_REPLAY_ERROR", item.key, type(exc).__name__)
+    if queued:
+        print("REMOTE_OUTBOX_REPLAY", "queued", len(queued), "sent", replayed)
+    return replayed
 
 
 def parse_rss(xml_data: bytes) -> list[dict]:
@@ -1656,6 +1942,7 @@ def lifecycle_publication(signal: dict) -> Publication | None:
         "away_logo": plain(signal.get("away_logo") or "", 500),
         "goal": signal.get("goal") if isinstance(signal.get("goal"), dict) else {},
         "espn_url": espn_url,
+        "fixture_key": plain(signal.get("follow_ref") or signal.get("fixture_key"), 180),
     }
 
     if kind == "composition":
@@ -1711,6 +1998,7 @@ def lifecycle_publication(signal: dict) -> Publication | None:
             "sortant": plain(signal.get("sortant"), 90),
             "minute": signal.get("minute"),
             "shootout_scores": signal.get("shootout_scores") or [],
+            "provider_event_id": plain(signal.get("provider_event_id"), 80),
         }
     elif signal.get("event_date"):
         verification = {
@@ -1747,6 +2035,7 @@ def followed_interruption_publication(signal: dict) -> Publication | None:
         "home_logo": signal.get("home_logo"),
         "away_logo": signal.get("away_logo"),
         "espn_url": signal.get("espn_url"),
+        "fixture_key": plain(signal.get("follow_ref") or signal.get("fixture_key"), 180),
     }
     return Publication(
         "suivi_interrompu",
@@ -1845,7 +2134,8 @@ def followed_final_publication(signal: dict) -> Publication | None:
                 "league": comp, "home": home, "away": away,
                 "scores": (h, a), "source": signal.get("source") or "score confirmé",
                 "home_logo": logo_home,
-                "away_logo": logo_away}
+                "away_logo": logo_away,
+                "fixture_key": plain(signal.get("follow_ref") or signal.get("fixture_key"), 180)}
     if card is None:
         card = {
             "home": home,
@@ -1856,6 +2146,7 @@ def followed_final_publication(signal: dict) -> Publication | None:
             "source": signal.get("source") or "score confirmé",
             "home_logo": logo_home,
             "away_logo": logo_away,
+            "fixture_key": plain(signal.get("follow_ref") or signal.get("fixture_key"), 180),
         }
 
     espn_url = plain(signal.get("espn_url"), 500)
@@ -1953,24 +2244,26 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
     max_send = MAX_MESSAGES_PER_RUN
     class_counter = {key: 0 for key in CLASS_BUDGETS}
 
-    def publish(item: Publication | None, *, ref: str = "") -> bool:
+    def publish(item: Publication | None, *, ref: str = "", replay: bool = False) -> bool:
         if item is None:
             return False
+        if replay and not ref and isinstance(item.card, dict):
+            ref = plain(item.card.get("fixture_key"), 180)
         story_key = editorial_story_key(item)
-        if story_key and not force and state.seen_recent(story_key, now, hours=12):
+        if story_key and not force and not replay and state.seen_recent(story_key, now, hours=12):
             counter["skipped"] += 1
             print("EDITORIAL_STORY_COOLDOWN", item.category, story_key)
             return False
         cls = priority_class(item.category)
-        if class_counter[cls] >= CLASS_BUDGETS[cls]:
+        if not replay and class_counter[cls] >= CLASS_BUDGETS[cls]:
             return False
-        if cls != "P0" and counter["sent"] >= max_send:
+        if not replay and cls != "P0" and counter["sent"] >= max_send:
             return False
-        if not force and (state.seen(item.key) or
+        if not force and not replay and (state.seen(item.key) or
                           (item.category != "resultat" and not enough(state, item.category, now))):
             counter["skipped"] += 1
             return False
-        if item.category == "score_update" and not force:
+        if item.category == "score_update" and not force and not replay:
             first = state.first_observed(item.key, now)
             if now - first < timedelta(minutes=2):
                 if not dry_run:
@@ -1981,20 +2274,13 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             counter["skipped"] += 1
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
             return False
-        if not ledger.claim(item):
-            counter["skipped"] += 1
+        delivery = deliver_with_outbox(sender, ledger, item, now)
+        if not delivery.get("sent"):
+            if delivery.get("error"):
+                counter["errors"] += 1
+            else:
+                counter["skipped"] += 1
             return False
-        try:
-            message_id = sender.send(item)
-        except Exception:
-            # Un timeout réseau après envoi est ambigu : conserver la réservation
-            # empêche un doublon au prochain runner.
-            try:
-                ledger.mark(item, "uncertain")
-            except requests.RequestException as ledger_exc:
-                print("REMOTE_LEDGER_MARK_ERROR", type(ledger_exc).__name__)
-            raise
-        ledger.mark(item, "sent", message_id)
         counter["sent"] += 1
         class_counter[cls] += 1
         if not dry_run:
@@ -2025,6 +2311,7 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
         return True
 
     try:
+        drain_retryable_outbox(ledger, publish, limit=8)
         tracked = followup.base_events(state.followed, now)
         if not tracked:
             print("FOLLOWUP_NO_SELECTED_MATCH", "fast")
@@ -2035,6 +2322,11 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             sender.session,
             importance,
             tracked_only=False,
+        )
+        signals = persist_canonical_live_events(
+            sender.session,
+            signals,
+            strict=(not dry_run and os.getenv("FOOTBALL_CANONICAL_EVENTS", "0") == "1"),
         )
         match_counts: dict[str, int] = {}
         for signal in signals:
@@ -2056,7 +2348,7 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
                 continue
             if publish(post, ref=ref):
                 match_counts[match_key] = match_counts.get(match_key, 0) + 1
-    except (requests.RequestException, ValueError, TypeError) as exc:
+    except (requests.RequestException, ValueError, TypeError, RuntimeError) as exc:
         counter["errors"] += 1
         print("ERREUR_LIFECYCLE_ONLY", type(exc).__name__, str(exc)[:180])
     finally:
@@ -2127,30 +2419,32 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         return cache[name]
 
     def publish(item: Publication | None, *, follow_event: dict | None = None,
-                ref: str = "") -> bool:
+                ref: str = "", replay: bool = False) -> bool:
         if item is None:
             return False
+        if replay and not ref and isinstance(item.card, dict):
+            ref = plain(item.card.get("fixture_key"), 180)
         story_key = editorial_story_key(item)
-        if story_key and not force and state.seen_recent(story_key, now, hours=12):
+        if story_key and not force and not replay and state.seen_recent(story_key, now, hours=12):
             counter["skipped"] += 1
             print("EDITORIAL_STORY_COOLDOWN", item.category, story_key)
             return False
         cls = priority_class(item.category)
-        if cls == "P4" and urgent_live_active and not force:
+        if cls == "P4" and urgent_live_active and not force and not replay:
             counter["skipped"] += 1
             print("P4_SUPPRESSED_DURING_IMPORTANT_LIVE", item.category)
             return False
         # P0 dispose d'une réserve propre et ne peut jamais être bloqué par un
         # quiz/stat/flash déjà envoyé dans le même passage.
-        if class_counter[cls] >= CLASS_BUDGETS[cls]:
+        if not replay and class_counter[cls] >= CLASS_BUDGETS[cls]:
             return False
         low_sent = class_counter["P2"] + class_counter["P3"] + class_counter["P4"]
-        if cls in {"P2", "P3", "P4"} and low_sent >= 3:
+        if not replay and cls in {"P2", "P3", "P4"} and low_sent >= 3:
             return False
-        if cls != "P0" and counter["sent"] >= max_send:
+        if not replay and cls != "P0" and counter["sent"] >= max_send:
             return False
 
-        if not force and (state.seen(item.key) or
+        if not force and not replay and (state.seen(item.key) or
                           (item.category != "resultat" and not enough(state, item.category, now))):
             counter["skipped"] += 1
             return False
@@ -2158,7 +2452,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         # SCORE LIVE est un fallback: on laisse deux minutes au vrai événement
         # BUT pour arriver avec buteur/passeur. Un score live déjà publié
         # n'empêche plus un BUT enrichi ultérieur.
-        if item.category == "score_update" and not force:
+        if item.category == "score_update" and not force and not replay:
             first = state.first_observed(item.key, now)
             if now - first < timedelta(minutes=2):
                 if not dry_run:
@@ -2178,20 +2472,13 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
             return False
 
-        if not ledger.claim(item):
-            counter["skipped"] += 1
+        delivery = deliver_with_outbox(sender, ledger, item, now)
+        if not delivery.get("sent"):
+            if delivery.get("error"):
+                counter["errors"] += 1
+            else:
+                counter["skipped"] += 1
             return False
-        try:
-            message_id = sender.send(item)
-        except Exception:
-            # Un timeout réseau après envoi est ambigu : conserver la réservation
-            # empêche un doublon au prochain runner.
-            try:
-                ledger.mark(item, "uncertain")
-            except requests.RequestException as ledger_exc:
-                print("REMOTE_LEDGER_MARK_ERROR", type(ledger_exc).__name__)
-            raise
-        ledger.mark(item, "sent", message_id)
         counter["sent"] += 1
         class_counter[cls] += 1
         if not dry_run:
@@ -2225,6 +2512,8 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                 print("FOLLOWUP_INTERRUPTED", ref)
             state.save(now)
         return True
+
+    drain_retryable_outbox(ledger, publish, limit=8)
 
     # Ordre de production :
     # 07h Matchs du jour, 09h Flash, 12h30 Stat, 15h Débat,
@@ -2390,6 +2679,11 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                     signals = lifecycle_signals(
                         tracked, set(state.items.keys()), now,
                         sender.session, importance, tracked_only=True,
+                    )
+                    signals = persist_canonical_live_events(
+                        sender.session,
+                        signals,
+                        strict=(not dry_run and os.getenv("FOOTBALL_CANONICAL_EVENTS", "0") == "1"),
                     )
                     match_counts: dict[str, int] = {}
                     for signal in signals:

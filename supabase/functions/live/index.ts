@@ -5862,6 +5862,27 @@ function predictionRowToUi(p: any) {
   };
 }
 
+function actuFootEventPairKey(home: unknown, away: unknown) {
+  return normalizeTeamKey(home) + "::" + normalizeTeamKey(away);
+}
+
+async function getRecentActuFootEvents(maxAgeSeconds = 6 * 3600) {
+  const since = new Date(Date.now() - maxAgeSeconds * 1000).toISOString();
+  const { data, error } = await supabase
+    .from("actu_foot_live_events")
+    .select("event_key,fixture_key,match_id,kind,priority_class,event_minute,score,home_team,away_team,league_name,provider_event_id,sources,payload,confirmed,first_seen_at,last_seen_at,event_at")
+    .gte("last_seen_at", since)
+    .eq("confirmed", true)
+    .order("first_seen_at", { ascending: true })
+    .limit(500);
+  if (error) {
+    console.warn("actu_foot_live_events unavailable:", error.message);
+    return [];
+  }
+  return data || [];
+}
+
+
 async function getLiveMatchesFromDb(maxAgeSeconds = 240) {
   const since = new Date(Date.now() - maxAgeSeconds * 1000).toISOString();
 
@@ -5886,6 +5907,31 @@ async function getLiveMatchesFromDb(maxAgeSeconds = 240) {
 
   if (predErr) throw predErr;
 
+  const eventRows = await getRecentActuFootEvents();
+  const eventsByPair = new Map<string, any[]>();
+  for (const event of eventRows) {
+    const pair = actuFootEventPairKey(event?.home_team, event?.away_team);
+    if (!pair || pair === "::") continue;
+    if (!eventsByPair.has(pair)) eventsByPair.set(pair, []);
+    eventsByPair.get(pair)!.push({
+      event_key: event.event_key,
+      fixture_key: event.fixture_key,
+      match_id: event.match_id,
+      kind: event.kind,
+      priority_class: event.priority_class,
+      minute: event.event_minute,
+      score: event.score,
+      player: event?.payload?.player || event?.payload?.goal?.player || "",
+      team: event?.payload?.team || "",
+      entrant: event?.payload?.entrant || "",
+      sortant: event?.payload?.sortant || "",
+      shootout_scores: event?.payload?.shootout_scores || [],
+      sources: event.sources || [],
+      first_seen_at: event.first_seen_at,
+      event_at: event.event_at,
+    });
+  }
+
   const byMatch = new Map<string, any[]>();
   for (const p of preds || []) {
     const k = String(p.match_id);
@@ -5904,10 +5950,14 @@ async function getLiveMatchesFromDb(maxAgeSeconds = 240) {
       return safeNumber(b.reliability, 0) - safeNumber(a.reliability, 0);
     });
 
+    const pair = actuFootEventPairKey(base?.home_team, base?.away_team);
+    const matchEvents = eventsByPair.get(pair) || [];
+
     return {
       ...base,
       predictions: uiPreds,
       all_predictions: uiPreds,
+      events: matchEvents,
       freshness_seconds: computeFreshness(r.updated_at),
       updated_at: r.updated_at,
     };
