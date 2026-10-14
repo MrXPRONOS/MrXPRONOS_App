@@ -29,7 +29,7 @@ class TestMonitorOffline(unittest.TestCase):
         self.assertIn("<blockquote>",block)
         report=m.parts([row],datetime(2026,10,14,tzinfo=timezone.utc))
         self.assertEqual(len(report),1)
-        self.assertIn("4",str(len(report[0]))) # renderable message
+        self.assertLess(len(report[0]),3900) # Telegram payload stays within limits
         self.assertIn("SYNTHÈSE",report[0])
 
     def test_negative_alert(self):
