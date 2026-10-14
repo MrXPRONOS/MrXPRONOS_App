@@ -14,7 +14,13 @@ on:
       - 'scripts/football_viral_engine.py'
       - 'fetch_foot_news.py'
       - 'scripts/template_cards.py'
+      - 'scripts/generic_football_banners.py'
+      - 'scripts/generic_football_content.py'
+      - 'assets/images/template_programme_matchs_du_jour.png'
+      - 'assets/images/template_avant_match.png'
+      - 'assets/images/template_resultat_final.png'
       - 'assets/images/template_compositions_officielles.webp'
+      - 'assets/images/generic_football_banners/**'
       - '.github/workflows/football-production.yml'
   workflow_dispatch:
     inputs:
@@ -163,31 +169,33 @@ jobs:
           fi
           echo "PRODUCTION_SECRETS_OK mode=$RUN_MODE"
 
-      - name: Verifier les sept templates
+      - name: Verifier les 4 templates premium et 3 bannieres generiques
         run: |
           python - <<'PY'
+          import sys
           from pathlib import Path
           from PIL import Image
 
-          required = [
-              "template_programme_matchs_du_jour.png",
-              "template_avant_match.png",
-              "template_resultat_final.png",
-              "template_stat_du_jour.png",
-              "template_flash_foot.png",
-              "template_sondage.png",
-              "template_compositions_officielles.webp",
-          ]
-          for name in required:
+          sys.path.insert(0, "scripts")
+          import generic_football_banners as banners
+
+          required = {
+              "template_programme_matchs_du_jour.png": (1080, 1080),
+              "template_avant_match.png": (1080, 1080),
+              "template_resultat_final.png": (1080, 1080),
+              "template_compositions_officielles.webp": (1374, 1145),
+          }
+          for name, expected in required.items():
               path = Path("assets/images") / name
               assert path.is_file(), path
               with Image.open(path) as image:
-                  w, h = image.size
-                  if name == "template_compositions_officielles.webp":
-                      assert image.size == (1374, 1145), (path, image.size)
-                  else:
-                      assert w == h and w >= 900, (path, image.size)
-          print("PRODUCTION_TEMPLATES_OK")
+                  assert image.size == expected, (path, image.size, expected)
+
+          for family in ("match", "club", "general"):
+              image = banners.template(family)
+              assert image.size == (1280, 500), (family, image.size)
+
+          print("PRODUCTION_TEMPLATES_OK", "4 premium + 3 generiques")
           PY
 
       - name: Actualiser le moteur News Football commun au site et à Telegram
