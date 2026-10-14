@@ -1656,8 +1656,22 @@ def followed_final_publication(signal: dict) -> Publication | None:
         return None
     h, a = (int(n) for n in scores.split("-"))
     comp = plain(signal.get("league") or "Football", 80)
-    result = ("🤝 Match nul" if h == a else
-              "🏅 Victoire de " + esc(home if h > a else away))
+    shootout = signal.get("shootout_scores") if isinstance(signal.get("shootout_scores"), (list, tuple)) else []
+    shootout_score = ""
+    shootout_winner = ""
+    if len(shootout) >= 2 and shootout[0] is not None and shootout[1] is not None:
+        try:
+            sh, sa = int(shootout[0]), int(shootout[1])
+            shootout_score = f"{sh}-{sa}"
+            if sh != sa:
+                shootout_winner = home if sh > sa else away
+        except (TypeError, ValueError):
+            shootout_score = ""
+    result = (
+        ("🎯 Victoire aux tirs au but de " + esc(shootout_winner))
+        if shootout_winner else
+        ("🤝 Match nul" if h == a else "🏅 Victoire de " + esc(home if h > a else away))
+    )
 
     match_data = signal.get("match_data") if isinstance(signal.get("match_data"), dict) else {}
     goals = match_data.get("goals") if isinstance(match_data.get("goals"), list) else []
@@ -1704,10 +1718,16 @@ def followed_final_publication(signal: dict) -> Publication | None:
         context_lines.append("👤 Arbitre : " + esc(referees[0]))
     context_block = "<p>" + "<br/>".join(context_lines) + "</p>" if context_lines else ""
 
+    shootout_block = (
+        "\n\n<blockquote>🎯 Tirs au but : <b>" + esc(shootout_score) + "</b>"
+        + (("<br/>" + result) if result else "") + "</blockquote>"
+        if shootout_score else ""
+    )
     message = (
         "<b>🏁 RÉSULTAT FINAL</b>\n"
-        "<i>Fin du match suivi.</i>\n\n"
-        "<b>💬 Votre avis sur le match ?</b>"
+        "<i>Fin du match suivi.</i>"
+        + shootout_block
+        + "\n\n<b>💬 Votre avis sur le match ?</b>"
     )
     logo_home = plain(signal.get("home_logo"), 500)
     logo_away = plain(signal.get("away_logo"), 500)
@@ -1751,6 +1771,7 @@ def followed_final_publication(signal: dict) -> Publication | None:
                 "away": away,
                 "event_date": signal.get("event_date"),
                 "score": scores,
+                "confirmation_count": int(signal.get("confirmation_count") or 1),
             }],
         }
 
