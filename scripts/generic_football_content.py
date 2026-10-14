@@ -1,7 +1,8 @@
-"""Telegram copy for the three generic MR XPRONOS football banners.
+"""Telegram copy and buttons for the three generic MR XPRONOS banners.
 
-Rule: the banner identifies the subject (team(s) + event label). The caption
-contains only useful details that are NOT already visible on the image.
+The image answers: WHAT publication is this? / WHICH team(s)?
+The caption answers: WHEN? SCORE? WHO? WHY? SOURCE?
+Nothing already prominent on the banner is needlessly repeated.
 """
 from __future__ import annotations
 
@@ -48,7 +49,7 @@ def _score(payload: dict[str, Any]) -> str:
 def _source_line(payload: dict[str, Any]) -> str:
     competition = _plain(payload.get("competition") or payload.get("league"), 80)
     source = _plain(payload.get("source"), 80)
-    parts = []
+    parts: list[str] = []
     if competition:
         parts.append(_esc(competition))
     if source:
@@ -57,22 +58,36 @@ def _source_line(payload: dict[str, Any]) -> str:
 
 
 def _blockquote(lines: list[str]) -> str:
-    clean = [line for line in lines if line]
-    return "<blockquote>" + "<br/>".join(clean) + "</blockquote>" if clean else ""
+    rows = [line for line in lines if line]
+    return "<blockquote>" + "<br/>".join(rows) + "</blockquote>" if rows else ""
+
+
+def _moment_line(minute: str, score: str) -> str:
+    parts: list[str] = []
+    if minute:
+        parts.append("⏱ <b>" + _esc(minute) + "</b>")
+    if score:
+        parts.append("📊 <b>" + _esc(score) + "</b>")
+    return " • ".join(parts)
+
+
+def _unknown(label: str) -> str:
+    return label + " : <i>non communiqué</i>"
 
 
 def live_keyboard(payload: dict[str, Any], *, include_live: bool = True) -> dict[str, Any] | None:
+    """Small, action-oriented keyboard; never add decorative buttons."""
     rows: list[list[dict[str, str]]] = []
     if include_live:
         rows.append([{
-            "text": "⚡ Suivre le LIVE",
+            "text": "⚡ LIVE DU MATCH",
             "url": LIVE_URL,
             "style": "primary",
         }])
     espn = _plain(payload.get("espn_url"), 600)
     if espn.startswith("https://www.espn.com/"):
         rows.append([{
-            "text": "✅ Source ESPN",
+            "text": "✅ Vérifier sur ESPN",
             "url": espn,
             "style": "success",
         }])
@@ -87,11 +102,11 @@ def live_keyboard(payload: dict[str, Any], *, include_live: bool = True) -> dict
 
 
 def banner_caption(category: str, payload: dict[str, Any]) -> str:
-    """Return compact rich HTML copy for a generic banner."""
     category = str(category or "")
     minute = _minute(payload)
     score = _score(payload)
     source_line = _source_line(payload)
+    moment = _moment_line(minute, score)
 
     goal_categories = {"goal", "but", "but_full", "but_scorer_only"}
     card_yellow = {"carton_jaune", "carton_jaune_full", "carton_jaune_unknown"}
@@ -117,90 +132,74 @@ def banner_caption(category: str, payload: dict[str, Any]) -> str:
         )
         qualifier = ""
         if goal.get("penalty") or payload.get("penalty"):
-            qualifier = " <i>(pen.)</i>"
+            qualifier = " <i>(penalty)</i>"
         elif goal.get("own_goal") or payload.get("own_goal"):
             qualifier = " <i>(c.s.c.)</i>"
-        rows = []
-        if score or minute:
-            rows.append("<b>" + _esc(score or "Score actualisé") + ((" • " + _esc(minute)) if minute else "") + "</b>")
-        if scorer:
-            rows.append("🎯 Buteur : <b>" + _esc(scorer) + "</b>" + qualifier)
+        rows = [moment] if moment else []
+        rows.append(
+            "🎯 Buteur : <b>" + _esc(scorer) + "</b>" + qualifier
+            if scorer else _unknown("🎯 Buteur")
+        )
         if assist:
-            rows.append("🅰️ Passe : " + _esc(assist))
+            rows.append("🅰️ Passe décisive : <b>" + _esc(assist) + "</b>")
         return "\n\n".join(x for x in (_blockquote(rows), source_line) if x)
 
     if category == "kickoff":
-        rows = ["<b>Le match est lancé.</b>"]
-        if score:
-            rows.append("Score : <b>" + _esc(score) + "</b>")
-        if minute:
-            rows.append("⏱ " + _esc(minute))
+        rows = [moment] if moment else []
+        rows.append("<b>Le match est lancé.</b>")
         return "\n\n".join(x for x in (_blockquote(rows), source_line) if x)
 
     if category == "mi_temps":
-        rows = []
-        if score:
-            rows.append("Score à la pause : <b>" + _esc(score) + "</b>")
+        rows = [moment] if moment else []
+        if not score:
+            rows.append("<i>Score non communiqué.</i>")
         rows.append("💬 Votre avis sur cette première période ?")
         return "\n\n".join(x for x in (_blockquote(rows), source_line) if x)
 
     if category in score_categories:
-        rows = []
-        if score:
-            rows.append("<b>" + _esc(score) + "</b>" + ((" • " + _esc(minute)) if minute else ""))
-        status = _plain(payload.get("status"), 100)
+        rows = [moment] if moment else ["<i>Score en attente de confirmation.</i>"]
+        status = _plain(payload.get("status"), 120)
         if status:
             rows.append(_esc(status))
         return "\n\n".join(x for x in (_blockquote(rows), source_line) if x)
 
     if category in {"poteau", "occasion_manquee", "arret_decisif"}:
         player = _plain(payload.get("player") or payload.get("scorer"), 80)
-        rows = []
-        if score or minute:
-            rows.append("<b>" + _esc(score or "") + ((" • " + _esc(minute)) if minute else "") + "</b>")
-        if player:
-            rows.append("👤 " + _esc(player))
         info = _plain(payload.get("info") or payload.get("context"), 180)
+        rows = [moment] if moment else []
+        rows.append("👤 <b>" + _esc(player) + "</b>" if player else _unknown("👤 Joueur"))
         if info:
             rows.append(_esc(info))
         return "\n\n".join(x for x in (_blockquote(rows), source_line) if x)
 
     if category in card_yellow | card_red:
         player = _plain(payload.get("player") or payload.get("card_player"), 80)
-        reason = _plain(payload.get("reason") or payload.get("detail"), 130)
-        rows = []
-        if minute:
-            rows.append("⏱ <b>" + _esc(minute) + "</b>")
-        if player:
-            rows.append("👤 <b>" + _esc(player) + "</b>")
-        if reason:
-            rows.append("Motif : " + _esc(reason))
-        if score:
-            rows.append("Score : <b>" + _esc(score) + "</b>")
+        reason = _plain(payload.get("reason") or payload.get("detail"), 140)
+        rows = [moment] if moment else []
+        rows.append("👤 <b>" + _esc(player) + "</b>" if player else _unknown("👤 Joueur"))
+        rows.append("Motif : " + _esc(reason) if reason else _unknown("Motif"))
         return "\n\n".join(x for x in (_blockquote(rows), source_line) if x)
 
     if category in substitution:
         entrant = _plain(payload.get("entrant") or payload.get("incoming") or payload.get("player_in"), 80)
         sortant = _plain(payload.get("sortant") or payload.get("outgoing") or payload.get("player_out"), 80)
-        rows = []
-        if minute:
-            rows.append("⏱ <b>" + _esc(minute) + "</b>")
+        rows = [moment] if moment else []
         if entrant:
             rows.append("🟢 Entre : <b>" + _esc(entrant) + "</b>")
+        elif category in {"remplacement_full", "remplacement_entrant"}:
+            rows.append(_unknown("🟢 Entrant"))
         if sortant:
-            rows.append("🔴 Sort : " + _esc(sortant))
+            rows.append("🔴 Sort : <b>" + _esc(sortant) + "</b>")
+        elif category in {"remplacement_full", "remplacement_sortant"}:
+            rows.append(_unknown("🔴 Sortant"))
         return "\n\n".join(x for x in (_blockquote(rows), source_line) if x)
 
     if category in {"intervention_medicale", "blessure_confirmee", "retour_au_jeu"}:
         player = _plain(payload.get("player"), 80)
-        detail = _plain(payload.get("reason") or payload.get("status") or payload.get("info"), 180)
-        rows = []
-        if minute:
-            rows.append("⏱ <b>" + _esc(minute) + "</b>")
-        if player:
-            rows.append("👤 <b>" + _esc(player) + "</b>")
-        if detail:
-            rows.append(_esc(detail))
+        detail = _plain(payload.get("reason") or payload.get("status") or payload.get("info"), 200)
+        rows = [moment] if moment else []
+        rows.append("👤 <b>" + _esc(player) + "</b>" if player else _unknown("👤 Joueur"))
+        rows.append(_esc(detail) if detail else "<i>Informations complémentaires en attente.</i>")
         return "\n\n".join(x for x in (_blockquote(rows), source_line) if x)
 
     if category in {
@@ -209,14 +208,18 @@ def banner_caption(category: str, payload: dict[str, Any]) -> str:
         "match_reporte", "match_annulé", "match_annule", "reprise_du_match",
         "reprise_match",
     }:
-        detail = _plain(payload.get("reason") or payload.get("status") or payload.get("info"), 220)
-        rows = []
+        detail = _plain(payload.get("reason") or payload.get("status") or payload.get("info"), 240)
+        rows = [moment] if moment else []
+        if category in {"match_reporte", "match_reporté"} and not detail:
+            detail = "Nouvelle date à confirmer."
+        elif category in {"match_annule", "match_annulé"} and not detail:
+            detail = "Motif de l’annulation non communiqué."
+        elif category in {"match_interrompu", "match_interrompu_full", "match_interrompu_unknown", "suivi_interrompu"} and not detail:
+            detail = "Motif de l’interruption non communiqué."
+        elif category in {"reprise_match", "reprise_du_match"} and not detail:
+            detail = "La reprise du jeu est confirmée."
         if detail:
             rows.append("<b>" + _esc(detail) + "</b>")
-        if minute:
-            rows.append("⏱ " + _esc(minute))
-        if score:
-            rows.append("Score au moment de l’arrêt : <b>" + _esc(score) + "</b>")
         return "\n\n".join(x for x in (_blockquote(rows), source_line) if x)
 
     if category in {
@@ -225,14 +228,12 @@ def banner_caption(category: str, payload: dict[str, Any]) -> str:
         "fin_du_temps_réglementaire", "fin_temps_reglementaire",
         "prolongation", "mi_temps_de_la_prolongation", "mi_temps_prolongation",
     }:
-        rows = []
-        if score:
-            rows.append("Score : <b>" + _esc(score) + "</b>")
-        if minute:
-            rows.append("⏱ " + _esc(minute))
-        info = _plain(payload.get("info") or payload.get("status"), 160)
+        rows = [moment] if moment else []
+        info = _plain(payload.get("info") or payload.get("status"), 180)
         if info:
             rows.append(_esc(info))
+        if not rows:
+            rows.append("<i>État du match confirmé.</i>")
         return "\n\n".join(x for x in (_blockquote(rows), source_line) if x)
 
     if category in {
@@ -245,16 +246,16 @@ def banner_caption(category: str, payload: dict[str, Any]) -> str:
         if isinstance(shootout, (list, tuple)) and len(shootout) >= 2:
             shootout_text = f"{shootout[0]}–{shootout[1]}"
         player = _plain(payload.get("player"), 80)
-        rows = []
-        if score:
-            rows.append("Score : <b>" + _esc(score) + "</b>")
+        rows = [moment] if moment else []
         if shootout_text:
-            rows.append("Tirs au but : <b>" + _esc(shootout_text) + "</b>")
+            rows.append("🎯 Tirs au but : <b>" + _esc(shootout_text) + "</b>")
         if player:
-            rows.append("👤 " + _esc(player))
-        info = _plain(payload.get("info") or payload.get("detail"), 150)
+            rows.append("👤 <b>" + _esc(player) + "</b>")
+        info = _plain(payload.get("info") or payload.get("detail"), 170)
         if info:
             rows.append(_esc(info))
+        if not rows:
+            rows.append("<i>Détails de la séance en attente.</i>")
         return "\n\n".join(x for x in (_blockquote(rows), source_line) if x)
 
     if category in {
@@ -262,14 +263,14 @@ def banner_caption(category: str, payload: dict[str, Any]) -> str:
         "changement_de_composition", "changement_composition",
     }:
         players = payload.get("players") or payload.get("probable_xi") or payload.get("lineup")
-        rows = []
+        rows: list[str] = []
         if isinstance(players, (list, tuple)) and players:
-            names = []
+            names: list[str] = []
             for item in players[:11]:
-                if isinstance(item, dict):
-                    name = _plain(item.get("name") or item.get("player_name"), 60)
-                else:
-                    name = _plain(item, 60)
+                name = _plain(
+                    (item.get("name") or item.get("player_name")) if isinstance(item, dict) else item,
+                    60,
+                )
                 if name:
                     names.append(name)
             if names:
@@ -279,46 +280,53 @@ def banner_caption(category: str, payload: dict[str, Any]) -> str:
         if entrant:
             rows.append("🟢 Entre dans le XI : <b>" + _esc(entrant) + "</b>")
         if sortant:
-            rows.append("🔴 Sort du XI : " + _esc(sortant))
+            rows.append("🔴 Sort du XI : <b>" + _esc(sortant) + "</b>")
         formation = _plain(payload.get("formation"), 30)
         if formation:
             rows.append("Formation : <b>" + _esc(formation) + "</b>")
+        if not rows:
+            rows.append("<i>Liste détaillée en attente de confirmation.</i>")
         return "\n\n".join(x for x in (_blockquote(rows), source_line) if x)
 
     if category in {"absence_confirmée", "absence_confirmee", "retour_dans_le_groupe", "retour_groupe"}:
         player = _plain(payload.get("player"), 80)
-        detail = _plain(payload.get("reason") or payload.get("status") or payload.get("info"), 190)
-        rows = []
-        if player:
-            rows.append("👤 <b>" + _esc(player) + "</b>")
-        if detail:
-            rows.append(_esc(detail))
+        detail = _plain(payload.get("reason") or payload.get("status") or payload.get("info"), 200)
+        rows = [
+            "👤 <b>" + _esc(player) + "</b>" if player else _unknown("👤 Joueur"),
+            _esc(detail) if detail else "<i>Détail non communiqué.</i>",
+        ]
         return "\n\n".join(x for x in (_blockquote(rows), source_line) if x)
 
     if category in {"statistique", "statistique_avancee"}:
-        headline = _plain(payload.get("headline") or payload.get("title"), 220)
+        # Le headline est déjà sur la bannière générale ou le type STAT DU MATCH
+        # sur la bannière match; ne pas le répéter.
         lines = payload.get("lines") if isinstance(payload.get("lines"), list) else []
-        rows = []
-        if headline:
-            rows.append("<b>" + _esc(headline) + "</b>")
-        rows.extend("• " + _esc(x, 180) for x in lines[:4] if _plain(x, 180))
+        rows = ["• " + _esc(x, 180) for x in lines[:4] if _plain(x, 180)]
         confidence = payload.get("confidence")
         if confidence not in (None, ""):
-            rows.append("Confiance : <b>" + _esc(confidence) + "%</b>")
-        return "\n\n".join(x for x in (_blockquote(rows), source_line, "<b>💬 Quelle statistique veux-tu voir demain ?</b>") if x)
+            rows.append("Indice de confiance : <b>" + _esc(confidence) + "%</b>")
+        if not rows and category == "statistique":
+            rows.append("📊 Donnée vérifiée dans le match.")
+        tail = "<b>💬 Quelle statistique voulez-vous voir ensuite ?</b>"
+        return "\n\n".join(x for x in (_blockquote(rows), source_line, tail) if x)
 
     if category == "debat":
         summary = _plain(payload.get("summary"), 350)
         question = _plain(payload.get("question"), 240)
         return "\n\n".join(x for x in (
-            _blockquote([_esc(summary)] if summary else []),
-            ("<b>💬 " + _esc(question) + "</b>") if question else "",
+            _blockquote([_esc(summary)] if summary else ["<i>Contexte à compléter.</i>"]),
+            ("<b>💬 " + _esc(question) + "</b>") if question else "<b>💬 Donnez votre avis.</b>",
             source_line,
         ) if x)
 
     if category in {"quiz", "sondage", "community_vote", "reaction"}:
         question = _plain(payload.get("question") or payload.get("reaction"), 260)
-        return ("<blockquote><b>" + _esc(question) + "</b></blockquote>") if question else source_line
+        if question:
+            return "<blockquote><b>" + _esc(question) + "</b></blockquote>" + (("\n\n" + source_line) if source_line else "")
+        return "<blockquote><b>💬 À vous de participer.</b></blockquote>" + (("\n\n" + source_line) if source_line else "")
 
     info = _plain(payload.get("info") or payload.get("status") or payload.get("detail"), 250)
-    return "\n\n".join(x for x in (_blockquote([_esc(info)] if info else []), source_line) if x)
+    return "\n\n".join(x for x in (
+        _blockquote([_esc(info)] if info else ["<i>Information complémentaire non communiquée.</i>"]),
+        source_line,
+    ) if x)
