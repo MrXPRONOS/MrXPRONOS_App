@@ -138,16 +138,18 @@ class TemplateCardsTests(unittest.TestCase):
             ],
         }
 
-        with patch.object(programme_styles, "load_logo", return_value=fake_logo):
+        max_logo = tc.COMPOSITION_LAYOUT["home_logo"]["max_px"]
+        with patch.object(programme_styles, "load_logo", return_value=fake_logo.copy()):
             image = tc.render("composition", payload)
-            fitted_logo = tc._load_logo("https://test/home.png", 158)
+        with patch.object(programme_styles, "load_logo", return_value=fake_logo.copy()):
+            fitted_logo = tc._load_logo("https://test/home.png", max_logo)
 
         self.assertEqual(image.size, (1374, 1145))
         self.assertEqual(image.mode, "RGB")
         self.assertEqual(len(tc.COMPOSITION_ROWS), 11)
-        self.assertLessEqual(fitted_logo.width, 158)
-        self.assertLessEqual(fitted_logo.height, 158)
-        self.assertEqual(fitted_logo.size, (158, 79))
+        self.assertLessEqual(fitted_logo.width, max_logo)
+        self.assertLessEqual(fitted_logo.height, max_logo)
+        self.assertEqual(fitted_logo.size, (144, 72))
 
     def test_template_composition_refuse_une_liste_incomplete(self):
         import programme_styles
