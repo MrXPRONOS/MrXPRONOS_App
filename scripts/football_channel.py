@@ -40,7 +40,7 @@ from free_football_sources import (  # noqa: E402
     summarize_h2h,
     SOURCE_QUALITY,
 )
-from telegram_rich import post_photo, post_text, post_animation  # noqa: E402
+from telegram_rich import post_photo, post_text, post_animation, _post_rate_limited  # noqa: E402
 from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish)  # noqa: E402
 import football_followup as followup  # noqa: E402
 from football_stats_engine import daily_insight  # noqa: E402
@@ -745,7 +745,8 @@ class Sender:
             return None
         if self._discussion_checked:
             return self.linked_chat_id
-        response = self.session.post(
+        response = _post_rate_limited(
+            self.session,
             "https://api.telegram.org/bot" + self.token + "/getChat",
             data={"chat_id": self.chat}, timeout=(12, 30),
         )
@@ -814,7 +815,8 @@ class Sender:
                 poll_data["correct_option_ids"] = json.dumps(ids)
                 poll_data["explanation"] = plain(item.poll_explanation, 200)
                 poll_data["allows_revoting"] = "false"
-            response = self.session.post(
+            response = _post_rate_limited(
+                self.session,
                 "https://api.telegram.org/bot" + self.token + "/sendPoll",
                 data=poll_data,
                 timeout=(12, 55),
