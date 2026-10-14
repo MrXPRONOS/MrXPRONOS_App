@@ -54,7 +54,7 @@ from football_community_engine import (  # noqa: E402
     build_news_debate,
     build_postmatch_reaction,
 )
-from generic_football_content import banner_caption, live_keyboard  # noqa: E402
+from generic_football_content import banner_caption, live_keyboard, compact_keyboard_rows  # noqa: E402
 
 TZ = ZoneInfo("Africa/Lome")
 STATE_PATH = Path(os.getenv("FOOTBALL_NEWS_STATE", ".state/mrxpronos-football.json"))
@@ -911,22 +911,22 @@ def flash(articles: list[dict], history: History, now: datetime) -> Publication 
             "<i>🗞️ Source : " + esc(source) + "</i>\n"
             "<a href=\"" + esc(site_url) + "\">Lire l’info complète sur Mr XPRONOS ↗</a>"
         )
-        keyboard_rows = [[
-            {"text": "📰 Lire l’article ↗", "url": site_url, "style": "primary"}
-        ]]
+        keyboard_buttons = [
+            {"text": "📰 Article", "url": site_url, "style": "primary"}
+        ]
         verification = None
         espn_verification = article.get("espn_verification")
         if isinstance(espn_verification, dict):
             espn_url = str(espn_verification.get("url") or "")
             if espn_url.startswith("https://") and (urlparse(espn_url).hostname or "").lower().endswith("espn.com"):
-                keyboard_rows.append([{"text": "✅ Source ESPN ↗", "url": espn_url, "style": "success"}])
+                keyboard_buttons.append({"text": "✅ ESPN", "url": espn_url, "style": "success"})
                 verification = {
                     "type": "news",
                     "url": espn_url,
                     "matched_terms": espn_verification.get("matched_terms") or [],
                 }
                 message += "\n<i>✅ Information aussi repérée chez ESPN.</i>"
-        keyboard = {"inline_keyboard": keyboard_rows}
+        keyboard = {"inline_keyboard": compact_keyboard_rows(keyboard_buttons)}
         return Publication(
             "flash", key, message, image_path=image_path,
             keyboard=keyboard, verification=verification,
@@ -1179,16 +1179,17 @@ def viral_publication(
     buttons = []
     target = plain(payload.get("target_url"), 500)
     if target.startswith("https://"):
-        buttons.append([{"text": "Voir plus ↗", "url": target, "style": "primary"}])
+        buttons.append({"text": "▶️ Voir", "url": target, "style": "primary"})
     credit_url = media_credit_url(payload)
     if credit_url.startswith("https://"):
-        buttons.append([{"text": "Crédit média ↗", "url": credit_url}])
+        buttons.append({"text": "🎞 Crédit", "url": credit_url})
 
+    rows = compact_keyboard_rows(buttons)
     return Publication(
         "viral",
         key,
         caption,
-        keyboard={"inline_keyboard": buttons} if buttons else None,
+        keyboard={"inline_keyboard": rows} if rows else None,
         animation_payload=payload,
     )
 
