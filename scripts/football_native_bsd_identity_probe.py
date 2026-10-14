@@ -32,7 +32,7 @@ ALLOWED_NATIVE_STATUSES=frozenset(("upcoming","notstarted"))
 def positive_native_id(value):
     if type(value) is int:
         return value if 0<value<7_000_000_000_000_000 else None
-    if isinstance(value,str) and value.isascii() and value.isdecimal():
+    if isinstance(value,str) and value.isascii() and value.isdecimal() and value[0]!="0":
         number=int(value)
         return number if 0<number<7_000_000_000_000_000 else None
     return None
