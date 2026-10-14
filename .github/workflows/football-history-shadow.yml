@@ -46,6 +46,8 @@ on:
       - 'tests/test_football_sportscore_filtered_audit.py'
       - 'scripts/football_multisource_release_gate.py'
       - 'tests/test_football_multisource_release_gate.py'
+      - 'scripts/football_multisource_calibrated_replay.py'
+      - 'tests/test_football_multisource_calibrated_replay.py'
       - '.github/workflows/football-history-shadow.yml'
   workflow_dispatch:
     inputs:
@@ -87,7 +89,7 @@ jobs:
         run: |
           php -l scripts/football_history_import.php
           php scripts/football_history_import.php --self-test
-          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py scripts/football_bsd_private_history.py scripts/football_bsd_validate_real.py scripts/football_bsd_private_paired_backtest.py scripts/football_external_bsd_v2_adapter.py scripts/football_multi_api_history_inputs.py scripts/football_verified_identity_crosswalk.py scripts/football_authorized_h2h_collector.py scripts/football_openfootball_world_import.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py tests/test_football_bsd_private_history.py tests/test_football_bsd_validate_real.py tests/test_football_bsd_private_paired_backtest.py tests/test_football_external_bsd_v2_adapter.py tests/test_football_multi_api_history_inputs.py tests/test_football_verified_identity_crosswalk.py tests/test_football_authorized_h2h_collector.py tests/test_football_openfootball_world_import.py scripts/football_cc0_calendar_verification.py scripts/football_prematch_multiday_probe.py scripts/football_multisource_channel_test.py tests/test_football_multisource_channel_test.py scripts/football_sportscore_filtered_audit.py tests/test_football_sportscore_filtered_audit.py scripts/football_multisource_release_gate.py tests/test_football_multisource_release_gate.py
+          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py scripts/football_bsd_private_history.py scripts/football_bsd_validate_real.py scripts/football_bsd_private_paired_backtest.py scripts/football_external_bsd_v2_adapter.py scripts/football_multi_api_history_inputs.py scripts/football_verified_identity_crosswalk.py scripts/football_authorized_h2h_collector.py scripts/football_openfootball_world_import.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py tests/test_football_bsd_private_history.py tests/test_football_bsd_validate_real.py tests/test_football_bsd_private_paired_backtest.py tests/test_football_external_bsd_v2_adapter.py tests/test_football_multi_api_history_inputs.py tests/test_football_verified_identity_crosswalk.py tests/test_football_authorized_h2h_collector.py tests/test_football_openfootball_world_import.py scripts/football_cc0_calendar_verification.py scripts/football_prematch_multiday_probe.py scripts/football_multisource_channel_test.py tests/test_football_multisource_channel_test.py scripts/football_sportscore_filtered_audit.py tests/test_football_sportscore_filtered_audit.py scripts/football_multisource_release_gate.py tests/test_football_multisource_release_gate.py scripts/football_multisource_calibrated_replay.py tests/test_football_multisource_calibrated_replay.py
           python -m unittest discover -s tests -p 'test_football_history_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_daily_multisource_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_history_features.py' -v
@@ -107,6 +109,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_football_multisource_channel_test.py' -v
           python -m unittest discover -s tests -p 'test_football_sportscore_filtered_audit.py' -v
           python -m unittest discover -s tests -p 'test_football_multisource_release_gate.py' -v
+          python -m unittest discover -s tests -p 'test_football_multisource_calibrated_replay.py' -v
   historical_probe:
     if: github.event_name == 'workflow_dispatch'
     needs: verify
@@ -533,7 +536,7 @@ jobs:
       github.event.pull_request.head.ref == 'feat/multisource-history-shadow-20261014'
     needs: verify
     runs-on: ubuntu-latest
-    timeout-minutes: 14
+    timeout-minutes: 35
     permissions:
       contents: read
     steps:
@@ -651,6 +654,38 @@ jobs:
             'historic_matches','calibrated_production_coupons')}
           print('MULTIDAY_READONLY_BSD_V2_PREFLIGHT',json.dumps(summary))
           PY
+      - name: Train ORIGINAL full BSD V2 models and replay 2026 held-out results (read-only)
+        run: |
+          set -euo pipefail
+          python scripts/football_multisource_calibrated_replay.py \
+            --licensed-history=tmp/readonly-licensed-history.jsonl \
+            --fixtures=tmp/readonly-confirmed-fixtures.json \
+            --at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --fit-cutoff=2026-01-01T00:00:00+00:00 \
+            --max-holdout=120 \
+            --report=tmp/readonly-calibrated-replay.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('tmp/readonly-calibrated-replay.json').read_text())
+          assert r['research_only'] is True
+          assert r['production_publication_authorized'] is False
+          assert r['all_native_bsd_v2_fit_functions_used'] is True
+          assert r['full_calibration_and_specialists_executed'] is True
+          assert r['holdout_evaluation']['strict_pre_day_data_availability_enforced'] is True
+          assert r['holdout_evaluation']['not_a_verified_kickoff_or_odds_backtest'] is True
+          assert r['upcoming_research']['official_bookmaker_quotes_loaded'] is False
+          assert r['upcoming_research']['production_tracker_loaded'] is False
+          assert r['raw_or_private_events_exported'] is False
+          assert r['telegram_posts'] == 0
+          assert r['training_results_before_cutoff'] <= r['historical_results_available']
+          assert r['holdout_evaluation']['matches_examined'] <= 120
+          print('BSD_V2_CALIBRATION_RESEARCH_CHECK',json.dumps({
+              'training_sufficient':r['training_sufficiency_requirements_met'],
+              'holdout_examined':r['holdout_evaluation']['matches_examined'],
+              'selected':r['holdout_evaluation']['selected_without_market_quotes'],
+              'full_publication':False}))
+          PY
       - name: Produce fail-closed explicit release decision (NO-GO until external proof)
         run: |
           set -euo pipefail
@@ -687,6 +722,7 @@ jobs:
             tmp/readonly-v2-report.json
             tmp/sportscore-upcoming-audit.json
             tmp/multisource-release-gate.json
+            tmp/readonly-calibrated-replay.json
           retention-days: 3
           if-no-files-found: error
 
