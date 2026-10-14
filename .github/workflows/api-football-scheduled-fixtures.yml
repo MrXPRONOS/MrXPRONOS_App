@@ -1,0 +1,30 @@
+name: Mr XPRONOS - API-Football future fixtures
+on:
+  schedule:
+    - cron: '20 0,6,12,18 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/api_football_scheduled_fixtures.py'
+      - '.github/workflows/api-football-scheduled-fixtures.yml'
+permissions:
+  contents: read
+concurrency:
+  group: api-football-future-fixtures
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Fetch API-Football upcoming fixtures (2 days, 8 calls/day max)
+        run: python scripts/api_football_scheduled_fixtures.py
