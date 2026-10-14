@@ -17,6 +17,7 @@ import os
 import re
 import sys
 import tempfile
+import unicodedata
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from datetime import datetime, date, timedelta, timezone
@@ -40,8 +41,8 @@ from free_football_sources import (  # noqa: E402
     summarize_h2h,
     SOURCE_QUALITY,
 )
-from telegram_rich import post_photo, post_text, post_animation  # noqa: E402
-from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish)  # noqa: E402
+from telegram_rich import post_photo, post_text, post_animation, _post_rate_limited  # noqa: E402
+from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish, fetch_supabase_live)  # noqa: E402
 import football_followup as followup  # noqa: E402
 from football_stats_engine import daily_insight  # noqa: E402
 from football_viral_engine import (  # noqa: E402
@@ -60,11 +61,30 @@ TZ = ZoneInfo("Africa/Lome")
 STATE_PATH = Path(os.getenv("FOOTBALL_NEWS_STATE", ".state/mrxpronos-football.json"))
 RSS_URL = os.getenv("FOOTBALL_RSS_FEED", "https://www.footmercato.net/flux-rss")
 NEWS_CHAT_ENV = "FOOTBALL_NEWS_CHAT_ID"
-MAX_MESSAGES_PER_RUN = 2
-LIMITS = {"flash": 2, "programme": 1, "avant_match": 2, "resultat": 2,
-          "statistique": 1, "sondage": 1, "quiz": 1, "debat": 1,
-          "reaction": 1, "viral": 1, "composition": 6, "kickoff": 8,
-          "goal": 14, "mi_temps": 8, "score_update": 32, "suivi_interrompu": 8}
+MAX_MESSAGES_PER_RUN = 8
+LIMITS = {
+    "flash": 3, "programme": 1, "avant_match": 2, "resultat": 12,
+    "statistique": 1, "sondage": 1, "quiz": 1, "debat": 1,
+    "reaction": 1, "viral": 1, "composition": 12, "changement_composition": 12,
+    "kickoff": 12, "goal": 48, "mi_temps": 12, "mi_temps_prolongation": 12,
+    "debut_2e_mi_temps": 12, "temps_additionnel": 12, "prolongation": 12,
+    "carton_rouge": 48, "carton_jaune": 24, "remplacement": 36,
+    "tirs_au_but": 12, "tir_au_but_marque": 48, "tir_au_but_manque": 48,
+    "fin_tirs_au_but": 12, "score_update": 24, "suivi_interrompu": 12,
+}
+P0_CATEGORIES = {
+    "goal", "carton_rouge", "resultat", "suivi_interrompu",
+    "tirs_au_but", "tir_au_but_marque", "tir_au_but_manque", "fin_tirs_au_but",
+}
+P1_CATEGORIES = {
+    "composition", "changement_composition", "kickoff", "mi_temps",
+    "mi_temps_prolongation", "debut_2e_mi_temps", "temps_additionnel",
+    "prolongation", "remplacement",
+}
+P2_CATEGORIES = {"score_update", "carton_jaune", "flash"}
+P3_CATEGORIES = {"programme", "avant_match"}
+P4_CATEGORIES = {"statistique", "sondage", "quiz", "debat", "reaction", "viral"}
+CLASS_BUDGETS = {"P0": 6, "P1": 4, "P2": 2, "P3": 2, "P4": 1}
 LEAGUE_TERMS = (
     "champions league", "premier league", "ligue 1", "la liga", "laliga",
     "serie a", "bundesliga", "europa league", "coupe du monde", "world cup",
@@ -122,8 +142,8 @@ EDITORIAL_WINDOWS = {
     "viral": ((19, 15), (20, 15)),             # cible 19h30/20h00
     "community_reaction": ((21, 0), (22, 45)), # après les grosses affiches
 }
-PRODUCTION_START_HOUR = 7
-PRODUCTION_END_HOUR = 23
+PRODUCTION_START_HOUR = 0
+PRODUCTION_END_HOUR = 24
 
 
 def _minutes_since_midnight(dt: datetime) -> int:
@@ -362,10 +382,14 @@ class History:
         self.path = path
         self.items: dict[str, dict[str, str]] = {}
         self.followed: dict[str, dict] = {}
+        self.observations: dict[str, str] = {}
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
             entries = payload.get("sent", {}) if isinstance(payload, dict) else {}
             tracked = payload.get("followed", {}) if isinstance(payload, dict) else {}
+            observations = payload.get("observations", {}) if isinstance(payload, dict) else {}
+            if isinstance(observations, dict):
+                self.observations = {str(k): str(v) for k, v in observations.items() if v}
             if isinstance(tracked, dict):
                 self.followed = {str(k): v for k, v in tracked.items() if isinstance(v, dict)}
             if isinstance(entries, dict):
@@ -386,9 +410,24 @@ class History:
         times = [t for t in times if t is not None]
         return max(times) if times else None
 
+    def seen_recent(self, key: str, now: datetime, *, hours: int) -> bool:
+        entry = self.items.get(key)
+        when = moment(entry.get("at")) if isinstance(entry, dict) else None
+        return when is not None and now - when <= timedelta(hours=hours)
+
     def mark(self, key: str, category: str, now: datetime) -> None:
         self.items[key] = {"category": category, "day": now.astimezone(TZ).date().isoformat(),
                            "at": now.isoformat()}
+
+    def first_observed(self, key: str, now: datetime) -> datetime:
+        current = moment(self.observations.get(key))
+        if current is not None:
+            return current
+        self.observations[key] = now.isoformat()
+        return now
+
+    def clear_observation(self, key: str) -> None:
+        self.observations.pop(key, None)
 
     def save(self, now: datetime) -> None:
         since = now - timedelta(days=32)
@@ -398,8 +437,13 @@ class History:
         fd, tmp = tempfile.mkstemp(prefix="football-", suffix=".json", dir=self.path.parent)
         try:
             with os.fdopen(fd, "w", encoding="utf-8") as handle:
-                json.dump({"version": 2, "sent": compact,
-                       "followed": followup.active(self.followed, now)},
+                observations = {
+                    k: v for k, v in self.observations.items()
+                    if (moment(v) or now) >= now - timedelta(hours=8)
+                }
+                json.dump({"version": 3, "sent": compact,
+                       "followed": followup.active(self.followed, now),
+                       "observations": observations},
                       handle, ensure_ascii=False, indent=2)
             os.replace(tmp, self.path)
         finally:
@@ -604,6 +648,85 @@ def espn_preflight(sender: "Sender", item: Publication, *, dry_run: bool = False
     return accepted
 
 
+class RemotePublicationLedger:
+    """Registre Supabase atomique contre les doublons entre runners/workflows.
+
+    Le cache GitHub reste utile pour l'éditorial, mais ce registre est l'autorité
+    pour savoir si un event_key a déjà été réclamé en production.
+    """
+
+    def __init__(self, session: requests.Session, *, enabled: bool):
+        self.session = session
+        self.enabled = bool(enabled)
+        self.url = (os.getenv("SUPABASE_URL") or "").rstrip("/")
+        self.key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
+        if self.enabled and (not self.url or not self.key):
+            raise RuntimeError("Registre Actu Foot requis mais secrets Supabase absents")
+
+    @property
+    def endpoint(self) -> str:
+        return self.url + "/rest/v1/actu_foot_publications"
+
+    def _headers(self, *, minimal: bool = True) -> dict[str, str]:
+        headers = {
+            "apikey": self.key,
+            "Authorization": "Bearer " + self.key,
+            "Content-Type": "application/json",
+        }
+        if minimal:
+            headers["Prefer"] = "return=minimal"
+        return headers
+
+    def claim(self, item: Publication) -> bool:
+        if not self.enabled:
+            return True
+        payload_hash = hashlib.sha256(
+            json.dumps({
+                "category": item.category,
+                "key": item.key,
+                "text": item.text,
+                "card": item.card,
+            }, sort_keys=True, default=str, ensure_ascii=False).encode("utf-8")
+        ).hexdigest()
+        response = self.session.post(
+            self.endpoint,
+            headers=self._headers(),
+            json={
+                "event_key": item.key,
+                "category": item.category,
+                "status": "claimed",
+                "payload_hash": payload_hash,
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            },
+            timeout=(8, 20),
+        )
+        if response.status_code == 409:
+            print("REMOTE_DEDUP_ALREADY_CLAIMED", item.category, item.key)
+            return False
+        response.raise_for_status()
+        return True
+
+    def mark(self, item: Publication, status: str, message_id: int | None = None) -> None:
+        if not self.enabled:
+            return
+        payload: dict[str, Any] = {
+            "status": status,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+        if status == "sent":
+            payload["sent_at"] = datetime.now(timezone.utc).isoformat()
+        if message_id is not None:
+            payload["telegram_message_id"] = int(message_id)
+        response = self.session.patch(
+            self.endpoint,
+            headers=self._headers(),
+            params={"event_key": "eq." + item.key},
+            json=payload,
+            timeout=(8, 20),
+        )
+        response.raise_for_status()
+
+
 class Sender:
     def __init__(self, *, dry_run: bool = False):
         self.dry_run = dry_run
@@ -628,7 +751,8 @@ class Sender:
             return None
         if self._discussion_checked:
             return self.linked_chat_id
-        response = self.session.post(
+        response = _post_rate_limited(
+            self.session,
             "https://api.telegram.org/bot" + self.token + "/getChat",
             data={"chat_id": self.chat}, timeout=(12, 30),
         )
@@ -697,7 +821,8 @@ class Sender:
                 poll_data["correct_option_ids"] = json.dumps(ids)
                 poll_data["explanation"] = plain(item.poll_explanation, 200)
                 poll_data["allows_revoting"] = "false"
-            response = self.session.post(
+            response = _post_rate_limited(
+                self.session,
                 "https://api.telegram.org/bot" + self.token + "/sendPoll",
                 data=poll_data,
                 timeout=(12, 55),
@@ -889,10 +1014,18 @@ def flash(articles: list[dict], history: History, now: datetime) -> Publication 
         if history.seen(key):
             continue
         image_path = str(article.get("image") or "")
-        # News Football utilise toujours une vraie photo issue de la source.
-        if article.get("image_origin") != "source" or not image_path.startswith("assets/images/footnews/"):
+        # Photo RSS d'abord. Une bannière GENERAL n'est acceptée qu'en
+        # dernier recours pour une news majeure (score éditorial >= 4).
+        origin = str(article.get("image_origin") or "")
+        try:
+            editorial_score = int(article.get("editorial_score") or 0)
+        except (TypeError, ValueError):
+            editorial_score = 0
+        if origin not in {"source", "generated_fallback"}:
             continue
-        if not (ROOT / image_path).is_file():
+        if origin == "generated_fallback" and editorial_score < 4:
+            continue
+        if not image_path.startswith("assets/images/footnews/") or not (ROOT / image_path).is_file():
             continue
         title = plain(article.get("title"), 240)
         summary = structured_plain(article.get("telegram_summary") or article.get("summary"), 430)
@@ -1006,7 +1139,12 @@ def resultat(events: list[dict], history: History, now: datetime) -> Publication
         card = {"day": now.astimezone(TZ).strftime("%d/%m/%Y"),
                 "league": league(e), "home": team(e, "home"),
                 "away": team(e, "away"), "scores": (a, b),
-                "source": "BSD V2",
+                "source": plain(
+                    (e.get("_verified_score") or {}).get("provider")
+                    if isinstance(e.get("_verified_score"), dict)
+                    else e.get("source") or "source match",
+                    60,
+                ),
                 "home_logo": team_visual_url(e, "home", allow_remote=True),
                 "away_logo": team_visual_url(e, "away", allow_remote=True)}
         verification = {
@@ -1084,7 +1222,7 @@ def avant_match(events: list[dict], history: History, now: datetime,
                 history_events: list[dict], form_values: dict[str, str] | None = None,
                 h2h_values: dict[str, Any] | None = None) -> Publication | None:
     selected = [e for e in candidates(events)
-                if timedelta(minutes=65) <= kick(e) - now <= timedelta(minutes=170)
+                if timedelta(minutes=60) <= kick(e) - now <= timedelta(minutes=120)
                 and final_score(e) is None and not history.seen("avant_match:" + str(e["id"]))]
     selected = [e for e in selected[:10] if has_two_team_logos(e, allow_remote=True)]
     if not selected:
@@ -1264,7 +1402,12 @@ def statistique(events: list[dict], reference_day: date) -> Publication | None:
     total = h + a
     selected_day = kick(e).astimezone(TZ).date()
     card = {"day": selected_day.strftime("%d/%m/%Y"), "league": league(e),
-            "source": "BSD V2", "headline": str(total) + " buts dans cette rencontre",
+            "source": plain(
+                (e.get("_verified_score") or {}).get("provider")
+                if isinstance(e.get("_verified_score"), dict)
+                else e.get("source") or "source match",
+                60,
+            ), "headline": str(total) + " buts dans cette rencontre",
             "home": team(e, "home"), "away": team(e, "away"), "scores": (h, a),
             "score": f"{h}-{a}",
             "home_logo": team_visual_url(e, "home", allow_remote=True),
@@ -1530,6 +1673,9 @@ def lifecycle_publication(signal: dict) -> Publication | None:
             "time": kickoff_text,
             "home_players": home_players,
             "away_players": away_players,
+            "lineups": {"home": home_players, "away": away_players},
+            "lineup_home_hash": signal.get("lineup_home_hash") or "",
+            "lineup_away_hash": signal.get("lineup_away_hash") or "",
         }
         message = "<b>📋 COMPOSITIONS OFFICIELLES</b>\n<i>Les titulaires sont confirmés.</i>"
         keyboard = live_keyboard({"espn_url": espn_url})
@@ -1557,6 +1703,14 @@ def lifecycle_publication(signal: dict) -> Publication | None:
             "away": away,
             "score": plain(signal.get("score"), 20),
             "goal": signal.get("goal") if isinstance(signal.get("goal"), dict) else {},
+            "lineups": signal.get("lineups") if isinstance(signal.get("lineups"), dict) else {},
+            "lineup_home_hash": plain(signal.get("lineup_home_hash"), 40),
+            "lineup_away_hash": plain(signal.get("lineup_away_hash"), 40),
+            "player": plain(signal.get("player"), 90),
+            "entrant": plain(signal.get("entrant"), 90),
+            "sortant": plain(signal.get("sortant"), 90),
+            "minute": signal.get("minute"),
+            "shootout_scores": signal.get("shootout_scores") or [],
         }
     elif signal.get("event_date"):
         verification = {
@@ -1610,8 +1764,22 @@ def followed_final_publication(signal: dict) -> Publication | None:
         return None
     h, a = (int(n) for n in scores.split("-"))
     comp = plain(signal.get("league") or "Football", 80)
-    result = ("🤝 Match nul" if h == a else
-              "🏅 Victoire de " + esc(home if h > a else away))
+    shootout = signal.get("shootout_scores") if isinstance(signal.get("shootout_scores"), (list, tuple)) else []
+    shootout_score = ""
+    shootout_winner = ""
+    if len(shootout) >= 2 and shootout[0] is not None and shootout[1] is not None:
+        try:
+            sh, sa = int(shootout[0]), int(shootout[1])
+            shootout_score = f"{sh}-{sa}"
+            if sh != sa:
+                shootout_winner = home if sh > sa else away
+        except (TypeError, ValueError):
+            shootout_score = ""
+    result = (
+        ("🎯 Victoire aux tirs au but de " + esc(shootout_winner))
+        if shootout_winner else
+        ("🤝 Match nul" if h == a else "🏅 Victoire de " + esc(home if h > a else away))
+    )
 
     match_data = signal.get("match_data") if isinstance(signal.get("match_data"), dict) else {}
     goals = match_data.get("goals") if isinstance(match_data.get("goals"), list) else []
@@ -1658,10 +1826,16 @@ def followed_final_publication(signal: dict) -> Publication | None:
         context_lines.append("👤 Arbitre : " + esc(referees[0]))
     context_block = "<p>" + "<br/>".join(context_lines) + "</p>" if context_lines else ""
 
+    shootout_block = (
+        "\n\n<blockquote>🎯 Tirs au but : <b>" + esc(shootout_score) + "</b>"
+        + (("<br/>" + result) if result else "") + "</blockquote>"
+        if shootout_score else ""
+    )
     message = (
         "<b>🏁 RÉSULTAT FINAL</b>\n"
-        "<i>Fin du match suivi.</i>\n\n"
-        "<b>💬 Votre avis sur le match ?</b>"
+        "<i>Fin du match suivi.</i>"
+        + shootout_block
+        + "\n\n<b>💬 Votre avis sur le match ?</b>"
     )
     logo_home = plain(signal.get("home_logo"), 500)
     logo_away = plain(signal.get("away_logo"), 500)
@@ -1705,6 +1879,7 @@ def followed_final_publication(signal: dict) -> Publication | None:
                 "away": away,
                 "event_date": signal.get("event_date"),
                 "score": scores,
+                "confirmation_count": int(signal.get("confirmation_count") or 1),
             }],
         }
 
@@ -1718,8 +1893,46 @@ def followed_final_publication(signal: dict) -> Publication | None:
     )
 
 
+def editorial_story_key(item: Publication) -> str:
+    if item.category not in {"flash", "debat", "viral"}:
+        return ""
+    raw = ""
+    if isinstance(item.card, dict):
+        raw = plain(
+            item.card.get("title") or item.card.get("headline")
+            or item.card.get("question") or item.card.get("summary"),
+            260,
+        )
+    if not raw and isinstance(item.animation_payload, dict):
+        raw = plain(
+            item.animation_payload.get("title")
+            or item.animation_payload.get("headline")
+            or item.animation_payload.get("summary"),
+            260,
+        )
+    normalized = re.sub(r"[^a-z0-9]+", " ", unicodedata.normalize("NFKD", raw)
+                        .encode("ascii", "ignore").decode().casefold()).strip()
+    if len(normalized) < 20:
+        return ""
+    return "story:" + hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:24]
+
+
+def priority_class(category: str) -> str:
+    if category in P0_CATEGORIES:
+        return "P0"
+    if category in P1_CATEGORIES:
+        return "P1"
+    if category in P2_CATEGORIES:
+        return "P2"
+    if category in P3_CATEGORIES:
+        return "P3"
+    return "P4"
+
+
 def enough(history: History, cat: str, now: datetime) -> bool:
-    return history.count(cat, now.astimezone(TZ).date()) < LIMITS[cat]
+    if cat in P0_CATEGORIES:
+        return True
+    return history.count(cat, now.astimezone(TZ).date()) < LIMITS.get(cat, 999)
 
 
 
@@ -1732,29 +1945,84 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
     now = now.astimezone(timezone.utc)
     state = History()
     sender = Sender(dry_run=dry_run)
+    ledger = RemotePublicationLedger(
+        sender.session,
+        enabled=(not dry_run and os.getenv("FOOTBALL_REMOTE_LEDGER", "0") == "1"),
+    )
     counter = {"sent": 0, "skipped": 0, "errors": 0}
     max_send = MAX_MESSAGES_PER_RUN
+    class_counter = {key: 0 for key in CLASS_BUDGETS}
 
-    def publish(item: Publication | None, *, ref: str = "") -> None:
-        if item is None or counter["sent"] >= max_send:
-            return
+    def publish(item: Publication | None, *, ref: str = "") -> bool:
+        if item is None:
+            return False
+        story_key = editorial_story_key(item)
+        if story_key and not force and state.seen_recent(story_key, now, hours=12):
+            counter["skipped"] += 1
+            print("EDITORIAL_STORY_COOLDOWN", item.category, story_key)
+            return False
+        cls = priority_class(item.category)
+        if class_counter[cls] >= CLASS_BUDGETS[cls]:
+            return False
+        if cls != "P0" and counter["sent"] >= max_send:
+            return False
         if not force and (state.seen(item.key) or
                           (item.category != "resultat" and not enough(state, item.category, now))):
             counter["skipped"] += 1
-            return
+            return False
+        if item.category == "score_update" and not force:
+            first = state.first_observed(item.key, now)
+            if now - first < timedelta(minutes=2):
+                if not dry_run:
+                    state.save(now)
+                print("SCORE_UPDATE_EN_ATTENTE", item.key)
+                return False
         if not espn_preflight(sender, item, dry_run=dry_run):
             counter["skipped"] += 1
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
-            return
-        sender.send(item)
+            return False
+        if not ledger.claim(item):
+            counter["skipped"] += 1
+            return False
+        try:
+            message_id = sender.send(item)
+        except Exception:
+            # Un timeout réseau après envoi est ambigu : conserver la réservation
+            # empêche un doublon au prochain runner.
+            try:
+                ledger.mark(item, "uncertain")
+            except requests.RequestException as ledger_exc:
+                print("REMOTE_LEDGER_MARK_ERROR", type(ledger_exc).__name__)
+            raise
+        ledger.mark(item, "sent", message_id)
         counter["sent"] += 1
+        class_counter[cls] += 1
         if not dry_run:
             state.mark(item.key, item.category, now)
+            if story_key:
+                state.mark(story_key, "story", now)
+            state.clear_observation(item.key)
+            if item.category == "goal" and item.card:
+                fixture_key = plain(item.card.get("fixture_key"), 180)
+                goal_score = plain(item.card.get("score"), 20)
+                if fixture_key and goal_score:
+                    state.mark(
+                        f"score_guard:{fixture_key}:{goal_score}",
+                        "goal_score_guard",
+                        now,
+                    )
+            if item.category in {"composition", "changement_composition"} and ref in state.followed and item.card:
+                lineups = item.card.get("lineups") if isinstance(item.card.get("lineups"), dict) else {}
+                state.followed[ref]["lineup_home_hash"] = str(item.card.get("lineup_home_hash") or "")
+                state.followed[ref]["lineup_away_hash"] = str(item.card.get("lineup_away_hash") or "")
+                state.followed[ref]["lineup_home"] = list(lineups.get("home") or [])
+                state.followed[ref]["lineup_away"] = list(lineups.get("away") or [])
             if item.category == "resultat" and ref:
                 followup.completed(state.followed, ref, now)
             if item.category == "suivi_interrompu" and ref:
                 state.followed[ref]["cancelled"] = True
             state.save(now)
+        return True
 
     try:
         tracked = followup.base_events(state.followed, now)
@@ -1766,27 +2034,28 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             now,
             sender.session,
             importance,
-            tracked_only=True,
+            tracked_only=False,
         )
-        used_matches: set[str] = set()
+        match_counts: dict[str, int] = {}
         for signal in signals:
             ref = str(signal.get("follow_ref") or "")
-            if not ref or ref not in followup.pending(state.followed, now):
+            if ref and ref not in followup.pending(state.followed, now):
                 continue
             kind = signal.get("kind")
-            # L'ordre final > but > mi-temps > score est conservé par le moteur.
-            match_key = ref
-            if match_key in used_matches:
+            if ref:
+                match_key = ref
+            else:
+                key_parts = str(signal.get("key") or "").split(":")
+                match_key = key_parts[1] if len(key_parts) > 1 else str(signal.get("key") or "")
+            if match_counts.get(match_key, 0) >= 3:
                 continue
             post = (followed_final_publication(signal) if kind == "resultat_final"
                     else followed_interruption_publication(signal) if kind == "suivi_interrompu"
                     else lifecycle_publication(signal))
             if post is None:
                 continue
-            publish(post, ref=ref)
-            used_matches.add(match_key)
-            if counter["sent"] >= max_send:
-                break
+            if publish(post, ref=ref):
+                match_counts[match_key] = match_counts.get(match_key, 0) + 1
     except (requests.RequestException, ValueError, TypeError) as exc:
         counter["errors"] += 1
         print("ERREUR_LIFECYCLE_ONLY", type(exc).__name__, str(exc)[:180])
@@ -1804,10 +2073,24 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
     hour = now.astimezone(TZ).hour
     state = History()
     sender = Sender(dry_run=dry_run)
+    ledger = RemotePublicationLedger(
+        sender.session,
+        enabled=(not dry_run and os.getenv("FOOTBALL_REMOTE_LEDGER", "0") == "1"),
+    )
     client: BSDClient | None = None
     cache: dict[str, list[dict]] = {}
     counter = {"sent": 0, "skipped": 0, "errors": 0}
     max_send = MAX_MESSAGES_PER_RUN
+    class_counter = {key: 0 for key in CLASS_BUDGETS}
+    try:
+        urgent_live_active = any(
+            importance(match) > 0 for match in fetch_supabase_live(sender.session)
+        )
+    except Exception as exc:
+        urgent_live_active = False
+        print("INFO_LIVE_ACTIVITY_CHECK", type(exc).__name__)
+    if urgent_live_active:
+        print("EDITORIAL_P4_SUPPRESSED_IMPORTANT_LIVE")
 
     def get_day(day: date) -> list[dict]:
         nonlocal client
@@ -1845,29 +2128,95 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
 
     def publish(item: Publication | None, *, follow_event: dict | None = None,
                 ref: str = "") -> bool:
-        if item is None or counter["sent"] >= max_send:
+        if item is None:
             return False
+        story_key = editorial_story_key(item)
+        if story_key and not force and state.seen_recent(story_key, now, hours=12):
+            counter["skipped"] += 1
+            print("EDITORIAL_STORY_COOLDOWN", item.category, story_key)
+            return False
+        cls = priority_class(item.category)
+        if cls == "P4" and urgent_live_active and not force:
+            counter["skipped"] += 1
+            print("P4_SUPPRESSED_DURING_IMPORTANT_LIVE", item.category)
+            return False
+        # P0 dispose d'une réserve propre et ne peut jamais être bloqué par un
+        # quiz/stat/flash déjà envoyé dans le même passage.
+        if class_counter[cls] >= CLASS_BUDGETS[cls]:
+            return False
+        low_sent = class_counter["P2"] + class_counter["P3"] + class_counter["P4"]
+        if cls in {"P2", "P3", "P4"} and low_sent >= 3:
+            return False
+        if cls != "P0" and counter["sent"] >= max_send:
+            return False
+
         if not force and (state.seen(item.key) or
                           (item.category != "resultat" and not enough(state, item.category, now))):
             counter["skipped"] += 1
             return False
-        # Une publication AVANT-MATCH ne doit jamais dépasser la capacité de suivi.
-        if follow_event is not None:
-            if not followup.selection_allowed(state.followed, now):
+
+        # SCORE LIVE est un fallback: on laisse deux minutes au vrai événement
+        # BUT pour arriver avec buteur/passeur. Un score live déjà publié
+        # n'empêche plus un BUT enrichi ultérieur.
+        if item.category == "score_update" and not force:
+            first = state.first_observed(item.key, now)
+            if now - first < timedelta(minutes=2):
+                if not dry_run:
+                    state.save(now)
+                print("SCORE_UPDATE_EN_ATTENTE", item.key)
                 return False
-            if followup.tracked_fixture(follow_event, state.followed, now):
-                return False
+
+        existing_ref = (
+            followup.tracked_fixture(follow_event, state.followed, now)
+            if follow_event is not None else None
+        )
+        if follow_event is not None and not existing_ref and not followup.selection_allowed(state.followed, now):
+            return False
+
         if not espn_preflight(sender, item, dry_run=dry_run):
             counter["skipped"] += 1
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
             return False
-        sender.send(item)
+
+        if not ledger.claim(item):
+            counter["skipped"] += 1
+            return False
+        try:
+            message_id = sender.send(item)
+        except Exception:
+            # Un timeout réseau après envoi est ambigu : conserver la réservation
+            # empêche un doublon au prochain runner.
+            try:
+                ledger.mark(item, "uncertain")
+            except requests.RequestException as ledger_exc:
+                print("REMOTE_LEDGER_MARK_ERROR", type(ledger_exc).__name__)
+            raise
+        ledger.mark(item, "sent", message_id)
         counter["sent"] += 1
+        class_counter[cls] += 1
         if not dry_run:
             state.mark(item.key, item.category, now)
-            if follow_event is not None:
+            if story_key:
+                state.mark(story_key, "story", now)
+            state.clear_observation(item.key)
+            if item.category == "goal" and item.card:
+                fixture_key = plain(item.card.get("fixture_key"), 180)
+                goal_score = plain(item.card.get("score"), 20)
+                if fixture_key and goal_score:
+                    state.mark(
+                        f"score_guard:{fixture_key}:{goal_score}",
+                        "goal_score_guard",
+                        now,
+                    )
+            if follow_event is not None and not existing_ref:
                 ref_added = followup.follow(state.followed, follow_event, now)
                 print("FOLLOWUP_SELECTED", ref_added)
+            if item.category in {"composition", "changement_composition"} and ref in state.followed and item.card:
+                lineups = item.card.get("lineups") if isinstance(item.card.get("lineups"), dict) else {}
+                state.followed[ref]["lineup_home_hash"] = str(item.card.get("lineup_home_hash") or "")
+                state.followed[ref]["lineup_away_hash"] = str(item.card.get("lineup_away_hash") or "")
+                state.followed[ref]["lineup_home"] = list(lineups.get("home") or [])
+                state.followed[ref]["lineup_away"] = list(lineups.get("away") or [])
             if item.category == "resultat" and ref:
                 followup.completed(state.followed, ref, now)
                 print("FOLLOWUP_FINISHED", ref)
@@ -1960,19 +2309,40 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                 if hour >= 20:
                     matches = matches + get_day(today + timedelta(days=1))
 
-                # Avant-match : une seule sélection éditoriale, enregistrée
-                # exclusivement APRÈS confirmation de Telegram.
+                # Suivi technique indépendant de l'AVANT-MATCH : jusqu'à huit
+                # grosses affiches sont observées, même si aucune publication
+                # éditoriale n'a encore été envoyée.
+                technical = [
+                    e for e in candidates(matches)
+                    if kick(e) is not None
+                    and -timedelta(hours=6) <= kick(e) - now <= timedelta(hours=4)
+                    and final_score(e) is None
+                    and str(e.get("status") or "").lower() not in ("cancelled", "postponed", "finished")
+                    and importance(e) > 0
+                ]
+                if not dry_run:
+                    for event in technical[:20]:
+                        if not followup.selection_allowed(state.followed, now):
+                            break
+                        if followup.tracked_fixture(event, state.followed, now):
+                            continue
+                        try:
+                            ref_added = followup.track(state.followed, event, now, reason="importance")
+                            print("FOLLOWUP_AUTO_SELECTED", ref_added)
+                        except ValueError:
+                            continue
+                    state.save(now)
+
+                # AVANT-MATCH reste une décision éditoriale distincte du suivi.
                 upcoming = [
                     e for e in candidates(matches)
-                    if timedelta(minutes=65) <= kick(e) - now <= timedelta(minutes=170)
+                    if timedelta(minutes=60) <= kick(e) - now <= timedelta(minutes=120)
                     and final_score(e) is None
                     and str(e.get("status") or "").lower() not in
                         ("cancelled", "postponed", "live", "finished")
                     and not state.seen("avant_match:" + str(e["id"]))
-                    and not followup.tracked_fixture(e, state.followed, now)
                 ]
                 if (counter["sent"] < max_send and upcoming
-                        and followup.selection_allowed(state.followed, now)
                         and (force or enough(state, "avant_match", now))):
                     if client is None:
                         client = BSDClient(
@@ -2013,18 +2383,20 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                         post = avant_match([selected], state, now, [], forms, h2h_values)
                         publish(post, follow_event=selected)
 
-                # Les événements du moteur LIVE et les résultats sont désormais
-                # limités aux rencontres annoncées par AVANT-MATCH.
+                # Les événements LIVE utilisent le suivi technique, indépendant
+                # de la publication éventuelle d'un AVANT-MATCH.
                 tracked = followup.base_events(state.followed, now)
                 if counter["sent"] < max_send and tracked:
                     signals = lifecycle_signals(
                         tracked, set(state.items.keys()), now,
                         sender.session, importance, tracked_only=True,
                     )
-                    used_matches: set[str] = set()
+                    match_counts: dict[str, int] = {}
                     for signal in signals:
                         ref = str(signal.get("follow_ref") or "")
-                        if not ref or ref in used_matches or ref not in followup.pending(state.followed, now):
+                        if not ref or ref not in followup.pending(state.followed, now):
+                            continue
+                        if match_counts.get(ref, 0) >= 3:
                             continue
                         post = (followed_final_publication(signal)
                                 if signal.get("kind") == "resultat_final"
@@ -2032,9 +2404,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                                 if signal.get("kind") == "suivi_interrompu"
                                 else lifecycle_publication(signal))
                         if post and publish(post, ref=ref):
-                            used_matches.add(ref)
-                        if counter["sent"] >= max_send:
-                            break
+                            match_counts[ref] = match_counts.get(ref, 0) + 1
 
                 # Fallback BSD: la source ESPN/cache peut manquer un match déjà
                 # fini; utiliser alors le statut FT et le score officiels BSD.
@@ -2052,7 +2422,11 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                             "league": league(event), "score": f"{h}-{a}",
                             "home_logo": obj_home.get("logo") if isinstance(obj_home, dict) else "",
                             "away_logo": obj_away.get("logo") if isinstance(obj_away, dict) else "",
-                            "source": "BSD V2", "day": now.strftime("%d/%m/%Y"),
+                            "source": str(
+                                (event.get("_verified_score") or {}).get("provider")
+                                if isinstance(event.get("_verified_score"), dict)
+                                else event.get("source") or "source match"
+                            ), "day": now.strftime("%d/%m/%Y"),
                             "event_date": kick(event).astimezone(timezone.utc).isoformat(),
                         }
                         if publish(followed_final_publication(sig), ref=ref):

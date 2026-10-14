@@ -50,13 +50,28 @@ class FollowupTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             follow.follow({}, fixture("late", start=NOW-timedelta(minutes=5)), NOW)
 
-    def test_max_two_followed_and_no_third(self):
+    def test_max_eight_followed_and_no_ninth(self):
         stored = {}
-        follow.follow(stored, fixture("a"), NOW)
-        follow.follow(stored, fixture("b", "PSG", "Marseille"), NOW)
+        names = [
+            ("Arsenal", "Chelsea"), ("PSG", "Marseille"),
+            ("Real Madrid", "Barcelona"), ("Inter", "Milan"),
+            ("Bayern", "Dortmund"), ("Liverpool", "Everton"),
+            ("Ajax", "PSV"), ("Benfica", "Porto"),
+        ]
+        for index, (home, away) in enumerate(names):
+            follow.follow(stored, fixture(str(index), home, away), NOW)
         self.assertFalse(follow.selection_allowed(stored, NOW))
         with self.assertRaises(ValueError):
-            follow.follow(stored, fixture("c", "Real Madrid", "Barcelona"), NOW)
+            follow.follow(stored, fixture("ninth", "Roma", "Lazio"), NOW)
+
+    def test_technical_track_is_independent_from_prematch(self):
+        stored = {}
+        event = fixture("technical", start=NOW + timedelta(hours=3))
+        ref = follow.track(stored, event, NOW, reason="importance")
+        self.assertEqual(stored[ref]["tracking_reason"], "importance")
+        self.assertEqual(follow.base_events(stored, NOW)[0]["follow_ref"], ref)
+        with self.assertRaises(ValueError):
+            follow.follow({}, event, NOW)
 
     def test_track_strict_orientation_and_kickoff(self):
         stored = {}
