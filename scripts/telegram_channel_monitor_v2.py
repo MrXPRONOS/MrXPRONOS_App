@@ -79,6 +79,20 @@ async def collect(client,ch,db,day,now):
  return dict(**row,delta=daily,week=change(db.history(ch.id,day,7),subscribers),
   month=change(db.history(ch.id,day,30),subscribers),
   top=sorted((p for p in posts if p["views"] is not None),key=lambda p:p["views"],reverse=True)[:3])
+def official_value(value):
+ value=getattr(value,"current",value)
+ return float(value) if isinstance(value,(int,float)) else None
+
+def official_graph(value):
+ import json
+ graph=getattr(value,"json",None)
+ if graph is None:return None
+ try:
+  content=json.loads(graph.data)
+  return content if isinstance(content,(dict,list)) else None
+ except (AttributeError,ValueError,TypeError):
+  return None
+
 async def official(client,ch,db,week):
  if db.read("telegram_channel_official_stats",select="status",channel_id="eq."+str(ch.id),week_start="eq."+week,limit="1"):return
  data=dict(channel_id=ch.id,week_start=week,status="unavailable")
@@ -86,8 +100,17 @@ async def official(client,ch,db,week):
   stats=await client(GetBroadcastStatsRequest(channel=ch,dark=False))
   data["status"]="ok"
   for k in ("views_per_post","shares_per_post","reactions_per_post"):
-   value=getattr(stats,k,None)
-   if isinstance(value,(int,float)):data[k]=value
+   x=official_value(getattr(stats,k,None))
+   if x is not None:data[k]=x
+  followers=getattr(stats,"followers",None)
+  data["followers"]=n(getattr(followers,"current",None))
+  previous=n(getattr(followers,"previous",None))
+  if data["followers"] is not None and previous is not None:
+   data["weekly_growth"]=data["followers"]-previous
+  for name,attribute in (("hours_graph","top_hours_graph"),("source_graph","views_by_source_graph"),
+                         ("followers_source_graph","new_followers_by_source_graph")):
+   graph=official_graph(getattr(stats,attribute,None))
+   if graph is not None:data[name]=graph
  except errors.FloodWaitError:raise
  except (errors.RPCError,ValueError,TypeError) as e:
   data["status"]="ineligible";data["error_class"]=type(e).__name__
@@ -122,7 +145,12 @@ def parts(rows,now):
  return result
 async def main():
  now=datetime.now(UTC);day=now.date().isoformat();owner=secrets.token_hex(20)
- db=DB();status=db.rpc("telegram_monitor_acquire",p_owner=owner,p_minutes=25)
+ db=DB()
+ prior_dispatch=db.read("telegram_channel_report_dispatch",select="status",report_on="eq."+day,limit="1")
+ if prior_dispatch:
+  print("SKIP_REPORT_ALREADY_RESERVED",day,prior_dispatch[0].get("status"))
+  return
+ status=db.rpc("telegram_monitor_acquire",p_owner=owner,p_minutes=25)
  if status!="ok":print("SKIP_LEASE",status);return
  cooldown=0;failure=None;client=None
  try:

@@ -32,6 +32,21 @@ class TestMonitorOffline(unittest.TestCase):
         self.assertLess(len(report[0]),3900) # Telegram payload stays within limits
         self.assertIn("SYNTHÈSE",report[0])
 
+    def test_official_metric_extraction(self):
+        class Stat:
+            current = 125
+            previous = 100
+        self.assertEqual(m.official_value(Stat()),125.0)
+        self.assertIsNone(m.official_value(None))
+
+    def test_official_graph_parsing(self):
+        class JsonData:
+            data = '{"x":[1,2],"y":[3,4]}'
+        class Graph:
+            json = JsonData()
+        self.assertEqual(m.official_graph(Graph())["x"],[1,2])
+        self.assertIsNone(m.official_graph(None))
+
     def test_negative_alert(self):
         row=dict(title="Test",username="testpub",public_url="https://t.me/testpub",
           subscriber_count=90,delta=-10,week=-10,month=-10,last_post_id=None,
