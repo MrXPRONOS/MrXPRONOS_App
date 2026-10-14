@@ -517,6 +517,101 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
+  multiday_readonly_preflight:
+    # No Telegram secrets: repeatedly verify the same multi-day pipeline that
+    # succeeded in the isolated one-shot test. Never publish or restore BSD.
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.number == 96 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'feat/multisource-history-shadow-20261014'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Install public-source HTTP dependencies
+        run: python -m pip install requests
+      - name: Collect legal CC0 historical matches and future fixtures
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p tmp
+          php scripts/football_history_import.php \
+            --source=openfootball \
+            --seasons=2023-24,2024-25,2025-26,2026-27 \
+            --league-codes=en.1,en.2,de.1,es.1,fr.1,it.1,nl.1,pt.1 \
+            --max-files=32 --out=tmp/readonly-licensed-history.jsonl
+          test -s tmp/readonly-licensed-history.jsonl
+          python scripts/football_prematch_multiday_probe.py \
+            --start-day="$(date -u -d '+2 days' +%F)" \
+            --count-days=3 --max-http=24 \
+            --out=tmp/readonly-multiday-fixtures.json \
+            --report=tmp/readonly-multiday-health.json
+      - name: Corroborate calendars and run ORIGINAL BSD V2 without Telegram
+        run: |
+          set -euo pipefail
+          python scripts/football_cc0_calendar_verification.py \
+            --fixtures=tmp/readonly-multiday-fixtures.json \
+            --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --output=tmp/readonly-confirmed-fixtures.json \
+            --report=tmp/readonly-calendar-health.json
+          python scripts/football_multisource_channel_test.py \
+            --fixtures=tmp/readonly-confirmed-fixtures.json \
+            --licensed-history=tmp/readonly-licensed-history.jsonl \
+            --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --report=tmp/readonly-v2-report.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('tmp/readonly-v2-report.json').read_text())
+          calendar=json.loads(Path('tmp/readonly-calendar-health.json').read_text())
+          fixtures=json.loads(Path('tmp/readonly-multiday-health.json').read_text())
+          assert report['test_only'] is True
+          assert report['production_modified'] is False
+          assert report['calibrated_production_coupons'] == 0
+          assert report['no_odds_invented'] is True
+          assert 'telegram' not in report
+          assert report['input_api_fixtures'] == fixtures['total_fixtures']
+          assert report['calendar_corroborated_fixtures'] <= calendar['coverage']['schedule_matches_confirmed']
+          assert report['qualified_external_fixtures'] <= report['calendar_corroborated_fixtures']
+          assert report['raw_v2_candidates'] <= report['qualified_external_fixtures']
+          assert 0 <= report['messages_ready'] <= 3
+          assert report['historic_matches'] > 0
+          assert fixtures['requests_total'] <= 24
+          summary={k:report[k] for k in (
+            'input_api_fixtures','calendar_corroborated_fixtures',
+            'qualified_external_fixtures','raw_v2_candidates',
+            'historic_matches','calibrated_production_coupons')}
+          print('MULTIDAY_READONLY_BSD_V2_PREFLIGHT',json.dumps(summary))
+          PY
+      - name: Destroy all temporary raw fixtures and historical rows
+        if: always()
+        run: |
+          rm -f tmp/readonly-licensed-history.jsonl tmp/readonly-multiday-fixtures.json tmp/readonly-confirmed-fixtures.json
+      - name: Upload aggregate diagnostics only
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mrxp-multiday-readonly-aggregate
+          path: |
+            tmp/readonly-multiday-health.json
+            tmp/readonly-calendar-health.json
+            tmp/readonly-v2-report.json
+          retention-days: 3
+          if-no-files-found: error
+
   one_shot_test_telegram_multisource:
     if: >-
       github.event_name == 'pull_request' &&
