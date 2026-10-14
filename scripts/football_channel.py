@@ -2219,24 +2219,24 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
     max_send = MAX_MESSAGES_PER_RUN
     class_counter = {key: 0 for key in CLASS_BUDGETS}
 
-    def publish(item: Publication | None, *, ref: str = "") -> bool:
+    def publish(item: Publication | None, *, ref: str = "", replay: bool = False) -> bool:
         if item is None:
             return False
         story_key = editorial_story_key(item)
-        if story_key and not force and state.seen_recent(story_key, now, hours=12):
+        if story_key and not force and not replay and state.seen_recent(story_key, now, hours=12):
             counter["skipped"] += 1
             print("EDITORIAL_STORY_COOLDOWN", item.category, story_key)
             return False
         cls = priority_class(item.category)
-        if class_counter[cls] >= CLASS_BUDGETS[cls]:
+        if not replay and class_counter[cls] >= CLASS_BUDGETS[cls]:
             return False
-        if cls != "P0" and counter["sent"] >= max_send:
+        if not replay and cls != "P0" and counter["sent"] >= max_send:
             return False
-        if not force and (state.seen(item.key) or
+        if not force and not replay and (state.seen(item.key) or
                           (item.category != "resultat" and not enough(state, item.category, now))):
             counter["skipped"] += 1
             return False
-        if item.category == "score_update" and not force:
+        if item.category == "score_update" and not force and not replay:
             first = state.first_observed(item.key, now)
             if now - first < timedelta(minutes=2):
                 if not dry_run:
@@ -2247,20 +2247,13 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             counter["skipped"] += 1
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
             return False
-        if not ledger.claim(item):
-            counter["skipped"] += 1
+        delivery = deliver_with_outbox(sender, ledger, item, now)
+        if not delivery.get("sent"):
+            if delivery.get("error"):
+                counter["errors"] += 1
+            else:
+                counter["skipped"] += 1
             return False
-        try:
-            message_id = sender.send(item)
-        except Exception:
-            # Un timeout réseau après envoi est ambigu : conserver la réservation
-            # empêche un doublon au prochain runner.
-            try:
-                ledger.mark(item, "uncertain")
-            except requests.RequestException as ledger_exc:
-                print("REMOTE_LEDGER_MARK_ERROR", type(ledger_exc).__name__)
-            raise
-        ledger.mark(item, "sent", message_id)
         counter["sent"] += 1
         class_counter[cls] += 1
         if not dry_run:
@@ -2291,6 +2284,7 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
         return True
 
     try:
+        drain_retryable_outbox(ledger, publish, limit=8)
         tracked = followup.base_events(state.followed, now)
         if not tracked:
             print("FOLLOWUP_NO_SELECTED_MATCH", "fast")
@@ -2393,30 +2387,30 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         return cache[name]
 
     def publish(item: Publication | None, *, follow_event: dict | None = None,
-                ref: str = "") -> bool:
+                ref: str = "", replay: bool = False) -> bool:
         if item is None:
             return False
         story_key = editorial_story_key(item)
-        if story_key and not force and state.seen_recent(story_key, now, hours=12):
+        if story_key and not force and not replay and state.seen_recent(story_key, now, hours=12):
             counter["skipped"] += 1
             print("EDITORIAL_STORY_COOLDOWN", item.category, story_key)
             return False
         cls = priority_class(item.category)
-        if cls == "P4" and urgent_live_active and not force:
+        if cls == "P4" and urgent_live_active and not force and not replay:
             counter["skipped"] += 1
             print("P4_SUPPRESSED_DURING_IMPORTANT_LIVE", item.category)
             return False
         # P0 dispose d'une réserve propre et ne peut jamais être bloqué par un
         # quiz/stat/flash déjà envoyé dans le même passage.
-        if class_counter[cls] >= CLASS_BUDGETS[cls]:
+        if not replay and class_counter[cls] >= CLASS_BUDGETS[cls]:
             return False
         low_sent = class_counter["P2"] + class_counter["P3"] + class_counter["P4"]
-        if cls in {"P2", "P3", "P4"} and low_sent >= 3:
+        if not replay and cls in {"P2", "P3", "P4"} and low_sent >= 3:
             return False
-        if cls != "P0" and counter["sent"] >= max_send:
+        if not replay and cls != "P0" and counter["sent"] >= max_send:
             return False
 
-        if not force and (state.seen(item.key) or
+        if not force and not replay and (state.seen(item.key) or
                           (item.category != "resultat" and not enough(state, item.category, now))):
             counter["skipped"] += 1
             return False
@@ -2424,7 +2418,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         # SCORE LIVE est un fallback: on laisse deux minutes au vrai événement
         # BUT pour arriver avec buteur/passeur. Un score live déjà publié
         # n'empêche plus un BUT enrichi ultérieur.
-        if item.category == "score_update" and not force:
+        if item.category == "score_update" and not force and not replay:
             first = state.first_observed(item.key, now)
             if now - first < timedelta(minutes=2):
                 if not dry_run:
@@ -2444,20 +2438,13 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
             return False
 
-        if not ledger.claim(item):
-            counter["skipped"] += 1
+        delivery = deliver_with_outbox(sender, ledger, item, now)
+        if not delivery.get("sent"):
+            if delivery.get("error"):
+                counter["errors"] += 1
+            else:
+                counter["skipped"] += 1
             return False
-        try:
-            message_id = sender.send(item)
-        except Exception:
-            # Un timeout réseau après envoi est ambigu : conserver la réservation
-            # empêche un doublon au prochain runner.
-            try:
-                ledger.mark(item, "uncertain")
-            except requests.RequestException as ledger_exc:
-                print("REMOTE_LEDGER_MARK_ERROR", type(ledger_exc).__name__)
-            raise
-        ledger.mark(item, "sent", message_id)
         counter["sent"] += 1
         class_counter[cls] += 1
         if not dry_run:
@@ -2491,6 +2478,8 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                 print("FOLLOWUP_INTERRUPTED", ref)
             state.save(now)
         return True
+
+    drain_retryable_outbox(ledger, publish, limit=8)
 
     # Ordre de production :
     # 07h Matchs du jour, 09h Flash, 12h30 Stat, 15h Débat,
