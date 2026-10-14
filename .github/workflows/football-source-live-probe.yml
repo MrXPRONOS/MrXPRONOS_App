@@ -46,6 +46,7 @@ jobs:
                 if name=="bsd_coverage":
                   print("BSD_COVERAGE",json.dumps({
                     "live_now":payload.get("live_now") if isinstance(payload,dict) else None,
+                    "football":next(({"sport":x.get("sport"),"live_now":x.get("live_now"),"events_live":x.get("events_live"),"keys":list(x.keys())[:24]} for x in (payload.get("sports") or []) if isinstance(x,dict) and str(x.get("sport","")).lower()=="football"),None) if isinstance(payload,dict) else None,
                     "schema_keys":list(payload.keys())[:20] if isinstance(payload,dict) else [],
                   },ensure_ascii=False))
                 if name=="sportscore_match_detail":
