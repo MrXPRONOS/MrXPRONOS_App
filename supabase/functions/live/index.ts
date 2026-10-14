@@ -6394,10 +6394,13 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       free_provider_errors: freeProviderData?.errors || {},
     };
 
-    // Detail enrichment order:
-    // cache -> ESPN scoreboard -> ESPN event summary -> SportScore detail
-    // -> TheSportsDB stats -> BSD /stats/.
+    // BSD remains the authoritative data provider. /events/live/ produces
+    // the base fixture list; its own detailed /stats is queried FIRST where
+    // the bounded quota permits. Other APIs only fill unavailable markets.
     allRawMatches = await reuseCachedStats(allRawMatches);
+
+    const statsEnrichment = await enrichLiveMatchesWithBsdStats(allRawMatches);
+    allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
 
     const apiFootballCache = await enrichLiveMatchesWithApiFootballCache(allRawMatches);
     allRawMatches = sortMatchesForRefresh(apiFootballCache.matches);
@@ -6410,8 +6413,6 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       await enrichLiveMatchesWithFreeStats(allRawMatches);
     allRawMatches = sortMatchesForRefresh(freeStatsEnrichment.matches);
 
-    const statsEnrichment = await enrichLiveMatchesWithBsdStats(allRawMatches);
-    allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
     sourceMeta = {
       ...sourceMeta,
       api_football_stats_enriched: apiFootballCache.enriched,
