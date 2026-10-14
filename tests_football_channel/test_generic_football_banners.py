@@ -135,7 +135,7 @@ class GenericBannerTests(unittest.TestCase):
 
     def test_time_is_emphasized_before_secondary_live_details(self):
         caption = content.banner_caption("goal", self.match)
-        self.assertIn("⏱ <b>67&#x27;</b>", caption)
+        self.assertIn("⏱ <b>67'</b>", caption)
         self.assertIn("📊 <b>2–1</b>", caption)
 
     def test_general_banner_accepts_real_article_image_panel(self):
