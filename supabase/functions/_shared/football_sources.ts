@@ -9,17 +9,31 @@ export const FREE_SOURCE_QUALITY: Record<string, {overall:number;live:number;det
 };
 
 const SPORT_SCORE = "https://sportscore.com/api/v1";
-// SportScore fixture URLs contain a stable provider match token, unlike team-name slugs.
-function sportScoreId(x:any, home:string, away:string){
-  const id=text(x.slug||x.match_slug||x.match_id||x.id||"");
-  if(id) return id;
-  const matchUrl=text(x.url||x.match_url);
-  const segments=matchUrl.split("?")[0].split("/").filter(Boolean);
-  return (segments.includes("match") ? text(segments.at(-1)) : "") || slugify(home+"-vs-"+away);
+// SportScore site URLs are /football/match/<slug>/<provider-id>/.
+// /match/?slug= expects the slug, while our source match key uses the stable id.
+function sportScoreRefs(x:any, home:string, away:string){
+  const path=text(x.url||x.match_url);
+  const match=path.match(/\\/match\\/([^/?#]+)\\/([^/?#]+)(?:[/?#]|$)/);
+  const slug=text(x.slug||x.match_slug||x.url_slug||match?.[1]) || slugify(home+"-vs-"+away);
+  const id=text(x.id||x.match_id||match?.[2]) || slug;
+  return {id,slug};
+}
+function sportScoreMinute(x:any):number|null{
+  const values=[x.minute,x.match_minute,x.elapsed,x.elapsed_time,x.clock?.minute,x.clock?.elapsed];
+  for(const v of values){
+    const n=int(v);
+    if(n!==null&&n<=130)return n;
+    const match=text(v).match(/^(\\d{1,3})\\s*\\+\\s*(\\d{1,2})\\s*['’′]?$/);
+    if(match){const n=Number(match[1])+Number(match[2]);if(n<=130)return n;}
+  }
+  const status=text(x.status_text||x.status);
+  const match=status.match(/(?:^|\\s)(\\d{1,3})(?:\\s*\\+\\s*(\\d{1,2}))?\\s*['’′](?:\\s|$)/);
+  return match?Math.min(130,Number(match[1])+Number(match[2]||0)):null;
 }
 const TSDB = "https://www.thesportsdb.com/api/v1/json/123";
 const OPENLIGA = "https://api.openligadb.de";
 const memory = new Map<string,{until:number;data:any}>();
+const providerCooldown = new Map<string,{until:number;reason:string}>();
 function env(name:string,fallback=""){
   try { return Deno.env.get(name) || fallback; } catch { return fallback; }
 }
@@ -48,15 +62,39 @@ function state(raw:any):"pre"|"in"|"post"|"postponed" {
   return "pre";
 }
 async function json(url:string, ttlMs:number){
-  const c=memory.get(url); if(c&&c.until>Date.now()) return c.data;
-  const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),7000);
-  try{
-    const r=await fetch(url,{signal:controller.signal,headers:{Accept:"application/json","User-Agent":"MrXPRONOS-MultiSource/1.0"}});
-    if(!r.ok) throw new Error("HTTP "+r.status);
-    const data=await r.json();
-    memory.set(url,{until:Date.now()+ttlMs,data});
-    return data;
-  } finally { clearTimeout(timer); }
+  const c=memory.get(url);if(c&&c.until>Date.now())return c.data;
+  // A remote 429/5xx must not turn every 1-minute refresh into another burst.
+  const path=new URL(url);
+  const endpoint=path.origin+path.pathname;
+  const cooldown=providerCooldown.get(endpoint);
+  if(cooldown&&cooldown.until>Date.now())throw new Error("Provider cooldown: "+cooldown.reason);
+  let lastError:Error|null=null;
+  for(let attempt=0;attempt<2;attempt++){
+    const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),7000);
+    try{
+      const r=await fetch(url,{signal:controller.signal,headers:{Accept:"application/json","User-Agent":"MrXPRONOS-MultiSource/1.0"}});
+      if(!r.ok){
+        const e=new Error("HTTP "+r.status);
+        if(r.status===429||r.status>=500){
+          lastError=e;
+          if(attempt===0){await new Promise(resolve=>setTimeout(resolve,250));continue;}
+          providerCooldown.set(endpoint,{until:Date.now()+(r.status===429?120_000:60_000),reason:e.message});
+        }
+        throw e;
+      }
+      const data=await r.json();
+      providerCooldown.delete(endpoint);
+      memory.set(url,{until:Date.now()+ttlMs,data});
+      return data;
+    }catch(e){
+      lastError=e instanceof Error?e:new Error(String(e));
+      if(attempt===0&&/AbortError|fetch failed|network/i.test(lastError.message)){
+        await new Promise(resolve=>setTimeout(resolve,250));continue;
+      }
+      throw lastError;
+    }finally{clearTimeout(timer);}
+  }
+  throw lastError||new Error("Provider unavailable");
 }
 function url(base:string, params:Record<string,string|number|undefined>){
   const u=new URL(base); for(const [k,v] of Object.entries(params)) if(v!==undefined&&v!=="")u.searchParams.set(k,String(v)); return u.toString();
@@ -86,12 +124,12 @@ export async function fetchSportScoreFixtures(date:string,status?:string){
   return rows.filter((x:any)=>x&&x.home&&x.away).map((x:any)=>{
     const home=text(typeof x.home==="object"?x.home?.name:x.home);
     const away=text(typeof x.away==="object"?x.away?.name:x.away);
-    const slug=sportScoreId(x,home,away);
-    return liveShape("sportscore",text(x.id||x.match_id||slug),home,away,x.time||x.date||x.start_time,{
+    const refs=sportScoreRefs(x,home,away);
+    return liveShape("sportscore",refs.id,home,away,x.time||x.date||x.start_time,{
       home_score:x.home_score??x.score_home,away_score:x.away_score??x.score_away,
-      status:x.status,status_detail:x.status_text||x.status,minute:x.minute??x.match_minute??x.elapsed??x.clock?.minute,
+      status:x.status,status_detail:x.status_text||x.status,minute:sportScoreMinute(x),
       home_logo:x.home_logo,away_logo:x.away_logo,league:typeof x.competition==="object"?x.competition?.name:x.competition||x.league,
-      raw_data:{sportscore_slug:slug,raw:x},
+      raw_data:{sportscore_slug:refs.slug,raw:x},
     });
   });
 }
@@ -106,13 +144,13 @@ export async function fetchSportScoreLive(){
   return rows.filter((x:any)=>state(x.status||x.status_text)==="in").map((x:any)=>{
     const home=text(typeof x.home==="object"?x.home?.name:x.home);
     const away=text(typeof x.away==="object"?x.away?.name:x.away);
-    const slug=sportScoreId(x,home,away);
-    return liveShape("sportscore",text(x.id||x.match_id||slug),home,away,x.time||x.date||x.start_time,{
+    const refs=sportScoreRefs(x,home,away);
+    return liveShape("sportscore",refs.id,home,away,x.time||x.date||x.start_time,{
       home_score:x.home_score??x.score_home,away_score:x.away_score??x.score_away,
       status:x.status,status_detail:x.status_text||x.status,
-      minute:x.minute??x.match_minute??x.elapsed??x.clock?.minute,home_logo:x.home_logo,away_logo:x.away_logo,
+      minute:sportScoreMinute(x),home_logo:x.home_logo,away_logo:x.away_logo,
       league:typeof x.competition==="object"?x.competition?.name:x.competition||x.league,
-      raw_data:{sportscore_slug:slug,raw:x},
+      raw_data:{sportscore_slug:refs.slug,raw:x},
     });
   });
 }
@@ -231,7 +269,7 @@ export async function fetchTheSportsDbStats(eventId:string){
   return {stats,raw:payload};
 }
 
-const OPENLIGA_SHORTCUTS=env("OPENLIGA_SHORTCUTS","bl1,bl2,dfb,cl").split(",").map(x=>x.trim()).filter(Boolean);
+const OPENLIGA_SHORTCUTS=env("OPENLIGA_SHORTCUTS","bl1,bl2,bl3").split(",").map(x=>x.trim()).filter(Boolean);
 function seasonFor(d:Date){return d.getUTCMonth()>=6?d.getUTCFullYear():d.getUTCFullYear()-1;}
 export async function fetchOpenLigaDay(date:string){
   const d=new Date(date+"T00:00:00Z"), rows:any[]=[];
@@ -244,7 +282,12 @@ export async function fetchOpenLigaDay(date:string){
         const results=Array.isArray(x?.matchResults)?x.matchResults:[];
         const final=[...results].filter(Boolean).sort((a:any,b:any)=>(a.resultOrderID||0)-(b.resultOrderID||0)).at(-1);
         rows.push(liveShape("openligadb",text(x.matchID),text(x?.team1?.teamName),text(x?.team2?.teamName),when,{
-          home_score:final?.pointsTeam1,away_score:final?.pointsTeam2,status:x.matchIsFinished?"finished":"scheduled",
+          home_score:final?.pointsTeam1,away_score:final?.pointsTeam2,status:x.matchIsFinished?"finished":(
+            // OpenLigaDB does not provide a minute. Mark as live only if
+            // kickoff passed recently AND a result entry proves match activity.
+            !x.matchIsFinished && results.length>0 &&
+            Date.now()>=Date.parse(when) && Date.now()-Date.parse(when)<3*3600000
+              ?"live":"scheduled"),
           home_logo:x?.team1?.teamIconUrl,away_logo:x?.team2?.teamIconUrl,league,raw_data:{raw:x},
         }));
       }
