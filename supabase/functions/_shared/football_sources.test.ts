@@ -1,6 +1,7 @@
 // Regression tests for football provider adapters. All network calls are mocked.
 import {
   fetchSportScoreFixtures,
+  normalizeSportScoreDetail,
   fetchTheSportsDbStats,
   fetchOpenLigaDay,
   resolveTheSportsDbEvent,
@@ -48,6 +49,17 @@ Deno.test("SportScore: missing minute remains unknown (never inferred from 1st h
   } finally {
     globalThis.fetch = realFetch;
   }
+});
+
+Deno.test("SportScore detail: use observed minute but not status-based estimates", () => {
+  const valid = normalizeSportScoreDetail({
+    match: { minute: 73, status_text: "2nd half", stats: {} },
+  });
+  check(valid.minute === 73, "Expected observed detail minute");
+  const unknown = normalizeSportScoreDetail({
+    match: { status_text: "2nd half", stats: {} },
+  });
+  check(unknown.minute === null, "Must not invent 2nd-half clock");
 });
 
 Deno.test("TheSportsDB: normalize real eventstats field names", async () => {

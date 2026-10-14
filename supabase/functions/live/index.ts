@@ -4158,6 +4158,19 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
         sportscoreCalls++;
         const payload = await fetchSportScoreDetail(String(refs.sportscore.slug));
         const detail = normalizeSportScoreDetail(payload);
+        // Some SportScore detail payloads expose a real clock even when
+        // the fixture list omits it. Only use a verified numeric minute.
+        const detailMinute = nullableNumber(detail?.minute);
+        if (detailMinute != null && detailMinute > 0 && detailMinute <= 130) {
+          current = {
+            ...current,
+            current_minute: Math.max(safeNumber(current?.current_minute, 0), detailMinute),
+            raw_data: {
+              ...(current?.raw_data || {}),
+              sportscore_minute_source: "detail",
+            },
+          };
+        }
         if (detail?.odds_probe?.available) oddsSectionsDetected++;
         const mergedStats = mergeLiveStats(
           getMatchLiveStats(current),
