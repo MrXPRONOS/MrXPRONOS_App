@@ -7,6 +7,7 @@ import {
   fetchTheSportsDbStats,
   resolveTheSportsDbEvent,
   matchProvider,
+  normalizeEspnSummaryStats,
 } from "../_shared/football_sources.ts";
 // live.ts (Supabase Edge Function / Deno)
 // =======================================================
@@ -4114,6 +4115,59 @@ function mergeAdditionalProviderMatches(
   return { matches: out, sourceRows, merged, providerOnly };
 }
 
+// Selectively rescue missing market data from ESPN event summaries.
+// Shared cache / global budget prevent duplicate expensive lookups.
+async function enrichLiveMatchesWithEspnSummaries(matches:any[]){
+  const out=[...(matches||[])];
+  const maxCalls=Math.max(0,Math.min(4,safeEnvInt("ESPN_SUMMARY_STATS_MAX_CALLS_PER_REFRESH",2)));
+  let calls=0,enriched=0,completePairsGained=0;
+  const eligible=out.map((m:any,index:number)=>({m,index})).filter(({m})=>{
+    const minute=safeNumber(m?.current_minute??m?.minute,0);
+    if(!m?.is_live || m?.is_finished || minute<8 || minute>90)return false;
+    if(statsCompleteness(getMatchLiveStats(m)).core_complete>=3)return false;
+    const raw=m?.raw_data||{},refs=raw?.provider_refs||{};
+    const eventId=String(raw?.merge_meta?.espn_match_id||raw?.event_id||refs?.espn?.id||
+      (String(m?.id||"").startsWith("espn:")?m.id:"")).replace(/^espn:/,"");
+    const homeId=String(raw?.home_team_obj?.espn_id||raw?.home_team_obj?.id||"");
+    const awayId=String(raw?.away_team_obj?.espn_id||raw?.away_team_obj?.id||"");
+    return /^\d+$/.test(eventId) && !!homeId && !!awayId && homeId!==awayId;
+  }).sort((a,b)=>
+    statsCompleteness(getMatchLiveStats(a.m)).core_complete -
+    statsCompleteness(getMatchLiveStats(b.m)).core_complete
+  );
+  for(const {m,index} of eligible.slice(0,maxCalls)){
+    const raw=m.raw_data||{};
+    const eventId=String(raw?.merge_meta?.espn_match_id||raw?.event_id||
+      raw?.provider_refs?.espn?.id||
+      (String(m.id||"").startsWith("espn:")?m.id:"")).replace(/^espn:/,"");
+    const homeId=String(raw?.home_team_obj?.espn_id||raw?.home_team_obj?.id||"");
+    const awayId=String(raw?.away_team_obj?.espn_id||raw?.away_team_obj?.id||"");
+    try{
+      calls++;
+      const summary=await fetchSharedEspnSummary(eventId,espnStore);
+      const observed=normalizeEspnSummaryStats(summary,homeId,awayId);
+      if(!observed)continue;
+      const hasRealStats=["home","away"].some((side)=>
+        Object.values((observed as any)[side]||{}).some(v=>nullableNumber(v)!=null));
+      if(!hasRealStats)continue;
+      const before=statsCompleteness(getMatchLiveStats(m)).core_complete;
+      const merged=mergeLiveStats(getMatchLiveStats(m),observed);
+      const after=statsCompleteness(merged).core_complete;
+      completePairsGained+=Math.max(0,after-before);
+      out[index]={...m,live_stats:merged,stats_last_updated_at:nowIso(),
+        raw_data:{...raw,live_stats:merged,espn_summary_observed_stats:observed,
+          espn_summary_event_id:eventId,stats_sources:[
+            ...new Set([...((raw.stats_sources||[]) as string[]),"espn_summary"])
+          ]}
+      };
+      enriched++;
+    }catch(e){
+      console.warn("ESPN summary stats unavailable",eventId,e);
+    }
+  }
+  return {matches:out,calls,enriched,complete_pairs_gained:completePairsGained};
+}
+
 async function enrichLiveMatchesWithFreeStats(matches: any[]) {
   const out = [...(matches || [])];
   let sportscoreCalls = 0;
@@ -6253,9 +6307,13 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     };
 
     // Detail enrichment order:
-    // cache -> ESPN scoreboard stats -> SportScore detail -> TheSportsDB stats -> BSD /stats/.
-    // BSD is now the last resort for incomplete live statistical pairs.
+    // cache -> ESPN scoreboard -> ESPN event summary -> SportScore detail
+    // -> TheSportsDB stats -> BSD /stats/.
     allRawMatches = await reuseCachedStats(allRawMatches);
+
+    const espnSummaryEnrichment =
+      await enrichLiveMatchesWithEspnSummaries(allRawMatches);
+    allRawMatches = sortMatchesForRefresh(espnSummaryEnrichment.matches);
 
     const freeStatsEnrichment =
       await enrichLiveMatchesWithFreeStats(allRawMatches);
@@ -6265,6 +6323,9 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
     sourceMeta = {
       ...sourceMeta,
+      espn_summary_stats_calls: espnSummaryEnrichment.calls,
+      espn_summary_stats_enriched: espnSummaryEnrichment.enriched,
+      espn_summary_stats_pairs_gained: espnSummaryEnrichment.complete_pairs_gained,
       free_stats_calls: freeStatsEnrichment.calls,
       free_stats_enriched: freeStatsEnrichment.enriched,
       sportscore_stats_calls: freeStatsEnrichment.sportscore_calls,
@@ -6283,6 +6344,30 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       bsd_quota_remaining: bsdQuotaRemaining,
       bsd_quota_reset_seconds: bsdQuotaResetSeconds,
     };
+
+    // Correct ESPN source provenance as well as the canonical merged snapshot.
+    const espnDetailed=new Map<string,{stats:any;minute:number}>();
+    for(const match of allRawMatches){
+      const observed=match?.raw_data?.espn_summary_observed_stats;
+      const eventId=String(match?.raw_data?.espn_summary_event_id||"");
+      if(!observed||!eventId)continue;
+      espnDetailed.set(eventId,{
+        stats:ensureLiveStatsShape(observed),
+        minute:safeNumber(match?.current_minute,0),
+      });
+    }
+    if(espnDetailed.size)sourceRows=sourceRows.map((row:any)=>{
+      if(row.source_name!=="espn")return row;
+      const id=String(row.source_match_id||"").replace(/^espn:/,"");
+      const observed=espnDetailed.get(id);
+      if(!observed)return row;
+      return {...row,
+        minute:Math.max(safeNumber(row.minute,0),observed.minute),
+        stats_json:observed.stats,
+        raw_json:{...(row.raw_json||{}),live_stats:observed.stats,
+          stats_authority:"espn_summary",stats_last_updated_at:nowIso()},
+      };
+    });
 
     // Reconcile detail enrichment into its own provenance table.
     // Fixture lists have no detailed stats, but /match/ supplies real
