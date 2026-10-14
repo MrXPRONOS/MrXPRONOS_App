@@ -75,6 +75,130 @@ def _unknown(label: str) -> str:
     return label + " : <i>non communiqué</i>"
 
 
+def _teams_score_line(payload: dict[str, Any], score: str) -> str:
+    home = _plain(payload.get("home"), 70)
+    away = _plain(payload.get("away"), 70)
+    if not home or not away:
+        return ""
+    middle = score.replace("–", "-") if score else ""
+    return "<b>" + _esc(home) + ((" " + _esc(middle) + " ") if middle else " - ") + _esc(away) + "</b>"
+
+
+def _simple_live_caption(category: str, payload: dict[str, Any]) -> str | None:
+    """Style Telegram Actu Foot: court, lisible, sans source/footer technique."""
+    minute = _minute(payload)
+    score = _score(payload)
+    match_line = _teams_score_line(payload, score)
+    goal = payload.get("goal") if isinstance(payload.get("goal"), dict) else {}
+    player = _plain(
+        goal.get("player") or payload.get("player") or payload.get("scorer") or payload.get("buteur"),
+        90,
+    )
+    minute_suffix = (" " + _esc(minute)) if minute else ""
+
+    if category in {"goal", "but", "but_full", "but_scorer_only"}:
+        title = "🌟 <b>BUUUT"
+        if player:
+            title += " - " + _esc(player.upper())
+        title += minute_suffix + "</b>"
+        return "\n\n".join(x for x in (title, match_line) if x)
+
+    if category in {"carton_rouge", "carton_rouge_full", "carton_rouge_unknown"}:
+        title = "🟥 <b>CARTON ROUGE"
+        if player:
+            title += " - " + _esc(player.upper())
+        title += minute_suffix + "</b>"
+        return "\n\n".join(x for x in (title, match_line) if x)
+
+    if category in {"carton_jaune", "carton_jaune_full", "carton_jaune_unknown"}:
+        title = "🟨 <b>CARTON JAUNE"
+        if player:
+            title += " - " + _esc(player.upper())
+        title += minute_suffix + "</b>"
+        return "\n\n".join(x for x in (title, match_line) if x)
+
+    if category in {"remplacement", "remplacement_full", "remplacement_entrant", "remplacement_sortant"}:
+        entrant = _plain(payload.get("entrant") or payload.get("incoming") or payload.get("player_in"), 90)
+        sortant = _plain(payload.get("sortant") or payload.get("outgoing") or payload.get("player_out"), 90)
+        title = "🔄 <b>REMPLACEMENT" + minute_suffix + "</b>"
+        change = ""
+        if entrant or sortant:
+            pieces = []
+            if entrant:
+                pieces.append("🟢 " + _esc(entrant.upper()))
+            if sortant:
+                pieces.append("🔴 " + _esc(sortant.upper()))
+            change = "<b>" + " • ".join(pieces) + "</b>"
+        return "\n\n".join(x for x in (title, change, match_line) if x)
+
+    if category == "kickoff":
+        return "\n\n".join(x for x in ("▶️ <b>COUP D’ENVOI</b>", match_line) if x)
+
+    if category == "mi_temps":
+        return "\n\n".join(x for x in ("⏸️ <b>MI-TEMPS</b>", match_line) if x)
+
+    if category in {"debut_2e_mi_temps", "début_de_la_2e_mi_temps"}:
+        return "\n\n".join(x for x in ("▶️ <b>DEUXIÈME MI-TEMPS</b>", match_line) if x)
+
+    if category in {"temps_additionnel"}:
+        return "\n\n".join(x for x in (("⏱️ <b>TEMPS ADDITIONNEL" + minute_suffix + "</b>"), match_line) if x)
+
+    if category in {"prolongation"}:
+        return "\n\n".join(x for x in ("⏳ <b>PROLONGATIONS</b>", match_line) if x)
+
+    if category in {"mi_temps_prolongation", "mi_temps_de_la_prolongation"}:
+        return "\n\n".join(x for x in ("⏸️ <b>MI-TEMPS DES PROLONGATIONS</b>", match_line) if x)
+
+    if category in {"score_update", "score_live_confirmé", "score_live_confirme",
+                    "score_live_two_logos", "score_live_one_logo", "score_live_no_logos",
+                    "score_live_no_minute"}:
+        title = "📊 <b>SCORE LIVE" + minute_suffix + "</b>"
+        return "\n\n".join(x for x in (title, match_line) if x)
+
+    if category in {"tirs_au_but"}:
+        shootout = payload.get("shootout_scores") or payload.get("penalty_scores")
+        shootout_line = ""
+        if isinstance(shootout, (list, tuple)) and len(shootout) >= 2:
+            shootout_line = "<b>TAB " + _esc(str(shootout[0])) + "-" + _esc(str(shootout[1])) + "</b>"
+        return "\n\n".join(x for x in ("🎯 <b>TIRS AU BUT</b>", shootout_line, match_line) if x)
+
+    if category in {"tir_au_but_marqué", "tir_au_but_marque", "tir_au_but_manqué", "tir_au_but_manque"}:
+        made = category in {"tir_au_but_marqué", "tir_au_but_marque"}
+        shootout = payload.get("shootout_scores") or payload.get("penalty_scores")
+        shootout_line = ""
+        if isinstance(shootout, (list, tuple)) and len(shootout) >= 2:
+            shootout_line = "<b>TAB " + _esc(str(shootout[0])) + "-" + _esc(str(shootout[1])) + "</b>"
+        title = ("✅" if made else "❌") + " <b>TIR AU BUT " + ("MARQUÉ" if made else "MANQUÉ")
+        if player:
+            title += " - " + _esc(player.upper())
+        title += "</b>"
+        return "\n\n".join(x for x in (title, shootout_line, match_line) if x)
+
+    if category in {"fin_tirs_au_but", "fin_des_tirs_au_but"}:
+        shootout = payload.get("shootout_scores") or payload.get("penalty_scores")
+        shootout_line = ""
+        if isinstance(shootout, (list, tuple)) and len(shootout) >= 2:
+            shootout_line = "<b>TAB " + _esc(str(shootout[0])) + "-" + _esc(str(shootout[1])) + "</b>"
+        return "\n\n".join(x for x in ("🏁 <b>FIN DES TIRS AU BUT</b>", shootout_line, match_line) if x)
+
+    if category in {
+        "match_suspendu", "match_interrompu", "match_interrompu_full",
+        "match_interrompu_unknown", "suivi_interrompu", "match_reporté",
+        "match_reporte", "match_annulé", "match_annule", "reprise_du_match",
+        "reprise_match",
+    }:
+        label = "⚠️ <b>MATCH INTERROMPU</b>"
+        if category in {"match_reporte", "match_reporté"}:
+            label = "📅 <b>MATCH REPORTÉ</b>"
+        elif category in {"match_annule", "match_annulé"}:
+            label = "❌ <b>MATCH ANNULÉ</b>"
+        elif category in {"reprise_match", "reprise_du_match"}:
+            label = "▶️ <b>REPRISE DU MATCH</b>"
+        return "\n\n".join(x for x in (label, match_line) if x)
+
+    return None
+
+
 def compact_keyboard_rows(buttons: list[dict[str, str]]) -> list[list[dict[str, str]]]:
     """Place les boutons courts sur la même ligne quand la lecture reste claire.
 
@@ -138,6 +262,9 @@ def live_keyboard(payload: dict[str, Any], *, include_live: bool = True) -> dict
 
 def banner_caption(category: str, payload: dict[str, Any]) -> str:
     category = str(category or "")
+    simple = _simple_live_caption(category, payload)
+    if simple is not None:
+        return simple
     minute = _minute(payload)
     score = _score(payload)
     source_line = _source_line(payload)
