@@ -347,6 +347,27 @@ jobs:
           assert validation['bsd_v2_core']['core_predict_v2_function_used'] is True
           print('DAILY_EXTERNAL_BSD_V2_UNCHANGED', {'adapted_fixtures':validation['fixtures']['ready_for_unchanged_core'],'historical_matches':validation['historical']['usable_historic_matches'],'H2H_matches':validation['bsd_v2_core']['h2h_nonzero_fixtures']})
           PY
+      - name: Assess next-day new fixtures with SAME BSD V2 core (no publishing)
+        run: |
+          tomorrow="$(date -u -d 'tomorrow' +%F)"
+          python scripts/football_daily_multisource_shadow.py --day="$tomorrow" --max-http=12 --out=tmp/next-day-research.json --report=tmp/next-day-fixture-health.json
+          python scripts/football_external_bsd_v2_adapter.py --historical-jsonl=tmp/authorized-prematch-history.jsonl --daily-union=tmp/next-day-research.json --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" --report=tmp/next-day-v2-health.json
+          python - <<'PY'
+          import json
+          source=json.load(open('tmp/next-day-fixture-health.json'))
+          result=json.load(open('tmp/next-day-v2-health.json'))
+          assert source['total_http_requests'] <= 12
+          assert source['model_input_enabled'] is False
+          assert result['bsd_v2_core']['core_predict_v2_function_used'] is True
+          assert result['bsd_v2_core']['calculation_module_modified'] is False
+          assert result['bsd_v2_core']['production_published'] is False
+          print('NEXT_DAY_UNCHANGED_BSD_V2_AUDIT', {'fixtures':source['total_unique_fixtures'],
+                'without_explicit_league':source['unverified_leagues'],
+                'history_matches':result['historical']['usable_historic_matches'],
+                'ready_to_model':result['fixtures']['ready_for_unchanged_core'],
+                'model_candidates':result['bsd_v2_core']['v2_candidate_count'],
+                'reject_reasons':result['fixtures']['ignored']})
+          PY
       - name: Upload source health summary only
         uses: actions/upload-artifact@v4
         with:
@@ -354,6 +375,8 @@ jobs:
           path: |
             tmp/daily-source-quality.json
             tmp/daily-unchanged-v2-quality.json
+            tmp/next-day-fixture-health.json
+            tmp/next-day-v2-health.json
           retention-days: 7
 
   bsd_actual_archive_validation:
