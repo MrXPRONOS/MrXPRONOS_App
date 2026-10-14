@@ -1077,6 +1077,87 @@ class Sender:
         return identifier
 
 
+def deliver_with_outbox(
+    sender: Sender,
+    ledger: RemotePublicationLedger,
+    item: Publication,
+    now: datetime,
+) -> dict[str, Any]:
+    claim = ledger.claim(item, now)
+    if not claim.get("can_send"):
+        return {"sent": False, "skipped": True, "error": False, "claim": claim}
+
+    phase_holder = {"phase": str(claim.get("delivery_phase") or "pending")}
+
+    def progress(phase: str, identifier: int | None) -> None:
+        phase_holder["phase"] = phase
+        if phase == "media_sent":
+            ledger.mark_phase(item, phase, media_message_id=identifier)
+        elif phase == "poll_sent":
+            ledger.mark_phase(item, phase, poll_message_id=identifier)
+        elif phase == "single_sent":
+            ledger.mark_phase(item, phase, media_message_id=identifier)
+        else:
+            ledger.mark_phase(item, phase)
+
+    try:
+        identifier = sender.send(item, resume=claim, progress_cb=progress)
+    except Exception as exc:
+        status = "uncertain" if _ambiguous_delivery_error(exc) else "failed"
+        try:
+            ledger.mark(
+                item,
+                status,
+                error=type(exc).__name__ + ": " + str(exc),
+                retry_after_seconds=45,
+                phase=phase_holder["phase"],
+            )
+        except requests.RequestException as ledger_exc:
+            print("REMOTE_OUTBOX_MARK_ERROR", type(ledger_exc).__name__)
+        print("TELEGRAM_DELIVERY_FAILED", item.category, item.key, status, type(exc).__name__)
+        return {
+            "sent": False,
+            "skipped": False,
+            "error": True,
+            "uncertain": status == "uncertain",
+            "exception": exc,
+            "claim": claim,
+        }
+
+    try:
+        ledger.mark(item, "sent", identifier, phase="complete")
+    except requests.RequestException as exc:
+        # Le checkpoint single_sent/poll_sent a déjà été persisté. Le verrou
+        # expirera et la prochaine reprise finalisera sans renvoyer Telegram.
+        print("REMOTE_OUTBOX_FINALIZE_DEFERRED", item.category, item.key, type(exc).__name__)
+    return {"sent": True, "skipped": False, "error": False, "message_id": identifier, "claim": claim}
+
+
+def drain_retryable_outbox(
+    ledger: RemotePublicationLedger,
+    publish_fn: Any,
+    *,
+    limit: int = 8,
+) -> int:
+    if not ledger.enabled:
+        return 0
+    replayed = 0
+    try:
+        queued = ledger.retryable(limit)
+    except requests.RequestException as exc:
+        print("REMOTE_OUTBOX_RETRY_READ_ERROR", type(exc).__name__)
+        return 0
+    for item in queued:
+        try:
+            if publish_fn(item, replay=True):
+                replayed += 1
+        except Exception as exc:
+            print("REMOTE_OUTBOX_REPLAY_ERROR", item.key, type(exc).__name__)
+    if queued:
+        print("REMOTE_OUTBOX_REPLAY", "queued", len(queued), "sent", replayed)
+    return replayed
+
+
 def parse_rss(xml_data: bytes) -> list[dict]:
     root = ET.fromstring(xml_data)
     out = []
