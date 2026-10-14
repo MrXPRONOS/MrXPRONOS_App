@@ -241,16 +241,11 @@ class FootballChannelTests(unittest.TestCase):
             "sondage", datetime(2026, 10, 10, 15, 0, tzinfo=timezone.utc)
         ))
 
-    def test_plage_active_production(self):
-        self.assertTrue(m.production_active(
-            datetime(2026, 10, 10, 7, 0, tzinfo=timezone.utc)
-        ))
-        self.assertTrue(m.production_active(
-            datetime(2026, 10, 10, 23, 30, tzinfo=timezone.utc)
-        ))
-        self.assertFalse(m.production_active(
-            datetime(2026, 10, 10, 6, 30, tzinfo=timezone.utc)
-        ))
+    def test_plage_active_production_24h(self):
+        for hour in (0, 6, 7, 12, 23):
+            self.assertTrue(m.production_active(
+                datetime(2026, 10, 10, hour, 30, tzinfo=timezone.utc)
+            ))
 
     def test_programme_transporte_le_controle_espn_des_affiches(self):
         match = event(77, NOW + timedelta(hours=3))
