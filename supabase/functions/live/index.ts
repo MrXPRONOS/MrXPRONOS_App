@@ -6039,6 +6039,68 @@ function statsAgeSeconds(match: any) {
   return Math.max(0, Math.floor((Date.now() - ts) / 1000));
 }
 
+// Optional API-Football detailed market pairs supplied by a quota-controlled
+// GitHub worker. Read only fresh, strictly matched records so old provider
+// snapshots can never create apparently live betting signals.
+async function enrichLiveMatchesWithApiFootballCache(matches:any[]){
+  const result=[...(matches||[])];
+  const byCanonical=new Map<string,number[]>();
+  for(let i=0;i<result.length;i++){
+    const m=result[i];
+    if(!m?.is_live || m?.is_finished)continue;
+    const key=buildCanonicalMatchId(m);
+    byCanonical.set(key,[...(byCanonical.get(key)||[]),i]);
+  }
+  const keys=[...byCanonical.keys()].slice(0,400);
+  if(!keys.length)return {matches:result,enriched:0};
+  const since=new Date(Date.now()-8*60_000).toISOString();
+  const {data,error}=await supabase.from(T_STATS_SOURCES)
+    .select("canonical_match_id,source_match_id,home_team,away_team,event_date,minute,stats_json,updated_at,is_live")
+    .eq("source_name","api_football")
+    .eq("is_live",true)
+    .gte("updated_at",since)
+    .in("canonical_match_id",keys)
+    .order("updated_at",{ascending:false})
+    .limit(500);
+  if(error){
+    console.warn("API_FOOTBALL_CACHE_UNAVAILABLE",error.message);
+    return {matches:result,enriched:0};
+  }
+  let enriched=0;
+  for(const row of data||[]){
+    const indexes=byCanonical.get(String(row.canonical_match_id))||[];
+    for(const index of indexes){
+      const match=result[index];
+      const minute=safeNumber(match?.current_minute,0);
+      const extMinute=safeNumber(row?.minute,0);
+      // Both clocks must be known and reasonably close.
+      if(minute<8||extMinute<8||Math.abs(minute-extMinute)>8)continue;
+      if(sameMatchScore(match,row)<0.9)continue;
+      const external=ensureLiveStatsShape(row.stats_json||{});
+      if(statsCompleteness(external).core_complete<=0)continue;
+      const merged=mergeLiveStats(getMatchLiveStats(match),external);
+      const raw=match.raw_data||{};
+      const currentAt=Date.parse(match?.stats_last_updated_at||"");
+      const externalAt=Date.parse(row.updated_at||"");
+      const latestTime=Number.isFinite(currentAt)&&currentAt>externalAt
+        ?match.stats_last_updated_at:row.updated_at;
+      result[index]={...match,live_stats:merged,stats_last_updated_at:latestTime,
+        raw_data:{...raw,live_stats:merged,
+          stats_sources:[...new Set([...((raw.stats_sources||[]) as string[]),"api_football"])],
+          provider_refs:{...(raw.provider_refs||{}),
+            api_football:{id:String(row.source_match_id),quality:95,stats_updated_at:row.updated_at}},
+          merge_meta:{...(raw.merge_meta||{}),
+            sources:[...new Set([...((raw.merge_meta?.sources||[]) as string[]),"api_football"])],
+            confidence_score:Math.max(safeNumber(raw.merge_meta?.confidence_score,0),85)
+          }
+        }
+      };
+      enriched++;
+    }
+  }
+  return {matches:result,enriched};
+}
+
 async function enrichLiveMatchesWithBsdStats(matches: any[]) {
   const budget = bsdStatsCallBudget();
   if (budget <= 0) {
@@ -6311,6 +6373,9 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     // -> TheSportsDB stats -> BSD /stats/.
     allRawMatches = await reuseCachedStats(allRawMatches);
 
+    const apiFootballCache = await enrichLiveMatchesWithApiFootballCache(allRawMatches);
+    allRawMatches = sortMatchesForRefresh(apiFootballCache.matches);
+
     const espnSummaryEnrichment =
       await enrichLiveMatchesWithEspnSummaries(allRawMatches);
     allRawMatches = sortMatchesForRefresh(espnSummaryEnrichment.matches);
@@ -6323,6 +6388,7 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
     sourceMeta = {
       ...sourceMeta,
+      api_football_stats_enriched: apiFootballCache.enriched,
       espn_summary_stats_calls: espnSummaryEnrichment.calls,
       espn_summary_stats_enriched: espnSummaryEnrichment.enriched,
       espn_summary_stats_pairs_gained: espnSummaryEnrichment.complete_pairs_gained,
@@ -6450,7 +6516,9 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
         sportscore_merged: safeNumber(sourceMeta.sportscore_merged, 0),
         thesportsdb_merged: safeNumber(sourceMeta.thesportsdb_merged, 0),
         openligadb_merged: safeNumber(sourceMeta.openligadb_merged, 0),
-        espn_summary_stats_calls: safeNumber(sourceMeta.espn_summary_stats_calls, 0),
+        api_football_stats_enriched: safeNumber(sourceMeta.api_football_stats_enriched, 0),
+        api_football_stats_enriched: safeNumber(sourceMeta.api_football_stats_enriched, 0),
+      espn_summary_stats_calls: safeNumber(sourceMeta.espn_summary_stats_calls, 0),
         espn_summary_stats_enriched: safeNumber(sourceMeta.espn_summary_stats_enriched, 0),
         espn_summary_stats_pairs_gained: safeNumber(sourceMeta.espn_summary_stats_pairs_gained, 0),
         espn_summary_stats_calls: safeNumber(sourceMeta.espn_summary_stats_calls, 0),
