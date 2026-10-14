@@ -12,6 +12,7 @@ import {
   matchProvider,
   normalizeEspnSummaryStats,
   preserveBsdCoreMarketPairs,
+  preferObservedCoreMarketPairs,
 } from "../_shared/football_sources.ts";
 // live.ts (Supabase Edge Function / Deno)
 // =======================================================
@@ -520,11 +521,11 @@ function uniqueMergedStatsRows(rows:any[]){
     const key=String(row.canonical_match_id);
     const prior=byKey.get(key);
     if(!prior){byKey.set(key,row);continue;}
-    // If duplicate provider aliases resolve to one fixture, BSD wins.
-    const rowIsBsd=Boolean(row?.merged_match_json?.raw_data?.bsd_primary_stats);
-    const priorIsBsd=Boolean(prior?.merged_match_json?.raw_data?.bsd_primary_stats);
-    const winner=priorIsBsd!==rowIsBsd
-      ? (priorIsBsd?prior:row)
+    // Prefer an ESPN-verified pair over BSD, then the richest observed row.
+    const rowIsEspn=Boolean(row?.merged_match_json?.raw_data?.espn_primary_stats);
+    const priorIsEspn=Boolean(prior?.merged_match_json?.raw_data?.espn_primary_stats);
+    const winner=priorIsEspn!==rowIsEspn
+      ? (priorIsEspn?prior:row)
       : (mergedStatsRowScore(row)>mergedStatsRowScore(prior)?row:prior);
     const other=winner===row?prior:row;
     const sources=[...new Set([...(winner.sources_used||[]),...(other.sources_used||[])])];
@@ -532,17 +533,19 @@ function uniqueMergedStatsRows(rows:any[]){
     const winnerRaw=winnerMatch.raw_data||{};
     const otherRaw=other.merged_match_json?.raw_data||{};
     const bsdPrimary=winnerRaw.bsd_primary_stats||otherRaw.bsd_primary_stats;
+    const espnPrimary=winnerRaw.espn_primary_stats||otherRaw.espn_primary_stats;
     const joined=mergeLiveStats(winner.merged_stats,other.merged_stats);
-    const stats=ensureLiveStatsShape(bsdPrimary
-      ? preserveBsdCoreMarketPairs(bsdPrimary,joined)
-      : joined);
+    const withBsd=bsdPrimary?preserveBsdCoreMarketPairs(bsdPrimary,joined):joined;
+    const stats=ensureLiveStatsShape(espnPrimary
+      ? preferObservedCoreMarketPairs(espnPrimary,withBsd)
+      : withBsd);
     const preferredMinute=safeNumber(winner.minute,0);
     const updatedMatch={...winnerMatch,
-      current_minute:bsdPrimary && preferredMinute>0
-        ? preferredMinute : Math.max(preferredMinute,safeNumber(other.minute,0)),
+      current_minute:Math.max(preferredMinute,safeNumber(other.minute,0)),
       live_stats:stats,
       raw_data:{...winnerRaw,live_stats:stats,
         bsd_primary_stats:bsdPrimary||undefined,
+        espn_primary_stats:espnPrimary||undefined,
         provider_refs:{...(otherRaw.provider_refs||{}),...(winnerRaw.provider_refs||{})},
         merge_meta:{...(winnerRaw.merge_meta||{}),sources}},
     };
@@ -636,7 +639,8 @@ async function fetchBSD(endpoint: string, params?: Record<string, string>) {
   const url = new URL(`${BSD_API_BASE}${endpoint}`);
   const finalParams: Record<string, string> = { ...(params || {}) };
 
-  if (!finalParams.tz) finalParams.tz = DEFAULT_TZ;
+  // BSD football v2 timestamps are UTC. The old tz parameter is legacy
+  // and has no effect in v2; do not send it on every request.
   for (const [k, v] of Object.entries(finalParams)) {
     if (v != null && v !== "") url.searchParams.set(k, v);
   }
@@ -3903,7 +3907,9 @@ function liveStatsAgreementScore(primaryStats: any, secondaryStats: any, minuteG
 function mergeOneOriginalWithEspn(original: any, espn: any) {
   const originalStats = getMatchLiveStats(original);
   const espnStats = getMatchLiveStats(espn);
-  const mergedStats = mergeLiveStats(originalStats, espnStats);
+  const mergedStats = preferObservedCoreMarketPairs(
+    espnStats,mergeLiveStats(originalStats, espnStats),
+  );
 
   const originalMinute = safeNumber(original?.current_minute ?? original?.minute, 0);
   const espnMinute = safeNumber(espn?.current_minute ?? espn?.minute, 0);
@@ -3911,7 +3917,9 @@ function mergeOneOriginalWithEspn(original: any, espn: any) {
 
   const merged: any = {
     ...original,
-    current_minute: originalMinute > 0 ? originalMinute : espnMinute,
+    current_minute: espnMinute > 0 ? espnMinute : originalMinute,
+    home_score: nullableNumber(espn?.home_score) ?? original?.home_score,
+    away_score: nullableNumber(espn?.away_score) ?? original?.away_score,
     live_stats: mergedStats,
     stats_last_updated_at:
       espn?.stats_last_updated_at ||
@@ -3922,9 +3930,6 @@ function mergeOneOriginalWithEspn(original: any, espn: any) {
     league_logo: original?.league_logo || espn?.league_logo || original?.raw_data?.league_logo || espn?.raw_data?.league_logo || null,
   };
 
-  if (original?.home_score == null) merged.home_score = safeNumber(espn?.home_score, 0);
-  if (original?.away_score == null) merged.away_score = safeNumber(espn?.away_score, 0);
-
   merged.raw_data = {
     ...(original?.raw_data || {}),
     source: "merged",
@@ -3934,9 +3939,10 @@ function mergeOneOriginalWithEspn(original: any, espn: any) {
       confidence_score: Math.round(sameMatchScore(original, espn) * 100),
       stats_agreement_score: statsAgreementScore,
       espn_match_id: espn?.source_match_id || espn?.id || null,
-      primary_source: "api_original",
+      primary_source: "espn",
       merged_at: nowIso(),
     },
+    espn_primary_stats: ensureLiveStatsShape(espnStats),
     live_stats: mergedStats,
     home_logo: merged.home_logo,
     away_logo: merged.away_logo,
@@ -3979,6 +3985,7 @@ function prepareEspnOnlyMatch(espn: any) {
         primary_source: "espn",
         merged_at: nowIso(),
       },
+      espn_primary_stats: liveStats,
       live_stats: liveStats,
       home_logo: espn?.home_logo || espn?.raw_data?.home_logo || null,
       away_logo: espn?.away_logo || espn?.raw_data?.away_logo || null,
@@ -4135,7 +4142,8 @@ function mergeAdditionalProviderMatches(
         ]),
       ];
       const bsdPrimary = current?.raw_data?.merge_meta?.primary_source === "api_original";
-      const providerIsFresher = !bsdPrimary &&
+      const espnPrimary = current?.raw_data?.merge_meta?.primary_source === "espn";
+      const providerIsFresher = !bsdPrimary && !espnPrimary &&
         providerMinute >= currentMinute &&
         Boolean(provider?.is_live || provider?.is_finished);
 
@@ -4251,6 +4259,7 @@ async function enrichLiveMatchesWithEspnSummaries(matches:any[]){
       completePairsGained+=Math.max(0,after-before);
       out[index]={...m,live_stats:merged,stats_last_updated_at:nowIso(),
         raw_data:{...raw,live_stats:merged,espn_summary_observed_stats:observed,
+          espn_primary_stats:mergeLiveStats(raw.espn_primary_stats||{},observed,true),
           espn_summary_event_id:eventId,stats_sources:[
             ...new Set([...((raw.stats_sources||[]) as string[]),"espn_summary"])
           ]}
@@ -4297,8 +4306,11 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
       statsCompleteness(getMatchLiveStats(a.m)).core_complete -
       statsCompleteness(getMatchLiveStats(b.m)).core_complete
     );
+  // Time-slice SportScore detail requests fairly across the eligible games.
+  const sportRotation=candidates.length?(Math.floor(Date.now()/60_000)*Math.max(1,maxSportScore))%candidates.length:0;
+  const rotatedCandidates=[...candidates.slice(sportRotation),...candidates.slice(0,sportRotation)];
 
-  for (const { m, index } of candidates) {
+  for (const { m, index } of rotatedCandidates) {
     let current = out[index];
     let before = statsCompleteness(getMatchLiveStats(current)).core_complete;
     const refs = current?.raw_data?.provider_refs || {};
@@ -6276,7 +6288,11 @@ async function enrichLiveMatchesWithBsdStats(matches: any[]) {
       if (ca !== cb) return ca - cb; // d'abord les matchs les plus incomplets
       return statsAgeSeconds(b) - statsAgeSeconds(a); // puis les plus anciens
     })
-    .slice(0, budget);
+    ;
+  // Give each eligible fixture a turn. Without rotation, the first two
+  // missing-stat fixtures consumed every BSD allowance on every cycle.
+  const rotation = candidates.length ? (Math.floor(Date.now()/60_000)*Math.max(1,budget))%candidates.length : 0;
+  const scheduledCandidates = [...candidates.slice(rotation),...candidates.slice(0,rotation)].slice(0,budget);
 
   let calls = 0;
   let enriched = 0;
@@ -6285,11 +6301,14 @@ async function enrichLiveMatchesWithBsdStats(matches: any[]) {
   const out = [...(matches || [])];
   const indexById = new Map(out.map((m: any, i: number) => [String(m?.id), i]));
 
-  for (const match of candidates) {
+  for (const match of scheduledCandidates) {
     try {
       calls++;
       const payload = await fetchBSD(`/events/${match.id}/stats/`);
       const freshStats = normalizeBsdStatsPayload(payload);
+      const hasObservedStats=["home","away"].some(side=>
+        Object.values(freshStats?.[side]||{}).some(v=>nullableNumber(v)!=null));
+      if(!hasObservedStats)continue;
       const mergedStats = mergeLiveStats(getMatchLiveStats(match), freshStats, true);
       const idx = indexById.get(String(match.id));
       if (idx == null) continue;
@@ -6309,7 +6328,8 @@ async function enrichLiveMatchesWithBsdStats(matches: any[]) {
             ]),
           ],
           stats_authority: "bsd_stats",
-          // BSD's detailed /stats is the most authoritative source. A later
+          bsd_detail_observed_stats: freshStats,
+          // A later
           // provider cannot overwrite its complete observed market pairs.
           bsd_primary_stats: mergeLiveStats(
             out[idx]?.raw_data?.bsd_primary_stats || {},
@@ -6644,14 +6664,13 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     // the bounded quota permits. Other APIs only fill unavailable markets.
     allRawMatches = await reuseCachedStats(allRawMatches);
 
-    const statsEnrichment = await enrichLiveMatchesWithBsdStats(allRawMatches);
-    allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
-
-    // Provider priority for verified live market observations:
-    // BSD > ESPN > API-Football > SportScore > TheSportsDB > OpenLigaDB.
+    // ESPN is primary for verified LIVE market pairs; BSD fills gaps.
     const espnSummaryEnrichment =
       await enrichLiveMatchesWithEspnSummaries(allRawMatches);
     allRawMatches = sortMatchesForRefresh(espnSummaryEnrichment.matches);
+
+    const statsEnrichment = await enrichLiveMatchesWithBsdStats(allRawMatches);
+    allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
 
     // API-Football is a quota-limited supplementary provider. Its cached
     // stats fill missing markets only; they never override verified BSD pairs.
@@ -6687,23 +6706,40 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       bsd_quota_reset_seconds: bsdQuotaResetSeconds,
     };
 
-    // Reinstate verified BSD pairs as authoritative immediately before the
-    // canonical snapshot, even if a secondary provider returned larger totals.
+    // Definitive market priority: verified ESPN > verified BSD >
+    // API-Football > SportScore > TheSportsDB > OpenLigaDB.
+    // Only fully observed home/away pairs override a fallback. Unknown
+    // values remain null (never invented zeros).
     allRawMatches = allRawMatches.map((match: any) => {
-      const authoritative = match?.raw_data?.bsd_primary_stats;
-      if (!authoritative || typeof authoritative !== "object") return match;
-      const stats = ensureLiveStatsShape(
-        preserveBsdCoreMarketPairs(authoritative, getMatchLiveStats(match)),
-      );
-      return {
-        ...match,
-        live_stats: stats,
-        raw_data: {
-          ...(match.raw_data || {}),
-          live_stats: stats,
-          stats_primary_source: "bsd",
-        },
-      };
+      const raw = match?.raw_data || {};
+      const bsd = raw.bsd_primary_stats;
+      const espn = raw.espn_primary_stats;
+      let stats = getMatchLiveStats(match);
+      if (bsd) stats = preserveBsdCoreMarketPairs(bsd, stats);
+      if (espn) stats = preferObservedCoreMarketPairs(espn, stats);
+      stats = ensureLiveStatsShape(stats);
+      const priority = espn && statsCompleteness(espn).core_complete>0 ? "espn" :
+        bsd && statsCompleteness(bsd).core_complete>0 ? "bsd" :
+        (raw?.stats_authority || raw?.merge_meta?.primary_source || null);
+      return {...match,live_stats:stats,raw_data:{...raw,live_stats:stats,stats_primary_source:priority}};
+    });
+
+    // Preserve detailed BSD observations independently of canonical stats.
+    const bsdDetailById=new Map<string,{stats:any;minute:number}>();
+    for(const match of allRawMatches){
+      const detail=match?.raw_data?.bsd_detail_observed_stats;
+      if(!detail||!/^\d+$/.test(String(match?.id||"")))continue;
+      bsdDetailById.set(String(match.id),{stats:ensureLiveStatsShape(detail),
+        minute:safeNumber(match.current_minute,0)});
+    }
+    if(bsdDetailById.size)sourceRows=sourceRows.map((row:any)=>{
+      if(row.source_name!=="api_original")return row;
+      const observed=bsdDetailById.get(String(row.source_match_id));
+      if(!observed)return row;
+      return {...row,minute:Math.max(safeNumber(row.minute,0),observed.minute),
+        stats_json:observed.stats,
+        raw_json:{...(row.raw_json||{}),live_stats:observed.stats,
+          stats_authority:"bsd_stats",stats_last_updated_at:nowIso()}};
     });
 
     // Correct ESPN source provenance as well as the canonical merged snapshot.
