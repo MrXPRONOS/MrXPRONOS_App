@@ -30,3 +30,43 @@ Merge uses normalized exact date, league, home and away names. Matches with diff
 6. Resolve production race causing git rebase conflicts independently of this experimental work.
 
 Do not commit raw licensed datasets, secrets, plaintext BSD archive, or generated predictions.
+
+## Production-free daily multisource audit
+
+Command:
+
+```bash
+python -m pip install requests
+python scripts/football_daily_multisource_shadow.py --day=2026-10-14 --max-http=12 --out=tmp/day-shadow.json --report=tmp/day-health.json
+```
+
+The daily collector reuses the original ESPN, SportScore, TheSportsDB and OpenLigaDB adapters. BSD can be supplied with `--bsd-fixtures=<private-local-fixtures.json>` to compare with BSD's authoritative fixture IDs. An existing API-Football `/fixtures` response can be supplied using `--api-football-fixtures=<local-json>`, **without any additional API-Football request**, to preserve the separate LIVE key's quota. Historical OpenFootball and Football-Data are used for *history*, not a live slate.
+
+Verified at 2026-10-14 03:00 UTC: 88 ESPN, 200 SportScore, 3 TheSportsDB and 0 OpenLigaDB events; 285 distinct fixtures, 4 cross-provider corroborations and 7 HTTP calls. This is only a day's coverage sample. A zero provider count must not be presented as definitive outage without inspecting provider health and coverage.
+
+## Historical coverage validation
+
+The real test of `2024-25` Premier League returned 380 finished matches from **each** of OpenFootball and Football-Data (760 source rows). Initial strict string comparison had zero joins. Removing only a terminal `FC` designator increased reliable-name joins to **72 fixture agreements**; no conflicting final scores were observed among these 72. Other fixtures remain separate until a trustworthy team-ID/alias mapping is validated. This is an intersection of sources, **not** 760 different football matches.
+
+Prepare manual review suggestions for the remaining aliases:
+
+```bash
+python scripts/football_alias_candidates.py --input=tmp/history-raw.jsonl --out=tmp/aliases-to-review.json
+```
+
+Review proposals independently: matching on the same final score and date does *not* prove fixture identity. Alias proposals have `approved=false` and are never automatically promoted to the trusted archive.
+
+## Leakage-safe research features
+
+```bash
+python scripts/football_history_features.py --history=tmp/history-shadow.json --fixtures=tmp/day-shadow.json --out=tmp/feature-candidates.json --report=tmp/feature-coverage.json
+```
+
+Creates descriptive home/away form values and historical BTTS/Over2.5 rates **only** when each target team has at least five prior confirmed matches in the same verified competition. These rates summarize earlier results; they are not calibrated probabilities, guaranteed outcomes or market odds. Events on and after the target match's UTC day are rejected to avoid hindsight and leakage. No production model imports this file yet.
+
+### Rollout gates (do not skip)
+1. Audit licenses, provider budgets, team and competition identifiers, season overlaps and accuracy of scores.
+2. Expand independently verified history and date-stamped features; quarantine ambiguous aliases and conflicting source facts.
+3. Add a chronological baseline-vs-multisource shadow backtest on the same markets with proper probability calibration and out-of-sample separation. Enforce minimum sample size.
+4. Integrate only demonstrated incremental signal into BSD V2 behind a **default-off** feature flag, keeping published fixture IDs and picks stable.
+5. Repair the independent GitHub workflow publication conflict before scheduling additional writers. This research workflow has contents:read and no Telegram, Supabase or production write privileges.
