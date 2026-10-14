@@ -7,6 +7,21 @@ export type EspnCacheStore = {
 };
 const scoreboardUrl = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard";
 const summaryUrl = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary";
+const ESPN_REGIONAL_LEAGUES = new Set(["crc.1", "conmebol.sudamericana", "fifa.friendly.w"]);
+function validRegionalLeague(league:string){
+  if(!ESPN_REGIONAL_LEAGUES.has(league))throw new Error("Unsupported ESPN regional league");
+}
+// Matches that started before UTC midnight often remain LIVE for hours after it.
+// Yesterday's scoreboard cannot use a 6-hour static TTL during that period.
+export function espnLiveScoreboardDates(at = new Date()):string[]{
+  const today=at.toISOString().slice(0,10).replace(/-/g,"");
+  if(at.getUTCHours()>=7)return [today];
+  const yesterday=new Date(at.getTime()-86400000).toISOString().slice(0,10).replace(/-/g,"");
+  return [yesterday,today];
+}
+function scoreboardTtlMs(date:string){
+  return espnLiveScoreboardDates().includes(date) ? 45000 : 6*3600000;
+}
 const memory = new Map<string, { until: number; data: any }>();
 const inFlight = new Map<string, Promise<any>>();
 let failures = 0;
@@ -137,8 +152,21 @@ export async function fetchSharedEspnScoreboard(date: string, store?: EspnCacheS
   const url = new URL(scoreboardUrl);
   url.searchParams.set("dates", date);
   url.searchParams.set("limit", "500");
-  const ttl = date === new Date().toISOString().slice(0,10).replace(/-/g,"") ? 45000 : 6 * 3600000;
+  const ttl = scoreboardTtlMs(date);
   return cachedRequest("scoreboard:" + date, url.toString(), ttl, validScoreboard, store);
+}
+// Regional scoreboards complement the broad /all scoreboard. Only the
+// explicitly supported leagues are queried and cached independently.
+export async function fetchSharedEspnRegionalScoreboard(
+  date:string,league:string,store?:EspnCacheStore
+){
+  if(!/^\d{8}$/.test(date))throw new Error("Invalid ESPN regional date");
+  validRegionalLeague(league);
+  const u=new URL("https://site.api.espn.com/apis/site/v2/sports/soccer/"+league+"/scoreboard");
+  u.searchParams.set("dates",date);
+  u.searchParams.set("limit","200");
+  return cachedRequest("scoreboard:regional:"+league+":"+date,u.toString(),
+    scoreboardTtlMs(date),validScoreboard,store);
 }
 export async function fetchSharedEspnSummary(eventId: string, store?: EspnCacheStore) {
   if (!/^\d{1,16}$/.test(eventId)) return null;
