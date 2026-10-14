@@ -167,33 +167,51 @@ class MatchLifecycleTests(unittest.TestCase):
         "SUPABASE_SERVICE_ROLE_KEY": "secret",
     }, clear=False)
     def test_canonical_live_events_roundtrip(self):
+        canonical_payload = {
+            "kind": "goal", "key": "goal:990:g1",
+            "fixture_key": "990", "home": "Arsenal", "away": "Chelsea",
+            "league": "Cup", "priority_class": "P0",
+            "score": "2-1", "source": "ESPN",
+        }
         class Response:
             def raise_for_status(self): return None
             def json(self):
-                return [{
-                    "event_key": "goal:990:g1",
-                    "payload": {
-                        "kind": "goal", "key": "goal:990:g1",
-                        "fixture_key": "990", "home": "Arsenal", "away": "Chelsea",
-                        "league": "Cup", "priority_class": "P0",
-                        "score": "2-1", "source": "ESPN",
-                    },
-                }]
+                return [canonical_payload]
         class Session:
             def __init__(self): self.last_json = None
             def post(self, url, **kwargs):
                 self.last_json = kwargs.get("json")
                 return Response()
         session = Session()
-        signals = [{
-            "kind": "goal", "key": "goal:990:g1", "fixture_key": "990",
-            "home": "Arsenal", "away": "Chelsea", "league": "Cup",
-            "priority_class": "P0", "score": "2-1", "source": "ESPN",
-        }]
+        signals = [dict(canonical_payload)]
         saved = m.persist_canonical_live_events(session, signals, strict=True)
         self.assertEqual(saved[0]["key"], "goal:990:g1")
-        self.assertEqual(session.last_json[0]["event_key"], "goal:990:g1")
-        self.assertEqual(session.last_json[0]["sources"], ["ESPN"])
+        row = session.last_json["p_events"][0]
+        self.assertEqual(row["event_key"], "goal:990:g1")
+        self.assertEqual(row["sources"], ["ESPN"])
+        self.assertFalse(row["confirmed"])
+
+    @patch.dict("os.environ", {
+        "SUPABASE_URL": "https://example.supabase.co",
+        "SUPABASE_SERVICE_ROLE_KEY": "secret",
+    }, clear=False)
+    def test_canonical_event_becomes_visible_only_after_confirmation(self):
+        class Response:
+            def raise_for_status(self): return None
+            def json(self):
+                return [{"event_key": "goal:990:g1", "confirmed": True}]
+        class Session:
+            def __init__(self): self.calls = []
+            def patch(self, url, **kwargs):
+                self.calls.append((url, kwargs))
+                return Response()
+        session = Session()
+        self.assertTrue(m.confirm_canonical_live_event(
+            session, "goal:990:g1", strict=True
+        ))
+        _, kwargs = session.calls[0]
+        self.assertEqual(kwargs["params"]["event_key"], "eq.goal:990:g1")
+        self.assertTrue(kwargs["json"]["confirmed"])
 
     def test_extract_lineups_and_goals(self):
         summary = {
