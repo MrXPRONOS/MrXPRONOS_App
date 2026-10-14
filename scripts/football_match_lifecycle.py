@@ -1109,11 +1109,39 @@ def verify_espn_before_publish(
         return {"ok": False, "quality": 0, "reason": "extra_time_not_confirmed", "event_id": event_id}
     if kind == "mi_temps_prolongation" and not (is_halftime(direct) and int(direct.get("period") or 0) >= 3):
         return {"ok": False, "quality": 0, "reason": "extra_time_halftime_not_confirmed", "event_id": event_id}
-    if kind in {"tirs_au_but", "tir_au_but_marque", "tir_au_but_manque"}:
+    if kind in {"tirs_au_but", "tir_au_but_marque", "tir_au_but_manque", "fin_tirs_au_but"}:
         shootout = (direct.get("home_shootout_score"), direct.get("away_shootout_score"))
         detail = _plain(direct.get("status_detail")).lower()
         if shootout == (None, None) and "penalt" not in detail and "shootout" not in detail:
             return {"ok": False, "quality": 0, "reason": "shootout_not_confirmed", "event_id": event_id}
+
+        if kind in {"tir_au_but_marque", "tir_au_but_manque"}:
+            expected_outcome = "made" if kind == "tir_au_but_marque" else "missed"
+            expected_player = _norm(expected.get("player"))
+            expected_provider_id = _plain(expected.get("provider_event_id"))
+            found_kick = False
+            for kick in enrichment.get("shootout_kicks", []):
+                if _plain(kick.get("outcome")).lower() != expected_outcome:
+                    continue
+                if expected_provider_id and _plain(kick.get("id")) != expected_provider_id:
+                    continue
+                if expected_player and _norm(kick.get("player")) != expected_player:
+                    continue
+                found_kick = True
+                break
+            if not found_kick:
+                return {
+                    "ok": False, "quality": 0,
+                    "reason": "shootout_kick_not_confirmed",
+                    "event_id": event_id,
+                }
+
+        if kind == "fin_tirs_au_but" and direct.get("state") != "post":
+            return {
+                "ok": False, "quality": 0,
+                "reason": "shootout_final_not_confirmed",
+                "event_id": event_id,
+            }
 
     page = verify_espn_public_page(session, event_id, home, away)
     quality = 100 if page.get("content_verified") else 94 if page.get("reachable") else 90
