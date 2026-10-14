@@ -28,6 +28,7 @@ from bsd_v2_policies import fit_policy
 from bsd_v2_estimated_odds import price_selected_market,ESTIMATED_SOURCE
 from bsd_v2_guardrails import v21_accept_priced,post_price_value_guard,V21_EXCLUDED_KEYS
 from bsd_markets import candidates_from_goals,realized
+from bsd_v2_publish import assemble as original_v2_production_assemble
 
 EXCLUDED_SELECTIONS=frozenset({"UNDER_45","12"})
 
@@ -165,6 +166,48 @@ def replay(licensed_history:list[dict], confirmed_fixtures:list[dict],
         else:
             future["indicative_model_quote_vetoed"]+=1
 
+    # Execute the actual production policy ASSEMBLER in memory, without ANY
+    # external bookmaker fetcher, Telegram, file writing or publish entrypoint.
+    # Synthetic external fixtures are NEVER sent to real BSD odds endpoints.
+    # A produced row in this isolated output would be a MODEL-estimated
+    # prediction only; neither a verified bookmaker quote nor publish approval.
+    source_history_count=len(observed)
+    source_fixture_count=len(upcoming)
+    dry_output=original_v2_production_assemble(
+        {},upcoming,observed,now=at,
+        calibration=calibration,policy=policy,rho=rho,
+        odds_fetcher=None,max_odds_requests=0,
+        btts_model=btts,total_model=totals,dc_model=dc)
+    if len(observed)!=source_history_count or len(upcoming)!=source_fixture_count:
+        raise AssertionError("Production assembly unexpectedly mutated source inputs")
+    published_rows=dry_output.get("matches") or []
+    if not isinstance(published_rows,list):
+        raise AssertionError("Production assembler returned invalid matches array")
+    for row in published_rows:
+        pred=row.get("prediction") or {}
+        if pred.get("odds_source")!=ESTIMATED_SOURCE or pred.get("estimated_odds") is not True:
+            raise AssertionError("External fixture dry-run incorrectly claims bookmaker pricing")
+        if row.get("source_event_id") is None:
+            raise AssertionError("Dry-run produced a match without a synthetic id")
+    assembled_stats=dry_output.get("diagnostics",{}).get("rejections",{})
+    if int(assembled_stats.get("odds_attempts",0))!=0:
+        raise AssertionError("Odds API attempted in isolated dry-run")
+    production_assembler_dry_run={
+        "original_bsd_v2_publish_assemble_executed":True,
+        "input_synthetic_fixture_count":len(upcoming),
+        "model_only_rows_generated_in_memory":len(published_rows),
+        "no_actual_bookmaker_quotes_used":True,
+        "no_api_or_telegram_network_access":True,
+        "max_odds_requests":0,
+        "existing_publication_tracker_supplied":False,
+        "model_only_prices_not_bookmaker_value":True,
+        "production_ledger_or_files_updated":False,
+        "synthetic_fixture_ids_not_authorized_for_publishing":True,
+        "production_release_authorized":False,
+        "rejection_reasons":dict(sorted((str(k),int(v)) for k,v in assembled_stats.items()
+                                         if isinstance(v,int))),
+    }
+
     # Keep only aggregate diagnostics; no event identity, teams or selections.
     return {
         "research_only":True,
@@ -207,6 +250,7 @@ def replay(licensed_history:list[dict], confirmed_fixtures:list[dict],
             "production_tracker_loaded":False,
             "full_publication_policy_validated":False,
         },
+        "native_assembler_dry_run":production_assembler_dry_run,
         "license_scope":"openfootball_CC0_only",
         "raw_or_private_events_exported":False,
         "telegram_posts":0,
