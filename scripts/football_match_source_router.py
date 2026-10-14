@@ -100,7 +100,9 @@ def route_fixture(fixture: dict, statistics: dict, *, min_sample: int = MIN_SAMP
     origin = fixture.get("discovered_by") or next(iter(sources), "")
     reasons = {}
     families = {}
-    if kickoff is None or fixture.get("ambiguous_match") or fixture.get("scores_conflict") or fixture.get("league_conflict"):
+    if (kickoff is None or fixture.get("ambiguous_match") or fixture.get("scores_conflict")
+            or fixture.get("league_conflict") or fixture.get("league_verified") is False
+            or fixture.get("status", "prematch") != "prematch"):
         cause = "invalid_kickoff_or_identity_conflict"
         return {
             "fixture_key": fixture.get("fixture_key"), "discovered_by": origin,
