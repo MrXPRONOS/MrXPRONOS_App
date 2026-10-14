@@ -6,7 +6,7 @@ from scripts.football_history_features import eligible_history, form, features
 def historic(i, day, h="Arsenal FC", a="Chelsea FC", home_score=2, away_score=1, status="multi_source_agreement"):
     return {"date": day, "home_team": h, "away_team": a, "competition": "Premier League",
             "home_score": home_score, "away_score": away_score, "status": status,
-            "verified_by_sources": 2, "providers": [{"source": "openfootball"}, {"source": "football_data"}]}
+            "verified_by_sources": 2, "providers": [{"source": "openfootball"}, {"source": "licensed_csv"}]}
 
 
 def fixture(when="2025-03-01T15:00:00+00:00", league="Premier League"):
@@ -45,7 +45,7 @@ class HistoricalFeaturesTests(unittest.TestCase):
     def test_optional_corner_form_is_provider_tagged_and_not_fabricated(self):
         rows = [historic(i, f"2025-02-{i+1:02d}") for i in range(5)]
         for r in rows:
-            r["source_statistics"] = {"football_data": {"corners_home": 7, "corners_away": 3, "shots_home": 12, "shots_away": 8}}
+            r["source_statistics"] = {"licensed_csv": {"corners_home": 7, "corners_away": 3, "shots_home": 12, "shots_away": 8}}
         output, summary = features([fixture()], rows)
         home = output[0]["home_form"]["supplemental_statistics"]
         self.assertEqual(home["corners"]["for_per_match"], 7)
@@ -56,7 +56,7 @@ class HistoricalFeaturesTests(unittest.TestCase):
     def test_five_score_matches_but_four_corners_does_not_impute(self):
         rows = [historic(i, f"2025-02-{i+1:02d}") for i in range(5)]
         for r in rows[:4]:
-            r["source_statistics"] = {"football_data": {"corners_home": 7, "corners_away": 3}}
+            r["source_statistics"] = {"licensed_csv": {"corners_home": 7, "corners_away": 3}}
         output, _ = features([fixture()], rows)
         self.assertEqual(output[0]["home_form"]["supplemental_statistics"], {})
 
