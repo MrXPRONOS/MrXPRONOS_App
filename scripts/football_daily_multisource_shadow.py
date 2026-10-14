@@ -53,6 +53,45 @@ def team_name(value: Any) -> str:
     return str(value or "")
 
 
+def league_name_value(value: Any) -> str:
+    """Name only when explicitly provided; never stringify metadata objects."""
+    if isinstance(value, str):
+        cleaned=value.strip()
+        # Some pre-existing source adapters stringify nested dictionaries.
+        if not cleaned or cleaned.startswith(("{","[","<")) or len(cleaned)>140:
+            return ""
+        return cleaned
+    if isinstance(value, dict):
+        for key in ("displayName","name","title","strLeague","league_name","label"):
+            found=league_name_value(value.get(key))
+            if found:
+                return found
+    return ""
+
+
+def safe_league_name(row: dict, source: str) -> str:
+    direct=league_name_value(row.get("league")) or league_name_value(row.get("league_name"))
+    if direct:
+        return direct
+    raw=row.get("raw") or {}
+    if not isinstance(raw,dict):
+        return ""
+    candidates = (raw.get("competition"),raw.get("league"))
+    if source=="espn":
+        comps=raw.get("competitions") or []
+        if isinstance(comps,list) and comps and isinstance(comps[0],dict):
+            candidates += (comps[0].get("league"),)
+    elif source=="thesportsdb":
+        candidates += (raw.get("strLeague"),)
+    elif source=="sportscore":
+        candidates += (raw.get("tournament"),raw.get("league_name"))
+    for candidate in candidates:
+        name=league_name_value(candidate)
+        if name:
+            return name
+    return ""
+
+
 def clean_row(row: dict, source: str) -> dict | None:
     home = team_name(row.get("home_team"))
     away = team_name(row.get("away_team"))
@@ -65,7 +104,7 @@ def clean_row(row: dict, source: str) -> dict | None:
         "home": home,
         "away": away,
         "kickoff_utc": dt.isoformat(),
-        "league": str(row.get("league") or row.get("league_name") or ""),
+        "league": safe_league_name(row,source),
         "state": str(row.get("state") or row.get("status") or ""),
         "home_score": row.get("home_score") if type(row.get("home_score")) is int else None,
         "away_score": row.get("away_score") if type(row.get("away_score")) is int else None,
