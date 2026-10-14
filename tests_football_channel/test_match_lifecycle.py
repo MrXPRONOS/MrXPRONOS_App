@@ -386,9 +386,9 @@ class MatchLifecycleTests(unittest.TestCase):
         signals = m.lifecycle_signals(base, set(), NOW, object(), lambda _: 100)
         goals = [x for x in signals if x["kind"] == "goal"]
         self.assertEqual(len(goals), 1)
-        self.assertEqual(goals[0]["key"], "goal:espn-1:2-1:64:bukayo-saka")
+        self.assertEqual(goals[0]["key"], "goal:espn-1:64:bukayo-saka")
 
-        again = m.lifecycle_signals(base, {"goal:espn-1:2-1:64:bukayo-saka"}, NOW, object(), lambda _: 100)
+        again = m.lifecycle_signals(base, {"goal:espn-1:64:bukayo-saka"}, NOW, object(), lambda _: 100)
         self.assertFalse([x for x in again if x["kind"] == "goal"])
 
     @patch("football_match_lifecycle.fetch_espn_summary")
@@ -505,7 +505,7 @@ class MatchLifecycleTests(unittest.TestCase):
             "status_detail": "STATUS_SECOND_HALF",
             "event_date": "2026-10-13T07:45:00Z"
         }]
-        found = m.lifecycle_signals([], set(), NOW, object(), lambda _: 0)
+        found = m.lifecycle_signals([], set(), NOW, object(), lambda _: 100)
         updates = [x for x in found if x["kind"] == "score_update"]
         self.assertEqual(len(updates), 1)
         self.assertEqual(updates[0]["score"], "1-1")
@@ -513,8 +513,125 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertEqual(publication.card["score"], "1-1")
         self.assertIn("1–1", publication.text)
         self.assertNotIn("SCORE LIVE", publication.text)
-        again = m.lifecycle_signals([], {updates[0]["key"]}, NOW, object(), lambda _: 0)
+        again = m.lifecycle_signals([], {updates[0]["key"]}, NOW, object(), lambda _: 100)
         self.assertFalse([x for x in again if x["kind"] == "score_update"])
+
+    @patch("football_match_lifecycle.fetch_espn_summary")
+    @patch("football_match_lifecycle.collect_external")
+    def test_cards_and_substitution_are_emitted(self, collect_external, fetch_summary):
+        base = [{
+            "id": "espn:900",
+            "event_date": "2026-10-13T18:00:00+00:00",
+            "home_team": {"name": "Arsenal"},
+            "away_team": {"name": "Chelsea"},
+            "league_name": "Premier League",
+        }]
+        collect_external.return_value = [{
+            "source": "espn", "id": "espn:900",
+            "home_team": "Arsenal", "away_team": "Chelsea",
+            "home_score": 1, "away_score": 0, "minute": 66,
+            "period": 2, "state": "in", "status_detail": "66'",
+            "event_date": "2026-10-13T18:00:00+00:00",
+        }]
+        fetch_summary.return_value = {
+            "details": [
+                {
+                    "type": {"text": "Red Card"}, "redCard": True,
+                    "clock": {"displayValue": "64'"},
+                    "athletes": [{"displayName": "Player Red"}],
+                },
+                {
+                    "type": {"text": "Substitution"}, "substitution": True,
+                    "clock": {"displayValue": "65'"},
+                    "athletes": [
+                        {"displayName": "Player In", "role": "in"},
+                        {"displayName": "Player Out", "role": "out"},
+                    ],
+                },
+            ],
+        }
+        signals = m.lifecycle_signals(base, set(), NOW, object(), lambda _: 100)
+        self.assertTrue(any(x["kind"] == "carton_rouge" for x in signals))
+        replacement = next(x for x in signals if x["kind"] == "remplacement")
+        self.assertEqual(replacement["entrant"], "Player In")
+        self.assertEqual(replacement["sortant"], "Player Out")
+
+    @patch("football_match_lifecycle.fetch_espn_summary")
+    @patch("football_match_lifecycle.collect_external")
+    def test_multiple_recent_goals_survive_same_poll(self, collect_external, fetch_summary):
+        base = [{
+            "id": "espn:901",
+            "event_date": "2026-10-13T18:00:00+00:00",
+            "home_team": {"name": "Arsenal"},
+            "away_team": {"name": "Chelsea"},
+            "league_name": "Premier League",
+        }]
+        collect_external.return_value = [{
+            "source": "espn", "id": "espn:901",
+            "home_team": "Arsenal", "away_team": "Chelsea",
+            "home_score": 2, "away_score": 1, "minute": 69,
+            "period": 2, "state": "in", "status_detail": "69'",
+            "event_date": "2026-10-13T18:00:00+00:00",
+        }]
+        fetch_summary.return_value = {
+            "details": [
+                {
+                    "scoringPlay": True, "type": {"text": "Goal"},
+                    "clock": {"displayValue": "64'"},
+                    "athletes": [{"displayName": "First Scorer"}],
+                },
+                {
+                    "scoringPlay": True, "type": {"text": "Goal"},
+                    "clock": {"displayValue": "68'"},
+                    "athletes": [{"displayName": "Second Scorer"}],
+                },
+            ],
+        }
+        signals = m.lifecycle_signals(base, set(), NOW, object(), lambda _: 100)
+        goals = [x for x in signals if x["kind"] == "goal"]
+        self.assertEqual(len(goals), 2)
+        self.assertEqual({x["goal"]["player"] for x in goals}, {"First Scorer", "Second Scorer"})
+
+    @patch("football_match_lifecycle.fetch_espn_summary")
+    @patch("football_match_lifecycle.collect_external")
+    def test_goal_not_suppressed_by_prior_score_update(self, collect_external, fetch_summary):
+        base = [{
+            "id": "espn:902",
+            "event_date": "2026-10-13T18:00:00+00:00",
+            "home_team": {"name": "Arsenal"},
+            "away_team": {"name": "Chelsea"},
+            "league_name": "Premier League",
+        }]
+        collect_external.return_value = [{
+            "source": "espn", "id": "espn:902",
+            "home_team": "Arsenal", "away_team": "Chelsea",
+            "home_score": 1, "away_score": 0, "minute": 54,
+            "period": 2, "state": "in", "status_detail": "54'",
+            "event_date": "2026-10-13T18:00:00+00:00",
+        }]
+        fetch_summary.return_value = {
+            "details": [{
+                "scoringPlay": True, "type": {"text": "Goal"},
+                "clock": {"displayValue": "53'"},
+                "athletes": [{"displayName": "Late Detail"}],
+            }],
+        }
+        signals = m.lifecycle_signals(
+            base, {"score_update:espn:902:1-0"}, NOW, object(), lambda _: 100
+        )
+        self.assertTrue(any(x["kind"] == "goal" for x in signals))
+
+    def test_shootout_final_rendering(self):
+        post = channel.followed_final_publication({
+            "kind": "resultat_final", "key": "resultat:shootout",
+            "home": "Arsenal", "away": "Chelsea",
+            "league": "Cup", "score": "1-1",
+            "shootout_scores": [5, 4], "source": "ESPN",
+        })
+        self.assertIsNotNone(post)
+        self.assertIn("Tirs au but", post.text)
+        self.assertIn("5", post.text)
+        self.assertIn("4", post.text)
 
     def test_explicit_halftime_status(self):
         self.assertTrue(m.is_halftime({"status_detail": "STATUS_HALFTIME"}))
