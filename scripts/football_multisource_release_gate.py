@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict,
-           calibrated:dict|None=None) -> dict:
+           calibrated:dict|None=None, native_identity:dict|None=None) -> dict:
     if not all(isinstance(x, dict) for x in (v2, calendar, fixtures, sportscore)):
         raise ValueError("Four aggregate research reports are required")
     coverage = calendar.get("coverage")
@@ -83,7 +83,51 @@ def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict,
             "observed_selected_hit_rate":audit.get("hit_rate"),
             "real_kickoff_or_bookmaker_backtest":False,
         }
+    native_link_proof=False
+    fresh_consensus_proof=False
+    official_native_count=0
+    official_consensus_market_count=0
+    if native_identity is not None:
+        if (not isinstance(native_identity,dict)
+            or native_identity.get("scope")!="read_only_identity_evidence"
+            or native_identity.get("research_only") is not True
+            or native_identity.get("native_event_ids_exported") is not False
+            or native_identity.get("no_data_json_modified") is not True
+            or native_identity.get("original_production_publication_enabled") is not False):
+            raise ValueError("Invalid or unsafe native BSD identity evidence")
+        confirmed_native=number(native_identity,"external_cc0_verified")
+        official_native_count=number(native_identity,"one_to_one_native_event_links")
+        meta_requested=number(native_identity,"official_league_metadata_requested")
+        meta_verified=number(native_identity,"official_league_metadata_verified")
+        if not (0<=official_native_count<=confirmed_native<=number(native_identity,"external_total")
+                and 0<=meta_verified<=meta_requested<=8
+                and number(native_identity,"bsd_http_calls")<=12):
+            raise ValueError("Inconsistent native source proof counters")
+        price_proof=native_identity.get("read_only_native_consensus_price_audit")
+        if not isinstance(price_proof,dict):
+            raise ValueError("Native quote proof is missing")
+        quote_attempts=number(price_proof,"official_native_events_quoted_attempts")
+        priced_events=number(price_proof,"events_with_fresh_consensus_market_prices")
+        official_consensus_market_count=number(price_proof,"fresh_consensus_market_prices")
+        if not (0<=priced_events<=quote_attempts<=min(2,official_native_count)
+            and official_consensus_market_count>=priced_events
+            and price_proof.get("event_ids_selected_only_from_confirmed_native_links") is True
+            and price_proof.get("consensus_is_not_executable_bookmaker_offer") is True
+            and number(price_proof,"independent_bookmaker_selection_codes_verified")==0
+            and price_proof.get("raw_market_prices_or_event_ids_exported") is False
+            and price_proof.get("production_market_policy_approved") is False):
+            raise ValueError("Incorrectly promoted consensus pricing evidence")
+        native_link_proof=official_native_count>0
+        fresh_consensus_proof=official_consensus_market_count>0
     checks = {
+        "independently_corroborated_native_event_links_observed":native_link_proof,
+        "fresh_bsd_consensus_market_prices_observed":fresh_consensus_proof,
+        "real_production_tracker_immutability_probed":bool(
+            calibrated_proof and calibrated is not None
+            and calibrated.get("native_assembler_dry_run",{}).get(
+                "existing_publication_tracker_supplied") is True
+            and calibrated.get("native_assembler_dry_run",{}).get(
+                "existing_production_snapshot_left_untouched") is True),
         "native_research_model_calibration_reproduced":calibrated_proof,
         "historical_sample_loaded": historic > 0,
         "calendar_confirmed_fixtures": checked > 0,
@@ -129,6 +173,8 @@ def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict,
             "unpriced_v2_research_candidates": candidates,
             "native_bookmaker_ids_verified": native_ids,
             "external_bookmaker_links_verified": external_priced,
+            "authentic_bsd_event_links_from_private_validation":official_native_count,
+            "fresh_bsd_consensus_market_prices_from_private_validation":official_consensus_market_count,
             "sportscore_possibly_incomplete": sportscore.get("possible_incomplete_coverage") is True,
         },
         "checks": checks,
@@ -146,6 +192,7 @@ def main():
     p.add_argument("--fixtures", required=True)
     p.add_argument("--sportscore", required=True)
     p.add_argument("--calibrated", help="Optional full-model research-only replay report")
+    p.add_argument("--native-identity", help="Optional safe aggregate from private native event/odds job")
     p.add_argument("--report", required=True)
     args = p.parse_args()
     repo = Path(__file__).resolve().parents[1]
@@ -158,6 +205,8 @@ def main():
     ]
     if args.calibrated:
         inputs.append(json.loads(Path(args.calibrated).read_text(encoding="utf-8")))
+    if args.native_identity:
+        inputs.append(json.loads(Path(args.native_identity).read_text(encoding="utf-8")))
     verdict = assess(*inputs)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(verdict, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
