@@ -64,6 +64,32 @@ class AuthorizedH2HTests(unittest.TestCase):
         self.assertEqual(fired,[])
         self.assertEqual(report["pairs_attempted"],0)
 
+    def test_both_teams_form_and_h2h_are_combined_without_duplicate_fixture(self):
+        calls=[]
+        def team_lookup(session, team, limit):
+            calls.append(team)
+            match=matches(session, "Arsenal","Chelsea",20)[0]
+            return [match] if team=="Arsenal" else [dict(match,provider_event_id="recent-3",
+                event_date="2026-07-01T19:00:00Z",home_team="Chelsea",away_team="Other")]
+        snapshots,report=collect([fixture()],RIGHTS,now=NOW,
+                                session=FakeSession(),fetcher=matches,
+                                team_fetcher=team_lookup)
+        self.assertEqual(calls,["Arsenal","Chelsea"])
+        self.assertEqual(report["team_history_lookups"],2)
+        self.assertEqual(report["raw_h2h_rows_with_scores"],2)
+        self.assertEqual(report["distinct_historical_rows_with_scores"],3)
+        self.assertEqual(len(snapshots[0]["rows"]),3)
+
+    def test_contradictory_scores_same_native_id_are_quarantined(self):
+        def conflicted_team(session,team,limit):
+            candidate=matches(session,"Arsenal","Chelsea",20)[0]
+            return [dict(candidate,home_score=9)] if team=="Arsenal" else []
+        snapshots,report=collect([fixture()],RIGHTS,now=NOW,
+            session=FakeSession(),fetcher=matches,team_fetcher=conflicted_team)
+        self.assertEqual(report["skipped"]["contradictory_provider_event"],1)
+        self.assertEqual(report["distinct_historical_rows_with_scores"],1)
+        self.assertEqual([x["provider_event_id"] for x in snapshots[0]["rows"]],["h2h2"])
+
     def test_pair_deduplication(self):
         fired=[]
         def callback(*args,**kwargs):
