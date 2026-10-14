@@ -2065,19 +2065,40 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                 if hour >= 20:
                     matches = matches + get_day(today + timedelta(days=1))
 
-                # Avant-match : une seule sélection éditoriale, enregistrée
-                # exclusivement APRÈS confirmation de Telegram.
+                # Suivi technique indépendant de l'AVANT-MATCH : jusqu'à huit
+                # grosses affiches sont observées, même si aucune publication
+                # éditoriale n'a encore été envoyée.
+                technical = [
+                    e for e in candidates(matches)
+                    if kick(e) is not None
+                    and -timedelta(hours=6) <= kick(e) - now <= timedelta(hours=4)
+                    and final_score(e) is None
+                    and str(e.get("status") or "").lower() not in ("cancelled", "postponed", "finished")
+                    and importance(e) > 0
+                ]
+                if not dry_run:
+                    for event in technical[:20]:
+                        if not followup.selection_allowed(state.followed, now):
+                            break
+                        if followup.tracked_fixture(event, state.followed, now):
+                            continue
+                        try:
+                            ref_added = followup.track(state.followed, event, now, reason="importance")
+                            print("FOLLOWUP_AUTO_SELECTED", ref_added)
+                        except ValueError:
+                            continue
+                    state.save(now)
+
+                # AVANT-MATCH reste une décision éditoriale distincte du suivi.
                 upcoming = [
                     e for e in candidates(matches)
-                    if timedelta(minutes=65) <= kick(e) - now <= timedelta(minutes=170)
+                    if timedelta(minutes=60) <= kick(e) - now <= timedelta(minutes=120)
                     and final_score(e) is None
                     and str(e.get("status") or "").lower() not in
                         ("cancelled", "postponed", "live", "finished")
                     and not state.seen("avant_match:" + str(e["id"]))
-                    and not followup.tracked_fixture(e, state.followed, now)
                 ]
                 if (counter["sent"] < max_send and upcoming
-                        and followup.selection_allowed(state.followed, now)
                         and (force or enough(state, "avant_match", now))):
                     if client is None:
                         client = BSDClient(
@@ -2118,18 +2139,20 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                         post = avant_match([selected], state, now, [], forms, h2h_values)
                         publish(post, follow_event=selected)
 
-                # Les événements du moteur LIVE et les résultats sont désormais
-                # limités aux rencontres annoncées par AVANT-MATCH.
+                # Les événements LIVE utilisent le suivi technique, indépendant
+                # de la publication éventuelle d'un AVANT-MATCH.
                 tracked = followup.base_events(state.followed, now)
                 if counter["sent"] < max_send and tracked:
                     signals = lifecycle_signals(
                         tracked, set(state.items.keys()), now,
                         sender.session, importance, tracked_only=True,
                     )
-                    used_matches: set[str] = set()
+                    match_counts: dict[str, int] = {}
                     for signal in signals:
                         ref = str(signal.get("follow_ref") or "")
-                        if not ref or ref in used_matches or ref not in followup.pending(state.followed, now):
+                        if not ref or ref not in followup.pending(state.followed, now):
+                            continue
+                        if match_counts.get(ref, 0) >= 3:
                             continue
                         post = (followed_final_publication(signal)
                                 if signal.get("kind") == "resultat_final"
@@ -2137,9 +2160,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                                 if signal.get("kind") == "suivi_interrompu"
                                 else lifecycle_publication(signal))
                         if post and publish(post, ref=ref):
-                            used_matches.add(ref)
-                        if counter["sent"] >= max_send:
-                            break
+                            match_counts[ref] = match_counts.get(ref, 0) + 1
 
                 # Fallback BSD: la source ESPN/cache peut manquer un match déjà
                 # fini; utiliser alors le statut FT et le score officiels BSD.
@@ -2157,7 +2178,11 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                             "league": league(event), "score": f"{h}-{a}",
                             "home_logo": obj_home.get("logo") if isinstance(obj_home, dict) else "",
                             "away_logo": obj_away.get("logo") if isinstance(obj_away, dict) else "",
-                            "source": "BSD V2", "day": now.strftime("%d/%m/%Y"),
+                            "source": str(
+                                (event.get("_verified_score") or {}).get("provider")
+                                if isinstance(event.get("_verified_score"), dict)
+                                else event.get("source") or "source match"
+                            ), "day": now.strftime("%d/%m/%Y"),
                             "event_date": kick(event).astimezone(timezone.utc).isoformat(),
                         }
                         if publish(followed_final_publication(sig), ref=ref):
