@@ -474,6 +474,8 @@ jobs:
           assert r['no_data_json_modified'] is True
           assert r['bsd_http_calls'] <= 12
           assert r['calendar_files_verified'] == 8
+          assert r['official_league_metadata_requested'] <= 8
+          assert r['official_league_metadata_verified'] <= r['official_league_metadata_requested']
           assert r['one_to_one_native_event_links'] <= r['external_cc0_verified']
           print('NATIVE_BSD_IDENTITY_COUNTS',{
               'cc0_verified':r['external_cc0_verified'],
