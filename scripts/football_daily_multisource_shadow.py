@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from bsd.free_football_sources import collect_free_day
-from scripts.football_history_shadow import normalized
+from scripts.football_history_shadow import normalized, canonical_team
 
 ALLOWED = ("bsd", "api_football", "espn", "sportscore", "thesportsdb", "openligadb")
 ALLOWED_HOSTS = {
@@ -108,7 +108,7 @@ def api_football_rows(payload: Any) -> list[dict]:
 
 
 def compatible(a: dict, b: dict, minutes: int = 90) -> bool:
-    if normalized(a["home"]) != normalized(b["home"]) or normalized(a["away"]) != normalized(b["away"]):
+    if canonical_team(a["home"]) != canonical_team(b["home"]) or canonical_team(a["away"]) != canonical_team(b["away"]):
         return False
     da, db = kickoff(a["kickoff_utc"]), kickoff(b["kickoff_utc"])
     return da is not None and db is not None and abs((da - db).total_seconds()) <= minutes * 60
