@@ -1,5 +1,132 @@
 [
   {
+    "slug": "e3909a10f043fb97",
+    "title": "PSG : Daniel Riolo dézingue la prise de position de Luis Enrique concernant Manchester City",
+    "summary": "La prise de position de Luis Enrique envers Manchester City a fortement déplu à Daniel Riolo.",
+    "summary_short": "La prise de position de Luis Enrique envers Manchester City a fortement déplu à Daniel Riolo.",
+    "content": "La prise de position de Luis Enrique envers Manchester City a fortement déplu à Daniel Riolo.",
+    "paragraphs": [
+      "La prise de position de Luis Enrique envers Manchester City a fortement déplu à Daniel Riolo."
+    ],
+    "key_points": [
+      "La prise de position de Luis Enrique envers Manchester City a fortement déplu à Daniel Riolo."
+    ],
+    "telegram_summary": "La prise de position de Luis Enrique envers Manchester City a fortement déplu à Daniel Riolo.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-psg-daniel-riolo-dezingue-la-prise-de-position-de-luis-enrique-concernant-manchester-city-542151.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-psg-daniel-riolo-dezingue-la-prise-de-position-de-luis-enrique-concernant-manchester-city-542151.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e3909a10f043fb97",
+    "published": "2026-10-14T09:57:00+00:00",
+    "image": "assets/images/footnews/e3909a10f043fb97.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260828232353-6459.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50176946",
+      "url": "https://www.espn.com/video/clip/_/id/50176946/manchester-city-deserve-their-trophies",
+      "published": "2026-10-13T21:19:27Z",
+      "score": 0.231,
+      "matched_terms": [
+        "city",
+        "enrique",
+        "manchester"
+      ],
+      "topics": [],
+      "teams": [
+        "Manchester City",
+        "Paris Saint-Germain"
+      ],
+      "athletes": [],
+      "leagues": [
+        "Soccer",
+        "UEFA Champions League"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T10:00:57.260827+00:00"
+    },
+    "quality_sources": [
+      "MadeInFoot",
+      "ESPN"
+    ],
+    "quality_score": 96
+  },
+  {
+    "slug": "1edb2960ac90c64c",
+    "title": "Ligue des champions : dépassé, Lille n'a pas tenu la distance face à Arsenal... Revivez la rencontre de la deuxième journée de phase de ligue",
+    "summary": "Après avoir été renversés par le Betis Seville lors de la première journée, les Lillois ont concédé une deuxième défaite en autant de matchs de C1, mardi, face à Arsenal.",
+    "summary_short": "Après avoir été renversés par le Betis Seville lors de la première journée, les Lillois ont concédé une deuxième défaite en autant de matchs de C1, mardi, face à Arsenal.",
+    "content": "Après avoir été renversés par le Betis Seville lors de la première journée, les Lillois ont concédé une deuxième défaite en autant de matchs de C1, mardi, face à Arsenal.",
+    "paragraphs": [
+      "Après avoir été renversés par le Betis Seville lors de la première journée, les Lillois ont concédé une deuxième défaite en autant de matchs de C1, mardi, face à Arsenal."
+    ],
+    "key_points": [
+      "Après avoir été renversés par le Betis Seville lors de la première journée, les Lillois ont concédé une deuxième défaite en autant de matchs de C1, mardi, face à Arsenal."
+    ],
+    "telegram_summary": "Après avoir été renversés par le Betis Seville lors de la première journée, les Lillois ont concédé une deuxième défaite en autant de matchs de C1, mardi, face à Arsenal.",
+    "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
+    "published": "2026-10-14T09:54:08+00:00",
+    "image": "assets/images/footnews/1edb2960ac90c64c.webp",
+    "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Franceinfo"
+    ],
+    "quality_score": 82
+  },
+  {
+    "slug": "118015f0661349fc",
+    "title": "Viking : Tripic très fier d’avoir fait expulser Michael Olise",
+    "summary": "En zone mixte, Zlatko Tripić n’a pas caché sa satisfaction après avoir provoqué l’expulsion de Michael Olise lors du match nul entre le Bayern Munich et le Viking Stavanger (3-3), en Ligue des (…)",
+    "summary_short": "En zone mixte, Zlatko Tripić n’a pas caché sa satisfaction après avoir provoqué l’expulsion de Michael Olise lors du match nul entre le Bayern Munich et le Viking Stavanger (3-3), en Ligue des (…)",
+    "content": "En zone mixte, Zlatko Tripić n’a pas caché sa satisfaction après avoir provoqué l’expulsion de Michael Olise lors du match nul entre le Bayern Munich et le Viking Stavanger (3-3), en Ligue des (…)",
+    "paragraphs": [
+      "En zone mixte, Zlatko Tripić n’a pas caché sa satisfaction après avoir provoqué l’expulsion de Michael Olise lors du match nul entre le Bayern Munich et le Viking Stavanger (3-3), en Ligue des (…)"
+    ],
+    "key_points": [
+      "En zone mixte, Zlatko Tripić n’a pas caché sa satisfaction après avoir provoqué l’expulsion de Michael Olise lors du match nul entre le Bayern Munich et le Viking Stavanger (3-3), en Ligue des (…)"
+    ],
+    "telegram_summary": "En zone mixte, Zlatko Tripić n’a pas caché sa satisfaction après avoir provoqué l’expulsion de Michael Olise lors du match nul entre le Bayern Munich et le Viking Stavanger (3-3), en Ligue des (…)",
+    "link": "https://www.footmercato.net/a2263321641522937512-viking-tripic-tres-fier-davoir-fait-expulser-michael-olise",
+    "source_url": "https://www.footmercato.net/a2263321641522937512-viking-tripic-tres-fier-davoir-fait-expulser-michael-olise",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=118015f0661349fc",
+    "published": "2026-10-14T09:51:27+00:00",
+    "image": "assets/images/footnews/118015f0661349fc.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/olise123.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
     "slug": "b4ff70ccb1c888ab",
     "title": "«Et maintenant, il me connaît ? » : Lamine Yamal se moque de Mario Lemina",
     "summary": "Avant la rencontre de Ligue des Champions entre Galatasaray et le FC Barcelone hier soir, Mario Lemina s’était permis de chambrer gentiment Lamine Yamal face aux médias. Interrogé sur la menace (…)",
@@ -34,38 +161,39 @@
     "quality_score": 92
   },
   {
-    "slug": "1edb2960ac90c64c",
-    "title": "Ligue des champions : dépassé, Lille n'a pas tenu la distance face à Arsenal... Revivez la rencontre de la deuxième journée de phase de ligue",
-    "summary": "Après avoir été renversés par le Betis Seville lors de la première journée, les Lillois ont concédé une deuxième défaite en autant de matchs de C1, mardi, face à Arsenal.",
-    "summary_short": "Après avoir été renversés par le Betis Seville lors de la première journée, les Lillois ont concédé une deuxième défaite en autant de matchs de C1, mardi, face à Arsenal.",
-    "content": "Après avoir été renversés par le Betis Seville lors de la première journée, les Lillois ont concédé une deuxième défaite en autant de matchs de C1, mardi, face à Arsenal.",
+    "slug": "73db2c1e56c68d5a",
+    "title": "ASSE : ancien buteur, appelé par Vieira, 3 choses à savoir sur Mamour Ndiaye, le gardien n°2 appelé à remplacer Larsonneur",
+    "summary": "Gautier Larsonneur blessé face à Rodez, le jeune Mamour Ndiaye pourrait vivre sa première titularisation dans les buts de l'ASSE face au Red Star. L'occasion d'en apprendre un peu plus sur ce gardien prometteur.",
+    "summary_short": "Gautier Larsonneur blessé face à Rodez, le jeune Mamour Ndiaye pourrait vivre sa première titularisation dans les buts de l'ASSE face au Red Star. L'occasion d'en apprendre un peu plus sur ce gardien prometteur.",
+    "content": "Gautier Larsonneur blessé face à Rodez, le jeune Mamour Ndiaye pourrait vivre sa première titularisation dans les buts de l'ASSE face au Red Star. L'occasion d'en apprendre un peu plus sur ce gardien prometteur.",
     "paragraphs": [
-      "Après avoir été renversés par le Betis Seville lors de la première journée, les Lillois ont concédé une deuxième défaite en autant de matchs de C1, mardi, face à Arsenal."
+      "Gautier Larsonneur blessé face à Rodez, le jeune Mamour Ndiaye pourrait vivre sa première titularisation dans les buts de l'ASSE face au Red Star. L'occasion d'en apprendre un peu plus sur ce gardien prometteur."
     ],
     "key_points": [
-      "Après avoir été renversés par le Betis Seville lors de la première journée, les Lillois ont concédé une deuxième défaite en autant de matchs de C1, mardi, face à Arsenal."
+      "Gautier Larsonneur blessé face à Rodez, le jeune Mamour Ndiaye pourrait vivre sa première titularisation dans les buts de l'ASSE face au Red Star.",
+      "L'occasion d'en apprendre un peu plus sur ce gardien prometteur."
     ],
-    "telegram_summary": "Après avoir été renversés par le Betis Seville lors de la première journée, les Lillois ont concédé une deuxième défaite en autant de matchs de C1, mardi, face à Arsenal.",
-    "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
-    "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T09:29:28+00:00",
-    "image": "assets/images/footnews/1edb2960ac90c64c.webp",
-    "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
+    "telegram_summary": "Gautier Larsonneur blessé face à Rodez, le jeune Mamour Ndiaye pourrait vivre sa première titularisation dans les buts de l'ASSE face au Red Star. L'occasion d'en apprendre un peu plus sur ce gardien prometteur.",
+    "link": "https://www.onzemondial.com/ligue-2/asse-ancien-buteur-appele-par-vieira-3-choses-a-savoir-sur-mamour-ndiaye-le-gardien-n2-appele-a-remplacer-larsonneur-1002556",
+    "source_url": "https://www.onzemondial.com/ligue-2/asse-ancien-buteur-appele-par-vieira-3-choses-a-savoir-sur-mamour-ndiaye-le-gardien-n2-appele-a-remplacer-larsonneur-1002556",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=73db2c1e56c68d5a",
+    "published": "2026-10-14T09:26:00+00:00",
+    "image": "assets/images/footnews/73db2c1e56c68d5a.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002556/409389/1200-L-asse-ancien-buteur-appel-par-vieira-3-choses-savoir-sur-mamour-ndiaye-le-gardien-n2-appel-remplacer-larsonneur.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
-    "source": "Franceinfo",
-    "source_priority": 82,
+    "source": "Onze Mondial",
+    "source_priority": 80,
     "source_region": "international",
-    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Convocations",
+    "category_emoji": "📋",
     "editorial_score": 4,
     "espn_verification": {},
     "quality_sources": [
-      "Franceinfo"
+      "Onze Mondial"
     ],
-    "quality_score": 82
+    "quality_score": 80
   },
   {
     "slug": "77b1f5c58614d42c",
@@ -100,6 +228,40 @@
       "MadeInFoot"
     ],
     "quality_score": 88
+  },
+  {
+    "slug": "ec6de3613bd79a14",
+    "title": "Bayern : Olise se fait taper sur les doigts",
+    "summary": "Mardi, le Bayern Munich a concédé le match nul sur la pelouse du Viking FK (3-3) en Ligue des Champions. Une soirée à oubl...",
+    "summary_short": "Mardi, le Bayern Munich a concédé le match nul sur la pelouse du Viking FK (3-3) en Ligue des Champions. Une soirée à oubl...",
+    "content": "Mardi, le Bayern Munich a concédé le match nul sur la pelouse du Viking FK (3-3) en Ligue des Champions. Une soirée à oubl...",
+    "paragraphs": [
+      "Mardi, le Bayern Munich a concédé le match nul sur la pelouse du Viking FK (3-3) en Ligue des Champions. Une soirée à oubl..."
+    ],
+    "key_points": [
+      "Mardi, le Bayern Munich a concédé le match nul sur la pelouse du Viking FK (3-3) en Ligue des Champions."
+    ],
+    "telegram_summary": "Mardi, le Bayern Munich a concédé le match nul sur la pelouse du Viking FK (3-3) en Ligue des Champions. Une soirée à oubl...",
+    "link": "https://m.maxifoot.fr/football/article-66259.htm",
+    "source_url": "https://m.maxifoot.fr/football/article-66259.htm",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ec6de3613bd79a14",
+    "published": "2026-10-14T09:09:06+00:00",
+    "image": "assets/images/footnews/ec6de3613bd79a14.webp",
+    "source_image": "https://photo.maxifoot.fr/olise-bayern-munich-141.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Maxifoot",
+    "source_priority": 78,
+    "source_region": "international",
+    "source_feed": "http://rss.maxifoot.com/football-general.xml",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Maxifoot"
+    ],
+    "quality_score": 78
   },
   {
     "slug": "411fa0750b307f58",
@@ -159,7 +321,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T09:31:00.042004+00:00"
+      "checked_at": "2026-10-14T10:00:57.260827+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -394,7 +556,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T09:31:00.042004+00:00"
+      "checked_at": "2026-10-14T10:00:57.260827+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -564,7 +726,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T09:31:00.042004+00:00"
+      "checked_at": "2026-10-14T10:00:57.260827+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -628,7 +790,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T09:31:00.042004+00:00"
+      "checked_at": "2026-10-14T10:00:57.260827+00:00"
     },
     "quality_sources": [
       "France 24",
@@ -791,7 +953,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T09:31:00.042004+00:00"
+      "checked_at": "2026-10-14T10:00:57.260827+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -924,7 +1086,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T09:31:00.042004+00:00"
+      "checked_at": "2026-10-14T10:00:57.260827+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1018,7 +1180,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T09:31:00.042004+00:00"
+      "checked_at": "2026-10-14T10:00:57.260827+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1149,7 +1311,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T09:31:00.042004+00:00"
+      "checked_at": "2026-10-14T10:00:57.260827+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1207,7 +1369,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T09:31:00.042004+00:00"
+      "checked_at": "2026-10-14T10:00:57.260827+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -1305,7 +1467,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T09:31:00.042004+00:00"
+      "checked_at": "2026-10-14T10:00:57.260827+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1501,7 +1663,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T09:31:00.042004+00:00"
+      "checked_at": "2026-10-14T10:00:57.260827+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1701,7 +1863,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T09:31:00.042004+00:00"
+      "checked_at": "2026-10-14T10:00:57.260827+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1759,7 +1921,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T09:31:00.042004+00:00"
+      "checked_at": "2026-10-14T10:00:57.260827+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1801,69 +1963,6 @@
       "Onze Mondial"
     ],
     "quality_score": 80
-  },
-  {
-    "slug": "c98a86f9ce37c31b",
-    "title": "Real Madrid : Aurélien Tchouaméni hausse le ton",
-    "summary": "Trois jours ont passé depuis la victoire du Real Madrid sur Villarreal (1-0) qui fut entachée du carton rouge reçu par Vinicius Jr. Le Brésilien venait pourtant de marquer, lui qui était sorti du (…)",
-    "summary_short": "Trois jours ont passé depuis la victoire du Real Madrid sur Villarreal (1-0) qui fut entachée du carton rouge reçu par Vinicius Jr. Le Brésilien venait pourtant de marquer, lui qui était sorti du (…)",
-    "content": "Trois jours ont passé depuis la victoire du Real Madrid sur Villarreal (1-0) qui fut entachée du carton rouge reçu par Vinicius Jr. Le Brésilien venait pourtant de marquer, lui qui était sorti du (…)",
-    "paragraphs": [
-      "Trois jours ont passé depuis la victoire du Real Madrid sur Villarreal (1-0) qui fut entachée du carton rouge reçu par Vinicius Jr. Le Brésilien venait pourtant de marquer, lui qui était sorti du (…)"
-    ],
-    "key_points": [
-      "Trois jours ont passé depuis la victoire du Real Madrid sur Villarreal (1-0) qui fut entachée du carton rouge reçu par Vinicius Jr.",
-      "Le Brésilien venait pourtant de marquer, lui qui était sorti du (…)"
-    ],
-    "telegram_summary": "Trois jours ont passé depuis la victoire du Real Madrid sur Villarreal (1-0) qui fut entachée du carton rouge reçu par Vinicius Jr. Le Brésilien venait pourtant de marquer, lui qui était sorti du (…)",
-    "link": "https://www.footmercato.net/a1558444996294857689-real-madrid-aurelien-tchouameni-hausse-le-ton",
-    "source_url": "https://www.footmercato.net/a1558444996294857689-real-madrid-aurelien-tchouameni-hausse-le-ton",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c98a86f9ce37c31b",
-    "published": "2026-10-14T05:23:34+00:00",
-    "image": "assets/images/footnews/c98a86f9ce37c31b.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/aurelien-tchouameni-2526-5.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50150816",
-      "url": "https://www.espn.com/video/clip/_/id/50150816/real-madrid-vs-villarreal-game-highlights",
-      "published": "2026-10-10T21:06:47Z",
-      "score": 0.25,
-      "matched_terms": [
-        "madrid",
-        "real"
-      ],
-      "topics": [],
-      "teams": [
-        "Real Madrid",
-        "Villarreal"
-      ],
-      "athletes": [
-        "Alberto Moleiro",
-        "Vinícius Júnior",
-        "Yan Diomande"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T09:31:00.042004+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
   },
   {
     "slug": "54a5724994c06f46",
@@ -2052,7 +2151,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T09:31:00.042004+00:00"
+      "checked_at": "2026-10-14T10:00:57.260827+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2183,7 +2282,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T09:31:00.042004+00:00"
+      "checked_at": "2026-10-14T10:00:57.260827+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2314,7 +2413,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T09:31:00.042004+00:00"
+      "checked_at": "2026-10-14T10:00:57.260827+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -2425,107 +2524,5 @@
       "RFI"
     ],
     "quality_score": 86
-  },
-  {
-    "slug": "aa7cb93d393e0889",
-    "title": "RC Lens : Yannick Cahuzac : \"Beaucoup de frustration\"",
-    "summary": "Yannick Cahuzac, entraîneur de Lens, assurait qu'il y avait sans doute \"un manque d'expérience\" qui avait pénalisé son équipe face au Sporting (0-2).",
-    "summary_short": "Yannick Cahuzac, entraîneur de Lens, assurait qu'il y avait sans doute \"un manque d'expérience\" qui avait pénalisé son équipe face au Sporting (0-2).",
-    "content": "Yannick Cahuzac, entraîneur de Lens, assurait qu'il y avait sans doute \"un manque d'expérience\" qui avait pénalisé son équipe face au Sporting (0-2).",
-    "paragraphs": [
-      "Yannick Cahuzac, entraîneur de Lens, assurait qu'il y avait sans doute \"un manque d'expérience\" qui avait pénalisé son équipe face au Sporting (0-2)."
-    ],
-    "key_points": [
-      "Yannick Cahuzac, entraîneur de Lens, assurait qu'il y avait sans doute \"un manque d'expérience\" qui avait pénalisé son équipe face au Sporting (0-2)."
-    ],
-    "telegram_summary": "Yannick Cahuzac, entraîneur de Lens, assurait qu'il y avait sans doute \"un manque d'expérience\" qui avait pénalisé son équipe face au Sporting (0-2).",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-yannick-cahuzac-beaucoup-de-frustration-542119.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-yannick-cahuzac-beaucoup-de-frustration-542119.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=aa7cb93d393e0889",
-    "published": "2026-10-13T21:45:00+00:00",
-    "image": "assets/images/footnews/aa7cb93d393e0889.webp",
-    "source_image": "https://s2.dmcdn.net/v/fx4Qs1gpgGif0VZYf/x480",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "f3c984eeda981651",
-    "title": "Ligue Europa : OM - Olympiakos Le Pirée : le club grec détruit les autorités françaises !",
-    "summary": "Via un communiqué officiel, l'Olympiakos Le Pirée dénonce une gestion \"sans précédent, inacceptable et dangereuse\" du match de Ligue Europa face à l'OM (J2) par les autorités françaises.",
-    "summary_short": "Via un communiqué officiel, l'Olympiakos Le Pirée dénonce une gestion \"sans précédent, inacceptable et dangereuse\" du match de Ligue Europa face à l'OM (J2) par les autorités françaises.",
-    "content": "Via un communiqué officiel, l'Olympiakos Le Pirée dénonce une gestion \"sans précédent, inacceptable et dangereuse\" du match de Ligue Europa face à l'OM (J2) par les autorités françaises.",
-    "paragraphs": [
-      "Via un communiqué officiel, l'Olympiakos Le Pirée dénonce une gestion \"sans précédent, inacceptable et dangereuse\" du match de Ligue Europa face à l'OM (J2) par les autorités françaises."
-    ],
-    "key_points": [
-      "Via un communiqué officiel, l'Olympiakos Le Pirée dénonce une gestion \"sans précédent, inacceptable et dangereuse\" du match de Ligue Europa face à l'OM (J2) par les autorités françaises."
-    ],
-    "telegram_summary": "Via un communiqué officiel, l'Olympiakos Le Pirée dénonce une gestion \"sans précédent, inacceptable et dangereuse\" du match de Ligue Europa face à l'OM (J2) par les autorités françaises.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-europa-om-olympiakos-le-piree-le-club-grec-detruit-les-autorites-francaises-542118.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-europa-om-olympiakos-le-piree-le-club-grec-detruit-les-autorites-francaises-542118.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=f3c984eeda981651",
-    "published": "2026-10-13T21:38:00+00:00",
-    "image": "assets/images/footnews/f3c984eeda981651.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2025/une/l1-20250731220731-8216.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Officiel",
-    "category_emoji": "✅",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "2126f0aac22da2ff",
-    "title": "Equipe de France : le geste génial de Kanté à Fenerbahçe",
-    "summary": "Le milieu de terrain français joue désormais du côté d'Istanbul où il est apprécié sur et en dehors du terrain.",
-    "summary_short": "Le milieu de terrain français joue désormais du côté d'Istanbul où il est apprécié sur et en dehors du terrain.",
-    "content": "Le milieu de terrain français joue désormais du côté d'Istanbul où il est apprécié sur et en dehors du terrain.",
-    "paragraphs": [
-      "Le milieu de terrain français joue désormais du côté d'Istanbul où il est apprécié sur et en dehors du terrain."
-    ],
-    "key_points": [
-      "Le milieu de terrain français joue désormais du côté d'Istanbul où il est apprécié sur et en dehors du terrain."
-    ],
-    "telegram_summary": "Le milieu de terrain français joue désormais du côté d'Istanbul où il est apprécié sur et en dehors du terrain.",
-    "link": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-le-geste-genial-de-kante-a-fenerbahce-1002463",
-    "source_url": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-le-geste-genial-de-kante-a-fenerbahce-1002463",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2126f0aac22da2ff",
-    "published": "2026-10-13T21:35:00+00:00",
-    "image": "assets/images/footnews/2126f0aac22da2ff.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002463/409340/1200-L-equipe-de-france-le-geste-gnial-de-kant-fenerbahe.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
   }
 ]
