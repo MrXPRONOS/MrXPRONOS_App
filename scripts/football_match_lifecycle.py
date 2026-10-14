@@ -385,7 +385,7 @@ def persist_canonical_live_events(
             ) or None,
             "sources": sources,
             "payload": payload,
-            "confirmed": True,
+            "confirmed": False,
             "last_seen_at": now_iso,
             "event_at": signal.get("event_date") or None,
         })
@@ -397,14 +397,12 @@ def persist_canonical_live_events(
         "apikey": key,
         "Authorization": "Bearer " + key,
         "Content-Type": "application/json",
-        "Prefer": "resolution=merge-duplicates,return=representation",
     }
     try:
         response = session.post(
-            base + "/rest/v1/actu_foot_live_events",
-            params={"on_conflict": "event_key"},
+            base + "/rest/v1/rpc/actu_foot_store_live_events",
             headers=headers,
-            json=rows,
+            json={"p_events": rows},
             timeout=(8, 25),
         )
         response.raise_for_status()
@@ -415,15 +413,59 @@ def persist_canonical_live_events(
         print("CANONICAL_LIVE_EVENTS_FALLBACK", type(exc).__name__)
         return signals
 
-    by_key = {
-        str(row.get("event_key")): row.get("payload")
-        for row in saved if isinstance(row, dict) and isinstance(row.get("payload"), dict)
-    }
-    canonical = [by_key[key] for key in order if key in by_key]
+    canonical = [row for row in saved if isinstance(row, dict)] if isinstance(saved, list) else []
     if strict and len(canonical) != len(order):
         raise RuntimeError("Timeline canonique incomplète après upsert")
     print("CANONICAL_LIVE_EVENTS", "stored", len(canonical))
     return canonical or signals
+
+
+def confirm_canonical_live_event(
+    session: requests.Session,
+    event_key: str,
+    *,
+    strict: bool = False,
+) -> bool:
+    """Rend visible au site un événement après la même prévalidation que Telegram."""
+    event_key = _plain(event_key)
+    if not event_key:
+        return False
+    base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
+    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
+    if not base or not key:
+        if strict:
+            raise RuntimeError("Confirmation canonique requise mais Supabase est indisponible")
+        return False
+    headers = {
+        "apikey": key,
+        "Authorization": "Bearer " + key,
+        "Content-Type": "application/json",
+        "Prefer": "return=representation",
+    }
+    try:
+        response = session.patch(
+            base + "/rest/v1/actu_foot_live_events",
+            params={"event_key": "eq." + event_key},
+            headers=headers,
+            json={
+                "confirmed": True,
+                "last_seen_at": datetime.now(timezone.utc).isoformat(),
+            },
+            timeout=(8, 20),
+        )
+        response.raise_for_status()
+        rows = response.json()
+    except (requests.RequestException, ValueError) as exc:
+        if strict:
+            raise RuntimeError("Échec confirmation timeline canonique") from exc
+        print("CANONICAL_EVENT_CONFIRM_FALLBACK", event_key, type(exc).__name__)
+        return False
+    confirmed = isinstance(rows, list) and len(rows) == 1
+    if strict and not confirmed:
+        raise RuntimeError("Événement canonique introuvable après prévalidation: " + event_key)
+    if confirmed:
+        print("CANONICAL_EVENT_CONFIRMED", event_key)
+    return confirmed
 
 
 def parse_espn_event(event: dict) -> dict | None:
