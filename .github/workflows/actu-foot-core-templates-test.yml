@@ -1,4 +1,5 @@
 name: Actu Foot - 4 templates premium TEST
+# Validation 4 templates dédiée - branch test only
 
 on:
   push:
