@@ -16,6 +16,51 @@ NOW = datetime(2026, 10, 13, 18, 30, tzinfo=timezone.utc)
 
 
 class MatchLifecycleTests(unittest.TestCase):
+    @patch.dict("os.environ", {
+        "SUPABASE_URL": "https://example.supabase.co",
+        "SUPABASE_SERVICE_ROLE_KEY": "secret",
+    }, clear=False)
+    def test_supabase_live_prefers_canonical_merged_state(self):
+        class Response:
+            status_code = 200
+            def raise_for_status(self):
+                return None
+            def json(self):
+                return [{
+                    "canonical_match_id": "20261013_arsenal_chelsea",
+                    "primary_match_id": "espn:401",
+                    "home_team": "Arsenal",
+                    "away_team": "Chelsea",
+                    "home_score": 2,
+                    "away_score": 1,
+                    "minute": 67,
+                    "league_name": "Premier League",
+                    "event_date": "2026-10-13T18:00:00Z",
+                    "is_live": True,
+                    "is_finished": False,
+                    "merged_stats": {"totals": {"corners": 8}},
+                    "sources_used": ["espn", "sportscore"],
+                    "confidence_score": 96,
+                    "merged_match_json": {"espn_id": "401", "status": "67'"},
+                    "updated_at": NOW.isoformat(),
+                }]
+
+        class Session:
+            def __init__(self):
+                self.urls = []
+            def get(self, url, **kwargs):
+                self.urls.append(url)
+                return Response()
+
+        session = Session()
+        rows = m.fetch_supabase_live(session, max_age_seconds=999999)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["source"], "supabase_merged")
+        self.assertEqual(rows[0]["home_score"], 2)
+        self.assertEqual(rows[0]["sources_used"], ["espn", "sportscore"])
+        self.assertTrue(session.urls[0].endswith("/rest/v1/live_stats_merged"))
+        self.assertEqual(len(session.urls), 1)
+
     def test_parse_espn_event(self):
         raw = {
             "id": "401",
