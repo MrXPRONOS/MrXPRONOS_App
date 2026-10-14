@@ -306,11 +306,11 @@ def render_match(category: str, payload: dict[str, Any]) -> Image.Image:
     away = clean(payload.get("away"), 70)
     _logo(image, payload.get("home_logo"), layout["home_logo"])
     _logo(image, payload.get("away_logo"), layout["away_logo"])
-    _fit_text(draw, home, layout["home_name"]["safe"], preferred=66, minimum=34, bold=True)
+    _fit_text(draw, home, layout["home_name"]["safe"], preferred=46, minimum=24, bold=True)
     _fit_text(draw, away, layout["away_name"]["safe"], preferred=46, minimum=24, bold=True)
     label = _event_label(category, payload)
-    preferred = 66 if len(label) <= 17 else 56 if len(label) <= 24 else 46
-    _fit_text(draw, label, layout["event"]["safe"], preferred=preferred, minimum=32, max_lines=2, bold=True, color=GOLD)
+    preferred = 52 if len(label) <= 17 else 44 if len(label) <= 24 else 36
+    _fit_text(draw, label, layout["event"]["safe"], preferred=preferred, minimum=24, max_lines=2, bold=True, color=GOLD)
     return image
 
 
@@ -321,12 +321,12 @@ def render_club(category: str, payload: dict[str, Any]) -> Image.Image:
     club = clean(payload.get("team") or payload.get("club") or payload.get("home"), 80)
     logo = payload.get("team_logo") or payload.get("club_logo") or payload.get("home_logo")
     _logo(image, logo, layout["logo"])
-    _fit_text(draw, club, layout["club"]["safe"], preferred=66, minimum=34, bold=True)
+    _fit_text(draw, club, layout["club"]["safe"], preferred=48, minimum=24, bold=True)
     label = _event_label(category, payload)
-    _fit_text(draw, label, layout["event"]["safe"], preferred=64, minimum=32, max_lines=2, bold=True, color=GOLD)
+    _fit_text(draw, label, layout["event"]["safe"], preferred=50, minimum=24, max_lines=2, bold=True, color=GOLD)
     meta = clean(payload.get("competition") or payload.get("league") or payload.get("meta"), 60)
     if meta:
-        _fit_text(draw, meta.upper(), layout["meta"]["safe"], preferred=38, minimum=22, max_lines=2, bold=True, color=MUTED)
+        _fit_text(draw, meta.upper(), layout["meta"]["safe"], preferred=28, minimum=16, max_lines=2, bold=True, color=MUTED)
     return image
 
 
@@ -341,8 +341,8 @@ def render_general(category: str, payload: dict[str, Any]) -> Image.Image:
         or _event_label(category, payload),
         220,
     )
-    preferred = 76 if len(headline) <= 42 else 62 if len(headline) <= 70 else 50
-    _fit_text(draw, headline, layout["headline"]["safe"], preferred=preferred, minimum=34, max_lines=2, bold=True)
+    preferred = 56 if len(headline) <= 42 else 46 if len(headline) <= 70 else 38
+    _fit_text(draw, headline, layout["headline"]["safe"], preferred=preferred, minimum=24, max_lines=2, bold=True)
     meta = clean(
         payload.get("meta")
         or payload.get("league")
@@ -351,7 +351,7 @@ def render_general(category: str, payload: dict[str, Any]) -> Image.Image:
         100,
     )
     if meta:
-        _fit_text(draw, meta.upper(), layout["meta"]["safe"], preferred=42, minimum=24, max_lines=1, bold=True, color=GOLD)
+        _fit_text(draw, meta.upper(), layout["meta"]["safe"], preferred=30, minimum=18, max_lines=1, bold=True, color=GOLD)
     return image
 
 
