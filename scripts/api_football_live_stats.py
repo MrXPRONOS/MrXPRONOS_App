@@ -126,10 +126,19 @@ def find_matches(canonical_rows, live_fixtures):
         # Multiple plausible source matches: do not guess.
         if len(candidates) == 1:
             result.append((match, candidates[0][0]))
+    # Reject ambiguous one-to-many canonical mappings as well.
+    # Never write a fixture's statistics against two different local matches.
+    by_fixture = {}
+    for row, fixture in result:
+        fid = (fixture.get("fixture") or {}).get("id")
+        by_fixture[fid] = by_fixture.get(fid, 0) + 1
+    result = [pair for pair in result
+              if by_fixture.get((pair[1].get("fixture") or {}).get("id")) == 1]
+
     # Prioritize fixtures with known clock, missing three market data pairs.
     def score(pair):
         match, f = pair
-        minute = ((f.get("fixture") or {}).get("status") or {}).get("elapsed") or 0
+        minute = finite_stat(((f.get("fixture") or {}).get("status") or {}).get("elapsed")) or 0
         stats = match.get("merged_stats") or {}
         missing = sum(
             not isinstance((stats.get("home") or {}).get(k),(int,float)) or
