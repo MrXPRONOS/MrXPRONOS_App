@@ -8,6 +8,10 @@ on:
       - 'tests/test_football_history_shadow.py'
       - 'scripts/football_daily_multisource_shadow.py'
       - 'tests/test_football_daily_multisource_shadow.py'
+      - 'scripts/football_history_features.py'
+      - 'tests/test_football_history_features.py'
+      - 'scripts/football_alias_candidates.py'
+      - 'tests/test_football_alias_candidates.py'
       - '.github/workflows/football-history-shadow.yml'
   workflow_dispatch:
     inputs:
@@ -49,9 +53,11 @@ jobs:
         run: |
           php -l scripts/football_history_import.php
           php scripts/football_history_import.php --self-test
-          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py
+          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py
           python -m unittest discover -s tests -p 'test_football_history_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_daily_multisource_shadow.py' -v
+          python -m unittest discover -s tests -p 'test_football_history_features.py' -v
+          python -m unittest discover -s tests -p 'test_football_alias_candidates.py' -v
   historical_probe:
     if: github.event_name == 'workflow_dispatch'
     needs: verify
@@ -116,12 +122,21 @@ jobs:
           php scripts/football_history_import.php --source=football-data --seasons=2024-25 --max-files=1 --out=tmp/football-data.jsonl
           cat tmp/openfootball.jsonl tmp/football-data.jsonl > tmp/combined.jsonl
           python scripts/football_history_shadow.py --input=tmp/combined.jsonl --output=tmp/merged.json --report=tmp/quality.json
+          python scripts/football_alias_candidates.py --input=tmp/combined.jsonl --out=tmp/aliases-to-review.json
+          python - <<'PY'
+          import json
+          fixture={'home_team':'Arsenal','away_team':'Chelsea','kickoff_utc':'2026-10-14T18:00:00+00:00','league_labels':['Premier League']}
+          with open('tmp/fixtures-sample.json','w') as f: json.dump([fixture], f)
+          PY
+          python scripts/football_history_features.py --history=tmp/merged.json --fixtures=tmp/fixtures-sample.json --out=tmp/form-features.json --report=tmp/form-report.json
           python - <<'PY'
           import json
           report=json.load(open('tmp/quality.json'))
           assert report['provider_rows']['openfootball'] >= 200
           assert report['provider_rows']['football_data'] >= 200
           assert report['unique_fixtures'] >= 200
+          assert report['multi_source_agreement'] >= 40
+          assert not json.load(open('tmp/form-report.json'))['production_model_modified']
           print('PROVIDER_PROBE_PASS', {k:report[k] for k in ('input_rows','unique_fixtures','multi_source_agreement','conflicted_fixtures')})
           PY
       - name: Upload research summary, never raw datasets
