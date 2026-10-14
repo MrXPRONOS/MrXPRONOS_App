@@ -12,6 +12,7 @@ sys.path.insert(0, str(SCRIPTS))
 
 import generic_football_banners as banners
 import template_cards
+import generic_football_content as content
 
 
 class GenericBannerTests(unittest.TestCase):
@@ -104,6 +105,47 @@ class GenericBannerTests(unittest.TestCase):
         from generic_football_banners import banner_kind
         for category in ("programme", "avant_match", "resultat", "composition", "flash", "viral"):
             self.assertIsNone(banner_kind(category, self.match))
+
+    def test_missing_logos_use_neutral_monograms_instead_of_empty_slots(self):
+        payload = dict(self.match)
+        payload["home_logo"] = ""
+        payload["away_logo"] = ""
+        image = template_cards.render("score_live_no_logos", payload)
+        self.assertEqual(image.size, (1280, 500))
+
+    def test_long_names_and_long_event_labels_stay_renderable(self):
+        payload = dict(self.match)
+        payload["home"] = "Club Deportivo Universidad Católica de Santiago"
+        payload["away"] = "Paris Saint-Germain Football Club"
+        payload["banner_label"] = "FIN DU TEMPS RÉGLEMENTAIRE"
+        image = template_cards.render("fin_temps_reglementaire", payload)
+        self.assertEqual(image.size, (1280, 500))
+
+    def test_missing_detail_copy_is_explicit_and_not_blank(self):
+        yellow = content.banner_caption(
+            "carton_jaune_unknown",
+            {**self.match, "player": "", "reason": ""},
+        )
+        self.assertIn("non communiqué", yellow)
+        interrupted = content.banner_caption(
+            "match_interrompu_unknown",
+            {**self.match, "status": "", "reason": ""},
+        )
+        self.assertIn("non communiqué", interrupted)
+
+    def test_time_is_emphasized_before_secondary_live_details(self):
+        caption = content.banner_caption("goal", self.match)
+        self.assertIn("⏱ <b>67&#x27;</b>", caption)
+        self.assertIn("📊 <b>2–1</b>", caption)
+
+    def test_general_banner_accepts_real_article_image_panel(self):
+        payload = {
+            "headline": "Une information football avec photo",
+            "meta": "INFO FOOT",
+            "image_path": "assets/images/article-02bacd1b.webp",
+        }
+        image = template_cards.render("statistique_avancee", payload)
+        self.assertEqual(image.size, (1280, 500))
 
 
 if __name__ == "__main__":
