@@ -23,6 +23,7 @@ from bsd.free_football_sources import collect_free_day
 from scripts.football_history_shadow import normalized, canonical_team
 from scripts.football_history_features import competition, features as build_history_features
 from scripts.football_match_source_router import route_all
+from scripts.football_public_domain_prematch import generate as public_domain_form
 import hashlib
 
 ALLOWED = ("bsd", "api_football", "espn", "sportscore", "thesportsdb", "openligadb")
@@ -228,6 +229,8 @@ def main() -> None:
     p.add_argument("--api-football-fixtures", help="Offline JSON /fixtures response; no new API calls")
     p.add_argument("--prematch-stats", help="Validated per-provider historical statistics; JSON by provider and fixture ID")
     p.add_argument("--route-out", help="Optional research-only per-match chosen providers JSON")
+    p.add_argument("--public-domain-history-jsonl", help="Licensed OpenFootball raw JSONL; single-source form only")
+    p.add_argument("--analysis-at", help="Offline historical replay ISO timestamp; requires --snapshots")
     p.add_argument("--verified-history", help="History-shadow JSON with independently agreed final scores")
     p.add_argument("--historical-feature-out", help="Optional separate research-only features JSON")
     p.add_argument("--max-http", type=int, default=12)
@@ -251,10 +254,22 @@ def main() -> None:
         payload = json.loads(Path(args.api_football_fixtures).read_text(encoding="utf-8"))
         snapshots["api_football"] = {"rows": api_football_rows(payload), "error": ""}
     fixtures, report = merge(snapshots, bsd_events=bsd_events)
+    if args.analysis_at and not args.snapshots:
+        p.error("--analysis-at is for offline snapshots, not live HTTP requests")
+    analysis_at = kickoff(args.analysis_at) if args.analysis_at else datetime.now(timezone.utc)
+    if analysis_at is None:
+        p.error("--analysis-at must have an explicit timezone")
     statistics = json.loads(Path(args.prematch_stats).read_text(encoding="utf-8")) if args.prematch_stats else {}
     if not isinstance(statistics, dict):
         p.error("--prematch-stats must be an object keyed by provider")
-    routed, readiness = route_all(fixtures, statistics)
+    if args.public_domain_history_jsonl:
+        raw = [json.loads(line) for line in Path(args.public_domain_history_jsonl).read_text(encoding="utf-8").splitlines() if line.strip()]
+        fixtures, lawful_stats, public_quality = public_domain_form(fixtures, raw, as_of=analysis_at)
+        if "openfootball" in statistics:
+            p.error("OpenFootball source collision: do not combine unchecked external stats")
+        statistics.update(lawful_stats)
+        report["public_domain_history"] = public_quality
+    routed, readiness = route_all(fixtures, statistics, analysis_at=analysis_at)
     report["prematch_readiness"] = readiness
     if args.verified_history:
         history = json.loads(Path(args.verified_history).read_text(encoding="utf-8"))
