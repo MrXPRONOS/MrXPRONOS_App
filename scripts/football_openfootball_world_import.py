@@ -103,7 +103,7 @@ def parse_txt(txt: str, *, league: str, path: str) -> tuple[list[dict],dict]:
                 continue
             origin=f"{path}:{linenum}"
             rows.append({
-                "source":SOURCE_TAG, "source_id":hashlib.sha256(origin.encode()).hexdigest()[:24],
+                "source":SOURCE_TAG, "source_id":hashlib.sha256(origin.encode("utf-8")).hexdigest(),
                 "status":"finished",
                 "match_date":current.isoformat(), "league":league,
                 "home_team":home,"away_team":away,
