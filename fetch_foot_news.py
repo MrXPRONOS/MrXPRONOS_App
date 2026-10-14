@@ -25,6 +25,7 @@ import requests
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "scripts"))
+from generic_football_banners import render_general  # noqa: E402
 from football_news_engine import (  # noqa: E402
     DEFAULT_FREE_FEEDS,
     build_news_record,
@@ -247,6 +248,34 @@ def reuse_image(previous: dict) -> tuple[str, str, str]:
     return "", "", ""
 
 
+def generated_fallback_image(item: dict) -> str:
+    """Dernier recours pour une news majeure sans photo source exploitable."""
+    try:
+        editorial = int(item.get("editorial_score") or 0)
+    except (TypeError, ValueError):
+        editorial = 0
+    if editorial < 4:
+        return ""
+    slug = str(item.get("slug") or "").strip()
+    title = re.sub(r"\s+", " ", str(item.get("title") or "")).strip()
+    if not slug or not title:
+        return ""
+    relative = Path("assets/images/footnews") / f"{slug}-fallback.webp"
+    target = ROOT / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        image = render_general("flash", {
+            "headline": title,
+            "source": item.get("source") or "Mr XPRONOS",
+            "meta": item.get("category") or "FLASH FOOT",
+        })
+        image.save(target, "WEBP", quality=91, method=6)
+    except Exception as exc:
+        logger.warning("Fallback visuel impossible pour %s: %s", slug, type(exc).__name__)
+        return ""
+    return relative.as_posix()
+
+
 def fetch_news() -> tuple[list[dict], dict]:
     session = requests.Session()
     session.headers.update({
@@ -264,6 +293,7 @@ def fetch_news() -> tuple[list[dict], dict]:
         "rejected_invalid": 0,
         "images_real": 0,
         "images_missing": 0,
+        "images_generated_fallback": 0,
         "rejected_no_image": 0,
         "espn_verification_rows": len(espn_index),
         "espn_corroborated": 0,
@@ -362,6 +392,7 @@ def fetch_news() -> tuple[list[dict], dict]:
     diagnostics["accepted_before_dedup"] = len(candidates)
     candidates.sort(
         key=lambda item: (
+            int(item.get("editorial_score") or 0) >= 4,
             str(item.get("published") or ""),
             int(item.get("editorial_score") or 0),
             int(item.get("source_priority") or 0),
@@ -395,11 +426,19 @@ def fetch_news() -> tuple[list[dict], dict]:
                 item["image_origin"] = "source"
                 item["image_layout"] = image_mode
         if item.get("image_origin") != "source":
-            diagnostics["rejected_no_image"] += 1
             diagnostics["images_missing"] += 1
-            continue
+            fallback = generated_fallback_image(item)
+            if fallback:
+                item["image"] = fallback
+                item["image_origin"] = "generated_fallback"
+                item["image_layout"] = "general-banner"
+                diagnostics["images_generated_fallback"] += 1
+            else:
+                diagnostics["rejected_no_image"] += 1
+                continue
 
-        diagnostics["images_real"] += 1
+        if item.get("image_origin") == "source":
+            diagnostics["images_real"] += 1
         selected.append(item)
         links.add(link)
         title_keys.append(norm)

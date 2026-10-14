@@ -102,7 +102,15 @@ jobs:
           from pathlib import Path
           rows=json.loads(Path("footnews.json").read_text(encoding="utf-8"))
           assert len(rows)>=3, f"Couverture RSS insuffisante: {len(rows)}"
-          assert all(x.get("image_origin")=="source" for x in rows)
+          assert all(
+              x.get("image_origin")=="source"
+              or (
+                  x.get("image_origin")=="generated_fallback"
+                  and int(x.get("editorial_score") or 0)>=4
+              )
+              for x in rows
+          )
+          assert sum(x.get("image_origin")=="source" for x in rows) >= max(1, len(rows)//2)
           assert all(Path(x["image"]).is_file() for x in rows)
           assert all(x.get("content") and x.get("telegram_summary") and x.get("site_url") for x in rows)
           print("NEWS_FREE_SOURCES_OK",len(rows),sorted({x.get("source") for x in rows}))

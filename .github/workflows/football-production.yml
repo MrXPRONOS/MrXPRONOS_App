@@ -62,7 +62,9 @@ permissions:
   actions: write
 
 concurrency:
-  group: mrxpronos-football-production
+  # Le LIVE 2 min et les Infos Foot 5 min ne se bloquent pas mutuellement.
+  # Deux runs du même mode restent sérialisés pour protéger leur état local.
+  group: mrxpronos-football-production-${{ inputs.mode || 'full' }}
   cancel-in-progress: false
 
 jobs:
@@ -131,6 +133,7 @@ jobs:
             production)
               test -n "$PROD_FOOTBALL_NEWS_CHAT_ID"
               echo "FOOTBALL_NEWS_CHAT_ID=$PROD_FOOTBALL_NEWS_CHAT_ID" >> "$GITHUB_ENV"
+              echo "FOOTBALL_REMOTE_LEDGER=1" >> "$GITHUB_ENV"
               STATE_PATH=".state/mrxpronos-football.json"
               ;;
             test)
@@ -269,33 +272,32 @@ jobs:
           path: ${{ steps.telegram_route.outputs.state_path }}
           key: football-${{ steps.telegram_route.outputs.destination }}-${{ github.run_id }}-${{ github.run_attempt }}
 
-      - name: Publier les nouvelles Infos Foot sur le site
+      - name: Publier le meme snapshot Infos Foot sur le site
         if: ${{ github.event_name == 'workflow_dispatch' && steps.telegram_dispatch.outputs.effective_dry_run == 'false' && steps.telegram_route.outputs.destination == 'production' && inputs.mode != 'lifecycle' }}
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for attempt in 1 2 3; do
-            git fetch origin main
-            git reset --hard origin/main
-            python fetch_foot_news.py
-            git add footnews.json
-            if [ -d assets/images/footnews ]; then git add -A assets/images/footnews; fi
-            if git diff --cached --quiet; then
-              echo "NEWS_SITE_UNCHANGED"
-              exit 0
-            fi
-            git commit -m "data(infos): refresh Actu Foot news and real images"
-            if git push origin HEAD:main; then
-              echo "NEWS_SITE_COMMITTED=true" >> "$GITHUB_ENV"
-              exit 0
-            fi
-            echo "Mise à jour concurrente, tentative $attempt/3"
-          done
-          echo "::error::Impossible de publier les news sans écraser une mise à jour concurrente."
-          exit 1
 
+          # Le snapshot a deja ete genere une seule fois avant Telegram.
+          # On ne relance PAS fetch_foot_news.py ici.
+          git add footnews.json
+          if [ -d assets/images/footnews ]; then git add -A assets/images/footnews; fi
+          if git diff --cached --quiet; then
+            echo "NEWS_SITE_UNCHANGED"
+            exit 0
+          fi
+
+          git commit -m "data(infos): refresh Actu Foot news and real images"
+          git fetch origin main
+          if ! git rebase origin/main; then
+            echo "::error::Conflit pendant le rebase du snapshot RSS; aucun force-push ne sera effectue."
+            git rebase --abort || true
+            exit 1
+          fi
+          git push origin HEAD:main
+          echo "NEWS_SITE_COMMITTED=true" >> "$GITHUB_ENV"
       - name: Déployer les nouvelles Infos Foot
         if: ${{ env.NEWS_SITE_COMMITTED == 'true' && inputs.mode != 'lifecycle' }}
         env:

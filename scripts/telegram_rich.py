@@ -6,12 +6,32 @@ must not trigger a second send.
 """
 import json
 import re
+import time
 from html import escape
 from pathlib import Path
 from urllib.parse import urlsplit
 from telegram_premium_templates import premium_sections, plain_text_sections
 
 class RichFormatUnavailable(Exception): pass
+
+def _retry_after(response):
+    if int(getattr(response, "status_code", 200) or 200) != 429:
+        return 0
+    try:
+        body=response.json()
+        value=((body.get("parameters") or {}).get("retry_after") or 1)
+        return max(1,min(60,int(value)))
+    except Exception:
+        return 1
+
+def _post_rate_limited(session,url,*,data,timeout):
+    response=session.post(url,data=data,timeout=timeout)
+    delay=_retry_after(response)
+    if delay:
+        print("TELEGRAM_RATE_LIMIT",delay,"seconds")
+        time.sleep(delay)
+        response=session.post(url,data=data,timeout=timeout)
+    return response
 
 def rich_buttons(markup):
     if not isinstance(markup,dict):return ""
@@ -55,13 +75,27 @@ def post_photo(session,token,chat,image,caption,keyboard,*,timeout=120,mime="ima
     with p.open("rb") as f:
         response=session.post(url,data={"chat_id":chat,"rich_message":json.dumps(rm,ensure_ascii=False)},
             files={"coupon_photo":(p.name,f,mime)},timeout=timeout)
+        delay=_retry_after(response)
+        if delay:
+            print("TELEGRAM_RATE_LIMIT",delay,"seconds")
+            time.sleep(delay)
+            f.seek(0)
+            response=session.post(url,data={"chat_id":chat,"rich_message":json.dumps(rm,ensure_ascii=False)},
+                files={"coupon_photo":(p.name,f,mime)},timeout=timeout)
     if response.status_code in (400,404):
         print("TELEGRAM_RICH_UNAVAILABLE:",response.status_code,"using legacy photo")
         with p.open("rb") as f:
+            legacy_data={"chat_id":chat,"caption":legacy_caption(caption),"parse_mode":"HTML",
+                         "reply_markup":json.dumps(keyboard,ensure_ascii=False)}
             response=session.post(f"https://api.telegram.org/bot{token}/sendPhoto",
-                data={"chat_id":chat,"caption":legacy_caption(caption),"parse_mode":"HTML",
-                      "reply_markup":json.dumps(keyboard,ensure_ascii=False)},
-                files={"photo":(p.name,f,mime)},timeout=timeout)
+                data=legacy_data,files={"photo":(p.name,f,mime)},timeout=timeout)
+            delay=_retry_after(response)
+            if delay:
+                print("TELEGRAM_RATE_LIMIT",delay,"seconds")
+                time.sleep(delay)
+                f.seek(0)
+                response=session.post(f"https://api.telegram.org/bot{token}/sendPhoto",
+                    data=legacy_data,files={"photo":(p.name,f,mime)},timeout=timeout)
     response.raise_for_status()
     payload=response.json()
     if not payload.get("ok"):raise RuntimeError("Telegram rejected rich/photo message")
@@ -69,7 +103,7 @@ def post_photo(session,token,chat,image,caption,keyboard,*,timeout=120,mime="ima
 
 def post_text(session,token,chat,text,keyboard=None,*,timeout=60,html=False):
     rm={"html":rich_markup(text if html else plain_text_sections(text),keyboard,picture=False)}
-    resp=session.post(f"https://api.telegram.org/bot{token}/sendRichMessage",
+    resp=_post_rate_limited(session,f"https://api.telegram.org/bot{token}/sendRichMessage",
             data={"chat_id":chat,"rich_message":json.dumps(rm,ensure_ascii=False)},timeout=timeout)
     if resp.status_code in (400,404):
         payload={"chat_id":chat,"text":text}
@@ -77,7 +111,7 @@ def post_text(session,token,chat,text,keyboard=None,*,timeout=60,html=False):
             payload["parse_mode"]="HTML"
             payload["text"]=legacy_caption(text)
         if keyboard:payload["reply_markup"]=json.dumps(keyboard,ensure_ascii=False)
-        resp=session.post(f"https://api.telegram.org/bot{token}/sendMessage",
+        resp=_post_rate_limited(session,f"https://api.telegram.org/bot{token}/sendMessage",
                           data=payload,timeout=timeout)
     resp.raise_for_status()
     body=resp.json()
@@ -103,6 +137,17 @@ def post_animation(session,token,chat,animation,caption,keyboard=None,*,timeout=
             files={"animation":(p.name,f,mime)},
             timeout=timeout,
         )
+        delay=_retry_after(resp)
+        if delay:
+            print("TELEGRAM_RATE_LIMIT",delay,"seconds")
+            time.sleep(delay)
+            f.seek(0)
+            resp=session.post(
+                f"https://api.telegram.org/bot{token}/sendAnimation",
+                data=data,
+                files={"animation":(p.name,f,mime)},
+                timeout=timeout,
+            )
     resp.raise_for_status()
     body=resp.json()
     if not body.get("ok"):
