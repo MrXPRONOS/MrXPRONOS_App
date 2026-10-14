@@ -1389,7 +1389,8 @@ def flash(articles: list[dict], history: History, now: datetime) -> Publication 
                     "url": espn_url,
                     "matched_terms": espn_verification.get("matched_terms") or [],
                 }
-        keyboard = {"inline_keyboard": compact_keyboard_rows(keyboard_buttons)}
+        rows = compact_keyboard_rows(keyboard_buttons)
+        keyboard = {"inline_keyboard": rows} if rows else None
         return Publication(
             "flash", key, message, image_path=image_path,
             keyboard=keyboard, verification=verification,
