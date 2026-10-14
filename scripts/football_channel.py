@@ -1034,7 +1034,11 @@ class Sender:
                     item.text[:1000], item.keyboard or {},
                     timeout=120, mime="video/mp4",
                 )
-        elif item.image_path and not item.card:
+        elif item.image_path:
+            # Les Flash Foot fournissent déjà leur visuel final (photo RSS
+            # prioritaire ou bannière GENERAL de secours). Les métadonnées
+            # item.card servent au contexte/déduplication et ne doivent jamais
+            # rerouter l'image vers un template nommé "flash".
             media = (ROOT / item.image_path).resolve()
             if not media.is_relative_to(ROOT.resolve()) or not media.is_file():
                 raise RuntimeError("Image News Football absente ou hors dépôt: " + str(item.image_path))
