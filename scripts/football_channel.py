@@ -1786,6 +1786,7 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
     sender = Sender(dry_run=dry_run)
     counter = {"sent": 0, "skipped": 0, "errors": 0}
     max_send = MAX_MESSAGES_PER_RUN
+    class_counter = {key: 0 for key in CLASS_BUDGETS}
 
     def publish(item: Publication | None, *, ref: str = "") -> None:
         if item is None or counter["sent"] >= max_send:
@@ -1897,29 +1898,62 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
 
     def publish(item: Publication | None, *, follow_event: dict | None = None,
                 ref: str = "") -> bool:
-        if item is None or counter["sent"] >= max_send:
+        if item is None:
             return False
+        cls = priority_class(item.category)
+        # P0 dispose d'une réserve propre et ne peut jamais être bloqué par un
+        # quiz/stat/flash déjà envoyé dans le même passage.
+        if class_counter[cls] >= CLASS_BUDGETS[cls]:
+            return False
+        low_sent = class_counter["P2"] + class_counter["P3"] + class_counter["P4"]
+        if cls in {"P2", "P3", "P4"} and low_sent >= 3:
+            return False
+        if cls != "P0" and counter["sent"] >= max_send:
+            return False
+
         if not force and (state.seen(item.key) or
                           (item.category != "resultat" and not enough(state, item.category, now))):
             counter["skipped"] += 1
             return False
-        # Une publication AVANT-MATCH ne doit jamais dépasser la capacité de suivi.
-        if follow_event is not None:
-            if not followup.selection_allowed(state.followed, now):
+
+        # SCORE LIVE est un fallback: on laisse deux minutes au vrai événement
+        # BUT pour arriver avec buteur/passeur. Un score live déjà publié
+        # n'empêche plus un BUT enrichi ultérieur.
+        if item.category == "score_update" and not force:
+            first = state.first_observed(item.key, now)
+            if now - first < timedelta(minutes=2):
+                if not dry_run:
+                    state.save(now)
+                print("SCORE_UPDATE_EN_ATTENTE", item.key)
                 return False
-            if followup.tracked_fixture(follow_event, state.followed, now):
-                return False
+
+        existing_ref = (
+            followup.tracked_fixture(follow_event, state.followed, now)
+            if follow_event is not None else None
+        )
+        if follow_event is not None and not existing_ref and not followup.selection_allowed(state.followed, now):
+            return False
+
         if not espn_preflight(sender, item, dry_run=dry_run):
             counter["skipped"] += 1
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
             return False
+
         sender.send(item)
         counter["sent"] += 1
+        class_counter[cls] += 1
         if not dry_run:
             state.mark(item.key, item.category, now)
-            if follow_event is not None:
+            state.clear_observation(item.key)
+            if follow_event is not None and not existing_ref:
                 ref_added = followup.follow(state.followed, follow_event, now)
                 print("FOLLOWUP_SELECTED", ref_added)
+            if item.category in {"composition", "changement_composition"} and ref in state.followed and item.card:
+                lineups = item.card.get("lineups") if isinstance(item.card.get("lineups"), dict) else {}
+                state.followed[ref]["lineup_home_hash"] = str(item.card.get("lineup_home_hash") or "")
+                state.followed[ref]["lineup_away_hash"] = str(item.card.get("lineup_away_hash") or "")
+                state.followed[ref]["lineup_home"] = list(lineups.get("home") or [])
+                state.followed[ref]["lineup_away"] = list(lineups.get("away") or [])
             if item.category == "resultat" and ref:
                 followup.completed(state.followed, ref, now)
                 print("FOLLOWUP_FINISHED", ref)
