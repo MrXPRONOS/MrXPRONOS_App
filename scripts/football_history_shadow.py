@@ -14,7 +14,7 @@ from pathlib import Path
 import re
 import unicodedata
 
-SOURCES = {"openfootball", "football_data"}
+SOURCES = {"openfootball", "licensed_csv"}
 FIELDS = ("match_date", "league", "home_team", "away_team")
 
 
