@@ -3,6 +3,7 @@ import {
   fetchSportScoreFixtures,
   normalizeSportScoreDetail,
   normalizeEspnSummaryStats,
+  preserveBsdCoreMarketPairs,
   fetchTheSportsDbStats,
   fetchOpenLigaDay,
   resolveTheSportsDbEvent,
@@ -155,4 +156,22 @@ Deno.test("ESPN summary: exact home/away IDs map real corners/shots/fouls", () =
   check(row?.home.fouls===12 && row.away.fouls===16,"Foul mapping");
   check(normalizeEspnSummaryStats(summary,"11","33")===null,"Unknown team ID must fail closed");
   check(normalizeEspnSummaryStats(summary,"11","11")===null,"Identical home and away IDs forbidden");
+});
+
+Deno.test("BSD remains primary for reported core match statistics", () => {
+  const bsd={home:{corner_kicks:3,total_shots:8,fouls:7},away:{corner_kicks:2,total_shots:5,fouls:10}};
+  const external={home:{corner_kicks:6,total_shots:9,fouls:12,shots_on_target:4},
+    away:{corner_kicks:3,total_shots:7,fouls:8,shots_on_target:3},
+    totals:{corners:9,total_shots:16,fouls:20,shots_on_target:7}};
+  const result=preserveBsdCoreMarketPairs(bsd,external);
+  check(result.totals.corners===5,"BSD corners overwritten");
+  check(result.totals.total_shots===13,"BSD total shots overwritten");
+  check(result.totals.fouls===17,"BSD fouls overwritten");
+  check(result.totals.shots_on_target===7,"Missing BSD shots-on-target must use fallback");
+});
+
+Deno.test("Never treat partial or missing BSD pair as a zero", () => {
+  const result=preserveBsdCoreMarketPairs({home:{corner_kicks:4},away:{corner_kicks:null}},
+    {home:{corner_kicks:5},away:{corner_kicks:3},totals:{corners:8}});
+  check(result.totals.corners===8,"Incomplete BSD pair must not override verified external pair");
 });

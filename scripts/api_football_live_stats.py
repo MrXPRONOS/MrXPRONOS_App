@@ -245,6 +245,21 @@ def main():
         home_id=str((fixture.get("teams") or {}).get("home",{}).get("id",""))
         away_id=str((fixture.get("teams") or {}).get("away",{}).get("id",""))
         stats=parse_statistics(response,home_id,away_id)
+        # Diagnostic of the provider response only: no tokens, user data or
+        # credentials are logged. Empty stats may indicate an uncovered league.
+        categories=sorted(set(
+            str(s.get("type"))[:55]
+            for team in response if isinstance(team,dict)
+            for s in (team.get("statistics") or []) if isinstance(s,dict)
+        ))
+        print("API_FOOTBALL_STATS_DIAG",json.dumps({
+            "fixture":fid,
+            "teams_with_stats":len(response),
+            "market_types":categories[:24],
+            "complete_markets":[k for k in CORE
+                if k in stats["home"] and k in stats["away"]],
+            "remaining_day":remaining,
+        }))
         row=build_row(match,fixture,stats)
         if row is not None:
             db_json(supabase_url,supabase_secret,"POST","live_stats_sources",
