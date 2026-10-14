@@ -194,7 +194,7 @@ class StatsEngineTests(unittest.TestCase):
         self.assertEqual(post.category, "statistique")
         self.assertIn("Arsenal", post.text)
         self.assertIn("94%", post.text)
-        self.assertIn("Sources", post.text)
+        self.assertIn("Source :", post.text)
 
     @patch("football_channel.daily_insight", return_value={
         "kind": "standings",
