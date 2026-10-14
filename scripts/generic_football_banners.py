@@ -21,7 +21,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "assets" / "images" / "generic_football_banners"
-W, H = 2006, 784
+W, H = 1024, 400
 
 WHITE = (247, 249, 252)
 GOLD = (245, 199, 91)
@@ -46,25 +46,31 @@ TEMPLATE_DIRS = {
     "general": ASSETS / "general.b64",
 }
 
-# Measured from the generated source art (2006x784).
-# "surface" describes the visible dark panel; "safe" stays away from gold trim.
+# Exact data surfaces were measured on the 2006x784 source art, then
+# projected to the 1024x400 Telegram source assets. The red audit boxes were:
+# match  : logo 96,241,331,472 | name 355,290,749,420 | event 798,290,1196,422 |
+#          name 1226,290,1641,420 | logo 1663,241,1899,472
+# club   : logo 83,276,343,475 | club 370,295,912,435 |
+#          event 963,294,1565,436 | meta 1606,294,1908,435
+# general: headline 170,267,1836,433 | meta 656,456,1353,539
+# LAYOUT below is the projected 1024x400 safe geometry.
 LAYOUT = {
     "match": {
-        "home_logo": {"surface": (94, 237, 332, 466), "safe": (112, 255, 314, 448), "center": (213, 352), "max_px": 174},
-        "home_name": {"surface": (340, 278, 765, 430), "safe": (363, 296, 744, 414)},
-        "event": {"surface": (777, 276, 1193, 430), "safe": (806, 296, 1172, 411)},
-        "away_name": {"surface": (1202, 278, 1647, 430), "safe": (1229, 296, 1626, 414)},
-        "away_logo": {"surface": (1652, 237, 1897, 466), "safe": (1672, 255, 1880, 448), "center": (1776, 352), "max_px": 176},
+        "home_logo": {"surface": (49, 123, 169, 241), "safe": (53, 127, 165, 237), "center": (109, 182), "max_px": 104},
+        "home_name": {"surface": (181, 148, 382, 214), "safe": (188, 154, 375, 208)},
+        "event": {"surface": (407, 148, 611, 215), "safe": (414, 154, 604, 209)},
+        "away_name": {"surface": (626, 148, 838, 214), "safe": (633, 154, 831, 208)},
+        "away_logo": {"surface": (849, 123, 969, 241), "safe": (853, 127, 965, 237), "center": (909, 182), "max_px": 104},
     },
     "club": {
-        "logo": {"surface": (76, 267, 348, 480), "safe": (96, 286, 326, 458), "center": (211, 358), "max_px": 168},
-        "club": {"surface": (354, 281, 926, 444), "safe": (376, 302, 901, 425)},
-        "event": {"surface": (944, 281, 1575, 444), "safe": (971, 302, 1548, 425)},
-        "meta": {"surface": (1583, 281, 1918, 444), "safe": (1610, 302, 1892, 425)},
+        "logo": {"surface": (42, 141, 175, 242), "safe": (48, 147, 169, 236), "center": (108, 191), "max_px": 84},
+        "club": {"surface": (189, 151, 466, 222), "safe": (198, 158, 457, 215)},
+        "event": {"surface": (492, 150, 799, 222), "safe": (501, 157, 790, 215)},
+        "meta": {"surface": (820, 150, 974, 222), "safe": (828, 157, 966, 215)},
     },
     "general": {
-        "headline": {"surface": (148, 248, 1850, 444), "safe": (181, 282, 1818, 417)},
-        "meta": {"surface": (614, 437, 1369, 546), "safe": (663, 466, 1320, 524)},
+        "headline": {"surface": (87, 136, 937, 221), "safe": (98, 146, 926, 211)},
+        "meta": {"surface": (335, 233, 691, 275), "safe": (346, 240, 680, 268)},
     },
 }
 
