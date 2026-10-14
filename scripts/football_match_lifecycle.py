@@ -1540,10 +1540,14 @@ def lifecycle_signals(
     session: requests.Session,
     importance_fn,
     tracked_only: bool = False,
+    live_filter_fn=None,
 ) -> list[dict]:
     """Construit les transitions publiables, triées par urgence éditoriale."""
     today = now.astimezone(timezone.utc).date()
     external = collect_external(session, today, base_events)
+    if live_filter_fn is not None:
+        base_events = [event for event in base_events if live_filter_fn(event)]
+        external = [event for event in external if live_filter_fn(event)]
     # En mode rapide non restreint, les grosses affiches peuvent être détectées
     # même si aucun AVANT-MATCH n'a créé de suivi. On fusionne les rencontres
     # externes avec les matchs déjà suivis; les doublons sont filtrés par matching.
@@ -1643,7 +1647,7 @@ def lifecycle_signals(
         aws = _score(ext.get("away_score"))
         score_text = f"{hs}-{aws}" if hs is not None and aws is not None else ""
         importance = int(importance_fn(base) or 0)
-        if importance <= 0 and not follow_ref:
+        if live_filter_fn is None and importance <= 0 and not follow_ref:
             continue
         source = _plain(ext.get("source") or "source live")
 
