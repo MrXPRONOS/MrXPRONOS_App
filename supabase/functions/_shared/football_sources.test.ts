@@ -62,6 +62,25 @@ Deno.test("SportScore detail: use observed minute but not status-based estimates
   check(unknown.minute === null, "Must not invent 2nd-half clock");
 });
 
+Deno.test("SportScore real payload: 45+ and labeled statistics are parsed without inventing corners", () => {
+  const payload = { match: { live_minute:"45+", status:"live", stats:[
+    {label:"Ball Possession",home:54,away:46,suffix:"%"},
+    {label:"Shots on Target",home:3,away:2,suffix:""},
+    {label:"Shots off Target",home:2,away:3,suffix:""},
+    {label:"Attacks",home:54,away:51,suffix:""},
+    {label:"Dangerous Attacks",home:31,away:19,suffix:""},
+  ] }};
+  const d = normalizeSportScoreDetail(payload);
+  check(d.minute === 45, "45+ must preserve known minute floor");
+  check(d.stats.home.ball_possession === 54, "Possession missing");
+  check(d.stats.away.shots_on_target === 2, "Shots on target missing");
+  check(d.stats.home.shots_off_target === 2, "Shots off target missing");
+  check(d.stats.home.attacks === 54, "Attacks missing");
+  check(d.stats.away.dangerous_attacks === 19, "Dangerous attacks missing");
+  check(d.stats.home.corner_kicks === undefined, "Absent corners must never be invented");
+  check(d.stats.home.total_shots === undefined, "Total shots must not be inferred without blocked shot data");
+});
+
 Deno.test("TheSportsDB: normalize real eventstats field names", async () => {
   const realFetch = globalThis.fetch;
   globalThis.fetch = async () => jsonReply({ eventstats: [
