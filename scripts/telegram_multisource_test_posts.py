@@ -153,34 +153,66 @@ def posts_from_database():
     }
 
     merged = get_rows("live_stats_merged", {
-        "select": "home_team,away_team,home_score,away_score,minute,is_live,is_finished,merged_stats,sources_used,updated_at",
+        "select": "home_team,away_team,home_score,away_score,minute,is_live,is_finished,merged_stats,sources_used,merged_match_json,updated_at",
         "is_live": "eq.true", "updated_at": "gte." + iso(now - timedelta(minutes=15)),
         "order": "updated_at.desc", "limit": "8",
     })
-    match = next((m for m in merged if not m.get("is_finished")), None)
+    # Prefer a recent match with an observed clock and partial real statistics.
+    verified = [m for m in merged if not m.get("is_finished")]
+    match = max(
+        verified, key=lambda m: (
+            int(bool(m.get("minute") and m["minute"] > 0)),
+            int(pair_total(m.get("merged_stats"), "shots_on_target") is not None),
+            str(m.get("updated_at") or ""),
+        ), default=None,
+    )
     if match:
         home = nf(match.get("home_team"))
         away = nf(match.get("away_team"))
         minute = match.get("minute") or 0
-        minute_label = f"{minute}'" if isinstance(minute, (int, float)) and minute > 0 else "Non communiquée"
+        raw_match = match.get("merged_match_json") or {}
+        raw_data = raw_match.get("raw_data") if isinstance(raw_match, dict) else {}
+        raw_clock = raw_data.get("sportscore_minute_raw") if isinstance(raw_data, dict) else None
+        minute_label = (
+            str(raw_clock) if raw_clock and str(raw_clock).endswith("+")
+            else f"{minute}'" if isinstance(minute, (int, float)) and minute > 0
+            else "Non communiquée"
+        )
         score = f"{nf(match.get('home_score'))} - {nf(match.get('away_score'))}"
         sources = match.get("sources_used")
         source_label = ", ".join(str(s) for s in sources) if isinstance(sources, list) else "Non précisée"
-        corners = pair_total(match.get("merged_stats"), "corners")
-        shots = pair_total(match.get("merged_stats"), "total_shots")
+        stats = match.get("merged_stats") or {}
+        home_stats = stats.get("home", {}) if isinstance(stats, dict) else {}
+        away_stats = stats.get("away", {}) if isinstance(stats, dict) else {}
+        def comparison(key, suffix=""):
+            a, b = home_stats.get(key), away_stats.get(key)
+            if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):
+                return "non fournis"
+            return f"{a}{suffix} - {b}{suffix}"
+        corners = pair_total(stats, "corners")
+        shots = pair_total(stats, "total_shots")
+        target = comparison("shots_on_target")
+        possession = comparison("ball_possession", "%")
+        attacks = comparison("attacks")
         lines = [f"{home}  VS  {away}", f"Score : {score}",
-                 f"Minute : {minute_label}", f"Corners : {nf(corners, 'indisponibles')}",
-                 f"Tirs : {nf(shots, 'indisponibles')}", "Sources : " + source_label]
+                 f"Minute : {minute_label}", f"Tirs cadrés : {target}",
+                 f"Possession : {possession}", f"Attaques : {attacks}",
+                 "Sources : " + source_label]
+        updated = nf(match.get("updated_at"), "")[:19].replace("T", " ")
         caption = (
             "<b>🧪 TEST 2/3 — MATCH LIVE</b>\n\n"
             f"<b>{html.escape(home)} — {html.escape(away)}</b>\n"
             f"⚽ Score : {html.escape(score)}\n"
             f"⏱ Minute : {html.escape(minute_label)}\n"
-            f"🚩 Corners : {html.escape(nf(corners, 'indisponibles'))}\n"
-            f"🎯 Tirs : {html.escape(nf(shots, 'indisponibles'))}\n"
-            f"📡 Source(s) : {html.escape(source_label)}\n\n"
-            "Données observées, pas un conseil de pari.\n"
-            "<i>18+ • Joue responsablement.</i>"
+            f"🎯 Tirs cadrés (dom./ext.) : {html.escape(target)}\n"
+            f"📊 Possession : {html.escape(possession)}\n"
+            f"⚡ Attaques : {html.escape(attacks)}\n"
+            f"🚩 Corners : {html.escape(nf(corners, 'non fournis'))}\n"
+            f"🥅 Total tirs : {html.escape(nf(shots, 'non fourni'))}\n"
+            f"📡 Source(s) : {html.escape(source_label)}\n"
+            f"🕒 Actualisation : {html.escape(updated)} UTC\n\n"
+            "Statistiques réellement reçues, sans chiffre estimé.\n"
+            "<i>Test technique • 18+ • Joue responsablement.</i>"
         )
     else:
         lines = ["Aucune rencontre en direct", "avec mise à jour récente",
@@ -263,10 +295,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--publish", action="store_true", help="Real sends to approved TEST channel only")
     parser.add_argument("--receipt", default="telegram_test_receipt.json")
+    parser.add_argument("--mode", choices=("all", "live-only"), default="all")
     args = parser.parse_args()
     posts = posts_from_database()
+    if args.mode == "live-only":
+        posts = [dict(posts[1])]
+        posts[0]["caption"] = posts[0]["caption"].replace("TEST 2/3", "TEST LIVE")
     receipt = {"channel": "@" + TEST_USERNAME, "mode": "publish" if args.publish else "dry-run",
-               "created_at": iso(utc_now()), "items": [], "intended": len(posts)}
+               "created_at": iso(utc_now()), "items": [], "intended": len(posts),
+               "selection": args.mode}
     if args.publish:
         token = os.getenv("FOOTBALL_NEWS_BOT_TOKEN", "").strip()
         secret_chat = os.getenv("TELEGRAM_TEST_CHAT_ID", "").strip()
