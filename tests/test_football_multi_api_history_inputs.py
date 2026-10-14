@@ -197,6 +197,27 @@ class ProviderHistoricalInputsTests(unittest.TestCase):
             private,as_of=AS_OF,explicitly_authorized=True,public_bsd_feed=contradictory)
         self.assertEqual(rejected,[])
 
+    def test_archive_self_identifies_missing_label_by_same_native_ids(self):
+        named={"id":1,"status":"finished","event_date":"2025-02-01T11:00:00Z",
+               "league_id":39,"league_name":"Premier League",
+               "home_team_id":10,"away_team_id":20,
+               "home_team":{"id":10,"name":"Arsenal"},
+               "away_team":{"id":20,"name":"Chelsea"},
+               "home_score":1,"away_score":0}
+        unlabeled={"id":2,"status":"finished","event_date":"2025-02-12T11:00:00Z",
+                   "league_id":39,"home_team_id":10,"away_team_id":20,
+                   "home_score":2,"away_score":1}
+        rows,info=trusted_private_bsd_rows([named,unlabeled],
+            as_of=AS_OF,explicitly_authorized=True)
+        self.assertEqual(len(rows),2)
+        self.assertEqual(info["identity_hints"]["archival_consistent_league_ids"],1)
+        self.assertEqual(info["identity_hints"]["archival_consistent_team_ids"],2)
+        contradict=dict(named,id=3,league_name="Scottish Premiership")
+        refused,details=trusted_private_bsd_rows([named,contradict,unlabeled],
+            as_of=AS_OF,explicitly_authorized=True)
+        self.assertEqual(len(refused),2)
+        self.assertIn("missing_or_ambiguous_league_label",details["rejections"])
+
     def test_multiple_independent_provider_rows_feed_same_original_bsd_engine(self):
         history=[]
         for n in range(1,10):
