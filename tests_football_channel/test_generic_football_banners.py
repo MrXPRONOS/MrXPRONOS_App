@@ -138,7 +138,7 @@ class GenericBannerTests(unittest.TestCase):
     def test_goal_copy_matches_simple_channel_style(self):
         caption = content.banner_caption("goal", self.match)
         self.assertIn("BUUUT - KYLIAN MBAPPÉ 67'", caption)
-        self.assertIn("Arsenal 2-1 Chelsea", caption)
+        self.assertIn("Manchester United 2-1 Paris Saint-Germain", caption)
         self.assertNotIn("Source :", caption)
         self.assertNotIn("<blockquote>", caption)
 
