@@ -742,9 +742,7 @@ class Sender:
             from football_cards import render_card
             with tempfile.TemporaryDirectory(prefix="xpronos-news-") as tmp:
                 graphic_style = (
-                    "resultat_suivi" if item.category == "resultat" and
-                    item.card.get("_arty_format") == "resultat_suivi"
-                    else "statistique_avancee" if item.category == "statistique"
+                    "statistique_avancee" if item.category == "statistique"
                     and item.key.startswith("statistique-avancee:")
                     else item.category
                 )
@@ -954,17 +952,10 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
             break
     if not chosen:
         return None
-    lead = chosen[0]
-    lead_league = esc(league(lead) or "Football")
     message = (
-        "<h3>📅 MATCHS DU JOUR • MR XPRONOS</h3>"
-        "<p><i>Les affiches phares sélectionnées parmi les rencontres BSD du jour. Le suivi intégral est annoncé séparément par AVANT-MATCH.</i></p>"
-        "<blockquote><b>🔥 À L'AFFICHE</b><br/>"
-        + esc(team(lead, "home")) + " – " + esc(team(lead, "away"))
-        + "<br/><b>🕒 " + time_label(kick(lead)) + "</b> • " + lead_league
-        + "</blockquote>"
-        "<p><b>💬 Quel match attendez-vous le plus ?</b></p>"
-        "<p><i>Heure du Togo (GMT) • Le programme complet est sur l'image.</i></p>"
+        "<b>📅 MATCHS DU JOUR</b>\n"
+        "<i>Les affiches à suivre aujourd’hui.</i>\n\n"
+        "<b>💬 Quel match attendez-vous le plus ?</b>"
     )
     card = {"day": today.strftime("%d/%m/%Y"), "matches": [
         {"home": team(e, "home"), "away": team(e, "away"), "time": time_label(kick(e)),
@@ -1004,19 +995,15 @@ def resultat(events: list[dict], history: History, now: datetime) -> Publication
         if history.seen(key):
             continue
         a, b = final_score(e)
-        outcome = ("🤝 Match nul" if a == b else
-                   "🏅 Victoire de " + esc(team(e, "home") if a > b else team(e, "away")))
         text = (
-            "<h3>🏁 RÉSULTAT FINAL • MR XPRONOS</h3>"
-            "<p><i>" + esc(league(e) or "Football") + "</i></p>"
-            "<blockquote><b>⚽ " + esc(team(e, "home")) + "  " + str(a)
-            + " – " + str(b) + "  " + esc(team(e, "away")) + "</b><br/>"
-            + outcome + "</blockquote>"
-            "<p><b>💬 Votre réaction ?</b><br/><i>Les commentaires sont ouverts.</i></p>"
+            "<b>🏁 RÉSULTAT FINAL</b>\n"
+            "<i>Le match est terminé.</i>\n\n"
+            "<b>💬 Votre réaction ?</b>"
         )
         card = {"day": now.astimezone(TZ).strftime("%d/%m/%Y"),
                 "league": league(e), "home": team(e, "home"),
                 "away": team(e, "away"), "scores": (a, b),
+                "source": "BSD V2",
                 "home_logo": team_visual_url(e, "home", allow_remote=True),
                 "away_logo": team_visual_url(e, "away", allow_remote=True)}
         verification = {
@@ -1107,15 +1094,6 @@ def avant_match(events: list[dict], history: History, now: datetime,
     form_values = form_values or {}
     home_form = form_values.get("home") or form(team_id("home"), h, history_events, kick(e))
     away_form = form_values.get("away") or form(team_id("away"), a, history_events, kick(e))
-    form_block = ""
-    if home_form or away_form:
-        rows = []
-        if home_form:
-            rows.append("<b>" + esc(h) + "</b> : " + esc(home_form))
-        if away_form:
-            rows.append("<b>" + esc(a) + "</b> : " + esc(away_form))
-        form_block = "<p><b>📈 Forme récente</b><br/>" + "<br/>".join(rows) + "</p>"
-
     h2h_block = ""
     h2h_values = h2h_values or {}
     try:
@@ -1145,13 +1123,9 @@ def avant_match(events: list[dict], history: History, now: datetime,
             + "</p>"
         )
     message = (
-        "<h3>🔎 AVANT-MATCH • MR XPRONOS</h3>"
-        "<p><i>" + esc(league(e) or "Football") + "</i></p>"
-        "<blockquote><b>⚽ " + esc(h) + " – " + esc(a) + "</b><br/>"
-        "<b>🕒 " + time_label(kick(e)) + "</b> • Heure du Togo</blockquote>"
-        + form_block + h2h_block +
-        "<p><b>🔖 Nous suivrons cette rencontre jusqu’au résultat final.</b></p>"
-        "<p><b>💬 Quel scénario imaginez-vous ?</b></p>"
+        "<b>🔎 AVANT-MATCH</b>\n"
+        "<i>Le coup d’envoi approche.</i>\n\n"
+        "<b>💬 Quel scénario imaginez-vous ?</b>"
     )
     card = {
         "day": kick(e).astimezone(TZ).strftime("%d/%m/%Y"),
@@ -1559,17 +1533,9 @@ def lifecycle_publication(signal: dict) -> Publication | None:
             return None
         kickoff_at = signal.get("kickoff")
         kickoff_text = time_label(kickoff_at) if isinstance(kickoff_at, datetime) else ""
-        home_block = "<b>" + esc(home) + "</b>\n" + "\n".join(
-            str(i + 1) + ". " + esc(name) for i, name in enumerate(home_players)
-        )
-        away_block = "<b>" + esc(away) + "</b>\n" + "\n".join(
-            str(i + 1) + ". " + esc(name) for i, name in enumerate(away_players)
-        )
         message = (
-            "<h3>📋 COMPOSITIONS OFFICIELLES</h3>"
-            "<p><i>" + esc(competition) + (" • " + esc(kickoff_text) if kickoff_text else "") + "</i></p>"
-            "<blockquote>" + home_block + "\n\n" + away_block + "</blockquote>"
-            "<p><i>Source : " + esc(source) + "</i></p>"
+            "<b>📋 COMPOSITIONS OFFICIELLES</b>\n"
+            "<i>Les titulaires sont confirmés.</i>"
         )
 
         home_logo = plain(signal.get("home_logo"), 500)
@@ -1780,14 +1746,9 @@ def followed_final_publication(signal: dict) -> Publication | None:
     context_block = "<p>" + "<br/>".join(context_lines) + "</p>" if context_lines else ""
 
     message = (
-        "<h3>🏁 RÉSULTAT FINAL • MATCH SUIVI</h3>"
-        "<p><i>" + esc(comp) + "</i></p>"
-        "<blockquote><b>⚽ " + esc(home) + " " + scores.replace("-", " – ")
-        + " " + esc(away) + "</b><br/>" + result + "</blockquote>"
-        + goals_block + stats_block + context_block +
-        "<p>✅ Fin de notre suivi de cette rencontre.</p>"
-        "<p><b>💬 Votre avis sur le match ?</b></p>"
-        "<p><i>Score confirmé : " + esc(signal.get("source") or "source live") + "</i></p>"
+        "<b>🏁 RÉSULTAT FINAL</b>\n"
+        "<i>Fin du match suivi.</i>\n\n"
+        "<b>💬 Votre avis sur le match ?</b>"
     )
     logo_home = plain(signal.get("home_logo"), 500)
     logo_away = plain(signal.get("away_logo"), 500)
@@ -1795,14 +1756,15 @@ def followed_final_publication(signal: dict) -> Publication | None:
     if logo_home.startswith("http") and logo_away.startswith("http"):
         card = {"day": signal.get("day") or "",
                 "league": comp, "home": home, "away": away,
-                "scores": (h, a), "home_logo": logo_home,
+                "scores": (h, a), "source": signal.get("source") or "score confirmé",
+                "home_logo": logo_home,
                 "away_logo": logo_away}
     if card is None:
         card = {
-            "_arty_format": "resultat_suivi",
             "home": home,
             "away": away,
-            "score": scores,
+            "scores": (h, a),
+            "day": signal.get("day") or now.astimezone(TZ).strftime("%d/%m/%Y") if "now" in globals() else "",
             "league": comp,
             "source": signal.get("source") or "score confirmé",
             "home_logo": logo_home,
