@@ -41,9 +41,9 @@ FONT_REG = (
 )
 
 TEMPLATE_DIRS = {
-    "match": ASSETS / "match.b64",
-    "club": ASSETS / "club.b64",
-    "general": ASSETS / "general.b64",
+    "match": ASSETS / "match1280.b64",
+    "club": ASSETS / "club1280.b64",
+    "general": ASSETS / "general1280.b64",
 }
 
 # Exact data surfaces measured on the generated 2006x784 source art and
