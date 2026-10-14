@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T20:25:45+00:00",
+    "published": "2026-10-14T20:27:53+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -258,7 +258,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -320,7 +320,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -379,7 +379,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -442,7 +442,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -649,7 +649,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -777,7 +777,7 @@
     "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
-    "published": "2026-10-14T20:25:45+00:00",
+    "published": "2026-10-14T20:27:53+00:00",
     "image": "assets/images/footnews/7628f643096931ac.webp",
     "source_image": "https://www.franceinfo.fr/pictures/5U3Wip1t6xJCEihksoGYiduzong/0x25:4673x2654/432x243/filters:format(jpg)/2026/10/14/6acfdbdf2c937182294865.jpg",
     "image_origin": "source",
@@ -1160,7 +1160,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1260,7 +1260,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1425,7 +1425,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1470,14 +1470,14 @@
   {
     "slug": "08eda2a4d16b8568",
     "title": "En direct : Manchester City – PSG",
-    "summary": "Le PSG est en balade",
-    "summary_short": "Le PSG est en balade",
-    "content": "Le PSG est en balade",
+    "summary": "City se rebiffe",
+    "summary_short": "City se rebiffe",
+    "content": "City se rebiffe",
     "paragraphs": [
-      "Le PSG est en balade"
+      "City se rebiffe"
     ],
     "key_points": [],
-    "telegram_summary": "Le PSG est en balade",
+    "telegram_summary": "City se rebiffe",
     "link": "https://www.sofoot.com/articles/en-direct-manchester-city-psg",
     "source_url": "https://www.sofoot.com/articles/en-direct-manchester-city-psg",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=08eda2a4d16b8568",
@@ -1515,7 +1515,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1642,7 +1642,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1739,7 +1739,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1899,7 +1899,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -1998,7 +1998,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2060,7 +2060,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2153,7 +2153,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2246,7 +2246,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -2308,7 +2308,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2524,7 +2524,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:25:40.551102+00:00"
+      "checked_at": "2026-10-14T20:30:37.287323+00:00"
     },
     "quality_sources": [
       "RFI",
