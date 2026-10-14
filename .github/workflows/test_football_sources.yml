@@ -1,0 +1,26 @@
+name: Football source regression checks
+
+on:
+  push:
+    paths:
+      - 'supabase/functions/_shared/football_sources.ts'
+      - 'supabase/functions/_shared/football_sources.test.ts'
+      - '.github/workflows/test_football_sources.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  adapter-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Check football provider TypeScript
+        run: deno check supabase/functions/_shared/football_sources.ts
+      - name: Run mocked provider regression tests
+        run: deno test --allow-env supabase/functions/_shared/football_sources.test.ts
