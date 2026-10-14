@@ -25,8 +25,21 @@ def normalized(text: str) -> str:
     return " ".join(text.split())
 
 
+def canonical_team(value: str) -> str:
+    """Remove only explicit terminal FC designator; never guess team acronyms."""
+    tokens = normalized(value).split()
+    if len(tokens) > 1 and tokens[-1] == "fc":
+        tokens.pop()
+    return " ".join(tokens)
+
+
 def canonical_key(row: dict) -> tuple:
-    return tuple(normalized(str(row[key])) for key in FIELDS)
+    return (
+        normalized(str(row["match_date"])),
+        normalized(str(row["league"])),
+        canonical_team(str(row["home_team"])),
+        canonical_team(str(row["away_team"])),
+    )
 
 
 def valid(row: object) -> bool:
