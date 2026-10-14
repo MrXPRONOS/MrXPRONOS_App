@@ -707,6 +707,7 @@ jobs:
             --fixtures=tmp/readonly-confirmed-fixtures.json \
             --at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             --fit-cutoff=2026-01-01T00:00:00+00:00 \
+            --existing-feed=data.json \
             --max-holdout=120 \
             --report=tmp/readonly-calibrated-replay.json
           python - <<'PY'
@@ -726,11 +727,12 @@ jobs:
           assert assembled['no_actual_bookmaker_quotes_used'] is True
           assert assembled['no_api_or_telegram_network_access'] is True
           assert assembled['max_odds_requests'] == 0
-          assert assembled['existing_publication_tracker_supplied'] is False
+          assert assembled['existing_publication_tracker_supplied'] is True
+          assert assembled['existing_production_snapshot_left_untouched'] is True
           assert assembled['synthetic_fixture_ids_not_authorized_for_publishing'] is True
           assert assembled['production_ledger_or_files_updated'] is False
           assert assembled['production_release_authorized'] is False
-          assert r['upcoming_research']['production_tracker_loaded'] is False
+          assert r['upcoming_research']['production_tracker_loaded'] is True
           assert r['raw_or_private_events_exported'] is False
           assert r['telegram_posts'] == 0
           assert r['training_results_before_cutoff'] <= r['historical_results_available']
