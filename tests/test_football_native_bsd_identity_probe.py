@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime,timezone
 
-from scripts.football_native_bsd_identity_probe import prove,positive_native_id
+from scripts.football_native_bsd_identity_probe import prove,positive_native_id,native_parts
 
 NOW=datetime(2026,10,14,12,tzinfo=timezone.utc)
 
@@ -69,6 +69,24 @@ class IdentityBridgeTests(unittest.TestCase):
         self.assertEqual(result["one_to_one_native_event_links"],0)
         with self.assertRaises(ValueError):
             prove([],[],at=datetime(2026,10,14,12))
+
+    def test_nested_native_competition_schema_is_recognized_without_guessing(self):
+        event=native()
+        event.pop("league_name")
+        event.pop("league_id")
+        event["league"]={"id":8,"name":"Premier League"}
+        key,issue=native_parts(event)
+        self.assertIsNone(issue)
+        self.assertIsNotNone(key)
+        self.assertEqual(prove([ext()],[event],at=NOW)["one_to_one_native_event_links"],1)
+
+    def test_invalid_native_schema_is_explained_without_exposing_ids(self):
+        malformed=native()
+        malformed.pop("league_name")
+        result=prove([ext()],[malformed],at=NOW)
+        self.assertEqual(result["native_invalid_breakdown"]["missing_native_competition_name"],1)
+        self.assertNotIn("Arsenal",str(result))
+        self.assertNotIn("Chelsea",str(result))
 
     def test_requires_native_league_team_identifiers(self):
         row=native()
