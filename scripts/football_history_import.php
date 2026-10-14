@@ -21,7 +21,7 @@ $openLeagues = [
 ];
 $csvLeagues = ['E0'=>'Premier League','E1'=>'Championship','D1'=>'Bundesliga','SP1'=>'La Liga','I1'=>'Serie A','F1'=>'Ligue 1'];
 
-function record(string $provider, string $season, string $league, string $date, string $home, string $away, int $hg, int $ag): ?array {
+function record(string $provider, string $season, string $league, string $date, string $home, string $away, int $hg, int $ag, array $stats = []): ?array {
     $date = trim($date);
     $home = trim($home);
     $away = trim($away);
@@ -34,7 +34,7 @@ function record(string $provider, string $season, string $league, string $date, 
         'home_team' => $home, 'away_team' => $away, 'home_score' => $hg,
         'away_score' => $ag, 'status' => 'finished',
         'kickoff_utc' => null, 'time_precision' => 'day',
-        'historical_only' => true,
+        'historical_only' => true, 'match_stats' => $stats,
     ];
 }
 function parseOpen(string $body, string $season, string $league): array {
@@ -45,7 +45,12 @@ function parseOpen(string $body, string $season, string $league): array {
         if (!is_array($match)) continue;
         $ft = $match['score']['ft'] ?? null;
         if (!is_array($ft) || count($ft) !== 2 || !is_numeric($ft[0]) || !is_numeric($ft[1])) continue;
-        $r = record('openfootball', $season, $league, (string)($match['date'] ?? ''), (string)($match['team1'] ?? ''), (string)($match['team2'] ?? ''), (int)$ft[0], (int)$ft[1]);
+        $extra = [];
+        $half = $match['score']['ht'] ?? null;
+        if (is_array($half) && count($half) === 2 && ctype_digit((string)$half[0]) && ctype_digit((string)$half[1])) {
+            $extra = ['half_time_goals_home' => (int)$half[0], 'half_time_goals_away' => (int)$half[1]];
+        }
+        $r = record('openfootball', $season, $league, (string)($match['date'] ?? ''), (string)($match['team1'] ?? ''), (string)($match['team2'] ?? ''), (int)$ft[0], (int)$ft[1], $extra);
         if ($r !== null) $records[] = $r;
     }
     return $records;
@@ -70,7 +75,18 @@ function parseCsv(string $body, string $season, string $league): array {
         $dt = DateTimeImmutable::createFromFormat('!d/m/Y', $rawDate, new DateTimeZone('UTC'));
         if ($dt === false) $dt = DateTimeImmutable::createFromFormat('!d/m/y', $rawDate, new DateTimeZone('UTC'));
         if ($dt === false) continue;
-        $r = record('football_data', $season, $league, $dt->format('Y-m-d'), (string)$row['HomeTeam'], (string)$row['AwayTeam'], (int)$row['FTHG'], (int)$row['FTAG']);
+        $cols = [
+            'HTHG'=>'half_time_goals_home', 'HTAG'=>'half_time_goals_away',
+            'HS'=>'shots_home', 'AS'=>'shots_away', 'HST'=>'shots_on_target_home', 'AST'=>'shots_on_target_away',
+            'HC'=>'corners_home', 'AC'=>'corners_away', 'HF'=>'fouls_home', 'AF'=>'fouls_away',
+            'HY'=>'yellow_cards_home', 'AY'=>'yellow_cards_away', 'HR'=>'red_cards_home', 'AR'=>'red_cards_away',
+        ];
+        $stats = [];
+        foreach ($cols as $col => $key) {
+            $value = trim((string)($row[$col] ?? ''));
+            if ($value !== '' && ctype_digit($value) && (int)$value <= 100) $stats[$key] = (int)$value;
+        }
+        $r = record('football_data', $season, $league, $dt->format('Y-m-d'), (string)$row['HomeTeam'], (string)$row['AwayTeam'], (int)$row['FTHG'], (int)$row['FTAG'], $stats);
         if ($r !== null) $rows[] = $r;
     }
     fclose($stream);
@@ -119,8 +135,8 @@ function download(string $url): string {
 if (array_key_exists('self-test', $opts)) {
     $sample = '{"matches":[{"date":"2025-01-14","team1":"A","team2":"B","score":{"ft":[2,1]}},{"date":"2025-01-16","team1":"A","team2":"C"}]}';
     $a = parseOpen($sample, '2024-25', 'Premier League');
-    $b = parseCsv("Date,HomeTeam,AwayTeam,FTHG,FTAG\n14/01/2025,A,B,2,1\n", '2024-25', 'Premier League');
-    if (count($a) !== 1 || count($b) !== 1 || $a[0]['home_score'] !== 2 || $b[0]['match_date'] !== '2025-01-14') exit(1);
+    $b = parseCsv("Date,HomeTeam,AwayTeam,FTHG,FTAG,HC,AC,HS,AS\n14/01/2025,A,B,2,1,7,4,15,9\n", '2024-25', 'Premier League');
+    if (count($a) !== 1 || count($b) !== 1 || $a[0]['home_score'] !== 2 || $b[0]['match_date'] !== '2025-01-14' || $b[0]['match_stats']['corners_home'] !== 7 || $b[0]['match_stats']['shots_home'] !== 15) exit(1);
     echo "HISTORY_PHP_SELF_TEST_OK\n"; exit(0);
 }
 if (!in_array($source, ['both','openfootball','football-data'], true)) { fwrite(STDERR,"Invalid source\n"); exit(2); }
