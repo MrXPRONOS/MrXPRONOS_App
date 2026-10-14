@@ -675,6 +675,16 @@ jobs:
           assert r['holdout_evaluation']['strict_pre_day_data_availability_enforced'] is True
           assert r['holdout_evaluation']['not_a_verified_kickoff_or_odds_backtest'] is True
           assert r['upcoming_research']['official_bookmaker_quotes_loaded'] is False
+          assembled=r['native_assembler_dry_run']
+          assert assembled['original_bsd_v2_publish_assemble_executed'] is True
+          assert assembled['input_synthetic_fixture_count'] == r['upcoming_research']['history_eligible']
+          assert assembled['no_actual_bookmaker_quotes_used'] is True
+          assert assembled['no_api_or_telegram_network_access'] is True
+          assert assembled['max_odds_requests'] == 0
+          assert assembled['existing_publication_tracker_supplied'] is False
+          assert assembled['synthetic_fixture_ids_not_authorized_for_publishing'] is True
+          assert assembled['production_ledger_or_files_updated'] is False
+          assert assembled['production_release_authorized'] is False
           assert r['upcoming_research']['production_tracker_loaded'] is False
           assert r['raw_or_private_events_exported'] is False
           assert r['telegram_posts'] == 0
