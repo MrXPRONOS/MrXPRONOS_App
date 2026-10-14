@@ -1945,6 +1945,15 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
         if not dry_run:
             state.mark(item.key, item.category, now)
             state.clear_observation(item.key)
+            if item.category == "goal" and item.card:
+                fixture_key = plain(item.card.get("fixture_key"), 180)
+                goal_score = plain(item.card.get("score"), 20)
+                if fixture_key and goal_score:
+                    state.mark(
+                        f"score_guard:{fixture_key}:{goal_score}",
+                        "goal_score_guard",
+                        now,
+                    )
             if item.category in {"composition", "changement_composition"} and ref in state.followed and item.card:
                 lineups = item.card.get("lineups") if isinstance(item.card.get("lineups"), dict) else {}
                 state.followed[ref]["lineup_home_hash"] = str(item.card.get("lineup_home_hash") or "")
@@ -1976,7 +1985,11 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             if ref and ref not in followup.pending(state.followed, now):
                 continue
             kind = signal.get("kind")
-            match_key = ref or str(signal.get("key") or "").split(":", 2)[1] if ":" in str(signal.get("key") or "") else str(signal.get("key") or "")
+            if ref:
+                match_key = ref
+            else:
+                key_parts = str(signal.get("key") or "").split(":")
+                match_key = key_parts[1] if len(key_parts) > 1 else str(signal.get("key") or "")
             if match_counts.get(match_key, 0) >= 3:
                 continue
             post = (followed_final_publication(signal) if kind == "resultat_final"
@@ -2109,6 +2122,15 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         if not dry_run:
             state.mark(item.key, item.category, now)
             state.clear_observation(item.key)
+            if item.category == "goal" and item.card:
+                fixture_key = plain(item.card.get("fixture_key"), 180)
+                goal_score = plain(item.card.get("score"), 20)
+                if fixture_key and goal_score:
+                    state.mark(
+                        f"score_guard:{fixture_key}:{goal_score}",
+                        "goal_score_guard",
+                        now,
+                    )
             if follow_event is not None and not existing_ref:
                 ref_added = followup.follow(state.followed, follow_event, now)
                 print("FOLLOWUP_SELECTED", ref_added)
