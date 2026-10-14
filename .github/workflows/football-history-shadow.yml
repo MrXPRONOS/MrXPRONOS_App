@@ -42,6 +42,8 @@ on:
       - 'scripts/football_prematch_multiday_probe.py'
       - 'scripts/football_multisource_channel_test.py'
       - 'tests/test_football_multisource_channel_test.py'
+      - 'scripts/football_sportscore_filtered_audit.py'
+      - 'tests/test_football_sportscore_filtered_audit.py'
       - '.github/workflows/football-history-shadow.yml'
   workflow_dispatch:
     inputs:
@@ -83,7 +85,7 @@ jobs:
         run: |
           php -l scripts/football_history_import.php
           php scripts/football_history_import.php --self-test
-          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py scripts/football_bsd_private_history.py scripts/football_bsd_validate_real.py scripts/football_bsd_private_paired_backtest.py scripts/football_external_bsd_v2_adapter.py scripts/football_multi_api_history_inputs.py scripts/football_verified_identity_crosswalk.py scripts/football_authorized_h2h_collector.py scripts/football_openfootball_world_import.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py tests/test_football_bsd_private_history.py tests/test_football_bsd_validate_real.py tests/test_football_bsd_private_paired_backtest.py tests/test_football_external_bsd_v2_adapter.py tests/test_football_multi_api_history_inputs.py tests/test_football_verified_identity_crosswalk.py tests/test_football_authorized_h2h_collector.py tests/test_football_openfootball_world_import.py scripts/football_cc0_calendar_verification.py scripts/football_prematch_multiday_probe.py scripts/football_multisource_channel_test.py tests/test_football_multisource_channel_test.py
+          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py scripts/football_bsd_private_history.py scripts/football_bsd_validate_real.py scripts/football_bsd_private_paired_backtest.py scripts/football_external_bsd_v2_adapter.py scripts/football_multi_api_history_inputs.py scripts/football_verified_identity_crosswalk.py scripts/football_authorized_h2h_collector.py scripts/football_openfootball_world_import.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py tests/test_football_bsd_private_history.py tests/test_football_bsd_validate_real.py tests/test_football_bsd_private_paired_backtest.py tests/test_football_external_bsd_v2_adapter.py tests/test_football_multi_api_history_inputs.py tests/test_football_verified_identity_crosswalk.py tests/test_football_authorized_h2h_collector.py tests/test_football_openfootball_world_import.py scripts/football_cc0_calendar_verification.py scripts/football_prematch_multiday_probe.py scripts/football_multisource_channel_test.py tests/test_football_multisource_channel_test.py scripts/football_sportscore_filtered_audit.py tests/test_football_sportscore_filtered_audit.py
           python -m unittest discover -s tests -p 'test_football_history_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_daily_multisource_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_history_features.py' -v
@@ -101,6 +103,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_football_authorized_h2h_collector.py' -v
           python -m unittest discover -s tests -p 'test_football_openfootball_world_import.py' -v
           python -m unittest discover -s tests -p 'test_football_multisource_channel_test.py' -v
+          python -m unittest discover -s tests -p 'test_football_sportscore_filtered_audit.py' -v
   historical_probe:
     if: github.event_name == 'workflow_dispatch'
     needs: verify
@@ -559,6 +562,15 @@ jobs:
             --count-days=3 --max-http=24 \
             --out=tmp/readonly-multiday-fixtures.json \
             --report=tmp/readonly-multiday-health.json
+      - name: Audit SportScore documented upcoming filter separately
+        run: |
+          set -euo pipefail
+          sha256sum tmp/readonly-multiday-fixtures.json > tmp/readonly-source-baseline.sha256
+          python scripts/football_sportscore_filtered_audit.py \
+            --fixtures=tmp/readonly-multiday-fixtures.json \
+            --baseline-health=tmp/readonly-multiday-health.json \
+            --max-http=4 --report=tmp/sportscore-upcoming-audit.json
+          sha256sum -c tmp/readonly-source-baseline.sha256
       - name: Corroborate calendars and run ORIGINAL BSD V2 without Telegram
         run: |
           set -euo pipefail
@@ -578,6 +590,16 @@ jobs:
           report=json.loads(Path('tmp/readonly-v2-report.json').read_text())
           calendar=json.loads(Path('tmp/readonly-calendar-health.json').read_text())
           fixtures=json.loads(Path('tmp/readonly-multiday-health.json').read_text())
+          filtered=json.loads(Path('tmp/sportscore-upcoming-audit.json').read_text())
+          assert filtered['documented_filter_only'] is True
+          assert filtered['undocumented_pagination_used'] is False
+          assert filtered['new_events_added_to_prediction_pipeline'] == 0
+          assert filtered['calendar_matching_or_odds_approved'] is False
+          assert filtered['no_production_writes'] is True
+          assert filtered['probe_max_requests'] <= 4
+          assert filtered['attempts'] <= filtered['probe_max_requests']
+          assert filtered['general_page_cap'] == fixtures['sportscore_page_size_limit']
+          assert set(filtered['per_day']) == set(fixtures['days'])
           assert report['test_only'] is True
           assert report['production_modified'] is False
           assert report['calibrated_production_coupons'] == 0
@@ -629,7 +651,7 @@ jobs:
       - name: Destroy all temporary raw fixtures and historical rows
         if: always()
         run: |
-          rm -f tmp/readonly-licensed-history.jsonl tmp/readonly-multiday-fixtures.json tmp/readonly-confirmed-fixtures.json
+          rm -f tmp/readonly-licensed-history.jsonl tmp/readonly-multiday-fixtures.json tmp/readonly-confirmed-fixtures.json tmp/readonly-source-baseline.sha256
       - name: Upload aggregate diagnostics only
         if: success()
         uses: actions/upload-artifact@v4
@@ -639,6 +661,7 @@ jobs:
             tmp/readonly-multiday-health.json
             tmp/readonly-calendar-health.json
             tmp/readonly-v2-report.json
+            tmp/sportscore-upcoming-audit.json
           retention-days: 3
           if-no-files-found: error
 
