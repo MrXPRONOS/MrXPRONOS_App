@@ -41,23 +41,46 @@ def team_name(event,side):
     value=event.get(side+"_team")
     return value.get("name") if isinstance(value,dict) else value
 
-def native_key(event):
+def native_parts(event):
+    """Interpret only documented native BSD identifiers, never research IDs."""
     if not isinstance(event,dict):
-        return None
+        return None,"not_object"
+    lid_value=event.get("league_id")
+    league_value=event.get("league")
+    if lid_value is None and isinstance(league_value,dict):
+        lid_value=league_value.get("id")
+    home_info=event.get("home_team")
+    away_info=event.get("away_team")
+    hid_value=event.get("home_team_id")
+    aid_value=event.get("away_team_id")
+    if hid_value is None and isinstance(home_info,dict):
+        hid_value=home_info.get("id")
+    if aid_value is None and isinstance(away_info,dict):
+        aid_value=away_info.get("id")
     bid=positive_native_id(event.get("id"))
-    lid=positive_native_id(event.get("league_id"))
-    hid=positive_native_id(event.get("home_team_id") or
-        ((event.get("home_team") or {}).get("id") if isinstance(event.get("home_team"),dict) else None))
-    aid=positive_native_id(event.get("away_team_id") or
-        ((event.get("away_team") or {}).get("id") if isinstance(event.get("away_team"),dict) else None))
+    lid=positive_native_id(lid_value)
+    hid=positive_native_id(hid_value)
+    aid=positive_native_id(aid_value)
+    if bid is None:return None,"missing_native_event_id"
+    if lid is None:return None,"missing_native_competition_id"
+    if hid is None or aid is None or hid==aid:return None,"missing_or_conflicting_team_ids"
     home=canonical_team(str(team_name(event,"home") or ""))
     away=canonical_team(str(team_name(event,"away") or ""))
-    league=competition(str(event.get("league_name") or ""))
+    if not home or not away or home==away:
+        return None,"missing_or_conflicting_team_names"
+    league_raw=(event.get("league_name") or event.get("competition_name") or
+                event.get("tournament_name") or
+                (league_value.get("name") if isinstance(league_value,dict) else league_value))
+    league=competition(str(league_raw or ""))
+    if not league:return None,"missing_native_competition_name"
     stamp=aware_time(event.get("event_date"))
-    if (not all((bid,lid,hid,aid,home,away,league,stamp))
-        or hid==aid or home==away or str(event.get("status") or "").lower() not in ALLOWED_NATIVE_STATUSES):
-        return None
-    return bid,(league,home,away,stamp)
+    if stamp is None:return None,"missing_utc_kickoff"
+    if str(event.get("status") or "").lower() not in ALLOWED_NATIVE_STATUSES:
+        return None,"native_not_prematch"
+    return (bid,(league,home,away,stamp)),None
+
+def native_key(event):
+    return native_parts(event)[0]
 
 def prove(external:list[dict], native:list[dict], *, at:datetime)->dict:
     if at.tzinfo is None:
@@ -82,10 +105,12 @@ def prove(external:list[dict], native:list[dict], *, at:datetime)->dict:
         external_ok.append((next(iter(leagues)),home,away,start))
     natives=defaultdict(list)
     invalid_native=0
+    native_issues=Counter()
     for row in native:
-        key=native_key(row)
+        key,issue=native_parts(row)
         if key is None:
             invalid_native+=1
+            native_issues[issue or "unclassified"]+=1
             continue
         ident,attributes=key
         if attributes[3]<=at:
@@ -119,6 +144,7 @@ def prove(external:list[dict], native:list[dict], *, at:datetime)->dict:
         "native_total":len(native),
         "native_unique_eligible":len(unique_native),
         "native_invalid_records":invalid_native,
+        "native_invalid_breakdown":dict(sorted(native_issues.items())),
         "one_to_one_native_event_links":len(confirmed),
         "unmatched_or_ambiguous_external":unmatched,
         "identity_evidence":"exact_league_home_away_utc_kickoff_15m_unique",
@@ -136,9 +162,10 @@ def main():
     parser.add_argument("--public-fixtures",required=True)
     parser.add_argument("--report",required=True)
     parser.add_argument("--days",type=int,default=2)
+    parser.add_argument("--start-offset",type=int,default=2)
     args=parser.parse_args()
-    if not 1<=args.days<=2:
-        parser.error("BSD audit is limited to 2 calendar days")
+    if not 1<=args.days<=2 or not 1<=args.start_offset<=3:
+        parser.error("BSD audit is limited to 2 calendar days and start offset 1..3")
     if not os.getenv("BSD_API_KEY"):
         parser.error("BSD_API_KEY missing; do not substitute synthetic event IDs")
     destination=Path(args.report).resolve()
@@ -160,7 +187,7 @@ def main():
     client=BSDClient(max_requests=MAX_BSD_REQUESTS,timeout=15,max_retries=1)
     native=[]
     for n in range(args.days):
-        day=(clock+timedelta(days=n+1)).date()
+        day=(clock+timedelta(days=n+args.start_offset)).date()
         page=client.list_events(day,day,max_pages=4,ttl=0)
         if not page.complete:
             raise RuntimeError("BSD fixture pagination incomplete (do not infer missing matches)")
