@@ -8,6 +8,7 @@ Do not call this evidence approval for a production publication.
 from __future__ import annotations
 
 import argparse
+from copy import deepcopy
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 import json
@@ -48,7 +49,7 @@ def model_index_partition(archive:list[dict], *, cutoff:datetime, analysis_at:da
     return training,observed
 
 def replay(licensed_history:list[dict], confirmed_fixtures:list[dict],
-           *,at:datetime, cutoff:datetime, max_holdout:int=150)->dict:
+           *,at:datetime, cutoff:datetime, max_holdout:int=150, existing_feed:dict|None=None)->dict:
     if not 1<=max_holdout<=200:
         raise ValueError("max_holdout must be 1..200")
     if at.tzinfo is None or cutoff.tzinfo is None or at<=cutoff:
@@ -173,33 +174,60 @@ def replay(licensed_history:list[dict], confirmed_fixtures:list[dict],
     # prediction only; neither a verified bookmaker quote nor publish approval.
     source_history_count=len(observed)
     source_fixture_count=len(upcoming)
+    if existing_feed is not None:
+        if (not isinstance(existing_feed,dict) or existing_feed.get("source")!="bsd"
+            or not isinstance(existing_feed.get("matches"),list)
+            or not isinstance(existing_feed.get("performance_tracker",{}),dict)):
+            raise ValueError("Invalid current public BSD feed; refuse implied tracker")
+    existing=deepcopy(existing_feed) if existing_feed is not None else {"matches":[],"performance_tracker":{}}
+    initial_existing=deepcopy(existing)
+    original_selections={
+        str(row["id"]):(row.get("prediction") or {}).get("selection_key")
+        for row in existing.get("matches",[]) if isinstance(row,dict) and row.get("id") is not None
+    }
     dry_output=original_v2_production_assemble(
-        {},upcoming,observed,now=at,
+        existing,upcoming,observed,now=at,
         calibration=calibration,policy=policy,rho=rho,
         odds_fetcher=None,max_odds_requests=0,
         btts_model=btts,total_model=totals,dc_model=dc)
     if len(observed)!=source_history_count or len(upcoming)!=source_fixture_count:
         raise AssertionError("Production assembly unexpectedly mutated source inputs")
+    if existing != initial_existing:
+        raise AssertionError("Native assembler mutated the original feed snapshot in memory")
     published_rows=dry_output.get("matches") or []
     if not isinstance(published_rows,list):
         raise AssertionError("Production assembler returned invalid matches array")
+    new_rows=0
+    unchanged_saved=0
     for row in published_rows:
         pred=row.get("prediction") or {}
+        prior_key=original_selections.get(str(row.get("id")))
+        if str(row.get("id")) in original_selections:
+            if pred.get("selection_key")!=prior_key:
+                raise AssertionError("Original published selection was altered")
+            unchanged_saved+=1
+            continue
+        new_rows+=1
         if pred.get("odds_source")!=ESTIMATED_SOURCE or pred.get("estimated_odds") is not True:
-            raise AssertionError("External fixture dry-run incorrectly claims bookmaker pricing")
+            raise AssertionError("New external research fixture has imaginary bookmaker quote")
         if row.get("source_event_id") is None:
-            raise AssertionError("Dry-run produced a match without a synthetic id")
+            raise AssertionError("Dry-run produced a new match without an event id")
     assembled_stats=dry_output.get("diagnostics",{}).get("rejections",{})
     if int(assembled_stats.get("odds_attempts",0))!=0:
         raise AssertionError("Odds API attempted in isolated dry-run")
+    if int(assembled_stats.get("created",0))!=new_rows:
+        raise AssertionError("V2 assembler's created count differs from new model-only rows")
     production_assembler_dry_run={
         "original_bsd_v2_publish_assemble_executed":True,
         "input_synthetic_fixture_count":len(upcoming),
-        "model_only_rows_generated_in_memory":len(published_rows),
+        "model_only_rows_generated_in_memory":new_rows,
+        "existing_rows_retained_with_unchanged_selections":unchanged_saved,
+
         "no_actual_bookmaker_quotes_used":True,
         "no_api_or_telegram_network_access":True,
         "max_odds_requests":0,
-        "existing_publication_tracker_supplied":False,
+        "existing_publication_tracker_supplied":existing_feed is not None,
+        "existing_production_snapshot_left_untouched":True,
         "model_only_prices_not_bookmaker_value":True,
         "production_ledger_or_files_updated":False,
         "synthetic_fixture_ids_not_authorized_for_publishing":True,
@@ -247,7 +275,7 @@ def replay(licensed_history:list[dict], confirmed_fixtures:list[dict],
             "adapted":upcoming_report["ignored"].get("adapted_external",0),
             "results":dict(sorted(future.items())),
             "official_bookmaker_quotes_loaded":False,
-            "production_tracker_loaded":False,
+            "production_tracker_loaded":existing_feed is not None,
             "full_publication_policy_validated":False,
         },
         "native_assembler_dry_run":production_assembler_dry_run,
@@ -263,6 +291,7 @@ def main():
     p.add_argument("--at",required=True)
     p.add_argument("--fit-cutoff",default="2026-01-01T00:00:00+00:00")
     p.add_argument("--max-holdout",type=int,default=150)
+    p.add_argument("--existing-feed",help="Read-only published BSD feed including performance tracker")
     p.add_argument("--report",required=True)
     a=p.parse_args()
     dest=Path(a.report).resolve()
@@ -274,7 +303,8 @@ def main():
     clock=aware_time(a.at);cutoff=aware_time(a.fit_cutoff)
     if clock is None or cutoff is None or not isinstance(fixtures,list):
         p.error("Invalid fixtures or timezone")
-    report=replay(raw,fixtures,at=clock,cutoff=cutoff,max_holdout=a.max_holdout)
+    prior=json.loads(Path(a.existing_feed).read_text(encoding="utf-8")) if a.existing_feed else None
+    report=replay(raw,fixtures,at=clock,cutoff=cutoff,max_holdout=a.max_holdout,existing_feed=prior)
     dest.parent.mkdir(parents=True,exist_ok=True)
     dest.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("BSD_V2_FULL_MODEL_CALIBRATED_RESEARCH",json.dumps(report,ensure_ascii=False))
