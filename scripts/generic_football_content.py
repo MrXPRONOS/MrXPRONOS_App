@@ -298,14 +298,20 @@ def banner_caption(category: str, payload: dict[str, Any]) -> str:
         return "\n\n".join(x for x in (_blockquote(rows), source_line) if x)
 
     if category in {"statistique", "statistique_avancee"}:
-        # Le headline est déjà sur la bannière générale ou le type STAT DU MATCH
-        # sur la bannière match; ne pas le répéter.
         lines = payload.get("lines") if isinstance(payload.get("lines"), list) else []
-        rows = ["• " + _esc(x, 180) for x in lines[:4] if _plain(x, 180)]
+        rows: list[str] = []
+        # Sur la bannière match, seul « STAT DU MATCH » est imprimé : la donnée
+        # chiffrée reste donc nécessaire dans le texte. Sur la bannière générale
+        # de statistique avancée, le headline est déjà le grand titre visuel.
+        if category == "statistique":
+            headline = _plain(payload.get("headline") or payload.get("title"), 220)
+            if headline:
+                rows.append("<b>" + _esc(headline) + "</b>")
+        rows.extend("• " + _esc(x, 180) for x in lines[:4] if _plain(x, 180))
         confidence = payload.get("confidence")
         if confidence not in (None, ""):
             rows.append("Indice de confiance : <b>" + _esc(confidence) + "%</b>")
-        if not rows and category == "statistique":
+        if not rows:
             rows.append("📊 Donnée vérifiée dans le match.")
         tail = "<b>💬 Quelle statistique voulez-vous voir ensuite ?</b>"
         return "\n\n".join(x for x in (_blockquote(rows), source_line, tail) if x)
