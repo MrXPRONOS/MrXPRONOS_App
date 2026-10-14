@@ -62,9 +62,19 @@ def collect(days:list[date], *, budget=24, session=None, collector=None):
             current["scores_conflict"]=bool(current.get("scores_conflict") or f.get("scores_conflict"))
             if current["status"]!="prematch" or f["status"]!="prematch":
                 current["status"]="not_prematch"
+    # SportScore day discovery requests are explicitly limited to 200 rows
+    # (see bsd.free_football_sources.fetch_sportscore_day). A full page is
+    # NOT evidence that the league/day slate is complete; do not claim it.
+    sportscore_capped_days=[
+        day for day in sorted(stats)
+        if (stats[day]["provider_health"].get("sportscore") or {}).get("reported",0)>=200
+    ]
     return sorted(by_key.values(),key=lambda f:(f["kickoff_utc"],f["fixture_key"])),{
         "days":[d.isoformat() for d in days],
         "sources":stats,"total_fixtures":len(by_key),
+        "sportscore_page_size_limit":200,
+        "sportscore_days_at_page_limit":len(sportscore_capped_days),
+        "sportscore_coverage_possibly_incomplete":bool(sportscore_capped_days),
         "dedupe_key_includes_kickoff_and_both_club_names":True,
         "requests":dict(getattr(session,"calls",{})),
         "requests_total":getattr(session,"total",0),
