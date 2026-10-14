@@ -24,6 +24,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            scripts/ensure_actufoot_cronjob.py
+          sparse-checkout-cone-mode: false
       - name: Ensure Actu Foot cron-job.org scheduler
         env:
           CRONJOB_API_KEY: ${{ secrets.CRONJOB_API_KEY }}
