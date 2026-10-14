@@ -17,7 +17,7 @@ from typing import Any
 SOURCES = frozenset({"espn", "sportscore", "thesportsdb",
                      "openligadb", "api_football", "bsd"})
 FINAL = frozenset({"finished","post","ft","fulltime","full_time",
-                   "afterextra","aet","afterpenalties","pen"})
+                   "afterextra","aet","afterpenalties","pen","matchfinished"})
 LIMIT_ROWS = 200_000
 
 
