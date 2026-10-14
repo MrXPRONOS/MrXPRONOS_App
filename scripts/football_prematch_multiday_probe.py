@@ -11,6 +11,8 @@ ROOT=Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
 from bsd.free_football_sources import collect_free_day
 from scripts.football_daily_multisource_shadow import BudgetSession, merge
+from scripts.football_history_shadow import canonical_team
+from scripts.football_history_features import competition
 
 def collect(days:list[date], *, budget=24, session=None, collector=None):
     if not 1<=len(days)<=4 or len(set(days))!=len(days):
@@ -34,9 +36,32 @@ def collect(days:list[date], *, budget=24, session=None, collector=None):
         if key not in by_key:
             by_key[key]=f
         else:
-            # Do not combine same stable hash with incompatible league.
-            if by_key[key]["home_team"]!=f["home_team"] or by_key[key]["away_team"]!=f["away_team"]:
-                raise ValueError("Collision in fixture identifiers")
+            current=by_key[key]
+            # The key was built using normalized identities. Different
+            # display aliases (e.g. "Arsenal" vs "Arsenal FC") are not
+            # fixture-ID collisions; keep original source refs from both.
+            if (canonical_team(current["home_team"])!=canonical_team(f["home_team"])
+                    or canonical_team(current["away_team"])!=canonical_team(f["away_team"])):
+                raise ValueError("Actual collision in fixture identifiers")
+            common=dict(current.get("sources") or {})
+            for provider,source in (f.get("sources") or {}).items():
+                if provider in common and common[provider]!=source:
+                    # Do not quietly overwrite contradictory native IDs.
+                    current["ambiguous_match"]=True
+                else:
+                    common[provider]=source
+            current["sources"]=common
+            current["source_count"]=len(common)
+            old_labels={competition(x) for x in current.get("league_labels",[]) if competition(x)}
+            new_labels={competition(x) for x in f.get("league_labels",[]) if competition(x)}
+            labels=old_labels|new_labels
+            current["league_labels"]=sorted(labels)
+            current["league_conflict"]=bool(current.get("league_conflict") or f.get("league_conflict") or len(labels)>1)
+            current["league_verified"]=len(labels)==1 and not current["league_conflict"]
+            current["ambiguous_match"]=bool(current.get("ambiguous_match") or f.get("ambiguous_match"))
+            current["scores_conflict"]=bool(current.get("scores_conflict") or f.get("scores_conflict"))
+            if current["status"]!="prematch" or f["status"]!="prematch":
+                current["status"]="not_prematch"
     return sorted(by_key.values(),key=lambda f:(f["kickoff_utc"],f["fixture_key"])),{
         "days":[d.isoformat() for d in days],
         "sources":stats,"total_fixtures":len(by_key),
