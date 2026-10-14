@@ -17,6 +17,7 @@ import os
 import re
 import sys
 import tempfile
+import unicodedata
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from datetime import datetime, date, timedelta, timezone
@@ -408,6 +409,11 @@ class History:
                  if v.get("category") == category]
         times = [t for t in times if t is not None]
         return max(times) if times else None
+
+    def seen_recent(self, key: str, now: datetime, *, hours: int) -> bool:
+        entry = self.items.get(key)
+        when = moment(entry.get("at")) if isinstance(entry, dict) else None
+        return when is not None and now - when <= timedelta(hours=hours)
 
     def mark(self, key: str, category: str, now: datetime) -> None:
         self.items[key] = {"category": category, "day": now.astimezone(TZ).date().isoformat(),
@@ -1879,6 +1885,30 @@ def followed_final_publication(signal: dict) -> Publication | None:
     )
 
 
+def editorial_story_key(item: Publication) -> str:
+    if item.category not in {"flash", "debat", "viral"}:
+        return ""
+    raw = ""
+    if isinstance(item.card, dict):
+        raw = plain(
+            item.card.get("title") or item.card.get("headline")
+            or item.card.get("question") or item.card.get("summary"),
+            260,
+        )
+    if not raw and isinstance(item.animation_payload, dict):
+        raw = plain(
+            item.animation_payload.get("title")
+            or item.animation_payload.get("headline")
+            or item.animation_payload.get("summary"),
+            260,
+        )
+    normalized = re.sub(r"[^a-z0-9]+", " ", unicodedata.normalize("NFKD", raw)
+                        .encode("ascii", "ignore").decode().casefold()).strip()
+    if len(normalized) < 20:
+        return ""
+    return "story:" + hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:24]
+
+
 def priority_class(category: str) -> str:
     if category in P0_CATEGORIES:
         return "P0"
@@ -1918,6 +1948,11 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
     def publish(item: Publication | None, *, ref: str = "") -> bool:
         if item is None:
             return False
+        story_key = editorial_story_key(item)
+        if story_key and not force and state.seen_recent(story_key, now, hours=12):
+            counter["skipped"] += 1
+            print("EDITORIAL_STORY_COOLDOWN", item.category, story_key)
+            return False
         cls = priority_class(item.category)
         if class_counter[cls] >= CLASS_BUDGETS[cls]:
             return False
@@ -1956,6 +1991,8 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
         class_counter[cls] += 1
         if not dry_run:
             state.mark(item.key, item.category, now)
+            if story_key:
+                state.mark(story_key, "story", now)
             state.clear_observation(item.key)
             if item.category == "goal" and item.card:
                 fixture_key = plain(item.card.get("fixture_key"), 180)
@@ -2076,6 +2113,11 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                 ref: str = "") -> bool:
         if item is None:
             return False
+        story_key = editorial_story_key(item)
+        if story_key and not force and state.seen_recent(story_key, now, hours=12):
+            counter["skipped"] += 1
+            print("EDITORIAL_STORY_COOLDOWN", item.category, story_key)
+            return False
         cls = priority_class(item.category)
         # P0 dispose d'une réserve propre et ne peut jamais être bloqué par un
         # quiz/stat/flash déjà envoyé dans le même passage.
@@ -2133,6 +2175,8 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         class_counter[cls] += 1
         if not dry_run:
             state.mark(item.key, item.category, now)
+            if story_key:
+                state.mark(story_key, "story", now)
             state.clear_observation(item.key)
             if item.category == "goal" and item.card:
                 fixture_key = plain(item.card.get("fixture_key"), 180)
