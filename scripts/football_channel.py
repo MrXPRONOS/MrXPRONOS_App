@@ -1840,15 +1840,15 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             now,
             sender.session,
             importance,
-            tracked_only=True,
+            tracked_only=False,
         )
         match_counts: dict[str, int] = {}
         for signal in signals:
             ref = str(signal.get("follow_ref") or "")
-            if not ref or ref not in followup.pending(state.followed, now):
+            if ref and ref not in followup.pending(state.followed, now):
                 continue
             kind = signal.get("kind")
-            match_key = ref
+            match_key = ref or str(signal.get("key") or "").split(":", 2)[1] if ":" in str(signal.get("key") or "") else str(signal.get("key") or "")
             if match_counts.get(match_key, 0) >= 3:
                 continue
             post = (followed_final_publication(signal) if kind == "resultat_final"
