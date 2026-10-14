@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime,timezone
 
-from scripts.football_native_bsd_identity_probe import prove,positive_native_id,native_parts
+from scripts.football_native_bsd_identity_probe import prove,positive_native_id,native_parts,candidate_official_league_ids
 
 NOW=datetime(2026,10,14,12,tzinfo=timezone.utc)
 
@@ -79,6 +79,24 @@ class IdentityBridgeTests(unittest.TestCase):
         self.assertIsNone(issue)
         self.assertIsNotNone(key)
         self.assertEqual(prove([ext()],[event],at=NOW)["one_to_one_native_event_links"],1)
+
+    def test_official_league_detail_can_verify_name_without_inferring_identity(self):
+        match=native()
+        match.pop("league_name")
+        self.assertEqual(candidate_official_league_ids([ext()],[match],at=NOW),[8])
+        original=prove([ext()],[match],at=NOW)
+        self.assertEqual(original["one_to_one_native_event_links"],0)
+        resolved=prove([ext()],[match],at=NOW,official_leagues={8:"Premier League"})
+        self.assertEqual(resolved["one_to_one_native_event_links"],1)
+        mismatch=prove([ext()],[match],at=NOW,official_leagues={8:"Bundesliga"})
+        self.assertEqual(mismatch["one_to_one_native_event_links"],0)
+        self.assertNotIn("Arsenal",str(resolved))
+        self.assertNotIn("123",str(resolved))
+
+    def test_never_lookup_league_id_from_unverified_or_wrong_kickoff(self):
+        mismatch=native(start="2026-10-15T20:00:00Z")
+        self.assertEqual(candidate_official_league_ids([ext()],[mismatch],at=NOW),[])
+        self.assertEqual(candidate_official_league_ids([ext(cc0=False)],[native()],at=NOW),[])
 
     def test_invalid_native_schema_is_explained_without_exposing_ids(self):
         malformed=native()
