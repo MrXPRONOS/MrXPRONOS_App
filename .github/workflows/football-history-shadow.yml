@@ -130,3 +130,33 @@ jobs:
           name: football-history-two-provider-probe
           path: tmp/quality.json
           retention-days: 7
+
+  daily_source_probe:
+    if: github.event_name == 'pull_request'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install adapter dependencies
+        run: python -m pip install requests
+      - name: Audit today's public sources without predictions or publishing
+        run: |
+          python scripts/football_daily_multisource_shadow.py --day="$(date -u +%F)" --max-http=12 --out=tmp/fixture-research.json --report=tmp/daily-source-quality.json
+          python - <<'PY'
+          import json
+          report=json.load(open('tmp/daily-source-quality.json'))
+          print('SOURCE_HEALTH', {k:{'valid':v['valid'],'error':v['error']} for k,v in report['providers'].items()})
+          assert report['total_http_requests'] <= 12
+          assert report['model_input_enabled'] is False
+          assert report['telegram_posts'] == 0
+          PY
+      - name: Upload source health summary only
+        uses: actions/upload-artifact@v4
+        with:
+          name: football-daily-source-health
+          path: tmp/daily-source-quality.json
+          retention-days: 7
