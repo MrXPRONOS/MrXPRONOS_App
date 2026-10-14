@@ -1,0 +1,58 @@
+name: Actu Foot - Generic banners TEST
+
+on:
+  push:
+    branches:
+      - test/generic-football-banners-v1
+    paths:
+      - 'scripts/generic_football_banners.py'
+      - 'scripts/generic_football_content.py'
+      - 'scripts/generic_banner_test_send.py'
+      - 'scripts/template_cards.py'
+      - 'scripts/football_channel.py'
+      - 'assets/images/generic_football_banners/**'
+      - 'tests_football_channel/**'
+      - '.github/workflows/generic-football-banners-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: generic-football-banners-telegram-test
+  cancel-in-progress: false
+
+jobs:
+  validate-and-send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      FOOTBALL_REQUIRE_COMMENTS: '0'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installer les dépendances
+        run: python -m pip install Pillow requests
+
+      - name: Compiler les fichiers modifiés
+        run: |
+          python -m py_compile             scripts/generic_football_banners.py             scripts/generic_football_content.py             scripts/generic_banner_test_send.py             scripts/template_cards.py             scripts/football_channel.py
+
+      - name: Tests spécifiques des 3 bannières
+        run: python -m unittest tests_football_channel.test_generic_football_banners -v
+
+      - name: Tests complets du canal football
+        run: python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
+
+      - name: Vérifier strictement le canal TEST
+        run: python scripts/telegram_test_guard.py
+
+      - name: Envoyer tous les types et sous-types un par un
+        run: python scripts/generic_banner_test_send.py
