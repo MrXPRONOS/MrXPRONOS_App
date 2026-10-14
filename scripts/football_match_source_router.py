@@ -14,11 +14,11 @@ from typing import Any
 # Heuristic *tie-breakers*, NOT measured model accuracy. Coverage and valid
 # observations are stronger gates than discovery order or provider reputation.
 PREFERENCE = {
-    "goals": ("bsd", "api_football", "espn", "sportscore", "thesportsdb", "openligadb", "football_data", "openfootball"),
-    "btts": ("bsd", "api_football", "espn", "sportscore", "football_data", "openfootball", "thesportsdb", "openligadb"),
-    "totals": ("bsd", "api_football", "espn", "sportscore", "football_data", "openfootball", "thesportsdb", "openligadb"),
-    "corners": ("api_football", "espn", "sportscore", "football_data", "bsd", "thesportsdb", "openligadb", "openfootball"),
-    "cards": ("api_football", "espn", "sportscore", "football_data", "bsd", "thesportsdb", "openligadb", "openfootball"),
+    "goals": ("bsd", "api_football", "espn", "sportscore", "thesportsdb", "openligadb", "licensed_csv", "openfootball"),
+    "btts": ("bsd", "api_football", "espn", "sportscore", "licensed_csv", "openfootball", "thesportsdb", "openligadb"),
+    "totals": ("bsd", "api_football", "espn", "sportscore", "licensed_csv", "openfootball", "thesportsdb", "openligadb"),
+    "corners": ("api_football", "espn", "sportscore", "licensed_csv", "bsd", "thesportsdb", "openligadb", "openfootball"),
+    "cards": ("api_football", "espn", "sportscore", "licensed_csv", "bsd", "thesportsdb", "openligadb", "openfootball"),
 }
 REQUIRED = {
     "goals": ("home_goals_for", "home_goals_against", "away_goals_for", "away_goals_against"),
