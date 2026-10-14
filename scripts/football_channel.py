@@ -1014,10 +1014,18 @@ def flash(articles: list[dict], history: History, now: datetime) -> Publication 
         if history.seen(key):
             continue
         image_path = str(article.get("image") or "")
-        # News Football utilise toujours une vraie photo issue de la source.
-        if article.get("image_origin") != "source" or not image_path.startswith("assets/images/footnews/"):
+        # Photo RSS d'abord. Une bannière GENERAL n'est acceptée qu'en
+        # dernier recours pour une news majeure (score éditorial >= 4).
+        origin = str(article.get("image_origin") or "")
+        try:
+            editorial_score = int(article.get("editorial_score") or 0)
+        except (TypeError, ValueError):
+            editorial_score = 0
+        if origin not in {"source", "generated_fallback"}:
             continue
-        if not (ROOT / image_path).is_file():
+        if origin == "generated_fallback" and editorial_score < 4:
+            continue
+        if not image_path.startswith("assets/images/footnews/") or not (ROOT / image_path).is_file():
             continue
         title = plain(article.get("title"), 240)
         summary = structured_plain(article.get("telegram_summary") or article.get("summary"), 430)
