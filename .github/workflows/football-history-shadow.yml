@@ -316,7 +316,7 @@ jobs:
         run: python -m pip install requests
       - name: Collect capped public-domain recent-season historical results
         run: |
-          php scripts/football_history_import.php --source=openfootball --seasons=2025-26,2026-27 --max-files=12 --out=tmp/authorized-prematch-history.jsonl
+          php scripts/football_history_import.php --source=openfootball --seasons=2025-26,2026-27 --max-files=40 --out=tmp/authorized-prematch-history.jsonl
       - name: Validate external-provider fixtures and H2H through EXISTING BSD V2 core; no publishing
         run: |
           python scripts/football_daily_multisource_shadow.py --day="$(date -u +%F)" --max-http=12 --public-domain-history-jsonl=tmp/authorized-prematch-history.jsonl --out=tmp/fixture-research.json --route-out=tmp/source-route.json --report=tmp/daily-source-quality.json
