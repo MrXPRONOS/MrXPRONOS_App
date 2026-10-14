@@ -6369,7 +6369,7 @@ async function syncUpcomingFixtures() {
   const failures: string[] = [];
   for (const day of dates) {
     const { data: cached } = await supabase.from("espn_feed_cache")
-      .select("payload").eq("cache_key", "scoreboard:" + day).maybeSingle();
+      .select("payload").eq("cache_key", "scoreboard:" + toDateKey(day)).maybeSingle();
     for (const event of cached?.payload?.events || []) {
       const match = normalizeEspnEventToOriginalMatch(event);
       if (match) feed.push({ source: "espn", match });
