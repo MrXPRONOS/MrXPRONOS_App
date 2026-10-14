@@ -783,6 +783,67 @@ def verify_espn_before_publish(
         if not found:
             return {"ok": False, "quality": 0, "reason": "goal_not_confirmed", "event_id": event_id}
 
+    if kind in {"composition", "changement_composition"}:
+        current = extract_lineups(summary)
+        if len(current["home"]) != 11 or len(current["away"]) != 11:
+            return {"ok": False, "quality": 0, "reason": "lineup_not_complete", "event_id": event_id}
+        wanted_lineups = expected.get("lineups") if isinstance(expected.get("lineups"), dict) else {}
+        for side in ("home", "away"):
+            wanted_names = [_norm(x) for x in (wanted_lineups.get(side) or []) if _norm(x)]
+            current_names = [_norm(x) for x in current.get(side, []) if _norm(x)]
+            if wanted_names and wanted_names != current_names:
+                return {"ok": False, "quality": 0, "reason": "lineup_changed_before_send", "event_id": event_id}
+
+    if kind in {"carton_rouge", "carton_jaune"}:
+        wanted_type = "red" if kind == "carton_rouge" else "yellow"
+        wanted_player = _norm(expected.get("player"))
+        wanted_minute = _minute_total(expected.get("minute"))
+        found = False
+        for card in enrichment.get("cards", []):
+            if _plain(card.get("type")).lower() != wanted_type:
+                continue
+            if wanted_player and _norm(card.get("player")) != wanted_player:
+                continue
+            current_minute = card.get("minute")
+            if wanted_minute is not None and current_minute is not None and abs(int(current_minute)-int(wanted_minute)) > 1:
+                continue
+            found = True
+            break
+        if not found:
+            return {"ok": False, "quality": 0, "reason": "card_not_confirmed", "event_id": event_id}
+
+    if kind == "remplacement":
+        wanted_in = _norm(expected.get("entrant"))
+        wanted_out = _norm(expected.get("sortant"))
+        wanted_minute = _minute_total(expected.get("minute"))
+        found = False
+        for change in enrichment.get("substitutions", []):
+            if wanted_in and _norm(change.get("entrant")) not in {"", wanted_in}:
+                continue
+            if wanted_out and _norm(change.get("sortant")) not in {"", wanted_out}:
+                continue
+            current_minute = change.get("minute")
+            if wanted_minute is not None and current_minute is not None and abs(int(current_minute)-int(wanted_minute)) > 1:
+                continue
+            found = True
+            break
+        if not found:
+            return {"ok": False, "quality": 0, "reason": "substitution_not_confirmed", "event_id": event_id}
+
+    if kind == "debut_2e_mi_temps" and not (is_live(direct) and int(direct.get("period") or 0) >= 2):
+        return {"ok": False, "quality": 0, "reason": "second_half_not_confirmed", "event_id": event_id}
+    if kind == "temps_additionnel" and not (is_live(direct) and int(direct.get("minute") or 0) >= 90):
+        return {"ok": False, "quality": 0, "reason": "stoppage_time_not_confirmed", "event_id": event_id}
+    if kind == "prolongation" and not (is_live(direct) and int(direct.get("period") or 0) >= 3):
+        return {"ok": False, "quality": 0, "reason": "extra_time_not_confirmed", "event_id": event_id}
+    if kind == "mi_temps_prolongation" and not (is_halftime(direct) and int(direct.get("period") or 0) >= 3):
+        return {"ok": False, "quality": 0, "reason": "extra_time_halftime_not_confirmed", "event_id": event_id}
+    if kind in {"tirs_au_but", "tir_au_but_marque", "tir_au_but_manque"}:
+        shootout = (direct.get("home_shootout_score"), direct.get("away_shootout_score"))
+        detail = _plain(direct.get("status_detail")).lower()
+        if shootout == (None, None) and "penalt" not in detail and "shootout" not in detail:
+            return {"ok": False, "quality": 0, "reason": "shootout_not_confirmed", "event_id": event_id}
+
     page = verify_espn_public_page(session, event_id, home, away)
     quality = 100 if page.get("content_verified") else 94 if page.get("reachable") else 90
     return {
