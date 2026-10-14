@@ -13,17 +13,17 @@ def rec(source, home, away, score=(2, 1), day="2025-01-04"):
 
 class AliasCandidatesTest(unittest.TestCase):
     def test_proposes_but_never_applies_alias(self):
-        report = propose([rec("openfootball", "Manchester United FC", "Liverpool FC"), rec("football_data", "Man United", "Liverpool")])
+        report = propose([rec("openfootball", "Manchester United FC", "Liverpool FC"), rec("licensed_csv", "Man United", "Liverpool")])
         self.assertEqual(report["distinct_alias_proposals"], 1)
         self.assertEqual(report["automatic_aliases_applied"], 0)
         self.assertFalse(report["proposals"][0]["approved"])
 
     def test_no_proposal_with_different_scores(self):
-        report = propose([rec("openfootball", "Manchester United FC", "Liverpool FC"), rec("football_data", "Man United", "Liverpool", score=(0, 2))])
+        report = propose([rec("openfootball", "Manchester United FC", "Liverpool FC"), rec("licensed_csv", "Man United", "Liverpool", score=(0, 2))])
         self.assertEqual(report["distinct_alias_proposals"], 0)
 
     def test_exact_name_pair_needs_no_alias(self):
-        report = propose([rec("openfootball", "Arsenal FC", "Liverpool FC"), rec("football_data", "Arsenal", "Liverpool")])
+        report = propose([rec("openfootball", "Arsenal FC", "Liverpool FC"), rec("licensed_csv", "Arsenal", "Liverpool")])
         self.assertEqual(report["distinct_alias_proposals"], 0)
 
 
