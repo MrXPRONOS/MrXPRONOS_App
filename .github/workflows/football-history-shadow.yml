@@ -341,7 +341,7 @@ jobs:
         run: |
           umask 077
           python scripts/football_bsd_validate_real.py --history=bsd/all_matches_bsd.json --union=tmp/public-union.json --bsd-site-data=data.json --out=tmp/bsd-private-validation-AGGREGATES-ONLY.json
-          python scripts/football_bsd_private_paired_backtest.py --history=bsd/all_matches_bsd.json --max-fixtures=300 --report=tmp/bsd-private-paired-BENCHMARK-AGGREGATES-ONLY.json
+          python scripts/football_bsd_private_paired_backtest.py --history=bsd/all_matches_bsd.json --max-fixtures=700 --report=tmp/bsd-private-paired-BENCHMARK-AGGREGATES-ONLY.json
           python - <<'PY'
           import json
           from pathlib import Path
