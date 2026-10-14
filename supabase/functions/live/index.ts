@@ -6711,6 +6711,39 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     normalizeMatch(m, refreshAt)
   );
 
+  // Diagnostic by market, without changing thresholds or generating
+  // artificial coupons. Distinguish missing data, preliminary eligibility,
+  // model-line rejection and final signal quality filters.
+  const marketAudit: Record<string,any> = {
+    shots: {with_stats:0,preflight:0,model_candidates:0,signals:0},
+    corners: {with_stats:0,preflight:0,model_candidates:0,signals:0},
+    fouls: {with_stats:0,preflight:0,model_candidates:0,signals:0},
+  };
+  const categories = [
+    {name:"shots",stat:"total_shots",prediction:"total_shots",min:6,earliest:15,latest:83},
+    {name:"corners",stat:"corner_kicks",prediction:"total_corners",min:3,earliest:18,latest:82},
+    {name:"fouls",stat:"fouls",prediction:"total_fouls",min:6,earliest:18,latest:84},
+  ];
+  for(const m of normalizedMatches){
+    const minute=safeNumber(m.current_minute,0);
+    for(const cat of categories){
+      if(!hasCompleteStatPair(m.live_stats,cat.stat))continue;
+      const gate=marketAudit[cat.name];
+      gate.with_stats++;
+      const total=statPairTotal(m.live_stats,cat.stat,
+        cat.name==="corners"?"corners":cat.stat);
+      if(minute>=cat.earliest&&minute<=cat.latest&&Number.isFinite(total)&&total>=cat.min){
+        gate.preflight++;
+      }
+      if((m.all_predictions||[]).some((p:any)=>p.type===cat.prediction))gate.model_candidates++;
+      if((m.predictions||[]).some((p:any)=>p.type===cat.prediction))gate.signals++;
+    }
+  }
+  console.info("LIVE_MARKET_GATE_AUDIT",{
+    batch_matches:normalizedMatches.length,
+    markets:marketAudit,
+  });
+
   await cacheLiveMatches(rawMatches, refreshAt);
 
   let createdPreds = 0;
