@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Configure les deux cadences Actu Foot sur cron-job.org.
 
-Les deux tâches ciblent le MEME workflow football-production.yml :
-- full : 00/30, moteur éditorial complet;
-- lifecycle : toutes les 10 minutes décalées de 5 min, cycle du match léger.
+Les deux tâches ciblent le même workflow, avec deux groupes de concurrence :
+- full : toutes les 5 minutes, collecte/publishing Infos Foot + éditorial;
+- lifecycle : toutes les 2 minutes, cycle LIVE léger.
+Les deux tournent 24h/24 en timezone Africa/Lome.
 """
 import json
 import os
@@ -77,9 +78,9 @@ if not source_headers:
 
 def schedule(minutes):
     return {
-        "timezone": "Africa/Sao_Tome",
+        "timezone": "Africa/Lome",
         "expiresAt": 0,
-        "hours": list(range(7, 24)),
+        "hours": list(range(0, 24)),
         "mdays": [-1],
         "minutes": minutes,
         "months": [-1],
@@ -147,7 +148,7 @@ def ensure(title, minutes, mode, trigger):
     assert details.get("requestMethod") == 1
     assert wf_from_url(details.get("url")) == TARGET_WF
     assert actual.get("minutes") == minutes
-    assert actual.get("hours") == list(range(7, 24))
+    assert actual.get("hours") == list(range(0, 24))
     assert body.get("ref") == "main"
     assert inputs == expected_inputs, {
         "jobId": job_id,
@@ -169,9 +170,25 @@ def ensure(title, minutes, mode, trigger):
 
 
 results = [
-    ensure(FULL_TITLE, [0, 30], "full", "cron-job.org"),
-    ensure(LIFECYCLE_TITLE, [5, 15, 25, 35, 45, 55], "lifecycle", "cron-job.org-lifecycle"),
+    ensure(FULL_TITLE, list(range(0, 60, 5)), "full", "cron-job.org"),
+    ensure(LIFECYCLE_TITLE, list(range(0, 60, 2)), "lifecycle", "cron-job.org-lifecycle"),
 ]
+
+# L'ancien job update-footnews.yml devient volontairement redondant :
+# football-production/full collecte une seule fois puis réutilise ce snapshot.
+for job in listing.get("jobs", []):
+    if (wf_from_url(job.get("url")) == "update-footnews.yml"
+            and job.get("title") == "Mr XPRONOS – Update football news"
+            and job.get("enabled") is True):
+        details = req("GET", f"/jobs/{job['jobId']}").get("jobDetails", {})
+        details["enabled"] = False
+        req("PATCH", f"/jobs/{job['jobId']}", {"job": details})
+        results.append({
+            "action": "disabled",
+            "jobId": job["jobId"],
+            "title": job.get("title"),
+            "targetWorkflow": "update-footnews.yml",
+        })
 print(json.dumps({
     "jobs": results,
     "checked_at": datetime.now(timezone.utc).isoformat(),
