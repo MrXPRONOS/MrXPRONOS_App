@@ -159,7 +159,7 @@ class ProviderHistoricalInputsTests(unittest.TestCase):
 
     def test_bsd_duplicate_team_names_with_distinct_native_ids_are_rejected(self):
         base={"status":"finished", "event_date":"2025-02-01T12:00:00Z",
-              "league_name":"Premier League","home_score":2,"away_score":1}
+              "league_id":39,"league_name":"Premier League","home_score":2,"away_score":1}
         a=dict(base,id=1,home_team_id=1,away_team_id=2,
                home_team={"id":1,"name":"Arsenal"},away_team={"id":2,"name":"Chelsea"})
         b=dict(base,id=2,home_team_id=99,away_team_id=2,
@@ -167,6 +167,35 @@ class ProviderHistoricalInputsTests(unittest.TestCase):
         rows,report=trusted_private_bsd_rows([a,b],as_of=AS_OF,explicitly_authorized=True)
         self.assertEqual(rows,[])
         self.assertEqual(report["rejections"]["ambiguous_team_ids_for_name"],2)
+
+    def test_missing_bsd_labels_are_filled_only_from_exact_native_ids(self):
+        # A historical archive entry has reliable native IDs and scores,
+        # but no textual team/competition names.
+        private=[{
+            "id":101,"status":"finished",
+            "event_date":"2025-02-01T13:00:00Z",
+            "league_id":39, "home_team_id":7, "away_team_id":8,
+            "home_score":2, "away_score":1,
+        }]
+        published={"source":"bsd","matches":[{
+            "source":"bsd","league_id":39,"league":"Premier League",
+            "home_team_id":7,"away_team_id":8,
+            "home_team":"Arsenal FC","away_team":"Chelsea FC",
+        }]}
+        without,h1=trusted_private_bsd_rows(private,as_of=AS_OF,explicitly_authorized=True)
+        self.assertEqual(without,[])
+        self.assertEqual(h1["rejections"]["missing_or_ambiguous_league_label"],1)
+        recovered,h2=trusted_private_bsd_rows(
+            private,as_of=AS_OF,explicitly_authorized=True,public_bsd_feed=published)
+        self.assertEqual(len(recovered),1)
+        self.assertEqual(recovered[0]["home_team"],"arsenal")
+        self.assertEqual(h2["identity_hints"]["known_team_ids"],2)
+        self.assertFalse(h2["private_ids_exposed_in_report"])
+        contradictory={"source":"bsd","matches":published["matches"]+[
+            dict(published["matches"][0],home_team="Arsenal Women")]}
+        rejected,_=trusted_private_bsd_rows(
+            private,as_of=AS_OF,explicitly_authorized=True,public_bsd_feed=contradictory)
+        self.assertEqual(rejected,[])
 
     def test_multiple_independent_provider_rows_feed_same_original_bsd_engine(self):
         history=[]
