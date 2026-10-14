@@ -1788,26 +1788,47 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
     max_send = MAX_MESSAGES_PER_RUN
     class_counter = {key: 0 for key in CLASS_BUDGETS}
 
-    def publish(item: Publication | None, *, ref: str = "") -> None:
-        if item is None or counter["sent"] >= max_send:
-            return
+    def publish(item: Publication | None, *, ref: str = "") -> bool:
+        if item is None:
+            return False
+        cls = priority_class(item.category)
+        if class_counter[cls] >= CLASS_BUDGETS[cls]:
+            return False
+        if cls != "P0" and counter["sent"] >= max_send:
+            return False
         if not force and (state.seen(item.key) or
                           (item.category != "resultat" and not enough(state, item.category, now))):
             counter["skipped"] += 1
-            return
+            return False
+        if item.category == "score_update" and not force:
+            first = state.first_observed(item.key, now)
+            if now - first < timedelta(minutes=2):
+                if not dry_run:
+                    state.save(now)
+                print("SCORE_UPDATE_EN_ATTENTE", item.key)
+                return False
         if not espn_preflight(sender, item, dry_run=dry_run):
             counter["skipped"] += 1
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
-            return
+            return False
         sender.send(item)
         counter["sent"] += 1
+        class_counter[cls] += 1
         if not dry_run:
             state.mark(item.key, item.category, now)
+            state.clear_observation(item.key)
+            if item.category in {"composition", "changement_composition"} and ref in state.followed and item.card:
+                lineups = item.card.get("lineups") if isinstance(item.card.get("lineups"), dict) else {}
+                state.followed[ref]["lineup_home_hash"] = str(item.card.get("lineup_home_hash") or "")
+                state.followed[ref]["lineup_away_hash"] = str(item.card.get("lineup_away_hash") or "")
+                state.followed[ref]["lineup_home"] = list(lineups.get("home") or [])
+                state.followed[ref]["lineup_away"] = list(lineups.get("away") or [])
             if item.category == "resultat" and ref:
                 followup.completed(state.followed, ref, now)
             if item.category == "suivi_interrompu" and ref:
                 state.followed[ref]["cancelled"] = True
             state.save(now)
+        return True
 
     try:
         tracked = followup.base_events(state.followed, now)
@@ -1861,6 +1882,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
     cache: dict[str, list[dict]] = {}
     counter = {"sent": 0, "skipped": 0, "errors": 0}
     max_send = MAX_MESSAGES_PER_RUN
+    class_counter = {key: 0 for key in CLASS_BUDGETS}
 
     def get_day(day: date) -> list[dict]:
         nonlocal client
