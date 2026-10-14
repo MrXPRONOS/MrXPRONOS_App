@@ -162,24 +162,67 @@ def _caption(index: int, total: int, label: str, category: str, payload: dict) -
     return top + (("\n\n" + body) if body else "")
 
 
+def _retry_after(exc: requests.HTTPError, default: int = 4) -> int:
+    response = getattr(exc, "response", None)
+    if response is None:
+        return default
+    try:
+        body = response.json()
+        value = int((body.get("parameters") or {}).get("retry_after") or default)
+        return max(default, min(value + 1, 45))
+    except (ValueError, TypeError, AttributeError):
+        header = response.headers.get("Retry-After") if getattr(response, "headers", None) else None
+        try:
+            return max(default, min(int(header) + 1, 45))
+        except (ValueError, TypeError):
+            return default
+
+
+def _post_photo_with_retry(session, token: str, chat: str, path: Path, caption: str, keyboard: dict) -> int:
+    for attempt in range(6):
+        try:
+            return post_photo(
+                session, token, chat, path, caption, keyboard,
+                timeout=90, mime="image/png",
+            )
+        except requests.HTTPError as exc:
+            response = getattr(exc, "response", None)
+            if response is None or response.status_code != 429 or attempt >= 5:
+                raise
+            wait = _retry_after(exc)
+            print("TELEGRAM_RATE_LIMIT photo wait", wait, "seconds", flush=True)
+            time.sleep(wait)
+    raise RuntimeError("Telegram photo retry exhausted")
+
+
 def _send_poll(session, token: str, chat: str, label: str) -> int:
     choices = ["Option A", "Option B", "Option C"]
-    response = session.post(
-        "https://api.telegram.org/bot" + token + "/sendPoll",
-        data={
-            "chat_id": chat,
-            "question": "🧪 TEST • " + label,
-            "options": json.dumps([{"text": x} for x in choices], ensure_ascii=False),
-            "is_anonymous": "true",
-            "allows_multiple_answers": "false",
-        },
-        timeout=(12, 55),
-    )
-    response.raise_for_status()
-    data = response.json()
-    if data.get("ok") is not True:
-        raise RuntimeError("Telegram n'a pas confirmé le sondage test")
-    return int(data["result"]["message_id"])
+    for attempt in range(6):
+        response = session.post(
+            "https://api.telegram.org/bot" + token + "/sendPoll",
+            data={
+                "chat_id": chat,
+                "question": "🧪 TEST • " + label,
+                "options": json.dumps([{"text": x} for x in choices], ensure_ascii=False),
+                "is_anonymous": "true",
+                "allows_multiple_answers": "false",
+            },
+            timeout=(12, 55),
+        )
+        try:
+            response.raise_for_status()
+        except requests.HTTPError as exc:
+            if response.status_code != 429 or attempt >= 5:
+                raise
+            wait = _retry_after(exc)
+            print("TELEGRAM_RATE_LIMIT poll wait", wait, "seconds", flush=True)
+            time.sleep(wait)
+            continue
+        data = response.json()
+        if data.get("ok") is not True:
+            raise RuntimeError("Telegram n'a pas confirmé le sondage test")
+        return int(data["result"]["message_id"])
+    raise RuntimeError("Telegram poll retry exhausted")
 
 
 def main() -> int:
@@ -197,6 +240,10 @@ def main() -> int:
     cases += [(cat, label, overrides, "club") for cat, label, overrides in CLUB_CASES]
     cases += [(cat, label, overrides, "general") for cat, label, overrides in GENERAL_CASES]
     total = len(cases)
+    start_index = max(1, int(os.getenv("GENERIC_TEST_START_INDEX", "1")))
+    end_index = min(total, int(os.getenv("GENERIC_TEST_END_INDEX", str(total))))
+    if start_index > end_index:
+        raise RuntimeError(f"Plage de test invalide: {start_index}>{end_index}")
 
     session = requests.Session()
     sent: list[dict] = []
@@ -205,6 +252,8 @@ def main() -> int:
     with patch("programme_styles.load_logo", side_effect=dummy_logo):
         with tempfile.TemporaryDirectory(prefix="mrx-generic-banners-") as tmp:
             for index, (category, label, overrides, family) in enumerate(cases, 1):
+                if index < start_index or index > end_index:
+                    continue
                 if family == "match":
                     payload = _merge(base_match(), overrides)
                 elif family == "club":
@@ -221,15 +270,13 @@ def main() -> int:
                         raise RuntimeError(f"{category}: format {check.size}, attendu 1280x500")
 
                 keyboard = live_keyboard(payload, include_live=(family == "match"))
-                message_id = post_photo(
+                message_id = _post_photo_with_retry(
                     session,
                     token,
                     chat,
                     path,
                     _caption(index, total, label, category, payload),
                     keyboard or {},
-                    timeout=90,
-                    mime="image/png",
                 )
                 row = {
                     "index": index,
@@ -247,11 +294,12 @@ def main() -> int:
                     row["poll_message_id"] = poll_id
                     print("GENERIC_BANNER_POLL_SENT", category, poll_id, flush=True)
 
-                time.sleep(0.55)
+                time.sleep(1.15)
 
+    expected_count = end_index - start_index + 1
     print("GENERIC_BANNER_TEST_REPORT", json.dumps(sent, ensure_ascii=False), flush=True)
-    if len(sent) != total:
-        raise RuntimeError(f"Seulement {len(sent)}/{total} previews envoyées")
+    if len(sent) != expected_count:
+        raise RuntimeError(f"Seulement {len(sent)}/{expected_count} previews envoyées")
     return 0
 
 
