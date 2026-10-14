@@ -147,6 +147,18 @@ class GenericBannerTests(unittest.TestCase):
         image = template_cards.render("statistique_avancee", payload)
         self.assertEqual(image.size, (1280, 500))
 
+    def test_short_action_buttons_share_the_same_row(self):
+        keyboard = content.live_keyboard({
+            "espn_url": "https://www.espn.com/football/match/_/gameId/1",
+            "article_url": "https://example.com/article",
+        })
+        self.assertIsNotNone(keyboard)
+        self.assertEqual(len(keyboard["inline_keyboard"]), 1)
+        self.assertEqual(
+            [button["text"] for button in keyboard["inline_keyboard"][0]],
+            ["⚡ Live", "✅ ESPN", "📰 Article"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
