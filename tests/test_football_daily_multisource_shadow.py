@@ -19,6 +19,11 @@ class DailyMultisourceTests(unittest.TestCase):
         self.assertFalse(fixtures[0]["eligible_for_model"])
         self.assertEqual(report["corroborated_by_two_or_more"], 1)
 
+    def test_terminal_fc_suffix_can_match_with_same_kickoff(self):
+        fixtures, report = merge({"espn": {"rows": [mk("espn", home="Arsenal FC", away="Chelsea FC")]}, "sportscore": {"rows": [mk("sportscore", home="Arsenal", away="Chelsea")]}})
+        self.assertEqual(len(fixtures), 1)
+        self.assertEqual(report["corroborated_by_two_or_more"], 1)
+
     def test_near_kickoff_same_teams_is_one(self):
         fixtures, _ = merge({"espn": {"rows": [mk("espn")]}, "sportscore": {"rows": [mk("sportscore", when="2026-10-14T18:45:00Z")]}})
         self.assertEqual(len(fixtures), 1)
