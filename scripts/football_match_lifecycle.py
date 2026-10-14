@@ -1338,12 +1338,16 @@ def lifecycle_signals(
                 or any(k.startswith(f"goal:{event_id}:{score_text}:") for k in sent_keys)):
             continue
         score_espn_id, score_espn_url = espn_identity(match)
+        base_home_obj = base.get("home_team") if isinstance(base.get("home_team"), dict) else {}
+        base_away_obj = base.get("away_team") if isinstance(base.get("away_team"), dict) else {}
         signals.append({
             "kind": "score_update", "key": key, "priority": 110 + int(importance_fn(base) or 0),
             "home": _team_name(base, "home"), "away": _team_name(base, "away"),
             "league": base.get("league_name") or match.get("league") or "Football",
             "score": score_text, "minute": match.get("minute"),
             "source": match.get("source") or "source live", "follow_ref": ref,
+            "home_logo": _plain(match.get("home_logo") or base_home_obj.get("logo")),
+            "away_logo": _plain(match.get("away_logo") or base_away_obj.get("logo")),
             "espn_event_id": score_espn_id, "espn_url": score_espn_url,
         })
 
