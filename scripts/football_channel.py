@@ -1595,6 +1595,14 @@ def lifecycle_publication(signal: dict) -> Publication | None:
             "away": away,
             "score": plain(signal.get("score"), 20),
             "goal": signal.get("goal") if isinstance(signal.get("goal"), dict) else {},
+            "lineups": signal.get("lineups") if isinstance(signal.get("lineups"), dict) else {},
+            "lineup_home_hash": plain(signal.get("lineup_home_hash"), 40),
+            "lineup_away_hash": plain(signal.get("lineup_away_hash"), 40),
+            "player": plain(signal.get("player"), 90),
+            "entrant": plain(signal.get("entrant"), 90),
+            "sortant": plain(signal.get("sortant"), 90),
+            "minute": signal.get("minute"),
+            "shootout_scores": signal.get("shootout_scores") or [],
         }
     elif signal.get("event_date"):
         verification = {
