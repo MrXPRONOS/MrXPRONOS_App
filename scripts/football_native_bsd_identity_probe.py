@@ -41,7 +41,7 @@ def team_name(event,side):
     value=event.get(side+"_team")
     return value.get("name") if isinstance(value,dict) else value
 
-def native_parts(event):
+def native_parts(event, *, official_leagues=None):
     """Interpret only documented native BSD identifiers, never research IDs."""
     if not isinstance(event,dict):
         return None,"not_object"
@@ -71,6 +71,8 @@ def native_parts(event):
     league_raw=(event.get("league_name") or event.get("competition_name") or
                 event.get("tournament_name") or
                 (league_value.get("name") if isinstance(league_value,dict) else league_value))
+    if not league_raw and official_leagues:
+        league_raw=official_leagues.get(lid)
     league=competition(str(league_raw or ""))
     if not league:return None,"missing_native_competition_name"
     stamp=aware_time(event.get("event_date"))
@@ -82,7 +84,7 @@ def native_parts(event):
 def native_key(event):
     return native_parts(event)[0]
 
-def prove(external:list[dict], native:list[dict], *, at:datetime)->dict:
+def prove(external:list[dict], native:list[dict], *, at:datetime, official_leagues=None)->dict:
     if at.tzinfo is None:
         raise ValueError("Timezone-aware current time required")
     at=at.astimezone(timezone.utc)
@@ -107,7 +109,7 @@ def prove(external:list[dict], native:list[dict], *, at:datetime)->dict:
     invalid_native=0
     native_issues=Counter()
     for row in native:
-        key,issue=native_parts(row)
+        key,issue=native_parts(row,official_leagues=official_leagues)
         if key is None:
             invalid_native+=1
             native_issues[issue or "unclassified"]+=1
@@ -157,6 +159,35 @@ def prove(external:list[dict], native:list[dict], *, at:datetime)->dict:
         "rejected_reasons":dict(sorted(rejected.items())),
     }
 
+def candidate_official_league_ids(external, native, *, at):
+    """Lookup IDs only after exact time+team match; no league guessed."""
+    lids=set()
+    for row in external:
+        if not isinstance(row,dict) or row.get("_schedule_verified_by")!="openfootball_cc0" or row.get("league_verified") is not True:
+            continue
+        if row.get("status")!="prematch" or row.get("ambiguous_match") or row.get("league_conflict") or row.get("scores_conflict"):
+            continue
+        ext_home=canonical_team(str(row.get("home_team") or ""))
+        ext_away=canonical_team(str(row.get("away_team") or ""))
+        ext_time=aware_time(row.get("kickoff_utc"))
+        if not ext_home or not ext_away or ext_home==ext_away or not ext_time or ext_time<=at:
+            continue
+        for official in native:
+            if not isinstance(official,dict) or str(official.get("status") or "").lower() not in ALLOWED_NATIVE_STATUSES:
+                continue
+            ident=positive_native_id(official.get("id"))
+            lid=positive_native_id(official.get("league_id") or
+                ((official.get("league") or {}).get("id") if isinstance(official.get("league"),dict) else None))
+            t=aware_time(official.get("event_date"))
+            if not ident or not lid or not t or t<=at:
+                continue
+            if (canonical_team(str(team_name(official,"home") or ""))==ext_home
+                and canonical_team(str(team_name(official,"away") or ""))==ext_away
+                and abs((t-ext_time).total_seconds())<=MAX_DELTA_SECONDS):
+                lids.add(lid)
+    return sorted(lids)
+
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--public-fixtures",required=True)
@@ -192,8 +223,33 @@ def main():
         if not page.complete:
             raise RuntimeError("BSD fixture pagination incomplete (do not infer missing matches)")
         native.extend(page.events)
-    result=prove(verified,native,at=clock)
+    # Resolve real competition names ONLY through the official BSD
+    # league-detail endpoint for exact team+time candidates; no inferred alias.
+    ids=candidate_official_league_ids(verified,native,at=clock)
+    names={}
+    metadata_issues=Counter()
+    available=max(0,min(8,MAX_BSD_REQUESTS-client.requests_made))
+    for lid in ids[:available]:
+        try:
+            details=client.get_json(f"/leagues/{lid}/",ttl=0)
+            if not isinstance(details,dict) or positive_native_id(details.get("id"))!=lid:
+                metadata_issues["identity_mismatch_or_invalid_schema"]+=1
+                continue
+            label=details.get("name") or details.get("league_name")
+            if not isinstance(label,str) or not competition(label):
+                metadata_issues["no_official_competition_name"]+=1
+                continue
+            names[lid]=label
+        except Exception as exc:
+            metadata_issues["api_"+type(exc).__name__]+=1
+    if len(ids)>available:
+        metadata_issues["league_metadata_budget_exceeded"]+=len(ids)-available
+    result=prove(verified,native,at=clock,official_leagues=names)
     result.update({
+        "candidate_official_league_metadata_ids":len(ids),
+        "official_league_metadata_requested":min(len(ids),available),
+        "official_league_metadata_verified":len(names),
+        "official_league_metadata_issues":dict(sorted(metadata_issues.items())),
         "bsd_http_calls":client.requests_made,
         "bsd_max_http_requests":MAX_BSD_REQUESTS,
         "calendar_files_verified":health["files_ok"],
