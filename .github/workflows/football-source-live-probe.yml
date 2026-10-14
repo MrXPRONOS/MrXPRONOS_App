@@ -24,6 +24,7 @@ jobs:
             "sportscore_match_detail":"https://sportscore.com/api/v1/match/?sport=football&slug=cs-cartagines-vs-puntarenas-fc",
             "thesportsdb_example_stats":"https://www.thesportsdb.com/api/v1/json/123/lookupeventstats.php?id=1032723",
             "openliga_matches":"https://api.openligadb.de/getmatchdata/bl1/2026",
+            "bsd_coverage":"https://sports.bzzoiro.com/api/v2/coverage/?sport=football",
           }
           def summary(v,depth=0):
             if depth>3: return str(type(v).__name__)
@@ -42,6 +43,11 @@ jobs:
               with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'MrXPRONOS-Diagnostic/1.0','Accept':'application/json'}),timeout=13) as r:
                 payload=json.loads(r.read(2000000))
                 print("SOURCE_PROBE",json.dumps({"source":name,"http_status":r.status,"summary":summary(payload)},ensure_ascii=False))
+                if name=="bsd_coverage":
+                  print("BSD_COVERAGE",json.dumps({
+                    "live_now":payload.get("live_now") if isinstance(payload,dict) else None,
+                    "schema_keys":list(payload.keys())[:20] if isinstance(payload,dict) else [],
+                  },ensure_ascii=False))
                 if name=="sportscore_match_detail":
                   detail=payload.get("match",{}) if isinstance(payload,dict) else {}
                   rows=detail.get("stats",[])
