@@ -635,7 +635,7 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertIn("BUKAYO SAKA", post.text)
         self.assertIn("2-1", post.text)
         self.assertNotIn("BUUUUT", post.text)
-        self.assertTrue(post.keyboard)
+        self.assertIsNone(post.keyboard)
 
     def test_goal_publication_carries_espn_verification_and_link(self):
         post = channel.lifecycle_publication({
@@ -662,8 +662,7 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertEqual(post.verification["event_id"], "401")
         self.assertNotIn("Passe", post.text)
         self.assertNotIn("Martin Odegaard", post.text)
-        buttons = [b for row in post.keyboard["inline_keyboard"] for b in row]
-        self.assertTrue(any("ESPN" in b["text"] for b in buttons))
+        self.assertIsNone(post.keyboard)
 
     @patch("football_match_lifecycle.fetch_espn_summary", return_value={})
     @patch("football_match_lifecycle.collect_external")
