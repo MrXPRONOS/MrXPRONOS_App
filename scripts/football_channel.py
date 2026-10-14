@@ -1764,7 +1764,7 @@ def followed_final_publication(signal: dict) -> Publication | None:
             "home": home,
             "away": away,
             "scores": (h, a),
-            "day": signal.get("day") or now.astimezone(TZ).strftime("%d/%m/%Y") if "now" in globals() else "",
+            "day": signal.get("day") or datetime.now(TZ).strftime("%d/%m/%Y"),
             "league": comp,
             "source": signal.get("source") or "score confirmé",
             "home_logo": logo_home,
