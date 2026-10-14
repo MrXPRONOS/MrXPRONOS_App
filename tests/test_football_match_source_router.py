@@ -1,7 +1,7 @@
 """Offline router tests: provenance, missingness, no lookahead, correct fallback."""
 import unittest
 from datetime import datetime, timedelta, timezone
-from scripts.football_match_source_router import route_fixture, route_all
+from scripts.football_match_source_router import route_fixture as _route_fixture, route_all as _route_all
 
 FIXTURE = {
     "fixture_key": "2026-10-14|arsenal|chelsea",
@@ -15,6 +15,16 @@ FIXTURE = {
     "discovered_by": "espn", "ambiguous_match": False,
     "league_conflict": False, "scores_conflict": False,
 }
+
+AS_OF = datetime(2026, 10, 14, 12, 0, tzinfo=timezone.utc)
+
+
+def route_fixture(fixture, stats, **kwargs):
+    return _route_fixture(fixture, stats, analysis_at=AS_OF, **kwargs)
+
+
+def route_all(fixtures, stats, **kwargs):
+    return _route_all(fixtures, stats, analysis_at=AS_OF, **kwargs)
 
 FAMILIES = {
     "goals": {"home_goals_for": 2.0, "home_goals_against": 1.0, "away_goals_for": 0.9, "away_goals_against": 1.5},
@@ -66,6 +76,16 @@ class RouterTest(unittest.TestCase):
         data = {"bsd": {"B88": source("bsd", "B88", observed="2026-10-14T19:00:00Z")}}
         got = route_fixture(FIXTURE, data)
         self.assertEqual(got["families"]["goals"]["rejected_providers"]["bsd"], "future_information")
+
+    def test_reject_snapshot_not_yet_available_as_of_analysis(self):
+        data = {"bsd": {"B88": source("bsd", "B88", observed="2026-10-14T14:00:00Z")}}
+        got = route_fixture(FIXTURE, data)
+        self.assertEqual(got["families"]["goals"]["rejected_providers"]["bsd"], "snapshot_not_yet_available")
+
+    def test_kickoff_already_started_must_stop_prematch(self):
+        f = dict(FIXTURE, kickoff_utc="2026-10-14T11:00:00Z")
+        got = route_fixture(f, {"bsd": {"B88": source("bsd", "B88")}})
+        self.assertEqual(got["families"]["goals"]["status"], "rejected")
 
     def test_reject_history_after_collection(self):
         data = {"bsd": {"B88": source("bsd", "B88", until="2026-10-14T12:00:00Z")}}
