@@ -63,6 +63,49 @@ class DailyMultisourceTests(unittest.TestCase):
         self.assertEqual(fixtures[0]["sources"]["api_football"]["id"], "918")
         self.assertFalse(fixtures[0]["eligible_for_model"])
 
+    def test_different_competitions_are_not_merged(self):
+        a = mk("espn")
+        a["league"] = "Premier League"
+        b = mk("sportscore")
+        b["league"] = "FA Cup"
+        fixtures, report = merge({"espn": {"rows": [a]}, "sportscore": {"rows": [b]}})
+        self.assertEqual(len(fixtures), 2)
+        self.assertEqual(report["corroborated_by_two_or_more"], 0)
+
+    def test_named_competition_alias_joins(self):
+        a = mk("espn")
+        a["league"] = "English Premier League"
+        b = mk("sportscore")
+        b["league"] = "Premier League"
+        fixtures, report = merge({"espn": {"rows": [a]}, "sportscore": {"rows": [b]}})
+        self.assertEqual(len(fixtures), 1)
+        self.assertEqual(report["corroborated_by_two_or_more"], 1)
+
+    def test_fixture_source_and_stable_key(self):
+        a = mk("espn")
+        a["league"] = "Premier League"
+        fixtures, report = merge({"espn": {"rows": [a]}})
+        self.assertEqual(fixtures[0]["discovered_by"], "espn")
+        self.assertEqual(len(fixtures[0]["fixture_key"]), 24)
+        self.assertTrue(fixtures[0]["league_verified"])
+        self.assertEqual(fixtures[0]["status"], "prematch")
+
+    def test_ambiguous_one_to_many_join_disables_both_prior_fixtures(self):
+        a = mk("espn", when="2026-10-14T18:00:00Z")
+        b = mk("espn", when="2026-10-14T19:00:00Z")
+        b["provider_event_id"] = "espn-2"
+        c = mk("sportscore", when="2026-10-14T18:30:00Z")
+        fixtures, report = merge({"espn": {"rows": [a, b]}, "sportscore": {"rows": [c]}})
+        self.assertEqual(len(fixtures), 3)
+        self.assertEqual(report["ambiguous_joins"], 1)
+        self.assertTrue(all(x["ambiguous_match"] for x in fixtures))
+
+    def test_finished_games_not_prematch(self):
+        a = mk("espn", state="post", home_score=2, away_score=0)
+        a["league"] = "Premier League"
+        fixtures, _ = merge({"espn": {"rows": [a]}})
+        self.assertEqual(fixtures[0]["status"], "not_prematch")
+
     def test_request_host_is_allowlisted(self):
         client = BudgetSession(max_requests=1)
         with self.assertRaises(ValueError):
