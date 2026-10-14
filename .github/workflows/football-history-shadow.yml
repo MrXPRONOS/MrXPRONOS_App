@@ -16,6 +16,8 @@ on:
       - 'tests/test_football_alias_candidates.py'
       - 'scripts/football_match_source_router.py'
       - 'tests/test_football_match_source_router.py'
+      - 'scripts/football_prematch_probability_shadow.py'
+      - 'tests/test_football_prematch_probability_shadow.py'
       - '.github/workflows/football-history-shadow.yml'
   workflow_dispatch:
     inputs:
@@ -57,12 +59,13 @@ jobs:
         run: |
           php -l scripts/football_history_import.php
           php scripts/football_history_import.php --self-test
-          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py
+          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py
           python -m unittest discover -s tests -p 'test_football_history_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_daily_multisource_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_history_features.py' -v
           python -m unittest discover -s tests -p 'test_football_alias_candidates.py' -v
           python -m unittest discover -s tests -p 'test_football_match_source_router.py' -v
+          python -m unittest discover -s tests -p 'test_football_prematch_probability_shadow.py' -v
   historical_probe:
     if: github.event_name == 'workflow_dispatch'
     needs: verify
@@ -141,6 +144,7 @@ jobs:
               json.dump(snapshot,handle)
           PY
           python scripts/football_daily_multisource_shadow.py --snapshots=tmp/synthetic-sources.json --day=2026-10-14 --verified-history=tmp/merged.json --historical-feature-out=tmp/daily-historical-features.json --out=tmp/daily-union.json --report=tmp/daily-merged-report.json --route-out=tmp/daily-source-decisions.json
+          python scripts/football_prematch_probability_shadow.py --routed=tmp/daily-source-decisions.json --history=tmp/merged.json --out=tmp/uncalibrated-research-only.json --report=tmp/probability-quality.json
           python - <<'PY'
           import json
           report=json.load(open('tmp/daily-merged-report.json'))
@@ -148,6 +152,7 @@ jobs:
           assert report['historical_feature_coverage']['production_model_modified'] is False
           assert len(json.load(open('tmp/daily-union.json'))) == 1
           assert len(json.load(open('tmp/daily-source-decisions.json'))) == 1
+          assert json.load(open('tmp/probability-quality.json'))['ready_for_betting'] is False
           print('FULL_PREMATCH_SHADOW_PIPELINE_OK')
           PY
           python - <<'PY'
