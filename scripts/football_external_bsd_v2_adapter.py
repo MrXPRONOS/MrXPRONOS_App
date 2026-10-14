@@ -25,7 +25,8 @@ if str(ROOT / "bsd") not in sys.path: sys.path.insert(0, str(ROOT / "bsd"))
 from scripts.football_history_shadow import canonical_team
 from scripts.football_history_features import competition
 from scripts.football_match_source_router import aware_time
-from scripts.football_multi_api_history_inputs import ingest as ingest_provider_history
+from scripts.football_multi_api_history_inputs import (ingest as ingest_provider_history,
+                                                      trusted_private_bsd_rows)
 from bsd_v2_core import V2History, estimate_goals, predict_v2
 from bsd_h2h import local_h2h
 
@@ -298,7 +299,9 @@ def evaluate_existing_v2(fixtures: list[dict], history: list[dict], *,
 def main() -> None:
     import argparse
     p=argparse.ArgumentParser()
-    p.add_argument("--historical-jsonl",required=True)
+    p.add_argument("--historical-jsonl",help="Licensed OpenFootball historical results")
+    p.add_argument("--private-bsd-history-json",help="Decrypted private BSD archive, local trusted execution only")
+    p.add_argument("--authorize-bsd-private-internal-use",action="store_true",help="Requires rights and trusted runner")
     p.add_argument("--daily-union",required=True)
     p.add_argument("--provider-history-snapshots",help="Offline provider history snapshots, never auto-fetched")
     p.add_argument("--provider-rights-manifest",help="Explicit legal authorization per source for commercial historical model use")
@@ -308,17 +311,33 @@ def main() -> None:
     when=aware_time(a.analysis_at)
     if when is None: p.error("--analysis-at must be timezone-aware")
     fixtures=json.loads(Path(a.daily_union).read_text(encoding="utf-8"))
-    with open(a.historical_jsonl,encoding="utf-8") as handle:
-        hist=[json.loads(x) for x in handle if x.strip()]
+    if not (a.historical_jsonl or a.private_bsd_history_json or a.provider_history_snapshots):
+        p.error("At least one authorized historical input is required")
+    if a.historical_jsonl:
+        with open(a.historical_jsonl,encoding="utf-8") as handle:
+            hist=[json.loads(x) for x in handle if x.strip()]
+    else:
+        hist=[]
     multi_report={"loaded_historical_rows":0,"no_api_called":True}
     approved=frozenset({PROVIDER})
+    if bool(a.private_bsd_history_json) != bool(a.authorize_bsd_private_internal_use):
+        p.error("Private BSD archive requires BOTH path and explicit internal-use authorization")
+    if a.private_bsd_history_json:
+        private_archive=json.loads(Path(a.private_bsd_history_json).read_text(encoding="utf-8"))
+        if not isinstance(private_archive,list):
+            p.error("Private BSD archive must contain a list of historical matches")
+        private_rows,private_stats=trusted_private_bsd_rows(
+            private_archive,as_of=when,explicitly_authorized=True)
+        hist.extend(private_rows)
+        approved=frozenset({*approved,"bsd"})
+        multi_report["private_bsd"]=private_stats
     if bool(a.provider_history_snapshots) != bool(a.provider_rights_manifest):
         p.error("Both historical snapshots and provider-rights-manifest are required")
     if a.provider_history_snapshots:
         snapshots=json.loads(Path(a.provider_history_snapshots).read_text(encoding="utf-8"))
         rights=json.loads(Path(a.provider_rights_manifest).read_text(encoding="utf-8"))
         additions,multi_report=ingest_provider_history(snapshots,rights,as_of=when)
-        approved=frozenset({PROVIDER,*multi_report["permitted_provider_rows"].keys()})
+        approved=frozenset({*approved,*multi_report["permitted_provider_rows"].keys()})
         hist.extend(additions)
     archive,archive_report=normalize_history(hist,accepted_sources=approved)
     ready,ready_report=adapt_daily(fixtures,archive,as_of=when)
