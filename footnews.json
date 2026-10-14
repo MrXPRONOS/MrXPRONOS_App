@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T22:10:40+00:00",
+    "published": "2026-10-14T22:11:22+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -87,7 +87,7 @@
     "published": "2026-10-14T22:08:48+00:00",
     "image": "assets/images/footnews/8295f31e7c3f7c83-fallback.webp",
     "source_image": "https://news.maxifoot.fr/amp/465703.webp",
-    "image_origin": "generated_fallback",
+    "image_origin": "source",
     "image_layout": "general-banner",
     "source": "Maxifoot",
     "source_priority": 78,
@@ -120,7 +120,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:10:30.730163+00:00"
+      "checked_at": "2026-10-14T22:15:30.814381+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -184,7 +184,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:10:30.730163+00:00"
+      "checked_at": "2026-10-14T22:15:30.814381+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -317,7 +317,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:10:30.730163+00:00"
+      "checked_at": "2026-10-14T22:15:30.814381+00:00"
     },
     "quality_sources": [
       "Franceinfo",
@@ -411,7 +411,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:10:30.730163+00:00"
+      "checked_at": "2026-10-14T22:15:30.814381+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -452,40 +452,6 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "c5c4c1aae4076323",
-    "title": "Commission de discipline : Liam Rosenior s’en sort très bien",
-    "summary": "Liam Rosenior peut souffler. Au cœur d’une polémique après la victoire du Paris FC face à Strasbourg (5e journée), le technicien anglais avait provoqué le camp alsacien, entraînant des échauffourées (…)",
-    "summary_short": "Liam Rosenior peut souffler. Au cœur d’une polémique après la victoire du Paris FC face à Strasbourg (5e journée), le technicien anglais avait provoqué le camp alsacien, entraînant des échauffourées (…)",
-    "content": "Liam Rosenior peut souffler. Au cœur d’une polémique après la victoire du Paris FC face à Strasbourg (5e journée), le technicien anglais avait provoqué le camp alsacien, entraînant des échauffourées (…)",
-    "paragraphs": [
-      "Liam Rosenior peut souffler. Au cœur d’une polémique après la victoire du Paris FC face à Strasbourg (5e journée), le technicien anglais avait provoqué le camp alsacien, entraînant des échauffourées (…)"
-    ],
-    "key_points": [
-      "Au cœur d’une polémique après la victoire du Paris FC face à Strasbourg (5e journée), le technicien anglais avait provoqué le camp alsacien, entraînant des échauffourées (…)"
-    ],
-    "telegram_summary": "Liam Rosenior peut souffler. Au cœur d’une polémique après la victoire du Paris FC face à Strasbourg (5e journée), le technicien anglais avait provoqué le camp alsacien, entraînant des échauffourées (…)",
-    "link": "https://www.footmercato.net/a9033592546425287377-commission-de-discipline-liam-rosenior-sen-sort-tres-bien",
-    "source_url": "https://www.footmercato.net/a9033592546425287377-commission-de-discipline-liam-rosenior-sen-sort-tres-bien",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c5c4c1aae4076323",
-    "published": "2026-10-14T20:02:07+00:00",
-    "image": "assets/images/footnews/c5c4c1aae4076323.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/liam-rosenior-chelsea-2026.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Polémique",
-    "category_emoji": "🔥",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   },
   {
     "slug": "5287a35ca38ce368",
@@ -754,7 +720,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:10:30.730163+00:00"
+      "checked_at": "2026-10-14T22:15:30.814381+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -833,6 +799,69 @@
     "quality_score": 86
   },
   {
+    "slug": "13fe6cffccaa40d8",
+    "title": "Real Madrid : la revanche fracassante d’Endrick !",
+    "summary": "Mis au placard par José Mourinho depuis le début de saison, Endrick a signé un retour fracassant face à l’AS Rome (4-3). Entré en jeu dans une situation désespérée, le Brésilien de 19 ans a été l’un (…)",
+    "summary_short": "Mis au placard par José Mourinho depuis le début de saison, Endrick a signé un retour fracassant face à l’AS Rome (4-3). Entré en jeu dans une situation désespérée, le Brésilien de 19 ans a été l’un (…)",
+    "content": "Mis au placard par José Mourinho depuis le début de saison, Endrick a signé un retour fracassant face à l’AS Rome (4-3). Entré en jeu dans une situation désespérée, le Brésilien de 19 ans a été l’un (…)",
+    "paragraphs": [
+      "Mis au placard par José Mourinho depuis le début de saison, Endrick a signé un retour fracassant face à l’AS Rome (4-3). Entré en jeu dans une situation désespérée, le Brésilien de 19 ans a été l’un (…)"
+    ],
+    "key_points": [
+      "Mis au placard par José Mourinho depuis le début de saison, Endrick a signé un retour fracassant face à l’AS Rome (4-3).",
+      "Entré en jeu dans une situation désespérée, le Brésilien de 19 ans a été l’un (…)"
+    ],
+    "telegram_summary": "Mis au placard par José Mourinho depuis le début de saison, Endrick a signé un retour fracassant face à l’AS Rome (4-3). Entré en jeu dans une situation désespérée, le Brésilien de 19 ans a été l’un (…)",
+    "link": "https://www.footmercato.net/a7332417298015923241-real-madrid-la-revanche-fracassante-dendrick",
+    "source_url": "https://www.footmercato.net/a7332417298015923241-real-madrid-la-revanche-fracassante-dendrick",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=13fe6cffccaa40d8",
+    "published": "2026-10-14T22:14:19+00:00",
+    "image": "assets/images/footnews/13fe6cffccaa40d8.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine395520-1920x1080.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 3,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50150816",
+      "url": "https://www.espn.com/video/clip/_/id/50150816/real-madrid-vs-villarreal-game-highlights",
+      "published": "2026-10-10T21:06:47Z",
+      "score": 0.25,
+      "matched_terms": [
+        "madrid",
+        "real"
+      ],
+      "topics": [],
+      "teams": [
+        "Real Madrid",
+        "Villarreal"
+      ],
+      "athletes": [
+        "Alberto Moleiro",
+        "Vinícius Júnior",
+        "Yan Diomande"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T22:15:30.814381+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
     "slug": "7628f643096931ac",
     "title": "Ligue des champions : revivez la victoire spectaculaire du PSG sur la pelouse de Manchester City",
     "summary": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
@@ -848,7 +877,7 @@
     "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
-    "published": "2026-10-14T22:10:40+00:00",
+    "published": "2026-10-14T22:11:22+00:00",
     "image": "assets/images/footnews/7628f643096931ac.webp",
     "source_image": "https://www.franceinfo.fr/pictures/5U3Wip1t6xJCEihksoGYiduzong/0x25:4673x2654/432x243/filters:format(jpg)/2026/10/14/6acfdbdf2c937182294865.jpg",
     "image_origin": "source",
@@ -920,7 +949,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:10:30.730163+00:00"
+      "checked_at": "2026-10-14T22:15:30.814381+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -983,7 +1012,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:10:30.730163+00:00"
+      "checked_at": "2026-10-14T22:15:30.814381+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1218,7 +1247,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:10:30.730163+00:00"
+      "checked_at": "2026-10-14T22:15:30.814381+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1319,7 +1348,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:10:30.730163+00:00"
+      "checked_at": "2026-10-14T22:15:30.814381+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1381,7 +1410,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:10:30.730163+00:00"
+      "checked_at": "2026-10-14T22:15:30.814381+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1478,7 +1507,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:10:30.730163+00:00"
+      "checked_at": "2026-10-14T22:15:30.814381+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1705,7 +1734,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:10:30.730163+00:00"
+      "checked_at": "2026-10-14T22:15:30.814381+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1768,7 +1797,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:10:30.730163+00:00"
+      "checked_at": "2026-10-14T22:15:30.814381+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2033,7 +2062,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:10:30.730163+00:00"
+      "checked_at": "2026-10-14T22:15:30.814381+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -2131,7 +2160,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:10:30.730163+00:00"
+      "checked_at": "2026-10-14T22:15:30.814381+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2259,7 +2288,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:10:30.730163+00:00"
+      "checked_at": "2026-10-14T22:15:30.814381+00:00"
     },
     "quality_sources": [
       "So Foot",
