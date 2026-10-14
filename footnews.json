@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T17:30:52+00:00",
+    "published": "2026-10-14T17:58:36+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -34,18 +34,1125 @@
     "quality_score": 82
   },
   {
-    "slug": "8aca7c75dfa6f582",
-    "title": "Real Madrid : grosse sanction confirmée pour Vinicius Jr !",
-    "summary": "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier.Plus d’informations à suivre…",
-    "summary_short": "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier.Plus d’informations à suivre…",
-    "content": "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier.Plus d’informations à suivre…",
+    "slug": "3f732e3c3a601206",
+    "title": "AS Rome - Real Madrid : les compositions officielles",
+    "summary": "Les Madrilènes se déplacent sur la pelouse de Rome ce mercredi à 21h à l’occasion de la 2e journée de la phase de classement de la Ligue des champions, un match à suivre en direct commenté sur notre (…)",
+    "summary_short": "Les Madrilènes se déplacent sur la pelouse de Rome ce mercredi à 21h à l’occasion de la 2e journée de la phase de classement de la Ligue des champions, un match à suivre en direct commenté sur notre (…)",
+    "content": "Les Madrilènes se déplacent sur la pelouse de Rome ce mercredi à 21h à l’occasion de la 2e journée de la phase de classement de la Ligue des champions, un match à suivre en direct commenté sur notre (…)",
     "paragraphs": [
-      "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier.Plus d’informations à suivre…"
+      "Les Madrilènes se déplacent sur la pelouse de Rome ce mercredi à 21h à l’occasion de la 2e journée de la phase de classement de la Ligue des champions, un match à suivre en direct commenté sur notre (…)"
     ],
     "key_points": [
-      "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier.Plus d’informations à suivre…"
+      "Les Madrilènes se déplacent sur la pelouse de Rome ce mercredi à 21h à l’occasion de la 2e journée de la phase de classement de la Ligue des champions, un match à suivre en direct commenté sur notre (…)"
     ],
-    "telegram_summary": "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier.Plus d’informations à suivre…",
+    "telegram_summary": "Les Madrilènes se déplacent sur la pelouse de Rome ce mercredi à 21h à l’occasion de la 2e journée de la phase de classement de la Ligue des champions, un match à suivre en direct commenté sur notre (…)",
+    "link": "https://www.footmercato.net/a3618868790807023718-rome-real-madrid-les-compositions-officielles",
+    "source_url": "https://www.footmercato.net/a3618868790807023718-rome-real-madrid-les-compositions-officielles",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3f732e3c3a601206",
+    "published": "2026-10-14T17:49:44+00:00",
+    "image": "assets/images/footnews/3f732e3c3a601206.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/as-roma-v-juventus-fc-serie-a-2.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 5,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50150816",
+      "url": "https://www.espn.com/video/clip/_/id/50150816/real-madrid-vs-villarreal-game-highlights",
+      "published": "2026-10-10T21:06:47Z",
+      "score": 0.25,
+      "matched_terms": [
+        "madrid",
+        "real"
+      ],
+      "topics": [],
+      "teams": [
+        "Real Madrid",
+        "Villarreal"
+      ],
+      "athletes": [
+        "Alberto Moleiro",
+        "Vinícius Júnior",
+        "Yan Diomande"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T18:01:28.161994+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
+    "slug": "41f2d18bc240b7f5",
+    "title": "Manchester City - PSG : les compositions officielles",
+    "summary": "Ce mercredi, on conclut la deuxième journée de Ligue des Champions avec un choc entre le Paris Saint-Germain et Manchester City. À domicile, les Anglais s’articulent dans un 4-2-3-1 avec Gianluigi (…)",
+    "summary_short": "Ce mercredi, on conclut la deuxième journée de Ligue des Champions avec un choc entre le Paris Saint-Germain et Manchester City. À domicile, les Anglais s’articulent dans un 4-2-3-1 avec Gianluigi (…)",
+    "content": "Ce mercredi, on conclut la deuxième journée de Ligue des Champions avec un choc entre le Paris Saint-Germain et Manchester City. À domicile, les Anglais s’articulent dans un 4-2-3-1 avec Gianluigi (…)",
+    "paragraphs": [
+      "Ce mercredi, on conclut la deuxième journée de Ligue des Champions avec un choc entre le Paris Saint-Germain et Manchester City. À domicile, les Anglais s’articulent dans un 4-2-3-1 avec Gianluigi (…)"
+    ],
+    "key_points": [
+      "Ce mercredi, on conclut la deuxième journée de Ligue des Champions avec un choc entre le Paris Saint-Germain et Manchester City.",
+      "À domicile, les Anglais s’articulent dans un 4-2-3-1 avec Gianluigi (…)"
+    ],
+    "telegram_summary": "Ce mercredi, on conclut la deuxième journée de Ligue des Champions avec un choc entre le Paris Saint-Germain et Manchester City. À domicile, les Anglais s’articulent dans un 4-2-3-1 avec Gianluigi (…)",
+    "link": "https://www.footmercato.net/a1929439218195077910-manchester-city-psg-les-compositions-officielles",
+    "source_url": "https://www.footmercato.net/a1929439218195077910-manchester-city-psg-les-compositions-officielles",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=41f2d18bc240b7f5",
+    "published": "2026-10-14T17:47:47+00:00",
+    "image": "assets/images/footnews/41f2d18bc240b7f5.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/city-psg.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50159375",
+      "url": "https://www.espn.com/video/clip/_/id/50159375/no-sympathy-manchester-city-players",
+      "published": "2026-10-11T18:25:12Z",
+      "score": 0.25,
+      "matched_terms": [
+        "city",
+        "manchester"
+      ],
+      "topics": [],
+      "teams": [
+        "Liverpool",
+        "Manchester City"
+      ],
+      "athletes": [],
+      "leagues": [
+        "English Premier League",
+        "Soccer"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T18:01:28.161994+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
+    "slug": "22b8d462a10187df",
+    "title": "Real Madrid : Vinicius est fixé, une énorme sanction tombe pour son rouge contre Villarreal",
+    "summary": "La sanction de Vinicius est tombée après son rouge polémique contre Villarreal.",
+    "summary_short": "La sanction de Vinicius est tombée après son rouge polémique contre Villarreal.",
+    "content": "La sanction de Vinicius est tombée après son rouge polémique contre Villarreal.",
+    "paragraphs": [
+      "La sanction de Vinicius est tombée après son rouge polémique contre Villarreal."
+    ],
+    "key_points": [
+      "La sanction de Vinicius est tombée après son rouge polémique contre Villarreal."
+    ],
+    "telegram_summary": "La sanction de Vinicius est tombée après son rouge polémique contre Villarreal.",
+    "link": "https://www.onzemondial.com/liga/real-madrid-vinicius-est-fixe-une-enorme-sanction-tombe-pour-son-rouge-contre-villarreal-1002630",
+    "source_url": "https://www.onzemondial.com/liga/real-madrid-vinicius-est-fixe-une-enorme-sanction-tombe-pour-son-rouge-contre-villarreal-1002630",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=22b8d462a10187df",
+    "published": "2026-10-14T17:37:00+00:00",
+    "image": "assets/images/footnews/22b8d462a10187df.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002630/409419/1200-L-real-madrid-vinicius-est-fix-une-norme-sanction-tombe-pour-son-rouge-contre-villarreal.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 4,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50150816",
+      "url": "https://www.espn.com/video/clip/_/id/50150816/real-madrid-vs-villarreal-game-highlights",
+      "published": "2026-10-10T21:06:47Z",
+      "score": 0.25,
+      "matched_terms": [
+        "madrid",
+        "real",
+        "villarreal"
+      ],
+      "topics": [],
+      "teams": [
+        "Real Madrid",
+        "Villarreal"
+      ],
+      "athletes": [
+        "Alberto Moleiro",
+        "Vinícius Júnior",
+        "Yan Diomande"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T18:01:28.161994+00:00"
+    },
+    "quality_sources": [
+      "Onze Mondial",
+      "ESPN"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "80d1a1ac82988c59",
+    "title": "Maroc : un cadre de la dernière CAN prend sa retraite",
+    "summary": "C’est une page qui se tourne pour Adam Masina. À seulement 32 ans, l’ancien international marocain a décidé de mettre un terme à sa carrière de footballeur professionnel. Une annonce qui intervient (…)",
+    "summary_short": "C’est une page qui se tourne pour Adam Masina. À seulement 32 ans, l’ancien international marocain a décidé de mettre un terme à sa carrière de footballeur professionnel. Une annonce qui intervient (…)",
+    "content": "C’est une page qui se tourne pour Adam Masina. À seulement 32 ans, l’ancien international marocain a décidé de mettre un terme à sa carrière de footballeur professionnel. Une annonce qui intervient (…)",
+    "paragraphs": [
+      "C’est une page qui se tourne pour Adam Masina. À seulement 32 ans, l’ancien international marocain a décidé de mettre un terme à sa carrière de footballeur professionnel. Une annonce qui intervient (…)"
+    ],
+    "key_points": [
+      "C’est une page qui se tourne pour Adam Masina.",
+      "À seulement 32 ans, l’ancien international marocain a décidé de mettre un terme à sa carrière de footballeur professionnel."
+    ],
+    "telegram_summary": "C’est une page qui se tourne pour Adam Masina. À seulement 32 ans, l’ancien international marocain a décidé de mettre un terme à sa carrière de footballeur professionnel. Une annonce qui intervient (…)",
+    "link": "https://www.footmercato.net/a3619993213797145964-maroc-un-cadre-de-la-derniere-can-prend-sa-retraite",
+    "source_url": "https://www.footmercato.net/a3619993213797145964-maroc-un-cadre-de-la-derniere-can-prend-sa-retraite",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=80d1a1ac82988c59",
+    "published": "2026-10-14T17:12:07+00:00",
+    "image": "assets/images/footnews/80d1a1ac82988c59.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epaliveseven902307.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Afrique",
+    "category_emoji": "🌍",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "a5d9bf0a9f7495ae",
+    "title": "Crystal Palace : \"Vous m'avez manqué !\", le début de saison de l'OL, tacle à l'ASSE : Pierre Sage en grande forme pour son retour à Lyon (vidéo)",
+    "summary": "Ce mercredi soir, au Groupama Stadium, Pierre Sage, l'entraîneur de Crystal Palace qui s'était révélé à l'OL, s'est présenté en conférence de presse avant l'affiche entre son équipe et les Gones.",
+    "summary_short": "Ce mercredi soir, au Groupama Stadium, Pierre Sage, l'entraîneur de Crystal Palace qui s'était révélé à l'OL, s'est présenté en conférence de presse avant l'affiche entre son équipe et les Gones.",
+    "content": "Ce mercredi soir, au Groupama Stadium, Pierre Sage, l'entraîneur de Crystal Palace qui s'était révélé à l'OL, s'est présenté en conférence de presse avant l'affiche entre son équipe et les Gones.",
+    "paragraphs": [
+      "Ce mercredi soir, au Groupama Stadium, Pierre Sage, l'entraîneur de Crystal Palace qui s'était révélé à l'OL, s'est présenté en conférence de presse avant l'affiche entre son équipe et les Gones."
+    ],
+    "key_points": [
+      "Ce mercredi soir, au Groupama Stadium, Pierre Sage, l'entraîneur de Crystal Palace qui s'était révélé à l'OL, s'est présenté en conférence de presse avant l'affiche entre son équipe et les Gones."
+    ],
+    "telegram_summary": "Ce mercredi soir, au Groupama Stadium, Pierre Sage, l'entraîneur de Crystal Palace qui s'était révélé à l'OL, s'est présenté en conférence de presse avant l'affiche entre son équipe et les Gones.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-crystal-palace-vous-m-avez-manque-le-debut-de-saison-de-l-ol-tacle-a-l-asse-pierre-sage-en-grande-forme-pour-son-retour-a-lyon-video-542203.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-crystal-palace-vous-m-avez-manque-le-debut-de-saison-de-l-ol-tacle-a-l-asse-pierre-sage-en-grande-forme-pour-son-retour-a-lyon-video-542203.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a5d9bf0a9f7495ae",
+    "published": "2026-10-14T16:07:00+00:00",
+    "image": "assets/images/footnews/a5d9bf0a9f7495ae.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260308180343-3593.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Déclarations",
+    "category_emoji": "🗣️",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "2e780d5bd9c48f01",
+    "title": "Mercato : Getafe veut encore faire plusieurs gros coups médiatiques à 0 € après Carvajal !",
+    "summary": "Après avoir recruté Dani Carvajal, Getafe travaille désormais sur les dossiers Sergio Ramos, Dani Parejo et Jadon Sancho. Mais pourquoi les Azulones sont-ils aussi actifs sur le marché des joueurs (…)",
+    "summary_short": "Après avoir recruté Dani Carvajal, Getafe travaille désormais sur les dossiers Sergio Ramos, Dani Parejo et Jadon Sancho. Mais pourquoi les Azulones sont-ils aussi actifs sur le marché des joueurs (…)",
+    "content": "Après avoir recruté Dani Carvajal, Getafe travaille désormais sur les dossiers Sergio Ramos, Dani Parejo et Jadon Sancho. Mais pourquoi les Azulones sont-ils aussi actifs sur le marché des joueurs (…)",
+    "paragraphs": [
+      "Après avoir recruté Dani Carvajal, Getafe travaille désormais sur les dossiers Sergio Ramos, Dani Parejo et Jadon Sancho. Mais pourquoi les Azulones sont-ils aussi actifs sur le marché des joueurs (…)"
+    ],
+    "key_points": [
+      "Après avoir recruté Dani Carvajal, Getafe travaille désormais sur les dossiers Sergio Ramos, Dani Parejo et Jadon Sancho.",
+      "Mais pourquoi les Azulones sont-ils aussi actifs sur le marché des joueurs (…)"
+    ],
+    "telegram_summary": "Après avoir recruté Dani Carvajal, Getafe travaille désormais sur les dossiers Sergio Ramos, Dani Parejo et Jadon Sancho. Mais pourquoi les Azulones sont-ils aussi actifs sur le marché des joueurs (…)",
+    "link": "https://www.footmercato.net/a9032936690772868688-mercato-getafe-veut-faire-plusieurs-gros-coups-mediatiques-a-0-eur",
+    "source_url": "https://www.footmercato.net/a9032936690772868688-mercato-getafe-veut-faire-plusieurs-gros-coups-mediatiques-a-0-eur",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2e780d5bd9c48f01",
+    "published": "2026-10-14T16:01:17+00:00",
+    "image": "assets/images/footnews/2e780d5bd9c48f01.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/jadon-sancho-2526-6a574d8624d06.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "5f944e0bd07e0c89",
+    "title": "LASK - Liverpool : les compositions officielles",
+    "summary": "Ce mercredi, on poursuit la deuxième journée de Ligue des Champions avec un duel entre le Linser ASK et Liverpool. À domicile, les Autrichiens s’articulent dans un 3-5-2 avec Lukas Jungwirth dans les (…)",
+    "summary_short": "Ce mercredi, on poursuit la deuxième journée de Ligue des Champions avec un duel entre le Linser ASK et Liverpool. À domicile, les Autrichiens s’articulent dans un 3-5-2 avec Lukas Jungwirth dans les (…)",
+    "content": "Ce mercredi, on poursuit la deuxième journée de Ligue des Champions avec un duel entre le Linser ASK et Liverpool. À domicile, les Autrichiens s’articulent dans un 3-5-2 avec Lukas Jungwirth dans les (…)",
+    "paragraphs": [
+      "Ce mercredi, on poursuit la deuxième journée de Ligue des Champions avec un duel entre le Linser ASK et Liverpool. À domicile, les Autrichiens s’articulent dans un 3-5-2 avec Lukas Jungwirth dans les (…)"
+    ],
+    "key_points": [
+      "Ce mercredi, on poursuit la deuxième journée de Ligue des Champions avec un duel entre le Linser ASK et Liverpool.",
+      "À domicile, les Autrichiens s’articulent dans un 3-5-2 avec Lukas Jungwirth dans les (…)"
+    ],
+    "telegram_summary": "Ce mercredi, on poursuit la deuxième journée de Ligue des Champions avec un duel entre le Linser ASK et Liverpool. À domicile, les Autrichiens s’articulent dans un 3-5-2 avec Lukas Jungwirth dans les (…)",
+    "link": "https://www.footmercato.net/a7234466533940851047-lask-liverpool-les-compositions-officielles",
+    "source_url": "https://www.footmercato.net/a7234466533940851047-lask-liverpool-les-compositions-officielles",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5f944e0bd07e0c89",
+    "published": "2026-10-14T15:33:04+00:00",
+    "image": "assets/images/footnews/5f944e0bd07e0c89.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/florian-wirtz-2627-3.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "0d4bca648c497678",
+    "title": "MU : Rio Ferdinand réagit au coup de gueule de Lisandro Martínez",
+    "summary": "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre.",
+    "summary_short": "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre.",
+    "content": "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre. Alors que (…)",
+    "paragraphs": [
+      "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre. Alors que (…)"
+    ],
+    "key_points": [
+      "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre."
+    ],
+    "telegram_summary": "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre.",
+    "link": "https://www.footmercato.net/a1568966832177411946-mu-rio-ferdinand-reagit-au-coup-de-gueule-de-lisandro-martinez",
+    "source_url": "https://www.footmercato.net/a1568966832177411946-mu-rio-ferdinand-reagit-au-coup-de-gueule-de-lisandro-martinez",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0d4bca648c497678",
+    "published": "2026-10-14T15:06:36+00:00",
+    "image": "assets/images/footnews/0d4bca648c497678.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/ferdinand01.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50183001",
+      "url": "https://www.espn.com/soccer/story/_/id/50183001/man-united-lisandro-martinez-comments-atletico-madrid",
+      "published": "2026-10-14T17:55:30Z",
+      "score": 0.2,
+      "matched_terms": [
+        "lisandro",
+        "martinez"
+      ],
+      "topics": [
+        "news"
+      ],
+      "teams": [
+        "Argentina",
+        "Manchester United"
+      ],
+      "athletes": [
+        "Lisandro Martínez"
+      ],
+      "leagues": [
+        "English Premier League",
+        "Soccer",
+        "UEFA Champions League"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T18:01:28.161994+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
+    "slug": "e8820c054cc5705d",
+    "title": "Real Madrid : la polémique enfle autour de Bernardo Silva !",
+    "summary": "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu. Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)",
+    "summary_short": "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu. Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)",
+    "content": "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu. Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)",
+    "paragraphs": [
+      "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu. Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)"
+    ],
+    "key_points": [
+      "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu.",
+      "Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)"
+    ],
+    "telegram_summary": "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu. Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)",
+    "link": "https://www.footmercato.net/a909669307923873105-real-madrid-la-polemique-enfle-autour-de-bernardo-silva",
+    "source_url": "https://www.footmercato.net/a909669307923873105-real-madrid-la-polemique-enfle-autour-de-bernardo-silva",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e8820c054cc5705d",
+    "published": "2026-10-14T15:06:15+00:00",
+    "image": "assets/images/footnews/e8820c054cc5705d.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/espanyol-madridliga2627.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 4,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50150816",
+      "url": "https://www.espn.com/video/clip/_/id/50150816/real-madrid-vs-villarreal-game-highlights",
+      "published": "2026-10-10T21:06:47Z",
+      "score": 0.2,
+      "matched_terms": [
+        "madrid",
+        "real"
+      ],
+      "topics": [],
+      "teams": [
+        "Real Madrid",
+        "Villarreal"
+      ],
+      "athletes": [
+        "Alberto Moleiro",
+        "Vinícius Júnior",
+        "Yan Diomande"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T18:01:28.161994+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
+    "slug": "12b09434c29d130f",
+    "title": "Manchester City - PSG : le jour où Cherki à dit non avec classe à Al-Khelaïfi",
+    "summary": "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi.",
+    "summary_short": "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi.",
+    "content": "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi.",
+    "paragraphs": [
+      "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi."
+    ],
+    "key_points": [
+      "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi."
+    ],
+    "telegram_summary": "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-le-jour-ou-cherki-a-dit-non-avec-classe-a-al-khelaifi-1002571",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-le-jour-ou-cherki-a-dit-non-avec-classe-a-al-khelaifi-1002571",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=12b09434c29d130f",
+    "published": "2026-10-14T15:02:00+00:00",
+    "image": "assets/images/footnews/12b09434c29d130f.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002571/409396/1200-L-manchester-city-psg-le-jour-o-cherki-dit-non-avec-classe-al-khelafi.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 4,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50159375",
+      "url": "https://www.espn.com/video/clip/_/id/50159375/no-sympathy-manchester-city-players",
+      "published": "2026-10-11T18:25:12Z",
+      "score": 0.2,
+      "matched_terms": [
+        "city",
+        "manchester"
+      ],
+      "topics": [],
+      "teams": [
+        "Liverpool",
+        "Manchester City"
+      ],
+      "athletes": [],
+      "leagues": [
+        "English Premier League",
+        "Soccer"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T18:01:28.161994+00:00"
+    },
+    "quality_sources": [
+      "Onze Mondial",
+      "ESPN"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "14c339818616e8eb",
+    "title": "LOSC : Ayase Ueda s'est blessé face à Arsenal !",
+    "summary": "Titulaire face à Arsenal mardi soir, mais remplacé à la 78ème minute par Olivier Giroud, Ayase Ueda souffrait du talon gauche et boitait encore au moment de regagner le car après la rencontre.",
+    "summary_short": "Titulaire face à Arsenal mardi soir, mais remplacé à la 78ème minute par Olivier Giroud, Ayase Ueda souffrait du talon gauche et boitait encore au moment de regagner le car après la rencontre.",
+    "content": "Titulaire face à Arsenal mardi soir, mais remplacé à la 78ème minute par Olivier Giroud, Ayase Ueda souffrait du talon gauche et boitait encore au moment de regagner le car après la rencontre.",
+    "paragraphs": [
+      "Titulaire face à Arsenal mardi soir, mais remplacé à la 78ème minute par Olivier Giroud, Ayase Ueda souffrait du talon gauche et boitait encore au moment de regagner le car après la rencontre."
+    ],
+    "key_points": [
+      "Titulaire face à Arsenal mardi soir, mais remplacé à la 78ème minute par Olivier Giroud, Ayase Ueda souffrait du talon gauche et boitait encore au moment de regagner le car après la rencontre."
+    ],
+    "telegram_summary": "Titulaire face à Arsenal mardi soir, mais remplacé à la 78ème minute par Olivier Giroud, Ayase Ueda souffrait du talon gauche et boitait encore au moment de regagner le car après la rencontre.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-losc-ayase-ueda-s-est-blesse-face-a-arsenal-542191.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-losc-ayase-ueda-s-est-blesse-face-a-arsenal-542191.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=14c339818616e8eb",
+    "published": "2026-10-14T14:25:00+00:00",
+    "image": "assets/images/footnews/14c339818616e8eb.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260913160525-3853.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Blessures",
+    "category_emoji": "🚑",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "20e9a49e83dc0c2a",
+    "title": "\"Ils ont mérité tous les trophées qu'ils ont gagnés\" : Luis Enrique apporte son soutien à Manchester City, reconnu coupable de 114 infractions financières",
+    "summary": "En conférence de presse, mardi, à la veille du choc entre son PSG et le club anglais en Ligue des champions, l'entraîneur parisien a confié qu'il espérait que \"tout finisse bien\" pour les Cityzens.",
+    "summary_short": "En conférence de presse, mardi, à la veille du choc entre son PSG et le club anglais en Ligue des champions, l'entraîneur parisien a confié qu'il espérait que \"tout finisse bien\" pour les Cityzens.",
+    "content": "En conférence de presse, mardi, à la veille du choc entre son PSG et le club anglais en Ligue des champions, l'entraîneur parisien a confié qu'il espérait que \"tout finisse bien\" pour les Cityzens.",
+    "paragraphs": [
+      "En conférence de presse, mardi, à la veille du choc entre son PSG et le club anglais en Ligue des champions, l'entraîneur parisien a confié qu'il espérait que \"tout finisse bien\" pour les Cityzens."
+    ],
+    "key_points": [
+      "En conférence de presse, mardi, à la veille du choc entre son PSG et le club anglais en Ligue des champions, l'entraîneur parisien a confié qu'il espérait que \"tout finisse bien\" pour les Cityzens."
+    ],
+    "telegram_summary": "En conférence de presse, mardi, à la veille du choc entre son PSG et le club anglais en Ligue des champions, l'entraîneur parisien a confié qu'il espérait que \"tout finisse bien\" pour les Cityzens.",
+    "link": "https://www.franceinfo.fr/sports/foot/psg/ils-ont-merite-tous-les-trophees-qu-ils-ont-gagnes-luis-enrique-apporte-son-soutien-a-manchester-city-reconnu-coupable-de-114-infractions-financieres_8235874.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_url": "https://www.franceinfo.fr/sports/foot/psg/ils-ont-merite-tous-les-trophees-qu-ils-ont-gagnes-luis-enrique-apporte-son-soutien-a-manchester-city-reconnu-coupable-de-114-infractions-financieres_8235874.html#xtor=RSS-3-%5Bgeneral%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=20e9a49e83dc0c2a",
+    "published": "2026-10-13T17:00:22+00:00",
+    "image": "assets/images/footnews/20e9a49e83dc0c2a.webp",
+    "source_image": "https://www.franceinfo.fr/pictures/8LyQg-aoI4tVTP0jHdyG4Ll9Veo/0x0:1024x576/432x243/filters:format(jpg)/2026/10/13/6ace579c0f3d5050782999.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Déclarations",
+    "category_emoji": "🗣️",
+    "editorial_score": 5,
+    "espn_verification": {},
+    "quality_sources": [
+      "Franceinfo"
+    ],
+    "quality_score": 82
+  },
+  {
+    "slug": "89f0efd71ac92eba",
+    "title": "Ligue des champions : Lille tente l'ascension de la montagne Arsenal",
+    "summary": "Les Lillois s’apprêtent à défier l’un des poids lourds de la Ligue des champions. Ils feront face à Arsenal mardi, finaliste sortant et référence de la Premier League. Mais entre l’envergure de l’adversaire et un projet de jeu encore en rodage, le Losc semble loin d’avoir les armes pour créer l’exploit.",
+    "summary_short": "Les Lillois s’apprêtent à défier l’un des poids lourds de la Ligue des champions. Ils feront face à Arsenal mardi, finaliste sortant et référence de la Premier League. Mais entre l’envergure de l’adversaire et un projet de jeu encore en rodage, le Losc semble loin d’avoir les armes pour créer l’exploit.",
+    "content": "Les Lillois s’apprêtent à défier l’un des poids lourds de la Ligue des champions. Ils feront face à Arsenal mardi, finaliste sortant et référence de la Premier League. Mais entre l’envergure de l’adversaire et un projet de jeu encore en rodage, le Losc semble loin d’avoir les armes pour créer l’exploit.",
+    "paragraphs": [
+      "Les Lillois s’apprêtent à défier l’un des poids lourds de la Ligue des champions. Ils feront face à Arsenal mardi, finaliste sortant et référence de la Premier League. Mais entre l’envergure de l’adversaire et un projet de jeu encore en rodage, le Losc semble loin d’avoir les armes pour créer l’exploit."
+    ],
+    "key_points": [
+      "Les Lillois s’apprêtent à défier l’un des poids lourds de la Ligue des champions.",
+      "Ils feront face à Arsenal mardi, finaliste sortant et référence de la Premier League.",
+      "Mais entre l’envergure de l’adversaire et un projet de jeu encore en rodage, le Losc semble loin d’avoir les armes pour créer l’exploit."
+    ],
+    "telegram_summary": "Les Lillois s’apprêtent à défier l’un des poids lourds de la Ligue des champions. Ils feront face à Arsenal mardi, finaliste sortant et référence de la Premier League. Mais entre l’envergure de l’adversaire et un projet de jeu encore en rodage, le Losc semble loin d’avoir les armes pour créer l’exploit.",
+    "link": "https://www.france24.com/fr/sports/20261013-ligue-champions-arsenal-lille-olivier-giroud-emirates",
+    "source_url": "https://www.france24.com/fr/sports/20261013-ligue-champions-arsenal-lille-olivier-giroud-emirates",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=89f0efd71ac92eba",
+    "published": "2026-10-13T07:14:36+00:00",
+    "image": "assets/images/footnews/89f0efd71ac92eba.webp",
+    "source_image": "https://s.france24.com/media/display/360d1252-c63f-11f1-9004-53993c5f1f18/w:1024/p:16x9/000-D2V849J.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "France 24",
+    "source_priority": 83,
+    "source_region": "international",
+    "source_feed": "https://www.france24.com/fr/tag/football/rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "France 24"
+    ],
+    "quality_score": 83
+  },
+  {
+    "slug": "205fb1b0d2fc1fe0",
+    "title": "Marseille s'impose difficilement à Troyes et sort de la zone de relégation",
+    "summary": "C'était la victoire ou la crise pour l'OM, ce dimanche à Troyes. Relégables au coup d’envoi, les Phocéens devaient absolument s'imposer en clôture de la sixième journée de Ligue 1.",
+    "summary_short": "C'était la victoire ou la crise pour l'OM, ce dimanche à Troyes. Relégables au coup d’envoi, les Phocéens devaient absolument s'imposer en clôture de la sixième journée de Ligue 1.",
+    "content": "C'était la victoire ou la crise pour l'OM, ce dimanche à Troyes. Relégables au coup d’envoi, les Phocéens devaient absolument s'imposer en clôture de la sixième journée de Ligue 1. C'est chose faite, grâce à des buts du Marocain Amine Harit et de l'Algérien Himad Abdelli.",
+    "paragraphs": [
+      "C'était la victoire ou la crise pour l'OM, ce dimanche à Troyes. Relégables au coup d’envoi, les Phocéens devaient absolument s'imposer en clôture de la sixième journée de Ligue 1. C'est chose faite, grâce à des buts du Marocain Amine Harit et de l'Algérien Himad Abdelli."
+    ],
+    "key_points": [
+      "C'était la victoire ou la crise pour l'OM, ce dimanche à Troyes.",
+      "Relégables au coup d’envoi, les Phocéens devaient absolument s'imposer en clôture de la sixième journée de Ligue 1.",
+      "C'est chose faite, grâce à des buts du Marocain Amine Harit et de l'Algérien Himad Abdelli."
+    ],
+    "telegram_summary": "C'était la victoire ou la crise pour l'OM, ce dimanche à Troyes. Relégables au coup d’envoi, les Phocéens devaient absolument s'imposer en clôture de la sixième journée de Ligue 1.",
+    "link": "https://www.france24.com/fr/%C3%A9missions/sports/20261012-marseille-impose-difficilement-troyes-sort-zone-rel%C3%A9gation-om-ligue-1",
+    "source_url": "https://www.france24.com/fr/%C3%A9missions/sports/20261012-marseille-impose-difficilement-troyes-sort-zone-rel%C3%A9gation-om-ligue-1",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=205fb1b0d2fc1fe0",
+    "published": "2026-10-12T06:00:30+00:00",
+    "image": "assets/images/footnews/205fb1b0d2fc1fe0.webp",
+    "source_image": "https://s.france24.com/media/display/95a5d8aa-c5ce-11f1-8179-77317c09f325/w:1024/p:16x9/000-D2XG866.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "France 24",
+    "source_priority": 83,
+    "source_region": "international",
+    "source_feed": "https://www.france24.com/fr/tag/football/rss",
+    "category": "Afrique",
+    "category_emoji": "🌍",
+    "editorial_score": 5,
+    "espn_verification": {},
+    "quality_sources": [
+      "France 24"
+    ],
+    "quality_score": 83
+  },
+  {
+    "slug": "e323e61c40edc59f",
+    "title": "Premier League: après une heure serrée, Manchester City fait exploser Liverpool et garde la tête",
+    "summary": "Manchester City a été patient et a su laisser passer l'orage avant de faire craquer Liverpool à Anfield, dimanche 11 octobre. Erling Haaland a ouvert le score puis Rayan Cherki a conclu le feu d'artifice pour une victoire 3-0 et une première place confortée en championnat.",
+    "summary_short": "Manchester City a été patient et a su laisser passer l'orage avant de faire craquer Liverpool à Anfield, dimanche 11 octobre. Erling Haaland a ouvert le score puis Rayan Cherki a conclu le feu d'artifice pour une victoire 3-0 et une première place confortée en championnat.",
+    "content": "Manchester City a été patient et a su laisser passer l'orage avant de faire craquer Liverpool à Anfield, dimanche 11 octobre. Erling Haaland a ouvert le score puis Rayan Cherki a conclu le feu d'artifice pour une victoire 3-0 et une première place confortée en championnat.",
+    "paragraphs": [
+      "Manchester City a été patient et a su laisser passer l'orage avant de faire craquer Liverpool à Anfield, dimanche 11 octobre. Erling Haaland a ouvert le score puis Rayan Cherki a conclu le feu d'artifice pour une victoire 3-0 et une première place confortée en championnat."
+    ],
+    "key_points": [
+      "Manchester City a été patient et a su laisser passer l'orage avant de faire craquer Liverpool à Anfield, dimanche 11 octobre.",
+      "Erling Haaland a ouvert le score puis Rayan Cherki a conclu le feu d'artifice pour une victoire 3-0 et une première place confortée en championnat."
+    ],
+    "telegram_summary": "Manchester City a été patient et a su laisser passer l'orage avant de faire craquer Liverpool à Anfield, dimanche 11 octobre. Erling Haaland a ouvert le score puis Rayan Cherki a conclu le feu d'artifice pour une victoire 3-0 et une première place confortée en championnat.",
+    "link": "https://www.rfi.fr/fr/sports/20261011-premier-league-apr%C3%A8s-une-heure-serr%C3%A9e-manchester-city-fait-exploser-liverpool-et-garde-la-t%C3%AAte",
+    "source_url": "https://www.rfi.fr/fr/sports/20261011-premier-league-apr%C3%A8s-une-heure-serr%C3%A9e-manchester-city-fait-exploser-liverpool-et-garde-la-t%C3%AAte",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e323e61c40edc59f",
+    "published": "2026-10-11T17:25:27+00:00",
+    "image": "assets/images/footnews/e323e61c40edc59f.webp",
+    "source_image": "https://s.rfi.fr/media/display/bf2ff1ce-c597-11f1-b2f5-53993c5f1f18/w:1024/p:16x9/AP26284613039223.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "RFI",
+    "source_priority": 86,
+    "source_region": "afrique",
+    "source_feed": "https://www.rfi.fr/fr/tag/football/rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "RFI"
+    ],
+    "quality_score": 86
+  },
+  {
+    "slug": "e09e98339d47b935",
+    "title": "Liga: Diomandé marque son premier but pour le Real Madrid face à Villarreal",
+    "summary": "L'attaquant ivoirien Yan Diomandé, recrue phare du mercato estival, a offert un succès salvateur au Real Madrid contre Villarreal (1-0) en Liga samedi 10 octobre, au terme d'un match houleux marqué par l'expulsion rocambolesque de Vinicius Júnior.",
+    "summary_short": "L'attaquant ivoirien Yan Diomandé, recrue phare du mercato estival, a offert un succès salvateur au Real Madrid contre Villarreal (1-0) en Liga samedi 10 octobre, au terme d'un match houleux marqué par l'expulsion rocambolesque de Vinicius Júnior.",
+    "content": "L'attaquant ivoirien Yan Diomandé, recrue phare du mercato estival, a offert un succès salvateur au Real Madrid contre Villarreal (1-0) en Liga samedi 10 octobre, au terme d'un match houleux marqué par l'expulsion rocambolesque de Vinicius Júnior. L'ailier de 19 ans, auteur de son premier but sous le maillot merengue, a libéré le stade Santiago Bernabéu d'un tir croisé du droit (62e, 1-0), avant que la soirée ne bascule dans l'irrationnel lorsque l'attaquant brésilien, qui croyait avoir doublé la mise, a finalement été exclu pour avoir tiré les cheveux d'un adversaire au départ de l'action (71e). Cette victoire acquise dans le chaos, entre sifflets et protestations envers l'arbitrage, permet toutefois au Real (3e, 18 points) de rester à six longueurs de son éternel rival, le FC Barcelone (1er, 24 points), vainqueur plus tôt contre Getafe (3-0).",
+    "paragraphs": [
+      "L'attaquant ivoirien Yan Diomandé, recrue phare du mercato estival, a offert un succès salvateur au Real Madrid contre Villarreal (1-0) en Liga samedi 10 octobre, au terme d'un match houleux marqué par l'expulsion rocambolesque de Vinicius Júnior. L'ailier de 19 ans, auteur de son premier but sous le maillot merengue, a libéré le stade Santiago Bernabéu d'un tir croisé du droit (62e, 1-0), avant que la soirée ne bascule dans l'irrationnel lorsque l'attaquant brésilien, qui croyait avoir doublé la mise, a finalement été exclu pour avoir tiré les cheveux d'un adversaire au départ de l'action (71e).",
+      "Cette victoire acquise dans le chaos, entre sifflets et protestations envers l'arbitrage, permet toutefois au Real (3e, 18 points) de rester à six longueurs de son éternel rival, le FC Barcelone (1er, 24 points), vainqueur plus tôt contre Getafe (3-0)."
+    ],
+    "key_points": [
+      "L'attaquant ivoirien Yan Diomandé, recrue phare du mercato estival, a offert un succès salvateur au Real Madrid contre Villarreal (1-0) en Liga samedi 10 octobre, au terme d'un match houleux marqué par l'expulsion rocambolesque de Vinicius Júnior.",
+      "L'ailier de 19 ans, auteur de son premier but sous le maillot merengue, a libéré le stade Santiago Bernabéu d'un tir croisé du droit (62e, 1-0), avant que la soirée ne bascule dans l'irrationnel lorsque l'attaquant brésilien, qui croyait avoir doublé la mise,",
+      "Cette victoire acquise dans le chaos, entre sifflets et protestations envers l'arbitrage, permet toutefois au Real (3e, 18 points) de rester à six longueurs de son éternel rival, le FC Barcelone (1er, 24 points), vainqueur plus tôt contre Getafe (3-0)."
+    ],
+    "telegram_summary": "L'attaquant ivoirien Yan Diomandé, recrue phare du mercato estival, a offert un succès salvateur au Real Madrid contre Villarreal (1-0) en Liga samedi 10 octobre, au terme d'un match houleux marqué par l'expulsion rocambolesque de Vinicius Júnior.",
+    "link": "https://www.rfi.fr/fr/afrique-foot/20261010-football-diomand%C3%A9-marque-son-premier-but-pour-le-real-madrid-face-%C3%A0-villarreal",
+    "source_url": "https://www.rfi.fr/fr/afrique-foot/20261010-football-diomand%C3%A9-marque-son-premier-but-pour-le-real-madrid-face-%C3%A0-villarreal",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e09e98339d47b935",
+    "published": "2026-10-10T21:10:52+00:00",
+    "image": "assets/images/footnews/e09e98339d47b935.webp",
+    "source_image": "https://s.rfi.fr/media/display/075740d2-c4ef-11f1-a2d0-e362370cce2e/w:1024/p:16x9/000-D2VL7HL.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "RFI Afrique Foot",
+    "source_priority": 90,
+    "source_region": "afrique",
+    "source_feed": "https://www.rfi.fr/fr/afrique-foot/rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 5,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50150816",
+      "url": "https://www.espn.com/video/clip/_/id/50150816/real-madrid-vs-villarreal-game-highlights",
+      "published": "2026-10-10T21:06:47Z",
+      "score": 0.3,
+      "matched_terms": [
+        "madrid",
+        "real",
+        "villarreal"
+      ],
+      "topics": [],
+      "teams": [
+        "Real Madrid",
+        "Villarreal"
+      ],
+      "athletes": [
+        "Alberto Moleiro",
+        "Vinícius Júnior",
+        "Yan Diomande"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T18:01:28.161994+00:00"
+    },
+    "quality_sources": [
+      "RFI Afrique Foot",
+      "ESPN"
+    ],
+    "quality_score": 98
+  },
+  {
+    "slug": "466eb279577c3be4",
+    "title": "Monaco garde les commandes de la Ligue 1 malgré son match nul face à Toulouse et la pression de Lille",
+    "summary": "Malgré deux buts d'avance, les Monégasques ont été rejoints au score par les Toulousains au stade Louis II, samedi soir.",
+    "summary_short": "Malgré deux buts d'avance, les Monégasques ont été rejoints au score par les Toulousains au stade Louis II, samedi soir.",
+    "content": "Malgré deux buts d'avance, les Monégasques ont été rejoints au score par les Toulousains au stade Louis II, samedi soir.",
+    "paragraphs": [
+      "Malgré deux buts d'avance, les Monégasques ont été rejoints au score par les Toulousains au stade Louis II, samedi soir."
+    ],
+    "key_points": [
+      "Malgré deux buts d'avance, les Monégasques ont été rejoints au score par les Toulousains au stade Louis II, samedi soir."
+    ],
+    "telegram_summary": "Malgré deux buts d'avance, les Monégasques ont été rejoints au score par les Toulousains au stade Louis II, samedi soir.",
+    "link": "https://www.franceinfo.fr/sports/foot/ligue-1/monaco-garde-les-commandes-de-la-ligue-1-malgre-son-match-nul-face-a-toulouse-et-la-pression-de-lille_8231962.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_url": "https://www.franceinfo.fr/sports/foot/ligue-1/monaco-garde-les-commandes-de-la-ligue-1-malgre-son-match-nul-face-a-toulouse-et-la-pression-de-lille_8231962.html#xtor=RSS-3-%5Bgeneral%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=466eb279577c3be4",
+    "published": "2026-10-10T20:50:34+00:00",
+    "image": "assets/images/footnews/466eb279577c3be4.webp",
+    "source_image": "https://www.franceinfo.fr/pictures/he072InJfG6KqNBipN2I3aVGXbI/0x0:5429x3053/432x243/filters:format(jpg)/2026/10/10/6acaa12645288255039629.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Franceinfo"
+    ],
+    "quality_score": 82
+  },
+  {
+    "slug": "406ffc459e57b09e",
+    "title": "La Fédération portugaise de football ouvre une procédure disciplinaire contre Ronaldo",
+    "summary": "Une procédure disciplinaire a été ouverte contre Cristiano Ronaldo après son départ d'un rassemblement de l'équipe nationale le 30 septembre, a annoncé samedi la Fédération portugaise de football.",
+    "summary_short": "Une procédure disciplinaire a été ouverte contre Cristiano Ronaldo après son départ d'un rassemblement de l'équipe nationale le 30 septembre, a annoncé samedi la Fédération portugaise de football.",
+    "content": "Une procédure disciplinaire a été ouverte contre Cristiano Ronaldo après son départ d'un rassemblement de l'équipe nationale le 30 septembre, a annoncé samedi la Fédération portugaise de football. D'après les médias portugais, selon le règlement, un joueur ayant manqué un entraînement, un match ou une activité de la sélection risque une suspension de un à six mois.",
+    "paragraphs": [
+      "Une procédure disciplinaire a été ouverte contre Cristiano Ronaldo après son départ d'un rassemblement de l'équipe nationale le 30 septembre, a annoncé samedi la Fédération portugaise de football. D'après les médias portugais, selon le règlement, un joueur ayant manqué un entraînement, un match ou une activité de la sélection risque une suspension de un à six mois."
+    ],
+    "key_points": [
+      "Une procédure disciplinaire a été ouverte contre Cristiano Ronaldo après son départ d'un rassemblement de l'équipe nationale le 30 septembre, a annoncé samedi la Fédération portugaise de football.",
+      "D'après les médias portugais, selon le règlement, un joueur ayant manqué un entraînement, un match ou une activité de la sélection risque une suspension de un à six mois."
+    ],
+    "telegram_summary": "Une procédure disciplinaire a été ouverte contre Cristiano Ronaldo après son départ d'un rassemblement de l'équipe nationale le 30 septembre, a annoncé samedi la Fédération portugaise de football.",
+    "link": "https://www.france24.com/fr/sports/20261010-f%C3%A9d%C3%A9ration-portugaise-football-ouvre-proc%C3%A9dure-disciplinaire-contre-ronaldo",
+    "source_url": "https://www.france24.com/fr/sports/20261010-f%C3%A9d%C3%A9ration-portugaise-football-ouvre-proc%C3%A9dure-disciplinaire-contre-ronaldo",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=406ffc459e57b09e",
+    "published": "2026-10-10T14:31:57+00:00",
+    "image": "assets/images/footnews/406ffc459e57b09e.webp",
+    "source_image": "https://s.france24.com/media/display/a852fd72-c4af-11f1-9559-29a2e29ae696/w:1024/p:16x9/AP26272841554245.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "France 24",
+    "source_priority": 83,
+    "source_region": "international",
+    "source_feed": "https://www.france24.com/fr/tag/football/rss",
+    "category": "Officiel",
+    "category_emoji": "✅",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "France 24"
+    ],
+    "quality_score": 83
+  },
+  {
+    "slug": "c3d8a866d0205a41",
+    "title": "Football: Cristiano Ronaldo suspendu et visé par une procédure disciplinaire de la Fédération portugaise",
+    "summary": "Une procédure disciplinaire a été ouverte contre la superstar portugaise Cristiano Ronaldo, qui a quitté un rassemblement de l'équipe nationale après un conflit avec son sélectionneur le 30 septembre, a annoncé la Fédération portugaise de foot samedi 10 octobre.",
+    "summary_short": "Une procédure disciplinaire a été ouverte contre la superstar portugaise Cristiano Ronaldo, qui a quitté un rassemblement de l'équipe nationale après un conflit avec son sélectionneur le 30 septembre, a annoncé la Fédération portugaise de foot samedi 10 octobre.",
+    "content": "Une procédure disciplinaire a été ouverte contre la superstar portugaise Cristiano Ronaldo, qui a quitté un rassemblement de l'équipe nationale après un conflit avec son sélectionneur le 30 septembre, a annoncé la Fédération portugaise de foot samedi 10 octobre. L'attaquant est « suspendu provisoirement ».",
+    "paragraphs": [
+      "Une procédure disciplinaire a été ouverte contre la superstar portugaise Cristiano Ronaldo, qui a quitté un rassemblement de l'équipe nationale après un conflit avec son sélectionneur le 30 septembre, a annoncé la Fédération portugaise de foot samedi 10 octobre. L'attaquant est « suspendu provisoirement »."
+    ],
+    "key_points": [
+      "Une procédure disciplinaire a été ouverte contre la superstar portugaise Cristiano Ronaldo, qui a quitté un rassemblement de l'équipe nationale après un conflit avec son sélectionneur le 30 septembre, a annoncé la Fédération portugaise de foot samedi 10 octobr",
+      "L'attaquant est « suspendu provisoirement »."
+    ],
+    "telegram_summary": "Une procédure disciplinaire a été ouverte contre la superstar portugaise Cristiano Ronaldo, qui a quitté un rassemblement de l'équipe nationale après un conflit avec son sélectionneur le 30 septembre, a annoncé la Fédération portugaise de foot samedi 10 octobre.",
+    "link": "https://www.rfi.fr/fr/sports/20261010-football-cristiano-ronaldo-suspendu-et-vis%C3%A9-par-une-proc%C3%A9dure-disciplinaire-de-la-f%C3%A9d%C3%A9ration-portugaise",
+    "source_url": "https://www.rfi.fr/fr/sports/20261010-football-cristiano-ronaldo-suspendu-et-vis%C3%A9-par-une-proc%C3%A9dure-disciplinaire-de-la-f%C3%A9d%C3%A9ration-portugaise",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c3d8a866d0205a41",
+    "published": "2026-10-10T13:41:22+00:00",
+    "image": "assets/images/footnews/c3d8a866d0205a41.webp",
+    "source_image": "https://s.rfi.fr/media/display/2f2def96-c4b0-11f1-833b-3774aeac812a/w:1024/p:16x9/FOOTBALL-PORTUGAL-CRISTIANO-RONALDO.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "RFI",
+    "source_priority": 86,
+    "source_region": "afrique",
+    "source_feed": "https://www.rfi.fr/fr/tag/football/rss",
+    "category": "Officiel",
+    "category_emoji": "✅",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "RFI"
+    ],
+    "quality_score": 86
+  },
+  {
+    "slug": "848b3cb34c83a747",
+    "title": "Cristiano Ronaldo suspendu provisoirement par la Fédération portugaise de football après son départ en plein rassemblement",
+    "summary": "Le Conseil de discipline de la Fédération portugaise de football a ouvert une procédure disciplinaire contre Cristiano Ronaldo et a prononcé une suspension provisoire à son encontre.",
+    "summary_short": "Le Conseil de discipline de la Fédération portugaise de football a ouvert une procédure disciplinaire contre Cristiano Ronaldo et a prononcé une suspension provisoire à son encontre.",
+    "content": "Le Conseil de discipline de la Fédération portugaise de football a ouvert une procédure disciplinaire contre Cristiano Ronaldo et a prononcé une suspension provisoire à son encontre.",
+    "paragraphs": [
+      "Le Conseil de discipline de la Fédération portugaise de football a ouvert une procédure disciplinaire contre Cristiano Ronaldo et a prononcé une suspension provisoire à son encontre."
+    ],
+    "key_points": [
+      "Le Conseil de discipline de la Fédération portugaise de football a ouvert une procédure disciplinaire contre Cristiano Ronaldo et a prononcé une suspension provisoire à son encontre."
+    ],
+    "telegram_summary": "Le Conseil de discipline de la Fédération portugaise de football a ouvert une procédure disciplinaire contre Cristiano Ronaldo et a prononcé une suspension provisoire à son encontre.",
+    "link": "https://www.franceinfo.fr/sports/foot/cristiano-ronaldo/cristiano-ronaldo-suspendu-provisoirement-par-la-federation-portugaise-de-football-apres-avoir-claque-la-porte-de-la-selection_8231620.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_url": "https://www.franceinfo.fr/sports/foot/cristiano-ronaldo/cristiano-ronaldo-suspendu-provisoirement-par-la-federation-portugaise-de-football-apres-avoir-claque-la-porte-de-la-selection_8231620.html#xtor=RSS-3-%5Bgeneral%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=848b3cb34c83a747",
+    "published": "2026-10-10T13:00:25+00:00",
+    "image": "assets/images/footnews/848b3cb34c83a747.webp",
+    "source_image": "https://www.franceinfo.fr/pictures/ZqNJeET7b8BVd79DEDQesFcWKl4/0x0:4541x2554/432x243/filters:format(jpg)/2026/10/10/6aca3663710a6592300764.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Franceinfo"
+    ],
+    "quality_score": 82
+  },
+  {
+    "slug": "7628f643096931ac",
+    "title": "DIRECT. Manchester City-PSG : les Parisiens face à leur premier gros test de la saison... Suivez et commentez le match de Ligue des champions avec nous",
+    "summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "summary_short": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "content": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "paragraphs": [
+      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
+    ],
+    "key_points": [
+      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
+    ],
+    "telegram_summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
+    "published": "2026-10-14T17:58:36+00:00",
+    "image": "assets/images/footnews/7628f643096931ac.webp",
+    "source_image": "https://www.franceinfo.fr/pictures/BKUU7M0ahDdkOj3-O9bTAXxuKBc/0x0:1024x576/432x243/filters:format(jpg)/2026/10/14/6acf8fa0ad0a1270898331.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Franceinfo"
+    ],
+    "quality_score": 82
+  },
+  {
+    "slug": "afd05df6db56d47c",
+    "title": "AS Monaco : Un forfait de taille dans le groupe monégasque pour affronter le CSKA Sofia",
+    "summary": "Le groupe de l'AS Monaco pour le déplacement sur la pelouse du CSKA Sofia (J1 Ligue Europa), ce jeudi soir.",
+    "summary_short": "Le groupe de l'AS Monaco pour le déplacement sur la pelouse du CSKA Sofia (J1 Ligue Europa), ce jeudi soir.",
+    "content": "Le groupe de l'AS Monaco pour le déplacement sur la pelouse du CSKA Sofia (J1 Ligue Europa), ce jeudi soir.",
+    "paragraphs": [
+      "Le groupe de l'AS Monaco pour le déplacement sur la pelouse du CSKA Sofia (J1 Ligue Europa), ce jeudi soir."
+    ],
+    "key_points": [
+      "Le groupe de l'AS Monaco pour le déplacement sur la pelouse du CSKA Sofia (J1 Ligue Europa), ce jeudi soir."
+    ],
+    "telegram_summary": "Le groupe de l'AS Monaco pour le déplacement sur la pelouse du CSKA Sofia (J1 Ligue Europa), ce jeudi soir.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-as-monaco-un-forfait-de-taille-dans-le-groupe-monegasque-pour-affronter-le-cska-sofia-542222.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-as-monaco-un-forfait-de-taille-dans-le-groupe-monegasque-pour-affronter-le-cska-sofia-542222.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=afd05df6db56d47c",
+    "published": "2026-10-14T17:52:00+00:00",
+    "image": "assets/images/footnews/afd05df6db56d47c.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260726081945-4183.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Blessures",
+    "category_emoji": "🚑",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "d3e93b7766c5b6a6",
+    "title": "Manchester City-PSG : Luis Enrique surprend encore tout le monde, les compos officielles !",
+    "summary": "Découvrez les compositions officielles du choc de la soirée en Ligue des Champions entre Manchester City et le Paris Saint-Germain.",
+    "summary_short": "Découvrez les compositions officielles du choc de la soirée en Ligue des Champions entre Manchester City et le Paris Saint-Germain.",
+    "content": "Découvrez les compositions officielles du choc de la soirée en Ligue des Champions entre Manchester City et le Paris Saint-Germain.",
+    "paragraphs": [
+      "Découvrez les compositions officielles du choc de la soirée en Ligue des Champions entre Manchester City et le Paris Saint-Germain."
+    ],
+    "key_points": [
+      "Découvrez les compositions officielles du choc de la soirée en Ligue des Champions entre Manchester City et le Paris Saint-Germain."
+    ],
+    "telegram_summary": "Découvrez les compositions officielles du choc de la soirée en Ligue des Champions entre Manchester City et le Paris Saint-Germain.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-les-compos-officielles-1002582",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-les-compos-officielles-1002582",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d3e93b7766c5b6a6",
+    "published": "2026-10-14T17:50:00+00:00",
+    "image": "assets/images/footnews/d3e93b7766c5b6a6.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002582/409402/1200-L-manchester-city-psg-luis-enrique-surprend-encore-tout-le-monde-les-compos-officielles.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50176946",
+      "url": "https://www.espn.com/video/clip/_/id/50176946/manchester-city-deserve-their-trophies",
+      "published": "2026-10-13T21:19:27Z",
+      "score": 0.231,
+      "matched_terms": [
+        "city",
+        "enrique",
+        "manchester"
+      ],
+      "topics": [],
+      "teams": [
+        "Manchester City",
+        "Paris Saint-Germain"
+      ],
+      "athletes": [],
+      "leagues": [
+        "Soccer",
+        "UEFA Champions League"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T18:01:28.161994+00:00"
+    },
+    "quality_sources": [
+      "Onze Mondial",
+      "ESPN"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "3417ee7efe938ba9",
+    "title": "Manchester City : pourquoi le PSG ne risque rien malgré ses contrats avec le Qatar",
+    "summary": "Si les déboires de Manchester City font saliver les détracteurs du Paris Saint-Germain, le club de la capitale ne devrait pas connaître le même sort. Depuis son rachat par Qatar Sports Investments en (…)",
+    "summary_short": "Si les déboires de Manchester City font saliver les détracteurs du Paris Saint-Germain, le club de la capitale ne devrait pas connaître le même sort. Depuis son rachat par Qatar Sports Investments en (…)",
+    "content": "Si les déboires de Manchester City font saliver les détracteurs du Paris Saint-Germain, le club de la capitale ne devrait pas connaître le même sort. Depuis son rachat par Qatar Sports Investments en (…)",
+    "paragraphs": [
+      "Si les déboires de Manchester City font saliver les détracteurs du Paris Saint-Germain, le club de la capitale ne devrait pas connaître le même sort. Depuis son rachat par Qatar Sports Investments en (…)"
+    ],
+    "key_points": [
+      "Si les déboires de Manchester City font saliver les détracteurs du Paris Saint-Germain, le club de la capitale ne devrait pas connaître le même sort.",
+      "Depuis son rachat par Qatar Sports Investments en (…)"
+    ],
+    "telegram_summary": "Si les déboires de Manchester City font saliver les détracteurs du Paris Saint-Germain, le club de la capitale ne devrait pas connaître le même sort. Depuis son rachat par Qatar Sports Investments en (…)",
+    "link": "https://www.footmercato.net/a8980820714760841834-manchester-city-pourquoi-le-psg-ne-risque-rien-malgre-ses-contrats-avec-le-qatar",
+    "source_url": "https://www.footmercato.net/a8980820714760841834-manchester-city-pourquoi-le-psg-ne-risque-rien-malgre-ses-contrats-avec-le-qatar",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3417ee7efe938ba9",
+    "published": "2026-10-14T17:46:35+00:00",
+    "image": "assets/images/footnews/3417ee7efe938ba9.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/qatar-6a3d1807879c4.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "beb05250f71a66af",
+    "title": "LDC : Manchester City - PSG : les compos officielles",
+    "summary": "Les compositions officielles du choc entre Manchester City et le PSG (J2 LDC).",
+    "summary_short": "Les compositions officielles du choc entre Manchester City et le PSG (J2 LDC).",
+    "content": "Les compositions officielles du choc entre Manchester City et le PSG (J2 LDC).",
+    "paragraphs": [
+      "Les compositions officielles du choc entre Manchester City et le PSG (J2 LDC)."
+    ],
+    "key_points": [
+      "Les compositions officielles du choc entre Manchester City et le PSG (J2 LDC)."
+    ],
+    "telegram_summary": "Les compositions officielles du choc entre Manchester City et le PSG (J2 LDC).",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ldc-manchester-city-psg-les-compos-officielles-542221.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-manchester-city-psg-les-compos-officielles-542221.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=beb05250f71a66af",
+    "published": "2026-10-14T17:46:00+00:00",
+    "image": "assets/images/footnews/beb05250f71a66af.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260920221727-6397.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50159375",
+      "url": "https://www.espn.com/video/clip/_/id/50159375/no-sympathy-manchester-city-players",
+      "published": "2026-10-11T18:25:12Z",
+      "score": 0.25,
+      "matched_terms": [
+        "city",
+        "manchester"
+      ],
+      "topics": [],
+      "teams": [
+        "Liverpool",
+        "Manchester City"
+      ],
+      "athletes": [],
+      "leagues": [
+        "English Premier League",
+        "Soccer"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T18:01:28.161994+00:00"
+    },
+    "quality_sources": [
+      "MadeInFoot",
+      "ESPN"
+    ],
+    "quality_score": 96
+  },
+  {
+    "slug": "8aca7c75dfa6f582",
+    "title": "Real Madrid : grosse sanction confirmée pour Vinicius Jr !",
+    "summary": "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier. Il manquera le Clasico.Le verdict (…)",
+    "summary_short": "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier. Il manquera le Clasico.Le verdict (…)",
+    "content": "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier. Il manquera le Clasico.Le verdict (…)",
+    "paragraphs": [
+      "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier. Il manquera le Clasico.Le verdict (…)"
+    ],
+    "key_points": [
+      "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier.",
+      "Il manquera le Clasico.Le verdict (…)"
+    ],
+    "telegram_summary": "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier. Il manquera le Clasico.Le verdict (…)",
     "link": "https://www.footmercato.net/a6810085648355182293-real-madrid-grosse-sanction-confirmee-pour-vinicius-jr",
     "source_url": "https://www.footmercato.net/a6810085648355182293-real-madrid-grosse-sanction-confirmee-pour-vinicius-jr",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8aca7c75dfa6f582",
@@ -86,13 +1193,47 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T17:31:25.991085+00:00"
+      "checked_at": "2026-10-14T18:01:28.161994+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
       "ESPN"
     ],
     "quality_score": 100
+  },
+  {
+    "slug": "ef489de2614d18d3",
+    "title": "VIDEO - Liverpool : Barcola inscrit enfin son premier but avec les Reds en Ligue des champions",
+    "summary": "Bradley Barcola a enfin inscrit son premier but sous ses nouvelles couleurs depuis son départ du PSG.",
+    "summary_short": "Bradley Barcola a enfin inscrit son premier but sous ses nouvelles couleurs depuis son départ du PSG.",
+    "content": "Bradley Barcola a enfin inscrit son premier but sous ses nouvelles couleurs depuis son départ du PSG.",
+    "paragraphs": [
+      "Bradley Barcola a enfin inscrit son premier but sous ses nouvelles couleurs depuis son départ du PSG."
+    ],
+    "key_points": [
+      "Bradley Barcola a enfin inscrit son premier but sous ses nouvelles couleurs depuis son départ du PSG."
+    ],
+    "telegram_summary": "Bradley Barcola a enfin inscrit son premier but sous ses nouvelles couleurs depuis son départ du PSG.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/video-liverpool-barcola-inscrit-enfin-son-premier-but-avec-les-reds-en-ligue-des-champions-1002626",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/video-liverpool-barcola-inscrit-enfin-son-premier-but-avec-les-reds-en-ligue-des-champions-1002626",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ef489de2614d18d3",
+    "published": "2026-10-14T17:21:00+00:00",
+    "image": "assets/images/footnews/ef489de2614d18d3.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002626/409418/1200-L-video-liverpool-barcola-inscrit-enfin-son-premier-but-avec-les-reds-en-ligue-des-champions.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
   },
   {
     "slug": "b3feef1d6bdd102f",
@@ -153,42 +1294,7 @@
       "Foot Mercato",
       "ESPN"
     ],
-    "quality_score": 100
-  },
-  {
-    "slug": "80d1a1ac82988c59",
-    "title": "Maroc : un cadre de la dernière CAN prend sa retraite",
-    "summary": "C’est une page qui se tourne pour Adam Masina. À seulement 32 ans, l’ancien international marocain a décidé de mettre un terme à sa carrière de footballeur professionnel. Une annonce qui intervient (…)",
-    "summary_short": "C’est une page qui se tourne pour Adam Masina. À seulement 32 ans, l’ancien international marocain a décidé de mettre un terme à sa carrière de footballeur professionnel. Une annonce qui intervient (…)",
-    "content": "C’est une page qui se tourne pour Adam Masina. À seulement 32 ans, l’ancien international marocain a décidé de mettre un terme à sa carrière de footballeur professionnel. Une annonce qui intervient (…)",
-    "paragraphs": [
-      "C’est une page qui se tourne pour Adam Masina. À seulement 32 ans, l’ancien international marocain a décidé de mettre un terme à sa carrière de footballeur professionnel. Une annonce qui intervient (…)"
-    ],
-    "key_points": [
-      "C’est une page qui se tourne pour Adam Masina.",
-      "À seulement 32 ans, l’ancien international marocain a décidé de mettre un terme à sa carrière de footballeur professionnel."
-    ],
-    "telegram_summary": "C’est une page qui se tourne pour Adam Masina. À seulement 32 ans, l’ancien international marocain a décidé de mettre un terme à sa carrière de footballeur professionnel. Une annonce qui intervient (…)",
-    "link": "https://www.footmercato.net/a3619993213797145964-maroc-un-cadre-de-la-derniere-can-prend-sa-retraite",
-    "source_url": "https://www.footmercato.net/a3619993213797145964-maroc-un-cadre-de-la-derniere-can-prend-sa-retraite",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=80d1a1ac82988c59",
-    "published": "2026-10-14T17:12:07+00:00",
-    "image": "assets/images/footnews/80d1a1ac82988c59.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epaliveseven902307.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
+    "quality_score": 97
   },
   {
     "slug": "943a9475355208af",
@@ -278,7 +1384,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T17:31:25.991085+00:00"
+      "checked_at": "2026-10-14T18:01:28.161994+00:00"
     },
     "quality_sources": [
       "RFI",
@@ -594,40 +1700,6 @@
     "quality_score": 88
   },
   {
-    "slug": "a5d9bf0a9f7495ae",
-    "title": "Crystal Palace : \"Vous m'avez manqué !\", le début de saison de l'OL, tacle à l'ASSE : Pierre Sage en grande forme pour son retour à Lyon (vidéo)",
-    "summary": "Ce mercredi soir, au Groupama Stadium, Pierre Sage, l'entraîneur de Crystal Palace qui s'était révélé à l'OL, s'est présenté en conférence de presse avant l'affiche entre son équipe et les Gones.",
-    "summary_short": "Ce mercredi soir, au Groupama Stadium, Pierre Sage, l'entraîneur de Crystal Palace qui s'était révélé à l'OL, s'est présenté en conférence de presse avant l'affiche entre son équipe et les Gones.",
-    "content": "Ce mercredi soir, au Groupama Stadium, Pierre Sage, l'entraîneur de Crystal Palace qui s'était révélé à l'OL, s'est présenté en conférence de presse avant l'affiche entre son équipe et les Gones.",
-    "paragraphs": [
-      "Ce mercredi soir, au Groupama Stadium, Pierre Sage, l'entraîneur de Crystal Palace qui s'était révélé à l'OL, s'est présenté en conférence de presse avant l'affiche entre son équipe et les Gones."
-    ],
-    "key_points": [
-      "Ce mercredi soir, au Groupama Stadium, Pierre Sage, l'entraîneur de Crystal Palace qui s'était révélé à l'OL, s'est présenté en conférence de presse avant l'affiche entre son équipe et les Gones."
-    ],
-    "telegram_summary": "Ce mercredi soir, au Groupama Stadium, Pierre Sage, l'entraîneur de Crystal Palace qui s'était révélé à l'OL, s'est présenté en conférence de presse avant l'affiche entre son équipe et les Gones.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-crystal-palace-vous-m-avez-manque-le-debut-de-saison-de-l-ol-tacle-a-l-asse-pierre-sage-en-grande-forme-pour-son-retour-a-lyon-video-542203.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-crystal-palace-vous-m-avez-manque-le-debut-de-saison-de-l-ol-tacle-a-l-asse-pierre-sage-en-grande-forme-pour-son-retour-a-lyon-video-542203.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a5d9bf0a9f7495ae",
-    "published": "2026-10-14T16:07:00+00:00",
-    "image": "assets/images/footnews/a5d9bf0a9f7495ae.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260308180343-3593.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
     "slug": "1250680be05854aa",
     "title": "Arsenal dévoile la photo de son effectif… sans William Saliba",
     "summary": "Drôle de moment choisi par Arsenal pour prendre la photo de tout son effectif de la saison. Le club anglais a publié ce mercredi la traditionnelle photo de groupe mais un joueur manquait à l’appel : (…)",
@@ -696,41 +1768,6 @@
       "Onze Mondial"
     ],
     "quality_score": 80
-  },
-  {
-    "slug": "2e780d5bd9c48f01",
-    "title": "Mercato : Getafe veut encore faire plusieurs gros coups médiatiques à 0 € après Carvajal !",
-    "summary": "Après avoir recruté Dani Carvajal, Getafe travaille désormais sur les dossiers Sergio Ramos, Dani Parejo et Jadon Sancho. Mais pourquoi les Azulones sont-ils aussi actifs sur le marché des joueurs (…)",
-    "summary_short": "Après avoir recruté Dani Carvajal, Getafe travaille désormais sur les dossiers Sergio Ramos, Dani Parejo et Jadon Sancho. Mais pourquoi les Azulones sont-ils aussi actifs sur le marché des joueurs (…)",
-    "content": "Après avoir recruté Dani Carvajal, Getafe travaille désormais sur les dossiers Sergio Ramos, Dani Parejo et Jadon Sancho. Mais pourquoi les Azulones sont-ils aussi actifs sur le marché des joueurs (…)",
-    "paragraphs": [
-      "Après avoir recruté Dani Carvajal, Getafe travaille désormais sur les dossiers Sergio Ramos, Dani Parejo et Jadon Sancho. Mais pourquoi les Azulones sont-ils aussi actifs sur le marché des joueurs (…)"
-    ],
-    "key_points": [
-      "Après avoir recruté Dani Carvajal, Getafe travaille désormais sur les dossiers Sergio Ramos, Dani Parejo et Jadon Sancho.",
-      "Mais pourquoi les Azulones sont-ils aussi actifs sur le marché des joueurs (…)"
-    ],
-    "telegram_summary": "Après avoir recruté Dani Carvajal, Getafe travaille désormais sur les dossiers Sergio Ramos, Dani Parejo et Jadon Sancho. Mais pourquoi les Azulones sont-ils aussi actifs sur le marché des joueurs (…)",
-    "link": "https://www.footmercato.net/a9032936690772868688-mercato-getafe-veut-faire-plusieurs-gros-coups-mediatiques-a-0-eur",
-    "source_url": "https://www.footmercato.net/a9032936690772868688-mercato-getafe-veut-faire-plusieurs-gros-coups-mediatiques-a-0-eur",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2e780d5bd9c48f01",
-    "published": "2026-10-14T16:01:17+00:00",
-    "image": "assets/images/footnews/2e780d5bd9c48f01.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/jadon-sancho-2526-6a574d8624d06.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   },
   {
     "slug": "21db7270735d4f4f",
@@ -863,41 +1900,6 @@
     "category": "Actualité",
     "category_emoji": "🚨",
     "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "5f944e0bd07e0c89",
-    "title": "LASK - Liverpool : les compositions officielles",
-    "summary": "Ce mercredi, on poursuit la deuxième journée de Ligue des Champions avec un duel entre le Linser ASK et Liverpool. À domicile, les Autrichiens s’articulent dans un 3-5-2 avec Lukas Jungwirth dans les (…)",
-    "summary_short": "Ce mercredi, on poursuit la deuxième journée de Ligue des Champions avec un duel entre le Linser ASK et Liverpool. À domicile, les Autrichiens s’articulent dans un 3-5-2 avec Lukas Jungwirth dans les (…)",
-    "content": "Ce mercredi, on poursuit la deuxième journée de Ligue des Champions avec un duel entre le Linser ASK et Liverpool. À domicile, les Autrichiens s’articulent dans un 3-5-2 avec Lukas Jungwirth dans les (…)",
-    "paragraphs": [
-      "Ce mercredi, on poursuit la deuxième journée de Ligue des Champions avec un duel entre le Linser ASK et Liverpool. À domicile, les Autrichiens s’articulent dans un 3-5-2 avec Lukas Jungwirth dans les (…)"
-    ],
-    "key_points": [
-      "Ce mercredi, on poursuit la deuxième journée de Ligue des Champions avec un duel entre le Linser ASK et Liverpool.",
-      "À domicile, les Autrichiens s’articulent dans un 3-5-2 avec Lukas Jungwirth dans les (…)"
-    ],
-    "telegram_summary": "Ce mercredi, on poursuit la deuxième journée de Ligue des Champions avec un duel entre le Linser ASK et Liverpool. À domicile, les Autrichiens s’articulent dans un 3-5-2 avec Lukas Jungwirth dans les (…)",
-    "link": "https://www.footmercato.net/a7234466533940851047-lask-liverpool-les-compositions-officielles",
-    "source_url": "https://www.footmercato.net/a7234466533940851047-lask-liverpool-les-compositions-officielles",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5f944e0bd07e0c89",
-    "published": "2026-10-14T15:33:04+00:00",
-    "image": "assets/images/footnews/5f944e0bd07e0c89.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/florian-wirtz-2627-3.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
     "espn_verification": {},
     "quality_sources": [
       "Foot Mercato"
@@ -1077,161 +2079,6 @@
     "quality_score": 78
   },
   {
-    "slug": "0d4bca648c497678",
-    "title": "MU : Rio Ferdinand réagit au coup de gueule de Lisandro Martínez",
-    "summary": "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre.",
-    "summary_short": "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre.",
-    "content": "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre. Alors que (…)",
-    "paragraphs": [
-      "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre. Alors que (…)"
-    ],
-    "key_points": [
-      "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre."
-    ],
-    "telegram_summary": "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre.",
-    "link": "https://www.footmercato.net/a1568966832177411946-mu-rio-ferdinand-reagit-au-coup-de-gueule-de-lisandro-martinez",
-    "source_url": "https://www.footmercato.net/a1568966832177411946-mu-rio-ferdinand-reagit-au-coup-de-gueule-de-lisandro-martinez",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0d4bca648c497678",
-    "published": "2026-10-14T15:06:36+00:00",
-    "image": "assets/images/footnews/0d4bca648c497678.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/ferdinand01.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "e8820c054cc5705d",
-    "title": "Real Madrid : la polémique enfle autour de Bernardo Silva !",
-    "summary": "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu. Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)",
-    "summary_short": "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu. Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)",
-    "content": "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu. Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)",
-    "paragraphs": [
-      "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu. Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)"
-    ],
-    "key_points": [
-      "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu.",
-      "Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)"
-    ],
-    "telegram_summary": "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu. Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)",
-    "link": "https://www.footmercato.net/a909669307923873105-real-madrid-la-polemique-enfle-autour-de-bernardo-silva",
-    "source_url": "https://www.footmercato.net/a909669307923873105-real-madrid-la-polemique-enfle-autour-de-bernardo-silva",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e8820c054cc5705d",
-    "published": "2026-10-14T15:06:15+00:00",
-    "image": "assets/images/footnews/e8820c054cc5705d.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/espanyol-madridliga2627.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Polémique",
-    "category_emoji": "🔥",
-    "editorial_score": 4,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50150816",
-      "url": "https://www.espn.com/video/clip/_/id/50150816/real-madrid-vs-villarreal-game-highlights",
-      "published": "2026-10-10T21:06:47Z",
-      "score": 0.2,
-      "matched_terms": [
-        "madrid",
-        "real"
-      ],
-      "topics": [],
-      "teams": [
-        "Real Madrid",
-        "Villarreal"
-      ],
-      "athletes": [
-        "Alberto Moleiro",
-        "Vinícius Júnior",
-        "Yan Diomande"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T17:31:25.991085+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "12b09434c29d130f",
-    "title": "Manchester City - PSG : le jour où Cherki à dit non avec classe à Al-Khelaïfi",
-    "summary": "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi.",
-    "summary_short": "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi.",
-    "content": "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi.",
-    "paragraphs": [
-      "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi."
-    ],
-    "key_points": [
-      "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi."
-    ],
-    "telegram_summary": "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi.",
-    "link": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-le-jour-ou-cherki-a-dit-non-avec-classe-a-al-khelaifi-1002571",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-le-jour-ou-cherki-a-dit-non-avec-classe-a-al-khelaifi-1002571",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=12b09434c29d130f",
-    "published": "2026-10-14T15:02:00+00:00",
-    "image": "assets/images/footnews/12b09434c29d130f.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002571/409396/1200-L-manchester-city-psg-le-jour-o-cherki-dit-non-avec-classe-al-khelafi.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 4,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50159375",
-      "url": "https://www.espn.com/video/clip/_/id/50159375/no-sympathy-manchester-city-players",
-      "published": "2026-10-11T18:25:12Z",
-      "score": 0.2,
-      "matched_terms": [
-        "city",
-        "manchester"
-      ],
-      "topics": [],
-      "teams": [
-        "Liverpool",
-        "Manchester City"
-      ],
-      "athletes": [],
-      "leagues": [
-        "English Premier League",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T17:31:25.991085+00:00"
-    },
-    "quality_sources": [
-      "Onze Mondial",
-      "ESPN"
-    ],
-    "quality_score": 88
-  },
-  {
     "slug": "16f5e6cd2534783c",
     "title": "OM : Bruno Genesio réfléchit à un nouveau rôle important pour Timothy Weah",
     "summary": "Bruno Genesio s'est exprimé sur le repositionnement de Timothy Weah en conférence de presse.",
@@ -1334,41 +2181,6 @@
     "quality_score": 88
   },
   {
-    "slug": "a6066ffb2e06599f",
-    "title": "OM : Bruno Genesio défend Angel Gomes",
-    "summary": "Les semaines se suivent et se ressemblent pour Angel Gomes. Déjà décevant lors de la première partie de saison l’an dernier, le milieu de terrain, prêté sans succès à Wolverhampton entre janvier et (…)",
-    "summary_short": "Les semaines se suivent et se ressemblent pour Angel Gomes. Déjà décevant lors de la première partie de saison l’an dernier, le milieu de terrain, prêté sans succès à Wolverhampton entre janvier et (…)",
-    "content": "Les semaines se suivent et se ressemblent pour Angel Gomes. Déjà décevant lors de la première partie de saison l’an dernier, le milieu de terrain, prêté sans succès à Wolverhampton entre janvier et (…)",
-    "paragraphs": [
-      "Les semaines se suivent et se ressemblent pour Angel Gomes. Déjà décevant lors de la première partie de saison l’an dernier, le milieu de terrain, prêté sans succès à Wolverhampton entre janvier et (…)"
-    ],
-    "key_points": [
-      "Les semaines se suivent et se ressemblent pour Angel Gomes.",
-      "Déjà décevant lors de la première partie de saison l’an dernier, le milieu de terrain, prêté sans succès à Wolverhampton entre janvier et (…)"
-    ],
-    "telegram_summary": "Les semaines se suivent et se ressemblent pour Angel Gomes. Déjà décevant lors de la première partie de saison l’an dernier, le milieu de terrain, prêté sans succès à Wolverhampton entre janvier et (…)",
-    "link": "https://www.footmercato.net/a38290860268760014-om-bruno-genesio-defend-angel-gomes",
-    "source_url": "https://www.footmercato.net/a38290860268760014-om-bruno-genesio-defend-angel-gomes",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a6066ffb2e06599f",
-    "published": "2026-10-14T14:40:00+00:00",
-    "image": "assets/images/footnews/a6066ffb2e06599f.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/angel-gomes2.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
     "slug": "2e73260625a0855f",
     "title": "Algérie : Mahrez rebondit officiellement au Qatar !",
     "summary": "Après son départ cet été d'Al-Ahli, Riyad Mahrez va rebondir dans un nouveau club dans le Golfe.",
@@ -1401,41 +2213,6 @@
       "Onze Mondial"
     ],
     "quality_score": 80
-  },
-  {
-    "slug": "cbc6bd20202eaf3f",
-    "title": "OM : Bruno Genesio lâche ses vérités sur le cas Igor Paixão",
-    "summary": "3 jours après sa sortie colérique à Troyes (victoire 2-0), Igor Paixão était à nouveau le principal sujet de l’OM. À la veille de retrouver la compétition et l’Olympiakos en Ligue Europa, Bruno (…)",
-    "summary_short": "3 jours après sa sortie colérique à Troyes (victoire 2-0), Igor Paixão était à nouveau le principal sujet de l’OM. À la veille de retrouver la compétition et l’Olympiakos en Ligue Europa, Bruno (…)",
-    "content": "3 jours après sa sortie colérique à Troyes (victoire 2-0), Igor Paixão était à nouveau le principal sujet de l’OM. À la veille de retrouver la compétition et l’Olympiakos en Ligue Europa, Bruno (…)",
-    "paragraphs": [
-      "3 jours après sa sortie colérique à Troyes (victoire 2-0), Igor Paixão était à nouveau le principal sujet de l’OM. À la veille de retrouver la compétition et l’Olympiakos en Ligue Europa, Bruno (…)"
-    ],
-    "key_points": [
-      "3 jours après sa sortie colérique à Troyes (victoire 2-0), Igor Paixão était à nouveau le principal sujet de l’OM.",
-      "À la veille de retrouver la compétition et l’Olympiakos en Ligue Europa, Bruno (…)"
-    ],
-    "telegram_summary": "3 jours après sa sortie colérique à Troyes (victoire 2-0), Igor Paixão était à nouveau le principal sujet de l’OM. À la veille de retrouver la compétition et l’Olympiakos en Ligue Europa, Bruno (…)",
-    "link": "https://www.footmercato.net/a6563791808626204715-om-bruno-genesio-lache-ses-verites-sur-le-cas-igor-paixao",
-    "source_url": "https://www.footmercato.net/a6563791808626204715-om-bruno-genesio-lache-ses-verites-sur-le-cas-igor-paixao",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=cbc6bd20202eaf3f",
-    "published": "2026-10-14T14:35:13+00:00",
-    "image": "assets/images/footnews/cbc6bd20202eaf3f.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/paixao-6acc06b44d10f.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   },
   {
     "slug": "f0516cf3ed6f6728",
@@ -1504,75 +2281,6 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "14c339818616e8eb",
-    "title": "LOSC : Ayase Ueda s'est blessé face à Arsenal !",
-    "summary": "Titulaire face à Arsenal mardi soir, mais remplacé à la 78ème minute par Olivier Giroud, Ayase Ueda souffrait du talon gauche et boitait encore au moment de regagner le car après la rencontre.",
-    "summary_short": "Titulaire face à Arsenal mardi soir, mais remplacé à la 78ème minute par Olivier Giroud, Ayase Ueda souffrait du talon gauche et boitait encore au moment de regagner le car après la rencontre.",
-    "content": "Titulaire face à Arsenal mardi soir, mais remplacé à la 78ème minute par Olivier Giroud, Ayase Ueda souffrait du talon gauche et boitait encore au moment de regagner le car après la rencontre.",
-    "paragraphs": [
-      "Titulaire face à Arsenal mardi soir, mais remplacé à la 78ème minute par Olivier Giroud, Ayase Ueda souffrait du talon gauche et boitait encore au moment de regagner le car après la rencontre."
-    ],
-    "key_points": [
-      "Titulaire face à Arsenal mardi soir, mais remplacé à la 78ème minute par Olivier Giroud, Ayase Ueda souffrait du talon gauche et boitait encore au moment de regagner le car après la rencontre."
-    ],
-    "telegram_summary": "Titulaire face à Arsenal mardi soir, mais remplacé à la 78ème minute par Olivier Giroud, Ayase Ueda souffrait du talon gauche et boitait encore au moment de regagner le car après la rencontre.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-losc-ayase-ueda-s-est-blesse-face-a-arsenal-542191.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-losc-ayase-ueda-s-est-blesse-face-a-arsenal-542191.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=14c339818616e8eb",
-    "published": "2026-10-14T14:25:00+00:00",
-    "image": "assets/images/footnews/14c339818616e8eb.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260913160525-3853.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Blessures",
-    "category_emoji": "🚑",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "1b7ccdbbba7f7169",
-    "title": "Riyad Mahrez a trouvé son nouveau club",
-    "summary": "Libre depuis la fin de son contrat à Ah-Ahli cet été, Riyad Mahrez (35 ans) a trouvé un nouveau point de chute. Le champion d’Afrique 2019 et vainqueur de la Ligue des Champions 2023 s’est engagé avec (…)",
-    "summary_short": "Libre depuis la fin de son contrat à Ah-Ahli cet été, Riyad Mahrez (35 ans) a trouvé un nouveau point de chute. Le champion d’Afrique 2019 et vainqueur de la Ligue des Champions 2023 s’est engagé avec (…)",
-    "content": "Libre depuis la fin de son contrat à Ah-Ahli cet été, Riyad Mahrez (35 ans) a trouvé un nouveau point de chute. Le champion d’Afrique 2019 et vainqueur de la Ligue des Champions 2023 s’est engagé avec (…)",
-    "paragraphs": [
-      "Libre depuis la fin de son contrat à Ah-Ahli cet été, Riyad Mahrez (35 ans) a trouvé un nouveau point de chute. Le champion d’Afrique 2019 et vainqueur de la Ligue des Champions 2023 s’est engagé avec (…)"
-    ],
-    "key_points": [
-      "Libre depuis la fin de son contrat à Ah-Ahli cet été, Riyad Mahrez (35 ans) a trouvé un nouveau point de chute.",
-      "Le champion d’Afrique 2019 et vainqueur de la Ligue des Champions 2023 s’est engagé avec (…)"
-    ],
-    "telegram_summary": "Libre depuis la fin de son contrat à Ah-Ahli cet été, Riyad Mahrez (35 ans) a trouvé un nouveau point de chute. Le champion d’Afrique 2019 et vainqueur de la Ligue des Champions 2023 s’est engagé avec (…)",
-    "link": "https://www.footmercato.net/a6943104829485720181-riyad-mahrez-a-trouve-son-nouveau-club",
-    "source_url": "https://www.footmercato.net/a6943104829485720181-riyad-mahrez-a-trouve-son-nouveau-club",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1b7ccdbbba7f7169",
-    "published": "2026-10-14T14:16:38+00:00",
-    "image": "assets/images/footnews/1b7ccdbbba7f7169.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/riyad-mahrez-presentant-le-maillot-al-shamal-26.jpeg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   },
   {
     "slug": "4c2e0c16a2944e35",
@@ -1644,74 +2352,6 @@
     "quality_score": 80
   },
   {
-    "slug": "dc13cf73979be2e0",
-    "title": "OM : Bruno Genesio donne son avis sur l'épisode du penalty entre Himad Abdelli et Faris Moumbagna",
-    "summary": "Bruno Genesio est revenu sur l'épisode des penalties entre Himad Abdelli et Faris Moumbagna.",
-    "summary_short": "Bruno Genesio est revenu sur l'épisode des penalties entre Himad Abdelli et Faris Moumbagna.",
-    "content": "Bruno Genesio est revenu sur l'épisode des penalties entre Himad Abdelli et Faris Moumbagna.",
-    "paragraphs": [
-      "Bruno Genesio est revenu sur l'épisode des penalties entre Himad Abdelli et Faris Moumbagna."
-    ],
-    "key_points": [
-      "Bruno Genesio est revenu sur l'épisode des penalties entre Himad Abdelli et Faris Moumbagna."
-    ],
-    "telegram_summary": "Bruno Genesio est revenu sur l'épisode des penalties entre Himad Abdelli et Faris Moumbagna.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-om-bruno-genesio-donne-son-avis-sur-l-episode-du-penalty-entre-himad-abdelli-et-faris-moumbagna-542183.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-om-bruno-genesio-donne-son-avis-sur-l-episode-du-penalty-entre-himad-abdelli-et-faris-moumbagna-542183.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=dc13cf73979be2e0",
-    "published": "2026-10-14T13:57:00+00:00",
-    "image": "assets/images/footnews/dc13cf73979be2e0.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260821234847-3822.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "6976439633b1b61b",
-    "title": "Crystal Palace : Les Eagles privés de Jean-Philippe Mateta et de quatre autres joueurs pour affronter l'OL",
-    "summary": "Alors que Pierre Sage espérait son retour à la compétition face à l'OL ce jeudi soir (18h45, J2 Ligue Europa), Jean-Philippe Mateta sera encore juste.",
-    "summary_short": "Alors que Pierre Sage espérait son retour à la compétition face à l'OL ce jeudi soir (18h45, J2 Ligue Europa), Jean-Philippe Mateta sera encore juste.",
-    "content": "Alors que Pierre Sage espérait son retour à la compétition face à l'OL ce jeudi soir (18h45, J2 Ligue Europa), Jean-Philippe Mateta sera encore juste.",
-    "paragraphs": [
-      "Alors que Pierre Sage espérait son retour à la compétition face à l'OL ce jeudi soir (18h45, J2 Ligue Europa), Jean-Philippe Mateta sera encore juste."
-    ],
-    "key_points": [
-      "Alors que Pierre Sage espérait son retour à la compétition face à l'OL ce jeudi soir (18h45, J2 Ligue Europa), Jean-Philippe Mateta sera encore juste."
-    ],
-    "telegram_summary": "Alors que Pierre Sage espérait son retour à la compétition face à l'OL ce jeudi soir (18h45, J2 Ligue Europa), Jean-Philippe Mateta sera encore juste.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-crystal-palace-les-eagles-prives-de-jean-philippe-mateta-et-de-quatre-autres-joueurs-pour-affronter-l-ol-542182.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-crystal-palace-les-eagles-prives-de-jean-philippe-mateta-et-de-quatre-autres-joueurs-pour-affronter-l-ol-542182.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=6976439633b1b61b",
-    "published": "2026-10-14T13:55:00+00:00",
-    "image": "assets/images/footnews/6976439633b1b61b.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2025/une/l1-20250711102226-5133.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
     "slug": "245f5b158d093ce2",
     "title": "Arsenal : jackpot XXL pour Arteta mais 60 employés virés, le grand écart indécent des Gunners",
     "summary": "Arsenal a décidé de faire des choix forts en offrant un salaire fou à Mikel Arteta tout en remerciant pas moins de 60 employés.",
@@ -1744,513 +2384,5 @@
       "Onze Mondial"
     ],
     "quality_score": 80
-  },
-  {
-    "slug": "2b2ab4a5fe178193",
-    "title": "OM-Olympiakos : Paixao sanctionné, la réponse franche de Genesio avec une révélation sur le mercato",
-    "summary": "À la veille du choc de Ligue Europa entre l'Olympique de Marseille et l'Olympiakos, Bruno Genesio était présent en conférence de presse.",
-    "summary_short": "À la veille du choc de Ligue Europa entre l'Olympique de Marseille et l'Olympiakos, Bruno Genesio était présent en conférence de presse.",
-    "content": "À la veille du choc de Ligue Europa entre l'Olympique de Marseille et l'Olympiakos, Bruno Genesio était présent en conférence de presse.",
-    "paragraphs": [
-      "À la veille du choc de Ligue Europa entre l'Olympique de Marseille et l'Olympiakos, Bruno Genesio était présent en conférence de presse."
-    ],
-    "key_points": [
-      "À la veille du choc de Ligue Europa entre l'Olympique de Marseille et l'Olympiakos, Bruno Genesio était présent en conférence de presse."
-    ],
-    "telegram_summary": "À la veille du choc de Ligue Europa entre l'Olympique de Marseille et l'Olympiakos, Bruno Genesio était présent en conférence de presse.",
-    "link": "https://www.onzemondial.com/europa-league/om-olympiakos-paixao-sanctionne-la-reponse-franche-de-genesio-avec-une-revelation-sur-le-mercato-1002569",
-    "source_url": "https://www.onzemondial.com/europa-league/om-olympiakos-paixao-sanctionne-la-reponse-franche-de-genesio-avec-une-revelation-sur-le-mercato-1002569",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2b2ab4a5fe178193",
-    "published": "2026-10-14T13:03:00+00:00",
-    "image": "assets/images/footnews/2b2ab4a5fe178193.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002569/409395/1200-L-om-olympiakos-conf-genesio.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "353b43335bb83b2a",
-    "title": "Rennes : Roazhon Park vendu, nouveau stade à 450 M€ hors de la ville... les secrets du bras de fer avec la mairie",
-    "summary": "Enquête : 450 M€, vente surprise et plan hors métropole, où en est vraiment le grand stade de Rennes",
-    "summary_short": "Enquête : 450 M€, vente surprise et plan hors métropole, où en est vraiment le grand stade de Rennes",
-    "content": "Enquête : 450 M€, vente surprise et plan hors métropole, où en est vraiment le grand stade de Rennes",
-    "paragraphs": [
-      "Enquête : 450 M€, vente surprise et plan hors métropole, où en est vraiment le grand stade de Rennes"
-    ],
-    "key_points": [
-      "Enquête : 450 M€, vente surprise et plan hors métropole, où en est vraiment le grand stade de Rennes"
-    ],
-    "telegram_summary": "Enquête : 450 M€, vente surprise et plan hors métropole, où en est vraiment le grand stade de Rennes",
-    "link": "https://www.onzemondial.com/ligue-1/rennes-roazhon-park-vendu-nouveau-stade-a-450-me-hors-de-la-ville-les-secrets-du-bras-de-fer-avec-la-mairie-1002576",
-    "source_url": "https://www.onzemondial.com/ligue-1/rennes-roazhon-park-vendu-nouveau-stade-a-450-me-hors-de-la-ville-les-secrets-du-bras-de-fer-avec-la-mairie-1002576",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=353b43335bb83b2a",
-    "published": "2026-10-14T12:33:00+00:00",
-    "image": "assets/images/footnews/353b43335bb83b2a.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002576/409399/1200-L-rennes-roazhon-park-vendu-nouveau-stade-450-m-hors-de-la-ville-les-secrets-du-bras-de-fer-avec-la-mairie.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "e616b18db174d7d5",
-    "title": "OL - Crystal Palace : Fonseca prêt à une révolution tactique pour faire oublier Openda ?",
-    "summary": "Pour le choc face à Crystal Palace en Ligue Europa, l'Olympique Lyonnais va devoir bricoler avec de nombreux forfaits.",
-    "summary_short": "Pour le choc face à Crystal Palace en Ligue Europa, l'Olympique Lyonnais va devoir bricoler avec de nombreux forfaits.",
-    "content": "Pour le choc face à Crystal Palace en Ligue Europa, l'Olympique Lyonnais va devoir bricoler avec de nombreux forfaits.",
-    "paragraphs": [
-      "Pour le choc face à Crystal Palace en Ligue Europa, l'Olympique Lyonnais va devoir bricoler avec de nombreux forfaits."
-    ],
-    "key_points": [
-      "Pour le choc face à Crystal Palace en Ligue Europa, l'Olympique Lyonnais va devoir bricoler avec de nombreux forfaits."
-    ],
-    "telegram_summary": "Pour le choc face à Crystal Palace en Ligue Europa, l'Olympique Lyonnais va devoir bricoler avec de nombreux forfaits.",
-    "link": "https://www.onzemondial.com/europa-league/ol-crystal-palace-fonseca-pret-a-une-revolution-tactique-pour-faire-oublier-openda-1002574",
-    "source_url": "https://www.onzemondial.com/europa-league/ol-crystal-palace-fonseca-pret-a-une-revolution-tactique-pour-faire-oublier-openda-1002574",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e616b18db174d7d5",
-    "published": "2026-10-14T11:55:00+00:00",
-    "image": "assets/images/footnews/e616b18db174d7d5.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002574/409397/1200-L-ol-crystal-palace-fonseca-prt-une-rvolution-tactique-pour-faire-oublier-openda.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "a88d5a547079c08e",
-    "title": "« Mon petit gaçon est fou de toi », l’échange géniale, entre Yamal et Lemina après la provocation initiale",
-    "summary": "Après la sortie ironique de Mario Lemina, Lamine Yamal a laissé parler son talent sur le terrain avant de lui répondre avec humour sur les réseaux sociaux.",
-    "summary_short": "Après la sortie ironique de Mario Lemina, Lamine Yamal a laissé parler son talent sur le terrain avant de lui répondre avec humour sur les réseaux sociaux.",
-    "content": "Après la sortie ironique de Mario Lemina, Lamine Yamal a laissé parler son talent sur le terrain avant de lui répondre avec humour sur les réseaux sociaux.",
-    "paragraphs": [
-      "Après la sortie ironique de Mario Lemina, Lamine Yamal a laissé parler son talent sur le terrain avant de lui répondre avec humour sur les réseaux sociaux."
-    ],
-    "key_points": [
-      "Après la sortie ironique de Mario Lemina, Lamine Yamal a laissé parler son talent sur le terrain avant de lui répondre avec humour sur les réseaux sociaux."
-    ],
-    "telegram_summary": "Après la sortie ironique de Mario Lemina, Lamine Yamal a laissé parler son talent sur le terrain avant de lui répondre avec humour sur les réseaux sociaux.",
-    "link": "https://www.onzemondial.com/ligue-des-champions/mon-petit-garcon-est-fou-de-toi-lechange-geniale-entre-yamal-et-lemina-apres-la-provocation-initiale-1002567",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/mon-petit-garcon-est-fou-de-toi-lechange-geniale-entre-yamal-et-lemina-apres-la-provocation-initiale-1002567",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a88d5a547079c08e",
-    "published": "2026-10-14T11:34:00+00:00",
-    "image": "assets/images/footnews/a88d5a547079c08e.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002567/409394/1200-L--mon-petit-gaon-est-fou-de-toi-lchange-gniale-entre-yamal-et-lemina-aprs-la-provocation-initiale.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "2a9ed2526f97ebfd",
-    "title": "\"Comment ne pas être heureux\" : lorsqu'Ousmane Dembélé remportait le Onze d'Or 2025",
-    "summary": "Le Onze d'Or 2026 approche et verra le joueur que nos lecteurs ont choisi remporté le Saint-Graal. Retour sur le sacre de Ousmane Dembélé en 2025, qui avait remporté le suffrage avec 32,5% des voix.",
-    "summary_short": "Le Onze d'Or 2026 approche et verra le joueur que nos lecteurs ont choisi remporté le Saint-Graal. Retour sur le sacre de Ousmane Dembélé en 2025, qui avait remporté le suffrage avec 32,5% des voix.",
-    "content": "Le Onze d'Or 2026 approche et verra le joueur que nos lecteurs ont choisi remporté le Saint-Graal. Retour sur le sacre de Ousmane Dembélé en 2025, qui avait remporté le suffrage avec 32,5% des voix.",
-    "paragraphs": [
-      "Le Onze d'Or 2026 approche et verra le joueur que nos lecteurs ont choisi remporté le Saint-Graal. Retour sur le sacre de Ousmane Dembélé en 2025, qui avait remporté le suffrage avec 32,5% des voix."
-    ],
-    "key_points": [
-      "Le Onze d'Or 2026 approche et verra le joueur que nos lecteurs ont choisi remporté le Saint-Graal.",
-      "Retour sur le sacre de Ousmane Dembélé en 2025, qui avait remporté le suffrage avec 32,5% des voix."
-    ],
-    "telegram_summary": "Le Onze d'Or 2026 approche et verra le joueur que nos lecteurs ont choisi remporté le Saint-Graal. Retour sur le sacre de Ousmane Dembélé en 2025, qui avait remporté le suffrage avec 32,5% des voix.",
-    "link": "https://www.onzemondial.com/psg/comment-ne-pas-etre-heureux-lorsque-dembele-remportait-le-onze-dor-2025-1002505",
-    "source_url": "https://www.onzemondial.com/psg/comment-ne-pas-etre-heureux-lorsque-dembele-remportait-le-onze-dor-2025-1002505",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2a9ed2526f97ebfd",
-    "published": "2026-10-14T11:00:00+00:00",
-    "image": "assets/images/footnews/2a9ed2526f97ebfd.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002505/409362/1200-L-onze-d-or-comment-ne-pas-tre-heureux-lorsque-dembl-remportait-le-onze-d-or-2025.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "4ba93a067d4ee424",
-    "title": "Real Madrid : \"Endrick va exploser\", la grande annonce de Mourinho pour le crack brésilien",
-    "summary": "Cantonné au banc depuis le début de la saison, Endrick aurait pu espérer un prêt cet hiver, mais son entraîneur José Mourinho ne l'entend pas de cette oreille.",
-    "summary_short": "Cantonné au banc depuis le début de la saison, Endrick aurait pu espérer un prêt cet hiver, mais son entraîneur José Mourinho ne l'entend pas de cette oreille.",
-    "content": "Cantonné au banc depuis le début de la saison, Endrick aurait pu espérer un prêt cet hiver, mais son entraîneur José Mourinho ne l'entend pas de cette oreille.",
-    "paragraphs": [
-      "Cantonné au banc depuis le début de la saison, Endrick aurait pu espérer un prêt cet hiver, mais son entraîneur José Mourinho ne l'entend pas de cette oreille."
-    ],
-    "key_points": [
-      "Cantonné au banc depuis le début de la saison, Endrick aurait pu espérer un prêt cet hiver, mais son entraîneur José Mourinho ne l'entend pas de cette oreille."
-    ],
-    "telegram_summary": "Cantonné au banc depuis le début de la saison, Endrick aurait pu espérer un prêt cet hiver, mais son entraîneur José Mourinho ne l'entend pas de cette oreille.",
-    "link": "https://www.onzemondial.com/liga/real-madrid-endrick-va-exploser-la-grande-annonce-de-mourinho-pour-le-crack-bresilien-1002557",
-    "source_url": "https://www.onzemondial.com/liga/real-madrid-endrick-va-exploser-la-grande-annonce-de-mourinho-pour-le-crack-bresilien-1002557",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=4ba93a067d4ee424",
-    "published": "2026-10-14T10:26:00+00:00",
-    "image": "assets/images/footnews/4ba93a067d4ee424.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002557/409390/1200-L-real-madrid-endrick-va-exploser-la-grande-annonce-de-mourinho-pour-le-crack-brsilien.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50114862",
-      "url": "https://www.espn.com/soccer/story/_/id/50114862/jose-mourinho-already-lot-do-save-real-madrids-season",
-      "published": "2026-10-06T12:17:37Z",
-      "score": 0.25,
-      "matched_terms": [
-        "madrid",
-        "mourinho",
-        "real"
-      ],
-      "topics": [],
-      "teams": [
-        "Real Madrid"
-      ],
-      "athletes": [
-        "Kylian Mbappé",
-        "Vinícius Júnior"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T17:31:25.991085+00:00"
-    },
-    "quality_sources": [
-      "Onze Mondial",
-      "ESPN"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "058bf19a0450c791",
-    "title": "Ligue des champions : le PSG défie Manchester City, secoué par une crise extra-sportive",
-    "summary": "Double champion d'Europe en titre, le PSG se déplace mercredi sur la pelouse de Manchester City pour la plus grosse affiche de la deuxième journée de Ligue des champions. Très facile vainqueur du Slovan Bratislava (6-1) lors de la première journée, Paris devra relever un défi bien plus sérieux à l'Etihad face à un club en crise extra-sportive.",
-    "summary_short": "Double champion d'Europe en titre, le PSG se déplace mercredi sur la pelouse de Manchester City pour la plus grosse affiche de la deuxième journée de Ligue des champions. Très facile vainqueur du Slovan Bratislava (6-1) lors de la première journée, Paris devra relever un défi bien plus sérieux à l'Etihad face à un club en crise extra-sportive.",
-    "content": "Double champion d'Europe en titre, le PSG se déplace mercredi sur la pelouse de Manchester City pour la plus grosse affiche de la deuxième journée de Ligue des champions. Très facile vainqueur du Slovan Bratislava (6-1) lors de la première journée, Paris devra relever un défi bien plus sérieux à l'Etihad face à un club en crise extra-sportive.",
-    "paragraphs": [
-      "Double champion d'Europe en titre, le PSG se déplace mercredi sur la pelouse de Manchester City pour la plus grosse affiche de la deuxième journée de Ligue des champions. Très facile vainqueur du Slovan Bratislava (6-1) lors de la première journée, Paris devra relever un défi bien plus sérieux à l'Etihad face à un club en crise extra-sportive."
-    ],
-    "key_points": [
-      "Double champion d'Europe en titre, le PSG se déplace mercredi sur la pelouse de Manchester City pour la plus grosse affiche de la deuxième journée de Ligue des champions.",
-      "Très facile vainqueur du Slovan Bratislava (6-1) lors de la première journée, Paris devra relever un défi bien plus sérieux à l'Etihad face à un club en crise extra-sportive."
-    ],
-    "telegram_summary": "Double champion d'Europe en titre, le PSG se déplace mercredi sur la pelouse de Manchester City pour la plus grosse affiche de la deuxième journée de Ligue des champions.",
-    "link": "https://www.france24.com/fr/sports/20261014-ligue-des-champions-premier-test-psg-manchester-city-football",
-    "source_url": "https://www.france24.com/fr/sports/20261014-ligue-des-champions-premier-test-psg-manchester-city-football",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=058bf19a0450c791",
-    "published": "2026-10-14T08:42:09+00:00",
-    "image": "assets/images/footnews/058bf19a0450c791.webp",
-    "source_image": "https://s.france24.com/media/display/f65db110-c707-11f1-b6a6-29a2e29ae696/w:1024/p:16x9/2026-10-10T204943Z-743788476-UP1EMAA1LUUY7-RTRMADP-3-SOCCER-FRANCE-PSG-LEM.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
-  },
-  {
-    "slug": "2b2494ecbe61a033",
-    "title": "Ligue des champions : Arsenal trop fort pour Lille et Olivier Giroud",
-    "summary": "Lille a été sèchement battu à Arsenal lors de la deuxième journée de Ligue des champions. Olivier Giroud a fait son retour à Arsenal, son ancien club.",
-    "summary_short": "Lille a été sèchement battu à Arsenal lors de la deuxième journée de Ligue des champions. Olivier Giroud a fait son retour à Arsenal, son ancien club.",
-    "content": "Lille a été sèchement battu à Arsenal lors de la deuxième journée de Ligue des champions. Olivier Giroud a fait son retour à Arsenal, son ancien club.",
-    "paragraphs": [
-      "Lille a été sèchement battu à Arsenal lors de la deuxième journée de Ligue des champions. Olivier Giroud a fait son retour à Arsenal, son ancien club."
-    ],
-    "key_points": [
-      "Lille a été sèchement battu à Arsenal lors de la deuxième journée de Ligue des champions.",
-      "Olivier Giroud a fait son retour à Arsenal, son ancien club."
-    ],
-    "telegram_summary": "Lille a été sèchement battu à Arsenal lors de la deuxième journée de Ligue des champions. Olivier Giroud a fait son retour à Arsenal, son ancien club.",
-    "link": "https://www.france24.com/fr/%C3%A9missions/sports/20261014-ligue-champions-arsenal-trop-fort-pour-lille-olivier-giroud-rc-lens-sporting-bayern-fc-barcelone-tennis-zverev",
-    "source_url": "https://www.france24.com/fr/%C3%A9missions/sports/20261014-ligue-champions-arsenal-trop-fort-pour-lille-olivier-giroud-rc-lens-sporting-bayern-fc-barcelone-tennis-zverev",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2b2494ecbe61a033",
-    "published": "2026-10-14T08:00:10+00:00",
-    "image": "assets/images/footnews/2b2494ecbe61a033.webp",
-    "source_image": "https://s.france24.com/media/display/6cdc7152-c76f-11f1-9101-3774aeac812a/w:1024/p:16x9/Arsenal-1.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50172036",
-      "url": "https://www.espn.com/soccer/story/_/id/50172036/olivier-giroud-leaving-arsenal-toughest-choice-my-career",
-      "published": "2026-10-13T08:44:32Z",
-      "score": 0.25,
-      "matched_terms": [
-        "arsenal",
-        "giroud",
-        "olivier"
-      ],
-      "topics": [
-        "news"
-      ],
-      "teams": [
-        "Arsenal",
-        "Lille"
-      ],
-      "athletes": [
-        "Olivier Giroud"
-      ],
-      "leagues": [
-        "Soccer",
-        "UEFA Champions League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T17:31:25.991085+00:00"
-    },
-    "quality_sources": [
-      "France 24",
-      "ESPN"
-    ],
-    "quality_score": 91
-  },
-  {
-    "slug": "7bcaf09dbb92ea70",
-    "title": "Pourquoi le choc de Ligue des champions contre Manchester City sera le premier baromètre de la saison du PSG",
-    "summary": "Après une mise en route difficile, le PSG a vraiment lancé sa saison le mois dernier et rencontre, mercredi, son premier gros obstacle.",
-    "summary_short": "Après une mise en route difficile, le PSG a vraiment lancé sa saison le mois dernier et rencontre, mercredi, son premier gros obstacle.",
-    "content": "Après une mise en route difficile, le PSG a vraiment lancé sa saison le mois dernier et rencontre, mercredi, son premier gros obstacle.",
-    "paragraphs": [
-      "Après une mise en route difficile, le PSG a vraiment lancé sa saison le mois dernier et rencontre, mercredi, son premier gros obstacle."
-    ],
-    "key_points": [
-      "Après une mise en route difficile, le PSG a vraiment lancé sa saison le mois dernier et rencontre, mercredi, son premier gros obstacle."
-    ],
-    "telegram_summary": "Après une mise en route difficile, le PSG a vraiment lancé sa saison le mois dernier et rencontre, mercredi, son premier gros obstacle.",
-    "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/pourquoi-le-choc-de-ligue-des-champions-contre-manchester-city-sera-le-premier-barometre-de-la-saison-du-psg_8235658.html#xtor=RSS-3-%5Bgeneral%5D",
-    "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/pourquoi-le-choc-de-ligue-des-champions-contre-manchester-city-sera-le-premier-barometre-de-la-saison-du-psg_8235658.html#xtor=RSS-3-%5Bgeneral%5D",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7bcaf09dbb92ea70",
-    "published": "2026-10-14T04:00:09+00:00",
-    "image": "assets/images/footnews/7bcaf09dbb92ea70.webp",
-    "source_image": "https://www.franceinfo.fr/pictures/727huuz_r3btH_w-g-Ga0I8naWQ/0x0:2634x1481/432x243/filters:format(jpg)/2026/10/13/6ace3e2bbe988838803232.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Franceinfo",
-    "source_priority": 82,
-    "source_region": "international",
-    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Franceinfo"
-    ],
-    "quality_score": 82
-  },
-  {
-    "slug": "4f6cccb479918d74",
-    "title": "Débrief de la 2e journée de la Ligue des champions",
-    "summary": "Pour revenir sur les rencontres de la soirée de Ligue des champions. Le Losc se déplaçait à Londres pour affronter Arsenal, Lens accueillait le Sporting, habitué des compétitions européennes.",
-    "summary_short": "Pour revenir sur les rencontres de la soirée de Ligue des champions. Le Losc se déplaçait à Londres pour affronter Arsenal, Lens accueillait le Sporting, habitué des compétitions européennes.",
-    "content": "Pour revenir sur les rencontres de la soirée de Ligue des champions. Le Losc se déplaçait à Londres pour affronter Arsenal, Lens accueillait le Sporting, habitué des compétitions européennes. Et deux oppositions très attendues. Entre l'Atlético de Madrid et Manchester United, et le duel entre Galatasaray et le FC Barcelone, autre favori de la compétition.",
-    "paragraphs": [
-      "Pour revenir sur les rencontres de la soirée de Ligue des champions. Le Losc se déplaçait à Londres pour affronter Arsenal, Lens accueillait le Sporting, habitué des compétitions européennes. Et deux oppositions très attendues.",
-      "Entre l'Atlético de Madrid et Manchester United, et le duel entre Galatasaray et le FC Barcelone, autre favori de la compétition."
-    ],
-    "key_points": [
-      "Pour revenir sur les rencontres de la soirée de Ligue des champions.",
-      "Le Losc se déplaçait à Londres pour affronter Arsenal, Lens accueillait le Sporting, habitué des compétitions européennes.",
-      "Et deux oppositions très attendues.",
-      "Entre l'Atlético de Madrid et Manchester United, et le duel entre Galatasaray et le FC Barcelone, autre favori de la compétition."
-    ],
-    "telegram_summary": "Pour revenir sur les rencontres de la soirée de Ligue des champions. Le Losc se déplaçait à Londres pour affronter Arsenal, Lens accueillait le Sporting, habitué des compétitions européennes.",
-    "link": "https://www.rfi.fr/fr/podcasts/radio-foot-internationale/20261013-d%C3%A9brief-de-la-2e-journ%C3%A9e-de-la-ligue-des-champions",
-    "source_url": "https://www.rfi.fr/fr/podcasts/radio-foot-internationale/20261013-d%C3%A9brief-de-la-2e-journ%C3%A9e-de-la-ligue-des-champions",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=4f6cccb479918d74",
-    "published": "2026-10-13T21:55:41+00:00",
-    "image": "assets/images/footnews/4f6cccb479918d74.webp",
-    "source_image": "https://s.rfi.fr/media/display/06497a8a-c728-11f1-a0cf-3774aeac812a/w:1024/p:16x9/2026-10-13T170036Z-132925539-UP1EMAD1B8ZI6-RTRMADP-3-SOCCER-CHAMPIONS-RCL-SCP.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "RFI",
-    "source_priority": 86,
-    "source_region": "afrique",
-    "source_feed": "https://www.rfi.fr/fr/tag/football/rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "RFI"
-    ],
-    "quality_score": 86
-  },
-  {
-    "slug": "eed83a2dcaf98ca2",
-    "title": "Lille s'incline logiquement sur la pelouse d'Arsenal pour son deuxième match de Ligue des champions",
-    "summary": "Déjà battus par le Betis pour leur entrée en lice (2-3), les Dogues restent bloqués à zéro point après deux matchs de la phase de la phase de ligue.",
-    "summary_short": "Déjà battus par le Betis pour leur entrée en lice (2-3), les Dogues restent bloqués à zéro point après deux matchs de la phase de la phase de ligue.",
-    "content": "Déjà battus par le Betis pour leur entrée en lice (2-3), les Dogues restent bloqués à zéro point après deux matchs de la phase de la phase de ligue.",
-    "paragraphs": [
-      "Déjà battus par le Betis pour leur entrée en lice (2-3), les Dogues restent bloqués à zéro point après deux matchs de la phase de la phase de ligue."
-    ],
-    "key_points": [
-      "Déjà battus par le Betis pour leur entrée en lice (2-3), les Dogues restent bloqués à zéro point après deux matchs de la phase de la phase de ligue."
-    ],
-    "telegram_summary": "Déjà battus par le Betis pour leur entrée en lice (2-3), les Dogues restent bloqués à zéro point après deux matchs de la phase de la phase de ligue.",
-    "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/lille-s-incline-logiquement-sur-la-pelouse-d-arsenal-pour-son-deuxieme-match-de-ligue-des-champions_8236129.html#xtor=RSS-3-%5Bgeneral%5D",
-    "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/lille-s-incline-logiquement-sur-la-pelouse-d-arsenal-pour-son-deuxieme-match-de-ligue-des-champions_8236129.html#xtor=RSS-3-%5Bgeneral%5D",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=eed83a2dcaf98ca2",
-    "published": "2026-10-13T21:11:32+00:00",
-    "image": "assets/images/footnews/eed83a2dcaf98ca2.webp",
-    "source_image": "https://www.franceinfo.fr/pictures/Ax2oetzBzFAtmS6N4msjJJVBnMk/0x0:5000x2812/432x243/filters:format(jpg)/2026/10/13/6ace96b7c404e809125524.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Franceinfo",
-    "source_priority": 82,
-    "source_region": "international",
-    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Franceinfo"
-    ],
-    "quality_score": 82
-  },
-  {
-    "slug": "36172600ca16abb6",
-    "title": "Ligue des champions: Arsenal fait plier Lille, le Barça renversant, le Bayern surpris",
-    "summary": "Longtemps sur la défensive et dans la résistance, Lille a fini par céder sur la pelouse d’Arsenal face à la furie des Gunners en seconde période (3-0). Mené en Turquie, le FC Barcelone a réussi à renverser Galatasaray (4-1) au moment où le Bayern se faisait surprendre par le Viking Stavanger (3-3).",
-    "summary_short": "Longtemps sur la défensive et dans la résistance, Lille a fini par céder sur la pelouse d’Arsenal face à la furie des Gunners en seconde période (3-0). Mené en Turquie, le FC Barcelone a réussi à renverser Galatasaray (4-1) au moment où le Bayern se faisait surprendre par le Viking Stavanger (3-3).",
-    "content": "Longtemps sur la défensive et dans la résistance, Lille a fini par céder sur la pelouse d’Arsenal face à la furie des Gunners en seconde période (3-0). Mené en Turquie, le FC Barcelone a réussi à renverser Galatasaray (4-1) au moment où le Bayern se faisait surprendre par le Viking Stavanger (3-3).",
-    "paragraphs": [
-      "Longtemps sur la défensive et dans la résistance, Lille a fini par céder sur la pelouse d’Arsenal face à la furie des Gunners en seconde période (3-0). Mené en Turquie, le FC Barcelone a réussi à renverser Galatasaray (4-1) au moment où le Bayern se faisait surprendre par le Viking Stavanger (3-3)."
-    ],
-    "key_points": [
-      "Longtemps sur la défensive et dans la résistance, Lille a fini par céder sur la pelouse d’Arsenal face à la furie des Gunners en seconde période (3-0).",
-      "Mené en Turquie, le FC Barcelone a réussi à renverser Galatasaray (4-1) au moment où le Bayern se faisait surprendre par le Viking Stavanger (3-3)."
-    ],
-    "telegram_summary": "Longtemps sur la défensive et dans la résistance, Lille a fini par céder sur la pelouse d’Arsenal face à la furie des Gunners en seconde période (3-0). Mené en Turquie, le FC Barcelone a réussi à renverser Galatasaray (4-1) au moment où le Bayern se faisait surprendre par le Viking Stavanger (3-3).",
-    "link": "https://www.rfi.fr/fr/sports/20261013-ligue-des-champions-arsenal-fait-plier-lille-le-bar%C3%A7a-renversant-le-bayern-surpris",
-    "source_url": "https://www.rfi.fr/fr/sports/20261013-ligue-des-champions-arsenal-fait-plier-lille-le-bar%C3%A7a-renversant-le-bayern-surpris",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=36172600ca16abb6",
-    "published": "2026-10-13T20:58:03+00:00",
-    "image": "assets/images/footnews/36172600ca16abb6.webp",
-    "source_image": "https://s.rfi.fr/media/display/f88d4d02-c747-11f1-8b57-53993c5f1f18/w:1024/p:16x9/AP26286739556271.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "RFI",
-    "source_priority": 86,
-    "source_region": "afrique",
-    "source_feed": "https://www.rfi.fr/fr/tag/football/rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "RFI"
-    ],
-    "quality_score": 86
-  },
-  {
-    "slug": "e613cd0155361cda",
-    "title": "Ligue des champions : le RC Lens chute face au Sporting Portugal, Lille craque contre Arsenal",
-    "summary": "Malgré une nette domination, le RC Lens a été surpris à domicile par le Sporting Portugal mardi à Bollaert, lors de la deuxième journée de Ligue des champions. Trop inefficaces, les Sang et or ont été punis par Luis Suarez, puis Issa Doumbia.",
-    "summary_short": "Malgré une nette domination, le RC Lens a été surpris à domicile par le Sporting Portugal mardi à Bollaert, lors de la deuxième journée de Ligue des champions. Trop inefficaces, les Sang et or ont été punis par Luis Suarez, puis Issa Doumbia.",
-    "content": "Malgré une nette domination, le RC Lens a été surpris à domicile par le Sporting Portugal mardi à Bollaert, lors de la deuxième journée de Ligue des champions. Trop inefficaces, les Sang et or ont été punis par Luis Suarez, puis Issa Doumbia. De son côté, Lille a explosé en vol sur la pelouse du champion d'Angleterre Arsenal.",
-    "paragraphs": [
-      "Malgré une nette domination, le RC Lens a été surpris à domicile par le Sporting Portugal mardi à Bollaert, lors de la deuxième journée de Ligue des champions. Trop inefficaces, les Sang et or ont été punis par Luis Suarez, puis Issa Doumbia. De son côté, Lille a explosé en vol sur la pelouse du champion d'Angleterre Arsenal."
-    ],
-    "key_points": [
-      "Malgré une nette domination, le RC Lens a été surpris à domicile par le Sporting Portugal mardi à Bollaert, lors de la deuxième journée de Ligue des champions.",
-      "Trop inefficaces, les Sang et or ont été punis par Luis Suarez, puis Issa Doumbia.",
-      "De son côté, Lille a explosé en vol sur la pelouse du champion d'Angleterre Arsenal."
-    ],
-    "telegram_summary": "Malgré une nette domination, le RC Lens a été surpris à domicile par le Sporting Portugal mardi à Bollaert, lors de la deuxième journée de Ligue des champions. Trop inefficaces, les Sang et or ont été punis par Luis Suarez, puis Issa Doumbia.",
-    "link": "https://www.france24.com/fr/sports/20261013-ligue-des-champions-lens-battu-sporting-portugal-lille-arsenal-football",
-    "source_url": "https://www.france24.com/fr/sports/20261013-ligue-des-champions-lens-battu-sporting-portugal-lille-arsenal-football",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e613cd0155361cda",
-    "published": "2026-10-13T19:57:13+00:00",
-    "image": "assets/images/footnews/e613cd0155361cda.webp",
-    "source_image": "https://s.france24.com/media/display/28471e8a-c73c-11f1-9ef4-77317c09f325/w:1024/p:16x9/2026-10-13T183021Z-281229408-UP1EMAD1FEKMB-RTRMADP-3-SOCCER-CHAMPIONS-RCL-SCP.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
   }
 ]
