@@ -694,6 +694,7 @@ jobs:
             --calendar=tmp/readonly-calendar-health.json \
             --fixtures=tmp/readonly-multiday-health.json \
             --sportscore=tmp/sportscore-upcoming-audit.json \
+            --calibrated=tmp/readonly-calibrated-replay.json \
             --report=tmp/multisource-release-gate.json
           python - <<'PY'
           import json
@@ -703,6 +704,8 @@ jobs:
           assert decision['production_publication_authorized'] is False
           assert decision['research_branch_fusion_authorized_by_this_report'] is False
           assert decision['independent_review_before_merging_required'] is True
+          assert decision['checks']['native_research_model_calibration_reproduced'] is True
+          assert decision['calibrated_replay_2026']['real_kickoff_or_bookmaker_backtest'] is False
           assert len(decision['blocking_requirements']) >= 6
           print('PRODUCTION_RELEASE_VERDICT',decision['decision'],
                 'blocking_requirements',len(decision['blocking_requirements']))
