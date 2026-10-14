@@ -206,7 +206,8 @@ class ViralEngineTests(unittest.TestCase):
         self.assertEqual(post.category, "viral")
         self.assertIn("Jane Doe", post.text)
         self.assertIsNotNone(post.animation_payload)
-        self.assertEqual(len(post.keyboard["inline_keyboard"]), 2)
+        self.assertEqual(len(post.keyboard["inline_keyboard"]), 1)
+        self.assertEqual(len(post.keyboard["inline_keyboard"][0]), 2)
 
     def test_telegram_animation_sender(self):
         session = FakeSession()

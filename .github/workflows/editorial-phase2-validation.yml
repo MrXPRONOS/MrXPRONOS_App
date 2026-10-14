@@ -33,13 +33,18 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_editorial_free.py' -v
           python -m unittest discover -s tests -p 'test_editorial_phase2.py' -v
-      - name: Check premium Flash Foot fallback offline
+      - name: Check Flash Foot uses the RSS source image
         run: |
           python - <<'PY'
-          from scripts.template_cards import render_flash
-          image=render_flash({"title":"Nouveaux résultats football","summary":"Source vérifiée.","source":"Mr XPRONOS","day":"12/10/2026","image_url":""})
-          assert image.size==(1080,1080)
-          print("FLASH_FOOT_LICENSE_SAFE_FALLBACK_OK")
+          import inspect
+          import scripts.football_channel as channel
+          import scripts.template_cards as cards
+
+          source = inspect.getsource(channel.flash)
+          assert "image_path=image_path" in source
+          assert "flash" not in cards.TEMPLATES
+          assert "flash" not in cards.RENDERERS
+          print("FLASH_FOOT_RSS_IMAGE_POLICY_OK")
           PY
       - name: Check BSD bridge without modifying data
         run: python scripts/editorial_bsd_bridge.py --dry-run
