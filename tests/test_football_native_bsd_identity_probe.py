@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime,timezone
 
-from scripts.football_native_bsd_identity_probe import prove,positive_native_id,native_parts,candidate_official_league_ids
+from scripts.football_native_bsd_identity_probe import prove,positive_native_id,native_parts,candidate_official_league_ids,audit_official_consensus_quotes
 
 NOW=datetime(2026,10,14,12,tzinfo=timezone.utc)
 
@@ -79,6 +79,48 @@ class IdentityBridgeTests(unittest.TestCase):
         self.assertIsNone(issue)
         self.assertIsNotNone(key)
         self.assertEqual(prove([ext()],[event],at=NOW)["one_to_one_native_event_links"],1)
+
+    def test_verified_native_event_can_only_audit_real_fresh_consensus_market(self):
+        class FakeBSD:
+            requests_made=0
+            def get_json(self,path,params,ttl=0):
+                self.requests_made+=1
+                self.last_path=path
+                self.last_params=params
+                return {"count":1,"results":[{
+                    "event_id":123,"market":"over_under_15","outcome":"over",
+                    "period":"FT","bookmaker_slug":"consensus",
+                    "decimal_odds":1.76,
+                    "updated_at":"2026-10-14T11:50:00+00:00",
+                }]}
+        linked=[]
+        report=prove([ext()],[native()],at=NOW,verified_id_sink=linked)
+        self.assertEqual(report["one_to_one_native_event_links"],1)
+        self.assertEqual(linked,[123])
+        fake=FakeBSD()
+        audit=audit_official_consensus_quotes(fake,[native()],linked,{},at=NOW)
+        self.assertEqual(fake.last_path,"/odds/")
+        self.assertEqual(fake.last_params["event_id"],123)
+        self.assertEqual(audit["events_with_fresh_consensus_market_prices"],1)
+        self.assertEqual(audit["fresh_consensus_market_prices"],1)
+        self.assertTrue(audit["consensus_is_not_executable_bookmaker_offer"])
+        self.assertEqual(audit["independent_bookmaker_selection_codes_verified"],0)
+        self.assertFalse(audit["production_market_policy_approved"])
+        self.assertNotIn("123",str(audit))
+        self.assertNotIn("1.76",str(audit))
+
+    def test_odds_entitlement_failure_is_fail_closed(self):
+        class ForbiddenClient:
+            requests_made=0
+            def get_json(self,path,params,ttl=0):
+                self.requests_made+=1
+                ex=Exception("paid add-on required")
+                ex.status=402
+                raise ex
+        client=ForbiddenClient()
+        audit=audit_official_consensus_quotes(client,[native()],[123],{},at=NOW)
+        self.assertEqual(audit["issues"]["bsd_odds_entitlement_required"],1)
+        self.assertEqual(audit["fresh_consensus_market_prices"],0)
 
     def test_official_league_detail_can_verify_name_without_inferring_identity(self):
         match=native()
