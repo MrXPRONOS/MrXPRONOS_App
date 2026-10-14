@@ -235,21 +235,31 @@ function applyStats(out:any, source:any){
   }
 }
 export function normalizeSportScoreDetail(payload:any){
-  const root=payload?.match&&typeof payload.match==="object"?payload.match:payload||{};
+  const envelope=payload?.data&&typeof payload.data==="object"?payload.data:payload||{};
+  const root=envelope?.match&&typeof envelope.match==="object"?envelope.match:envelope;
   const stats={home:{},away:{}} as any;
-  applyStats(stats,root.stats||root.statistics||root.team_stats);
+  // A valid detail feed may use several different keys or return an empty
+  // placeholder in one key. Never let an empty "stats" hide "statistics".
+  for(const candidate of [
+    root?.stats,root?.statistics,root?.team_stats,root?.teamStats,
+    root?.match_statistics,envelope?.stats,envelope?.statistics,
+  ])applyStats(stats,candidate);
   const lineups=root.lineups||{};
   const timeline=Array.isArray(root.timeline)?root.timeline:Array.isArray(root.events)?root.events:[];
   return {stats,lineups,timeline,minute:sportScoreMinute(root),odds_probe:probeSportScoreOdds(payload)};
 }
 
 
+export function preserveBsdCoreMarketPairs(bsdStats:any, mergedStats:any){
+  return preferObservedCoreMarketPairs(bsdStats,mergedStats);
+}
+
 // ESPN scoreboard fixtures do not always contain the full boxscore.
 // Extract only explicitly reported event statistics from the ESPN summary.
 // Home/away are established by matching both known ESPN team IDs.
 // Once BSD reports both sides of a core market, other feeds can only fill
 // genuinely missing markets. External counts must not displace BSD figures.
-export function preserveBsdCoreMarketPairs(bsdStats:any, mergedStats:any){
+export function preferObservedCoreMarketPairs(primaryStats:any, mergedStats:any){
   const out:any={
     ...(mergedStats||{}),
     home:{...(mergedStats?.home||{})},
@@ -265,7 +275,7 @@ export function preserveBsdCoreMarketPairs(bsdStats:any, mergedStats:any){
     ["red_cards","red_cards"],
   ];
   for(const [key,total] of fields){
-    const hv=bsdStats?.home?.[key],av=bsdStats?.away?.[key];
+    const hv=primaryStats?.home?.[key],av=primaryStats?.away?.[key];
     if(typeof hv==="number"&&Number.isFinite(hv)&&hv>=0 &&
        typeof av==="number"&&Number.isFinite(av)&&av>=0){
       out.home[key]=hv;
