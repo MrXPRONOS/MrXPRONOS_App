@@ -70,6 +70,34 @@ def _unknown(label: str) -> str:
     return label + " : <i>non communiqué</i>"
 
 
+NON_LIVE_TITLES = {
+    "composition_probable": "📋 COMPOSITION PROBABLE",
+    "composition_probable_full": "📋 COMPOSITION PROBABLE",
+    "composition_probable_partial": "📋 COMPOSITION PROBABLE",
+    "changement_de_composition": "🔁 CHANGEMENT DE XI",
+    "changement_composition": "🔁 CHANGEMENT DE XI",
+    "absence_confirmée": "🚑 ABSENCE CONFIRMÉE",
+    "absence_confirmee": "🚑 ABSENCE CONFIRMÉE",
+    "retour_dans_le_groupe": "✅ RETOUR DANS LE GROUPE",
+    "retour_groupe": "✅ RETOUR DANS LE GROUPE",
+    "statistique": "📊 STAT DU MATCH",
+    "statistique_avancee": "📊 LA STAT DU JOUR",
+    "debat": "💬 DÉBAT FOOT",
+    "quiz": "🧠 QUIZ FOOT",
+    "sondage": "🗳️ VOTE DU JOUR",
+    "community_vote": "🗳️ VOTE DU JOUR",
+    "reaction": "⭐ VOTRE RÉACTION ?",
+}
+
+
+def _with_title(category: str, body: str) -> str:
+    title = NON_LIVE_TITLES.get(category)
+    if not title:
+        return body
+    prefix = "<b>" + _esc(title) + "</b>"
+    return prefix if not body else prefix + "\n\n" + body
+
+
 def _teams_score_line(payload: dict[str, Any], score: str) -> str:
     home = _plain(payload.get("home"), 70)
     away = _plain(payload.get("away"), 70)
@@ -450,7 +478,7 @@ def banner_caption(category: str, payload: dict[str, Any]) -> str:
             rows.append("Formation : <b>" + _esc(formation) + "</b>")
         if not rows:
             rows.append("<i>Liste détaillée en attente de confirmation.</i>")
-        return "\n\n".join(x for x in (_blockquote(rows), source_line) if x)
+        return _with_title(category, "\n\n".join(x for x in (_blockquote(rows), source_line) if x))
 
     if category in {"absence_confirmée", "absence_confirmee", "retour_dans_le_groupe", "retour_groupe"}:
         player = _plain(payload.get("player"), 80)
@@ -459,7 +487,7 @@ def banner_caption(category: str, payload: dict[str, Any]) -> str:
             "👤 <b>" + _esc(player) + "</b>" if player else _unknown("👤 Joueur"),
             _esc(detail) if detail else "<i>Détail non communiqué.</i>",
         ]
-        return "\n\n".join(x for x in (_blockquote(rows), source_line) if x)
+        return _with_title(category, "\n\n".join(x for x in (_blockquote(rows), source_line) if x))
 
     if category in {"statistique", "statistique_avancee"}:
         lines = payload.get("lines") if isinstance(payload.get("lines"), list) else []
@@ -478,22 +506,24 @@ def banner_caption(category: str, payload: dict[str, Any]) -> str:
         if not rows:
             rows.append("📊 Donnée vérifiée dans le match.")
         tail = "<b>💬 Quelle statistique voulez-vous voir ensuite ?</b>"
-        return "\n\n".join(x for x in (_blockquote(rows), source_line, tail) if x)
+        return _with_title(category, "\n\n".join(x for x in (_blockquote(rows), source_line, tail) if x))
 
     if category == "debat":
         summary = _plain(payload.get("summary"), 350)
         question = _plain(payload.get("question"), 240)
-        return "\n\n".join(x for x in (
+        return _with_title(category, "\n\n".join(x for x in (
             _blockquote([_esc(summary)] if summary else ["<i>Contexte à compléter.</i>"]),
             ("<b>💬 " + _esc(question) + "</b>") if question else "<b>💬 Donnez votre avis.</b>",
             source_line,
-        ) if x)
+        ) if x))
 
     if category in {"quiz", "sondage", "community_vote", "reaction"}:
         question = _plain(payload.get("question") or payload.get("reaction"), 260)
         if question:
-            return "<blockquote><b>" + _esc(question) + "</b></blockquote>" + (("\n\n" + source_line) if source_line else "")
-        return "<blockquote><b>💬 À vous de participer.</b></blockquote>" + (("\n\n" + source_line) if source_line else "")
+            body = "<blockquote><b>" + _esc(question) + "</b></blockquote>" + (("\n\n" + source_line) if source_line else "")
+            return _with_title(category, body)
+        body = "<blockquote><b>💬 À vous de participer.</b></blockquote>" + (("\n\n" + source_line) if source_line else "")
+        return _with_title(category, body)
 
     info = _plain(payload.get("info") or payload.get("status") or payload.get("detail"), 250)
     return "\n\n".join(x for x in (
