@@ -175,35 +175,66 @@ def adapt_daily(fixtures: list[dict], history: list[dict], *, as_of: datetime,
                 team_latest[key] = when
     models=[]
     stats=Counter()
+    per_provider=defaultdict(Counter)
     for item in fixtures:
         sources = item.get("sources") or {}
+        discovered=str(item.get("discovered_by") or "unknown")
         if not isinstance(sources, dict) or not sources:
             stats["no_discovery_source"] += 1
+            per_provider[discovered]["no_source"]+=1
             continue
         if "bsd" in sources:
             stats["already_in_bsd_do_not_duplicate"] += 1
+            per_provider[discovered]["already_bsd"]+=1
             continue
         names = safe_names(item)
         if names is None:
             stats["unverified_competition_or_teams"] += 1
+            if item.get("status")!="prematch":
+                reason="fixture_not_prematch"
+            elif item.get("ambiguous_match"):
+                reason="ambiguous_match"
+            elif item.get("scores_conflict"):
+                reason="conflicting_provider_scores"
+            elif item.get("league_conflict"):
+                reason="provider_league_conflict"
+            elif not item.get("league_labels"):
+                reason="no_explicit_competition"
+            elif item.get("league_verified") is False:
+                reason="competition_not_verified"
+            else:
+                reason="invalid_teams_or_competition"
+            stats[reason]+=1
+            per_provider[discovered][reason]+=1
             continue
         league, home, away = names
         home = resolve_confirmed_alias(league,home,team_aliases or {})
         away = resolve_confirmed_alias(league,away,team_aliases or {})
         if home == away:
             stats["alias_caused_identical_teams"] += 1
+            per_provider[discovered]["alias_conflict"]+=1
             continue
         kickoff = aware_time(item.get("kickoff_utc"))
         if kickoff is None or kickoff <= as_of:
             stats["not_future"] += 1
+            per_provider[discovered]["not_future"]+=1
             continue
         lid = numbered(LEAGUE_START,league)
         hid, aid = ids(league,home), ids(league,away)
         if min(team_counts[(lid,hid)],team_counts[(lid,aid)]) < min_recent:
             stats["insufficient_prior_matches"] += 1
+            if team_counts[(lid,hid)] == 0 and team_counts[(lid,aid)] == 0:
+                reason="both_teams_absent_in_history"
+            elif team_counts[(lid,hid)] == 0 or team_counts[(lid,aid)] == 0:
+                reason="one_team_absent_in_history"
+            else:
+                reason="teams_have_too_few_matches"
+            stats[reason]+=1
+            per_provider[discovered][reason]+=1
             continue
         if max((kickoff-team_latest[(lid,hid)]).days,(kickoff-team_latest[(lid,aid)]).days) > 240:
             stats["stale_prior_matches"] += 1
+            per_provider[discovered]["stale_prior_matches"]+=1
             continue
         # This is intentionally a local derived ID: original per-provider refs remain.
         synth_id = numbered(FIXTURE_START, f"{league}|{kickoff.isoformat()}|{home}|{away}")
@@ -223,9 +254,11 @@ def adapt_daily(fixtures: list[dict], history: list[dict], *, as_of: datetime,
             "_history_provider":PROVIDER,
         })
         stats["adapted_external"] += 1
+        per_provider[discovered]["adapted"]+=1
     return models, {"input_discovered_fixtures":len(fixtures),
                     "ready_for_unchanged_core":len(models),
                     "ignored":dict(sorted(stats.items())),
+                    "coverage_by_discovery_source":{k:dict(sorted(v.items())) for k,v in sorted(per_provider.items())},
                     "model_code_changed":False}
 
 
