@@ -38,6 +38,10 @@ on:
       - 'tests/test_football_authorized_h2h_collector.py'
       - 'scripts/football_openfootball_world_import.py'
       - 'tests/test_football_openfootball_world_import.py'
+      - 'scripts/football_cc0_calendar_verification.py'
+      - 'scripts/football_prematch_multiday_probe.py'
+      - 'scripts/football_multisource_channel_test.py'
+      - 'tests/test_football_multisource_channel_test.py'
       - '.github/workflows/football-history-shadow.yml'
   workflow_dispatch:
     inputs:
@@ -79,7 +83,7 @@ jobs:
         run: |
           php -l scripts/football_history_import.php
           php scripts/football_history_import.php --self-test
-          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py scripts/football_bsd_private_history.py scripts/football_bsd_validate_real.py scripts/football_bsd_private_paired_backtest.py scripts/football_external_bsd_v2_adapter.py scripts/football_multi_api_history_inputs.py scripts/football_verified_identity_crosswalk.py scripts/football_authorized_h2h_collector.py scripts/football_openfootball_world_import.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py tests/test_football_bsd_private_history.py tests/test_football_bsd_validate_real.py tests/test_football_bsd_private_paired_backtest.py tests/test_football_external_bsd_v2_adapter.py tests/test_football_multi_api_history_inputs.py tests/test_football_verified_identity_crosswalk.py tests/test_football_authorized_h2h_collector.py tests/test_football_openfootball_world_import.py
+          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py scripts/football_bsd_private_history.py scripts/football_bsd_validate_real.py scripts/football_bsd_private_paired_backtest.py scripts/football_external_bsd_v2_adapter.py scripts/football_multi_api_history_inputs.py scripts/football_verified_identity_crosswalk.py scripts/football_authorized_h2h_collector.py scripts/football_openfootball_world_import.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py tests/test_football_bsd_private_history.py tests/test_football_bsd_validate_real.py tests/test_football_bsd_private_paired_backtest.py tests/test_football_external_bsd_v2_adapter.py tests/test_football_multi_api_history_inputs.py tests/test_football_verified_identity_crosswalk.py tests/test_football_authorized_h2h_collector.py tests/test_football_openfootball_world_import.py scripts/football_cc0_calendar_verification.py scripts/football_prematch_multiday_probe.py scripts/football_multisource_channel_test.py tests/test_football_multisource_channel_test.py
           python -m unittest discover -s tests -p 'test_football_history_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_daily_multisource_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_history_features.py' -v
@@ -96,6 +100,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_football_verified_identity_crosswalk.py' -v
           python -m unittest discover -s tests -p 'test_football_authorized_h2h_collector.py' -v
           python -m unittest discover -s tests -p 'test_football_openfootball_world_import.py' -v
+          python -m unittest discover -s tests -p 'test_football_multisource_channel_test.py' -v
   historical_probe:
     if: github.event_name == 'workflow_dispatch'
     needs: verify
@@ -511,3 +516,96 @@ jobs:
             tmp/private-run-world-history-AGGREGATE.json
           if-no-files-found: error
           retention-days: 3
+
+  one_shot_test_telegram_multisource:
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.number == 96 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'feat/multisource-history-shadow-20261014' &&
+      contains(github.event.pull_request.title, '[RUN_TEST_ONCE]')
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Minimal Python HTTP dependencies
+        run: python -m pip install requests
+      - name: Acquire eight CC0 historical league datasets over four seasons
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p tmp
+          php scripts/football_history_import.php \
+            --source=openfootball \
+            --seasons=2023-24,2024-25,2025-26,2026-27 \
+            --league-codes=en.1,en.2,de.1,es.1,fr.1,it.1,nl.1,pt.1 \
+            --max-files=32 --out=tmp/licensed-history.jsonl
+          test -s tmp/licensed-history.jsonl
+      - name: Discover future fixtures across three days with bounded API calls
+        run: |
+          set -euo pipefail
+          umask 077
+          python scripts/football_prematch_multiday_probe.py \
+            --start-day="$(date -u -d '+2 days' +%F)" \
+            --count-days=3 --max-http=24 \
+            --out=tmp/multiday-public-fixtures.json --report=tmp/multiday-health.json
+      - name: Corroborate exact league and teams against CC0 schedules
+        run: |
+          python scripts/football_cc0_calendar_verification.py \
+            --fixtures=tmp/multiday-public-fixtures.json \
+            --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --output=tmp/corroborated-fixtures.json --report=tmp/schedule-identity-health.json
+      - name: Dry-run existing BSD V2 core with historical H2H
+        run: |
+          python scripts/football_multisource_channel_test.py \
+            --fixtures=tmp/corroborated-fixtures.json \
+            --licensed-history=tmp/licensed-history.jsonl \
+            --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --report=tmp/multisource-dry-run.json
+          python - <<'PY'
+          import json
+          result=json.load(open('tmp/multisource-dry-run.json'))
+          assert result['test_only'] and result['no_odds_invented']
+          assert result['calibrated_production_coupons'] == 0
+          assert result['production_modified'] is False
+          print('MULTISOURCE_V2_TEST_PREFLIGHT',result)
+          PY
+      - name: Send experimental picks or no-pick diagnostic ONLY to @predict_mrxp
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+        run: |
+          python scripts/football_multisource_channel_test.py \
+            --fixtures=tmp/corroborated-fixtures.json \
+            --licensed-history=tmp/licensed-history.jsonl \
+            --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --report=tmp/multisource-test-send-report.json \
+            --max-picks=3 --send-test
+      - name: Delete temp raw records (including on failure)
+        if: always()
+        run: |
+          rm -f tmp/licensed-history.jsonl tmp/multiday-public-fixtures.json tmp/corroborated-fixtures.json
+      - name: Upload aggregate test report only
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mrxp-one-shot-test-only-validation
+          path: |
+            tmp/multiday-health.json
+            tmp/schedule-identity-health.json
+            tmp/multisource-dry-run.json
+            tmp/multisource-test-send-report.json
+          retention-days: 3
+          if-no-files-found: error
