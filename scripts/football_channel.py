@@ -1640,6 +1640,13 @@ def viral_publication(
     if not key or not caption:
         return None
 
+    if payload.get("kind") == "news_pulse":
+        viral_title = plain(payload.get("title"), 230)
+        viral_summary = plain(payload.get("summary"), 330)
+        if viral_title:
+            caption = "<b>🚨 " + esc(viral_title) + "</b>"
+            if viral_summary:
+                caption += "\n\n" + esc(viral_summary)
     credit = media_credit_text(payload)
     if credit:
         caption += "\n\n<i>🎞️ Fond média : " + esc(credit) + "</i>"
@@ -1780,7 +1787,7 @@ def community_vote_publication(events: list[dict], now: datetime) -> Publication
     return Publication(
         "sondage",
         plain(payload.get("key"), 180),
-        "<b>🗳️ Votez juste en dessous 👇</b>",
+        "<b>🗳️ VOTE DU JOUR</b>\n\nVotez juste en dessous 👇",
         poll=(question, options),
         poll_type="regular",
         poll_description=(
@@ -1812,7 +1819,7 @@ def community_quiz_publication(session: requests.Session, day: date) -> Publicat
     return Publication(
         "quiz",
         plain(payload.get("key"), 180),
-        "<b>🧠 À vous de jouer 👇</b>",
+        "<b>🧠 QUIZ FOOT</b>\n\nÀ vous de jouer 👇",
         poll=(question, options),
         poll_type="quiz",
         correct_option_ids=[int(x) for x in correct],
@@ -1878,7 +1885,7 @@ def community_reaction_publication(events: list[dict], now: datetime) -> Publica
     return Publication(
         "reaction",
         plain(payload.get("key"), 180),
-        "<b>⭐ Donnez votre note juste en dessous 👇</b>",
+        "<b>⭐ VOTRE RÉACTION ?</b>\n\nDonnez votre note juste en dessous 👇",
         poll=(question, options),
         poll_type="regular",
         poll_description=(
@@ -1922,7 +1929,7 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
         if max(map(len, options)) <= 100:
             return Publication(
                 "sondage", "sondage:" + today.isoformat(),
-                "<b>🗳️ Votez juste en dessous 👇</b>", (question, options),
+                "<b>🗳️ VOTE DU JOUR</b>\n\nVotez juste en dessous 👇", (question, options),
                 card={
                     "day": today.strftime("%d/%m/%Y"),
                     "question": question,
@@ -1951,7 +1958,7 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
     question, options = topics[today.toordinal() % len(topics)]
     question = (question + " 💬 Vote puis commente.")[:300]
     return Publication(
-        "sondage", "sondage:" + today.isoformat(), "<b>🗳️ Votez juste en dessous 👇</b>",
+        "sondage", "sondage:" + today.isoformat(), "<b>🗳️ VOTE DU JOUR</b>\n\nVotez juste en dessous 👇",
         (question, options),
         card={
             "day": today.strftime("%d/%m/%Y"),
