@@ -21,6 +21,9 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from bsd.free_football_sources import collect_free_day
 from scripts.football_history_shadow import normalized, canonical_team
+from scripts.football_history_features import competition
+from scripts.football_match_source_router import route_all
+import hashlib
 
 ALLOWED = ("bsd", "api_football", "espn", "sportscore", "thesportsdb", "openligadb")
 ALLOWED_HOSTS = {
@@ -110,6 +113,10 @@ def api_football_rows(payload: Any) -> list[dict]:
 def compatible(a: dict, b: dict, minutes: int = 90) -> bool:
     if canonical_team(a["home"]) != canonical_team(b["home"]) or canonical_team(a["away"]) != canonical_team(b["away"]):
         return False
+    # Same named teams playing separate competitions is not a confirmed match.
+    al, bl = competition(a["league"]), competition(b["league"])
+    if al and bl and al != bl:
+        return False
     da, db = kickoff(a["kickoff_utc"]), kickoff(b["kickoff_utc"])
     return da is not None and db is not None and abs((da - db).total_seconds()) <= minutes * 60
 
@@ -147,6 +154,8 @@ def merge(snapshots: dict[str, Any], *, bsd_events: list | None = None) -> tuple
         if len(candidates) != 1:
             if len(candidates) > 1:
                 ambiguities.append({"source": row["source"], "source_id": row["source_id"], "candidate_ids": [g["anchor"]["source_id"] for g in candidates]})
+                for item in candidates:
+                    item["ambiguous"] = True
             groups.append({"anchor": row, "providers": {row["source"]: row}, "ambiguous": len(candidates) > 1})
         else:
             candidates[0]["providers"][row["source"]] = row
@@ -157,14 +166,21 @@ def merge(snapshots: dict[str, Any], *, bsd_events: list | None = None) -> tuple
         final_scores = {(r["home_score"], r["away_score"]) for r in providers.values() if r["state"].lower() in ("post", "finished", "ft", "completed") and r["home_score"] is not None and r["away_score"] is not None}
         scores_conflict = len(final_scores) > 1
         leagues = sorted({r["league"] for r in providers.values() if r["league"]})
+        league_keys = {competition(v) for v in leagues}
+        fixture_key = hashlib.sha256((anchor["kickoff_utc"] + "|" + canonical_team(anchor["home"]) + "|" + canonical_team(anchor["away"])).encode("utf-8")).hexdigest()[:24]
         fixtures.append({
+            "fixture_key": fixture_key,
+            "discovered_by": anchor["source"],
             "home_team": anchor["home"], "away_team": anchor["away"],
             "kickoff_utc": anchor["kickoff_utc"], "league_labels": leagues,
             "sources": {provider: {"id": item["source_id"], "kickoff_utc": item["kickoff_utc"], "state": item["state"]} for provider, item in sorted(providers.items())},
             "source_count": len(providers), "scores_conflict": scores_conflict,
+            "league_conflict": len(league_keys) > 1,
+            "league_verified": len(league_keys) == 1,
             "ambiguous_match": group["ambiguous"],
             "eligible_for_model": False,  # feature compatibility / out-of-sample test needed
             "matched_with_bsd": "bsd" in providers,
+            "status": "prematch" if all(r["state"].lower() in ("pre", "notstarted", "upcoming", "ns", "") for r in providers.values()) else "not_prematch",
         })
     fixtures.sort(key=lambda row: (row["kickoff_utc"], row["home_team"], row["away_team"]))
     stats = {
@@ -173,6 +189,8 @@ def merge(snapshots: dict[str, Any], *, bsd_events: list | None = None) -> tuple
         "corroborated_by_two_or_more": sum(f["source_count"] >= 2 for f in fixtures),
         "bsd_matches_corrobated": sum(f["matched_with_bsd"] and f["source_count"] >= 2 for f in fixtures),
         "score_conflicts": sum(f["scores_conflict"] for f in fixtures),
+        "league_conflicts": sum(f["league_conflict"] for f in fixtures),
+        "unverified_leagues": sum(not f["league_verified"] for f in fixtures),
         "ambiguous_joins": len(ambiguities),
         "ambiguities": ambiguities[:50],
         "model_input_enabled": False, "telegram_posts": 0,
@@ -208,6 +226,8 @@ def main() -> None:
     p.add_argument("--snapshots", help="Offline fixture snapshots JSON keyed by provider; no network")
     p.add_argument("--bsd-fixtures", help="Optional private BSD local list JSON, never uploaded")
     p.add_argument("--api-football-fixtures", help="Offline JSON /fixtures response; no new API calls")
+    p.add_argument("--prematch-stats", help="Validated per-provider historical statistics; JSON by provider and fixture ID")
+    p.add_argument("--route-out", help="Optional research-only per-match chosen providers JSON")
     p.add_argument("--max-http", type=int, default=12)
     p.add_argument("--out", required=True, help="Research-only output, not data.json")
     p.add_argument("--report", required=True)
@@ -229,6 +249,15 @@ def main() -> None:
         payload = json.loads(Path(args.api_football_fixtures).read_text(encoding="utf-8"))
         snapshots["api_football"] = {"rows": api_football_rows(payload), "error": ""}
     fixtures, report = merge(snapshots, bsd_events=bsd_events)
+    statistics = json.loads(Path(args.prematch_stats).read_text(encoding="utf-8")) if args.prematch_stats else {}
+    if not isinstance(statistics, dict):
+        p.error("--prematch-stats must be an object keyed by provider")
+    routed, readiness = route_all(fixtures, statistics)
+    report["prematch_readiness"] = readiness
+    if args.route_out:
+        out = Path(args.route_out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(routed, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     report.update({"day": day.isoformat(), "http_requests": calls, "total_http_requests": sum(calls.values())})
     for path, data in ((args.out, fixtures), (args.report, report)):
         output = Path(path)
