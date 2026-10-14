@@ -1922,6 +1922,7 @@ def lifecycle_publication(signal: dict) -> Publication | None:
         "away_logo": plain(signal.get("away_logo") or "", 500),
         "goal": signal.get("goal") if isinstance(signal.get("goal"), dict) else {},
         "espn_url": espn_url,
+        "fixture_key": plain(signal.get("follow_ref") or signal.get("fixture_key"), 180),
     }
 
     if kind == "composition":
@@ -2014,6 +2015,7 @@ def followed_interruption_publication(signal: dict) -> Publication | None:
         "home_logo": signal.get("home_logo"),
         "away_logo": signal.get("away_logo"),
         "espn_url": signal.get("espn_url"),
+        "fixture_key": plain(signal.get("follow_ref") or signal.get("fixture_key"), 180),
     }
     return Publication(
         "suivi_interrompu",
@@ -2112,7 +2114,8 @@ def followed_final_publication(signal: dict) -> Publication | None:
                 "league": comp, "home": home, "away": away,
                 "scores": (h, a), "source": signal.get("source") or "score confirmé",
                 "home_logo": logo_home,
-                "away_logo": logo_away}
+                "away_logo": logo_away,
+                "fixture_key": plain(signal.get("follow_ref") or signal.get("fixture_key"), 180)}
     if card is None:
         card = {
             "home": home,
@@ -2123,6 +2126,7 @@ def followed_final_publication(signal: dict) -> Publication | None:
             "source": signal.get("source") or "score confirmé",
             "home_logo": logo_home,
             "away_logo": logo_away,
+            "fixture_key": plain(signal.get("follow_ref") or signal.get("fixture_key"), 180),
         }
 
     espn_url = plain(signal.get("espn_url"), 500)
@@ -2223,6 +2227,8 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
     def publish(item: Publication | None, *, ref: str = "", replay: bool = False) -> bool:
         if item is None:
             return False
+        if replay and not ref and isinstance(item.card, dict):
+            ref = plain(item.card.get("fixture_key"), 180)
         story_key = editorial_story_key(item)
         if story_key and not force and not replay and state.seen_recent(story_key, now, hours=12):
             counter["skipped"] += 1
@@ -2396,6 +2402,8 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                 ref: str = "", replay: bool = False) -> bool:
         if item is None:
             return False
+        if replay and not ref and isinstance(item.card, dict):
+            ref = plain(item.card.get("fixture_key"), 180)
         story_key = editorial_story_key(item)
         if story_key and not force and not replay and state.seen_recent(story_key, now, hours=12):
             counter["skipped"] += 1
