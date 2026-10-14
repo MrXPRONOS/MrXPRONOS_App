@@ -10,7 +10,7 @@ This module never makes network requests and never computes betting predictions.
 It yields provider-attributed, finished-only history for an external V2History.
 """
 from __future__ import annotations
-from collections import Counter
+from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
@@ -227,3 +227,76 @@ def ingest(snapshots: list[dict], licenses: dict, *,
                  "no_auto_rights_override":True,
                  "no_api_called":True,
                  "production_changed":False}
+
+
+
+def trusted_private_bsd_rows(events: list[dict], *, as_of: datetime,
+                             explicitly_authorized: bool = False) -> tuple[list[dict],dict]:
+    """Adapt PRIVATE authentic BSD scores to external team's canonical namespace.
+
+    This function MAY NOT be called from a public PR without a trusted
+    encrypted-archive restore step. All fixture IDs stay private; only
+    aggregate diagnostics can be uploaded. Ambiguous native team names
+    mapping to multiple official BSD team IDs are excluded entirely.
+    """
+    if not explicitly_authorized:
+        return [], {"status":"permission_required","converted":0}
+    from scripts.football_history_shadow import canonical_team
+    from scripts.football_history_features import competition
+    if as_of.tzinfo is None:
+        raise ValueError("Timezone-aware analysis time required")
+    counts=Counter()
+    native_names=defaultdict(set)
+    prepared=[]
+    for event in events:
+        if not isinstance(event,dict) or str(event.get("status") or "").lower()!="finished":
+            counts["not_completed"]+=1
+            continue
+        instant=aware(event.get("event_date"))
+        hscore,ascore=score(event.get("home_score")),score(event.get("away_score"))
+        if instant is None or instant+timedelta(hours=4)>=as_of:
+            counts["not_settled_by_analysis"]+=1
+            continue
+        home,away=(event.get("home_team"),event.get("away_team"))
+        hname,aname=native_name(home),native_name(away)
+        lid=event.get("league_name") or event.get("competition_name") or event.get("league")
+        if isinstance(lid,dict):
+            lid=lid.get("name")
+        league=competition(str(lid or ""))
+        try:
+            ht=event.get("home_team_id") or (home.get("id") if isinstance(home,dict) else None)
+            at=event.get("away_team_id") or (away.get("id") if isinstance(away,dict) else None)
+            ht,at=int(ht),int(at)
+        except (ValueError,TypeError):
+            counts["missing_native_team_ids"]+=1
+            continue
+        if (not league or not hname or not aname or canonical_team(hname)==canonical_team(aname)
+                or ht<=0 or at<=0 or ht==at or hscore is None or ascore is None
+                or event.get("id") is None):
+            counts["invalid_native_identity_or_score"]+=1
+            continue
+        native_names[(league,canonical_team(hname))].add(ht)
+        native_names[(league,canonical_team(aname))].add(at)
+        prepared.append((event,instant,league,hname,aname,hscore,ascore))
+    rows=[]
+    for event,instant,league,hname,aname,hscore,ascore in prepared:
+        if (len(native_names[(league,canonical_team(hname))])!=1 or
+                len(native_names[(league,canonical_team(aname))])!=1):
+            counts["ambiguous_team_ids_for_name"]+=1
+            continue
+        rows.append({
+            "source":"bsd","source_id":str(event["id"]),
+            "status":"finished","league":league,
+            "home_team":hname,"away_team":aname,
+            "kickoff_utc":instant.isoformat(),"match_date":instant.date().isoformat(),
+            "home_score":hscore,"away_score":ascore,
+            "time_precision":"instant",
+        })
+    counts["converted"] = len(rows)
+    return rows,{
+        "status":"private_internal_research_only",
+        "converted":len(rows),
+        "rejections":dict(sorted(counts.items())),
+        "private_ids_exposed_in_report":False,
+        "model_modified":False,
+    }
