@@ -1124,15 +1124,18 @@ def lifecycle_signals(
     """Construit les transitions publiables, triées par urgence éditoriale."""
     today = now.astimezone(timezone.utc).date()
     external = collect_external(session, today, base_events)
-    # Mode lifecycle léger : si aucun calendrier BSD n'est fourni, ESPN/cache
-    # live devient temporairement la liste de base. Cela évite toute requête
-    # BSD dans les passages rapides de 10 minutes.
-    if not base_events and not tracked_only:
-        base_events = [
-            item for item in external
-            if item.get("source") in {"espn", "sportscore", "thesportsdb", "openligadb", "supabase_live"}
-            and item.get("home_team") and item.get("away_team")
-        ]
+    # En mode rapide non restreint, les grosses affiches peuvent être détectées
+    # même si aucun AVANT-MATCH n'a créé de suivi. On fusionne les rencontres
+    # externes avec les matchs déjà suivis; les doublons sont filtrés par matching.
+    if not tracked_only:
+        merged_base = list(base_events)
+        for item in external:
+            if not item.get("home_team") or not item.get("away_team"):
+                continue
+            if any(best_external_match(existing, [item]) is not None for existing in merged_base):
+                continue
+            merged_base.append(item)
+        base_events = merged_base
     signals: list[dict] = []
     summary_cache: dict[str, dict] = {}
     detail_cache: dict[str, dict] = {}
@@ -1220,7 +1223,7 @@ def lifecycle_signals(
         aws = _score(ext.get("away_score"))
         score_text = f"{hs}-{aws}" if hs is not None and aws is not None else ""
         importance = int(importance_fn(base) or 0)
-        if importance <= 0 and not follow_ref and not (is_live(ext) or is_halftime(ext)):
+        if importance <= 0 and not follow_ref:
             continue
         source = _plain(ext.get("source") or "source live")
 
@@ -1484,9 +1487,9 @@ def lifecycle_signals(
                 })
 
         # Le match se conclut UNIQUEMENT avec un état final + un score confirmé.
-        if (follow_ref and any(token in _plain(ext.get("status_detail")).lower()
-                               for token in ("postpon", "cancel", "abandon", "suspend"))):
-            key = "suivi_interrompu:" + follow_ref
+        if any(token in _plain(ext.get("status_detail")).lower()
+               for token in ("postpon", "cancel", "abandon", "suspend")):
+            key = "suivi_interrompu:" + key_id
             if key not in sent_keys:
                 signals.append({
                     "kind": "suivi_interrompu", "key": key, "priority": 260 + importance, "priority_class": "P0",
@@ -1495,12 +1498,12 @@ def lifecycle_signals(
                     "espn_event_id": espn_event_id, "espn_url": espn_url,
                 })
         elif _plain(ext.get("state")).lower() in {"post", "finished", "ft", "full_time"}:
-            if hs is not None and aws is not None and follow_ref:
+            if hs is not None and aws is not None:
                 base_home_obj = base.get("home_team") if isinstance(base.get("home_team"), dict) else {}
                 base_away_obj = base.get("away_team") if isinstance(base.get("away_team"), dict) else {}
                 home_logo = _plain(ext.get("home_logo") or base_home_obj.get("logo"))
                 away_logo = _plain(ext.get("away_logo") or base_away_obj.get("logo"))
-                final_key = "resultat:" + follow_ref
+                final_key = "resultat:" + key_id
                 if final_key not in sent_keys:
                     signals.append({
                         "kind": "resultat_final", "key": final_key,
@@ -1510,6 +1513,11 @@ def lifecycle_signals(
                         "day": now.strftime("%d/%m/%Y"),
                         "espn_event_id": espn_event_id,
                         "espn_url": espn_url,
+                        "shootout_scores": (
+                            [ext.get("home_shootout_score"), ext.get("away_shootout_score")]
+                            if ext.get("home_shootout_score") is not None
+                            and ext.get("away_shootout_score") is not None else []
+                        ),
                         "match_data": (
                             extract_match_enrichment(summary_for(espn_event_id))
                             if espn_event_id else provider_detail(ext)
