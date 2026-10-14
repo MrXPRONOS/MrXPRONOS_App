@@ -137,6 +137,22 @@ jobs:
           php scripts/football_history_import.php --source=openfootball --seasons=2024-25 --max-files=1 --out=tmp/openfootball.jsonl
           cp tmp/openfootball.jsonl tmp/combined.jsonl
           python scripts/football_public_domain_backtest.py --history-jsonl=tmp/openfootball.jsonl --report=tmp/openfootball-holdout-quality.json
+          # Chronological four-season EPL probe, fixed 4 public-domain file downloads
+          for season in 2023-24 2025-26 2026-27; do
+            php scripts/football_history_import.php --source=openfootball --seasons="$season" --max-files=1 --out="tmp/season-$season.jsonl"
+          done
+          cat tmp/season-2023-24.jsonl tmp/openfootball.jsonl tmp/season-2025-26.jsonl tmp/season-2026-27.jsonl > tmp/four-season-history.jsonl
+          python scripts/football_public_domain_backtest.py --history-jsonl=tmp/four-season-history.jsonl --report=tmp/four-season-holdout-quality.json
+          python - <<'PY'
+          import json
+          result=json.load(open('tmp/four-season-holdout-quality.json'))
+          assert result['history_unique_matches'] >= 900
+          assert result['evaluable_games'] >= 200
+          assert result['source_confirmation'] == 'single_unverified_source'
+          assert result['production_activation_allowed'] is False
+          assert result['compared_to_bsd_v2'] is False
+          print('FOUR_SEASON_OUT_OF_SAMPLE_RESEARCH', {'n':result['evaluable_games'], 'measures':result['scoring_metrics']})
+          PY
           python scripts/football_history_shadow.py --input=tmp/combined.jsonl --output=tmp/merged.json --report=tmp/quality.json
           python scripts/football_alias_candidates.py --input=tmp/combined.jsonl --out=tmp/aliases-to-review.json
           python - <<'PY'
@@ -216,6 +232,7 @@ jobs:
           path: |
             tmp/quality.json
             tmp/openfootball-holdout-quality.json
+            tmp/four-season-holdout-quality.json
           retention-days: 7
 
   daily_source_probe:
