@@ -64,6 +64,36 @@ def audit_no_quote_gate(fixtures:list[dict],history:list[dict],*,at:datetime) ->
         "publication_enabled":False,
     }
 
+def audit_external_pricing_bridge(fixtures:list[dict]) -> dict:
+    """Fail-closed metadata check for the EXISTING BSD production price path.
+
+    bsd_v2_publish.fetch_event_odds requires a genuine BSD event ID; research
+    fixture IDs are derived in a separate namespace. The publisher can also
+    label a MODEL-ESTIMATED price, but that is not a bookmaker quote and its
+    calibrated publication path is NOT reproduced or enabled by this module.
+    """
+    reasons=Counter()
+    for item in fixtures:
+        if item.get("_derived_research_id") is not True:
+            reasons["missing_research_namespace_proof"]+=1
+        elif not isinstance(item.get("_original_fixture_refs"),dict):
+            reasons["missing_provider_reference"]+=1
+        else:
+            reasons["external_id_not_native_bsd_odds_id"]+=1
+    return {
+        "inspected_fixtures":len(fixtures),
+        "native_bsd_odds_event_ids_verified":0,
+        "external_to_bookmaker_event_matches_verified":0,
+        "external_quote_provider_integrated":False,
+        "bsd_native_odds_endpoint_called":False,
+        "model_estimated_prices_possible_in_existing_publisher":True,
+        "model_estimated_prices_generated_by_this_audit":False,
+        "full_calibration_and_v21_publication_approved":False,
+        "reasons":dict(sorted(reasons.items())),
+        "publication_enabled":False,
+    }
+
+
 def build(fixtures:list[dict], licensed_history:list[dict], *,at:datetime,
           max_picks:int=3) -> tuple[list[str],dict]:
     if at.tzinfo is None or not 1<=max_picks<=3:
@@ -77,6 +107,7 @@ def build(fixtures:list[dict], licensed_history:list[dict], *,at:datetime,
     ready,readiness=adapt_daily(confirmed,archived,as_of=at)
     forecast,quality=evaluate_existing_v2(ready,archived,as_of=at)
     no_quote=audit_no_quote_gate(ready,archived,at=at)
+    pricing_bridge=audit_external_pricing_bridge(ready)
     by_id={row["id"]:row for row in ready}
     result=[]
     for row in forecast:
@@ -111,6 +142,7 @@ def build(fixtures:list[dict], licensed_history:list[dict], *,at:datetime,
         "qualified_external_fixtures":len(ready),
         "raw_v2_candidates":quality["v2_candidate_count"],
         "no_bookmaker_quote_gate":no_quote,
+        "external_pricing_bridge":pricing_bridge,
         "messages_ready":len(result),
         "historic_matches":history_quality["usable_historic_matches"],
         "reasons":readiness["ignored"],
