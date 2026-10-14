@@ -20,7 +20,7 @@ import sys
 ROOT=Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path: sys.path.insert(0,str(ROOT))
 
-from bsd.free_football_sources import fetch_sportscore_h2h
+from bsd.free_football_sources import fetch_sportscore_h2h, fetch_sportscore_team
 from scripts.football_daily_multisource_shadow import BudgetSession, kickoff
 from scripts.football_multi_api_history_inputs import permitted
 
@@ -30,7 +30,7 @@ MAX_HTTP=12
 
 def collect(fixtures: list[dict], licenses: dict, *,
             now: datetime | None = None,
-            session=None, fetcher=None,
+            session=None, fetcher=None, team_fetcher=None,
             max_pairs: int = MAX_PAIRS,
             max_http: int = MAX_HTTP) -> tuple[list[dict],dict]:
     if not permitted("sportscore",licenses):
@@ -43,7 +43,9 @@ def collect(fixtures: list[dict], licenses: dict, *,
         raise ValueError("Timestamp must be offset-aware")
     session=session or BudgetSession(max_http)
     fetcher=fetcher or fetch_sportscore_h2h
+    team_fetcher=team_fetcher or fetch_sportscore_team
     chosen=set()
+    cached_team_games={}
     out=[]
     metrics=Counter()
     for match in fixtures:
@@ -69,27 +71,53 @@ def collect(fixtures: list[dict], licenses: dict, *,
             continue
         chosen.add(key)
         try:
+            candidates=[]
+            for team in (home,away):
+                keyname=team.strip().casefold()
+                if keyname not in cached_team_games:
+                    cached_team_games[keyname]=team_fetcher(session,team,limit=12)
+                    metrics["team_history_lookups"]+=1
+                candidates.extend(cached_team_games[keyname] or [])
             hits=fetcher(session,home,away,limit=20)
             metrics["pairs_attempted"]+=1
-            for event in hits:
+            metrics["h2h_results_received"]+=len(hits or [])
+            candidates.extend(hits or [])
+            for event in candidates:
                 if (isinstance(event,dict) and
                         event.get("home_score") is not None and
                         event.get("away_score") is not None and
                         event.get("league") and event.get("provider_event_id")):
-                    # Snapshot source is original SportScore; each result
-                    # still passes the separate licensed history parser.
+                    # Source identity and scores are STILL checked by the
+                    # separate license-gated finished-result ingester.
                     out.append(event)
         except Exception as exc:
             metrics["error_"+type(exc).__name__]+=1
             if "budget" in str(exc).lower() or "exceeded" in str(exc).lower():
                 break
+    # A fixture can be returned by home-team, away-team and H2H endpoints.
+    # Never count it multiple times or silently accept contradictions.
+    keyed={}
+    for item in out:
+        ident=str(item["provider_event_id"])
+        evidence=(str(item.get("home_team")),str(item.get("away_team")),
+                  str(item.get("event_date")),str(item.get("league")),
+                  item.get("home_score"),item.get("away_score"))
+        if ident not in keyed:
+            keyed[ident]=(evidence,item)
+        elif keyed[ident] is not None and keyed[ident][0]!=evidence:
+            keyed[ident]=None
+            metrics["contradictory_provider_event"]+=1
+    deduped=[entry[1] for entry in keyed.values() if entry is not None]
+    metrics["duplicate_historical_rows_removed"]=len(out)-len(deduped)
     cap=getattr(session,"total",0)
-    return ([{"provider":"sportscore","observed_at":now.isoformat(),"rows":out}]
+    return ([{"provider":"sportscore","observed_at":now.isoformat(),"rows":deduped}]
             if out else []), {
                 "status":"authorized_research_only",
                 "requests":cap,
                 "pairs_attempted":metrics["pairs_attempted"],
-                "raw_h2h_rows_with_scores":len(out),
+                "raw_h2h_rows_with_scores":metrics["h2h_results_received"],
+                "team_history_lookups":metrics["team_history_lookups"],
+                "distinct_historical_rows_with_scores":len(deduped),
                 "skipped":dict(sorted(metrics.items())),
                 "max_http":max_http,
                 "no_model_calculation_changed":True,
