@@ -130,6 +130,12 @@ def features(fixtures: list[dict], history: list[dict], *, min_games: int = 5) -
     result = []
     coverage = defaultdict(int)
     for fixture in fixtures:
+        if (fixture.get("ambiguous_match") or fixture.get("scores_conflict") or fixture.get("league_conflict")):
+            coverage["unsafe_fixture_identity"] += 1
+            continue
+        if fixture.get("status", "prematch") != "prematch":
+            coverage["not_prematch"] += 1
+            continue
         try:
             dt = datetime.fromisoformat(str(fixture["kickoff_utc"]).replace("Z", "+00:00"))
             if dt.tzinfo is None:
