@@ -6597,12 +6597,16 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     const statsEnrichment = await enrichLiveMatchesWithBsdStats(allRawMatches);
     allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
 
-    const apiFootballCache = await enrichLiveMatchesWithApiFootballCache(allRawMatches);
-    allRawMatches = sortMatchesForRefresh(apiFootballCache.matches);
-
+    // Provider priority for verified live market observations:
+    // BSD > ESPN > API-Football > SportScore > TheSportsDB > OpenLigaDB.
     const espnSummaryEnrichment =
       await enrichLiveMatchesWithEspnSummaries(allRawMatches);
     allRawMatches = sortMatchesForRefresh(espnSummaryEnrichment.matches);
+
+    // API-Football is a quota-limited supplementary provider. Its cached
+    // stats fill missing markets only; they never override verified BSD pairs.
+    const apiFootballCache = await enrichLiveMatchesWithApiFootballCache(allRawMatches);
+    allRawMatches = sortMatchesForRefresh(apiFootballCache.matches);
 
     const freeStatsEnrichment =
       await enrichLiveMatchesWithFreeStats(allRawMatches);
