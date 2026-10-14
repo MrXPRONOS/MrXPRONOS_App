@@ -2,6 +2,9 @@ import { fetchSharedEspnScoreboard, fetchSharedEspnRegionalScoreboard, espnLiveS
 import {
   FREE_SOURCE_QUALITY,
   collectFreeLiveProviders,
+  fetchSportScoreFixtures,
+  fetchTheSportsDbDay,
+  fetchOpenLigaDay,
   fetchSportScoreDetail,
   normalizeSportScoreDetail,
   fetchTheSportsDbStats,
@@ -6344,6 +6347,106 @@ async function loadRecentRefreshSnapshot(maxAgeSeconds = 150) {
  * Traite UN SEUL lot.
  * Important : cette fonction doit rester sous la limite CPU d'une invocation Edge.
  */
+
+/**
+ * Lightweight, quota-aware fixture discovery. ESPN is read from existing DB
+ * cache only; SportScore, TheSportsDB and OpenLigaDB contribute scheduled
+ * matches even when ESPN has not listed their competitions. API-Football is
+ * ingested from live_scheduled_fixtures by its separate bounded GitHub task.
+ */
+async function syncUpcomingFixtures() {
+  const { data: recent } = await supabase.from("live_scheduled_fixtures")
+    .select("updated_at").order("updated_at", { ascending: false }).limit(1);
+  if (recent?.[0]?.updated_at &&
+      Date.now() - Date.parse(recent[0].updated_at) < 55_000) {
+    return { throttled: true };
+  }
+  const dates = [0, 1].map(days => {
+    const d = new Date(Date.now() + days * 86_400_000);
+    return d.toISOString().slice(0, 10);
+  });
+  const feed: Array<{source:string; match:any}> = [];
+  const failures: string[] = [];
+  for (const day of dates) {
+    const { data: cached } = await supabase.from("espn_feed_cache")
+      .select("payload").eq("cache_key", "scoreboard:" + day).maybeSingle();
+    for (const event of cached?.payload?.events || []) {
+      const match = normalizeEspnEventToOriginalMatch(event);
+      if (match) feed.push({ source: "espn", match });
+    }
+  }
+  const requested = await Promise.allSettled(dates.flatMap(day => [
+    fetchSportScoreFixtures(day),
+    fetchTheSportsDbDay(day),
+    fetchOpenLigaDay(day),
+  ]));
+  for (let i = 0; i < requested.length; i++) {
+    const result = requested[i];
+    const source = ["sportscore","thesportsdb","openligadb"][i % 3];
+    if (result.status === "fulfilled") {
+      for (const match of result.value || []) feed.push({ source, match });
+    } else failures.push(source + ": " + String(result.reason).slice(0, 100));
+  }
+  const unique: Array<{ source:string; match:any; sources:string[] }> = [];
+  const lower = Date.now() - 10 * 60_000;
+  const upper = Date.now() + 48 * 3_600_000;
+  const rank:Record<string,number> = {api_original:0,espn:1,api_football:2,sportscore:3,thesportsdb:4,openligadb:5};
+  for (const entry of feed) {
+    const match = entry.match;
+    const kickoff = Date.parse(String(getMatchEventDate(match)||""));
+    if (!Number.isFinite(kickoff) || kickoff < lower || kickoff > upper ||
+        match.is_live || match.is_finished) continue;
+    const found = unique.find(x => sameMatchScore(x.match,match)>=0.85);
+    if (found) {
+      if (!found.sources.includes(entry.source)) found.sources.push(entry.source);
+      if (rank[entry.source] < rank[found.source]) {
+        const inherited = found.match;
+        found.match = { ...match,
+          home_logo: match.home_logo || inherited.home_logo,
+          away_logo: match.away_logo || inherited.away_logo
+        };
+        found.source = entry.source;
+      } else {
+        found.match.home_logo ||= match.home_logo || null;
+        found.match.away_logo ||= match.away_logo || null;
+      }
+    } else unique.push({ ...entry, sources:[entry.source] });
+  }
+  const rows = unique.slice(0,500).map(({match,source,sources}) => ({
+    fixture_id: String(match.id || (source + ":" + buildCanonicalMatchId(match))),
+    event_date: getMatchEventDate(match),
+    home_team: String(match.home_team||""),
+    away_team: String(match.away_team||""),
+    source_names: sources,
+    fixture: { ...match, source_names:sources, source },
+    updated_at: nowIso()
+  }));
+  if (rows.length) {
+    const { error } = await supabase.from("live_scheduled_fixtures")
+      .upsert(rows, { onConflict: "fixture_id" });
+    if (error) throw error;
+  }
+  console.info("SCHEDULED_MULTI_SOURCE", {count:rows.length, failures});
+  return { count:rows.length, failures };
+}
+
+async function pulseAllLiveFixtures(matches:any[]) {
+  const rows = matches.filter(m=>m?.is_live && !m?.is_finished)
+    .slice(0,500).map(m=>({
+      id:String(m.id||""),home_team:String(m.home_team||""),
+      away_team:String(m.away_team||""),
+      home_score:nullableNumber(m.home_score),
+      away_score:nullableNumber(m.away_score),
+      current_minute:nullableNumber(m.current_minute)||null,
+      league_name:String(m.league_name||m.league?.name||""),
+      status:String(m.status||"live"),
+      event_date:getMatchEventDate(m)
+    }));
+  if (!rows.length) return;
+  const {error}=await supabase.rpc("upsert_live_fixture_status",{p_rows:rows});
+  if(error) console.warn("LIVE_FIXTURE_PULSE_FAILED",error.message);
+}
+
 async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
   const batchSize = Math.max(
     1,
@@ -6478,6 +6581,7 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     }
 
     allRawMatches = sortMatchesForRefresh(providerMerged);
+    await pulseAllLiveFixtures(allRawMatches);
     sourceMeta = {
       ...(merged.meta || sourceMeta),
       ...providerMeta,
@@ -6893,7 +6997,7 @@ async function invokeRefreshBatch(
  * Le coordinateur appelle /refresh/batch plusieurs fois. Chaque lot est donc
  * une NOUVELLE invocation Edge avec son propre budget CPU.
  */
-async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
+async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE, lockOwner: string | null = null) {
   // Continue after the last processed fixture if the preceding cycle hit its batch cap.
   // The 15-minute lease prevents simultaneous refresh coordinators.
   const { data: progress, error: progressError } = await supabase
@@ -6932,6 +7036,10 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
   };
 
   while (hasMore && batchNumber < LIVE_REFRESH_MAX_BATCHES) {
+    if (lockOwner) {
+      const {data:renewed,error:renewError}=await supabase.rpc("renew_live_refresh",{p_owner:lockOwner});
+      if (renewError || !renewed) throw new Error("Live refresh lease lost; aborting stale coordinator");
+    }
     let effectiveBatchSize = Math.max(1, Math.min(5, batchSize));
     let allowTelegram = true;
     let result: any = null;
@@ -8747,8 +8855,16 @@ serve(async (req) => {
       );
       if (lockError) throw lockError;
       if (!acquired) {
-        return json({ accepted: false, already_running: true, message: "Rafraîchissement déjà actif" }, 202);
+        // A second heavy coordinator is forbidden, but upcoming discovery
+        // continues independently of the analysis lease.
+        const pulse=syncUpcomingFixtures().catch(e=>console.warn("UPCOMING_PULSE_FAILED",e));
+        const runtime=(globalThis as any).EdgeRuntime;
+        if(runtime?.waitUntil)runtime.waitUntil(pulse);else await pulse;
+        return json({ accepted: false, already_running: true, fixture_sync:true }, 202);
       }
+      const pulse=syncUpcomingFixtures().catch(e=>console.warn("UPCOMING_PULSE_FAILED",e));
+      const pulseRuntime=(globalThis as any).EdgeRuntime;
+      if(pulseRuntime?.waitUntil)pulseRuntime.waitUntil(pulse);else await pulse;
       const { data: previousProgress } = await supabase
         .from("live_refresh_control")
         .select("cursor").eq("key", "live_refresh").maybeSingle();
@@ -8757,7 +8873,7 @@ serve(async (req) => {
       const refreshTask = (async () => {
         try {
           const result = await refreshLiveDataInBatches(
-            LIVE_REFRESH_BATCH_SIZE,
+            LIVE_REFRESH_BATCH_SIZE, lockOwner,
           );
           releaseCursor = result.has_more ? result.next_cursor : null;
           await setCronRun("live_refresh", !result.has_more, {
@@ -8856,7 +8972,22 @@ serve(async (req) => {
         console.warn("ESPN /today unavailable:", e);
       }
 
-      const scheduled = events.filter((m: any) => !m.is_live && !m.is_finished);
+      const {data: extraScheduled,error:scheduledError}=await supabase
+        .from("live_scheduled_fixtures").select("fixture,updated_at,event_date")
+        .gte("event_date",new Date(Date.now()-10*60_000).toISOString())
+        .lte("event_date",new Date(Date.now()+48*3600_000).toISOString())
+        .gte("updated_at",new Date(Date.now()-6*3600_000).toISOString())
+        .order("event_date",{ascending:true}).limit(500);
+      if(scheduledError)console.warn("Scheduled cache unavailable",scheduledError.message);
+      const scheduled=events.filter((m:any)=>!m.is_live&&!m.is_finished);
+      for(const row of extraScheduled||[]){
+        const m=row.fixture;
+        if(!m||m.is_live||m.is_finished)continue;
+        const matchTime=Date.parse(String(getMatchEventDate(m)||""));
+        if(!Number.isFinite(matchTime)||matchTime<Date.now()-10*60_000)continue;
+        if(!scheduled.some((existing:any)=>sameMatchScore(existing,m)>=0.85)) scheduled.push(m);
+      }
+      scheduled.sort((a:any,b:any)=>Date.parse(getMatchEventDate(a))-Date.parse(getMatchEventDate(b)));
       const finished = events.filter((m: any) => m.is_finished);
 
       return json({
@@ -8865,7 +8996,7 @@ serve(async (req) => {
           scheduled: { count: scheduled.length, matches: scheduled },
           finished: { count: finished.length, matches: finished.slice(0, 10) },
         },
-        meta: { source: "supabase+espn-cache", bsd_calls: 0, upstream_espn_calls: 0 },
+        meta: { source: "supabase+multisource-schedule", bsd_calls: 0, upstream_espn_calls: 0 },
       });
     }
     // ===================================================
