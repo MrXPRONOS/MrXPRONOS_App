@@ -58,6 +58,41 @@ class OpenScheduleAndTelegramTests(unittest.TestCase):
         self.assertNotIn("arsenal",str(health).lower())
         self.assertFalse(rows[1]["league_verified"])
 
+    def test_unmatched_calendar_causes_are_only_diagnostic(self):
+        schedules=[
+            {"day":"2026-10-17","league":"Premier League",
+             "home":"arsenal","away":"chelsea"},
+            {"day":"2026-10-18","league":"La Liga",
+             "home":"real madrid","away":"barcelona"},
+        ]
+        cases=[
+            fixture(discovered_by="sportscore",home_team="Chelsea",away_team="Arsenal"),
+            fixture(discovered_by="espn",home_team="Real Madrid",away_team="Barcelona"),
+            fixture(discovered_by="thesportsdb",home_team="Arsenal",away_team="Lyon"),
+            fixture(discovered_by="openligadb",home_team="Unknown A",away_team="Unknown B"),
+        ]
+        rows,health=corroborate(cases,schedules,as_of=AT)
+        by=health["by_discovery_source"]
+        self.assertEqual(by["sportscore"]["unmatched_reversed_home_away_same_day"],1)
+        self.assertEqual(by["espn"]["unmatched_exact_pair_on_other_calendar_day"],1)
+        self.assertEqual(by["thesportsdb"]["unmatched_one_club_on_day"],1)
+        self.assertEqual(by["openligadb"]["unmatched_no_clubs_on_day"],1)
+        self.assertEqual(health["schedule_matches_confirmed"],0)
+        for row in rows:
+            self.assertFalse(row["league_verified"])
+            self.assertNotIn("_schedule_verified_by",row)
+        self.assertNotIn("unknown",str(health).lower())
+
+    def test_missing_calendar_day_never_infers_kickoff_or_league(self):
+        future=fixture(home_team="Arsenal",away_team="Chelsea",
+                       kickoff_utc="2026-10-19T18:30:00Z")
+        rows,health=corroborate([future],[
+            {"day":"2026-10-17","league":"Premier League",
+             "home":"arsenal","away":"chelsea"}],as_of=AT)
+        self.assertFalse(rows[0]["league_verified"])
+        self.assertEqual(rows[0]["kickoff_utc"],"2026-10-19T18:30:00Z")
+        self.assertEqual(health["by_discovery_source"]["espn"]["unmatched_exact_pair_on_other_calendar_day"],1)
+
     def test_no_calendar_match_never_invents_league(self):
         rows,health=corroborate([fixture(away_team="Arsenal Women")],[
             {"day":"2026-10-17","league":"Premier League",
