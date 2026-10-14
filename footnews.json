@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T18:10:33+00:00",
+    "published": "2026-10-14T18:15:39+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -87,7 +87,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:15:32.946763+00:00"
+      "checked_at": "2026-10-14T18:20:33.284212+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -149,7 +149,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:15:32.946763+00:00"
+      "checked_at": "2026-10-14T18:20:33.284212+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -208,7 +208,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:15:32.946763+00:00"
+      "checked_at": "2026-10-14T18:20:33.284212+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -271,7 +271,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:15:32.946763+00:00"
+      "checked_at": "2026-10-14T18:20:33.284212+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -419,132 +419,6 @@
     "quality_score": 92
   },
   {
-    "slug": "0d4bca648c497678",
-    "title": "MU : Rio Ferdinand réagit au coup de gueule de Lisandro Martínez",
-    "summary": "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre.",
-    "summary_short": "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre.",
-    "content": "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre. Alors que (…)",
-    "paragraphs": [
-      "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre. Alors que (…)"
-    ],
-    "key_points": [
-      "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre."
-    ],
-    "telegram_summary": "La sortie fracassante de Lisandro Martínez après la défaite de Manchester United face à l’Atlético de Madrid (2-0), mardi soir en Ligue des Champions, continue de faire réagir en Angleterre.",
-    "link": "https://www.footmercato.net/a1568966832177411946-mu-rio-ferdinand-reagit-au-coup-de-gueule-de-lisandro-martinez",
-    "source_url": "https://www.footmercato.net/a1568966832177411946-mu-rio-ferdinand-reagit-au-coup-de-gueule-de-lisandro-martinez",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0d4bca648c497678",
-    "published": "2026-10-14T15:06:36+00:00",
-    "image": "assets/images/footnews/0d4bca648c497678.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/ferdinand01.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50183001",
-      "url": "https://www.espn.com/soccer/story/_/id/50183001/man-united-lisandro-martinez-comments-atletico-madrid",
-      "published": "2026-10-14T17:55:30Z",
-      "score": 0.2,
-      "matched_terms": [
-        "lisandro",
-        "martinez"
-      ],
-      "topics": [
-        "news"
-      ],
-      "teams": [
-        "Argentina",
-        "Manchester United"
-      ],
-      "athletes": [
-        "Lisandro Martínez"
-      ],
-      "leagues": [
-        "English Premier League",
-        "Soccer",
-        "UEFA Champions League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T18:15:32.946763+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "e8820c054cc5705d",
-    "title": "Real Madrid : la polémique enfle autour de Bernardo Silva !",
-    "summary": "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu. Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)",
-    "summary_short": "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu. Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)",
-    "content": "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu. Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)",
-    "paragraphs": [
-      "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu. Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)"
-    ],
-    "key_points": [
-      "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu.",
-      "Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)"
-    ],
-    "telegram_summary": "Les absences répétées de Bernardo Silva interrogent énormément du côté de Madrid, où on ne comprend pas pourquoi il joue aussi peu. Ce qui suscite de vives réactions.Alors que le Real Madrid va défier (…)",
-    "link": "https://www.footmercato.net/a909669307923873105-real-madrid-la-polemique-enfle-autour-de-bernardo-silva",
-    "source_url": "https://www.footmercato.net/a909669307923873105-real-madrid-la-polemique-enfle-autour-de-bernardo-silva",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e8820c054cc5705d",
-    "published": "2026-10-14T15:06:15+00:00",
-    "image": "assets/images/footnews/e8820c054cc5705d.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/espanyol-madridliga2627.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Polémique",
-    "category_emoji": "🔥",
-    "editorial_score": 4,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50150816",
-      "url": "https://www.espn.com/video/clip/_/id/50150816/real-madrid-vs-villarreal-game-highlights",
-      "published": "2026-10-10T21:06:47Z",
-      "score": 0.2,
-      "matched_terms": [
-        "madrid",
-        "real"
-      ],
-      "topics": [],
-      "teams": [
-        "Real Madrid",
-        "Villarreal"
-      ],
-      "athletes": [
-        "Alberto Moleiro",
-        "Vinícius Júnior",
-        "Yan Diomande"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T18:15:32.946763+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
     "slug": "12b09434c29d130f",
     "title": "Manchester City - PSG : le jour où Cherki a dit non avec classe à Al-Khelaïfi",
     "summary": "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi.",
@@ -594,7 +468,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:15:32.946763+00:00"
+      "checked_at": "2026-10-14T18:20:33.284212+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -835,7 +709,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:15:32.946763+00:00"
+      "checked_at": "2026-10-14T18:20:33.284212+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -982,6 +856,40 @@
     "quality_score": 82
   },
   {
+    "slug": "05f362e4b0b744af",
+    "title": "Samir Nasri trouve que Rayan Cherki a un gros défaut",
+    "summary": "Titulaire pour le choc de la 2e journée de Ligue des Champions entre Manchester City et le Paris Saint-Germain, Rayan Cherki est en train de prendre une tout autre dimension chez les Skyblues (16 (…)",
+    "summary_short": "Titulaire pour le choc de la 2e journée de Ligue des Champions entre Manchester City et le Paris Saint-Germain, Rayan Cherki est en train de prendre une tout autre dimension chez les Skyblues (16 (…)",
+    "content": "Titulaire pour le choc de la 2e journée de Ligue des Champions entre Manchester City et le Paris Saint-Germain, Rayan Cherki est en train de prendre une tout autre dimension chez les Skyblues (16 (…)",
+    "paragraphs": [
+      "Titulaire pour le choc de la 2e journée de Ligue des Champions entre Manchester City et le Paris Saint-Germain, Rayan Cherki est en train de prendre une tout autre dimension chez les Skyblues (16 (…)"
+    ],
+    "key_points": [
+      "Titulaire pour le choc de la 2e journée de Ligue des Champions entre Manchester City et le Paris Saint-Germain, Rayan Cherki est en train de prendre une tout autre dimension chez les Skyblues (16 (…)"
+    ],
+    "telegram_summary": "Titulaire pour le choc de la 2e journée de Ligue des Champions entre Manchester City et le Paris Saint-Germain, Rayan Cherki est en train de prendre une tout autre dimension chez les Skyblues (16 (…)",
+    "link": "https://www.footmercato.net/a4267068754589885461-samir-nasri-trouve-que-rayan-cherki-a-un-gros-defaut",
+    "source_url": "https://www.footmercato.net/a4267068754589885461-samir-nasri-trouve-que-rayan-cherki-a-un-gros-defaut",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=05f362e4b0b744af",
+    "published": "2026-10-14T18:16:10+00:00",
+    "image": "assets/images/footnews/05f362e4b0b744af.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/nasri-canal-4.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
     "slug": "7628f643096931ac",
     "title": "DIRECT. Manchester City-PSG : Dembélé, Zaïre-Emery et Akliouche titulaires avec Paris... Suivez et commentez le match de Ligue des champions avec nous",
     "summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
@@ -997,7 +905,7 @@
     "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
-    "published": "2026-10-14T18:10:33+00:00",
+    "published": "2026-10-14T18:15:39+00:00",
     "image": "assets/images/footnews/7628f643096931ac.webp",
     "source_image": "https://www.franceinfo.fr/pictures/BKUU7M0ahDdkOj3-O9bTAXxuKBc/0x0:1024x576/432x243/filters:format(jpg)/2026/10/14/6acf8fa0ad0a1270898331.jpg",
     "image_origin": "source",
@@ -1014,6 +922,101 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "422c8cbc4cd4df33",
+    "title": "Real : Vinicius lourdement sanctionné !",
+    "summary": "Expulsé contre Villarreal (1-0), samedi en Liga, Vinicius Junior a écopé de quatre matchs de suspension ! L'ailier du Real Ma...",
+    "summary_short": "Expulsé contre Villarreal (1-0), samedi en Liga, Vinicius Junior a écopé de quatre matchs de suspension ! L'ailier du Real Ma...",
+    "content": "Expulsé contre Villarreal (1-0), samedi en Liga, Vinicius Junior a écopé de quatre matchs de suspension ! L'ailier du Real Ma...",
+    "paragraphs": [
+      "Expulsé contre Villarreal (1-0), samedi en Liga, Vinicius Junior a écopé de quatre matchs de suspension ! L'ailier du Real Ma..."
+    ],
+    "key_points": [
+      "Expulsé contre Villarreal (1-0), samedi en Liga, Vinicius Junior a écopé de quatre matchs de suspension !"
+    ],
+    "telegram_summary": "Expulsé contre Villarreal (1-0), samedi en Liga, Vinicius Junior a écopé de quatre matchs de suspension ! L'ailier du Real Ma...",
+    "link": "https://m.maxifoot.fr/football/article-66265.htm",
+    "source_url": "https://m.maxifoot.fr/football/article-66265.htm",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=422c8cbc4cd4df33",
+    "published": "2026-10-14T18:14:57+00:00",
+    "image": "assets/images/footnews/422c8cbc4cd4df33.webp",
+    "source_image": "https://photo.maxifoot.fr/vinicius-junior-real-madrid-281.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Maxifoot",
+    "source_priority": 78,
+    "source_region": "international",
+    "source_feed": "http://rss.maxifoot.com/football-general.xml",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 2,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50150970",
+      "url": "https://www.espn.com/video/clip/_/id/50150970/vinicius-junior-goal-turns-red-card-real-madrid-win",
+      "published": "2026-10-10T22:45:38Z",
+      "score": 0.222,
+      "matched_terms": [
+        "real",
+        "vinicius"
+      ],
+      "topics": [],
+      "teams": [
+        "Real Madrid",
+        "Villarreal"
+      ],
+      "athletes": [
+        "Vinícius Júnior"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T18:20:33.284212+00:00"
+    },
+    "quality_sources": [
+      "Maxifoot",
+      "ESPN"
+    ],
+    "quality_score": 86
+  },
+  {
+    "slug": "9c27ae5ccdb6d869",
+    "title": "OM : Bruno Genesio s’enflamme pour le retour de l’Europe au Vélodrome",
+    "summary": "L’Olympique de Marseille s’apprête à retrouver les soirées européennes au Vélodrome. Ce jeudi, les Phocéens recevront l’Olympiacos en Ligue Europa, avec l’objectif de se relancer après leur lourde (…)",
+    "summary_short": "L’Olympique de Marseille s’apprête à retrouver les soirées européennes au Vélodrome. Ce jeudi, les Phocéens recevront l’Olympiacos en Ligue Europa, avec l’objectif de se relancer après leur lourde (…)",
+    "content": "L’Olympique de Marseille s’apprête à retrouver les soirées européennes au Vélodrome. Ce jeudi, les Phocéens recevront l’Olympiacos en Ligue Europa, avec l’objectif de se relancer après leur lourde (…)",
+    "paragraphs": [
+      "L’Olympique de Marseille s’apprête à retrouver les soirées européennes au Vélodrome. Ce jeudi, les Phocéens recevront l’Olympiacos en Ligue Europa, avec l’objectif de se relancer après leur lourde (…)"
+    ],
+    "key_points": [
+      "L’Olympique de Marseille s’apprête à retrouver les soirées européennes au Vélodrome.",
+      "Ce jeudi, les Phocéens recevront l’Olympiacos en Ligue Europa, avec l’objectif de se relancer après leur lourde (…)"
+    ],
+    "telegram_summary": "L’Olympique de Marseille s’apprête à retrouver les soirées européennes au Vélodrome. Ce jeudi, les Phocéens recevront l’Olympiacos en Ligue Europa, avec l’objectif de se relancer après leur lourde (…)",
+    "link": "https://www.footmercato.net/a1089845253245746401-om-bruno-genesio-senflamme-pour-le-retour-de-leurope-au-velodrome",
+    "source_url": "https://www.footmercato.net/a1089845253245746401-om-bruno-genesio-senflamme-pour-le-retour-de-leurope-au-velodrome",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9c27ae5ccdb6d869",
+    "published": "2026-10-14T18:12:00+00:00",
+    "image": "assets/images/footnews/9c27ae5ccdb6d869.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine297898-1920x1080-6aa46f3307644.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
   },
   {
     "slug": "7a67f441fb741bbb",
@@ -1071,7 +1074,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:15:32.946763+00:00"
+      "checked_at": "2026-10-14T18:20:33.284212+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1133,7 +1136,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T18:15:32.946763+00:00"
+      "checked_at": "2026-10-14T18:20:33.284212+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1226,7 +1229,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:15:32.946763+00:00"
+      "checked_at": "2026-10-14T18:20:33.284212+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1319,7 +1322,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:15:32.946763+00:00"
+      "checked_at": "2026-10-14T18:20:33.284212+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1381,7 +1384,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:15:32.946763+00:00"
+      "checked_at": "2026-10-14T18:20:33.284212+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1572,7 +1575,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:15:32.946763+00:00"
+      "checked_at": "2026-10-14T18:20:33.284212+00:00"
     },
     "quality_sources": [
       "RFI",
@@ -2435,39 +2438,5 @@
       "Onze Mondial"
     ],
     "quality_score": 80
-  },
-  {
-    "slug": "695413e55b09543f",
-    "title": "OL : Paulo Fonseca analyse les qualités de Crystal Palace",
-    "summary": "Avant de défier le Crystal Palace de Pierre Sage jeudi (18h45) en Ligue Europa, Paulo Fonseca a développé les qualités des Eagles en conférence de presse.",
-    "summary_short": "Avant de défier le Crystal Palace de Pierre Sage jeudi (18h45) en Ligue Europa, Paulo Fonseca a développé les qualités des Eagles en conférence de presse.",
-    "content": "Avant de défier le Crystal Palace de Pierre Sage jeudi (18h45) en Ligue Europa, Paulo Fonseca a développé les qualités des Eagles en conférence de presse.",
-    "paragraphs": [
-      "Avant de défier le Crystal Palace de Pierre Sage jeudi (18h45) en Ligue Europa, Paulo Fonseca a développé les qualités des Eagles en conférence de presse."
-    ],
-    "key_points": [
-      "Avant de défier le Crystal Palace de Pierre Sage jeudi (18h45) en Ligue Europa, Paulo Fonseca a développé les qualités des Eagles en conférence de presse."
-    ],
-    "telegram_summary": "Avant de défier le Crystal Palace de Pierre Sage jeudi (18h45) en Ligue Europa, Paulo Fonseca a développé les qualités des Eagles en conférence de presse.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-ol-paulo-fonseca-analyse-les-qualites-de-crystal-palace-542184.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ol-paulo-fonseca-analyse-les-qualites-de-crystal-palace-542184.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=695413e55b09543f",
-    "published": "2026-10-14T14:30:00+00:00",
-    "image": "assets/images/footnews/695413e55b09543f.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260308180339-7087.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
   }
 ]
