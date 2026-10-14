@@ -145,8 +145,8 @@ def flat_records(source: str, payload: Any) -> list[dict]:
                   "away_team":native_name(event.get("away")),
                   "league":native_name(event.get("competition") or event.get("league")),
                   "kickoff_utc":event.get("time") or event.get("date") or event.get("start_time"),
-                  "home_score":event.get("home_score") or event.get("score_home"),
-                  "away_score":event.get("away_score") or event.get("score_away"),
+                  "home_score":event.get("home_score") if event.get("home_score") is not None else event.get("score_home"),
+                  "away_score":event.get("away_score") if event.get("away_score") is not None else event.get("score_away"),
                   "status":event.get("status") or event.get("status_text")}
         if item:
             rows.append(item)
