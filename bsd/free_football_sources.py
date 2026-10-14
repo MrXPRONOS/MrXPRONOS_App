@@ -130,6 +130,10 @@ def _json_get(session: requests.Session, provider: str, url: str, *, params: Dic
     headers = {
         "Accept": "application/json",
         "User-Agent": "MrXPRONOS-MultiSource/1.0",
+        # BSDClient reuses this requests.Session for public sources.
+        # requests merges Session.headers unless explicitly overridden.
+        # None removes the sensitive BSD Authorization header for this request.
+        "Authorization": None,
     }
     response = session.get(url, params=params, headers=headers, timeout=(6, 16), allow_redirects=True)
     response.raise_for_status()
