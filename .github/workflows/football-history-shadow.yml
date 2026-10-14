@@ -26,6 +26,8 @@ on:
       - 'tests/test_football_bsd_private_history.py'
       - 'scripts/football_bsd_validate_real.py'
       - 'tests/test_football_bsd_validate_real.py'
+      - 'scripts/football_bsd_private_paired_backtest.py'
+      - 'tests/test_football_bsd_private_paired_backtest.py'
       - '.github/workflows/football-history-shadow.yml'
   workflow_dispatch:
     inputs:
@@ -67,7 +69,7 @@ jobs:
         run: |
           php -l scripts/football_history_import.php
           php scripts/football_history_import.php --self-test
-          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py scripts/football_bsd_private_history.py scripts/football_bsd_validate_real.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py tests/test_football_bsd_private_history.py tests/test_football_bsd_validate_real.py
+          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py scripts/football_bsd_private_history.py scripts/football_bsd_validate_real.py scripts/football_bsd_private_paired_backtest.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py tests/test_football_bsd_private_history.py tests/test_football_bsd_validate_real.py tests/test_football_bsd_private_paired_backtest.py
           python -m unittest discover -s tests -p 'test_football_history_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_daily_multisource_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_history_features.py' -v
@@ -78,6 +80,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_football_public_domain_backtest.py' -v
           python -m unittest discover -s tests -p 'test_football_bsd_private_history.py' -v
           python -m unittest discover -s tests -p 'test_football_bsd_validate_real.py' -v
+          python -m unittest discover -s tests -p 'test_football_bsd_private_paired_backtest.py' -v
   historical_probe:
     if: github.event_name == 'workflow_dispatch'
     needs: verify
@@ -338,6 +341,7 @@ jobs:
         run: |
           umask 077
           python scripts/football_bsd_validate_real.py --history=bsd/all_matches_bsd.json --union=tmp/public-union.json --bsd-site-data=data.json --out=tmp/bsd-private-validation-AGGREGATES-ONLY.json
+          python scripts/football_bsd_private_paired_backtest.py --history=bsd/all_matches_bsd.json --max-fixtures=300 --report=tmp/bsd-private-paired-BENCHMARK-AGGREGATES-ONLY.json
           python - <<'PY'
           import json
           from pathlib import Path
@@ -348,6 +352,10 @@ jobs:
           assert result['production_model_modified'] is False
           assert result['predictions_published'] == 0
           assert result['telegram_posts'] == 0
+          bench=json.loads(Path('tmp/bsd-private-paired-BENCHMARK-AGGREGATES-ONLY.json').read_text())
+          assert bench['private_match_rows_exposed'] is False
+          assert bench['compared_to_production_calibrated_bsd_v2'] is False
+          assert bench['publication_enabled'] is False
           PY
       - name: Destroy decrypted BSD archive and private runtime files
         if: always()
@@ -361,6 +369,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bsd-private-validation-aggregate-only
-          path: tmp/bsd-private-validation-AGGREGATES-ONLY.json
+          path: |
+            tmp/bsd-private-validation-AGGREGATES-ONLY.json
+            tmp/bsd-private-paired-BENCHMARK-AGGREGATES-ONLY.json
           if-no-files-found: error
           retention-days: 3
