@@ -1125,7 +1125,12 @@ def resultat(events: list[dict], history: History, now: datetime) -> Publication
         card = {"day": now.astimezone(TZ).strftime("%d/%m/%Y"),
                 "league": league(e), "home": team(e, "home"),
                 "away": team(e, "away"), "scores": (a, b),
-                "source": "BSD V2",
+                "source": plain(
+                    (e.get("_verified_score") or {}).get("provider")
+                    if isinstance(e.get("_verified_score"), dict)
+                    else e.get("source") or "source match",
+                    60,
+                ),
                 "home_logo": team_visual_url(e, "home", allow_remote=True),
                 "away_logo": team_visual_url(e, "away", allow_remote=True)}
         verification = {
@@ -1203,7 +1208,7 @@ def avant_match(events: list[dict], history: History, now: datetime,
                 history_events: list[dict], form_values: dict[str, str] | None = None,
                 h2h_values: dict[str, Any] | None = None) -> Publication | None:
     selected = [e for e in candidates(events)
-                if timedelta(minutes=65) <= kick(e) - now <= timedelta(minutes=170)
+                if timedelta(minutes=60) <= kick(e) - now <= timedelta(minutes=120)
                 and final_score(e) is None and not history.seen("avant_match:" + str(e["id"]))]
     selected = [e for e in selected[:10] if has_two_team_logos(e, allow_remote=True)]
     if not selected:
@@ -1383,7 +1388,12 @@ def statistique(events: list[dict], reference_day: date) -> Publication | None:
     total = h + a
     selected_day = kick(e).astimezone(TZ).date()
     card = {"day": selected_day.strftime("%d/%m/%Y"), "league": league(e),
-            "source": "BSD V2", "headline": str(total) + " buts dans cette rencontre",
+            "source": plain(
+                (e.get("_verified_score") or {}).get("provider")
+                if isinstance(e.get("_verified_score"), dict)
+                else e.get("source") or "source match",
+                60,
+            ), "headline": str(total) + " buts dans cette rencontre",
             "home": team(e, "home"), "away": team(e, "away"), "scores": (h, a),
             "score": f"{h}-{a}",
             "home_logo": team_visual_url(e, "home", allow_remote=True),
