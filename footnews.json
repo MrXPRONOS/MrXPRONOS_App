@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T21:29:06+00:00",
+    "published": "2026-10-14T21:35:05+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -88,7 +88,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:30:29.891814+00:00"
+      "checked_at": "2026-10-14T21:35:33.914160+00:00"
     },
     "quality_sources": [
       "Franceinfo",
@@ -182,7 +182,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:30:29.891814+00:00"
+      "checked_at": "2026-10-14T21:35:33.914160+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -293,41 +293,6 @@
     "quality_score": 80
   },
   {
-    "slug": "30518f1e9c7e5075",
-    "title": "Les réseaux s’enflamment après le triplé de Bradley Barcola",
-    "summary": "Tout le monde attendait le premier but de Bradley Barcola sous les couleurs de Liverpool. En difficulté depuis le début de saison, l’attaquant français a répondu à ses détracteurs de la meilleure des (…)",
-    "summary_short": "Tout le monde attendait le premier but de Bradley Barcola sous les couleurs de Liverpool. En difficulté depuis le début de saison, l’attaquant français a répondu à ses détracteurs de la meilleure des (…)",
-    "content": "Tout le monde attendait le premier but de Bradley Barcola sous les couleurs de Liverpool. En difficulté depuis le début de saison, l’attaquant français a répondu à ses détracteurs de la meilleure des (…)",
-    "paragraphs": [
-      "Tout le monde attendait le premier but de Bradley Barcola sous les couleurs de Liverpool. En difficulté depuis le début de saison, l’attaquant français a répondu à ses détracteurs de la meilleure des (…)"
-    ],
-    "key_points": [
-      "Tout le monde attendait le premier but de Bradley Barcola sous les couleurs de Liverpool.",
-      "En difficulté depuis le début de saison, l’attaquant français a répondu à ses détracteurs de la meilleure des (…)"
-    ],
-    "telegram_summary": "Tout le monde attendait le premier but de Bradley Barcola sous les couleurs de Liverpool. En difficulté depuis le début de saison, l’attaquant français a répondu à ses détracteurs de la meilleure des (…)",
-    "link": "https://www.footmercato.net/a8936878133642453679-les-reseaux-senflamment-apres-le-triple-de-bradley-barcola",
-    "source_url": "https://www.footmercato.net/a8936878133642453679-les-reseaux-senflamment-apres-le-triple-de-bradley-barcola",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=30518f1e9c7e5075",
-    "published": "2026-10-14T18:47:41+00:00",
-    "image": "assets/images/footnews/30518f1e9c7e5075.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/bradley.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
     "slug": "c34a08de2a80175d",
     "title": "Bundesliga, rouleau compresseur et deux coupes : pourquoi Vincent Kompany mérite de remporter le Onze d’Or 2026 du meilleur entraîneur",
     "summary": "Après une saison exceptionnelle à la tête du Bayern Munich, marquée par une domination sans partage en Bundesliga, Vincent Kompany a de solides arguments pour décrocher le Onze d’Or 2026 du meilleur entraîneur.",
@@ -415,7 +380,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:30:29.891814+00:00"
+      "checked_at": "2026-10-14T21:35:33.914160+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -478,7 +443,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:30:29.891814+00:00"
+      "checked_at": "2026-10-14T21:35:33.914160+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -685,7 +650,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:30:29.891814+00:00"
+      "checked_at": "2026-10-14T21:35:33.914160+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -762,6 +727,169 @@
       "RFI"
     ],
     "quality_score": 86
+  },
+  {
+    "slug": "7628f643096931ac",
+    "title": "Ligue des champions : revivez la victoire spectaculaire du PSG sur la pelouse de Manchester City",
+    "summary": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
+    "summary_short": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
+    "content": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
+    "paragraphs": [
+      "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir."
+    ],
+    "key_points": [
+      "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir."
+    ],
+    "telegram_summary": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
+    "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
+    "published": "2026-10-14T21:35:05+00:00",
+    "image": "assets/images/footnews/7628f643096931ac.webp",
+    "source_image": "https://www.franceinfo.fr/pictures/5U3Wip1t6xJCEihksoGYiduzong/0x25:4673x2654/432x243/filters:format(jpg)/2026/10/14/6acfdbdf2c937182294865.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Franceinfo"
+    ],
+    "quality_score": 82
+  },
+  {
+    "slug": "20b4425dc8b40437",
+    "title": "PSG : la réaction mitigée de Luis Enrique",
+    "summary": "Comment l’entraîneur du PSG Luis Enrique a apprécié la rencontre folle face à Manchester City ? Entre la première période exceptionnelle du club parisien et la révolte des Citizens après la pause, (…)",
+    "summary_short": "Comment l’entraîneur du PSG Luis Enrique a apprécié la rencontre folle face à Manchester City ? Entre la première période exceptionnelle du club parisien et la révolte des Citizens après la pause, (…)",
+    "content": "Comment l’entraîneur du PSG Luis Enrique a apprécié la rencontre folle face à Manchester City ? Entre la première période exceptionnelle du club parisien et la révolte des Citizens après la pause, (…)",
+    "paragraphs": [
+      "Comment l’entraîneur du PSG Luis Enrique a apprécié la rencontre folle face à Manchester City ? Entre la première période exceptionnelle du club parisien et la révolte des Citizens après la pause, (…)"
+    ],
+    "key_points": [
+      "Comment l’entraîneur du PSG Luis Enrique a apprécié la rencontre folle face à Manchester City ?",
+      "Entre la première période exceptionnelle du club parisien et la révolte des Citizens après la pause, (…)"
+    ],
+    "telegram_summary": "Comment l’entraîneur du PSG Luis Enrique a apprécié la rencontre folle face à Manchester City ? Entre la première période exceptionnelle du club parisien et la révolte des Citizens après la pause, (…)",
+    "link": "https://www.footmercato.net/a3315811102141059728-psg-la-reaction-mitigee-de-luis-enrique",
+    "source_url": "https://www.footmercato.net/a3315811102141059728-psg-la-reaction-mitigee-de-luis-enrique",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=20b4425dc8b40437",
+    "published": "2026-10-14T21:34:15+00:00",
+    "image": "assets/images/footnews/20b4425dc8b40437.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/luis-enrique2.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "49827385",
+      "url": "https://www.espn.com/soccer/story/_/id/49827385/psg-coach-luis-enrique-new-contract-fabian-ruiz-joao-neves",
+      "published": "2026-09-04T20:23:54Z",
+      "score": 0.25,
+      "matched_terms": [
+        "enrique",
+        "luis"
+      ],
+      "topics": [
+        "news"
+      ],
+      "teams": [
+        "Paris Saint-Germain"
+      ],
+      "athletes": [
+        "Fabián Ruiz",
+        "João Neves",
+        "Lucas Beraldo",
+        "Senny Mayulu",
+        "Willian Pacho"
+      ],
+      "leagues": [
+        "French Ligue 1",
+        "Soccer",
+        "UEFA Champions League"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T21:35:33.914160+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
+    "slug": "c5e08f1402987acc",
+    "title": "Real Madrid : Vinicius Jr mécontent après sa sortie face à la Roma",
+    "summary": "Nouvelle soirée cauchemardesque pour Vinicius Jr ! Déjà très critiqué pour ses performances ces dernières semaines, le Brésilien a encore vécu un match particulièrement compliqué face à l’AS Rome en (…)",
+    "summary_short": "Nouvelle soirée cauchemardesque pour Vinicius Jr ! Déjà très critiqué pour ses performances ces dernières semaines, le Brésilien a encore vécu un match particulièrement compliqué face à l’AS Rome en (…)",
+    "content": "Nouvelle soirée cauchemardesque pour Vinicius Jr ! Déjà très critiqué pour ses performances ces dernières semaines, le Brésilien a encore vécu un match particulièrement compliqué face à l’AS Rome en (…)",
+    "paragraphs": [
+      "Nouvelle soirée cauchemardesque pour Vinicius Jr ! Déjà très critiqué pour ses performances ces dernières semaines, le Brésilien a encore vécu un match particulièrement compliqué face à l’AS Rome en (…)"
+    ],
+    "key_points": [
+      "Nouvelle soirée cauchemardesque pour Vinicius Jr !",
+      "Déjà très critiqué pour ses performances ces dernières semaines, le Brésilien a encore vécu un match particulièrement compliqué face à l’AS Rome en (…)"
+    ],
+    "telegram_summary": "Nouvelle soirée cauchemardesque pour Vinicius Jr ! Déjà très critiqué pour ses performances ces dernières semaines, le Brésilien a encore vécu un match particulièrement compliqué face à l’AS Rome en (…)",
+    "link": "https://www.footmercato.net/a1395206047233472366-real-madrid-vinicius-jr-mecontent-apres-sa-sortie-face-a-la-roma",
+    "source_url": "https://www.footmercato.net/a1395206047233472366-real-madrid-vinicius-jr-mecontent-apres-sa-sortie-face-a-la-roma",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c5e08f1402987acc",
+    "published": "2026-10-14T21:30:56+00:00",
+    "image": "assets/images/footnews/c5e08f1402987acc.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/vinicius-junior-2627-3.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50150970",
+      "url": "https://www.espn.com/video/clip/_/id/50150970/vinicius-junior-goal-turns-red-card-real-madrid-win",
+      "published": "2026-10-10T22:45:38Z",
+      "score": 0.25,
+      "matched_terms": [
+        "madrid",
+        "real",
+        "vinicius"
+      ],
+      "topics": [],
+      "teams": [
+        "Real Madrid",
+        "Villarreal"
+      ],
+      "athletes": [
+        "Vinícius Júnior"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T21:35:33.914160+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
   },
   {
     "slug": "6f27cf395f9de944",
@@ -865,38 +993,130 @@
     "quality_score": 88
   },
   {
-    "slug": "7628f643096931ac",
-    "title": "Ligue des champions : revivez la victoire spectaculaire du PSG sur la pelouse de Manchester City",
-    "summary": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
-    "summary_short": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
-    "content": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
+    "slug": "c6f895e364366086",
+    "title": "Manchester City - PSG : les notes de ce choc de la 2ème journée de Ligue des Champions",
+    "summary": "Le PSG se déplaçait à Manchester ce soir pour y affronter les Skyblues à l'occasion du choc de la deuxième journée de Ligue des Champions.",
+    "summary_short": "Le PSG se déplaçait à Manchester ce soir pour y affronter les Skyblues à l'occasion du choc de la deuxième journée de Ligue des Champions.",
+    "content": "Le PSG se déplaçait à Manchester ce soir pour y affronter les Skyblues à l'occasion du choc de la deuxième journée de Ligue des Champions.",
     "paragraphs": [
-      "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir."
+      "Le PSG se déplaçait à Manchester ce soir pour y affronter les Skyblues à l'occasion du choc de la deuxième journée de Ligue des Champions."
     ],
     "key_points": [
-      "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir."
+      "Le PSG se déplaçait à Manchester ce soir pour y affronter les Skyblues à l'occasion du choc de la deuxième journée de Ligue des Champions."
     ],
-    "telegram_summary": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
-    "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
-    "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
-    "published": "2026-10-14T21:21:05+00:00",
-    "image": "assets/images/footnews/7628f643096931ac.webp",
-    "source_image": "https://www.franceinfo.fr/pictures/5U3Wip1t6xJCEihksoGYiduzong/0x25:4673x2654/432x243/filters:format(jpg)/2026/10/14/6acfdbdf2c937182294865.jpg",
+    "telegram_summary": "Le PSG se déplaçait à Manchester ce soir pour y affronter les Skyblues à l'occasion du choc de la deuxième journée de Ligue des Champions.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-les-notes-de-ce-choc-de-la-2eme-journee-de-ligue-des-champions-2-1002657",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-les-notes-de-ce-choc-de-la-2eme-journee-de-ligue-des-champions-2-1002657",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c6f895e364366086",
+    "published": "2026-10-14T21:24:00+00:00",
+    "image": "assets/images/footnews/c6f895e364366086.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002657/409425/1200-L-manchester-city-psg-les-notes-de-ce-choc-de-la-2me-journe-de-ligue-des-champions.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
-    "source": "Franceinfo",
-    "source_priority": 82,
+    "source": "Onze Mondial",
+    "source_priority": 80,
     "source_region": "international",
-    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
     "category": "Compétitions",
     "category_emoji": "🏆",
-    "editorial_score": 3,
+    "editorial_score": 2,
     "espn_verification": {},
     "quality_sources": [
-      "Franceinfo"
+      "Onze Mondial"
     ],
-    "quality_score": 82
+    "quality_score": 80
+  },
+  {
+    "slug": "08eda2a4d16b8568",
+    "title": "Revivez Manchester City – PSG (2-4)",
+    "summary": "Match de folie à l'Etihad Stadium !",
+    "summary_short": "Match de folie à l'Etihad Stadium !",
+    "content": "Match de folie à l'Etihad Stadium !",
+    "paragraphs": [
+      "Match de folie à l'Etihad Stadium !"
+    ],
+    "key_points": [
+      "Match de folie à l'Etihad Stadium !"
+    ],
+    "telegram_summary": "Match de folie à l'Etihad Stadium !",
+    "link": "https://www.sofoot.com/articles/en-direct-manchester-city-psg",
+    "source_url": "https://www.sofoot.com/articles/en-direct-manchester-city-psg",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=08eda2a4d16b8568",
+    "published": "2026-10-14T21:23:00+00:00",
+    "image": "assets/images/footnews/08eda2a4d16b8568.webp",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/14164401/14684705.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50159375",
+      "url": "https://www.espn.com/video/clip/_/id/50159375/no-sympathy-manchester-city-players",
+      "published": "2026-10-11T18:25:12Z",
+      "score": 0.286,
+      "matched_terms": [
+        "city",
+        "manchester"
+      ],
+      "topics": [],
+      "teams": [
+        "Liverpool",
+        "Manchester City"
+      ],
+      "athletes": [],
+      "leagues": [
+        "English Premier League",
+        "Soccer"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T21:35:33.914160+00:00"
+    },
+    "quality_sources": [
+      "So Foot",
+      "ESPN"
+    ],
+    "quality_score": 86
+  },
+  {
+    "slug": "0ad2ea14c3f07f97",
+    "title": "Manchester City - PSG : \"Je serai peut-être en vacances jusqu'en mars !\", Dembélé s'amuse des critiques après la victoire",
+    "summary": "Après le choc en Ligue des champions entre Manchester City et le PSG, Ousmane Dembélé s'est exprimé.",
+    "summary_short": "Après le choc en Ligue des champions entre Manchester City et le PSG, Ousmane Dembélé s'est exprimé.",
+    "content": "Après le choc en Ligue des champions entre Manchester City et le PSG, Ousmane Dembélé s'est exprimé.",
+    "paragraphs": [
+      "Après le choc en Ligue des champions entre Manchester City et le PSG, Ousmane Dembélé s'est exprimé."
+    ],
+    "key_points": [
+      "Après le choc en Ligue des champions entre Manchester City et le PSG, Ousmane Dembélé s'est exprimé."
+    ],
+    "telegram_summary": "Après le choc en Ligue des champions entre Manchester City et le PSG, Ousmane Dembélé s'est exprimé.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-la-reaction-de-luis-enrique-1002636",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-la-reaction-de-luis-enrique-1002636",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0ad2ea14c3f07f97",
+    "published": "2026-10-14T21:21:00+00:00",
+    "image": "assets/images/footnews/0ad2ea14c3f07f97.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002636/409420/1200-L-manchester-city-psg-je-serai-peut-tre-en-vacances-jusqu-en-mars-dembl-s-amuse-des-critiques-aprs-la-victoire.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
   },
   {
     "slug": "9ad9637e0299543b",
@@ -983,7 +1203,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:30:29.891814+00:00"
+      "checked_at": "2026-10-14T21:35:33.914160+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1046,7 +1266,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:30:29.891814+00:00"
+      "checked_at": "2026-10-14T21:35:33.914160+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1351,7 +1571,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:30:29.891814+00:00"
+      "checked_at": "2026-10-14T21:35:33.914160+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1893,7 +2113,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:30:29.891814+00:00"
+      "checked_at": "2026-10-14T21:35:33.914160+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1993,7 +2213,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T21:30:29.891814+00:00"
+      "checked_at": "2026-10-14T21:35:33.914160+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2158,7 +2378,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:30:29.891814+00:00"
+      "checked_at": "2026-10-14T21:35:33.914160+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2201,97 +2421,6 @@
     "quality_score": 88
   },
   {
-    "slug": "08eda2a4d16b8568",
-    "title": "En direct : Manchester City – PSG",
-    "summary": "City se rebiffe",
-    "summary_short": "City se rebiffe",
-    "content": "City se rebiffe",
-    "paragraphs": [
-      "City se rebiffe"
-    ],
-    "key_points": [],
-    "telegram_summary": "City se rebiffe",
-    "link": "https://www.sofoot.com/articles/en-direct-manchester-city-psg",
-    "source_url": "https://www.sofoot.com/articles/en-direct-manchester-city-psg",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=08eda2a4d16b8568",
-    "published": "2026-10-14T18:41:26+00:00",
-    "image": "assets/images/footnews/08eda2a4d16b8568.webp",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/14164401/14684705.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50159375",
-      "url": "https://www.espn.com/video/clip/_/id/50159375/no-sympathy-manchester-city-players",
-      "published": "2026-10-11T18:25:12Z",
-      "score": 0.286,
-      "matched_terms": [
-        "city",
-        "manchester"
-      ],
-      "topics": [],
-      "teams": [
-        "Liverpool",
-        "Manchester City"
-      ],
-      "athletes": [],
-      "leagues": [
-        "English Premier League",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T21:30:29.891814+00:00"
-    },
-    "quality_sources": [
-      "So Foot",
-      "ESPN"
-    ],
-    "quality_score": 86
-  },
-  {
-    "slug": "1d698d6cddf6f780",
-    "title": "Ligue des Champions : le triplé de Barcola porte Liverpool, Feyenoord renverse Côme",
-    "summary": "Suite de cette 2e journée de Ligue des Champions avec le déplacement attendu de Liverpool sur le terrain de LASK. Le club anglais devait une revanche à ses supporters après avoir été giflé à domicile (…)",
-    "summary_short": "Suite de cette 2e journée de Ligue des Champions avec le déplacement attendu de Liverpool sur le terrain de LASK. Le club anglais devait une revanche à ses supporters après avoir été giflé à domicile (…)",
-    "content": "Suite de cette 2e journée de Ligue des Champions avec le déplacement attendu de Liverpool sur le terrain de LASK. Le club anglais devait une revanche à ses supporters après avoir été giflé à domicile (…)",
-    "paragraphs": [
-      "Suite de cette 2e journée de Ligue des Champions avec le déplacement attendu de Liverpool sur le terrain de LASK. Le club anglais devait une revanche à ses supporters après avoir été giflé à domicile (…)"
-    ],
-    "key_points": [
-      "Suite de cette 2e journée de Ligue des Champions avec le déplacement attendu de Liverpool sur le terrain de LASK.",
-      "Le club anglais devait une revanche à ses supporters après avoir été giflé à domicile (…)"
-    ],
-    "telegram_summary": "Suite de cette 2e journée de Ligue des Champions avec le déplacement attendu de Liverpool sur le terrain de LASK. Le club anglais devait une revanche à ses supporters après avoir été giflé à domicile (…)",
-    "link": "https://www.footmercato.net/a2860835060073681495-ligue-des-champions-le-triple-de-barcola-porte-liverpool-feyenoord-renverse-come",
-    "source_url": "https://www.footmercato.net/a2860835060073681495-ligue-des-champions-le-triple-de-barcola-porte-liverpool-feyenoord-renverse-come",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1d698d6cddf6f780",
-    "published": "2026-10-14T18:41:22+00:00",
-    "image": "assets/images/footnews/1d698d6cddf6f780.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/barcola-6acfc6767a780.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
     "slug": "294df2a8ca17f106",
     "title": "Ligue des champions : Bradley Barcola débloque son compteur avec Liverpool par un triplé, un mois et demi après son transfert record",
     "summary": "L'ailier international français a inscrit trois buts, mercredi, dans la facile victoire des Reds contre LASK Linz (6-3) en phase de ligue.",
@@ -2324,102 +2453,5 @@
       "Franceinfo"
     ],
     "quality_score": 82
-  },
-  {
-    "slug": "96606eb89abe3e8f",
-    "title": "Dans une orgie de foot, Liverpool bat largement le Lask Linz grâce à un triplé de Bradley Barcola",
-    "summary": "Il a bien fait d’attendre.",
-    "summary_short": "Il a bien fait d’attendre.",
-    "content": "Il a bien fait d’attendre.",
-    "paragraphs": [
-      "Il a bien fait d’attendre."
-    ],
-    "key_points": [],
-    "telegram_summary": "Il a bien fait d’attendre.",
-    "link": "https://www.sofoot.com/breves/dans-une-orgie-de-foot-liverpool-bat-largement-le-lask-linz-grace-a-un-triple-de-bradley-barcola",
-    "source_url": "https://www.sofoot.com/breves/dans-une-orgie-de-foot-liverpool-bat-largement-le-lask-linz-grace-a-un-triple-de-bradley-barcola",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=96606eb89abe3e8f",
-    "published": "2026-10-14T18:36:00+00:00",
-    "image": "assets/images/footnews/96606eb89abe3e8f.webp",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/14202511/ICONSPORT_376480_0037-scaled.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50183340",
-      "url": "https://www.espn.com/soccer/story/_/id/50183340/bradley-barcola-hat-trick-liverpool-lask-champions-league",
-      "published": "2026-10-14T20:45:45Z",
-      "score": 0.267,
-      "matched_terms": [
-        "barcola",
-        "lask",
-        "linz",
-        "liverpool"
-      ],
-      "topics": [
-        "news"
-      ],
-      "teams": [
-        "France",
-        "LASK Linz",
-        "Liverpool"
-      ],
-      "athletes": [
-        "Bradley Barcola"
-      ],
-      "leagues": [
-        "Soccer",
-        "UEFA Champions League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T21:30:29.891814+00:00"
-    },
-    "quality_sources": [
-      "So Foot",
-      "ESPN"
-    ],
-    "quality_score": 86
-  },
-  {
-    "slug": "22f617a2d0f8987d",
-    "title": "OL : Un retour de taille et trois absents importants dans le groupe pour le choc face à Crystal Palace",
-    "summary": "Le groupe de l'OL pour affronter Crystal Palace (J2 Ligue Europa).",
-    "summary_short": "Le groupe de l'OL pour affronter Crystal Palace (J2 Ligue Europa).",
-    "content": "Le groupe de l'OL pour affronter Crystal Palace (J2 Ligue Europa).",
-    "paragraphs": [
-      "Le groupe de l'OL pour affronter Crystal Palace (J2 Ligue Europa)."
-    ],
-    "key_points": [
-      "Le groupe de l'OL pour affronter Crystal Palace (J2 Ligue Europa)."
-    ],
-    "telegram_summary": "Le groupe de l'OL pour affronter Crystal Palace (J2 Ligue Europa).",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-ol-un-retour-de-taille-et-trois-absents-importants-dans-le-groupe-pour-le-choc-face-a-crystal-palace-542225.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ol-un-retour-de-taille-et-trois-absents-importants-dans-le-groupe-pour-le-choc-face-a-crystal-palace-542225.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=22f617a2d0f8987d",
-    "published": "2026-10-14T18:26:00+00:00",
-    "image": "assets/images/footnews/22f617a2d0f8987d.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260919225427-8485.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Convocations",
-    "category_emoji": "📋",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
   }
 ]
