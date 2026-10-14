@@ -27,6 +27,8 @@ from scripts.football_history_features import competition
 from scripts.football_match_source_router import aware_time
 from scripts.football_multi_api_history_inputs import (ingest as ingest_provider_history,
                                                       trusted_private_bsd_rows)
+from scripts.football_verified_identity_crosswalk import (generate as confirmed_aliases,
+                                                          resolve as resolve_confirmed_alias)
 from bsd_v2_core import V2History, estimate_goals, predict_v2
 from bsd_h2h import local_h2h
 
@@ -73,7 +75,8 @@ def ids(league: str, team: str) -> int:
 
 
 def normalize_history(rows: list[dict], *,
-                      accepted_sources: frozenset[str] = frozenset({PROVIDER})) -> tuple[list[dict], dict]:
+                      accepted_sources: frozenset[str] = frozenset({PROVIDER}),
+                      team_aliases: dict | None = None) -> tuple[list[dict], dict]:
     """BSD-native-format history, preserving ALL verified providers per result.
 
     Multisource rows may only be passed after a dedicated rights/timestamp
@@ -89,8 +92,8 @@ def normalize_history(rows: list[dict], *,
         try:
             league = league_label(row["league"])
             dt = date.fromisoformat(str(row["match_date"]))
-            home = canonical_team(row["home_team"])
-            away = canonical_team(row["away_team"])
+            home = resolve_confirmed_alias(league,str(row["home_team"]),team_aliases or {})
+            away = resolve_confirmed_alias(league,str(row["away_team"]),team_aliases or {})
             hs, aws = row.get("home_score"), row.get("away_score")
             source = str(row["source"])
         except (KeyError, TypeError, ValueError):
@@ -154,7 +157,7 @@ def normalize_history(rows: list[dict], *,
 
 
 def adapt_daily(fixtures: list[dict], history: list[dict], *, as_of: datetime,
-                min_recent: int = 4) -> tuple[list[dict], dict]:
+                min_recent: int = 4, team_aliases: dict | None = None) -> tuple[list[dict], dict]:
     """Adapt external discoveries only. Reject duplicates already carrying BSD ID."""
     if as_of.tzinfo is None:
         raise ValueError("as_of must be timezone-aware")
@@ -185,6 +188,11 @@ def adapt_daily(fixtures: list[dict], history: list[dict], *, as_of: datetime,
             stats["unverified_competition_or_teams"] += 1
             continue
         league, home, away = names
+        home = resolve_confirmed_alias(league,home,team_aliases or {})
+        away = resolve_confirmed_alias(league,away,team_aliases or {})
+        if home == away:
+            stats["alias_caused_identical_teams"] += 1
+            continue
         kickoff = aware_time(item.get("kickoff_utc"))
         if kickoff is None or kickoff <= as_of:
             stats["not_future"] += 1
@@ -197,8 +205,6 @@ def adapt_daily(fixtures: list[dict], history: list[dict], *, as_of: datetime,
         if max((kickoff-team_latest[(lid,hid)]).days,(kickoff-team_latest[(lid,aid)]).days) > 240:
             stats["stale_prior_matches"] += 1
             continue
-        matches = [row for row in history if (row["home_team_id"] in (hid,aid)
-                         or row["away_team_id"] in (hid,aid))]
         # This is intentionally a local derived ID: original per-provider refs remain.
         synth_id = numbered(FIXTURE_START, f"{league}|{kickoff.isoformat()}|{home}|{away}")
         models.append({
@@ -344,13 +350,15 @@ def main() -> None:
         additions,multi_report=ingest_provider_history(snapshots,rights,as_of=when)
         approved=frozenset({*approved,*multi_report["permitted_provider_rows"].keys()})
         hist.extend(additions)
-    archive,archive_report=normalize_history(hist,accepted_sources=approved)
-    ready,ready_report=adapt_daily(fixtures,archive,as_of=when)
+    alias_map,alias_quality=confirmed_aliases(hist)
+    archive,archive_report=normalize_history(hist,accepted_sources=approved,team_aliases=alias_map)
+    ready,ready_report=adapt_daily(fixtures,archive,as_of=when,team_aliases=alias_map)
     # Raw per-event calculations remain only IN MEMORY. Never write match IDs
     # or individual picks in logs or artifacts.
     _,analysis_report=evaluate_existing_v2(ready,archive,as_of=when)
     report={
         "historical":archive_report,
+        "verified_team_aliases":alias_quality,
         "multi_api_historical_inputs":multi_report,
         "fixtures":ready_report,
         "bsd_v2_core":analysis_report,
