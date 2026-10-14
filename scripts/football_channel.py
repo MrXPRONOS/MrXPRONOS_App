@@ -642,6 +642,85 @@ def espn_preflight(sender: "Sender", item: Publication, *, dry_run: bool = False
     return accepted
 
 
+class RemotePublicationLedger:
+    """Registre Supabase atomique contre les doublons entre runners/workflows.
+
+    Le cache GitHub reste utile pour l'éditorial, mais ce registre est l'autorité
+    pour savoir si un event_key a déjà été réclamé en production.
+    """
+
+    def __init__(self, session: requests.Session, *, enabled: bool):
+        self.session = session
+        self.enabled = bool(enabled)
+        self.url = (os.getenv("SUPABASE_URL") or "").rstrip("/")
+        self.key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
+        if self.enabled and (not self.url or not self.key):
+            raise RuntimeError("Registre Actu Foot requis mais secrets Supabase absents")
+
+    @property
+    def endpoint(self) -> str:
+        return self.url + "/rest/v1/actu_foot_publications"
+
+    def _headers(self, *, minimal: bool = True) -> dict[str, str]:
+        headers = {
+            "apikey": self.key,
+            "Authorization": "Bearer " + self.key,
+            "Content-Type": "application/json",
+        }
+        if minimal:
+            headers["Prefer"] = "return=minimal"
+        return headers
+
+    def claim(self, item: Publication) -> bool:
+        if not self.enabled:
+            return True
+        payload_hash = hashlib.sha256(
+            json.dumps({
+                "category": item.category,
+                "key": item.key,
+                "text": item.text,
+                "card": item.card,
+            }, sort_keys=True, default=str, ensure_ascii=False).encode("utf-8")
+        ).hexdigest()
+        response = self.session.post(
+            self.endpoint,
+            headers=self._headers(),
+            json={
+                "event_key": item.key,
+                "category": item.category,
+                "status": "claimed",
+                "payload_hash": payload_hash,
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            },
+            timeout=(8, 20),
+        )
+        if response.status_code == 409:
+            print("REMOTE_DEDUP_ALREADY_CLAIMED", item.category, item.key)
+            return False
+        response.raise_for_status()
+        return True
+
+    def mark(self, item: Publication, status: str, message_id: int | None = None) -> None:
+        if not self.enabled:
+            return
+        payload: dict[str, Any] = {
+            "status": status,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+        if status == "sent":
+            payload["sent_at"] = datetime.now(timezone.utc).isoformat()
+        if message_id is not None:
+            payload["telegram_message_id"] = int(message_id)
+        response = self.session.patch(
+            self.endpoint,
+            headers=self._headers(),
+            params={"event_key": "eq." + item.key},
+            json=payload,
+            timeout=(8, 20),
+        )
+        response.raise_for_status()
+
+
 class Sender:
     def __init__(self, *, dry_run: bool = False):
         self.dry_run = dry_run
@@ -1813,6 +1892,10 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
     now = now.astimezone(timezone.utc)
     state = History()
     sender = Sender(dry_run=dry_run)
+    ledger = RemotePublicationLedger(
+        sender.session,
+        enabled=(not dry_run and os.getenv("FOOTBALL_REMOTE_LEDGER", "0") == "1"),
+    )
     counter = {"sent": 0, "skipped": 0, "errors": 0}
     max_send = MAX_MESSAGES_PER_RUN
     class_counter = {key: 0 for key in CLASS_BUDGETS}
@@ -1840,7 +1923,20 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             counter["skipped"] += 1
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
             return False
-        sender.send(item)
+        if not ledger.claim(item):
+            counter["skipped"] += 1
+            return False
+        try:
+            message_id = sender.send(item)
+        except Exception:
+            # Un timeout réseau après envoi est ambigu : conserver la réservation
+            # empêche un doublon au prochain runner.
+            try:
+                ledger.mark(item, "uncertain")
+            except requests.RequestException as ledger_exc:
+                print("REMOTE_LEDGER_MARK_ERROR", type(ledger_exc).__name__)
+            raise
+        ledger.mark(item, "sent", message_id)
         counter["sent"] += 1
         class_counter[cls] += 1
         if not dry_run:
@@ -1904,6 +2000,10 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
     hour = now.astimezone(TZ).hour
     state = History()
     sender = Sender(dry_run=dry_run)
+    ledger = RemotePublicationLedger(
+        sender.session,
+        enabled=(not dry_run and os.getenv("FOOTBALL_REMOTE_LEDGER", "0") == "1"),
+    )
     client: BSDClient | None = None
     cache: dict[str, list[dict]] = {}
     counter = {"sent": 0, "skipped": 0, "errors": 0}
@@ -1987,7 +2087,20 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
             return False
 
-        sender.send(item)
+        if not ledger.claim(item):
+            counter["skipped"] += 1
+            return False
+        try:
+            message_id = sender.send(item)
+        except Exception:
+            # Un timeout réseau après envoi est ambigu : conserver la réservation
+            # empêche un doublon au prochain runner.
+            try:
+                ledger.mark(item, "uncertain")
+            except requests.RequestException as ledger_exc:
+                print("REMOTE_LEDGER_MARK_ERROR", type(ledger_exc).__name__)
+            raise
+        ledger.mark(item, "sent", message_id)
         counter["sent"] += 1
         class_counter[cls] += 1
         if not dry_run:
