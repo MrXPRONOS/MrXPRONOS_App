@@ -1,0 +1,32 @@
+name: ESPN summary stat schema probe
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/espn-summary-schema-test.yml']
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check public soccer event statistics structure
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,urllib.request,urllib.error
+          url="https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=401906253"
+          try:
+            with urllib.request.urlopen(urllib.request.Request(url,headers={"Accept":"application/json"}),timeout=13) as response:
+              j=json.load(response)
+              box=j.get("boxscore") or {}
+              teams=box.get("teams") or []
+              print("ESPN_SUMMARY_SCHEMA",json.dumps({
+                "status":response.status,
+                "teams":len(teams),
+                "items":[{"team_id":str(x.get("team",{}).get("id","")), "team_name":str(x.get("team",{}).get("displayName",""))[:35],
+                  "stats_keys":[str(z.get("name")) for z in x.get("statistics",[])][:35]} for x in teams[:2]],
+              }))
+          except Exception as exc:
+            print("ESPN_SUMMARY_UNAVAILABLE",type(exc).__name__)
+          PY
