@@ -84,7 +84,7 @@ def native_parts(event, *, official_leagues=None):
 def native_key(event):
     return native_parts(event)[0]
 
-def prove(external:list[dict], native:list[dict], *, at:datetime, official_leagues=None)->dict:
+def prove(external:list[dict], native:list[dict], *, at:datetime, official_leagues=None, verified_id_sink=None)->dict:
     if at.tzinfo is None:
         raise ValueError("Timezone-aware current time required")
     at=at.astimezone(timezone.utc)
@@ -136,6 +136,10 @@ def prove(external:list[dict], native:list[dict], *, at:datetime, official_leagu
             per_native[ident].add(i)
     confirmed=[(i,ident) for i,ids in edges.items() for ident in ids
                if len(ids)==1 and len(per_native[ident])==1]
+    # The optional sink remains PROCESS-LOCAL ONLY. Never put IDs in a report,
+    # log, artifact, Telegram message, site JSON or a data model identifier.
+    if verified_id_sink is not None:
+        verified_id_sink.extend(sorted({ident for _,ident in confirmed}))
     rejected["external_ambiguous_native_matches"]+=sum(len(ids)>1 for ids in edges.values())
     rejected["native_ambiguous_external_matches"]+=sum(len(v)>1 for v in per_native.values())
     unmatched=len(external_ok)-len({i for i,_ in confirmed})
@@ -186,6 +190,68 @@ def candidate_official_league_ids(external, native, *, at):
                 and abs((t-ext_time).total_seconds())<=MAX_DELTA_SECONDS):
                 lids.add(lid)
     return sorted(lids)
+
+
+def audit_official_consensus_quotes(client,native,linked_ids,league_names,*,at):
+    """Proof of native market pricing, not proof of an executable bookmaker bet.
+
+    Only confirmed official BSD event IDs are inspected; a consensus value
+    is an aggregated indication and cannot supply a bookmaker ticket code.
+    """
+    from bsd_v2_odds import fetch_event_odds
+    by_id=defaultdict(list)
+    for row in native:
+        key,reason=native_parts(row,official_leagues=league_names)
+        if key is not None:
+            ident,attributes=key
+            by_id[ident].append(attributes)
+    outcomes=Counter()
+    audited=0
+    for ident in sorted(set(linked_ids))[:2]:
+        if client.requests_made>=MAX_BSD_REQUESTS-2:
+            outcomes["remaining_request_budget_insufficient"]+=1
+            break
+        rows=by_id.get(ident) or []
+        if len(rows)!=1:
+            outcomes["ambiguous_native_event"]+=1
+            continue
+        kickoff=rows[0][3]
+        if at>=kickoff:
+            outcomes["not_prematch"]+=1
+            continue
+        audited+=1
+        try:
+            quotes,diag=fetch_event_odds(
+                client,ident,kickoff=kickoff,captured_at=at,
+                bookmaker_slug="consensus",max_pages=2,max_age_hours=2)
+            verified=[q for q in quotes.values()
+                      if isinstance(q,dict) and q.get("origin")=="bsd_consensus"
+                      and q.get("bookmaker")=="consensus"]
+            if verified:
+                outcomes["events_with_fresh_consensus_market_prices"]+=1
+                outcomes["fresh_consensus_market_prices"]+=len(verified)
+            else:
+                outcomes["events_with_no_fresh_consensus_prices"]+=1
+        except Exception as exc:
+            if getattr(exc,"status",None)==402:
+                outcomes["bsd_odds_entitlement_required"]+=1
+                break
+            outcomes["api_or_quote_"+type(exc).__name__]+=1
+    return {
+        "event_ids_selected_only_from_confirmed_native_links":True,
+        "max_linked_events_for_quote_probe":2,
+        "official_native_events_quoted_attempts":audited,
+        "events_with_fresh_consensus_market_prices":
+            outcomes["events_with_fresh_consensus_market_prices"],
+        "fresh_consensus_market_prices":outcomes["fresh_consensus_market_prices"],
+        "consensus_is_not_executable_bookmaker_offer":True,
+        "independent_bookmaker_selection_codes_verified":0,
+        "production_market_policy_approved":False,
+        "raw_market_prices_or_event_ids_exported":False,
+        "issues":dict(sorted((k,v) for k,v in outcomes.items()
+                             if k not in ("events_with_fresh_consensus_market_prices",
+                                          "fresh_consensus_market_prices"))),
+    }
 
 
 def main():
@@ -244,8 +310,12 @@ def main():
             metadata_issues["api_"+type(exc).__name__]+=1
     if len(ids)>available:
         metadata_issues["league_metadata_budget_exceeded"]+=len(ids)-available
-    result=prove(verified,native,at=clock,official_leagues=names)
+    linked_ids=[]
+    result=prove(verified,native,at=clock,official_leagues=names,
+                 verified_id_sink=linked_ids)
+    pricing=audit_official_consensus_quotes(client,native,linked_ids,names,at=clock)
     result.update({
+        "read_only_native_consensus_price_audit":pricing,
         "candidate_official_league_metadata_ids":len(ids),
         "official_league_metadata_requested":min(len(ids),available),
         "official_league_metadata_verified":len(names),
