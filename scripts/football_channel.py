@@ -789,6 +789,50 @@ class RemotePublicationLedger:
             )
         return result
 
+    def _hydrate_legacy_item(self, item: Publication) -> Publication:
+        """Répare les payloads outbox créés avant la timeline canonique complète."""
+        if item.category != "composition" or not isinstance(item.card, dict):
+            return item
+        if plain(item.card.get("time"), 20):
+            return item
+        event_key = plain(item.card.get("canonical_event_key") or item.key, 220)
+        if not event_key:
+            return item
+        try:
+            response = self.session.get(
+                self.url + "/rest/v1/actu_foot_live_events",
+                headers=self._headers(minimal=False),
+                params={"event_key": "eq." + event_key, "select": "payload"},
+                timeout=(8, 20),
+            )
+            response.raise_for_status()
+            rows = response.json()
+        except (requests.RequestException, ValueError):
+            return item
+        if not isinstance(rows, list) or not rows or not isinstance(rows[0], dict):
+            return item
+        payload = rows[0].get("payload")
+        payload = payload if isinstance(payload, dict) else {}
+        kickoff = moment(payload.get("kickoff"))
+        if not kickoff:
+            return item
+        item.card["time"] = time_label(kickoff)
+        try:
+            self.session.patch(
+                self.endpoint,
+                headers=self._headers(),
+                params={"event_key": "eq." + item.key},
+                json={
+                    "payload": publication_payload(item),
+                    "updated_at": datetime.now(timezone.utc).isoformat(),
+                },
+                timeout=(8, 20),
+            ).raise_for_status()
+            print("REMOTE_OUTBOX_LEGACY_HYDRATED", item.key, item.card["time"])
+        except requests.RequestException as exc:
+            print("REMOTE_OUTBOX_LEGACY_HYDRATE_SAVE_ERROR", item.key, type(exc).__name__)
+        return item
+
     def retryable(self, limit: int = 12) -> list[Publication]:
         if not self.enabled:
             return []
@@ -804,7 +848,7 @@ class RemotePublicationLedger:
         for row in rows if isinstance(rows, list) else []:
             item = publication_from_payload(row.get("payload") if isinstance(row, dict) else {})
             if item:
-                out.append(item)
+                out.append(self._hydrate_legacy_item(item))
         return out
 
     def mark_phase(
