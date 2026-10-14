@@ -10,12 +10,18 @@ on:
       - '.github/workflows/deploy-supabase-functions.yml'
   workflow_dispatch:
 
+concurrency:
+  group: mrxpronos-supabase-production-deploy
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: main  # Always deploy the latest published code, even from an older queued run
 
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v3
