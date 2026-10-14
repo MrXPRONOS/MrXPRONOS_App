@@ -124,23 +124,23 @@ POLL_DATE_BOX = (470, 864, 670, 912)
 # aucune gomme, aucun patch et aucun rectangle n'est nécessaire.
 COMPOSITION_HOME_LOGO = (339, 359)
 COMPOSITION_AWAY_LOGO = (1030, 359)
-COMPOSITION_HOME_NAME = (88, 450, 584, 507)
-COMPOSITION_AWAY_NAME = (784, 450, 1274, 507)
+COMPOSITION_HOME_NAME = (88, 448, 588, 505)
+COMPOSITION_AWAY_NAME = (784, 448, 1278, 505)
 COMPOSITION_COMPETITION_BOX = (500, 224, 723, 274)
 COMPOSITION_TIME_BOX = (786, 224, 933, 274)
 
 # Pied de page : icônes et séparateurs sont imprimés dans le template,
 # seuls les libellés sont injectés par le renderer.
-COMPOSITION_SOURCE_BOX = (78, 1073, 325, 1118)
-COMPOSITION_COMMENT_BOX = (516, 1073, 894, 1118)
-COMPOSITION_BRAND_BOX = (1017, 1073, 1325, 1118)
+COMPOSITION_SOURCE_BOX = (78, 1058, 320, 1098)
+COMPOSITION_COMMENT_BOX = (500, 1058, 876, 1098)
+COMPOSITION_BRAND_BOX = (1008, 1058, 1326, 1098)
 
 # Les numéros 1..11 et les cadres de lignes sont natifs au template.
 # On écrit uniquement les noms des joueurs dans les champs sombres.
 COMPOSITION_HOME_PLAYER_X = (151, 578)
 COMPOSITION_AWAY_PLAYER_X = (847, 1277)
 COMPOSITION_ROWS = tuple(
-    (526 + index * 46, 566 + index * 46)
+    (524 + index * 46, 565 + index * 46)
     for index in range(11)
 )
 
@@ -1246,8 +1246,8 @@ def render_composition(payload: dict[str, Any]) -> Image.Image:
         )
 
     # Les logos restent entièrement à l'intérieur des cercles sombres.
-    paste_logo(image, home_logo, COMPOSITION_HOME_LOGO, 140)
-    paste_logo(image, away_logo, COMPOSITION_AWAY_LOGO, 140)
+    paste_logo(image, home_logo, COMPOSITION_HOME_LOGO, 132)
+    paste_logo(image, away_logo, COMPOSITION_AWAY_LOGO, 132)
 
     _draw_lineup_players(image, home_players, COMPOSITION_HOME_PLAYER_X)
     _draw_lineup_players(image, away_players, COMPOSITION_AWAY_PLAYER_X)
@@ -1257,32 +1257,33 @@ def render_composition(payload: dict[str, Any]) -> Image.Image:
         draw,
         "Source : " + source,
         COMPOSITION_SOURCE_BOX,
-        preferred_size=15,
-        min_size=12,
+        preferred_size=14,
+        min_size=11,
         bold=False,
         fill=WHITE,
-        max_chars=34,
+        max_chars=30,
         align="left",
     )
     draw_single_line(
         draw,
         "Donne ton avis dans les commentaires.",
         COMPOSITION_COMMENT_BOX,
-        preferred_size=14,
-        min_size=11,
+        preferred_size=13,
+        min_size=10,
         bold=False,
         fill=WHITE,
-        max_chars=44,
+        max_chars=40,
+        align="center",
     )
     draw_single_line(
         draw,
         "Mr XPRONOS • L’actualité du football",
         COMPOSITION_BRAND_BOX,
-        preferred_size=14,
+        preferred_size=13,
         min_size=10,
         bold=False,
         fill=WHITE,
-        max_chars=42,
+        max_chars=36,
         align="left",
     )
     return image
