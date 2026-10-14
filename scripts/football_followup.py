@@ -142,6 +142,10 @@ def base_events(tracked: dict, now: datetime) -> list[dict]:
             "away_team": {"name": value["away_team"], "logo": value.get("away_logo") or ""},
             "event_date": value["event_date"],
             "league_name": value.get("league_name") or "Football",
+            "lineup_home_hash": value.get("lineup_home_hash") or "",
+            "lineup_away_hash": value.get("lineup_away_hash") or "",
+            "lineup_home": list(value.get("lineup_home") or []),
+            "lineup_away": list(value.get("lineup_away") or []),
         })
     return result
 
