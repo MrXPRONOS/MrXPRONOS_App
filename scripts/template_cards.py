@@ -10,6 +10,7 @@ Toutes les coordonnées de ce module sont donc des coordonnées 1080x1080.
 """
 from __future__ import annotations
 
+import base64
 import io
 import re
 from pathlib import Path
@@ -348,12 +349,34 @@ def template(category: str) -> Image.Image:
     filename = TEMPLATES.get(category)
     if not filename:
         raise ValueError("Template inconnu: " + category)
-    path = ASSETS / filename
-    if not path.is_file():
-        raise FileNotFoundError(
-            f"Template absent: {path}. Déposer {filename} dans assets/images/."
+
+    # Le nouveau template Composition est versionné sous forme de fragments
+    # base64 sur la branche TEST afin de conserver exactement l'image générée.
+    # Aucune recomposition graphique n'est faite par le renderer.
+    if category == "composition":
+        encoded_dir = ASSETS / "template_compositions_officielles_v2.b64"
+        parts = sorted(encoded_dir.glob("*.txt"))
+        if not parts:
+            raise FileNotFoundError(
+                f"Template Composition v2 absent: {encoded_dir}"
+            )
+        encoded = "".join(
+            part.read_text(encoding="utf-8").strip()
+            for part in parts
         )
-    image = Image.open(path).convert("RGB")
+        try:
+            raw = base64.b64decode(encoded, validate=True)
+            image = Image.open(io.BytesIO(raw)).convert("RGB")
+        except Exception as exc:
+            raise ValueError("Template Composition v2 invalide") from exc
+    else:
+        path = ASSETS / filename
+        if not path.is_file():
+            raise FileNotFoundError(
+                f"Template absent: {path}. Déposer {filename} dans assets/images/."
+            )
+        image = Image.open(path).convert("RGB")
+
     target_size = TEMPLATE_SIZES.get(category, (W, H))
     if image.size != target_size:
         image = ImageOps.fit(image, target_size, method=Image.Resampling.LANCZOS)
