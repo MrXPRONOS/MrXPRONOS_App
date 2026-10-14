@@ -13,7 +13,7 @@ const SPORT_SCORE = "https://sportscore.com/api/v1";
 // /match/?slug= expects the slug, while our source match key uses the stable id.
 function sportScoreRefs(x:any, home:string, away:string){
   const path=text(x.url||x.match_url);
-  const match=path.match(/\\/match\\/([^/?#]+)\\/([^/?#]+)(?:[/?#]|$)/);
+  const match=path.match(/\/match\/([^/?#]+)\/([^/?#]+)(?:[/?#]|$)/);
   const slug=text(x.slug||x.match_slug||x.url_slug||match?.[1]) || slugify(home+"-vs-"+away);
   const id=text(x.id||x.match_id||match?.[2]) || slug;
   return {id,slug};
@@ -23,11 +23,11 @@ function sportScoreMinute(x:any):number|null{
   for(const v of values){
     const n=int(v);
     if(n!==null&&n<=130)return n;
-    const match=text(v).match(/^(\\d{1,3})\\s*\\+\\s*(\\d{1,2})\\s*['’′]?$/);
+    const match=text(v).match(/^(\d{1,3})\s*\+\s*(\d{1,2})\s*['’′]?$/);
     if(match){const n=Number(match[1])+Number(match[2]);if(n<=130)return n;}
   }
   const status=text(x.status_text||x.status);
-  const match=status.match(/(?:^|\\s)(\\d{1,3})(?:\\s*\\+\\s*(\\d{1,2}))?\\s*['’′](?:\\s|$)/);
+  const match=status.match(/(?:^|\s)(\d{1,3})(?:\s*\+\s*(\d{1,2}))?\s*['’′](?:\s|$)/);
   return match?Math.min(130,Number(match[1])+Number(match[2]||0)):null;
 }
 const TSDB = "https://www.thesportsdb.com/api/v1/json/123";
