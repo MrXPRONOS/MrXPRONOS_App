@@ -1,5 +1,67 @@
 [
   {
+    "slug": "c10bed60f72a5137",
+    "title": "LDC : AS Rome - Real Madrid : les compos officielles",
+    "summary": "Les compositions officielles du match entre l'AS Rome et le Real Madrid (J2 LDC).",
+    "summary_short": "Les compositions officielles du match entre l'AS Rome et le Real Madrid (J2 LDC).",
+    "content": "Les compositions officielles du match entre l'AS Rome et le Real Madrid (J2 LDC).",
+    "paragraphs": [
+      "Les compositions officielles du match entre l'AS Rome et le Real Madrid (J2 LDC)."
+    ],
+    "key_points": [
+      "Les compositions officielles du match entre l'AS Rome et le Real Madrid (J2 LDC)."
+    ],
+    "telegram_summary": "Les compositions officielles du match entre l'AS Rome et le Real Madrid (J2 LDC).",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ldc-as-rome-real-madrid-les-compos-officielles-542223.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-as-rome-real-madrid-les-compos-officielles-542223.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c10bed60f72a5137",
+    "published": "2026-10-14T18:08:00+00:00",
+    "image": "assets/images/footnews/c10bed60f72a5137.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/buzz/2026/une/buzz-20261008155705-8301.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50150816",
+      "url": "https://www.espn.com/video/clip/_/id/50150816/real-madrid-vs-villarreal-game-highlights",
+      "published": "2026-10-10T21:06:47Z",
+      "score": 0.25,
+      "matched_terms": [
+        "madrid",
+        "real"
+      ],
+      "topics": [],
+      "teams": [
+        "Real Madrid",
+        "Villarreal"
+      ],
+      "athletes": [
+        "Alberto Moleiro",
+        "Vinícius Júnior",
+        "Yan Diomande"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T18:10:28.853154+00:00"
+    },
+    "quality_sources": [
+      "MadeInFoot",
+      "ESPN"
+    ],
+    "quality_score": 96
+  },
+  {
     "slug": "1edb2960ac90c64c",
     "title": "Ligue des champions : dépassé, Lille n'a pas tenu la distance face à Arsenal... Revivez la rencontre de la deuxième journée de phase de ligue",
     "summary": "Après avoir été renversés par le Betis Seville lors de la première journée, les Lillois ont concédé une deuxième défaite en autant de matchs de C1, mardi, face à Arsenal.",
@@ -87,7 +149,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:05:53.190414+00:00"
+      "checked_at": "2026-10-14T18:10:28.853154+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -146,7 +208,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:05:53.190414+00:00"
+      "checked_at": "2026-10-14T18:10:28.853154+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -209,7 +271,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:05:53.190414+00:00"
+      "checked_at": "2026-10-14T18:10:28.853154+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -411,7 +473,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:05:53.190414+00:00"
+      "checked_at": "2026-10-14T18:10:28.853154+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -474,7 +536,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:05:53.190414+00:00"
+      "checked_at": "2026-10-14T18:10:28.853154+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -532,7 +594,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:05:53.190414+00:00"
+      "checked_at": "2026-10-14T18:10:28.853154+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -773,7 +835,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:05:53.190414+00:00"
+      "checked_at": "2026-10-14T18:10:28.853154+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -1007,7 +1069,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T18:05:53.190414+00:00"
+      "checked_at": "2026-10-14T18:10:28.853154+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1100,7 +1162,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:05:53.190414+00:00"
+      "checked_at": "2026-10-14T18:10:28.853154+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1193,7 +1255,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:05:53.190414+00:00"
+      "checked_at": "2026-10-14T18:10:28.853154+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1255,7 +1317,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:05:53.190414+00:00"
+      "checked_at": "2026-10-14T18:10:28.853154+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1446,7 +1508,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:05:53.190414+00:00"
+      "checked_at": "2026-10-14T18:10:28.853154+00:00"
     },
     "quality_sources": [
       "RFI",
@@ -2337,40 +2399,6 @@
     "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
     "category": "Déclarations",
     "category_emoji": "🗣️",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "4c2e0c16a2944e35",
-    "title": "OM : Bob Tahri a quitté l'OM, les coulisses de son départ se précisent",
-    "summary": "D'après les informations de L'Équipe, Bob Tahri a quitté l'OM.",
-    "summary_short": "D'après les informations de L'Équipe, Bob Tahri a quitté l'OM.",
-    "content": "D'après les informations de L'Équipe, Bob Tahri a quitté l'OM.",
-    "paragraphs": [
-      "D'après les informations de L'Équipe, Bob Tahri a quitté l'OM."
-    ],
-    "key_points": [
-      "D'après les informations de L'Équipe, Bob Tahri a quitté l'OM."
-    ],
-    "telegram_summary": "D'après les informations de L'Équipe, Bob Tahri a quitté l'OM.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-om-bob-tahri-a-quitte-l-om-les-coulisses-de-son-depart-se-precisent-542190.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-om-bob-tahri-a-quitte-l-om-les-coulisses-de-son-depart-se-precisent-542190.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=4c2e0c16a2944e35",
-    "published": "2026-10-14T14:16:00+00:00",
-    "image": "assets/images/footnews/4c2e0c16a2944e35.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260414114234-7947.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Mercato",
-    "category_emoji": "🚨",
     "editorial_score": 3,
     "espn_verification": {},
     "quality_sources": [
