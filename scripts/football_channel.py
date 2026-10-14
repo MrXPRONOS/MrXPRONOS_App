@@ -42,7 +42,7 @@ from free_football_sources import (  # noqa: E402
     SOURCE_QUALITY,
 )
 from telegram_rich import post_photo, post_text, post_animation, _post_rate_limited  # noqa: E402
-from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish, fetch_supabase_live, persist_canonical_live_events)  # noqa: E402
+from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish, fetch_supabase_live, persist_canonical_live_events, confirm_canonical_live_event)  # noqa: E402
 import football_followup as followup  # noqa: E402
 from football_stats_engine import daily_insight  # noqa: E402
 from football_viral_engine import (  # noqa: E402
@@ -1943,6 +1943,7 @@ def lifecycle_publication(signal: dict) -> Publication | None:
         "goal": signal.get("goal") if isinstance(signal.get("goal"), dict) else {},
         "espn_url": espn_url,
         "fixture_key": plain(signal.get("follow_ref") or signal.get("fixture_key"), 180),
+        "canonical_event_key": plain(signal.get("key"), 220),
     }
 
     if kind == "composition":
@@ -2036,13 +2037,23 @@ def followed_interruption_publication(signal: dict) -> Publication | None:
         "away_logo": signal.get("away_logo"),
         "espn_url": signal.get("espn_url"),
         "fixture_key": plain(signal.get("follow_ref") or signal.get("fixture_key"), 180),
+        "canonical_event_key": plain(signal.get("key"), 220),
     }
+    event_id = plain(signal.get("espn_event_id"), 32)
+    verification = {
+        "event_id": event_id,
+        "kind": "suivi_interrompu",
+        "home": home,
+        "away": away,
+        "score": plain(signal.get("score"), 20),
+    } if event_id else None
     return Publication(
         "suivi_interrompu",
         str(signal.get("key") or ""),
         banner_caption("suivi_interrompu", card),
         card=card,
         keyboard=live_keyboard(card),
+        verification=verification,
     )
 
 def followed_final_publication(signal: dict) -> Publication | None:
@@ -2135,7 +2146,8 @@ def followed_final_publication(signal: dict) -> Publication | None:
                 "scores": (h, a), "source": signal.get("source") or "score confirmé",
                 "home_logo": logo_home,
                 "away_logo": logo_away,
-                "fixture_key": plain(signal.get("follow_ref") or signal.get("fixture_key"), 180)}
+                "fixture_key": plain(signal.get("follow_ref") or signal.get("fixture_key"), 180),
+                "canonical_event_key": plain(signal.get("key"), 220)}
     if card is None:
         card = {
             "home": home,
@@ -2147,6 +2159,7 @@ def followed_final_publication(signal: dict) -> Publication | None:
             "home_logo": logo_home,
             "away_logo": logo_away,
             "fixture_key": plain(signal.get("follow_ref") or signal.get("fixture_key"), 180),
+            "canonical_event_key": plain(signal.get("key"), 220),
         }
 
     espn_url = plain(signal.get("espn_url"), 500)
@@ -2274,6 +2287,16 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             counter["skipped"] += 1
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
             return False
+        canonical_key = (
+            plain(item.card.get("canonical_event_key"), 220)
+            if isinstance(item.card, dict) else ""
+        )
+        if canonical_key and not dry_run:
+            confirm_canonical_live_event(
+                sender.session,
+                canonical_key,
+                strict=(os.getenv("FOOTBALL_CANONICAL_EVENTS", "0") == "1"),
+            )
         delivery = deliver_with_outbox(sender, ledger, item, now)
         if not delivery.get("sent"):
             if delivery.get("error"):
@@ -2472,6 +2495,16 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
             return False
 
+        canonical_key = (
+            plain(item.card.get("canonical_event_key"), 220)
+            if isinstance(item.card, dict) else ""
+        )
+        if canonical_key and not dry_run:
+            confirm_canonical_live_event(
+                sender.session,
+                canonical_key,
+                strict=(os.getenv("FOOTBALL_CANONICAL_EVENTS", "0") == "1"),
+            )
         delivery = deliver_with_outbox(sender, ledger, item, now)
         if not delivery.get("sent"):
             if delivery.get("error"):
