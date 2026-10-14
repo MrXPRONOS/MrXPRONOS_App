@@ -101,6 +101,23 @@ class ExistingBSDV2AdapterTests(unittest.TestCase):
         self.assertEqual(estimate_goals(fixture[0],past),estimate_goals(fixture[0],future))
         self.assertEqual(h2h_report(fixture[0],old_hist),h2h_report(fixture[0],all_hist))
 
+    def test_h2h_from_multiple_past_seasons_stays_available(self):
+        rows=history()
+        rows.extend([
+            {"source":"openfootball","source_id":"e"*64,"status":"finished",
+             "match_date":"2023-05-07","league":"Premier League",
+             "home_team":"Arsenal FC","away_team":"Chelsea FC","home_score":3,"away_score":1},
+            {"source":"openfootball","source_id":"f"*64,"status":"finished",
+             "match_date":"2024-03-06","league":"Premier League",
+             "home_team":"Chelsea FC","away_team":"Arsenal FC","home_score":2,"away_score":2},
+        ])
+        archived,_=normalize_history(rows)
+        fixtures,_=adapt_daily([daily()],archived,as_of=AS_OF)
+        report=h2h_report(fixtures[0],archived)
+        self.assertEqual(report["total_previous_meetings"],4)
+        self.assertEqual(report["draws"],1)
+        self.assertTrue(report["available_for_diagnostics_only"])
+
     def test_conflict_quarantines_same_game(self):
         values=history()
         extra=dict(values[0],source_id="c"*64,home_score=5)
