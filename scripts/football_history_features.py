@@ -78,7 +78,7 @@ def form(team: str, league: str, before: date, history: list[dict], *, min_games
             gf, ga, venue = row["away_score"], row["home_score"], "away"
         else:
             continue
-        extra = (row.get("source_statistics") or {}).get("football_data") or {}
+        extra = (row.get("source_statistics") or {}).get("licensed_csv") or {}
         prior.append((matchday, gf, ga, venue, extra if isinstance(extra, dict) else {}))
     prior.sort(key=lambda m: m[0], reverse=True)
     prior = prior[:last]
@@ -108,7 +108,7 @@ def form(team: str, league: str, before: date, history: list[dict], *, min_games
                 "for_per_match": round(sum(a for a, _ in samples) / len(samples), 4),
                 "against_per_match": round(sum(b for _, b in samples) / len(samples), 4),
                 "sample_matches": len(samples),
-                "source": "football_data",
+                "source": "licensed_csv",
                 "independently_verified_statistic": False,
                 "historical_final_scores_crosschecked": True,
             }
