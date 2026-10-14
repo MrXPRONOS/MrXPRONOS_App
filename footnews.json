@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T23:31:39+00:00",
+    "published": "2026-10-14T23:32:25+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -32,6 +32,41 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "76bfac545d8a83be",
+    "title": "Manchester City - PSG : le phénomène Ayyoub Bouaddi a (encore) marqué les esprits",
+    "summary": "Entré à la pause face au PSG, Ayyoub Bouaddi a une nouvelle fois impressionné par sa maturité et son impact sur le jeu de Manchester City. Malgré la défaite des siens, le jeune milieu a symbolisé le (…)",
+    "summary_short": "Entré à la pause face au PSG, Ayyoub Bouaddi a une nouvelle fois impressionné par sa maturité et son impact sur le jeu de Manchester City. Malgré la défaite des siens, le jeune milieu a symbolisé le (…)",
+    "content": "Entré à la pause face au PSG, Ayyoub Bouaddi a une nouvelle fois impressionné par sa maturité et son impact sur le jeu de Manchester City. Malgré la défaite des siens, le jeune milieu a symbolisé le (…)",
+    "paragraphs": [
+      "Entré à la pause face au PSG, Ayyoub Bouaddi a une nouvelle fois impressionné par sa maturité et son impact sur le jeu de Manchester City. Malgré la défaite des siens, le jeune milieu a symbolisé le (…)"
+    ],
+    "key_points": [
+      "Entré à la pause face au PSG, Ayyoub Bouaddi a une nouvelle fois impressionné par sa maturité et son impact sur le jeu de Manchester City.",
+      "Malgré la défaite des siens, le jeune milieu a symbolisé le (…)"
+    ],
+    "telegram_summary": "Entré à la pause face au PSG, Ayyoub Bouaddi a une nouvelle fois impressionné par sa maturité et son impact sur le jeu de Manchester City. Malgré la défaite des siens, le jeune milieu a symbolisé le (…)",
+    "link": "https://www.footmercato.net/a5931824146567150440-manchester-city-psg-le-phenomene-ayyoub-bouaddi-a-encore-marque-les-esprits",
+    "source_url": "https://www.footmercato.net/a5931824146567150440-manchester-city-psg-le-phenomene-ayyoub-bouaddi-a-encore-marque-les-esprits",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=76bfac545d8a83be",
+    "published": "2026-10-14T23:31:19+00:00",
+    "image": "assets/images/footnews/76bfac545d8a83be.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/ayyoub-bouaddi-6ad00a9054103.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
   },
   {
     "slug": "507e54c0f40608e7",
@@ -120,7 +155,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -184,7 +219,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -317,7 +352,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "Franceinfo",
@@ -660,7 +695,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -754,7 +789,7 @@
     "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
-    "published": "2026-10-14T23:31:39+00:00",
+    "published": "2026-10-14T23:32:25+00:00",
     "image": "assets/images/footnews/7628f643096931ac.webp",
     "source_image": "https://www.franceinfo.fr/pictures/5U3Wip1t6xJCEihksoGYiduzong/0x25:4673x2654/432x243/filters:format(jpg)/2026/10/14/6acfdbdf2c937182294865.jpg",
     "image_origin": "source",
@@ -808,6 +843,38 @@
     "quality_score": 92
   },
   {
+    "slug": "d1c301b8ee1df0f3",
+    "title": "Des records de buts en Ligue des champions depuis le nouveau format : est-ce une réussite ?",
+    "summary": "Des nouvelles du football-tiktok.",
+    "summary_short": "Des nouvelles du football-tiktok.",
+    "content": "Des nouvelles du football-tiktok.",
+    "paragraphs": [
+      "Des nouvelles du football-tiktok."
+    ],
+    "key_points": [],
+    "telegram_summary": "Des nouvelles du football-tiktok.",
+    "link": "https://www.sofoot.com/articles/des-records-de-buts-en-ligue-des-champions-depuis-le-nouveau-format-est-ce-une-reussite",
+    "source_url": "https://www.sofoot.com/articles/des-records-de-buts-en-ligue-des-champions-depuis-le-nouveau-format-est-ce-une-reussite",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d1c301b8ee1df0f3",
+    "published": "2026-10-14T23:14:22+00:00",
+    "image": "assets/images/footnews/d1c301b8ee1df0f3.webp",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/15010531/ICONSPORTxALAMY_3FTA4CD-scaled.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
     "slug": "d7a3ff0c8fd42b20",
     "title": "PSG : Luis Enrique, bourreau des clubs anglais",
     "summary": "Le Paris Saint-Germain enchaîne les succès face aux clubs anglais et Luis Enrique a été interrogé, ce mercredi soir, sur l’éventuel avantage psychologique que cette dynamique pourrait offrir à son (…)",
@@ -823,7 +890,7 @@
     "link": "https://www.footmercato.net/a1611543642754406657-psg-luis-enrique-bourreau-des-clubs-anglais",
     "source_url": "https://www.footmercato.net/a1611543642754406657-psg-luis-enrique-bourreau-des-clubs-anglais",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d7a3ff0c8fd42b20",
-    "published": "2026-10-14T23:25:48+00:00",
+    "published": "2026-10-14T23:04:00+00:00",
     "image": "assets/images/footnews/d7a3ff0c8fd42b20.webp",
     "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine262762-1920x1080.jpg",
     "image_origin": "source",
@@ -865,114 +932,13 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
       "ESPN"
     ],
     "quality_score": 100
-  },
-  {
-    "slug": "d1c301b8ee1df0f3",
-    "title": "Des records de buts en Ligue des champions depuis le nouveau format : est-ce une réussite ?",
-    "summary": "Des nouvelles du football-tiktok.",
-    "summary_short": "Des nouvelles du football-tiktok.",
-    "content": "Des nouvelles du football-tiktok.",
-    "paragraphs": [
-      "Des nouvelles du football-tiktok."
-    ],
-    "key_points": [],
-    "telegram_summary": "Des nouvelles du football-tiktok.",
-    "link": "https://www.sofoot.com/articles/des-records-de-buts-en-ligue-des-champions-depuis-le-nouveau-format-est-ce-une-reussite",
-    "source_url": "https://www.sofoot.com/articles/des-records-de-buts-en-ligue-des-champions-depuis-le-nouveau-format-est-ce-une-reussite",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d1c301b8ee1df0f3",
-    "published": "2026-10-14T23:14:22+00:00",
-    "image": "assets/images/footnews/d1c301b8ee1df0f3.webp",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/15010531/ICONSPORTxALAMY_3FTA4CD-scaled.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "900efc5e24391500",
-    "title": "PSG : la machine Maghnes Akliouche est bien lancée !",
-    "summary": "Buteur face au Mans et auteur d’une prestation remarquée contre Manchester City, ce mercredi soir, Maghnes Akliouche enchaîne les signaux positifs sous les couleurs parisiennes. Titularisé par Luis (…)",
-    "summary_short": "Buteur face au Mans et auteur d’une prestation remarquée contre Manchester City, ce mercredi soir, Maghnes Akliouche enchaîne les signaux positifs sous les couleurs parisiennes. Titularisé par Luis (…)",
-    "content": "Buteur face au Mans et auteur d’une prestation remarquée contre Manchester City, ce mercredi soir, Maghnes Akliouche enchaîne les signaux positifs sous les couleurs parisiennes. Titularisé par Luis (…)",
-    "paragraphs": [
-      "Buteur face au Mans et auteur d’une prestation remarquée contre Manchester City, ce mercredi soir, Maghnes Akliouche enchaîne les signaux positifs sous les couleurs parisiennes. Titularisé par Luis (…)"
-    ],
-    "key_points": [
-      "Buteur face au Mans et auteur d’une prestation remarquée contre Manchester City, ce mercredi soir, Maghnes Akliouche enchaîne les signaux positifs sous les couleurs parisiennes."
-    ],
-    "telegram_summary": "Buteur face au Mans et auteur d’une prestation remarquée contre Manchester City, ce mercredi soir, Maghnes Akliouche enchaîne les signaux positifs sous les couleurs parisiennes. Titularisé par Luis (…)",
-    "link": "https://www.footmercato.net/a4331000656986984994-psg-la-machine-maghnes-akliouche-est-bien-lancee",
-    "source_url": "https://www.footmercato.net/a4331000656986984994-psg-la-machine-maghnes-akliouche-est-bien-lancee",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=900efc5e24391500",
-    "published": "2026-10-14T22:57:22+00:00",
-    "image": "assets/images/footnews/900efc5e24391500.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maghnes-akliouche-6ad003a3ec550.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "c9cc4a710e5da14c",
-    "title": "PSG : Maghnes Akliouche raconte son but \"gag\" face à Gianluigi Donnarumma",
-    "summary": "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City. Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)",
-    "summary_short": "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City. Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)",
-    "content": "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City. Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)",
-    "paragraphs": [
-      "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City. Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)"
-    ],
-    "key_points": [
-      "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City.",
-      "Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)"
-    ],
-    "telegram_summary": "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City. Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)",
-    "link": "https://www.footmercato.net/a7937505840264577081-psg-maghnes-akliouche-raconte-son-but-gag-face-a-gianluigi-donnarumma",
-    "source_url": "https://www.footmercato.net/a7937505840264577081-psg-maghnes-akliouche-raconte-son-but-gag-face-a-gianluigi-donnarumma",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c9cc4a710e5da14c",
-    "published": "2026-10-14T22:54:44+00:00",
-    "image": "assets/images/footnews/c9cc4a710e5da14c.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maghnes-akliouche-6ad003a3ec550.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   },
   {
     "slug": "a0132fdeed998790",
@@ -1024,13 +990,82 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "So Foot",
       "ESPN"
     ],
     "quality_score": 86
+  },
+  {
+    "slug": "900efc5e24391500",
+    "title": "PSG : la machine Maghnes Akliouche est bien lancée !",
+    "summary": "Buteur face au Mans et auteur d’une prestation remarquée contre Manchester City, ce mercredi soir, Maghnes Akliouche enchaîne les signaux positifs sous les couleurs parisiennes. Titularisé par Luis (…)",
+    "summary_short": "Buteur face au Mans et auteur d’une prestation remarquée contre Manchester City, ce mercredi soir, Maghnes Akliouche enchaîne les signaux positifs sous les couleurs parisiennes. Titularisé par Luis (…)",
+    "content": "Buteur face au Mans et auteur d’une prestation remarquée contre Manchester City, ce mercredi soir, Maghnes Akliouche enchaîne les signaux positifs sous les couleurs parisiennes. Titularisé par Luis (…)",
+    "paragraphs": [
+      "Buteur face au Mans et auteur d’une prestation remarquée contre Manchester City, ce mercredi soir, Maghnes Akliouche enchaîne les signaux positifs sous les couleurs parisiennes. Titularisé par Luis (…)"
+    ],
+    "key_points": [
+      "Buteur face au Mans et auteur d’une prestation remarquée contre Manchester City, ce mercredi soir, Maghnes Akliouche enchaîne les signaux positifs sous les couleurs parisiennes."
+    ],
+    "telegram_summary": "Buteur face au Mans et auteur d’une prestation remarquée contre Manchester City, ce mercredi soir, Maghnes Akliouche enchaîne les signaux positifs sous les couleurs parisiennes. Titularisé par Luis (…)",
+    "link": "https://www.footmercato.net/a4331000656986984994-psg-la-machine-maghnes-akliouche-est-bien-lancee",
+    "source_url": "https://www.footmercato.net/a4331000656986984994-psg-la-machine-maghnes-akliouche-est-bien-lancee",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=900efc5e24391500",
+    "published": "2026-10-14T22:36:00+00:00",
+    "image": "assets/images/footnews/900efc5e24391500.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maghnes-akliouche-6ad003a3ec550.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "c9cc4a710e5da14c",
+    "title": "PSG : Maghnes Akliouche raconte son but \"gag\" face à Gianluigi Donnarumma",
+    "summary": "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City. Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)",
+    "summary_short": "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City. Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)",
+    "content": "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City. Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)",
+    "paragraphs": [
+      "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City. Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)"
+    ],
+    "key_points": [
+      "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City.",
+      "Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)"
+    ],
+    "telegram_summary": "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City. Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)",
+    "link": "https://www.footmercato.net/a7937505840264577081-psg-maghnes-akliouche-raconte-son-but-gag-face-a-gianluigi-donnarumma",
+    "source_url": "https://www.footmercato.net/a7937505840264577081-psg-maghnes-akliouche-raconte-son-but-gag-face-a-gianluigi-donnarumma",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c9cc4a710e5da14c",
+    "published": "2026-10-14T22:34:00+00:00",
+    "image": "assets/images/footnews/c9cc4a710e5da14c.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maghnes-akliouche-6ad003a3ec550.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
   },
   {
     "slug": "948ca9bee5a7bdd1",
@@ -1121,7 +1156,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1217,7 +1252,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1280,7 +1315,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1481,7 +1516,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1540,7 +1575,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1641,7 +1676,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1703,7 +1738,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1800,7 +1835,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2027,70 +2062,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "82d8c024fe524bda",
-    "title": "La remontada du Real Madrid fait réagir les réseaux",
-    "summary": "Menés 3-1 face à l’AS Rome, les hommes de José Mourinho ont renversé la rencontre grâce à trois buts inscrits sur corner (3-4). Après ce scénario complètement dingue, les réseaux ne manquent pas de (…)",
-    "summary_short": "Menés 3-1 face à l’AS Rome, les hommes de José Mourinho ont renversé la rencontre grâce à trois buts inscrits sur corner (3-4). Après ce scénario complètement dingue, les réseaux ne manquent pas de (…)",
-    "content": "Menés 3-1 face à l’AS Rome, les hommes de José Mourinho ont renversé la rencontre grâce à trois buts inscrits sur corner (3-4). Après ce scénario complètement dingue, les réseaux ne manquent pas de (…)",
-    "paragraphs": [
-      "Menés 3-1 face à l’AS Rome, les hommes de José Mourinho ont renversé la rencontre grâce à trois buts inscrits sur corner (3-4). Après ce scénario complètement dingue, les réseaux ne manquent pas de (…)"
-    ],
-    "key_points": [
-      "Menés 3-1 face à l’AS Rome, les hommes de José Mourinho ont renversé la rencontre grâce à trois buts inscrits sur corner (3-4).",
-      "Après ce scénario complètement dingue, les réseaux ne manquent pas de (…)"
-    ],
-    "telegram_summary": "Menés 3-1 face à l’AS Rome, les hommes de José Mourinho ont renversé la rencontre grâce à trois buts inscrits sur corner (3-4). Après ce scénario complètement dingue, les réseaux ne manquent pas de (…)",
-    "link": "https://www.footmercato.net/a7935259312164755186-la-remontada-du-real-madrid-fait-reagir-les-reseaux",
-    "source_url": "https://www.footmercato.net/a7935259312164755186-la-remontada-du-real-madrid-fait-reagir-les-reseaux",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=82d8c024fe524bda",
-    "published": "2026-10-14T21:12:34+00:00",
-    "image": "assets/images/footnews/82d8c024fe524bda.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine395180-1920x1080.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50150816",
-      "url": "https://www.espn.com/video/clip/_/id/50150816/real-madrid-vs-villarreal-game-highlights",
-      "published": "2026-10-10T21:06:47Z",
-      "score": 0.222,
-      "matched_terms": [
-        "madrid",
-        "real"
-      ],
-      "topics": [],
-      "teams": [
-        "Real Madrid",
-        "Villarreal"
-      ],
-      "athletes": [
-        "Alberto Moleiro",
-        "Vinícius Júnior",
-        "Yan Diomande"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2218,7 +2190,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -2345,7 +2317,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -2409,7 +2381,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2500,7 +2472,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+      "checked_at": "2026-10-14T23:35:24.634429+00:00"
     },
     "quality_sources": [
       "So Foot",
