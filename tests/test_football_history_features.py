@@ -42,6 +42,24 @@ class HistoricalFeaturesTests(unittest.TestCase):
         self.assertEqual(out, [])
         self.assertEqual(report["coverage_reasons"]["ambiguous_or_missing_league"], 1)
 
+    def test_optional_corner_form_is_provider_tagged_and_not_fabricated(self):
+        rows = [historic(i, f"2025-02-{i+1:02d}") for i in range(5)]
+        for r in rows:
+            r["source_statistics"] = {"football_data": {"corners_home": 7, "corners_away": 3, "shots_home": 12, "shots_away": 8}}
+        output, summary = features([fixture()], rows)
+        home = output[0]["home_form"]["supplemental_statistics"]
+        self.assertEqual(home["corners"]["for_per_match"], 7)
+        self.assertEqual(home["shots"]["against_per_match"], 8)
+        self.assertFalse(home["corners"]["independently_verified_statistic"])
+        self.assertNotIn("yellow_cards", home)
+
+    def test_five_score_matches_but_four_corners_does_not_impute(self):
+        rows = [historic(i, f"2025-02-{i+1:02d}") for i in range(5)]
+        for r in rows[:4]:
+            r["source_statistics"] = {"football_data": {"corners_home": 7, "corners_away": 3}}
+        output, _ = features([fixture()], rows)
+        self.assertEqual(output[0]["home_form"]["supplemental_statistics"], {})
+
     def test_competition_alias_is_explicit(self):
         rows = [historic(i, f"2025-02-{i+1:02d}") for i in range(5)]
         out, _ = features([fixture(league="English Premier League")], rows)
