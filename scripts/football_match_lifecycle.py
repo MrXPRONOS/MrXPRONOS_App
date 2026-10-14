@@ -1566,6 +1566,10 @@ def lifecycle_signals(
                         "kind": "resultat_final", "key": final_key,
                         "priority": 255 + importance, "priority_class": "P0", "home": home, "away": away,
                         "league": league, "score": score_text, "source": source,
+                        "confirmation_count": int(
+                            base.get("_provider_consensus_count")
+                            or ext.get("_provider_consensus_count") or 1
+                        ),
                         "home_logo": home_logo, "away_logo": away_logo,
                         "day": now.strftime("%d/%m/%Y"),
                         "espn_event_id": espn_event_id,
