@@ -100,10 +100,21 @@ def replay(licensed_history:list[dict], confirmed_fixtures:list[dict],
     brier_total=0.
     prices=Counter()
     market_template={c.key:c for c in candidates_from_goals(1.4,1.2)}
+    prior_day_indexes={}
     for event in holdout:
         stamp=fixture_datetime(event)
+        replay_clock=stamp-timedelta(days=1)
+        # Actual match kickoffs are unknown: freeze availability at the
+        # PREVIOUS calendar day's end, not at simulated 23:59 match time.
+        # A result must have settled by replay_clock, with 4h grace.
+        key=replay_clock.date().isoformat()
+        if key not in prior_day_indexes:
+            prior=[row for row in observed if
+                   (seen:=aware_time(row.get("event_date"))) is not None
+                   and seen+timedelta(hours=4)<replay_clock]
+            prior_day_indexes[key]=V2History(prior)
         pseudo=dict(event,status="notstarted")
-        prediction,reason=inference(pseudo,stamp-timedelta(days=1),observed_index)
+        prediction,reason=inference(pseudo,replay_clock,prior_day_indexes[key])
         if prediction is None:
             statuses["abstained:"+str(reason)]+=1
             continue
@@ -183,6 +194,7 @@ def replay(licensed_history:list[dict], confirmed_fixtures:list[dict],
             "rejections":dict(sorted(statuses.items())),
             "pricing":dict(sorted(prices.items())),
             "date_only_prior_day_replay":True,
+            "strict_pre_day_data_availability_enforced":True,
             "not_a_verified_kickoff_or_odds_backtest":True,
             "not_independently_confirmed_return_or_profit":True,
         },
