@@ -89,6 +89,8 @@ RESULT_HOME_NAME = (99, 594, 336, 642)
 RESULT_AWAY_NAME = (745, 594, 982, 642)
 RESULT_SCORE_BOX = (394, 437, 687, 576)
 RESULT_WINNER_BOX = (310, 663, 771, 711)
+RESULT_SOURCE_BOX = (350, 716, 730, 760)
+RESULT_SOURCE_ERASE = (350, 716, 730, 760)
 RESULT_DATE_BOX = (486, 828, 652, 878)
 
 STAT_VALUE_BOX = (356, 405, 723, 574)
@@ -889,6 +891,21 @@ def render_result(payload: dict[str, Any]) -> Image.Image:
         bold=True,
         fill=GOLD,
         max_chars=45,
+    )
+
+    # La source est une donnée dynamique: on efface seulement le texte imprimé,
+    # sans ajouter de rectangle, puis on écrit la vraie source.
+    _blend_erase_text(image, RESULT_SOURCE_ERASE, sample_px=12, feather=7)
+    source = clean(payload.get("source") or "BSD V2")
+    draw_single_line(
+        draw,
+        "SCORE CONFIRMÉ PAR " + source.upper(),
+        RESULT_SOURCE_BOX,
+        preferred_size=18,
+        min_size=14,
+        bold=False,
+        fill=WHITE,
+        max_chars=42,
     )
 
     draw_single_line(
