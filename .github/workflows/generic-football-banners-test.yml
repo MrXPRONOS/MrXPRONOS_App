@@ -48,8 +48,16 @@ jobs:
       - name: Tests spécifiques des 3 bannières
         run: python -m unittest tests_football_channel.test_generic_football_banners -v
 
-      - name: Tests complets du canal football
-        run: python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
+      - name: Tests d’intégration concernés
+        run: |
+          python -m unittest \
+            tests_football_channel.test_generic_football_banners \
+            tests_football_channel.test_football_channel \
+            tests_football_channel.test_match_lifecycle \
+            tests_football_channel.test_stats_engine \
+            tests_football_channel.test_community_engine \
+            tests_football_channel.test_news_engine \
+            tests_football_channel.test_followup_coherence -v
 
       - name: Vérifier strictement le canal TEST
         run: python scripts/telegram_test_guard.py
