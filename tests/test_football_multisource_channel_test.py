@@ -43,6 +43,21 @@ class OpenScheduleAndTelegramTests(unittest.TestCase):
         self.assertEqual(rows[0]["league_labels"],["premier league"])
         self.assertEqual(health["schedule_matches_confirmed"],1)
 
+    def test_per_provider_calendar_identity_report_is_aggregate(self):
+        public=[{"day":"2026-10-17","league":"Premier League",
+                 "home":"arsenal","away":"chelsea"}]
+        rows,health=corroborate([
+            fixture(discovered_by="espn"),
+            fixture(discovered_by="sportscore",away_team="Unknown Reserve"),
+            fixture(discovered_by="thesportsdb",status="not_prematch")
+        ],public,as_of=AT)
+        self.assertEqual(health["by_discovery_source"]["espn"]["confirmed"],1)
+        self.assertEqual(health["by_discovery_source"]["sportscore"]["no_calendar_match"],1)
+        self.assertEqual(health["by_discovery_source"]["thesportsdb"]["not_eligible_prematch"],1)
+        self.assertEqual(sum(v["input"] for v in health["by_discovery_source"].values()),3)
+        self.assertNotIn("arsenal",str(health).lower())
+        self.assertFalse(rows[1]["league_verified"])
+
     def test_no_calendar_match_never_invents_league(self):
         rows,health=corroborate([fixture(away_team="Arsenal Women")],[
             {"day":"2026-10-17","league":"Premier League",
