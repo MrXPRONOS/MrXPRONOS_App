@@ -48,6 +48,8 @@ on:
       - 'tests/test_football_multisource_release_gate.py'
       - 'scripts/football_multisource_calibrated_replay.py'
       - 'tests/test_football_multisource_calibrated_replay.py'
+      - 'scripts/football_native_bsd_identity_probe.py'
+      - 'tests/test_football_native_bsd_identity_probe.py'
       - '.github/workflows/football-history-shadow.yml'
   workflow_dispatch:
     inputs:
@@ -89,7 +91,7 @@ jobs:
         run: |
           php -l scripts/football_history_import.php
           php scripts/football_history_import.php --self-test
-          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py scripts/football_bsd_private_history.py scripts/football_bsd_validate_real.py scripts/football_bsd_private_paired_backtest.py scripts/football_external_bsd_v2_adapter.py scripts/football_multi_api_history_inputs.py scripts/football_verified_identity_crosswalk.py scripts/football_authorized_h2h_collector.py scripts/football_openfootball_world_import.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py tests/test_football_bsd_private_history.py tests/test_football_bsd_validate_real.py tests/test_football_bsd_private_paired_backtest.py tests/test_football_external_bsd_v2_adapter.py tests/test_football_multi_api_history_inputs.py tests/test_football_verified_identity_crosswalk.py tests/test_football_authorized_h2h_collector.py tests/test_football_openfootball_world_import.py scripts/football_cc0_calendar_verification.py scripts/football_prematch_multiday_probe.py scripts/football_multisource_channel_test.py tests/test_football_multisource_channel_test.py scripts/football_sportscore_filtered_audit.py tests/test_football_sportscore_filtered_audit.py scripts/football_multisource_release_gate.py tests/test_football_multisource_release_gate.py scripts/football_multisource_calibrated_replay.py tests/test_football_multisource_calibrated_replay.py
+          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py scripts/football_bsd_private_history.py scripts/football_bsd_validate_real.py scripts/football_bsd_private_paired_backtest.py scripts/football_external_bsd_v2_adapter.py scripts/football_multi_api_history_inputs.py scripts/football_verified_identity_crosswalk.py scripts/football_authorized_h2h_collector.py scripts/football_openfootball_world_import.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py tests/test_football_bsd_private_history.py tests/test_football_bsd_validate_real.py tests/test_football_bsd_private_paired_backtest.py tests/test_football_external_bsd_v2_adapter.py tests/test_football_multi_api_history_inputs.py tests/test_football_verified_identity_crosswalk.py tests/test_football_authorized_h2h_collector.py tests/test_football_openfootball_world_import.py scripts/football_cc0_calendar_verification.py scripts/football_prematch_multiday_probe.py scripts/football_multisource_channel_test.py tests/test_football_multisource_channel_test.py scripts/football_sportscore_filtered_audit.py tests/test_football_sportscore_filtered_audit.py scripts/football_multisource_release_gate.py tests/test_football_multisource_release_gate.py scripts/football_multisource_calibrated_replay.py tests/test_football_multisource_calibrated_replay.py scripts/football_native_bsd_identity_probe.py tests/test_football_native_bsd_identity_probe.py
           python -m unittest discover -s tests -p 'test_football_history_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_daily_multisource_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_history_features.py' -v
@@ -110,6 +112,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_football_sportscore_filtered_audit.py' -v
           python -m unittest discover -s tests -p 'test_football_multisource_release_gate.py' -v
           python -m unittest discover -s tests -p 'test_football_multisource_calibrated_replay.py' -v
+          python -m unittest discover -s tests -p 'test_football_native_bsd_identity_probe.py' -v
   historical_probe:
     if: github.event_name == 'workflow_dispatch'
     needs: verify
@@ -438,6 +441,36 @@ jobs:
           tomorrow="$(date -u -d 'tomorrow' +%F)"
           python scripts/football_daily_multisource_shadow.py --day="$tomorrow" --max-http=12 --out=tmp/next-day-public-union.json --report=tmp/next-day-public-source-health.json
           python scripts/football_openfootball_world_import.py --max-files=40 --out=tmp/private-run-world-history.jsonl --report=tmp/private-run-world-history-AGGREGATE.json
+      - name: Audit exact real BSD event IDs against CC0 fixtures before private archive restoration
+        env:
+          BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+          FOOTBALL_MULTI_SOURCE: '0'
+        run: |
+          set -euo pipefail
+          umask 077
+          test -n "${BSD_API_KEY}"
+          python scripts/football_native_bsd_identity_probe.py \
+            --public-fixtures=tmp/next-day-public-union.json \
+            --days=2 \
+            --report=tmp/bsd-native-identity-AGGREGATE.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('tmp/bsd-native-identity-AGGREGATE.json').read_text())
+          assert r['research_only'] is True
+          assert r['native_event_ids_exported'] is False
+          assert r['actual_bookmaker_quote_or_market_verified'] is False
+          assert r['original_production_publication_enabled'] is False
+          assert r['native_bookmaker_prices_fetched'] is False
+          assert r['no_data_json_modified'] is True
+          assert r['bsd_http_calls'] <= 12
+          assert r['calendar_files_verified'] == 8
+          assert r['one_to_one_native_event_links'] <= r['external_cc0_verified']
+          print('NATIVE_BSD_IDENTITY_COUNTS',{
+              'cc0_verified':r['external_cc0_verified'],
+              'native_unique':r['native_unique_eligible'],
+              'one_to_one_linked':r['one_to_one_native_event_links']})
+          PY
       - name: Restore PRIVATE BSD history without exposing decryption key
         env:
           BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
@@ -522,6 +555,7 @@ jobs:
             tmp/bsd-private-paired-BENCHMARK-AGGREGATES-ONLY.json
             tmp/bsd-private-original-v2-aggregate.json
             tmp/bsd-next-day-multisource-aggregate.json
+            tmp/bsd-native-identity-AGGREGATE.json
             tmp/private-run-world-history-AGGREGATE.json
           if-no-files-found: error
           retention-days: 3
