@@ -115,8 +115,9 @@ class FollowupTests(unittest.TestCase):
         finales = [x for x in final if x["kind"] == "resultat_final"]
         self.assertEqual(len(finales), 1)
         post = channel.followed_final_publication(finales[0])
-        self.assertIn("2 – 1", post.text)
-        self.assertIn("Fin de notre suivi", post.text)
+        self.assertEqual(post.card["scores"], (2, 1))
+        self.assertNotIn("2 – 1", post.text)
+        self.assertIn("Fin du match suivi", post.text)
         sent.add(post.key)
         again = lifecycle.lifecycle_signals(base, sent, NOW+timedelta(hours=4), object(),
                                             lambda _: 100, tracked_only=True)
