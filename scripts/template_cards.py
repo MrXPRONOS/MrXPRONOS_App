@@ -1404,8 +1404,19 @@ RENDERERS = {
 
 
 def render(category: str, payload: dict[str, Any]) -> Image.Image:
-    # 1122x1402 Actu Foot event backgrounds are audited separately from the
-    # legacy 1080x1350 Arty set. Route them first and never rescale them.
+    # Ces 4 publications utilisent toujours leurs templates premium dédiés.
+    # Elles ne doivent jamais être détournées vers les anciens fonds Arty.
+    if category in {"programme", "avant_match", "resultat", "composition"}:
+        renderer = RENDERERS[category]
+        image = renderer(payload)
+        expected_size = TEMPLATE_SIZES.get(category, (W, H))
+        if image.size != expected_size:
+            raise AssertionError(
+                f"Le renderer {category} doit produire {expected_size}, reçu {image.size}"
+            )
+        return image
+
+    # 1122x1402 Actu Foot event backgrounds are audited separately.
     from actu_foot_event_templates import is_event_category, render_event
     if is_event_category(category):
         image = render_event(category, payload)
@@ -1413,14 +1424,14 @@ def render(category: str, payload: dict[str, Any]) -> Image.Image:
             raise AssertionError("Actu Foot event graphic must be 1122x1402")
         return image
 
-    # Single pass: all decoration is baked into the blank background;
-    # the legacy renderer only draws verified dynamic fields and logos.
+    # Autres catégories Arty.
     from arty_football_templates import SUPPORTED as ARTY_CATEGORIES, overlay
     if category in ARTY_CATEGORIES:
         image = overlay(category, payload)
         if image.size != (1080, 1350):
             raise AssertionError("Arty Football graphic must be 1080x1350")
         return image
+
     renderer = RENDERERS.get(category)
     if renderer is None:
         raise ValueError("Rubrique sans template: " + category)
