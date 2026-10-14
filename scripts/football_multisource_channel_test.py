@@ -24,8 +24,13 @@ def build(fixtures:list[dict], licensed_history:list[dict], *,at:datetime,
           max_picks:int=3) -> tuple[list[str],dict]:
     if at.tzinfo is None or not 1<=max_picks<=3:
         raise ValueError("UTC aware timestamp and max 1-3 messages required")
+    # A Telegram test prediction requires an independently corroborated
+    # CC0 fixture identity; a league label asserted by one API is not enough.
+    confirmed=[f for f in fixtures if f.get("_schedule_verified_by")=="openfootball_cc0"
+               and f.get("league_conflict") is False
+               and f.get("league_verified") is True]
     archived,history_quality=normalize_history(licensed_history)
-    ready,readiness=adapt_daily(fixtures,archived,as_of=at)
+    ready,readiness=adapt_daily(confirmed,archived,as_of=at)
     forecast,quality=evaluate_existing_v2(ready,archived,as_of=at)
     by_id={row["id"]:row for row in ready}
     result=[]
@@ -56,6 +61,8 @@ def build(fixtures:list[dict], licensed_history:list[dict], *,at:datetime,
         result.append(txt)
         if len(result)>=max_picks:break
     report={
+        "input_api_fixtures":len(fixtures),
+        "calendar_corroborated_fixtures":len(confirmed),
         "qualified_external_fixtures":len(ready),
         "raw_v2_candidates":quality["v2_candidate_count"],
         "messages_ready":len(result),
