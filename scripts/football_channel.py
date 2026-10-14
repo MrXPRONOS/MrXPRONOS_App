@@ -54,6 +54,7 @@ from football_community_engine import (  # noqa: E402
     build_news_debate,
     build_postmatch_reaction,
 )
+from generic_football_content import banner_caption, live_keyboard  # noqa: E402
 
 TZ = ZoneInfo("Africa/Lome")
 STATE_PATH = Path(os.getenv("FOOTBALL_NEWS_STATE", ".state/mrxpronos-football.json"))
@@ -669,8 +670,8 @@ class Sender:
                     graphic = render_card(style, item.card, Path(tmp) / "sondage.png")
                     post_photo(
                         self.session, self.token, self.chat, graphic,
-                        "<h3>🗳️ LE DÉBAT DU JOUR • MR XPRONOS</h3><p><i>Votez dans le sondage ci-dessous.</i></p>",
-                        {}, timeout=70, mime="image/png",
+                        item.text or "<b>🗳️ À VOUS DE VOTER</b>\n<i>Votez dans le sondage ci-dessous.</i>",
+                        item.keyboard or {}, timeout=70, mime="image/png",
                     )
             poll_options = [{"text": plain(option, 100)} for option in options if plain(option, 100)]
             if len(poll_options) < 2:
@@ -685,6 +686,8 @@ class Sender:
                 "allows_revoting": "true" if item.poll_allows_revoting else "false",
                 "shuffle_options": "true" if item.poll_shuffle else "false",
             }
+            if item.keyboard:
+                poll_data["reply_markup"] = json.dumps(item.keyboard, ensure_ascii=False)
             if item.poll_description:
                 poll_data["description"] = plain(item.poll_description, 1024)
             if item.poll_type == "quiz":
@@ -909,14 +912,14 @@ def flash(articles: list[dict], history: History, now: datetime) -> Publication 
             "<a href=\"" + esc(site_url) + "\">Lire l’info complète sur Mr XPRONOS ↗</a>"
         )
         keyboard_rows = [[
-            {"text": "Lire l’info complète ↗", "url": site_url, "style": "primary"}
+            {"text": "📰 Lire l’article ↗", "url": site_url, "style": "primary"}
         ]]
         verification = None
         espn_verification = article.get("espn_verification")
         if isinstance(espn_verification, dict):
             espn_url = str(espn_verification.get("url") or "")
             if espn_url.startswith("https://") and (urlparse(espn_url).hostname or "").lower().endswith("espn.com"):
-                keyboard_rows.append([{"text": "Corroboration ESPN ↗", "url": espn_url}])
+                keyboard_rows.append([{"text": "✅ Source ESPN ↗", "url": espn_url, "style": "success"}])
                 verification = {
                     "type": "news",
                     "url": espn_url,
@@ -1209,15 +1212,17 @@ def statistique_avancee(session: requests.Session, reference_day: date) -> Publi
     if not title or not headline or confidence < 70:
         return None
 
-    details = "".join("<br/>• " + esc(line) for line in lines)
-    message = (
-        "<h3>" + esc(title) + "</h3>"
-        "<blockquote><b>" + esc(headline) + "</b>"
-        + details + "</blockquote>"
-        "<p><i>Sources : " + esc(source or "source statistique")
-        + " • confiance " + str(confidence) + "%</i></p>"
-        "<p><b>💬 Quelle statistique veux-tu voir demain ?</b></p>"
-    )
+    message_payload = {
+        "headline": headline,
+        "title": title,
+        "league": insight.get("league"),
+        "source": source,
+        "lines": lines,
+        "value": insight.get("value") or "",
+        "kind": insight.get("kind"),
+        "confidence": confidence,
+    }
+    message = banner_caption("statistique_avancee", message_payload)
     key = (
         "statistique-avancee:"
         + reference_day.isoformat()
@@ -1229,17 +1234,8 @@ def statistique_avancee(session: requests.Session, reference_day: date) -> Publi
     return Publication(
         "statistique",
         key,
-        post_label(message),
-        card={
-            "headline": headline,
-            "title": title,
-            "league": insight.get("league"),
-            "source": source,
-            "lines": lines,
-            "value": insight.get("value") or "",
-            "kind": insight.get("kind"),
-            "confidence": confidence,
-        },
+        message,
+        card=message_payload,
     )
 
 
@@ -1265,20 +1261,14 @@ def statistique(events: list[dict], reference_day: date) -> Publication | None:
         return None
     h, a = final_score(e)
     total = h + a
-    message = (
-        "<h3>📊 LA STAT DU JOUR • MR XPRONOS</h3>"
-        "<p><i>Une statistique marquante issue des dernières rencontres BSD avec logos vérifiés.</i></p>"
-        "<blockquote><b>🔥 " + str(total) + " BUTS</b><br/>"
-        + esc(team(e, "home")) + " <b>" + str(h) + " – " + str(a) + "</b> "
-        + esc(team(e, "away")) + "<br/>"
-        + "<i>" + esc(league(e) or "Football") + "</i></blockquote>"
-        "<p><b>💬 Quelle autre statistique récente vous a marqué ?</b></p>"
-    )
     selected_day = kick(e).astimezone(TZ).date()
     card = {"day": selected_day.strftime("%d/%m/%Y"), "league": league(e),
+            "source": "BSD V2", "headline": str(total) + " buts dans cette rencontre",
             "home": team(e, "home"), "away": team(e, "away"), "scores": (h, a),
+            "score": f"{h}-{a}",
             "home_logo": team_visual_url(e, "home", allow_remote=True),
             "away_logo": team_visual_url(e, "away", allow_remote=True)}
+    message = banner_caption("statistique", card)
     verification = {
         "type": "fixture_list",
         "kind": "statistique_match",
@@ -1315,7 +1305,7 @@ def community_vote_publication(events: list[dict], now: datetime) -> Publication
     return Publication(
         "sondage",
         plain(payload.get("key"), 180),
-        "🗳️ Vote du jour",
+        "<b>🗳️ Votez juste en dessous 👇</b>",
         poll=(question, options),
         poll_type="regular",
         poll_description=(
@@ -1347,7 +1337,7 @@ def community_quiz_publication(session: requests.Session, day: date) -> Publicat
     return Publication(
         "quiz",
         plain(payload.get("key"), 180),
-        "🧠 Quiz Foot",
+        "<b>🧠 À vous de jouer 👇</b>",
         poll=(question, options),
         poll_type="quiz",
         correct_option_ids=[int(x) for x in correct],
@@ -1379,31 +1369,26 @@ def community_debate_publication(news: list[dict], day: date) -> Publication | N
     url = plain(payload.get("url"), 420)
     if not title or not summary:
         return None
-    message = (
-        "<h3>💬 DÉBAT DU JOUR</h3>"
-        "<p><b>" + esc(title) + "</b></p>"
-        "<blockquote>" + esc(summary) + "</blockquote>"
-        + ("<p><i>🗞️ Source : " + esc(source) + "</i></p>" if source else "")
-        + "<p><b>" + esc(question) + "</b></p>"
-    )
+    card = {
+        "headline": title,
+        "question": question or title,
+        "summary": summary,
+        "source": source,
+    }
+    message = banner_caption("debat", card)
     keyboard = None
     if url.startswith("https://"):
         keyboard = {"inline_keyboard": [[{
-            "text": "Lire l'info complète ↗",
+            "text": "📰 Lire l’article ↗",
             "url": url,
             "style": "primary",
         }]]}
     return Publication(
         "debat",
         plain(payload.get("key"), 180),
-        post_label(message),
+        message,
         keyboard=keyboard,
-        card={
-            "headline": title,
-            "question": title,
-            "summary": summary,
-            "source": source,
-        },
+        card=card,
     )
 
 
@@ -1418,7 +1403,7 @@ def community_reaction_publication(events: list[dict], now: datetime) -> Publica
     return Publication(
         "reaction",
         plain(payload.get("key"), 180),
-        "⭐ Réaction du soir",
+        "<b>⭐ Donnez votre note juste en dessous 👇</b>",
         poll=(question, options),
         poll_type="regular",
         poll_description=(
@@ -1462,7 +1447,7 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
         if max(map(len, options)) <= 100:
             return Publication(
                 "sondage", "sondage:" + today.isoformat(),
-                "🗳️ Sondage Mr XPRONOS", (question, options),
+                "<b>🗳️ Votez juste en dessous 👇</b>", (question, options),
                 card={
                     "day": today.strftime("%d/%m/%Y"),
                     "question": question,
@@ -1491,7 +1476,7 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
     question, options = topics[today.toordinal() % len(topics)]
     question = (question + " 💬 Vote puis commente.")[:300]
     return Publication(
-        "sondage", "sondage:" + today.isoformat(), "🗳️ Sondage Mr XPRONOS",
+        "sondage", "sondage:" + today.isoformat(), "<b>🗳️ Votez juste en dessous 👇</b>",
         (question, options),
         card={
             "day": today.strftime("%d/%m/%Y"),
