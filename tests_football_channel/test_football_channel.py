@@ -335,8 +335,9 @@ class FootballChannelTests(unittest.TestCase):
         old = NOW - timedelta(days=1, hours=4)
         post = m.statistique([event(1, old, "finished", 4, 3),
                               event(2, old, "notstarted", 9, 8)], old.date())
-        self.assertIn("7 BUTS", post.text)
-        self.assertNotIn("17 BUTS", post.text)
+        self.assertEqual(post.card["score"], "4-3")
+        self.assertIn("7 buts", post.text)
+        self.assertNotIn("17 buts", post.text)
         self.assertIn("<blockquote>", post.text)
 
     def test_sondage_fournit_options(self):
