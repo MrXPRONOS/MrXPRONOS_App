@@ -150,6 +150,7 @@ CLUB_LABELS = {
 }
 
 GENERAL_LABELS = {
+    "flash": "FLASH FOOT",
     "statistique_avancee": "LA STAT DU JOUR",
     "quiz": "QUIZ FOOT",
     "debat": "DÉBAT FOOT",
