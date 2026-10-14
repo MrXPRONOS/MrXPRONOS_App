@@ -28,6 +28,8 @@ on:
       - 'tests/test_football_bsd_validate_real.py'
       - 'scripts/football_bsd_private_paired_backtest.py'
       - 'tests/test_football_bsd_private_paired_backtest.py'
+      - 'scripts/football_external_bsd_v2_adapter.py'
+      - 'tests/test_football_external_bsd_v2_adapter.py'
       - '.github/workflows/football-history-shadow.yml'
   workflow_dispatch:
     inputs:
@@ -69,7 +71,7 @@ jobs:
         run: |
           php -l scripts/football_history_import.php
           php scripts/football_history_import.php --self-test
-          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py scripts/football_bsd_private_history.py scripts/football_bsd_validate_real.py scripts/football_bsd_private_paired_backtest.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py tests/test_football_bsd_private_history.py tests/test_football_bsd_validate_real.py tests/test_football_bsd_private_paired_backtest.py
+          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py scripts/football_bsd_private_history.py scripts/football_bsd_validate_real.py scripts/football_bsd_private_paired_backtest.py scripts/football_external_bsd_v2_adapter.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py tests/test_football_bsd_private_history.py tests/test_football_bsd_validate_real.py tests/test_football_bsd_private_paired_backtest.py tests/test_football_external_bsd_v2_adapter.py
           python -m unittest discover -s tests -p 'test_football_history_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_daily_multisource_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_history_features.py' -v
@@ -81,6 +83,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_football_bsd_private_history.py' -v
           python -m unittest discover -s tests -p 'test_football_bsd_validate_real.py' -v
           python -m unittest discover -s tests -p 'test_football_bsd_private_paired_backtest.py' -v
+          python -m unittest discover -s tests -p 'test_football_external_bsd_v2_adapter.py' -v
   historical_probe:
     if: github.event_name == 'workflow_dispatch'
     needs: verify
@@ -163,6 +166,30 @@ jobs:
           print('FOUR_SEASON_OUT_OF_SAMPLE_RESEARCH', {'n':result['evaluable_games'], 'measures':result['scoring_metrics']})
           PY
           python scripts/football_history_shadow.py --input=tmp/combined.jsonl --output=tmp/merged.json --report=tmp/quality.json
+          python - <<'PY'
+          import json
+          fixture={'fixture_key':'research-prematch-1','discovered_by':'espn','sources':{'espn':{'id':'research-abc'}},
+                   'home_team':'Arsenal','away_team':'Chelsea',
+                   'league_labels':['Premier League'],'league_verified':True,
+                   'kickoff_utc':'2025-03-20T18:00:00+00:00','status':'prematch',
+                   'ambiguous_match':False,'scores_conflict':False,'league_conflict':False}
+          with open('tmp/external-fixture-for-native-bsd-v2.json','w') as handle:
+              json.dump([fixture],handle)
+          PY
+          python scripts/football_external_bsd_v2_adapter.py --historical-jsonl=tmp/openfootball.jsonl --daily-union=tmp/external-fixture-for-native-bsd-v2.json --analysis-at=2025-03-10T10:00:00Z --report=tmp/unchanged-bsd-v2-research-report.json
+          python - <<'PY'
+          import json
+          report=json.load(open('tmp/unchanged-bsd-v2-research-report.json'))
+          assert report['fixtures']['ready_for_unchanged_core'] == 1
+          assert report['bsd_v2_core']['examined'] == 1
+          assert report['bsd_v2_core']['core_predict_v2_function_used']
+          assert report['bsd_v2_core']['h2h_nonzero_fixtures'] >= 1
+          assert report['bsd_v2_core']['calculation_module_modified'] is False
+          assert report['bsd_v2_core']['production_published'] is False
+          print('EXTERNAL_HISTORY_UNCHANGED_BSD_V2_CORE_OK',
+                {'input_matches':report['historical']['usable_historic_matches'],
+                 'h2h_count':report['bsd_v2_core']['h2h_nonzero_fixtures']})
+          PY
           python scripts/football_alias_candidates.py --input=tmp/combined.jsonl --out=tmp/aliases-to-review.json
           python - <<'PY'
           import json
@@ -242,6 +269,7 @@ jobs:
             tmp/quality.json
             tmp/openfootball-holdout-quality.json
             tmp/four-season-holdout-quality.json
+            tmp/unchanged-bsd-v2-research-report.json
           retention-days: 7
 
   daily_source_probe:
