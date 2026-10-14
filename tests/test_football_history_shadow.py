@@ -32,6 +32,14 @@ class HistoryTests(unittest.TestCase):
         got, _ = build([row("openfootball", "a"), row("football_data", "b", league="Cup")])
         self.assertEqual(len(got), 2)
 
+    def test_safe_trailing_fc_alias_matches(self):
+        a = row("openfootball", "a", home_team="Arsenal FC")
+        a["away_team"] = "Chelsea FC"
+        b = row("football_data", "b", home_team="Arsenal")
+        result, report = build([a, b])
+        self.assertEqual(report["multi_source_agreement"], 1)
+        self.assertEqual(result[0]["verified_by_sources"], 2)
+
     def test_invalid_score_not_allowed(self):
         got, report = build([row("openfootball", "a", home=-1)])
         self.assertEqual(got, [])
