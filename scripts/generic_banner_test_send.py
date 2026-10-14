@@ -241,6 +241,7 @@ def main() -> int:
     cases += [(cat, label, overrides, "club") for cat, label, overrides in CLUB_CASES]
     cases += [(cat, label, overrides, "general") for cat, label, overrides in GENERAL_CASES]
     total = len(cases)
+
     start_index = max(1, int(os.getenv("GENERIC_TEST_START_INDEX", "1")))
     end_index = min(total, int(os.getenv("GENERIC_TEST_END_INDEX", str(total))))
     if start_index > end_index:
@@ -263,6 +264,7 @@ def main() -> int:
         for index, (category, label, overrides, family) in enumerate(cases, 1):
             if index < start_index or index > end_index:
                 continue
+
             if family == "match":
                 payload = _merge(base_match(), overrides)
             elif family == "club":
@@ -273,12 +275,15 @@ def main() -> int:
                 payload.setdefault("league", "Football")
                 payload.setdefault("image_path", "assets/images/article-02bacd1b.webp")
 
-        path = output_dir / f"{index:02d}-{category}.png"
+            path = output_dir / f"{index:02d}-{category}.png"
             render_card(category, payload, path)
             rendered_paths.append(path)
+
             with Image.open(path) as check:
                 if check.size != (1280, 500):
-                    raise RuntimeError(f"{category}: format {check.size}, attendu 1280x500")
+                    raise RuntimeError(
+                        f"{category}: format {check.size}, attendu 1280x500"
+                    )
 
             row = {
                 "index": index,
@@ -298,15 +303,26 @@ def main() -> int:
                     keyboard or {},
                 )
                 row["message_id"] = message_id
-                print("GENERIC_BANNER_TEST_SENT", json.dumps(row, ensure_ascii=False), flush=True)
+                print(
+                    "GENERIC_BANNER_TEST_SENT",
+                    json.dumps(row, ensure_ascii=False),
+                    flush=True,
+                )
 
                 if category in poll_categories:
+                    # Espacer photo + sondage pour éviter le throttle Telegram.
+                    time.sleep(2.2)
                     poll_id = _send_poll(session, token, chat, label)
                     row["poll_message_id"] = poll_id
                     print("GENERIC_BANNER_POLL_SENT", category, poll_id, flush=True)
-                time.sleep(1.15)
+
+                time.sleep(2.8)
             else:
-                print("GENERIC_BANNER_PREVIEW_OK", json.dumps(row, ensure_ascii=False), flush=True)
+                print(
+                    "GENERIC_BANNER_PREVIEW_OK",
+                    json.dumps(row, ensure_ascii=False),
+                    flush=True,
+                )
 
             sent.append(row)
 
@@ -318,14 +334,19 @@ def main() -> int:
             "items": sent,
         }
         (output_dir / "manifest.json").write_text(
-            json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
+            json.dumps(manifest, ensure_ascii=False, indent=2),
+            encoding="utf-8",
         )
     finally:
         if tmp_context is not None:
             tmp_context.cleanup()
 
     expected_count = end_index - start_index + 1
-    print("GENERIC_BANNER_TEST_REPORT", json.dumps(sent, ensure_ascii=False), flush=True)
+    print(
+        "GENERIC_BANNER_TEST_REPORT",
+        json.dumps(sent, ensure_ascii=False),
+        flush=True,
+    )
     if len(sent) != expected_count:
         raise RuntimeError(f"Seulement {len(sent)}/{expected_count} previews générées")
     return 0
