@@ -648,11 +648,87 @@ def espn_preflight(sender: "Sender", item: Publication, *, dry_run: bool = False
     return accepted
 
 
-class RemotePublicationLedger:
-    """Registre Supabase atomique contre les doublons entre runners/workflows.
+def publication_payload(item: Publication) -> dict[str, Any]:
+    return {
+        "category": item.category,
+        "key": item.key,
+        "text": item.text,
+        "poll": list(item.poll) if item.poll else None,
+        "card": item.card,
+        "image_path": item.image_path,
+        "keyboard": item.keyboard,
+        "poll_type": item.poll_type,
+        "correct_option_ids": item.correct_option_ids,
+        "poll_explanation": item.poll_explanation,
+        "poll_description": item.poll_description,
+        "poll_shuffle": item.poll_shuffle,
+        "poll_allows_revoting": item.poll_allows_revoting,
+        "animation_payload": item.animation_payload,
+        "verification": item.verification,
+    }
 
-    Le cache GitHub reste utile pour l'éditorial, mais ce registre est l'autorité
-    pour savoir si un event_key a déjà été réclamé en production.
+
+def publication_from_payload(payload: dict[str, Any]) -> Publication | None:
+    if not isinstance(payload, dict):
+        return None
+    category = plain(payload.get("category"), 80)
+    key = plain(payload.get("key"), 220)
+    if not category or not key:
+        return None
+    poll_raw = payload.get("poll")
+    poll = None
+    if isinstance(poll_raw, (list, tuple)) and len(poll_raw) == 2:
+        options = poll_raw[1] if isinstance(poll_raw[1], list) else []
+        poll = (str(poll_raw[0] or ""), [str(x) for x in options])
+    return Publication(
+        category=category,
+        key=key,
+        text=str(payload.get("text") or ""),
+        poll=poll,
+        card=payload.get("card") if isinstance(payload.get("card"), dict) else None,
+        image_path=str(payload.get("image_path") or "") or None,
+        keyboard=payload.get("keyboard") if isinstance(payload.get("keyboard"), dict) else None,
+        poll_type=str(payload.get("poll_type") or "regular"),
+        correct_option_ids=[
+            int(x) for x in (payload.get("correct_option_ids") or [])
+            if str(x).lstrip("-").isdigit()
+        ] or None,
+        poll_explanation=str(payload.get("poll_explanation") or ""),
+        poll_description=str(payload.get("poll_description") or ""),
+        poll_shuffle=bool(payload.get("poll_shuffle")),
+        poll_allows_revoting=bool(payload.get("poll_allows_revoting", True)),
+        animation_payload=payload.get("animation_payload")
+        if isinstance(payload.get("animation_payload"), dict) else None,
+        verification=payload.get("verification")
+        if isinstance(payload.get("verification"), dict) else None,
+    )
+
+
+def _publication_expiry(item: Publication, now: datetime) -> datetime:
+    cls = priority_class(item.category)
+    if cls == "P0":
+        return now + timedelta(minutes=45)
+    if cls == "P1":
+        return now + timedelta(minutes=35)
+    if cls == "P2":
+        return now + timedelta(minutes=25)
+    if cls == "P3":
+        return now + timedelta(hours=6)
+    return now + timedelta(hours=12)
+
+
+def _ambiguous_delivery_error(exc: Exception) -> bool:
+    return isinstance(exc, (requests.Timeout, requests.ConnectionError))
+
+
+class RemotePublicationLedger:
+    """Outbox Supabase atomique, persistante et reprenable.
+
+    - claim() crée/réclame atomiquement une publication;
+    - retryable() restitue les échecs certains même si le signal source a expiré;
+    - mark_phase() persiste les sous-étapes media/poll;
+    - les erreurs réseau ambiguës restent en quarantaine "uncertain" pour
+      privilégier l'absence de doublon.
     """
 
     def __init__(self, session: requests.Session, *, enabled: bool):
@@ -661,7 +737,7 @@ class RemotePublicationLedger:
         self.url = (os.getenv("SUPABASE_URL") or "").rstrip("/")
         self.key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
         if self.enabled and (not self.url or not self.key):
-            raise RuntimeError("Registre Actu Foot requis mais secrets Supabase absents")
+            raise RuntimeError("Outbox Actu Foot requise mais secrets Supabase absents")
 
     @property
     def endpoint(self) -> str:
@@ -677,46 +753,116 @@ class RemotePublicationLedger:
             headers["Prefer"] = "return=minimal"
         return headers
 
-    def claim(self, item: Publication) -> bool:
+    def claim(self, item: Publication, now: datetime | None = None) -> dict[str, Any]:
         if not self.enabled:
-            return True
+            return {"can_send": True, "delivery_phase": "pending", "attempts": 1}
+        now = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
+        stored = publication_payload(item)
         payload_hash = hashlib.sha256(
-            json.dumps({
-                "category": item.category,
-                "key": item.key,
-                "text": item.text,
-                "card": item.card,
-            }, sort_keys=True, default=str, ensure_ascii=False).encode("utf-8")
+            json.dumps(stored, sort_keys=True, default=str, ensure_ascii=False).encode("utf-8")
         ).hexdigest()
         response = self.session.post(
-            self.endpoint,
-            headers=self._headers(),
+            self.url + "/rest/v1/rpc/actu_foot_claim_publication",
+            headers=self._headers(minimal=False),
             json={
-                "event_key": item.key,
-                "category": item.category,
-                "status": "claimed",
-                "payload_hash": payload_hash,
-                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "p_event_key": item.key,
+                "p_category": item.category,
+                "p_payload_hash": payload_hash,
+                "p_payload": stored,
+                "p_expires_at": _publication_expiry(item, now).isoformat(),
+                "p_max_attempts": 5,
             },
             timeout=(8, 20),
         )
-        if response.status_code == 409:
-            print("REMOTE_DEDUP_ALREADY_CLAIMED", item.category, item.key)
-            return False
         response.raise_for_status()
-        return True
+        result = response.json()
+        if not isinstance(result, dict):
+            raise RuntimeError("Réponse outbox invalide")
+        if not result.get("can_send"):
+            print(
+                "REMOTE_OUTBOX_NOT_CLAIMED", item.category, item.key,
+                "status", result.get("status"), "phase", result.get("delivery_phase"),
+            )
+        return result
 
-    def mark(self, item: Publication, status: str, message_id: int | None = None) -> None:
+    def retryable(self, limit: int = 12) -> list[Publication]:
+        if not self.enabled:
+            return []
+        response = self.session.post(
+            self.url + "/rest/v1/rpc/actu_foot_retryable_publications",
+            headers=self._headers(minimal=False),
+            json={"p_limit": max(1, min(50, int(limit)))},
+            timeout=(8, 20),
+        )
+        response.raise_for_status()
+        rows = response.json()
+        out: list[Publication] = []
+        for row in rows if isinstance(rows, list) else []:
+            item = publication_from_payload(row.get("payload") if isinstance(row, dict) else {})
+            if item:
+                out.append(item)
+        return out
+
+    def mark_phase(
+        self,
+        item: Publication,
+        phase: str,
+        *,
+        media_message_id: int | None = None,
+        poll_message_id: int | None = None,
+    ) -> None:
+        if not self.enabled:
+            return
+        payload: dict[str, Any] = {
+            "delivery_phase": phase,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+        if media_message_id is not None:
+            payload["media_message_id"] = int(media_message_id)
+        if poll_message_id is not None:
+            payload["poll_message_id"] = int(poll_message_id)
+        response = self.session.patch(
+            self.endpoint,
+            headers=self._headers(),
+            params={"event_key": "eq." + item.key},
+            json=payload,
+            timeout=(8, 20),
+        )
+        response.raise_for_status()
+
+    def mark(
+        self,
+        item: Publication,
+        status: str,
+        message_id: int | None = None,
+        *,
+        error: str = "",
+        retry_after_seconds: int = 45,
+        phase: str | None = None,
+    ) -> None:
         if not self.enabled:
             return
         payload: dict[str, Any] = {
             "status": status,
             "updated_at": datetime.now(timezone.utc).isoformat(),
+            "locked_at": None,
         }
+        if phase:
+            payload["delivery_phase"] = phase
         if status == "sent":
             payload["sent_at"] = datetime.now(timezone.utc).isoformat()
+            payload["delivery_phase"] = "complete"
+            payload["next_retry_at"] = None
+        elif status == "failed":
+            payload["next_retry_at"] = (
+                datetime.now(timezone.utc) + timedelta(seconds=max(5, retry_after_seconds))
+            ).isoformat()
+        elif status == "uncertain":
+            payload["next_retry_at"] = None
         if message_id is not None:
             payload["telegram_message_id"] = int(message_id)
+        if error:
+            payload["last_error"] = plain(error, 900)
         response = self.session.patch(
             self.endpoint,
             headers=self._headers(),
