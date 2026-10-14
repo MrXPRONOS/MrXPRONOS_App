@@ -4,7 +4,8 @@ from unittest.mock import patch
 from scripts.football_prematch_multiday_probe import collect as collect_multiday
 from datetime import datetime,timezone
 from scripts.football_cc0_calendar_verification import corroborate,download_schedules
-from scripts.football_multisource_channel_test import build,test_post,audit_no_quote_gate
+from scripts.football_multisource_channel_test import build,test_post,audit_no_quote_gate,audit_external_pricing_bridge
+from bsd.bsd_v2_estimated_odds import price_selected_market,ESTIMATED_SOURCE
 from scripts.football_external_bsd_v2_adapter import normalize_history,adapt_daily
 
 AT=datetime(2026,10,14,17,tzinfo=timezone.utc)
@@ -137,6 +138,7 @@ class OpenScheduleAndTelegramTests(unittest.TestCase):
         self.assertEqual(report["calibrated_production_coupons"],0)
         self.assertTrue(report["no_odds_invented"])
         self.assertEqual(report["no_bookmaker_quote_gate"]["accepted_with_no_bookmaker_quotes"],0)
+        self.assertFalse(report["external_pricing_bridge"]["publication_enabled"])
 
     def test_original_bsd_v2_require_odds_rejects_unpriced_known_fixture(self):
         history=[]
@@ -162,6 +164,30 @@ class OpenScheduleAndTelegramTests(unittest.TestCase):
         self.assertTrue(guarded["used_original_predict_v2"])
         self.assertFalse(guarded["full_publication_policy_checked"])
         self.assertFalse(guarded["publication_enabled"])
+
+    def test_external_research_ids_never_become_bsd_odds_event_ids(self):
+        audit=audit_external_pricing_bridge([{
+            "_derived_research_id":True,
+            "_original_fixture_refs":{"espn":{"id":"REAL-ESPN-ID"}},
+            "id":7_500_000_000_000_042
+        }])
+        self.assertEqual(audit["inspected_fixtures"],1)
+        self.assertEqual(audit["native_bsd_odds_event_ids_verified"],0)
+        self.assertEqual(audit["external_to_bookmaker_event_matches_verified"],0)
+        self.assertFalse(audit["bsd_native_odds_endpoint_called"])
+        self.assertFalse(audit["full_calibration_and_v21_publication_approved"])
+        self.assertEqual(audit["reasons"]["external_id_not_native_bsd_odds_id"],1)
+
+    def test_production_can_label_estimated_price_without_bookmaker_quote(self):
+        # Do not mistake the strict no-quote research test for the production
+        # publisher: its estimated price is always labelled MODEL, never BSD.
+        sample={"key":"OVER_15","internal_market_code":"OU_1.5_OVER_FT",
+                "probability":.78,"conservative_probability":.74}
+        priced=price_selected_market(sample,{},now=AT)
+        self.assertIsNotNone(priced)
+        self.assertEqual(priced["odds_source"],ESTIMATED_SOURCE)
+        self.assertTrue(priced["estimated_odds"])
+        self.assertGreaterEqual(priced["bookmaker_odds"],1.20)
 
     def test_empty_audit_never_claims_any_qualified_prices(self):
         guarded=audit_no_quote_gate([],[],at=AT)
