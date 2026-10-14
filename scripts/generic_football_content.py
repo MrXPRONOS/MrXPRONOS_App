@@ -227,6 +227,13 @@ def banner_caption(category: str, payload: dict[str, Any]) -> str:
             rows.append("🔴 Sort : <b>" + _esc(sortant) + "</b>")
         elif category in {"remplacement_full", "remplacement_sortant"}:
             rows.append(_unknown("🔴 Sortant"))
+        if not entrant and not sortant:
+            players = payload.get("players") if isinstance(payload.get("players"), list) else []
+            names = [_plain(x, 80) for x in players[:2] if _plain(x, 80)]
+            if names:
+                rows.append("👥 Joueurs concernés : <b>" + _esc(" / ".join(names)) + "</b>")
+            else:
+                rows.append("<i>Changement confirmé, joueurs non communiqués.</i>")
         return "\n\n".join(x for x in (_blockquote(rows), source_line) if x)
 
     if category in {"intervention_medicale", "blessure_confirmee", "retour_au_jeu"}:
