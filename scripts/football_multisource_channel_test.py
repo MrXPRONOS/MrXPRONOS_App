@@ -7,7 +7,8 @@ data.json or public Telegram channel. Fully fail-closed test channel guard.
 """
 from __future__ import annotations
 import argparse
-from datetime import datetime,timezone
+from datetime import datetime,timezone,timedelta
+from collections import Counter
 import json
 import os
 from pathlib import Path
@@ -17,8 +18,51 @@ ROOT=Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
 from scripts.football_match_source_router import aware_time
 from scripts.football_external_bsd_v2_adapter import (
-    normalize_history,adapt_daily,evaluate_existing_v2)
+    normalize_history,adapt_daily,evaluate_existing_v2,V2History,predict_v2)
 from scripts.telegram_test_guard import validate_test_channel
+
+
+def audit_no_quote_gate(fixtures:list[dict],history:list[dict],*,at:datetime) -> dict:
+    """Probe the ORIGINAL BSD V2 bookmaker-odds gate, without providing prices.
+
+    This is NOT a full production eligibility check: calibration, specialist
+    models, quality policies and verified bookmaker odds are not loaded here.
+    Never treat a research candidate or an unquoted decision as publishable.
+    """
+    if at.tzinfo is None:
+        raise ValueError("Timezone-aware analysis clock required")
+    clock=at.astimezone(timezone.utc)
+    available=[r for r in history
+               if (t:=aware_time(r.get("event_date"))) is not None
+               and t+timedelta(hours=4)<clock]
+    index=V2History(available)
+    refusals=Counter()
+    market_refusals=Counter()
+    for fixture in fixtures:
+        market_audit=[]
+        choice,reason=predict_v2(
+            fixture,index,clock=clock,mode="reliability",
+            odds_by_market={},require_odds=True,market_audit=market_audit)
+        # This assert means missing odds can NEVER quietly turn into coupons,
+        # even if future upstream V2 code changes its defaults.
+        if choice is not None:
+            raise AssertionError("Unquoted BSD V2 fixture passed required bookmaker-odds gate")
+        refusals[str(reason or "unknown")]+=1
+        market_refusals.update(
+            str(row["result"]) for row in market_audit if row.get("result"))
+    return {
+        "fixtures_checked":len(fixtures),
+        "accepted_with_no_bookmaker_quotes":0,
+        "missing_or_low_odds_market_rejections":market_refusals["missing_or_low_bsd_odds"],
+        "reasons":dict(sorted(refusals.items())),
+        "model_market_refusals":dict(sorted(market_refusals.items())),
+        "used_original_predict_v2":True,
+        "actual_bookmaker_quotes_supplied":False,
+        "calibration_loaded":False,
+        "specialist_models_loaded":False,
+        "full_publication_policy_checked":False,
+        "publication_enabled":False,
+    }
 
 def build(fixtures:list[dict], licensed_history:list[dict], *,at:datetime,
           max_picks:int=3) -> tuple[list[str],dict]:
@@ -32,6 +76,7 @@ def build(fixtures:list[dict], licensed_history:list[dict], *,at:datetime,
     archived,history_quality=normalize_history(licensed_history)
     ready,readiness=adapt_daily(confirmed,archived,as_of=at)
     forecast,quality=evaluate_existing_v2(ready,archived,as_of=at)
+    no_quote=audit_no_quote_gate(ready,archived,at=at)
     by_id={row["id"]:row for row in ready}
     result=[]
     for row in forecast:
@@ -65,6 +110,7 @@ def build(fixtures:list[dict], licensed_history:list[dict], *,at:datetime,
         "calendar_corroborated_fixtures":len(confirmed),
         "qualified_external_fixtures":len(ready),
         "raw_v2_candidates":quality["v2_candidate_count"],
+        "no_bookmaker_quote_gate":no_quote,
         "messages_ready":len(result),
         "historic_matches":history_quality["usable_historic_matches"],
         "reasons":readiness["ignored"],
