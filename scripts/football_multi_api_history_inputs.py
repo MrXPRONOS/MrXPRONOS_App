@@ -11,7 +11,7 @@ It yields provider-attributed, finished-only history for an external V2History.
 """
 from __future__ import annotations
 from collections import Counter
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
 SOURCES = frozenset({"espn", "sportscore", "thesportsdb",
