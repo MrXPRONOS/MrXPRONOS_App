@@ -744,7 +744,7 @@ def verify_espn_before_publish(
 
     kind = _plain(expected.get("kind")).lower()
     expected_score = _plain(expected.get("score"))
-    if re.fullmatch(r"\d+-\d+", expected_score):
+    if kind != "goal" and re.fullmatch(r"\d+-\d+", expected_score):
         hs, aws = (int(x) for x in expected_score.split("-"))
         if direct.get("home_score") != hs or direct.get("away_score") != aws:
             return {
@@ -1489,7 +1489,7 @@ def lifecycle_signals(
             key = "suivi_interrompu:" + follow_ref
             if key not in sent_keys:
                 signals.append({
-                    "kind": "suivi_interrompu", "key": key, "priority": 250 + importance,
+                    "kind": "suivi_interrompu", "key": key, "priority": 260 + importance, "priority_class": "P0",
                     "home": home, "away": away, "league": league,
                     "status": _plain(ext.get("status_detail")), "source": source,
                     "espn_event_id": espn_event_id, "espn_url": espn_url,
@@ -1504,7 +1504,7 @@ def lifecycle_signals(
                 if final_key not in sent_keys:
                     signals.append({
                         "kind": "resultat_final", "key": final_key,
-                        "priority": 240 + importance, "home": home, "away": away,
+                        "priority": 255 + importance, "priority_class": "P0", "home": home, "away": away,
                         "league": league, "score": score_text, "source": source,
                         "home_logo": home_logo, "away_logo": away_logo,
                         "day": now.strftime("%d/%m/%Y"),
@@ -1550,7 +1550,7 @@ def lifecycle_signals(
         base_home_obj = base.get("home_team") if isinstance(base.get("home_team"), dict) else {}
         base_away_obj = base.get("away_team") if isinstance(base.get("away_team"), dict) else {}
         signals.append({
-            "kind": "score_update", "key": key, "priority": 110 + int(importance_fn(base) or 0),
+            "kind": "score_update", "key": key, "priority": 115 + int(importance_fn(base) or 0), "priority_class": "P2",
             "home": _team_name(base, "home"), "away": _team_name(base, "away"),
             "league": base.get("league_name") or match.get("league") or "Football",
             "score": score_text, "minute": match.get("minute"),
