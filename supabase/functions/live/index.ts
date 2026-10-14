@@ -4200,6 +4200,9 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
             raw_data: {
               ...(current?.raw_data || {}),
               live_stats: mergedStats,
+              // Preserve only observations received directly from SportScore:
+              // do not attribute stats coming from ESPN/BSD to this provider.
+              sportscore_detail_observed_stats: detail?.stats || {},
               sportscore_detail: {
                 has_lineups: Boolean(detail?.lineups),
                 timeline_count: Array.isArray(detail?.timeline)
@@ -6264,6 +6267,44 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       bsd_quota_remaining: bsdQuotaRemaining,
       bsd_quota_reset_seconds: bsdQuotaResetSeconds,
     };
+
+    // Reconcile detail enrichment into its own provenance table.
+    // Fixture lists have no detailed stats, but /match/ supplies real
+    // observations that must be visible in live_stats_sources as well.
+    const sportScoreDetailById = new Map<string, { stats: any; minute: number }>();
+    for (const match of allRawMatches) {
+      const detailStats = match?.raw_data?.sportscore_detail_observed_stats;
+      if (!detailStats || typeof detailStats !== "object") continue;
+      const rawId = String(
+        match?.raw_data?.provider_refs?.sportscore?.id ||
+        (String(match?.id || "").startsWith("sportscore:") ? match.id : ""),
+      ).replace(/^sportscore:/, "");
+      if (!rawId) continue;
+      sportScoreDetailById.set("sportscore:" + rawId, {
+        stats: ensureLiveStatsShape(detailStats),
+        minute: safeNumber(match?.current_minute, 0),
+      });
+    }
+    if (sportScoreDetailById.size) {
+      sourceRows = sourceRows.map((row: any) => {
+        if (row.source_name !== "sportscore") return row;
+        const detailed = sportScoreDetailById.get(String(row.source_match_id));
+        if (!detailed) return row;
+        const minute = Math.max(safeNumber(row.minute, 0), detailed.minute);
+        return {
+          ...row,
+          minute,
+          stats_json: detailed.stats,
+          raw_json: {
+            ...(row.raw_json || {}),
+            current_minute: minute,
+            live_stats: detailed.stats,
+            stats_last_updated_at: nowIso(),
+            stats_authority: "sportscore_stats",
+          },
+        };
+      });
+    }
 
     // Snapshot COMPLET persistant avant de découper en lots.
     // Les invocations enfants suivantes lisent exactement ces mêmes matchs
