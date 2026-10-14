@@ -18,6 +18,8 @@ on:
       - 'tests/test_football_match_source_router.py'
       - 'scripts/football_prematch_probability_shadow.py'
       - 'tests/test_football_prematch_probability_shadow.py'
+      - 'scripts/football_public_domain_prematch.py'
+      - 'tests/test_football_public_domain_prematch.py'
       - '.github/workflows/football-history-shadow.yml'
   workflow_dispatch:
     inputs:
@@ -59,13 +61,14 @@ jobs:
         run: |
           php -l scripts/football_history_import.php
           php scripts/football_history_import.php --self-test
-          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py
+          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py
           python -m unittest discover -s tests -p 'test_football_history_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_daily_multisource_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_history_features.py' -v
           python -m unittest discover -s tests -p 'test_football_alias_candidates.py' -v
           python -m unittest discover -s tests -p 'test_football_match_source_router.py' -v
           python -m unittest discover -s tests -p 'test_football_prematch_probability_shadow.py' -v
+          python -m unittest discover -s tests -p 'test_football_public_domain_prematch.py' -v
   historical_probe:
     if: github.event_name == 'workflow_dispatch'
     needs: verify
@@ -146,6 +149,37 @@ jobs:
           PY
           python scripts/football_daily_multisource_shadow.py --snapshots=tmp/synthetic-sources.json --day=2026-10-14 --verified-history=tmp/merged.json --historical-feature-out=tmp/daily-historical-features.json --out=tmp/daily-union.json --report=tmp/daily-merged-report.json --route-out=tmp/daily-source-decisions.json
           python scripts/football_prematch_probability_shadow.py --routed=tmp/daily-source-decisions.json --history=tmp/merged.json --out=tmp/uncalibrated-research-only.json --report=tmp/probability-quality.json
+
+          # End-to-end: lawful 2024-25 score history -> research fixture ->
+          # pre-kickoff provider selection -> uncalibrated probability.
+          python - <<'PY'
+          import json
+          snapshot={'espn': {'rows': [{'id':'research-2025','provider_event_id':'research-2025','home_team':'Arsenal','away_team':'Chelsea','event_date':'2025-02-25T18:00:00Z','league':'Premier League','state':'pre'}]}}
+          with open('tmp/prematch-sample-2025.json','w') as handle:
+              json.dump(snapshot,handle)
+          PY
+          python scripts/football_daily_multisource_shadow.py \
+            --snapshots=tmp/prematch-sample-2025.json --analysis-at=2025-02-24T10:00:00Z \
+            --public-domain-history-jsonl=tmp/openfootball.jsonl --day=2025-02-25 \
+            --out=tmp/licensed-day-union.json --route-out=tmp/licensed-source-selection.json \
+            --report=tmp/licensed-coverage.json
+          python scripts/football_prematch_probability_shadow.py \
+            --routed=tmp/licensed-source-selection.json --out=tmp/licensed-research-probabilities.json \
+            --report=tmp/licensed-probability-report.json
+          python - <<'PY'
+          import json
+          report=json.load(open('tmp/licensed-coverage.json'))
+          chosen=json.load(open('tmp/licensed-source-selection.json'))
+          probability=json.load(open('tmp/licensed-research-probabilities.json'))
+          assert report['public_domain_history']['with_public_domain_goal_features'] == 1
+          assert report['prematch_readiness']['with_goal_family'] == 1
+          assert chosen[0]['families']['goals']['provider'] == 'openfootball'
+          assert chosen[0]['families']['goals']['fallback_used']
+          assert len(probability) == 1
+          assert probability[0]['not_validated_for_publication']
+          assert json.load(open('tmp/licensed-probability-report.json'))['ready_for_betting'] is False
+          print('PUBLIC_DOMAIN_HISTORY_TO_PREMATCH_RESEARCH_PASS', report['public_domain_history']['with_public_domain_goal_features'])
+          PY
           python - <<'PY'
           import json
           report=json.load(open('tmp/daily-merged-report.json'))
