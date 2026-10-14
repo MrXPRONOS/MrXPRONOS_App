@@ -717,8 +717,12 @@ def _publication_expiry(item: Publication, now: datetime) -> datetime:
     return now + timedelta(hours=12)
 
 
+class DeliveryUncertainError(RuntimeError):
+    """Telegram a pu envoyer le message, mais l'état durable n'a pas été confirmé."""
+
+
 def _ambiguous_delivery_error(exc: Exception) -> bool:
-    return isinstance(exc, (requests.Timeout, requests.ConnectionError))
+    return isinstance(exc, (requests.Timeout, requests.ConnectionError, DeliveryUncertainError))
 
 
 class RemotePublicationLedger:
@@ -919,7 +923,15 @@ class Sender:
             print("COMMENTAIRES_NON_LIES publication autorisee car FOOTBALL_REQUIRE_COMMENTS=0")
         return self.linked_chat_id
 
-    def send(self, item: Publication) -> int | None:
+    def send(
+        self,
+        item: Publication,
+        *,
+        resume: dict[str, Any] | None = None,
+        progress_cb: Any = None,
+    ) -> int | None:
+        resume = resume or {}
+        phase = str(resume.get("delivery_phase") or "pending")
         if self.dry_run:
             print("DRY_RUN", item.category, item.key, plain(item.text, 900))
             if item.poll:
@@ -929,20 +941,42 @@ class Sender:
             return None
         self.verify_discussion()
 
+        def checkpoint(name: str, identifier: int | None = None) -> None:
+            if progress_cb is None:
+                return
+            try:
+                progress_cb(name, identifier)
+            except Exception as exc:
+                raise DeliveryUncertainError(
+                    "Telegram confirmé mais checkpoint outbox non persisté: " + name
+                ) from exc
+
+        # Une reprise après crash ne renvoie jamais une sous-étape déjà confirmée.
+        if phase == "complete":
+            return int(resume.get("poll_message_id") or resume.get("media_message_id")
+                       or resume.get("telegram_message_id") or 0) or None
+
         if item.poll:
             question, options = item.poll
-            if item.card:
+            media_id = resume.get("media_message_id")
+            if item.card and phase not in {"media_sent", "poll_sent", "complete"}:
                 from football_cards import render_card
                 with tempfile.TemporaryDirectory(prefix="xpronos-poll-") as tmp:
                     style = item.category if item.category in {"quiz", "reaction"} else (
                         "community_vote" if item.key.startswith("community-vote:") else "sondage"
                     )
                     graphic = render_card(style, item.card, Path(tmp) / "sondage.png")
-                    post_photo(
+                    media_id = post_photo(
                         self.session, self.token, self.chat, graphic,
                         item.text or "<b>🗳️ À VOUS DE VOTER</b>\n<i>Votez dans le sondage ci-dessous.</i>",
                         item.keyboard or {}, timeout=70, mime="image/png",
                     )
+                    checkpoint("media_sent", media_id)
+                    phase = "media_sent"
+
+            if phase == "poll_sent":
+                return int(resume.get("poll_message_id") or 0) or None
+
             poll_options = [{"text": plain(option, 100)} for option in options if plain(option, 100)]
             if len(poll_options) < 2:
                 raise RuntimeError("Sondage Telegram invalide: moins de deux options")
@@ -978,8 +1012,14 @@ class Sender:
             if payload.get("ok") is not True:
                 raise RuntimeError("Telegram n'a pas confirmé le sondage")
             identifier = payload.get("result", {}).get("message_id")
+            checkpoint("poll_sent", identifier)
             print("ENVOYE", item.category, item.key, "message_id", identifier)
             return identifier
+
+        # Si le message simple avait déjà été confirmé avant un crash DB,
+        # finaliser l'outbox sans le renvoyer à Telegram.
+        if phase == "single_sent":
+            return int(resume.get("media_message_id") or resume.get("telegram_message_id") or 0) or None
 
         if item.animation_payload:
             from football_viral_engine import render_animation
@@ -998,8 +1038,6 @@ class Sender:
             media = (ROOT / item.image_path).resolve()
             if not media.is_relative_to(ROOT.resolve()) or not media.is_file():
                 raise RuntimeError("Image News Football absente ou hors dépôt: " + str(item.image_path))
-            # Le site garde le WebP optimisé; Telegram reçoit la même vraie photo
-            # réencodée en JPEG pour une compatibilité sendPhoto maximale.
             from PIL import Image, ImageOps
             with tempfile.TemporaryDirectory(prefix="xpronos-real-news-") as tmp:
                 telegram_photo = Path(tmp) / "news.jpg"
@@ -1034,6 +1072,7 @@ class Sender:
                 item.text[:3900], item.keyboard,
                 timeout=60, html=True,
             )
+        checkpoint("single_sent", identifier)
         print("ENVOYE", item.category, item.key, "message_id", identifier)
         return identifier
 
