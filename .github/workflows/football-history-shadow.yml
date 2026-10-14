@@ -403,6 +403,7 @@ jobs:
           python scripts/football_external_bsd_v2_adapter.py \
             --private-bsd-history-json=bsd/all_matches_bsd.json \
             --authorize-bsd-private-internal-use \
+            --bsd-public-identity-feed=data.json \
             --daily-union=tmp/public-union.json \
             --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             --report=tmp/bsd-private-original-v2-aggregate.json
