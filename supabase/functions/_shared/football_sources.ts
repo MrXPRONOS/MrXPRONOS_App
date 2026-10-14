@@ -247,6 +247,35 @@ export function normalizeSportScoreDetail(payload:any){
 // ESPN scoreboard fixtures do not always contain the full boxscore.
 // Extract only explicitly reported event statistics from the ESPN summary.
 // Home/away are established by matching both known ESPN team IDs.
+// Once BSD reports both sides of a core market, other feeds can only fill
+// genuinely missing markets. External counts must not displace BSD figures.
+export function preserveBsdCoreMarketPairs(bsdStats:any, mergedStats:any){
+  const out:any={
+    ...(mergedStats||{}),
+    home:{...(mergedStats?.home||{})},
+    away:{...(mergedStats?.away||{})},
+    totals:{...(mergedStats?.totals||{})},
+  };
+  const fields:[string,string][]=[
+    ["corner_kicks","corners"],
+    ["total_shots","total_shots"],
+    ["fouls","fouls"],
+    ["shots_on_target","shots_on_target"],
+    ["yellow_cards","yellow_cards"],
+    ["red_cards","red_cards"],
+  ];
+  for(const [key,total] of fields){
+    const hv=bsdStats?.home?.[key],av=bsdStats?.away?.[key];
+    if(typeof hv==="number"&&Number.isFinite(hv)&&hv>=0 &&
+       typeof av==="number"&&Number.isFinite(av)&&av>=0){
+      out.home[key]=hv;
+      out.away[key]=av;
+      out.totals[total]=hv+av;
+    }
+  }
+  return out;
+}
+
 export function normalizeEspnSummaryStats(summary:any, homeId:string, awayId:string){
   const teams=Array.isArray(summary?.boxscore?.teams)?summary.boxscore.teams:[];
   const find=(id:string)=>teams.find((x:any)=>String(x?.team?.id??"")===id);
