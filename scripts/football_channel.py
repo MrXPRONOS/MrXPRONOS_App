@@ -2296,6 +2296,11 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             importance,
             tracked_only=False,
         )
+        signals = persist_canonical_live_events(
+            sender.session,
+            signals,
+            strict=(not dry_run and os.getenv("FOOTBALL_CANONICAL_EVENTS", "0") == "1"),
+        )
         match_counts: dict[str, int] = {}
         for signal in signals:
             ref = str(signal.get("follow_ref") or "")
@@ -2316,7 +2321,7 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
                 continue
             if publish(post, ref=ref):
                 match_counts[match_key] = match_counts.get(match_key, 0) + 1
-    except (requests.RequestException, ValueError, TypeError) as exc:
+    except (requests.RequestException, ValueError, TypeError, RuntimeError) as exc:
         counter["errors"] += 1
         print("ERREUR_LIFECYCLE_ONLY", type(exc).__name__, str(exc)[:180])
     finally:
@@ -2645,6 +2650,11 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                     signals = lifecycle_signals(
                         tracked, set(state.items.keys()), now,
                         sender.session, importance, tracked_only=True,
+                    )
+                    signals = persist_canonical_live_events(
+                        sender.session,
+                        signals,
+                        strict=(not dry_run and os.getenv("FOOTBALL_CANONICAL_EVENTS", "0") == "1"),
                     )
                     match_counts: dict[str, int] = {}
                     for signal in signals:
