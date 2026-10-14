@@ -15,9 +15,19 @@ $seasons = array_filter(array_map('trim', explode(',', (string)($opts['seasons']
 $out = (string)($opts['out'] ?? (sys_get_temp_dir().'/mrxpronos-history.jsonl'));
 $maxFiles = max(1, min(120, (int)($opts['max-files'] ?? 48)));
 $openLeagues = [
+    // First six primary competitions remain first for small request budgets.
     'en.1' => 'Premier League', 'en.2' => 'Championship',
     'de.1' => 'Bundesliga', 'es.1' => 'La Liga',
     'it.1' => 'Serie A', 'fr.1' => 'Ligue 1',
+    // Other PUBLIC-DOMAIN OpenFootball divisions (verified 2025-26):
+    'at.1' => 'Austrian Bundesliga', 'at.2' => 'Austrian 2. Liga',
+    'be.1' => 'Belgian Pro League', 'de.2' => '2. Bundesliga',
+    'en.3' => 'League One', 'en.4' => 'League Two',
+    'es.2' => 'Segunda Division', 'fr.2' => 'Ligue 2',
+    'gr.1' => 'Greek Super League',
+    'it.2' => 'Serie B', 'nl.1' => 'Eredivisie',
+    'pt.1' => 'Primeira Liga', 'sco.1' => 'Scottish Premiership',
+    'tr.1' => 'Turkish Super Lig',
 ];
 
 function record(string $provider, string $season, string $league, string $date, string $home, string $away, int $hg, int $ag, array $stats = []): ?array {
@@ -135,8 +145,8 @@ $fd = fopen($tmp, 'wb');
 if ($fd === false) throw new RuntimeException('Cannot write output');
 chmod($tmp, 0600);
 $requests = 0; $count = 0; $failures = []; $ids = [];
-foreach ($seasons as $season) {
-    foreach ($openLeagues as $division => $league) {
+foreach ($openLeagues as $division => $league) {
+    foreach ($seasons as $season) {
         if ($requests >= $maxFiles) break 2;
         $url = "https://raw.githubusercontent.com/openfootball/football.json/master/{$season}/{$division}.json";
         if ($requests > 0) usleep(1100000);
