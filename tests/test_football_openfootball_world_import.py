@@ -1,5 +1,6 @@
 import unittest
 from scripts.football_openfootball_world_import import parse_txt, safe_source_url, import_history
+from scripts.football_public_domain_prematch import historical_index
 
 NIGERIA="""= Nigeria Professional League 2025/2026
 
@@ -41,6 +42,8 @@ class OpenfootballTXTTests(unittest.TestCase):
         self.assertEqual([r["match_date"] for r in rows],["2025-08-22","2025-08-24","2025-08-31"])
         self.assertEqual(rows[1]["home_score"],0)
         self.assertEqual(rows[1]["away_score"],0)
+        self.assertEqual(len(rows[0]["source_id"]),64)
+        self.assertTrue(all(len(r["source_id"])==64 for r in rows))
         self.assertNotIn("kickoff_utc",rows[0])
         self.assertEqual(rows[0]["time_precision"],"day")
 
@@ -58,6 +61,18 @@ class OpenfootballTXTTests(unittest.TestCase):
         self.assertEqual(rows[-1]["match_date"],"2026-10-15")
         self.assertEqual(rows[0]["home_score"],2)
         self.assertEqual(rows[0]["away_score"],2)
+
+    def test_world_results_accepted_by_prematch_historical_index(self):
+        records,_=parse_txt(NIGERIA,league="Nigeria Professional Football League",
+                            path="world/africa/nigeria/2025-26_ng1.txt")
+        teams,report=historical_index(records)
+        self.assertEqual(report["valid_unique_matches"],3)
+        self.assertEqual(report["source_warnings"].get("invalid_score_or_identity",0),0)
+        self.assertIn(("nigeria professional football league","remo stars"),teams)
+
+    def test_root_level_south_america_is_approved_not_path_traversal(self):
+        self.assertIn("/south-america/master/brazil/2026_br1.txt",
+                      safe_source_url("south-america","brazil","2026_br1.txt"))
 
     def test_allowlist_and_no_dynamic_host(self):
         self.assertIn("raw.githubusercontent.com/openfootball/world/master/africa/nigeria",safe_source_url("world","africa/nigeria","2025-26_ng1.txt"))
