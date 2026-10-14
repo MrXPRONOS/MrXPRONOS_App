@@ -588,15 +588,21 @@ jobs:
       github.event.pull_request.number == 96 &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.head.ref == 'feat/multisource-history-shadow-20261014'
-    needs: verify
+    needs: [verify, bsd_actual_archive_validation]
     runs-on: ubuntu-latest
     timeout-minutes: 35
     permissions:
       contents: read
+      actions: read
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Load aggregate-only signed-in-run BSD identity report
+        uses: actions/download-artifact@v4
+        with:
+          name: bsd-private-validation-aggregate-only
+          path: tmp/pr96-native-aggregates
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -761,6 +767,7 @@ jobs:
             --fixtures=tmp/readonly-multiday-health.json \
             --sportscore=tmp/sportscore-upcoming-audit.json \
             --calibrated=tmp/readonly-calibrated-replay.json \
+            --native-identity=tmp/pr96-native-aggregates/bsd-native-identity-AGGREGATE.json \
             --report=tmp/multisource-release-gate.json
           python - <<'PY'
           import json
@@ -772,6 +779,11 @@ jobs:
           assert decision['independent_review_before_merging_required'] is True
           assert decision['checks']['native_research_model_calibration_reproduced'] is True
           assert decision['calibrated_replay_2026']['real_kickoff_or_bookmaker_backtest'] is False
+          metrics=decision['source_metrics']
+          assert decision['checks']['independently_corroborated_native_event_links_observed'] == (metrics['authentic_bsd_event_links_from_private_validation'] > 0)
+          assert decision['checks']['fresh_bsd_consensus_market_prices_observed'] == (metrics['fresh_bsd_consensus_market_prices_from_private_validation'] > 0)
+          assert decision['checks']['real_production_tracker_immutability_probed'] is True
+          assert decision['checks']['external_fixture_to_bookmaker_event_identity_verified'] is False
           assert len(decision['blocking_requirements']) >= 6
           print('PRODUCTION_RELEASE_VERDICT',decision['decision'],
                 'blocking_requirements',len(decision['blocking_requirements']))
