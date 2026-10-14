@@ -24,6 +24,8 @@ on:
       - 'tests/test_football_public_domain_backtest.py'
       - 'scripts/football_bsd_private_history.py'
       - 'tests/test_football_bsd_private_history.py'
+      - 'scripts/football_bsd_validate_real.py'
+      - 'tests/test_football_bsd_validate_real.py'
       - '.github/workflows/football-history-shadow.yml'
   workflow_dispatch:
     inputs:
@@ -65,7 +67,7 @@ jobs:
         run: |
           php -l scripts/football_history_import.php
           php scripts/football_history_import.php --self-test
-          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py scripts/football_bsd_private_history.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py tests/test_football_bsd_private_history.py
+          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py scripts/football_bsd_private_history.py scripts/football_bsd_validate_real.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py tests/test_football_bsd_private_history.py tests/test_football_bsd_validate_real.py
           python -m unittest discover -s tests -p 'test_football_history_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_daily_multisource_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_history_features.py' -v
@@ -75,6 +77,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_football_public_domain_prematch.py' -v
           python -m unittest discover -s tests -p 'test_football_public_domain_backtest.py' -v
           python -m unittest discover -s tests -p 'test_football_bsd_private_history.py' -v
+          python -m unittest discover -s tests -p 'test_football_bsd_validate_real.py' -v
   historical_probe:
     if: github.event_name == 'workflow_dispatch'
     needs: verify
@@ -285,3 +288,79 @@ jobs:
             tmp/daily-source-quality.json
             tmp/daily-probability-quality.json
           retention-days: 7
+
+  bsd_actual_archive_validation:
+    # Only the dedicated same-repository PR can access the restore secret.
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.number == 96 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'feat/multisource-history-shadow-20261014'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout trusted same-repository branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install exact archive/runtime libraries
+        run: python -m pip install requests cryptography
+      - name: Verify encrypted archive and baseline tests
+        run: |
+          test -s bsd/all_matches_bsd.enc.json
+          test -s bsd/bsd_archive.py
+          test -s scripts/football_bsd_validate_real.py
+          python -m unittest discover -s tests -p 'test_football_bsd_validate_real.py' -v
+      - name: Collect PUBLIC fixtures with capped HTTP BEFORE private archive restoration
+        run: |
+          umask 077
+          mkdir -p tmp
+          python scripts/football_daily_multisource_shadow.py --day="$(date -u +%F)" --max-http=12 --out=tmp/public-union.json --report=tmp/public-source-health.json
+      - name: Restore PRIVATE BSD history without exposing decryption key
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: |
+          umask 077
+          if [ -z "${BSD_HISTORY_KEY}" ]; then
+            echo 'BSD_PRIVATE_VALIDATION_BLOCKED: repository restore secret unavailable'
+            exit 1
+          fi
+          python bsd/bsd_archive.py restore
+          test -s bsd/all_matches_bsd.json
+          chmod 600 bsd/all_matches_bsd.json
+      - name: Validate real BSD against public fixtures; only aggregate output
+        run: |
+          umask 077
+          python scripts/football_bsd_validate_real.py --history=bsd/all_matches_bsd.json --union=tmp/public-union.json --bsd-site-data=data.json --out=tmp/bsd-private-validation-AGGREGATES-ONLY.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result=json.loads(Path('tmp/bsd-private-validation-AGGREGATES-ONLY.json').read_text())
+          assert result['private_archive']['records_restored'] >= 1000
+          assert result['public_data_json_modified'] is False
+          assert result['private_archive_uploaded'] is False
+          assert result['production_model_modified'] is False
+          assert result['predictions_published'] == 0
+          assert result['telegram_posts'] == 0
+          PY
+      - name: Destroy decrypted BSD archive and private runtime files
+        if: always()
+        shell: bash
+        run: |
+          rm -f bsd/all_matches_bsd.json bsd/backfill_state.json tmp/public-union.json
+          test ! -e bsd/all_matches_bsd.json
+          test ! -e bsd/backfill_state.json
+      - name: Upload only approved aggregate statistics
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bsd-private-validation-aggregate-only
+          path: tmp/bsd-private-validation-AGGREGATES-ONLY.json
+          if-no-files-found: error
+          retention-days: 3
