@@ -1,4 +1,7 @@
 import unittest
+from datetime import date
+from unittest.mock import patch
+from scripts.football_prematch_multiday_probe import collect as collect_multiday
 from datetime import datetime,timezone
 from scripts.football_cc0_calendar_verification import corroborate,download_schedules
 from scripts.football_multisource_channel_test import build,test_post,audit_no_quote_gate
@@ -92,6 +95,26 @@ class OpenScheduleAndTelegramTests(unittest.TestCase):
         self.assertFalse(rows[0]["league_verified"])
         self.assertEqual(rows[0]["kickoff_utc"],"2026-10-19T18:30:00Z")
         self.assertEqual(health["by_discovery_source"]["espn"]["unmatched_exact_pair_on_other_calendar_day"],1)
+
+    def test_sportscore_full_200_page_is_not_called_complete(self):
+        class Budget:
+            calls={}
+            total=0
+        with patch("scripts.football_prematch_multiday_probe.merge",
+                   return_value=([],{"providers":{"sportscore":{"reported":200}}})):
+            rows,summary=collect_multiday(
+                [date(2026,10,17)],budget=1,session=Budget(),
+                collector=lambda session,day,include_espn: {})
+        self.assertEqual(rows,[])
+        self.assertEqual(summary["sportscore_page_size_limit"],200)
+        self.assertEqual(summary["sportscore_days_at_page_limit"],1)
+        self.assertTrue(summary["sportscore_coverage_possibly_incomplete"])
+        with patch("scripts.football_prematch_multiday_probe.merge",
+                   return_value=([],{"providers":{"sportscore":{"reported":199}}})):
+            _,health=collect_multiday(
+                [date(2026,10,17)],budget=1,session=Budget(),
+                collector=lambda session,day,include_espn: {})
+        self.assertFalse(health["sportscore_coverage_possibly_incomplete"])
 
     def test_no_calendar_match_never_invents_league(self):
         rows,health=corroborate([fixture(away_team="Arsenal Women")],[
