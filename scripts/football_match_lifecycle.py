@@ -1548,7 +1548,7 @@ def lifecycle_signals(
                     continue
                 signals.append({
                     "kind": "goal", "key": key, "priority": 245 + importance,
-                    "priority_class": "P0",
+                    "priority_class": "P0", "fixture_key": key_id,
                     "home": home, "away": away, "league": league,
                     "minute": goal_minute, "score": event_score or score_text,
                     "source": source, "goal": goal,
@@ -1629,7 +1629,7 @@ def lifecycle_signals(
         score_text = f"{hs}-{aws}"
         key = f"score_update:{event_id}:{score_text}"
         if (key in sent_keys or (ref, score_text) in goal_score_pairs
-                or any(k.startswith(f"goal:{event_id}:{score_text}:") for k in sent_keys)):
+                or f"score_guard:{event_id}:{score_text}" in sent_keys):
             continue
         score_espn_id, score_espn_url = espn_identity(match)
         base_home_obj = base.get("home_team") if isinstance(base.get("home_team"), dict) else {}
