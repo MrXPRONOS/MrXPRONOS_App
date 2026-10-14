@@ -478,31 +478,79 @@ function mergedRowFromMatch(match: any) {
   };
 }
 
-async function persistStatsSourcesAndMerged(sourceRows: any[], mergedMatches: any[]) {
-  const mergedRows = mergedMatches.map(mergedRowFromMatch);
-
-  try {
-    if (sourceRows.length > 0) {
-      const { error } = await supabase
-        .from(T_STATS_SOURCES)
-        .upsert(sourceRows, { onConflict: "source_name,source_match_id" });
-
-      if (error) throw error;
-    }
-
-    if (mergedRows.length > 0) {
-      const { error } = await supabase
-        .from(T_STATS_MERGED)
-        .upsert(mergedRows, { onConflict: "canonical_match_id" });
-
-      if (error) throw error;
-    }
-  } catch (e) {
-    // Preserve the live feed but expose persistence failure to operators and monitoring.
-    console.error("Agrégation stats non persistée:", e);
+// PostgreSQL rejects an UPSERT batch containing the same conflict key twice (SQLSTATE 21000).
+// Provider aliases and fixture normalization can produce duplicate candidates in one refresh.
+function sourceStatsRowScore(row:any){
+  const core=statsCompleteness(row?.stats_json||{}).core_complete;
+  return core*100+Math.min(110,safeNumber(row?.minute,0))+
+    (row?.is_live?3:0);
+}
+function mergedStatsRowScore(row:any){
+  const core=statsCompleteness(row?.merged_stats||{}).core_complete;
+  return core*100+Math.min(110,safeNumber(row?.minute,0))+
+    (row?.is_live?3:0);
+}
+function uniqueSourceStatsRows(rows:any[]){
+  const byKey=new Map<string,any>();
+  for(const row of rows){
+    if(!row?.source_name||!row?.source_match_id)continue;
+    const key=String(row.source_name)+"\\0"+String(row.source_match_id);
+    const prior=byKey.get(key);
+    if(!prior||sourceStatsRowScore(row)>sourceStatsRowScore(prior))byKey.set(key,row);
+  }
+  return [...byKey.values()];
+}
+function uniqueMergedStatsRows(rows:any[]){
+  const byKey=new Map<string,any>();
+  for(const row of rows){
+    if(!row?.canonical_match_id)continue;
+    const key=String(row.canonical_match_id);
+    const prior=byKey.get(key);
+    if(!prior){byKey.set(key,row);continue;}
+    const winner=mergedStatsRowScore(row)>mergedStatsRowScore(prior)?row:prior;
+    const other=winner===row?prior:row;
+    const stats=mergeLiveStats(winner.merged_stats,other.merged_stats);
+    const sources=[...new Set([...(winner.sources_used||[]),...(other.sources_used||[])])];
+    const winnerMatch=winner.merged_match_json||{};
+    const winnerRaw=winnerMatch.raw_data||{};
+    const otherRaw=other.merged_match_json?.raw_data||{};
+    const updatedMatch={...winnerMatch,
+      current_minute:Math.max(safeNumber(winner.minute,0),safeNumber(other.minute,0)),
+      live_stats:stats,
+      raw_data:{...winnerRaw,live_stats:stats,
+        provider_refs:{...(otherRaw.provider_refs||{}),...(winnerRaw.provider_refs||{})},
+        merge_meta:{...(winnerRaw.merge_meta||{}),sources}},
+    };
+    byKey.set(key,{...winner,
+      minute:updatedMatch.current_minute,
+      is_live:Boolean(winner.is_live||other.is_live),
+      merged_stats:stats,
+      sources_used:sources,
+      confidence_score:Math.max(safeNumber(winner.confidence_score,0),safeNumber(other.confidence_score,0)),
+      merged_match_json:updatedMatch,
+    });
+  }
+  return [...byKey.values()];
+}
+async function persistStatsSourcesAndMerged(sourceRows:any[],mergedMatches:any[]){
+  const uniqueSources=uniqueSourceStatsRows(sourceRows);
+  const mergedRows=uniqueMergedStatsRows(mergedMatches.map(mergedRowFromMatch));
+  if(uniqueSources.length!==sourceRows.length||mergedRows.length!==mergedMatches.length){
+    console.info("LIVE_PROVIDER_DEDUP",{
+      source_rows:sourceRows.length,unique_source_rows:uniqueSources.length,
+      merged_rows:mergedMatches.length,unique_merged_rows:mergedRows.length,
+    });
+  }
+  // Independent operations: a provider mapping failure must not prevent snapshot writes.
+  if(uniqueSources.length){
+    const {error}=await supabase.from(T_STATS_SOURCES).upsert(uniqueSources,{onConflict:"source_name,source_match_id"});
+    if(error)console.error("Agrégation sources non persistée:",error);
+  }
+  if(mergedRows.length){
+    const {error}=await supabase.from(T_STATS_MERGED).upsert(mergedRows,{onConflict:"canonical_match_id"});
+    if(error)console.error("Agrégation stats non persistée:",error);
   }
 }
-
 
 function extractPath(url: URL, fnName = "live") {
   const p = url.pathname;
@@ -4082,7 +4130,10 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
     .map((m: any, index: number) => ({ m, index }))
     .filter(({ m }) => {
       const minute = safeNumber(m?.current_minute ?? m?.minute, 0);
-      if (minute < 5 || minute > 90) return false;
+      // Unknown minutes (0) can still be enriched, but must never be
+      // interpreted as real elapsed time for prediction generation.
+      if (minute > 90 || (minute > 0 && minute < 5) || m?.is_finished) return false;
+      if (m?.is_live === false) return false;
       return statsCompleteness(getMatchLiveStats(m)).core_complete < 3;
     })
     .sort((a, b) =>
@@ -6069,9 +6120,8 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     coverage = await fetchBSDCoverage();
     const liveNow = safeNumber(coverage?.live_now, -1);
 
-    // Free providers are collected before the quota-consuming BSD live feed.
-    // BSD is skipped only when BOTH ESPN and SportScore independently cover
-    // at least the live match count reported by BSD coverage.
+    // Collect free providers first; preserve BSD unless explicitly skipped
+    // or its coverage endpoint confirms there are no live fixtures.
     const [espnResult, freeProviderData] = await Promise.all([
       fetchEspnLiveMatchesForMerge(),
       collectFreeLiveProviders(),
@@ -6081,12 +6131,7 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     const sportscoreRows = freeProviderData?.sportscore || [];
     const tsdbRows = freeProviderData?.thesportsdb || [];
     const openligaRows = freeProviderData?.openligadb || [];
-    // Never compare raw fixture counts from different competitions/providers:
-    // equal totals do not imply equal coverage and could silently drop BSD matches.
-    const freeCoverageStrong = false;
-    const skipBsdLive =
-      options.skipBsd === true ||
-      liveNow === 0;
+    const skipBsdLive = options.skipBsd === true || liveNow === 0;
 
     if (!skipBsdLive) {
       try {
@@ -6101,12 +6146,6 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
           console.error("⚠️ BSD v2 live indisponible: sources gratuites prennent le relais", e);
         }
       }
-    } else if (freeCoverageStrong) {
-      console.info("BSD_LIVE_CALL_SAVED", {
-        live_now: liveNow,
-        espn: (espnResult.matches || []).length,
-        sportscore: sportscoreRows.length,
-      });
     }
 
     const incomingEspnIds = (espnResult.matches || [])
@@ -6163,7 +6202,7 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     sourceMeta = {
       ...(merged.meta || sourceMeta),
       ...providerMeta,
-      bsd_live_call_saved: freeCoverageStrong,
+      bsd_live_call_saved: skipBsdLive,
       free_provider_errors: freeProviderData?.errors || {},
     };
 
