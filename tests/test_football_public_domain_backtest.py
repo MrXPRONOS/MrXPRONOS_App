@@ -21,7 +21,7 @@ class HistoricalHoldoutTests(unittest.TestCase):
         self.assertGreater(summary["evaluable_games"], 0)
         self.assertLess(summary["evaluable_games"], 80)
         self.assertTrue(summary["insufficient_evaluation_sample"])
-        self.assertIn("home", str(summary["scoring_metrics"]["1x2_brier"]))
+        self.assertIn("team_model", summary["scoring_metrics"]["1x2_brier"])
         self.assertFalse(summary["compared_to_bsd_v2"])
         self.assertFalse(summary["calibration_verified"])
         self.assertFalse(summary["production_activation_allowed"])
