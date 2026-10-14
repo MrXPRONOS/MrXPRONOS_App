@@ -2,7 +2,8 @@ name: Mr XPRONOS - verified LIVE market statistics
 
 on:
   # Hourly at most: <= 72 API-Football requests / UTC day
-  # (24 fixture-list requests + up to 48 per-match statistics).
+  # (24 fixture-list requests + up to 48 coverage/statistics requests).
+  # League/season coverage and empty statistics are now cached in Supabase.
   schedule:
     - cron: '10 * * * *'
   workflow_dispatch:
