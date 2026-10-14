@@ -1,0 +1,92 @@
+name: Multisource football history - isolated research
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/football_history_import.php'
+      - 'scripts/football_history_shadow.py'
+      - 'tests/test_football_history_shadow.py'
+      - '.github/workflows/football-history-shadow.yml'
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Historical source
+        required: true
+        type: choice
+        default: both
+        options: [both, openfootball, football-data]
+      seasons:
+        description: Comma-separated seasons
+        required: true
+        default: '2024-25,2025-26'
+      max_files:
+        description: Maximum number of files
+        required: true
+        default: '24'
+permissions:
+  contents: read
+concurrency:
+  group: football-history-shadow-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Offline PHP parser and Python tests
+        run: |
+          php -l scripts/football_history_import.php
+          php scripts/football_history_import.php --self-test
+          python -m py_compile scripts/football_history_shadow.py tests/test_football_history_shadow.py
+          python -m unittest discover -s tests -p 'test_football_history_shadow.py' -v
+  historical_probe:
+    if: github.event_name == 'workflow_dispatch'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Validate bounded inputs
+        env:
+          SOURCE: ${{ inputs.source }}
+          SEASONS: ${{ inputs.seasons }}
+          MAX_FILES: ${{ inputs.max_files }}
+        run: |
+          python - <<'PY'
+          import os,re
+          assert os.environ['SOURCE'] in ('both','openfootball','football-data')
+          assert re.fullmatch(r'20\d\d-\d\d(?:,20\d\d-\d\d){0,5}',os.environ['SEASONS'])
+          assert os.environ['MAX_FILES'].isdigit() and 1<=int(os.environ['MAX_FILES'])<=48
+          PY
+      - name: Collect historical results with bounded requests
+        env:
+          SOURCE: ${{ inputs.source }}
+          SEASONS: ${{ inputs.seasons }}
+          MAX_FILES: ${{ inputs.max_files }}
+        run: |
+          php scripts/football_history_import.php --source="$SOURCE" --seasons="$SEASONS" --max-files="$MAX_FILES" --out=tmp/history-raw.jsonl
+      - name: Merge, isolate conflicts and evaluate coverage
+        run: |
+          python scripts/football_history_shadow.py --input=tmp/history-raw.jsonl --output=tmp/history-shadow.json --report=tmp/history-quality.json
+      - name: Upload only summary report, not datasets
+        uses: actions/upload-artifact@v4
+        with:
+          name: football-history-quality-report
+          path: tmp/history-quality.json
+          retention-days: 7
+          if-no-files-found: error
