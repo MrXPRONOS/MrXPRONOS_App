@@ -384,6 +384,36 @@ class FootballChannelTests(unittest.TestCase):
         self.assertIn("MATCHS DU JOUR", kwargs["data"]["rich_message"])
         self.assertNotIn("text", kwargs["data"])
 
+    def test_sender_flash_avec_card_envoie_image_preparee_sans_renderer_flash(self):
+        import os
+        from unittest.mock import Mock
+        from PIL import Image
+        old_root = m.ROOT
+        try:
+            m.ROOT = Path(self.directory.name)
+            media = m.ROOT / "assets/images/footnews/flash-ready.webp"
+            media.parent.mkdir(parents=True, exist_ok=True)
+            Image.new("RGB", (24, 24), "white").save(media, "WEBP")
+            item = m.Publication(
+                "flash", "flash:ready", "<b>Flash</b>",
+                image_path="assets/images/footnews/flash-ready.webp",
+                card={"title": "Metadata only", "source": "RSS"},
+            )
+            with patch.dict(os.environ, {
+                "FOOTBALL_NEWS_CHAT_ID": "-1001",
+                "FOOTBALL_NEWS_BOT_TOKEN": "123:fake",
+                "FOOTBALL_REQUIRE_COMMENTS": "0",
+            }), patch.object(m, "post_photo", return_value=444) as photo, \
+                 patch("football_cards.render_card") as renderer:
+                sender = m.Sender()
+                sender.verify_discussion = Mock(return_value=None)
+                result = sender.send(item)
+            self.assertEqual(result, 444)
+            photo.assert_called_once()
+            renderer.assert_not_called()
+        finally:
+            m.ROOT = old_root
+
     def test_publication_outbox_roundtrip_conserve_toutes_les_etapes(self):
         item = m.Publication(
             "quiz", "quiz:roundtrip", "<b>Question</b>",
