@@ -161,9 +161,9 @@ class ProviderHistoricalInputsTests(unittest.TestCase):
         base={"status":"finished", "event_date":"2025-02-01T12:00:00Z",
               "league_name":"Premier League","home_score":2,"away_score":1}
         a=dict(base,id=1,home_team_id=1,away_team_id=2,
-               "home_team":{"id":1,"name":"Arsenal"},"away_team":{"id":2,"name":"Chelsea"})
+               home_team={"id":1,"name":"Arsenal"},away_team={"id":2,"name":"Chelsea"})
         b=dict(base,id=2,home_team_id=99,away_team_id=2,
-               "home_team":{"id":99,"name":"Arsenal"},"away_team":{"id":2,"name":"Chelsea"})
+               home_team={"id":99,"name":"Arsenal"},away_team={"id":2,"name":"Chelsea"})
         rows,report=trusted_private_bsd_rows([a,b],as_of=AS_OF,explicitly_authorized=True)
         self.assertEqual(rows,[])
         self.assertEqual(report["rejections"]["ambiguous_team_ids_for_name"],2)
