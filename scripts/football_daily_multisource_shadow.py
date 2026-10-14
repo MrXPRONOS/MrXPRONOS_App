@@ -22,7 +22,7 @@ if str(ROOT) not in sys.path:
 from bsd.free_football_sources import collect_free_day
 from scripts.football_history_shadow import normalized
 
-ALLOWED = ("bsd", "espn", "sportscore", "thesportsdb", "openligadb")
+ALLOWED = ("bsd", "api_football", "espn", "sportscore", "thesportsdb", "openligadb")
 ALLOWED_HOSTS = {
     "site.api.espn.com", "sportscore.com",
     "www.thesportsdb.com", "api.openligadb.de",
@@ -65,6 +65,46 @@ def clean_row(row: dict, source: str) -> dict | None:
         "home_score": row.get("home_score") if type(row.get("home_score")) is int else None,
         "away_score": row.get("away_score") if type(row.get("away_score")) is int else None,
     }
+
+
+
+def api_football_rows(payload: Any) -> list[dict]:
+    """Adapt a separately obtained API-Football /fixtures JSON response.
+
+    Do not perform any additional API-Football calls: LIVE workflow already has
+    its own strictly limited account quota and request schedule.
+    """
+    if isinstance(payload, dict):
+        payload = payload.get("response", [])
+    if not isinstance(payload, list):
+        return []
+    result = []
+    for value in payload:
+        if not isinstance(value, dict):
+            continue
+        fixture, teams, goals, league = (
+            value.get("fixture") or {}, value.get("teams") or {},
+            value.get("goals") or {}, value.get("league") or {},
+        )
+        if not isinstance(fixture, dict) or not isinstance(teams, dict):
+            continue
+        home, away = teams.get("home") or {}, teams.get("away") or {}
+        if not isinstance(home, dict) or not isinstance(away, dict):
+            continue
+        if not isinstance(goals, dict):
+            goals = {}
+        if not isinstance(league, dict):
+            league = {}
+        status = str((fixture.get("status") or {}).get("short") or "").upper()
+        state = "post" if status in ("FT", "AET", "PEN") else "pre" if status in ("NS", "TBD") else "in"
+        result.append({
+            "id": fixture.get("id"), "provider_event_id": fixture.get("id"),
+            "home_team": home.get("name"), "away_team": away.get("name"),
+            "event_date": fixture.get("date"), "state": state,
+            "home_score": goals.get("home"), "away_score": goals.get("away"),
+            "league": league.get("name") or "",
+        })
+    return result
 
 
 def compatible(a: dict, b: dict, minutes: int = 90) -> bool:
@@ -167,6 +207,7 @@ def main() -> None:
     p.add_argument("--day", default=date.today().isoformat())
     p.add_argument("--snapshots", help="Offline fixture snapshots JSON keyed by provider; no network")
     p.add_argument("--bsd-fixtures", help="Optional private BSD local list JSON, never uploaded")
+    p.add_argument("--api-football-fixtures", help="Offline JSON /fixtures response; no new API calls")
     p.add_argument("--max-http", type=int, default=12)
     p.add_argument("--out", required=True, help="Research-only output, not data.json")
     p.add_argument("--report", required=True)
@@ -184,6 +225,9 @@ def main() -> None:
         session = BudgetSession(args.max_http)
         snapshots = collect_free_day(session, day, include_espn=True)
         calls = dict(session.calls)
+    if args.api_football_fixtures:
+        payload = json.loads(Path(args.api_football_fixtures).read_text(encoding="utf-8"))
+        snapshots["api_football"] = {"rows": api_football_rows(payload), "error": ""}
     fixtures, report = merge(snapshots, bsd_events=bsd_events)
     report.update({"day": day.isoformat(), "http_requests": calls, "total_http_requests": sum(calls.values())})
     for path, data in ((args.out, fixtures), (args.report, report)):
