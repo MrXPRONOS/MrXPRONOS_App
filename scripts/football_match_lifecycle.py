@@ -291,6 +291,8 @@ def parse_espn_event(event: dict) -> dict | None:
         "away_logo": team_a.get("logo") or "",
         "home_score": _score(home.get("score")),
         "away_score": _score(away.get("score")),
+        "home_shootout_score": _score(home.get("shootoutScore") or home.get("shootout_score")),
+        "away_shootout_score": _score(away.get("shootoutScore") or away.get("shootout_score")),
         "minute": minute,
         "period": period,
         "state": state,
@@ -495,11 +497,29 @@ def extract_substitutions(summary: dict) -> list[dict]:
         athletes = item.get("athletes") or []
         athletes = athletes if isinstance(athletes, list) else []
         names = [_athlete_name(x) for x in athletes if _athlete_name(x)]
+        entrant = ""
+        sortant = ""
+        for athlete_entry in athletes:
+            if not isinstance(athlete_entry, dict):
+                continue
+            athlete_name = _athlete_name(athlete_entry)
+            role = _plain(
+                athlete_entry.get("type") or athlete_entry.get("role")
+                or athlete_entry.get("substitutionType")
+            ).lower()
+            if athlete_name and any(token in role for token in ("in", "entrant", "on")):
+                entrant = athlete_name
+            if athlete_name and any(token in role for token in ("out", "sortant", "off")):
+                sortant = athlete_name
+        # ESPN fournit parfois seulement les deux joueurs sans rôle explicite.
+        # On conserve alors les deux noms sans inventer leur sens.
         clock = item.get("clock") if isinstance(item.get("clock"), dict) else {}
         minute_text = _plain(clock.get("displayValue") or item.get("time") or "")
         team_obj = item.get("team") if isinstance(item.get("team"), dict) else {}
         changes.append({
             "players": names[:2],
+            "entrant": entrant,
+            "sortant": sortant,
             "minute": _minute_total(minute_text),
             "minute_text": minute_text,
             "team_id": str(team_obj.get("id") or ""),
