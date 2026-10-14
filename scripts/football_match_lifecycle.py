@@ -326,6 +326,105 @@ def fetch_supabase_live(session: requests.Session, max_age_seconds: int = 360) -
     return rows
 
 
+def persist_canonical_live_events(
+    session: requests.Session,
+    signals: list[dict],
+    *,
+    strict: bool = False,
+) -> list[dict]:
+    """Persiste puis relit la timeline canonique utilisée par Telegram et le site."""
+    if not signals:
+        return []
+    base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
+    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
+    if not base or not key:
+        if strict:
+            raise RuntimeError("Timeline canonique requise mais Supabase est indisponible")
+        return signals
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    rows = []
+    order: list[str] = []
+    for signal in signals:
+        event_key = _plain(signal.get("key"))
+        kind = _plain(signal.get("kind"))
+        home = _plain(signal.get("home"))
+        away = _plain(signal.get("away"))
+        if not event_key or not kind or not home or not away:
+            continue
+        fixture_key = _plain(signal.get("fixture_key") or signal.get("follow_ref"))
+        if not fixture_key:
+            parts = event_key.split(":")
+            fixture_key = parts[1] if len(parts) > 1 else event_key
+        match_id = _plain(signal.get("espn_event_id") or signal.get("match_id"))
+        sources = []
+        for value in (
+            signal.get("source"),
+            *((signal.get("sources_used") or []) if isinstance(signal.get("sources_used"), list) else []),
+        ):
+            source = _plain(value, 60)
+            if source and source not in sources:
+                sources.append(source)
+        payload = json.loads(json.dumps(signal, ensure_ascii=False, default=str))
+        rows.append({
+            "event_key": event_key,
+            "fixture_key": fixture_key,
+            "match_id": match_id or None,
+            "kind": kind,
+            "priority_class": _plain(signal.get("priority_class") or "P2", 8),
+            "event_minute": _score(signal.get("minute")),
+            "score": _plain(signal.get("score"), 30) or None,
+            "home_team": home,
+            "away_team": away,
+            "league_name": _plain(signal.get("league"), 120) or None,
+            "provider_event_id": _plain(
+                (signal.get("goal") or {}).get("id")
+                if isinstance(signal.get("goal"), dict)
+                else signal.get("provider_event_id")
+            ) or None,
+            "sources": sources,
+            "payload": payload,
+            "confirmed": True,
+            "last_seen_at": now_iso,
+            "event_at": signal.get("event_date") or None,
+        })
+        order.append(event_key)
+    if not rows:
+        return []
+
+    headers = {
+        "apikey": key,
+        "Authorization": "Bearer " + key,
+        "Content-Type": "application/json",
+        "Prefer": "resolution=merge-duplicates,return=representation",
+    }
+    try:
+        response = session.post(
+            base + "/rest/v1/actu_foot_live_events",
+            params={"on_conflict": "event_key"},
+            headers=headers,
+            json=rows,
+            timeout=(8, 25),
+        )
+        response.raise_for_status()
+        saved = response.json()
+    except (requests.RequestException, ValueError) as exc:
+        if strict:
+            raise RuntimeError("Échec timeline canonique Supabase") from exc
+        print("CANONICAL_LIVE_EVENTS_FALLBACK", type(exc).__name__)
+        return signals
+
+    by_key = {
+        str(row.get("event_key")): row.get("payload")
+        for row in saved if isinstance(row, dict) and isinstance(row.get("payload"), dict)
+    }
+    canonical = [by_key[key] for key in order if key in by_key]
+    if strict and len(canonical) != len(order):
+        raise RuntimeError("Timeline canonique incomplète après upsert")
+    print("CANONICAL_LIVE_EVENTS", "stored", len(canonical))
+    return canonical or signals
+
+
 def parse_espn_event(event: dict) -> dict | None:
     competitions = event.get("competitions") or []
     competition = competitions[0] if competitions and isinstance(competitions[0], dict) else {}
