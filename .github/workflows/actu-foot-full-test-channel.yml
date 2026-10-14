@@ -1,0 +1,44 @@
+name: Actu Foot - Test complet canal
+on:
+  push:
+    branches:
+      - actu-foot-full-test-copy-v7
+    paths:
+      - '.github/workflows/actu-foot-full-test-channel.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actu-foot-full-test-channel
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      FOOTBALL_REQUIRE_COMMENTS: '0'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: actu-foot-full-test-copy-v7
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Dépendances
+        run: python -m pip install --disable-pip-version-check requests Pillow feedparser
+      - name: Tests du canal
+        run: python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
+      - name: Vérifier la destination Telegram de test
+        run: |
+          test -n "$FOOTBALL_NEWS_BOT_TOKEN"
+          test -n "$TELEGRAM_TEST_CHAT_ID"
+          test "$FOOTBALL_NEWS_CHAT_ID" = "$TELEGRAM_TEST_CHAT_ID"
+          echo "TEST_CHANNEL_ROUTE_OK $FOOTBALL_NEWS_CHAT_ID"
+      - name: Envoyer le test complet avec les 7 templates
+        run: python scripts/actu_foot_full_channel_test.py
