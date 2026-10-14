@@ -602,6 +602,24 @@ jobs:
           assert 0 <= report['messages_ready'] <= 3
           assert report['historic_matches'] > 0
           assert fixtures['requests_total'] <= 24
+          assert fixtures['sportscore_page_size_limit'] == 200
+          assert fixtures['sportscore_coverage_possibly_incomplete'] == (
+            fixtures['sportscore_days_at_page_limit'] > 0)
+          bridge=report['external_pricing_bridge']
+          assert bridge['inspected_fixtures'] == report['qualified_external_fixtures']
+          assert bridge['native_bsd_odds_event_ids_verified'] == 0
+          assert bridge['external_to_bookmaker_event_matches_verified'] == 0
+          assert bridge['bsd_native_odds_endpoint_called'] is False
+          assert bridge['model_estimated_prices_possible_in_existing_publisher'] is True
+          assert bridge['model_estimated_prices_generated_by_this_audit'] is False
+          assert bridge['full_calibration_and_v21_publication_approved'] is False
+          assert bridge['publication_enabled'] is False
+          # A missing calendar match cannot silently become an approved
+          # fixture merely because a side or a UTC date looks similar.
+          missing_reasons=sum(
+            count for counts in by_source.values()
+            for reason,count in counts.items() if reason.startswith('unmatched_'))
+          assert missing_reasons == calendar['coverage']['refused'].get('no_cc0_schedule_match',0)
           summary={k:report[k] for k in (
             'input_api_fixtures','calendar_corroborated_fixtures',
             'qualified_external_fixtures','raw_v2_candidates',
