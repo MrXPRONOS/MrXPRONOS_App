@@ -301,6 +301,7 @@ def main() -> None:
     p=argparse.ArgumentParser()
     p.add_argument("--historical-jsonl",help="Licensed OpenFootball historical results")
     p.add_argument("--private-bsd-history-json",help="Decrypted private BSD archive, local trusted execution only")
+    p.add_argument("--bsd-public-identity-feed",help="Public BSD data.json with original team and league IDs")
     p.add_argument("--authorize-bsd-private-internal-use",action="store_true",help="Requires rights and trusted runner")
     p.add_argument("--daily-union",required=True)
     p.add_argument("--provider-history-snapshots",help="Offline provider history snapshots, never auto-fetched")
@@ -322,12 +323,16 @@ def main() -> None:
     approved=frozenset({PROVIDER})
     if bool(a.private_bsd_history_json) != bool(a.authorize_bsd_private_internal_use):
         p.error("Private BSD archive requires BOTH path and explicit internal-use authorization")
+    if a.bsd_public_identity_feed and not a.private_bsd_history_json:
+        p.error("--bsd-public-identity-feed requires a trusted local private archive")
     if a.private_bsd_history_json:
         private_archive=json.loads(Path(a.private_bsd_history_json).read_text(encoding="utf-8"))
         if not isinstance(private_archive,list):
             p.error("Private BSD archive must contain a list of historical matches")
+        feed=(json.loads(Path(a.bsd_public_identity_feed).read_text(encoding="utf-8"))
+              if a.bsd_public_identity_feed else None)
         private_rows,private_stats=trusted_private_bsd_rows(
-            private_archive,as_of=when,explicitly_authorized=True)
+            private_archive,as_of=when,explicitly_authorized=True,public_bsd_feed=feed)
         hist.extend(private_rows)
         approved=frozenset({*approved,"bsd"})
         multi_report["private_bsd"]=private_stats
