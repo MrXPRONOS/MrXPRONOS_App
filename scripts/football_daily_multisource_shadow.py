@@ -21,7 +21,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from bsd.free_football_sources import collect_free_day
 from scripts.football_history_shadow import normalized, canonical_team
-from scripts.football_history_features import competition
+from scripts.football_history_features import competition, features as build_history_features
 from scripts.football_match_source_router import route_all
 import hashlib
 
@@ -228,6 +228,8 @@ def main() -> None:
     p.add_argument("--api-football-fixtures", help="Offline JSON /fixtures response; no new API calls")
     p.add_argument("--prematch-stats", help="Validated per-provider historical statistics; JSON by provider and fixture ID")
     p.add_argument("--route-out", help="Optional research-only per-match chosen providers JSON")
+    p.add_argument("--verified-history", help="History-shadow JSON with independently agreed final scores")
+    p.add_argument("--historical-feature-out", help="Optional separate research-only features JSON")
     p.add_argument("--max-http", type=int, default=12)
     p.add_argument("--out", required=True, help="Research-only output, not data.json")
     p.add_argument("--report", required=True)
@@ -254,6 +256,18 @@ def main() -> None:
         p.error("--prematch-stats must be an object keyed by provider")
     routed, readiness = route_all(fixtures, statistics)
     report["prematch_readiness"] = readiness
+    if args.verified_history:
+        history = json.loads(Path(args.verified_history).read_text(encoding="utf-8"))
+        if not isinstance(history, list):
+            p.error("--verified-history must be a list of research records")
+        historic_features, historic_coverage = build_history_features(fixtures, history)
+        report["historical_feature_coverage"] = historic_coverage
+        if args.historical_feature_out:
+            target = Path(args.historical_feature_out)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(json.dumps(historic_features, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    elif args.historical_feature_out:
+        p.error("--historical-feature-out needs --verified-history")
     if args.route_out:
         out = Path(args.route_out)
         out.parent.mkdir(parents=True, exist_ok=True)
