@@ -1371,28 +1371,24 @@ def flash(articles: list[dict], history: History, now: datetime) -> Publication 
         site_url = str(article.get("site_url") or (
             "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=" + slug
         ))
+        visible_sources = {"Foot Mercato", "MadeInFoot", "RFI", "France 24", "Franceinfo"}
+        source_tail = ("\n\n<i>(" + esc(source) + ")</i>") if source in visible_sources else ""
         message = (
-            "<b>" + emoji + " " + esc(label) + "</b>\n\n"
-            "<b>" + esc(title) + "</b>\n\n"
-            "<blockquote>" + esc(summary) + "</blockquote>\n\n"
-            "<i>🗞️ Source : " + esc(source) + "</i>\n"
-            "<a href=\"" + esc(site_url) + "\">Lire l’info complète sur Mr XPRONOS ↗</a>"
+            "<b>" + emoji + " " + esc(title) + "</b>\n\n"
+            + esc(summary)
+            + source_tail
         )
-        keyboard_buttons = [
-            {"text": "📰 Article", "url": site_url, "style": "primary"}
-        ]
+        keyboard_buttons = []
         verification = None
         espn_verification = article.get("espn_verification")
         if isinstance(espn_verification, dict):
             espn_url = str(espn_verification.get("url") or "")
             if espn_url.startswith("https://") and (urlparse(espn_url).hostname or "").lower().endswith("espn.com"):
-                keyboard_buttons.append({"text": "✅ ESPN", "url": espn_url, "style": "success"})
                 verification = {
                     "type": "news",
                     "url": espn_url,
                     "matched_terms": espn_verification.get("matched_terms") or [],
                 }
-                message += "\n<i>✅ Information aussi repérée chez ESPN.</i>"
         keyboard = {"inline_keyboard": compact_keyboard_rows(keyboard_buttons)}
         return Publication(
             "flash", key, message, image_path=image_path,
@@ -2013,8 +2009,8 @@ def lifecycle_publication(signal: dict) -> Publication | None:
             "lineup_home_hash": signal.get("lineup_home_hash") or "",
             "lineup_away_hash": signal.get("lineup_away_hash") or "",
         }
-        message = "<b>📋 COMPOSITIONS OFFICIELLES</b>\n<i>Les titulaires sont confirmés.</i>"
-        keyboard = live_keyboard({"espn_url": espn_url})
+        message = "<b>🚨 OFFICIEL ! LES COMPOSITIONS SONT CONFIRMÉES</b>"
+        keyboard = None
     else:
         # Toutes les catégories compatibles avec les trois bannières génériques
         # peuvent désormais passer par le même pipeline (cartons, changements,
@@ -2027,7 +2023,7 @@ def lifecycle_publication(signal: dict) -> Publication | None:
         if not is_banner_category(kind, card):
             return None
         message = banner_caption(kind, card)
-        keyboard = live_keyboard(card)
+        keyboard = None
 
     event_id = plain(signal.get("espn_event_id"), 32)
     verification = None
