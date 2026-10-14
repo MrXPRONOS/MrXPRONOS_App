@@ -245,11 +245,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
       - name: Install adapter dependencies
         run: python -m pip install requests
-      - name: Audit today's public sources without predictions or publishing
+      - name: Collect capped public-domain recent-season historical results
         run: |
-          python scripts/football_daily_multisource_shadow.py --day="$(date -u +%F)" --max-http=12 --out=tmp/fixture-research.json --route-out=tmp/source-route.json --report=tmp/daily-source-quality.json
+          php scripts/football_history_import.php --source=openfootball --seasons=2025-26,2026-27 --max-files=12 --out=tmp/authorized-prematch-history.jsonl
+      - name: Audit today's public sources with lawful historical form (no publishing)
+        run: |
+          python scripts/football_daily_multisource_shadow.py --day="$(date -u +%F)" --max-http=12 --public-domain-history-jsonl=tmp/authorized-prematch-history.jsonl --out=tmp/fixture-research.json --route-out=tmp/source-route.json --report=tmp/daily-source-quality.json
+          python scripts/football_prematch_probability_shadow.py --routed=tmp/source-route.json --out=tmp/research-only-uncalibrated-probabilities.json --report=tmp/daily-probability-quality.json
           python - <<'PY'
           import json
           report=json.load(open('tmp/daily-source-quality.json'))
@@ -259,10 +267,18 @@ jobs:
           assert report['telegram_posts'] == 0
           assert report['prematch_readiness']['model_enabled'] is False
           assert report['prematch_readiness']['telegram_posts'] == 0
+          assert report['public_domain_history']['production_publishing_allowed'] is False
+          assert report['public_domain_history']['no_corners_or_cards_fabricated']
+          quality=json.load(open('tmp/daily-probability-quality.json'))
+          assert quality['ready_for_betting'] is False
+          assert quality['production_outputs_written'] is False
+          print('DAILY_LAWFUL_HISTORICAL_MARKETS', {'goals':report['prematch_readiness']['with_goal_family'],'profiles':quality['probability_profiles_generated'],'history_fixtures':report['public_domain_history']['with_public_domain_goal_features']})
           PY
       - name: Upload source health summary only
         uses: actions/upload-artifact@v4
         with:
           name: football-daily-source-health
-          path: tmp/daily-source-quality.json
+          path: |
+            tmp/daily-source-quality.json
+            tmp/daily-probability-quality.json
           retention-days: 7
