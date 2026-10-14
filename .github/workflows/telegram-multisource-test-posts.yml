@@ -1,0 +1,64 @@
+name: Mr XPRONOS - 3 publications test API LIVE
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-multisource-test-posts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrxp-multisource-test-posts
+  cancel-in-progress: false
+
+jobs:
+  publish_test:
+    name: Images + textes fondes sur Supabase -> @predict_mrxp
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      PYTHONUNBUFFERED: '1'
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Dependencies
+        run: python -m pip install --disable-pip-version-check 'requests>=2.31,<3' 'Pillow>=10,<13'
+
+      - name: Verify strict test destination and bot permissions
+        env:
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$TELEGRAM_TEST_CHAT_ID"
+          test -n "$FOOTBALL_NEWS_BOT_TOKEN"
+          test -n "$SUPABASE_SERVICE_ROLE_KEY"
+          python scripts/telegram_test_guard.py
+
+      - name: Publish three preview cards to test channel ONLY
+        run: |
+          set -euo pipefail
+          python scripts/telegram_multisource_test_posts.py \
+            --publish --receipt "$RUNNER_TEMP/telegram_test_receipt.json"
+          cat "$RUNNER_TEMP/telegram_test_receipt.json" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Save safe delivery receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mrxpronos-telegram-test-receipts-${{ github.run_id }}
+          path: ${{ runner.temp }}/telegram_test_receipt.json
+          if-no-files-found: ignore
+          retention-days: 14
