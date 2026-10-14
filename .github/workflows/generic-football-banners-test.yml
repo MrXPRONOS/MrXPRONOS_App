@@ -20,7 +20,7 @@ permissions:
 
 concurrency:
   group: generic-football-banners-telegram-test
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   validate-and-send:
