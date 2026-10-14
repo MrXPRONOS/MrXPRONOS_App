@@ -6,7 +6,8 @@ import requests
 from telethon import TelegramClient,errors
 from telethon.sessions import StringSession
 from telethon.tl.types import Channel
-from telethon.tl.functions.channels import GetFullChannelRequest,GetBroadcastStatsRequest
+from telethon.tl.functions.channels import GetFullChannelRequest
+from telethon.tl.functions.stats import GetBroadcastStatsRequest
 UTC=timezone.utc
 def env(k):
  v=os.getenv(k,"").strip()
