@@ -14,7 +14,7 @@ import time
 from pathlib import Path
 from unittest.mock import patch
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 import requests
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -225,15 +225,35 @@ def _send_poll(session, token: str, chat: str, label: str) -> int:
     raise RuntimeError("Telegram poll retry exhausted")
 
 
+def _contact_sheets(paths: list[Path], output_dir: Path) -> None:
+    if not paths:
+        return
+    thumb = (640, 250)
+    cols = 2
+    rows_per_sheet = 5
+    page_size = cols * rows_per_sheet
+    for page, start in enumerate(range(0, len(paths), page_size), 1):
+        group = paths[start:start + page_size]
+        sheet = Image.new("RGB", (thumb[0] * cols, thumb[1] * rows_per_sheet), (4, 13, 25))
+        for offset, path in enumerate(group):
+            with Image.open(path) as src:
+                tile = ImageOps.fit(src.convert("RGB"), thumb, method=Image.Resampling.LANCZOS)
+            x = (offset % cols) * thumb[0]
+            y = (offset // cols) * thumb[1]
+            sheet.paste(tile, (x, y))
+        sheet.save(output_dir / f"contact-sheet-{page:02d}.jpg", "JPEG", quality=88, optimize=True)
+
+
 def main() -> int:
+    send_enabled = os.environ.get("GENERIC_TEST_SEND_TELEGRAM", "1").strip() == "1"
     token = os.environ.get("FOOTBALL_NEWS_BOT_TOKEN", "").strip()
     chat = os.environ.get("TELEGRAM_TEST_CHAT_ID", "").strip()
-    if not token or not chat:
-        raise RuntimeError("TEST REFUSED: token ou canal test manquant")
-
-    guard = validate_test_channel(chat, token)
-    if guard.get("username") != "predict_mrxp":
-        raise RuntimeError("TEST REFUSED: destination autre que @predict_mrxp")
+    if send_enabled:
+        if not token or not chat:
+            raise RuntimeError("TEST REFUSED: token ou canal test manquant")
+        guard = validate_test_channel(chat, token)
+        if guard.get("username") != "predict_mrxp":
+            raise RuntimeError("TEST REFUSED: destination autre que @predict_mrxp")
 
     cases: list[tuple[str, str, dict, str]] = []
     cases += [(cat, label, overrides, "match") for cat, label, overrides in MATCH_CASES]
@@ -248,9 +268,18 @@ def main() -> int:
     session = requests.Session()
     sent: list[dict] = []
     poll_categories = {"reaction", "community_vote", "quiz", "sondage"}
+    requested_preview = os.environ.get("GENERIC_TEST_PREVIEW_DIR", "").strip()
 
-    with patch("programme_styles.load_logo", side_effect=dummy_logo):
-        with tempfile.TemporaryDirectory(prefix="mrx-generic-banners-") as tmp:
+    tmp_context = (
+        tempfile.TemporaryDirectory(prefix="mrx-generic-banners-")
+        if not requested_preview else None
+    )
+    output_dir = Path(requested_preview or tmp_context.name)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    rendered_paths: list[Path] = []
+
+    try:
+        with patch("programme_styles.load_logo", side_effect=dummy_logo):
             for index, (category, label, overrides, family) in enumerate(cases, 1):
                 if index < start_index or index > end_index:
                     continue
@@ -263,43 +292,61 @@ def main() -> int:
                     payload.setdefault("source", "TEST")
                     payload.setdefault("league", "Football")
 
-                path = Path(tmp) / f"{index:02d}-{category}.png"
+                path = output_dir / f"{index:02d}-{category}.png"
                 render_card(category, payload, path)
+                rendered_paths.append(path)
                 with Image.open(path) as check:
                     if check.size != (1280, 500):
                         raise RuntimeError(f"{category}: format {check.size}, attendu 1280x500")
 
-                keyboard = live_keyboard(payload, include_live=(family == "match"))
-                message_id = _post_photo_with_retry(
-                    session,
-                    token,
-                    chat,
-                    path,
-                    _caption(index, total, label, category, payload),
-                    keyboard or {},
-                )
                 row = {
                     "index": index,
                     "category": category,
                     "family": family,
-                    "message_id": message_id,
+                    "preview": path.name,
                 }
+
+                if send_enabled:
+                    keyboard = live_keyboard(payload, include_live=(family == "match"))
+                    message_id = _post_photo_with_retry(
+                        session,
+                        token,
+                        chat,
+                        path,
+                        _caption(index, total, label, category, payload),
+                        keyboard or {},
+                    )
+                    row["message_id"] = message_id
+                    print("GENERIC_BANNER_TEST_SENT", json.dumps(row, ensure_ascii=False), flush=True)
+
+                    if category in poll_categories:
+                        poll_id = _send_poll(session, token, chat, label)
+                        row["poll_message_id"] = poll_id
+                        print("GENERIC_BANNER_POLL_SENT", category, poll_id, flush=True)
+                    time.sleep(1.15)
+                else:
+                    print("GENERIC_BANNER_PREVIEW_OK", json.dumps(row, ensure_ascii=False), flush=True)
+
                 sent.append(row)
-                print("GENERIC_BANNER_TEST_SENT", json.dumps(row, ensure_ascii=False), flush=True)
 
-                # Poll publications are tested as Telegram actually displays them:
-                # banner first, native poll immediately below.
-                if category in poll_categories:
-                    poll_id = _send_poll(session, token, chat, label)
-                    row["poll_message_id"] = poll_id
-                    print("GENERIC_BANNER_POLL_SENT", category, poll_id, flush=True)
-
-                time.sleep(1.15)
+        _contact_sheets(rendered_paths, output_dir)
+        manifest = {
+            "count": len(sent),
+            "range": [start_index, end_index],
+            "telegram": send_enabled,
+            "items": sent,
+        }
+        (output_dir / "manifest.json").write_text(
+            json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+    finally:
+        if tmp_context is not None:
+            tmp_context.cleanup()
 
     expected_count = end_index - start_index + 1
     print("GENERIC_BANNER_TEST_REPORT", json.dumps(sent, ensure_ascii=False), flush=True)
     if len(sent) != expected_count:
-        raise RuntimeError(f"Seulement {len(sent)}/{expected_count} previews envoyées")
+        raise RuntimeError(f"Seulement {len(sent)}/{expected_count} previews générées")
     return 0
 
 
