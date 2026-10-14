@@ -1088,9 +1088,11 @@ def deliver_with_outbox(
         return {"sent": False, "skipped": True, "error": False, "claim": claim}
 
     phase_holder = {"phase": str(claim.get("delivery_phase") or "pending")}
+    id_holder: dict[str, int | None] = {"message_id": None}
 
     def progress(phase: str, identifier: int | None) -> None:
         phase_holder["phase"] = phase
+        id_holder["message_id"] = identifier
         if phase == "media_sent":
             ledger.mark_phase(item, phase, media_message_id=identifier)
         elif phase == "poll_sent":
@@ -1103,14 +1105,32 @@ def deliver_with_outbox(
     try:
         identifier = sender.send(item, resume=claim, progress_cb=progress)
     except Exception as exc:
-        status = "uncertain" if _ambiguous_delivery_error(exc) else "failed"
+        phase = phase_holder["phase"]
+        # Telegram a déjà répondu OK, seul le checkpoint durable a échoué.
+        if isinstance(exc, DeliveryUncertainError) and phase in {"single_sent", "poll_sent"}:
+            try:
+                ledger.mark(item, "sent", id_holder.get("message_id"), phase="complete")
+                print("REMOTE_OUTBOX_RECOVERED_AFTER_CHECKPOINT", item.category, item.key, phase)
+                return {
+                    "sent": True, "skipped": False, "error": False,
+                    "message_id": id_holder.get("message_id"), "claim": claim,
+                }
+            except requests.RequestException:
+                pass
+
+        # L'image d'un sondage a été confirmée : on peut rejouer le poll seul.
+        if isinstance(exc, DeliveryUncertainError) and phase == "media_sent":
+            status = "failed"
+        else:
+            status = "uncertain" if _ambiguous_delivery_error(exc) else "failed"
         try:
             ledger.mark(
                 item,
                 status,
+                id_holder.get("message_id") if phase in {"single_sent", "poll_sent"} else None,
                 error=type(exc).__name__ + ": " + str(exc),
                 retry_after_seconds=45,
-                phase=phase_holder["phase"],
+                phase=phase,
             )
         except requests.RequestException as ledger_exc:
             print("REMOTE_OUTBOX_MARK_ERROR", type(ledger_exc).__name__)
