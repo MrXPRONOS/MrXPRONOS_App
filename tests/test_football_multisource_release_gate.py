@@ -76,6 +76,44 @@ class ReleaseGateTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             assess(*rows,corrupted)
 
+    def test_native_link_and_consensus_prices_are_proof_not_publication_authorization(self):
+        evidence={
+            "scope":"read_only_identity_evidence",
+            "research_only":True,"native_event_ids_exported":False,
+            "no_data_json_modified":True,
+            "original_production_publication_enabled":False,
+            "external_total":918,"external_cc0_verified":22,
+            "one_to_one_native_event_links":21,
+            "official_league_metadata_requested":4,
+            "official_league_metadata_verified":4,
+            "bsd_http_calls":9,
+            "read_only_native_consensus_price_audit":{
+                "official_native_events_quoted_attempts":2,
+                "events_with_fresh_consensus_market_prices":2,
+                "fresh_consensus_market_prices":28,
+                "event_ids_selected_only_from_confirmed_native_links":True,
+                "consensus_is_not_executable_bookmaker_offer":True,
+                "independent_bookmaker_selection_codes_verified":0,
+                "raw_market_prices_or_event_ids_exported":False,
+                "production_market_policy_approved":False,
+            }
+        }
+        decision=assess(*reports(),None,evidence)
+        self.assertTrue(decision["checks"]["independently_corroborated_native_event_links_observed"])
+        self.assertTrue(decision["checks"]["fresh_bsd_consensus_market_prices_observed"])
+        self.assertEqual(decision["source_metrics"]["authentic_bsd_event_links_from_private_validation"],21)
+        self.assertEqual(decision["source_metrics"]["fresh_bsd_consensus_market_prices_from_private_validation"],28)
+        self.assertEqual(decision["decision"],"NO_GO")
+        self.assertFalse(decision["production_publication_authorized"])
+        invalid=copy.deepcopy(evidence)
+        invalid["read_only_native_consensus_price_audit"]["independent_bookmaker_selection_codes_verified"]=2
+        with self.assertRaises(ValueError):
+            assess(*reports(),None,invalid)
+        invalid=copy.deepcopy(evidence)
+        invalid["one_to_one_native_event_links"]=23
+        with self.assertRaises(ValueError):
+            assess(*reports(),None,invalid)
+
     def test_zero_candidates_is_not_false_claim_of_production_readiness(self):
         rows = reports()
         rows[0]["raw_v2_candidates"] = 0
