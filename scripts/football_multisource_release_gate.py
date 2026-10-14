@@ -11,7 +11,8 @@ import json
 from pathlib import Path
 
 
-def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict) -> dict:
+def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict,
+           calibrated:dict|None=None) -> dict:
     if not all(isinstance(x, dict) for x in (v2, calendar, fixtures, sportscore)):
         raise ValueError("Four aggregate research reports are required")
     coverage = calendar.get("coverage")
@@ -53,7 +54,37 @@ def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict) -> dict:
             sportscore.get("no_production_writes") is not True):
         raise ValueError("Research isolation invariant violated")
 
+    calibrated_proof=False
+    replay_2026=None
+    if calibrated is not None:
+        if not isinstance(calibrated,dict) or calibrated.get("research_only") is not True:
+            raise ValueError("Invalid calibrated replay provenance")
+        if (calibrated.get("production_publication_authorized") is not False or
+                calibrated.get("raw_or_private_events_exported") is not False or
+                calibrated.get("telegram_posts") != 0 or
+                calibrated.get("all_native_bsd_v2_fit_functions_used") is not True):
+            raise ValueError("Calibrated replay violated research isolation")
+        audit=calibrated.get("holdout_evaluation") or {}
+        if audit.get("strict_pre_day_data_availability_enforced") is not True:
+            raise ValueError("Unverified replay chronology")
+        if audit.get("not_a_verified_kickoff_or_odds_backtest") is not True:
+            raise ValueError("False claim of real kickoff/odds validation")
+        total_audit=number(audit,"matches_examined")
+        selected=number(audit,"selected_without_market_quotes")
+        won=number(audit,"wins_of_selected_unpriced_markets")
+        if not (0<=won<=selected<=total_audit<=200):
+            raise ValueError("Inconsistent calibrated replay totals")
+        calibrated_proof=(calibrated.get("full_calibration_and_specialists_executed") is True and
+                          calibrated.get("training_sufficiency_requirements_met") is True and
+                          calibrated.get("upcoming_research",{}).get("official_bookmaker_quotes_loaded") is False)
+        replay_2026={
+            "evaluated_results":total_audit,"unpriced_selections":selected,
+            "selected_successes":won,
+            "observed_selected_hit_rate":audit.get("hit_rate"),
+            "real_kickoff_or_bookmaker_backtest":False,
+        }
     checks = {
+        "native_research_model_calibration_reproduced":calibrated_proof,
         "historical_sample_loaded": historic > 0,
         "calendar_confirmed_fixtures": checked > 0,
         "unchanged_existing_v2_probe": quote_gate.get("used_original_predict_v2") is True,
@@ -90,6 +121,7 @@ def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict) -> dict:
         )),
         "research_branch_fusion_authorized_by_this_report": False,
         "independent_review_before_merging_required": True,
+        "calibrated_replay_2026":replay_2026,
         "source_metrics": {
             "discovered_fixtures": total,
             "calendar_confirmed": checked,
@@ -113,6 +145,7 @@ def main():
     p.add_argument("--calendar", required=True)
     p.add_argument("--fixtures", required=True)
     p.add_argument("--sportscore", required=True)
+    p.add_argument("--calibrated", help="Optional full-model research-only replay report")
     p.add_argument("--report", required=True)
     args = p.parse_args()
     repo = Path(__file__).resolve().parents[1]
@@ -123,6 +156,8 @@ def main():
         json.loads(Path(getattr(args, x)).read_text(encoding="utf-8"))
         for x in ("v2", "calendar", "fixtures", "sportscore")
     ]
+    if args.calibrated:
+        inputs.append(json.loads(Path(args.calibrated).read_text(encoding="utf-8")))
     verdict = assess(*inputs)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(verdict, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
