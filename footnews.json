@@ -258,7 +258,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
+      "checked_at": "2026-10-14T21:00:39.768767+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -320,7 +320,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
+      "checked_at": "2026-10-14T21:00:39.768767+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -379,7 +379,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
+      "checked_at": "2026-10-14T21:00:39.768767+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -442,7 +442,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
+      "checked_at": "2026-10-14T21:00:39.768767+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -649,7 +649,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
+      "checked_at": "2026-10-14T21:00:39.768767+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -762,6 +762,109 @@
     "quality_score": 86
   },
   {
+    "slug": "b8315177c6db50e4",
+    "title": "LDC : Aston Villa humilie le Fenerbahçe SK, le Borussia Dortmund piégé par le FK Bodø/Glimt... le récap' de la soirée",
+    "summary": "Le résumé des matches de Ligue des Champions (J2), disputés ce mercredi soir.",
+    "summary_short": "Le résumé des matches de Ligue des Champions (J2), disputés ce mercredi soir.",
+    "content": "Le résumé des matches de Ligue des Champions (J2), disputés ce mercredi soir.",
+    "paragraphs": [
+      "Le résumé des matches de Ligue des Champions (J2), disputés ce mercredi soir."
+    ],
+    "key_points": [
+      "Le résumé des matches de Ligue des Champions (J2), disputés ce mercredi soir."
+    ],
+    "telegram_summary": "Le résumé des matches de Ligue des Champions (J2), disputés ce mercredi soir.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ldc-aston-villa-humilie-le-fenerbahce-sk-le-borussia-dortmund-piege-par-le-fk-bodo-glimt-le-recap-de-la-soiree-542245.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-aston-villa-humilie-le-fenerbahce-sk-le-borussia-dortmund-piege-par-le-fk-bodo-glimt-le-recap-de-la-soiree-542245.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b8315177c6db50e4",
+    "published": "2026-10-14T21:00:00+00:00",
+    "image": "assets/images/footnews/b8315177c6db50e4.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20261014223617-3651.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "9a16a2f118d1685d",
+    "title": "Ligue des Champions : le Real Madrid renverse la Roma dans un match dingue, Aston Ville roule sur Fenerbahçe",
+    "summary": "Dans une soirée multiplex complètement folle, le Real Madrid a renversé la Roma (4-3) en étant mené de deux buts, Aston Villa a roulé sur Fenerbahçe (6-0).La soirée avait une très belle odeur de Ligue (…)",
+    "summary_short": "Dans une soirée multiplex complètement folle, le Real Madrid a renversé la Roma (4-3) en étant mené de deux buts, Aston Villa a roulé sur Fenerbahçe (6-0).La soirée avait une très belle odeur de Ligue (…)",
+    "content": "Dans une soirée multiplex complètement folle, le Real Madrid a renversé la Roma (4-3) en étant mené de deux buts, Aston Villa a roulé sur Fenerbahçe (6-0).La soirée avait une très belle odeur de Ligue (…)",
+    "paragraphs": [
+      "Dans une soirée multiplex complètement folle, le Real Madrid a renversé la Roma (4-3) en étant mené de deux buts, Aston Villa a roulé sur Fenerbahçe (6-0).La soirée avait une très belle odeur de Ligue (…)"
+    ],
+    "key_points": [
+      "Dans une soirée multiplex complètement folle, le Real Madrid a renversé la Roma (4-3) en étant mené de deux buts, Aston Villa a roulé sur Fenerbahçe (6-0).La soirée avait une très belle odeur de Ligue (…)"
+    ],
+    "telegram_summary": "Dans une soirée multiplex complètement folle, le Real Madrid a renversé la Roma (4-3) en étant mené de deux buts, Aston Villa a roulé sur Fenerbahçe (6-0).La soirée avait une très belle odeur de Ligue (…)",
+    "link": "https://www.footmercato.net/a4071382034602488390-ligue-des-champions-le-real-madrid-renverse-la-roma-dans-un-match-dingue-aston-ville-roule-sur-fenerbahce",
+    "source_url": "https://www.footmercato.net/a4071382034602488390-ligue-des-champions-le-real-madrid-renverse-la-roma-dans-un-match-dingue-aston-ville-roule-sur-fenerbahce",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9a16a2f118d1685d",
+    "published": "2026-10-14T20:58:09+00:00",
+    "image": "assets/images/footnews/9a16a2f118d1685d.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine395180-1920x1080.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "d033dec4ad938999",
+    "title": "Ligue des Champions : au terme d’un match spectaculaire, le PSG s’impose sur la pelouse de Manchester City",
+    "summary": "630 jours plus tard, le Paris Saint-Germain croisait à nouveau le fer avec Manchester City en Ligue des Champions. Le 22 janvier 2025, les Rouge et Bleu sauvaient leur peau en C1 en s’imposant 4-2 (…)",
+    "summary_short": "630 jours plus tard, le Paris Saint-Germain croisait à nouveau le fer avec Manchester City en Ligue des Champions. Le 22 janvier 2025, les Rouge et Bleu sauvaient leur peau en C1 en s’imposant 4-2 (…)",
+    "content": "630 jours plus tard, le Paris Saint-Germain croisait à nouveau le fer avec Manchester City en Ligue des Champions. Le 22 janvier 2025, les Rouge et Bleu sauvaient leur peau en C1 en s’imposant 4-2 (…)",
+    "paragraphs": [
+      "630 jours plus tard, le Paris Saint-Germain croisait à nouveau le fer avec Manchester City en Ligue des Champions. Le 22 janvier 2025, les Rouge et Bleu sauvaient leur peau en C1 en s’imposant 4-2 (…)"
+    ],
+    "key_points": [
+      "630 jours plus tard, le Paris Saint-Germain croisait à nouveau le fer avec Manchester City en Ligue des Champions.",
+      "Le 22 janvier 2025, les Rouge et Bleu sauvaient leur peau en C1 en s’imposant 4-2 (…)"
+    ],
+    "telegram_summary": "630 jours plus tard, le Paris Saint-Germain croisait à nouveau le fer avec Manchester City en Ligue des Champions. Le 22 janvier 2025, les Rouge et Bleu sauvaient leur peau en C1 en s’imposant 4-2 (…)",
+    "link": "https://www.footmercato.net/a4959561466742157697-ligue-des-champions-au-terme-dun-match-spectaculaire-le-psg-simpose-sur-la-pelouse-de-manchester-city",
+    "source_url": "https://www.footmercato.net/a4959561466742157697-ligue-des-champions-au-terme-dun-match-spectaculaire-le-psg-simpose-sur-la-pelouse-de-manchester-city",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d033dec4ad938999",
+    "published": "2026-10-14T20:56:12+00:00",
+    "image": "assets/images/footnews/d033dec4ad938999.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine395206-1920x1080.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
     "slug": "7628f643096931ac",
     "title": "DIRECT. Manchester City-PSG : Erling Haaland s'offre un doublé pour tenter de relancer les Cityzens ! Suivez le match de Ligue des champions avec nous",
     "summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
@@ -796,6 +899,40 @@
     "quality_score": 82
   },
   {
+    "slug": "8d39e2f6238c8e43",
+    "title": "Ligue des champions : dans une soirée de flambeurs, le Paris Saint-Germain fait casquer Manchester City",
+    "summary": "Au moins, ils en ont eu pour leur argent.",
+    "summary_short": "Au moins, ils en ont eu pour leur argent.",
+    "content": "Au moins, ils en ont eu pour leur argent.",
+    "paragraphs": [
+      "Au moins, ils en ont eu pour leur argent."
+    ],
+    "key_points": [
+      "Au moins, ils en ont eu pour leur argent."
+    ],
+    "telegram_summary": "Au moins, ils en ont eu pour leur argent.",
+    "link": "https://www.sofoot.com/articles/ligue-des-champions-dans-une-soiree-de-flambeurs-le-paris-saint-germain-fait-casquer-manchester-city",
+    "source_url": "https://www.sofoot.com/articles/ligue-des-champions-dans-une-soiree-de-flambeurs-le-paris-saint-germain-fait-casquer-manchester-city",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8d39e2f6238c8e43",
+    "published": "2026-10-14T20:55:24+00:00",
+    "image": "assets/images/footnews/8d39e2f6238c8e43.webp",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/14225337/ICONSPORT_376482_0144-scaled.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
     "slug": "9ad9637e0299543b",
     "title": "Ligue des champions : brillant puis bousculé, le PSG s'offre un succès de prestige sur la pelouse de Manchester City",
     "summary": "Les Parisiens étaient partis pour corriger les Cityzens, mais ont connu une seconde période extrêmement difficile, mercredi.",
@@ -828,6 +965,72 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "8bca55d49deae068",
+    "title": "Orgueilleux, le Real Madrid attend la fin de match pour renverser la Roma dans la folie",
+    "summary": "C'est fou.",
+    "summary_short": "C'est fou.",
+    "content": "C'est fou.",
+    "paragraphs": [
+      "C'est fou."
+    ],
+    "key_points": [],
+    "telegram_summary": "C'est fou.",
+    "link": "https://www.sofoot.com/articles/orgueilleux-le-real-madrid-attend-la-fin-de-match-pour-renverser-la-roma-dans-la-folie",
+    "source_url": "https://www.sofoot.com/articles/orgueilleux-le-real-madrid-attend-la-fin-de-match-pour-renverser-la-roma-dans-la-folie",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8bca55d49deae068",
+    "published": "2026-10-14T20:54:56+00:00",
+    "image": "assets/images/footnews/8bca55d49deae068.webp",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/14225407/ICONSPORT_376493_0134-scaled.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "d56af50db18af16f",
+    "title": "LDC : Les notes de Manchester City - PSG : Paris remporte un match fou face aux Cityzens et reprend la tête du classement",
+    "summary": "Le PSG l'a emporté sur la pelouse de Manchester City (2-4), ce mercredi soir, pour le compte de la deuxième journée de phase de ligue de Ligue des Champions.",
+    "summary_short": "Le PSG l'a emporté sur la pelouse de Manchester City (2-4), ce mercredi soir, pour le compte de la deuxième journée de phase de ligue de Ligue des Champions.",
+    "content": "Le PSG l'a emporté sur la pelouse de Manchester City (2-4), ce mercredi soir, pour le compte de la deuxième journée de phase de ligue de Ligue des Champions.",
+    "paragraphs": [
+      "Le PSG l'a emporté sur la pelouse de Manchester City (2-4), ce mercredi soir, pour le compte de la deuxième journée de phase de ligue de Ligue des Champions."
+    ],
+    "key_points": [
+      "Le PSG l'a emporté sur la pelouse de Manchester City (2-4), ce mercredi soir, pour le compte de la deuxième journée de phase de ligue de Ligue des Champions."
+    ],
+    "telegram_summary": "Le PSG l'a emporté sur la pelouse de Manchester City (2-4), ce mercredi soir, pour le compte de la deuxième journée de phase de ligue de Ligue des Champions.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ldc-les-notes-de-manchester-city-psg-paris-remporte-un-match-fou-face-aux-cityzens-et-reprend-la-tete-du-classement-542246.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-les-notes-de-manchester-city-psg-paris-remporte-un-match-fou-face-aux-cityzens-et-reprend-la-tete-du-classement-542246.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d56af50db18af16f",
+    "published": "2026-10-14T20:54:00+00:00",
+    "image": "assets/images/footnews/d56af50db18af16f.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20261014223337-4666.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
   },
   {
     "slug": "fcbde5c58ba04140",
@@ -1052,7 +1255,7 @@
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=93da0ba9c78f42fb",
     "published": "2026-10-14T19:46:00+00:00",
     "image": "assets/images/footnews/93da0ba9c78f42fb.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20260429004419-6686.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20261014223326-3027.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "MadeInFoot",
@@ -1228,7 +1431,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
+      "checked_at": "2026-10-14T21:00:39.768767+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1328,7 +1531,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
+      "checked_at": "2026-10-14T21:00:39.768767+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1493,7 +1696,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
+      "checked_at": "2026-10-14T21:00:39.768767+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1583,7 +1786,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
+      "checked_at": "2026-10-14T21:00:39.768767+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1710,7 +1913,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
+      "checked_at": "2026-10-14T21:00:39.768767+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1807,7 +2010,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
+      "checked_at": "2026-10-14T21:00:39.768767+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1967,7 +2170,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
+      "checked_at": "2026-10-14T21:00:39.768767+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -2066,7 +2269,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
+      "checked_at": "2026-10-14T21:00:39.768767+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2128,7 +2331,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
+      "checked_at": "2026-10-14T21:00:39.768767+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2221,7 +2424,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
+      "checked_at": "2026-10-14T21:00:39.768767+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2314,324 +2517,12 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
+      "checked_at": "2026-10-14T21:00:39.768767+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
       "ESPN"
     ],
     "quality_score": 96
-  },
-  {
-    "slug": "8aca7c75dfa6f582",
-    "title": "Real Madrid : grosse sanction confirmée pour Vinicius Jr !",
-    "summary": "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier. Il manquera le Clasico.Le verdict (…)",
-    "summary_short": "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier. Il manquera le Clasico.Le verdict (…)",
-    "content": "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier. Il manquera le Clasico.Le verdict (…)",
-    "paragraphs": [
-      "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier. Il manquera le Clasico.Le verdict (…)"
-    ],
-    "key_points": [
-      "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier.",
-      "Il manquera le Clasico.Le verdict (…)"
-    ],
-    "telegram_summary": "Le Comité de Compétition de la Fédération Espagnole a infligé une suspension pour 4 matchs à Vinicius Jr suite à son expulsion face à Villarreal le week-end dernier. Il manquera le Clasico.Le verdict (…)",
-    "link": "https://www.footmercato.net/a6810085648355182293-real-madrid-grosse-sanction-confirmee-pour-vinicius-jr",
-    "source_url": "https://www.footmercato.net/a6810085648355182293-real-madrid-grosse-sanction-confirmee-pour-vinicius-jr",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8aca7c75dfa6f582",
-    "published": "2026-10-14T17:28:35+00:00",
-    "image": "assets/images/footnews/8aca7c75dfa6f582.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/vinicius-junior-2627-6ab511e663749.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Polémique",
-    "category_emoji": "🔥",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50150970",
-      "url": "https://www.espn.com/video/clip/_/id/50150970/vinicius-junior-goal-turns-red-card-real-madrid-win",
-      "published": "2026-10-10T22:45:38Z",
-      "score": 0.3,
-      "matched_terms": [
-        "madrid",
-        "real",
-        "vinicius"
-      ],
-      "topics": [],
-      "teams": [
-        "Real Madrid",
-        "Villarreal"
-      ],
-      "athletes": [
-        "Vinícius Júnior"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "ef489de2614d18d3",
-    "title": "VIDEO - Liverpool : Barcola inscrit enfin son premier but avec les Reds en Ligue des champions",
-    "summary": "Bradley Barcola a enfin inscrit son premier but sous ses nouvelles couleurs depuis son départ du PSG.",
-    "summary_short": "Bradley Barcola a enfin inscrit son premier but sous ses nouvelles couleurs depuis son départ du PSG.",
-    "content": "Bradley Barcola a enfin inscrit son premier but sous ses nouvelles couleurs depuis son départ du PSG.",
-    "paragraphs": [
-      "Bradley Barcola a enfin inscrit son premier but sous ses nouvelles couleurs depuis son départ du PSG."
-    ],
-    "key_points": [
-      "Bradley Barcola a enfin inscrit son premier but sous ses nouvelles couleurs depuis son départ du PSG."
-    ],
-    "telegram_summary": "Bradley Barcola a enfin inscrit son premier but sous ses nouvelles couleurs depuis son départ du PSG.",
-    "link": "https://www.onzemondial.com/ligue-des-champions/video-liverpool-barcola-inscrit-enfin-son-premier-but-avec-les-reds-en-ligue-des-champions-1002626",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/video-liverpool-barcola-inscrit-enfin-son-premier-but-avec-les-reds-en-ligue-des-champions-1002626",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ef489de2614d18d3",
-    "published": "2026-10-14T17:21:00+00:00",
-    "image": "assets/images/footnews/ef489de2614d18d3.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002626/409418/1200-L-video-liverpool-barcola-inscrit-enfin-son-premier-but-avec-les-reds-en-ligue-des-champions.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50168898",
-      "url": "https://www.espn.com/soccer/story/_/id/50168898/uefa-champions-league-live-updates-manchester-city-paris-saint-germain-liverpool-real-madrid-roma",
-      "published": "2026-10-14T18:37:51Z",
-      "score": 0.214,
-      "matched_terms": [
-        "barcola",
-        "champions",
-        "liverpool"
-      ],
-      "topics": [
-        "live blog"
-      ],
-      "teams": [
-        "Liverpool"
-      ],
-      "athletes": [],
-      "leagues": [
-        "Soccer",
-        "UEFA Champions League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T19:00:39.081030+00:00"
-    },
-    "quality_sources": [
-      "Onze Mondial",
-      "ESPN"
-    ],
-    "quality_score": 85
-  },
-  {
-    "slug": "b3feef1d6bdd102f",
-    "title": "Le premier but de Barcola avec Liverpool en vidéo",
-    "summary": "Bradley Barcola a enfin ouvert son compteur but avec son nouveau club, Liverpool. Recruté pour 140 M€ l’été dernier, l’international français peinait jusqu’à présent à se montrer décisif, avec aucun (…)",
-    "summary_short": "Bradley Barcola a enfin ouvert son compteur but avec son nouveau club, Liverpool. Recruté pour 140 M€ l’été dernier, l’international français peinait jusqu’à présent à se montrer décisif, avec aucun (…)",
-    "content": "Bradley Barcola a enfin ouvert son compteur but avec son nouveau club, Liverpool. Recruté pour 140 M€ l’été dernier, l’international français peinait jusqu’à présent à se montrer décisif, avec aucun (…)",
-    "paragraphs": [
-      "Bradley Barcola a enfin ouvert son compteur but avec son nouveau club, Liverpool. Recruté pour 140 M€ l’été dernier, l’international français peinait jusqu’à présent à se montrer décisif, avec aucun (…)"
-    ],
-    "key_points": [
-      "Bradley Barcola a enfin ouvert son compteur but avec son nouveau club, Liverpool.",
-      "Recruté pour 140 M€ l’été dernier, l’international français peinait jusqu’à présent à se montrer décisif, avec aucun (…)"
-    ],
-    "telegram_summary": "Bradley Barcola a enfin ouvert son compteur but avec son nouveau club, Liverpool. Recruté pour 140 M€ l’été dernier, l’international français peinait jusqu’à présent à se montrer décisif, avec aucun (…)",
-    "link": "https://www.footmercato.net/a4457192309287821150-le-premier-but-de-barcola-avec-liverpool-en-video",
-    "source_url": "https://www.footmercato.net/a4457192309287821150-le-premier-but-de-barcola-avec-liverpool-en-video",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b3feef1d6bdd102f",
-    "published": "2026-10-14T17:18:38+00:00",
-    "image": "assets/images/footnews/b3feef1d6bdd102f.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/barcola-liverpool-6aa1c06aaec8f.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50168898",
-      "url": "https://www.espn.com/soccer/story/_/id/50168898/uefa-champions-league-live-updates-manchester-city-paris-saint-germain-liverpool-real-madrid-roma",
-      "published": "2026-10-14T18:37:51Z",
-      "score": 0.2,
-      "matched_terms": [
-        "barcola",
-        "liverpool"
-      ],
-      "topics": [
-        "live blog"
-      ],
-      "teams": [
-        "Liverpool"
-      ],
-      "athletes": [],
-      "leagues": [
-        "Soccer",
-        "UEFA Champions League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T19:00:39.081030+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 97
-  },
-  {
-    "slug": "943a9475355208af",
-    "title": "OM : bientôt un nouveau rôle pour Weah ?",
-    "summary": "Et si Timothy Weah retrouvait son meilleur visage un cran plus haut ? Bruno Genesio réfléchit à une nouvelle formule sur le c&oci...",
-    "summary_short": "Et si Timothy Weah retrouvait son meilleur visage un cran plus haut ? Bruno Genesio réfléchit à une nouvelle formule sur le c&oci...",
-    "content": "Et si Timothy Weah retrouvait son meilleur visage un cran plus haut ? Bruno Genesio réfléchit à une nouvelle formule sur le c&oci...",
-    "paragraphs": [
-      "Et si Timothy Weah retrouvait son meilleur visage un cran plus haut ? Bruno Genesio réfléchit à une nouvelle formule sur le c&oci..."
-    ],
-    "key_points": [
-      "Et si Timothy Weah retrouvait son meilleur visage un cran plus haut ?",
-      "Bruno Genesio réfléchit à une nouvelle formule sur le c&oci..."
-    ],
-    "telegram_summary": "Et si Timothy Weah retrouvait son meilleur visage un cran plus haut ? Bruno Genesio réfléchit à une nouvelle formule sur le c&oci...",
-    "link": "https://m.maxifoot.fr/football/article-66263.htm",
-    "source_url": "https://m.maxifoot.fr/football/article-66263.htm",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=943a9475355208af",
-    "published": "2026-10-14T17:06:56+00:00",
-    "image": "assets/images/footnews/943a9475355208af.webp",
-    "source_image": "https://photo.maxifoot.fr/weah-marseille-21.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Maxifoot",
-    "source_priority": 78,
-    "source_region": "international",
-    "source_feed": "http://rss.maxifoot.com/football-general.xml",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "Maxifoot"
-    ],
-    "quality_score": 78
-  },
-  {
-    "slug": "fa0c74afcb030bba",
-    "title": "Ligue des champions: 1er test de la saison pour le PSG, retour à Rome pour Mourinho avec le Real Madrid",
-    "summary": "Au programme : Ligue des champions, suite de la deuxième journée de la phase de Ligue, enseignements de la première série de matches de mardi soir, l'anniversaire de « l'armée des champions ».",
-    "summary_short": "Au programme : Ligue des champions, suite de la deuxième journée de la phase de Ligue, enseignements de la première série de matches de mardi soir, l'anniversaire de « l'armée des champions ».",
-    "content": "Au programme : Ligue des champions, suite de la deuxième journée de la phase de Ligue, enseignements de la première série de matches de mardi soir, l'anniversaire de « l'armée des champions ».",
-    "paragraphs": [
-      "Au programme : Ligue des champions, suite de la deuxième journée de la phase de Ligue, enseignements de la première série de matches de mardi soir, l'anniversaire de « l'armée des champions »."
-    ],
-    "key_points": [
-      "Au programme : Ligue des champions, suite de la deuxième journée de la phase de Ligue, enseignements de la première série de matches de mardi soir, l'anniversaire de « l'armée des champions »."
-    ],
-    "telegram_summary": "Au programme : Ligue des champions, suite de la deuxième journée de la phase de Ligue, enseignements de la première série de matches de mardi soir, l'anniversaire de « l'armée des champions ».",
-    "link": "https://www.rfi.fr/fr/podcasts/radio-foot-internationale/20261014-ligue-des-champions",
-    "source_url": "https://www.rfi.fr/fr/podcasts/radio-foot-internationale/20261014-ligue-des-champions",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=fa0c74afcb030bba",
-    "published": "2026-10-14T17:05:54+00:00",
-    "image": "assets/images/footnews/fa0c74afcb030bba.webp",
-    "source_image": "https://s.rfi.fr/media/display/541bbb6e-c7dd-11f1-88e5-2d1c143cdef3/w:1024/p:16x9/2026-10-13T172704Z-1712057346-UP1EMAD1CH3J5-RTRMADP-3-SOCCER-CHAMPIONS-MCI-PSG-PREVIEW.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "RFI",
-    "source_priority": 86,
-    "source_region": "afrique",
-    "source_feed": "https://www.rfi.fr/fr/tag/football/rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50114862",
-      "url": "https://www.espn.com/soccer/story/_/id/50114862/jose-mourinho-already-lot-do-save-real-madrids-season",
-      "published": "2026-10-06T12:17:37Z",
-      "score": 0.25,
-      "matched_terms": [
-        "madrid",
-        "mourinho",
-        "real"
-      ],
-      "topics": [],
-      "teams": [
-        "Real Madrid"
-      ],
-      "athletes": [
-        "Kylian Mbappé",
-        "Vinícius Júnior"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T20:55:28.230812+00:00"
-    },
-    "quality_sources": [
-      "RFI",
-      "ESPN"
-    ],
-    "quality_score": 94
-  },
-  {
-    "slug": "02765e8d7f6e546a",
-    "title": "Stade Rennais : Mahdi Camara sur le coup de gueule de Franck Haise : \"Il faut que nous, on prenne les choses en main\"",
-    "summary": "Mahdi Camara, milieu de terrain de Rennes, était en conférence de presse à la veille du match contre OFI Crète ce jeudi en Ligue Europa.",
-    "summary_short": "Mahdi Camara, milieu de terrain de Rennes, était en conférence de presse à la veille du match contre OFI Crète ce jeudi en Ligue Europa.",
-    "content": "Mahdi Camara, milieu de terrain de Rennes, était en conférence de presse à la veille du match contre OFI Crète ce jeudi en Ligue Europa.",
-    "paragraphs": [
-      "Mahdi Camara, milieu de terrain de Rennes, était en conférence de presse à la veille du match contre OFI Crète ce jeudi en Ligue Europa."
-    ],
-    "key_points": [
-      "Mahdi Camara, milieu de terrain de Rennes, était en conférence de presse à la veille du match contre OFI Crète ce jeudi en Ligue Europa."
-    ],
-    "telegram_summary": "Mahdi Camara, milieu de terrain de Rennes, était en conférence de presse à la veille du match contre OFI Crète ce jeudi en Ligue Europa.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-stade-rennais-mahdi-camara-sur-le-coup-de-gueule-de-franck-haise-il-faut-que-nous-on-prenne-les-choses-en-main-542210.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-stade-rennais-mahdi-camara-sur-le-coup-de-gueule-de-franck-haise-il-faut-que-nous-on-prenne-les-choses-en-main-542210.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=02765e8d7f6e546a",
-    "published": "2026-10-14T17:05:00+00:00",
-    "image": "assets/images/footnews/02765e8d7f6e546a.webp",
-    "source_image": "https://s2.dmcdn.net/v/f-OGU1gpxH4weygsu/x480",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
   }
 ]
