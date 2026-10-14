@@ -158,10 +158,18 @@ def get_json(url, headers, timeout=17):
         return payload, r.headers.get("x-ratelimit-requests-remaining")
 
 
+class ProviderRejectedRequest(RuntimeError):
+    def __init__(self, error_keys):
+        self.error_keys = sorted(str(k)[:40] for k in error_keys)
+        super().__init__("Provider request not permitted")
+
+
 def fetch_stats(key, url):
     payload, remaining = get_json(BASE+url,{"x-apisports-key":key,"Accept":"application/json"})
-    if payload.get("errors"):
-        raise RuntimeError("Provider rejected statistics request")
+    errors = payload.get("errors")
+    if errors:
+        codes = errors.keys() if isinstance(errors, dict) else ["provider_error"]
+        raise ProviderRejectedRequest(codes)
     return payload.get("response") or [], remaining
 
 
@@ -317,12 +325,28 @@ def main():
             record=probes.get(coverage_key)
             if record is not None:
                 covered=record.get("supports_stats")
+                if covered is None:
+                    # Previously rejected or unknown league coverage:
+                    # no statistics requests until its backoff expires.
+                    skipped_coverage+=1
+                    continue
             else:
                 # A published league-season flag avoids repeated empty
                 # /fixtures/statistics calls for unsupported competitions.
-                response,remaining=fetch_stats(
-                    key,f"/leagues?id={league_id}&season={season}")
                 extra_calls+=1
+                try:
+                    response,remaining=fetch_stats(
+                        key,f"/leagues?id={league_id}&season={season}")
+                except ProviderRejectedRequest as error:
+                    # Free-tier access may differ by league/season.
+                    # Do not retry a rejected request in every hourly run.
+                    save_probe(supabase_url,supabase_secret,coverage_key,None,360)
+                    print("API_FOOTBALL_LEAGUE_RESTRICTED",json.dumps({
+                        "league":league_id,"season":season,
+                        "error_fields":error.error_keys,
+                        "retry_in_hours":6,
+                    }))
+                    continue
                 covered=league_stats_coverage(response,league_id,season)
                 save_probe(supabase_url,supabase_secret,coverage_key,covered,
                            720 if covered is not None else 120)
@@ -343,8 +367,16 @@ def main():
         # only with remaining daily quota and within the global call budget.
         if extra_calls>=MAX_EXTRA_CALLS_PER_RUN:
             break
-        response,remaining=fetch_stats(key,f"/fixtures/statistics?fixture={fid}")
         extra_calls+=1
+        try:
+            response,remaining=fetch_stats(key,f"/fixtures/statistics?fixture={fid}")
+        except ProviderRejectedRequest as error:
+            save_probe(supabase_url,supabase_secret,negative_key,None,90)
+            print("API_FOOTBALL_STATS_RESTRICTED",json.dumps({
+                "fixture":fid,"error_fields":error.error_keys,
+                "retry_in_minutes":90,
+            }))
+            continue
         home_id=str((fixture.get("teams") or {}).get("home",{}).get("id",""))
         away_id=str((fixture.get("teams") or {}).get("away",{}).get("id",""))
         stats=parse_statistics(response,home_id,away_id)
