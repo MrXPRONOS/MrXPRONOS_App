@@ -1094,28 +1094,8 @@ def build_viral_payload(
         payload["media"] = {}
         return payload
 
-    # 3) Statistique fiable comme dernier format.
-    insight = daily_insight(session, now.date())
-    if insight and int(insight.get("confidence") or 0) >= 70:
-        payload = {
-            "kind": "stat_pulse",
-            "key": (
-                "viral-stat:" + now.date().isoformat() + ":"
-                + plain(insight.get("league_key"), 60) + ":" + plain(insight.get("kind"), 60)
-            ),
-            "headline": plain(insight.get("headline"), 230),
-            "lines": [plain(x, 120) for x in (insight.get("lines") or []) if plain(x, 120)][:3],
-            "caption": (
-                "📊 <b>STAT QUI CLAQUE</b>\n\n"
-                + "<blockquote><b>" + html.escape(plain(insight.get("headline"), 250), quote=False) + "</b></blockquote>\n\n"
-                + "<i>Sources : " + html.escape(plain(insight.get("source"), 120), quote=False)
-                + " • confiance " + str(int(insight.get("confidence") or 0)) + "%</i>"
-            ),
-            "data_source": plain(insight.get("source"), 120),
-            "target_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html",
-        }
-        payload["media"] = _licensed_media_for_payload(session, payload["kind"])
-        return payload
+    # Pas de statistique de routine comme remplissage viral : mieux vaut
+    # ne rien publier qu'un contenu P4 redondant avec la rubrique Stat.
 
     return None
 
