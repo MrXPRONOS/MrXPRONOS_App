@@ -1409,6 +1409,18 @@ def render(category: str, payload: dict[str, Any]) -> Image.Image:
             )
         return image
 
+    # Toutes les autres publications éditoriales utilisent l'une des trois
+    # bannières horizontales génériques. Le routage dépend de la catégorie ET
+    # des données disponibles (2 logos / 1 logo / aucun logo).
+    from generic_football_banners import is_banner_category, render_banner
+    if is_banner_category(category, payload):
+        image = render_banner(category, payload)
+        if image.size != (1280, 500):
+            raise AssertionError("Generic football banner must be 1280x500")
+        return image
+
+    # Les anciens templates événement restent disponibles comme filet de
+    # compatibilité pour une catégorie non encore migrée.
     from actu_foot_event_templates import is_event_category, render_event
     if is_event_category(category):
         image = render_event(category, payload)
