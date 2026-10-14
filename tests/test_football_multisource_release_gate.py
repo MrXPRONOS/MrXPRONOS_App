@@ -45,6 +45,37 @@ class ReleaseGateTests(unittest.TestCase):
         self.assertGreaterEqual(len(decision["blocking_requirements"]), 6)
         self.assertEqual(decision["source_metrics"]["unpriced_v2_research_candidates"], 25)
 
+    def test_real_research_calibration_proof_does_not_authorize_production(self):
+        extra={
+            "research_only":True,"production_publication_authorized":False,
+            "raw_or_private_events_exported":False,"telegram_posts":0,
+            "all_native_bsd_v2_fit_functions_used":True,
+            "full_calibration_and_specialists_executed":True,
+            "training_sufficiency_requirements_met":True,
+            "upcoming_research":{"official_bookmaker_quotes_loaded":False},
+            "holdout_evaluation":{
+                "strict_pre_day_data_availability_enforced":True,
+                "not_a_verified_kickoff_or_odds_backtest":True,
+                "matches_examined":120,
+                "selected_without_market_quotes":111,
+                "wins_of_selected_unpriced_markets":94,"hit_rate":0.8468,
+            },
+        }
+        rows=reports()
+        result=assess(*rows,extra)
+        self.assertTrue(result["checks"]["native_research_model_calibration_reproduced"])
+        self.assertEqual(result["calibrated_replay_2026"]["selected_successes"],94)
+        self.assertEqual(result["decision"],"NO_GO")
+        self.assertFalse(result["production_publication_authorized"])
+        corrupted=copy.deepcopy(extra)
+        corrupted["holdout_evaluation"]["wins_of_selected_unpriced_markets"]=112
+        with self.assertRaises(ValueError):
+            assess(*rows,corrupted)
+        corrupted=copy.deepcopy(extra)
+        corrupted["holdout_evaluation"]["not_a_verified_kickoff_or_odds_backtest"]=False
+        with self.assertRaises(ValueError):
+            assess(*rows,corrupted)
+
     def test_zero_candidates_is_not_false_claim_of_production_readiness(self):
         rows = reports()
         rows[0]["raw_v2_candidates"] = 0
