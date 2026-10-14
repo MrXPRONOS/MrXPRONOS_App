@@ -120,7 +120,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -184,7 +184,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -317,7 +317,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "Franceinfo",
@@ -411,7 +411,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -720,7 +720,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -797,6 +797,41 @@
       "RFI"
     ],
     "quality_score": 86
+  },
+  {
+    "slug": "c9cc4a710e5da14c",
+    "title": "PSG : Maghnes Akliouche raconte son but \"gag\" face à Gianluigi Donnarumma",
+    "summary": "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City. Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)",
+    "summary_short": "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City. Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)",
+    "content": "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City. Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)",
+    "paragraphs": [
+      "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City. Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)"
+    ],
+    "key_points": [
+      "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City.",
+      "Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)"
+    ],
+    "telegram_summary": "Maghnes Akliouche a vécu un moment particulier ce mercredi soir face à Manchester City. Sur une frappe qui semblait pourtant à la portée de Gianluigi Donnarumma, le milieu offensif parisien a profité (…)",
+    "link": "https://www.footmercato.net/a7937505840264577081-psg-maghnes-akliouche-raconte-son-but-gag-face-a-gianluigi-donnarumma",
+    "source_url": "https://www.footmercato.net/a7937505840264577081-psg-maghnes-akliouche-raconte-son-but-gag-face-a-gianluigi-donnarumma",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c9cc4a710e5da14c",
+    "published": "2026-10-14T22:54:44+00:00",
+    "image": "assets/images/footnews/c9cc4a710e5da14c.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maghnes-akliouche-6ad003a3ec550.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
   },
   {
     "slug": "7628f643096931ac",
@@ -882,7 +917,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -979,7 +1014,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1075,7 +1110,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1138,7 +1173,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1316,11 +1351,36 @@
     "category": "Matchs",
     "category_emoji": "⚽",
     "editorial_score": 3,
-    "espn_verification": {},
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50185017",
+      "url": "https://www.espn.com/video/clip/_/id/50185017/roma-sleep-late-defeat-vs-real-madrid",
+      "published": "2026-10-14T22:44:45Z",
+      "score": 0.231,
+      "matched_terms": [
+        "madrid",
+        "real",
+        "roma"
+      ],
+      "topics": [],
+      "teams": [
+        "AS Roma",
+        "Real Madrid"
+      ],
+      "athletes": [],
+      "leagues": [
+        "Soccer",
+        "UEFA Champions League"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
+    },
     "quality_sources": [
-      "Foot Mercato"
+      "Foot Mercato",
+      "ESPN"
     ],
-    "quality_score": 92
+    "quality_score": 100
   },
   {
     "slug": "cc8215e7f6e6cff8",
@@ -1373,7 +1433,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1474,7 +1534,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1536,7 +1596,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1633,7 +1693,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1860,7 +1920,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1923,7 +1983,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2063,11 +2123,36 @@
     "category": "Matchs",
     "category_emoji": "⚽",
     "editorial_score": 2,
-    "espn_verification": {},
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50185017",
+      "url": "https://www.espn.com/video/clip/_/id/50185017/roma-sleep-late-defeat-vs-real-madrid",
+      "published": "2026-10-14T22:44:45Z",
+      "score": 0.25,
+      "matched_terms": [
+        "madrid",
+        "real",
+        "roma"
+      ],
+      "topics": [],
+      "teams": [
+        "AS Roma",
+        "Real Madrid"
+      ],
+      "athletes": [],
+      "leagues": [
+        "Soccer",
+        "UEFA Champions League"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
+    },
     "quality_sources": [
-      "MadeInFoot"
+      "MadeInFoot",
+      "ESPN"
     ],
-    "quality_score": 88
+    "quality_score": 96
   },
   {
     "slug": "fb012ab9412996e2",
@@ -2188,7 +2273,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -2286,48 +2371,13 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
       "ESPN"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "d033dec4ad938999",
-    "title": "Ligue des Champions : au terme d’un match spectaculaire, le PSG s’impose sur la pelouse de Manchester City",
-    "summary": "630 jours plus tard, le Paris Saint-Germain croisait à nouveau le fer avec Manchester City en Ligue des Champions. Le 22 janvier 2025, les Rouge et Bleu sauvaient leur peau en C1 en s’imposant 4-2 (…)",
-    "summary_short": "630 jours plus tard, le Paris Saint-Germain croisait à nouveau le fer avec Manchester City en Ligue des Champions. Le 22 janvier 2025, les Rouge et Bleu sauvaient leur peau en C1 en s’imposant 4-2 (…)",
-    "content": "630 jours plus tard, le Paris Saint-Germain croisait à nouveau le fer avec Manchester City en Ligue des Champions. Le 22 janvier 2025, les Rouge et Bleu sauvaient leur peau en C1 en s’imposant 4-2 (…)",
-    "paragraphs": [
-      "630 jours plus tard, le Paris Saint-Germain croisait à nouveau le fer avec Manchester City en Ligue des Champions. Le 22 janvier 2025, les Rouge et Bleu sauvaient leur peau en C1 en s’imposant 4-2 (…)"
-    ],
-    "key_points": [
-      "630 jours plus tard, le Paris Saint-Germain croisait à nouveau le fer avec Manchester City en Ligue des Champions.",
-      "Le 22 janvier 2025, les Rouge et Bleu sauvaient leur peau en C1 en s’imposant 4-2 (…)"
-    ],
-    "telegram_summary": "630 jours plus tard, le Paris Saint-Germain croisait à nouveau le fer avec Manchester City en Ligue des Champions. Le 22 janvier 2025, les Rouge et Bleu sauvaient leur peau en C1 en s’imposant 4-2 (…)",
-    "link": "https://www.footmercato.net/a4959561466742157697-ligue-des-champions-au-terme-dun-match-spectaculaire-le-psg-simpose-sur-la-pelouse-de-manchester-city",
-    "source_url": "https://www.footmercato.net/a4959561466742157697-ligue-des-champions-au-terme-dun-match-spectaculaire-le-psg-simpose-sur-la-pelouse-de-manchester-city",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d033dec4ad938999",
-    "published": "2026-10-14T20:56:12+00:00",
-    "image": "assets/images/footnews/d033dec4ad938999.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine395206-1920x1080.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   },
   {
     "slug": "8d39e2f6238c8e43",
@@ -2392,29 +2442,27 @@
     "espn_verification": {
       "provider": "ESPN",
       "source": "ESPN News API",
-      "article_id": "50075555",
-      "url": "https://www.espn.com/soccer/story/_/id/50075555/clasico-match-ball-barcelona-real-madrid-laliga-clashes-unveiled",
-      "published": "2026-10-01T09:59:43Z",
-      "score": 0.214,
+      "article_id": "50185017",
+      "url": "https://www.espn.com/video/clip/_/id/50185017/roma-sleep-late-defeat-vs-real-madrid",
+      "published": "2026-10-14T22:44:45Z",
+      "score": 0.25,
       "matched_terms": [
         "madrid",
-        "match",
-        "real"
+        "real",
+        "roma"
       ],
-      "topics": [
-        "blog - the toe poke"
-      ],
+      "topics": [],
       "teams": [
-        "Barcelona",
+        "AS Roma",
         "Real Madrid"
       ],
       "athletes": [],
       "leagues": [
         "Soccer",
-        "Spanish LALIGA"
+        "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T22:50:31.475010+00:00"
+      "checked_at": "2026-10-14T22:55:30.683062+00:00"
     },
     "quality_sources": [
       "So Foot",
