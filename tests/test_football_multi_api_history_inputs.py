@@ -2,7 +2,7 @@
 import unittest
 from datetime import datetime, timedelta, timezone
 
-from scripts.football_multi_api_history_inputs import ingest, flat_records
+from scripts.football_multi_api_history_inputs import ingest, flat_records, trusted_private_bsd_rows
 from scripts.football_external_bsd_v2_adapter import (
     normalize_history, adapt_daily, h2h_report, evaluate_existing_v2,
 )
@@ -124,6 +124,49 @@ class ProviderHistoricalInputsTests(unittest.TestCase):
         archive,report=normalize_history([one,two],accepted_sources=frozenset({"espn","sportscore"}))
         self.assertEqual(len(archive),0)
         self.assertEqual(report["quarantined_reasons"]["conflicting_kickoff_quarantined"],1)
+
+    def test_trusted_bsd_is_an_extra_historical_provider_not_a_new_calculator(self):
+        source=[]
+        for i in range(7):
+            for tid, name, opponent in ((101,"Arsenal FC",300+i),(202,"Chelsea FC",500+i)):
+                source.append({
+                    "id":1000+tid*20+i, "event_date":f"2025-02-{i+1:02d}T13:00:00Z",
+                    "status":"finished", "league_id":39,"league_name":"Premier League",
+                    "home_team":{"id":tid,"name":name},"away_team":{"id":opponent,"name":f"Rival {opponent}"},
+                    "home_team_id":tid,"away_team_id":opponent,
+                    "home_score":2,"away_score":1,
+                })
+        denied,denial=trusted_private_bsd_rows(source,as_of=AS_OF)
+        self.assertEqual(denied,[])
+        self.assertEqual(denial["status"],"permission_required")
+        rows,summary=trusted_private_bsd_rows(
+            source,as_of=AS_OF,explicitly_authorized=True)
+        self.assertEqual(len(rows),14)
+        self.assertFalse(summary["private_ids_exposed_in_report"])
+        self.assertTrue(all(x["source"]=="bsd" for x in rows))
+        archived,quality=normalize_history(rows,accepted_sources=frozenset({"bsd"}))
+        self.assertEqual(len(archived),14)
+        fixture={"fixture_key":"external-100","home_team":"Arsenal","away_team":"Chelsea",
+                 "league_labels":["Premier League"],"league_verified":True,
+                 "kickoff_utc":"2025-03-02T19:00:00Z","status":"prematch",
+                 "sources":{"espn":{"id":"NEW"}},"discovered_by":"espn",
+                 "ambiguous_match":False,"league_conflict":False,"scores_conflict":False}
+        converted,coverage=adapt_daily([fixture],archived,as_of=AS_OF)
+        self.assertEqual(coverage["ready_for_unchanged_core"],1)
+        _,calc=evaluate_existing_v2(converted,archived,as_of=AS_OF)
+        self.assertTrue(calc["core_predict_v2_function_used"])
+        self.assertFalse(calc["production_published"])
+
+    def test_bsd_duplicate_team_names_with_distinct_native_ids_are_rejected(self):
+        base={"status":"finished", "event_date":"2025-02-01T12:00:00Z",
+              "league_name":"Premier League","home_score":2,"away_score":1}
+        a=dict(base,id=1,home_team_id=1,away_team_id=2,
+               home_team={"id":1,"name":"Arsenal"},"away_team":{"id":2,"name":"Chelsea"})
+        b=dict(base,id=2,home_team_id=99,away_team_id=2,
+               home_team={"id":99,"name":"Arsenal"},"away_team":{"id":2,"name":"Chelsea"})
+        rows,report=trusted_private_bsd_rows([a,b],as_of=AS_OF,explicitly_authorized=True)
+        self.assertEqual(rows,[])
+        self.assertEqual(report["rejections"]["ambiguous_team_ids_for_name"],2)
 
     def test_multiple_independent_provider_rows_feed_same_original_bsd_engine(self):
         history=[]
