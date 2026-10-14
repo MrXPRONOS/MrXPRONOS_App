@@ -54,7 +54,7 @@ def valid_metrics(family: str, metrics: Any) -> bool:
     )
 
 
-def validate(provider: str, ref: dict, record: Any, kickoff: datetime, family: str) -> tuple[bool, str]:
+def validate(provider: str, ref: dict, record: Any, kickoff: datetime, family: str, analysis_at: datetime) -> tuple[bool, str]:
     if not isinstance(record, dict):
         return False, "no_statistics"
     if record.get("provider_fixture_id") is not None and str(record["provider_fixture_id"]) != str(ref["id"]):
@@ -67,6 +67,8 @@ def validate(provider: str, ref: dict, record: Any, kickoff: datetime, family: s
         return False, "unverifiable_timestamps"
     if collected >= kickoff or historic_end >= kickoff:
         return False, "future_information"
+    if collected > analysis_at or historic_end > analysis_at:
+        return False, "snapshot_not_yet_available"
     if historic_end > collected:
         return False, "history_after_collection"
     if collected < kickoff - timedelta(hours=MAX_STALE_HOURS):
@@ -88,7 +90,8 @@ def validate(provider: str, ref: dict, record: Any, kickoff: datetime, family: s
     return True, ""
 
 
-def route_fixture(fixture: dict, statistics: dict, *, min_sample: int = MIN_SAMPLE) -> dict:
+def route_fixture(fixture: dict, statistics: dict, *, min_sample: int = MIN_SAMPLE,
+                  analysis_at: datetime | None = None) -> dict:
     """Select strongest eligible provider independently for each family.
 
     statistics format: {provider: {fixture_id: {phase, observed_at,
@@ -96,11 +99,15 @@ def route_fixture(fixture: dict, statistics: dict, *, min_sample: int = MIN_SAMP
         verified_identity:true, license_ok:true}}}.
     """
     kickoff = aware_time(fixture.get("kickoff_utc"))
+    analysis_at = analysis_at or datetime.now(timezone.utc)
+    if analysis_at.tzinfo is None:
+        raise ValueError("analysis_at must be timezone aware")
+    analysis_at = analysis_at.astimezone(timezone.utc)
     sources = fixture.get("sources") or {}
     origin = fixture.get("discovered_by") or next(iter(sources), "")
     reasons = {}
     families = {}
-    if (kickoff is None or fixture.get("ambiguous_match") or fixture.get("scores_conflict")
+    if (kickoff is None or kickoff <= analysis_at or fixture.get("ambiguous_match") or fixture.get("scores_conflict")
             or fixture.get("league_conflict") or fixture.get("league_verified") is False
             or fixture.get("status", "prematch") != "prematch"):
         cause = "invalid_kickoff_or_identity_conflict"
@@ -122,7 +129,7 @@ def route_fixture(fixture: dict, statistics: dict, *, min_sample: int = MIN_SAMP
                 rejected[provider] = "missing_stable_source_id"
                 continue
             record = (statistics.get(provider) or {}).get(sid)
-            valid, reason = validate(provider, ref, record, kickoff, family)
+            valid, reason = validate(provider, ref, record, kickoff, family, analysis_at)
             if not valid:
                 rejected[provider] = reason
                 continue
@@ -167,8 +174,9 @@ def route_fixture(fixture: dict, statistics: dict, *, min_sample: int = MIN_SAMP
     }
 
 
-def route_all(fixtures: list[dict], statistics: dict, *, min_sample: int = MIN_SAMPLE) -> tuple[list[dict], dict]:
-    routed = [route_fixture(f, statistics, min_sample=min_sample) for f in fixtures]
+def route_all(fixtures: list[dict], statistics: dict, *, min_sample: int = MIN_SAMPLE,
+              analysis_at: datetime | None = None) -> tuple[list[dict], dict]:
+    routed = [route_fixture(f, statistics, min_sample=min_sample, analysis_at=analysis_at) for f in fixtures]
     result = {
         "fixtures": len(routed),
         "with_any_valid_family": sum(bool(r["ready_families"]) for r in routed),
