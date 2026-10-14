@@ -2,6 +2,7 @@
 import {
   fetchSportScoreFixtures,
   normalizeSportScoreDetail,
+  normalizeEspnSummaryStats,
   fetchTheSportsDbStats,
   fetchOpenLigaDay,
   resolveTheSportsDbEvent,
@@ -141,4 +142,17 @@ Deno.test("TheSportsDB: HTTP 503 gets bounded retry and cooldown", async () => {
   } finally {
     globalThis.fetch = realFetch;
   }
+});
+
+Deno.test("ESPN summary: exact home/away IDs map real corners/shots/fouls", () => {
+  const summary={boxscore:{teams:[
+    {team:{id:"11"},statistics:[{name:"wonCorners",displayValue:"7"},{name:"totalShots",displayValue:"15"},{name:"foulsCommitted",displayValue:"12"}]},
+    {team:{id:"22"},statistics:[{name:"wonCorners",displayValue:"4"},{name:"totalShots",displayValue:"9"},{name:"foulsCommitted",displayValue:"16"}]},
+  ]}};
+  const row=normalizeEspnSummaryStats(summary,"11","22");
+  check(row?.home.corner_kicks===7 && row.away.corner_kicks===4,"Corner mapping");
+  check(row?.home.total_shots===15 && row.away.total_shots===9,"Shots mapping");
+  check(row?.home.fouls===12 && row.away.fouls===16,"Foul mapping");
+  check(normalizeEspnSummaryStats(summary,"11","33")===null,"Unknown team ID must fail closed");
+  check(normalizeEspnSummaryStats(summary,"11","11")===null,"Identical home and away IDs forbidden");
 });
