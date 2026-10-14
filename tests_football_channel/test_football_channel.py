@@ -37,6 +37,22 @@ class FootballChannelTests(unittest.TestCase):
     def tearDown(self):
         self.directory.cleanup()
 
+    def test_live_popularity_filter_is_strict(self):
+        def fixture(home, away, competition):
+            row = event("pop-test")
+            row["home_team"]["name"] = home
+            row["away_team"]["name"] = away
+            row["league_name"] = competition
+            return row
+
+        self.assertTrue(m.popular_live_match(fixture("Liverpool", "LASK", "UEFA Champions League")))
+        self.assertTrue(m.popular_live_match(fixture("Arsenal", "Chelsea", "Friendly")))
+        self.assertTrue(m.popular_live_match(fixture("Togo", "Benin", "Friendly")))
+        self.assertTrue(m.popular_live_match(fixture("Senegal", "Benin", "Africa Cup of Nations AFCON")))
+        self.assertFalse(m.popular_live_match(fixture("Bournemouth", "Fulham", "Premier League")))
+        self.assertFalse(m.popular_live_match(fixture("Feyenoord", "Como", "UEFA Champions League")))
+        self.assertFalse(m.popular_live_match(fixture("Arsenal U19", "Chelsea U19", "UEFA Youth League")))
+
     def test_flash_utilise_news_site_et_image_reelle(self):
         old_root = m.ROOT
         try:
