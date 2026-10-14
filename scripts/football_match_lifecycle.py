@@ -33,6 +33,7 @@ from free_football_sources import (  # noqa: E402
     sportscore_detail_enrichment,
     sportscore_lineups,
     sportscore_goals,
+    sportscore_timeline,
     fetch_thesportsdb_event_detail,
     thesportsdb_lineups,
     thesportsdb_timeline,
@@ -1126,6 +1127,7 @@ def lifecycle_signals(
             payload = fetch_sportscore_match(session, str(ext.get("sportscore_slug") or ""), ttl=18)
             detail = sportscore_detail_enrichment(payload)
             detail["lineups"] = sportscore_lineups(payload)
+            detail["timeline"] = sportscore_timeline(payload)
             detail["goals"] = sportscore_goals(payload)
         elif provider == "thesportsdb":
             payload = fetch_thesportsdb_event_detail(session, provider_id, ttl=45)
