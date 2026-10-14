@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mr XPRONOS · Analytics Telegram</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#0c1019;--card:#171d29;--line:#2b3444;--gold:#f1c75d;--muted:#a7b0c2;--text:#f8fafc}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Montserrat,system-ui,sans-serif}
+header,main{max-width:1180px;margin:auto;padding:24px}header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+a{color:var(--gold)}h1{font-size:clamp(1.4rem,3vw,2.2rem);margin:0}h2{font-size:1.05rem;margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.metric{font-size:1.65rem;font-weight:800;color:var(--gold)}.muted{font-size:.85rem;color:var(--muted)}
+input,button,select{padding:12px;border-radius:10px;border:1px solid var(--line);background:#111827;color:#fff;max-width:100%}
+button{background:var(--gold);color:#111;font-weight:800;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}
+form{display:flex;flex-wrap:wrap;gap:10px}.hide{display:none}
+.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:740px}th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--gold);font-size:.83rem}
+canvas{max-height:360px} .positive{color:#42d69a}.negative{color:#ff8891}
+@media(max-width:600px){header,main{padding:14px}.card{padding:14px}}
+</style></head><body>
+<header><div><div class="muted">MR XPRONOS • ADMINISTRATION</div><h1>📊 Analytics Telegram</h1></div><a href="admin.html">← Administration</a></header>
+<main>
+<section class="card" id="login"><h2>Connexion administrateur</h2><p class="muted">Accès privé par Supabase Auth, réservé aux administrateurs actifs.</p>
+<form id="auth"><input id="email" type="email" required autocomplete="username" placeholder="E-mail administrateur">
+<input id="password" type="password" autocomplete="current-password" required placeholder="Mot de passe"><button>Se connecter</button></form><p id="auth-message" class="muted" role="status"></p></section>
+<section class="hide" id="dashboard">
+<div class="grid"><div class="card"><div class="muted">Canaux suivis</div><div class="metric" id="count">—</div></div>
+<div class="card"><div class="muted">Abonnements cumulés</div><div class="metric" id="total">—</div></div>
+<div class="card"><div class="muted">Variation nette du relevé</div><div class="metric" id="growth">—</div></div>
+<div class="card"><div class="muted">Vues moyennes des canaux</div><div class="metric" id="views">—</div></div></div>
+<div class="card"><form id="filters"><label>Période <select id="days"><option value="7">7 derniers jours</option><option value="30" selected>30 derniers jours</option><option value="90">90 derniers jours</option></select></label>
+<label>Canal <select id="channel"><option value="">Tous les canaux</option></select></label><button>Actualiser</button><button type="button" id="csv">Exporter CSV</button><button type="button" id="logout">Déconnexion</button></form></div>
+<div class="card"><h2>Évolution des abonnés</h2><canvas id="chart"></canvas></div>
+<div class="card"><h2>Comparatif des canaux</h2><div class="scroll"><table><thead><tr><th>Canal</th><th>Abonnés</th><th>Variation nette</th><th>Vues moyennes</th><th>Vues du dernier post</th><th>Publications 7j</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+<div class="card"><h2>Statistiques officielles hebdomadaires</h2><div id="official" class="muted">Recherche…</div></div>
+<div class="card"><h2>Meilleurs posts observés</h2><div id="top" class="muted">Recherche…</div></div>
+<p id="status" class="muted" role="status"></p>
+</section></main>
+<script type="module">
+import {supabaseUrl,supabaseAnonKey} from './assets/js/config.js';
+const sb=window.supabase.createClient(supabaseUrl,supabaseAnonKey);
+const $=id=>document.getElementById(id);
+let rows=[],chart=null,selected=[];
+const num=n=>n==null?'—':new Intl.NumberFormat('fr-FR',{maximumFractionDigits:1}).format(n);
+const clear=node=>node.replaceChildren();
+function td(t){const e=document.createElement('td');e.textContent=t;return e;}
+function render(){
+const latest=new Map(); const ordered=[...selected].sort((a,b)=>a.observed_on.localeCompare(b.observed_on));
+for(const r of ordered)latest.set(r.channel_id,r);
+const today=[...latest.values()];const prev=new Map();
+for(const r of ordered){if(!prev.has(r.channel_id))prev.set(r.channel_id,r);}
+const deltas=today.map(r=>r.subscriber_count!=null&&prev.get(r.channel_id)?.subscriber_count!=null?r.subscriber_count-prev.get(r.channel_id).subscriber_count:null).filter(x=>x!==null);
+$('count').textContent=today.length;$('total').textContent=num(today.reduce((s,r)=>s+(r.subscriber_count||0),0));
+$('growth').textContent=deltas.length?((deltas.reduce((a,b)=>a+b,0)>0?'+':'')+num(deltas.reduce((a,b)=>a+b,0))):'—';
+const avgs=today.map(r=>Number(r.average_views_10)).filter((x,i)=>today[i].average_views_10!=null);
+$('views').textContent=avgs.length?num(avgs.reduce((a,b)=>a+b,0)/avgs.length):'—';
+clear($('rows'));today.sort((a,b)=>(b.subscriber_count||0)-(a.subscriber_count||0)).forEach(r=>{
+const tr=document.createElement('tr');const first=td(r.title);
+const a=document.createElement('a');a.href=r.public_url;a.textContent=r.title;a.target='_blank';a.rel='noopener noreferrer';first.replaceChildren(a);tr.append(first);
+const delta=prev.has(r.channel_id)&&r.subscriber_count!=null&&prev.get(r.channel_id).subscriber_count!=null?r.subscriber_count-prev.get(r.channel_id).subscriber_count:null;
+[ num(r.subscriber_count),delta===null?'—':(delta>0?'+':'')+num(delta),num(r.average_views_10),num(r.last_post_views),num(r.posts_7d) ].forEach(v=>tr.append(td(v)));
+$('rows').append(tr);
+});
+const dates=[...new Set(ordered.map(r=>r.observed_on))].sort();
+const grouped=new Map();for(const r of ordered){if(!grouped.has(r.channel_id))grouped.set(r.channel_id,[]);grouped.get(r.channel_id).push(r);}
+const datasets=[...grouped.entries()].slice(0,20).map(([id,items],i)=>{const channel=items.at(-1);const lookup=new Map(items.map(v=>[v.observed_on,v.subscriber_count]));return {label:channel.title,data:dates.map(d=>lookup.get(d)??null),spanGaps:false,borderWidth:2,tension:.2}});
+if(chart)chart.destroy();chart=new Chart($('chart'),{type:'line',data:{labels:dates,datasets},options:{responsive:true,interaction:{mode:'nearest'},plugins:{legend:{labels:{color:'#cbd5e1'}}},scales:{x:{ticks:{color:'#a7b0c2'}},y:{ticks:{color:'#a7b0c2'},beginAtZero:false}}}});
+}
+async function load(){
+$('status').textContent='Chargement des données privées…';
+const days=Number($('days').value);const since=new Date(Date.now()-(days-1)*864e5).toISOString().slice(0,10);
+const [metric,posts,weekly]=await Promise.all([
+sb.from('telegram_channel_metrics_daily').select('channel_id,observed_on,title,public_url,subscriber_count,average_views_10,last_post_views,posts_7d').gte('observed_on',since).order('observed_on',{ascending:true}).limit(5000),
+sb.from('telegram_channel_post_snapshots').select('channel_id,post_id,observed_on,public_url,views').gte('observed_on',since).order('views',{ascending:false}).limit(100),
+sb.from('telegram_channel_official_stats').select('channel_id,week_start,status,views_per_post,shares_per_post').gte('week_start',since).order('week_start',{ascending:false}).limit(100)]);
+if(metric.error)throw metric.error;if(posts.error)throw posts.error;if(weekly.error)throw weekly.error;
+rows=metric.data||[];const byId=new Map(rows.map(r=>[r.channel_id,r.title]));
+const current=$('channel').value;clear($('channel'));const empty=document.createElement('option');empty.value='';empty.textContent='Tous les canaux';$('channel').append(empty);
+for(const [id,title] of byId){const opt=document.createElement('option');opt.value=id;opt.textContent=title;$('channel').append(opt)}$('channel').value=current;
+selected=rows.filter(r=>!$('channel').value||String(r.channel_id)===$('channel').value);render();
+clear($('top'));(posts.data||[]).filter(p=>!$('channel').value||String(p.channel_id)===$('channel').value).slice(0,10).forEach((p,i)=>{const div=document.createElement('div');div.style.padding='8px 0';const a=document.createElement('a');a.href=p.public_url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=(i+1)+'. '+(byId.get(p.channel_id)||'Canal')+' — '+num(p.views)+' vues';div.append(a);$('top').append(div)});
+if(!$('top').childNodes.length)$('top').textContent='Aucune publication disponible';
+clear($('official'));(weekly.data||[]).filter(p=>!$('channel').value||String(p.channel_id)===$('channel').value).forEach(p=>{const d=document.createElement('div');d.style.padding='7px 0';d.textContent=(byId.get(p.channel_id)||p.channel_id)+' · '+p.week_start+' · '+(p.status==='ok'?'statistiques accessibles':'non disponibles')+' · vues/post : '+num(p.views_per_post);$('official').append(d)});
+if(!$('official').childNodes.length)$('official').textContent='Pas encore de relevé hebdomadaire';
+$('status').textContent=rows.length+' relevés chargés';
+}
+async function check(){const {data:{user}}=await sb.auth.getUser();if(!user)return false;const r=await sb.rpc('is_admin');return !r.error&&r.data===true;}
+async function init(){if(await check()){$('login').classList.add('hide');$('dashboard').classList.remove('hide');await load()}else{$('login').classList.remove('hide');$('dashboard').classList.add('hide')}}
+$('auth').addEventListener('submit',async e=>{e.preventDefault();$('auth-message').textContent='Connexion…';const {error}=await sb.auth.signInWithPassword({email:$('email').value,password:$('password').value});if(error){$('auth-message').textContent='Identifiants incorrects ou accès refusé.';return}try{await init();$('auth-message').textContent=await check()?'':'Compte sans accès administrateur.'}catch(e){$('auth-message').textContent='Impossible de charger le tableau de bord.'}});
+$('filters').addEventListener('submit',async e=>{e.preventDefault();try{await load()}catch(e){$('status').textContent='Erreur de chargement : '+e.message}});
+$('channel').addEventListener('change',()=>{selected=rows.filter(r=>!$('channel').value||String(r.channel_id)===$('channel').value);render()});
+$('logout').addEventListener('click',async()=>{await sb.auth.signOut();location.reload()});
+$('csv').addEventListener('click',()=>{const columns=['channel_id','observed_on','title','subscriber_count','average_views_10','last_post_views','posts_7d'];const csv=[columns.join(';'),...selected.map(r=>columns.map(c=>'"'+String(r[c]??'').replaceAll('"','""')+'"').join(';'))].join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.download='mrxpronos-telegram-stats.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)});
+init().catch(()=>{$('auth-message').textContent='Erreur de vérification administrateur'});
+</script></body></html>
