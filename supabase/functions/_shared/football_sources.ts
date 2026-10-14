@@ -223,7 +223,7 @@ export function normalizeSportScoreDetail(payload:any){
   applyStats(stats,root.stats||root.statistics||root.team_stats);
   const lineups=root.lineups||{};
   const timeline=Array.isArray(root.timeline)?root.timeline:Array.isArray(root.events)?root.events:[];
-  return {stats,lineups,timeline,odds_probe:probeSportScoreOdds(payload)};
+  return {stats,lineups,timeline,minute:sportScoreMinute(root),odds_probe:probeSportScoreOdds(payload)};
 }
 
 export async function fetchTheSportsDbDay(date:string){
