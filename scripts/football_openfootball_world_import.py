@@ -53,7 +53,7 @@ def safe_source_url(repository: str, folder: str, filename: str) -> str:
         raise ValueError("Unapproved source repository")
     if not re.fullmatch(r"[a-z0-9-]+(?:/[a-z0-9-]+){1,3}",folder):
         raise ValueError("Invalid directory")
-    if not re.fullmatch(r"(?:20\d\d(?:-20?\d\d)?_[a-z0-9]+)\.txt",filename):
+    if not re.fullmatch(r"20\d{2}(?:-(?:\d{2}|20\d{2}))?_[a-z0-9]+\.txt",filename):
         raise ValueError("Invalid filename")
     return f"{BASE}/{repository}/master/{folder}/{filename}"
 
