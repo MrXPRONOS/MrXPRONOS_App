@@ -1977,6 +1977,7 @@ def lifecycle_publication(signal: dict) -> Publication | None:
             "sortant": plain(signal.get("sortant"), 90),
             "minute": signal.get("minute"),
             "shootout_scores": signal.get("shootout_scores") or [],
+            "provider_event_id": plain(signal.get("provider_event_id"), 80),
         }
     elif signal.get("event_date"):
         verification = {
