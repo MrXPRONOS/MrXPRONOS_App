@@ -136,6 +136,22 @@ jobs:
           python scripts/football_history_features.py --history=tmp/merged.json --fixtures=tmp/fixtures-sample.json --out=tmp/form-features.json --report=tmp/form-report.json
           python - <<'PY'
           import json
+          snapshot={'espn': {'rows': [{'id':'synthetic-0','provider_event_id':'synthetic-0','home_team':'Arsenal','away_team':'Chelsea','event_date':'2026-10-14T18:00:00Z','league':'Premier League','state':'pre'}]}}
+          with open('tmp/synthetic-sources.json','w') as handle:
+              json.dump(snapshot,handle)
+          PY
+          python scripts/football_daily_multisource_shadow.py --snapshots=tmp/synthetic-sources.json --day=2026-10-14 --verified-history=tmp/merged.json --historical-feature-out=tmp/daily-historical-features.json --out=tmp/daily-union.json --report=tmp/daily-merged-report.json --route-out=tmp/daily-source-decisions.json
+          python - <<'PY'
+          import json
+          report=json.load(open('tmp/daily-merged-report.json'))
+          assert report['prematch_readiness']['model_enabled'] is False
+          assert report['historical_feature_coverage']['production_model_modified'] is False
+          assert len(json.load(open('tmp/daily-union.json'))) == 1
+          assert len(json.load(open('tmp/daily-source-decisions.json'))) == 1
+          print('FULL_PREMATCH_SHADOW_PIPELINE_OK')
+          PY
+          python - <<'PY'
+          import json
           report=json.load(open('tmp/quality.json'))
           assert report['provider_rows']['openfootball'] >= 200
           assert report['provider_rows']['football_data'] >= 200
