@@ -51,7 +51,7 @@ MAX_FILES=48
 def safe_source_url(repository: str, folder: str, filename: str) -> str:
     if repository not in ("world","south-america"):
         raise ValueError("Unapproved source repository")
-    if not re.fullmatch(r"[a-z0-9-]+(?:/[a-z0-9-]+){1,3}",folder):
+    if not re.fullmatch(r"[a-z0-9-]+(?:/[a-z0-9-]+){0,3}",folder):
         raise ValueError("Invalid directory")
     if not re.fullmatch(r"20\d{2}(?:-(?:\d{2}|20\d{2}))?_[a-z0-9]+\.txt",filename):
         raise ValueError("Invalid filename")
