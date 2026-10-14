@@ -12,9 +12,11 @@ import unicodedata
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-MAX_FOLLOWED = 2
-MAX_AFTER_KICKOFF = timedelta(hours=20)
-PREMATCH_WINDOW = (timedelta(minutes=65), timedelta(minutes=170))
+MAX_FOLLOWED = 8
+MAX_AFTER_KICKOFF = timedelta(hours=10)
+PREMATCH_WINDOW = (timedelta(minutes=60), timedelta(minutes=120))
+TRACK_WINDOW_BEFORE = timedelta(hours=4)
+TRACK_WINDOW_AFTER = timedelta(hours=6)
 
 
 def moment(value: Any) -> datetime | None:
@@ -76,7 +78,13 @@ def selection_allowed(tracked: dict, now: datetime) -> bool:
     return len(pending(tracked, now)) < MAX_FOLLOWED
 
 
-def follow(tracked: dict, event: dict, now: datetime) -> str:
+def track(tracked: dict, event: dict, now: datetime, *, reason: str = "auto") -> str:
+    """Ajoute une rencontre au suivi technique sans exiger une publication AVANT-MATCH.
+
+    Le suivi interne et la sélection éditoriale sont volontairement découplés :
+    un gros match peut donc produire un but/carton/résultat même si aucun
+    avant-match Telegram n'a été publié.
+    """
     identifier = key(event)
     if not identifier:
         raise ValueError("Rencontre sans date ou équipes : suivi impossible")
@@ -85,8 +93,11 @@ def follow(tracked: dict, event: dict, now: datetime) -> str:
     if not selection_allowed(tracked, now):
         raise ValueError("Capacité de suivi atteinte")
     start = kickoff(event)
-    if not start or not PREMATCH_WINDOW[0] <= start - now <= PREMATCH_WINDOW[1]:
-        raise ValueError("Avant-match hors fenêtre ou coup d'envoi passé")
+    if not start:
+        raise ValueError("Suivi impossible sans heure de coup d'envoi")
+    delta = start - now.astimezone(timezone.utc)
+    if delta > TRACK_WINDOW_BEFORE or delta < -TRACK_WINDOW_AFTER:
+        raise ValueError("Rencontre hors fenêtre de suivi technique")
     tracked[identifier] = {
         "home_team": name(event, "home"),
         "away_team": name(event, "away"),
@@ -96,9 +107,21 @@ def follow(tracked: dict, event: dict, now: datetime) -> str:
         "away_logo": _logo(event, "away"),
         "bsd_id": str(event.get("id") or ""),
         "selected_at": now.astimezone(timezone.utc).isoformat(),
+        "tracking_reason": reason,
         "final_sent": False,
     }
     return identifier
+
+
+def follow(tracked: dict, event: dict, now: datetime) -> str:
+    """Compatibilité AVANT-MATCH : valide sa fenêtre puis utilise le suivi technique."""
+    identifier = key(event)
+    if identifier in tracked:
+        return identifier
+    start = kickoff(event)
+    if not start or not PREMATCH_WINDOW[0] <= start - now <= PREMATCH_WINDOW[1]:
+        raise ValueError("Avant-match hors fenêtre")
+    return track(tracked, event, now, reason="avant_match")
 
 
 def _logo(event: dict, side: str) -> str:
