@@ -517,17 +517,29 @@ function uniqueMergedStatsRows(rows:any[]){
     const key=String(row.canonical_match_id);
     const prior=byKey.get(key);
     if(!prior){byKey.set(key,row);continue;}
-    const winner=mergedStatsRowScore(row)>mergedStatsRowScore(prior)?row:prior;
+    // If duplicate provider aliases resolve to one fixture, BSD wins.
+    const rowIsBsd=Boolean(row?.merged_match_json?.raw_data?.bsd_primary_stats);
+    const priorIsBsd=Boolean(prior?.merged_match_json?.raw_data?.bsd_primary_stats);
+    const winner=priorIsBsd!==rowIsBsd
+      ? (priorIsBsd?prior:row)
+      : (mergedStatsRowScore(row)>mergedStatsRowScore(prior)?row:prior);
     const other=winner===row?prior:row;
-    const stats=mergeLiveStats(winner.merged_stats,other.merged_stats);
     const sources=[...new Set([...(winner.sources_used||[]),...(other.sources_used||[])])];
     const winnerMatch=winner.merged_match_json||{};
     const winnerRaw=winnerMatch.raw_data||{};
     const otherRaw=other.merged_match_json?.raw_data||{};
+    const bsdPrimary=winnerRaw.bsd_primary_stats||otherRaw.bsd_primary_stats;
+    const joined=mergeLiveStats(winner.merged_stats,other.merged_stats);
+    const stats=ensureLiveStatsShape(bsdPrimary
+      ? preserveBsdCoreMarketPairs(bsdPrimary,joined)
+      : joined);
+    const preferredMinute=safeNumber(winner.minute,0);
     const updatedMatch={...winnerMatch,
-      current_minute:Math.max(safeNumber(winner.minute,0),safeNumber(other.minute,0)),
+      current_minute:bsdPrimary && preferredMinute>0
+        ? preferredMinute : Math.max(preferredMinute,safeNumber(other.minute,0)),
       live_stats:stats,
       raw_data:{...winnerRaw,live_stats:stats,
+        bsd_primary_stats:bsdPrimary||undefined,
         provider_refs:{...(otherRaw.provider_refs||{}),...(winnerRaw.provider_refs||{})},
         merge_meta:{...(winnerRaw.merge_meta||{}),sources}},
     };
