@@ -1015,6 +1015,22 @@ def verify_espn_fixtures_before_publish(
                 )
 
     total = sum(len(items) for items in by_day.values())
+    if kind in {"resultat", "resultat_final"} and covered == 0:
+        confirmations = [
+            int(fixture.get("confirmation_count") or 1)
+            for items in by_day.values()
+            for fixture in items
+            if isinstance(fixture, dict)
+        ]
+        if not confirmations or max(confirmations) < 2:
+            return {
+                "ok": False,
+                "quality": 0,
+                "reason": "final_requires_two_sources_when_espn_missing",
+                "covered": 0,
+                "missing": missing,
+                "total": total,
+            }
     if contradictions:
         return {
             "ok": False,
