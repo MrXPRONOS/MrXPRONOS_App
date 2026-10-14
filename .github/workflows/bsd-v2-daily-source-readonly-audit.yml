@@ -1,0 +1,70 @@
+name: BSD V2 daily API sources - read-only audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bsd-v2-daily-source-readonly-audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            bsd/free_football_sources.py
+            data.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install public HTTP client
+        run: python -m pip install requests
+      - name: Check public providers against already-published BSD selections
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,requests
+          from datetime import datetime,timezone
+          from pathlib import Path
+          from bsd.free_football_sources import collect_free_day, _moment, _norm
+          day=datetime.now(timezone.utc).date()
+          data=json.loads(Path("data.json").read_text(encoding="utf-8"))
+          published=data.get("matches") or []
+          assert data.get("source")=="bsd" and data.get("model_version")=="bsd-v2-isolated", "Unexpected production source"
+          assert all(m.get("source")=="bsd" for m in published), "Non-BSD fixture in daily feed"
+          today=[m for m in published if str(m.get("date") or "")==day.isoformat()]
+          snaps=collect_free_day(requests.Session(),day,include_espn=True)
+          print("DAILY_AUDIT_BASE",json.dumps({"date":str(day),"daily_feed_source":data.get("source"),
+            "model_version":data.get("model_version"),"total_published_history":len(published),
+            "today_published":len(today),"bsd_id_immutable":True}))
+          for name in ("espn","sportscore","thesportsdb","openligadb"):
+            snapshot=snaps[name]
+            matches=[]
+            for m in today:
+              home=_norm(m.get("home_team"))
+              away=_norm(m.get("away_team"))
+              when=_moment(m.get("event_date"))
+              if not home or not away or when is None:continue
+              found=[]
+              for row in snapshot.rows:
+                if home!=_norm(row.get("home_team")) or away!=_norm(row.get("away_team")):continue
+                kickoff=_moment(row.get("event_date"))
+                if kickoff is not None and abs((when-kickoff).total_seconds())<=5400:
+                  found.append(row)
+              if len(found)==1:
+                matches.append(str(m.get("id")))
+            print("DAILY_AUDIT_PROVIDER",json.dumps({"provider":name,
+              "reachable":not bool(snapshot.error),
+              "fixture_count":len(snapshot.rows),
+              "exact_one_to_one_matches_with_daily_picks":len(matches),
+              "api_error_type":str(snapshot.error).split(":")[0][:65] if snapshot.error else None}))
+          print("DAILY_AUDIT_NO_SIDE_EFFECTS",json.dumps({
+            "bsd_requests":0,"supabase_writes":0,"telegram_posts":0,"business_model_modified":False}))
+          PY
