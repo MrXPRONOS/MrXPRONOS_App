@@ -12,6 +12,7 @@ Aucune source payante n'est requise par ce module.
 """
 from __future__ import annotations
 
+import hashlib
 import os
 import re
 import sys
@@ -1177,6 +1178,29 @@ def lifecycle_signals(
             explicit = raw_id.removeprefix("espn:")
         explicit = re.sub(r"[^0-9]", "", explicit)
         return explicit, espn_match_url(explicit)
+
+    def normalized_detail(ext: dict, event_id: str) -> dict:
+        if ext.get("source") == "espn":
+            return extract_match_enrichment(summary_for(event_id))
+        return provider_detail(ext)
+
+    def lineup_hash(players: list[str]) -> str:
+        normalized = "|".join(_norm(x) for x in players if _norm(x))
+        return hashlib.sha1(normalized.encode("utf-8")).hexdigest()[:16] if normalized else ""
+
+    def timeline_key(key_id: str, kind: str, row: dict) -> str:
+        raw = row.get("raw") if isinstance(row.get("raw"), dict) else {}
+        provider_id = _plain(raw.get("id") or raw.get("event_id") or row.get("id"))
+        minute_value = row.get("minute_total")
+        if minute_value is None:
+            minute_value = row.get("minute")
+        player = _norm(
+            row.get("player") or row.get("entrant") or row.get("sortant")
+            or " ".join(str(x) for x in (row.get("players") or []))
+        ).replace(" ", "-")[:44]
+        if provider_id:
+            return f"{kind}:{key_id}:{provider_id}"
+        return f"{kind}:{key_id}:{minute_value if minute_value is not None else 'x'}:{player or 'unknown'}"
 
     for base in base_events:
         signal_start = len(signals)
