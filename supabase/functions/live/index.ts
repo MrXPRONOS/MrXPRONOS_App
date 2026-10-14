@@ -5883,6 +5883,67 @@ async function getRecentActuFootEvents(maxAgeSeconds = 6 * 3600) {
 }
 
 
+async function getCanonicalActuFootEvents(sinceIso: string) {
+  const { data, error } = await supabase
+    .from("actu_foot_live_events")
+    .select("event_key,fixture_key,match_id,kind,priority_class,event_minute,score,home_team,away_team,league_name,provider_event_id,sources,payload,first_seen_at,last_seen_at,event_at")
+    .eq("confirmed", true)
+    .gte("last_seen_at", sinceIso)
+    .order("last_seen_at", { ascending: false })
+    .limit(1000);
+
+  if (error) {
+    console.warn("actu_foot_live_events unavailable:", error.message);
+    return [];
+  }
+  return Array.isArray(data) ? data : [];
+}
+
+function canonicalEventMatchesLiveMatch(event: any, rowId: string, base: any) {
+  const eventMatchId = String(event?.match_id || "").trim();
+  const currentId = String(rowId || base?.id || "").trim();
+  if (eventMatchId && currentId) {
+    if (
+      eventMatchId === currentId ||
+      currentId === `espn:${eventMatchId}` ||
+      eventMatchId === `espn:${currentId}`
+    ) return true;
+  }
+
+  const eh = normalizeTeamKey(event?.home_team);
+  const ea = normalizeTeamKey(event?.away_team);
+  const mh = normalizeTeamKey(base?.home_team);
+  const ma = normalizeTeamKey(base?.away_team);
+  if (!eh || !ea || eh !== mh || ea !== ma) return false;
+
+  const matchDate = new Date(getMatchEventDate(base) || 0).getTime();
+  const eventDate = new Date(event?.event_at || event?.last_seen_at || 0).getTime();
+  if (Number.isFinite(matchDate) && matchDate > 0 && Number.isFinite(eventDate) && eventDate > 0) {
+    return Math.abs(eventDate - matchDate) <= 8 * 3600_000;
+  }
+  return true;
+}
+
+function canonicalEventToUi(row: any) {
+  const payload = row?.payload && typeof row.payload === "object" ? row.payload : {};
+  return {
+    ...payload,
+    event_key: row?.event_key,
+    fixture_key: row?.fixture_key,
+    match_id: row?.match_id,
+    kind: row?.kind || payload?.kind,
+    priority_class: row?.priority_class || payload?.priority_class,
+    minute: row?.event_minute ?? payload?.minute ?? null,
+    event_minute: row?.event_minute ?? payload?.minute ?? null,
+    score: row?.score ?? payload?.score ?? null,
+    sources: Array.isArray(row?.sources) ? row.sources : [],
+    provider_event_id: row?.provider_event_id ?? payload?.provider_event_id ?? null,
+    first_seen_at: row?.first_seen_at,
+    last_seen_at: row?.last_seen_at,
+    event_at: row?.event_at,
+  };
+}
+
 async function getLiveMatchesFromDb(maxAgeSeconds = 240) {
   const since = new Date(Date.now() - maxAgeSeconds * 1000).toISOString();
 
