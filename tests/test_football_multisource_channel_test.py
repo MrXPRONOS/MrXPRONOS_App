@@ -1,7 +1,8 @@
 import unittest
 from datetime import datetime,timezone
 from scripts.football_cc0_calendar_verification import corroborate,download_schedules
-from scripts.football_multisource_channel_test import build,test_post
+from scripts.football_multisource_channel_test import build,test_post,audit_no_quote_gate
+from scripts.football_external_bsd_v2_adapter import normalize_history,adapt_daily
 
 AT=datetime(2026,10,14,17,tzinfo=timezone.utc)
 
@@ -62,6 +63,38 @@ class OpenScheduleAndTelegramTests(unittest.TestCase):
         self.assertEqual(messages,[])
         self.assertEqual(report["calibrated_production_coupons"],0)
         self.assertTrue(report["no_odds_invented"])
+        self.assertEqual(report["no_bookmaker_quote_gate"]["accepted_with_no_bookmaker_quotes"],0)
+
+    def test_original_bsd_v2_require_odds_rejects_unpriced_known_fixture(self):
+        history=[]
+        for i in range(1,8):
+            for team,suffix in (("Arsenal","A"),("Chelsea","C")):
+                history.append({
+                    "source":"openfootball","source_id":f"{team}-{i}",
+                    "status":"finished","match_date":f"2026-09-{i:02d}",
+                    "league":"Premier League",
+                    "home_team":team,"away_team":f"Opponent {suffix}{i}",
+                    "home_score":2,"away_score":1,
+                })
+        archived,_=normalize_history(history)
+        upcoming=fixture(
+            league_labels=["Premier League"],league_verified=True,
+            _schedule_verified_by="openfootball_cc0")
+        ready,coverage=adapt_daily([upcoming],archived,as_of=AT)
+        self.assertEqual(coverage["ready_for_unchanged_core"],1)
+        guarded=audit_no_quote_gate(ready,archived,at=AT)
+        self.assertEqual(guarded["fixtures_checked"],1)
+        self.assertEqual(guarded["accepted_with_no_bookmaker_quotes"],0)
+        self.assertGreater(guarded["missing_or_low_odds_market_rejections"],0)
+        self.assertTrue(guarded["used_original_predict_v2"])
+        self.assertFalse(guarded["full_publication_policy_checked"])
+        self.assertFalse(guarded["publication_enabled"])
+
+    def test_empty_audit_never_claims_any_qualified_prices(self):
+        guarded=audit_no_quote_gate([],[],at=AT)
+        self.assertEqual(guarded["accepted_with_no_bookmaker_quotes"],0)
+        self.assertEqual(guarded["fixtures_checked"],0)
+        self.assertFalse(guarded["actual_bookmaker_quotes_supplied"])
 
     def test_test_channel_sends_diagnostic_only_when_no_v2_pick(self):
         payloads=[]
