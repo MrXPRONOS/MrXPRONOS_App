@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T19:27:10+00:00",
+    "published": "2026-10-14T19:37:37+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -190,7 +190,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -252,7 +252,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -311,7 +311,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -374,7 +374,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -501,7 +501,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -708,7 +708,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -819,6 +819,75 @@
       "RFI"
     ],
     "quality_score": 86
+  },
+  {
+    "slug": "7628f643096931ac",
+    "title": "DIRECT. Manchester City-PSG : Vitinha s'invite au festival et permet à Paris de s'envoler ! Suivez le match de Ligue des champions avec nous",
+    "summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "summary_short": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "content": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "paragraphs": [
+      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
+    ],
+    "key_points": [
+      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
+    ],
+    "telegram_summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
+    "published": "2026-10-14T19:36:42+00:00",
+    "image": "assets/images/footnews/7628f643096931ac.webp",
+    "source_image": "https://www.franceinfo.fr/pictures/onknyw5hM1jztQUmIBKCAWjybCI/0x0:6744x3793/432x243/filters:format(jpg)/2026/10/14/6acfd700864bb967200256.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Franceinfo"
+    ],
+    "quality_score": 82
+  },
+  {
+    "slug": "430560262b76d907",
+    "title": "PSG : Ousmane Dembélé et Désiré Doué mettent Manchester City KO",
+    "summary": "Le Paris Saint-Germain peut être chahuté, mais le double champion d’Europe en titre reste une machine à tuer ses adversaires en contre. Ce soir, Manchester City est en train de l’apprendre à ses (…)",
+    "summary_short": "Le Paris Saint-Germain peut être chahuté, mais le double champion d’Europe en titre reste une machine à tuer ses adversaires en contre. Ce soir, Manchester City est en train de l’apprendre à ses (…)",
+    "content": "Le Paris Saint-Germain peut être chahuté, mais le double champion d’Europe en titre reste une machine à tuer ses adversaires en contre. Ce soir, Manchester City est en train de l’apprendre à ses (…)",
+    "paragraphs": [
+      "Le Paris Saint-Germain peut être chahuté, mais le double champion d’Europe en titre reste une machine à tuer ses adversaires en contre. Ce soir, Manchester City est en train de l’apprendre à ses (…)"
+    ],
+    "key_points": [
+      "Le Paris Saint-Germain peut être chahuté, mais le double champion d’Europe en titre reste une machine à tuer ses adversaires en contre.",
+      "Ce soir, Manchester City est en train de l’apprendre à ses (…)"
+    ],
+    "telegram_summary": "Le Paris Saint-Germain peut être chahuté, mais le double champion d’Europe en titre reste une machine à tuer ses adversaires en contre. Ce soir, Manchester City est en train de l’apprendre à ses (…)",
+    "link": "https://www.footmercato.net/a3495330675019333762-psg-ousmane-dembele-et-desire-doue-mettent-manchester-city-ko",
+    "source_url": "https://www.footmercato.net/a3495330675019333762-psg-ousmane-dembele-et-desire-doue-mettent-manchester-city-ko",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=430560262b76d907",
+    "published": "2026-10-14T19:35:42+00:00",
+    "image": "assets/images/footnews/430560262b76d907.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dembele-liverpool-psg-2026-2.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
   },
   {
     "slug": "7c35fffbe216dcd5",
@@ -945,7 +1014,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1045,7 +1114,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1086,40 +1155,6 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "7628f643096931ac",
-    "title": "DIRECT. Manchester City-PSG : l'ouverture du score de Doué et le break dans la foulée pour Dembélé ! Suivez le match de Ligue des champions avec nous",
-    "summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
-    "summary_short": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
-    "content": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
-    "paragraphs": [
-      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
-    ],
-    "key_points": [
-      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
-    ],
-    "telegram_summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
-    "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
-    "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
-    "published": "2026-10-14T19:25:11+00:00",
-    "image": "assets/images/footnews/7628f643096931ac.webp",
-    "source_image": "https://www.franceinfo.fr/pictures/onknyw5hM1jztQUmIBKCAWjybCI/0x0:6744x3793/432x243/filters:format(jpg)/2026/10/14/6acfd700864bb967200256.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Franceinfo",
-    "source_priority": 82,
-    "source_region": "international",
-    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Franceinfo"
-    ],
-    "quality_score": 82
   },
   {
     "slug": "178f3b130b5c245f",
@@ -1244,7 +1279,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1336,7 +1371,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1463,7 +1498,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1560,7 +1595,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1720,7 +1755,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -1819,7 +1854,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1881,7 +1916,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1974,7 +2009,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2067,7 +2102,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -2129,7 +2164,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2345,7 +2380,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:35:34.086545+00:00"
+      "checked_at": "2026-10-14T19:40:26.527462+00:00"
     },
     "quality_sources": [
       "RFI",
@@ -2454,41 +2489,6 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "578c74c8612606d6",
-    "title": "Saudi Pro League : le choc entre Al-Ahli et Al-Nassr reporté sur fond de guerre au Moyen-Orient",
-    "summary": "Le football saoudien subit les conséquences de l’escalade militaire au Moyen-Orient. Alors que la guerre contre les Houthis provoque de vives inquiétudes dans la région, notamment après des tirs de (…)",
-    "summary_short": "Le football saoudien subit les conséquences de l’escalade militaire au Moyen-Orient. Alors que la guerre contre les Houthis provoque de vives inquiétudes dans la région, notamment après des tirs de (…)",
-    "content": "Le football saoudien subit les conséquences de l’escalade militaire au Moyen-Orient. Alors que la guerre contre les Houthis provoque de vives inquiétudes dans la région, notamment après des tirs de (…)",
-    "paragraphs": [
-      "Le football saoudien subit les conséquences de l’escalade militaire au Moyen-Orient. Alors que la guerre contre les Houthis provoque de vives inquiétudes dans la région, notamment après des tirs de (…)"
-    ],
-    "key_points": [
-      "Le football saoudien subit les conséquences de l’escalade militaire au Moyen-Orient.",
-      "Alors que la guerre contre les Houthis provoque de vives inquiétudes dans la région, notamment après des tirs de (…)"
-    ],
-    "telegram_summary": "Le football saoudien subit les conséquences de l’escalade militaire au Moyen-Orient. Alors que la guerre contre les Houthis provoque de vives inquiétudes dans la région, notamment après des tirs de (…)",
-    "link": "https://www.footmercato.net/a938218952375501999-saudi-pro-league-le-choc-entre-al-ahli-et-al-nassr-reporte-sur-fond-de-guerre-au-moyen-orient",
-    "source_url": "https://www.footmercato.net/a938218952375501999-saudi-pro-league-le-choc-entre-al-ahli-et-al-nassr-reporte-sur-fond-de-guerre-au-moyen-orient",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=578c74c8612606d6",
-    "published": "2026-10-14T16:45:48+00:00",
-    "image": "assets/images/footnews/578c74c8612606d6.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/cristiano-ronaldo-6ac94a5c5236f.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   },
   {
     "slug": "ef0178de1ea71892",
