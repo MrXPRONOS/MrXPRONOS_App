@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T19:22:03+00:00",
+    "published": "2026-10-14T19:27:10+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -156,7 +156,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:25:34.603478+00:00"
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -218,7 +218,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:25:34.603478+00:00"
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -277,7 +277,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:25:34.603478+00:00"
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -340,7 +340,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:25:34.603478+00:00"
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -467,7 +467,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:25:34.603478+00:00"
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -674,7 +674,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:25:34.603478+00:00"
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -787,6 +787,140 @@
     "quality_score": 86
   },
   {
+    "slug": "3afc78d048ebe4cb",
+    "title": "Liverpool : Bradley Barcola sort enfin la tête de l’eau !",
+    "summary": "Après des débuts particulièrement compliqués sous les couleurs de Liverpool, Bradley Barcola a enfin lancé son aventure anglaise. Auteur d’un triplé retentissant face au LASK en Ligue des Champions, (…)",
+    "summary_short": "Après des débuts particulièrement compliqués sous les couleurs de Liverpool, Bradley Barcola a enfin lancé son aventure anglaise. Auteur d’un triplé retentissant face au LASK en Ligue des Champions, (…)",
+    "content": "Après des débuts particulièrement compliqués sous les couleurs de Liverpool, Bradley Barcola a enfin lancé son aventure anglaise. Auteur d’un triplé retentissant face au LASK en Ligue des Champions, (…)",
+    "paragraphs": [
+      "Après des débuts particulièrement compliqués sous les couleurs de Liverpool, Bradley Barcola a enfin lancé son aventure anglaise. Auteur d’un triplé retentissant face au LASK en Ligue des Champions, (…)"
+    ],
+    "key_points": [
+      "Après des débuts particulièrement compliqués sous les couleurs de Liverpool, Bradley Barcola a enfin lancé son aventure anglaise.",
+      "Auteur d’un triplé retentissant face au LASK en Ligue des Champions, (…)"
+    ],
+    "telegram_summary": "Après des débuts particulièrement compliqués sous les couleurs de Liverpool, Bradley Barcola a enfin lancé son aventure anglaise. Auteur d’un triplé retentissant face au LASK en Ligue des Champions, (…)",
+    "link": "https://www.footmercato.net/a8146742187926195700-liverpool-bradley-barcola-sort-enfin-la-tete-de-leau",
+    "source_url": "https://www.footmercato.net/a8146742187926195700-liverpool-bradley-barcola-sort-enfin-la-tete-de-leau",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3afc78d048ebe4cb",
+    "published": "2026-10-14T19:28:00+00:00",
+    "image": "assets/images/footnews/3afc78d048ebe4cb.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine394680-1920x1080.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "49750588",
+      "url": "https://www.espn.com/soccer/story/_/id/49750588/bradley-barcola-joins-liverpool-123-million-move-paris-saint-germain",
+      "published": "2026-08-31T14:07:18Z",
+      "score": 0.231,
+      "matched_terms": [
+        "barcola",
+        "bradley",
+        "liverpool"
+      ],
+      "topics": [
+        "news",
+        "soccer transfers"
+      ],
+      "teams": [
+        "Liverpool",
+        "Paris Saint-Germain"
+      ],
+      "athletes": [
+        "Bradley Barcola"
+      ],
+      "leagues": [
+        "English Premier League",
+        "French Ligue 1",
+        "Soccer"
+      ],
+      "is_transfer": true,
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
+    "slug": "c6cf9f48995dd85f",
+    "title": "LDC : Manchester City - PSG : en 120 secondes, Paris en colle deux aux Skyblues et se met déjà à l'abris ! (vidéo)",
+    "summary": "Le PSG mène déjà 2-0 face à Manchester City (J2 Ligue des Champions) grâce à des buts de Désiré Doué (13ème) et d'Ousmane Dembélé (15ème).",
+    "summary_short": "Le PSG mène déjà 2-0 face à Manchester City (J2 Ligue des Champions) grâce à des buts de Désiré Doué (13ème) et d'Ousmane Dembélé (15ème).",
+    "content": "Le PSG mène déjà 2-0 face à Manchester City (J2 Ligue des Champions) grâce à des buts de Désiré Doué (13ème) et d'Ousmane Dembélé (15ème).",
+    "paragraphs": [
+      "Le PSG mène déjà 2-0 face à Manchester City (J2 Ligue des Champions) grâce à des buts de Désiré Doué (13ème) et d'Ousmane Dembélé (15ème)."
+    ],
+    "key_points": [
+      "Le PSG mène déjà 2-0 face à Manchester City (J2 Ligue des Champions) grâce à des buts de Désiré Doué (13ème) et d'Ousmane Dembélé (15ème)."
+    ],
+    "telegram_summary": "Le PSG mène déjà 2-0 face à Manchester City (J2 Ligue des Champions) grâce à des buts de Désiré Doué (13ème) et d'Ousmane Dembélé (15ème).",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ldc-manchester-city-psg-en-120-secondes-paris-en-colle-deux-aux-skyblues-et-se-met-deja-a-l-abris-video-542234.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-manchester-city-psg-en-120-secondes-paris-en-colle-deux-aux-skyblues-et-se-met-deja-a-l-abris-video-542234.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c6cf9f48995dd85f",
+    "published": "2026-10-14T19:26:00+00:00",
+    "image": "assets/images/footnews/c6cf9f48995dd85f.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20260408212238-3509.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "7628f643096931ac",
+    "title": "DIRECT. Manchester City-PSG : l'ouverture du score de Doué et le break dans la foulée pour Dembélé ! Suivez le match de Ligue des champions avec nous",
+    "summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "summary_short": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "content": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "paragraphs": [
+      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
+    ],
+    "key_points": [
+      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
+    ],
+    "telegram_summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
+    "published": "2026-10-14T19:25:11+00:00",
+    "image": "assets/images/footnews/7628f643096931ac.webp",
+    "source_image": "https://www.franceinfo.fr/pictures/onknyw5hM1jztQUmIBKCAWjybCI/0x0:6744x3793/432x243/filters:format(jpg)/2026/10/14/6acfd700864bb967200256.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Franceinfo"
+    ],
+    "quality_score": 82
+  },
+  {
     "slug": "178f3b130b5c245f",
     "title": "Ligue Europa, OM : l’Olympiakos annule les billets achetés par ses supporters",
     "summary": "L’Olympiakos ne digère pas. Interdits de déplacement, puis finalement autorisés à se rendre au CEPAC Vélodrome pour le match de Ligue Europa face à l’OM, les supporters grecs ont vu leur club s’en (…)",
@@ -819,40 +953,6 @@
       "Foot Mercato"
     ],
     "quality_score": 92
-  },
-  {
-    "slug": "7628f643096931ac",
-    "title": "DIRECT. Manchester City-PSG : l'ouverture du score de Désiré Doué et le break déjà pour Ousmane Dembélé ! Suivez le match de Ligue des champions avec nous",
-    "summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
-    "summary_short": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
-    "content": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
-    "paragraphs": [
-      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
-    ],
-    "key_points": [
-      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
-    ],
-    "telegram_summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
-    "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
-    "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
-    "published": "2026-10-14T19:22:03+00:00",
-    "image": "assets/images/footnews/7628f643096931ac.webp",
-    "source_image": "https://www.franceinfo.fr/pictures/BKUU7M0ahDdkOj3-O9bTAXxuKBc/0x0:1024x576/432x243/filters:format(jpg)/2026/10/14/6acf8fa0ad0a1270898331.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Franceinfo",
-    "source_priority": 82,
-    "source_region": "international",
-    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Franceinfo"
-    ],
-    "quality_score": 82
   },
   {
     "slug": "6d9f5f8bd1af5f11",
@@ -943,7 +1043,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:25:34.603478+00:00"
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1033,7 +1133,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:25:34.603478+00:00"
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1160,7 +1260,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:25:34.603478+00:00"
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1257,7 +1357,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:25:34.603478+00:00"
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1417,7 +1517,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:25:34.603478+00:00"
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -1516,7 +1616,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:25:34.603478+00:00"
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1578,7 +1678,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T19:25:34.603478+00:00"
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1671,7 +1771,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:25:34.603478+00:00"
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1764,7 +1864,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:25:34.603478+00:00"
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1826,7 +1926,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:25:34.603478+00:00"
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2042,7 +2142,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:25:34.603478+00:00"
+      "checked_at": "2026-10-14T19:30:29.039346+00:00"
     },
     "quality_sources": [
       "RFI",
@@ -2358,41 +2458,6 @@
     "quality_score": 88
   },
   {
-    "slug": "1250680be05854aa",
-    "title": "Arsenal dévoile la photo de son effectif… sans William Saliba",
-    "summary": "Drôle de moment choisi par Arsenal pour prendre la photo de tout son effectif de la saison. Le club anglais a publié ce mercredi la traditionnelle photo de groupe mais un joueur manquait à l’appel : (…)",
-    "summary_short": "Drôle de moment choisi par Arsenal pour prendre la photo de tout son effectif de la saison. Le club anglais a publié ce mercredi la traditionnelle photo de groupe mais un joueur manquait à l’appel : (…)",
-    "content": "Drôle de moment choisi par Arsenal pour prendre la photo de tout son effectif de la saison. Le club anglais a publié ce mercredi la traditionnelle photo de groupe mais un joueur manquait à l’appel : (…)",
-    "paragraphs": [
-      "Drôle de moment choisi par Arsenal pour prendre la photo de tout son effectif de la saison. Le club anglais a publié ce mercredi la traditionnelle photo de groupe mais un joueur manquait à l’appel : (…)"
-    ],
-    "key_points": [
-      "Drôle de moment choisi par Arsenal pour prendre la photo de tout son effectif de la saison.",
-      "Le club anglais a publié ce mercredi la traditionnelle photo de groupe mais un joueur manquait à l’appel : (…)"
-    ],
-    "telegram_summary": "Drôle de moment choisi par Arsenal pour prendre la photo de tout son effectif de la saison. Le club anglais a publié ce mercredi la traditionnelle photo de groupe mais un joueur manquait à l’appel : (…)",
-    "link": "https://www.footmercato.net/a2119662961891603527-arsenal-publie-la-photo-de-son-effectif-sans-saliba",
-    "source_url": "https://www.footmercato.net/a2119662961891603527-arsenal-publie-la-photo-de-son-effectif-sans-saliba",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1250680be05854aa",
-    "published": "2026-10-14T16:02:31+00:00",
-    "image": "assets/images/footnews/1250680be05854aa.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/arsenal-titre.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
     "slug": "79d089b5598b5a24",
     "title": "Youth League : Le PSG réalise un gros coup !",
     "summary": "Le Paris Saint-Germain a signé une belle performance sur la pelouse de Manchester City (2-0) à l'occasion de la deuxième journée de Youth League. Une victoire convaincante qui permet aux jeunes Parisiens de poursuivre leur campagne européenne sur une excellente dynamique.",
@@ -2562,39 +2627,5 @@
       "Onze Mondial"
     ],
     "quality_score": 80
-  },
-  {
-    "slug": "efb70c6a1b7b2cfd",
-    "title": "OM : Marseille a procédé à un changement majeur tout en haut de sa direction",
-    "summary": "Jeff Ingram, président du conseil de surveillance de l'OM depuis novembre 2024, a quitté son poste et est parti à la retraite.",
-    "summary_short": "Jeff Ingram, président du conseil de surveillance de l'OM depuis novembre 2024, a quitté son poste et est parti à la retraite.",
-    "content": "Jeff Ingram, président du conseil de surveillance de l'OM depuis novembre 2024, a quitté son poste et est parti à la retraite.",
-    "paragraphs": [
-      "Jeff Ingram, président du conseil de surveillance de l'OM depuis novembre 2024, a quitté son poste et est parti à la retraite."
-    ],
-    "key_points": [
-      "Jeff Ingram, président du conseil de surveillance de l'OM depuis novembre 2024, a quitté son poste et est parti à la retraite."
-    ],
-    "telegram_summary": "Jeff Ingram, président du conseil de surveillance de l'OM depuis novembre 2024, a quitté son poste et est parti à la retraite.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-om-marseille-a-procede-a-un-changement-majeur-tout-en-haut-de-sa-direction-542198.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-om-marseille-a-procede-a-un-changement-majeur-tout-en-haut-de-sa-direction-542198.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=efb70c6a1b7b2cfd",
-    "published": "2026-10-14T15:15:00+00:00",
-    "image": "assets/images/footnews/efb70c6a1b7b2cfd.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260414114234-7947.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
   }
 ]
