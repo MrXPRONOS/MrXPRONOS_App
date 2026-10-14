@@ -1,6 +1,7 @@
 import unittest
 from datetime import datetime,timezone,timedelta
 from scripts.football_multisource_calibrated_replay import model_index_partition,replay
+from bsd.bsd_v2_publish import assemble as original_assembler
 
 def when(stamp):
     return datetime.fromisoformat(stamp.replace("Z","+00:00"))
@@ -33,6 +34,17 @@ class CalibratedReplayIsolationTests(unittest.TestCase):
         self.assertNotIn("today",[x["id"] for x in train])
         self.assertIn("yesterday",[x["id"] for x in train])
         self.assertIn("today",[x["id"] for x in observed])
+
+    def test_real_production_assembler_can_run_offline_with_zero_fixtures(self):
+        now=when("2026-10-14T20:00:00Z")
+        original_existing={"matches":[],"performance_tracker":{}}
+        output=original_assembler(
+            original_existing,[],[],now=now,calibration=None,
+            policy=None,rho=0.,odds_fetcher=None,max_odds_requests=0)
+        self.assertEqual(output["matches"],[])
+        self.assertEqual(output["diagnostics"]["rejections"].get("odds_attempts",0),0)
+        self.assertEqual(output["diagnostics"]["v21_new_picks"],0)
+        self.assertEqual(original_existing,{"matches":[],"performance_tracker":{}})
 
     def test_invalid_time_window_and_unbounded_holdout_rejected(self):
         with self.assertRaises(ValueError):
