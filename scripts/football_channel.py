@@ -381,10 +381,14 @@ class History:
         self.path = path
         self.items: dict[str, dict[str, str]] = {}
         self.followed: dict[str, dict] = {}
+        self.observations: dict[str, str] = {}
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
             entries = payload.get("sent", {}) if isinstance(payload, dict) else {}
             tracked = payload.get("followed", {}) if isinstance(payload, dict) else {}
+            observations = payload.get("observations", {}) if isinstance(payload, dict) else {}
+            if isinstance(observations, dict):
+                self.observations = {str(k): str(v) for k, v in observations.items() if v}
             if isinstance(tracked, dict):
                 self.followed = {str(k): v for k, v in tracked.items() if isinstance(v, dict)}
             if isinstance(entries, dict):
@@ -409,6 +413,16 @@ class History:
         self.items[key] = {"category": category, "day": now.astimezone(TZ).date().isoformat(),
                            "at": now.isoformat()}
 
+    def first_observed(self, key: str, now: datetime) -> datetime:
+        current = moment(self.observations.get(key))
+        if current is not None:
+            return current
+        self.observations[key] = now.isoformat()
+        return now
+
+    def clear_observation(self, key: str) -> None:
+        self.observations.pop(key, None)
+
     def save(self, now: datetime) -> None:
         since = now - timedelta(days=32)
         compact = {k: v for k, v in self.items.items()
@@ -417,8 +431,13 @@ class History:
         fd, tmp = tempfile.mkstemp(prefix="football-", suffix=".json", dir=self.path.parent)
         try:
             with os.fdopen(fd, "w", encoding="utf-8") as handle:
-                json.dump({"version": 2, "sent": compact,
-                       "followed": followup.active(self.followed, now)},
+                observations = {
+                    k: v for k, v in self.observations.items()
+                    if (moment(v) or now) >= now - timedelta(hours=8)
+                }
+                json.dump({"version": 3, "sent": compact,
+                       "followed": followup.active(self.followed, now),
+                       "observations": observations},
                       handle, ensure_ascii=False, indent=2)
             os.replace(tmp, self.path)
         finally:
