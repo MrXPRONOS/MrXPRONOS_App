@@ -33,7 +33,9 @@ TEMPLATES = {
 }
 
 TEMPLATE_SIZES = {
-    "composition": (1080, 1350),
+    # Les 3 cartes éditoriales historiques restent en 1080x1080.
+    # Le nouveau template Compositions officielles conserve son format natif.
+    "composition": (1374, 1145),
     **{name: (1080, 1350) for name in ("kickoff", "goal", "mi_temps", "score_update", "statistique_avancee", "community_vote", "quiz", "debat", "reaction", "suivi_interrompu")},
 }
 
@@ -114,20 +116,32 @@ POLL_OPTION_BOXES = (
 POLL_ICON_CENTERS = ((155, 534), (155, 660), (155, 786))
 POLL_DATE_BOX = (470, 864, 670, 912)
 
-# Template compositions officielles, conservé dans son ratio natif 1374 x 1145.
-COMPOSITION_HOME_LOGO = (312, 369)
-COMPOSITION_AWAY_LOGO = (1025, 369)
-COMPOSITION_HOME_NAME = (83, 449, 590, 516)
-COMPOSITION_AWAY_NAME = (783, 449, 1290, 516)
-COMPOSITION_COMPETITION_BOX = (510, 220, 764, 278)
-COMPOSITION_TIME_BOX = (795, 220, 948, 278)
-COMPOSITION_HOME_LIST = (82, 536, 590, 1042)
-COMPOSITION_AWAY_LIST = (783, 536, 1291, 1042)
-COMPOSITION_SOURCE_BOX = (78, 1080, 270, 1122)
+# Nouveau template Compositions officielles natif 1374 x 1145.
+# Les coordonnées ci-dessous ont été remesurées sur le fond 11 lignes.
+COMPOSITION_HOME_LOGO = (343, 381)
+COMPOSITION_AWAY_LOGO = (1029, 381)
+COMPOSITION_HOME_NAME = (92, 454, 594, 511)
+COMPOSITION_AWAY_NAME = (766, 454, 1274, 511)
+COMPOSITION_COMPETITION_BOX = (516, 224, 741, 274)
+COMPOSITION_TIME_BOX = (786, 224, 910, 274)
+COMPOSITION_SOURCE_BOX = (78, 1073, 214, 1112)
+
+# Les numéros 1..11 et les cadres sont déjà imprimés dans le template.
+# Le renderer écrit uniquement les noms des joueurs dans ces zones.
+COMPOSITION_HOME_PLAYER_X = (158, 586)
+COMPOSITION_AWAY_PLAYER_X = (860, 1288)
 COMPOSITION_ROWS = tuple(
-    (536 + index * 46, 578 + index * 46)
+    (532 + index * 46, 577 + index * 46)
     for index in range(11)
 )
+
+# Zones contenant uniquement les placeholders texte du fond source.
+# Elles sont effacées par reconstruction du fond (pas par rectangles).
+COMPOSITION_ERASE_HOME_NAME = (174, 458, 514, 507)
+COMPOSITION_ERASE_AWAY_NAME = (860, 458, 1206, 507)
+COMPOSITION_ERASE_COMPETITION = (510, 226, 741, 273)
+COMPOSITION_ERASE_TIME = (782, 226, 914, 273)
+COMPOSITION_ERASE_SOURCE = (76, 1072, 220, 1113)
 
 
 def clean(value: Any) -> str:
@@ -536,14 +550,15 @@ def _blend_erase_text(
     patch = Image.new("RGB", (width, height))
     pd = ImageDraw.Draw(patch)
 
+    image_w, image_h = src.size
     for row in range(height):
-        yy = min(max(y1 + row, 0), H - 1)
+        yy = min(max(y1 + row, 0), image_h - 1)
         left_x1 = max(0, x1 - sample_px)
         left_x2 = max(left_x1 + 1, x1 - 2)
-        right_x1 = min(W - 1, x2 + 2)
-        right_x2 = min(W, x2 + sample_px)
+        right_x1 = min(image_w - 1, x2 + 2)
+        right_x2 = min(image_w, x2 + sample_px)
         if right_x2 <= right_x1:
-            right_x1, right_x2 = min(W - 2, x2), min(W, x2 + 2)
+            right_x1, right_x2 = min(image_w - 2, x2), min(image_w, x2 + 2)
 
         left_crop = src.crop((left_x1, yy, left_x2, yy + 1))
         right_crop = src.crop((right_x1, yy, right_x2, yy + 1))
@@ -673,18 +688,12 @@ def _draw_form_side(
         return
 
     draw = ImageDraw.Draw(image)
-    colors = {"V": "#2FD66C", "N": "#D6DEE7", "D": "#F24D5D"}
+    # Les cercles de forme sont natifs au template Avant-match.
+    # Aucune forme ni fond n'est redessiné: seule la donnée V/N/D est posée.
     for index, center in enumerate(centers):
         verdict = verdicts[index] if index < len(verdicts) else ""
         if not verdict:
             continue
-        radius = 22
-        draw.ellipse(
-            (center[0] - radius, center[1] - radius, center[0] + radius, center[1] + radius),
-            fill="#071A29",
-            outline=colors.get(verdict, GREY),
-            width=3,
-        )
         draw.text(center, verdict, font=_font(16, True), fill=WHITE, anchor="mm")
 
     if points:
@@ -1095,57 +1104,34 @@ def _flash_editorial_illustration(dimensions: tuple[int, int], title: str = "") 
     return art
 
 
-def _draw_lineup_rows(
+def _draw_lineup_players(
     image: Image.Image,
     players: list[str],
-    panel_box: tuple[int, int, int, int],
+    player_x: tuple[int, int],
 ) -> None:
-    """Redessine 11 lignes propres par-dessus les 9 placeholders du PNG source."""
+    """Écrit uniquement les 11 noms dans les lignes natives du template."""
     draw = ImageDraw.Draw(image)
-    x1, _, x2, _ = panel_box
-
-    # Efface seulement l'intérieur des anciennes lignes, en préservant le cadre externe.
-    draw.rounded_rectangle(panel_box, radius=8, fill="#061A2E")
-
+    x1, x2 = player_x
     for index, (top, bottom) in enumerate(COMPOSITION_ROWS):
-        row_box = (x1, top, x2, bottom)
-        draw.rounded_rectangle(
-            row_box,
-            radius=9,
-            fill="#071D31",
-            outline="#617181",
-            width=1,
+        player = clean(players[index]) if index < len(players) else ""
+        if not player:
+            continue
+        preferred = _preferred_size_by_chars(
+            player,
+            ((18, 22), (24, 20), (31, 18), (38, 16)),
+            15,
         )
-        number_right = x1 + 66
-        draw.line((number_right, top + 1, number_right, bottom - 1), fill="#536879", width=1)
         draw_single_line(
             draw,
-            str(index + 1),
-            (x1 + 8, top + 2, number_right - 5, bottom - 2),
-            preferred_size=22,
-            min_size=17,
+            player,
+            (x1, top + 2, x2, bottom - 2),
+            preferred_size=preferred,
+            min_size=14,
             bold=True,
-            fill=GOLD,
-            max_chars=2,
+            fill=WHITE,
+            max_chars=46,
+            align="left",
         )
-        player = clean(players[index]) if index < len(players) else ""
-        if player:
-            preferred = _preferred_size_by_chars(
-                player,
-                ((18, 22), (24, 20), (31, 18), (38, 16)),
-                15,
-            )
-            draw_single_line(
-                draw,
-                player,
-                (number_right + 8, top + 2, x2 - 8, bottom - 2),
-                preferred_size=preferred,
-                min_size=14,
-                bold=True,
-                fill=WHITE,
-                max_chars=46,
-                align="left",
-            )
 
 
 def render_composition(payload: dict[str, Any]) -> Image.Image:
@@ -1166,38 +1152,29 @@ def render_composition(payload: dict[str, Any]) -> Image.Image:
     if not home_logo or not away_logo:
         raise ValueError("Composition officielle sans les deux logos")
 
-    # Les anciens placeholders équipe/compétition/heure sont masqués localement,
-    # sans redessiner le branding, le stade, les cadres ou le VS du template.
-    _local_dark_patch(image, (93, 451, 577, 514), radius=12, fill="#071D31")
-    _local_dark_patch(image, (793, 451, 1277, 514), radius=12, fill="#071D31")
-    _local_dark_patch(image, (505, 220, 765, 278), radius=4, fill="#071A29")
-    _local_dark_patch(image, (792, 220, 949, 278), radius=4, fill="#071A29")
+    # Le nouveau fond contient déjà les 11 lignes, les colonnes de numéros,
+    # les cercles logos, le VS et tous les cadres. On ne redessine rien.
+    # Seuls les textes placeholders sont effacés par interpolation locale.
+    for box in (
+        COMPOSITION_ERASE_HOME_NAME,
+        COMPOSITION_ERASE_AWAY_NAME,
+        COMPOSITION_ERASE_COMPETITION,
+        COMPOSITION_ERASE_TIME,
+        COMPOSITION_ERASE_SOURCE,
+    ):
+        _blend_erase_text(image, box, sample_px=12, feather=7)
 
-    draw_multiline(
-        draw,
-        home,
-        COMPOSITION_HOME_NAME,
-        preferred_size=32,
-        min_size=18,
-        max_lines=2,
-        bold=True,
-        fill=WHITE,
-        max_chars=55,
-        align="center",
-        line_gap=1,
+    home_size = _preferred_size_by_chars(home, ((18, 31), (24, 28), (31, 24), (40, 20)), 18)
+    away_size = _preferred_size_by_chars(away, ((18, 31), (24, 28), (31, 24), (40, 20)), 18)
+    draw_single_line(
+        draw, home, COMPOSITION_HOME_NAME,
+        preferred_size=home_size, min_size=18,
+        bold=True, fill=WHITE, max_chars=48,
     )
-    draw_multiline(
-        draw,
-        away,
-        COMPOSITION_AWAY_NAME,
-        preferred_size=32,
-        min_size=18,
-        max_lines=2,
-        bold=True,
-        fill=WHITE,
-        max_chars=55,
-        align="center",
-        line_gap=1,
+    draw_single_line(
+        draw, away, COMPOSITION_AWAY_NAME,
+        preferred_size=away_size, min_size=18,
+        bold=True, fill=WHITE, max_chars=48,
     )
 
     competition = clean(payload.get("competition") or payload.get("league") or "Football")
@@ -1205,11 +1182,11 @@ def render_composition(payload: dict[str, Any]) -> Image.Image:
         draw,
         competition.upper(),
         COMPOSITION_COMPETITION_BOX,
-        preferred_size=27,
-        min_size=16,
+        preferred_size=25,
+        min_size=15,
         bold=True,
         fill=WHITE,
-        max_chars=55,
+        max_chars=38,
     )
 
     kickoff = clean(payload.get("time")).replace("h", "H")
@@ -1218,34 +1195,32 @@ def render_composition(payload: dict[str, Any]) -> Image.Image:
             draw,
             kickoff,
             COMPOSITION_TIME_BOX,
-            preferred_size=30,
-            min_size=20,
+            preferred_size=29,
+            min_size=21,
             bold=True,
             fill=GOLD,
             max_chars=8,
         )
 
-    paste_logo(image, home_logo, COMPOSITION_HOME_LOGO, 158)
-    paste_logo(image, away_logo, COMPOSITION_AWAY_LOGO, 158)
+    paste_logo(image, home_logo, COMPOSITION_HOME_LOGO, 160)
+    paste_logo(image, away_logo, COMPOSITION_AWAY_LOGO, 160)
 
-    _draw_lineup_rows(image, home_players, COMPOSITION_HOME_LIST)
-    _draw_lineup_rows(image, away_players, COMPOSITION_AWAY_LIST)
+    _draw_lineup_players(image, home_players, COMPOSITION_HOME_PLAYER_X)
+    _draw_lineup_players(image, away_players, COMPOSITION_AWAY_PLAYER_X)
 
     source = clean(payload.get("source") or "ESPN")
-    _local_dark_patch(image, (78, 1076, 275, 1124), radius=2, fill="#04111F")
     draw_single_line(
         draw,
         "Source : " + source,
         COMPOSITION_SOURCE_BOX,
-        preferred_size=16,
-        min_size=13,
+        preferred_size=15,
+        min_size=12,
         bold=False,
         fill=WHITE,
-        max_chars=34,
+        max_chars=30,
         align="left",
     )
     return image
-
 
 def render_flash(payload: dict[str, Any]) -> Image.Image:
     image = template("flash")
