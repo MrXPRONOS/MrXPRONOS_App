@@ -696,9 +696,11 @@ def extract_provider_shootout_kicks(timeline: list[dict]) -> list[dict]:
         if not isinstance(row, dict):
             continue
         raw = row.get("raw") if isinstance(row.get("raw"), dict) else {}
-        label = _plain(
-            row.get("kind") or row.get("type")
-            or raw.get("type") or raw.get("event_type") or raw.get("description")
+        label = " ".join(
+            _plain(value) for value in (
+                row.get("kind"), row.get("type"), raw.get("type"),
+                raw.get("event_type"), raw.get("description"), raw.get("detail")
+            ) if _plain(value)
         ).lower()
         shootout = any(token in label for token in ("shootout", "penalty shoot", "tirs au but"))
         if not shootout:
