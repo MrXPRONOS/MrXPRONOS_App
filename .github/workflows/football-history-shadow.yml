@@ -6,6 +6,8 @@ on:
       - 'scripts/football_history_import.php'
       - 'scripts/football_history_shadow.py'
       - 'tests/test_football_history_shadow.py'
+      - 'scripts/football_daily_multisource_shadow.py'
+      - 'tests/test_football_daily_multisource_shadow.py'
       - '.github/workflows/football-history-shadow.yml'
   workflow_dispatch:
     inputs:
@@ -45,8 +47,9 @@ jobs:
         run: |
           php -l scripts/football_history_import.php
           php scripts/football_history_import.php --self-test
-          python -m py_compile scripts/football_history_shadow.py tests/test_football_history_shadow.py
+          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py
           python -m unittest discover -s tests -p 'test_football_history_shadow.py' -v
+          python -m unittest discover -s tests -p 'test_football_daily_multisource_shadow.py' -v
   historical_probe:
     if: github.event_name == 'workflow_dispatch'
     needs: verify
@@ -90,3 +93,38 @@ jobs:
           path: tmp/history-quality.json
           retention-days: 7
           if-no-files-found: error
+
+  provider_probe:
+    if: github.event_name == 'pull_request'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Probe one historical league file per independent source
+        run: |
+          php scripts/football_history_import.php --source=openfootball --seasons=2024-25 --max-files=1 --out=tmp/openfootball.jsonl
+          php scripts/football_history_import.php --source=football-data --seasons=2024-25 --max-files=1 --out=tmp/football-data.jsonl
+          cat tmp/openfootball.jsonl tmp/football-data.jsonl > tmp/combined.jsonl
+          python scripts/football_history_shadow.py --input=tmp/combined.jsonl --output=tmp/merged.json --report=tmp/quality.json
+          python - <<'PY'
+          import json
+          report=json.load(open('tmp/quality.json'))
+          assert report['provider_rows']['openfootball'] >= 200
+          assert report['provider_rows']['football_data'] >= 200
+          assert report['unique_fixtures'] >= 200
+          print('PROVIDER_PROBE_PASS', {k:report[k] for k in ('input_rows','unique_fixtures','multi_source_agreement','conflicted_fixtures')})
+          PY
+      - name: Upload research summary, never raw datasets
+        uses: actions/upload-artifact@v4
+        with:
+          name: football-history-two-provider-probe
+          path: tmp/quality.json
+          retention-days: 7
