@@ -79,6 +79,7 @@ def build(rows: list) -> tuple[list[dict], dict]:
                 "home_score": row["home_score"],
                 "away_score": row["away_score"],
                 "providers": [{"source": row["source"], "id": row["source_id"]}],
+                "source_statistics": {row["source"]: row.get("match_stats", {}) if isinstance(row.get("match_stats", {}), dict) else {}},
                 "verified_by_sources": 1,
                 "status": "confirmed_single_source",
                 "time_precision": "day",
@@ -90,6 +91,10 @@ def build(rows: list) -> tuple[list[dict], dict]:
             current["status"] = "source_conflict"
             current["for_training"] = False
             conflicts.append({"key": list(key), "existing": [current["home_score"], current["away_score"]], "source": row["source"], "incoming": [row["home_score"], row["away_score"]]})
+        # Keep statistics attributable to the exact provider, without blending.
+        raw_stats = row.get("match_stats", {})
+        if isinstance(raw_stats, dict) and row["source"] not in current["source_statistics"]:
+            current["source_statistics"][row["source"]] = raw_stats
         if not any(p["source"] == row["source"] for p in current["providers"]):
             current["providers"].append({"source": row["source"], "id": row["source_id"]})
         current["verified_by_sources"] = len(current["providers"])
