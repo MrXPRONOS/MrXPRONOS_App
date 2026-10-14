@@ -1230,17 +1230,13 @@ def lifecycle_signals(
         # Composition officielle et changement tardif de XI.
         if kickoff and -timedelta(minutes=8) <= kickoff - now <= timedelta(minutes=85):
             lineup_key = "composition:" + key_id
-            if ext.get("source") in {"espn", "sportscore", "thesportsdb"}:
-                if ext.get("source") == "espn":
-                    summary = summary_for(event_id)
-                    lineups = extract_lineups(summary)
-                    match_data = extract_match_enrichment(summary)
-                    composition_source = "ESPN"
-                else:
-                    detail = provider_detail(ext)
-                    lineups = detail.get("lineups") if isinstance(detail.get("lineups"), dict) else {"home": [], "away": []}
-                    match_data = detail
-                    composition_source = "SportScore" if ext.get("source") == "sportscore" else "TheSportsDB"
+            # Une composition est appelée "officielle" uniquement quand ESPN
+            # fournit explicitement 11 titulaires pour chaque équipe.
+            if ext.get("source") == "espn":
+                summary = summary_for(event_id)
+                lineups = extract_lineups(summary)
+                match_data = extract_match_enrichment(summary)
+                composition_source = "ESPN"
                 if len(lineups.get("home", [])) == 11 and len(lineups.get("away", [])) == 11:
                     base_home = base.get("home_team")
                     base_away = base.get("away_team")
