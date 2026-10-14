@@ -1,3 +1,6 @@
+-- Mirrors the already-applied production migration exactly in behavior.
+-- Stale ambiguous claims are quarantined instead of blindly replayed.
+
 create or replace function public.actu_foot_claim_publication(
   p_event_key text,
   p_category text,
