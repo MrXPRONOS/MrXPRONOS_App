@@ -30,7 +30,7 @@ def fixtures(*, matchday="2025-02-11T18:00:00Z", league="Premier League"):
 
 def history():
     return [row(i) for i in range(1, 8)] + [
-        row(i+20, home="Chelsea FC", away=f"Other {i}")
+        row(i+20, day=f"2025-02-{i:02d}", home="Chelsea FC", away=f"Other {i}")
         for i in range(1, 8)
     ]
 
