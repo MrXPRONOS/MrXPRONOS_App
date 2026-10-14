@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T03:17:17+00:00",
+    "published": "2026-10-14T06:23:44+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -32,6 +32,853 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "53ca7ca0558ce006",
+    "title": "FC Barcelone : l’inarrêtable Lamine Yamal a encore mis tout le monde d’accord",
+    "summary": "Auteur d’une seconde période exceptionnelle face à Galatasaray, Lamine Yamal a guidé le FC Barcelone vers une victoire renversante à Istanbul. La presse espagnole s’enflamme pour le prodige catalan, (…)",
+    "summary_short": "Auteur d’une seconde période exceptionnelle face à Galatasaray, Lamine Yamal a guidé le FC Barcelone vers une victoire renversante à Istanbul. La presse espagnole s’enflamme pour le prodige catalan, (…)",
+    "content": "Auteur d’une seconde période exceptionnelle face à Galatasaray, Lamine Yamal a guidé le FC Barcelone vers une victoire renversante à Istanbul. La presse espagnole s’enflamme pour le prodige catalan, (…)",
+    "paragraphs": [
+      "Auteur d’une seconde période exceptionnelle face à Galatasaray, Lamine Yamal a guidé le FC Barcelone vers une victoire renversante à Istanbul. La presse espagnole s’enflamme pour le prodige catalan, (…)"
+    ],
+    "key_points": [
+      "Auteur d’une seconde période exceptionnelle face à Galatasaray, Lamine Yamal a guidé le FC Barcelone vers une victoire renversante à Istanbul.",
+      "La presse espagnole s’enflamme pour le prodige catalan, (…)"
+    ],
+    "telegram_summary": "Auteur d’une seconde période exceptionnelle face à Galatasaray, Lamine Yamal a guidé le FC Barcelone vers une victoire renversante à Istanbul. La presse espagnole s’enflamme pour le prodige catalan, (…)",
+    "link": "https://www.footmercato.net/a1275310674131763288-fc-barcelone-linarretable-lamine-yamal-a-encore-mis-tout-le-monde-daccord",
+    "source_url": "https://www.footmercato.net/a1275310674131763288-fc-barcelone-linarretable-lamine-yamal-a-encore-mis-tout-le-monde-daccord",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=53ca7ca0558ce006",
+    "published": "2026-10-14T06:10:00+00:00",
+    "image": "assets/images/footnews/53ca7ca0558ce006.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine392551-1920x1080.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "26d6827ea029394c",
+    "title": "LDC : Manchester City - PSG : les compos probables",
+    "summary": "Les compositions probables du choc entre Manchester City et le PSG (J2 LDC).",
+    "summary_short": "Les compositions probables du choc entre Manchester City et le PSG (J2 LDC).",
+    "content": "Les compositions probables du choc entre Manchester City et le PSG (J2 LDC).",
+    "paragraphs": [
+      "Les compositions probables du choc entre Manchester City et le PSG (J2 LDC)."
+    ],
+    "key_points": [
+      "Les compositions probables du choc entre Manchester City et le PSG (J2 LDC)."
+    ],
+    "telegram_summary": "Les compositions probables du choc entre Manchester City et le PSG (J2 LDC).",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ldc-manchester-city-psg-les-compos-probables-542134.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-manchester-city-psg-les-compos-probables-542134.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=26d6827ea029394c",
+    "published": "2026-10-14T06:10:00+00:00",
+    "image": "assets/images/footnews/26d6827ea029394c.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260920222412-9748.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50159375",
+      "url": "https://www.espn.com/video/clip/_/id/50159375/no-sympathy-manchester-city-players",
+      "published": "2026-10-11T18:25:12Z",
+      "score": 0.25,
+      "matched_terms": [
+        "city",
+        "manchester"
+      ],
+      "topics": [],
+      "teams": [
+        "Liverpool",
+        "Manchester City"
+      ],
+      "athletes": [],
+      "leagues": [
+        "English Premier League",
+        "Soccer"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T06:24:08.023923+00:00"
+    },
+    "quality_sources": [
+      "MadeInFoot",
+      "ESPN"
+    ],
+    "quality_score": 96
+  },
+  {
+    "slug": "e5bc33e7370d0576",
+    "title": "Barça : Lamine Yamal revient sur son dribble fou face à Galatasaray",
+    "summary": "Lamine Yamal a encore régalé face à Galatasaray. Auteur d’une prestation XXL lors de la victoire du FC Barcelone à Istanbul (1-4), le jeune ailier espagnol a notamment fait parler sa technique avec un (…)",
+    "summary_short": "Lamine Yamal a encore régalé face à Galatasaray. Auteur d’une prestation XXL lors de la victoire du FC Barcelone à Istanbul (1-4), le jeune ailier espagnol a notamment fait parler sa technique avec un (…)",
+    "content": "Lamine Yamal a encore régalé face à Galatasaray. Auteur d’une prestation XXL lors de la victoire du FC Barcelone à Istanbul (1-4), le jeune ailier espagnol a notamment fait parler sa technique avec un (…)",
+    "paragraphs": [
+      "Lamine Yamal a encore régalé face à Galatasaray. Auteur d’une prestation XXL lors de la victoire du FC Barcelone à Istanbul (1-4), le jeune ailier espagnol a notamment fait parler sa technique avec un (…)"
+    ],
+    "key_points": [
+      "Lamine Yamal a encore régalé face à Galatasaray.",
+      "Auteur d’une prestation XXL lors de la victoire du FC Barcelone à Istanbul (1-4), le jeune ailier espagnol a notamment fait parler sa technique avec un (…)"
+    ],
+    "telegram_summary": "Lamine Yamal a encore régalé face à Galatasaray. Auteur d’une prestation XXL lors de la victoire du FC Barcelone à Istanbul (1-4), le jeune ailier espagnol a notamment fait parler sa technique avec un (…)",
+    "link": "https://www.footmercato.net/a5596976157251589523-barca-lamine-yamal-revient-sur-son-dribble-fou-face-a-galatasaray",
+    "source_url": "https://www.footmercato.net/a5596976157251589523-barca-lamine-yamal-revient-sur-son-dribble-fou-face-a-galatasaray",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e5bc33e7370d0576",
+    "published": "2026-10-14T06:07:52+00:00",
+    "image": "assets/images/footnews/e5bc33e7370d0576.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/lamineyamalgala.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "a993f92d54fda1b8",
+    "title": "Interview : \"Genesio sait comment aborder ce type de rendez-vous et...\", ce spécialiste grec décortique l'Olympiakos avant l'OM (exclu MadeIn)",
+    "summary": "Retrouvez notre interview exclusive de Vassilis Konstantopoulos, journaliste spécialisé dans le football grec et notamment dans l’actualité de l’Olympiakos, l’adversaire de l’OM ce jeudi en Ligue…",
+    "summary_short": "Retrouvez notre interview exclusive de Vassilis Konstantopoulos, journaliste spécialisé dans le football grec et notamment dans l’actualité de l’Olympiakos, l’adversaire de l’OM ce jeudi en Ligue…",
+    "content": "Retrouvez notre interview exclusive de Vassilis Konstantopoulos, journaliste spécialisé dans le football grec et notamment dans l’actualité de l’Olympiakos, l’adversaire de l’OM ce jeudi en Ligue…",
+    "paragraphs": [
+      "Retrouvez notre interview exclusive de Vassilis Konstantopoulos, journaliste spécialisé dans le football grec et notamment dans l’actualité de l’Olympiakos, l’adversaire de l’OM ce jeudi en Ligue…"
+    ],
+    "key_points": [
+      "Retrouvez notre interview exclusive de Vassilis Konstantopoulos, journaliste spécialisé dans le football grec et notamment dans l’actualité de l’Olympiakos, l’adversaire de l’OM ce jeudi en Ligue…"
+    ],
+    "telegram_summary": "Retrouvez notre interview exclusive de Vassilis Konstantopoulos, journaliste spécialisé dans le football grec et notamment dans l’actualité de l’Olympiakos, l’adversaire de l’OM ce jeudi en Ligue…",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-interview-genesio-sait-comment-aborder-ce-type-de-rendez-vous-et-ce-specialiste-grec-decortique-l-olympiakos-avant-l-om-exclu-madein-542133.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-interview-genesio-sait-comment-aborder-ce-type-de-rendez-vous-et-ce-specialiste-grec-decortique-l-olympiakos-avant-l-om-exclu-madein-542133.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a993f92d54fda1b8",
+    "published": "2026-10-14T06:05:00+00:00",
+    "image": "assets/images/footnews/a993f92d54fda1b8.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-europa/2026/une/c3-20260828123042-5535.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "ebf43f6df22d6919",
+    "title": "Barça, Atlético : Julian Alvarez va bien rejoindre Rodri",
+    "summary": "Il y a quelques jours, Julian Alvarez avait pris la décision de se séparer de son agent Fernando Hidalgo. Une décision prise suite à l’été tourmenté vécu par l’attaquant argentin, et son départ raté (…)",
+    "summary_short": "Il y a quelques jours, Julian Alvarez avait pris la décision de se séparer de son agent Fernando Hidalgo. Une décision prise suite à l’été tourmenté vécu par l’attaquant argentin, et son départ raté (…)",
+    "content": "Il y a quelques jours, Julian Alvarez avait pris la décision de se séparer de son agent Fernando Hidalgo. Une décision prise suite à l’été tourmenté vécu par l’attaquant argentin, et son départ raté (…)",
+    "paragraphs": [
+      "Il y a quelques jours, Julian Alvarez avait pris la décision de se séparer de son agent Fernando Hidalgo. Une décision prise suite à l’été tourmenté vécu par l’attaquant argentin, et son départ raté (…)"
+    ],
+    "key_points": [
+      "Il y a quelques jours, Julian Alvarez avait pris la décision de se séparer de son agent Fernando Hidalgo.",
+      "Une décision prise suite à l’été tourmenté vécu par l’attaquant argentin, et son départ raté (…)"
+    ],
+    "telegram_summary": "Il y a quelques jours, Julian Alvarez avait pris la décision de se séparer de son agent Fernando Hidalgo. Une décision prise suite à l’été tourmenté vécu par l’attaquant argentin, et son départ raté (…)",
+    "link": "https://www.footmercato.net/a7321933185719820491-barca-atletico-julian-alvarez-va-bien-rejoindre-rodri",
+    "source_url": "https://www.footmercato.net/a7321933185719820491-barca-atletico-julian-alvarez-va-bien-rejoindre-rodri",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ebf43f6df22d6919",
+    "published": "2026-10-14T05:58:05+00:00",
+    "image": "assets/images/footnews/ebf43f6df22d6919.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/julian-alvarez-2627-5.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "e61f7f35dcf3f6b9",
+    "title": "\"Sur le terrain, on a gagné les titres\", la sortie forte de Nasri sur les sanctions de Manchester City avant le PSG",
+    "summary": "Samir Nasri s'est exprimé sur les sanctions visant Manchester City avant le choc de Ligue des Champions face au Paris Saint-Germain.",
+    "summary_short": "Samir Nasri s'est exprimé sur les sanctions visant Manchester City avant le choc de Ligue des Champions face au Paris Saint-Germain.",
+    "content": "Samir Nasri s'est exprimé sur les sanctions visant Manchester City avant le choc de Ligue des Champions face au Paris Saint-Germain.",
+    "paragraphs": [
+      "Samir Nasri s'est exprimé sur les sanctions visant Manchester City avant le choc de Ligue des Champions face au Paris Saint-Germain."
+    ],
+    "key_points": [
+      "Samir Nasri s'est exprimé sur les sanctions visant Manchester City avant le choc de Ligue des Champions face au Paris Saint-Germain."
+    ],
+    "telegram_summary": "Samir Nasri s'est exprimé sur les sanctions visant Manchester City avant le choc de Ligue des Champions face au Paris Saint-Germain.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/sur-le-terrain-on-a-gagne-les-titres-la-sortie-forte-de-nasri-sur-les-sanctions-de-manchester-city-avant-le-psg-1002543",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/sur-le-terrain-on-a-gagne-les-titres-la-sortie-forte-de-nasri-sur-les-sanctions-de-manchester-city-avant-le-psg-1002543",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e61f7f35dcf3f6b9",
+    "published": "2026-10-14T05:57:00+00:00",
+    "image": "assets/images/footnews/e61f7f35dcf3f6b9.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002543/409382/1200-L-sur-le-terrain-on-a-gagn-les-titres-la-sortie-forte-de-nasri-sur-les-sanctions-de-manchester-city-avant-le-psg.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "c04c7545394c80cb",
+    "title": "LDC : AS Roma - Real Madrid : les compos probables",
+    "summary": "Les compos probables du match entre l'AS Roma et le Real Madrid (J2 LDC).",
+    "summary_short": "Les compos probables du match entre l'AS Roma et le Real Madrid (J2 LDC).",
+    "content": "Les compos probables du match entre l'AS Roma et le Real Madrid (J2 LDC).",
+    "paragraphs": [
+      "Les compos probables du match entre l'AS Roma et le Real Madrid (J2 LDC)."
+    ],
+    "key_points": [
+      "Les compos probables du match entre l'AS Roma et le Real Madrid (J2 LDC)."
+    ],
+    "telegram_summary": "Les compos probables du match entre l'AS Roma et le Real Madrid (J2 LDC).",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ldc-as-roma-real-madrid-les-compos-probables-542099.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-as-roma-real-madrid-les-compos-probables-542099.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c04c7545394c80cb",
+    "published": "2026-10-14T05:45:00+00:00",
+    "image": "assets/images/footnews/c04c7545394c80cb.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20260908225410-4871.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50150816",
+      "url": "https://www.espn.com/video/clip/_/id/50150816/real-madrid-vs-villarreal-game-highlights",
+      "published": "2026-10-10T21:06:47Z",
+      "score": 0.25,
+      "matched_terms": [
+        "madrid",
+        "real"
+      ],
+      "topics": [],
+      "teams": [
+        "Real Madrid",
+        "Villarreal"
+      ],
+      "athletes": [
+        "Alberto Moleiro",
+        "Vinícius Júnior",
+        "Yan Diomande"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T06:24:08.023923+00:00"
+    },
+    "quality_sources": [
+      "MadeInFoot",
+      "ESPN"
+    ],
+    "quality_score": 96
+  },
+  {
+    "slug": "174a1653fc743a9d",
+    "title": "LDC : Manchester City - PSG : les prédictions d'Opta",
+    "summary": "Dans le cadre de la 2ème journée de Ligue des Champions, le PSG se déplace à Manchester ce mercredi pour y affronter Manchester City.",
+    "summary_short": "Dans le cadre de la 2ème journée de Ligue des Champions, le PSG se déplace à Manchester ce mercredi pour y affronter Manchester City.",
+    "content": "Dans le cadre de la 2ème journée de Ligue des Champions, le PSG se déplace à Manchester ce mercredi pour y affronter Manchester City.",
+    "paragraphs": [
+      "Dans le cadre de la 2ème journée de Ligue des Champions, le PSG se déplace à Manchester ce mercredi pour y affronter Manchester City."
+    ],
+    "key_points": [
+      "Dans le cadre de la 2ème journée de Ligue des Champions, le PSG se déplace à Manchester ce mercredi pour y affronter Manchester City."
+    ],
+    "telegram_summary": "Dans le cadre de la 2ème journée de Ligue des Champions, le PSG se déplace à Manchester ce mercredi pour y affronter Manchester City.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ldc-manchester-city-psg-les-predictions-d-opta-542041.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-manchester-city-psg-les-predictions-d-opta-542041.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=174a1653fc743a9d",
+    "published": "2026-10-14T05:30:00+00:00",
+    "image": "assets/images/footnews/174a1653fc743a9d.webp",
+    "source_image": "https://s1.dmcdn.net/v/fvFts1gpWac4oOfIC/x480",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50159375",
+      "url": "https://www.espn.com/video/clip/_/id/50159375/no-sympathy-manchester-city-players",
+      "published": "2026-10-11T18:25:12Z",
+      "score": 0.25,
+      "matched_terms": [
+        "city",
+        "manchester"
+      ],
+      "topics": [],
+      "teams": [
+        "Liverpool",
+        "Manchester City"
+      ],
+      "athletes": [],
+      "leagues": [
+        "English Premier League",
+        "Soccer"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T06:24:08.023923+00:00"
+    },
+    "quality_sources": [
+      "MadeInFoot",
+      "ESPN"
+    ],
+    "quality_score": 96
+  },
+  {
+    "slug": "f11a31adeba33a68",
+    "title": "\"Zizou et moi, on parle le même football\" : quand Karim Benzema remportait le Onze d'Or 2021",
+    "summary": "Le Onze d'Or 2026 approche et verra le joueur que nos lecteurs ont choisi remporté le Saint-Graal. Retour sur le sacre de Karim Benzema en 2021, qui avait remporté le suffrage avec 47,3% des voix.",
+    "summary_short": "Le Onze d'Or 2026 approche et verra le joueur que nos lecteurs ont choisi remporté le Saint-Graal. Retour sur le sacre de Karim Benzema en 2021, qui avait remporté le suffrage avec 47,3% des voix.",
+    "content": "Le Onze d'Or 2026 approche et verra le joueur que nos lecteurs ont choisi remporté le Saint-Graal. Retour sur le sacre de Karim Benzema en 2021, qui avait remporté le suffrage avec 47,3% des voix.",
+    "paragraphs": [
+      "Le Onze d'Or 2026 approche et verra le joueur que nos lecteurs ont choisi remporté le Saint-Graal. Retour sur le sacre de Karim Benzema en 2021, qui avait remporté le suffrage avec 47,3% des voix."
+    ],
+    "key_points": [
+      "Le Onze d'Or 2026 approche et verra le joueur que nos lecteurs ont choisi remporté le Saint-Graal.",
+      "Retour sur le sacre de Karim Benzema en 2021, qui avait remporté le suffrage avec 47,3% des voix."
+    ],
+    "telegram_summary": "Le Onze d'Or 2026 approche et verra le joueur que nos lecteurs ont choisi remporté le Saint-Graal. Retour sur le sacre de Karim Benzema en 2021, qui avait remporté le suffrage avec 47,3% des voix.",
+    "link": "https://www.onzemondial.com/equipe-de-france/onze-dor-zizou-et-moi-on-parle-le-meme-football-quand-karim-benzema-remportait-le-onze-dor-2021-1002500",
+    "source_url": "https://www.onzemondial.com/equipe-de-france/onze-dor-zizou-et-moi-on-parle-le-meme-football-quand-karim-benzema-remportait-le-onze-dor-2021-1002500",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=f11a31adeba33a68",
+    "published": "2026-10-14T05:30:00+00:00",
+    "image": "assets/images/footnews/f11a31adeba33a68.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002500/409360/1200-L-onze-d-or-zizou-et-moi-on-parle-le-mme-football-lorsque-benzema-remportait-le-onze-d-or-2021.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "c98a86f9ce37c31b",
+    "title": "Real Madrid : Aurélien Tchouaméni hausse le ton",
+    "summary": "Trois jours ont passé depuis la victoire du Real Madrid sur Villarreal (1-0) qui fut entachée du carton rouge reçu par Vinicius Jr. Le Brésilien venait pourtant de marquer, lui qui était sorti du (…)",
+    "summary_short": "Trois jours ont passé depuis la victoire du Real Madrid sur Villarreal (1-0) qui fut entachée du carton rouge reçu par Vinicius Jr. Le Brésilien venait pourtant de marquer, lui qui était sorti du (…)",
+    "content": "Trois jours ont passé depuis la victoire du Real Madrid sur Villarreal (1-0) qui fut entachée du carton rouge reçu par Vinicius Jr. Le Brésilien venait pourtant de marquer, lui qui était sorti du (…)",
+    "paragraphs": [
+      "Trois jours ont passé depuis la victoire du Real Madrid sur Villarreal (1-0) qui fut entachée du carton rouge reçu par Vinicius Jr. Le Brésilien venait pourtant de marquer, lui qui était sorti du (…)"
+    ],
+    "key_points": [
+      "Trois jours ont passé depuis la victoire du Real Madrid sur Villarreal (1-0) qui fut entachée du carton rouge reçu par Vinicius Jr.",
+      "Le Brésilien venait pourtant de marquer, lui qui était sorti du (…)"
+    ],
+    "telegram_summary": "Trois jours ont passé depuis la victoire du Real Madrid sur Villarreal (1-0) qui fut entachée du carton rouge reçu par Vinicius Jr. Le Brésilien venait pourtant de marquer, lui qui était sorti du (…)",
+    "link": "https://www.footmercato.net/a1558444996294857689-real-madrid-aurelien-tchouameni-hausse-le-ton",
+    "source_url": "https://www.footmercato.net/a1558444996294857689-real-madrid-aurelien-tchouameni-hausse-le-ton",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c98a86f9ce37c31b",
+    "published": "2026-10-14T05:23:34+00:00",
+    "image": "assets/images/footnews/c98a86f9ce37c31b.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/aurelien-tchouameni-2526-5.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50150816",
+      "url": "https://www.espn.com/video/clip/_/id/50150816/real-madrid-vs-villarreal-game-highlights",
+      "published": "2026-10-10T21:06:47Z",
+      "score": 0.25,
+      "matched_terms": [
+        "madrid",
+        "real"
+      ],
+      "topics": [],
+      "teams": [
+        "Real Madrid",
+        "Villarreal"
+      ],
+      "athletes": [
+        "Alberto Moleiro",
+        "Vinícius Júnior",
+        "Yan Diomande"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T06:24:08.023923+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
+    "slug": "54a5724994c06f46",
+    "title": "Champion d'Europe et meilleur joueur : pourquoi Khvicha Kvaratskhelia mérite de remporter le Onze d’Or 2026",
+    "summary": "Après une campagne européenne exceptionnelle avec le PSG, conclue par le titre de meilleur joueur de la Ligue des champions, Khvicha Kvaratskhelia a de solides arguments pour décrocher le Onze d’Or 2026.",
+    "summary_short": "Après une campagne européenne exceptionnelle avec le PSG, conclue par le titre de meilleur joueur de la Ligue des champions, Khvicha Kvaratskhelia a de solides arguments pour décrocher le Onze d’Or 2026.",
+    "content": "Après une campagne européenne exceptionnelle avec le PSG, conclue par le titre de meilleur joueur de la Ligue des champions, Khvicha Kvaratskhelia a de solides arguments pour décrocher le Onze d’Or 2026.",
+    "paragraphs": [
+      "Après une campagne européenne exceptionnelle avec le PSG, conclue par le titre de meilleur joueur de la Ligue des champions, Khvicha Kvaratskhelia a de solides arguments pour décrocher le Onze d’Or 2026."
+    ],
+    "key_points": [
+      "Après une campagne européenne exceptionnelle avec le PSG, conclue par le titre de meilleur joueur de la Ligue des champions, Khvicha Kvaratskhelia a de solides arguments pour décrocher le Onze d’Or 2026."
+    ],
+    "telegram_summary": "Après une campagne européenne exceptionnelle avec le PSG, conclue par le titre de meilleur joueur de la Ligue des champions, Khvicha Kvaratskhelia a de solides arguments pour décrocher le Onze d’Or 2026.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/ligue-des-champions-meilleur-joueur-pourquoi-khvicha-kvaratskhelia-merite-de-remporter-le-onze-dor-2026-1002433",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/ligue-des-champions-meilleur-joueur-pourquoi-khvicha-kvaratskhelia-merite-de-remporter-le-onze-dor-2026-1002433",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=54a5724994c06f46",
+    "published": "2026-10-14T05:00:00+00:00",
+    "image": "assets/images/footnews/54a5724994c06f46.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002433/409324/1200-L-champion-d-europe-et-meilleur-joueur-pourquoi-khvicha-kvaratskhelia-mrite-de-remporter-le-onze-dor-2026.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "9bd747fec663ef0a",
+    "title": "Match ce soir : A quelle heure et sur quelle chaîne voir les matchs de foot du jour (14/10/2026) ?",
+    "summary": "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web.",
+    "summary_short": "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web.",
+    "content": "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web.",
+    "paragraphs": [
+      "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web."
+    ],
+    "key_points": [
+      "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web."
+    ],
+    "telegram_summary": "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-match-ce-soir-a-quelle-heure-et-sur-quelle-chaine-voir-les-matchs-de-foot-du-jour-14-10-2026-542131.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-match-ce-soir-a-quelle-heure-et-sur-quelle-chaine-voir-les-matchs-de-foot-du-jour-14-10-2026-542131.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9bd747fec663ef0a",
+    "published": "2026-10-14T05:00:00+00:00",
+    "image": "assets/images/footnews/9bd747fec663ef0a.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240117120956-3498.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "85edfc8819c569ac",
+    "title": "OM - Olympiakos : billets annulés, parcage vide... la décision choc du club grec",
+    "summary": "À 48h du coup d'envoi du choc entre l'OM et l'Olympiakos, les dirigeants grecs ont été obligés de prendre une triste décision face aux restrictions de la préfecture des Bouches du Rhône.",
+    "summary_short": "À 48h du coup d'envoi du choc entre l'OM et l'Olympiakos, les dirigeants grecs ont été obligés de prendre une triste décision face aux restrictions de la préfecture des Bouches du Rhône.",
+    "content": "À 48h du coup d'envoi du choc entre l'OM et l'Olympiakos, les dirigeants grecs ont été obligés de prendre une triste décision face aux restrictions de la préfecture des Bouches du Rhône.",
+    "paragraphs": [
+      "À 48h du coup d'envoi du choc entre l'OM et l'Olympiakos, les dirigeants grecs ont été obligés de prendre une triste décision face aux restrictions de la préfecture des Bouches du Rhône."
+    ],
+    "key_points": [
+      "À 48h du coup d'envoi du choc entre l'OM et l'Olympiakos, les dirigeants grecs ont été obligés de prendre une triste décision face aux restrictions de la préfecture des Bouches du Rhône."
+    ],
+    "telegram_summary": "À 48h du coup d'envoi du choc entre l'OM et l'Olympiakos, les dirigeants grecs ont été obligés de prendre une triste décision face aux restrictions de la préfecture des Bouches du Rhône.",
+    "link": "https://www.onzemondial.com/europa-league/om-olympiakos-billets-annules-parcage-vide-la-decision-choc-du-club-grec-1002506",
+    "source_url": "https://www.onzemondial.com/europa-league/om-olympiakos-billets-annules-parcage-vide-la-decision-choc-du-club-grec-1002506",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=85edfc8819c569ac",
+    "published": "2026-10-14T04:30:00+00:00",
+    "image": "assets/images/footnews/85edfc8819c569ac.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002506/409363/1200-L-om-olympiakos-billets-annuls-parcage-vide-la-dcision-choc-du-club-grec.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "207f8ba65990157c",
+    "title": "Manchester City - PSG : Paris va envahir l'Etihad Stadium, un nombre dingue de supporters attendus",
+    "summary": "En déplacement à Manchester pour y défier City, stade où il n'a jamais gagné, le Paris Saint-Germain pourra compter sur ses supporters, qui vont venir en masse pour les soutenir à l'Etihad Stadium.",
+    "summary_short": "En déplacement à Manchester pour y défier City, stade où il n'a jamais gagné, le Paris Saint-Germain pourra compter sur ses supporters, qui vont venir en masse pour les soutenir à l'Etihad Stadium.",
+    "content": "En déplacement à Manchester pour y défier City, stade où il n'a jamais gagné, le Paris Saint-Germain pourra compter sur ses supporters, qui vont venir en masse pour les soutenir à l'Etihad Stadium.",
+    "paragraphs": [
+      "En déplacement à Manchester pour y défier City, stade où il n'a jamais gagné, le Paris Saint-Germain pourra compter sur ses supporters, qui vont venir en masse pour les soutenir à l'Etihad Stadium."
+    ],
+    "key_points": [
+      "En déplacement à Manchester pour y défier City, stade où il n'a jamais gagné, le Paris Saint-Germain pourra compter sur ses supporters, qui vont venir en masse pour les soutenir à l'Etihad Stadium."
+    ],
+    "telegram_summary": "En déplacement à Manchester pour y défier City, stade où il n'a jamais gagné, le Paris Saint-Germain pourra compter sur ses supporters, qui vont venir en masse pour les soutenir à l'Etihad Stadium.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-paris-va-envahir-letihad-stadium-un-nombre-dingue-de-supporters-attendus-1002468",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-paris-va-envahir-letihad-stadium-un-nombre-dingue-de-supporters-attendus-1002468",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=207f8ba65990157c",
+    "published": "2026-10-14T04:30:00+00:00",
+    "image": "assets/images/footnews/207f8ba65990157c.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002468/409343/1200-L-manchester-city-psg-paris-va-envahir-l-etihad-stadium-un-nombre-dingue-de-supporters-attendus.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "da8b75c6d292bbb8",
+    "title": "Manchester City - PSG : les compositions probables",
+    "summary": "Manchester City et le PSG se défient à l'occasion du choc de la 2e journée de Ligue des champions. Découvrez les compositions probables.",
+    "summary_short": "Manchester City et le PSG se défient à l'occasion du choc de la 2e journée de Ligue des champions. Découvrez les compositions probables.",
+    "content": "Manchester City et le PSG se défient à l'occasion du choc de la 2e journée de Ligue des champions. Découvrez les compositions probables.",
+    "paragraphs": [
+      "Manchester City et le PSG se défient à l'occasion du choc de la 2e journée de Ligue des champions. Découvrez les compositions probables."
+    ],
+    "key_points": [
+      "Manchester City et le PSG se défient à l'occasion du choc de la 2e journée de Ligue des champions.",
+      "Découvrez les compositions probables."
+    ],
+    "telegram_summary": "Manchester City et le PSG se défient à l'occasion du choc de la 2e journée de Ligue des champions. Découvrez les compositions probables.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-les-compositions-probables-1002359",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-les-compositions-probables-1002359",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=da8b75c6d292bbb8",
+    "published": "2026-10-14T04:15:00+00:00",
+    "image": "assets/images/footnews/da8b75c6d292bbb8.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002359/409286/1200-L-manchester-city-psg-les-compositions-probables.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50159375",
+      "url": "https://www.espn.com/video/clip/_/id/50159375/no-sympathy-manchester-city-players",
+      "published": "2026-10-11T18:25:12Z",
+      "score": 0.25,
+      "matched_terms": [
+        "city",
+        "manchester"
+      ],
+      "topics": [],
+      "teams": [
+        "Liverpool",
+        "Manchester City"
+      ],
+      "athletes": [],
+      "leagues": [
+        "English Premier League",
+        "Soccer"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T06:24:08.023923+00:00"
+    },
+    "quality_sources": [
+      "Onze Mondial",
+      "ESPN"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "12d942c640376081",
+    "title": "Manchester City-PSG en Ligue des champions, deux clubs aux destins liés jusqu’aux infractions des SkyBlues",
+    "summary": "City et Paris, une rivalité de gros sous et de... sanctions",
+    "summary_short": "City et Paris, une rivalité de gros sous et de... sanctions",
+    "content": "City et Paris, une rivalité de gros sous et de... sanctions",
+    "paragraphs": [
+      "City et Paris, une rivalité de gros sous et de... sanctions"
+    ],
+    "key_points": [
+      "City et Paris, une rivalité de gros sous et de... sanctions"
+    ],
+    "telegram_summary": "City et Paris, une rivalité de gros sous et de... sanctions",
+    "link": "https://www.sofoot.com/articles/manchester-city-psg-en-ligue-des-champions-deux-clubs-aux-destins-lies-jusquaux-infractions-des-skyblues",
+    "source_url": "https://www.sofoot.com/articles/manchester-city-psg-en-ligue-des-champions-deux-clubs-aux-destins-lies-jusquaux-infractions-des-skyblues",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=12d942c640376081",
+    "published": "2026-10-14T04:00:49+00:00",
+    "image": "assets/images/footnews/12d942c640376081.webp",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/13202038/ICONSPORT_250164_0534-scaled.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "7bcaf09dbb92ea70",
+    "title": "Pourquoi le choc de Ligue des champions contre Manchester City sera le premier baromètre de la saison du PSG",
+    "summary": "Après une mise en route difficile, le PSG a vraiment lancé sa saison le mois dernier et rencontre, mercredi, son premier gros obstacle.",
+    "summary_short": "Après une mise en route difficile, le PSG a vraiment lancé sa saison le mois dernier et rencontre, mercredi, son premier gros obstacle.",
+    "content": "Après une mise en route difficile, le PSG a vraiment lancé sa saison le mois dernier et rencontre, mercredi, son premier gros obstacle.",
+    "paragraphs": [
+      "Après une mise en route difficile, le PSG a vraiment lancé sa saison le mois dernier et rencontre, mercredi, son premier gros obstacle."
+    ],
+    "key_points": [
+      "Après une mise en route difficile, le PSG a vraiment lancé sa saison le mois dernier et rencontre, mercredi, son premier gros obstacle."
+    ],
+    "telegram_summary": "Après une mise en route difficile, le PSG a vraiment lancé sa saison le mois dernier et rencontre, mercredi, son premier gros obstacle.",
+    "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/pourquoi-le-choc-de-ligue-des-champions-contre-manchester-city-sera-le-premier-barometre-de-la-saison-du-psg_8235658.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/pourquoi-le-choc-de-ligue-des-champions-contre-manchester-city-sera-le-premier-barometre-de-la-saison-du-psg_8235658.html#xtor=RSS-3-%5Bgeneral%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7bcaf09dbb92ea70",
+    "published": "2026-10-14T04:00:09+00:00",
+    "image": "assets/images/footnews/7bcaf09dbb92ea70.webp",
+    "source_image": "https://www.franceinfo.fr/pictures/727huuz_r3btH_w-g-Ga0I8naWQ/0x0:2634x1481/432x243/filters:format(jpg)/2026/10/13/6ace3e2bbe988838803232.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Franceinfo"
+    ],
+    "quality_score": 82
+  },
+  {
+    "slug": "b73269e353c0d18c",
+    "title": "AS Rome - Real Madrid : les compositions probables",
+    "summary": "Le Real Madrid se déplace sur la pelouse de l'AS Roma pour le compte de la deuxième journée de la Ligue des champions. Découvrez les compositions probables des deux équipes.",
+    "summary_short": "Le Real Madrid se déplace sur la pelouse de l'AS Roma pour le compte de la deuxième journée de la Ligue des champions. Découvrez les compositions probables des deux équipes.",
+    "content": "Le Real Madrid se déplace sur la pelouse de l'AS Roma pour le compte de la deuxième journée de la Ligue des champions. Découvrez les compositions probables des deux équipes.",
+    "paragraphs": [
+      "Le Real Madrid se déplace sur la pelouse de l'AS Roma pour le compte de la deuxième journée de la Ligue des champions. Découvrez les compositions probables des deux équipes."
+    ],
+    "key_points": [
+      "Le Real Madrid se déplace sur la pelouse de l'AS Roma pour le compte de la deuxième journée de la Ligue des champions.",
+      "Découvrez les compositions probables des deux équipes."
+    ],
+    "telegram_summary": "Le Real Madrid se déplace sur la pelouse de l'AS Roma pour le compte de la deuxième journée de la Ligue des champions. Découvrez les compositions probables des deux équipes.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/as-rome-real-madrid-les-compositions-probables-1002353",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/as-rome-real-madrid-les-compositions-probables-1002353",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b73269e353c0d18c",
+    "published": "2026-10-14T04:00:00+00:00",
+    "image": "assets/images/footnews/b73269e353c0d18c.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002353/409283/1200-L-as-rome-real-madrid-les-compositions-probables.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50150816",
+      "url": "https://www.espn.com/video/clip/_/id/50150816/real-madrid-vs-villarreal-game-highlights",
+      "published": "2026-10-10T21:06:47Z",
+      "score": 0.25,
+      "matched_terms": [
+        "madrid",
+        "real"
+      ],
+      "topics": [],
+      "teams": [
+        "Real Madrid",
+        "Villarreal"
+      ],
+      "athletes": [
+        "Alberto Moleiro",
+        "Vinícius Júnior",
+        "Yan Diomande"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T06:24:08.023923+00:00"
+    },
+    "quality_sources": [
+      "Onze Mondial",
+      "ESPN"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "c8cd8b057a4b4afc",
+    "title": "AS Rome-Real Madrid : chaîne tv, streaming… À quelle heure et où suivre ce match de Ligue des champions ?",
+    "summary": "Ce mercredi, l'AS Rome et le Real Madrid s'affrontent dans le cadre de la 2e journée de la phase de ligue de Ligue des champions. Les Romains tenteront de créer un coup d'éclat dans leur enceinte, tandis que les Madrilènes chercheront à engranger de la confiance dans le jeu.",
+    "summary_short": "Ce mercredi, l'AS Rome et le Real Madrid s'affrontent dans le cadre de la 2e journée de la phase de ligue de Ligue des champions. Les Romains tenteront de créer un coup d'éclat dans leur enceinte, tandis que les Madrilènes chercheront à engranger de la confiance dans le jeu.",
+    "content": "Ce mercredi, l'AS Rome et le Real Madrid s'affrontent dans le cadre de la 2e journée de la phase de ligue de Ligue des champions. Les Romains tenteront de créer un coup d'éclat dans leur enceinte, tandis que les Madrilènes chercheront à engranger de la confiance dans le jeu. Retrouvez toutes les informations pratiques sur la retransmission de la rencontre.",
+    "paragraphs": [
+      "Ce mercredi, l'AS Rome et le Real Madrid s'affrontent dans le cadre de la 2e journée de la phase de ligue de Ligue des champions. Les Romains tenteront de créer un coup d'éclat dans leur enceinte, tandis que les Madrilènes chercheront à engranger de la confiance dans le jeu. Retrouvez toutes les informations pratiques sur la retransmission de la rencontre."
+    ],
+    "key_points": [
+      "Ce mercredi, l'AS Rome et le Real Madrid s'affrontent dans le cadre de la 2e journée de la phase de ligue de Ligue des champions.",
+      "Les Romains tenteront de créer un coup d'éclat dans leur enceinte, tandis que les Madrilènes chercheront à engranger de la confiance dans le jeu.",
+      "Retrouvez toutes les informations pratiques sur la retransmission de la rencontre."
+    ],
+    "telegram_summary": "Ce mercredi, l'AS Rome et le Real Madrid s'affrontent dans le cadre de la 2e journée de la phase de ligue de Ligue des champions. Les Romains tenteront de créer un coup d'éclat dans leur enceinte, tandis que les Madrilènes chercheront à engranger de la confiance dans le jeu.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/as-rome-real-madrid-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-ce-match-de-ligue-des-champions-1001935",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/as-rome-real-madrid-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-ce-match-de-ligue-des-champions-1001935",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c8cd8b057a4b4afc",
+    "published": "2026-10-14T03:45:00+00:00",
+    "image": "assets/images/footnews/c8cd8b057a4b4afc.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1001935/409075/1200-L-as-rome-real-madrid-chane-tv-streaming-quelle-heure-et-o-suivre-ce-match-de-ligue-des-champions.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "3a92b76746852d1a",
+    "title": "Manchester City-PSG : chaîne TV, streaming... À quelle heure et où suivre cette prestigieuse affiche de Ligue des champions ?",
+    "summary": "Ce mercredi, Manchester City et le Paris Saint-Germain s'affrontent dans le cadre de la 2e journée de la phase de ligue de la Ligue des champions. Les Parisiens auront à cœur de faire respecter leur rang sur le sol anglais, tandis que les Mancuniens chercheront à valider leur excellent début de saison devant leur public.",
+    "summary_short": "Ce mercredi, Manchester City et le Paris Saint-Germain s'affrontent dans le cadre de la 2e journée de la phase de ligue de la Ligue des champions. Les Parisiens auront à cœur de faire respecter leur rang sur le sol anglais, tandis que les Mancuniens chercheront à valider leur excellent début de saison devant leur public.",
+    "content": "Ce mercredi, Manchester City et le Paris Saint-Germain s'affrontent dans le cadre de la 2e journée de la phase de ligue de la Ligue des champions. Les Parisiens auront à cœur de faire respecter leur rang sur le sol anglais, tandis que les Mancuniens chercheront à valider leur excellent début de saison devant leur public. Voici tout ce qu'il faut savoir sur la retransmission du match.",
+    "paragraphs": [
+      "Ce mercredi, Manchester City et le Paris Saint-Germain s'affrontent dans le cadre de la 2e journée de la phase de ligue de la Ligue des champions. Les Parisiens auront à cœur de faire respecter leur rang sur le sol anglais, tandis que les Mancuniens chercheront à valider leur excellent début de saison devant leur public. Voici tout ce qu'il faut savoir sur la retransmission du match."
+    ],
+    "key_points": [
+      "Ce mercredi, Manchester City et le Paris Saint-Germain s'affrontent dans le cadre de la 2e journée de la phase de ligue de la Ligue des champions.",
+      "Les Parisiens auront à cœur de faire respecter leur rang sur le sol anglais, tandis que les Mancuniens chercheront à valider leur excellent début de saison devant leur public.",
+      "Voici tout ce qu'il faut savoir sur la retransmission du match."
+    ],
+    "telegram_summary": "Ce mercredi, Manchester City et le Paris Saint-Germain s'affrontent dans le cadre de la 2e journée de la phase de ligue de la Ligue des champions. Les Parisiens auront à cœur de faire respecter leur rang sur le sol anglais, tandis que les Mancuniens chercheront à valider leur excellent début de saison devant leur public.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-a-quelle-heure-et-sur-quelle-chaine-tv-suivre-cette-prestigieuse-affiche-de-de-ligue-des-champions-en-streaming-1001916",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-a-quelle-heure-et-sur-quelle-chaine-tv-suivre-cette-prestigieuse-affiche-de-de-ligue-des-champions-en-streaming-1001916",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3a92b76746852d1a",
+    "published": "2026-10-14T03:30:00+00:00",
+    "image": "assets/images/footnews/3a92b76746852d1a.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1001916/409067/1200-L-manchester-city-psg-chane-tv-streaming-quelle-heure-et-o-suivre-cette-prestigieuse-affiche-de-ligue-des-champions.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
   },
   {
     "slug": "d09b57f611cef4ed",
@@ -84,7 +931,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T03:24:06.952526+00:00"
+      "checked_at": "2026-10-14T06:24:08.023923+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -284,7 +1131,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T03:24:06.952526+00:00"
+      "checked_at": "2026-10-14T06:24:08.023923+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -419,7 +1266,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T03:24:06.952526+00:00"
+      "checked_at": "2026-10-14T06:24:08.023923+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1136,7 +1983,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T03:24:06.952526+00:00"
+      "checked_at": "2026-10-14T06:24:08.023923+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1247,41 +2094,6 @@
     "quality_score": 77
   },
   {
-    "slug": "bd95483ff807ce84",
-    "title": "Ligue des Champions : le LOSC surclassé à Arsenal",
-    "summary": "La défaite inaugurale face au Betis à domicile (3-2) a d’emblée hypothéqué les chances de qualification du LOSC en Ligue des Champions. Le déplacement sur la pelouse d’Arsenal ce mardi à l’occasion de (…)",
-    "summary_short": "La défaite inaugurale face au Betis à domicile (3-2) a d’emblée hypothéqué les chances de qualification du LOSC en Ligue des Champions. Le déplacement sur la pelouse d’Arsenal ce mardi à l’occasion de (…)",
-    "content": "La défaite inaugurale face au Betis à domicile (3-2) a d’emblée hypothéqué les chances de qualification du LOSC en Ligue des Champions. Le déplacement sur la pelouse d’Arsenal ce mardi à l’occasion de (…)",
-    "paragraphs": [
-      "La défaite inaugurale face au Betis à domicile (3-2) a d’emblée hypothéqué les chances de qualification du LOSC en Ligue des Champions. Le déplacement sur la pelouse d’Arsenal ce mardi à l’occasion de (…)"
-    ],
-    "key_points": [
-      "La défaite inaugurale face au Betis à domicile (3-2) a d’emblée hypothéqué les chances de qualification du LOSC en Ligue des Champions.",
-      "Le déplacement sur la pelouse d’Arsenal ce mardi à l’occasion de (…)"
-    ],
-    "telegram_summary": "La défaite inaugurale face au Betis à domicile (3-2) a d’emblée hypothéqué les chances de qualification du LOSC en Ligue des Champions. Le déplacement sur la pelouse d’Arsenal ce mardi à l’occasion de (…)",
-    "link": "https://www.footmercato.net/a2162266825387427463-ligue-des-champions-le-losc-sombre-a-arsenal",
-    "source_url": "https://www.footmercato.net/a2162266825387427463-ligue-des-champions-le-losc-sombre-a-arsenal",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=bd95483ff807ce84",
-    "published": "2026-10-13T20:51:08+00:00",
-    "image": "assets/images/footnews/bd95483ff807ce84.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/arsenal-6ace9714acbc2.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
     "slug": "f5a79a11496809d2",
     "title": "LDC : Les notes de Arsenal - LOSC : des Lillois impuissants tombent logiquement face aux Gunners",
     "summary": "Arsenal s'est imposé face au LOSC (3-0), ce mardi soir, pour le compte de la deuxième journée de phase de ligue de Ligue des Champions.",
@@ -1350,106 +2162,6 @@
     "quality_score": 80
   },
   {
-    "slug": "23f9a41979e84df4",
-    "title": "Bayern Munich : Michael Olise expulsé après un geste d’humeur contre Viking",
-    "summary": "Mené 2-0 avec des buts de Gianni Stensness (2e) et Peter Christiansen (38e), le Bayern Munich a connu un match compliqué contre les Norvégiens du Viking Stavanger. Toutefois, les Bavarois ont réagi (…)",
-    "summary_short": "Mené 2-0 avec des buts de Gianni Stensness (2e) et Peter Christiansen (38e), le Bayern Munich a connu un match compliqué contre les Norvégiens du Viking Stavanger. Toutefois, les Bavarois ont réagi (…)",
-    "content": "Mené 2-0 avec des buts de Gianni Stensness (2e) et Peter Christiansen (38e), le Bayern Munich a connu un match compliqué contre les Norvégiens du Viking Stavanger. Toutefois, les Bavarois ont réagi (…)",
-    "paragraphs": [
-      "Mené 2-0 avec des buts de Gianni Stensness (2e) et Peter Christiansen (38e), le Bayern Munich a connu un match compliqué contre les Norvégiens du Viking Stavanger. Toutefois, les Bavarois ont réagi (…)"
-    ],
-    "key_points": [
-      "Mené 2-0 avec des buts de Gianni Stensness (2e) et Peter Christiansen (38e), le Bayern Munich a connu un match compliqué contre les Norvégiens du Viking Stavanger.",
-      "Toutefois, les Bavarois ont réagi (…)"
-    ],
-    "telegram_summary": "Mené 2-0 avec des buts de Gianni Stensness (2e) et Peter Christiansen (38e), le Bayern Munich a connu un match compliqué contre les Norvégiens du Viking Stavanger. Toutefois, les Bavarois ont réagi (…)",
-    "link": "https://www.footmercato.net/a4106652229524652613-bayern-munich-michael-olise-expulse-apres-un-geste-dhumeur-contre-viking",
-    "source_url": "https://www.footmercato.net/a4106652229524652613-bayern-munich-michael-olise-expulse-apres-un-geste-dhumeur-contre-viking",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=23f9a41979e84df4",
-    "published": "2026-10-13T20:40:00+00:00",
-    "image": "assets/images/footnews/23f9a41979e84df4.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/michael-olise-harry-kane2627.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "49858021",
-      "url": "https://www.espn.com/soccer/story/_/id/49858021/bayern-munich-ceo-no-offers-michael-olise",
-      "published": "2026-09-07T14:43:37Z",
-      "score": 0.25,
-      "matched_terms": [
-        "bayern",
-        "michael",
-        "munich",
-        "olise"
-      ],
-      "topics": [
-        "news",
-        "soccer transfers"
-      ],
-      "teams": [
-        "Bayern Munich"
-      ],
-      "athletes": [
-        "Michael Olise"
-      ],
-      "leagues": [
-        "German Bundesliga",
-        "Soccer"
-      ],
-      "is_transfer": true,
-      "checked_at": "2026-10-14T03:24:06.952526+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "ea7d014425da903c",
-    "title": "OM : les supporters de l’Olympiakos finalement autorisés de stade",
-    "summary": "Après sa défaite 4-1 contre Besiktas pour lancer sa campagne de Ligue Europa, l’Olympique de Marseille va défier le club grec de l’Olympiakos ce jeudi à 21h. Les Phocéens recevront un adversaire (…)",
-    "summary_short": "Après sa défaite 4-1 contre Besiktas pour lancer sa campagne de Ligue Europa, l’Olympique de Marseille va défier le club grec de l’Olympiakos ce jeudi à 21h. Les Phocéens recevront un adversaire (…)",
-    "content": "Après sa défaite 4-1 contre Besiktas pour lancer sa campagne de Ligue Europa, l’Olympique de Marseille va défier le club grec de l’Olympiakos ce jeudi à 21h. Les Phocéens recevront un adversaire (…)",
-    "paragraphs": [
-      "Après sa défaite 4-1 contre Besiktas pour lancer sa campagne de Ligue Europa, l’Olympique de Marseille va défier le club grec de l’Olympiakos ce jeudi à 21h. Les Phocéens recevront un adversaire (…)"
-    ],
-    "key_points": [
-      "Après sa défaite 4-1 contre Besiktas pour lancer sa campagne de Ligue Europa, l’Olympique de Marseille va défier le club grec de l’Olympiakos ce jeudi à 21h.",
-      "Les Phocéens recevront un adversaire (…)"
-    ],
-    "telegram_summary": "Après sa défaite 4-1 contre Besiktas pour lancer sa campagne de Ligue Europa, l’Olympique de Marseille va défier le club grec de l’Olympiakos ce jeudi à 21h. Les Phocéens recevront un adversaire (…)",
-    "link": "https://www.footmercato.net/a3868118775048965307-om-les-supporters-de-lolympiakos-finalement-autorises-de-stade",
-    "source_url": "https://www.footmercato.net/a3868118775048965307-om-les-supporters-de-lolympiakos-finalement-autorises-de-stade",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ea7d014425da903c",
-    "published": "2026-10-13T20:34:20+00:00",
-    "image": "assets/images/footnews/ea7d014425da903c.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/velodrome-62ea60f99cb01.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
     "slug": "98f8db57bf3b3c1e",
     "title": "Real Madrid : José Mourinho : \"Peu d'opinions directes sur des situations qui ne laissent que peu de place au doute\"",
     "summary": "Présent en conférence de presse à la veille du choc sur la pelouse de la Roma, José Mourinho n'a pu éviter les inévitables questions sur l'arbitrage.",
@@ -1504,7 +2216,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T03:24:06.952526+00:00"
+      "checked_at": "2026-10-14T06:24:08.023923+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1531,40 +2243,6 @@
     "published": "2026-10-13T20:21:00+00:00",
     "image": "assets/images/footnews/abb2070805f2e355.webp",
     "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002531/409376/1200-L-vido-galatasaray-bara-le-tour-de-magie-sublime-de-yamal-pour-mystifier-la-dfense.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "03d4e6e142191069",
-    "title": "OM-Olympiakos : l'interdiction des Grecs levée à la dernière minute, le coup de théâtre lunaire de la préfecture",
-    "summary": "Retournement de situation lunaire pour le déplacement des supporters de l'Olympiakos au Vélodrome pour le choc face à l'Olympique de Marseille.",
-    "summary_short": "Retournement de situation lunaire pour le déplacement des supporters de l'Olympiakos au Vélodrome pour le choc face à l'Olympique de Marseille.",
-    "content": "Retournement de situation lunaire pour le déplacement des supporters de l'Olympiakos au Vélodrome pour le choc face à l'Olympique de Marseille.",
-    "paragraphs": [
-      "Retournement de situation lunaire pour le déplacement des supporters de l'Olympiakos au Vélodrome pour le choc face à l'Olympique de Marseille."
-    ],
-    "key_points": [
-      "Retournement de situation lunaire pour le déplacement des supporters de l'Olympiakos au Vélodrome pour le choc face à l'Olympique de Marseille."
-    ],
-    "telegram_summary": "Retournement de situation lunaire pour le déplacement des supporters de l'Olympiakos au Vélodrome pour le choc face à l'Olympique de Marseille.",
-    "link": "https://www.onzemondial.com/europa-league/om-olympiakos-linterdiction-des-grecs-levee-a-la-derniere-minute-le-coup-de-theatre-lunaire-de-la-prefecture-1002529",
-    "source_url": "https://www.onzemondial.com/europa-league/om-olympiakos-linterdiction-des-grecs-levee-a-la-derniere-minute-le-coup-de-theatre-lunaire-de-la-prefecture-1002529",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=03d4e6e142191069",
-    "published": "2026-10-13T20:13:00+00:00",
-    "image": "assets/images/footnews/03d4e6e142191069.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002529/409375/1200-L-om-olympiakos-l-interdiction-des-grecs-leve-la-dernire-minute-le-coup-de-thtre-lunaire-de-la-prfecture.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "Onze Mondial",
@@ -1635,82 +2313,13 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T03:24:06.952526+00:00"
+      "checked_at": "2026-10-14T06:24:08.023923+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
       "ESPN"
     ],
     "quality_score": 96
-  },
-  {
-    "slug": "2776f595c86cceba",
-    "title": "Cameroun : Samuel Eto’o se positionne pour devenir président de la CAF",
-    "summary": "La présidence de Patrice Motsepe à la tête de la CAF est fragilisée par le revirement sur le format de la Coupe d’Afrique des Nations. Selon The Guardian, plusieurs dirigeants africains auraient perdu (…)",
-    "summary_short": "La présidence de Patrice Motsepe à la tête de la CAF est fragilisée par le revirement sur le format de la Coupe d’Afrique des Nations. Selon The Guardian, plusieurs dirigeants africains auraient perdu (…)",
-    "content": "La présidence de Patrice Motsepe à la tête de la CAF est fragilisée par le revirement sur le format de la Coupe d’Afrique des Nations. Selon The Guardian, plusieurs dirigeants africains auraient perdu (…)",
-    "paragraphs": [
-      "La présidence de Patrice Motsepe à la tête de la CAF est fragilisée par le revirement sur le format de la Coupe d’Afrique des Nations. Selon The Guardian, plusieurs dirigeants africains auraient perdu (…)"
-    ],
-    "key_points": [
-      "La présidence de Patrice Motsepe à la tête de la CAF est fragilisée par le revirement sur le format de la Coupe d’Afrique des Nations.",
-      "Selon The Guardian, plusieurs dirigeants africains auraient perdu (…)"
-    ],
-    "telegram_summary": "La présidence de Patrice Motsepe à la tête de la CAF est fragilisée par le revirement sur le format de la Coupe d’Afrique des Nations. Selon The Guardian, plusieurs dirigeants africains auraient perdu (…)",
-    "link": "https://www.footmercato.net/a7217282479979011780-cameroun-samuel-etoo-se-positionne-pour-devenir-president-de-la-caf",
-    "source_url": "https://www.footmercato.net/a7217282479979011780-cameroun-samuel-etoo-se-positionne-pour-devenir-president-de-la-caf",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2776f595c86cceba",
-    "published": "2026-10-13T20:03:42+00:00",
-    "image": "assets/images/footnews/2776f595c86cceba.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/samuel-etoo-2425.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Afrique",
-    "category_emoji": "🌍",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "caefd94db5fe7e54",
-    "title": "Barça : une autre légende de la génération dorée veut devenir entraîneur",
-    "summary": "L'ancien défenseur central Gérard Piqué a émis le souhait d'un jour entraîner au plus haut niveau et se forme pour.",
-    "summary_short": "L'ancien défenseur central Gérard Piqué a émis le souhait d'un jour entraîner au plus haut niveau et se forme pour.",
-    "content": "L'ancien défenseur central Gérard Piqué a émis le souhait d'un jour entraîner au plus haut niveau et se forme pour.",
-    "paragraphs": [
-      "L'ancien défenseur central Gérard Piqué a émis le souhait d'un jour entraîner au plus haut niveau et se forme pour."
-    ],
-    "key_points": [
-      "L'ancien défenseur central Gérard Piqué a émis le souhait d'un jour entraîner au plus haut niveau et se forme pour."
-    ],
-    "telegram_summary": "L'ancien défenseur central Gérard Piqué a émis le souhait d'un jour entraîner au plus haut niveau et se forme pour.",
-    "link": "https://www.onzemondial.com/liga/barca-une-autre-legende-de-la-generation-doree-veut-devenir-entraineur-1002474",
-    "source_url": "https://www.onzemondial.com/liga/barca-une-autre-legende-de-la-generation-doree-veut-devenir-entraineur-1002474",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=caefd94db5fe7e54",
-    "published": "2026-10-13T20:00:00+00:00",
-    "image": "assets/images/footnews/caefd94db5fe7e54.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002474/409347/1200-L-bara-une-autre-lgende-de-la-gnration-dore-veut-devenir-entraneur.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
   },
   {
     "slug": "e613cd0155361cda",
@@ -1783,124 +2392,6 @@
     "quality_score": 88
   },
   {
-    "slug": "7ac0abba073ef119",
-    "title": "Lunaire, le Bayern Munich mené 2-0 par les Viking Stavanger !",
-    "summary": "C'est l'énorme surprise de ce début de soirée en Ligue des Champions, le Bayern Munich est mené par les Norvégiens de Viking Stavanger.",
-    "summary_short": "C'est l'énorme surprise de ce début de soirée en Ligue des Champions, le Bayern Munich est mené par les Norvégiens de Viking Stavanger.",
-    "content": "C'est l'énorme surprise de ce début de soirée en Ligue des Champions, le Bayern Munich est mené par les Norvégiens de Viking Stavanger.",
-    "paragraphs": [
-      "C'est l'énorme surprise de ce début de soirée en Ligue des Champions, le Bayern Munich est mené par les Norvégiens de Viking Stavanger."
-    ],
-    "key_points": [
-      "C'est l'énorme surprise de ce début de soirée en Ligue des Champions, le Bayern Munich est mené par les Norvégiens de Viking Stavanger."
-    ],
-    "telegram_summary": "C'est l'énorme surprise de ce début de soirée en Ligue des Champions, le Bayern Munich est mené par les Norvégiens de Viking Stavanger.",
-    "link": "https://www.onzemondial.com/ligue-des-champions/lunaire-le-bayern-munich-mene-2-0-par-les-viking-stavanger-1002526",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/lunaire-le-bayern-munich-mene-2-0-par-les-viking-stavanger-1002526",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7ac0abba073ef119",
-    "published": "2026-10-13T19:48:00+00:00",
-    "image": "assets/images/footnews/7ac0abba073ef119.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002526/409374/1200-L-lunaire-le-bayern-munich-men-2-0-par-les-viking-stavanger.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "49939007",
-      "url": "https://www.espn.com/soccer/story/_/id/49939007/bayern-munich-2026-27-oktoberfest-kit-their-wildest-yet",
-      "published": "2026-09-15T10:54:48Z",
-      "score": 0.2,
-      "matched_terms": [
-        "bayern",
-        "munich"
-      ],
-      "topics": [
-        "blog - the toe poke"
-      ],
-      "teams": [
-        "Bayern Munich"
-      ],
-      "athletes": [],
-      "leagues": [
-        "German Bundesliga",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T03:24:06.952526+00:00"
-    },
-    "quality_sources": [
-      "Onze Mondial",
-      "ESPN"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "5627b48731cd4c7a",
-    "title": "Manchester City - PSG : le plan ultra ambitieux de Luis Enrique pour faire régner sa loi",
-    "summary": "Le Paris Saint-Germain va débarquer ce mercredi en Ligue des Champions face ambition comme le prouve le onze de départ probable aligné par Luis Enrique.",
-    "summary_short": "Le Paris Saint-Germain va débarquer ce mercredi en Ligue des Champions face ambition comme le prouve le onze de départ probable aligné par Luis Enrique.",
-    "content": "Le Paris Saint-Germain va débarquer ce mercredi en Ligue des Champions face ambition comme le prouve le onze de départ probable aligné par Luis Enrique.",
-    "paragraphs": [
-      "Le Paris Saint-Germain va débarquer ce mercredi en Ligue des Champions face ambition comme le prouve le onze de départ probable aligné par Luis Enrique."
-    ],
-    "key_points": [
-      "Le Paris Saint-Germain va débarquer ce mercredi en Ligue des Champions face ambition comme le prouve le onze de départ probable aligné par Luis Enrique."
-    ],
-    "telegram_summary": "Le Paris Saint-Germain va débarquer ce mercredi en Ligue des Champions face ambition comme le prouve le onze de départ probable aligné par Luis Enrique.",
-    "link": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-le-plan-ultra-ambitieux-de-luis-enrique-pour-faire-regner-sa-loi-1002525",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-le-plan-ultra-ambitieux-de-luis-enrique-pour-faire-regner-sa-loi-1002525",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5627b48731cd4c7a",
-    "published": "2026-10-13T19:43:00+00:00",
-    "image": "assets/images/footnews/5627b48731cd4c7a.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002525/409373/1200-L-manchester-city-psg-le-plan-ultra-ambitieux-de-luis-enrique-pour-faire-rgner-sa-loi.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50176946",
-      "url": "https://www.espn.com/video/clip/_/id/50176946/manchester-city-deserve-their-trophies",
-      "published": "2026-10-13T21:19:27Z",
-      "score": 0.25,
-      "matched_terms": [
-        "city",
-        "enrique",
-        "manchester"
-      ],
-      "topics": [],
-      "teams": [
-        "Manchester City",
-        "Paris Saint-Germain"
-      ],
-      "athletes": [],
-      "leagues": [
-        "Soccer",
-        "UEFA Champions League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T03:24:06.952526+00:00"
-    },
-    "quality_sources": [
-      "Onze Mondial",
-      "ESPN"
-    ],
-    "quality_score": 88
-  },
-  {
     "slug": "f79d671a47d8982a",
     "title": "RC Lens : Les réactions de Yannick Cahuzac et Matthieu Udol après la défaite lensoise face au Sporting CP (vidéo)",
     "summary": "Les réactions de Yannick Cahuzac et Matthieu Udol, respectivement entraîneur et défenseur latéral gauche du RC Lens, après la défaite face au Sporting CP (0-2, J2 LDC).",
@@ -1927,475 +2418,6 @@
     "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
     "category": "Matchs",
     "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "035dba3173dbb778",
-    "title": "Messi pour remettre le Ballon d'Or à Yamal ou Mbappé, la folle information déjà démentie",
-    "summary": "Alors que des rumeurs laissaient entre que Lionel Messi pourrait venir remettre le Ballon d'Or, l'information n'a pas mis beaucoup de temps à être démentie.",
-    "summary_short": "Alors que des rumeurs laissaient entre que Lionel Messi pourrait venir remettre le Ballon d'Or, l'information n'a pas mis beaucoup de temps à être démentie.",
-    "content": "Alors que des rumeurs laissaient entre que Lionel Messi pourrait venir remettre le Ballon d'Or, l'information n'a pas mis beaucoup de temps à être démentie.",
-    "paragraphs": [
-      "Alors que des rumeurs laissaient entre que Lionel Messi pourrait venir remettre le Ballon d'Or, l'information n'a pas mis beaucoup de temps à être démentie."
-    ],
-    "key_points": [
-      "Alors que des rumeurs laissaient entre que Lionel Messi pourrait venir remettre le Ballon d'Or, l'information n'a pas mis beaucoup de temps à être démentie."
-    ],
-    "telegram_summary": "Alors que des rumeurs laissaient entre que Lionel Messi pourrait venir remettre le Ballon d'Or, l'information n'a pas mis beaucoup de temps à être démentie.",
-    "link": "https://www.onzemondial.com/coupe-du-monde/messi-pour-remettre-le-ballon-dor-a-yamal-ou-mbappe-la-folle-information-deja-dementie-1002503",
-    "source_url": "https://www.onzemondial.com/coupe-du-monde/messi-pour-remettre-le-ballon-dor-a-yamal-ou-mbappe-la-folle-information-deja-dementie-1002503",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=035dba3173dbb778",
-    "published": "2026-10-13T19:34:00+00:00",
-    "image": "assets/images/footnews/035dba3173dbb778.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002503/409361/1200-L-messi-pour-remettre-le-ballon-d-or-yamal-ou-mbapp-la-folle-information-dj-dmentie.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "9a660cca19bf588b",
-    "title": "Mercato Brest : Le Stade Brestois annonce une signature pro (officiel)",
-    "summary": "Le Stade Brestois 29 a annoncé la signature du premier contrat professionnel de Mathis Lainé.",
-    "summary_short": "Le Stade Brestois 29 a annoncé la signature du premier contrat professionnel de Mathis Lainé.",
-    "content": "Le Stade Brestois 29 a annoncé la signature du premier contrat professionnel de Mathis Lainé.",
-    "paragraphs": [
-      "Le Stade Brestois 29 a annoncé la signature du premier contrat professionnel de Mathis Lainé."
-    ],
-    "key_points": [
-      "Le Stade Brestois 29 a annoncé la signature du premier contrat professionnel de Mathis Lainé."
-    ],
-    "telegram_summary": "Le Stade Brestois 29 a annoncé la signature du premier contrat professionnel de Mathis Lainé.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-mercato-brest-le-stade-brestois-annonce-une-signature-pro-officiel-542100.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-brest-le-stade-brestois-annonce-une-signature-pro-officiel-542100.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9a660cca19bf588b",
-    "published": "2026-10-13T19:24:00+00:00",
-    "image": "assets/images/footnews/9a660cca19bf588b.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240814085154-9537.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Officiel",
-    "category_emoji": "✅",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "9ccd4a0940a111d8",
-    "title": "RC Lens-Sporting : « On doit être énervé ce soir », le triste constat de Thauvin après la défaite",
-    "summary": "Après la défaite du RC Lens face au Sporting Portugal, Florian Thauvin a livré un constat triste mais lucide sur la performance des siens.",
-    "summary_short": "Après la défaite du RC Lens face au Sporting Portugal, Florian Thauvin a livré un constat triste mais lucide sur la performance des siens.",
-    "content": "Après la défaite du RC Lens face au Sporting Portugal, Florian Thauvin a livré un constat triste mais lucide sur la performance des siens.",
-    "paragraphs": [
-      "Après la défaite du RC Lens face au Sporting Portugal, Florian Thauvin a livré un constat triste mais lucide sur la performance des siens."
-    ],
-    "key_points": [
-      "Après la défaite du RC Lens face au Sporting Portugal, Florian Thauvin a livré un constat triste mais lucide sur la performance des siens."
-    ],
-    "telegram_summary": "Après la défaite du RC Lens face au Sporting Portugal, Florian Thauvin a livré un constat triste mais lucide sur la performance des siens.",
-    "link": "https://www.onzemondial.com/ligue-des-champions/rc-lens-sporting-on-doit-etre-enerve-ce-soir-le-triste-constat-de-thauvin-apres-la-defaite-1002523",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/rc-lens-sporting-on-doit-etre-enerve-ce-soir-le-triste-constat-de-thauvin-apres-la-defaite-1002523",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9ccd4a0940a111d8",
-    "published": "2026-10-13T19:15:00+00:00",
-    "image": "assets/images/footnews/9ccd4a0940a111d8.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002523/409372/1200-L-rc-lens-sporting-on-doit-tre-nerv-ce-soir-le-triste-constat-de-thauvin-aprs-la-dfaite.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "bb4cd1e1365905c5",
-    "title": "Real Madrid : Aurélien Tchouaméni : \"Au Real Madrid, il y a des critiques\"",
-    "summary": "Aurélien Tchouaméni était en conférence avant le match sur la pelouse de l'AS Rome, mercredi soir.",
-    "summary_short": "Aurélien Tchouaméni était en conférence avant le match sur la pelouse de l'AS Rome, mercredi soir.",
-    "content": "Aurélien Tchouaméni était en conférence avant le match sur la pelouse de l'AS Rome, mercredi soir.",
-    "paragraphs": [
-      "Aurélien Tchouaméni était en conférence avant le match sur la pelouse de l'AS Rome, mercredi soir."
-    ],
-    "key_points": [
-      "Aurélien Tchouaméni était en conférence avant le match sur la pelouse de l'AS Rome, mercredi soir."
-    ],
-    "telegram_summary": "Aurélien Tchouaméni était en conférence avant le match sur la pelouse de l'AS Rome, mercredi soir.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-real-madrid-aurelien-tchouameni-au-real-madrid-il-y-a-des-critiques-542098.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-real-madrid-aurelien-tchouameni-au-real-madrid-il-y-a-des-critiques-542098.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=bb4cd1e1365905c5",
-    "published": "2026-10-13T19:05:00+00:00",
-    "image": "assets/images/footnews/bb4cd1e1365905c5.webp",
-    "source_image": "https://s1.dmcdn.net/v/fwmjw1gpe9zmbpz-m/x480",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50150816",
-      "url": "https://www.espn.com/video/clip/_/id/50150816/real-madrid-vs-villarreal-game-highlights",
-      "published": "2026-10-10T21:06:47Z",
-      "score": 0.25,
-      "matched_terms": [
-        "madrid",
-        "real"
-      ],
-      "topics": [],
-      "teams": [
-        "Real Madrid",
-        "Villarreal"
-      ],
-      "athletes": [
-        "Alberto Moleiro",
-        "Vinícius Júnior",
-        "Yan Diomande"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T03:24:06.952526+00:00"
-    },
-    "quality_sources": [
-      "MadeInFoot",
-      "ESPN"
-    ],
-    "quality_score": 96
-  },
-  {
-    "slug": "3f454d87efe2057e",
-    "title": "Impuissant, le RC Lens concède sa première défaite de la saison en Ligue des champions face au Sporting",
-    "summary": "Les Artésiens ont concédé leur première défaite européenne de la saison face aux Portugais, mardi soir.",
-    "summary_short": "Les Artésiens ont concédé leur première défaite européenne de la saison face aux Portugais, mardi soir.",
-    "content": "Les Artésiens ont concédé leur première défaite européenne de la saison face aux Portugais, mardi soir.",
-    "paragraphs": [
-      "Les Artésiens ont concédé leur première défaite européenne de la saison face aux Portugais, mardi soir."
-    ],
-    "key_points": [
-      "Les Artésiens ont concédé leur première défaite européenne de la saison face aux Portugais, mardi soir."
-    ],
-    "telegram_summary": "Les Artésiens ont concédé leur première défaite européenne de la saison face aux Portugais, mardi soir.",
-    "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/impuissant-le-rc-lens-concede-sa-premiere-defaite-de-la-saison-en-ligue-des-champions-face-au-sporting_8235994.html#xtor=RSS-3-%5Bgeneral%5D",
-    "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/impuissant-le-rc-lens-concede-sa-premiere-defaite-de-la-saison-en-ligue-des-champions-face-au-sporting_8235994.html#xtor=RSS-3-%5Bgeneral%5D",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3f454d87efe2057e",
-    "published": "2026-10-13T19:02:52+00:00",
-    "image": "assets/images/footnews/3f454d87efe2057e.webp",
-    "source_image": "https://www.franceinfo.fr/pictures/6SWWQdG4NKsc2FNjm63-DnPoXrs/0x0:4767x2681/432x243/filters:format(jpg)/2026/10/13/6ace805610166877973142.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Franceinfo",
-    "source_priority": 82,
-    "source_region": "international",
-    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Franceinfo"
-    ],
-    "quality_score": 82
-  },
-  {
-    "slug": "8fa5a0dd0d0e88db",
-    "title": "Champion d'Angleterre et finaliste de Ligue des champions : pourquoi Declan Rice mérite de remporter le Onze d’Or 2026 ?",
-    "summary": "Après une saison exceptionnelle avec Arsenal, marquée par un titre de champion d’Angleterre et un parcours jusqu’en finale de Ligue des champions, Declan Rice peut-il décrocher le Onze d’Or 2026 ?",
-    "summary_short": "Après une saison exceptionnelle avec Arsenal, marquée par un titre de champion d’Angleterre et un parcours jusqu’en finale de Ligue des champions, Declan Rice peut-il décrocher le Onze d’Or 2026 ?",
-    "content": "Après une saison exceptionnelle avec Arsenal, marquée par un titre de champion d’Angleterre et un parcours jusqu’en finale de Ligue des champions, Declan Rice peut-il décrocher le Onze d’Or 2026 ?",
-    "paragraphs": [
-      "Après une saison exceptionnelle avec Arsenal, marquée par un titre de champion d’Angleterre et un parcours jusqu’en finale de Ligue des champions, Declan Rice peut-il décrocher le Onze d’Or 2026 ?"
-    ],
-    "key_points": [
-      "Après une saison exceptionnelle avec Arsenal, marquée par un titre de champion d’Angleterre et un parcours jusqu’en finale de Ligue des champions, Declan Rice peut-il décrocher le Onze d’Or 2026 ?"
-    ],
-    "telegram_summary": "Après une saison exceptionnelle avec Arsenal, marquée par un titre de champion d’Angleterre et un parcours jusqu’en finale de Ligue des champions, Declan Rice peut-il décrocher le Onze d’Or 2026 ?",
-    "link": "https://www.onzemondial.com/premier-league/premier-league-finale-de-ligue-des-champions-pourquoi-declan-rice-merite-de-remporter-le-onze-dor-2026-1002437",
-    "source_url": "https://www.onzemondial.com/premier-league/premier-league-finale-de-ligue-des-champions-pourquoi-declan-rice-merite-de-remporter-le-onze-dor-2026-1002437",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8fa5a0dd0d0e88db",
-    "published": "2026-10-13T19:00:00+00:00",
-    "image": "assets/images/footnews/8fa5a0dd0d0e88db.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002437/409326/1200-L-champion-d-angleterre-et-finaliste-de-ligue-des-champions-pourquoi-declan-rice-mrite-de-remporter-le-onze-dor-2026.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Convocations",
-    "category_emoji": "📋",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "75fe4a9a9405f45e",
-    "title": "RC Lens : Tout n'est pas à jeter après la défaite face au Sporting CP, selon Florian Thauvin",
-    "summary": "Défait 2 buts à 0 par le Sporting CP sur sa pelouse du Stade Bollaert-Delelis ce mardi soir, le RC Lens a manqué l'occasion de faire un six sur six en cette entame de campagne de Ligue des Champions.",
-    "summary_short": "Défait 2 buts à 0 par le Sporting CP sur sa pelouse du Stade Bollaert-Delelis ce mardi soir, le RC Lens a manqué l'occasion de faire un six sur six en cette entame de campagne de Ligue des Champions.",
-    "content": "Défait 2 buts à 0 par le Sporting CP sur sa pelouse du Stade Bollaert-Delelis ce mardi soir, le RC Lens a manqué l'occasion de faire un six sur six en cette entame de campagne de Ligue des Champions.",
-    "paragraphs": [
-      "Défait 2 buts à 0 par le Sporting CP sur sa pelouse du Stade Bollaert-Delelis ce mardi soir, le RC Lens a manqué l'occasion de faire un six sur six en cette entame de campagne de Ligue des Champions."
-    ],
-    "key_points": [
-      "Défait 2 buts à 0 par le Sporting CP sur sa pelouse du Stade Bollaert-Delelis ce mardi soir, le RC Lens a manqué l'occasion de faire un six sur six en cette entame de campagne de Ligue des Champions."
-    ],
-    "telegram_summary": "Défait 2 buts à 0 par le Sporting CP sur sa pelouse du Stade Bollaert-Delelis ce mardi soir, le RC Lens a manqué l'occasion de faire un six sur six en cette entame de campagne de Ligue des Champions.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-tout-n-est-pas-a-jeter-apres-la-defaite-face-au-sporting-cp-selon-florian-thauvin-542096.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-tout-n-est-pas-a-jeter-apres-la-defaite-face-au-sporting-cp-selon-florian-thauvin-542096.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=75fe4a9a9405f45e",
-    "published": "2026-10-13T18:55:00+00:00",
-    "image": "assets/images/footnews/75fe4a9a9405f45e.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260824120543-3401.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "6800885633d93f13",
-    "title": "RC Lens - Sporting : 21 tirs, des xG favorables mais zéro point, les statistiques terribles des Lensois",
-    "summary": "Le RC Lens peut avoir des regrets au regard des statistiques après la défaite face au Sporting Portugal en Ligue des Champions.",
-    "summary_short": "Le RC Lens peut avoir des regrets au regard des statistiques après la défaite face au Sporting Portugal en Ligue des Champions.",
-    "content": "Le RC Lens peut avoir des regrets au regard des statistiques après la défaite face au Sporting Portugal en Ligue des Champions.",
-    "paragraphs": [
-      "Le RC Lens peut avoir des regrets au regard des statistiques après la défaite face au Sporting Portugal en Ligue des Champions."
-    ],
-    "key_points": [
-      "Le RC Lens peut avoir des regrets au regard des statistiques après la défaite face au Sporting Portugal en Ligue des Champions."
-    ],
-    "telegram_summary": "Le RC Lens peut avoir des regrets au regard des statistiques après la défaite face au Sporting Portugal en Ligue des Champions.",
-    "link": "https://www.onzemondial.com/ligue-des-champions/rc-lens-sporting-21-tirs-des-xg-favorables-mais-zero-point-les-statistiques-terribles-des-lensois-1002522",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/rc-lens-sporting-21-tirs-des-xg-favorables-mais-zero-point-les-statistiques-terribles-des-lensois-1002522",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=6800885633d93f13",
-    "published": "2026-10-13T18:55:00+00:00",
-    "image": "assets/images/footnews/6800885633d93f13.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002522/409371/1200-L-rc-lens-sporting-21-tirs-des-xg-favorables-mais-zro-point-les-statistiques-terribles-des-lensois.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "bb1b4c7fc8d95b4c",
-    "title": "PSG : Luis Enrique : \"Gianluigi Donnarumma, une personne merveilleuse\"",
-    "summary": "Avant le premier sommet européen de la saison du PSG, ce mercredi (21 heures) à l'Etihad Stadium face à Manchester City, Luis Enrique a assuré qu'il prenait du plaisir à voir Gigio Donnarumma…",
-    "summary_short": "Avant le premier sommet européen de la saison du PSG, ce mercredi (21 heures) à l'Etihad Stadium face à Manchester City, Luis Enrique a assuré qu'il prenait du plaisir à voir Gigio Donnarumma…",
-    "content": "Avant le premier sommet européen de la saison du PSG, ce mercredi (21 heures) à l'Etihad Stadium face à Manchester City, Luis Enrique a assuré qu'il prenait du plaisir à voir Gigio Donnarumma…",
-    "paragraphs": [
-      "Avant le premier sommet européen de la saison du PSG, ce mercredi (21 heures) à l'Etihad Stadium face à Manchester City, Luis Enrique a assuré qu'il prenait du plaisir à voir Gigio Donnarumma…"
-    ],
-    "key_points": [
-      "Avant le premier sommet européen de la saison du PSG, ce mercredi (21 heures) à l'Etihad Stadium face à Manchester City, Luis Enrique a assuré qu'il prenait du plaisir à voir Gigio Donnarumma…"
-    ],
-    "telegram_summary": "Avant le premier sommet européen de la saison du PSG, ce mercredi (21 heures) à l'Etihad Stadium face à Manchester City, Luis Enrique a assuré qu'il prenait du plaisir à voir Gigio Donnarumma…",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-psg-luis-enrique-gianluigi-donnarumma-une-personne-merveilleuse-542091.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-psg-luis-enrique-gianluigi-donnarumma-une-personne-merveilleuse-542091.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=bb1b4c7fc8d95b4c",
-    "published": "2026-10-13T18:45:00+00:00",
-    "image": "assets/images/footnews/bb1b4c7fc8d95b4c.webp",
-    "source_image": "https://s2.dmcdn.net/v/fwem-1gpdF8Zpx_js/x480",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "49827385",
-      "url": "https://www.espn.com/soccer/story/_/id/49827385/psg-coach-luis-enrique-new-contract-fabian-ruiz-joao-neves",
-      "published": "2026-09-04T20:23:54Z",
-      "score": 0.2,
-      "matched_terms": [
-        "enrique",
-        "luis"
-      ],
-      "topics": [
-        "news"
-      ],
-      "teams": [
-        "Paris Saint-Germain"
-      ],
-      "athletes": [
-        "Fabián Ruiz",
-        "João Neves",
-        "Lucas Beraldo",
-        "Senny Mayulu",
-        "Willian Pacho"
-      ],
-      "leagues": [
-        "French Ligue 1",
-        "Soccer",
-        "UEFA Champions League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T03:24:06.952526+00:00"
-    },
-    "quality_sources": [
-      "MadeInFoot",
-      "ESPN"
-    ],
-    "quality_score": 96
-  },
-  {
-    "slug": "7978719b6cd3b6fb",
-    "title": "Lens - Sporting : les notes des Sang et Or",
-    "summary": "Le Racing Club de Lens défiait le Sporting à l'occasion de la deuxième journée de Ligue des champions. Découvrez les notes des Sang et Or après la rencontre !",
-    "summary_short": "Le Racing Club de Lens défiait le Sporting à l'occasion de la deuxième journée de Ligue des champions. Découvrez les notes des Sang et Or après la rencontre !",
-    "content": "Le Racing Club de Lens défiait le Sporting à l'occasion de la deuxième journée de Ligue des champions. Découvrez les notes des Sang et Or après la rencontre !",
-    "paragraphs": [
-      "Le Racing Club de Lens défiait le Sporting à l'occasion de la deuxième journée de Ligue des champions. Découvrez les notes des Sang et Or après la rencontre !"
-    ],
-    "key_points": [
-      "Le Racing Club de Lens défiait le Sporting à l'occasion de la deuxième journée de Ligue des champions.",
-      "Découvrez les notes des Sang et Or après la rencontre !"
-    ],
-    "telegram_summary": "Le Racing Club de Lens défiait le Sporting à l'occasion de la deuxième journée de Ligue des champions. Découvrez les notes des Sang et Or après la rencontre !",
-    "link": "https://www.onzemondial.com/ligue-des-champions/lens-sporting-les-notes-des-sang-et-or-1002492",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/lens-sporting-les-notes-des-sang-et-or-1002492",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7978719b6cd3b6fb",
-    "published": "2026-10-13T18:45:00+00:00",
-    "image": "assets/images/footnews/7978719b6cd3b6fb.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002492/409356/1200-L-lens-sporting-les-notes-des-sang-et-or.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "1fa09c0e2955e653",
-    "title": "LDC : Les notes de RC Lens - Sporting CP : un RCL impuissant s'incline face au Sporting !",
-    "summary": "Ce mardi en fin d'après-midi, le RC Lens s'est incliné face au Sporting CP (0-2), lors de la 2ème journée de la phase de ligue de la Ligue des Champions.",
-    "summary_short": "Ce mardi en fin d'après-midi, le RC Lens s'est incliné face au Sporting CP (0-2), lors de la 2ème journée de la phase de ligue de la Ligue des Champions.",
-    "content": "Ce mardi en fin d'après-midi, le RC Lens s'est incliné face au Sporting CP (0-2), lors de la 2ème journée de la phase de ligue de la Ligue des Champions.",
-    "paragraphs": [
-      "Ce mardi en fin d'après-midi, le RC Lens s'est incliné face au Sporting CP (0-2), lors de la 2ème journée de la phase de ligue de la Ligue des Champions."
-    ],
-    "key_points": [
-      "Ce mardi en fin d'après-midi, le RC Lens s'est incliné face au Sporting CP (0-2), lors de la 2ème journée de la phase de ligue de la Ligue des Champions."
-    ],
-    "telegram_summary": "Ce mardi en fin d'après-midi, le RC Lens s'est incliné face au Sporting CP (0-2), lors de la 2ème journée de la phase de ligue de la Ligue des Champions.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-ldc-les-notes-de-rc-lens-sporting-cp-un-rcl-impuissant-s-incline-face-au-sporting-542095.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-les-notes-de-rc-lens-sporting-cp-un-rcl-impuissant-s-incline-face-au-sporting-542095.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1fa09c0e2955e653",
-    "published": "2026-10-13T18:41:00+00:00",
-    "image": "assets/images/footnews/1fa09c0e2955e653.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20261013201300-6745.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "2bb27876e495e936",
-    "title": "PSG : Le célèbre jardinier du PSG pourrait être licencié !",
-    "summary": "Jonathan Calderwood, \"ground manager\" arrivé au PSG en 2013, a été convoqué à un entretien préalable pouvant déboucher sur un licenciement.",
-    "summary_short": "Jonathan Calderwood, \"ground manager\" arrivé au PSG en 2013, a été convoqué à un entretien préalable pouvant déboucher sur un licenciement.",
-    "content": "Jonathan Calderwood, \"ground manager\" arrivé au PSG en 2013, a été convoqué à un entretien préalable pouvant déboucher sur un licenciement.",
-    "paragraphs": [
-      "Jonathan Calderwood, \"ground manager\" arrivé au PSG en 2013, a été convoqué à un entretien préalable pouvant déboucher sur un licenciement."
-    ],
-    "key_points": [
-      "Jonathan Calderwood, \"ground manager\" arrivé au PSG en 2013, a été convoqué à un entretien préalable pouvant déboucher sur un licenciement."
-    ],
-    "telegram_summary": "Jonathan Calderwood, \"ground manager\" arrivé au PSG en 2013, a été convoqué à un entretien préalable pouvant déboucher sur un licenciement.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-psg-le-celebre-jardinier-du-psg-pourrait-etre-licencie-542094.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-psg-le-celebre-jardinier-du-psg-pourrait-etre-licencie-542094.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2bb27876e495e936",
-    "published": "2026-10-13T18:40:00+00:00",
-    "image": "assets/images/footnews/2bb27876e495e936.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2021/une/l1-20210418143714-6505.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Convocations",
-    "category_emoji": "📋",
     "editorial_score": 3,
     "espn_verification": {},
     "quality_sources": [
