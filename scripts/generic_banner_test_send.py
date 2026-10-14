@@ -12,7 +12,6 @@ import sys
 import tempfile
 import time
 from pathlib import Path
-from unittest.mock import patch
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import requests
@@ -58,15 +57,15 @@ MATCH_CASES = [
     ("match_annule", "MATCH ANNULÉ", {"status": "Rencontre annulée."}),
     ("reprise_match", "REPRISE DU MATCH", {"status": "Le jeu reprend."}),
     ("temps_additionnel", "TEMPS ADDITIONNEL", {"minute": "90+5", "info": "Cinq minutes minimum."}),
-    ("fin_1re_mi_temps", "FIN 1RE MI-TEMPS", {"minute": "45+3"}),
-    ("debut_2e_mi_temps", "DÉBUT 2E MI-TEMPS", {"minute": "46"}),
-    ("fin_temps_reglementaire", "FIN TEMPS RÉGLEMENTAIRE", {"minute": "90"}),
+    ("fin_1re_mi_temps", "FIN DE LA 1RE MI-TEMPS", {"minute": "45+3"}),
+    ("debut_2e_mi_temps", "DÉBUT DE LA 2E MI-TEMPS", {"minute": "46"}),
+    ("fin_temps_reglementaire", "FIN DU TEMPS RÉGLEMENTAIRE", {"minute": "90"}),
     ("prolongation", "PROLONGATIONS", {"minute": "90", "info": "Le match se poursuit en prolongation."}),
-    ("mi_temps_prolongation", "MI-TEMPS PROLONGATION", {"minute": "105"}),
+    ("mi_temps_prolongation", "MI-TEMPS DES PROLONGATIONS", {"minute": "105"}),
     ("tirs_au_but", "TIRS AU BUT", {"shootout_scores": [3, 2], "info": "Séance en cours."}),
     ("tir_au_but_marque", "TIR AU BUT MARQUÉ", {"shootout_scores": [4, 2], "player": "Tireur Test"}),
     ("tir_au_but_manque", "TIR AU BUT MANQUÉ", {"shootout_scores": [4, 2], "player": "Tireur Test", "detail": "Tentative non convertie."}),
-    ("fin_tirs_au_but", "FIN TIRS AU BUT", {"shootout_scores": [5, 4], "info": "Séance terminée."}),
+    ("fin_tirs_au_but", "FIN DES TIRS AU BUT", {"shootout_scores": [5, 4], "info": "Séance terminée."}),
     ("reaction", "RÉACTION APRÈS MATCH", {"question": "Quelle note donnez-vous à cette rencontre ?"}),
     ("community_vote", "VOTE SUR UN MATCH", {"question": "Qui va gagner cette rencontre ?"}),
     ("statistique", "STATISTIQUE LIÉE AU MATCH", {"headline": "17 tirs au total", "lines": ["9 tirs pour Équipe A", "8 tirs pour Équipe B"]}),
@@ -88,30 +87,12 @@ GENERAL_CASES = [
 ]
 
 
-def dummy_logo(url: str, maximum: int):
-    """Clean synthetic badge for positioning; no real club identity is implied."""
-    im = Image.new("RGBA", (maximum, maximum), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(im)
-    gold = (241, 193, 92, 255)
-    pale = (225, 235, 247, 255)
-    color = pale if "away" in str(url) else gold
-    margin = max(4, maximum // 18)
-    draw.ellipse((margin, margin, maximum - margin, maximum - margin), outline=color, width=max(3, maximum // 18))
-    try:
-        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", max(20, maximum // 3))
-    except OSError:
-        font = ImageFont.load_default()
-    label = "B" if "away" in str(url) else "C" if "club" in str(url) else "A"
-    draw.text((maximum // 2, maximum // 2), label, font=font, fill=color, anchor="mm")
-    return im
-
-
 def base_match() -> dict:
     return {
         "home": "Manchester United",
         "away": "Paris Saint-Germain",
-        "home_logo": "mock://home",
-        "away_logo": "mock://away",
+        "home_logo": "https://a.espncdn.com/i/teamlogos/soccer/500/360.png",
+        "away_logo": "https://a.espncdn.com/i/teamlogos/soccer/500/160.png",
         "competition": "UEFA Champions League",
         "league": "UEFA Champions League",
         "score": "2-1",
@@ -134,7 +115,7 @@ def base_club() -> dict:
     return {
         "team": "Manchester United",
         "club": "Manchester United",
-        "team_logo": "mock://club",
+        "team_logo": "https://a.espncdn.com/i/teamlogos/soccer/500/360.png",
         "competition": "Premier League",
         "league": "Premier League",
         "source": "ESPN • TEST",
@@ -279,55 +260,55 @@ def main() -> int:
     rendered_paths: list[Path] = []
 
     try:
-        with patch("programme_styles.load_logo", side_effect=dummy_logo):
-            for index, (category, label, overrides, family) in enumerate(cases, 1):
-                if index < start_index or index > end_index:
-                    continue
-                if family == "match":
-                    payload = _merge(base_match(), overrides)
-                elif family == "club":
-                    payload = _merge(base_club(), overrides)
-                else:
-                    payload = dict(overrides)
-                    payload.setdefault("source", "TEST")
-                    payload.setdefault("league", "Football")
+        for index, (category, label, overrides, family) in enumerate(cases, 1):
+            if index < start_index or index > end_index:
+                continue
+            if family == "match":
+                payload = _merge(base_match(), overrides)
+            elif family == "club":
+                payload = _merge(base_club(), overrides)
+            else:
+                payload = dict(overrides)
+                payload.setdefault("source", "TEST")
+                payload.setdefault("league", "Football")
+                payload.setdefault("image_path", "assets/images/article-02bacd1b.webp")
 
-                path = output_dir / f"{index:02d}-{category}.png"
-                render_card(category, payload, path)
-                rendered_paths.append(path)
-                with Image.open(path) as check:
-                    if check.size != (1280, 500):
-                        raise RuntimeError(f"{category}: format {check.size}, attendu 1280x500")
+        path = output_dir / f"{index:02d}-{category}.png"
+            render_card(category, payload, path)
+            rendered_paths.append(path)
+            with Image.open(path) as check:
+                if check.size != (1280, 500):
+                    raise RuntimeError(f"{category}: format {check.size}, attendu 1280x500")
 
-                row = {
-                    "index": index,
-                    "category": category,
-                    "family": family,
-                    "preview": path.name,
-                }
+            row = {
+                "index": index,
+                "category": category,
+                "family": family,
+                "preview": path.name,
+            }
 
-                if send_enabled:
-                    keyboard = live_keyboard(payload, include_live=(family == "match"))
-                    message_id = _post_photo_with_retry(
-                        session,
-                        token,
-                        chat,
-                        path,
-                        _caption(index, total, label, category, payload),
-                        keyboard or {},
-                    )
-                    row["message_id"] = message_id
-                    print("GENERIC_BANNER_TEST_SENT", json.dumps(row, ensure_ascii=False), flush=True)
+            if send_enabled:
+                keyboard = live_keyboard(payload, include_live=(family == "match"))
+                message_id = _post_photo_with_retry(
+                    session,
+                    token,
+                    chat,
+                    path,
+                    _caption(index, total, label, category, payload),
+                    keyboard or {},
+                )
+                row["message_id"] = message_id
+                print("GENERIC_BANNER_TEST_SENT", json.dumps(row, ensure_ascii=False), flush=True)
 
-                    if category in poll_categories:
-                        poll_id = _send_poll(session, token, chat, label)
-                        row["poll_message_id"] = poll_id
-                        print("GENERIC_BANNER_POLL_SENT", category, poll_id, flush=True)
-                    time.sleep(1.15)
-                else:
-                    print("GENERIC_BANNER_PREVIEW_OK", json.dumps(row, ensure_ascii=False), flush=True)
+                if category in poll_categories:
+                    poll_id = _send_poll(session, token, chat, label)
+                    row["poll_message_id"] = poll_id
+                    print("GENERIC_BANNER_POLL_SENT", category, poll_id, flush=True)
+                time.sleep(1.15)
+            else:
+                print("GENERIC_BANNER_PREVIEW_OK", json.dumps(row, ensure_ascii=False), flush=True)
 
-                sent.append(row)
+            sent.append(row)
 
         _contact_sheets(rendered_paths, output_dir)
         manifest = {
