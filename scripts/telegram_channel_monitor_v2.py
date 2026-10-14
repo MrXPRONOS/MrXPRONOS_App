@@ -145,11 +145,13 @@ def parts(rows,now):
  return result
 async def main():
  now=datetime.now(UTC);day=now.date().isoformat();owner=secrets.token_hex(20)
+ test_mode=os.getenv("TELEGRAM_MONITOR_TEST_MODE","").strip().lower() in ("true","1","yes")
  db=DB()
- prior_dispatch=db.read("telegram_channel_report_dispatch",select="status",report_on="eq."+day,limit="1")
- if prior_dispatch:
-  print("SKIP_REPORT_ALREADY_RESERVED",day,prior_dispatch[0].get("status"))
-  return
+ if not test_mode:
+  prior_dispatch=db.read("telegram_channel_report_dispatch",select="status",report_on="eq."+day,limit="1")
+  if prior_dispatch:
+   print("SKIP_REPORT_ALREADY_RESERVED",day,prior_dispatch[0].get("status"))
+   return
  status=db.rpc("telegram_monitor_acquire",p_owner=owner,p_minutes=25)
  if status!="ok":print("SKIP_LEASE",status);return
  cooldown=0;failure=None;client=None
@@ -178,16 +180,22 @@ async def main():
    await asyncio.sleep(2)
   if not rows:raise RuntimeError("No channel collected")
   print("SAVED_CHANNELS",len(rows))
-  if not db.rpc("telegram_monitor_reserve_report",p_on=day,p_owner=owner,p_count=len(rows)):
-   print("REPORT_ALREADY_RESERVED",day);return
+  if not test_mode:
+   if not db.rpc("telegram_monitor_reserve_report",p_on=day,p_owner=owner,p_count=len(rows)):
+    print("REPORT_ALREADY_RESERVED",day);return
   sent=[]
   for part in parts(rows,now):
+   if test_mode:
+    part="🧪 <b>TEST RÉEL V2 — MR XPRONOS</b>\n<i>Déclenchement manuel, distinct du bilan quotidien.</i>\n\n"+part
    sent.append(await client.send_message("me",part,parse_mode="html",link_preview=False))
    await asyncio.sleep(1)
-  db.call("PATCH","telegram_channel_report_dispatch",
-   params={"report_on":"eq."+day,"reservation_owner":"eq."+owner},
-   json={"status":"sent","message_id":sent[-1].id})
-  print("PRIVATE_REPORT_SENT",day,len(rows))
+  if test_mode:
+   print("PRIVATE_TEST_SENT",day,len(rows),"messages",len(sent))
+  else:
+   db.call("PATCH","telegram_channel_report_dispatch",
+    params={"report_on":"eq."+day,"reservation_owner":"eq."+owner},
+    json={"status":"sent","message_id":sent[-1].id})
+   print("PRIVATE_REPORT_SENT",day,len(rows))
  except errors.FloodWaitError as e:
   cooldown=min(604800,max(60,n(e.seconds) or 60)+120);failure="FloodWaitError"
   raise RuntimeError("Telegram requested cooldown; no retry") from e
