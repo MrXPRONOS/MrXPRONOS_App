@@ -32,6 +32,9 @@ jobs:
       TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
       FOOTBALL_REQUIRE_COMMENTS: '0'
       PYTHONUNBUFFERED: '1'
+      # 1–20 were already delivered successfully before Telegram throttled
+      # the first audit run. Resume without creating duplicates.
+      GENERIC_TEST_START_INDEX: '21'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
