@@ -181,8 +181,18 @@ for job in listing.get("jobs", []):
             and job.get("title") == "Mr XPRONOS – Update football news"
             and job.get("enabled") is True):
         details = req("GET", f"/jobs/{job['jobId']}").get("jobDetails", {})
-        details["enabled"] = False
-        req("PATCH", f"/jobs/{job['jobId']}", {"job": details})
+        disabled = {
+            "enabled": False,
+            "title": details.get("title"),
+            "saveResponses": bool(details.get("saveResponses")),
+            "url": details.get("url"),
+            "requestTimeout": int(details.get("requestTimeout") or 60),
+            "redirectSuccess": bool(details.get("redirectSuccess")),
+            "schedule": details.get("schedule") or {},
+            "requestMethod": int(details.get("requestMethod") or 1),
+            "extendedData": details.get("extendedData") or {},
+        }
+        req("PATCH", f"/jobs/{job['jobId']}", {"job": disabled})
         results.append({
             "action": "disabled",
             "jobId": job["jobId"],
