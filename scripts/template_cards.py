@@ -119,33 +119,30 @@ POLL_OPTION_BOXES = (
 POLL_ICON_CENTERS = ((155, 534), (155, 660), (155, 786))
 POLL_DATE_BOX = (470, 864, 670, 912)
 
-# Nouveau template Compositions officielles natif 1374 x 1145.
-# Les coordonnées ci-dessous ont été remesurées sur le fond 11 lignes.
-COMPOSITION_HOME_LOGO = (343, 381)
-COMPOSITION_AWAY_LOGO = (1029, 381)
-COMPOSITION_HOME_NAME = (92, 454, 594, 511)
-COMPOSITION_AWAY_NAME = (766, 454, 1274, 511)
-COMPOSITION_COMPETITION_BOX = (516, 224, 741, 274)
-COMPOSITION_TIME_BOX = (786, 224, 910, 274)
-COMPOSITION_SOURCE_BOX = (78, 1073, 214, 1112)
+# Template Compositions officielles V3 natif 1374 x 1145.
+# Toutes les zones variables sont déjà vides et sombres dans le fond source :
+# aucune gomme, aucun patch et aucun rectangle n'est nécessaire.
+COMPOSITION_HOME_LOGO = (339, 359)
+COMPOSITION_AWAY_LOGO = (1030, 359)
+COMPOSITION_HOME_NAME = (88, 450, 584, 507)
+COMPOSITION_AWAY_NAME = (784, 450, 1274, 507)
+COMPOSITION_COMPETITION_BOX = (500, 224, 723, 274)
+COMPOSITION_TIME_BOX = (786, 224, 933, 274)
 
-# Les numéros 1..11 et les cadres sont déjà imprimés dans le template.
-# Le renderer écrit uniquement les noms des joueurs dans ces zones.
-COMPOSITION_HOME_PLAYER_X = (158, 586)
-COMPOSITION_AWAY_PLAYER_X = (860, 1288)
+# Pied de page : icônes et séparateurs sont imprimés dans le template,
+# seuls les libellés sont injectés par le renderer.
+COMPOSITION_SOURCE_BOX = (78, 1073, 325, 1118)
+COMPOSITION_COMMENT_BOX = (516, 1073, 894, 1118)
+COMPOSITION_BRAND_BOX = (1017, 1073, 1325, 1118)
+
+# Les numéros 1..11 et les cadres de lignes sont natifs au template.
+# On écrit uniquement les noms des joueurs dans les champs sombres.
+COMPOSITION_HOME_PLAYER_X = (151, 578)
+COMPOSITION_AWAY_PLAYER_X = (847, 1277)
 COMPOSITION_ROWS = tuple(
-    (532 + index * 46, 577 + index * 46)
+    (526 + index * 46, 566 + index * 46)
     for index in range(11)
 )
-
-# Zones contenant uniquement les placeholders texte du fond source.
-# Elles sont effacées par reconstruction du fond (pas par rectangles).
-COMPOSITION_ERASE_HOME_NAME = (174, 458, 514, 507)
-COMPOSITION_ERASE_AWAY_NAME = (860, 458, 1206, 507)
-COMPOSITION_ERASE_COMPETITION = (510, 226, 741, 273)
-COMPOSITION_ERASE_TIME = (782, 226, 914, 273)
-COMPOSITION_ERASE_SOURCE = (76, 1072, 220, 1113)
-
 
 def clean(value: Any) -> str:
     return re.sub(r"\s+", " ", str(value or "").strip())
@@ -354,11 +351,11 @@ def template(category: str) -> Image.Image:
     # base64 sur la branche TEST afin de conserver exactement l'image générée.
     # Aucune recomposition graphique n'est faite par le renderer.
     if category == "composition":
-        encoded_dir = ASSETS / "template_compositions_officielles_v2.b64"
+        encoded_dir = ASSETS / "template_compositions_officielles_v3.b64"
         parts = sorted(encoded_dir.glob("*.txt"))
         if not parts:
             raise FileNotFoundError(
-                f"Template Composition v2 absent: {encoded_dir}"
+                f"Template Composition v3 absent: {encoded_dir}"
             )
         encoded = "".join(
             part.read_text(encoding="utf-8").strip()
@@ -368,7 +365,7 @@ def template(category: str) -> Image.Image:
             raw = base64.b64decode(encoded, validate=True)
             image = Image.open(io.BytesIO(raw)).convert("RGB")
         except Exception as exc:
-            raise ValueError("Template Composition v2 invalide") from exc
+            raise ValueError("Template Composition v3 invalide") from exc
     else:
         path = ASSETS / filename
         if not path.is_file():
@@ -1149,7 +1146,7 @@ def _draw_lineup_players(
     players: list[str],
     player_x: tuple[int, int],
 ) -> None:
-    """Écrit uniquement les 11 noms dans les lignes natives du template."""
+    """Pose uniquement les 11 noms sur les lignes natives du template V3."""
     draw = ImageDraw.Draw(image)
     x1, x2 = player_x
     for index, (top, bottom) in enumerate(COMPOSITION_ROWS):
@@ -1192,38 +1189,44 @@ def render_composition(payload: dict[str, Any]) -> Image.Image:
     if not home_logo or not away_logo:
         raise ValueError("Composition officielle sans les deux logos")
 
-    # Le nouveau fond contient déjà les 11 lignes, les colonnes de numéros,
-    # les cercles logos, le VS et tous les cadres. On ne redessine rien.
-    # Seuls les textes placeholders sont effacés par interpolation locale.
-    for box in (
-        COMPOSITION_ERASE_HOME_NAME,
-        COMPOSITION_ERASE_AWAY_NAME,
-        COMPOSITION_ERASE_COMPETITION,
-        COMPOSITION_ERASE_TIME,
-        COMPOSITION_ERASE_SOURCE,
-    ):
-        _blend_erase_text(image, box, sample_px=12, feather=7)
-
-    home_size = _preferred_size_by_chars(home, ((18, 31), (24, 28), (31, 24), (40, 20)), 18)
-    away_size = _preferred_size_by_chars(away, ((18, 31), (24, 28), (31, 24), (40, 20)), 18)
-    draw_single_line(
-        draw, home, COMPOSITION_HOME_NAME,
-        preferred_size=home_size, min_size=18,
-        bold=True, fill=WHITE, max_chars=48,
+    # V3 : tous les emplacements sont réellement vides dans le template.
+    # AUCUN fond, rectangle, masque ou patch n'est dessiné ici.
+    home_size = _preferred_size_by_chars(
+        home, ((18, 31), (24, 28), (31, 24), (40, 20)), 18
+    )
+    away_size = _preferred_size_by_chars(
+        away, ((18, 31), (24, 28), (31, 24), (40, 20)), 18
     )
     draw_single_line(
-        draw, away, COMPOSITION_AWAY_NAME,
-        preferred_size=away_size, min_size=18,
-        bold=True, fill=WHITE, max_chars=48,
+        draw,
+        home,
+        COMPOSITION_HOME_NAME,
+        preferred_size=home_size,
+        min_size=18,
+        bold=True,
+        fill=WHITE,
+        max_chars=48,
+    )
+    draw_single_line(
+        draw,
+        away,
+        COMPOSITION_AWAY_NAME,
+        preferred_size=away_size,
+        min_size=18,
+        bold=True,
+        fill=WHITE,
+        max_chars=48,
     )
 
-    competition = clean(payload.get("competition") or payload.get("league") or "Football")
+    competition = clean(
+        payload.get("competition") or payload.get("league") or "Football"
+    )
     draw_single_line(
         draw,
         competition.upper(),
         COMPOSITION_COMPETITION_BOX,
-        preferred_size=25,
-        min_size=15,
+        preferred_size=24,
+        min_size=14,
         bold=True,
         fill=WHITE,
         max_chars=38,
@@ -1236,14 +1239,15 @@ def render_composition(payload: dict[str, Any]) -> Image.Image:
             kickoff,
             COMPOSITION_TIME_BOX,
             preferred_size=29,
-            min_size=21,
+            min_size=20,
             bold=True,
             fill=GOLD,
             max_chars=8,
         )
 
-    paste_logo(image, home_logo, COMPOSITION_HOME_LOGO, 160)
-    paste_logo(image, away_logo, COMPOSITION_AWAY_LOGO, 160)
+    # Les logos restent entièrement à l'intérieur des cercles sombres.
+    paste_logo(image, home_logo, COMPOSITION_HOME_LOGO, 140)
+    paste_logo(image, away_logo, COMPOSITION_AWAY_LOGO, 140)
 
     _draw_lineup_players(image, home_players, COMPOSITION_HOME_PLAYER_X)
     _draw_lineup_players(image, away_players, COMPOSITION_AWAY_PLAYER_X)
@@ -1257,7 +1261,28 @@ def render_composition(payload: dict[str, Any]) -> Image.Image:
         min_size=12,
         bold=False,
         fill=WHITE,
-        max_chars=30,
+        max_chars=34,
+        align="left",
+    )
+    draw_single_line(
+        draw,
+        "Donne ton avis dans les commentaires.",
+        COMPOSITION_COMMENT_BOX,
+        preferred_size=14,
+        min_size=11,
+        bold=False,
+        fill=WHITE,
+        max_chars=44,
+    )
+    draw_single_line(
+        draw,
+        "Mr XPRONOS • L’actualité du football",
+        COMPOSITION_BRAND_BOX,
+        preferred_size=14,
+        min_size=10,
+        bold=False,
+        fill=WHITE,
+        max_chars=42,
         align="left",
     )
     return image

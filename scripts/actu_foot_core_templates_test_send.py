@@ -2,6 +2,7 @@
 """Preview the four dedicated premium Actu Foot templates in Telegram TEST only."""
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import sys
@@ -106,6 +107,15 @@ PAYLOADS = (
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--category",
+        choices=[item[0] for item in PAYLOADS],
+        default=None,
+        help="Limiter l'envoi à un seul template (sinon les quatre).",
+    )
+    args = parser.parse_args()
+
     token = os.getenv("FOOTBALL_NEWS_BOT_TOKEN", "").strip()
     chat = os.getenv("TELEGRAM_TEST_CHAT_ID", "").strip()
     if not token or not chat:
@@ -118,11 +128,15 @@ def main() -> int:
     # All logos are local test drawings: no third-party logo/network dependency.
     programme_styles.load_logo = fake_logo
     session = requests.Session()
+    selected = [
+        item for item in PAYLOADS
+        if args.category is None or item[0] == args.category
+    ]
     sent: dict[str, int] = {}
 
     with tempfile.TemporaryDirectory(prefix="actu-foot-core-premium-") as tmp:
         tmpdir = Path(tmp)
-        for index, (category, label, payload) in enumerate(PAYLOADS, 1):
+        for index, (category, label, payload) in enumerate(selected, 1):
             graphic = tc.render(category, payload)
             expected = (1374, 1145) if category == "composition" else (1080, 1080)
             if graphic.size != expected:
@@ -132,7 +146,7 @@ def main() -> int:
 
             caption = (
                 "<b>🧪 TEST VISUEL • ACTU FOOT PREMIUM</b>\n"
-                f"<b>{index:02d}/04 — {label}</b>\n\n"
+                f"<b>{label}</b>\n\n"
                 "<i>Données de démonstration • Canal test uniquement.</i>"
             )
             message_id = post_photo(
@@ -148,8 +162,8 @@ def main() -> int:
             sent[category] = message_id
             print("ACTU_FOOT_CORE_TEST_SENT", category, message_id, flush=True)
 
-    if len(sent) != 4:
-        raise RuntimeError("Les 4 previews n'ont pas été envoyées")
+    if len(sent) != len(selected):
+        raise RuntimeError("Toutes les previews sélectionnées n'ont pas été envoyées")
     print("ACTU_FOOT_CORE_TEST_REPORT", json.dumps(sent, ensure_ascii=False), flush=True)
     return 0
 

@@ -9,7 +9,7 @@ on:
       - 'scripts/template_cards.py'
       - 'scripts/football_channel.py'
       - 'scripts/actu_foot_core_templates_test_send.py'
-      - 'assets/images/template_compositions_officielles_v2.b64/**'
+      - 'assets/images/template_compositions_officielles_v3.b64/**'
       - '.github/workflows/actu-foot-core-templates-test.yml'
   workflow_dispatch:
 
@@ -54,19 +54,19 @@ jobs:
           from pathlib import Path
           from PIL import Image
 
-          folder = Path("assets/images/template_compositions_officielles_v2.b64")
+          folder = Path("assets/images/template_compositions_officielles_v3.b64")
           parts = sorted(folder.glob("*.txt"))
-          assert [p.name for p in parts] == ["01.txt", "02.txt", "03.txt", "04.txt"], [p.name for p in parts]
+          assert [p.name for p in parts] == [f"{i:02d}.txt" for i in range(1, 9)], [p.name for p in parts]
           encoded = "".join(p.read_text(encoding="utf-8").strip() for p in parts)
           raw = base64.b64decode(encoded, validate=True)
           with Image.open(io.BytesIO(raw)) as im:
               assert im.size == (1374, 1145), im.size
               assert im.format == "WEBP", im.format
-          print("COMPOSITION_V2_OK", len(raw), "bytes", (1374, 1145))
+          print("COMPOSITION_V3_OK", len(raw), "bytes", (1374, 1145))
           PY
 
       - name: Vérifier strictement le canal TEST
         run: python scripts/telegram_test_guard.py
 
       - name: Envoyer les 4 previews dans Telegram TEST
-        run: python scripts/actu_foot_core_templates_test_send.py
+        run: python scripts/actu_foot_core_templates_test_send.py --category composition
