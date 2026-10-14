@@ -1,6 +1,6 @@
 {
   "period_days": 30,
-  "generated_at": "2026-10-13T06:17:55.013766+00:00",
+  "generated_at": "2026-10-14T06:17:38.285688+00:00",
   "data_origin": "Supabase analytics events; anonymous attributed page reads",
   "attributed_visits": 1,
   "promo_copy_actions": 0,
@@ -15,7 +15,7 @@
       "kind": "article",
       "slug": "analyse-premium-test",
       "variant": "a",
-      "impressions": 4,
+      "impressions": 10,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -30,10 +30,64 @@
       "status": "insufficient_data"
     },
     {
+      "kind": "article",
+      "slug": "bsd-match-214085",
+      "variant": "a",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-214085",
+      "variant": "b",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-214088",
+      "variant": "a",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-214088",
+      "variant": "b",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-602615",
+      "variant": "a",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-602615",
+      "variant": "b",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
       "kind": "conseil",
       "slug": "comprendre-value",
       "variant": "a",
-      "impressions": 70,
+      "impressions": 230,
       "opens": 0,
       "open_rate": 0.0,
       "status": "descriptive_only"
@@ -49,9 +103,81 @@
     },
     {
       "kind": "conseil",
+      "slug": "conseil-pratique-comment-analyser-un-match-rapidement",
+      "variant": "a",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "conseil-pratique-comment-analyser-un-match-rapidement",
+      "variant": "b",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "conseil-pratique-comment-utiliser-un-bonus-sans-se-pieger",
+      "variant": "a",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "conseil-pratique-comment-utiliser-un-bonus-sans-se-pieger",
+      "variant": "b",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "conseil-pratique-double-chance-quand-lutiliser",
+      "variant": "a",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "conseil-pratique-double-chance-quand-lutiliser",
+      "variant": "b",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "conseil-pratique-les-pieges-des-favoris-a-petite-cote",
+      "variant": "a",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "conseil-pratique-les-pieges-des-favoris-a-petite-cote",
+      "variant": "b",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
       "slug": "conseil-premium-test",
       "variant": "a",
-      "impressions": 6,
+      "impressions": 15,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -69,7 +195,7 @@
       "kind": "conseil",
       "slug": "erreurs-tilt",
       "variant": "a",
-      "impressions": 51,
+      "impressions": 171,
       "opens": 0,
       "open_rate": 0.0,
       "status": "descriptive_only"
@@ -87,7 +213,7 @@
       "kind": "conseil",
       "slug": "gerer-bankroll",
       "variant": "a",
-      "impressions": 70,
+      "impressions": 232,
       "opens": 0,
       "open_rate": 0.0,
       "status": "descriptive_only"
@@ -99,6 +225,24 @@
       "impressions": 0,
       "opens": 0,
       "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "gestion-bankroll-fcfa-paris-sportifs",
+      "variant": "a",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "gestion-bankroll-fcfa-paris-sportifs",
+      "variant": "b",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
       "status": "insufficient_data"
     }
   ],
