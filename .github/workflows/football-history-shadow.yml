@@ -441,6 +441,15 @@ jobs:
           tomorrow="$(date -u -d 'tomorrow' +%F)"
           python scripts/football_daily_multisource_shadow.py --day="$tomorrow" --max-http=12 --out=tmp/next-day-public-union.json --report=tmp/next-day-public-source-health.json
           python scripts/football_openfootball_world_import.py --max-files=40 --out=tmp/private-run-world-history.jsonl --report=tmp/private-run-world-history-AGGREGATE.json
+      - name: Collect +2/+3-day public fixtures for native BSD identity proof
+        run: |
+          set -euo pipefail
+          umask 077
+          python scripts/football_prematch_multiday_probe.py \
+            --start-day="$(date -u -d '+2 days' +%F)" \
+            --count-days=2 --max-http=18 \
+            --out=tmp/native-id-public-fixtures.json \
+            --report=tmp/native-id-public-health-AGGREGATE.json
       - name: Audit exact real BSD event IDs against CC0 fixtures before private archive restoration
         env:
           BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
@@ -450,8 +459,8 @@ jobs:
           umask 077
           test -n "${BSD_API_KEY}"
           python scripts/football_native_bsd_identity_probe.py \
-            --public-fixtures=tmp/next-day-public-union.json \
-            --days=2 \
+            --public-fixtures=tmp/native-id-public-fixtures.json \
+            --days=2 --start-offset=2 \
             --report=tmp/bsd-native-identity-AGGREGATE.json
           python - <<'PY'
           import json
@@ -542,7 +551,7 @@ jobs:
         if: always()
         shell: bash
         run: |
-          rm -f bsd/all_matches_bsd.json bsd/backfill_state.json tmp/public-union.json tmp/next-day-public-union.json tmp/private-run-world-history.jsonl
+          rm -f bsd/all_matches_bsd.json bsd/backfill_state.json tmp/public-union.json tmp/next-day-public-union.json tmp/native-id-public-fixtures.json tmp/private-run-world-history.jsonl
           test ! -e bsd/all_matches_bsd.json
           test ! -e bsd/backfill_state.json
       - name: Upload only approved aggregate statistics
