@@ -384,6 +384,50 @@ class FootballChannelTests(unittest.TestCase):
         self.assertIn("MATCHS DU JOUR", kwargs["data"]["rich_message"])
         self.assertNotIn("text", kwargs["data"])
 
+    def test_publication_outbox_roundtrip_conserve_toutes_les_etapes(self):
+        item = m.Publication(
+            "quiz", "quiz:roundtrip", "<b>Question</b>",
+            poll=("Question ?", ["A", "B"]),
+            card={"question": "Question ?", "score": "1-0"},
+            keyboard={"inline_keyboard": [[{"text": "Lire", "url": "https://example.com"}]]},
+            poll_type="quiz",
+            correct_option_ids=[1],
+            poll_explanation="Réponse B",
+            poll_description="Description",
+            poll_shuffle=True,
+            poll_allows_revoting=False,
+            verification={"kind": "quiz"},
+        )
+        restored = m.publication_from_payload(m.publication_payload(item))
+        self.assertIsNotNone(restored)
+        self.assertEqual(restored.category, item.category)
+        self.assertEqual(restored.key, item.key)
+        self.assertEqual(restored.poll, item.poll)
+        self.assertEqual(restored.card, item.card)
+        self.assertEqual(restored.correct_option_ids, [1])
+        self.assertFalse(restored.poll_allows_revoting)
+
+    def test_outbox_claim_refuse_un_evenement_deja_reclame(self):
+        from unittest.mock import Mock
+        response = Mock()
+        response.raise_for_status.return_value = None
+        response.json.return_value = {
+            "can_send": False,
+            "status": "claimed",
+            "delivery_phase": "pending",
+            "attempts": 1,
+        }
+        session = Mock()
+        session.post.return_value = response
+        with patch.dict("os.environ", {
+            "SUPABASE_URL": "https://example.supabase.co",
+            "SUPABASE_SERVICE_ROLE_KEY": "service",
+        }):
+            ledger = m.RemotePublicationLedger(session, enabled=True)
+            claim = ledger.claim(m.Publication("goal", "goal:locked", "goal"), NOW)
+        self.assertFalse(claim["can_send"])
+        self.assertIn("/rpc/actu_foot_claim_publication", session.post.call_args.args[0])
+
     def test_sender_poll_reprend_apres_media_sans_dupliquer_image(self):
         import os
         from unittest.mock import Mock
