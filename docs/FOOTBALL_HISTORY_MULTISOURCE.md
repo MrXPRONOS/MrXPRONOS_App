@@ -128,3 +128,18 @@ Cet exemple impose les snapshots hors-ligne parce que \`--analysis-at\` sert seu
 ### Étape de validation essentielle
 
 Une fois la correspondance des équipes et les autorisations confirmées, il faudra confronter les probabilités BSD seules et les probabilités enrichies **sur exactement les mêmes fixtures**, dans chaque famille de marché, avec validation chronologique et calibrage séparé. Il faudra également résoudre la panne de commit concurrente du workflow BSD V2, distincte de ce travail. Aucun déploiement prédictif n'est activé par cette PR.
+
+## Clarification fonctionnelle : BSD V2 reste l'unique moteur de calcul
+
+La demande est **d'étendre les données d'entrée**, pas de créer une autre formule ou un autre moteur de sélection. Aucun changement des fonctions de calcul `bsd/bsd_v2_core.py`, `V2History`, `estimate_goals`, `predict_v2`, des règles de qualité, des calibrations ou des limites de publication.
+
+- Les API existantes ESPN, SportScore, TheSportsDB, OpenLigaDB, ainsi que BSD quand il connaît le match, découvrent les rencontres et conservent leurs identifiants originaux.
+- L'historique OpenFootball sous licence domaine public, constitué sur plusieurs saisons, est transformé en matchs terminés avec les champs BSD V2 : score, horaire, identifiants stables d'équipes et de compétition. Le jour historique seul est positionné de manière conservatrice à 23:59 UTC ; le moteur garde sa marge temporelle de validation de quatre heures.
+- Les nouvelles rencontres externes deviennent des fixtures BSD V2 **compatibles en entrée** avec des identifiants internes calculés indépendamment des identifiants officiels BSD, dans un espace numérique distinct. Les fixtures déjà présents dans BSD ne sont pas doublonnés.
+- Le module `scripts/football_external_bsd_v2_adapter.py` invoque **sans les modifier** les fonctions BSD V2 existantes. Le module H2H existant `bsd_h2h.local_h2h` résume les rencontres passées sur dix ans.
+- Le module de calcul BSD V2 n'a pas actuellement de coefficient H2H explicite; ajouter une pondération H2H changerait la logique et serait contraire à l'instruction. Les confrontations historiques contribuent déjà à la forme des deux équipes lorsqu'elles appartiennent à leur historique, et le résumé H2H reste disponible en diagnostic.
+- L'index historique externe est séparé pour ne pas modifier les estimations, les calibrations ou les sélections BSD publiées. Pour un déploiement, il faudra fournir aux nouveaux matchs les **modèles calibrés BSD existants**, les vérifications bookmaker et toutes les politiques de publication sans changer leurs règles.
+
+L'adaptateur est testé sur une fixture provenant d'une API tierce et sur plusieurs saisons anciennes ; il vérifie aussi l'absence de données futures et de doublons. Le job journalier expérimental appelle désormais l'adaptateur BSD V2 existant, pas un second calculateur Poisson.
+
+**Toujours non activé dans les pronostics publics.** Les données des championnats et des équipes absents de l'historique OpenFootball nécessitent d'autres fournisseurs historiques autorisés, avec correspondance vérifiée des équipes et compétitions. La seule découverte d'une rencontre ne suffit pas pour établir un H2H fiable.
