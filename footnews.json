@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T23:37:05+00:00",
+    "published": "2026-10-14T23:42:29+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -155,7 +155,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -219,7 +219,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -352,7 +352,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "Franceinfo",
@@ -695,7 +695,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -774,6 +774,40 @@
     "quality_score": 86
   },
   {
+    "slug": "b8fd5c493d235473",
+    "title": "PSG, Luis Enrique : « ce n’est pas important d’être le meilleur à ce moment-là »",
+    "summary": "Malgré le succès retentissant du Paris Saint-Germain face à Manchester City (4-2), Luis Enrique a refusé de considérer cette victoire comme un message envoyé au reste de l’Europe. Interrogé sur la (…)",
+    "summary_short": "Malgré le succès retentissant du Paris Saint-Germain face à Manchester City (4-2), Luis Enrique a refusé de considérer cette victoire comme un message envoyé au reste de l’Europe. Interrogé sur la (…)",
+    "content": "Malgré le succès retentissant du Paris Saint-Germain face à Manchester City (4-2), Luis Enrique a refusé de considérer cette victoire comme un message envoyé au reste de l’Europe. Interrogé sur la (…)",
+    "paragraphs": [
+      "Malgré le succès retentissant du Paris Saint-Germain face à Manchester City (4-2), Luis Enrique a refusé de considérer cette victoire comme un message envoyé au reste de l’Europe. Interrogé sur la (…)"
+    ],
+    "key_points": [
+      "Malgré le succès retentissant du Paris Saint-Germain face à Manchester City (4-2), Luis Enrique a refusé de considérer cette victoire comme un message envoyé au reste de l’Europe."
+    ],
+    "telegram_summary": "Malgré le succès retentissant du Paris Saint-Germain face à Manchester City (4-2), Luis Enrique a refusé de considérer cette victoire comme un message envoyé au reste de l’Europe. Interrogé sur la (…)",
+    "link": "https://www.footmercato.net/a8465745529000517648-psg-luis-enrique-ce-nest-pas-important-detre-le-meilleur-a-ce-moment-la",
+    "source_url": "https://www.footmercato.net/a8465745529000517648-psg-luis-enrique-ce-nest-pas-important-detre-le-meilleur-a-ce-moment-la",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b8fd5c493d235473",
+    "published": "2026-10-14T23:44:04+00:00",
+    "image": "assets/images/footnews/b8fd5c493d235473.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine317328-1920x1080.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
     "slug": "7628f643096931ac",
     "title": "Ligue des champions : revivez la victoire spectaculaire du PSG sur la pelouse de Manchester City",
     "summary": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
@@ -789,7 +823,7 @@
     "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
-    "published": "2026-10-14T23:37:05+00:00",
+    "published": "2026-10-14T23:42:29+00:00",
     "image": "assets/images/footnews/7628f643096931ac.webp",
     "source_image": "https://www.franceinfo.fr/pictures/5U3Wip1t6xJCEihksoGYiduzong/0x25:4673x2654/432x243/filters:format(jpg)/2026/10/14/6acfdbdf2c937182294865.jpg",
     "image_origin": "source",
@@ -932,7 +966,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -990,7 +1024,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1156,7 +1190,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1252,7 +1286,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1315,7 +1349,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1516,7 +1550,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1575,7 +1609,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1676,7 +1710,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1738,7 +1772,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1835,7 +1869,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2012,65 +2046,6 @@
     "quality_score": 82
   },
   {
-    "slug": "fe7859f4106e0251",
-    "title": "Manchester City - PSG : les notes du match",
-    "summary": "Match spectaculaire entre le PSG et Manchester City à l’Etihad Stadium. Le PSG a délivré une première période étincelante, la meilleure de sa saison, avant de souffrir face à la révolte des Citizens (…)",
-    "summary_short": "Match spectaculaire entre le PSG et Manchester City à l’Etihad Stadium. Le PSG a délivré une première période étincelante, la meilleure de sa saison, avant de souffrir face à la révolte des Citizens (…)",
-    "content": "Match spectaculaire entre le PSG et Manchester City à l’Etihad Stadium. Le PSG a délivré une première période étincelante, la meilleure de sa saison, avant de souffrir face à la révolte des Citizens (…)",
-    "paragraphs": [
-      "Match spectaculaire entre le PSG et Manchester City à l’Etihad Stadium. Le PSG a délivré une première période étincelante, la meilleure de sa saison, avant de souffrir face à la révolte des Citizens (…)"
-    ],
-    "key_points": [
-      "Match spectaculaire entre le PSG et Manchester City à l’Etihad Stadium.",
-      "Le PSG a délivré une première période étincelante, la meilleure de sa saison, avant de souffrir face à la révolte des Citizens (…)"
-    ],
-    "telegram_summary": "Match spectaculaire entre le PSG et Manchester City à l’Etihad Stadium. Le PSG a délivré une première période étincelante, la meilleure de sa saison, avant de souffrir face à la révolte des Citizens (…)",
-    "link": "https://www.footmercato.net/a5340112876359274995-manchester-city-psg-les-notes-du-match",
-    "source_url": "https://www.footmercato.net/a5340112876359274995-manchester-city-psg-les-notes-du-match",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=fe7859f4106e0251",
-    "published": "2026-10-14T21:13:26+00:00",
-    "image": "assets/images/footnews/fe7859f4106e0251.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/doue-dembele-6acfee6d95cad.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50159375",
-      "url": "https://www.espn.com/video/clip/_/id/50159375/no-sympathy-manchester-city-players",
-      "published": "2026-10-11T18:25:12Z",
-      "score": 0.25,
-      "matched_terms": [
-        "city",
-        "manchester"
-      ],
-      "topics": [],
-      "teams": [
-        "Liverpool",
-        "Manchester City"
-      ],
-      "athletes": [],
-      "leagues": [
-        "English Premier League",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
     "slug": "bad8422b3bca12b0",
     "title": "Les 6 infos sur la soirée de Ligue des Champions : le Real renversant, Barcola réagit, Greenwood conspué...",
     "summary": "Le Real renversant, Barcola réagit, Greenwood conspué... Découvrez les faits marquants des matchs de mercredi comptant pour ...",
@@ -2190,7 +2165,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -2317,7 +2292,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -2381,7 +2356,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2472,7 +2447,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:40:32.297779+00:00"
+      "checked_at": "2026-10-14T23:45:27.838073+00:00"
     },
     "quality_sources": [
       "So Foot",
