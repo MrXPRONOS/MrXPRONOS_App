@@ -436,6 +436,7 @@ def extract_goals(summary: dict) -> list[dict]:
         home_score = _score(item.get("homeScore") if item.get("homeScore") is not None else item.get("home_score"))
         away_score = _score(item.get("awayScore") if item.get("awayScore") is not None else item.get("away_score"))
         goals.append({
+            "id": str(item.get("id") or ""),
             "player": player,
             "player_id": player_id,
             "minute": minute,
@@ -474,6 +475,7 @@ def extract_cards(summary: dict) -> list[dict]:
         team_obj = item.get("team") if isinstance(item.get("team"), dict) else {}
         minute_text = _plain(clock.get("displayValue") or item.get("time") or "")
         cards.append({
+            "id": str(item.get("id") or ""),
             "player": _athlete_name(athlete),
             "minute": _minute_total(minute_text),
             "minute_text": minute_text,
@@ -518,6 +520,7 @@ def extract_substitutions(summary: dict) -> list[dict]:
         minute_text = _plain(clock.get("displayValue") or item.get("time") or "")
         team_obj = item.get("team") if isinstance(item.get("team"), dict) else {}
         changes.append({
+            "id": str(item.get("id") or ""),
             "players": names[:2],
             "entrant": entrant,
             "sortant": sortant,
