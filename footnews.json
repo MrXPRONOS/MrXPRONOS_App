@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T19:50:07+00:00",
+    "published": "2026-10-14T19:55:18+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -190,7 +190,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -252,7 +252,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -311,7 +311,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -374,7 +374,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -448,64 +448,6 @@
     "espn_verification": {},
     "quality_sources": [
       "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "12b09434c29d130f",
-    "title": "Manchester City - PSG : le jour où Cherki a dit non avec classe à Al-Khelaïfi",
-    "summary": "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi.",
-    "summary_short": "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi.",
-    "content": "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi.",
-    "paragraphs": [
-      "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi."
-    ],
-    "key_points": [
-      "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi."
-    ],
-    "telegram_summary": "Tout proche de rejoindre le PSG à l'été 2024, Rayan Cherki avait finalement vu son transfert capoter malgré un accord presque bouclé, au terme d'un échange pour le moins surprenant avec Nasser Al-Khelaïfi.",
-    "link": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-le-jour-ou-cherki-a-dit-non-avec-classe-a-al-khelaifi-1002571",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-le-jour-ou-cherki-a-dit-non-avec-classe-a-al-khelaifi-1002571",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=12b09434c29d130f",
-    "published": "2026-10-14T15:02:00+00:00",
-    "image": "assets/images/footnews/12b09434c29d130f.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002571/409396/1200-L-manchester-city-psg-le-jour-o-cherki-a-dit-non-avec-classe-al-khelafi.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 4,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50159375",
-      "url": "https://www.espn.com/video/clip/_/id/50159375/no-sympathy-manchester-city-players",
-      "published": "2026-10-11T18:25:12Z",
-      "score": 0.2,
-      "matched_terms": [
-        "city",
-        "manchester"
-      ],
-      "topics": [],
-      "teams": [
-        "Liverpool",
-        "Manchester City"
-      ],
-      "athletes": [],
-      "leagues": [
-        "English Premier League",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
-    },
-    "quality_sources": [
-      "Onze Mondial",
-      "ESPN"
     ],
     "quality_score": 88
   },
@@ -708,7 +650,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -822,7 +764,7 @@
   },
   {
     "slug": "7628f643096931ac",
-    "title": "DIRECT. Manchester City-PSG : Vitinha s'invite au festival et permet à Paris de s'envoler ! Suivez le match de Ligue des champions avec nous",
+    "title": "DIRECT. Manchester City-PSG : Paris surclasse les Cityzens et mène largement à la pause (3-0) ! Suivez le match de Ligue des champions avec nous",
     "summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
     "summary_short": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
     "content": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
@@ -836,7 +778,7 @@
     "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
-    "published": "2026-10-14T19:50:06+00:00",
+    "published": "2026-10-14T19:53:52+00:00",
     "image": "assets/images/footnews/7628f643096931ac.webp",
     "source_image": "https://www.franceinfo.fr/pictures/5U3Wip1t6xJCEihksoGYiduzong/0x25:4673x2654/432x243/filters:format(jpg)/2026/10/14/6acfdbdf2c937182294865.jpg",
     "image_origin": "source",
@@ -853,6 +795,40 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "36a4674142fca7cb",
+    "title": "Manchester City - PSG : 3-0 à la pause et une démonstration totale... la première mi-temps absolument folle des Parisiens",
+    "summary": "Le PSG est en train de faire vivre une sale soirée à Manchester City.",
+    "summary_short": "Le PSG est en train de faire vivre une sale soirée à Manchester City.",
+    "content": "Le PSG est en train de faire vivre une sale soirée à Manchester City.",
+    "paragraphs": [
+      "Le PSG est en train de faire vivre une sale soirée à Manchester City."
+    ],
+    "key_points": [
+      "Le PSG est en train de faire vivre une sale soirée à Manchester City."
+    ],
+    "telegram_summary": "Le PSG est en train de faire vivre une sale soirée à Manchester City.",
+    "link": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-3-0-a-la-pause-et-une-demonstration-totale-la-premiere-mi-temps-absolument-folle-des-parisiens-1002646",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-3-0-a-la-pause-et-une-demonstration-totale-la-premiere-mi-temps-absolument-folle-des-parisiens-1002646",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=36a4674142fca7cb",
+    "published": "2026-10-14T19:50:00+00:00",
+    "image": "assets/images/footnews/36a4674142fca7cb.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002646/409422/1200-L-manchester-city-psg-3-0-la-pause-et-une-dmonstration-totale-la-premire-mi-temps-absolument-folle-des-parisiens.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
   },
   {
     "slug": "93da0ba9c78f42fb",
@@ -1048,7 +1024,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1148,7 +1124,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1313,7 +1289,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1358,14 +1334,16 @@
   {
     "slug": "08eda2a4d16b8568",
     "title": "En direct : Manchester City – PSG",
-    "summary": "Le PSG est en balade",
-    "summary_short": "Le PSG est en balade",
-    "content": "Le PSG est en balade",
+    "summary": "Le PSG fait plier City en deux minutes",
+    "summary_short": "Le PSG fait plier City en deux minutes",
+    "content": "Le PSG fait plier City en deux minutes",
     "paragraphs": [
-      "Le PSG est en balade"
+      "Le PSG fait plier City en deux minutes"
     ],
-    "key_points": [],
-    "telegram_summary": "Le PSG est en balade",
+    "key_points": [
+      "Le PSG fait plier City en deux minutes"
+    ],
+    "telegram_summary": "Le PSG fait plier City en deux minutes",
     "link": "https://www.sofoot.com/articles/en-direct-manchester-city-psg",
     "source_url": "https://www.sofoot.com/articles/en-direct-manchester-city-psg",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=08eda2a4d16b8568",
@@ -1403,7 +1381,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1530,7 +1508,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1627,7 +1605,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1787,7 +1765,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -1886,7 +1864,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1948,7 +1926,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2041,7 +2019,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2134,7 +2112,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -2196,7 +2174,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2412,7 +2390,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:50:46.245346+00:00"
+      "checked_at": "2026-10-14T19:55:27.944792+00:00"
     },
     "quality_sources": [
       "RFI",
