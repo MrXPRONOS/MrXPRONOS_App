@@ -30,19 +30,19 @@ def collect(days:list[date], *, budget=24, session=None, collector=None):
     rows=[]
     for day in days:
         rows.extend(combined[day.isoformat()])
+    # Source-local fixture hashes may repeat on different calendar days.
+    # Only group the SAME kickoff and same canonical teams. Never merge
+    # unrelated teams even if the upstream short fixture_key is identical.
     by_key={}
     for f in rows:
-        key=f["fixture_key"]
+        key=(str(f.get("kickoff_utc") or ""),
+             canonical_team(str(f.get("home_team") or "")),
+             canonical_team(str(f.get("away_team") or "")),
+             str(f.get("fixture_key") or ""))
         if key not in by_key:
             by_key[key]=f
         else:
             current=by_key[key]
-            # The key was built using normalized identities. Different
-            # display aliases (e.g. "Arsenal" vs "Arsenal FC") are not
-            # fixture-ID collisions; keep original source refs from both.
-            if (canonical_team(current["home_team"])!=canonical_team(f["home_team"])
-                    or canonical_team(current["away_team"])!=canonical_team(f["away_team"])):
-                raise ValueError("Actual collision in fixture identifiers")
             common=dict(current.get("sources") or {})
             for provider,source in (f.get("sources") or {}).items():
                 if provider in common and common[provider]!=source:
@@ -65,6 +65,7 @@ def collect(days:list[date], *, budget=24, session=None, collector=None):
     return sorted(by_key.values(),key=lambda f:(f["kickoff_utc"],f["fixture_key"])),{
         "days":[d.isoformat() for d in days],
         "sources":stats,"total_fixtures":len(by_key),
+        "dedupe_key_includes_kickoff_and_both_club_names":True,
         "requests":dict(getattr(session,"calls",{})),
         "requests_total":getattr(session,"total",0),
         "max_requests":budget,
