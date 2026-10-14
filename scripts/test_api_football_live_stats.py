@@ -1,7 +1,7 @@
 """Offline regression tests; no API keys and no HTTP requests."""
 import unittest
 from datetime import datetime, timezone
-from scripts.api_football_live_stats import parse_statistics, find_matches, build_row, norm_name, league_stats_coverage, safe_remaining
+from scripts.api_football_live_stats import parse_statistics, find_matches, build_row, norm_name, league_stats_coverage, safe_remaining, ProviderRejectedRequest
 
 class StatisticsTests(unittest.TestCase):
     def setUp(self):
@@ -84,6 +84,11 @@ class ProviderCoverageTests(unittest.TestCase):
         ]}]
         self.assertIsNone(league_stats_coverage(payload,123,2026))
         self.assertIsNone(league_stats_coverage([],123,2026))
+
+    def test_provider_restriction_exposes_keys_only(self):
+        exception=ProviderRejectedRequest(["plan", "requests"])
+        self.assertEqual(exception.error_keys, ["plan", "requests"])
+        self.assertNotIn("token", str(exception).lower())
 
     def test_quota_missing_header_fails_neutral(self):
         self.assertIsNone(safe_remaining(None))
