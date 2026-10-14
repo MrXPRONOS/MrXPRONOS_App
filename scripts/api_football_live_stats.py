@@ -2,8 +2,8 @@
 """Quota-safe API-Football enrichment for existing Mr XPRONOS LIVE fixtures.
 
 No Telegram posting, no prediction creation, no invented statistics.
-Designed for hourly GitHub Actions: at most 1 fixtures lookup and 2 detailed
-statistics lookups per run (72 calls/day at 24 hourly runs).
+Designed for hourly GitHub Actions: at most 1 fixtures lookup and 2
+additional coverage/statistics requests per run (72 calls/day).
 This is dormant until API_FOOTBALL_KEY is set in GitHub Actions secrets.
 """
 from __future__ import annotations
@@ -34,7 +34,10 @@ TYPES = {
 }
 CORE = ("corner_kicks", "total_shots", "fouls")
 BUDGET_RESERVE = 20
-MAX_DETAILS_PER_RUN = 2
+# One live-fixtures call plus AT MOST two coverage/statistics requests.
+# This includes the /leagues coverage lookup and retains the free-tier budget.
+MAX_EXTRA_CALLS_PER_RUN = 2
+PROBE_CACHE_TABLE = "live_provider_probe_cache"
 STOP_WORDS = {"fc", "cf", "afc", "sc", "club", "fk"}
 
 
@@ -162,6 +165,56 @@ def fetch_stats(key, url):
     return payload.get("response") or [], remaining
 
 
+def league_stats_coverage(items, league_id, season):
+    """None means unknown, not 'not covered'."""
+    for row in items if isinstance(items, list) else []:
+        if str((row.get("league") or {}).get("id")) != str(league_id):
+            continue
+        for season_row in row.get("seasons") or []:
+            if str(season_row.get("year")) != str(season):
+                continue
+            supported = ((season_row.get("coverage") or {}).get("fixtures") or {}).get("statistics_fixtures")
+            if isinstance(supported, bool):
+                return supported
+    return None
+
+
+def iso_after(minutes):
+    return stamp(utcnow()+timedelta(minutes=minutes))
+
+
+def active_probe_cache(base, secret):
+    """Server-only PostgREST table; cached negative results cut quota waste."""
+    rows = db_json(base, secret, "GET", PROBE_CACHE_TABLE, {
+        "select":"probe_key,supports_stats,next_probe_at",
+        "provider":"eq.api_football",
+        "next_probe_at":"gt."+stamp(utcnow()),
+        "limit":"600",
+    })
+    return {str(row["probe_key"]):row for row in rows}
+
+
+def save_probe(base, secret, key, supported, minutes):
+    row={
+        "provider":"api_football",
+        "probe_key":key,
+        "supports_stats":supported,
+        "next_probe_at":iso_after(minutes),
+        "last_checked_at":stamp(utcnow()),
+        "details":{},
+    }
+    db_json(base, secret, "POST", PROBE_CACHE_TABLE,
+            {"on_conflict":"provider,probe_key"}, [row])
+
+
+def safe_remaining(raw):
+    try:
+        value=int(raw)
+        return max(0,value)
+    except (ValueError,TypeError):
+        return None
+
+
 def db_json(base, secret, method, table, params=None, body=None):
     uri=base.rstrip("/")+"/rest/v1/"+table
     if params:
@@ -233,41 +286,99 @@ def main():
         return 0
 
     fixtures,remaining=fetch_stats(key,"/fixtures?live=all")
-    if remaining is not None and int(remaining)<BUDGET_RESERVE:
+    if (safe_remaining(remaining) is not None and
+            safe_remaining(remaining) <= BUDGET_RESERVE):
         print("API_FOOTBALL_QUOTA_RESERVE",remaining)
         return 0
     pairs=find_matches(rows,fixtures)
-    print("API_FOOTBALL_MATCHES",json.dumps({"local":len(rows),"remote":len(fixtures),"strict_pairs":len(pairs)}))
-    completed=0
-    for match,fixture in pairs[:MAX_DETAILS_PER_RUN]:
+    probes=active_probe_cache(supabase_url,supabase_secret)
+    print("API_FOOTBALL_MATCHES",json.dumps({
+        "local":len(rows),"remote":len(fixtures),"strict_pairs":len(pairs),
+        "cached_probes":len(probes),
+    }))
+    successful=0
+    extra_calls=0
+    skipped_coverage=0
+    skipped_empty=0
+    for match,fixture in pairs:
+        if extra_calls>=MAX_EXTRA_CALLS_PER_RUN:
+            break
+        league=fixture.get("league") or {}
+        league_id=league.get("id")
+        season=league.get("season")
         fid=(fixture.get("fixture") or {}).get("id")
+        negative_key=f"empty:{fid}"
+        if negative_key in probes:
+            skipped_empty+=1
+            continue
+        covered=None
+        if league_id is not None and season is not None:
+            coverage_key=f"league:{league_id}:{season}"
+            record=probes.get(coverage_key)
+            if record is not None:
+                covered=record.get("supports_stats")
+            else:
+                # A published league-season flag avoids repeated empty
+                # /fixtures/statistics calls for unsupported competitions.
+                response,remaining=fetch_stats(
+                    key,f"/leagues?id={league_id}&season={season}")
+                extra_calls+=1
+                covered=league_stats_coverage(response,league_id,season)
+                save_probe(supabase_url,supabase_secret,coverage_key,covered,
+                           720 if covered is not None else 120)
+                probes[coverage_key]={"supports_stats":covered}
+                print("API_FOOTBALL_LEAGUE_COVERAGE",json.dumps({
+                    "league":league_id,"season":season,
+                    "stats_supported":covered,
+                    "remaining_day":safe_remaining(remaining),
+                }))
+                if (extra_calls>=MAX_EXTRA_CALLS_PER_RUN or
+                    (safe_remaining(remaining) is not None and
+                     safe_remaining(remaining)<=BUDGET_RESERVE)):
+                    break
+        if covered is False:
+            skipped_coverage+=1
+            continue
+        # Unknown coverage is allowed one cautious statistics query, but
+        # only with remaining daily quota and within the global call budget.
+        if extra_calls>=MAX_EXTRA_CALLS_PER_RUN:
+            break
         response,remaining=fetch_stats(key,f"/fixtures/statistics?fixture={fid}")
+        extra_calls+=1
         home_id=str((fixture.get("teams") or {}).get("home",{}).get("id",""))
         away_id=str((fixture.get("teams") or {}).get("away",{}).get("id",""))
         stats=parse_statistics(response,home_id,away_id)
-        # Diagnostic of the provider response only: no tokens, user data or
-        # credentials are logged. Empty stats may indicate an uncovered league.
+        complete=[k for k in CORE if k in stats["home"] and k in stats["away"]]
         categories=sorted(set(
             str(s.get("type"))[:55]
             for team in response if isinstance(team,dict)
             for s in (team.get("statistics") or []) if isinstance(s,dict)
         ))
         print("API_FOOTBALL_STATS_DIAG",json.dumps({
-            "fixture":fid,
-            "teams_with_stats":len(response),
-            "market_types":categories[:24],
-            "complete_markets":[k for k in CORE
-                if k in stats["home"] and k in stats["away"]],
-            "remaining_day":remaining,
+            "fixture":fid,"teams_with_stats":len(response),
+            "market_types":categories[:24],"complete_markets":complete,
+            "remaining_day":safe_remaining(remaining),
         }))
         row=build_row(match,fixture,stats)
         if row is not None:
             db_json(supabase_url,supabase_secret,"POST","live_stats_sources",
                     {"on_conflict":"source_name,source_match_id"},[row])
-            completed+=1
-        if remaining is not None and int(remaining)<=BUDGET_RESERVE:
+            successful+=1
+        else:
+            # A 90-minute negative cache avoids repeated polling of the
+            # same unreported fixture while retaining another opportunity
+            # to check later in the match or at next matchday.
+            save_probe(supabase_url,supabase_secret,negative_key,False,90)
+        if (safe_remaining(remaining) is not None and
+                safe_remaining(remaining)<=BUDGET_RESERVE):
             break
-    print("API_FOOTBALL_STATS_SAVED",json.dumps({"matches":completed,"requests_max":1+MAX_DETAILS_PER_RUN}))
+    print("API_FOOTBALL_STATS_SAVED",json.dumps({
+        "matches":successful,
+        "requests_total_max":1+MAX_EXTRA_CALLS_PER_RUN,
+        "requests_extra_used":extra_calls,
+        "skipped_no_coverage":skipped_coverage,
+        "skipped_recently_empty":skipped_empty,
+    }))
 
 
 if __name__=="__main__":
