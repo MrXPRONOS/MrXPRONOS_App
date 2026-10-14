@@ -1,0 +1,43 @@
+name: LIVE detailed stats coverage - API Football probe
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/live-stats-provider-probe.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+    steps:
+      - name: Check credential and public stats API availability
+        run: |
+          python - <<'PY'
+          import json,os,urllib.request,urllib.error
+          key=os.getenv("API_FOOTBALL_KEY","").strip()
+          print("API_FOOTBALL_CONFIGURED",bool(key))
+          if not key:
+            raise SystemExit(0)
+          headers={"x-apisports-key":key,"Accept":"application/json"}
+          for label,path in [("status","/status"),("live","/fixtures?live=all")]:
+            try:
+              with urllib.request.urlopen(urllib.request.Request("https://v3.football.api-sports.io"+path,headers=headers),timeout=12) as r:
+                body=json.load(r)
+                rows=body.get("response") or []
+                print("API_FOOTBALL_PROBE",json.dumps({
+                  "type":label,"http":r.status,
+                  "results":body.get("results"),"errors":body.get("errors"),
+                  "response_type":str(type(rows).__name__),
+                  "fixture_count":len(rows) if isinstance(rows,list) else None,
+                  "first_fixture_keys":list(rows[0]) if isinstance(rows,list) and rows else [],
+                  "remaining_day":r.headers.get("x-ratelimit-requests-remaining"),
+                },default=str))
+            except urllib.error.HTTPError as exc:
+              print("API_FOOTBALL_PROBE",json.dumps({"type":label,"http":exc.code}))
+            except Exception as exc:
+              print("API_FOOTBALL_PROBE",json.dumps({"type":label,"error":type(exc).__name__}))
+          PY
