@@ -77,19 +77,44 @@ function parseCsv(string $body, string $season, string $league): array {
     return $rows;
 }
 function download(string $url): string {
-    $host = parse_url($url, PHP_URL_HOST);
-    if (!in_array($host, ['raw.githubusercontent.com', 'www.football-data.co.uk'], true)) throw new RuntimeException('Disallowed host');
-    $context = stream_context_create(['http'=>[
-        'method'=>'GET', 'timeout'=>20, 'ignore_errors'=>true, 'follow_location'=>0,
-        'header'=>"User-Agent: MrXPRONOS-history-research/1.0\r\nAccept: application/json,text/csv,*/*\r\n",
-    ]]);
-    $body = @file_get_contents($url, false, $context);
-    $status = 0;
-    foreach (($http_response_header ?? []) as $line) {
-        if (preg_match('/^HTTP\/[\d.]+\s+(\d{3})/', $line, $m)) $status = (int)$m[1];
+    // Redirects must remain HTTPS and within the known historical providers.
+    // Football-Data legitimately redirects from www to its apex domain.
+    $allowed = ['raw.githubusercontent.com', 'www.football-data.co.uk', 'football-data.co.uk'];
+    for ($redirects = 0; $redirects <= 2; $redirects++) {
+        $host = parse_url($url, PHP_URL_HOST);
+        $scheme = parse_url($url, PHP_URL_SCHEME);
+        $path = parse_url($url, PHP_URL_PATH);
+        if ($scheme !== 'https' || !in_array($host, $allowed, true)) {
+            throw new RuntimeException('Disallowed redirect endpoint');
+        }
+        if (str_contains((string)$host, 'football-data.co.uk') && !preg_match('#^/mmz4281/[0-9]{4}/[A-Z0-9]+\.csv$#', (string)$path)) {
+            throw new RuntimeException('Unexpected CSV redirect path');
+        }
+        if ($host === 'raw.githubusercontent.com' && !str_starts_with((string)$path, '/openfootball/football.json/')) {
+            throw new RuntimeException('Unexpected JSON redirect path');
+        }
+        $context = stream_context_create(['http'=>[
+            'method'=>'GET', 'timeout'=>20, 'ignore_errors'=>true, 'follow_location'=>0,
+            'header'=>"User-Agent: MrXPRONOS-history-research/1.0\r\nAccept: application/json,text/csv,*/*\r\n",
+        ]]);
+        $body = @file_get_contents($url, false, $context);
+        $status = 0;
+        $location = null;
+        foreach (($http_response_header ?? []) as $line) {
+            if (preg_match('/^HTTP\/[\d.]+\s+(\d{3})/', $line, $m)) $status = (int)$m[1];
+            if (preg_match('/^Location:\s*(\S+)\s*$/i', $line, $m)) $location = $m[1];
+        }
+        if (in_array($status, [301,302,303,307,308], true) && is_string($location)) {
+            if (str_starts_with($location, '/')) $location = 'https://'.$host.$location;
+            $url = $location;
+            continue;
+        }
+        if ($status !== 200 || !is_string($body) || strlen($body) > 12000000) {
+            throw new RuntimeException('HTTP '.$status.' (unavailable or over size limit)');
+        }
+        return $body;
     }
-    if ($status !== 200 || !is_string($body) || strlen($body) > 12000000) throw new RuntimeException('HTTP '.$status.' (unavailable or over size limit)');
-    return $body;
+    throw new RuntimeException('Too many HTTP redirects');
 }
 if (array_key_exists('self-test', $opts)) {
     $sample = '{"matches":[{"date":"2025-01-14","team1":"A","team2":"B","score":{"ft":[2,1]}},{"date":"2025-01-16","team1":"A","team2":"C"}]}';
@@ -121,7 +146,7 @@ foreach ($seasons as $season) {
             if ($requests >= $maxFiles) break 3;
             $url = $provider === 'openfootball'
                 ? "https://raw.githubusercontent.com/openfootball/football.json/master/{$season}/{$division}.json"
-                : "https://www.football-data.co.uk/mmz4281/{$code}/{$division}.csv";
+                : "https://football-data.co.uk/mmz4281/{$code}/{$division}.csv";
             if ($requests > 0) usleep(1100000); // respectful, no anti-bot bypass
             $requests++;
             try {
