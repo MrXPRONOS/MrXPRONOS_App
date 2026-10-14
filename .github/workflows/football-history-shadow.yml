@@ -22,6 +22,8 @@ on:
       - 'tests/test_football_public_domain_prematch.py'
       - 'scripts/football_public_domain_backtest.py'
       - 'tests/test_football_public_domain_backtest.py'
+      - 'scripts/football_bsd_private_history.py'
+      - 'tests/test_football_bsd_private_history.py'
       - '.github/workflows/football-history-shadow.yml'
   workflow_dispatch:
     inputs:
@@ -63,7 +65,7 @@ jobs:
         run: |
           php -l scripts/football_history_import.php
           php scripts/football_history_import.php --self-test
-          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py
+          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py scripts/football_bsd_private_history.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py tests/test_football_bsd_private_history.py
           python -m unittest discover -s tests -p 'test_football_history_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_daily_multisource_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_history_features.py' -v
@@ -72,6 +74,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_football_prematch_probability_shadow.py' -v
           python -m unittest discover -s tests -p 'test_football_public_domain_prematch.py' -v
           python -m unittest discover -s tests -p 'test_football_public_domain_backtest.py' -v
+          python -m unittest discover -s tests -p 'test_football_bsd_private_history.py' -v
   historical_probe:
     if: github.event_name == 'workflow_dispatch'
     needs: verify
