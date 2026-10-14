@@ -1,6 +1,6 @@
 """Deterministic, offline safety tests for the daily source index."""
 import unittest
-from scripts.football_daily_multisource_shadow import BudgetSession, clean_row, merge, compatible, kickoff
+from scripts.football_daily_multisource_shadow import BudgetSession, clean_row, merge, compatible, kickoff, api_football_rows
 
 
 def mk(source, home="Arsenal", away="Chelsea", when="2026-10-14T18:00:00Z", home_score=None, away_score=None, state="pre"):
@@ -48,6 +48,15 @@ class DailyMultisourceTests(unittest.TestCase):
         self.assertEqual(report["bsd_matches_corrobated"], 1)
         self.assertTrue(fixtures[0]["matched_with_bsd"])
         self.assertFalse(report["model_input_enabled"])
+
+    def test_api_football_bridge_proves_provenance_no_new_http(self):
+        api_fixture = {"response": [{"fixture": {"id": 918, "date": "2026-10-14T18:00:00Z", "status": {"short": "NS"}}, "teams": {"home": {"id": 1, "name": "Arsenal"}, "away": {"id": 2, "name": "Chelsea"}}, "goals": {"home": None, "away": None}, "league": {"name": "Premier League"}}]}
+        entries = api_football_rows(api_fixture)
+        self.assertEqual(len(entries), 1)
+        fixtures, report = merge({"api_football": {"rows": entries}, "espn": {"rows": [mk("espn")]}})
+        self.assertEqual(report["corroborated_by_two_or_more"], 1)
+        self.assertEqual(fixtures[0]["sources"]["api_football"]["id"], "918")
+        self.assertFalse(fixtures[0]["eligible_for_model"])
 
     def test_request_host_is_allowlisted(self):
         client = BudgetSession(max_requests=1)
