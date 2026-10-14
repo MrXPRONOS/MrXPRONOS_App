@@ -195,3 +195,20 @@ Cela n'active pas automatiquement de nouveaux pronostics : l'audit de 284 rencon
 SportScore : utilisation de données dérivées permise sous conditions de provenance/attribution et de volumes; vérifier les endpoints réellement couverts et obtenir un accord commercial si nécessaire. TheSportsDB : API officielle et conditions d'utilisation spécifiques, y compris les droits sur les médias et les exigences pour applications publiées. OpenLigaDB : licence ODbL pour la base de données, avec attribution et obligations de partage de bases dérivées dans certains cas. **Ne pas mélanger une base ODbL et une archive propriétaire BSD en les redistribuant sans revue des obligations de licence.**
 
 La PR reste expérimentale et sans aucune modification du flux public, du moteur LIVE, de Telegram ou des seuils de sélection.
+
+## Audit de couverture et de compatibilité prix — 14 octobre 2026
+
+Les collectes multi-jours montrent que `fetch_sportscore_day` interroge `/fixtures/` avec `limit=200`. Si la réponse atteint 200 rencontres, **une pagination incomplète est possible** : il est interdit de présenter cette liste comme une couverture exhaustive. Le rapport `football_prematch_multiday_probe.py` contient maintenant `sportscore_days_at_page_limit` et `sportscore_coverage_possibly_incomplete`. Ceci explique une limitation de la collecte, **sans démontrer** à lui seul pourquoi tel championnat ou tel club est absent.
+
+Le rapprochement avec les calendriers OpenFootball CC0 produit désormais des **compteurs agrégés par source** distinguant notamment l'absence de club à la date, la présence d'un seul club, les deux clubs présents sur d'autres rencontres, une inversion domicile/extérieur et une paire exacte apparaissant un autre jour. **Aucune** de ces heuristiques n'accorde un statut de rencontre vérifiée : seule la correspondance stricte jour + club domicile + club extérieur + compétition continue de le permettre. L'audit est conçu pour repérer les besoins de calendriers/alias juridiquement autorisés, sans inventer de correspondance.
+
+### Différence entre test de cote et politique réelle de publication
+
+`audit_no_quote_gate()` utilise le **vrai `bsd_v2_core.predict_v2`** avec `require_odds=True` et sans cote. Sa réussite prouve que ce **mode strict** refuse les marchés non cotés. Ce n'est **pas** un test exhaustif des étapes du script de production `bsd/bsd_v2_publish.py`.
+
+La publication officielle utilise une autre chaîne : `fit_rho_2024`, les modèles spécialisés BTTS/totaux/double-chance, `fit_policy` (calibration et qualité), `predict_v2` en présélection, puis `price_selected_market`, les garde-fous V2.1 et les plafonds de publication. Le prix peut être une **vraie cote de fournisseur** ou un **prix estimé par le modèle** portant obligatoirement son origine `mrxpronos_model` et le drapeau `estimated_odds`. Un prix estimé n'est jamais une cote offerte par un bookmaker, et ne constitue pas une preuve de rentabilité.
+
+**Barrière d'identité tarifaire** : l'API de cotes BSD requiert l'identifiant officiel de l'événement BSD. Or les événements externes portent un identifiant numérique synthétique dans un espace distinct. `audit_external_pricing_bridge()` indique systématiquement qu'aucune correspondance vérifiée d'identifiant externe vers une offre bookmaker n'a été fournie et n'interroge pas l'API BSD. Ne jamais transmettre cet identifiant synthétique à `fetch_event_odds()` ni autoriser un prix de bookmaker non attribuable sans preuve fiable d'équipe, compétition, horaire, événement et marché.
+
+Aucune branche multisource n'appelle `bsd_v2_publish.assemble()` ni n'écrit un résultat publiable. Il reste nécessaire de raccorder, **sans changer les règles existantes**, les artefacts calibrés, la qualité et les garde-fous, les cotes authentiques dans leur droit d'usage et leur relation prouvée à l'événement, et de tester le pipeline complet en mode strictement isolé avant toute activation.
+
