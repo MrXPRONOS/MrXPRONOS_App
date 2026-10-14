@@ -1,12 +1,12 @@
-"""Renderer premium Mr XPRONOS basé sur les six templates PNG.
+"""Renderer premium Mr XPRONOS.
 
-Règle principale:
-- le template fournit déjà cadres, cercles, capsules, titres et décoration;
-- le code ne redessine PAS ces éléments;
-- le code injecte uniquement les données dynamiques dans des zones mesurées
-  sur les templates normalisés en 1080x1080.
+Production visuelle:
+- 4 templates premium dédiés: Matchs du jour, Avant-match, Résultat final,
+  Compositions officielles;
+- 3 bannières horizontales génériques pour tous les autres contenus concernés;
+- les actualités RSS conservent directement leur image source.
 
-Toutes les coordonnées de ce module sont donc des coordonnées 1080x1080.
+Les anciens templates Arty / événements ne sont plus routés en production.
 """
 from __future__ import annotations
 
@@ -26,15 +26,11 @@ TEMPLATES = {
     "programme": "template_programme_matchs_du_jour.png",
     "avant_match": "template_avant_match.png",
     "resultat": "template_resultat_final.png",
-    "statistique": "template_stat_du_jour.png",
-    "flash": "template_flash_foot.png",
-    "sondage": "template_sondage.png",
     "composition": "template_compositions_officielles.webp",
 }
 
 TEMPLATE_SIZES = {
     "composition": (1374, 1145),
-    **{name: (1080, 1350) for name in ("kickoff", "goal", "mi_temps", "score_update", "statistique_avancee", "community_vote", "quiz", "debat", "reaction", "suivi_interrompu")},
 }
 
 WHITE = "#F7F9FC"
@@ -1391,9 +1387,6 @@ RENDERERS = {
     "programme": render_programme,
     "avant_match": render_prematch,
     "resultat": render_result,
-    "statistique": render_stat,
-    "flash": render_flash,
-    "sondage": render_poll,
     "composition": render_composition,
 }
 
@@ -1409,9 +1402,6 @@ def render(category: str, payload: dict[str, Any]) -> Image.Image:
             )
         return image
 
-    # Toutes les autres publications éditoriales utilisent l'une des trois
-    # bannières horizontales génériques. Le routage dépend de la catégorie ET
-    # des données disponibles (2 logos / 1 logo / aucun logo).
     from generic_football_banners import is_banner_category, render_banner
     if is_banner_category(category, payload):
         image = render_banner(category, payload)
@@ -1419,28 +1409,8 @@ def render(category: str, payload: dict[str, Any]) -> Image.Image:
             raise AssertionError("Generic football banner must be 1280x500")
         return image
 
-    # Les anciens templates événement restent disponibles comme filet de
-    # compatibilité pour une catégorie non encore migrée.
-    from actu_foot_event_templates import is_event_category, render_event
-    if is_event_category(category):
-        image = render_event(category, payload)
-        if image.size != (1122, 1402):
-            raise AssertionError("Actu Foot event graphic must be 1122x1402")
-        return image
-
-    from arty_football_templates import SUPPORTED as ARTY_CATEGORIES, overlay
-    if category in ARTY_CATEGORIES:
-        image = overlay(category, payload)
-        if image.size != (1080, 1350):
-            raise AssertionError("Arty Football graphic must be 1080x1350")
-        return image
-    renderer = RENDERERS.get(category)
-    if renderer is None:
-        raise ValueError("Rubrique sans template: " + category)
-    image = renderer(payload)
-    expected_size = TEMPLATE_SIZES.get(category, (W, H))
-    if image.size != expected_size:
-        raise AssertionError(
-            f"Le renderer {category} doit produire {expected_size}, reçu {image.size}"
-        )
-    return image
+    raise ValueError(
+        "Rubrique sans template de production: "
+        + category
+        + ". Les anciens templates Arty / événement ont été retirés."
+    )
