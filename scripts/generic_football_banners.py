@@ -21,7 +21,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "assets" / "images" / "generic_football_banners"
-W, H = 1600, 625
+W, H = 1280, 500
 
 WHITE = (247, 249, 252)
 GOLD = (245, 199, 91)
@@ -47,29 +47,24 @@ TEMPLATE_DIRS = {
 }
 
 # Exact data surfaces measured on the generated 2006x784 source art and
-# projected to the 1600x625 Telegram assets. The red audit rectangles were:
-# match  : logo 96,241,331,472 | name 355,290,749,420 | event 798,290,1196,422 |
-#          name 1226,290,1641,420 | logo 1663,241,1899,472
-# club   : logo 83,276,343,475 | club 370,295,912,435 |
-#          event 963,294,1565,436 | meta 1606,294,1908,435
-# general: headline 170,267,1836,433 | meta 656,456,1353,539
+# projected to the 1280x500 Telegram source assets.
 LAYOUT = {
     "match": {
-        "home_logo": {"surface": (77, 192, 264, 376), "safe": (84, 200, 257, 368), "center": (171, 284), "max_px": 160},
-        "home_name": {"surface": (283, 231, 597, 335), "safe": (294, 241, 586, 325)},
-        "event": {"surface": (636, 231, 954, 336), "safe": (647, 241, 943, 326)},
-        "away_name": {"surface": (978, 231, 1309, 335), "safe": (989, 241, 1298, 325)},
-        "away_logo": {"surface": (1326, 192, 1515, 376), "safe": (1333, 200, 1508, 368), "center": (1421, 284), "max_px": 160},
+        "home_logo": {"surface": (61,154,211,301), "safe": (67,160,205,295), "center": (136,228), "max_px": 126},
+        "home_name": {"surface": (227,185,478,268), "safe": (236,193,469,260)},
+        "event": {"surface": (509,185,763,269), "safe": (518,193,754,261)},
+        "away_name": {"surface": (782,185,1047,268), "safe": (791,193,1038,260)},
+        "away_logo": {"surface": (1061,154,1212,301), "safe": (1067,160,1206,295), "center": (1137,228), "max_px": 126},
     },
     "club": {
-        "logo": {"surface": (66, 220, 274, 379), "safe": (74, 228, 266, 371), "center": (170, 300), "max_px": 144},
-        "club": {"surface": (295, 235, 727, 347), "safe": (308, 246, 714, 336)},
-        "event": {"surface": (768, 234, 1248, 348), "safe": (781, 245, 1235, 337)},
-        "meta": {"surface": (1281, 234, 1522, 347), "safe": (1292, 245, 1511, 336)},
+        "logo": {"surface": (53,176,219,303), "safe": (60,183,212,296), "center": (136,240), "max_px": 112},
+        "club": {"surface": (236,188,582,278), "safe": (246,197,572,269)},
+        "event": {"surface": (614,188,999,278), "safe": (624,197,989,269)},
+        "meta": {"surface": (1025,188,1217,278), "safe": (1034,197,1208,269)},
     },
     "general": {
-        "headline": {"surface": (136, 213, 1464, 345), "safe": (153, 228, 1447, 330)},
-        "meta": {"surface": (523, 364, 1079, 430), "safe": (540, 374, 1062, 420)},
+        "headline": {"surface": (108,170,1172,276), "safe": (122,181,1158,265)},
+        "meta": {"surface": (419,291,863,344), "safe": (432,299,850,336)},
     },
 }
 
@@ -171,7 +166,8 @@ def _font(size: int, bold: bool = True) -> ImageFont.ImageFont:
 @lru_cache(maxsize=3)
 def _template(kind: str) -> Image.Image:
     folder = TEMPLATE_DIRS[kind]
-    parts = sorted(folder.glob("*.txt"))
+    full = folder / "full.txt"
+    parts = [full] if full.is_file() else sorted(folder.glob("*.txt"))
     if not parts:
         raise FileNotFoundError(f"Template bannière absent: {folder}")
     raw = base64.b64decode("".join(p.read_text(encoding="ascii").strip() for p in parts), validate=True)
