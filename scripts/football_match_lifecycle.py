@@ -1224,10 +1224,10 @@ def lifecycle_signals(
             continue
         source = _plain(ext.get("source") or "source live")
 
-        # Composition: on ne demande le résumé ESPN que pour des matchs proches.
+        # Composition officielle et changement tardif de XI.
         if kickoff and -timedelta(minutes=8) <= kickoff - now <= timedelta(minutes=85):
             lineup_key = "composition:" + key_id
-            if lineup_key not in sent_keys and ext.get("source") in {"espn", "sportscore", "thesportsdb"}:
+            if ext.get("source") in {"espn", "sportscore", "thesportsdb"}:
                 if ext.get("source") == "espn":
                     summary = summary_for(event_id)
                     lineups = extract_lineups(summary)
@@ -1243,15 +1243,49 @@ def lifecycle_signals(
                     base_away = base.get("away_team")
                     home_logo = _plain(ext.get("home_logo") or (base_home.get("logo") if isinstance(base_home, dict) else ""))
                     away_logo = _plain(ext.get("away_logo") or (base_away.get("logo") if isinstance(base_away, dict) else ""))
-                    signals.append({
-                        "kind": "composition", "key": lineup_key, "priority": 70 + importance,
-                        "home": home, "away": away, "league": league, "kickoff": kickoff,
-                        "lineups": lineups, "source": composition_source,
-                        "home_logo": home_logo, "away_logo": away_logo,
-                        "espn_event_id": espn_event_id or "",
-                        "espn_url": espn_url or "",
-                        "match_data": match_data,
-                    })
+                    home_hash = lineup_hash(lineups["home"])
+                    away_hash = lineup_hash(lineups["away"])
+                    if lineup_key not in sent_keys:
+                        signals.append({
+                            "kind": "composition", "key": lineup_key, "priority": 170 + importance,
+                            "priority_class": "P1",
+                            "home": home, "away": away, "league": league, "kickoff": kickoff,
+                            "lineups": lineups, "source": composition_source,
+                            "home_logo": home_logo, "away_logo": away_logo,
+                            "lineup_home_hash": home_hash, "lineup_away_hash": away_hash,
+                            "espn_event_id": espn_event_id or "",
+                            "espn_url": espn_url or "",
+                            "match_data": match_data,
+                        })
+                    else:
+                        stored_home = _plain(base.get("lineup_home_hash"))
+                        stored_away = _plain(base.get("lineup_away_hash"))
+                        for side, current_hash, stored_hash, club, logo in (
+                            ("home", home_hash, stored_home, home, home_logo),
+                            ("away", away_hash, stored_away, away, away_logo),
+                        ):
+                            if not stored_hash or not current_hash or current_hash == stored_hash:
+                                continue
+                            old_players = base.get("lineup_" + side) if isinstance(base.get("lineup_" + side), list) else []
+                            current_players = list(lineups.get(side) or [])
+                            entrants = [x for x in current_players if _norm(x) not in {_norm(y) for y in old_players}]
+                            sortants = [x for x in old_players if _norm(x) not in {_norm(y) for y in current_players}]
+                            change_key = f"changement_composition:{key_id}:{side}:{current_hash}"
+                            if change_key in sent_keys:
+                                continue
+                            signals.append({
+                                "kind": "changement_composition", "key": change_key,
+                                "priority": 185 + importance, "priority_class": "P1",
+                                "home": home, "away": away, "league": league,
+                                "club": club, "logo": logo, "side": side,
+                                "entrant": entrants[0] if entrants else "",
+                                "sortant": sortants[0] if sortants else "",
+                                "players": current_players,
+                                "lineup_home_hash": home_hash, "lineup_away_hash": away_hash,
+                                "lineups": lineups, "source": composition_source,
+                                "espn_event_id": espn_event_id or "",
+                                "espn_url": espn_url or "",
+                            })
 
         # Coup d'envoi: uniquement au tout début.
         if is_live(ext) and 0 <= minute <= 12:
