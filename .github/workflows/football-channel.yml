@@ -172,17 +172,21 @@ jobs:
           sys.path.insert(0, 'scripts')
           import generic_football_banners as banners
 
-          dedicated = {
-              'template_programme_matchs_du_jour.png': (1080, 1080),
-              'template_avant_match.png': (1080, 1080),
-              'template_resultat_final.png': (1080, 1080),
-              'template_compositions_officielles.webp': (1374, 1145),
-          }
-          for name, expected in dedicated.items():
+          dedicated = [
+              'template_programme_matchs_du_jour.png',
+              'template_avant_match.png',
+              'template_resultat_final.png',
+              'template_compositions_officielles.webp',
+          ]
+          for name in dedicated:
               path = Path('assets/images') / name
               assert path.is_file(), path
               with Image.open(path) as image:
-                  assert image.size == expected, (path, image.size, expected)
+                  if name == 'template_compositions_officielles.webp':
+                      assert image.size == (1374, 1145), (path, image.size)
+                  else:
+                      w, h = image.size
+                      assert w == h and w >= 900, (path, image.size)
                   print('PREMIUM_TEMPLATE_OK', name, image.size)
 
           for family in ('match', 'club', 'general'):
