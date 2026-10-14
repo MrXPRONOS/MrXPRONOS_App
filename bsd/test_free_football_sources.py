@@ -1,11 +1,14 @@
 """Offline tests for free multi-source football routing."""
 import os
 import unittest
+from unittest.mock import patch
+import requests
 from datetime import datetime, timezone
 
 from bsd.free_football_sources import (
     SOURCE_QUALITY,
     SourceSnapshot,
+    _json_get,
     _sportscore_rows,
     best_match,
     enrich_bsd_events,
@@ -18,6 +21,36 @@ from bsd.free_football_sources import (
 
 
 class TestFreeFootballSources(unittest.TestCase):
+    def test_bsd_token_never_sent_to_public_football_providers(self):
+        class SpySession(requests.Session):
+            outgoing = None
+            def get(self, url, **kwargs):
+                request = requests.Request(
+                    "GET", url,
+                    params=kwargs.get("params"),
+                    headers=kwargs.get("headers"),
+                )
+                self.outgoing = self.prepare_request(request)
+                class FakeResponse:
+                    def raise_for_status(self):
+                        return None
+                    def json(self):
+                        return {"events": []}
+                return FakeResponse()
+
+        session = SpySession()
+        session.headers["Authorization"] = "Token DONT_FORWARD_SECRET"
+        with patch("bsd.free_football_sources._save"):
+            value = _json_get(session, "espn",
+                              "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard",
+                              params={"dates": "20261014"}, ttl=0)
+        self.assertEqual(value, {"events": []})
+        self.assertNotIn("Authorization", session.outgoing.headers)
+        self.assertEqual(
+            session.headers.get("Authorization"), "Token DONT_FORWARD_SECRET",
+            "BSD token must remain usable for BSD itself",
+        )
+
     def test_quality_order(self):
         self.assertGreater(SOURCE_QUALITY["espn"]["overall"], SOURCE_QUALITY["sportscore"]["overall"])
         self.assertGreater(SOURCE_QUALITY["sportscore"]["overall"], SOURCE_QUALITY["bsd"]["overall"])
