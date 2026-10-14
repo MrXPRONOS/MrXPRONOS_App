@@ -400,6 +400,12 @@ jobs:
           umask 077
           python scripts/football_bsd_validate_real.py --history=bsd/all_matches_bsd.json --union=tmp/public-union.json --bsd-site-data=data.json --out=tmp/bsd-private-validation-AGGREGATES-ONLY.json
           python scripts/football_bsd_private_paired_backtest.py --history=bsd/all_matches_bsd.json --max-fixtures=700 --report=tmp/bsd-private-paired-BENCHMARK-AGGREGATES-ONLY.json
+          python scripts/football_external_bsd_v2_adapter.py \
+            --private-bsd-history-json=bsd/all_matches_bsd.json \
+            --authorize-bsd-private-internal-use \
+            --daily-union=tmp/public-union.json \
+            --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --report=tmp/bsd-private-original-v2-aggregate.json
           python - <<'PY'
           import json
           from pathlib import Path
@@ -414,6 +420,16 @@ jobs:
           assert bench['private_match_rows_exposed'] is False
           assert bench['compared_to_production_calibrated_bsd_v2'] is False
           assert bench['publication_enabled'] is False
+          extended=json.loads(Path('tmp/bsd-private-original-v2-aggregate.json').read_text())
+          assert extended['multi_api_historical_inputs']['private_bsd']['private_ids_exposed_in_report'] is False
+          assert extended['bsd_v2_core']['calculation_module_modified'] is False
+          assert extended['bsd_v2_core']['production_published'] is False
+          assert extended['bsd_v2_core']['core_predict_v2_function_used'] is True
+          print('ORIGINAL_V2_REAL_BSD_HISTORY_ENRICHMENT', {
+              'converted': extended['multi_api_historical_inputs']['private_bsd']['converted'],
+              'new_fixtures_ready': extended['fixtures']['ready_for_unchanged_core'],
+              'h2h_fixtures': extended['bsd_v2_core']['h2h_nonzero_fixtures']
+          })
           PY
       - name: Destroy decrypted BSD archive and private runtime files
         if: always()
@@ -430,5 +446,6 @@ jobs:
           path: |
             tmp/bsd-private-validation-AGGREGATES-ONLY.json
             tmp/bsd-private-paired-BENCHMARK-AGGREGATES-ONLY.json
+            tmp/bsd-private-original-v2-aggregate.json
           if-no-files-found: error
           retention-days: 3
