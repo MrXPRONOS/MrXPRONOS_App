@@ -1490,15 +1490,13 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
 
 
 def lifecycle_publication(signal: dict) -> Publication | None:
-    """Transforme une transition vérifiée en publication premium compacte."""
+    """Transforme toute transition compatible en publication premium compacte."""
     kind = str(signal.get("kind") or "")
     home = plain(signal.get("home"), 55)
     away = plain(signal.get("away"), 55)
     competition = plain(signal.get("league") or "Football", 70)
     source = plain(signal.get("source") or "données live", 50)
-    if not home or not away or kind not in {
-        "composition", "kickoff", "goal", "mi_temps", "score_update"
-    }:
+    if not home or not away or not kind:
         return None
 
     espn_url = plain(signal.get("espn_url"), 500)
@@ -1535,7 +1533,16 @@ def lifecycle_publication(signal: dict) -> Publication | None:
         message = "<b>📋 COMPOSITIONS OFFICIELLES</b>\n<i>Les titulaires sont confirmés.</i>"
         keyboard = live_keyboard({"espn_url": espn_url})
     else:
-        card = base_card
+        # Toutes les catégories compatibles avec les trois bannières génériques
+        # peuvent désormais passer par le même pipeline (cartons, changements,
+        # interruptions, prolongations, tirs au but, etc.).
+        from generic_football_banners import is_banner_category
+        card = {**base_card, **{
+            key: value for key, value in signal.items()
+            if key not in {"key", "kind"}
+        }}
+        if not is_banner_category(kind, card):
+            return None
         message = banner_caption(kind, card)
         keyboard = live_keyboard(card)
 
