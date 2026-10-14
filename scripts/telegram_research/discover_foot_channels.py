@@ -5,6 +5,8 @@ Lancement manuel; session utilisateur dans les secrets d'environnement.
 """
 import argparse
 import asyncio
+import secrets
+import requests
 import csv
 import json
 import os
@@ -206,7 +208,26 @@ def main():
     args = parser.parse_args()
     if args.pause < 5.0 or args.pause > 30.0:
         parser.error("Pause obligatoire de 5 à 30 secondes entre appels")
-    asyncio.run(scan(args.max_searches, args.max_channels, args.max_posts, args.pause, args.out))
+    # This manual research job shares the SAME session lease as daily monitoring.
+    # Never scan when the daily collector is running or a Telegram cooldown is active.
+    base = os.getenv("SUPABASE_URL", "").rstrip("/") + "/rest/v1/rpc/"
+    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+    if not base.startswith("https://") or not key:
+        raise SystemExit("Private monitoring guard requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY")
+    session = requests.Session()
+    session.headers.update({"apikey": key, "Authorization": "Bearer " + key})
+    owner = secrets.token_hex(20)
+    def lease(name, **payload):
+        response = session.post(base + name, json=payload, timeout=25)
+        response.raise_for_status()
+        return response.json()
+    status = lease("telegram_monitor_acquire", p_owner=owner, p_minutes=25)
+    if status != "ok":
+        raise SystemExit(f"Telegram user session unavailable: {status}; research not started.")
+    try:
+        asyncio.run(scan(args.max_searches, args.max_channels, args.max_posts, args.pause, args.out))
+    finally:
+        lease("telegram_monitor_release", p_owner=owner, p_cooldown_seconds=0, p_error=None)
 
 
 if __name__ == "__main__":
