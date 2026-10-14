@@ -24,6 +24,7 @@ from scripts.football_history_shadow import normalized, canonical_team
 from scripts.football_history_features import competition, features as build_history_features
 from scripts.football_match_source_router import route_all
 from scripts.football_public_domain_prematch import generate as public_domain_form
+from scripts.football_bsd_private_history import attach as bsd_private_form
 import hashlib
 
 ALLOWED = ("bsd", "api_football", "espn", "sportscore", "thesportsdb", "openligadb")
@@ -230,6 +231,8 @@ def main() -> None:
     p.add_argument("--prematch-stats", help="Validated per-provider historical statistics; JSON by provider and fixture ID")
     p.add_argument("--route-out", help="Optional research-only per-match chosen providers JSON")
     p.add_argument("--public-domain-history-jsonl", help="Licensed OpenFootball raw JSONL; single-source form only")
+    p.add_argument("--bsd-private-history-json", help="Local decrypted private BSD match list; never upload this file")
+    p.add_argument("--authorize-bsd-private-internal-use", action="store_true", help="Explicitly authorize local-only research use of private BSD history")
     p.add_argument("--analysis-at", help="Offline historical replay ISO timestamp; requires --snapshots")
     p.add_argument("--verified-history", help="History-shadow JSON with independently agreed final scores")
     p.add_argument("--historical-feature-out", help="Optional separate research-only features JSON")
@@ -269,6 +272,22 @@ def main() -> None:
             p.error("OpenFootball source collision: do not combine unchecked external stats")
         statistics.update(lawful_stats)
         report["public_domain_history"] = public_quality
+    if args.authorize_bsd_private_internal_use and not args.bsd_private_history_json:
+        p.error("--authorize-bsd-private-internal-use requires --bsd-private-history-json")
+    if args.bsd_private_history_json:
+        if not args.authorize_bsd_private_internal_use:
+            p.error("BSD private history cannot be read without --authorize-bsd-private-internal-use")
+        private_history = json.loads(Path(args.bsd_private_history_json).read_text(encoding="utf-8"))
+        if not isinstance(private_history, list):
+            p.error("BSD private history must be a local JSON list of matches")
+        fixtures, bsd_stats, private_quality = bsd_private_form(
+            fixtures, private_history, bsd_events, as_of=analysis_at, explicitly_authorized=True)
+        for provider, values in bsd_stats.items():
+            if values and statistics.get(provider):
+                p.error("Overlapping private BSD provider statistics source: " + provider)
+            if values:
+                statistics[provider] = values
+        report["bsd_private_archive_coverage"] = private_quality
     routed, readiness = route_all(fixtures, statistics, analysis_at=analysis_at)
     report["prematch_readiness"] = readiness
     if args.verified_history:
@@ -287,11 +306,15 @@ def main() -> None:
         out = Path(args.route_out)
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(routed, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        if args.bsd_private_history_json:
+            out.chmod(0o600)
     report.update({"day": day.isoformat(), "http_requests": calls, "total_http_requests": sum(calls.values())})
     for path, data in ((args.out, fixtures), (args.report, report)):
         output = Path(path)
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        if args.bsd_private_history_json:
+            output.chmod(0o600)
     print(json.dumps({k: v for k, v in report.items() if k != "ambiguities"}, ensure_ascii=False))
 
 
