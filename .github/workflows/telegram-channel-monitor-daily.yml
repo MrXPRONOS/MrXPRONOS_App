@@ -5,6 +5,12 @@ on:
   schedule:
     - cron: '0 6 * * *'
   workflow_dispatch:
+    inputs:
+      live_test:
+        description: 'Test réel V2 avec envoi privé, sans modifier le rapport quotidien'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -38,4 +44,5 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           PYTHONUNBUFFERED: '1'
+          TELEGRAM_MONITOR_TEST_MODE: ${{ inputs.live_test || 'false' }}
         run: python scripts/telegram_channel_monitor_v2.py
