@@ -1,7 +1,7 @@
 """Offline regression tests; no API keys and no HTTP requests."""
 import unittest
 from datetime import datetime, timezone
-from scripts.api_football_live_stats import parse_statistics, find_matches, build_row, norm_name
+from scripts.api_football_live_stats import parse_statistics, find_matches, build_row, norm_name, league_stats_coverage, safe_remaining
 
 class StatisticsTests(unittest.TestCase):
     def setUp(self):
@@ -64,6 +64,33 @@ class StatisticsTests(unittest.TestCase):
         self.assertEqual(find_matches([self.match],[self.fixture,ambiguous]),[])
         late={**self.fixture,"fixture":{**self.fixture["fixture"],"date":"2026-10-15T09:00:00Z"}}
         self.assertEqual(find_matches([self.match],[late]),[])
+
+
+class ProviderCoverageTests(unittest.TestCase):
+    def test_known_unsupported_league_skips_stats(self):
+        payload=[{
+            "league":{"id":123},
+            "seasons":[
+                {"year":2025,"coverage":{"fixtures":{"statistics_fixtures":True}}},
+                {"year":2026,"coverage":{"fixtures":{"statistics_fixtures":False}}},
+            ],
+        }]
+        self.assertIs(league_stats_coverage(payload,123,2026),False)
+        self.assertIs(league_stats_coverage(payload,123,2025),True)
+
+    def test_unknown_coverage_remains_unknown(self):
+        payload=[{"league":{"id":123},"seasons":[
+            {"year":2026,"coverage":{"fixtures":{}}}
+        ]}]
+        self.assertIsNone(league_stats_coverage(payload,123,2026))
+        self.assertIsNone(league_stats_coverage([],123,2026))
+
+    def test_quota_missing_header_fails_neutral(self):
+        self.assertIsNone(safe_remaining(None))
+        self.assertIsNone(safe_remaining("unknown"))
+        self.assertEqual(safe_remaining("95"),95)
+        self.assertEqual(safe_remaining("0"),0)
+
 
 if __name__ == "__main__":
     unittest.main()
