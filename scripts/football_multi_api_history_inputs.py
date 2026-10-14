@@ -251,6 +251,39 @@ def trusted_private_bsd_rows(events: list[dict], *, as_of: datetime,
     prepared=[]
     official_leagues=defaultdict(set)
     official_teams=defaultdict(set)
+    # First pass: exact, internally consistent labels belonging to the same
+    # native BSD identifiers within the encrypted archive. Never infer from
+    # similar-looking club names or an unrelated competition.
+    archival_leagues=defaultdict(set)
+    archival_teams=defaultdict(set)
+    for row in events:
+        if not isinstance(row,dict) or str(row.get("status") or "").lower()!="finished":
+            continue
+        stamp=aware(row.get("event_date"))
+        if stamp is None or stamp+timedelta(hours=4)>=as_of:
+            continue
+        try:
+            rid=int(row.get("league_id"))
+        except (TypeError,ValueError):
+            continue
+        if rid<=0:
+            continue
+        meta=row.get("league_name") or row.get("competition_name") or row.get("league")
+        if isinstance(meta,dict):
+            meta=meta.get("name")
+        label=competition(str(meta or ""))
+        if label:
+            archival_leagues[rid].add(label)
+        for position in ("home","away"):
+            entity=row.get(position+"_team")
+            native_id=row.get(position+"_team_id") or (entity.get("id") if isinstance(entity,dict) else None)
+            try:
+                native_id=int(native_id)
+            except (TypeError,ValueError):
+                continue
+            title=canonical_team(native_name(entity))
+            if native_id>0 and title:
+                archival_teams[(rid,native_id)].add(title)
     if public_bsd_feed is not None:
         if not isinstance(public_bsd_feed,dict) or public_bsd_feed.get("source")!="bsd":
             raise ValueError("Identity hints require authentic BSD published feed")
@@ -273,6 +306,14 @@ def trusted_private_bsd_rows(events: list[dict], *, as_of: datetime,
                 name=canonical_team(native_name(row.get(side+"_team")))
                 if name:
                     official_teams[(lid,tid)].add(name)
+    # Only add missing identity hints if every observation under the same
+    # native ID agrees. Public BSD names remain authoritative where present.
+    for rid,aliases in archival_leagues.items():
+        if rid not in official_leagues and len(aliases)==1:
+            official_leagues[rid].update(aliases)
+    for native_key,aliases in archival_teams.items():
+        if native_key not in official_teams and len(aliases)==1:
+            official_teams[native_key].update(aliases)
     for event in events:
         if not isinstance(event,dict) or str(event.get("status") or "").lower()!="finished":
             counts["not_completed"]+=1
@@ -348,7 +389,9 @@ def trusted_private_bsd_rows(events: list[dict], *, as_of: datetime,
         "status":"private_internal_research_only",
         "converted":len(rows),
         "identity_hints":{"known_league_ids":sum(len(x)==1 for x in official_leagues.values()),
-                          "known_team_ids":sum(len(x)==1 for x in official_teams.values())},
+                          "known_team_ids":sum(len(x)==1 for x in official_teams.values()),
+                          "archival_consistent_league_ids":sum(len(v)==1 for v in archival_leagues.values()),
+                          "archival_consistent_team_ids":sum(len(v)==1 for v in archival_teams.values())},
         "rejections":dict(sorted(counts.items())),
         "private_ids_exposed_in_report":False,
         "model_modified":False,
