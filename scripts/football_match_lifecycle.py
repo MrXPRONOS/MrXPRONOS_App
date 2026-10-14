@@ -1292,18 +1292,21 @@ def lifecycle_signals(
             key = "kickoff:" + key_id
             if key not in sent_keys:
                 signals.append({
-                    "kind": "kickoff", "key": key, "priority": 80 + importance,
+                    "kind": "kickoff", "key": key, "priority": 160 + importance, "priority_class": "P1",
                     "home": home, "away": away, "league": league, "minute": minute,
                     "score": score_text or "0-0", "source": source,
                     "espn_event_id": espn_event_id,
                     "espn_url": espn_url,
                 })
 
+        period = int(ext.get("period") or 0)
         if is_halftime(ext):
-            key = "mi_temps:" + key_id
+            half_kind = "mi_temps_prolongation" if period >= 3 else "mi_temps"
+            key = half_kind + ":" + key_id
             if key not in sent_keys:
                 signals.append({
-                    "kind": "mi_temps", "key": key, "priority": 135 + importance,
+                    "kind": half_kind, "key": key, "priority": (178 if period >= 3 else 150) + importance,
+                    "priority_class": "P1",
                     "home": home, "away": away, "league": league,
                     "score": score_text, "source": source,
                     "espn_event_id": espn_event_id,
@@ -1314,39 +1317,165 @@ def lifecycle_signals(
                     ),
                 })
 
-        # But/changement de score: fournisseur détaillé requis pour identifier le buteur.
+        # Chronologie live: cartons et remplacements réellement présents chez la source.
+        if is_live(ext) and ext.get("source") in {"espn", "sportscore", "thesportsdb"}:
+            live_detail = normalized_detail(ext, event_id)
+            timeline = live_detail.get("timeline") if isinstance(live_detail.get("timeline"), list) else []
+            for row in timeline:
+                if not isinstance(row, dict):
+                    continue
+                row_kind = _plain(row.get("kind")).lower()
+                event_minute = row.get("minute_total")
+                if event_minute is None:
+                    event_minute = row.get("minute")
+                # Évite de republier une vieille chronologie découverte tardivement.
+                recent = event_minute is not None and (minute <= 0 or 0 <= minute - int(event_minute) <= 6)
+                if row_kind == "card":
+                    raw = row.get("raw") if isinstance(row.get("raw"), dict) else {}
+                    card_type = _plain(
+                        row.get("type") or raw.get("card") or raw.get("card_type")
+                        or raw.get("type") or raw.get("event_type")
+                    ).lower()
+                    is_red = "red" in card_type or "rouge" in card_type
+                    is_yellow = "yellow" in card_type or "jaune" in card_type
+                    if not (is_red or is_yellow):
+                        continue
+                    kind = "carton_rouge" if is_red else "carton_jaune"
+                    key = timeline_key(key_id, kind, row)
+                    if key in sent_keys or (not recent and event_minute is not None):
+                        continue
+                    signals.append({
+                        "kind": kind, "key": key,
+                        "priority": (230 if is_red else 122) + importance,
+                        "priority_class": "P0" if is_red else "P2",
+                        "home": home, "away": away, "league": league,
+                        "minute": event_minute, "score": score_text,
+                        "player": row.get("player") or "",
+                        "reason": _plain(raw.get("reason") or raw.get("detail") or raw.get("description")),
+                        "source": source, "espn_event_id": espn_event_id,
+                        "espn_url": espn_url,
+                    })
+                elif row_kind == "substitution":
+                    key = timeline_key(key_id, "remplacement", row)
+                    if key in sent_keys or (not recent and event_minute is not None):
+                        continue
+                    players = row.get("players") if isinstance(row.get("players"), list) else []
+                    signals.append({
+                        "kind": "remplacement", "key": key,
+                        "priority": 138 + importance, "priority_class": "P1",
+                        "home": home, "away": away, "league": league,
+                        "minute": event_minute, "score": score_text,
+                        "entrant": row.get("entrant") or row.get("player_in") or "",
+                        "sortant": row.get("sortant") or row.get("player_out") or "",
+                        "players": players[:2], "source": source,
+                        "espn_event_id": espn_event_id, "espn_url": espn_url,
+                    })
+
+        # Grandes transitions de période, sans spammer les micro-états.
+        status_detail = _plain(ext.get("status_detail")).lower()
+        shootout_home = _score(ext.get("home_shootout_score"))
+        shootout_away = _score(ext.get("away_shootout_score"))
+        in_shootout = (
+            "penalt" in status_detail or "shootout" in status_detail
+            or shootout_home is not None or shootout_away is not None
+        )
+        in_extra = (
+            "extra time" in status_detail or "aet" in status_detail
+            or "prolong" in status_detail or period in {3, 4}
+        )
+        if is_live(ext) and period == 2 and 45 <= minute <= 58:
+            key = "debut_2e_mi_temps:" + key_id
+            if key not in sent_keys:
+                signals.append({
+                    "kind": "debut_2e_mi_temps", "key": key,
+                    "priority": 142 + importance, "priority_class": "P1",
+                    "home": home, "away": away, "league": league,
+                    "minute": minute, "score": score_text, "source": source,
+                    "espn_event_id": espn_event_id, "espn_url": espn_url,
+                })
+        if is_live(ext) and minute >= 90 and not in_extra and not in_shootout:
+            key = "temps_additionnel:" + key_id
+            if key not in sent_keys:
+                signals.append({
+                    "kind": "temps_additionnel", "key": key,
+                    "priority": 128 + importance, "priority_class": "P1",
+                    "home": home, "away": away, "league": league,
+                    "minute": minute, "score": score_text, "source": source,
+                    "espn_event_id": espn_event_id, "espn_url": espn_url,
+                })
+        if is_live(ext) and in_extra:
+            key = "prolongation:" + key_id
+            if key not in sent_keys:
+                signals.append({
+                    "kind": "prolongation", "key": key,
+                    "priority": 190 + importance, "priority_class": "P1",
+                    "home": home, "away": away, "league": league,
+                    "minute": minute, "score": score_text, "source": source,
+                    "espn_event_id": espn_event_id, "espn_url": espn_url,
+                })
+        if is_live(ext) and in_shootout:
+            shootout_text = (
+                [shootout_home, shootout_away]
+                if shootout_home is not None and shootout_away is not None else []
+            )
+            start_key = "tirs_au_but:" + key_id
+            if start_key not in sent_keys:
+                signals.append({
+                    "kind": "tirs_au_but", "key": start_key,
+                    "priority": 238 + importance, "priority_class": "P0",
+                    "home": home, "away": away, "league": league,
+                    "score": score_text, "shootout_scores": shootout_text,
+                    "source": source, "espn_event_id": espn_event_id, "espn_url": espn_url,
+                })
+            if shootout_text:
+                update_key = f"tir_au_but_marque:{key_id}:{shootout_home}-{shootout_away}"
+                if update_key not in sent_keys:
+                    signals.append({
+                        "kind": "tir_au_but_marque", "key": update_key,
+                        "priority": 232 + importance, "priority_class": "P0",
+                        "home": home, "away": away, "league": league,
+                        "score": score_text, "shootout_scores": shootout_text,
+                        "source": source, "espn_event_id": espn_event_id, "espn_url": espn_url,
+                    })
+
+        # Buts récents : chaque événement est traité, même si plusieurs buts
+        # sont apparus entre deux passages du lifecycle.
         if (
             is_live(ext) and ext.get("source") in {"espn", "sportscore", "thesportsdb"}
             and hs is not None and aws is not None and hs + aws > 0
         ):
-            if ext.get("source") == "espn":
-                summary = summary_for(event_id)
-                goals = extract_goals(summary)
-                goal_match_data = extract_match_enrichment(summary)
-            else:
-                detail = provider_detail(ext)
-                goals = detail.get("goals") if isinstance(detail.get("goals"), list) else []
-                goal_match_data = detail
-            last_goal = goals[-1] if goals else {}
-            goal_minute = last_goal.get("minute_total")
-            if goal_minute is None:
-                goal_minute = last_goal.get("minute")
-            # Pour un BUT, pas de publication sans événement ESPN identifiable.
-            # Cela évite de transformer un score découvert tardivement en alerte instantanée.
-            recent_goal = (
-                bool(last_goal)
-                and goal_minute is not None
-                and (minute <= 0 or 0 <= minute - goal_minute <= 14)
-            )
-            scorer_key = _norm(last_goal.get("player") or "unknown").replace(" ", "-")[:42]
-            key = f"goal:{key_id}:{hs}-{aws}:{goal_minute}:{scorer_key}"
-            if (key not in sent_keys and recent_goal
-                    and f"score_update:{key_id}:{score_text}" not in sent_keys):
+            goal_match_data = normalized_detail(ext, event_id)
+            goals = goal_match_data.get("goals") if isinstance(goal_match_data.get("goals"), list) else []
+            recent_goals = []
+            for goal in goals:
+                goal_minute = goal.get("minute_total")
+                if goal_minute is None:
+                    goal_minute = goal.get("minute")
+                if goal_minute is None:
+                    continue
+                if minute > 0 and not (0 <= minute - int(goal_minute) <= 14):
+                    continue
+                recent_goals.append(goal)
+            for goal in recent_goals:
+                goal_minute = goal.get("minute_total")
+                if goal_minute is None:
+                    goal_minute = goal.get("minute")
+                event_score = ""
+                gh = _score(goal.get("home_score"))
+                ga = _score(goal.get("away_score"))
+                if gh is not None and ga is not None:
+                    event_score = f"{gh}-{ga}"
+                elif goal is recent_goals[-1]:
+                    event_score = score_text
+                key = timeline_key(key_id, "goal", goal)
+                if key in sent_keys:
+                    continue
                 signals.append({
-                    "kind": "goal", "key": key, "priority": 145 + importance,
-                    "home": home, "away": away, "league": league, "minute": minute,
-                    "score": score_text, "source": source,
-                    "goal": last_goal,
+                    "kind": "goal", "key": key, "priority": 245 + importance,
+                    "priority_class": "P0",
+                    "home": home, "away": away, "league": league,
+                    "minute": goal_minute, "score": event_score or score_text,
+                    "source": source, "goal": goal,
                     "home_team_id": ext.get("home_team_id"),
                     "away_team_id": ext.get("away_team_id"),
                     "espn_event_id": espn_event_id or event_id,
