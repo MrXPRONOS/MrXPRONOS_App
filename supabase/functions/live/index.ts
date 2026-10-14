@@ -8,6 +8,7 @@ import {
   resolveTheSportsDbEvent,
   matchProvider,
   normalizeEspnSummaryStats,
+  preserveBsdCoreMarketPairs,
 } from "../_shared/football_sources.ts";
 // live.ts (Supabase Edge Function / Deno)
 // =======================================================
@@ -3822,7 +3823,7 @@ function mergeOneOriginalWithEspn(original: any, espn: any) {
 
   const merged: any = {
     ...original,
-    current_minute: Math.max(originalMinute, espnMinute),
+    current_minute: originalMinute > 0 ? originalMinute : espnMinute,
     live_stats: mergedStats,
     stats_last_updated_at:
       espn?.stats_last_updated_at ||
@@ -3913,6 +3914,9 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[],
       ...original,
       raw_data: {
         ...(original?.raw_data || {}),
+        // Immutable BSD observations from /events/live/; other providers are
+        // supplementary, not replacements for fully known BSD market pairs.
+        bsd_primary_stats: ensureLiveStatsShape(getMatchLiveStats(original)),
         merge_meta: {
           canonical_match_id: key,
           sources: ["api_original"],
@@ -4042,12 +4046,15 @@ function mergeAdditionalProviderMatches(
           providerName,
         ]),
       ];
-      const providerIsFresher = providerMinute >= currentMinute &&
+      const bsdPrimary = current?.raw_data?.merge_meta?.primary_source === "api_original";
+      const providerIsFresher = !bsdPrimary &&
+        providerMinute >= currentMinute &&
         Boolean(provider?.is_live || provider?.is_finished);
 
       out[bestIndex] = {
         ...current,
-        current_minute: Math.max(currentMinute, providerMinute),
+        current_minute: bsdPrimary && currentMinute > 0
+          ? currentMinute : Math.max(currentMinute, providerMinute),
         home_score:
           (current?.home_score == null || providerIsFresher)
             ? (provider?.home_score ?? current?.home_score)
@@ -6164,6 +6171,13 @@ async function enrichLiveMatchesWithBsdStats(matches: any[]) {
             ]),
           ],
           stats_authority: "bsd_stats",
+          // BSD's detailed /stats is the most authoritative source. A later
+          // provider cannot overwrite its complete observed market pairs.
+          bsd_primary_stats: mergeLiveStats(
+            out[idx]?.raw_data?.bsd_primary_stats || {},
+            freshStats,
+            true,
+          ),
           stats_corrected_at: nowIso(),
         },
       };
@@ -6410,6 +6424,25 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       bsd_quota_remaining: bsdQuotaRemaining,
       bsd_quota_reset_seconds: bsdQuotaResetSeconds,
     };
+
+    // Reinstate verified BSD pairs as authoritative immediately before the
+    // canonical snapshot, even if a secondary provider returned larger totals.
+    allRawMatches = allRawMatches.map((match: any) => {
+      const authoritative = match?.raw_data?.bsd_primary_stats;
+      if (!authoritative || typeof authoritative !== "object") return match;
+      const stats = ensureLiveStatsShape(
+        preserveBsdCoreMarketPairs(authoritative, getMatchLiveStats(match)),
+      );
+      return {
+        ...match,
+        live_stats: stats,
+        raw_data: {
+          ...(match.raw_data || {}),
+          live_stats: stats,
+          stats_primary_source: "bsd",
+        },
+      };
+    });
 
     // Correct ESPN source provenance as well as the canonical merged snapshot.
     const espnDetailed=new Map<string,{stats:any;minute:number}>();
