@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T20:12:34+00:00",
+    "published": "2026-10-14T20:17:41+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -32,6 +32,40 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "29eefae0f82acd42",
+    "title": "LDC : Manchester City - PSG : des supporters cityzens quittent déjà l'Etihad Stadium après le troisième but parisien (vidéo)",
+    "summary": "Alors que le PSG menait 3 buts à 0 à la mi-temps de son match face à Manchester City (J2 Ligue des Champions), les tribunes de l'Etihad Stadium se sont quelque peu vidées, puisque de nombreux…",
+    "summary_short": "Alors que le PSG menait 3 buts à 0 à la mi-temps de son match face à Manchester City (J2 Ligue des Champions), les tribunes de l'Etihad Stadium se sont quelque peu vidées, puisque de nombreux…",
+    "content": "Alors que le PSG menait 3 buts à 0 à la mi-temps de son match face à Manchester City (J2 Ligue des Champions), les tribunes de l'Etihad Stadium se sont quelque peu vidées, puisque de nombreux…",
+    "paragraphs": [
+      "Alors que le PSG menait 3 buts à 0 à la mi-temps de son match face à Manchester City (J2 Ligue des Champions), les tribunes de l'Etihad Stadium se sont quelque peu vidées, puisque de nombreux…"
+    ],
+    "key_points": [
+      "Alors que le PSG menait 3 buts à 0 à la mi-temps de son match face à Manchester City (J2 Ligue des Champions), les tribunes de l'Etihad Stadium se sont quelque peu vidées, puisque de nombreux…"
+    ],
+    "telegram_summary": "Alors que le PSG menait 3 buts à 0 à la mi-temps de son match face à Manchester City (J2 Ligue des Champions), les tribunes de l'Etihad Stadium se sont quelque peu vidées, puisque de nombreux…",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ldc-manchester-city-psg-des-supporters-cityzens-quittent-deja-l-etihad-stadium-apres-le-troisieme-but-parisien-video-542243.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-manchester-city-psg-des-supporters-cityzens-quittent-deja-l-etihad-stadium-apres-le-troisieme-but-parisien-video-542243.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=29eefae0f82acd42",
+    "published": "2026-10-14T20:15:00+00:00",
+    "image": "assets/images/footnews/29eefae0f82acd42.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20261014213101-4556.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 5,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
   },
   {
     "slug": "c5c4c1aae4076323",
@@ -224,7 +258,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -286,7 +320,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -345,7 +379,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -408,7 +442,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -615,7 +649,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -729,7 +763,7 @@
   },
   {
     "slug": "7628f643096931ac",
-    "title": "DIRECT. Manchester City-PSG : Paris en démonstration face à des Cityzens sans solutions... Suivez le match de Ligue des champions avec nous",
+    "title": "DIRECT. Manchester City-PSG : Erling Haaland redonne de l'espoir aux Cityzens juste après la pause ! Suivez le match de Ligue des champions avec nous",
     "summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
     "summary_short": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
     "content": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
@@ -743,7 +777,7 @@
     "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
-    "published": "2026-10-14T20:12:34+00:00",
+    "published": "2026-10-14T20:17:41+00:00",
     "image": "assets/images/footnews/7628f643096931ac.webp",
     "source_image": "https://www.franceinfo.fr/pictures/5U3Wip1t6xJCEihksoGYiduzong/0x25:4673x2654/432x243/filters:format(jpg)/2026/10/14/6acfdbdf2c937182294865.jpg",
     "image_origin": "source",
@@ -760,6 +794,40 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "842bfcf2c26ffb60",
+    "title": "Ligue 1 : Le stade Vélodrome, Liam Rosenior, Matthieu Udol... les sanctions de la commission de discipline",
+    "summary": "Retrouvez les différentes sanctions prononcées par la Commission de Discipline de la Ligue de Football Professionnel (LFP) ce mercredi.",
+    "summary_short": "Retrouvez les différentes sanctions prononcées par la Commission de Discipline de la Ligue de Football Professionnel (LFP) ce mercredi.",
+    "content": "Retrouvez les différentes sanctions prononcées par la Commission de Discipline de la Ligue de Football Professionnel (LFP) ce mercredi.",
+    "paragraphs": [
+      "Retrouvez les différentes sanctions prononcées par la Commission de Discipline de la Ligue de Football Professionnel (LFP) ce mercredi."
+    ],
+    "key_points": [
+      "Retrouvez les différentes sanctions prononcées par la Commission de Discipline de la Ligue de Football Professionnel (LFP) ce mercredi."
+    ],
+    "telegram_summary": "Retrouvez les différentes sanctions prononcées par la Commission de Discipline de la Ligue de Football Professionnel (LFP) ce mercredi.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-le-stade-velodrome-liam-rosenior-matthieu-udol-les-sanctions-de-la-commission-de-discipline-542241.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-le-stade-velodrome-liam-rosenior-matthieu-udol-les-sanctions-de-la-commission-de-discipline-542241.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=842bfcf2c26ffb60",
+    "published": "2026-10-14T20:15:00+00:00",
+    "image": "assets/images/footnews/842bfcf2c26ffb60.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240912174005-4762.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
   },
   {
     "slug": "bb5601f985269587",
@@ -1092,7 +1160,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1192,7 +1260,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1357,7 +1425,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1447,7 +1515,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1574,7 +1642,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1671,7 +1739,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1831,7 +1899,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -1930,7 +1998,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1992,7 +2060,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2085,7 +2153,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2178,7 +2246,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -2240,7 +2308,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2456,7 +2524,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T20:15:28.933893+00:00"
+      "checked_at": "2026-10-14T20:20:28.955252+00:00"
     },
     "quality_sources": [
       "RFI",
@@ -2565,73 +2633,5 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "ef0178de1ea71892",
-    "title": "Stade Rennais : Franck Haise : \"On avance, on progresse\"",
-    "summary": "Avant le prochain match de Rennes en Ligue Europa, Franck Haise se réjouit de retrouver le public rennais sur la scène européenne.",
-    "summary_short": "Avant le prochain match de Rennes en Ligue Europa, Franck Haise se réjouit de retrouver le public rennais sur la scène européenne.",
-    "content": "Avant le prochain match de Rennes en Ligue Europa, Franck Haise se réjouit de retrouver le public rennais sur la scène européenne.",
-    "paragraphs": [
-      "Avant le prochain match de Rennes en Ligue Europa, Franck Haise se réjouit de retrouver le public rennais sur la scène européenne."
-    ],
-    "key_points": [
-      "Avant le prochain match de Rennes en Ligue Europa, Franck Haise se réjouit de retrouver le public rennais sur la scène européenne."
-    ],
-    "telegram_summary": "Avant le prochain match de Rennes en Ligue Europa, Franck Haise se réjouit de retrouver le public rennais sur la scène européenne.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-stade-rennais-franck-haise-on-avance-on-progresse-542206.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-stade-rennais-franck-haise-on-avance-on-progresse-542206.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ef0178de1ea71892",
-    "published": "2026-10-14T16:45:00+00:00",
-    "image": "assets/images/footnews/ef0178de1ea71892.webp",
-    "source_image": "https://s2.dmcdn.net/v/f-BJM1gpwKa8JH2Z3/x480",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "063e3e0c9e708620",
-    "title": "OM-Olympiakos : malgré la crise, bonne surprise dans les tribunes du Vélodrome ?",
-    "summary": "Après une période compliquée, l’OM espère pouvoir compter sur le soutien de son public face à l’Olympiakos, avec près de 58 000 supporters attendus au Vélodrome.",
-    "summary_short": "Après une période compliquée, l’OM espère pouvoir compter sur le soutien de son public face à l’Olympiakos, avec près de 58 000 supporters attendus au Vélodrome.",
-    "content": "Après une période compliquée, l’OM espère pouvoir compter sur le soutien de son public face à l’Olympiakos, avec près de 58 000 supporters attendus au Vélodrome.",
-    "paragraphs": [
-      "Après une période compliquée, l’OM espère pouvoir compter sur le soutien de son public face à l’Olympiakos, avec près de 58 000 supporters attendus au Vélodrome."
-    ],
-    "key_points": [
-      "Après une période compliquée, l’OM espère pouvoir compter sur le soutien de son public face à l’Olympiakos, avec près de 58 000 supporters attendus au Vélodrome."
-    ],
-    "telegram_summary": "Après une période compliquée, l’OM espère pouvoir compter sur le soutien de son public face à l’Olympiakos, avec près de 58 000 supporters attendus au Vélodrome.",
-    "link": "https://www.onzemondial.com/europa-league/om-malgre-la-crise-bonne-surprise-dans-les-tribunes-du-velodrome-1002575",
-    "source_url": "https://www.onzemondial.com/europa-league/om-malgre-la-crise-bonne-surprise-dans-les-tribunes-du-velodrome-1002575",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=063e3e0c9e708620",
-    "published": "2026-10-14T16:31:00+00:00",
-    "image": "assets/images/footnews/063e3e0c9e708620.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002575/409398/1200-L-om-olympiakos-malgr-la-crise-bonne-surprise-dans-les-tribunes-du-vlodrome.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
   }
 ]
