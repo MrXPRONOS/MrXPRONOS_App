@@ -13,6 +13,7 @@ Aucune source payante n'est requise par ce module.
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import re
 import sys
@@ -326,6 +327,105 @@ def fetch_supabase_live(session: requests.Session, max_age_seconds: int = 360) -
     return rows
 
 
+def persist_canonical_live_events(
+    session: requests.Session,
+    signals: list[dict],
+    *,
+    strict: bool = False,
+) -> list[dict]:
+    """Persiste puis relit la timeline canonique utilisée par Telegram et le site."""
+    if not signals:
+        return []
+    base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
+    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
+    if not base or not key:
+        if strict:
+            raise RuntimeError("Timeline canonique requise mais Supabase est indisponible")
+        return signals
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    rows = []
+    order: list[str] = []
+    for signal in signals:
+        event_key = _plain(signal.get("key"))
+        kind = _plain(signal.get("kind"))
+        home = _plain(signal.get("home"))
+        away = _plain(signal.get("away"))
+        if not event_key or not kind or not home or not away:
+            continue
+        fixture_key = _plain(signal.get("fixture_key") or signal.get("follow_ref"))
+        if not fixture_key:
+            parts = event_key.split(":")
+            fixture_key = parts[1] if len(parts) > 1 else event_key
+        match_id = _plain(signal.get("espn_event_id") or signal.get("match_id"))
+        sources = []
+        for value in (
+            signal.get("source"),
+            *((signal.get("sources_used") or []) if isinstance(signal.get("sources_used"), list) else []),
+        ):
+            source = _plain(value)[:60]
+            if source and source not in sources:
+                sources.append(source)
+        payload = json.loads(json.dumps(signal, ensure_ascii=False, default=str))
+        rows.append({
+            "event_key": event_key,
+            "fixture_key": fixture_key,
+            "match_id": match_id or None,
+            "kind": kind,
+            "priority_class": _plain(signal.get("priority_class") or "P2")[:8],
+            "event_minute": _score(signal.get("minute")),
+            "score": _plain(signal.get("score"))[:30] or None,
+            "home_team": home,
+            "away_team": away,
+            "league_name": _plain(signal.get("league"))[:120] or None,
+            "provider_event_id": _plain(
+                (signal.get("goal") or {}).get("id")
+                if isinstance(signal.get("goal"), dict)
+                else signal.get("provider_event_id")
+            ) or None,
+            "sources": sources,
+            "payload": payload,
+            "confirmed": True,
+            "last_seen_at": now_iso,
+            "event_at": signal.get("event_date") or None,
+        })
+        order.append(event_key)
+    if not rows:
+        return []
+
+    headers = {
+        "apikey": key,
+        "Authorization": "Bearer " + key,
+        "Content-Type": "application/json",
+        "Prefer": "resolution=merge-duplicates,return=representation",
+    }
+    try:
+        response = session.post(
+            base + "/rest/v1/actu_foot_live_events",
+            params={"on_conflict": "event_key"},
+            headers=headers,
+            json=rows,
+            timeout=(8, 25),
+        )
+        response.raise_for_status()
+        saved = response.json()
+    except (requests.RequestException, ValueError) as exc:
+        if strict:
+            raise RuntimeError("Échec timeline canonique Supabase") from exc
+        print("CANONICAL_LIVE_EVENTS_FALLBACK", type(exc).__name__)
+        return signals
+
+    by_key = {
+        str(row.get("event_key")): row.get("payload")
+        for row in saved if isinstance(row, dict) and isinstance(row.get("payload"), dict)
+    }
+    canonical = [by_key[key] for key in order if key in by_key]
+    if strict and len(canonical) != len(order):
+        raise RuntimeError("Timeline canonique incomplète après upsert")
+    print("CANONICAL_LIVE_EVENTS", "stored", len(canonical))
+    return canonical or signals
+
+
 def parse_espn_event(event: dict) -> dict | None:
     competitions = event.get("competitions") or []
     competition = competitions[0] if competitions and isinstance(competitions[0], dict) else {}
@@ -516,6 +616,111 @@ def extract_goals(summary: dict) -> list[dict]:
         })
     goals.sort(key=lambda x: (x.get("minute_total") is None, x.get("minute_total") or 999))
     return goals
+
+
+def extract_shootout_kicks(summary: dict) -> list[dict]:
+    """Extrait uniquement les tirs de séance dont l'issue est explicite."""
+    details = summary.get("details") if isinstance(summary, dict) else None
+    if not isinstance(details, list):
+        return []
+    kicks: list[dict] = []
+    for item in details:
+        if not isinstance(item, dict):
+            continue
+        typ = item.get("type") if isinstance(item.get("type"), dict) else {}
+        label = _plain(
+            typ.get("text") or typ.get("abbreviation")
+            or item.get("text") or item.get("description")
+        ).lower()
+        period = _score(item.get("period"))
+        shootout = (
+            item.get("shootout") is True
+            or item.get("penaltyShootout") is True
+            or "shootout" in label
+            or "penalty shoot" in label
+            or "tirs au but" in label
+            or (period is not None and period >= 5)
+        )
+        if not shootout:
+            continue
+        missed = any(token in label for token in (
+            "miss", "saved", "save", "wide", "post", "blocked", "manqu", "raté", "rate"
+        )) or item.get("missed") is True
+        made = (
+            item.get("scoringPlay") is True
+            or item.get("made") is True
+            or any(token in label for token in ("made", "scored", "converted", "goal", "marqué", "marque"))
+        )
+        if missed:
+            outcome = "missed"
+        elif made:
+            outcome = "made"
+        else:
+            # Pas d'inférence à partir du score : si la source ne dit pas
+            # explicitement marqué/manqué, le tir n'est pas publié.
+            continue
+        athletes = item.get("athletes") or []
+        athletes = athletes if isinstance(athletes, list) else []
+        player = _athlete_name(athletes[0]) if athletes else ""
+        team_obj = item.get("team") if isinstance(item.get("team"), dict) else {}
+        clock = item.get("clock") if isinstance(item.get("clock"), dict) else {}
+        minute_text = _plain(clock.get("displayValue") or item.get("time") or "")
+        kicks.append({
+            "id": str(item.get("id") or ""),
+            "player": player,
+            "team_id": str(team_obj.get("id") or ""),
+            "team": _plain(team_obj.get("displayName") or team_obj.get("name")),
+            "outcome": outcome,
+            "minute": _minute_total(minute_text),
+            "minute_text": minute_text,
+            "home_shootout_score": _score(
+                item.get("homeShootoutScore")
+                if item.get("homeShootoutScore") is not None
+                else item.get("home_shootout_score")
+            ),
+            "away_shootout_score": _score(
+                item.get("awayShootoutScore")
+                if item.get("awayShootoutScore") is not None
+                else item.get("away_shootout_score")
+            ),
+            "label": _plain(typ.get("text") or item.get("text")),
+            "raw": item,
+        })
+    return kicks
+
+
+def extract_provider_shootout_kicks(timeline: list[dict]) -> list[dict]:
+    """Normalise les tirs explicitement marqués/manqués des autres fournisseurs."""
+    out: list[dict] = []
+    for row in timeline if isinstance(timeline, list) else []:
+        if not isinstance(row, dict):
+            continue
+        raw = row.get("raw") if isinstance(row.get("raw"), dict) else {}
+        label = " ".join(
+            _plain(value) for value in (
+                row.get("kind"), row.get("type"), raw.get("type"),
+                raw.get("event_type"), raw.get("description"), raw.get("detail")
+            ) if _plain(value)
+        ).lower()
+        shootout = any(token in label for token in ("shootout", "penalty shoot", "tirs au but"))
+        if not shootout:
+            continue
+        missed = any(token in label for token in ("miss", "saved", "wide", "post", "manqu"))
+        made = any(token in label for token in ("made", "scored", "converted", "goal", "marqu"))
+        if not (missed or made):
+            continue
+        out.append({
+            "id": str(raw.get("id") or raw.get("event_id") or row.get("id") or ""),
+            "player": _plain(row.get("player")),
+            "team": _plain(row.get("team")),
+            "outcome": "missed" if missed else "made",
+            "minute": row.get("minute_total") if row.get("minute_total") is not None else row.get("minute"),
+            "minute_text": _plain(row.get("minute_text")),
+            "home_shootout_score": _score(raw.get("home_shootout_score") or raw.get("homeShootoutScore")),
+            "away_shootout_score": _score(raw.get("away_shootout_score") or raw.get("awayShootoutScore")),
+            "raw": raw,
+        })
+    return out
 
 
 def extract_cards(summary: dict) -> list[dict]:
@@ -730,10 +935,12 @@ def extract_match_enrichment(summary: dict) -> dict[str, Any]:
     goals = extract_goals(summary)
     cards = extract_cards(summary)
     substitutions = extract_substitutions(summary)
+    shootout_kicks = extract_shootout_kicks(summary)
     return {
         "goals": goals,
         "cards": cards,
         "substitutions": substitutions,
+        "shootout_kicks": shootout_kicks,
         "timeline": extract_timeline(summary),
         "stats": extract_team_stats(summary),
         "player_stats": extract_player_stats(summary),
@@ -904,11 +1111,39 @@ def verify_espn_before_publish(
         return {"ok": False, "quality": 0, "reason": "extra_time_not_confirmed", "event_id": event_id}
     if kind == "mi_temps_prolongation" and not (is_halftime(direct) and int(direct.get("period") or 0) >= 3):
         return {"ok": False, "quality": 0, "reason": "extra_time_halftime_not_confirmed", "event_id": event_id}
-    if kind in {"tirs_au_but", "tir_au_but_marque", "tir_au_but_manque"}:
+    if kind in {"tirs_au_but", "tir_au_but_marque", "tir_au_but_manque", "fin_tirs_au_but"}:
         shootout = (direct.get("home_shootout_score"), direct.get("away_shootout_score"))
         detail = _plain(direct.get("status_detail")).lower()
         if shootout == (None, None) and "penalt" not in detail and "shootout" not in detail:
             return {"ok": False, "quality": 0, "reason": "shootout_not_confirmed", "event_id": event_id}
+
+        if kind in {"tir_au_but_marque", "tir_au_but_manque"}:
+            expected_outcome = "made" if kind == "tir_au_but_marque" else "missed"
+            expected_player = _norm(expected.get("player"))
+            expected_provider_id = _plain(expected.get("provider_event_id"))
+            found_kick = False
+            for kick in enrichment.get("shootout_kicks", []):
+                if _plain(kick.get("outcome")).lower() != expected_outcome:
+                    continue
+                if expected_provider_id and _plain(kick.get("id")) != expected_provider_id:
+                    continue
+                if expected_player and _norm(kick.get("player")) != expected_player:
+                    continue
+                found_kick = True
+                break
+            if not found_kick:
+                return {
+                    "ok": False, "quality": 0,
+                    "reason": "shootout_kick_not_confirmed",
+                    "event_id": event_id,
+                }
+
+        if kind == "fin_tirs_au_but" and direct.get("state") != "post":
+            return {
+                "ok": False, "quality": 0,
+                "reason": "shootout_final_not_confirmed",
+                "event_id": event_id,
+            }
 
     page = verify_espn_public_page(session, event_id, home, away)
     quality = 100 if page.get("content_verified") else 94 if page.get("reachable") else 90
@@ -1517,9 +1752,23 @@ def lifecycle_signals(
         status_detail = _plain(ext.get("status_detail")).lower()
         shootout_home = _score(ext.get("home_shootout_score"))
         shootout_away = _score(ext.get("away_shootout_score"))
+        shootout_kicks: list[dict] = []
+        if ext.get("source") in {"espn", "sportscore", "thesportsdb"}:
+            shootout_detail = normalized_detail(ext, event_id)
+            shootout_kicks = (
+                shootout_detail.get("shootout_kicks")
+                if isinstance(shootout_detail.get("shootout_kicks"), list) else []
+            )
+            if not shootout_kicks:
+                provider_timeline = (
+                    shootout_detail.get("timeline")
+                    if isinstance(shootout_detail.get("timeline"), list) else []
+                )
+                shootout_kicks = extract_provider_shootout_kicks(provider_timeline)
         in_shootout = (
             "penalt" in status_detail or "shootout" in status_detail
             or shootout_home is not None or shootout_away is not None
+            or bool(shootout_kicks)
         )
         in_extra = (
             "extra time" in status_detail or "aet" in status_detail
@@ -1555,7 +1804,7 @@ def lifecycle_signals(
                     "minute": minute, "score": score_text, "source": source,
                     "espn_event_id": espn_event_id, "espn_url": espn_url,
                 })
-        if is_live(ext) and in_shootout:
+        if (is_live(ext) and in_shootout) or shootout_kicks:
             shootout_text = (
                 [shootout_home, shootout_away]
                 if shootout_home is not None and shootout_away is not None else []
@@ -1565,20 +1814,52 @@ def lifecycle_signals(
                 signals.append({
                     "kind": "tirs_au_but", "key": start_key,
                     "priority": 238 + importance, "priority_class": "P0",
+                    "fixture_key": key_id,
                     "home": home, "away": away, "league": league,
                     "score": score_text, "shootout_scores": shootout_text,
                     "source": source, "espn_event_id": espn_event_id, "espn_url": espn_url,
                 })
-            if shootout_text:
-                update_key = f"tir_au_but_marque:{key_id}:{shootout_home}-{shootout_away}"
-                if update_key not in sent_keys:
-                    signals.append({
-                        "kind": "tir_au_but_marque", "key": update_key,
-                        "priority": 232 + importance, "priority_class": "P0",
-                        "home": home, "away": away, "league": league,
-                        "score": score_text, "shootout_scores": shootout_text,
-                        "source": source, "espn_event_id": espn_event_id, "espn_url": espn_url,
-                    })
+
+            for kick in shootout_kicks:
+                outcome = _plain(kick.get("outcome")).lower()
+                if outcome not in {"made", "missed"}:
+                    continue
+                kind = "tir_au_but_marque" if outcome == "made" else "tir_au_but_manque"
+                kick_key = timeline_key(key_id, kind, kick)
+                if kick_key in sent_keys:
+                    continue
+                kh = _score(kick.get("home_shootout_score"))
+                ka = _score(kick.get("away_shootout_score"))
+                kick_scores = [kh, ka] if kh is not None and ka is not None else shootout_text
+                signals.append({
+                    "kind": kind, "key": kick_key,
+                    "priority": 236 + importance, "priority_class": "P0",
+                    "fixture_key": key_id,
+                    "home": home, "away": away, "league": league,
+                    "score": score_text, "shootout_scores": kick_scores,
+                    "player": kick.get("player") or "",
+                    "team": kick.get("team") or "",
+                    "minute": kick.get("minute"),
+                    "provider_event_id": kick.get("id") or "",
+                    "source": source, "espn_event_id": espn_event_id, "espn_url": espn_url,
+                })
+
+        if (
+            _plain(ext.get("state")).lower() in {"post", "finished", "ft", "full_time"}
+            and in_shootout
+            and shootout_home is not None and shootout_away is not None
+        ):
+            finish_key = f"fin_tirs_au_but:{key_id}:{shootout_home}-{shootout_away}"
+            if finish_key not in sent_keys:
+                signals.append({
+                    "kind": "fin_tirs_au_but", "key": finish_key,
+                    "priority": 252 + importance, "priority_class": "P0",
+                    "fixture_key": key_id,
+                    "home": home, "away": away, "league": league,
+                    "score": score_text,
+                    "shootout_scores": [shootout_home, shootout_away],
+                    "source": source, "espn_event_id": espn_event_id, "espn_url": espn_url,
+                })
 
         # Buts récents : chaque événement est traité, même si plusieurs buts
         # sont apparus entre deux passages du lifecycle.

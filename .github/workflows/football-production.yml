@@ -134,6 +134,7 @@ jobs:
               test -n "$PROD_FOOTBALL_NEWS_CHAT_ID"
               echo "FOOTBALL_NEWS_CHAT_ID=$PROD_FOOTBALL_NEWS_CHAT_ID" >> "$GITHUB_ENV"
               echo "FOOTBALL_REMOTE_LEDGER=1" >> "$GITHUB_ENV"
+              echo "FOOTBALL_CANONICAL_EVENTS=1" >> "$GITHUB_ENV"
               STATE_PATH=".state/mrxpronos-football.json"
               ;;
             test)

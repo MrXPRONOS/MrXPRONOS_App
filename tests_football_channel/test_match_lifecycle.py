@@ -87,6 +87,114 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertEqual(event["home_logo"], "https://a/logo.png")
         self.assertEqual(event["away_logo"], "https://b/logo.png")
 
+    def test_extract_shootout_kicks_only_when_outcome_explicit(self):
+        summary = {
+            "details": [
+                {
+                    "id": "p1",
+                    "penaltyShootout": True,
+                    "scoringPlay": True,
+                    "type": {"text": "Penalty Shootout - Scored"},
+                    "athletes": [{"displayName": "Shooter One"}],
+                    "team": {"id": "1", "displayName": "Arsenal"},
+                    "homeShootoutScore": 1,
+                    "awayShootoutScore": 0,
+                },
+                {
+                    "id": "p2",
+                    "penaltyShootout": True,
+                    "type": {"text": "Penalty Shootout - Missed"},
+                    "athletes": [{"displayName": "Shooter Two"}],
+                    "team": {"id": "2", "displayName": "Chelsea"},
+                    "homeShootoutScore": 1,
+                    "awayShootoutScore": 0,
+                },
+                {
+                    "id": "p3",
+                    "penaltyShootout": True,
+                    "type": {"text": "Penalty Shootout"},
+                    "athletes": [{"displayName": "Unknown Outcome"}],
+                },
+            ],
+        }
+        kicks = m.extract_shootout_kicks(summary)
+        self.assertEqual(len(kicks), 2)
+        self.assertEqual(kicks[0]["outcome"], "made")
+        self.assertEqual(kicks[1]["outcome"], "missed")
+        self.assertEqual(kicks[1]["player"], "Shooter Two")
+
+    @patch("football_match_lifecycle.fetch_espn_summary")
+    @patch("football_match_lifecycle.collect_external")
+    def test_lifecycle_emits_made_missed_and_end_shootout(self, collect_external, fetch_summary):
+        base = [{
+            "id": "espn:990",
+            "event_date": "2026-10-13T18:00:00+00:00",
+            "home_team": {"name": "Arsenal"},
+            "away_team": {"name": "Chelsea"},
+            "league_name": "Cup",
+        }]
+        collect_external.return_value = [{
+            "source": "espn", "id": "espn:990",
+            "home_team": "Arsenal", "away_team": "Chelsea",
+            "home_score": 1, "away_score": 1,
+            "home_shootout_score": 5, "away_shootout_score": 4,
+            "minute": 120, "period": 5, "state": "post",
+            "status_detail": "Penalty Shootout",
+            "event_date": "2026-10-13T18:00:00+00:00",
+        }]
+        fetch_summary.return_value = {
+            "details": [
+                {
+                    "id": "pk1", "penaltyShootout": True, "scoringPlay": True,
+                    "type": {"text": "Penalty Shootout - Scored"},
+                    "athletes": [{"displayName": "Made Player"}],
+                },
+                {
+                    "id": "pk2", "penaltyShootout": True,
+                    "type": {"text": "Penalty Shootout - Missed"},
+                    "athletes": [{"displayName": "Miss Player"}],
+                },
+            ],
+        }
+        signals = m.lifecycle_signals(base, set(), NOW, object(), lambda _: 100)
+        kinds = {x["kind"] for x in signals}
+        self.assertIn("tir_au_but_marque", kinds)
+        self.assertIn("tir_au_but_manque", kinds)
+        self.assertIn("fin_tirs_au_but", kinds)
+
+    @patch.dict("os.environ", {
+        "SUPABASE_URL": "https://example.supabase.co",
+        "SUPABASE_SERVICE_ROLE_KEY": "secret",
+    }, clear=False)
+    def test_canonical_live_events_roundtrip(self):
+        class Response:
+            def raise_for_status(self): return None
+            def json(self):
+                return [{
+                    "event_key": "goal:990:g1",
+                    "payload": {
+                        "kind": "goal", "key": "goal:990:g1",
+                        "fixture_key": "990", "home": "Arsenal", "away": "Chelsea",
+                        "league": "Cup", "priority_class": "P0",
+                        "score": "2-1", "source": "ESPN",
+                    },
+                }]
+        class Session:
+            def __init__(self): self.last_json = None
+            def post(self, url, **kwargs):
+                self.last_json = kwargs.get("json")
+                return Response()
+        session = Session()
+        signals = [{
+            "kind": "goal", "key": "goal:990:g1", "fixture_key": "990",
+            "home": "Arsenal", "away": "Chelsea", "league": "Cup",
+            "priority_class": "P0", "score": "2-1", "source": "ESPN",
+        }]
+        saved = m.persist_canonical_live_events(session, signals, strict=True)
+        self.assertEqual(saved[0]["key"], "goal:990:g1")
+        self.assertEqual(session.last_json[0]["event_key"], "goal:990:g1")
+        self.assertEqual(session.last_json[0]["sources"], ["ESPN"])
+
     def test_extract_lineups_and_goals(self):
         summary = {
             "rosters": [

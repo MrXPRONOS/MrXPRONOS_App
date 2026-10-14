@@ -384,6 +384,87 @@ class FootballChannelTests(unittest.TestCase):
         self.assertIn("MATCHS DU JOUR", kwargs["data"]["rich_message"])
         self.assertNotIn("text", kwargs["data"])
 
+    def test_sender_poll_reprend_apres_media_sans_dupliquer_image(self):
+        import os
+        from unittest.mock import Mock
+        from PIL import Image
+        graphic = Path(self.directory.name) / "poll.png"
+        Image.new("RGB", (20, 20), "white").save(graphic)
+        poll_response = Mock()
+        poll_response.status_code = 200
+        poll_response.raise_for_status.return_value = None
+        poll_response.json.return_value = {"ok": True, "result": {"message_id": 222}}
+        item = m.Publication(
+            "sondage", "sondage:resume", "<b>Vote</b>",
+            poll=("Qui gagne ?", ["Arsenal", "Chelsea"]),
+            card={"question": "Qui gagne ?"},
+        )
+        checkpoints = []
+        with patch.dict(os.environ, {
+            "FOOTBALL_NEWS_CHAT_ID": "-1001",
+            "FOOTBALL_NEWS_BOT_TOKEN": "123:fake",
+            "FOOTBALL_REQUIRE_COMMENTS": "0",
+        }), patch("football_cards.render_card", return_value=graphic), \
+             patch.object(m, "post_photo", return_value=111) as photo, \
+             patch.object(m, "_post_rate_limited", return_value=poll_response) as send_poll:
+            sender = m.Sender()
+            sender.verify_discussion = Mock(return_value=None)
+            result = sender.send(
+                item,
+                resume={"delivery_phase": "media_sent", "media_message_id": 111},
+                progress_cb=lambda phase, mid: checkpoints.append((phase, mid)),
+            )
+        self.assertEqual(result, 222)
+        photo.assert_not_called()
+        send_poll.assert_called_once()
+        self.assertEqual(checkpoints, [("poll_sent", 222)])
+
+    def test_sender_single_sent_finalise_sans_renvoi(self):
+        import os
+        from unittest.mock import Mock
+        item = m.Publication("flash", "flash:resume", "hello")
+        with patch.dict(os.environ, {
+            "FOOTBALL_NEWS_CHAT_ID": "-1001",
+            "FOOTBALL_NEWS_BOT_TOKEN": "123:fake",
+            "FOOTBALL_REQUIRE_COMMENTS": "0",
+        }), patch.object(m, "post_text") as post_text:
+            sender = m.Sender()
+            sender.verify_discussion = Mock(return_value=None)
+            result = sender.send(
+                item,
+                resume={"delivery_phase": "single_sent", "media_message_id": 333},
+            )
+        self.assertEqual(result, 333)
+        post_text.assert_not_called()
+
+    def test_deliver_with_outbox_marque_echec_rejouable(self):
+        from unittest.mock import Mock
+        item = m.Publication("goal", "goal:retry", "goal")
+        sender = Mock()
+        sender.send.side_effect = RuntimeError("telegram 500")
+        ledger = Mock()
+        ledger.claim.return_value = {"can_send": True, "delivery_phase": "pending"}
+        result = m.deliver_with_outbox(sender, ledger, item, NOW)
+        self.assertFalse(result["sent"])
+        self.assertTrue(result["error"])
+        ledger.mark.assert_called()
+        args, kwargs = ledger.mark.call_args
+        self.assertEqual(args[1], "failed")
+        self.assertEqual(kwargs["phase"], "pending")
+
+    def test_deliver_with_outbox_quarantaine_timeout_ambigu(self):
+        from unittest.mock import Mock
+        import requests
+        item = m.Publication("goal", "goal:uncertain", "goal")
+        sender = Mock()
+        sender.send.side_effect = requests.Timeout("timeout")
+        ledger = Mock()
+        ledger.claim.return_value = {"can_send": True, "delivery_phase": "pending"}
+        result = m.deliver_with_outbox(sender, ledger, item, NOW)
+        self.assertFalse(result["sent"])
+        self.assertTrue(result["uncertain"])
+        self.assertEqual(ledger.mark.call_args.args[1], "uncertain")
+
     def test_programme_exclut_un_match_deja_commence(self):
         sample = [event(1, NOW - timedelta(hours=1)),
                   event(2, NOW + timedelta(hours=2))]
