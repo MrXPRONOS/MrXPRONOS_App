@@ -17,25 +17,25 @@ class HistoryTests(unittest.TestCase):
         self.assertEqual(normalized("Atlético  Madrid"), "atletico madrid")
 
     def test_identical_results_have_two_providers(self):
-        got, report = build([row("openfootball", "a"), row("football_data", "b")])
+        got, report = build([row("openfootball", "a"), row("licensed_csv", "b")])
         self.assertEqual(report["unique_fixtures"], 1)
         self.assertEqual(report["multi_source_agreement"], 1)
         self.assertEqual(got[0]["verified_by_sources"], 2)
         self.assertFalse(got[0]["for_training"])
 
     def test_conflicting_scores_are_quarantined(self):
-        got, report = build([row("openfootball", "a", home=2), row("football_data", "b", home=1)])
+        got, report = build([row("openfootball", "a", home=2), row("licensed_csv", "b", home=1)])
         self.assertEqual(report["conflicted_fixtures"], 1)
         self.assertEqual(got[0]["status"], "source_conflict")
 
     def test_different_leagues_do_not_merge(self):
-        got, _ = build([row("openfootball", "a"), row("football_data", "b", league="Cup")])
+        got, _ = build([row("openfootball", "a"), row("licensed_csv", "b", league="Cup")])
         self.assertEqual(len(got), 2)
 
     def test_safe_trailing_fc_alias_matches(self):
         a = row("openfootball", "a", home_team="Arsenal FC")
         a["away_team"] = "Chelsea FC"
-        b = row("football_data", "b", home_team="Arsenal")
+        b = row("licensed_csv", "b", home_team="Arsenal")
         result, report = build([a, b])
         self.assertEqual(report["multi_source_agreement"], 1)
         self.assertEqual(result[0]["verified_by_sources"], 2)
