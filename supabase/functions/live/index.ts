@@ -6519,6 +6519,29 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       });
     }
 
+    // LIVE coverage telemetry: actual available complete market pairs,
+    // not estimated events and not arbitrary provider "quality" scores.
+    const liveCoverage = {
+      total: allRawMatches.length,
+      bsd_primary: 0,
+      corners: 0,
+      total_shots: 0,
+      fouls: 0,
+      all_three: 0,
+      api_football_enriched: safeNumber(sourceMeta.api_football_stats_enriched, 0),
+      espn_summary_pairs_gained: safeNumber(sourceMeta.espn_summary_stats_pairs_gained, 0),
+      bsd_stats_calls: safeNumber(sourceMeta.bsd_stats_calls, 0),
+    };
+    for (const match of allRawMatches) {
+      const completeness = statsCompleteness(getMatchLiveStats(match));
+      if (match?.raw_data?.bsd_primary_stats) liveCoverage.bsd_primary++;
+      if (completeness.corners) liveCoverage.corners++;
+      if (completeness.shots) liveCoverage.total_shots++;
+      if (completeness.fouls) liveCoverage.fouls++;
+      if (completeness.core_complete === 3) liveCoverage.all_three++;
+    }
+    console.info("LIVE_MARKET_COVERAGE", liveCoverage);
+
     // Snapshot COMPLET persistant avant de découper en lots.
     // Les invocations enfants suivantes lisent exactement ces mêmes matchs
     // sans rappeler BSD ni ESPN.
@@ -6781,6 +6804,11 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
     instant_validated: 0,
     instant_validation_deferred: 0,
     updated_running: 0,
+    bsd_skipped_batches: 0,
+    bsd_stats_calls: 0,
+    bsd_stats_enriched: 0,
+    api_football_stats_enriched: 0,
+    espn_summary_stats_pairs_gained: 0,
   };
 
   while (hasMore && batchNumber < LIVE_REFRESH_MAX_BATCHES) {
@@ -6860,6 +6888,10 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
     aggregate.bsd_rate_limited =
       aggregate.bsd_rate_limited || Boolean(meta.bsd_rate_limited);
     if (meta.bsd_skipped) aggregate.bsd_skipped_batches++;
+    aggregate.bsd_stats_calls += safeNumber(meta.bsd_stats_calls, 0);
+    aggregate.bsd_stats_enriched += safeNumber(meta.bsd_stats_enriched, 0);
+    aggregate.api_football_stats_enriched += safeNumber(meta.api_football_stats_enriched, 0);
+    aggregate.espn_summary_stats_pairs_gained += safeNumber(meta.espn_summary_stats_pairs_gained, 0);
 
     hasMore = Boolean(result?.has_more);
     const nextCursor =
