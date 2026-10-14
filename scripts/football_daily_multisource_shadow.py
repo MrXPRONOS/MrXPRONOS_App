@@ -69,6 +69,45 @@ def league_name_value(value: Any) -> str:
     return ""
 
 
+# Exact ESPN season names also used by the licensed/public-domain
+# history catalog. Unrecognized slugs NEVER imply a competition.
+ESPN_KNOWN_SEASON_SLUGS = {
+    "english-premier-league": "Premier League",
+    "english-championship": "Championship",
+    "english-league-one": "League One",
+    "english-league-two": "League Two",
+    "german-bundesliga": "Bundesliga",
+    "german-2-bundesliga": "2. Bundesliga",
+    "spanish-laliga": "La Liga",
+    "spanish-segunda-division": "Segunda Division",
+    "italian-serie-a": "Serie A",
+    "italian-serie-b": "Serie B",
+    "french-ligue-1": "Ligue 1",
+    "french-ligue-2": "Ligue 2",
+    "dutch-eredivisie": "Eredivisie",
+    "portuguese-primeira-liga": "Primeira Liga",
+    "belgian-pro-league": "Belgian Pro League",
+    "austrian-bundesliga": "Austrian Bundesliga",
+    "greek-super-league": "Greek Super League",
+    "turkish-super-lig": "Turkish Super Lig",
+    "scottish-premiership": "Scottish Premiership",
+}
+
+
+def espn_league_from_season(raw: dict) -> str:
+    season=raw.get("season")
+    if not isinstance(season,dict):
+        return ""
+    slug=season.get("slug")
+    if not isinstance(slug,str):
+        return ""
+    found=re.fullmatch(r"20[0-9]{2}-[0-9]{2}-(?:[a-z0-9]+-)*[a-z0-9]+",slug)
+    if not found:
+        return ""
+    suffix=re.sub(r"^20[0-9]{2}-[0-9]{2}-","",slug)
+    return ESPN_KNOWN_SEASON_SLUGS.get(suffix,"")
+
+
 def safe_league_name(row: dict, source: str) -> str:
     direct=league_name_value(row.get("league")) or league_name_value(row.get("league_name"))
     if direct:
@@ -81,6 +120,7 @@ def safe_league_name(row: dict, source: str) -> str:
         comps=raw.get("competitions") or []
         if isinstance(comps,list) and comps and isinstance(comps[0],dict):
             candidates += (comps[0].get("league"),)
+        candidates += (espn_league_from_season(raw),)
     elif source=="thesportsdb":
         candidates += (raw.get("strLeague"),)
     elif source=="sportscore":
