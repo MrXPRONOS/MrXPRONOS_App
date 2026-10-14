@@ -1722,9 +1722,23 @@ def lifecycle_signals(
         status_detail = _plain(ext.get("status_detail")).lower()
         shootout_home = _score(ext.get("home_shootout_score"))
         shootout_away = _score(ext.get("away_shootout_score"))
+        shootout_kicks: list[dict] = []
+        if ext.get("source") in {"espn", "sportscore", "thesportsdb"}:
+            shootout_detail = normalized_detail(ext, event_id)
+            shootout_kicks = (
+                shootout_detail.get("shootout_kicks")
+                if isinstance(shootout_detail.get("shootout_kicks"), list) else []
+            )
+            if not shootout_kicks:
+                provider_timeline = (
+                    shootout_detail.get("timeline")
+                    if isinstance(shootout_detail.get("timeline"), list) else []
+                )
+                shootout_kicks = extract_provider_shootout_kicks(provider_timeline)
         in_shootout = (
             "penalt" in status_detail or "shootout" in status_detail
             or shootout_home is not None or shootout_away is not None
+            or bool(shootout_kicks)
         )
         in_extra = (
             "extra time" in status_detail or "aet" in status_detail
@@ -1760,7 +1774,7 @@ def lifecycle_signals(
                     "minute": minute, "score": score_text, "source": source,
                     "espn_event_id": espn_event_id, "espn_url": espn_url,
                 })
-        if is_live(ext) and in_shootout:
+        if (is_live(ext) and in_shootout) or shootout_kicks:
             shootout_text = (
                 [shootout_home, shootout_away]
                 if shootout_home is not None and shootout_away is not None else []
@@ -1770,20 +1784,52 @@ def lifecycle_signals(
                 signals.append({
                     "kind": "tirs_au_but", "key": start_key,
                     "priority": 238 + importance, "priority_class": "P0",
+                    "fixture_key": key_id,
                     "home": home, "away": away, "league": league,
                     "score": score_text, "shootout_scores": shootout_text,
                     "source": source, "espn_event_id": espn_event_id, "espn_url": espn_url,
                 })
-            if shootout_text:
-                update_key = f"tir_au_but_marque:{key_id}:{shootout_home}-{shootout_away}"
-                if update_key not in sent_keys:
-                    signals.append({
-                        "kind": "tir_au_but_marque", "key": update_key,
-                        "priority": 232 + importance, "priority_class": "P0",
-                        "home": home, "away": away, "league": league,
-                        "score": score_text, "shootout_scores": shootout_text,
-                        "source": source, "espn_event_id": espn_event_id, "espn_url": espn_url,
-                    })
+
+            for kick in shootout_kicks:
+                outcome = _plain(kick.get("outcome")).lower()
+                if outcome not in {"made", "missed"}:
+                    continue
+                kind = "tir_au_but_marque" if outcome == "made" else "tir_au_but_manque"
+                kick_key = timeline_key(key_id, kind, kick)
+                if kick_key in sent_keys:
+                    continue
+                kh = _score(kick.get("home_shootout_score"))
+                ka = _score(kick.get("away_shootout_score"))
+                kick_scores = [kh, ka] if kh is not None and ka is not None else shootout_text
+                signals.append({
+                    "kind": kind, "key": kick_key,
+                    "priority": 236 + importance, "priority_class": "P0",
+                    "fixture_key": key_id,
+                    "home": home, "away": away, "league": league,
+                    "score": score_text, "shootout_scores": kick_scores,
+                    "player": kick.get("player") or "",
+                    "team": kick.get("team") or "",
+                    "minute": kick.get("minute"),
+                    "provider_event_id": kick.get("id") or "",
+                    "source": source, "espn_event_id": espn_event_id, "espn_url": espn_url,
+                })
+
+        if (
+            _plain(ext.get("state")).lower() in {"post", "finished", "ft", "full_time"}
+            and in_shootout
+            and shootout_home is not None and shootout_away is not None
+        ):
+            finish_key = f"fin_tirs_au_but:{key_id}:{shootout_home}-{shootout_away}"
+            if finish_key not in sent_keys:
+                signals.append({
+                    "kind": "fin_tirs_au_but", "key": finish_key,
+                    "priority": 252 + importance, "priority_class": "P0",
+                    "fixture_key": key_id,
+                    "home": home, "away": away, "league": league,
+                    "score": score_text,
+                    "shootout_scores": [shootout_home, shootout_away],
+                    "source": source, "espn_event_id": espn_event_id, "espn_url": espn_url,
+                })
 
         # Buts récents : chaque événement est traité, même si plusieurs buts
         # sont apparus entre deux passages du lifecycle.
