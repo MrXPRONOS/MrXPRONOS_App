@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T21:53:17+00:00",
+    "published": "2026-10-14T21:55:58+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -158,7 +158,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:55:33.410127+00:00"
+      "checked_at": "2026-10-14T22:00:37.039141+00:00"
     },
     "quality_sources": [
       "Franceinfo",
@@ -252,7 +252,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:55:33.410127+00:00"
+      "checked_at": "2026-10-14T22:00:37.039141+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -595,7 +595,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:55:33.410127+00:00"
+      "checked_at": "2026-10-14T22:00:37.039141+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -674,6 +674,40 @@
     "quality_score": 86
   },
   {
+    "slug": "cac7477350eef87a",
+    "title": "PSG : La déclaration express de Nasser al-Khelaïfi après le magnifique succès de son équipe contre Manchester City (vidéo)",
+    "summary": "Nasser al-Khelaïfi a lâché quelques mots après le succès du PSG contre Manchester City (vidéo).",
+    "summary_short": "Nasser al-Khelaïfi a lâché quelques mots après le succès du PSG contre Manchester City (vidéo).",
+    "content": "Nasser al-Khelaïfi a lâché quelques mots après le succès du PSG contre Manchester City (vidéo).",
+    "paragraphs": [
+      "Nasser al-Khelaïfi a lâché quelques mots après le succès du PSG contre Manchester City (vidéo)."
+    ],
+    "key_points": [
+      "Nasser al-Khelaïfi a lâché quelques mots après le succès du PSG contre Manchester City (vidéo)."
+    ],
+    "telegram_summary": "Nasser al-Khelaïfi a lâché quelques mots après le succès du PSG contre Manchester City (vidéo).",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-psg-la-declaration-express-de-nasser-al-khelaifi-apres-le-magnifique-succes-de-son-equipe-contre-manchester-city-video-542265.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-psg-la-declaration-express-de-nasser-al-khelaifi-apres-le-magnifique-succes-de-son-equipe-contre-manchester-city-video-542265.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=cac7477350eef87a",
+    "published": "2026-10-14T21:58:00+00:00",
+    "image": "assets/images/footnews/cac7477350eef87a.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2025/une/ldc-20251218123435-8543.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
     "slug": "7628f643096931ac",
     "title": "Ligue des champions : revivez la victoire spectaculaire du PSG sur la pelouse de Manchester City",
     "summary": "Leader de Premier League, Manchester City a été surclassé par le PSG en première période, avant de se rebeller dans le second acte, mercredi soir.",
@@ -689,7 +723,7 @@
     "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
-    "published": "2026-10-14T21:53:17+00:00",
+    "published": "2026-10-14T21:55:57+00:00",
     "image": "assets/images/footnews/7628f643096931ac.webp",
     "source_image": "https://www.franceinfo.fr/pictures/5U3Wip1t6xJCEihksoGYiduzong/0x25:4673x2654/432x243/filters:format(jpg)/2026/10/14/6acfdbdf2c937182294865.jpg",
     "image_origin": "source",
@@ -900,7 +934,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:55:33.410127+00:00"
+      "checked_at": "2026-10-14T22:00:37.039141+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1001,7 +1035,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:55:33.410127+00:00"
+      "checked_at": "2026-10-14T22:00:37.039141+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1063,7 +1097,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:55:33.410127+00:00"
+      "checked_at": "2026-10-14T22:00:37.039141+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1160,7 +1194,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:55:33.410127+00:00"
+      "checked_at": "2026-10-14T22:00:37.039141+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1184,7 +1218,7 @@
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a94da177fc54931b",
     "published": "2026-10-14T21:25:48+00:00",
     "image": "assets/images/footnews/a94da177fc54931b.webp",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/14232518/ICONSPORT_376482_0151-scaled.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/14235821/14982328.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "So Foot",
@@ -1318,7 +1352,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:55:33.410127+00:00"
+      "checked_at": "2026-10-14T22:00:37.039141+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1445,7 +1479,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:55:33.410127+00:00"
+      "checked_at": "2026-10-14T22:00:37.039141+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1508,7 +1542,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:55:33.410127+00:00"
+      "checked_at": "2026-10-14T22:00:37.039141+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1813,7 +1847,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:55:33.410127+00:00"
+      "checked_at": "2026-10-14T22:00:37.039141+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1941,7 +1975,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:55:33.410127+00:00"
+      "checked_at": "2026-10-14T22:00:37.039141+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -2382,46 +2416,12 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T21:55:33.410127+00:00"
+      "checked_at": "2026-10-14T22:00:37.039141+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
       "ESPN"
     ],
     "quality_score": 96
-  },
-  {
-    "slug": "1f96207f46b20191",
-    "title": "OL-Crystal Palace : vers une terrible affluence pour le grand retour de Pierre Sage ?",
-    "summary": "Le grand retour de la Coupe d'Europe au Groupama Stadium devrait se faire dans un stade bien loin de faire le plein.",
-    "summary_short": "Le grand retour de la Coupe d'Europe au Groupama Stadium devrait se faire dans un stade bien loin de faire le plein.",
-    "content": "Le grand retour de la Coupe d'Europe au Groupama Stadium devrait se faire dans un stade bien loin de faire le plein.",
-    "paragraphs": [
-      "Le grand retour de la Coupe d'Europe au Groupama Stadium devrait se faire dans un stade bien loin de faire le plein."
-    ],
-    "key_points": [
-      "Le grand retour de la Coupe d'Europe au Groupama Stadium devrait se faire dans un stade bien loin de faire le plein."
-    ],
-    "telegram_summary": "Le grand retour de la Coupe d'Europe au Groupama Stadium devrait se faire dans un stade bien loin de faire le plein.",
-    "link": "https://www.onzemondial.com/europa-league/ol-crystal-palace-vers-une-terrible-affluence-pour-le-grand-retour-de-pierre-sage-1002553",
-    "source_url": "https://www.onzemondial.com/europa-league/ol-crystal-palace-vers-une-terrible-affluence-pour-le-grand-retour-de-pierre-sage-1002553",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1f96207f46b20191",
-    "published": "2026-10-14T19:29:00+00:00",
-    "image": "assets/images/footnews/1f96207f46b20191.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002553/409388/1200-L-ol-crystal-palace-vers-une-terrible-affluence-pour-le-grand-retour-de-pierre-sage.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
   }
 ]
