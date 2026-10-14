@@ -1,4 +1,4 @@
-import { fetchSharedEspnScoreboard, fetchSharedEspnSummary, safeEspnDate, parseEspnNumber } from "../_shared/espn.ts";
+import { fetchSharedEspnScoreboard, fetchSharedEspnRegionalScoreboard, espnLiveScoreboardDates, fetchSharedEspnSummary, safeEspnDate, parseEspnNumber } from "../_shared/espn.ts";
 import {
   FREE_SOURCE_QUALITY,
   collectFreeLiveProviders,
@@ -3660,7 +3660,7 @@ function normalizeEspnEventToOriginalMatch(event: any) {
   const competition = event?.competitions?.[0];
   if (!competition) return null;
 
-  const status = competition?.status || {};
+  const status = competition?.status?.type?.state ? competition.status : (event?.status || competition?.status || {});
   const statusType = status?.type || {};
   const state = statusType?.state || "";
 
@@ -3679,13 +3679,23 @@ function normalizeEspnEventToOriginalMatch(event: any) {
   const seasonObj = event?.season || {};
   const details = competition?.details || [];
 
+  // League-specific ESPN scoreboards may omit league metadata on each event.
+  // The URL itself is the trusted competition label for regional responses.
+  const regionalLeague=String(event?.__espn_league_slug||"");
+  const knownRegionalNames:Record<string,string>={
+    "crc.1":"Costa Rica Primera Division",
+    "conmebol.sudamericana":"CONMEBOL Copa Sudamericana",
+    "fifa.friendly.w":"International Friendly",
+  };
   const leagueName =
+    knownRegionalNames[regionalLeague] ||
     leagueObj?.name ||
     leagueObj?.abbreviation ||
     seasonObj?.slug ||
     "Football";
 
-  const leagueId = String(leagueObj?.id || leagueObj?.abbreviation || leagueName);
+  const leagueId = regionalLeague || String(leagueObj?.id || leagueObj?.abbreviation || leagueName);
+  const regionalWomen = regionalLeague==="fifa.friendly.w";
   const minute = extractEspnMinute(status);
 
   const homeTeamId = String(homeTeam?.id || "");
@@ -3740,8 +3750,12 @@ function normalizeEspnEventToOriginalMatch(event: any) {
     id: `espn:${eventId}`,
     source_match_id: eventId,
     source_name: "espn",
-    home_team: homeTeam?.displayName || homeTeam?.name || "Home",
-    away_team: awayTeam?.displayName || awayTeam?.name || "Away",
+    home_team: regionalWomen
+      ? String(homeTeam?.displayName || homeTeam?.name || "Home")+" Women"
+      : (homeTeam?.displayName || homeTeam?.name || "Home"),
+    away_team: regionalWomen
+      ? String(awayTeam?.displayName || awayTeam?.name || "Away")+" Women"
+      : (awayTeam?.displayName || awayTeam?.name || "Away"),
     home_score: safeNumber(home?.score, 0),
     away_score: safeNumber(away?.score, 0),
     current_minute: minute,
@@ -3765,6 +3779,7 @@ function normalizeEspnEventToOriginalMatch(event: any) {
     raw_data: {
       source: "espn",
       event_id: eventId,
+      espn_league_slug:regionalLeague||null,
       state,
       display_clock: status?.displayClock || "",
       status_detail: statusType?.detail || statusType?.description || "",
@@ -3777,25 +3792,84 @@ function normalizeEspnEventToOriginalMatch(event: any) {
 }
 
 async function fetchEspnLiveMatchesForMerge() {
-  if (!ENABLE_ESPN_MERGE) {
-    return { matches: [], error: null };
+  if (!ENABLE_ESPN_MERGE) return {matches:[],error:null};
+
+  // During 00:00-06:59 UTC, yesterday's ESPN local calendar can contain
+  // games still running after midnight. Both days are independently cached.
+  const days=espnLiveScoreboardDates();
+  const feeds=await Promise.allSettled(days.map(day=>fetchEspnScoreboard(day,false)));
+  const events:any[]=[];
+  const errors:string[]=[];
+  for(let i=0;i<feeds.length;i++){
+    const feed=feeds[i];
+    if(feed.status==="fulfilled"){
+      events.push(...((feed.value?.events||[]) as any[]));
+    } else {
+      errors.push(days[i]+":"+String(feed.reason?.message||"ESPN unavailable"));
+    }
   }
-
-  try {
-    // Réutilise le cache mémoire 15 s si le worker reste chaud entre deux lots.
-    const scoreboard = await fetchEspnScoreboard(todayYYYYMMDD(), false);
-    const events = scoreboard?.events || [];
-
-    const matches = events
+  const byEvent=new Map<string,any>();
+  for(const event of events){
+    const id=String(event?.id||"");
+    if(id&&!byEvent.has(id))byEvent.set(id,event);
+  }
+  return {
+    matches:[...byEvent.values()]
       .map(normalizeEspnEventToOriginalMatch)
       .filter(Boolean)
-      .filter((m: any) => m.is_live && !m.is_finished);
+      .filter((m:any)=>m.is_live&&!m.is_finished),
+    error:errors.length?errors.join("; "):null,
+  };
+}
 
-    return { matches, error: null };
-  } catch (e: any) {
-    console.error("ESPN merge source failed:", e);
-    return { matches: [], error: e?.message || String(e) };
+function regionalEspnLeaguesForFreeMatches(matches:any[]):string[]{
+  const found=new Set<string>();
+  for(const match of matches||[]){
+    if(!match?.is_live||match?.is_finished)continue;
+    const league=String(getLeagueName(match)||"").toLowerCase();
+    const home=String(match?.home_team||"").toLowerCase();
+    const away=String(match?.away_team||"").toLowerCase();
+    if(/costa rica|liga fpd|primera.*costa/.test(league))found.add("crc.1");
+    if(/sudamericana/.test(league))found.add("conmebol.sudamericana");
+    if(/friendly|amical/.test(league)&&
+       /women|female|feminin|feminin|f/.test(home+" "+away) &&
+       /women/.test(home) && /women/.test(away))found.add("fifa.friendly.w");
   }
+  return [...found].slice(0,3);
+}
+
+async function fetchRegionalEspnLiveMatchesForMerge(matches:any[]){
+  const leagues=regionalEspnLeaguesForFreeMatches(matches);
+  if(!ENABLE_ESPN_MERGE||!leagues.length)return {matches:[],calls:0,leagues:[],errors:[]};
+  const dates=espnLiveScoreboardDates();
+  const jobs=leagues.flatMap(league=>dates.map(day=>({league,day})));
+  const results=await Promise.allSettled(jobs.map(job=>
+    fetchSharedEspnRegionalScoreboard(job.day,job.league,espnStore)));
+  const events=new Map<string,any>();
+  const errors:string[]=[];
+  for(let i=0;i<results.length;i++){
+    const result=results[i],job=jobs[i];
+    if(result.status==="rejected"){
+      errors.push(job.league+":"+job.day+":unavailable");
+      continue;
+    }
+    for(const event of result.value?.events||[]){
+      if(!event?.id)continue;
+      const key=String(event.id);
+      const decorated={...event,
+        __espn_feed_fetched_at:result.value?._feed_fetched_at||null,
+        __espn_league_slug:job.league};
+      // Dedup the same event across neighboring ESPN calendar dates.
+      if(!events.has(key))events.set(key,decorated);
+    }
+  }
+  return {
+    matches:[...events.values()].map(normalizeEspnEventToOriginalMatch)
+      .filter(Boolean).filter((m:any)=>m.is_live&&!m.is_finished),
+    calls:jobs.length,
+    leagues,
+    errors,
+  };
 }
 
 function liveStatsAgreementScore(primaryStats: any, secondaryStats: any, minuteGap: number) {
@@ -6319,6 +6393,24 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     const sportscoreRows = freeProviderData?.sportscore || [];
     const tsdbRows = freeProviderData?.thesportsdb || [];
     const openligaRows = freeProviderData?.openligadb || [];
+    // Targeted ESPN league feeds are consulted ONLY when a free LIVE fixture
+    // explicitly identifies a relevant competition. BSD remains primary.
+    const regionalEspnResult=await fetchRegionalEspnLiveMatchesForMerge([
+      ...sportscoreRows,...tsdbRows,...openligaRows,
+    ]);
+    const espnCombinedById=new Map<string,any>();
+    for(const match of [...(espnResult.matches||[]),...regionalEspnResult.matches]){
+      const key=String(match?.source_match_id||match?.id||"");
+      if(key)espnCombinedById.set(key,match);
+    }
+    espnResult.matches=[...espnCombinedById.values()];
+    if(regionalEspnResult.errors.length)console.warn("ESPN_REGIONAL_ERRORS",regionalEspnResult.errors);
+    console.info("ESPN_REGIONAL_LIVE_COVERAGE",{
+      checked_leagues:regionalEspnResult.leagues,
+      checked_dates:espnLiveScoreboardDates(),
+      regional_matches:regionalEspnResult.matches.length,
+      combined_matches:espnResult.matches.length,
+    });
     const skipBsdLive = options.skipBsd === true || liveNow === 0;
 
     if (!skipBsdLive) {
