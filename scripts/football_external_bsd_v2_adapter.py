@@ -25,6 +25,7 @@ if str(ROOT / "bsd") not in sys.path: sys.path.insert(0, str(ROOT / "bsd"))
 from scripts.football_history_shadow import canonical_team
 from scripts.football_history_features import competition
 from scripts.football_match_source_router import aware_time
+from scripts.football_multi_api_history_inputs import ingest as ingest_provider_history
 from bsd_v2_core import V2History, estimate_goals, predict_v2
 from bsd_h2h import local_h2h
 
@@ -70,13 +71,19 @@ def ids(league: str, team: str) -> int:
     return numbered(TEAM_START, league + "|" + team)
 
 
-def normalize_history(rows: list[dict]) -> tuple[list[dict], dict]:
-    """Only OpenFootball finished results; conflicting duplicates quarantined."""
+def normalize_history(rows: list[dict], *,
+                      accepted_sources: frozenset[str] = frozenset({PROVIDER})) -> tuple[list[dict], dict]:
+    """BSD-native-format history, preserving ALL verified providers per result.
+
+    Multisource rows may only be passed after a dedicated rights/timestamp
+    validation step. Original fixture IDs are metadata; hashed internal IDs
+    are deterministic and distinct from authentic BSD IDs.
+    """
     seen: dict[tuple, dict | None] = {}
     rejected = Counter()
     for row in rows:
-        if not isinstance(row, dict) or row.get("source") != PROVIDER or row.get("status") != "finished":
-            rejected["not_approved_openfootball_result"] += 1
+        if not isinstance(row, dict) or row.get("source") not in accepted_sources or row.get("status") != "finished":
+            rejected["not_approved_result"] += 1
             continue
         try:
             league = league_label(row["league"])
@@ -84,6 +91,7 @@ def normalize_history(rows: list[dict]) -> tuple[list[dict], dict]:
             home = canonical_team(row["home_team"])
             away = canonical_team(row["away_team"])
             hs, aws = row.get("home_score"), row.get("away_score")
+            source = str(row["source"])
         except (KeyError, TypeError, ValueError):
             rejected["invalid_history_record"] += 1
             continue
@@ -92,34 +100,55 @@ def normalize_history(rows: list[dict]) -> tuple[list[dict], dict]:
                 or not (0 <= hs <= 30 and 0 <= aws <= 30)):
             rejected["invalid_teams_or_scores"] += 1
             continue
+        actual = aware_time(row.get("kickoff_utc"))
+        if actual is not None and actual.date() != dt:
+            rejected["historical_date_mismatch"] += 1
+            continue
+        # Uncertain date-only archive cannot be placed in an earlier hour.
+        moment = actual or datetime.combine(dt, time(23, 59), timezone.utc)
         key = (league, dt, home, away)
         if key not in seen:
-            ident = numbered(HISTORY_START, f"{PROVIDER}|{league}|{dt}|{home}|{away}")
+            ident = numbered(HISTORY_START, f"match|{league}|{dt}|{home}|{away}")
             seen[key] = {
                 "id": ident, "status": "finished",
-                "event_date": datetime.combine(dt, time(23, 59), timezone.utc).isoformat(),
+                "event_date": moment.isoformat(),
                 "league_id": numbered(LEAGUE_START, league), "league_name": league,
                 "home_team_id": ids(league,home), "away_team_id": ids(league,away),
                 "home_team": {"id":ids(league,home), "name":row["home_team"]},
                 "away_team": {"id":ids(league,away), "name":row["away_team"]},
                 "home_score":hs, "away_score":aws,
-                "_history_source":PROVIDER,
-                "_date_precision":"day",
-                "_source_original_id":row.get("source_id"),
+                "_history_source":source, "_history_sources":[source],
+                "_date_precision":"minute" if actual else "day",
+                "_original_provider_ids":{source: str(row.get("source_id") or "")},
             }
         elif seen[key] is not None:
             old = seen[key]
             if (old["home_score"], old["away_score"]) != (hs, aws):
                 seen[key] = None
                 rejected["conflicting_duplicate_quarantined"] += 1
+            elif actual and old["_date_precision"] == "minute" and abs(
+                    (aware_time(old["event_date"])-actual).total_seconds()) > 120*60:
+                seen[key] = None
+                rejected["conflicting_kickoff_quarantined"] += 1
             else:
-                rejected["duplicate_dropped"] += 1
+                if source not in old["_history_sources"]:
+                    old["_history_sources"].append(source)
+                    old["_original_provider_ids"][source] = str(row.get("source_id") or "")
+                else:
+                    rejected["duplicate_dropped"] += 1
+                # Use only more accurate timestamps when existing date-only.
+                if actual and old["_date_precision"] == "day":
+                    old["event_date"] = actual.isoformat()
+                    old["_date_precision"] = "minute"
     events = [event for event in seen.values() if event is not None]
     events.sort(key=lambda e: (e["event_date"],e["id"]))
     return events, {
         "input_results":len(rows), "usable_historic_matches":len(events),
+        "distinct_sources":sorted({p for e in events for p in e["_history_sources"]}),
+        "multi_provider_corroborated":sum(len(e["_history_sources"]) > 1 for e in events),
         "quarantined_reasons":dict(sorted(rejected.items())),
         "original_ids_preserved_only_in_private_research":True,
+        "independent_upstream_verification_assumed":False,
     }
 
 
@@ -193,10 +222,14 @@ def adapt_daily(fixtures: list[dict], history: list[dict], *, as_of: datetime,
                     "model_code_changed":False}
 
 
-def h2h_report(event: dict, history: list[dict]) -> dict:
+def h2h_report(event: dict, history: list[dict], *, as_of: datetime | None = None) -> dict:
     """Uses project's EXISTING H2H aggregation; never feeds new model weight."""
+    confirmed=history
+    if as_of is not None:
+        confirmed=[r for r in history if (stamp:=aware_time(r.get("event_date"))) is not None
+                   and stamp+timedelta(hours=4) < as_of]
     result=local_h2h(
-        history,event["home_team_id"],event["away_team_id"],
+        confirmed,event["home_team_id"],event["away_team_id"],
         event["event_date"],years=H2H_YEARS,recent_limit=10)
     return {
         "total_previous_meetings":result["total_matches"],
@@ -217,11 +250,13 @@ def evaluate_existing_v2(fixtures: list[dict], history: list[dict], *,
     trained BSD model artifacts, bookmaker prices, and publication guardrails.
     """
     at=as_of.astimezone(timezone.utc)
-    index=V2History(history)
+    available=[e for e in history if (dt:=aware_time(e.get("event_date"))) is not None
+               and dt+timedelta(hours=4)<at]
+    index=V2History(available)
     output=[]
     reasons=Counter()
     for event in fixtures:
-        h2h=h2h_report(event,history)
+        h2h=h2h_report(event,available,as_of=at)
         estimated, why=estimate_goals(event,index)
         if estimated is None:
             reasons["goals:"+str(why)]+=1
@@ -265,6 +300,8 @@ def main() -> None:
     p=argparse.ArgumentParser()
     p.add_argument("--historical-jsonl",required=True)
     p.add_argument("--daily-union",required=True)
+    p.add_argument("--provider-history-snapshots",help="Offline provider history snapshots, never auto-fetched")
+    p.add_argument("--provider-rights-manifest",help="Explicit legal authorization per source for commercial historical model use")
     p.add_argument("--analysis-at",required=True,help="ISO timezone-aware validation clock")
     p.add_argument("--report",required=True)
     a=p.parse_args()
@@ -273,13 +310,24 @@ def main() -> None:
     fixtures=json.loads(Path(a.daily_union).read_text(encoding="utf-8"))
     with open(a.historical_jsonl,encoding="utf-8") as handle:
         hist=[json.loads(x) for x in handle if x.strip()]
-    archive,archive_report=normalize_history(hist)
+    multi_report={"loaded_historical_rows":0,"no_api_called":True}
+    approved=frozenset({PROVIDER})
+    if bool(a.provider_history_snapshots) != bool(a.provider_rights_manifest):
+        p.error("Both historical snapshots and provider-rights-manifest are required")
+    if a.provider_history_snapshots:
+        snapshots=json.loads(Path(a.provider_history_snapshots).read_text(encoding="utf-8"))
+        rights=json.loads(Path(a.provider_rights_manifest).read_text(encoding="utf-8"))
+        additions,multi_report=ingest_provider_history(snapshots,rights,as_of=when)
+        approved=frozenset({PROVIDER,*multi_report["permitted_provider_rows"].keys()})
+        hist.extend(additions)
+    archive,archive_report=normalize_history(hist,accepted_sources=approved)
     ready,ready_report=adapt_daily(fixtures,archive,as_of=when)
     # Raw per-event calculations remain only IN MEMORY. Never write match IDs
     # or individual picks in logs or artifacts.
     _,analysis_report=evaluate_existing_v2(ready,archive,as_of=when)
     report={
         "historical":archive_report,
+        "multi_api_historical_inputs":multi_report,
         "fixtures":ready_report,
         "bsd_v2_core":analysis_report,
         "used_h2h_existing_function":True,
