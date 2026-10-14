@@ -482,6 +482,45 @@ class FootballChannelTests(unittest.TestCase):
         self.assertFalse(claim["can_send"])
         self.assertIn("/rpc/actu_foot_claim_publication", session.post.call_args.args[0])
 
+    def test_outbox_hydrate_ancienne_composition_depuis_timeline_canonique(self):
+        from unittest.mock import Mock
+        item = m.Publication(
+            "composition", "composition:legacy", "<b>Composition</b>",
+            card={
+                "home": "Inter Miami CF",
+                "away": "New York City FC",
+                "competition": "Football",
+                "source": "ESPN",
+                "time": "",
+                "home_logo": "https://example.com/home.png",
+                "away_logo": "https://example.com/away.png",
+                "home_players": [f"Home {i}" for i in range(1, 12)],
+                "away_players": [f"Away {i}" for i in range(1, 12)],
+                "canonical_event_key": "composition:legacy",
+            },
+        )
+        get_response = Mock()
+        get_response.raise_for_status.return_value = None
+        get_response.json.return_value = [{
+            "payload": {"kickoff": "2026-10-14T23:30:00+00:00"}
+        }]
+        patch_response = Mock()
+        patch_response.raise_for_status.return_value = None
+        session = Mock()
+        session.get.return_value = get_response
+        session.patch.return_value = patch_response
+        with patch.dict("os.environ", {
+            "SUPABASE_URL": "https://example.supabase.co",
+            "SUPABASE_SERVICE_ROLE_KEY": "service",
+        }):
+            ledger = m.RemotePublicationLedger(session, enabled=True)
+            restored = ledger._hydrate_legacy_item(item)
+        self.assertEqual(restored.card["time"], "23h30")
+        session.get.assert_called_once()
+        session.patch.assert_called_once()
+        saved = session.patch.call_args.kwargs["json"]["payload"]
+        self.assertEqual(saved["card"]["time"], "23h30")
+
     def test_sender_poll_reprend_apres_media_sans_dupliquer_image(self):
         import os
         from unittest.mock import Mock
