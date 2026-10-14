@@ -42,7 +42,7 @@ from free_football_sources import (  # noqa: E402
     SOURCE_QUALITY,
 )
 from telegram_rich import post_photo, post_text, post_animation, _post_rate_limited  # noqa: E402
-from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish)  # noqa: E402
+from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish, fetch_supabase_live)  # noqa: E402
 import football_followup as followup  # noqa: E402
 from football_stats_engine import daily_insight  # noqa: E402
 from football_viral_engine import (  # noqa: E402
@@ -2082,6 +2082,15 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
     counter = {"sent": 0, "skipped": 0, "errors": 0}
     max_send = MAX_MESSAGES_PER_RUN
     class_counter = {key: 0 for key in CLASS_BUDGETS}
+    try:
+        urgent_live_active = any(
+            importance(match) > 0 for match in fetch_supabase_live(sender.session)
+        )
+    except Exception as exc:
+        urgent_live_active = False
+        print("INFO_LIVE_ACTIVITY_CHECK", type(exc).__name__)
+    if urgent_live_active:
+        print("EDITORIAL_P4_SUPPRESSED_IMPORTANT_LIVE")
 
     def get_day(day: date) -> list[dict]:
         nonlocal client
@@ -2127,6 +2136,10 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
             print("EDITORIAL_STORY_COOLDOWN", item.category, story_key)
             return False
         cls = priority_class(item.category)
+        if cls == "P4" and urgent_live_active and not force:
+            counter["skipped"] += 1
+            print("P4_SUPPRESSED_DURING_IMPORTANT_LIVE", item.category)
+            return False
         # P0 dispose d'une réserve propre et ne peut jamais être bloqué par un
         # quiz/stat/flash déjà envoyé dans le même passage.
         if class_counter[cls] >= CLASS_BUDGETS[cls]:
