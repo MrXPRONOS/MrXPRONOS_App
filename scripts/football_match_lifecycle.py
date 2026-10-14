@@ -207,11 +207,74 @@ def _event_time(event: dict) -> datetime | None:
 
 
 def fetch_supabase_live(session: requests.Session, max_age_seconds: int = 360) -> list[dict]:
+    """Lit d'abord l'état canonique déjà produit pour le site LIVE.
+
+    live_stats_merged est la vue normalisée multi-source du moteur Supabase.
+    matches_live reste un fallback de compatibilité si la table fusionnée est
+    momentanément vide ou indisponible.
+    """
     base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
     key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or "").strip()
     if not base or not key:
         return []
     since = (datetime.now(timezone.utc) - timedelta(seconds=max_age_seconds)).isoformat()
+    headers = {"apikey": key, "Authorization": "Bearer " + key}
+
+    try:
+        merged_response = session.get(
+            base + "/rest/v1/live_stats_merged",
+            params={
+                "select": (
+                    "canonical_match_id,primary_match_id,home_team,away_team,"
+                    "home_score,away_score,minute,league_name,event_date,is_live,"
+                    "is_finished,merged_stats,sources_used,confidence_score,"
+                    "merged_match_json,updated_at"
+                ),
+                "updated_at": "gte." + since,
+                "order": "updated_at.desc",
+            },
+            headers=headers,
+            timeout=(7, 18),
+        )
+        merged_response.raise_for_status()
+        merged_payload = merged_response.json()
+    except (requests.RequestException, ValueError):
+        merged_payload = []
+
+    merged_rows: list[dict] = []
+    for row in merged_payload if isinstance(merged_payload, list) else []:
+        if not isinstance(row, dict):
+            continue
+        raw = row.get("merged_match_json") if isinstance(row.get("merged_match_json"), dict) else {}
+        sources = row.get("sources_used") if isinstance(row.get("sources_used"), list) else []
+        espn_id = str(
+            raw.get("espn_id")
+            or raw.get("event_id")
+            or ((raw.get("raw_data") or {}).get("merge_meta") or {}).get("espn_match_id")
+            or ""
+        )
+        merged_rows.append({
+            "source": "supabase_merged",
+            "id": str(row.get("primary_match_id") or row.get("canonical_match_id") or ""),
+            "home_team": _plain(row.get("home_team")),
+            "away_team": _plain(row.get("away_team")),
+            "home_score": _score(row.get("home_score")),
+            "away_score": _score(row.get("away_score")),
+            "minute": _score(row.get("minute")) or 0,
+            "league": _plain(row.get("league_name")),
+            "state": "post" if row.get("is_finished") else "in" if row.get("is_live") else "pre",
+            "status_detail": _plain(raw.get("status") or raw.get("status_detail")),
+            "event_date": row.get("event_date"),
+            "espn_id": espn_id,
+            "espn_url": espn_match_url(espn_id),
+            "live_stats": row.get("merged_stats") if isinstance(row.get("merged_stats"), dict) else {},
+            "sources_used": sources,
+            "confidence_score": _score(row.get("confidence_score")) or 0,
+            "raw": raw,
+        })
+    if merged_rows:
+        return merged_rows
+
     try:
         response = session.get(
             base + "/rest/v1/matches_live",
@@ -220,7 +283,7 @@ def fetch_supabase_live(session: requests.Session, max_age_seconds: int = 360) -
                 "updated_at": "gte." + since,
                 "order": "updated_at.desc",
             },
-            headers={"apikey": key, "Authorization": "Bearer " + key},
+            headers=headers,
             timeout=(7, 18),
         )
         response.raise_for_status()
@@ -253,7 +316,7 @@ def fetch_supabase_live(session: requests.Session, max_age_seconds: int = 360) -
             "league": _plain(row.get("league_name") or raw.get("league_name") or (raw.get("league") or {}).get("name")),
             "state": "post" if raw.get("is_finished") else "in" if raw.get("is_live") else _plain(row.get("status")).lower(),
             "status_detail": _plain(row.get("status") or raw.get("status")),
-            "event_date": row.get("event_date") or raw.get("event_date") or raw.get("date"),
+            "event_date": raw.get("event_date") or raw.get("date"),
             "espn_id": espn_id,
             "espn_url": espn_match_url(espn_id),
             "live_stats": raw.get("live_stats") if isinstance(raw.get("live_stats"), dict) else {},
