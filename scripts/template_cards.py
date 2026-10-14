@@ -120,28 +120,70 @@ POLL_ICON_CENTERS = ((155, 534), (155, 660), (155, 786))
 POLL_DATE_BOX = (470, 864, 670, 912)
 
 # Template Compositions officielles V3 natif 1374 x 1145.
-# Toutes les zones variables sont déjà vides et sombres dans le fond source :
-# aucune gomme, aucun patch et aucun rectangle n'est nécessaire.
-COMPOSITION_HOME_LOGO = (339, 359)
-COMPOSITION_AWAY_LOGO = (1030, 359)
-COMPOSITION_HOME_NAME = (88, 448, 588, 505)
-COMPOSITION_AWAY_NAME = (784, 448, 1278, 505)
-COMPOSITION_COMPETITION_BOX = (500, 224, 723, 274)
-COMPOSITION_TIME_BOX = (786, 224, 933, 274)
+# Mesures prises directement sur le fond source. Chaque donnée possède :
+# - surface : la zone graphique native du template ;
+# - safe    : la zone réellement autorisée pour le contenu dynamique.
+# Le renderer n'ajoute aucun rectangle, masque ou fond.
+COMPOSITION_LAYOUT = {
+    "competition": {
+        "surface": (508, 224, 742, 281),
+        "safe": (520, 230, 730, 273),
+    },
+    "time": {
+        "surface": (801, 224, 950, 282),
+        "safe": (812, 230, 939, 273),
+    },
+    "home_logo": {
+        "surface": (230, 269, 448, 449),
+        "center": (339, 359),
+        "max_px": 144,
+    },
+    "away_logo": {
+        "surface": (920, 269, 1139, 449),
+        "center": (1030, 359),
+        "max_px": 144,
+    },
+    "home_name": {
+        "surface": (71, 449, 604, 533),
+        "safe": (102, 454, 575, 510),
+    },
+    "away_name": {
+        "surface": (768, 449, 1303, 533),
+        "safe": (797, 454, 1274, 510),
+    },
+    "home_rows": {
+        "surface_x": (81, 592),
+        "number_x": (81, 149),
+        "player_x": (154, 582),
+    },
+    "away_rows": {
+        "surface_x": (779, 1293),
+        "number_x": (783, 851),
+        "player_x": (856, 1283),
+    },
+    "source": {
+        "surface": (49, 1074, 349, 1144),
+        "safe": (82, 1080, 326, 1124),
+    },
+    "comment": {
+        "surface": (350, 1074, 909, 1144),
+        "safe": (530, 1080, 886, 1124),
+    },
+    "brand": {
+        "surface": (910, 1074, 1373, 1144),
+        "safe": (1028, 1080, 1328, 1124),
+    },
+}
 
-# Pied de page : icônes et séparateurs sont imprimés dans le template,
-# seuls les libellés sont injectés par le renderer.
-COMPOSITION_SOURCE_BOX = (78, 1058, 320, 1098)
-COMPOSITION_COMMENT_BOX = (500, 1058, 876, 1098)
-COMPOSITION_BRAND_BOX = (1008, 1058, 1326, 1098)
-
-# Les numéros 1..11 et les cadres de lignes sont natifs au template.
-# On écrit uniquement les noms des joueurs dans les champs sombres.
-COMPOSITION_HOME_PLAYER_X = (151, 578)
-COMPOSITION_AWAY_PLAYER_X = (847, 1277)
+# Bordures natives détectées sur le template. On centre visuellement les noms
+# entre ces lignes, au lieu d'utiliser une progression approximative.
+COMPOSITION_ROW_EDGES = (
+    533, 580, 626, 672, 718, 764,
+    810, 858, 901, 947, 993, 1037,
+)
 COMPOSITION_ROWS = tuple(
-    (524 + index * 46, 565 + index * 46)
-    for index in range(11)
+    (COMPOSITION_ROW_EDGES[i] + 5, COMPOSITION_ROW_EDGES[i + 1] - 4)
+    for i in range(11)
 )
 
 def clean(value: Any) -> str:
@@ -1141,14 +1183,71 @@ def _flash_editorial_illustration(dimensions: tuple[int, int], title: str = "") 
     return art
 
 
+def _draw_slot_text(
+    draw: ImageDraw.ImageDraw,
+    value: Any,
+    box: tuple[int, int, int, int],
+    *,
+    preferred_size: int,
+    min_size: int,
+    bold: bool = True,
+    fill: str = WHITE,
+    max_chars: int | None = None,
+    align: str = "center",
+    padding_x: int = 4,
+) -> tuple[str, int]:
+    """Centre réellement les pixels du texte dans la zone de données.
+
+    Pillow anchor='mm/lm' se base sur les métriques de police et non sur le
+    rectangle visuel des glyphes, ce qui faisait remonter les textes dans les
+    lignes. Ici on mesure textbbox() puis on centre la boîte visible.
+    """
+    value = _truncate_chars(clean(value), max_chars)
+    max_width, max_height = _box_size(box)
+    max_width = max(1, max_width - 2 * padding_x)
+    max_height = max(1, max_height - 4)
+
+    face = _font(min_size, bold)
+    chosen_size = min_size
+    for size in range(preferred_size, min_size - 1, -1):
+        candidate = _font(size, bold)
+        bbox = draw.textbbox((0, 0), value, font=candidate)
+        width = bbox[2] - bbox[0]
+        height = bbox[3] - bbox[1]
+        if width <= max_width and height <= max_height:
+            face = candidate
+            chosen_size = size
+            break
+
+    value = _ellipsize_pixels(draw, value, face, max_width)
+    bbox = draw.textbbox((0, 0), value, font=face)
+    tw = bbox[2] - bbox[0]
+    th = bbox[3] - bbox[1]
+    x1, y1, x2, y2 = box
+    cy = (y1 + y2) / 2
+
+    if align == "left":
+        x = x1 + padding_x - bbox[0]
+    elif align == "right":
+        x = x2 - padding_x - tw - bbox[0]
+    else:
+        x = (x1 + x2 - tw) / 2 - bbox[0]
+
+    y = cy - th / 2 - bbox[1]
+    draw.text((round(x), round(y)), value, font=face, fill=fill)
+    return value, chosen_size
+
+
 def _draw_lineup_players(
     image: Image.Image,
     players: list[str],
-    player_x: tuple[int, int],
+    side: str,
 ) -> None:
-    """Pose uniquement les 11 noms sur les lignes natives du template V3."""
+    """Écrit les 11 titulaires dans les 11 surfaces natives mesurées."""
     draw = ImageDraw.Draw(image)
-    x1, x2 = player_x
+    layout = COMPOSITION_LAYOUT[f"{side}_rows"]
+    x1, x2 = layout["player_x"]
+
     for index, (top, bottom) in enumerate(COMPOSITION_ROWS):
         player = clean(players[index]) if index < len(players) else ""
         if not player:
@@ -1158,16 +1257,17 @@ def _draw_lineup_players(
             ((18, 22), (24, 20), (31, 18), (38, 16)),
             15,
         )
-        draw_single_line(
+        _draw_slot_text(
             draw,
             player,
-            (x1, top + 2, x2, bottom - 2),
+            (x1, top, x2, bottom),
             preferred_size=preferred,
             min_size=14,
             bold=True,
             fill=WHITE,
             max_chars=46,
             align="left",
+            padding_x=3,
         )
 
 
@@ -1182,35 +1282,54 @@ def render_composition(payload: dict[str, Any]) -> Image.Image:
     home_logo = clean(payload.get("home_logo"))
     away_logo = clean(payload.get("away_logo"))
 
-    if not home or not away:
-        raise ValueError("Composition sans équipes")
-    if len(home_players) != 11 or len(away_players) != 11:
-        raise ValueError("Composition officielle incomplète: 11 titulaires requis par équipe")
-    if not home_logo or not away_logo:
-        raise ValueError("Composition officielle sans les deux logos")
+    # Pour une composition officielle, aucune donnée essentielle ne peut être
+    # laissée vide. Cela évite de publier une carte partiellement renseignée.
+    missing: list[str] = []
+    if not home:
+        missing.append("home")
+    if not away:
+        missing.append("away")
+    if not home_logo:
+        missing.append("home_logo")
+    if not away_logo:
+        missing.append("away_logo")
+    if len(home_players) != 11:
+        missing.append(f"home_players={len(home_players)}/11")
+    if len(away_players) != 11:
+        missing.append(f"away_players={len(away_players)}/11")
+    competition = clean(payload.get("competition") or payload.get("league"))
+    kickoff = clean(payload.get("time")).replace("h", "H")
+    source = clean(payload.get("source"))
+    if not competition:
+        missing.append("competition")
+    if not kickoff:
+        missing.append("time")
+    if not source:
+        missing.append("source")
+    if missing:
+        raise ValueError("Composition officielle incomplète: " + ", ".join(missing))
 
-    # V3 : tous les emplacements sont réellement vides dans le template.
-    # AUCUN fond, rectangle, masque ou patch n'est dessiné ici.
+    # Noms des équipes : centre visuel dans la barre native.
     home_size = _preferred_size_by_chars(
         home, ((18, 31), (24, 28), (31, 24), (40, 20)), 18
     )
     away_size = _preferred_size_by_chars(
         away, ((18, 31), (24, 28), (31, 24), (40, 20)), 18
     )
-    draw_single_line(
+    _draw_slot_text(
         draw,
         home,
-        COMPOSITION_HOME_NAME,
+        COMPOSITION_LAYOUT["home_name"]["safe"],
         preferred_size=home_size,
         min_size=18,
         bold=True,
         fill=WHITE,
         max_chars=48,
     )
-    draw_single_line(
+    _draw_slot_text(
         draw,
         away,
-        COMPOSITION_AWAY_NAME,
+        COMPOSITION_LAYOUT["away_name"]["safe"],
         preferred_size=away_size,
         min_size=18,
         bold=True,
@@ -1218,72 +1337,78 @@ def render_composition(payload: dict[str, Any]) -> Image.Image:
         max_chars=48,
     )
 
-    competition = clean(
-        payload.get("competition") or payload.get("league") or "Football"
-    )
-    draw_single_line(
+    # En-tête.
+    _draw_slot_text(
         draw,
         competition.upper(),
-        COMPOSITION_COMPETITION_BOX,
+        COMPOSITION_LAYOUT["competition"]["safe"],
         preferred_size=24,
         min_size=14,
         bold=True,
         fill=WHITE,
         max_chars=38,
     )
+    _draw_slot_text(
+        draw,
+        kickoff,
+        COMPOSITION_LAYOUT["time"]["safe"],
+        preferred_size=29,
+        min_size=20,
+        bold=True,
+        fill=GOLD,
+        max_chars=8,
+    )
 
-    kickoff = clean(payload.get("time")).replace("h", "H")
-    if kickoff:
-        draw_single_line(
-            draw,
-            kickoff,
-            COMPOSITION_TIME_BOX,
-            preferred_size=29,
-            min_size=20,
-            bold=True,
-            fill=GOLD,
-            max_chars=8,
-        )
+    # Logos : contain, ratio conservé, entièrement à l'intérieur du cercle.
+    paste_logo(
+        image,
+        home_logo,
+        COMPOSITION_LAYOUT["home_logo"]["center"],
+        COMPOSITION_LAYOUT["home_logo"]["max_px"],
+    )
+    paste_logo(
+        image,
+        away_logo,
+        COMPOSITION_LAYOUT["away_logo"]["center"],
+        COMPOSITION_LAYOUT["away_logo"]["max_px"],
+    )
 
-    # Les logos restent entièrement à l'intérieur des cercles sombres.
-    paste_logo(image, home_logo, COMPOSITION_HOME_LOGO, 132)
-    paste_logo(image, away_logo, COMPOSITION_AWAY_LOGO, 132)
+    _draw_lineup_players(image, home_players, "home")
+    _draw_lineup_players(image, away_players, "away")
 
-    _draw_lineup_players(image, home_players, COMPOSITION_HOME_PLAYER_X)
-    _draw_lineup_players(image, away_players, COMPOSITION_AWAY_PLAYER_X)
-
-    source = clean(payload.get("source") or "ESPN")
-    draw_single_line(
+    # Footer : les trois textes sont centrés verticalement dans la bande sombre
+    # native, sans toucher la ligne or supérieure ni le bord inférieur.
+    _draw_slot_text(
         draw,
         "Source : " + source,
-        COMPOSITION_SOURCE_BOX,
-        preferred_size=14,
+        COMPOSITION_LAYOUT["source"]["safe"],
+        preferred_size=15,
         min_size=11,
         bold=False,
         fill=WHITE,
-        max_chars=30,
+        max_chars=32,
         align="left",
     )
-    draw_single_line(
+    _draw_slot_text(
         draw,
         "Donne ton avis dans les commentaires.",
-        COMPOSITION_COMMENT_BOX,
-        preferred_size=13,
+        COMPOSITION_LAYOUT["comment"]["safe"],
+        preferred_size=14,
         min_size=10,
         bold=False,
         fill=WHITE,
-        max_chars=40,
-        align="center",
+        max_chars=44,
+        align="left",
     )
-    draw_single_line(
+    _draw_slot_text(
         draw,
         "Mr XPRONOS • L’actualité du football",
-        COMPOSITION_BRAND_BOX,
-        preferred_size=13,
+        COMPOSITION_LAYOUT["brand"]["safe"],
+        preferred_size=14,
         min_size=10,
         bold=False,
         fill=WHITE,
-        max_chars=36,
+        max_chars=42,
         align="left",
     )
     return image
