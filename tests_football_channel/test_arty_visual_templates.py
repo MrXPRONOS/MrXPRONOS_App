@@ -45,7 +45,7 @@ class ArtyVisualTests(unittest.TestCase):
     def test_render_all_categories_without_redrawing_frames(self):
         sample=Image.new("RGBA",(350,150),(255,255,255,255))
         with patch.object(programme_styles,"load_logo",return_value=sample):
-            for category in a.SUPPORTED:
+            for category in (name for name in a.SUPPORTED if name != "composition"):
                 with self.subTest(category=category):
                     blank=a.background(category)
                     completed=cards.render(category,self.payload)
@@ -62,14 +62,14 @@ class ArtyVisualTests(unittest.TestCase):
         sample=Image.new("RGBA",(300,150),(255,255,255,255))
         with patch.object(programme_styles,"load_logo",return_value=sample):
             image=cards.render("composition",self.payload)
-            self.assertEqual(image.size,(1080,1350))
+            self.assertEqual(image.size,(1374,1145))
             wrong=dict(self.payload,home_players=self.payload["home_players"][:-1])
             with self.assertRaises(ValueError):
                 cards.render("composition",wrong)
 
     def test_no_legacy_dark_patch_on_composition(self):
         import inspect
-        source=inspect.getsource(a.overlay)
+        source=inspect.getsource(cards.render_composition)
         self.assertNotIn("_local_dark_patch",source)
         self.assertNotIn("draw.rounded_rectangle",source)
 

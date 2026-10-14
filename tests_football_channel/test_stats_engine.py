@@ -168,9 +168,11 @@ class StatsEngineTests(unittest.TestCase):
             {"total_matches": 10, "home_wins": 5, "away_wins": 3, "draws": 2, "avg_total_goals": 2.7},
         )
         self.assertIsNotNone(post)
-        self.assertIn("Confrontations directes", post.text)
-        self.assertIn("10 matchs", post.text)
-        self.assertIn("2.7", post.text)
+        self.assertEqual(post.card["h2h_total"], 10)
+        self.assertEqual(post.card["h2h_home_wins"], 5)
+        self.assertEqual(post.card["h2h_draws"], 2)
+        self.assertEqual(post.card["h2h_away_wins"], 3)
+        self.assertNotIn("Confrontations directes", post.text)
 
     @patch("football_channel.daily_insight")
     def test_advanced_stat_render(self, daily):
