@@ -339,6 +339,11 @@ function ensureLiveStatsShape(stats: any) {
     ["red_cards", "red_cards"],
     ["total_shots", "total_shots"],
     ["shots_on_target", "shots_on_target"],
+    // Additional observed SportScore statistics. These enrich the feed but
+    // do not become substitute corners/fouls/total-shots predictions.
+    ["shots_off_target", "shots_off_target"],
+    ["attacks", "attacks"],
+    ["dangerous_attacks", "dangerous_attacks"],
   ];
 
   for (const [key, totalKey] of pairs) {
@@ -409,6 +414,9 @@ function mergeLiveStats(primaryStats: any, secondaryStats: any, preferFreshSourc
   applyStatPairIfBetter(merged, extra, "red_cards", "red_cards", preferFreshSource);
   applyStatPairIfBetter(merged, extra, "total_shots", "total_shots", preferFreshSource);
   applyStatPairIfBetter(merged, extra, "shots_on_target", "shots_on_target", preferFreshSource);
+  applyStatPairIfBetter(merged, extra, "shots_off_target", "shots_off_target", preferFreshSource);
+  applyStatPairIfBetter(merged, extra, "attacks", "attacks", preferFreshSource);
+  applyStatPairIfBetter(merged, extra, "dangerous_attacks", "dangerous_attacks", preferFreshSource);
 
   // Possession n'est pas cumulative ; on prend la valeur secondaire quand elle existe.
   const hp = nullableNumber(extra?.home?.ball_possession);
@@ -4168,17 +4176,23 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
             raw_data: {
               ...(current?.raw_data || {}),
               sportscore_minute_source: "detail",
+              sportscore_minute_raw: String(payload?.match?.live_minute ?? ""),
             },
           };
         }
         if (detail?.odds_probe?.available) oddsSectionsDetected++;
+        const baselineStats = ensureLiveStatsShape(getMatchLiveStats(current));
         const mergedStats = mergeLiveStats(
-          getMatchLiveStats(current),
+          baselineStats,
           detail?.stats || {},
           true,
         );
         const after = statsCompleteness(mergedStats).core_complete;
-        if (after > before) {
+        // SportScore can supply shots on target, possession and attacks
+        // without any corners/fouls/total_shots. Retain those REAL stats
+        // even when our three prediction core pairs remain incomplete.
+        const partialStatsUpdated = JSON.stringify(mergedStats) !== JSON.stringify(baselineStats);
+        if (after > before || partialStatsUpdated) {
           current = {
             ...current,
             live_stats: mergedStats,
