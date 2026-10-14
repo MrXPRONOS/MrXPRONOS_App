@@ -25,8 +25,8 @@ on:
         description: Historical source
         required: true
         type: choice
-        default: both
-        options: [both, openfootball, football-data]
+        default: openfootball
+        options: [openfootball]
       seasons:
         description: Comma-separated seasons
         required: true
@@ -39,7 +39,7 @@ permissions:
   contents: read
 concurrency:
   group: football-history-shadow-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -88,7 +88,7 @@ jobs:
         run: |
           python - <<'PY'
           import os,re
-          assert os.environ['SOURCE'] in ('both','openfootball','football-data')
+          assert os.environ['SOURCE'] == 'openfootball'
           assert re.fullmatch(r'20\d\d-\d\d(?:,20\d\d-\d\d){0,5}',os.environ['SEASONS'])
           assert os.environ['MAX_FILES'].isdigit() and 1<=int(os.environ['MAX_FILES'])<=48
           PY
@@ -105,7 +105,7 @@ jobs:
       - name: Upload only summary report, not datasets
         uses: actions/upload-artifact@v4
         with:
-          name: football-history-quality-report
+          name: openfootball-history-quality-report
           path: tmp/history-quality.json
           retention-days: 7
           if-no-files-found: error
@@ -126,11 +126,10 @@ jobs:
           coverage: none
       - name: Install research adapter dependencies
         run: python -m pip install requests
-      - name: Probe one historical league file per independent source
+      - name: Probe public-domain OpenFootball historical fixtures only
         run: |
           php scripts/football_history_import.php --source=openfootball --seasons=2024-25 --max-files=1 --out=tmp/openfootball.jsonl
-          php scripts/football_history_import.php --source=football-data --seasons=2024-25 --max-files=1 --out=tmp/football-data.jsonl
-          cat tmp/openfootball.jsonl tmp/football-data.jsonl > tmp/combined.jsonl
+          cp tmp/openfootball.jsonl tmp/combined.jsonl
           python scripts/football_history_shadow.py --input=tmp/combined.jsonl --output=tmp/merged.json --report=tmp/quality.json
           python scripts/football_alias_candidates.py --input=tmp/combined.jsonl --out=tmp/aliases-to-review.json
           python - <<'PY'
@@ -161,16 +160,15 @@ jobs:
           import json
           report=json.load(open('tmp/quality.json'))
           assert report['provider_rows']['openfootball'] >= 200
-          assert report['provider_rows']['football_data'] >= 200
           assert report['unique_fixtures'] >= 200
-          assert report['multi_source_agreement'] >= 40
+          assert report['multi_source_agreement'] == 0
           assert not json.load(open('tmp/form-report.json'))['production_model_modified']
-          print('PROVIDER_PROBE_PASS', {k:report[k] for k in ('input_rows','unique_fixtures','multi_source_agreement','conflicted_fixtures')})
+          print('OPENFOOTBALL_PROBE_PASS', {k:report[k] for k in ('input_rows','unique_fixtures','multi_source_agreement','conflicted_fixtures')})
           PY
       - name: Upload research summary, never raw datasets
         uses: actions/upload-artifact@v4
         with:
-          name: football-history-two-provider-probe
+          name: openfootball-public-domain-probe
           path: tmp/quality.json
           retention-days: 7
 
