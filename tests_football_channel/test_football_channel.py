@@ -58,14 +58,12 @@ class FootballChannelTests(unittest.TestCase):
             }]
             post = m.flash(articles, self.history, NOW)
             self.assertIsNotNone(post)
-            self.assertIn("<b>🚨 MERCATO</b>", post.text)
-            self.assertIn("<blockquote>", post.text)
-            self.assertIn("Lire l’info complète", post.text)
+            self.assertIn("<b>🚨 Arsenal avance sur un dossier important</b>", post.text)
+            self.assertNotIn("<blockquote>", post.text)
+            self.assertNotIn("Lire l’info complète", post.text)
+            self.assertIn("(Foot Mercato)", post.text)
             self.assertEqual(post.image_path, "assets/images/footnews/test-news.webp")
-            self.assertEqual(
-                post.keyboard["inline_keyboard"][0][0]["url"],
-                "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=test-news",
-            )
+            self.assertIsNone(post.keyboard)
             self.assertIsNotNone(post.card)
             self.assertEqual(post.card["image_path"], "assets/images/footnews/test-news.webp")
             self.history.mark(post.key, post.category, NOW)
@@ -127,10 +125,9 @@ class FootballChannelTests(unittest.TestCase):
             self.assertIsNotNone(post)
             self.assertEqual(post.verification["type"], "news")
             self.assertEqual(post.verification["matched_terms"], ["arsenal", "dossier"])
-            self.assertIn("Foot Mercato", post.text)
-            self.assertIn("repérée chez ESPN", post.text)
-            buttons = [b for row in post.keyboard["inline_keyboard"] for b in row]
-            self.assertTrue(any("ESPN" in b["text"] for b in buttons))
+            self.assertIn("(Foot Mercato)", post.text)
+            self.assertNotIn("repérée chez ESPN", post.text)
+            self.assertIsNone(post.keyboard)
         finally:
             m.ROOT = old_root
 

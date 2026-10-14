@@ -632,10 +632,10 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertIsNotNone(post)
         self.assertEqual(post.category, "goal")
         self.assertEqual(post.card["score"], "2-1")
-        self.assertIn("Bukayo Saka", post.text)
-        self.assertIn("2–1", post.text)
+        self.assertIn("BUKAYO SAKA", post.text)
+        self.assertIn("2-1", post.text)
         self.assertNotIn("BUUUUT", post.text)
-        self.assertTrue(post.keyboard)
+        self.assertIsNone(post.keyboard)
 
     def test_goal_publication_carries_espn_verification_and_link(self):
         post = channel.lifecycle_publication({
@@ -660,10 +660,9 @@ class MatchLifecycleTests(unittest.TestCase):
         })
         self.assertIsNotNone(post)
         self.assertEqual(post.verification["event_id"], "401")
-        self.assertIn("Passe", post.text)
-        self.assertIn("Martin Odegaard", post.text)
-        buttons = [b for row in post.keyboard["inline_keyboard"] for b in row]
-        self.assertTrue(any("ESPN" in b["text"] for b in buttons))
+        self.assertNotIn("Passe", post.text)
+        self.assertNotIn("Martin Odegaard", post.text)
+        self.assertIsNone(post.keyboard)
 
     @patch("football_match_lifecycle.fetch_espn_summary", return_value={})
     @patch("football_match_lifecycle.collect_external")
@@ -682,8 +681,8 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertEqual(updates[0]["score"], "1-1")
         publication = channel.lifecycle_publication(updates[0])
         self.assertEqual(publication.card["score"], "1-1")
-        self.assertIn("1–1", publication.text)
-        self.assertNotIn("SCORE LIVE", publication.text)
+        self.assertIn("1-1", publication.text)
+        self.assertIn("SCORE LIVE", publication.text)
         again = m.lifecycle_signals([], {updates[0]["key"]}, NOW, object(), lambda _: 100)
         self.assertFalse([x for x in again if x["kind"] == "score_update"])
 
