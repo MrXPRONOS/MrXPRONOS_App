@@ -243,6 +243,29 @@ export function normalizeSportScoreDetail(payload:any){
   return {stats,lineups,timeline,minute:sportScoreMinute(root),odds_probe:probeSportScoreOdds(payload)};
 }
 
+
+// ESPN scoreboard fixtures do not always contain the full boxscore.
+// Extract only explicitly reported event statistics from the ESPN summary.
+// Home/away are established by matching both known ESPN team IDs.
+export function normalizeEspnSummaryStats(summary:any, homeId:string, awayId:string){
+  const teams=Array.isArray(summary?.boxscore?.teams)?summary.boxscore.teams:[];
+  const find=(id:string)=>teams.find((x:any)=>String(x?.team?.id??"")===id);
+  if(!homeId||!awayId||homeId===awayId)return null;
+  const home=find(String(homeId)),away=find(String(awayId));
+  if(!home||!away)return null;
+  const parse=(stats:any[])=>{
+    const out:Record<string,number>={};
+    for(const stat of Array.isArray(stats)?stats:[]){
+      const key=statTarget(statKey(stat?.name||stat?.label||stat?.type||stat?.abbreviation));
+      if(!key)continue;
+      const value=num(stat?.displayValue??stat?.value);
+      if(value!=null && value>=0)out[key]=value;
+    }
+    return out;
+  };
+  return {home:parse(home.statistics),away:parse(away.statistics)};
+}
+
 export async function fetchTheSportsDbDay(date:string){
   const payload=await json(url(TSDB+"/eventsday.php",{d:date,s:"Soccer"}),120_000);
   const rows=Array.isArray(payload?.events)?payload.events:[];
