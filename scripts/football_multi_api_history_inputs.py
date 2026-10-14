@@ -231,13 +231,13 @@ def ingest(snapshots: list[dict], licenses: dict, *,
 
 
 def trusted_private_bsd_rows(events: list[dict], *, as_of: datetime,
-                             explicitly_authorized: bool = False) -> tuple[list[dict],dict]:
-    """Adapt PRIVATE authentic BSD scores to external team's canonical namespace.
+                             explicitly_authorized: bool = False,
+                             public_bsd_feed: dict | None = None) -> tuple[list[dict],dict]:
+    """BSD archive scores + STRICT authentic-ID display labels; report counts only.
 
-    This function MAY NOT be called from a public PR without a trusted
-    encrypted-archive restore step. All fixture IDs stay private; only
-    aggregate diagnostics can be uploaded. Ambiguous native team names
-    mapping to multiple official BSD team IDs are excluded entirely.
+    BSD archive is intentionally ID-centric. Never invent team or competition
+    labels. Recover labels only when the *same BSD numeric IDs* occur in a
+    trusted, previously published BSD feed (and have no competing names).
     """
     if not explicitly_authorized:
         return [], {"status":"permission_required","converted":0}
@@ -245,9 +245,34 @@ def trusted_private_bsd_rows(events: list[dict], *, as_of: datetime,
     from scripts.football_history_features import competition
     if as_of.tzinfo is None:
         raise ValueError("Timezone-aware analysis time required")
+    as_of=as_of.astimezone(timezone.utc)
     counts=Counter()
     native_names=defaultdict(set)
     prepared=[]
+    official_leagues=defaultdict(set)
+    official_teams=defaultdict(set)
+    if public_bsd_feed is not None:
+        if not isinstance(public_bsd_feed,dict) or public_bsd_feed.get("source")!="bsd":
+            raise ValueError("Identity hints require authentic BSD published feed")
+        for row in public_bsd_feed.get("matches",[]):
+            if not isinstance(row,dict) or row.get("source")!="bsd":
+                continue
+            try:
+                lid=int(row.get("league_id"))
+                hid=int(row.get("home_team_id"))
+                aid=int(row.get("away_team_id"))
+            except (TypeError,ValueError):
+                continue
+            if min(lid,hid,aid)<=0 or hid==aid:
+                continue
+            league=competition(str(row.get("league") or ""))
+            if not league:
+                continue
+            official_leagues[lid].add(league)
+            for side,tid in (("home",hid),("away",aid)):
+                name=canonical_team(native_name(row.get(side+"_team")))
+                if name:
+                    official_teams[(lid,tid)].add(name)
     for event in events:
         if not isinstance(event,dict) or str(event.get("status") or "").lower()!="finished":
             counts["not_completed"]+=1
@@ -258,22 +283,48 @@ def trusted_private_bsd_rows(events: list[dict], *, as_of: datetime,
             counts["not_settled_by_analysis"]+=1
             continue
         home,away=(event.get("home_team"),event.get("away_team"))
-        hname,aname=native_name(home),native_name(away)
-        lid=event.get("league_name") or event.get("competition_name") or event.get("league")
-        if isinstance(lid,dict):
-            lid=lid.get("name")
-        league=competition(str(lid or ""))
         try:
+            lid=event.get("league_id") or (
+                event.get("league",{}).get("id") if isinstance(event.get("league"),dict) else None)
             ht=event.get("home_team_id") or (home.get("id") if isinstance(home,dict) else None)
             at=event.get("away_team_id") or (away.get("id") if isinstance(away,dict) else None)
-            ht,at=int(ht),int(at)
+            lid,ht,at=int(lid),int(ht),int(at)
         except (ValueError,TypeError):
-            counts["missing_native_team_ids"]+=1
+            counts["missing_native_ids"]+=1
             continue
-        if (not league or not hname or not aname or canonical_team(hname)==canonical_team(aname)
-                or ht<=0 or at<=0 or ht==at or hscore is None or ascore is None
-                or event.get("id") is None):
-            counts["invalid_native_identity_or_score"]+=1
+        if min(lid,ht,at)<=0 or ht==at or hscore is None or ascore is None or event.get("id") is None:
+            counts["invalid_native_ids_or_scores"]+=1
+            continue
+        rawleague=event.get("league_name") or event.get("competition_name") or event.get("league")
+        if isinstance(rawleague,dict):
+            rawleague=rawleague.get("name")
+        names=set(official_leagues.get(lid,()))
+        native_league=competition(str(rawleague or ""))
+        if native_league:
+            names.add(native_league)
+        if len(names)!=1:
+            counts["missing_or_ambiguous_league_label"]+=1
+            continue
+        league=next(iter(names))
+        hname=native_name(home)
+        aname=native_name(away)
+        if not hname:
+            options=official_teams.get((lid,ht),set())
+            hname=next(iter(options)) if len(options)==1 else ""
+        if not aname:
+            options=official_teams.get((lid,at),set())
+            aname=next(iter(options)) if len(options)==1 else ""
+        if not hname or not aname:
+            counts["missing_or_ambiguous_team_name"]+=1
+            continue
+        if canonical_team(hname)==canonical_team(aname):
+            counts["identical_team_names"]+=1
+            continue
+        if official_teams.get((lid,ht)) and canonical_team(hname) not in official_teams[(lid,ht)]:
+            counts["conflicting_home_name"]+=1
+            continue
+        if official_teams.get((lid,at)) and canonical_team(aname) not in official_teams[(lid,at)]:
+            counts["conflicting_away_name"]+=1
             continue
         native_names[(league,canonical_team(hname))].add(ht)
         native_names[(league,canonical_team(aname))].add(at)
@@ -292,10 +343,12 @@ def trusted_private_bsd_rows(events: list[dict], *, as_of: datetime,
             "home_score":hscore,"away_score":ascore,
             "time_precision":"instant",
         })
-    counts["converted"] = len(rows)
+    counts["converted"]=len(rows)
     return rows,{
         "status":"private_internal_research_only",
         "converted":len(rows),
+        "identity_hints":{"known_league_ids":sum(len(x)==1 for x in official_leagues.values()),
+                          "known_team_ids":sum(len(x)==1 for x in official_teams.values())},
         "rejections":dict(sorted(counts.items())),
         "private_ids_exposed_in_report":False,
         "model_modified":False,
