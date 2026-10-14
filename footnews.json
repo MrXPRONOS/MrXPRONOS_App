@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T19:00:37+00:00",
+    "published": "2026-10-14T19:11:05+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -156,7 +156,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:05:30.454841+00:00"
+      "checked_at": "2026-10-14T19:11:06.941660+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -218,7 +218,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:05:30.454841+00:00"
+      "checked_at": "2026-10-14T19:11:06.941660+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -277,7 +277,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:05:30.454841+00:00"
+      "checked_at": "2026-10-14T19:11:06.941660+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -340,7 +340,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:05:30.454841+00:00"
+      "checked_at": "2026-10-14T19:11:06.941660+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -502,7 +502,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:05:30.454841+00:00"
+      "checked_at": "2026-10-14T19:11:06.941660+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -709,7 +709,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:05:30.454841+00:00"
+      "checked_at": "2026-10-14T19:11:06.941660+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -822,6 +822,40 @@
     "quality_score": 86
   },
   {
+    "slug": "7628f643096931ac",
+    "title": "DIRECT. Manchester City-PSG : Paris face à son premier gros test... Suivez et commentez le match de Ligue des champions avec nous",
+    "summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "summary_short": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "content": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "paragraphs": [
+      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
+    ],
+    "key_points": [
+      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
+    ],
+    "telegram_summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
+    "published": "2026-10-14T19:11:05+00:00",
+    "image": "assets/images/footnews/7628f643096931ac.webp",
+    "source_image": "https://www.franceinfo.fr/pictures/BKUU7M0ahDdkOj3-O9bTAXxuKBc/0x0:1024x576/432x243/filters:format(jpg)/2026/10/14/6acf8fa0ad0a1270898331.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Franceinfo"
+    ],
+    "quality_score": 82
+  },
+  {
     "slug": "6d9f5f8bd1af5f11",
     "title": "OL : Mauvaise nouvelle pour les supporters lyonnais à moins de deux semaines du choc contre le PSG",
     "summary": "Les supporters lyonnais sont interdits de déplacement au Parc des Princes pour la rencontre contre le PSG.",
@@ -910,47 +944,13 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:05:30.454841+00:00"
+      "checked_at": "2026-10-14T19:11:06.941660+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
       "ESPN"
     ],
     "quality_score": 100
-  },
-  {
-    "slug": "7628f643096931ac",
-    "title": "DIRECT. Manchester City-PSG : Dembélé, Zaïre-Emery et Akliouche titulaires avec Paris... Suivez et commentez le match de Ligue des champions avec nous",
-    "summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
-    "summary_short": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
-    "content": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
-    "paragraphs": [
-      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
-    ],
-    "key_points": [
-      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
-    ],
-    "telegram_summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
-    "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
-    "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
-    "published": "2026-10-14T18:51:36+00:00",
-    "image": "assets/images/footnews/7628f643096931ac.webp",
-    "source_image": "https://www.franceinfo.fr/pictures/BKUU7M0ahDdkOj3-O9bTAXxuKBc/0x0:1024x576/432x243/filters:format(jpg)/2026/10/14/6acf8fa0ad0a1270898331.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Franceinfo",
-    "source_priority": 82,
-    "source_region": "international",
-    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Franceinfo"
-    ],
-    "quality_score": 82
   },
   {
     "slug": "937b7a59d7a454a7",
@@ -1105,7 +1105,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:05:30.454841+00:00"
+      "checked_at": "2026-10-14T19:11:06.941660+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1202,7 +1202,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:05:30.454841+00:00"
+      "checked_at": "2026-10-14T19:11:06.941660+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1362,7 +1362,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:05:30.454841+00:00"
+      "checked_at": "2026-10-14T19:11:06.941660+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -1461,7 +1461,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:05:30.454841+00:00"
+      "checked_at": "2026-10-14T19:11:06.941660+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1523,7 +1523,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T19:05:30.454841+00:00"
+      "checked_at": "2026-10-14T19:11:06.941660+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1616,7 +1616,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:05:30.454841+00:00"
+      "checked_at": "2026-10-14T19:11:06.941660+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1709,7 +1709,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:05:30.454841+00:00"
+      "checked_at": "2026-10-14T19:11:06.941660+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1771,7 +1771,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:05:30.454841+00:00"
+      "checked_at": "2026-10-14T19:11:06.941660+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1987,7 +1987,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T19:05:30.454841+00:00"
+      "checked_at": "2026-10-14T19:11:06.941660+00:00"
     },
     "quality_sources": [
       "RFI",
