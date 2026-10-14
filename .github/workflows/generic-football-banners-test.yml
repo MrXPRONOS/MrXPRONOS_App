@@ -32,9 +32,10 @@ jobs:
       TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
       FOOTBALL_REQUIRE_COMMENTS: '0'
       PYTHONUNBUFFERED: '1'
-      # 1–20 were already delivered successfully before Telegram throttled
-      # the first audit run. Resume without creating duplicates.
-      GENERIC_TEST_START_INDEX: '21'
+      GENERIC_TEST_START_INDEX: '1'
+      GENERIC_TEST_END_INDEX: '52'
+      GENERIC_TEST_SEND_TELEGRAM: '0'
+      GENERIC_TEST_PREVIEW_DIR: '/tmp/generic-banner-previews'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -65,5 +66,12 @@ jobs:
       - name: Vérifier strictement le canal TEST
         run: python scripts/telegram_test_guard.py
 
-      - name: Envoyer tous les types et sous-types un par un
+      - name: Générer les 52 types et sous-types un par un
         run: python scripts/generic_banner_test_send.py
+
+      - name: Conserver tous les aperçus pour audit visuel
+        uses: actions/upload-artifact@v4
+        with:
+          name: generic-football-banners-audit
+          path: /tmp/generic-banner-previews/
+          retention-days: 7
