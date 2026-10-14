@@ -1,0 +1,90 @@
+name: OpenFootball CC0 — production read-only source monitor
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Minimal licensed-source health check. No BSD V2/Telegram execution.
+    - cron: "17 5 * * *"
+  pull_request:
+    paths:
+      - ".github/workflows/football-cc0-source-monitor.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: openfootball-cc0-monitor
+  cancel-in-progress: false
+
+jobs:
+  source_health:
+    name: Check eight CC0 competition feeds (no publication)
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+    steps:
+      - name: Query licensed OpenFootball JSON calendars with standard library
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import datetime
+          import json
+          import os
+          from urllib.parse import urlparse
+          from urllib.request import Request, urlopen
+
+          # EXACT 2026-27 source files verified from OpenFootball's repository.
+          # No dynamic host/path discovery, no bets, no Telegram, no file writes.
+          leagues = ('en.1','en.2','de.1','es.1','fr.1','it.1','nl.1','pt.1')
+          today = datetime.datetime.now(datetime.timezone.utc).date()
+          latest = today + datetime.timedelta(days=3)
+          aggregate = []
+          for code in leagues:
+              url = ('https://raw.githubusercontent.com/openfootball/football.json/'
+                     'master/2026-27/' + code + '.json')
+              req = Request(url, headers={'User-Agent':'MrXPRONOS-CC0-health/1.0',
+                                          'Accept':'application/json'})
+              with urlopen(req, timeout=15) as response:
+                  if urlparse(response.geturl()).hostname != 'raw.githubusercontent.com':
+                      raise ValueError('Untrusted redirect')
+                  if response.status != 200:
+                      raise ValueError('Unexpected source status')
+                  blob = response.read(2_000_001)
+              if len(blob) > 2_000_000:
+                  raise ValueError('Calendar too large')
+              obj = json.loads(blob)
+              if not isinstance(obj, dict) or not isinstance(obj.get('matches'), list):
+                  raise ValueError('Invalid CC0 calendar schema')
+              games = obj['matches']
+              upcoming = 0
+              dated = 0
+              for game in games:
+                  if not isinstance(game, dict):
+                      raise ValueError('Invalid match record')
+                  date_string = game.get('date')
+                  if not isinstance(date_string, str):
+                      continue
+                  try:
+                      match_day = datetime.date.fromisoformat(date_string)
+                  except ValueError:
+                      continue
+                  dated += 1
+                  upcoming += int(today <= match_day <= latest)
+              aggregate.append((code, len(games), dated, upcoming))
+              print('CC0_SOURCE_HEALTH', code, 'matches=',len(games),
+                    'valid_dates=',dated,'next_4_calendar_days=',upcoming)
+          if len(aggregate) != len(leagues):
+              raise AssertionError('Incomplete source coverage')
+          summary = ['## OpenFootball CC0 source health (read only)', '',
+                     'No production prediction, no bookmaker or Telegram call.', '',
+                     '| Competition | Match records | Valid dates | Next 4 days |',
+                     '|:--|--:|--:|--:|']
+          for code, count, dated, upcoming in aggregate:
+              summary.append(f'| {code} | {count} | {dated} | {upcoming} |')
+          summary += ['',f'Total calendar records: {sum(x[1] for x in aggregate)}.',
+                      'This does not authorize publishing new BSD V2 coupons.']
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as f:
+              f.write('\n'.join(summary)+'\n')
+          PY
