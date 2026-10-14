@@ -283,8 +283,9 @@ class FootballChannelTests(unittest.TestCase):
     def test_programme_et_horaires_togo(self):
         post = m.programme([event(1, NOW + timedelta(hours=4))], NOW.date())
         self.assertIsNotNone(post)
-        self.assertIn("19h00", post.text)
-        self.assertIn("Arsenal", post.text)
+        self.assertEqual(post.card["matches"][0]["time"], "19h00")
+        self.assertEqual(post.card["matches"][0]["home"], "Arsenal")
+        self.assertNotIn("Arsenal", post.text)
 
     def test_resultat_uniquement_apres_confirmation(self):
         sample = [
@@ -293,7 +294,8 @@ class FootballChannelTests(unittest.TestCase):
         ]
         post = m.resultat(sample, self.history, NOW)
         self.assertEqual(post.key, "resultat:2")
-        self.assertIn("2 – 1", post.text)
+        self.assertEqual(post.card["scores"], (2, 1))
+        self.assertNotIn("2 – 1", post.text)
         self.history.mark(post.key, post.category, NOW)
         self.assertIsNone(m.resultat(sample, self.history, NOW))
 
@@ -452,7 +454,7 @@ class FootballChannelTests(unittest.TestCase):
     def test_appel_aux_commentaires_dans_les_posts(self):
         post = m.programme([event(31, NOW + timedelta(hours=2))], NOW.date(), as_of=NOW)
         self.assertIn("Quel match attendez-vous", post.text)
-        self.assertIn("<blockquote>", post.text)
+        self.assertNotIn("<blockquote>", post.text)
         poll = m.sondage([event(32, NOW + timedelta(hours=3))], self.history, NOW)
         self.assertIn("LE DÉBAT DU JOUR", poll.poll[0])
 
