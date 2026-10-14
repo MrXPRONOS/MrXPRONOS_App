@@ -121,22 +121,26 @@ class GenericBannerTests(unittest.TestCase):
         image = template_cards.render("fin_temps_reglementaire", payload)
         self.assertEqual(image.size, (1280, 500))
 
-    def test_missing_detail_copy_is_explicit_and_not_blank(self):
+    def test_live_copy_is_short_without_technical_source(self):
         yellow = content.banner_caption(
             "carton_jaune_unknown",
             {**self.match, "player": "", "reason": ""},
         )
-        self.assertIn("non communiqué", yellow)
+        self.assertIn("CARTON JAUNE", yellow)
+        self.assertNotIn("Source :", yellow)
         interrupted = content.banner_caption(
             "match_interrompu_unknown",
             {**self.match, "status": "", "reason": ""},
         )
-        self.assertIn("non communiqué", interrupted)
+        self.assertIn("MATCH INTERROMPU", interrupted)
+        self.assertNotIn("Source :", interrupted)
 
-    def test_time_is_emphasized_before_secondary_live_details(self):
+    def test_goal_copy_matches_simple_channel_style(self):
         caption = content.banner_caption("goal", self.match)
-        self.assertIn("⏱ <b>67'</b>", caption)
-        self.assertIn("📊 <b>2–1</b>", caption)
+        self.assertIn("BUUUT - KYLIAN MBAPPÉ 67'", caption)
+        self.assertIn("Manchester United 2-1 Paris Saint-Germain", caption)
+        self.assertNotIn("Source :", caption)
+        self.assertNotIn("<blockquote>", caption)
 
     def test_general_banner_accepts_real_article_image_panel(self):
         payload = {
