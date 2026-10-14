@@ -62,35 +62,27 @@ jobs:
           assert real>=max(1,len(items)//2), "Couverture images réelles insuffisante"
           PY
 
-      - name: Commit refreshed news without overwriting concurrent content
-        env:
-          FOOTBALL_RSS_FEED: https://madeinfoot.ouest-france.fr/flux/rss_news.php
-          MAX_ARTICLES: '60'
-          MAX_NEWS_AGE_HOURS: '120'
+      - name: Commit the already validated RSS snapshot
         shell: bash
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for attempt in 1 2 3; do
-            git fetch origin main
-            git reset --hard origin/main
-            python fetch_foot_news.py
-            git add footnews.json
-            if [ -d assets/images/footnews ]; then git add -A assets/images/footnews; fi
-            if git diff --cached --quiet; then
-              echo "Aucune nouvelle actualité ou image."
-              exit 0
-            fi
-            git commit -m "data(infos): refresh sourced football news and real images"
-            if git push origin HEAD:main; then
-              echo "NEWS_COMMITTED=true" >> "$GITHUB_ENV"
-              echo "RSS publication committed successfully"
-              exit 0
-            fi
-            echo "Concurrent update detected, retry $attempt/3"
-          done
-          echo "RSS commit failed without any forced push"
-          exit 1
+          git add footnews.json
+          if [ -d assets/images/footnews ]; then git add -A assets/images/footnews; fi
+          if git diff --cached --quiet; then
+            echo "Aucune nouvelle actualité ou image."
+            exit 0
+          fi
+          git commit -m "data(infos): refresh sourced football news and real images"
+          git fetch origin main
+          if ! git rebase origin/main; then
+            git rebase --abort || true
+            echo "::error::Conflit RSS concurrent; aucun force-push."
+            exit 1
+          fi
+          git push origin HEAD:main
+          echo "NEWS_COMMITTED=true" >> "$GITHUB_ENV"
 
       - name: Deploy refreshed news on GitHub Pages
         if: env.NEWS_COMMITTED == 'true'
