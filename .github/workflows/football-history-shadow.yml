@@ -412,6 +412,11 @@ jobs:
           umask 077
           mkdir -p tmp
           python scripts/football_daily_multisource_shadow.py --day="$(date -u +%F)" --max-http=12 --out=tmp/public-union.json --report=tmp/public-source-health.json
+      - name: Collect TOMORROW public fixtures before private archive restoration
+        run: |
+          umask 077
+          tomorrow="$(date -u -d 'tomorrow' +%F)"
+          python scripts/football_daily_multisource_shadow.py --day="$tomorrow" --max-http=12 --out=tmp/next-day-public-union.json --report=tmp/next-day-public-source-health.json
       - name: Restore PRIVATE BSD history without exposing decryption key
         env:
           BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
@@ -433,6 +438,13 @@ jobs:
             --private-bsd-history-json=bsd/all_matches_bsd.json \
             --authorize-bsd-private-internal-use \
             --bsd-public-identity-feed=data.json \
+            --daily-union=tmp/next-day-public-union.json \
+            --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --report=tmp/bsd-next-day-multisource-aggregate.json
+          python scripts/football_external_bsd_v2_adapter.py \
+            --private-bsd-history-json=bsd/all_matches_bsd.json \
+            --authorize-bsd-private-internal-use \
+            --bsd-public-identity-feed=data.json \
             --daily-union=tmp/public-union.json \
             --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             --report=tmp/bsd-private-original-v2-aggregate.json
@@ -450,6 +462,16 @@ jobs:
           assert bench['private_match_rows_exposed'] is False
           assert bench['compared_to_production_calibrated_bsd_v2'] is False
           assert bench['publication_enabled'] is False
+          upcoming=json.loads(Path('tmp/bsd-next-day-multisource-aggregate.json').read_text())
+          assert upcoming['bsd_v2_core']['calculation_module_modified'] is False
+          assert upcoming['bsd_v2_core']['production_published'] is False
+          assert upcoming['multi_api_historical_inputs']['private_bsd']['private_ids_exposed_in_report'] is False
+          print('PRIVATE_BSD_TOMORROW_EXTERNAL_SOURCE_COVERAGE', {
+              'history':upcoming['historical']['usable_historic_matches'],
+              'external_matches':upcoming['fixtures']['input_discovered_fixtures'],
+              'ready_for_original_v2':upcoming['fixtures']['ready_for_unchanged_core'],
+              'abstention_breakdown':upcoming['fixtures']['ignored']
+          })
           extended=json.loads(Path('tmp/bsd-private-original-v2-aggregate.json').read_text())
           assert extended['multi_api_historical_inputs']['private_bsd']['private_ids_exposed_in_report'] is False
           assert extended['bsd_v2_core']['calculation_module_modified'] is False
@@ -465,7 +487,7 @@ jobs:
         if: always()
         shell: bash
         run: |
-          rm -f bsd/all_matches_bsd.json bsd/backfill_state.json tmp/public-union.json
+          rm -f bsd/all_matches_bsd.json bsd/backfill_state.json tmp/public-union.json tmp/next-day-public-union.json
           test ! -e bsd/all_matches_bsd.json
           test ! -e bsd/backfill_state.json
       - name: Upload only approved aggregate statistics
@@ -477,5 +499,6 @@ jobs:
             tmp/bsd-private-validation-AGGREGATES-ONLY.json
             tmp/bsd-private-paired-BENCHMARK-AGGREGATES-ONLY.json
             tmp/bsd-private-original-v2-aggregate.json
+            tmp/bsd-next-day-multisource-aggregate.json
           if-no-files-found: error
           retention-days: 3
