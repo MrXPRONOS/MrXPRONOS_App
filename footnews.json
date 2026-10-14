@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T23:18:04+00:00",
+    "published": "2026-10-14T23:31:39+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -120,7 +120,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -184,7 +184,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -317,7 +317,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "Franceinfo",
@@ -358,66 +358,6 @@
       "Foot Mercato"
     ],
     "quality_score": 92
-  },
-  {
-    "slug": "b847ef12f5e2c339",
-    "title": "Le match fou entre le PSG et Manchester City enflamme la toile",
-    "summary": "Il était attendu et il a tenu toutes ses promesses. Le choc entre Manchester City et le PSG (2-4) a été haletant du début jusqu’à la fin. Après une énorme première période où ils ont mené de trois (…)",
-    "summary_short": "Il était attendu et il a tenu toutes ses promesses. Le choc entre Manchester City et le PSG (2-4) a été haletant du début jusqu’à la fin. Après une énorme première période où ils ont mené de trois (…)",
-    "content": "Il était attendu et il a tenu toutes ses promesses. Le choc entre Manchester City et le PSG (2-4) a été haletant du début jusqu’à la fin. Après une énorme première période où ils ont mené de trois (…)",
-    "paragraphs": [
-      "Il était attendu et il a tenu toutes ses promesses. Le choc entre Manchester City et le PSG (2-4) a été haletant du début jusqu’à la fin. Après une énorme première période où ils ont mené de trois (…)"
-    ],
-    "key_points": [
-      "Il était attendu et il a tenu toutes ses promesses.",
-      "Le choc entre Manchester City et le PSG (2-4) a été haletant du début jusqu’à la fin.",
-      "Après une énorme première période où ils ont mené de trois (…)"
-    ],
-    "telegram_summary": "Il était attendu et il a tenu toutes ses promesses. Le choc entre Manchester City et le PSG (2-4) a été haletant du début jusqu’à la fin. Après une énorme première période où ils ont mené de trois (…)",
-    "link": "https://www.footmercato.net/a2839572992952941573-le-match-fou-entre-le-psg-et-manchester-city-enflamme-la-toile",
-    "source_url": "https://www.footmercato.net/a2839572992952941573-le-match-fou-entre-le-psg-et-manchester-city-enflamme-la-toile",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b847ef12f5e2c339",
-    "published": "2026-10-14T21:04:02+00:00",
-    "image": "assets/images/footnews/b847ef12f5e2c339.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine395206-1920x1080.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50159375",
-      "url": "https://www.espn.com/video/clip/_/id/50159375/no-sympathy-manchester-city-players",
-      "published": "2026-10-11T18:25:12Z",
-      "score": 0.2,
-      "matched_terms": [
-        "city",
-        "manchester"
-      ],
-      "topics": [],
-      "teams": [
-        "Liverpool",
-        "Manchester City"
-      ],
-      "athletes": [],
-      "leagues": [
-        "English Premier League",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
   },
   {
     "slug": "29eefae0f82acd42",
@@ -720,7 +660,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -814,7 +754,7 @@
     "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
-    "published": "2026-10-14T23:18:04+00:00",
+    "published": "2026-10-14T23:31:39+00:00",
     "image": "assets/images/footnews/7628f643096931ac.webp",
     "source_image": "https://www.franceinfo.fr/pictures/5U3Wip1t6xJCEihksoGYiduzong/0x25:4673x2654/432x243/filters:format(jpg)/2026/10/14/6acfdbdf2c937182294865.jpg",
     "image_origin": "source",
@@ -831,6 +771,107 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "beb40faa740932b7",
+    "title": "Ligue des Champions : une soirée historique avec 46 buts inscrits en neuf matches !",
+    "summary": "La Ligue des Champions a vécu une soirée complètement folle ce mercredi. Avec 46 buts inscrits en neuf rencontres, la deuxième soirée de la deuxième journée a, en effet, établi un nouveau record dans (…)",
+    "summary_short": "La Ligue des Champions a vécu une soirée complètement folle ce mercredi. Avec 46 buts inscrits en neuf rencontres, la deuxième soirée de la deuxième journée a, en effet, établi un nouveau record dans (…)",
+    "content": "La Ligue des Champions a vécu une soirée complètement folle ce mercredi. Avec 46 buts inscrits en neuf rencontres, la deuxième soirée de la deuxième journée a, en effet, établi un nouveau record dans (…)",
+    "paragraphs": [
+      "La Ligue des Champions a vécu une soirée complètement folle ce mercredi. Avec 46 buts inscrits en neuf rencontres, la deuxième soirée de la deuxième journée a, en effet, établi un nouveau record dans (…)"
+    ],
+    "key_points": [
+      "La Ligue des Champions a vécu une soirée complètement folle ce mercredi.",
+      "Avec 46 buts inscrits en neuf rencontres, la deuxième soirée de la deuxième journée a, en effet, établi un nouveau record dans (…)"
+    ],
+    "telegram_summary": "La Ligue des Champions a vécu une soirée complètement folle ce mercredi. Avec 46 buts inscrits en neuf rencontres, la deuxième soirée de la deuxième journée a, en effet, établi un nouveau record dans (…)",
+    "link": "https://www.footmercato.net/a5504679932124577526-ligue-des-champions-une-soiree-historique-avec-46-buts-inscrits-en-neuf-matches",
+    "source_url": "https://www.footmercato.net/a5504679932124577526-ligue-des-champions-une-soiree-historique-avec-46-buts-inscrits-en-neuf-matches",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=beb40faa740932b7",
+    "published": "2026-10-14T23:30:10+00:00",
+    "image": "assets/images/footnews/beb40faa740932b7.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine395180-1920x1080.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "d7a3ff0c8fd42b20",
+    "title": "PSG : Luis Enrique, bourreau des clubs anglais",
+    "summary": "Le Paris Saint-Germain enchaîne les succès face aux clubs anglais et Luis Enrique a été interrogé, ce mercredi soir, sur l’éventuel avantage psychologique que cette dynamique pourrait offrir à son (…)",
+    "summary_short": "Le Paris Saint-Germain enchaîne les succès face aux clubs anglais et Luis Enrique a été interrogé, ce mercredi soir, sur l’éventuel avantage psychologique que cette dynamique pourrait offrir à son (…)",
+    "content": "Le Paris Saint-Germain enchaîne les succès face aux clubs anglais et Luis Enrique a été interrogé, ce mercredi soir, sur l’éventuel avantage psychologique que cette dynamique pourrait offrir à son (…)",
+    "paragraphs": [
+      "Le Paris Saint-Germain enchaîne les succès face aux clubs anglais et Luis Enrique a été interrogé, ce mercredi soir, sur l’éventuel avantage psychologique que cette dynamique pourrait offrir à son (…)"
+    ],
+    "key_points": [
+      "Le Paris Saint-Germain enchaîne les succès face aux clubs anglais et Luis Enrique a été interrogé, ce mercredi soir, sur l’éventuel avantage psychologique que cette dynamique pourrait offrir à son (…)"
+    ],
+    "telegram_summary": "Le Paris Saint-Germain enchaîne les succès face aux clubs anglais et Luis Enrique a été interrogé, ce mercredi soir, sur l’éventuel avantage psychologique que cette dynamique pourrait offrir à son (…)",
+    "link": "https://www.footmercato.net/a1611543642754406657-psg-luis-enrique-bourreau-des-clubs-anglais",
+    "source_url": "https://www.footmercato.net/a1611543642754406657-psg-luis-enrique-bourreau-des-clubs-anglais",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d7a3ff0c8fd42b20",
+    "published": "2026-10-14T23:25:48+00:00",
+    "image": "assets/images/footnews/d7a3ff0c8fd42b20.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine262762-1920x1080.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "49827385",
+      "url": "https://www.espn.com/soccer/story/_/id/49827385/psg-coach-luis-enrique-new-contract-fabian-ruiz-joao-neves",
+      "published": "2026-09-04T20:23:54Z",
+      "score": 0.222,
+      "matched_terms": [
+        "enrique",
+        "luis"
+      ],
+      "topics": [
+        "news"
+      ],
+      "teams": [
+        "Paris Saint-Germain"
+      ],
+      "athletes": [
+        "Fabián Ruiz",
+        "João Neves",
+        "Lucas Beraldo",
+        "Senny Mayulu",
+        "Willian Pacho"
+      ],
+      "leagues": [
+        "French Ligue 1",
+        "Soccer",
+        "UEFA Champions League"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
   },
   {
     "slug": "d1c301b8ee1df0f3",
@@ -983,7 +1024,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1080,7 +1121,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1176,7 +1217,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1239,7 +1280,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1440,7 +1481,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1499,7 +1540,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1600,7 +1641,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1662,7 +1703,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1759,7 +1800,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1986,7 +2027,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2049,7 +2090,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2091,41 +2132,6 @@
       "Maxifoot"
     ],
     "quality_score": 78
-  },
-  {
-    "slug": "eb8f68c8c34752ee",
-    "title": "PSG : la réaction à chaud de Vitinha",
-    "summary": "Le Paris Saint-Germain s’est fait peur en deuxième période, mais le club de la capitale a réussi une grande première. Il s’est enfin imposé sur la pelouse de l’Etihad Stadium face à Manchester City (…)",
-    "summary_short": "Le Paris Saint-Germain s’est fait peur en deuxième période, mais le club de la capitale a réussi une grande première. Il s’est enfin imposé sur la pelouse de l’Etihad Stadium face à Manchester City (…)",
-    "content": "Le Paris Saint-Germain s’est fait peur en deuxième période, mais le club de la capitale a réussi une grande première. Il s’est enfin imposé sur la pelouse de l’Etihad Stadium face à Manchester City (…)",
-    "paragraphs": [
-      "Le Paris Saint-Germain s’est fait peur en deuxième période, mais le club de la capitale a réussi une grande première. Il s’est enfin imposé sur la pelouse de l’Etihad Stadium face à Manchester City (…)"
-    ],
-    "key_points": [
-      "Le Paris Saint-Germain s’est fait peur en deuxième période, mais le club de la capitale a réussi une grande première.",
-      "Il s’est enfin imposé sur la pelouse de l’Etihad Stadium face à Manchester City (…)"
-    ],
-    "telegram_summary": "Le Paris Saint-Germain s’est fait peur en deuxième période, mais le club de la capitale a réussi une grande première. Il s’est enfin imposé sur la pelouse de l’Etihad Stadium face à Manchester City (…)",
-    "link": "https://www.footmercato.net/a9111650547445053178-psg-la-reaction-a-chaud-de-vitinha",
-    "source_url": "https://www.footmercato.net/a9111650547445053178-psg-la-reaction-a-chaud-de-vitinha",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=eb8f68c8c34752ee",
-    "published": "2026-10-14T21:08:47+00:00",
-    "image": "assets/images/footnews/eb8f68c8c34752ee.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/neves-vitinha-but.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   },
   {
     "slug": "0aae8e3e6f1448d0",
@@ -2212,7 +2218,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -2339,7 +2345,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -2403,7 +2409,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2494,7 +2500,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T23:25:36.231056+00:00"
+      "checked_at": "2026-10-14T23:32:01.135610+00:00"
     },
     "quality_sources": [
       "So Foot",
