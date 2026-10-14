@@ -1,0 +1,42 @@
+name: Mr XPRONOS - verified LIVE market statistics
+
+on:
+  # Hourly at most: <= 72 API-Football requests / UTC day
+  # (24 fixture-list requests + up to 48 per-match statistics).
+  schedule:
+    - cron: '10 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/api_football_live_stats.py'
+      - 'scripts/test_api_football_live_stats.py'
+      - '.github/workflows/enrich-live-market-statistics.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrxpronos-verified-live-statistics
+  cancel-in-progress: false
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Offline market-stat normalization and matching tests
+        run: python -m unittest scripts.test_api_football_live_stats -v
+      - name: Enrich LIVE from official market stats (never on push)
+        if: ${{ github.event_name != 'push' }}
+        run: |
+          set -euo pipefail
+          python scripts/api_football_live_stats.py
