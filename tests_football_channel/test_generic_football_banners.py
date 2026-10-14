@@ -151,6 +151,19 @@ class GenericBannerTests(unittest.TestCase):
         image = template_cards.render("statistique_avancee", payload)
         self.assertEqual(image.size, (1280, 500))
 
+    def test_non_live_captions_start_with_their_title(self):
+        samples = {
+            "statistique_avancee": ({"headline": "Test", "lines": ["1 point"]}, "📊 LA STAT DU JOUR"),
+            "debat": ({"summary": "Contexte", "question": "Votre avis ?"}, "💬 DÉBAT FOOT"),
+            "quiz": ({"question": "Question test ?"}, "🧠 QUIZ FOOT"),
+            "sondage": ({"question": "Vote test ?"}, "🗳️ VOTE DU JOUR"),
+            "reaction": ({"question": "Votre note ?"}, "⭐ VOTRE RÉACTION ?"),
+            "changement_composition": ({"club": "Arsenal", "entrant": "A", "sortant": "B"}, "🔁 CHANGEMENT DE XI"),
+        }
+        for category, (payload, title) in samples.items():
+            caption = content.banner_caption(category, payload)
+            self.assertTrue(caption.startswith("<b>" + title + "</b>"), (category, caption))
+
     def test_short_action_buttons_share_the_same_row(self):
         keyboard = content.live_keyboard({
             "espn_url": "https://www.espn.com/football/match/_/gameId/1",

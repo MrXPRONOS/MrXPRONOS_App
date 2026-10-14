@@ -110,6 +110,37 @@ ELITE_LEAGUE_TERMS = (
     "champions league", "ligue des champions", "premier league", "la liga",
     "laliga", "serie a", "bundesliga", "ligue 1", "europa league",
 )
+POPULAR_LIVE_TEAM_TERMS = (
+    "real madrid", "barcelona", "barcelone", "manchester city", "manchester united",
+    "liverpool", "arsenal", "chelsea", "tottenham", "newcastle", "psg",
+    "paris saint-germain", "bayern", "inter milan", "juventus", "ac milan",
+    "napoli", "marseille", "atletico", "borussia dortmund", "leverkusen",
+    "benfica", "porto", "sporting", "ajax", "inter miami", "al ahly",
+    "wydad", "esperance",
+)
+POPULAR_LIVE_COMPETITION_TERMS = (
+    "champions league", "ligue des champions", "premier league", "la liga",
+    "laliga", "serie a", "bundesliga", "ligue 1", "europa league",
+    "conference league", "copa del rey", "fa cup", "carabao cup", "efl cup",
+    "coppa italia", "dfb pokal", "coupe de france", "caf champions league",
+    "caf confederation",
+)
+POPULAR_LIVE_INTERNATIONAL_TERMS = (
+    "world cup", "coupe du monde", "afcon", "coupe d'afrique", "can 20",
+    "euro ", "uefa euro", "copa america", "nations league",
+)
+POPULAR_LIVE_NATIONAL_TEAM_TERMS = (
+    "togo", "senegal", "sénégal", "cote d'ivoire", "côte d'ivoire",
+    "ivory coast", "nigeria", "morocco", "maroc", "ghana", "cameroon",
+    "cameroun", "algeria", "algérie", "egypt", "égypte", "france",
+    "brazil", "brésil", "argentina", "argentine", "england", "angleterre",
+    "spain", "espagne", "portugal", "germany", "allemagne", "italy",
+    "italie", "netherlands", "pays-bas", "belgium", "belgique",
+)
+POPULAR_LIVE_EXCLUDED_LEVEL_TERMS = (
+    "u17", "u18", "u19", "u20", "u21", "u23", "youth", "academy",
+    "reserve", "reserves", "b team", "ii",
+)
 CATEGORY_LABELS = {
     "flash": "📰 FLASH FOOT",
     "programme": "📅 MATCHS DU JOUR",
@@ -258,6 +289,56 @@ def importance(event: dict) -> int:
     if elite_count >= 2:
         points += 24
     return points
+
+def popular_live_match(event: dict) -> bool:
+    """Filtre LIVE strict : seuls les matchs à forte audience potentielle passent.
+
+    Le score d'importance seul était trop permissif : une compétition connue
+    pouvait suffire à faire remonter une affiche secondaire. Désormais il faut
+    un vrai moteur d'intérêt (club populaire, grande sélection, choc de clubs
+    populaires ou match du Togo).
+    """
+    league_name = league(event).casefold()
+    home = team(event, "home").casefold()
+    away = team(event, "away").casefold()
+    combined = " ".join((league_name, home, away))
+
+    if any(term in combined for term in POPULAR_LIVE_EXCLUDED_LEVEL_TERMS):
+        return False
+
+    # Priorité locale : tout match senior du Togo est pertinent pour l'audience.
+    if "togo" in home or "togo" in away:
+        return True
+
+    home_popular = any(term in home for term in POPULAR_LIVE_TEAM_TERMS)
+    away_popular = any(term in away for term in POPULAR_LIVE_TEAM_TERMS)
+    major_competition = any(term in league_name for term in POPULAR_LIVE_COMPETITION_TERMS)
+
+    home_national = any(term in home for term in POPULAR_LIVE_NATIONAL_TEAM_TERMS)
+    away_national = any(term in away for term in POPULAR_LIVE_NATIONAL_TEAM_TERMS)
+    international_competition = any(
+        term in league_name for term in POPULAR_LIVE_INTERNATIONAL_TERMS
+    )
+
+    # Un vrai choc reste populaire même dans une coupe/finale amicale.
+    if home_popular and away_popular:
+        return True
+
+    # Une grande affiche contre un club moins médiatique n'est LIVE que dans
+    # une compétition reconnue : ex. Liverpool-LASK en C1/C3 oui, amical non.
+    if major_competition and (home_popular or away_popular):
+        return True
+
+    # Grandes sélections uniquement dans les compétitions internationales fortes.
+    if international_competition and (home_national or away_national):
+        return True
+
+    # Garde-fou configurable pour les cas non couverts par les listes explicites.
+    threshold = max(1, int(os.getenv("FOOTBALL_LIVE_POPULARITY_MIN", "55")))
+    return importance(event) >= threshold and (
+        home_popular or away_popular or home_national or away_national
+    )
+
 
 _TSDB_LOGOS: dict[str, str] | None = None
 _REMOTE_TEAM_LOGOS: dict[str, str] = {}
@@ -1640,6 +1721,13 @@ def viral_publication(
     if not key or not caption:
         return None
 
+    if payload.get("kind") == "news_pulse":
+        viral_title = plain(payload.get("title"), 230)
+        viral_summary = plain(payload.get("summary"), 330)
+        if viral_title:
+            caption = "<b>🚨 " + esc(viral_title) + "</b>"
+            if viral_summary:
+                caption += "\n\n" + esc(viral_summary)
     credit = media_credit_text(payload)
     if credit:
         caption += "\n\n<i>🎞️ Fond média : " + esc(credit) + "</i>"
@@ -1780,7 +1868,7 @@ def community_vote_publication(events: list[dict], now: datetime) -> Publication
     return Publication(
         "sondage",
         plain(payload.get("key"), 180),
-        "<b>🗳️ Votez juste en dessous 👇</b>",
+        "<b>🗳️ VOTE DU JOUR</b>\n\nVotez juste en dessous 👇",
         poll=(question, options),
         poll_type="regular",
         poll_description=(
@@ -1812,7 +1900,7 @@ def community_quiz_publication(session: requests.Session, day: date) -> Publicat
     return Publication(
         "quiz",
         plain(payload.get("key"), 180),
-        "<b>🧠 À vous de jouer 👇</b>",
+        "<b>🧠 QUIZ FOOT</b>\n\nÀ vous de jouer 👇",
         poll=(question, options),
         poll_type="quiz",
         correct_option_ids=[int(x) for x in correct],
@@ -1878,7 +1966,7 @@ def community_reaction_publication(events: list[dict], now: datetime) -> Publica
     return Publication(
         "reaction",
         plain(payload.get("key"), 180),
-        "<b>⭐ Donnez votre note juste en dessous 👇</b>",
+        "<b>⭐ VOTRE RÉACTION ?</b>\n\nDonnez votre note juste en dessous 👇",
         poll=(question, options),
         poll_type="regular",
         poll_description=(
@@ -1922,7 +2010,7 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
         if max(map(len, options)) <= 100:
             return Publication(
                 "sondage", "sondage:" + today.isoformat(),
-                "<b>🗳️ Votez juste en dessous 👇</b>", (question, options),
+                "<b>🗳️ VOTE DU JOUR</b>\n\nVotez juste en dessous 👇", (question, options),
                 card={
                     "day": today.strftime("%d/%m/%Y"),
                     "question": question,
@@ -1951,7 +2039,7 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
     question, options = topics[today.toordinal() % len(topics)]
     question = (question + " 💬 Vote puis commente.")[:300]
     return Publication(
-        "sondage", "sondage:" + today.isoformat(), "<b>🗳️ Votez juste en dessous 👇</b>",
+        "sondage", "sondage:" + today.isoformat(), "<b>🗳️ VOTE DU JOUR</b>\n\nVotez juste en dessous 👇",
         (question, options),
         card={
             "day": today.strftime("%d/%m/%Y"),
@@ -2380,7 +2468,11 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
 
     try:
         drain_retryable_outbox(ledger, publish, limit=8)
-        tracked = followup.base_events(state.followed, now)
+        tracked_all = followup.base_events(state.followed, now)
+        tracked = [event for event in tracked_all if popular_live_match(event)]
+        rejected_tracked = len(tracked_all) - len(tracked)
+        if rejected_tracked:
+            print("LIVE_POPULARITY_FILTER_REJECTED_TRACKED", rejected_tracked)
         if not tracked:
             print("FOLLOWUP_NO_SELECTED_MATCH", "fast")
         signals = lifecycle_signals(
@@ -2390,6 +2482,7 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             sender.session,
             importance,
             tracked_only=False,
+            live_filter_fn=popular_live_match,
         )
         signals = persist_canonical_live_events(
             sender.session,
@@ -2444,7 +2537,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
     class_counter = {key: 0 for key in CLASS_BUDGETS}
     try:
         urgent_live_active = any(
-            importance(match) > 0 for match in fetch_supabase_live(sender.session)
+            popular_live_match(match) for match in fetch_supabase_live(sender.session)
         )
     except Exception as exc:
         urgent_live_active = False
@@ -2685,7 +2778,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                     and -timedelta(hours=6) <= kick(e) - now <= timedelta(hours=4)
                     and final_score(e) is None
                     and str(e.get("status") or "").lower() not in ("cancelled", "postponed", "finished")
-                    and importance(e) > 0
+                    and popular_live_match(e)
                 ]
                 if not dry_run:
                     for event in technical[:20]:
@@ -2708,6 +2801,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                     and str(e.get("status") or "").lower() not in
                         ("cancelled", "postponed", "live", "finished")
                     and not state.seen("avant_match:" + str(e["id"]))
+                    and popular_live_match(e)
                 ]
                 if (counter["sent"] < max_send and upcoming
                         and (force or enough(state, "avant_match", now))):

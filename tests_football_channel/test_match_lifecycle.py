@@ -597,6 +597,29 @@ class MatchLifecycleTests(unittest.TestCase):
 
     @patch("football_match_lifecycle.fetch_espn_summary", return_value={})
     @patch("football_match_lifecycle.collect_external")
+    def test_lifecycle_respects_strict_live_filter(self, collect_external, _summary):
+        collect_external.return_value = [{
+            "source": "espn",
+            "id": "espn-obscure",
+            "provider_event_id": "espn-obscure",
+            "home_team": "Bournemouth",
+            "away_team": "Fulham",
+            "home_score": 1,
+            "away_score": 0,
+            "minute": 4,
+            "state": "in",
+            "status_detail": "4'",
+            "event_date": (NOW - timedelta(minutes=4)).isoformat(),
+            "league": "Premier League",
+        }]
+        signals = m.lifecycle_signals(
+            [], set(), NOW, object(), lambda _: 100,
+            live_filter_fn=lambda _: False,
+        )
+        self.assertEqual(signals, [])
+
+    @patch("football_match_lifecycle.fetch_espn_summary", return_value={})
+    @patch("football_match_lifecycle.collect_external")
     def test_lifecycle_can_use_espn_without_bsd(self, collect_external, _summary):
         collect_external.return_value = [{
             "source": "espn",
