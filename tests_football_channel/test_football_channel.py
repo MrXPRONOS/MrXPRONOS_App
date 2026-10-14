@@ -384,6 +384,30 @@ class FootballChannelTests(unittest.TestCase):
         self.assertIn("MATCHS DU JOUR", kwargs["data"]["rich_message"])
         self.assertNotIn("text", kwargs["data"])
 
+    def test_composition_canonique_retablit_heure_depuis_iso(self):
+        signal = {
+            "kind": "composition",
+            "key": "composition:canonical",
+            "home": "Inter Miami CF",
+            "away": "New York City FC",
+            "league": "Football",
+            "source": "ESPN",
+            "kickoff": "2026-10-14T23:30:00+00:00",
+            "home_logo": "https://a.espncdn.com/i/teamlogos/soccer/500/20232.png",
+            "away_logo": "https://a.espncdn.com/i/teamlogos/soccer/500/17606.png",
+            "lineups": {
+                "home": [f"Home {i}" for i in range(1, 12)],
+                "away": [f"Away {i}" for i in range(1, 12)],
+            },
+            "lineup_home_hash": "homehash",
+            "lineup_away_hash": "awayhash",
+            "espn_event_id": "761861",
+            "espn_url": "https://www.espn.com/soccer/match/_/gameId/761861",
+        }
+        post = m.lifecycle_publication(signal)
+        self.assertIsNotNone(post)
+        self.assertEqual(post.card["time"], "23h30")
+
     def test_sender_flash_avec_card_envoie_image_preparee_sans_renderer_flash(self):
         import os
         from unittest.mock import Mock
