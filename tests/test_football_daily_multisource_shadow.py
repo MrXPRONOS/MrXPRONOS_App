@@ -124,6 +124,25 @@ class DailyMultisourceTests(unittest.TestCase):
         self.assertFalse(fixtures[0]["league_verified"])
         self.assertEqual(fixtures[0]["league_labels"],[])
 
+    def test_espn_season_slug_is_only_used_for_whitelisted_leagues(self):
+        trusted=mk("espn")
+        trusted["league"]=""
+        trusted["raw"]={"season":{"slug":"2025-26-english-premier-league"}}
+        fixtures,_=merge({"espn":{"rows":[trusted]}})
+        self.assertEqual(fixtures[0]["league_labels"],["Premier League"])
+        self.assertTrue(fixtures[0]["league_verified"])
+        unknown=mk("espn")
+        unknown["league"]=""
+        unknown["raw"]={"season":{"slug":"2025-26-unverified-friendly-cup"}}
+        result,_=merge({"espn":{"rows":[unknown]}})
+        self.assertEqual(result[0]["league_labels"],[])
+        self.assertFalse(result[0]["league_verified"])
+        invalid=mk("espn")
+        invalid["league"]=""
+        invalid["raw"]={"season":{"slug":"2025-26-english-premier-league-extra"}}
+        result,_=merge({"espn":{"rows":[invalid]}})
+        self.assertFalse(result[0]["league_verified"])
+
     def test_request_host_is_allowlisted(self):
         client = BudgetSession(max_requests=1)
         with self.assertRaises(ValueError):
