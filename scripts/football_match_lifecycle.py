@@ -363,7 +363,7 @@ def persist_canonical_live_events(
             signal.get("source"),
             *((signal.get("sources_used") or []) if isinstance(signal.get("sources_used"), list) else []),
         ):
-            source = _plain(value, 60)
+            source = _plain(value)[:60]
             if source and source not in sources:
                 sources.append(source)
         payload = json.loads(json.dumps(signal, ensure_ascii=False, default=str))
@@ -372,12 +372,12 @@ def persist_canonical_live_events(
             "fixture_key": fixture_key,
             "match_id": match_id or None,
             "kind": kind,
-            "priority_class": _plain(signal.get("priority_class") or "P2", 8),
+            "priority_class": _plain(signal.get("priority_class") or "P2")[:8],
             "event_minute": _score(signal.get("minute")),
-            "score": _plain(signal.get("score"), 30) or None,
+            "score": _plain(signal.get("score"))[:30] or None,
             "home_team": home,
             "away_team": away,
-            "league_name": _plain(signal.get("league"), 120) or None,
+            "league_name": _plain(signal.get("league"))[:120] or None,
             "provider_event_id": _plain(
                 (signal.get("goal") or {}).get("id")
                 if isinstance(signal.get("goal"), dict)
