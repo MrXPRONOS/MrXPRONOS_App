@@ -106,6 +106,24 @@ class DailyMultisourceTests(unittest.TestCase):
         fixtures, _ = merge({"espn": {"rows": [a]}})
         self.assertEqual(fixtures[0]["status"], "not_prematch")
 
+    def test_nested_provider_competition_recovers_only_explicit_league_name(self):
+        raw=mk("sportscore")
+        raw["league"] = "{'name': 'Premier League'}"  # bad upstream stringified dict
+        raw["raw"] = {"competition":{"name":"Premier League","id":42}}
+        normalized=clean_row(raw,"sportscore")
+        self.assertEqual(normalized["league"],"Premier League")
+        fixtures, report=merge({"sportscore":{"rows":[raw]}})
+        self.assertTrue(fixtures[0]["league_verified"])
+        self.assertEqual(fixtures[0]["league_labels"],["Premier League"])
+
+    def test_unlabeled_competition_does_not_claim_to_be_verified(self):
+        raw=mk("espn")
+        raw["league"] = "{'id': 99}"
+        raw["raw"] = {"competitions":[{"league":{"id":99}}]}
+        fixtures, report=merge({"espn":{"rows":[raw]}})
+        self.assertFalse(fixtures[0]["league_verified"])
+        self.assertEqual(fixtures[0]["league_labels"],[])
+
     def test_request_host_is_allowlisted(self):
         client = BudgetSession(max_requests=1)
         with self.assertRaises(ValueError):
