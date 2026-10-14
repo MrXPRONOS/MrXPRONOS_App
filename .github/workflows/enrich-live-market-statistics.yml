@@ -5,6 +5,7 @@ on:
   # (24 fixture-list requests + up to 48 coverage/statistics requests).
   # League/season coverage and empty statistics are now cached in Supabase.
   # Rejected provider calls are retried only after an explicit cooldown.
+  # Operational smoke test: cached unavailable leagues should spend no detail calls.
   schedule:
     - cron: '10 * * * *'
   workflow_dispatch:
