@@ -291,10 +291,10 @@ jobs:
       - name: Collect capped public-domain recent-season historical results
         run: |
           php scripts/football_history_import.php --source=openfootball --seasons=2025-26,2026-27 --max-files=12 --out=tmp/authorized-prematch-history.jsonl
-      - name: Audit today's public sources with lawful historical form (no publishing)
+      - name: Validate external-provider fixtures and H2H through EXISTING BSD V2 core; no publishing
         run: |
           python scripts/football_daily_multisource_shadow.py --day="$(date -u +%F)" --max-http=12 --public-domain-history-jsonl=tmp/authorized-prematch-history.jsonl --out=tmp/fixture-research.json --route-out=tmp/source-route.json --report=tmp/daily-source-quality.json
-          python scripts/football_prematch_probability_shadow.py --routed=tmp/source-route.json --out=tmp/research-only-uncalibrated-probabilities.json --report=tmp/daily-probability-quality.json
+          python scripts/football_external_bsd_v2_adapter.py --historical-jsonl=tmp/authorized-prematch-history.jsonl --daily-union=tmp/fixture-research.json --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" --report=tmp/daily-unchanged-v2-quality.json
           python - <<'PY'
           import json
           report=json.load(open('tmp/daily-source-quality.json'))
@@ -306,10 +306,11 @@ jobs:
           assert report['prematch_readiness']['telegram_posts'] == 0
           assert report['public_domain_history']['production_publishing_allowed'] is False
           assert report['public_domain_history']['no_corners_or_cards_fabricated']
-          quality=json.load(open('tmp/daily-probability-quality.json'))
-          assert quality['ready_for_betting'] is False
-          assert quality['production_outputs_written'] is False
-          print('DAILY_LAWFUL_HISTORICAL_MARKETS', {'goals':report['prematch_readiness']['with_goal_family'],'profiles':quality['probability_profiles_generated'],'history_fixtures':report['public_domain_history']['with_public_domain_goal_features']})
+          validation=json.load(open('tmp/daily-unchanged-v2-quality.json'))
+          assert validation['bsd_v2_core']['calculation_module_modified'] is False
+          assert validation['bsd_v2_core']['production_published'] is False
+          assert validation['bsd_v2_core']['core_predict_v2_function_used'] is True
+          print('DAILY_EXTERNAL_BSD_V2_UNCHANGED', {'adapted_fixtures':validation['fixtures']['ready_for_unchanged_core'],'historical_matches':validation['historical']['usable_historic_matches'],'H2H_matches':validation['bsd_v2_core']['h2h_nonzero_fixtures']})
           PY
       - name: Upload source health summary only
         uses: actions/upload-artifact@v4
@@ -317,7 +318,7 @@ jobs:
           name: football-daily-source-health
           path: |
             tmp/daily-source-quality.json
-            tmp/daily-probability-quality.json
+            tmp/daily-unchanged-v2-quality.json
           retention-days: 7
 
   bsd_actual_archive_validation:
