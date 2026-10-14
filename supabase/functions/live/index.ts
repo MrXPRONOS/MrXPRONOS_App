@@ -4181,6 +4181,22 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
           };
         }
         if (detail?.odds_probe?.available) oddsSectionsDetected++;
+        // Keep direct source observations even when numeric values are
+        // unchanged from the previous refresh. Their presence establishes
+        // SportScore provenance independently of the merged/cached values.
+        const observedStats = detail?.stats || {};
+        const hasObservedStats = ["home", "away"].some((side) =>
+          Object.values(observedStats?.[side] || {}).some((v) => nullableNumber(v) != null)
+        );
+        if (hasObservedStats) {
+          current = {
+            ...current,
+            raw_data: {
+              ...(current?.raw_data || {}),
+              sportscore_detail_observed_stats: observedStats,
+            },
+          };
+        }
         const baselineStats = ensureLiveStatsShape(getMatchLiveStats(current));
         const mergedStats = mergeLiveStats(
           baselineStats,
