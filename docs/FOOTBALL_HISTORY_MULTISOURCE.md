@@ -79,3 +79,52 @@ The experimental read-only GitHub workflow has a proposed daily schedule of **04
 6. Separately fix the known Git rebase conflict in the BSD publishing workflow, without touching its selection logic in this PR.
 
 Coverage is limited by rights and APIs. The software must never claim to analyze every match in every championship or publish unwarranted predicted probabilities.
+
+
+## Mise à jour du 14 octobre 2026 — preuves sur plusieurs saisons
+
+- OpenFootball Premier League 2023-24, 2024-25, 2025-26 et début 2026-27 : 1 158 scores finaux disponibles (353 scores connus sur 380 matchs de 2025-26; 45 sur 380 matchs planifiés 2026-27, à la date du contrôle). Les scores des rencontres futures ne sont jamais utilisés.
+- Évaluation chronologique sur 318 matchs, période 19 octobre 2025 au 20 septembre 2026, sans données du jour. Brier 1X2 : Poisson 0,614427 contre prior de championnat 0,647941; log loss 1X2 : 1,025544 contre 1,069931. Le modèle BTTS (0,237480 contre 0,237210) et Over2.5 (0,248142 contre 0,240748) fait **moins bien** que le prior. La bonne réponse est de bloquer une promotion générale des marchés; seul le 1X2 paraît intéressant à examiner davantage.
+- Aucun backtest apparié BSD V2 n'a encore été exécuté, donc aucune affirmation de supériorité de ce moteur face à BSD n'est permise. Probabilités non calibrées, source historique unique et usage recherche uniquement.
+
+Commande du rapport historique (quatre petits téléchargements publics dans le workflow CI, aucun fichier source téléchargé n'est publié comme artifact) :
+
+\`\`\`bash
+python scripts/football_public_domain_backtest.py \
+  --history-jsonl=tmp/four-season-history.jsonl \
+  --report=tmp/four-season-holdout-quality.json
+\`\`\`
+
+### Résultats du test de collecte réellement effectué
+
+Le 14 octobre 2026, un essai read-only a collecté 2 480 résultats historiques depuis 12 fichiers publics OpenFootball couvrant 2025-26 et 2026-27, puis découvert **284 rencontres du jour** via ESPN, SportScore, TheSportsDB et OpenLigaDB (7 appels de ces 4 APIs). À l'heure de l'essai, **0 nouveau match recevait des statistiques complètes** d'OpenFootball parce que les compétitions du jour étaient largement absentes de son périmètre. Des 284 rencontres : 83 n'avaient pas de championnat confirmé et beaucoup relevaient de championnats nationaux, compétitions de jeunes, ou coupes hors des six ligues historiques couvertes. Ce résultat n'est pas un défaut que l'on corrige en inventant les statistiques.
+
+### Adaptateur historique privé BSD en recherche (sans clé ni archive dans la PR)
+
+Un raccordement optionnel est disponible dans \`scripts/football_bsd_private_history.py\`. Il n'envoie **aucun** match d'archive aux fournisseurs externes, ne déchiffre pas l'archive dans la PR et ne touche pas le générateur \`bsd_v2_publish.py\`. Il produit uniquement des moyennes récentes par équipe, puis attribue les données à la rencontre du jour par deux mécanismes :
+
+1. **Identifiant natif BSD** : le match est reconnu par son identifiant officiel de fixture du jour, ses IDs d'équipes et son coup d'envoi. Les noms et l'heure sont vérifiés; on conserve l'ID natif pour les statistiques et la provenance.
+2. **Match découvert par une autre API** : recherche des deux équipes dans la même ligue, avec correspondances exactes normalisées et **un seul couple (league_id,team_id) possible par équipe**. Si plusieurs équipes ont un même nom, si les IDs divergent ou si le championnat manque, abandon. L'ID historique dérivé n'est jamais présenté comme un ID officiel BSD.
+
+Les matchs BSD historiques doivent être terminés et avoir dépassé **quatre heures depuis leur coup d'envoi**, conformément au moteur BSD V2. Chaque équipe requiert au moins 5 matchs récents valides, avec âge maximal de 240 jours. Le routeur reste inactif pour corners/cartons absents. Aucun événement ou historique privé n'est exporté en artifact. Les sorties locales issues de l'archive sont protégées par permissions 0600 sous Linux.
+
+Commande **uniquement en environnement local de confiance**, avec un historique BSD déjà restauré sur le système autorisé et des droits vérifiés :
+
+\`\`\`bash
+python scripts/football_daily_multisource_shadow.py \
+  --snapshots=/private/daily-snapshots.json \
+  --bsd-fixtures=/private/bsd-fixtures.json \
+  --bsd-private-history-json=/private/all_matches_bsd.json \
+  --authorize-bsd-private-internal-use \
+  --analysis-at=2026-10-14T10:00:00Z \
+  --day=2026-10-14 \
+  --out=/private/day-fixtures.json \
+  --route-out=/private/source-route.json \
+  --report=/private/private-source-coverage.json
+\`\`\`
+
+Cet exemple impose les snapshots hors-ligne parce que \`--analysis-at\` sert seulement à rejouer une ancienne observation. Pour les API en direct, omettre cette option. L'autorisation explicite est requise : sans elle, le script refuse de lire le fichier privé. **Ne jamais attacher ce workflow aux événements pull_request avec les secrets BSD**. Les tests de CI utilisent uniquement de faux matchs locaux, aucun \`BSD_HISTORY_KEY\`.
+
+### Étape de validation essentielle
+
+Une fois la correspondance des équipes et les autorisations confirmées, il faudra confronter les probabilités BSD seules et les probabilités enrichies **sur exactement les mêmes fixtures**, dans chaque famille de marché, avec validation chronologique et calibrage séparé. Il faudra également résoudre la panne de commit concurrente du workflow BSD V2, distincte de ce travail. Aucun déploiement prédictif n'est activé par cette PR.
