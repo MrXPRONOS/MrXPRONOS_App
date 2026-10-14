@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-14T18:39:06+00:00",
+    "published": "2026-10-14T18:50:18+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -32,6 +32,41 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "30518f1e9c7e5075",
+    "title": "Les réseaux s’enflamment après le triplé de Bradley Barcola",
+    "summary": "Tout le monde attendait le premier but de Bradley Barcola sous les couleurs de Liverpool. En difficulté depuis le début de saison, l’attaquant français a répondu à ses détracteurs de la meilleure des (…)",
+    "summary_short": "Tout le monde attendait le premier but de Bradley Barcola sous les couleurs de Liverpool. En difficulté depuis le début de saison, l’attaquant français a répondu à ses détracteurs de la meilleure des (…)",
+    "content": "Tout le monde attendait le premier but de Bradley Barcola sous les couleurs de Liverpool. En difficulté depuis le début de saison, l’attaquant français a répondu à ses détracteurs de la meilleure des (…)",
+    "paragraphs": [
+      "Tout le monde attendait le premier but de Bradley Barcola sous les couleurs de Liverpool. En difficulté depuis le début de saison, l’attaquant français a répondu à ses détracteurs de la meilleure des (…)"
+    ],
+    "key_points": [
+      "Tout le monde attendait le premier but de Bradley Barcola sous les couleurs de Liverpool.",
+      "En difficulté depuis le début de saison, l’attaquant français a répondu à ses détracteurs de la meilleure des (…)"
+    ],
+    "telegram_summary": "Tout le monde attendait le premier but de Bradley Barcola sous les couleurs de Liverpool. En difficulté depuis le début de saison, l’attaquant français a répondu à ses détracteurs de la meilleure des (…)",
+    "link": "https://www.footmercato.net/a8936878133642453679-les-reseaux-senflamment-apres-le-triple-de-bradley-barcola",
+    "source_url": "https://www.footmercato.net/a8936878133642453679-les-reseaux-senflamment-apres-le-triple-de-bradley-barcola",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=30518f1e9c7e5075",
+    "published": "2026-10-14T18:47:41+00:00",
+    "image": "assets/images/footnews/30518f1e9c7e5075.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/barcola-6acfc6767a780.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Déclarations",
+    "category_emoji": "🗣️",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
   },
   {
     "slug": "c34a08de2a80175d",
@@ -121,7 +156,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -183,7 +218,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -242,7 +277,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -305,7 +340,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -467,7 +502,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -674,7 +709,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -787,6 +822,74 @@
     "quality_score": 86
   },
   {
+    "slug": "7628f643096931ac",
+    "title": "DIRECT. Manchester City-PSG : Dembélé, Zaïre-Emery et Akliouche titulaires avec Paris... Suivez et commentez le match de Ligue des champions avec nous",
+    "summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "summary_short": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "content": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "paragraphs": [
+      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
+    ],
+    "key_points": [
+      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
+    ],
+    "telegram_summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
+    "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
+    "published": "2026-10-14T18:50:18+00:00",
+    "image": "assets/images/footnews/7628f643096931ac.webp",
+    "source_image": "https://www.franceinfo.fr/pictures/BKUU7M0ahDdkOj3-O9bTAXxuKBc/0x0:1024x576/432x243/filters:format(jpg)/2026/10/14/6acf8fa0ad0a1270898331.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Franceinfo"
+    ],
+    "quality_score": 82
+  },
+  {
+    "slug": "937b7a59d7a454a7",
+    "title": "LDC : Porté par un triplé de Bradley Barcola, Liverpool s'impose à LASK, Feyenoord s'offre Côme... le résumé des matchs de 18h45",
+    "summary": "Le récap' des matchs LASK - Liverpool (3-6) et Feyenoord - Côme (3-2) (J2 LDC).",
+    "summary_short": "Le récap' des matchs LASK - Liverpool (3-6) et Feyenoord - Côme (3-2) (J2 LDC).",
+    "content": "Le récap' des matchs LASK - Liverpool (3-6) et Feyenoord - Côme (3-2) (J2 LDC).",
+    "paragraphs": [
+      "Le récap' des matchs LASK - Liverpool (3-6) et Feyenoord - Côme (3-2) (J2 LDC)."
+    ],
+    "key_points": [
+      "Le récap' des matchs LASK - Liverpool (3-6) et Feyenoord - Côme (3-2) (J2 LDC)."
+    ],
+    "telegram_summary": "Le récap' des matchs LASK - Liverpool (3-6) et Feyenoord - Côme (3-2) (J2 LDC).",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ldc-porte-par-un-triple-de-bradley-barcola-liverpool-s-impose-a-lask-feyenoord-s-offre-come-le-resume-des-matchs-de-18h45-542227.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-porte-par-un-triple-de-bradley-barcola-liverpool-s-impose-a-lask-feyenoord-s-offre-come-le-resume-des-matchs-de-18h45-542227.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=937b7a59d7a454a7",
+    "published": "2026-10-14T18:44:00+00:00",
+    "image": "assets/images/footnews/937b7a59d7a454a7.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20261014204350-7712.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
     "slug": "1d698d6cddf6f780",
     "title": "Ligue des Champions : le triplé de Barcola porte Liverpool, Feyenoord renverse Côme",
     "summary": "Suite de cette 2e journée de Ligue des Champions avec le déplacement attendu de Liverpool sur le terrain de LASK. Le club anglais devait une revanche à ses supporters après avoir été giflé à domicile (…)",
@@ -839,47 +942,13 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
       "ESPN"
     ],
     "quality_score": 100
-  },
-  {
-    "slug": "7628f643096931ac",
-    "title": "DIRECT. Manchester City-PSG : Dembélé, Zaïre-Emery et Akliouche titulaires avec Paris... Suivez et commentez le match de Ligue des champions avec nous",
-    "summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
-    "summary_short": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
-    "content": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
-    "paragraphs": [
-      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
-    ],
-    "key_points": [
-      "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi."
-    ],
-    "telegram_summary": "Leader de Premier League, Manchester City accueille le PSG pour la deuxième journée de la saison régulière de Ligue des champions, mercredi.",
-    "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
-    "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
-    "published": "2026-10-14T18:39:06+00:00",
-    "image": "assets/images/footnews/7628f643096931ac.webp",
-    "source_image": "https://www.franceinfo.fr/pictures/BKUU7M0ahDdkOj3-O9bTAXxuKBc/0x0:1024x576/432x243/filters:format(jpg)/2026/10/14/6acf8fa0ad0a1270898331.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Franceinfo",
-    "source_priority": 82,
-    "source_region": "international",
-    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Franceinfo"
-    ],
-    "quality_score": 82
   },
   {
     "slug": "e4aa4e6151d2e87f",
@@ -939,7 +1008,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1031,7 +1100,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1191,7 +1260,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -1290,7 +1359,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1352,7 +1421,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1445,7 +1514,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1538,7 +1607,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1600,7 +1669,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1660,7 +1729,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1720,7 +1789,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1816,7 +1885,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-14T18:45:34.538761+00:00"
+      "checked_at": "2026-10-14T18:50:32.370001+00:00"
     },
     "quality_sources": [
       "RFI",
@@ -2304,41 +2373,6 @@
     "quality_score": 86
   },
   {
-    "slug": "297bebdbfeb72aba",
-    "title": "Didier Deschamps fait machine arrière dans son procès contre Daniel Riolo",
-    "summary": "C’est un nouveau rebondissement dans l’affaire opposant Didier Deschamps à Daniel Riolo. Alors qu’un procès en appel devait se tenir le 13 janvier 2027 devant la cour d’appel de Paris, l’ancien (…)",
-    "summary_short": "C’est un nouveau rebondissement dans l’affaire opposant Didier Deschamps à Daniel Riolo. Alors qu’un procès en appel devait se tenir le 13 janvier 2027 devant la cour d’appel de Paris, l’ancien (…)",
-    "content": "C’est un nouveau rebondissement dans l’affaire opposant Didier Deschamps à Daniel Riolo. Alors qu’un procès en appel devait se tenir le 13 janvier 2027 devant la cour d’appel de Paris, l’ancien (…)",
-    "paragraphs": [
-      "C’est un nouveau rebondissement dans l’affaire opposant Didier Deschamps à Daniel Riolo. Alors qu’un procès en appel devait se tenir le 13 janvier 2027 devant la cour d’appel de Paris, l’ancien (…)"
-    ],
-    "key_points": [
-      "C’est un nouveau rebondissement dans l’affaire opposant Didier Deschamps à Daniel Riolo.",
-      "Alors qu’un procès en appel devait se tenir le 13 janvier 2027 devant la cour d’appel de Paris, l’ancien (…)"
-    ],
-    "telegram_summary": "C’est un nouveau rebondissement dans l’affaire opposant Didier Deschamps à Daniel Riolo. Alors qu’un procès en appel devait se tenir le 13 janvier 2027 devant la cour d’appel de Paris, l’ancien (…)",
-    "link": "https://www.footmercato.net/a6051281639044980428-didier-deschamps-fait-machine-arriere-dans-son-proces-contre-daniel-riolo",
-    "source_url": "https://www.footmercato.net/a6051281639044980428-didier-deschamps-fait-machine-arriere-dans-son-proces-contre-daniel-riolo",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=297bebdbfeb72aba",
-    "published": "2026-10-14T15:35:33+00:00",
-    "image": "assets/images/footnews/297bebdbfeb72aba.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxpaimagesfour656880-1920x1080.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
     "slug": "714ba6ea4a67cb2e",
     "title": "OM : Deux absents de taille à l'entraînement avant le choc face à l'Olympiakos",
     "summary": "L'OM a entraînement ce mercredi après-midi à la veille du choc contre l'Olympiakos au Vélodrome.",
@@ -2439,42 +2473,6 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "95f3d4b8043c8ca0",
-    "title": "Real : où est passé Bernardo Silva ?",
-    "summary": "Arrivé libre de Manchester City cet été, Bernardo Silva devait apporter son expérience et sa créativité au Real Madrid. Deux mois plus tard, le Portugais ne joue presque plus. Un déclassement inattendu pour un joueur personnellement désiré par José Mourinho, dont le recrutement commence déjà à interroger....",
-    "summary_short": "Arrivé libre de Manchester City cet été, Bernardo Silva devait apporter son expérience et sa créativité au Real Madrid. Deux mois plus tard, le Portugais ne joue presque plus. Un déclassement inattendu pour un joueur personnellement désiré par José Mourinho, dont le recrutement commence déjà à interroger....",
-    "content": "Arrivé libre de Manchester City cet été, Bernardo Silva devait apporter son expérience et sa créativité au Real Madrid. Deux mois plus tard, le Portugais ne joue presque plus. Un déclassement inattendu pour un joueur personnellement désiré par José Mourinho, dont le recrutement commence déjà à interroger....",
-    "paragraphs": [
-      "Arrivé libre de Manchester City cet été, Bernardo Silva devait apporter son expérience et sa créativité au Real Madrid. Deux mois plus tard, le Portugais ne joue presque plus. Un déclassement inattendu pour un joueur personnellement désiré par José Mourinho, dont le recrutement commence déjà à interroger...."
-    ],
-    "key_points": [
-      "Arrivé libre de Manchester City cet été, Bernardo Silva devait apporter son expérience et sa créativité au Real Madrid.",
-      "Deux mois plus tard, le Portugais ne joue presque plus.",
-      "Un déclassement inattendu pour un joueur personnellement désiré par José Mourinho, dont le recrutement commence déjà à interroger...."
-    ],
-    "telegram_summary": "Arrivé libre de Manchester City cet été, Bernardo Silva devait apporter son expérience et sa créativité au Real Madrid. Deux mois plus tard, le Portugais ne joue presque plus. Un déclassement inattendu pour un joueur personnellement désiré par José Mourinho, dont le recrutement commence déjà à interroger....",
-    "link": "https://m.maxifoot.fr/football/article-66262.htm",
-    "source_url": "https://m.maxifoot.fr/football/article-66262.htm",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=95f3d4b8043c8ca0",
-    "published": "2026-10-14T15:12:18+00:00",
-    "image": "assets/images/footnews/95f3d4b8043c8ca0.webp",
-    "source_image": "https://photo.maxifoot.fr/real-madrid-silva-1.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Maxifoot",
-    "source_priority": 78,
-    "source_region": "international",
-    "source_feed": "http://rss.maxifoot.com/football-general.xml",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Maxifoot"
-    ],
-    "quality_score": 78
   },
   {
     "slug": "16f5e6cd2534783c",
