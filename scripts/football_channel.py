@@ -60,11 +60,30 @@ TZ = ZoneInfo("Africa/Lome")
 STATE_PATH = Path(os.getenv("FOOTBALL_NEWS_STATE", ".state/mrxpronos-football.json"))
 RSS_URL = os.getenv("FOOTBALL_RSS_FEED", "https://www.footmercato.net/flux-rss")
 NEWS_CHAT_ENV = "FOOTBALL_NEWS_CHAT_ID"
-MAX_MESSAGES_PER_RUN = 2
-LIMITS = {"flash": 2, "programme": 1, "avant_match": 2, "resultat": 2,
-          "statistique": 1, "sondage": 1, "quiz": 1, "debat": 1,
-          "reaction": 1, "viral": 1, "composition": 6, "kickoff": 8,
-          "goal": 14, "mi_temps": 8, "score_update": 32, "suivi_interrompu": 8}
+MAX_MESSAGES_PER_RUN = 8
+LIMITS = {
+    "flash": 3, "programme": 1, "avant_match": 2, "resultat": 12,
+    "statistique": 1, "sondage": 1, "quiz": 1, "debat": 1,
+    "reaction": 1, "viral": 1, "composition": 12, "changement_composition": 12,
+    "kickoff": 12, "goal": 48, "mi_temps": 12, "mi_temps_prolongation": 12,
+    "debut_2e_mi_temps": 12, "temps_additionnel": 12, "prolongation": 12,
+    "carton_rouge": 48, "carton_jaune": 24, "remplacement": 36,
+    "tirs_au_but": 12, "tir_au_but_marque": 48, "tir_au_but_manque": 48,
+    "fin_tirs_au_but": 12, "score_update": 24, "suivi_interrompu": 12,
+}
+P0_CATEGORIES = {
+    "goal", "carton_rouge", "resultat", "suivi_interrompu",
+    "tirs_au_but", "tir_au_but_marque", "tir_au_but_manque", "fin_tirs_au_but",
+}
+P1_CATEGORIES = {
+    "composition", "changement_composition", "kickoff", "mi_temps",
+    "mi_temps_prolongation", "debut_2e_mi_temps", "temps_additionnel",
+    "prolongation", "remplacement",
+}
+P2_CATEGORIES = {"score_update", "carton_jaune", "flash"}
+P3_CATEGORIES = {"programme", "avant_match"}
+P4_CATEGORIES = {"statistique", "sondage", "quiz", "debat", "reaction", "viral"}
+CLASS_BUDGETS = {"P0": 6, "P1": 4, "P2": 2, "P3": 2, "P4": 1}
 LEAGUE_TERMS = (
     "champions league", "premier league", "ligue 1", "la liga", "laliga",
     "serie a", "bundesliga", "europa league", "coupe du monde", "world cup",
@@ -1718,8 +1737,22 @@ def followed_final_publication(signal: dict) -> Publication | None:
     )
 
 
+def priority_class(category: str) -> str:
+    if category in P0_CATEGORIES:
+        return "P0"
+    if category in P1_CATEGORIES:
+        return "P1"
+    if category in P2_CATEGORIES:
+        return "P2"
+    if category in P3_CATEGORIES:
+        return "P3"
+    return "P4"
+
+
 def enough(history: History, cat: str, now: datetime) -> bool:
-    return history.count(cat, now.astimezone(TZ).date()) < LIMITS[cat]
+    if cat in P0_CATEGORIES:
+        return True
+    return history.count(cat, now.astimezone(TZ).date()) < LIMITS.get(cat, 999)
 
 
 
