@@ -75,29 +75,64 @@ def _unknown(label: str) -> str:
     return label + " : <i>non communiqué</i>"
 
 
-def live_keyboard(payload: dict[str, Any], *, include_live: bool = True) -> dict[str, Any] | None:
-    """Small, action-oriented keyboard; never add decorative buttons."""
+def compact_keyboard_rows(buttons: list[dict[str, str]]) -> list[list[dict[str, str]]]:
+    """Place les boutons courts sur la même ligne quand la lecture reste claire.
+
+    Telegram adapte ensuite la largeur réelle à l'écran. On évite seulement
+    de forcer trois libellés trop longs sur une ligne.
+    """
+    clean_buttons = [button for button in buttons if button.get("text") and button.get("url")]
+    if not clean_buttons:
+        return []
+
+    if len(clean_buttons) <= 3:
+        total = sum(len(str(button.get("text") or "")) for button in clean_buttons)
+        if total <= 30:
+            return [clean_buttons]
+
     rows: list[list[dict[str, str]]] = []
+    index = 0
+    while index < len(clean_buttons):
+        current = clean_buttons[index]
+        if index + 1 < len(clean_buttons):
+            nxt = clean_buttons[index + 1]
+            combined = len(str(current.get("text") or "")) + len(str(nxt.get("text") or ""))
+            if combined <= 32:
+                rows.append([current, nxt])
+                index += 2
+                continue
+        rows.append([current])
+        index += 1
+    return rows
+
+
+def live_keyboard(payload: dict[str, Any], *, include_live: bool = True) -> dict[str, Any] | None:
+    """Small, action-oriented keyboard; short actions share a row."""
+    buttons: list[dict[str, str]] = []
     if include_live:
-        rows.append([{
-            "text": "⚡ LIVE DU MATCH",
+        buttons.append({
+            "text": "⚡ Live",
             "url": LIVE_URL,
             "style": "primary",
-        }])
+        })
+
     espn = _plain(payload.get("espn_url"), 600)
     if espn.startswith("https://www.espn.com/"):
-        rows.append([{
-            "text": "✅ Vérifier sur ESPN",
+        buttons.append({
+            "text": "✅ ESPN",
             "url": espn,
             "style": "success",
-        }])
+        })
+
     url = _plain(payload.get("url") or payload.get("article_url"), 600)
     if url.startswith("https://"):
-        rows.append([{
-            "text": "📰 Lire l’article ↗",
+        buttons.append({
+            "text": "📰 Article",
             "url": url,
             "style": "primary",
-        }])
+        })
+
+    rows = compact_keyboard_rows(buttons)
     return {"inline_keyboard": rows} if rows else None
 
 
