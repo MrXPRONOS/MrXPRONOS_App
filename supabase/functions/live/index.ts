@@ -3832,7 +3832,6 @@ function regionalEspnLeaguesForFreeMatches(matches:any[]):string[]{
     if(/costa rica|liga fpd|primera.*costa/.test(league))found.add("crc.1");
     if(/sudamericana/.test(league))found.add("conmebol.sudamericana");
     if(/friendly|amical/.test(league)&&
-       /women|female|feminin|feminin|f/.test(home+" "+away) &&
        /women/.test(home) && /women/.test(away))found.add("fifa.friendly.w");
   }
   return [...found].slice(0,3);
