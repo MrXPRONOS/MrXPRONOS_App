@@ -1,113 +1,81 @@
-# Multisource historical research – isolated shadow mode
+# Mr XPRONOS — multisource prematch research, licensed sources only
 
-BSD V2 remains authoritative for daily predictions. Its 2024–2026 encrypted archive stays private. Nothing in this feature runs from existing production workflows, writes data.json, updates private BSD history, changes model thresholds, calls Supabase, or sends Telegram notifications.
+## Current status
 
-## Run on a local machine
-1. PHP syntax and parser tests: php -l scripts/football_history_import.php ; php scripts/football_history_import.php --self-test
-2. Historical collection: php scripts/football_history_import.php --source=both --seasons=2024-25,2025-26 --max-files=24 --out=tmp/history-raw.jsonl
-3. Merge and conflict report: python scripts/football_history_shadow.py --input=tmp/history-raw.jsonl --output=tmp/history-shadow.json --report=tmp/history-quality.json
-4. Tests: python -m unittest discover -s tests -p test_football_history_shadow.py -v
+This is an ISOLATED research system on PR #96; it has no authority to modify BSD V2, GitHub Pages data.json, Supabase, bookmaker prices, or Telegram. The goal is to inventory as many daily fixtures as accessible through approved providers, choose the most useful trusted statistics source **for each individual game and each market family**, and evaluate improvements chronologically before any activation.
 
-The GitHub Actions workflow can be launched manually on the feature branch for a capped historical probe. Pull requests only run offline syntax and parser tests.
+### Provider terms / legal boundary (2026-10-14)
 
-## Source policy
-- BSD is the reference match/history provider; never disclose its private archive.
-- OpenFootball provides freely licensed historical results; not necessarily real-time fixtures.
-- Football-Data.co.uk provides historical CSVs. Respect terms before redistributing original data.
-- ESPN, SportScore, TheSportsDB and OpenLigaDB already serve the daily supplementary collection; they are NOT automatically BSD model-training inputs.
-- API-Football is currently LIVE-oriented and has plan limitations; not yet part of daily training.
+- **OpenFootball / football.json**: explicitly public domain; permitted automated historical collection from its fixed GitHub raw JSON endpoints. https://github.com/openfootball/football.json
+- **Football-Data.co.uk**: the provider expressly says its public downloads are **for private individuals and not commercial/AI data-training products using automated scrapers or bots**. Its automated collection was removed. Do not collect or reuse those data commercially without an appropriate license. https://football-data.co.uk/contact.php
+- **Licensed CSV**: the PHP module retains a parser tested solely on *synthetic in-memory examples*; it does not download CSVs and is not connected to production. Only customer-owned or explicitly licensed datasets may be connected after rights verification.
+- **BSD**: production provider and encrypted proprietary archive; remain private. Additional historical source use depends on contractual rights.
+- **ESPN / SportScore / TheSportsDB / OpenLigaDB**: pre-existing public-source adapters. Their eligibility for commercial/model use must be assessed provider by provider, not inferred from publicly accessible endpoints.
+- **API-Football**: existing quota-sensitive LIVE integration; in this experimental daily program it can be added via a licensed, pre-collected fixture snapshot without consuming LIVE quota.
 
-## Trust and safety
-Historical files use fixed allowlisted endpoints, no login/captcha bypass or undocumented crawling, a maximum of 120 files from PHP and stricter limit of 48 in Actions, plus delay between requests. Raw data is never uploaded as an artifact.
-Merge uses normalized exact date, league, home and away names. Matches with differing scores are quarantined. Exact normalization is provisional and can still merge homonyms; therefore ALL rows are marked for_training=false, and the quality report declares publication_enabled=false. No prediction performance claims are made from this dataset.
+Do not automatically crawl websites or bypass authentication/rate restrictions. Public access alone does **not** imply commercial reuse permission.
 
-## Remaining integration stages
-1. Manually verify source accessibility, licensing, historical CSV and JSON schema, and coverage statistics.
-2. Build stable team and competition ID mappings, plus kickoff, gender, reserve-team and alias checks.
-3. Add capped adapters for ESPN, SportScore, TheSportsDB, OpenLigaDB, API-Football and BSD historical features with provenance and quotas.
-4. Run chronological out-of-sample shadow backtests against the existing BSD-only baseline. Never use future outcomes in features.
-5. Only if performance measurably improves and after approval, enable a feature-flagged daily contribution to model calculations.
-6. Resolve production race causing git rebase conflicts independently of this experimental work.
+## Automated public-domain historical import
 
-Do not commit raw licensed datasets, secrets, plaintext BSD archive, or generated predictions.
+\`\`\`bash
+php scripts/football_history_import.php --self-test
+php scripts/football_history_import.php --source=openfootball --seasons=2024-25,2025-26 --max-files=12 --out=tmp/openfootball.jsonl
+python scripts/football_history_shadow.py --input=tmp/openfootball.jsonl --output=tmp/historical-shadow.json --report=tmp/historical-quality.json
+\`\`\`
 
-## Production-free daily multisource audit
+The importer accepts only OpenFootball JSON from the allowlisted GitHub raw domain. Historical rows include league, match day, teams, verified final scores when available, provider ID, and source provenance. Some OpenFootball data include halftime results. It does not include reliable corners/cards/shot counts for all matches.
 
-Command:
+**Important**: One OpenFootball source does not independently verify itself. The canonical-history module requires results from **at least two separate, authorized providers** before marking a match multi-source confirmed. With only public-domain OpenFootball in the automated job, no rows are automatically approved for cross-source training. Previous exploratory Football-Data comparisons must not be reused as a commercial training dataset.
 
-```bash
+## Daily union and source priorities
+
+\`\`\`bash
 python -m pip install requests
-python scripts/football_daily_multisource_shadow.py --day=2026-10-14 --max-http=12 --out=tmp/day-shadow.json --report=tmp/day-health.json
-```
+python scripts/football_daily_multisource_shadow.py --day=2026-10-14 --max-http=12 --out=tmp/fixtures.json --route-out=tmp/source-selection.json --report=tmp/source-health.json
+\`\`\`
 
-The daily collector reuses the original ESPN, SportScore, TheSportsDB and OpenLigaDB adapters. BSD can be supplied with `--bsd-fixtures=<private-local-fixtures.json>` to compare with BSD's authoritative fixture IDs. An existing API-Football `/fixtures` response can be supplied using `--api-football-fixtures=<local-json>`, **without any additional API-Football request**, to preserve the separate LIVE key's quota. Historical OpenFootball and Football-Data are used for *history*, not a live slate.
+The research collector reuses ESPN, SportScore, TheSportsDB and OpenLigaDB adapters with 12-HTTP-request cap and cache. Other providers can contribute from a local, authorized snapshot:
 
-Verified at 2026-10-14 03:00 UTC: 88 ESPN, 200 SportScore, 3 TheSportsDB and 0 OpenLigaDB events; 285 distinct fixtures, 4 cross-provider corroborations and 7 HTTP calls. This is only a day's coverage sample. A zero provider count must not be presented as definitive outage without inspecting provider health and coverage.
-
-## Historical coverage validation
-
-The real test of `2024-25` Premier League returned 380 finished matches from **each** of OpenFootball and Football-Data (760 source rows). Initial strict string comparison had zero joins. Removing only a terminal `FC` designator increased reliable-name joins to **72 fixture agreements**; no conflicting final scores were observed among these 72. Other fixtures remain separate until a trustworthy team-ID/alias mapping is validated. This is an intersection of sources, **not** 760 different football matches.
-
-Prepare manual review suggestions for the remaining aliases:
-
-```bash
-python scripts/football_alias_candidates.py --input=tmp/history-raw.jsonl --out=tmp/aliases-to-review.json
-```
-
-Review proposals independently: matching on the same final score and date does *not* prove fixture identity. Alias proposals have `approved=false` and are never automatically promoted to the trusted archive.
-
-## Leakage-safe research features
-
-```bash
-python scripts/football_history_features.py --history=tmp/history-shadow.json --fixtures=tmp/day-shadow.json --out=tmp/feature-candidates.json --report=tmp/feature-coverage.json
-```
-
-Creates descriptive home/away form values and historical BTTS/Over2.5 rates **only** when each target team has at least five prior confirmed matches in the same verified competition. These rates summarize earlier results; they are not calibrated probabilities, guaranteed outcomes or market odds. Events on and after the target match's UTC day are rejected to avoid hindsight and leakage. No production model imports this file yet.
-
-### Rollout gates (do not skip)
-1. Audit licenses, provider budgets, team and competition identifiers, season overlaps and accuracy of scores.
-2. Expand independently verified history and date-stamped features; quarantine ambiguous aliases and conflicting source facts.
-3. Add a chronological baseline-vs-multisource shadow backtest on the same markets with proper probability calibration and out-of-sample separation. Enforce minimum sample size.
-4. Integrate only demonstrated incremental signal into BSD V2 behind a **default-off** feature flag, keeping published fixture IDs and picks stable.
-5. Repair the independent GitHub workflow publication conflict before scheduling additional writers. This research workflow has contents:read and no Telegram, Supabase or production write privileges.
-
-## Per-match source preference for daily prematch predictions
-
-This is a research implementation of the requested **source-origin-first where reliable** strategy. Every provider's fixture ID stays distinct. A daily union keeps unique fixtures across competitions. Matching requires exact normalized home/away names, <=90-minute UTC kickoff difference, no conflicting explicit competition labels, and ambiguity protection. Do not use approximate team names to merge junior/women's/reserve fixtures.
-
-For each verified fixture, `scripts/football_match_source_router.py` selects a **provider separately by market family**, not globally. Selection requires an actual independent, complete feature set. Missing values are never replaced with zero.
-
-Families:
-- goals: both teams' for/against historical goals
-- BTTS: both teams' historical BTTS rates
-- totals: both teams' historical over-2.5 rates
-- corners: both teams' historical corner rates
-- cards: both teams' historical yellow-card rates
-
-A market family is eligible only if the provider record supplies (a) matching provider fixture ID, (b) verified match identity and usage rights, (c) both team sample sizes >=5, (d) complete finite bounded metrics, (e) historical observation cutoff and source snapshot no later than the analysis timestamp and **before kickoff**, and (f) phase=prematch. Any ambiguity, source disagreement or past kickoff blocks the analysis. The source that found the match remains as `discovered_by` and has origin preference when evidence quality permits; a different source with more historical coverage is allowed as fallback. Source priority ordering is a **provisional heuristic** until provider reliability has been measured retrospectively per championship and market.
-
-Example:
-```bash
+\`\`\`bash
 python scripts/football_daily_multisource_shadow.py --day=2026-10-14 \
-    --max-http=12 --bsd-fixtures=/private/bsd-fixtures.json \
-    --prematch-stats=/private/provider-metrics.json \
-    --verified-history=/private/crosschecked-history.json \
-    --out=tmp/all-day-fixtures.json --route-out=tmp/market-provenance.json \
-    --historical-feature-out=tmp/historical-form.json --report=tmp/source-health.json
-```
+   --bsd-fixtures=/private/bsd-fixtures.json \
+   --api-football-fixtures=/private/licensed-api-football-fixtures.json \
+   --prematch-stats=/private/validated-provider-stats.json \
+   --out=tmp/fixtures.json --route-out=tmp/source-selection.json \
+   --report=tmp/source-health.json
+\`\`\`
 
-**Provider statistics input shape**: an object by provider and original provider fixture ID. Each value requires `provider_fixture_id`, `phase:"prematch"`, `observed_at` and `history_until` as offset-aware ISO timestamps, `samples:{home,away}`, `verified_identity:true`, `license_ok:true`, and `families:{goals:{home_goals_for,home_goals_against,away_goals_for,away_goals_against},...}`. The caller must independently verify the latter two booleans; setting them does not prove validity. No automatic live-statistics fetch is performed by the source router. The live-prediction workflow is unchanged.
+Every match retains discovery source, individual original provider IDs, UTC kickoff and competition labels, plus ambiguity and final-score disagreement flags. Strict home/away identity, league, and kickoff checks guard against joining different games or youth/women/reserve teams accidentally. Similar names are never blindly joined. Matches with no trustworthy data remain in the fixture inventory but not in eligible market analysis.
 
-```bash
+The per-market router selects among verified observations for GOALS, BTTS, TOTALS, CORNERS, and CARDS. A complete feature family requires stable original provider fixture ID, authorized use, sample >= 5 per team, complete finite values, dates of historical cutoff and snapshot collection *before both the time of analysis and kickoff*, plus no identity ambiguities. **Never substitute zero for missing statistics.** Provider reliability lists are provisional heuristics until measured on independent historical cases; the discovering provider may be used first when data quality is comparable, with per-family fallback.
+
+JSON expected for \`--prematch-stats\`: \`{ "provider": { "source_fixture_id": { "provider_fixture_id": "source_fixture_id", "phase": "prematch", "observed_at": "2026-10-14T08:00:00Z", "history_until": "2026-10-13T23:00:00Z", "samples": {"home": 12, "away": 10}, "verified_identity": true, "license_ok": true, "families": { "goals": { "home_goals_for": 1.4, "home_goals_against": 1.0, "away_goals_for": 1.3, "away_goals_against": 1.2 } } } } }\`.
+
+These example booleans require actual external verification by the ingest pipeline. A user-supplied true flag alone is not proof of commercial rights.
+
+## Historic forms and experimental probability baseline
+
+Authorized, cross-provider-confirmed match history can be added through \`--verified-history=...\` and \`--historical-feature-out=...\`. The strict history feature builder computes team goal averages, BTTS, totals, and, only for a separately authorized supplementary provider with enough observed records, corners, shots and cards. Each supplementary source remains separately attributable; a single provider's corner counts are not presented as independently validated.
+
+\`\`\`bash
 python scripts/football_prematch_probability_shadow.py \
-   --routed=tmp/market-provenance.json --history=/private/crosschecked-history.json \
-   --out=tmp/uncalibrated-probabilities.json --report=tmp/chronological-check.json
-```
+  --routed=tmp/source-selection.json \
+  --out=tmp/uncalibrated-probabilities.json \
+  --report=tmp/chronological-quality.json
+\`\`\`
 
-The Poisson baseline produces **uncalibrated research probabilities only** for matches whose GOALS family is ready. It refuses to invent predictions for others, and has no bookmaker odds, value-bet qualification, publication logic, VIP categorization or Telegram integration. Its chronological diagnostic uses only earlier calendar days. Results must be compared against BSD V2 on identical historical test fixtures before any strategy change.
+This is an **uncalibrated Poisson baseline**, not approved recommendations. It generates no betting signals, no VIP selections, and no Telegram posts. It abstains unless goal statistics pass every timestamp and identity gate. Optional chronological diagnostics deliberately exclude results occurring on or after the target fixture day. A broad (>=200 scored games) authorized out-of-sample test and direct BSD V2 comparison on identical fixtures are still needed before using probabilities to choose markets.
 
-Historical CSV data from Football-Data can now retain corners, shots, shots on target, fouls, yellow/red cards and halftime scores with per-provider provenance. These supplementary stats are marked `independently_verified_statistic=false` unless independently checked; only score-agreed historical matches can enter experimental form summaries. Do not infer a missing statistic is zero.
+## Automation and deployment
 
-When this draft PR is merged, the experimental workflow's proposed schedule is **04:15 UTC daily** (Africa/Lomé: 04:15) using 12 capped, free-source HTTP calls at most. GitHub Actions schedules run from the default branch; **no scheduled daily job from this draft branch is active yet**. The schedule writes only short research health artifacts, not prediction data or Telegram posts. BSD/API-Football can contribute when appropriately validated snapshots are passed in without consuming additional LIVE account quotas.
+The experimental read-only GitHub workflow has a proposed daily schedule of **04:15 UTC**. GitHub Actions schedules run from the repository default branch; nothing is scheduled from this draft feature branch. It only uploads small source-health summaries, never original match datasets or plaintext BSD archives. Neither LIVE predictions nor existing daily BSD V2 generation is modified.
 
-**Still missing before production**: per-provider historical API adapters for full competition coverage and pregame snapshots, exact team/competition ID concordance, audited provider usage rights, validated real-time budgets, calibrated out-of-sample comparisons with BSD V2, and a supervised default-off activation flag. Full worldwide fixture coverage cannot be guaranteed by these providers.
+### Gates still open before production
+1. Audit explicit rights, quotas, provider sports coverage and stable team/league identifiers.
+2. Create verified daily pregame feature snapshots for each provider, prioritizing its own fixtures; use another source only when validated.
+3. Measure source-level historic accuracy and missingness per competition and market.
+4. Expand authorized matched history, test chronologically against BSD-only, calibrate probabilities, exclude future data.
+5. Add default-disabled BSD production feature flag only after measurable benefit. Keep previously published picks immutable.
+6. Separately fix the known Git rebase conflict in the BSD publishing workflow, without touching its selection logic in this PR.
+
+Coverage is limited by rights and APIs. The software must never claim to analyze every match in every championship or publish unwarranted predicted probabilities.
