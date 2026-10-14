@@ -582,6 +582,15 @@ jobs:
           assert report['production_modified'] is False
           assert report['calibrated_production_coupons'] == 0
           assert report['no_odds_invented'] is True
+          gate=report['no_bookmaker_quote_gate']
+          assert gate['used_original_predict_v2'] is True
+          assert gate['fixtures_checked'] == report['qualified_external_fixtures']
+          assert gate['accepted_with_no_bookmaker_quotes'] == 0
+          assert gate['actual_bookmaker_quotes_supplied'] is False
+          assert gate['full_publication_policy_checked'] is False
+          assert gate['publication_enabled'] is False
+          if gate['fixtures_checked']:
+              assert gate['missing_or_low_odds_market_rejections'] > 0
           assert 'telegram' not in report
           assert report['input_api_fixtures'] == fixtures['total_fixtures']
           assert report['calendar_corroborated_fixtures'] <= calendar['coverage']['schedule_matches_confirmed']
