@@ -78,6 +78,7 @@ def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict) -> dict:
             "time_forward_out_of_sample_validation_approved",
             "end_to_end_production_and_telegram_regression_approved",
         ) if not checks[key]
+    ]
     return {
         "decision": "NO_GO",
         "production_publication_authorized": False,
