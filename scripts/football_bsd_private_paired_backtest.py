@@ -17,6 +17,8 @@ import json
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 if str(ROOT / "bsd") not in sys.path:
     sys.path.insert(0, str(ROOT / "bsd"))
 from bsd_v2_core import V2History, estimate_goals, score_matrix
