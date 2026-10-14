@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import argparse
 from collections import defaultdict
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 import json
 from pathlib import Path
 
@@ -30,6 +30,12 @@ LEAGUE_ALIASES = {
     "french ligue 1": "ligue 1",
     "ligue 1": "ligue 1",
     "serie a": "serie a",
+    "bl1": "bundesliga",
+    "en 1": "premier league",
+    "de 1": "bundesliga",
+    "es 1": "la liga",
+    "it 1": "serie a",
+    "fr 1": "ligue 1",
 }
 
 
@@ -72,13 +78,42 @@ def form(team: str, league: str, before: date, history: list[dict], *, min_games
             gf, ga, venue = row["away_score"], row["home_score"], "away"
         else:
             continue
-        prior.append((matchday, gf, ga, venue))
+        extra = (row.get("source_statistics") or {}).get("football_data") or {}
+        prior.append((matchday, gf, ga, venue, extra if isinstance(extra, dict) else {}))
     prior.sort(key=lambda m: m[0], reverse=True)
     prior = prior[:last]
     if len(prior) < min_games:
         return None
     n = len(prior)
+    extra_features = {}
+    for label, home_key, away_key in (
+        ("corners", "corners_home", "corners_away"),
+        ("shots", "shots_home", "shots_away"),
+        ("shots_on_target", "shots_on_target_home", "shots_on_target_away"),
+        ("yellow_cards", "yellow_cards_home", "yellow_cards_away"),
+        ("red_cards", "red_cards_home", "red_cards_away"),
+    ):
+        samples = []
+        for row in prior:
+            stats = row[4]
+            if type(stats.get(home_key)) is not int or type(stats.get(away_key)) is not int:
+                continue
+            if not 0 <= stats[home_key] <= 100 or not 0 <= stats[away_key] <= 100:
+                continue
+            this, opposing = ((stats[home_key], stats[away_key]) if row[3] == "home"
+                              else (stats[away_key], stats[home_key]))
+            samples.append((this, opposing))
+        if len(samples) >= min_games:
+            extra_features[label] = {
+                "for_per_match": round(sum(a for a, _ in samples) / len(samples), 4),
+                "against_per_match": round(sum(b for _, b in samples) / len(samples), 4),
+                "sample_matches": len(samples),
+                "source": "football_data",
+                "independently_verified_statistic": False,
+                "historical_final_scores_crosschecked": True,
+            }
     return {
+        "supplemental_statistics": extra_features,
         "sample_matches": n,
         "goals_for_per_match": round(sum(m[1] for m in prior) / n, 4),
         "goals_against_per_match": round(sum(m[2] for m in prior) / n, 4),
@@ -96,7 +131,10 @@ def features(fixtures: list[dict], history: list[dict], *, min_games: int = 5) -
     coverage = defaultdict(int)
     for fixture in fixtures:
         try:
-            target = datetime.fromisoformat(str(fixture["kickoff_utc"]).replace("Z", "+00:00")).date()
+            dt = datetime.fromisoformat(str(fixture["kickoff_utc"]).replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                raise ValueError("kickoff timezone unavailable")
+            target = dt.astimezone(timezone.utc).date()
         except (KeyError, ValueError, TypeError):
             coverage["missing_kickoff"] += 1
             continue
