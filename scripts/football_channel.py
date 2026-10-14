@@ -1575,29 +1575,24 @@ def followed_interruption_publication(signal: dict) -> Publication | None:
     home, away = plain(signal.get("home"), 55), plain(signal.get("away"), 55)
     if not home or not away:
         return None
-    detail = plain(signal.get("status"), 90)
-    text = (
-        "<h3>⚠️ CHANGEMENT DE PROGRAMME • MATCH SUIVI</h3>"
-        "<p><b>" + esc(home) + " – " + esc(away) + "</b></p>"
-        "<p>La rencontre est reportée, suspendue ou annulée selon la source."
-        " Nous arrêtons les alertes de ce match tant que sa reprise n'est pas confirmée.</p>"
-        "<p><i>Statut : " + esc(detail or "changement signalé") + "</i></p>"
-    )
+    detail = plain(signal.get("status"), 120)
+    card = {
+        "home": home,
+        "away": away,
+        "league": signal.get("league"),
+        "source": signal.get("source"),
+        "status": detail,
+        "home_logo": signal.get("home_logo"),
+        "away_logo": signal.get("away_logo"),
+        "espn_url": signal.get("espn_url"),
+    }
     return Publication(
         "suivi_interrompu",
         str(signal.get("key") or ""),
-        post_label(text),
-        card={
-            "home": home,
-            "away": away,
-            "league": signal.get("league"),
-            "source": signal.get("source"),
-            "status": detail,
-            "home_logo": signal.get("home_logo"),
-            "away_logo": signal.get("away_logo"),
-        },
+        banner_caption("suivi_interrompu", card),
+        card=card,
+        keyboard=live_keyboard(card),
     )
-
 
 def followed_final_publication(signal: dict) -> Publication | None:
     """Résultat suivi enrichi par les faits ESPN disponibles."""
@@ -1684,7 +1679,7 @@ def followed_final_publication(signal: dict) -> Publication | None:
     espn_url = plain(signal.get("espn_url"), 500)
     keyboard = None
     if espn_url.startswith("https://www.espn.com/"):
-        keyboard = {"inline_keyboard": [[{"text": "Vérifier sur ESPN ↗", "url": espn_url}]]}
+        keyboard = {"inline_keyboard": [[{"text": "✅ Source ESPN", "url": espn_url, "style": "success"}]]}
     event_id = plain(signal.get("espn_event_id"), 32)
     verification = {
         "event_id": event_id,
