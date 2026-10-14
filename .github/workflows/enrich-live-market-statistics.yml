@@ -35,8 +35,10 @@ jobs:
           python-version: '3.11'
       - name: Offline market-stat normalization and matching tests
         run: python -m unittest scripts.test_api_football_live_stats -v
-      - name: Enrich LIVE from official market stats (never on push)
-        if: ${{ github.event_name != 'push' }}
+      - name: Enrich LIVE from official market stats (BSD remains primary)
+        # One explicit bootstrap push after credential setup; all other pushes
+        # only run offline tests. Hourly schedule and manual dispatch are normal.
+        if: ${{ github.event_name != 'push' || contains(github.event.head_commit.message, 'bootstrap(api-football)') }}
         run: |
           set -euo pipefail
           python scripts/api_football_live_stats.py
