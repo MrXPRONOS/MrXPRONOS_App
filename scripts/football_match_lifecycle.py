@@ -618,6 +618,109 @@ def extract_goals(summary: dict) -> list[dict]:
     return goals
 
 
+def extract_shootout_kicks(summary: dict) -> list[dict]:
+    """Extrait uniquement les tirs de séance dont l'issue est explicite."""
+    details = summary.get("details") if isinstance(summary, dict) else None
+    if not isinstance(details, list):
+        return []
+    kicks: list[dict] = []
+    for item in details:
+        if not isinstance(item, dict):
+            continue
+        typ = item.get("type") if isinstance(item.get("type"), dict) else {}
+        label = _plain(
+            typ.get("text") or typ.get("abbreviation")
+            or item.get("text") or item.get("description")
+        ).lower()
+        period = _score(item.get("period"))
+        shootout = (
+            item.get("shootout") is True
+            or item.get("penaltyShootout") is True
+            or "shootout" in label
+            or "penalty shoot" in label
+            or "tirs au but" in label
+            or (period is not None and period >= 5)
+        )
+        if not shootout:
+            continue
+        missed = any(token in label for token in (
+            "miss", "saved", "save", "wide", "post", "blocked", "manqu", "raté", "rate"
+        )) or item.get("missed") is True
+        made = (
+            item.get("scoringPlay") is True
+            or item.get("made") is True
+            or any(token in label for token in ("made", "scored", "converted", "goal", "marqué", "marque"))
+        )
+        if missed:
+            outcome = "missed"
+        elif made:
+            outcome = "made"
+        else:
+            # Pas d'inférence à partir du score : si la source ne dit pas
+            # explicitement marqué/manqué, le tir n'est pas publié.
+            continue
+        athletes = item.get("athletes") or []
+        athletes = athletes if isinstance(athletes, list) else []
+        player = _athlete_name(athletes[0]) if athletes else ""
+        team_obj = item.get("team") if isinstance(item.get("team"), dict) else {}
+        clock = item.get("clock") if isinstance(item.get("clock"), dict) else {}
+        minute_text = _plain(clock.get("displayValue") or item.get("time") or "")
+        kicks.append({
+            "id": str(item.get("id") or ""),
+            "player": player,
+            "team_id": str(team_obj.get("id") or ""),
+            "team": _plain(team_obj.get("displayName") or team_obj.get("name")),
+            "outcome": outcome,
+            "minute": _minute_total(minute_text),
+            "minute_text": minute_text,
+            "home_shootout_score": _score(
+                item.get("homeShootoutScore")
+                if item.get("homeShootoutScore") is not None
+                else item.get("home_shootout_score")
+            ),
+            "away_shootout_score": _score(
+                item.get("awayShootoutScore")
+                if item.get("awayShootoutScore") is not None
+                else item.get("away_shootout_score")
+            ),
+            "label": _plain(typ.get("text") or item.get("text")),
+            "raw": item,
+        })
+    return kicks
+
+
+def extract_provider_shootout_kicks(timeline: list[dict]) -> list[dict]:
+    """Normalise les tirs explicitement marqués/manqués des autres fournisseurs."""
+    out: list[dict] = []
+    for row in timeline if isinstance(timeline, list) else []:
+        if not isinstance(row, dict):
+            continue
+        raw = row.get("raw") if isinstance(row.get("raw"), dict) else {}
+        label = _plain(
+            row.get("kind") or row.get("type")
+            or raw.get("type") or raw.get("event_type") or raw.get("description")
+        ).lower()
+        shootout = any(token in label for token in ("shootout", "penalty shoot", "tirs au but"))
+        if not shootout:
+            continue
+        missed = any(token in label for token in ("miss", "saved", "wide", "post", "manqu"))
+        made = any(token in label for token in ("made", "scored", "converted", "goal", "marqu"))
+        if not (missed or made):
+            continue
+        out.append({
+            "id": str(raw.get("id") or raw.get("event_id") or row.get("id") or ""),
+            "player": _plain(row.get("player")),
+            "team": _plain(row.get("team")),
+            "outcome": "missed" if missed else "made",
+            "minute": row.get("minute_total") if row.get("minute_total") is not None else row.get("minute"),
+            "minute_text": _plain(row.get("minute_text")),
+            "home_shootout_score": _score(raw.get("home_shootout_score") or raw.get("homeShootoutScore")),
+            "away_shootout_score": _score(raw.get("away_shootout_score") or raw.get("awayShootoutScore")),
+            "raw": raw,
+        })
+    return out
+
+
 def extract_cards(summary: dict) -> list[dict]:
     details = summary.get("details") if isinstance(summary, dict) else None
     if not isinstance(details, list):
@@ -830,10 +933,12 @@ def extract_match_enrichment(summary: dict) -> dict[str, Any]:
     goals = extract_goals(summary)
     cards = extract_cards(summary)
     substitutions = extract_substitutions(summary)
+    shootout_kicks = extract_shootout_kicks(summary)
     return {
         "goals": goals,
         "cards": cards,
         "substitutions": substitutions,
+        "shootout_kicks": shootout_kicks,
         "timeline": extract_timeline(summary),
         "stats": extract_team_stats(summary),
         "player_stats": extract_player_stats(summary),
