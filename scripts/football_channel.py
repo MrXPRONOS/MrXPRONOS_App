@@ -320,7 +320,11 @@ def _weighted_term_score(value: str, weighted_terms) -> int:
 def live_competition_key(event: dict) -> str:
     name = league(event).casefold()
     aliases = (
-        ("uefa-champions-league", ("champions league", "ligue des champions")),
+        # Les variantes continentales doivent être testées avant le terme
+        # générique "Champions League", sinon CAF/AFC seraient regroupées avec UEFA.
+        ("caf-champions-league", ("caf champions league", "caf ligue des champions")),
+        ("afc-champions-league", ("afc champions league",)),
+        ("uefa-champions-league", ("uefa champions league", "champions league", "ligue des champions")),
         ("uefa-europa-league", ("europa league",)),
         ("uefa-conference-league", ("conference league",)),
         ("premier-league", ("premier league",)),
@@ -330,7 +334,6 @@ def live_competition_key(event: dict) -> str:
         ("ligue-1", ("ligue 1",)),
         ("afcon", ("afcon", "coupe d'afrique", "can 20")),
         ("world-cup", ("world cup", "coupe du monde")),
-        ("caf-champions-league", ("caf champions league",)),
         ("caf-confederation", ("caf confederation",)),
     )
     for key_name, terms in aliases:
@@ -339,6 +342,29 @@ def live_competition_key(event: dict) -> str:
     normalized = re.sub(r"[^a-z0-9]+", "-", unicodedata.normalize("NFKD", name)
                         .encode("ascii", "ignore").decode()).strip("-")
     return normalized or "football"
+
+
+def live_competition_weight(event: dict) -> int:
+    """Poids de compétition sans confondre UEFA, CAF et AFC."""
+    key_name = live_competition_key(event)
+    explicit = {
+        "uefa-champions-league": 38,
+        "world-cup": 30,
+        "premier-league": 26,
+        "la-liga": 26,
+        "serie-a": 26,
+        "bundesliga": 26,
+        "afcon": 24,
+        "ligue-1": 21,
+        "uefa-europa-league": 21,
+        "caf-champions-league": 21,
+        "uefa-conference-league": 16,
+        "caf-confederation": 16,
+        "afc-champions-league": 16,
+    }
+    if key_name in explicit:
+        return explicit[key_name]
+    return _weighted_term_score(league(event).casefold(), LIVE_COMPETITION_WEIGHTS)
 
 
 def live_popularity_score(event: dict) -> int:
@@ -352,7 +378,7 @@ def live_popularity_score(event: dict) -> int:
 
     home_weight = _weighted_term_score(home, LIVE_TEAM_WEIGHTS)
     away_weight = _weighted_term_score(away, LIVE_TEAM_WEIGHTS)
-    competition_weight = _weighted_term_score(league_name, LIVE_COMPETITION_WEIGHTS)
+    competition_weight = live_competition_weight(event)
     score_value = competition_weight + home_weight + away_weight
 
     # Une affiche entre deux clubs populaires est nettement plus attractive.
@@ -2893,7 +2919,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                 if hour >= 20:
                     matches = matches + get_day(today + timedelta(days=1))
 
-                # Suivi technique indépendant de l'AVANT-MATCH : jusqu'à huit
+                # Suivi technique indépendant de l'AVANT-MATCH : jusqu'à six
                 # grosses affiches sont observées, même si aucune publication
                 # éditoriale n'a encore été envoyée.
                 technical_pool = [
