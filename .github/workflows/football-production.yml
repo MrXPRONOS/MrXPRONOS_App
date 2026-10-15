@@ -279,5 +279,13 @@ jobs:
           path: ${{ steps.telegram_route.outputs.state_path }}
           key: football-${{ steps.telegram_route.outputs.destination }}-${{ github.run_id }}-${{ github.run_attempt }}
 
+      - name: Tableau de santé Actu Foot
+        if: ${{ always() }}
+        continue-on-error: true
+        shell: bash
+        run: |
+          python scripts/actu_foot_health_report.py > /tmp/actu-foot-health.md
+          cat /tmp/actu-foot-health.md >> "$GITHUB_STEP_SUMMARY"
+
       # Les Infos Foot sont déjà publiées par fetch_foot_news.py dans le snapshot
       # Supabase public en lecture seule. Aucun commit de données dynamiques sur main.
