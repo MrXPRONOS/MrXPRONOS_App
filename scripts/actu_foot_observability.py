@@ -13,6 +13,46 @@ from datetime import datetime, timezone
 import requests
 
 
+def _parse_moment(value) -> datetime | None:
+    if not value:
+        return None
+    try:
+        text = str(value).strip().replace("Z", "+00:00")
+        parsed = datetime.fromisoformat(text)
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return parsed.astimezone(timezone.utc)
+    except (TypeError, ValueError):
+        return None
+
+
+def _actionable_outbox_count(rows: list[dict], now: datetime | None = None) -> int:
+    """Compte uniquement les publications qui peuvent encore être livrées."""
+    now = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
+    total = 0
+    for row in rows if isinstance(rows, list) else []:
+        if not isinstance(row, dict):
+            continue
+        status = str(row.get("status") or "").strip()
+        if status == "claimed":
+            total += 1
+            continue
+        if status != "failed":
+            continue
+        try:
+            attempts = int(row.get("attempts") or 0)
+            max_attempts = max(1, int(row.get("max_attempts") or 1))
+        except (TypeError, ValueError):
+            continue
+        if attempts >= max_attempts:
+            continue
+        expires_at = _parse_moment(row.get("expires_at"))
+        if expires_at is not None and expires_at <= now:
+            continue
+        total += 1
+    return total
+
+
 def _outbox_pending(session: requests.Session) -> int:
     base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
     key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
@@ -22,16 +62,16 @@ def _outbox_pending(session: requests.Session) -> int:
         response = session.get(
             base + "/rest/v1/actu_foot_publications",
             params={
-                "select": "event_key",
-                "status": "in.(failed,claimed,uncertain)",
-                "limit": "100",
+                "select": "status,attempts,max_attempts,expires_at",
+                "status": "in.(failed,claimed)",
+                "limit": "200",
             },
             headers={"apikey": key, "Authorization": "Bearer " + key},
             timeout=(5, 10),
         )
         response.raise_for_status()
         payload = response.json()
-        return len(payload) if isinstance(payload, list) else 0
+        return _actionable_outbox_count(payload if isinstance(payload, list) else [])
     except (requests.RequestException, ValueError):
         return 0
 
