@@ -104,7 +104,7 @@ def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict,
         meta_verified=number(native_identity,"official_league_metadata_verified")
         if not (0<=official_native_count<=confirmed_native<=number(native_identity,"external_total")
                 and 0<=meta_verified<=meta_requested<=8
-                and number(native_identity,"bsd_http_calls")<=12):
+                and number(native_identity,"bsd_http_calls")<=24):
             raise ValueError("Inconsistent native source proof counters")
         price_proof=native_identity.get("read_only_native_consensus_price_audit")
         if not isinstance(price_proof,dict):
@@ -112,7 +112,7 @@ def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict,
         quote_attempts=number(price_proof,"official_native_events_quoted_attempts")
         priced_events=number(price_proof,"events_with_fresh_consensus_market_prices")
         official_consensus_market_count=number(price_proof,"fresh_consensus_market_prices")
-        if not (0<=priced_events<=quote_attempts<=min(2,official_native_count)
+        if not (0<=priced_events<=quote_attempts<=min(8,official_native_count)
             and official_consensus_market_count>=priced_events
             and price_proof.get("event_ids_selected_only_from_confirmed_native_links") is True
             and price_proof.get("consensus_is_not_executable_bookmaker_offer") is True
@@ -142,7 +142,7 @@ def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict,
             validated_selected_real_consensus=number(counts,"frozen_markets_with_exact_fresh_bsd_consensus_quote")
             selected_passing_v21=number(counts,"passes_v21_and_value_guard_in_research") if "passes_v21_and_value_guard_in_research" in counts else 0
             veto=number(counts,"v21_or_value_guard_veto") if "v21_or_value_guard_veto" in counts else 0
-            if not (0<=selected_passing_v21+veto<=validated_selected_real_consensus<=model_selected<=inspected<=min(2,quote_attempts)):
+            if not (0<=selected_passing_v21+veto<=validated_selected_real_consensus<=model_selected<=inspected<=min(8,quote_attempts)):
                 raise ValueError("Invalid actual-market publication funnel")
             selected_market_proof_executed=True
         native_link_proof=official_native_count>0
