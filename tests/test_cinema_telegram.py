@@ -97,3 +97,4 @@ class CinemaTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+# CI smoke-test marker: @predict_mrxp only; fictional demonstration content.
