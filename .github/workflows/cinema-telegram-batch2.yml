@@ -57,6 +57,15 @@ jobs:
       - name: Preview on development branch (no Telegram)
         if: github.event_name == 'push'
         run: python scripts/cinema_batch2.py --mode test --format all --demo --dry-run
+      - name: One-time real TMDB images test in @predict_mrxp
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[cinema-live-test]') && github.ref == 'refs/heads/feat/cinema-telegram-batch2'
+        env:
+          CINEMA_TELEGRAM_BOT_TOKEN: ${{ secrets.CINEMA_TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+        run: python scripts/cinema_batch2.py --mode test --format all
       - name: Test or production publication (explicitly enabled)
         if: github.event_name != 'push'
         env:
@@ -95,7 +104,7 @@ jobs:
             python scripts/cinema_batch2.py "${ARGS[@]}"
           fi
       - name: Persist publication history after success
-        if: github.event_name != 'push' && success()
+        if: (github.event_name != 'push' || contains(github.event.head_commit.message, '[cinema-live-test]')) && success()
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
