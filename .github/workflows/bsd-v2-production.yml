@@ -77,8 +77,8 @@ jobs:
           mkdir -p tmp
           php scripts/football_history_import.php             --source=openfootball             --seasons=2023-24,2024-25,2025-26,2026-27             --league-codes=en.1,en.2,de.1,es.1,fr.1,it.1,nl.1,pt.1             --max-files=32             --out=tmp/multisource-qualified-history.jsonl
           test -s tmp/multisource-qualified-history.jsonl
-          python scripts/football_prematch_multiday_probe.py             --start-day="$(date -u -d 'tomorrow' +%F)"             --count-days=3 --max-http=24             --out=tmp/multisource-public-fixtures.json             --report=tmp/multisource-public-fixtures-aggregate.json
-          python scripts/football_native_bsd_identity_probe.py             --public-fixtures=tmp/multisource-public-fixtures.json             --licensed-history=tmp/multisource-qualified-history.jsonl             --existing-feed=data.json --ledger=bsd/publication_ledger.json             --days=3 --start-offset=1             --accepted-output=tmp/multisource-qualified-accepted.json             --report=tmp/multisource-qualified-aggregate.json
+          python scripts/football_prematch_multiday_probe.py             --start-day="$(date -u +%F)"             --count-days=3 --max-http=24             --out=tmp/multisource-public-fixtures.json             --report=tmp/multisource-public-fixtures-aggregate.json
+          python scripts/football_native_bsd_identity_probe.py             --public-fixtures=tmp/multisource-public-fixtures.json             --licensed-history=tmp/multisource-qualified-history.jsonl             --existing-feed=data.json --ledger=bsd/publication_ledger.json             --days=3 --start-offset=0             --accepted-output=tmp/multisource-qualified-accepted.json             --report=tmp/multisource-qualified-aggregate.json
           test -f tmp/multisource-qualified-accepted.json
           python scripts/football_multisource_apply_qualified.py             --feed=data.json             --accepted=tmp/multisource-qualified-accepted.json --ledger=bsd/publication_ledger.json
           python - <<'PY'
