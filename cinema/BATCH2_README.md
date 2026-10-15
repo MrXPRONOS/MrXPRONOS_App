@@ -38,3 +38,9 @@ python -m pip install requests Pillow
 python -m unittest discover -s tests -p 'test_cinema_batch2.py' -v
 python scripts/cinema_batch2.py --mode test --format all --demo --dry-run
 ```
+
+## Visuels de la source uniquement
+
+Les cartes Pillow ont été supprimées. Les publications utilisent directement les JPEG/PNG de TMDB sans recadrage, fond, composition ni superposition. Une série/un film utilise son affiche officielle; la publication acteur utilise le portrait de la personne. Si la source ne fournit aucune image, le bot poste uniquement le texte enrichi et ses boutons. Les démonstrations fictives restent textuelles. Sondages: interface native Telegram sans illustration artificielle.
+
+Pour tester les images TMDB réelles sur `@predict_mrxp`, exécuter le workflow avec `mode=test`, `demo=false`, `dry_run=false` et fournir `TMDB_API_KEY` via GitHub Secrets.
