@@ -109,6 +109,23 @@ class IdentityBridgeTests(unittest.TestCase):
         self.assertNotIn("123",str(audit))
         self.assertNotIn("1.76",str(audit))
 
+    def test_quote_probe_prioritizes_earlier_real_kickoff_over_native_number(self):
+        class FakeBSD:
+            requests_made=0
+            def __init__(self):
+                self.seen=[]
+            def get_json(self,path,params,ttl=0):
+                self.requests_made+=1
+                self.seen.append(params["event_id"])
+                return {"count":0,"results":[]}
+        first=native(ident=900,start="2026-10-15T16:00:00Z")
+        later=native(ident=100,start="2026-10-17T19:00:00Z")
+        fake=FakeBSD()
+        result=audit_official_consensus_quotes(fake,[first,later],[100,900],{},at=NOW)
+        self.assertEqual(fake.seen,[900,100])
+        self.assertEqual(result["official_native_events_quoted_attempts"],2)
+        self.assertEqual(result["fresh_consensus_market_prices"],0)
+
     def test_odds_entitlement_failure_is_fail_closed(self):
         class ForbiddenClient:
             requests_made=0
