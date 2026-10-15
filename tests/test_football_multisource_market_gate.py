@@ -46,11 +46,11 @@ class MarketWitnessTests(unittest.TestCase):
         self.assertIsNone(selected)
         self.assertEqual(why,"selected_market_not_quoted")
 
-    def test_untrusted_production_feed_or_more_than_two_events_rejected(self):
+    def test_untrusted_production_feed_or_more_than_eight_events_rejected(self):
         with self.assertRaises(ValueError):
             verify_selected_markets([],[],{"source":"sportdata","matches":[]},at=NOW)
         with self.assertRaises(ValueError):
-            verify_selected_markets([],[(None,None,{})]*3,
+            verify_selected_markets([],[(None,None,{})]*9,
                 {"source":"bsd","matches":[],"performance_tracker":{}},at=NOW)
 
 if __name__=="__main__":
