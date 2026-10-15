@@ -12,7 +12,7 @@ import unicodedata
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-MAX_FOLLOWED = 8
+MAX_FOLLOWED = 6
 MAX_AFTER_KICKOFF = timedelta(hours=10)
 PREMATCH_WINDOW = (timedelta(minutes=60), timedelta(minutes=120))
 TRACK_WINDOW_BEFORE = timedelta(hours=4)
@@ -108,6 +108,10 @@ def track(tracked: dict, event: dict, now: datetime, *, reason: str = "auto") ->
         "bsd_id": str(event.get("id") or ""),
         "selected_at": now.astimezone(timezone.utc).isoformat(),
         "tracking_reason": reason,
+        # Une fois admis par le ranking, le match reste dans le lifecycle
+        # jusqu'au résultat final / abandon. Le ranking décide de l'admission,
+        # pas de l'éjection d'un match déjà suivi.
+        "ranking_locked": True,
         "final_sent": False,
     }
     return identifier
@@ -146,6 +150,9 @@ def base_events(tracked: dict, now: datetime) -> list[dict]:
             "lineup_away_hash": value.get("lineup_away_hash") or "",
             "lineup_home": list(value.get("lineup_home") or []),
             "lineup_away": list(value.get("lineup_away") or []),
+            "ranking_locked": bool(value.get("ranking_locked", True)),
+            "selected_at": value.get("selected_at") or "",
+            "tracking_reason": value.get("tracking_reason") or "",
         })
     return result
 

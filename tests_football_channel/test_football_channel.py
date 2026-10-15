@@ -164,6 +164,55 @@ class FootballChannelTests(unittest.TestCase):
         self.assertEqual(len(selected), 2)
         self.assertIn("togo", ids)
 
+    def test_live_ranking_dominance_can_keep_only_one_match(self):
+        def fixture(ident, home, away):
+            row = event(ident)
+            row["home_team"]["name"] = home
+            row["away_team"]["name"] = away
+            row["league_name"] = "UEFA Champions League"
+            return row
+
+        selected = m.select_popular_live_matches(
+            [
+                fixture("huge", "Real Madrid", "Liverpool"),
+                fixture("weak", "Feyenoord", "Como"),
+            ],
+            max_per_competition=2,
+            max_total=6,
+            dominance_gap=45,
+        )
+        self.assertEqual([row["id"] for row in selected], ["huge"])
+
+    def test_locked_match_survives_later_ranking(self):
+        weak = event("locked")
+        weak["home_team"]["name"] = "Feyenoord"
+        weak["away_team"]["name"] = "Como"
+        weak["league_name"] = "UEFA Champions League"
+        weak["ranking_locked"] = True
+
+        huge = event("huge")
+        huge["home_team"]["name"] = "Real Madrid"
+        huge["away_team"]["name"] = "Liverpool"
+        huge["league_name"] = "UEFA Champions League"
+
+        selected = m.select_popular_live_matches(
+            [huge, weak], max_per_competition=2, max_total=6, dominance_gap=0
+        )
+        self.assertEqual({row["id"] for row in selected}, {"huge", "locked"})
+        self.assertTrue(next(row for row in selected if row["id"] == "locked")["ranking_locked"])
+
+    def test_live_popularity_breakdown_matches_score(self):
+        row = event("breakdown")
+        row["home_team"]["name"] = "Real Madrid"
+        row["away_team"]["name"] = "Liverpool"
+        row["league_name"] = "UEFA Champions League"
+        breakdown = m.live_popularity_breakdown(row)
+        self.assertEqual(breakdown["total"], m.live_popularity_score(row))
+        self.assertGreater(breakdown["competition"], 0)
+        self.assertGreater(breakdown["home"], 0)
+        self.assertGreater(breakdown["away"], 0)
+        self.assertGreater(breakdown["clubs_bonus"], 0)
+
     def test_flash_utilise_news_site_et_image_reelle(self):
         old_root = m.ROOT
         try:

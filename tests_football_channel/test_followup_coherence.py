@@ -50,25 +50,27 @@ class FollowupTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             follow.follow({}, fixture("late", start=NOW-timedelta(minutes=5)), NOW)
 
-    def test_max_eight_followed_and_no_ninth(self):
+    def test_max_six_followed_and_no_seventh(self):
         stored = {}
         names = [
             ("Arsenal", "Chelsea"), ("PSG", "Marseille"),
             ("Real Madrid", "Barcelona"), ("Inter", "Milan"),
             ("Bayern", "Dortmund"), ("Liverpool", "Everton"),
-            ("Ajax", "PSV"), ("Benfica", "Porto"),
         ]
         for index, (home, away) in enumerate(names):
             follow.follow(stored, fixture(str(index), home, away), NOW)
         self.assertFalse(follow.selection_allowed(stored, NOW))
+        self.assertTrue(all(item.get("ranking_locked") for item in stored.values()))
         with self.assertRaises(ValueError):
-            follow.follow(stored, fixture("ninth", "Roma", "Lazio"), NOW)
+            follow.follow(stored, fixture("seventh", "Roma", "Lazio"), NOW)
 
     def test_technical_track_is_independent_from_prematch(self):
         stored = {}
         event = fixture("technical", start=NOW + timedelta(hours=3))
         ref = follow.track(stored, event, NOW, reason="importance")
         self.assertEqual(stored[ref]["tracking_reason"], "importance")
+        self.assertTrue(stored[ref]["ranking_locked"])
+        self.assertTrue(follow.base_events(stored, NOW)[0]["ranking_locked"])
         self.assertEqual(follow.base_events(stored, NOW)[0]["follow_ref"], ref)
         with self.assertRaises(ValueError):
             follow.follow({}, event, NOW)
