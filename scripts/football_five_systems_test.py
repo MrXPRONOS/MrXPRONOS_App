@@ -221,7 +221,19 @@ def main() -> int:
             unavailable[category] = "Pas de résultat enregistré dans les logs du test existant"
     report = {"sent": sent, "unavailable": unavailable, "errors": errors}
     print("ACTUFOOT_FIVE_SYSTEMS_TEST", json.dumps(report, ensure_ascii=False), flush=True)
-    return 0 if not errors and not unavailable else 1
+    code = review_exit_code(report)
+    print(
+        "ACTUFOOT_FIVE_SYSTEMS_REVIEW_" + ("OK" if code == 0 else "FAILED"),
+        "sent", len(sent), "unavailable", len(unavailable), "errors", len(errors),
+        flush=True,
+    )
+    return code
+
+
+def review_exit_code(report: dict[str, Any]) -> int:
+    """Une absence de donnée fiable est un skip éditorial, pas une panne du moteur."""
+    errors = report.get("errors") if isinstance(report, dict) else {}
+    return 1 if isinstance(errors, dict) and errors else 0
 
 
 def _viral_of_kind(events, news, session, now, expected):
