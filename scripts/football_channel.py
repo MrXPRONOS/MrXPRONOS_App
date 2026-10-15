@@ -2793,6 +2793,32 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
         match_counts: dict[str, int] = {}
         for signal in signals:
             ref = str(signal.get("follow_ref") or "")
+            # Un match détecté directement par ESPN/Supabase dans le passage rapide
+            # devient suivi dès son premier signal publiable. Il ne pourra donc plus
+            # être éjecté par un ranking ultérieur avant son résultat final.
+            if not ref and not dry_run and signal.get("event_date"):
+                direct_event = {
+                    "id": signal.get("espn_event_id") or signal.get("key") or "",
+                    "event_date": signal.get("event_date"),
+                    "home_team": {
+                        "name": signal.get("home") or "",
+                        "logo": signal.get("home_logo") or "",
+                    },
+                    "away_team": {
+                        "name": signal.get("away") or "",
+                        "logo": signal.get("away_logo") or "",
+                    },
+                    "league_name": signal.get("league") or "Football",
+                }
+                if followup.selection_allowed(state.followed, now):
+                    try:
+                        ref = followup.track(
+                            state.followed, direct_event, now, reason="direct_live"
+                        )
+                        signal["follow_ref"] = ref
+                        print("FOLLOWUP_DIRECT_LIVE_LOCKED", ref)
+                    except ValueError:
+                        ref = ""
             if ref and ref not in followup.pending(state.followed, now):
                 continue
             kind = signal.get("kind")
@@ -3080,7 +3106,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                     and final_score(e) is None
                     and str(e.get("status") or "").lower() not in ("cancelled", "postponed", "finished")
                 ]
-                technical = select_popular_live_matches(technical_pool)
+                technical = select_live_admissions(technical_pool, state.followed, now)
                 if not dry_run:
                     for event in technical[:20]:
                         if not followup.selection_allowed(state.followed, now):
@@ -3103,7 +3129,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                         ("cancelled", "postponed", "live", "finished")
                     and not state.seen("avant_match:" + str(e["id"]))
                 ]
-                upcoming = select_popular_live_matches(upcoming_pool)
+                upcoming = select_live_admissions(upcoming_pool, state.followed, now)
                 if (counter["sent"] < max_send and upcoming
                         and (force or enough(state, "avant_match", now))):
                     if client is None:
