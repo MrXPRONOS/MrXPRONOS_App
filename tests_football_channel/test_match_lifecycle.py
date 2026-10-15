@@ -74,7 +74,10 @@ class MatchLifecycleTests(unittest.TestCase):
             "state": "in",
             "minute": 10,
         }]
-        rows = m.collect_external(object(), NOW.date(), [])
+        # Le test doit rester indépendant des secrets Supabase présents dans
+        # certains workflows réels : le cache partagé est l'unique sujet testé ici.
+        with patch("football_match_lifecycle.load_provider_health", return_value={}):
+            rows = m.collect_external(object(), NOW.date(), [])
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["id"], "401")
         collect.assert_not_called()
