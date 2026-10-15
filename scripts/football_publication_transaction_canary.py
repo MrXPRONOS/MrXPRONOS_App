@@ -19,7 +19,7 @@ import tempfile
 import sys
 
 ROOT=Path(__file__).resolve().parents[1]
-for p in (ROOT,ROOT/"bsd"):
+for p in (ROOT,ROOT/"bsd",ROOT/"scripts"):
     if str(p) not in sys.path:sys.path.insert(0,str(p))
 
 from bsd_v2_audit import SCHEMA, _identity
