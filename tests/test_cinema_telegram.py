@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 if not (Path(__file__).resolve().parents[1] / 'scripts' / 'telegram_rich.py').exists():
     stub = types.ModuleType('telegram_rich')
     stub.post_photo = lambda *args, **kwargs: None
+    stub.post_text = lambda *args, **kwargs: None
     sys.modules['telegram_rich'] = stub
 import cinema_telegram as cm
 
@@ -38,7 +39,7 @@ class CinemaTests(unittest.TestCase):
         self.assertIn('&lt;script&gt;', body)
 
     def test_tmdb_deterministic(self):
-        with patch.object(cm.TMDBClient, 'get', return_value=cm.DEMO):
+        with patch.object(cm.TMDBClient, 'get', return_value=[dict(m, poster_path='/test.jpg') for m in cm.DEMO]):
             client = cm.TMDBClient('fake')
             self.assertEqual(client.choose('top5', self.day), client.choose('top5', self.day))
             self.assertEqual(len(client.choose('top5', self.day)), 5)
@@ -55,13 +56,36 @@ class CinemaTests(unittest.TestCase):
             self.assertLess(data['correct_option_id'], 4)
             self.assertTrue(all(isinstance(o, dict) and 'text' in o for o in data['options']))
 
-    def test_card_created_offline(self):
+    def test_original_tmdb_image_unchanged(self):
         import tempfile
-        from PIL import Image
-        with tempfile.TemporaryDirectory() as temp:
-            path = cm.create_card(cm.DEMO, 'top5', Path(temp), MagicMock(), True)
-            with Image.open(path) as img:
-                self.assertEqual(img.size, (960, 640))
+        picture = b'\xff\xd8\xff' + bytes(range(256))
+        response = MagicMock(content=picture)
+        with tempfile.TemporaryDirectory() as directory:
+            session = MagicMock()
+            session.get.return_value = response
+            images = [dict(cm.DEMO[0], poster_path='/original.jpg')]
+            path, mime = cm.download_source_image(images, session, Path(directory))
+            self.assertEqual(path.read_bytes(), picture)
+            self.assertEqual(mime, 'image/jpeg')
+            session.get.assert_called_once_with(cm.IMG+'/original.jpg', timeout=25)
+
+    def test_no_placeholder_image_when_missing(self):
+        with patch.object(cm, 'post_text', return_value=77) as text, patch.object(cm, 'post_photo', side_effect=AssertionError('invented photo')):
+            sent = cm.publish('film', cm.DEMO, 'token', '@predict_mrxp', self.day, MagicMock())
+            self.assertEqual(sent, 77)
+            self.assertTrue(text.call_args.kwargs['html'])
+
+    def test_demo_never_downloads_image(self):
+        session = MagicMock()
+        with patch.object(cm, 'post_text', return_value=44) as text:
+            self.assertEqual(cm.publish('film', cm.DEMO, 't', '@predict_mrxp', self.day, session, demo=True), 44)
+            session.get.assert_not_called()
+            self.assertEqual(text.call_count, 1)
+
+    def test_reject_invalid_provider_paths(self):
+        self.assertFalse(cm.valid_tmdb_path('https://example.com/a.jpg'))
+        self.assertFalse(cm.valid_tmdb_path('/../secret.jpg'))
+        self.assertTrue(cm.valid_tmdb_path('/ab-C_12.jpg'))
 
     def test_dry_run_no_network(self):
         with patch.object(cm, 'post_photo', side_effect=AssertionError('sent')):
@@ -97,4 +121,3 @@ class CinemaTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-# CI smoke-test marker: @predict_mrxp only; fictional demonstration content.
