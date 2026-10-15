@@ -84,26 +84,38 @@ def single_caption(match, *, night=False):
     ))
 
 
+def _combo_has_estimated_price(legs):
+    return any(
+        (leg.get("prediction") or {}).get("odds_source")=="mrxpronos_model"
+        for leg in legs if isinstance(leg,dict)
+    )
+
+
 def combo_caption(combo, *, night=False):
-    """Dark two-leg coupon; only actual BSD prices are shown."""
+    """Distinguish bookmaker-derived odds from clearly indicative model quotes."""
     legs=combo.get("legs") or []
     if len(legs)!=2:
         raise ValueError("Un combiné Telegram doit contenir exactement deux matchs")
+    estimated=_combo_has_estimated_price(legs)
     headline="🌙 Coupons nuit · Combiné" if night else "🎟️ Combiné du jour"
     start=[f"<b>{headline} · MR XPRONOS</b>",
            "<i>Deux rencontres · deux sélections.</i>", ""]
     details=[]
     for idx,leg in enumerate(legs,1):
+        pick=leg.get("prediction") or {}
+        indicative=pick.get("odds_source")=="mrxpronos_model"
         details.extend((
             f"<b>{idx}.</b> ⚽ {_fixture(leg)}",
-            f"🎯 {_selection(leg)} · <b>{_quote((leg.get('prediction') or {}).get('odds'))}</b>",
+            f"🎯 {_selection(leg)} · <b>{_quote(pick.get('odds'))}</b>"
+            + (" <i>(cote estimée)</i>" if indicative else ""),
         ))
     total=_quote(combo.get("combined_odds"))
     return "\n".join(start+[
         "<blockquote>"+"\n".join(details)+"</blockquote>",
-        f"📊 Cote combinée : <b>{total}</b>",
+        f"📊 {'Cote combinée estimée' if estimated else 'Cote combinée'} : <b>{total}</b>",
         f"💰 Mise : <b>{money(combination_stake())}</b>",
         f"🕒 <i>Premier match : {_kickoff(combo.get('event_date'))}</i>",
+        *(["<i>Estimation du modèle, non proposée par un bookmaker. Vérifier les cotes réelles.</i>"] if estimated else []),
         "",
         _closing(),
     ])
@@ -115,6 +127,7 @@ def combo_gain_caption(combo):
     legs=combo.get("legs") or []
     if len(legs)!=2:
         raise ValueError("Un combiné vérifié doit contenir exactement deux matchs")
+    estimated=_combo_has_estimated_price(legs)
     details=[]
     for idx,leg in enumerate(legs,1):
         score=(f"{int(leg['home_score'])}–{int(leg['away_score'])}"
@@ -129,8 +142,8 @@ def combo_gain_caption(combo):
         "<i>Les deux sélections ont été vérifiées et validées.</i>",
         "",
         "<blockquote>"+"\n".join(details)+"</blockquote>",
-        f"📊 Cote combinée : <b>{_quote(combo.get('combined_odds'))}</b>",
-        "<i>Coupon combiné validé.</i>",
+        f"📊 {'Cote combinée estimée' if estimated else 'Cote combinée'} : <b>{_quote(combo.get('combined_odds'))}</b>",
+        "<i>Pronostic combiné réussi ; aucun gain bookmaker n'est attesté.</i>",
         "",
         _closing(),
     ))
