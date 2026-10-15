@@ -61,6 +61,16 @@ class CaptionTests(unittest.TestCase):
             self.assertIn("<blockquote>",caption)
             self.assertLessEqual(len(unescape(caption)),MAX_CAPTION_LENGTH)
 
+    def test_combo_legs_explicit_rich_line_break(self):
+        from telegram_premium_templates import premium_sections
+        one=fixture(home="FC Seoul",away="Jeju SK")
+        two=fixture(home="Cerezo Osaka",away="Yokohama F. Marinos")
+        combo={"legs":[one,two],"combined_odds":1.63,"event_date":one["event_date"]}
+        rich=premium_sections(combo_caption(combo,night=True))
+        self.assertIn("<br/><br/><b>2.</b>",rich)
+        self.assertIn("FC Seoul",rich)
+        self.assertIn("Cerezo Osaka",rich)
+
     def test_winning_caption_not_claiming_real_cash(self):
         match={**fixture(),"home_score":2,"away_score":0}
         caption=gain_caption(match)
