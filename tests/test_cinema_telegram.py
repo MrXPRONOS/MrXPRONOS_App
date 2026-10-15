@@ -72,16 +72,26 @@ class CinemaTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             cm.main(['--mode', 'production', '--demo', '--dry-run'])
 
-    def test_test_channel_absent_refused(self):
-        env = {'TMDB_API_KEY': 'fake', 'TELEGRAM_BOT_TOKEN': 'fake',
-               'CINEMA_TEST_CHAT_ID': '', 'TELEGRAM_TEST_CHAT_ID': '', 'TELEGRAM_CHAT_ID_TEST': ''}
-        with patch.dict(os.environ, env), patch.object(cm, 'TMDBClient'):
+    def test_test_channel_fixed(self):
+        with patch.dict(os.environ, {'CINEMA_TEST_CHAT_ID': '@wrong_channel'}):
+            self.assertEqual(cm.target_chat('test'), '@predict_mrxp')
+
+    def test_token_absent_refused(self):
+        with patch.dict(os.environ, {'CINEMA_TELEGRAM_BOT_TOKEN': '', 'TELEGRAM_BOT_TOKEN': ''}):
             with self.assertRaises(SystemExit):
                 cm.main(['--mode', 'test', '--format', 'quiz'])
 
+    def test_bot_admin_check(self):
+        with patch.object(cm, 'call_telegram', side_effect=[{'id': 42}, {'status': 'administrator', 'can_post_messages': True}]) as send:
+            cm.verify_test_bot(MagicMock(), 'fake-token', cm.TEST_CHANNEL)
+            self.assertEqual(send.call_count, 2)
+        with patch.object(cm, 'call_telegram', side_effect=[{'id': 42}, {'status': 'member'}]):
+            with self.assertRaises(RuntimeError):
+                cm.verify_test_bot(MagicMock(), 'fake-token', cm.TEST_CHANNEL)
+
     def test_same_channel_refused(self):
-        with patch.dict(os.environ, {'TELEGRAM_CHAT_ID': '-1001', 'TELEGRAM_BOT_TOKEN':'fake',
-                                     'CINEMA_TEST_CHAT_ID': '-1001', 'TMDB_API_KEY': 'fake'}):
+        with patch.dict(os.environ, {'TELEGRAM_CHAT_ID': '@predict_mrxp', 'TELEGRAM_BOT_TOKEN':'fake',
+                                     'TMDB_API_KEY': 'fake'}):
             with self.assertRaises(SystemExit):
                 cm.main(['--mode', 'test', '--format', 'quiz'])
 
