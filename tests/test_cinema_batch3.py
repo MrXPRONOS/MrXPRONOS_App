@@ -158,3 +158,4 @@ class BatchThreeTests(unittest.TestCase):
 
 if __name__=='__main__':
     unittest.main()
+# Dedicated one-time TMDB source-image smoke test on @predict_mrxp; no production posts.
