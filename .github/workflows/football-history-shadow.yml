@@ -1,0 +1,986 @@
+name: Multisource football history - isolated research
+on:
+  schedule:
+    - cron: '15 4 * * *'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/football_history_import.php'
+      - 'scripts/football_history_shadow.py'
+      - 'tests/test_football_history_shadow.py'
+      - 'scripts/football_daily_multisource_shadow.py'
+      - 'tests/test_football_daily_multisource_shadow.py'
+      - 'scripts/football_history_features.py'
+      - 'tests/test_football_history_features.py'
+      - 'scripts/football_alias_candidates.py'
+      - 'tests/test_football_alias_candidates.py'
+      - 'scripts/football_match_source_router.py'
+      - 'tests/test_football_match_source_router.py'
+      - 'scripts/football_prematch_probability_shadow.py'
+      - 'tests/test_football_prematch_probability_shadow.py'
+      - 'scripts/football_public_domain_prematch.py'
+      - 'tests/test_football_public_domain_prematch.py'
+      - 'scripts/football_public_domain_backtest.py'
+      - 'tests/test_football_public_domain_backtest.py'
+      - 'scripts/football_bsd_private_history.py'
+      - 'tests/test_football_bsd_private_history.py'
+      - 'scripts/football_bsd_validate_real.py'
+      - 'tests/test_football_bsd_validate_real.py'
+      - 'scripts/football_bsd_private_paired_backtest.py'
+      - 'tests/test_football_bsd_private_paired_backtest.py'
+      - 'scripts/football_external_bsd_v2_adapter.py'
+      - 'tests/test_football_external_bsd_v2_adapter.py'
+      - 'scripts/football_multi_api_history_inputs.py'
+      - 'tests/test_football_multi_api_history_inputs.py'
+      - 'scripts/football_verified_identity_crosswalk.py'
+      - 'tests/test_football_verified_identity_crosswalk.py'
+      - 'scripts/football_authorized_h2h_collector.py'
+      - 'tests/test_football_authorized_h2h_collector.py'
+      - 'scripts/football_openfootball_world_import.py'
+      - 'tests/test_football_openfootball_world_import.py'
+      - 'scripts/football_cc0_calendar_verification.py'
+      - 'scripts/football_prematch_multiday_probe.py'
+      - 'scripts/football_multisource_channel_test.py'
+      - 'tests/test_football_multisource_channel_test.py'
+      - 'scripts/football_sportscore_filtered_audit.py'
+      - 'tests/test_football_sportscore_filtered_audit.py'
+      - 'scripts/football_multisource_release_gate.py'
+      - 'tests/test_football_multisource_release_gate.py'
+      - 'scripts/football_multisource_calibrated_replay.py'
+      - 'tests/test_football_multisource_calibrated_replay.py'
+      - 'scripts/football_native_bsd_identity_probe.py'
+      - 'tests/test_football_native_bsd_identity_probe.py'
+      - 'scripts/football_multisource_market_gate.py'
+      - 'tests/test_football_multisource_market_gate.py'
+      - 'scripts/football_publication_transaction_canary.py'
+      - 'tests/test_football_publication_transaction_canary.py'
+      - 'bsd/bsd_v2_publish.py'
+      - 'bsd/test_bsd_v2_publication_registry.py'
+      - '.github/workflows/football-history-shadow.yml'
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Historical source
+        required: true
+        type: choice
+        default: openfootball
+        options: [openfootball]
+      seasons:
+        description: Comma-separated seasons
+        required: true
+        default: '2024-25,2025-26'
+      max_files:
+        description: Maximum number of files
+        required: true
+        default: '24'
+permissions:
+  contents: read
+concurrency:
+  group: football-history-shadow-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Install test dependencies
+        run: python -m pip install requests cryptography
+      - name: Offline PHP parser and Python tests
+        run: |
+          php -l scripts/football_history_import.php
+          php scripts/football_history_import.php --self-test
+          python -m py_compile scripts/football_history_shadow.py scripts/football_daily_multisource_shadow.py scripts/football_history_features.py scripts/football_alias_candidates.py scripts/football_match_source_router.py scripts/football_prematch_probability_shadow.py scripts/football_public_domain_prematch.py scripts/football_public_domain_backtest.py scripts/football_bsd_private_history.py scripts/football_bsd_validate_real.py scripts/football_bsd_private_paired_backtest.py scripts/football_external_bsd_v2_adapter.py scripts/football_multi_api_history_inputs.py scripts/football_verified_identity_crosswalk.py scripts/football_authorized_h2h_collector.py scripts/football_openfootball_world_import.py tests/test_football_history_shadow.py tests/test_football_daily_multisource_shadow.py tests/test_football_history_features.py tests/test_football_alias_candidates.py tests/test_football_match_source_router.py tests/test_football_prematch_probability_shadow.py tests/test_football_public_domain_prematch.py tests/test_football_public_domain_backtest.py tests/test_football_bsd_private_history.py tests/test_football_bsd_validate_real.py tests/test_football_bsd_private_paired_backtest.py tests/test_football_external_bsd_v2_adapter.py tests/test_football_multi_api_history_inputs.py tests/test_football_verified_identity_crosswalk.py tests/test_football_authorized_h2h_collector.py tests/test_football_openfootball_world_import.py scripts/football_cc0_calendar_verification.py scripts/football_prematch_multiday_probe.py scripts/football_multisource_channel_test.py tests/test_football_multisource_channel_test.py scripts/football_sportscore_filtered_audit.py tests/test_football_sportscore_filtered_audit.py scripts/football_multisource_release_gate.py tests/test_football_multisource_release_gate.py scripts/football_multisource_calibrated_replay.py tests/test_football_multisource_calibrated_replay.py scripts/football_native_bsd_identity_probe.py tests/test_football_native_bsd_identity_probe.py scripts/football_multisource_market_gate.py tests/test_football_multisource_market_gate.py scripts/football_publication_transaction_canary.py tests/test_football_publication_transaction_canary.py bsd/bsd_v2_publish.py bsd/test_bsd_v2_publication_registry.py
+          python -m unittest discover -s tests -p 'test_football_history_shadow.py' -v
+          python -m unittest discover -s tests -p 'test_football_daily_multisource_shadow.py' -v
+          python -m unittest discover -s tests -p 'test_football_history_features.py' -v
+          python -m unittest discover -s tests -p 'test_football_alias_candidates.py' -v
+          python -m unittest discover -s tests -p 'test_football_match_source_router.py' -v
+          python -m unittest discover -s tests -p 'test_football_prematch_probability_shadow.py' -v
+          python -m unittest discover -s tests -p 'test_football_public_domain_prematch.py' -v
+          python -m unittest discover -s tests -p 'test_football_public_domain_backtest.py' -v
+          python -m unittest discover -s tests -p 'test_football_bsd_private_history.py' -v
+          python -m unittest discover -s tests -p 'test_football_bsd_validate_real.py' -v
+          python -m unittest discover -s tests -p 'test_football_bsd_private_paired_backtest.py' -v
+          python -m unittest discover -s tests -p 'test_football_external_bsd_v2_adapter.py' -v
+          python -m unittest discover -s tests -p 'test_football_multi_api_history_inputs.py' -v
+          python -m unittest discover -s tests -p 'test_football_verified_identity_crosswalk.py' -v
+          python -m unittest discover -s tests -p 'test_football_authorized_h2h_collector.py' -v
+          python -m unittest discover -s tests -p 'test_football_openfootball_world_import.py' -v
+          python -m unittest discover -s tests -p 'test_football_multisource_channel_test.py' -v
+          python -m unittest discover -s tests -p 'test_football_sportscore_filtered_audit.py' -v
+          python -m unittest discover -s tests -p 'test_football_multisource_release_gate.py' -v
+          python -m unittest discover -s tests -p 'test_football_multisource_calibrated_replay.py' -v
+          python -m unittest discover -s tests -p 'test_football_native_bsd_identity_probe.py' -v
+          python -m unittest discover -s tests -p 'test_football_multisource_market_gate.py' -v
+          python -m unittest discover -s tests -p 'test_football_publication_transaction_canary.py' -v
+          python -m unittest discover -s bsd -p 'test_bsd_v2_publication_registry.py' -v
+          python scripts/football_publication_transaction_canary.py \
+            --feed=data.json \
+            --ledger=bsd/publication_ledger.json \
+            --report=tmp/bsd-offline-publication-TRANSACTION-AGGREGATE.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('tmp/bsd-offline-publication-TRANSACTION-AGGREGATE.json').read_text())
+          assert report['research_only'] is True
+          assert report['historic_selection_authentic_from_feed_and_ledger'] is True
+          assert report['specimen_had_real_independent_consensus_or_bsd_price'] is True
+          assert report['historic_confidence_replayed_through_v21_and_value_guard'] is True
+          assert report['specimen_is_historical_not_new_live_eligible_fixture'] is True
+          assert report['new_qualified_prematch_selection_observed'] is False
+          assert report['simulated_publication_attempts'] == 3
+          assert report['simulated_transport_dispatches'] == 1
+          assert report['real_telegram_rich_formatter_exercised_with_fake_http'] is True
+          assert report['duplicate_dispatches_suppressed'] == 2
+          assert report['transaction_rollbacks_byte_identical'] == 2
+          assert report['original_data_json_or_ledger_modified'] is False
+          assert report['external_telegram_messages_sent'] == 0
+          assert report['external_bookmaker_api_requests'] == 0
+          assert report['fixture_identifiers_or_quotes_exported'] is False
+          assert report['production_publication_authorized'] is False
+          print('BSD_LEDGER_BACKED_ROLLBACK_CANARY_OK',{
+              'duplicate_deliveries_suppressed':report['duplicate_dispatches_suppressed'],
+              'rollback_injections':report['transaction_rollbacks_byte_identical'],
+              'real_new_coupons_allowed':0})
+          PY
+  historical_probe:
+    if: github.event_name == 'workflow_dispatch'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Validate bounded inputs
+        env:
+          SOURCE: ${{ inputs.source }}
+          SEASONS: ${{ inputs.seasons }}
+          MAX_FILES: ${{ inputs.max_files }}
+        run: |
+          python - <<'PY'
+          import os,re
+          assert os.environ['SOURCE'] == 'openfootball'
+          assert re.fullmatch(r'20\d\d-\d\d(?:,20\d\d-\d\d){0,5}',os.environ['SEASONS'])
+          assert os.environ['MAX_FILES'].isdigit() and 1<=int(os.environ['MAX_FILES'])<=48
+          PY
+      - name: Collect historical results with bounded requests
+        env:
+          SOURCE: ${{ inputs.source }}
+          SEASONS: ${{ inputs.seasons }}
+          MAX_FILES: ${{ inputs.max_files }}
+        run: |
+          php scripts/football_history_import.php --source="$SOURCE" --seasons="$SEASONS" --max-files="$MAX_FILES" --out=tmp/history-raw.jsonl
+      - name: Merge, isolate conflicts and evaluate coverage
+        run: |
+          python scripts/football_history_shadow.py --input=tmp/history-raw.jsonl --output=tmp/history-shadow.json --report=tmp/history-quality.json
+      - name: Upload only summary report, not datasets
+        uses: actions/upload-artifact@v4
+        with:
+          name: openfootball-history-quality-report
+          path: tmp/history-quality.json
+          retention-days: 7
+          if-no-files-found: error
+
+  provider_probe:
+    if: github.event_name == 'pull_request'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Install research adapter dependencies
+        run: python -m pip install requests
+      - name: Probe public-domain OpenFootball historical fixtures only
+        run: |
+          php scripts/football_history_import.php --source=openfootball --seasons=2024-25 --max-files=1 --out=tmp/openfootball.jsonl
+          cp tmp/openfootball.jsonl tmp/combined.jsonl
+          python scripts/football_public_domain_backtest.py --history-jsonl=tmp/openfootball.jsonl --report=tmp/openfootball-holdout-quality.json
+          # Chronological four-season EPL probe, fixed 4 public-domain file downloads
+          for season in 2023-24 2025-26 2026-27; do
+            php scripts/football_history_import.php --source=openfootball --seasons="$season" --max-files=1 --out="tmp/season-$season.jsonl"
+          done
+          cat tmp/season-2023-24.jsonl tmp/openfootball.jsonl tmp/season-2025-26.jsonl tmp/season-2026-27.jsonl > tmp/four-season-history.jsonl
+          python scripts/football_public_domain_backtest.py --history-jsonl=tmp/four-season-history.jsonl --report=tmp/four-season-holdout-quality.json
+          python - <<'PY'
+          import json
+          result=json.load(open('tmp/four-season-holdout-quality.json'))
+          assert result['history_unique_matches'] >= 900
+          assert result['evaluable_games'] >= 200
+          assert result['source_confirmation'] == 'single_unverified_source'
+          assert result['production_activation_allowed'] is False
+          assert result['compared_to_bsd_v2'] is False
+          print('FOUR_SEASON_OUT_OF_SAMPLE_RESEARCH', {'n':result['evaluable_games'], 'measures':result['scoring_metrics']})
+          PY
+          # Multi-season real H2H proof, same original predict_v2() code.
+          python - <<'PY'
+          import json
+          fixture={'fixture_key':'h2h-research-2026','discovered_by':'sportscore',
+                   'sources':{'sportscore':{'id':'historical-proof-not-provider-id'}},
+                   'home_team':'Arsenal','away_team':'Chelsea',
+                   'league_labels':['Premier League'],'league_verified':True,
+                   'kickoff_utc':'2026-10-20T18:00:00Z','status':'prematch',
+                   'ambiguous_match':False,'scores_conflict':False,'league_conflict':False}
+          with open('tmp/h2h-four-season-synthetic-fixture.json','w') as f: json.dump([fixture],f)
+          PY
+          python scripts/football_external_bsd_v2_adapter.py --historical-jsonl=tmp/four-season-history.jsonl --daily-union=tmp/h2h-four-season-synthetic-fixture.json --analysis-at=2026-10-14T08:00:00Z --report=tmp/h2h-four-season-quality.json
+          python - <<'PY'
+          import json
+          result=json.load(open('tmp/h2h-four-season-quality.json'))
+          assert result['historical']['usable_historic_matches'] >= 900
+          assert result['fixtures']['ready_for_unchanged_core'] == 1
+          assert result['bsd_v2_core']['h2h_nonzero_fixtures'] == 1
+          assert result['bsd_v2_core']['core_predict_v2_function_used'] is True
+          assert result['bsd_v2_core']['calculation_module_modified'] is False
+          assert result['bsd_v2_core']['production_published'] is False
+          print('MULTI_SEASON_H2H_SAME_CORE_PASS',
+                {'historical_matches':result['historical']['usable_historic_matches'],
+                 'matches_with_h2h':result['bsd_v2_core']['h2h_nonzero_fixtures']})
+          PY
+          python scripts/football_history_shadow.py --input=tmp/combined.jsonl --output=tmp/merged.json --report=tmp/quality.json
+          python - <<'PY'
+          import json
+          fixture={'fixture_key':'research-prematch-1','discovered_by':'espn','sources':{'espn':{'id':'research-abc'}},
+                   'home_team':'Arsenal','away_team':'Chelsea',
+                   'league_labels':['Premier League'],'league_verified':True,
+                   'kickoff_utc':'2025-03-20T18:00:00+00:00','status':'prematch',
+                   'ambiguous_match':False,'scores_conflict':False,'league_conflict':False}
+          with open('tmp/external-fixture-for-native-bsd-v2.json','w') as handle:
+              json.dump([fixture],handle)
+          PY
+          python scripts/football_external_bsd_v2_adapter.py --historical-jsonl=tmp/openfootball.jsonl --daily-union=tmp/external-fixture-for-native-bsd-v2.json --analysis-at=2025-03-10T10:00:00Z --report=tmp/unchanged-bsd-v2-research-report.json
+          python - <<'PY'
+          import json
+          report=json.load(open('tmp/unchanged-bsd-v2-research-report.json'))
+          assert report['fixtures']['ready_for_unchanged_core'] == 1
+          assert report['bsd_v2_core']['examined'] == 1
+          assert report['bsd_v2_core']['core_predict_v2_function_used']
+          assert report['bsd_v2_core']['h2h_nonzero_fixtures'] >= 1
+          assert report['bsd_v2_core']['calculation_module_modified'] is False
+          assert report['bsd_v2_core']['production_published'] is False
+          print('EXTERNAL_HISTORY_UNCHANGED_BSD_V2_CORE_OK',
+                {'input_matches':report['historical']['usable_historic_matches'],
+                 'h2h_count':report['bsd_v2_core']['h2h_nonzero_fixtures']})
+          PY
+          python scripts/football_alias_candidates.py --input=tmp/combined.jsonl --out=tmp/aliases-to-review.json
+          python - <<'PY'
+          import json
+          fixture={'home_team':'Arsenal','away_team':'Chelsea','kickoff_utc':'2026-10-14T18:00:00+00:00','league_labels':['Premier League']}
+          with open('tmp/fixtures-sample.json','w') as f: json.dump([fixture], f)
+          PY
+          python scripts/football_history_features.py --history=tmp/merged.json --fixtures=tmp/fixtures-sample.json --out=tmp/form-features.json --report=tmp/form-report.json
+          python - <<'PY'
+          import json
+          snapshot={'espn': {'rows': [{'id':'synthetic-0','provider_event_id':'synthetic-0','home_team':'Arsenal','away_team':'Chelsea','event_date':'2026-10-14T18:00:00Z','league':'Premier League','state':'pre'}]}}
+          with open('tmp/synthetic-sources.json','w') as handle:
+              json.dump(snapshot,handle)
+          PY
+          python scripts/football_daily_multisource_shadow.py --snapshots=tmp/synthetic-sources.json --day=2026-10-14 --verified-history=tmp/merged.json --historical-feature-out=tmp/daily-historical-features.json --out=tmp/daily-union.json --report=tmp/daily-merged-report.json --route-out=tmp/daily-source-decisions.json
+          python scripts/football_prematch_probability_shadow.py --routed=tmp/daily-source-decisions.json --history=tmp/merged.json --out=tmp/uncalibrated-research-only.json --report=tmp/probability-quality.json
+
+          # End-to-end: lawful 2024-25 score history -> research fixture ->
+          # pre-kickoff provider selection -> uncalibrated probability.
+          python - <<'PY'
+          import json
+          snapshot={'espn': {'rows': [{'id':'research-2025','provider_event_id':'research-2025','home_team':'Arsenal','away_team':'Chelsea','event_date':'2025-02-25T18:00:00Z','league':'Premier League','state':'pre'}]}}
+          with open('tmp/prematch-sample-2025.json','w') as handle:
+              json.dump(snapshot,handle)
+          PY
+          python scripts/football_daily_multisource_shadow.py \
+            --snapshots=tmp/prematch-sample-2025.json --analysis-at=2025-02-24T10:00:00Z \
+            --public-domain-history-jsonl=tmp/openfootball.jsonl --day=2025-02-25 \
+            --out=tmp/licensed-day-union.json --route-out=tmp/licensed-source-selection.json \
+            --report=tmp/licensed-coverage.json
+          python scripts/football_prematch_probability_shadow.py \
+            --routed=tmp/licensed-source-selection.json --out=tmp/licensed-research-probabilities.json \
+            --report=tmp/licensed-probability-report.json
+          python - <<'PY'
+          import json
+          report=json.load(open('tmp/licensed-coverage.json'))
+          chosen=json.load(open('tmp/licensed-source-selection.json'))
+          probability=json.load(open('tmp/licensed-research-probabilities.json'))
+          assert report['public_domain_history']['with_public_domain_goal_features'] == 1
+          assert report['prematch_readiness']['with_goal_family'] == 1
+          assert chosen[0]['families']['goals']['provider'] == 'openfootball'
+          assert chosen[0]['families']['goals']['fallback_used']
+          assert len(probability) == 1
+          assert probability[0]['not_validated_for_publication']
+          assert json.load(open('tmp/licensed-probability-report.json'))['ready_for_betting'] is False
+          print('PUBLIC_DOMAIN_HISTORY_TO_PREMATCH_RESEARCH_PASS', report['public_domain_history']['with_public_domain_goal_features'])
+          PY
+          python - <<'PY'
+          import json
+          report=json.load(open('tmp/daily-merged-report.json'))
+          assert report['prematch_readiness']['model_enabled'] is False
+          assert report['historical_feature_coverage']['production_model_modified'] is False
+          assert len(json.load(open('tmp/daily-union.json'))) == 1
+          assert len(json.load(open('tmp/daily-source-decisions.json'))) == 1
+          assert json.load(open('tmp/probability-quality.json'))['ready_for_betting'] is False
+          print('FULL_PREMATCH_SHADOW_PIPELINE_OK')
+          PY
+          python - <<'PY'
+          import json
+          report=json.load(open('tmp/quality.json'))
+          test=json.load(open('tmp/openfootball-holdout-quality.json'))
+          assert test['history_unique_matches'] >= 200
+          assert test['evaluable_games'] > 0
+          assert test['production_activation_allowed'] is False
+          assert test['compared_to_bsd_v2'] is False
+          print('OPENFOOTBALL_BACKTEST', {'n':test['evaluable_games'], 'metrics':test['scoring_metrics']})
+          assert report['provider_rows']['openfootball'] >= 200
+          assert report['unique_fixtures'] >= 200
+          assert report['multi_source_agreement'] == 0
+          assert not json.load(open('tmp/form-report.json'))['production_model_modified']
+          print('OPENFOOTBALL_PROBE_PASS', {k:report[k] for k in ('input_rows','unique_fixtures','multi_source_agreement','conflicted_fixtures')})
+          PY
+      - name: Upload research summary, never raw datasets
+        uses: actions/upload-artifact@v4
+        with:
+          name: openfootball-public-domain-probe
+          path: |
+            tmp/quality.json
+            tmp/openfootball-holdout-quality.json
+            tmp/four-season-holdout-quality.json
+            tmp/unchanged-bsd-v2-research-report.json
+            tmp/h2h-four-season-quality.json
+          retention-days: 7
+
+  daily_source_probe:
+    if: github.event_name == 'pull_request' || github.event_name == 'schedule'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Install adapter dependencies
+        run: python -m pip install requests
+      - name: Collect capped public-domain recent-season historical results
+        run: |
+          php scripts/football_history_import.php --source=openfootball --seasons=2025-26,2026-27 --max-files=40 --out=tmp/authorized-prematch-history.jsonl
+          python scripts/football_openfootball_world_import.py --max-files=40 --out=tmp/authorized-world-history.jsonl --report=tmp/authorized-world-history-AGGREGATE.json
+          cat tmp/authorized-world-history.jsonl >> tmp/authorized-prematch-history.jsonl
+      - name: Validate external-provider fixtures and H2H through EXISTING BSD V2 core; no publishing
+        run: |
+          python scripts/football_daily_multisource_shadow.py --day="$(date -u +%F)" --max-http=12 --public-domain-history-jsonl=tmp/authorized-prematch-history.jsonl --out=tmp/fixture-research.json --route-out=tmp/source-route.json --report=tmp/daily-source-quality.json
+          python scripts/football_external_bsd_v2_adapter.py --historical-jsonl=tmp/authorized-prematch-history.jsonl --daily-union=tmp/fixture-research.json --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" --report=tmp/daily-unchanged-v2-quality.json
+          python - <<'PY'
+          import json
+          report=json.load(open('tmp/daily-source-quality.json'))
+          print('SOURCE_HEALTH', {k:{'valid':v['valid'],'error':v['error']} for k,v in report['providers'].items()})
+          assert report['total_http_requests'] <= 12
+          assert report['model_input_enabled'] is False
+          assert report['telegram_posts'] == 0
+          assert report['prematch_readiness']['model_enabled'] is False
+          assert report['prematch_readiness']['telegram_posts'] == 0
+          assert report['public_domain_history']['production_publishing_allowed'] is False
+          assert report['public_domain_history']['no_corners_or_cards_fabricated']
+          validation=json.load(open('tmp/daily-unchanged-v2-quality.json'))
+          assert validation['bsd_v2_core']['calculation_module_modified'] is False
+          assert validation['bsd_v2_core']['production_published'] is False
+          assert validation['bsd_v2_core']['core_predict_v2_function_used'] is True
+          print('DAILY_EXTERNAL_BSD_V2_UNCHANGED', {'adapted_fixtures':validation['fixtures']['ready_for_unchanged_core'],'historical_matches':validation['historical']['usable_historic_matches'],'H2H_matches':validation['bsd_v2_core']['h2h_nonzero_fixtures']})
+          PY
+      - name: Assess next-day new fixtures with SAME BSD V2 core (no publishing)
+        run: |
+          tomorrow="$(date -u -d 'tomorrow' +%F)"
+          python scripts/football_daily_multisource_shadow.py --day="$tomorrow" --max-http=12 --out=tmp/next-day-research.json --report=tmp/next-day-fixture-health.json
+          python scripts/football_external_bsd_v2_adapter.py --historical-jsonl=tmp/authorized-prematch-history.jsonl --daily-union=tmp/next-day-research.json --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" --report=tmp/next-day-v2-health.json
+          python - <<'PY'
+          import json
+          source=json.load(open('tmp/next-day-fixture-health.json'))
+          result=json.load(open('tmp/next-day-v2-health.json'))
+          assert source['total_http_requests'] <= 12
+          assert source['model_input_enabled'] is False
+          assert result['bsd_v2_core']['core_predict_v2_function_used'] is True
+          assert result['bsd_v2_core']['calculation_module_modified'] is False
+          assert result['bsd_v2_core']['production_published'] is False
+          print('NEXT_DAY_UNCHANGED_BSD_V2_AUDIT', {'fixtures':source['total_unique_fixtures'],
+                'without_explicit_league':source['unverified_leagues'],
+                'history_matches':result['historical']['usable_historic_matches'],
+                'ready_to_model':result['fixtures']['ready_for_unchanged_core'],
+                'model_candidates':result['bsd_v2_core']['v2_candidate_count'],
+                'reject_reasons':result['fixtures']['ignored']})
+          PY
+      - name: Upload source health summary only
+        uses: actions/upload-artifact@v4
+        with:
+          name: football-daily-source-health
+          path: |
+            tmp/daily-source-quality.json
+            tmp/daily-unchanged-v2-quality.json
+            tmp/next-day-fixture-health.json
+            tmp/next-day-v2-health.json
+            tmp/authorized-world-history-AGGREGATE.json
+          retention-days: 7
+
+  bsd_actual_archive_validation:
+    # Only the dedicated same-repository PR can access the restore secret.
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.number == 96 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'feat/multisource-history-shadow-20261014'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout trusted same-repository branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Install exact archive/runtime libraries
+        run: python -m pip install requests cryptography
+      - name: Verify encrypted archive and baseline tests
+        run: |
+          test -s bsd/all_matches_bsd.enc.json
+          test -s bsd/bsd_archive.py
+          test -s scripts/football_bsd_validate_real.py
+          python -m unittest discover -s tests -p 'test_football_bsd_validate_real.py' -v
+      - name: Collect PUBLIC fixtures with capped HTTP BEFORE private archive restoration
+        run: |
+          umask 077
+          mkdir -p tmp
+          python scripts/football_daily_multisource_shadow.py --day="$(date -u +%F)" --max-http=12 --out=tmp/public-union.json --report=tmp/public-source-health.json
+      - name: Collect TOMORROW public fixtures before private archive restoration
+        run: |
+          umask 077
+          tomorrow="$(date -u -d 'tomorrow' +%F)"
+          python scripts/football_daily_multisource_shadow.py --day="$tomorrow" --max-http=12 --out=tmp/next-day-public-union.json --report=tmp/next-day-public-source-health.json
+          python scripts/football_openfootball_world_import.py --max-files=40 --out=tmp/private-run-world-history.jsonl --report=tmp/private-run-world-history-AGGREGATE.json
+      - name: Collect +1/+2/+3-day public fixtures for native BSD identity and 48h canary
+        run: |
+          set -euo pipefail
+          umask 077
+          python scripts/football_prematch_multiday_probe.py \
+            --start-day="$(date -u -d '+1 day' +%F)" \
+            --count-days=3 --max-http=24 \
+            --out=tmp/native-id-public-fixtures.json \
+            --report=tmp/native-id-public-health-AGGREGATE.json
+      - name: Collect CC0 calibration history strictly before private BSD restoration
+        run: |
+          set -euo pipefail
+          umask 077
+          php scripts/football_history_import.php \
+            --source=openfootball \
+            --seasons=2023-24,2024-25,2025-26,2026-27 \
+            --league-codes=en.1,en.2,de.1,es.1,fr.1,it.1,nl.1,pt.1 \
+            --max-files=32 --out=tmp/native-market-licensed-cc0.jsonl
+          test -s tmp/native-market-licensed-cc0.jsonl
+      - name: Audit exact real BSD event IDs against CC0 fixtures before private archive restoration
+        env:
+          BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+          FOOTBALL_MULTI_SOURCE: '0'
+        run: |
+          set -euo pipefail
+          umask 077
+          test -n "${BSD_API_KEY}"
+          python scripts/football_native_bsd_identity_probe.py \
+            --public-fixtures=tmp/native-id-public-fixtures.json \
+            --licensed-history=tmp/native-market-licensed-cc0.jsonl \
+            --existing-feed=data.json \
+            --days=3 --start-offset=1 \
+            --report=tmp/bsd-native-identity-AGGREGATE.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('tmp/bsd-native-identity-AGGREGATE.json').read_text())
+          assert r['research_only'] is True
+          assert r['native_event_ids_exported'] is False
+          assert r['actual_bookmaker_quote_or_market_verified'] is False
+          assert r['original_production_publication_enabled'] is False
+          assert r['native_bookmaker_prices_fetched'] is False
+          assert r['no_data_json_modified'] is True
+          assert r['bsd_http_calls'] <= 24
+          assert r['calendar_files_verified'] == 8
+          assert r['official_league_metadata_requested'] <= 8
+          assert r['official_league_metadata_verified'] <= r['official_league_metadata_requested']
+          quoted=r['read_only_native_consensus_price_audit']
+          assert quoted['event_ids_selected_only_from_confirmed_native_links'] is True
+          assert quoted['official_native_events_quoted_attempts'] <= 8
+          assert quoted['max_linked_events_for_quote_probe'] == 8
+          assert quoted['consensus_is_not_executable_bookmaker_offer'] is True
+          assert quoted['independent_bookmaker_selection_codes_verified'] == 0
+          assert quoted['production_market_policy_approved'] is False
+          assert quoted['raw_market_prices_or_event_ids_exported'] is False
+          assert r['bsd_http_calls'] <= 24
+          selected=r['full_model_selected_market_consensus_audit']
+          assert selected['real_market_selection_validation_executed'] is True
+          assert selected['fit_all_native_models_and_calibration'] is True
+          assert selected['sufficient_licensed_cc0_training_history'] is True
+          assert selected['production_tracker_supplied_readonly'] is True
+          assert selected['source_fixture_ids_or_raw_odds_exported'] is False
+          assert selected['match_selection_frozen_before_real_consensus_pricing'] is True
+          assert selected['independent_bookmaker_offer_executable'] is False
+          assert selected['bookmaker_selection_codes_verified'] == 0
+          assert selected['production_authorized'] is False
+          assert selected['telegram_posts'] == 0
+          assert selected['aggregate'].get('events_examined',0) <= 8
+          canary=selected['native_full_assembler_canary']
+          assert canary['executed'] is True
+          assert canary['native_event_ids_verified_in_process'] <= 8
+          assert canary['events_within_native_48h_window'] <= canary['native_event_ids_verified_in_process']
+          assert canary['actual_publication_window_exercised'] == (canary['events_within_native_48h_window'] > 0)
+          assert canary['empty_window_is_not_publication_path_validation'] == (canary['events_within_native_48h_window'] == 0)
+          assert canary['in_memory_quote_fetches'] <= canary['native_event_ids_verified_in_process']
+          assert canary['projected_new_rows_not_published'] <= canary['events_within_native_48h_window']
+          assert canary['existing_production_input_unchanged'] is True
+          assert canary['odds_api_calls_from_assembler'] == 0
+          assert canary['site_or_telegram_publications'] == 0
+          assert canary['production_enabled'] is False
+          assert canary['bookmaker_selection_codes_verified'] == 0
+          assert canary['no_event_names_ids_or_odds_exported'] is True
+          assert r['one_to_one_native_event_links'] <= r['external_cc0_verified']
+          print('NATIVE_BSD_IDENTITY_COUNTS',{
+              'cc0_verified':r['external_cc0_verified'],
+              'native_unique':r['native_unique_eligible'],
+              'one_to_one_linked':r['one_to_one_native_event_links']})
+          PY
+      - name: Restore PRIVATE BSD history without exposing decryption key
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: |
+          umask 077
+          if [ -z "${BSD_HISTORY_KEY}" ]; then
+            echo 'BSD_PRIVATE_VALIDATION_BLOCKED: repository restore secret unavailable'
+            exit 1
+          fi
+          python bsd/bsd_archive.py restore
+          test -s bsd/all_matches_bsd.json
+          chmod 600 bsd/all_matches_bsd.json
+      - name: Validate real BSD against public fixtures; only aggregate output
+        run: |
+          umask 077
+          python scripts/football_bsd_validate_real.py --history=bsd/all_matches_bsd.json --union=tmp/public-union.json --bsd-site-data=data.json --out=tmp/bsd-private-validation-AGGREGATES-ONLY.json
+          python scripts/football_bsd_private_paired_backtest.py --history=bsd/all_matches_bsd.json --max-fixtures=700 --report=tmp/bsd-private-paired-BENCHMARK-AGGREGATES-ONLY.json
+          python scripts/football_external_bsd_v2_adapter.py \
+            --historical-jsonl=tmp/private-run-world-history.jsonl \
+            --private-bsd-history-json=bsd/all_matches_bsd.json \
+            --authorize-bsd-private-internal-use \
+            --bsd-public-identity-feed=data.json \
+            --daily-union=tmp/next-day-public-union.json \
+            --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --report=tmp/bsd-next-day-multisource-aggregate.json
+          python scripts/football_external_bsd_v2_adapter.py \
+            --private-bsd-history-json=bsd/all_matches_bsd.json \
+            --authorize-bsd-private-internal-use \
+            --bsd-public-identity-feed=data.json \
+            --daily-union=tmp/public-union.json \
+            --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --report=tmp/bsd-private-original-v2-aggregate.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result=json.loads(Path('tmp/bsd-private-validation-AGGREGATES-ONLY.json').read_text())
+          assert result['private_archive']['records_restored'] >= 1000
+          assert result['public_data_json_modified'] is False
+          assert result['private_archive_uploaded'] is False
+          assert result['production_model_modified'] is False
+          assert result['predictions_published'] == 0
+          assert result['telegram_posts'] == 0
+          bench=json.loads(Path('tmp/bsd-private-paired-BENCHMARK-AGGREGATES-ONLY.json').read_text())
+          assert bench['private_match_rows_exposed'] is False
+          assert bench['compared_to_production_calibrated_bsd_v2'] is False
+          assert bench['publication_enabled'] is False
+          upcoming=json.loads(Path('tmp/bsd-next-day-multisource-aggregate.json').read_text())
+          assert upcoming['bsd_v2_core']['calculation_module_modified'] is False
+          assert upcoming['bsd_v2_core']['production_published'] is False
+          assert upcoming['multi_api_historical_inputs']['private_bsd']['private_ids_exposed_in_report'] is False
+          print('PRIVATE_BSD_TOMORROW_EXTERNAL_SOURCE_COVERAGE', {
+              'history':upcoming['historical']['usable_historic_matches'],
+              'external_matches':upcoming['fixtures']['input_discovered_fixtures'],
+              'ready_for_original_v2':upcoming['fixtures']['ready_for_unchanged_core'],
+              'abstention_breakdown':upcoming['fixtures']['ignored']
+          })
+          extended=json.loads(Path('tmp/bsd-private-original-v2-aggregate.json').read_text())
+          assert extended['multi_api_historical_inputs']['private_bsd']['private_ids_exposed_in_report'] is False
+          assert extended['bsd_v2_core']['calculation_module_modified'] is False
+          assert extended['bsd_v2_core']['production_published'] is False
+          assert extended['bsd_v2_core']['core_predict_v2_function_used'] is True
+          print('ORIGINAL_V2_REAL_BSD_HISTORY_ENRICHMENT', {
+              'converted': extended['multi_api_historical_inputs']['private_bsd']['converted'],
+              'new_fixtures_ready': extended['fixtures']['ready_for_unchanged_core'],
+              'h2h_fixtures': extended['bsd_v2_core']['h2h_nonzero_fixtures']
+          })
+          PY
+      - name: Destroy decrypted BSD archive and private runtime files
+        if: always()
+        shell: bash
+        run: |
+          rm -f bsd/all_matches_bsd.json bsd/backfill_state.json tmp/public-union.json tmp/next-day-public-union.json tmp/native-id-public-fixtures.json tmp/native-market-licensed-cc0.jsonl tmp/private-run-world-history.jsonl
+          test ! -e bsd/all_matches_bsd.json
+          test ! -e bsd/backfill_state.json
+      - name: Upload only approved aggregate statistics
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bsd-private-validation-aggregate-only
+          path: |
+            tmp/bsd-private-validation-AGGREGATES-ONLY.json
+            tmp/bsd-private-paired-BENCHMARK-AGGREGATES-ONLY.json
+            tmp/bsd-private-original-v2-aggregate.json
+            tmp/bsd-next-day-multisource-aggregate.json
+            tmp/bsd-native-identity-AGGREGATE.json
+            tmp/private-run-world-history-AGGREGATE.json
+          if-no-files-found: error
+          retention-days: 3
+
+  multiday_readonly_preflight:
+    # No Telegram secrets: repeatedly verify the same multi-day pipeline that
+    # succeeded in the isolated one-shot test. Never publish or restore BSD.
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.number == 96 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'feat/multisource-history-shadow-20261014'
+    needs: [verify, bsd_actual_archive_validation]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Load aggregate-only signed-in-run BSD identity report
+        uses: actions/download-artifact@v4
+        with:
+          name: bsd-private-validation-aggregate-only
+          path: tmp/pr96-native-aggregates
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Install public-source HTTP dependencies
+        run: python -m pip install requests cryptography
+      - name: Collect legal CC0 historical matches and future fixtures
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p tmp
+          php scripts/football_history_import.php \
+            --source=openfootball \
+            --seasons=2023-24,2024-25,2025-26,2026-27 \
+            --league-codes=en.1,en.2,de.1,es.1,fr.1,it.1,nl.1,pt.1 \
+            --max-files=32 --out=tmp/readonly-licensed-history.jsonl
+          test -s tmp/readonly-licensed-history.jsonl
+          python scripts/football_prematch_multiday_probe.py \
+            --start-day="$(date -u -d '+2 days' +%F)" \
+            --count-days=3 --max-http=24 \
+            --out=tmp/readonly-multiday-fixtures.json \
+            --report=tmp/readonly-multiday-health.json
+      - name: Audit SportScore documented upcoming filter separately
+        run: |
+          set -euo pipefail
+          sha256sum tmp/readonly-multiday-fixtures.json > tmp/readonly-source-baseline.sha256
+          python scripts/football_sportscore_filtered_audit.py \
+            --fixtures=tmp/readonly-multiday-fixtures.json \
+            --baseline-health=tmp/readonly-multiday-health.json \
+            --max-http=4 --report=tmp/sportscore-upcoming-audit.json
+          sha256sum -c tmp/readonly-source-baseline.sha256
+      - name: Corroborate calendars and run ORIGINAL BSD V2 without Telegram
+        run: |
+          set -euo pipefail
+          python scripts/football_cc0_calendar_verification.py \
+            --fixtures=tmp/readonly-multiday-fixtures.json \
+            --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --output=tmp/readonly-confirmed-fixtures.json \
+            --report=tmp/readonly-calendar-health.json
+          python scripts/football_multisource_channel_test.py \
+            --fixtures=tmp/readonly-confirmed-fixtures.json \
+            --licensed-history=tmp/readonly-licensed-history.jsonl \
+            --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --report=tmp/readonly-v2-report.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('tmp/readonly-v2-report.json').read_text())
+          calendar=json.loads(Path('tmp/readonly-calendar-health.json').read_text())
+          fixtures=json.loads(Path('tmp/readonly-multiday-health.json').read_text())
+          filtered=json.loads(Path('tmp/sportscore-upcoming-audit.json').read_text())
+          assert filtered['documented_filter_only'] is True
+          assert filtered['undocumented_pagination_used'] is False
+          assert filtered['new_events_added_to_prediction_pipeline'] == 0
+          assert filtered['calendar_matching_or_odds_approved'] is False
+          assert filtered['no_production_writes'] is True
+          assert filtered['probe_max_requests'] <= 4
+          assert filtered['attempts'] <= filtered['probe_max_requests']
+          assert filtered['general_page_cap'] == fixtures['sportscore_page_size_limit']
+          assert set(filtered['per_day']) == set(fixtures['days'])
+          assert report['test_only'] is True
+          assert report['production_modified'] is False
+          assert report['calibrated_production_coupons'] == 0
+          assert report['no_odds_invented'] is True
+          gate=report['no_bookmaker_quote_gate']
+          assert gate['used_original_predict_v2'] is True
+          assert gate['fixtures_checked'] == report['qualified_external_fixtures']
+          assert gate['accepted_with_no_bookmaker_quotes'] == 0
+          assert gate['actual_bookmaker_quotes_supplied'] is False
+          assert gate['full_publication_policy_checked'] is False
+          assert gate['publication_enabled'] is False
+          if gate['fixtures_checked']:
+              assert gate['missing_or_low_odds_market_rejections'] > 0
+          assert 'telegram' not in report
+          assert report['input_api_fixtures'] == fixtures['total_fixtures']
+          assert report['calendar_corroborated_fixtures'] <= calendar['coverage']['schedule_matches_confirmed']
+          by_source=calendar['coverage']['by_discovery_source']
+          assert sum(row['input'] for row in by_source.values()) == fixtures['total_fixtures']
+          assert sum(row.get('confirmed',0) for row in by_source.values()) == calendar['coverage']['schedule_matches_confirmed']
+          assert report['qualified_external_fixtures'] <= report['calendar_corroborated_fixtures']
+          assert report['raw_v2_candidates'] <= report['qualified_external_fixtures']
+          assert 0 <= report['messages_ready'] <= 3
+          assert report['historic_matches'] > 0
+          assert fixtures['requests_total'] <= 24
+          assert fixtures['sportscore_page_size_limit'] == 200
+          assert fixtures['sportscore_coverage_possibly_incomplete'] == (
+            fixtures['sportscore_days_at_page_limit'] > 0)
+          bridge=report['external_pricing_bridge']
+          assert bridge['inspected_fixtures'] == report['qualified_external_fixtures']
+          assert bridge['native_bsd_odds_event_ids_verified'] == 0
+          assert bridge['external_to_bookmaker_event_matches_verified'] == 0
+          assert bridge['bsd_native_odds_endpoint_called'] is False
+          assert bridge['model_estimated_prices_possible_in_existing_publisher'] is True
+          assert bridge['model_estimated_prices_generated_by_this_audit'] is False
+          assert bridge['full_calibration_and_v21_publication_approved'] is False
+          assert bridge['publication_enabled'] is False
+          # A missing calendar match cannot silently become an approved
+          # fixture merely because a side or a UTC date looks similar.
+          missing_reasons=sum(
+            count for counts in by_source.values()
+            for reason,count in counts.items() if reason.startswith('unmatched_'))
+          assert missing_reasons == calendar['coverage']['refused'].get('no_cc0_schedule_match',0)
+          summary={k:report[k] for k in (
+            'input_api_fixtures','calendar_corroborated_fixtures',
+            'qualified_external_fixtures','raw_v2_candidates',
+            'historic_matches','calibrated_production_coupons')}
+          print('MULTIDAY_READONLY_BSD_V2_PREFLIGHT',json.dumps(summary))
+          PY
+      - name: Train ORIGINAL full BSD V2 models and replay 2026 held-out results (read-only)
+        run: |
+          set -euo pipefail
+          python scripts/football_multisource_calibrated_replay.py \
+            --licensed-history=tmp/readonly-licensed-history.jsonl \
+            --fixtures=tmp/readonly-confirmed-fixtures.json \
+            --at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --fit-cutoff=2026-01-01T00:00:00+00:00 \
+            --existing-feed=data.json \
+            --max-holdout=120 \
+            --report=tmp/readonly-calibrated-replay.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('tmp/readonly-calibrated-replay.json').read_text())
+          assert r['research_only'] is True
+          assert r['production_publication_authorized'] is False
+          assert r['all_native_bsd_v2_fit_functions_used'] is True
+          assert r['full_calibration_and_specialists_executed'] is True
+          assert r['holdout_evaluation']['strict_pre_day_data_availability_enforced'] is True
+          assert r['holdout_evaluation']['not_a_verified_kickoff_or_odds_backtest'] is True
+          assert r['upcoming_research']['official_bookmaker_quotes_loaded'] is False
+          assembled=r['native_assembler_dry_run']
+          assert assembled['original_bsd_v2_publish_assemble_executed'] is True
+          assert assembled['input_synthetic_fixture_count'] == r['upcoming_research']['history_eligible']
+          assert assembled['no_actual_bookmaker_quotes_used'] is True
+          assert assembled['no_api_or_telegram_network_access'] is True
+          assert assembled['max_odds_requests'] == 0
+          assert assembled['existing_publication_tracker_supplied'] is True
+          assert assembled['existing_production_snapshot_left_untouched'] is True
+          assert assembled['synthetic_fixture_ids_not_authorized_for_publishing'] is True
+          assert assembled['production_ledger_or_files_updated'] is False
+          assert assembled['production_release_authorized'] is False
+          assert r['upcoming_research']['production_tracker_loaded'] is True
+          assert r['raw_or_private_events_exported'] is False
+          assert r['telegram_posts'] == 0
+          assert r['training_results_before_cutoff'] <= r['historical_results_available']
+          assert r['holdout_evaluation']['matches_examined'] <= 120
+          print('BSD_V2_CALIBRATION_RESEARCH_CHECK',json.dumps({
+              'training_sufficient':r['training_sufficiency_requirements_met'],
+              'holdout_examined':r['holdout_evaluation']['matches_examined'],
+              'selected':r['holdout_evaluation']['selected_without_market_quotes'],
+              'full_publication':False}))
+          PY
+      - name: Produce fail-closed explicit release decision (NO-GO until external proof)
+        run: |
+          set -euo pipefail
+          python scripts/football_multisource_release_gate.py \
+            --v2=tmp/readonly-v2-report.json \
+            --calendar=tmp/readonly-calendar-health.json \
+            --fixtures=tmp/readonly-multiday-health.json \
+            --sportscore=tmp/sportscore-upcoming-audit.json \
+            --calibrated=tmp/readonly-calibrated-replay.json \
+            --native-identity=tmp/pr96-native-aggregates/bsd-native-identity-AGGREGATE.json \
+            --report=tmp/multisource-release-gate.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          decision=json.loads(Path('tmp/multisource-release-gate.json').read_text())
+          assert decision['decision'] == 'NO_GO'
+          assert decision['production_publication_authorized'] is False
+          assert decision['research_branch_fusion_authorized_by_this_report'] is False
+          assert decision['independent_review_before_merging_required'] is True
+          assert decision['checks']['native_research_model_calibration_reproduced'] is True
+          assert decision['calibrated_replay_2026']['real_kickoff_or_bookmaker_backtest'] is False
+          metrics=decision['source_metrics']
+          assert decision['checks']['independently_corroborated_native_event_links_observed'] == (metrics['authentic_bsd_event_links_from_private_validation'] > 0)
+          assert decision['checks']['fresh_bsd_consensus_market_prices_observed'] == (metrics['fresh_bsd_consensus_market_prices_from_private_validation'] > 0)
+          assert decision['checks']['real_production_tracker_immutability_probed'] is True
+          assert decision['checks']['real_48h_native_publication_path_exercised'] == (metrics['native_assembler_canary_fixtures_within_48h'] > 0)
+          assert metrics['native_assembler_canary_fixtures_within_48h'] <= metrics['native_assembler_canary_verified_fixtures']
+          assert decision['checks']['actual_selected_market_consensus_pricing_replayed'] is True
+          assert decision['checks']['actual_selected_market_with_consensus_quote_observed'] == (metrics['actual_v2_selected_markets_with_real_consensus_quote'] > 0)
+          assert metrics['actual_v2_selected_markets_passing_v21_research'] <= metrics['actual_v2_selected_markets_with_real_consensus_quote']
+          assert decision['checks']['external_fixture_to_bookmaker_event_identity_verified'] is False
+          assert len(decision['blocking_requirements']) >= 6
+          print('PRODUCTION_RELEASE_VERDICT',decision['decision'],
+                'blocking_requirements',len(decision['blocking_requirements']))
+          PY
+      - name: Destroy all temporary raw fixtures and historical rows
+        if: always()
+        run: |
+          rm -f tmp/readonly-licensed-history.jsonl tmp/readonly-multiday-fixtures.json tmp/readonly-confirmed-fixtures.json tmp/readonly-source-baseline.sha256
+      - name: Upload aggregate diagnostics only
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mrxp-multiday-readonly-aggregate
+          path: |
+            tmp/readonly-multiday-health.json
+            tmp/readonly-calendar-health.json
+            tmp/readonly-v2-report.json
+            tmp/sportscore-upcoming-audit.json
+            tmp/multisource-release-gate.json
+            tmp/readonly-calibrated-replay.json
+          retention-days: 3
+          if-no-files-found: error
+
+  one_shot_test_telegram_multisource:
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.number == 96 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'feat/multisource-history-shadow-20261014' &&
+      contains(github.event.pull_request.title, '[RUN_TEST_ONCE]')
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Minimal Python HTTP dependencies
+        run: python -m pip install requests
+      - name: Acquire eight CC0 historical league datasets over four seasons
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p tmp
+          php scripts/football_history_import.php \
+            --source=openfootball \
+            --seasons=2023-24,2024-25,2025-26,2026-27 \
+            --league-codes=en.1,en.2,de.1,es.1,fr.1,it.1,nl.1,pt.1 \
+            --max-files=32 --out=tmp/licensed-history.jsonl
+          test -s tmp/licensed-history.jsonl
+      - name: Discover future fixtures across three days with bounded API calls
+        run: |
+          set -euo pipefail
+          umask 077
+          python scripts/football_prematch_multiday_probe.py \
+            --start-day="$(date -u -d '+2 days' +%F)" \
+            --count-days=3 --max-http=24 \
+            --out=tmp/multiday-public-fixtures.json --report=tmp/multiday-health.json
+      - name: Corroborate exact league and teams against CC0 schedules
+        run: |
+          python scripts/football_cc0_calendar_verification.py \
+            --fixtures=tmp/multiday-public-fixtures.json \
+            --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --output=tmp/corroborated-fixtures.json --report=tmp/schedule-identity-health.json
+      - name: Dry-run existing BSD V2 core with historical H2H
+        run: |
+          python scripts/football_multisource_channel_test.py \
+            --fixtures=tmp/corroborated-fixtures.json \
+            --licensed-history=tmp/licensed-history.jsonl \
+            --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --report=tmp/multisource-dry-run.json
+          python - <<'PY'
+          import json
+          result=json.load(open('tmp/multisource-dry-run.json'))
+          assert result['test_only'] and result['no_odds_invented']
+          assert result['calibrated_production_coupons'] == 0
+          assert result['production_modified'] is False
+          print('MULTISOURCE_V2_TEST_PREFLIGHT',result)
+          PY
+      - name: Send experimental picks or no-pick diagnostic ONLY to @predict_mrxp
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+        run: |
+          python scripts/football_multisource_channel_test.py \
+            --fixtures=tmp/corroborated-fixtures.json \
+            --licensed-history=tmp/licensed-history.jsonl \
+            --analysis-at="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --report=tmp/multisource-test-send-report.json \
+            --max-picks=3 --send-test
+      - name: Delete temp raw records (including on failure)
+        if: always()
+        run: |
+          rm -f tmp/licensed-history.jsonl tmp/multiday-public-fixtures.json tmp/corroborated-fixtures.json
+      - name: Upload aggregate test report only
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mrxp-one-shot-test-only-validation
+          path: |
+            tmp/multiday-health.json
+            tmp/schedule-identity-health.json
+            tmp/multisource-dry-run.json
+            tmp/multisource-test-send-report.json
+          retention-days: 3
+          if-no-files-found: error
