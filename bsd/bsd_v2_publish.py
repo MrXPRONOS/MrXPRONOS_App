@@ -621,6 +621,27 @@ def main():
     output["diagnostics"]["immutable_previous_events_excluded"]=len(historical_ids)
     leagues_resolved=resolve_league_names(client,fixtures,output,existing)
     output["diagnostics"]["leagues_resolved"]=leagues_resolved
+    # Production-safe multisource ACTIVITY: independent calendar confirmation
+    # of BSD fixtures already qualified by all original BSD V2.1 rules.
+    # No change to market selection, pricing, event IDs or prior outcomes.
+    import os
+    if os.getenv("BSD_MULTISOURCE_CC0","0")=="1":
+        from bsd_v2_multisource import annotate
+        import requests
+        frozen=[(str(m.get("id")), (m.get("prediction") or {}).get("selection_key"),
+                 (m.get("prediction") or {}).get("odds"),
+                 (m.get("prediction") or {}).get("odds_source"))
+                for m in output["matches"]]
+        output["diagnostics"]["multisource"]=annotate(
+            output,session=requests.Session(),now=now)
+        refreshed=[(str(m.get("id")), (m.get("prediction") or {}).get("selection_key"),
+                    (m.get("prediction") or {}).get("odds"),
+                    (m.get("prediction") or {}).get("odds_source"))
+                   for m in output["matches"]]
+        if refreshed!=frozen:
+            raise AssertionError("Multisource verification cannot modify BSD picks or odds")
+        print("BSD_MULTISOURCE_ACTIVATED",json.dumps(
+            output["diagnostics"]["multisource"],ensure_ascii=False))
     output["diagnostics"]["odds_fallback"]={"requests": odds_router.usage,"events":odds_router.events[-60:]}
     output["diagnostics"].update({"api_calls":client.requests_made,
                                   "quality_validation":diag,"rho":rho,
