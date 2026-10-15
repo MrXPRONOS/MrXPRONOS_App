@@ -26,3 +26,4 @@ create index if not exists actu_foot_run_metrics_mode_finished_idx
 alter table public.actu_foot_run_metrics enable row level security;
 revoke all on table public.actu_foot_run_metrics from anon, authenticated;
 grant select, insert, update, delete on table public.actu_foot_run_metrics to service_role;
+grant usage, select on sequence public.actu_foot_run_metrics_id_seq to service_role;
