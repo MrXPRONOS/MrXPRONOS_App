@@ -91,6 +91,9 @@ def corroborate_existing_feed(data,calendar,*,now):
     for row in data["matches"]:
         if not isinstance(row,dict) or row.get("source")!="bsd":
             continue
+        # Drop stale validation copied from a previous site-feed revision.
+        # Every generation must re-corroborate from today's source response.
+        row.pop("multisource_verification",None)
         if row.get("status") not in ("upcoming","notstarted"):
             continue
         when=row.get("event_date")
@@ -110,7 +113,7 @@ def corroborate_existing_feed(data,calendar,*,now):
         # The same match, same sides and same league on the same day appear
         # in two independent sources; time, price and selection remain BSD.
         row["multisource_verification"]={
-            "cc0_calendar_corrobated":True,
+            "cc0_calendar_corroborated":True,
             "calendar_source":DAY_ONLY_SOURCE,
             "scope":"match_day_teams_league_only",
             "actual_kickoff_source":"bsd",
