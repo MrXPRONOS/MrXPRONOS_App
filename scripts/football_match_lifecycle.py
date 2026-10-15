@@ -1607,11 +1607,22 @@ def collect_external(session: requests.Session, day: date, base_events: list[dic
             days.add(when.date())
     rows: list[dict] = []
     for fixture_day in sorted(days):
+        cached = fetch_shared_source_snapshot(session, fixture_day)
+        if cached is not None:
+            rows.extend(cached)
+            continue
+
         snapshots = collect_free_day(session, fixture_day, include_espn=True)
+        day_rows: list[dict] = []
         for provider in ("espn", "sportscore", "thesportsdb", "openligadb"):
             snapshot = snapshots.get(provider)
             if snapshot:
-                rows.extend(snapshot.rows)
+                day_rows.extend(snapshot.rows)
+        persist_shared_source_snapshot(session, fixture_day, day_rows)
+        rows.extend(day_rows)
+
+    # Le snapshot serveur LIVE reste la donnée la plus fraîche pour score/minute.
+    # Il est ajouté même lorsqu'un snapshot fournisseur court a été réutilisé.
     rows.extend(fetch_supabase_live(session))
     return rows
 
