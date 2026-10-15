@@ -14,6 +14,7 @@ ROOT=Path(__file__).resolve().parents[1]
 for p in (ROOT,ROOT/"bsd"):
     if str(p) not in sys.path:sys.path.insert(0,str(p))
 from scripts.football_match_source_router import aware_time
+from scripts.football_history_shadow import canonical_team
 from scripts.football_external_bsd_v2_adapter import normalize_history,adapt_daily
 from bsd_v2_core import V2History,fit_rho_2024,predict_v2
 from bsd_v2_btts import fit_btts_model
@@ -26,6 +27,40 @@ from bsd_v2_guardrails import (v21_accept_priced,post_price_value_guard,
 from bsd_v2_publish import EXCLUDED_SELECTIONS,assemble as native_production_assemble
 
 MAX_QUOTE_AGE_SECONDS=2*3600
+
+def certified_native_shadow_fixture(discovered,adapted,native,*,at:datetime):
+    """Retain historical synthetic team IDs but replace ONLY with proven BSD event ID.
+
+    This helper is not a crosswalk discovery method. The upstream strict
+    independent CC0/native 1:1 verification remains mandatory. A mismatch
+    here fails closed even after the original verification.
+    """
+    if (not isinstance(discovered,dict) or
+        discovered.get("_schedule_verified_by")!="openfootball_cc0" or
+        discovered.get("league_verified") is not True or
+        discovered.get("ambiguous_match") or discovered.get("league_conflict") or
+        discovered.get("scores_conflict") or discovered.get("status")!="prematch"):
+        raise ValueError("Unverified external source fixture")
+    if not isinstance(adapted,dict) or adapted.get("_derived_research_id") is not True:
+        raise ValueError("Invalid synthetic research model fixture")
+    if not isinstance(native,dict) or str(native.get("status") or "").lower() not in ("notstarted","upcoming"):
+        raise ValueError("No official native prematch event")
+    real_id=native.get("id")
+    if type(real_id) is not int or not 0<real_id<7_000_000_000_000_000:
+        raise ValueError("Invalid native event identity")
+    official_time=aware_time(native.get("event_date"))
+    adapted_time=aware_time(adapted.get("event_date"))
+    if (official_time is None or adapted_time is None or official_time<=at
+        or abs((official_time-adapted_time).total_seconds())>900):
+        raise ValueError("Official BSD/research kickoff mismatch")
+    for side in ("home","away"):
+        verified=canonical_team(str((adapted.get(side+"_team") or {}).get("name") or ""))
+        supplied=native.get(side+"_team")
+        native_name=supplied.get("name") if isinstance(supplied,dict) else supplied
+        if not verified or verified!=canonical_team(str(native_name or "")):
+            raise ValueError("Native event has a different football team")
+    return {**adapted,"id":real_id,"event_date":official_time.isoformat(),
+            "_native_bsd_id_verified_in_process":True}
 
 def selected_quote(selection,quotes,*,at:datetime):
     """Never substitute another market or self-derived price."""
@@ -99,19 +134,10 @@ def verify_selected_markets(
             counts["insufficient_historical_identity_or_form"]+=1
             continue
         event=adapted[0]
-        # Do not pass synthetic research IDs to the production assembler.
-        # Native ID is witnessed by the trusted in-process strict crosswalk.
-        genuine_id=native.get("id")
-        if type(genuine_id) is not int or not 0<genuine_id<7_000_000_000_000_000:
-            raise ValueError("Invalid official native BSD ID in strict witness")
-        official_time=aware_time(native.get("event_date"))
-        research_time=aware_time(event.get("event_date"))
-        if (official_time is None or research_time is None or official_time<=at
-            or abs((official_time-research_time).total_seconds())>900):
-            raise ValueError("Official BSD/research kickoff mismatch")
-        event_for_publisher={**event,"id":genuine_id,
-                             "event_date":official_time.isoformat(),
-                             "_native_bsd_id_verified_in_process":True}
+        # The historical team IDs remain stable across the real BSD event.
+        # Event identity is replaced ONLY after strict external/native proof.
+        event_for_publisher=certified_native_shadow_fixture(fixture,event,native,at=at)
+        genuine_id=event_for_publisher["id"]
         if genuine_id in quote_by_native:
             raise ValueError("Duplicate official BSD event in trusted set")
         publisher_fixtures.append(event_for_publisher)
