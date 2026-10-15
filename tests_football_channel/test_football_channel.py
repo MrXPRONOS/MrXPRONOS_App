@@ -164,6 +164,24 @@ class FootballChannelTests(unittest.TestCase):
         self.assertEqual(len(selected), 2)
         self.assertIn("togo", ids)
 
+    def test_atletico_alias_only_targets_atletico_madrid(self):
+        nacional = event("nacional")
+        nacional["home_team"]["name"] = "Atletico Nacional Medellin"
+        nacional["away_team"]["name"] = "Deportivo Independiente Medellin"
+        nacional["league_name"] = "Colombia Primera A"
+
+        madrid = event("madrid")
+        madrid["home_team"]["name"] = "Atletico Madrid"
+        madrid["away_team"]["name"] = "Getafe"
+        madrid["league_name"] = "La Liga"
+
+        nacional_breakdown = m.live_popularity_breakdown(nacional)
+        madrid_breakdown = m.live_popularity_breakdown(madrid)
+        self.assertEqual(nacional_breakdown["home"], 0)
+        self.assertGreater(madrid_breakdown["home"], 0)
+        self.assertFalse(m.popular_live_match(nacional))
+        self.assertTrue(m.popular_live_match(madrid))
+
     def test_live_ranking_dominance_can_keep_only_one_match(self):
         def fixture(ident, home, away):
             row = event(ident)
