@@ -789,7 +789,7 @@ class FootballChannelTests(unittest.TestCase):
         self.assertEqual(signal["kind"], "resultat_final")
         self.assertEqual(signal["score"], "1-2")
 
-    def test_publication_fraiche_ne_reconstruit_pas_canonique(self):
+    def test_publication_fraiche_avec_canon_existant_ne_reconstruit_pas(self):
         from unittest.mock import Mock
         item = m.Publication(
             "goal", "goal:x", "goal",
@@ -799,8 +799,32 @@ class FootballChannelTests(unittest.TestCase):
         with patch.object(m, "confirm_canonical_live_event", return_value=True) as confirm, \
              patch.object(m, "persist_canonical_live_events") as persist:
             m.ensure_canonical_publication(session, item, replay=False, strict=True)
-        confirm.assert_called_once_with(session, "goal:x", strict=True)
+        confirm.assert_called_once_with(session, "goal:x", strict=False)
         persist.assert_not_called()
+
+    def test_resultat_fallback_valide_reconstruit_canonique_absent(self):
+        from unittest.mock import Mock
+        item = m.Publication(
+            "resultat", "resultat:legacy", "<b>Final</b>",
+            card={
+                "home": "Guastatoya",
+                "away": "Antigua GFC",
+                "league": "Liga Nacional",
+                "scores": (1, 2),
+                "source": "score confirme",
+                "fixture_key": "20261015:guastatoya:antigua-gfc",
+                "canonical_event_key": "resultat:20261015:guastatoya:antigua-gfc",
+            },
+        )
+        session = Mock()
+        with patch.object(m, "confirm_canonical_live_event", side_effect=[False, True]) as confirm, \
+             patch.object(m, "persist_canonical_live_events", return_value=[{"key": item.key}]) as persist:
+            m.ensure_canonical_publication(session, item, replay=False, strict=True)
+        self.assertEqual(confirm.call_count, 2)
+        persist.assert_called_once()
+        signal = persist.call_args.args[1][0]
+        self.assertEqual(signal["kind"], "resultat_final")
+        self.assertEqual(signal["score"], "1-2")
 
     def test_deliver_with_outbox_marque_echec_rejouable(self):
         from unittest.mock import Mock
