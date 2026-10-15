@@ -1,6 +1,6 @@
 {
   "scope": "read_only_identity_evidence",
-  "external_total": 1403,
+  "external_total": 1402,
   "external_cc0_verified": 28,
   "native_total": 417,
   "native_unique_eligible": 48,
@@ -20,7 +20,7 @@
   "rejected_reasons": {
     "duplicated_native_id": 0,
     "external_ambiguous_native_matches": 0,
-    "external_not_independently_cc0_verified": 1375,
+    "external_not_independently_cc0_verified": 1374,
     "native_ambiguous_external_matches": 0
   },
   "read_only_native_consensus_price_audit": {
@@ -45,6 +45,7 @@
       "in_memory_quote_fetches": 2,
       "projected_new_rows_not_published": 0,
       "qualified_rows_available_process_local": 0,
+      "historical_append_only_ids_enforced": true,
       "existing_production_input_unchanged": true,
       "odds_api_calls_from_assembler": 0,
       "site_or_telegram_publications": 0,
