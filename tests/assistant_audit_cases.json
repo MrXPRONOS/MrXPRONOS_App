@@ -1,0 +1,42 @@
+[
+  {
+    "id": "vip",
+    "question": "Les pronostics VIP sont-ils gratuits ?",
+    "page": "/pronos.html"
+  },
+  {
+    "id": "live",
+    "question": "Le LIVE est-il accessible gratuitement ?",
+    "page": "/live.html"
+  },
+  {
+    "id": "pronos",
+    "question": "Quels sont les pronostics du jour ?",
+    "page": "/pronos.html"
+  },
+  {
+    "id": "history",
+    "question": "Quels sont les résultats d'hier ?",
+    "page": "/historique.html"
+  },
+  {
+    "id": "bonus",
+    "question": "Quel est le code promo ?",
+    "page": "/bonus.html"
+  },
+  {
+    "id": "support",
+    "question": "Comment contacter le support ?",
+    "page": "/contact.html"
+  },
+  {
+    "id": "faq",
+    "question": "Que signifie plus de 2,5 buts ?",
+    "page": "/pronos.html"
+  },
+  {
+    "id": "greeting",
+    "question": "Bonjour",
+    "page": "/"
+  }
+]

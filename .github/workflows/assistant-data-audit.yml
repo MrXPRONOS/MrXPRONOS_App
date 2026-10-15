@@ -1,0 +1,16 @@
+name: Assistant Data Feeds Audit
+on:
+  push:
+    branches: [assistant-real-audit-oct2026]
+    paths:
+      - 'tests/assistant_live_data_audit.mjs'
+      - '.github/workflows/assistant-data-audit.yml'
+jobs:
+  data-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node tests/assistant_live_data_audit.mjs
