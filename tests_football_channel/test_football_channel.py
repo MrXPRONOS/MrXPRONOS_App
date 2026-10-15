@@ -82,6 +82,47 @@ class FootballChannelTests(unittest.TestCase):
         ucl = [row for row in selected if m.live_competition_key(row) == "uefa-champions-league"]
         self.assertEqual(len(ucl), 2)
 
+    def test_live_ranking_exact_ucl_four_match_scenario(self):
+        def fixture(ident, home, away, competition):
+            row = event(ident)
+            row["home_team"]["name"] = home
+            row["away_team"]["name"] = away
+            row["league_name"] = competition
+            return row
+
+        matches = [
+            fixture("ucl-real-liv", "Real Madrid", "Liverpool", "UEFA Champions League"),
+            fixture("ucl-psg-bayern", "PSG", "Bayern", "UEFA Champions League"),
+            fixture("ucl-fey-como", "Feyenoord", "Como", "UEFA Champions League"),
+            fixture("ucl-ben-ajax", "Benfica", "Ajax", "UEFA Champions League"),
+        ]
+        selected = m.select_popular_live_matches(
+            matches, max_per_competition=2, max_total=6
+        )
+        self.assertEqual(
+            [row["id"] for row in selected],
+            ["ucl-real-liv", "ucl-psg-bayern"],
+        )
+
+    def test_uefa_and_caf_champions_league_have_separate_quotas(self):
+        def fixture(ident, home, away, competition):
+            row = event(ident)
+            row["home_team"]["name"] = home
+            row["away_team"]["name"] = away
+            row["league_name"] = competition
+            return row
+
+        uefa = fixture("uefa", "Real Madrid", "Liverpool", "UEFA Champions League")
+        caf = fixture("caf", "Al Ahly", "Wydad", "CAF Champions League")
+        self.assertEqual(m.live_competition_key(uefa), "uefa-champions-league")
+        self.assertEqual(m.live_competition_key(caf), "caf-champions-league")
+        self.assertGreater(m.live_popularity_score(uefa), m.live_popularity_score(caf))
+
+        selected = m.select_popular_live_matches(
+            [uefa, caf], max_per_competition=1, max_total=2
+        )
+        self.assertEqual({row["id"] for row in selected}, {"uefa", "caf"})
+
     def test_live_ranking_has_global_cap_and_togo_priority(self):
         def fixture(ident, home, away, competition):
             row = event(ident)
