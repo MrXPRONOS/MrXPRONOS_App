@@ -516,6 +516,18 @@ jobs:
           assert selected['production_authorized'] is False
           assert selected['telegram_posts'] == 0
           assert selected['aggregate'].get('events_examined',0) <= 8
+          canary=selected['native_full_assembler_canary']
+          assert canary['executed'] is True
+          assert canary['native_event_ids_verified_in_process'] <= 8
+          assert canary['events_within_native_48h_window'] <= canary['native_event_ids_verified_in_process']
+          assert canary['in_memory_quote_fetches'] <= canary['native_event_ids_verified_in_process']
+          assert canary['projected_new_rows_not_published'] <= canary['events_within_native_48h_window']
+          assert canary['existing_production_input_unchanged'] is True
+          assert canary['odds_api_calls_from_assembler'] == 0
+          assert canary['site_or_telegram_publications'] == 0
+          assert canary['production_enabled'] is False
+          assert canary['bookmaker_selection_codes_verified'] == 0
+          assert canary['no_event_names_ids_or_odds_exported'] is True
           assert r['one_to_one_native_event_links'] <= r['external_cc0_verified']
           print('NATIVE_BSD_IDENTITY_COUNTS',{
               'cc0_verified':r['external_cc0_verified'],
