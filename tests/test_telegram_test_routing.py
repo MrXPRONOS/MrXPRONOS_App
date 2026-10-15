@@ -22,13 +22,16 @@ class TelegramTestRoutingTests(unittest.TestCase):
         self.assertIn("workflow_dispatch", text)
         self.assertIn("telegram_test_guard.py", text)
 
-    def test_production_workflow_has_separate_test_state_and_no_prod_site_update_for_test(self):
+    def test_production_workflow_has_separate_test_state_and_supabase_news_path(self):
         text=self.read(".github/workflows/football-production.yml")
         self.assertIn(".state/mrxpronos-football-test.json",text)
         self.assertIn(".state/mrxpronos-football.json",text)
-        self.assertIn("steps.telegram_route.outputs.destination == 'production'",text)
         self.assertIn('default: "test"',text)
         self.assertIn("TELEGRAM_TEST_CHAT_ID manquant",text)
+        self.assertIn("SUPABASE_URL", text)
+        self.assertIn("SUPABASE_SERVICE_ROLE_KEY", text)
+        self.assertNotIn("git add footnews.json", text)
+        self.assertNotIn("git push origin HEAD:main", text)
 
     def test_bsd_manual_defaults_to_test_but_cron_routes_production(self):
         text=self.read(".github/workflows/bsd-v2-telegram-hourly.yml")
@@ -83,23 +86,21 @@ class TelegramTestRoutingTests(unittest.TestCase):
         ):
             self.assertFalse((ROOT / path).exists(), path)
 
-    def test_five_business_systems_e2e_has_no_overlapping_child_workflows(self):
-        script=self.read("scripts/telegram_live_e2e.py")
-        workflow=self.read(".github/workflows/telegram-real-e2e-once.yml")
-        for stage in ("S1_NEWS", "S2_CYCLE", "S3_DATA", "S4_COMMUNAUTE", "S5_VIRAL"):
-            self.assertIn(stage, script)
-        for obsolete in (
-            "telegram-test-channel-smoke.yml",
-            "football-visual-live-test-once.yml",
-            "football-live-test-once.yml",
-            "football-premium-validation-once.yml",
-            "bsd-v2-telegram-hourly.yml",
+    def test_five_business_systems_review_replaces_old_e2e_workflow(self):
+        script=self.read("scripts/football_five_systems_test.py")
+        workflow=self.read(".github/workflows/football-five-systems-review.yml")
+        self.assertFalse((ROOT / ".github/workflows/telegram-real-e2e-once.yml").exists())
+        self.assertFalse((ROOT / "scripts/telegram_live_e2e.py").exists())
+        for category in (
+            "programme", "avant_match", "resultat", "statistique", "flash",
+            "composition", "kickoff", "goal", "quiz", "debat", "reaction",
+            "viral_news", "viral_match", "viral_stat",
         ):
-            self.assertNotIn(obsolete, script)
+            self.assertIn(category, script)
         self.assertNotIn("workflow run", script)
         self.assertNotIn("actions: write", workflow)
         self.assertIn("FOOTBALL_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID", workflow)
-        self.assertIn("FIVE_SYSTEMS_E2E_OK messages=5 doublons=0", script)
+        self.assertIn("telegram_test_guard.py", workflow)
 
     def test_smoke_card_is_square_and_network_can_be_mocked(self):
         image=telegram_test_smoke.build()
