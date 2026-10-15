@@ -97,7 +97,7 @@ class MarketWitnessTests(unittest.TestCase):
         }
         dry={"source":"bsd","matches":[accepted]}
         base={"source":"bsd","matches":[],"performance_tracker":{}}
-        rows=extract_new_verified_rows(dry,base,{12345})
+        rows=extract_new_verified_rows(dry,base,{12345},historical_published_ids=set())
         self.assertEqual(len(rows),1)
         self.assertTrue(rows[0]["multisource_verification"]["v21_and_value_guard_passed"])
         self.assertTrue(rows[0]["multisource_verification"]["production_assembler_created_row"])
@@ -114,8 +114,30 @@ class MarketWitnessTests(unittest.TestCase):
         }
         with self.assertRaises(AssertionError):
             extract_new_verified_rows({"source":"bsd","matches":[row]},
-                                      {"source":"bsd","matches":[]},{12345})
+                                      {"source":"bsd","matches":[]},{12345},historical_published_ids=set())
 
+
+    def test_extract_never_recreates_a_retired_historical_coupon(self):
+        accepted={
+            "id":"bsd:12345","source_event_id":12345,"source":"bsd",
+            "prediction":{
+                "selection_key":"OVER_25","market":"over_under","odds":1.81,
+                "confidence":78.0,"odds_source":"bsd_consensus",
+                "estimated_odds":False,
+            },
+        }
+        with self.assertRaisesRegex(AssertionError,"Already published"):
+            extract_new_verified_rows(
+                {"source":"bsd","matches":[accepted]},
+                {"source":"bsd","matches":[]},
+                {12345},historical_published_ids={"12345"})
+
+    def test_extraction_requires_historical_ledger_evidence(self):
+        with self.assertRaisesRegex(ValueError,"append-only"):
+            extract_new_verified_rows(
+                {"source":"bsd","matches":[]},
+                {"source":"bsd","matches":[]},
+                {12345},historical_published_ids=None)
 
     def test_untrusted_production_feed_or_more_than_eight_events_rejected(self):
         with self.assertRaises(ValueError):
