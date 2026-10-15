@@ -44,6 +44,7 @@ from free_football_sources import (  # noqa: E402
 from telegram_rich import post_photo, post_text, post_animation, _post_rate_limited  # noqa: E402
 from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish, fetch_supabase_live, persist_canonical_live_events, confirm_canonical_live_event)  # noqa: E402
 import football_followup as followup  # noqa: E402
+from actu_foot_observability import persist_run_metrics  # noqa: E402
 from football_stats_engine import daily_insight  # noqa: E402
 from football_viral_engine import (  # noqa: E402
     build_viral_payload, render_animation, media_credit_text, media_credit_url,
@@ -2685,89 +2686,6 @@ def enough(history: History, cat: str, now: datetime) -> bool:
 
 
 
-def _actu_foot_outbox_pending(session: requests.Session) -> int:
-    base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
-    if not base or not key:
-        return 0
-    try:
-        response = session.get(
-            base + "/rest/v1/actu_foot_publications",
-            params={
-                "select": "event_key",
-                "status": "in.(failed,claimed,uncertain)",
-                "limit": "100",
-            },
-            headers={"apikey": key, "Authorization": "Bearer " + key},
-            timeout=(5, 10),
-        )
-        response.raise_for_status()
-        payload = response.json()
-        return len(payload) if isinstance(payload, list) else 0
-    except (requests.RequestException, ValueError):
-        return 0
-
-
-def persist_actu_foot_run_metrics(
-    session: requests.Session,
-    *,
-    mode: str,
-    started_at: datetime,
-    dry_run: bool,
-    counter: dict[str, int],
-    state: History,
-    now: datetime,
-) -> None:
-    """Télémétrie privée et best-effort : ne doit jamais bloquer Telegram."""
-    if os.getenv("FOOTBALL_RUN_METRICS", "0") != "1":
-        return
-    base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
-    if not base or not key:
-        return
-    finished_at = datetime.now(timezone.utc)
-    ranking = dict(_LAST_LIVE_RANKING)
-    payload = {
-        "run_id": str(os.getenv("GITHUB_RUN_ID") or ""),
-        "mode": mode,
-        "dry_run": bool(dry_run),
-        "started_at": started_at.astimezone(timezone.utc).isoformat(),
-        "finished_at": finished_at.isoformat(),
-        "duration_ms": max(0, int((finished_at - started_at).total_seconds() * 1000)),
-        "sent": int(counter.get("sent") or 0),
-        "skipped": int(counter.get("skipped") or 0),
-        "errors": int(counter.get("errors") or 0),
-        "tracked_pending": len(followup.pending(state.followed, now)),
-        "ranking_eligible": int(ranking.get("eligible") or 0),
-        "ranking_selected": int(ranking.get("selected") or 0),
-        "outbox_pending": _actu_foot_outbox_pending(session),
-        "ranking_snapshot": ranking,
-    }
-    try:
-        response = session.post(
-            base + "/rest/v1/actu_foot_run_metrics",
-            headers={
-                "apikey": key,
-                "Authorization": "Bearer " + key,
-                "Content-Type": "application/json",
-                "Prefer": "return=minimal",
-            },
-            json=payload,
-            timeout=(5, 10),
-        )
-        response.raise_for_status()
-        print("ACTU_FOOT_METRICS_OK", mode, json.dumps({
-            "sent": payload["sent"],
-            "errors": payload["errors"],
-            "tracked": payload["tracked_pending"],
-            "selected": payload["ranking_selected"],
-            "outbox": payload["outbox_pending"],
-            "duration_ms": payload["duration_ms"],
-        }))
-    except requests.RequestException as exc:
-        print("ACTU_FOOT_METRICS_SKIPPED", type(exc).__name__, str(exc)[:120])
-
-
 def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[str, int]:
     """Passage léger Actu Foot : aucun RSS, aucune image site, aucun appel BSD.
 
@@ -2938,14 +2856,14 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
     finally:
         if not dry_run:
             state.save(now)
-        persist_actu_foot_run_metrics(
+        persist_run_metrics(
             sender.session,
             mode="lifecycle",
             started_at=run_started_at,
             dry_run=dry_run,
             counter=counter,
-            state=state,
-            now=now,
+            tracked_pending=len(followup.pending(state.followed, now)),
+            ranking=dict(_LAST_LIVE_RANKING),
         )
 
     print("XPRONOS_LIFECYCLE", json.dumps(counter), "dry_run", dry_run)
@@ -3372,14 +3290,14 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
     finally:
         if not dry_run:
             state.save(now)
-        persist_actu_foot_run_metrics(
+        persist_run_metrics(
             sender.session,
             mode="full",
             started_at=run_started_at,
             dry_run=dry_run,
             counter=counter,
-            state=state,
-            now=now,
+            tracked_pending=len(followup.pending(state.followed, now)),
+            ranking=dict(_LAST_LIVE_RANKING),
         )
     print("XPRONOS_FOOTBALL", json.dumps(counter), "dry_run", dry_run)
     return counter
