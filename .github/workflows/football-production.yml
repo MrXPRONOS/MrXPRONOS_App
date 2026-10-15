@@ -299,8 +299,3 @@ jobs:
           fi
           git push origin HEAD:main
           echo "NEWS_SITE_COMMITTED=true" >> "$GITHUB_ENV"
-      - name: Déployer les nouvelles Infos Foot
-        if: ${{ env.NEWS_SITE_COMMITTED == 'true' && inputs.mode != 'lifecycle' }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run deploy.yml --ref main
