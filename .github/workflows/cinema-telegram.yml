@@ -30,11 +30,7 @@ on:
       - 'tests/test_cinema_telegram.py'
       - '.github/workflows/cinema-telegram.yml'
   schedule:
-    - cron: '17 9 * * *'
-    - cron: '19 13 * * *'
-    - cron: '23 17 * * *'
-    - cron: '27 20 * * *'
-    - cron: '41 18 * * *'
+    - cron: '17 9 * * *'  # 09:17 UTC / Lomé, chaque jour
 
 permissions:
   contents: write
@@ -92,12 +88,14 @@ jobs:
               echo 'Production not enabled: schedule safely skipped'
               exit 0
             fi
-            case "$(date -u +%H)" in
-              09) SELECTED=film ;;
-              13) SELECTED=top5 ;;
-              17) SELECTED=sorties ;;
-              20) SELECTED=soir ;;
-              18) SELECTED=quiz ;;
+            case "$(date -u +%u)" in
+              1) SELECTED=film ;;
+              2) SELECTED=top5 ;;
+              3) SELECTED=sorties ;;
+              4) SELECTED=soir ;;
+              5) SELECTED=quiz ;;
+              6) SELECTED=film ;;
+              7) SELECTED=top5 ;;
               *) echo 'No matching slot'; exit 0 ;;
             esac
             python scripts/cinema_telegram.py --mode production --format "$SELECTED"
