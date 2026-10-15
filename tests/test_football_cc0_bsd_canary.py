@@ -26,7 +26,7 @@ class BSDCC0CanaryTests(unittest.TestCase):
     def test_valid_unique_native_match_only(self):
         rows=calendar()
         result=corroborate(rows,[event()],{44:"Premier League"},at=AT)
-        self.assertEqual(result["officially_corrobated_unique_native_matches"],1)
+        self.assertEqual(result["officially_corroborated_unique_native_matches"],1)
         self.assertEqual(result["cc0_day_team_pairs_matched"],1)
         self.assertFalse(result["production_publication_enabled"])
         self.assertFalse(result["raw_match_data_or_ids_exported"])
@@ -37,21 +37,21 @@ class BSDCC0CanaryTests(unittest.TestCase):
         rows=calendar()
         self.assertEqual(candidate_leagues(rows,[event()],at=AT),[44])
         empty=corroborate(rows,[event()],{},at=AT)
-        self.assertEqual(empty["officially_corrobated_unique_native_matches"],0)
+        self.assertEqual(empty["officially_corroborated_unique_native_matches"],0)
         wrong=corroborate(rows,[event()],{44:"Bundesliga"},at=AT)
-        self.assertEqual(wrong["officially_corrobated_unique_native_matches"],0)
+        self.assertEqual(wrong["officially_corroborated_unique_native_matches"],0)
 
     def test_inverted_teams_or_kickoff_day_refused(self):
         for row in (event(home="Chelsea",away="Arsenal"),
                     event(time="2026-10-17T19:00:00Z")):
-            self.assertEqual(corroborate(calendar(),[row],{44:"Premier League"},at=AT)["officially_corrobated_unique_native_matches"],0)
+            self.assertEqual(corroborate(calendar(),[row],{44:"Premier League"},at=AT)["officially_corroborated_unique_native_matches"],0)
 
     def test_duplicate_native_ids_and_competing_events_are_quarantined(self):
         row=event()
         duplicates=corroborate(calendar(),[row,dict(row)],{44:"Premier League"},at=AT)
-        self.assertEqual(duplicates["officially_corrobated_unique_native_matches"],0)
+        self.assertEqual(duplicates["officially_corroborated_unique_native_matches"],0)
         conflicting=corroborate(calendar(),[row,event(ident_num=555)],{44:"Premier League"},at=AT)
-        self.assertEqual(conflicting["officially_corrobated_unique_native_matches"],0)
+        self.assertEqual(conflicting["officially_corroborated_unique_native_matches"],0)
         self.assertEqual(conflicting["duplicate_native_fixture_conflicts"],1)
 
     def test_invalid_status_or_nonfuture_no_matches(self):
@@ -59,7 +59,7 @@ class BSDCC0CanaryTests(unittest.TestCase):
         live=event()
         live["status"]="live"
         result=corroborate(calendar(),[old,live],{44:"Premier League"},at=AT)
-        self.assertEqual(result["officially_corrobated_unique_native_matches"],0)
+        self.assertEqual(result["officially_corroborated_unique_native_matches"],0)
 
     def test_unexpected_calendar_fails_closed(self):
         for payload in ({"matches":"broken"},{"matches":[2]},{"matches":[],"wrong":True}):
