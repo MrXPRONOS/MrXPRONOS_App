@@ -71,6 +71,18 @@ class TelegramTestRoutingTests(unittest.TestCase):
         self.assertIn("--visual-test", text)
         self.assertIn("actu_foot_health_report.py", text)
 
+    def test_obsolete_actu_foot_one_shots_are_replaced_by_manual_suite(self):
+        consolidated = ROOT / ".github/workflows/actu-foot-test-suite.yml"
+        self.assertTrue(consolidated.is_file())
+        for path in (
+            ".github/workflows/actu-foot-copy-samples-once.yml",
+            ".github/workflows/football-live-test-once.yml",
+            ".github/workflows/football-premium-validation-once.yml",
+            ".github/workflows/football-visual-live-test-once.yml",
+            ".github/workflows/football-viral-visual-test-once.yml",
+        ):
+            self.assertFalse((ROOT / path).exists(), path)
+
     def test_five_business_systems_e2e_has_no_overlapping_child_workflows(self):
         script=self.read("scripts/telegram_live_e2e.py")
         workflow=self.read(".github/workflows/telegram-real-e2e-once.yml")
