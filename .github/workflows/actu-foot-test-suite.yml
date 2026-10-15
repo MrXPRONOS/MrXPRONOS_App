@@ -54,7 +54,7 @@ jobs:
 
       - name: Compiler et tester le moteur Actu Foot
         run: |
-          python -m py_compile scripts/football_channel.py scripts/football_match_lifecycle.py scripts/football_viral_engine.py scripts/telegram_viral_visual_test.py scripts/actu_foot_observability.py scripts/actu_foot_source_cache.py scripts/actu_foot_provider_health.py scripts/actu_foot_health_report.py
+          python -m py_compile scripts/football_channel.py scripts/football_match_lifecycle.py scripts/football_viral_engine.py scripts/telegram_viral_visual_test.py scripts/actu_foot_observability.py scripts/actu_foot_ranking.py scripts/actu_foot_source_cache.py scripts/actu_foot_provider_health.py scripts/actu_foot_health_report.py
           python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
 
       - name: Vérifier strictement la destination de test
