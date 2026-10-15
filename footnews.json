@@ -15,7 +15,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-15T00:00:00+00:00",
+    "published": "2026-10-15T00:08:12+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -155,7 +155,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "Maxifoot",
@@ -219,7 +219,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -352,7 +352,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "Franceinfo",
@@ -695,7 +695,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "RFI Afrique Foot",
@@ -789,7 +789,7 @@
     "link": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7628f643096931ac",
-    "published": "2026-10-15T00:00:00+00:00",
+    "published": "2026-10-15T00:08:12+00:00",
     "image": "assets/images/footnews/7628f643096931ac.webp",
     "source_image": "https://www.franceinfo.fr/pictures/5U3Wip1t6xJCEihksoGYiduzong/0x25:4673x2654/432x243/filters:format(jpg)/2026/10/14/6acfdbdf2c937182294865.jpg",
     "image_origin": "source",
@@ -806,6 +806,40 @@
       "Franceinfo"
     ],
     "quality_score": 82
+  },
+  {
+    "slug": "69e84b999ca11bbd",
+    "title": "Entre boulettes, parades et manque de sérénité, Safonov et Donnarumma ont encore étalé leurs limites en Ligue des champions",
+    "summary": "Difficile de donner un net vainqueur dans ce duel à distance.",
+    "summary_short": "Difficile de donner un net vainqueur dans ce duel à distance.",
+    "content": "Difficile de donner un net vainqueur dans ce duel à distance.",
+    "paragraphs": [
+      "Difficile de donner un net vainqueur dans ce duel à distance."
+    ],
+    "key_points": [
+      "Difficile de donner un net vainqueur dans ce duel à distance."
+    ],
+    "telegram_summary": "Difficile de donner un net vainqueur dans ce duel à distance.",
+    "link": "https://www.sofoot.com/articles/entre-boulettes-parades-et-manque-de-serenite-safonov-et-donnarumma-ont-encore-etale-leurs-limites-en-ligue-des-champions",
+    "source_url": "https://www.sofoot.com/articles/entre-boulettes-parades-et-manque-de-serenite-safonov-et-donnarumma-ont-encore-etale-leurs-limites-en-ligue-des-champions",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=69e84b999ca11bbd",
+    "published": "2026-10-15T00:00:58+00:00",
+    "image": "assets/images/footnews/69e84b999ca11bbd.webp",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/15015403/ICONSPORT_254475_0255-scaled.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
   },
   {
     "slug": "b8fd5c493d235473",
@@ -966,7 +1000,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1024,7 +1058,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -1190,7 +1224,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1286,7 +1320,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1349,7 +1383,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1550,7 +1584,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1609,7 +1643,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1710,7 +1744,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1772,7 +1806,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1869,7 +1903,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2165,7 +2199,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -2292,7 +2326,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -2356,7 +2390,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -2447,7 +2481,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-15T00:05:29.574336+00:00"
+      "checked_at": "2026-10-15T00:10:31.011133+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -2522,39 +2556,5 @@
       "Onze Mondial"
     ],
     "quality_score": 80
-  },
-  {
-    "slug": "842bfcf2c26ffb60",
-    "title": "Ligue 1 : Le stade Vélodrome, Liam Rosenior, Matthieu Udol... les sanctions de la commission de discipline",
-    "summary": "Retrouvez les différentes sanctions prononcées par la Commission de Discipline de la Ligue de Football Professionnel (LFP) ce mercredi.",
-    "summary_short": "Retrouvez les différentes sanctions prononcées par la Commission de Discipline de la Ligue de Football Professionnel (LFP) ce mercredi.",
-    "content": "Retrouvez les différentes sanctions prononcées par la Commission de Discipline de la Ligue de Football Professionnel (LFP) ce mercredi.",
-    "paragraphs": [
-      "Retrouvez les différentes sanctions prononcées par la Commission de Discipline de la Ligue de Football Professionnel (LFP) ce mercredi."
-    ],
-    "key_points": [
-      "Retrouvez les différentes sanctions prononcées par la Commission de Discipline de la Ligue de Football Professionnel (LFP) ce mercredi."
-    ],
-    "telegram_summary": "Retrouvez les différentes sanctions prononcées par la Commission de Discipline de la Ligue de Football Professionnel (LFP) ce mercredi.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-le-stade-velodrome-liam-rosenior-matthieu-udol-les-sanctions-de-la-commission-de-discipline-542241.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-le-stade-velodrome-liam-rosenior-matthieu-udol-les-sanctions-de-la-commission-de-discipline-542241.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=842bfcf2c26ffb60",
-    "published": "2026-10-14T20:15:00+00:00",
-    "image": "assets/images/footnews/842bfcf2c26ffb60.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240912174005-4762.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Polémique",
-    "category_emoji": "🔥",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
   }
 ]
