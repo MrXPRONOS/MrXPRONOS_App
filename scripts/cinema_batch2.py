@@ -15,17 +15,14 @@ import sys
 import tempfile
 from datetime import date, datetime, timezone
 from html import escape
-from io import BytesIO
 from pathlib import Path
 
 import requests
-from PIL import Image, ImageDraw, ImageFont, ImageOps
 import cinema_telegram as base
 
 ROOT = Path(__file__).resolve().parents[1]
 FORMATS = ('series', 'notes', 'pepites', 'acteur', 'sondage')
 TMDB = 'https://api.themoviedb.org/3'
-POSTER_URL = 'https://image.tmdb.org/t/p/w500'
 MOCK_MOVIES = [
     {'id': 501, 'title': 'Le mystère du phare', 'overview': 'Un récit imaginaire au bord de la mer.', 'vote_average': 8.1, 'vote_count': 1200, 'release_date': '2023-01-10', 'poster_path': None},
     {'id': 502, 'title': 'La traversée', 'overview': 'Une aventure inventée pour les tests.', 'vote_average': 7.8, 'vote_count': 900, 'release_date': '2022-03-12', 'poster_path': None},
@@ -167,7 +164,8 @@ class API:
         elif kind == 'acteur':
             actors = [a for a in self.call('/person/popular').get('results', [])
                       if a.get('id') and a.get('name') and not a.get('adult')
-                      and a.get('known_for_department') == 'Acting']
+                      and a.get('known_for_department') == 'Acting'
+                      and base.valid_tmdb_path(a.get('profile_path'))]
             if not actors:
                 raise RuntimeError('Aucun acteur retourné par TMDB')
             actor = actors[key_seed(kind, when) % len(actors)]
@@ -179,6 +177,8 @@ class API:
                      'profile_path': actor.get('profile_path'), 'media_type': 'person'}]
         else:
             raise ValueError(kind)
+        if kind != 'sondage':
+            pool = [x for x in pool if base.valid_tmdb_path(x.get('poster_path'))]
         if len(pool) < count:
             raise RuntimeError(f'Pas assez de résultats pour {kind} : {len(pool)}/{count}')
         # Avoid past picks for the same format when possible, never select a film twice in one post.
@@ -190,42 +190,6 @@ class API:
             return pool[:count]
         return random.Random(key_seed(kind, when)).sample(pool, count)
 
-
-def draw_card(kind, items, directory, session, demo=False):
-    """Create image locally with Pillow. Optional TMDB posters are used only as visual references."""
-    w, h = 960, 640
-    canvas = Image.new('RGB', (w, h), '#0c172c')
-    artwork = items[0].get('profile_path' if kind == 'acteur' else 'poster_path')
-    if artwork and not demo:
-        try:
-            result = session.get(POSTER_URL + artwork, timeout=15)
-            result.raise_for_status()
-            poster = Image.open(BytesIO(result.content)).convert('RGB')
-            canvas.paste(ImageOps.fit(poster, (470, 640)), (490, 0))
-        except (requests.RequestException, OSError, ValueError):
-            pass
-    layer = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    painter = ImageDraw.Draw(layer)
-    painter.rectangle((0, 0, 675, h), fill=(11, 25, 48, 250))
-    painter.rounded_rectangle((36, 35, w-36, h-35), radius=25, outline=(71, 157, 218, 210), width=4)
-    painter.rectangle((43, 42, 910, 122), fill=(17, 48, 80, 240))
-    canvas = Image.alpha_composite(canvas.convert('RGBA'), layer).convert('RGB')
-    d = ImageDraw.Draw(canvas)
-    normal = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
-    bold = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
-    f1 = ImageFont.truetype(bold, 43) if Path(bold).exists() else ImageFont.load_default()
-    f2 = ImageFont.truetype(normal, 26) if Path(normal).exists() else ImageFont.load_default()
-    headings = {'series': 'LES SÉRIES DU MOMENT', 'notes': 'FILMS LES MIEUX NOTÉS',
-                'pepites': 'PÉPITES CINÉMA', 'acteur': 'ACTEUR DU JOUR'}
-    d.text((73, 65), 'CINÉMA • MR XPRONOS', font=f2, fill='#77c5ec')
-    d.text((73, 156), headings[kind], font=f1, fill='#f5d477')
-    labels = [items[0]['name']] if kind == 'acteur' else [m['title'] for m in items[:5]]
-    for i, label in enumerate(labels):
-        d.text((73, 270 + i*58), compact(label, 26), font=f2, fill='#f3f7ff')
-    d.text((73, 553), 'TEST • FICTION' if demo else 'SÉLECTION CINÉMA', font=f2, fill='#77c5ec')
-    output = directory / f'{kind}.jpg'
-    canvas.save(output, 'JPEG', quality=89)
-    return output
 
 
 def poll_payload(items, chat):
@@ -248,9 +212,14 @@ def publish(kind, items, chat, token, session, when, demo=False, dry_run=False):
     if dry_run:
         print(json.dumps({'format': kind, 'html': html, 'buttons': buttons}, ensure_ascii=False))
         return None
+    if demo:
+        # A fictional entry must not have a manufactured image or misleading poster.
+        return base.post_text(session, token, chat, html, {'inline_keyboard': buttons}, html=True)
     with tempfile.TemporaryDirectory() as directory:
-        image = draw_card(kind, items, Path(directory), session, demo)
-        return base.post_photo(session, token, chat, image, html, {'inline_keyboard': buttons}, mime='image/jpeg')
+        image, mime = base.download_source_image(items, session, Path(directory), person=(kind == 'acteur'))
+        if image is None:
+            return base.post_text(session, token, chat, html, {'inline_keyboard': buttons}, html=True)
+        return base.post_photo(session, token, chat, image, html, {'inline_keyboard': buttons}, mime=mime)
 
 
 def run(argv=None):
