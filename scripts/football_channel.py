@@ -141,6 +141,25 @@ POPULAR_LIVE_EXCLUDED_LEVEL_TERMS = (
     "u17", "u18", "u19", "u20", "u21", "u23", "youth", "academy",
     "reserve", "reserves", "b team", "ii",
 )
+LIVE_TEAM_WEIGHTS = (
+    (30, ("real madrid", "barcelona", "barcelone", "manchester city",
+          "manchester united", "liverpool", "arsenal", "chelsea", "psg",
+          "paris saint-germain", "bayern")),
+    (22, ("inter milan", "juventus", "ac milan", "atletico",
+          "borussia dortmund", "tottenham", "napoli", "marseille")),
+    (14, ("newcastle", "leverkusen", "benfica", "porto", "sporting",
+          "ajax", "inter miami", "al ahly", "wydad", "esperance")),
+)
+LIVE_COMPETITION_WEIGHTS = (
+    (38, ("champions league", "ligue des champions")),
+    (30, ("world cup", "coupe du monde")),
+    (26, ("premier league", "la liga", "laliga", "serie a", "bundesliga")),
+    (24, ("afcon", "coupe d'afrique", "can 20", "uefa euro", "copa america")),
+    (21, ("ligue 1", "europa league", "caf champions league")),
+    (16, ("conference league", "copa del rey", "fa cup", "carabao cup",
+          "efl cup", "coppa italia", "dfb pokal", "coupe de france",
+          "caf confederation", "nations league")),
+)
 CATEGORY_LABELS = {
     "flash": "📰 FLASH FOOT",
     "programme": "📅 MATCHS DU JOUR",
@@ -290,14 +309,78 @@ def importance(event: dict) -> int:
         points += 24
     return points
 
-def popular_live_match(event: dict) -> bool:
-    """Filtre LIVE strict : seuls les matchs à forte audience potentielle passent.
+def _weighted_term_score(value: str, weighted_terms) -> int:
+    score_value = 0
+    for weight, terms in weighted_terms:
+        if any(term in value for term in terms):
+            score_value = max(score_value, int(weight))
+    return score_value
 
-    Le score d'importance seul était trop permissif : une compétition connue
-    pouvait suffire à faire remonter une affiche secondaire. Désormais il faut
-    un vrai moteur d'intérêt (club populaire, grande sélection, choc de clubs
-    populaires ou match du Togo).
-    """
+
+def live_competition_key(event: dict) -> str:
+    name = league(event).casefold()
+    aliases = (
+        ("uefa-champions-league", ("champions league", "ligue des champions")),
+        ("uefa-europa-league", ("europa league",)),
+        ("uefa-conference-league", ("conference league",)),
+        ("premier-league", ("premier league",)),
+        ("la-liga", ("la liga", "laliga")),
+        ("serie-a", ("serie a",)),
+        ("bundesliga", ("bundesliga",)),
+        ("ligue-1", ("ligue 1",)),
+        ("afcon", ("afcon", "coupe d'afrique", "can 20")),
+        ("world-cup", ("world cup", "coupe du monde")),
+        ("caf-champions-league", ("caf champions league",)),
+        ("caf-confederation", ("caf confederation",)),
+    )
+    for key_name, terms in aliases:
+        if any(term in name for term in terms):
+            return key_name
+    normalized = re.sub(r"[^a-z0-9]+", "-", unicodedata.normalize("NFKD", name)
+                        .encode("ascii", "ignore").decode()).strip("-")
+    return normalized or "football"
+
+
+def live_popularity_score(event: dict) -> int:
+    """Score éditorial relatif, utilisé pour classer les matchs d'une compétition."""
+    league_name = league(event).casefold()
+    home = team(event, "home").casefold()
+    away = team(event, "away").casefold()
+    combined = " ".join((league_name, home, away))
+    if any(term in combined for term in POPULAR_LIVE_EXCLUDED_LEVEL_TERMS):
+        return -1000
+
+    home_weight = _weighted_term_score(home, LIVE_TEAM_WEIGHTS)
+    away_weight = _weighted_term_score(away, LIVE_TEAM_WEIGHTS)
+    competition_weight = _weighted_term_score(league_name, LIVE_COMPETITION_WEIGHTS)
+    score_value = competition_weight + home_weight + away_weight
+
+    # Une affiche entre deux clubs populaires est nettement plus attractive.
+    if home_weight and away_weight:
+        score_value += 28
+    elif home_weight or away_weight:
+        score_value += 8
+
+    # Matchs internationaux : valoriser les grandes sélections.
+    home_national = any(term in home for term in POPULAR_LIVE_NATIONAL_TEAM_TERMS)
+    away_national = any(term in away for term in POPULAR_LIVE_NATIONAL_TEAM_TERMS)
+    if home_national:
+        score_value += 16
+    if away_national:
+        score_value += 16
+
+    # Audience locale Mr XPRONOS : le Togo doit rester prioritaire.
+    if "togo" in home or "togo" in away:
+        score_value += 100
+
+    # Importance historique comme départage secondaire, sans laisser une simple
+    # ligue prestigieuse suffire à elle seule.
+    score_value += min(25, max(0, importance(event) // 3))
+    return score_value
+
+
+def popular_live_match(event: dict) -> bool:
+    """Filtre d'éligibilité avant classement des meilleures affiches."""
     league_name = league(event).casefold()
     home = team(event, "home").casefold()
     away = team(event, "away").casefold()
@@ -305,39 +388,95 @@ def popular_live_match(event: dict) -> bool:
 
     if any(term in combined for term in POPULAR_LIVE_EXCLUDED_LEVEL_TERMS):
         return False
-
-    # Priorité locale : tout match senior du Togo est pertinent pour l'audience.
     if "togo" in home or "togo" in away:
         return True
 
     home_popular = any(term in home for term in POPULAR_LIVE_TEAM_TERMS)
     away_popular = any(term in away for term in POPULAR_LIVE_TEAM_TERMS)
     major_competition = any(term in league_name for term in POPULAR_LIVE_COMPETITION_TERMS)
-
     home_national = any(term in home for term in POPULAR_LIVE_NATIONAL_TEAM_TERMS)
     away_national = any(term in away for term in POPULAR_LIVE_NATIONAL_TEAM_TERMS)
     international_competition = any(
         term in league_name for term in POPULAR_LIVE_INTERNATIONAL_TERMS
     )
 
-    # Un vrai choc reste populaire même dans une coupe/finale amicale.
     if home_popular and away_popular:
         return True
-
-    # Une grande affiche contre un club moins médiatique n'est LIVE que dans
-    # une compétition reconnue : ex. Liverpool-LASK en C1/C3 oui, amical non.
     if major_competition and (home_popular or away_popular):
         return True
-
-    # Grandes sélections uniquement dans les compétitions internationales fortes.
     if international_competition and (home_national or away_national):
         return True
 
-    # Garde-fou configurable pour les cas non couverts par les listes explicites.
     threshold = max(1, int(os.getenv("FOOTBALL_LIVE_POPULARITY_MIN", "55")))
     return importance(event) >= threshold and (
         home_popular or away_popular or home_national or away_national
     )
+
+
+def select_popular_live_matches(
+    events: list[dict],
+    *,
+    max_per_competition: int | None = None,
+    max_total: int | None = None,
+) -> list[dict]:
+    """Classe puis limite les LIVE : top N par compétition, puis top global.
+
+    Par défaut : 2 affiches maximum par compétition et 6 simultanément.
+    """
+    per_comp = max(
+        1,
+        int(max_per_competition if max_per_competition is not None
+            else os.getenv("FOOTBALL_LIVE_MAX_PER_COMPETITION", "2")),
+    )
+    global_cap = max(
+        1,
+        int(max_total if max_total is not None
+            else os.getenv("FOOTBALL_LIVE_MAX_TOTAL", "6")),
+    )
+
+    eligible = [event for event in events if popular_live_match(event)]
+    ranked = sorted(
+        eligible,
+        key=lambda event: (
+            live_popularity_score(event),
+            importance(event),
+            kick(event) or datetime.min.replace(tzinfo=timezone.utc),
+            team(event, "home"),
+            team(event, "away"),
+        ),
+        reverse=True,
+    )
+
+    selected: list[dict] = []
+    counts: dict[str, int] = {}
+    for event in ranked:
+        key_name = live_competition_key(event)
+        if counts.get(key_name, 0) >= per_comp:
+            continue
+        selected.append(event)
+        counts[key_name] = counts.get(key_name, 0) + 1
+        if len(selected) >= global_cap:
+            break
+
+    if eligible:
+        print(
+            "LIVE_RANKING",
+            "eligible", len(eligible),
+            "selected", len(selected),
+            "per_comp", per_comp,
+            "global_cap", global_cap,
+            "matches",
+            json.dumps([
+                {
+                    "competition": live_competition_key(event),
+                    "home": team(event, "home"),
+                    "away": team(event, "away"),
+                    "score": live_popularity_score(event),
+                }
+                for event in selected
+            ], ensure_ascii=False),
+        )
+    return selected
 
 
 _TSDB_LOGOS: dict[str, str] | None = None
@@ -2469,7 +2608,7 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
     try:
         drain_retryable_outbox(ledger, publish, limit=8)
         tracked_all = followup.base_events(state.followed, now)
-        tracked = [event for event in tracked_all if popular_live_match(event)]
+        tracked = select_popular_live_matches(tracked_all)
         rejected_tracked = len(tracked_all) - len(tracked)
         if rejected_tracked:
             print("LIVE_POPULARITY_FILTER_REJECTED_TRACKED", rejected_tracked)
@@ -2483,6 +2622,7 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             importance,
             tracked_only=False,
             live_filter_fn=popular_live_match,
+            live_select_fn=select_popular_live_matches,
         )
         signals = persist_canonical_live_events(
             sender.session,
@@ -2772,14 +2912,14 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                 # Suivi technique indépendant de l'AVANT-MATCH : jusqu'à huit
                 # grosses affiches sont observées, même si aucune publication
                 # éditoriale n'a encore été envoyée.
-                technical = [
+                technical_pool = [
                     e for e in candidates(matches)
                     if kick(e) is not None
                     and -timedelta(hours=6) <= kick(e) - now <= timedelta(hours=4)
                     and final_score(e) is None
                     and str(e.get("status") or "").lower() not in ("cancelled", "postponed", "finished")
-                    and popular_live_match(e)
                 ]
+                technical = select_popular_live_matches(technical_pool)
                 if not dry_run:
                     for event in technical[:20]:
                         if not followup.selection_allowed(state.followed, now):
@@ -2794,15 +2934,15 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                     state.save(now)
 
                 # AVANT-MATCH reste une décision éditoriale distincte du suivi.
-                upcoming = [
+                upcoming_pool = [
                     e for e in candidates(matches)
                     if timedelta(minutes=60) <= kick(e) - now <= timedelta(minutes=120)
                     and final_score(e) is None
                     and str(e.get("status") or "").lower() not in
                         ("cancelled", "postponed", "live", "finished")
                     and not state.seen("avant_match:" + str(e["id"]))
-                    and popular_live_match(e)
                 ]
+                upcoming = select_popular_live_matches(upcoming_pool)
                 if (counter["sent"] < max_send and upcoming
                         and (force or enough(state, "avant_match", now))):
                     if client is None:
