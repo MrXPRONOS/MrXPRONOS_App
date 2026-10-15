@@ -96,7 +96,7 @@ TEAM_TERMS = (
     "real madrid", "barcelona", "barcelone", "manchester city", "manchester united",
     "liverpool", "arsenal", "chelsea", "tottenham", "newcastle", "psg",
     "paris saint-germain", "bayern", "inter milan", "juventus", "ac milan",
-    "napoli", "marseille", "atletico", "borussia dortmund", "leverkusen",
+    "napoli", "marseille", "atletico madrid", "atlético madrid", "borussia dortmund", "leverkusen",
     "benfica", "porto", "sporting", "ajax", "inter miami", "al ahly",
     "wydad", "esperance", "senegal", "sénégal", "togo", "côte d'ivoire",
     "nigeria", "maroc",
@@ -115,7 +115,7 @@ POPULAR_LIVE_TEAM_TERMS = (
     "real madrid", "barcelona", "barcelone", "manchester city", "manchester united",
     "liverpool", "arsenal", "chelsea", "tottenham", "newcastle", "psg",
     "paris saint-germain", "bayern", "inter milan", "juventus", "ac milan",
-    "napoli", "marseille", "atletico", "borussia dortmund", "leverkusen",
+    "napoli", "marseille", "atletico madrid", "atlético madrid", "borussia dortmund", "leverkusen",
     "benfica", "porto", "sporting", "ajax", "inter miami", "al ahly",
     "wydad", "esperance",
 )
@@ -146,7 +146,7 @@ LIVE_TEAM_WEIGHTS = (
     (30, ("real madrid", "barcelona", "barcelone", "manchester city",
           "manchester united", "liverpool", "arsenal", "chelsea", "psg",
           "paris saint-germain", "bayern")),
-    (22, ("inter milan", "juventus", "ac milan", "atletico",
+    (22, ("inter milan", "juventus", "ac milan", "atletico madrid", "atlético madrid",
           "borussia dortmund", "tottenham", "napoli", "marseille")),
     (14, ("newcastle", "leverkusen", "benfica", "porto", "sporting",
           "ajax", "inter miami", "al ahly", "wydad", "esperance")),
@@ -2784,6 +2784,8 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
         drain_retryable_outbox(ledger, publish, limit=8)
         tracked_all = followup.base_events(state.followed, now)
         tracked = select_popular_live_matches(tracked_all)
+        if not dry_run:
+            followup.lock_selected(state.followed, tracked, now)
         rejected_tracked = len(tracked_all) - len(tracked)
         if rejected_tracked:
             print("LIVE_POPULARITY_FILTER_REJECTED_TRACKED", rejected_tracked)
@@ -3020,6 +3022,8 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
             if follow_event is not None and not existing_ref:
                 ref_added = followup.follow(state.followed, follow_event, now)
                 print("FOLLOWUP_SELECTED", ref_added)
+            elif follow_event is not None and existing_ref:
+                followup.lock(state.followed, existing_ref, now, reason="avant_match")
             if item.category in {"composition", "changement_composition"} and ref in state.followed and item.card:
                 lineups = item.card.get("lineups") if isinstance(item.card.get("lineups"), dict) else {}
                 state.followed[ref]["lineup_home_hash"] = str(item.card.get("lineup_home_hash") or "")
@@ -3135,7 +3139,10 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                     for event in technical[:20]:
                         if not followup.selection_allowed(state.followed, now):
                             break
-                        if followup.tracked_fixture(event, state.followed, now):
+                        existing_ref = followup.tracked_fixture(event, state.followed, now)
+                        if existing_ref:
+                            followup.lock(state.followed, existing_ref, now, reason="importance")
+                            print("FOLLOWUP_LEGACY_RESELECTED", existing_ref)
                             continue
                         try:
                             ref_added = followup.track(state.followed, event, now, reason="importance")
@@ -3199,6 +3206,8 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                 # de la publication éventuelle d'un AVANT-MATCH.
                 tracked_all = followup.base_events(state.followed, now)
                 tracked = select_popular_live_matches(tracked_all)
+                if not dry_run:
+                    followup.lock_selected(state.followed, tracked, now)
                 if counter["sent"] < max_send and tracked:
                     signals = lifecycle_signals(
                         tracked, set(state.items.keys()), now,
