@@ -1,0 +1,19 @@
+{
+  "search_queries": [
+    "films francais",
+    "cinema vf",
+    "film complet",
+    "films vostfr"
+  ],
+  "seed_channels": [],
+  "results_per_query": 10,
+  "max_channels_per_run": 16,
+  "sample_messages": 80,
+  "request_pause_seconds": 3,
+  "min_verified_pairs": 2,
+  "min_video_minutes": 40,
+  "min_video_megabytes": 150,
+  "max_pair_message_gap": 2,
+  "max_pair_age_minutes": 60,
+  "min_caption_chars": 25
+}
