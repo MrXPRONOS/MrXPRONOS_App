@@ -10,7 +10,7 @@ on:
       - 'scripts/football_news_engine.py'
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: update-footnews
@@ -61,25 +61,12 @@ jobs:
           assert real>=max(1,len(items)//2), "Couverture images réelles insuffisante"
           PY
 
-      - name: Commit the already validated RSS snapshot
-        shell: bash
+      - name: Confirm snapshot publication path
         run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add footnews.json
-          if [ -d assets/images/footnews ]; then git add -A assets/images/footnews; fi
-          if git diff --cached --quiet; then
-            echo "Aucune nouvelle actualité ou image."
-            exit 0
-          fi
-          git commit -m "data(infos): refresh sourced football news and real images"
-          git fetch origin main
-          if ! git rebase origin/main; then
-            git rebase --abort || true
-            echo "::error::Conflit RSS concurrent; aucun force-push."
-            exit 1
-          fi
-          git push origin HEAD:main
-          echo "NEWS_COMMITTED=true" >> "$GITHUB_ENV"
-
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          rows=json.loads(Path("footnews.json").read_text(encoding="utf-8"))
+          assert rows, "Snapshot local vide"
+          print("NEWS_SUPABASE_READY", len(rows))
+          PY
