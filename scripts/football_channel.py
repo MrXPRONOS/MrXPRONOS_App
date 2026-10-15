@@ -318,54 +318,98 @@ def _weighted_term_score(value: str, weighted_terms) -> int:
 
 
 def live_competition_key(event: dict) -> str:
-    name = league(event).casefold()
+    """Identifie une compétition sans confondre les homonymes continentaux/nationaux."""
+    raw_name = league(event)
+    name = " ".join(raw_name.casefold().split())
+
+    # Compétitions continentales : les formes qualifiées passent avant tout alias générique.
     aliases = (
-        # Les variantes continentales doivent être testées avant le terme
-        # générique "Champions League", sinon CAF/AFC seraient regroupées avec UEFA.
         ("caf-champions-league", ("caf champions league", "caf ligue des champions")),
         ("afc-champions-league", ("afc champions league",)),
-        ("uefa-champions-league", ("uefa champions league", "champions league", "ligue des champions")),
-        ("uefa-europa-league", ("europa league",)),
-        ("uefa-conference-league", ("conference league",)),
-        ("premier-league", ("premier league",)),
-        ("la-liga", ("la liga", "laliga")),
-        ("serie-a", ("serie a",)),
-        ("bundesliga", ("bundesliga",)),
-        ("ligue-1", ("ligue 1",)),
-        ("afcon", ("afcon", "coupe d'afrique", "can 20")),
-        ("world-cup", ("world cup", "coupe du monde")),
+        ("uefa-champions-league", ("uefa champions league",)),
+        ("uefa-europa-league", ("uefa europa league",)),
+        ("uefa-conference-league", ("uefa conference league", "uefa europa conference league")),
         ("caf-confederation", ("caf confederation",)),
+        ("afcon", ("afcon", "africa cup of nations", "coupe d'afrique", "can 20")),
+        ("world-cup", ("fifa world cup", "coupe du monde fifa")),
     )
     for key_name, terms in aliases:
         if any(term in name for term in terms):
             return key_name
+
+    # Les grands championnats domestiques utilisent des noms très réemployés dans
+    # le monde. On ne classe donc pas "Libyan Premier League" comme Premier League
+    # anglaise, ni une compétition locale appelée "Champions League" comme UEFA.
+    exact_aliases = {
+        "champions league": "champions-league",
+        "ligue des champions": "champions-league",
+        "europa league": "uefa-europa-league",
+        "conference league": "uefa-conference-league",
+        "premier league": "premier-league",
+        "english premier league": "premier-league",
+        "england premier league": "premier-league",
+        "la liga": "la-liga",
+        "laliga": "la-liga",
+        "spanish la liga": "la-liga",
+        "serie a": "serie-a",
+        "italian serie a": "serie-a",
+        "bundesliga": "bundesliga",
+        "german bundesliga": "bundesliga",
+        "ligue 1": "ligue-1",
+        "french ligue 1": "ligue-1",
+        "world cup": "world-cup",
+        "coupe du monde": "world-cup",
+        "fa cup": "fa-cup",
+        "carabao cup": "efl-cup",
+        "efl cup": "efl-cup",
+        "copa del rey": "copa-del-rey",
+        "coppa italia": "coppa-italia",
+        "dfb pokal": "dfb-pokal",
+        "coupe de france": "coupe-de-france",
+        "nations league": "nations-league",
+        "uefa nations league": "nations-league",
+        "copa america": "copa-america",
+        "uefa euro": "uefa-euro",
+    }
+    if name in exact_aliases:
+        return exact_aliases[name]
+
     normalized = re.sub(r"[^a-z0-9]+", "-", unicodedata.normalize("NFKD", name)
                         .encode("ascii", "ignore").decode()).strip("-")
     return normalized or "football"
 
 
 def live_competition_weight(event: dict) -> int:
-    """Poids de compétition sans confondre UEFA, CAF et AFC."""
+    """Poids de prestige uniquement pour une compétition identifiée sans ambiguïté."""
     key_name = live_competition_key(event)
     explicit = {
         "uefa-champions-league": 38,
+        # Alias générique conservé à poids réduit : une source qui omet "UEFA"
+        # peut encore sélectionner un grand choc, mais pas rendre tous ses matchs éligibles.
+        "champions-league": 16,
         "world-cup": 30,
         "premier-league": 26,
         "la-liga": 26,
         "serie-a": 26,
         "bundesliga": 26,
         "afcon": 24,
+        "uefa-euro": 24,
+        "copa-america": 24,
         "ligue-1": 21,
         "uefa-europa-league": 21,
         "caf-champions-league": 21,
         "uefa-conference-league": 16,
         "caf-confederation": 16,
         "afc-champions-league": 16,
+        "fa-cup": 16,
+        "efl-cup": 16,
+        "copa-del-rey": 16,
+        "coppa-italia": 16,
+        "dfb-pokal": 16,
+        "coupe-de-france": 16,
+        "nations-league": 16,
     }
-    if key_name in explicit:
-        return explicit[key_name]
-    return _weighted_term_score(league(event).casefold(), LIVE_COMPETITION_WEIGHTS)
-
+    return explicit.get(key_name, 0)
 
 def live_popularity_score(event: dict) -> int:
     """Score éditorial relatif, utilisé pour classer les matchs d'une compétition."""
