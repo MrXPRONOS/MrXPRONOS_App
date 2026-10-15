@@ -202,7 +202,7 @@ def candidate_official_league_ids(external, native, *, at):
     return sorted(lids)
 
 
-def audit_official_consensus_quotes(client,native,linked_ids,league_names,*,at,verified_quotes_sink=None):
+def audit_official_consensus_quotes(client,native,linked_ids,league_names,*,at,verified_quotes_sink=None,historical_published_ids=None):
     """Proof of native market pricing, not proof of an executable bookmaker bet.
 
     Only confirmed official BSD event IDs are inspected; a consensus value
@@ -217,11 +217,25 @@ def audit_official_consensus_quotes(client,native,linked_ids,league_names,*,at,v
             by_id[ident].append(attributes)
     outcomes=Counter()
     audited=0
-    # Prioritize the nearest authentic kickoffs, not arbitrary numeric IDs,
-    # so the native publisher's genuine 48h window is sampled when available.
-    prioritized=sorted(set(linked_ids),key=lambda ident:(
+    within_window_quoted=0
+    # Exclude immutable historical publications BEFORE spending scarce native
+    # consensus-price API calls; the native V2.1 assembler separately enforces
+    # the same append-only veto before any site/Telegram publication.
+    historical_published_ids=frozenset() if historical_published_ids is None else historical_published_ids
+    if not isinstance(historical_published_ids,(set,frozenset)):
+        raise ValueError("Historical publication identifiers must be a set")
+    all_linked=set(linked_ids)
+    historical_excluded=sum(str(ident) in historical_published_ids for ident in all_linked)
+    remaining={ident for ident in all_linked if str(ident) not in historical_published_ids}
+    # Sort by authentic kickoff; current-day remaining matches come first, and
+    # only genuinely prematch events within the native 48h window can publish.
+    prioritized=sorted(remaining,key=lambda ident:(
         by_id[ident][0][3] if len(by_id.get(ident,[]))==1
         else datetime.max.replace(tzinfo=timezone.utc),ident))
+    within_window_linked=sum(
+        len(by_id.get(ident,[]))==1
+        and at<by_id[ident][0][3]<=at+timedelta(hours=48)
+        for ident in prioritized)
     for ident in prioritized[:MAX_ODDS_PROBE_EVENTS]:
         if client.requests_made>=MAX_BSD_REQUESTS-2:
             outcomes["remaining_request_budget_insufficient"]+=1
@@ -235,6 +249,8 @@ def audit_official_consensus_quotes(client,native,linked_ids,league_names,*,at,v
             outcomes["not_prematch"]+=1
             continue
         audited+=1
+        if kickoff<=at+timedelta(hours=48):
+            within_window_quoted+=1
         try:
             quotes,diag=fetch_event_odds(
                 client,ident,kickoff=kickoff,captured_at=at,
@@ -258,6 +274,11 @@ def audit_official_consensus_quotes(client,native,linked_ids,league_names,*,at,v
         "event_ids_selected_only_from_confirmed_native_links":True,
         "max_linked_events_for_quote_probe":MAX_ODDS_PROBE_EVENTS,
         "official_native_events_quoted_attempts":audited,
+        "historically_published_native_links_excluded":historical_excluded,
+        "unpublished_native_links_available":len(prioritized),
+        "unpublished_native_links_in_48h_window":within_window_linked,
+        "actual_48h_publication_window_quote_attempts":within_window_quoted,
+        "linked_events_exceeding_eight_quote_cap":max(0,len(prioritized)-MAX_ODDS_PROBE_EVENTS),
         "events_with_fresh_consensus_market_prices":
             outcomes["events_with_fresh_consensus_market_prices"],
         "fresh_consensus_market_prices":outcomes["fresh_consensus_market_prices"],
@@ -282,8 +303,22 @@ def main():
     parser.add_argument("--days",type=int,default=2)
     parser.add_argument("--start-offset",type=int,default=2)
     args=parser.parse_args()
-    if not 1<=args.days<=3 or not 1<=args.start_offset<=3:
-        parser.error("BSD audit is limited to 3 calendar days and start offset 1..3")
+    if not 1<=args.days<=3 or not 0<=args.start_offset<=3:
+        parser.error("BSD audit is limited to 3 calendar days and start offset 0..3")
+    if bool(args.licensed_history)!=bool(args.existing_feed):
+        parser.error("Selected market verification requires both licensed history and public BSD feed")
+    if args.accepted_output and not args.licensed_history:
+        parser.error("Candidate staging requires complete market verification and the immutable ledger")
+    if args.licensed_history and not args.ledger:
+        parser.error("Full candidate verification requires the immutable historical publication ledger")
+    feed=None
+    ledger=None
+    previous_ids=frozenset()
+    if args.licensed_history:
+        from bsd_v2_publish import historical_publication_ids
+        feed=json.loads(Path(args.existing_feed).read_text(encoding="utf-8"))
+        ledger=json.loads(Path(args.ledger).read_text(encoding="utf-8"))
+        previous_ids=historical_publication_ids(ledger,feed)
     if not os.getenv("BSD_API_KEY"):
         parser.error("BSD_API_KEY missing; do not substitute synthetic event IDs")
     destination=Path(args.report).resolve()
@@ -337,21 +372,14 @@ def main():
                  verified_id_sink=linked_ids,verified_pair_sink=confirmed_pairs)
     market_quotes=[]
     pricing=audit_official_consensus_quotes(
-        client,native,linked_ids,names,at=clock,verified_quotes_sink=market_quotes)
+        client,native,linked_ids,names,at=clock,verified_quotes_sink=market_quotes,
+        historical_published_ids=previous_ids)
     market_proof=None
-    if bool(args.licensed_history)!=bool(args.existing_feed):
-        parser.error("Selected market verification requires both licensed history and public BSD feed")
-    if args.accepted_output and not args.licensed_history:
-        parser.error("Candidate staging requires complete market verification and the immutable ledger")
-    if args.licensed_history and not args.ledger:
-        parser.error("Full candidate verification requires the immutable historical publication ledger")
     if args.licensed_history:
         from scripts.football_multisource_market_gate import verify_selected_markets
         history=[json.loads(line) for line in
                  Path(args.licensed_history).read_text(encoding="utf-8").splitlines()
                  if line.strip()]
-        feed=json.loads(Path(args.existing_feed).read_text(encoding="utf-8"))
-        ledger=json.loads(Path(args.ledger).read_text(encoding="utf-8"))
         by_id={ident:(ext_row,native_row) for ident,ext_row,native_row in confirmed_pairs}
         paired=[]
         for ident,quotes in market_quotes:
