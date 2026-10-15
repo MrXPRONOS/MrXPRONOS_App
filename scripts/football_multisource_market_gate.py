@@ -119,6 +119,13 @@ def verify_selected_markets(
             counts["passes_v21_and_value_guard_in_research"]+=1
         else:
             counts["v21_or_value_guard_veto"]+=1
+            # Classify the exact policy blocker, never the club/event/quote.
+            if not ok:
+                counts["v21_reason:"+str(reason)]+=1
+            elif not guard.get("passed"):
+                counts["value_guard_reason:"+str(guard.get("reason"))]+=1
+            else:
+                counts["price_below_120"]+=1
     return {
         "real_market_selection_validation_executed":True,
         "fit_all_native_models_and_calibration":True,
