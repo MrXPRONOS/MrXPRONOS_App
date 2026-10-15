@@ -74,8 +74,34 @@ def pending(tracked: dict, now: datetime) -> dict:
             if not v.get("final_sent") and not v.get("cancelled")}
 
 
+def locked_pending(tracked: dict, now: datetime) -> dict:
+    """Suivis qui ont effectivement été admis par le ranking actuel."""
+    return {
+        k: v for k, v in pending(tracked, now).items()
+        if bool(v.get("ranking_locked"))
+    }
+
+
 def selection_allowed(tracked: dict, now: datetime) -> bool:
-    return len(pending(tracked, now)) < MAX_FOLLOWED
+    # Les anciens suivis créés avant le ranking sticky ne doivent pas bloquer
+    # les nouvelles admissions tant qu'ils n'ont pas été revalidés.
+    return len(locked_pending(tracked, now)) < MAX_FOLLOWED
+
+
+def lock(tracked: dict, ref: str, now: datetime, *, reason: str | None = None) -> None:
+    if ref not in tracked or not isinstance(tracked[ref], dict):
+        return
+    tracked[ref]["ranking_locked"] = True
+    tracked[ref]["ranking_locked_at"] = now.astimezone(timezone.utc).isoformat()
+    if reason and not tracked[ref].get("tracking_reason"):
+        tracked[ref]["tracking_reason"] = reason
+
+
+def lock_selected(tracked: dict, events: list[dict], now: datetime) -> None:
+    for event in events:
+        ref = str(event.get("follow_ref") or "")
+        if ref:
+            lock(tracked, ref, now, reason="ranking")
 
 
 def track(tracked: dict, event: dict, now: datetime, *, reason: str = "auto") -> str:
@@ -89,6 +115,7 @@ def track(tracked: dict, event: dict, now: datetime, *, reason: str = "auto") ->
     if not identifier:
         raise ValueError("Rencontre sans date ou équipes : suivi impossible")
     if identifier in tracked:
+        lock(tracked, identifier, now, reason=reason)
         return identifier
     if not selection_allowed(tracked, now):
         raise ValueError("Capacité de suivi atteinte")
@@ -150,7 +177,15 @@ def base_events(tracked: dict, now: datetime) -> list[dict]:
             "lineup_away_hash": value.get("lineup_away_hash") or "",
             "lineup_home": list(value.get("lineup_home") or []),
             "lineup_away": list(value.get("lineup_away") or []),
-            "ranking_locked": bool(value.get("ranking_locked", True)),
+            # Les états créés avant le ranking sticky n'avaient pas ce champ.
+            # Seuls les anciens AVANT-MATCH sont conservés par continuité;
+            # les suivis purement techniques doivent repasser le ranking.
+            "ranking_locked": bool(
+                value.get(
+                    "ranking_locked",
+                    str(value.get("tracking_reason") or "") == "avant_match",
+                )
+            ),
             "selected_at": value.get("selected_at") or "",
             "tracking_reason": value.get("tracking_reason") or "",
         })
