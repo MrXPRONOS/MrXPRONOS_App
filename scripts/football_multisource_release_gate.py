@@ -90,6 +90,9 @@ def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict,
     validated_selected_real_consensus=0
     selected_passing_v21=0
     selected_market_proof_executed=False
+    canary_window_exercised=False
+    canary_official_fixture_count=0
+    canary_eligible_fixture_count=0
     if native_identity is not None:
         if (not isinstance(native_identity,dict)
             or native_identity.get("scope")!="read_only_identity_evidence"
@@ -145,6 +148,27 @@ def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict,
             if not (0<=selected_passing_v21+veto<=validated_selected_real_consensus<=model_selected<=inspected<=min(8,quote_attempts)):
                 raise ValueError("Invalid actual-market publication funnel")
             selected_market_proof_executed=True
+            canary=market_proof.get("native_full_assembler_canary")
+            if canary is not None:
+                if (not isinstance(canary,dict)
+                    or canary.get("executed") is not True
+                    or canary.get("existing_production_input_unchanged") is not True
+                    or canary.get("odds_api_calls_from_assembler")!=0
+                    or canary.get("site_or_telegram_publications")!=0
+                    or canary.get("production_enabled") is not False
+                    or canary.get("no_event_names_ids_or_odds_exported") is not True
+                    or number(canary,"bookmaker_selection_codes_verified")!=0):
+                    raise ValueError("Unsafe native assembler canary")
+                canary_official_fixture_count=number(canary,"native_event_ids_verified_in_process")
+                canary_eligible_fixture_count=number(canary,"events_within_native_48h_window")
+                lookups=number(canary,"in_memory_quote_fetches")
+                projected=number(canary,"projected_new_rows_not_published")
+                if not (0<=projected<=canary_eligible_fixture_count<=canary_official_fixture_count<=inspected
+                        and 0<=lookups<=canary_eligible_fixture_count
+                        and canary.get("actual_publication_window_exercised") is (canary_eligible_fixture_count>0)
+                        and canary.get("empty_window_is_not_publication_path_validation") is (canary_eligible_fixture_count==0)):
+                    raise ValueError("Canary used no real fixtures in the stated publication window")
+                canary_window_exercised=canary_eligible_fixture_count>0
         native_link_proof=official_native_count>0
         fresh_consensus_proof=official_consensus_market_count>0
     checks = {
@@ -152,6 +176,7 @@ def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict,
         "fresh_bsd_consensus_market_prices_observed":fresh_consensus_proof,
         "actual_selected_market_consensus_pricing_replayed":selected_market_proof_executed,
         "actual_selected_market_with_consensus_quote_observed":validated_selected_real_consensus>0,
+        "real_48h_native_publication_path_exercised":canary_window_exercised,
 
         "real_production_tracker_immutability_probed":bool(
             calibrated_proof and calibrated is not None
@@ -208,6 +233,8 @@ def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict,
             "fresh_bsd_consensus_market_prices_from_private_validation":official_consensus_market_count,
             "actual_v2_selected_markets_with_real_consensus_quote":validated_selected_real_consensus,
             "actual_v2_selected_markets_passing_v21_research":selected_passing_v21,
+            "native_assembler_canary_verified_fixtures":canary_official_fixture_count,
+            "native_assembler_canary_fixtures_within_48h":canary_eligible_fixture_count,
             "sportscore_possibly_incomplete": sportscore.get("possible_incomplete_coverage") is True,
         },
         "checks": checks,
