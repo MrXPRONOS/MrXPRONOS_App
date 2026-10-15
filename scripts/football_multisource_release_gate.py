@@ -87,6 +87,9 @@ def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict,
     fresh_consensus_proof=False
     official_native_count=0
     official_consensus_market_count=0
+    validated_selected_real_consensus=0
+    selected_passing_v21=0
+    selected_market_proof_executed=False
     if native_identity is not None:
         if (not isinstance(native_identity,dict)
             or native_identity.get("scope")!="read_only_identity_evidence"
@@ -117,11 +120,39 @@ def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict,
             and price_proof.get("raw_market_prices_or_event_ids_exported") is False
             and price_proof.get("production_market_policy_approved") is False):
             raise ValueError("Incorrectly promoted consensus pricing evidence")
+        market_proof=native_identity.get("full_model_selected_market_consensus_audit")
+        if market_proof is not None:
+            if (not isinstance(market_proof,dict)
+                or market_proof.get("real_market_selection_validation_executed") is not True
+                or market_proof.get("fit_all_native_models_and_calibration") is not True
+                or market_proof.get("sufficient_licensed_cc0_training_history") is not True
+                or market_proof.get("production_tracker_supplied_readonly") is not True
+                or market_proof.get("match_selection_frozen_before_real_consensus_pricing") is not True
+                or market_proof.get("source_fixture_ids_or_raw_odds_exported") is not False
+                or market_proof.get("independent_bookmaker_offer_executable") is not False
+                or number(market_proof,"bookmaker_selection_codes_verified")!=0
+                or market_proof.get("production_authorized") is not False
+                or number(market_proof,"telegram_posts")!=0):
+                raise ValueError("Selected-market evidence misrepresented as production authorization")
+            counts=market_proof.get("aggregate")
+            if not isinstance(counts,dict):
+                raise ValueError("Invalid selected-market aggregate")
+            inspected=number(counts,"events_examined")
+            model_selected=number(counts,"frozen_bsd_v2_model_market_candidates")
+            validated_selected_real_consensus=number(counts,"frozen_markets_with_exact_fresh_bsd_consensus_quote")
+            selected_passing_v21=number(counts,"passes_v21_and_value_guard_in_research") if "passes_v21_and_value_guard_in_research" in counts else 0
+            veto=number(counts,"v21_or_value_guard_veto") if "v21_or_value_guard_veto" in counts else 0
+            if not (0<=selected_passing_v21+veto<=validated_selected_real_consensus<=model_selected<=inspected<=min(2,quote_attempts)):
+                raise ValueError("Invalid actual-market publication funnel")
+            selected_market_proof_executed=True
         native_link_proof=official_native_count>0
         fresh_consensus_proof=official_consensus_market_count>0
     checks = {
         "independently_corroborated_native_event_links_observed":native_link_proof,
         "fresh_bsd_consensus_market_prices_observed":fresh_consensus_proof,
+        "actual_selected_market_consensus_pricing_replayed":selected_market_proof_executed,
+        "actual_selected_market_with_consensus_quote_observed":validated_selected_real_consensus>0,
+
         "real_production_tracker_immutability_probed":bool(
             calibrated_proof and calibrated is not None
             and calibrated.get("native_assembler_dry_run",{}).get(
@@ -175,6 +206,8 @@ def assess(v2: dict, calendar: dict, fixtures: dict, sportscore: dict,
             "external_bookmaker_links_verified": external_priced,
             "authentic_bsd_event_links_from_private_validation":official_native_count,
             "fresh_bsd_consensus_market_prices_from_private_validation":official_consensus_market_count,
+            "actual_v2_selected_markets_with_real_consensus_quote":validated_selected_real_consensus,
+            "actual_v2_selected_markets_passing_v21_research":selected_passing_v21,
             "sportscore_possibly_incomplete": sportscore.get("possible_incomplete_coverage") is True,
         },
         "checks": checks,
