@@ -30,7 +30,7 @@ on:
       - 'tests/test_cinema_batch3.py'
       - '.github/workflows/cinema-telegram-batch3.yml'
   schedule:
-    - cron: '17 16 * * 1-5'  # 16:17 UTC = heure de Lomé, lundi à vendredi
+    - cron: '27 20 * * *'  # 20:27 UTC / Lomé, chaque jour
 
 permissions:
   contents: write
@@ -95,6 +95,8 @@ jobs:
               3) SELECTED=boxoffice ;;
               4) SELECTED=bandeannonce ;;
               5) SELECTED=weekend ;;
+              6) SELECTED=weekend ;;
+              7) SELECTED=duel ;;
               *) echo 'No matching day'; exit 0 ;;
             esac
             python scripts/cinema_batch3.py --mode production --format "$SELECTED"
