@@ -36,6 +36,7 @@ jobs:
           echo "Début UTC : $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
       - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
