@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import actu_foot_observability as observability
 import actu_foot_source_cache as source_cache
 import actu_foot_provider_health as provider_health
+import actu_foot_health_report as health_report
 
 
 class _Response:
@@ -173,6 +174,48 @@ class ActuFootInfrastructureTests(unittest.TestCase):
             ROOT / "scripts/telegram_live_e2e.py",
         ]
         self.assertTrue(all(not path.exists() for path in removed))
+
+    def test_health_report_contains_private_operational_summary(self):
+        rows = {
+            "actu_foot_run_metrics": [
+                {"mode": "full", "finished_at": "2026-10-15T07:00:00Z",
+                 "duration_ms": 5000, "sent": 1, "skipped": 2, "errors": 0,
+                 "tracked_pending": 4, "ranking_selected": 2, "outbox_pending": 0},
+                {"mode": "lifecycle", "finished_at": "2026-10-15T07:02:00Z",
+                 "duration_ms": 3000, "sent": 0, "skipped": 0, "errors": 0,
+                 "tracked_pending": 4, "ranking_selected": 2, "outbox_pending": 0},
+            ],
+            "actu_foot_provider_health": [
+                {"provider": "espn", "base_quality": 98, "effective_quality": 98,
+                 "consecutive_failures": 0, "last_success_at": "2026-10-15T07:01:00Z"},
+                {"provider": "openligadb", "base_quality": 72, "effective_quality": 60,
+                 "consecutive_failures": 2, "last_success_at": "2026-10-15T06:30:00Z"},
+            ],
+            "actu_foot_publications": [
+                {"event_key": "x", "status": "failed", "category": "goal",
+                 "attempts": 1, "max_attempts": 5, "expires_at": None},
+                {"event_key": "y", "status": "uncertain", "category": "goal",
+                 "attempts": 1, "max_attempts": 5, "expires_at": None},
+            ],
+            "actu_foot_live_events": [],
+            "actu_foot_news_snapshot": [
+                {"generated_at": "2026-10-15T07:00:00Z", "payload": [{}, {}, {}]},
+            ],
+        }
+        with patch.object(health_report, "_get", side_effect=lambda _s, table, _p: rows[table]):
+            report = health_report.build_report(_Session())
+        self.assertIn("Dernier FULL", report)
+        self.assertIn("Dernier LIFECYCLE", report)
+        self.assertIn("Outbox actionnable : **1**", report)
+        self.assertIn("Fournisseurs dégradés : **1 / 2**", report)
+        self.assertIn("Infos Foot : **3** éléments", report)
+
+    def test_production_workflow_health_summary_is_non_blocking(self):
+        workflow = (ROOT / ".github/workflows/football-production.yml").read_text(encoding="utf-8")
+        self.assertIn("Tableau de santé Actu Foot", workflow)
+        self.assertIn("continue-on-error: true", workflow)
+        self.assertIn("actu_foot_health_report.py", workflow)
+        self.assertIn("GITHUB_STEP_SUMMARY", workflow)
 
 if __name__ == "__main__":
     unittest.main()
