@@ -88,8 +88,8 @@ def _safe_pipeline_coverage(aggregate, staged):
     if not isinstance(aggregate,dict):
         raise ValueError("Malformed multisource aggregate report")
 
-    def metric(obj,name):
-        val=obj.get(name) if isinstance(obj,dict) else None
+    def metric(obj,name,*,zero_if_missing=False):
+        val=obj.get(name,0 if zero_if_missing else None) if isinstance(obj,dict) else None
         if type(val) is not int or not 0<=val<=1_000_000:
             raise ValueError("Missing or invalid multisource coverage counter: "+name)
         return val
@@ -108,10 +108,10 @@ def _safe_pipeline_coverage(aggregate, staged):
         "quote_probe_attempts":metric(price,"official_native_events_quoted_attempts"),
         "quote_attempts_within_48h":metric(price,"actual_48h_publication_window_quote_attempts"),
         "fresh_consensus_market_prices":metric(price,"fresh_consensus_market_prices"),
-        "football_model_market_candidates":metric(market,"frozen_bsd_v2_model_market_candidates"),
+        "football_model_market_candidates":metric(market,"frozen_bsd_v2_model_market_candidates",zero_if_missing=True),
         "selected_markets_with_fresh_consensus_price":
-            metric(market,"frozen_markets_with_exact_fresh_bsd_consensus_quote"),
-        "v21_or_value_guard_rejected":metric(market,"v21_or_value_guard_veto"),
+            metric(market,"frozen_markets_with_exact_fresh_bsd_consensus_quote",zero_if_missing=True),
+        "v21_or_value_guard_rejected":metric(market,"v21_or_value_guard_veto",zero_if_missing=True),
         "v21_insufficient_real_price_edge":
             metric(market,"v21_reason:v21_insufficient_real_price_edge") if
             "v21_reason:v21_insufficient_real_price_edge" in (market or {}) else 0,
