@@ -2774,6 +2774,7 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
     Les transitions viennent d'ESPN public et, si disponible, du cache Supabase
     déjà alimenté par notre moteur live BSD+ESPN.
     """
+    run_started_at = datetime.now(timezone.utc)
     now = now.astimezone(timezone.utc)
     state = History()
     sender = Sender(dry_run=dry_run)
@@ -2937,12 +2938,22 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
     finally:
         if not dry_run:
             state.save(now)
+        persist_actu_foot_run_metrics(
+            sender.session,
+            mode="lifecycle",
+            started_at=run_started_at,
+            dry_run=dry_run,
+            counter=counter,
+            state=state,
+            now=now,
+        )
 
     print("XPRONOS_LIFECYCLE", json.dumps(counter), "dry_run", dry_run)
     return counter
 
 
 def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[str, int]:
+    run_started_at = datetime.now(timezone.utc)
     now = now.astimezone(timezone.utc)
     today = now.astimezone(TZ).date()
     hour = now.astimezone(TZ).hour
@@ -3361,6 +3372,15 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
     finally:
         if not dry_run:
             state.save(now)
+        persist_actu_foot_run_metrics(
+            sender.session,
+            mode="full",
+            started_at=run_started_at,
+            dry_run=dry_run,
+            counter=counter,
+            state=state,
+            now=now,
+        )
     print("XPRONOS_FOOTBALL", json.dumps(counter), "dry_run", dry_run)
     return counter
 
