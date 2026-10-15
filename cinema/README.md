@@ -15,11 +15,11 @@ Les quatre premières publications utilisent les Rich Messages Telegram : titre 
 ## Secrets GitHub à paramétrer
 
 - `TMDB_API_KEY` : clé API TMDB. API gratuite seulement sous conditions, notamment usage non commercial.
-- Canal de test : `@predict_mrxp`, fixé directement dans le programme. Le bot doit être administrateur.
+- **Canal de test fixé** : [@predict_mrxp](https://t.me/predict_mrxp), directement dans le script. Aucun secret d'identifiant de canal n'est nécessaire. Le bot doit en être administrateur avec droit de publier.
 - `CINEMA_TELEGRAM_BOT_TOKEN` : token du bot cinéma (ou `TELEGRAM_BOT_TOKEN` existant).
 - `CINEMA_PRODUCTION_CHAT_ID` : canal cinéma réel, différent des canaux de pronostics.
 
-**Sécurité :** Aucun repli du test vers `TELEGRAM_CHAT_ID` principal. Pas d'envoi si le secret de test manque. Ne jamais mettre de token dans le dépôt.
+**Sécurité :** test toujours vers `@predict_mrxp` (jamais vers `TELEGRAM_CHAT_ID` principal). Le script vérifie le rôle du bot avant tout envoi. Ne jamais mettre de token dans le dépôt.
 
 ## Actions recommandées
 
@@ -44,6 +44,13 @@ python scripts/cinema_telegram.py --mode test --format all --demo --dry-run
 ## Droits
 
 Le système recommande des films sans distribuer de copies de films. Les fiches mènent à TMDB, pas à des liens de téléchargement illégaux. Le visuel est créé localement à partir de texte, sans reprise de posters. Mention de TMDB ajoutée aux fiches utilisant ses données; adapter la licence pour un usage commercial.
-## Canal de test
 
-Les essais utilisent exclusivement [@predict_mrxp](https://t.me/predict_mrxp). Le script contrôle les permissions du bot avec `getMe` et `getChatMember` avant tout envoi. Un push identifié par `[cinema-live-test]` déclenche une unique campagne de démonstration (5 formats). Les vrais canaux ne sont jamais ciblés par ces essais.
+## Campagne de test unique sur la branche
+
+Un push contenant le marqueur exact `[cinema-live-test]` vers la branche de développement lance les 5 démonstrations sur **@predict_mrxp uniquement**, avec le token `TELEGRAM_BOT_TOKEN` du dépôt. Sans accès administrateur du bot, le contrôle préalable interrompt le test avant l'envoi. Cette étape ne déclenche jamais une publication sur les canaux des pronostics.
+
+## Règle stricte des visuels (mise à jour)
+
+Aucune image n’est fabriquée ni modifiée. Pour les films, séries, top 5, sorties et pépites, la photo publiée est le **poster original fourni par TMDB** du premier titre sélectionné possédant une image; pour l’acteur du jour, le **portrait officiel TMDB**. Les octets JPEG/PNG sont transmis tels quels à Telegram : zéro composition Pillow, zéro logo, zéro texte superposé, zéro image générée. Si TMDB ne fournit pas d’image valide, la publication devient un message texte enrichi. Les démos fictives sont elles aussi uniquement textuelles; les quiz utilisent les sondages natifs de Telegram.
+
+Pour afficher de véritables images sur le canal de test, lancer avec `--mode test --format all` **sans** `--demo` et configurer `TMDB_API_KEY`. Les images de TMDB et leur diffusion doivent respecter les conditions/licences de la source.
