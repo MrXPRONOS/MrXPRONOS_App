@@ -25,6 +25,7 @@ for p in (ROOT,ROOT/"bsd"):
 from bsd_v2_audit import SCHEMA, _identity
 from bsd_v2_guardrails import v21_accept_priced,post_price_value_guard,v21_signal_tier
 from bsd_v2_estimated_odds import valid_standalone_prediction
+from telegram_rich import post_text
 
 ALLOWED=frozenset(("bsd_consensus","bsd_bookmaker"))
 STATE_SCHEMA="bsd-offline-delivery-canary-v1"
@@ -91,7 +92,7 @@ def immutable_key(row):
         raise ValueError("Bad event+kickoff+selection identity")
     return sha256((ident+"|"+str(pick["selection_key"])).encode("utf-8")).hexdigest()
 
-def apply_local_transaction(workdir:Path,row:dict,*,fault=None):
+def apply_local_transaction(workdir:Path,row:dict,*,fault=None,transport=None):
     """One-pointer immutable revision transaction; never contacts transport."""
     if fault not in (None,"after_prepare","after_activation"):
         raise ValueError("Unsupported fault injection")
@@ -128,9 +129,13 @@ def apply_local_transaction(workdir:Path,row:dict,*,fault=None):
         temp.replace(active)
         if fault=="after_activation":
             raise RuntimeError("Injected failure after activation")
+        if transport is not None:
+            # Caller must inject a memory-only adapter. Live transports are
+            # not used in this canary; a real Telegram send cannot be rolled back.
+            transport(row)
         assert active.read_bytes()==staged
         return {"reserved_new":1,"deduplicated":0,"transaction_committed":True,
-                "simulated_transport_calls":1}
+                "simulated_transport_calls":int(transport is not None)}
     except Exception:
         # A durable external message cannot be unsent; THIS canary never sends
         # any. Only the sandbox's pointer state is restored byte for byte.
@@ -153,6 +158,37 @@ def run_real_historical_canary(feed:dict,ledger:dict)->dict:
                 for e in ledger.get("entries",[]) if isinstance(e,dict)}
     if not historical:
         raise AssertionError("Empty historical publication registry")
+    class FakeTelegramResponse:
+        status_code=200
+        def raise_for_status(self):
+            return None
+        def json(self):
+            return {"ok":True,"result":{"message_id":42}}
+
+    class InMemoryTelegramSession:
+        def __init__(self):
+            self.posts=0
+        def post(self,url,*,data,timeout,**kw):
+            if (not url.startswith("https://api.telegram.org/botOFFLINE_CANARY_ONLY/")
+                or data.get("chat_id")!="@offline_mrxp_canary"):
+                raise AssertionError("Unexpected live Telegram destination or credential")
+            if not isinstance(data.get("rich_message"),str):
+                raise AssertionError("Rich Telegram formatter was not invoked")
+            self.posts+=1
+            return FakeTelegramResponse()
+
+    fake=InMemoryTelegramSession()
+    def local_mocked_telegram(row):
+        pick=row["prediction"]
+        body=("TEST LOCAL UNIQUEMENT: BSD V2 "+str(pick["selection_key"])+
+              " (AUCUN ENVOI REEL)")
+        message_id=post_text(
+            fake,"OFFLINE_CANARY_ONLY","@offline_mrxp_canary",body,
+            keyboard={"inline_keyboard":[[{"text":"Aperçu","url":"https://example.org"}]]},
+            timeout=5)
+        if message_id!=42:
+            raise AssertionError("Telegram rich formatter returned unexpected result")
+
     with tempfile.TemporaryDirectory(prefix="mrxpronos-delivery-canary-") as tmp:
         root=Path(tmp)
         rollback_verified=0
@@ -169,13 +205,13 @@ def run_real_historical_canary(feed:dict,ledger:dict)->dict:
             if after!=baseline:
                 raise AssertionError("Rollback failed to restore exact pointer bytes")
             rollback_verified+=1
-        first=apply_local_transaction(root,specimen)
-        second=apply_local_transaction(root,specimen)
-        third=apply_local_transaction(root,specimen)
+        first=apply_local_transaction(root,specimen,transport=local_mocked_telegram)
+        second=apply_local_transaction(root,specimen,transport=local_mocked_telegram)
+        third=apply_local_transaction(root,specimen,transport=local_mocked_telegram)
         committed=json.loads((root/"ACTIVE.json").read_text(encoding="utf-8"))
         if (first["reserved_new"]!=1 or first["simulated_transport_calls"]!=1
             or second["deduplicated"]!=1 or third["deduplicated"]!=1
-            or len(committed["receipts"])!=1):
+            or len(committed["receipts"])!=1 or fake.posts!=1):
             raise AssertionError("Idempotency failed across consecutive attempts")
         if key!=committed["receipts"][0]["key"]:
             raise AssertionError("Receipt fingerprint mismatch")
@@ -190,7 +226,8 @@ def run_real_historical_canary(feed:dict,ledger:dict)->dict:
         "specimen_is_historical_not_new_live_eligible_fixture":True,
         "new_qualified_prematch_selection_observed":False,
         "simulated_publication_attempts":3,
-        "simulated_transport_dispatches":1,
+        "simulated_transport_dispatches":fake.posts,
+        "real_telegram_rich_formatter_exercised_with_fake_http":True,
         "duplicate_dispatches_suppressed":2,
         "transaction_rollbacks_byte_identical":rollback_verified,
         "original_data_json_or_ledger_modified":False,
