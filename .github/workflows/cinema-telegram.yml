@@ -61,14 +61,18 @@ jobs:
       - name: Dry preview on feature push (no secrets, no sending)
         if: github.event_name == 'push'
         run: python scripts/cinema_telegram.py --mode test --format all --demo --dry-run
+      - name: One-time Telegram test in @predict_mrxp
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[cinema-live-test]') && github.ref == 'refs/heads/feat/cinema-telegram-batch1'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
+        run: python scripts/cinema_telegram.py --mode test --format all --demo
       - name: Manual or scheduled publication
         if: github.event_name != 'push'
         env:
           CINEMA_TELEGRAM_BOT_TOKEN: ${{ secrets.CINEMA_TELEGRAM_BOT_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          CINEMA_TEST_CHAT_ID: ${{ secrets.CINEMA_TEST_CHAT_ID }}
-          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID }}
-          TELEGRAM_CHAT_ID_TEST: ${{ secrets.TELEGRAM_CHAT_ID_TEST }}
           CINEMA_PRODUCTION_CHAT_ID: ${{ secrets.CINEMA_PRODUCTION_CHAT_ID }}
           CINEMA_PRODUCTION_ENABLED: ${{ vars.CINEMA_PRODUCTION_ENABLED }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -102,7 +106,7 @@ jobs:
             python scripts/cinema_telegram.py "${ARGS[@]}"
           fi
       - name: Persist deduplication history (only when actually published)
-        if: github.event_name != 'push' && success()
+        if: (github.event_name != 'push' || contains(github.event.head_commit.message, '[cinema-live-test]')) && success()
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
