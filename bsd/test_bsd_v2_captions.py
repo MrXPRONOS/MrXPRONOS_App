@@ -61,6 +61,50 @@ class CaptionTests(unittest.TestCase):
             self.assertIn("<blockquote>",caption)
             self.assertLessEqual(len(unescape(caption)),MAX_CAPTION_LENGTH)
 
+    def test_combo_distinguishes_genuine_and_estimated_legs(self):
+        from bsd_v2_captions import combo_gain_caption
+        first=fixture()
+        second=fixture(home="Second Club",away="Another City")
+        second["prediction"]["odds"]=1.32
+        second["prediction"]["odds_source"]="mrxpronos_model"
+        second["prediction"]["estimated_odds"]=True
+        combo={"legs":[first,second],"combined_odds":2.046,
+               "event_date":first["event_date"]}
+        caption=combo_caption(combo)
+        self.assertIn("Cote combinée estimée",caption)
+        self.assertIn("(cote estimée)",caption)
+        self.assertIn("non proposée par un bookmaker",caption)
+        self.assertNotIn("cotes réelles.</i>\n\n<cote",caption)
+        self.assertLessEqual(len(unescape(caption)),MAX_CAPTION_LENGTH)
+        finished=combo_gain_caption(combo)
+        self.assertIn("Cote combinée estimée",finished)
+        self.assertIn("aucun gain bookmaker n'est attesté",finished)
+
+        second["prediction"]["odds_source"]="bsd_consensus"
+        second["prediction"]["estimated_odds"]=False
+        unchanged=combo_caption(combo)
+        self.assertIn("Cote combinée :",unchanged)
+        self.assertNotIn("Cote combinée estimée",unchanged)
+        self.assertNotIn("non proposée par un bookmaker",unchanged)
+
+    def test_forecast_ticket_status_never_claims_bookmaker_acceptance(self):
+        from bsd_v2_ticket_ui import _summary
+        writes=[]
+        def record(draw,txt,*args,**kwargs):
+            writes.append(str(txt))
+        with patch("bsd_v2_ticket_ui._draw",return_value=(record,None,None,None)):
+            _summary(None,price=1.7,stake=1000,won=False,paid=False)
+            self.assertIn("Prévision",writes)
+            self.assertNotIn("Accepté",writes)
+            self.assertNotIn("Payé",writes)
+            writes.clear()
+            _summary(None,price=1.7,stake=1000,won=True,paid=False)
+            self.assertIn("Validé",writes)
+            self.assertNotIn("Payé",writes)
+            writes.clear()
+            _summary(None,price=1.7,stake=1000,won=True,paid=True)
+            self.assertIn("Payé",writes)
+
     def test_winning_caption_not_claiming_real_cash(self):
         match={**fixture(),"home_score":2,"away_score":0}
         caption=gain_caption(match)
