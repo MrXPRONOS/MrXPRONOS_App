@@ -217,7 +217,12 @@ def audit_official_consensus_quotes(client,native,linked_ids,league_names,*,at,v
             by_id[ident].append(attributes)
     outcomes=Counter()
     audited=0
-    for ident in sorted(set(linked_ids))[:MAX_ODDS_PROBE_EVENTS]:
+    # Prioritize the nearest authentic kickoffs, not arbitrary numeric IDs,
+    # so the native publisher's genuine 48h window is sampled when available.
+    prioritized=sorted(set(linked_ids),key=lambda ident:(
+        by_id[ident][0][3] if len(by_id.get(ident,[]))==1
+        else datetime.max.replace(tzinfo=timezone.utc),ident))
+    for ident in prioritized[:MAX_ODDS_PROBE_EVENTS]:
         if client.requests_made>=MAX_BSD_REQUESTS-2:
             outcomes["remaining_request_budget_insufficient"]+=1
             break
@@ -275,8 +280,8 @@ def main():
     parser.add_argument("--days",type=int,default=2)
     parser.add_argument("--start-offset",type=int,default=2)
     args=parser.parse_args()
-    if not 1<=args.days<=2 or not 1<=args.start_offset<=3:
-        parser.error("BSD audit is limited to 2 calendar days and start offset 1..3")
+    if not 1<=args.days<=3 or not 1<=args.start_offset<=3:
+        parser.error("BSD audit is limited to 3 calendar days and start offset 1..3")
     if not os.getenv("BSD_API_KEY"):
         parser.error("BSD_API_KEY missing; do not substitute synthetic event IDs")
     destination=Path(args.report).resolve()
