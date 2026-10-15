@@ -1,5 +1,1182 @@
 [
   {
+    "id": "b211eb3f0c3e80c79786fcdf",
+    "kind": "article",
+    "title": "Red Bull Salzburg vs AC Milan : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-601289/",
+    "source_date": "2026-10-15T03:34:19.405644+00:00",
+    "visual_variant": "v1",
+    "image": "assets/images/editorial/match-bsd-match-601289-c73982ff-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-601289-c73982ff-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-601289-c73982ff-social.jpg"
+  },
+  {
+    "id": "f460b2a90aba3579cb3eda8f",
+    "kind": "news",
+    "title": "Cameroun: Samuel Eto’o visé par une nouvelle plainte pour détournements présumés de fonds publics",
+    "url": "https://www.rfi.fr/fr/afrique/20261015-cameroun-samuel-eto-o-vis%C3%A9-par-une-nouvelle-plainte-pour-d%C3%A9tournements-pr%C3%A9sum%C3%A9s-de-fonds-publics",
+    "source_date": "2026-10-15T02:13:19+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4ac7d8dd1feba07ebc70ccbb",
+    "kind": "news",
+    "title": "Manchester City - PSG : le phénomène Ayyoub Bouaddi a (encore) marqué les esprits",
+    "url": "https://www.footmercato.net/a5931824146567150440-manchester-city-psg-le-phenomene-ayyoub-bouaddi-a-encore-marque-les-esprits",
+    "source_date": "2026-10-14T23:31:19+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6f3d467885efa5c0cbe7e940",
+    "kind": "news",
+    "title": "Man City : le surprenant constat d’Enzo Maresca après la défaite contre le PSG",
+    "url": "https://www.footmercato.net/a8119536648264483968-man-city-le-surprenant-constat-denzo-maresca-apres-la-defaite-contre-le-psg",
+    "source_date": "2026-10-14T22:09:06+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5529cd1968f70dbb28af5f10",
+    "kind": "news",
+    "title": "Real : Vinicius répond aux critiques",
+    "url": "https://www.maxifoot.fr/real/vinicius-repond-aux-critiques-foot-465703.htm",
+    "source_date": "2026-10-14T22:08:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7fb42ea72c29f8c6f39b2420",
+    "kind": "news",
+    "title": "Roma - Real Madrid : Vinicius en colère contre Mourinho au moment de sa sortie, une nouvelle scène polémique",
+    "url": "https://www.onzemondial.com/ligue-des-champions/roma-real-madrid-vinicius-en-colere-contre-mourinho-au-moment-de-sa-sortie-une-nouvelle-scene-polemique-1002669",
+    "source_date": "2026-10-14T21:57:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "525c6fbc7ccfdd72188470a5",
+    "kind": "news",
+    "title": "Ligue des champions : le PSG remporte un nouveau choc européen face à Manchester City",
+    "url": "https://www.france24.com/fr/sports/20261014-ligue-champions-psg-remporte-nouveau-choc-europeen-face-manchester-city-fc-barcelone-football-desire-doue-ousmane-dembele-vitinha",
+    "source_date": "2026-10-14T21:43:50+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a331a58b24b2f2f3917a2ef0",
+    "kind": "news",
+    "title": "PSG : l’interview d’après-match surréaliste d’Ousmane Dembélé",
+    "url": "https://www.footmercato.net/a7357545586699212197-psg-linterview-dapres-match-surrealiste-dousmane-dembele",
+    "source_date": "2026-10-14T21:37:24+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5e64ca1a494eada53b3bb588",
+    "kind": "news",
+    "title": "Ligue des champions : le Real Madrid arrache la victoire sur la pelouse de la Roma avec un but et un record pour Kylian Mbappé",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/ligue-des-champions-le-real-madrid-arrache-la-victoire-sur-la-pelouse-de-la-roma-avec-un-but-et-un-record-pour-kylian-mbappe_8237812.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-10-14T21:26:47+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e1db073531872fb5b1bed62a",
+    "kind": "news",
+    "title": "Ligue des Champions : le classement après la 2e journée",
+    "url": "https://www.footmercato.net/a361770875705805803-ligue-des-champions-le-classement-apres-la-2e-journee",
+    "source_date": "2026-10-14T21:13:30+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "29b709c43de49e11c1c35e87",
+    "kind": "news",
+    "title": "LDC : Manchester City - PSG : des supporters cityzens quittent déjà l'Etihad Stadium après le troisième but parisien (vidéo)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-manchester-city-psg-des-supporters-cityzens-quittent-deja-l-etihad-stadium-apres-le-troisieme-but-parisien-video-542243.html",
+    "source_date": "2026-10-14T20:15:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8428a4adda71f4013db34e8c",
+    "kind": "news",
+    "title": "Manchester City - PSG : deux buts coup sur coup, le début de match sensationnel des Parisiens !",
+    "url": "https://www.onzemondial.com/ligue-des-champions/video-manchester-city-psg-deux-buts-coup-sur-coup-le-debut-de-match-sensationnel-des-parisiens-1002641",
+    "source_date": "2026-10-14T19:25:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e26b7612e9302cd6cf4e8a42",
+    "kind": "news",
+    "title": "Bundesliga, rouleau compresseur et deux coupes : pourquoi Vincent Kompany mérite de remporter le Onze d’Or 2026 du meilleur entraîneur",
+    "url": "https://www.onzemondial.com/bundesliga/bundesliga-rouleau-compresseur-et-deux-coupes-pourquoi-vincent-kompany-merite-de-remporter-le-onze-dor-2026-du-meilleur-entraineur-1002566",
+    "source_date": "2026-10-14T18:32:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4f957c9c118e6df4d3af3315",
+    "kind": "news",
+    "title": "\"Ils ont mérité tous les trophées qu'ils ont gagnés\" : Luis Enrique apporte son soutien à Manchester City, reconnu coupable de 114 infractions financières",
+    "url": "https://www.franceinfo.fr/sports/foot/psg/ils-ont-merite-tous-les-trophees-qu-ils-ont-gagnes-luis-enrique-apporte-son-soutien-a-manchester-city-reconnu-coupable-de-114-infractions-financieres_8235874.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-10-13T17:00:22+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c5f9642b28e20570a93ce9d5",
+    "kind": "news",
+    "title": "Liga: Diomandé marque son premier but pour le Real Madrid face à Villarreal",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261010-football-diomand%C3%A9-marque-son-premier-but-pour-le-real-madrid-face-%C3%A0-villarreal",
+    "source_date": "2026-10-10T21:10:52+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "12a770a37af898b61134656d",
+    "kind": "news",
+    "title": "Football: Cristiano Ronaldo suspendu et visé par une procédure disciplinaire de la Fédération portugaise",
+    "url": "https://www.rfi.fr/fr/sports/20261010-football-cristiano-ronaldo-suspendu-et-vis%C3%A9-par-une-proc%C3%A9dure-disciplinaire-de-la-f%C3%A9d%C3%A9ration-portugaise",
+    "source_date": "2026-10-10T13:41:22+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4483342b122ed38a72f69a05",
+    "kind": "news",
+    "title": "Ligue des champions : revivez la victoire spectaculaire du PSG sur la pelouse de Manchester City",
+    "url": "https://www.franceinfo.fr/sports/directs/direct-manchester-city-psg-les-parisiens-face-a-leur-premier-gros-test-de-la-saison-suivez-et-commentez-le-match-de-ligue-des-champions-avec-nous_8237326.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-10-15T02:56:04+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a5c70aef6bd2090f5148c99a",
+    "kind": "news",
+    "title": "Burkina Faso: le capitaine Traoré lance la «Ligue de la souveraineté», un nouveau championnat de football",
+    "url": "https://www.rfi.fr/fr/afrique/20261015-burkina-faso-le-capitaine-traor%C3%A9-lance-la-ligue-de-la-souverainet%C3%A9-un-nouveau-championnat-de-football",
+    "source_date": "2026-10-15T02:13:31+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2a4e16f72c22278616a52871",
+    "kind": "news",
+    "title": "Ligue des champions : Entre boulettes, parades et manque de sérénité, Safonov (PSG) et Donnarumma (Manchester City) ont encore étalé leurs limites",
+    "url": "https://www.sofoot.com/articles/ligue-des-champions-entre-boulettes-parades-et-manque-de-serenite-safonov-psg-et-donnarumma-manchester-city-ont-encore-etale-leurs-limites",
+    "source_date": "2026-10-15T00:00:58+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "716a7120a5c562bd9bc59b0f",
+    "kind": "news",
+    "title": "PSG, Luis Enrique : « ce n’est pas important d’être le meilleur à ce moment-là »",
+    "url": "https://www.footmercato.net/a8465745529000517648-psg-luis-enrique-ce-nest-pas-important-detre-le-meilleur-a-ce-moment-la",
+    "source_date": "2026-10-14T23:44:04+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "41f46e693089c29d81396e21",
+    "kind": "news",
+    "title": "Ligue des Champions : une soirée historique avec 46 buts inscrits en neuf matches !",
+    "url": "https://www.footmercato.net/a5504679932124577526-ligue-des-champions-une-soiree-historique-avec-46-buts-inscrits-en-neuf-matches",
+    "source_date": "2026-10-14T23:30:10+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1032598ae9f6d41b9247264b",
+    "kind": "news",
+    "title": "Des records de buts en Ligue des champions depuis le nouveau format : est-ce une réussite ?",
+    "url": "https://www.sofoot.com/articles/des-records-de-buts-en-ligue-des-champions-depuis-le-nouveau-format-est-ce-une-reussite",
+    "source_date": "2026-10-14T23:14:22+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3968716ae1ddc23f8cb0cf12",
+    "kind": "news",
+    "title": "PSG : Luis Enrique, bourreau des clubs anglais",
+    "url": "https://www.footmercato.net/a1611543642754406657-psg-luis-enrique-bourreau-des-clubs-anglais",
+    "source_date": "2026-10-14T23:04:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b87c22ebc77d47f2dc8f39e7",
+    "kind": "news",
+    "title": "Manchester City-PSG : Comment ne pas t’aimer, Ousmane Dembélé",
+    "url": "https://www.sofoot.com/articles/manchester-city-psg-comment-ne-pas-taimer-ousmane-dembele",
+    "source_date": "2026-10-14T22:45:28+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "06d0ed8dafd881dadfcfbcce",
+    "kind": "news",
+    "title": "PSG : la machine Maghnes Akliouche est bien lancée !",
+    "url": "https://www.footmercato.net/a4331000656986984994-psg-la-machine-maghnes-akliouche-est-bien-lancee",
+    "source_date": "2026-10-14T22:36:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c503f165a947dc5ec67c720a",
+    "kind": "news",
+    "title": "PSG : Maghnes Akliouche raconte son but \"gag\" face à Gianluigi Donnarumma",
+    "url": "https://www.footmercato.net/a7937505840264577081-psg-maghnes-akliouche-raconte-son-but-gag-face-a-gianluigi-donnarumma",
+    "source_date": "2026-10-14T22:34:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4b27f6fd56bf5aa281ab226f",
+    "kind": "news",
+    "title": "PSG : La fierté de Maghnes Akliouche après son but et la belle victoire du PSG face à Manchester City (vidéo)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-psg-la-fierte-de-maghnes-akliouche-apres-son-but-et-la-belle-victoire-du-psg-face-a-manchester-city-video-542274.html",
+    "source_date": "2026-10-14T22:27:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cc9231b0a649fd359f66885d",
+    "kind": "news",
+    "title": "Real Madrid : la revanche fracassante d’Endrick !",
+    "url": "https://www.footmercato.net/a7332417298015923241-real-madrid-la-revanche-fracassante-dendrick",
+    "source_date": "2026-10-14T22:14:19+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e36c5182fceb88abea2bcc2b",
+    "kind": "news",
+    "title": "Manchester City : Medhi Benatia allume Gianluigi Donnarumma après le récital du PSG contre Manchester City",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-manchester-city-medhi-benatia-allume-gianluigi-donnarumma-apres-le-recital-du-psg-contre-manchester-city-542273.html",
+    "source_date": "2026-10-14T22:13:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "edb89f7cd3a753446c0c8fa0",
+    "kind": "news",
+    "title": "Real Madrid : Endrick réagit à la lourde suspension de Vinicius Jr",
+    "url": "https://www.footmercato.net/a8300349122144002037-real-madrid-endrick-reagit-a-la-lourde-suspension-de-viniicus-jr",
+    "source_date": "2026-10-14T22:10:05+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ab2525cabdd32c98265819ad",
+    "kind": "news",
+    "title": "Real Madrid : Kylian Mbappé détrône Lionel Messi et une autre légende en une soirée de Ligue des Champions !",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-real-madrid-kylian-mbappe-detrone-lionel-messi-et-une-autre-legende-en-une-soiree-de-ligue-des-champions-542272.html",
+    "source_date": "2026-10-14T22:05:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "db7b9c4d908aeeff334ebc0a",
+    "kind": "news",
+    "title": "PSG : La déclaration express de Nasser al-Khelaïfi après le magnifique succès de son équipe contre Manchester City (vidéo)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-psg-la-declaration-express-de-nasser-al-khelaifi-apres-le-magnifique-succes-de-son-equipe-contre-manchester-city-video-542265.html",
+    "source_date": "2026-10-14T21:58:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "74caac86d4dda5d560f65492",
+    "kind": "news",
+    "title": "Antoine Semenyo se fait détruire sur les réseaux",
+    "url": "https://www.footmercato.net/a3098953292853151494-antoine-semenyo-se-fait-detruire-sur-les-reseaux",
+    "source_date": "2026-10-14T21:53:02+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7acb4ef05167b36d27a1d18c",
+    "kind": "news",
+    "title": "Ligue des champions: suite et fin de la 2e journée de la phase de Ligue",
+    "url": "https://www.rfi.fr/fr/podcasts/radio-foot-internationale/20261014-ligue-des-champions-suite-et-fin-de-la-2e-journ%C3%A9e-de-la-phase-de-ligue",
+    "source_date": "2026-10-14T21:50:53+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "fd656308199398e7ee48077b",
+    "kind": "news",
+    "title": "PSG : Les mots d'Ousmane Dembélé après la grosse victoire du PSG face à Manchester City (vidéo)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-psg-les-mots-d-ousmane-dembele-apres-la-grosse-victoire-du-psg-face-a-manchester-city-video-542264.html",
+    "source_date": "2026-10-14T21:50:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ea73309109f8bc3443888c3a",
+    "kind": "news",
+    "title": "Real Madrid : les folles réactions des Madrilènes après la remontada face à la Roma",
+    "url": "https://www.footmercato.net/a5770201261738071719-real-madrid-les-folles-reactions-des-madrilenes-apres-la-remontada-face-a-la-roma",
+    "source_date": "2026-10-14T21:45:37+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b2d28d2ea5d63c1b972b3ae8",
+    "kind": "news",
+    "title": "Manchester City - PSG : Luis Enrique rentre dans l'histoire du football français, des chiffres dingues en C1",
+    "url": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-luis-enrique-rentre-dans-lhistoire-du-football-francais-des-chiffres-dingues-en-c1-1002664",
+    "source_date": "2026-10-14T21:45:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2563264a1147b299bf2b63e1",
+    "kind": "news",
+    "title": "PSG : Luis Enrique souligne la belle prestation d'Ousmane Dembélé et de son équipe après le succès face à Manchester City",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-psg-luis-enrique-souligne-la-belle-prestation-d-ousmane-dembele-et-de-son-equipe-apres-le-succes-face-a-manchester-city-542263.html",
+    "source_date": "2026-10-14T21:40:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4665527c10b983255bfdce7a",
+    "kind": "news",
+    "title": "PSG : la réaction mitigée de Luis Enrique",
+    "url": "https://www.footmercato.net/a3315811102141059728-psg-la-reaction-mitigee-de-luis-enrique",
+    "source_date": "2026-10-14T21:34:15+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "aa319526a4302c2763eb0b1b",
+    "kind": "news",
+    "title": "Real Madrid : Vinicius Jr mécontent après sa sortie face à la Roma",
+    "url": "https://www.footmercato.net/a1395206047233472366-real-madrid-vinicius-jr-mecontent-apres-sa-sortie-face-a-la-roma",
+    "source_date": "2026-10-14T21:30:56+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "90ed93fed893b523abf4a6e6",
+    "kind": "news",
+    "title": "Manchester City : Medhi Benatia se paye Gianluigi Donnarumma après sa boulette contre le PSG",
+    "url": "https://www.footmercato.net/a7479658312589848131-manchester-city-medhi-benatia-se-paye-gianluigi-donnarumma-apres-sa-boulette-contre-le-psg",
+    "source_date": "2026-10-14T21:29:05+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d16bc2fe9042143a934e8caf",
+    "kind": "news",
+    "title": "\"Ousmane est un joueur différent\" : la réaction de Luis Enrique après la victoire du PSG face à City",
+    "url": "https://www.onzemondial.com/ligue-des-champions/ousmane-est-un-joueur-different-la-reaction-de-luis-enrique-apres-la-victoire-du-psg-face-a-city-1002665",
+    "source_date": "2026-10-14T21:29:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "02b80270d94ef063479a8574",
+    "kind": "news",
+    "title": "Ligue des champions : Dembélé, Doué, Cherki… Les notes de Manchester City-PSG",
+    "url": "https://www.sofoot.com/articles/ligue-des-champions-dembele-doue-cherki-les-notes-du-manchester-city-psg",
+    "source_date": "2026-10-14T21:25:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e2cf18d2155233848c0bd1d5",
+    "kind": "news",
+    "title": "PSG : \"Je vais peut-être demander d'autres vacances\", Ousmane Dembélé fait le show après la victoire face à Manchester City",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-psg-je-vais-peut-etre-demander-d-autres-vacances-ousmane-dembele-fait-le-show-apres-la-victoire-face-a-manchester-city-542250.html",
+    "source_date": "2026-10-14T21:25:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cb20674cb9d52ea9a22ef99c",
+    "kind": "news",
+    "title": "Manchester City - PSG : les notes de ce choc de la 2ème journée de Ligue des Champions",
+    "url": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-les-notes-de-ce-choc-de-la-2eme-journee-de-ligue-des-champions-2-1002657",
+    "source_date": "2026-10-14T21:24:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "110fc82759580d1e2fd42818",
+    "kind": "news",
+    "title": "Manchester City - PSG : \"Je serai peut-être en vacances jusqu'en mars !\", Dembélé s'amuse des critiques après la victoire",
+    "url": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-la-reaction-de-luis-enrique-1002636",
+    "source_date": "2026-10-14T21:21:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c6fd594905bda37bf105d65a",
+    "kind": "news",
+    "title": "Ligue des champions : brillant puis bousculé, le PSG s'offre un succès de prestige sur la pelouse de Manchester City",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/ligue-des-champions-brillant-puis-bouscule-le-psg-s-offre-un-succes-de-prestige-sur-la-pelouse-de-manchester-city_8237701.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-10-14T21:20:21+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e8b57b18416a4c619039f354",
+    "kind": "news",
+    "title": "Les 6 infos sur la soirée de Ligue des Champions : le Real renversant, Barcola réagit, Greenwood conspué...",
+    "url": "https://m.maxifoot.fr/football/article-66267.htm",
+    "source_date": "2026-10-14T21:10:42+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6eb5822b16614e4ec2656b01",
+    "kind": "news",
+    "title": "PSG : L'énorme fierté de Vitinha après la prestation sensationnelle du PSG face à Manchester City",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-psg-l-enorme-fierte-de-vitinha-apres-la-prestation-sensationnelle-du-psg-face-a-manchester-city-542249.html",
+    "source_date": "2026-10-14T21:07:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a67f1fdb8fa3d2c8eddbaaf3",
+    "kind": "news",
+    "title": "LDC : Les notes de AS Roma - Real Madrid : une remontada folle propulse les Merengue dans le top 8",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-les-notes-de-as-roma-real-madrid-une-remontada-folle-propulse-les-merengue-dans-le-top-8-542248.html",
+    "source_date": "2026-10-14T21:05:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d3d2bfd2d3e0306ed4e4a6ff",
+    "kind": "news",
+    "title": "Une soirée de folie ! - Débrief et NOTES des joueurs (City 2-4 PSG)",
+    "url": "https://m.maxifoot.fr/football/article-66266.htm",
+    "source_date": "2026-10-14T21:02:41+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2391058b5a7be7fe4f866da5",
+    "kind": "news",
+    "title": "LDC : Aston Villa humilie le Fenerbahçe SK, le Borussia Dortmund piégé par le FK Bodø/Glimt... le récap' de la soirée",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-aston-villa-humilie-le-fenerbahce-sk-le-borussia-dortmund-piege-par-le-fk-bodo-glimt-le-recap-de-la-soiree-542245.html",
+    "source_date": "2026-10-14T21:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3d38f7699594fb093784915b",
+    "kind": "news",
+    "title": "Revivez Manchester City – PSG (2-4)",
+    "url": "https://www.sofoot.com/articles/en-direct-manchester-city-psg",
+    "source_date": "2026-10-14T21:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "fb27c7eb4da33cdee7b4a1c5",
+    "kind": "news",
+    "title": "Le PSG en démonstration contre City dans un match fou, le Real Madrid renverse la Roma... Le résumé de cette soirée de Ligue des champions",
+    "url": "https://www.onzemondial.com/ligue-des-champions/le-psg-en-demonstration-contre-city-dans-un-match-fou-le-real-madrid-renverse-la-roma-le-resume-de-cette-soiree-de-ligue-des-champions-1002655",
+    "source_date": "2026-10-14T20:58:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "671e226e13cb98ec787403aa",
+    "kind": "news",
+    "title": "Ligue des champions : dans une soirée de flambeurs, le Paris Saint-Germain fait casquer Manchester City",
+    "url": "https://www.sofoot.com/articles/ligue-des-champions-dans-une-soiree-de-flambeurs-le-paris-saint-germain-fait-casquer-manchester-city",
+    "source_date": "2026-10-14T20:55:24+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f49628f600019621006a9001",
+    "kind": "news",
+    "title": "Orgueilleux, le Real Madrid attend la fin de match pour renverser la Roma dans la folie",
+    "url": "https://www.sofoot.com/articles/orgueilleux-le-real-madrid-attend-la-fin-de-match-pour-renverser-la-roma-dans-la-folie",
+    "source_date": "2026-10-14T20:54:56+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-15T03:34:19.693061+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "da85e5819b74eff83f035810",
     "kind": "article",
     "title": "Ittihad Tanger vs Maghreb Fes : fiche match BSD V2",
@@ -84,7 +1261,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2822d7be054cdefad20a7711",
@@ -105,7 +1282,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "96d0f445d0a3cedb506c1750",
@@ -126,7 +1303,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "43f2f54dfa356d0130f8df55",
@@ -147,7 +1324,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ae2e83173cead04c2edb0c71",
@@ -168,7 +1345,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2a71f03fb0a25155684a537e",
@@ -189,7 +1366,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6d321e93eb26ba197813b711",
@@ -210,7 +1387,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "bfa7bb50712f1e73666a5483",
@@ -231,7 +1408,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b10ba992fd01eb6a837a60dd",
@@ -252,7 +1429,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5db7053c2a3c79820cba7dab",
@@ -273,7 +1450,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "751b13946840797aaf087249",
@@ -294,7 +1471,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b130324cd5081a311eee6340",
@@ -315,7 +1492,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "33a6f989ddbebcbe4dbea2b9",
@@ -336,7 +1513,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "27ecb4a65ffcbf83e594ac16",
@@ -357,7 +1534,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "aae4eb8630dd51507001f967",
@@ -378,7 +1555,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c18bf4d2038adbc61aaa957f",
@@ -399,7 +1576,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c3421b1146747c76374ee61a",
@@ -420,7 +1597,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9ce5c176e682cd3504d3060c",
@@ -441,7 +1618,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d40680991d79f7bdb22cd6da",
@@ -462,7 +1639,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "91ab02aede156819d2d44e4a",
@@ -483,7 +1660,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6e61a886e816829d15c78626",
@@ -504,7 +1681,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e6e644a5889c2f97602fee2e",
@@ -525,7 +1702,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b10b9856f64fdcb835b80581",
@@ -546,7 +1723,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "12f2d713dd8f3a48d6d4e1d0",
@@ -567,7 +1744,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "acea1fbafc08afc422e0731b",
@@ -588,7 +1765,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "23baf6df1964efe4a20c6ec3",
@@ -609,7 +1786,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4b494a28551f59c15077ae0a",
@@ -630,7 +1807,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "612370f6eee80870295c7af9",
@@ -651,7 +1828,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "669223816ae460d04bb0e108",
@@ -672,7 +1849,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ec08096ec16ab6e238bbf237",
@@ -693,7 +1870,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "966398aa487e4b1584c3c980",
@@ -714,7 +1891,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "831feac4c12f383ab5c6560c",
@@ -735,7 +1912,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6b2c508b43607a9f57f43999",
@@ -756,7 +1933,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "bcb74437ceca30d022d7a143",
@@ -777,7 +1954,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e4077335e713032b1a6c5c53",
@@ -798,7 +1975,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "33ced754fb097a062be5707f",
@@ -819,7 +1996,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a753106d0b8bf592ebd7f008",
@@ -840,7 +2017,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7cf8ff4238e24919e0c731a0",
@@ -861,7 +2038,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c300ebf30783cf43a8d390dd",
@@ -882,7 +2059,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8656c244afbd439c0581efd6",
@@ -903,7 +2080,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2b0210467c32aa71ef2ed10e",
@@ -924,7 +2101,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "597bc180e3c1ea150daba907",
@@ -945,7 +2122,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9c8e6623431f1d55240a6450",
@@ -966,7 +2143,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f497861dcedeaee8426acce4",
@@ -987,7 +2164,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c5dc00576d87b1f5010c2e33",
@@ -1008,7 +2185,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9c2a0e13ad7780b60dd6d7aa",
@@ -1029,7 +2206,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "bc2c75ce0e62ed383b52a338",
@@ -1050,7 +2227,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "777e648a72008657e79cea6d",
@@ -1071,7 +2248,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "50345f0a8e5d2d5f34b8176f",
@@ -1092,7 +2269,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "06f63181e8522392a86c3797",
@@ -1113,7 +2290,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5f17c82e84a460478f04d521",
@@ -1134,7 +2311,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "725e979fbaa86fd22b8a376a",
@@ -1155,7 +2332,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7e2995e323c037468ef377f6",
@@ -1176,7 +2353,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "117dbe2aa36b806facdbfe2a",
@@ -1197,7 +2374,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "77345f221a6a5f104093fb68",
@@ -1218,7 +2395,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c28708cfd7001207cf203f79",
@@ -1247,7 +2424,7 @@
     "kind": "news",
     "title": "Ligue des champions : dépassé, Lille n'a pas tenu la distance face à Arsenal... Revivez la rencontre de la deuxième journée de phase de ligue",
     "url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
-    "source_date": "2026-10-14T17:30:52+00:00",
+    "source_date": "2026-10-15T02:56:04+00:00",
     "visual_variant": "legacy",
     "image": "",
     "story_image": "",
@@ -1429,7 +2606,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "66cdf7d6f59e9c38f4479726",
@@ -1660,7 +2837,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0f73e41d6cbd03e67eb8a7b4",
@@ -1807,7 +2984,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "88f6e0411e399d04d1ac6603",
@@ -2164,7 +3341,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "68776a702eee72b152e70d9f",
@@ -3385,7 +4562,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": true
+    "retired": false
   },
   {
     "id": "86f9e4dcee53fce688b633fa",
@@ -4751,7 +5928,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": true
+    "retired": false
   },
   {
     "id": "c5de60c1f69815675638a7af",
@@ -8158,7 +9335,7 @@
     },
     "source_date": "2026-10-12T06:00:30+00:00",
     "visual_variant": "v3",
-    "retired": true
+    "retired": false
   },
   {
     "id": "152eaff493bce8da7032a7a6",
@@ -8177,9 +9354,9 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "source_date": "2026-10-10T14:31:57",
+    "source_date": "2026-10-10T14:31:57+00:00",
     "visual_variant": "v1",
-    "retired": true
+    "retired": false
   },
   {
     "id": "ac7cb16864be96582e581ad3",

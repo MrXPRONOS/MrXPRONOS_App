@@ -28,5 +28,21 @@ class TestBsdV2ProductionWorkflowSafety(unittest.TestCase):
         self.assertLess(validation, commit)
 
 
+    def test_full_multisource_gate_runs_before_append_only_audit(self):
+        full_gate = self.text.index("Build and apply fully-qualified multisource candidates")
+        audit = self.text.index("Archive first-seen published selections and audit quality")
+        commit = self.text.index('git commit -m "data(bsd): publish V2 football picks and verified results"')
+        self.assertLess(full_gate, audit)
+        self.assertLess(audit, commit)
+
+    def test_full_gate_is_fail_closed_and_does_not_send_telegram(self):
+        self.assertIn("--accepted-output=tmp/multisource-qualified-accepted.json", self.text)
+        self.assertIn("football_multisource_apply_qualified.py", self.text)
+        self.assertIn('mg.get("thresholds_lowered") is False', self.text)
+        self.assertIn('mg.get("telegram_sent_by_this_step") is False', self.text)
+        self.assertNotIn("TELEGRAM_BOT_TOKEN", self.text)
+
+
+
 if __name__ == "__main__":
     unittest.main()
