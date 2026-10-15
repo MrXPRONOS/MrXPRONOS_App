@@ -133,6 +133,29 @@ class QualifiedApplyTests(unittest.TestCase):
         self.assertEqual(summary["historical_events_excluded_from_price_probes"],1)
         self.assertNotIn("Example FC",json.dumps(feed))
 
+    def test_mismatched_aggregate_cannot_partially_mutate_feed(self):
+        report={
+            "external_total":0,"independent_cc0_calendar_confirmed":0,
+            "one_to_one_native_event_links":0,
+            "qualified_candidate_rows_staged":1,
+            "read_only_native_consensus_price_audit":{
+                "historically_published_native_links_excluded":0,
+                "unpublished_native_links_in_48h_window":0,
+                "official_native_events_quoted_attempts":0,
+                "actual_48h_publication_window_quote_attempts":0,
+                "fresh_consensus_market_prices":0,
+            },
+            "full_model_selected_market_consensus_audit":{
+                "aggregate":{},
+                "native_full_assembler_canary":{"events_within_native_48h_window":0},
+            },
+        }
+        feed={"source":"bsd","matches":[],"diagnostics":{}}
+        original=deepcopy(feed)
+        with self.assertRaisesRegex(ValueError,"inconsistent"):
+            apply(feed,[],now=NOW,publication_ledger=ledger(),aggregate_report=report)
+        self.assertEqual(feed,original)
+
     def test_rejects_more_than_eight_rows(self):
         with self.assertRaises(ValueError):
             apply({"source":"bsd","matches":[],"diagnostics":{}},
