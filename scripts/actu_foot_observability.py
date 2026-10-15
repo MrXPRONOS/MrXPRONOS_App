@@ -13,7 +13,23 @@ from datetime import datetime, timezone
 import requests
 
 
+def _moment(value: object) -> datetime | None:
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return None
+    return parsed.replace(tzinfo=timezone.utc) if parsed.tzinfo is None else parsed.astimezone(timezone.utc)
+
+
 def _outbox_pending(session: requests.Session) -> int:
+    """Compte seulement la file réellement active/rejouable.
+
+    Les statuts uncertain sont mis en quarantaine pour éviter un double envoi.
+    Un failed ayant épuisé ses tentatives est terminal et ne doit pas gonfler
+    la métrique outbox_pending.
+    """
     base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
     key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
     if not base or not key:
@@ -22,7 +38,7 @@ def _outbox_pending(session: requests.Session) -> int:
         response = session.get(
             base + "/rest/v1/actu_foot_publications",
             params={
-                "select": "event_key",
+                "select": "event_key,status,attempts,max_attempts,expires_at,next_retry_at,locked_at",
                 "status": "in.(failed,claimed,uncertain)",
                 "limit": "100",
             },
@@ -30,9 +46,28 @@ def _outbox_pending(session: requests.Session) -> int:
             timeout=(5, 10),
         )
         response.raise_for_status()
-        payload = response.json()
-        return len(payload) if isinstance(payload, list) else 0
-    except (requests.RequestException, ValueError):
+        rows = response.json()
+        if not isinstance(rows, list):
+            return 0
+        now = datetime.now(timezone.utc)
+        active = 0
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            status = str(row.get("status") or "")
+            if status == "uncertain":
+                continue
+            attempts = max(0, int(row.get("attempts") or 0))
+            max_attempts = max(1, int(row.get("max_attempts") or 5))
+            if attempts >= max_attempts:
+                continue
+            expires_at = _moment(row.get("expires_at"))
+            if expires_at is not None and expires_at <= now:
+                continue
+            if status in {"failed", "claimed"}:
+                active += 1
+        return active
+    except (requests.RequestException, ValueError, TypeError):
         return 0
 
 
