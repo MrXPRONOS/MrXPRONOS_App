@@ -380,7 +380,7 @@ def live_popularity_score(event: dict) -> int:
 
 
 def popular_live_match(event: dict) -> bool:
-    """Filtre d'éligibilité avant classement des meilleures affiches."""
+    """Éligibilité avant classement : intérêt minimum, puis top N par compétition."""
     league_name = league(event).casefold()
     home = team(event, "home").casefold()
     away = team(event, "away").casefold()
@@ -391,26 +391,8 @@ def popular_live_match(event: dict) -> bool:
     if "togo" in home or "togo" in away:
         return True
 
-    home_popular = any(term in home for term in POPULAR_LIVE_TEAM_TERMS)
-    away_popular = any(term in away for term in POPULAR_LIVE_TEAM_TERMS)
-    major_competition = any(term in league_name for term in POPULAR_LIVE_COMPETITION_TERMS)
-    home_national = any(term in home for term in POPULAR_LIVE_NATIONAL_TEAM_TERMS)
-    away_national = any(term in away for term in POPULAR_LIVE_NATIONAL_TEAM_TERMS)
-    international_competition = any(
-        term in league_name for term in POPULAR_LIVE_INTERNATIONAL_TERMS
-    )
-
-    if home_popular and away_popular:
-        return True
-    if major_competition and (home_popular or away_popular):
-        return True
-    if international_competition and (home_national or away_national):
-        return True
-
-    threshold = max(1, int(os.getenv("FOOTBALL_LIVE_POPULARITY_MIN", "55")))
-    return importance(event) >= threshold and (
-        home_popular or away_popular or home_national or away_national
-    )
+    threshold = max(1, int(os.getenv("FOOTBALL_LIVE_POPULARITY_MIN", "45")))
+    return live_popularity_score(event) >= threshold
 
 
 def select_popular_live_matches(
