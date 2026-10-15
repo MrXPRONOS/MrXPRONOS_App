@@ -69,9 +69,9 @@ def persist_shared_source_snapshot(
     if not base or not key or not rows:
         return
     try:
-        ttl = max(30, min(180, int(os.getenv("FOOTBALL_SHARED_SNAPSHOT_TTL", "75"))))
+        ttl = max(30, min(180, int(os.getenv("FOOTBALL_SHARED_SNAPSHOT_TTL", "150"))))
     except ValueError:
-        ttl = 75
+        ttl = 150
     now = datetime.now(timezone.utc)
     safe_rows = [
         {field: row.get(field) for field in _SHARED_SNAPSHOT_FIELDS if row.get(field) is not None}
