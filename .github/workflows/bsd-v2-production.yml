@@ -114,8 +114,20 @@ jobs:
           git add data.json bsd/publication_ledger.json bsd/quality_report.json
           if ! git diff --cached --quiet; then
             git commit -m "data(bsd): publish V2 football picks and verified results"
-            git pull --rebase origin main
-            git push origin HEAD:main
+            pushed=0
+            for attempt in 1 2 3 4 5; do
+              git pull --rebase origin main
+              if git push origin HEAD:main; then
+                pushed=1
+                break
+              fi
+              echo "Push concurrent rejeté (tentative ${attempt}/5), nouveau rebase avant retry"
+              sleep $((attempt * 2))
+            done
+            if [ "$pushed" -ne 1 ]; then
+              echo "Impossible de publier les données BSD V2 après 5 tentatives" >&2
+              exit 1
+            fi
           fi
       - name: Upload per-match price and rejection diagnostics
         uses: actions/upload-artifact@v4
