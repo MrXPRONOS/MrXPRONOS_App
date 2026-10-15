@@ -520,6 +520,8 @@ jobs:
           assert canary['executed'] is True
           assert canary['native_event_ids_verified_in_process'] <= 8
           assert canary['events_within_native_48h_window'] <= canary['native_event_ids_verified_in_process']
+          assert canary['actual_publication_window_exercised'] == (canary['events_within_native_48h_window'] > 0)
+          assert canary['empty_window_is_not_publication_path_validation'] == (canary['events_within_native_48h_window'] == 0)
           assert canary['in_memory_quote_fetches'] <= canary['native_event_ids_verified_in_process']
           assert canary['projected_new_rows_not_published'] <= canary['events_within_native_48h_window']
           assert canary['existing_production_input_unchanged'] is True
@@ -826,6 +828,8 @@ jobs:
           assert decision['checks']['independently_corroborated_native_event_links_observed'] == (metrics['authentic_bsd_event_links_from_private_validation'] > 0)
           assert decision['checks']['fresh_bsd_consensus_market_prices_observed'] == (metrics['fresh_bsd_consensus_market_prices_from_private_validation'] > 0)
           assert decision['checks']['real_production_tracker_immutability_probed'] is True
+          assert decision['checks']['real_48h_native_publication_path_exercised'] == (metrics['native_assembler_canary_fixtures_within_48h'] > 0)
+          assert metrics['native_assembler_canary_fixtures_within_48h'] <= metrics['native_assembler_canary_verified_fixtures']
           assert decision['checks']['actual_selected_market_consensus_pricing_replayed'] is True
           assert decision['checks']['actual_selected_market_with_consensus_quote_observed'] == (metrics['actual_v2_selected_markets_with_real_consensus_quote'] > 0)
           assert metrics['actual_v2_selected_markets_passing_v21_research'] <= metrics['actual_v2_selected_markets_with_real_consensus_quote']
