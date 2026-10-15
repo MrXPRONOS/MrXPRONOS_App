@@ -1,6 +1,6 @@
 {
   "period_days": 30,
-  "generated_at": "2026-10-14T06:17:38.285688+00:00",
+  "generated_at": "2026-10-15T06:17:52.455717+00:00",
   "data_origin": "Supabase analytics events; anonymous attributed page reads",
   "attributed_visits": 1,
   "promo_copy_actions": 0,
@@ -15,7 +15,7 @@
       "kind": "article",
       "slug": "analyse-premium-test",
       "variant": "a",
-      "impressions": 10,
+      "impressions": 12,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -87,7 +87,7 @@
       "kind": "conseil",
       "slug": "comprendre-value",
       "variant": "a",
-      "impressions": 230,
+      "impressions": 254,
       "opens": 0,
       "open_rate": 0.0,
       "status": "descriptive_only"
@@ -114,6 +114,42 @@
       "kind": "conseil",
       "slug": "conseil-pratique-comment-analyser-un-match-rapidement",
       "variant": "b",
+      "impressions": 2,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "conseil-pratique-comment-eviter-le-tilt",
+      "variant": "a",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "conseil-pratique-comment-eviter-le-tilt",
+      "variant": "b",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "conseil-pratique-comment-parier-en-live-avec-discipline",
+      "variant": "a",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "conseil-pratique-comment-parier-en-live-avec-discipline",
+      "variant": "b",
       "impressions": 1,
       "opens": 0,
       "open_rate": 0.0,
@@ -132,7 +168,7 @@
       "kind": "conseil",
       "slug": "conseil-pratique-comment-utiliser-un-bonus-sans-se-pieger",
       "variant": "b",
-      "impressions": 1,
+      "impressions": 3,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -141,6 +177,24 @@
       "kind": "conseil",
       "slug": "conseil-pratique-double-chance-quand-lutiliser",
       "variant": "a",
+      "impressions": 3,
+      "opens": 2,
+      "open_rate": 0.6667,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "conseil-pratique-double-chance-quand-lutiliser",
+      "variant": "b",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "conseil-pratique-gestion-de-bankroll-en-fcfa",
+      "variant": "a",
       "impressions": 1,
       "opens": 0,
       "open_rate": 0.0,
@@ -148,7 +202,7 @@
     },
     {
       "kind": "conseil",
-      "slug": "conseil-pratique-double-chance-quand-lutiliser",
+      "slug": "conseil-pratique-gestion-de-bankroll-en-fcfa",
       "variant": "b",
       "impressions": 0,
       "opens": 0,
@@ -159,9 +213,9 @@
       "kind": "conseil",
       "slug": "conseil-pratique-les-pieges-des-favoris-a-petite-cote",
       "variant": "a",
-      "impressions": 0,
+      "impressions": 1,
       "opens": 0,
-      "open_rate": null,
+      "open_rate": 0.0,
       "status": "insufficient_data"
     },
     {
@@ -177,7 +231,7 @@
       "kind": "conseil",
       "slug": "conseil-premium-test",
       "variant": "a",
-      "impressions": 15,
+      "impressions": 18,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -195,7 +249,7 @@
       "kind": "conseil",
       "slug": "erreurs-tilt",
       "variant": "a",
-      "impressions": 171,
+      "impressions": 189,
       "opens": 0,
       "open_rate": 0.0,
       "status": "descriptive_only"
@@ -213,7 +267,7 @@
       "kind": "conseil",
       "slug": "gerer-bankroll",
       "variant": "a",
-      "impressions": 232,
+      "impressions": 256,
       "opens": 0,
       "open_rate": 0.0,
       "status": "descriptive_only"
@@ -240,7 +294,7 @@
       "kind": "conseil",
       "slug": "gestion-bankroll-fcfa-paris-sportifs",
       "variant": "b",
-      "impressions": 1,
+      "impressions": 3,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
