@@ -40,3 +40,6 @@ bsd/v2_calibration.json
 bsd/v2_backtest_report.json
 bsd/recent_backtest_report.json
 bsd/recent_backtest_14d_report.json
+
+# Actu Foot: images RSS éphémères, publiées via snapshot Supabase
+assets/images/footnews/
