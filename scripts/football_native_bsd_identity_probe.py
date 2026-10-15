@@ -26,7 +26,8 @@ from scripts.football_history_features import competition
 from scripts.football_match_source_router import aware_time
 
 MAX_DELTA_SECONDS=15*60
-MAX_BSD_REQUESTS=12
+MAX_BSD_REQUESTS=24
+MAX_ODDS_PROBE_EVENTS=8
 ALLOWED_NATIVE_STATUSES=frozenset(("upcoming","notstarted"))
 
 def positive_native_id(value):
@@ -216,7 +217,7 @@ def audit_official_consensus_quotes(client,native,linked_ids,league_names,*,at,v
             by_id[ident].append(attributes)
     outcomes=Counter()
     audited=0
-    for ident in sorted(set(linked_ids))[:2]:
+    for ident in sorted(set(linked_ids))[:MAX_ODDS_PROBE_EVENTS]:
         if client.requests_made>=MAX_BSD_REQUESTS-2:
             outcomes["remaining_request_budget_insufficient"]+=1
             break
@@ -250,7 +251,7 @@ def audit_official_consensus_quotes(client,native,linked_ids,league_names,*,at,v
             outcomes["api_or_quote_"+type(exc).__name__]+=1
     return {
         "event_ids_selected_only_from_confirmed_native_links":True,
-        "max_linked_events_for_quote_probe":2,
+        "max_linked_events_for_quote_probe":MAX_ODDS_PROBE_EVENTS,
         "official_native_events_quoted_attempts":audited,
         "events_with_fresh_consensus_market_prices":
             outcomes["events_with_fresh_consensus_market_prices"],
