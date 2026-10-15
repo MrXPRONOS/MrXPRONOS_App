@@ -240,6 +240,10 @@ class ActuFootInfrastructureTests(unittest.TestCase):
         self.assertIn("Fournisseurs dégradés : **1 / 2**", report)
         self.assertIn("Infos Foot : **3** éléments", report)
 
+    def test_five_systems_review_runs_when_harness_changes(self):
+        workflow = (ROOT / ".github/workflows/football-five-systems-review.yml").read_text(encoding="utf-8")
+        self.assertIn("scripts/football_five_systems_test.py", workflow)
+
     def test_five_systems_review_treats_unavailable_as_editorial_skip(self):
         self.assertEqual(
             five_systems.review_exit_code({
