@@ -31,7 +31,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Installer les dépendances
-        run: python -m pip install requests Pillow feedparser
+        run: python -m pip install requests Pillow feedparser imageio-ffmpeg
       - name: Valider les cinq moteurs sans Telegram
         run: |
           python -m py_compile scripts/telegram_live_e2e.py scripts/telegram_test_guard.py
@@ -62,7 +62,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Installer les dépendances
-        run: python -m pip install requests Pillow feedparser
+        run: python -m pip install requests Pillow feedparser imageio-ffmpeg
       - name: Tests locaux des cinq moteurs
         run: |
           python -m py_compile scripts/telegram_live_e2e.py scripts/telegram_test_guard.py
