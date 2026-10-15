@@ -480,9 +480,61 @@ def save_news(records: list[dict], diagnostics: dict | None = None) -> None:
     logger.info("%s actualités sauvegardées dans %s", len(records), NEWS_FILE)
 
 
+def public_snapshot_records(records: list[dict]) -> list[dict]:
+    """Version navigateur : privilégie l'image RSS distante aux fichiers locaux dynamiques."""
+    result = []
+    for item in records:
+        if not isinstance(item, dict):
+            continue
+        copy = dict(item)
+        source_image = str(copy.get("source_image") or "").strip()
+        local_image = str(copy.get("image") or "").strip()
+        if source_image.startswith(("https://", "http://")):
+            copy["image"] = source_image
+        elif local_image.startswith(("https://", "http://")):
+            copy["image"] = local_image
+        result.append(copy)
+    return result
+
+
+def persist_public_news_snapshot(records: list[dict]) -> bool:
+    """Publie le snapshot Infos Foot dans Supabase sans bloquer Telegram en cas de panne."""
+    base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
+    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
+    if not base or not key or not records:
+        return False
+    now = datetime.now(timezone.utc).isoformat()
+    payload = {
+        "id": "latest",
+        "payload": public_snapshot_records(records),
+        "generated_at": now,
+        "updated_at": now,
+    }
+    try:
+        response = requests.post(
+            base + "/rest/v1/actu_foot_news_snapshot",
+            params={"on_conflict": "id"},
+            headers={
+                "apikey": key,
+                "Authorization": "Bearer " + key,
+                "Content-Type": "application/json",
+                "Prefer": "resolution=merge-duplicates,return=minimal",
+            },
+            json=payload,
+            timeout=(5, 15),
+        )
+        response.raise_for_status()
+        logger.info("NEWS_SUPABASE_SNAPSHOT_OK %s", len(payload["payload"]))
+        return True
+    except requests.RequestException as exc:
+        logger.warning("NEWS_SUPABASE_SNAPSHOT_SKIP %s", type(exc).__name__)
+        return False
+
+
 def main() -> None:
     records, diagnostics = fetch_news()
     save_news(records, diagnostics)
+    persist_public_news_snapshot(records)
 
 
 if __name__ == "__main__":
