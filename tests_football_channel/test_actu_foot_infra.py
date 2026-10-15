@@ -124,5 +124,27 @@ class ActuFootInfrastructureTests(unittest.TestCase):
         self.assertEqual(kwargs["json"]["outbox_pending"], 1)
 
 
+    def test_news_workflows_do_not_commit_dynamic_rss_to_main(self):
+        production = (ROOT / ".github/workflows/football-production.yml").read_text(encoding="utf-8")
+        update_news = (ROOT / ".github/workflows/update-footnews.yml").read_text(encoding="utf-8")
+        self.assertNotIn("git add footnews.json", production)
+        self.assertNotIn("git add footnews.json", update_news)
+        self.assertNotIn("git push origin HEAD:main", update_news)
+
+    def test_site_prefers_public_supabase_news_snapshot_with_git_fallback(self):
+        js = (ROOT / "assets/js/main.js").read_text(encoding="utf-8")
+        self.assertIn('from("actu_foot_news_snapshot")', js)
+        self.assertIn('fetch(`footnews.json?t=${Date.now()}`', js)
+        self.assertIn("source_image || n.image", js)
+
+    def test_deprecated_one_shot_workflows_are_removed(self):
+        removed = [
+            ROOT / ".github/workflows/telegram-programme-recovery-once.yml",
+            ROOT / ".github/workflows/telegram-real-e2e-once.yml",
+            ROOT / "scripts/telegram_test_programme_recovery.py",
+            ROOT / "scripts/telegram_live_e2e.py",
+        ]
+        self.assertTrue(all(not path.exists() for path in removed))
+
 if __name__ == "__main__":
     unittest.main()
