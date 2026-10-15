@@ -137,7 +137,7 @@ def _summary(draw,*,price,stake,won=False,paid=False):
         ("Cotes:",_quote(price),NAVY),
         ("Mise:",_money(stake),NAVY),
         ("Gains potentiels:",_money(gross),NAVY),
-        ("Statut:","Payé" if won else "Accepté",SUCCESS if won else ACCENT),
+        ("Statut:","Payé" if won and paid else "Validé" if won else "Prévision",SUCCESS if won else ACCENT),
     ]
     for i,(title,value,col) in enumerate(rows):
         y=358+i*75
@@ -201,7 +201,7 @@ def _fixture_tile(canvas,draw,match,*,top,bottom,winning=False,
     write(draw,market,44,separator+21,size=34,bold=True,color=NAVY,maximum=765)
     write(draw,_quote(price),1037,separator+21,size=33,bold=True,color=NAVY,align="right")
     write(draw,"Statut:",46,separator+81,size=32,bold=True,color=SECONDARY)
-    write(draw,"Gain" if winning else "Accepté",1036,separator+81,
+    write(draw,"Réussi" if winning else "À venir",1036,separator+81,
           size=32,bold=True,color=SUCCESS if winning else ACCENT,align="right")
 
 
@@ -240,6 +240,13 @@ def render_combined(combo,output,*,now=None,session=None,win=False):
     _top_meta(canvas,d,kind="Combiné",reference=public_ref(combo),
               time_text=now.astimezone(timezone.utc).strftime("%d.%m.%Y (%H:%M)"))
     _summary(d,price=price,stake=stake,won=win,paid=False)
+    if any(
+        (leg.get("prediction") or {}).get("odds_source")=="mrxpronos_model"
+        for leg in legs if isinstance(leg,dict)
+    ):
+        write, _, _, _ = _draw()
+        write(d,"Combiné indicatif · cote non proposée par un bookmaker",540,621,
+              size=22,bold=True,color=SECONDARY,align="center",maximum=1000)
     for i,leg in enumerate(legs):
         top=660+i*456
         _fixture_tile(canvas,d,leg,top=top,bottom=top+443,

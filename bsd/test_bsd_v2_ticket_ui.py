@@ -99,7 +99,8 @@ class ReferenceTicketTests(unittest.TestCase):
             captions.append(str(text))
         with patch.object(ui,"_draw",return_value=(fake_write,None,None,None)):
             ui._summary(None,price=1.75,stake=100000,won=True,paid=False)
-            self.assertIn("Payé",captions)
+            self.assertIn("Validé",captions)
+            self.assertNotIn("Payé",captions)
             self.assertNotIn("Accepté",captions)
             captions.clear()
             ui._summary(None,price=1.75,stake=100000,won=True,paid=True)
@@ -107,7 +108,8 @@ class ReferenceTicketTests(unittest.TestCase):
             self.assertNotIn("Gagnant",captions)
             captions.clear()
             ui._summary(None,price=1.75,stake=100000,won=False,paid=False)
-            self.assertIn("Accepté",captions)
+            self.assertIn("Prévision",captions)
+            self.assertNotIn("Accepté",captions)
             self.assertNotIn("Payé",captions)
 
     def test_expected_palette_and_no_bookmaker_acceptance_claim(self):
@@ -118,9 +120,10 @@ class ReferenceTicketTests(unittest.TestCase):
         self.assertNotIn("Versé:",source)
         self.assertIn("Cotes:",source)
         self.assertIn("Gains potentiels:",source)
-        self.assertIn("Accepté",source)
-        self.assertIn('"Accepté"',source)
+        self.assertIn("Prévision",source)
+        self.assertIn('"Validé"',source)
         self.assertIn('"Payé"',source)
+        self.assertNotIn('"Accepté"',source)
         self.assertIn('payment_confirmed',source)
         self.assertEqual(WHITE,"#FFFFFF")
         self.assertEqual(NAVY,"#12375A")
