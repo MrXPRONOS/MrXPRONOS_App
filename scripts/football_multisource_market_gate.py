@@ -21,7 +21,7 @@ from bsd_v2_btts import fit_btts_model
 from bsd_v2_over_under import fit_total_model
 from bsd_v2_double_chance import fit_model as fit_dc_model
 from bsd_v2_policies import fit_policy
-from bsd_v2_estimated_odds import price_selected_market,ESTIMATED_SOURCE
+from bsd_v2_estimated_odds import price_selected_market,ESTIMATED_SOURCE,valid_standalone_prediction
 from bsd_v2_guardrails import (v21_accept_priced,post_price_value_guard,
     tracker_penalties,update_performance_tracker)
 from bsd_v2_publish import EXCLUDED_SELECTIONS,assemble as native_production_assemble
@@ -82,9 +82,62 @@ def selected_quote(selection,quotes,*,at:datetime):
         return None,"quote_changed_market_or_estimated"
     return chosen,"verified_real_consensus_market"
 
+def _official_row_event_id(row):
+    if not isinstance(row,dict):
+        return None
+    value=row.get("source_event_id")
+    if value is None:
+        value=str(row.get("id") or "").removeprefix("bsd:")
+    if type(value) is int:
+        return value if 0<value<7_000_000_000_000_000 else None
+    if isinstance(value,str) and value.isascii() and value.isdecimal() and value[0]!="0":
+        number=int(value)
+        return number if 0<number<7_000_000_000_000_000 else None
+    return None
+
+
+def extract_new_verified_rows(dry,production_feed,fixture_ids):
+    """Return only genuinely new rows created for already-certified native BSD IDs."""
+    if not isinstance(dry,dict) or dry.get("source")!="bsd" or not isinstance(dry.get("matches"),list):
+        raise ValueError("Invalid native assembler output")
+    existing=set()
+    for row in production_feed.get("matches",[]):
+        ident=_official_row_event_id(row)
+        if ident is not None:
+            existing.add(ident)
+    accepted=[]
+    seen=set()
+    for row in dry["matches"]:
+        ident=_official_row_event_id(row)
+        if ident is None or ident not in fixture_ids or ident in existing:
+            continue
+        if ident in seen:
+            raise AssertionError("Duplicate qualified native event in assembler output")
+        if row.get("source")!="bsd":
+            raise AssertionError("Qualified row lost BSD source identity")
+        picks=row.get("predictions") or [row.get("prediction")]
+        if not picks or any(not isinstance(p,dict) or not valid_standalone_prediction(p,row.get("combo_only",False)) for p in picks):
+            raise AssertionError("Qualified row contains an invalid priced selection")
+        for pick in picks:
+            if pick.get("odds_source")!="bsd_consensus" or pick.get("estimated_odds") is not False:
+                raise AssertionError("Qualified multisource candidate is not backed by real BSD consensus pricing")
+        clone=deepcopy(row)
+        clone["multisource_verification"]={
+            "mode":"qualified_external_candidate",
+            "schedule_corroborated":True,
+            "native_bsd_event_verified":True,
+            "selected_market_real_consensus_price":True,
+            "v21_and_value_guard_passed":True,
+            "production_assembler_created_row":True,
+        }
+        accepted.append(clone)
+        seen.add(ident)
+    return accepted
+
+
 def verify_selected_markets(
     rows:list[dict],pair_quotes:list[tuple[dict,dict,dict]],
-    production_feed:dict,*,at:datetime)->dict:
+    production_feed:dict,*,at:datetime,accepted_rows_sink:list[dict]|None=None)->dict:
     """Use unchanged full BSD V2 fit + policy with dated CC0 history.
 
     pair_quotes are externally corroborated fixture + authentic native BSD
@@ -203,6 +256,13 @@ def verify_selected_markets(
                      for x in publisher_fixtures)
     if projected_created>window_count:
         raise AssertionError("Native assembler created a pick outside 48h window")
+    accepted_rows=extract_new_verified_rows(dry,production_feed,fixture_ids)
+    if len(accepted_rows)!=projected_created:
+        raise AssertionError("Native assembler created-count does not match qualified extracted rows")
+    if accepted_rows_sink is not None:
+        if not isinstance(accepted_rows_sink,list):
+            raise ValueError("accepted_rows_sink must be a list")
+        accepted_rows_sink.extend(deepcopy(accepted_rows))
     return {
         "native_full_assembler_canary":{
             "executed":True,
@@ -212,6 +272,7 @@ def verify_selected_markets(
             "empty_window_is_not_publication_path_validation":window_count==0,
             "in_memory_quote_fetches":len(called),
             "projected_new_rows_not_published":projected_created,
+            "qualified_rows_available_process_local":len(accepted_rows),
             "existing_production_input_unchanged":True,
             "odds_api_calls_from_assembler":0,
             "site_or_telegram_publications":0,
