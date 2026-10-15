@@ -121,3 +121,4 @@ class CinemaTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+# Smoke test: verify unmodified TMDB posters in @predict_mrxp.
