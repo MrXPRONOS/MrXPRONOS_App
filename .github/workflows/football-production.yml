@@ -59,7 +59,6 @@ on:
 
 permissions:
   contents: write
-  actions: write
 
 concurrency:
   # Le LIVE 2 min et les Infos Foot 5 min ne se bloquent pas mutuellement.
