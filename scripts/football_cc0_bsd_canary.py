@@ -67,6 +67,10 @@ def extract_calendar(payload, code):
         day = str(match.get("date") or "")
         if not re.fullmatch(r"20\d{2}-\d{2}-\d{2}", day):
             continue
+        try:
+            datetime.strptime(day, "%Y-%m-%d")
+        except ValueError:
+            continue
         h, a = clean(match.get("team1")), clean(match.get("team2"))
         if h and a and h != a:
             result.append((day, h, a, code))
@@ -114,6 +118,8 @@ def corroborate(calendar, native, names, *, at):
         by_pair[(day, home, away)].add(league_code)
     pairs = defaultdict(set)
     counts = Counter()
+    id_occurrences = Counter(record[0] for item in native
+                             if (record := native_record(item, at)) is not None)
     seen_native = set()
     for row in native:
         record = native_record(row, at)
@@ -121,7 +127,7 @@ def corroborate(calendar, native, names, *, at):
             counts["invalid_or_non_future_native"] += 1
             continue
         bid, lid, day, home, away = record
-        if bid in seen_native:
+        if id_occurrences[bid] != 1:
             counts["duplicate_native_id"] += 1
             continue
         seen_native.add(bid)
@@ -152,7 +158,7 @@ def corroborate(calendar, native, names, *, at):
         "cc0_calendar_rows": len(calendar),
         "native_events_considered": len(native),
         "cc0_day_team_pairs_matched": counts["matched_cc0_day_and_ordered_teams"],
-        "officially_corrobated_unique_native_matches": valid,
+        "officially_corroborated_unique_native_matches": valid,
         "duplicate_native_fixture_conflicts": duplicates,
         "rejections": dict(sorted(counts.items())),
         "monitor_only": True,
@@ -211,7 +217,7 @@ def run():
     if output:
         with open(output, "a", encoding="utf8") as file:
             file.write("## BSD/CC0 canary — read only\n\n")
-            file.write(f"Official BSD event/country competition corroborations: **{report['officially_corrobated_unique_native_matches']}**\n\n")
+            file.write(f"Official BSD event/country competition corroborations: **{report['officially_corroborated_unique_native_matches']}**\n\n")
             file.write(f"Calendar records checked: {report['cc0_calendar_rows']}; BSD calls: {report['bsd_api_calls']}/{MAX_BSD_CALLS}.\n\n")
             file.write("No bookmaker prices, predictions, data.json writes or Telegram sends.\n")
 
