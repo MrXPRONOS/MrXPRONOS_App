@@ -50,6 +50,38 @@ class FollowupTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             follow.follow({}, fixture("late", start=NOW-timedelta(minutes=5)), NOW)
 
+    def test_legacy_technical_tracking_must_be_revalidated(self):
+        stored = {}
+        row = fixture("legacy", "Marquense", "Deportivo Mixco")
+        ref = follow.track(stored, row, NOW, reason="importance")
+        stored[ref].pop("ranking_locked", None)
+
+        base = follow.base_events(stored, NOW)
+        self.assertEqual(len(base), 1)
+        self.assertFalse(base[0]["ranking_locked"])
+        self.assertTrue(follow.selection_allowed(stored, NOW))
+
+        follow.lock_selected(stored, base, NOW)
+        self.assertTrue(stored[ref]["ranking_locked"])
+        self.assertFalse(follow.selection_allowed(
+            {**stored, **{
+                f"x{i}": {
+                    **stored[ref],
+                    "event_date": stored[ref]["event_date"],
+                    "ranking_locked": True,
+                } for i in range(5)
+            }},
+            NOW,
+        ))
+
+    def test_legacy_prematch_keeps_continuity(self):
+        stored = {}
+        row = fixture("legacy-prematch", "PSG", "Bayern")
+        ref = follow.track(stored, row, NOW, reason="avant_match")
+        stored[ref].pop("ranking_locked", None)
+        base = follow.base_events(stored, NOW)
+        self.assertTrue(base[0]["ranking_locked"])
+
     def test_max_six_followed_and_no_seventh(self):
         stored = {}
         names = [
