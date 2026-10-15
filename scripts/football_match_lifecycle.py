@@ -44,6 +44,12 @@ from actu_foot_source_cache import (  # noqa: E402
     fetch_shared_source_snapshot,
     persist_shared_source_snapshot,
 )
+from actu_foot_provider_health import (  # noqa: E402
+    effective_quality,
+    load_provider_health,
+    record_provider_health,
+)
+
 
 
 ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard"
@@ -53,6 +59,7 @@ OPENLIGA_BASE = "https://api.openligadb.de"
 
 _ESPN_CACHE: dict[str, tuple[float, dict]] = {}
 _ESPN_REQUESTS = 0
+_PROVIDER_HEALTH_STATE: dict[str, dict[str, Any]] = {}
 
 
 def _espn_budget() -> int:
@@ -1499,7 +1506,8 @@ def best_external_match(base: dict, external: list[dict]) -> dict | None:
                 similarity += 0.08
             elif is_live(item):
                 similarity += 0.03
-        quality = SOURCE_QUALITY.get(str(item.get("source") or ""), {}).get("overall", 60)
+        provider = str(item.get("source") or "")
+        quality = effective_quality(provider, SOURCE_QUALITY, _PROVIDER_HEALTH_STATE)
         similarity += max(0.0, (float(quality) - 60.0) / 500.0)
         if similarity > best_score:
             best, best_score = item, similarity
@@ -1507,6 +1515,8 @@ def best_external_match(base: dict, external: list[dict]) -> dict | None:
 
 
 def collect_external(session: requests.Session, day: date, base_events: list[dict]) -> list[dict]:
+    global _PROVIDER_HEALTH_STATE
+    _PROVIDER_HEALTH_STATE = load_provider_health(session, SOURCE_QUALITY)
     days = {day}
     for event in base_events:
         when = _event_time(event)
@@ -1520,6 +1530,9 @@ def collect_external(session: requests.Session, day: date, base_events: list[dic
             continue
 
         snapshots = collect_free_day(session, fixture_day, include_espn=True)
+        _PROVIDER_HEALTH_STATE = record_provider_health(
+            session, snapshots, SOURCE_QUALITY, _PROVIDER_HEALTH_STATE
+        )
         day_rows: list[dict] = []
         for provider in ("espn", "sportscore", "thesportsdb", "openligadb"):
             snapshot = snapshots.get(provider)
