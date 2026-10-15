@@ -90,6 +90,7 @@ jobs:
       FOOTBALL_FREE_MIN_MATCHES: '5'
       BSD_PREFER_FREE_RECENT: '1'
       FOOTBALL_REQUIRE_COMMENTS: '1'
+      FOOTBALL_SITE_NEWS_COMMIT_MIN_SECONDS: '1800'
       PYTHONUNBUFFERED: '1'
       RUN_MODE: ${{ inputs.mode || 'full' }}
 
@@ -284,6 +285,18 @@ jobs:
 
           # Le snapshot a deja ete genere une seule fois avant Telegram.
           # On ne relance PAS fetch_foot_news.py ici.
+          # Telegram reste frais toutes les 5 min, mais le site statique n'a pas
+          # besoin d'un commit Git à chaque passage. On limite le bruit de main.
+          git fetch origin main --depth=100
+          LAST_NEWS_TS="$(git log origin/main --grep='^data(infos):' -1 --format=%ct 2>/dev/null || true)"
+          LAST_NEWS_TS="${LAST_NEWS_TS:-0}"
+          NOW_TS="$(date +%s)"
+          MIN_GAP="${FOOTBALL_SITE_NEWS_COMMIT_MIN_SECONDS:-1800}"
+          if [ "$LAST_NEWS_TS" -gt 0 ] && [ $((NOW_TS - LAST_NEWS_TS)) -lt "$MIN_GAP" ]; then
+            echo "NEWS_SITE_COMMIT_COOLDOWN remaining=$((MIN_GAP - (NOW_TS - LAST_NEWS_TS)))"
+            exit 0
+          fi
+
           git add footnews.json
           if [ -d assets/images/footnews ]; then git add -A assets/images/footnews; fi
           if git diff --cached --quiet; then
