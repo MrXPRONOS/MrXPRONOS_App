@@ -12,6 +12,7 @@ import actu_foot_observability as observability
 import actu_foot_source_cache as source_cache
 import actu_foot_provider_health as provider_health
 import actu_foot_health_report as health_report
+import football_five_systems_test as five_systems
 
 
 class _Response:
@@ -238,6 +239,28 @@ class ActuFootInfrastructureTests(unittest.TestCase):
         self.assertIn("Outbox actionnable : **1**", report)
         self.assertIn("Fournisseurs dégradés : **1 / 2**", report)
         self.assertIn("Infos Foot : **3** éléments", report)
+
+    def test_five_systems_review_runs_when_harness_changes(self):
+        workflow = (ROOT / ".github/workflows/football-five-systems-review.yml").read_text(encoding="utf-8")
+        self.assertIn("scripts/football_five_systems_test.py", workflow)
+
+    def test_five_systems_review_treats_unavailable_as_editorial_skip(self):
+        self.assertEqual(
+            five_systems.review_exit_code({
+                "sent": {"programme": {}},
+                "unavailable": {"goal": "Aucun buteur certifié"},
+                "errors": {},
+            }),
+            0,
+        )
+        self.assertEqual(
+            five_systems.review_exit_code({
+                "sent": {},
+                "unavailable": {},
+                "errors": {"goal": "RuntimeError"},
+            }),
+            1,
+        )
 
     def test_production_workflow_health_summary_is_non_blocking(self):
         workflow = (ROOT / ".github/workflows/football-production.yml").read_text(encoding="utf-8")
