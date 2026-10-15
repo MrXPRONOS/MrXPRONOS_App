@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import random
+import re
 import sys
 import tempfile
 from datetime import date, datetime, timezone
@@ -13,12 +14,10 @@ from html import escape
 from pathlib import Path
 
 import requests
-from PIL import Image, ImageDraw, ImageFont, ImageOps
-
 try:
-    from telegram_rich import post_photo
+    from telegram_rich import post_photo, post_text
 except ModuleNotFoundError:
-    from scripts.telegram_rich import post_photo
+    from scripts.telegram_rich import post_photo, post_text
 
 ROOT = Path(__file__).resolve().parents[1]
 FORMATS = ('film', 'top5', 'sorties', 'soir', 'quiz')
@@ -26,6 +25,7 @@ FORMATS = ('film', 'top5', 'sorties', 'soir', 'quiz')
 TEST_CHANNEL = '@predict_mrxp'
 TMDB = 'https://api.themoviedb.org/3'
 IMG = 'https://image.tmdb.org/t/p/w780'
+# Only use unaltered official TMDB image files; never render a new illustration.
 ATTRIBUTION = 'This product uses the TMDB API but is not endorsed or certified by TMDB.'
 QUIZZES = [
     ('Dans quel film apparaît le personnage Jack Dawson ?', ['Titanic', 'Avatar', 'Inception', 'Gladiator'], 0,
@@ -146,6 +146,8 @@ class TMDBClient:
             films.sort(key=lambda m: m.get('release_date') or '9999')
         else:
             raise ValueError(kind)
+        if kind != 'quiz':
+            films = [m for m in films if valid_tmdb_path(m.get('poster_path'))]
         if not films:
             raise RuntimeError(f'Aucun film exploitable pour {kind}; publication ignorée.')
         seed = int(hashlib.sha256(f'{kind}:{today.isoformat()}'.encode()).hexdigest()[:8], 16)
@@ -156,58 +158,37 @@ class TMDBClient:
         return films[:5]
 
 
-def create_card(movies, kind, folder, session, demo):
-    """Build a copyright-safe branded cover from text, no third-party poster needed."""
-    img = Image.new('RGB', (960, 640), (9, 17, 32))
-    if not demo:
-        # Posters are optional: a failed download must never block a publication.
-        posters = movies[:5] if kind in ('top5', 'sorties') else movies[:1]
-        for i, movie in enumerate(posters):
-            poster_path = movie.get('poster_path')
-            if not poster_path or not str(poster_path).startswith('/'):
-                continue
-            try:
-                from io import BytesIO
-                resp = session.get(IMG + poster_path, timeout=15)
-                resp.raise_for_status()
-                poster = Image.open(BytesIO(resp.content)).convert('RGB')
-                if len(posters) == 1:
-                    poster = ImageOps.fit(poster, (510, 640))
-                    img.paste(poster, (450, 0))
-                else:
-                    width = 960 // min(5, len(posters))
-                    poster = ImageOps.fit(poster, (width, 640))
-                    img.paste(poster, (i * width, 0))
-            except (requests.RequestException, OSError, ValueError):
-                print('POSTER_FALLBACK', movie.get('id'))
-        overlay = Image.new('RGBA', (960, 640), (3, 12, 27, 105))
-        # A dark text rail guarantees readable text over any poster palette.
-        ImageDraw.Draw(overlay).rectangle((0, 0, 700, 640), fill=(3, 12, 27, 226))
-        img = Image.alpha_composite(img.convert('RGBA'), overlay).convert('RGB')
-    draw = ImageDraw.Draw(img)
-    for y in range(640):
-        if demo:
-            draw.line(((0, y), (960, y)), fill=(9 + y // 55, 17 + y // 35, 32 + y // 19))
-    draw.rounded_rectangle((45, 45, 915, 595), radius=28, outline=(56, 143, 220), width=4)
-    draw.rectangle((46, 46, 914, 125), fill=(15, 42, 75))
-    bold = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
-    normal = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
-    big = ImageFont.truetype(bold, 44) if Path(bold).exists() else ImageFont.load_default()
-    small = ImageFont.truetype(normal, 27) if Path(normal).exists() else ImageFont.load_default()
-    labels = {'film': 'LE FILM DU JOUR', 'top5': 'TOP 5 CINÉMA',
-              'sorties': 'PROCHAINES SORTIES', 'soir': 'LE FILM DE CE SOIR'}
-    draw.text((76, 62), 'CINÉMA • SÉLECTION', font=small, fill=(105, 201, 252))
-    draw.text((76, 150), labels[kind], font=big, fill=(247, 211, 106))
-    y = 255
-    for i, movie in enumerate(movies[:5], 1):
-        line = (f'{i}. ' if len(movies) > 1 else '') + short(movie['title'], 26)
-        draw.text((76, y), line, font=small, fill=(240, 245, 255))
-        y += 59
-    draw.text((76, 548), 'DÉMO • DONNÉES FICTIVES' if demo else 'LA SÉLECTION DU JOUR',
-              font=small, fill=(105, 201, 252))
-    path = folder / (kind + '.jpg')
-    img.save(path, 'JPEG', quality=90)
-    return path
+def valid_tmdb_path(path):
+    """Only accept a path from TMDB, never an arbitrary external URL."""
+    return bool(isinstance(path, str) and re.fullmatch(r"/[A-Za-z0-9_-]+\.(?:jpg|jpeg|png)", path, re.I))
+
+
+def download_source_image(items, session, folder, *, person=False):
+    """Download official TMDB image bytes as-is; no drawing, cropping or overlays.
+
+    Return (file_path, mime_type), or (None, None) when TMDB provides no image.
+    For rankings the image is the official poster of the first available title.
+    """
+    field = 'profile_path' if person else 'poster_path'
+    source = next((item[field] for item in items if valid_tmdb_path(item.get(field))), None)
+    if not source:
+        print('SOURCE_IMAGE_MISSING', field)
+        return None, None
+    response = session.get(IMG + source, timeout=25)
+    response.raise_for_status()
+    data = response.content
+    if data.startswith(b'\xff\xd8\xff'):
+        ext, mime = '.jpg', 'image/jpeg'
+    elif data.startswith(b'\x89PNG\r\n\x1a\n'):
+        ext, mime = '.png', 'image/png'
+    else:
+        raise ValueError('TMDB image is not a supported original JPEG/PNG')
+    if not 100 < len(data) <= 9_000_000:
+        raise ValueError('TMDB image size is invalid or too large')
+    path = folder / ('tmdb_original' + ext)
+    path.write_bytes(data)  # Exact bytes received from the image provider.
+    print('SOURCE_IMAGE_TMDB', source, len(data), mime)
+    return path, mime
 
 
 def call_telegram(session, token, method, payload):
@@ -255,9 +236,14 @@ def publish(kind, movies, token, chat, today, session, demo=False, dry_run=False
     if dry_run:
         print(json.dumps({'type': kind, 'html': body, 'buttons': keyboard}, ensure_ascii=False))
         return None
+    if demo:
+        # Fictional demonstrations do not have real posters: text-only, never invented images.
+        return post_text(session, token, chat, body, {'inline_keyboard': keyboard}, html=True)
     with tempfile.TemporaryDirectory() as tmp:
-        image = create_card(movies, kind, Path(tmp), session, demo)
-        return post_photo(session, token, chat, image, body, {'inline_keyboard': keyboard}, mime='image/jpeg')
+        image, mime = download_source_image(movies, session, Path(tmp))
+        if image is None:
+            return post_text(session, token, chat, body, {'inline_keyboard': keyboard}, html=True)
+        return post_photo(session, token, chat, image, body, {'inline_keyboard': keyboard}, mime=mime)
 
 
 def main(argv=None):
