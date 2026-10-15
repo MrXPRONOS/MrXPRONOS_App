@@ -32,7 +32,12 @@ class _Session:
     def get(self, url, **kwargs):
         self.get_calls.append((url, kwargs))
         if url.endswith("/rest/v1/actu_foot_publications"):
-            return _Response([{"event_key": "x"}])
+            return _Response([{
+                "status": "failed",
+                "attempts": 1,
+                "max_attempts": 5,
+                "expires_at": None,
+            }])
         return _Response([])
 
     def post(self, url, **kwargs):
@@ -97,6 +102,29 @@ class ActuFootInfrastructureTests(unittest.TestCase):
         recovered = provider_health.effective_quality("espn", quality, state)
         self.assertGreater(recovered, degraded)
         self.assertLessEqual(recovered, 98)
+
+    def test_outbox_count_excludes_expired_exhausted_and_uncertain(self):
+        now = datetime(2026, 10, 15, 5, 0, tzinfo=timezone.utc)
+        rows = [
+            {"status": "failed", "attempts": 1, "max_attempts": 5, "expires_at": None},
+            {"status": "claimed", "attempts": 1, "max_attempts": 5, "expires_at": None},
+            {"status": "failed", "attempts": 5, "max_attempts": 5, "expires_at": None},
+            {"status": "failed", "attempts": 2, "max_attempts": 5,
+             "expires_at": "2026-10-15T04:59:00+00:00"},
+            {"status": "uncertain", "attempts": 0, "max_attempts": 5, "expires_at": None},
+            {"status": "archived", "attempts": 5, "max_attempts": 5, "expires_at": None},
+        ]
+        self.assertEqual(observability._actionable_outbox_count(rows, now), 2)
+
+    def test_outbox_count_keeps_unexpired_retry_even_if_retry_is_later(self):
+        now = datetime(2026, 10, 15, 5, 0, tzinfo=timezone.utc)
+        rows = [{
+            "status": "failed",
+            "attempts": 2,
+            "max_attempts": 5,
+            "expires_at": "2026-10-15T05:30:00Z",
+        }]
+        self.assertEqual(observability._actionable_outbox_count(rows, now), 1)
 
     @patch.dict(os.environ, {
         "FOOTBALL_RUN_METRICS": "1",
