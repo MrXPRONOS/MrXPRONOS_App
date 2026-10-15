@@ -80,7 +80,7 @@ jobs:
           python scripts/football_prematch_multiday_probe.py             --start-day="$(date -u +%F)"             --count-days=3 --max-http=24             --out=tmp/multisource-public-fixtures.json             --report=tmp/multisource-public-fixtures-aggregate.json
           python scripts/football_native_bsd_identity_probe.py             --public-fixtures=tmp/multisource-public-fixtures.json             --licensed-history=tmp/multisource-qualified-history.jsonl             --existing-feed=data.json --ledger=bsd/publication_ledger.json             --days=3 --start-offset=0             --accepted-output=tmp/multisource-qualified-accepted.json             --report=tmp/multisource-qualified-aggregate.json
           test -f tmp/multisource-qualified-accepted.json
-          python scripts/football_multisource_apply_qualified.py             --feed=data.json             --accepted=tmp/multisource-qualified-accepted.json --ledger=bsd/publication_ledger.json
+          python scripts/football_multisource_apply_qualified.py             --feed=data.json             --accepted=tmp/multisource-qualified-accepted.json --ledger=bsd/publication_ledger.json --aggregate=tmp/multisource-qualified-aggregate.json
           python - <<'PY'
           import json
           aggregate=json.load(open("tmp/multisource-qualified-aggregate.json",encoding="utf-8"))
@@ -121,6 +121,12 @@ jobs:
           assert mg.get("requires_real_bsd_consensus_selected_market_price") is True
           assert mg.get("requires_v21_and_value_guard") is True
           assert mg.get("uses_native_bsd_v2_assembler") is True
+          coverage=mg.get("coverage")
+          assert isinstance(coverage,dict), "Multisource summary counts missing in published feed"
+          assert coverage["qualified_candidates"]==mg["staged_rows"]
+          assert coverage["quote_probe_attempts"]<=8
+          assert coverage["quote_attempts_within_48h"]<=coverage["quote_probe_attempts"]
+          assert coverage["independent_calendar_confirmed"]<=coverage["public_fixtures_found"]
           assert mg.get("thresholds_lowered") is False
           assert mg.get("telegram_sent_by_this_step") is False
           assert 0<=mg.get("added_rows",0)<=mg.get("staged_rows",0)<=8
