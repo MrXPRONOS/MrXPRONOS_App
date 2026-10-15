@@ -24,7 +24,7 @@ from bsd_v2_policies import fit_policy
 from bsd_v2_estimated_odds import price_selected_market,ESTIMATED_SOURCE,valid_standalone_prediction
 from bsd_v2_guardrails import (v21_accept_priced,post_price_value_guard,
     tracker_penalties,update_performance_tracker)
-from bsd_v2_publish import EXCLUDED_SELECTIONS,assemble as native_production_assemble
+from bsd_v2_publish import EXCLUDED_SELECTIONS,assemble as native_production_assemble,historical_publication_ids
 
 MAX_QUOTE_AGE_SECONDS=2*3600
 
@@ -96,10 +96,12 @@ def _official_row_event_id(row):
     return None
 
 
-def extract_new_verified_rows(dry,production_feed,fixture_ids):
+def extract_new_verified_rows(dry,production_feed,fixture_ids,*,historical_published_ids):
     """Return only genuinely new rows created for already-certified native BSD IDs."""
     if not isinstance(dry,dict) or dry.get("source")!="bsd" or not isinstance(dry.get("matches"),list):
         raise ValueError("Invalid native assembler output")
+    if not isinstance(historical_published_ids,set):
+        raise ValueError("Verified append-only historical event IDs are required")
     existing=set()
     for row in production_feed.get("matches",[]):
         ident=_official_row_event_id(row)
@@ -111,6 +113,8 @@ def extract_new_verified_rows(dry,production_feed,fixture_ids):
         ident=_official_row_event_id(row)
         if ident is None or ident not in fixture_ids or ident in existing:
             continue
+        if str(ident) in historical_published_ids:
+            raise AssertionError("Already published native event was recreated after withdrawal")
         if ident in seen:
             raise AssertionError("Duplicate qualified native event in assembler output")
         if row.get("source")!="bsd":
@@ -137,7 +141,7 @@ def extract_new_verified_rows(dry,production_feed,fixture_ids):
 
 def verify_selected_markets(
     rows:list[dict],pair_quotes:list[tuple[dict,dict,dict]],
-    production_feed:dict,*,at:datetime,accepted_rows_sink:list[dict]|None=None)->dict:
+    production_feed:dict,*,at:datetime,historical_ledger:dict,accepted_rows_sink:list[dict]|None=None)->dict:
     """Use unchanged full BSD V2 fit + policy with dated CC0 history.
 
     pair_quotes are externally corroborated fixture + authentic native BSD
@@ -151,6 +155,9 @@ def verify_selected_markets(
         raise ValueError("Invalid trusted public production data/tracker")
     if len(pair_quotes)>8:
         raise ValueError("Eight-event read-only probe cap")
+    # The normal BSD publisher excludes every historically published event,
+    # including retired rows no longer present in the public JSON window.
+    previous_ids=historical_publication_ids(historical_ledger,production_feed)
     archive,_=normalize_history(rows)
     available=[e for e in archive if
                (stamp:=aware_time(e.get("event_date"))) is not None and
@@ -243,7 +250,8 @@ def verify_selected_markets(
         snapshot,publisher_fixtures,available,now=at,
         calibration=calibration,policy=policy,rho=rho,
         odds_fetcher=frozen_quote_fetcher,max_odds_requests=len(publisher_fixtures),
-        btts_model=btts,total_model=totals,dc_model=dc)
+        btts_model=btts,total_model=totals,dc_model=dc,
+        historical_published_ids=previous_ids)
     if production_feed!=previous:
         raise AssertionError("Read-only public production input was modified")
     native_stats=dry.get("diagnostics",{}).get("rejections",{})
@@ -256,7 +264,8 @@ def verify_selected_markets(
                      for x in publisher_fixtures)
     if projected_created>window_count:
         raise AssertionError("Native assembler created a pick outside 48h window")
-    accepted_rows=extract_new_verified_rows(dry,production_feed,fixture_ids)
+    accepted_rows=extract_new_verified_rows(
+        dry,production_feed,fixture_ids,historical_published_ids=previous_ids)
     if len(accepted_rows)!=projected_created:
         raise AssertionError("Native assembler created-count does not match qualified extracted rows")
     if accepted_rows_sink is not None:
@@ -273,6 +282,7 @@ def verify_selected_markets(
             "in_memory_quote_fetches":len(called),
             "projected_new_rows_not_published":projected_created,
             "qualified_rows_available_process_local":len(accepted_rows),
+            "historical_append_only_ids_enforced":True,
             "existing_production_input_unchanged":True,
             "odds_api_calls_from_assembler":0,
             "site_or_telegram_publications":0,
