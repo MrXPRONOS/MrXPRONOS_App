@@ -116,7 +116,21 @@ class ReleaseGateTests(unittest.TestCase):
                 "v21_or_value_guard_veto":2,
             },
         }
+        evidence["full_model_selected_market_consensus_audit"]["native_full_assembler_canary"]={
+            "executed":True,"native_event_ids_verified_in_process":2,
+            "events_within_native_48h_window":0,
+            "actual_publication_window_exercised":False,
+            "empty_window_is_not_publication_path_validation":True,
+            "in_memory_quote_fetches":0,
+            "projected_new_rows_not_published":0,
+            "existing_production_input_unchanged":True,
+            "odds_api_calls_from_assembler":0,"site_or_telegram_publications":0,
+            "production_enabled":False,"bookmaker_selection_codes_verified":0,
+            "no_event_names_ids_or_odds_exported":True,
+        }
         decision=assess(*reports(),None,evidence)
+        self.assertFalse(decision["checks"]["real_48h_native_publication_path_exercised"])
+        self.assertEqual(decision["source_metrics"]["native_assembler_canary_fixtures_within_48h"],0)
         self.assertTrue(decision["checks"]["actual_selected_market_consensus_pricing_replayed"])
         self.assertTrue(decision["checks"]["actual_selected_market_with_consensus_quote_observed"])
         self.assertEqual(decision["source_metrics"]["actual_v2_selected_markets_with_real_consensus_quote"],2)
@@ -137,6 +151,10 @@ class ReleaseGateTests(unittest.TestCase):
             assess(*reports(),None,invalid)
         invalid=copy.deepcopy(evidence)
         invalid["full_model_selected_market_consensus_audit"]["production_authorized"]=True
+        with self.assertRaises(ValueError):
+            assess(*reports(),None,invalid)
+        invalid=copy.deepcopy(evidence)
+        invalid["full_model_selected_market_consensus_audit"]["native_full_assembler_canary"]["actual_publication_window_exercised"]=True
         with self.assertRaises(ValueError):
             assess(*reports(),None,invalid)
         invalid=copy.deepcopy(evidence)
