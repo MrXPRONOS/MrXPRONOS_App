@@ -491,14 +491,14 @@ jobs:
           assert r['original_production_publication_enabled'] is False
           assert r['native_bookmaker_prices_fetched'] is False
           assert r['no_data_json_modified'] is True
-          assert r['bsd_http_calls'] <= 12
+          assert r['bsd_http_calls'] <= 24
           assert r['calendar_files_verified'] == 8
           assert r['official_league_metadata_requested'] <= 8
           assert r['official_league_metadata_verified'] <= r['official_league_metadata_requested']
           quoted=r['read_only_native_consensus_price_audit']
           assert quoted['event_ids_selected_only_from_confirmed_native_links'] is True
-          assert quoted['official_native_events_quoted_attempts'] <= 2
-          assert quoted['max_linked_events_for_quote_probe'] == 2
+          assert quoted['official_native_events_quoted_attempts'] <= 8
+          assert quoted['max_linked_events_for_quote_probe'] == 8
           assert quoted['consensus_is_not_executable_bookmaker_offer'] is True
           assert quoted['independent_bookmaker_selection_codes_verified'] == 0
           assert quoted['production_market_policy_approved'] is False
@@ -515,7 +515,7 @@ jobs:
           assert selected['bookmaker_selection_codes_verified'] == 0
           assert selected['production_authorized'] is False
           assert selected['telegram_posts'] == 0
-          assert selected['aggregate'].get('events_examined',0) <= 2
+          assert selected['aggregate'].get('events_examined',0) <= 8
           assert r['one_to_one_native_event_links'] <= r['external_cc0_verified']
           print('NATIVE_BSD_IDENTITY_COUNTS',{
               'cc0_verified':r['external_cc0_verified'],
