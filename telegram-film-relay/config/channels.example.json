@@ -1,0 +1,14 @@
+{
+  "sources": [
+    {"channel": "@source_authorisee", "redistribution_authorized": false}
+  ],
+  "private_channel": "-1001234567890",
+  "public_channel": "@mon_canal_public",
+  "private_invite_link": "",
+  "private_layout": "poster_and_video",
+  "bootstrap_messages": 150,
+  "max_messages_per_run": 300,
+  "lookback_ids": 80,
+  "max_posts_per_run": 5,
+  "publication_pause_seconds": 5
+}
