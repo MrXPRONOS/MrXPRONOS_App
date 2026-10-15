@@ -32,7 +32,13 @@ class _Session:
     def get(self, url, **kwargs):
         self.get_calls.append((url, kwargs))
         if url.endswith("/rest/v1/actu_foot_publications"):
-            return _Response([{"event_key": "x"}])
+            return _Response([{
+                "event_key": "x",
+                "status": "failed",
+                "attempts": 1,
+                "max_attempts": 5,
+                "expires_at": "2099-01-01T00:00:00+00:00",
+            }])
         return _Response([])
 
     def post(self, url, **kwargs):
@@ -97,6 +103,40 @@ class ActuFootInfrastructureTests(unittest.TestCase):
         recovered = provider_health.effective_quality("espn", quality, state)
         self.assertGreater(recovered, degraded)
         self.assertLessEqual(recovered, 98)
+
+    @patch.dict(os.environ, {
+        "SUPABASE_URL": "https://example.supabase.co",
+        "SUPABASE_SERVICE_ROLE_KEY": "secret",
+    }, clear=True)
+    def test_outbox_pending_ignores_quarantine_and_terminal_failures(self):
+        class Session(_Session):
+            def get(self, url, **kwargs):
+                self.get_calls.append((url, kwargs))
+                return _Response([
+                    {
+                        "event_key": "uncertain",
+                        "status": "uncertain",
+                        "attempts": 1,
+                        "max_attempts": 5,
+                        "expires_at": "2099-01-01T00:00:00+00:00",
+                    },
+                    {
+                        "event_key": "terminal",
+                        "status": "failed",
+                        "attempts": 5,
+                        "max_attempts": 5,
+                        "expires_at": "2099-01-01T00:00:00+00:00",
+                    },
+                    {
+                        "event_key": "retryable",
+                        "status": "failed",
+                        "attempts": 2,
+                        "max_attempts": 5,
+                        "expires_at": "2099-01-01T00:00:00+00:00",
+                    },
+                ])
+
+        self.assertEqual(observability._outbox_pending(Session()), 1)
 
     @patch.dict(os.environ, {
         "FOOTBALL_RUN_METRICS": "1",
