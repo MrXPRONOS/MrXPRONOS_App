@@ -84,7 +84,8 @@ class BatchThreeTests(unittest.TestCase):
             self.assertEqual(post.call_count, 1)
 
     def test_no_fabricated_photos_in_demo(self):
-        with patch.object(cm.base, 'post_photo', side_effect=AssertionError('Synthetic photo forbidden')):
+        with patch.object(cm.base, 'post_photo', side_effect=AssertionError('Synthetic photo forbidden')), \
+             patch.object(cm.base, 'post_text', return_value=234):
             out=cm.publish('anecdote', cm.demo_selection('anecdote'), '@predict_mrxp', 'test', MagicMock(), self.day, demo=True)
             self.assertEqual(out['photo_message_id'], 234)
 
