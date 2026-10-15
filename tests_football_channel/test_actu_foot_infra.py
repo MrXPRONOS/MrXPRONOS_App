@@ -59,6 +59,24 @@ class ActuFootInfrastructureTests(unittest.TestCase):
         self.assertEqual(session.get_calls, [])
         self.assertEqual(session.post_calls, [])
 
+    @patch.dict(os.environ, {
+        "SUPABASE_URL": "https://example.supabase.co",
+        "SUPABASE_SERVICE_ROLE_KEY": "secret",
+    }, clear=True)
+    def test_source_cache_default_ttl_covers_next_lifecycle_run(self):
+        session = _Session()
+        source_cache.persist_shared_source_snapshot(
+            session,
+            date(2026, 10, 15),
+            [{"source": "espn", "id": "1"}],
+        )
+        self.assertEqual(len(session.post_calls), 1)
+        _url, kwargs = session.post_calls[0]
+        payload = kwargs["json"]
+        fetched = datetime.fromisoformat(payload["fetched_at"])
+        expires = datetime.fromisoformat(payload["expires_at"])
+        self.assertGreaterEqual((expires - fetched).total_seconds(), 150)
+
     @patch.dict(os.environ, {}, clear=True)
     def test_metrics_are_noop_when_disabled(self):
         session = _Session()
