@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/football-five-systems-review.yml'
+      - 'scripts/football_five_systems_test.py'
   workflow_dispatch:
 permissions:
   contents: read
