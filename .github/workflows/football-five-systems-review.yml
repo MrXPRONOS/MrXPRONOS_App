@@ -37,7 +37,7 @@ jobs:
         run: python -m pip install requests Pillow feedparser imageio-ffmpeg
       - name: Controler syntaxe et tests de regression
         run: |
-          python -m py_compile scripts/football_five_systems_test.py scripts/football_channel.py scripts/football_match_lifecycle.py
+          python -m py_compile scripts/football_five_systems_test.py scripts/football_channel.py scripts/actu_foot_ranking.py scripts/football_match_lifecycle.py
           python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
       - name: Verifier strictement le canal de test
         env:
