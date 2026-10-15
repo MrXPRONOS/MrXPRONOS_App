@@ -111,6 +111,12 @@ const BSD_STATS_REFRESH_SECONDS = Math.max(
   45,
   Math.min(600, safeEnvInt("BSD_STATS_REFRESH_SECONDS", 120)),
 );
+// Avoid repeatedly fetching SportScore detail for fixtures whose markets are absent.
+// Keep this bounded, configurable interval across refresh invocations in DB.
+const SPORTSCORE_STATS_REFRESH_SECONDS = Math.max(
+  120,
+  Math.min(1200, safeEnvInt("SPORTSCORE_STATS_REFRESH_SECONDS", 300)),
+);
 const BSD_STATS_QUOTA_RESERVE = Math.max(
   250,
   Math.min(3000, safeEnvInt("BSD_STATS_QUOTA_RESERVE", 900)),
@@ -4314,6 +4320,9 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
     let current = out[index];
     let before = statsCompleteness(getMatchLiveStats(current)).core_complete;
     const refs = current?.raw_data?.provider_refs || {};
+    const sportDetailLastAttempt = Date.parse(String(current?.raw_data?.sportscore_detail_last_attempt_at || ""));
+    const sportDetailDue = !Number.isFinite(sportDetailLastAttempt) ||
+      Date.now() - sportDetailLastAttempt >= SPORTSCORE_STATS_REFRESH_SECONDS * 1000;
     let thesportsdbRefId = refs?.thesportsdb?.id
       ? String(refs.thesportsdb.id).replace(/^thesportsdb:/, "")
       : "";
@@ -4321,10 +4330,12 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
     if (
       before < 3 &&
       sportscoreCalls < maxSportScore &&
-      refs?.sportscore?.slug
+      sportDetailDue && refs?.sportscore?.slug
     ) {
       try {
         sportscoreCalls++;
+        // Persist independently from stats_last_updated_at (which only tracks observations).
+        current = {...current, raw_data: {...(current.raw_data || {}), sportscore_detail_last_attempt_at: nowIso()}};
         const payload = await fetchSportScoreDetail(String(refs.sportscore.slug));
         const detail = normalizeSportScoreDetail(payload);
         // Some SportScore detail payloads expose a real clock even when
@@ -6175,6 +6186,12 @@ async function reuseCachedStats(matches: any[]) {
         null,
       raw_data: {
         ...(match?.raw_data || {}),
+        // Cache is a full normalized match; restore per-provider request timestamps.
+        // These timestamps represent attempted requests, not observed statistics.
+        bsd_detail_last_attempt_at: match?.raw_data?.bsd_detail_last_attempt_at ||
+          cached?.raw_data?.bsd_detail_last_attempt_at || null,
+        sportscore_detail_last_attempt_at: match?.raw_data?.sportscore_detail_last_attempt_at ||
+          cached?.raw_data?.sportscore_detail_last_attempt_at || null,
         live_stats: mergedStats,
       },
     };
@@ -6273,6 +6290,10 @@ async function enrichLiveMatchesWithBsdStats(matches: any[]) {
   const candidates = (matches || [])
     .filter((m: any) => {
       if (!isBsdNumericEvent(m)) return false;
+      // Missing market statistics must not bypass the minimum detail interval.
+      const lastAttempt = Date.parse(String(m?.raw_data?.bsd_detail_last_attempt_at || ""));
+      if (Number.isFinite(lastAttempt) &&
+          Date.now() - lastAttempt < BSD_STATS_REFRESH_SECONDS * 1000) return false;
       const minute = safeNumber(m?.current_minute ?? m?.minute, 0);
       if (minute < 10 || minute > 88) return false;
 
@@ -6302,6 +6323,12 @@ async function enrichLiveMatchesWithBsdStats(matches: any[]) {
   const indexById = new Map(out.map((m: any, i: number) => [String(m?.id), i]));
 
   for (const match of scheduledCandidates) {
+    const idx = indexById.get(String(match.id));
+    if (idx == null) continue;
+    // Persist the attempt even on empty responses/errors: avoid wasting quota.
+    out[idx] = { ...out[idx], raw_data: {
+      ...(out[idx]?.raw_data || {}), bsd_detail_last_attempt_at: nowIso(),
+    }};
     try {
       calls++;
       const payload = await fetchBSD(`/events/${match.id}/stats/`);
@@ -6310,9 +6337,6 @@ async function enrichLiveMatchesWithBsdStats(matches: any[]) {
         Object.values(freshStats?.[side]||{}).some(v=>nullableNumber(v)!=null));
       if(!hasObservedStats)continue;
       const mergedStats = mergeLiveStats(getMatchLiveStats(match), freshStats, true);
-      const idx = indexById.get(String(match.id));
-      if (idx == null) continue;
-
       out[idx] = {
         ...out[idx],
         live_stats: mergedStats,
