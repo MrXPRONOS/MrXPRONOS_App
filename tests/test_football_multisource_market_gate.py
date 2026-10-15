@@ -141,10 +141,10 @@ class MarketWitnessTests(unittest.TestCase):
 
     def test_untrusted_production_feed_or_more_than_eight_events_rejected(self):
         with self.assertRaises(ValueError):
-            verify_selected_markets([],[],{"source":"sportdata","matches":[]},at=NOW)
+            verify_selected_markets([],[],{"source":"sportdata","matches":[]},at=NOW,historical_ledger={"schema":"bsd-v2-publication-ledger-1","entries":[]})
         with self.assertRaises(ValueError):
             verify_selected_markets([],[(None,None,{})]*9,
-                {"source":"bsd","matches":[],"performance_tracker":{}},at=NOW)
+                {"source":"bsd","matches":[],"performance_tracker":{}},at=NOW,historical_ledger={"schema":"bsd-v2-publication-ledger-1","entries":[]})
 
 if __name__=="__main__":
     unittest.main()
