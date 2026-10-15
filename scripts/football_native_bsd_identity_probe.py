@@ -84,11 +84,12 @@ def native_parts(event, *, official_leagues=None):
 def native_key(event):
     return native_parts(event)[0]
 
-def prove(external:list[dict], native:list[dict], *, at:datetime, official_leagues=None, verified_id_sink=None)->dict:
+def prove(external:list[dict], native:list[dict], *, at:datetime, official_leagues=None, verified_id_sink=None, verified_pair_sink=None)->dict:
     if at.tzinfo is None:
         raise ValueError("Timezone-aware current time required")
     at=at.astimezone(timezone.utc)
     external_ok=[]
+    external_ok_rows=[]
     rejected=Counter()
     for row in external:
         if not isinstance(row,dict) or row.get("_schedule_verified_by")!="openfootball_cc0" or row.get("league_verified") is not True:
@@ -105,7 +106,9 @@ def prove(external:list[dict], native:list[dict], *, at:datetime, official_leagu
             rejected["external_invalid_identity_or_kickoff"]+=1
             continue
         external_ok.append((next(iter(leagues)),home,away,start))
+        external_ok_rows.append(row)
     natives=defaultdict(list)
+    native_originals=defaultdict(list)
     invalid_native=0
     native_issues=Counter()
     for row in native:
@@ -119,6 +122,7 @@ def prove(external:list[dict], native:list[dict], *, at:datetime, official_leagu
             rejected["native_not_future"]+=1
             continue
         natives[ident].append(attributes)
+        native_originals[ident].append(row)
     unique_native={key:attributes[0] for key,attributes in natives.items()
                    if len(attributes)==1}
     rejected["duplicated_native_id"]+=sum(len(rows) for rows in natives.values() if len(rows)>1)
@@ -140,6 +144,11 @@ def prove(external:list[dict], native:list[dict], *, at:datetime, official_leagu
     # log, artifact, Telegram message, site JSON or a data model identifier.
     if verified_id_sink is not None:
         verified_id_sink.extend(sorted({ident for _,ident in confirmed}))
+    if verified_pair_sink is not None:
+        for i,ident in sorted(confirmed):
+            if len(native_originals.get(ident,[]))!=1:
+                raise AssertionError("Native event ambiguity after crosswalk")
+            verified_pair_sink.append((ident,external_ok_rows[i],native_originals[ident][0]))
     rejected["external_ambiguous_native_matches"]+=sum(len(ids)>1 for ids in edges.values())
     rejected["native_ambiguous_external_matches"]+=sum(len(v)>1 for v in per_native.values())
     unmatched=len(external_ok)-len({i for i,_ in confirmed})
@@ -192,7 +201,7 @@ def candidate_official_league_ids(external, native, *, at):
     return sorted(lids)
 
 
-def audit_official_consensus_quotes(client,native,linked_ids,league_names,*,at):
+def audit_official_consensus_quotes(client,native,linked_ids,league_names,*,at,verified_quotes_sink=None):
     """Proof of native market pricing, not proof of an executable bookmaker bet.
 
     Only confirmed official BSD event IDs are inspected; a consensus value
@@ -224,6 +233,8 @@ def audit_official_consensus_quotes(client,native,linked_ids,league_names,*,at):
             quotes,diag=fetch_event_odds(
                 client,ident,kickoff=kickoff,captured_at=at,
                 bookmaker_slug="consensus",max_pages=2,max_age_hours=2)
+            if verified_quotes_sink is not None:
+                verified_quotes_sink.append((ident,quotes))
             verified=[q for q in quotes.values()
                       if isinstance(q,dict) and q.get("origin")=="bsd_consensus"
                       and q.get("bookmaker")=="consensus"]
@@ -257,6 +268,8 @@ def audit_official_consensus_quotes(client,native,linked_ids,league_names,*,at):
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--public-fixtures",required=True)
+    parser.add_argument("--licensed-history",help="Licensed CC0 finished results only; for exact selected-market proof")
+    parser.add_argument("--existing-feed",help="Read-only public BSD production tracker JSON")
     parser.add_argument("--report",required=True)
     parser.add_argument("--days",type=int,default=2)
     parser.add_argument("--start-offset",type=int,default=2)
@@ -311,11 +324,32 @@ def main():
     if len(ids)>available:
         metadata_issues["league_metadata_budget_exceeded"]+=len(ids)-available
     linked_ids=[]
+    confirmed_pairs=[]
     result=prove(verified,native,at=clock,official_leagues=names,
-                 verified_id_sink=linked_ids)
-    pricing=audit_official_consensus_quotes(client,native,linked_ids,names,at=clock)
+                 verified_id_sink=linked_ids,verified_pair_sink=confirmed_pairs)
+    market_quotes=[]
+    pricing=audit_official_consensus_quotes(
+        client,native,linked_ids,names,at=clock,verified_quotes_sink=market_quotes)
+    market_proof=None
+    if bool(args.licensed_history)!=bool(args.existing_feed):
+        parser.error("Selected market verification requires both licensed history and public BSD feed")
+    if args.licensed_history:
+        from scripts.football_multisource_market_gate import verify_selected_markets
+        history=[json.loads(line) for line in
+                 Path(args.licensed_history).read_text(encoding="utf-8").splitlines()
+                 if line.strip()]
+        feed=json.loads(Path(args.existing_feed).read_text(encoding="utf-8"))
+        by_id={ident:(ext_row,native_row) for ident,ext_row,native_row in confirmed_pairs}
+        paired=[]
+        for ident,quotes in market_quotes:
+            if ident not in by_id:
+                raise AssertionError("Quote event not in unique native matching set")
+            ext_row,native_row=by_id[ident]
+            paired.append((ext_row,native_row,quotes))
+        market_proof=verify_selected_markets(history,paired,feed,at=clock)
     result.update({
         "read_only_native_consensus_price_audit":pricing,
+        "full_model_selected_market_consensus_audit":market_proof,
         "candidate_official_league_metadata_ids":len(ids),
         "official_league_metadata_requested":min(len(ids),available),
         "official_league_metadata_verified":len(names),
