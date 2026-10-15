@@ -1,15 +1,15 @@
 {
   "scope": "read_only_identity_evidence",
-  "external_total": 1402,
-  "external_cc0_verified": 28,
-  "native_total": 417,
-  "native_unique_eligible": 48,
-  "native_invalid_records": 369,
+  "external_total": 1244,
+  "external_cc0_verified": 22,
+  "native_total": 308,
+  "native_unique_eligible": 28,
+  "native_invalid_records": 280,
   "native_invalid_breakdown": {
-    "missing_native_competition_name": 369
+    "missing_native_competition_name": 280
   },
-  "one_to_one_native_event_links": 26,
-  "unmatched_or_ambiguous_external": 2,
+  "one_to_one_native_event_links": 21,
+  "unmatched_or_ambiguous_external": 1,
   "identity_evidence": "exact_league_home_away_utc_kickoff_15m_unique",
   "native_event_ids_exported": false,
   "native_bookmaker_prices_fetched": false,
@@ -20,13 +20,18 @@
   "rejected_reasons": {
     "duplicated_native_id": 0,
     "external_ambiguous_native_matches": 0,
-    "external_not_independently_cc0_verified": 1374,
+    "external_not_independently_cc0_verified": 1222,
     "native_ambiguous_external_matches": 0
   },
   "read_only_native_consensus_price_audit": {
     "event_ids_selected_only_from_confirmed_native_links": true,
     "max_linked_events_for_quote_probe": 8,
     "official_native_events_quoted_attempts": 8,
+    "historically_published_native_links_excluded": 0,
+    "unpublished_native_links_available": 21,
+    "unpublished_native_links_in_48h_window": 6,
+    "actual_48h_publication_window_quote_attempts": 6,
+    "linked_events_exceeding_eight_quote_cap": 13,
     "events_with_fresh_consensus_market_prices": 8,
     "fresh_consensus_market_prices": 112,
     "consensus_is_not_executable_bookmaker_offer": true,
@@ -39,10 +44,10 @@
     "native_full_assembler_canary": {
       "executed": true,
       "native_event_ids_verified_in_process": 7,
-      "events_within_native_48h_window": 2,
+      "events_within_native_48h_window": 6,
       "actual_publication_window_exercised": true,
       "empty_window_is_not_publication_path_validation": false,
-      "in_memory_quote_fetches": 2,
+      "in_memory_quote_fetches": 6,
       "projected_new_rows_not_published": 0,
       "qualified_rows_available_process_local": 0,
       "historical_append_only_ids_enforced": true,
@@ -74,13 +79,13 @@
       "v21_reason:v21_over15_conservative_too_low": 5
     }
   },
-  "candidate_official_league_metadata_ids": 5,
-  "official_league_metadata_requested": 5,
-  "official_league_metadata_verified": 5,
+  "candidate_official_league_metadata_ids": 4,
+  "official_league_metadata_requested": 4,
+  "official_league_metadata_verified": 4,
   "official_league_metadata_issues": {},
-  "bsd_http_calls": 17,
+  "bsd_http_calls": 16,
   "bsd_max_http_requests": 24,
   "calendar_files_verified": 8,
-  "independent_cc0_calendar_confirmed": 28,
+  "independent_cc0_calendar_confirmed": 22,
   "qualified_candidate_rows_staged": 0
 }
