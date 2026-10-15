@@ -9,6 +9,7 @@ on:
       - 'scripts/football_channel.py'
       - 'scripts/football_followup.py'
       - 'scripts/actu_foot_observability.py'
+      - 'scripts/actu_foot_ranking.py'
       - 'scripts/actu_foot_source_cache.py'
       - 'scripts/actu_foot_provider_health.py'
       - 'scripts/actu_foot_health_report.py'
