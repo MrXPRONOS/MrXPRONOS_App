@@ -108,6 +108,31 @@ class QualifiedApplyTests(unittest.TestCase):
                     apply({"source":"bsd","matches":[],"diagnostics":{}},
                           [],now=NOW,publication_ledger=history)
 
+    def test_pipeline_summary_allows_zero_and_stays_aggregate_only(self):
+        import json
+        stats={
+            "external_total":15,"independent_cc0_calendar_confirmed":4,
+            "one_to_one_native_event_links":3,"qualified_candidate_rows_staged":0,
+            "raw_unpublished_fixture":"Example FC vs Sample FC",
+            "read_only_native_consensus_price_audit":{
+                "historically_published_native_links_excluded":1,
+                "unpublished_native_links_in_48h_window":2,
+                "official_native_events_quoted_attempts":2,
+                "actual_48h_publication_window_quote_attempts":2,
+                "fresh_consensus_market_prices":7,
+            },
+            "full_model_selected_market_consensus_audit":{
+                "aggregate":{},
+                "native_full_assembler_canary":{"events_within_native_48h_window":2},
+            },
+        }
+        feed={"source":"bsd","matches":[],"diagnostics":{}}
+        apply(feed,[],now=NOW,publication_ledger=ledger(),aggregate_report=stats)
+        summary=feed["diagnostics"]["multisource_generation"]["coverage"]
+        self.assertEqual(summary["football_model_market_candidates"],0)
+        self.assertEqual(summary["historical_events_excluded_from_price_probes"],1)
+        self.assertNotIn("Example FC",json.dumps(feed))
+
     def test_rejects_more_than_eight_rows(self):
         with self.assertRaises(ValueError):
             apply({"source":"bsd","matches":[],"diagnostics":{}},
