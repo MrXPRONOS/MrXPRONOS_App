@@ -52,6 +52,15 @@ class TestBsdV2ProductionWorkflowSafety(unittest.TestCase):
             self.text.index("Build and apply fully-qualified multisource candidates"),
             self.text.index("Archive first-seen published selections and audit quality"))
 
+    def test_multisource_discovery_includes_remaining_current_utc_day(self):
+        self.assertIn('--start-day="$(date -u +%F)"',self.text)
+        self.assertIn("--days=3 --start-offset=0",self.text)
+        self.assertNotIn("date -u -d 'tomorrow'",self.text)
+
+    def test_candidate_apply_requires_aggregate_proof(self):
+        self.assertIn("--aggregate=tmp/multisource-qualified-aggregate.json",self.text)
+        self.assertIn('coverage=mg.get("coverage")',self.text)
+
     def test_full_gate_is_fail_closed_and_does_not_send_telegram(self):
         self.assertIn("--accepted-output=tmp/multisource-qualified-accepted.json", self.text)
         self.assertIn("football_multisource_apply_qualified.py", self.text)
