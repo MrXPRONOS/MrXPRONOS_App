@@ -1360,6 +1360,8 @@ def verify_espn_fixtures_before_publish(
                 "event_date": match.get("event_date"),
                 "home_score": match.get("home_score"),
                 "away_score": match.get("away_score"),
+                "home_logo": match.get("home_logo") or "",
+                "away_logo": match.get("away_logo") or "",
                 "venue": match.get("venue") or "",
                 "attendance": match.get("attendance"),
                 "espn_url": match.get("espn_url") or espn_match_url(str(match.get("id") or "")),
