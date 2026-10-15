@@ -40,6 +40,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
       - name: Install dependencies
         run: python -m pip install requests cryptography pillow
       - name: Compile Python sources
@@ -62,6 +66,34 @@ jobs:
           MOVIODDS_ENABLE: '1'
           BSD_MULTISOURCE_CC0: '1'
         run: python bsd/bsd_v2_publish.py --max-requests 700 --max-odds-events 350
+      - name: Build and apply fully-qualified multisource candidates
+        env:
+          BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+          FOOTBALL_MULTI_SOURCE: '0'
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p tmp
+          php scripts/football_history_import.php             --source=openfootball             --seasons=2023-24,2024-25,2025-26,2026-27             --league-codes=en.1,en.2,de.1,es.1,fr.1,it.1,nl.1,pt.1             --max-files=32             --out=tmp/multisource-qualified-history.jsonl
+          test -s tmp/multisource-qualified-history.jsonl
+          python scripts/football_prematch_multiday_probe.py             --start-day="$(date -u -d 'tomorrow' +%F)"             --count-days=3 --max-http=24             --out=tmp/multisource-public-fixtures.json             --report=tmp/multisource-public-fixtures-aggregate.json
+          python scripts/football_native_bsd_identity_probe.py             --public-fixtures=tmp/multisource-public-fixtures.json             --licensed-history=tmp/multisource-qualified-history.jsonl             --existing-feed=data.json             --days=3 --start-offset=1             --accepted-output=tmp/multisource-qualified-accepted.json             --report=tmp/multisource-qualified-aggregate.json
+          test -f tmp/multisource-qualified-accepted.json
+          python scripts/football_multisource_apply_qualified.py             --feed=data.json             --accepted=tmp/multisource-qualified-accepted.json
+          python - <<'PY'
+          import json
+          aggregate=json.load(open("tmp/multisource-qualified-aggregate.json",encoding="utf-8"))
+          accepted=json.load(open("tmp/multisource-qualified-accepted.json",encoding="utf-8"))
+          assert aggregate["calendar_files_verified"] == 8
+          assert aggregate["qualified_candidate_rows_staged"] == len(accepted)
+          assert len(accepted) <= 8
+          print("BSD_MULTISOURCE_FULL_GATE",{
+              "cc0_confirmed":aggregate["independent_cc0_calendar_confirmed"],
+              "native_links":aggregate["one_to_one_native_event_links"],
+              "qualified_rows":len(accepted),
+          })
+          PY
+          rm -f tmp/multisource-qualified-history.jsonl                 tmp/multisource-public-fixtures.json                 tmp/multisource-qualified-accepted.json
       - name: Archive first-seen published selections and audit quality
         run: python bsd/bsd_v2_audit.py --data data.json
       - name: Validate feed and commit website data
@@ -81,9 +113,32 @@ jobs:
           assert ms.get("changes_pub_policy_or_event_identity") is False
           assert ms.get("no_telegram_messages_sent") is True
           assert 0<=ms.get("calendar_confirmed",0)<=ms.get("future_bsd_rows",0)
+          mg=data.get("diagnostics",{}).get("multisource_generation")
+          assert isinstance(mg,dict) and mg.get("enabled") is True, "Full multisource candidate gate not executed"
+          assert mg.get("mode")=="qualified_external_candidates_through_native_bsd_v2"
+          assert mg.get("requires_official_bsd_event_id") is True
+          assert mg.get("requires_real_bsd_consensus_selected_market_price") is True
+          assert mg.get("requires_v21_and_value_guard") is True
+          assert mg.get("uses_native_bsd_v2_assembler") is True
+          assert mg.get("thresholds_lowered") is False
+          assert mg.get("telegram_sent_by_this_step") is False
+          assert 0<=mg.get("added_rows",0)<=mg.get("staged_rows",0)<=8
+          verified=[m for m in data["matches"] if m.get("multisource_verification")]
+          assert len(verified)>=mg.get("added_rows",0)
+          for match in verified:
+              proof=match["multisource_verification"]
+              if proof.get("mode")!="qualified_external_candidate":
+                  continue
+              assert all(proof.get(k) is True for k in (
+                  "schedule_corroborated","native_bsd_event_verified",
+                  "selected_market_real_consensus_price","v21_and_value_guard_passed",
+                  "production_assembler_created_row"))
+              for pick in (match.get("predictions") or [match["prediction"]]):
+                  assert pick.get("odds_source")=="bsd_consensus"
+                  assert pick.get("estimated_odds") is False
           print("BSD_MULTISOURCE_PRODUCTION_HEALTH",{
-              "files_ok":ms.get("files_ok"),"confirmed":ms.get("calendar_confirmed"),
-              "new_external_picks":0})
+              "files_ok":ms.get("files_ok"),"confirmed_existing":ms.get("calendar_confirmed"),
+              "staged_new":mg.get("staged_rows"),"added_new":mg.get("added_rows")})
           assert all(m["source"]=="bsd" and m["prediction"]["selection_key"] for m in data["matches"])
           assert all(
               valid_standalone_prediction(m["prediction"], m.get("combo_only",False))

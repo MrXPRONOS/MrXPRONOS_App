@@ -1,0 +1,104 @@
+name: BSD V2 - Multisource candidate gate CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/football_**'
+      - 'tests/test_football_**'
+      - '.github/workflows/bsd-v2-multisource-candidate-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bsd-v2-multisource-candidate-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qualified-candidate-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Install dependencies
+        run: python -m pip install requests cryptography pillow
+      - name: Compile selective multisource gate
+        run: |
+          python -m py_compile             scripts/football_history_shadow.py             scripts/football_history_features.py             scripts/football_match_source_router.py             scripts/football_multi_api_history_inputs.py             scripts/football_verified_identity_crosswalk.py             scripts/football_public_domain_prematch.py             scripts/football_bsd_private_history.py             scripts/football_daily_multisource_shadow.py             scripts/football_prematch_multiday_probe.py             scripts/football_external_bsd_v2_adapter.py             scripts/football_cc0_calendar_verification.py             scripts/football_native_bsd_identity_probe.py             scripts/football_multisource_market_gate.py             scripts/football_openfootball_world_import.py             scripts/football_publication_transaction_canary.py
+          php -l scripts/football_history_import.php
+      - name: Run selective offline tests
+        run: |
+          python -m unittest -v             tests.test_football_history_shadow             tests.test_football_history_features             tests.test_football_match_source_router             tests.test_football_multi_api_history_inputs             tests.test_football_verified_identity_crosswalk             tests.test_football_public_domain_prematch             tests.test_football_daily_multisource_shadow             tests.test_football_external_bsd_v2_adapter             tests.test_football_native_bsd_identity_probe             tests.test_football_multisource_market_gate             tests.test_football_openfootball_world_import             tests.test_football_publication_transaction_canary
+
+  integration-canary:
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    needs: qualified-candidate-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Install dependencies
+        run: python -m pip install requests cryptography pillow
+      - name: Exercise complete qualified path without publication
+        env:
+          BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+          FOOTBALL_MULTI_SOURCE: '0'
+        run: |
+          set -euo pipefail
+          test -n "${BSD_API_KEY}"
+          umask 077
+          mkdir -p tmp
+          cp data.json tmp/data-before.json
+          php scripts/football_history_import.php             --source=openfootball             --seasons=2023-24,2024-25,2025-26,2026-27             --league-codes=en.1,en.2,de.1,es.1,fr.1,it.1,nl.1,pt.1             --max-files=32             --out=tmp/multisource-qualified-history.jsonl
+          python scripts/football_prematch_multiday_probe.py             --start-day="$(date -u -d 'tomorrow' +%F)"             --count-days=3 --max-http=24             --out=tmp/multisource-public-fixtures.json             --report=tmp/multisource-public-fixtures-aggregate.json
+          python scripts/football_native_bsd_identity_probe.py             --public-fixtures=tmp/multisource-public-fixtures.json             --licensed-history=tmp/multisource-qualified-history.jsonl             --existing-feed=data.json             --days=3 --start-offset=1             --accepted-output=tmp/multisource-qualified-accepted.json             --report=tmp/multisource-qualified-aggregate.json
+          python scripts/football_multisource_apply_qualified.py             --feed=data.json             --accepted=tmp/multisource-qualified-accepted.json
+          python - <<'PY'
+          import json
+          before=json.load(open("tmp/data-before.json",encoding="utf-8"))
+          after=json.load(open("data.json",encoding="utf-8"))
+          accepted=json.load(open("tmp/multisource-qualified-accepted.json",encoding="utf-8"))
+          aggregate=json.load(open("tmp/multisource-qualified-aggregate.json",encoding="utf-8"))
+          mg=after["diagnostics"]["multisource_generation"]
+          assert aggregate["calendar_files_verified"] == 8
+          assert aggregate["qualified_candidate_rows_staged"] == len(accepted)
+          assert mg["staged_rows"] == len(accepted)
+          assert mg["added_rows"] <= len(accepted) <= 8
+          assert mg["thresholds_lowered"] is False
+          assert mg["telegram_sent_by_this_step"] is False
+          before_ids={str(m.get("source_event_id") or m.get("id")) for m in before["matches"]}
+          after_old=[m for m in after["matches"] if str(m.get("source_event_id") or m.get("id")) in before_ids]
+          assert after_old == before["matches"], "Existing published rows changed during canary"
+          print("FULL_MULTISOURCE_INTEGRATION_CANARY",{
+              "calendar_confirmed":aggregate["independent_cc0_calendar_confirmed"],
+              "native_links":aggregate["one_to_one_native_event_links"],
+              "staged":len(accepted),
+              "added_local_only":mg["added_rows"],
+              "existing_rows_unchanged":True,
+              "telegram":0,
+              "git_push":0,
+          })
+          PY
+          rm -f tmp/multisource-qualified-accepted.json tmp/multisource-qualified-history.jsonl tmp/multisource-public-fixtures.json
