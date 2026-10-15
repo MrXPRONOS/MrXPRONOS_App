@@ -7,6 +7,8 @@ from datetime import datetime, timezone
 
 import requests
 
+from actu_foot_observability import _actionable_outbox_count
+
 
 def _config() -> tuple[str, str]:
     base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
@@ -40,23 +42,46 @@ def build_report(session: requests.Session) -> str:
         "order": "provider.asc",
     })
     outbox = _get(session, "actu_foot_publications", {
-        "select": "event_key,status,category,updated_at,next_retry_at",
+        "select": "event_key,status,category,updated_at,next_retry_at,attempts,max_attempts,expires_at",
         "status": "in.(failed,claimed,uncertain)",
         "order": "updated_at.asc",
-        "limit": "50",
+        "limit": "100",
     })
     recent_events = _get(session, "actu_foot_live_events", {
         "select": "event_key,kind,home_team,away_team,last_seen_at,confirmed",
         "order": "last_seen_at.desc",
         "limit": "10",
     })
+    news_rows = _get(session, "actu_foot_news_snapshot", {
+        "select": "generated_at,payload",
+        "id": "eq.latest",
+        "limit": "1",
+    })
+
+    actionable_outbox = _actionable_outbox_count(outbox)
+    degraded = [
+        row for row in providers
+        if int(row.get("effective_quality") or 0) < int(row.get("base_quality") or 0)
+    ]
+    latest_full = next((row for row in runs if row.get("mode") == "full"), {})
+    latest_lifecycle = next((row for row in runs if row.get("mode") == "lifecycle"), {})
+    news_payload = news_rows[0].get("payload") if news_rows and isinstance(news_rows[0], dict) else []
+    news_count = len(news_payload) if isinstance(news_payload, list) else 0
+    news_generated = (
+        str(news_rows[0].get("generated_at") or "")[:19]
+        if news_rows and isinstance(news_rows[0], dict) else ""
+    )
 
     lines = [
         "# Actu Foot — état de santé",
         "",
         "Généré : " + datetime.now(timezone.utc).isoformat(),
         "",
-        f"- Outbox en attente/incertaine : **{len(outbox)}**",
+        f"- Dernier FULL : **{str(latest_full.get('finished_at') or '')[:19]}** · erreurs **{int(latest_full.get('errors') or 0)}**",
+        f"- Dernier LIFECYCLE : **{str(latest_lifecycle.get('finished_at') or '')[:19]}** · erreurs **{int(latest_lifecycle.get('errors') or 0)}**",
+        f"- Outbox actionnable : **{actionable_outbox}**",
+        f"- Fournisseurs dégradés : **{len(degraded)} / {len(providers)}**",
+        f"- Infos Foot : **{news_count}** éléments · snapshot **{news_generated}**",
         f"- Événements LIVE récents visibles : **{len(recent_events)}**",
         "",
         "## Derniers runs",
@@ -93,9 +118,13 @@ def build_report(session: requests.Session) -> str:
             f"{str(row.get('last_success_at') or '')[:19]} |"
         )
 
-    if outbox:
+    actionable_rows = [
+        row for row in outbox
+        if isinstance(row, dict) and row.get("status") in {"failed", "claimed"}
+    ]
+    if actionable_rows:
         lines += ["", "## Outbox à surveiller", ""]
-        for row in outbox[:15]:
+        for row in actionable_rows[:15]:
             lines.append(
                 f"- {row.get('status')} · {row.get('category')} · "
                 f"{str(row.get('event_key') or '')[:90]}"
