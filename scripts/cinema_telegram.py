@@ -22,6 +22,8 @@ except ModuleNotFoundError:
 
 ROOT = Path(__file__).resolve().parents[1]
 FORMATS = ('film', 'top5', 'sorties', 'soir', 'quiz')
+# Canal de test explicitement désigné; aucun fallback vers un canal des pronostics.
+TEST_CHANNEL = '@predict_mrxp'
 TMDB = 'https://api.themoviedb.org/3'
 IMG = 'https://image.tmdb.org/t/p/w780'
 ATTRIBUTION = 'This product uses the TMDB API but is not endorsed or certified by TMDB.'
@@ -217,6 +219,27 @@ def call_telegram(session, token, method, payload):
     return body['result']
 
 
+def target_chat(mode):
+    return TEST_CHANNEL if mode == 'test' else os.getenv('CINEMA_PRODUCTION_CHAT_ID')
+
+
+def verify_test_bot(session, token, chat):
+    """Ne rien envoyer si le bot ne peut pas publier dans le canal dédié."""
+    if chat != TEST_CHANNEL:
+        raise RuntimeError('Canal de test inattendu : envoi refusé')
+    me = call_telegram(session, token, 'getMe', {})
+    user_id = me.get('id')
+    if not user_id:
+        raise RuntimeError('Impossible de vérifier le bot Telegram')
+    member = call_telegram(session, token, 'getChatMember',
+                           {'chat_id': chat, 'user_id': user_id})
+    if member.get('status') not in ('administrator', 'creator'):
+        raise RuntimeError('Le bot doit être administrateur de ' + TEST_CHANNEL)
+    if member.get('can_post_messages') is False:
+        raise RuntimeError('Le bot ne possède pas le droit de publier dans ' + TEST_CHANNEL)
+    print('TEST_CHANNEL_VERIFIED', TEST_CHANNEL)
+
+
 def publish(kind, movies, token, chat, today, session, demo=False, dry_run=False):
     if kind == 'quiz':
         index = int(hashlib.sha256(today.isoformat().encode()).hexdigest()[:8], 16) % len(QUIZZES)
@@ -252,10 +275,8 @@ def main(argv=None):
     if args.mode == 'production' and os.getenv('CINEMA_PRODUCTION_ENABLED') != 'true' and not args.dry_run:
         p.error('Production désactivée : CINEMA_PRODUCTION_ENABLED doit valoir true')
     token = os.getenv('CINEMA_TELEGRAM_BOT_TOKEN') or os.getenv('TELEGRAM_BOT_TOKEN')
-    # Safety: NEVER use Telegram main/sports channel as test fallback.
-    chat = ((os.getenv('CINEMA_TEST_CHAT_ID') or os.getenv('TELEGRAM_TEST_CHAT_ID')
-            or os.getenv('TELEGRAM_CHAT_ID_TEST')) if args.mode == 'test'
-            else os.getenv('CINEMA_PRODUCTION_CHAT_ID'))
+    # Canal de test dédié et fixe: le workflow et les secrets ne peuvent pas le rediriger.
+    chat = target_chat(args.mode)
     if not args.dry_run and (not token or not chat):
         p.error('Bot token ou chat ID dédié manquant; aucun envoi effectué')
     if args.mode == 'test' and not args.dry_run:
@@ -274,14 +295,18 @@ def main(argv=None):
     except (json.JSONDecodeError, OSError):
         raise RuntimeError('Historique invalide : correction manuelle nécessaire avant publication')
     kinds = FORMATS if args.format == 'all' else (args.format,)
+    session = requests.Session()
+    if args.mode == 'test' and not args.dry_run:
+        verify_test_bot(session, token, chat)
     for kind in kinds:
         key = f'{today.isoformat()}:{kind}'
         if not args.dry_run and not args.force and key in state:
             print('SKIP_DOUBLON', key)
             continue
-        films = [] if kind == 'quiz' else (DEMO if args.demo else tmdb.choose(kind, today))
+        films = [] if kind == 'quiz' else (([m for m in DEMO if (m.get('release_date') or '') >= today.isoformat()] or DEMO[-3:]
+                                          if kind == 'sorties' else DEMO) if args.demo else tmdb.choose(kind, today))
         print('FORMAT', kind, 'MODE', args.mode, 'DEMO', args.demo, 'DATE', today)
-        mid = publish(kind, films, token, chat, today, requests.Session(), args.demo, args.dry_run)
+        mid = publish(kind, films, token, chat, today, session, args.demo, args.dry_run)
         if not args.dry_run:
             state[key] = {'message_id': mid, 'chat_id': chat, 'utc': datetime.now(timezone.utc).isoformat()}
             temp = state_path.with_suffix('.tmp')
