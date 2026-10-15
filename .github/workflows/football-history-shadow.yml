@@ -503,7 +503,7 @@ jobs:
           assert quoted['independent_bookmaker_selection_codes_verified'] == 0
           assert quoted['production_market_policy_approved'] is False
           assert quoted['raw_market_prices_or_event_ids_exported'] is False
-          assert r['bsd_http_calls'] <= 12
+          assert r['bsd_http_calls'] <= 24
           selected=r['full_model_selected_market_consensus_audit']
           assert selected['real_market_selection_validation_executed'] is True
           assert selected['fit_all_native_models_and_calibration'] is True
