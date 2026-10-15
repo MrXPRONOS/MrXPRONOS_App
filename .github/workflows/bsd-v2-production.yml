@@ -8,6 +8,12 @@ on:
       - 'bsd/**'
       - 'assets/js/main.js'
       - '.github/workflows/bsd-v2-production.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'bsd/**'
+      - 'assets/js/main.js'
+      - '.github/workflows/bsd-v2-production.yml'
   workflow_dispatch:
     inputs:
       trigger_source:
