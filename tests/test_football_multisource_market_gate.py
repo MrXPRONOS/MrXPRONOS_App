@@ -1,6 +1,6 @@
 import unittest
 from datetime import datetime,timedelta,timezone
-from scripts.football_multisource_market_gate import selected_quote,verify_selected_markets
+from scripts.football_multisource_market_gate import selected_quote,verify_selected_markets,certified_native_shadow_fixture
 
 NOW=datetime(2026,10,15,12,tzinfo=timezone.utc)
 
@@ -45,6 +45,46 @@ class MarketWitnessTests(unittest.TestCase):
         selected,why=selected_quote(choice(),prices(source="bsd_bookmaker"),at=NOW)
         self.assertIsNone(selected)
         self.assertEqual(why,"selected_market_not_quoted")
+
+    def test_only_official_native_id_can_replace_external_research_id_in_canary(self):
+        source={
+            "_schedule_verified_by":"openfootball_cc0",
+            "league_verified":True,"status":"prematch",
+            "home_team":"Arsenal","away_team":"Chelsea",
+        }
+        adapted={
+            "id":7_500_000_000_000_042,"_derived_research_id":True,
+            "home_team":{"id":7_000_001,"name":"Arsenal"},
+            "away_team":{"id":7_000_002,"name":"Chelsea"},
+            "event_date":"2026-10-16T19:00:00Z","status":"notstarted",
+            "league_id":7_600_001,"league_name":"Premier League",
+        }
+        official={
+            "id":12345,"home_team":{"id":101,"name":"Arsenal"},
+            "away_team":{"id":102,"name":"Chelsea"},
+            "event_date":"2026-10-16T19:05:00Z","status":"notstarted",
+        }
+        event=certified_native_shadow_fixture(source,adapted,official,at=NOW)
+        self.assertEqual(event["id"],12345)
+        self.assertEqual(event["home_team_id"] if "home_team_id" in event else event["home_team"]["id"],7_000_001)
+        self.assertTrue(event["_native_bsd_id_verified_in_process"])
+        self.assertEqual(adapted["id"],7_500_000_000_000_042)
+        self.assertEqual(official["id"],12345)
+        for kind in ("wrong_team","wrong_date","synthetic_native","unverified","wrong_status"):
+            with self.subTest(case=kind):
+                x=dict(source); y=dict(adapted); z=dict(official)
+                if kind=="wrong_team":
+                    z["away_team"]={"id":102,"name":"Tottenham"}
+                elif kind=="wrong_date":
+                    z["event_date"]="2026-10-16T19:16:00Z"
+                elif kind=="synthetic_native":
+                    z["id"]=7_500_000_000_000_042
+                elif kind=="unverified":
+                    x["league_verified"]=False
+                else:
+                    z["status"]="finished"
+                with self.assertRaises(ValueError):
+                    certified_native_shadow_fixture(x,y,z,at=NOW)
 
     def test_untrusted_production_feed_or_more_than_eight_events_rejected(self):
         with self.assertRaises(ValueError):
