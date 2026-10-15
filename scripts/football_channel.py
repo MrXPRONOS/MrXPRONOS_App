@@ -411,6 +411,9 @@ def live_competition_weight(event: dict) -> int:
     }
     return explicit.get(key_name, 0)
 
+_LAST_LIVE_RANKING: dict[str, Any] = {}
+
+
 def live_match_identity(event: dict) -> str:
     """Identité stable pour dédupliquer la même rencontre venant de plusieurs sources."""
     ref = str(event.get("follow_ref") or "").strip()
@@ -597,6 +600,26 @@ def select_popular_live_matches(
     else:
         selected = locked_all + new_all[:max(0, global_cap - len(locked_all))]
 
+    ranking_rows = [
+        {
+            "competition": live_competition_key(event),
+            "home": team(event, "home"),
+            "away": team(event, "away"),
+            "score": live_popularity_score(event),
+            "locked": bool(event.get("ranking_locked")),
+            "breakdown": live_popularity_breakdown(event),
+        }
+        for event in selected
+    ]
+    global _LAST_LIVE_RANKING
+    _LAST_LIVE_RANKING = {
+        "eligible": len(eligible),
+        "selected": len(selected),
+        "per_comp": per_comp,
+        "global_cap": global_cap,
+        "dominance_gap": gap,
+        "matches": ranking_rows,
+    }
     if eligible:
         print(
             "LIVE_RANKING",
@@ -605,18 +628,7 @@ def select_popular_live_matches(
             "per_comp", per_comp,
             "global_cap", global_cap,
             "dominance_gap", gap,
-            "matches",
-            json.dumps([
-                {
-                    "competition": live_competition_key(event),
-                    "home": team(event, "home"),
-                    "away": team(event, "away"),
-                    "score": live_popularity_score(event),
-                    "locked": bool(event.get("ranking_locked")),
-                    "breakdown": live_popularity_breakdown(event),
-                }
-                for event in selected
-            ], ensure_ascii=False),
+            "matches", json.dumps(ranking_rows, ensure_ascii=False),
         )
     return selected
 
