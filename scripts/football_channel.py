@@ -1636,26 +1636,36 @@ def ensure_canonical_publication(
     replay: bool,
     strict: bool,
 ) -> None:
-    """Confirme la timeline canonique et répare les anciens replays d'outbox."""
+    """Garantit une ligne canonique avant Telegram, y compris pour les fallbacks valides.
+
+    Le controle editorial/source a deja ete effectue par espn_preflight avant
+    cet appel. Une ligne absente peut donc etre reconstruite depuis le payload
+    de publication valide, pour une reprise outbox ou un resultat fallback BSD.
+    """
     if not isinstance(item.card, dict):
         return
     event_key = plain(item.card.get("canonical_event_key"), 220)
     if not event_key:
         return
-    if not replay:
-        confirm_canonical_live_event(session, event_key, strict=strict)
-        return
 
     if confirm_canonical_live_event(session, event_key, strict=False):
         return
+
     signal = _canonical_signal_from_publication(item)
     if signal is None:
         if strict:
-            raise RuntimeError("Replay canonique impossible: payload insuffisant " + event_key)
+            context = "replay" if replay else "publication"
+            raise RuntimeError(
+                "Evenement canonique absent et payload insuffisant pour " + context + ": " + event_key
+            )
         return
+
     persist_canonical_live_events(session, [signal], strict=strict)
     confirm_canonical_live_event(session, event_key, strict=strict)
-    print("CANONICAL_EVENT_REBUILT_FROM_OUTBOX", event_key)
+    print(
+        "CANONICAL_EVENT_REBUILT_FROM_" + ("OUTBOX" if replay else "VALIDATED_PUBLICATION"),
+        event_key,
+    )
 
 
 def drain_retryable_outbox(
