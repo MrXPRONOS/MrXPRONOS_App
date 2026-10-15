@@ -15,11 +15,11 @@ Les quatre premières publications utilisent les Rich Messages Telegram : titre 
 ## Secrets GitHub à paramétrer
 
 - `TMDB_API_KEY` : clé API TMDB. API gratuite seulement sous conditions, notamment usage non commercial.
-- `CINEMA_TEST_CHAT_ID` : chat ID du **canal cinéma de test** (alternatives admises `TELEGRAM_TEST_CHAT_ID` ou `TELEGRAM_CHAT_ID_TEST`). Le bot doit être administrateur.
+- Canal de test : `@predict_mrxp`, fixé directement dans le programme. Le bot doit être administrateur.
 - `CINEMA_TELEGRAM_BOT_TOKEN` : token du bot cinéma (ou `TELEGRAM_BOT_TOKEN` existant).
 - `CINEMA_PRODUCTION_CHAT_ID` : canal cinéma réel, différent des canaux de pronostics.
 
-**Sécurité :** aucune valeur par défaut de test vers `TELEGRAM_CHAT_ID` principal. Pas d'envoi si le secret de test manque. Ne jamais mettre de token dans le dépôt.
+**Sécurité :** Aucun repli du test vers `TELEGRAM_CHAT_ID` principal. Pas d'envoi si le secret de test manque. Ne jamais mettre de token dans le dépôt.
 
 ## Actions recommandées
 
@@ -44,3 +44,6 @@ python scripts/cinema_telegram.py --mode test --format all --demo --dry-run
 ## Droits
 
 Le système recommande des films sans distribuer de copies de films. Les fiches mènent à TMDB, pas à des liens de téléchargement illégaux. Le visuel est créé localement à partir de texte, sans reprise de posters. Mention de TMDB ajoutée aux fiches utilisant ses données; adapter la licence pour un usage commercial.
+## Canal de test
+
+Les essais utilisent exclusivement [@predict_mrxp](https://t.me/predict_mrxp). Le script contrôle les permissions du bot avec `getMe` et `getChatMember` avant tout envoi. Un push identifié par `[cinema-live-test]` déclenche une unique campagne de démonstration (5 formats). Les vrais canaux ne sont jamais ciblés par ces essais.
