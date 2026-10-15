@@ -276,6 +276,7 @@ def main():
     parser.add_argument("--public-fixtures",required=True)
     parser.add_argument("--licensed-history",help="Licensed CC0 finished results only; for exact selected-market proof")
     parser.add_argument("--existing-feed",help="Read-only public BSD production tracker JSON")
+    parser.add_argument("--ledger",help="Required immutable BSD publication ledger for any candidate generation")
     parser.add_argument("--report",required=True)
     parser.add_argument("--accepted-output",help="Private process-local qualified rows; never upload as artifact")
     parser.add_argument("--days",type=int,default=2)
@@ -340,12 +341,17 @@ def main():
     market_proof=None
     if bool(args.licensed_history)!=bool(args.existing_feed):
         parser.error("Selected market verification requires both licensed history and public BSD feed")
+    if args.accepted_output and not args.licensed_history:
+        parser.error("Candidate staging requires complete market verification and the immutable ledger")
+    if args.licensed_history and not args.ledger:
+        parser.error("Full candidate verification requires the immutable historical publication ledger")
     if args.licensed_history:
         from scripts.football_multisource_market_gate import verify_selected_markets
         history=[json.loads(line) for line in
                  Path(args.licensed_history).read_text(encoding="utf-8").splitlines()
                  if line.strip()]
         feed=json.loads(Path(args.existing_feed).read_text(encoding="utf-8"))
+        ledger=json.loads(Path(args.ledger).read_text(encoding="utf-8"))
         by_id={ident:(ext_row,native_row) for ident,ext_row,native_row in confirmed_pairs}
         paired=[]
         for ident,quotes in market_quotes:
@@ -355,7 +361,8 @@ def main():
             paired.append((ext_row,native_row,quotes))
         accepted_rows=[]
         market_proof=verify_selected_markets(
-            history,paired,feed,at=clock,accepted_rows_sink=accepted_rows)
+            history,paired,feed,at=clock,historical_ledger=ledger,
+            accepted_rows_sink=accepted_rows)
         if args.accepted_output:
             accepted_path=Path(args.accepted_output).resolve()
             forbidden={(ROOT/"data.json").resolve(),(ROOT/"bsd"/"publication_ledger.json").resolve()}
