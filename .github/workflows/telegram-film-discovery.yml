@@ -1,0 +1,61 @@
+name: Mr XPRONOS - Film Channel Discovery
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 3 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mrx-telegram-film-state
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: telegram-film-relay/requirements.txt
+      - name: Check Telegram secrets without revealing values
+        id: credentials
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_STRING_SESSION }}
+        run: |
+          if [[ -n "$TG_API_ID" && -n "$TG_API_HASH" && -n "$TG_STRING_SESSION" ]]; then
+            echo 'ready=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'ready=false' >> "$GITHUB_OUTPUT"
+            echo 'Telegram secrets are not configured. Search skipped.'
+          fi
+      - name: Install dependencies
+        if: steps.credentials.outputs.ready == 'true'
+        run: pip install -r telegram-film-relay/requirements.txt
+      - name: Find public channels without joining
+        if: steps.credentials.outputs.ready == 'true'
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_STRING_SESSION }}
+          PYTHONPATH: .
+        run: python -m film_relay.discovery
+      - name: Persist found links and inactive source registry
+        if: always() && steps.credentials.outputs.ready == 'true'
+        run: |
+          if ! git diff --quiet -- telegram-film-relay/state/discovered_channels.json telegram-film-relay/state/auto_sources.json; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add telegram-film-relay/state/discovered_channels.json telegram-film-relay/state/auto_sources.json
+            git commit -m 'state: public channel discovery [skip ci]'
+            git pull --rebase
+            git push
+          fi
