@@ -30,7 +30,7 @@ on:
       - 'tests/test_cinema_batch2.py'
       - '.github/workflows/cinema-telegram-batch2.yml'
   schedule:
-    - cron: '7 15 * * 1-5' # five editorial formats spread across weekdays
+    - cron: '19 13 * * *'  # 13:19 UTC / Lomé, chaque jour
 
 permissions:
   contents: write
@@ -94,6 +94,8 @@ jobs:
               3) SELECTED=pepites ;;
               4) SELECTED=acteur ;;
               5) SELECTED=sondage ;;
+              6) SELECTED=series ;;
+              7) SELECTED=notes ;;
               *) exit 0 ;;
             esac
             python scripts/cinema_batch2.py --mode production --format "$SELECTED"
