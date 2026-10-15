@@ -1,4 +1,5 @@
 name: Actu Foot - Revue complete 5 moteurs (canal TEST)
+# Le push de ce workflow force une revue réelle après les changements d'isolation du harness.
 on:
   push:
     branches: [main]
