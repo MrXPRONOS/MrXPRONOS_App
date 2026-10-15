@@ -16,6 +16,13 @@ class TestBsdV2ProductionWorkflowSafety(unittest.TestCase):
     def test_multisource_corroboration_is_enabled(self):
         self.assertIn("BSD_MULTISOURCE_CC0: '1'", self.text)
 
+    def test_serialized_production_checks_out_latest_main(self):
+        self.assertIn("ref: main", self.text)
+        checkout = self.text.index("uses: actions/checkout@v4")
+        latest = self.text.index("ref: main", checkout)
+        build = self.text.index("Build BSD V2 site feed and settle completed matches")
+        self.assertLess(latest, build)
+
     def test_concurrent_main_updates_are_rebased_and_retried(self):
         self.assertIn("for attempt in 1 2 3 4 5; do", self.text)
         self.assertIn("git pull --rebase origin main", self.text)
