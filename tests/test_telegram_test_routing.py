@@ -65,10 +65,11 @@ class TelegramTestRoutingTests(unittest.TestCase):
         text = self.read(".github/workflows/actu-foot-test-suite.yml")
         self.assertIn("workflow_dispatch:", text)
         self.assertNotIn("push:", text)
-        for mode in ("templates", "live", "visual", "viral", "all"):
+        for mode in ("templates", "live", "visual", "viral", "health", "all"):
             self.assertIn(mode, text)
         self.assertIn("--live-test", text)
         self.assertIn("--visual-test", text)
+        self.assertIn("actu_foot_health_report.py", text)
 
     def test_five_business_systems_e2e_has_no_overlapping_child_workflows(self):
         script=self.read("scripts/telegram_live_e2e.py")
