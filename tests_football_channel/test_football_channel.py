@@ -123,6 +123,26 @@ class FootballChannelTests(unittest.TestCase):
         )
         self.assertEqual({row["id"] for row in selected}, {"uefa", "caf"})
 
+    def test_ambiguous_champions_league_is_not_automatically_uefa(self):
+        row = event("local-champions")
+        row["home_team"]["name"] = "Dalian Juxing Shengheng"
+        row["away_team"]["name"] = "Wuhan Lianzhen"
+        row["league_name"] = "Chinese Football Champions League"
+
+        self.assertNotEqual(m.live_competition_key(row), "uefa-champions-league")
+        self.assertEqual(m.live_competition_weight(row), 0)
+        self.assertFalse(m.popular_live_match(row))
+
+    def test_foreign_premier_league_does_not_inherit_english_prestige(self):
+        row = event("libya")
+        row["home_team"]["name"] = "Al Ahly Benghazi"
+        row["away_team"]["name"] = "Al-Tahaddi"
+        row["league_name"] = "Libyan Premier League"
+
+        self.assertNotEqual(m.live_competition_key(row), "premier-league")
+        self.assertEqual(m.live_competition_weight(row), 0)
+        self.assertFalse(m.popular_live_match(row))
+
     def test_live_ranking_has_global_cap_and_togo_priority(self):
         def fixture(ident, home, away, competition):
             row = event(ident)
