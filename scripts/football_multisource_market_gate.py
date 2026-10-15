@@ -6,6 +6,7 @@ Only aggregate counts ever returned: no fixture IDs, club names or prices.
 """
 from __future__ import annotations
 from collections import Counter
+from copy import deepcopy
 from datetime import datetime,timedelta,timezone
 from pathlib import Path
 import sys
@@ -22,7 +23,7 @@ from bsd_v2_policies import fit_policy
 from bsd_v2_estimated_odds import price_selected_market,ESTIMATED_SOURCE
 from bsd_v2_guardrails import (v21_accept_priced,post_price_value_guard,
     tracker_penalties,update_performance_tracker)
-from bsd_v2_publish import EXCLUDED_SELECTIONS
+from bsd_v2_publish import EXCLUDED_SELECTIONS,assemble as native_production_assemble
 
 MAX_QUOTE_AGE_SECONDS=2*3600
 
@@ -85,6 +86,8 @@ def verify_selected_markets(
     selection_penalties,family_penalties=tracker_penalties(tracker)
     league_performance=tracker.get("by_league_market",{})
     counts=Counter()
+    publisher_fixtures=[]
+    quote_by_native={}
     for fixture,native,quotes in pair_quotes:
         # Do NOT use the synthetic ID for odds calls; quotes were obtained using
         # the independently verified real BSD event in the trusted caller.
@@ -96,6 +99,23 @@ def verify_selected_markets(
             counts["insufficient_historical_identity_or_form"]+=1
             continue
         event=adapted[0]
+        # Do not pass synthetic research IDs to the production assembler.
+        # Native ID is witnessed by the trusted in-process strict crosswalk.
+        genuine_id=native.get("id")
+        if type(genuine_id) is not int or not 0<genuine_id<7_000_000_000_000_000:
+            raise ValueError("Invalid official native BSD ID in strict witness")
+        official_time=aware_time(native.get("event_date"))
+        research_time=aware_time(event.get("event_date"))
+        if (official_time is None or research_time is None or official_time<=at
+            or abs((official_time-research_time).total_seconds())>900):
+            raise ValueError("Official BSD/research kickoff mismatch")
+        event_for_publisher={**event,"id":genuine_id,
+                             "event_date":official_time.isoformat(),
+                             "_native_bsd_id_verified_in_process":True}
+        if genuine_id in quote_by_native:
+            raise ValueError("Duplicate official BSD event in trusted set")
+        publisher_fixtures.append(event_for_publisher)
+        quote_by_native[genuine_id]=quotes
         prediction,reason=predict_v2(
             event,index,calibration=calibration,quality_policy=policy,rho=rho,
             btts_model=btts,total_model=totals,dc_model=dc,
@@ -126,7 +146,51 @@ def verify_selected_markets(
                 counts["value_guard_reason:"+str(guard.get("reason"))]+=1
             else:
                 counts["price_below_120"]+=1
+    # The SAME real BSD production assembler is exercised on the exact
+    # witnessed native IDs, with its full calibrated selection, V2.1 rules,
+    # duplicate accounting and actual saved tracker. The fetcher is a local
+    # immutable quote snapshot; it cannot make HTTP calls or post Telegram.
+    previous=deepcopy(production_feed)
+    snapshot=deepcopy(production_feed)
+    fixture_ids={x["id"] for x in publisher_fixtures}
+    called=set()
+    def frozen_quote_fetcher(selected_event,capture_clock):
+        event_id=selected_event.get("id")
+        if event_id not in fixture_ids or event_id in called:
+            raise AssertionError("Unexpected or duplicate production odds request")
+        called.add(event_id)
+        return deepcopy(quote_by_native[event_id]),{"source":"in_process_consensus_snapshot"}
+    dry=native_production_assemble(
+        snapshot,publisher_fixtures,available,now=at,
+        calibration=calibration,policy=policy,rho=rho,
+        odds_fetcher=frozen_quote_fetcher,max_odds_requests=len(publisher_fixtures),
+        btts_model=btts,total_model=totals,dc_model=dc)
+    if production_feed!=previous:
+        raise AssertionError("Read-only public production input was modified")
+    native_stats=dry.get("diagnostics",{}).get("rejections",{})
+    if not isinstance(native_stats,dict):
+        raise AssertionError("Native assembler missing diagnostic totals")
+    projected_created=int(native_stats.get("created",0))
+    if projected_created<0 or projected_created>len(publisher_fixtures):
+        raise AssertionError("Invalid native assembler new selection count")
+    window_count=sum(at<aware_time(x["event_date"])<=at+timedelta(days=2)
+                     for x in publisher_fixtures)
+    if projected_created>window_count:
+        raise AssertionError("Native assembler created a pick outside 48h window")
     return {
+        "native_full_assembler_canary":{
+            "executed":True,
+            "native_event_ids_verified_in_process":len(publisher_fixtures),
+            "events_within_native_48h_window":window_count,
+            "in_memory_quote_fetches":len(called),
+            "projected_new_rows_not_published":projected_created,
+            "existing_production_input_unchanged":True,
+            "odds_api_calls_from_assembler":0,
+            "site_or_telegram_publications":0,
+            "production_enabled":False,
+            "bookmaker_selection_codes_verified":0,
+            "no_event_names_ids_or_odds_exported":True,
+        },
         "real_market_selection_validation_executed":True,
         "fit_all_native_models_and_calibration":True,
         "sufficient_licensed_cc0_training_history":True,
