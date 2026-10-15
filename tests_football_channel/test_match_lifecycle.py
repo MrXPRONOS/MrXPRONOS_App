@@ -620,6 +620,37 @@ class MatchLifecycleTests(unittest.TestCase):
 
     @patch("football_match_lifecycle.fetch_espn_summary", return_value={})
     @patch("football_match_lifecycle.collect_external")
+    def test_lifecycle_applies_ranked_selection(self, collect_external, _summary):
+        def live_row(ident, home, away):
+            return {
+                "source": "espn",
+                "id": ident,
+                "provider_event_id": ident,
+                "home_team": home,
+                "away_team": away,
+                "home_score": 0,
+                "away_score": 0,
+                "minute": 4,
+                "state": "in",
+                "status_detail": "4'",
+                "event_date": (NOW - timedelta(minutes=4)).isoformat(),
+                "league": "UEFA Champions League",
+            }
+        collect_external.return_value = [
+            live_row("espn-a", "Real Madrid", "Liverpool"),
+            live_row("espn-b", "PSG", "Bayern"),
+            live_row("espn-c", "Feyenoord", "Como"),
+        ]
+        signals = m.lifecycle_signals(
+            [], set(), NOW, object(), lambda _: 100,
+            live_filter_fn=lambda _: True,
+            live_select_fn=lambda rows: rows[:2],
+        )
+        keys = {x["key"] for x in signals if x["kind"] == "kickoff"}
+        self.assertEqual(keys, {"kickoff:espn-a", "kickoff:espn-b"})
+
+    @patch("football_match_lifecycle.fetch_espn_summary", return_value={})
+    @patch("football_match_lifecycle.collect_external")
     def test_lifecycle_can_use_espn_without_bsd(self, collect_external, _summary):
         collect_external.return_value = [{
             "source": "espn",

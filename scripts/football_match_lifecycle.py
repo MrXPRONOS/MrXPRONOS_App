@@ -1541,6 +1541,7 @@ def lifecycle_signals(
     importance_fn,
     tracked_only: bool = False,
     live_filter_fn=None,
+    live_select_fn=None,
 ) -> list[dict]:
     """Construit les transitions publiables, triées par urgence éditoriale."""
     today = now.astimezone(timezone.utc).date()
@@ -1560,6 +1561,14 @@ def lifecycle_signals(
                 continue
             merged_base.append(item)
         base_events = merged_base
+    if live_select_fn is not None:
+        base_events = list(live_select_fn(base_events))
+        selected_matches: list[dict] = []
+        for base in base_events:
+            ext = best_external_match(base, external)
+            if ext is not None:
+                selected_matches.append(ext)
+        external = selected_matches
     signals: list[dict] = []
     summary_cache: dict[str, dict] = {}
     detail_cache: dict[str, dict] = {}
