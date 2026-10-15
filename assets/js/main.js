@@ -2655,8 +2655,29 @@ function featuredNewsTitleHtml(title = "") {
 async function displayFootNews() {
   if (!DOM.footNewsContainer) return;
   try {
-    const resp = await fetch(`footnews.json?t=${Date.now()}`, { cache: "no-cache" });
-    const rssNews = resp.ok ? await resp.json() : [];
+    let rssNews = [];
+
+    // Source principale : snapshot public Supabase alimenté par Actu Foot.
+    // Le JSON Git reste uniquement un filet de secours si Supabase est indisponible.
+    if (supabaseAvailable && supabase) {
+      try {
+        const { data, error } = await supabase
+          .from("actu_foot_news_snapshot")
+          .select("payload,generated_at")
+          .eq("id", "latest")
+          .maybeSingle();
+        if (!error && Array.isArray(data?.payload) && data.payload.length) {
+          rssNews = data.payload;
+        }
+      } catch (snapshotError) {
+        console.warn("Snapshot Infos Foot Supabase indisponible:", snapshotError);
+      }
+    }
+
+    if (!rssNews.length) {
+      const resp = await fetch(`footnews.json?t=${Date.now()}`, { cache: "no-cache" });
+      rssNews = resp.ok ? await resp.json() : [];
+    }
 
     const manualInfos = Array.isArray(window.publishedInfos) ? window.publishedInfos : [];
     const merged = [
@@ -2669,7 +2690,11 @@ async function displayFootNews() {
         category: i.category || i.tag || null,
         manual: true,
       })),
-      ...(Array.isArray(rssNews) ? rssNews : []).map((n) => ({ ...n, manual: false })),
+      ...(Array.isArray(rssNews) ? rssNews : []).map((n) => ({
+        ...n,
+        image: n.source_image || n.image || null,
+        manual: false,
+      })),
     ].sort((a, b) => new Date(b.published || 0) - new Date(a.published || 0));
 
     if (!merged.length) {
