@@ -109,3 +109,4 @@ class CinemaBatch2Tests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+# Smoke test: verify source posters and actor portrait in @predict_mrxp.
