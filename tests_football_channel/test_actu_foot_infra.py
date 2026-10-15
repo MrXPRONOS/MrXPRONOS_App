@@ -174,5 +174,16 @@ class ActuFootInfrastructureTests(unittest.TestCase):
         ]
         self.assertTrue(all(not path.exists() for path in removed))
 
+    def test_run_metrics_count_only_ranking_locked_followups(self):
+        channel = (ROOT / "scripts/football_channel.py").read_text(encoding="utf-8")
+        self.assertEqual(
+            channel.count("tracked_pending=len(followup.locked_pending(state.followed, now))"),
+            2,
+        )
+        self.assertNotIn(
+            "tracked_pending=len(followup.pending(state.followed, now))",
+            channel,
+        )
+
 if __name__ == "__main__":
     unittest.main()
