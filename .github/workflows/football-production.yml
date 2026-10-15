@@ -7,6 +7,9 @@ on:
     branches: [main]
     paths:
       - 'scripts/football_channel.py'
+      - 'scripts/football_followup.py'
+      - 'scripts/actu_foot_observability.py'
+      - 'scripts/actu_foot_source_cache.py'
       - 'scripts/football_news_engine.py'
       - 'scripts/football_match_lifecycle.py'
       - 'scripts/football_stats_engine.py'
