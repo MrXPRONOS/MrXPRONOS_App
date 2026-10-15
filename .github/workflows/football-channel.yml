@@ -68,8 +68,10 @@ permissions:
   contents: read
 
 concurrency:
-  group: mrxpronos-media-football
-  cancel-in-progress: false
+  # Une nouvelle validation rend les anciens commits de la même branche obsolètes.
+  # La production utilise un autre workflow et reste, elle, non annulable.
+  group: mrxpronos-media-football-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   editorial:
