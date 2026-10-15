@@ -80,6 +80,48 @@ class IdentityBridgeTests(unittest.TestCase):
         self.assertIsNotNone(key)
         self.assertEqual(prove([ext()],[event],at=NOW)["one_to_one_native_event_links"],1)
 
+    def test_current_utc_day_unstarted_match_is_eligible_for_strict_identity(self):
+        future="2026-10-14T18:05:00Z"
+        fixture=ext(start="2026-10-14T18:00:00Z")
+        match=native(start=future)
+        verified=prove([fixture],[match],at=NOW)
+        self.assertEqual(verified["one_to_one_native_event_links"],1)
+        started=prove(
+            [ext(start="2026-10-14T10:00:00Z")],
+            [native(start="2026-10-14T10:05:00Z")],at=NOW)
+        self.assertEqual(started["one_to_one_native_event_links"],0)
+
+    def test_historical_coupons_are_excluded_before_odds_queries(self):
+        class FakeBSD:
+            def __init__(self):
+                self.requests_made=0
+                self.seen=[]
+            def get_json(self,path,params,ttl=0):
+                self.requests_made+=1
+                self.seen.append(params["event_id"])
+                return {"count":0,"results":[]}
+        # More than 8 linked events: the first 8 are already published,
+        # while the newly discoverable event must receive the only quote call.
+        matches=[
+            native(ident=100+i,start=f"2026-10-15T{10+i:02d}:05:00Z")
+            for i in range(8)
+        ]
+        matches.append(native(ident=900,start="2026-10-15T20:05:00Z"))
+        client=FakeBSD()
+        history={str(100+i) for i in range(8)}
+        audit=audit_official_consensus_quotes(
+            client,matches,[x["id"] for x in matches],{},at=NOW,
+            historical_published_ids=history)
+        self.assertEqual(client.seen,[900])
+        self.assertEqual(audit["historically_published_native_links_excluded"],8)
+        self.assertEqual(audit["unpublished_native_links_available"],1)
+        self.assertEqual(audit["unpublished_native_links_in_48h_window"],1)
+        self.assertEqual(audit["actual_48h_publication_window_quote_attempts"],1)
+        self.assertEqual(audit["official_native_events_quoted_attempts"],1)
+        self.assertNotIn("900",str(audit))
+        for forbidden in ("100","101","102","103","104","105","106","107"):
+            self.assertNotIn(forbidden,str(audit))
+
     def test_verified_native_event_can_only_audit_real_fresh_consensus_market(self):
         class FakeBSD:
             requests_made=0
