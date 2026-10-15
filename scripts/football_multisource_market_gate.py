@@ -60,8 +60,8 @@ def verify_selected_markets(
         or not isinstance(production_feed.get("matches"),list)
         or not isinstance(production_feed.get("performance_tracker",{}),dict)):
         raise ValueError("Invalid trusted public production data/tracker")
-    if len(pair_quotes)>2:
-        raise ValueError("Two-event read-only probe cap")
+    if len(pair_quotes)>8:
+        raise ValueError("Eight-event read-only probe cap")
     archive,_=normalize_history(rows)
     available=[e for e in archive if
                (stamp:=aware_time(e.get("event_date"))) is not None and
