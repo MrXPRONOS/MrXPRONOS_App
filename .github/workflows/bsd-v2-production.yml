@@ -60,6 +60,7 @@ jobs:
           PINNWIRE_API_KEY: ${{ secrets.PINNWIRE_API_KEY }}
           ODDSLINK_API_KEY: ${{ secrets.ODDSLINK_API_KEY }}
           MOVIODDS_ENABLE: '1'
+          BSD_MULTISOURCE_CC0: '1'
         run: python bsd/bsd_v2_publish.py --max-requests 700 --max-odds-events 350
       - name: Archive first-seen published selections and audit quality
         run: python bsd/bsd_v2_audit.py --data data.json
@@ -71,6 +72,18 @@ jobs:
           data=json.load(open("data.json",encoding="utf-8"))
           assert data["source"]=="bsd" and data["model_version"]=="bsd-v2-isolated"
           assert isinstance(data["matches"],list)
+          ms=data.get("diagnostics",{}).get("multisource")
+          assert isinstance(ms,dict) and ms.get("enabled") is True, "CC0 production corroboration not executed"
+          assert ms.get("mode")=="corroborate_existing_bsd_picks"
+          assert ms.get("files_attempted")==8 and ms.get("files_ok",0)<=8
+          assert ms.get("never_adds_external_picks") is True
+          assert ms.get("changes_prediction_or_quoted_prices") is False
+          assert ms.get("changes_pub_policy_or_event_identity") is False
+          assert ms.get("no_telegram_messages_sent") is True
+          assert 0<=ms.get("calendar_confirmed",0)<=ms.get("future_bsd_rows",0)
+          print("BSD_MULTISOURCE_PRODUCTION_HEALTH",{
+              "files_ok":ms.get("files_ok"),"confirmed":ms.get("calendar_confirmed"),
+              "new_external_picks":0})
           assert all(m["source"]=="bsd" and m["prediction"]["selection_key"] for m in data["matches"])
           assert all(
               valid_standalone_prediction(m["prediction"], m.get("combo_only",False))
