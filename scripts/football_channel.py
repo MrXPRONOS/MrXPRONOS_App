@@ -2934,7 +2934,7 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             started_at=run_started_at,
             dry_run=dry_run,
             counter=counter,
-            tracked_pending=len(followup.pending(state.followed, now)),
+            tracked_pending=len(followup.locked_pending(state.followed, now)),
             ranking=dict(_LAST_LIVE_RANKING),
         )
 
@@ -3372,7 +3372,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
             started_at=run_started_at,
             dry_run=dry_run,
             counter=counter,
-            tracked_pending=len(followup.pending(state.followed, now)),
+            tracked_pending=len(followup.locked_pending(state.followed, now)),
             ranking=dict(_LAST_LIVE_RANKING),
         )
     print("XPRONOS_FOOTBALL", json.dumps(counter), "dry_run", dry_run)
