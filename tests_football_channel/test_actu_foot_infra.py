@@ -10,6 +10,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import actu_foot_observability as observability
 import actu_foot_source_cache as source_cache
+import actu_foot_provider_health as provider_health
 
 
 class _Response:
@@ -66,6 +67,36 @@ class ActuFootInfrastructureTests(unittest.TestCase):
         )
         self.assertEqual(session.get_calls, [])
         self.assertEqual(session.post_calls, [])
+
+    @patch.dict(os.environ, {}, clear=True)
+    def test_provider_quality_drops_on_failures_and_recovers_on_success(self):
+        quality = {"espn": {"overall": 98}}
+        state = provider_health.load_provider_health(_Session(), quality)
+
+        class Snapshot:
+            def __init__(self, rows, error=""):
+                self.rows = rows
+                self.error = error
+
+        session = _Session()
+        state = provider_health.record_provider_health(
+            session,
+            {"espn": Snapshot([], "timeout")},
+            quality,
+            state,
+        )
+        degraded = provider_health.effective_quality("espn", quality, state)
+        self.assertLess(degraded, 98)
+
+        state = provider_health.record_provider_health(
+            session,
+            {"espn": Snapshot([{"id": "1"}])},
+            quality,
+            state,
+        )
+        recovered = provider_health.effective_quality("espn", quality, state)
+        self.assertGreater(recovered, degraded)
+        self.assertLessEqual(recovered, 98)
 
     @patch.dict(os.environ, {
         "FOOTBALL_RUN_METRICS": "1",
