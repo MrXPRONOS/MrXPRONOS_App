@@ -138,6 +138,7 @@ jobs:
           assert report['new_qualified_prematch_selection_observed'] is False
           assert report['simulated_publication_attempts'] == 3
           assert report['simulated_transport_dispatches'] == 1
+          assert report['real_telegram_rich_formatter_exercised_with_fake_http'] is True
           assert report['duplicate_dispatches_suppressed'] == 2
           assert report['transaction_rollbacks_byte_identical'] == 2
           assert report['original_data_json_or_ledger_modified'] is False
