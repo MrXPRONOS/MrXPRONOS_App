@@ -1,0 +1,401 @@
+#!/usr/bin/env python3
+"""Read-only daily multi-provider fixture index for BSD V2 research.
+
+Uses *existing* ESPN, SportScore, TheSportsDB, OpenLigaDB adapters. BSD events
+may be read from a local snapshot but never fetched or published by this tool.
+No odds, no picks, no historical prediction accuracy is inferred from agreement.
+"""
+from __future__ import annotations
+
+import argparse
+from collections import Counter
+from datetime import date, datetime, timezone
+import json
+from pathlib import Path
+import re
+import sys
+from typing import Any
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from bsd.free_football_sources import collect_free_day
+from scripts.football_history_shadow import normalized, canonical_team
+from scripts.football_history_features import competition, features as build_history_features
+from scripts.football_match_source_router import route_all
+from scripts.football_public_domain_prematch import generate as public_domain_form
+from scripts.football_bsd_private_history import attach as bsd_private_form
+import hashlib
+
+ALLOWED = ("bsd", "api_football", "espn", "sportscore", "thesportsdb", "openligadb")
+ALLOWED_HOSTS = {
+    "site.api.espn.com", "sportscore.com",
+    "www.thesportsdb.com", "api.openligadb.de",
+}
+
+
+def kickoff(value: Any) -> datetime | None:
+    if not isinstance(value, str) or not value.strip():
+        return None
+    try:
+        when = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if when.tzinfo is None:
+        # Ambiguous local kickoff is not safe for cross-provider matching.
+        return None
+    return when.astimezone(timezone.utc)
+
+
+def team_name(value: Any) -> str:
+    if isinstance(value, dict):
+        return str(value.get("name") or value.get("displayName") or "")
+    return str(value or "")
+
+
+def league_name_value(value: Any) -> str:
+    """Name only when explicitly provided; never stringify metadata objects."""
+    if isinstance(value, str):
+        cleaned=value.strip()
+        # Some pre-existing source adapters stringify nested dictionaries.
+        if not cleaned or cleaned.startswith(("{","[","<")) or len(cleaned)>140:
+            return ""
+        return cleaned
+    if isinstance(value, dict):
+        for key in ("displayName","name","title","strLeague","league_name","label"):
+            found=league_name_value(value.get(key))
+            if found:
+                return found
+    return ""
+
+
+# Exact ESPN season names also used by the licensed/public-domain
+# history catalog. Unrecognized slugs NEVER imply a competition.
+ESPN_KNOWN_SEASON_SLUGS = {
+    "english-premier-league": "Premier League",
+    "english-championship": "Championship",
+    "english-league-one": "League One",
+    "english-league-two": "League Two",
+    "german-bundesliga": "Bundesliga",
+    "german-2-bundesliga": "2. Bundesliga",
+    "spanish-laliga": "La Liga",
+    "spanish-segunda-division": "Segunda Division",
+    "italian-serie-a": "Serie A",
+    "italian-serie-b": "Serie B",
+    "french-ligue-1": "Ligue 1",
+    "french-ligue-2": "Ligue 2",
+    "dutch-eredivisie": "Eredivisie",
+    "portuguese-primeira-liga": "Primeira Liga",
+    "belgian-pro-league": "Belgian Pro League",
+    "austrian-bundesliga": "Austrian Bundesliga",
+    "greek-super-league": "Greek Super League",
+    "turkish-super-lig": "Turkish Super Lig",
+    "scottish-premiership": "Scottish Premiership",
+}
+
+
+def espn_league_from_season(raw: dict) -> str:
+    season=raw.get("season")
+    if not isinstance(season,dict):
+        return ""
+    slug=season.get("slug")
+    if not isinstance(slug,str):
+        return ""
+    found=re.fullmatch(r"20[0-9]{2}-[0-9]{2}-(?:[a-z0-9]+-)*[a-z0-9]+",slug)
+    if not found:
+        return ""
+    suffix=re.sub(r"^20[0-9]{2}-[0-9]{2}-","",slug)
+    return ESPN_KNOWN_SEASON_SLUGS.get(suffix,"")
+
+
+def safe_league_name(row: dict, source: str) -> str:
+    direct=league_name_value(row.get("league")) or league_name_value(row.get("league_name"))
+    if direct:
+        return direct
+    raw=row.get("raw") or {}
+    if not isinstance(raw,dict):
+        return ""
+    candidates = (raw.get("competition"),raw.get("league"))
+    if source=="espn":
+        comps=raw.get("competitions") or []
+        if isinstance(comps,list) and comps and isinstance(comps[0],dict):
+            candidates += (comps[0].get("league"),)
+        candidates += (espn_league_from_season(raw),)
+    elif source=="thesportsdb":
+        candidates += (raw.get("strLeague"),)
+    elif source=="sportscore":
+        candidates += (raw.get("tournament"),raw.get("league_name"))
+    for candidate in candidates:
+        name=league_name_value(candidate)
+        if name:
+            return name
+    return ""
+
+
+def clean_row(row: dict, source: str) -> dict | None:
+    home = team_name(row.get("home_team"))
+    away = team_name(row.get("away_team"))
+    dt = kickoff(row.get("event_date") or row.get("date") or row.get("start_time"))
+    if not dt or not normalized(home) or not normalized(away) or normalized(home) == normalized(away):
+        return None
+    return {
+        "source": source,
+        "source_id": str(row.get("provider_event_id") or row.get("id") or ""),
+        "home": home,
+        "away": away,
+        "kickoff_utc": dt.isoformat(),
+        "league": safe_league_name(row,source),
+        "state": str(row.get("state") or row.get("status") or ""),
+        "home_score": row.get("home_score") if type(row.get("home_score")) is int else None,
+        "away_score": row.get("away_score") if type(row.get("away_score")) is int else None,
+    }
+
+
+
+def api_football_rows(payload: Any) -> list[dict]:
+    """Adapt a separately obtained API-Football /fixtures JSON response.
+
+    Do not perform any additional API-Football calls: LIVE workflow already has
+    its own strictly limited account quota and request schedule.
+    """
+    if isinstance(payload, dict):
+        payload = payload.get("response", [])
+    if not isinstance(payload, list):
+        return []
+    result = []
+    for value in payload:
+        if not isinstance(value, dict):
+            continue
+        fixture, teams, goals, league = (
+            value.get("fixture") or {}, value.get("teams") or {},
+            value.get("goals") or {}, value.get("league") or {},
+        )
+        if not isinstance(fixture, dict) or not isinstance(teams, dict):
+            continue
+        home, away = teams.get("home") or {}, teams.get("away") or {}
+        if not isinstance(home, dict) or not isinstance(away, dict):
+            continue
+        if not isinstance(goals, dict):
+            goals = {}
+        if not isinstance(league, dict):
+            league = {}
+        status = str((fixture.get("status") or {}).get("short") or "").upper()
+        state = "post" if status in ("FT", "AET", "PEN") else "pre" if status in ("NS", "TBD") else "in"
+        result.append({
+            "id": fixture.get("id"), "provider_event_id": fixture.get("id"),
+            "home_team": home.get("name"), "away_team": away.get("name"),
+            "event_date": fixture.get("date"), "state": state,
+            "home_score": goals.get("home"), "away_score": goals.get("away"),
+            "league": league.get("name") or "",
+        })
+    return result
+
+
+def compatible(a: dict, b: dict, minutes: int = 90) -> bool:
+    if canonical_team(a["home"]) != canonical_team(b["home"]) or canonical_team(a["away"]) != canonical_team(b["away"]):
+        return False
+    # Same named teams playing separate competitions is not a confirmed match.
+    al, bl = competition(a["league"]), competition(b["league"])
+    if al and bl and al != bl:
+        return False
+    da, db = kickoff(a["kickoff_utc"]), kickoff(b["kickoff_utc"])
+    return da is not None and db is not None and abs((da - db).total_seconds()) <= minutes * 60
+
+
+def merge(snapshots: dict[str, Any], *, bsd_events: list | None = None) -> tuple[list[dict], dict]:
+    # Canonical normalized names and UTC kickoff window; no unreviewed fuzzy match.
+    rows = []
+    health = {}
+    for provider in ALLOWED:
+        if provider == "bsd":
+            provider_rows = bsd_events or []
+            error = ""
+        else:
+            snap = snapshots.get(provider)
+            provider_rows = (snap.rows if hasattr(snap, "rows") else snap.get("rows", [])) if snap is not None else []
+            error = (snap.error if hasattr(snap, "error") else snap.get("error", "")) if snap is not None else "not queried"
+        valid = [x for x in (clean_row(row, provider) for row in provider_rows) if x]
+        health[provider] = {
+            "reported": len(provider_rows), "valid": len(valid),
+            "rejected": len(provider_rows) - len(valid), "error": str(error)[:160],
+        }
+        # Same provider must not be treated as multiple independent sources.
+        unique = {}
+        for row in valid:
+            key = (row["source_id"], row["kickoff_utc"], normalized(row["home"]), normalized(row["away"]))
+            unique[key] = row
+        rows += list(unique.values())
+    # Quality order affects canonical display only, never predicted win probabilities.
+    priority = {name: index for index, name in enumerate(ALLOWED)}
+    rows.sort(key=lambda r: (priority[r["source"]], r["kickoff_utc"], r["home"], r["away"]))
+    groups: list[dict] = []
+    ambiguities = []
+    for row in rows:
+        candidates = [g for g in groups if row["source"] not in g["providers"] and compatible(g["anchor"], row)]
+        if len(candidates) != 1:
+            if len(candidates) > 1:
+                ambiguities.append({"source": row["source"], "source_id": row["source_id"], "candidate_ids": [g["anchor"]["source_id"] for g in candidates]})
+                for item in candidates:
+                    item["ambiguous"] = True
+            groups.append({"anchor": row, "providers": {row["source"]: row}, "ambiguous": len(candidates) > 1})
+        else:
+            candidates[0]["providers"][row["source"]] = row
+    fixtures = []
+    for group in groups:
+        providers = group["providers"]
+        anchor = group["anchor"]
+        final_scores = {(r["home_score"], r["away_score"]) for r in providers.values() if r["state"].lower() in ("post", "finished", "ft", "completed") and r["home_score"] is not None and r["away_score"] is not None}
+        scores_conflict = len(final_scores) > 1
+        leagues = sorted({r["league"] for r in providers.values() if r["league"]})
+        league_keys = {competition(v) for v in leagues}
+        fixture_key = hashlib.sha256((anchor["kickoff_utc"] + "|" + canonical_team(anchor["home"]) + "|" + canonical_team(anchor["away"])).encode("utf-8")).hexdigest()[:24]
+        fixtures.append({
+            "fixture_key": fixture_key,
+            "discovered_by": anchor["source"],
+            "home_team": anchor["home"], "away_team": anchor["away"],
+            "kickoff_utc": anchor["kickoff_utc"], "league_labels": leagues,
+            "sources": {provider: {"id": item["source_id"], "kickoff_utc": item["kickoff_utc"], "state": item["state"]} for provider, item in sorted(providers.items())},
+            "source_count": len(providers), "scores_conflict": scores_conflict,
+            "league_conflict": len(league_keys) > 1,
+            "league_verified": len(league_keys) == 1,
+            "ambiguous_match": group["ambiguous"],
+            "eligible_for_model": False,  # feature compatibility / out-of-sample test needed
+            "matched_with_bsd": "bsd" in providers,
+            "status": "prematch" if all(r["state"].lower() in ("pre", "notstarted", "upcoming", "ns", "") for r in providers.values()) else "not_prematch",
+        })
+    fixtures.sort(key=lambda row: (row["kickoff_utc"], row["home_team"], row["away_team"]))
+    stats = {
+        "total_unique_fixtures": len(fixtures),
+        "providers": health,
+        "corroborated_by_two_or_more": sum(f["source_count"] >= 2 for f in fixtures),
+        "bsd_matches_corrobated": sum(f["matched_with_bsd"] and f["source_count"] >= 2 for f in fixtures),
+        "score_conflicts": sum(f["scores_conflict"] for f in fixtures),
+        "league_conflicts": sum(f["league_conflict"] for f in fixtures),
+        "unverified_leagues": sum(not f["league_verified"] for f in fixtures),
+        "ambiguous_joins": len(ambiguities),
+        "ambiguities": ambiguities[:50],
+        "model_input_enabled": False, "telegram_posts": 0,
+    }
+    return fixtures, stats
+
+
+class BudgetSession:
+    """Share a single capped requests session; reject unknown hosts and redirects."""
+    def __init__(self, max_requests: int = 12):
+        import requests
+        self.session = requests.Session()
+        self.limit = max_requests
+        self.calls = Counter()
+        self.total = 0
+
+    def get(self, url: str, **kwargs):
+        from urllib.parse import urlparse
+        host = urlparse(url).hostname or ""
+        if urlparse(url).scheme != "https" or host not in ALLOWED_HOSTS:
+            raise ValueError("Provider outside allowlist")
+        if self.total >= self.limit:
+            raise RuntimeError("HTTP request budget reached")
+        self.calls[host] += 1
+        self.total += 1
+        kwargs["allow_redirects"] = False
+        return self.session.get(url, **kwargs)
+
+
+def main() -> None:
+    p = argparse.ArgumentParser()
+    p.add_argument("--day", default=date.today().isoformat())
+    p.add_argument("--snapshots", help="Offline fixture snapshots JSON keyed by provider; no network")
+    p.add_argument("--bsd-fixtures", help="Optional private BSD local list JSON, never uploaded")
+    p.add_argument("--api-football-fixtures", help="Offline JSON /fixtures response; no new API calls")
+    p.add_argument("--prematch-stats", help="Validated per-provider historical statistics; JSON by provider and fixture ID")
+    p.add_argument("--route-out", help="Optional research-only per-match chosen providers JSON")
+    p.add_argument("--public-domain-history-jsonl", help="Licensed OpenFootball raw JSONL; single-source form only")
+    p.add_argument("--bsd-private-history-json", help="Local decrypted private BSD match list; never upload this file")
+    p.add_argument("--authorize-bsd-private-internal-use", action="store_true", help="Explicitly authorize local-only research use of private BSD history")
+    p.add_argument("--analysis-at", help="Offline historical replay ISO timestamp; requires --snapshots")
+    p.add_argument("--verified-history", help="History-shadow JSON with independently agreed final scores")
+    p.add_argument("--historical-feature-out", help="Optional separate research-only features JSON")
+    p.add_argument("--max-http", type=int, default=12)
+    p.add_argument("--out", required=True, help="Research-only output, not data.json")
+    p.add_argument("--report", required=True)
+    args = p.parse_args()
+    day = date.fromisoformat(args.day)
+    bsd_events = json.loads(Path(args.bsd_fixtures).read_text(encoding="utf-8")) if args.bsd_fixtures else None
+    if bsd_events is not None and not isinstance(bsd_events, list):
+        p.error("--bsd-fixtures must be a list")
+    if args.snapshots:
+        snapshots = json.loads(Path(args.snapshots).read_text(encoding="utf-8"))
+        calls = {}
+    else:
+        if not 1 <= args.max_http <= 24:
+            p.error("--max-http must be 1..24")
+        session = BudgetSession(args.max_http)
+        snapshots = collect_free_day(session, day, include_espn=True)
+        calls = dict(session.calls)
+    if args.api_football_fixtures:
+        payload = json.loads(Path(args.api_football_fixtures).read_text(encoding="utf-8"))
+        snapshots["api_football"] = {"rows": api_football_rows(payload), "error": ""}
+    fixtures, report = merge(snapshots, bsd_events=bsd_events)
+    if args.analysis_at and not args.snapshots:
+        p.error("--analysis-at is for offline snapshots, not live HTTP requests")
+    analysis_at = kickoff(args.analysis_at) if args.analysis_at else datetime.now(timezone.utc)
+    if analysis_at is None:
+        p.error("--analysis-at must have an explicit timezone")
+    statistics = json.loads(Path(args.prematch_stats).read_text(encoding="utf-8")) if args.prematch_stats else {}
+    if not isinstance(statistics, dict):
+        p.error("--prematch-stats must be an object keyed by provider")
+    if args.public_domain_history_jsonl:
+        raw = [json.loads(line) for line in Path(args.public_domain_history_jsonl).read_text(encoding="utf-8").splitlines() if line.strip()]
+        fixtures, lawful_stats, public_quality = public_domain_form(fixtures, raw, as_of=analysis_at)
+        if "openfootball" in statistics:
+            p.error("OpenFootball source collision: do not combine unchecked external stats")
+        statistics.update(lawful_stats)
+        report["public_domain_history"] = public_quality
+    if args.authorize_bsd_private_internal_use and not args.bsd_private_history_json:
+        p.error("--authorize-bsd-private-internal-use requires --bsd-private-history-json")
+    if args.bsd_private_history_json:
+        if not args.authorize_bsd_private_internal_use:
+            p.error("BSD private history cannot be read without --authorize-bsd-private-internal-use")
+        private_history = json.loads(Path(args.bsd_private_history_json).read_text(encoding="utf-8"))
+        if not isinstance(private_history, list):
+            p.error("BSD private history must be a local JSON list of matches")
+        fixtures, bsd_stats, private_quality = bsd_private_form(
+            fixtures, private_history, bsd_events, as_of=analysis_at, explicitly_authorized=True)
+        for provider, values in bsd_stats.items():
+            if values and statistics.get(provider):
+                p.error("Overlapping private BSD provider statistics source: " + provider)
+            if values:
+                statistics[provider] = values
+        report["bsd_private_archive_coverage"] = private_quality
+    routed, readiness = route_all(fixtures, statistics, analysis_at=analysis_at)
+    report["prematch_readiness"] = readiness
+    if args.verified_history:
+        history = json.loads(Path(args.verified_history).read_text(encoding="utf-8"))
+        if not isinstance(history, list):
+            p.error("--verified-history must be a list of research records")
+        historic_features, historic_coverage = build_history_features(fixtures, history)
+        report["historical_feature_coverage"] = historic_coverage
+        if args.historical_feature_out:
+            target = Path(args.historical_feature_out)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(json.dumps(historic_features, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    elif args.historical_feature_out:
+        p.error("--historical-feature-out needs --verified-history")
+    if args.route_out:
+        out = Path(args.route_out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(routed, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        if args.bsd_private_history_json:
+            out.chmod(0o600)
+    report.update({"day": day.isoformat(), "http_requests": calls, "total_http_requests": sum(calls.values())})
+    for path, data in ((args.out, fixtures), (args.report, report)):
+        output = Path(path)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        if args.bsd_private_history_json:
+            output.chmod(0o600)
+    print(json.dumps({k: v for k, v in report.items() if k != "ambiguities"}, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()
