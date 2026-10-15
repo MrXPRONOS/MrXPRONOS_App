@@ -277,6 +277,7 @@ def main():
     parser.add_argument("--licensed-history",help="Licensed CC0 finished results only; for exact selected-market proof")
     parser.add_argument("--existing-feed",help="Read-only public BSD production tracker JSON")
     parser.add_argument("--report",required=True)
+    parser.add_argument("--accepted-output",help="Private process-local qualified rows; never upload as artifact")
     parser.add_argument("--days",type=int,default=2)
     parser.add_argument("--start-offset",type=int,default=2)
     args=parser.parse_args()
@@ -352,7 +353,22 @@ def main():
                 raise AssertionError("Quote event not in unique native matching set")
             ext_row,native_row=by_id[ident]
             paired.append((ext_row,native_row,quotes))
-        market_proof=verify_selected_markets(history,paired,feed,at=clock)
+        accepted_rows=[]
+        market_proof=verify_selected_markets(
+            history,paired,feed,at=clock,accepted_rows_sink=accepted_rows)
+        if args.accepted_output:
+            accepted_path=Path(args.accepted_output).resolve()
+            forbidden={(ROOT/"data.json").resolve(),(ROOT/"bsd"/"publication_ledger.json").resolve()}
+            if accepted_path in forbidden:
+                parser.error("Accepted candidate staging must not overwrite production files")
+            accepted_path.parent.mkdir(parents=True,exist_ok=True)
+            accepted_path.write_text(json.dumps(accepted_rows,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+            try:
+                accepted_path.chmod(0o600)
+            except OSError:
+                pass
+    else:
+        accepted_rows=[]
     result.update({
         "read_only_native_consensus_price_audit":pricing,
         "full_model_selected_market_consensus_audit":market_proof,
@@ -364,6 +380,7 @@ def main():
         "bsd_max_http_requests":MAX_BSD_REQUESTS,
         "calendar_files_verified":health["files_ok"],
         "independent_cc0_calendar_confirmed":coverage["schedule_matches_confirmed"],
+        "qualified_candidate_rows_staged":len(accepted_rows),
     })
     assert client.requests_made<=MAX_BSD_REQUESTS
     assert result["one_to_one_native_event_links"]<=coverage["schedule_matches_confirmed"]
