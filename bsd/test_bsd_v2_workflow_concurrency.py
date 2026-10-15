@@ -42,6 +42,16 @@ class TestBsdV2ProductionWorkflowSafety(unittest.TestCase):
         self.assertLess(full_gate, audit)
         self.assertLess(audit, commit)
 
+    def test_multisource_both_stages_require_append_only_ledger(self):
+        self.assertIn(
+            "--existing-feed=data.json --ledger=bsd/publication_ledger.json",self.text)
+        self.assertIn(
+            "--accepted=tmp/multisource-qualified-accepted.json --ledger=bsd/publication_ledger.json",
+            self.text)
+        self.assertLess(
+            self.text.index("Build and apply fully-qualified multisource candidates"),
+            self.text.index("Archive first-seen published selections and audit quality"))
+
     def test_full_gate_is_fail_closed_and_does_not_send_telegram(self):
         self.assertIn("--accepted-output=tmp/multisource-qualified-accepted.json", self.text)
         self.assertIn("football_multisource_apply_qualified.py", self.text)
