@@ -1595,6 +1595,69 @@ def deliver_with_outbox(
     return {"sent": True, "skipped": False, "error": False, "message_id": identifier, "claim": claim}
 
 
+def _canonical_signal_from_publication(item: Publication) -> dict[str, Any] | None:
+    """Reconstruit le minimum canonique nécessaire pour rejouer une outbox ancienne."""
+    if not isinstance(item.card, dict):
+        return None
+    card = item.card
+    event_key = plain(card.get("canonical_event_key") or item.key, 220)
+    home = plain(card.get("home"), 80)
+    away = plain(card.get("away"), 80)
+    if not event_key or not home or not away:
+        return None
+    score = plain(card.get("score"), 30)
+    if not score:
+        scores = card.get("scores")
+        if isinstance(scores, (list, tuple)) and len(scores) == 2:
+            score = f"{scores[0]}-{scores[1]}"
+    kind = {
+        "resultat": "resultat_final",
+        "composition": "composition",
+        "changement_composition": "changement_composition",
+    }.get(item.category, item.category)
+    return {
+        "key": event_key,
+        "fixture_key": plain(card.get("fixture_key"), 180) or event_key,
+        "kind": kind,
+        "home": home,
+        "away": away,
+        "league": plain(card.get("league") or card.get("competition") or "Football", 120),
+        "score": score,
+        "minute": card.get("minute"),
+        "source": plain(card.get("source") or "outbox-replay", 60),
+        "event_date": card.get("event_date") or None,
+    }
+
+
+def ensure_canonical_publication(
+    session: requests.Session,
+    item: Publication,
+    *,
+    replay: bool,
+    strict: bool,
+) -> None:
+    """Confirme la timeline canonique et répare les anciens replays d'outbox."""
+    if not isinstance(item.card, dict):
+        return
+    event_key = plain(item.card.get("canonical_event_key"), 220)
+    if not event_key:
+        return
+    if not replay:
+        confirm_canonical_live_event(session, event_key, strict=strict)
+        return
+
+    if confirm_canonical_live_event(session, event_key, strict=False):
+        return
+    signal = _canonical_signal_from_publication(item)
+    if signal is None:
+        if strict:
+            raise RuntimeError("Replay canonique impossible: payload insuffisant " + event_key)
+        return
+    persist_canonical_live_events(session, [signal], strict=strict)
+    confirm_canonical_live_event(session, event_key, strict=strict)
+    print("CANONICAL_EVENT_REBUILT_FROM_OUTBOX", event_key)
+
+
 def drain_retryable_outbox(
     ledger: RemotePublicationLedger,
     publish_fn: Any,
@@ -2734,14 +2797,11 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             counter["skipped"] += 1
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
             return False
-        canonical_key = (
-            plain(item.card.get("canonical_event_key"), 220)
-            if isinstance(item.card, dict) else ""
-        )
-        if canonical_key and not dry_run:
-            confirm_canonical_live_event(
+        if not dry_run:
+            ensure_canonical_publication(
                 sender.session,
-                canonical_key,
+                item,
+                replay=replay,
                 strict=(os.getenv("FOOTBALL_CANONICAL_EVENTS", "0") == "1"),
             )
         delivery = deliver_with_outbox(sender, ledger, item, now)
@@ -2986,14 +3046,11 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
             return False
 
-        canonical_key = (
-            plain(item.card.get("canonical_event_key"), 220)
-            if isinstance(item.card, dict) else ""
-        )
-        if canonical_key and not dry_run:
-            confirm_canonical_live_event(
+        if not dry_run:
+            ensure_canonical_publication(
                 sender.session,
-                canonical_key,
+                item,
+                replay=replay,
                 strict=(os.getenv("FOOTBALL_CANONICAL_EVENTS", "0") == "1"),
             )
         delivery = deliver_with_outbox(sender, ledger, item, now)
