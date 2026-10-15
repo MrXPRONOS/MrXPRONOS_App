@@ -208,6 +208,8 @@ def verify_selected_markets(
             "executed":True,
             "native_event_ids_verified_in_process":len(publisher_fixtures),
             "events_within_native_48h_window":window_count,
+            "actual_publication_window_exercised":window_count>0,
+            "empty_window_is_not_publication_path_validation":window_count==0,
             "in_memory_quote_fetches":len(called),
             "projected_new_rows_not_published":projected_created,
             "existing_production_input_unchanged":True,
