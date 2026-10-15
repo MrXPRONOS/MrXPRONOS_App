@@ -29,6 +29,7 @@ for p in (ROOT,ROOT/"bsd"):
 from bsd_v2_estimated_odds import valid_standalone_prediction
 from scripts.football_match_source_router import aware_time
 from scripts.football_multisource_market_gate import _official_row_event_id
+from bsd_v2_publish import historical_publication_ids
 
 REQUIRED_PROOF=(
     "schedule_corroborated",
@@ -50,6 +51,8 @@ def _validate_qualified_row(row, *, now):
     ident=_official_row_event_id(row)
     if ident is None:
         raise ValueError("Qualified candidate lacks official BSD event ID")
+    if row.get("id")!=f"bsd:{ident}" or str(row.get("source_event_id"))!=str(ident):
+        raise ValueError("Qualified candidate has conflicting BSD identity fields")
     kickoff=aware_time(row.get("event_date"))
     if kickoff is None or not (now < kickoff <= now+timedelta(days=2)):
         raise ValueError("Qualified candidate is outside native 48h publication window")
@@ -78,7 +81,7 @@ def _validate_qualified_row(row, *, now):
     return ident
 
 
-def apply(feed, accepted, *, now):
+def apply(feed, accepted, *, now, publication_ledger):
     if now.tzinfo is None:
         raise ValueError("Timezone-aware now required")
     now=now.astimezone(timezone.utc)
@@ -86,6 +89,9 @@ def apply(feed, accepted, *, now):
         raise ValueError("Invalid BSD production feed")
     if not isinstance(accepted,list) or len(accepted)>8:
         raise ValueError("Qualified candidate staging must contain at most 8 rows")
+    # The public feed is a display window. A retired event may already be
+    # recorded in the append-only ledger despite being absent from data.json.
+    historical_ids=historical_publication_ids(publication_ledger,feed)
 
     existing={}
     for row in feed["matches"]:
@@ -95,6 +101,7 @@ def apply(feed, accepted, *, now):
                 raise ValueError("Existing BSD feed contains duplicate native event ID")
             existing[ident]=row
 
+    additions=[]
     added=[]
     duplicates=0
     staged_ids=set()
@@ -108,14 +115,18 @@ def apply(feed, accepted, *, now):
                 raise ValueError("Qualified candidate attempts to alter an existing published selection")
             duplicates+=1
             continue
+        if str(ident) in historical_ids:
+            raise ValueError("Qualified candidate would re-publish an event retired from the public feed")
         clone=deepcopy(candidate)
-        feed["matches"].append(clone)
+        additions.append(clone)
         existing[ident]=clone
         added.append(ident)
 
-    diagnostics=feed.setdefault("diagnostics",{})
+    # Validate every candidate before making ANY in-memory feed modification.
+    diagnostics=feed.get("diagnostics",{})
     if not isinstance(diagnostics,dict):
         raise ValueError("Malformed production diagnostics")
+    diagnostics=deepcopy(diagnostics)
     diagnostics["multisource_generation"]={
         "enabled":True,
         "mode":"qualified_external_candidates_through_native_bsd_v2",
@@ -130,6 +141,8 @@ def apply(feed, accepted, *, now):
         "thresholds_lowered":False,
         "telegram_sent_by_this_step":False,
     }
+    feed["matches"].extend(additions)
+    feed["diagnostics"]=diagnostics
     return {"staged":len(accepted),"added":len(added),"duplicates":duplicates}
 
 
@@ -137,15 +150,17 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument("--feed",required=True)
     p.add_argument("--accepted",required=True)
+    p.add_argument("--ledger",required=True,help="Immutable BSD publication ledger")
     p.add_argument("--now")
     a=p.parse_args()
     path=Path(a.feed)
     feed=json.loads(path.read_text(encoding="utf-8"))
     accepted=json.loads(Path(a.accepted).read_text(encoding="utf-8"))
+    ledger=json.loads(Path(a.ledger).read_text(encoding="utf-8"))
     now=aware_time(a.now) if a.now else datetime.now(timezone.utc)
     if now is None:
         p.error("Invalid --now")
-    report=apply(feed,accepted,now=now)
+    report=apply(feed,accepted,now=now,publication_ledger=ledger)
     temp=path.with_name(path.name+".multisource-staged")
     temp.write_text(json.dumps(feed,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
     os.replace(temp,path)
