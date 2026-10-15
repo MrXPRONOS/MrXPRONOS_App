@@ -243,8 +243,45 @@ def update_settlement(row,event):
     return row
 
 
+def historical_publication_ids(ledger, feed):
+    """Immutable first-observed ledger is authoritative even if feed omits a pick.
+
+    A previously exposed event must NEVER be selected as a new coupon after
+    retirement, a restarted job, or changes in model ranking.
+    """
+    if not isinstance(ledger,dict) or ledger.get("schema")!="bsd-v2-publication-ledger-1":
+        raise ValueError("Invalid append-only BSD publication history")
+    entries=ledger.get("entries")
+    if not isinstance(entries,list):
+        raise ValueError("Malformed append-only ledger entries")
+    original={}
+    previously=set()
+    for entry in entries:
+        if not isinstance(entry,dict) or not isinstance(entry.get("key"),str):
+            raise ValueError("Malformed previously published fixture identity")
+        event_id=str(entry.get("source_event_id") or entry["key"].split("|",1)[0])
+        selection=(entry.get("original_pick") or {}).get("selection_key")
+        if not event_id.isdecimal() or not selection:
+            raise ValueError("Previous published event or market absent")
+        previously.add(event_id)
+        original[entry["key"]]=str(selection)
+    for row in (feed.get("matches") or []) if isinstance(feed,dict) else []:
+        if not isinstance(row,dict) or row.get("source")!="bsd":
+            continue
+        if not row.get("prediction",{}).get("selection_key"):
+            continue
+        dt=_utc(row["event_date"]).isoformat()
+        eid=str(row.get("source_event_id") or str(row.get("id","")).removeprefix("bsd:"))
+        identity=eid+"|"+dt
+        first=original.get(identity)
+        if first is not None and first!=str(row["prediction"]["selection_key"]):
+            raise ValueError("Current feed diverges from immutable published selection")
+    return previously
+
+
 def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
-             odds_fetcher=None, max_odds_requests=25, btts_model=None, total_model=None, dc_model=None):
+             odds_fetcher=None, max_odds_requests=25, btts_model=None, total_model=None, dc_model=None,
+             historical_published_ids=None):
     saved=eligible_previous(existing,now)
     # Ne pas perdre les pronostics déjà publiés : une sélection future reste
     # immuable pendant les exécutions quotidiennes (site ET Telegram).
@@ -326,6 +363,11 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
     # Tous les événements déjà exposés restent connus, y compris ceux retirés :
     # ne jamais substituer un autre marché après publication initiale.
     known=set(saved)
+    if historical_published_ids:
+        for old_id in historical_published_ids:
+            if not isinstance(old_id,(str,int)) or not str(old_id).isdecimal():
+                raise ValueError("Invalid historical immutable event ID")
+            known.add(str(old_id))
     new_picks=0
     # Limit counts existing future publications for each fixture DATE,
     # not merely the current GitHub Actions run.
@@ -569,9 +611,14 @@ def main():
     odds_router = OddsRouter(bsd_odds_fetcher)
     def odds_fetcher(event, captured):
         return odds_router.fetch(event, captured, market_code=event.get("_odds_target_market"))
+    prior_ledger_file=Path(args.output).parent/"bsd"/"publication_ledger.json"
+    historical_ids=historical_publication_ids(
+        _read_json(prior_ledger_file,{}),existing) if prior_ledger_file.exists() else set()
     output=assemble(existing,fixtures,historic,now=now,calibration=cal,policy=policy,
                     rho=rho,odds_fetcher=odds_fetcher,max_odds_requests=args.max_odds_events,
-                    btts_model=btts_model,total_model=total_model,dc_model=dc_model)
+                    btts_model=btts_model,total_model=total_model,dc_model=dc_model,
+                    historical_published_ids=historical_ids)
+    output["diagnostics"]["immutable_previous_events_excluded"]=len(historical_ids)
     leagues_resolved=resolve_league_names(client,fixtures,output,existing)
     output["diagnostics"]["leagues_resolved"]=leagues_resolved
     output["diagnostics"]["odds_fallback"]={"requests": odds_router.usage,"events":odds_router.events[-60:]}
