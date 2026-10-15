@@ -50,8 +50,58 @@ class FootballChannelTests(unittest.TestCase):
         self.assertTrue(m.popular_live_match(fixture("Togo", "Benin", "Friendly")))
         self.assertTrue(m.popular_live_match(fixture("Senegal", "Benin", "Africa Cup of Nations AFCON")))
         self.assertFalse(m.popular_live_match(fixture("Bournemouth", "Fulham", "Premier League")))
-        self.assertFalse(m.popular_live_match(fixture("Feyenoord", "Como", "UEFA Champions League")))
+        self.assertTrue(m.popular_live_match(fixture("Feyenoord", "Como", "UEFA Champions League")))
         self.assertFalse(m.popular_live_match(fixture("Arsenal U19", "Chelsea U19", "UEFA Youth League")))
+
+    def test_live_ranking_keeps_top_two_per_competition(self):
+        def fixture(ident, home, away, competition):
+            row = event(ident)
+            row["home_team"]["name"] = home
+            row["away_team"]["name"] = away
+            row["league_name"] = competition
+            return row
+
+        matches = [
+            fixture("ucl-1", "Real Madrid", "Liverpool", "UEFA Champions League"),
+            fixture("ucl-2", "PSG", "Bayern", "UEFA Champions League"),
+            fixture("ucl-3", "Feyenoord", "Como", "UEFA Champions League"),
+            fixture("uel-1", "Manchester United", "Porto", "UEFA Europa League"),
+            fixture("uel-2", "Ajax", "Benfica", "UEFA Europa League"),
+            fixture("epl-1", "Bournemouth", "Fulham", "Premier League"),
+        ]
+        selected = m.select_popular_live_matches(
+            matches, max_per_competition=2, max_total=6
+        )
+        ids = {row["id"] for row in selected}
+        self.assertIn("ucl-1", ids)
+        self.assertIn("ucl-2", ids)
+        self.assertNotIn("ucl-3", ids)
+        self.assertIn("uel-1", ids)
+        self.assertIn("uel-2", ids)
+        self.assertNotIn("epl-1", ids)
+        ucl = [row for row in selected if m.live_competition_key(row) == "uefa-champions-league"]
+        self.assertEqual(len(ucl), 2)
+
+    def test_live_ranking_has_global_cap_and_togo_priority(self):
+        def fixture(ident, home, away, competition):
+            row = event(ident)
+            row["home_team"]["name"] = home
+            row["away_team"]["name"] = away
+            row["league_name"] = competition
+            return row
+
+        matches = [
+            fixture("togo", "Togo", "Benin", "Friendly"),
+            fixture("ucl", "Real Madrid", "Liverpool", "UEFA Champions League"),
+            fixture("epl", "Arsenal", "Chelsea", "Premier League"),
+            fixture("liga", "Barcelona", "Atletico", "La Liga"),
+        ]
+        selected = m.select_popular_live_matches(
+            matches, max_per_competition=2, max_total=2
+        )
+        ids = {row["id"] for row in selected}
+        self.assertEqual(len(selected), 2)
+        self.assertIn("togo", ids)
 
     def test_flash_utilise_news_site_et_image_reelle(self):
         old_root = m.ROOT
