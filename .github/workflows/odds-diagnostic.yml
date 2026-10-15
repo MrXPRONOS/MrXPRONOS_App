@@ -1,0 +1,35 @@
+name: Odds Diagnostic (isolated)
+on:
+  push:
+    branches: [diagnostic/bookmaker-odds]
+    paths:
+      - "tools/odds_diagnostic/**"
+      - ".github/workflows/odds-diagnostic.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/odds_diagnostic/**"
+      - ".github/workflows/odds-diagnostic.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Static syntax check
+        run: python -m py_compile tools/odds_diagnostic/diagnostic.py
+      - name: Run unit tests
+        run: python -m unittest discover -s tools/odds_diagnostic -p 'test_*.py' -v
+      - name: Run offline diagnostic
+        run: python tools/odds_diagnostic/diagnostic.py
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: odds-diagnostic-report
+          path: odds_diagnostic_results/

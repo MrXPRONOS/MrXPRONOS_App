@@ -1,0 +1,39 @@
+name: Togo bookmaker compatibility probe
+on:
+  push:
+    branches: [diagnostic/bookmaker-odds]
+    paths:
+      - "tools/odds_diagnostic/togo_bookmaker_compatibility.py"
+      - ".github/workflows/togo-bookmaker-compatibility.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/odds_diagnostic/togo_bookmaker_compatibility.py"
+      - ".github/workflows/togo-bookmaker-compatibility.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install browser
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Check Togo availability and booking features
+        run: python tools/odds_diagnostic/togo_bookmaker_compatibility.py
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: togo-bookmaker-compatibility
+          path: |
+            odds_diagnostic_results/togo_bookmaker_compatibility.json
+            odds_diagnostic_results/*_togo_probe.png
+          if-no-files-found: warn

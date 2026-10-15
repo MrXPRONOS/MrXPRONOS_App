@@ -1,0 +1,34 @@
+name: 1win Togo genuine-location probe
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: [self-hosted, linux]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Python
+        run: python3 --version
+
+      - name: Install Playwright
+        run: |
+          python3 -m pip install --user playwright
+          python3 -m playwright install chromium
+
+      - name: Run 1win Togo local probe
+        run: python3 tools/odds_diagnostic/onewin_togo_local_probe.py
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: onewin-togo-genuine-location
+          path: |
+            odds_diagnostic_results/onewin_togo_local_probe.json
+            odds_diagnostic_results/onewin_togo_local_probe.png
+          if-no-files-found: warn
