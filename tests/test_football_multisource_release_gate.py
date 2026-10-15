@@ -98,7 +98,29 @@ class ReleaseGateTests(unittest.TestCase):
                 "production_market_policy_approved":False,
             }
         }
+        evidence["full_model_selected_market_consensus_audit"]={
+            "real_market_selection_validation_executed":True,
+            "fit_all_native_models_and_calibration":True,
+            "sufficient_licensed_cc0_training_history":True,
+            "production_tracker_supplied_readonly":True,
+            "match_selection_frozen_before_real_consensus_pricing":True,
+            "source_fixture_ids_or_raw_odds_exported":False,
+            "independent_bookmaker_offer_executable":False,
+            "bookmaker_selection_codes_verified":0,
+            "production_authorized":False,
+            "telegram_posts":0,
+            "aggregate":{
+                "events_examined":2,
+                "frozen_bsd_v2_model_market_candidates":2,
+                "frozen_markets_with_exact_fresh_bsd_consensus_quote":2,
+                "v21_or_value_guard_veto":2,
+            },
+        }
         decision=assess(*reports(),None,evidence)
+        self.assertTrue(decision["checks"]["actual_selected_market_consensus_pricing_replayed"])
+        self.assertTrue(decision["checks"]["actual_selected_market_with_consensus_quote_observed"])
+        self.assertEqual(decision["source_metrics"]["actual_v2_selected_markets_with_real_consensus_quote"],2)
+        self.assertEqual(decision["source_metrics"]["actual_v2_selected_markets_passing_v21_research"],0)
         self.assertTrue(decision["checks"]["independently_corroborated_native_event_links_observed"])
         self.assertTrue(decision["checks"]["fresh_bsd_consensus_market_prices_observed"])
         self.assertEqual(decision["source_metrics"]["authentic_bsd_event_links_from_private_validation"],21)
@@ -107,6 +129,14 @@ class ReleaseGateTests(unittest.TestCase):
         self.assertFalse(decision["production_publication_authorized"])
         invalid=copy.deepcopy(evidence)
         invalid["read_only_native_consensus_price_audit"]["independent_bookmaker_selection_codes_verified"]=2
+        with self.assertRaises(ValueError):
+            assess(*reports(),None,invalid)
+        invalid=copy.deepcopy(evidence)
+        invalid["full_model_selected_market_consensus_audit"]["aggregate"]["frozen_markets_with_exact_fresh_bsd_consensus_quote"]=3
+        with self.assertRaises(ValueError):
+            assess(*reports(),None,invalid)
+        invalid=copy.deepcopy(evidence)
+        invalid["full_model_selected_market_consensus_audit"]["production_authorized"]=True
         with self.assertRaises(ValueError):
             assess(*reports(),None,invalid)
         invalid=copy.deepcopy(evidence)
