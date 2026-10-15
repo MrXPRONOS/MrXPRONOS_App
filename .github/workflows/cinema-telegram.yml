@@ -1,0 +1,114 @@
+name: Cinéma Telegram - lot 1 (5 formats)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'test (canal test uniquement) ou production (protégée)'
+        required: true
+        default: test
+        type: choice
+        options: [test, production]
+      format:
+        description: 'Format à publier'
+        required: true
+        default: all
+        type: choice
+        options: [all, film, top5, sorties, soir, quiz]
+      demo:
+        description: 'Fiches fictives de démonstration (test uniquement)'
+        type: boolean
+        default: false
+      dry_run:
+        description: 'Aperçu sans envoi Telegram'
+        type: boolean
+        default: true
+  push:
+    branches: [feat/cinema-telegram-batch1]
+    paths:
+      - 'scripts/cinema_telegram.py'
+      - 'tests/test_cinema_telegram.py'
+      - '.github/workflows/cinema-telegram.yml'
+  schedule:
+    - cron: '17 9 * * *'
+    - cron: '19 13 * * *'
+    - cron: '23 17 * * *'
+    - cron: '27 20 * * *'
+    - cron: '41 18 * * *'
+
+permissions:
+  contents: write
+concurrency:
+  group: cinema-telegram-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: python -m pip install requests Pillow
+      - name: Unit tests (always)
+        run: python -m unittest discover -s tests -p 'test_cinema_telegram.py' -v
+      - name: Dry preview on feature push (no secrets, no sending)
+        if: github.event_name == 'push'
+        run: python scripts/cinema_telegram.py --mode test --format all --demo --dry-run
+      - name: Manual or scheduled publication
+        if: github.event_name != 'push'
+        env:
+          CINEMA_TELEGRAM_BOT_TOKEN: ${{ secrets.CINEMA_TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CINEMA_TEST_CHAT_ID: ${{ secrets.CINEMA_TEST_CHAT_ID }}
+          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID }}
+          TELEGRAM_CHAT_ID_TEST: ${{ secrets.TELEGRAM_CHAT_ID_TEST }}
+          CINEMA_PRODUCTION_CHAT_ID: ${{ secrets.CINEMA_PRODUCTION_CHAT_ID }}
+          CINEMA_PRODUCTION_ENABLED: ${{ vars.CINEMA_PRODUCTION_ENABLED }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_FORMAT: ${{ inputs.format }}
+          INPUT_DEMO: ${{ inputs.demo }}
+          INPUT_DRY: ${{ inputs.dry_run }}
+        shell: bash
+        run: |
+          if [[ "$EVENT_NAME" == "schedule" ]]; then
+            if [[ "$CINEMA_PRODUCTION_ENABLED" != "true" ]]; then
+              echo 'Production not enabled: schedule safely skipped'
+              exit 0
+            fi
+            case "$(date -u +%H)" in
+              09) SELECTED=film ;;
+              13) SELECTED=top5 ;;
+              17) SELECTED=sorties ;;
+              20) SELECTED=soir ;;
+              18) SELECTED=quiz ;;
+              *) echo 'No matching slot'; exit 0 ;;
+            esac
+            python scripts/cinema_telegram.py --mode production --format "$SELECTED"
+          else
+            ARGS=(--mode "$INPUT_MODE" --format "$INPUT_FORMAT")
+            [[ "$INPUT_DEMO" == "true" ]] && ARGS+=(--demo)
+            [[ "$INPUT_DRY" == "true" ]] && ARGS+=(--dry-run)
+            python scripts/cinema_telegram.py "${ARGS[@]}"
+          fi
+      - name: Persist deduplication history (only when actually published)
+        if: github.event_name != 'push' && success()
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add cinema/sent_test.json cinema/sent_production.json 2>/dev/null || true
+          if git diff --staged --quiet; then exit 0; fi
+          git commit -m 'cinema: update publication history [skip ci]'
+          git pull --rebase origin "${{ github.ref_name }}"
+          git push origin "HEAD:${{ github.ref_name }}"
