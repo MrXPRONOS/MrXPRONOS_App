@@ -2968,11 +2968,14 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
 
                 # Les événements LIVE utilisent le suivi technique, indépendant
                 # de la publication éventuelle d'un AVANT-MATCH.
-                tracked = followup.base_events(state.followed, now)
+                tracked_all = followup.base_events(state.followed, now)
+                tracked = select_popular_live_matches(tracked_all)
                 if counter["sent"] < max_send and tracked:
                     signals = lifecycle_signals(
                         tracked, set(state.items.keys()), now,
                         sender.session, importance, tracked_only=True,
+                        live_filter_fn=popular_live_match,
+                        live_select_fn=select_popular_live_matches,
                     )
                     signals = persist_canonical_live_events(
                         sender.session,
