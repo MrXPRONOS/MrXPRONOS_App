@@ -40,6 +40,7 @@ jobs:
           BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
         run: python bsd/bsd_v2_settlement_watchdog.py --data data.json --max-requests 120
       - name: Validate and commit settlement-only changes
+        id: settlement_commit
         run: |
           python - <<'PY'
           import json
@@ -59,4 +60,48 @@ jobs:
             git commit -m "data(bsd): refresh pending settlements"
             git pull --rebase origin main
             git push origin HEAD:main
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
           fi
+
+      # A GITHUB_TOKEN-generated commit to main does NOT automatically trigger
+      # the ordinary on:push Pages workflow. Stage only the three BSD public
+      # files here; never overwrite website assets, config or Telegram state.
+      - name: Prepare settlement-only GitHub Pages update
+        if: steps.settlement_commit.outputs.published == 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p .bsd-settlement-site-refresh/bsd
+          cp data.json .bsd-settlement-site-refresh/data.json
+          cp bsd/publication_ledger.json .bsd-settlement-site-refresh/bsd/publication_ledger.json
+          cp bsd/quality_report.json .bsd-settlement-site-refresh/bsd/quality_report.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          base=Path(".bsd-settlement-site-refresh")
+          public=json.loads((base/"data.json").read_text(encoding="utf-8"))
+          ledger=json.loads((base/"bsd/publication_ledger.json").read_text(encoding="utf-8"))
+          quality=json.loads((base/"bsd/quality_report.json").read_text(encoding="utf-8"))
+          assert public["source"]=="bsd" and public["model_version"]=="bsd-v2-isolated"
+          assert ledger["schema"]=="bsd-v2-publication-ledger-1"
+          assert len(ledger["entries"])>=len(public["matches"])
+          assert quality["unexplained_absences"]==0
+          expected={
+              "data.json",
+              "bsd/publication_ledger.json",
+              "bsd/quality_report.json",
+          }
+          files={x.relative_to(base).as_posix() for x in base.rglob("*") if x.is_file()}
+          assert files==expected, "Settlement Pages staging must contain only three BSD files"
+          print("BSD_SETTLEMENT_SITE_REFRESH_OK",{"files":len(files),"matches":len(public["matches"])})
+          PY
+
+      - name: Synchronize settlement-only data on GitHub Pages
+        if: steps.settlement_commit.outputs.published == 'true'
+        uses: peaceiris/actions-gh-pages@v4.1.0
+        with:
+          github_token: '${{ secrets.GITHUB_TOKEN }}'
+          publish_dir: ./.bsd-settlement-site-refresh
+          destination_dir: ./
+          keep_files: true
