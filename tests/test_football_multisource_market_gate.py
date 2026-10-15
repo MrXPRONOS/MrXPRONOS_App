@@ -1,6 +1,6 @@
 import unittest
 from datetime import datetime,timedelta,timezone
-from scripts.football_multisource_market_gate import selected_quote,verify_selected_markets,certified_native_shadow_fixture
+from scripts.football_multisource_market_gate import selected_quote,verify_selected_markets,certified_native_shadow_fixture,extract_new_verified_rows
 
 NOW=datetime(2026,10,15,12,tzinfo=timezone.utc)
 
@@ -85,6 +85,37 @@ class MarketWitnessTests(unittest.TestCase):
                     z["status"]="finished"
                 with self.assertRaises(ValueError):
                     certified_native_shadow_fixture(x,y,z,at=NOW)
+
+    def test_extracts_only_new_native_rows_with_real_prices(self):
+        accepted={
+            "id":"bsd:12345","source_event_id":12345,"source":"bsd",
+            "event_date":"2026-10-16T19:05:00+00:00","combo_only":False,
+            "prediction":{
+                "selection_key":"OVER_25","market":"over_under","odds":1.81,
+                "confidence":78.0,"odds_source":"bsd_consensus","estimated_odds":False,
+            },
+        }
+        dry={"source":"bsd","matches":[accepted]}
+        base={"source":"bsd","matches":[],"performance_tracker":{}}
+        rows=extract_new_verified_rows(dry,base,{12345})
+        self.assertEqual(len(rows),1)
+        self.assertTrue(rows[0]["multisource_verification"]["v21_and_value_guard_passed"])
+        self.assertTrue(rows[0]["multisource_verification"]["production_assembler_created_row"])
+        self.assertNotIn("multisource_verification",accepted)
+
+    def test_rejects_estimated_or_non_consensus_candidate_output(self):
+        row={
+            "id":"bsd:12345","source_event_id":12345,"source":"bsd",
+            "event_date":"2026-10-16T19:05:00+00:00","combo_only":False,
+            "prediction":{
+                "selection_key":"OVER_25","market":"over_under","odds":1.81,
+                "confidence":78.0,"odds_source":"mrxpronos_model","estimated_odds":True,
+            },
+        }
+        with self.assertRaises(AssertionError):
+            extract_new_verified_rows({"source":"bsd","matches":[row]},
+                                      {"source":"bsd","matches":[]},{12345})
+
 
     def test_untrusted_production_feed_or_more_than_eight_events_rejected(self):
         with self.assertRaises(ValueError):
