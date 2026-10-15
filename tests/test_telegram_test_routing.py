@@ -14,16 +14,13 @@ class TelegramTestRoutingTests(unittest.TestCase):
     def read(self,path):
         return (ROOT/path).read_text(encoding="utf-8")
 
-    def test_visual_test_workflows_never_reference_production_chat_id(self):
-        for path in (
-            ".github/workflows/football-live-test-once.yml",
-            ".github/workflows/football-visual-live-test-once.yml",
-            ".github/workflows/football-premium-validation-once.yml",
-        ):
-            text=self.read(path)
-            self.assertIn("TELEGRAM_TEST_CHAT_ID",text,path)
-            self.assertNotIn("secrets.FOOTBALL_NEWS_CHAT_ID",text,path)
-            self.assertIn("github.event_name == 'workflow_dispatch'",text,path)
+    def test_actu_foot_manual_suite_never_references_production_chat_id(self):
+        path = ".github/workflows/actu-foot-test-suite.yml"
+        text = self.read(path)
+        self.assertIn("TELEGRAM_TEST_CHAT_ID", text)
+        self.assertNotIn("secrets.FOOTBALL_NEWS_CHAT_ID", text)
+        self.assertIn("workflow_dispatch", text)
+        self.assertIn("telegram_test_guard.py", text)
 
     def test_production_workflow_has_separate_test_state_and_no_prod_site_update_for_test(self):
         text=self.read(".github/workflows/football-production.yml")
@@ -49,9 +46,7 @@ class TelegramTestRoutingTests(unittest.TestCase):
     def test_public_test_channel_is_the_default_everywhere(self):
         paths=(
             ".github/workflows/football-production.yml",
-            ".github/workflows/football-live-test-once.yml",
-            ".github/workflows/football-visual-live-test-once.yml",
-            ".github/workflows/football-premium-validation-once.yml",
+            ".github/workflows/actu-foot-test-suite.yml",
             ".github/workflows/bsd-v2-telegram-hourly.yml",
             ".github/workflows/editorial-telegram.yml",
             ".github/workflows/telegram-test-channel-smoke.yml",
@@ -61,26 +56,32 @@ class TelegramTestRoutingTests(unittest.TestCase):
             self.assertIn("@predict_mrxp",text,path)
             self.assertIn("TELEGRAM_TEST_CHAT_ID",text,path)
 
-    def test_manual_visual_workflows_do_not_require_a_linked_test_discussion(self):
+    def test_manual_actu_foot_suite_locks_comments_off(self):
+        text = self.read(".github/workflows/actu-foot-test-suite.yml")
+        self.assertIn("FOOTBALL_REQUIRE_COMMENTS: '0'", text)
+        self.assertIn("TELEGRAM_TEST_GUARD_BOT_TOKEN", text)
+
+    def test_actu_foot_suite_is_manual_only_and_has_all_modes(self):
+        text = self.read(".github/workflows/actu-foot-test-suite.yml")
+        self.assertIn("workflow_dispatch:", text)
+        self.assertNotIn("push:", text)
+        for mode in ("templates", "live", "visual", "viral", "health", "all"):
+            self.assertIn(mode, text)
+        self.assertIn("--live-test", text)
+        self.assertIn("--visual-test", text)
+        self.assertIn("actu_foot_health_report.py", text)
+
+    def test_obsolete_actu_foot_one_shots_are_replaced_by_manual_suite(self):
+        consolidated = ROOT / ".github/workflows/actu-foot-test-suite.yml"
+        self.assertTrue(consolidated.is_file())
         for path in (
+            ".github/workflows/actu-foot-copy-samples-once.yml",
             ".github/workflows/football-live-test-once.yml",
+            ".github/workflows/football-premium-validation-once.yml",
             ".github/workflows/football-visual-live-test-once.yml",
-            ".github/workflows/football-premium-validation-once.yml",
+            ".github/workflows/football-viral-visual-test-once.yml",
         ):
-            self.assertIn("FOOTBALL_REQUIRE_COMMENTS: '0'", self.read(path), path)
-
-    def test_s3_s4_reruns_checkout_current_main_and_lock_comments_off(self):
-        for path in (
-            ".github/workflows/football-live-test-once.yml",
-            ".github/workflows/football-premium-validation-once.yml",
-        ):
-            text=self.read(path)
-            self.assertIn("ref: main", text, path)
-            self.assertGreaterEqual(
-                text.count("FOOTBALL_REQUIRE_COMMENTS: '0'"), 2, path
-            )
-            self.assertIn("TELEGRAM_TEST_COMMENTS_DISABLED_OK", text, path)
-
+            self.assertFalse((ROOT / path).exists(), path)
 
     def test_five_business_systems_e2e_has_no_overlapping_child_workflows(self):
         script=self.read("scripts/telegram_live_e2e.py")

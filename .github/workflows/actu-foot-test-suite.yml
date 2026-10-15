@@ -1,0 +1,111 @@
+name: Actu Foot - Suite de validation manuelle
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Validation à exécuter uniquement sur le canal de test"
+        required: true
+        type: choice
+        default: all
+        options:
+          - all
+          - templates
+          - live
+          - visual
+          - viral
+          - health
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actu-foot-manual-test-suite
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      FOOTBALL_REQUIRE_COMMENTS: '0'
+      FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+      API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+      PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+      PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      PYTHONUNBUFFERED: '1'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installer les dépendances Actu Foot
+        run: python -m pip install requests Pillow feedparser imageio-ffmpeg
+
+      - name: Compiler et tester le moteur Actu Foot
+        run: |
+          python -m py_compile scripts/football_channel.py scripts/football_match_lifecycle.py scripts/football_viral_engine.py scripts/telegram_viral_visual_test.py scripts/actu_foot_observability.py scripts/actu_foot_source_cache.py scripts/actu_foot_provider_health.py scripts/actu_foot_health_report.py
+          python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
+
+      - name: Vérifier strictement la destination de test
+        if: ${{ inputs.mode != 'templates' && inputs.mode != 'health' }}
+        run: python scripts/telegram_test_guard.py
+
+      - name: Prévisualiser les 7 templates
+        if: ${{ inputs.mode == 'templates' || inputs.mode == 'all' }}
+        run: python scripts/render_template_previews.py /tmp/mrxpronos-template-previews
+
+      - name: Conserver les 7 aperçus
+        if: ${{ inputs.mode == 'templates' || inputs.mode == 'all' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: actu-foot-seven-templates-${{ github.run_id }}
+          path: /tmp/mrxpronos-template-previews/*.png
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Envoyer les formats LIVE de validation
+        if: ${{ inputs.mode == 'live' || inputs.mode == 'all' }}
+        run: python scripts/football_channel.py --live-test
+
+      - name: Envoyer le smoke visuel programme/statistique
+        if: ${{ inputs.mode == 'visual' || inputs.mode == 'all' }}
+        run: python scripts/football_channel.py --visual-test
+
+      - name: Générer et envoyer le test Viral
+        if: ${{ inputs.mode == 'viral' || inputs.mode == 'all' }}
+        env:
+          MAX_ARTICLES: '30'
+          MAX_ARTICLES_PER_FEED: '8'
+          MAX_NEWS_AGE_HOURS: '168'
+        run: |
+          python fetch_foot_news.py
+          python -u scripts/telegram_viral_visual_test.py
+
+      - name: Résumé privé de santé Actu Foot
+        if: ${{ inputs.mode == 'health' || inputs.mode == 'all' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_URL"
+          test -n "$SUPABASE_SERVICE_ROLE_KEY"
+          python scripts/actu_foot_health_report.py >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Conserver le rendu Viral
+        if: ${{ always() && (inputs.mode == 'viral' || inputs.mode == 'all') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: actu-foot-viral-preview-${{ github.run_id }}
+          path: artifacts/viral-preview.mp4
+          if-no-files-found: ignore
+          retention-days: 7

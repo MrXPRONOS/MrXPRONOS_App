@@ -40,6 +40,17 @@ from free_football_sources import (  # noqa: E402
     thesportsdb_lineups,
     thesportsdb_timeline,
 )
+from actu_foot_source_cache import (  # noqa: E402
+    fetch_shared_source_snapshot,
+    persist_shared_source_snapshot,
+)
+from actu_foot_provider_health import (  # noqa: E402
+    effective_quality,
+    load_provider_health,
+    record_provider_health,
+)
+
+
 
 ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard"
 ESPN_SUMMARY = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary"
@@ -48,6 +59,7 @@ OPENLIGA_BASE = "https://api.openligadb.de"
 
 _ESPN_CACHE: dict[str, tuple[float, dict]] = {}
 _ESPN_REQUESTS = 0
+_PROVIDER_HEALTH_STATE: dict[str, dict[str, Any]] = {}
 
 
 def _espn_budget() -> int:
@@ -205,6 +217,7 @@ def _team_name(event: dict, side: str) -> str:
 
 def _event_time(event: dict) -> datetime | None:
     return _moment(event.get("event_date") or event.get("date") or event.get("start_time"))
+
 
 
 def fetch_supabase_live(session: requests.Session, max_age_seconds: int = 360) -> list[dict]:
@@ -1493,7 +1506,8 @@ def best_external_match(base: dict, external: list[dict]) -> dict | None:
                 similarity += 0.08
             elif is_live(item):
                 similarity += 0.03
-        quality = SOURCE_QUALITY.get(str(item.get("source") or ""), {}).get("overall", 60)
+        provider = str(item.get("source") or "")
+        quality = effective_quality(provider, SOURCE_QUALITY, _PROVIDER_HEALTH_STATE)
         similarity += max(0.0, (float(quality) - 60.0) / 500.0)
         if similarity > best_score:
             best, best_score = item, similarity
@@ -1501,6 +1515,8 @@ def best_external_match(base: dict, external: list[dict]) -> dict | None:
 
 
 def collect_external(session: requests.Session, day: date, base_events: list[dict]) -> list[dict]:
+    global _PROVIDER_HEALTH_STATE
+    _PROVIDER_HEALTH_STATE = load_provider_health(session, SOURCE_QUALITY)
     days = {day}
     for event in base_events:
         when = _event_time(event)
@@ -1508,11 +1524,25 @@ def collect_external(session: requests.Session, day: date, base_events: list[dic
             days.add(when.date())
     rows: list[dict] = []
     for fixture_day in sorted(days):
+        cached = fetch_shared_source_snapshot(session, fixture_day)
+        if cached is not None:
+            rows.extend(cached)
+            continue
+
         snapshots = collect_free_day(session, fixture_day, include_espn=True)
+        _PROVIDER_HEALTH_STATE = record_provider_health(
+            session, snapshots, SOURCE_QUALITY, _PROVIDER_HEALTH_STATE
+        )
+        day_rows: list[dict] = []
         for provider in ("espn", "sportscore", "thesportsdb", "openligadb"):
             snapshot = snapshots.get(provider)
             if snapshot:
-                rows.extend(snapshot.rows)
+                day_rows.extend(snapshot.rows)
+        persist_shared_source_snapshot(session, fixture_day, day_rows)
+        rows.extend(day_rows)
+
+    # Le snapshot serveur LIVE reste la donnée la plus fraîche pour score/minute.
+    # Il est ajouté même lorsqu'un snapshot fournisseur court a été réutilisé.
     rows.extend(fetch_supabase_live(session))
     return rows
 

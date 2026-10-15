@@ -5,9 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/football-production.yml'
-      - '.github/workflows/football-live-test-once.yml'
-      - '.github/workflows/football-visual-live-test-once.yml'
-      - '.github/workflows/football-premium-validation-once.yml'
+      - '.github/workflows/actu-foot-test-suite.yml'
       - '.github/workflows/bsd-v2-telegram-hourly.yml'
       - '.github/workflows/editorial-telegram.yml'
       - '.github/workflows/telegram-test-channel-smoke.yml'
@@ -41,9 +39,7 @@ jobs:
           from pathlib import Path
           files=[
             ".github/workflows/football-production.yml",
-            ".github/workflows/football-live-test-once.yml",
-            ".github/workflows/football-visual-live-test-once.yml",
-            ".github/workflows/football-premium-validation-once.yml",
+            ".github/workflows/actu-foot-test-suite.yml",
             ".github/workflows/bsd-v2-telegram-hourly.yml",
             ".github/workflows/editorial-telegram.yml",
             ".github/workflows/telegram-test-channel-smoke.yml",

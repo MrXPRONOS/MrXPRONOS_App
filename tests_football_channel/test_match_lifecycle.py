@@ -61,6 +61,24 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertTrue(session.urls[0].endswith("/rest/v1/live_stats_merged"))
         self.assertEqual(len(session.urls), 1)
 
+    @patch("football_match_lifecycle.fetch_supabase_live", return_value=[])
+    @patch("football_match_lifecycle.collect_free_day")
+    @patch("football_match_lifecycle.fetch_shared_source_snapshot")
+    def test_collect_external_reuses_shared_snapshot(self, shared, collect, _supabase):
+        shared.return_value = [{
+            "source": "espn",
+            "id": "401",
+            "home_team": "Arsenal",
+            "away_team": "Chelsea",
+            "event_date": NOW.isoformat(),
+            "state": "in",
+            "minute": 10,
+        }]
+        rows = m.collect_external(object(), NOW.date(), [])
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["id"], "401")
+        collect.assert_not_called()
+
     def test_parse_espn_event(self):
         raw = {
             "id": "401",

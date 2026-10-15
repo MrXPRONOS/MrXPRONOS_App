@@ -44,6 +44,7 @@ from free_football_sources import (  # noqa: E402
 from telegram_rich import post_photo, post_text, post_animation, _post_rate_limited  # noqa: E402
 from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish, fetch_supabase_live, persist_canonical_live_events, confirm_canonical_live_event)  # noqa: E402
 import football_followup as followup  # noqa: E402
+from actu_foot_observability import persist_run_metrics  # noqa: E402
 from football_stats_engine import daily_insight  # noqa: E402
 from football_viral_engine import (  # noqa: E402
     build_viral_payload, render_animation, media_credit_text, media_credit_url,
@@ -411,46 +412,76 @@ def live_competition_weight(event: dict) -> int:
     }
     return explicit.get(key_name, 0)
 
-def live_popularity_score(event: dict) -> int:
-    """Score éditorial relatif, utilisé pour classer les matchs d'une compétition."""
+_LAST_LIVE_RANKING: dict[str, Any] = {}
+
+
+def live_match_identity(event: dict) -> str:
+    """Identité stable pour dédupliquer la même rencontre venant de plusieurs sources."""
+    ref = str(event.get("follow_ref") or "").strip()
+    if ref:
+        return ref
+    try:
+        fixture_key = followup.key(event)
+    except (TypeError, ValueError):
+        fixture_key = ""
+    if fixture_key:
+        return fixture_key
+    raw_id = str(event.get("id") or event.get("provider_event_id") or "").strip()
+    if raw_id:
+        return "id:" + raw_id
+    return "|".join((
+        live_competition_key(event),
+        team(event, "home").casefold(),
+        team(event, "away").casefold(),
+        str(kick(event) or ""),
+    ))
+
+
+def live_popularity_breakdown(event: dict) -> dict[str, int]:
+    """Explique le score éditorial afin que chaque sélection soit auditable."""
     league_name = league(event).casefold()
     home = team(event, "home").casefold()
     away = team(event, "away").casefold()
     combined = " ".join((league_name, home, away))
     if any(term in combined for term in POPULAR_LIVE_EXCLUDED_LEVEL_TERMS):
-        return -1000
+        return {
+            "competition": 0, "home": 0, "away": 0, "clubs_bonus": 0,
+            "home_national": 0, "away_national": 0, "togo": 0,
+            "importance": 0, "total": -1000,
+        }
 
     home_weight = _weighted_term_score(home, LIVE_TEAM_WEIGHTS)
     away_weight = _weighted_term_score(away, LIVE_TEAM_WEIGHTS)
     competition_weight = live_competition_weight(event)
-    score_value = competition_weight + home_weight + away_weight
+    clubs_bonus = 28 if home_weight and away_weight else 8 if home_weight or away_weight else 0
+    home_national = 16 if any(term in home for term in POPULAR_LIVE_NATIONAL_TEAM_TERMS) else 0
+    away_national = 16 if any(term in away for term in POPULAR_LIVE_NATIONAL_TEAM_TERMS) else 0
+    togo_bonus = 100 if ("togo" in home or "togo" in away) else 0
+    importance_bonus = min(25, max(0, importance(event) // 3))
+    total = (
+        competition_weight + home_weight + away_weight + clubs_bonus
+        + home_national + away_national + togo_bonus + importance_bonus
+    )
+    return {
+        "competition": competition_weight,
+        "home": home_weight,
+        "away": away_weight,
+        "clubs_bonus": clubs_bonus,
+        "home_national": home_national,
+        "away_national": away_national,
+        "togo": togo_bonus,
+        "importance": importance_bonus,
+        "total": total,
+    }
 
-    # Une affiche entre deux clubs populaires est nettement plus attractive.
-    if home_weight and away_weight:
-        score_value += 28
-    elif home_weight or away_weight:
-        score_value += 8
 
-    # Matchs internationaux : valoriser les grandes sélections.
-    home_national = any(term in home for term in POPULAR_LIVE_NATIONAL_TEAM_TERMS)
-    away_national = any(term in away for term in POPULAR_LIVE_NATIONAL_TEAM_TERMS)
-    if home_national:
-        score_value += 16
-    if away_national:
-        score_value += 16
-
-    # Audience locale Mr XPRONOS : le Togo doit rester prioritaire.
-    if "togo" in home or "togo" in away:
-        score_value += 100
-
-    # Importance historique comme départage secondaire, sans laisser une simple
-    # ligue prestigieuse suffire à elle seule.
-    score_value += min(25, max(0, importance(event) // 3))
-    return score_value
+def live_popularity_score(event: dict) -> int:
+    """Score éditorial relatif, utilisé pour classer les matchs d'une compétition."""
+    return int(live_popularity_breakdown(event)["total"])
 
 
 def popular_live_match(event: dict) -> bool:
-    """Éligibilité avant classement : intérêt minimum, puis top N par compétition."""
+    """Éligibilité avant classement. Un suivi verrouillé ne peut plus être éjecté."""
     league_name = league(event).casefold()
     home = team(event, "home").casefold()
     away = team(event, "away").casefold()
@@ -458,6 +489,8 @@ def popular_live_match(event: dict) -> bool:
 
     if any(term in combined for term in POPULAR_LIVE_EXCLUDED_LEVEL_TERMS):
         return False
+    if bool(event.get("ranking_locked")):
+        return True
     if "togo" in home or "togo" in away:
         return True
 
@@ -465,15 +498,30 @@ def popular_live_match(event: dict) -> bool:
     return live_popularity_score(event) >= threshold
 
 
+def _live_rank_key(event: dict) -> tuple:
+    return (
+        1 if bool(event.get("ranking_locked")) else 0,
+        1 if ("togo" in team(event, "home").casefold()
+              or "togo" in team(event, "away").casefold()) else 0,
+        live_popularity_score(event),
+        importance(event),
+        kick(event) or datetime.min.replace(tzinfo=timezone.utc),
+        team(event, "home"),
+        team(event, "away"),
+    )
+
+
 def select_popular_live_matches(
     events: list[dict],
     *,
     max_per_competition: int | None = None,
     max_total: int | None = None,
+    dominance_gap: int | None = None,
 ) -> list[dict]:
-    """Classe puis limite les LIVE : top N par compétition, puis top global.
+    """Admission LIVE : éligibilité, Top N compétition, domination, plafond global.
 
-    Par défaut : 2 affiches maximum par compétition et 6 simultanément.
+    Un match déjà admis porte ranking_locked et reste sélectionné jusqu'à sa
+    fin. Les nouveaux matchs ne peuvent occuper que les places encore libres.
     """
     per_comp = max(
         1,
@@ -485,33 +533,94 @@ def select_popular_live_matches(
         int(max_total if max_total is not None
             else os.getenv("FOOTBALL_LIVE_MAX_TOTAL", "6")),
     )
-
-    eligible = [event for event in events if popular_live_match(event)]
-    ranked = sorted(
-        eligible,
-        key=lambda event: (
-            1 if ("togo" in team(event, "home").casefold()
-                  or "togo" in team(event, "away").casefold()) else 0,
-            live_popularity_score(event),
-            importance(event),
-            kick(event) or datetime.min.replace(tzinfo=timezone.utc),
-            team(event, "home"),
-            team(event, "away"),
-        ),
-        reverse=True,
+    gap = max(
+        0,
+        int(dominance_gap if dominance_gap is not None
+            else os.getenv("FOOTBALL_LIVE_DOMINANCE_GAP", "45")),
     )
 
-    selected: list[dict] = []
-    counts: dict[str, int] = {}
-    for event in ranked:
-        key_name = live_competition_key(event)
-        if counts.get(key_name, 0) >= per_comp:
+    unique: dict[str, dict] = {}
+    for event in events:
+        identity = live_match_identity(event)
+        current = unique.get(identity)
+        if current is None:
+            unique[identity] = event
             continue
-        selected.append(event)
-        counts[key_name] = counts.get(key_name, 0) + 1
-        if len(selected) >= global_cap:
-            break
+        if bool(event.get("ranking_locked")) and not bool(current.get("ranking_locked")):
+            unique[identity] = event
+        elif bool(event.get("ranking_locked")) == bool(current.get("ranking_locked")):
+            if _live_rank_key(event) > _live_rank_key(current):
+                unique[identity] = event
 
+    eligible = [event for event in unique.values() if popular_live_match(event)]
+    by_competition: dict[str, list[dict]] = {}
+    for event in eligible:
+        by_competition.setdefault(live_competition_key(event), []).append(event)
+
+    competition_selected: list[dict] = []
+    for key_name, group in by_competition.items():
+        ranked_group = sorted(group, key=_live_rank_key, reverse=True)
+        locked = [event for event in ranked_group if bool(event.get("ranking_locked"))]
+        unlocked = [event for event in ranked_group if not bool(event.get("ranking_locked"))]
+
+        chosen = list(locked)
+        free_slots = max(0, per_comp - len(chosen))
+        if free_slots and unlocked:
+            first = unlocked[0]
+            chosen.append(first)
+            free_slots -= 1
+            if free_slots and len(unlocked) > 1:
+                second = unlocked[1]
+                score_gap = live_popularity_score(first) - live_popularity_score(second)
+                second_is_togo = (
+                    "togo" in team(second, "home").casefold()
+                    or "togo" in team(second, "away").casefold()
+                )
+                if score_gap <= gap or second_is_togo:
+                    chosen.append(second)
+
+        if len(locked) > per_comp:
+            print("LIVE_LOCK_OVERFLOW_COMPETITION", key_name, len(locked), "cap", per_comp)
+            chosen = locked
+
+        competition_selected.extend(chosen)
+
+    locked_all = sorted(
+        [event for event in competition_selected if bool(event.get("ranking_locked"))],
+        key=_live_rank_key,
+        reverse=True,
+    )
+    new_all = sorted(
+        [event for event in competition_selected if not bool(event.get("ranking_locked"))],
+        key=_live_rank_key,
+        reverse=True,
+    )
+    if len(locked_all) > global_cap:
+        print("LIVE_LOCK_OVERFLOW_GLOBAL", len(locked_all), "cap", global_cap)
+        selected = locked_all
+    else:
+        selected = locked_all + new_all[:max(0, global_cap - len(locked_all))]
+
+    ranking_rows = [
+        {
+            "competition": live_competition_key(event),
+            "home": team(event, "home"),
+            "away": team(event, "away"),
+            "score": live_popularity_score(event),
+            "locked": bool(event.get("ranking_locked")),
+            "breakdown": live_popularity_breakdown(event),
+        }
+        for event in selected
+    ]
+    global _LAST_LIVE_RANKING
+    _LAST_LIVE_RANKING = {
+        "eligible": len(eligible),
+        "selected": len(selected),
+        "per_comp": per_comp,
+        "global_cap": global_cap,
+        "dominance_gap": gap,
+        "matches": ranking_rows,
+    }
     if eligible:
         print(
             "LIVE_RANKING",
@@ -519,18 +628,29 @@ def select_popular_live_matches(
             "selected", len(selected),
             "per_comp", per_comp,
             "global_cap", global_cap,
-            "matches",
-            json.dumps([
-                {
-                    "competition": live_competition_key(event),
-                    "home": team(event, "home"),
-                    "away": team(event, "away"),
-                    "score": live_popularity_score(event),
-                }
-                for event in selected
-            ], ensure_ascii=False),
+            "dominance_gap", gap,
+            "matches", json.dumps(ranking_rows, ensure_ascii=False),
         )
     return selected
+
+
+def select_live_admissions(
+    events: list[dict],
+    tracked: dict,
+    now: datetime,
+    *,
+    max_per_competition: int | None = None,
+    max_total: int | None = None,
+) -> list[dict]:
+    """Retourne les candidats admis en tenant compte des matchs déjà verrouillés."""
+    locked_context = followup.base_events(tracked, now)
+    selected = select_popular_live_matches(
+        locked_context + list(events),
+        max_per_competition=max_per_competition,
+        max_total=max_total,
+    )
+    selected_ids = {live_match_identity(event) for event in selected}
+    return [event for event in events if live_match_identity(event) in selected_ids]
 
 
 _TSDB_LOGOS: dict[str, str] | None = None
@@ -2572,6 +2692,7 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
     Les transitions viennent d'ESPN public et, si disponible, du cache Supabase
     déjà alimenté par notre moteur live BSD+ESPN.
     """
+    run_started_at = datetime.now(timezone.utc)
     now = now.astimezone(timezone.utc)
     state = History()
     sender = Sender(dry_run=dry_run)
@@ -2686,6 +2807,32 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
         match_counts: dict[str, int] = {}
         for signal in signals:
             ref = str(signal.get("follow_ref") or "")
+            # Un match détecté directement par ESPN/Supabase dans le passage rapide
+            # devient suivi dès son premier signal publiable. Il ne pourra donc plus
+            # être éjecté par un ranking ultérieur avant son résultat final.
+            if not ref and not dry_run and signal.get("event_date"):
+                direct_event = {
+                    "id": signal.get("espn_event_id") or signal.get("key") or "",
+                    "event_date": signal.get("event_date"),
+                    "home_team": {
+                        "name": signal.get("home") or "",
+                        "logo": signal.get("home_logo") or "",
+                    },
+                    "away_team": {
+                        "name": signal.get("away") or "",
+                        "logo": signal.get("away_logo") or "",
+                    },
+                    "league_name": signal.get("league") or "Football",
+                }
+                if followup.selection_allowed(state.followed, now):
+                    try:
+                        ref = followup.track(
+                            state.followed, direct_event, now, reason="direct_live"
+                        )
+                        signal["follow_ref"] = ref
+                        print("FOLLOWUP_DIRECT_LIVE_LOCKED", ref)
+                    except ValueError:
+                        ref = ""
             if ref and ref not in followup.pending(state.followed, now):
                 continue
             kind = signal.get("kind")
@@ -2709,12 +2856,22 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
     finally:
         if not dry_run:
             state.save(now)
+        persist_run_metrics(
+            sender.session,
+            mode="lifecycle",
+            started_at=run_started_at,
+            dry_run=dry_run,
+            counter=counter,
+            tracked_pending=len(followup.pending(state.followed, now)),
+            ranking=dict(_LAST_LIVE_RANKING),
+        )
 
     print("XPRONOS_LIFECYCLE", json.dumps(counter), "dry_run", dry_run)
     return counter
 
 
 def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[str, int]:
+    run_started_at = datetime.now(timezone.utc)
     now = now.astimezone(timezone.utc)
     today = now.astimezone(TZ).date()
     hour = now.astimezone(TZ).hour
@@ -2973,7 +3130,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                     and final_score(e) is None
                     and str(e.get("status") or "").lower() not in ("cancelled", "postponed", "finished")
                 ]
-                technical = select_popular_live_matches(technical_pool)
+                technical = select_live_admissions(technical_pool, state.followed, now)
                 if not dry_run:
                     for event in technical[:20]:
                         if not followup.selection_allowed(state.followed, now):
@@ -2996,7 +3153,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                         ("cancelled", "postponed", "live", "finished")
                     and not state.seen("avant_match:" + str(e["id"]))
                 ]
-                upcoming = select_popular_live_matches(upcoming_pool)
+                upcoming = select_live_admissions(upcoming_pool, state.followed, now)
                 if (counter["sent"] < max_send and upcoming
                         and (force or enough(state, "avant_match", now))):
                     if client is None:
@@ -3133,6 +3290,15 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
     finally:
         if not dry_run:
             state.save(now)
+        persist_run_metrics(
+            sender.session,
+            mode="full",
+            started_at=run_started_at,
+            dry_run=dry_run,
+            counter=counter,
+            tracked_pending=len(followup.pending(state.followed, now)),
+            ranking=dict(_LAST_LIVE_RANKING),
+        )
     print("XPRONOS_FOOTBALL", json.dumps(counter), "dry_run", dry_run)
     return counter
 
