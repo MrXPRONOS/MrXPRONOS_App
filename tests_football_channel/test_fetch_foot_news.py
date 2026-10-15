@@ -1,4 +1,6 @@
+import os
 import unittest
+from unittest.mock import Mock, patch
 
 import fetch_foot_news as news
 
@@ -46,6 +48,37 @@ class EspnNewsCorroborationTests(unittest.TestCase):
             news.espn_corroboration("Le Sénégal dévoile sa liste pour la CAN", index),
             {},
         )
+
+
+class PublicNewsSnapshotTests(unittest.TestCase):
+    def test_snapshot_prefere_image_source_distante(self):
+        rows = news.public_snapshot_records([{
+            "title": "Test",
+            "image": "assets/images/footnews/test.webp",
+            "source_image": "https://cdn.example.org/test.jpg",
+        }])
+        self.assertEqual(rows[0]["image"], "https://cdn.example.org/test.jpg")
+
+    @patch.dict(os.environ, {
+        "SUPABASE_URL": "https://example.supabase.co",
+        "SUPABASE_SERVICE_ROLE_KEY": "service",
+    }, clear=True)
+    @patch("fetch_foot_news.requests.post")
+    def test_persist_snapshot_upsert_latest(self, post):
+        response = Mock()
+        response.raise_for_status.return_value = None
+        post.return_value = response
+        ok = news.persist_public_news_snapshot([{
+            "title": "Test",
+            "image": "assets/images/footnews/test.webp",
+            "source_image": "https://cdn.example.org/test.jpg",
+        }])
+        self.assertTrue(ok)
+        url = post.call_args.args[0]
+        kwargs = post.call_args.kwargs
+        self.assertTrue(url.endswith("/rest/v1/actu_foot_news_snapshot"))
+        self.assertEqual(kwargs["json"]["id"], "latest")
+        self.assertEqual(kwargs["json"]["payload"][0]["image"], "https://cdn.example.org/test.jpg")
 
 
 if __name__ == "__main__":
