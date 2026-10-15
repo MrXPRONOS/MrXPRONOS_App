@@ -420,6 +420,8 @@ def select_popular_live_matches(
     ranked = sorted(
         eligible,
         key=lambda event: (
+            1 if ("togo" in team(event, "home").casefold()
+                  or "togo" in team(event, "away").casefold()) else 0,
             live_popularity_score(event),
             importance(event),
             kick(event) or datetime.min.replace(tzinfo=timezone.utc),
