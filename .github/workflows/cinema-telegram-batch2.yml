@@ -1,0 +1,107 @@
+name: Cinéma Telegram - lot 2 (5 formats)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        description: 'Destination'
+        required: true
+        default: test
+        options: [test, production]
+      format:
+        type: choice
+        description: 'Format cinéma'
+        required: true
+        default: all
+        options: [all, series, notes, pepites, acteur, sondage]
+      demo:
+        type: boolean
+        description: 'Exemples fictifs de test'
+        default: true
+      dry_run:
+        type: boolean
+        description: 'Aperçu sans envoyer de messages'
+        default: true
+  push:
+    branches: [feat/cinema-telegram-batch2]
+    paths:
+      - 'scripts/cinema_batch2.py'
+      - 'tests/test_cinema_batch2.py'
+      - '.github/workflows/cinema-telegram-batch2.yml'
+  schedule:
+    - cron: '7 15 * * 1-5' # five editorial formats spread across weekdays
+
+permissions:
+  contents: write
+concurrency:
+  group: cinema-batch2-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install free dependencies
+        run: python -m pip install requests Pillow
+      - name: Tests (no external calls)
+        run: python -m unittest discover -s tests -p 'test_cinema_batch2.py' -v
+      - name: Preview on development branch (no Telegram)
+        if: github.event_name == 'push'
+        run: python scripts/cinema_batch2.py --mode test --format all --demo --dry-run
+      - name: Test or production publication (explicitly enabled)
+        if: github.event_name != 'push'
+        env:
+          CINEMA_TELEGRAM_BOT_TOKEN: ${{ secrets.CINEMA_TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
+          CINEMA_PRODUCTION_CHAT_ID: ${{ secrets.CINEMA_PRODUCTION_CHAT_ID }}
+          CINEMA_PRODUCTION_ENABLED: ${{ vars.CINEMA_PRODUCTION_ENABLED }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_FORMAT: ${{ inputs.format }}
+          INPUT_DEMO: ${{ inputs.demo }}
+          INPUT_DRY: ${{ inputs.dry_run }}
+        shell: bash
+        run: |
+          if [[ "$EVENT_NAME" == "schedule" ]]; then
+            if [[ "$CINEMA_PRODUCTION_ENABLED" != "true" ]]; then
+              echo 'Production disabled: skipped safely'
+              exit 0
+            fi
+            case "$(date -u +%u)" in
+              1) SELECTED=series ;;
+              2) SELECTED=notes ;;
+              3) SELECTED=pepites ;;
+              4) SELECTED=acteur ;;
+              5) SELECTED=sondage ;;
+              *) exit 0 ;;
+            esac
+            python scripts/cinema_batch2.py --mode production --format "$SELECTED"
+          else
+            ARGS=(--mode "$INPUT_MODE" --format "$INPUT_FORMAT")
+            [[ "$INPUT_DEMO" == "true" ]] && ARGS+=(--demo)
+            [[ "$INPUT_DRY" == "true" ]] && ARGS+=(--dry-run)
+            python scripts/cinema_batch2.py "${ARGS[@]}"
+          fi
+      - name: Persist publication history after success
+        if: github.event_name != 'push' && success()
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add cinema/sent_test_batch2.json cinema/sent_production_batch2.json 2>/dev/null || true
+          if git diff --staged --quiet; then exit 0; fi
+          git commit -m 'cinema batch2: publication log [skip ci]'
+          git pull --rebase origin "${{ github.ref_name }}"
+          git push origin "HEAD:${{ github.ref_name }}"
