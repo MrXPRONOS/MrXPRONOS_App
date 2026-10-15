@@ -46,7 +46,7 @@ class CinemaBatch2Tests(unittest.TestCase):
 
     def test_api_selects_five_series(self):
         data = {'results': [{'id': i, 'name': 'Série ' + str(i), 'vote_count': 200,
-                             'popularity': 300-i, 'adult': False} for i in range(1, 9)]}
+                             'popularity': 300-i, 'poster_path': '/test.jpg', 'adult': False} for i in range(1, 9)]}
         with patch.object(c.API, 'call', return_value=data):
             selected = c.API('fake').pick('series', self.day)
             self.assertEqual(len(selected), 5)
@@ -54,7 +54,7 @@ class CinemaBatch2Tests(unittest.TestCase):
             self.assertEqual(selected[0]['media_type'], 'tv')
 
     def test_avoids_recent_picks(self):
-        data = {'results': [{'id': i, 'name': 'Série '+str(i), 'vote_count': 200} for i in range(1, 10)]}
+        data = {'results': [{'id': i, 'name': 'Série '+str(i), 'vote_count': 200, 'poster_path': '/test.jpg'} for i in range(1, 10)]}
         with patch.object(c.API, 'call', return_value=data):
             selected = c.API('fake').pick('series', self.day, {'series':[1,2,3,4]})
             self.assertTrue(all(x['id'] not in (1,2,3,4) for x in selected))
@@ -67,14 +67,26 @@ class CinemaBatch2Tests(unittest.TestCase):
         with patch.object(c.base, 'call_telegram', return_value={'message_id': 22}):
             self.assertEqual(c.publish('sondage', c.MOCK_MOVIES, '@predict_mrxp', 'fake', MagicMock(), self.day), 22)
 
-    def test_offline_cards(self):
-        from PIL import Image
-        with tempfile.TemporaryDirectory() as tmp:
-            for kind in c.FORMATS[:4]:
-                items = [c.MOCK_ACTOR] if kind == 'acteur' else c.MOCK_MOVIES
-                file = c.draw_card(kind, items, Path(tmp), MagicMock(), True)
-                with Image.open(file) as im:
-                    self.assertEqual(im.size, (960,640))
+    def test_publication_uses_original_poster(self):
+        session = MagicMock()
+        media = [dict(c.MOCK_MOVIES[0], poster_path='/abc123.jpg')]
+        with patch.object(c.base, 'download_source_image', return_value=(Path('/tmp/original.jpg'), 'image/jpeg')) as download, patch.object(c.base, 'post_photo', return_value=22) as photo:
+            mid = c.publish('pepites', media, '@predict_mrxp', 'token', session, self.day)
+            self.assertEqual(mid, 22)
+            self.assertTrue(download.called)
+            self.assertEqual(photo.call_args.kwargs['mime'], 'image/jpeg')
+
+    def test_demo_has_no_invented_image(self):
+        with patch.object(c.base, 'post_photo', side_effect=AssertionError('invented image')), patch.object(c.base, 'post_text', return_value=33) as text:
+            sent = c.publish('series', c.MOCK_SERIES, '@predict_mrxp', 'token', MagicMock(), self.day, demo=True)
+            self.assertEqual(sent, 33)
+            self.assertTrue(text.call_args.kwargs['html'])
+
+    def test_actor_needs_source_portrait(self):
+        with patch.object(c.base, 'download_source_image', return_value=(None, None)) as download, patch.object(c.base, 'post_text', return_value=17) as text:
+            self.assertEqual(c.publish('acteur', [c.MOCK_ACTOR], '@predict_mrxp', 'token', MagicMock(), self.day), 17)
+            self.assertTrue(download.call_args.kwargs['person'])
+            self.assertTrue(text.called)
 
     def test_dry_run_never_sends(self):
         with patch.object(c.base, 'post_photo', side_effect=AssertionError('network')), patch.object(c.base, 'call_telegram', side_effect=AssertionError('network')):
