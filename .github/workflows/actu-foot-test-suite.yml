@@ -14,6 +14,7 @@ on:
           - live
           - visual
           - viral
+          - health
 
 permissions:
   contents: read
@@ -37,6 +38,8 @@ jobs:
       API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
       PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
       PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       PYTHONUNBUFFERED: '1'
 
     steps:
@@ -51,11 +54,11 @@ jobs:
 
       - name: Compiler et tester le moteur Actu Foot
         run: |
-          python -m py_compile scripts/football_channel.py scripts/football_match_lifecycle.py scripts/football_viral_engine.py scripts/telegram_viral_visual_test.py
+          python -m py_compile scripts/football_channel.py scripts/football_match_lifecycle.py scripts/football_viral_engine.py scripts/telegram_viral_visual_test.py scripts/actu_foot_observability.py scripts/actu_foot_source_cache.py scripts/actu_foot_provider_health.py scripts/actu_foot_health_report.py
           python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
 
       - name: Vérifier strictement la destination de test
-        if: ${{ inputs.mode != 'templates' }}
+        if: ${{ inputs.mode != 'templates' && inputs.mode != 'health' }}
         run: python scripts/telegram_test_guard.py
 
       - name: Prévisualiser les 7 templates
@@ -88,6 +91,15 @@ jobs:
         run: |
           python fetch_foot_news.py
           python -u scripts/telegram_viral_visual_test.py
+
+      - name: Résumé privé de santé Actu Foot
+        if: ${{ inputs.mode == 'health' || inputs.mode == 'all' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_URL"
+          test -n "$SUPABASE_SERVICE_ROLE_KEY"
+          python scripts/actu_foot_health_report.py >> "$GITHUB_STEP_SUMMARY"
 
       - name: Conserver le rendu Viral
         if: ${{ always() && (inputs.mode == 'viral' || inputs.mode == 'all') }}
