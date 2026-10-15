@@ -45,6 +45,7 @@ from telegram_rich import post_photo, post_text, post_animation, _post_rate_limi
 from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish, fetch_supabase_live, persist_canonical_live_events, confirm_canonical_live_event)  # noqa: E402
 import football_followup as followup  # noqa: E402
 from actu_foot_observability import persist_run_metrics  # noqa: E402
+from actu_foot_ranking import LiveRankingEngine, RankingDeps, _weighted_term_score as _ranking_weighted_term_score  # noqa: E402
 from football_stats_engine import daily_insight  # noqa: E402
 from football_viral_engine import (  # noqa: E402
     build_viral_payload, render_animation, media_credit_text, media_credit_url,
@@ -311,204 +312,49 @@ def importance(event: dict) -> int:
     return points
 
 def _weighted_term_score(value: str, weighted_terms) -> int:
-    score_value = 0
-    for weight, terms in weighted_terms:
-        if any(term in value for term in terms):
-            score_value = max(score_value, int(weight))
-    return score_value
+    """Compatibilité : délègue le calcul pondéré au module ranking."""
+    return _ranking_weighted_term_score(value, weighted_terms)
+
+
+_LIVE_RANKING_ENGINE = LiveRankingEngine(RankingDeps(
+    league=league,
+    team=team,
+    importance=importance,
+    kick=kick,
+    follow_key=followup.key,
+    excluded_level_terms=POPULAR_LIVE_EXCLUDED_LEVEL_TERMS,
+    national_team_terms=POPULAR_LIVE_NATIONAL_TEAM_TERMS,
+    team_weights=LIVE_TEAM_WEIGHTS,
+))
+_LAST_LIVE_RANKING: dict[str, Any] = _LIVE_RANKING_ENGINE.last_ranking
 
 
 def live_competition_key(event: dict) -> str:
-    """Identifie une compétition sans confondre les homonymes continentaux/nationaux."""
-    raw_name = league(event)
-    name = " ".join(raw_name.casefold().split())
-
-    # Compétitions continentales : les formes qualifiées passent avant tout alias générique.
-    aliases = (
-        ("caf-champions-league", ("caf champions league", "caf ligue des champions")),
-        ("afc-champions-league", ("afc champions league",)),
-        ("uefa-champions-league", ("uefa champions league",)),
-        ("uefa-europa-league", ("uefa europa league",)),
-        ("uefa-conference-league", ("uefa conference league", "uefa europa conference league")),
-        ("caf-confederation", ("caf confederation",)),
-        ("afcon", ("afcon", "africa cup of nations", "coupe d'afrique", "can 20")),
-        ("world-cup", ("fifa world cup", "coupe du monde fifa")),
-    )
-    for key_name, terms in aliases:
-        if any(term in name for term in terms):
-            return key_name
-
-    # Les grands championnats domestiques utilisent des noms très réemployés dans
-    # le monde. On ne classe donc pas "Libyan Premier League" comme Premier League
-    # anglaise, ni une compétition locale appelée "Champions League" comme UEFA.
-    exact_aliases = {
-        "champions league": "champions-league",
-        "ligue des champions": "champions-league",
-        "europa league": "uefa-europa-league",
-        "conference league": "uefa-conference-league",
-        "premier league": "premier-league",
-        "english premier league": "premier-league",
-        "england premier league": "premier-league",
-        "la liga": "la-liga",
-        "laliga": "la-liga",
-        "spanish la liga": "la-liga",
-        "serie a": "serie-a",
-        "italian serie a": "serie-a",
-        "bundesliga": "bundesliga",
-        "german bundesliga": "bundesliga",
-        "ligue 1": "ligue-1",
-        "french ligue 1": "ligue-1",
-        "world cup": "world-cup",
-        "coupe du monde": "world-cup",
-        "fa cup": "fa-cup",
-        "carabao cup": "efl-cup",
-        "efl cup": "efl-cup",
-        "copa del rey": "copa-del-rey",
-        "coppa italia": "coppa-italia",
-        "dfb pokal": "dfb-pokal",
-        "coupe de france": "coupe-de-france",
-        "nations league": "nations-league",
-        "uefa nations league": "nations-league",
-        "copa america": "copa-america",
-        "uefa euro": "uefa-euro",
-    }
-    if name in exact_aliases:
-        return exact_aliases[name]
-
-    normalized = re.sub(r"[^a-z0-9]+", "-", unicodedata.normalize("NFKD", name)
-                        .encode("ascii", "ignore").decode()).strip("-")
-    return normalized or "football"
+    return _LIVE_RANKING_ENGINE.competition_key(event)
 
 
 def live_competition_weight(event: dict) -> int:
-    """Poids de prestige uniquement pour une compétition identifiée sans ambiguïté."""
-    key_name = live_competition_key(event)
-    explicit = {
-        "uefa-champions-league": 38,
-        # Alias générique conservé à poids réduit : une source qui omet "UEFA"
-        # peut encore sélectionner un grand choc, mais pas rendre tous ses matchs éligibles.
-        "champions-league": 16,
-        "world-cup": 30,
-        "premier-league": 26,
-        "la-liga": 26,
-        "serie-a": 26,
-        "bundesliga": 26,
-        "afcon": 24,
-        "uefa-euro": 24,
-        "copa-america": 24,
-        "ligue-1": 21,
-        "uefa-europa-league": 21,
-        "caf-champions-league": 21,
-        "uefa-conference-league": 16,
-        "caf-confederation": 16,
-        "afc-champions-league": 16,
-        "fa-cup": 16,
-        "efl-cup": 16,
-        "copa-del-rey": 16,
-        "coppa-italia": 16,
-        "dfb-pokal": 16,
-        "coupe-de-france": 16,
-        "nations-league": 16,
-    }
-    return explicit.get(key_name, 0)
-
-_LAST_LIVE_RANKING: dict[str, Any] = {}
+    return _LIVE_RANKING_ENGINE.competition_weight(event)
 
 
 def live_match_identity(event: dict) -> str:
-    """Identité stable pour dédupliquer la même rencontre venant de plusieurs sources."""
-    ref = str(event.get("follow_ref") or "").strip()
-    if ref:
-        return ref
-    try:
-        fixture_key = followup.key(event)
-    except (TypeError, ValueError):
-        fixture_key = ""
-    if fixture_key:
-        return fixture_key
-    raw_id = str(event.get("id") or event.get("provider_event_id") or "").strip()
-    if raw_id:
-        return "id:" + raw_id
-    return "|".join((
-        live_competition_key(event),
-        team(event, "home").casefold(),
-        team(event, "away").casefold(),
-        str(kick(event) or ""),
-    ))
+    return _LIVE_RANKING_ENGINE.match_identity(event)
 
 
 def live_popularity_breakdown(event: dict) -> dict[str, int]:
-    """Explique le score éditorial afin que chaque sélection soit auditable."""
-    league_name = league(event).casefold()
-    home = team(event, "home").casefold()
-    away = team(event, "away").casefold()
-    combined = " ".join((league_name, home, away))
-    if any(term in combined for term in POPULAR_LIVE_EXCLUDED_LEVEL_TERMS):
-        return {
-            "competition": 0, "home": 0, "away": 0, "clubs_bonus": 0,
-            "home_national": 0, "away_national": 0, "togo": 0,
-            "importance": 0, "total": -1000,
-        }
-
-    home_weight = _weighted_term_score(home, LIVE_TEAM_WEIGHTS)
-    away_weight = _weighted_term_score(away, LIVE_TEAM_WEIGHTS)
-    competition_weight = live_competition_weight(event)
-    clubs_bonus = 28 if home_weight and away_weight else 8 if home_weight or away_weight else 0
-    home_national = 16 if any(term in home for term in POPULAR_LIVE_NATIONAL_TEAM_TERMS) else 0
-    away_national = 16 if any(term in away for term in POPULAR_LIVE_NATIONAL_TEAM_TERMS) else 0
-    togo_bonus = 100 if ("togo" in home or "togo" in away) else 0
-    importance_bonus = min(25, max(0, importance(event) // 3))
-    total = (
-        competition_weight + home_weight + away_weight + clubs_bonus
-        + home_national + away_national + togo_bonus + importance_bonus
-    )
-    return {
-        "competition": competition_weight,
-        "home": home_weight,
-        "away": away_weight,
-        "clubs_bonus": clubs_bonus,
-        "home_national": home_national,
-        "away_national": away_national,
-        "togo": togo_bonus,
-        "importance": importance_bonus,
-        "total": total,
-    }
+    return _LIVE_RANKING_ENGINE.popularity_breakdown(event)
 
 
 def live_popularity_score(event: dict) -> int:
-    """Score éditorial relatif, utilisé pour classer les matchs d'une compétition."""
-    return int(live_popularity_breakdown(event)["total"])
+    return _LIVE_RANKING_ENGINE.popularity_score(event)
 
 
 def popular_live_match(event: dict) -> bool:
-    """Éligibilité avant classement. Un suivi verrouillé ne peut plus être éjecté."""
-    league_name = league(event).casefold()
-    home = team(event, "home").casefold()
-    away = team(event, "away").casefold()
-    combined = " ".join((league_name, home, away))
-
-    if any(term in combined for term in POPULAR_LIVE_EXCLUDED_LEVEL_TERMS):
-        return False
-    if bool(event.get("ranking_locked")):
-        return True
-    if "togo" in home or "togo" in away:
-        return True
-
-    threshold = max(1, int(os.getenv("FOOTBALL_LIVE_POPULARITY_MIN", "45")))
-    return live_popularity_score(event) >= threshold
+    return _LIVE_RANKING_ENGINE.popular_match(event)
 
 
 def _live_rank_key(event: dict) -> tuple:
-    return (
-        1 if bool(event.get("ranking_locked")) else 0,
-        1 if ("togo" in team(event, "home").casefold()
-              or "togo" in team(event, "away").casefold()) else 0,
-        live_popularity_score(event),
-        importance(event),
-        kick(event) or datetime.min.replace(tzinfo=timezone.utc),
-        team(event, "home"),
-        team(event, "away"),
-    )
+    return _LIVE_RANKING_ENGINE.rank_key(event)
 
 
 def select_popular_live_matches(
@@ -518,120 +364,12 @@ def select_popular_live_matches(
     max_total: int | None = None,
     dominance_gap: int | None = None,
 ) -> list[dict]:
-    """Admission LIVE : éligibilité, Top N compétition, domination, plafond global.
-
-    Un match déjà admis porte ranking_locked et reste sélectionné jusqu'à sa
-    fin. Les nouveaux matchs ne peuvent occuper que les places encore libres.
-    """
-    per_comp = max(
-        1,
-        int(max_per_competition if max_per_competition is not None
-            else os.getenv("FOOTBALL_LIVE_MAX_PER_COMPETITION", "2")),
+    return _LIVE_RANKING_ENGINE.select(
+        events,
+        max_per_competition=max_per_competition,
+        max_total=max_total,
+        dominance_gap=dominance_gap,
     )
-    global_cap = max(
-        1,
-        int(max_total if max_total is not None
-            else os.getenv("FOOTBALL_LIVE_MAX_TOTAL", "6")),
-    )
-    gap = max(
-        0,
-        int(dominance_gap if dominance_gap is not None
-            else os.getenv("FOOTBALL_LIVE_DOMINANCE_GAP", "45")),
-    )
-
-    unique: dict[str, dict] = {}
-    for event in events:
-        identity = live_match_identity(event)
-        current = unique.get(identity)
-        if current is None:
-            unique[identity] = event
-            continue
-        if bool(event.get("ranking_locked")) and not bool(current.get("ranking_locked")):
-            unique[identity] = event
-        elif bool(event.get("ranking_locked")) == bool(current.get("ranking_locked")):
-            if _live_rank_key(event) > _live_rank_key(current):
-                unique[identity] = event
-
-    eligible = [event for event in unique.values() if popular_live_match(event)]
-    by_competition: dict[str, list[dict]] = {}
-    for event in eligible:
-        by_competition.setdefault(live_competition_key(event), []).append(event)
-
-    competition_selected: list[dict] = []
-    for key_name, group in by_competition.items():
-        ranked_group = sorted(group, key=_live_rank_key, reverse=True)
-        locked = [event for event in ranked_group if bool(event.get("ranking_locked"))]
-        unlocked = [event for event in ranked_group if not bool(event.get("ranking_locked"))]
-
-        chosen = list(locked)
-        free_slots = max(0, per_comp - len(chosen))
-        if free_slots and unlocked:
-            first = unlocked[0]
-            chosen.append(first)
-            free_slots -= 1
-            if free_slots and len(unlocked) > 1:
-                second = unlocked[1]
-                score_gap = live_popularity_score(first) - live_popularity_score(second)
-                second_is_togo = (
-                    "togo" in team(second, "home").casefold()
-                    or "togo" in team(second, "away").casefold()
-                )
-                if score_gap <= gap or second_is_togo:
-                    chosen.append(second)
-
-        if len(locked) > per_comp:
-            print("LIVE_LOCK_OVERFLOW_COMPETITION", key_name, len(locked), "cap", per_comp)
-            chosen = locked
-
-        competition_selected.extend(chosen)
-
-    locked_all = sorted(
-        [event for event in competition_selected if bool(event.get("ranking_locked"))],
-        key=_live_rank_key,
-        reverse=True,
-    )
-    new_all = sorted(
-        [event for event in competition_selected if not bool(event.get("ranking_locked"))],
-        key=_live_rank_key,
-        reverse=True,
-    )
-    if len(locked_all) > global_cap:
-        print("LIVE_LOCK_OVERFLOW_GLOBAL", len(locked_all), "cap", global_cap)
-        selected = locked_all
-    else:
-        selected = locked_all + new_all[:max(0, global_cap - len(locked_all))]
-
-    ranking_rows = [
-        {
-            "competition": live_competition_key(event),
-            "home": team(event, "home"),
-            "away": team(event, "away"),
-            "score": live_popularity_score(event),
-            "locked": bool(event.get("ranking_locked")),
-            "breakdown": live_popularity_breakdown(event),
-        }
-        for event in selected
-    ]
-    global _LAST_LIVE_RANKING
-    _LAST_LIVE_RANKING = {
-        "eligible": len(eligible),
-        "selected": len(selected),
-        "per_comp": per_comp,
-        "global_cap": global_cap,
-        "dominance_gap": gap,
-        "matches": ranking_rows,
-    }
-    if eligible:
-        print(
-            "LIVE_RANKING",
-            "eligible", len(eligible),
-            "selected", len(selected),
-            "per_comp", per_comp,
-            "global_cap", global_cap,
-            "dominance_gap", gap,
-            "matches", json.dumps(ranking_rows, ensure_ascii=False),
-        )
-    return selected
 
 
 def select_live_admissions(
@@ -651,7 +389,6 @@ def select_live_admissions(
     )
     selected_ids = {live_match_identity(event) for event in selected}
     return [event for event in events if live_match_identity(event) in selected_ids]
-
 
 _TSDB_LOGOS: dict[str, str] | None = None
 _REMOTE_TEAM_LOGOS: dict[str, str] = {}
