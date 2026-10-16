@@ -218,6 +218,11 @@ async def execute() -> int:
                 request_retries=1, connection_retries=2, flood_sleep_threshold=0
             )
             await bot_client.start(bot_token=bot_token)
+            identity = await bot_client.get_me()
+            LOG.info(
+                "Bot football sélectionné pour CinéX : @%s (ajouter comme administrateur du canal public).",
+                getattr(identity, "username", None) or "(nom indisponible)"
+            )
             bot_destination = await bot_client.get_entity(cfg["public_channel"])
             if utils.get_peer_id(bot_destination) != utils.get_peer_id(destination_public):
                 raise RuntimeError(
