@@ -3,7 +3,12 @@
     {
       "channel": "@pleziyisliye1",
       "redistribution_authorized": true,
-      "rights_basis": "Autorisation de republication déclarée par le propriétaire du projet le 2026-10-16"
+      "rights_basis": "Autorisation de republication déclarée par le propriétaire du projet le 2026-10-16",
+      "min_video_megabytes": 75,
+      "min_video_minutes": 40,
+      "max_pair_message_gap": 5,
+      "max_pair_age_minutes": 180,
+      "min_caption_chars": 12
     }
   ],
   "private_channel": "-1001234567890",
