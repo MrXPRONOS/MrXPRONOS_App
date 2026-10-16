@@ -41,6 +41,22 @@ def combine(current: dict, incoming: dict) -> dict:
         )
     merged["last_seen"] = seen
 
+    # Promotions must survive GitHub's concurrent film / ad checkpoints.
+    promo = {}
+    for target in set(incoming.get("promotions", {})) | set(current.get("promotions", {})):
+        old = current.get("promotions", {}).get(target, {})
+        newer = incoming.get("promotions", {}).get(target, {})
+        number_old = int(old.get("next_index", 0))
+        number_new = int(newer.get("next_index", 0))
+        chosen = newer if number_new > number_old else old
+        promo[target] = {
+            "last_film_total": max(int(old.get("last_film_total", 0)),
+                                   int(newer.get("last_film_total", 0))),
+            "next_index": max(number_old, number_new),
+            "sent": {**newer.get("sent", {}), **old.get("sent", {})},
+        }
+    merged["promotions"] = promo
+
     # Archive scans are cyclic: remote progress wins on conflict.
     merged["history"] = {
         **incoming.get("history", {}),
