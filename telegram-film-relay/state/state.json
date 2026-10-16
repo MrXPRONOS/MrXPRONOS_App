@@ -1,5 +1,14 @@
 {
-  "last_seen": {},
+  "history": {
+    "-1003990708673": {
+      "done": true,
+      "next_max_id": null
+    }
+  },
+  "last_seen": {
+    "-1003990708673": 101
+  },
   "processed": {},
+  "staged": {},
   "videos": {}
 }
