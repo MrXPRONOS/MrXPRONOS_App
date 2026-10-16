@@ -67,6 +67,9 @@ def config_from(path: str) -> dict:
     result["private_channel"] = os.getenv("TG_PRIVATE_CHANNEL") or result.get("private_channel")
     result["public_channel"] = os.getenv("TG_PUBLIC_CHANNEL") or result.get("public_channel")
     result["mirror_channel"] = os.getenv("TG_MIRROR_CHANNEL") or result.get("mirror_channel", "")
+    if str(result["mirror_channel"]).strip().lower() == "@torrent9seriesfilm":
+        LOG.warning("Ancien identifiant miroir corrigé automatiquement : @Torrent9SeriesFilms")
+        result["mirror_channel"] = "@Torrent9SeriesFilms"
     result["private_invite_link"] = os.getenv("TG_PRIVATE_INVITE_LINK") or result.get("private_invite_link", "")
     if result.get("private_channel") in (None, "", "-1001234567890"):
         raise ValueError("Renseigner private_channel dans config/channels.json.")

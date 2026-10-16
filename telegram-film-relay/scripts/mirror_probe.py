@@ -16,6 +16,8 @@ async def execute() -> int:
         print("FAIL : identifiants Telegram non renseignés.")
         return 1
     destination = os.getenv("TG_MIRROR_CHANNEL", "@Torrent9SeriesFilms")
+    if destination.strip().lower() == "@torrent9seriesfilm":
+        destination = "@Torrent9SeriesFilms"
     client = TelegramClient(StringSession(session), int(api_id), api_hash,
                             connection_retries=1, request_retries=1, flood_sleep_threshold=0)
     await client.connect()
