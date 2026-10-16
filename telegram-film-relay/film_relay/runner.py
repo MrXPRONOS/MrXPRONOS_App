@@ -132,9 +132,15 @@ async def execute() -> int:
 
         for src in cfg["sources"]:
             channel_name = str(src["channel"])
-            if not src.get("redistribution_authorized", False):
-                LOG.warning("Source %s ignorée : droits non confirmés", channel_name)
+            # The example source is a placeholder, never a real input.
+            if channel_name == "@source_authorisee":
                 continue
+            rights_ok = src.get("redistribution_authorized") is True
+            if publish and not rights_ok:
+                LOG.warning("Source %s ignorée pour publication : droits non confirmés", channel_name)
+                continue
+            if not publish and not rights_ok:
+                LOG.info("[SIMULATION] Source %s : analyse de format uniquement (droits non confirmés).", channel_name)
             try:
                 entity = await resolve_peer(client, channel_name)
                 if getattr(entity, "broadcast", True) is False:
