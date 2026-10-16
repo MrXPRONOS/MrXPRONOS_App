@@ -25,6 +25,14 @@ Projet isolé dans **`telegram-film-relay/`** du dépôt existant **`MrXPRONOS/M
 
 [Ouvrir le workflow Film Relay](https://github.com/MrXPRONOS/MrXPRONOS_App/actions/workflows/telegram-film-relay.yml)
 
+## Prise en charge des MKV et archives
+
+- Les fichiers `.mkv` sont reconnus même lorsqu'ils sont envoyés en tant que **documents Telegram**, sans durée dans les métadonnées. Le nom de fichier est recherché dans `Message.file.name` puis dans `DocumentAttributeFilename`.
+- Le filtre rejette les clips dont la durée est connue et trop courte. Si la durée est absente, le système vérifie une extension/MIME vidéo valide, une affiche associée et la taille du fichier ; il ne déduit pas une durée imaginaire.
+- Pour `@pleziyisliye1`, le seuil de taille est de **75 Mo**, jusqu'à **5 messages** et **180 minutes** entre une affiche et sa vidéo. Les canaux découverts non autorisés restent inactifs.
+- Dans **Film Relay → Run workflow**, garder **`rescan_history=true`** pour réexaminer les anciens messages après cette correction. Les identifiants déjà publiés restent dédupliqués.
+- Un lancement manuel ou de vérification affichera désormais **une erreur** si aucun film n'a réellement été envoyé. Les passages programmés peuvent terminer normalement lorsqu'aucun film nouveau n'est disponible.
+
 ## Mise en production dans le dépôt existant
 
 Le dépôt GitHub actuel est **public** : ne placez aucune session, hash API, invitation privée non destinée au public ou donnée personnelle dans les fichiers suivis par Git.
