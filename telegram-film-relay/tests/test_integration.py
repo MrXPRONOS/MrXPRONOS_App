@@ -43,7 +43,7 @@ class FakeTelegramClient:
         self.fail_on_send = fail_on_send
         self.sent = []
         self.private = NS(peer_id=PRIV)
-        self.public = NS(peer_id=PUB)
+        self.public = NS(peer_id=PUB, broadcast=True, username='public_legal', title='Canal public de test')
         self.source = NS(peer_id=SRC, noforwards=False)
         self._next = 100
 
