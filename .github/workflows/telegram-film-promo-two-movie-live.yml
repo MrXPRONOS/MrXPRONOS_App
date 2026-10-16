@@ -1,10 +1,6 @@
 name: CinéX - Essai réel 2 films puis publicité
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/telegram-film-promo-two-movie-live.yml'
   workflow_dispatch:
 
 permissions:
