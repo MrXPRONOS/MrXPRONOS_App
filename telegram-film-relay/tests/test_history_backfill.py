@@ -44,6 +44,20 @@ class HistoryTests(unittest.TestCase):
             self.assertTrue(done)
             self.assertEqual(len(c.calls), before)
 
+    def test_archive_cycle_restarts_after_reaching_oldest_message(self):
+        with TemporaryDirectory() as d:
+            state = State(str(Path(d) / 'state.json'))
+            state.advance_history('source', None, True)
+            client = FakeArchive(11)
+            page, next_cursor, done = asyncio.run(load_archive_messages(
+                client, object(), state, 'source',
+                {'history_page_messages': 30, 'history_overlap_messages': 5,
+                 'archive_cycle': True}
+            ))
+            self.assertEqual([x.id for x in page], list(range(1, 12)))
+            self.assertTrue(done)
+            self.assertIsNone(next_cursor)
+
     def test_resume(self):
         with TemporaryDirectory() as d:
             path = str(Path(d) / 'state.json')
