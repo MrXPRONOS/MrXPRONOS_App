@@ -33,6 +33,30 @@ Projet isolé dans **`telegram-film-relay/`** du dépôt existant **`MrXPRONOS/M
 - Dans **Film Relay → Run workflow**, garder **`rescan_history=true`** pour réexaminer les anciens messages après cette correction. Les identifiants déjà publiés restent dédupliqués.
 - Un lancement manuel ou de vérification affichera désormais **une erreur** si aucun film n'a réellement été envoyé. Les passages programmés peuvent terminer normalement lorsqu'aucun film nouveau n'est disponible.
 
+## Sources autorisées de type MKV
+
+Le canal `@pleziyisliye1` utilise désormais le mode `authorized_mkv` :
+
+- Associe **photo avec description → MKV**, ou **photo → message descriptif → MKV**, dans cet ordre.
+- Le descriptif doit contenir un indice de film : Titre original, Genre, Durée, Synopsis, Film, Réalisateur, Acteurs, Année ou Sortie.
+- Ce mode n'applique **aucune limite minimale de durée ou de taille** au MKV ; les autres sources conservent leurs règles normales.
+- `archive_cycle: true` reprend la recherche d'anciens films à chaque exécution, même après une traversée complète.
+- L'anti-doublon est conservé, les contenus protégés contre les transferts sont ignorés.
+
+Pour tout autre canal disposant d'une autorisation de republication, ajouter dans `config/channels.json` :
+
+```json
+{
+  "channel": "@autre_canal_avec_autorisation",
+  "redistribution_authorized": true,
+  "rights_basis": "Autorisation explicite du titulaire",
+  "matching_mode": "authorized_mkv",
+  "archive_cycle": true
+}
+```
+
+Ne pas activer `redistribution_authorized` pour des canaux dont les droits n'ont pas été établis.
+
 ## Mise en production dans le dépôt existant
 
 Le dépôt GitHub actuel est **public** : ne placez aucune session, hash API, invitation privée non destinée au public ou donnée personnelle dans les fichiers suivis par Git.
