@@ -1,5 +1,6 @@
 """Entire relay contract tested with an in-memory fake Telegram client; no API calls."""
 import asyncio
+import io
 import json
 import os
 import sys
@@ -48,7 +49,9 @@ class FakeTelegramClient:
         self._next = 100
 
     async def connect(self): pass
+    async def start(self, bot_token=None): return self
     async def disconnect(self): pass
+    async def download_media(self, media, file=bytes): return str(media).encode("utf-8")
     async def is_user_authorized(self): return True
     async def get_entity(self, value):
         if value == PRIV or str(value) == str(PRIV): return self.private
@@ -65,11 +68,14 @@ class FakeTelegramClient:
         for obj in found[:limit]:
             yield obj
 
-    async def send_file(self, entity, media, *, caption, parse_mode=None):
+    async def send_file(self, entity, media, *, caption, parse_mode=None, **options):
         if self.fail_on_send is not None and len(self.sent) + 1 == self.fail_on_send:
             raise RuntimeError('simulated Telegram transport failure')
         self._next += 1
-        self.sent.append(NS(channel=entity.peer_id, media=media, caption=caption, id=self._next))
+        if isinstance(media, io.BytesIO):
+            media = media.getvalue().decode("utf-8")
+        self.sent.append(NS(channel=entity.peer_id, media=media, caption=caption,
+                            parse_mode=parse_mode, options=options, id=self._next))
         return NS(id=self._next)
 
 
@@ -77,6 +83,7 @@ def mocks_for(client):
     telethon = types.ModuleType('telethon')
     telethon.TelegramClient = lambda *args, **kwargs: client
     telethon.utils = NS(get_peer_id=lambda entity: entity.peer_id)
+    telethon.Button = NS(url=lambda label, url: (label, url))
     sessions = types.ModuleType('telethon.sessions')
     sessions.StringSession = lambda content: content
     return {'telethon': telethon, 'telethon.sessions': sessions}
@@ -87,6 +94,7 @@ class RelayEndToEndTests(unittest.TestCase):
         environment = {
             'TG_API_ID': '12345', 'TG_API_HASH': 'not-real', 'TG_STRING_SESSION': 'fake',
             'TG_RIGHTS_ATTESTED': 'true', 'FILM_PUBLISH_ENABLED': 'true',
+            'CINEX_BOT_TOKEN': '123:fake-bot-token',
             'CHANNELS_CONFIG': str(cfg_path), 'STATE_PATH': str(state_path),
         }
         with patch.dict(os.environ, environment), patch.dict(sys.modules, mocks_for(client)):
@@ -112,9 +120,11 @@ class RelayEndToEndTests(unittest.TestCase):
             self.assertEqual([x.media for x in client.sent], ['poster-0', 'video-0', 'poster-0'])
             self.assertIn('Résumé du film', client.sent[0].caption)
             self.assertNotIn('t.me', client.sent[0].caption)
-            self.assertTrue(client.sent[1].caption.startswith('🎬 Excellente histoire'))
+            self.assertTrue(client.sent[1].caption.startswith('<b>🎞️ Excellente histoire'))
             self.assertNotIn('http', client.sent[1].caption)
-            self.assertIn('https://t.me/c/1020304050/102', client.sent[2].caption)
+            self.assertNotIn('https://t.me/c/1020304050/102', client.sent[2].caption)
+            self.assertEqual(client.sent[2].options['buttons'][0][0][1], 'https://t.me/c/1020304050/102')
+            self.assertIn('<b>', client.sent[2].caption)
             self.assertEqual(State(str(state)).seen(str(SRC)), 11)
             second_client = FakeTelegramClient(sample_messages())
             self.assertEqual(self.start(second_client, cfg, state), 0)
@@ -131,7 +141,7 @@ class RelayEndToEndTests(unittest.TestCase):
             self.assertEqual(self.start(second, cfg, state), 0)
             self.assertEqual(len(second.sent), 1)
             self.assertEqual(second.sent[0].channel, PUB)
-            self.assertIn('/102', second.sent[0].caption)
+            self.assertEqual(second.sent[0].options['buttons'][0][0][1], 'https://t.me/c/1020304050/102')
             self.assertEqual(State(str(state)).get_staged_posts(f'{SRC}:10:11'), {})
 
     def test_publication_limit_does_not_drop_later_pairs(self):
