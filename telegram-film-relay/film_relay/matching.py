@@ -23,6 +23,22 @@ def document_of(msg: Any) -> Any:
     return getattr(msg, "document", None)
 
 
+def filename_of(msg: Any) -> str:
+    """Read filename from Telethon Message.file OR DocumentAttributeFilename.
+
+    MKV is commonly uploaded as a generic Telegram document, not Video.
+    """
+    name = getattr(getattr(msg, "file", None), "name", None)
+    if name:
+        return str(name).lower()
+    doc = document_of(msg)
+    for attr in getattr(doc, "attributes", []) or []:
+        value = getattr(attr, "file_name", None)
+        if value:
+            return str(value).lower()
+    return ""
+
+
 def is_video(msg: Any) -> bool:
     """A video-file message, not a short clip or a text-only message."""
     if getattr(msg, "photo", None) is not None:
@@ -31,8 +47,8 @@ def is_video(msg: Any) -> bool:
     if doc is None and getattr(msg, "video", None) is None:
         return False
     mime = str(getattr(doc, "mime_type", "") or "").lower()
-    filename = str(getattr(getattr(msg, "file", None), "name", "") or "").lower()
-    if not (mime.startswith("video/") or filename.endswith(VIDEO_EXT) or getattr(msg, "video", None)):
+    filename = filename_of(msg)
+    if not (mime.startswith("video/") or "matroska" in mime or filename.endswith(VIDEO_EXT) or getattr(msg, "video", None)):
         return False
     if TRAILER.search(str(getattr(msg, "raw_text", "") or "")):
         return False
