@@ -93,3 +93,22 @@ def recover_from_snapshot(cache: TelegramReceiptCache, state, pair_id: str,
             pair_id, candidates[0],
         )
     return "staged"
+
+
+async def existing_native_forwards(client, mirror_channel, origin_public_peer_id: int,
+                                   *, limit: int = 600) -> dict[int, int]:
+    """Map original public-post ID to existing forwarded message ID.
+
+    Avoid duplicate forwards after a successful Telegram send whose state
+    could not be committed to GitHub.
+    """
+    origin = str(origin_public_peer_id).removeprefix("-100")
+    forwards: dict[int, int] = {}
+    async for post in client.iter_messages(mirror_channel, limit=limit):
+        forwarded = getattr(post, "fwd_from", None)
+        peer = getattr(forwarded, "from_id", None)
+        channel_id = getattr(peer, "channel_id", None)
+        original_post_id = getattr(forwarded, "channel_post", None)
+        if channel_id is not None and str(channel_id) == origin and original_post_id:
+            forwards.setdefault(int(original_post_id), int(post.id))
+    return forwards
