@@ -57,6 +57,21 @@ Pour tout autre canal disposant d'une autorisation de republication, ajouter dan
 
 Ne pas activer `redistribution_authorized` pour des canaux dont les droits n'ont pas été établis.
 
+## Boutons Telegram et mise en forme CinéX
+
+**Les vrais boutons Telegram exigent un bot : la session personnelle ne peut pas en publier.**
+
+1. Ouvrir [@BotFather](https://t.me/BotFather) dans Telegram, lancer `/newbot` et créer un bot dédié CinéX (ex. `@CinexFilms_Bot` si disponible).
+2. Copier son jeton dans **GitHub → Settings → Secrets and variables → Actions → Repository secrets** avec le nom exact `CINEX_BOT_TOKEN` ; ne pas transmettre le jeton par message.
+3. Ajouter **ce bot** comme **administrateur du canal public** avec l'autorisation **Publier des messages**. Il n'a pas besoin d'être administrateur du canal privé.
+4. Relancer **Mr XPRONOS - Film Relay**. La session utilisateur continuera de poster l'affiche et le MKV dans le canal privé ; **le bot publiera l'affiche publique** avec des boutons Telegram.
+
+Présentation publique : titre en **gras**, métadonnées (genre, durée, synopsis) stylées, sans URL visible dans la légende. Bouton principal : **🎬 REGARDER LE FILM** (message vidéo du privé). Si le lien d'invitation est disponible, second bouton : **🔐 REJOINDRE LA VIDÉOTHÈQUE**. Les destinataires doivent être membres du canal privé pour ouvrir le lien direct de la vidéo.
+
+Le programme s'arrête avec une erreur claire lorsque le bot n'est pas configuré ; il **n'envoie pas la vidéo privée avant de vérifier** le jeton et l'accès du bot au canal public. Une défaillance ultérieure de publication publique conserve un checkpoint pour réessayer sans renvoyer le même MKV.
+
+**Les anciens messages déjà envoyés par la session utilisateur ne peuvent pas être modifiés par ce nouveau bot.** Les boutons s'appliquent aux publications futures.
+
 ## Mise en production dans le dépôt existant
 
 Le dépôt GitHub actuel est **public** : ne placez aucune session, hash API, invitation privée non destinée au public ou donnée personnelle dans les fichiers suivis par Git.
@@ -68,6 +83,7 @@ Le dépôt GitHub actuel est **public** : ne placez aucune session, hash API, in
 | `TG_API_ID` | oui | Numéro `api_id` de my.telegram.org |
 | `TG_API_HASH` | oui | Chaîne `api_hash` de my.telegram.org |
 | `TG_SESSION_STRING` | oui | Session Telethon `StringSession` générée localement, jamais dans le chat ou Git |
+| `CINEX_BOT_TOKEN` | **oui pour les boutons** | Jeton d'un bot dédié CinéX créé sur Telegram via @BotFather. Ajouter ce bot comme **administrateur du canal public** avec l'autorisation de publier. |
 | `TG_APPROVED_SOURCES_JSON` | facultatif | Liste JSON des sources **dont la redistribution est autorisée**, avec justification |
 
 Exemple de **format** pour le secret facultatif (pas de vraie source) :
