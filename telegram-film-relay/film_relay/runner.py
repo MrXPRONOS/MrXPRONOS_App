@@ -195,6 +195,16 @@ async def execute() -> int:
         private_id = utils.get_peer_id(destination_private)
         if not str(private_id).startswith("-100"):
             raise ValueError("La destination privée doit être un canal (identifiant -100...).")
+        if utils.get_peer_id(destination_public) == private_id:
+            raise RuntimeError(
+                "Le canal public et le canal privé correspondent au même canal. "
+                "Renseigner deux destinations distinctes avant de publier."
+            )
+        if not getattr(destination_public, "username", None):
+            raise RuntimeError(
+                "Super Mario Film (destination publique) ne possède pas de @username public. "
+                "Vérifier la confidentialité du canal ou corriger TG_PUBLIC_CHANNEL."
+            )
         invitation = (cfg.get("private_invite_link") or "").strip()
         if not invitation and publish:
             # A t.me/c/ link works only for private-channel members. Offer an
