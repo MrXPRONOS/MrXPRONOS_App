@@ -18,13 +18,13 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 LOG = logging.getLogger("cinex_promotions")
 CAMPAIGNS = (
     ("actu", "@actufoot_mrxp", "ACTU FOOT",
-     "⚽ Infos, mercato, résultats : reste au cœur du foot !", "📰 ACTU FOOT",
+     "⚽ Actus, mercato, résultats.", "📰 ACTU FOOT",
      "INFOS • MERCATO • RÉSULTATS"),
     ("live", "@mr_xpronos_vip", "PRONOS LIVE VIP",
-     "🔴 Matchs en direct, signaux et coupons live !", "⚡ PRONOS LIVE",
+     "🔴 Live : coupons et alertes.", "⚡ PRONOS LIVE",
      "DIRECT • SIGNAUX • ALERTES"),
     ("jour", "@mrxpronosfr", "COUPONS DU JOUR",
-     "🎯 Sélections et analyses des matchs du jour !", "⚽ PRONOS DU JOUR",
+     "🎯 Coupons du jour et analyses.", "⚽ PRONOS DU JOUR",
      "MATCHS • SÉLECTIONS • ANALYSES"),
 )
 
@@ -124,9 +124,8 @@ def _cursor(state, target: str):
 def due(state, target: str, film_total: int, *, force=False):
     entry=_cursor(state,target)
     index=int(entry["next_index"]) % len(CAMPAIGNS)
-    # Alternating two and three complete films between ads.
-    threshold=2 if index % 2 == 0 else 3
-    return index if (force or film_total-int(entry["last_film_total"]) >= threshold) else None
+    # Exactly two completed films between consecutive adverts in each channel.
+    return index if (force or film_total-int(entry["last_film_total"]) >= 2) else None
 
 
 async def _recently_published(client, channel, caption, *, limit=60):
@@ -175,7 +174,7 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
                              *,force=False) -> dict[str,int]:
     """One campaign per channel per run; primary forwarded intact to mirror.
 
-    A campaign runs once after 2–3 more films on each channel. In the mirror,
+    A campaign runs once after exactly 2 additional films on each channel. In the mirror,
     it forwards the actual branded/public post with the Telegram source header.
     """
     from telethon import utils
