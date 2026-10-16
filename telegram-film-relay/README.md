@@ -81,7 +81,24 @@ Une fois l'affiche publiée dans le premier canal public par le bot, le compte T
 
 Chaque transfert réussi est enregistré dans `state/state.json` sous `mirrors`, par ID numérique du second canal. En cas d'échec, le film déjà publié dans le privé et le public principal reste sauvegardé ; les exécutions suivantes essaient de transférer le post public existant **sans renvoyer le MKV**. Les publications publiques antérieures non encore transférées sont également traitées, par lots de dix.
 
-**Vérification du 16 octobre 2026 :** Telegram a renvoyé `UsernameNotOccupiedError` pour `@Torrent9SeriesFilms` depuis la session connectée. Tant que cet identifiant n'est pas reconnu, le transfert secondaire est indisponible ; la publication dans les deux canaux principaux continue. Vérifier dans Telegram **Informations du canal → Nom d'utilisateur** et copier le lien exact, ou mettre un identifiant numérique `-100...` accessible à ce compte dans la variable `TG_MIRROR_CHANNEL`.
+**Vérification du 16 octobre 2026 :** `@Torrent9SeriesFilms` (avec le **s** final) a été résolu par Telegram. Le compte dispose du droit de publication et le canal public d'origine autorise les transferts natifs. L'ancien identifiant singulier est automatiquement corrigé, même si la variable GitHub n'a pas encore été mise à jour.
+
+## Correction des doublons et nettoyage du 16 octobre 2026
+
+**Cause identifiée :** les images et fichiers MKV avaient été envoyés avec succès sur Telegram, mais l'enregistrement `state/state.json` était parfois perdu à cause de conflits `git push` provoqués par des mises à jour concurrentes. Des relances republiaient alors le même document.
+
+**Correctifs durables :**
+
+- `film_relay/recovery.py` compare les vrais identifiants des documents Telegram privés et les boutons ou liens des messages publics avant de publier ; un envoi déjà réussi est restauré dans le suivi GitHub, et une vidéo privée déjà présente est réutilisée.
+- `scripts/merge_state.py` fusionne les reçus du job avec le dernier état distant GitHub ; le workflow peut réessayer la sauvegarde huit fois.
+- L'anti-doublon du second canal examine les en-têtes Telegram des transferts pour reconnaître les messages déjà transférés, même après un problème de sauvegarde.
+- Les modifications de code ne déclenchent plus automatiquement une publication en production : elles ne lancent que les tests ; les transferts restent programmés ou manuels.
+
+**Nettoyage ciblé déjà réalisé :** 4 MKV répétés, 4 affiches correspondantes et 3 publications publiques obsolètes ont été supprimés après vérification du document exact et du message public canonique. La vidéo privée 15 et le message public 11 ont été conservés. Un audit ultérieur n'a plus trouvé de copies identiques dans les publications suivies.
+
+**Essai en production :** le workflow a publié cinq nouveaux films et transféré sept publications publiques vers `@Torrent9SeriesFilms`, dont deux anciens messages, avec **0 erreur de transfert**. Les reçus apparaissent sous `state/state.json → mirrors`.
+
+**Validation :** 59 tests automatisés hors ligne réussis. Les workflows d'audit et de nettoyage restent en mode lecture seule ; aucune suppression automatique récurrente n'est activée.
 
 ## Mise en production dans le dépôt existant
 
