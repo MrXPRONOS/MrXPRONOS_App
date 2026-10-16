@@ -133,7 +133,7 @@ async def _recently_published(client, channel, caption, *, limit=60):
     """Avoid repeating identical ad after a failed GitHub state commit."""
     now=datetime.now(timezone.utc)
     async for msg in client.iter_messages(channel, limit=limit):
-        if getattr(msg,"raw_text","").strip() != caption:
+        if str(getattr(msg,"raw_text","") or "").strip() != caption:
             continue
         dt=getattr(msg,"date",None)
         if dt and dt.tzinfo is None:
