@@ -12,6 +12,7 @@ from .matching import (document_key, filename_of, is_poster, is_video, match_pai
 from .verification import screen_pairs
 from .publication import (rich_caption, rich_video_title, send_public_poster_with_buttons)
 from .state import State
+from .recovery import snapshot_telegram_posts, recover_from_snapshot
 from .text import (caption_with_link, clean_caption, first_title, private_message_link,
                    private_poster_caption, private_video_caption)
 
@@ -181,6 +182,7 @@ async def execute() -> int:
         )
 
     state = State(os.getenv("STATE_PATH", "state/state.json"))
+    recovery_cache = None
     seen_count = published_count = proposed_count = failed_count = 0
     max_posts = min(10, max(1, int(os.getenv("FILM_MAX_POSTS_PER_RUN", cfg.get("max_posts_per_run", 5)))))
     pause_seconds = max(3.0, float(cfg.get("publication_pause_seconds", 5)))
@@ -439,6 +441,24 @@ async def execute() -> int:
                     media_id = document_key(pair.movie)
                     if state.recorded(pair_id, media_id):
                         continue
+                    if publish:
+                        # GitHub push conflicts can lose checkpoint JSON even after
+                        # Telegram accepted media. Reconcile from live Telegram
+                        # before any new private or public send.
+                        if recovery_cache is None:
+                            recovery_cache = await snapshot_telegram_posts(
+                                client, destination_private, destination_public, private_id
+                            )
+                            LOG.info(
+                                "Anti-doublons Telegram : %s vidéos distinctes, %s publications publiques indexées",
+                                len(recovery_cache.by_document),
+                                len(recovery_cache.public_by_video),
+                            )
+                        recovered = recover_from_snapshot(
+                            recovery_cache, state, pair_id, media_id, pair.movie, logger=LOG
+                        )
+                        if recovered == "complete":
+                            continue
                     text = clean_caption(description_of(pair), description_entities_of(pair))
                     if len(text) < 12:
                         LOG.info("Affiche %s ignorée (description trop courte après nettoyage)", pair.poster.id)
