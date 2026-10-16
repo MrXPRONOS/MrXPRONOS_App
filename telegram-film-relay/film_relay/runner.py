@@ -7,7 +7,8 @@ import logging
 import os
 from pathlib import Path
 
-from .matching import document_key, filename_of, is_poster, is_video, match_pairs
+from .matching import (document_key, filename_of, is_poster, is_video, match_pairs,
+                       match_authorized_mkv_pairs, description_of, description_entities_of)
 from .verification import screen_pairs
 from .state import State
 from .text import (caption_with_link, clean_caption, first_title, private_message_link,
@@ -122,11 +123,11 @@ async def load_archive_messages(client, entity, state: State, source_id: str, cf
     advance the archive cursor until all eligible posts in the page complete.
     """
     rescan = flag("FILM_RESCAN_HISTORY", False)
-    if state.history_done(source_id) and not rescan:
+    if state.history_done(source_id) and not rescan and not cfg.get("archive_cycle", False):
         return [], None, True
     page_size = min(500, max(30, int(cfg.get("history_page_messages", 240))))
     overlap = min(30, max(3, int(cfg.get("history_overlap_messages", 12))))
-    cursor = None if rescan else state.history_cursor(source_id)
+    cursor = None if (rescan or (cfg.get("archive_cycle", False) and state.history_done(source_id))) else state.history_cursor(source_id)
     kwargs = {"limit": page_size}
     if cursor is not None:
         kwargs["max_id"] = cursor
@@ -241,8 +242,9 @@ async def execute() -> int:
                 channel_key = str(utils.get_peer_id(entity))
                 old_seen = state.seen(channel_key)
                 fresh_messages = await load_messages(client, entity, old_seen, cfg)
+                archive_cfg = {**cfg, "archive_cycle": bool(src.get("archive_cycle", False))}
                 archive_messages, history_next, history_finished = await load_archive_messages(
-                    client, entity, state, channel_key, cfg
+                    client, entity, state, channel_key, archive_cfg
                 )
                 if not fresh_messages and not archive_messages:
                     continue
@@ -258,8 +260,13 @@ async def execute() -> int:
                     "max_age_minutes": int(src.get("max_pair_age_minutes", 60)),
                     "min_caption_chars": int(src.get("min_caption_chars", 25)),
                 }
-                fresh_pairs = screen_pairs(fresh_messages, **pairing).pairs
-                archive_pairs = screen_pairs(archive_messages, **pairing).pairs
+                mkv_mode = rights_ok and src.get("matching_mode") == "authorized_mkv"
+                if mkv_mode:
+                    fresh_pairs = match_authorized_mkv_pairs(fresh_messages)
+                    archive_pairs = match_authorized_mkv_pairs(archive_messages)
+                else:
+                    fresh_pairs = screen_pairs(fresh_messages, **pairing).pairs
+                    archive_pairs = screen_pairs(archive_messages, **pairing).pairs
                 seen_pair_ids = set()
                 pairs = []
                 for item in [*fresh_pairs, *archive_pairs]:
@@ -276,16 +283,17 @@ async def execute() -> int:
                     if not window:
                         continue
                     screened = screen_pairs(window, **pairing)
-                    candid = match_pairs(window, max_gap=pairing["max_gap"],
-                                         max_age_minutes=pairing["max_age_minutes"])
+                    candid = (match_authorized_mkv_pairs(window) if mkv_mode else
+                              match_pairs(window, max_gap=pairing["max_gap"],
+                                          max_age_minutes=pairing["max_age_minutes"]))
                     photo_count = sum(bool(getattr(m, "photo", None)) for m in window)
                     video_count = sum(is_video(m) for m in window)
                     mkv_count = sum(filename_of(m).endswith(".mkv") for m in window)
                     LOG.info(
                         "DIAGNOSTIC FORMAT %s/%s : messages=%d, photos=%d, videos=%d, "
-                        "mkv=%d, candidats_souples=%d, paires_strictes=%d, rejets=%s",
+                        "mkv=%d, candidats_format=%d, paires_strictes=%d, mode_mkv=%s, rejets=%s",
                         channel_name, window_name, len(window), photo_count,
-                        video_count, mkv_count, len(candid), len(screened.pairs),
+                        video_count, mkv_count, len(candid), len(screened.pairs), mkv_mode,
                         ",".join(screened.reasons[:15]) or "aucun"
                     )
                 if not pairs:
@@ -318,7 +326,7 @@ async def execute() -> int:
                     media_id = document_key(pair.movie)
                     if state.recorded(pair_id, media_id):
                         continue
-                    text = clean_caption(pair.poster.raw_text or "", pair.poster.entities)
+                    text = clean_caption(description_of(pair), description_entities_of(pair))
                     if len(text) < 12:
                         LOG.info("Affiche %s ignorée (description trop courte après nettoyage)", pair.poster.id)
                         continue
