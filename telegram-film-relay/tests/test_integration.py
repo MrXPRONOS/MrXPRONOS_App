@@ -47,7 +47,7 @@ class FakeTelegramClient:
         self.private = NS(peer_id=PRIV)
         self.public = NS(peer_id=PUB, broadcast=True, username='public_legal', title='Canal public de test')
         self.source = NS(peer_id=SRC, noforwards=False)
-        self.mirror = NS(peer_id=MIRROR, broadcast=True, username='Torrent9SeriesFilm')
+        self.mirror = NS(peer_id=MIRROR, broadcast=True, username='Torrent9SeriesFilms')
         self.mirror_should_fail = False
         self.forwarded = []
         self._next = 100
@@ -61,7 +61,7 @@ class FakeTelegramClient:
     async def get_entity(self, value):
         if value == PRIV or str(value) == str(PRIV): return self.private
         if value == '@public_legal': return self.public
-        if value == '@Torrent9SeriesFilm': return self.mirror
+        if value == '@Torrent9SeriesFilms': return self.mirror
         if value == '@source_legal': return self.source
         raise ValueError(value)
 
@@ -122,7 +122,7 @@ class RelayEndToEndTests(unittest.TestCase):
             'private_channel': str(PRIV), 'public_channel': '@public_legal',
             'private_invite_link': 'https://t.me/+JOIN', 'private_layout': 'poster_and_video',
             'max_posts_per_run': max_posts, 'bootstrap_messages': 150, 'lookback_ids': 80,
-            **({'mirror_channel': '@Torrent9SeriesFilm'} if with_mirror else {}),
+            **({'mirror_channel': '@Torrent9SeriesFilms'} if with_mirror else {}),
         }))
         return cfg_file, Path(temp) / 'state.json'
 
