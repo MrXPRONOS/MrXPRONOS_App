@@ -34,3 +34,5 @@ jobs:
         run: python scripts/verify_promo_delivery.py
 
 # Check full Telethon button metadata after publication.
+
+# Inspect exact inline button classes and links after Telegram transfer.
