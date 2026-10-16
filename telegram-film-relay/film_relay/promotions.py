@@ -187,7 +187,7 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
     if idx is not None and ready is not None:
         entry=_cursor(state,first_id)
         caption=campaign_caption(idx)
-        found=await _recently_published(bot,ready,caption)
+        found=await _recently_published(user_client,ready,caption)
         if found is not None:
             post_id=found
             LOG.info("Annonce déjà présente dans le public, envoi ignoré (%s)",post_id)
@@ -207,7 +207,7 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
         want=int(e["next_index"]) % len(CAMPAIGNS)
         if ready is not None:
             # Retrieve a photo matching the current campaign from primary.
-            primary_post=await _recently_published(bot,ready,campaign_caption(want),limit=150)
+            primary_post=await _recently_published(user_client,ready,campaign_caption(want),limit=150)
             if primary_post is not None:
                 from .recovery import existing_native_forwards
                 found_map=await existing_native_forwards(user_client,mirror,utils.get_peer_id(primary))
@@ -230,7 +230,7 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
         ready_private=await _bot_can_post(bot,private,identity)
         if ready_private is not None:
             e=_cursor(state,private_id);idx=int(e["next_index"])%len(CAMPAIGNS)
-            exists=await _recently_published(bot,ready_private,campaign_caption(idx))
+            exists=await _recently_published(user_client,ready_private,campaign_caption(idx))
             if exists is not None:
                 msg_id=exists
             else:
