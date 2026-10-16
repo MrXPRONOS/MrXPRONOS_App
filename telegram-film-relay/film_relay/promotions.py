@@ -128,11 +128,12 @@ def due(state, target: str, film_total: int, *, force=False):
     return index if (force or film_total-int(entry["last_film_total"]) >= 2) else None
 
 
-async def _recently_published(client, channel, caption, *, limit=60):
+async def _recently_published(client, channel, caption, *, limit=80, exclude_ids=()):
     """Avoid repeating identical ad after a failed GitHub state commit."""
     now=datetime.now(timezone.utc)
     async for msg in client.iter_messages(channel, limit=limit):
-        if str(getattr(msg,"raw_text","") or "").strip() != caption:
+        if (int(getattr(msg, "id", 0) or 0) in exclude_ids or
+            str(getattr(msg,"raw_text","") or "").strip() != caption):
             continue
         dt=getattr(msg,"date",None)
         if dt and dt.tzinfo is None:
@@ -193,7 +194,10 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
     if idx is not None and ready is not None:
         entry=_cursor(state,first_id)
         caption=campaign_caption(idx)
-        found=await _recently_published(user_client,primary,caption)
+        found=await _recently_published(
+            user_client, primary, caption,
+            exclude_ids={int(v) for v in entry["sent"].values()}
+        )
         if found is not None:
             post_id=found
             LOG.info("Annonce déjà présente dans le public, envoi ignoré (%s)",post_id)
@@ -244,7 +248,10 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
         ready_private=await _bot_can_post(bot,private,identity)
         if ready_private is not None:
             e=_cursor(state,private_id);idx=int(e["next_index"])%len(CAMPAIGNS)
-            exists=await _recently_published(user_client,private,campaign_caption(idx))
+            exists=await _recently_published(
+                user_client, private, campaign_caption(idx),
+                exclude_ids={int(v) for v in e["sent"].values()}
+            )
             if exists is not None:
                 msg_id=exists
             else:
