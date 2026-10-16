@@ -16,6 +16,24 @@ class State:
         self.data.setdefault("processed", {})
         self.data.setdefault("videos", {})
         self.data.setdefault("staged", {})
+        self.data.setdefault("history", {})
+
+
+    def history_cursor(self, source: str) -> int | None:
+        """Exclusive max_id used by the next archive window; None means newest page."""
+        entry = self.data["history"].get(source, {})
+        return entry.get("next_max_id")
+
+    def history_done(self, source: str) -> bool:
+        return bool(self.data["history"].get(source, {}).get("done", False))
+
+    def advance_history(self, source: str, next_max_id: int | None, done: bool = False) -> None:
+        """Persist archive progress only after a whole page was processed."""
+        self.data["history"][source] = {
+            "next_max_id": int(next_max_id) if next_max_id is not None else None,
+            "done": bool(done),
+        }
+        self.save()
 
     def recorded(self, pair_id: str, media_id: str | None) -> bool:
         return pair_id in self.data["processed"] or bool(media_id and media_id in self.data["videos"])
