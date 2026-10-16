@@ -177,6 +177,22 @@ class RelayEndToEndTests(unittest.TestCase):
             self.assertEqual(len(second.forwarded), 1)
             self.assertTrue(State(str(state)).mirrored(f'{SRC}:10:11', str(MIRROR)))
 
+    def test_two_films_trigger_all_three_button_promos(self):
+        with TemporaryDirectory() as temp:
+            cfg, state = self.setup_files(temp, max_posts=2, with_mirror=True)
+            client = FakeTelegramClient(sample_messages(count=2))
+            self.assertEqual(self.start(client, cfg, state), 0)
+            ads = [x for x in client.sent if x.media == "mrx_actu.jpg"]
+            self.assertEqual([x.channel for x in ads], [PUB, PRIV])
+            self.assertTrue(all(x.options["buttons"][0][0][1] ==
+                                "https://t.me/actufoot_mrxp" for x in ads))
+            forwarded = [x for x in client.forwarded if x.origin_id == ads[0].id]
+            self.assertEqual(len(forwarded), 1)
+            self.assertEqual(forwarded[0].destination, MIRROR)
+            promos = State(str(state)).data["promotions"]
+            self.assertEqual(len(promos), 3)
+            self.assertTrue(all(p["next_index"] == 1 for p in promos.values()))
+
     def test_failure_after_private_video_resume_only_public(self):
         with TemporaryDirectory() as temp:
             cfg, state = self.setup_files(temp)
