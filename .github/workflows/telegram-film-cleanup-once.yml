@@ -21,7 +21,7 @@ jobs:
           python-version: '3.12'
       - name: Installer Telethon
         run: python -m pip install -r telegram-film-relay/requirements.txt
-      - name: Audit exact des doublons CineX, sans suppression
+      - name: Nettoyage ciblé des doublons CinéX vérifiés
         working-directory: telegram-film-relay
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
@@ -30,4 +30,4 @@ jobs:
           TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
           TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
           PYTHONPATH: .
-        run: python scripts/cleanup_cinex_duplicates.py
+        run: python scripts/cleanup_cinex_duplicates.py --apply
