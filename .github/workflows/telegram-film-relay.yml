@@ -75,11 +75,32 @@ jobs:
       - name: Persist relay checkpoint even after partial send failure
         if: always() && steps.credentials.outputs.ready == 'true'
         run: |
-          if ! git diff --quiet -- telegram-film-relay/state/state.json; then
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add telegram-film-relay/state/state.json
-            git commit -m 'state: film relay checkpoint [skip ci]'
-            git pull --rebase
-            git push || { git pull --rebase && git push; }
+          set -e
+          STATE_FILE="telegram-film-relay/state/state.json"
+          if git diff --quiet -- "$STATE_FILE"; then
+            echo "No new Telegram receipts to persist."
+            exit 0
           fi
+          cp "$STATE_FILE" "$RUNNER_TEMP/cinex-checkpoint.json"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git fetch origin main
+            git reset --hard origin/main
+            python telegram-film-relay/scripts/merge_state.py \
+              "$RUNNER_TEMP/cinex-checkpoint.json" "$STATE_FILE"
+            if git diff --quiet -- "$STATE_FILE"; then
+              echo "Receipts already present on remote."
+              exit 0
+            fi
+            git add "$STATE_FILE"
+            git commit -m "state: film relay checkpoint [skip ci]"
+            if git push origin HEAD:main; then
+              echo "Telegram publication receipts persisted on GitHub."
+              exit 0
+            fi
+            echo "Concurrent update: merging again ($attempt/8)"
+            sleep 2
+          done
+          echo "::error::Film checkpoint could not be saved after eight merged retries"
+          exit 1
