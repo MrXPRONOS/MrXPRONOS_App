@@ -18,6 +18,7 @@ from film_relay.state import State
 
 DATE = datetime(2026, 10, 15, tzinfo=timezone.utc)
 SRC, PRIV, PUB = -1009012345678, -1001020304050, -1005060708090
+MIRROR = -1008080808080
 
 
 def sample_messages(count=1):
@@ -46,6 +47,9 @@ class FakeTelegramClient:
         self.private = NS(peer_id=PRIV)
         self.public = NS(peer_id=PUB, broadcast=True, username='public_legal', title='Canal public de test')
         self.source = NS(peer_id=SRC, noforwards=False)
+        self.mirror = NS(peer_id=MIRROR, broadcast=True, username='Torrent9SeriesFilm')
+        self.mirror_should_fail = False
+        self.forwarded = []
         self._next = 100
 
     async def connect(self): pass
@@ -57,6 +61,7 @@ class FakeTelegramClient:
     async def get_entity(self, value):
         if value == PRIV or str(value) == str(PRIV): return self.private
         if value == '@public_legal': return self.public
+        if value == '@Torrent9SeriesFilm': return self.mirror
         if value == '@source_legal': return self.source
         raise ValueError(value)
 
@@ -68,6 +73,14 @@ class FakeTelegramClient:
             found.reverse()
         for obj in found[:limit]:
             yield obj
+
+    async def forward_messages(self, to, msg_id, *, from_peer):
+        if self.mirror_should_fail:
+            raise RuntimeError("Secondary channel unavailable")
+        self._next += 1
+        self.forwarded.append(NS(destination=to.peer_id, source=from_peer.peer_id,
+                                 origin_id=msg_id, id=self._next))
+        return NS(id=self._next)
 
     async def send_file(self, entity, media, *, caption, parse_mode=None, **options):
         if self.fail_on_send is not None and len(self.sent) + 1 == self.fail_on_send:
@@ -102,13 +115,14 @@ class RelayEndToEndTests(unittest.TestCase):
             with patch.object(runner.asyncio, 'sleep', new=AsyncMock()):
                 return asyncio.run(runner.execute())
 
-    def setup_files(self, temp, max_posts=5):
+    def setup_files(self, temp, max_posts=5, with_mirror=False):
         cfg_file = Path(temp) / 'config.json'
         cfg_file.write_text(json.dumps({
             'sources': [{'channel': '@source_legal', 'redistribution_authorized': True}],
             'private_channel': str(PRIV), 'public_channel': '@public_legal',
             'private_invite_link': 'https://t.me/+JOIN', 'private_layout': 'poster_and_video',
             'max_posts_per_run': max_posts, 'bootstrap_messages': 150, 'lookback_ids': 80,
+            **({'mirror_channel': '@Torrent9SeriesFilm'} if with_mirror else {}),
         }))
         return cfg_file, Path(temp) / 'state.json'
 
@@ -130,6 +144,37 @@ class RelayEndToEndTests(unittest.TestCase):
             second_client = FakeTelegramClient(sample_messages())
             self.assertEqual(self.start(second_client, cfg, state), 0)
             self.assertEqual(second_client.sent, [])
+
+    def test_mirror_forwards_original_public_post(self):
+        with TemporaryDirectory() as temp:
+            cfg, state = self.setup_files(temp, with_mirror=True)
+            first = FakeTelegramClient(sample_messages())
+            self.assertEqual(self.start(first, cfg, state), 0)
+            self.assertEqual(len(first.sent), 3)
+            self.assertEqual(len(first.forwarded), 1)
+            forwarded = first.forwarded[0]
+            self.assertEqual(forwarded.destination, MIRROR)
+            self.assertEqual(forwarded.source, PUB)
+            self.assertEqual(forwarded.origin_id, first.sent[-1].id)
+            self.assertTrue(State(str(state)).mirrored(f'{SRC}:10:11', str(MIRROR)))
+            second = FakeTelegramClient(sample_messages())
+            self.assertEqual(self.start(second, cfg, state), 0)
+            self.assertEqual(len(second.sent), 0)
+            self.assertEqual(len(second.forwarded), 0)
+
+    def test_mirror_failure_retries_without_reupload(self):
+        with TemporaryDirectory() as temp:
+            cfg, state = self.setup_files(temp, with_mirror=True)
+            first = FakeTelegramClient(sample_messages())
+            first.mirror_should_fail = True
+            self.assertEqual(self.start(first, cfg, state), 1)
+            self.assertEqual(len(first.sent), 3)
+            self.assertEqual(len(State(str(state)).pending_mirrors(str(MIRROR))), 1)
+            second = FakeTelegramClient(sample_messages())
+            self.assertEqual(self.start(second, cfg, state), 0)
+            self.assertEqual(len(second.sent), 0)
+            self.assertEqual(len(second.forwarded), 1)
+            self.assertTrue(State(str(state)).mirrored(f'{SRC}:10:11', str(MIRROR)))
 
     def test_failure_after_private_video_resume_only_public(self):
         with TemporaryDirectory() as temp:
