@@ -1,6 +1,10 @@
 {
   "sources": [
-    {"channel": "@source_authorisee", "redistribution_authorized": false}
+    {
+      "channel": "@pleziyisliye1",
+      "redistribution_authorized": true,
+      "rights_basis": "Autorisation de republication déclarée par le propriétaire du projet le 2026-10-16"
+    }
   ],
   "private_channel": "-1001234567890",
   "public_channel": "@mon_canal_public",
@@ -10,5 +14,7 @@
   "max_messages_per_run": 300,
   "lookback_ids": 80,
   "max_posts_per_run": 5,
-  "publication_pause_seconds": 5
+  "publication_pause_seconds": 5,
+  "history_page_messages": 240,
+  "history_overlap_messages": 12
 }
