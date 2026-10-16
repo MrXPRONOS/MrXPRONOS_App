@@ -45,6 +45,8 @@ Cette liste **n'effectue pas la découverte**, elle active seulement une source 
 | `FILM_PUBLISH_ENABLED` | **`false` au démarrage** ; `true` seulement après validation |
 | `TG_RIGHTS_ATTESTED` | **`false` au démarrage** ; `true` après confirmation des droits |
 
+Les workflows acceptent `TG_STRING_SESSION` (nom recommandé) et aussi `TG_STREAM_SESSION` comme alias. Sans variables `FILM_PUBLISH_ENABLED` et `TG_RIGHTS_ATTESTED`, la valeur par défaut est `false` : la découverte et la simulation restent possibles, sans publication. La simulation examine les sources détectées mais ne republie pas les médias sans droits confirmés. Les tests unitaires s'exécutent avant chaque workflow.
+
 Créer la session Telethon sur votre propre ordinateur :
 
 ```bash
