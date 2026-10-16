@@ -86,6 +86,23 @@ async def resolve_peer(client, value: str):
     return await client.get_entity(value)
 
 
+async def find_broadcast_by_exact_title(client, title: str):
+    """Resolve a uniquely named channel already available to this Telegram account.
+
+    Never joins channels and never guesses when titles are ambiguous.
+    """
+    wanted = " ".join(str(title).split()).casefold()
+    matches = []
+    async for dialog in client.iter_dialogs():
+        entity = dialog.entity
+        current = " ".join(str(getattr(entity, "title", "") or "").split()).casefold()
+        if getattr(entity, "broadcast", False) and current == wanted:
+            matches.append(entity)
+            if len(matches) > 1:
+                break
+    return matches
+
+
 async def load_messages(client, entity, old_seen: int, cfg: dict):
     maximum = max(10, int(cfg.get("max_messages_per_run", 300)))
     if old_seen == 0:
@@ -157,12 +174,23 @@ async def execute() -> int:
         actual_title = str(getattr(destination_public, "title", "") or "").strip()
         LOG.info("Destination publique résolue : %s", actual_title or "(sans titre)")
         if expected_title and expected_title.casefold() not in actual_title.casefold():
-            raise RuntimeError(
-                "Mauvaise destination publique : configurée='%s', attendue='%s'. "
-                "Modifier la variable GitHub TG_PUBLIC_CHANNEL avec le @username "
-                "ou l'ID -100 du canal souhaité."
-                % (actual_title or "(inconnue)", expected_title)
-            )
+            matches = await find_broadcast_by_exact_title(client, expected_title)
+            if len(matches) == 1:
+                destination_public = matches[0]
+                actual_title = str(getattr(destination_public, "title", ""))
+                LOG.warning(
+                    "Destination GitHub différente : utilisation du canal %s trouvé "
+                    "dans les canaux de ce compte, sans rejoindre ni deviner un identifiant.",
+                    actual_title
+                )
+            else:
+                raise RuntimeError(
+                    "Mauvaise destination : configurée='%s', attendue='%s'. "
+                    "Canaux portant ce titre trouvés dans le compte : %d. "
+                    "Renseigner TG_PUBLIC_CHANNEL avec le @username ou l'ID -100 "
+                    "de Super Mario Film."
+                    % (actual_title or "(inconnue)", expected_title, len(matches))
+                )
         private_id = utils.get_peer_id(destination_private)
         if not str(private_id).startswith("-100"):
             raise ValueError("La destination privée doit être un canal (identifiant -100...).")
