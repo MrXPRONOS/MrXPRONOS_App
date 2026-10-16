@@ -28,8 +28,8 @@ class PromoTests(unittest.TestCase):
             cursor=state.data["promotions"]["channel"]
             cursor["last_film_total"]=2
             cursor["next_index"]=1
-            self.assertIsNone(due(state,"channel",4))
-            self.assertEqual(due(state,"channel",5),1)
+            self.assertIsNone(due(state,"channel",3))
+            self.assertEqual(due(state,"channel",4),1)
 
 if __name__=="__main__":
     unittest.main()
