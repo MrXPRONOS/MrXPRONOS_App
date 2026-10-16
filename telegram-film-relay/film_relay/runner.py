@@ -98,6 +98,32 @@ async def load_messages(client, entity, old_seen: int, cfg: dict):
     return sorted(msgs, key=lambda m: m.id)
 
 
+async def load_archive_messages(client, entity, state: State, source_id: str, cfg: dict):
+    """Read older pages independently of the latest-message cursor.
+
+    A small overlap retains pairs split between two fetch windows. Never
+    advance the archive cursor until all eligible posts in the page complete.
+    """
+    if state.history_done(source_id):
+        return [], None, True
+    page_size = min(500, max(30, int(cfg.get("history_page_messages", 240))))
+    overlap = min(30, max(3, int(cfg.get("history_overlap_messages", 12))))
+    cursor = state.history_cursor(source_id)
+    kwargs = {"limit": page_size}
+    if cursor is not None:
+        kwargs["max_id"] = cursor
+    # Telegram yields newest first in this mode.
+    page = [m async for m in client.iter_messages(entity, **kwargs)]
+    if not page:
+        return [], cursor, True
+    page.sort(key=lambda m: m.id, reverse=True)
+    done = len(page) < page_size
+    next_cursor = None if done else int(page[-min(overlap, len(page))].id) + 1
+    if not done and cursor is not None and next_cursor >= cursor:
+        raise RuntimeError("Pagination historique immobile : éviter une boucle de lecture.")
+    return sorted(page, key=lambda m: m.id), next_cursor, done
+
+
 async def execute() -> int:
     from telethon import TelegramClient, utils
     from telethon.sessions import StringSession
@@ -115,7 +141,7 @@ async def execute() -> int:
 
     state = State(os.getenv("STATE_PATH", "state/state.json"))
     seen_count = published_count = proposed_count = failed_count = 0
-    max_posts = min(10, max(1, int(cfg.get("max_posts_per_run", 5))))
+    max_posts = min(10, max(1, int(os.getenv("FILM_MAX_POSTS_PER_RUN", cfg.get("max_posts_per_run", 5)))))
     pause_seconds = max(3.0, float(cfg.get("publication_pause_seconds", 5)))
     client = TelegramClient(StringSession(credentials[2]), int(credentials[0]), credentials[1],
                             request_retries=1, connection_retries=2, flood_sleep_threshold=0)
@@ -151,12 +177,29 @@ async def execute() -> int:
                     continue
                 channel_key = str(utils.get_peer_id(entity))
                 old_seen = state.seen(channel_key)
-                messages = await load_messages(client, entity, old_seen, cfg)
-                if not messages:
+                fresh_messages = await load_messages(client, entity, old_seen, cfg)
+                archive_messages, history_next, history_finished = await load_archive_messages(
+                    client, entity, state, channel_key, cfg
+                )
+                if not fresh_messages and not archive_messages:
                     continue
-                seen_count += len(messages)
-                pairs = screen_pairs(messages).pairs
-                LOG.info("Source %s : %s messages, %s paires strictement validées", channel_name, len(messages), len(pairs))
+                seen_count += len(fresh_messages) + len(archive_messages)
+                # Pair *inside* each contiguous window; never pair unrelated
+                # messages across two distant archive pages.
+                fresh_pairs = screen_pairs(fresh_messages).pairs
+                archive_pairs = screen_pairs(archive_messages).pairs
+                seen_pair_ids = set()
+                pairs = []
+                for item in [*fresh_pairs, *archive_pairs]:
+                    ident = (item.poster.id, item.movie.id)
+                    if ident not in seen_pair_ids:
+                        pairs.append(item)
+                        seen_pair_ids.add(ident)
+                LOG.info(
+                    "Source %s : nouveaux=%s archive=%s paires=%s (cursor=%s, fin=%s)",
+                    channel_name, len(fresh_messages), len(archive_messages),
+                    len(pairs), state.history_cursor(channel_key), history_finished
+                )
                 source_failed = False
                 run_limit_reached = False
                 for pair in pairs:
@@ -224,7 +267,9 @@ async def execute() -> int:
                         # Avoid advancing cursor when a pair was not published.
                         break
                 if publish and not source_failed and not run_limit_reached:
-                    state.advance(channel_key, messages[-1].id)
+                    if fresh_messages:
+                        state.advance(channel_key, fresh_messages[-1].id)
+                    state.advance_history(channel_key, history_next, history_finished)
                 if run_limit_reached:
                     break
             except Exception as exc:
