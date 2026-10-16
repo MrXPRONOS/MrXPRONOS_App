@@ -154,7 +154,14 @@ async def _send_bot_poster(bot, channel, index: int):
 async def _bot_can_post(bot, channel, identity):
     """No fallback to unbuttoned user messages in Telegram channels."""
     try:
-        entity=await bot.get_entity(channel)
+        from telethon import utils
+        # Private channel IDs are accessible after this bot joins; do not
+        # reuse a user's session-specific access hash in a bot request.
+        peer_id=utils.get_peer_id(channel)
+        try:
+            entity=await bot.get_entity(peer_id)
+        except (ValueError, TypeError):
+            entity=await bot.get_entity(channel)
         perm=await bot.get_permissions(entity, identity)
         allowed=bool(getattr(perm,"is_creator",False) or
                      (getattr(perm,"is_admin",False) and getattr(perm,"post_messages",False)))
