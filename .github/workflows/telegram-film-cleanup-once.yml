@@ -1,0 +1,33 @@
+name: Film Relay - Audit doublons (sans suppression)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-film-cleanup-once.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer Telethon
+        run: python -m pip install -r telegram-film-relay/requirements.txt
+      - name: Audit exact des doublons CineX, sans suppression
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+          TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
+          PYTHONPATH: .
+        run: python scripts/cleanup_cinex_duplicates.py
