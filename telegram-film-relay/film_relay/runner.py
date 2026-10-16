@@ -130,9 +130,9 @@ async def execute() -> int:
 
     cfg = config_from(os.getenv("CHANNELS_CONFIG", "config/channels.json"))
     publish = flag("FILM_PUBLISH_ENABLED", False)
-    credentials = (os.getenv("TG_API_ID"), os.getenv("TG_API_HASH"), os.getenv("TG_STRING_SESSION"))
+    credentials = (os.getenv("TG_API_ID"), os.getenv("TG_API_HASH"), (os.getenv("TG_SESSION_STRING") or os.getenv("TG_STRING_SESSION") or os.getenv("TG_STREAM_SESSION")))
     if not all(credentials):
-        raise RuntimeError("Secrets requis : TG_API_ID, TG_API_HASH, TG_STRING_SESSION.")
+        raise RuntimeError("Secrets requis : TG_API_ID, TG_API_HASH, TG_SESSION_STRING (ou TG_STRING_SESSION).")
     if publish and not any(x.get("redistribution_authorized") is True for x in cfg["sources"]):
         LOG.warning("Aucune source autorisée. Aucune publication ne sera envoyée.")
         return 0

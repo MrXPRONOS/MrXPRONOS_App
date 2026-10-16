@@ -188,9 +188,9 @@ async def execute() -> int:
     from telethon import TelegramClient
     from telethon.sessions import StringSession
 
-    credentials = (os.getenv("TG_API_ID"), os.getenv("TG_API_HASH"), os.getenv("TG_STRING_SESSION"))
+    credentials = (os.getenv("TG_API_ID"), os.getenv("TG_API_HASH"), (os.getenv("TG_SESSION_STRING") or os.getenv("TG_STRING_SESSION") or os.getenv("TG_STREAM_SESSION")))
     if not all(credentials):
-        raise RuntimeError("Secrets requis : TG_API_ID, TG_API_HASH, TG_STRING_SESSION.")
+        raise RuntimeError("Secrets requis : TG_API_ID, TG_API_HASH, TG_SESSION_STRING (ou TG_STRING_SESSION).")
     cfg = load_config(os.getenv("DISCOVERY_CONFIG", "config/discovery.json"))
     path = Path(os.getenv("DISCOVERY_REPORT", "state/discovered_channels.json"))
     previous = load_previous(path)

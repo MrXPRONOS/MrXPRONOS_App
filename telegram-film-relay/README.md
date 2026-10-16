@@ -35,7 +35,7 @@ Le dépôt GitHub actuel est **public** : ne placez aucune session, hash API, in
 |---|---|---|
 | `TG_API_ID` | oui | Numéro `api_id` de my.telegram.org |
 | `TG_API_HASH` | oui | Chaîne `api_hash` de my.telegram.org |
-| `TG_STRING_SESSION` | oui | Session Telethon `StringSession` générée localement, jamais dans le chat ou Git |
+| `TG_SESSION_STRING` | oui | Session Telethon `StringSession` générée localement, jamais dans le chat ou Git |
 | `TG_APPROVED_SOURCES_JSON` | facultatif | Liste JSON des sources **dont la redistribution est autorisée**, avec justification |
 
 Exemple de **format** pour le secret facultatif (pas de vraie source) :
@@ -56,7 +56,7 @@ Cette liste **n'effectue pas la découverte**, elle active seulement une source 
 | `FILM_PUBLISH_ENABLED` | **`false` au démarrage** ; `true` seulement après validation |
 | `TG_RIGHTS_ATTESTED` | **`false` au démarrage** ; `true` après confirmation des droits |
 
-Les workflows acceptent `TG_STRING_SESSION` (nom recommandé) et aussi `TG_STREAM_SESSION` comme alias. Sans variables `FILM_PUBLISH_ENABLED` et `TG_RIGHTS_ATTESTED`, la valeur par défaut est `false` : la découverte et la simulation restent possibles, sans publication. La simulation examine les sources détectées mais ne republie pas les médias sans droits confirmés. Les tests unitaires s'exécutent avant chaque workflow.
+Les workflows acceptent **`TG_SESSION_STRING` (nom effectivement utilisé)**, ainsi que `TG_STRING_SESSION` et `TG_STREAM_SESSION` comme alias. Le secret est transmis à la variable interne `TG_STRING_SESSION`. Si une variable `FILM_PUBLISH_ENABLED` ou `TG_RIGHTS_ATTESTED` est explicitement fixée à `false`, elle bloque les publications. Le workflow GitHub du relais utilise actuellement `true` comme valeur par défaut si ces variables sont absentes ; il ne publie néanmoins que les sources explicitement marquées comme autorisées. La simulation analyse les sources sans publier. Les tests unitaires s'exécutent avant chaque workflow.
 
 Créer la session Telethon sur votre propre ordinateur :
 

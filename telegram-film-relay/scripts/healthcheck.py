@@ -48,11 +48,11 @@ async def run():
     report = {"last_checked": None, "status": "pending", "checks": {}}
     aid = os.getenv("TG_API_ID", "").strip()
     ahash = os.getenv("TG_API_HASH", "").strip()
-    session = os.getenv("TG_STRING_SESSION") or os.getenv("TG_STREAM_SESSION") or ""
+    session = os.getenv("TG_SESSION_STRING") or os.getenv("TG_STRING_SESSION") or os.getenv("TG_STREAM_SESSION") or ""
     private = os.getenv("TG_PRIVATE_CHANNEL", "").strip()
     public = os.getenv("TG_PUBLIC_CHANNEL", "").strip()
     secrets_ok = bool(aid.isdigit() and ahash and session)
-    check(report, "Secrets TG_API_ID / TG_API_HASH / TG_STRING_SESSION (ou TG_STREAM_SESSION)",
+    check(report, "Secrets TG_API_ID / TG_API_HASH / TG_SESSION_STRING (ou TG_STRING_SESSION)",
           secrets_ok, "Au moins un secret manque ou TG_API_ID n'est pas numérique.")
     check(report, "Format TG_PRIVATE_CHANNEL", format_ok(private, private=True),
           "Utiliser l'ID numérique du canal privé commençant par -100 ; son nom ne suffit pas.")
