@@ -271,22 +271,29 @@ async def execute() -> int:
         mirror_destination = None
         mirror_key = ""
         if publish and cfg.get("mirror_channel"):
-            mirror_destination = await resolve_peer(client, cfg["mirror_channel"])
-            mirror_key = str(utils.get_peer_id(mirror_destination))
-            if mirror_key in (str(private_id), str(utils.get_peer_id(destination_public))):
-                raise RuntimeError(
-                    "Le canal de transfert doit être distinct du public principal et du privé."
+            try:
+                proposed_mirror = await resolve_peer(client, cfg["mirror_channel"])
+                proposed_key = str(utils.get_peer_id(proposed_mirror))
+                if proposed_key in (str(private_id), str(utils.get_peer_id(destination_public))):
+                    raise ValueError("Second canal identique au privé ou au premier canal public.")
+                if not getattr(proposed_mirror, "broadcast", True):
+                    raise ValueError("La destination secondaire doit être un canal.")
+                if getattr(destination_public, "noforwards", False):
+                    raise ValueError("Le premier canal public interdit les transferts natifs.")
+                mirror_destination, mirror_key = proposed_mirror, proposed_key
+                LOG.info("Transfert natif activé vers le second canal %s.",
+                         getattr(mirror_destination, "username", "") or mirror_key)
+            except Exception as exc:
+                # The primary release remains available while an invalid or
+                # inaccessible secondary username is being repaired.
+                failed_count += 1
+                LOG.error(
+                    "SECOND CANAL INACCESSIBLE (%s) : %s. "
+                    "Vérifier l'identifiant Telegram public exact ou utiliser l'ID -100 "
+                    "via TG_MIRROR_CHANNEL. Aucun transfert secondaire ; "
+                    "le privé et le canal public principal continuent.",
+                    cfg["mirror_channel"], type(exc).__name__
                 )
-            if not getattr(mirror_destination, "broadcast", True):
-                raise RuntimeError("La destination de transfert doit être un canal Telegram.")
-            if getattr(destination_public, "noforwards", False):
-                raise RuntimeError(
-                    "Le canal public principal interdit les transferts Telegram. "
-                    "Désactiver la protection du contenu dans ce canal pour garder "
-                    "la mention 'Transféré de…'."
-                )
-            LOG.info("Transfert natif activé depuis le public principal vers %s.",
-                     getattr(mirror_destination, "username", "") or mirror_key)
         if not getattr(destination_public, "username", None):
             raise RuntimeError(
                 "Super Mario Film (destination publique) ne possède pas de @username public. "
