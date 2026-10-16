@@ -17,6 +17,8 @@ TRAILER = re.compile(r"\b(trailer|bande[- ]annonce|teaser|extrait)\b", re.I)
 class Pair:
     poster: Any
     movie: Any
+    # The description may be a separate text message posted after the photo.
+    description_message: Any | None = None
 
 
 def document_of(msg: Any) -> Any:
@@ -104,6 +106,82 @@ def match_pairs(messages: Sequence[Any], *, max_gap: int = 4, max_age_minutes: i
             _, _, chosen = min(choices)
             result.append(Pair(poster, chosen))
             claimed.add(chosen.id)
+    return result
+
+
+
+# Trusting a particular MKV source never waives Telegram's no-forward protection.
+# Identifying a movie from its descriptive text remains a format heuristic.
+FILM_CUES = re.compile(
+    r"\b(?:films?|titre(?:\s+original)?|dur[ée]e|genre|synopsis|"
+    r"r[ée]sum[ée]|r[ée]alisateur|acteurs?|casting|ann[ée]e|sortie|"
+    r"production|vostfr|version\s+fran[cç]aise)\b",
+    re.IGNORECASE,
+)
+LINKS = re.compile(r"(?i)(?:https?://|www\.|t\.me/|telegram\.me/)\S+")
+
+
+def is_film_description(value: str) -> bool:
+    """Identify an actual movie listing rather than a caption containing only links."""
+    cleaned = LINKS.sub("", str(value or "")).strip()
+    return len(cleaned) >= 10 and bool(FILM_CUES.search(cleaned))
+
+
+def is_mkv_document(msg: Any) -> bool:
+    if getattr(msg, "photo", None) or not document_of(msg):
+        return False
+    mime = str(getattr(document_of(msg), "mime_type", "") or "").lower()
+    return filename_of(msg).endswith(".mkv") or "matroska" in mime
+
+
+def description_of(pair: Pair) -> str:
+    msg = pair.description_message if pair.description_message is not None else pair.poster
+    return str(getattr(msg, "raw_text", "") or "")
+
+
+def description_entities_of(pair: Pair):
+    msg = pair.description_message if pair.description_message is not None else pair.poster
+    return getattr(msg, "entities", None)
+
+
+def match_authorized_mkv_pairs(messages: Sequence[Any]) -> list[Pair]:
+    """For a licensed source only: photo+caption+MKV or photo+text+MKV.
+
+    No file size, duration, time interval or message-id-distance assumptions.
+    Messages must be consecutive *in the retrieved list*. Multiple photos,
+    unrelated posts or other videos interrupt the association.
+    """
+    ordered = sorted(
+        (x for x in messages if getattr(x, "id", None) is not None),
+        key=lambda x: x.id,
+    )
+    result = []
+    used_movies: set[int] = set()
+    for i, poster in enumerate(ordered):
+        if not getattr(poster, "photo", None) or getattr(poster, "noforwards", False):
+            continue
+        caption_ok = is_film_description(getattr(poster, "raw_text", "") or "")
+        if i + 1 >= len(ordered):
+            continue
+        nxt = ordered[i + 1]
+        description_msg = None
+        movie = None
+        if is_mkv_document(nxt):
+            if caption_ok:
+                movie = nxt
+        elif (not getattr(nxt, "photo", None)
+              and document_of(nxt) is None
+              and not getattr(nxt, "noforwards", False)
+              and i + 2 < len(ordered)
+              and is_film_description(getattr(nxt, "raw_text", "") or "")):
+            candidate = ordered[i + 2]
+            if is_mkv_document(candidate):
+                description_msg = nxt
+                movie = candidate
+        if movie is None or movie.id in used_movies or getattr(movie, "noforwards", False):
+            continue
+        result.append(Pair(poster=poster, movie=movie, description_message=description_msg))
+        used_movies.add(movie.id)
     return result
 
 
