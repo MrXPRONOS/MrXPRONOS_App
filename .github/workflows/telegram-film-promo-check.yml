@@ -36,3 +36,5 @@ jobs:
 # Check full Telethon button metadata after publication.
 
 # Inspect exact inline button classes and links after Telegram transfer.
+
+# Final read-only verification after private-channel bot authorization.
