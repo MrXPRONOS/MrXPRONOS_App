@@ -64,6 +64,7 @@ def config_from(path: str) -> dict:
     # committing channel identifiers into a public source repository.
     result["private_channel"] = os.getenv("TG_PRIVATE_CHANNEL") or result.get("private_channel")
     result["public_channel"] = os.getenv("TG_PUBLIC_CHANNEL") or result.get("public_channel")
+    result["mirror_channel"] = os.getenv("TG_MIRROR_CHANNEL") or result.get("mirror_channel", "")
     result["private_invite_link"] = os.getenv("TG_PRIVATE_INVITE_LINK") or result.get("private_invite_link", "")
     if result.get("private_channel") in (None, "", "-1001234567890"):
         raise ValueError("Renseigner private_channel dans config/channels.json.")
@@ -142,6 +143,19 @@ async def load_archive_messages(client, entity, state: State, source_id: str, cf
     if not done and cursor is not None and next_cursor >= cursor:
         raise RuntimeError("Pagination historique immobile : éviter une boucle de lecture.")
     return sorted(page, key=lambda m: m.id), next_cursor, done
+
+
+async def forward_public_message(client, primary_public, mirror_channel, message_id: int) -> int:
+    """Telegram native forward. Preserve 'Forwarded from <source channel>' header."""
+    result = await client.forward_messages(
+        mirror_channel, int(message_id), from_peer=primary_public
+    )
+    if isinstance(result, list):
+        result = result[0] if result else None
+    forward_id = getattr(result, "id", None)
+    if forward_id is None:
+        raise RuntimeError("Telegram n'a pas renvoyé de reçu pour le transfert du message.")
+    return int(forward_id)
 
 
 async def execute() -> int:
@@ -254,6 +268,25 @@ async def execute() -> int:
                     "activer Publier des messages. Aucun nouveau MKV n'a été envoyé."
                 )
             LOG.info("Bot CinéX contrôlé : administrateur autorisé à publier dans le canal public.")
+        mirror_destination = None
+        mirror_key = ""
+        if publish and cfg.get("mirror_channel"):
+            mirror_destination = await resolve_peer(client, cfg["mirror_channel"])
+            mirror_key = str(utils.get_peer_id(mirror_destination))
+            if mirror_key in (str(private_id), str(utils.get_peer_id(destination_public))):
+                raise RuntimeError(
+                    "Le canal de transfert doit être distinct du public principal et du privé."
+                )
+            if not getattr(mirror_destination, "broadcast", True):
+                raise RuntimeError("La destination de transfert doit être un canal Telegram.")
+            if getattr(destination_public, "noforwards", False):
+                raise RuntimeError(
+                    "Le canal public principal interdit les transferts Telegram. "
+                    "Désactiver la protection du contenu dans ce canal pour garder "
+                    "la mention 'Transféré de…'."
+                )
+            LOG.info("Transfert natif activé depuis le public principal vers %s.",
+                     getattr(mirror_destination, "username", "") or mirror_key)
         if not getattr(destination_public, "username", None):
             raise RuntimeError(
                 "Super Mario Film (destination publique) ne possède pas de @username public. "
@@ -272,6 +305,26 @@ async def execute() -> int:
             except Exception as exc:
                 LOG.warning("Invitation privée introuvable (%s) : renseigner TG_PRIVATE_INVITE_LINK.",
                             type(exc).__name__)
+
+        # Complete mirrored copies left pending after a previous partial run.
+        # Do not re-upload a MKV or re-post the original public message.
+        mirror_count = 0
+        if publish and mirror_destination is not None:
+            for old_pair, old_public_id in state.pending_mirrors(mirror_key, limit=10):
+                try:
+                    copied_id = await forward_public_message(
+                        client, destination_public, mirror_destination, old_public_id
+                    )
+                    state.mark_mirrored(old_pair, mirror_key, copied_id)
+                    mirror_count += 1
+                    LOG.info("Transfert repris : public=%s, miroir=%s",
+                             old_public_id, copied_id)
+                    await asyncio.sleep(1)
+                except Exception as exc:
+                    failed_count += 1
+                    LOG.exception("Transfert en attente impossible pour %s : %s",
+                                  old_pair, exc)
+                    break
 
         for src in cfg["sources"]:
             channel_name = str(src["channel"])
@@ -418,6 +471,22 @@ async def execute() -> int:
                             text, url, invitation
                         )
                         state.add(pair_id, media_id, private_post_id, int(public_post.id))
+                        if mirror_destination is not None:
+                            try:
+                                copied_id = await forward_public_message(
+                                    client, destination_public, mirror_destination,
+                                    int(public_post.id)
+                                )
+                                state.mark_mirrored(pair_id, mirror_key, copied_id)
+                                mirror_count += 1
+                                LOG.info("Public transféré avec attribution : %s -> %s",
+                                         public_post.id, copied_id)
+                            except Exception as mirror_exc:
+                                # Primary publication is already checkpointed.
+                                # The next run retries this forward from processed state.
+                                failed_count += 1
+                                LOG.exception("Second canal en attente pour %s : %s",
+                                              pair_id, mirror_exc)
                         # Checkpoint to the latest *completed* movie. If the run
                         # hits its posting cap, newer items remain available.
                         state.advance(channel_key, pair.movie.id)
@@ -439,8 +508,8 @@ async def execute() -> int:
             except Exception as exc:
                 failed_count += 1
                 LOG.exception("Source inaccessible %s : %s", channel_name, exc)
-        LOG.info("Résumé : lus=%s, proposés=%s, publiés=%s, erreurs=%s",
-                 seen_count, proposed_count, published_count, failed_count)
+        LOG.info("Résumé : lus=%s, proposés=%s, publiés=%s, transferts=%s, erreurs=%s",
+                 seen_count, proposed_count, published_count, mirror_count, failed_count)
         if publish and published_count == 0:
             LOG.warning(
                 "FIN SANS PUBLICATION : aucun film n'a été envoyé. "
@@ -455,6 +524,7 @@ async def execute() -> int:
                     f"- Messages analysés : {seen_count}\\n"
                     f"- Films compatibles proposés : {proposed_count}\\n"
                     f"- Films réellement publiés : {published_count}\\n"
+                    f"- Publications transférées vers le canal secondaire : {mirror_count}\\n"
                     f"- Erreurs : {failed_count}\\n"
                 )
         if publish and published_count == 0 and flag("FILM_REQUIRE_PUBLICATION"):
