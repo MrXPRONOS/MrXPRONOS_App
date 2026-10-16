@@ -14,6 +14,17 @@ Projet isolé dans **`telegram-film-relay/`** du dépôt existant **`MrXPRONOS/M
 
 > **Droits d'auteur :** le fait qu'un canal soit public, transférable ou repéré par le moteur de recherche ne donne aucune licence. Un canal privé ne protège pas contre une plainte ni une sanction. Utiliser uniquement des films du domaine public, sous licence adéquate ou avec autorisation explicite. Ne jamais utiliser cette automatisation pour contourner les restrictions de copie/transfert.
 
+## Test réel et reprise des archives (16 octobre 2026)
+
+- Source explicitement déclarée comme autorisée par le responsable du projet : **@pleziyisliye1**.
+- Le relais surveille les nouveaux messages **et** parcourt progressivement les archives avec le curseur persistant `state/state.json → history`. Un recouvrement des pages protège les couples affiche/film qui se trouvent à la frontière des pages.
+- Premier lancement (événement GitHub `push`) et lancement manuel (`workflow_dispatch`) : **1 film maximum**. Exécutions programmées toutes les deux heures : **5 films maximum**.
+- Les deux variables `FILM_PUBLISH_ENABLED` et `TG_RIGHTS_ATTESTED` prennent la valeur `true` par défaut **dans le workflow du relais**, uniquement en l'absence de valeur définie sur GitHub. Une variable explicitement positionnée à `false` désactive toujours l'envoi. Les sources non autorisées restent bloquées.
+- Le lien d'invitation du canal privé est récupéré automatiquement lorsque le compte Telegram possède les droits administrateur requis ; sinon renseigner `TG_PRIVATE_INVITE_LINK`.
+- **Attention :** seuls les journaux d'une vraie exécution GitHub Actions peuvent prouver que les médias ont été publiés. Les tests unitaires vérifient la logique, pas les autorisations Telegram ni la disponibilité du canal.
+
+[Ouvrir le workflow Film Relay](https://github.com/MrXPRONOS/MrXPRONOS_App/actions/workflows/telegram-film-relay.yml)
+
 ## Mise en production dans le dépôt existant
 
 Le dépôt GitHub actuel est **public** : ne placez aucune session, hash API, invitation privée non destinée au public ou donnée personnelle dans les fichiers suivis par Git.
