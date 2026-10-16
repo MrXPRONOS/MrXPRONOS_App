@@ -81,3 +81,5 @@ jobs:
           echo "::error::Sauvegarde de la rotation échouée après huit essais"
           exit 1
 # Deployment retry: channel-history lookups use the authorized user session.
+
+# Safe rollout retry: shared user-channel access hashes, not bot channel objects.
