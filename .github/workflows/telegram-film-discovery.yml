@@ -28,7 +28,7 @@ jobs:
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
-          TG_STRING_SESSION: ${{ secrets.TG_STRING_SESSION }}
+          TG_STRING_SESSION: ${{ secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
         run: |
           if [[ -n "$TG_API_ID" && -n "$TG_API_HASH" && -n "$TG_STRING_SESSION" ]]; then
             echo 'ready=true' >> "$GITHUB_OUTPUT"
@@ -39,13 +39,19 @@ jobs:
       - name: Install dependencies
         if: steps.credentials.outputs.ready == 'true'
         run: pip install -r telegram-film-relay/requirements.txt
+      - name: Run local validation tests
+        if: steps.credentials.outputs.ready == 'true'
+        working-directory: telegram-film-relay
+        env:
+          PYTHONPATH: .
+        run: python -m unittest discover -s tests -q
       - name: Find public channels without joining
         if: steps.credentials.outputs.ready == 'true'
         working-directory: telegram-film-relay
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
-          TG_STRING_SESSION: ${{ secrets.TG_STRING_SESSION }}
+          TG_STRING_SESSION: ${{ secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
           PYTHONPATH: .
         run: python -m film_relay.discovery
       - name: Persist found links and inactive source registry
