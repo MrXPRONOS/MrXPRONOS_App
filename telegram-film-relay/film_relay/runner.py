@@ -229,7 +229,31 @@ async def execute() -> int:
                     "Le bot et le compte utilisateur ne résolvent pas le même canal public. "
                     "Vérifier TG_PUBLIC_CHANNEL et les droits admin du bot."
                 )
-            LOG.info("Bot CinéX connecté au canal public : boutons activés.")
+            # Verify real Telegram posting permissions BEFORE copying any MKV
+            # to private. Prevent orphaned private videos when a bot can read
+            # a public channel but lacks the right to publish there.
+            try:
+                perms = await bot_client.get_permissions(bot_destination, identity)
+            except Exception as exc:
+                raise RuntimeError(
+                    "Impossible de contrôler les droits du bot @" +
+                    str(getattr(identity, "username", "") or "inconnu") +
+                    ". Ajouter le bot comme administrateur du canal public "
+                    "avec l'autorisation Publier des messages."
+                ) from exc
+            can_publish = bool(
+                getattr(perms, "is_creator", False) or
+                (getattr(perms, "is_admin", False) and
+                 getattr(perms, "post_messages", False))
+            )
+            if not can_publish:
+                raise RuntimeError(
+                    "Bot @" + str(getattr(identity, "username", "") or "inconnu") +
+                    " sans droit de publication dans le canal public. "
+                    "Telegram > Canal public > Administrateurs > Ajouter ce bot, "
+                    "activer Publier des messages. Aucun nouveau MKV n'a été envoyé."
+                )
+            LOG.info("Bot CinéX contrôlé : administrateur autorisé à publier dans le canal public.")
         if not getattr(destination_public, "username", None):
             raise RuntimeError(
                 "Super Mario Film (destination publique) ne possède pas de @username public. "
