@@ -2,10 +2,18 @@ name: Mr XPRONOS - Film Relay
 
 on:
   workflow_dispatch:
+    inputs:
+      rescan_history:
+        description: 'Reexaminer les anciens films, sans republier les doublons'
+        required: false
+        type: boolean
+        default: true
   push:
     branches: [main]
     paths:
       - '.github/workflows/telegram-film-relay.yml'
+      - 'telegram-film-relay/film_relay/runner.py'
+      - 'telegram-film-relay/config/channels.json'
   schedule:
     - cron: '17 */2 * * *'
 
@@ -63,6 +71,7 @@ jobs:
           FILM_PUBLISH_ENABLED: ${{ vars.FILM_PUBLISH_ENABLED || 'true' }}
           TG_RIGHTS_ATTESTED: ${{ vars.TG_RIGHTS_ATTESTED || 'true' }}
           FILM_MAX_POSTS_PER_RUN: ${{ github.event_name == 'schedule' && '5' || '1' }}
+          FILM_RESCAN_HISTORY: ${{ github.event_name == 'push' && 'true' || (github.event_name == 'workflow_dispatch' && inputs.rescan_history && 'true' || 'false') }}
           PYTHONPATH: .
         run: python -m film_relay.runner
       - name: Persist relay checkpoint even after partial send failure
