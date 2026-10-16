@@ -72,6 +72,17 @@ Le programme s'arrête avec une erreur claire lorsque le bot n'est pas configur�
 
 **Attention : un ancien lien d'invitation privé figurait en clair dans les journaux GitHub Actions. Révoquez l'ancien lien dans Telegram, générez-en un nouveau puis utilisez `CINEX_PRIVATE_INVITE_LINK` (secret, pas variable), ou laissez le programme obtenir un lien.**\n\n**Les anciens messages déjà envoyés par la session utilisateur ne peuvent pas être modifiés par ce nouveau bot.** Les boutons s'appliquent aux publications futures.
 
+## Second canal public : transfert avec attribution
+
+Le second canal est **@Torrent9SeriesFilm** (lien fourni par le propriétaire du projet).
+Le workflow utilise la variable GitHub **`TG_MIRROR_CHANNEL`** ; valeur recommandée **`@Torrent9SeriesFilm`**. Cette valeur est déjà renseignée dans `config/channels.json` et comme valeur de repli du workflow. **Aucun secret ou jeton supplémentaire n'est nécessaire.**
+
+Une fois l'affiche publiée dans le premier canal public par le bot, le compte Telethon autorisé utilise **`client.forward_messages(secondaire, id_public, from_peer=premier_public)`**. Il s'agit d'un vrai transfert Telegram : le second canal doit afficher l'attribution **« Transféré de [nom du premier canal public] »** et non une nouvelle publication indépendante. Il faut que le canal public principal autorise les transferts Telegram. Les boutons du post d'origine peuvent être gérés par Telegram lors du transfert ; leur conservation exacte dépend de Telegram.
+
+Chaque transfert réussi est enregistré dans `state/state.json` sous `mirrors`, par ID numérique du second canal. En cas d'échec, le film déjà publié dans le privé et le public principal reste sauvegardé ; les exécutions suivantes essaient de transférer le post public existant **sans renvoyer le MKV**. Les publications publiques antérieures non encore transférées sont également traitées, par lots de dix.
+
+**Vérification du 16 octobre 2026 :** Telegram a renvoyé `UsernameNotOccupiedError` pour `@Torrent9SeriesFilm` depuis la session connectée. Tant que cet identifiant n'est pas reconnu, le transfert secondaire est indisponible ; la publication dans les deux canaux principaux continue. Vérifier dans Telegram **Informations du canal → Nom d'utilisateur** et copier le lien exact, ou mettre un identifiant numérique `-100...` accessible à ce compte dans la variable `TG_MIRROR_CHANNEL`.
+
 ## Mise en production dans le dépôt existant
 
 Le dépôt GitHub actuel est **public** : ne placez aucune session, hash API, invitation privée non destinée au public ou donnée personnelle dans les fichiers suivis par Git.
