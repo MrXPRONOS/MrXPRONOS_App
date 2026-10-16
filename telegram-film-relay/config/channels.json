@@ -16,5 +16,6 @@
   "max_posts_per_run": 5,
   "publication_pause_seconds": 5,
   "history_page_messages": 240,
-  "history_overlap_messages": 12
+  "history_overlap_messages": 12,
+  "expected_public_title": "Super Mario Film"
 }
