@@ -46,7 +46,8 @@ jobs:
             echo 'ready=true' >> "$GITHUB_OUTPUT"
           else
             echo 'ready=false' >> "$GITHUB_OUTPUT"
-            echo 'Telegram secrets are not configured. Nothing sent.'
+            echo '::error::Telegram credentials missing: TG_API_ID, TG_API_HASH or TG_SESSION_STRING.'
+            exit 1
           fi
       - name: Install dependencies
         if: steps.credentials.outputs.ready == 'true'
@@ -71,6 +72,7 @@ jobs:
           FILM_PUBLISH_ENABLED: ${{ vars.FILM_PUBLISH_ENABLED || 'true' }}
           TG_RIGHTS_ATTESTED: ${{ vars.TG_RIGHTS_ATTESTED || 'true' }}
           FILM_MAX_POSTS_PER_RUN: ${{ github.event_name == 'schedule' && '5' || '1' }}
+          FILM_REQUIRE_PUBLICATION: ${{ github.event_name == 'schedule' && 'false' || 'true' }}
           FILM_RESCAN_HISTORY: ${{ github.event_name == 'push' && 'true' || (github.event_name == 'workflow_dispatch' && inputs.rescan_history && 'true' || 'false') }}
           PYTHONPATH: .
         run: python -m film_relay.runner
