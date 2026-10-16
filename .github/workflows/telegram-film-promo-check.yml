@@ -32,3 +32,5 @@ jobs:
           TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
           PYTHONPATH: .
         run: python scripts/verify_promo_delivery.py
+
+# Check full Telethon button metadata after publication.
