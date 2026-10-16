@@ -155,6 +155,18 @@ async def execute() -> int:
         if not str(private_id).startswith("-100"):
             raise ValueError("La destination privée doit être un canal (identifiant -100...).")
         invitation = (cfg.get("private_invite_link") or "").strip()
+        if not invitation and publish:
+            # A t.me/c/ link works only for private-channel members. Offer an
+            # invitation to newcomers when the Telegram account is an admin.
+            try:
+                from telethon.tl.functions.messages import ExportChatInviteRequest
+                exported = await client(ExportChatInviteRequest(peer=destination_private))
+                invitation = str(getattr(exported, "link", "") or "")
+                if invitation:
+                    LOG.info("Lien d'accès privé obtenu automatiquement (valeur non journalisée).")
+            except Exception as exc:
+                LOG.warning("Invitation privée introuvable (%s) : renseigner TG_PRIVATE_INVITE_LINK.",
+                            type(exc).__name__)
 
         for src in cfg["sources"]:
             channel_name = str(src["channel"])
