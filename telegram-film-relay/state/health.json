@@ -1,1 +1,28 @@
-{"last_checked": null, "status": "not_run", "checks": {}}
+{
+  "last_checked": "2026-10-16T19:43:59.803814+00:00",
+  "status": "ready",
+  "checks": {
+    "Secrets TG_API_ID / TG_API_HASH / TG_STRING_SESSION (ou TG_STREAM_SESSION)": {
+      "status": "ok"
+    },
+    "Format TG_PRIVATE_CHANNEL": {
+      "status": "ok"
+    },
+    "Format TG_PUBLIC_CHANNEL": {
+      "status": "ok"
+    },
+    "Session Telegram autorisée": {
+      "status": "ok"
+    },
+    "Accès au canal privé": {
+      "status": "ok"
+    },
+    "Accès au canal public": {
+      "status": "ok"
+    }
+  },
+  "publishing_enabled": false,
+  "rights_attested": false,
+  "publishing_blocked": true,
+  "discovery_has_run": false
+}
