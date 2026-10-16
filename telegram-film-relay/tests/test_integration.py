@@ -50,6 +50,7 @@ class FakeTelegramClient:
 
     async def connect(self): pass
     async def start(self, bot_token=None): return self
+    async def get_me(self): return NS(username='football_bot_test')
     async def disconnect(self): pass
     async def download_media(self, media, file=bytes): return str(media).encode("utf-8")
     async def is_user_authorized(self): return True
