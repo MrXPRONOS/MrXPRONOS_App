@@ -7,7 +7,7 @@ import logging
 import os
 from pathlib import Path
 
-from .matching import document_key
+from .matching import document_key, is_poster, is_video, match_pairs
 from .verification import screen_pairs
 from .state import State
 from .text import (caption_with_link, clean_caption, first_title, private_message_link,
@@ -151,6 +151,18 @@ async def execute() -> int:
             raise RuntimeError("Session Telegram expirée ou révoquée. Régénérer TG_STRING_SESSION.")
         destination_private = await resolve_peer(client, cfg["private_channel"])
         destination_public = await resolve_peer(client, cfg["public_channel"])
+        # Never silently send to an old channel when the intended destination changed.
+        expected_title = (os.getenv("TG_EXPECTED_PUBLIC_TITLE") or
+                          cfg.get("expected_public_title") or "").strip()
+        actual_title = str(getattr(destination_public, "title", "") or "").strip()
+        LOG.info("Destination publique résolue : %s", actual_title or "(sans titre)")
+        if expected_title and expected_title.casefold() not in actual_title.casefold():
+            raise RuntimeError(
+                "Mauvaise destination publique : configurée='%s', attendue='%s'. "
+                "Modifier la variable GitHub TG_PUBLIC_CHANNEL avec le @username "
+                "ou l'ID -100 du canal souhaité."
+                % (actual_title or "(inconnue)", expected_title)
+            )
         private_id = utils.get_peer_id(destination_private)
         if not str(private_id).startswith("-100"):
             raise ValueError("La destination privée doit être un canal (identifiant -100...).")
@@ -212,6 +224,36 @@ async def execute() -> int:
                     channel_name, len(fresh_messages), len(archive_messages),
                     len(pairs), state.history_cursor(channel_key), history_finished
                 )
+                for window_name, window in (("recent", fresh_messages), ("archives", archive_messages)):
+                    if not window:
+                        continue
+                    screened = screen_pairs(window)
+                    candid = match_pairs(window, max_gap=4, max_age_minutes=180)
+                    photo_count = sum(bool(getattr(m, "photo", None)) for m in window)
+                    video_count = sum(is_video(m) for m in window)
+                    LOG.info(
+                        "DIAGNOSTIC FORMAT %s/%s : messages=%d, photos=%d, videos=%d, "
+                        "candidats_souples=%d, paires_strictes=%d, rejets=%s",
+                        channel_name, window_name, len(window), photo_count,
+                        video_count, len(candid), len(screened.pairs),
+                        ",".join(screened.reasons[:15]) or "aucun"
+                    )
+                if not pairs:
+                    LOG.warning(
+                        "Aucune paire affiche/vidéo conforme dans les messages consultés "
+                        "de %s. Pas de publication. Vérifier la structure du canal, "
+                        "la durée (>40 min), la taille (>150 Mo), le délai et l'ordre.",
+                        channel_name
+                    )
+                    summary_file = os.getenv("GITHUB_STEP_SUMMARY")
+                    if summary_file:
+                        with open(summary_file, "a", encoding="utf-8") as summary:
+                            summary.write(
+                                "### Film Relay : aucune paire éligible dans " +
+                                channel_name + "\\n"
+                                "Le canal a été lu, mais aucun couple affiche/vidéo "
+                                "ne respecte les filtres. Voir l'étape Run Telegram film relay.\\n"
+                            )
                 source_failed = False
                 run_limit_reached = False
                 for pair in pairs:
