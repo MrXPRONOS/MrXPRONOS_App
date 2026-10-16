@@ -62,7 +62,7 @@ jobs:
           TG_PRIVATE_INVITE_LINK: ${{ vars.TG_PRIVATE_INVITE_LINK }}
           FILM_PUBLISH_ENABLED: ${{ vars.FILM_PUBLISH_ENABLED || 'true' }}
           TG_RIGHTS_ATTESTED: ${{ vars.TG_RIGHTS_ATTESTED || 'true' }}
-          FILM_MAX_POSTS_PER_RUN: ${{ github.event_name == 'push' && '1' || '5' }}
+          FILM_MAX_POSTS_PER_RUN: ${{ github.event_name == 'schedule' && '5' || '1' }}
           PYTHONPATH: .
         run: python -m film_relay.runner
       - name: Persist relay checkpoint even after partial send failure
