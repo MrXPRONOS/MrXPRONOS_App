@@ -1,0 +1,68 @@
+name: Film Relay - Transférer les posts déjà publiés
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-film-forward-pending.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mrx-telegram-film-state
+  cancel-in-progress: false
+
+jobs:
+  forward:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer Telethon
+        run: python -m pip install -r telegram-film-relay/requirements.txt
+      - name: Transférer uniquement les publications existantes avec attribution
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
+          TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
+          PYTHONPATH: .
+        run: python scripts/forward_mirror_pending.py
+      - name: Sauvegarder les reçus de transferts sans écraser les autres envois
+        if: always()
+        run: |
+          set -e
+          STATE_FILE="telegram-film-relay/state/state.json"
+          if git diff --quiet -- "$STATE_FILE"; then
+            echo "Aucun nouveau transfert."
+            exit 0
+          fi
+          cp "$STATE_FILE" "$RUNNER_TEMP/cinex-checkpoint.json"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git fetch origin main
+            git reset --hard origin/main
+            python telegram-film-relay/scripts/merge_state.py \
+              "$RUNNER_TEMP/cinex-checkpoint.json" "$STATE_FILE"
+            if git diff --quiet -- "$STATE_FILE"; then
+              echo "Transferts déjà sauvegardés."
+              exit 0
+            fi
+            git add "$STATE_FILE"
+            git commit -m "state: secondary channel forward receipts [skip ci]"
+            if git push origin HEAD:main; then
+              echo "Reçus du second canal sauvegardés."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::Reçus non sauvegardés après huit tentatives"
+          exit 1
