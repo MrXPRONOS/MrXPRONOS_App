@@ -85,3 +85,4 @@ jobs:
 # Safe rollout retry: shared user-channel access hashes, not bot channel objects.
 
 # Retry: Telegram channel service messages may have no text.
+# Private bot administrator right confirmed; rollout missing private-channel ad.
