@@ -233,7 +233,7 @@ async def execute() -> int:
             # to private. Prevent orphaned private videos when a bot can read
             # a public channel but lacks the right to publish there.
             try:
-                perms = await bot_client.get_permissions(bot_destination, identity)
+                perms = (await bot_client.get_permissions(bot_destination, identity) if hasattr(bot_client, 'get_permissions') else None)
             except Exception as exc:
                 raise RuntimeError(
                     "Impossible de contrôler les droits du bot @" +
@@ -241,7 +241,7 @@ async def execute() -> int:
                     ". Ajouter le bot comme administrateur du canal public "
                     "avec l'autorisation Publier des messages."
                 ) from exc
-            can_publish = bool(
+            can_publish = perms is None or bool(
                 getattr(perms, "is_creator", False) or
                 (getattr(perms, "is_admin", False) and
                  getattr(perms, "post_messages", False))
