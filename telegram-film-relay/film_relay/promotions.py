@@ -207,8 +207,16 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
         want=int(e["next_index"]) % len(CAMPAIGNS)
         if ready is not None:
             # Retrieve a photo matching the current campaign from primary.
-            primary_post=await _recently_published(user_client,primary,campaign_caption(want),limit=150)
+            # Prefer the persisted primary receipt; it remains valid even hours
+            # after the ad (the 45-minute duplicate scan is only for recovery).
+            primary_cursor=state.data.get("promotions",{}).get(first_id,{})
+            primary_post=primary_cursor.get("sent",{}).get(str(e["next_index"]))
+            if primary_post is None:
+                primary_post=await _recently_published(
+                    user_client,primary,campaign_caption(want),limit=150
+                )
             if primary_post is not None:
+                primary_post=int(primary_post)
                 from .recovery import existing_native_forwards
                 found_map=await existing_native_forwards(user_client,mirror,utils.get_peer_id(primary))
                 if primary_post in found_map:
