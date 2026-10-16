@@ -10,6 +10,7 @@ from pathlib import Path
 from .matching import (document_key, filename_of, is_poster, is_video, match_pairs,
                        match_authorized_mkv_pairs, description_of, description_entities_of)
 from .verification import screen_pairs
+from .publication import (rich_caption, rich_video_title, send_public_poster_with_buttons)
 from .state import State
 from .text import (caption_with_link, clean_caption, first_title, private_message_link,
                    private_poster_caption, private_video_caption)
@@ -157,6 +158,13 @@ async def execute() -> int:
         return 0
     if publish and not flag("TG_RIGHTS_ATTESTED"):
         raise RuntimeError("Publication bloquée : TG_RIGHTS_ATTESTED doit être true.")
+    bot_token = os.getenv("CINEX_BOT_TOKEN", "").strip()
+    if publish and not bot_token:
+        raise RuntimeError(
+            "Boutons Telegram obligatoires : ajouter le secret GitHub CINEX_BOT_TOKEN "
+            "créé avec @BotFather et rendre ce bot administrateur du canal public. "
+            "Aucun nouveau film n'a été envoyé."
+        )
 
     state = State(os.getenv("STATE_PATH", "state/state.json"))
     seen_count = published_count = proposed_count = failed_count = 0
@@ -164,6 +172,7 @@ async def execute() -> int:
     pause_seconds = max(3.0, float(cfg.get("publication_pause_seconds", 5)))
     client = TelegramClient(StringSession(credentials[2]), int(credentials[0]), credentials[1],
                             request_retries=1, connection_retries=2, flood_sleep_threshold=0)
+    bot_client = None
     await client.connect()
     try:
         if not await client.is_user_authorized():
@@ -201,6 +210,21 @@ async def execute() -> int:
                 "Le canal public et le canal privé correspondent au même canal. "
                 "Renseigner deux destinations distinctes avant de publier."
             )
+        if publish:
+            # User session copies source media to private; bot sends public
+            # poster + native URL buttons. Bot must be an admin of this channel.
+            bot_client = TelegramClient(
+                StringSession(), int(credentials[0]), credentials[1],
+                request_retries=1, connection_retries=2, flood_sleep_threshold=0
+            )
+            await bot_client.start(bot_token=bot_token)
+            bot_destination = await bot_client.get_entity(cfg["public_channel"])
+            if utils.get_peer_id(bot_destination) != utils.get_peer_id(destination_public):
+                raise RuntimeError(
+                    "Le bot et le compte utilisateur ne résolvent pas le même canal public. "
+                    "Vérifier TG_PUBLIC_CHANNEL et les droits admin du bot."
+                )
+            LOG.info("Bot CinéX connecté au canal public : boutons activés.")
         if not getattr(destination_public, "username", None):
             raise RuntimeError(
                 "Super Mario Film (destination publique) ne possède pas de @username public. "
@@ -344,7 +368,7 @@ async def execute() -> int:
                             if cfg.get("private_layout", "poster_and_video") == "poster_and_video" and "poster" not in stage:
                                 private_poster = await client.send_file(
                                     destination_private, pair.poster.media,
-                                    caption=private_poster_caption(text), parse_mode=None
+                                    caption=rich_caption(text, private=True), parse_mode="html"
                                 )
                                 state.stage_poster(pair_id, int(private_poster.id))
                                 await asyncio.sleep(2)
@@ -353,17 +377,16 @@ async def execute() -> int:
 
                             private_post = await client.send_file(
                                 destination_private, pair.movie.media,
-                                caption=private_video_caption(text), parse_mode=None
+                                caption=rich_video_title(text), parse_mode="html"
                             )
                             private_post_id = int(private_post.id)
                             state.stage(pair_id, private_post_id)
                             LOG.info("Vidéo privée envoyée : message %s", private_post_id)
                         url = private_message_link(private_id, private_post_id)
-                        caption = caption_with_link(text, url, invitation)
                         await asyncio.sleep(2)
-                        public_post = await client.send_file(
-                            destination_public, pair.poster.media,
-                            caption=caption, parse_mode=None
+                        public_post = await send_public_poster_with_buttons(
+                            client, bot_client, bot_destination, pair.poster,
+                            text, url, invitation
                         )
                         state.add(pair_id, media_id, private_post_id, int(public_post.id))
                         # Checkpoint to the latest *completed* movie. If the run
@@ -410,6 +433,8 @@ async def execute() -> int:
             return 2
         return 1 if failed_count else 0
     finally:
+        if bot_client is not None:
+            await bot_client.disconnect()
         await client.disconnect()
 
 
