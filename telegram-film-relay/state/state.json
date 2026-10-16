@@ -49,6 +49,22 @@
       "public_message_id": 16
     }
   },
+  "promotions": {
+    "-1002909390103": {
+      "last_film_total": 7,
+      "next_index": 1,
+      "sent": {
+        "0": 2354
+      }
+    },
+    "-1003921647496": {
+      "last_film_total": 7,
+      "next_index": 1,
+      "sent": {
+        "0": 17
+      }
+    }
+  },
   "staged": {},
   "videos": {
     "doc:5323754775349603818": "-1003990708673:25:26",
