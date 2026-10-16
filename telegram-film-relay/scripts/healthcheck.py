@@ -72,7 +72,7 @@ async def run():
         try:
             from telethon import TelegramClient
             from telethon.sessions import StringSession
-            from film_relay.runner import resolve_peer
+            from film_relay.runner import resolve_peer, find_broadcast_by_exact_title
             client = TelegramClient(StringSession(session), int(aid), ahash,
                                     request_retries=1, connection_retries=1,
                                     flood_sleep_threshold=0)
@@ -82,6 +82,13 @@ async def run():
                 check(report, "Session Telegram autorisée", auth,
                       "Session invalide ou révoquée ; générer une nouvelle StringSession.")
                 if auth:
+                    expected_public = "Super Mario Film"
+                    matched = await asyncio.wait_for(
+                        find_broadcast_by_exact_title(client, expected_public), timeout=35
+                    )
+                    check(report, "Super Mario Film trouvé dans ce compte",
+                          len(matched) == 1,
+                          "Impossible de trouver un canal unique de ce nom dans les dialogues Telegram.")
                     for kind, name, is_private in (("privé", private, True), ("public", public, False)):
                         if not format_ok(name, private=is_private):
                             continue
@@ -89,7 +96,15 @@ async def run():
                             peer = await asyncio.wait_for(resolve_peer(client, name), timeout=25)
                             check(report, "Accès au canal " + kind, bool(getattr(peer, "broadcast", False)),
                                   "La destination doit être un canal, pas un groupe.")
-                            if getattr(peer, "broadcast", False) and flag("FILM_HEALTH_SEND_TEST"):
+                            is_expected = True
+                            if kind == "public":
+                                is_expected = expected_public.casefold() in str(
+                                    getattr(peer, "title", "") or "").casefold()
+                                check(report, "TG_PUBLIC_CHANNEL correspond à Super Mario Film",
+                                      is_expected,
+                                      "Le canal défini sur GitHub porte un autre nom. "
+                                      "Mettre l'ID -100 ou @username de Super Mario Film.")
+                            if getattr(peer, "broadcast", False) and is_expected and flag("FILM_HEALTH_SEND_TEST"):
                                 try:
                                     await asyncio.wait_for(client.send_message(
                                         peer, "🎬 CinéX — test technique de publication."), timeout=25)
