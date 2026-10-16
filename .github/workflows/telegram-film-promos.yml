@@ -83,3 +83,5 @@ jobs:
 # Deployment retry: channel-history lookups use the authorized user session.
 
 # Safe rollout retry: shared user-channel access hashes, not bot channel objects.
+
+# Retry: Telegram channel service messages may have no text.
