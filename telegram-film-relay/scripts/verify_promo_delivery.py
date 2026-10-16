@@ -49,7 +49,16 @@ async def execute():
                 print(f"{name}: message manquant (id={msgid})")
                 continue
             urls=button_urls(msg)
+            markup=getattr(msg,"reply_markup",None)
+            wrapped=getattr(msg,"buttons",None)
             print(f"{name}: message={msgid}, boutons={len(urls)}, destination={urls[:1]}")
+            print(f"{name}: markup={type(markup).__name__}, "
+                  f"button_wrapper={type(wrapped).__name__}, "
+                  f"sender={getattr(msg,'sender_id',None)}, "
+                  f"media={type(getattr(msg,'media',None)).__name__}, "
+                  f"caption={repr(str(getattr(msg,'raw_text','') or '')[:95])}")
+            if markup is not None:
+                print(f"{name}: markup_sample={repr(markup)[:550]}")
         return 0
     finally:
         await client.disconnect()
