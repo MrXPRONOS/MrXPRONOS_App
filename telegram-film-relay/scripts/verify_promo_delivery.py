@@ -59,6 +59,15 @@ async def execute():
                   f"caption={repr(str(getattr(msg,'raw_text','') or '')[:95])}")
             if markup is not None:
                 print(f"{name}: markup_sample={repr(markup)[:550]}")
+                for row in getattr(markup,"rows",[]) or []:
+                    for button in getattr(row,"buttons",[]) or []:
+                        print(f"{name}: button_type={type(button).__name__}, "
+                              f"url={getattr(button,'url',None)!r}, "
+                              f"text={getattr(button,'text',None)!r}")
+            for row in wrapped or []:
+                for button in row:
+                    print(f"{name}: wrapper_type={type(button).__name__}, "
+                          f"wrapper_url={getattr(button,'url',None)!r}")
         return 0
     finally:
         await client.disconnect()
