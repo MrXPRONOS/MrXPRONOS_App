@@ -17,6 +17,7 @@ class State:
         self.data.setdefault("videos", {})
         self.data.setdefault("staged", {})
         self.data.setdefault("history", {})
+        self.data.setdefault("mirrors", {})
 
 
     def history_cursor(self, source: str) -> int | None:
@@ -45,6 +46,25 @@ class State:
         if media_id:
             self.data["videos"][media_id] = pair_id
         self.save()
+
+    def mirrored(self, pair_id: str, target: str) -> bool:
+        """Whether a primary public post was forwarded to this secondary channel."""
+        return bool(self.data["mirrors"].get(target, {}).get(pair_id))
+
+    def mark_mirrored(self, pair_id: str, target: str, forwarded_message_id: int) -> None:
+        """Save receipt after Telegram accepted a real forward."""
+        if pair_id not in self.data["processed"]:
+            raise ValueError("Cannot mirror an unfinished primary publication")
+        self.data["mirrors"].setdefault(target, {})[pair_id] = int(forwarded_message_id)
+        self.save()
+
+    def pending_mirrors(self, target: str, *, limit: int = 10) -> list[tuple[str, int]]:
+        """Retry primary posts recorded before a mirror was added or on mirror failure."""
+        posted = self.data["processed"]
+        completed = self.data["mirrors"].get(target, {})
+        return [(pair_id, int(value["public_message_id"]))
+                for pair_id, value in posted.items()
+                if pair_id not in completed and value.get("public_message_id")][:max(1, limit)]
 
     def get_staged_posts(self, pair_id: str) -> dict[str, int]:
         """Return partial private posts; supports older numeric video-only stages."""
