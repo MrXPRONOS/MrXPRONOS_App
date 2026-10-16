@@ -16,6 +16,13 @@ def button_urls(msg):
             url=getattr(button,"url",None)
             if url:
                 found.append(str(url))
+    # Telethon resolves KeyboardInlineButton.url through MessageButton.url;
+    # raw reply_markup.buttons may be keyboard wrappers with no .url field.
+    for row in getattr(msg,"buttons",[]) or []:
+        for wrapper in row:
+            url=getattr(wrapper,"url",None)
+            if url and str(url) not in found:
+                found.append(str(url))
     return found
 
 
