@@ -360,6 +360,22 @@ async def execute() -> int:
                 LOG.exception("Source inaccessible %s : %s", channel_name, exc)
         LOG.info("Résumé : lus=%s, proposés=%s, publiés=%s, erreurs=%s",
                  seen_count, proposed_count, published_count, failed_count)
+        if publish and published_count == 0:
+            LOG.warning(
+                "FIN SANS PUBLICATION : aucun film n'a été envoyé. "
+                "Voir les diagnostics de format, la destination et la présence "
+                "de paires strictement validées dans les lignes précédentes."
+            )
+        summary_path = os.getenv("GITHUB_STEP_SUMMARY")
+        if summary_path:
+            with open(summary_path, "a", encoding="utf-8") as summary:
+                summary.write(
+                    "\\n### Film Relay — résultat\\n"
+                    f"- Messages analysés : {seen_count}\\n"
+                    f"- Films compatibles proposés : {proposed_count}\\n"
+                    f"- Films réellement publiés : {published_count}\\n"
+                    f"- Erreurs : {failed_count}\\n"
+                )
         return 1 if failed_count else 0
     finally:
         await client.disconnect()
