@@ -121,11 +121,12 @@ async def load_archive_messages(client, entity, state: State, source_id: str, cf
     A small overlap retains pairs split between two fetch windows. Never
     advance the archive cursor until all eligible posts in the page complete.
     """
-    if state.history_done(source_id):
+    rescan = flag("FILM_RESCAN_HISTORY", False)
+    if state.history_done(source_id) and not rescan:
         return [], None, True
     page_size = min(500, max(30, int(cfg.get("history_page_messages", 240))))
     overlap = min(30, max(3, int(cfg.get("history_overlap_messages", 12))))
-    cursor = state.history_cursor(source_id)
+    cursor = None if rescan else state.history_cursor(source_id)
     kwargs = {"limit": page_size}
     if cursor is not None:
         kwargs["max_id"] = cursor
