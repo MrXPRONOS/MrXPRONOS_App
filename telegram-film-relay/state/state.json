@@ -8,7 +8,14 @@
   "last_seen": {
     "-1003990708673": 101
   },
-  "processed": {},
+  "processed": {
+    "-1003990708673:25:26": {
+      "private_message_id": 5,
+      "public_message_id": 7
+    }
+  },
   "staged": {},
-  "videos": {}
+  "videos": {
+    "doc:5323754775349603818": "-1003990708673:25:26"
+  }
 }
