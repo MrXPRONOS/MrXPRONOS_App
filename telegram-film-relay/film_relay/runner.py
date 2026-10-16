@@ -535,6 +535,27 @@ async def execute() -> int:
                         state.advance(channel_key, pair.movie.id)
                         published_count += 1
                         LOG.info("Publié : %s -> %s", pair_id, url)
+                        # Publish a different Mr XPRONOS promotion after every
+                        # TWO completed movies in each destination. Real inline
+                        # buttons are mandatory; only the bot publishes posters.
+                        if flag("CINEX_PROMOS_ENABLED", True):
+                            try:
+                                from .promotions import publish_promotions
+                                promo_report = await publish_promotions(
+                                    client, bot_client, destination_private,
+                                    destination_public, mirror_destination, state
+                                )
+                                if sum(promo_report[k] for k in ("private", "public", "mirror")):
+                                    LOG.info("PUB CINÉX APRÈS 2 FILMS : privé=%s, public=%s, miroir=%s",
+                                             promo_report["private"],
+                                             promo_report["public"],
+                                             promo_report["mirror"])
+                                if promo_report["skipped"]:
+                                    LOG.warning("Publicités différées (droits ou destination) : %s",
+                                                promo_report["skipped"])
+                            except Exception as promo_exc:
+                                failed_count += 1
+                                LOG.exception("Publicité après deux films en attente : %s", promo_exc)
                         await asyncio.sleep(pause_seconds)
                     except Exception as exc:
                         source_failed = True

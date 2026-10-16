@@ -55,12 +55,13 @@ class FakeTelegramClient:
     async def connect(self): pass
     async def start(self, bot_token=None): return self
     async def get_me(self): return NS(username='football_bot_test')
+    async def get_permissions(self, channel, user): return NS(is_creator=True, is_admin=True, post_messages=True)
     async def disconnect(self): pass
     async def download_media(self, media, file=bytes): return str(media).encode("utf-8")
     async def is_user_authorized(self): return True
     async def get_entity(self, value):
         if value == PRIV or str(value) == str(PRIV): return self.private
-        if value == '@public_legal': return self.public
+        if value == '@public_legal' or value == PUB: return self.public
         if value == '@Torrent9SeriesFilms': return self.mirror
         if value == '@source_legal': return self.source
         raise ValueError(value)
@@ -87,7 +88,7 @@ class FakeTelegramClient:
             raise RuntimeError('simulated Telegram transport failure')
         self._next += 1
         if isinstance(media, io.BytesIO):
-            media = media.getvalue().decode("utf-8")
+            media = media.name if str(getattr(media, "name", "")).startswith("mrx_") else media.getvalue().decode("utf-8")
         self.sent.append(NS(channel=entity.peer_id, media=media, caption=caption,
                             parse_mode=parse_mode, options=options, id=self._next))
         return NS(id=self._next)
@@ -200,7 +201,8 @@ class RelayEndToEndTests(unittest.TestCase):
             self.assertEqual(State(str(state)).seen(str(SRC)), 11)
             second = FakeTelegramClient(samples)
             self.assertEqual(self.start(second, cfg, state), 0)
-            self.assertEqual([x.media for x in second.sent], ['poster-1', 'video-1', 'poster-1'])
+            self.assertEqual([x.media for x in second.sent[:3]], ['poster-1', 'video-1', 'poster-1'])
+            self.assertEqual([x.media for x in second.sent[3:]], ['mrx_actu.jpg', 'mrx_actu.jpg'])
             self.assertEqual(State(str(state)).seen(str(SRC)), 13)
 
 
