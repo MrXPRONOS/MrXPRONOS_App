@@ -12,7 +12,8 @@ from .matching import (document_key, filename_of, is_poster, is_video, match_pai
 from .verification import screen_pairs
 from .publication import (rich_caption, rich_video_title, send_public_poster_with_buttons)
 from .state import State
-from .recovery import snapshot_telegram_posts, recover_from_snapshot
+from .recovery import (snapshot_telegram_posts, recover_from_snapshot,
+                       existing_native_forwards)
 from .text import (caption_with_link, clean_caption, first_title, private_message_link,
                    private_poster_caption, private_video_caption)
 
@@ -318,13 +319,24 @@ async def execute() -> int:
         # Complete mirrored copies left pending after a previous partial run.
         # Do not re-upload a MKV or re-post the original public message.
         mirror_count = 0
+        mirror_forwards = {}
         if publish and mirror_destination is not None:
+            mirror_forwards = await existing_native_forwards(
+                client, mirror_destination, utils.get_peer_id(destination_public)
+            )
             for old_pair, old_public_id in state.pending_mirrors(mirror_key, limit=10):
                 try:
+                    already_forwarded = mirror_forwards.get(old_public_id)
+                    if already_forwarded is not None:
+                        state.mark_mirrored(old_pair, mirror_key, already_forwarded)
+                        LOG.info("Transfert déjà présent, anti-doublon : public=%s -> miroir=%s",
+                                 old_public_id, already_forwarded)
+                        continue
                     copied_id = await forward_public_message(
                         client, destination_public, mirror_destination, old_public_id
                     )
                     state.mark_mirrored(old_pair, mirror_key, copied_id)
+                    mirror_forwards[old_public_id] = copied_id
                     mirror_count += 1
                     LOG.info("Transfert repris : public=%s, miroir=%s",
                              old_public_id, copied_id)
@@ -505,6 +517,7 @@ async def execute() -> int:
                                     int(public_post.id)
                                 )
                                 state.mark_mirrored(pair_id, mirror_key, copied_id)
+                                mirror_forwards[int(public_post.id)] = copied_id
                                 mirror_count += 1
                                 LOG.info("Public transféré avec attribution : %s -> %s",
                                          public_post.id, copied_id)
