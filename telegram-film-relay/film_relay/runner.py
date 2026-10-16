@@ -534,7 +534,7 @@ async def execute() -> int:
                     f"- Publications transférées vers le canal secondaire : {mirror_count}\\n"
                     f"- Erreurs : {failed_count}\\n"
                 )
-        if publish and published_count == 0 and flag("FILM_REQUIRE_PUBLICATION"):
+        if publish and published_count == 0 and mirror_count == 0 and flag("FILM_REQUIRE_PUBLICATION"):
             LOG.error("TEST NON VALIDE : aucune publication réelle. Exécution marquée en échec.")
             return 2
         return 1 if failed_count else 0
