@@ -32,7 +32,7 @@ jobs:
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
-          TG_STRING_SESSION: ${{ secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
         run: |
           if [[ -n "$TG_API_ID" && -n "$TG_API_HASH" && -n "$TG_STRING_SESSION" ]]; then
             echo 'ready=true' >> "$GITHUB_OUTPUT"
@@ -55,7 +55,7 @@ jobs:
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
-          TG_STRING_SESSION: ${{ secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
           PYTHONPATH: .
         run: python -m film_relay.discovery
       - name: Persist found links and inactive source registry
