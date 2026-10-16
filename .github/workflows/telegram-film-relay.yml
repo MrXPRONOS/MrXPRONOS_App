@@ -8,12 +8,6 @@ on:
         required: false
         type: boolean
         default: true
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/telegram-film-relay.yml'
-      - 'telegram-film-relay/film_relay/runner.py'
-      - 'telegram-film-relay/config/channels.json'
   schedule:
     - cron: '17 */2 * * *'
 
@@ -69,7 +63,7 @@ jobs:
           CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
           TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
           TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
-          TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilm' }}
+          TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
           TG_PRIVATE_INVITE_LINK: ${{ secrets.CINEX_PRIVATE_INVITE_LINK }}
           FILM_PUBLISH_ENABLED: ${{ vars.FILM_PUBLISH_ENABLED || 'true' }}
           TG_RIGHTS_ATTESTED: ${{ vars.TG_RIGHTS_ATTESTED || 'true' }}
