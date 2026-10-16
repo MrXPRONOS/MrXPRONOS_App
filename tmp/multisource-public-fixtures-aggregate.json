@@ -1,53 +1,12 @@
 {
   "days": [
-    "2026-10-15",
     "2026-10-16",
-    "2026-10-17"
+    "2026-10-17",
+    "2026-10-18"
   ],
   "sources": {
-    "2026-10-15": {
-      "fixtures": 327,
-      "provider_health": {
-        "bsd": {
-          "reported": 0,
-          "valid": 0,
-          "rejected": 0,
-          "error": ""
-        },
-        "api_football": {
-          "reported": 0,
-          "valid": 0,
-          "rejected": 0,
-          "error": "not queried"
-        },
-        "espn": {
-          "reported": 135,
-          "valid": 135,
-          "rejected": 0,
-          "error": ""
-        },
-        "sportscore": {
-          "reported": 200,
-          "valid": 200,
-          "rejected": 0,
-          "error": ""
-        },
-        "thesportsdb": {
-          "reported": 3,
-          "valid": 3,
-          "rejected": 0,
-          "error": ""
-        },
-        "openligadb": {
-          "reported": 0,
-          "valid": 0,
-          "rejected": 0,
-          "error": ""
-        }
-      }
-    },
     "2026-10-16": {
-      "fixtures": 298,
+      "fixtures": 296,
       "provider_health": {
         "bsd": {
           "reported": 0,
@@ -74,10 +33,10 @@
           "error": ""
         },
         "thesportsdb": {
-          "reported": 3,
-          "valid": 3,
+          "reported": 0,
+          "valid": 0,
           "rejected": 0,
-          "error": ""
+          "error": "ReadTimeout: HTTPSConnectionPool(host='www.thesportsdb.com', port=443): Read timed out. (read timeout=16)"
         },
         "openligadb": {
           "reported": 3,
@@ -115,10 +74,10 @@
           "error": ""
         },
         "thesportsdb": {
-          "reported": 3,
-          "valid": 3,
+          "reported": 0,
+          "valid": 0,
           "rejected": 0,
-          "error": ""
+          "error": "ReadTimeout: HTTPSConnectionPool(host='www.thesportsdb.com', port=443): Read timed out. (read timeout=16)"
         },
         "openligadb": {
           "reported": 10,
@@ -127,9 +86,50 @@
           "error": ""
         }
       }
+    },
+    "2026-10-18": {
+      "fixtures": 496,
+      "provider_health": {
+        "bsd": {
+          "reported": 0,
+          "valid": 0,
+          "rejected": 0,
+          "error": ""
+        },
+        "api_football": {
+          "reported": 0,
+          "valid": 0,
+          "rejected": 0,
+          "error": "not queried"
+        },
+        "espn": {
+          "reported": 297,
+          "valid": 297,
+          "rejected": 0,
+          "error": ""
+        },
+        "sportscore": {
+          "reported": 200,
+          "valid": 200,
+          "rejected": 0,
+          "error": ""
+        },
+        "thesportsdb": {
+          "reported": 0,
+          "valid": 0,
+          "rejected": 0,
+          "error": "ReadTimeout: HTTPSConnectionPool(host='www.thesportsdb.com', port=443): Read timed out. (read timeout=16)"
+        },
+        "openligadb": {
+          "reported": 5,
+          "valid": 5,
+          "rejected": 0,
+          "error": ""
+        }
+      }
     }
   },
-  "total_fixtures": 1245,
+  "total_fixtures": 1399,
   "sportscore_page_size_limit": 200,
   "sportscore_days_at_page_limit": 3,
   "sportscore_coverage_possibly_incomplete": true,
