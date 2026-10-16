@@ -70,7 +70,7 @@ Présentation publique : titre en **gras**, métadonnées (genre, durée, synops
 
 Le programme s'arrête avec une erreur claire lorsque le bot n'est pas configuré ; il **n'envoie pas la vidéo privée avant de vérifier** le jeton et l'accès du bot au canal public. Une défaillance ultérieure de publication publique conserve un checkpoint pour réessayer sans renvoyer le même MKV.
 
-**Les anciens messages déjà envoyés par la session utilisateur ne peuvent pas être modifiés par ce nouveau bot.** Les boutons s'appliquent aux publications futures.
+**Attention : un ancien lien d'invitation privé figurait en clair dans les journaux GitHub Actions. Révoquez l'ancien lien dans Telegram, générez-en un nouveau puis utilisez `CINEX_PRIVATE_INVITE_LINK` (secret, pas variable), ou laissez le programme obtenir un lien.**\n\n**Les anciens messages déjà envoyés par la session utilisateur ne peuvent pas être modifiés par ce nouveau bot.** Les boutons s'appliquent aux publications futures.
 
 ## Mise en production dans le dépôt existant
 
@@ -85,6 +85,7 @@ Le dépôt GitHub actuel est **public** : ne placez aucune session, hash API, in
 | `TG_SESSION_STRING` | oui | Session Telethon `StringSession` générée localement, jamais dans le chat ou Git |
 | `CINEX_BOT_TOKEN` | **oui pour les boutons** | Jeton d'un bot dédié CinéX créé sur Telegram via @BotFather. Ajouter ce bot comme **administrateur du canal public** avec l'autorisation de publier. |
 | `TG_APPROVED_SOURCES_JSON` | facultatif | Liste JSON des sources **dont la redistribution est autorisée**, avec justification |
+| `CINEX_PRIVATE_INVITE_LINK` | facultatif | Lien d'invitation du canal privé, réservé au secret GitHub et jamais aux variables visibles dans les logs. Si absent, le programme essaie de le récupérer avec la session administrateur. |
 
 Exemple de **format** pour le secret facultatif (pas de vraie source) :
 
@@ -100,7 +101,7 @@ Cette liste **n'effectue pas la découverte**, elle active seulement une source 
 |---|---|
 | `TG_PRIVATE_CHANNEL` | identifiant du canal privé, par ex. `-1001234567890` |
 | `TG_PUBLIC_CHANNEL` | identifiant du canal public, par ex. `@mon_canal` |
-| `TG_PRIVATE_INVITE_LINK` | lien d'invitation du privé, par ex. `https://t.me/+...`, facultatif |
+| `TG_PRIVATE_INVITE_LINK` | **ne plus utiliser comme variable** ; facultatif : préférer le secret `CINEX_PRIVATE_INVITE_LINK` ci-dessus |
 | `FILM_PUBLISH_ENABLED` | **`false` au démarrage** ; `true` seulement après validation |
 | `TG_RIGHTS_ATTESTED` | **`false` au démarrage** ; `true` après confirmation des droits |
 
