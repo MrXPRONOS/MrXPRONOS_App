@@ -69,6 +69,7 @@ jobs:
           CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
           TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
           TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
+          TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilm' }}
           TG_PRIVATE_INVITE_LINK: ${{ secrets.CINEX_PRIVATE_INVITE_LINK }}
           FILM_PUBLISH_ENABLED: ${{ vars.FILM_PUBLISH_ENABLED || 'true' }}
           TG_RIGHTS_ATTESTED: ${{ vars.TG_RIGHTS_ATTESTED || 'true' }}
