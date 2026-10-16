@@ -43,6 +43,14 @@ class MKVTests(unittest.TestCase):
                                max_age_minutes=180, min_caption_chars=12)
         self.assertEqual(len(checked.pairs), 0)
 
+    def test_zero_duration_treated_as_missing_metadata(self):
+        msg = mkv(duration=0)
+        self.assertTrue(is_video(msg))
+        checked = screen_pairs([poster(), msg], min_minutes=40,
+                               min_megabytes=75, max_gap=5,
+                               max_age_minutes=180, min_caption_chars=12)
+        self.assertEqual(len(checked.pairs), 1)
+
     def test_reject_short_file_with_duration(self):
         checked = screen_pairs([poster(), mkv(duration=120)],
                                min_megabytes=75, max_gap=5,

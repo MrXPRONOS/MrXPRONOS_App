@@ -55,9 +55,9 @@ def is_video(msg: Any) -> bool:
     duration = getattr(getattr(msg, "file", None), "duration", None)
     size = getattr(getattr(msg, "file", None), "size", None) or getattr(doc, "size", None) or 0
     # Exclude tiny teaser clips; duration, when available, has priority.
-    if duration is not None and duration < 600:
+    if duration and duration < 600:
         return False
-    if duration is None and size and size < 35 * 1024 * 1024:
+    if not duration and size and size < 35 * 1024 * 1024:
         return False
     return True
 

@@ -7,7 +7,7 @@ import logging
 import os
 from pathlib import Path
 
-from .matching import document_key, is_poster, is_video, match_pairs
+from .matching import document_key, filename_of, is_poster, is_video, match_pairs
 from .verification import screen_pairs
 from .state import State
 from .text import (caption_with_link, clean_caption, first_title, private_message_link,
@@ -280,7 +280,7 @@ async def execute() -> int:
                                          max_age_minutes=pairing["max_age_minutes"])
                     photo_count = sum(bool(getattr(m, "photo", None)) for m in window)
                     video_count = sum(is_video(m) for m in window)
-                    mkv_count = sum(str(getattr(getattr(m, "file", None), "name", "") or "").lower().endswith(".mkv") for m in window)
+                    mkv_count = sum(filename_of(m).endswith(".mkv") for m in window)
                     LOG.info(
                         "DIAGNOSTIC FORMAT %s/%s : messages=%d, photos=%d, videos=%d, "
                         "mkv=%d, candidats_souples=%d, paires_strictes=%d, rejets=%s",
