@@ -85,7 +85,7 @@ def mocks_for(client):
     telethon.utils = NS(get_peer_id=lambda entity: entity.peer_id)
     telethon.Button = NS(url=lambda label, url: (label, url))
     sessions = types.ModuleType('telethon.sessions')
-    sessions.StringSession = lambda content: content
+    sessions.StringSession = lambda content='': content
     return {'telethon': telethon, 'telethon.sessions': sessions}
 
 
