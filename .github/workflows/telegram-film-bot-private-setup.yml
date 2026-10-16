@@ -1,0 +1,33 @@
+name: CinéX - Autoriser bot pubs privées
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-film-bot-private-setup.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  authorize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les dépendances
+        run: python -m pip install -r telegram-film-relay/requirements.txt
+      - name: Accorder uniquement Publier messages au bot existant
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+          TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+          PYTHONPATH: .
+        run: python scripts/ensure_private_promo_bot.py
