@@ -59,12 +59,12 @@ Ne pas activer `redistribution_authorized` pour des canaux dont les droits n'ont
 
 ## Boutons Telegram et mise en forme CinéX
 
-**Les vrais boutons Telegram exigent un bot : la session personnelle ne peut pas en publier.**
+**Les vrais boutons Telegram exigent un bot : la session personnelle ne peut pas en publier.** Le projet CinéX réutilise maintenant un bot football déjà configuré dans les secrets GitHub.
 
-1. Ouvrir [@BotFather](https://t.me/BotFather) dans Telegram, lancer `/newbot` et créer un bot dédié CinéX (ex. `@CinexFilms_Bot` si disponible).
-2. Copier son jeton dans **GitHub → Settings → Secrets and variables → Actions → Repository secrets** avec le nom exact `CINEX_BOT_TOKEN` ; ne pas transmettre le jeton par message.
-3. Ajouter **ce bot** comme **administrateur du canal public** avec l'autorisation **Publier des messages**. Il n'a pas besoin d'être administrateur du canal privé.
-4. Relancer **Mr XPRONOS - Film Relay**. La session utilisateur continuera de poster l'affiche et le MKV dans le canal privé ; **le bot publiera l'affiche publique** avec des boutons Telegram.
+1. Le dépôt possède déjà `FOOTBALL_NEWS_BOT_TOKEN` pour les actualités football (`.github/workflows/football-production.yml`) et `TELEGRAM_BOT_TOKEN` pour les pronostics/coupons (`.github/workflows/telegram-simple-coupons.yml`). **Aucun nouveau jeton n'est nécessaire**.
+2. Le workflow CinéX utilise `secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN` : bot des actualités en priorité, bot des pronostics si le premier secret est absent. Les valeurs sont masquées par GitHub et les deux secrets peuvent désigner des comptes différents.
+3. Ajouter **le bot effectivement sélectionné** comme **administrateur du canal public CinéX** avec l'autorisation **Publier des messages**. Il n'a pas besoin d'être administrateur du canal privé. Le bot est identifié dans les logs sans afficher son jeton.
+4. Relancer **Mr XPRONOS - Film Relay**. La session utilisateur continue d'envoyer affiche + MKV dans le privé ; le bot football publie l'affiche publique avec de vrais boutons Telegram.
 
 Présentation publique : titre en **gras**, métadonnées (genre, durée, synopsis) stylées, sans URL visible dans la légende. Bouton principal : **🎬 REGARDER LE FILM** (message vidéo du privé). Si le lien d'invitation est disponible, second bouton : **🔐 REJOINDRE LA VIDÉOTHÈQUE**. Les destinataires doivent être membres du canal privé pour ouvrir le lien direct de la vidéo.
 
@@ -83,7 +83,7 @@ Le dépôt GitHub actuel est **public** : ne placez aucune session, hash API, in
 | `TG_API_ID` | oui | Numéro `api_id` de my.telegram.org |
 | `TG_API_HASH` | oui | Chaîne `api_hash` de my.telegram.org |
 | `TG_SESSION_STRING` | oui | Session Telethon `StringSession` générée localement, jamais dans le chat ou Git |
-| `CINEX_BOT_TOKEN` | **oui pour les boutons** | Jeton d'un bot dédié CinéX créé sur Telegram via @BotFather. Ajouter ce bot comme **administrateur du canal public** avec l'autorisation de publier. |
+| `FOOTBALL_NEWS_BOT_TOKEN` | réutilisé en priorité | Bot Telegram existant pour les actualités football. Ajouter ce bot au canal public CinéX avec droit de publier. |\n| `TELEGRAM_BOT_TOKEN` | secours | Bot Telegram existant pour les pronostics ; utilisé seulement si le secret actualités est absent. |
 | `TG_APPROVED_SOURCES_JSON` | facultatif | Liste JSON des sources **dont la redistribution est autorisée**, avec justification |
 | `CINEX_PRIVATE_INVITE_LINK` | facultatif | Lien d'invitation du canal privé, réservé au secret GitHub et jamais aux variables visibles dans les logs. Si absent, le programme essaie de le récupérer avec la session administrateur. |
 
