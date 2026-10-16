@@ -9,7 +9,7 @@ import unicodedata
 from dataclasses import dataclass
 from typing import Any, Sequence
 
-from .matching import Pair, match_pairs
+from .matching import Pair, match_pairs, filename_of, VIDEO_EXT
 from .text import clean_caption, first_title
 
 
@@ -57,8 +57,11 @@ def screen_pairs(
         if len(description) < min_caption_chars or len(title) < 7:
             reasons.append("description_insuffisante")
             continue
-        if _duration(pair.movie) < min_minutes * 60:
-            reasons.append("duree_courte_ou_inconnue")
+        if _duration(pair.movie) and _duration(pair.movie) < min_minutes * 60:
+            reasons.append("duree_courte")
+            continue
+        if not _duration(pair.movie) and not (filename_of(pair.movie).endswith(VIDEO_EXT) or "matroska" in str(getattr(getattr(pair.movie, "document", None), "mime_type", "") or "").lower()):
+            reasons.append("duree_inconnue_type_inconnu")
             continue
         if _size(pair.movie) < min_megabytes * 1_000_000:
             reasons.append("fichier_petit_ou_taille_inconnue")
