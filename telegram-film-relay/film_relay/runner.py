@@ -249,8 +249,17 @@ async def execute() -> int:
                 seen_count += len(fresh_messages) + len(archive_messages)
                 # Pair *inside* each contiguous window; never pair unrelated
                 # messages across two distant archive pages.
-                fresh_pairs = screen_pairs(fresh_messages).pairs
-                archive_pairs = screen_pairs(archive_messages).pairs
+                # For an authorized source, use its own criteria: Telegram MKV
+                # uploads often have no duration but do have a filename and size.
+                pairing = {
+                    "min_minutes": int(src.get("min_video_minutes", 40)),
+                    "min_megabytes": int(src.get("min_video_megabytes", 150)),
+                    "max_gap": int(src.get("max_pair_message_gap", 2)),
+                    "max_age_minutes": int(src.get("max_pair_age_minutes", 60)),
+                    "min_caption_chars": int(src.get("min_caption_chars", 25)),
+                }
+                fresh_pairs = screen_pairs(fresh_messages, **pairing).pairs
+                archive_pairs = screen_pairs(archive_messages, **pairing).pairs
                 seen_pair_ids = set()
                 pairs = []
                 for item in [*fresh_pairs, *archive_pairs]:
@@ -266,22 +275,24 @@ async def execute() -> int:
                 for window_name, window in (("recent", fresh_messages), ("archives", archive_messages)):
                     if not window:
                         continue
-                    screened = screen_pairs(window)
-                    candid = match_pairs(window, max_gap=4, max_age_minutes=180)
+                    screened = screen_pairs(window, **pairing)
+                    candid = match_pairs(window, max_gap=pairing["max_gap"],
+                                         max_age_minutes=pairing["max_age_minutes"])
                     photo_count = sum(bool(getattr(m, "photo", None)) for m in window)
                     video_count = sum(is_video(m) for m in window)
+                    mkv_count = sum(str(getattr(getattr(m, "file", None), "name", "") or "").lower().endswith(".mkv") for m in window)
                     LOG.info(
                         "DIAGNOSTIC FORMAT %s/%s : messages=%d, photos=%d, videos=%d, "
-                        "candidats_souples=%d, paires_strictes=%d, rejets=%s",
+                        "mkv=%d, candidats_souples=%d, paires_strictes=%d, rejets=%s",
                         channel_name, window_name, len(window), photo_count,
-                        video_count, len(candid), len(screened.pairs),
+                        video_count, mkv_count, len(candid), len(screened.pairs),
                         ",".join(screened.reasons[:15]) or "aucun"
                     )
                 if not pairs:
                     LOG.warning(
                         "Aucune paire affiche/vidéo conforme dans les messages consultés "
                         "de %s. Pas de publication. Vérifier la structure du canal, "
-                        "la durée (>40 min), la taille (>150 Mo), le délai et l'ordre.",
+                        "les critères de taille, de délai, de description et l'ordre.",
                         channel_name
                     )
                     summary_file = os.getenv("GITHUB_STEP_SUMMARY")
@@ -386,6 +397,9 @@ async def execute() -> int:
                     f"- Films réellement publiés : {published_count}\\n"
                     f"- Erreurs : {failed_count}\\n"
                 )
+        if publish and published_count == 0 and flag("FILM_REQUIRE_PUBLICATION"):
+            LOG.error("TEST NON VALIDE : aucune publication réelle. Exécution marquée en échec.")
+            return 2
         return 1 if failed_count else 0
     finally:
         await client.disconnect()
