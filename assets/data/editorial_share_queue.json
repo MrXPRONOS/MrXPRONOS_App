@@ -1,5 +1,115 @@
 [
   {
+    "id": "105f2f48e13fb0701b5f05b2",
+    "kind": "article",
+    "title": "Huracán vs Gimnasia y Esgrima : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-223822/",
+    "source_date": "2026-10-16T05:41:47.631529+00:00",
+    "visual_variant": "v2",
+    "image": "assets/images/editorial/match-bsd-match-223822-887dd983-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-223822-887dd983-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-16T05:41:47.929873+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-223822-887dd983-social.jpg"
+  },
+  {
+    "id": "520d31c08d79f298e25856b2",
+    "kind": "article",
+    "title": "SC Oțelul Galați vs FK Csíkszereda Miercurea Ciuc : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-214619/",
+    "source_date": "2026-10-16T05:41:47.631529+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-214619-68e134a2-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-214619-68e134a2-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-16T05:41:47.929873+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-214619-68e134a2-social.jpg"
+  },
+  {
+    "id": "ca502e0515bb92ce9f19dd60",
+    "kind": "article",
+    "title": "Ferencváros TC vs FC Viktoria Plzeň : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-601222/",
+    "source_date": "2026-10-16T05:41:47.631529+00:00",
+    "visual_variant": "v1",
+    "image": "assets/images/editorial/match-bsd-match-601222-51f2e55b-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-601222-51f2e55b-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-16T05:41:47.929873+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-601222-51f2e55b-social.jpg"
+  },
+  {
+    "id": "448fec772440b637ca015dab",
+    "kind": "article",
+    "title": "FC København vs Sporting Braga : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-601341/",
+    "source_date": "2026-10-16T05:41:47.631529+00:00",
+    "visual_variant": "v1",
+    "image": "assets/images/editorial/match-bsd-match-601341-30a97867-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-601341-30a97867-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-16T05:41:47.929873+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-601341-30a97867-social.jpg"
+  },
+  {
+    "id": "8d5f19d00f5a5862e258c03f",
+    "kind": "article",
+    "title": "SC Freiburg vs FK Jablonec : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-601406/",
+    "source_date": "2026-10-16T05:41:47.631529+00:00",
+    "visual_variant": "v2",
+    "image": "assets/images/editorial/match-bsd-match-601406-b72112c1-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-601406-b72112c1-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-16T05:41:47.929873+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-601406-b72112c1-social.jpg"
+  },
+  {
     "id": "b211eb3f0c3e80c79786fcdf",
     "kind": "article",
     "title": "Red Bull Salzburg vs AC Milan : fiche match BSD V2",
