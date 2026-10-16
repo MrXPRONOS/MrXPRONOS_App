@@ -195,6 +195,16 @@ async def execute() -> int:
         private_id = utils.get_peer_id(destination_private)
         if not str(private_id).startswith("-100"):
             raise ValueError("La destination privée doit être un canal (identifiant -100...).")
+        if utils.get_peer_id(destination_public) == private_id:
+            raise RuntimeError(
+                "Le canal public et le canal privé correspondent au même canal. "
+                "Renseigner deux destinations distinctes avant de publier."
+            )
+        if not getattr(destination_public, "username", None):
+            raise RuntimeError(
+                "Super Mario Film (destination publique) ne possède pas de @username public. "
+                "Vérifier la confidentialité du canal ou corriger TG_PUBLIC_CHANNEL."
+            )
         invitation = (cfg.get("private_invite_link") or "").strip()
         if not invitation and publish:
             # A t.me/c/ link works only for private-channel members. Offer an
@@ -360,6 +370,22 @@ async def execute() -> int:
                 LOG.exception("Source inaccessible %s : %s", channel_name, exc)
         LOG.info("Résumé : lus=%s, proposés=%s, publiés=%s, erreurs=%s",
                  seen_count, proposed_count, published_count, failed_count)
+        if publish and published_count == 0:
+            LOG.warning(
+                "FIN SANS PUBLICATION : aucun film n'a été envoyé. "
+                "Voir les diagnostics de format, la destination et la présence "
+                "de paires strictement validées dans les lignes précédentes."
+            )
+        summary_path = os.getenv("GITHUB_STEP_SUMMARY")
+        if summary_path:
+            with open(summary_path, "a", encoding="utf-8") as summary:
+                summary.write(
+                    "\\n### Film Relay — résultat\\n"
+                    f"- Messages analysés : {seen_count}\\n"
+                    f"- Films compatibles proposés : {proposed_count}\\n"
+                    f"- Films réellement publiés : {published_count}\\n"
+                    f"- Erreurs : {failed_count}\\n"
+                )
         return 1 if failed_count else 0
     finally:
         await client.disconnect()
