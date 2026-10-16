@@ -30,7 +30,10 @@ def record(report):
     p = Path("state/health.json")
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    lines = ["## Telegram Film Relay — diagnostic", "", "État : **" + report["status"] + "**"]
+    lines = ["## Telegram Film Relay — diagnostic", "", "État de la connexion : **" + report["status"] + "**",
+             "", "Publication activée : **" + ("oui" if not report.get("publishing_blocked", True) else "non") + "**",
+             "Découverte déjà exécutée : **" + ("oui" if report.get("discovery_has_run", False) else "non") + "**",
+             ""]
     for name, item in report["checks"].items():
         lines.append(("- ✅ " if item["status"] == "ok" else "- ❌ ") + name +
                      (" — " + item.get("hint", "") if item.get("hint") else ""))
