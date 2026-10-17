@@ -39,6 +39,7 @@ W, H = 1080, 1920
 MAX_MATCHES = 5
 VALID_STATUS = {"notstarted", "upcoming"}
 LEDGER_DEFAULT = "shorts_video_coupon"
+VIDEO_BACKGROUND = ROOT / "assets" / "images" / "mrxpronos-video-background.jpg"
 
 
 def _font(size: int, bold: bool = False):
@@ -259,7 +260,7 @@ def build_video(cards, output: Path, work_dir: Path):
     if not hasattr(Image, "ANTIALIAS"):
         Image.ANTIALIAS = Image.Resampling.LANCZOS
 
-    from moviepy.editor import ColorClip, CompositeVideoClip, ImageClip, concatenate_videoclips
+    from moviepy.editor import CompositeVideoClip, ImageClip, concatenate_videoclips
 
     total = len(cards)
     if not total:
@@ -284,7 +285,11 @@ def build_video(cards, output: Path, work_dir: Path):
         overlay_path = work_dir / f"overlay_{idx+1:02d}.png"
         _overlay_png(idx, total, overlay_path)
 
-        background = ColorClip((W, H), color=(7, 15, 24)).set_duration(per_card)
+        if not VIDEO_BACKGROUND.is_file():
+            raise RuntimeError(f"Fond vidéo introuvable: {VIDEO_BACKGROUND}")
+        background = (ImageClip(str(VIDEO_BACKGROUND))
+                      .resize(newsize=(W, H))
+                      .set_duration(per_card))
         coupon = (
             ImageClip(str(card_path))
             .resize(width=card_width)
