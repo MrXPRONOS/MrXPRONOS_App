@@ -8,7 +8,7 @@ import json
 import re
 
 _NAME = re.compile(r"^@[A-Za-z0-9_]{5,32}$")
-_SPLIT = re.compile(r"[,;\n\r]+")
+_SPLIT = re.compile(r"[,;\n\r\t ]+")
 
 
 def source_list(*values: str, max_sources: int = 12) -> list[str]:
