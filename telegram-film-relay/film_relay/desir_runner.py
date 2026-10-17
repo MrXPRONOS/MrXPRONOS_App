@@ -30,6 +30,7 @@ class ReceiptState:
         self.data.setdefault("completed", {})
         self.data.setdefault("staged", {})
         self.data.setdefault("mirrors", {})
+        self.data.setdefault("promotions", {})
     def save(self):
         self.path.parent.mkdir(parents=True, exist_ok=True)
         temporary = self.path.with_suffix(".tmp")
@@ -53,6 +54,34 @@ class ReceiptState:
         entries = self.data["completed"].values()
         return sorted({int(entry["public_id"]) for entry in entries
                        if entry.get("public_id") and not self.mirror_recorded(target, entry["public_id"])})
+
+class DesirPromotionsState:
+    """Expose compatible receipt fields to the shared original-poster ad rotation."""
+    def __init__(self, receipt_state: ReceiptState):
+        self.receipt_state = receipt_state
+        self.data = {
+            "processed": receipt_state.data["completed"],
+            "mirrors": receipt_state.data["mirrors"],
+            "promotions": receipt_state.data["promotions"],
+        }
+    def save(self):
+        self.receipt_state.save()
+
+
+async def publish_desir_promotions(user_client, bot, library, public, mirror,
+                                   receipt_state: ReceiptState) -> dict:
+    """One identical blue-button advert per destination after every two Desire films.
+
+    The secondary channel receives an attributed native forward of the Desire
+    public advertisement. Private sends require the bot's own posting rights.
+    """
+    from .promotions import publish_promotions
+    bridge = DesirPromotionsState(receipt_state)
+    result = await publish_promotions(user_client, bot, library, public, mirror, bridge)
+    LOG.info("PUBS DÉSIR après deux films : privé=%s public=%s Torrent9=%s ignorées=%s",
+             result["private"], result["public"], result["mirror"], result["skipped"])
+    return result
+
 
 def required(name: str, default: str = "") -> str:
     value = (os.getenv(name) or default).strip()
@@ -322,6 +351,11 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             await asyncio.sleep(10)
             if completed >= limit:
                 break
+        # Count films separately from CinéX classique. Publications are after
+        # the second movie and always after its native Torrent9 mirror forward.
+        if publish:
+            await publish_desir_promotions(client, bot, library, bot_public,
+                                           mirror_peer, state)
         LOG.info("Bilan CinéX Désir : %s publication(s) ou aperçu(s)", completed)
         if publish and require_publication and completed == 0:
             LOG.error("Premier test non validé : aucun nouveau film publié.")
