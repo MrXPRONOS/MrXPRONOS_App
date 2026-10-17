@@ -40,6 +40,7 @@ MAX_MATCHES = 5
 VALID_STATUS = {"notstarted", "upcoming"}
 LEDGER_DEFAULT = "shorts_video_coupon"
 VIDEO_BACKGROUND = ROOT / "assets" / "images" / "mrxpronos-video-background.jpg"
+HEADER_LOGO = ROOT / "assets" / "images" / "mrxpronos-logo-maquette.png"
 
 
 def _font(size: int, bold: bool = False):
@@ -258,6 +259,19 @@ def _overlay_png(index: int, total: int, out: Path):
     """CTA + tiny progress cue only; coupon artwork itself remains untouched."""
     canvas = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     draw = ImageDraw.Draw(canvas)
+
+    # Lightweight brand header. It lives outside the Telegram coupon.
+    if HEADER_LOGO.is_file():
+        try:
+            logo = Image.open(HEADER_LOGO).convert("RGBA")
+            logo.thumbnail((175, 58), Image.Resampling.LANCZOS)
+            canvas.alpha_composite(logo, (48, 24))
+        except Exception:
+            pass
+    title = "PRONOS DU JOUR"
+    hf = _font(27, True)
+    hb = draw.textbbox((0, 0), title, font=hf)
+    draw.text((W - 48 - (hb[2] - hb[0]), 36), title, font=hf, fill=(238, 244, 251, 235))
 
     # CTA stays above the bottom UI zones used by TikTok/Reels/Shorts.
     draw.rounded_rectangle((92, 1395, 988, 1535), radius=36, fill=(5, 18, 31, 230),
