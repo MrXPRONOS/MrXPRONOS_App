@@ -1991,6 +1991,40 @@ def resultat(events: list[dict], history: History, now: datetime) -> Publication
     return None
 
 
+def secondary_planned_result(event: dict, plan: dict, now: datetime) -> Publication | None:
+    final = final_score(event)
+    if final is None:
+        return None
+    h, a = final
+    home, away = team(event, "home"), team(event, "away")
+    rank = int(plan.get("rank") or 99)
+    key = "resultat-secondaire:" + followup.key(event)
+    card = {
+        "day": now.astimezone(TZ).strftime("%d/%m/%Y"),
+        "league": league(event),
+        "home": home, "away": away, "scores": (h, a), "score": f"{h}-{a}",
+        "plan_rank": rank, "plan_role": "a_suivre",
+        "home_logo": team_visual_url(event, "home", allow_remote=True),
+        "away_logo": team_visual_url(event, "away", allow_remote=True),
+    }
+    message = (
+        "<b>📌 À SUIVRE • RÉSULTAT FINAL</b>\n"
+        f"<b>#{rank} du programme du jour</b>\n"
+        f"<i>{esc(home)} – {esc(away)} est terminé.</i>\n\n"
+        "<b>💬 Votre réaction ?</b>"
+    )
+    verification = {
+        "type": "fixture_list",
+        "kind": "resultat",
+        "fixtures": [{
+            "home": home, "away": away,
+            "event_date": kick(event).astimezone(timezone.utc).isoformat(),
+            "score": f"{h}-{a}",
+        }],
+    }
+    return Publication("resultat", key, message, card=card, verification=verification)
+
+
 def form(team_id: Any, name: str, events: list[dict], before: datetime) -> str:
     """Forme sur les cinq derniers matchs terminés réellement retrouvés."""
     recent = []
@@ -3463,6 +3497,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                     and -timedelta(hours=6) <= kick(e) - now <= timedelta(hours=4)
                     and final_score(e) is None
                     and state.plan_for_event(e, now) is not None
+                    and int((state.plan_for_event(e, now) or {}).get("rank") or 99) <= 4
                     and str(e.get("status") or "").lower() not in ("cancelled", "postponed", "finished")
                 ]
                 technical = select_live_admissions(technical_pool, state.followed, now)
@@ -3500,6 +3535,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                     and str(e.get("status") or "").lower() not in
                         ("cancelled", "postponed", "live", "finished")
                     and state.plan_for_event(e, now) is not None
+                    and int((state.plan_for_event(e, now) or {}).get("rank") or 99) <= 4
                     and not state.seen("avant_match:" + str(e["id"]))
                 ]
                 upcoming = select_live_admissions(upcoming_pool, state.followed, now)
@@ -3611,6 +3647,23 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                             "plan_rank": int((state.followed.get(ref) or {}).get("plan_rank") or 99),
                         }
                         if publish(followed_final_publication(sig), ref=ref):
+                            break
+
+                # Rangs 5 à 10 : pas de flux action par action, mais le canal
+                # ferme proprement la boucle avec leur résultat final.
+                if counter["sent"] < max_send:
+                    for event in matches:
+                        plan = state.plan_for_event(event, now)
+                        if not plan:
+                            continue
+                        rank = int(plan.get("rank") or 99)
+                        if rank <= 4 or rank > 10 or final_score(event) is None:
+                            continue
+                        secondary_key = "resultat-secondaire:" + followup.key(event)
+                        if state.seen(secondary_key):
+                            continue
+                        post = secondary_planned_result(event, plan, now)
+                        if post and publish(post):
                             break
             except (BSDAPIError, requests.RequestException, ValueError) as exc:
                 counter["errors"] += 1
