@@ -23,13 +23,13 @@ ORIGINAL_SHA256 = {
 }
 CAMPAIGNS = (
     ("actu", "@actufoot_mrxp", "ACTU FOOT",
-     "⚽ Ne rate plus l’actualité du football !\\n📰 Mercato, résultats et infos.\\n🔥 Le foot au quotidien.\\n👇 Rejoins Actu Foot !",
+     "⚽ Ne rate plus l’actualité du football !\n📰 Mercato, résultats et infos.\n🔥 Le foot au quotidien.\n👇 Rejoins Actu Foot !",
      "📰 REJOINDRE ACTU FOOT", "INFOS • MERCATO • RÉSULTATS"),
     ("live", "@mr_xpronos_vip", "PRONOS LIVE VIP",
-     "🔴 Le match est en cours ?\\n⚽ Retrouve nos signaux et coupons live.\\n📊 Des analyses pendant les rencontres.\\n👇 Rejoins Pronos Live VIP !",
+     "🔴 Le match est en cours ?\n⚽ Retrouve nos signaux et coupons live.\n📊 Des analyses pendant les rencontres.\n👇 Rejoins Pronos Live VIP !",
      "🔴 REJOINDRE PRONOS LIVE", "DIRECT • SIGNAUX • ALERTES"),
     ("jour", "@mrxpronosfr", "COUPONS DU JOUR",
-     "⚽ Les matchs du jour t’attendent !\\n🎯 Découvre nos sélections.\\n📊 Pronostics et analyses football.\\n👇 Rejoins le canal !",
+     "⚽ Les matchs du jour t’attendent !\n🎯 Découvre nos sélections.\n📊 Pronostics et analyses football.\n👇 Rejoins le canal !",
      "🎯 REJOINDRE COUPONS DU JOUR", "MATCHS • SÉLECTIONS • ANALYSES"),
 )
 
