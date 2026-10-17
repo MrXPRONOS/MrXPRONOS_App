@@ -746,7 +746,7 @@ class History:
         local_day = now.astimezone(TZ).date().isoformat()
         new_plan: dict[str, dict] = {}
         card_rows = item.card.get("matches") if isinstance(item.card, dict) and isinstance(item.card.get("matches"), list) else []
-        for index, fixture in enumerate(fixtures[:4]):
+        for index, fixture in enumerate(fixtures[:10]):
             if not isinstance(fixture, dict):
                 continue
             event = {
@@ -764,7 +764,9 @@ class History:
                 "event_date": str(fixture.get("event_date") or ""),
                 "day": local_day,
                 "rank": index + 1,
-                "role": str(card_row.get("role") or ("match_du_jour" if index == 0 else "grande_affiche")),
+                "role": str(card_row.get("role") or (
+                    "match_du_jour" if index == 0 else "fil_rouge" if index < 4 else "a_suivre"
+                )),
                 "source": source,
                 "planned_at": now.astimezone(timezone.utc).isoformat(),
             }
@@ -1886,18 +1888,21 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
               and (as_of is None or kick(e) > as_of)
               and final_score(e) is None
               and str(e.get("status", "")).lower() not in ("cancelled", "postponed", "finished", "live")
-              and popular_live_match(e)]
+              and (
+                  popular_live_match(e)
+                  or high_stakes_bonus(e) >= 150
+                  or editorial_competition_rank(league(e)) is not None
+              )]
     if not future:
         return None
-    # Le programme du canal reflète la même priorité que le fil rouge :
-    # grands clubs d'abord, puis grands enjeux. Pas de remplissage avec des
-    # affiches inconnues simplement pour atteindre cinq lignes.
+    # Le programme peut contenir jusqu'à 10 affiches. Les quatre premières
+    # deviennent fil rouge principal; les suivantes restent "À suivre".
     future = sorted(future, key=_live_rank_key, reverse=True)
     chosen = []
-    for event in future[:14]:
+    for event in future[:28]:
         if has_two_team_logos(event, allow_remote=True):
             chosen.append(event)
-        if len(chosen) >= 4:
+        if len(chosen) >= 10:
             break
     if not chosen:
         return None
@@ -1905,13 +1910,21 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
     message = (
         "<b>📅 MATCHS DU JOUR</b>\n"
         "<i>⭐ Match du jour : <b>" + esc(team(featured, "home")) + " – "
-        + esc(team(featured, "away")) + "</b>. Les autres grandes affiches suivent.</i>\n\n"
+        + esc(team(featured, "away")) + "</b>. Les 4 premières affiches seront suivies en fil rouge ; les autres restent à suivre.</i>\n\n"
         "<b>💬 Quel match attendez-vous le plus ?</b>"
     )
     card = {"day": today.strftime("%d/%m/%Y"), "matches": [
         {"home": team(e, "home"), "away": team(e, "away"), "time": time_label(kick(e)),
          "league": league(e), "importance": importance(e),
-         "role": "match_du_jour" if index == 0 else "grande_affiche",
+         "role": (
+             "match_du_jour" if index == 0
+             else "fil_rouge" if index < 4
+             else "a_suivre"
+         ),
+         "editorial_rank": index + 1,
+         "team_rank": editorial_best_team_rank(e),
+         "competition_rank": editorial_competition_rank(league(e)),
+         "stage_bonus": high_stakes_bonus(e),
          "tracking_reason": live_tracking_reason(e),
          "home_logo": team_visual_url(e, "home", allow_remote=True),
          "away_logo": team_visual_url(e, "away", allow_remote=True)}
@@ -1976,6 +1989,40 @@ def resultat(events: list[dict], history: History, now: datetime) -> Publication
         }
         return Publication("resultat", key, text, card=card, verification=verification)
     return None
+
+
+def secondary_planned_result(event: dict, plan: dict, now: datetime) -> Publication | None:
+    final = final_score(event)
+    if final is None:
+        return None
+    h, a = final
+    home, away = team(event, "home"), team(event, "away")
+    rank = int(plan.get("rank") or 99)
+    key = "resultat-secondaire:" + followup.key(event)
+    card = {
+        "day": now.astimezone(TZ).strftime("%d/%m/%Y"),
+        "league": league(event),
+        "home": home, "away": away, "scores": (h, a), "score": f"{h}-{a}",
+        "plan_rank": rank, "plan_role": "a_suivre",
+        "home_logo": team_visual_url(event, "home", allow_remote=True),
+        "away_logo": team_visual_url(event, "away", allow_remote=True),
+    }
+    message = (
+        "<b>📌 À SUIVRE • RÉSULTAT FINAL</b>\n"
+        f"<b>#{rank} du programme du jour</b>\n"
+        f"<i>{esc(home)} – {esc(away)} est terminé.</i>\n\n"
+        "<b>💬 Votre réaction ?</b>"
+    )
+    verification = {
+        "type": "fixture_list",
+        "kind": "resultat",
+        "fixtures": [{
+            "home": home, "away": away,
+            "event_date": kick(event).astimezone(timezone.utc).isoformat(),
+            "score": f"{h}-{a}",
+        }],
+    }
+    return Publication("resultat", key, message, card=card, verification=verification)
 
 
 def form(team_id: Any, name: str, events: list[dict], before: datetime) -> str:
@@ -3450,6 +3497,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                     and -timedelta(hours=6) <= kick(e) - now <= timedelta(hours=4)
                     and final_score(e) is None
                     and state.plan_for_event(e, now) is not None
+                    and int((state.plan_for_event(e, now) or {}).get("rank") or 99) <= 4
                     and str(e.get("status") or "").lower() not in ("cancelled", "postponed", "finished")
                 ]
                 technical = select_live_admissions(technical_pool, state.followed, now)
@@ -3487,6 +3535,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                     and str(e.get("status") or "").lower() not in
                         ("cancelled", "postponed", "live", "finished")
                     and state.plan_for_event(e, now) is not None
+                    and int((state.plan_for_event(e, now) or {}).get("rank") or 99) <= 4
                     and not state.seen("avant_match:" + str(e["id"]))
                 ]
                 upcoming = select_live_admissions(upcoming_pool, state.followed, now)
@@ -3598,6 +3647,23 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                             "plan_rank": int((state.followed.get(ref) or {}).get("plan_rank") or 99),
                         }
                         if publish(followed_final_publication(sig), ref=ref):
+                            break
+
+                # Rangs 5 à 10 : pas de flux action par action, mais le canal
+                # ferme proprement la boucle avec leur résultat final.
+                if counter["sent"] < max_send:
+                    for event in matches:
+                        plan = state.plan_for_event(event, now)
+                        if not plan:
+                            continue
+                        rank = int(plan.get("rank") or 99)
+                        if rank <= 4 or rank > 10 or final_score(event) is None:
+                            continue
+                        secondary_key = "resultat-secondaire:" + followup.key(event)
+                        if state.seen(secondary_key):
+                            continue
+                        post = secondary_planned_result(event, plan, now)
+                        if post and publish(post):
                             break
             except (BSDAPIError, requests.RequestException, ValueError) as exc:
                 counter["errors"] += 1
