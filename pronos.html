@@ -74,7 +74,10 @@
             <section class="pronostic-switcher" aria-labelledby="categories-title">
                 <h2 id="categories-title" class="visually-hidden">Catégories de pronostics</h2>
                 <div class="category-tabs pronostic-category-tabs" role="tablist" aria-label="Catégories de pronostics">
-                    <button id="tab-simple" class="tab-btn active" data-cat="simple" role="tab" type="button" aria-selected="true" aria-controls="matches-container" tabindex="0">
+                    <button id="tab-all" class="tab-btn active" data-cat="all" role="tab" type="button" aria-selected="true" aria-controls="matches-container" tabindex="0">
+                        <span class="category-icon" aria-hidden="true"><img src="assets/images/pronostics-premium/icon-ball.webp?v=20261011-gen2" alt=""></span><span class="category-label">Tous</span><span class="tab-count" id="count-all">0</span>
+                    </button>
+                    <button id="tab-simple" class="tab-btn" data-cat="simple" role="tab" type="button" aria-selected="false" aria-controls="matches-container" tabindex="-1">
                         <span class="category-icon" aria-hidden="true"><img src="assets/images/pronostics-premium/icon-simple.webp?v=20261011-gen2" alt=""></span><span class="category-label">Simple</span><span class="tab-count" id="count-simple">0</span>
                     </button>
                     <button id="tab-pro" class="tab-btn" data-cat="pro" role="tab" type="button" aria-selected="false" aria-controls="matches-container" tabindex="-1">
@@ -109,7 +112,7 @@
 
         </div>
         <div id="success-rate-container" class="success-rate" style="display: none;"></div>
-        <div id="matches-container" class="matches-grid" role="tabpanel" aria-labelledby="tab-simple" tabindex="0" aria-live="polite">
+        <div id="matches-container" class="matches-grid" role="tabpanel" aria-labelledby="tab-all" tabindex="0" aria-live="polite">
             <section class="mx-load-group mx-load-group--matches" role="status" aria-label="Analyse des pronostics"><div class="mx-load-heading"><span class="mx-load-pulse" aria-hidden="true"></span><span>Analyse des pronostics en cours…</span></div><div class="mx-load-grid mx-load-grid--matches" aria-hidden="true"><div class="mx-load-card " aria-hidden="true"><div class="mx-load-row mx-load-spread"><span class="mx-load-block mx-load-line mx-load-line--sm" style="width:42%"></span><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:72px"></span></div><div class="mx-load-teamrow"><div class="mx-load-team"><span class="mx-load-block mx-load-logo" style="width:38px"></span><span class="mx-load-block mx-load-line" style="width:68%"></span></div><div class="mx-load-versus"><span class="mx-load-block mx-load-line mx-load-line--lg mx-load-block--gold" style="width:40px"></span></div><div class="mx-load-team"><span class="mx-load-block mx-load-logo" style="width:38px"></span><span class="mx-load-block mx-load-line" style="width:68%"></span></div></div><div class="mx-load-separator"></div><div class="mx-load-footer"><span class="mx-load-block mx-load-line" style="width:44%"></span><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:80px"></span></div></div><div class="mx-load-card " aria-hidden="true"><div class="mx-load-row mx-load-spread"><span class="mx-load-block mx-load-line mx-load-line--sm" style="width:42%"></span><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:72px"></span></div><div class="mx-load-teamrow"><div class="mx-load-team"><span class="mx-load-block mx-load-logo" style="width:38px"></span><span class="mx-load-block mx-load-line" style="width:68%"></span></div><div class="mx-load-versus"><span class="mx-load-block mx-load-line mx-load-line--lg mx-load-block--gold" style="width:40px"></span></div><div class="mx-load-team"><span class="mx-load-block mx-load-logo" style="width:38px"></span><span class="mx-load-block mx-load-line" style="width:68%"></span></div></div><div class="mx-load-separator"></div><div class="mx-load-footer"><span class="mx-load-block mx-load-line" style="width:44%"></span><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:80px"></span></div></div><div class="mx-load-card " aria-hidden="true"><div class="mx-load-row mx-load-spread"><span class="mx-load-block mx-load-line mx-load-line--sm" style="width:42%"></span><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:72px"></span></div><div class="mx-load-teamrow"><div class="mx-load-team"><span class="mx-load-block mx-load-logo" style="width:38px"></span><span class="mx-load-block mx-load-line" style="width:68%"></span></div><div class="mx-load-versus"><span class="mx-load-block mx-load-line mx-load-line--lg mx-load-block--gold" style="width:40px"></span></div><div class="mx-load-team"><span class="mx-load-block mx-load-logo" style="width:38px"></span><span class="mx-load-block mx-load-line" style="width:68%"></span></div></div><div class="mx-load-separator"></div><div class="mx-load-footer"><span class="mx-load-block mx-load-line" style="width:44%"></span><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:80px"></span></div></div></div></section>
         </div>
         </div>
@@ -169,7 +172,7 @@
         });
       }
     </script>
-    <script type="module" src="assets/js/main.js?v=20261013-pronostic-share1"></script>
+    <script type="module" src="assets/js/main.js?v=20261017-all-qualified2"></script>
     <script defer src="assets/js/pwa.js?v=20260806-pronos-fix"></script>
     <script defer src="assets/js/assistant.js?v=20261013-mobile-parity2"></script>
     <script defer src="assets/js/menu.js"></script>
