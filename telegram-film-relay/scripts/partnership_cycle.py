@@ -11,6 +11,7 @@ from urllib.parse import quote
 from telethon import Button, TelegramClient, utils
 from telethon.sessions import StringSession
 
+from film_relay.bot_http import BotHTTPClient
 from film_relay.runner import resolve_peer
 from film_relay.recovery import existing_native_forwards
 
@@ -92,8 +93,7 @@ async def before(category):
         token = (os.getenv("CINEX_BOT_TOKEN") or "").strip()
         if not token:
             raise RuntimeError("Bot de publication requis")
-        bot = TelegramClient(StringSession(), api_id, api_hash)
-        await bot.start(bot_token=token)
+        bot = BotHTTPClient(token, client)
         bot_peer = await bot.get_entity(public)
         if utils.get_peer_id(public_peer) != utils.get_peer_id(bot_peer):
             raise RuntimeError("Canal différent pour le bot et le compte")
