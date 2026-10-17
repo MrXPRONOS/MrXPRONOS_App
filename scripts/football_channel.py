@@ -1195,6 +1195,29 @@ class RemotePublicationLedger:
             )
         return result
 
+    def is_sent(self, event_key: str) -> bool:
+        if not self.enabled or not event_key:
+            return False
+        try:
+            response = self.session.get(
+                self.endpoint,
+                headers=self._headers(minimal=False),
+                params={
+                    "event_key": "eq." + str(event_key),
+                    "select": "status,delivery_phase",
+                    "limit": "1",
+                },
+                timeout=(8, 20),
+            )
+            response.raise_for_status()
+            rows = response.json()
+        except (requests.RequestException, ValueError):
+            return False
+        if not isinstance(rows, list) or not rows or not isinstance(rows[0], dict):
+            return False
+        row = rows[0]
+        return str(row.get("status") or "") == "sent" or str(row.get("delivery_phase") or "") == "complete"
+
     def _hydrate_legacy_item(self, item: Publication) -> Publication:
         """Répare les payloads outbox créés avant la timeline canonique complète."""
         if item.category != "composition" or not isinstance(item.card, dict):
@@ -3379,15 +3402,23 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                 relaunch_post = programme(get_day(today), today, as_of=now)
                 if relaunch_post is not None:
                     relaunch_post.key = "programme-relaunch:" + programme_relaunch_token
-                if relaunch_post is not None and publish(relaunch_post, replay=True):
-                    state.mark(
-                        "programme_relaunch:" + programme_relaunch_token,
-                        "programme_relaunch",
-                        now,
-                    )
-                    if not dry_run:
-                        state.save(now)
-                    print("PROGRAMME_RELAUNCH_SENT", programme_relaunch_token)
+                    planned_count = state.set_programme_plan(relaunch_post, now, source="relaunch")
+                    if planned_count:
+                        print("PROGRAMME_RELAUNCH_PLAN_SYNCED", planned_count)
+                    sent_now = publish(relaunch_post, replay=True)
+                    already_sent = (not sent_now and ledger.is_sent(relaunch_post.key))
+                    if sent_now or already_sent:
+                        state.mark(
+                            "programme_relaunch:" + programme_relaunch_token,
+                            "programme_relaunch",
+                            now,
+                        )
+                        if not dry_run:
+                            state.save(now)
+                        print(
+                            "PROGRAMME_RELAUNCH_SENT" if sent_now else "PROGRAMME_RELAUNCH_ALREADY_SENT_SYNCED",
+                            programme_relaunch_token,
+                        )
             except (BSDAPIError, requests.RequestException, ValueError) as exc:
                 counter["errors"] += 1
                 print("ERREUR_PROGRAMME_RELAUNCH", type(exc).__name__, str(exc)[:160])
