@@ -40,7 +40,7 @@ class TestCryptoPublisher(unittest.TestCase):
         state={}
         now=datetime.now(timezone.utc)
         calls=[]
-        with patch('crypto.publish_crypto_1_5.send',side_effect=lambda msg,dry: calls.append(msg)):
+        with patch('crypto.publish_crypto_1_5.send_photo',side_effect=lambda msg,path,dry: calls.append(msg)):
             run_alerts(state,rows,'CoinLore',now,False)
             first=len(calls)
             run_alerts(state,rows,'CoinLore',now,False)
