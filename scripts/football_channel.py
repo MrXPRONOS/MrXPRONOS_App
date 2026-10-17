@@ -770,6 +770,33 @@ class History:
         return any(isinstance(value, dict) and value.get("day") == wanted for value in self.plan.values())
 
 
+    def prune_unopened_unplanned(self, now: datetime) -> int:
+        local_day = now.astimezone(TZ).date().isoformat()
+        planned = [
+            value for value in self.plan.values()
+            if isinstance(value, dict) and value.get("day") == local_day
+        ]
+        if not planned:
+            return 0
+        removed = []
+        for ref, item in list(self.followed.items()):
+            if not isinstance(item, dict):
+                continue
+            # Une histoire déjà ouverte dans le canal doit aller jusqu'à sa fin.
+            if item.get("prematch_sent") or item.get("kickoff_sent"):
+                continue
+            event = {
+                "home_team": item.get("home_team"),
+                "away_team": item.get("away_team"),
+                "event_date": item.get("event_date"),
+            }
+            if any(followup.same_fixture(event, row) for row in planned):
+                continue
+            removed.append(ref)
+            self.followed.pop(ref, None)
+        return len(removed)
+
+
     def save(self, now: datetime) -> None:
         since = now - timedelta(days=32)
         compact = {k: v for k, v in self.items.items()
@@ -2027,7 +2054,12 @@ def avant_match(events: list[dict], history: History, now: datetime,
             + "</p>"
         )
     reason = live_tracking_reason(e)
-    focus_label = "🔥 FIL ROUGE • GRANDE AFFICHE" if reason in ("choc_grands_clubs", "grand_club") else "🏆 FIL ROUGE • MATCH À ENJEU"
+    if str(e.get("plan_role") or "") == "match_du_jour":
+        focus_label = "⭐ MATCH DU JOUR • FIL ROUGE"
+    elif str(e.get("plan_role") or "") == "grande_affiche":
+        focus_label = "🔥 GRANDE AFFICHE • FIL ROUGE"
+    else:
+        focus_label = "🔥 FIL ROUGE • GRANDE AFFICHE" if reason in ("choc_grands_clubs", "grand_club") else "🏆 FIL ROUGE • MATCH À ENJEU"
     message = (
         "<b>🔎 AVANT-MATCH</b>\n"
         "<b>" + focus_label + "</b>\n"
@@ -2542,10 +2574,15 @@ def followed_interruption_publication(signal: dict) -> Publication | None:
         "away": away,
         "score": plain(signal.get("score"), 20),
     } if event_id else None
+    focus = (
+        "⭐ MATCH DU JOUR • FIL ROUGE"
+        if plain(signal.get("plan_role"), 40) == "match_du_jour"
+        else "🔥 GRANDE AFFICHE • FIL ROUGE"
+    )
     return Publication(
         "suivi_interrompu",
         str(signal.get("key") or ""),
-        banner_caption("suivi_interrompu", card),
+        "<b>" + focus + "</b>\n" + banner_caption("suivi_interrompu", card),
         card=card,
         keyboard=live_keyboard(card),
         verification=verification,
@@ -3185,6 +3222,11 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                             print("DAILY_FOLLOW_PLAN_RECOVERED", recovered_count)
                             if not dry_run:
                                 state.save(now)
+                pruned = state.prune_unopened_unplanned(now)
+                if pruned:
+                    print("FOLLOWUP_UNOPENED_UNPLANNED_PRUNED", pruned)
+                    if not dry_run:
+                        state.save(now)
                 # En soirée on prépare aussi les matchs du lendemain.
                 if hour >= 20:
                     matches = matches + get_day(today + timedelta(days=1))
@@ -3253,6 +3295,11 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                         None,
                     )
                     if selected:
+                        selected_plan = state.plan_for_event(selected, now) or {}
+                        selected = dict(selected)
+                        selected["planned"] = True
+                        selected["plan_rank"] = int(selected_plan.get("rank") or 99)
+                        selected["plan_role"] = str(selected_plan.get("role") or "")
                         forms = fetch_prematch_forms(client, selected)
                         h2h_values = {}
                         try:
@@ -3336,6 +3383,8 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                                 else event.get("source") or "source match"
                             ), "day": now.strftime("%d/%m/%Y"),
                             "event_date": kick(event).astimezone(timezone.utc).isoformat(),
+                            "plan_role": str((state.followed.get(ref) or {}).get("plan_role") or ""),
+                            "plan_rank": int((state.followed.get(ref) or {}).get("plan_rank") or 99),
                         }
                         if publish(followed_final_publication(sig), ref=ref):
                             break
