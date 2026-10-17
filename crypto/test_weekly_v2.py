@@ -52,7 +52,9 @@ class WeeklyV2Tests(unittest.TestCase):
     def test_fear_8_real_days(self):
         hist=[{"value":str(42+i),"timestamp":str(int((self.now.replace(hour=0)-timedelta(days=i)).timestamp()))} for i in range(8)]
         result=parse_fear({"metadata":{"error":None},"data":hist},self.now)
-        self.assertEqual(result["delta_7d"],7)
+        self.assertEqual(result["delta_7d"],-7)
+        rising=[{"value":str(42+i),"timestamp":str(int((self.now.replace(hour=0)-timedelta(days=7-i)).timestamp()))} for i in range(8)]
+        self.assertEqual(parse_fear({"metadata":{"error":None},"data":rising},self.now)["delta_7d"],7)
         hist.pop()
         with self.assertRaises(ValueError):
             parse_fear({"metadata":{"error":None},"data":hist},self.now)
