@@ -8,6 +8,12 @@ on:
       - 'telegram-film-relay/film_relay/bot_http.py'
       - 'telegram-film-relay/tests/test_bot_http.py'
       - 'telegram-film-relay/film_relay/runner.py'
+      - 'telegram-film-relay/config/torrent9_policy.json'
+      - 'telegram-film-relay/film_relay/mirror_policy.py'
+      - 'telegram-film-relay/film_relay/promotions.py'
+      - 'telegram-film-relay/tests/test_torrent9_suspension.py'
+      - 'telegram-film-relay/scripts/forward_mirror_pending.py'
+      - '.github/workflows/telegram-film-forward-pending.yml'
       - 'telegram-film-relay/film_relay/desir_runner.py'
       - 'telegram-film-relay/film_relay/category_runner.py'
       - 'telegram-film-relay/film_relay/anime_catalog.py'
@@ -35,6 +41,9 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install pyyaml requests -r telegram-film-relay/requirements.txt
+      - name: Confirmer la suspension générale Torrent9
+        working-directory: telegram-film-relay
+        run: python -m unittest discover -s tests -p 'test_torrent9_suspension.py' -v
       - name: Tester les nouvelles séries TV hors réseau
         working-directory: telegram-film-relay
         run: python -m unittest discover -s tests -p 'test_series_catalog.py' -v
@@ -60,11 +69,14 @@ jobs:
           w=yaml.safe_load(Path('.github/workflows/telegram-film-relay.yml').read_text())
           job=w['jobs']['relay']
           assert job['env']['CINEX_DEFER_MIRROR']=='true'
+          assert job['env']['CINEX_TORRENT9_PAUSED']=='true'
           steps=[s.get('name','') for s in job['steps']]
           for category in ('films','desir','comedie','anime'):
               first=next(i for i,x in enumerate(steps) if x=='Partenariat AVANT '+category)
               end=next(i for i,x in enumerate(steps) if x=='Transfert ordonné APRÈS '+category+' vers Torrent9')
               assert first<end and end-first>=2, (category,first,end)
+              disabled=next(s for s in job['steps'] if s.get('name')=='Transfert ordonné APRÈS '+category+' vers Torrent9')
+              assert "CINEX_TORRENT9_PAUSED != 'true'" in str(disabled.get('if'))
           positions=[steps.index('Partenariat AVANT '+c) for c in ('films','desir','comedie','anime')]
           assert positions==sorted(positions)
           assert Path('telegram-film-relay/assets/partenariat-canal-original.jpg').read_bytes()[:3]==bytes.fromhex('ffd8ff')
