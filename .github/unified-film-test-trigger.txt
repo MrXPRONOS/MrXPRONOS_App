@@ -11,3 +11,5 @@ Conservation des reçus et respect des limites Telegram.
 17 octobre 2026 — relance après correction des tests de mise en production Comédie + Anime ; 4 catégories, compteurs indépendants.
 
 2026-10-17 : validation après confirmation des variables et droits du bot sur Comédie et Anime ; relance du cycle de production, reçus anti-doublons conservés.
+
+2026-10-17 : déclenchement MANUEL demandé de la production réelle CineX : partenariat -> deux films -> pub -> transfert ordonné Torrent9SeriesFilms, puis catégorie suivante (4 catégories). Conserver les reçus anti-doublons.
