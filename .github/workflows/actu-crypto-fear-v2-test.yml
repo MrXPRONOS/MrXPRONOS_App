@@ -62,5 +62,6 @@ jobs:
           path: crypto/generated/test/fear_v2.png
           if-no-files-found: error
           retention-days: 14
-      - name: Send ONLY the REAL visual to verified @predict_mrxp
+      - name: Send ONLY the REAL visual to verified @predict_mrxp (manual test only)
+        if: github.event_name == 'workflow_dispatch'
         run: python -m crypto.send_crypto_fear_v2_test
