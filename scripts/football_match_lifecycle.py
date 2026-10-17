@@ -1232,7 +1232,7 @@ def verify_espn_fixtures_before_publish(
     kind = _plain(verification.get("kind")).lower()
     by_day: dict[date, list[dict]] = {}
     invalid = 0
-    for fixture in fixtures[:8]:
+    for fixture in fixtures[:10]:
         if not isinstance(fixture, dict):
             invalid += 1
             continue
