@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Fil rouge Actu Foot : suivi persistant de rencontres effectivement annoncées.
 
-Un match ne devient suivi qu'après succès Telegram de son AVANT-MATCH.
+Une grande affiche devient suivie après admission du ranking ou succès Telegram de son AVANT-MATCH.
 La sélection est partagée entre cron complet (30 min) et cycle live (10 min)
-via le même historique, mais isolée par destination (test/production).
+via le même historique, mais isolée par destination (test/production). Le plafond volontairement bas concentre le fil rouge sur les 4 affiches les plus importantes.
 """
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ import unicodedata
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-MAX_FOLLOWED = 6
+MAX_FOLLOWED = 4
 MAX_AFTER_KICKOFF = timedelta(hours=10)
 PREMATCH_WINDOW = (timedelta(minutes=60), timedelta(minutes=120))
 TRACK_WINDOW_BEFORE = timedelta(hours=4)
