@@ -72,6 +72,12 @@ jobs:
           python -m unittest discover -s tests -p 'test_desir.py' -q
           python -m unittest discover -s tests -p 'test_promotions.py' -q
           python -m unittest discover -s tests -p 'test_mkv.py' -q
+          python - <<'PY'
+          from film_relay.promotions import render_poster
+          for i in range(3):
+              original=render_poster(i)
+              print(f"Publicité PNG vérifiée : {original.name}, {len(original.getvalue())} octets")
+          PY
 
       # Discover channel suggestions; they are sent ONLY to personal Saved Messages.
       # Nothing found by discovery is ever auto-added to film relay sources.
