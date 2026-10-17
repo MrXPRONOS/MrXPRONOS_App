@@ -14,7 +14,7 @@ from telethon import TelegramClient, Button, utils
 from telethon.sessions import StringSession
 
 ROOT=Path(__file__).resolve().parents[2]
-IMAGE=ROOT/"telegram-film-relay"/"assets"/"partenariat-canal-original.png"
+IMAGE=ROOT/"telegram-film-relay"/"assets"/"partenariat-canal-original.jpg"
 REF="PARTENARIAT-CANAL"
 MSG="Bonjour 👋 Je suis intéressé par votre offre de partenariat pour les canaux Telegram. 🤝\nRéférence : "+REF
 URL="https://t.me/mr_xpronos?text="+quote(MSG,safe="")
@@ -43,8 +43,8 @@ async def main():
     if not IMAGE.is_file():
         raise SystemExit("AFFICHE_ORIGINALE_ABSENTE : importer l'image fournie dans "+str(IMAGE))
     data=IMAGE.read_bytes()
-    if not data.startswith(b"\x89PNG\r\n\x1a\n"):
-        raise SystemExit("L'affiche fournie doit être le PNG original.")
+    if not data.startswith(b"\xff\xd8\xff"):
+        raise SystemExit("L'affiche fournie doit être le JPEG original.")
     creds=(os.getenv("TG_API_ID"),os.getenv("TG_API_HASH"),os.getenv("TG_STRING_SESSION"))
     if not all(creds):
         raise SystemExit("Session Telegram manquante.")
@@ -76,7 +76,7 @@ async def main():
                         found=True;break
                 if found:
                     print("DEJA_PUBLIE",dest);continue
-                photo=io.BytesIO(data);photo.name="partenariat-canal.png"
+                photo=io.BytesIO(data);photo.name="partenariat-canal.jpg"
                 sent=await bot.send_file(entity,photo,caption=CAPTION,
                     buttons=[[Button.url("💬 Proposer un partenariat",URL,style="primary")]],
                     force_document=False)
