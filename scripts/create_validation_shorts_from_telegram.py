@@ -274,8 +274,20 @@ def build_video(cards,output,work_dir,summary):
                 .set_position(lambda t,d=per_card,w=cw,p=shadow_pad:(_x(t,d,w)-p,COUPON_Y-p)))
         card=(ImageClip(str(path)).resize(width=cw).set_duration(per_card)
               .set_position(lambda t,d=per_card,w=cw:(_x(t,d,w),COUPON_Y)))
+        next_preview=None
+        if idx+1<total:
+            next_path=cards[idx+1]
+            with Image.open(next_path) as next_opened:
+                nw,nh=fit_card_size(next_opened.width,next_opened.height,max_w=TARGET_WIDTH,max_h=1185)
+            next_preview=(ImageClip(str(next_path)).resize(width=nw).set_duration(per_card)
+                          .set_position((W-72,COUPON_Y+22)))
+
         ov=ImageClip(str(overlay),transparent=True).set_duration(per_card)
-        scenes.append(CompositeVideoClip([bg,shadow,card,ov],size=(W,H)).set_duration(per_card))
+        layers=[bg,shadow,card]
+        if next_preview is not None:
+            layers.append(next_preview)
+        layers.append(ov)
+        scenes.append(CompositeVideoClip(layers,size=(W,H)).set_duration(per_card))
     final=concatenate_videoclips(scenes,method="compose")
     output.parent.mkdir(parents=True,exist_ok=True)
     final.write_videofile(
