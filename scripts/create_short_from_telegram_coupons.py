@@ -273,6 +273,11 @@ def _overlay_png(index: int, total: int, out: Path):
     hb = draw.textbbox((0, 0), title, font=hf)
     draw.text((W - 48 - (hb[2] - hb[0]), 36), title, font=hf, fill=(238, 244, 251, 235))
 
+    # Readable position counter, independent from the coupon artwork.
+    counter = f"{index + 1:02d} / {total:02d}"
+    cf = _font(28, True)
+    draw.text((92, 1320), counter, font=cf, fill=(242, 247, 252, 245))
+
     # CTA stays above the bottom UI zones used by TikTok/Reels/Shorts.
     draw.rounded_rectangle((92, 1395, 988, 1535), radius=36, fill=(5, 18, 31, 230),
                            outline=(255, 255, 255, 34), width=2)
