@@ -1,6 +1,179 @@
 {
-  "last_scan": null,
-  "notice": "Recherche non lancée. Liens à vérifier ; droits de diffusion non présumés.",
-  "statistics": {},
-  "channels": []
+  "last_scan": "2026-10-17T01:35:35.392885+00:00",
+  "notice": "Liens publics à examiner manuellement. Aucun canal rejoint ; aucun droit de diffusion présumé.",
+  "statistics": {
+    "queries": 4,
+    "found": 28,
+    "checked": 16,
+    "not_readable": 0,
+    "attempted": 16,
+    "next_candidate_offset": 16,
+    "rate_limited": false,
+    "protected": 0,
+    "strict_rejected": 10,
+    "notified_saved_messages": 6,
+    "notification_failures": 0
+  },
+  "channels": [
+    {
+      "username": "film_divers_VF",
+      "title": "Film divers \"Marvel & Cinéma\"",
+      "url": "https://t.me/film_divers_VF",
+      "sampled_messages": 80,
+      "matching_pairs": 19,
+      "sample_post_ids": [
+        154,
+        158,
+        160
+      ],
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "strict_filters": {
+        "min_verified_pairs": 2,
+        "min_video_minutes": 40,
+        "min_video_megabytes": 150
+      },
+      "rejected_pairs": 0,
+      "redistribution_rights": "non_verifies",
+      "joined_by_tool": false,
+      "source_status": "pending_rights",
+      "transfer_restricted": false,
+      "first_detected": "2026-10-17T01:35:35.392885+00:00",
+      "last_detected": "2026-10-17T01:35:35.392885+00:00",
+      "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00"
+    },
+    {
+      "username": "Canal_CinemaVf",
+      "title": "𝐅𝐈𝐋𝐌𝐒 𝐃𝐄 𝐆𝐔𝐄𝐑𝐑𝐄𝐒 𝐕𝐅🇫🇷",
+      "url": "https://t.me/Canal_CinemaVf",
+      "sampled_messages": 47,
+      "matching_pairs": 8,
+      "sample_post_ids": [
+        4,
+        7,
+        13
+      ],
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "strict_filters": {
+        "min_verified_pairs": 2,
+        "min_video_minutes": 40,
+        "min_video_megabytes": 150
+      },
+      "rejected_pairs": 1,
+      "redistribution_rights": "non_verifies",
+      "joined_by_tool": false,
+      "source_status": "pending_rights",
+      "transfer_restricted": false,
+      "first_detected": "2026-10-17T01:35:35.392885+00:00",
+      "last_detected": "2026-10-17T01:35:35.392885+00:00",
+      "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00"
+    },
+    {
+      "username": "FilmsNigerien",
+      "title": "Film nigerian en francais",
+      "url": "https://t.me/FilmsNigerien",
+      "sampled_messages": 53,
+      "matching_pairs": 8,
+      "sample_post_ids": [
+        9,
+        1928,
+        2616
+      ],
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "strict_filters": {
+        "min_verified_pairs": 2,
+        "min_video_minutes": 40,
+        "min_video_megabytes": 150
+      },
+      "rejected_pairs": 0,
+      "redistribution_rights": "non_verifies",
+      "joined_by_tool": false,
+      "source_status": "pending_rights",
+      "transfer_restricted": false,
+      "first_detected": "2026-10-17T01:35:35.392885+00:00",
+      "last_detected": "2026-10-17T01:35:35.392885+00:00",
+      "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00"
+    },
+    {
+      "username": "amatera12345",
+      "title": "CINEMA VF",
+      "url": "https://t.me/amatera12345",
+      "sampled_messages": 80,
+      "matching_pairs": 3,
+      "sample_post_ids": [
+        2780,
+        2784,
+        2801
+      ],
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "strict_filters": {
+        "min_verified_pairs": 2,
+        "min_video_minutes": 40,
+        "min_video_megabytes": 150
+      },
+      "rejected_pairs": 2,
+      "redistribution_rights": "non_verifies",
+      "joined_by_tool": false,
+      "source_status": "pending_rights",
+      "transfer_restricted": false,
+      "first_detected": "2026-10-17T01:35:35.392885+00:00",
+      "last_detected": "2026-10-17T01:35:35.392885+00:00",
+      "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00"
+    },
+    {
+      "username": "BestmovieVF",
+      "title": "LE MEILLEUR DU CINEMA EN VF",
+      "url": "https://t.me/BestmovieVF",
+      "sampled_messages": 80,
+      "matching_pairs": 2,
+      "sample_post_ids": [
+        398,
+        413
+      ],
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "strict_filters": {
+        "min_verified_pairs": 2,
+        "min_video_minutes": 40,
+        "min_video_megabytes": 150
+      },
+      "rejected_pairs": 0,
+      "redistribution_rights": "non_verifies",
+      "joined_by_tool": false,
+      "source_status": "pending_rights",
+      "transfer_restricted": false,
+      "first_detected": "2026-10-17T01:35:35.392885+00:00",
+      "last_detected": "2026-10-17T01:35:35.392885+00:00",
+      "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00"
+    },
+    {
+      "username": "film_action2026",
+      "title": "Films Action En Français",
+      "url": "https://t.me/film_action2026",
+      "sampled_messages": 6,
+      "matching_pairs": 2,
+      "sample_post_ids": [
+        3,
+        6
+      ],
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "strict_filters": {
+        "min_verified_pairs": 2,
+        "min_video_minutes": 40,
+        "min_video_megabytes": 150
+      },
+      "rejected_pairs": 0,
+      "redistribution_rights": "non_verifies",
+      "joined_by_tool": false,
+      "source_status": "pending_rights",
+      "transfer_restricted": false,
+      "first_detected": "2026-10-17T01:35:35.392885+00:00",
+      "last_detected": "2026-10-17T01:35:35.392885+00:00",
+      "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00"
+    }
+  ]
 }
