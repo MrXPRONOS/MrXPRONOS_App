@@ -73,6 +73,15 @@ def parse_paprika(payload, now: datetime) -> dict:
         measured = datetime.fromtimestamp(int(stamp), tz=UTC).isoformat()
     except (ValueError, TypeError, OverflowError, OSError) as exc:
         raise ValueError("CoinPaprika: date invalide") from exc
+    # CoinPaprika Free renvoie parfois deux variations 24h à zéro simultanément :
+    # ce couple peut représenter des champs indisponibles, pas un marché immobile.
+    # Ne publions pas 0,00 % comme une mesure certaine ; préférons CoinLore.
+    cap_change = payload.get("market_cap_change_24h")
+    vol_change = payload.get("volume_24h_change_24h")
+    if cap_change is not None and vol_change is not None:
+        if (finite_number(cap_change, "market_cap_change_24h", low=-100, high=100) == 0 and
+                finite_number(vol_change, "volume_24h_change_24h", low=-100, high=100) == 0):
+            raise ValueError("CoinPaprika : variations 24h nulles simultanées, donnée douteuse")
     return normalized("CoinPaprika", payload.get("market_cap_usd"),
                       payload.get("volume_24h_usd"),
                       payload.get("bitcoin_dominance_percentage"),
