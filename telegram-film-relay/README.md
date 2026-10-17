@@ -4,7 +4,7 @@ Projet isolé dans **`telegram-film-relay/`** du dépôt existant **`MrXPRONOS/M
 
 ### Sources et liens — octobre 2026
 
-- La source `@filmcomplets` est ajoutée **uniquement au relais CinéX classique**, dans `config/channels.json`, avec `redistribution_authorized: false` tant que les droits de republication n'ont pas été expressément confirmés. Elle n'est pas une source Désir.
+- La source `@filmcomplets` est ajoutée **uniquement au relais CinéX classique**, dans `config/channels.json`, avec `redistribution_authorized: true` après confirmation expresse par le propriétaire des droits de copie et republication des affiches et vidéos le 17 octobre 2026. Elle n'est pas une source Désir.
 - Les **deux boutons sous chaque nouvelle affiche de film** sont désormais : `🎬 REGARDER LE FILM` (**vert**, lien direct vers la vidéo privée) et `🔥 PLUS DE FILMS ? REJOINS LA TEAM !` (**rouge**, dossier `https://t.me/addlist/ZmW4vfwcrMAwNzJk`). Le second lien de vidéothèque privée n'est plus affiché.
 - L'invitation au dossier apparaît aussi en tant que lien HTML intégré à la légende afin que les transferts Telegram natifs vers Torrent9 affichent un accès cliquable, même si Telegram ne reproduit pas les boutons.
 - La publication ne crée plus de nouveaux liens d'invitation privés à chaque exécution. Pour changer le dossier, créer la variable GitHub `CINEX_FILM_FOLDER_URL` avec un lien `https://t.me/addlist/...` ; elle est facultative.
