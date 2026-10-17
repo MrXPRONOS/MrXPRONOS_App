@@ -32,31 +32,9 @@ def config_from(path: str) -> dict:
     sources = result.get("sources", [])
     if not isinstance(sources, list):
         raise ValueError("sources doit être une liste.")
-    # Auto-discovered sources are *registered* but never treated as authorized.
-    # Dedupe by channel name and prefer explicitly configured source entries.
-    source_path = Path(os.getenv("AUTO_SOURCES_PATH", "state/auto_sources.json"))
-    approved_raw = os.getenv("TG_APPROVED_SOURCES_JSON", "").strip()
-    approved = {}
-    if approved_raw:
-        approved_entries = json.loads(approved_raw)
-        if not isinstance(approved_entries, list):
-            raise ValueError("TG_APPROVED_SOURCES_JSON doit être un tableau JSON.")
-        approved = {
-            str(x.get("channel", "")).strip().lower(): str(x.get("rights_basis", "")).strip()
-            for x in approved_entries if isinstance(x, dict) and x.get("rights_basis")
-        }
-    if source_path.exists():
-        discovered = json.loads(source_path.read_text(encoding="utf-8")).get("sources", [])
-        known = {str(s.get("channel", "")).lower() for s in sources}
-        for candidate in discovered:
-            name = str(candidate.get("channel", "")).lower()
-            if name and name not in known:
-                rights_basis = approved.get(name, "")
-                sources.append({"channel": candidate["channel"],
-                                "redistribution_authorized": bool(rights_basis),
-                                "rights_basis": rights_basis,
-                                "discovered_automatically": True})
-                known.add(name)
+    # Discovery sends suggestions to the account's Saved Messages only.
+    # Source activation is exclusively a deliberate edit to channels.json;
+    # never import historical auto_sources.json or TG_APPROVED_SOURCES_JSON.
     result["sources"] = sources
     if not all(x.get("channel") for x in sources):
         raise ValueError("Chaque source doit fournir un champ channel.")
