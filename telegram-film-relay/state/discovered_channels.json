@@ -1,5 +1,5 @@
 {
-  "last_scan": "2026-10-17T01:35:35.392885+00:00",
+  "last_scan": "2026-10-17T01:41:57.468878+00:00",
   "notice": "Liens publics à examiner manuellement. Aucun canal rejoint ; aucun droit de diffusion présumé.",
   "statistics": {
     "queries": 4,
@@ -7,14 +7,41 @@
     "checked": 16,
     "not_readable": 0,
     "attempted": 16,
-    "next_candidate_offset": 16,
+    "next_candidate_offset": 4,
     "rate_limited": false,
     "protected": 0,
-    "strict_rejected": 10,
-    "notified_saved_messages": 6,
+    "strict_rejected": 12,
+    "notified_saved_messages": 3,
     "notification_failures": 0
   },
   "channels": [
+    {
+      "username": "annimechannel53jjh",
+      "title": "FILMS, SÉRIES & DESSIN ANIMÉ COMPLET VF🎥",
+      "url": "https://t.me/annimechannel53jjh",
+      "sampled_messages": 80,
+      "matching_pairs": 20,
+      "sample_post_ids": [
+        2680,
+        2682,
+        2694
+      ],
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "strict_filters": {
+        "min_verified_pairs": 2,
+        "min_video_minutes": 40,
+        "min_video_megabytes": 150
+      },
+      "rejected_pairs": 5,
+      "redistribution_rights": "non_verifies",
+      "joined_by_tool": false,
+      "source_status": "pending_rights",
+      "transfer_restricted": false,
+      "first_detected": "2026-10-17T01:41:57.468878+00:00",
+      "last_detected": "2026-10-17T01:41:57.468878+00:00",
+      "notified_saved_messages_at": "2026-10-17T01:41:57.468878+00:00"
+    },
     {
       "username": "film_divers_VF",
       "title": "Film divers \"Marvel & Cinéma\"",
@@ -93,8 +120,34 @@
       "source_status": "pending_rights",
       "transfer_restricted": false,
       "first_detected": "2026-10-17T01:35:35.392885+00:00",
-      "last_detected": "2026-10-17T01:35:35.392885+00:00",
-      "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00"
+      "last_detected": "2026-10-17T01:41:57.468878+00:00"
+    },
+    {
+      "username": "filmcomplets",
+      "title": "Film et Séries complèt en français",
+      "url": "https://t.me/filmcomplets",
+      "sampled_messages": 80,
+      "matching_pairs": 6,
+      "sample_post_ids": [
+        72,
+        76,
+        78
+      ],
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "strict_filters": {
+        "min_verified_pairs": 2,
+        "min_video_minutes": 40,
+        "min_video_megabytes": 150
+      },
+      "rejected_pairs": 2,
+      "redistribution_rights": "non_verifies",
+      "joined_by_tool": false,
+      "source_status": "pending_rights",
+      "transfer_restricted": false,
+      "first_detected": "2026-10-17T01:41:57.468878+00:00",
+      "last_detected": "2026-10-17T01:41:57.468878+00:00",
+      "notified_saved_messages_at": "2026-10-17T01:41:57.468878+00:00"
     },
     {
       "username": "amatera12345",
@@ -122,6 +175,33 @@
       "first_detected": "2026-10-17T01:35:35.392885+00:00",
       "last_detected": "2026-10-17T01:35:35.392885+00:00",
       "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00"
+    },
+    {
+      "username": "aquilaserie",
+      "title": "Les meilleurs série & Films complet😋",
+      "url": "https://t.me/aquilaserie",
+      "sampled_messages": 80,
+      "matching_pairs": 3,
+      "sample_post_ids": [
+        2501,
+        2524,
+        2547
+      ],
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "strict_filters": {
+        "min_verified_pairs": 2,
+        "min_video_minutes": 40,
+        "min_video_megabytes": 150
+      },
+      "rejected_pairs": 0,
+      "redistribution_rights": "non_verifies",
+      "joined_by_tool": false,
+      "source_status": "pending_rights",
+      "transfer_restricted": false,
+      "first_detected": "2026-10-17T01:41:57.468878+00:00",
+      "last_detected": "2026-10-17T01:41:57.468878+00:00",
+      "notified_saved_messages_at": "2026-10-17T01:41:57.468878+00:00"
     },
     {
       "username": "BestmovieVF",
