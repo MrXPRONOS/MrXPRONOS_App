@@ -1,3 +1,5 @@
 CinéX Désir — premier test demandé par le propriétaire.
 Essai réel limité à un film, source @Filmromatique, public @CineXDesirfr.
 Deuxième essai : connexion Telethon du bot sécurisée (20 secondes, une relance max).
+
+2026-10-17 : test réel d'un film et transfert natif du message public @CineXDesirfr vers @Torrent9SeriesFilms.
