@@ -109,7 +109,7 @@ async def preflight_bot(bot, public, user_public):
         raise RuntimeError("Ajouter le bot comme administrateur de @CineXDesirfr avec Publier.")
     return peer
 
-async def preflight_mirror(client, primary, public_peer, library_peer, source_peer, mirror_name):
+async def preflight_mirror(client, public_peer, library_peer, source_peer, mirror_name):
     """Fail before uploading private media if the mirror cannot be published to."""
     from telethon import utils
     from telethon.errors import UserNotParticipantError
@@ -172,19 +172,30 @@ def format_title(item):
 
 async def post_public(bot, user, public_peer, item, title, video_url: str,
                       invite_link: str):
+    """Public post: photo, in-caption video link, and native green buttons.
+
+    A visible URL inside the caption survives Telegram forwarding even on
+    clients which do not preserve a bot's inline keyboard.
+    """
     from telethon import Button
-    if item.poster is not None:
-        return await send_public_poster_with_buttons(
-            user, bot, public_peer, item.poster, title, video_url, invite_link
-        )
-    buttons = [[Button.url("🎬 REGARDER LE FILM", video_url, style="success")]]
+    rows = [[Button.url("🎬 REGARDER LE FILM", video_url, style="success")]]
     if invite_link.startswith("https://t.me/"):
-        buttons.append([Button.url("🔐 ACCÉDER À LA VIDÉOTHÈQUE", invite_link, style="success")])
-    return await bot.send_message(
-        public_peer,
-        f"<b>🎬 {escape(title[:700])}</b>\n\n👇 Accède au film avec le bouton ci-dessous.",
-        parse_mode="html", buttons=buttons, link_preview=False,
-    )
+        rows.append([Button.url("🔐 ACCÉDER À LA VIDÉOTHÈQUE", invite_link, style="success")])
+    # The link in text must survive the subsequent native forward.
+    caption = (f"<b>🎬 {escape(title[:560])}</b>\n\n"
+               f"🔗 <a href=\"{escape(video_url, quote=True)}\">REGARDER LE FILM</a>")
+    if item.poster is not None:
+        import io
+        contents = await user.download_media(item.poster.media, file=bytes)
+        if not contents:
+            raise RuntimeError("Affiche inaccessible, publication interrompue.")
+        image = io.BytesIO(contents)
+        image.name = "cinex_desir.jpg"
+        return await bot.send_file(public_peer, image, caption=caption,
+                                   parse_mode="html", buttons=rows, force_document=False)
+    return await bot.send_message(public_peer, caption, parse_mode="html",
+                                  buttons=rows, link_preview=False)
+
 
 async def execute(*, publish: bool, limit: int, newest: bool, require_publication: bool = False) -> int:
     from telethon import TelegramClient, utils
@@ -193,7 +204,10 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
     source = required("DESIR_SOURCE_CHANNEL", "@Filmromatique")
     public = required("DESIR_PUBLIC_CHANNEL", "@CineXDesirfr")
     private = required("DESIR_PRIVATE_CHANNEL")
+    mirror_name = required("DESIR_MIRROR_CHANNEL", "@Torrent9SeriesFilms")
     verify_destination(source, public, private)
+    if mirror_name.casefold() != "@torrent9seriesfilms":
+        raise RuntimeError("DESIR_MIRROR_CHANNEL doit être @Torrent9SeriesFilms.")
     credentials = (required("TG_API_ID"), required("TG_API_HASH"),
                    required("TG_STRING_SESSION", os.getenv("TG_SESSION_STRING", "")))
     state = ReceiptState(os.getenv("DESIR_STATE_PATH", STATE_DEFAULT))
@@ -205,6 +219,7 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
     try:
         await client.connect()
         src, library, public_user = await preflight_user(client, source, private, public)
+        mirror_peer, mirror_key = (None, "")
         bot_public = None
         if publish:
             token = required("DESIR_BOT_TOKEN")
@@ -224,6 +239,12 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                                      flood_sleep_threshold=0, receive_updates=False)
                 await bot.start(bot_token=token)
             bot_public = await preflight_bot(bot, public, public_user)
+            # Validate destination and write rights before ANY private media upload.
+            mirror_peer, mirror_key = await preflight_mirror(
+                client, public_user, library, src, mirror_name
+            )
+            if state.mirror_pending(mirror_key):
+                await finish_mirrors(client, state, mirror_peer, mirror_key, public_user)
         # Small bounded window to minimize Telegram requests.
         messages = [m async for m in client.iter_messages(src, limit=160)]
         candidates = pair_items(messages)
@@ -289,9 +310,15 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             link = (os.getenv("DESIR_PRIVATE_INVITE_LINK") or "").strip()
             public_post = await post_public(bot, client, bot_public, item, title, video_url, link)
             state.complete(key, private_video_id, public_post.id)
+            # Only forward the public bot-authored poster/link, NEVER the private video.
+            await asyncio.sleep(4)
+            forwarded_id = await forward_public_poster(
+                client, public_user, mirror_peer, public_post.id
+            )
+            state.mirror_done(mirror_key, public_post.id, forwarded_id)
             completed += 1
-            LOG.info("CinéX Désir : un film publié, id privé=%s, id public=%s",
-                     private_video_id, public_post.id)
+            LOG.info("CinéX Désir : film privé=%s, affiche publique=%s, miroir=%s",
+                     private_video_id, public_post.id, forwarded_id)
             await asyncio.sleep(10)
             if completed >= limit:
                 break
