@@ -3316,6 +3316,10 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                 counter["errors"] += 1
                 print("ERREUR_PROGRAMME_RELAUNCH", type(exc).__name__, str(exc)[:160])
 
+        if os.getenv("FOOTBALL_PROGRAMME_RELAUNCH_ONLY", "0") == "1":
+            print("PROGRAMME_RELAUNCH_ONLY_DONE", counter["sent"])
+            return counter
+
         if force or in_editorial_window("programme", now):
             if force or enough(state, "programme", now):
                 try:
