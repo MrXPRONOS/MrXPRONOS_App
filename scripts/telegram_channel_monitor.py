@@ -283,7 +283,7 @@ async def main() -> None:
                 raise
             except (errors.RPCError, ValueError) as exc:
                 print(f"Canal {channel.id} non analysé : {type(exc).__name__}")
-            await asyncio.sleep(1.5)
+            await asyncio.sleep(3)
 
         if not rows:
             raise RuntimeError("Aucun canal analysé ; aucun rapport envoyé.")
@@ -294,7 +294,7 @@ async def main() -> None:
             last_message = await client.send_message(
                 "me", part, parse_mode="html", link_preview=False
             )
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(1)
 
         store.insert(DISPATCH_TABLE, {
             "report_on": day, "channels_count": len(rows),
