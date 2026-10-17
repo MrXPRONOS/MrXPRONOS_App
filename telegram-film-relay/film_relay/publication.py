@@ -83,7 +83,7 @@ async def send_public_poster_with_buttons(
     photo = io.BytesIO(contents)
     photo.name = "cinex_affiche.jpg"
     rows = url_button_rows(private_movie_link, invite_link)
-    keyboard = [[Button.url(label, url) for label, url in row] for row in rows]
+    keyboard = [[Button.url(label, url, style="success") for label, url in row] for row in rows]
     return await bot_client.send_file(
         public_peer, photo, caption=rich_caption(description),
         parse_mode="html", buttons=keyboard, force_document=False
