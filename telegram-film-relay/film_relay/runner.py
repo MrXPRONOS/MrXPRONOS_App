@@ -190,7 +190,7 @@ async def execute() -> int:
     seen_count = published_count = proposed_count = failed_count = 0
     # Hard safety cap: at most TWO completed films across all sources in one run.
     max_posts = min(2, max(1, int(os.getenv("FILM_MAX_POSTS_PER_RUN", cfg.get("max_posts_per_run", 2)))))
-    pause_seconds = max(6.0, 2 * float(cfg.get("publication_pause_seconds", 5)))
+    pause_seconds = max(20.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20')), 2 * float(cfg.get("publication_pause_seconds", 5)))
     client = TelegramClient(StringSession(credentials[2]), int(credentials[0]), credentials[1],
                             request_retries=1, connection_retries=2, flood_sleep_threshold=0)
     bot_client = None
@@ -486,7 +486,7 @@ async def execute() -> int:
                                     caption=rich_caption(text, private=True), parse_mode="html"
                                 )
                                 state.stage_poster(pair_id, int(private_poster.id))
-                                await asyncio.sleep(4)
+                                await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
                                 stage = state.get_staged_posts(pair_id)
                                 LOG.info("Affiche privée envoyée : message %s", private_poster.id)
 
@@ -498,7 +498,7 @@ async def execute() -> int:
                             state.stage(pair_id, private_post_id)
                             LOG.info("Vidéo privée envoyée : message %s", private_post_id)
                         url = private_message_link(private_id, private_post_id)
-                        await asyncio.sleep(4)
+                        await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
                         public_post = await send_public_poster_with_buttons(
                             client, bot_client, bot_destination, pair.poster,
                             text, url, invitation

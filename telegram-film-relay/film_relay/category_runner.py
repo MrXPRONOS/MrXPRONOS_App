@@ -135,7 +135,7 @@ async def preflight(client, bot, cfg: dict):
             if key not in seen_ids:
                 source_peers.append(source)
                 seen_ids.add(key)
-            await asyncio.sleep(4)
+            await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
         except (FloodWaitError, PeerFloodError):
             raise
         except Exception as exc:
@@ -218,7 +218,7 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             messages_read += len(messages)
             peer_id = utils.get_peer_id(peer)
             records.extend((peer_id, item) for item in pair_items(messages))
-            await asyncio.sleep(4)
+            await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
         def order(record):
             ts = getattr(record[1].video, "date", None)
             if not isinstance(ts, datetime):
@@ -271,20 +271,20 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                         caption=rich_caption(title, private=True), parse_mode="html",
                     )
                     state.stage(key, "poster", photo.id)
-                    await asyncio.sleep(4)
+                    await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
                 video = await client.send_file(
                     private, item.video.media, caption=rich_video_title(title),
                     parse_mode="html",
                 )
                 state.stage(key, "video", video.id)
             private_video_id = int(state.data["staged"][key]["video"])
-            await asyncio.sleep(4)
+            await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             video_url = private_message_link(private_id, private_video_id)
             public_post = await post_public(
                 bot, client, bot_public, item, title, video_url, ""
             )
             state.complete(key, private_video_id, public_post.id)
-            await asyncio.sleep(4)
+            await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             mirrored_id = None
             if not os.getenv('CINEX_DEFER_MIRROR'):
                 mirrored_id = await forward_public_poster(
@@ -294,7 +294,7 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             LOG.info("%s : film publié privé=%s public=%s Torrent9=%s",
                      cfg["label"], private_video_id, public_post.id, mirrored_id)
             completed += 1
-            await asyncio.sleep(10)
+            await asyncio.sleep(max(20.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             if completed >= limit:
                 break
         if publish:
