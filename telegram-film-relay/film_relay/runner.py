@@ -324,6 +324,9 @@ async def execute() -> int:
                     LOG.info("Transfert repris : public=%s, miroir=%s",
                              old_public_id, copied_id)
                     await asyncio.sleep(2)
+                except (FloodWaitError, PeerFloodError):
+                    LOG.error("Restriction Telegram lors du transfert en attente : arrêt immédiat.")
+                    raise
                 except Exception as exc:
                     failed_count += 1
                     LOG.exception("Transfert en attente impossible pour %s : %s",
@@ -504,6 +507,9 @@ async def execute() -> int:
                                 mirror_count += 1
                                 LOG.info("Public transféré avec attribution : %s -> %s",
                                          public_post.id, copied_id)
+                            except (FloodWaitError, PeerFloodError):
+                                LOG.error("Restriction Telegram lors du transfert miroir : arrêt immédiat.")
+                                raise
                             except Exception as mirror_exc:
                                 # Primary publication is already checkpointed.
                                 # The next run retries this forward from processed state.
@@ -554,6 +560,9 @@ async def execute() -> int:
                     promo_report["private"], promo_report["public"],
                     promo_report["mirror"], promo_report["skipped"]
                 )
+            except (FloodWaitError, PeerFloodError):
+                LOG.error("Restriction Telegram lors des publicités : arrêt immédiat.")
+                raise
             except Exception as promo_exc:
                 failed_count += 1
                 LOG.exception("Échec des pubs intégrées au relais films : %s", promo_exc)
