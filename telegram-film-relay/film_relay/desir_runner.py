@@ -130,9 +130,20 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
         if publish:
             token = required("DESIR_BOT_TOKEN")
             bot = TelegramClient(StringSession(), int(credentials[0]), credentials[1],
-                                 request_retries=0, connection_retries=2,
+                                 request_retries=1, connection_retries=2,
                                  flood_sleep_threshold=0, receive_updates=False)
-            await bot.start(bot_token=token)
+            try:
+                await bot.start(bot_token=token)
+            except ValueError:
+                # Telegram sometimes rejects the first login during DC migration.
+                # This is a single delayed retry, NEVER a FloodWait retry.
+                LOG.warning("Connexion initiale du bot indisponible ; second essai après 20 secondes.")
+                await bot.disconnect()
+                await asyncio.sleep(20)
+                bot = TelegramClient(StringSession(), int(credentials[0]), credentials[1],
+                                     request_retries=1, connection_retries=2,
+                                     flood_sleep_threshold=0, receive_updates=False)
+                await bot.start(bot_token=token)
             bot_public = await preflight_bot(bot, public, public_user)
         # Small bounded window to minimize Telegram requests.
         messages = [m async for m in client.iter_messages(src, limit=160)]
