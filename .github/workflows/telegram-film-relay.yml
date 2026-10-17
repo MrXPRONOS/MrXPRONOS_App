@@ -1,107 +1,165 @@
-name: Mr XPRONOS - Film Relay
+name: CineX - Decouverte, Films et Desir (toutes les 2h)
 
 on:
   workflow_dispatch:
     inputs:
-      rescan_history:
-        description: 'Reexaminer les anciens films, sans republier les doublons'
+      publish:
+        description: 'Publier les films et pubs (sinon diagnostic uniquement)'
         required: false
         type: boolean
         default: true
   schedule:
     - cron: '17 */2 * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/unified-film-test-trigger.txt'
 
 permissions:
   contents: write
 
+# Exclusivité pour tous les workflows utilisant la session personnelle Telegram.
 concurrency:
   group: mrx-telegram-personal-account
   cancel-in-progress: false
 
 jobs:
   relay:
+    name: Decouverte, 2 classiques + pub, 2 Desir + pub
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 105
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Charger le code
+        uses: actions/checkout@v4
+      - name: Configurer Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
           cache-dependency-path: telegram-film-relay/requirements.txt
-      - name: Check Telegram secrets without revealing values
+      - name: Verifier les secrets Telegram sans afficher leurs valeurs
         id: credentials
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
           TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
+          DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+        shell: bash
         run: |
-          if [[ -n "$TG_API_ID" && -n "$TG_API_HASH" && -n "$TG_STRING_SESSION" ]]; then
-            echo 'ready=true' >> "$GITHUB_OUTPUT"
-          else
-            echo 'ready=false' >> "$GITHUB_OUTPUT"
-            echo '::error::Telegram credentials missing: TG_API_ID, TG_API_HASH or TG_SESSION_STRING.'
+          set -e
+          [[ -n "$TG_API_ID" && -n "$TG_API_HASH" && -n "$TG_STRING_SESSION" ]] || {
+            echo '::error::Secrets TG_API_ID, TG_API_HASH ou session manquants.'
             exit 1
-          fi
-      - name: Install dependencies
-        if: steps.credentials.outputs.ready == 'true'
-        run: pip install -r telegram-film-relay/requirements.txt
-      - name: Run local validation tests
-        if: steps.credentials.outputs.ready == 'true'
+          }
+          [[ "$DESIR_PRIVATE_CHANNEL" =~ ^-100[0-9]+$ ]] || {
+            echo '::error::DESIR_PRIVATE_CHANNEL doit être un identifiant -100 valide.'
+            exit 1
+          }
+          [[ -n "$DESIR_BOT_TOKEN" ]] || {
+            echo '::error::Un bot de publication Telegram est requis.'
+            exit 1
+          }
+          echo 'ready=true' >> "$GITHUB_OUTPUT"
+      - name: Installer les dependances
+        run: python -m pip install -r telegram-film-relay/requirements.txt
+      - name: Valider le code (sans publication)
         working-directory: telegram-film-relay
         env:
           PYTHONPATH: .
-        run: python -m unittest discover -s tests -q
-      - name: Run Telegram film relay
-        if: steps.credentials.outputs.ready == 'true'
+        run: |
+          python -m compileall -q film_relay scripts tests
+          python -m unittest discover -s tests -p 'test_desir.py' -q
+          python -m unittest discover -s tests -p 'test_promotions.py' -q
+          python -m unittest discover -s tests -p 'test_mkv.py' -q
+
+      # Discover channel suggestions; they are sent ONLY to personal Saved Messages.
+      # Nothing found by discovery is ever auto-added to film relay sources.
+      - name: 1 - Decouverte de canaux et Messages enregistres
         working-directory: telegram-film-relay
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
           TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
-          TG_APPROVED_SOURCES_JSON: ${{ secrets.TG_APPROVED_SOURCES_JSON }}
+          PYTHONPATH: .
+        run: python -m film_relay.discovery
+
+      # Classic relay sends its public/private/mirror promotion AFTER two movies,
+      # using its own durable counter in state/state.json.
+      - name: 2 - Deux films CineX classiques puis une pub
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
           CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
           TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
           TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
           TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
           TG_PRIVATE_INVITE_LINK: ${{ secrets.CINEX_PRIVATE_INVITE_LINK }}
-          FILM_PUBLISH_ENABLED: ${{ vars.FILM_PUBLISH_ENABLED || 'true' }}
-          TG_RIGHTS_ATTESTED: ${{ vars.TG_RIGHTS_ATTESTED || 'true' }}
+          FILM_PUBLISH_ENABLED: 'true'
+          TG_RIGHTS_ATTESTED: 'true'
           CINEX_PROMOS_ENABLED: 'true'
           FILM_MAX_POSTS_PER_RUN: '2'
-          FILM_REQUIRE_PUBLICATION: ${{ github.event_name == 'schedule' && 'false' || 'true' }}
-          FILM_RESCAN_HISTORY: ${{ github.event_name == 'push' && 'true' || (github.event_name == 'workflow_dispatch' && inputs.rescan_history && 'true' || 'false') }}
+          FILM_REQUIRE_PUBLICATION: 'false'
+          FILM_RESCAN_HISTORY: 'false'
           PYTHONPATH: .
         run: python -m film_relay.runner
-      - name: Persist relay checkpoint even after partial send failure
+
+      # Separate source/destination and counter. Native forwards from CineX Desir
+      # retain attribution to that channel in @Torrent9SeriesFilms.
+      - name: 3 - Deux films CineX Desir puis une pub
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+          DESIR_SOURCE_CHANNEL: ${{ vars.DESIR_SOURCE_CHANNEL || '@Filmromatique' }}
+          DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
+          DESIR_MIRROR_CHANNEL: ${{ vars.DESIR_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
+          DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
+          DESIR_PRIVATE_INVITE_LINK: ${{ secrets.DESIR_PRIVATE_INVITE_LINK }}
+          DESIR_STATE_PATH: state/desir_state.json
+          PYTHONPATH: .
+        run: python -m film_relay.desir_runner --publish --limit 2 --newest
+
+      # Keep all three independent checkpoints even after a partial failure.
+      - name: 4 - Sauvegarder les trois historiques Telegram
         if: always() && steps.credentials.outputs.ready == 'true'
+        shell: bash
         run: |
           set -e
-          STATE_FILE="telegram-film-relay/state/state.json"
-          if git diff --quiet -- "$STATE_FILE"; then
-            echo "No new Telegram receipts to persist."
+          STATE=telegram-film-relay/state
+          if git diff --quiet -- "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json"; then
+            echo 'Aucun historique a sauvegarder.'
             exit 0
           fi
-          cp "$STATE_FILE" "$RUNNER_TEMP/cinex-checkpoint.json"
+          cp "$STATE/state.json" "$RUNNER_TEMP/cinex-state.json"
+          cp "$STATE/desir_state.json" "$RUNNER_TEMP/desir-state.json"
+          cp "$STATE/discovered_channels.json" "$RUNNER_TEMP/discovery-state.json"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           for attempt in 1 2 3 4 5 6 7 8; do
             git fetch origin main
             git reset --hard origin/main
-            python telegram-film-relay/scripts/merge_state.py \
-              "$RUNNER_TEMP/cinex-checkpoint.json" "$STATE_FILE"
-            if git diff --quiet -- "$STATE_FILE"; then
-              echo "Receipts already present on remote."
+            python telegram-film-relay/scripts/merge_state.py "$RUNNER_TEMP/cinex-state.json" "$STATE/state.json"
+            python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/desir-state.json" "$STATE/desir_state.json"
+            python telegram-film-relay/scripts/merge_discovery_state.py "$RUNNER_TEMP/discovery-state.json" "$STATE/discovered_channels.json"
+            git add "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json"
+            if git diff --cached --quiet; then
+              echo 'Historiques deja synchronises.'
               exit 0
             fi
-            git add "$STATE_FILE"
-            git commit -m "state: film relay checkpoint [skip ci]"
+            git commit -m 'state: CineX unified cycle receipts [skip ci]'
             if git push origin HEAD:main; then
-              echo "Telegram publication receipts persisted on GitHub."
+              echo 'Trois historiques synchronises.'
               exit 0
             fi
-            echo "Concurrent update: merging again ($attempt/8)"
-            sleep 2
+            echo "Conflit GitHub ($attempt/8) : nouvelle fusion."
+            sleep 4
           done
-          echo "::error::Film checkpoint could not be saved after eight merged retries"
+          echo '::error::Impossible de sauvegarder les historiques Telegram.'
           exit 1
