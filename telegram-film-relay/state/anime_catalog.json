@@ -2,7 +2,7 @@
   "series": {
     "mangas-fv-no-longer-rangers-s02-mp4": {
       "episodes": {
-        "1": {
+        "2": {
           "1": {
             "message_id": 13,
             "url": "https://t.me/c/4416009337/13"
@@ -32,7 +32,7 @@
       "main_index_id": 11,
       "public_id": 17,
       "season_indices": {
-        "1": 12
+        "2": 12
       },
       "source_items": {
         "-1001595907308:13261": 13,
@@ -42,7 +42,7 @@
         "-1001595907308:13265": 17,
         "-1001595907308:13266": 18
       },
-      "title": "@Mangas fv No Longer Rangers S02 mp4"
+      "title": "No Longer Rangers"
     }
   }
 }
