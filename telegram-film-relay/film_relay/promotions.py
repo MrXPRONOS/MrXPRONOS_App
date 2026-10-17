@@ -93,8 +93,16 @@ async def _recently_published(client, channel, caption, *, limit=80, exclude_ids
 async def _send_bot_poster(bot, channel, index: int):
     from telethon import Button
     label,url=campaign_button(index)
-    picture=render_poster(index)
-    return await bot.send_file(channel, picture,caption=campaign_caption(index),
+    try:
+        picture = render_poster(index)
+    except (FileNotFoundError, ValueError, OSError) as exc:
+        # Keep approved text, original link button and campaign order.
+        # Never invent another poster when the approved PNG is unavailable.
+        LOG.warning("Affiche officielle absente/invalide (%s) : annonce texte", type(exc).__name__)
+        return await bot.send_message(
+            channel, campaign_caption(index), buttons=[[Button.url(label, url)]]
+        )
+    return await bot.send_file(channel, picture, caption=campaign_caption(index),
                                buttons=[[Button.url(label,url)]], force_document=False)
 
 
@@ -128,14 +136,8 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
     from telethon import utils
     if bot is None:
         raise RuntimeError("Le bot est requis pour de vrais boutons Telegram")
-    # Preserve movie distribution when the original artwork is unavailable.
-    # Never replace an approved PNG by a newly rendered image.
-    missing = [poster_path(i) for i in range(len(CAMPAIGNS))
-               if not poster_path(i).is_file()]
-    if missing:
-        LOG.error("Publicités CinéX différées : PNG originaux manquants : %s",
-                  ", ".join(map(str, missing)))
-        return {"private": 0, "public": 0, "mirror": 0, "skipped": len(missing)}
+    # The PNG is optional for delivery, not for artwork: when missing,
+    # the bot sends the original three-line caption with its URL button.
     identity=await bot.get_me()
     first_id=str(utils.get_peer_id(primary))
     private_id=str(utils.get_peer_id(private))
@@ -160,7 +162,7 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
             post=await _send_bot_poster(bot,ready,idx)
             post_id=int(post.id);report["public"]+=1
         entry["sent"][str(entry["next_index"])]=post_id
-        entry["last_film_total"]=total;entry["next_index"]=int(entry["next_index"])+1
+        entry["last_film_total"]=(total if force else min(total, int(entry["last_film_total"])+2));entry["next_index"]=int(entry["next_index"])+1
         state.save()
     elif idx is not None:
         report["skipped"]+=1
@@ -191,7 +193,7 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
                     forwarded_id=int(msg[0].id if isinstance(msg,list) else msg.id)
                     report["mirror"]+=1
                 e["sent"][str(e["next_index"])]=forwarded_id
-                e["last_film_total"]=mirror_total
+                e["last_film_total"]=(mirror_total if force else min(mirror_total, int(e["last_film_total"])+2))
                 e["next_index"]=int(e["next_index"])+1
                 state.save()
             else:
@@ -213,7 +215,7 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
                 post=await _send_bot_poster(bot,ready_private,idx)
                 msg_id=int(post.id);report["private"]+=1
             e["sent"][str(e["next_index"])]=msg_id
-            e["last_film_total"]=total;e["next_index"]=int(e["next_index"])+1
+            e["last_film_total"]=(total if force else min(total, int(e["last_film_total"])+2));e["next_index"]=int(e["next_index"])+1
             state.save()
         else:
             report["skipped"]+=1
