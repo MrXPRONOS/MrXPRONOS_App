@@ -140,6 +140,9 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
     it forwards the actual branded/public post with the Telegram source header.
     """
     from telethon import utils
+    from .mirror_policy import torrent9_paused
+    if torrent9_paused():
+        mirror = None  # Publicités publiques et privées conservées ; aucun transfert.
     if bot is None:
         raise RuntimeError("Le bot est requis pour de vrais boutons Telegram")
     # The original PNG is mandatory. Fail closed instead of sending text-only ads.
