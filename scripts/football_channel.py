@@ -2264,7 +2264,7 @@ def avant_match(events: list[dict], history: History, now: datetime,
     reason = live_tracking_reason(e)
     if str(e.get("plan_role") or "") == "match_du_jour":
         focus_label = "⭐ MATCH DU JOUR • FIL ROUGE"
-    elif str(e.get("plan_role") or "") == "grande_affiche":
+    elif str(e.get("plan_role") or "") == "fil_rouge":
         focus_label = "🔥 GRANDE AFFICHE • FIL ROUGE"
     else:
         focus_label = "🔥 FIL ROUGE • GRANDE AFFICHE" if reason in ("choc_grands_clubs", "grand_club") else "🏆 FIL ROUGE • MATCH À ENJEU"

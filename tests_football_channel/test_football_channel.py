@@ -545,25 +545,31 @@ class FootballChannelTests(unittest.TestCase):
         self.assertEqual(planned["rank"], 1)
         self.assertEqual(planned["role"], "match_du_jour")
 
-    def test_programme_caps_follow_plan_at_four_matches(self):
+    def test_programme_caps_daily_selection_at_ten_with_four_fil_rouge(self):
         rows = []
         names = [
-            ("Real Madrid", "Getafe"),
-            ("Barcelona", "Sevilla"),
-            ("Liverpool", "Everton"),
-            ("Arsenal", "West Ham"),
-            ("Bayern Munich", "Mainz"),
+            ("Real Madrid", "Getafe"), ("Barcelona", "Sevilla"),
+            ("Manchester United", "Fulham"), ("Liverpool", "Everton"),
+            ("Bayern Munich", "Mainz"), ("Manchester City", "Brentford"),
+            ("Arsenal", "West Ham"), ("PSG", "Lens"),
+            ("AC Milan", "Cagliari"), ("Juventus", "Bologna"),
+            ("Inter Milan", "Lazio"),
         ]
         for index, (home, away) in enumerate(names):
             row = event("p" + str(index), NOW + timedelta(hours=3, minutes=index))
             row["home_team"]["name"] = home
             row["away_team"]["name"] = away
-            row["league_name"] = "Premier League" if index in (2, 3) else "Football"
+            row["league_name"] = "Premier League"
             rows.append(row)
         post = m.programme(rows, NOW.date(), as_of=NOW)
         self.assertIsNotNone(post)
-        self.assertEqual(len(post.card["matches"]), 4)
-        self.assertEqual(len(post.verification["fixtures"]), 4)
+        self.assertEqual(len(post.card["matches"]), 10)
+        self.assertEqual(len(post.verification["fixtures"]), 10)
+        self.assertEqual(post.card["matches"][0]["role"], "match_du_jour")
+        self.assertEqual([x["role"] for x in post.card["matches"][1:4]], ["fil_rouge"] * 3)
+        self.assertEqual([x["role"] for x in post.card["matches"][4:]], ["a_suivre"] * 6)
+        count = self.history.set_programme_plan(post, NOW)
+        self.assertEqual(count, 10)
 
     def test_prune_removes_only_unopened_unplanned_tracks(self):
         planned_event = event("planned", NOW + timedelta(hours=3))
@@ -586,6 +592,29 @@ class FootballChannelTests(unittest.TestCase):
         self.assertEqual(removed, 1)
         self.assertNotIn(legacy_ref, self.history.followed)
         self.assertIn(opened_ref, self.history.followed)
+
+    def test_editorial_rankings_have_exactly_one_hundred_entries(self):
+        from actu_foot_editorial_rankings import (
+            CLUB_RANKING, NATIONAL_TEAM_RANKING, COMPETITION_RANKING
+        )
+        self.assertEqual(len(CLUB_RANKING), 100)
+        self.assertEqual(len(NATIONAL_TEAM_RANKING), 100)
+        self.assertEqual(len(COMPETITION_RANKING), 100)
+
+    def test_editorial_team_order_is_strict(self):
+        self.assertLess(m.editorial_club_rank("Real Madrid"), m.editorial_club_rank("Barcelona"))
+        self.assertLess(m.editorial_club_rank("Barcelona"), m.editorial_club_rank("Manchester United"))
+        self.assertLess(m.editorial_national_rank("Spain"), m.editorial_national_rank("Argentina"))
+        self.assertLess(m.editorial_national_rank("Argentina"), m.editorial_national_rank("Portugal"))
+
+    def test_knockout_stage_can_qualify_without_top100_club(self):
+        row = event("quarter", NOW + timedelta(hours=4))
+        row["home_team"]["name"] = "Club Alpha"
+        row["away_team"]["name"] = "Club Beta"
+        row["league_name"] = "Regional Cup"
+        row["round_name"] = "Quarter Final"
+        self.assertGreaterEqual(m.high_stakes_bonus(row), 220)
+        self.assertTrue(m.popular_live_match(row))
 
     def test_programme_does_not_fill_with_unknown_matches(self):
         row = event("small", NOW + timedelta(hours=4))
