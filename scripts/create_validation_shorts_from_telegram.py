@@ -279,8 +279,9 @@ def build_video(cards,output,work_dir,summary):
             next_path=cards[idx+1]
             with Image.open(next_path) as next_opened:
                 nw,nh=fit_card_size(next_opened.width,next_opened.height,max_w=TARGET_WIDTH,max_h=1185)
-            next_preview=(ImageClip(str(next_path)).resize(width=nw).set_duration(per_card)
-                          .set_position((W-72,COUPON_Y+22)))
+            preview_w=int(round(nw*0.94))
+            next_preview=(ImageClip(str(next_path)).resize(width=preview_w).set_opacity(0.58)
+                          .set_duration(per_card).set_position((W-68,COUPON_Y+42)))
 
         ov=ImageClip(str(overlay),transparent=True).set_duration(per_card)
         layers=[bg,shadow,card]
