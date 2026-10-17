@@ -193,48 +193,78 @@ async def discover(client, cfg: dict, start_offset: int = 0) -> tuple[list[dict]
     return results, statistics
 
 
-def notification_text(channel: dict) -> str:
-    """Compose a short Saved Messages notice without presumed redistribution rights."""
+def notification_text(channel: dict, index: int = 1) -> str:
+    """One compact HTML entry with real newlines and a clickable Telegram URL."""
     from html import escape
-    title = escape(str(channel.get("title") or channel["username"])[:120])
-    username = normalize_username(channel.get("username", "")) or ""
+    username = normalize_username(channel.get("username", ""))
     if not username:
         raise ValueError("Nom de canal Telegram invalide.")
+    title = escape(str(channel.get("title") or username).strip()[:75])
     count = max(0, int(channel.get("matching_pairs", 0)))
-    return (
-        "🎬 <b>Canal de films repéré</b>\n"
-        f"📺 <b>{title}</b>\n"
-        f"🔗 https://t.me/{username}\n"
-        f"🎞️ {count} couples affiche/vidéo détectés dans l'échantillon\n"
-        "🔎 Proposition uniquement — non ajoutée aux sources du relais.\n"
-        "⚠️ Droits de redistribution non vérifiés."
+    url = "https://t.me/" + username
+    nl = chr(10)
+    return nl.join((
+        f"<b>{index}. {title}</b>",
+        f"🔗 <a href=\"{url}\">{url}</a>",
+        f"🎞️ <b>{count} paires</b> affiche / vidéo repérées",
+    ))
+
+
+def notification_summary(channels: list[dict]) -> str:
+    """A single readable Saved Messages digest, at most one Telegram message."""
+    from html import escape
+    nl = chr(10)
+    header = (
+        "🎬 <b>CANAUX DE FILMS DÉCOUVERTS</b>" + nl +
+        f"<b>{len(channels)} nouveau(x) canal(aux)</b> — vérifiés automatiquement" + nl +
+        "👇 Ouvre directement les liens ci-dessous."
     )
+    entries = [notification_text(channel, index=i)
+               for i, channel in enumerate(channels, start=1)]
+    footer = ("⚠️ <b>À vérifier avant toute reprise :</b> droits de redistribution."
+              + nl + "ℹ️ Ces canaux ne sont pas ajoutés automatiquement au relais.")
+    result = header + nl * 2 + (nl * 2).join(entries) + nl * 2 + footer
+    if len(result) > 4000:
+        raise ValueError(
+            "Trop de résultats pour un unique message Telegram : raccourcir les "
+            "titres ou réduire max_channels_per_run, sans envoyer des messages séparés."
+        )
+    return result
 
 
 async def notify_saved_messages(client, channels: list[dict], previously_notified: set[str]
                                 ) -> tuple[list[str], int]:
-    """Send each unnotified result to the user's own Telegram Saved Messages."""
+    """One HTML Telegram notification per discovery run, never one per channel."""
     from telethon.errors import FloodWaitError, PeerFloodError
-    notified = []
-    failed = 0
+
+    fresh = []
+    usernames = []
+    seen = set()
     for channel in channels:
         username = normalize_username(channel.get("username", ""))
-        if not username or username.casefold() in previously_notified:
+        if not username:
             continue
-        try:
-            await client.send_message("me", notification_text(channel), parse_mode="html",
-                                      link_preview=False)
-        except (FloodWaitError, PeerFloodError):
-            LOG.error("Restriction Telegram durant les notifications : arrêt immédiat.")
-            raise
-        except Exception as exc:
-            failed += 1
-            LOG.warning("Notification Messages enregistrés impossible @%s : %s",
-                        username, type(exc).__name__)
+        key = username.casefold()
+        if key in previously_notified or key in seen:
             continue
-        notified.append(username.casefold())
-        previously_notified.add(username.casefold())
-    return notified, failed
+        seen.add(key)
+        fresh.append(channel)
+        usernames.append(key)
+    if not fresh:
+        LOG.info("Messages enregistrés : aucune nouvelle découverte à envoyer.")
+        return [], 0
+    try:
+        digest = notification_summary(fresh)
+        await client.send_message("me", digest, parse_mode="html", link_preview=False)
+    except (FloodWaitError, PeerFloodError):
+        LOG.error("Restriction Telegram : arrêt immédiat de la notification.")
+        raise
+    except Exception as exc:
+        LOG.warning("Récapitulatif Messages enregistrés non envoyé : %s", type(exc).__name__)
+        return [], 1
+    previously_notified.update(usernames)
+    LOG.info("Messages enregistrés : un seul message HTML pour %s canaux nouveaux.", len(usernames))
+    return usernames, 0
 
 
 async def execute() -> int:
@@ -268,8 +298,11 @@ async def execute() -> int:
     timestamp = datetime.now(timezone.utc).isoformat()
     for channel in results:
         key = channel["username"].lower()
-        channel["first_detected"] = previous.get(key, {}).get("first_detected", timestamp)
+        old_entry = previous.get(key, {})
+        channel["first_detected"] = old_entry.get("first_detected", timestamp)
         channel["last_detected"] = timestamp
+        if old_entry.get("notified_saved_messages_at"):
+            channel["notified_saved_messages_at"] = old_entry["notified_saved_messages_at"]
         previous[key] = channel
 
     # Discovery NEVER edits auto_sources.json or any relay configuration.
