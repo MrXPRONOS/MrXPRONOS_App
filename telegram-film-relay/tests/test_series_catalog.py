@@ -67,6 +67,25 @@ class TVSeriesTests(unittest.TestCase):
         self.assertEqual(rows[1][0].text, "📺 Saison 2")
         self.assertEqual(rows[1][0].url, "https://t.me/c/1234567/12")
 
+    def test_post_cycle_includes_series_card_and_ad_in_source_order(self):
+        import json
+        import scripts.partnership_cycle as cycle
+        data = {"processed": {"movie:one": {"public_message_id": 19}},
+                "promotions": {"-100123": {"sent": {"0": 20}}}}
+        with TemporaryDirectory() as td, patch.object(cycle, "ROOT", Path(td)), \
+             patch.dict(os.environ, {"CINEX_SERIES_CATALOG_ENABLED": "true"}):
+            state_path = Path(td)/"state"/"series_state.json"
+            state_path.parent.mkdir(parents=True, exist_ok=True)
+            state_path.write_text(json.dumps({
+                "completed": {"tv-series:some-series": {
+                    "public_id": 21, "video_id": 123
+                }},
+                "mirrors": {}, "promotions": {}, "staged": {}
+            }))
+            items = cycle.posts_after_intro("films", data, "-100123", 10)
+        self.assertEqual([(i,kind) for i,kind,_ in items],
+                         [(10,"intro"),(19,"film"),(20,"promo"),(21,"series")])
+
     def test_post_cycle_mirrors_one_series_card_not_episodes(self):
         films={"processed":{},"promotions":{"-100123":{"sent":{"0":20}}}}
         with TemporaryDirectory() as td, patch.dict(os.environ,{"CINEX_SERIES_CATALOG_ENABLED":"false"}):
