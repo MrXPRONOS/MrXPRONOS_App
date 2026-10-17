@@ -1,0 +1,37 @@
+name: Telegram - Offre partenariat canaux
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Prévisualisation sans publication"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-partnership-offer
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install requests pillow
+      - name: Aperçu sans publication
+        if: inputs.dry_run
+        run: python scripts/telegram_partnership_offer.py --dry-run
+      - name: Publier image, texte et bouton bleu
+        if: ${{ !inputs.dry_run }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          PARTNERSHIP_CHAT_ID: ${{ vars.PARTNERSHIP_CHAT_ID }}
+        run: python scripts/telegram_partnership_offer.py
