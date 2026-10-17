@@ -82,19 +82,18 @@ class FollowupTests(unittest.TestCase):
         base = follow.base_events(stored, NOW)
         self.assertTrue(base[0]["ranking_locked"])
 
-    def test_max_six_followed_and_no_seventh(self):
+    def test_max_four_followed_and_no_fifth(self):
         stored = {}
         names = [
             ("Arsenal", "Chelsea"), ("PSG", "Marseille"),
             ("Real Madrid", "Barcelona"), ("Inter", "Milan"),
-            ("Bayern", "Dortmund"), ("Liverpool", "Everton"),
         ]
         for index, (home, away) in enumerate(names):
             follow.follow(stored, fixture(str(index), home, away), NOW)
         self.assertFalse(follow.selection_allowed(stored, NOW))
         self.assertTrue(all(item.get("ranking_locked") for item in stored.values()))
         with self.assertRaises(ValueError):
-            follow.follow(stored, fixture("seventh", "Roma", "Lazio"), NOW)
+            follow.follow(stored, fixture("fifth", "Roma", "Lazio"), NOW)
 
     def test_technical_track_is_independent_from_prematch(self):
         stored = {}
