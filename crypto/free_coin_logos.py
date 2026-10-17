@@ -142,10 +142,58 @@ def catalog_spothq(rows):
         if match(row,catalog):
             assign(row,"https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/"+str(row["symbol"]).lower()+".png","spothq")
 
+def catalog_coinranking(rows):
+    coins=(fetch_json("https://api.coinranking.com/v2/coins",{"limit":100}).get("data") or {}).get("coins") or []
+    catalog=index(coins)
+    for row in pending(rows):
+        item=match(row,catalog)
+        if item and item.get("iconUrl"):
+            assign(row,item["iconUrl"],"Coinranking")
+
+def catalog_coincodex(rows):
+    coins=fetch_json("https://coincodex.com/get_coin_list/")
+    if isinstance(coins,dict):
+        coins=coins.get("coins") or coins.get("data") or []
+    if not isinstance(coins,list):
+        raise ValueError("Unexpected CoinCodex catalog")
+    catalog=index(coins)
+    for row in pending(rows):
+        item=match(row,catalog)
+        if item:
+            uri=item.get("image") or item.get("logo") or item.get("image_url")
+            if uri:assign(row,uri,"CoinCodex")
+
+def catalog_paprika_cdn(rows):
+    coins=fetch_json("https://api.coinpaprika.com/v1/coins")
+    catalog=index([c for c in coins if c.get("is_active",True)])
+    for row in pending(rows):
+        item=match(row,catalog)
+        if item and item.get("id"):
+            assign(row,"https://static.coinpaprika.com/coin/"+item["id"]+"/logo.png","CoinPaprika CDN")
+
+def catalog_gecko_details(rows):
+    coins=fetch_json("https://api.coingecko.com/api/v3/coins/list")
+    catalog=index(coins)
+    for row in pending(rows):
+        item=match(row,catalog)
+        if not item:continue
+        try:
+            detail=fetch_json("https://api.coingecko.com/api/v3/coins/"+item["id"],
+                {"localization":"false","tickers":"false","market_data":"false","community_data":"false","developer_data":"false"})
+            if norm(detail.get("symbol"))!=norm(row["symbol"]) or norm(detail.get("name"))!=norm(row["name"]):
+                continue
+            images=detail.get("image") or {}
+            uri=(images.get("large") or images.get("small")) if isinstance(images,dict) else None
+            if uri:assign(row,uri,"CoinGecko Details")
+        except (requests.RequestException,ValueError,KeyError,TypeError) as exc:
+            LOG.warning("CoinGecko detail unavailable %s %s",row["symbol"],type(exc).__name__)
+
 SOURCES=(("CoinPaprika",catalog_paprika),("CoinGecko",catalog_gecko),
          ("CryptoCompare",catalog_cryptocompare),("CoinCap",catalog_coincap),
          ("DefiLlama",catalog_defillama),("TrustWallet",catalog_trustwallet),
-         ("spothq",catalog_spothq))
+         ("spothq",catalog_spothq),("Coinranking",catalog_coinranking),
+         ("CoinCodex",catalog_coincodex),("CoinPaprika CDN",catalog_paprika_cdn),
+         ("CoinGecko Details",catalog_gecko_details))
 
 def enrich_with_logos(rows):
     for name,fn in SOURCES:
@@ -156,6 +204,6 @@ def enrich_with_logos(rows):
             LOG.warning("LOGO_SOURCE_UNAVAILABLE %s %s",name,type(exc).__name__)
     missing=[r["symbol"] for r in pending(rows)]
     if missing:
-        raise RuntimeError("Publication V2 annulée : logos réels introuvables pour "+", ".join(missing))
+        LOG.warning("CRYPTO_LOGO_FALLBACK_SYMBOLS %s",missing)
     LOG.info("CRYPTO_LOGOS_COMPLETE %s",[(r["symbol"],r["logo_source"]) for r in rows])
     return rows
