@@ -1,0 +1,112 @@
+name: CineX Desir - Relais films
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publier un film (sinon simulation uniquement)'
+        type: boolean
+        required: false
+        default: false
+  push:
+    branches: [main]
+    paths:
+      - '.github/desir-first-test-trigger.txt'
+
+permissions:
+  contents: write
+
+# Same account session as film relay and Telegram channel discovery/monitor.
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+
+jobs:
+  desir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les dépendances
+        run: python -m pip install -r telegram-film-relay/requirements.txt
+      - name: Valider la syntaxe et les tests CinéX Désir
+        working-directory: telegram-film-relay
+        run: |
+          python -m py_compile film_relay/desir_matching.py film_relay/desir_runner.py scripts/merge_desir_state.py
+          python -m unittest discover -s tests -p 'test_desir.py' -v
+      - name: Vérifier les paramètres sans révéler les secrets
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
+          DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          if [[ -z "$TG_API_ID" || -z "$TG_API_HASH" || -z "$TG_STRING_SESSION" ]]; then
+            echo '::error::Secrets Telegram de session personnelle manquants.'
+            exit 1
+          fi
+          if [[ ! "$DESIR_PRIVATE_CHANNEL" =~ ^-100[0-9]+$ ]]; then
+            echo '::error::Variable DESIR_PRIVATE_CHANNEL manquante ou identifiant -100 incorrect.'
+            exit 1
+          fi
+          if [[ -z "$DESIR_BOT_TOKEN" ]]; then
+            echo '::error::Aucun bot disponible : ajouter DESIR_BOT_TOKEN ou un bot existant.'
+            exit 1
+          fi
+      - name: Essai contrôle ou première publication (1 film maximum)
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+          DESIR_SOURCE_CHANNEL: ${{ vars.DESIR_SOURCE_CHANNEL || '@Filmromatique' }}
+          DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
+          DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
+          DESIR_PRIVATE_INVITE_LINK: ${{ secrets.DESIR_PRIVATE_INVITE_LINK }}
+          DESIR_STATE_PATH: state/desir_state.json
+          PUBLISH_INPUT: ${{ inputs.publish || 'false' }}
+        shell: bash
+        run: |
+          set -e
+          if [[ "$GITHUB_EVENT_NAME" == "push" || "$PUBLISH_INPUT" == "true" ]]; then
+            echo 'CinéX Désir : 1er test réel, un film maximum.'
+            python -m film_relay.desir_runner --publish --limit 1 --newest --require-publication
+          else
+            echo 'CinéX Désir : diagnostic lecture seule.'
+            python -m film_relay.desir_runner --limit 1 --newest
+          fi
+      - name: Sauvegarder les reçus même après une publication partielle
+        if: always()
+        shell: bash
+        run: |
+          set -e
+          FILE=telegram-film-relay/state/desir_state.json
+          if [[ ! -f "$FILE" ]] || git diff --quiet -- "$FILE"; then
+            echo 'Aucune publication nouvelle à enregistrer.'
+            exit 0
+          fi
+          cp "$FILE" "$RUNNER_TEMP/desir-receipts.json"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git fetch origin main
+            git reset --hard origin/main
+            python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/desir-receipts.json" "$FILE"
+            if git diff --quiet -- "$FILE"; then
+              echo 'Reçus CinéX Désir déjà présents dans le dépôt.'
+              exit 0
+            fi
+            git add "$FILE"
+            git commit -m 'state: CineX Desir movie publication receipts [skip ci]'
+            if git push origin HEAD:main; then
+              echo 'Reçus CinéX Désir sauvegardés.'
+              exit 0
+            fi
+            sleep 4
+          done
+          echo '::error::Impossible de sauvegarder les reçus CinéX Désir après huit essais.'
+          exit 1
