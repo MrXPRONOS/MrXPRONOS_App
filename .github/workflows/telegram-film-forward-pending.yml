@@ -16,6 +16,9 @@ concurrency:
 
 jobs:
   forward:
+    # Mise en pause de tous les transferts et rattrapages vers Torrent9.
+    # Réactivation uniquement après demande explicite de l'utilisateur.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
