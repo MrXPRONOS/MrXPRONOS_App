@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: telegram-foot-discovery
+  group: mrx-telegram-personal-account
   cancel-in-progress: false
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
             --max-searches 6 \
             --max-channels 12 \
             --max-posts 20 \
-            --pause 5 \
+            --pause 10 \
             --out telegram_research_out
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
