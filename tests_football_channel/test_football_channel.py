@@ -501,7 +501,9 @@ class FootballChannelTests(unittest.TestCase):
         self.assertIsNotNone(post)
         self.assertEqual(post.card["matches"][0]["time"], "19h00")
         self.assertEqual(post.card["matches"][0]["home"], "Arsenal")
-        self.assertNotIn("Arsenal", post.text)
+        self.assertEqual(post.card["matches"][0]["role"], "match_du_jour")
+        self.assertIn("Match du jour", post.text)
+        self.assertIn("Arsenal", post.text)
 
     def test_resultat_uniquement_apres_confirmation(self):
         sample = [
