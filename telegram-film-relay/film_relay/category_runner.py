@@ -52,6 +52,23 @@ def category_config(category: str, env: dict | None = None) -> dict:
         env.get(prefix + "_SOURCE_CHANNELS", ""),
         max_sources=12,
     )
+    # These three channels have explicitly declared roles. A stale/incorrect
+    # singular GitHub variable must never leak comedy movies into Anime or
+    # episodes into Comedy, while other user-added sources remain permitted.
+    cross_category = {
+        "comedie": {"@orak_dessinanime"},
+        "anime": {"@comexflex", "@filmcomplets"},
+    }
+    forbidden_sources = cross_category.get(category, set())
+    for value in sources:
+        if value.casefold() in forbidden_sources:
+            LOG.warning(
+                "%s : canal %s classé dans l'autre catégorie, ignoré. "
+                "Corriger la variable GitHub %s_SOURCE_CHANNEL.",
+                category_info["label"], value, prefix,
+            )
+    sources = [value for value in sources
+               if value.casefold() not in forbidden_sources]
     source = sources[0] if sources else ""
     public = (env.get(prefix + "_PUBLIC_CHANNEL") or "").strip()
     private = (env.get(prefix + "_PRIVATE_CHANNEL") or "").strip()
