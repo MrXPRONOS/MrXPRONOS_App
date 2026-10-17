@@ -22,18 +22,27 @@ const moodIndex=labels.findIndex(([,min,max])=>data.score>=min&&data.score<=max)
 if(moodIndex<0 || data.classification!==labels[moodIndex][0])throw Error('Wrong classification');
 const accent=segmentColors[moodIndex];
 const geometry=(degree,radius=232)=>{const rad=degree*Math.PI/180;return [450+radius*Math.cos(rad),294-radius*Math.sin(rad)];};
-function arc(a,b,color){const start=geometry(a),end=geometry(b);return `<path d="M ${start[0].toFixed(3)} ${start[1].toFixed(3)} A 232 232 0 0 1 ${end[0].toFixed(3)} ${end[1].toFixed(3)}" fill="none" stroke="${color}" stroke-width="43" stroke-linecap="round" filter="url(#ringGlow)"/>`}
-const marks=[0,25,45,55,75,100];
-const segments=marks.slice(0,-1).map((m,i)=>arc(180-m*1.8-2.8,180-marks[i+1]*1.8+2.8,segmentColors[i])).join('');
+// Jauge monobloc : un seul arc SVG, sans joints ni espaces entre les couleurs.
+// Dégradé horizontal en coordonnées SVG ; le score et l'aiguille sont inchangés.
+const gaugePath='M 218 294 A 232 232 0 0 1 682 294';
+const continuousGauge=`<path d="${gaugePath}" fill="none" stroke="url(#gaugeGradient)" stroke-width="43" stroke-linecap="round" filter="url(#ringGlow)"/>`;
 const needleEnd=geometry(180-data.score*1.8,187);
 const needle=`<line x1="450" y1="294" x2="${needleEnd[0].toFixed(2)}" y2="${needleEnd[1].toFixed(2)}" stroke="#000d24" stroke-width="19" stroke-linecap="round" filter="url(#needleShadow)"/><line x1="450" y1="294" x2="${needleEnd[0].toFixed(2)}" y2="${needleEnd[1].toFixed(2)}" stroke="url(#needle)" stroke-width="9" stroke-linecap="round"/><circle cx="450" cy="294" r="22" fill="#061125" stroke="#dfedff" stroke-width="5"/><circle cx="450" cy="294" r="8" fill="#eac989"/>`;
 const svg=`<svg class="gauge" viewBox="0 0 900 480" role="img" aria-label="Fear and Greed : ${data.score} sur 100"><defs>
  <filter id="ringGlow" x="-25%" y="-40%" width="150%" height="190%"><feGaussianBlur in="SourceAlpha" stdDeviation="2.7" result="blur"/><feOffset dy="4" result="offset"/><feMerge><feMergeNode in="offset"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
  <filter id="needleShadow" x="-30%" y="-40%" width="160%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>
  <linearGradient id="needle"><stop stop-color="#b6c6e6"/><stop offset=".4" stop-color="#fff6c7"/><stop offset="1" stop-color="#f3cf86"/></linearGradient>
+ <linearGradient id="gaugeGradient" gradientUnits="userSpaceOnUse" x1="218" y1="294" x2="682" y2="294">
+  <stop offset="0%" stop-color="#ee5574"/>
+  <stop offset="16%" stop-color="#ff995c"/>
+  <stop offset="42%" stop-color="#f3ce72"/>
+  <stop offset="58%" stop-color="#89dc99"/>
+  <stop offset="85%" stop-color="#37d9b0"/>
+  <stop offset="100%" stop-color="#37d9b0"/>
+ </linearGradient>
  </defs>
- <path d="M 218 294 A 232 232 0 0 1 682 294" stroke="#07152f" stroke-width="55" fill="none"/>
- ${segments}
+ <path d="${gaugePath}" stroke="#07152f" stroke-width="55" fill="none"/>
+ ${continuousGauge}
  <circle cx="450" cy="294" r="173" fill="#081a37" stroke="#ffffff14" stroke-width="2"/>
  ${needle}
  <text x="450" y="386" text-anchor="middle" fill="#f9fbff" font-size="91" font-weight="900" style="paint-order:stroke;stroke:#0b1c39;stroke-width:3px">${data.score}<tspan font-size="27" fill="#a9c0df">/100</tspan></text>
