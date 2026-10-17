@@ -1228,11 +1228,11 @@
         }
       ],
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-17T16:20:54.538170+00:00",
+      "settlement_checked_at": "2026-10-17T20:20:46.856198+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-10-17T20:20:54.538170+00:00"
+        "next_retry_after": "2026-10-18T00:20:46.856198+00:00"
       }
     },
     {
@@ -5466,11 +5466,11 @@
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-17T16:20:54.538170+00:00",
+      "settlement_checked_at": "2026-10-17T20:20:46.856198+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-10-17T20:20:54.538170+00:00"
+        "next_retry_after": "2026-10-18T00:20:46.856198+00:00"
       }
     },
     {
@@ -11370,11 +11370,11 @@
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-17T16:20:54.538170+00:00",
+      "settlement_checked_at": "2026-10-17T20:20:46.856198+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-10-17T20:20:54.538170+00:00"
+        "next_retry_after": "2026-10-18T00:20:46.856198+00:00"
       }
     },
     {
@@ -15605,11 +15605,11 @@
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-17T16:20:54.538170+00:00",
+      "settlement_checked_at": "2026-10-17T20:20:46.856198+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-10-17T20:20:54.538170+00:00"
+        "next_retry_after": "2026-10-18T00:20:46.856198+00:00"
       }
     },
     {
@@ -21070,11 +21070,11 @@
       "revalidated_at": "2026-10-14T02:26:34.529189+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-17T16:20:54.538170+00:00",
+      "settlement_checked_at": "2026-10-17T20:20:46.856198+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-10-17T20:20:54.538170+00:00"
+        "next_retry_after": "2026-10-18T00:20:46.856198+00:00"
       }
     },
     {
@@ -23006,12 +23006,12 @@
       "badge": "BSD V2",
       "signal_tier": "PREMIUM",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -23092,7 +23092,12 @@
         "odds_updated_at": "2026-10-15T13:05:07+00:00"
       },
       "revalidated_at": "2026-10-17T06:07:49.291228+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:603727",
@@ -23113,12 +23118,12 @@
       "badge": "BSD V2",
       "signal_tier": "INDICATIF",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -23180,7 +23185,12 @@
       "generated_at": "2026-10-15T13:10:11.583598+00:00",
       "combo_only": false,
       "revalidated_at": "2026-10-17T06:07:49.291228+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:605278",
@@ -23201,12 +23211,12 @@
       "badge": "BSD V2",
       "signal_tier": "INDICATIF",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 3,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -23268,7 +23278,12 @@
       "generated_at": "2026-10-15T13:10:11.583598+00:00",
       "combo_only": false,
       "revalidated_at": "2026-10-17T06:07:49.291228+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:605281",
@@ -23289,12 +23304,12 @@
       "badge": "BSD V2",
       "signal_tier": "INDICATIF",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -23356,7 +23371,12 @@
       "generated_at": "2026-10-15T13:10:11.583598+00:00",
       "combo_only": false,
       "revalidated_at": "2026-10-17T06:07:49.291228+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:605662",
@@ -23377,12 +23397,12 @@
       "badge": "BSD V2",
       "signal_tier": "PREMIUM",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 2,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -23463,7 +23483,12 @@
         "odds_updated_at": "2026-10-15T13:05:07+00:00"
       },
       "revalidated_at": "2026-10-17T06:07:49.291228+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:606220",
@@ -23484,12 +23509,12 @@
       "badge": "BSD V2",
       "signal_tier": "INDICATIF",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 2,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -23549,7 +23574,12 @@
       "final_score": 82.1,
       "xpronos_score": 82.1,
       "generated_at": "2026-10-17T06:07:49.291228+00:00",
-      "combo_only": false
+      "combo_only": false,
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:224671",
@@ -23570,12 +23600,12 @@
       "badge": "BSD V2",
       "signal_tier": "QUALIFIE",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 2,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -23654,6 +23684,11 @@
         "odds": 1.333,
         "odds_source": "bsd_consensus",
         "odds_updated_at": "2026-10-17T06:05:08+00:00"
+      },
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
       }
     },
     {
@@ -23675,12 +23710,12 @@
       "badge": "BSD V2",
       "signal_tier": "QUALIFIE",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -23759,6 +23794,11 @@
         "odds": 1.438,
         "odds_source": "bsd_consensus",
         "odds_updated_at": "2026-10-17T06:05:08+00:00"
+      },
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
       }
     },
     {
@@ -23780,12 +23820,12 @@
       "badge": "BSD V2",
       "signal_tier": "INDICATIF",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -23845,7 +23885,12 @@
       "final_score": 80.9,
       "xpronos_score": 80.9,
       "generated_at": "2026-10-17T06:07:49.291228+00:00",
-      "combo_only": false
+      "combo_only": false,
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:604963",
@@ -23866,12 +23911,12 @@
       "badge": "BSD V2",
       "signal_tier": "INDICATIF",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -23931,7 +23976,12 @@
       "final_score": 82.8,
       "xpronos_score": 82.8,
       "generated_at": "2026-10-17T06:07:49.291228+00:00",
-      "combo_only": false
+      "combo_only": false,
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:604964",
@@ -23952,12 +24002,12 @@
       "badge": "BSD V2",
       "signal_tier": "INDICATIF",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 3,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -24017,7 +24067,12 @@
       "final_score": 80.6,
       "xpronos_score": 80.6,
       "generated_at": "2026-10-17T06:07:49.291228+00:00",
-      "combo_only": false
+      "combo_only": false,
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:604966",
@@ -24038,12 +24093,12 @@
       "badge": "BSD V2",
       "signal_tier": "INDICATIF",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -24103,7 +24158,12 @@
       "final_score": 79.4,
       "xpronos_score": 79.4,
       "generated_at": "2026-10-17T06:07:49.291228+00:00",
-      "combo_only": false
+      "combo_only": false,
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:606142",
@@ -24124,12 +24184,12 @@
       "badge": "BSD V2",
       "signal_tier": "PREMIUM",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -24195,7 +24255,12 @@
       "final_score": 81.0,
       "xpronos_score": 81.0,
       "generated_at": "2026-10-17T06:07:49.291228+00:00",
-      "combo_only": false
+      "combo_only": false,
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:606151",
@@ -24216,12 +24281,12 @@
       "badge": "BSD V2",
       "signal_tier": "PREMIUM",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -24300,6 +24365,11 @@
         "odds": 1.28,
         "odds_source": "bsd_consensus",
         "odds_updated_at": "2026-10-17T06:05:08+00:00"
+      },
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
       }
     },
     {
@@ -24321,12 +24391,12 @@
       "badge": "BSD V2",
       "signal_tier": "PREMIUM",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 3,
+      "away_score": 2,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -24392,7 +24462,12 @@
       "final_score": 81.3,
       "xpronos_score": 81.3,
       "generated_at": "2026-10-17T06:07:49.291228+00:00",
-      "combo_only": false
+      "combo_only": false,
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:606155",
@@ -24413,10 +24488,10 @@
       "badge": "BSD V2",
       "signal_tier": "QUALIFIE",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 1,
       "verified_prediction": false,
       "verified_double": false,
       "prediction": {
@@ -24497,6 +24572,11 @@
         "odds": 1.45,
         "odds_source": "bsd_consensus",
         "odds_updated_at": "2026-10-17T06:05:08+00:00"
+      },
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
       }
     },
     {
@@ -24518,10 +24598,10 @@
       "badge": "BSD V2",
       "signal_tier": "PREMIUM",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 4,
       "verified_prediction": false,
       "verified_double": false,
       "prediction": {
@@ -24591,7 +24671,12 @@
       "generated_at": "2026-10-15T14:38:12.784346+00:00",
       "combo_only": false,
       "revalidated_at": "2026-10-17T06:07:49.291228+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:604955",
@@ -24612,12 +24697,12 @@
       "badge": "BSD V2",
       "signal_tier": "QUALIFIE",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -24683,7 +24768,12 @@
       "final_score": 78.0,
       "xpronos_score": 78.0,
       "generated_at": "2026-10-17T06:07:49.291228+00:00",
-      "combo_only": false
+      "combo_only": false,
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:605990",
@@ -24704,12 +24794,12 @@
       "badge": "BSD V2",
       "signal_tier": "INDICATIF",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -24769,7 +24859,12 @@
       "final_score": 82.4,
       "xpronos_score": 82.4,
       "generated_at": "2026-10-17T06:07:49.291228+00:00",
-      "combo_only": false
+      "combo_only": false,
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-17T20:20:46.856198+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:214875",
@@ -27010,16 +27105,35 @@
       "bsd:601980:UNDER_35:2026-10-17T11:00:00+00:00",
       "bsd:601981:UNDER_35:2026-10-17T11:00:00+00:00",
       "bsd:602688:UNDER_35:2026-10-17T11:00:00+00:00",
-      "bsd:224666:1X:2026-10-17T11:30:00+00:00"
+      "bsd:224666:1X:2026-10-17T11:30:00+00:00",
+      "bsd:216015:1X:2026-10-17T13:00:00+00:00",
+      "bsd:603727:UNDER_35:2026-10-17T13:00:00+00:00",
+      "bsd:605278:1X:2026-10-17T13:00:00+00:00",
+      "bsd:605281:1X:2026-10-17T13:00:00+00:00",
+      "bsd:605662:1X:2026-10-17T13:00:00+00:00",
+      "bsd:606220:UNDER_35:2026-10-17T13:30:00+00:00",
+      "bsd:224671:UNDER_35:2026-10-17T14:00:00+00:00",
+      "bsd:224676:UNDER_35:2026-10-17T14:00:00+00:00",
+      "bsd:604219:UNDER_35:2026-10-17T14:00:00+00:00",
+      "bsd:604963:1X:2026-10-17T14:00:00+00:00",
+      "bsd:604964:UNDER_35:2026-10-17T14:00:00+00:00",
+      "bsd:604966:1X:2026-10-17T14:00:00+00:00",
+      "bsd:606142:1X:2026-10-17T14:00:00+00:00",
+      "bsd:606151:1X:2026-10-17T14:00:00+00:00",
+      "bsd:606152:1X:2026-10-17T14:00:00+00:00",
+      "bsd:606155:1X:2026-10-17T14:00:00+00:00",
+      "bsd:606167:1X:2026-10-17T14:00:00+00:00",
+      "bsd:604955:1X:2026-10-17T15:00:00+00:00",
+      "bsd:605990:UNDER_35:2026-10-17T16:00:00+00:00"
     ],
     "by_selection": {
       "1X": {
-        "n": 73,
-        "wins": 58,
-        "sum_pred": 57.904,
+        "n": 85,
+        "wins": 68,
+        "sum_pred": 67.72200000000001,
         "penalty": 0.0,
-        "hit_rate": 0.794521,
-        "average_predicted": 0.793205
+        "hit_rate": 0.8,
+        "average_predicted": 0.796729
       },
       "BTTS_YES": {
         "n": 1,
@@ -27030,12 +27144,12 @@
         "average_predicted": 0.561
       },
       "UNDER_35": {
-        "n": 67,
-        "wins": 53,
-        "sum_pred": 51.65099999999998,
+        "n": 74,
+        "wins": 60,
+        "sum_pred": 57.28099999999997,
         "penalty": 0.0,
-        "hit_rate": 0.791045,
-        "average_predicted": 0.77091
+        "hit_rate": 0.810811,
+        "average_predicted": 0.774068
       },
       "OVER_15": {
         "n": 109,
@@ -27072,12 +27186,12 @@
     },
     "by_family": {
       "double_chance": {
-        "n": 81,
-        "wins": 62,
-        "sum_pred": 63.60400000000001,
+        "n": 93,
+        "wins": 72,
+        "sum_pred": 73.42200000000001,
         "penalty": 0.0,
-        "hit_rate": 0.765432,
-        "average_predicted": 0.785235
+        "hit_rate": 0.774194,
+        "average_predicted": 0.789484
       },
       "btts": {
         "n": 1,
@@ -27088,16 +27202,16 @@
         "average_predicted": 0.561
       },
       "goals": {
-        "n": 177,
-        "wins": 139,
-        "sum_pred": 137.20399999999998,
+        "n": 184,
+        "wins": 146,
+        "sum_pred": 142.834,
         "penalty": 0.0,
-        "hit_rate": 0.785311,
-        "average_predicted": 0.775164
+        "hit_rate": 0.793478,
+        "average_predicted": 0.776272
       }
     },
-    "last_added": 5,
-    "updated_at": "2026-10-17T16:20:54.538170+00:00",
+    "last_added": 19,
+    "updated_at": "2026-10-17T20:20:46.856198+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -27407,12 +27521,12 @@
         "average_predicted": 0.815
       },
       "Serie B|1X": {
-        "n": 1,
-        "wins": 1,
-        "sum_pred": 0.792,
+        "n": 2,
+        "wins": 2,
+        "sum_pred": 1.6219999999999999,
         "penalty": 0.0,
         "hit_rate": 1.0,
-        "average_predicted": 0.792
+        "average_predicted": 0.811
       },
       "Brazilian Serie B|X2": {
         "n": 1,
@@ -27445,6 +27559,78 @@
         "penalty": 0.0,
         "hit_rate": 1.0,
         "average_predicted": 0.778
+      },
+      "Trendyol Super Lig|1X": {
+        "n": 1,
+        "wins": 1,
+        "sum_pred": 0.853,
+        "penalty": 0.0,
+        "hit_rate": 1.0,
+        "average_predicted": 0.853
+      },
+      "CAF Champions League|UNDER_35": {
+        "n": 2,
+        "wins": 2,
+        "sum_pred": 1.63,
+        "penalty": 0.0,
+        "hit_rate": 1.0,
+        "average_predicted": 0.815
+      },
+      "Czech First League|1X": {
+        "n": 2,
+        "wins": 2,
+        "sum_pred": 1.636,
+        "penalty": 0.0,
+        "hit_rate": 1.0,
+        "average_predicted": 0.818
+      },
+      "Tunisian Ligue Professionnelle 1|UNDER_35": {
+        "n": 1,
+        "wins": 1,
+        "sum_pred": 0.821,
+        "penalty": 0.0,
+        "hit_rate": 1.0,
+        "average_predicted": 0.821
+      },
+      "League Two|UNDER_35": {
+        "n": 2,
+        "wins": 2,
+        "sum_pred": 1.564,
+        "penalty": 0.0,
+        "hit_rate": 1.0,
+        "average_predicted": 0.782
+      },
+      "Girabola|UNDER_35": {
+        "n": 1,
+        "wins": 1,
+        "sum_pred": 0.809,
+        "penalty": 0.0,
+        "hit_rate": 1.0,
+        "average_predicted": 0.809
+      },
+      "Taça de Portugal|1X": {
+        "n": 3,
+        "wins": 3,
+        "sum_pred": 2.402,
+        "penalty": 0.0,
+        "hit_rate": 1.0,
+        "average_predicted": 0.800667
+      },
+      "Taça de Portugal|UNDER_35": {
+        "n": 1,
+        "wins": 1,
+        "sum_pred": 0.8059999999999999,
+        "penalty": 0.0,
+        "hit_rate": 1.0,
+        "average_predicted": 0.806
+      },
+      "FA Cup|1X": {
+        "n": 5,
+        "wins": 3,
+        "sum_pred": 4.0969999999999995,
+        "penalty": 0.0,
+        "hit_rate": 0.6,
+        "average_predicted": 0.8194
       }
     }
   },
@@ -113605,11 +113791,11 @@
     }
   },
   "settlement_watchdog": {
-    "updated_at": "2026-10-17T16:20:54.538170+00:00",
-    "checked": 10,
-    "settled": 5,
+    "updated_at": "2026-10-17T20:20:46.856198+00:00",
+    "checked": 24,
+    "settled": 19,
     "pending": 5,
-    "h4": 5,
+    "h4": 19,
     "h8": 0,
     "fallback": 5,
     "detail_hits": 3
