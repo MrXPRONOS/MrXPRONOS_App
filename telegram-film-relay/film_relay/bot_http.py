@@ -140,6 +140,16 @@ class BotHTTPClient:
         result = await self._call("sendMessage", data)
         return SimpleNamespace(id=int(result["message_id"]))
 
+    async def edit_reply_markup(self, channel, message_id: int, *, buttons):
+        """Mettre à jour les saisons sans publier une nouvelle affiche publique."""
+        from telethon import utils
+        data = {"chat_id": str(utils.get_peer_id(channel)),
+                "message_id": str(int(message_id))}
+        keyboard = self._keyboard(buttons)
+        data["reply_markup"] = json.dumps(keyboard or {"inline_keyboard": []},
+                                          ensure_ascii=False)
+        return await self._call("editMessageReplyMarkup", data)
+
     async def disconnect(self):
         # Aucun état d'authentification MTProto à libérer.
         return None
