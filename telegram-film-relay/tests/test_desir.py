@@ -1,12 +1,14 @@
 """Offline validation for independent CinéX Désir relay. No Telegram messages sent."""
+import asyncio
 import unittest
+from unittest.mock import patch, AsyncMock
 from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace as NS
 
 from film_relay.desir_matching import is_supported_video, pair_items, film_title, item_key
-from film_relay.desir_runner import ReceiptState, verify_destination
+from film_relay.desir_runner import ReceiptState, verify_destination, forward_public_poster, finish_mirrors
 
 
 def photo(i, text=""):
@@ -59,6 +61,54 @@ class DesirTests(unittest.TestCase):
             verify_destination("@Filmromatique", "@other", "-100123456789")
         with self.assertRaises(RuntimeError):
             verify_destination("@Filmromatique", "@CineXDesirfr", "@unknown")
+
+    def test_mirror_receipts_survive_reload(self):
+        with TemporaryDirectory() as folder:
+            path = str(Path(folder) / "desir.json")
+            state = ReceiptState(path)
+            state.complete("src:video", 70, 44)
+            self.assertEqual(state.mirror_pending("-100999"), [44])
+            state.mirror_done("-100999", 44, 96)
+            restored = ReceiptState(path)
+            self.assertEqual(restored.mirror_pending("-100999"), [])
+            self.assertEqual(restored.data["mirrors"]["-100999"]["44"], 96)
+
+    def test_native_forward_preserves_origin_channel(self):
+        user = NS(forward_messages=AsyncMock(return_value=NS(id=205)))
+        public_peer = NS(id=111)
+        mirror_peer = NS(id=222)
+        forwarded = asyncio.run(forward_public_poster(user, public_peer, mirror_peer, 45))
+        self.assertEqual(forwarded, 205)
+        args, kwargs = user.forward_messages.await_args
+        self.assertIs(args[0], mirror_peer)
+        self.assertEqual(args[1], 45)
+        self.assertIs(kwargs["from_peer"], public_peer)
+
+    def test_pending_mirror_recovery_does_not_duplicate_forward(self):
+        with TemporaryDirectory() as folder:
+            state = ReceiptState(str(Path(folder)/"state.json"))
+            state.complete("some:film", 70, 41)
+            client = NS()
+            with patch("film_relay.desir_runner.existing_native_forwards",
+                       new=AsyncMock(return_value={41: 99})), patch(
+                       "film_relay.desir_runner.forward_public_poster", new=AsyncMock()
+                       ) as forward:
+                # utils.get_peer_id uses Telethon's peer types.
+                from telethon.tl.types import PeerChannel
+                public_peer = PeerChannel(12)
+                done = asyncio.run(finish_mirrors(
+                    client, state, NS(), "-100888", public_peer))
+                self.assertEqual(done, 0)
+                forward.assert_not_awaited()
+                self.assertTrue(state.mirror_recorded("-100888", 41))
+
+    def test_merge_mirror_checkpoints(self):
+        from scripts.merge_desir_state import merge
+        result = merge(
+            {"completed": {}, "staged": {}, "mirrors": {"-1001": {"11": 99}}},
+            {"completed": {}, "staged": {}, "mirrors": {"-1001": {"12": 100}}},
+        )
+        self.assertEqual(result["mirrors"]["-1001"], {"11": 99, "12": 100})
 
     def test_receipt_checkpoint(self):
         with TemporaryDirectory() as folder:
