@@ -104,6 +104,8 @@ def episode_numbers(text: str):
 
 def series_title(text: str) -> str:
     value = first_title(text or "").strip()
+    # Supprimer la signature du canal source, pas le titre de la série.
+    value = value.split("@", 1)[0].strip()
     value = CLEAN_CODES.sub(" ", value)
     value = SEASON_HEADER.sub(" ", value)
     value = re.sub(r"(?i)(?:\b(?:mp4|mkv)\b|^@[^\s]+\s+(?:vf|fv)\b)", " ", value)
@@ -311,7 +313,7 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 continue
             pending = pending[:episode_cap - copied_episodes]
             title = str(existing.get("title") or items[0]["title"])
-            LOG.info("Animé %s : %s épisodes nouveaux (lot borné)", title, len(pending))
+            LOG.info("Série TV %s : %s épisodes nouveaux (lot borné)", title, len(pending))
             if not publish:
                 completed_series.add(key)
                 continue
