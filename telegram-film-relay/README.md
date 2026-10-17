@@ -57,6 +57,14 @@ Pour tout autre canal disposant d'une autorisation de republication, ajouter dan
 
 Ne pas activer `redistribution_authorized` pour des canaux dont les droits n'ont pas été établis.
 
+## Trois affiches originales CinéX
+
+Les trois fichiers PNG d'origine sont attendus dans `telegram-film-relay/assets/promotions/` avec les noms `mrx_actu.png`, `mrx_live.png` et `mrx_jour.png`. Ce sont les affiches Actu Foot, Pronos Live VIP et Coupons du Jour respectivement. Le code envoie les octets PNG originaux sans générer de nouvelles images, convertir en JPEG, recolorer ou redimensionner.
+
+Les légendes comportent exactement trois lignes, avec un bouton Telegram correspondant au canal. La rotation suit l'ordre Actu Foot → Pronos Live VIP → Coupons du Jour, après chaque groupe de deux nouveaux films publiés. Les reçus et les compteurs de rotation sont enregistrés dans `state/state.json`. Sans les trois PNG originaux, l'envoi de publicité est différé ; le relais de films n'est pas interrompu.
+
+**Ne pas déclarer la mise en production complète tant que les trois PNG n'ont pas été ajoutés au dépôt et qu'un test de publication n'a pas réussi.** Les fixtures utilisées par les tests automatisés ne sont pas des affiches de production.
+
 ## Boutons Telegram et mise en forme CinéX
 
 **Les vrais boutons Telegram exigent un bot : la session personnelle ne peut pas en publier.** Le projet CinéX réutilise maintenant un bot football déjà configuré dans les secrets GitHub.
