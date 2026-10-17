@@ -35,7 +35,7 @@ from bsd.bsd_v2_telegram_banner import attach_banner
 from bsd.bsd_v2_telegram import partner_pack
 
 UTC = timezone.utc
-W, H = 1080, 1920\nSHORTS_BACKGROUND = ROOT / "assets" / "images" / "shorts-premium-background.png"
+W, H = 1080, 1920
 MAX_MATCHES = 5
 VALID_STATUS = {"notstarted", "upcoming"}
 LEDGER_DEFAULT = "shorts_video_coupon"
