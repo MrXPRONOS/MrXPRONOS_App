@@ -57,7 +57,7 @@ async def run() -> int:
             present[public_id] = copied_id
             forwarded += 1
             print(f"Transfert attribué : public={public_id} → secondaire={copied_id}")
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
         print(f"RÉSULTAT MIROIR : à examiner={attempted}, transférés={forwarded}, "
               f"doublons empêchés={skipped}. Aucun nouveau MKV ni poster original envoyé.")
         return 0
