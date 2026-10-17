@@ -242,8 +242,11 @@ class LiveRankingEngine:
         if national_match and self.competition_weight(event) >= 24:
             return True
 
-        threshold = max(1, int(os.getenv("FOOTBALL_LIVE_POPULARITY_MIN", "60")))
-        return self.popularity_score(event) >= threshold
+        # Une grande compétition seule suffit pour apparaître dans
+        # "Matchs du jour", mais pas pour consommer une place de fil rouge.
+        # Le fil rouge exige au moins une équipe classée, une sélection
+        # importante, Togo, ou une phase à fort enjeu.
+        return False
 
     def rank_key(self, event: dict) -> tuple:
         club_count, club_max = self.club_priority(event)
