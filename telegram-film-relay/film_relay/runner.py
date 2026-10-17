@@ -143,6 +143,7 @@ async def forward_public_message(client, primary_public, mirror_channel, message
 
 async def execute() -> int:
     from telethon import TelegramClient, utils
+    from telethon.errors import FloodWaitError, PeerFloodError
     from telethon.sessions import StringSession
 
     cfg = config_from(os.getenv("CHANNELS_CONFIG", "config/channels.json"))
@@ -168,7 +169,7 @@ async def execute() -> int:
     seen_count = published_count = proposed_count = failed_count = 0
     # Hard safety cap: at most TWO completed films across all sources in one run.
     max_posts = min(2, max(1, int(os.getenv("FILM_MAX_POSTS_PER_RUN", cfg.get("max_posts_per_run", 2)))))
-    pause_seconds = max(3.0, float(cfg.get("publication_pause_seconds", 5)))
+    pause_seconds = max(6.0, 2 * float(cfg.get("publication_pause_seconds", 5)))
     client = TelegramClient(StringSession(credentials[2]), int(credentials[0]), credentials[1],
                             request_retries=1, connection_retries=2, flood_sleep_threshold=0)
     bot_client = None
@@ -322,7 +323,7 @@ async def execute() -> int:
                     mirror_count += 1
                     LOG.info("Transfert repris : public=%s, miroir=%s",
                              old_public_id, copied_id)
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(2)
                 except Exception as exc:
                     failed_count += 1
                     LOG.exception("Transfert en attente impossible pour %s : %s",
@@ -474,7 +475,7 @@ async def execute() -> int:
                                     caption=rich_caption(text, private=True), parse_mode="html"
                                 )
                                 state.stage_poster(pair_id, int(private_poster.id))
-                                await asyncio.sleep(2)
+                                await asyncio.sleep(4)
                                 stage = state.get_staged_posts(pair_id)
                                 LOG.info("Affiche privée envoyée : message %s", private_poster.id)
 
@@ -486,7 +487,7 @@ async def execute() -> int:
                             state.stage(pair_id, private_post_id)
                             LOG.info("Vidéo privée envoyée : message %s", private_post_id)
                         url = private_message_link(private_id, private_post_id)
-                        await asyncio.sleep(2)
+                        await asyncio.sleep(4)
                         public_post = await send_public_poster_with_buttons(
                             client, bot_client, bot_destination, pair.poster,
                             text, url, invitation
@@ -515,6 +516,9 @@ async def execute() -> int:
                         published_count += 1
                         LOG.info("Publié : %s -> %s", pair_id, url)
                         await asyncio.sleep(pause_seconds)
+                    except (FloodWaitError, PeerFloodError):
+                        LOG.error("Restriction Telegram pendant publication : arrêt immédiat.")
+                        raise
                     except Exception as exc:
                         source_failed = True
                         failed_count += 1
@@ -527,6 +531,9 @@ async def execute() -> int:
                     state.advance_history(channel_key, history_next, history_finished)
                 if run_limit_reached:
                     break
+            except (FloodWaitError, PeerFloodError):
+                LOG.error("Limitation Telegram : arrêt immédiat du passage ; ne pas insister.")
+                raise
             except Exception as exc:
                 failed_count += 1
                 LOG.exception("Source inaccessible %s : %s", channel_name, exc)

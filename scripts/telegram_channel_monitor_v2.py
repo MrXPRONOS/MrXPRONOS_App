@@ -177,7 +177,7 @@ async def main():
     if now.weekday()==0:await official(client,ch,db,week)
    except errors.FloodWaitError:raise
    except (errors.RPCError,ValueError) as e:print("CHANNEL_SKIPPED",ch.id,type(e).__name__)
-   await asyncio.sleep(2)
+   await asyncio.sleep(4)
   if not rows:raise RuntimeError("No channel collected")
   print("SAVED_CHANNELS",len(rows))
   if not test_mode:
@@ -188,7 +188,7 @@ async def main():
    if test_mode:
     part="🧪 <b>TEST RÉEL V2 — MR XPRONOS</b>\n<i>Déclenchement manuel, distinct du bilan quotidien.</i>\n\n"+part
    sent.append(await client.send_message("me",part,parse_mode="html",link_preview=False))
-   await asyncio.sleep(1)
+   await asyncio.sleep(2)
   if test_mode:
    print("PRIVATE_TEST_SENT",day,len(rows),"messages",len(sent))
   else:
@@ -197,7 +197,7 @@ async def main():
     json={"status":"sent","message_id":sent[-1].id})
    print("PRIVATE_REPORT_SENT",day,len(rows))
  except errors.FloodWaitError as e:
-  cooldown=min(604800,max(60,n(e.seconds) or 60)+120);failure="FloodWaitError"
+  cooldown=min(604800,2*(max(60,n(e.seconds) or 60)+120));failure="FloodWaitError"
   raise RuntimeError("Telegram requested cooldown; no retry") from e
  except Exception as e:
   failure=type(e).__name__;raise

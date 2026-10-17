@@ -203,11 +203,11 @@ def main():
     parser.add_argument("--max-searches", type=int, default=6, choices=range(1, 7))
     parser.add_argument("--max-channels", type=int, default=12, choices=range(1, 13))
     parser.add_argument("--max-posts", type=int, default=20, choices=range(5, 26))
-    parser.add_argument("--pause", type=float, default=5.0)
+    parser.add_argument("--pause", type=float, default=10.0)
     parser.add_argument("--out", default="telegram_research_out")
     args = parser.parse_args()
-    if args.pause < 5.0 or args.pause > 30.0:
-        parser.error("Pause obligatoire de 5 à 30 secondes entre appels")
+    if args.pause < 10.0 or args.pause > 60.0:
+        parser.error("Pause obligatoire de 10 à 60 secondes entre appels")
     # This manual research job shares the SAME session lease as daily monitoring.
     # Never scan when the daily collector is running or a Telegram cooldown is active.
     base = os.getenv("SUPABASE_URL", "").rstrip("/") + "/rest/v1/rpc/"
