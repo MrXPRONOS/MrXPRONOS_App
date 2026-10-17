@@ -33,6 +33,7 @@ class PublicationTests(unittest.TestCase):
 
     def test_due_never_includes_unquoted_or_under_45(self):
         valid=self.prediction(self.now+timedelta(minutes=90),1)
+        valid["prediction"]["odds"]=1.20
         banned=self.prediction(self.now+timedelta(minutes=91),2)
         banned["prediction"]["selection_key"]="UNDER_45"
         unquoted=self.prediction(self.now+timedelta(minutes=92),3)
