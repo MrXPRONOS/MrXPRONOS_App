@@ -200,7 +200,7 @@ async def finish_mirrors(client, state: ReceiptState, mirror_peer, mirror_key: s
         count += 1
         LOG.info("CinéX Désir : affiche publique %s transférée vers Torrent9, id=%s",
                  public_id, forwarded_id)
-        await asyncio.sleep(4)
+        await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
     return count
 
 
@@ -289,7 +289,7 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                     raise RuntimeError("La source complémentaire ne doit pas être une destination.")
                 source_peers.append(second)
                 LOG.info("CinéX Désir : source complémentaire utilisable : %s", extra_name)
-                await asyncio.sleep(4)
+                await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             except (FloodWaitError, PeerFloodError):
                 raise
             except Exception as exc:
@@ -324,7 +324,7 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             peer_id = utils.get_peer_id(source_peer)
             for item in pair_items(messages):
                 candidates.append((source_peer, peer_id, item))
-            await asyncio.sleep(4)
+            await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
         if newest:
             from datetime import datetime, timezone
             def movie_time(record):
@@ -384,20 +384,20 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                         caption=rich_caption(title, private=True), parse_mode="html"
                     )
                     state.stage(key, "poster", image.id)
-                    await asyncio.sleep(4)
+                    await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
                 video = await client.send_file(
                     library, item.video.media,
                     caption=rich_video_title(title), parse_mode="html"
                 )
                 state.stage(key, "video", video.id)
             private_video_id = int(state.data["staged"][key]["video"])
-            await asyncio.sleep(4)
+            await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             video_url = private_message_link(private_id, private_video_id)
             link = (os.getenv("DESIR_PRIVATE_INVITE_LINK") or "").strip()
             public_post = await post_public(bot, client, bot_public, item, title, video_url, link)
             state.complete(key, private_video_id, public_post.id)
             # Only forward the public bot-authored poster/link, NEVER the private video.
-            await asyncio.sleep(4)
+            await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             forwarded_id = None
             if not os.getenv('CINEX_DEFER_MIRROR'):
                 forwarded_id = await forward_public_poster(
@@ -407,7 +407,7 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             completed += 1
             LOG.info("CinéX Désir : film privé=%s, affiche publique=%s, miroir=%s",
                      private_video_id, public_post.id, forwarded_id)
-            await asyncio.sleep(10)
+            await asyncio.sleep(max(20.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             if completed >= limit:
                 break
         # Count films separately from CinéX classique. Publications are after
