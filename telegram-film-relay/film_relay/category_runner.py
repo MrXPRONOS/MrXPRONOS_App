@@ -92,20 +92,39 @@ async def preflight(client, bot, cfg: dict):
     from telethon import utils
     if not await client.is_user_authorized():
         raise RuntimeError("Session personnelle Telegram expirée.")
-    source = await resolve_peer(client, cfg["source"])
+    # Verify all declared sources without joining them. A source may be
+    # temporarily inaccessible: other authorized sources should still work.
+    from telethon.errors import FloodWaitError, PeerFloodError
     private = await resolve_peer(client, cfg["private"])
     public = await resolve_peer(client, cfg["public"])
-    if (str(getattr(source, "username", "") or "").casefold()
-            != cfg["source"].lstrip("@").casefold()):
-        raise RuntimeError("Le canal source résolu ne correspond pas à celui configuré.")
     if (str(getattr(public, "username", "") or "").casefold()
             != cfg["public"].lstrip("@").casefold()):
         raise RuntimeError("Le canal public résolu ne correspond pas à celui configuré.")
-    if getattr(source, "noforwards", False):
-        raise RuntimeError("Le canal source est protégé contre la copie.")
-    ids = [utils.get_peer_id(x) for x in (source, private, public)]
-    if len(set(ids)) != 3:
-        raise RuntimeError("Source, canal public et privé doivent être différents.")
+    forbidden = {utils.get_peer_id(private), utils.get_peer_id(public)}
+    source_peers = []
+    seen_ids = set()
+    for name in cfg["sources"]:
+        try:
+            source = await resolve_peer(client, name)
+            if (str(getattr(source, "username", "") or "").casefold()
+                    != name.lstrip("@").casefold()):
+                raise ValueError("La source résolue ne correspond pas à " + name)
+            if getattr(source, "noforwards", False):
+                LOG.warning("Source %s protégée contre la copie : ignorée.", name)
+                continue
+            key = utils.get_peer_id(source)
+            if key in forbidden:
+                raise ValueError("Une source ne peut pas être une destination.")
+            if key not in seen_ids:
+                source_peers.append(source)
+                seen_ids.add(key)
+            await asyncio.sleep(4)
+        except (FloodWaitError, PeerFloodError):
+            raise
+        except Exception as exc:
+            LOG.warning("Source %s inaccessible : %s", name, exc)
+    if not source_peers:
+        raise RuntimeError("Aucun des canaux sources configurés n'est accessible et non protégé.")
     bot_public = None
     mirror = None
     mirror_key = ""
@@ -126,9 +145,9 @@ async def preflight(client, bot, cfg: dict):
             raise
         check_bot_permission(perms, cfg["public"])
         mirror, mirror_key = await preflight_mirror(
-            client, public, private, source, cfg["mirror"]
+            client, public, private, source_peers[0], cfg["mirror"]
         )
-    return source, private, public, bot_public, mirror, mirror_key
+    return source_peers, private, public, bot_public, mirror, mirror_key
 
 
 async def run(*, category: str, publish: bool = False, limit: int = 1,
@@ -177,31 +196,9 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                     flood_sleep_threshold=0, receive_updates=False,
                 )
                 await bot.start(bot_token=token)
-        source, private, public, bot_public, mirror, mirror_key = await preflight(
+        source_peers, private, public, bot_public, mirror, mirror_key = await preflight(
             client, bot, cfg
         )
-        # Verify each extra source's Telegram identity; no automatic joins.
-        source_peers = [source]
-        for extra_name in cfg["sources"][1:]:
-            try:
-                extra = await resolve_peer(client, extra_name)
-                if (str(getattr(extra, "username", "") or "").casefold()
-                        != extra_name.lstrip("@").casefold()):
-                    raise ValueError("Identifiant source incohérent.")
-                if getattr(extra, "noforwards", False):
-                    LOG.warning("Source %s protégée, ignorée.", extra_name)
-                    continue
-                extra_id = utils.get_peer_id(extra)
-                if extra_id in {
-                    utils.get_peer_id(private), utils.get_peer_id(public), utils.get_peer_id(source)
-                }:
-                    raise RuntimeError("Une source ne peut être une destination.")
-                source_peers.append(extra)
-                await asyncio.sleep(4)
-            except (FloodWaitError, PeerFloodError):
-                raise
-            except Exception as exc:
-                LOG.warning("Source complémentaire %s indisponible : %s", extra_name, exc)
         if publish:
             # Existing public posts missing from Torrent9 take priority; never
             # send a private video again merely because a forward failed.
