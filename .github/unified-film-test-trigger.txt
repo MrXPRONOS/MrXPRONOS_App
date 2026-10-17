@@ -7,3 +7,5 @@ Conservation des reçus et respect des limites Telegram.
 2026-10-17 : troisième exécution de validation ; réparation lecture publicitaire Désir avec session Telegram personnelle.
 
 17 octobre 2026 : validation production 4 catégories, @comexflex + @filmcomplets (Comédie), @orak_dessinanime (Anime), listes GitHub extensibles, 2 films max par catégorie.
+
+17 octobre 2026 — relance après correction des tests de mise en production Comédie + Anime ; 4 catégories, compteurs indépendants.
