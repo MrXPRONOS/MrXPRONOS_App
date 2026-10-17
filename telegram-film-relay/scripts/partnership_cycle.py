@@ -59,6 +59,12 @@ def posts_after_intro(category, state, origin_key, anchor):
         pid = item.get("public_message_id" if category == "films" else "public_id")
         if pid and int(pid) > anchor:
             result.append((int(pid), "film", str(key)))
+    if category == "films" and os.getenv("CINEX_SERIES_CATALOG_ENABLED") == "true":
+        catalog = load(ROOT / "state" / "series_state.json")
+        for key, item in catalog.get("completed", {}).items():
+            pid = item.get("public_id")
+            if str(key).startswith("tv-series:") and pid and int(pid) > anchor:
+                result.append((int(pid), "series", str(key)))
     cursor = state.get("promotions", {}).get(origin_key, {})
     for rotation, pid in cursor.get("sent", {}).items():
         if int(pid) > anchor:
@@ -160,6 +166,11 @@ async def after(category):
             if kind == "film":
                 mirror_state = state.setdefault("mirrors",{}).setdefault(mirror_key,{})
                 mirror_state[key if category=="films" else str(origin_id)] = dest_id
+            if kind == "series":
+                series_path = ROOT / "state" / "series_state.json"
+                series_state = load(series_path)
+                series_state.setdefault("mirrors",{}).setdefault(mirror_key,{})[str(origin_id)] = dest_id
+                save(series_path, series_state)
             save(state_path,state)
         cursor = state.get("promotions",{}).get(source_key,{})
         if cursor:
