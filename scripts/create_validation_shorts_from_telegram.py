@@ -32,6 +32,7 @@ from bsd.bsd_v2_card import render as render_card
 from bsd.bsd_v2_telegram import partner_pack
 from bsd.bsd_v2_telegram_banner import attach_banner
 from bsd.bsd_v2_verify_telegram import verdict
+from shorts_video_fx import LOOP_TAIL_SECONDS, card_zoom, scene_duration, synthesize_soundtrack
 
 UTC=timezone.utc
 W,H=1080,1920
@@ -215,114 +216,179 @@ def make_card_shadow(card_width,card_height,out):
     return pad
 
 
-def overlay_png(index,total,summary,out):
+def overlay_png(index,total,summary,out,total_original=None,losses=0):
     canvas=Image.new("RGBA",(W,H),(0,0,0,0))
     draw=ImageDraw.Draw(canvas)
+    total_original=int(total_original or total)
 
-    # Lightweight brand header outside the validated Telegram card.
+    # Result header, protected from the right-side social UI column.
     if HEADER_LOGO.is_file():
         try:
             logo=Image.open(HEADER_LOGO).convert("RGBA")
-            logo.thumbnail((175,58),Image.Resampling.LANCZOS)
-            canvas.alpha_composite(logo,(48,24))
+            logo.thumbnail((160,54),Image.Resampling.LANCZOS)
+            canvas.alpha_composite(logo,(48,26))
         except Exception:
             pass
     header="RÉSULTATS"
-    hf=_font(27,True)
+    hf=_font(26,True)
     hb=draw.textbbox((0,0),header,font=hf)
-    draw.text((W-48-(hb[2]-hb[0]),36),header,font=hf,fill=(238,244,251,235))
+    safe_right=900
+    draw.text((safe_right-(hb[2]-hb[0]),38),header,font=hf,fill=(244,249,255,245))
 
-    # Readable card position counter, outside the Telegram validation card.
-    counter=f"{index+1:02d} / {total:02d}"
+    # Counter + progress bar.
+    counter=f"{index+1:02d} / {total_original:02d}"
     cf=_font(28,True)
-    draw.text((92,1308),counter,font=cf,fill=(242,247,252,245))
-    progress_ratio=(index+1)/max(total,1)
-    bar_x1,bar_y1,bar_x2,bar_y2=285,1324,988,1334
+    draw.text((92,1303),counter,font=cf,fill=(248,251,255,255))
+    progress_ratio=(index+1)/max(total_original,1)
+    bar_x1,bar_y1,bar_x2,bar_y2=285,1319,900,1329
     draw.rounded_rectangle((bar_x1,bar_y1,bar_x2,bar_y2),radius=5,fill=(255,255,255,48))
     fill_x=bar_x1+int((bar_x2-bar_x1)*progress_ratio)
-    draw.rounded_rectangle((bar_x1,bar_y1,fill_x,bar_y2),radius=5,fill=(76,163,255,235))
+    draw.rounded_rectangle((bar_x1,bar_y1,fill_x,bar_y2),radius=5,fill=(68,205,157,245))
 
-    # Results summary and CTA are both above common social bottom overlays.
-    draw.rounded_rectangle((92,1360,988,1435),radius=28,fill=(13,44,67,232),
-                           outline=(255,255,255,28),width=2)
-    sf=_font(30,True)
-    sw=draw.textbbox((0,0),summary,font=sf)[2]
-    draw.text(((W-sw)/2,1380),summary,font=sf,fill=(255,255,255,255))
+    # Progressive validation score: it evolves card after card.
+    current=index+1
+    is_last=index==total-1
+    if is_last:
+        score_text=summary
+    else:
+        suffix="VALIDÉ" if current==1 else "VALIDÉS"
+        score_text=f"{current}/{total_original} {suffix}"
 
-    draw.rounded_rectangle((92,1460,988,1588),radius=34,fill=(5,18,31,232),
-                           outline=(255,255,255,34),width=2)
-    title="REJOINS-NOUS SUR TELEGRAM"
-    sub="Plus de pronostics sur @mr_xpronos"
-    tf=_font(32,True); subf=_font(24,False)
-    tw=draw.textbbox((0,0),title,font=tf)[2]
-    suw=draw.textbbox((0,0),sub,font=subf)[2]
-    draw.text(((W-tw)/2,1488),title,font=tf,fill=(255,255,255,255))
-    draw.text(((W-suw)/2,1538),sub,font=subf,fill=(188,210,225,255))
+    draw.rounded_rectangle((92,1350,900,1428),radius=26,fill=(7,44,42,205),
+                           outline=(84,220,171,80),width=2)
+    sf=_font(29,True)
+    sw=draw.textbbox((0,0),score_text,font=sf)[2]
+    draw.text((92+(808-sw)/2,1372),score_text,font=sf,fill=(241,255,250,255))
 
-    y=1660
-    gap=24; radius=8
-    total_width=total*radius*2+(total-1)*gap
-    x=(W-total_width)/2
-    for i in range(total):
-        fill=(255,255,255,255) if i==index else (255,255,255,85)
-        draw.ellipse((x,y,x+radius*2,y+radius*2),fill=fill)
-        x+=radius*2+gap
+    # Minimal Telegram CTA, no large heavy block.
+    draw.line((92,1465,900,1465),fill=(255,255,255,38),width=2)
+    icon_x,icon_y,icon_r=92,1496,25
+    draw.ellipse((icon_x,icon_y,icon_x+icon_r*2,icon_y+icon_r*2),fill=(48,163,255,230))
+    draw.polygon(
+        [(icon_x+13,icon_y+24),(icon_x+39,icon_y+13),(icon_x+29,icon_y+38)],
+        fill=(255,255,255,255)
+    )
+    draw.text((158,1487),"PLUS DE PRONOSTICS",font=_font(22,False),
+              fill=(193,210,226,245))
+    draw.text((158,1518),"@mr_xpronos",font=_font(31,True),
+              fill=(247,251,255,255))
+
     canvas.save(out)
 
 
-def build_video(cards,output,work_dir,summary):
+def _card_position(t,duration,width,height,y):
+    zoom=card_zoom(t,duration)
+    x=_x(t,duration,width)-int((width*zoom-width)/2)
+    yy=y-int((height*zoom-height)/2)
+    return x,yy
+
+
+def _shadow_position(t,duration,card_width,card_height,pad,y):
+    zoom=card_zoom(t,duration)
+    sw=card_width+2*pad
+    sh=card_height+2*pad
+    x=_x(t,duration,card_width)-pad-int((sw*zoom-sw)/2)
+    yy=y-pad-int((sh*zoom-sh)/2)
+    return x,yy
+
+
+def _animated_result_background(ImageClip,ColorClip,CompositeVideoClip,duration):
+    """Premium background with slow parallax and a subtle result-green wash."""
+    bg_w=1120
+    bg_h=int(round(H*bg_w/W))
+    moving=(ImageClip(str(VIDEO_BACKGROUND)).resize(newsize=(bg_w,bg_h)).set_duration(duration)
+            .set_position(lambda t:(
+                int((W-bg_w)/2+8*math.sin((t+0.7)*0.55)),
+                int((H-bg_h)/2+6*math.cos((t+0.7)*0.42)),
+            )))
+    tint=(ColorClip((W,H),color=(5,54,43)).set_opacity(0.10).set_duration(duration))
+    return CompositeVideoClip([moving,tint],size=(W,H)).set_duration(duration)
+
+
+def build_video(cards,output,work_dir,summary,total_original=None,losses=0):
     if not hasattr(Image,"ANTIALIAS"):
         Image.ANTIALIAS=Image.Resampling.LANCZOS
 
-    from moviepy.editor import CompositeVideoClip,ImageClip,concatenate_videoclips
+    from moviepy.editor import AudioFileClip,ColorClip,CompositeVideoClip,ImageClip,concatenate_videoclips
 
     if not cards:
         raise RuntimeError("Aucun coupon gagnant validé à monter")
+    if not VIDEO_BACKGROUND.is_file():
+        raise RuntimeError(f"Fond vidéo introuvable: {VIDEO_BACKGROUND}")
+
     total=len(cards)
-    per_card=3.0 if total<=2 else 2.6
+    total_original=int(total_original or total)
+    durations=[scene_duration(total,idx) for idx in range(total)]
     scenes=[]
+    last_overlay=None
+
     for idx,path in enumerate(cards):
+        duration=durations[idx]
         with Image.open(path) as opened:
             sw,sh=opened.size
         cw,ch=fit_card_size(sw,sh,max_w=TARGET_WIDTH,max_h=1185)
         if COUPON_Y+ch>=1335:
             raise RuntimeError("Carte de validation trop haute pour la zone sûre")
+
         overlay=work_dir/f"overlay_{idx+1:02d}.png"
-        overlay_png(idx,total,summary,overlay)
+        overlay_png(idx,total,summary,overlay,total_original=total_original,losses=losses)
+        last_overlay=overlay
         shadow_path=work_dir/f"shadow_{idx+1:02d}.png"
         shadow_pad=make_card_shadow(cw,ch,shadow_path)
-        if not VIDEO_BACKGROUND.is_file():
-            raise RuntimeError(f"Fond vidéo introuvable: {VIDEO_BACKGROUND}")
-        bg=(ImageClip(str(VIDEO_BACKGROUND)).resize(newsize=(W,H)).set_duration(per_card))
-        shadow=(ImageClip(str(shadow_path),transparent=True).set_duration(per_card)
-                .set_position(lambda t,d=per_card,w=cw,p=shadow_pad:(_x(t,d,w)-p,COUPON_Y-p)))
-        card=(ImageClip(str(path)).resize(width=cw).set_duration(per_card)
-              .set_position(lambda t,d=per_card,w=cw:(_x(t,d,w),COUPON_Y)))
+
+        bg=_animated_result_background(ImageClip,ColorClip,CompositeVideoClip,duration)
+        shadow=(ImageClip(str(shadow_path),transparent=True)
+                .resize(lambda t,d=duration:card_zoom(t,d))
+                .set_duration(duration)
+                .set_position(lambda t,d=duration,w=cw,h=ch,p=shadow_pad:
+                              _shadow_position(t,d,w,h,p,COUPON_Y)))
+        card=(ImageClip(str(path)).resize(width=cw)
+              .resize(lambda t,d=duration:card_zoom(t,d))
+              .set_duration(duration)
+              .set_position(lambda t,d=duration,w=cw,h=ch:
+                            _card_position(t,d,w,h,COUPON_Y)))
+
         next_preview=None
         if idx+1<total:
             next_path=cards[idx+1]
             with Image.open(next_path) as next_opened:
-                nw,nh=fit_card_size(next_opened.width,next_opened.height,max_w=TARGET_WIDTH,max_h=1185)
+                nw,_=fit_card_size(next_opened.width,next_opened.height,
+                                   max_w=TARGET_WIDTH,max_h=1185)
             preview_w=int(round(nw*0.94))
-            next_preview=(ImageClip(str(next_path)).resize(width=preview_w).set_opacity(0.58)
-                          .set_duration(per_card).set_position((W-68,COUPON_Y+42)))
+            next_preview=(ImageClip(str(next_path)).resize(width=preview_w).set_opacity(0.50)
+                          .set_duration(duration).set_position((W-62,COUPON_Y+44)))
 
-        ov=ImageClip(str(overlay),transparent=True).set_duration(per_card)
+        ov=ImageClip(str(overlay),transparent=True).set_duration(duration)
         layers=[bg,shadow,card]
         if next_preview is not None:
             layers.append(next_preview)
         layers.append(ov)
-        scenes.append(CompositeVideoClip(layers,size=(W,H)).set_duration(per_card))
+        scenes.append(CompositeVideoClip(layers,size=(W,H)).set_duration(duration))
+
+    # Short background tail: final score remains visible, then replay starts smoothly.
+    tail_bg=_animated_result_background(ImageClip,ColorClip,CompositeVideoClip,LOOP_TAIL_SECONDS)
+    tail_ov=ImageClip(str(last_overlay),transparent=True).set_duration(LOOP_TAIL_SECONDS)
+    scenes.append(CompositeVideoClip([tail_bg,tail_ov],size=(W,H)).set_duration(LOOP_TAIL_SECONDS))
+
     final=concatenate_videoclips(scenes,method="compose")
+
+    soundtrack=work_dir/"soundtrack.wav"
+    synthesize_soundtrack(durations,soundtrack,results=True)
+    audio=AudioFileClip(str(soundtrack)).set_duration(final.duration)
+    final=final.set_audio(audio)
+
     output.parent.mkdir(parents=True,exist_ok=True)
     final.write_videofile(
-        str(output),fps=30,codec="libx264",audio=False,preset="medium",
+        str(output),fps=30,codec="libx264",audio_codec="aac",preset="medium",
         bitrate="5000k",threads=4,
         ffmpeg_params=["-pix_fmt","yuv420p","-movflags","+faststart"],
         verbose=False,logger="bar",
     )
-    try: final.close()
-    except Exception: pass
+    try:
+        audio.close()
+        final.close()
+    except Exception:
+        pass
 
 
 def make_scenario(name,wins,losses,work_root,now):
@@ -350,7 +416,7 @@ def make_scenario(name,wins,losses,work_root,now):
     scenario_dir=work_root/name
     cards,pack=render_exact_validated_cards(scenario_matches,scenario_dir/"cards",now)
     output=work_root/f"validation_{name}.mp4"
-    build_video(cards,output,scenario_dir,summary)
+    build_video(cards,output,scenario_dir,summary,total_original=total,losses=lost)
     return {
         "scenario":name,
         "output":str(output),
