@@ -77,7 +77,7 @@ def due(matches,now,min_minutes=60,max_minutes=120):
         delta=(dt-now).total_seconds()/60
         if m.get("recommendation_eligible") is not True:continue
         picks=[m.get("prediction") or {},*((m.get("predictions") or [])[1:2])]
-        valid_price=any(p.get("recommendation_eligible") is True and valid_standalone_prediction(p,False)
+        valid_price=any(p.get("recommendation_eligible") is True and valid_standalone_prediction(p,False) and p.get("odds",0)>1.50
                         for p in picks if isinstance(p,dict))
         if (min_minutes<=delta<max_minutes and valid_price
                 ):
@@ -102,7 +102,7 @@ def expand_tickets(match):
         odds=p.get("odds")
         if (match.get("recommendation_eligible") is not True or
                 p.get("recommendation_eligible") is not True or
-                not valid_standalone_prediction(p,False)):
+                not valid_standalone_prediction(p,False) or p["odds"]<=1.50):
             continue
         variant={**match,"prediction":p}
         if idx:
