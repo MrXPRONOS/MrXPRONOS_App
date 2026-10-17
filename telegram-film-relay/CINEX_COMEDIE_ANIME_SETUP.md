@@ -1,6 +1,38 @@
-# CinéX Comédie et CinéX Anime — préparation des tests
+# CinéX Comédie et CinéX Anime — installation et sources
 
-Ces deux nouveaux projets ont des workflows séparés et uniquement manuels. Ils ne sont pas encore intégrés au workflow automatique CinéX classique + Désir.
+## Mise en production du 17 octobre 2026
+
+Comédie et Anime sont maintenant ajoutés **au même workflow GitHub programmé toutes les 2 heures** que CinéX Classique, Désir et Découverte :
+`.github/workflows/telegram-film-relay.yml`.
+
+Ordre : découverte → 2 films classiques + pub selon compteur → 2 Désir + pub → 2 Comédie + pub → 2 Anime + pub → sauvegarde des cinq historiques.
+
+**Sources déjà configurées en valeurs par défaut :**
+- Comédie : `@comexflex`, `@filmcomplets`.
+- Anime : `@orak_dessinanime`.
+
+Le compte Telegram ne rejoint pas automatiquement les sources et ne copie pas les publications protégées contre le transfert. Les cinq catégories/états indépendants (classique, Désir, Comédie, Anime, Découverte) restent protégés contre les doublons.
+
+**Ajouter à l'avenir des sources sans modifier GitHub :**
+
+| Catégorie | Variable GitHub Actions pour une liste de @canaux |
+|---|---|
+| CinéX classique — films | `CINEX_SOURCE_CHANNELS` ou `FILM_SOURCE_CHANNELS` |
+| CinéX classique — séries | `SERIES_SOURCE_CHANNELS` (même relais classique, pas de canal public Série autonome) |
+| CinéX Désir | `DESIR_SOURCE_CHANNELS` |
+| CinéX Comédie | `COMEDIE_SOURCE_CHANNELS` |
+| CinéX Anime | `ANIME_SOURCE_CHANNELS` |
+
+Les variables historiques singulières `COMEDIE_SOURCE_CHANNEL`, `ANIME_SOURCE_CHANNEL`, `DESIR_SOURCE_CHANNEL` et `DESIR_EXTRA_SOURCE_CHANNEL` restent prises en charge. On peut utiliser les deux formes ensemble ; les doublons sont supprimés automatiquement.
+
+Format des variables de liste : `@canal_un,@canal_deux,@canal_trois` (virgules, espaces, points-virgules, retours à la ligne ou tableau JSON acceptés). **Maximum 12 sources par groupe**, avec des pauses de sécurité entre les canaux.
+
+Les variables de destination **`COMEDIE_PUBLIC_CHANNEL`, `COMEDIE_PRIVATE_CHANNEL`, `ANIME_PUBLIC_CHANNEL` et `ANIME_PRIVATE_CHANNEL` restent indispensables**. Le programme refuse de publier si un identifiant est manquant ou incorrect. Le même bot existant est réutilisé.
+
+Les workflows séparés de test manuel restent disponibles pour un essai ciblé ou une simulation, avec le même verrou Telegram. Ils ne lancent pas de travail automatiquement.
+
+
+Les deux projets possèdent également des workflows de test manuel, mais ils sont désormais intégrés au workflow automatique unifié.
 
 ## Canaux à créer
 
@@ -54,7 +86,7 @@ Settings → Secrets and variables → Actions → Variables
 | ANIME_PUBLIC_CHANNEL | @identifiant réel du nouveau canal public Anime |
 | ANIME_PRIVATE_CHANNEL | ID numérique -100... de la vidéothèque Anime |
 
-Ces identifiants ne sont pas encore fournis ; le système les exige avant de contacter Telegram.
+Les sources indiquées par l'utilisateur sont préconfigurées dans le code ; les identifiants de destinations proviennent des variables GitHub existantes et sont contrôlés avant de contacter Telegram.
 
 Variables facultatives :
 - COMEDIE_MIRROR_CHANNEL et ANIME_MIRROR_CHANNEL : non nécessaires, la destination par défaut est @Torrent9SeriesFilms.
