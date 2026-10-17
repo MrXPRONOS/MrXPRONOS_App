@@ -47,6 +47,21 @@ class AnimeCatalogTests(unittest.TestCase):
         self.assertEqual({r["series"] for r in found}, {"naruto"})
         self.assertEqual({r["episode"] for r in found}, {1, 2, 3})
 
+    def test_actual_no_longer_rangers_s02_was_not_saison_1(self):
+        # Regression observed in the real CineX anime catalog (6 episodes).
+        rows = [poster(13260, "@Mangas fv No Longer Rangers S02 mp4")]
+        rows.extend(video(13261 + n, f"Episode_{n+1:02d}.mp4") for n in range(6))
+        found = classify(rows, -1001595907308)
+        self.assertEqual(len(found), 6)
+        self.assertEqual({row["series"] for row in found}, {"no-longer-rangers"})
+        self.assertEqual({row["season"] for row in found}, {2})
+        self.assertEqual({row["episode"] for row in found}, set(range(1, 7)))
+
+    def test_explicit_video_saison_overrides_poster(self):
+        rows = [poster(1, "Demo S02"), video(2, "Demo.S01E03.mp4")]
+        found = classify(rows, -100123)
+        self.assertEqual([(r["season"], r["episode"]) for r in found], [(1, 3)])
+
     def test_unnumbered_file_is_skipped(self):
         found = classify([poster(10, "Bleach"), video(11, "video.mp4")], -100123)
         self.assertEqual(found, [])
