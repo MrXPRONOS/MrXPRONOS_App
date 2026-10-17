@@ -81,6 +81,22 @@ jobs:
               print(f"Publicité PNG vérifiée : {original.name}, {len(original.getvalue())} octets")
           PY
 
+      - name: "1 - Affiche de partenariat sur tous les canaux avant les films"
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
+        continue-on-error: true
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          CINEX_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+          TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
+          DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
+          COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
+          ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
+          TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
+        run: python scripts/publish_partnership_intro.py
+
       # Discover channel suggestions; they are sent ONLY to personal Saved Messages.
       # Nothing found by discovery is ever auto-added to film relay sources.
       - name: 1 - Decouverte de canaux et Messages enregistres
