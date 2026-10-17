@@ -11,6 +11,9 @@ on:
       - 'telegram-film-relay/film_relay/desir_runner.py'
       - 'telegram-film-relay/film_relay/category_runner.py'
       - 'telegram-film-relay/film_relay/anime_catalog.py'
+      - 'telegram-film-relay/film_relay/series_catalog.py'
+      - 'telegram-film-relay/film_relay/series_matching.py'
+      - 'telegram-film-relay/tests/test_series_catalog.py'
       - 'telegram-film-relay/tests/test_anime_catalog.py'
       - 'telegram-film-relay/tests/test_desir.py'
       - 'telegram-film-relay/tests/test_category_relays.py'
@@ -32,6 +35,9 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install pyyaml requests -r telegram-film-relay/requirements.txt
+      - name: Tester les nouvelles séries TV hors réseau
+        working-directory: telegram-film-relay
+        run: python -m unittest discover -s tests -p 'test_series_catalog.py' -v
       - name: Tester le nouveau catalogue animé hors réseau
         working-directory: telegram-film-relay
         run: python -m unittest discover -s tests -p 'test_anime_catalog.py' -v
