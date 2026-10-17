@@ -534,6 +534,37 @@ class FootballChannelTests(unittest.TestCase):
         self.assertIn("Match du jour", post.text)
         self.assertIn("Arsenal", post.text)
 
+    def test_programme_becomes_exact_daily_follow_plan(self):
+        row = event("plan-1", NOW + timedelta(hours=4))
+        post = m.programme([row], NOW.date(), as_of=NOW)
+        self.assertIsNotNone(post)
+        count = self.history.set_programme_plan(post, NOW)
+        self.assertEqual(count, 1)
+        planned = self.history.plan_for_event(row, NOW)
+        self.assertIsNotNone(planned)
+        self.assertEqual(planned["rank"], 1)
+        self.assertEqual(planned["role"], "match_du_jour")
+
+    def test_programme_caps_follow_plan_at_four_matches(self):
+        rows = []
+        names = [
+            ("Real Madrid", "Getafe"),
+            ("Barcelona", "Sevilla"),
+            ("Liverpool", "Everton"),
+            ("Arsenal", "West Ham"),
+            ("Bayern Munich", "Mainz"),
+        ]
+        for index, (home, away) in enumerate(names):
+            row = event("p" + str(index), NOW + timedelta(hours=3, minutes=index))
+            row["home_team"]["name"] = home
+            row["away_team"]["name"] = away
+            row["league_name"] = "Premier League" if index in (2, 3) else "Football"
+            rows.append(row)
+        post = m.programme(rows, NOW.date(), as_of=NOW)
+        self.assertIsNotNone(post)
+        self.assertEqual(len(post.card["matches"]), 4)
+        self.assertEqual(len(post.verification["fixtures"]), 4)
+
     def test_programme_does_not_fill_with_unknown_matches(self):
         row = event("small", NOW + timedelta(hours=4))
         row["home_team"]["name"] = "Ilves"
