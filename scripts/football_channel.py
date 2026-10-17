@@ -65,7 +65,7 @@ RSS_URL = os.getenv("FOOTBALL_RSS_FEED", "https://www.footmercato.net/flux-rss")
 NEWS_CHAT_ENV = "FOOTBALL_NEWS_CHAT_ID"
 MAX_MESSAGES_PER_RUN = 8
 LIMITS = {
-    "flash": 3, "programme": 1, "avant_match": 2, "resultat": 12,
+    "flash": 3, "programme": 1, "avant_match": 4, "resultat": 12,
     "statistique": 1, "sondage": 1, "quiz": 1, "debat": 1,
     "reaction": 1, "viral": 1, "composition": 12, "changement_composition": 12,
     "kickoff": 12, "goal": 48, "mi_temps": 12, "mi_temps_prolongation": 12,
@@ -436,6 +436,16 @@ def importance(event: dict) -> int:
     # vraie grande affiche impliquant un club majeur.
     points += high_stakes_bonus(event)
 
+    plan_role = str(event.get("plan_role") or "")
+    try:
+        plan_rank = int(event.get("plan_rank") or 99)
+    except (TypeError, ValueError):
+        plan_rank = 99
+    if plan_role == "match_du_jour":
+        points += 220
+    elif plan_rank <= 4:
+        points += max(20, 100 - (plan_rank - 1) * 20)
+
     elite_count = sum(1 for term in ELITE_TEAM_TERMS if term in combined)
     if elite_count >= 2:
         points += 24
@@ -650,14 +660,18 @@ class History:
         self.path = path
         self.items: dict[str, dict[str, str]] = {}
         self.followed: dict[str, dict] = {}
+        self.plan: dict[str, dict] = {}
         self.observations: dict[str, str] = {}
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
             entries = payload.get("sent", {}) if isinstance(payload, dict) else {}
             tracked = payload.get("followed", {}) if isinstance(payload, dict) else {}
+            planned = payload.get("plan", {}) if isinstance(payload, dict) else {}
             observations = payload.get("observations", {}) if isinstance(payload, dict) else {}
             if isinstance(observations, dict):
                 self.observations = {str(k): str(v) for k, v in observations.items() if v}
+            if isinstance(planned, dict):
+                self.plan = {str(k): v for k, v in planned.items() if isinstance(v, dict)}
             if isinstance(tracked, dict):
                 self.followed = {str(k): v for k, v in tracked.items() if isinstance(v, dict)}
             if isinstance(entries, dict):
@@ -697,6 +711,65 @@ class History:
     def clear_observation(self, key: str) -> None:
         self.observations.pop(key, None)
 
+    def set_programme_plan(self, item: "Publication", now: datetime, *, source: str = "programme") -> int:
+        verification = item.verification if isinstance(item.verification, dict) else {}
+        fixtures = verification.get("fixtures") if isinstance(verification.get("fixtures"), list) else []
+        if not fixtures:
+            return 0
+        local_day = now.astimezone(TZ).date().isoformat()
+        new_plan: dict[str, dict] = {}
+        card_rows = item.card.get("matches") if isinstance(item.card, dict) and isinstance(item.card.get("matches"), list) else []
+        for index, fixture in enumerate(fixtures[:4]):
+            if not isinstance(fixture, dict):
+                continue
+            event = {
+                "home_team": fixture.get("home"),
+                "away_team": fixture.get("away"),
+                "event_date": fixture.get("event_date"),
+            }
+            ref = followup.key(event)
+            if not ref:
+                continue
+            card_row = card_rows[index] if index < len(card_rows) and isinstance(card_rows[index], dict) else {}
+            new_plan[ref] = {
+                "home_team": str(fixture.get("home") or ""),
+                "away_team": str(fixture.get("away") or ""),
+                "event_date": str(fixture.get("event_date") or ""),
+                "day": local_day,
+                "rank": index + 1,
+                "role": str(card_row.get("role") or ("match_du_jour" if index == 0 else "grande_affiche")),
+                "source": source,
+                "planned_at": now.astimezone(timezone.utc).isoformat(),
+            }
+        if new_plan:
+            # Une seule sélection cohérente par journée : le nouveau programme
+            # remplace uniquement le plan du même jour, pas celui du lendemain.
+            self.plan = {
+                key: value for key, value in self.plan.items()
+                if not isinstance(value, dict) or value.get("day") != local_day
+            }
+            self.plan.update(new_plan)
+        return len(new_plan)
+
+    def plan_for_event(self, event: dict, now: datetime) -> dict | None:
+        local_day = now.astimezone(TZ).date().isoformat()
+        ranked = sorted(
+            (
+                value for value in self.plan.values()
+                if isinstance(value, dict) and value.get("day") == local_day
+            ),
+            key=lambda value: int(value.get("rank") or 99),
+        )
+        for value in ranked:
+            if followup.same_fixture(event, value):
+                return value
+        return None
+
+    def has_plan_for_day(self, day: date) -> bool:
+        wanted = day.isoformat()
+        return any(isinstance(value, dict) and value.get("day") == wanted for value in self.plan.values())
+
+
     def save(self, now: datetime) -> None:
         since = now - timedelta(days=32)
         compact = {k: v for k, v in self.items.items()
@@ -709,8 +782,17 @@ class History:
                     k: v for k, v in self.observations.items()
                     if (moment(v) or now) >= now - timedelta(hours=8)
                 }
-                json.dump({"version": 3, "sent": compact,
+                active_plan = {}
+                for key, value in self.plan.items():
+                    if not isinstance(value, dict):
+                        continue
+                    start = moment(value.get("event_date"))
+                    if start is None or start < now - timedelta(hours=12) or start > now + timedelta(days=2):
+                        continue
+                    active_plan[key] = value
+                json.dump({"version": 4, "sent": compact,
                        "followed": followup.active(self.followed, now),
+                       "plan": active_plan,
                        "observations": observations},
                       handle, ensure_ascii=False, indent=2)
             os.replace(tmp, self.path)
@@ -1761,7 +1843,7 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
     for event in future[:14]:
         if has_two_team_logos(event, allow_remote=True):
             chosen.append(event)
-        if len(chosen) >= 5:
+        if len(chosen) >= 4:
             break
     if not chosen:
         return None
@@ -2690,6 +2772,10 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
                     state.save(now)
                 print("SCORE_UPDATE_EN_ATTENTE", item.key)
                 return False
+        if ref and not followup.publication_allowed(state.followed, ref, item.category):
+            counter["skipped"] += 1
+            print("FOLLOWUP_SEQUENCE_BLOCKED", ref, item.category)
+            return False
         if not espn_preflight(sender, item, dry_run=dry_run):
             counter["skipped"] += 1
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
@@ -2724,6 +2810,8 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
                         "goal_score_guard",
                         now,
                     )
+            if ref:
+                followup.mark_publication(state.followed, ref, item.category, now)
             if item.category in {"composition", "changement_composition"} and ref in state.followed and item.card:
                 lineups = item.card.get("lineups") if isinstance(item.card.get("lineups"), dict) else {}
                 state.followed[ref]["lineup_home_hash"] = str(item.card.get("lineup_home_hash") or "")
@@ -2938,6 +3026,18 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         if follow_event is not None and not existing_ref and not followup.selection_allowed(state.followed, now):
             return False
 
+        coverage_ref = ref or existing_ref or ""
+        if coverage_ref and not followup.publication_allowed(state.followed, coverage_ref, item.category):
+            counter["skipped"] += 1
+            print("FOLLOWUP_SEQUENCE_BLOCKED", coverage_ref, item.category)
+            return False
+        if item.category == "avant_match" and follow_event is not None:
+            plan = state.plan_for_event(follow_event, now)
+            if plan is None:
+                counter["skipped"] += 1
+                print("FOLLOWUP_NOT_IN_DAILY_PLAN", item.key)
+                return False
+
         if not espn_preflight(sender, item, dry_run=dry_run):
             counter["skipped"] += 1
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
@@ -2973,11 +3073,20 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                         "goal_score_guard",
                         now,
                     )
+            if item.category == "programme":
+                planned_count = state.set_programme_plan(item, now)
+                print("DAILY_FOLLOW_PLAN_SAVED", planned_count)
             if follow_event is not None and not existing_ref:
                 ref_added = followup.follow(state.followed, follow_event, now)
+                followup.apply_plan_metadata(state.followed, ref_added, state.plan_for_event(follow_event, now))
+                followup.mark_publication(state.followed, ref_added, item.category, now)
                 print("FOLLOWUP_SELECTED", ref_added)
             elif follow_event is not None and existing_ref:
                 followup.lock(state.followed, existing_ref, now, reason="avant_match")
+                followup.apply_plan_metadata(state.followed, existing_ref, state.plan_for_event(follow_event, now))
+                followup.mark_publication(state.followed, existing_ref, item.category, now)
+            if ref:
+                followup.mark_publication(state.followed, ref, item.category, now)
             if item.category in {"composition", "changement_composition"} and ref in state.followed and item.card:
                 lineups = item.card.get("lineups") if isinstance(item.card.get("lineups"), dict) else {}
                 state.followed[ref]["lineup_home_hash"] = str(item.card.get("lineup_home_hash") or "")
