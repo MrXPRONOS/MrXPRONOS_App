@@ -193,11 +193,11 @@ def notification_text(channel: dict) -> str:
         raise ValueError("Nom de canal Telegram invalide.")
     count = max(0, int(channel.get("matching_pairs", 0)))
     return (
-        "🎬 <b>Canal de films repéré</b>\\n"
-        f"📺 <b>{title}</b>\\n"
-        f"🔗 https://t.me/{username}\\n"
-        f"🎞️ {count} couples affiche/vidéo détectés dans l'échantillon\\n"
-        "🔎 Proposition uniquement — non ajoutée aux sources du relais.\\n"
+        "🎬 <b>Canal de films repéré</b>\n"
+        f"📺 <b>{title}</b>\n"
+        f"🔗 https://t.me/{username}\n"
+        f"🎞️ {count} couples affiche/vidéo détectés dans l'échantillon\n"
+        "🔎 Proposition uniquement — non ajoutée aux sources du relais.\n"
         "⚠️ Droits de redistribution non vérifiés."
     )
 
