@@ -67,7 +67,7 @@ def load_config(path: str) -> dict:
     cfg = json.loads(Path(path).read_text(encoding="utf-8"))
     cfg["search_queries"] = [str(x).strip() for x in cfg.get("search_queries", []) if str(x).strip()][:8]
     cfg["seed_channels"] = [x for x in cfg.get("seed_channels", []) if normalize_username(x)][:50]
-    cfg["max_channels_per_run"] = min(30, max(1, int(cfg.get("max_channels_per_run", 16))))
+    cfg["max_channels_per_run"] = min(16, max(1, int(cfg.get("max_channels_per_run", 16))))
     cfg["sample_messages"] = min(150, max(10, int(cfg.get("sample_messages", 80))))
     cfg["results_per_query"] = min(20, max(1, int(cfg.get("results_per_query", 10))))
     cfg["request_pause_seconds"] = max(4.0, 2 * float(cfg.get("request_pause_seconds", 3.0)))
@@ -199,7 +199,7 @@ def notification_text(channel: dict, index: int = 1) -> str:
     username = normalize_username(channel.get("username", ""))
     if not username:
         raise ValueError("Nom de canal Telegram invalide.")
-    title = escape(str(channel.get("title") or username).strip()[:75])
+    title = escape(str(channel.get("title") or username).strip()[:55])
     count = max(0, int(channel.get("matching_pairs", 0)))
     url = "https://t.me/" + username
     nl = chr(10)
