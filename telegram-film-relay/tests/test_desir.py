@@ -111,6 +111,17 @@ class DesirTests(unittest.TestCase):
         )
         self.assertEqual(result["mirrors"]["-1001"], {"11": 99, "12": 100})
 
+    def test_same_movie_from_two_sources_counts_once_for_ads(self):
+        from film_relay.promotions import due
+        with TemporaryDirectory() as folder:
+            state = ReceiptState(str(Path(folder)/"desir.json"))
+            state.complete("filmromatique:55", 7, 21)
+            # The very same public post was recovered from the other source.
+            state.complete("g_romanticfilm:99", 7, 21)
+            bridge = DesirPromotionsState(state)
+            self.assertEqual(len(bridge.data["processed"]), 1)
+            self.assertIsNone(due(bridge, "-100public", len(bridge.data["processed"])))
+
     def test_two_desir_films_trigger_one_ad_rotation(self):
         from film_relay.promotions import due, _cursor
         with TemporaryDirectory() as folder:

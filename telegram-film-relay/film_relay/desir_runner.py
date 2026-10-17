@@ -60,7 +60,13 @@ class DesirPromotionsState:
     def __init__(self, receipt_state: ReceiptState):
         self.receipt_state = receipt_state
         self.data = {
-            "processed": receipt_state.data["completed"],
+            # Two different source channels may contain the SAME Telegram
+            # movie. Count each distinct public post once for advertising.
+            "processed": {
+                str(entry["public_id"]): entry
+                for entry in receipt_state.data["completed"].values()
+                if entry.get("public_id")
+            },
             "mirrors": receipt_state.data["mirrors"],
             "promotions": receipt_state.data["promotions"],
         }

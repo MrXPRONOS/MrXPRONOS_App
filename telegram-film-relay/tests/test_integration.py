@@ -196,8 +196,8 @@ class RelayEndToEndTests(unittest.TestCase):
             self.assertEqual(self.start(client, cfg, state), 0)
             ads = [x for x in client.sent if x.media == "mrx_actu.png"]
             self.assertEqual([x.channel for x in ads], [PUB, PRIV])
-            self.assertTrue(all(len(x.caption.splitlines()) == 3 for x in ads))
-            self.assertTrue(all(len(x.caption.splitlines()) == 3 for x in ads))
+            self.assertTrue(all(len(x.caption.splitlines()) == 4 for x in ads))
+            self.assertTrue(all(len(x.caption.splitlines()) == 4 for x in ads))
             self.assertTrue(all(x.options["buttons"][0][0][1] ==
                                 "https://t.me/actufoot_mrxp" for x in ads))
             forwarded = [x for x in client.forwarded if x.origin_id == ads[0].id]
