@@ -124,8 +124,16 @@ def classify(messages, source_id: int):
         raw = str(getattr(msg, "raw_text", "") or "")
         filename = filename_of(msg)
         numbers = episode_numbers(raw) or episode_numbers(filename)
-        if numbers and not EXPLICIT_EP_SEASON.search(raw + " " + filename):
-            numbers = (current_season, numbers[1])
+        if numbers:
+            # Priorité : saison explicite dans la vidéo, puis en-tête S02/
+            # Saison 2 de la source. Ne JAMAIS supposer S1 si S02 est annoncé.
+            explicit = SEASON_HEADER.search(raw) or SEASON_HEADER.search(filename)
+            x_format = re.search(r"(?i)\\b\\d{1,2}\\s*[xX]\\s*\\d{1,3}\\b",
+                                 raw + " " + filename)
+            season = int(explicit.group(1)) if explicit else (
+                numbers[0] if x_format else current_season
+            )
+            numbers = (season, numbers[1])
         if not numbers:
             continue
         context = str(getattr(latest_poster, "raw_text", "") or "")
