@@ -565,6 +565,28 @@ class FootballChannelTests(unittest.TestCase):
         self.assertEqual(len(post.card["matches"]), 4)
         self.assertEqual(len(post.verification["fixtures"]), 4)
 
+    def test_prune_removes_only_unopened_unplanned_tracks(self):
+        planned_event = event("planned", NOW + timedelta(hours=3))
+        post = m.programme([planned_event], NOW.date(), as_of=NOW)
+        self.assertIsNotNone(post)
+        self.history.set_programme_plan(post, NOW)
+
+        legacy = event("legacy", NOW + timedelta(hours=2))
+        legacy["home_team"]["name"] = "Everton"
+        legacy["away_team"]["name"] = "Chelsea"
+        legacy_ref = m.followup.track(self.history.followed, legacy, NOW, reason="legacy")
+
+        opened = event("opened", NOW + timedelta(hours=2))
+        opened["home_team"]["name"] = "PSG"
+        opened["away_team"]["name"] = "Marseille"
+        opened_ref = m.followup.track(self.history.followed, opened, NOW, reason="legacy")
+        m.followup.mark_publication(self.history.followed, opened_ref, "avant_match", NOW)
+
+        removed = self.history.prune_unopened_unplanned(NOW)
+        self.assertEqual(removed, 1)
+        self.assertNotIn(legacy_ref, self.history.followed)
+        self.assertIn(opened_ref, self.history.followed)
+
     def test_programme_does_not_fill_with_unknown_matches(self):
         row = event("small", NOW + timedelta(hours=4))
         row["home_team"]["name"] = "Ilves"
