@@ -14,6 +14,13 @@ from typing import Any
 
 MAX_FOLLOWED = 4
 MAX_AFTER_KICKOFF = timedelta(hours=10)
+
+LIVE_AFTER_KICKOFF = {
+    "goal", "carton_rouge", "carton_jaune", "remplacement", "score_update",
+    "mi_temps", "debut_2e_mi_temps", "temps_additionnel", "prolongation",
+    "mi_temps_prolongation", "tirs_au_but", "tir_au_but_marque",
+    "tir_au_but_manque", "fin_tirs_au_but", "resultat",
+}
 PREMATCH_WINDOW = (timedelta(minutes=60), timedelta(minutes=120))
 TRACK_WINDOW_BEFORE = timedelta(hours=4)
 TRACK_WINDOW_AFTER = timedelta(hours=6)
@@ -139,6 +146,14 @@ def track(tracked: dict, event: dict, now: datetime, *, reason: str = "auto") ->
         # jusqu'au résultat final / abandon. Le ranking décide de l'admission,
         # pas de l'éjection d'un match déjà suivi.
         "ranking_locked": True,
+        "planned": bool(event.get("planned", False)),
+        "plan_rank": int(event.get("plan_rank") or 99),
+        "plan_role": str(event.get("plan_role") or ""),
+        "prematch_sent": bool(event.get("prematch_sent", False)),
+        "composition_sent": bool(event.get("composition_sent", False)),
+        "kickoff_sent": bool(event.get("kickoff_sent", False)),
+        "halftime_sent": bool(event.get("halftime_sent", False)),
+        "second_half_sent": bool(event.get("second_half_sent", False)),
         "final_sent": False,
     }
     return identifier
@@ -188,8 +203,86 @@ def base_events(tracked: dict, now: datetime) -> list[dict]:
             ),
             "selected_at": value.get("selected_at") or "",
             "tracking_reason": value.get("tracking_reason") or "",
+            "planned": bool(value.get("planned")),
+            "plan_rank": int(value.get("plan_rank") or 99),
+            "plan_role": value.get("plan_role") or "",
+            "prematch_sent": bool(value.get("prematch_sent")),
+            "composition_sent": bool(value.get("composition_sent")),
+            "kickoff_sent": bool(value.get("kickoff_sent")),
+            "halftime_sent": bool(value.get("halftime_sent")),
+            "second_half_sent": bool(value.get("second_half_sent")),
         })
     return result
+
+
+def apply_plan_metadata(tracked: dict, ref: str, plan: dict | None) -> None:
+    if ref not in tracked or not isinstance(tracked[ref], dict) or not isinstance(plan, dict):
+        return
+    tracked[ref]["planned"] = True
+    tracked[ref]["plan_rank"] = int(plan.get("rank") or plan.get("plan_rank") or 99)
+    tracked[ref]["plan_role"] = str(plan.get("role") or plan.get("plan_role") or "")
+
+
+def publication_allowed(tracked: dict, ref: str, category: str) -> bool:
+    """Machine d'état éditoriale d'un fil rouge.
+
+    Le canal ne doit jamais raconter la fin d'un match qu'il n'a pas commencé.
+    L'avant-match ouvre le récit; le coup d'envoi ouvre la phase LIVE.
+    """
+    item = tracked.get(ref)
+    if not isinstance(item, dict):
+        return False
+
+    category = str(category or "")
+    if category == "avant_match":
+        return bool(item.get("planned")) and not item.get("kickoff_sent") and not item.get("final_sent")
+    if category == "composition":
+        return bool(item.get("prematch_sent")) and not item.get("kickoff_sent") and not item.get("final_sent")
+    if category == "changement_composition":
+        return (
+            bool(item.get("prematch_sent"))
+            and bool(item.get("composition_sent"))
+            and not item.get("kickoff_sent")
+            and not item.get("final_sent")
+        )
+    if category == "kickoff":
+        return bool(item.get("prematch_sent")) and not item.get("kickoff_sent") and not item.get("final_sent")
+    if category == "suivi_interrompu":
+        # Report/annulation après l'annonce avant-match reste une fin logique
+        # même si le coup d'envoi n'a jamais eu lieu.
+        return bool(item.get("prematch_sent")) and not item.get("final_sent")
+    if category in LIVE_AFTER_KICKOFF:
+        if not item.get("kickoff_sent") or item.get("final_sent"):
+            return False
+        if category == "debut_2e_mi_temps" and item.get("second_half_sent"):
+            return False
+        return True
+    return True
+
+
+def mark_publication(tracked: dict, ref: str, category: str, now: datetime) -> None:
+    item = tracked.get(ref)
+    if not isinstance(item, dict):
+        return
+    stamp = now.astimezone(timezone.utc).isoformat()
+    category = str(category or "")
+    item["last_publication_category"] = category
+    item["last_publication_at"] = stamp
+    if category == "avant_match":
+        item["prematch_sent"] = True
+        item["prematch_sent_at"] = stamp
+    elif category == "composition":
+        item["composition_sent"] = True
+        item["composition_sent_at"] = stamp
+    elif category == "kickoff":
+        item["kickoff_sent"] = True
+        item["kickoff_sent_at"] = stamp
+    elif category == "mi_temps":
+        item["halftime_sent"] = True
+        item["halftime_sent_at"] = stamp
+    elif category == "debut_2e_mi_temps":
+        item["second_half_sent"] = True
+        item["second_half_sent_at"] = stamp
 
 
 def completed(tracked: dict, ref: str, now: datetime) -> None:
