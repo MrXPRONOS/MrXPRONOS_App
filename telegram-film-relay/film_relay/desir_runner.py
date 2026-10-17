@@ -91,8 +91,8 @@ def required(name: str, default: str = "") -> str:
     return value
 
 def verify_destination(source: str, public: str, private: str) -> None:
-    if source.lower() != "@filmromatique":
-        raise RuntimeError("Source refusée : DESIR_SOURCE_CHANNEL doit être @Filmromatique")
+    if source.casefold() not in ("@filmromatique", "@g_romanticfilm"):
+        raise RuntimeError("Source CinéX Désir non autorisée : @Filmromatique ou @g_romanticfilm.")
     if public.lower() != "@cinexdesirfr":
         raise RuntimeError("Destination refusée : DESIR_PUBLIC_CHANNEL doit être @CineXDesirfr")
     if not private.startswith("-100") or not private[1:].isdigit():
@@ -110,8 +110,8 @@ async def preflight_user(client, src, private, public):
         raise RuntimeError("La source, le public et le privé doivent être trois canaux distincts.")
     if getattr(source_peer, "noforwards", False):
         raise RuntimeError("Source protégée : aucune copie de média.")
-    if getattr(source_peer, "username", "").lower() != "filmromatique":
-        raise RuntimeError("La source Telegram ne correspond pas à @Filmromatique.")
+    if str(getattr(source_peer, "username", "") or "").casefold() != src.lstrip("@").casefold():
+        raise RuntimeError("La source Telegram ne correspond pas à " + src)
     if getattr(public_peer, "username", "").lower() != "cinexdesirfr":
         raise RuntimeError("Le canal public Telegram ne correspond pas à @CineXDesirfr.")
     return source_peer, library_peer, public_peer
@@ -232,10 +232,12 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
     from telethon.sessions import StringSession
     from telethon.errors import FloodWaitError, PeerFloodError
     source = required("DESIR_SOURCE_CHANNEL", "@Filmromatique")
+    extra_source = required("DESIR_EXTRA_SOURCE_CHANNEL", "@g_romanticfilm")
     public = required("DESIR_PUBLIC_CHANNEL", "@CineXDesirfr")
     private = required("DESIR_PRIVATE_CHANNEL")
     mirror_name = required("DESIR_MIRROR_CHANNEL", "@Torrent9SeriesFilms")
     verify_destination(source, public, private)
+    verify_destination(extra_source, public, private)
     if mirror_name.casefold() != "@torrent9seriesfilms":
         raise RuntimeError("DESIR_MIRROR_CHANNEL doit être @Torrent9SeriesFilms.")
     credentials = (required("TG_API_ID"), required("TG_API_HASH"),
@@ -249,6 +251,28 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
     try:
         await client.connect()
         src, library, public_user = await preflight_user(client, source, private, public)
+        source_peers = [src]
+        if extra_source.casefold() != source.casefold():
+            # Keep the working original source if the new public channel
+            # cannot yet be read; never join or bypass a protected source.
+            try:
+                second = await resolve_peer(client, extra_source)
+                if (str(getattr(second, "username", "") or "").casefold()
+                        != extra_source.lstrip("@").casefold()):
+                    raise ValueError("Identifiant de la deuxième source incohérent.")
+                if getattr(second, "noforwards", False):
+                    LOG.warning("Nouvelle source %s protégée : ignorée.", extra_source)
+                elif utils.get_peer_id(second) in {
+                    utils.get_peer_id(src), utils.get_peer_id(library), utils.get_peer_id(public_user)
+                }:
+                    raise RuntimeError("La deuxième source ne doit pas être une destination.")
+                else:
+                    source_peers.append(second)
+                    LOG.info("CinéX Désir : deuxième source activée : %s", extra_source)
+            except (FloodWaitError, PeerFloodError):
+                raise
+            except Exception as exc:
+                LOG.warning("Deuxième source %s indisponible : %s", extra_source, exc)
         mirror_peer, mirror_key = (None, "")
         bot_public = None
         if publish:
@@ -275,21 +299,45 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             )
             if state.mirror_pending(mirror_key):
                 await finish_mirrors(client, state, mirror_peer, mirror_key, public_user)
-        # Small bounded window to minimize Telegram requests.
-        messages = [m async for m in client.iter_messages(src, limit=160)]
-        candidates = pair_items(messages)
+        # Cap is two films TOTAL across both sources, not two per channel.
+        # Sort by real message timestamps instead of incomparable channel IDs.
+        candidates = []
+        messages_read = 0
+        for source_peer in source_peers:
+            try:
+                messages = [m async for m in client.iter_messages(source_peer, limit=160)]
+            except (FloodWaitError, PeerFloodError):
+                raise
+            except Exception as exc:
+                LOG.warning("Lecture source %s impossible : %s",
+                            getattr(source_peer, "username", "?"), exc)
+                continue
+            messages_read += len(messages)
+            peer_id = utils.get_peer_id(source_peer)
+            for item in pair_items(messages):
+                candidates.append((source_peer, peer_id, item))
+            await asyncio.sleep(4)
         if newest:
-            candidates.reverse()
-        LOG.info("CinéX Désir : messages analysés=%s, vidéos candidates=%s, mode=%s",
-                 len(messages), len(candidates), "PUBLICATION" if publish else "SIMULATION")
-        peer_id = utils.get_peer_id(src)
+            from datetime import datetime, timezone
+            def movie_time(record):
+                date = getattr(record[2].video, "date", None)
+                if date is None:
+                    return 0.0
+                if date.tzinfo is None:
+                    date = date.replace(tzinfo=timezone.utc)
+                return date.timestamp()
+            candidates.sort(key=movie_time, reverse=True)
+        LOG.info("CinéX Désir : sources=%s, messages analysés=%s, vidéos candidates=%s, mode=%s",
+                 len(source_peers), messages_read, len(candidates),
+                 "PUBLICATION" if publish else "SIMULATION")
         private_id = utils.get_peer_id(library)
-        for item in candidates:
+        for source_peer, peer_id, item in candidates:
             key = item_key(peer_id, item)
             if key in state.data["completed"]:
                 continue
             title = format_title(item)
-            LOG.info("Film candidat : source_message=%s affiche=%s type=%s",
+            LOG.info("Film candidat : canal=@%s source_message=%s affiche=%s type=%s",
+                     getattr(source_peer, "username", "?"),
                      item.video.id, getattr(item.poster, "id", None),
                      (getattr(getattr(item.video, "file", None), "name", "") or "document"))
             if not publish:
