@@ -80,7 +80,17 @@ async def preflight_bot(bot, public, user_public):
     if utils.get_peer_id(peer) != utils.get_peer_id(user_public):
         raise RuntimeError("Le bot et le compte personnel ne voient pas le même canal public.")
     who = await bot.get_me()
-    permission = await bot.get_permissions(peer, who)
+    try:
+        permission = await bot.get_permissions(peer, who)
+    except Exception as exc:
+        from telethon.errors import UserNotParticipantError
+        if isinstance(exc, UserNotParticipantError):
+            raise RuntimeError(
+                "Le bot @" + str(getattr(who, "username", "") or "inconnu") +
+                " n'est pas membre de @CineXDesirfr. Ajoute ce bot comme "
+                "administrateur avec le droit Publier des messages, puis relance le test."
+            ) from exc
+        raise
     allowed = bool(getattr(permission, "is_creator", False) or (
         getattr(permission, "is_admin", False) and getattr(permission, "post_messages", False)))
     if not allowed:
