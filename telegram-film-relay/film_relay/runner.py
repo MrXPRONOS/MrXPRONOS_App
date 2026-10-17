@@ -143,6 +143,7 @@ async def forward_public_message(client, primary_public, mirror_channel, message
 
 async def execute() -> int:
     from telethon import TelegramClient, utils
+    from telethon.errors import FloodWaitError, PeerFloodError
     from telethon.sessions import StringSession
 
     cfg = config_from(os.getenv("CHANNELS_CONFIG", "config/channels.json"))
@@ -515,6 +516,9 @@ async def execute() -> int:
                         published_count += 1
                         LOG.info("Publié : %s -> %s", pair_id, url)
                         await asyncio.sleep(pause_seconds)
+                    except (FloodWaitError, PeerFloodError):
+                        LOG.error("Restriction Telegram pendant publication : arrêt immédiat.")
+                        raise
                     except Exception as exc:
                         source_failed = True
                         failed_count += 1
@@ -527,6 +531,9 @@ async def execute() -> int:
                     state.advance_history(channel_key, history_next, history_finished)
                 if run_limit_reached:
                     break
+            except (FloodWaitError, PeerFloodError):
+                LOG.error("Limitation Telegram : arrêt immédiat du passage ; ne pas insister.")
+                raise
             except Exception as exc:
                 failed_count += 1
                 LOG.exception("Source inaccessible %s : %s", channel_name, exc)
