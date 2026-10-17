@@ -29,6 +29,7 @@ jobs:
       CINEX_SAFE_MODE: 'true'
       CINEX_PAUSE_SECONDS: '20'
       CINEX_FORWARD_PAUSE_SECONDS: '18'
+      CINEX_SERIES_CATALOG_ENABLED: 'true'
     steps:
       - name: Charger le code
         uses: actions/checkout@v4
@@ -74,6 +75,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_desir.py' -q
           python -m unittest discover -s tests -p 'test_category_relays.py' -q
           python -m unittest discover -s tests -p 'test_anime_catalog.py' -v
+          python -m unittest discover -s tests -p 'test_series_catalog.py' -v
           python -m unittest discover -s tests -p 'test_promotions.py' -q
           python -m unittest discover -s tests -p 'test_mkv.py' -q
           python -m unittest discover -s tests -p 'test_discovery_digest.py' -q
@@ -141,6 +143,24 @@ jobs:
           FILM_RESCAN_HISTORY: 'false'
           PYTHONPATH: .
         run: python -m film_relay.runner
+
+      - name: 2bis - Catalogues de series TV par saison et episode
+        id: tvseries
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          CINEX_SERIES_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+          TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+          TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
+          TG_MIRROR_CHANNEL: '@Torrent9SeriesFilms'
+          SERIES_SOURCE_CHANNELS: ${{ vars.SERIES_SOURCE_CHANNELS }}
+          SERIES_SOURCE_CHANNEL: ${{ vars.SERIES_SOURCE_CHANNEL }}
+          CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
+          PYTHONPATH: .
+        run: python -m film_relay.series_catalog --publish --limit 2 --episode-cap 6
 
       - name: Pause de securite avant transfert films
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
@@ -349,13 +369,13 @@ jobs:
       # Save ALL checkpoints even if one new category fails. Telegram uploads
       # must not be repeated on the next scheduled run after a partial error.
 
-      - name: 6 - Sauvegarder les cinq historiques Telegram
+      - name: 6 - Sauvegarder les historiques Telegram, dont le catalogue Séries
         if: always() && steps.credentials.outputs.ready == 'true'
         shell: bash
         run: |
           set -e
           STATE=telegram-film-relay/state
-          if git diff --quiet -- "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json" "$STATE/comedie_state.json" "$STATE/anime_state.json" "$STATE/anime_catalog.json"; then
+          if git diff --quiet -- "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json" "$STATE/comedie_state.json" "$STATE/anime_state.json" "$STATE/anime_catalog.json" "$STATE/series_state.json" "$STATE/series_catalog.json"; then
             echo 'Aucun historique a sauvegarder.'
             exit 0
           fi
@@ -365,6 +385,8 @@ jobs:
           cp "$STATE/comedie_state.json" "$RUNNER_TEMP/comedie-state.json"
           cp "$STATE/anime_state.json" "$RUNNER_TEMP/anime-state.json"
           cp "$STATE/anime_catalog.json" "$RUNNER_TEMP/anime-catalog.json"
+          cp "$STATE/series_state.json" "$RUNNER_TEMP/series-state.json"
+          cp "$STATE/series_catalog.json" "$RUNNER_TEMP/series-catalog.json"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           for attempt in 1 2 3 4 5 6 7 8; do
@@ -376,14 +398,16 @@ jobs:
             python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/comedie-state.json" "$STATE/comedie_state.json"
             python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/anime-state.json" "$STATE/anime_state.json"
             python telegram-film-relay/scripts/merge_anime_catalog.py "$RUNNER_TEMP/anime-catalog.json" "$STATE/anime_catalog.json"
-            git add "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json" "$STATE/comedie_state.json" "$STATE/anime_state.json" "$STATE/anime_catalog.json"
+            python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/series-state.json" "$STATE/series_state.json"
+            python telegram-film-relay/scripts/merge_anime_catalog.py "$RUNNER_TEMP/series-catalog.json" "$STATE/series_catalog.json"
+            git add "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json" "$STATE/comedie_state.json" "$STATE/anime_state.json" "$STATE/anime_catalog.json" "$STATE/series_state.json" "$STATE/series_catalog.json"
             if git diff --cached --quiet; then
               echo 'Historiques deja synchronises.'
               exit 0
             fi
             git commit -m 'state: CineX unified cycle receipts [skip ci]'
             if git push origin HEAD:main; then
-              echo 'Cinq historiques synchronisés.'
+              echo 'Historiques CinéX Films, Séries et Animés synchronisés.'
               exit 0
             fi
             echo "Conflit GitHub ($attempt/8) : nouvelle fusion."
