@@ -1,0 +1,47 @@
+name: CineX - Vérification affiche partenariat
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/scripts/publish_partnership_intro.py'
+      - 'telegram-film-relay/assets/partenariat-canal-original.jpg'
+      - '.github/workflows/cinex-partnership-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Tester syntaxe, image originale et séquence de publication
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile telegram-film-relay/scripts/publish_partnership_intro.py
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          script=Path("telegram-film-relay/scripts/publish_partnership_intro.py").read_text()
+          image=Path("telegram-film-relay/assets/partenariat-canal-original.jpg")
+          assert image.exists(), "Affiche absente"
+          assert image.read_bytes().startswith(bytes.fromhex("ffd8ff")), "Fichier JPG invalide"
+          assert len(image.read_bytes()) > 100_000, "Fichier image trop petit"
+          tree=ast.parse(script)
+          assert "PARTENARIAT-CANAL" in script
+          assert "@mr_xpronos" in script
+          assert 'style="primary"' in script
+          assert "TG_MIRROR_CHANNEL" in script
+          assert "ANIME_PUBLIC_CHANNEL" in script
+          assert "COMEDIE_PUBLIC_CHANNEL" in script
+          assert "DESIR_PUBLIC_CHANNEL" in script
+          assert "TG_PUBLIC_CHANNEL" in script
+          print("VALIDATION_OK : image, 5 destinations, CTA et syntaxe")
+          PY
