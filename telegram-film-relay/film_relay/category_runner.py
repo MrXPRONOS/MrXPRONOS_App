@@ -161,9 +161,11 @@ async def preflight(client, bot, cfg: dict):
                 ) from exc
             raise
         check_bot_permission(perms, cfg["public"])
-        mirror, mirror_key = await preflight_mirror(
-            client, public, private, source_peers[0], cfg["mirror"]
-        )
+        from .mirror_policy import torrent9_paused
+        if not torrent9_paused():
+            mirror, mirror_key = await preflight_mirror(
+                client, public, private, source_peers[0], cfg["mirror"]
+            )
     return source_peers, private, public, bot_public, mirror, mirror_key
 
 
