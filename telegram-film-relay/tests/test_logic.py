@@ -1,3 +1,5 @@
+import asyncio
+from unittest.mock import AsyncMock
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -121,6 +123,43 @@ class DiscoveryTests(unittest.TestCase):
         self.assertEqual(candidate_window([1,2,3,4,5], 2, 0), [1,2])
         self.assertEqual(candidate_window([1,2,3,4,5], 2, 2), [3,4])
         self.assertEqual(candidate_window([1,2,3,4,5], 2, 4), [5,1])
+
+    def test_discovery_notifications_go_to_saved_messages_only(self):
+        from film_relay.discovery import notification_text, notify_saved_messages
+        channel = {"username": "cinema_test", "title": "Cinema & Films",
+                   "matching_pairs": 3}
+        rendered = notification_text(channel)
+        self.assertIn("https://t.me/cinema_test", rendered)
+        self.assertIn("Droits de redistribution non vérifiés", rendered)
+        self.assertIn("\\n", rendered)
+        client = NS(send_message=AsyncMock())
+        sent = set()
+        result = asyncio.run(notify_saved_messages(client, [channel, channel], sent))
+        self.assertEqual(result, (["cinema_test"], 0))
+        self.assertEqual(client.send_message.await_count, 1)
+        args, kwargs = client.send_message.await_args
+        self.assertEqual(args[0], "me")
+        self.assertEqual(kwargs["parse_mode"], "html")
+        self.assertEqual(asyncio.run(notify_saved_messages(client, [channel], sent)),
+                         ([], 0))
+
+    def test_discovery_never_auto_imports_sources(self):
+        from film_relay.runner import config_from
+        import json
+        import os
+        from unittest.mock import patch
+        with TemporaryDirectory() as temp:
+            root = Path(temp)
+            manual = root / "channels.json"
+            auto = root / "auto_sources.json"
+            manual.write_text(json.dumps({
+                "sources": [{"channel": "@manual_source", "redistribution_authorized": True}],
+                "private_channel": "-100123", "public_channel": "@cinex_public"
+            }))
+            auto.write_text(json.dumps({"sources": [{"channel": "@auto_discovered"}]}))
+            with patch.dict(os.environ, {"AUTO_SOURCES_PATH": str(auto)}, clear=False):
+                result = config_from(str(manual))
+            self.assertEqual([v["channel"] for v in result["sources"]], ["@manual_source"])
 
     def test_schedules(self):
         root = Path(__file__).resolve().parent.parent
