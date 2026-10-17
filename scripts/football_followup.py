@@ -160,14 +160,17 @@ def track(tracked: dict, event: dict, now: datetime, *, reason: str = "auto") ->
 
 
 def follow(tracked: dict, event: dict, now: datetime) -> str:
-    """Compatibilité AVANT-MATCH : valide sa fenêtre puis utilise le suivi technique."""
+    """Valide un AVANT-MATCH effectivement publié et ouvre le récit du match."""
     identifier = key(event)
     if identifier in tracked:
+        mark_publication(tracked, identifier, "avant_match", now)
         return identifier
     start = kickoff(event)
     if not start or not PREMATCH_WINDOW[0] <= start - now <= PREMATCH_WINDOW[1]:
         raise ValueError("Avant-match hors fenêtre")
-    return track(tracked, event, now, reason="avant_match")
+    identifier = track(tracked, event, now, reason="avant_match")
+    mark_publication(tracked, identifier, "avant_match", now)
+    return identifier
 
 
 def _logo(event: dict, side: str) -> str:
