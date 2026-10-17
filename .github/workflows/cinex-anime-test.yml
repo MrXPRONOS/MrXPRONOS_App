@@ -1,0 +1,128 @@
+name: CinéX CinéX Anime - Test isolé
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Vrai test Telegram (false = simulation sans envoi)"
+        type: boolean
+        default: false
+        required: true
+      max_films:
+        description: "Nombre maximum de films pour ce test"
+        type: choice
+        options: ['1', '2']
+        default: '1'
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+
+jobs:
+  verify-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: telegram-film-relay/requirements.txt
+      - name: Installer les dépendances
+        run: python -m pip install -r telegram-film-relay/requirements.txt
+      - name: Tester la syntaxe et les nouvelles catégories, sans Telegram
+        working-directory: telegram-film-relay
+        env:
+          PYTHONPATH: .
+        run: |
+          python -m compileall -q film_relay scripts tests
+          python -m unittest discover -s tests -p 'test_category_relays.py' -v
+          python -m unittest discover -s tests -p 'test_desir.py' -q
+      - name: Vérifier la configuration sans afficher les secrets
+        env:
+          PUBLIC: ${{ vars.ANIME_PUBLIC_CHANNEL }}
+          SOURCE: ${{ vars.ANIME_SOURCE_CHANNEL }}
+          PRIVATE: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+          API_ID: ${{ secrets.TG_API_ID }}
+          API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+        shell: bash
+        run: |
+          set -e
+          if [[ ! "$SOURCE" =~ ^@[a-zA-Z0-9_]{5,32}$ ]]; then
+            echo '::error::Ajouter ANIME_SOURCE_CHANNEL dans Variables.'
+            exit 1
+          fi
+          if [[ ! "$PUBLIC" =~ ^@[a-zA-Z0-9_]{5,32}$ ]]; then
+            echo '::error::Ajouter ANIME_PUBLIC_CHANNEL dans Variables.'
+            exit 1
+          fi
+          if [[ ! "$PRIVATE" =~ ^-100[0-9]{5,}$ ]]; then
+            echo '::error::Ajouter ANIME_PRIVATE_CHANNEL (identifiant -100...).'
+            exit 1
+          fi
+          if [[ -z "$API_ID" || -z "$API_HASH" || -z "$TG_SESSION" || -z "$BOT_TOKEN" ]]; then
+            echo '::error::Secrets Telegram existants incomplets. Aucun nouveau bot requis.'
+            exit 1
+          fi
+      - name: Lire la source ou publier le premier film
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          CINEX_anime_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+          ANIME_SOURCE_CHANNEL: ${{ vars.ANIME_SOURCE_CHANNEL }}
+          ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
+          ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+          ANIME_MIRROR_CHANNEL: '@Torrent9SeriesFilms'
+          ANIME_STATE_PATH: state/anime_state.json
+          CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
+          PUBLISH: ${{ inputs.publish }}
+          MAX_FILMS: ${{ inputs.max_films }}
+          PYTHONPATH: .
+        shell: bash
+        run: |
+          set -e
+          if [[ "$PUBLISH" == 'true' ]]; then
+            python -m film_relay.category_runner --category anime --publish --limit "$MAX_FILMS" --require-publication
+          else
+            python -m film_relay.category_runner --category anime --limit "$MAX_FILMS"
+          fi
+      - name: Sauvegarder les reçus après tentative réelle ou partielle
+        if: always()
+        shell: bash
+        run: |
+          set -e
+          STATE=telegram-film-relay/state/anime_state.json
+          if [[ ! -f "$STATE" ]] || git diff --quiet -- "$STATE"; then
+            echo 'Aucun nouveau reçu Telegram.'
+            exit 0
+          fi
+          cp "$STATE" "$RUNNER_TEMP/anime-new-receipts.json"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git fetch origin main
+            git reset --hard origin/main
+            python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/anime-new-receipts.json" "$STATE"
+            if git diff --quiet -- "$STATE"; then
+              echo 'Reçus déjà sauvegardés.'
+              exit 0
+            fi
+            git add "$STATE"
+            git commit -m 'state(anime): movie/mirror/ad receipts [skip ci]'
+            if git push origin HEAD:main; then
+              echo 'Historique de anime enregistré.'
+              exit 0
+            fi
+            sleep 4
+          done
+          echo '::error::Sauvegarde des reçus impossible après 8 tentatives.'
+          exit 1
