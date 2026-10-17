@@ -206,6 +206,8 @@ def to_site(p, fixture):
            "odds_method":m.get("odds_method"),
            "overround_assumption":m.get("overround_assumption"),
            "odds_updated_at":m.get("odds_updated_at"),
+           "signal_tier":m.get("signal_tier","OBSERVATION"),
+           "recommendation_eligible":m.get("recommendation_eligible",False),
            "model_version":p["model_version"],"policy_version":p.get("policy_version",POLICY_VERSION)}
           for m in extras]
     return result
@@ -507,6 +509,12 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                 secondary_ok,_=v21_accept_priced(secondary,performance_tracker,secondary_bucket)
                 if not secondary_ok:
                     continue
+                # Cette sélection secondaire a passé exactement les mêmes contrôles
+                # de qualité/prix V2.1 que la sélection principale. La marquer
+                # explicitement comme recommandable permet au site et à Telegram
+                # de l'exploiter sans assouplir les seuils du modèle.
+                secondary["recommendation_eligible"]=True
+                secondary["signal_tier"]=v21_signal_tier(secondary)
                 additional.append(secondary)
                 break
         prediction["secondary_selections"]=additional
