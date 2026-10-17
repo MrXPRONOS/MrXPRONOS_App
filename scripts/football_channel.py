@@ -1749,9 +1749,14 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
     future = [e for e in candidates(events) if kick(e).astimezone(TZ).date() == today
               and (as_of is None or kick(e) > as_of)
               and final_score(e) is None
-              and str(e.get("status", "")).lower() not in ("cancelled", "postponed", "finished", "live")]
+              and str(e.get("status", "")).lower() not in ("cancelled", "postponed", "finished", "live")
+              and popular_live_match(e)]
     if not future:
         return None
+    # Le programme du canal reflète la même priorité que le fil rouge :
+    # grands clubs d'abord, puis grands enjeux. Pas de remplissage avec des
+    # affiches inconnues simplement pour atteindre cinq lignes.
+    future = sorted(future, key=_live_rank_key, reverse=True)
     chosen = []
     for event in future[:14]:
         if has_two_team_logos(event, allow_remote=True):

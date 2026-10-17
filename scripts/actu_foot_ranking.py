@@ -260,7 +260,7 @@ class LiveRankingEngine:
         per_comp = max(
             1,
             int(max_per_competition if max_per_competition is not None
-                else os.getenv("FOOTBALL_LIVE_MAX_PER_COMPETITION", "2")),
+                else os.getenv("FOOTBALL_LIVE_MAX_PER_COMPETITION", "4")),
         )
         global_cap = max(
             1,
@@ -303,15 +303,23 @@ class LiveRankingEngine:
                 first = unlocked[0]
                 chosen.append(first)
                 free_slots -= 1
-                if free_slots and len(unlocked) > 1:
-                    second = unlocked[1]
-                    score_gap = self.popularity_score(first) - self.popularity_score(second)
-                    second_is_togo = (
-                        "togo" in self.deps.team(second, "home").casefold()
-                        or "togo" in self.deps.team(second, "away").casefold()
+
+                # Après la meilleure affiche de la compétition, les autres
+                # matchs impliquant un grand club peuvent aussi entrer dans le
+                # fil rouge jusqu'au plafond. Pour les affiches sans grand club,
+                # le dominance gap continue d'éviter le remplissage artificiel.
+                for candidate in unlocked[1:]:
+                    if free_slots <= 0:
+                        break
+                    candidate_clubs, _ = self.club_priority(candidate)
+                    candidate_is_togo = (
+                        "togo" in self.deps.team(candidate, "home").casefold()
+                        or "togo" in self.deps.team(candidate, "away").casefold()
                     )
-                    if score_gap <= gap or second_is_togo:
-                        chosen.append(second)
+                    score_gap = self.popularity_score(first) - self.popularity_score(candidate)
+                    if candidate_clubs > 0 or candidate_is_togo or score_gap <= gap:
+                        chosen.append(candidate)
+                        free_slots -= 1
 
             if len(locked) > per_comp:
                 print("LIVE_LOCK_OVERFLOW_COMPETITION", key_name, len(locked), "cap", per_comp)
