@@ -135,7 +135,7 @@ jobs:
           # seul push autorisé à publier en production, et uniquement le programme.
           if [ "$EVENT_NAME" = "workflow_dispatch" ] && { [ "$TRIGGER_SOURCE" = "cron-job.org" ] || [ "$TRIGGER_SOURCE" = "cron-job.org-lifecycle" ]; }; then
             DESTINATION="production"
-          elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_MESSAGE" == ops(actu-foot): relaunch Matchs du jour now* ]]; then
+          elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_MESSAGE" == "ops(actu-foot): relaunch Matchs du jour now"* ]]; then
             DESTINATION="production"
             echo "FOOTBALL_PROGRAMME_RELAUNCH_ONLY=1" >> "$GITHUB_ENV"
           elif [ "$EVENT_NAME" = "push" ]; then
@@ -260,7 +260,7 @@ jobs:
 
           if [ "$ROUTED_DESTINATION" = "dry-run" ]; then
             ARGS+=(--dry-run)
-          elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_MESSAGE" != ops(actu-foot): relaunch Matchs du jour now* ]]; then
+          elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_MESSAGE" != "ops(actu-foot): relaunch Matchs du jour now"* ]]; then
             ARGS+=(--dry-run)
           elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_DRY_RUN" = "true" ] && [ "$CRON_PRODUCTION" != "true" ]; then
             ARGS+=(--dry-run)
