@@ -5,107 +5,54 @@ Never sends an advertisement without a real Telegram URL button.
 """
 from __future__ import annotations
 
-import asyncio
 from datetime import datetime, timezone, timedelta
 import io
 import logging
-import math
 from pathlib import Path
 import os
 
-from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
+from PIL import Image
 
 LOG = logging.getLogger("cinex_promotions")
 CAMPAIGNS = (
     ("actu", "@actufoot_mrxp", "ACTU FOOT",
-     "⚽ Actus, mercato, résultats.", "📰 ACTU FOOT",
-     "INFOS • MERCATO • RÉSULTATS"),
+     "⚽ ACTU FOOT\n📰 Mercato, infos et résultats du football.\n📲 Rejoins le canal pour suivre l’actualité.",
+     "📰 ACTU FOOT", "INFOS • MERCATO • RÉSULTATS"),
     ("live", "@mr_xpronos_vip", "PRONOS LIVE VIP",
-     "🔴 Live : coupons et alertes.", "⚡ PRONOS LIVE",
-     "DIRECT • SIGNAUX • ALERTES"),
+     "⚡ PRONOS LIVE VIP\n🔴 Analyses et signaux pendant les matchs.\n📲 Suis les opportunités en direct.",
+     "⚡ PRONOS LIVE", "DIRECT • SIGNAUX • ALERTES"),
     ("jour", "@mrxpronosfr", "COUPONS DU JOUR",
-     "🎯 Coupons du jour et analyses.", "⚽ PRONOS DU JOUR",
-     "MATCHS • SÉLECTIONS • ANALYSES"),
+     "🎯 COUPONS DU JOUR\n⚽ Sélections et analyses des matchs du jour.\n📲 Découvre les nouveaux coupons.",
+     "⚽ PRONOS DU JOUR", "MATCHS • SÉLECTIONS • ANALYSES"),
 )
 
 
-def _font(size, bold=True):
-    folder = Path("/usr/share/fonts/truetype/dejavu")
-    filename = "DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf"
-    locations = (
-        folder / filename,
-        Path("/usr/share/fonts/truetype/liberation2") /
-        ("LiberationSans-Bold.ttf" if bold else "LiberationSans-Regular.ttf"),
-    )
-    for path in locations:
-        if path.exists():
-            return ImageFont.truetype(str(path), size)
-    return ImageFont.load_default()
+def promo_assets_dir() -> Path:
+    """Directory containing the three unmodified, original PNG images."""
+    override = (os.getenv("CINEX_PROMO_ASSETS_DIR") or "").strip()
+    return (Path(override).expanduser() if override else
+            Path(__file__).resolve().parents[1] / "assets" / "promotions")
 
 
-def _center(draw, y, text, font, color, width=1080, stroke_width=0, stroke_fill=None):
-    bbox = draw.textbbox((0, 0), text, font=font, stroke_width=stroke_width)
-    x = (width - (bbox[2]-bbox[0])) // 2
-    draw.text((x, y), text, font=font, fill=color,
-              stroke_width=stroke_width, stroke_fill=stroke_fill)
+def poster_path(index: int) -> Path:
+    return promo_assets_dir() / f"mrx_{CAMPAIGNS[index][0]}.png"
 
 
 def render_poster(index: int) -> io.BytesIO:
-    """Render a native 1080x1350 premium navy/gold photo at runtime.
-
-    No external hosting, file upload, image token or unstable URL is needed.
-    """
-    key, handle, headline, caption, button, descriptor = CAMPAIGNS[index]
-    w, h = 1080, 1350
-    im = Image.new("RGB", (w, h), "#07111F")
-    # Reuse the Mr XPRONOS repository football artwork when available.
-    art = Path(__file__).resolve().parents[2] / "assets/images/blog-hero-ball.webp"
-    if art.is_file():
-        bg = Image.open(art).convert("RGB")
-        scale = max(w / bg.width, h / bg.height)
-        bg = bg.resize((math.ceil(bg.width * scale), math.ceil(bg.height * scale)),
-                       Image.Resampling.LANCZOS)
-        bg = bg.crop(((bg.width-w)//2, (bg.height-h)//2,
-                      (bg.width+w)//2, (bg.height+h)//2))
-        bg = ImageEnhance.Brightness(bg).enhance(0.31)
-        im.paste(bg)
-    overlay = Image.new("RGBA", (w,h), (0,0,0,0))
-    od = ImageDraw.Draw(overlay)
-    for y in range(h):
-        opacity = 105 + int(125 * abs((y-h/2)/(h/2)))
-        od.line([(0,y),(w,y)],fill=(2, 9, 23,min(250,opacity)),width=1)
-    im = Image.alpha_composite(im.convert("RGBA"), overlay)
-    d=ImageDraw.Draw(im)
-    gold="#E7BE65"; soft="#FFEDBD"; white="#F6F8FF"
-    # restrained premium light strips + stadium arcs
-    d.rounded_rectangle([65,68,1015,1280],radius=40,
-                        outline=(220,171,71,185),width=4)
-    d.arc([75, 340, 1005, 940],185,355,fill=(210,161,65,105),width=8)
-    d.arc([165,420,915,850],184,356,fill=(196,146,53,70),width=5)
-    for x in range(90,1000,85):
-        d.ellipse((x,180,(x+4),184),fill=(254,220,142,110))
-    # brand and hierarchy
-    _center(d,115,"♛",_font(95), gold)
-    _center(d,235,"MR X PRONOS",_font(53),soft)
-    d.line((328,325,752,325),fill=gold,width=3)
-    _center(d,385,"LE FOOTBALL AUTREMENT",_font(25,False),white)
-    lines = {"actu":["ACTU","FOOT"],"live":["PRONOS","LIVE VIP"],
-             "jour":["COUPONS","DU JOUR"]}[key]
-    for off,line in enumerate(lines):
-        fs=129 if len(line)<8 else 113 if len(line)<10 else 93
-        _center(d,545+off*162,line,_font(fs),gold if off==0 else white,
-                stroke_width=2,stroke_fill="#332A17")
-    d.rounded_rectangle((135,920,945,1012),radius=42,
-                        fill=(8,15,31,232),outline=(231,190,97,255),width=3)
-    _center(d,946,descriptor,_font(28),white)
-    d.rounded_rectangle((125,1060,955,1180),radius=33,fill=(220,171,70,242))
-    _center(d,1083,handle,_font(53), "#091326")
-    _center(d,1220,"REJOINS NOTRE CANAL TELEGRAM",_font(27),soft)
-    out=io.BytesIO()
-    im.convert("RGB").save(out,format="JPEG",quality=89,optimize=True,progressive=True)
-    out.seek(0)
-    out.name=f"mrx_{key}.jpg"
-    return out
+    """Read the original PNG bytes: no generated, repainted or converted artwork."""
+    path = poster_path(index)
+    if not path.is_file():
+        raise FileNotFoundError(f"PNG original manquant : {path}")
+    original = path.read_bytes()
+    if not original.startswith(b"\x89PNG\r\n\x1a\n"):
+        raise ValueError(f"Affiche non PNG : {path}")
+    with Image.open(io.BytesIO(original)) as picture:
+        if picture.format != "PNG":
+            raise ValueError(f"Affiche non PNG : {path}")
+        picture.verify()
+    result = io.BytesIO(original)
+    result.name = path.name
+    return result
 
 
 def campaign_caption(index: int) -> str:
@@ -181,6 +128,14 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
     from telethon import utils
     if bot is None:
         raise RuntimeError("Le bot est requis pour de vrais boutons Telegram")
+    # Preserve movie distribution when the original artwork is unavailable.
+    # Never replace an approved PNG by a newly rendered image.
+    missing = [poster_path(i) for i in range(len(CAMPAIGNS))
+               if not poster_path(i).is_file()]
+    if missing:
+        LOG.error("Publicités CinéX différées : PNG originaux manquants : %s",
+                  ", ".join(map(str, missing)))
+        return {"private": 0, "public": 0, "mirror": 0, "skipped": len(missing)}
     identity=await bot.get_me()
     first_id=str(utils.get_peer_id(primary))
     private_id=str(utils.get_peer_id(private))
