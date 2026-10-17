@@ -173,6 +173,8 @@ async def preflight_mirror(client, public_peer, library_peer, source_peer, mirro
 
 
 async def forward_public_poster(client, public_peer, mirror_peer, public_id: int) -> int:
+    from .mirror_policy import assert_torrent9_enabled
+    assert_torrent9_enabled()
     """Native Telegram forward retains 'Transféré de CinéX Désir', without video."""
     msg = await client.forward_messages(mirror_peer, int(public_id), from_peer=public_peer)
     if isinstance(msg, list):
