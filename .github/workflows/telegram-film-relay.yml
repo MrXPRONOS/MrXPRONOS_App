@@ -1,4 +1,4 @@
-name: CineX - Decouverte, Films et Desir (toutes les 2h)
+name: CineX - Films, Desir, Comedie, Anime et Decouverte (2h)
 
 on:
   workflow_dispatch:
@@ -25,7 +25,7 @@ concurrency:
 
 jobs:
   relay:
-    name: Decouverte, 2 classiques + pub, 2 Desir + pub
+    name: Decouverte et 4 catégories, 2 films chacune + publicités
     runs-on: ubuntu-latest
     timeout-minutes: 105
     steps:
@@ -108,6 +108,9 @@ jobs:
           FILM_PUBLISH_ENABLED: 'true'
           TG_RIGHTS_ATTESTED: 'true'
           CINEX_PROMOS_ENABLED: 'true'
+          CINEX_SOURCE_CHANNELS: ${{ vars.CINEX_SOURCE_CHANNELS }}
+          FILM_SOURCE_CHANNELS: ${{ vars.FILM_SOURCE_CHANNELS }}
+          SERIES_SOURCE_CHANNELS: ${{ vars.SERIES_SOURCE_CHANNELS }}
           FILM_MAX_POSTS_PER_RUN: '2'
           FILM_REQUIRE_PUBLICATION: 'false'
           FILM_RESCAN_HISTORY: 'false'
@@ -126,6 +129,7 @@ jobs:
           DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
           DESIR_SOURCE_CHANNEL: ${{ vars.DESIR_SOURCE_CHANNEL || '@Filmromatique' }}
           DESIR_EXTRA_SOURCE_CHANNEL: ${{ vars.DESIR_EXTRA_SOURCE_CHANNEL || '@g_romanticfilm' }}
+          DESIR_SOURCE_CHANNELS: ${{ vars.DESIR_SOURCE_CHANNELS }}
           DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
           DESIR_MIRROR_CHANNEL: ${{ vars.DESIR_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
           DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
@@ -134,20 +138,66 @@ jobs:
           PYTHONPATH: .
         run: python -m film_relay.desir_runner --publish --limit 2 --newest
 
-      # Keep all three independent checkpoints even after a partial failure.
-      - name: 4 - Sauvegarder les trois historiques Telegram
+      # Independent categories share one session lock and two-film caps.
+      # Source channels are owner-configured (singular and bulk variables).
+      - name: 4 - Deux comedies et publicite CineX Comedie
+        id: comedy
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
+        continue-on-error: true
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          CINEX_CATEGORY_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+          COMEDIE_SOURCE_CHANNEL: ${{ vars.COMEDIE_SOURCE_CHANNEL }}
+          COMEDIE_SOURCE_CHANNELS: ${{ vars.COMEDIE_SOURCE_CHANNELS || '@comexflex,@filmcomplets' }}
+          COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
+          COMEDIE_PRIVATE_CHANNEL: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
+          COMEDIE_MIRROR_CHANNEL: '@Torrent9SeriesFilms'
+          COMEDIE_STATE_PATH: state/comedie_state.json
+          CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
+          PYTHONPATH: .
+        run: python -m film_relay.category_runner --category comedie --publish --limit 2
+
+      - name: 5 - Deux animes et publicite CineX Anime
+        id: anime
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
+        continue-on-error: true
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          CINEX_CATEGORY_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+          ANIME_SOURCE_CHANNEL: ${{ vars.ANIME_SOURCE_CHANNEL }}
+          ANIME_SOURCE_CHANNELS: ${{ vars.ANIME_SOURCE_CHANNELS || '@orak_dessinanime' }}
+          ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
+          ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+          ANIME_MIRROR_CHANNEL: '@Torrent9SeriesFilms'
+          ANIME_STATE_PATH: state/anime_state.json
+          CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
+          PYTHONPATH: .
+        run: python -m film_relay.category_runner --category anime --publish --limit 2
+
+      # Save ALL checkpoints even if one new category fails. Telegram uploads
+      # must not be repeated on the next scheduled run after a partial error.
+
+      - name: 6 - Sauvegarder les cinq historiques Telegram
         if: always() && steps.credentials.outputs.ready == 'true'
         shell: bash
         run: |
           set -e
           STATE=telegram-film-relay/state
-          if git diff --quiet -- "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json"; then
+          if git diff --quiet -- "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json" "$STATE/comedie_state.json" "$STATE/anime_state.json"; then
             echo 'Aucun historique a sauvegarder.'
             exit 0
           fi
           cp "$STATE/state.json" "$RUNNER_TEMP/cinex-state.json"
           cp "$STATE/desir_state.json" "$RUNNER_TEMP/desir-state.json"
           cp "$STATE/discovered_channels.json" "$RUNNER_TEMP/discovery-state.json"
+          cp "$STATE/comedie_state.json" "$RUNNER_TEMP/comedie-state.json"
+          cp "$STATE/anime_state.json" "$RUNNER_TEMP/anime-state.json"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           for attempt in 1 2 3 4 5 6 7 8; do
@@ -156,6 +206,8 @@ jobs:
             python telegram-film-relay/scripts/merge_state.py "$RUNNER_TEMP/cinex-state.json" "$STATE/state.json"
             python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/desir-state.json" "$STATE/desir_state.json"
             python telegram-film-relay/scripts/merge_discovery_state.py "$RUNNER_TEMP/discovery-state.json" "$STATE/discovered_channels.json"
+            python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/comedie-state.json" "$STATE/comedie_state.json"
+            python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/anime-state.json" "$STATE/anime_state.json"
             git add "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json"
             if git diff --cached --quiet; then
               echo 'Historiques deja synchronises.'
@@ -163,7 +215,7 @@ jobs:
             fi
             git commit -m 'state: CineX unified cycle receipts [skip ci]'
             if git push origin HEAD:main; then
-              echo 'Trois historiques synchronises.'
+              echo 'Cinq historiques synchronisés.'
               exit 0
             fi
             echo "Conflit GitHub ($attempt/8) : nouvelle fusion."
