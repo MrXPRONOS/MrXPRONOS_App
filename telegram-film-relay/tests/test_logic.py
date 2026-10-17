@@ -163,13 +163,15 @@ class DiscoveryTests(unittest.TestCase):
                 result = config_from(str(manual))
             self.assertEqual([v["channel"] for v in result["sources"]], ["@manual_source"])
 
-    def test_filmcomplets_source_classic_only_pending_authorization(self):
+    def test_filmcomplets_source_classic_only_authorized(self):
         import json
         cfg = json.loads((Path(__file__).resolve().parent.parent / "config/channels.json").read_text())
         matching = [src for src in cfg["sources"] if
                     src["channel"].casefold() == "@filmcomplets"]
         self.assertEqual(len(matching), 1)
-        self.assertIs(matching[0]["redistribution_authorized"], False)
+        self.assertIs(matching[0]["redistribution_authorized"], True)
+        self.assertIn("affiches et vidéos", matching[0]["rights_basis"])
+        self.assertEqual(cfg["max_posts_per_run"], 2)
         from film_relay.desir_runner import verify_destination
         with self.assertRaises(RuntimeError):
             verify_destination("@filmcomplets", "@CineXDesirfr", "-10012345")
