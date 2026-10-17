@@ -746,7 +746,7 @@ class History:
         local_day = now.astimezone(TZ).date().isoformat()
         new_plan: dict[str, dict] = {}
         card_rows = item.card.get("matches") if isinstance(item.card, dict) and isinstance(item.card.get("matches"), list) else []
-        for index, fixture in enumerate(fixtures[:4]):
+        for index, fixture in enumerate(fixtures[:10]):
             if not isinstance(fixture, dict):
                 continue
             event = {
@@ -764,7 +764,9 @@ class History:
                 "event_date": str(fixture.get("event_date") or ""),
                 "day": local_day,
                 "rank": index + 1,
-                "role": str(card_row.get("role") or ("match_du_jour" if index == 0 else "grande_affiche")),
+                "role": str(card_row.get("role") or (
+                    "match_du_jour" if index == 0 else "fil_rouge" if index < 4 else "a_suivre"
+                )),
                 "source": source,
                 "planned_at": now.astimezone(timezone.utc).isoformat(),
             }
@@ -1886,18 +1888,21 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
               and (as_of is None or kick(e) > as_of)
               and final_score(e) is None
               and str(e.get("status", "")).lower() not in ("cancelled", "postponed", "finished", "live")
-              and popular_live_match(e)]
+              and (
+                  popular_live_match(e)
+                  or high_stakes_bonus(e) >= 150
+                  or editorial_competition_rank(league(e)) is not None
+              )]
     if not future:
         return None
-    # Le programme du canal reflète la même priorité que le fil rouge :
-    # grands clubs d'abord, puis grands enjeux. Pas de remplissage avec des
-    # affiches inconnues simplement pour atteindre cinq lignes.
+    # Le programme peut contenir jusqu'à 10 affiches. Les quatre premières
+    # deviennent fil rouge principal; les suivantes restent "À suivre".
     future = sorted(future, key=_live_rank_key, reverse=True)
     chosen = []
-    for event in future[:14]:
+    for event in future[:28]:
         if has_two_team_logos(event, allow_remote=True):
             chosen.append(event)
-        if len(chosen) >= 4:
+        if len(chosen) >= 10:
             break
     if not chosen:
         return None
@@ -1905,13 +1910,21 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
     message = (
         "<b>📅 MATCHS DU JOUR</b>\n"
         "<i>⭐ Match du jour : <b>" + esc(team(featured, "home")) + " – "
-        + esc(team(featured, "away")) + "</b>. Les autres grandes affiches suivent.</i>\n\n"
+        + esc(team(featured, "away")) + "</b>. Les 4 premières affiches seront suivies en fil rouge ; les autres restent à suivre.</i>\n\n"
         "<b>💬 Quel match attendez-vous le plus ?</b>"
     )
     card = {"day": today.strftime("%d/%m/%Y"), "matches": [
         {"home": team(e, "home"), "away": team(e, "away"), "time": time_label(kick(e)),
          "league": league(e), "importance": importance(e),
-         "role": "match_du_jour" if index == 0 else "grande_affiche",
+         "role": (
+             "match_du_jour" if index == 0
+             else "fil_rouge" if index < 4
+             else "a_suivre"
+         ),
+         "editorial_rank": index + 1,
+         "team_rank": editorial_best_team_rank(e),
+         "competition_rank": editorial_competition_rank(league(e)),
+         "stage_bonus": high_stakes_bonus(e),
          "tracking_reason": live_tracking_reason(e),
          "home_logo": team_visual_url(e, "home", allow_remote=True),
          "away_logo": team_visual_url(e, "away", allow_remote=True)}
