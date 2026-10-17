@@ -163,6 +163,17 @@ class DiscoveryTests(unittest.TestCase):
                 result = config_from(str(manual))
             self.assertEqual([v["channel"] for v in result["sources"]], ["@manual_source"])
 
+    def test_filmcomplets_source_classic_only_pending_authorization(self):
+        from film_relay.runner import config_from
+        cfg = config_from(str(Path(__file__).resolve().parent.parent / "config/channels.json"))
+        matching = [src for src in cfg["sources"] if
+                    src["channel"].casefold() == "@filmcomplets"]
+        self.assertEqual(len(matching), 1)
+        self.assertIs(matching[0]["redistribution_authorized"], False)
+        from film_relay.desir_runner import verify_destination
+        with self.assertRaises(RuntimeError):
+            verify_destination("@filmcomplets", "@CineXDesirfr", "-10012345")
+
     def test_schedules(self):
         root = Path(__file__).resolve().parent.parent
         relay = (root.parent / '.github/workflows/telegram-film-relay.yml').read_text()
