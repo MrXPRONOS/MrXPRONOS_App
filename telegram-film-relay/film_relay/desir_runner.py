@@ -107,7 +107,7 @@ async def post_public(bot, user, public_peer, item, title, video_url: str,
         parse_mode="html", buttons=buttons, link_preview=False,
     )
 
-async def execute(*, publish: bool, limit: int, newest: bool) -> int:
+async def execute(*, publish: bool, limit: int, newest: bool, require_publication: bool = False) -> int:
     from telethon import TelegramClient, utils
     from telethon.sessions import StringSession
     from telethon.errors import FloodWaitError, PeerFloodError
@@ -206,7 +206,9 @@ async def execute(*, publish: bool, limit: int, newest: bool) -> int:
             if completed >= limit:
                 break
         LOG.info("Bilan CinéX Désir : %s publication(s) ou aperçu(s)", completed)
-        # No candidate is not a Telegram error.
+        if publish and require_publication and completed == 0:
+            LOG.error("Premier test non validé : aucun nouveau film publié.")
+            return 3
         return 0
     except (FloodWaitError, PeerFloodError) as exc:
         LOG.error("Restriction Telegram (%s) : arrêt immédiat, aucun retry.", type(exc).__name__)
@@ -221,12 +223,14 @@ def main():
     p.add_argument("--publish", action="store_true", help="Publier réellement au lieu de simuler")
     p.add_argument("--limit", type=int, default=1)
     p.add_argument("--newest", action="store_true")
+    p.add_argument("--require-publication", action="store_true")
     args = p.parse_args()
     if args.limit < 1 or args.limit > 2:
         p.error("Limite autorisée : 1 ou 2 publications")
     logging.basicConfig(level="INFO", format="%(asctime)s | %(levelname)s | %(message)s")
     try:
-        result = asyncio.run(execute(publish=args.publish, limit=args.limit, newest=args.newest))
+        result = asyncio.run(execute(publish=args.publish, limit=args.limit,
+                                     newest=args.newest, require_publication=args.require_publication))
     except Exception:
         LOG.exception("CinéX Désir : échec, voir message détaillé.")
         result = 1
