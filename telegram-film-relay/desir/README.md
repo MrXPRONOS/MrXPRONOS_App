@@ -6,7 +6,7 @@ Le programme Désir ne possède plus de workflow indépendant. Il est exécuté 
 
 - **Étape 1 :** découverte de canaux publics, envoyés uniquement dans Messages enregistrés (sans ajout automatique comme sources).
 - **Étape 2 :** jusqu'à deux films CinéX classiques, puis publicité correspondante dans les destinations classiques, selon le compteur des deux films.
-- **Étape 3 :** jusqu'à deux films CinéX Désir depuis `@Filmromatique`, affiches publiques `@CineXDesirfr`, vidéos dans le privé et attribution par transfert natif dans `@Torrent9SeriesFilms`. Après **deux films Désir supplémentaires**, la publicité suivante (Actu Foot, Pronos Live VIP, Coupons du Jour) est publiée dans Désir public, transférée à Torrent9 et publiée dans la vidéothèque privée.
+- **Étape 3 :** jusqu'à deux films CinéX Désir au total depuis `@Filmromatique` et `@g_romanticfilm`, affiches publiques `@CineXDesirfr`, vidéos dans le privé et attribution par transfert natif dans `@Torrent9SeriesFilms`. Après **deux films Désir supplémentaires**, la publicité suivante (Actu Foot, Pronos Live VIP, Coupons du Jour) est publiée dans Désir public, transférée à Torrent9 et publiée dans la vidéothèque privée.
 - Les deux cycles publicitaires sont **indépendants**, avec reçus `state/state.json` (classique) et `state/desir_state.json` (Désir). Chaque destination conserve aussi son propre compteur.
 - Les pubs publiques ont de véritables boutons URL bleus. Pour la vidéothèque Désir, si le bot n'a pas les droits d'administrateur, une affiche et un lien texte cliquable sont envoyés avec le compte utilisateur ; ajouter le bot comme administrateur au privé permet de conserver les vrais boutons bleus.
 - Un cycle qui ne trouve pas deux nouveaux films ne poste pas de publicité supplémentaire. Les programmes ne contournent aucune protection anti-copie.
@@ -17,14 +17,14 @@ Le programme Désir ne possède plus de workflow indépendant. Il est exécuté 
 
 ## Flux
 
-1. Source autorisée : `@Filmromatique` (affiches et vidéos MKV/MP4, même sans description). Pour les MKV, pas de filtre de durée ni de taille.
+1. Sources prévues : `@Filmromatique` et `@g_romanticfilm` (affiches et vidéos MKV/MP4, même sans description). Pour les MKV, pas de filtre de durée ni de taille. La source supplémentaire est facultative en cas d'indisponibilité, aucune protection anti-transfert n'est contournée, et les droits de redistribution restent nécessaires.
 2. Vidéothèque privée : identifiant numérique de `DESIR_PRIVATE_CHANNEL`. La vidéo et éventuellement l'affiche y sont envoyées comme **nouveaux messages**, sans mention « Transféré de ».
 3. Canal public : `@CineXDesirfr`. L'affiche est envoyée avec le lien vers la vidéo privée dans sa légende et un véritable bouton Telegram vert « Regarder le film ».
 4. Miroir : `@Torrent9SeriesFilms`. Le message public (affiche, lien et attribution Telegram) est **transféré nativement** depuis CinéX Désir. Aucune vidéo privée n'est transférée vers ce miroir. Le lien écrit dans la légende subsiste si les boutons ne sont pas reproduits par le client Telegram.
 
 ## GitHub
 
-Workflow : `.github/workflows/telegram-film-desir.yml`. Test manuel : `workflow_dispatch` ; avec `publish=true` la publication réelle est limitée à **1 film par exécution**. Une simulation sans publication reste possible. Le workflow possède le verrou partagé `mrx-telegram-personal-account`.
+Workflow unique : `.github/workflows/telegram-film-relay.yml`. Test manuel : `workflow_dispatch` ; avec `publish=true`, au maximum **deux films classiques et deux films Désir au total** par exécution, suivis des publicités dues après deux films de chaque catégorie. Avec `publish=false`, les publications sont ignorées et seule la découverte s'exécute. Le workflow possède le verrou partagé `mrx-telegram-personal-account`.
 
 Secrets déjà utilisés :
 - `TG_API_ID`, `TG_API_HASH`, `TG_SESSION_STRING` (ou `TG_STRING_SESSION`).
@@ -32,12 +32,17 @@ Secrets déjà utilisés :
 - `DESIR_PRIVATE_INVITE_LINK` : lien d'invitation privé.
 
 Variables :
-- `DESIR_SOURCE_CHANNEL` (défaut `@Filmromatique`).
+- `DESIR_SOURCE_CHANNEL` (première source, défaut `@Filmromatique`).
+- `DESIR_EXTRA_SOURCE_CHANNEL` (deuxième source, défaut `@g_romanticfilm` ; **aucune variable supplémentaire obligatoire**).
 - `DESIR_PUBLIC_CHANNEL` (défaut `@CineXDesirfr`).
 - `DESIR_MIRROR_CHANNEL` (défaut `@Torrent9SeriesFilms` ; **aucune variable supplémentaire nécessaire**).
 - `DESIR_PRIVATE_CHANNEL` : identifiant privé obligatoire `-100...`.
 
-La publication exige les permissions de publication du bot dans le canal public et du compte personnel dans Torrent9 ; le programme refuse de copier des fichiers protégés contre le transfert ou des destinations incorrectes. Les reçus des canaux privé/public/miroir sont indépendants de ceux du relais CinéX classique et persistent dans `state/desir_state.json` ; les transferts manquants sont rattrapés sans nouveau téléchargement vidéo.
+La publication exige les permissions de publication du bot dans le canal public et du compte personnel dans Torrent9 ; le programme refuse de copier des fichiers protégés contre le transfert ou des destinations incorrectes. Les reçus des deux sources ainsi que des canaux privé/public/miroir sont indépendants de ceux du relais CinéX classique et persistent dans `state/desir_state.json` ; les transferts manquants sont rattrapés sans nouveau téléchargement vidéo.
+
+## Messages enregistrés — découverte
+
+Le même workflow recherche des canaux et envoie **un seul message HTML récapitulatif par passage** lorsqu'il trouve de nouveaux canaux, et aucun message s'il n'y a pas de nouveauté. Chaque ligne présente le nom du canal **en gras**, un lien cliquable `https://t.me/...` distinct et le nombre de paires affiche/vidéo détectées. Les retours à la ligne sont de vrais caractères de fin de ligne ; pas de séquence littérale `\\n`. La recherche est limitée à 16 canaux analysés par cycle pour rester dans la taille d'un message Telegram. Les accusés des canaux déjà notifiés sont préservés dans `state/discovered_channels.json`.
 
 ## Premier test réel — 17 octobre 2026
 
