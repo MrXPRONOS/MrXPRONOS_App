@@ -1,6 +1,7 @@
 """Test réel unique du visuel marché vers @predict_mrxp (aucune publication de production)."""
 from __future__ import annotations
 import os
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 import requests
@@ -46,6 +47,8 @@ def main():
     print("REAL_MARKET_PROVIDER",provider)
     print("REAL_CHARTS",count,"of",len(chosen))
     print("REAL_MARKET_IMAGE",path)
+    if "--preview-only" in sys.argv[1:]:
+        return
     token=(os.getenv("FOOTBALL_NEWS_BOT_TOKEN") or "").strip()
     target=(os.getenv("TELEGRAM_TEST_CHAT_ID") or "@predict_mrxp").strip()
     verified=validate_test_channel(target,token)
