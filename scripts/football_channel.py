@@ -2432,7 +2432,14 @@ def lifecycle_publication(signal: dict) -> Publication | None:
         "espn_url": espn_url,
         "fixture_key": plain(signal.get("follow_ref") or signal.get("fixture_key"), 180),
         "canonical_event_key": plain(signal.get("key"), 220),
+        "plan_role": plain(signal.get("plan_role") or "", 40),
+        "plan_rank": signal.get("plan_rank"),
     }
+    focus = (
+        "⭐ MATCH DU JOUR • FIL ROUGE"
+        if base_card["plan_role"] == "match_du_jour"
+        else "🔥 GRANDE AFFICHE • FIL ROUGE"
+    )
 
     if kind == "composition":
         lineups = signal.get("lineups") if isinstance(signal.get("lineups"), dict) else {}
@@ -2453,7 +2460,7 @@ def lifecycle_publication(signal: dict) -> Publication | None:
             "lineup_home_hash": signal.get("lineup_home_hash") or "",
             "lineup_away_hash": signal.get("lineup_away_hash") or "",
         }
-        message = "<b>🚨 OFFICIEL ! LES COMPOSITIONS SONT CONFIRMÉES</b>"
+        message = "<b>" + focus + "</b>\n<b>🚨 OFFICIEL ! LES COMPOSITIONS SONT CONFIRMÉES</b>"
         keyboard = None
     else:
         # Toutes les catégories compatibles avec les trois bannières génériques
@@ -2466,7 +2473,7 @@ def lifecycle_publication(signal: dict) -> Publication | None:
         }}
         if not is_banner_category(kind, card):
             return None
-        message = banner_caption(kind, card)
+        message = "<b>" + focus + "</b>\n" + banner_caption(kind, card)
         keyboard = None
 
     event_id = plain(signal.get("espn_event_id"), 32)
@@ -2619,9 +2626,15 @@ def followed_final_publication(signal: dict) -> Publication | None:
         + (("<br/>" + result) if result else "") + "</blockquote>"
         if shootout_score else ""
     )
+    focus = (
+        "⭐ MATCH DU JOUR • FIL ROUGE"
+        if plain(signal.get("plan_role"), 40) == "match_du_jour"
+        else "🔥 GRANDE AFFICHE • FIL ROUGE"
+    )
     message = (
+        "<b>" + focus + "</b>\n"
         "<b>🏁 RÉSULTAT FINAL</b>\n"
-        "<i>Fin du match suivi.</i>"
+        "<i>Fin du match suivi depuis l’avant-match.</i>"
         + shootout_block
         + "\n\n<b>💬 Votre avis sur le match ?</b>"
     )
@@ -3004,12 +3017,15 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
             return False
 
         coverage_ref = ref or existing_ref or ""
+        event_plan = state.plan_for_event(follow_event, now) if follow_event is not None else None
+        if coverage_ref and event_plan is not None:
+            followup.apply_plan_metadata(state.followed, coverage_ref, event_plan)
         if coverage_ref and not followup.publication_allowed(state.followed, coverage_ref, item.category):
             counter["skipped"] += 1
             print("FOLLOWUP_SEQUENCE_BLOCKED", coverage_ref, item.category)
             return False
         if item.category == "avant_match" and follow_event is not None:
-            plan = state.plan_for_event(follow_event, now)
+            plan = event_plan
             if plan is None:
                 counter["skipped"] += 1
                 print("FOLLOWUP_NOT_IN_DAILY_PLAN", item.key)
