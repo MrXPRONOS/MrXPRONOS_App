@@ -10,7 +10,8 @@ from pathlib import Path
 from .matching import (document_key, filename_of, is_poster, is_video, match_pairs,
                        match_authorized_mkv_pairs, description_of, description_entities_of)
 from .verification import screen_pairs
-from .publication import (rich_caption, rich_video_title, send_public_poster_with_buttons)
+from .publication import (rich_caption, rich_video_title, film_folder_url,
+                          send_public_poster_with_buttons)
 from .state import State
 from .recovery import (snapshot_telegram_posts, recover_from_snapshot,
                        existing_native_forwards)
@@ -285,19 +286,9 @@ async def execute() -> int:
                 "Super Mario Film (destination publique) ne possède pas de @username public. "
                 "Vérifier la confidentialité du canal ou corriger TG_PUBLIC_CHANNEL."
             )
-        invitation = (cfg.get("private_invite_link") or "").strip()
-        if not invitation and publish:
-            # A t.me/c/ link works only for private-channel members. Offer an
-            # invitation to newcomers when the Telegram account is an admin.
-            try:
-                from telethon.tl.functions.messages import ExportChatInviteRequest
-                exported = await client(ExportChatInviteRequest(peer=destination_private))
-                invitation = str(getattr(exported, "link", "") or "")
-                if invitation:
-                    LOG.info("Lien d'accès privé obtenu automatiquement (valeur non journalisée).")
-            except Exception as exc:
-                LOG.warning("Invitation privée introuvable (%s) : renseigner TG_PRIVATE_INVITE_LINK.",
-                            type(exc).__name__)
+        # Public posts now direct viewers to the shared films folder.
+        # Stop exporting private invitation links on each two-hour run.
+        invitation = film_folder_url()
 
         # Complete mirrored copies left pending after a previous partial run.
         # Do not re-upload a MKV or re-post the original public message.
