@@ -221,6 +221,16 @@ class RelayEndToEndTests(unittest.TestCase):
             self.assertEqual(second.sent[0].options['buttons'][0][0][1], 'https://t.me/c/1020304050/102')
             self.assertEqual(State(str(state)).get_staged_posts(f'{SRC}:10:11'), {})
 
+    def test_hard_cap_two_even_when_configuration_requests_nine(self):
+        with TemporaryDirectory() as temp:
+            cfg, state = self.setup_files(temp, max_posts=9)
+            client = FakeTelegramClient(sample_messages(count=3))
+            self.assertEqual(self.start(client, cfg, state), 0)
+            saved = State(str(state))
+            self.assertEqual(len(saved.data["processed"]), 2)
+            self.assertEqual(saved.seen(str(SRC)), 13)
+            self.assertNotIn(f'{SRC}:14:15', saved.data["processed"])
+
     def test_publication_limit_does_not_drop_later_pairs(self):
         with TemporaryDirectory() as temp:
             cfg, state = self.setup_files(temp, max_posts=1)
