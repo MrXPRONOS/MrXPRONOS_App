@@ -46,6 +46,18 @@ CLEAN_CODES = re.compile(r"(?i)\b(?:saison|season|episode|épisode|ep)[\s._-]*\d
 GENERIC = {"anime", "animé", "saison", "épisode", "episode", "vf", "vostfr",
            "film", "dessin anime", "serie", "série"}
 
+# Une source peut annoncer « No Longer Rangers S02 » dans l'affiche,
+# puis publier séparément « Episode_01.mkv », « Episode_02.mkv », etc.
+# L'ancienne expression ne comprenait pas le token S02 isolé.
+SEASON_HEADER = re.compile(
+    r"(?i)(?<![A-Za-z0-9])s(?:aison|eason)?[\s._-]*0*(\d{1,2})(?!\d)"
+)
+EXPLICIT_EP_SEASON = re.compile(
+    r"(?i)\b(?:s\d{1,2}\s*[-._ ]*e\d+|saison[\s._-]*\d+[\s._-]*[eé](?:pisode|p)?[\s._-]*\d+|"
+    r"season[\s._-]*\d+[\s._-]*e\d+|\d+x\d+)\b"
+)
+
+
 
 def episode_numbers(text: str):
     match = SEASON_EP.search(text or "")
@@ -63,6 +75,8 @@ def episode_numbers(text: str):
 def series_title(text: str) -> str:
     value = first_title(text or "").strip()
     value = CLEAN_CODES.sub(" ", value)
+    value = SEASON_HEADER.sub(" ", value)
+    value = re.sub(r"(?i)(?:\b(?:mp4|mkv)\b|^@[^\s]+\s+(?:vf|fv)\b)", " ", value)
     value = re.sub(r"(?i)\b(?:vf|vostfr|1080p|720p|dub|hd|complet)\b", " ", value)
     value = re.sub(r"[|_\[\](){},:.]+", " ", value)
     value = re.sub(r"\s+", " ", value).strip(" -.#!")
@@ -89,7 +103,7 @@ def classify(messages, source_id: int):
     latest_poster = None
     current_season = 1
     candidates = []
-    season_header = re.compile(r"(?i)\b(?:saison|season)\s*0*(\d{1,2})\b")
+    season_header = SEASON_HEADER
     for msg in sorted(messages, key=lambda x: int(x.id)):
         if getattr(msg, "noforwards", False):
             continue
@@ -110,7 +124,7 @@ def classify(messages, source_id: int):
         raw = str(getattr(msg, "raw_text", "") or "")
         filename = filename_of(msg)
         numbers = episode_numbers(raw) or episode_numbers(filename)
-        if numbers and not re.search(r"(?i)\b(?:s\d+\s*[-._ ]*e\d+|saison\s*\d+|season\s*\d+|\d+x\d+)\b", raw + " " + filename):
+        if numbers and not EXPLICIT_EP_SEASON.search(raw + " " + filename):
             numbers = (current_season, numbers[1])
         if not numbers:
             continue
@@ -242,6 +256,15 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         for key, items in groups.items():
             if len(completed_series) >= limit or copied_episodes >= episode_cap:
                 break
+            # Compatibilité avec les catalogues créés avant la correction S02.
+            # Ne pas créer une deuxième fiche ni recharger les épisodes déjà copiés.
+            if key not in catalogue["series"]:
+                previous = next((
+                    older_key for older_key, older in catalogue["series"].items()
+                    if slug(series_title(str(older.get("title", "")))) == key
+                ), None)
+                if previous:
+                    key = previous
             existing = catalogue["series"].get(key, {})
             known_keys = set(existing.get("source_items", {}))
             pending = [x for x in sorted(items, key=lambda x: (x["season"], x["episode"]))
