@@ -125,13 +125,15 @@ class DiscoveryTests(unittest.TestCase):
         self.assertEqual(candidate_window([1,2,3,4,5], 2, 4), [5,1])
 
     def test_discovery_notifications_go_to_saved_messages_only(self):
-        from film_relay.discovery import notification_text, notify_saved_messages
+        from film_relay.discovery import notification_text, notification_summary, notify_saved_messages
         channel = {"username": "cinema_test", "title": "Cinema & Films",
                    "matching_pairs": 3}
         rendered = notification_text(channel)
         self.assertIn("https://t.me/cinema_test", rendered)
-        self.assertIn("Droits de redistribution non vérifiés", rendered)
         self.assertIn(chr(10), rendered)
+        self.assertNotIn(chr(92) + "n", rendered)
+        summary = notification_summary([channel])
+        self.assertIn("Droits de redistribution non vérifiés", summary)
         client = NS(send_message=AsyncMock())
         sent = set()
         result = asyncio.run(notify_saved_messages(client, [channel, channel], sent))
@@ -164,9 +166,10 @@ class DiscoveryTests(unittest.TestCase):
     def test_schedules(self):
         root = Path(__file__).resolve().parent.parent
         relay = (root.parent / '.github/workflows/telegram-film-relay.yml').read_text()
-        discovery = (root.parent / '.github/workflows/telegram-film-discovery.yml').read_text()
         self.assertIn("17 */2 * * *", relay)
-        self.assertIn("23 3 * * *", discovery)
+        self.assertIn("python -m film_relay.discovery", relay)
+        self.assertIn("python -m film_relay.desir_runner --publish --limit 2", relay)
+        self.assertFalse((root.parent / '.github/workflows/telegram-film-discovery.yml').exists())
         self.assertNotIn('7,37 * * * *', relay)
 
     def test_public_discovery_config_is_bounded(self):
