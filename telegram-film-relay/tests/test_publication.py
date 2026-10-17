@@ -18,7 +18,7 @@ class RenderTests(unittest.TestCase):
         self.assertIn("<b>Genre :</b> Comédie &amp; Action", rendered)
         self.assertIn("<b>Synopsis :</b> <i>Un &lt;héros&gt; voyage</i>", rendered)
         self.assertNotIn("https://t.me/c/", rendered)
-        self.assertIn("bouton", rendered)
+        self.assertIn("rejoins notre team", rendered)
 
     def test_styled_video_title(self):
         self.assertEqual(rich_video_title("Le Film & Moi"), "<b>🎞️ Le Film &amp; Moi</b>")
@@ -68,7 +68,7 @@ class RenderTests(unittest.TestCase):
         self.assertEqual(bot.opts["buttons"][1][0][2], "danger")
         self.assertNotIn("https://t.me/c/", bot.opts["caption"])
         self.assertIn(DEFAULT_FILM_FOLDER_URL, bot.opts["caption"])
-        self.assertIn("REJOINS LA TEAM", bot.opts["caption"])
+        self.assertIn("DÉCOUVRE ENCORE PLUS DE FILMS", bot.opts["caption"])
 
 
 if __name__ == "__main__":
