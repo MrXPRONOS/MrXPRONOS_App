@@ -16,7 +16,7 @@ let supabaseAvailable = false;
 let supabaseConfig = { url: "", anonKey: "" };
 
 let allData = null;
-let currentCategory = "simple";
+let currentCategory = "all";
 // Tant que le visiteur ne choisit pas lui-même un onglet (ou ?cat=...),
 // afficher automatiquement la catégorie la plus fournie pour le jour affiché.
 let autoSelectCategoryByCount = true;
@@ -1381,7 +1381,7 @@ function getTeamLogoPath(teamName, isHome = true) {
   return `assets/images/${normalized}.webp`;
 }
 
-const CATEGORY_LABELS = { simple: "Simple", pro: "Pro", vip: "VIP" };
+const CATEGORY_LABELS = { all: "Tous", simple: "Simple", pro: "Pro", vip: "VIP" };
 
 function readInitialCategory() {
   const cat = String(new URLSearchParams(window.location.search).get("cat") || "").toLowerCase();
@@ -1390,16 +1390,13 @@ function readInitialCategory() {
     autoSelectCategoryByCount = false;
     return cat;
   }
-  return "simple";
+  return "all";
 }
 
-// Comparer uniquement les catégories disposant de pronostics affichables
-// pour le jour sélectionné. En cas d'égalité : Simple, puis Pro, puis VIP.
+// Par défaut, afficher tous les pronostics qualifiés du jour. Les onglets
+// Simple / Pro / VIP restent disponibles comme filtres explicites.
 function mostPopulatedCategory(counts) {
-  return Object.keys(CATEGORY_LABELS).reduce(
-    (best, cat) => (counts[cat] || 0) > (counts[best] || 0) ? cat : best,
-    "simple"
-  );
+  return "all";
 }
 
 function syncCategoryTabs(counts = null) {
@@ -1432,6 +1429,7 @@ function updateCategorySummary(shown, searchActive = false) {
   const description = document.getElementById("category-description");
   if (description) {
     const descriptions = {
+      all: "Tous les pronostics qualifiés du jour, sans masquer les catégories Simple, Pro ou VIP.",
       simple: "Des pronostics fiables et accessibles pour tous. Analyses basées sur les statistiques et la forme actuelle des équipes.",
       pro: "Des sélections plus exigeantes, avec une lecture approfondie des données et des scénarios de match.",
       vip: "Nos sélections les plus strictes, retenues parmi les meilleures opportunités détectées par le système.",
@@ -1450,12 +1448,13 @@ function filterAndDisplay() {
   }
 
   const targetDate = getLocalDateString(currentDay);
-  const counts = { simple: 0, pro: 0, vip: 0 };
+  const counts = { all: 0, simple: 0, pro: 0, vip: 0 };
   const currentDayMatches = allData.matches.filter((m) => {
     const category = String(m.category || "").trim().toLowerCase();
-    if (!(category in counts) || m.combo_only || getMatchDate(m) !== targetDate) return false;
+    if (!(category in CATEGORY_LABELS) || category === "all" || m.combo_only || getMatchDate(m) !== targetDate) return false;
     if (m.source === "bsd" && !m.is_finished && m.recommendation_eligible !== true) return false;
     counts[category] += 1;
+    counts.all += 1;
     return true;
   });
 
@@ -1465,7 +1464,7 @@ function filterAndDisplay() {
   syncCategoryTabs(counts);
 
   filteredMatchesWithoutSearch = currentDayMatches
-    .filter((m) => String(m.category || "").trim().toLowerCase() === currentCategory)
+    .filter((m) => currentCategory === "all" || String(m.category || "").trim().toLowerCase() === currentCategory)
     .sort((a, b) => Number(b.final_score || b.xpronos_score || 0) - Number(a.final_score || a.xpronos_score || 0));
 
   applySearchFilter();

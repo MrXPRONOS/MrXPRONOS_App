@@ -70,8 +70,8 @@ class V21SafetyTests(unittest.TestCase):
                "prediction":{"selection_key":"OVER_15","confidence":80}}]
         self.assertEqual(v21_league_market_performance(rows)["A|OVER_15"]["n"],1)
 
-    def test_daily_limit_configured(self):
-        self.assertEqual(V21_DAILY_NEW_PICKS,10)
+    def test_daily_limit_no_longer_blocks_normal_volume(self):
+        self.assertEqual(V21_DAILY_NEW_PICKS,1000)
 
 if __name__=="__main__":
     unittest.main()

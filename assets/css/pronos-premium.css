@@ -109,7 +109,7 @@
   transform:translateY(-1px);
 }
 .mx-pronos-page .pronostic-category-tabs{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:0;
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:0;
   border:1px solid #1a587c;border-radius:15px;overflow:hidden;background:rgba(3,22,36,.96);
 }
 .mx-pronos-page .pronostic-category-tabs .tab-btn{
