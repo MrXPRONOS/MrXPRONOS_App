@@ -1,0 +1,59 @@
+name: CineX - Importer 3 affiches une fois
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cinex-import-posters-once.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: mrx-telegram-film-state
+  cancel-in-progress: false
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Installer Pillow
+        run: python -m pip install Pillow
+      - name: Importer les trois PNG officiels
+        env:
+          ACTU_URL: 'https://d2jqrm6oza8nb6.cloudfront.net/datasets/58567a46-8a98-4167-819d-484787eae791.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiY2FhY2Q1NDJjMTc0MjZjYyIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MjMzNDAxOH0.Tx3dNNaW1uYHlRvWmypIzTKlZha9Z0NKVNNF2y3ok9Y'
+          LIVE_URL: 'https://d2jqrm6oza8nb6.cloudfront.net/datasets/7467e196-c328-4338-ba7e-b73faa0bfa7b.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMDAzNzVhZTY2ZjRkNjU4NCIsImJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MjM2Njk1MH0.Od3HmH5ujG9JBUt0SOuu8UcQm9zhvsIpzmswD1wENjU'
+          JOUR_URL: 'https://d2jqrm6oza8nb6.cloudfront.net/datasets/e0045582-1326-4e4a-b556-e998641086b3.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNzE3OTdhOGEwNWM3ZDNiMyIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MjMzMDYzNH0.32PrzrkKt60Ua6U7TXd3WAqoARCafj10Dm86mib_58o'
+        run: |
+          python - <<'PY'
+          import io,os,urllib.request,hashlib
+          from pathlib import Path
+          from PIL import Image
+          dst=Path("telegram-film-relay/assets/promotions")
+          dst.mkdir(parents=True, exist_ok=True)
+          for key in ("actu","live","jour"):
+              url=os.environ[key.upper()+"_URL"]
+              req=urllib.request.Request(url, headers={"User-Agent":"CineX-asset-import/1.0"})
+              with urllib.request.urlopen(req,timeout=55) as r:
+                  contents=r.read()
+              with Image.open(io.BytesIO(contents)) as im:
+                  im.verify()
+              with Image.open(io.BytesIO(contents)) as im:
+                  if im.format != "PNG" or im.size != (1229,1536):
+                      raise RuntimeError(f"Invalid image {key}: {im.format}, {im.size}")
+              p=dst/f"mrx_{key}.png"
+              p.write_bytes(contents)
+              print(key,len(contents),hashlib.sha256(contents).hexdigest())
+          PY
+      - name: Enregistrer les fichiers et supprimer ce workflow temporaire
+        run: |
+          set -e
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm .github/workflows/cinex-import-posters-once.yml
+          git add telegram-film-relay/assets/promotions/mrx_actu.png telegram-film-relay/assets/promotions/mrx_live.png telegram-film-relay/assets/promotions/mrx_jour.png
+          git add -u .github/workflows/cinex-import-posters-once.yml
+          git commit -m "assets(cinex): add three original promotional PNG files [skip ci]"
+          git pull --rebase origin main
+          git push origin HEAD:main
