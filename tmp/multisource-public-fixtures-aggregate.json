@@ -137,9 +137,10 @@
   "requests": {
     "site.api.espn.com": 3,
     "sportscore.com": 3,
-    "www.thesportsdb.com": 3
+    "www.thesportsdb.com": 3,
+    "api.openligadb.de": 4
   },
-  "requests_total": 9,
+  "requests_total": 13,
   "max_requests": 24,
   "no_production_writes": true
 }
