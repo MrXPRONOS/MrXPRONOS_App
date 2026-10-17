@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'telegram-film-relay/scripts/partnership_cycle.py'
+      - 'telegram-film-relay/film_relay/bot_http.py'
+      - 'telegram-film-relay/tests/test_bot_http.py'
       - 'telegram-film-relay/film_relay/runner.py'
       - 'telegram-film-relay/film_relay/desir_runner.py'
       - 'telegram-film-relay/film_relay/category_runner.py'
@@ -24,7 +26,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m pip install pyyaml
+      - run: python -m pip install pyyaml requests -r telegram-film-relay/requirements.txt
+      - name: Tester les boutons et limites Telegram sans réseau
+        run: python -m unittest discover -s telegram-film-relay/tests -p 'test_bot_http.py' -v
       - name: Valider scripts et ordre des étapes sans publier
         run: |
           python -m py_compile telegram-film-relay/scripts/partnership_cycle.py telegram-film-relay/film_relay/runner.py telegram-film-relay/film_relay/desir_runner.py telegram-film-relay/film_relay/category_runner.py
