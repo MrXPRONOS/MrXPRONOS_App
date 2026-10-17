@@ -217,6 +217,14 @@ def _eased_x(t, duration, card_width, enter=0.34, leave=0.34):
     return center_x
 
 
+def _fit_card_size(source_w: int, source_h: int, max_w: int = 940, max_h: int = 1210):
+    """Fit inside the social-safe coupon area with one uniform scale factor."""
+    if source_w <= 0 or source_h <= 0:
+        raise RuntimeError("Dimensions coupon invalides")
+    scale = min(max_w / source_w, max_h / source_h, 1.0)
+    return int(round(source_w * scale)), int(round(source_h * scale))
+
+
 def _make_card_shadow(card_width: int, card_height: int, out: Path):
     """External shadow/glow only. The Telegram coupon pixels stay untouched."""
     pad = 54
@@ -303,11 +311,7 @@ def build_video(cards, output: Path, work_dir: Path):
     for idx, card_path in enumerate(cards):
         with Image.open(card_path) as image:
             source_w, source_h = image.size
-        if source_w <= 0 or source_h <= 0:
-            raise RuntimeError("Dimensions coupon invalides")
-        scale = target_width / source_w
-        card_width = int(round(source_w * scale))
-        card_height = int(round(source_h * scale))
+        card_width, card_height = _fit_card_size(source_w, source_h, max_w=target_width, max_h=1210)
         if coupon_y + card_height >= 1360:
             raise RuntimeError("Coupon Telegram trop haut pour la zone vidéo sûre")
 
