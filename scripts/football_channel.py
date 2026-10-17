@@ -2008,6 +2008,139 @@ def fetch_prematch_forms(client: BSDClient, event: dict) -> dict[str, str]:
     return values
 
 
+def _parse_form_story(value: str) -> dict[str, Any]:
+    """Transforme 'V • N • D | 4/9 pts' en faits utilisables sans rien inventer."""
+    text_value = str(value or "").strip()
+    if not text_value:
+        return {"games": 0, "wins": 0, "draws": 0, "losses": 0, "points": 0, "max_points": 0, "sequence": []}
+    left, _, right = text_value.partition("|")
+    sequence = [token.strip().upper() for token in left.split("•") if token.strip().upper() in {"V", "N", "D"}]
+    points = max_points = 0
+    match = re.search(r"(\d+)\s*/\s*(\d+)\s*pts", right, flags=re.I)
+    if match:
+        points, max_points = int(match.group(1)), int(match.group(2))
+    elif sequence:
+        points = sum(3 if token == "V" else 1 if token == "N" else 0 for token in sequence)
+        max_points = len(sequence) * 3
+    return {
+        "games": len(sequence),
+        "wins": sequence.count("V"),
+        "draws": sequence.count("N"),
+        "losses": sequence.count("D"),
+        "points": points,
+        "max_points": max_points,
+        "sequence": sequence,
+    }
+
+
+def prematch_story(home: str, away: str, home_form: str, away_form: str,
+                   h2h_values: dict[str, Any] | None = None) -> str:
+    """Mini-récit éditorial composé uniquement à partir de faits disponibles.
+
+    Les formulations ("dynamique", "pression", "équilibre") sont des lectures
+    éditoriales des chiffres; aucun résultat, série ou statistique n'est créé.
+    """
+    h2h_values = h2h_values or {}
+    hf = _parse_form_story(home_form)
+    af = _parse_form_story(away_form)
+    sentences: list[str] = []
+
+    # 1) Forme récente : on raconte la dynamique sans extrapoler un pronostic.
+    if hf["games"] >= 3 and af["games"] >= 3:
+        hp, ap = hf["points"], af["points"]
+        hmax, amax = max(hf["max_points"], 1), max(af["max_points"], 1)
+        hrate, arate = hp / hmax, ap / amax
+        if hrate >= arate + 0.25:
+            sentences.append(
+                f"{home} arrive avec la dynamique la plus solide : {hp} point"
+                + ("s" if hp != 1 else "") + f" pris sur {hmax}, contre {ap}/{amax} pour {away}."
+            )
+        elif arate >= hrate + 0.25:
+            sentences.append(
+                f"{away} aborde cette affiche avec la meilleure dynamique : {ap} point"
+                + ("s" if ap != 1 else "") + f" pris sur {amax}, contre {hp}/{hmax} pour {home}."
+            )
+        else:
+            sentences.append(
+                f"Les deux équipes arrivent dans des dynamiques assez proches : "
+                f"{home} a pris {hp}/{hmax} points récemment, {away} {ap}/{amax}."
+            )
+
+        # Une vraie série récente, seulement si les données la montrent.
+        for club, form in ((home, hf), (away, af)):
+            seq = form["sequence"]
+            if len(seq) >= 3 and seq[:3] == ["V", "V", "V"]:
+                sentences.append(f"{club} reste notamment sur trois victoires consécutives dans les résultats disponibles.")
+                break
+            if len(seq) >= 3 and seq[:3] == ["D", "D", "D"]:
+                sentences.append(f"{club} reste sur trois défaites consécutives et arrive donc avec une dynamique plus fragile.")
+                break
+    elif hf["games"] >= 3:
+        sentences.append(
+            f"{home} présente {hf['points']}/{max(hf['max_points'],1)} points sur sa forme récente disponible."
+        )
+    elif af["games"] >= 3:
+        sentences.append(
+            f"{away} présente {af['points']}/{max(af['max_points'],1)} points sur sa forme récente disponible."
+        )
+
+    # 2) Face-à-face : uniquement si l'échantillon est cohérent.
+    try:
+        total = int(h2h_values.get("total_matches") or 0)
+        hw = int(h2h_values.get("home_wins") or 0)
+        aw = int(h2h_values.get("away_wins") or 0)
+        draws = int(h2h_values.get("draws") or 0)
+    except (TypeError, ValueError):
+        total = hw = aw = draws = 0
+
+    if total >= 2 and hw + aw + draws == total:
+        if hw >= aw + 2:
+            sentences.append(
+                f"Dans les {total} confrontations directes disponibles, {home} a pris l'avantage avec "
+                f"{hw} victoire" + ("s" if hw != 1 else "") + f", contre {aw} pour {away}."
+            )
+        elif aw >= hw + 2:
+            sentences.append(
+                f"Dans les {total} confrontations directes disponibles, {away} a pris l'avantage avec "
+                f"{aw} victoire" + ("s" if aw != 1 else "") + f", contre {hw} pour {home}."
+            )
+        else:
+            sentences.append(
+                f"Le face-à-face reste serré sur l'échantillon disponible : "
+                f"{home} {hw} victoire" + ("s" if hw != 1 else "") + f", "
+                f"{draws} nul" + ("s" if draws != 1 else "") + f", {away} {aw} victoire"
+                + ("s" if aw != 1 else "") + "."
+            )
+
+        avg = h2h_values.get("avg_total_goals")
+        try:
+            avg_value = float(avg)
+        except (TypeError, ValueError):
+            avg_value = None
+        if avg_value is not None and total >= 3:
+            if avg_value >= 3.0:
+                sentences.append(
+                    f"Ces confrontations ont aussi produit en moyenne {avg_value:.1f} buts par match : "
+                    "un historique plutôt ouvert, sans que cela garantisse le scénario de ce soir."
+                )
+            elif avg_value <= 1.8:
+                sentences.append(
+                    f"Avec {avg_value:.1f} buts par match en moyenne dans ces confrontations, "
+                    "l'historique disponible est plutôt fermé."
+                )
+
+    # 3) Conclusion éditoriale, présentée comme lecture et non comme fait.
+    if sentences:
+        if len(sentences) == 1:
+            sentences.append("Les chiffres donnent donc un premier décor, mais le terrain décidera de la suite.")
+        else:
+            sentences.append("Voilà le décor statistique avant le coup d'envoi ; le terrain dira maintenant si la tendance se confirme.")
+    else:
+        return ""
+
+    return " ".join(sentences[:4])
+
+
 def avant_match(events: list[dict], history: History, now: datetime,
                 history_events: list[dict], form_values: dict[str, str] | None = None,
                 h2h_values: dict[str, Any] | None = None) -> Publication | None:
@@ -2053,6 +2186,7 @@ def avant_match(events: list[dict], history: History, now: datetime,
             + avg_text
             + "</p>"
         )
+    story = prematch_story(h, a, home_form, away_form, h2h_values)
     reason = live_tracking_reason(e)
     if str(e.get("plan_role") or "") == "match_du_jour":
         focus_label = "⭐ MATCH DU JOUR • FIL ROUGE"
@@ -2060,17 +2194,34 @@ def avant_match(events: list[dict], history: History, now: datetime,
         focus_label = "🔥 GRANDE AFFICHE • FIL ROUGE"
     else:
         focus_label = "🔥 FIL ROUGE • GRANDE AFFICHE" if reason in ("choc_grands_clubs", "grand_club") else "🏆 FIL ROUGE • MATCH À ENJEU"
+    story_block = (
+        "\n\n<b>📖 L’HISTOIRE AVANT LE MATCH</b>\n" + esc(story)
+        if story else ""
+    )
+    facts_block = ""
+    fact_lines = []
+    if home_form:
+        fact_lines.append("📈 " + esc(h) + " : " + esc(home_form))
+    if away_form:
+        fact_lines.append("📉 " + esc(a) + " : " + esc(away_form))
+    if fact_lines:
+        facts_block = "\n\n<b>📊 Forme récente</b>\n" + "\n".join(fact_lines)
+    if h2h_block:
+        facts_block += "\n\n" + h2h_block
     message = (
         "<b>🔎 AVANT-MATCH</b>\n"
         "<b>" + focus_label + "</b>\n"
-        "<i>Le coup d’envoi approche. Actu Foot suivra cette rencontre jusqu’au coup de sifflet final.</i>\n\n"
-        "<b>💬 Quel scénario imaginez-vous ?</b>"
+        "<i>Le coup d’envoi approche. Actu Foot suivra cette rencontre jusqu’au coup de sifflet final.</i>"
+        + story_block
+        + facts_block
+        + "\n\n<b>💬 Quel scénario imaginez-vous ?</b>"
     )
     card = {
         "day": kick(e).astimezone(TZ).strftime("%d/%m/%Y"),
         "league": league(e) or "Football",
         "home": h, "away": a, "time": time_label(kick(e)),
         "tracking_reason": reason,
+        "prematch_story": story,
         "home_form": home_form, "away_form": away_form,
         "h2h_total": total_h2h, "h2h_home_wins": home_wins,
         "h2h_draws": draws, "h2h_away_wins": away_wins,
