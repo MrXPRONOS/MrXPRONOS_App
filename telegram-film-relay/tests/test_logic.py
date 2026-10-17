@@ -164,8 +164,8 @@ class DiscoveryTests(unittest.TestCase):
             self.assertEqual([v["channel"] for v in result["sources"]], ["@manual_source"])
 
     def test_filmcomplets_source_classic_only_pending_authorization(self):
-        from film_relay.runner import config_from
-        cfg = config_from(str(Path(__file__).resolve().parent.parent / "config/channels.json"))
+        import json
+        cfg = json.loads((Path(__file__).resolve().parent.parent / "config/channels.json").read_text())
         matching = [src for src in cfg["sources"] if
                     src["channel"].casefold() == "@filmcomplets"]
         self.assertEqual(len(matching), 1)
