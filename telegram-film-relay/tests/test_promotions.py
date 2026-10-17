@@ -1,4 +1,6 @@
 import os
+import asyncio
+from unittest.mock import AsyncMock
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -53,6 +55,43 @@ class PromoTests(unittest.TestCase):
             with patch.dict(os.environ, {"CINEX_PROMO_ASSETS_DIR": folder}):
                 with self.assertRaises(FileNotFoundError):
                     render_poster(0)
+
+    def test_missing_artwork_sends_three_line_text_with_url_button(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from film_relay.promotions import _send_bot_poster
+        from telethon import Button
+        # Run without an actual Telegram connection.
+        async def run():
+            bot = SimpleNamespace(send_message=AsyncMock(return_value=SimpleNamespace(id=42)))
+            with TemporaryDirectory() as folder:
+                with patch.dict(os.environ, {"CINEX_PROMO_ASSETS_DIR": folder}):
+                    result = await _send_bot_poster(bot, "test-channel", 2)
+            self.assertEqual(result.id, 42)
+            self.assertEqual(bot.send_message.await_count, 1)
+            args, kwargs = bot.send_message.await_args
+            self.assertEqual(len(args[1].splitlines()), 3)
+            self.assertTrue(kwargs["buttons"])
+        telethon = __import__("sys").modules.get("telethon")
+        if telethon is None:
+            import types, sys
+            fake = types.ModuleType("telethon")
+            fake.Button = SimpleNamespace(url=lambda label, url: (label, url))
+            with patch.dict(sys.modules, {"telethon": fake}):
+                asyncio.run(run())
+        else:
+            asyncio.run(run())
+
+    def test_two_movie_cursor_catches_up_without_discarding_backlog(self):
+        from film_relay.promotions import _cursor
+        with TemporaryDirectory() as folder:
+            state = State(str(Path(folder) / "state.json"))
+            entry = _cursor(state, "channel")
+            entry["last_film_total"] = 9
+            total = 14
+            entry["last_film_total"] = min(total, int(entry["last_film_total"]) + 2)
+            self.assertEqual(entry["last_film_total"], 11)
+            self.assertEqual(due(state, "channel", 14), 0)
 
     def test_rotation_after_every_two_movies(self):
         with TemporaryDirectory() as folder:
