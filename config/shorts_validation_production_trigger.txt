@@ -1,1 +1,1 @@
-2026-10-17 smoke-check-pending-batches
+2026-10-17 smoke-check-pending-batches v2 date-fix
