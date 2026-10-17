@@ -96,7 +96,7 @@ async def send_public_poster_with_buttons(
     No fallback to a raw URL. On bot errors caller retains the staged private
     video so a later workflow can finish the public post without duplicates.
     """
-    from telethon import Button
+    from .bot_http import url_button
 
     contents = await user_client.download_media(poster_message.media, file=bytes)
     if not contents:
@@ -105,7 +105,7 @@ async def send_public_poster_with_buttons(
     photo.name = "cinex_affiche.jpg"
     rows = url_button_rows(private_movie_link, invite_link)
     keyboard = [
-        [Button.url(label, url, style="success" if index == 0 else "danger")
+        [url_button(label, url, style="success" if index == 0 else "danger")
          for label, url in row]
         for index, row in enumerate(rows)
     ]
