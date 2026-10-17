@@ -23,13 +23,13 @@ def make_png_fixtures(path):
 
 
 class PromoTests(unittest.TestCase):
-    def test_channels_and_three_line_captions(self):
+    def test_channels_and_four_line_captions(self):
         self.assertEqual([campaign[1] for campaign in CAMPAIGNS], [
             "@actufoot_mrxp", "@mr_xpronos_vip", "@mrxpronosfr",
         ])
         for index in range(3):
             lines = campaign_caption(index).splitlines()
-            self.assertEqual(len(lines), 3)
+            self.assertEqual(len(lines), 4)
             self.assertTrue(all(line.strip() for line in lines))
             self.assertEqual(
                 campaign_button(index)[1],
@@ -56,28 +56,16 @@ class PromoTests(unittest.TestCase):
                 with self.assertRaises(FileNotFoundError):
                     render_poster(0)
 
-    def test_missing_artwork_sends_three_line_text_with_url_button(self):
+    def test_missing_artwork_never_publishes_incorrect_poster(self):
         from types import SimpleNamespace
-        from unittest.mock import patch
         from film_relay.promotions import _send_bot_poster
-        from telethon import Button
-        # Run without an actual Telegram connection.
-        async def run():
-            bot = SimpleNamespace(send_message=AsyncMock(return_value=SimpleNamespace(id=42)))
-            with TemporaryDirectory() as folder:
-                with patch.dict(os.environ, {"CINEX_PROMO_ASSETS_DIR": folder}):
-                    result = await _send_bot_poster(bot, "test-channel", 2)
-            self.assertEqual(result.id, 42)
-            self.assertEqual(bot.send_message.await_count, 1)
-            args, kwargs = bot.send_message.await_args
-            self.assertEqual(len(args[1].splitlines()), 3)
-            self.assertTrue(kwargs["buttons"])
-            self.assertEqual(kwargs["buttons"][0][0][2], "primary")
-        # Patch the actual imported helper, regardless of whether Telethon is
-        # present in the GitHub Actions test environment.
-        with patch("telethon.Button.url",
-                   side_effect=lambda label, url, **kw: (label, url, kw.get("style"))):
-            asyncio.run(run())
+        bot = SimpleNamespace(send_message=AsyncMock(), send_file=AsyncMock())
+        with TemporaryDirectory() as folder:
+            with patch.dict(os.environ, {"CINEX_PROMO_ASSETS_DIR": folder}):
+                with self.assertRaises(FileNotFoundError):
+                    asyncio.run(_send_bot_poster(bot, "test-channel", 2))
+        bot.send_message.assert_not_awaited()
+        bot.send_file.assert_not_awaited()
 
     def test_two_movie_cursor_consumes_backlog_in_one_promotion(self):
         """An old backlog must not generate many consecutive adverts."""
