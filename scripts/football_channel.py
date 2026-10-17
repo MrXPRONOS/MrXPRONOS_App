@@ -65,7 +65,7 @@ RSS_URL = os.getenv("FOOTBALL_RSS_FEED", "https://www.footmercato.net/flux-rss")
 NEWS_CHAT_ENV = "FOOTBALL_NEWS_CHAT_ID"
 MAX_MESSAGES_PER_RUN = 8
 LIMITS = {
-    "flash": 3, "programme": 1, "avant_match": 2, "resultat": 12,
+    "flash": 3, "programme": 1, "avant_match": 4, "resultat": 12,
     "statistique": 1, "sondage": 1, "quiz": 1, "debat": 1,
     "reaction": 1, "viral": 1, "composition": 12, "changement_composition": 12,
     "kickoff": 12, "goal": 48, "mi_temps": 12, "mi_temps_prolongation": 12,
@@ -650,14 +650,18 @@ class History:
         self.path = path
         self.items: dict[str, dict[str, str]] = {}
         self.followed: dict[str, dict] = {}
+        self.plan: dict[str, dict] = {}
         self.observations: dict[str, str] = {}
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
             entries = payload.get("sent", {}) if isinstance(payload, dict) else {}
             tracked = payload.get("followed", {}) if isinstance(payload, dict) else {}
+            planned = payload.get("plan", {}) if isinstance(payload, dict) else {}
             observations = payload.get("observations", {}) if isinstance(payload, dict) else {}
             if isinstance(observations, dict):
                 self.observations = {str(k): str(v) for k, v in observations.items() if v}
+            if isinstance(planned, dict):
+                self.plan = {str(k): v for k, v in planned.items() if isinstance(v, dict)}
             if isinstance(tracked, dict):
                 self.followed = {str(k): v for k, v in tracked.items() if isinstance(v, dict)}
             if isinstance(entries, dict):
@@ -697,6 +701,65 @@ class History:
     def clear_observation(self, key: str) -> None:
         self.observations.pop(key, None)
 
+    def set_programme_plan(self, item: "Publication", now: datetime, *, source: str = "programme") -> int:
+        verification = item.verification if isinstance(item.verification, dict) else {}
+        fixtures = verification.get("fixtures") if isinstance(verification.get("fixtures"), list) else []
+        if not fixtures:
+            return 0
+        local_day = now.astimezone(TZ).date().isoformat()
+        new_plan: dict[str, dict] = {}
+        card_rows = item.card.get("matches") if isinstance(item.card, dict) and isinstance(item.card.get("matches"), list) else []
+        for index, fixture in enumerate(fixtures[:4]):
+            if not isinstance(fixture, dict):
+                continue
+            event = {
+                "home_team": fixture.get("home"),
+                "away_team": fixture.get("away"),
+                "event_date": fixture.get("event_date"),
+            }
+            ref = followup.key(event)
+            if not ref:
+                continue
+            card_row = card_rows[index] if index < len(card_rows) and isinstance(card_rows[index], dict) else {}
+            new_plan[ref] = {
+                "home_team": str(fixture.get("home") or ""),
+                "away_team": str(fixture.get("away") or ""),
+                "event_date": str(fixture.get("event_date") or ""),
+                "day": local_day,
+                "rank": index + 1,
+                "role": str(card_row.get("role") or ("match_du_jour" if index == 0 else "grande_affiche")),
+                "source": source,
+                "planned_at": now.astimezone(timezone.utc).isoformat(),
+            }
+        if new_plan:
+            # Une seule sélection cohérente par journée : le nouveau programme
+            # remplace uniquement le plan du même jour, pas celui du lendemain.
+            self.plan = {
+                key: value for key, value in self.plan.items()
+                if not isinstance(value, dict) or value.get("day") != local_day
+            }
+            self.plan.update(new_plan)
+        return len(new_plan)
+
+    def plan_for_event(self, event: dict, now: datetime) -> dict | None:
+        local_day = now.astimezone(TZ).date().isoformat()
+        ranked = sorted(
+            (
+                value for value in self.plan.values()
+                if isinstance(value, dict) and value.get("day") == local_day
+            ),
+            key=lambda value: int(value.get("rank") or 99),
+        )
+        for value in ranked:
+            if followup.same_fixture(event, value):
+                return value
+        return None
+
+    def has_plan_for_day(self, day: date) -> bool:
+        wanted = day.isoformat()
+        return any(isinstance(value, dict) and value.get("day") == wanted for value in self.plan.values())
+
+
     def save(self, now: datetime) -> None:
         since = now - timedelta(days=32)
         compact = {k: v for k, v in self.items.items()
@@ -709,8 +772,17 @@ class History:
                     k: v for k, v in self.observations.items()
                     if (moment(v) or now) >= now - timedelta(hours=8)
                 }
-                json.dump({"version": 3, "sent": compact,
+                active_plan = {}
+                for key, value in self.plan.items():
+                    if not isinstance(value, dict):
+                        continue
+                    start = moment(value.get("event_date"))
+                    if start is None or start < now - timedelta(hours=12) or start > now + timedelta(days=2):
+                        continue
+                    active_plan[key] = value
+                json.dump({"version": 4, "sent": compact,
                        "followed": followup.active(self.followed, now),
+                       "plan": active_plan,
                        "observations": observations},
                       handle, ensure_ascii=False, indent=2)
             os.replace(tmp, self.path)
