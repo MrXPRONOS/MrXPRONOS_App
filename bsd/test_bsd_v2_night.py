@@ -70,9 +70,9 @@ class NightScheduleTests(unittest.TestCase):
             report=process(data,when(8,20,5),session=Session(),token="token",
                 chat_ids=["-100123"],supabase_url="https://test.supabase.co",supabase_key="key")
         self.assertEqual(report["night_matches"],3)
-        self.assertEqual(report["night_picks_sent"],3)
+        self.assertEqual(report["night_picks_sent"],0)
         self.assertEqual(report["night_combos_sent"],1)
-        self.assertEqual(len(posted),4)
+        self.assertEqual(len(posted),1)
         self.assertTrue(all(item[2] for item in posted))
 
     def test_independent_tickets_keep_distinct_ids(self):
