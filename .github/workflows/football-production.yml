@@ -138,6 +138,7 @@ jobs:
             DESTINATION="production"
           elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_MESSAGE" == "ops(actu-foot): relaunch Matchs du jour now"* ]]; then
             DESTINATION="production"
+            FOOTBALL_PROGRAMME_RELAUNCH_ONLY=1
             echo "FOOTBALL_PROGRAMME_RELAUNCH_ONLY=1" >> "$GITHUB_ENV"
           elif [ "$EVENT_NAME" = "push" ]; then
             DESTINATION="dry-run"
