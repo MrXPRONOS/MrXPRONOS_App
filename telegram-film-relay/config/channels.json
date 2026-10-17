@@ -15,7 +15,7 @@
   "bootstrap_messages": 150,
   "max_messages_per_run": 300,
   "lookback_ids": 80,
-  "max_posts_per_run": 5,
+  "max_posts_per_run": 2,
   "publication_pause_seconds": 5,
   "history_page_messages": 240,
   "history_overlap_messages": 12,

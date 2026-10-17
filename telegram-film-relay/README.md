@@ -10,7 +10,7 @@ Projet isolé dans **`telegram-film-relay/`** du dépôt existant **`MrXPRONOS/M
 - Les canaux protégés, non lisibles ou incompatibles sont refusés. **Aucun contournement** des restrictions de Telegram ; `FloodWait` provoque un arrêt.
 - Les sources découvertes sont **enregistrées automatiquement, mais inactives pour la republication** jusqu'à confirmation des droits. Avec la liste de licences `TG_APPROVED_SOURCES_JSON` (optionnelle, secret GitHub), une nouvelle source découverte qui est déjà couverte par une autorisation explicite peut être activée automatiquement.
 - Pour les médias autorisés, envoi de la **photo + description nettoyée** dans le canal privé, suivi de la **vidéo + titre** ; dans le canal public, photo + description + lien direct vers la vidéo privée. Aucun en-tête « Transféré depuis » : `client.send_file(...)` réalise un **nouvel envoi**, pas `forward_messages`.
-- Contrôle des doublons, limitation à 5 films par passage, checkpoint persistant après une publication partielle.
+- Contrôle des doublons, limitation stricte à 2 films maximum par exécution, checkpoint persistant après une publication partielle.
 
 > **Droits d'auteur :** le fait qu'un canal soit public, transférable ou repéré par le moteur de recherche ne donne aucune licence. Un canal privé ne protège pas contre une plainte ni une sanction. Utiliser uniquement des films du domaine public, sous licence adéquate ou avec autorisation explicite. Ne jamais utiliser cette automatisation pour contourner les restrictions de copie/transfert.
 
@@ -18,7 +18,7 @@ Projet isolé dans **`telegram-film-relay/`** du dépôt existant **`MrXPRONOS/M
 
 - Source explicitement déclarée comme autorisée par le responsable du projet : **@pleziyisliye1**.
 - Le relais surveille les nouveaux messages **et** parcourt progressivement les archives avec le curseur persistant `state/state.json → history`. Un recouvrement des pages protège les couples affiche/film qui se trouvent à la frontière des pages.
-- Premier lancement (événement GitHub `push`) et lancement manuel (`workflow_dispatch`) : **1 film maximum**. Exécutions programmées toutes les deux heures : **5 films maximum**.
+- Toutes les exécutions (manuelles et programmées) : **2 films maximum**. Le code impose cette limite même si une variable ou une configuration demande davantage.
 - Les deux variables `FILM_PUBLISH_ENABLED` et `TG_RIGHTS_ATTESTED` prennent la valeur `true` par défaut **dans le workflow du relais**, uniquement en l'absence de valeur définie sur GitHub. Une variable explicitement positionnée à `false` désactive toujours l'envoi. Les sources non autorisées restent bloquées.
 - Le lien d'invitation du canal privé est récupéré automatiquement lorsque le compte Telegram possède les droits administrateur requis ; sinon renseigner `TG_PRIVATE_INVITE_LINK`.
 - **Attention :** seuls les journaux d'une vraie exécution GitHub Actions peuvent prouver que les médias ont été publiés. Les tests unitaires vérifient la logique, pas les autorisations Telegram ni la disponibilité du canal.
