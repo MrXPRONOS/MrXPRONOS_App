@@ -276,7 +276,8 @@ async def execute() -> int:
             LOG.info("Bot CinéX contrôlé : administrateur autorisé à publier dans le canal public.")
         mirror_destination = None
         mirror_key = ""
-        if publish and cfg.get("mirror_channel"):
+        from .mirror_policy import torrent9_paused
+        if publish and cfg.get("mirror_channel") and not torrent9_paused():
             try:
                 proposed_mirror = await resolve_peer(client, cfg["mirror_channel"])
                 proposed_key = str(utils.get_peer_id(proposed_mirror))
