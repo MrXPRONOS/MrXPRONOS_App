@@ -13,7 +13,7 @@ import json
 import os
 import sys
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -100,8 +100,9 @@ def restore_matches(feed_path: Path, wanted_ids):
 
 
 def official_events_for_day(day: str):
+    target_day = date.fromisoformat(day)
     client = BSDClient(max_requests=120)
-    page = client.list_events(day, day, max_pages=12, ttl=0)
+    page = client.list_events(target_day, target_day, max_pages=12, ttl=0)
     if not page.complete:
         raise RuntimeError("Résultats BSD incomplets pour " + day)
     events = {}
