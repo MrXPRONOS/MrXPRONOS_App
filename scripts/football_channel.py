@@ -3285,10 +3285,37 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
 
     drain_retryable_outbox(ledger, publish, limit=8)
 
+    # Relance ponctuelle "Matchs du jour" : un jeton versionné dans le dépôt
+    # permet de republier une seule fois sans désactiver l'anti-doublon global.
+    programme_relaunch_token = ""
+    try:
+        relaunch_path = ROOT / "assets" / "data" / "actufoot_programme_relaunch.txt"
+        if relaunch_path.is_file():
+            programme_relaunch_token = relaunch_path.read_text(encoding="utf-8").strip()[:120]
+    except OSError:
+        programme_relaunch_token = ""
+
     # Ordre de production :
     # 07h Matchs du jour, 09h Flash, 12h30 Stat, 15h Débat,
     # puis Avant-match / Résultats selon les événements réels.
     try:
+        if (programme_relaunch_token
+                and not state.seen("programme_relaunch:" + programme_relaunch_token)):
+            try:
+                relaunch_post = programme(get_day(today), today, as_of=now)
+                if relaunch_post is not None and publish(relaunch_post, replay=True):
+                    state.mark(
+                        "programme_relaunch:" + programme_relaunch_token,
+                        "programme_relaunch",
+                        now,
+                    )
+                    if not dry_run:
+                        state.save(now)
+                    print("PROGRAMME_RELAUNCH_SENT", programme_relaunch_token)
+            except (BSDAPIError, requests.RequestException, ValueError) as exc:
+                counter["errors"] += 1
+                print("ERREUR_PROGRAMME_RELAUNCH", type(exc).__name__, str(exc)[:160])
+
         if force or in_editorial_window("programme", now):
             if force or enough(state, "programme", now):
                 try:
