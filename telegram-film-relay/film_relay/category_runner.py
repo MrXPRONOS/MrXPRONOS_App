@@ -201,7 +201,7 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
         source_peers, private, public, bot_public, mirror, mirror_key = await preflight(
             client, bot, cfg
         )
-        if publish and not os.getenv('CINEX_DEFER_MIRROR'):
+        if publish and mirror is not None and not os.getenv('CINEX_DEFER_MIRROR'):
             # Existing public posts missing from Torrent9 take priority; never
             # send a private video again merely because a forward failed.
             await finish_mirrors(client, state, mirror, mirror_key, public, limit=5)
