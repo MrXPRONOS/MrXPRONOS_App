@@ -363,7 +363,8 @@ jobs:
           cp "$STATE/desir_state.json" "$RUNNER_TEMP/desir-state.json"
           cp "$STATE/discovered_channels.json" "$RUNNER_TEMP/discovery-state.json"
           cp "$STATE/comedie_state.json" "$RUNNER_TEMP/comedie-state.json"
-          cp "$STATE/anime_state.json" "$STATE/anime_catalog.json" "$RUNNER_TEMP/anime-state.json"
+          cp "$STATE/anime_state.json" "$RUNNER_TEMP/anime-state.json"
+          cp "$STATE/anime_catalog.json" "$RUNNER_TEMP/anime-catalog.json"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           for attempt in 1 2 3 4 5 6 7 8; do
@@ -374,7 +375,7 @@ jobs:
             python telegram-film-relay/scripts/merge_discovery_state.py "$RUNNER_TEMP/discovery-state.json" "$STATE/discovered_channels.json"
             python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/comedie-state.json" "$STATE/comedie_state.json"
             python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/anime-state.json" "$STATE/anime_state.json"
-            python telegram-film-relay/scripts/merge_anime_catalog.py "$RUNNER_TEMP/anime-catalog.json" "$STATE/anime_catalog.json" "$STATE/anime_catalog.json"
+            python telegram-film-relay/scripts/merge_anime_catalog.py "$RUNNER_TEMP/anime-catalog.json" "$STATE/anime_catalog.json"
             git add "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json" "$STATE/comedie_state.json" "$STATE/anime_state.json" "$STATE/anime_catalog.json"
             if git diff --cached --quiet; then
               echo 'Historiques deja synchronises.'
