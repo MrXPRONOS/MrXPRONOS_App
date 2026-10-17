@@ -73,14 +73,14 @@ class FootballChannelTests(unittest.TestCase):
             [regional_final, grand_club], max_per_competition=2, max_total=1
         )
         self.assertEqual([row["id"] for row in selected], ["real"])
-        self.assertEqual(m.live_tracking_reason(grand_club), "grand_club")
+        self.assertEqual(m.live_tracking_reason(grand_club), "equipe_top100")
 
     def test_two_grand_clubs_get_choc_tracking_reason(self):
         row = event("clasico")
         row["home_team"]["name"] = "Real Madrid"
         row["away_team"]["name"] = "Barcelona"
         row["league_name"] = "La Liga"
-        self.assertEqual(m.live_tracking_reason(row), "choc_grands_clubs")
+        self.assertEqual(m.live_tracking_reason(row), "choc_top100")
         self.assertTrue(m.popular_live_match(row))
 
     def test_live_can_follow_four_major_matches_same_competition(self):
@@ -656,7 +656,7 @@ class FootballChannelTests(unittest.TestCase):
                 "avg_total_goals": 3.2,
             },
         )
-        self.assertIn("10/15", story)
+        self.assertIn("10 points pris sur 15", story)
         self.assertIn("5/15", story)
         self.assertIn("trois victoires consécutives", story)
         self.assertIn("5 confrontations", story)
