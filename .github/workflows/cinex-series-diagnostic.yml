@@ -1,0 +1,45 @@
+name: CineX - Diagnostic catalogue series TV
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/cinex-series-diagnose-once.txt'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+
+jobs:
+  check-tv:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r telegram-film-relay/requirements.txt
+      - name: Valider la détection séries TV
+        working-directory: telegram-film-relay
+        run: |
+          python -m unittest discover -s tests -p 'test_series_catalog.py' -v
+          python -m unittest discover -s tests -p 'test_anime_catalog.py' -v
+      - name: Lire les sources configurées sans rien publier
+        working-directory: telegram-film-relay
+        env:
+          PYTHONPATH: .
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+          TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
+          TG_MIRROR_CHANNEL: '@Torrent9SeriesFilms'
+          SERIES_SOURCE_CHANNELS: ${{ vars.SERIES_SOURCE_CHANNELS }}
+          SERIES_SOURCE_CHANNEL: ${{ vars.SERIES_SOURCE_CHANNEL }}
+          CINEX_PAUSE_SECONDS: '20'
+        run: python -m film_relay.series_catalog --limit 2 --episode-cap 6
