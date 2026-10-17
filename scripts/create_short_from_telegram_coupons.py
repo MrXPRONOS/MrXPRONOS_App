@@ -22,7 +22,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -217,6 +217,35 @@ def _eased_x(t, duration, card_width, enter=0.34, leave=0.34):
     return center_x
 
 
+def _make_card_shadow(card_width: int, card_height: int, out: Path):
+    """External shadow/glow only. The Telegram coupon pixels stay untouched."""
+    pad = 54
+    layer = Image.new("RGBA", (card_width + pad * 2, card_height + pad * 2), (0, 0, 0, 0))
+
+    shadow = Image.new("RGBA", layer.size, (0, 0, 0, 0))
+    sd = ImageDraw.Draw(shadow)
+    sd.rounded_rectangle(
+        (pad, pad + 12, pad + card_width, pad + 12 + card_height),
+        radius=26,
+        fill=(0, 0, 0, 165),
+    )
+    shadow = shadow.filter(ImageFilter.GaussianBlur(22))
+    layer = Image.alpha_composite(layer, shadow)
+
+    glow = Image.new("RGBA", layer.size, (0, 0, 0, 0))
+    gd = ImageDraw.Draw(glow)
+    gd.rounded_rectangle(
+        (pad - 3, pad - 3, pad + card_width + 3, pad + card_height + 3),
+        radius=26,
+        outline=(39, 133, 255, 105),
+        width=8,
+    )
+    glow = glow.filter(ImageFilter.GaussianBlur(14))
+    layer = Image.alpha_composite(layer, glow)
+    layer.save(out)
+    return pad
+
+
 def _overlay_png(index: int, total: int, out: Path):
     """CTA + tiny progress cue only; coupon artwork itself remains untouched."""
     canvas = Image.new("RGBA", (W, H), (0, 0, 0, 0))
@@ -284,12 +313,22 @@ def build_video(cards, output: Path, work_dir: Path):
 
         overlay_path = work_dir / f"overlay_{idx+1:02d}.png"
         _overlay_png(idx, total, overlay_path)
+        shadow_path = work_dir / f"shadow_{idx+1:02d}.png"
+        shadow_pad = _make_card_shadow(card_width, card_height, shadow_path)
 
         if not VIDEO_BACKGROUND.is_file():
             raise RuntimeError(f"Fond vidéo introuvable: {VIDEO_BACKGROUND}")
         background = (ImageClip(str(VIDEO_BACKGROUND))
                       .resize(newsize=(W, H))
                       .set_duration(per_card))
+        shadow = (
+            ImageClip(str(shadow_path), transparent=True)
+            .set_duration(per_card)
+            .set_position(
+                lambda t, d=per_card, cw=card_width, p=shadow_pad:
+                    (_eased_x(t, d, cw) - p, coupon_y - p)
+            )
+        )
         coupon = (
             ImageClip(str(card_path))
             .resize(width=card_width)
@@ -297,7 +336,7 @@ def build_video(cards, output: Path, work_dir: Path):
             .set_position(lambda t, d=per_card, cw=card_width: (_eased_x(t, d, cw), coupon_y))
         )
         overlay = ImageClip(str(overlay_path), transparent=True).set_duration(per_card)
-        scene = CompositeVideoClip([background, coupon, overlay], size=(W, H)).set_duration(per_card)
+        scene = CompositeVideoClip([background, shadow, coupon, overlay], size=(W, H)).set_duration(per_card)
         scenes.append(scene)
 
     # Cards follow each other directly; no intro and no outro.
