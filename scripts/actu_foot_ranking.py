@@ -223,6 +223,13 @@ class LiveRankingEngine:
         if club_count >= 2 or (club_count >= 1 and not is_friendly):
             return True
 
+        national_match = (
+            any(term in home for term in self.deps.national_team_terms)
+            or any(term in away for term in self.deps.national_team_terms)
+        )
+        if national_match and self.competition_weight(event) >= 24:
+            return True
+
         threshold = max(1, int(os.getenv("FOOTBALL_LIVE_POPULARITY_MIN", "60")))
         return self.popularity_score(event) >= threshold
 
