@@ -13,7 +13,19 @@ def merge(remote: dict, local: dict) -> dict:
             **local.get("mirrors", {}).get(target, {}),
             **remote.get("mirrors", {}).get(target, {}),
         }
-    return {"completed": completed, "staged": staged, "mirrors": mirrors}
+    # Reconcile independently tracked ad rotations per destination.
+    promotions = {}
+    for target in set(remote.get("promotions", {})) | set(local.get("promotions", {})):
+        left = remote.get("promotions", {}).get(target, {})
+        right = local.get("promotions", {}).get(target, {})
+        promotions[target] = {
+            "last_film_total": max(int(left.get("last_film_total", 0)),
+                                   int(right.get("last_film_total", 0))),
+            "next_index": max(int(left.get("next_index", 0)),
+                              int(right.get("next_index", 0))),
+            "sent": {**right.get("sent", {}), **left.get("sent", {})},
+        }
+    return {"completed": completed, "staged": staged, "mirrors": mirrors, "promotions": promotions}
 
 def main():
     local_path, remote_path = (Path(v) for v in sys.argv[1:3])
