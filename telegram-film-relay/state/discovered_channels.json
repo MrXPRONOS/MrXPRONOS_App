@@ -1,259 +1,259 @@
 {
-  "last_scan": "2026-10-17T01:41:57.468878+00:00",
-  "notice": "Liens publics à examiner manuellement. Aucun canal rejoint ; aucun droit de diffusion présumé.",
-  "statistics": {
-    "queries": 4,
-    "found": 28,
-    "checked": 16,
-    "not_readable": 0,
-    "attempted": 16,
-    "next_candidate_offset": 4,
-    "rate_limited": false,
-    "protected": 0,
-    "strict_rejected": 12,
-    "notified_saved_messages": 3,
-    "notification_failures": 0
-  },
   "channels": [
     {
-      "username": "annimechannel53jjh",
-      "title": "FILMS, SÉRIES & DESSIN ANIMÉ COMPLET VF🎥",
-      "url": "https://t.me/annimechannel53jjh",
-      "sampled_messages": 80,
+      "first_detected": "2026-10-17T01:41:57.468878+00:00",
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "joined_by_tool": false,
+      "last_detected": "2026-10-17T02:56:07.389387+00:00",
       "matching_pairs": 20,
+      "notified_saved_messages_at": "2026-10-17T01:41:57.468878+00:00",
+      "redistribution_rights": "non_verifies",
+      "rejected_pairs": 5,
       "sample_post_ids": [
         2680,
         2682,
         2694
       ],
-      "format": "photo_texte_puis_video",
-      "format_verified": true,
+      "sampled_messages": 80,
+      "source_status": "pending_rights",
       "strict_filters": {
         "min_verified_pairs": 2,
-        "min_video_minutes": 40,
-        "min_video_megabytes": 150
+        "min_video_megabytes": 150,
+        "min_video_minutes": 40
       },
-      "rejected_pairs": 5,
-      "redistribution_rights": "non_verifies",
-      "joined_by_tool": false,
-      "source_status": "pending_rights",
+      "title": "FILMS, SÉRIES & DESSIN ANIMÉ COMPLET VF🎥",
       "transfer_restricted": false,
-      "first_detected": "2026-10-17T01:41:57.468878+00:00",
-      "last_detected": "2026-10-17T01:41:57.468878+00:00",
-      "notified_saved_messages_at": "2026-10-17T01:41:57.468878+00:00"
+      "url": "https://t.me/annimechannel53jjh",
+      "username": "annimechannel53jjh"
     },
     {
-      "username": "film_divers_VF",
-      "title": "Film divers \"Marvel & Cinéma\"",
-      "url": "https://t.me/film_divers_VF",
-      "sampled_messages": 80,
+      "first_detected": "2026-10-17T01:35:35.392885+00:00",
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "joined_by_tool": false,
+      "last_detected": "2026-10-17T02:56:07.389387+00:00",
       "matching_pairs": 19,
+      "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00",
+      "redistribution_rights": "non_verifies",
+      "rejected_pairs": 0,
       "sample_post_ids": [
         154,
         158,
         160
       ],
-      "format": "photo_texte_puis_video",
-      "format_verified": true,
+      "sampled_messages": 80,
+      "source_status": "pending_rights",
       "strict_filters": {
         "min_verified_pairs": 2,
-        "min_video_minutes": 40,
-        "min_video_megabytes": 150
+        "min_video_megabytes": 150,
+        "min_video_minutes": 40
       },
-      "rejected_pairs": 0,
-      "redistribution_rights": "non_verifies",
-      "joined_by_tool": false,
-      "source_status": "pending_rights",
+      "title": "Film divers \"Marvel & Cinéma\"",
       "transfer_restricted": false,
-      "first_detected": "2026-10-17T01:35:35.392885+00:00",
-      "last_detected": "2026-10-17T01:35:35.392885+00:00",
-      "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00"
+      "url": "https://t.me/film_divers_VF",
+      "username": "film_divers_VF"
     },
     {
-      "username": "Canal_CinemaVf",
-      "title": "𝐅𝐈𝐋𝐌𝐒 𝐃𝐄 𝐆𝐔𝐄𝐑𝐑𝐄𝐒 𝐕𝐅🇫🇷",
-      "url": "https://t.me/Canal_CinemaVf",
-      "sampled_messages": 47,
+      "first_detected": "2026-10-17T01:35:35.392885+00:00",
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "joined_by_tool": false,
+      "last_detected": "2026-10-17T02:56:07.389387+00:00",
       "matching_pairs": 8,
+      "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00",
+      "redistribution_rights": "non_verifies",
+      "rejected_pairs": 1,
       "sample_post_ids": [
         4,
         7,
         13
       ],
-      "format": "photo_texte_puis_video",
-      "format_verified": true,
+      "sampled_messages": 47,
+      "source_status": "pending_rights",
       "strict_filters": {
         "min_verified_pairs": 2,
-        "min_video_minutes": 40,
-        "min_video_megabytes": 150
+        "min_video_megabytes": 150,
+        "min_video_minutes": 40
       },
-      "rejected_pairs": 1,
-      "redistribution_rights": "non_verifies",
-      "joined_by_tool": false,
-      "source_status": "pending_rights",
+      "title": "𝐅𝐈𝐋𝐌𝐒 𝐃𝐄 𝐆𝐔𝐄𝐑𝐑𝐄𝐒 𝐕𝐅🇫🇷",
       "transfer_restricted": false,
-      "first_detected": "2026-10-17T01:35:35.392885+00:00",
-      "last_detected": "2026-10-17T01:35:35.392885+00:00",
-      "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00"
+      "url": "https://t.me/Canal_CinemaVf",
+      "username": "Canal_CinemaVf"
     },
     {
-      "username": "FilmsNigerien",
-      "title": "Film nigerian en francais",
-      "url": "https://t.me/FilmsNigerien",
-      "sampled_messages": 53,
+      "first_detected": "2026-10-17T01:35:35.392885+00:00",
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "joined_by_tool": false,
+      "last_detected": "2026-10-17T01:41:57.468878+00:00",
       "matching_pairs": 8,
+      "redistribution_rights": "non_verifies",
+      "rejected_pairs": 0,
       "sample_post_ids": [
         9,
         1928,
         2616
       ],
-      "format": "photo_texte_puis_video",
-      "format_verified": true,
+      "sampled_messages": 53,
+      "source_status": "pending_rights",
       "strict_filters": {
         "min_verified_pairs": 2,
-        "min_video_minutes": 40,
-        "min_video_megabytes": 150
+        "min_video_megabytes": 150,
+        "min_video_minutes": 40
       },
-      "rejected_pairs": 0,
-      "redistribution_rights": "non_verifies",
-      "joined_by_tool": false,
-      "source_status": "pending_rights",
+      "title": "Film nigerian en francais",
       "transfer_restricted": false,
-      "first_detected": "2026-10-17T01:35:35.392885+00:00",
-      "last_detected": "2026-10-17T01:41:57.468878+00:00"
+      "url": "https://t.me/FilmsNigerien",
+      "username": "FilmsNigerien"
     },
     {
-      "username": "filmcomplets",
-      "title": "Film et Séries complèt en français",
-      "url": "https://t.me/filmcomplets",
-      "sampled_messages": 80,
+      "first_detected": "2026-10-17T01:41:57.468878+00:00",
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "joined_by_tool": false,
+      "last_detected": "2026-10-17T02:56:07.389387+00:00",
       "matching_pairs": 6,
+      "notified_saved_messages_at": "2026-10-17T01:41:57.468878+00:00",
+      "redistribution_rights": "non_verifies",
+      "rejected_pairs": 2,
       "sample_post_ids": [
         72,
         76,
         78
       ],
-      "format": "photo_texte_puis_video",
-      "format_verified": true,
+      "sampled_messages": 80,
+      "source_status": "pending_rights",
       "strict_filters": {
         "min_verified_pairs": 2,
-        "min_video_minutes": 40,
-        "min_video_megabytes": 150
+        "min_video_megabytes": 150,
+        "min_video_minutes": 40
       },
-      "rejected_pairs": 2,
-      "redistribution_rights": "non_verifies",
-      "joined_by_tool": false,
-      "source_status": "pending_rights",
+      "title": "Film et Séries complèt en français",
       "transfer_restricted": false,
-      "first_detected": "2026-10-17T01:41:57.468878+00:00",
-      "last_detected": "2026-10-17T01:41:57.468878+00:00",
-      "notified_saved_messages_at": "2026-10-17T01:41:57.468878+00:00"
+      "url": "https://t.me/filmcomplets",
+      "username": "filmcomplets"
     },
     {
-      "username": "amatera12345",
-      "title": "CINEMA VF",
-      "url": "https://t.me/amatera12345",
-      "sampled_messages": 80,
+      "first_detected": "2026-10-17T01:35:35.392885+00:00",
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "joined_by_tool": false,
+      "last_detected": "2026-10-17T02:56:07.389387+00:00",
       "matching_pairs": 3,
+      "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00",
+      "redistribution_rights": "non_verifies",
+      "rejected_pairs": 2,
       "sample_post_ids": [
         2780,
         2784,
         2801
       ],
-      "format": "photo_texte_puis_video",
-      "format_verified": true,
+      "sampled_messages": 80,
+      "source_status": "pending_rights",
       "strict_filters": {
         "min_verified_pairs": 2,
-        "min_video_minutes": 40,
-        "min_video_megabytes": 150
+        "min_video_megabytes": 150,
+        "min_video_minutes": 40
       },
-      "rejected_pairs": 2,
-      "redistribution_rights": "non_verifies",
-      "joined_by_tool": false,
-      "source_status": "pending_rights",
+      "title": "CINEMA VF",
       "transfer_restricted": false,
-      "first_detected": "2026-10-17T01:35:35.392885+00:00",
-      "last_detected": "2026-10-17T01:35:35.392885+00:00",
-      "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00"
+      "url": "https://t.me/amatera12345",
+      "username": "amatera12345"
     },
     {
-      "username": "aquilaserie",
-      "title": "Les meilleurs série & Films complet😋",
-      "url": "https://t.me/aquilaserie",
-      "sampled_messages": 80,
+      "first_detected": "2026-10-17T01:41:57.468878+00:00",
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "joined_by_tool": false,
+      "last_detected": "2026-10-17T01:41:57.468878+00:00",
       "matching_pairs": 3,
+      "notified_saved_messages_at": "2026-10-17T01:41:57.468878+00:00",
+      "redistribution_rights": "non_verifies",
+      "rejected_pairs": 0,
       "sample_post_ids": [
         2501,
         2524,
         2547
       ],
-      "format": "photo_texte_puis_video",
-      "format_verified": true,
+      "sampled_messages": 80,
+      "source_status": "pending_rights",
       "strict_filters": {
         "min_verified_pairs": 2,
-        "min_video_minutes": 40,
-        "min_video_megabytes": 150
+        "min_video_megabytes": 150,
+        "min_video_minutes": 40
       },
-      "rejected_pairs": 0,
-      "redistribution_rights": "non_verifies",
-      "joined_by_tool": false,
-      "source_status": "pending_rights",
+      "title": "Les meilleurs série & Films complet😋",
       "transfer_restricted": false,
-      "first_detected": "2026-10-17T01:41:57.468878+00:00",
-      "last_detected": "2026-10-17T01:41:57.468878+00:00",
-      "notified_saved_messages_at": "2026-10-17T01:41:57.468878+00:00"
+      "url": "https://t.me/aquilaserie",
+      "username": "aquilaserie"
     },
     {
-      "username": "BestmovieVF",
-      "title": "LE MEILLEUR DU CINEMA EN VF",
-      "url": "https://t.me/BestmovieVF",
-      "sampled_messages": 80,
+      "first_detected": "2026-10-17T01:35:35.392885+00:00",
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "joined_by_tool": false,
+      "last_detected": "2026-10-17T02:56:07.389387+00:00",
       "matching_pairs": 2,
+      "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00",
+      "redistribution_rights": "non_verifies",
+      "rejected_pairs": 0,
       "sample_post_ids": [
         398,
         413
       ],
-      "format": "photo_texte_puis_video",
-      "format_verified": true,
+      "sampled_messages": 80,
+      "source_status": "pending_rights",
       "strict_filters": {
         "min_verified_pairs": 2,
-        "min_video_minutes": 40,
-        "min_video_megabytes": 150
+        "min_video_megabytes": 150,
+        "min_video_minutes": 40
       },
-      "rejected_pairs": 0,
-      "redistribution_rights": "non_verifies",
-      "joined_by_tool": false,
-      "source_status": "pending_rights",
+      "title": "LE MEILLEUR DU CINEMA EN VF",
       "transfer_restricted": false,
-      "first_detected": "2026-10-17T01:35:35.392885+00:00",
-      "last_detected": "2026-10-17T01:35:35.392885+00:00",
-      "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00"
+      "url": "https://t.me/BestmovieVF",
+      "username": "BestmovieVF"
     },
     {
-      "username": "film_action2026",
-      "title": "Films Action En Français",
-      "url": "https://t.me/film_action2026",
-      "sampled_messages": 6,
+      "first_detected": "2026-10-17T01:35:35.392885+00:00",
+      "format": "photo_texte_puis_video",
+      "format_verified": true,
+      "joined_by_tool": false,
+      "last_detected": "2026-10-17T02:56:07.389387+00:00",
       "matching_pairs": 2,
+      "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00",
+      "redistribution_rights": "non_verifies",
+      "rejected_pairs": 0,
       "sample_post_ids": [
         3,
         6
       ],
-      "format": "photo_texte_puis_video",
-      "format_verified": true,
+      "sampled_messages": 6,
+      "source_status": "pending_rights",
       "strict_filters": {
         "min_verified_pairs": 2,
-        "min_video_minutes": 40,
-        "min_video_megabytes": 150
+        "min_video_megabytes": 150,
+        "min_video_minutes": 40
       },
-      "rejected_pairs": 0,
-      "redistribution_rights": "non_verifies",
-      "joined_by_tool": false,
-      "source_status": "pending_rights",
+      "title": "Films Action En Français",
       "transfer_restricted": false,
-      "first_detected": "2026-10-17T01:35:35.392885+00:00",
-      "last_detected": "2026-10-17T01:35:35.392885+00:00",
-      "notified_saved_messages_at": "2026-10-17T01:35:35.392885+00:00"
+      "url": "https://t.me/film_action2026",
+      "username": "film_action2026"
     }
-  ]
+  ],
+  "last_scan": "2026-10-17T02:56:07.389387+00:00",
+  "notice": "Liens publics à examiner manuellement. Aucun canal rejoint ; aucun droit de diffusion présumé.",
+  "statistics": {
+    "attempted": 16,
+    "checked": 16,
+    "found": 28,
+    "next_candidate_offset": 20,
+    "not_readable": 0,
+    "notification_failures": 0,
+    "notified_saved_messages": 0,
+    "protected": 0,
+    "queries": 4,
+    "rate_limited": false,
+    "strict_rejected": 9
+  }
 }
