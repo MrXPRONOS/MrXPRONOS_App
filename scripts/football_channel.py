@@ -1760,17 +1760,21 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
             break
     if not chosen:
         return None
+    featured = chosen[0]
     message = (
         "<b>📅 MATCHS DU JOUR</b>\n"
-        "<i>Les affiches à suivre aujourd’hui.</i>\n\n"
+        "<i>⭐ Match du jour : <b>" + esc(team(featured, "home")) + " – "
+        + esc(team(featured, "away")) + "</b>. Les autres grandes affiches suivent.</i>\n\n"
         "<b>💬 Quel match attendez-vous le plus ?</b>"
     )
     card = {"day": today.strftime("%d/%m/%Y"), "matches": [
         {"home": team(e, "home"), "away": team(e, "away"), "time": time_label(kick(e)),
          "league": league(e), "importance": importance(e),
+         "role": "match_du_jour" if index == 0 else "grande_affiche",
+         "tracking_reason": live_tracking_reason(e),
          "home_logo": team_visual_url(e, "home", allow_remote=True),
          "away_logo": team_visual_url(e, "away", allow_remote=True)}
-        for e in chosen]}
+        for index, e in enumerate(chosen)]}
     verification = {
         "type": "fixture_list",
         "kind": "programme",
@@ -1935,15 +1939,19 @@ def avant_match(events: list[dict], history: History, now: datetime,
             + avg_text
             + "</p>"
         )
+    reason = live_tracking_reason(e)
+    focus_label = "🔥 FIL ROUGE • GRANDE AFFICHE" if reason in ("choc_grands_clubs", "grand_club") else "🏆 FIL ROUGE • MATCH À ENJEU"
     message = (
         "<b>🔎 AVANT-MATCH</b>\n"
-        "<i>Le coup d’envoi approche.</i>\n\n"
+        "<b>" + focus_label + "</b>\n"
+        "<i>Le coup d’envoi approche. Actu Foot suivra cette rencontre jusqu’au coup de sifflet final.</i>\n\n"
         "<b>💬 Quel scénario imaginez-vous ?</b>"
     )
     card = {
         "day": kick(e).astimezone(TZ).strftime("%d/%m/%Y"),
         "league": league(e) or "Football",
         "home": h, "away": a, "time": time_label(kick(e)),
+        "tracking_reason": reason,
         "home_form": home_form, "away_form": away_form,
         "h2h_total": total_h2h, "h2h_home_wins": home_wins,
         "h2h_draws": draws, "h2h_away_wins": away_wins,

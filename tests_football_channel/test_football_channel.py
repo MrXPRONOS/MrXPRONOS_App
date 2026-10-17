@@ -53,6 +53,36 @@ class FootballChannelTests(unittest.TestCase):
         self.assertTrue(m.popular_live_match(fixture("Feyenoord", "Como", "UEFA Champions League")))
         self.assertFalse(m.popular_live_match(fixture("Arsenal U19", "Chelsea U19", "UEFA Youth League")))
 
+    def test_grand_club_beats_regional_final_for_live_fil_rouge(self):
+        def fixture(ident, home, away, competition, **extra):
+            row = event(ident)
+            row["home_team"]["name"] = home
+            row["away_team"]["name"] = away
+            row["league_name"] = competition
+            row.update(extra)
+            return row
+
+        grand_club = fixture("real", "Real Madrid", "Getafe", "La Liga")
+        regional_final = fixture(
+            "regional-final", "Club Alpha", "Club Beta", "Regional Cup",
+            round_name="Final",
+        )
+        self.assertTrue(m.popular_live_match(grand_club))
+        self.assertGreater(m.importance(grand_club), m.importance(regional_final))
+        selected = m.select_popular_live_matches(
+            [regional_final, grand_club], max_per_competition=2, max_total=1
+        )
+        self.assertEqual([row["id"] for row in selected], ["real"])
+        self.assertEqual(m.live_tracking_reason(grand_club), "grand_club")
+
+    def test_two_grand_clubs_get_choc_tracking_reason(self):
+        row = event("clasico")
+        row["home_team"]["name"] = "Real Madrid"
+        row["away_team"]["name"] = "Barcelona"
+        row["league_name"] = "La Liga"
+        self.assertEqual(m.live_tracking_reason(row), "choc_grands_clubs")
+        self.assertTrue(m.popular_live_match(row))
+
     def test_live_ranking_keeps_top_two_per_competition(self):
         def fixture(ident, home, away, competition):
             row = event(ident)
