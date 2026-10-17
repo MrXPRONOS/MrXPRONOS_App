@@ -184,6 +184,46 @@ async def discover(client, cfg: dict, start_offset: int = 0) -> tuple[list[dict]
     return results, statistics
 
 
+def notification_text(channel: dict) -> str:
+    """Compose a short Saved Messages notice without presumed redistribution rights."""
+    from html import escape
+    title = escape(str(channel.get("title") or channel["username"])[:120])
+    username = normalize_username(channel.get("username", "")) or ""
+    if not username:
+        raise ValueError("Nom de canal Telegram invalide.")
+    count = max(0, int(channel.get("matching_pairs", 0)))
+    return (
+        "🎬 <b>Canal de films repéré</b>\\n"
+        f"📺 <b>{title}</b>\\n"
+        f"🔗 https://t.me/{username}\\n"
+        f"🎞️ {count} couples affiche/vidéo détectés dans l'échantillon\\n"
+        "🔎 Proposition uniquement — non ajoutée aux sources du relais.\\n"
+        "⚠️ Droits de redistribution non vérifiés."
+    )
+
+
+async def notify_saved_messages(client, channels: list[dict], previously_notified: set[str]
+                                ) -> tuple[list[str], int]:
+    """Send each unnotified result to the user's own Telegram Saved Messages."""
+    notified = []
+    failed = 0
+    for channel in channels:
+        username = normalize_username(channel.get("username", ""))
+        if not username or username.casefold() in previously_notified:
+            continue
+        try:
+            await client.send_message("me", notification_text(channel), parse_mode="html",
+                                      link_preview=False)
+        except Exception as exc:
+            failed += 1
+            LOG.warning("Notification Messages enregistrés impossible @%s : %s",
+                        username, type(exc).__name__)
+            continue
+        notified.append(username.casefold())
+        previously_notified.add(username.casefold())
+    return notified, failed
+
+
 async def execute() -> int:
     from telethon import TelegramClient
     from telethon.sessions import StringSession
@@ -204,6 +244,11 @@ async def execute() -> int:
         if not await client.is_user_authorized():
             raise RuntimeError("Session Telegram non autorisée ou expirée.")
         results, stats = await discover(client, cfg, start_offset=offset)
+        sent_before = {
+            name.casefold() for name, channel in previous.items()
+            if channel.get("notified_saved_messages_at")
+        }
+        notified, notification_failures = await notify_saved_messages(client, results, sent_before)
     finally:
         await client.disconnect()
 
@@ -214,19 +259,12 @@ async def execute() -> int:
         channel["last_detected"] = timestamp
         previous[key] = channel
 
-    # Auto-register discovered links as *inactive* sources. A matching format
-    # never proves a copyright license, and this file cannot enable publishing.
-    auto_source_path = Path(os.getenv("AUTO_SOURCES_PATH", "state/auto_sources.json"))
-    registered = []
-    for ch in previous.values():
-        if ch.get("format_verified") and not ch.get("transfer_restricted", False):
-            registered.append({"channel": "@" + ch["username"],
-                               "url": ch["url"], "matching_pairs": ch["matching_pairs"],
-                               "redistribution_authorized": False,
-                               "source_status": "pending_rights"})
-    auto_source_path.parent.mkdir(parents=True, exist_ok=True)
-    auto_source_path.write_text(json.dumps({"sources": sorted(registered, key=lambda c: c["channel"].lower())[:300]},
-                                           ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    # Discovery NEVER edits auto_sources.json or any relay configuration.
+    # Keep notification receipts only in the discovery report to avoid duplicates.
+    for username in notified:
+        previous[username]["notified_saved_messages_at"] = timestamp
+    stats["notified_saved_messages"] = len(notified)
+    stats["notification_failures"] = notification_failures
 
     report = {
         "last_scan": timestamp,
@@ -238,7 +276,7 @@ async def execute() -> int:
     path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     LOG.info("Canaux analysés=%s | correspondant au format=%s | liens conservés=%s",
              stats["checked"], len(results), len(report["channels"]))
-    return 0 if not stats["rate_limited"] else 2
+    return 0 if not stats["rate_limited"] and not notification_failures else 2
 
 
 def main() -> None:
