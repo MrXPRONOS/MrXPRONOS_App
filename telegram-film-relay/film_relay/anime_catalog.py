@@ -39,7 +39,7 @@ SEASON_EP = re.compile(
     r"(?i)\b(?:s(?:aison|eason)?\s*0*(\d{1,2})\s*[-._ ]*"
     r"(?:[eé](?:pisode|p)?\s*0*(\d{1,3}))|"
     r"(\d{1,2})\s*[xX]\s*0*(\d{1,3})|"
-    r"(?:[eé](?:pisode|p)\s*0*(\d{1,3})))\b"
+    r"(?:[eé](?:pisode|p)?\s*0*(\d{1,3})))\b"
 )
 CLEAN_CODES = re.compile(r"(?i)\b(?:saison|season|episode|épisode|ep)\s*\d+\b|"
                          r"\bS\d{1,2}[\s._-]*E\d{1,3}\b|\b\d{1,2}x\d{1,3}\b|\bE\d{1,3}\b")
@@ -87,18 +87,31 @@ def classify(messages, source_id: int):
     doivent porter un numéro explicite.
     """
     latest_poster = None
+    current_season = 1
     candidates = []
+    season_header = re.compile(r"(?i)\\b(?:saison|season)\\s*0*(\\d{1,2})\\b")
     for msg in sorted(messages, key=lambda x: int(x.id)):
         if getattr(msg, "noforwards", False):
             continue
+        caption = str(getattr(msg, "raw_text", "") or "")
         if getattr(msg, "photo", None):
             latest_poster = msg
+            current_season = 1
+            found = season_header.search(caption)
+            if found:
+                current_season = int(found.group(1))
             continue
         if not is_supported_video(msg):
+            # Text-only season banners are not new series or videos.
+            found = season_header.search(caption)
+            if found and 1 <= int(found.group(1)) <= 50:
+                current_season = int(found.group(1))
             continue
         raw = str(getattr(msg, "raw_text", "") or "")
         filename = filename_of(msg)
         numbers = episode_numbers(raw) or episode_numbers(filename)
+        if numbers and not re.search(r"(?i)\\b(?:s\\d+\\s*[-._ ]*e\\d+|saison\\s*\\d+|season\\s*\\d+|\\d+x\\d+)\\b", raw + " " + filename):
+            numbers = (current_season, numbers[1])
         if not numbers:
             continue
         context = str(getattr(latest_poster, "raw_text", "") or "")
