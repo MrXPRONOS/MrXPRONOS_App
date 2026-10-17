@@ -341,23 +341,26 @@ def main():
     slot = now.strftime("%H")
     market_modes = {"prices", "gainers", "losers", "movers", "alerts", "all"}
     rows, source = market() if args.mode in market_modes else (None, None)
-    if args.mode in ("prices", "all"):
-        once(state, f"prices:{date}:{slot}", format_prices(rows, source, now), args.dry_run)
-    if args.mode in ("gainers", "movers", "all"):
-        once(state, f"gainers:{date}:{slot}", format_movers(rows, source, now, "up"), args.dry_run)
-    if args.mode in ("losers", "movers", "all"):
-        once(state, f"losers:{date}:{slot}", format_movers(rows, source, now, "down"), args.dry_run)
-    if args.mode in ("fear", "all"):
-        value, date_source = fear_index()
-        once(state, f"fear:{date}", format_fear(value, date_source, now), args.dry_run)
-    if args.mode in ("alerts", "all"):
-        run_alerts(state, rows, source, now, args.dry_run)
-    if not args.dry_run:
-        # Garder uniquement 14 jours de créneaux publiés.
-        sent = state.setdefault("sent", {})
-        if len(sent) > 280:
-            state["sent"] = dict(sorted(sent.items(), key=lambda kv: kv[1], reverse=True)[:200])
-        save_state(state)
+    try:
+        if args.mode in ("prices", "all"):
+            once(state, f"prices:{date}:{slot}", format_prices(rows, source, now), args.dry_run)
+        if args.mode in ("gainers", "movers", "all"):
+            once(state, f"gainers:{date}:{slot}", format_movers(rows, source, now, "up"), args.dry_run)
+        if args.mode in ("losers", "movers", "all"):
+            once(state, f"losers:{date}:{slot}", format_movers(rows, source, now, "down"), args.dry_run)
+        if args.mode in ("fear", "all"):
+            value, date_source = fear_index()
+            once(state, f"fear:{date}", format_fear(value, date_source, now), args.dry_run)
+        if args.mode in ("alerts", "all"):
+            run_alerts(state, rows, source, now, args.dry_run)
+
+    finally:
+        if not args.dry_run:
+            # Garder uniquement 14 jours de créneaux publiés.
+            sent = state.setdefault("sent", {})
+            if len(sent) > 280:
+                state["sent"] = dict(sorted(sent.items(), key=lambda kv: kv[1], reverse=True)[:200])
+            save_state(state)
 
 
 if __name__ == "__main__":
