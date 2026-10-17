@@ -67,6 +67,27 @@ def get_sparkline(symbol):
     print("CHART_UNAVAILABLE",symbol,"; ".join(errors))
     return None
 
+def get_global_metrics():
+    """CoinLore global market summary: public, no API key, no paid subscription."""
+    response=requests.get("https://api.coinlore.net/api/global/",timeout=(8,25),
+        headers={"User-Agent":"MrXPRONOS/1.0","Accept":"application/json"})
+    response.raise_for_status()
+    raw=response.json()
+    if isinstance(raw,list):
+        if not raw:raise RuntimeError("CoinLore global: empty response")
+        raw=raw[0]
+    if not isinstance(raw,dict):
+        raise RuntimeError("CoinLore global: invalid format")
+    import math
+    cap=float(raw["total_mcap"])
+    volume=float(raw["total_volume"])
+    change=float(raw["mcap_change"])
+    if not all(math.isfinite(v) for v in (cap,volume,change)) or cap<=0 or volume<=0 or abs(change)>50:
+        raise RuntimeError("CoinLore global: invalid metrics")
+    # CoinLore documents total_mcap and total_volume in USD billions.
+    return {"market_cap_total":cap*1e9,"market_cap_change_24h":change,
+            "global_volume_24h":volume*1e9,"global_metrics_source":"CoinLore"}
+
 def main():
     now=datetime.now(timezone.utc)
     rows,provider=market()
@@ -79,6 +100,11 @@ def main():
             count+=1
     if count!=len(chosen):
         raise RuntimeError(f"Publication annulée : seulement {count}/5 graphiques réels disponibles")
+    metrics=get_global_metrics()
+    chosen[0].update(metrics)
+    print("GLOBAL_MARKET_SOURCE",metrics["global_metrics_source"])
+    print("GLOBAL_MARKET_CAP_USD",metrics["market_cap_total"])
+    print("GLOBAL_MARKET_VOLUME_USD",metrics["global_volume_24h"])
     try:
         fear,observed=fear_index()
         chosen[0]["fear_greed"]=fear
