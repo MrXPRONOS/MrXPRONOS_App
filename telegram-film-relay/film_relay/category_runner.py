@@ -216,7 +216,7 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
         source_peers, private, public, bot_public, mirror, mirror_key = await preflight(
             client, bot, cfg
         )
-        if publish:
+        if publish and not os.getenv('CINEX_DEFER_MIRROR'):
             # Existing public posts missing from Torrent9 take priority; never
             # send a private video again merely because a forward failed.
             await finish_mirrors(client, state, mirror, mirror_key, public, limit=5)
@@ -302,10 +302,12 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             )
             state.complete(key, private_video_id, public_post.id)
             await asyncio.sleep(4)
-            mirrored_id = await forward_public_poster(
-                client, public, mirror, public_post.id
-            )
-            state.mirror_done(mirror_key, public_post.id, mirrored_id)
+            mirrored_id = None
+            if not os.getenv('CINEX_DEFER_MIRROR'):
+                mirrored_id = await forward_public_poster(
+                    client, public, mirror, public_post.id
+                )
+                state.mirror_done(mirror_key, public_post.id, mirrored_id)
             LOG.info("%s : film publié privé=%s public=%s Torrent9=%s",
                      cfg["label"], private_video_id, public_post.id, mirrored_id)
             completed += 1
@@ -317,7 +319,9 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             # Each category keeps its own two-film promotion counter,
             # and adverts are native-forwarded from its own public channel.
             report = await publish_promotions(
-                client, bot, private, public, mirror, DesirPromotionsState(state),
+                client, bot, private, public,
+                None if os.getenv('CINEX_DEFER_MIRROR') else mirror,
+                DesirPromotionsState(state),
                 private_fallback=True,
             )
             LOG.info("%s : pub privé=%s public=%s Torrent9=%s",
