@@ -154,7 +154,7 @@ async def after(category):
                 message = message[0] if isinstance(message,list) else message
                 dest_id = int(message.id)
                 print("TRANSFERT",category,kind,origin_id,dest_id)
-                await asyncio.sleep(2)
+                await asyncio.sleep(max(15.0, float(os.getenv('CINEX_FORWARD_PAUSE_SECONDS', '18'))))
             forwarded[origin_id] = dest_id
             if kind == "film":
                 mirror_state = state.setdefault("mirrors",{}).setdefault(mirror_key,{})
