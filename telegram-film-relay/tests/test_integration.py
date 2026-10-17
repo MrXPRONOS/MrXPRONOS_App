@@ -9,6 +9,7 @@ import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from PIL import Image
 from types import SimpleNamespace as NS
 from unittest.mock import AsyncMock, patch
 
@@ -111,12 +112,17 @@ class RelayEndToEndTests(unittest.TestCase):
             'TG_RIGHTS_ATTESTED': 'true', 'FILM_PUBLISH_ENABLED': 'true',
             'CINEX_BOT_TOKEN': '123:fake-bot-token',
             'CHANNELS_CONFIG': str(cfg_path), 'STATE_PATH': str(state_path),
+            'CINEX_PROMO_ASSETS_DIR': str(Path(state_path).parent / 'promo-assets'),
         }
         with patch.dict(os.environ, environment), patch.dict(sys.modules, mocks_for(client)):
             with patch.object(runner.asyncio, 'sleep', new=AsyncMock()):
                 return asyncio.run(runner.execute())
 
     def setup_files(self, temp, max_posts=5, with_mirror=False):
+        assets = Path(temp) / 'promo-assets'
+        assets.mkdir(exist_ok=True)
+        for i, name in enumerate(('actu', 'live', 'jour')):
+            Image.new('RGB', (480, 600), (20+i*30, 40, 60)).save(assets / f'mrx_{name}.png')
         cfg_file = Path(temp) / 'config.json'
         cfg_file.write_text(json.dumps({
             'sources': [{'channel': '@source_legal', 'redistribution_authorized': True}],
@@ -182,8 +188,9 @@ class RelayEndToEndTests(unittest.TestCase):
             cfg, state = self.setup_files(temp, max_posts=2, with_mirror=True)
             client = FakeTelegramClient(sample_messages(count=2))
             self.assertEqual(self.start(client, cfg, state), 0)
-            ads = [x for x in client.sent if x.media == "mrx_actu.jpg"]
+            ads = [x for x in client.sent if x.media == "mrx_actu.png"]
             self.assertEqual([x.channel for x in ads], [PUB, PRIV])
+            self.assertTrue(all(len(x.caption.splitlines()) == 3 for x in ads))
             self.assertTrue(all(x.options["buttons"][0][0][1] ==
                                 "https://t.me/actufoot_mrxp" for x in ads))
             forwarded = [x for x in client.forwarded if x.origin_id == ads[0].id]
@@ -218,7 +225,7 @@ class RelayEndToEndTests(unittest.TestCase):
             second = FakeTelegramClient(samples)
             self.assertEqual(self.start(second, cfg, state), 0)
             self.assertEqual([x.media for x in second.sent[:3]], ['poster-1', 'video-1', 'poster-1'])
-            self.assertEqual([x.media for x in second.sent[3:]], ['mrx_actu.jpg', 'mrx_actu.jpg'])
+            self.assertEqual([x.media for x in second.sent[3:]], ['mrx_actu.png', 'mrx_actu.png'])
             self.assertEqual(State(str(state)).seen(str(SRC)), 13)
 
 
