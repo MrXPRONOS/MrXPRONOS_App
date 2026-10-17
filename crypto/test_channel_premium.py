@@ -1,54 +1,76 @@
-"""Test premium envoyé UNIQUEMENT au canal Telegram @predict_mrxp.
-Jeu de données fictives explicitement marqué SIMULATION.
-"""
+"""Test réel unique du visuel marché vers @predict_mrxp (aucune publication de production)."""
 from __future__ import annotations
 import os
 from datetime import datetime, timezone
 from pathlib import Path
-import sys
 import requests
+from crypto.publish_crypto_1_5 import market, selected_watch, fear_index
 from crypto.render_premium_cards import render_prices_card
+from scripts.telegram_test_guard import validate_test_channel
+
+def get_sparkline(symbol):
+    """48 heures réelles via CryptoCompare; aucune courbe inventée en cas d'échec."""
+    try:
+        response = requests.get(
+            "https://min-api.cryptocompare.com/data/v2/histohour",
+            params={"fsym":symbol,"tsym":"USD","limit":48},
+            timeout=(8,25),
+        )
+        response.raise_for_status()
+        payload=response.json()
+        if payload.get("Response") != "Success":
+            return None
+        candles=(payload.get("Data") or {}).get("Data") or []
+        points=[float(c["close"]) for c in candles if c.get("close") is not None]
+        return points if len(points)>=12 else None
+    except (requests.RequestException,ValueError,TypeError,KeyError):
+        return None
 
 def main():
-    preview_only = "--preview-only" in sys.argv[1:]
-    now = datetime.now(timezone.utc)
-    rows = [
-        dict(symbol="BTC", name="Bitcoin", rank=1, price=72000, change=2.4, volume=5e9),
-        dict(symbol="ETH", name="Ethereum", rank=2, price=3800, change=-3.2, volume=5e9),
-        dict(symbol="SOL", name="Solana", rank=3, price=185.25, change=8.4, volume=5e9),
-        dict(symbol="BNB", name="BNB", rank=4, price=1020, change=-2.1, volume=5e9),
-        dict(symbol="XRP", name="XRP", rank=5, price=2.48, change=4.72, volume=5e9),
-    ]
-    output=Path("crypto/generated/test")
-    tests = [
-        ("COURS DU MARCHE", render_prices_card(rows, "SIMULATION", now, output/"prices.png")),
-    ]
-    print("PREVIEW_PRICES_READY:", str(tests[0][1]))
-    if preview_only:
-        return
-    token = (os.getenv("FOOTBALL_NEWS_BOT_TOKEN") or "").strip()
-    target = (os.getenv("TELEGRAM_TEST_CHAT_ID") or "@predict_mrxp").strip()
-    if not token or not target:
-        raise SystemExit("Secret FOOTBALL_NEWS_BOT_TOKEN ou canal test absent")
-    from scripts.telegram_test_guard import validate_test_channel
-    verified = validate_test_channel(target, token)
-    verified_chat = verified["chat_id"]
-    print("ROUTE TEST CONFIRMEE:", verified["username"], "bot", verified["bot_username"])
-    for title, path in tests:
-        caption = "🧪 TEST ACTU CRYPTO — " + title + "\n⚠️ DONNEES FICTIVES — DEMONSTRATION, PAS DES COURS REELS."
-        with path.open("rb") as fp:
-            try:
-                result = requests.post(
-                    f"https://api.telegram.org/bot{token}/sendPhoto",
-                    data={"chat_id":verified_chat, "caption":caption},
-                    files={"photo":(path.name, fp, "image/png")},
-                    timeout=(10,90))
-                result.raise_for_status()
-                if not result.json().get("ok"):
-                    raise RuntimeError("Telegram refused photo")
-            except requests.RequestException:
-                raise RuntimeError("Envoi incertain, pas de nouvelle tentative") from None
-        print("TEST_IMAGE_PUBLISHED", title)
+    now=datetime.now(timezone.utc)
+    rows,provider=market()
+    chosen=selected_watch(rows)
+    count=0
+    for row in chosen:
+        points=get_sparkline(row["symbol"])
+        if points:
+            row["sparkline"]=points
+            count+=1
+    try:
+        fear,observed=fear_index()
+        chosen[0]["fear_greed"]=fear
+        print("FEAR_GREED_REAL",fear,observed.isoformat())
+    except (RuntimeError,ValueError,TypeError):
+        print("FEAR_GREED_UNAVAILABLE")
+    path=render_prices_card(chosen,provider,now,Path("crypto/generated/test/prices_real.png"))
+    print("REAL_MARKET_PROVIDER",provider)
+    print("REAL_CHARTS",count,"of",len(chosen))
+    print("REAL_MARKET_IMAGE",path)
+    token=(os.getenv("FOOTBALL_NEWS_BOT_TOKEN") or "").strip()
+    target=(os.getenv("TELEGRAM_TEST_CHAT_ID") or "@predict_mrxp").strip()
+    verified=validate_test_channel(target,token)
+    caption=(
+        "🧪 TEST RÉEL — COURS DU MARCHÉ CRYPTO\n"
+        "📅 "+now.strftime("%d/%m/%Y %H:%M UTC")+"\n"
+        "Source cours : "+provider+"\n"
+        "Courbes réelles disponibles : "+str(count)+"/5 (CryptoCompare, 48 h)\n"
+        "⚠️ Canal de test uniquement. Données indicatives, pas un conseil d'investissement."
+    )
+    with path.open("rb") as fp:
+        try:
+            response=requests.post(
+                "https://api.telegram.org/bot"+token+"/sendPhoto",
+                data={"chat_id":verified["chat_id"],"caption":caption},
+                files={"photo":(path.name,fp,"image/png")},
+                timeout=(10,90),
+            )
+            response.raise_for_status()
+            data=response.json()
+            if not data.get("ok"):
+                raise RuntimeError("Telegram refused photo")
+        except requests.RequestException:
+            raise RuntimeError("Envoi Telegram incertain, ne pas retenter automatiquement") from None
+    print("REAL_TEST_TELEGRAM_PUBLISHED",data.get("result",{}).get("message_id"))
 
-if __name__ == "__main__":
+if __name__=="__main__":
     main()
