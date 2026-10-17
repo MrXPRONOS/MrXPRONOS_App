@@ -536,27 +536,6 @@ async def execute() -> int:
                         state.advance(channel_key, pair.movie.id)
                         published_count += 1
                         LOG.info("Publié : %s -> %s", pair_id, url)
-                        # Publish a different Mr XPRONOS promotion after every
-                        # TWO completed movies in each destination. Real inline
-                        # buttons are mandatory; only the bot publishes posters.
-                        if flag("CINEX_PROMOS_ENABLED", True):
-                            try:
-                                from .promotions import publish_promotions
-                                promo_report = await publish_promotions(
-                                    client, bot_client, destination_private,
-                                    destination_public, mirror_destination, state
-                                )
-                                if sum(promo_report[k] for k in ("private", "public", "mirror")):
-                                    LOG.info("PUB CINÉX APRÈS 2 FILMS : privé=%s, public=%s, miroir=%s",
-                                             promo_report["private"],
-                                             promo_report["public"],
-                                             promo_report["mirror"])
-                                if promo_report["skipped"]:
-                                    LOG.warning("Publicités différées (droits ou destination) : %s",
-                                                promo_report["skipped"])
-                            except Exception as promo_exc:
-                                failed_count += 1
-                                LOG.exception("Publicité après deux films en attente : %s", promo_exc)
                         await asyncio.sleep(pause_seconds)
                     except Exception as exc:
                         source_failed = True
@@ -573,6 +552,27 @@ async def execute() -> int:
             except Exception as exc:
                 failed_count += 1
                 LOG.exception("Source inaccessible %s : %s", channel_name, exc)
+        # Les promotions font partie du MÊME passage que les films.
+        # Une seule rotation par destination et par exécution, même si le
+        # dernier film avait été publié lors d'un passage précédent.
+        promo_count = 0
+        if publish and flag("CINEX_PROMOS_ENABLED", True):
+            try:
+                from .promotions import publish_promotions
+                promo_report = await publish_promotions(
+                    client, bot_client, destination_private,
+                    destination_public, mirror_destination, state
+                )
+                promo_count = sum(promo_report[k] for k in ("private", "public", "mirror"))
+                LOG.info(
+                    "PUBS CINÉX dans le workflow films : privé=%s, public=%s, miroir=%s, ignorées=%s",
+                    promo_report["private"], promo_report["public"],
+                    promo_report["mirror"], promo_report["skipped"]
+                )
+            except Exception as promo_exc:
+                failed_count += 1
+                LOG.exception("Échec des pubs intégrées au relais films : %s", promo_exc)
+
         LOG.info("Résumé : lus=%s, proposés=%s, publiés=%s, transferts=%s, erreurs=%s",
                  seen_count, proposed_count, published_count, mirror_count, failed_count)
         if publish and published_count == 0:
@@ -592,7 +592,7 @@ async def execute() -> int:
                     f"- Publications transférées vers le canal secondaire : {mirror_count}\\n"
                     f"- Erreurs : {failed_count}\\n"
                 )
-        if publish and published_count == 0 and mirror_count == 0 and flag("FILM_REQUIRE_PUBLICATION"):
+        if publish and published_count == 0 and mirror_count == 0 and promo_count == 0 and flag("FILM_REQUIRE_PUBLICATION"):
             LOG.error("TEST NON VALIDE : aucune publication réelle. Exécution marquée en échec.")
             return 2
         return 1 if failed_count else 0
