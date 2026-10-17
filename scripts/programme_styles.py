@@ -452,6 +452,34 @@ def rows_style_7(image, d, rows):
         text(d,"VS",(540,y+30),size=14,bold=True,fill=GOLD,anchor="mm")
 
 
+def rows_compact_10(image, d, rows):
+    """6 à 10 affiches : grille premium 2 colonnes x 5 lignes."""
+    y0 = 382
+    row_h = 104
+    for i, item in enumerate(rows[:10]):
+        col = 0 if i < 5 else 1
+        row = i if i < 5 else i - 5
+        x1 = 42 if col == 0 else 552
+        x2 = 528 if col == 0 else 1038
+        y = y0 + row * row_h
+        d.rounded_rectangle((x1, y-42, x2, y+42), radius=22,
+                            fill="#081D2C", outline="#6F5B2D", width=1)
+        rank = int(item.get("editorial_rank") or i + 1)
+        role = clean(item.get("role", ""))
+        badge = "★" if role == "match_du_jour" else "●" if role == "fil_rouge" else "·"
+        text(d, badge + str(rank), (x1+25, y), size=17, bold=True,
+             fill=GOLD if rank <= 4 else GREY, anchor="mm")
+        team_visual(image, d, x1+72, y-19, item, "home", scale=.38)
+        team_visual(image, d, x1+72, y+20, item, "away", scale=.38)
+        text(d, item.get("home",""), (x1+104, y-19), size=18, bold=True,
+             anchor="lm", width=250, min_size=12)
+        text(d, item.get("away",""), (x1+104, y+20), size=18, bold=True,
+             anchor="lm", width=250, min_size=12)
+        d.rounded_rectangle((x2-92, y-20, x2-16, y+20), radius=10, fill=GOLD)
+        text(d, item.get("time",""), (x2-54, y), size=16, bold=True,
+             fill=NAVY, anchor="mm")
+
+
 ROW_RENDERERS={
     1: rows_style_1, 2: rows_style_2, 3: rows_style_3, 4: rows_style_4,
     5: rows_style_5, 6: rows_style_6, 7: rows_style_7,
@@ -484,6 +512,9 @@ def render_programme(payload: dict[str, Any], *, style: int | None = None) -> Im
         raise ValueError("Style programme invalide: "+str(style))
     image,d=background(style)
     header(image,d,style,clean(payload.get("day","")))
-    ROW_RENDERERS[style](image,d,rows)
+    if len(rows) > 5:
+        rows_compact_10(image,d,rows)
+    else:
+        ROW_RENDERERS[style](image,d,rows)
     footer(d,style)
     return image
