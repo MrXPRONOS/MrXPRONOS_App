@@ -67,7 +67,7 @@ jobs:
           TG_PRIVATE_INVITE_LINK: ${{ secrets.CINEX_PRIVATE_INVITE_LINK }}
           FILM_PUBLISH_ENABLED: ${{ vars.FILM_PUBLISH_ENABLED || 'true' }}
           TG_RIGHTS_ATTESTED: ${{ vars.TG_RIGHTS_ATTESTED || 'true' }}
-          FILM_MAX_POSTS_PER_RUN: ${{ github.event_name == 'schedule' && '5' || '1' }}
+          FILM_MAX_POSTS_PER_RUN: '2'
           FILM_REQUIRE_PUBLICATION: ${{ github.event_name == 'schedule' && 'false' || 'true' }}
           FILM_RESCAN_HISTORY: ${{ github.event_name == 'push' && 'true' || (github.event_name == 'workflow_dispatch' && inputs.rescan_history && 'true' || 'false') }}
           PYTHONPATH: .
