@@ -363,6 +363,7 @@ ALIASES = {
 
 COMPETITION_ALIASES = {
     "champions league":"uefa champions league","ligue des champions":"uefa champions league",
+    "uefa champions league":"uefa champions league",
     "ucl":"uefa champions league","europa league":"uefa europa league",
     "conference league":"uefa conference league","europa conference league":"uefa conference league",
     "world cup":"fifa world cup","coupe du monde":"fifa world cup",
@@ -370,6 +371,7 @@ COMPETITION_ALIASES = {
     "afcon":"africa cup of nations","can":"africa cup of nations","coupe d afrique":"africa cup of nations",
     "libertadores":"copa libertadores","sudamericana":"copa sudamericana",
     "premier league":"premier league","english premier league":"premier league",
+    "england premier league":"premier league",
     "laliga":"la liga","la liga":"la liga","serie a":"serie a",
     "bundesliga":"bundesliga","ligue 1":"ligue 1",
     "brasileirao":"brasileirao serie a","brazilian serie a":"brasileirao serie a",
@@ -415,10 +417,15 @@ def competition_rank(name: Any) -> int | None:
     normalized = normalize(name)
     if normalized in COMPETITION_INDEX:
         return COMPETITION_INDEX[normalized]
-    # Les fournisseurs ajoutent souvent saison/pays autour du nom.
+
+    # Ne jamais donner le prestige d'une compétition connue à un nom étranger
+    # qui ne fait que contenir les mêmes mots:
+    # "Libyan Premier League" != Premier League anglaise,
+    # "Chinese Football Champions League" != UEFA Champions League.
+    # On autorise seulement un suffixe de saison/phase APRÈS un nom reconnu.
     best = None
     for key, rank in COMPETITION_INDEX.items():
-        if key and (normalized == key or normalized.startswith(key+" ") or (" "+key+" ") in (" "+normalized+" ")):
+        if key and normalized.startswith(key + " "):
             best = rank if best is None else min(best, rank)
     return best
 
