@@ -37,7 +37,7 @@ class BotHTTPClient:
             payload = response.json()
         except (requests.exceptions.RequestException, ValueError) as exc:
             raise TelegramBotHTTPError("Réseau Telegram indisponible (envoi incertain : pas de réessai automatique).") from exc
-        if not payload.get("ok", False):
+        if response.status_code == 429 or not payload.get("ok", False):
             info = payload.get("description", "Réponse Bot API rejetée")
             wait = (payload.get("parameters") or {}).get("retry_after")
             if wait is not None:
