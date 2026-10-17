@@ -100,7 +100,10 @@ class DesirTests(unittest.TestCase):
         user = NS(forward_messages=AsyncMock(return_value=NS(id=205)))
         public_peer = NS(id=111)
         mirror_peer = NS(id=222)
-        forwarded = asyncio.run(forward_public_poster(user, public_peer, mirror_peer, 45))
+        # Simule explicitement la réactivation future pour tester le format
+        # des transferts, sans lever la pause actuelle de production.
+        with patch("film_relay.mirror_policy.torrent9_paused", return_value=False):
+            forwarded = asyncio.run(forward_public_poster(user, public_peer, mirror_peer, 45))
         self.assertEqual(forwarded, 205)
         args, kwargs = user.forward_messages.await_args
         self.assertIs(args[0], mirror_peer)
