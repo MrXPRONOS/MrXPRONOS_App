@@ -2,10 +2,6 @@ name: CineX - Diagnostic catalogue series TV
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/cinex-series-diagnose-once.txt'
 
 permissions:
   contents: read
