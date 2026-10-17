@@ -59,23 +59,20 @@ class DesirTests(unittest.TestCase):
     def test_public_desir_post_has_green_watch_and_red_folder_button(self):
         from film_relay.desir_runner import post_public
         from film_relay.publication import DEFAULT_FILM_FOLDER_URL
-        mocktelethon = types.ModuleType("telethon")
-        mocktelethon.Button = NS(url=lambda label, url, **kw: (label, url, kw.get("style")))
         async def get_image(media, file):
             return b"photo-telegram"
         bot = NS(send_file=AsyncMock(return_value=NS(id=99)))
         user = NS(download_media=get_image)
         poster=NS(media="photo")
         item=NS(poster=poster)
-        with patch.dict(sys.modules, {"telethon": mocktelethon}):
-            result = asyncio.run(post_public(
-                bot, user, "@CineXDesirfr", item, "Mon Film",
-                "https://t.me/c/123456/45", "https://t.me/+OLD_LINK"))
+        result = asyncio.run(post_public(
+            bot, user, "@CineXDesirfr", item, "Mon Film",
+            "https://t.me/c/123456/45", "https://t.me/+OLD_LINK"))
         self.assertEqual(result.id, 99)
         kwargs = bot.send_file.await_args.kwargs
-        self.assertEqual(kwargs["buttons"][0][0][2], "success")
-        self.assertEqual(kwargs["buttons"][1][0][2], "danger")
-        self.assertEqual(kwargs["buttons"][1][0][1], DEFAULT_FILM_FOLDER_URL)
+        self.assertEqual(kwargs["buttons"][0][0].style, "success")
+        self.assertEqual(kwargs["buttons"][1][0].style, "danger")
+        self.assertEqual(kwargs["buttons"][1][0].url, DEFAULT_FILM_FOLDER_URL)
         self.assertNotIn("+OLD_LINK", kwargs["caption"])
         self.assertIn(DEFAULT_FILM_FOLDER_URL, kwargs["caption"])
 
