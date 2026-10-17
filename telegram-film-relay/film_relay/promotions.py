@@ -105,11 +105,11 @@ async def _recently_published(client, channel, caption, *, limit=80, exclude_ids
 
 
 async def _send_bot_poster(bot, channel, index: int):
-    from telethon import Button
+    from .bot_http import url_button
     label,url=campaign_button(index)
     picture = render_poster(index)  # Original required; never publish a text-only replacement.
     return await bot.send_file(channel, picture, caption=campaign_caption(index),
-                               buttons=[[Button.url(label, url, style="primary")]], force_document=False)
+                               buttons=[[url_button(label, url, style="primary")]], force_document=False)
 
 
 async def _bot_can_post(bot, channel, identity):
