@@ -192,7 +192,8 @@ def episode_marker(key: str) -> str:
 
 async def find_marked(client, peer, marker: str, limit=160):
     async for msg in client.iter_messages(peer, limit=limit):
-        if marker in (getattr(msg, "raw_text", "") or ""):
+        if re.search(re.escape(marker) + r"(?!_[A-Za-z0-9])",
+                     getattr(msg, "raw_text", "") or ""):
             return int(msg.id)
     return None
 
