@@ -35,7 +35,7 @@
     }
   ],
   "results_per_query": 8,
-  "max_channels_per_category": 6,
+  "max_channels_per_category": 4,
   "sample_messages": 55,
   "pause_seconds": 12
 }
