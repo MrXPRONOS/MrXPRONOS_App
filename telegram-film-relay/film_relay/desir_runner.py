@@ -1,7 +1,8 @@
-"""Independent CinéX Désir relay: no native forwarding attribution.
+"""Independent CinéX Désir relay.
 
-A deliberately bounded workflow: one source, one private library, one public
-channel, one finished movie per first test; separate checkpoints from CinéX.
+Licensed source media are republished without forward attribution to the own
+private/public channels. Only the public poster/link is then forwarded natively
+to the secondary channel, keeping Telegram's original-source attribution.
 """
 from __future__ import annotations
 import argparse
@@ -17,7 +18,7 @@ from .matching import document_key
 from .runner import resolve_peer
 from .text import private_message_link
 from .publication import rich_caption, rich_video_title, send_public_poster_with_buttons
-from .recovery import snapshot_telegram_posts
+from .recovery import snapshot_telegram_posts, existing_native_forwards
 
 LOG = logging.getLogger("cinex_desir")
 STATE_DEFAULT = "state/desir_state.json"
@@ -28,6 +29,7 @@ class ReceiptState:
         self.data = json.loads(self.path.read_text(encoding="utf-8")) if self.path.exists() else {}
         self.data.setdefault("completed", {})
         self.data.setdefault("staged", {})
+        self.data.setdefault("mirrors", {})
     def save(self):
         self.path.parent.mkdir(parents=True, exist_ok=True)
         temporary = self.path.with_suffix(".tmp")
@@ -41,6 +43,16 @@ class ReceiptState:
         self.data["completed"][key] = {"video_id": int(video_id), "public_id": int(public_id)}
         self.data["staged"].pop(key, None)
         self.save()
+
+    def mirror_done(self, target: str, public_message_id: int, forwarded_message_id: int):
+        self.data["mirrors"].setdefault(target, {})[str(int(public_message_id))] = int(forwarded_message_id)
+        self.save()
+    def mirror_recorded(self, target: str, public_message_id: int) -> bool:
+        return str(int(public_message_id)) in self.data["mirrors"].get(target, {})
+    def mirror_pending(self, target: str) -> list[int]:
+        entries = self.data["completed"].values()
+        return sorted({int(entry["public_id"]) for entry in entries
+                       if entry.get("public_id") and not self.mirror_recorded(target, entry["public_id"])})
 
 def required(name: str, default: str = "") -> str:
     value = (os.getenv(name) or default).strip()
@@ -96,6 +108,63 @@ async def preflight_bot(bot, public, user_public):
     if not allowed:
         raise RuntimeError("Ajouter le bot comme administrateur de @CineXDesirfr avec Publier.")
     return peer
+
+async def preflight_mirror(client, primary, public_peer, library_peer, source_peer, mirror_name):
+    """Fail before uploading private media if the mirror cannot be published to."""
+    from telethon import utils
+    from telethon.errors import UserNotParticipantError
+    mirror = await resolve_peer(client, mirror_name)
+    username = str(getattr(mirror, "username", "") or "").lower()
+    if username != "torrent9seriesfilms":
+        raise RuntimeError("Le miroir doit être le canal @Torrent9SeriesFilms.")
+    ids = [utils.get_peer_id(x) for x in (mirror, public_peer, library_peer, source_peer)]
+    if len(set(ids)) != 4:
+        raise RuntimeError("Les quatre canaux CinéX Désir doivent être distincts.")
+    if getattr(public_peer, "noforwards", False):
+        raise RuntimeError("Le canal @CineXDesirfr interdit le transfert natif. Désactiver la protection des contenus.")
+    identity = await client.get_me()
+    try:
+        permission = await client.get_permissions(mirror, identity)
+    except UserNotParticipantError as exc:
+        raise RuntimeError("Le compte Telegram personnel ne fait pas partie des administrateurs de @Torrent9SeriesFilms.") from exc
+    is_allowed = bool(getattr(permission, "is_creator", False) or
+                      (getattr(permission, "is_admin", False) and getattr(permission, "post_messages", False)))
+    if not is_allowed:
+        raise RuntimeError("Le compte Telegram personnel doit pouvoir Publier dans @Torrent9SeriesFilms.")
+    return mirror, str(utils.get_peer_id(mirror))
+
+
+async def forward_public_poster(client, public_peer, mirror_peer, public_id: int) -> int:
+    """Native Telegram forward retains 'Transféré de CinéX Désir', without video."""
+    msg = await client.forward_messages(mirror_peer, int(public_id), from_peer=public_peer)
+    if isinstance(msg, list):
+        msg = msg[0] if msg else None
+    if not getattr(msg, "id", None):
+        raise RuntimeError("Le transfert Telegram n'a pas renvoyé d'identifiant.")
+    return int(msg.id)
+
+
+async def finish_mirrors(client, state: ReceiptState, mirror_peer, mirror_key: str,
+                         public_peer, *, limit: int = 5) -> int:
+    """Retry past public posts without reposting images, buttons, or private videos."""
+    from telethon import utils
+    recovered = await existing_native_forwards(
+        client, mirror_peer, utils.get_peer_id(public_peer), limit=350
+    )
+    count = 0
+    for public_id in state.mirror_pending(mirror_key)[:limit]:
+        if public_id in recovered:
+            state.mirror_done(mirror_key, public_id, recovered[public_id])
+            LOG.info("CinéX Désir : transfert miroir déjà présent, public=%s", public_id)
+            continue
+        forwarded_id = await forward_public_poster(client, public_peer, mirror_peer, public_id)
+        state.mirror_done(mirror_key, public_id, forwarded_id)
+        count += 1
+        LOG.info("CinéX Désir : affiche publique %s transférée vers Torrent9, id=%s",
+                 public_id, forwarded_id)
+        await asyncio.sleep(4)
+    return count
+
 
 def format_title(item):
     value = film_title(item).strip()
