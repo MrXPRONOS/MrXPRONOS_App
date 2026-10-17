@@ -5,10 +5,10 @@ Projet isolé dans **`telegram-film-relay/`** du dépôt existant **`MrXPRONOS/M
 ## Capacités
 
 - **Surveillance toutes les 2 heures** (à 00h17, 02h17, etc. UTC/Togo) et **découverte quotidienne** (03h23 UTC/Togo). Les horaires GitHub Actions sont indicatifs et peuvent être retardés.
-- Recherche de **canaux publics Telegram**, sans les rejoindre, via les recherches MTProto et les liens fournis dans `config/discovery.json`. Répertorie automatiquement les canaux compatibles dans `state/discovered_channels.json`, puis les inscrit dans `state/auto_sources.json` : **pas besoin de recopier leurs liens**.
+- Recherche quotidienne de **canaux publics Telegram** sans les rejoindre ; les nouveaux canaux compatibles sont envoyés dans **« Messages enregistrés »** du compte Telegram connecté (`send_message('me', ...)`). Ils ne sont pas ajoutés au relais. Les liens déjà notifiés sont suivis dans `state/discovered_channels.json` pour éviter les doublons.
 - Vérification structurelle **stricte** : canal public broadcast, contenu non protégé (`noforwards=false`), messages lisibles sans rejoindre, au moins **2 couples distincts** affiche + vidéo, description significative, vidéo de **40 minutes minimum** et **150 Mo minimum**, couple séparé de 2 messages au maximum et d'une heure au maximum. Une correspondance structurelle **ne prouve pas** qu'il s'agit bien du film nommé dans l'affiche.
 - Les canaux protégés, non lisibles ou incompatibles sont refusés. **Aucun contournement** des restrictions de Telegram ; `FloodWait` provoque un arrêt.
-- Les sources découvertes sont **enregistrées automatiquement, mais inactives pour la republication** jusqu'à confirmation des droits. Avec la liste de licences `TG_APPROVED_SOURCES_JSON` (optionnelle, secret GitHub), une nouvelle source découverte qui est déjà couverte par une autorisation explicite peut être activée automatiquement.
+- **Aucune activation automatique** : même les canaux correspondants au format recherché ne sont jamais intégrés à `config/channels.json` ni au relais. Pour utiliser une source, l'ajouter manuellement après vérification des droits.
 - Pour les médias autorisés, envoi de la **photo + description nettoyée** dans le canal privé, suivi de la **vidéo + titre** ; dans le canal public, photo + description + lien direct vers la vidéo privée. Aucun en-tête « Transféré depuis » : `client.send_file(...)` réalise un **nouvel envoi**, pas `forward_messages`.
 - Contrôle des doublons, limitation stricte à 2 films maximum par exécution, checkpoint persistant après une publication partielle.
 
@@ -137,7 +137,7 @@ Exemple de **format** pour le secret facultatif (pas de vraie source) :
 [{"channel":"@chaine_avec_licence","rights_basis":"autorisation écrite du titulaire"}]
 ```
 
-Cette liste **n'effectue pas la découverte**, elle active seulement une source déjà trouvée, dès lors que son autorisation est documentée et que les variables de publication sont activées. Les sources ajoutées manuellement dans `config/channels.json` nécessitent `redistribution_authorized: true` après vérification des droits.
+Le relais ne charge plus ce secret pour intégrer des sources découvertes. Les seules sources du relais sont celles ajoutées volontairement dans `config/channels.json` avec `redistribution_authorized: true` après vérification des droits.
 
 **Variables GitHub** : `Settings > Secrets and variables > Actions > Variables > New repository variable`
 
@@ -164,7 +164,7 @@ Le script demande le code de connexion Telegram. **Ne publiez jamais la session*
 ### Déroulement
 
 1. Les workflows sont **installés sur GitHub**, mais **ne contactent pas Telegram si les trois secrets obligatoires sont absents**.
-2. Une fois les secrets configurés, lancez manuellement **Mr XPRONOS - Film Channel Discovery** dans l'onglet Actions, ou attendez le déclenchement quotidien. Les liens détectés sont automatiquement inscrits dans le rapport et `state/auto_sources.json`.
+2. Une fois les secrets configurés, lancez manuellement **Mr XPRONOS - Film Channel Discovery** dans l'onglet Actions, ou attendez le déclenchement quotidien. Les nouveaux canaux trouvés sont envoyés dans **Messages enregistrés** du compte Telegram de la session ; aucune source n'est ajoutée automatiquement.
 3. Renseignez les variables des deux canaux et testez **Mr XPRONOS - Film Relay** avec `FILM_PUBLISH_ENABLED=false` : analyse uniquement, aucun message envoyé.
 4. Seuls les films pour lesquels vous avez les droits peuvent ensuite être publiés. L'activation exige **les deux variables à `true`**, et une source explicitement autorisée.
 
@@ -174,8 +174,8 @@ Le lien `t.me/c/...` pointe vers la vidéo dans le canal privé. Seuls les utili
 
 - `config/channels.json` : sources manuellement choisies (autorisées ou en attente), mode `poster_and_video` ou `title_only`, limites d'envoi. Les identifiants de destination sont plutôt fournis par les **variables GitHub** ci-dessus.
 - `config/discovery.json` : recherches et critères stricts, ainsi que `seed_channels` facultatif.
-- `state/discovered_channels.json` : résultats publics et statistiques.
-- `state/auto_sources.json` : liens auto-inscrits, en attente de droits sauf si préautorisés via secret.
+- `state/discovered_channels.json` : historique des résultats, compteurs et reçus de notification Telegram (anti-doublons).
+- `state/auto_sources.json` : ancien fichier désormais **ignoré** par le relais. La découverte ne l'écrit plus et le relais n'en lit plus les entrées.
 - `state/state.json` : anti-doublons et reprise après échec d'envoi.
 - `python -m unittest discover -s tests -v` dans `telegram-film-relay/` : tests hors ligne. Ils ne garantissent pas le succès d'une session Telegram réelle.
 
