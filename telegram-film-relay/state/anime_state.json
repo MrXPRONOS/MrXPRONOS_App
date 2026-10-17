@@ -1,6 +1,42 @@
 {
-  "completed": {},
-  "mirrors": {},
-  "promotions": {},
+  "completed": {
+    "-1001787980027:25283": {
+      "public_id": 14,
+      "video_id": 9
+    },
+    "-1001787980027:25287": {
+      "public_id": 13,
+      "video_id": 7
+    }
+  },
+  "mirrors": {
+    "-1002909390103": {
+      "13": 2406,
+      "14": 2407
+    }
+  },
+  "promotions": {
+    "-1002909390103": {
+      "last_film_total": 2,
+      "next_index": 1,
+      "sent": {
+        "0": 2408
+      }
+    },
+    "-1004347937458": {
+      "last_film_total": 2,
+      "next_index": 1,
+      "sent": {
+        "0": 15
+      }
+    },
+    "-1004416009337": {
+      "last_film_total": 2,
+      "next_index": 1,
+      "sent": {
+        "0": 10
+      }
+    }
+  },
   "staged": {}
 }
