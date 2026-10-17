@@ -1,6 +1,6 @@
 {
   "scope": "read_only_identity_evidence",
-  "external_total": 1342,
+  "external_total": 1343,
   "external_cc0_verified": 26,
   "native_total": 444,
   "native_unique_eligible": 37,
@@ -20,7 +20,7 @@
   "rejected_reasons": {
     "duplicated_native_id": 0,
     "external_ambiguous_native_matches": 0,
-    "external_not_independently_cc0_verified": 1316,
+    "external_not_independently_cc0_verified": 1317,
     "native_ambiguous_external_matches": 0
   },
   "read_only_native_consensus_price_audit": {
