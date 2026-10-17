@@ -151,6 +151,8 @@ async def load_archive_messages(client, entity, state: State, source_id: str, cf
 
 async def forward_public_message(client, primary_public, mirror_channel, message_id: int) -> int:
     """Telegram native forward. Preserve 'Forwarded from <source channel>' header."""
+    from .mirror_policy import assert_torrent9_enabled
+    assert_torrent9_enabled()
     result = await client.forward_messages(
         mirror_channel, int(message_id), from_peer=primary_public
     )
@@ -274,7 +276,8 @@ async def execute() -> int:
             LOG.info("Bot CinéX contrôlé : administrateur autorisé à publier dans le canal public.")
         mirror_destination = None
         mirror_key = ""
-        if publish and cfg.get("mirror_channel"):
+        from .mirror_policy import torrent9_paused
+        if publish and cfg.get("mirror_channel") and not torrent9_paused():
             try:
                 proposed_mirror = await resolve_peer(client, cfg["mirror_channel"])
                 proposed_key = str(utils.get_peer_id(proposed_mirror))

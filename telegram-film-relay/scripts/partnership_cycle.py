@@ -135,6 +135,10 @@ async def before(category):
         await client.disconnect()
 
 async def after(category):
+    from film_relay.mirror_policy import torrent9_paused
+    if torrent9_paused():
+        print('TORRENT9_SUSPENDU : aucun transfert, aucune reprise des messages en attente.')
+        return
     public, mirror, state_path, marker = settings(category)
     receipt = load(marker)
     if (receipt.get("category"), receipt.get("public"), receipt.get("mirror")) != (category, public, mirror):
