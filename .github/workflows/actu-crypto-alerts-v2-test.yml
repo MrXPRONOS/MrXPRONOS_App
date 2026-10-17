@@ -7,6 +7,7 @@ on:
       - 'crypto/export_alerts_v2.py'
       - 'crypto/test_alerts_v2.py'
       - 'crypto/send_crypto_alerts_v2_test.py'
+      - 'crypto/send_crypto_alerts_v2_demo_test.py'
       - 'scripts/render_crypto_alerts_v2.mjs'
       - '.github/workflows/actu-crypto-alerts-v2-test.yml'
   workflow_dispatch:
@@ -44,7 +45,7 @@ jobs:
         run: |
           python -m crypto.export_alerts_v2 --demo
           node scripts/render_crypto_alerts_v2.mjs --demo
-      - name: Archive DESIGN preview (never sent to Telegram)
+      - name: Archive SIMULATION preview for test only
         uses: actions/upload-artifact@v4
         with:
           name: crypto-publication-04-alerts-premium-DEMO
@@ -79,6 +80,8 @@ jobs:
       - name: Send ONLY a REAL alert to verified @predict_mrxp
         if: steps.ready.outputs.active == 'true'
         run: python -m crypto.send_crypto_alerts_v2_test
-      - name: No threshold crossed - no Telegram message
+      - name: No real threshold - send clearly labeled DEMO to test channel
         if: steps.ready.outputs.active != 'true'
-        run: echo "No eligible ±5% 24h market change observed. No test post was sent."
+        run: |
+          echo "No eligible ±5% 24h market change. A labeled, fictional design TEST is sent to @predict_mrxp, never a real market alert."
+          python -m crypto.send_crypto_alerts_v2_demo_test

@@ -1,6 +1,7 @@
 """Tests déterministes des seuils d'alerte, sans accès réseau ni bot."""
 import unittest
 from crypto.export_alerts_v2 import threshold, select_alert, demo_data
+from crypto.send_crypto_alerts_v2_demo_test import validate_demo_payload
 
 
 def row(symbol, pct, rank):
@@ -41,6 +42,20 @@ class AlertV2Tests(unittest.TestCase):
         self.assertTrue(fixture["is_demo"])
         self.assertEqual(fixture["status"], "demo")
         self.assertEqual(fixture["row"]["level"], 10)
+
+    def test_demo_sender_accepts_only_official_fixture(self):
+        self.assertIsNone(validate_demo_payload(demo_data()))
+        different = demo_data()
+        different["row"]["change"] = -22.5
+        with self.assertRaises(RuntimeError):
+            validate_demo_payload(different)
+
+    def test_demo_sender_rejects_unmarked_realtime_data(self):
+        payload = demo_data()
+        payload["status"] = "real_alert"
+        payload["is_demo"] = False
+        with self.assertRaises(RuntimeError):
+            validate_demo_payload(payload)
 
 
 if __name__ == "__main__":
