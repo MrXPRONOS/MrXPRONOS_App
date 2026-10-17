@@ -172,7 +172,8 @@ class StatsEngineTests(unittest.TestCase):
         self.assertEqual(post.card["h2h_home_wins"], 5)
         self.assertEqual(post.card["h2h_draws"], 2)
         self.assertEqual(post.card["h2h_away_wins"], 3)
-        self.assertNotIn("Confrontations directes", post.text)
+        self.assertIn("Confrontations directes", post.text)
+        self.assertIn("10 confrontations directes", post.text)
 
     @patch("football_channel.daily_insight")
     def test_advanced_stat_render(self, daily):
