@@ -26,7 +26,7 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90
     steps:
       - name: Journaliser la source
         env:
@@ -66,7 +66,7 @@ jobs:
           ODDSLINK_API_KEY: ${{ secrets.ODDSLINK_API_KEY }}
           MOVIODDS_ENABLE: '1'
           BSD_MULTISOURCE_CC0: '1'
-        run: python bsd/bsd_v2_publish.py --max-requests 700 --max-odds-events 350
+        run: python bsd/bsd_v2_publish.py --max-requests 1400 --max-odds-events 1000
       - name: Build and apply fully-qualified multisource candidates
         env:
           BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
