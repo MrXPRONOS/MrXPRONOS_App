@@ -10,6 +10,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from PIL import Image
+from PIL import Image
 from types import SimpleNamespace as NS
 from unittest.mock import AsyncMock, patch
 
@@ -113,12 +114,17 @@ class RelayEndToEndTests(unittest.TestCase):
             'CINEX_BOT_TOKEN': '123:fake-bot-token',
             'CHANNELS_CONFIG': str(cfg_path), 'STATE_PATH': str(state_path),
             'CINEX_PROMO_ASSETS_DIR': str(Path(state_path).parent / 'promo-assets'),
+            'CINEX_PROMO_ASSETS_DIR': str(Path(state_path).parent / 'promo-assets'),
         }
         with patch.dict(os.environ, environment), patch.dict(sys.modules, mocks_for(client)):
             with patch.object(runner.asyncio, 'sleep', new=AsyncMock()):
                 return asyncio.run(runner.execute())
 
     def setup_files(self, temp, max_posts=5, with_mirror=False):
+        assets = Path(temp) / 'promo-assets'
+        assets.mkdir(exist_ok=True)
+        for i, key in enumerate(('actu', 'live', 'jour')):
+            Image.new('RGB', (480, 600), (25 + 30*i, 40, 70)).save(assets / f'mrx_{key}.png')
         assets = Path(temp) / 'promo-assets'
         assets.mkdir(exist_ok=True)
         for i, name in enumerate(('actu', 'live', 'jour')):
@@ -190,6 +196,7 @@ class RelayEndToEndTests(unittest.TestCase):
             self.assertEqual(self.start(client, cfg, state), 0)
             ads = [x for x in client.sent if x.media == "mrx_actu.png"]
             self.assertEqual([x.channel for x in ads], [PUB, PRIV])
+            self.assertTrue(all(len(x.caption.splitlines()) == 3 for x in ads))
             self.assertTrue(all(len(x.caption.splitlines()) == 3 for x in ads))
             self.assertTrue(all(x.options["buttons"][0][0][1] ==
                                 "https://t.me/actufoot_mrxp" for x in ads))
