@@ -95,16 +95,44 @@ class FollowupTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             follow.follow(stored, fixture("fifth", "Roma", "Lazio"), NOW)
 
-    def test_technical_track_is_independent_from_prematch(self):
+    def test_technical_track_prepares_match_but_cannot_start_live_before_prematch(self):
         stored = {}
         event = fixture("technical", start=NOW + timedelta(hours=3))
-        ref = follow.track(stored, event, NOW, reason="importance")
-        self.assertEqual(stored[ref]["tracking_reason"], "importance")
+        event["planned"] = True
+        event["plan_rank"] = 1
+        event["plan_role"] = "match_du_jour"
+        ref = follow.track(stored, event, NOW, reason="daily_plan")
+        self.assertEqual(stored[ref]["tracking_reason"], "daily_plan")
         self.assertTrue(stored[ref]["ranking_locked"])
-        self.assertTrue(follow.base_events(stored, NOW)[0]["ranking_locked"])
-        self.assertEqual(follow.base_events(stored, NOW)[0]["follow_ref"], ref)
+        self.assertTrue(stored[ref]["planned"])
+        self.assertFalse(follow.publication_allowed(stored, ref, "kickoff"))
+        self.assertFalse(follow.publication_allowed(stored, ref, "goal"))
+        self.assertFalse(follow.publication_allowed(stored, ref, "resultat"))
+        self.assertTrue(follow.publication_allowed(stored, ref, "avant_match"))
         with self.assertRaises(ValueError):
             follow.follow({}, event, NOW)
+
+    def test_fil_rouge_sequence_requires_prematch_then_kickoff(self):
+        stored = {}
+        row = fixture("ordered", start=NOW + timedelta(hours=2))
+        row["planned"] = True
+        row["plan_rank"] = 1
+        row["plan_role"] = "match_du_jour"
+        ref = follow.track(stored, row, NOW, reason="daily_plan")
+
+        self.assertTrue(follow.publication_allowed(stored, ref, "avant_match"))
+        self.assertFalse(follow.publication_allowed(stored, ref, "kickoff"))
+        self.assertFalse(follow.publication_allowed(stored, ref, "resultat"))
+
+        follow.mark_publication(stored, ref, "avant_match", NOW)
+        self.assertTrue(follow.publication_allowed(stored, ref, "composition"))
+        self.assertTrue(follow.publication_allowed(stored, ref, "kickoff"))
+        self.assertFalse(follow.publication_allowed(stored, ref, "goal"))
+
+        follow.mark_publication(stored, ref, "kickoff", NOW + timedelta(hours=2))
+        self.assertTrue(follow.publication_allowed(stored, ref, "goal"))
+        self.assertTrue(follow.publication_allowed(stored, ref, "mi_temps"))
+        self.assertTrue(follow.publication_allowed(stored, ref, "resultat"))
 
     def test_track_strict_orientation_and_kickoff(self):
         stored = {}

@@ -2034,6 +2034,8 @@ def lifecycle_signals(
                     })
         for signal in signals[signal_start:]:
             signal["follow_ref"] = follow_ref
+            signal["plan_role"] = str(base.get("plan_role") or "")
+            signal["plan_rank"] = int(base.get("plan_rank") or 99)
             signal.setdefault(
                 "event_date",
                 ext.get("event_date") or base.get("event_date") or base.get("date") or base.get("start_time"),
