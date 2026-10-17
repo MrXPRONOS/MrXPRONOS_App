@@ -23,7 +23,7 @@ concurrency:
 jobs:
   desir:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -56,7 +56,7 @@ jobs:
             echo '::error::Aucun bot disponible : ajouter DESIR_BOT_TOKEN ou un bot existant.'
             exit 1
           fi
-      - name: Essai contrôle ou première publication (1 film maximum)
+      - name: Essai un film puis transfert public vers Torrent9
         working-directory: telegram-film-relay
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
@@ -65,6 +65,7 @@ jobs:
           DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
           DESIR_SOURCE_CHANNEL: ${{ vars.DESIR_SOURCE_CHANNEL || '@Filmromatique' }}
           DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
+          DESIR_MIRROR_CHANNEL: ${{ vars.DESIR_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
           DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
           DESIR_PRIVATE_INVITE_LINK: ${{ secrets.DESIR_PRIVATE_INVITE_LINK }}
           DESIR_STATE_PATH: state/desir_state.json
@@ -73,7 +74,7 @@ jobs:
         run: |
           set -e
           if [[ "$GITHUB_EVENT_NAME" == "push" || "$PUBLISH_INPUT" == "true" ]]; then
-            echo 'CinéX Désir : 1er test réel, un film maximum.'
+            echo 'CinéX Désir : test réel d’un film, puis transfert natif du message public vers Torrent9.'
             python -m film_relay.desir_runner --publish --limit 1 --newest --require-publication
           else
             echo 'CinéX Désir : diagnostic lecture seule.'
