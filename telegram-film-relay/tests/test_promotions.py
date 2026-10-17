@@ -82,16 +82,20 @@ class PromoTests(unittest.TestCase):
         else:
             asyncio.run(run())
 
-    def test_two_movie_cursor_catches_up_without_discarding_backlog(self):
+    def test_two_movie_cursor_consumes_backlog_in_one_promotion(self):
+        """An old backlog must not generate many consecutive adverts."""
         from film_relay.promotions import _cursor
         with TemporaryDirectory() as folder:
             state = State(str(Path(folder) / "state.json"))
             entry = _cursor(state, "channel")
             entry["last_film_total"] = 9
             total = 14
-            entry["last_film_total"] = min(total, int(entry["last_film_total"]) + 2)
-            self.assertEqual(entry["last_film_total"], 11)
-            self.assertEqual(due(state, "channel", 14), 0)
+            self.assertEqual(due(state, "channel", total), 0)
+            # Same operation performed after a successful Telegram send.
+            entry["last_film_total"] = total
+            entry["next_index"] += 1
+            self.assertIsNone(due(state, "channel", total))
+            self.assertEqual(due(state, "channel", total + 2), 1)
 
     def test_rotation_after_every_two_movies(self):
         with TemporaryDirectory() as folder:
