@@ -19,8 +19,8 @@ Le programme Désir ne possède plus de workflow indépendant. Il est exécuté 
 
 1. Sources prévues : `@Filmromatique` et `@g_romanticfilm` (affiches et vidéos MKV/MP4, même sans description). Pour les MKV, pas de filtre de durée ni de taille. La source supplémentaire est facultative en cas d'indisponibilité, aucune protection anti-transfert n'est contournée, et les droits de redistribution restent nécessaires.
 2. Vidéothèque privée : identifiant numérique de `DESIR_PRIVATE_CHANNEL`. La vidéo et éventuellement l'affiche y sont envoyées comme **nouveaux messages**, sans mention « Transféré de ».
-3. Canal public : `@CineXDesirfr`. L'affiche est envoyée avec le lien vers la vidéo privée dans sa légende et un véritable bouton Telegram vert « Regarder le film ».
-4. Miroir : `@Torrent9SeriesFilms`. Le message public (affiche, lien et attribution Telegram) est **transféré nativement** depuis CinéX Désir. Aucune vidéo privée n'est transférée vers ce miroir. Le lien écrit dans la légende subsiste si les boutons ne sont pas reproduits par le client Telegram.
+3. Canal public : `@CineXDesirfr`. L'affiche est envoyée avec le lien privé et deux véritables boutons Telegram : **vert** « 🎬 REGARDER LE FILM » et **rouge** « 🔥 PLUS DE FILMS ? REJOINS LA TEAM ! », pointant vers `https://t.me/addlist/ZmW4vfwcrMAwNzJk`. Ce dossier remplace l'ancien deuxième lien d'invitation à la vidéothèque.
+4. Miroir : `@Torrent9SeriesFilms`. Le message public (affiche, lien et attribution Telegram) est **transféré nativement** depuis CinéX Désir. Aucune vidéo privée n'est transférée vers ce miroir. Le lien du film **et** celui du dossier sont écrits dans la légende et subsistent si les boutons ne sont pas reproduits par le client Telegram.
 
 ## GitHub
 
@@ -29,7 +29,7 @@ Workflow unique : `.github/workflows/telegram-film-relay.yml`. Test manuel : `wo
 Secrets déjà utilisés :
 - `TG_API_ID`, `TG_API_HASH`, `TG_SESSION_STRING` (ou `TG_STRING_SESSION`).
 - `DESIR_BOT_TOKEN` ; sinon le bot existant `FOOTBALL_NEWS_BOT_TOKEN` ou `TELEGRAM_BOT_TOKEN`.
-- `DESIR_PRIVATE_INVITE_LINK` : lien d'invitation privé.
+- Le lien `DESIR_PRIVATE_INVITE_LINK` n'est plus nécessaire pour les boutons publics. Le dossier de films commun peut être remplacé via la variable facultative `CINEX_FILM_FOLDER_URL`.
 
 Variables :
 - `DESIR_SOURCE_CHANNEL` (première source, défaut `@Filmromatique`).

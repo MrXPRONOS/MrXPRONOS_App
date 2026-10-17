@@ -2,6 +2,14 @@
 
 Projet isolé dans **`telegram-film-relay/`** du dépôt existant **`MrXPRONOS/MrXPRONOS_App`**. Les deux workflows GitHub Actions sont à la racine du dépôt dans **`.github/workflows/telegram-film-*.yml`**, comme exigé par GitHub Actions.
 
+### Sources et liens — octobre 2026
+
+- La source `@filmcomplets` est ajoutée **uniquement au relais CinéX classique**, dans `config/channels.json`, avec `redistribution_authorized: false` tant que les droits de republication n'ont pas été expressément confirmés. Elle n'est pas une source Désir.
+- Les **deux boutons sous chaque nouvelle affiche de film** sont désormais : `🎬 REGARDER LE FILM` (**vert**, lien direct vers la vidéo privée) et `🔥 PLUS DE FILMS ? REJOINS LA TEAM !` (**rouge**, dossier `https://t.me/addlist/ZmW4vfwcrMAwNzJk`). Le second lien de vidéothèque privée n'est plus affiché.
+- L'invitation au dossier apparaît aussi en tant que lien HTML intégré à la légende afin que les transferts Telegram natifs vers Torrent9 affichent un accès cliquable, même si Telegram ne reproduit pas les boutons.
+- La publication ne crée plus de nouveaux liens d'invitation privés à chaque exécution. Pour changer le dossier, créer la variable GitHub `CINEX_FILM_FOLDER_URL` avec un lien `https://t.me/addlist/...` ; elle est facultative.
+- Les anciens messages publiés ne sont pas réédités automatiquement ; leurs boutons ne changent pas rétroactivement.
+
 ## Capacités
 
 - **Surveillance toutes les 2 heures** (à 00h17, 02h17, etc. UTC/Togo) et **découverte quotidienne** (03h23 UTC/Togo). Les horaires GitHub Actions sont indicatifs et peuvent être retardés.
@@ -82,7 +90,7 @@ Les légendes comportent exactement trois lignes, avec un bouton Telegram corres
 3. Ajouter **le bot effectivement sélectionné** comme **administrateur du canal public CinéX** avec l'autorisation **Publier des messages**. Il n'a pas besoin d'être administrateur du canal privé. Le bot est identifié dans les logs sans afficher son jeton.
 4. Relancer **Mr XPRONOS - Film Relay**. La session utilisateur continue d'envoyer affiche + MKV dans le privé ; le bot football publie l'affiche publique avec de vrais boutons Telegram.
 
-Présentation publique : titre en **gras**, métadonnées (genre, durée, synopsis) stylées, sans URL visible dans la légende. Bouton principal : **🎬 REGARDER LE FILM** (message vidéo du privé). Si le lien d'invitation est disponible, second bouton : **🔐 REJOINDRE LA VIDÉOTHÈQUE**. Les destinataires doivent être membres du canal privé pour ouvrir le lien direct de la vidéo.
+Présentation publique : titre en **gras**, métadonnées (genre, durée, synopsis) stylées, sans URL visible dans la légende. Bouton principal **vert** : **🎬 REGARDER LE FILM** (vidéo du canal privé). Second bouton **rouge**, toujours présent : **🔥 PLUS DE FILMS ? REJOINS LA TEAM !** vers le dossier Telegram `https://t.me/addlist/ZmW4vfwcrMAwNzJk` (modifiable par la variable facultative `CINEX_FILM_FOLDER_URL`). Les destinataires doivent être membres du canal privé pour ouvrir le lien direct de la vidéo.
 
 Le programme s'arrête avec une erreur claire lorsque le bot n'est pas configuré ; il **n'envoie pas la vidéo privée avant de vérifier** le jeton et l'accès du bot au canal public. Une défaillance ultérieure de publication publique conserve un checkpoint pour réessayer sans renvoyer le même MKV.
 
