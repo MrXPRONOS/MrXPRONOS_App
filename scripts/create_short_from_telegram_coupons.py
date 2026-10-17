@@ -344,11 +344,13 @@ def build_video(cards, output: Path, work_dir: Path):
             next_path = cards[idx + 1]
             with Image.open(next_path) as next_image:
                 next_w, next_h = _fit_card_size(next_image.width, next_image.height, max_w=target_width, max_h=1210)
+            preview_w = int(round(next_w * 0.94))
             next_preview = (
                 ImageClip(str(next_path))
-                .resize(width=next_w)
+                .resize(width=preview_w)
+                .set_opacity(0.58)
                 .set_duration(per_card)
-                .set_position((W - 72, coupon_y + 22))
+                .set_position((W - 68, coupon_y + 42))
             )
 
         overlay = ImageClip(str(overlay_path), transparent=True).set_duration(per_card)
