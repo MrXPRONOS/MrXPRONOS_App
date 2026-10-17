@@ -2,7 +2,7 @@
 """Fil rouge Actu Foot : suivi persistant de rencontres effectivement annoncées.
 
 Une grande affiche devient suivie après admission du ranking ou succès Telegram de son AVANT-MATCH.
-La sélection est partagée entre cron complet (30 min) et cycle live (10 min)
+La sélection est partagée entre cron complet (5 min) et cycle live (2 min)
 via le même historique, mais isolée par destination (test/production). Le plafond volontairement bas concentre le fil rouge sur les 4 affiches les plus importantes.
 """
 from __future__ import annotations
@@ -253,7 +253,7 @@ def publication_allowed(tracked: dict, ref: str, category: str) -> bool:
     if category == "suivi_interrompu":
         # Report/annulation après l'annonce avant-match reste une fin logique
         # même si le coup d'envoi n'a jamais eu lieu.
-        return bool(item.get("prematch_sent")) and not item.get("final_sent")
+        return (bool(item.get("planned")) or bool(item.get("prematch_sent"))) and not item.get("final_sent")
     if category in LIVE_AFTER_KICKOFF:
         if not item.get("kickoff_sent") or item.get("final_sent"):
             return False
