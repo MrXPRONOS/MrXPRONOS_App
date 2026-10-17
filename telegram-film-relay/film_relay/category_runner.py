@@ -288,7 +288,7 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             state.complete(key, private_video_id, public_post.id)
             await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             mirrored_id = None
-            if not os.getenv('CINEX_DEFER_MIRROR'):
+            if mirror is not None and not os.getenv('CINEX_DEFER_MIRROR'):
                 mirrored_id = await forward_public_poster(
                     client, public, mirror, public_post.id
                 )
