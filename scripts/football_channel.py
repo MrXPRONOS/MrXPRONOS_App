@@ -3176,7 +3176,8 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         if production_active(now) and counter["sent"] < max_send:
             try:
                 matches = get_day(today)
-                if hour >= 7 and not state.has_plan_for_day(today):
+                if (hour >= 7 and state.seen("programme:" + today.isoformat())
+                        and not state.has_plan_for_day(today)):
                     recovered = programme(matches, today, as_of=None)
                     if recovered is not None:
                         recovered_count = state.set_programme_plan(recovered, now, source="recovered")
