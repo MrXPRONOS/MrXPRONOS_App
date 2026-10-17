@@ -236,6 +236,11 @@ def overlay_png(index,total,summary,out):
     counter=f"{index+1:02d} / {total:02d}"
     cf=_font(28,True)
     draw.text((92,1308),counter,font=cf,fill=(242,247,252,245))
+    progress_ratio=(index+1)/max(total,1)
+    bar_x1,bar_y1,bar_x2,bar_y2=285,1324,988,1334
+    draw.rounded_rectangle((bar_x1,bar_y1,bar_x2,bar_y2),radius=5,fill=(255,255,255,48))
+    fill_x=bar_x1+int((bar_x2-bar_x1)*progress_ratio)
+    draw.rounded_rectangle((bar_x1,bar_y1,fill_x,bar_y2),radius=5,fill=(76,163,255,235))
 
     # Results summary and CTA are both above common social bottom overlays.
     draw.rounded_rectangle((92,1360,988,1435),radius=28,fill=(13,44,67,232),
