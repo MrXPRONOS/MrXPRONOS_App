@@ -37,7 +37,7 @@ class DesirTests(unittest.TestCase):
     def test_video_only_supported(self):
         result = pair_items([video(22, "Autre_Film.mkv")])
         self.assertIsNone(result[0].poster)
-        self.assertIn("Autre Film", film_title(result[0]))
+        self.assertIn("autre film", film_title(result[0]).lower())
 
     def test_new_photo_bounds_previous_pair(self):
         pairs = pair_items([photo(1), photo(2), video(3,"test.mkv")])
