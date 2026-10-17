@@ -234,11 +234,8 @@ async def execute() -> int:
         if publish:
             # User session copies source media to private; bot sends public
             # poster + native URL buttons. Bot must be an admin of this channel.
-            bot_client = TelegramClient(
-                StringSession(), int(credentials[0]), credentials[1],
-                request_retries=1, connection_retries=2, flood_sleep_threshold=0
-            )
-            await bot_client.start(bot_token=bot_token)
+            from .bot_http import BotHTTPClient
+            bot_client = BotHTTPClient(bot_token, client)
             identity = await bot_client.get_me()
             LOG.info(
                 "Bot football sélectionné pour CinéX : @%s (ajouter comme administrateur du canal public).",
