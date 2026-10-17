@@ -4,6 +4,7 @@ on:
   push:
     branches: [feature/actu-crypto-lot-01-05]
     paths:
+      - 'crypto/free_coin_logos.py'
       - 'crypto/export_gainers_v2.py'
       - 'crypto/send_crypto_gainers_v2_test.py'
       - 'scripts/render_crypto_gainers_v2.mjs'
