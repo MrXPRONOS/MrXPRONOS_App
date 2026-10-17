@@ -34,7 +34,7 @@ from bsd.bsd_v2_telegram_banner import attach_banner
 from bsd.bsd_v2_verify_telegram import verdict
 
 UTC=timezone.utc
-W,H=1080,1920
+W,H=1080,1920\nSHORTS_BACKGROUND=ROOT/"assets"/"images"/"shorts-premium-background.png"
 TARGET_WIDTH=940
 COUPON_Y=105
 VIDEO_BACKGROUND=ROOT/"assets"/"images"/"mrxpronos-video-background.jpg"
