@@ -8,7 +8,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import quote
 
-from telethon import Button, TelegramClient, utils
+from telethon import TelegramClient, utils
+from film_relay.bot_http import url_button
 from telethon.sessions import StringSession
 
 from film_relay.bot_http import BotHTTPClient
@@ -117,7 +118,7 @@ async def before(category):
             stream.name = IMAGE.name
             sent = await bot.send_file(
                 bot_peer, stream, caption=CAPTION,
-                buttons=[[Button.url("💬 Proposer un partenariat",LINK,style="primary")]],
+                buttons=[[url_button("💬 Proposer un partenariat",LINK,style="primary")]],
                 force_document=False)
             anchor = int(sent.id)
             print("AFFICHE_PUBLIEE", category, anchor)

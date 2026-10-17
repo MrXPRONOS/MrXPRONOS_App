@@ -11,7 +11,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from film_relay.bot_http import BotHTTPClient, TelegramBotHTTPError
-from telethon import Button
+from film_relay.bot_http import url_button
 from telethon.tl.types import Channel
 
 
@@ -25,14 +25,14 @@ class HTTPTests(unittest.TestCase):
         self.bot = BotHTTPClient("123456:fake-token", DummyUser())
 
     def test_blue_button(self):
-        markup = self.bot._keyboard([[Button.url(
+        markup = self.bot._keyboard([[url_button(
             "Proposer un partenariat", "https://t.me/mr_xpronos?text=PARTENARIAT-CANAL",
             style="primary"
         )]])
         self.assertEqual(markup["inline_keyboard"][0][0]["style"], "primary")
 
     def test_movie_button_color(self):
-        markup = self.bot._keyboard([[Button.url("Regarder le film", "https://t.me/c/123/456", style="success")]])
+        markup = self.bot._keyboard([[url_button("Regarder le film", "https://t.me/c/123/456", style="success")]])
         self.assertEqual(markup["inline_keyboard"][0][0]["style"], "success")
 
     def test_send_photo_has_no_bot_auth_request(self):
@@ -45,7 +45,7 @@ class HTTPTests(unittest.TestCase):
         async def send():
             return await self.bot.send_file(
                 channel, io.BytesIO(b"\\xff\\xd8\\xff"), caption="Test",
-                buttons=[[Button.url("Contact", "https://t.me/mr_xpronos", style="primary")]]
+                buttons=[[url_button("Contact", "https://t.me/mr_xpronos", style="primary")]]
             )
         obj = asyncio.run(send())
         self.assertEqual(obj.id, 312)

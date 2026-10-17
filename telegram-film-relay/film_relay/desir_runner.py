@@ -215,11 +215,11 @@ async def post_public(bot, user, public_peer, item, title, video_url: str,
     A visible URL inside the caption survives Telegram forwarding even on
     clients which do not preserve a bot's inline keyboard.
     """
-    from telethon import Button
+    from .bot_http import url_button
     # Same two buttons as the classic relay. The former private-library
     # invitation is no longer shown in the public message.
     rows = [
-        [Button.url(label, url, style="success" if index == 0 else "danger")
+        [url_button(label, url, style="success" if index == 0 else "danger")
          for label, url in row]
         for index, row in enumerate(url_button_rows(video_url))
     ]
