@@ -18,8 +18,9 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
-    "instagram_image": "assets/images/editorial/match-bsd-match-601980-218158ed-social.jpg"
+    "retired": true,
+    "instagram_image": "assets/images/editorial/match-bsd-match-601980-218158ed-social.jpg",
+    "retired_reason": "low_editorial_importance"
   },
   {
     "id": "d6d0cbfdbbc99ce3c652ec42",
@@ -40,8 +41,9 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
-    "instagram_image": "assets/images/editorial/match-bsd-match-601981-9f5e36eb-social.jpg"
+    "retired": true,
+    "instagram_image": "assets/images/editorial/match-bsd-match-601981-9f5e36eb-social.jpg",
+    "retired_reason": "low_editorial_importance"
   },
   {
     "id": "6a430d6a2f218135b107a6f6",
@@ -62,8 +64,9 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
-    "instagram_image": "assets/images/editorial/match-bsd-match-602688-32e83510-social.jpg"
+    "retired": true,
+    "instagram_image": "assets/images/editorial/match-bsd-match-602688-32e83510-social.jpg",
+    "retired_reason": "low_editorial_importance"
   },
   {
     "id": "882908d36ca055c4ce01ffe6",
@@ -84,8 +87,9 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
-    "instagram_image": "assets/images/editorial/match-bsd-match-224666-c331db03-social.jpg"
+    "retired": true,
+    "instagram_image": "assets/images/editorial/match-bsd-match-224666-c331db03-social.jpg",
+    "retired_reason": "low_editorial_importance"
   },
   {
     "id": "17ff3a7ec66fb182dba06659",
@@ -106,8 +110,9 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
-    "instagram_image": "assets/images/editorial/match-bsd-match-10190-75cdce26-social.jpg"
+    "retired": true,
+    "instagram_image": "assets/images/editorial/match-bsd-match-10190-75cdce26-social.jpg",
+    "retired_reason": "low_editorial_importance"
   },
   {
     "id": "105f2f48e13fb0701b5f05b2",
