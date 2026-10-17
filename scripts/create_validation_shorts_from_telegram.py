@@ -232,6 +232,11 @@ def overlay_png(index,total,summary,out):
     hb=draw.textbbox((0,0),header,font=hf)
     draw.text((W-48-(hb[2]-hb[0]),36),header,font=hf,fill=(238,244,251,235))
 
+    # Readable card position counter, outside the Telegram validation card.
+    counter=f"{index+1:02d} / {total:02d}"
+    cf=_font(28,True)
+    draw.text((92,1308),counter,font=cf,fill=(242,247,252,245))
+
     # Results summary and CTA are both above common social bottom overlays.
     draw.rounded_rectangle((92,1360,988,1435),radius=28,fill=(13,44,67,232),
                            outline=(255,255,255,28),width=2)
