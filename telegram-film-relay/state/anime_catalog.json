@@ -1,3 +1,48 @@
 {
-  "series": {}
+  "series": {
+    "mangas-fv-no-longer-rangers-s02-mp4": {
+      "episodes": {
+        "1": {
+          "1": {
+            "message_id": 13,
+            "url": "https://t.me/c/4416009337/13"
+          },
+          "2": {
+            "message_id": 14,
+            "url": "https://t.me/c/4416009337/14"
+          },
+          "3": {
+            "message_id": 15,
+            "url": "https://t.me/c/4416009337/15"
+          },
+          "4": {
+            "message_id": 16,
+            "url": "https://t.me/c/4416009337/16"
+          },
+          "5": {
+            "message_id": 17,
+            "url": "https://t.me/c/4416009337/17"
+          },
+          "6": {
+            "message_id": 18,
+            "url": "https://t.me/c/4416009337/18"
+          }
+        }
+      },
+      "main_index_id": 11,
+      "public_id": 17,
+      "season_indices": {
+        "1": 12
+      },
+      "source_items": {
+        "-1001595907308:13261": 13,
+        "-1001595907308:13262": 14,
+        "-1001595907308:13263": 15,
+        "-1001595907308:13264": 16,
+        "-1001595907308:13265": 17,
+        "-1001595907308:13266": 18
+      },
+      "title": "@Mangas fv No Longer Rangers S02 mp4"
+    }
+  }
 }

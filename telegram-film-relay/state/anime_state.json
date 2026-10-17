@@ -7,17 +7,22 @@
     "-1001787980027:25287": {
       "public_id": 13,
       "video_id": 7
+    },
+    "anime-series:mangas-fv-no-longer-rangers-s02-mp4": {
+      "public_id": 17,
+      "video_id": 13
     }
   },
   "mirrors": {
     "-1002909390103": {
       "13": 2406,
-      "14": 2407
+      "14": 2407,
+      "17": 2428
     }
   },
   "promotions": {
     "-1002909390103": {
-      "last_film_total": 2,
+      "last_film_total": 3,
       "next_index": 1,
       "sent": {
         "0": 2408
