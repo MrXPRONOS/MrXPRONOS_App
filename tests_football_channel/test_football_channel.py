@@ -83,6 +83,35 @@ class FootballChannelTests(unittest.TestCase):
         self.assertEqual(m.live_tracking_reason(row), "choc_grands_clubs")
         self.assertTrue(m.popular_live_match(row))
 
+    def test_live_can_follow_four_major_matches_same_competition(self):
+        def fixture(ident, home, away):
+            row = event(ident)
+            row["home_team"]["name"] = home
+            row["away_team"]["name"] = away
+            row["league_name"] = "UEFA Champions League"
+            return row
+
+        matches = [
+            fixture("m1", "Real Madrid", "Liverpool"),
+            fixture("m2", "PSG", "Bayern Munich"),
+            fixture("m3", "Arsenal", "Chelsea"),
+            fixture("m4", "Inter Milan", "Juventus"),
+        ]
+        selected = m.select_popular_live_matches(
+            matches, max_per_competition=4, max_total=4, dominance_gap=0
+        )
+        self.assertEqual(len(selected), 4)
+        self.assertEqual({row["id"] for row in selected}, {"m1", "m2", "m3", "m4"})
+
+    def test_major_final_without_big_club_can_enter_live(self):
+        row = event("final")
+        row["home_team"]["name"] = "Club Alpha"
+        row["away_team"]["name"] = "Club Beta"
+        row["league_name"] = "UEFA Champions League"
+        row["round_name"] = "Final"
+        self.assertTrue(m.popular_live_match(row))
+        self.assertGreaterEqual(m.high_stakes_bonus(row), 100)
+
     def test_live_ranking_keeps_top_two_per_competition(self):
         def fixture(ident, home, away, competition):
             row = event(ident)
@@ -504,6 +533,13 @@ class FootballChannelTests(unittest.TestCase):
         self.assertEqual(post.card["matches"][0]["role"], "match_du_jour")
         self.assertIn("Match du jour", post.text)
         self.assertIn("Arsenal", post.text)
+
+    def test_programme_does_not_fill_with_unknown_matches(self):
+        row = event("small", NOW + timedelta(hours=4))
+        row["home_team"]["name"] = "Ilves"
+        row["away_team"]["name"] = "SJK"
+        row["league_name"] = "Veikkausliiga"
+        self.assertIsNone(m.programme([row], NOW.date(), as_of=NOW))
 
     def test_resultat_uniquement_apres_confirmation(self):
         sample = [
