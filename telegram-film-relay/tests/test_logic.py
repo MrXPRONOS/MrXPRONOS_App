@@ -131,7 +131,7 @@ class DiscoveryTests(unittest.TestCase):
         rendered = notification_text(channel)
         self.assertIn("https://t.me/cinema_test", rendered)
         self.assertIn("Droits de redistribution non vérifiés", rendered)
-        self.assertIn("\\n", rendered)
+        self.assertIn(chr(10), rendered)
         client = NS(send_message=AsyncMock())
         sent = set()
         result = asyncio.run(notify_saved_messages(client, [channel, channel], sent))
