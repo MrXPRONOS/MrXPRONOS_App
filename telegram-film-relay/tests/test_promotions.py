@@ -73,14 +73,10 @@ class PromoTests(unittest.TestCase):
             self.assertEqual(len(args[1].splitlines()), 3)
             self.assertTrue(kwargs["buttons"])
             self.assertEqual(kwargs["buttons"][0][0][2], "primary")
-        telethon = __import__("sys").modules.get("telethon")
-        if telethon is None:
-            import types, sys
-            fake = types.ModuleType("telethon")
-            fake.Button = SimpleNamespace(url=lambda label, url, **kw: (label, url, kw.get("style")))
-            with patch.dict(sys.modules, {"telethon": fake}):
-                asyncio.run(run())
-        else:
+        # Patch the actual imported helper, regardless of whether Telethon is
+        # present in the GitHub Actions test environment.
+        with patch("telethon.Button.url",
+                   side_effect=lambda label, url, **kw: (label, url, kw.get("style"))):
             asyncio.run(run())
 
     def test_two_movie_cursor_consumes_backlog_in_one_promotion(self):
