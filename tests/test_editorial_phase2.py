@@ -33,13 +33,32 @@ class EditorialPhase2Tests(unittest.TestCase):
         self.assertIn("Arsenal",article["title"])
         self.assertNotIn("Score final BSD",article["content"])
         self.assertEqual(article["source"],"bsd")
+    def test_bsd_editorial_ranking_rejects_unknown_and_promotes_final(self):
+        now=datetime(2026,10,12,12,tzinfo=timezone.utc)
+        unknown={"id":"bsd:1","source":"bsd","event_date":"2026-10-12T13:00:00Z",
+                 "home_team":"Ilves","away_team":"SJK","league":"Veikkausliiga",
+                 "status":"notstarted","recommendation_eligible":True}
+        classic={"id":"bsd:2","source":"bsd","event_date":"2026-10-12T20:00:00Z",
+                 "home_team":"Arsenal","away_team":"Chelsea","league":"Premier League",
+                 "status":"notstarted"}
+        final={"id":"bsd:3","source":"bsd","event_date":"2026-10-12T21:00:00Z",
+               "home_team":"Club Alpha","away_team":"Club Beta",
+               "league":"National Cup","round_name":"Final","status":"notstarted"}
+        ds={"source":"bsd","model_version":"bsd-v2-isolated","matches":[unknown,classic,final]}
+        selected=editorial_bsd_bridge.select_matches(ds,now,limit=5)
+        ids=[x["id"] for x in selected]
+        self.assertNotIn("bsd:1",ids)
+        self.assertIn("bsd:2",ids)
+        self.assertIn("bsd:3",ids)
+        self.assertEqual(ids[0],"bsd:3")
+
     def test_match_bridge_is_idempotent(self):
         now=datetime(2026,10,12,10,tzinfo=timezone.utc)
         with tempfile.TemporaryDirectory() as d:
             root=Path(d)
             (root/"data.json").write_text(json.dumps({"source":"bsd","model_version":"bsd-v2-isolated","matches":[
                 {"source":"bsd","id":"bsd:42","event_date":"2026-10-13T19:00:00Z",
-                 "home_team":"Togo","away_team":"Ghana","status":"notstarted"}]}),encoding="utf-8")
+                 "home_team":"Arsenal","away_team":"Chelsea","league":"Premier League","status":"notstarted"}]}),encoding="utf-8")
             (root/"articles.json").write_text("[]",encoding="utf-8")
             self.assertEqual(editorial_bsd_bridge.run(root,now,limit=4)["created"],1)
             self.assertEqual(editorial_bsd_bridge.run(root,now,limit=4)["created"],0)
