@@ -142,15 +142,19 @@ def render_premium_prices_card(rows,source,now,out_path):
     d=ImageDraw.Draw(base)
     for x in (357,702):d.line((x,1151,x,1228),fill="#3c7cb6",width=2)
     market_cap=next((r.get("market_cap_total") for r in rows if r.get("market_cap_total") is not None),None)
-    volume=sum(float(r.get("volume",0) or 0) for r in rows)
+    volume=next((r.get("global_volume_24h") for r in rows if r.get("global_volume_24h") is not None),None)
+    cap_change=next((r.get("market_cap_change_24h") for r in rows if r.get("market_cap_change_24h") is not None),None)
     fear=next((r.get("fear_greed") for r in rows if r.get("fear_greed") is not None),None)
     icon_globe(d,53,1161)
     icon_bars(d,370,1163)
     icon_flame(d,714,1158)
     text(d,117,1154,"CAPITALISATION TOTALE",16,"#b7d1ed")
-    text(d,117,1194,"N/D" if market_cap is None else f"$ {float(market_cap)/1e12:.2f}T",25)
+    cap_label="N/D" if market_cap is None else f"$ {float(market_cap)/1e12:.2f}T"
+    if cap_change is not None:
+        cap_label+=f"  {float(cap_change):+.2f}%"
+    text(d,117,1194,cap_label,25,max_width=235)
     text(d,430,1154,"VOLUME 24H",18,"#b7d1ed")
-    text(d,430,1194,f"$ {volume/1e9:.2f}B" if volume>0 else "N/D",25)
+    text(d,430,1194,f"$ {float(volume)/1e9:.2f}B" if volume is not None and float(volume)>0 else "N/D",25)
     text(d,777,1154,"FEAR & GREED INDEX",17,"#b7d1ed")
     text(d,777,1194,str(fear) if fear is not None else "N/D",26,"#5cf0aa")
     text(d,540,1281,"♛  Mr XPRONOS  •  ANALYSES • OPPORTUNITÉS",18,"#ffda87","mt")
