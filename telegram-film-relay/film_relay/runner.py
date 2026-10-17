@@ -314,7 +314,7 @@ async def execute() -> int:
         # Do not re-upload a MKV or re-post the original public message.
         mirror_count = 0
         mirror_forwards = {}
-        if publish and mirror_destination is not None:
+        if publish and mirror_destination is not None and not flag('CINEX_DEFER_MIRROR', False):
             mirror_forwards = await existing_native_forwards(
                 client, mirror_destination, utils.get_peer_id(destination_public)
             )
@@ -507,7 +507,7 @@ async def execute() -> int:
                             text, url, invitation
                         )
                         state.add(pair_id, media_id, private_post_id, int(public_post.id))
-                        if mirror_destination is not None:
+                        if mirror_destination is not None and not flag('CINEX_DEFER_MIRROR', False):
                             try:
                                 copied_id = await forward_public_message(
                                     client, destination_public, mirror_destination,
@@ -563,7 +563,7 @@ async def execute() -> int:
                 from .promotions import publish_promotions
                 promo_report = await publish_promotions(
                     client, bot_client, destination_private,
-                    destination_public, mirror_destination, state
+                    destination_public, (None if flag('CINEX_DEFER_MIRROR', False) else mirror_destination), state
                 )
                 promo_count = sum(promo_report[k] for k in ("private", "public", "mirror"))
                 LOG.info(
