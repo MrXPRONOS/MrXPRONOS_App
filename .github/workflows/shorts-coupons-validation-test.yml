@@ -25,6 +25,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Load latest production predictions from main
+        run: |
+          git fetch origin main
+          git show origin/main:data.json > data.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path("data.json").read_text(encoding="utf-8"))
+          print("LATEST_MAIN_DATA", data.get("generated_at"), len(data.get("matches") or []))
+          PY
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
