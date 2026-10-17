@@ -76,7 +76,7 @@ def clean(value):
 # notoriété des équipes + importance de la compétition + phase du tournoi
 # + derby/rivalité. Un bon signal de pari ne suffit donc plus à faire d'un
 # match une "grande affiche".
-MIN_EDITORIAL_IMPORTANCE = 500
+MIN_EDITORIAL_IMPORTANCE = 300
 
 MAJOR_TEAMS = {
     # Europe — ultra premium
@@ -308,7 +308,15 @@ def editorial_importance(event):
     stage_score,stage_reason=_stage_importance(meta)
 
     score=hweight+aweight+comp_score+stage_score
+    # Pour le public Mr XPRONOS, la notoriété des grands clubs prime.
+    # Un grand club doit passer même face à un adversaire modeste.
+    major_club = max(hweight,aweight)>=190
+    if major_club:
+        score+=950
+    if hweight>=190 and aweight>=190:
+        score+=450
     reasons=[]
+    if major_club:reasons.append("priorité grand club")
     if hweight:reasons.append(f"club/sélection majeure: {home}")
     if aweight:reasons.append(f"club/sélection majeure: {away}")
     if comp_score:reasons.append(comp_reason)
@@ -359,6 +367,7 @@ def select_matches(dataset,now,limit=5):
         ranked.append((importance,e,reasons))
 
     ranked.sort(key=lambda row:(
+        -int(max(_team_identity(name(row[1],"home"))[1],_team_identity(name(row[1],"away"))[1])>=190),
         -row[0],
         -int(bool(row[1].get("recommendation_eligible"))),
         abs((kickoff(row[1])-now).total_seconds()),
@@ -369,6 +378,7 @@ def select_matches(dataset,now,limit=5):
         enriched=dict(event)
         enriched["_editorial_importance"]=importance
         enriched["_editorial_reasons"]=reasons
+        enriched["_editorial_role"]="match_du_jour" if not selected else "grande_affiche"
         selected.append(enriched)
     return selected
 
@@ -410,6 +420,7 @@ def factual_article(match,now):
       "bsd_match_date":dt.isoformat(),
       "editorial_importance":int(match.get("_editorial_importance") or 0),
       "editorial_reasons":list(match.get("_editorial_reasons") or []),
+      "editorial_role":str(match.get("_editorial_role") or "grande_affiche"),
       "home_logo":badge_url(match,"home"),
       "away_logo":badge_url(match,"away"),
     }

@@ -50,7 +50,9 @@ class EditorialPhase2Tests(unittest.TestCase):
         self.assertNotIn("bsd:1",ids)
         self.assertIn("bsd:2",ids)
         self.assertIn("bsd:3",ids)
-        self.assertEqual(ids[0],"bsd:3")
+        self.assertEqual(ids[0],"bsd:2")
+        self.assertEqual(selected[0]["_editorial_role"],"match_du_jour")
+        self.assertEqual(selected[1]["_editorial_role"],"grande_affiche")
 
     def test_match_bridge_is_idempotent(self):
         now=datetime(2026,10,12,10,tzinfo=timezone.utc)
