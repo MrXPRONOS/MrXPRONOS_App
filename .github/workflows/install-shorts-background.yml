@@ -1,0 +1,65 @@
+name: Install Shorts Premium Background
+
+on:
+  push:
+    branches:
+      - feat/shorts-from-telegram-coupons-20261013
+    paths:
+      - '.github/workflows/install-shorts-background.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  install-background:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/shorts-from-telegram-coupons-20261013
+          fetch-depth: 0
+
+      - name: Decode and normalize background
+        run: |
+          python -m pip install --quiet pillow
+          python - <<'PY'
+          import base64
+          from pathlib import Path
+          from PIL import Image, ImageOps
+
+          src_b64=Path("assets/images/shorts-premium-background.source.b64")
+          if not src_b64.is_file():
+              raise SystemExit("Background source payload missing")
+
+          raw=base64.b64decode(src_b64.read_text(encoding="utf-8").strip())
+          tmp=Path("/tmp/shorts-premium-background-source.png")
+          tmp.write_bytes(raw)
+
+          image=Image.open(tmp).convert("RGB")
+          image=ImageOps.fit(
+              image,
+              (1080,1920),
+              method=Image.Resampling.LANCZOS,
+              centering=(0.5,0.5),
+          )
+          out=Path("assets/images/shorts-premium-background.png")
+          image.save(out,"PNG",optimize=True)
+
+          check=Image.open(out)
+          if check.size != (1080,1920):
+              raise SystemExit(f"Unexpected final dimensions: {check.size}")
+          print("BACKGROUND_READY",out,check.size,out.stat().st_size)
+          PY
+
+      - name: Commit final asset and clean bootstrap files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/images/shorts-premium-background.png
+          git rm -f assets/images/shorts-premium-background.source.b64
+          git rm -f .github/workflows/install-shorts-background.yml
+          git commit -m "assets(shorts): install premium stadium background"
+          git push origin HEAD:feat/shorts-from-telegram-coupons-20261013
