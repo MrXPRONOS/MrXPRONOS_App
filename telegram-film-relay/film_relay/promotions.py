@@ -16,16 +16,15 @@ from PIL import Image
 LOG = logging.getLogger("cinex_promotions")
 CAMPAIGNS = (
     ("actu", "@actufoot_mrxp", "ACTU FOOT",
-     "⚽ ACTU FOOT\n📰 Mercato, infos et résultats du football.\n📲 Rejoins le canal pour suivre l’actualité.",
-     "📰 ACTU FOOT", "INFOS • MERCATO • RÉSULTATS"),
+     "⚽ Ne rate plus l’actualité du football !\\n📰 Mercato, résultats et infos.\\n🔥 Le foot au quotidien.\\n👇 Rejoins Actu Foot !",
+     "📰 REJOINDRE ACTU FOOT", "INFOS • MERCATO • RÉSULTATS"),
     ("live", "@mr_xpronos_vip", "PRONOS LIVE VIP",
-     "⚡ PRONOS LIVE VIP\n🔴 Analyses et signaux pendant les matchs.\n📲 Suis les opportunités en direct.",
-     "⚡ PRONOS LIVE", "DIRECT • SIGNAUX • ALERTES"),
+     "🔴 Le match est en cours ?\\n⚽ Retrouve nos signaux et coupons live.\\n📊 Des analyses pendant les rencontres.\\n👇 Rejoins Pronos Live VIP !",
+     "🔴 REJOINDRE PRONOS LIVE", "DIRECT • SIGNAUX • ALERTES"),
     ("jour", "@mrxpronosfr", "COUPONS DU JOUR",
-     "🎯 COUPONS DU JOUR\n⚽ Sélections et analyses des matchs du jour.\n📲 Découvre les nouveaux coupons.",
-     "⚽ PRONOS DU JOUR", "MATCHS • SÉLECTIONS • ANALYSES"),
+     "⚽ Les matchs du jour t’attendent !\\n🎯 Découvre nos sélections.\\n📊 Pronostics et analyses football.\\n👇 Rejoins le canal !",
+     "🎯 REJOINDRE COUPONS DU JOUR", "MATCHS • SÉLECTIONS • ANALYSES"),
 )
-
 
 def promo_assets_dir() -> Path:
     """Directory containing the three unmodified, original PNG images."""
@@ -93,16 +92,7 @@ async def _recently_published(client, channel, caption, *, limit=80, exclude_ids
 async def _send_bot_poster(bot, channel, index: int):
     from telethon import Button
     label,url=campaign_button(index)
-    try:
-        picture = render_poster(index)
-    except (FileNotFoundError, ValueError, OSError) as exc:
-        # Keep approved text, original link button and campaign order.
-        # Never invent another poster when the approved PNG is unavailable.
-        LOG.warning("Affiche officielle absente/invalide (%s) : annonce texte", type(exc).__name__)
-        return await bot.send_message(
-            channel, campaign_caption(index), buttons=[[Button.url(label, url, style="primary")]]
-        )
-    return await bot.send_file(channel, picture, caption=campaign_caption(index),
+    picture = render_poster(index)  # Original required; never publish a text-only replacement.\n    return await bot.send_file(channel, picture, caption=campaign_caption(index),
                                buttons=[[Button.url(label, url, style="primary")]], force_document=False)
 
 
@@ -136,8 +126,9 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
     from telethon import utils
     if bot is None:
         raise RuntimeError("Le bot est requis pour de vrais boutons Telegram")
-    # The PNG is optional for delivery, not for artwork: when missing,
-    # the bot sends the original three-line caption with its URL button.
+    # The original PNG is mandatory. Fail closed instead of sending text-only ads.
+    for poster_index in range(len(CAMPAIGNS)):
+        render_poster(poster_index)
     identity=await bot.get_me()
     first_id=str(utils.get_peer_id(primary))
     private_id=str(utils.get_peer_id(private))
