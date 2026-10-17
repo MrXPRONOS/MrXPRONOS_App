@@ -17,10 +17,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
+from crypto.render_premium_cards import render_prices_card, render_movers_card, render_alert_card, render_fear_card
 
 UTC = timezone.utc
 ROOT = Path(__file__).resolve().parents[1]
 STATE_FILE = ROOT / "crypto" / "telegram_state.json"
+OUT_DIR = ROOT / "crypto" / "generated"
 WATCH = ("BTC", "ETH", "SOL", "BNB", "XRP")
 STABLE = {"USDT", "USDC", "DAI", "FDUSD", "TUSD", "USDD", "PYUSD", "USDE", "USD1", "USDS", "RLUSD"}
 PAPRIKA = "https://api.coinpaprika.com/v1/tickers"
@@ -32,7 +34,7 @@ LOG = logging.getLogger("actu_crypto")
 SESSION = requests.Session()
 SESSION.headers.update({"User-Agent": "ActuCryptoTelegram/1.0 (data attribution in messages)", "Accept": "application/json"})
 TOKEN = (os.getenv("TELEGRAM_ACTU_FOOT_BOT_TOKEN") or os.getenv("ACTU_FOOT_BOT_TOKEN")
-         or os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
+         or os.getenv("FOOTBALL_NEWS_BOT_TOKEN") or os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
 CHAT = (os.getenv("ACTU_CRYPTO_CHAT_ID") or "").strip()
 
 
@@ -287,11 +289,34 @@ def send(text, dry_run):
     LOG.info("Publication Telegram confirmée")
 
 
-def once(state, key, text, dry_run):
+def send_photo(text, file_path, dry_run):
+    """Publie image PNG + légende depuis le même bot Actu Foot."""
+    if dry_run:
+        print("APERÇU PNG:", file_path, "\\n", text)
+        return
+    if not TOKEN or not CHAT:
+        raise RuntimeError("Bot/token ou ACTU_CRYPTO_CHAT_ID absent")
+    from pathlib import Path
+    with Path(file_path).open("rb") as f:
+        try:
+            response = SESSION.post(
+                f"https://api.telegram.org/bot{TOKEN}/sendPhoto",
+                data={"chat_id": CHAT, "caption": text[:1024]},
+                files={"photo": (Path(file_path).name, f, "image/png")},
+                timeout=(10, 90))
+        except requests.RequestException as exc:
+            raise RuntimeError("Réponse Telegram incertaine: ne pas retenter") from exc
+    if response.status_code != 200:
+        raise RuntimeError("Telegram sendPhoto HTTP " + str(response.status_code))
+    if not response.json().get("ok"):
+        raise RuntimeError("Telegram a refusé la photo")
+
+
+def once(state, key, text, file_path, dry_run):
     if state.get("sent", {}).get(key):
         LOG.info("Déjà publié: %s", key)
         return False
-    send(text, dry_run)
+    send_photo(text, file_path, dry_run)
     if not dry_run:
         state.setdefault("sent", {})[key] = datetime.now(UTC).isoformat()
     return True
@@ -320,7 +345,8 @@ def run_alerts(state, rows, source, now, dry_run):
                               f"Seuil franchi : {'+' if change > 0 else '-'}{level} %",
                               "", "ℹ️ Alerte sur variation 24 h, pas sur la dernière heure.",
                               "Source : " + source])
-        send(message, dry_run)
+        image_path = render_alert_card(row, source, now, level, OUT_DIR / f"alert_{symbol.lower()}.png")
+        send_photo(message, image_path, dry_run)
         if not dry_run:
             watch_state[symbol] = {"direction": direction, "level": level,
                                    "sent_at": now.isoformat()}
@@ -336,6 +362,7 @@ def main():
     if not args.dry_run and (not TOKEN or not CHAT):
         parser.error("Secrets Telegram manquants : bot de l'Actu Foot et ACTU_CRYPTO_CHAT_ID")
     now = datetime.now(UTC)
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
     state = read_state()
     date = now.strftime("%Y-%m-%d")
     slot = now.strftime("%H")
@@ -343,14 +370,14 @@ def main():
     rows, source = market() if args.mode in market_modes else (None, None)
     try:
         if args.mode in ("prices", "all"):
-            once(state, f"prices:{date}:{slot}", format_prices(rows, source, now), args.dry_run)
+            once(state, f"prices:{date}:{slot}", format_prices(rows, source, now), render_prices_card(selected_watch(rows), source, now, OUT_DIR / "prices.png"), args.dry_run)
         if args.mode in ("gainers", "movers", "all"):
-            once(state, f"gainers:{date}:{slot}", format_movers(rows, source, now, "up"), args.dry_run)
+            once(state, f"gainers:{date}:{slot}", format_movers(rows, source, now, "up"), render_movers_card(movers(rows,"up"), source, now, "up", OUT_DIR / "gainers.png"), args.dry_run)
         if args.mode in ("losers", "movers", "all"):
-            once(state, f"losers:{date}:{slot}", format_movers(rows, source, now, "down"), args.dry_run)
+            once(state, f"losers:{date}:{slot}", format_movers(rows, source, now, "down"), render_movers_card(movers(rows,"down"), source, now, "down", OUT_DIR / "losers.png"), args.dry_run)
         if args.mode in ("fear", "all"):
             value, date_source = fear_index()
-            once(state, f"fear:{date}", format_fear(value, date_source, now), args.dry_run)
+            once(state, f"fear:{date}", format_fear(value, date_source, now), render_fear_card(value, date_source, now, OUT_DIR / "fear.png"), args.dry_run)
         if args.mode in ("alerts", "all"):
             run_alerts(state, rows, source, now, args.dry_run)
 
