@@ -1,1 +1,1 @@
-2026-10-17 premium-background-integration-test v3 syntax-fixed
+2026-10-17 premium-background-integration-test v4 literal-newline-fixed
