@@ -132,6 +132,7 @@ class DesirTests(unittest.TestCase):
             state.complete("film1", 1, 21)
             self.assertIsNone(due(bridge, target, len(bridge.data["processed"])))
             state.complete("film2", 2, 22)
+            bridge = DesirPromotionsState(state)
             self.assertEqual(due(bridge, target, len(bridge.data["processed"])), 0)
             cursor = _cursor(bridge, target)
             cursor["last_film_total"] = 2
@@ -141,6 +142,7 @@ class DesirTests(unittest.TestCase):
             # Subsequent pairs trigger exactly one new campaign.
             state.complete("film3", 3, 23)
             state.complete("film4", 4, 24)
+            bridge = DesirPromotionsState(state)
             self.assertEqual(due(bridge, target, len(bridge.data["processed"])), 1)
             self.assertEqual(ReceiptState(str(Path(folder)/"desir.json")).data[
                 "promotions"][target]["next_index"], 1)
