@@ -70,6 +70,7 @@ jobs:
           PYTHONPATH: .
         run: |
           python -m compileall -q film_relay scripts tests
+          python -m unittest discover -s tests -p 'test_bot_http.py' -v
           python -m unittest discover -s tests -p 'test_desir.py' -q
           python -m unittest discover -s tests -p 'test_category_relays.py' -q
           python -m unittest discover -s tests -p 'test_promotions.py' -q
