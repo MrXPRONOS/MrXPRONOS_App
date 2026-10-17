@@ -277,6 +277,11 @@ def _overlay_png(index: int, total: int, out: Path):
     counter = f"{index + 1:02d} / {total:02d}"
     cf = _font(28, True)
     draw.text((92, 1320), counter, font=cf, fill=(242, 247, 252, 245))
+    progress_ratio = (index + 1) / max(total, 1)
+    bar_x1, bar_y1, bar_x2, bar_y2 = 285, 1336, 988, 1346
+    draw.rounded_rectangle((bar_x1, bar_y1, bar_x2, bar_y2), radius=5, fill=(255, 255, 255, 48))
+    fill_x = bar_x1 + int((bar_x2 - bar_x1) * progress_ratio)
+    draw.rounded_rectangle((bar_x1, bar_y1, fill_x, bar_y2), radius=5, fill=(76, 163, 255, 235))
 
     # CTA stays above the bottom UI zones used by TikTok/Reels/Shorts.
     draw.rounded_rectangle((92, 1395, 988, 1535), radius=36, fill=(5, 18, 31, 230),
