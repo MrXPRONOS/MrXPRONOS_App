@@ -440,6 +440,14 @@ async def execute() -> int:
                         run_limit_reached = True
                         LOG.info("Limite de publications de ce passage atteinte (%s).", max_posts)
                         break
+                    if flag("CINEX_SERIES_CATALOG_ENABLED", False):
+                        from .series_matching import looks_like_tv_episode
+                        if looks_like_tv_episode(
+                            description_of(pair), filename_of(pair.movie),
+                            str(getattr(pair.movie, "raw_text", "") or ""),
+                        ):
+                            LOG.info("Episode de série ignoré par Films classiques : traitement via le catalogue Séries.")
+                            continue
                     if getattr(pair.poster, "noforwards", False) or getattr(pair.movie, "noforwards", False):
                         LOG.warning("Messages protégés : association %s/%s ignorée", pair.poster.id, pair.movie.id)
                         continue
