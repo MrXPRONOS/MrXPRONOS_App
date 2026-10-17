@@ -165,7 +165,11 @@ class CategoryRelayTests(unittest.TestCase):
             self.assertIn("merge_desir_state.py", data)
             self.assertIn("@Torrent9SeriesFilms", data)
             self.assertIn(f"{cat}_state.json", data)
-        self.assertNotIn("category_runner", main)
+        self.assertIn("python -m film_relay.category_runner --category comedie --publish --limit 2", main)
+        self.assertIn("python -m film_relay.category_runner --category anime --publish --limit 2", main)
+        self.assertIn("CINEX_CATEGORY_BOT_TOKEN", main)
+        self.assertIn("COMEDIE_SOURCE_CHANNELS", main)
+        self.assertIn("ANIME_SOURCE_CHANNELS", main)
 
 
 if __name__ == "__main__":
