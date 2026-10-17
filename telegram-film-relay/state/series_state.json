@@ -1,6 +1,11 @@
 {
-  "completed": {},
-  "staged": {},
+  "completed": {
+    "tv-series:little-house-on-the-prairie-2026": {
+      "public_id": 68,
+      "video_id": 106
+    }
+  },
   "mirrors": {},
-  "promotions": {}
+  "promotions": {},
+  "staged": {}
 }

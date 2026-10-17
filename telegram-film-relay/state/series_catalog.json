@@ -1,3 +1,48 @@
 {
-  "series": {}
+  "series": {
+    "little-house-on-the-prairie-2026": {
+      "episodes": {
+        "1": {
+          "1": {
+            "message_id": 106,
+            "url": "https://t.me/c/4392607284/106"
+          },
+          "2": {
+            "message_id": 107,
+            "url": "https://t.me/c/4392607284/107"
+          },
+          "3": {
+            "message_id": 108,
+            "url": "https://t.me/c/4392607284/108"
+          },
+          "4": {
+            "message_id": 109,
+            "url": "https://t.me/c/4392607284/109"
+          },
+          "5": {
+            "message_id": 110,
+            "url": "https://t.me/c/4392607284/110"
+          },
+          "6": {
+            "message_id": 111,
+            "url": "https://t.me/c/4392607284/111"
+          }
+        }
+      },
+      "main_index_id": 104,
+      "public_id": 68,
+      "season_indices": {
+        "1": 105
+      },
+      "source_items": {
+        "-1003990708673:17": 106,
+        "-1003990708673:18": 107,
+        "-1003990708673:19": 108,
+        "-1003990708673:20": 109,
+        "-1003990708673:21": 110,
+        "-1003990708673:22": 111
+      },
+      "title": "little house on the prairie 2026"
+    }
+  }
 }
