@@ -12,6 +12,8 @@ on:
       - 'telegram-film-relay/film_relay/category_runner.py'
       - 'telegram-film-relay/film_relay/anime_catalog.py'
       - 'telegram-film-relay/tests/test_anime_catalog.py'
+      - 'telegram-film-relay/tests/test_desir.py'
+      - 'telegram-film-relay/tests/test_category_relays.py'
       - 'telegram-film-relay/scripts/merge_anime_catalog.py'
       - '.github/workflows/telegram-film-relay.yml'
       - '.github/workflows/cinex-cycle-validation.yml'
@@ -33,6 +35,14 @@ jobs:
       - name: Tester le nouveau catalogue animé hors réseau
         working-directory: telegram-film-relay
         run: python -m unittest discover -s tests -p 'test_anime_catalog.py' -v
+      - name: Vérifier tous les tests préalables utilisés en production
+        working-directory: telegram-film-relay
+        run: |
+          python -m unittest discover -s tests -p 'test_desir.py' -q
+          python -m unittest discover -s tests -p 'test_category_relays.py' -q
+          python -m unittest discover -s tests -p 'test_promotions.py' -q
+          python -m unittest discover -s tests -p 'test_mkv.py' -q
+          python -m unittest discover -s tests -p 'test_discovery_digest.py' -q
       - name: Tester les boutons et limites Telegram sans réseau
         run: python -m unittest discover -s telegram-film-relay/tests -p 'test_bot_http.py' -v
       - name: Valider scripts et ordre des étapes sans publier
