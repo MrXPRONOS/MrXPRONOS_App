@@ -252,7 +252,7 @@ class FootballChannelTests(unittest.TestCase):
         selected = m.select_popular_live_matches(
             [
                 fixture("huge", "Real Madrid", "Liverpool"),
-                fixture("weak", "Feyenoord", "Como"),
+                fixture("weak", "Club Alpha", "Club Beta"),
             ],
             max_per_competition=2,
             max_total=6,
