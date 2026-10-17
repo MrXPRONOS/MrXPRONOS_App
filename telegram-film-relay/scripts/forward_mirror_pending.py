@@ -14,6 +14,10 @@ from film_relay.state import State
 
 
 async def run() -> int:
+    from film_relay.mirror_policy import torrent9_paused
+    if torrent9_paused():
+        print('TORRENT9_SUSPENDU : aucun rattrapage des transferts en attente.')
+        return 0
     session = os.environ["TG_STRING_SESSION"]
     source = os.environ["TG_PUBLIC_CHANNEL"]
     destination = os.getenv("TG_MIRROR_CHANNEL", "@Torrent9SeriesFilms")
