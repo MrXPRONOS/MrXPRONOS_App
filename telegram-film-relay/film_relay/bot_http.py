@@ -15,6 +15,17 @@ from types import SimpleNamespace
 import requests
 
 
+def url_button(text: str, url: str, *, style: str = "primary"):
+    """Bouton URL natif Bot API, indépendant des objets TL de Telethon."""
+    if style not in {"primary", "success", "danger"}:
+        raise ValueError("Style Telegram inconnu.")
+    if not isinstance(text, str) or not text.strip():
+        raise ValueError("Texte du bouton vide.")
+    if not isinstance(url, str) or not url.startswith("https://"):
+        raise ValueError("Lien Telegram invalide.")
+    return SimpleNamespace(text=text, url=url, style=style)
+
+
 class TelegramBotHTTPError(RuntimeError):
     pass
 
