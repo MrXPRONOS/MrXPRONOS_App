@@ -161,9 +161,11 @@ async def preflight(client, bot, cfg: dict):
                 ) from exc
             raise
         check_bot_permission(perms, cfg["public"])
-        mirror, mirror_key = await preflight_mirror(
-            client, public, private, source_peers[0], cfg["mirror"]
-        )
+        from .mirror_policy import torrent9_paused
+        if not torrent9_paused():
+            mirror, mirror_key = await preflight_mirror(
+                client, public, private, source_peers[0], cfg["mirror"]
+            )
     return source_peers, private, public, bot_public, mirror, mirror_key
 
 
@@ -199,7 +201,7 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
         source_peers, private, public, bot_public, mirror, mirror_key = await preflight(
             client, bot, cfg
         )
-        if publish and not os.getenv('CINEX_DEFER_MIRROR'):
+        if publish and mirror is not None and not os.getenv('CINEX_DEFER_MIRROR'):
             # Existing public posts missing from Torrent9 take priority; never
             # send a private video again merely because a forward failed.
             await finish_mirrors(client, state, mirror, mirror_key, public, limit=5)
@@ -286,7 +288,7 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             state.complete(key, private_video_id, public_post.id)
             await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             mirrored_id = None
-            if not os.getenv('CINEX_DEFER_MIRROR'):
+            if mirror is not None and not os.getenv('CINEX_DEFER_MIRROR'):
                 mirrored_id = await forward_public_poster(
                     client, public, mirror, public_post.id
                 )
