@@ -614,6 +614,64 @@ class FootballChannelTests(unittest.TestCase):
             self.assertIsNone(m.resultat([sample], self.history, NOW))
 
 
+    def test_prematch_story_uses_only_available_form_and_h2h(self):
+        story = m.prematch_story(
+            "Arsenal", "Chelsea",
+            "V • V • V • N • D  |  10/15 pts",
+            "D • N • V • D • N  |  5/15 pts",
+            {
+                "total_matches": 5,
+                "home_wins": 3,
+                "draws": 1,
+                "away_wins": 1,
+                "avg_total_goals": 3.2,
+            },
+        )
+        self.assertIn("10/15", story)
+        self.assertIn("5/15", story)
+        self.assertIn("trois victoires consécutives", story)
+        self.assertIn("5 confrontations", story)
+        self.assertIn("3.2 buts", story)
+        self.assertNotIn("bless", story.lower())
+        self.assertNotIn("classement", story.lower())
+
+    def test_prematch_story_is_empty_without_verified_context(self):
+        self.assertEqual(m.prematch_story("Arsenal", "Chelsea", "", "", {}), "")
+
+    def test_avant_match_text_contains_story_when_data_exists(self):
+        post = m.avant_match(
+            [event(4, NOW + timedelta(hours=2))],
+            self.history,
+            NOW,
+            [],
+            {
+                "home": "V • V • N • V • D  |  10/15 pts",
+                "away": "D • N • V • D • N  |  5/15 pts",
+            },
+            {
+                "total_matches": 4,
+                "home_wins": 2,
+                "draws": 1,
+                "away_wins": 1,
+                "avg_total_goals": 2.8,
+            },
+        )
+        self.assertIsNotNone(post)
+        self.assertIn("L’HISTOIRE AVANT LE MATCH", post.text)
+        self.assertIn("10/15", post.text)
+        self.assertEqual(post.card["prematch_story"], m.prematch_story(
+            "Arsenal", "Chelsea",
+            "V • V • N • V • D  |  10/15 pts",
+            "D • N • V • D • N  |  5/15 pts",
+            {
+                "total_matches": 4,
+                "home_wins": 2,
+                "draws": 1,
+                "away_wins": 1,
+                "avg_total_goals": 2.8,
+            },
+        ))
+
     def test_avant_match_masque_forme_si_aucune_donnee(self):
         post = m.avant_match([event(4, NOW + timedelta(hours=2))],
                              self.history, NOW, [])
