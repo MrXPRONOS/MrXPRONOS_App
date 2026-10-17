@@ -76,7 +76,7 @@ def series_title(text: str) -> str:
     value = first_title(text or "").strip()
     value = CLEAN_CODES.sub(" ", value)
     value = SEASON_HEADER.sub(" ", value)
-    value = re.sub(r"(?i)(?:\\b(?:mp4|mkv)\\b|^@[^\\s]+\\s+(?:vf|fv)\\b)", " ", value)
+    value = re.sub(r"(?i)(?:\b(?:mp4|mkv)\b|^@[^\s]+\s+(?:vf|fv)\b)", " ", value)
     value = re.sub(r"(?i)\b(?:vf|vostfr|1080p|720p|dub|hd|complet)\b", " ", value)
     value = re.sub(r"[|_\[\](){},:.]+", " ", value)
     value = re.sub(r"\s+", " ", value).strip(" -.#!")
