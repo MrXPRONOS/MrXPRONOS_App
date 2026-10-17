@@ -4,7 +4,7 @@ Images préchargées dans crypto/assets/premium_market. Aucun prix ni historique
 from __future__ import annotations
 from pathlib import Path
 from datetime import timezone
-from PIL import Image, ImageDraw, ImageFont, ImageEnhance
+from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageFilter
 import math
 
 W,H=1080,1350
@@ -36,6 +36,37 @@ def sparkline(d,series,x,y,w,h,positive):
     spread=high-low or 1
     pts=[(round(x+i*w/(len(values)-1)),round(y+h-4-(v-low)/spread*(h-8))) for i,v in enumerate(values)]
     d.line(pts,fill="#48edb4" if positive else "#ff647b",width=3,joint="curve")
+def embossed(d,x,y,label,size,color,anchor="mt",stroke=2):
+    """Extrusion, ombre et léger reflet sans image externe."""
+    ft=font(size)
+    d.text((x+4,y+8),label,font=ft,anchor=anchor,fill=(0,0,0,235),stroke_width=4,stroke_fill=(0,0,0,175))
+    for offset in (5,4,3,2):
+        d.text((x,y+offset),label,font=ft,anchor=anchor,fill="#5c3414" if color=="#ffc153" else "#42536d")
+    d.text((x,y),label,font=ft,anchor=anchor,fill=color,stroke_width=stroke,stroke_fill="#172844")
+
+def icon_globe(d,x,y):
+    d.ellipse((x,y,x+50,y+50),outline="#3aa8ff",width=4)
+    d.ellipse((x+13,y,x+37,y+50),outline="#3aa8ff",width=2)
+    d.line((x,y+25,x+50,y+25),fill="#3aa8ff",width=2)
+    d.arc((x,y+8,x+50,y+42),0,180,fill="#3aa8ff",width=2)
+
+def icon_bars(d,x,y):
+    for i,h in enumerate((22,36,52)):
+        d.rounded_rectangle((x+i*16,y+52-h,x+i*16+11,y+52),radius=2,fill=("#257be6","#30adff","#48e3ff")[i])
+
+def icon_flame(d,x,y):
+    d.polygon([(x+22,y),(x+34,y+20),(x+40,y+13),(x+47,y+37),(x+39,y+51),(x+10,y+51),(x+2,y+36),(x+14,y+15),(x+15,y+30)],fill="#ffa72d")
+    d.ellipse((x+17,y+30,x+31,y+51),fill="#ffe170")
+
+def illustrative_series(i,positive):
+    """Données fictives réservées aux essais SIMULATION, jamais aux publications réelles."""
+    import random
+    rng=random.Random(1321+i)
+    values=[50.]
+    for k in range(39):
+        values.append(values[-1]+rng.uniform(-2.5,3.5)*(1 if positive else -1))
+    return values
+
 def render_premium_prices_card(rows,source,now,out_path):
     by={str(r["symbol"]).upper():r for r in rows}
     if any(s not in by for s in SYMBOLS):raise ValueError("BTC ETH SOL BNB XRP requis")
@@ -57,6 +88,7 @@ def render_premium_prices_card(rows,source,now,out_path):
     text(d,978,47,now.strftime("%d %b").upper(),25,"#ffffff","mt",max_width=142)
     text(d,978,92,now.strftime("%Y"),26,"#e2eaf5","mt")
     text(d,978,132,now.strftime("%H:%M UTC"),16,"#bdcfe5","mt")
+    demo="simulation" in str(source).lower() or "demo" in str(source).lower()
     for i,s in enumerate(SYMBOLS):
         r=by[s];y=396+i*145;change=float(r["change"]);positive=change>=0
         d.rounded_rectangle((46,y,1038,y+130),radius=24,fill=(2,19,45,245),outline=(67,147,228,200),width=2)
@@ -68,7 +100,7 @@ def render_premium_prices_card(rows,source,now,out_path):
         d=ImageDraw.Draw(base)
         text(d,250,y+30,NAMES[s],31,max_width=173)
         text(d,250,y+76,s,25,"#a8b9d2",bold=False)
-        sparkline(d,r.get("sparkline"),420,y+23,165,85,positive)
+        sparkline(d,r.get("sparkline") or (illustrative_series(i,positive) if demo else None),420,y+23,165,85,positive)
         text(d,622,y+50,"$ "+price(r["price"]),32,max_width=220)
         color="#4cf6b7" if positive else "#ff788a"
         d.rounded_rectangle((848,y+17,1020,y+111),radius=17,fill=(3,71,53,240) if positive else (84,20,39,240),outline="#20b86d" if positive else "#eb6078",width=2)
@@ -79,12 +111,15 @@ def render_premium_prices_card(rows,source,now,out_path):
     market_cap=next((r.get("market_cap_total") for r in rows if r.get("market_cap_total") is not None),None)
     volume=sum(float(r.get("volume",0) or 0) for r in rows)
     fear=next((r.get("fear_greed") for r in rows if r.get("fear_greed") is not None),None)
-    text(d,70,1154,"CAPITALISATION TOTALE",18,"#b7d1ed")
-    text(d,70,1194,"N/D" if market_cap is None else f"$ {float(market_cap)/1e12:.2f}T",25)
-    text(d,384,1154,"VOLUME 24H (5 ACTIFS)",17,"#b7d1ed")
-    text(d,384,1194,f"$ {volume/1e9:.2f}B" if volume>0 else "N/D",25)
-    text(d,727,1154,"FEAR & GREED INDEX",18,"#b7d1ed")
-    text(d,727,1194,str(fear) if fear is not None else "N/D",26,"#5cf0aa")
+    icon_globe(d,53,1161)
+    icon_bars(d,370,1163)
+    icon_flame(d,714,1158)
+    text(d,117,1154,"CAPITALISATION TOTALE",16,"#b7d1ed")
+    text(d,117,1194,"N/D" if market_cap is None else f"$ {float(market_cap)/1e12:.2f}T",25)
+    text(d,430,1154,"VOLUME 24H",18,"#b7d1ed")
+    text(d,430,1194,f"$ {volume/1e9:.2f}B" if volume>0 else "N/D",25)
+    text(d,777,1154,"FEAR & GREED INDEX",17,"#b7d1ed")
+    text(d,777,1194,str(fear) if fear is not None else "N/D",26,"#5cf0aa")
     text(d,540,1281,"♛  Mr XPRONOS  •  DES DONNÉES. DES ANALYSES. DES OPPORTUNITÉS.",18,"#ffda87","mt")
     demo="simulation" in str(source).lower() or "demo" in str(source).lower()
     if demo:
