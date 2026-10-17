@@ -1,5 +1,20 @@
 # CinéX Désir — relais indépendant
 
+## Automatisation unifiée (17 octobre 2026)
+
+Le programme Désir ne possède plus de workflow indépendant. Il est exécuté à la suite de la découverte et des **deux films classiques + publicité** par le seul workflow `.github/workflows/telegram-film-relay.yml`, toutes les deux heures : **00:17, 02:17, 04:17... UTC / Togo**.
+
+- **Étape 1 :** découverte de canaux publics, envoyés uniquement dans Messages enregistrés (sans ajout automatique comme sources).
+- **Étape 2 :** jusqu'à deux films CinéX classiques, puis publicité correspondante dans les destinations classiques, selon le compteur des deux films.
+- **Étape 3 :** jusqu'à deux films CinéX Désir depuis `@Filmromatique`, affiches publiques `@CineXDesirfr`, vidéos dans le privé et attribution par transfert natif dans `@Torrent9SeriesFilms`. Après **deux films Désir supplémentaires**, la publicité suivante (Actu Foot, Pronos Live VIP, Coupons du Jour) est publiée dans Désir public, transférée à Torrent9 et publiée dans la vidéothèque privée.
+- Les deux cycles publicitaires sont **indépendants**, avec reçus `state/state.json` (classique) et `state/desir_state.json` (Désir). Chaque destination conserve aussi son propre compteur.
+- Les pubs publiques ont de véritables boutons URL bleus. Pour la vidéothèque Désir, si le bot n'a pas les droits d'administrateur, une affiche et un lien texte cliquable sont envoyés avec le compte utilisateur ; ajouter le bot comme administrateur au privé permet de conserver les vrais boutons bleus.
+- Un cycle qui ne trouve pas deux nouveaux films ne poste pas de publicité supplémentaire. Les programmes ne contournent aucune protection anti-copie.
+- Les 3 états sont fusionnés et sauvegardés dans une seule mise à jour GitHub, même après un échec partiel, pour éviter les doublons et les notifications répétées.
+
+**Seul workflow de publication programmé :** [CineX - Découverte, Films et Désir](https://github.com/MrXPRONOS/MrXPRONOS_App/actions/workflows/telegram-film-relay.yml). Les workflows autonomes de découverte et de Désir ont été supprimés.
+
+
 ## Flux
 
 1. Source autorisée : `@Filmromatique` (affiches et vidéos MKV/MP4, même sans description). Pour les MKV, pas de filtre de durée ni de taille.
