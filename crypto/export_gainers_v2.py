@@ -3,12 +3,14 @@ import json
 from datetime import datetime,timezone
 from pathlib import Path
 from crypto.publish_crypto_1_5 import market,movers
+from crypto.free_coin_logos import enrich_with_logos
 
 def main():
     rows,provider=market()
     top=movers(rows,"up")
     if len(top)!=5 or any(r["change"]<=0 for r in top):
         raise RuntimeError("Five real positive movers required")
+    enrich_with_logos(top)
     out=Path("crypto/generated/test/gainers_v2_data.json")
     out.parent.mkdir(parents=True,exist_ok=True)
     out.write_text(json.dumps({"timestamp":datetime.now(timezone.utc).isoformat(),
