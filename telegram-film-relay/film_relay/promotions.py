@@ -127,7 +127,7 @@ async def _bot_can_post(bot, channel, identity):
 
 
 async def publish_promotions(user_client,bot,private,primary,mirror,state,
-                             *,force=False) -> dict[str,int]:
+                             *,force=False, private_fallback=False) -> dict[str,int]:
     """One campaign per channel per run; primary forwarded intact to mirror.
 
     A campaign runs once after exactly 2 additional films on each channel. In the mirror,
@@ -218,6 +218,31 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
             e["sent"][str(e["next_index"])]=msg_id
             e["last_film_total"]=total;e["next_index"]=int(e["next_index"])+1
             state.save()
+        elif private_fallback:
+            # In the Desire-only flow, the personal session is already allowed
+            # to publish in its own private library. It cannot create coloured
+            # bot inline keyboards, so preserve a clickable text URL instead.
+            e=_cursor(state,private_id)
+            idx=int(e["next_index"])%len(CAMPAIGNS)
+            caption=campaign_caption(idx)+"\n\n🔗 "+campaign_button(idx)[1]
+            found=await _recently_published(
+                user_client, private, caption,
+                exclude_ids={int(v) for v in e["sent"].values()}
+            )
+            if found is not None:
+                msg_id=found
+            else:
+                image=render_poster(idx)
+                post=await user_client.send_file(
+                    private, image, caption=caption, force_document=False
+                )
+                msg_id=int(post.id)
+                report["private"]+=1
+            e["sent"][str(e["next_index"])]=msg_id
+            e["last_film_total"]=total
+            e["next_index"]=int(e["next_index"])+1
+            state.save()
+            LOG.warning("Promo privée envoyée avec lien texte ; ajouter le bot au privé pour un bouton bleu.")
         else:
             report["skipped"]+=1
             LOG.error("Privé : bot non-administrateur. Ajouter le bot avec Publier messages.")
