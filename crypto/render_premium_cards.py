@@ -90,20 +90,9 @@ def bar(d, x, y, width, change, scale):
     d.rounded_rectangle((x, y, x+fill, y+15), radius=7, fill=GREEN if change >= 0 else RED)
 
 def render_prices_card(rows, source, now, out_path):
-    im, d = bg()
-    title(d, "Cours des principales cryptos", "Briefing du marché", now)
-    for i, r in enumerate(rows):
-        y = 345 + i*164
-        d.rounded_rectangle((76, y, 1004, y+146), radius=27,
-                            fill=PANEL if i % 2 == 0 else (27, 47, 74))
-        coin(d, r["symbol"], 137, y+73)
-        txt(d, 205, y+31, r["symbol"], 33, WHITE, True)
-        txt(d, 205, y+84, usd(r["price"]), 31, WHITE, True)
-        pill(d, 812, y+28, r["change"], 160)
-        txt(d, 642, y+93, "VARIATION 24 H", 18, MUTED)
-        bar(d, 642, y+120, 320, r["change"], 15)
-    footer(d, source, "Données indicatives en USD • Variation glissante sur 24 h")
-    return save(im, out_path)
+    """Cours du marché : composition 3D autonome (les autres cartes inchangées)."""
+    from crypto.premium_market_card import render_premium_prices_card
+    return render_premium_prices_card(rows, source, now, out_path)
 
 def render_movers_card(rows, source, now, direction, out_path):
     im, d = bg()

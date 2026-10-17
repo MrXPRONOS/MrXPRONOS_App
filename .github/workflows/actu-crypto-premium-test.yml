@@ -1,10 +1,11 @@
-name: Actu Crypto - test premium vers canal test
+name: Actu Crypto - 01 Cours du marche premium
 
 on:
   push:
     branches: [feature/actu-crypto-lot-01-05]
     paths:
       - 'crypto/render_premium_cards.py'
+      - 'crypto/premium_market_card.py'
       - 'crypto/publish_crypto_1_5.py'
       - 'crypto/test_channel_premium.py'
       - 'crypto/test_publish_crypto_1_5.py'
@@ -19,7 +20,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  test-five-visuals:
+  test-prices-premium:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
@@ -36,9 +37,19 @@ jobs:
         run: python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12'
       - name: Unit tests (free)
         run: python -m unittest crypto.test_publish_crypto_1_5 -v
+      - name: Render only first premium visual (offline simulation)
+        run: python -m crypto.test_channel_premium --preview-only
+      - name: Archive rendered price card for inspection
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: actu-crypto-prices-premium-01
+          path: crypto/generated/test/prices.png
+          if-no-files-found: warn
+          retention-days: 7
       - name: Confirm only approved test channel and bot permissions
         env:
           TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
         run: python -m scripts.telegram_test_guard
-      - name: Send 5 PREMIUM DEMO cards to @predict_mrxp only
+      - name: Send ONLY 1 PREMIUM DEMO card to @predict_mrxp
         run: python -m crypto.test_channel_premium
