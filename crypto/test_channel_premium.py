@@ -111,6 +111,13 @@ def main():
         print("FEAR_GREED_REAL",fear,observed.isoformat())
     except (RuntimeError,ValueError,TypeError):
         print("FEAR_GREED_UNAVAILABLE")
+    if "--export-design-json" in sys.argv[1:]:
+        import json
+        output=Path("crypto/generated/test/market_design_data.json")
+        output.parent.mkdir(parents=True,exist_ok=True)
+        output.write_text(json.dumps({"timestamp":now.isoformat(),"provider":provider,"rows":chosen},ensure_ascii=False),encoding="utf-8")
+        print("DESIGN_DATA_EXPORT",output)
+        return
     path=render_prices_card(chosen,provider,now,Path("crypto/generated/test/prices_real.png"))
     print("REAL_MARKET_PROVIDER",provider)
     print("REAL_CHARTS",count,"of",len(chosen))
