@@ -1,0 +1,41 @@
+{
+  "categories": [
+    {
+      "id": "films",
+      "label": "Films classiques",
+      "queries": [
+        "film complet vf",
+        "cinema francais"
+      ]
+    },
+    {
+      "id": "desir",
+      "label": "Romance et films adultes",
+      "queries": [
+        "films romantiques",
+        "cinema romance",
+        "film erotique"
+      ]
+    },
+    {
+      "id": "comedie",
+      "label": "Films comiques",
+      "queries": [
+        "film comedie vf",
+        "comedie francais"
+      ]
+    },
+    {
+      "id": "anime",
+      "label": "Animés",
+      "queries": [
+        "anime vf",
+        "anime vostfr"
+      ]
+    }
+  ],
+  "results_per_query": 8,
+  "max_channels_per_category": 6,
+  "sample_messages": 55,
+  "pause_seconds": 12
+}
