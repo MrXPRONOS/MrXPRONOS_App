@@ -1,0 +1,179 @@
+name: Shorts Coupons - Production
+
+on:
+  schedule:
+    - cron: "15 8 * * *"
+    - cron: "15 18 * * *"
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: "Vague à publier"
+        required: false
+        default: "auto"
+        type: choice
+        options:
+          - auto
+          - evening
+          - morning
+  push:
+    branches: [main]
+    paths:
+      - "config/shorts_production_trigger.txt"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shorts-coupons-production
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: "3.12"
+  VIDEO_FILE: "daily_pronos_coupon_short.mp4"
+  POST_PLATFORMS: "facebook,youtube,instagram,threads,tiktok"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_PAT_SECRETS: ${{ secrets.GH_PAT_SECRETS }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      META_APP_ID: ${{ secrets.META_APP_ID }}
+      META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
+      META_LONG_LIVED_USER_TOKEN: ${{ secrets.META_LONG_LIVED_USER_TOKEN }}
+      META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
+      META_PAGE_NAME: ${{ secrets.META_PAGE_NAME }}
+      META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+      META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+      IG_USER_ID: ${{ secrets.IG_USER_ID }}
+      THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+      THREADS_APP_SECRET: ${{ secrets.THREADS_APP_SECRET }}
+      THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+      TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
+      TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+      TIKTOK_REFRESH_TOKEN: ${{ secrets.TIKTOK_REFRESH_TOKEN }}
+      TIKTOK_ACCESS_TOKEN: ${{ secrets.TIKTOK_ACCESS_TOKEN }}
+      TIKTOK_PRIVACY_LEVEL: PUBLIC_TO_EVERYONE
+      YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+      YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+      YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+      YOUTUBE_PRIVACY_STATUS: public
+      SUPABASE_BUCKET: videos
+
+    steps:
+      - name: Checkout production
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install video and social dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-liberation
+          python -m pip install --upgrade pip setuptools wheel
+          pip install "numpy<2" pillow requests moviepy==1.0.3
+          if [ -f requirements_social.txt ]; then
+            pip install -r requirements_social.txt
+          fi
+
+      - name: Static syntax check
+        run: |
+          python -m py_compile scripts/shorts_video_fx.py
+          python -m py_compile scripts/create_short_from_telegram_coupons.py
+          python -m py_compile scripts/send_short_production_telegram.py
+
+      - name: Resolve production wave
+        id: wave
+        shell: bash
+        env:
+          MANUAL_SLOT: ${{ inputs.slot || 'auto' }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          SLOT="$MANUAL_SLOT"
+          if [ "$EVENT_NAME" = "push" ]; then
+            SLOT="evening"
+          elif [ "$SLOT" = "auto" ]; then
+            HOUR="$(date -u +%H)"
+            if [ "$HOUR" -lt 12 ]; then
+              SLOT="morning"
+            else
+              SLOT="evening"
+            fi
+          fi
+          if [ "$SLOT" != "evening" ] && [ "$SLOT" != "morning" ]; then
+            echo "::error::Vague invalide: $SLOT"
+            exit 1
+          fi
+          echo "SLOT=$SLOT" >> "$GITHUB_ENV"
+          echo "slot=$SLOT" >> "$GITHUB_OUTPUT"
+          echo "SHORTS_PRODUCTION_WAVE=$SLOT"
+
+      - name: Build exact Telegram-coupon video
+        id: render
+        shell: bash
+        run: |
+          set +e
+          python scripts/create_short_from_telegram_coupons.py             --data data.json             --slot "$SLOT"             --max 5             --ledger-kind shorts_video_coupon             --out "$VIDEO_FILE"             --work-dir telegram_out/production_short
+          CODE=$?
+          set -e
+          if [ "$CODE" -eq 3 ]; then
+            echo "has_video=false" >> "$GITHUB_OUTPUT"
+            echo "SHORTS_PRODUCTION_NO_MATCHES slot=$SLOT"
+            exit 0
+          fi
+          if [ "$CODE" -ne 0 ]; then
+            exit "$CODE"
+          fi
+          test -s "$VIDEO_FILE"
+          ffprobe -v error -show_entries format=duration,size -of json "$VIDEO_FILE"
+          echo "has_video=true" >> "$GITHUB_OUTPUT"
+
+      - name: Send production Telegram video and record exact batch
+        if: steps.render.outputs.has_video == 'true'
+        run: |
+          python scripts/send_short_production_telegram.py             --video "$VIDEO_FILE"             --manifest telegram_out/production_short/manifest.json
+
+      - name: Refresh social tokens
+        if: steps.render.outputs.has_video == 'true'
+        continue-on-error: true
+        run: |
+          python scripts/refresh_social_tokens.py             --out refreshed_tokens.json             --github-env "$GITHUB_ENV"
+
+      - name: Publish prediction video to social platforms
+        if: steps.render.outputs.has_video == 'true'
+        continue-on-error: true
+        shell: bash
+        run: |
+          TARGET="$(python -c 'import json; print(json.load(open("telegram_out/production_short/manifest.json"))["target"])')"
+          COUNT="$(python -c 'import json; print(json.load(open("telegram_out/production_short/manifest.json"))["count"])')"
+          if [ "$SLOT" = "evening" ]; then
+            LABEL="Première vague des pronostics de demain"
+          else
+            LABEL="Pronostics de la soirée"
+          fi
+          python scripts/post_shorts_video.py             --video "$VIDEO_FILE"             --platforms "$POST_PLATFORMS"             --title "Pronostics $TARGET - Mr XPRONOS"             --description "$LABEL. $COUNT sélections. 18+ et joue responsablement."             --caption "$LABEL ⚽\n$COUNT sélections Mr XPRONOS.\n18+ • Joue responsablement.\n\n#football #pronostic #pronosdujour #mrxpronos"
+
+      - name: Upload production artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shorts-coupons-production-${{ steps.wave.outputs.slot || 'unknown' }}
+          path: |
+            ${{ env.VIDEO_FILE }}
+            telegram_out/production_short/manifest.json
+            telegram_out/production_short/cards/
+            social_post_results.json
+          if-no-files-found: ignore
+          retention-days: 7
