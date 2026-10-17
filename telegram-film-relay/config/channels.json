@@ -9,8 +9,8 @@
     },
     {
       "channel": "@filmcomplets",
-      "redistribution_authorized": false,
-      "rights_basis": "En attente de confirmation explicite des droits de copie et republication des vidéos et affiches",
+      "redistribution_authorized": true,
+      "rights_basis": "Autorisation de copie et de republication des affiches et vidéos déclarée par le propriétaire du projet le 2026-10-17",
       "matching_mode": "standard",
       "archive_cycle": true
     }
