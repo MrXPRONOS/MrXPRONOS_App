@@ -4,38 +4,59 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 from PIL import Image
-from film_relay.promotions import CAMPAIGNS, render_poster, campaign_caption, campaign_button, due
+
+from film_relay.promotions import (
+    CAMPAIGNS, render_poster, poster_path, campaign_caption, campaign_button, due,
+)
 from film_relay.state import State
 
+
+def make_png_fixtures(path):
+    path = Path(path)
+    path.mkdir(parents=True, exist_ok=True)
+    for index, key in enumerate(("actu", "live", "jour")):
+        Image.new("RGB", (480, 600), (20 + index * 30, 40, 70)).save(
+            path / f"mrx_{key}.png"
+        )
+
+
 class PromoTests(unittest.TestCase):
-    def test_channels(self):
-        self.assertEqual([x[1] for x in CAMPAIGNS], [
-            "@actufoot_mrxp", "@mr_xpronos_vip", "@mrxpronosfr"])
+    def test_channels_and_three_line_captions(self):
+        self.assertEqual([campaign[1] for campaign in CAMPAIGNS], [
+            "@actufoot_mrxp", "@mr_xpronos_vip", "@mrxpronosfr",
+        ])
         for index in range(3):
-            self.assertEqual(len(campaign_caption(index).splitlines()), 3)
-            self.assertEqual(campaign_button(index)[1],
-                             "https://t.me/" + CAMPAIGNS[index][1][1:])
+            lines = campaign_caption(index).splitlines()
+            self.assertEqual(len(lines), 3)
+            self.assertTrue(all(line.strip() for line in lines))
+            self.assertEqual(
+                campaign_button(index)[1],
+                "https://t.me/" + CAMPAIGNS[index][1][1:],
+            )
 
-    def test_original_png_bytes(self):
-        with TemporaryDirectory() as td:
-            root = Path(td)
-            for index, key in enumerate(("actu", "live", "jour")):
-                Image.new("RGB", (480, 600), (20+index*30, 40, 60)).save(root / f"mrx_{key}.png")
-            with patch.dict(os.environ, {"CINEX_PROMO_ASSETS_DIR": td}):
-                for index, key in enumerate(("actu", "live", "jour")):
-                    blob = render_poster(index)
-                    self.assertEqual(blob.read(), (root / f"mrx_{key}.png").read_bytes())
-                    blob.seek(0)
-                    self.assertEqual(Image.open(blob).format, "PNG")
+    def test_original_png_unchanged(self):
+        with TemporaryDirectory() as folder:
+            make_png_fixtures(folder)
+            with patch.dict(os.environ, {"CINEX_PROMO_ASSETS_DIR": folder}):
+                for index in range(3):
+                    stream = render_poster(index)
+                    path = poster_path(index)
+                    self.assertEqual(stream.name, path.name)
+                    self.assertEqual(stream.read(), path.read_bytes())
+                    stream.seek(0)
+                    poster = Image.open(stream)
+                    self.assertEqual(poster.size, (480, 600))
+                    self.assertEqual(poster.format, "PNG")
 
-    def test_no_substitute_when_original_missing(self):
-        with TemporaryDirectory() as td, patch.dict(os.environ, {"CINEX_PROMO_ASSETS_DIR": td}):
-            with self.assertRaises(FileNotFoundError):
-                render_poster(0)
+    def test_missing_original_does_not_generate_replacement(self):
+        with TemporaryDirectory() as folder:
+            with patch.dict(os.environ, {"CINEX_PROMO_ASSETS_DIR": folder}):
+                with self.assertRaises(FileNotFoundError):
+                    render_poster(0)
 
-    def test_rotation(self):
-        with TemporaryDirectory() as td:
-            state = State(str(Path(td) / "state.json"))
+    def test_rotation_after_every_two_movies(self):
+        with TemporaryDirectory() as folder:
+            state = State(str(Path(folder) / "state.json"))
             self.assertIsNone(due(state, "channel", 1))
             self.assertEqual(due(state, "channel", 2), 0)
             cursor = state.data["promotions"]["channel"]
@@ -45,7 +66,9 @@ class PromoTests(unittest.TestCase):
             self.assertEqual(due(state, "channel", 4), 1)
             cursor["last_film_total"] = 4
             cursor["next_index"] = 2
+            self.assertIsNone(due(state, "channel", 5))
             self.assertEqual(due(state, "channel", 6), 2)
+
 
 if __name__ == "__main__":
     unittest.main()
