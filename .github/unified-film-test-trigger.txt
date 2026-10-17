@@ -3,3 +3,5 @@ Déclenchement explicite demandé : découverte → deux films classiques → pu
 Conservation des reçus et respect des limites Telegram.
 
 2026-10-17 : reprise après correction des empreintes PNG obsolètes ; pub classique puis Désir, deux films maximum chacun.
+
+2026-10-17 : troisième exécution de validation ; réparation lecture publicitaire Désir avec session Telegram personnelle.
