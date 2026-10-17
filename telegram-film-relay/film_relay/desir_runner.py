@@ -17,7 +17,8 @@ from .desir_matching import pair_items, film_title, item_key
 from .matching import document_key
 from .runner import resolve_peer
 from .text import private_message_link
-from .publication import rich_caption, rich_video_title, send_public_poster_with_buttons
+from .publication import (rich_caption, rich_video_title, url_button_rows,
+                          film_folder_url, send_public_poster_with_buttons)
 from .recovery import snapshot_telegram_posts, existing_native_forwards
 
 LOG = logging.getLogger("cinex_desir")
@@ -214,12 +215,18 @@ async def post_public(bot, user, public_peer, item, title, video_url: str,
     clients which do not preserve a bot's inline keyboard.
     """
     from telethon import Button
-    rows = [[Button.url("🎬 REGARDER LE FILM", video_url, style="success")]]
-    if invite_link.startswith("https://t.me/"):
-        rows.append([Button.url("🔐 ACCÉDER À LA VIDÉOTHÈQUE", invite_link, style="success")])
+    # Same two buttons as the classic relay. The former private-library
+    # invitation is no longer shown in the public message.
+    rows = [
+        [Button.url(label, url, style="success" if index == 0 else "danger")
+         for label, url in row]
+        for index, row in enumerate(url_button_rows(video_url))
+    ]
     # The link in text must survive the subsequent native forward.
     caption = (f"<b>🎬 {escape(title[:560])}</b>\n\n"
-               f"🔗 <a href=\"{escape(video_url, quote=True)}\">REGARDER LE FILM</a>")
+               f"🔗 <a href=\"{escape(video_url, quote=True)}\">REGARDER LE FILM</a>"
+               f"\n\n🎞️ <a href=\"{escape(film_folder_url(), quote=True)}\">"
+               "PLUS DE FILMS ? REJOINS NOTRE TEAM !</a>")
     if item.poster is not None:
         import io
         contents = await user.download_media(item.poster.media, file=bytes)

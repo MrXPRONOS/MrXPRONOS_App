@@ -6,6 +6,13 @@
       "rights_basis": "Autorisation de republication déclarée par le propriétaire du projet le 2026-10-16",
       "matching_mode": "authorized_mkv",
       "archive_cycle": true
+    },
+    {
+      "channel": "@filmcomplets",
+      "redistribution_authorized": false,
+      "rights_basis": "En attente de confirmation explicite des droits de copie et republication des vidéos et affiches",
+      "matching_mode": "standard",
+      "archive_cycle": true
     }
   ],
   "private_channel": "-1001234567890",
