@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone, timedelta
 import io
+import hashlib
 import logging
 from pathlib import Path
 import os
@@ -14,6 +15,12 @@ import os
 from PIL import Image
 
 LOG = logging.getLogger("cinex_promotions")
+# Exact SHA-256 of the three user-approved original PNGs.
+ORIGINAL_SHA256 = {
+    "actu": "fb86f14886237b9c2bf5a57f5693c48cf535f30f401ef367ad7e95288b2424f7",
+    "live": "8bf4f79049a7885161899953ae91651c1f13a2c84e73c726b5091c7fdb18b9b2",
+    "jour": "3ad1309cefdfa267a38e85327bbbb632be03a724827c2c656c6a8396dfee7fe9",
+}
 CAMPAIGNS = (
     ("actu", "@actufoot_mrxp", "ACTU FOOT",
      "⚽ Ne rate plus l’actualité du football !\\n📰 Mercato, résultats et infos.\\n🔥 Le foot au quotidien.\\n👇 Rejoins Actu Foot !",
@@ -43,6 +50,8 @@ def render_poster(index: int) -> io.BytesIO:
     if not path.is_file():
         raise FileNotFoundError(f"PNG original manquant : {path}")
     original = path.read_bytes()
+    if hashlib.sha256(original).hexdigest() != ORIGINAL_SHA256[CAMPAIGNS[index][0]]:
+        raise ValueError(f"Affiche non originale : {path.name}. Conserver exactement le PNG validé.")
     if not original.startswith(b"\x89PNG\r\n\x1a\n"):
         raise ValueError(f"Affiche non PNG : {path}")
     with Image.open(io.BytesIO(original)) as picture:
