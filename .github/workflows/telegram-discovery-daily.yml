@@ -1,0 +1,82 @@
+name: CineX - Découverte quotidienne des canaux
+
+on:
+  schedule:
+    - cron: '33 7 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/discovery-now-trigger.txt'
+
+permissions:
+  contents: write
+
+# Même verrou que les films pour éviter deux sessions Telegram concurrentes.
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    name: Chercher 4 catégories puis envoyer un seul récapitulatif privé
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Charger le dépôt
+        uses: actions/checkout@v4
+      - name: Configurer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: telegram-film-relay/requirements.txt
+      - name: Installer Telethon
+        run: python -m pip install -r telegram-film-relay/requirements.txt
+      - name: Vérifier le programme sans réseau
+        working-directory: telegram-film-relay
+        env:
+          PYTHONPATH: .
+        run: |
+          python -m compileall -q film_relay scripts tests
+          python -m unittest discover -s tests -p 'test_daily_discovery.py' -v
+      - name: Recherche publique et rapport privé
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          PYTHONPATH: .
+        run: python scripts/discovery_daily.py
+      - name: Sauvegarder les découvertes sans doublonner
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATE=telegram-film-relay/state/discovery_daily_state.json
+          if git diff --quiet -- "$STATE"; then
+            echo "Aucun nouvel historique de découverte."
+            exit 0
+          fi
+          cp "$STATE" "$RUNNER_TEMP/cinex-discovery-local.json"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3 4; do
+            git fetch origin main
+            git reset --hard origin/main
+            python telegram-film-relay/scripts/merge_daily_discovery.py \
+              "$RUNNER_TEMP/cinex-discovery-local.json" "$STATE"
+            git add "$STATE"
+            if git diff --cached --quiet; then
+              echo "Historique déjà synchronisé."
+              exit 0
+            fi
+            git commit -m 'state: daily discovery receipts [skip ci]'
+            if git push origin HEAD:main; then
+              echo "Historique quotidien sauvegardé."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::Sauvegarde de la découverte impossible."
+          exit 1
