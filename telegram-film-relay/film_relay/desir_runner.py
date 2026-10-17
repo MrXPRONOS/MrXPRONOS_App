@@ -355,7 +355,7 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
         # Count films separately from CinéX classique. Publications are after
         # the second movie and always after its native Torrent9 mirror forward.
         if publish:
-            await publish_desir_promotions(client, bot, library, bot_public,
+            await publish_desir_promotions(client, bot, library, public_user,
                                            mirror_peer, state)
         LOG.info("Bilan CinéX Désir : %s publication(s) ou aperçu(s)", completed)
         if publish and require_publication and completed == 0:
