@@ -2842,7 +2842,7 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             now,
             sender.session,
             importance,
-            tracked_only=False,
+            tracked_only=True,
             live_filter_fn=popular_live_match,
             live_select_fn=select_popular_live_matches,
         )
@@ -2854,33 +2854,10 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
         match_counts: dict[str, int] = {}
         for signal in signals:
             ref = str(signal.get("follow_ref") or "")
-            # Un match détecté directement par ESPN/Supabase dans le passage rapide
-            # devient suivi dès son premier signal publiable. Il ne pourra donc plus
-            # être éjecté par un ranking ultérieur avant son résultat final.
-            if not ref and not dry_run and signal.get("event_date"):
-                direct_event = {
-                    "id": signal.get("espn_event_id") or signal.get("key") or "",
-                    "event_date": signal.get("event_date"),
-                    "home_team": {
-                        "name": signal.get("home") or "",
-                        "logo": signal.get("home_logo") or "",
-                    },
-                    "away_team": {
-                        "name": signal.get("away") or "",
-                        "logo": signal.get("away_logo") or "",
-                    },
-                    "league_name": signal.get("league") or "Football",
-                }
-                if followup.selection_allowed(state.followed, now):
-                    try:
-                        ref = followup.track(
-                            state.followed, direct_event, now, reason="direct_live"
-                        )
-                        signal["follow_ref"] = ref
-                        print("FOLLOWUP_DIRECT_LIVE_LOCKED", ref)
-                    except ValueError:
-                        ref = ""
-            if ref and ref not in followup.pending(state.followed, now):
+            # Le passage rapide ne découvre plus de nouveau match.
+            # Il raconte uniquement les rencontres annoncées dans le programme
+            # du jour puis admises par le passage complet.
+            if not ref or ref not in followup.pending(state.followed, now):
                 continue
             kind = signal.get("kind")
             if ref:
@@ -3183,18 +3160,26 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         if production_active(now) and counter["sent"] < max_send:
             try:
                 matches = get_day(today)
+                if hour >= 7 and not state.has_plan_for_day(today):
+                    recovered = programme(matches, today, as_of=None)
+                    if recovered is not None:
+                        recovered_count = state.set_programme_plan(recovered, now, source="recovered")
+                        if recovered_count:
+                            print("DAILY_FOLLOW_PLAN_RECOVERED", recovered_count)
+                            if not dry_run:
+                                state.save(now)
                 # En soirée on prépare aussi les matchs du lendemain.
                 if hour >= 20:
                     matches = matches + get_day(today + timedelta(days=1))
 
-                # Suivi technique indépendant de l'AVANT-MATCH : jusqu'à six
-                # grosses affiches sont observées, même si aucune publication
-                # éditoriale n'a encore été envoyée.
+                # Le suivi technique est strictement aligné sur l'affiche
+                # "Matchs du jour". Aucun autre match ne peut entrer dans le fil rouge.
                 technical_pool = [
                     e for e in candidates(matches)
                     if kick(e) is not None
                     and -timedelta(hours=6) <= kick(e) - now <= timedelta(hours=4)
                     and final_score(e) is None
+                    and state.plan_for_event(e, now) is not None
                     and str(e.get("status") or "").lower() not in ("cancelled", "postponed", "finished")
                 ]
                 technical = select_live_admissions(technical_pool, state.followed, now)
@@ -3202,29 +3187,43 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                     for event in technical[:20]:
                         if not followup.selection_allowed(state.followed, now):
                             break
+                        plan = state.plan_for_event(event, now)
+                        if plan is None:
+                            continue
                         existing_ref = followup.tracked_fixture(event, state.followed, now)
                         if existing_ref:
-                            followup.lock(state.followed, existing_ref, now, reason="importance")
-                            print("FOLLOWUP_LEGACY_RESELECTED", existing_ref)
+                            followup.lock(state.followed, existing_ref, now, reason="daily_plan")
+                            followup.apply_plan_metadata(state.followed, existing_ref, plan)
+                            print("FOLLOWUP_PLAN_RESELECTED", existing_ref, plan.get("role"))
                             continue
                         try:
                             reason = live_tracking_reason(event)
-                            ref_added = followup.track(state.followed, event, now, reason=reason)
-                            print("FOLLOWUP_AUTO_SELECTED", ref_added, reason)
+                            planned_event = dict(event)
+                            planned_event["planned"] = True
+                            planned_event["plan_rank"] = int(plan.get("rank") or 99)
+                            planned_event["plan_role"] = str(plan.get("role") or "")
+                            ref_added = followup.track(state.followed, planned_event, now, reason=reason)
+                            followup.apply_plan_metadata(state.followed, ref_added, plan)
+                            print("FOLLOWUP_AUTO_SELECTED", ref_added, reason, plan.get("role"))
                         except ValueError:
                             continue
                     state.save(now)
 
-                # AVANT-MATCH reste une décision éditoriale distincte du suivi.
+                # Chaque match du plan ouvre ensuite son récit avec l'AVANT-MATCH.
                 upcoming_pool = [
                     e for e in candidates(matches)
                     if timedelta(minutes=60) <= kick(e) - now <= timedelta(minutes=120)
                     and final_score(e) is None
                     and str(e.get("status") or "").lower() not in
                         ("cancelled", "postponed", "live", "finished")
+                    and state.plan_for_event(e, now) is not None
                     and not state.seen("avant_match:" + str(e["id"]))
                 ]
                 upcoming = select_live_admissions(upcoming_pool, state.followed, now)
+                upcoming = sorted(
+                    upcoming,
+                    key=lambda e: int((state.plan_for_event(e, now) or {}).get("rank") or 99),
+                )
                 if (counter["sent"] < max_send and upcoming
                         and (force or enough(state, "avant_match", now))):
                     if client is None:
@@ -3266,8 +3265,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                         post = avant_match([selected], state, now, [], forms, h2h_values)
                         publish(post, follow_event=selected)
 
-                # Les événements LIVE utilisent le suivi technique, indépendant
-                # de la publication éventuelle d'un AVANT-MATCH.
+                # Le LIVE ne peut démarrer qu'après un AVANT-MATCH publié avec succès.
                 tracked_all = followup.base_events(state.followed, now)
                 tracked = select_popular_live_matches(tracked_all)
                 if not dry_run:
