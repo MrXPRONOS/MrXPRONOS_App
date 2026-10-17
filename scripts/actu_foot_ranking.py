@@ -26,6 +26,7 @@ class RankingDeps:
     excluded_level_terms: Sequence[str]
     national_team_terms: Sequence[str]
     team_weights: Any
+    club_priority: Callable[[dict], tuple[int, int]] | None = None
 
 
 def _weighted_term_score(value: str, weighted_terms: Any) -> int:
@@ -148,6 +149,21 @@ class LiveRankingEngine:
             str(self.deps.kick(event) or ""),
         ))
 
+    def club_priority(self, event: dict) -> tuple[int, int]:
+        """(nombre de grands clubs, priorité maximale), avec aliases stricts si fournis."""
+        if self.deps.club_priority is not None:
+            try:
+                count, maximum = self.deps.club_priority(event)
+                return max(0, int(count)), max(0, int(maximum))
+            except (TypeError, ValueError):
+                pass
+        home = self.deps.team(event, "home").casefold()
+        away = self.deps.team(event, "away").casefold()
+        home_weight = _weighted_term_score(home, self.deps.team_weights)
+        away_weight = _weighted_term_score(away, self.deps.team_weights)
+        weights = [value for value in (home_weight, away_weight) if value > 0]
+        return len(weights), max(weights, default=0)
+
     def popularity_breakdown(self, event: dict) -> dict[str, int]:
         league_name = self.deps.league(event).casefold()
         home = self.deps.team(event, "home").casefold()
@@ -200,14 +216,25 @@ class LiveRankingEngine:
         if "togo" in home or "togo" in away:
             return True
 
-        threshold = max(1, int(os.getenv("FOOTBALL_LIVE_POPULARITY_MIN", "45")))
+        club_count, _club_max = self.club_priority(event)
+        is_friendly = any(term in combined for term in ("friendly", "amical", "club friendly"))
+        # Un grand club prime dans la sélection Actu Foot. Un amical avec un seul
+        # grand club reste filtré; un vrai choc entre deux grands clubs passe.
+        if club_count >= 2 or (club_count >= 1 and not is_friendly):
+            return True
+
+        threshold = max(1, int(os.getenv("FOOTBALL_LIVE_POPULARITY_MIN", "60")))
         return self.popularity_score(event) >= threshold
 
     def rank_key(self, event: dict) -> tuple:
+        club_count, club_max = self.club_priority(event)
         return (
             1 if bool(event.get("ranking_locked")) else 0,
             1 if ("togo" in self.deps.team(event, "home").casefold()
                   or "togo" in self.deps.team(event, "away").casefold()) else 0,
+            1 if club_count else 0,
+            club_count,
+            club_max,
             self.popularity_score(event),
             self.deps.importance(event),
             self.deps.kick(event) or datetime.min.replace(tzinfo=timezone.utc),
@@ -231,12 +258,12 @@ class LiveRankingEngine:
         global_cap = max(
             1,
             int(max_total if max_total is not None
-                else os.getenv("FOOTBALL_LIVE_MAX_TOTAL", "6")),
+                else os.getenv("FOOTBALL_LIVE_MAX_TOTAL", "4")),
         )
         gap = max(
             0,
             int(dominance_gap if dominance_gap is not None
-                else os.getenv("FOOTBALL_LIVE_DOMINANCE_GAP", "45")),
+                else os.getenv("FOOTBALL_LIVE_DOMINANCE_GAP", "30")),
         )
 
         unique: dict[str, dict] = {}
@@ -307,6 +334,8 @@ class LiveRankingEngine:
                 "home": self.deps.team(event, "home"),
                 "away": self.deps.team(event, "away"),
                 "score": self.popularity_score(event),
+                "grand_clubs": self.club_priority(event)[0],
+                "grand_club_priority": self.club_priority(event)[1],
                 "locked": bool(event.get("ranking_locked")),
                 "breakdown": self.popularity_breakdown(event),
             }
