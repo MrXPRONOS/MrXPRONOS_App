@@ -164,7 +164,7 @@ async def discover(client, cfg: dict, start_offset: int = 0) -> tuple[list[dict]
                 assessment = evaluate_messages(messages, cfg)
                 if not assessment["format_verified"]:
                     statistics["strict_rejected"] += 1
-                if assessment["format_verified"]:
+                if assessment["format_verified"] or (cfg.get("include_unverified", False) and assessment["matching_pairs"] > 0):
                     results.append({
                         "username": ent.username,
                         "title": getattr(ent, "title", ent.username),
@@ -173,7 +173,7 @@ async def discover(client, cfg: dict, start_offset: int = 0) -> tuple[list[dict]
                         **assessment,
                         "redistribution_rights": "non_verifies",
                         "joined_by_tool": False,
-                        "source_status": "pending_rights",
+                        "source_status": ("pending_rights" if assessment["format_verified"] else "pending_review"),
                         "transfer_restricted": False,
                     })
                 await asyncio.sleep(cfg["request_pause_seconds"])

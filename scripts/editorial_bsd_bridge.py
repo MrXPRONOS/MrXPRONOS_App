@@ -270,9 +270,16 @@ def _competition_importance(meta):
         (("caf super cup",),410,"Super Coupe CAF"),
         (("uefa super cup",),450,"Super Coupe UEFA"),
     ]
+    generic_prefixes={"premier league","laliga","la liga","serie a","bundesliga","ligue 1","mls"}
     for patterns,score,label in domestic:
-        # Les noms très génériques doivent correspondre exactement.
-        if any(meta==p or p in meta for p in patterns) and score>best[0]:
+        matched=False
+        for p in patterns:
+            if p in generic_prefixes:
+                matched = meta==p or meta.startswith(p+" ")
+            else:
+                matched = p in meta
+            if matched: break
+        if matched and score>best[0]:
             best=(score,label)
     return best
 
@@ -327,10 +334,11 @@ def editorial_importance(event):
         penalty+=650;reasons.append("équipe II")
     if any(x in meta for x in ("friendly","amical","club friendly")):
         penalty+=350;reasons.append("match amical")
-    if any(x in combined for x in (" women "," womens "," feminine ")):
+    if re.search(r"\b(women|womens|feminine)\b",combined):
         penalty+=180;reasons.append("compétition féminine")
-    if any(x in meta for x in ("league two","league one","2 bundesliga","bl2","serie b",
-                               "ligue 2","segunda division","championship")):
+    secondary=("league two","league one","2 bundesliga","bl2","serie b",
+               "ligue 2","segunda division","championship")
+    if any(meta==x or meta.startswith(x+" ") for x in secondary):
         penalty+=220;reasons.append("division secondaire")
     score-=penalty
     return int(score),reasons

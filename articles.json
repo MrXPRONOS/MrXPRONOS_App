@@ -9,7 +9,7 @@
     "meta_description": "Ilves – SJK : affiche vérifiée dans le flux football BSD V2, le 17/10/2026 à 11h00 (heure du Togo).",
     "keywords": "football, BSD V2, Veikkausliiga, Ilves, SJK",
     "content": "# Ilves – SJK\n\n**Date et heure :** 17/10/2026 à 11h00 (GMT, Togo).\n**Compétition :** Veikkausliiga.\n**Source des données :** BSD V2, identifiant 601980.\n\n**Statut :** rencontre programmée ou en cours selon le dernier flux BSD disponible.\n\n## Signal calculé par le moteur BSD V2\n**Marché identifié :** Total buts : Under 3,5.\nIl s'agit d'une estimation du modèle, pas d'un résultat certain. Vérifie l'état du match et les cotes au moment de consulter le site.\n\n## Consulter les données en direct\nRetrouve les éventuelles mises à jour sur la page Pronostics de Mr XPRONOS.\n\n**18+ — Les paris sportifs comportent un risque de perte.**",
-    "active": true,
+    "active": false,
     "type": "match",
     "source": "bsd",
     "match": "Ilves vs SJK",
@@ -25,7 +25,8 @@
     "social_image": "assets/images/editorial/match-bsd-match-601980-218158ed-social.webp",
     "story_image": "assets/images/editorial/match-bsd-match-601980-218158ed-story.webp",
     "og_image": "assets/images/editorial/match-bsd-match-601980-218158ed-og.webp",
-    "ab_image_url": "assets/images/editorial/match-bsd-match-601980-218158ed-ab.webp"
+    "ab_image_url": "assets/images/editorial/match-bsd-match-601980-218158ed-ab.webp",
+    "editorial_status": "retired_low_importance"
   },
   {
     "slug": "bsd-match-601981",
@@ -37,7 +38,7 @@
     "meta_description": "FC Lahti – Turun Palloseura : affiche vérifiée dans le flux football BSD V2, le 17/10/2026 à 11h00 (heure du Togo).",
     "keywords": "football, BSD V2, Veikkausliiga, FC Lahti, Turun Palloseura",
     "content": "# FC Lahti – Turun Palloseura\n\n**Date et heure :** 17/10/2026 à 11h00 (GMT, Togo).\n**Compétition :** Veikkausliiga.\n**Source des données :** BSD V2, identifiant 601981.\n\n**Statut :** rencontre programmée ou en cours selon le dernier flux BSD disponible.\n\n## Signal calculé par le moteur BSD V2\n**Marché identifié :** Total buts : Under 3,5.\nIl s'agit d'une estimation du modèle, pas d'un résultat certain. Vérifie l'état du match et les cotes au moment de consulter le site.\n\n## Consulter les données en direct\nRetrouve les éventuelles mises à jour sur la page Pronostics de Mr XPRONOS.\n\n**18+ — Les paris sportifs comportent un risque de perte.**",
-    "active": true,
+    "active": false,
     "type": "match",
     "source": "bsd",
     "match": "FC Lahti vs Turun Palloseura",
@@ -53,7 +54,8 @@
     "social_image": "assets/images/editorial/match-bsd-match-601981-9f5e36eb-social.webp",
     "story_image": "assets/images/editorial/match-bsd-match-601981-9f5e36eb-story.webp",
     "og_image": "assets/images/editorial/match-bsd-match-601981-9f5e36eb-og.webp",
-    "ab_image_url": "assets/images/editorial/match-bsd-match-601981-9f5e36eb-ab.webp"
+    "ab_image_url": "assets/images/editorial/match-bsd-match-601981-9f5e36eb-ab.webp",
+    "editorial_status": "retired_low_importance"
   },
   {
     "slug": "bsd-match-602688",
@@ -65,7 +67,7 @@
     "meta_description": "1. FC Kaiserslautern – VfL Bochum 1848 : affiche vérifiée dans le flux football BSD V2, le 17/10/2026 à 11h00 (heure du Togo).",
     "keywords": "football, BSD V2, bl2, 1. FC Kaiserslautern, VfL Bochum 1848",
     "content": "# 1. FC Kaiserslautern – VfL Bochum 1848\n\n**Date et heure :** 17/10/2026 à 11h00 (GMT, Togo).\n**Compétition :** bl2.\n**Source des données :** BSD V2, identifiant 602688.\n\n**Statut :** rencontre programmée ou en cours selon le dernier flux BSD disponible.\n\n## Signal calculé par le moteur BSD V2\n**Marché identifié :** Total buts : Under 3,5.\nIl s'agit d'une estimation du modèle, pas d'un résultat certain. Vérifie l'état du match et les cotes au moment de consulter le site.\n\n## Consulter les données en direct\nRetrouve les éventuelles mises à jour sur la page Pronostics de Mr XPRONOS.\n\n**18+ — Les paris sportifs comportent un risque de perte.**",
-    "active": true,
+    "active": false,
     "type": "match",
     "source": "bsd",
     "match": "1. FC Kaiserslautern vs VfL Bochum 1848",
@@ -81,7 +83,8 @@
     "social_image": "assets/images/editorial/match-bsd-match-602688-32e83510-social.webp",
     "story_image": "assets/images/editorial/match-bsd-match-602688-32e83510-story.webp",
     "og_image": "assets/images/editorial/match-bsd-match-602688-32e83510-og.webp",
-    "ab_image_url": "assets/images/editorial/match-bsd-match-602688-32e83510-ab.webp"
+    "ab_image_url": "assets/images/editorial/match-bsd-match-602688-32e83510-ab.webp",
+    "editorial_status": "retired_low_importance"
   },
   {
     "slug": "bsd-match-224666",
@@ -93,7 +96,7 @@
     "meta_description": "Fleetwood Town – Rotherham United : affiche vérifiée dans le flux football BSD V2, le 17/10/2026 à 11h30 (heure du Togo).",
     "keywords": "football, BSD V2, League Two, Fleetwood Town, Rotherham United",
     "content": "# Fleetwood Town – Rotherham United\n\n**Date et heure :** 17/10/2026 à 11h30 (GMT, Togo).\n**Compétition :** League Two.\n**Source des données :** BSD V2, identifiant 224666.\n\n**Statut :** rencontre programmée ou en cours selon le dernier flux BSD disponible.\n\n## Signal calculé par le moteur BSD V2\n**Marché identifié :** 1X.\nIl s'agit d'une estimation du modèle, pas d'un résultat certain. Vérifie l'état du match et les cotes au moment de consulter le site.\n\n## Consulter les données en direct\nRetrouve les éventuelles mises à jour sur la page Pronostics de Mr XPRONOS.\n\n**18+ — Les paris sportifs comportent un risque de perte.**",
-    "active": true,
+    "active": false,
     "type": "match",
     "source": "bsd",
     "match": "Fleetwood Town vs Rotherham United",
@@ -109,7 +112,8 @@
     "social_image": "assets/images/editorial/match-bsd-match-224666-c331db03-social.webp",
     "story_image": "assets/images/editorial/match-bsd-match-224666-c331db03-story.webp",
     "og_image": "assets/images/editorial/match-bsd-match-224666-c331db03-og.webp",
-    "ab_image_url": "assets/images/editorial/match-bsd-match-224666-c331db03-ab.webp"
+    "ab_image_url": "assets/images/editorial/match-bsd-match-224666-c331db03-ab.webp",
+    "editorial_status": "retired_low_importance"
   },
   {
     "slug": "bsd-match-10190",
@@ -121,7 +125,7 @@
     "meta_description": "Ponte Preta – Atlético Goianiense : affiche vérifiée dans le flux football BSD V2, le 16/10/2026 à 22h30 (heure du Togo).",
     "keywords": "football, BSD V2, Brazilian Serie B, Ponte Preta, Atlético Goianiense",
     "content": "# Ponte Preta – Atlético Goianiense\n\n**Date et heure :** 16/10/2026 à 22h30 (GMT, Togo).\n**Compétition :** Brazilian Serie B.\n**Source des données :** BSD V2, identifiant 10190.\n\n**Score final BSD :** Ponte Preta 1 – 1 Atlético Goianiense.\n\n## Signal calculé par le moteur BSD V2\n**Marché identifié :** X2.\nIl s'agit d'une estimation du modèle, pas d'un résultat certain. Vérifie l'état du match et les cotes au moment de consulter le site.\n\n## Consulter les données en direct\nRetrouve les éventuelles mises à jour sur la page Pronostics de Mr XPRONOS.\n\n**18+ — Les paris sportifs comportent un risque de perte.**",
-    "active": true,
+    "active": false,
     "type": "match",
     "source": "bsd",
     "match": "Ponte Preta vs Atlético Goianiense",
@@ -137,7 +141,8 @@
     "social_image": "assets/images/editorial/match-bsd-match-10190-75cdce26-social.webp",
     "story_image": "assets/images/editorial/match-bsd-match-10190-75cdce26-story.webp",
     "og_image": "assets/images/editorial/match-bsd-match-10190-75cdce26-og.webp",
-    "ab_image_url": "assets/images/editorial/match-bsd-match-10190-75cdce26-ab.webp"
+    "ab_image_url": "assets/images/editorial/match-bsd-match-10190-75cdce26-ab.webp",
+    "editorial_status": "retired_low_importance"
   },
   {
     "slug": "bsd-match-223822",
