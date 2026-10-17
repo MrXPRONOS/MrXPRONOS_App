@@ -101,7 +101,7 @@ def load_previous(path: Path) -> dict[str, dict]:
 async def discover(client, cfg: dict, start_offset: int = 0) -> tuple[list[dict], dict]:
     """Global channel search + read-only sampling; no join/subscribe action."""
     from telethon.tl.functions.contacts import SearchRequest
-    from telethon.errors import FloodWaitError
+    from telethon.errors import FloodWaitError, PeerFloodError
 
     candidates = {}
     statistics = {"queries": 0, "found": 0, "checked": 0, "not_readable": 0,
@@ -115,6 +115,10 @@ async def discover(client, cfg: dict, start_offset: int = 0) -> tuple[list[dict]
                 if is_public_broadcast(ent):
                     candidates[ent.username.lower()] = ent
             await asyncio.sleep(cfg["request_pause_seconds"])
+        except PeerFloodError:
+            LOG.error("Compte Telegram restreint : arrêt de la recherche.")
+            statistics["rate_limited"] = True
+            break
         except FloodWaitError as exc:
             LOG.warning("Limite Telegram (%ss). Arrêt de la recherche sans forcer les requêtes.", exc.seconds)
             statistics["rate_limited"] = True
@@ -122,7 +126,7 @@ async def discover(client, cfg: dict, start_offset: int = 0) -> tuple[list[dict]
         except Exception as exc:
             LOG.warning("Recherche %r indisponible : %s", keyword, exc)
 
-    # Manually supplied channel URLs can be checked without membership.
+    # Manually supplied public channels, without joining them.
     if not statistics["rate_limited"]:
         for item in cfg["seed_channels"]:
             username = normalize_username(item)
@@ -133,9 +137,13 @@ async def discover(client, cfg: dict, start_offset: int = 0) -> tuple[list[dict]
                 if is_public_broadcast(ent):
                     candidates[ent.username.lower()] = ent
                 await asyncio.sleep(cfg["request_pause_seconds"])
+            except PeerFloodError:
+                LOG.error("Compte Telegram restreint : arrêt des vérifications.")
+                statistics["rate_limited"] = True
+                break
             except FloodWaitError as exc:
                 statistics["rate_limited"] = True
-                LOG.warning("Limite Telegram (%ss). Arrêt des vérifications.", exc.seconds)
+                LOG.warning("Limite Telegram (%ss) : arrêt des vérifications.", exc.seconds)
                 break
             except Exception as exc:
                 LOG.info("Lien public non accessible %s : %s", username, exc)
@@ -146,14 +154,11 @@ async def discover(client, cfg: dict, start_offset: int = 0) -> tuple[list[dict]
         for ent in candidate_window(list(candidates.values()), cfg["max_channels_per_run"], start_offset):
             statistics["attempted"] += 1
             try:
-                # Public channel content protection is a hard exclusion.
-                # Resolve current entity because a search result may be stale.
                 current = await client.get_entity("@" + ent.username)
                 if getattr(current, "noforwards", False):
                     statistics["protected"] += 1
                     LOG.info("Canal protégé @%s : refusé", ent.username)
                     continue
-                # Explicitly read ONLY; does not call JoinChannelRequest.
                 messages = [m async for m in client.iter_messages(ent, limit=cfg["sample_messages"])]
                 statistics["checked"] += 1
                 assessment = evaluate_messages(messages, cfg)
@@ -172,9 +177,13 @@ async def discover(client, cfg: dict, start_offset: int = 0) -> tuple[list[dict]
                         "transfer_restricted": False,
                     })
                 await asyncio.sleep(cfg["request_pause_seconds"])
+            except PeerFloodError:
+                LOG.error("Compte Telegram restreint : arrêt de la recherche.")
+                statistics["rate_limited"] = True
+                break
             except FloodWaitError as exc:
                 statistics["rate_limited"] = True
-                LOG.warning("Limite Telegram (%ss). Arrêt des lectures.", exc.seconds)
+                LOG.warning("Limite Telegram (%ss) : arrêt des lectures.", exc.seconds)
                 break
             except Exception as exc:
                 statistics["not_readable"] += 1
@@ -205,6 +214,7 @@ def notification_text(channel: dict) -> str:
 async def notify_saved_messages(client, channels: list[dict], previously_notified: set[str]
                                 ) -> tuple[list[str], int]:
     """Send each unnotified result to the user's own Telegram Saved Messages."""
+    from telethon.errors import FloodWaitError, PeerFloodError
     notified = []
     failed = 0
     for channel in channels:
@@ -214,6 +224,9 @@ async def notify_saved_messages(client, channels: list[dict], previously_notifie
         try:
             await client.send_message("me", notification_text(channel), parse_mode="html",
                                       link_preview=False)
+        except (FloodWaitError, PeerFloodError):
+            LOG.error("Restriction Telegram durant les notifications : arrêt immédiat.")
+            raise
         except Exception as exc:
             failed += 1
             LOG.warning("Notification Messages enregistrés impossible @%s : %s",
