@@ -1,0 +1,73 @@
+name: CineX - Correction No Longer Rangers saison 2
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/cinex-s02-repair-once.txt'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r telegram-film-relay/requirements.txt
+      - name: Vérifier la correction et tous les cas S01 et S02
+        working-directory: telegram-film-relay
+        run: |
+          python -m py_compile scripts/repair_no_longer_rangers_s02.py
+          python -m unittest discover -s tests -p 'test_anime_catalog.py' -v
+      - name: Corriger les 6 légendes, index et boutons existants uniquement
+        working-directory: telegram-film-relay
+        env:
+          PYTHONPATH: .
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          CINEX_CATEGORY_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+          ANIME_SOURCE_CHANNEL: ${{ vars.ANIME_SOURCE_CHANNEL }}
+          ANIME_SOURCE_CHANNELS: ${{ vars.ANIME_SOURCE_CHANNELS || '@orak_dessinanime' }}
+          ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
+          ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+          ANIME_MIRROR_CHANNEL: '@Torrent9SeriesFilms'
+          CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
+        run: python scripts/repair_no_longer_rangers_s02.py --apply
+      - name: Sauvegarder les reçus du catalogue corrigé
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATE=telegram-film-relay/state/anime_catalog.json
+          if git diff --quiet -- "$STATE"; then
+            echo 'Historique déjà correct.'
+            exit 0
+          fi
+          cp "$STATE" "$RUNNER_TEMP/cinex-s02-fixed.json"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            cp "$RUNNER_TEMP/cinex-s02-fixed.json" "$STATE"
+            git add "$STATE"
+            git commit -m 'fix(cinex): reclassify existing No Longer Rangers episodes S02 [skip ci]'
+            if git push origin HEAD:main; then
+              echo 'Saison 2 enregistrée sans réexpédier les médias.'
+              exit 0
+            fi
+            sleep 5
+          done
+          echo '::error::Synchronisation catalogue échouée.'
+          exit 1
