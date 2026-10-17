@@ -1,1 +1,236 @@
-{}
+{
+  "categories": {
+    "anime": {
+      "channels": [
+        {
+          "category": "anime",
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
+          "joined_by_tool": false,
+          "matching_pairs": 2,
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 0,
+          "sample_post_ids": [
+            13227,
+            13246
+          ],
+          "sampled_messages": 55,
+          "source_status": "pending_rights",
+          "strict_filters": {
+            "min_verified_pairs": 2,
+            "min_video_megabytes": 30,
+            "min_video_minutes": 10
+          },
+          "title": "MANGAS TV VF 🇫🇷",
+          "transfer_restricted": false,
+          "url": "https://t.me/MANGAS_ANIME_EN_FRANCAIS",
+          "username": "MANGAS_ANIME_EN_FRANCAIS"
+        },
+        {
+          "category": "anime",
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
+          "joined_by_tool": false,
+          "matching_pairs": 3,
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 0,
+          "sample_post_ids": [
+            16644,
+            16659,
+            16674
+          ],
+          "sampled_messages": 55,
+          "source_status": "pending_rights",
+          "strict_filters": {
+            "min_verified_pairs": 2,
+            "min_video_megabytes": 30,
+            "min_video_minutes": 10
+          },
+          "title": "ANIME SAMA VF",
+          "transfer_restricted": false,
+          "url": "https://t.me/ANIME_SAMA_VF_HD",
+          "username": "ANIME_SAMA_VF_HD"
+        },
+        {
+          "category": "anime",
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
+          "joined_by_tool": false,
+          "matching_pairs": 4,
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 1,
+          "sample_post_ids": [
+            3978,
+            4163,
+            5494
+          ],
+          "sampled_messages": 55,
+          "source_status": "pending_rights",
+          "strict_filters": {
+            "min_verified_pairs": 2,
+            "min_video_megabytes": 30,
+            "min_video_minutes": 10
+          },
+          "title": "ANIMÉ 卂 MOMENT VF",
+          "transfer_restricted": false,
+          "url": "https://t.me/ANIMEISEKAIC",
+          "username": "ANIMEISEKAIC"
+        }
+      ],
+      "statistics": {
+        "attempted": 4,
+        "checked": 4,
+        "found": 15,
+        "next_candidate_offset": 4,
+        "not_readable": 0,
+        "protected": 0,
+        "queries": 2,
+        "rate_limited": false,
+        "strict_rejected": 1
+      }
+    },
+    "comedie": {
+      "channels": [],
+      "statistics": {
+        "attempted": 4,
+        "checked": 4,
+        "found": 6,
+        "next_candidate_offset": 4,
+        "not_readable": 0,
+        "protected": 0,
+        "queries": 2,
+        "rate_limited": false,
+        "strict_rejected": 4
+      }
+    },
+    "desir": {
+      "channels": [
+        {
+          "category": "desir",
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
+          "joined_by_tool": false,
+          "matching_pairs": 14,
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 0,
+          "sample_post_ids": [
+            42,
+            45,
+            48
+          ],
+          "sampled_messages": 55,
+          "source_status": "pending_rights",
+          "strict_filters": {
+            "min_verified_pairs": 2,
+            "min_video_megabytes": 150,
+            "min_video_minutes": 40
+          },
+          "title": "Films Romantiques",
+          "transfer_restricted": false,
+          "url": "https://t.me/cineromances",
+          "username": "cineromances"
+        },
+        {
+          "category": "desir",
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
+          "joined_by_tool": false,
+          "matching_pairs": 12,
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 0,
+          "sample_post_ids": [
+            9108,
+            9110,
+            9112
+          ],
+          "sampled_messages": 55,
+          "source_status": "pending_rights",
+          "strict_filters": {
+            "min_verified_pairs": 2,
+            "min_video_megabytes": 150,
+            "min_video_minutes": 40
+          },
+          "title": "💞 MOVIE and SÉRIES _ ROMANTIQUES",
+          "transfer_restricted": false,
+          "url": "https://t.me/filmsromantiques",
+          "username": "filmsromantiques"
+        }
+      ],
+      "statistics": {
+        "attempted": 4,
+        "checked": 4,
+        "found": 12,
+        "next_candidate_offset": 4,
+        "not_readable": 0,
+        "protected": 0,
+        "queries": 3,
+        "rate_limited": false,
+        "strict_rejected": 2
+      }
+    },
+    "films": {
+      "channels": [
+        {
+          "category": "films",
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
+          "joined_by_tool": false,
+          "matching_pairs": 16,
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 3,
+          "sample_post_ids": [
+            2716,
+            2718,
+            2720
+          ],
+          "sampled_messages": 55,
+          "source_status": "pending_rights",
+          "strict_filters": {
+            "min_verified_pairs": 2,
+            "min_video_megabytes": 150,
+            "min_video_minutes": 40
+          },
+          "title": "FILMS, SÉRIES & DESSIN ANIMÉ COMPLET VF🎥",
+          "transfer_restricted": false,
+          "url": "https://t.me/annimechannel53jjh",
+          "username": "annimechannel53jjh"
+        }
+      ],
+      "statistics": {
+        "attempted": 4,
+        "checked": 4,
+        "found": 17,
+        "next_candidate_offset": 4,
+        "not_readable": 0,
+        "protected": 0,
+        "queries": 2,
+        "rate_limited": false,
+        "strict_rejected": 3
+      }
+    }
+  },
+  "known_usernames": [
+    "amatera12345",
+    "anime_sama_vf_hd",
+    "animeisekaic",
+    "annimechannel53jjh",
+    "aquilaserie",
+    "bestmovievf",
+    "canal_cinemavf",
+    "cineromances",
+    "film_action2026",
+    "film_divers_vf",
+    "filmcomplets",
+    "filmsnigerien",
+    "filmsromantiques",
+    "mangas_anime_en_francais"
+  ],
+  "last_notification_day": "2026-10-17",
+  "last_scan": "2026-10-17T07:17:43.601467+00:00",
+  "offsets": {
+    "anime": 4,
+    "comedie": 4,
+    "desir": 4,
+    "films": 4
+  }
+}
