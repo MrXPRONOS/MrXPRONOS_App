@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: mrx-telegram-film-state
+  group: mrx-telegram-personal-account
   cancel-in-progress: false
 
 jobs:
