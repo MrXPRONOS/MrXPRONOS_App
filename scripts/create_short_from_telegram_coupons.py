@@ -339,8 +339,24 @@ def build_video(cards, output: Path, work_dir: Path):
             .set_duration(per_card)
             .set_position(lambda t, d=per_card, cw=card_width: (_eased_x(t, d, cw), coupon_y))
         )
+        next_preview = None
+        if idx + 1 < total:
+            next_path = cards[idx + 1]
+            with Image.open(next_path) as next_image:
+                next_w, next_h = _fit_card_size(next_image.width, next_image.height, max_w=target_width, max_h=1210)
+            next_preview = (
+                ImageClip(str(next_path))
+                .resize(width=next_w)
+                .set_duration(per_card)
+                .set_position((W - 72, coupon_y + 22))
+            )
+
         overlay = ImageClip(str(overlay_path), transparent=True).set_duration(per_card)
-        scene = CompositeVideoClip([background, shadow, coupon, overlay], size=(W, H)).set_duration(per_card)
+        layers = [background, shadow, coupon]
+        if next_preview is not None:
+            layers.append(next_preview)
+        layers.append(overlay)
+        scene = CompositeVideoClip(layers, size=(W, H)).set_duration(per_card)
         scenes.append(scene)
 
     # Cards follow each other directly; no intro and no outro.
