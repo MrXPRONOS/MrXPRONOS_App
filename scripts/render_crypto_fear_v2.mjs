@@ -1,4 +1,5 @@
 /** Mr XPRONOS — Fear & Greed #05: premium editorial dashboard, 1080×1350. */
+// Validation visuelle volontaire : génération 1080×1350 et envoi isolé au canal de test.
 import {chromium} from 'playwright';
 import {readFile,mkdir} from 'node:fs/promises';
 const demo=process.argv.includes('--demo');
