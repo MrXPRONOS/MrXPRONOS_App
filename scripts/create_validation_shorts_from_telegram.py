@@ -181,6 +181,14 @@ def _x(t,duration,width,enter=.34,leave=.34):
     return center
 
 
+def fit_card_size(source_w,source_h,max_w=940,max_h=1210):
+    """Fit proportionally inside the safe coupon area."""
+    if source_w<=0 or source_h<=0:
+        raise RuntimeError("Dimensions coupon invalides")
+    scale=min(max_w/source_w,max_h/source_h,1.0)
+    return int(round(source_w*scale)),int(round(source_h*scale))
+
+
 def make_card_shadow(card_width,card_height,out):
     """External depth only; validated Telegram card pixels remain untouched."""
     pad=54
@@ -252,8 +260,7 @@ def build_video(cards,output,work_dir,summary):
     for idx,path in enumerate(cards):
         with Image.open(path) as opened:
             sw,sh=opened.size
-        scale=TARGET_WIDTH/sw
-        cw=int(round(sw*scale)); ch=int(round(sh*scale))
+        cw,ch=fit_card_size(sw,sh,max_w=TARGET_WIDTH,max_h=1185)
         if COUPON_Y+ch>=1335:
             raise RuntimeError("Carte de validation trop haute pour la zone sûre")
         overlay=work_dir/f"overlay_{idx+1:02d}.png"
