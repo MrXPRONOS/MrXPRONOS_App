@@ -171,6 +171,11 @@ jobs:
           esac
 
           echo "destination=$DESTINATION" >> "$GITHUB_OUTPUT"
+          if [ "${FOOTBALL_PROGRAMME_RELAUNCH_ONLY:-0}" = "1" ]; then
+            echo "programme_relaunch_only=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "programme_relaunch_only=false" >> "$GITHUB_OUTPUT"
+          fi
           echo "state_path=$STATE_PATH" >> "$GITHUB_OUTPUT"
           echo "FOOTBALL_NEWS_STATE=$STATE_PATH" >> "$GITHUB_ENV"
           echo "TELEGRAM_ROUTE destination=$DESTINATION state=$STATE_PATH"
@@ -285,7 +290,7 @@ jobs:
           python scripts/football_channel.py "${ARGS[@]}"
 
       - name: Sauvegarder historique anti-doublon
-        if: ${{ always() && github.event_name == 'workflow_dispatch' && steps.telegram_dispatch.outputs.effective_dry_run == 'false' }}
+        if: ${{ always() && steps.telegram_dispatch.outputs.effective_dry_run == 'false' && (github.event_name == 'workflow_dispatch' || steps.telegram_route.outputs.programme_relaunch_only == 'true') }}
         uses: actions/cache/save@v4
         with:
           path: ${{ steps.telegram_route.outputs.state_path }}
