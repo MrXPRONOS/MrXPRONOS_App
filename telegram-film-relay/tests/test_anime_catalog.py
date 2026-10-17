@@ -51,6 +51,18 @@ class AnimeCatalogTests(unittest.TestCase):
         found = classify([poster(10, "Bleach"), video(11, "video.mp4")], -100123)
         self.assertEqual(found, [])
 
+    def test_season_banner_changes_episode_group(self):
+        records = [
+            poster(10, "Naruto"),
+            video(11, "Episode_01.mkv"),
+            N(id=12, photo=None, document=None, noforwards=False,
+              raw_text="Saison 2", date=datetime(2026, 10, 17, tzinfo=timezone.utc)),
+            video(13, "Episode_01.mkv"),
+        ]
+        result = classify(records, -100777)
+        self.assertEqual([(r["season"], r["episode"]) for r in result],
+                         [(1, 1), (2, 1)])
+
     def test_new_series_poster_overrides_previous(self):
         items = [poster(10, "Naruto"), video(11, "S01E01.mp4"),
                  poster(12, "Bleach"), video(13, "S01E02.mp4")]
