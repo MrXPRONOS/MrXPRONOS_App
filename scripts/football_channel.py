@@ -46,6 +46,13 @@ from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publ
 import football_followup as followup  # noqa: E402
 from actu_foot_observability import persist_run_metrics  # noqa: E402
 from actu_foot_ranking import LiveRankingEngine, RankingDeps, _weighted_term_score as _ranking_weighted_term_score  # noqa: E402
+from actu_foot_editorial_rankings import (  # noqa: E402
+    club_rank as editorial_club_rank,
+    national_rank as editorial_national_rank,
+    competition_rank as editorial_competition_rank,
+    team_rank as editorial_team_rank,
+    rank_weight as editorial_rank_weight,
+)
 from football_stats_engine import daily_insight  # noqa: E402
 from football_viral_engine import (  # noqa: E402
     build_viral_payload, render_animation, media_credit_text, media_credit_url,
@@ -235,7 +242,22 @@ _MAJOR_ALIAS_LOOKUP = {
 }
 
 def _major_team_weight(value: str) -> int:
-    return int(_MAJOR_ALIAS_LOOKUP.get(_major_norm(value), 0))
+    ranked = editorial_team_rank(value)
+    return editorial_rank_weight(ranked[1], ceiling=320) if ranked else 0
+
+def editorial_best_team_rank(event: dict) -> int | None:
+    ranks = []
+    for side in ("home", "away"):
+        ranked = editorial_team_rank(team(event, side))
+        if ranked:
+            ranks.append(int(ranked[1]))
+    return min(ranks) if ranks else None
+
+def editorial_competition_priority(event: dict) -> int:
+    rank = editorial_competition_rank(league(event))
+    if rank is None:
+        return 0
+    return max(8, 110 - int(rank))
 
 def live_grand_club_priority(event: dict) -> tuple[int, int]:
     weights = [
@@ -258,25 +280,25 @@ def _stage_text(event: dict) -> str:
 
 def high_stakes_bonus(event: dict) -> int:
     value = _stage_text(event)
-    if re.search(r"\b(semi ?finals?|demi ?finale?s?)\b", value):
-        return 90
-    if re.search(r"\b(quarter ?finals?|quart?s? de finale?s?)\b", value):
-        return 60
-    if re.search(r"\b(round of 16|last 16|huitieme?s? de finale?s?)\b", value):
-        return 35
+    if re.search(r"\b(semi ?finals?|demi ?finale?s?|1 2 finale?s?)\b", value):
+        return 320
+    if re.search(r"\b(quarter ?finals?|quart?s? de finale?s?|1 4 finale?s?)\b", value):
+        return 240
+    if re.search(r"\b(round of 16|last 16|huitieme?s? de finale?s?|1 8 finale?s?)\b", value):
+        return 150
     if re.search(r"\b(finals?|finale?s?)\b", value):
-        return 130
+        return 420
     if any(term in value for term in ("knockout", "playoff", "play off", "barrage")):
-        return 25
+        return 110
     return 0
 
 def live_tracking_reason(event: dict) -> str:
     club_count, _ = live_grand_club_priority(event)
     if club_count >= 2:
-        return "choc_grands_clubs"
+        return "choc_top100"
     if club_count == 1:
-        return "grand_club"
-    if high_stakes_bonus(event) >= 90:
+        return "equipe_top100"
+    if high_stakes_bonus(event) >= 240:
         return "phase_finale"
     return "grande_affiche"
 
@@ -424,16 +446,18 @@ def importance(event: dict) -> int:
     points += sum(18 for term in ELITE_LEAGUE_TERMS if term in combined)
     points += sum(14 for term in ELITE_TEAM_TERMS if term in combined)
 
-    # Priorité éditoriale forte aux grands clubs, même lorsqu'ils n'ont pas
-    # été retenus par un moteur de pronostic.
+    # Priorité éditoriale forte aux équipes classées Top 100.
     club_count, club_weight = live_grand_club_priority(event)
     if club_count >= 2:
         points += 160 + club_weight
     elif club_count == 1:
         points += 100 + club_weight
 
-    # Les finales/demi-finales restent très importantes, mais derrière une
-    # vraie grande affiche impliquant un club majeur.
+    # La compétition départage ensuite les affiches; les phases finales
+    # peuvent faire entrer un match sans club du Top 100.
+    comp_rank = editorial_competition_rank(league(event))
+    if comp_rank is not None:
+        points += max(10, 125 - int(comp_rank))
     points += high_stakes_bonus(event)
 
     plan_role = str(event.get("plan_role") or "")
@@ -445,6 +469,8 @@ def importance(event: dict) -> int:
         points += 220
     elif plan_rank <= 4:
         points += max(20, 100 - (plan_rank - 1) * 20)
+    elif plan_rank <= 10:
+        points += max(5, 35 - (plan_rank - 5) * 5)
 
     elite_count = sum(1 for term in ELITE_TEAM_TERMS if term in combined)
     if elite_count >= 2:
@@ -466,6 +492,7 @@ _LIVE_RANKING_ENGINE = LiveRankingEngine(RankingDeps(
     national_team_terms=POPULAR_LIVE_NATIONAL_TEAM_TERMS,
     team_weights=LIVE_TEAM_WEIGHTS,
     club_priority=live_grand_club_priority,
+    competition_priority=editorial_competition_priority,
 ))
 _LAST_LIVE_RANKING: dict[str, Any] = _LIVE_RANKING_ENGINE.last_ranking
 
