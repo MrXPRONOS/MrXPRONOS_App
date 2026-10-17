@@ -318,7 +318,7 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             mirror_peer, mirror_key = await preflight_mirror(
                 client, public_user, library, src, mirror_name
             )
-            if state.mirror_pending(mirror_key):
+            if state.mirror_pending(mirror_key) and not os.getenv('CINEX_DEFER_MIRROR'):
                 await finish_mirrors(client, state, mirror_peer, mirror_key, public_user)
         # Cap is two films TOTAL across both sources, not two per channel.
         # Sort by real message timestamps instead of incomparable channel IDs.
@@ -411,10 +411,12 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             state.complete(key, private_video_id, public_post.id)
             # Only forward the public bot-authored poster/link, NEVER the private video.
             await asyncio.sleep(4)
-            forwarded_id = await forward_public_poster(
-                client, public_user, mirror_peer, public_post.id
-            )
-            state.mirror_done(mirror_key, public_post.id, forwarded_id)
+            forwarded_id = None
+            if not os.getenv('CINEX_DEFER_MIRROR'):
+                forwarded_id = await forward_public_poster(
+                    client, public_user, mirror_peer, public_post.id
+                )
+                state.mirror_done(mirror_key, public_post.id, forwarded_id)
             completed += 1
             LOG.info("CinéX Désir : film privé=%s, affiche publique=%s, miroir=%s",
                      private_video_id, public_post.id, forwarded_id)
@@ -425,7 +427,7 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
         # the second movie and always after its native Torrent9 mirror forward.
         if publish:
             await publish_desir_promotions(client, bot, library, public_user,
-                                           mirror_peer, state)
+                                           None if os.getenv('CINEX_DEFER_MIRROR') else mirror_peer, state)
         LOG.info("Bilan CinéX Désir : %s publication(s) ou aperçu(s)", completed)
         if publish and require_publication and completed == 0:
             LOG.error("Premier test non validé : aucun nouveau film publié.")
