@@ -1,0 +1,46 @@
+name: CineX - Validation ordre des publications
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/scripts/partnership_cycle.py'
+      - 'telegram-film-relay/film_relay/runner.py'
+      - 'telegram-film-relay/film_relay/desir_runner.py'
+      - 'telegram-film-relay/film_relay/category_runner.py'
+      - '.github/workflows/telegram-film-relay.yml'
+      - '.github/workflows/cinex-cycle-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pyyaml
+      - name: Valider scripts et ordre des étapes sans publier
+        run: |
+          python -m py_compile telegram-film-relay/scripts/partnership_cycle.py telegram-film-relay/film_relay/runner.py telegram-film-relay/film_relay/desir_runner.py telegram-film-relay/film_relay/category_runner.py
+          python - <<'PY'
+          import yaml
+          from pathlib import Path
+          w=yaml.safe_load(Path('.github/workflows/telegram-film-relay.yml').read_text())
+          job=w['jobs']['relay']
+          assert job['env']['CINEX_DEFER_MIRROR']=='true'
+          steps=[s.get('name','') for s in job['steps']]
+          for category in ('films','desir','comedie','anime'):
+              first=next(i for i,x in enumerate(steps) if x=='Partenariat AVANT '+category)
+              end=next(i for i,x in enumerate(steps) if x=='Transfert ordonné APRÈS '+category+' vers Torrent9')
+              assert first<end and end-first>=2, (category,first,end)
+          positions=[steps.index('Partenariat AVANT '+c) for c in ('films','desir','comedie','anime')]
+          assert positions==sorted(positions)
+          assert Path('telegram-film-relay/assets/partenariat-canal-original.jpg').read_bytes()[:3]==bytes.fromhex('ffd8ff')
+          print('VALIDATION_OK - Affiche, 4 catégories, pubs et transfert après les films')
+          PY
