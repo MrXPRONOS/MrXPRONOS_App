@@ -1,0 +1,67 @@
+name: Actu Crypto - 05 FEAR GREED PREMIUM V2 TEST ONLY
+
+on:
+  push:
+    branches: [feature/actu-crypto-lot-01-05]
+    paths:
+      - 'crypto/export_fear_v2.py'
+      - 'crypto/test_fear_v2.py'
+      - 'crypto/send_crypto_fear_v2_test.py'
+      - 'scripts/render_crypto_fear_v2.mjs'
+      - '.github/workflows/actu-crypto-fear-v2-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actu-crypto-fear-v2-test
+  cancel-in-progress: false
+
+jobs:
+  fear-greed-v2-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: '@predict_mrxp'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install free libraries
+        run: |
+          python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12'
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Offline tests - 7 day source validation, freshness and no fake data
+        run: python -m unittest crypto.test_fear_v2 -v
+      - name: Generate DEMO image strictly for visual inspection (never Telegram)
+        run: |
+          python -m crypto.export_fear_v2 --demo
+          node scripts/render_crypto_fear_v2.mjs --demo
+      - name: Archive DEMO preview only
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-publication-05-fear-v2-DEMO
+          path: crypto/generated/test/fear_v2_demo.png
+          if-no-files-found: error
+          retention-days: 14
+      - name: Retrieve 7 REAL daily readings from Alternative.me
+        run: python -m crypto.export_fear_v2
+      - name: Render premium V2 with REAL daily measurements
+        run: node scripts/render_crypto_fear_v2.mjs
+      - name: Archive REAL Fear and Greed visual
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-publication-05-fear-v2-REAL
+          path: crypto/generated/test/fear_v2.png
+          if-no-files-found: error
+          retention-days: 14
+      - name: Send ONLY the REAL visual to verified @predict_mrxp (manual test only)
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[fear-visual-test]'))
+        run: python -m crypto.send_crypto_fear_v2_test

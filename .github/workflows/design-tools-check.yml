@@ -1,0 +1,35 @@
+name: Mr XPRONOS - Design tools check
+
+on:
+  push:
+    branches: [feature/actu-crypto-lot-01-05]
+    paths:
+      - package.json
+      - .github/workflows/design-tools-check.yml
+      - scripts/check_design_tools.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-design-tools:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Lucide and Playwright
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium for screenshot rendering
+        run: npx playwright install --with-deps chromium
+      - name: Validate SVG icons and browser screenshot
+        run: node scripts/check_design_tools.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: design-tools-test-screenshot
+          path: crypto/generated/design-tools-check.png
+          if-no-files-found: error
+          retention-days: 7

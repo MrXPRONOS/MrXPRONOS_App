@@ -1,0 +1,100 @@
+name: Actu Crypto - publications 1 a 5
+
+on:
+  schedule:
+    # Lomé (Togo) = UTC, horaires indicatifs (GitHub peut retarder les schedules).
+    - cron: '7 7 * * *'      # Briefing + top + sentiment
+    - cron: '17 12 * * *'    # Top hausses / baisses
+    - cron: '23 18 * * *'    # Cours du soir
+    - cron: '41 8-22/2 * * *' # Surveillance des alertes aux heures choisies
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Rubriques a executer'
+        required: true
+        type: choice
+        default: 'all'
+        options: [all, prices, gainers, losers, movers, alerts, fear]
+      dry_run:
+        description: 'Previsualisation sans publication'
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: actu-crypto-publications
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install minimal free dependencies
+        run: pip install 'requests>=2.31,<3' 'Pillow>=10,<12'
+      - name: Resolve mode
+        id: mode
+        env:
+          GH_EVENT: ${{ github.event_name }}
+          GH_SCHEDULE: ${{ github.event.schedule }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          MODE="${INPUT_MODE:-all}"
+          if [ "$GH_EVENT" = "schedule" ]; then
+            case "$GH_SCHEDULE" in
+              '7 7 * * *') MODE=all ;;
+              '17 12 * * *') MODE=movers ;;
+              '23 18 * * *') MODE=prices ;;
+              *) MODE=alerts ;;
+            esac
+          fi
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          if [ "$GH_EVENT" = "schedule" ]; then
+            echo "dry=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "dry=${INPUT_DRY_RUN:-true}" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Unit tests
+        run: python -m unittest crypto.test_publish_crypto_1_5 -v
+      - name: Generate and publish
+        env:
+          TELEGRAM_ACTU_FOOT_BOT_TOKEN: ${{ secrets.TELEGRAM_ACTU_FOOT_BOT_TOKEN }}
+          ACTU_FOOT_BOT_TOKEN: ${{ secrets.ACTU_FOOT_BOT_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+          ACTU_CRYPTO_CHAT_ID: ${{ secrets.ACTU_CRYPTO_CHAT_ID }}
+          COINGECKO_DEMO_API_KEY: ${{ secrets.COINGECKO_DEMO_API_KEY }}
+          RUN_MODE: ${{ steps.mode.outputs.mode }}
+          DRY_RUN: ${{ steps.mode.outputs.dry }}
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            python -m crypto.publish_crypto_1_5 --mode "$RUN_MODE" --dry-run
+          else
+            python crypto/publish_crypto_1_5.py --mode "$RUN_MODE"
+          fi
+      - name: Persist publication state
+        if: always() && steps.mode.outputs.dry != 'true'
+        run: |
+          if git diff --quiet -- crypto/telegram_state.json; then
+            echo "No new state"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crypto/telegram_state.json
+          git commit -m "chore(crypto): update Telegram publication state [skip ci]"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
