@@ -89,7 +89,7 @@ def classify(messages, source_id: int):
     latest_poster = None
     current_season = 1
     candidates = []
-    season_header = re.compile(r"(?i)\\b(?:saison|season)\\s*0*(\\d{1,2})\\b")
+    season_header = re.compile(r"(?i)\b(?:saison|season)\s*0*(\d{1,2})\b")
     for msg in sorted(messages, key=lambda x: int(x.id)):
         if getattr(msg, "noforwards", False):
             continue
@@ -110,7 +110,7 @@ def classify(messages, source_id: int):
         raw = str(getattr(msg, "raw_text", "") or "")
         filename = filename_of(msg)
         numbers = episode_numbers(raw) or episode_numbers(filename)
-        if numbers and not re.search(r"(?i)\\b(?:s\\d+\\s*[-._ ]*e\\d+|saison\\s*\\d+|season\\s*\\d+|\\d+x\\d+)\\b", raw + " " + filename):
+        if numbers and not re.search(r"(?i)\b(?:s\d+\s*[-._ ]*e\d+|saison\s*\d+|season\s*\d+|\d+x\d+)\b", raw + " " + filename):
             numbers = (current_season, numbers[1])
         if not numbers:
             continue
