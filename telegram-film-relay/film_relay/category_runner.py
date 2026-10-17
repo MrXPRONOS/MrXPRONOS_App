@@ -149,7 +149,20 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                 request_retries=1, connection_retries=2,
                 flood_sleep_threshold=0, receive_updates=False,
             )
-            await bot.start(bot_token=token)
+            try:
+                await bot.start(bot_token=token)
+            except ValueError:
+                # A single delayed retry for transient bot DC login failures;
+                # never retry FloodWait or other Telegram restrictions.
+                LOG.warning("Connexion du bot retardée : une seule nouvelle tentative dans 20 s.")
+                await bot.disconnect()
+                await asyncio.sleep(20)
+                bot = TelegramClient(
+                    StringSession(), int(api_id), api_hash,
+                    request_retries=1, connection_retries=2,
+                    flood_sleep_threshold=0, receive_updates=False,
+                )
+                await bot.start(bot_token=token)
         source, private, public, bot_public, mirror, mirror_key = await preflight(
             client, bot, cfg
         )
