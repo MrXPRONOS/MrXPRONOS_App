@@ -104,7 +104,7 @@ jobs:
           TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
           TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
           TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
-          TG_PRIVATE_INVITE_LINK: ${{ secrets.CINEX_PRIVATE_INVITE_LINK }}
+          CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
           FILM_PUBLISH_ENABLED: 'true'
           TG_RIGHTS_ATTESTED: 'true'
           CINEX_PROMOS_ENABLED: 'true'
@@ -129,7 +129,7 @@ jobs:
           DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
           DESIR_MIRROR_CHANNEL: ${{ vars.DESIR_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
           DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
-          DESIR_PRIVATE_INVITE_LINK: ${{ secrets.DESIR_PRIVATE_INVITE_LINK }}
+          CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
           DESIR_STATE_PATH: state/desir_state.json
           PYTHONPATH: .
         run: python -m film_relay.desir_runner --publish --limit 2 --newest
