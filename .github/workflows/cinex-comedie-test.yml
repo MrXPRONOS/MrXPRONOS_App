@@ -1,4 +1,4 @@
-name: CinéX CinéX Comédie - Test isolé
+name: CinéX Comédie - Test isolé
 
 on:
   workflow_dispatch:
@@ -47,6 +47,7 @@ jobs:
         env:
           PUBLIC: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
           SOURCE: ${{ vars.COMEDIE_SOURCE_CHANNEL }}
+          SOURCE_LIST: ${{ vars.COMEDIE_SOURCE_CHANNELS || '@comexflex,@filmcomplets' }}
           PRIVATE: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
           API_ID: ${{ secrets.TG_API_ID }}
           API_HASH: ${{ secrets.TG_API_HASH }}
@@ -55,8 +56,8 @@ jobs:
         shell: bash
         run: |
           set -e
-          if [[ ! "$SOURCE" =~ ^@[a-zA-Z0-9_]{5,32}$ ]]; then
-            echo '::error::Ajouter COMEDIE_SOURCE_CHANNEL dans Variables.'
+          if [[ -z "$SOURCE" && -z "$SOURCE_LIST" ]]; then
+            echo '::error::Configurer COMEDIE_SOURCE_CHANNEL ou COMEDIE_SOURCE_CHANNELS.'
             exit 1
           fi
           if [[ ! "$PUBLIC" =~ ^@[a-zA-Z0-9_]{5,32}$ ]]; then
@@ -77,8 +78,9 @@ jobs:
           TG_API_ID: ${{ secrets.TG_API_ID }}
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
           TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
-          CINEX_comedie_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+          CINEX_CATEGORY_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
           COMEDIE_SOURCE_CHANNEL: ${{ vars.COMEDIE_SOURCE_CHANNEL }}
+          COMEDIE_SOURCE_CHANNELS: ${{ vars.COMEDIE_SOURCE_CHANNELS || '@comexflex,@filmcomplets' }}
           COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
           COMEDIE_PRIVATE_CHANNEL: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
           COMEDIE_MIRROR_CHANNEL: '@Torrent9SeriesFilms'
