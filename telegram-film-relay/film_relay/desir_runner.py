@@ -403,7 +403,7 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             # Only forward the public bot-authored poster/link, NEVER the private video.
             await asyncio.sleep(max(12.0, float(os.getenv('CINEX_PAUSE_SECONDS', '20'))))
             forwarded_id = None
-            if not os.getenv('CINEX_DEFER_MIRROR'):
+            if mirror_peer is not None and not os.getenv('CINEX_DEFER_MIRROR'):
                 forwarded_id = await forward_public_poster(
                     client, public_user, mirror_peer, public_post.id
                 )
