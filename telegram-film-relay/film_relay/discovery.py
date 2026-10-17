@@ -221,7 +221,7 @@ def notification_summary(channels: list[dict]) -> str:
     )
     entries = [notification_text(channel, index=i)
                for i, channel in enumerate(channels, start=1)]
-    footer = ("⚠️ <b>À vérifier avant toute reprise :</b> droits de redistribution."
+    footer = ("⚠️ <b>Droits de redistribution non vérifiés.</b>"
               + nl + "ℹ️ Ces canaux ne sont pas ajoutés automatiquement au relais.")
     result = header + nl * 2 + (nl * 2).join(entries) + nl * 2 + footer
     if len(result) > 4000:
