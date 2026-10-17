@@ -27,6 +27,7 @@ class RankingDeps:
     national_team_terms: Sequence[str]
     team_weights: Any
     club_priority: Callable[[dict], tuple[int, int]] | None = None
+    competition_priority: Callable[[dict], int] | None = None
 
 
 def _weighted_term_score(value: str, weighted_terms: Any) -> int:
@@ -102,6 +103,13 @@ class LiveRankingEngine:
         return normalized or "football"
 
     def competition_weight(self, event: dict) -> int:
+        if self.deps.competition_priority is not None:
+            try:
+                dynamic = int(self.deps.competition_priority(event) or 0)
+                if dynamic > 0:
+                    return dynamic
+            except (TypeError, ValueError):
+                pass
         explicit = {
             "uefa-champions-league": 38,
             "champions-league": 16,
@@ -218,9 +226,13 @@ class LiveRankingEngine:
 
         club_count, _club_max = self.club_priority(event)
         is_friendly = any(term in combined for term in ("friendly", "amical", "club friendly"))
-        # Un grand club prime dans la sélection Actu Foot. Un amical avec un seul
-        # grand club reste filtré; un vrai choc entre deux grands clubs passe.
+        # Toute équipe du Top 100 éditorial/FIFA rend le match éligible,
+        # sauf amical isolé. L'ordre précis est géré ensuite par rank_key.
         if club_count >= 2 or (club_count >= 1 and not is_friendly):
+            return True
+        # Quarts/demies/finales ou autre enjeu majeur peuvent entrer même
+        # sans équipe du Top 100.
+        if self.deps.importance(event) >= 220:
             return True
 
         national_match = (
@@ -240,8 +252,8 @@ class LiveRankingEngine:
             1 if ("togo" in self.deps.team(event, "home").casefold()
                   or "togo" in self.deps.team(event, "away").casefold()) else 0,
             1 if club_count else 0,
-            club_count,
             club_max,
+            club_count,
             self.popularity_score(event),
             self.deps.importance(event),
             self.deps.kick(event) or datetime.min.replace(tzinfo=timezone.utc),
