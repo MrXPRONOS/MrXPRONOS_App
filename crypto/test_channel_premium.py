@@ -10,22 +10,62 @@ from crypto.render_premium_cards import render_prices_card
 from scripts.telegram_test_guard import validate_test_channel
 
 def get_sparkline(symbol):
-    """48 heures réelles via CryptoCompare; aucune courbe inventée en cas d'échec."""
+    """Real 48h hourly charts; try independent public providers."""
+    def valid(values):
+        import math
+        try:
+            values=[float(v) for v in values]
+            return values if len(values)>=12 and all(math.isfinite(v) and v>0 for v in values) and max(values)>min(values) else None
+        except (ValueError,TypeError):
+            return None
+    errors=[]
     try:
-        response = requests.get(
-            "https://min-api.cryptocompare.com/data/v2/histohour",
-            params={"fsym":symbol,"tsym":"USD","limit":48},
-            timeout=(8,25),
-        )
+        response=requests.get("https://min-api.cryptocompare.com/data/v2/histohour",
+            params={"fsym":symbol,"tsym":"USD","limit":48},timeout=(8,25))
         response.raise_for_status()
         payload=response.json()
-        if payload.get("Response") != "Success":
-            return None
-        candles=(payload.get("Data") or {}).get("Data") or []
-        points=[float(c["close"]) for c in candles if c.get("close") is not None]
-        return points if len(points)>=12 else None
-    except (requests.RequestException,ValueError,TypeError,KeyError):
-        return None
+        if payload.get("Response")=="Success":
+            candles=(payload.get("Data") or {}).get("Data") or []
+            values=valid([c["close"] for c in candles if c.get("close")])
+            if values:
+                print("CHART_SOURCE",symbol,"CryptoCompare",len(values))
+                return values
+        errors.append("CryptoCompare empty")
+    except (requests.RequestException,ValueError,TypeError,KeyError) as exc:
+        errors.append("CryptoCompare "+type(exc).__name__)
+    try:
+        product=symbol+"-USD"
+        response=requests.get("https://api.exchange.coinbase.com/products/"+product+"/candles",
+            params={"granularity":3600},timeout=(8,25),
+            headers={"User-Agent":"MrXPRONOS/1.0","Accept":"application/json"})
+        response.raise_for_status()
+        candles=response.json()
+        if isinstance(candles,list):
+            candles=sorted((c for c in candles if isinstance(c,list) and len(c)>4),key=lambda c:c[0])
+            values=valid([c[4] for c in candles[-49:]])
+            if values:
+                print("CHART_SOURCE",symbol,"Coinbase",len(values))
+                return values
+        errors.append("Coinbase empty")
+    except (requests.RequestException,ValueError,TypeError,KeyError) as exc:
+        errors.append("Coinbase "+type(exc).__name__)
+    key=(os.getenv("COINGECKO_DEMO_API_KEY") or "").strip()
+    if key:
+        try:
+            coin={"BTC":"bitcoin","ETH":"ethereum","SOL":"solana","BNB":"binancecoin","XRP":"ripple"}[symbol]
+            response=requests.get("https://api.coingecko.com/api/v3/coins/"+coin+"/market_chart",
+                params={"vs_currency":"usd","days":"2"},
+                headers={"x-cg-demo-api-key":key},timeout=(8,25))
+            response.raise_for_status()
+            prices=response.json().get("prices") or []
+            values=valid([p[1] for p in prices if isinstance(p,list) and len(p)>1])
+            if values:
+                print("CHART_SOURCE",symbol,"CoinGecko",len(values))
+                return values
+        except (requests.RequestException,ValueError,TypeError,KeyError) as exc:
+            errors.append("CoinGecko "+type(exc).__name__)
+    print("CHART_UNAVAILABLE",symbol,"; ".join(errors))
+    return None
 
 def main():
     now=datetime.now(timezone.utc)
@@ -37,6 +77,8 @@ def main():
         if points:
             row["sparkline"]=points
             count+=1
+    if count!=len(chosen):
+        raise RuntimeError(f"Publication annulée : seulement {count}/5 graphiques réels disponibles")
     try:
         fear,observed=fear_index()
         chosen[0]["fear_greed"]=fear
@@ -52,11 +94,17 @@ def main():
     token=(os.getenv("FOOTBALL_NEWS_BOT_TOKEN") or "").strip()
     target=(os.getenv("TELEGRAM_TEST_CHAT_ID") or "@predict_mrxp").strip()
     verified=validate_test_channel(target,token)
+    trends=", ".join(
+        "{}: {} {:.1f}% sur 48h".format(
+            r["symbol"],"hausse" if r["sparkline"][-1]>r["sparkline"][0] else "baisse",
+            abs((r["sparkline"][-1]/r["sparkline"][0]-1)*100))
+        for r in chosen)
     caption=(
         "🧪 TEST RÉEL — COURS DU MARCHÉ CRYPTO\n"
         "📅 "+now.strftime("%d/%m/%Y %H:%M UTC")+"\n"
         "Source cours : "+provider+"\n"
-        "Courbes réelles disponibles : "+str(count)+"/5 (CryptoCompare, 48 h)\n"
+        "Graphiques réels : 5/5 (48 h)\n"
+        "Tendances observées : "+trends+"\n"
         "⚠️ Canal de test uniquement. Données indicatives, pas un conseil d'investissement."
     )
     with path.open("rb") as fp:
