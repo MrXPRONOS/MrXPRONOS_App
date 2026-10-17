@@ -37,9 +37,9 @@ ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "state/anime_catalog.json"
 SEASON_EP = re.compile(
     r"(?i)\b(?:s(?:aison|eason)?\s*0*(\d{1,2})\s*[-._ ]*"
-    r"(?:[eé](?:pisode|p)?\s*0*(\d{1,3}))|"
+    r"(?:[eé](?:pisode|p)?[\s._-]*0*(\d{1,3}))|"
     r"(\d{1,2})\s*[xX]\s*0*(\d{1,3})|"
-    r"(?:[eé](?:pisode|p)?\s*0*(\d{1,3})))\b"
+    r"(?:[eé](?:pisode|p)?[\s._-]*0*(\d{1,3})))\b"
 )
 CLEAN_CODES = re.compile(r"(?i)\b(?:saison|season|episode|épisode|ep)\s*\d+\b|"
                          r"\bS\d{1,2}[\s._-]*E\d{1,3}\b|\b\d{1,2}x\d{1,3}\b|\bE\d{1,3}\b")
