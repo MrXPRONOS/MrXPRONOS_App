@@ -9,3 +9,5 @@ Conservation des reçus et respect des limites Telegram.
 17 octobre 2026 : validation production 4 catégories, @comexflex + @filmcomplets (Comédie), @orak_dessinanime (Anime), listes GitHub extensibles, 2 films max par catégorie.
 
 17 octobre 2026 — relance après correction des tests de mise en production Comédie + Anime ; 4 catégories, compteurs indépendants.
+
+2026-10-17 : validation après confirmation des variables et droits du bot sur Comédie et Anime ; relance du cycle de production, reçus anti-doublons conservés.
