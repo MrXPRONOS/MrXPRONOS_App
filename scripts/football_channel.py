@@ -162,6 +162,124 @@ LIVE_COMPETITION_WEIGHTS = (
           "efl cup", "coppa italia", "dfb pokal", "coupe de france",
           "caf confederation", "nations league")),
 )
+# Aliases stricts des grands clubs : ils servent à la sélection du fil LIVE.
+# On compare des noms normalisés complets pour éviter, par exemple,
+# "Al Ahly Benghazi" = "Al Ahly Cairo".
+MAJOR_CLUB_ALIASES = (
+    (100, ("real madrid",)),
+    (100, ("barcelona", "barcelone", "fc barcelona")),
+    (98, ("manchester city", "man city")),
+    (98, ("manchester united", "man united", "man utd")),
+    (98, ("liverpool", "liverpool fc")),
+    (96, ("arsenal", "arsenal fc")),
+    (94, ("chelsea", "chelsea fc")),
+    (98, ("bayern munich", "bayern munchen", "fc bayern")),
+    (96, ("paris saint germain", "paris saint-germain", "psg")),
+    (92, ("inter milan", "internazionale milano", "fc internazionale")),
+    (92, ("ac milan", "milan")),
+    (91, ("juventus",)),
+    (90, ("atletico madrid", "atletico de madrid", "atlético madrid")),
+    (84, ("tottenham", "tottenham hotspur")),
+    (80, ("newcastle", "newcastle united")),
+    (88, ("borussia dortmund", "dortmund")),
+    (82, ("bayer leverkusen", "leverkusen")),
+    (76, ("rb leipzig", "leipzig")),
+    (84, ("napoli", "ssc napoli")),
+    (80, ("roma", "as roma")),
+    (74, ("lazio",)),
+    (84, ("marseille", "olympique de marseille")),
+    (75, ("lyon", "olympique lyonnais")),
+    (72, ("monaco", "as monaco")),
+    (84, ("benfica", "sl benfica")),
+    (84, ("porto", "fc porto")),
+    (82, ("sporting", "sporting cp", "sporting lisbon")),
+    (80, ("ajax", "afc ajax")),
+    (76, ("psv", "psv eindhoven")),
+    (75, ("feyenoord",)),
+    (82, ("galatasaray",)),
+    (81, ("fenerbahce", "fenerbahçe")),
+    (72, ("besiktas", "beşiktaş")),
+    (74, ("celtic", "celtic fc")),
+    (74, ("rangers", "rangers fc")),
+    (86, ("river plate",)),
+    (86, ("boca juniors", "boca")),
+    (86, ("flamengo",)),
+    (84, ("palmeiras",)),
+    (80, ("corinthians",)),
+    (76, ("sao paulo", "são paulo")),
+    (72, ("fluminense",)),
+    (72, ("gremio", "grêmio")),
+    (72, ("internacional", "sc internacional")),
+    (88, ("al ahly", "al ahly cairo")),
+    (80, ("zamalek",)),
+    (82, ("wydad", "wydad casablanca", "wydad ac")),
+    (80, ("raja", "raja casablanca", "raja ca")),
+    (80, ("esperance tunis", "esperance de tunis", "esperance sportive de tunis")),
+    (80, ("mamelodi sundowns", "sundowns")),
+    (78, ("tp mazembe", "mazembe")),
+    (82, ("al hilal", "al hilal riyadh")),
+    (80, ("al nassr", "al nassr riyadh")),
+    (76, ("al ittihad", "al ittihad jeddah")),
+    (72, ("al ahli", "al ahli saudi")),
+)
+
+def _major_norm(value: Any) -> str:
+    value = unicodedata.normalize("NFKD", str(value or "")).encode("ascii", "ignore").decode().casefold()
+    value = re.sub(r"\b(fc|cf|sc|afc|club|football|the)\b", " ", value)
+    return re.sub(r"[^a-z0-9]+", " ", value).strip()
+
+_MAJOR_ALIAS_LOOKUP = {
+    _major_norm(alias): weight
+    for weight, aliases in MAJOR_CLUB_ALIASES
+    for alias in aliases
+}
+
+def _major_team_weight(value: str) -> int:
+    return int(_MAJOR_ALIAS_LOOKUP.get(_major_norm(value), 0))
+
+def live_grand_club_priority(event: dict) -> tuple[int, int]:
+    weights = [
+        _major_team_weight(team(event, "home")),
+        _major_team_weight(team(event, "away")),
+    ]
+    positive = [value for value in weights if value > 0]
+    return len(positive), max(positive, default=0)
+
+def _stage_text(event: dict) -> str:
+    values = [league(event)]
+    for key in ("round", "round_name", "roundName", "stage", "stage_name",
+                "stageName", "phase", "phase_name", "phaseName", "event_name"):
+        value = event.get(key)
+        if isinstance(value, dict):
+            values.extend(str(value.get(sub) or "") for sub in ("name", "title", "round", "stage", "phase"))
+        elif value:
+            values.append(str(value))
+    return _major_norm(" ".join(values))
+
+def high_stakes_bonus(event: dict) -> int:
+    value = _stage_text(event)
+    if re.search(r"\b(semi ?finals?|demi ?finale?s?)\b", value):
+        return 90
+    if re.search(r"\b(quarter ?finals?|quart?s? de finale?s?)\b", value):
+        return 60
+    if re.search(r"\b(round of 16|last 16|huitieme?s? de finale?s?)\b", value):
+        return 35
+    if re.search(r"\b(finals?|finale?s?)\b", value):
+        return 130
+    if any(term in value for term in ("knockout", "playoff", "play off", "barrage")):
+        return 25
+    return 0
+
+def live_tracking_reason(event: dict) -> str:
+    club_count, _ = live_grand_club_priority(event)
+    if club_count >= 2:
+        return "choc_grands_clubs"
+    if club_count == 1:
+        return "grand_club"
+    if high_stakes_bonus(event) >= 90:
+        return "phase_finale"
+    return "grande_affiche"
+
 CATEGORY_LABELS = {
     "flash": "📰 FLASH FOOT",
     "programme": "📅 MATCHS DU JOUR",
@@ -305,7 +423,19 @@ def importance(event: dict) -> int:
     points += sum(5 for term in TEAM_TERMS if term in combined)
     points += sum(18 for term in ELITE_LEAGUE_TERMS if term in combined)
     points += sum(14 for term in ELITE_TEAM_TERMS if term in combined)
-    # Une affiche entre deux équipes fortes doit naturellement remonter.
+
+    # Priorité éditoriale forte aux grands clubs, même lorsqu'ils n'ont pas
+    # été retenus par un moteur de pronostic.
+    club_count, club_weight = live_grand_club_priority(event)
+    if club_count >= 2:
+        points += 160 + club_weight
+    elif club_count == 1:
+        points += 100 + club_weight
+
+    # Les finales/demi-finales restent très importantes, mais derrière une
+    # vraie grande affiche impliquant un club majeur.
+    points += high_stakes_bonus(event)
+
     elite_count = sum(1 for term in ELITE_TEAM_TERMS if term in combined)
     if elite_count >= 2:
         points += 24
@@ -325,6 +455,7 @@ _LIVE_RANKING_ENGINE = LiveRankingEngine(RankingDeps(
     excluded_level_terms=POPULAR_LIVE_EXCLUDED_LEVEL_TERMS,
     national_team_terms=POPULAR_LIVE_NATIONAL_TEAM_TERMS,
     team_weights=LIVE_TEAM_WEIGHTS,
+    club_priority=live_grand_club_priority,
 ))
 _LAST_LIVE_RANKING: dict[str, Any] = _LIVE_RANKING_ENGINE.last_ranking
 
@@ -387,8 +518,14 @@ def select_live_admissions(
         max_per_competition=max_per_competition,
         max_total=max_total,
     )
-    selected_ids = {live_match_identity(event) for event in selected}
-    return [event for event in events if live_match_identity(event) in selected_ids]
+    candidates_by_id = {live_match_identity(event): event for event in events}
+    admitted = []
+    for ranked in selected:
+        identity = live_match_identity(ranked)
+        original = candidates_by_id.get(identity)
+        if original is not None:
+            admitted.append(original)
+    return admitted
 
 _TSDB_LOGOS: dict[str, str] | None = None
 _REMOTE_TEAM_LOGOS: dict[str, str] = {}
@@ -2949,8 +3086,9 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                             print("FOLLOWUP_LEGACY_RESELECTED", existing_ref)
                             continue
                         try:
-                            ref_added = followup.track(state.followed, event, now, reason="importance")
-                            print("FOLLOWUP_AUTO_SELECTED", ref_added)
+                            reason = live_tracking_reason(event)
+                            ref_added = followup.track(state.followed, event, now, reason=reason)
+                            print("FOLLOWUP_AUTO_SELECTED", ref_added, reason)
                         except ValueError:
                             continue
                     state.save(now)
