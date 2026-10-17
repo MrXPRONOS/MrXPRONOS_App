@@ -34,6 +34,18 @@ Les workflows séparés de test manuel restent disponibles pour un essai ciblé 
 
 Les deux projets possèdent également des workflows de test manuel, mais ils sont désormais intégrés au workflow automatique unifié.
 
+## Contrôle réel du 17 octobre 2026
+
+[Exécution de production](https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/39004240521) : la découverte, CinéX classique et CinéX Désir ont fonctionné et les cinq historiques ont été sauvegardés. Comédie et Anime se sont arrêtés **avant toute publication** avec l'erreur de permissions `UserNotParticipantError` : **le bot `@mrxpronos_canal_bot` n'est pas administrateur** des canaux publics `@CineXComediefr` et `@CineXAnimeFR`.
+
+**Action à réaliser dans Telegram pour chacun des deux canaux publics** : Administrateurs → Ajouter `@mrxpronos_canal_bot` → activer « Publier des messages ». Il est aussi recommandé d'ajouter le même bot comme administrateur de chacune des deux vidéothèques privées pour publier les publicités avec de vrais boutons bleus.
+
+Le secret de bot est correctement renseigné et aucun autre bot ni secret n'est nécessaire.
+
+**Attention à la configuration trouvée :** la variable GitHub `ANIME_SOURCE_CHANNEL` contenait `@comexflex` (source Comédie). Le programme ignore désormais explicitement cette source dans Anime pour éviter de mélanger les genres. **Corriger cette variable** en `@orak_dessinanime`, ou la vider et garder `ANIME_SOURCE_CHANNELS=@orak_dessinanime`. Cela ne bloque pas les autres catégories.
+
+Les historiques Comédie et Anime sont encore vides, donc aucun film de ces catégories n'a été publié par cette exécution.
+
 ## Canaux à créer
 
 ### CinéX Comédie
@@ -94,7 +106,7 @@ Variables facultatives :
 
 **Aucun nouveau secret** si les secrets existants sont en place : TG_API_ID, TG_API_HASH, TG_SESSION_STRING (ou TG_STRING_SESSION), et le bot déjà utilisé par CinéX Désir (DESIR_BOT_TOKEN, sinon FOOTBALL_NEWS_BOT_TOKEN, sinon TELEGRAM_BOT_TOKEN).
 
-N'ajoutez pas de nouvelles variables de type droits attestés ou publication activée : les workflows fonctionnent avec un déclenchement manuel explicite.
+N'ajoutez pas de nouvelles variables de type droits attestés ou publication activée : le workflow principal est automatiquement programmé, tandis que les workflows séparés de diagnostic utilisent un déclenchement manuel.
 
 ## Permissions
 
@@ -107,7 +119,7 @@ Ajouter le bot existant comme administrateur **avec Publier des messages** dans 
 3. Après vérification, choisir publish=true et max_films=1 : un film réel maximum.
 4. Confirmer la vidéo privée, l'affiche publique (bouton vert film + bouton rouge dossier), et son **transfert natif avec attribution** sur @Torrent9SeriesFilms.
 5. Le deuxième film, lors d'une exécution ultérieure, déclenchera le compteur publicitaire indépendant de la catégorie.
-6. Une fois tous les tests validés, seulement alors, envisager l'intégration au workflow programmé toutes les deux heures.
+6. Les projets sont déjà intégrés au workflow toutes les deux heures. Utiliser ces tests manuels pour vérifier séparément leur accès et leurs publications après avoir ajouté le bot.
 
 ## Sécurité, état, et indépendance
 
