@@ -22,7 +22,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 ROOT=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(ROOT))
@@ -181,6 +181,31 @@ def _x(t,duration,width,enter=.34,leave=.34):
     return center
 
 
+def make_card_shadow(card_width,card_height,out):
+    """External depth only; validated Telegram card pixels remain untouched."""
+    pad=54
+    layer=Image.new("RGBA",(card_width+pad*2,card_height+pad*2),(0,0,0,0))
+    shadow=Image.new("RGBA",layer.size,(0,0,0,0))
+    sd=ImageDraw.Draw(shadow)
+    sd.rounded_rectangle(
+        (pad,pad+12,pad+card_width,pad+12+card_height),
+        radius=26,fill=(0,0,0,165)
+    )
+    shadow=shadow.filter(ImageFilter.GaussianBlur(22))
+    layer=Image.alpha_composite(layer,shadow)
+
+    glow=Image.new("RGBA",layer.size,(0,0,0,0))
+    gd=ImageDraw.Draw(glow)
+    gd.rounded_rectangle(
+        (pad-3,pad-3,pad+card_width+3,pad+card_height+3),
+        radius=26,outline=(39,133,255,105),width=8
+    )
+    glow=glow.filter(ImageFilter.GaussianBlur(14))
+    layer=Image.alpha_composite(layer,glow)
+    layer.save(out)
+    return pad
+
+
 def overlay_png(index,total,summary,out):
     canvas=Image.new("RGBA",(W,H),(0,0,0,0))
     draw=ImageDraw.Draw(canvas)
@@ -233,13 +258,17 @@ def build_video(cards,output,work_dir,summary):
             raise RuntimeError("Carte de validation trop haute pour la zone sûre")
         overlay=work_dir/f"overlay_{idx+1:02d}.png"
         overlay_png(idx,total,summary,overlay)
+        shadow_path=work_dir/f"shadow_{idx+1:02d}.png"
+        shadow_pad=make_card_shadow(cw,ch,shadow_path)
         if not VIDEO_BACKGROUND.is_file():
             raise RuntimeError(f"Fond vidéo introuvable: {VIDEO_BACKGROUND}")
         bg=(ImageClip(str(VIDEO_BACKGROUND)).resize(newsize=(W,H)).set_duration(per_card))
+        shadow=(ImageClip(str(shadow_path),transparent=True).set_duration(per_card)
+                .set_position(lambda t,d=per_card,w=cw,p=shadow_pad:(_x(t,d,w)-p,COUPON_Y-p)))
         card=(ImageClip(str(path)).resize(width=cw).set_duration(per_card)
               .set_position(lambda t,d=per_card,w=cw:(_x(t,d,w),COUPON_Y)))
         ov=ImageClip(str(overlay),transparent=True).set_duration(per_card)
-        scenes.append(CompositeVideoClip([bg,card,ov],size=(W,H)).set_duration(per_card))
+        scenes.append(CompositeVideoClip([bg,shadow,card,ov],size=(W,H)).set_duration(per_card))
     final=concatenate_videoclips(scenes,method="compose")
     output.parent.mkdir(parents=True,exist_ok=True)
     final.write_videofile(
