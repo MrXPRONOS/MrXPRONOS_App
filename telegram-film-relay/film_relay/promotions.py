@@ -162,7 +162,7 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
             post=await _send_bot_poster(bot,ready,idx)
             post_id=int(post.id);report["public"]+=1
         entry["sent"][str(entry["next_index"])]=post_id
-        entry["last_film_total"]=(total if force else min(total, int(entry["last_film_total"])+2));entry["next_index"]=int(entry["next_index"])+1
+        entry["last_film_total"]=total;entry["next_index"]=int(entry["next_index"])+1
         state.save()
     elif idx is not None:
         report["skipped"]+=1
@@ -193,7 +193,7 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
                     forwarded_id=int(msg[0].id if isinstance(msg,list) else msg.id)
                     report["mirror"]+=1
                 e["sent"][str(e["next_index"])]=forwarded_id
-                e["last_film_total"]=(mirror_total if force else min(mirror_total, int(e["last_film_total"])+2))
+                e["last_film_total"]=mirror_total
                 e["next_index"]=int(e["next_index"])+1
                 state.save()
             else:
@@ -215,7 +215,7 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
                 post=await _send_bot_poster(bot,ready_private,idx)
                 msg_id=int(post.id);report["private"]+=1
             e["sent"][str(e["next_index"])]=msg_id
-            e["last_film_total"]=(total if force else min(total, int(e["last_film_total"])+2));e["next_index"]=int(e["next_index"])+1
+            e["last_film_total"]=total;e["next_index"]=int(e["next_index"])+1
             state.save()
         else:
             report["skipped"]+=1

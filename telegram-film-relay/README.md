@@ -65,6 +65,14 @@ Les légendes comportent exactement trois lignes, avec un bouton Telegram corres
 
 **Ne pas déclarer la mise en production complète tant que les trois PNG n'ont pas été ajoutés au dépôt et qu'un test de publication n'a pas réussi.** Les fixtures utilisées par les tests automatisés ne sont pas des affiches de production.
 
+### Intégration au workflow des films (17 octobre 2026)
+
+- **Un seul workflow de publication :** `.github/workflows/telegram-film-relay.yml`. Après le lot de 0 à 2 films, le même processus appelle `publish_promotions` et sauvegarde les reçus films + publicités ensemble. Aucune action distincte ne publie de pubs CinéX.
+- Les trois visuels fournis par le propriétaire sont associés à : `mrx_actu.png` (Actu Foot), `mrx_live.png` (Pronos Live VIP), `mrx_jour.png` (Coupons du Jour). Résolution reçue : **1229 × 1536 px** ; conserver leur design sans recadrage.
+- Les fichiers sont à placer sous `telegram-film-relay/assets/promotions/`. Si l'un manque, l'ancien mode de secours envoie la légende de trois lignes avec bouton, sans inventer d'affiche ; pour afficher les véritables posters, les trois fichiers doivent réellement être présents dans le dépôt.
+- Chaque canal avance dans le cycle **Actu Foot → Pronos Live VIP → Coupons du Jour** après au moins deux films supplémentaires ; l'écart ancien est remis à zéro après une publicité, pour éviter plusieurs publicités d'un coup lors d'une reprise d'historique.
+- Les audits sans publication, tels que `telegram-film-promo-check.yml`, restent disponibles et ne créent pas de doublons.
+
 ## Boutons Telegram et mise en forme CinéX
 
 **Les vrais boutons Telegram exigent un bot : la session personnelle ne peut pas en publier.** Le projet CinéX réutilise maintenant un bot football déjà configuré dans les secrets GitHub.
