@@ -37,6 +37,7 @@ UTC=timezone.utc
 W,H=1080,1920
 TARGET_WIDTH=940
 COUPON_Y=105
+VIDEO_BACKGROUND=ROOT/"assets"/"images"/"mrxpronos-video-background.jpg"
 
 
 def _font(size,bold=False):
@@ -216,7 +217,7 @@ def build_video(cards,output,work_dir,summary):
     if not hasattr(Image,"ANTIALIAS"):
         Image.ANTIALIAS=Image.Resampling.LANCZOS
 
-    from moviepy.editor import ColorClip,CompositeVideoClip,ImageClip,concatenate_videoclips
+    from moviepy.editor import CompositeVideoClip,ImageClip,concatenate_videoclips
 
     if not cards:
         raise RuntimeError("Aucun coupon gagnant validé à monter")
@@ -232,7 +233,9 @@ def build_video(cards,output,work_dir,summary):
             raise RuntimeError("Carte de validation trop haute pour la zone sûre")
         overlay=work_dir/f"overlay_{idx+1:02d}.png"
         overlay_png(idx,total,summary,overlay)
-        bg=ColorClip((W,H),color=(7,15,24)).set_duration(per_card)
+        if not VIDEO_BACKGROUND.is_file():
+            raise RuntimeError(f"Fond vidéo introuvable: {VIDEO_BACKGROUND}")
+        bg=(ImageClip(str(VIDEO_BACKGROUND)).resize(newsize=(W,H)).set_duration(per_card))
         card=(ImageClip(str(path)).resize(width=cw).set_duration(per_card)
               .set_position(lambda t,d=per_card,w=cw:(_x(t,d,w),COUPON_Y)))
         ov=ImageClip(str(overlay),transparent=True).set_duration(per_card)
