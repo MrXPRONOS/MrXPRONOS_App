@@ -67,6 +67,8 @@ jobs:
           else
             echo "dry=${INPUT_DRY_RUN:-true}" >> "$GITHUB_OUTPUT"
           fi
+      - name: Unit tests
+        run: python -m unittest crypto.test_publish_crypto_1_5 -v
       - name: Generate and publish
         env:
           TELEGRAM_ACTU_FOOT_BOT_TOKEN: ${{ secrets.TELEGRAM_ACTU_FOOT_BOT_TOKEN }}
@@ -83,7 +85,7 @@ jobs:
             python crypto/publish_crypto_1_5.py --mode "$RUN_MODE"
           fi
       - name: Persist publication state
-        if: success() && steps.mode.outputs.dry != 'true'
+        if: always() && steps.mode.outputs.dry != 'true'
         run: |
           if git diff --quiet -- crypto/telegram_state.json; then
             echo "No new state"
