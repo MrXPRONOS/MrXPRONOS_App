@@ -48,6 +48,13 @@ class DominanceV2Tests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     parse_paprika(p, self.now)
 
+    def test_dual_zero_24h_changes_are_rejected(self):
+        # Some free API snapshots include 0 for both change fields;
+        # fallback is safer than showing an unsupported 0.00%.
+        with self.assertRaises(ValueError):
+            parse_paprika(dict(self.paprika,
+                market_cap_change_24h=0, volume_24h_change_24h=0), self.now)
+
     def test_stale_paprika_is_not_published(self):
         p = dict(self.paprika, last_updated=int((self.now - timedelta(hours=8)).timestamp()))
         with self.assertRaises(ValueError):
