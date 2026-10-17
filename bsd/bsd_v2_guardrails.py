@@ -255,7 +255,7 @@ V21_MODEL_MIN_CONSERVATIVE = .775  # Carefully broaden model Pro; VIP remains >=
 V21_SHADOW_MIN_SAMPLES = 50
 V21_SHADOW_MAX_OVERCONFIDENCE = .06
 V21_SHADOW_MIN_LEAGUE_MARKET_SAMPLES = 50
-V21_DAILY_NEW_PICKS = 10
+V21_DAILY_NEW_PICKS = 1000  # Practical ceiling only; quality gates decide publication
 V21_POLICY_ID = "bsd-v21-2026-10-11"
 
 def v21_bucket_gap(bucket):
