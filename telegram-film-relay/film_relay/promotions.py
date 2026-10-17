@@ -100,10 +100,10 @@ async def _send_bot_poster(bot, channel, index: int):
         # Never invent another poster when the approved PNG is unavailable.
         LOG.warning("Affiche officielle absente/invalide (%s) : annonce texte", type(exc).__name__)
         return await bot.send_message(
-            channel, campaign_caption(index), buttons=[[Button.url(label, url)]]
+            channel, campaign_caption(index), buttons=[[Button.url(label, url, style="primary")]]
         )
     return await bot.send_file(channel, picture, caption=campaign_caption(index),
-                               buttons=[[Button.url(label,url)]], force_document=False)
+                               buttons=[[Button.url(label, url, style="primary")]], force_document=False)
 
 
 async def _bot_can_post(bot, channel, identity):

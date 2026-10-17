@@ -100,7 +100,7 @@ def mocks_for(client):
     telethon = types.ModuleType('telethon')
     telethon.TelegramClient = lambda *args, **kwargs: client
     telethon.utils = NS(get_peer_id=lambda entity: entity.peer_id)
-    telethon.Button = NS(url=lambda label, url: (label, url))
+    telethon.Button = NS(url=lambda label, url, **kw: (label, url, kw.get("style")))
     sessions = types.ModuleType('telethon.sessions')
     sessions.StringSession = lambda content='': content
     return {'telethon': telethon, 'telethon.sessions': sessions}

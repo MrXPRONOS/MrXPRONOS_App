@@ -42,7 +42,7 @@ class RenderTests(unittest.TestCase):
                 return NS(id=66)
 
         mocktelethon = types.ModuleType("telethon")
-        mocktelethon.Button = NS(url=lambda label, url: (label, url))
+        mocktelethon.Button = NS(url=lambda label, url, **kw: (label, url, kw.get("style")))
         user, bot = FakeReader(), FakeBot()
         with patch.dict(sys.modules, {"telethon": mocktelethon}):
             result = asyncio.run(send_public_poster_with_buttons(
@@ -55,6 +55,8 @@ class RenderTests(unittest.TestCase):
         self.assertEqual(bot.opts["parse_mode"], "html")
         self.assertEqual(bot.opts["buttons"][0][0][1], "https://t.me/c/12345/6")
         self.assertEqual(bot.opts["buttons"][1][0][1], "https://t.me/+TEST")
+        self.assertEqual(bot.opts["buttons"][0][0][2], "success")
+        self.assertEqual(bot.opts["buttons"][1][0][2], "success")
         self.assertNotIn("https://t.me/c/", bot.opts["caption"])
 
 
