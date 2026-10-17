@@ -77,7 +77,8 @@ async def publish_desir_promotions(user_client, bot, library, public, mirror,
     """
     from .promotions import publish_promotions
     bridge = DesirPromotionsState(receipt_state)
-    result = await publish_promotions(user_client, bot, library, public, mirror, bridge)
+    result = await publish_promotions(user_client, bot, library, public, mirror, bridge,
+                                      private_fallback=True)
     LOG.info("PUBS DÉSIR après deux films : privé=%s public=%s Torrent9=%s ignorées=%s",
              result["private"], result["public"], result["mirror"], result["skipped"])
     return result
