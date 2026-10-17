@@ -13,6 +13,7 @@ from .verification import screen_pairs
 from .publication import (rich_caption, rich_video_title, film_folder_url,
                           send_public_poster_with_buttons)
 from .state import State
+from .source_channels import source_list
 from .recovery import (snapshot_telegram_posts, recover_from_snapshot,
                        existing_native_forwards)
 from .text import (caption_with_link, clean_caption, first_title, private_message_link,
@@ -33,9 +34,28 @@ def config_from(path: str) -> dict:
     sources = result.get("sources", [])
     if not isinstance(sources, list):
         raise ValueError("sources doit être une liste.")
-    # Discovery sends suggestions to the account's Saved Messages only.
-    # Source activation is exclusively a deliberate edit to channels.json;
-    # never import historical auto_sources.json or TG_APPROVED_SOURCES_JSON.
+    # Discovery still suggests sources only; it NEVER authorizes them.
+    # Explicit owner-managed variables are different: the account owner has
+    # confirmed permission for channels they add to these lists.
+    added = source_list(
+        os.getenv("CINEX_SOURCE_CHANNELS", ""),
+        os.getenv("FILM_SOURCE_CHANNELS", ""),
+        os.getenv("SERIES_SOURCE_CHANNELS", ""),
+        max_sources=12,
+    )
+    known = {str(x.get("channel", "")).casefold() for x in sources}
+    for username in added:
+        if username.casefold() not in known:
+            sources.append({
+                "channel": username,
+                "redistribution_authorized": True,
+                "rights_basis": "Source inscrite explicitement par le propriétaire dans les variables GitHub.",
+                "matching_mode": "standard",
+                "archive_cycle": True,
+            })
+            known.add(username.casefold())
+    if len(sources) > 16:
+        raise ValueError("Maximum 16 sources CinéX classiques par lancement.")
     result["sources"] = sources
     if not all(x.get("channel") for x in sources):
         raise ValueError("Chaque source doit fournir un champ channel.")
