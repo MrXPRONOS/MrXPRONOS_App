@@ -77,12 +77,14 @@ class BotHTTPClient:
         for row in buttons or []:
             built = []
             for button in row:
-                url = getattr(button, "url", None)
-                text = getattr(button, "text", None)
+                # Telethon Button.url(...) enveloppe un KeyboardButtonUrl dans .button
+                underlying = getattr(button, "button", button)
+                url = getattr(underlying, "url", None)
+                text = getattr(underlying, "text", None)
                 if not url or not text:
                     raise ValueError("Un bouton de publication doit avoir un texte et une URL.")
                 payload = {"text": str(text), "url": str(url)}
-                style = getattr(button, "style", None)
+                style = getattr(underlying, "style", getattr(button, "style", None))
                 if style in ("primary", "success", "danger"):
                     payload["style"] = style
                 built.append(payload)
