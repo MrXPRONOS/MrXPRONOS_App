@@ -70,6 +70,7 @@ jobs:
         run: |
           python -m compileall -q film_relay scripts tests
           python -m unittest discover -s tests -p 'test_desir.py' -q
+          python -m unittest discover -s tests -p 'test_category_relays.py' -q
           python -m unittest discover -s tests -p 'test_promotions.py' -q
           python -m unittest discover -s tests -p 'test_mkv.py' -q
           python -m unittest discover -s tests -p 'test_discovery_digest.py' -q
@@ -208,7 +209,7 @@ jobs:
             python telegram-film-relay/scripts/merge_discovery_state.py "$RUNNER_TEMP/discovery-state.json" "$STATE/discovered_channels.json"
             python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/comedie-state.json" "$STATE/comedie_state.json"
             python telegram-film-relay/scripts/merge_desir_state.py "$RUNNER_TEMP/anime-state.json" "$STATE/anime_state.json"
-            git add "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json"
+            git add "$STATE/state.json" "$STATE/desir_state.json" "$STATE/discovered_channels.json" "$STATE/comedie_state.json" "$STATE/anime_state.json"
             if git diff --cached --quiet; then
               echo 'Historiques deja synchronises.'
               exit 0
@@ -222,4 +223,11 @@ jobs:
             sleep 4
           done
           echo '::error::Impossible de sauvegarder les historiques Telegram.'
+          exit 1
+
+      - name: 7 - Contrôler le résultat des deux nouvelles catégories
+        if: ${{ always() && (steps.comedy.outcome == 'failure' || steps.anime.outcome == 'failure') }}
+        shell: bash
+        run: |
+          echo '::error::Comédie ou Anime a échoué. Les autres catégories et historiques ont été conservés. Vérifier les étapes précédentes.'
           exit 1
