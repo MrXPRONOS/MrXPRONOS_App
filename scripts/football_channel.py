@@ -436,6 +436,16 @@ def importance(event: dict) -> int:
     # vraie grande affiche impliquant un club majeur.
     points += high_stakes_bonus(event)
 
+    plan_role = str(event.get("plan_role") or "")
+    try:
+        plan_rank = int(event.get("plan_rank") or 99)
+    except (TypeError, ValueError):
+        plan_rank = 99
+    if plan_role == "match_du_jour":
+        points += 220
+    elif plan_rank <= 4:
+        points += max(20, 100 - (plan_rank - 1) * 20)
+
     elite_count = sum(1 for term in ELITE_TEAM_TERMS if term in combined)
     if elite_count >= 2:
         points += 24
@@ -1833,7 +1843,7 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
     for event in future[:14]:
         if has_two_team_logos(event, allow_remote=True):
             chosen.append(event)
-        if len(chosen) >= 5:
+        if len(chosen) >= 4:
             break
     if not chosen:
         return None
@@ -2762,6 +2772,10 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
                     state.save(now)
                 print("SCORE_UPDATE_EN_ATTENTE", item.key)
                 return False
+        if ref and not followup.publication_allowed(state.followed, ref, item.category):
+            counter["skipped"] += 1
+            print("FOLLOWUP_SEQUENCE_BLOCKED", ref, item.category)
+            return False
         if not espn_preflight(sender, item, dry_run=dry_run):
             counter["skipped"] += 1
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
@@ -2796,6 +2810,8 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
                         "goal_score_guard",
                         now,
                     )
+            if ref:
+                followup.mark_publication(state.followed, ref, item.category, now)
             if item.category in {"composition", "changement_composition"} and ref in state.followed and item.card:
                 lineups = item.card.get("lineups") if isinstance(item.card.get("lineups"), dict) else {}
                 state.followed[ref]["lineup_home_hash"] = str(item.card.get("lineup_home_hash") or "")
@@ -3010,6 +3026,18 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         if follow_event is not None and not existing_ref and not followup.selection_allowed(state.followed, now):
             return False
 
+        coverage_ref = ref or existing_ref or ""
+        if coverage_ref and not followup.publication_allowed(state.followed, coverage_ref, item.category):
+            counter["skipped"] += 1
+            print("FOLLOWUP_SEQUENCE_BLOCKED", coverage_ref, item.category)
+            return False
+        if item.category == "avant_match" and follow_event is not None:
+            plan = state.plan_for_event(follow_event, now)
+            if plan is None:
+                counter["skipped"] += 1
+                print("FOLLOWUP_NOT_IN_DAILY_PLAN", item.key)
+                return False
+
         if not espn_preflight(sender, item, dry_run=dry_run):
             counter["skipped"] += 1
             print("PUBLICATION_BLOQUEE_ESPN", item.category, item.key)
@@ -3045,11 +3073,20 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                         "goal_score_guard",
                         now,
                     )
+            if item.category == "programme":
+                planned_count = state.set_programme_plan(item, now)
+                print("DAILY_FOLLOW_PLAN_SAVED", planned_count)
             if follow_event is not None and not existing_ref:
                 ref_added = followup.follow(state.followed, follow_event, now)
+                followup.apply_plan_metadata(state.followed, ref_added, state.plan_for_event(follow_event, now))
+                followup.mark_publication(state.followed, ref_added, item.category, now)
                 print("FOLLOWUP_SELECTED", ref_added)
             elif follow_event is not None and existing_ref:
                 followup.lock(state.followed, existing_ref, now, reason="avant_match")
+                followup.apply_plan_metadata(state.followed, existing_ref, state.plan_for_event(follow_event, now))
+                followup.mark_publication(state.followed, existing_ref, item.category, now)
+            if ref:
+                followup.mark_publication(state.followed, ref, item.category, now)
             if item.category in {"composition", "changement_composition"} and ref in state.followed and item.card:
                 lineups = item.card.get("lineups") if isinstance(item.card.get("lineups"), dict) else {}
                 state.followed[ref]["lineup_home_hash"] = str(item.card.get("lineup_home_hash") or "")
