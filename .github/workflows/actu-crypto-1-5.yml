@@ -43,7 +43,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install minimal free dependencies
-        run: pip install 'requests>=2.31,<3'
+        run: pip install 'requests>=2.31,<3' 'Pillow>=10,<12'
       - name: Resolve mode
         id: mode
         env:
@@ -74,13 +74,14 @@ jobs:
           TELEGRAM_ACTU_FOOT_BOT_TOKEN: ${{ secrets.TELEGRAM_ACTU_FOOT_BOT_TOKEN }}
           ACTU_FOOT_BOT_TOKEN: ${{ secrets.ACTU_FOOT_BOT_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
           ACTU_CRYPTO_CHAT_ID: ${{ secrets.ACTU_CRYPTO_CHAT_ID }}
           COINGECKO_DEMO_API_KEY: ${{ secrets.COINGECKO_DEMO_API_KEY }}
           RUN_MODE: ${{ steps.mode.outputs.mode }}
           DRY_RUN: ${{ steps.mode.outputs.dry }}
         run: |
           if [ "$DRY_RUN" = "true" ]; then
-            python crypto/publish_crypto_1_5.py --mode "$RUN_MODE" --dry-run
+            python -m crypto.publish_crypto_1_5 --mode "$RUN_MODE" --dry-run
           else
             python crypto/publish_crypto_1_5.py --mode "$RUN_MODE"
           fi
