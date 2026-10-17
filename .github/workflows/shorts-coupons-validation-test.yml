@@ -46,6 +46,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install "numpy<2" "pillow<12" requests "moviepy==1.0.3"
 
+      - name: Static syntax check
+        run: |
+          python -m py_compile scripts/shorts_video_fx.py
+          python -m py_compile scripts/create_short_from_telegram_coupons.py
+          python -m py_compile scripts/create_validation_shorts_from_telegram.py
+
       - name: Build corrected prediction video
         run: |
           python scripts/create_short_from_telegram_coupons.py \
