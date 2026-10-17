@@ -54,6 +54,10 @@ class TVSeriesTests(unittest.TestCase):
         result=classify(messages,-100111)
         self.assertEqual([(r["season"],r["episode"]) for r in result],[(1,1),(3,1)])
 
+    def test_title_drops_source_signature(self):
+        self.assertEqual(series_title("Little House on the Prairie 2026 @serie et film"),
+                         "Little House on the Prairie 2026")
+
     def test_not_classify_movie_as_episode(self):
         self.assertFalse(looks_like_tv_episode("Le Film - 2026", "Le_Film.mp4"))
         self.assertTrue(looks_like_tv_episode("House of the Dragon", "S02E05.mkv"))
