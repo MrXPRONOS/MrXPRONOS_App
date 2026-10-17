@@ -39,7 +39,13 @@ class PromoTests(unittest.TestCase):
     def test_original_png_unchanged(self):
         with TemporaryDirectory() as folder:
             make_png_fixtures(folder)
-            with patch.dict(os.environ, {"CINEX_PROMO_ASSETS_DIR": folder}):
+            import hashlib
+            hashes = {
+                key: hashlib.sha256((Path(folder) / f"mrx_{key}.png").read_bytes()).hexdigest()
+                for key in ("actu", "live", "jour")
+            }
+            with patch.dict(os.environ, {"CINEX_PROMO_ASSETS_DIR": folder}), \
+                 patch("film_relay.promotions.ORIGINAL_SHA256", hashes):
                 for index in range(3):
                     stream = render_poster(index)
                     path = poster_path(index)
