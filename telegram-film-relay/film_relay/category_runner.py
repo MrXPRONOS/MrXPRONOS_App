@@ -22,6 +22,7 @@ from .publication import rich_caption, rich_video_title
 from .recovery import snapshot_telegram_posts
 from .runner import resolve_peer
 from .text import private_message_link
+from .source_channels import source_list
 
 LOG = logging.getLogger("cinex_categories")
 CATEGORIES = {
@@ -39,7 +40,19 @@ def category_config(category: str, env: dict | None = None) -> dict:
     env = os.environ if env is None else env
     category_info = CATEGORIES[category]
     prefix = category_info["prefix"]
-    source = (env.get(prefix + "_SOURCE_CHANNEL") or "").strip()
+    default_sources = {
+        "comedie": ("@comexflex", "@filmcomplets"),
+        "anime": ("@orak_dessinanime",),
+    }
+    # Backward compatible: existing singular variable + additional bulk list.
+    # Explicitly user-authorized baseline sources are always available.
+    sources = source_list(
+        *(default_sources.get(category, ())),
+        env.get(prefix + "_SOURCE_CHANNEL", ""),
+        env.get(prefix + "_SOURCE_CHANNELS", ""),
+        max_sources=12,
+    )
+    source = sources[0] if sources else ""
     public = (env.get(prefix + "_PUBLIC_CHANNEL") or "").strip()
     private = (env.get(prefix + "_PRIVATE_CHANNEL") or "").strip()
     mirror = (env.get(prefix + "_MIRROR_CHANNEL") or "@Torrent9SeriesFilms").strip()
@@ -50,12 +63,13 @@ def category_config(category: str, env: dict | None = None) -> dict:
         raise ValueError(f"{prefix}_PRIVATE_CHANNEL : identifiant Telegram -100... requis.")
     if mirror.casefold() != "@torrent9seriesfilms":
         raise ValueError("Le transfert natif doit viser @Torrent9SeriesFilms.")
-    if source.casefold() == public.casefold():
+    if any(item.casefold() == public.casefold() for item in sources):
         raise ValueError("Source et canal public doivent être distincts.")
     return {
         **category_info,
         "category": category,
         "source": source,
+        "sources": sources,
         "public": public,
         "private": private,
         "mirror": mirror,
@@ -166,26 +180,61 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
         source, private, public, bot_public, mirror, mirror_key = await preflight(
             client, bot, cfg
         )
+        # Verify each extra source's Telegram identity; no automatic joins.
+        source_peers = [source]
+        for extra_name in cfg["sources"][1:]:
+            try:
+                extra = await resolve_peer(client, extra_name)
+                if (str(getattr(extra, "username", "") or "").casefold()
+                        != extra_name.lstrip("@").casefold()):
+                    raise ValueError("Identifiant source incohérent.")
+                if getattr(extra, "noforwards", False):
+                    LOG.warning("Source %s protégée, ignorée.", extra_name)
+                    continue
+                extra_id = utils.get_peer_id(extra)
+                if extra_id in {
+                    utils.get_peer_id(private), utils.get_peer_id(public), utils.get_peer_id(source)
+                }:
+                    raise RuntimeError("Une source ne peut être une destination.")
+                source_peers.append(extra)
+                await asyncio.sleep(4)
+            except (FloodWaitError, PeerFloodError):
+                raise
+            except Exception as exc:
+                LOG.warning("Source complémentaire %s indisponible : %s", extra_name, exc)
         if publish:
             # Existing public posts missing from Torrent9 take priority; never
             # send a private video again merely because a forward failed.
             await finish_mirrors(client, state, mirror, mirror_key, public, limit=5)
-        messages = [m async for m in client.iter_messages(source, limit=160)]
-        items = pair_items(messages)
-        def order(item):
-            ts = getattr(item.video, "date", None)
+        # Global cap of two across all sources, ordered by message timestamp.
+        records = []
+        messages_read = 0
+        for peer in source_peers:
+            try:
+                messages = [m async for m in client.iter_messages(peer, limit=160)]
+            except (FloodWaitError, PeerFloodError):
+                raise
+            except Exception as exc:
+                LOG.warning("Lecture de la source @%s impossible : %s",
+                            getattr(peer, "username", "?"), exc)
+                continue
+            messages_read += len(messages)
+            peer_id = utils.get_peer_id(peer)
+            records.extend((peer_id, item) for item in pair_items(messages))
+            await asyncio.sleep(4)
+        def order(record):
+            ts = getattr(record[1].video, "date", None)
             if not isinstance(ts, datetime):
-                return float(getattr(item.video, "id", 0))
+                return 0.0
             if ts.tzinfo is None:
                 ts = ts.replace(tzinfo=timezone.utc)
             return ts.timestamp()
-        items.sort(key=order, reverse=True)
-        LOG.info("%s : %s messages examinés, %s vidéos candidates, mode=%s",
-                 cfg["label"], len(messages), len(items),
+        records.sort(key=order, reverse=True)
+        LOG.info("%s : %s sources, %s messages examinés, %s vidéos candidates, mode=%s",
+                 cfg["label"], len(source_peers), messages_read, len(records),
                  "PUBLICATION" if publish else "SIMULATION")
-        source_id = utils.get_peer_id(source)
         private_id = utils.get_peer_id(private)
-        for item in items:
+        for source_id, item in records:
             key = item_key(source_id, item)
             if key in state.data["completed"]:
                 continue

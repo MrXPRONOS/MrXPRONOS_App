@@ -17,6 +17,7 @@ from .desir_matching import pair_items, film_title, item_key
 from .matching import document_key
 from .runner import resolve_peer
 from .text import private_message_link
+from .source_channels import source_list
 from .publication import (rich_caption, rich_video_title, url_button_rows,
                           film_folder_url, send_public_poster_with_buttons)
 from .recovery import snapshot_telegram_posts, existing_native_forwards
@@ -251,6 +252,11 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
     mirror_name = required("DESIR_MIRROR_CHANNEL", "@Torrent9SeriesFilms")
     verify_destination(source, public, private)
     verify_destination(extra_source, public, private)
+    # Continue honoring the two historic variables, plus a single extensible
+    # DESIR_SOURCE_CHANNELS list added later by the owner.
+    sources = source_list(source, extra_source, os.getenv("DESIR_SOURCE_CHANNELS", ""))
+    if any(name.casefold() == public.casefold() for name in sources):
+        raise RuntimeError("Un canal source ne peut pas être le canal public Désir.")
     if mirror_name.casefold() != "@torrent9seriesfilms":
         raise RuntimeError("DESIR_MIRROR_CHANNEL doit être @Torrent9SeriesFilms.")
     credentials = (required("TG_API_ID"), required("TG_API_HASH"),
@@ -265,27 +271,29 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
         await client.connect()
         src, library, public_user = await preflight_user(client, source, private, public)
         source_peers = [src]
-        if extra_source.casefold() != source.casefold():
-            # Keep the working original source if the new public channel
-            # cannot yet be read; never join or bypass a protected source.
+        for extra_name in sources[1:]:
+            # User-added sources from the bulk variable must be public,
+            # readable and unprotected; never join a channel automatically.
             try:
-                second = await resolve_peer(client, extra_source)
+                second = await resolve_peer(client, extra_name)
                 if (str(getattr(second, "username", "") or "").casefold()
-                        != extra_source.lstrip("@").casefold()):
-                    raise ValueError("Identifiant de la deuxième source incohérent.")
+                        != extra_name.lstrip("@").casefold()):
+                    raise ValueError("Identifiant de la source complémentaire incohérent.")
                 if getattr(second, "noforwards", False):
-                    LOG.warning("Nouvelle source %s protégée : ignorée.", extra_source)
-                elif utils.get_peer_id(second) in {
-                    utils.get_peer_id(src), utils.get_peer_id(library), utils.get_peer_id(public_user)
+                    LOG.warning("Source %s protégée : ignorée.", extra_name)
+                    continue
+                if utils.get_peer_id(second) in {
+                    utils.get_peer_id(src), utils.get_peer_id(library),
+                    utils.get_peer_id(public_user),
                 }:
-                    raise RuntimeError("La deuxième source ne doit pas être une destination.")
-                else:
-                    source_peers.append(second)
-                    LOG.info("CinéX Désir : deuxième source activée : %s", extra_source)
+                    raise RuntimeError("La source complémentaire ne doit pas être une destination.")
+                source_peers.append(second)
+                LOG.info("CinéX Désir : source complémentaire utilisable : %s", extra_name)
+                await asyncio.sleep(4)
             except (FloodWaitError, PeerFloodError):
                 raise
             except Exception as exc:
-                LOG.warning("Deuxième source %s indisponible : %s", extra_source, exc)
+                LOG.warning("Source complémentaire %s indisponible : %s", extra_name, exc)
         mirror_peer, mirror_key = (None, "")
         bot_public = None
         if publish:
