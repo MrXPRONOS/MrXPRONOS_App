@@ -33,6 +33,7 @@ from bsd.bsd_v2_card import render as render_telegram_coupon
 from bsd.bsd_v2_estimated_odds import valid_standalone_prediction
 from bsd.bsd_v2_telegram_banner import attach_banner
 from bsd.bsd_v2_telegram import partner_pack
+from shorts_video_fx import LOOP_TAIL_SECONDS, card_zoom, scene_duration, synthesize_soundtrack
 
 UTC = timezone.utc
 W, H = 1080, 1920
@@ -256,83 +257,101 @@ def _make_card_shadow(card_width: int, card_height: int, out: Path):
 
 
 def _overlay_png(index: int, total: int, out: Path):
-    """CTA + tiny progress cue only; coupon artwork itself remains untouched."""
+    """Minimal safe-zone UI; Telegram coupon artwork remains untouched."""
     canvas = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     draw = ImageDraw.Draw(canvas)
 
-    # Lightweight brand header. It lives outside the Telegram coupon.
+    # Brand header kept away from the right-side social UI column.
     if HEADER_LOGO.is_file():
         try:
             logo = Image.open(HEADER_LOGO).convert("RGBA")
-            logo.thumbnail((175, 58), Image.Resampling.LANCZOS)
-            canvas.alpha_composite(logo, (48, 24))
+            logo.thumbnail((160, 54), Image.Resampling.LANCZOS)
+            canvas.alpha_composite(logo, (48, 26))
         except Exception:
             pass
     title = "PRONOS DU JOUR"
-    hf = _font(27, True)
+    hf = _font(26, True)
     hb = draw.textbbox((0, 0), title, font=hf)
-    draw.text((W - 48 - (hb[2] - hb[0]), 36), title, font=hf, fill=(238, 244, 251, 235))
+    safe_right = 900
+    draw.text((safe_right - (hb[2] - hb[0]), 38), title, font=hf, fill=(244, 249, 255, 245))
 
-    # Readable position counter, independent from the coupon artwork.
+    # Counter + one progress system only: old dots/hint were deliberately removed.
     counter = f"{index + 1:02d} / {total:02d}"
     cf = _font(28, True)
-    draw.text((92, 1320), counter, font=cf, fill=(242, 247, 252, 245))
+    draw.text((92, 1315), counter, font=cf, fill=(248, 251, 255, 255))
     progress_ratio = (index + 1) / max(total, 1)
-    bar_x1, bar_y1, bar_x2, bar_y2 = 285, 1336, 988, 1346
+    bar_x1, bar_y1, bar_x2, bar_y2 = 285, 1331, 900, 1341
     draw.rounded_rectangle((bar_x1, bar_y1, bar_x2, bar_y2), radius=5, fill=(255, 255, 255, 48))
     fill_x = bar_x1 + int((bar_x2 - bar_x1) * progress_ratio)
-    draw.rounded_rectangle((bar_x1, bar_y1, fill_x, bar_y2), radius=5, fill=(76, 163, 255, 235))
+    draw.rounded_rectangle((bar_x1, bar_y1, fill_x, bar_y2), radius=5, fill=(76, 174, 255, 245))
 
-    # CTA stays above the bottom UI zones used by TikTok/Reels/Shorts.
-    draw.rounded_rectangle((92, 1395, 988, 1535), radius=36, fill=(5, 18, 31, 230),
-                           outline=(255, 255, 255, 34), width=2)
-    title = "REJOINS-NOUS SUR TELEGRAM"
-    sub = "Plus de pronostics sur @mr_xpronos"
-    tf = _font(34, True)
-    sf = _font(25, False)
-    tw = draw.textbbox((0, 0), title, font=tf)[2]
-    sw = draw.textbbox((0, 0), sub, font=sf)[2]
-    draw.text(((W - tw) / 2, 1426), title, font=tf, fill=(255, 255, 255, 255))
-    draw.text(((W - sw) / 2, 1478), sub, font=sf, fill=(186, 207, 224, 255))
-
-    # Small visual cue that more coupons follow, also kept inside the safe zone.
-    y = 1635
-    if total > 1:
-        hint = "D’AUTRES PRONOSTICS SUIVENT  ›"
-        hf = _font(23, True)
-        hw = draw.textbbox((0, 0), hint, font=hf)[2]
-        draw.text(((W - hw) / 2, y - 48), hint, font=hf, fill=(198, 213, 225, 235))
-
-    gap = 24
-    radius = 8
-    total_width = total * radius * 2 + (total - 1) * gap
-    x = (W - total_width) / 2
-    for i in range(total):
-        fill = (255, 255, 255, 255) if i == index else (255, 255, 255, 85)
-        draw.ellipse((x, y, x + radius * 2, y + radius * 2), fill=fill)
-        x += radius * 2 + gap
+    # Minimal Telegram CTA: no large box, safely above bottom platform controls.
+    draw.line((92, 1390, 900, 1390), fill=(255, 255, 255, 38), width=2)
+    icon_x, icon_y, icon_r = 92, 1422, 25
+    draw.ellipse((icon_x, icon_y, icon_x + icon_r * 2, icon_y + icon_r * 2),
+                 fill=(48, 163, 255, 230))
+    draw.polygon(
+        [(icon_x + 13, icon_y + 24), (icon_x + 39, icon_y + 13), (icon_x + 29, icon_y + 38)],
+        fill=(255, 255, 255, 255),
+    )
+    draw.text((158, 1413), "PLUS DE PRONOSTICS", font=_font(22, False),
+              fill=(193, 210, 226, 245))
+    draw.text((158, 1444), "@mr_xpronos", font=_font(31, True),
+              fill=(247, 251, 255, 255))
 
     canvas.save(out)
 
 
+def _card_position(t: float, duration: float, width: int, height: int, y: int):
+    zoom = card_zoom(t, duration)
+    x = _eased_x(t, duration, width) - int((width * zoom - width) / 2)
+    yy = y - int((height * zoom - height) / 2)
+    return x, yy
+
+
+def _shadow_position(t: float, duration: float, card_width: int, card_height: int, pad: int, y: int):
+    zoom = card_zoom(t, duration)
+    sw = card_width + 2 * pad
+    sh = card_height + 2 * pad
+    x = _eased_x(t, duration, card_width) - pad - int((sw * zoom - sw) / 2)
+    yy = y - pad - int((sh * zoom - sh) / 2)
+    return x, yy
+
+
+def _animated_background(ImageClip, duration: float, *, results: bool = False):
+    """Slow parallax movement over the premium background."""
+    bg_w = 1120
+    bg_h = int(round(H * bg_w / W))
+    clip = ImageClip(str(VIDEO_BACKGROUND)).resize(newsize=(bg_w, bg_h)).set_duration(duration)
+    phase = 0.7 if results else 0.0
+    return clip.set_position(
+        lambda t: (
+            int((W - bg_w) / 2 + 8 * math.sin((t + phase) * 0.55)),
+            int((H - bg_h) / 2 + 6 * math.cos((t + phase) * 0.42)),
+        )
+    )
+
+
 def build_video(cards, output: Path, work_dir: Path):
-    # Pillow >= 10 compatibility for MoviePy 1.x resize internals, although the
-    # coupon images themselves are never resized here.
     if not hasattr(Image, "ANTIALIAS"):
         Image.ANTIALIAS = Image.Resampling.LANCZOS
 
-    from moviepy.editor import CompositeVideoClip, ImageClip, concatenate_videoclips
+    from moviepy.editor import AudioFileClip, CompositeVideoClip, ImageClip, concatenate_videoclips
 
     total = len(cards)
     if not total:
         raise RuntimeError("Aucune carte à monter")
+    if not VIDEO_BACKGROUND.is_file():
+        raise RuntimeError(f"Fond vidéo introuvable: {VIDEO_BACKGROUND}")
 
-    per_card = 3.0 if total <= 2 else 2.6
+    durations = [scene_duration(total, idx) for idx in range(total)]
     coupon_y = 105
     target_width = 940
     scenes = []
+    last_overlay_path = None
 
     for idx, card_path in enumerate(cards):
+        duration = durations[idx]
         with Image.open(card_path) as image:
             source_w, source_h = image.size
         card_width, card_height = _fit_card_size(source_w, source_h, max_w=target_width, max_h=1210)
@@ -341,58 +360,74 @@ def build_video(cards, output: Path, work_dir: Path):
 
         overlay_path = work_dir / f"overlay_{idx+1:02d}.png"
         _overlay_png(idx, total, overlay_path)
+        last_overlay_path = overlay_path
         shadow_path = work_dir / f"shadow_{idx+1:02d}.png"
         shadow_pad = _make_card_shadow(card_width, card_height, shadow_path)
 
-        if not VIDEO_BACKGROUND.is_file():
-            raise RuntimeError(f"Fond vidéo introuvable: {VIDEO_BACKGROUND}")
-        background = (ImageClip(str(VIDEO_BACKGROUND))
-                      .resize(newsize=(W, H))
-                      .set_duration(per_card))
+        background = _animated_background(ImageClip, duration)
         shadow = (
             ImageClip(str(shadow_path), transparent=True)
-            .set_duration(per_card)
+            .resize(lambda t, d=duration: card_zoom(t, d))
+            .set_duration(duration)
             .set_position(
-                lambda t, d=per_card, cw=card_width, p=shadow_pad:
-                    (_eased_x(t, d, cw) - p, coupon_y - p)
+                lambda t, d=duration, cw=card_width, ch=card_height, p=shadow_pad:
+                    _shadow_position(t, d, cw, ch, p, coupon_y)
             )
         )
         coupon = (
             ImageClip(str(card_path))
             .resize(width=card_width)
-            .set_duration(per_card)
-            .set_position(lambda t, d=per_card, cw=card_width: (_eased_x(t, d, cw), coupon_y))
+            .resize(lambda t, d=duration: card_zoom(t, d))
+            .set_duration(duration)
+            .set_position(
+                lambda t, d=duration, cw=card_width, ch=card_height:
+                    _card_position(t, d, cw, ch, coupon_y)
+            )
         )
+
+        # Decorative next-card sliver; no critical information is placed in the right UI zone.
         next_preview = None
         if idx + 1 < total:
             next_path = cards[idx + 1]
             with Image.open(next_path) as next_image:
-                next_w, next_h = _fit_card_size(next_image.width, next_image.height, max_w=target_width, max_h=1210)
+                next_w, _ = _fit_card_size(next_image.width, next_image.height,
+                                           max_w=target_width, max_h=1210)
             preview_w = int(round(next_w * 0.94))
             next_preview = (
                 ImageClip(str(next_path))
                 .resize(width=preview_w)
-                .set_opacity(0.58)
-                .set_duration(per_card)
-                .set_position((W - 68, coupon_y + 42))
+                .set_opacity(0.50)
+                .set_duration(duration)
+                .set_position((W - 62, coupon_y + 44))
             )
 
-        overlay = ImageClip(str(overlay_path), transparent=True).set_duration(per_card)
+        overlay = ImageClip(str(overlay_path), transparent=True).set_duration(duration)
         layers = [background, shadow, coupon]
         if next_preview is not None:
             layers.append(next_preview)
         layers.append(overlay)
-        scene = CompositeVideoClip(layers, size=(W, H)).set_duration(per_card)
-        scenes.append(scene)
+        scenes.append(CompositeVideoClip(layers, size=(W, H)).set_duration(duration))
 
-    # Cards follow each other directly; no intro and no outro.
+    # A tiny background-only tail makes the automatic social-media loop feel intentional.
+    tail_bg = _animated_background(ImageClip, LOOP_TAIL_SECONDS)
+    tail_overlay = ImageClip(str(last_overlay_path), transparent=True).set_duration(LOOP_TAIL_SECONDS)
+    scenes.append(CompositeVideoClip([tail_bg, tail_overlay], size=(W, H))
+                  .set_duration(LOOP_TAIL_SECONDS))
+
     final = concatenate_videoclips(scenes, method="compose")
+
+    # Locally generated ambience + whoosh + landing impacts; no external audio/license.
+    soundtrack_path = work_dir / "soundtrack.wav"
+    synthesize_soundtrack(durations, soundtrack_path, results=False)
+    audio = AudioFileClip(str(soundtrack_path)).set_duration(final.duration)
+    final = final.set_audio(audio)
+
     output.parent.mkdir(parents=True, exist_ok=True)
     final.write_videofile(
         str(output),
         fps=30,
         codec="libx264",
-        audio=False,
+        audio_codec="aac",
         preset="medium",
         bitrate="5000k",
         threads=4,
@@ -401,6 +436,7 @@ def build_video(cards, output: Path, work_dir: Path):
         logger="bar",
     )
     try:
+        audio.close()
         final.close()
     except Exception:
         pass
