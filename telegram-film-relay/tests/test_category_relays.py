@@ -30,6 +30,57 @@ class CategoryRelayTests(unittest.TestCase):
                         prefix + "_PUBLIC_CHANNEL": "@CineXTestfr",
                     })
 
+    def test_config_merges_old_and_new_sources_without_duplicates(self):
+        com = category_config("comedie", {
+            "COMEDIE_SOURCE_CHANNEL": "@comexflex",
+            "COMEDIE_SOURCE_CHANNELS": "@filmcomplets, @autre_comedie",
+            "COMEDIE_PUBLIC_CHANNEL": "@CineXComediefr",
+            "COMEDIE_PRIVATE_CHANNEL": "-1001234567890",
+        })
+        self.assertEqual(com["sources"],
+                         ["@comexflex", "@filmcomplets", "@autre_comedie"])
+        ani = category_config("anime", {
+            "ANIME_SOURCE_CHANNELS": "@orak_dessinanime;@AnimeExtra_1",
+            "ANIME_PUBLIC_CHANNEL": "@CineXAnimeFR",
+            "ANIME_PRIVATE_CHANNEL": "-1001234567890",
+        })
+        self.assertEqual(ani["sources"], ["@orak_dessinanime", "@AnimeExtra_1"])
+
+    def test_source_list_with_spaces_newlines_and_json(self):
+        from film_relay.source_channels import source_list
+        self.assertEqual(source_list("@comexflex @filmcomplets;@Comexflex"),
+                         ["@comexflex", "@filmcomplets"])
+        self.assertEqual(source_list('["@comexflex", "@filmcomplets"]'),
+                         ["@comexflex", "@filmcomplets"])
+        self.assertEqual(source_list("@first_source\\n@second_source".replace("\\n", "\n")),
+                         ["@first_source", "@second_source"])
+        with self.assertRaises(ValueError):
+            source_list("@invalid!")
+
+    def test_classic_source_variables_are_authorized_owner_additions(self):
+        import json
+        from film_relay.runner import config_from
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as folder:
+            path = Path(folder) / "sources.json"
+            path.write_text(json.dumps({
+                "sources": [{"channel": "@pleziyisliye1", "redistribution_authorized": True}],
+                "private_channel": "-1009876543210",
+                "public_channel": "@CineXFilms",
+            }))
+            with patch.dict("os.environ", {
+                "CINEX_SOURCE_CHANNELS": "@NewChannel_1, @NewChannel_2",
+                "FILM_SOURCE_CHANNELS": "@NewChannel_1",
+                "SERIES_SOURCE_CHANNELS": "@SeriesSource_1",
+            }, clear=False):
+                config = config_from(str(path))
+            names = [row["channel"] for row in config["sources"]]
+            self.assertEqual(names,
+                             ["@pleziyisliye1", "@NewChannel_1", "@NewChannel_2",
+                              "@SeriesSource_1"])
+            self.assertTrue(all(row["redistribution_authorized"]
+                                for row in config["sources"]))
+
     def test_two_projects_have_unique_receipts_and_default_mirror(self):
         configs = []
         for category in CATEGORIES:
