@@ -188,7 +188,8 @@ async def execute() -> int:
     state = State(os.getenv("STATE_PATH", "state/state.json"))
     recovery_cache = None
     seen_count = published_count = proposed_count = failed_count = 0
-    max_posts = min(10, max(1, int(os.getenv("FILM_MAX_POSTS_PER_RUN", cfg.get("max_posts_per_run", 5)))))
+    # Hard safety cap: at most TWO completed films across all sources in one run.
+    max_posts = min(2, max(1, int(os.getenv("FILM_MAX_POSTS_PER_RUN", cfg.get("max_posts_per_run", 2)))))
     pause_seconds = max(3.0, float(cfg.get("publication_pause_seconds", 5)))
     client = TelegramClient(StringSession(credentials[2]), int(credentials[0]), credentials[1],
                             request_retries=1, connection_retries=2, flood_sleep_threshold=0)
