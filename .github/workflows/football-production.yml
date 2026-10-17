@@ -28,6 +28,7 @@ on:
       - 'assets/images/template_compositions_officielles.webp'
       - 'assets/images/generic_football_banners/**'
       - '.github/workflows/football-production.yml'
+      - 'assets/data/actufoot_programme_relaunch.txt'
   workflow_dispatch:
     inputs:
       trigger_source:
@@ -124,13 +125,19 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           TRIGGER_SOURCE: ${{ inputs.trigger_source || '' }}
           MANUAL_DESTINATION: ${{ inputs.destination || 'test' }}
+          HEAD_MESSAGE: ${{ github.event.head_commit.message || '' }}
         run: |
           set -euo pipefail
           DESTINATION="$MANUAL_DESTINATION"
 
           # Les vrais schedulers conservent toujours le canal de production.
+          # Un push portant explicitement le préfixe programme-relaunch est le
+          # seul push autorisé à publier en production, et uniquement le programme.
           if [ "$EVENT_NAME" = "workflow_dispatch" ] && { [ "$TRIGGER_SOURCE" = "cron-job.org" ] || [ "$TRIGGER_SOURCE" = "cron-job.org-lifecycle" ]; }; then
             DESTINATION="production"
+          elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_MESSAGE" == ops(actu-foot): relaunch Matchs du jour now* ]]; then
+            DESTINATION="production"
+            echo "FOOTBALL_PROGRAMME_RELAUNCH_ONLY=1" >> "$GITHUB_ENV"
           elif [ "$EVENT_NAME" = "push" ]; then
             DESTINATION="dry-run"
           fi
@@ -238,6 +245,7 @@ jobs:
           MANUAL_FORCE: ${{ inputs.force || 'false' }}
           TRIGGER_SOURCE: ${{ inputs.trigger_source || '' }}
           ROUTED_DESTINATION: ${{ steps.telegram_route.outputs.destination }}
+          HEAD_MESSAGE: ${{ github.event.head_commit.message || '' }}
         run: |
           set -euo pipefail
           ARGS=()
@@ -250,7 +258,9 @@ jobs:
             CRON_PRODUCTION="true"
           fi
 
-          if [ "$EVENT_NAME" = "push" ] || [ "$ROUTED_DESTINATION" = "dry-run" ]; then
+          if [ "$ROUTED_DESTINATION" = "dry-run" ]; then
+            ARGS+=(--dry-run)
+          elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_MESSAGE" != ops(actu-foot): relaunch Matchs du jour now* ]]; then
             ARGS+=(--dry-run)
           elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_DRY_RUN" = "true" ] && [ "$CRON_PRODUCTION" != "true" ]; then
             ARGS+=(--dry-run)
