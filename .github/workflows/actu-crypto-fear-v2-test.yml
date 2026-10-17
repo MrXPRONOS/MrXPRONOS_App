@@ -63,5 +63,5 @@ jobs:
           if-no-files-found: error
           retention-days: 14
       - name: Send ONLY the REAL visual to verified @predict_mrxp (manual test only)
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[fear-visual-test]'))
         run: python -m crypto.send_crypto_fear_v2_test
