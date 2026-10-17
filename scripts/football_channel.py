@@ -3303,6 +3303,8 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                 and not state.seen("programme_relaunch:" + programme_relaunch_token)):
             try:
                 relaunch_post = programme(get_day(today), today, as_of=now)
+                if relaunch_post is not None:
+                    relaunch_post.key = "programme-relaunch:" + programme_relaunch_token
                 if relaunch_post is not None and publish(relaunch_post, replay=True):
                     state.mark(
                         "programme_relaunch:" + programme_relaunch_token,
