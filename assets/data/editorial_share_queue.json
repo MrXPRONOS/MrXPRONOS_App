@@ -1,5 +1,115 @@
 [
   {
+    "id": "b31d18e39ab7732a62bcb638",
+    "kind": "article",
+    "title": "Tout Puissant Mazembe vs Club Africain : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-603727/",
+    "source_date": "2026-10-18T05:41:51.669224+00:00",
+    "visual_variant": "v1",
+    "image": "assets/images/editorial/match-bsd-match-603727-a032169d-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-603727-a032169d-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-18T05:41:52.082224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-603727-a032169d-social.jpg"
+  },
+  {
+    "id": "41f125bd4079ea2c357524b4",
+    "kind": "article",
+    "title": "Leeds United vs Manchester United : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-209600/",
+    "source_date": "2026-10-18T05:41:51.669224+00:00",
+    "visual_variant": "v2",
+    "image": "assets/images/editorial/match-bsd-match-209600-e76095b4-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-209600-e76095b4-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-18T05:41:52.082224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-209600-e76095b4-social.jpg"
+  },
+  {
+    "id": "4e923e7befad4f5ae18d42de",
+    "kind": "article",
+    "title": "Club Atlético Belgrano vs River Plate : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-223816/",
+    "source_date": "2026-10-18T05:41:51.669224+00:00",
+    "visual_variant": "v2",
+    "image": "assets/images/editorial/match-bsd-match-223816-6cce8ec6-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-223816-6cce8ec6-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-18T05:41:52.082224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-223816-6cce8ec6-social.jpg"
+  },
+  {
+    "id": "499dd57fca3fd83c53f06419",
+    "kind": "article",
+    "title": "Real Sociedad vs Fútbol Club Barcelona : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-215282/",
+    "source_date": "2026-10-18T05:41:51.669224+00:00",
+    "visual_variant": "v2",
+    "image": "assets/images/editorial/match-bsd-match-215282-490b21d3-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-215282-490b21d3-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-18T05:41:52.082224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-215282-490b21d3-social.jpg"
+  },
+  {
+    "id": "611fa62b61595dcdbdb78fb8",
+    "kind": "article",
+    "title": "Inter Lagos FC vs Nasarawa United : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-604582/",
+    "source_date": "2026-10-18T05:41:51.669224+00:00",
+    "visual_variant": "v2",
+    "image": "assets/images/editorial/match-bsd-match-604582-6c34a610-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-604582-6c34a610-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-18T05:41:52.082224+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-604582-6c34a610-social.jpg"
+  },
+  {
     "id": "36555f57149fa0242793fec3",
     "kind": "article",
     "title": "Ilves vs SJK : fiche match BSD V2",
@@ -8027,7 +8137,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "88b7550b5a00d9b0f427d36a",
@@ -8048,7 +8158,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "359f115d059626e5af63350b",
@@ -8069,7 +8179,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "108ef129c32e999689e1b8fb",
@@ -8090,7 +8200,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8b4f5c0fd945f8a891d688f2",
@@ -8111,7 +8221,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4280d18e1333175a7dd84f60",
