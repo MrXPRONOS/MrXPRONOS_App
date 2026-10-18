@@ -3,12 +3,27 @@
 ## Sujet
 Informations pertinentes sur **Binance, Coinbase, OKX, Kraken, Bybit, Bitget, KuCoin et Gemini**. Les articles sont attribués à leurs auteurs; leurs titres originaux (anglais) ne sont pas traduits sans vérification. Les nouvelles régionales ne sont pas présumées disponibles au Togo.
 
-## Sources gratuites exploitées
+## Sources gratuites exploitées (8 RSS + 2 API officielles)
+
+**8 médias RSS, sans clé ni abonnement** (catalogue `crypto/news_sources_v2.py`) :
 - CoinDesk — https://www.coindesk.com/arc/outboundfeeds/rss/?outputType=xml
 - Cointelegraph — https://cointelegraph.com/rss
 - The Block — https://www.theblock.co/rss.xml
+- Decrypt — https://decrypt.co/feed
+- Blockworks — https://blockworks.co/feed
+- BeInCrypto — https://beincrypto.com/feed/
+- Bitcoin Magazine — https://bitcoinmagazine.com/feed
+- NewsBTC — https://www.newsbtc.com/feed/
 
-Ces flux sont des **médias** (pas des communiqués officiels des exchanges). Une seule source permet un aperçu marqué "information rapportée" pour les annonces courantes; **piratage, violation de sécurité, interruption majeure de service et détournement de fonds** exigent la concordance de deux médias indépendants. Le rapprochement automatisé de titres ne remplace pas la vérification manuelle du contenu.
+**2 API officielles gratuites, sans clé** :
+- Coinbase Status, incidents : https://status.coinbase.com/api/v2/incidents.json
+- Kraken Status, incidents : https://status.kraken.com/api/v2/incidents.json
+
+Les API officielles ne fournissent **que des incidents de fonctionnement déclarés** ; elles ne remplacent pas les informations des médias sur les nouvelles fonctionnalités, frais, réglementation ou listings. Les incidents expirés ou résolus sont exclus. Une panne d'une source n'arrête pas la collecte des autres.
+
+Les notices officielles portent la catégorie `official_notice` ; les articles de médias `attributed_report` ou `cross_reported`. Les sources primaires ne comptent **jamais** comme second média indépendant. Une source RSS gratuite n'accorde pas automatiquement de droit de republication intégrale : conserver titre, attribution et lien.
+
+Les huit flux RSS sont des **médias**, tandis que les deux API sont des **pages de statut officielles**. Une seule source permet un aperçu marqué "information rapportée" pour les annonces courantes; **piratage, violation de sécurité, interruption majeure de service et détournement de fonds** exigent la concordance de deux médias indépendants. Le rapprochement automatisé de titres ne remplace pas la vérification manuelle du contenu.
 
 ## Contrôles
 - Pas d'article de plus de 48 h, sans date fiable, ni de nouvelle future de plus de cinq minutes.
