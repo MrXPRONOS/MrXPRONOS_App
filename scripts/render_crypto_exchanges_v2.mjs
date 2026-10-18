@@ -6,7 +6,7 @@ const demo=process.argv.includes('--demo');
 const file=demo?'crypto/generated/test/exchanges_v2_demo.json':'crypto/generated/test/exchanges_v2_data.json';
 const output=demo?'crypto/generated/test/exchanges_v2_demo.png':'crypto/generated/test/exchanges_v2.png';
 const d=JSON.parse(await readFile(file,'utf8'));
-const providers=['CoinDesk','Cointelegraph','The Block'];
+const providers=['CoinDesk','Cointelegraph','The Block','Decrypt','Blockworks','BeInCrypto','Bitcoin Magazine','NewsBTC','Coinbase Status','Kraken Status'];
 const exchanges=['BINANCE','COINBASE','OKX','KRAKEN','BYBIT','BITGET','KUCOIN','GEMINI'];
 const cats=['SÉCURITÉ','ACCÈS & SERVICES','FRAIS & TRADING','RÉGLEMENTATION','INNOVATION'];
 if(d.publication!==9||d.is_demo!==demo||d.status!==(demo?'demo':'real_data'))
@@ -16,7 +16,7 @@ if(!d.main||!providers.includes(d.main.source)||!exchanges.includes(d.exchange)|
   throw Error('Bad exchange news metadata');
 if(d.confirmation&&!providers.includes(d.confirmation.source))throw Error('Unrecognized confirmation source');
 if(d.main.severe&&!d.confirmation)throw Error('Sensitive headline needs corroboration');
-if(d.verification!==(d.confirmation?'cross_reported':'attributed_report'))
+if(d.verification!==(d.main.official?'official_notice':(d.confirmation?'cross_reported':'attributed_report')))
   throw Error('Bad provenance label');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const stamp=v=>new Date(v).toLocaleString('fr-FR',{timeZone:'UTC',day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit',year:'numeric'});
@@ -29,8 +29,8 @@ const second=esc(d.confirmation?.source||'—');
 const when=esc(stamp(d.main.published_at));
 const published=esc(stamp(d.collected_at));
 const headlineSize=d.main.title.length>153?42:d.main.title.length>117?47:d.main.title.length>86?53:60;
-const status=d.confirmation?'DEUX MÉDIAS':'SOURCE ATTRIBUÉE';
-const evidence=d.confirmation?'DEUX SOURCES RECROISÉES':'ARTICLE ATTRIBUÉ À SON MÉDIA';
+const status=d.main.official?'SOURCE OFFICIELLE':d.confirmation?'DEUX MÉDIAS':'SOURCE ATTRIBUÉE';
+const evidence=d.main.official?'INCIDENT SIGNALÉ PAR LA PLATEFORME':d.confirmation?'DEUX SOURCES RECROISÉES':'ARTICLE ATTRIBUÉ À SON MÉDIA';
 const svg='<svg viewBox="0 0 450 450" class="network" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
 '<defs><radialGradient id="orb" cx="30%" cy="25%"><stop offset="0%" stop-color="#ffe3b3"/><stop offset="39%" stop-color="#daa96e"/><stop offset="75%" stop-color="#8b653c"/><stop offset="100%" stop-color="#2b3a4b"/></radialGradient><linearGradient id="edge" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3d7a3"/><stop offset="1" stop-color="#b27c4d"/></linearGradient></defs>'+
 '<circle cx="225" cy="225" r="196" stroke="#d5a868" stroke-opacity=".17" fill="none" stroke-width="2"/>'+
@@ -103,11 +103,11 @@ ${svg}
 <div class="origin">TITRE ORIGINAL DE LA SOURCE · ANGLAIS</div>
 </section>
 <div class="evidence">
-<div class="card"><div class="cardlabel">MÉDIA À L'ORIGINE</div><div class="cardname">${source}</div><div class="cardtime">${when} UTC</div></div>
-<div class="card"><div class="cardlabel">${d.confirmation?'DEUXIÈME MÉDIA':'STATUT DE LA SOURCE'}</div><div class="cardname">${d.confirmation?second:'1 SOURCE'}</div>
-<div class="cardtime">${d.confirmation?'Recoupement de titres':'À consulter dans son contexte'}</div></div>
+<div class="card"><div class="cardlabel">SOURCE À L'ORIGINE</div><div class="cardname">${source}</div><div class="cardtime">${when} UTC</div></div>
+<div class="card"><div class="cardlabel">${d.confirmation?'DEUXIÈME MÉDIA':d.main.official?'STATUT DE L’INCIDENT':'STATUT DE LA SOURCE'}</div><div class="cardname">${d.confirmation?second:d.main.official?'OFFICIEL':'1 SOURCE'}</div>
+<div class="cardtime">${d.confirmation?'Recoupement de titres':d.main.official?'Vérifier le statut actuel':'À consulter dans son contexte'}</div></div>
 </div>
-<div class="info"><div><div class="infotitle">${evidence}</div><div class="infodesc">Article complet et lien du média dans la légende Telegram.</div></div>
+<div class="info"><div><div class="infotitle">${evidence}</div><div class="infodesc">Lien de la source primaire ou du média dans la légende Telegram.</div></div>
 <div class="marker">EXCHANGE<br/>WATCH</div></div>
 <footer class="footer"><span>Sources : ${source}${d.confirmation?' + '+second:''}</span><span>Collecte : ${published} UTC</span></footer>
 <div class="footnote">Information sourcée, pas une recommandation de trading. Vérifiez la disponibilité selon votre pays.</div>
