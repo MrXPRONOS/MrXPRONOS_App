@@ -2,6 +2,7 @@ import {supabaseUrl,supabaseAnonKey} from "./config.js";
 const $=id=>document.getElementById(id);
 const sb=window.supabase.createClient(supabaseUrl,supabaseAnonKey);
 let channel=null, refreshTimer=null, pending=false, lastRealtime=0;
+let chartRows=[], chartMode="visits";
 const format=n=>Number(n||0).toLocaleString("fr-FR");
 const date=s=>s?new Date(s).toLocaleString("fr-FR",{timeZone:"UTC",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"} )+" UTC":"–";
 const output=(id,value)=>{if($(id))$(id).textContent=value};
@@ -32,6 +33,7 @@ async function fetchSnapshot(){
   const {data,error}=await sb.rpc("admin_monitor_snapshot",{p_days:Number($("period").value)});
   if(error)throw error;
   const x=data||{},a=x.analytics||{},l=x.live||{},t=x.telegram||{},h=x.health||{};
+  chartRows=Array.isArray(x.daily)?x.daily:[];renderActivityChart();
   const show=(id,n)=>output(id,format(n));
   show("visits",a.visits);show("clicks",a.click_pronostic);
   output("analytics-audit","Événements bruts : "+format(x.analytics_raw_visits)+" visites · "+format(x.analytics_excluded_suspected_ci)+" événements de tous types exclus des périodes suspectes de tests CI. Le résultat restant est une estimation, non une preuve de visiteurs humains.");
@@ -43,6 +45,7 @@ async function fetchSnapshot(){
   show("unique",a.unique_visitors);show("pageviews",a.page_views);
   show("pushcount",x.push?.subscriptions);
   output("last-signal",format(l.pending)+" en attente · "+format(l.validated)+" validés");
+  renderQuality(l);
   renderTable("crons",x.crons||[],[
    r=>safe(r.name)+" <small class='muted'>"+safe(r.origin)+"</small>",
    r=>safe(date(r.last_run)),
@@ -166,4 +169,36 @@ async function refreshClientErrors(){
   output("errors-total",format(data.total));
   output("errors-detail","Script : "+format(data.script)+" · Promesses : "+format(data.promise)+" · Ressources : "+format(data.resource));
  }catch(e){output("errors-detail","Données indisponibles : "+e.message)}
+}
+
+
+// Accessible, lightweight activity chart: native HTML/CSS only, no heavy chart dependency.
+function renderActivityChart(){
+ const chart=$("traffic-chart");
+ if(!chart)return;
+ const kind=chartMode==="clicks"?"clicks":"visits";
+ const rows=chartRows.map(r=>({day:String(r.day||""),value:Math.max(0,Number(r[kind]||0))})).filter(r=>Number.isFinite(r.value));
+ const top=Math.max(1,...rows.map(r=>r.value));
+ chart.innerHTML=rows.length?rows.map(r=>{
+  const h=r.value?Math.max(3,(r.value/top)*96):1.5;
+  const label=r.day.slice(5).replace("-","/");
+  return '<div class="chart-column'+(rows.length===1?" single":"")+'" title="'+safe(r.day)+": "+format(r.value)+'" aria-label="'+safe(r.day)+": "+format(r.value)+'"><div class="chart-bar'+(kind==="clicks"?" clicks":"")+'" style="--bar-size:'+h+'%"></div><span class="chart-axis">'+safe(label)+'</span></div>';
+ }).join(""):'<div class="chart-empty">Aucune donnée sur cette période</div>';
+ const total=rows.reduce((sum,r)=>sum+r.value,0);
+ output("chart-caption",(kind==="clicks"?"Clics":"Visites")+" sur la période : "+format(total)+" · "+rows.length+" jour(s) mesuré(s)");
+ chart.setAttribute("aria-label",(kind==="clicks"?"Clics":"Visites")+" par jour ; total "+format(total));
+ for(const [id,val] of [["chart-visits","visits"],["chart-clicks","clicks"]]){
+  $(id)?.setAttribute("aria-pressed",String(kind===val));
+ }
+}
+$("chart-visits")?.addEventListener("click",()=>{chartMode="visits";renderActivityChart()});
+$("chart-clicks")?.addEventListener("click",()=>{chartMode="clicks";renderActivityChart()});
+
+function renderQuality(l){
+ const won=Number(l.wins||0),lost=Number(l.losses||0),total=won+lost;
+ const percentValue=total?Math.max(0,Math.min(100,(won/total)*100)):0;
+ const panel=$("quality");if(!panel)return;
+ panel.innerHTML='<div class="quality-summary"><div><strong>'+ (total?percentValue.toFixed(1)+" %":"—")+'</strong><br><span>Réussite sur résultats validés</span></div><span>'+format(total)+' résultats</span></div>'+
+ '<div class="quality-progress" role="progressbar" aria-label="Réussite" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.round(percentValue)+'"><span style="width:'+percentValue+'%"></span></div>'+
+ '<div class="quality-mini"><div><strong class="good-txt">'+format(won)+'</strong><small>Gagnants</small></div><div><strong class="bad-txt">'+format(lost)+'</strong><small>Perdants</small></div></div>';
 }
