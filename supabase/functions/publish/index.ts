@@ -409,11 +409,13 @@ serve(async (req) => {
           bookmakers: bookmakersJson.length,
         },
         published_at: nowIso(),
+        operation: "publish",
         github_commit: publishedCommit,
+        deployment: "pending",
         status: "committed",
       }
     });
-    if (historyError) throw new Error("Publication appliquée, mais historique non enregistré: "+historyError.message);
+    if (historyError) { console.error("CMS publish_history insert failed",historyError.code); throw new Error("Commit créé mais historique non enregistré : "+publishedCommit); }
     const { error: auditError } = await sb.from("audit_log").insert({
       actor_user_id: actorUid,
       action: "publish_json",
@@ -436,6 +438,7 @@ serve(async (req) => {
       success: true,
       github_commit: publishedCommit,
       status: "committed",
+      deployment: "pending",
       counts: {
         articles: articlesJson.length,
         conseils: conseilsJson.length,
