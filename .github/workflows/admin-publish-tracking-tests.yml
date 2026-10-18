@@ -1,0 +1,13 @@
+name: Publish tracking checks
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/publish/index.ts'
+      - 'tests/admin-publish-tracking.test.cjs'
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node tests/admin-publish-tracking.test.cjs
