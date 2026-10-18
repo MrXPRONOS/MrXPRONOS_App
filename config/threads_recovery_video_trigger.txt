@@ -1,1 +1,1 @@
-2026-10-18 reconnect-success video-morning previously-failed on Threads - publish exactly once
+2026-10-18 recovery retry 2 - fixed Python module import; prior failed before API publication
