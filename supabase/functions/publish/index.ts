@@ -295,6 +295,7 @@ serve(async (req) => {
       },
     });
 
+    if (auditError) throw new Error("Publication appliquée mais audit non enregistré: "+auditError.message);
     return json({
       success: true,
       counts: {
