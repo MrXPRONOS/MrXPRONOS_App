@@ -1149,11 +1149,31 @@ async function publishNow() {
       return alert(data?.error || "Erreur publish");
     }
 
-    alert(`Commit GitHub enregistré (déploiement encore à confirmer).\nCommit : ${data?.github_commit || "inconnu"}\nArticles=${data?.counts?.articles ?? 0}
-Conseils=${data?.counts?.conseils ?? 0}
-Bonus=${data?.counts?.bonus ?? 0}
-Infos=${data?.counts?.infos ?? 0}
-Bookmakers=${data?.counts?.bookmakers ?? 0}`);
+    const commit=data?.github_commit;
+    const statusBox=document.getElementById("cms-publish-result")||document.createElement("div");
+    statusBox.id="cms-publish-result";
+    statusBox.setAttribute("role","status");
+    statusBox.style.cssText="padding:12px;margin:12px 0;border:1px solid #666;border-radius:10px";
+    if(!statusBox.parentElement) $("btnPublish").parentElement.appendChild(statusBox);
+    if(!commit) {statusBox.textContent="Publication sans commit retourné — vérification requise.";return;}
+    statusBox.textContent="Commit GitHub créé : "+commit.slice(0,12)+". Mise en ligne non confirmée.";
+    const check=document.createElement("button");
+    check.type="button";check.className="btn btn-secondary";check.textContent="Vérifier le déploiement";
+    check.style.marginLeft="12px";
+    check.onclick=async()=>{
+      statusBox.textContent="Vérification du déploiement…";
+      try{
+        const result=await fetch(`${supabaseUrl}/functions/v1/publish`,{
+          method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${session.access_token}`,"apikey":supabaseAnonKey},
+          body:JSON.stringify({operation:"status",commit})
+        });
+        const value=await result.json();if(!result.ok)throw new Error(value.error||"Erreur de vérification");
+        const labels={deployed:"Déploiement confirmé",pending:"Déploiement en cours",failed:"Déploiement échoué",unknown:"Déploiement non confirmé"};
+        statusBox.textContent=(labels[value.deployment]||"Déploiement non confirmé")+" — "+commit.slice(0,12)+(value.is_current?" (commit actuel)":" (version antérieure)");
+      }catch(error){statusBox.textContent="Vérification échouée : "+error.message;}
+      if(statusBox.textContent.includes("en cours")||statusBox.textContent.includes("non confirmé"))statusBox.appendChild(check);
+    };
+    statusBox.appendChild(check);
 
   } finally {
     publishBusy = false;
