@@ -77,7 +77,7 @@ class ExchangeNewsTests(unittest.TestCase):
         self.assertTrue(ex.corroborates(a, b))
         d = ex.select_report([a, b], {"sent_urls": []}, self.now)
         self.assertEqual(d["verification"], "cross_reported")
-        self.assertEqual(d["confirmation"]["source"], "The Block")
+        self.assertEqual({d["main"]["source"], d["confirmation"]["source"]}, {"CoinDesk", "The Block"})
         ex.validate_real(d, self.now)
 
     def test_unrelated_events_do_not_correlate(self):
