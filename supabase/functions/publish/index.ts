@@ -92,49 +92,38 @@ function ghHeaders() {
   };
 }
 
-async function ghGetSha(path: string) {
-  const url =
-    `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}` +
-    `?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
-
-  const res = await fetch(url, { headers: ghHeaders() });
-
-  if (res.status === 404) return null;
-  if (!res.ok) {
-    throw new Error(`GitHub get sha failed ${res.status}: ${await res.text()}`);
-  }
-
-  const data = await res.json();
-  return data?.sha || null;
-}
-
-async function ghPutFile(path: string, contentText: string, message: string) {
-  if (!GITHUB_OWNER || !GITHUB_REPO || !GITHUB_PAT) {
-    throw new Error("GitHub env missing (GITHUB_OWNER/GITHUB_REPO/GITHUB_PAT)");
-  }
-
-  const sha = await ghGetSha(path);
-
-  const body: any = {
-    message,
-    content: toBase64Utf8(contentText),
-    branch: GITHUB_BRANCH,
-  };
-
-  if (sha) body.sha = sha;
-
-  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
-  const res = await fetch(url, {
-    method: "PUT",
-    headers: ghHeaders(),
-    body: JSON.stringify(body),
+async function ghJson(path: string, method = "GET", body?: unknown) {
+  const response = await fetch("https://api.github.com/repos/" + encodeURIComponent(GITHUB_OWNER) + "/" + encodeURIComponent(GITHUB_REPO) + path, {
+    method, headers: { ...ghHeaders(), "Content-Type": "application/json" },
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
-
-  if (!res.ok) {
-    throw new Error(`GitHub put failed ${res.status}: ${await res.text()}`);
+  if (!response.ok) {
+    // Keep private response payload and token out of the client-visible error.
+    throw new Error("GitHub publication: " + method + " " + path.split("?")[0] + " HTTP " + response.status);
   }
-
-  return await res.json();
+  return response.json();
+}
+async function ghPublishAtomic(files: Record<string,string>, stamp: string): Promise<string> {
+  if (!GITHUB_OWNER || !GITHUB_REPO || !GITHUB_PAT || !GITHUB_BRANCH)
+    throw new Error("Configuration GitHub incomplète");
+  if (Object.keys(files).length !== 5) throw new Error("Publication incomplète");
+  const branchEncoded = GITHUB_BRANCH.split("/").map(encodeURIComponent).join("/");
+  const branch = await ghJson("/git/ref/heads/" + branchEncoded);
+  const baseSha = branch?.object?.sha;
+  if (!/^[a-f0-9]{40}$/i.test(String(baseSha))) throw new Error("Référence GitHub invalide");
+  const baseCommit = await ghJson("/git/commits/" + baseSha);
+  const entries = [];
+  for (const [path, content] of Object.entries(files)) {
+    const blob = await ghJson("/git/blobs", "POST", { content: toBase64Utf8(content), encoding: "base64" });
+    entries.push({path, mode:"100644", type:"blob", sha:blob.sha});
+  }
+  const tree = await ghJson("/git/trees", "POST", {base_tree:baseCommit.tree.sha, tree:entries});
+  const commit = await ghJson("/git/commits", "POST", {
+    message:"CMS publish " + stamp, tree:tree.sha, parents:[baseSha]
+  });
+  // A concurrent GitHub push fails safely (non-fast-forward), instead of silently overwriting it.
+  await ghJson("/git/refs/heads/" + branchEncoded, "PATCH", {sha:commit.sha, force:false});
+  return commit.sha;
 }
 
 function isBonusActive(b: any) {
@@ -256,13 +245,15 @@ serve(async (req) => {
       active: b.active !== false,
     }));
 
-    // PUSH GITHUB (5 fichiers)
-    const stamp = new Date().toISOString();
-    await ghPutFile("articles.json", JSON.stringify(articlesJson, null, 2), `Publish articles ${stamp}`);
-    await ghPutFile("conseils.json", JSON.stringify(conseilsJson, null, 2), `Publish conseils ${stamp}`);
-    await ghPutFile("bonus.json", JSON.stringify(bonusJson, null, 2), `Publish bonus ${stamp}`);
-    await ghPutFile("infos.json", JSON.stringify(infosJson, null, 2), `Publish infos ${stamp}`);
-    await ghPutFile("bookmakers.json", JSON.stringify(bookmakersJson, null, 2), `Publish bookmakers ${stamp}`);
+    // Publish all five files as ONE Git commit; never expose a partially updated branch.
+    const stamp = nowIso();
+    const publishedCommit = await ghPublishAtomic({
+      "articles.json": JSON.stringify(articlesJson,null,2),
+      "conseils.json": JSON.stringify(conseilsJson,null,2),
+      "bonus.json": JSON.stringify(bonusJson,null,2),
+      "infos.json": JSON.stringify(infosJson,null,2),
+      "bookmakers.json": JSON.stringify(bookmakersJson,null,2),
+    },stamp);
 
     // HISTORY + AUDIT (✅ plus léger : pas le payload complet)
     const { error: historyError } = await sb.from("publish_history").insert({
@@ -276,7 +267,9 @@ serve(async (req) => {
           infos: infosJson.length,
           bookmakers: bookmakersJson.length,
         },
-        published_at: nowIso()
+        published_at: nowIso(),
+        github_commit: publishedCommit,
+        status: "committed",
       }
     });
     if (historyError) throw new Error("Publication appliquée, mais historique non enregistré: "+historyError.message);
