@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Connexion Threads — Mr XPRONOS</title>
+  <style>
+    :root{color-scheme:dark}
+    body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#10131c;color:#f4f7ff;margin:0}
+    main{max-width:660px;margin:7vh auto;padding:24px}
+    section{background:#1a1f2b;border:1px solid #36445a;border-radius:18px;padding:28px}
+    h1{font-size:1.7rem;margin:0 0 10px}
+    p,li{line-height:1.6;color:#cfdae8}
+    label{font-weight:700;display:block;margin:20px 0 8px}
+    input,textarea{box-sizing:border-box;width:100%;border-radius:10px;border:1px solid #66758a;padding:14px;background:#101621;color:white;font:inherit}
+    button,a.action{display:inline-block;background:#e9b44f;color:#111827;font-size:1rem;font-weight:700;border:none;border-radius:10px;padding:12px 16px;cursor:pointer;margin-top:15px}
+    button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid white;outline-offset:3px}
+    .muted{font-size:.91rem;color:#9babbf}
+    .error{color:#ff9c9c;font-weight:700}
+    .hidden{display:none}
+    code{overflow-wrap:anywhere}
+  </style>
+</head>
+<body>
+<main>
+<section>
+  <h1>Reconnecter Threads à Mr XPRONOS</h1>
+  <p>Cette page sert uniquement à récupérer une autorisation officielle Threads. Elle ne demande jamais ton mot de passe ni le secret de ton application Meta.</p>
+  <div id="start">
+    <label for="app-id">Threads App ID (dans Meta for Developers)</label>
+    <input id="app-id" type="text" inputmode="numeric" autocomplete="off" pattern="[0-9]+" placeholder="Identifiant de l'application Threads">
+    <button id="start-auth" type="button">Autoriser mon compte Threads</button>
+    <p class="muted">URL de redirection à enregistrer exactement dans Meta :<br><code id="redirect-url"></code></p>
+  </div>
+  <div id="result" class="hidden">
+    <p><strong>Autorisation reçue.</strong> Le code ci-dessous est à usage unique et expire rapidement.</p>
+    <label for="auth-code">Code d'autorisation</label>
+    <textarea id="auth-code" rows="4" readonly spellcheck="false"></textarea>
+    <button id="copy-code" type="button">Copier le code</button>
+    <p id="copy-message" aria-live="polite"></p>
+    <p>Dans <a class="action" href="https://github.com/MrXPRONOS/MrXPRONOS_App/settings/secrets/actions" target="_blank" rel="noopener noreferrer">GitHub Secrets</a>, crée <code>THREADS_AUTH_CODE</code> avec ce code, puis lance le workflow <strong>Threads - Connexion et maintenance</strong> en mode <code>exchange</code>.</p>
+    <p class="muted">Ne colle pas ce code dans un ticket, un chat, un commit ou un journal GitHub.</p>
+  </div>
+  <p id="error" class="error" role="alert"></p>
+</section>
+</main>
+<script>
+(() => {
+  "use strict";
+  const redirect = location.origin + location.pathname;
+  const el = id => document.getElementById(id);
+  el("redirect-url").textContent = redirect;
+  const params = new URLSearchParams(location.search);
+  const code = params.get("code");
+  const error = params.get("error");
+  if (code || error) {
+    history.replaceState(null, "", redirect);
+    const state = sessionStorage.getItem("mrx_threads_oauth_state");
+    sessionStorage.removeItem("mrx_threads_oauth_state");
+    if (error) {
+      el("error").textContent = "Threads a refusé l'autorisation. Vérifie ton rôle de testeur et les paramètres OAuth dans Meta.";
+      el("start").classList.remove("hidden");
+      return;
+    }
+    if (!state || params.get("state") !== state) {
+      el("error").textContent = "Échec de vérification de sécurité (state). Recommence la connexion depuis cette page dans le même navigateur.";
+      return;
+    }
+    el("start").classList.add("hidden");
+    el("result").classList.remove("hidden");
+    el("auth-code").value = code;
+    el("copy-code").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(el("auth-code").value);
+        el("copy-message").textContent = "Code copié.";
+      } catch (_) {
+        el("auth-code").focus();
+        el("auth-code").select();
+        el("copy-message").textContent = "Sélectionné : copie manuellement.";
+      }
+    });
+    return;
+  }
+  el("start-auth").addEventListener("click", () => {
+    const client = el("app-id").value.trim();
+    if (!/^[0-9]{6,30}$/.test(client)) {
+      el("error").textContent = "Saisis le Threads App ID numérique, différent du Facebook App ID.";
+      return;
+    }
+    const bytes = new Uint8Array(20);
+    crypto.getRandomValues(bytes);
+    const state = Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
+    sessionStorage.setItem("mrx_threads_oauth_state", state);
+    const url = new URL("https://threads.net/oauth/authorize");
+    url.searchParams.set("client_id", client);
+    url.searchParams.set("redirect_uri", redirect);
+    url.searchParams.set("scope", "threads_basic,threads_content_publish");
+    url.searchParams.set("response_type", "code");
+    url.searchParams.set("state", state);
+    location.assign(url.toString());
+  });
+})();
+</script>
+</body>
+</html>
