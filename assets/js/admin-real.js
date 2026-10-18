@@ -1123,6 +1123,116 @@ async function renderAudit() {
 }
 
 // -----------------------------
+
+async function cmsAdminRequest(operation,extra={}) {
+  const session=(await sb.auth.getSession()).data.session;
+  if(!session) throw new Error("Session administrateur expirée");
+  const response=await fetch(`${supabaseUrl}/functions/v1/publish`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":`Bearer ${session.access_token}`,"apikey":supabaseAnonKey},
+    body:JSON.stringify({operation,...extra})
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error(data.error||`Erreur HTTP ${response.status}`);
+  return data;
+}
+function cmsDom(tag,text="",className="") {
+  const node=document.createElement(tag);node.textContent=text;
+  if(className)node.className=className;
+  return node;
+}
+async function cmsCheckCommit(commit,root) {
+  root.textContent="Vérification du déploiement GitHub Pages…";
+  try {
+    const s=await cmsAdminRequest("status",{commit});
+    const map={deployed:"Déploiement réussi",pending:"Déploiement en cours",
+      failed:"Déploiement échoué",unknown:"Statut de déploiement inconnu"};
+    root.textContent=(map[s.deployment]||"Statut non confirmé")+" — "+commit.slice(0,12)+
+      (s.is_current?" (version courante)":" (une autre version est courante)");
+    if(s.workflow_url&&/^https:\/\/github\.com\//.test(s.workflow_url)){
+      const a=cmsDom("a"," — Voir le workflow");a.href=s.workflow_url;a.target="_blank";a.rel="noopener noreferrer";
+      root.appendChild(a);
+    }
+  }catch(error){root.textContent="Impossible de vérifier : "+error.message;}
+}
+async function cmsShowPreview(entry,root) {
+  root.replaceChildren(cmsDom("p","Préparation de la comparaison…"));
+  try{
+    const data=await cmsAdminRequest("preview_restore",{version_id:entry.id});
+    const p=data.preview;
+    root.replaceChildren(cmsDom("h4","Prévisualisation du retour arrière"));
+    root.appendChild(cmsDom("p","Source : "+p.target_commit.slice(0,12)+" | Branche actuelle : "+p.current_head.slice(0,12)));
+    const table=cmsDom("table"),body=cmsDom("tbody");
+    const head=cmsDom("tr");
+    for(const name of ["Fichier","Actuel","Version choisie","Ajoutés","Supprimés","Modifiés"]){
+      head.appendChild(cmsDom("th",name));
+    }
+    table.appendChild(head);
+    for(const [file,change] of Object.entries(p.changes||{})){
+      const tr=cmsDom("tr");
+      for(const value of [file,change.before,change.after,change.added,change.removed,change.modified]){
+        tr.appendChild(cmsDom("td",String(value)));
+      }
+      body.appendChild(tr);
+      const examples=[...(change.samples?.added||[]),...(change.samples?.removed||[]),...(change.samples?.modified||[])];
+      if(examples.length)root.appendChild(cmsDom("p",file+" — Exemples : "+examples.join(", "),"muted"));
+    }
+    table.appendChild(body);root.appendChild(table);
+    const changes=Object.values(p.changes||{}).some(c=>c.different);
+    if(!changes){root.appendChild(cmsDom("p","Ces fichiers sont identiques. Aucune restauration nécessaire."));return;}
+    const warning=cmsDom("p","Attention : seuls les cinq fichiers de contenu seront restaurés. L'historique Git et la base Supabase restent inchangés.");
+    root.appendChild(warning);
+    const restore=cmsDom("button","Restaurer cette version","btn btn-secondary");restore.type="button";
+    restore.addEventListener("click",async()=>{
+      if(!window.confirm("Créer un nouveau commit qui remplace les cinq JSON par cette version historique ?"))return;
+      if(window.prompt("Confirmation : écris exactement RESTAURER")!=="RESTAURER")return;
+      restore.disabled=true;
+      try{
+        const result=await cmsAdminRequest("restore",{version_id:p.version_id,expected_head:p.current_head,
+          preview_expires:p.preview_expires,preview_signature:p.preview_signature,confirm:"RESTAURER"});
+        root.replaceChildren(cmsDom("p","Commit de restauration créé : "+result.github_commit.slice(0,12)+". Déploiement à confirmer."));
+        const check=cmsDom("button","Vérifier la mise en ligne","btn btn-secondary");check.type="button";
+        check.addEventListener("click",()=>void cmsCheckCommit(result.github_commit,root));
+        root.appendChild(check);
+      }catch(error){
+        root.appendChild(cmsDom("p","Restauration refusée ou échouée : "+error.message));
+        restore.disabled=false;
+      }
+    });
+    root.appendChild(restore);
+  }catch(error){root.replaceChildren(cmsDom("p","Impossible de prévisualiser : "+error.message));}
+}
+async function cmsLoadHistory(root){
+  root.replaceChildren(cmsDom("p","Chargement de l'historique…"));
+  try{
+    const data=await cmsAdminRequest("history");
+    root.replaceChildren(cmsDom("h3","Historique des publications"));
+    if(!(data.versions||[]).length){
+      root.appendChild(cmsDom("p","Aucune version enregistrée pour le moment. Une première publication créera un historique."));return;
+    }
+    for(const entry of data.versions){
+      const row=cmsDom("div");row.style.cssText="border-bottom:1px solid #444;padding:8px 0";
+      row.appendChild(cmsDom("span",new Date(entry.date).toLocaleString("fr-FR")+" — "+entry.github_commit.slice(0,12)+" — "+entry.status+" "));
+      const preview=cmsDom("button","Comparer","btn btn-secondary");preview.type="button";
+      const status=cmsDom("button","Statut","btn btn-secondary");status.type="button";
+      const detail=cmsDom("div");
+      preview.addEventListener("click",()=>void cmsShowPreview(entry,detail));
+      status.addEventListener("click",()=>void cmsCheckCommit(entry.github_commit,detail));
+      row.append(preview,status,detail);root.appendChild(row);
+    }
+  }catch(error){root.replaceChildren(cmsDom("p","Historique indisponible : "+error.message));}
+}
+function cmsInstallHistory(){
+  if($("cms-history-btn"))return;
+  const area=$("btnPublish")?.parentElement;if(!area)return;
+  const button=cmsDom("button","Historique / restaurer","btn btn-secondary");
+  button.id="cms-history-btn";button.type="button";
+  const root=cmsDom("div");root.id="cms-history-root";
+  root.style.cssText="width:100%;padding:10px 0";
+  button.addEventListener("click",()=>void cmsLoadHistory(root));
+  area.append(button,root);
+}
+
 // PUBLISH (corrigé headers)
 // -----------------------------
 async function publishNow() {
@@ -1193,6 +1303,7 @@ async function afterLogin() {
 
   $("loginCard").style.display = "none";
   $("app").style.display = "block";
+  cmsInstallHistory();
 
   const user = (await sb.auth.getUser()).data.user;
   $("who").textContent = user?.email || user?.id || "";
