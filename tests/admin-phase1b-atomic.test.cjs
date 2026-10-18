@@ -1,0 +1,17 @@
+const fs=require("node:fs"),assert=require("node:assert/strict");
+const publisher=fs.readFileSync("supabase/functions/publish/index.ts","utf8");
+const admin=fs.readFileSync("assets/js/admin-real.js","utf8");
+const migration=fs.readFileSync("supabase/migrations/20261018170500_admin_analytics_vip_rpc_hardening.sql","utf8");
+assert(publisher.includes("const publishedCommit = await ghPublishAtomic("));
+assert(publisher.includes('await ghJson("/git/refs/heads/"'));
+assert(publisher.includes("force:false"),"atomic commit must not overwrite concurrent writes");
+assert(!publisher.includes("ghPutFile("),"legacy non-atomic writer must be removed");
+for(const filename of ["articles.json","conseils.json","bonus.json","infos.json","bookmakers.json"]) assert(publisher.includes('"'+filename+'"'));
+assert(publisher.includes('github_commit: publishedCommit'));
+assert(publisher.includes('status: "committed"'));
+assert(publisher.includes("if (historyError)")&&publisher.includes("if (auditError)"));
+assert(admin.includes("déploiement encore à confirmer"));
+assert(migration.includes('DROP POLICY IF EXISTS "Allow anonymous selects"'));
+assert(migration.includes("REVOKE SELECT, UPDATE, DELETE ON TABLE public.analytics FROM anon"));
+assert(migration.includes("REVOKE ALL ON FUNCTION public.admin_revoke_vip"));
+console.log("Phase 1B: atomic CMS and access safety checks passed");
