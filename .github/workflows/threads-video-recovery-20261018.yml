@@ -1,0 +1,35 @@
+name: Threads - Video Recovery 18 Oct 2026
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/threads_recovery_video_trigger.txt"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: threads-recovery-video-2026-10-18
+  cancel-in-progress: false
+
+jobs:
+  publish-once:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Threads dependencies
+        run: pip install requests
+      - name: Source and OAuth verification, publish if not already on Threads
+        env:
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+          THREADS_RECOVERY_VIDEO_URL: https://nhwafcpndlufzzxexikh.supabase.co/storage/v1/object/public/videos/shorts/2026/10/18/1792344549-daily_pronos_coupon_short.mp4
+        run: |
+          python scripts/threads_recover_video.py
