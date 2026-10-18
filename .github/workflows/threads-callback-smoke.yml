@@ -24,9 +24,9 @@ jobs:
           base="https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/"
           cases=[
              ("threads-uninstall", "GET", None, {405}),
-             ("threads-uninstall", "POST", b"x=1", {400,503}),
-             ("threads-data-deletion", "POST", b"signed_request=bad.bad", {403,503}),
-             ("threads-data-deletion?code=00000000-0000-0000-0000-000000000000", "GET", None, {404,503}),
+             ("threads-uninstall", "POST", b"x=1", {400}),
+             ("threads-data-deletion", "POST", b"signed_request=bad.bad", {403}),
+             ("threads-data-deletion?code=00000000-0000-0000-0000-000000000000", "GET", None, {404}),
           ]
           for path,method,data,expected in cases:
               req=urllib.request.Request(base+path,data=data,method=method,
