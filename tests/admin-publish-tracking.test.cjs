@@ -2,22 +2,44 @@ const fs=require("node:fs");
 const assert=require("node:assert/strict");
 const server=fs.readFileSync("supabase/functions/publish/index.ts","utf8");
 const admin=fs.readFileSync("assets/js/admin-real.js","utf8");
-for(const v of [
+const includes=(content,items)=>items.forEach(x=>assert(content.includes(x),"Missing contract: "+x));
+includes(server,[
   'await requireAdmin(req)',
   'requestBody?.operation === "status"',
   'requestBody?.operation==="history"',
+  'requestBody?.operation==="preview_restore"',
+  'requestBody?.operation==="restore"',
   'github_commit: publishedCommit',
-  'publish_history',
+  'if(expectedHead && baseSha !== expectedHead)',
+  'force:false',
   '/deployments?sha=',
   '/actions/runs?head_sha=',
   'deployment_failed',
-  'is_current:current'
-]) assert(server.includes(v),"Missing server contract: "+v);
-for(const v of [
-  'operation:"status"',
+  'is_current:current',
+]);
+includes(server,[
+  'cmsPreview(body.version_id)',
+  'body?.confirm!=="RESTAURER"',
+  'cmsSeal(uid,p,expiry)',
+  'p.current_head!==String(body.expected_head||"")',
+  'restored_from:p.target_commit',
+  'cmsFiles',
+  'action:"restore_json"',
+]);
+includes(admin,[
+  'cmsAdminRequest("restore"',
+  'cmsAdminRequest("preview_restore"',
+  'cmsAdminRequest("history"',
+  'cmsAdminRequest("status",{commit})',
+  'window.confirm(',
+  'window.prompt(',
   'Vérifier le déploiement',
   'Mise en ligne non confirmée',
-  'labels[value.deployment]'
-]) assert(admin.includes(v),"Missing UI contract: "+v);
-assert(!admin.includes('alert(`Commit GitHub enregistré'),"Old success alert remains");
-console.log("Publish status contracts passed (static checks; no live deployment asserted)");
+  'Publication préparée',
+  'labels[value.deployment]',
+  'cmsInstallHistory();'
+]);
+assert(!admin.includes('alert(`Commit GitHub enregistré'),"Old premature success alert remains");
+assert(!admin.includes('SUPABASE_SERVICE_ROLE_KEY'),"Service key must not exist in frontend");
+assert(!admin.includes('GITHUB_PAT'),"GitHub token must not exist in frontend");
+console.log("Publish status & guarded rollback source contracts passed");
