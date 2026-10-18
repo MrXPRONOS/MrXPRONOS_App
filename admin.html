@@ -1,210 +1,111 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Mr XPRONOS (Réel)</title>
-  <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="stylesheet" href="assets/css/admin-premium.css?v=20261018-v1">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    body {
-      background: #0D0D0D;
-      color: #fff;
-      font-family: Montserrat, system-ui, sans-serif;
-      margin: 0;
-      padding: 16px;
-    }
-
-    .wrap {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .card {
-      background: #1A1A1A;
-      border: 1px solid #D4AF37;
-      border-radius: 16px;
-      padding: 16px;
-      margin: 12px 0;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin: 12px 0;
-    }
-
-    .tab {
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: 1px solid #D4AF37;
-      background: #222;
-      color: #fff;
-      cursor: pointer;
-      font-weight: 700;
-    }
-
-    .tab.active {
-      background: #D4AF37;
-      color: #000;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 10px;
-      border-radius: 12px;
-      border: 1px solid #444;
-      background: #0D0D0D;
-      color: #fff;
-      box-sizing: border-box;
-    }
-
-    label {
-      display: block;
-      margin: 10px 0 6px;
-      color: #ccc;
-      font-weight: 600;
-    }
-
-    .row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    @media (max-width: 800px) {
-      .row {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .btn {
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      font-weight: 800;
-    }
-
-    .btn-primary {
-      background: #D4AF37;
-      color: #000;
-    }
-
-    .btn-secondary {
-      background: #333;
-      color: #fff;
-      border: 1px solid #D4AF37;
-    }
-
-    .muted {
-      color: #aaa;
-      font-size: 13px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid #2a2a2a;
-      text-align: left;
-      font-size: 14px;
-      vertical-align: top;
-    }
-
-    th {
-      color: #D4AF37;
-    }
-
-    pre {
-      margin: 0;
-      white-space: pre-wrap;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-    }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#090f18">
+  <title>Mr XPRONOS — Administration</title>
+  <link rel="icon" href="assets/images/favicon.webp">
+  <link rel="stylesheet" href="assets/css/admin-premium.css?v=20261018-future2">
+  <link rel="stylesheet" href="assets/css/admin-shell.css?v=20261018-unified1">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="legacy-admin">
-  <div class="wrap">
-    <h1 style="color:#D4AF37; margin:8px 0 16px;">Admin Mr XPRONOS (réel)</h1>
+<body class="admin-shell">
+  <svg class="icon-definitions" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="icon-layout-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></symbol>
+    <symbol id="icon-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4"/></symbol>
+    <symbol id="icon-crown" viewBox="0 0 24 24"><path d="m2 8 5 4 5-7 5 7 5-4-2 11H4Z"/><path d="M4 22h16"/></symbol>
+    <symbol id="icon-file-text" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></symbol>
+    <symbol id="icon-book-open" viewBox="0 0 24 24"><path d="M12 7c-3-2-7-2-10-1v14c3-1 7-1 10 1 3-2 7-2 10-1V6c-3-1-7-1-10 1ZM12 7v14"/></symbol>
+    <symbol id="icon-gift" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="13" rx="2"/><path d="M12 9v13M2 9h20V6H2v3Zm10 0C5 9 5 2 9 3c2 0 3 3 3 6Zm0 0c7 0 7-7 3-6-2 0-3 3-3 6Z"/></symbol>
+    <symbol id="icon-newspaper" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M7 7h4v4H7zM15 7h4M15 10h4M7 15h12M7 18h12"/></symbol>
+    <symbol id="icon-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+    <symbol id="icon-shield-check" viewBox="0 0 24 24"><path d="m12 22 2-1c5-2 7-6 7-11V5l-9-3-9 3v5c0 5 2 9 7 11Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="icon-logout" viewBox="0 0 24 24"><path d="M10 17l5-5-5-5M15 12H3"/><path d="M12 3h6a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3h-6"/></symbol>
+    <symbol id="icon-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/></symbol>
+    <symbol id="icon-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></symbol>
+    <symbol id="icon-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="icon-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M5 12h14"/></symbol>
+  </svg>
+  <section id="loginCard" class="login-screen" aria-label="Connexion administrateur">
+    <div class="login-brand"><span class="login-mark">MX</span><div><strong>Mr <span>XPRONOS</span></strong><small>ESPACE ADMINISTRATEUR</small></div></div>
+    <form id="loginForm" class="login-panel" autocomplete="on">
+      <div class="login-kicker">ACCÈS SÉCURISÉ</div>
+      <h1>Bienvenue.</h1>
+      <p>Connecte-toi pour accéder au centre de contrôle.</p>
+      <label for="email">Adresse e-mail</label>
+      <input id="email" type="email" autocomplete="username" required placeholder="ton@email.com">
+      <label for="password">Mot de passe</label>
+      <input id="password" type="password" autocomplete="current-password" required placeholder="••••••••">
+      <button id="btnLogin" type="submit" class="admin-btn primary">Accéder à l’administration <svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
+      <p id="loginMsg" class="login-feedback" role="alert" aria-live="polite"></p>
+    </form>
+    <p class="login-foot">Mr XPRONOS · Administration privée</p>
+  </section>
 
-    <!-- LOGIN -->
-    <div id="loginCard" class="card">
-      <h2 style="margin:0 0 10px; color:#D4AF37;">Connexion</h2>
-
-      <div class="row">
-        <div>
-          <label for="email">Email</label>
-          <input id="email" type="email" placeholder="admin@tonmail.com">
-        </div>
-        <div>
-          <label for="password">Mot de passe</label>
-          <input id="password" type="password" placeholder="••••••••">
-        </div>
+  <div id="app" class="admin-workspace" style="display:none">
+    <div id="sidebar-backdrop" class="sidebar-backdrop" hidden></div>
+    <aside id="admin-sidebar" class="admin-sidebar" aria-label="Menu principal">
+      <div class="sidebar-head">
+        <a class="sidebar-brand" href="#overview" aria-label="Accueil administration">
+          <span class="brand-mark">MX</span><span><strong>Mr <em>XPRONOS</em></strong><small>ADMIN CONSOLE</small></span>
+        </a>
+        <button id="sidebar-close" type="button" class="icon-btn sidebar-close" aria-label="Fermer le menu"><svg class="nav-icon" aria-hidden="true"><use href="#icon-close"></use></svg></button>
       </div>
-
-      <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-        <button id="btnLogin" class="btn btn-primary">Se connecter</button>
-        <span id="loginMsg" class="muted"></span>
+      <div class="workspace-status"><span class="status-pulse"></span> ESPACE ADMINISTRATEUR</div>
+      <nav class="sidebar-nav" aria-label="Rubriques">
+        <div class="nav-group" data-group="pilotage"><div class="nav-heading">PILOTAGE</div><button type="button" class="nav-item tab active" data-tab="overview" aria-current="page"><svg class="nav-icon" aria-hidden="true"><use href="#icon-layout-dashboard"></use></svg><span>Vue générale</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
+<button type="button" class="nav-item tab" data-tab="pronostics" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-target"></use></svg><span>Pronostics</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button></div>
+<div class="nav-group" data-group="communication"><div class="nav-heading">COMMUNICATION</div><button type="button" class="nav-item tab" data-tab="push" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-bell"></use></svg><span>Notifications Push</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
+<button type="button" class="nav-item tab" data-tab="vip" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-crown"></use></svg><span>Gestion VIP</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button></div>
+<div class="nav-group" data-group="contenus"><div class="nav-heading">CONTENUS</div><button type="button" class="nav-item tab" data-tab="articles" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-file-text"></use></svg><span>Articles</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
+<button type="button" class="nav-item tab" data-tab="conseils" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-book-open"></use></svg><span>Conseils</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
+<button type="button" class="nav-item tab" data-tab="bonus" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-gift"></use></svg><span>Bonus et bookmakers</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
+<button type="button" class="nav-item tab" data-tab="infos" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-newspaper"></use></svg><span>Informations</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button></div>
+<div class="nav-group" data-group="systeme"><div class="nav-heading">SYSTÈME</div><button type="button" class="nav-item tab" data-tab="health" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-activity"></use></svg><span>Automatisations</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button>
+<button type="button" class="nav-item tab" data-tab="audit" aria-current="false"><svg class="nav-icon" aria-hidden="true"><use href="#icon-shield-check"></use></svg><span>Journal d’audit</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></button></div>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="index.html" target="_blank" rel="noopener noreferrer" class="sidebar-external"><svg class="nav-icon" aria-hidden="true"><use href="#icon-globe"></use></svg><span>Voir le site public</span><svg class="nav-icon" aria-hidden="true"><use href="#icon-chevron-right"></use></svg></a>
+        <span class="sidebar-version">MR XPRONOS • CONTROL V3</span>
       </div>
-    </div>
+    </aside>
 
-    <!-- APP -->
-    <div id="app" class="card" style="display:none;">
-      <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
-        <div>
-          <div style="font-weight:900;">Connecté</div>
-          <div id="who" class="muted"></div>
+    <div class="workspace-main">
+      <header class="workspace-topbar">
+        <div class="topbar-left">
+          <button id="sidebar-open" type="button" class="icon-btn mobile-menu-btn" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="admin-sidebar"><svg class="nav-icon" aria-hidden="true"><use href="#icon-menu"></use></svg></button>
+          <div class="topbar-context"><span class="topbar-path">ADMINISTRATION / <span id="breadcrumb">PILOTAGE</span></span><h1 id="view-title">Vue générale</h1></div>
         </div>
-
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button id="btnPublish" class="btn btn-primary">
-            Publier (articles + conseils + bonus + infos + bookmakers)
-          </button>
-          <a class="btn btn-secondary" href="admin-supervision.html" style="text-decoration:none;">📊 Supervision en direct</a>
-          <button id="btnLogout" class="btn btn-secondary">Déconnexion</button>
+        <div class="topbar-actions">
+          <span class="admin-user" id="who" aria-label="Compte connecté"></span>
+          <button id="btnPublish" type="button" class="admin-btn primary" hidden><svg class="nav-icon" aria-hidden="true"><use href="#icon-send"></use></svg><span>Publier les contenus</span></button>
+          <button id="btnLogout" type="button" class="admin-btn outline"><svg class="nav-icon" aria-hidden="true"><use href="#icon-logout"></use></svg><span>Déconnexion</span></button>
         </div>
-      </div>
-
-      <!-- TABS -->
-      <div class="tabs" style="margin-top:14px;">
-        <button class="tab active" data-tab="stats">Stats</button>
-        <button class="tab" data-tab="pronostics">Pronostics (lecture)</button>
-
-        <!-- ✅ NOUVEAU -->
-        <button class="tab" data-tab="push">Push (tous)</button>
-
-        <button class="tab" data-tab="articles">Articles</button>
-        <button class="tab" data-tab="conseils">Conseils</button>
-        <button class="tab" data-tab="bonus">Bonus</button>
-        <button class="tab" data-tab="infos">Infos</button>
-        <button class="tab" data-tab="vip">VIP</button>
-        <button class="tab" data-tab="health">Santé (cron)</button>
-        <button class="tab" data-tab="audit">Audit</button>
-      </div>
-
-      <!-- PANES -->
-      <div id="tab-stats"></div>
-      <div id="tab-pronostics" style="display:none;"></div>
-
-      <!-- ✅ NOUVEAU -->
-      <div id="tab-push" style="display:none;"></div>
-
-      <div id="tab-articles" style="display:none;"></div>
-      <div id="tab-conseils" style="display:none;"></div>
-      <div id="tab-bonus" style="display:none;"></div>
-      <div id="tab-infos" style="display:none;"></div>
-      <div id="tab-vip" style="display:none;"></div>
-      <div id="tab-health" style="display:none;"></div>
-      <div id="tab-audit" style="display:none;"></div>
+      </header>
+      <main id="screen-stack" class="workspace-content">
+        <p id="view-description" class="view-description">Vue centralisée des visiteurs, signaux et performances.</p>
+        <section id="tab-overview" class="admin-screen active-screen" aria-label="Vue générale">
+          <iframe id="supervisionFrame" title="Supervision en temps réel" data-src="admin-supervision.html?embedded=1" loading="lazy" referrerpolicy="same-origin"></iframe>
+        </section>
+        <section id="tab-pronostics" class="admin-screen" hidden aria-label="Pronostics"></section>
+      <section id="tab-push" class="admin-screen" hidden aria-label="Notifications Push"></section>
+      <section id="tab-vip" class="admin-screen" hidden aria-label="Gestion VIP"></section>
+      <section id="tab-articles" class="admin-screen" hidden aria-label="Articles"></section>
+      <section id="tab-conseils" class="admin-screen" hidden aria-label="Conseils"></section>
+      <section id="tab-bonus" class="admin-screen" hidden aria-label="Bonus et bookmakers"></section>
+      <section id="tab-infos" class="admin-screen" hidden aria-label="Informations"></section>
+      <section id="tab-health" class="admin-screen" hidden aria-label="Automatisations"></section>
+      <section id="tab-audit" class="admin-screen" hidden aria-label="Journal d’audit"></section>
+      </main>
+      <footer class="workspace-footer">Mr XPRONOS · Console d'administration <span>© 2026</span></footer>
     </div>
   </div>
-
-  <script type="module" src="assets/js/admin-real.js"></script>
+  <script type="module" src="assets/js/admin-shell.js?v=20261018-unified1"></script>
+  <script type="module" src="assets/js/admin-real.js?v=20261018-unified1"></script>
 </body>
 </html>
