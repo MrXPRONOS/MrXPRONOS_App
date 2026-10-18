@@ -7,7 +7,7 @@
   <title>Supervision | Mr XPRONOS</title>
   <link rel="icon" href="assets/images/favicon.webp">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="assets/css/admin-premium.css?v=20261018-v1">
+  <link rel="stylesheet" href="assets/css/admin-premium.css?v=20261018-future2">
   <style>
     :root{color-scheme:dark;--bg:#0b0d11;--panel:#171a20;--stroke:#2b3039;--gold:#d7b45e;--muted:#a0a5b0;--good:#45d19d;--bad:#ff8989;--text:#f2f4f8}
     *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
@@ -45,7 +45,7 @@
     <div class="identity"><div class="mark" aria-hidden="true">MX</div><div><div class="brand">Mr <span class="gold">XPRONOS</span> <span class="muted">/ ADMIN</span></div><span class="brand-tag">COMMAND CENTER</span></div></div>
     <nav class="toplinks" aria-label="Navigation administration"><a href="admin.html">← Administration</a><a href="index.html">↗ Voir le site</a><button id="logout" class="quiet-btn" hidden>Déconnexion</button></nav>
   </header>
-  <div class="hero"><div><div class="kicker">VISION GLOBALE / MR XPRONOS</div><h1>Tableau de bord</h1><p>Les chiffres essentiels et l'état de tes automatisations, réunis dans un même espace.</p></div><span class="hero-label">✦ PREMIUM CONTROL</span></div>
+  <div class="hero"><div><div class="kicker hero-eyebrow">MR XPRONOS / MISSION CONTROL</div><h1>Centre de supervision<span style="color:var(--gold-bright)">.</span></h1><p>Les chiffres essentiels et l'état de tes automatisations, réunis dans un même espace.</p><div class="hero-meta"><span>● MONITORING</span><span>◷ ACTUALISATION 60 S</span><span>◈ DONNÉES SUPABASE</span></div></div><span class="hero-label">✦ MISSION CONTROL</span></div>
   <section id="auth-form" class="panel">
     <h2>Connexion administrateur</h2><label for="email">Email</label><input id="email" type="email" autocomplete="username" placeholder="Adresse administrateur">
     <label for="password">Mot de passe</label><input id="password" type="password" autocomplete="current-password">
@@ -60,7 +60,7 @@
       </div>
       <span class="badge"><span id="socket-dot" class="status-dot"></span><span id="socket-state">Connexion en cours</span></span>
       <span class="right muted" id="updated">–</span>
-      <button id="refresh" class="button">Actualiser</button>
+      <div class="toolbar-end"><button id="compact-view" class="view-toggle" type="button" aria-pressed="false" title="Basculer entre la grille normale et compacte">▦ Vue compacte</button><button id="refresh" class="button primary">↻ Actualiser</button></div>
     </div>
     <nav class="quicknav" aria-label="Accès rapide"><a href="#overview">Vue générale</a><a href="#activity">Audience</a><a href="#signals-panel">Signaux</a><a href="#ops-panel">Automatisations</a><a href="#health-panel">Performance</a></nav>
     <div id="error" aria-live="polite"></div>
