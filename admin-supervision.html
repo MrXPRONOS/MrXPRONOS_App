@@ -59,13 +59,14 @@
       <button id="refresh" class="button">Actualiser</button>
     </div>
     <div id="error" aria-live="polite"></div>
+    <div class="notice" id="analytics-audit">Les visites restent des identifiants de navigateur, pas des personnes confirmées. Les pics de tests identifiés sont exclus des statistiques estimées.</div>
     <div class="metric-grid" aria-live="polite">
       <div class="metric"><div class="name">Erreurs navigateur</div><div class="val" id="errors-total">–</div><small id="errors-detail">Mesures anonymisées (échantillon)</small></div>
-      <div class="metric"><div class="name">Visiteurs uniques</div><div class="val" id="unique">–</div><small>Identifiants distincts dans les visites</small></div>
+      <div class="metric"><div class="name">Navigateurs distincts (est.)</div><div class="val" id="unique">–</div><small>Identifiants distincts dans les visites</small></div>
       <div class="metric"><div class="name">Pages vues mesurées</div><div class="val" id="pageviews">–</div><small>Événements page_view uniquement</small></div>
       <div class="metric"><div class="name">Abonnements Push</div><div class="val" id="pushcount">–</div><small>Appareils inscrits</small></div>
       <div class="metric"><div class="name">Visiteurs connectés</div><div class="val" id="online">–</div><small>Présence temps réel sur les pages équipées</small></div>
-      <div class="metric"><div class="name">Visites enregistrées</div><div class="val" id="visits">–</div><small>Maximum 1 visite/jour et par navigateur</small></div>
+      <div class="metric"><div class="name">Visites estimées (hors CI)</div><div class="val" id="visits">–</div><small>Maximum 1 visite/jour et par navigateur</small></div>
       <div class="metric"><div class="name">Clics pronostics</div><div class="val" id="clicks">–</div><small>Événements enregistrés</small></div>
       <div class="metric"><div class="name">Partages</div><div class="val" id="shares">–</div><small>WhatsApp, Telegram et autres événements share</small></div>
       <div class="metric"><div class="name">Signaux Live</div><div class="val" id="signals">–</div><small>Signaux créés durant la période</small></div>
