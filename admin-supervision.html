@@ -97,6 +97,12 @@
  <section class="panel"><h2>Core Web Vitals (p75)</h2><div class="scroll"><table class="rows"><thead><tr><th>Métrique/appareil</th><th>Échantillons</th><th>P75</th></tr></thead><tbody id="vitalsrows"></tbody></table></div><p class="section-note">Objectifs : LCP ≤2 500 ms, INP ≤200 ms, CLS ≤0,1. Échantillonnage des navigateurs compatibles.</p></section>
  <section class="panel"><h2>Fraîcheur et alertes de données</h2><div class="scroll"><table class="rows"><thead><tr><th>Source</th><th>Dernière donnée</th><th>Âge</th></tr></thead><tbody id="freshrows"></tbody></table></div><p id="health-extra" class="section-note">–</p><p class="section-note">Seuils indicatifs, à rapprocher du calendrier réel des workflows.</p></section>
 </div>
+<section class="panel" style="margin-top:14px">
+  <h2>Exécutions GitHub Actions <span class="badge">Lecture publique, cache 5 min</span></h2>
+  <p class="section-note" id="github-alerts">Connexion GitHub en cours…</p>
+  <div class="scroll"><table class="rows"><thead><tr><th>Workflow</th><th>Lancement UTC</th><th>État</th></tr></thead><tbody id="githubrows"></tbody></table></div>
+  <p class="section-note">Les doublons affichés sont des suspicions basées sur des horaires proches, pas la preuve de deux envois Telegram.</p>
+</section>
     <div class="notice">
       <strong>Mesures à compléter :</strong> erreurs JavaScript du navigateur, latence détaillée des fournisseurs, corrélation complète des workflows GitHub et chronologie de la conversion confirmée. Elles nécessitent un collecteur dédié : aucun chiffre n'est inventé ici.
     </div>
