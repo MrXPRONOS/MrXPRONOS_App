@@ -99,11 +99,22 @@ jobs:
         env:
           MANUAL_SLOT: ${{ inputs.slot || 'auto' }}
           EVENT_NAME: ${{ github.event_name }}
+          SCHEDULE_CRON: ${{ github.event.schedule }}
         run: |
           set -euo pipefail
           SLOT="$MANUAL_SLOT"
-          if [ "$EVENT_NAME" = "push" ]; then
-            SLOT="evening"
+          if [ "$EVENT_NAME" = "schedule" ]; then
+            # GitHub scheduled runs can be delayed for hours. Select by the
+            # scheduled cron expression, NEVER by runner start time.
+            case "$SCHEDULE_CRON" in
+              "15 8 * * *") SLOT="morning" ;;
+              "15 18 * * *") SLOT="evening" ;;
+              *) echo "::error::Unexpected schedule expression: $SCHEDULE_CRON"; exit 1 ;;
+            esac
+          elif [ "$EVENT_NAME" = "push" ]; then
+            # Explicit emergency retry: commit 'morning' or 'evening'
+            # to config/shorts_production_trigger.txt (first token).
+            SLOT="$(head -n 1 config/shorts_production_trigger.txt | awk '{print $1}')"
           elif [ "$SLOT" = "auto" ]; then
             HOUR="$(date -u +%H)"
             if [ "$HOUR" -lt 12 ]; then
