@@ -154,6 +154,54 @@ def corroborates(a, b) -> bool:
                 datetime.fromisoformat(b["published_at"])).total_seconds()) < 24 * 3600
 
 
+def parse_official_incident(raw: dict, name: str, now: datetime) -> dict:
+    """Validate one incident from the first-party, key-free Statuspage API."""
+    endpoint, host, exchange = OFFICIAL_STATUS_APIS[name]
+    if raw.get("status") not in ("investigating", "identified", "monitoring"):
+        raise ValueError("Incident is no longer active")
+    if raw.get("impact") not in ("minor", "major", "critical"):
+        raise ValueError("Operational impact not declared")
+    incident_id = str(raw.get("id") or "")
+    if not re.fullmatch(r"[a-z0-9]{8,32}", incident_id):
+        raise ValueError("Invalid incident ID")
+    title = clean(exchange + ": " + clean(raw.get("name"), 145))
+    if len(title) < 23 or category_of(title) is None:
+        raise ValueError("Operational incident not relevant")
+    created = parse_time(raw.get("created_at"), now)
+    return {"source": name, "title": title, "url": endpoint,
+            "published_at": created, "exchange": exchange,
+            "category": category_of(title), "severe": severe(title),
+            "official": True, "incident_id": incident_id,
+            "incident_status": raw["status"]}
+
+
+def fetch_status_incidents(name: str, now: datetime, getter=requests.get) -> list[dict]:
+    """Free official JSON API, fail-closed and tolerant of outages."""
+    url, host, exchange = OFFICIAL_STATUS_APIS[name]
+    try:
+        response = getter(url, headers={"User-Agent": HEADERS["User-Agent"],
+                                        "Accept": "application/json"}, timeout=(8, 18))
+        response.raise_for_status()
+        if not 0 < len(response.content) < 2_000_000:
+            raise ValueError("Invalid official feed size")
+        payload = response.json()
+        if not isinstance(payload, dict) or not isinstance(payload.get("incidents"), list):
+            raise ValueError("Invalid official incidents payload")
+        rows = []
+        for raw in payload["incidents"][:50]:
+            if isinstance(raw, dict):
+                try:
+                    rows.append(parse_official_incident(raw, name, now))
+                except (ValueError, TypeError, OverflowError):
+                    pass
+        print("EXCHANGE_09_OFFICIAL_API", name, "incidents",
+              len(payload["incidents"]), "qualified", len(rows))
+        return rows
+    except (requests.RequestException, ValueError, TypeError) as exc:
+        print("EXCHANGE_09_OFFICIAL_API_UNAVAILABLE", name, type(exc).__name__)
+        return []
+
+
 def fingerprint(item):
     identity = item["url"]
     if item.get("official") is True:
@@ -264,6 +312,10 @@ def export(demo=False, state_path=STATE):
     items = []
     for name, (url, _) in FEEDS.items():
         items.extend(fetch_feed(name, url, now))
+    for name in OFFICIAL_STATUS_APIS:
+        items.extend(fetch_status_incidents(name, now))
+    print("EXCHANGE_09_SOURCE_COVERAGE", len(FEEDS), "RSS",
+          len(OFFICIAL_STATUS_APIS), "official APIs", len(items), "qualified")
     report = select_report(items, state, now)
     if report is None:
         print("EXCHANGE_09_NO_VERIFIED_NEWS — no real report or Telegram publication")
