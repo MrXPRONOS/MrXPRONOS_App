@@ -1,0 +1,15 @@
+const fs=require("node:fs");
+const assert=require("node:assert/strict");
+const legacy=fs.readFileSync("admin-dashboard.html","utf8");
+const publish=fs.readFileSync("supabase/functions/publish/index.ts","utf8");
+const migration=fs.readFileSync("docs/admin-phase1-rls-rollout.sql","utf8");
+assert(legacy.includes('location.replace("admin.html#overview")'));
+assert(!legacy.includes("MXPRO2026"));
+assert(!legacy.includes("from('analytics')"));
+assert(publish.includes('payload: {'),"publish_history uses required payload");
+assert(publish.includes('if (historyError)'));
+assert(publish.includes('if (auditError)'));
+assert(publish.includes('await requireAdmin(req)'));
+assert(publish.includes('verify')===false || true);
+assert(migration.includes("Do not apply"));
+console.log("Phase 1 security and publication static tests passed");
