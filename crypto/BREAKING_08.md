@@ -3,10 +3,18 @@
 ## Statut
 Prototype de test sur feature/actu-crypto-lot-06-10. Aucun horaire permanent et aucune diffusion en production.
 
-## Sources gratuites
+## Sources gratuites (8 RSS médias indépendants)
+Catalogue partagé : `crypto/news_sources_v2.py`. Sources sans abonnement ni clé :
 - CoinDesk : https://www.coindesk.com/arc/outboundfeeds/rss/?outputType=xml
 - Cointelegraph : https://cointelegraph.com/rss
 - The Block : https://www.theblock.co/rss.xml
+- Decrypt : https://decrypt.co/feed
+- Blockworks : https://blockworks.co/feed
+- BeInCrypto : https://beincrypto.com/feed/
+- Bitcoin Magazine : https://bitcoinmagazine.com/feed
+- NewsBTC : https://www.newsbtc.com/feed/
+
+La publication #08 exige **deux médias de domaines distincts** sur une actualité BTC/ETH de moins de 12 h. Si un RSS est indisponible, les autres restent utilisables. Aucune API payante. RSS public ne signifie pas droit de republier des articles complets ; l'affiche affiche le titre avec attribution et la légende lie la source.
 
 ## Design premium — aligné avec les publications #01 à #07
 - Même format 1080 × 1350, palette bleu nuit/or/blanc, panneaux en relief et typographie lisible.
