@@ -1,0 +1,4 @@
+-- Historical Supabase migration already applied directly to production on 2026-10-18.
+-- Remote version: 20261018101203; name: deduplicate_live_predictions_indexes_20261018.
+-- No SQL is replayed. This placeholder reconciles Supabase CLI local/remote version histories.
+-- Verify actual indexes against pg_indexes before attempting a fresh database rebuild.
