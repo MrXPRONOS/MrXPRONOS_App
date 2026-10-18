@@ -15,7 +15,7 @@ if(/^\/[a-zA-Z0-9/_.-]+$/.test(page)&&Math.random()<0.12){
     };
     // Lazy loading; no impact on critical rendering.
     const begin=()=>{
-      import("https://unpkg.com/web-vitals@5/dist/web-vitals.attribution.js").then(({onCLS,onINP,onLCP})=>{
+      import("https://cdn.jsdelivr.net/npm/web-vitals@5/+esm").then(({onCLS,onINP,onLCP})=>{
         onCLS(record,{reportAllChanges:false});onINP(record,{reportAllChanges:false});onLCP(record,{reportAllChanges:false});
       }).catch(()=>{});
     };
