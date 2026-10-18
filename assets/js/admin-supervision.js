@@ -26,36 +26,50 @@ async function aggregate(table,types,start){
 }
 async function fetchSnapshot(){
  if(pending||document.hidden)return;
- pending=true;$("refresh").disabled=true;const since=windowStart();const t=performance.now();
+ pending=true;$("refresh").disabled=true;
+ const started=performance.now();
  try{
-  // No large analytics event arrays: server-side counts only.
-  const [analytics,signalCounts,telegram,crons,liveData]=await Promise.all([
-   aggregate("analytics",["visit","click_pronostic","share","share_whatsapp","share_telegram"],since),
-   Promise.all(["success","failure"].map(async outcome=>{
-    const {count,error}=await sb.from("live_predictions").select("id",{count:"exact",head:true}).gte("created_at",since).eq("validated",true).eq("outcome",outcome);
-    if(error)throw error;return count||0;
-   })).then(async r=>{
-    const {count,error}=await sb.from("live_predictions").select("id",{count:"exact",head:true}).gte("created_at",since);
-    if(error)throw error;return {wins:r[0],losses:r[1],all:count||0};
-   }),
-   sb.from("telegram_sent").select("id",{count:"exact",head:true}).gte("sent_at",since),
-   sb.from("cron_runs").select("name,last_run_at,last_ok").order("last_run_at",{ascending:false}).limit(20),
-   sb.from("matches_live_scrape").select("updated_at").order("updated_at",{ascending:false}).limit(1)
+  const {data,error}=await sb.rpc("admin_monitor_snapshot",{p_days:Number($("period").value)});
+  if(error)throw error;
+  const x=data||{},a=x.analytics||{},l=x.live||{},t=x.telegram||{},h=x.health||{};
+  const show=(id,n)=>output(id,format(n));
+  show("visits",a.visits);show("clicks",a.click_pronostic);
+  // "share" may mirror platform-specific shares; never sum these as independent actions.
+  show("shares",a.share_generic);show("signals",l.total);
+  const settled=Number(l.wins||0)+Number(l.losses||0);
+  output("winrate",settled?((100*Number(l.wins||0)/settled).toFixed(1)+" %"):"–");
+  show("telegram",t.total);
+  show("unique",a.unique_visitors);show("pageviews",a.page_views);
+  show("pushcount",x.push?.subscriptions);
+  output("last-signal",format(l.pending)+" en attente · "+format(l.validated)+" validés");
+  renderTable("crons",x.crons||[],[
+   r=>safe(r.name)+" <small class='muted'>"+safe(r.origin)+"</small>",
+   r=>safe(date(r.last_run)),
+   r=>{const age=r.last_run?(Date.now()-Date.parse(r.last_run))/60000:Infinity;return "<span class='"+(r.ok&&age<180?"good-txt":"bad-txt")+"'>"+(r.ok?"OK":"Échec")+" · "+(Number.isFinite(age)?Math.floor(age)+" min":"?")+"</span>"}
   ]);
-  for(const res of [telegram,crons,liveData])if(res.error)throw res.error;
-  output("visits",format(analytics.visit));output("clicks",format(analytics.click_pronostic));
-  output("shares",format(analytics.share+analytics.share_whatsapp+analytics.share_telegram));
-  output("signals",format(signalCounts.all));output("telegram",format(telegram.count));
-  const settled=signalCounts.wins+signalCounts.losses;
-  output("winrate",settled?((100*signalCounts.wins/settled).toFixed(1)+" %"):"–");
-  $("quality").innerHTML="<p>Gagnants validés : <strong>"+format(signalCounts.wins)+"</strong></p><p>Perdants validés : <strong>"+format(signalCounts.losses)+"</strong></p><p>Non classés : <strong>"+format(Math.max(0,signalCounts.all-settled))+"</strong></p>";
-  $("crons").innerHTML=(crons.data||[]).map(c=>"<tr><td>"+safe(c.name)+"</td><td>"+safe(date(c.last_run_at))+"</td><td class='"+(c.last_ok?"good-txt":"bad-txt")+"'>"+(c.last_ok?"OK":"Échec")+"</td></tr>").join("")||"<tr><td colspan='3'>Aucune exécution disponible</td></tr>";
-  const last=liveData.data?.[0]?.updated_at;
-  if(last){const age=Math.round((Date.now()-Date.parse(last))/60000);output("freshness",date(last)+" · "+age+" min");}else output("freshness","Aucune donnée disponible");
-  output("latency",format(Math.round(performance.now()-t))+" ms");output("updated","Mis à jour à "+new Date().toLocaleTimeString("fr-FR",{timeZone:"UTC"})+" UTC");
+  renderTable("marketrows",x.live_markets||[],[r=>safe(r.name),r=>format(r.total),r=>percent(r.wins,r.losses)]);
+  renderTable("tierrows",x.live_tiers||[],[r=>safe(r.name),r=>format(r.total),r=>percent(r.wins,r.losses)]);
+  renderTable("prematchrows",x.prematch||[],[r=>safe(r.name),r=>format(r.total),r=>percent(r.wins,r.losses)]);
+  renderTable("sourcesrows",x.attribution||[],[r=>safe(r.source),r=>format(r.views),r=>format(r.interactions)]);
+  renderTable("vitalsrows",x.web_vitals||[],[
+   r=>safe(r.metric)+" / "+safe(r.device),r=>format(r.sample_count),
+   r=>r.metric==="CLS"?Number(r.p75).toFixed(3):format(Math.round(Number(r.p75)))+" ms"
+  ]);
+  const freshness=[["Scraping live",h.live_scrape_last,5],["Fusion de données",h.live_merged_last,5],["Dernier signal",h.latest_live_prediction,180],["Actualités football",h.last_actu_foot_run,120]];
+  renderTable("freshrows",freshness.map(([name,at,limit])=>({name,at,limit})),[
+    r=>safe(r.name),r=>safe(date(r.at)),r=>{if(!r.at)return "<span class='bad-txt'>Non disponible</span>";const age=Math.round((Date.now()-Date.parse(r.at))/60000);return "<span class='"+(age>r.limit?"bad-txt":"good-txt")+"'>"+age+" min</span>"}
+  ]);
+  output("freshness",h.live_merged_last?date(h.live_merged_last):"Aucune donnée");
+  output("health-extra",format(h.blocked_signals)+" signaux bloqués · "+format(h.actu_foot_errors)+" erreurs actualités");
+  output("latency",format(Math.round(performance.now()-started))+" ms");
+  output("updated","Mis à jour à "+new Date().toLocaleTimeString("fr-FR",{timeZone:"UTC"})+" UTC");
   notice("");
- }catch(e){notice("Certaines statistiques sont indisponibles : "+(e?.message||String(e)));}
- finally{pending=false;$("refresh").disabled=false}
+ }catch(e){notice("Supervision indisponible : "+(e?.message||String(e)));}finally{pending=false;$("refresh").disabled=false}
+}
+function percent(w,l){const n=Number(w||0)+Number(l||0);return n?(100*Number(w||0)/n).toFixed(1)+" %":"–"}
+function renderTable(id,rows,columns){
+ const target=$(id);if(!target)return;
+ target.innerHTML=rows.length?rows.map(r=>"<tr>"+columns.map(fn=>"<td>"+fn(r)+"</td>").join("")+"</tr>").join(""):"<tr><td colspan='"+columns.length+"' class='muted'>Aucune donnée disponible</td></tr>";
 }
 async function authenticate(){
  const {data}=await sb.auth.getUser();
