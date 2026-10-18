@@ -270,6 +270,29 @@ def post_instagram_reel(public_video_url: Optional[str], caption: str) -> Publis
 # =====================================================
 # THREADS
 # =====================================================
+def wait_threads_container(container_id: str, token: str, max_wait_sec: int = 300) -> None:
+    """Wait for Threads to finish processing a video, never publish an invalid container."""
+    url = f"https://graph.threads.net/v1.0/{container_id}"
+    deadline = time.monotonic() + max_wait_sec
+    while time.monotonic() < deadline:
+        payload = request_or_raise(
+            "GET", url,
+            params={"fields": "status,error_message", "access_token": token},
+            timeout=60,
+        )
+        status = str(payload.get("status") or "").upper()
+        log(f"⏳ Threads container {container_id}: {status or 'UNKNOWN'}")
+        if status == "FINISHED":
+            return
+        if status in {"ERROR", "EXPIRED", "PUBLISHED"}:
+            reason = str(payload.get("error_message") or "")[:160]
+            raise RuntimeError(f"Threads container {status}. {reason}")
+        if status != "IN_PROGRESS":
+            raise RuntimeError(f"Statut du container Threads inattendu: {status}")
+        time.sleep(min(10, max(0, deadline - time.monotonic())))
+    raise TimeoutError("Threads: container vidéo pas prêt avant expiration du délai")
+
+
 def post_threads(public_video_url: Optional[str], caption: str) -> PublishResult:
     platform = "threads"
     ok, msg = require_env(["THREADS_USER_ID", "THREADS_ACCESS_TOKEN"])
@@ -303,8 +326,9 @@ def post_threads(public_video_url: Optional[str], caption: str) -> PublishResult
     if not creation_id:
         return PublishResult(platform, False, f"Threads container sans id: {create_payload}", create_payload)
 
-    # Petit délai pour laisser Meta traiter la vidéo.
-    time.sleep(int(env("THREADS_PUBLISH_DELAY", "20")))
+    # La vidéo doit avoir le statut FINISHED avant publication. Un délai fixe
+    # de 20 secondes n'est pas fiable pour le traitement média chez Meta.
+    wait_threads_container(creation_id, token)
 
     log("📤 Publication Threads...")
     publish_url = f"https://graph.threads.net/v1.0/{user_id}/threads_publish"
