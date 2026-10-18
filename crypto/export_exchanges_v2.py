@@ -17,16 +17,13 @@ from urllib.parse import urlsplit, urlunsplit
 
 import feedparser
 import requests
+from crypto.news_sources_v2 import EDITORIAL_FEEDS, OFFICIAL_STATUS_APIS
 
 UTC = timezone.utc
 OUTPUT = Path("crypto/generated/test")
 STATE = Path("crypto/exchanges_09_state.json")
 MAX_AGE_HOURS = 48
-FEEDS = {
-    "CoinDesk": ("https://www.coindesk.com/arc/outboundfeeds/rss/?outputType=xml", "coindesk.com"),
-    "Cointelegraph": ("https://cointelegraph.com/rss", "cointelegraph.com"),
-    "The Block": ("https://www.theblock.co/rss.xml", "theblock.co"),
-}
+FEEDS = EDITORIAL_FEEDS
 EXCHANGES = ("BINANCE", "COINBASE", "OKX", "KRAKEN", "BYBIT", "BITGET", "KUCOIN", "GEMINI")
 CATEGORIES = {
     "SÉCURITÉ": ("hack", "hacked", "breach", "exploit", "stolen", "theft", "compromise", "attack", "phishing", "outage"),
@@ -133,7 +130,7 @@ def fetch_feed(name, url, now, getter=requests.get):
         if feed.bozo or not feed.entries:
             raise ValueError("Invalid RSS feed")
         entries = []
-        for item in feed.entries[:45]:
+        for item in feed.entries[:65]:
             try:
                 entries.append(parse_entry(item, name, now))
             except (ValueError, TypeError, OverflowError):
@@ -158,7 +155,10 @@ def corroborates(a, b) -> bool:
 
 
 def fingerprint(item):
-    return hashlib.sha256(item["url"].encode("utf-8")).hexdigest()[:24]
+    identity = item["url"]
+    if item.get("official") is True:
+        identity += "#" + item["incident_id"]
+    return hashlib.sha256(identity.encode("utf-8")).hexdigest()[:24]
 
 
 def load_state(path=STATE):
@@ -178,7 +178,7 @@ def select_report(items, state, now):
     for article in rows:
         alternatives = [x for x in rows if corroborates(article, x)]
         confirmation = alternatives[0] if alternatives else None
-        if article["severe"] and confirmation is None:
+        if article["severe"] and confirmation is None and article.get("official") is not True:
             print("EXCHANGE_09_HOLD_SENSITIVE_UNCORROBORATED", article["exchange"])
             continue
         # Every item is explicitly attributed. High-impact incidents need two sources.
@@ -189,7 +189,7 @@ def select_report(items, state, now):
             "publication": 9, "status": "real_data", "is_demo": False,
             "collected_at": now.isoformat(), "exchange": article["exchange"],
             "category": article["category"],
-            "verification": "cross_reported" if confirmation else "attributed_report",
+            "verification": "official_notice" if article.get("official") else ("cross_reported" if confirmation else "attributed_report"),
             "main": article, "confirmation": confirmation,
             "fingerprints": [fingerprint(i) for i in used],
         }
