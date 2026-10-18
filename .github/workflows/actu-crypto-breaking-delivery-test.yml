@@ -5,6 +5,10 @@ on:
     branches: [feature/actu-crypto-lot-06-10]
     paths:
       - 'crypto/send_breaking_08_delivery_test.py'
+      - 'scripts/render_crypto_breaking_v2.mjs'
+      - 'crypto/export_breaking_v2.py'
+      - 'crypto/assets/premium_market/btc.png'
+      - 'crypto/assets/premium_market/eth.png'
       - '.github/workflows/actu-crypto-breaking-delivery-test.yml'
   workflow_dispatch:
 
@@ -27,14 +31,26 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install HTTP and image dependencies
-        run: python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12'
-      - name: Send one diagnostic PHOTO plus caption to validated @predict_mrxp
-        run: python -m crypto.send_breaking_08_delivery_test
-      - name: Archive sent diagnostic image
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install the same rendering dependencies as publications 1-7
+        run: |
+          python -m pip install 'requests>=2.31,<3' 'feedparser>=6.0,<7' 'Pillow>=10,<12'
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Check #08 safety rules before rendering
+        run: python -m unittest crypto.test_breaking_v2 -v
+      - name: Generate fictitious editorial data (never a real news post)
+        run: python -m crypto.export_breaking_v2 --demo
+      - name: Render the actual premium breaking-news template
+        run: node scripts/render_crypto_breaking_v2.mjs --demo
+      - name: Archive exact image used for Telegram visual approval
         uses: actions/upload-artifact@v4
         with:
-          name: crypto-publication-08-telegram-photo-delivery-test
-          path: crypto/generated/test/breaking_08_delivery_test.png
+          name: crypto-publication-08-telegram-premium-DEMO
+          path: crypto/generated/test/breaking_v2_demo.png
           if-no-files-found: error
           retention-days: 14
+      - name: Send one watermarked PREMIUM preview PHOTO plus caption to validated @predict_mrxp
+        run: python -m crypto.send_breaking_08_delivery_test
