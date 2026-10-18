@@ -145,7 +145,7 @@ def _already_sent_ids(target_date: str, kind: str):
     base = (os.getenv("SUPABASE_URL") or "").rstrip("/")
     key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or ""
     if not base or not key:
-        return set()
+        raise RuntimeError("SUPABASE_URL et une clé serveur obligatoires pour éviter les doublons en production")
     response = requests.get(
         base + "/rest/v1/telegram_sent",
         params={
@@ -532,7 +532,8 @@ def main():
         json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
     )
     print("SHORTS_COUPON_VIDEO_READY", json.dumps(manifest, ensure_ascii=False))
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
