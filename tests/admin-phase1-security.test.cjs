@@ -10,6 +10,5 @@ assert(publish.includes('payload: {'),"publish_history uses required payload");
 assert(publish.includes('if (historyError)'));
 assert(publish.includes('if (auditError)'));
 assert(publish.includes('await requireAdmin(req)'));
-assert(publish.includes('verify')===false || true);
 assert(migration.includes("Do not apply"));
 console.log("Phase 1 security and publication static tests passed");
