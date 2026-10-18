@@ -143,8 +143,8 @@ def fetch_feed(name, url, now, getter=requests.get):
 
 
 def corroborates(a, b) -> bool:
-    if (a["source"] == b["source"] or a["exchange"] != b["exchange"]
-            or a["category"] != b["category"]):
+    if (a.get("official") or b.get("official") or a["source"] == b["source"]
+            or a["exchange"] != b["exchange"] or a["category"] != b["category"]):
         return False
     ta, tb = terms(a["title"]), terms(b["title"])
     shared = ta & tb
