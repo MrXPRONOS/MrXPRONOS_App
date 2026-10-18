@@ -6,6 +6,18 @@
       "sent_at": "2026-10-18T23:34:23Z",
       "source": "confirmed Telegram photo, workflow 39177002087"
     },
+    "initial_history_02": {
+      "message_id": 7,
+      "number": 2,
+      "sent_at": "2026-10-18T23:38:21.517498+00:00",
+      "source": "CoinPaprika"
+    },
+    "initial_history_03": {
+      "message_id": 8,
+      "number": 3,
+      "sent_at": "2026-10-18T23:38:33.565753+00:00",
+      "source": "CoinPaprika"
+    },
     "initial_history_05": {
       "message_id": 3,
       "number": 5,
