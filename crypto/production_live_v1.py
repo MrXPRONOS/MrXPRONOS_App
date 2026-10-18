@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -135,7 +136,7 @@ def execute(mode: str):
             seed.write_state(state)
             print("CRYPTO_LIVE_PUBLISHED", "number="+str(number),
                   "message_id="+str(message_id), "photo_confirmed=1")
-        except (OSError, ValueError, RuntimeError, KeyError, TypeError) as exc:
+        except (OSError, ValueError, RuntimeError, KeyError, TypeError, subprocess.CalledProcessError) as exc:
             # A one-off upstream source failure should not suppress unrelated news.
             # Do not auto-retry uncertain send calls on same iteration.
             print("CRYPTO_LIVE_FAILED", number, type(exc).__name__, str(exc)[:250])
