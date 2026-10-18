@@ -26,7 +26,7 @@ MAX_AGE_HOURS = 48
 FEEDS = EDITORIAL_FEEDS
 EXCHANGES = ("BINANCE", "COINBASE", "OKX", "KRAKEN", "BYBIT", "BITGET", "KUCOIN", "GEMINI")
 CATEGORIES = {
-    "SÉCURITÉ": ("hack", "hacked", "breach", "exploit", "stolen", "theft", "compromise", "attack", "phishing", "outage"),
+    "SÉCURITÉ": ("hack", "hacked", "breach", "exploit", "stolen", "theft", "compromise", "attack", "phishing"),
     "ACCÈS & SERVICES": ("withdrawal", "withdrawals", "deposit", "deposits", "suspend", "suspended", "resume", "resumes", "halt", "halts", "maintenance", "outage", "freeze", "frozen", "restrictions", "restrict", "block", "blocked"),
     "FRAIS & TRADING": ("trading fee", "fees", "fee ", "fee-", "maker", "taker", "delist", "delisting", "listing", "listings", "list ", "lists ", "liquidity"),
     "RÉGLEMENTATION": ("regulator", "regulatory", "license", "licence", "sec ", "lawsuit", "settlement", "court", "fine", "penalty", "investigation"),
