@@ -27,6 +27,12 @@ class ThreadsError(RuntimeError):
     """An actionable, sanitized error (never includes secrets)."""
 
 
+class ThreadsAPIError(ThreadsError):
+    def __init__(self, status: int, code: object, subcode: object, *, too_recent=False):
+        super().__init__(f"Threads HTTP {status}, code {code}, subcode {subcode}")
+        self.too_recent = bool(too_recent)
+
+
 def required(name: str) -> str:
     value = (os.getenv(name) or "").strip()
     if not value:
@@ -50,8 +56,14 @@ def api_json(method: str, path: str, *, params=None, data=None, token=None) -> d
         error = payload.get("error", {}) if isinstance(payload, dict) else {}
         code = error.get("code", "n/a") if isinstance(error, dict) else "n/a"
         subcode = error.get("error_subcode", "n/a") if isinstance(error, dict) else "n/a"
-        # Never include URL, query parameters, response raw text or access tokens.
-        raise ThreadsError(f"Threads HTTP {response.status_code}, code {code}, subcode {subcode}")
+        # The response message is used only for a specific 24-hour eligibility
+        # test; it is never printed because it might contain sensitive values.
+        message = str(error.get("message") or "").lower() if isinstance(error, dict) else ""
+        too_recent = response.status_code == 400 and (
+            ("24" in message and ("hour" in message or "heure" in message))
+            or "too recent" in message or "not old enough" in message
+        )
+        raise ThreadsAPIError(response.status_code, code, subcode, too_recent=too_recent)
     if not isinstance(payload, dict):
         raise ThreadsError("Réponse JSON Threads invalide")
     return payload
@@ -163,12 +175,12 @@ def refresh() -> None:
             "GET", "/refresh_access_token",
             params={"grant_type": "th_refresh_token", "access_token": token}
         )
-    except ThreadsError as exc:
-        # A newly-created token can only be refreshed after 24 hours.
-        # Profile validation already succeeded, so it is safe to postpone.
-        if "HTTP 400" in str(exc):
-            print("ℹ️ Threads actif; rafraîchissement refusé (peut être trop récent). "
-                  "La prochaine exécution réessaiera.", flush=True)
+    except ThreadsAPIError as exc:
+        # A newly-created token is not eligible for refresh before 24 hours.
+        # All other HTTP 400 errors must be visible as real failures.
+        if exc.too_recent:
+            print("ℹ️ Threads actif; token créé depuis moins de 24 h. "
+                  "Renouvellement reporté au prochain passage.", flush=True)
             return
         raise
     new_token = result.get("access_token")
