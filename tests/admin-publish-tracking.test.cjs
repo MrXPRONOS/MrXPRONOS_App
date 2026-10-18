@@ -42,4 +42,9 @@ includes(admin,[
 assert(!admin.includes('alert(`Commit GitHub enregistré'),"Old premature success alert remains");
 assert(!admin.includes('SUPABASE_SERVICE_ROLE_KEY'),"Service key must not exist in frontend");
 assert(!admin.includes('GITHUB_PAT'),"GitHub token must not exist in frontend");
+const migration=fs.readFileSync("supabase/migrations/20261018212440_secure_legacy_vip_code_rpc.sql","utf8");
+assert(migration.includes("REVOKE ALL ON FUNCTION public.create_vip_code"));
+assert(migration.includes("REVOKE ALL ON FUNCTION public.insert_vip_code"));
+assert(migration.includes("TO service_role"));
+assert(!migration.includes("REVOKE ALL ON FUNCTION public.admin_reset_vip"));
 console.log("Publish status & guarded rollback source contracts passed");
