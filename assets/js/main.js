@@ -700,7 +700,12 @@ function showPushPrompt() {
   el.style.display = "block";
 }
 
+function isLocalTestEnvironment() {
+  return ["localhost", "127.0.0.1", "[::1]"].includes(location.hostname) || location.hostname.endsWith(".localhost");
+}
+
 async function incrementCounter(counterName) {
+  if (isLocalTestEnvironment()) return;
   if (!supabaseAvailable || !supabase) {
     const local = parseInt(localStorage.getItem(counterName) || "0", 10);
     localStorage.setItem(counterName, String(local + 1));
@@ -745,6 +750,7 @@ function subscribeToCounters() {
 }
 
 async function recordEvent(type, page = "") {
+  if (isLocalTestEnvironment()) return;
   if (!supabaseAvailable || !supabase) return;
   const userId = getUserId();
   try {
@@ -770,7 +776,7 @@ function editorialAttributionPayload(page) {
 
 async function recordEditorialAttribution(page) {
   const payload = editorialAttributionPayload(page);
-  if (!payload || !supabaseAvailable || !supabase) return;
+  if (!payload || isLocalTestEnvironment() || !supabaseAvailable || !supabase) return;
   async function sendEditorialMetric(eventType) {
     try {
       const { error } = await supabase.from("analytics").insert({
@@ -794,6 +800,7 @@ async function recordEditorialAttribution(page) {
 }
 
 function countVisitOncePerDay() {
+  if (isLocalTestEnvironment()) return;
   const todayKey = getTodayString();
   const lastVisit = localStorage.getItem("mx_last_visit");
   if (lastVisit !== todayKey) {
@@ -804,6 +811,7 @@ function countVisitOncePerDay() {
 }
 
 async function registerUniqueUser() {
+  if (isLocalTestEnvironment()) return;
   if (!supabaseAvailable || !supabase) return;
   const userId = getUserId();
   const registered = localStorage.getItem("mx_registered");
@@ -1948,6 +1956,7 @@ function editorialAbCover(kind, article) {
     ? article.ab_image_url : article.image_url;
 }
 async function postEditorialAbEvent(kind, slug, variant, eventType) {
+  if (isLocalTestEnvironment()) return;
   if (!["article","conseil"].includes(kind)) return;
   if (!/^[a-z0-9_-]{2,180}$/i.test(String(slug)) || !["a","b"].includes(variant)) return;
   if (!["editorial_ab_exposure","editorial_ab_click"].includes(eventType)) return;
