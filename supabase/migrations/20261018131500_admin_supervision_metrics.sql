@@ -62,9 +62,9 @@ BEGIN
    'editorial_clicks', count(*) FILTER (WHERE event_type='editorial_promo_copy' OR event_type='editorial_ab_click'))
   INTO v_events FROM public.analytics WHERE created_at>=v_since;
 
-  SELECT coalesce(jsonb_agg(jsonb_build_object('day',day,'visits',visits,'page_views',page_views,'clicks',clicks) ORDER BY day),'[]'::jsonb)
+  SELECT coalesce(jsonb_agg(jsonb_build_object('day',day_key,'visits',visits,'page_views',page_views,'clicks',clicks) ORDER BY day_key),'[]'::jsonb)
     INTO v_daily FROM (
-      SELECT (created_at AT TIME ZONE 'UTC')::date day,
+      SELECT (created_at AT TIME ZONE 'UTC')::date day_key,
        count(*) FILTER (WHERE event_type='visit') visits,
        count(*) FILTER (WHERE event_type='page_view') page_views,
        count(*) FILTER (WHERE event_type='click_pronostic') clicks
@@ -142,7 +142,7 @@ BEGIN
         count(*) FILTER (WHERE event_type='editorial_view') views,
         count(*) FILTER (WHERE event_type IN ('editorial_promo_copy','editorial_ab_click')) interactions
       FROM public.analytics WHERE created_at>=v_since
-       AND page LIKE 'article|%|%|%' OR created_at>=v_since AND page LIKE 'conseil|%|%|%'
+       AND (page LIKE 'article|%|%|%' OR page LIKE 'conseil|%|%|%')
       GROUP BY 1 LIMIT 12
     ) t;
 
