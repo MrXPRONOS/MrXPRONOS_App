@@ -16,7 +16,9 @@ for(const id of new Set(ids)){assert(html.includes('id="'+id+'"'),"DOM element m
 assert(html.includes('name="viewport"'));
 assert(html.includes('name="robots" content="noindex,nofollow"'));
 assert(admin.includes('href="admin-supervision.html"'));
-assert(main.includes('import "./web-vitals-monitor.js"'));
+assert(!main.includes('import "./web-vitals-monitor.js"'));
+assert(fs.readFileSync("index.html","utf8").includes('src="assets/js/web-vitals-monitor.js'));
+assert(fs.readFileSync("pronos.html","utf8").includes('src="assets/js/web-vitals-monitor.js'));
 assert(app.includes('rpc("is_admin")'));
 assert(app.includes('rpc("admin_monitor_snapshot"'));
 assert(app.includes('rpc("admin_client_error_summary"'));
