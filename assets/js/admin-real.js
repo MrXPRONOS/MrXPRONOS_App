@@ -1236,11 +1236,11 @@ function cmsInstallHistory(){
 // PUBLISH (corrigé headers)
 // -----------------------------
 async function publishNow() {
-  if (publishBusy) return;
+  if(publishBusy)return;
   publishBusy=true;
   setBtnDisabled("btnPublish",true);
   let panel=$("cms-publish-result");
-  if(!panel) {
+  if(!panel){
     panel=cmsDom("div");
     panel.id="cms-publish-result";
     panel.setAttribute("role","status");
@@ -1248,9 +1248,42 @@ async function publishNow() {
     panel.style.cssText="padding:12px;margin:12px 0;border:1px solid #666;border-radius:10px";
     $("btnPublish").parentElement.appendChild(panel);
   }
-  panel.replaceChildren(cmsDom("span","Publication préparée : création du commit GitHub…"));
+  panel.textContent="Prévisualisation de la publication en cours…";
   try{
-    const data=await cmsAdminRequest("publish");
+    const {preview}=await cmsAdminRequest("preflight");
+    if(!preview?.has_changes){
+      panel.textContent="Aucun changement à publier : les cinq fichiers GitHub sont déjà à jour.";
+      return;
+    }
+    const lines=Object.entries(preview.changes).filter(([,data])=>data.different)
+      .map(([path,data])=>path+" : "+data.before+" → "+data.after).join("\n");
+    panel.textContent="Modifications proposées :\n"+lines;
+    panel.style.whiteSpace="pre-line";
+    if(!window.confirm("Publier les modifications suivantes sur le site ?\n\n"+lines)){
+      panel.textContent="Publication annulée : aucun commit créé.";
+      return;
+    }
+    let acknowledge_empty;
+    if(preview.emptied_files?.length){
+      const files=preview.emptied_files.join(", ");
+      if(window.prompt("Attention : les fichiers suivants vont être vidés : "+files+
+        "\nPour confirmer, tape exactement PUBLIER VIDE")!=="PUBLIER VIDE"){
+        panel.textContent="Publication annulée : suppression des contenus non confirmée.";
+        return;
+      }
+      acknowledge_empty="PUBLIER VIDE";
+    }
+    panel.textContent="Publication préparée : création du commit GitHub…";
+    const data=await cmsAdminRequest("publish",{
+      expected_head:preview.current_head,
+      preflight_expires:preview.preflight_expires,
+      preflight_signature:preview.preflight_signature,
+      acknowledge_empty
+    });
+    if(data.skipped){
+      panel.textContent="Aucun changement à publier : aucun commit créé.";
+      return;
+    }
     const commit=data?.github_commit;
     if(!commit){panel.textContent="Le serveur n'a pas retourné de commit : mise en ligne non confirmée.";return;}
     panel.textContent="Commit GitHub créé : "+commit.slice(0,12)+". Mise en ligne non confirmée.";
@@ -1263,14 +1296,16 @@ async function publishNow() {
       panel.replaceChildren(output,check);
       try{
         const value=await cmsAdminRequest("status",{commit});
-        const labels={deployed:"Déploiement confirmé",pending:"Déploiement en cours",failed:"Déploiement échoué",unknown:"Déploiement non confirmé"};
+        const labels={deployed:"Déploiement confirmé",pending:"Déploiement en cours",
+          failed:"Déploiement échoué",unknown:"Déploiement non confirmé"};
         output.textContent=(labels[value.deployment]||"Déploiement non confirmé")+" — "+commit.slice(0,12)+
           (value.is_current?" (commit actuel)":" (version antérieure)");
         if(value.workflow_url&&/^https:\/\/github\.com\//.test(value.workflow_url)){
-          const url=cmsDom("a"," — Détails GitHub");url.href=value.workflow_url;url.rel="noopener noreferrer";url.target="_blank";
-          output.appendChild(url);
+          const url=cmsDom("a"," — Détails GitHub");url.href=value.workflow_url;
+          url.rel="noopener noreferrer";url.target="_blank";output.appendChild(url);
         }
-        if(value.deployment==="pending"&&attempts++<12)pendingTimer=setTimeout(()=>void verify(),12000);
+        if(value.deployment==="pending"&&attempts++<12)
+          pendingTimer=setTimeout(()=>void verify(),12000);
       }catch(error){output.textContent="Vérification indisponible : "+error.message;}
     }
     check.addEventListener("click",()=>void verify());
