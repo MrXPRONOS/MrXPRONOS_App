@@ -124,6 +124,11 @@ class RegulatoryNewsTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             reg.validate_candidate(d, self.now)
 
+    def test_media_without_explicit_geography_remains_unknown(self):
+        article = self.entry("CoinDesk", "Crypto regulation bill proposes stablecoin licensing framework")
+        self.assertEqual(article["region"], "ZONE À VÉRIFIER")
+        self.assertFalse(article["official"])
+
     def test_registry_fail_closed(self):
         with TemporaryDirectory() as tmp:
             p = Path(tmp) / "state.json"
