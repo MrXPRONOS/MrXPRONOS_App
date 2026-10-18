@@ -1,0 +1,11 @@
+-- REVIEW ONLY: Do not apply without auditing all public and automated write paths.
+-- Eight legacy tables currently exposed with RLS disabled:
+-- vip_users, bookmakers, pronostics, live_matches, predictions,
+-- notifications, live_match_snapshots, sent_alerts.
+-- Plan: migrate writes to service role, define required public SELECT policies,
+-- then enable RLS one table at a time with functional smoke tests and rollback.
+-- SELECT all rows from analytics is currently permitted to anon:
+-- DROP POLICY IF EXISTS "Allow anonymous selects" ON public.analytics;
+-- Before applying, verify no public site code requires raw analytic reads.
+-- Review SECURITY DEFINER functions' execute privileges and search_path.
+-- Never bulk-activate RLS here; old Telegram/VIP/live workflows may depend on it.
