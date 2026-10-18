@@ -1,7 +1,7 @@
 const fs=require("node:fs"),assert=require("node:assert/strict");
 const publisher=fs.readFileSync("supabase/functions/publish/index.ts","utf8");
 const admin=fs.readFileSync("assets/js/admin-real.js","utf8");
-const migration=fs.readFileSync("supabase/migrations/20261018170500_admin_analytics_vip_rpc_hardening.sql","utf8");
+const migration=fs.readFileSync("supabase/migrations/20261018170711_admin_analytics_vip_rpc_hardening.sql","utf8");
 assert(publisher.includes("const publishedCommit = await ghPublishAtomic("));
 assert(publisher.includes('await ghJson("/git/refs/heads/"'));
 assert(publisher.includes("force:false"),"atomic commit must not overwrite concurrent writes");
