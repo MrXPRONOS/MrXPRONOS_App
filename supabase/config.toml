@@ -26,3 +26,7 @@ verify_jwt = false
 
 [functions.telegram-membership]
 verify_jwt = false
+
+# Administrative CMS: always require an authenticated JWT.
+[functions.publish]
+verify_jwt = true
