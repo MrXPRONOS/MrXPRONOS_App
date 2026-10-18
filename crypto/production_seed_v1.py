@@ -67,7 +67,7 @@ def verify_production_route() -> dict:
             "Missing production bot token or ACTU_CRYPTO_CHAT_ID "
             "(configure GitHub repository secret or variable)."
         )
-    if CHAT.lower() == "@predict_mrxp":
+    if CHAT.lower().lstrip("@") == "predict_mrxp":
         raise RuntimeError("The TEST channel is forbidden as production destination")
 
     def telegram_read(method, params):
