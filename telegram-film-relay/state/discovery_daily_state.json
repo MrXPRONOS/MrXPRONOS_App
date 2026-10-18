@@ -7,12 +7,37 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
+          "matching_pairs": 3,
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 1,
+          "sample_post_ids": [
+            383,
+            403,
+            428
+          ],
+          "sampled_messages": 55,
+          "source_status": "pending_rights",
+          "strict_filters": {
+            "min_verified_pairs": 2,
+            "min_video_megabytes": 30,
+            "min_video_minutes": 10
+          },
+          "title": "Anime Canal Vf👍✨",
+          "transfer_restricted": false,
+          "url": "https://t.me/anime2_vf",
+          "username": "anime2_vf"
+        },
+        {
+          "category": "anime",
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
+          "joined_by_tool": false,
           "matching_pairs": 2,
           "redistribution_rights": "non_verifies",
           "rejected_pairs": 0,
           "sample_post_ids": [
-            13227,
-            13246
+            63700,
+            63737
           ],
           "sampled_messages": 55,
           "source_status": "pending_rights",
@@ -21,72 +46,22 @@
             "min_video_megabytes": 30,
             "min_video_minutes": 10
           },
-          "title": "MANGAS TV VF 🇫🇷",
+          "title": "ANIMES VF/VOSTFR",
           "transfer_restricted": false,
-          "url": "https://t.me/MANGAS_ANIME_EN_FRANCAIS",
-          "username": "MANGAS_ANIME_EN_FRANCAIS"
-        },
-        {
-          "category": "anime",
-          "format": "photo_texte_puis_video",
-          "format_verified": true,
-          "joined_by_tool": false,
-          "matching_pairs": 3,
-          "redistribution_rights": "non_verifies",
-          "rejected_pairs": 0,
-          "sample_post_ids": [
-            16644,
-            16659,
-            16674
-          ],
-          "sampled_messages": 55,
-          "source_status": "pending_rights",
-          "strict_filters": {
-            "min_verified_pairs": 2,
-            "min_video_megabytes": 30,
-            "min_video_minutes": 10
-          },
-          "title": "ANIME SAMA VF",
-          "transfer_restricted": false,
-          "url": "https://t.me/ANIME_SAMA_VF_HD",
-          "username": "ANIME_SAMA_VF_HD"
-        },
-        {
-          "category": "anime",
-          "format": "photo_texte_puis_video",
-          "format_verified": true,
-          "joined_by_tool": false,
-          "matching_pairs": 4,
-          "redistribution_rights": "non_verifies",
-          "rejected_pairs": 1,
-          "sample_post_ids": [
-            3978,
-            4163,
-            5494
-          ],
-          "sampled_messages": 55,
-          "source_status": "pending_rights",
-          "strict_filters": {
-            "min_verified_pairs": 2,
-            "min_video_megabytes": 30,
-            "min_video_minutes": 10
-          },
-          "title": "ANIMÉ 卂 MOMENT VF",
-          "transfer_restricted": false,
-          "url": "https://t.me/ANIMEISEKAIC",
-          "username": "ANIMEISEKAIC"
+          "url": "https://t.me/ANIMES_VF_VOSFR",
+          "username": "ANIMES_VF_VOSFR"
         }
       ],
       "statistics": {
         "attempted": 4,
         "checked": 4,
         "found": 15,
-        "next_candidate_offset": 4,
+        "next_candidate_offset": 8,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
         "rate_limited": false,
-        "strict_rejected": 1
+        "strict_rejected": 2
       }
     },
     "comedie": {
@@ -95,7 +70,7 @@
         "attempted": 4,
         "checked": 4,
         "found": 6,
-        "next_candidate_offset": 4,
+        "next_candidate_offset": 2,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
@@ -110,109 +85,60 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 14,
+          "matching_pairs": 8,
           "redistribution_rights": "non_verifies",
           "rejected_pairs": 0,
           "sample_post_ids": [
-            42,
-            45,
-            48
+            258,
+            260,
+            262
           ],
-          "sampled_messages": 55,
+          "sampled_messages": 21,
           "source_status": "pending_rights",
           "strict_filters": {
             "min_verified_pairs": 2,
             "min_video_megabytes": 150,
             "min_video_minutes": 40
           },
-          "title": "Films Romantiques",
+          "title": "💖💖FILMS ROMANTIQUES💖💖",
           "transfer_restricted": false,
-          "url": "https://t.me/cineromances",
-          "username": "cineromances"
-        },
-        {
-          "category": "desir",
-          "format": "photo_texte_puis_video",
-          "format_verified": true,
-          "joined_by_tool": false,
-          "matching_pairs": 12,
-          "redistribution_rights": "non_verifies",
-          "rejected_pairs": 0,
-          "sample_post_ids": [
-            9108,
-            9110,
-            9112
-          ],
-          "sampled_messages": 55,
-          "source_status": "pending_rights",
-          "strict_filters": {
-            "min_verified_pairs": 2,
-            "min_video_megabytes": 150,
-            "min_video_minutes": 40
-          },
-          "title": "💞 MOVIE and SÉRIES _ ROMANTIQUES",
-          "transfer_restricted": false,
-          "url": "https://t.me/filmsromantiques",
-          "username": "filmsromantiques"
+          "url": "https://t.me/filmsromatique",
+          "username": "filmsromatique"
         }
       ],
       "statistics": {
         "attempted": 4,
         "checked": 4,
-        "found": 12,
-        "next_candidate_offset": 4,
+        "found": 13,
+        "next_candidate_offset": 8,
         "not_readable": 0,
         "protected": 0,
         "queries": 3,
         "rate_limited": false,
-        "strict_rejected": 2
+        "strict_rejected": 3
       }
     },
     "films": {
-      "channels": [
-        {
-          "category": "films",
-          "format": "photo_texte_puis_video",
-          "format_verified": true,
-          "joined_by_tool": false,
-          "matching_pairs": 16,
-          "redistribution_rights": "non_verifies",
-          "rejected_pairs": 3,
-          "sample_post_ids": [
-            2716,
-            2718,
-            2720
-          ],
-          "sampled_messages": 55,
-          "source_status": "pending_rights",
-          "strict_filters": {
-            "min_verified_pairs": 2,
-            "min_video_megabytes": 150,
-            "min_video_minutes": 40
-          },
-          "title": "FILMS, SÉRIES & DESSIN ANIMÉ COMPLET VF🎥",
-          "transfer_restricted": false,
-          "url": "https://t.me/annimechannel53jjh",
-          "username": "annimechannel53jjh"
-        }
-      ],
+      "channels": [],
       "statistics": {
         "attempted": 4,
         "checked": 4,
         "found": 17,
-        "next_candidate_offset": 4,
+        "next_candidate_offset": 8,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
         "rate_limited": false,
-        "strict_rejected": 3
+        "strict_rejected": 4
       }
     }
   },
   "known_usernames": [
     "amatera12345",
+    "anime2_vf",
     "anime_sama_vf_hd",
     "animeisekaic",
+    "animes_vf_vosfr",
     "annimechannel53jjh",
     "aquilaserie",
     "bestmovievf",
@@ -223,14 +149,15 @@
     "filmcomplets",
     "filmsnigerien",
     "filmsromantiques",
+    "filmsromatique",
     "mangas_anime_en_francais"
   ],
-  "last_notification_day": "2026-10-17",
-  "last_scan": "2026-10-17T07:17:43.601467+00:00",
+  "last_notification_day": "2026-10-18",
+  "last_scan": "2026-10-18T12:15:47.713582+00:00",
   "offsets": {
-    "anime": 4,
-    "comedie": 4,
-    "desir": 4,
-    "films": 4
+    "anime": 8,
+    "comedie": 2,
+    "desir": 8,
+    "films": 8
   }
 }
