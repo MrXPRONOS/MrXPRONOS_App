@@ -17,13 +17,11 @@ from urllib.parse import urlsplit, urlunsplit
 import feedparser
 import requests
 
+from crypto.news_sources_v2 import EDITORIAL_FEEDS
+
 UTC = timezone.utc
 DEST = Path("crypto/generated/test")
-FEEDS = {
-    "CoinDesk": ("https://www.coindesk.com/arc/outboundfeeds/rss/?outputType=xml", "coindesk.com"),
-    "Cointelegraph": ("https://cointelegraph.com/rss", "cointelegraph.com"),
-    "The Block": ("https://www.theblock.co/rss.xml", "theblock.co"),
-}
+FEEDS = EDITORIAL_FEEDS
 COINS = {
     "bitcoin": {"bitcoin", "btc"},
     "ethereum": {"ethereum", "ether", "eth"},
@@ -140,7 +138,7 @@ def fetch_feed(source: str, url: str, now: datetime, getter=requests.get) -> lis
             raise ValueError("Flux invalide ou vide")
         articles = []
         rejection_reasons = {}
-        for entry in feed.entries[:40]:
+        for entry in feed.entries[:65]:
             try:
                 articles.append(parse_entry(entry, source, now))
             except (ValueError, TypeError, OverflowError) as exc:
@@ -265,7 +263,7 @@ def export(demo: bool = False, state_file: Path = Path("crypto/breaking_08_state
     rows = []
     for name, (url, _) in FEEDS.items():
         rows.extend(fetch_feed(name, url, now))
-    print("BREAKING_08_FEEDS", len(rows), "qualified articles")
+    print("BREAKING_08_FEEDS", len(FEEDS), "public RSS publishers,", len(rows), "qualified recent articles")
     pairs = candidate_pairs(rows, state)
     if not pairs:
         print("BREAKING_08_NO_NEWS — nothing verified by two sources; no publication")
