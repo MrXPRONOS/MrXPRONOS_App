@@ -62,6 +62,7 @@ async function fetchSnapshot(){
   output("freshness",h.live_merged_last?date(h.live_merged_last):"Aucune donnée");
   output("health-extra",format(h.blocked_signals)+" signaux bloqués · "+format(h.actu_foot_errors)+" erreurs actualités");
   void refreshGitHubRuns();
+  void refreshClientErrors();
   output("latency",format(Math.round(performance.now()-started))+" ms");
   output("updated","Mis à jour à "+new Date().toLocaleTimeString("fr-FR",{timeZone:"UTC"})+" UTC");
   notice("");
@@ -155,4 +156,13 @@ async function refreshGitHubRuns(){
   output("github-alerts","Impossible de vérifier les exécutions GitHub pour le moment");
   $("githubrows").innerHTML="<tr><td colspan='3' class='muted'>"+safe(e.message)+"</td></tr>";
  }
+}
+
+async function refreshClientErrors(){
+ try{
+  const {data,error}=await sb.rpc("admin_client_error_summary",{p_days:Number($("period").value)});
+  if(error)throw error;
+  output("errors-total",format(data.total));
+  output("errors-detail","Script : "+format(data.script)+" · Promesses : "+format(data.promise)+" · Ressources : "+format(data.resource));
+ }catch(e){output("errors-detail","Données indisponibles : "+e.message)}
 }
