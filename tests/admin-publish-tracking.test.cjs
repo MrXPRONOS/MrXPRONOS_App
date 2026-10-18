@@ -47,6 +47,8 @@ assert(migration.includes("REVOKE ALL ON FUNCTION public.create_vip_code"));
 assert(migration.includes("REVOKE ALL ON FUNCTION public.insert_vip_code"));
 assert(migration.includes("TO service_role"));
 assert(!migration.includes("REVOKE ALL ON FUNCTION public.admin_reset_vip"));
+const config=fs.readFileSync("supabase/config.toml","utf8");
+assert(config.includes("[functions.publish]\\nverify_jwt = true"),"Supabase publish JWT must be explicitly required");
 const deploy=fs.readFileSync(".github/workflows/deploy-supabase-functions.yml","utf8");
 assert(deploy.includes("supabase functions deploy publish --project-ref nhwafcpndlufzzxexikh"),
   "Protected CMS publish must deploy automatically");
