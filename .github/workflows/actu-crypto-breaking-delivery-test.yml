@@ -4,6 +4,7 @@ on:
   push:
     branches: [feature/actu-crypto-lot-06-10]
     paths:
+      - 'crypto/news_sources_v2.py'
       - 'crypto/send_breaking_08_delivery_test.py'
       - 'scripts/render_crypto_breaking_v2.mjs'
       - 'crypto/export_breaking_v2.py'
