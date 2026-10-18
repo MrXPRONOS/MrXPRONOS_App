@@ -144,6 +144,18 @@ serve(async (req) => {
     if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
     const actorUid = await requireAdmin(req);
+    const requestBody = await req.json().catch(() => ({}));
+    if (requestBody?.operation === "status") {
+      const sha = String(requestBody?.commit || "");
+      if (!/^[a-f0-9]{40}$/i.test(sha)) return json({error:"Commit GitHub invalide"},400);
+      const response = await ghJson("/actions/runs?head_sha="+encodeURIComponent(sha)+"&per_page=50");
+      const workflows = (response?.workflow_runs || []).filter((run: any) => ["Deploy to GitHub Pages","pages build and deployment"].includes(run.name));
+      const deployed = workflows.some((run: any) => run.status==="completed" && run.conclusion==="success");
+      const failed = workflows.some((run: any) => run.status==="completed" && run.conclusion==="failure");
+      return json({success:true,commit:sha,deployment:deployed?"deployed":failed?"failed":workflows.length?"pending":"unknown",workflow_url:workflows[0]?.html_url||null});
+    }
+    if (requestBody?.operation && requestBody.operation !== "publish") return json({error:"Opération inconnue"},400);
+
 
     // ARTICLES
     const { data: articles, error: aErr } = await sb
@@ -277,6 +289,8 @@ serve(async (req) => {
       actor_user_id: actorUid,
       action: "publish_json",
       details: {
+        github_commit: publishedCommit,
+        status: "committed",
         files: ["articles.json","conseils.json","bonus.json","infos.json","bookmakers.json"],
         counts: {
           articles: articlesJson.length,
@@ -291,6 +305,8 @@ serve(async (req) => {
     if (auditError) throw new Error("Publication appliquée mais audit non enregistré: "+auditError.message);
     return json({
       success: true,
+      github_commit: publishedCommit,
+      status: "committed",
       counts: {
         articles: articlesJson.length,
         conseils: conseilsJson.length,
