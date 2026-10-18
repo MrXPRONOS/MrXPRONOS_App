@@ -1,0 +1,109 @@
+name: Actu Crypto - 09 EXCHANGES PREMIUM TEST ONLY
+
+on:
+  push:
+    branches: [feature/actu-crypto-lot-06-10]
+    paths:
+      - 'crypto/export_exchanges_v2.py'
+      - 'crypto/test_exchanges_v2.py'
+      - 'crypto/send_crypto_exchanges_v2_test.py'
+      - 'crypto/exchanges_09_state.json'
+      - 'scripts/render_crypto_exchanges_v2.mjs'
+      - '.github/workflows/actu-crypto-exchanges-v2-test.yml'
+  workflow_dispatch:
+    inputs:
+      send_demo_telegram:
+        type: boolean
+        description: "Envoyer UNE affiche DEMO #09 au canal @predict_mrxp ?"
+        default: false
+        required: true
+      send_real_telegram:
+        type: boolean
+        description: "Envoyer UNE actualite REELLE au canal TEST uniquement ?"
+        default: false
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: actu-crypto-exchanges-09-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  exchange-news-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install free feed and poster dependencies
+        run: |
+          python -m pip install 'requests>=2.31,<3' 'feedparser>=6.0,<7'
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Validate exchange-news rules and safety
+        run: python -m unittest crypto.test_exchanges_v2 -v
+      - name: Generate explicitly fictitious DEMO data
+        run: python -m crypto.export_exchanges_v2 --demo
+      - name: Render DEMO premium poster using Playwright
+        run: node scripts/render_crypto_exchanges_v2.mjs --demo
+      - name: Archive DEMO for visual approval
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-publication-09-exchanges-DEMO
+          path: |
+            crypto/generated/test/exchanges_v2_demo.png
+            crypto/generated/test/exchanges_v2_demo.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Gather REAL exchange articles with attribution
+        id: collect
+        shell: bash
+        run: |
+          python -m crypto.export_exchanges_v2
+          if test -s crypto/generated/test/exchanges_v2_data.json; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "No qualifying fresh or safely corroborated exchange news."
+          fi
+      - name: Render REAL poster
+        if: steps.collect.outputs.found == 'true'
+        run: node scripts/render_crypto_exchanges_v2.mjs
+      - name: Archive REAL evidence and poster
+        if: steps.collect.outputs.found == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-publication-09-exchanges-REAL
+          path: |
+            crypto/generated/test/exchanges_v2.png
+            crypto/generated/test/exchanges_v2_data.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Send DEMO PNG to verified TEST channel only
+        if: (github.event_name == 'workflow_dispatch' && inputs.send_demo_telegram == true) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[exchange-demo-send]'))
+        run: python -m crypto.send_crypto_exchanges_v2_test --demo
+      - name: Send REAL PNG to TEST channel (manual opt-in only)
+        if: github.event_name == 'workflow_dispatch' && inputs.send_real_telegram == true && steps.collect.outputs.found == 'true'
+        run: python -m crypto.send_crypto_exchanges_v2_test --real
+      - name: Persist anti-duplicate state on feature branch only
+        if: github.event_name == 'workflow_dispatch' && inputs.send_real_telegram == true && steps.collect.outputs.found == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crypto/exchanges_09_state.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(crypto): record test #09 news [skip ci]"
+            git pull --rebase origin feature/actu-crypto-lot-06-10
+            git push origin HEAD:feature/actu-crypto-lot-06-10
+          fi
