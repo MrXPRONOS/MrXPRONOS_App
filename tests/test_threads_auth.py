@@ -44,12 +44,23 @@ class ThreadsAuthTests(unittest.TestCase):
 
     @patch.object(auth, "check_profile", return_value=("123", "mr_xpronos"))
     @patch.object(auth, "store_secrets")
-    @patch.object(auth, "api_json", side_effect=auth.ThreadsError("Threads HTTP 400, code 190, subcode n/a"))
+    @patch.object(auth, "api_json", side_effect=auth.ThreadsAPIError(400, 190, "n/a", too_recent=True))
     @patch.object(auth, "ensure_github_writer", return_value=("pat", "repo/name"))
     def test_too_early_token_remains_untouched(self, _writer, _req, save, _profile):
         with patch.dict(os.environ, {"THREADS_ACCESS_TOKEN": "stillvalid"}):
             auth.refresh()
         save.assert_not_called()
+
+    @patch.object(auth, "check_profile", return_value=("123", "mr_xpronos"))
+    @patch.object(auth, "store_secrets")
+    @patch.object(auth, "api_json", side_effect=auth.ThreadsAPIError(400, 190, "n/a"))
+    @patch.object(auth, "ensure_github_writer", return_value=("pat", "repo/name"))
+    def test_other_http_400_fails_instead_of_silent_success(self, _writer, _req, save, _profile):
+        with patch.dict(os.environ, {"THREADS_ACCESS_TOKEN": "stillvalid"}):
+            with self.assertRaises(auth.ThreadsAPIError):
+                auth.refresh()
+        save.assert_not_called()
+
 
 
 if __name__ == "__main__":
