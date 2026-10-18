@@ -112,8 +112,12 @@ def newsworthy(title: str) -> bool:
 
 def parse_entry(entry, source: str, now: datetime) -> dict:
     title = clean_text(entry.get("title"), 180)
-    if len(title) < 24 or not topic(title) or not newsworthy(title):
-        raise ValueError("Hors rubrique ou importance insuffisante")
+    if len(title) < 24:
+        raise ValueError("Titre trop court")
+    if not topic(title):
+        raise ValueError("Aucun sujet BTC/ETH unique dans le titre")
+    if not newsworthy(title):
+        raise ValueError("Pas de signal d'importance ou article exclu")
     host = FEEDS[source][1]
     url = canonical_url(entry.get("link"), host)
     time_data = entry.get("published_parsed") or entry.get("updated_parsed")
@@ -135,13 +139,16 @@ def fetch_feed(source: str, url: str, now: datetime, getter=requests.get) -> lis
         if feed.bozo or not feed.entries:
             raise ValueError("Flux invalide ou vide")
         articles = []
+        rejection_reasons = {}
         for entry in feed.entries[:40]:
             try:
                 articles.append(parse_entry(entry, source, now))
-            except (ValueError, TypeError, OverflowError):
-                continue
+            except (ValueError, TypeError, OverflowError) as exc:
+                reason = str(exc) if isinstance(exc, ValueError) else type(exc).__name__
+                rejection_reasons[reason] = rejection_reasons.get(reason, 0) + 1
         print("RSS_SCAN", source, "feed_entries", len(feed.entries),
-              "qualified_recent", len(articles))
+              "qualified_recent", len(articles),
+              "rejection_reasons", json.dumps(rejection_reasons, ensure_ascii=False, sort_keys=True))
         return articles
     except (requests.RequestException, ValueError, TypeError) as exc:
         print("RSS_UNAVAILABLE", source, type(exc).__name__)
