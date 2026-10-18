@@ -304,7 +304,7 @@ def get_bookmakers_from_data() -> list:
 
     return [
         {"name": "1xBet", "url": "https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573"},
-        {"name": "1win", "url": "https://1wrbgb.com/?open=register&p=qqcw"},
+        {"name": "1win", "url": "https://one-vv8346.com/?open=register&p=qqcw"},
         {"name": "Betwinner", "url": "https://bwredir.com/299Y"},
     ]
 
