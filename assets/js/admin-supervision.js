@@ -61,6 +61,7 @@ async function fetchSnapshot(){
   ]);
   output("freshness",h.live_merged_last?date(h.live_merged_last):"Aucune donnée");
   output("health-extra",format(h.blocked_signals)+" signaux bloqués · "+format(h.actu_foot_errors)+" erreurs actualités");
+  void refreshGitHubRuns();
   output("latency",format(Math.round(performance.now()-started))+" ms");
   output("updated","Mis à jour à "+new Date().toLocaleTimeString("fr-FR",{timeZone:"UTC"})+" UTC");
   notice("");
@@ -117,3 +118,41 @@ $("login").addEventListener("click",async()=>{
 $("logout").addEventListener("click",async()=>{stopDashboard();await sb.auth.signOut();location.reload()});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&$("dashboard").style.display==="block")void fetchSnapshot()});
 await establishSession();
+
+// Public GitHub Actions endpoint; read-only, cached client-side for 5 minutes.
+let githubLastFetch=0;
+async function refreshGitHubRuns(){
+ if(!$("githubrows")||Date.now()-githubLastFetch<300000)return;
+ githubLastFetch=Date.now();
+ try{
+  const c=new AbortController();
+  const timeout=setTimeout(()=>c.abort(),7000);
+  let response;
+  try{
+   response=await fetch("https://api.github.com/repos/MrXPRONOS/MrXPRONOS_App/actions/runs?per_page=50",{
+    signal:c.signal,headers:{"Accept":"application/vnd.github+json"}
+   });
+  }finally{clearTimeout(timeout)}
+  if(!response.ok)throw Error("GitHub API : HTTP "+response.status);
+  const json=await response.json();
+  const runs=(json.workflow_runs||[]).filter(r=>r.head_branch==="main");
+  // Only surface probable duplicates, not definitive evidence.
+  const groups=new Map();
+  for(const r of runs){
+   const k=r.path||r.name;
+   const old=groups.get(k)||[];old.push(r);groups.set(k,old);
+  }
+  const suspects=[...groups.entries()].filter(([k,rs])=>
+   rs.some((r,i)=>rs.some((s,j)=>i!==j && Math.abs(Date.parse(r.created_at)-Date.parse(s.created_at))<90000))
+  ).map(([k])=>k);
+  output("github-alerts",suspects.length?suspects.length+" workflows potentiellement lancés en double (fenêtre 90 s)":"Aucun doublon proche détecté parmi les 50 dernières exécutions");
+  renderTable("githubrows",runs.slice(0,14),[
+   r=>'<a target="_blank" rel="noopener noreferrer" href="'+safe(r.html_url)+'">'+safe(r.name)+'</a>',
+   r=>safe(date(r.created_at)),
+   r=>'<span class="'+(r.conclusion==="success"?"good-txt":r.conclusion==="failure"?"bad-txt":"muted")+'">'+safe(r.conclusion||r.status)+'</span>'
+  ]);
+ }catch(e){
+  output("github-alerts","Impossible de vérifier les exécutions GitHub pour le moment");
+  $("githubrows").innerHTML="<tr><td colspan='3' class='muted'>"+safe(e.message)+"</td></tr>";
+ }
+}
