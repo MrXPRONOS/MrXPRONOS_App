@@ -1,29 +1,29 @@
 {
   "schema": "bsd-v2-quality-report-1",
-  "generated_at": "2026-10-18T13:47:03.208337+00:00",
+  "generated_at": "2026-10-18T16:20:44.739873+00:00",
   "total_ever_observed": 305,
   "in_current_feed": 305,
   "absent_from_current_feed": 0,
   "unexplained_absences": 0,
-  "unsettled": 22,
-  "settled": 283,
+  "unsettled": 21,
+  "settled": 284,
   "primary": {
-    "n": 283,
-    "wins": 221,
+    "n": 284,
+    "wins": 222,
     "losses": 62,
-    "hit_rate": 0.7809,
+    "hit_rate": 0.7817,
     "wilson95": [
-      0.7291,
-      0.8252
+      0.7301,
+      0.8258
     ],
     "mean_forecast": 0.7806,
-    "brier": 0.1641,
-    "calibration_gap": -0.0004,
+    "brier": 0.16368,
+    "calibration_gap": -0.0011,
     "statistically_qualified": true,
-    "priced_by_verified_source": 107,
+    "priced_by_verified_source": 108,
     "estimated_or_unpriced": 176,
-    "theoretical_flat_stake_net_units_on_verified_quotes": -2.247,
-    "theoretical_flat_stake_yield_on_verified_quotes": -0.021
+    "theoretical_flat_stake_net_units_on_verified_quotes": -1.855,
+    "theoretical_flat_stake_yield_on_verified_quotes": -0.0172
   },
   "secondary": {
     "n": 183,
@@ -45,22 +45,22 @@
   },
   "by_category": {
     "pro": {
-      "n": 124,
-      "wins": 105,
+      "n": 125,
+      "wins": 106,
       "losses": 19,
-      "hit_rate": 0.8468,
+      "hit_rate": 0.848,
       "wilson95": [
-        0.773,
-        0.8997
+        0.7748,
+        0.9005
       ],
-      "mean_forecast": 0.8052,
-      "brier": 0.13132,
-      "calibration_gap": -0.0415,
+      "mean_forecast": 0.8051,
+      "brier": 0.13062,
+      "calibration_gap": -0.0429,
       "statistically_qualified": true,
-      "priced_by_verified_source": 38,
+      "priced_by_verified_source": 39,
       "estimated_or_unpriced": 86,
-      "theoretical_flat_stake_net_units_on_verified_quotes": 5.857,
-      "theoretical_flat_stake_yield_on_verified_quotes": 0.1541
+      "theoretical_flat_stake_net_units_on_verified_quotes": 6.249,
+      "theoretical_flat_stake_yield_on_verified_quotes": 0.1602
     },
     "simple": {
       "n": 141,
@@ -119,22 +119,22 @@
       "theoretical_flat_stake_yield_on_verified_quotes": null
     },
     "1X": {
-      "n": 87,
-      "wins": 70,
+      "n": 88,
+      "wins": 71,
       "losses": 17,
-      "hit_rate": 0.8046,
+      "hit_rate": 0.8068,
       "wilson95": [
-        0.7092,
-        0.8743
+        0.7122,
+        0.8757
       ],
-      "mean_forecast": 0.7977,
-      "brier": 0.14913,
-      "calibration_gap": -0.0069,
+      "mean_forecast": 0.7976,
+      "brier": 0.14792,
+      "calibration_gap": -0.0092,
       "statistically_qualified": true,
-      "priced_by_verified_source": 33,
+      "priced_by_verified_source": 34,
       "estimated_or_unpriced": 54,
-      "theoretical_flat_stake_net_units_on_verified_quotes": 0.794,
-      "theoretical_flat_stake_yield_on_verified_quotes": 0.0241
+      "theoretical_flat_stake_net_units_on_verified_quotes": 1.186,
+      "theoretical_flat_stake_yield_on_verified_quotes": 0.0349
     },
     "BTTS_YES": {
       "n": 1,
@@ -265,22 +265,22 @@
       "theoretical_flat_stake_yield_on_verified_quotes": 0.1355
     },
     "QUALIFIE": {
-      "n": 13,
-      "wins": 8,
+      "n": 14,
+      "wins": 9,
       "losses": 5,
-      "hit_rate": 0.6154,
+      "hit_rate": 0.6429,
       "wilson95": [
-        0.3552,
-        0.8229
+        0.3876,
+        0.8366
       ],
-      "mean_forecast": 0.7842,
-      "brier": 0.26803,
-      "calibration_gap": 0.1688,
+      "mean_forecast": 0.7849,
+      "brier": 0.25194,
+      "calibration_gap": 0.142,
       "statistically_qualified": false,
-      "priced_by_verified_source": 13,
+      "priced_by_verified_source": 14,
       "estimated_or_unpriced": 0,
-      "theoretical_flat_stake_net_units_on_verified_quotes": -1.538,
-      "theoretical_flat_stake_yield_on_verified_quotes": -0.1183
+      "theoretical_flat_stake_net_units_on_verified_quotes": -1.146,
+      "theoretical_flat_stake_yield_on_verified_quotes": -0.0819
     },
     "unknown": {
       "n": 209,
@@ -303,22 +303,22 @@
   },
   "by_price_source": {
     "bsd_consensus": {
-      "n": 107,
-      "wins": 76,
+      "n": 108,
+      "wins": 77,
       "losses": 31,
-      "hit_rate": 0.7103,
+      "hit_rate": 0.713,
       "wilson95": [
-        0.6182,
-        0.7878
+        0.6215,
+        0.7898
       ],
-      "mean_forecast": 0.7632,
-      "brier": 0.19613,
-      "calibration_gap": 0.0529,
+      "mean_forecast": 0.7635,
+      "brier": 0.19471,
+      "calibration_gap": 0.0505,
       "statistically_qualified": true,
-      "priced_by_verified_source": 107,
+      "priced_by_verified_source": 108,
       "estimated_or_unpriced": 0,
-      "theoretical_flat_stake_net_units_on_verified_quotes": -2.247,
-      "theoretical_flat_stake_yield_on_verified_quotes": -0.021
+      "theoretical_flat_stake_net_units_on_verified_quotes": -1.855,
+      "theoretical_flat_stake_yield_on_verified_quotes": -0.0172
     },
     "mrxpronos_model": {
       "n": 176,
@@ -377,22 +377,22 @@
       "theoretical_flat_stake_yield_on_verified_quotes": -0.3125
     },
     "0.70-0.80": {
-      "n": 175,
-      "wins": 136,
+      "n": 176,
+      "wins": 137,
       "losses": 39,
-      "hit_rate": 0.7771,
+      "hit_rate": 0.7784,
       "wilson95": [
-        0.7099,
-        0.8325
+        0.7115,
+        0.8335
       ],
-      "mean_forecast": 0.7721,
-      "brier": 0.17275,
-      "calibration_gap": -0.0051,
+      "mean_forecast": 0.7722,
+      "brier": 0.17201,
+      "calibration_gap": -0.0062,
       "statistically_qualified": true,
-      "priced_by_verified_source": 67,
+      "priced_by_verified_source": 68,
       "estimated_or_unpriced": 108,
-      "theoretical_flat_stake_net_units_on_verified_quotes": -0.195,
-      "theoretical_flat_stake_yield_on_verified_quotes": -0.0029
+      "theoretical_flat_stake_net_units_on_verified_quotes": 0.197,
+      "theoretical_flat_stake_yield_on_verified_quotes": 0.0029
     },
     "0.80-0.90": {
       "n": 95,
