@@ -1,0 +1,40 @@
+name: Unified admin navigation browser smoke
+on:
+  pull_request:
+    paths:
+      - admin.html
+      - admin-supervision.html
+      - assets/js/admin-real.js
+      - assets/js/admin-shell.js
+      - assets/css/admin-shell.css
+      - scripts/admin_navigation_smoke.py
+      - .github/workflows/admin-navigation-smoke.yml
+  workflow_dispatch:
+jobs:
+  chromium-admin-navigation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser runner
+        run: |
+          pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Start website locally
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 >/tmp/admin-nav-http.log 2>&1 &
+          sleep 2
+      - name: Test authenticated navigation on desktop and mobile (mocked auth)
+        run: python scripts/admin_navigation_smoke.py
+      - name: Save screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unified-admin-navigation-screenshots
+          path: artifacts/admin-navigation/
+          if-no-files-found: ignore
