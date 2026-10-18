@@ -3,11 +3,21 @@ on:
   pull_request:
     paths:
       - 'supabase/functions/publish/index.ts'
+      - 'assets/js/admin-real.js'
       - 'tests/admin-publish-tracking.test.cjs'
+      - '.github/workflows/admin-publish-tracking-tests.yml'
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: node tests/admin-publish-tracking.test.cjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Publish and restoration contract checks
+        run: node tests/admin-publish-tracking.test.cjs
+      - name: Administrator JavaScript syntax
+        run: node --check assets/js/admin-real.js
+      - name: Supabase Edge Function TypeScript syntax
+        run: node --experimental-strip-types --check supabase/functions/publish/index.ts
