@@ -434,7 +434,7 @@ serve(async (req) => {
       throw bad("Confirmation spéciale obligatoire pour vider un contenu existant",409);
     // A concurrent push must fail rather than overwrite the new branch head.
     const stamp=nowIso();
-    const publishedCommit=await ghPublishAtomic(files,stamp,head);
+    const publishedCommit = await ghPublishAtomic(files,stamp,head);
 
     // HISTORY + AUDIT (✅ plus léger : pas le payload complet)
     const { error: historyError } = await sb.from("publish_history").insert({
