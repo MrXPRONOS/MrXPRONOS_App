@@ -103,7 +103,7 @@ async function ghJson(path: string, method = "GET", body?: unknown) {
   }
   return response.json();
 }
-async function ghPublishAtomic(files: Record<string,string>, stamp: string): Promise<string> {
+async function ghPublishAtomic(files: Record<string,string>, stamp: string, expectedHead?:string): Promise<string> {
   if (!GITHUB_OWNER || !GITHUB_REPO || !GITHUB_PAT || !GITHUB_BRANCH)
     throw new Error("Configuration GitHub incomplète");
   if (Object.keys(files).length !== 5) throw new Error("Publication incomplète");
@@ -111,6 +111,7 @@ async function ghPublishAtomic(files: Record<string,string>, stamp: string): Pro
   const branch = await ghJson("/git/ref/heads/" + branchEncoded);
   const baseSha = branch?.object?.sha;
   if (!/^[a-f0-9]{40}$/i.test(String(baseSha))) throw new Error("Référence GitHub invalide");
+  if(expectedHead && baseSha !== expectedHead) throw Object.assign(new Error("La branche a évolué depuis la prévisualisation"),{code:409});
   const baseCommit = await ghJson("/git/commits/" + baseSha);
   const entries = [];
   for (const [path, content] of Object.entries(files)) {
@@ -124,6 +125,82 @@ async function ghPublishAtomic(files: Record<string,string>, stamp: string): Pro
   // A concurrent GitHub push fails safely (non-fast-forward), instead of silently overwriting it.
   await ghJson("/git/refs/heads/" + branchEncoded, "PATCH", {sha:commit.sha, force:false});
   return commit.sha;
+}
+
+
+const cmsFiles=["articles.json","conseils.json","bonus.json","infos.json","bookmakers.json"];
+const isSha=(s:any)=>/^[0-9a-f]{40}$/i.test(String(s||""));
+const isUuid=(s:any)=>/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(String(s||""));
+const bad=(message:string,code=400)=>Object.assign(new Error(message),{code});
+async function cmsVersion(id:any) {
+  if(!isUuid(id)) throw bad("Version invalide");
+  const {data,error}=await sb.from("publish_history").select("id,created_at,payload").eq("id",String(id)).maybeSingle();
+  if(error) throw error;
+  if(!data||!isSha(data.payload?.github_commit)) throw bad("Version introuvable",404);
+  return data;
+}
+async function cmsHead() {
+  const branch=GITHUB_BRANCH.split("/").map(encodeURIComponent).join("/");
+  const sha=(await ghJson("/git/ref/heads/"+branch))?.object?.sha;
+  if(!isSha(sha)) throw bad("Référence GitHub invalide",502);
+  return String(sha);
+}
+async function cmsJson(path:string,ref:string) {
+  if(!cmsFiles.includes(path)) throw bad("Fichier interdit");
+  const item=await ghJson("/contents/"+encodeURIComponent(path)+"?ref="+encodeURIComponent(ref));
+  if(item?.type!=="file"||item?.encoding!=="base64"||!item.content) throw bad("Fichier GitHub illisible : "+path,502);
+  const bin=Uint8Array.from(atob(String(item.content).replace(/\s/g,"")),(x)=>x.charCodeAt(0));
+  const raw=new TextDecoder().decode(bin);
+  let data:any;
+  try {data=JSON.parse(raw);} catch {throw bad("Contenu JSON invalide : "+path,502);}
+  if(!Array.isArray(data)) throw bad("Tableau JSON attendu : "+path,502);
+  return {raw,data,blob:item.sha};
+}
+function cmsDifference(current:any[],target:any[]) {
+  const identity=(v:any,i:number)=>String(v?.slug||v?.bookmaker||v?.name||v?.title||"index:"+i);
+  const first=new Map(current.map((v,i)=>[identity(v,i),JSON.stringify(v)]));
+  const second=new Map(target.map((v,i)=>[identity(v,i),JSON.stringify(v)]));
+  const added=[...second.keys()].filter(k=>!first.has(k));
+  const removed=[...first.keys()].filter(k=>!second.has(k));
+  const modified=[...second.keys()].filter(k=>first.has(k)&&first.get(k)!==second.get(k));
+  return {before:current.length,after:target.length,added:added.length,removed:removed.length,
+    modified:modified.length,samples:{added:added.slice(0,5),removed:removed.slice(0,5),modified:modified.slice(0,5)}};
+}
+async function cmsPreview(id:any) {
+  const history=await cmsVersion(id),target=String(history.payload.github_commit),head=await cmsHead();
+  const changes:Record<string,any>={};
+  for(const path of cmsFiles){
+    const [from,to]=await Promise.all([cmsJson(path,head),cmsJson(path,target)]);
+    changes[path]={...cmsDifference(from.data,to.data),different:from.blob!==to.blob};
+  }
+  return {version_id:history.id,current_head:head,target_commit:target,changes};
+}
+async function cmsSeal(uid:string,p:any,expiry:number) {
+  const value=[uid,p.version_id,p.target_commit,p.current_head,expiry].join(":");
+  const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(SUPABASE_SERVICE_ROLE_KEY),
+    {name:"HMAC",hash:"SHA-256"},false,["sign"]);
+  return Array.from(new Uint8Array(await crypto.subtle.sign("HMAC",key,new TextEncoder().encode(value))))
+    .map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+async function cmsRestore(uid:string,body:any) {
+  if(body?.confirm!=="RESTAURER") throw bad("Confirmation explicite manquante");
+  const expiry=Number(body.preview_expires);
+  if(!Number.isSafeInteger(expiry)||expiry<Date.now()||expiry>Date.now()+300000) throw bad("Prévisualisation expirée",409);
+  const p=await cmsPreview(body.version_id);
+  if(p.current_head!==String(body.expected_head||"")) throw bad("Le dépôt a évolué : nouvelle prévisualisation nécessaire",409);
+  if(await cmsSeal(uid,p,expiry)!==body.preview_signature) throw bad("Signature de prévisualisation invalide",403);
+  if(!Object.values(p.changes).some((c:any)=>c.different)) throw bad("Aucun changement à restaurer",409);
+  const files:Record<string,string>={};
+  for(const path of cmsFiles)files[path]=(await cmsJson(path,p.target_commit)).raw;
+  const commit=await ghPublishAtomic(files,"RESTORE "+nowIso()+" "+p.target_commit.slice(0,12),p.current_head);
+  const payload={operation:"restore",github_commit:commit,restored_from:p.target_commit,restored_version_id:p.version_id,
+    files:cmsFiles,status:"committed",deployment:"pending",published_at:nowIso()};
+  const {error:histError}=await sb.from("publish_history").insert({actor_user_id:uid,payload});
+  if(histError) {console.error("Restore history",histError.code);throw new Error("Commit de restauration créé mais historique non enregistré : "+commit);}
+  const {error:auditError}=await sb.from("audit_log").insert({actor_user_id:uid,action:"restore_json",
+    details:{github_commit:commit,restored_from:p.target_commit,files:cmsFiles}});
+  if(auditError) console.error("Restore audit",auditError.code);
+  return {success:true,status:"committed",deployment:"pending",github_commit:commit,restored_from:p.target_commit};
 }
 
 function isBonusActive(b: any) {
@@ -144,6 +221,70 @@ serve(async (req) => {
     if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
     const actorUid = await requireAdmin(req);
+    const requestBody = await req.json().catch(() => ({}));
+    if (requestBody?.operation === "status") {
+      const sha=String(requestBody?.commit||"").trim();
+      if(!/^[0-9a-f]{40}$/i.test(sha)) return json({error:"Commit GitHub invalide"},400);
+      const {data:version,error:versionError}=await sb.from("publish_history")
+        .select("id,payload").contains("payload",{github_commit:sha}).limit(1).maybeSingle();
+      if(versionError) throw versionError;
+      if(!version) return json({error:"Commit non enregistré dans l'historique"},404);
+      const [runsResult,deployments]=await Promise.all([
+        ghJson("/actions/runs?head_sha="+encodeURIComponent(sha)+"&per_page=100"),
+        ghJson("/deployments?sha="+encodeURIComponent(sha)+"&environment=github-pages&per_page=20")
+      ]);
+      const pagesRuns=(runsResult.workflow_runs||[]).filter((run:any)=>
+        run.head_sha===sha && /pages|deploy.*site|deploy.*web/i.test(String(run.name||"")+" "+String(run.path||"")));
+      pagesRuns.sort((a:any,b:any)=>String(b.created_at||"").localeCompare(String(a.created_at||"")));
+      const run=pagesRuns[0];
+      let deployment="unknown";
+      let workflow_url=run?.html_url||null;
+      for(const d of Array.isArray(deployments)?deployments:[]) {
+        if(d.sha!==sha || d.environment!=="github-pages") continue;
+        const states=await ghJson("/deployments/"+d.id+"/statuses?per_page=10");
+        const latest=Array.isArray(states)?states[0]:null;
+        if(!latest) continue;
+        deployment=latest.state==="success"?"deployed":
+          ["failure","error"].includes(latest.state)?"failed":"pending";
+        workflow_url=latest.log_url||workflow_url;
+        break;
+      }
+      if(deployment==="unknown"&&run) {
+        deployment=run.status!=="completed"?"pending":run.conclusion==="success"?"deployed":
+          ["failure","cancelled","timed_out","action_required"].includes(run.conclusion)?"failed":"unknown";
+      }
+      const gitBranch=GITHUB_BRANCH.split("/").map(encodeURIComponent).join("/");
+      const head=(await ghJson("/git/ref/heads/"+gitBranch)).object?.sha;
+      const current=head===sha;
+      const status=deployment==="deployed"?"deployed":
+        deployment==="failed"?"deployment_failed":deployment==="pending"?"deployment_in_progress":"deployment_unknown";
+      if(version.payload?.status!==status) {
+        const {error:historyError}=await sb.from("publish_history")
+          .update({payload:{...version.payload,status,deployment,last_checked_at:nowIso()}}).eq("id",version.id);
+        if(historyError) console.error("Publication state persistence error",historyError.code);
+        const {error:auditError}=await sb.from("audit_log").insert({
+          actor_user_id:actorUid,action:"publish_deployment_state",details:{github_commit:sha,status}});
+        if(auditError) console.error("Publication status audit error",auditError.code);
+      }
+      return json({success:true,github_commit:sha,status,deployment,is_current:current,workflow_url});
+    }
+    if(requestBody?.operation==="history") {
+      const {data,error}=await sb.from("publish_history").select("id,created_at,payload")
+        .order("created_at",{ascending:false}).limit(30);
+      if(error) throw error;
+      return json({success:true,versions:(data||[]).filter((v:any)=>
+        /^[0-9a-f]{40}$/i.test(String(v.payload?.github_commit||""))).map((v:any)=>({
+          id:v.id,date:v.created_at,github_commit:v.payload.github_commit,
+          status:v.payload.status||"committed",deployment:v.payload.deployment||"unknown",
+          operation:v.payload.operation||"publish",counts:v.payload.counts||null}))});
+    }
+    if(requestBody?.operation==="preview_restore"){
+      const preview=await cmsPreview(requestBody.version_id),expires=Date.now()+300000;
+      return json({success:true,preview:{...preview,preview_expires:expires,preview_signature:await cmsSeal(actorUid,preview,expires)}});
+    }
+    if(requestBody?.operation==="restore") return json(await cmsRestore(actorUid,requestBody));
+    if (requestBody?.operation && requestBody.operation !== "publish") return json({error:"Opération inconnue"},400);
+
 
     // ARTICLES
     const { data: articles, error: aErr } = await sb
@@ -268,15 +409,19 @@ serve(async (req) => {
           bookmakers: bookmakersJson.length,
         },
         published_at: nowIso(),
+        operation: "publish",
         github_commit: publishedCommit,
+        deployment: "pending",
         status: "committed",
       }
     });
-    if (historyError) throw new Error("Publication appliquée, mais historique non enregistré: "+historyError.message);
+    if (historyError) { console.error("CMS publish_history insert failed",historyError.code); throw new Error("Commit créé mais historique non enregistré : "+publishedCommit); }
     const { error: auditError } = await sb.from("audit_log").insert({
       actor_user_id: actorUid,
       action: "publish_json",
       details: {
+        github_commit: publishedCommit,
+        status: "committed",
         files: ["articles.json","conseils.json","bonus.json","infos.json","bookmakers.json"],
         counts: {
           articles: articlesJson.length,
@@ -291,6 +436,9 @@ serve(async (req) => {
     if (auditError) throw new Error("Publication appliquée mais audit non enregistré: "+auditError.message);
     return json({
       success: true,
+      github_commit: publishedCommit,
+      status: "committed",
+      deployment: "pending",
       counts: {
         articles: articlesJson.length,
         conseils: conseilsJson.length,
