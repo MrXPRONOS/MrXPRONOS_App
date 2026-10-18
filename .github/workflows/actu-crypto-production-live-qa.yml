@@ -2,7 +2,7 @@ name: Actu Crypto - Production scheduler OFFLINE QA
 
 on:
   push:
-    branches: [feature/actu-crypto-lot-06-10]
+    branches: [feature/actu-crypto-lot-06-10, release/actu-crypto-01-10-production]
     paths:
       - 'crypto/production_live_v1.py'
       - 'crypto/test_production_live_v1.py'
