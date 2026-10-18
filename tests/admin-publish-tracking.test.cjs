@@ -52,6 +52,7 @@ assert(config.includes("[functions.publish]") && config.split("[functions.publis
 const deploy=fs.readFileSync(".github/workflows/deploy-supabase-functions.yml","utf8");
 assert(deploy.includes("supabase functions deploy publish --project-ref nhwafcpndlufzzxexikh"),
   "Protected CMS publish must deploy automatically");
-assert(!/supabase functions deploy publish[^\\n]*--no-verify-jwt/.test(deploy),
+const publishCommand=deploy.split(String.fromCharCode(10)).find(line=>line.includes("supabase functions deploy publish"));
+assert(publishCommand && !publishCommand.includes("--no-verify-jwt"),
   "CMS publish must retain JWT verification");
 console.log("Publish status & guarded rollback source contracts passed");
