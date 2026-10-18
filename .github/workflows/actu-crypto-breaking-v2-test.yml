@@ -84,10 +84,10 @@ jobs:
           if-no-files-found: error
           retention-days: 14
       - name: Send REAL news to TEST channel only (explicit manual opt-in)
-        if: github.event_name == 'workflow_dispatch' && inputs.send_telegram == true && steps.collect.outputs.found == 'true'
+        if: (github.event_name == 'workflow_dispatch' && inputs.send_telegram == true || github.event_name == 'push' && contains(github.event.head_commit.message, '[breaking-test-send]')) && steps.collect.outputs.found == 'true'
         run: python -m crypto.send_crypto_breaking_v2_test
       - name: Persist anti-duplicate state on development branch only
-        if: github.event_name == 'workflow_dispatch' && inputs.send_telegram == true && steps.collect.outputs.found == 'true'
+        if: (github.event_name == 'workflow_dispatch' && inputs.send_telegram == true || github.event_name == 'push' && contains(github.event.head_commit.message, '[breaking-test-send]')) && steps.collect.outputs.found == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
