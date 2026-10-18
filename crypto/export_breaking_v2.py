@@ -140,6 +140,8 @@ def fetch_feed(source: str, url: str, now: datetime, getter=requests.get) -> lis
                 articles.append(parse_entry(entry, source, now))
             except (ValueError, TypeError, OverflowError):
                 continue
+        print("RSS_SCAN", source, "feed_entries", len(feed.entries),
+              "qualified_recent", len(articles))
         return articles
     except (requests.RequestException, ValueError, TypeError) as exc:
         print("RSS_UNAVAILABLE", source, type(exc).__name__)
