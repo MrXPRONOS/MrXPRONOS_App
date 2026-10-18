@@ -32,4 +32,4 @@ jobs:
           THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
           THREADS_RECOVERY_VIDEO_URL: https://nhwafcpndlufzzxexikh.supabase.co/storage/v1/object/public/videos/shorts/2026/10/18/1792344549-daily_pronos_coupon_short.mp4
         run: |
-          python scripts/threads_recover_video.py
+          python -m scripts.threads_recover_video
