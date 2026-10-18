@@ -60,6 +60,9 @@
     </div>
     <div id="error" aria-live="polite"></div>
     <div class="metric-grid" aria-live="polite">
+      <div class="metric"><div class="name">Visiteurs uniques</div><div class="val" id="unique">–</div><small>Identifiants distincts dans les visites</small></div>
+      <div class="metric"><div class="name">Pages vues mesurées</div><div class="val" id="pageviews">–</div><small>Événements page_view uniquement</small></div>
+      <div class="metric"><div class="name">Abonnements Push</div><div class="val" id="pushcount">–</div><small>Appareils inscrits</small></div>
       <div class="metric"><div class="name">Visiteurs connectés</div><div class="val" id="online">–</div><small>Présence temps réel sur les pages équipées</small></div>
       <div class="metric"><div class="name">Visites enregistrées</div><div class="val" id="visits">–</div><small>Maximum 1 visite/jour et par navigateur</small></div>
       <div class="metric"><div class="name">Clics pronostics</div><div class="val" id="clicks">–</div><small>Événements enregistrés</small></div>
@@ -69,7 +72,7 @@
       <div class="metric"><div class="name">Envois Telegram</div><div class="val" id="telegram">–</div><small>Enregistrements telegram_sent</small></div>
       <div class="metric"><div class="name">Latence Supabase</div><div class="val" id="latency">–</div><small>Temps de réponse du tableau de bord, pas du site</small></div>
     </div>
-    <div class="double">
+    <p id="last-signal" class="muted">–</p><div class="double">
       <section class="panel">
         <h2>État des tâches suivies</h2><div class="scroll"><table class="rows"><thead><tr><th>Workflow</th><th>Dernière exécution</th><th>Résultat</th></tr></thead><tbody id="crons"><tr><td colspan="3">Chargement…</td></tr></tbody></table></div>
         <p class="section-note">Affiche les tâches présentes dans cron_runs ; le statut cron-job.org et les workflows GitHub Actions devront aussi être raccordés.</p>
@@ -82,8 +85,20 @@
         <p class="section-note">Les résultats reflètent les enregistrements de la base, non une vérification externe de leur exactitude.</p>
       </section>
     </div>
+<div class="double">
+ <section class="panel"><h2>Live : performance par marché</h2><div class="scroll"><table class="rows"><thead><tr><th>Marché</th><th>Signaux</th><th>Réussite validée</th></tr></thead><tbody id="marketrows"></tbody></table></div></section>
+ <section class="panel"><h2>Live : performance par niveau</h2><div class="scroll"><table class="rows"><thead><tr><th>Niveau</th><th>Signaux</th><th>Réussite validée</th></tr></thead><tbody id="tierrows"></tbody></table></div></section>
+</div>
+<div class="double">
+ <section class="panel"><h2>Pronostics avant match (Simple / Pro / VIP)</h2><div class="scroll"><table class="rows"><thead><tr><th>Catégorie</th><th>Pronos</th><th>Réussite vérifiée</th></tr></thead><tbody id="prematchrows"></tbody></table></div><p class="section-note">Basé uniquement sur les pronostics terminés avec vérification booléenne en base.</p></section>
+ <section class="panel"><h2>Acquisition éditoriale attribuée</h2><div class="scroll"><table class="rows"><thead><tr><th>Source</th><th>Vues attribuées</th><th>Interactions</th></tr></thead><tbody id="sourcesrows"></tbody></table></div><p class="section-note">Les clics ne prouvent pas une inscription chez un partenaire.</p></section>
+</div>
+<div class="double">
+ <section class="panel"><h2>Core Web Vitals (p75)</h2><div class="scroll"><table class="rows"><thead><tr><th>Métrique/appareil</th><th>Échantillons</th><th>P75</th></tr></thead><tbody id="vitalsrows"></tbody></table></div><p class="section-note">Objectifs : LCP ≤2 500 ms, INP ≤200 ms, CLS ≤0,1. Échantillonnage des navigateurs compatibles.</p></section>
+ <section class="panel"><h2>Fraîcheur et alertes de données</h2><div class="scroll"><table class="rows"><thead><tr><th>Source</th><th>Dernière donnée</th><th>Âge</th></tr></thead><tbody id="freshrows"></tbody></table></div><p id="health-extra" class="section-note">–</p><p class="section-note">Seuils indicatifs, à rapprocher du calendrier réel des workflows.</p></section>
+</div>
     <div class="notice">
-      <strong>Mesures à compléter :</strong> temps de chargement réel (LCP), réactivité (INP), stabilité visuelle (CLS), erreurs navigateur et temps des fournisseurs de données. Elles nécessitent un collecteur dédié : aucun chiffre n'est inventé ici.
+      <strong>Mesures à compléter :</strong> erreurs JavaScript du navigateur, latence détaillée des fournisseurs, corrélation complète des workflows GitHub et chronologie de la conversion confirmée. Elles nécessitent un collecteur dédié : aucun chiffre n'est inventé ici.
     </div>
   </main>
 </div>
