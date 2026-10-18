@@ -30,4 +30,7 @@ assert(sql.includes('ALTER TABLE public.admin_web_vitals ENABLE ROW LEVEL SECURI
 assert(errorSql.includes('ALTER TABLE public.admin_client_errors ENABLE ROW LEVEL SECURITY'));
 assert(!app.includes('.from("analytics")'),"Analytics must be server-aggregated");
 assert(!metrics.includes("user_id"),"Telemetry should not persist visitor identity");
-assert(html.includes('id="traffic-chart"'));assert(html.includes('id="chart-visits"'));assert(html.includes('id="chart-clicks"'));assert(html.includes('class="supervision"'));assert(admin.includes('class="legacy-admin"'));assert(html.includes('admin-premium.css'));assert(admin.includes('admin-premium.css'));assert(app.includes('renderActivityChart()'));console.log("Admin supervision: static checks passed");
+assert(html.includes('id="traffic-chart"'));assert(html.includes('id="chart-visits"'));assert(html.includes('id="chart-clicks"'));assert(html.includes('class="supervision"'));assert(admin.includes('class="legacy-admin"'));assert(html.includes('admin-premium.css'));assert(admin.includes('admin-premium.css'));assert(app.includes('renderActivityChart()'));assert(html.includes('id="compact-view"'));
+assert(app.includes('classList.toggle("is-compact")'));
+assert(html.includes("admin-premium.css?v=20261018-future2"));
+console.log("Admin supervision: static checks passed");

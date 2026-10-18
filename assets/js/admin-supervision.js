@@ -202,3 +202,12 @@ function renderQuality(l){
  '<div class="quality-progress" role="progressbar" aria-label="Réussite" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.round(percentValue)+'"><span style="width:'+percentValue+'%"></span></div>'+
  '<div class="quality-mini"><div><strong class="good-txt">'+format(won)+'</strong><small>Gagnants</small></div><div><strong class="bad-txt">'+format(lost)+'</strong><small>Perdants</small></div></div>';
 }
+
+// Interface density preference is session-only; no persistence, analytics or network side effects.
+$("compact-view")?.addEventListener("click",()=>{
+ const grid=document.querySelector(".metric-grid");
+ if(!grid)return;
+ const compact=grid.classList.toggle("is-compact");
+ $("compact-view").setAttribute("aria-pressed",String(compact));
+ $("compact-view").textContent=compact?"▤ Vue détaillée":"▦ Vue compacte";
+});
