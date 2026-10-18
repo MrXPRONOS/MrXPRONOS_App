@@ -1,0 +1,38 @@
+name: Actu Crypto - Production scheduler OFFLINE QA
+
+on:
+  push:
+    branches: [feature/actu-crypto-lot-06-10, release/actu-crypto-01-10-production]
+    paths:
+      - 'crypto/production_live_v1.py'
+      - 'crypto/test_production_live_v1.py'
+      - 'crypto/production_seed_v1.py'
+      - '.github/workflows/actu-crypto-production-live.yml'
+      - '.github/workflows/actu-crypto-production-live-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install minimal Python dependencies
+        run: python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6.0,<7'
+      - name: Compile checked Python sources
+        run: python -m compileall -q crypto
+      - name: Offline one-time and scheduled delivery tests
+        run: python -m unittest crypto.test_production_live_v1 crypto.test_publish_crypto_1_5 crypto.test_losers_v2 crypto.test_alerts_v2 crypto.test_fear_v2 crypto.test_dominance_v2 crypto.test_weekly_v2 crypto.test_breaking_v2 crypto.test_exchanges_v2 crypto.test_regulation_v2 -v
+      - name: Validate premium JavaScript syntax
+        run: |
+          for file in scripts/render_crypto_*_v2.mjs; do
+            node --check "$file"
+          done

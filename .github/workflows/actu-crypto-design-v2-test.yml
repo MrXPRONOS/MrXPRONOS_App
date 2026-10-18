@@ -1,0 +1,52 @@
+name: Actu Crypto - V2 Design HTML SVG TEST ONLY
+
+on:
+  push:
+    branches: [feature/actu-crypto-lot-01-05]
+    paths:
+      - 'scripts/render_crypto_market_v2.mjs'
+      - 'crypto/send_crypto_market_v2_test.py'
+      - '.github/workflows/actu-crypto-design-v2-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actu-crypto-v2-test
+  cancel-in-progress: false
+
+jobs:
+  render-and-send-v2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: '@predict_mrxp'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install free Python libraries
+        run: python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12'
+      - name: Install free Playwright and Lucide
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Fetch REAL crypto data without sending V1
+        run: python -m crypto.test_channel_premium --export-design-json
+      - name: Render new V2 PNG (V1 untouched)
+        run: node scripts/render_crypto_market_v2.mjs
+      - name: Save new design for comparison
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-market-v2-html-svg
+          path: crypto/generated/test/prices_v2.png
+          if-no-files-found: error
+          retention-days: 14
+      - name: Publish V2 ONLY to @predict_mrxp
+        run: python -m crypto.send_crypto_market_v2_test

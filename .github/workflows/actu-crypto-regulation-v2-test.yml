@@ -1,0 +1,91 @@
+name: Actu Crypto - 10 REGULATION MONDIALE PREMIUM TEST ONLY
+
+on:
+  push:
+    branches: [feature/actu-crypto-lot-06-10]
+    paths:
+      - 'crypto/news_sources_v2.py'
+      - 'crypto/export_regulation_v2.py'
+      - 'crypto/test_regulation_v2.py'
+      - 'crypto/regulation_10_state.json'
+      - 'crypto/send_crypto_regulation_v2_demo_test.py'
+      - 'scripts/render_crypto_regulation_v2.mjs'
+      - '.github/workflows/actu-crypto-regulation-v2-test.yml'
+  workflow_dispatch:
+    inputs:
+      send_demo_telegram:
+        description: "Envoyer une affiche fictive PREMIUM #10 à @predict_mrxp ?"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actu-crypto-regulation-10-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  regulation-review-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install free RSS and premium poster dependencies
+        run: |
+          python -m pip install 'requests>=2.31,<3' 'feedparser>=6.0,<7'
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Test crypto regulatory filters and mandatory human review
+        run: python -m unittest crypto.test_regulation_v2 -v
+      - name: Generate marked fictitious regulatory demo
+        run: python -m crypto.export_regulation_v2 --demo
+      - name: Render premium regulation demo at 1080x1350
+        run: node scripts/render_crypto_regulation_v2.mjs --demo
+      - name: Archive preview for visual approval
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-publication-10-regulation-DEMO
+          path: |
+            crypto/generated/test/regulation_v2_demo.png
+            crypto/generated/test/regulation_v2_demo.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Search for real regulatory items without publishing
+        id: candidates
+        shell: bash
+        run: |
+          python -m crypto.export_regulation_v2
+          if test -s crypto/generated/test/regulation_v2_candidate.json; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "No recent crypto regulation candidate to review."
+          fi
+      - name: Render unapproved review candidate (never for publishing)
+        if: steps.candidates.outputs.found == 'true'
+        run: node scripts/render_crypto_regulation_v2.mjs
+      - name: Archive pending human review ONLY
+        if: steps.candidates.outputs.found == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-publication-10-regulation-PENDING-REVIEW
+          path: |
+            crypto/generated/test/regulation_v2_candidate.json
+            crypto/generated/test/regulation_v2_candidate.png
+          if-no-files-found: error
+          retention-days: 14
+      - name: Send ONLY fictitious DEMO PNG and caption to verified @predict_mrxp
+        if: (github.event_name == 'workflow_dispatch' && inputs.send_demo_telegram == true) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[reg10-demo-send]'))
+        run: python -m crypto.send_crypto_regulation_v2_demo_test
+      # Real regulatory announcements are never auto-sent, even from workflow_dispatch.
+      # Explicit human editorial and legal review is required before any real posting.

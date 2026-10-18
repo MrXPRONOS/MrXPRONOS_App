@@ -1,0 +1,120 @@
+name: Actu Crypto - PREMIUM production scheduler #01-10
+
+on:
+  schedule:
+    - cron: '7 7 * * *'                   # morning 07:07 UTC: #01,#05,#06
+    - cron: '17 12 * * *'                 # midday 12:17 UTC: #02,#03
+    - cron: '23 18 * * *'                 # evening 18:23 UTC: #01
+    - cron: '41 8,11,14,17,20 * * *'     # real thresholds #04, max 5 checks/day
+    - cron: '37 7,10,13,16,19,22 * * *' # #08,#09 news; publish only qualified events
+    - cron: '31 20 * * 0'                # weekly Sunday #07
+    - cron: '43 9 * * *'                  # #10 legal review only; NEVER publish
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        required: true
+        description: 'Premium production mode'
+        default: morning
+        options: [morning, midday, evening, alerts, news, weekly, legal]
+      confirm_real_production:
+        type: boolean
+        required: true
+        default: false
+        description: 'I explicitly authorize real production publication?'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: actu-crypto-premium-production
+  cancel-in-progress: false
+
+jobs:
+  crypto-publish:
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.confirm_real_production == true)
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      ACTU_CRYPTO_CHAT_ID: ${{ secrets.ACTU_CRYPTO_CHAT_ID || vars.ACTU_CRYPTO_CHAT_ID }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_ACTU_FOOT_BOT_TOKEN: ${{ secrets.TELEGRAM_ACTU_FOOT_BOT_TOKEN }}
+      ACTU_FOOT_BOT_TOKEN: ${{ secrets.ACTU_FOOT_BOT_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      COINGECKO_DEMO_API_KEY: ${{ secrets.COINGECKO_DEMO_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Resolve timezone-safe schedule / explicit manual mode
+        id: select
+        shell: bash
+        env:
+          EVENT: ${{ github.event_name }}
+          SPEC: ${{ github.event.schedule }}
+          INPUT_MODE: ${{ inputs.mode }}
+        run: |
+          if test "$EVENT" = "schedule"; then
+            case "$SPEC" in
+              '7 7 * * *') MODE=morning ;;
+              '17 12 * * *') MODE=midday ;;
+              '23 18 * * *') MODE=evening ;;
+              '41 8,11,14,17,20 * * *') MODE=alerts ;;
+              '37 7,10,13,16,19,22 * * *') MODE=news ;;
+              '31 20 * * 0') MODE=weekly ;;
+              '43 9 * * *') MODE=legal ;;
+              *) echo "Unrecognized schedule"; exit 1 ;;
+            esac
+          else
+            MODE="$INPUT_MODE"
+          fi
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "CRYPTO_MODE=$MODE"
+      - name: Install public-data and premium-poster dependencies
+        run: |
+          python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6.0,<7'
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Publish qualifying real content only (or archive #10 legal review)
+        env:
+          SELECTED_MODE: ${{ steps.select.outputs.mode }}
+        run: python -m crypto.production_live_v1 --mode "$SELECTED_MODE"
+      - name: Persist anti-duplicate state to triggering branch
+        if: always() && steps.select.outputs.mode != 'legal'
+        shell: bash
+        run: |
+          if git diff --quiet -- crypto/production_state.json; then
+            echo "No new crypto messages"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crypto/production_state.json
+          git commit -m "chore(crypto): persist posted premium message ids [skip ci]"
+          git pull --rebase --autostash origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+      - name: Archive review-only #10 evidence
+        if: always() && steps.select.outputs.mode == 'legal'
+        uses: actions/upload-artifact@v4
+        with:
+          name: actu-crypto-regulation-10-human-review-only
+          path: |
+            crypto/generated/test/regulation_v2_candidate.json
+            crypto/generated/test/regulation_v2_candidate.png
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Archive production message register
+        if: always() && steps.select.outputs.mode != 'legal'
+        uses: actions/upload-artifact@v4
+        with:
+          name: actu-crypto-production-registry
+          path: crypto/production_state.json
+          if-no-files-found: error
+          retention-days: 30
