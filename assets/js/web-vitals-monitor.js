@@ -22,3 +22,22 @@ if(/^\/[a-zA-Z0-9/_.-]+$/.test(page)&&Math.random()<0.12){
     if(document.readyState==="complete")begin();else addEventListener("load",begin,{once:true});
   }
 }
+
+
+// Error counters: no stack, message, script filename, URL query, or user identifier.
+{
+ const allowedPage=location.pathname.replace(/^\/MrXPRONOS_App/i,"").slice(0,140)||"/";
+ if(/^\/[a-zA-Z0-9/_.-]+$/.test(allowedPage)){
+  let count=0;
+  const device=/iPad|Tablet/i.test(navigator.userAgent)?"tablet":/iPhone|Android|Mobile/i.test(navigator.userAgent)?"mobile":"desktop";
+  const report=(kind)=>{
+   if(count++>=3 || Math.random()>0.20)return;
+   try{
+    const c=window.supabase?.createClient?.(supabaseUrl,supabaseAnonKey);
+    if(c)void c.from("admin_client_errors").insert({kind,page:allowedPage,device}).then(()=>{},()=>{});
+   }catch{}
+  };
+  window.addEventListener("error",e=>report(e.target===window?"script":"resource"),{capture:true});
+  window.addEventListener("unhandledrejection",()=>report("promise"));
+ }
+}
