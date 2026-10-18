@@ -1,16 +1,16 @@
 {
   "scope": "read_only_identity_evidence",
-  "external_total": 1011,
-  "external_cc0_verified": 3,
+  "external_total": 1015,
+  "external_cc0_verified": 1,
   "native_total": 267,
-  "native_unique_eligible": 2,
-  "native_invalid_records": 265,
+  "native_unique_eligible": 1,
+  "native_invalid_records": 266,
   "native_invalid_breakdown": {
     "missing_native_competition_name": 262,
-    "native_not_prematch": 3
+    "native_not_prematch": 4
   },
-  "one_to_one_native_event_links": 2,
-  "unmatched_or_ambiguous_external": 1,
+  "one_to_one_native_event_links": 1,
+  "unmatched_or_ambiguous_external": 0,
   "identity_evidence": "exact_league_home_away_utc_kickoff_15m_unique",
   "native_event_ids_exported": false,
   "native_bookmaker_prices_fetched": false,
@@ -21,20 +21,20 @@
   "rejected_reasons": {
     "duplicated_native_id": 0,
     "external_ambiguous_native_matches": 0,
-    "external_not_independently_cc0_verified": 1008,
+    "external_not_independently_cc0_verified": 1014,
     "native_ambiguous_external_matches": 0
   },
   "read_only_native_consensus_price_audit": {
     "event_ids_selected_only_from_confirmed_native_links": true,
     "max_linked_events_for_quote_probe": 8,
-    "official_native_events_quoted_attempts": 2,
+    "official_native_events_quoted_attempts": 1,
     "historically_published_native_links_excluded": 0,
-    "unpublished_native_links_available": 2,
-    "unpublished_native_links_in_48h_window": 2,
-    "actual_48h_publication_window_quote_attempts": 2,
+    "unpublished_native_links_available": 1,
+    "unpublished_native_links_in_48h_window": 1,
+    "actual_48h_publication_window_quote_attempts": 1,
     "linked_events_exceeding_eight_quote_cap": 0,
-    "events_with_fresh_consensus_market_prices": 2,
-    "fresh_consensus_market_prices": 28,
+    "events_with_fresh_consensus_market_prices": 1,
+    "fresh_consensus_market_prices": 14,
     "consensus_is_not_executable_bookmaker_offer": true,
     "independent_bookmaker_selection_codes_verified": 0,
     "production_market_policy_approved": false,
@@ -44,11 +44,11 @@
   "full_model_selected_market_consensus_audit": {
     "native_full_assembler_canary": {
       "executed": true,
-      "native_event_ids_verified_in_process": 2,
-      "events_within_native_48h_window": 2,
+      "native_event_ids_verified_in_process": 1,
+      "events_within_native_48h_window": 1,
       "actual_publication_window_exercised": true,
       "empty_window_is_not_publication_path_validation": false,
-      "in_memory_quote_fetches": 2,
+      "in_memory_quote_fetches": 1,
       "projected_new_rows_not_published": 0,
       "qualified_rows_available_process_local": 0,
       "historical_append_only_ids_enforced": true,
@@ -71,11 +71,10 @@
     "production_authorized": false,
     "telegram_posts": 0,
     "aggregate": {
-      "events_examined": 2,
-      "frozen_bsd_v2_model_market_candidates": 2,
-      "frozen_markets_with_exact_fresh_bsd_consensus_quote": 2,
-      "v21_or_value_guard_veto": 2,
-      "v21_reason:v21_insufficient_real_price_edge": 1,
+      "events_examined": 1,
+      "frozen_bsd_v2_model_market_candidates": 1,
+      "frozen_markets_with_exact_fresh_bsd_consensus_quote": 1,
+      "v21_or_value_guard_veto": 1,
       "v21_reason:v21_observation_not_recommended": 1
     }
   },
@@ -83,9 +82,9 @@
   "official_league_metadata_requested": 1,
   "official_league_metadata_verified": 1,
   "official_league_metadata_issues": {},
-  "bsd_http_calls": 6,
+  "bsd_http_calls": 5,
   "bsd_max_http_requests": 24,
   "calendar_files_verified": 8,
-  "independent_cc0_calendar_confirmed": 3,
+  "independent_cc0_calendar_confirmed": 1,
   "qualified_candidate_rows_staged": 0
 }
