@@ -1149,8 +1149,7 @@ async function publishNow() {
       return alert(data?.error || "Erreur publish");
     }
 
-    alert(`Publié.
-Articles=${data?.counts?.articles ?? 0}
+    alert(`Commit GitHub enregistré (déploiement encore à confirmer).\nCommit : ${data?.github_commit || "inconnu"}\nArticles=${data?.counts?.articles ?? 0}
 Conseils=${data?.counts?.conseils ?? 0}
 Bonus=${data?.counts?.bonus ?? 0}
 Infos=${data?.counts?.infos ?? 0}
