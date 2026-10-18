@@ -259,10 +259,22 @@ def validate_real(d, now=None):
     if not isinstance(main, dict):
         raise ValueError("Main news missing")
     for item in [main] + ([confirm] if confirm else []):
-        if item.get("source") not in FEEDS:
-            raise ValueError("Unknown publisher")
-        uri = canonical_url(item.get("url"), FEEDS[item["source"]][1])
-        if uri != item["url"] or not isinstance(item.get("title"), str):
+        if item.get("source") in FEEDS:
+            verified_url = canonical_url(item.get("url"), FEEDS[item["source"]][1])
+            if item.get("official") is True or item.get("incident_id"):
+                raise ValueError("False official claim on press item")
+        elif item.get("source") in OFFICIAL_STATUS_APIS:
+            official_url, host, exchange = OFFICIAL_STATUS_APIS[item["source"]]
+            verified_url = official_url
+            if (item.get("official") is not True
+                    or not re.fullmatch(r"[a-z0-9]{8,32}", str(item.get("incident_id") or ""))
+                    or item.get("exchange") != exchange
+                    or item.get("incident_status") not in ("investigating", "identified", "monitoring")
+                    or item.get("category") not in ("ACCÈS & SERVICES", "SÉCURITÉ")):
+                raise ValueError("Invalid official status report")
+        else:
+            raise ValueError("Unknown publisher or status source")
+        if verified_url != item.get("url") or not isinstance(item.get("title"), str):
             raise ValueError("Altered article")
         if (exchange_of(item["title"]) != item.get("exchange")
                 or category_of(item["title"]) != item.get("category")
@@ -273,9 +285,13 @@ def validate_real(d, now=None):
         raise ValueError("Unmatched main event")
     if confirm and not corroborates(main, confirm):
         raise ValueError("Unsupported cross-source confirmation")
-    if main["severe"] and not confirm:
-        raise ValueError("Sensitive news requires two independent sources")
-    if d.get("verification") != ("cross_reported" if confirm else "attributed_report"):
+    if main["severe"] and not confirm and main.get("official") is not True:
+        raise ValueError("Sensitive media news requires two publishers")
+    if confirm and (main.get("official") or confirm.get("official")):
+        raise ValueError("Official source is not a second independent publisher")
+    verified_class = ("official_notice" if main.get("official") else
+                      ("cross_reported" if confirm else "attributed_report"))
+    if d.get("verification") != verified_class:
         raise ValueError("Bad attribution class")
     if d.get("fingerprints") != [fingerprint(a) for a in ([main] + ([confirm] if confirm else []))]:
         raise ValueError("Fingerprint mismatch")
