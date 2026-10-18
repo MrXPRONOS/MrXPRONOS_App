@@ -31,6 +31,13 @@ class BreakingNewsTests(unittest.TestCase):
     def real(self):
         return build_report((self.a, self.b), self.now)
 
+    def test_eight_free_independent_rss_publishers(self):
+        from crypto.export_breaking_v2 import FEEDS
+        self.assertGreaterEqual(len(FEEDS), 8)
+        domains = [domain for feed, domain in FEEDS.values()]
+        self.assertEqual(len(domains), len(set(domains)))
+        self.assertTrue(all(url.startswith("https://") for url, _ in FEEDS.values()))
+
     def test_valid_two_source_report(self):
         validate_real(self.real(), self.now)
 
