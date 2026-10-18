@@ -2,8 +2,8 @@ const fs=require("node:fs");const assert=require("node:assert/strict");
 const html=fs.readFileSync("admin-supervision.html","utf8");
 const app=fs.readFileSync("assets/js/admin-supervision.js","utf8");
 const metrics=fs.readFileSync("assets/js/web-vitals-monitor.js","utf8");
-const sql=fs.readFileSync("supabase/migrations/20261018131500_admin_supervision_metrics.sql","utf8");
-const errorSql=fs.readFileSync("supabase/migrations/20261018134000_admin_client_errors.sql","utf8");
+const sql=fs.readFileSync("supabase/migrations/20261018130804_admin_supervision_metrics.sql","utf8");
+const errorSql=fs.readFileSync("supabase/migrations/20261018131126_admin_client_errors.sql","utf8");
 const main=fs.readFileSync("assets/js/main.js","utf8");
 const admin=fs.readFileSync("admin.html","utf8");
 for(const [file,data] of [["assets/js/admin-supervision.js",app],["assets/js/web-vitals-monitor.js",metrics]]) {
