@@ -5,6 +5,8 @@ on:
       - 'supabase/functions/publish/index.ts'
       - 'assets/js/admin-real.js'
       - 'tests/admin-publish-tracking.test.cjs'
+      - 'tests/admin-publish-preflight.test.mjs'
+      - 'supabase/functions/publish/guards.mjs'
       - '.github/workflows/admin-publish-tracking-tests.yml'
   workflow_dispatch:
 jobs:
@@ -17,6 +19,8 @@ jobs:
           node-version: 22
       - name: Publish and restoration contract checks
         run: node tests/admin-publish-tracking.test.cjs
+      - name: Behavioral CMS diff/empty/no-op tests
+        run: node --test tests/admin-publish-preflight.test.mjs
       - name: Administrator JavaScript syntax
         run: node --check assets/js/admin-real.js
       - name: Supabase Edge Function TypeScript syntax
