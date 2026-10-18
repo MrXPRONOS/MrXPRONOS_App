@@ -110,3 +110,6 @@ body.admin-shell .admin-screen pre{white-space:pre-wrap;word-break:break-word}
  body.admin-shell .workspace-topbar{padding:12px 11px}
 }
 @media(prefers-reduced-motion:reduce){body.admin-shell *{transition:none!important;scroll-behavior:auto!important}}
+
+body.admin-shell [hidden]{display:none!important}
+body.admin-shell .admin-screen:not([hidden]){display:block}
