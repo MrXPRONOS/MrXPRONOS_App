@@ -37,9 +37,17 @@
     @media(max-width:850px){.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.double{grid-template-columns:1fr}}
     @media(max-width:420px){.wrap{padding:14px 11px 40px}.metric-grid{gap:8px}.metric{padding:13px;min-height:116px}.panel{padding:13px}.toplinks{font-size:12px}}
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important}}
-  </style>
+    /* Embedded mode: overview is part of the unified admin, not a second page header. */
+  body.supervision.embedded{background:#0b1420}
+  body.supervision.embedded .topbar,body.supervision.embedded .hero,body.supervision.embedded .quicknav,body.supervision.embedded .footer{display:none!important}
+  body.supervision.embedded .wrap{padding:12px;max-width:none;width:100%}
+  body.supervision.embedded .dashboard-tools{margin-top:3px}
+  body.supervision.embedded .hero-meta{display:none}
+  body.supervision.embedded .section-head{margin-top:16px}
+</style>
 </head>
 <body class="supervision">
+<script>if(new URLSearchParams(location.search).get("embedded")==="1")document.body.classList.add("embedded");</script>
 <div class="wrap">
   <header class="topbar">
     <div class="identity"><div class="mark" aria-hidden="true">MX</div><div><div class="brand">Mr <span class="gold">XPRONOS</span> <span class="muted">/ ADMIN</span></div><span class="brand-tag">COMMAND CENTER</span></div></div>

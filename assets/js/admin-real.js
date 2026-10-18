@@ -17,7 +17,7 @@ const premiumAdminLoading = (kind = "admin", count = 3) =>
   window.MXLoading?.render?.(kind, count) || '<div class="muted">Chargement…</div>';
 
 
-const TAB_NAMES = ["stats","pronostics","push","articles","conseils","bonus","infos","vip","health","audit"];
+const TAB_NAMES = ["overview","pronostics","push","articles","conseils","bonus","infos","vip","health","audit"];
 const loadedTabs = new Set();
 let publishBusy = false;
 
@@ -26,10 +26,17 @@ function tabs() {
 }
 
 function showOnlyTab(name) {
-  tabs().forEach(t => t.classList.toggle("active", t.dataset.tab === name));
+  tabs().forEach(t => {
+    const active=t.dataset.tab===name;
+    t.classList.toggle("active",active);
+    t.setAttribute("aria-current",active?"page":"false");
+  });
   TAB_NAMES.forEach(n => {
     const el = $(`tab-${n}`);
-    if (el) el.style.display = (n === name) ? "block" : "none";
+    if (!el) return;
+    const active=n===name;
+    el.hidden=!active;
+    el.classList.toggle("active-screen",active);
   });
 }
 
@@ -53,7 +60,7 @@ function safeIdEq(a, b) {
 // LAZY LOAD : charge la tab 1 fois
 // -----------------------------
 const TAB_LOADERS = {
-  stats: renderStats,
+  overview: async () => {},
   pronostics: renderPronosticsReadOnly,
   push: renderPushAdmin,
   articles: renderCmsArticles,
@@ -75,9 +82,14 @@ async function loadTabIfNeeded(name) {
 }
 
 async function showTab(name) {
+  if (!TAB_NAMES.includes(name)) name="overview";
   showOnlyTab(name);
+  window.dispatchEvent(new CustomEvent("mx:admin-tab",{detail:{name}}));
+  const target="#"+name;
+  if (location.hash!==target) history.replaceState(null,"",target);
   await loadTabIfNeeded(name);
 }
+window.MXAdminNavigate = showTab;
 
 // -----------------------------
 // UI helpers
@@ -1166,26 +1178,31 @@ async function afterLogin() {
   const user = (await sb.auth.getUser()).data.user;
   $("who").textContent = user?.email || user?.id || "";
 
-  // ✅ On ne charge QUE stats + pronostics au départ (rapidité)
-  await showTab("stats");
-  await loadTabIfNeeded("pronostics"); // optionnel: ou charge au clic
+  // Only load the selected screen, and preserve deep links on reload.
+  const route=location.hash.slice(1);
+  await showTab(TAB_NAMES.includes(route)?route:"overview");
 }
 
 // -----------------------------
 // EVENTS
 // -----------------------------
-tabs().forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
+tabs().forEach(btn => btn.addEventListener("click", () => void showTab(btn.dataset.tab)));
+window.addEventListener("hashchange",()=>{if($("app").style.display!=="none")void showTab(location.hash.slice(1))});
 
-$("btnLogin").addEventListener("click", async () => {
+$("loginForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  if ($("btnLogin").disabled) return;
+  $("btnLogin").disabled=true;
   setLoginMsg("Connexion...");
   const email = $("email").value.trim();
   const password = $("password").value;
 
   const { error } = await sb.auth.signInWithPassword({ email, password });
-  if (error) { setLoginMsg(error.message); return; }
+  if (error) { setLoginMsg(error.message); $("btnLogin").disabled=false; return; }
 
   setLoginMsg("");
-  await afterLogin();
+  try { await afterLogin(); }
+  finally { $("btnLogin").disabled=false; }
 });
 
 $("btnLogout").addEventListener("click", async () => {
