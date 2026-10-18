@@ -24,13 +24,15 @@ ROOT = Path("crypto/generated/test")
 STATE = Path("crypto/production_state.json")
 WATCH = {"BTC", "ETH", "SOL", "BNB", "XRP"}
 ALLOWED_PROVIDERS = {"CoinPaprika", "CoinLore", "CoinGecko"}
-TOKEN = (
-    os.getenv("FOOTBALL_NEWS_BOT_TOKEN") or
-    os.getenv("TELEGRAM_ACTU_FOOT_BOT_TOKEN") or
-    os.getenv("ACTU_FOOT_BOT_TOKEN") or
-    os.getenv("TELEGRAM_BOT_TOKEN") or
-    ""
-).strip()
+TOKEN_CANDIDATES = list(dict.fromkeys(
+    token.strip() for token in (
+        os.getenv("FOOTBALL_NEWS_BOT_TOKEN") or "",
+        os.getenv("TELEGRAM_ACTU_FOOT_BOT_TOKEN") or "",
+        os.getenv("ACTU_FOOT_BOT_TOKEN") or "",
+        os.getenv("TELEGRAM_BOT_TOKEN") or "",
+    ) if token and token.strip()
+))
+TOKEN = TOKEN_CANDIDATES[0] if TOKEN_CANDIDATES else ""
 CHAT = (os.getenv("ACTU_CRYPTO_CHAT_ID") or "").strip()
 
 
@@ -62,7 +64,8 @@ def run(*args):
 
 
 def verify_production_route() -> dict:
-    if not TOKEN or not CHAT:
+    global TOKEN
+    if not TOKEN_CANDIDATES or not CHAT:
         raise RuntimeError(
             "Missing production bot token or ACTU_CRYPTO_CHAT_ID "
             "(configure GitHub repository secret or variable)."
@@ -97,23 +100,38 @@ def verify_production_route() -> dict:
             raise RuntimeError("Telegram returned invalid " + method)
         return result
 
-    me = telegram_read("getMe", {})
-    print("CRYPTO_PROD_BOT_IDENTITY_OK")
-    chat = telegram_read("getChat", {"chat_id": CHAT})
-    if chat.get("type") != "channel":
-        raise RuntimeError("ACTU_CRYPTO_CHAT_ID does not identify a Telegram channel")
-    if str(chat.get("username") or "").lower() == "predict_mrxp":
-        raise RuntimeError("Cannot publish production posts to test channel")
-    bot_id = me.get("id")
-    if not isinstance(bot_id, int):
-        raise RuntimeError("Bot identity not returned")
-    member = telegram_read("getChatMember", {"chat_id": chat["id"], "user_id": bot_id})
-    if not (member.get("status") == "creator" or
-            (member.get("status") == "administrator" and
-             member.get("can_post_messages") is True)):
-        raise RuntimeError("Bot cannot post to ACTU_CRYPTO_CHAT_ID")
-    print("CRYPTO_PROD_ROUTE_OK", "channel_verified=1", "bot_admin=1")
-    return chat
+    attempts = []
+    for index, candidate in enumerate(TOKEN_CANDIDATES, start=1):
+        TOKEN = candidate
+        try:
+            me = telegram_read("getMe", {})
+            chat = telegram_read("getChat", {"chat_id": CHAT})
+            if chat.get("type") != "channel":
+                raise RuntimeError("Destination is not a Telegram channel")
+            if str(chat.get("username") or "").lower() == "predict_mrxp":
+                raise RuntimeError("Cannot publish to test channel")
+            bot_id = me.get("id")
+            if not isinstance(bot_id, int):
+                raise RuntimeError("Bot identity not returned")
+            member = telegram_read(
+                "getChatMember", {"chat_id": chat["id"], "user_id": bot_id})
+            if not (member.get("status") == "creator" or
+                    (member.get("status") == "administrator" and
+                     member.get("can_post_messages") is True)):
+                raise RuntimeError("Bot is not channel admin with post rights")
+        except RuntimeError as exc:
+            diagnostic = f"candidate={index} reason={str(exc)[:140]}"
+            attempts.append(diagnostic)
+            print("CRYPTO_PROD_ROUTE_CANDIDATE_REJECTED", diagnostic)
+            continue
+        print("CRYPTO_PROD_ROUTE_OK",
+              "channel_verified=1", "bot_admin=1",
+              "bot=@" + str(me.get("username") or "unknown"))
+        return chat
+    raise RuntimeError(
+        "No configured Telegram bot is administrator with posting rights "
+        "in ACTU_CRYPTO_CHAT_ID. " + "; ".join(attempts)
+    )
 
 
 def read_state() -> dict:
