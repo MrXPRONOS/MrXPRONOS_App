@@ -1,0 +1,85 @@
+name: Threads - Connexion et maintenance
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Opération Threads (exchange après autorisation, verify ou refresh)"
+        required: true
+        type: choice
+        default: verify
+        options:
+          - verify
+          - exchange
+          - refresh
+  schedule:
+    # Une fois par semaine : refresh des jetons valides avant l'expiration à 60 jours.
+    - cron: "17 5 * * 0"
+  push:
+    branches: [main]
+    paths:
+      - "config/threads_connection_trigger.txt"
+      - "scripts/threads_auth.py"
+      - "tests/test_threads_auth.py"
+      - ".github/workflows/threads-auth.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: threads-auth-maintenance
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Dependencies
+        run: python -m pip install requests
+      - name: OAuth and secrets safety tests
+        run: python -m unittest discover -s tests -p "test_threads_auth.py" -v
+
+  threads:
+    needs: tests
+    # A code/config push tests only. An explicit reconnect-trigger commit is
+    # allowed to exchange a one-time code without exposing it in workflow inputs.
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && github.event.head_commit.message == 'chore(threads): exchange authorization')
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Dependencies
+        run: python -m pip install requests
+      - name: Exchange, verify, or refresh Threads
+        shell: bash
+        env:
+          REQUESTED_ACTION: ${{ inputs.action || 'verify' }}
+          EVENT_NAME: ${{ github.event_name }}
+          THREADS_APP_ID: ${{ secrets.THREADS_APP_ID }}
+          THREADS_APP_SECRET: ${{ secrets.THREADS_APP_SECRET }}
+          THREADS_AUTH_CODE: ${{ secrets.THREADS_AUTH_CODE }}
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+          THREADS_REDIRECT_URI: ${{ vars.THREADS_REDIRECT_URI || 'https://mrxpronos.github.io/MrXPRONOS_App/threads-callback.html' }}
+          GH_PAT_SECRETS: ${{ secrets.GH_PAT_SECRETS }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = 'schedule' ]; then
+            ACTION='refresh'
+          elif [ "$EVENT_NAME" = 'push' ]; then
+            ACTION='exchange'
+          else
+            ACTION="$REQUESTED_ACTION"
+          fi
+          python scripts/threads_auth.py --action "$ACTION"
