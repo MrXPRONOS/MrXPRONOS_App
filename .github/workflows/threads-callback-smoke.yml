@@ -1,0 +1,41 @@
+name: Threads Meta callback smoke test
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/threads-uninstall/**'
+      - 'supabase/functions/threads-data-deletion/**'
+      - '.github/workflows/threads-callback-smoke.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify production callback endpoints reject unauthenticated requests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import urllib.request
+          import urllib.error
+          base="https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/"
+          cases=[
+             ("threads-uninstall", "GET", None, {405}),
+             ("threads-uninstall", "POST", b"x=1", {400,503}),
+             ("threads-data-deletion", "POST", b"signed_request=bad.bad", {403,503}),
+             ("threads-data-deletion?code=00000000-0000-0000-0000-000000000000", "GET", None, {404,503}),
+          ]
+          for path,method,data,expected in cases:
+              req=urllib.request.Request(base+path,data=data,method=method,
+                       headers={"Content-Type":"application/x-www-form-urlencoded"})
+              try:
+                  with urllib.request.urlopen(req,timeout=25) as r:
+                      status=r.status; body=json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  status=e.code;body=json.loads(e.read())
+              assert status in expected,(path,status,expected)
+              print(f"PASS {method} {path.split('?')[0]} -> HTTP {status}, {body.get('error','ok')}")
+          PY
