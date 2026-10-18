@@ -10,7 +10,7 @@ for(const filename of ["articles.json","conseils.json","bonus.json","infos.json"
 assert(publisher.includes('github_commit: publishedCommit'));
 assert(publisher.includes('status: "committed"'));
 assert(publisher.includes("if (historyError)")&&publisher.includes("if (auditError)"));
-assert(admin.includes("déploiement encore à confirmer"));
+assert(admin.includes("Mise en ligne non confirmée") && admin.includes("Vérifier le déploiement"));
 assert(migration.includes('DROP POLICY IF EXISTS "Allow anonymous selects"'));
 assert(migration.includes("REVOKE SELECT, UPDATE, DELETE ON TABLE public.analytics FROM anon"));
 assert(migration.includes("REVOKE ALL ON FUNCTION public.admin_revoke_vip"));
