@@ -1,0 +1,26 @@
+name: Admin supervision static QA
+on:
+  pull_request:
+    paths:
+      - 'admin-supervision.html'
+      - 'assets/js/admin-supervision.js'
+      - 'assets/js/web-vitals-monitor.js'
+      - 'assets/js/main.js'
+      - 'admin.html'
+      - 'supabase/migrations/20261018131500_admin_supervision_metrics.sql'
+      - 'supabase/migrations/20261018134000_admin_client_errors.sql'
+      - 'tests/admin-supervision.test.cjs'
+      - '.github/workflows/admin-supervision-tests.yml'
+  workflow_dispatch:
+jobs:
+  test-admin:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static verification
+        run: node tests/admin-supervision.test.cjs
