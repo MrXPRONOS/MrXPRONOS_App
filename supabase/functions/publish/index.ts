@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.170.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { inspectPublishFiles } from "./guards.mjs";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -182,6 +183,18 @@ async function cmsSeal(uid:string,p:any,expiry:number) {
   return Array.from(new Uint8Array(await crypto.subtle.sign("HMAC",key,new TextEncoder().encode(value))))
     .map(x=>x.toString(16).padStart(2,"0")).join("");
 }
+// The stamp binds an authenticated admin to the exact CMS snapshot, branch HEAD and deadline.
+async function cmsPublishSeal(uid:string,head:string,files:Record<string,string>,expires:number) {
+  const ordered=cmsFiles.map(path=>files[path]).join("\u001e");
+  const hash=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(ordered));
+  const hex=Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,"0")).join("");
+  return cmsSeal(uid,{version_id:"publish",target_commit:hex,current_head:head},expires);
+}
+async function cmsInspectAtHead(head:string,files:Record<string,string>) {
+  const pairs=await Promise.all(cmsFiles.map(async path=>[path,(await cmsJson(path,head)).raw] as const));
+  return inspectPublishFiles(files,Object.fromEntries(pairs));
+}
+
 async function cmsRestore(uid:string,body:any) {
   if(body?.confirm!=="RESTAURER") throw bad("Confirmation explicite manquante");
   const expiry=Number(body.preview_expires);
@@ -283,7 +296,7 @@ serve(async (req) => {
       return json({success:true,preview:{...preview,preview_expires:expires,preview_signature:await cmsSeal(actorUid,preview,expires)}});
     }
     if(requestBody?.operation==="restore") return json(await cmsRestore(actorUid,requestBody));
-    if (requestBody?.operation && requestBody.operation !== "publish") return json({error:"Opération inconnue"},400);
+    if (requestBody?.operation && !["publish","preflight"].includes(requestBody.operation)) return json({error:"Opération inconnue"},400);
 
 
     // ARTICLES
@@ -386,15 +399,42 @@ serve(async (req) => {
       active: b.active !== false,
     }));
 
-    // Publish all five files as ONE Git commit; never expose a partially updated branch.
-    const stamp = nowIso();
-    const publishedCommit = await ghPublishAtomic({
+    // Prepare all five files before allowing any repository mutation.
+    const files:Record<string,string>={
       "articles.json": JSON.stringify(articlesJson,null,2),
       "conseils.json": JSON.stringify(conseilsJson,null,2),
       "bonus.json": JSON.stringify(bonusJson,null,2),
       "infos.json": JSON.stringify(infosJson,null,2),
       "bookmakers.json": JSON.stringify(bookmakersJson,null,2),
-    },stamp);
+    };
+    const head=await cmsHead();
+    const inspection=await cmsInspectAtHead(head,files);
+    const counts={
+      articles:articlesJson.length,conseils:conseilsJson.length,bonus:bonusJson.length,
+      infos:infosJson.length,bookmakers:bookmakersJson.length
+    };
+    if(requestBody?.operation==="preflight"){
+      const expires=Date.now()+300000;
+      return json({success:true,preview:{...inspection,current_head:head,
+        counts,preflight_expires:expires,
+        preflight_signature:await cmsPublishSeal(actorUid,head,files,expires)}});
+    }
+    if(!inspection.has_changes){
+      return json({success:true,skipped:true,status:"unchanged",github_commit:head,
+        deployment:"unchanged",counts});
+    }
+    const expiry=Number(requestBody?.preflight_expires);
+    if(!Number.isSafeInteger(expiry)||expiry<Date.now()||expiry>Date.now()+300000)
+      throw bad("Prévisualisation de publication expirée",409);
+    if(requestBody?.expected_head!==head)
+      throw bad("La branche GitHub a changé; prévisualisez à nouveau",409);
+    if(await cmsPublishSeal(actorUid,head,files,expiry)!==requestBody?.preflight_signature)
+      throw bad("Prévisualisation non authentifiée ou données CMS modifiées",403);
+    if(inspection.emptied_files.length && requestBody?.acknowledge_empty!=="PUBLIER VIDE")
+      throw bad("Confirmation spéciale obligatoire pour vider un contenu existant",409);
+    // A concurrent push must fail rather than overwrite the new branch head.
+    const stamp=nowIso();
+    const publishedCommit=await ghPublishAtomic(files,stamp,head);
 
     // HISTORY + AUDIT (✅ plus léger : pas le payload complet)
     const { error: historyError } = await sb.from("publish_history").insert({
