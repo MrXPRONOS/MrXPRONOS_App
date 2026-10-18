@@ -1,1 +1,34 @@
-{"sent": {}}
+{
+  "sent": {
+    "initial_history_01": {
+      "message_id": 2,
+      "number": 1,
+      "sent_at": "2026-10-18T23:34:23Z",
+      "source": "confirmed Telegram photo, workflow 39177002087"
+    },
+    "initial_history_05": {
+      "message_id": 3,
+      "number": 5,
+      "sent_at": "2026-10-18T23:34:42Z",
+      "source": "confirmed Telegram photo, workflow 39177002087"
+    },
+    "initial_history_06": {
+      "message_id": 4,
+      "number": 6,
+      "sent_at": "2026-10-18T23:34:47Z",
+      "source": "confirmed Telegram photo, workflow 39177002087"
+    },
+    "initial_history_07": {
+      "message_id": 5,
+      "number": 7,
+      "sent_at": "2026-10-18T23:34:52Z",
+      "source": "confirmed Telegram photo, workflow 39177002087"
+    },
+    "initial_history_09": {
+      "message_id": 6,
+      "number": 9,
+      "sent_at": "2026-10-18T23:35:02Z",
+      "source": "confirmed Telegram photo, workflow 39177002087"
+    }
+  }
+}
