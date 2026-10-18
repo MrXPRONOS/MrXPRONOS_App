@@ -43,9 +43,12 @@ def deliver(demo: bool, requester=requests.post) -> int:
             "🏦 ACTU CRYPTO #09 · PLATEFORMES\n"
             f"📌 {d['exchange']} — {d['category']}\n\n"
             f"📰 {article['title']}\n\n"
-            f"🗞 Selon {article['source']} : {article['url']}\n"
+            f"🗞 {'Source officielle' if article.get('official') else 'Selon'} "
+            f"{article['source']} : {article['url']}\n"
             + (f"🔎 Deuxième média : {conf['source']} : {conf['url']}\n" if conf else
-               "ℹ️ Information rapportée par une source journalistique.\n")
+               ("✅ Incident déclaré sur la page officielle de la plateforme.\n"
+                if article.get("official") else
+                "ℹ️ Information rapportée par un média.\n"))
             + "\n🕒 Événement daté dans la source. Lisez l'article complet.\n"
             "🌍 Disponibilité régionale à vérifier. Ce n'est pas un conseil financier."
         )
