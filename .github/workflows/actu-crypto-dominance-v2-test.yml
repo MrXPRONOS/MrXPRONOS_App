@@ -1,0 +1,67 @@
+name: Actu Crypto - 06 BTC Dominance Premium TEST ONLY
+
+on:
+  push:
+    branches: [feature/actu-crypto-lot-06-10]
+    paths:
+      - 'crypto/export_dominance_v2.py'
+      - 'crypto/send_crypto_dominance_v2_test.py'
+      - 'crypto/test_dominance_v2.py'
+      - 'scripts/render_crypto_dominance_v2.mjs'
+      - '.github/workflows/actu-crypto-dominance-v2-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actu-crypto-dominance-06-test
+  cancel-in-progress: false
+
+jobs:
+  dominance-visual-06:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: '@predict_mrxp'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install free dependencies
+        run: |
+          python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12'
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Offline unit tests - correctness, freshness and anti-demo
+        run: python -m unittest crypto.test_dominance_v2 -v
+      - name: Export and render DEMO preview only - NEVER send
+        run: |
+          python -m crypto.export_dominance_v2 --demo
+          node scripts/render_crypto_dominance_v2.mjs --demo
+      - name: Archive DEMO preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-publication-06-dominance-DEMO
+          path: crypto/generated/test/dominance_v2_demo.png
+          if-no-files-found: error
+          retention-days: 14
+      - name: Fetch REAL market dominance and capitalization
+        run: python -m crypto.export_dominance_v2
+      - name: Render premium REAL design
+        run: node scripts/render_crypto_dominance_v2.mjs
+      - name: Archive REAL design
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-publication-06-dominance-REAL
+          path: crypto/generated/test/dominance_v2.png
+          if-no-files-found: error
+          retention-days: 14
+      - name: Send REAL poster to verified Telegram TEST channel only
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[dominance-visual-test]'))
+        run: python -m crypto.send_crypto_dominance_v2_test
