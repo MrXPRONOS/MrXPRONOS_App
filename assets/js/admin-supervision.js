@@ -34,6 +34,7 @@ async function fetchSnapshot(){
   const x=data||{},a=x.analytics||{},l=x.live||{},t=x.telegram||{},h=x.health||{};
   const show=(id,n)=>output(id,format(n));
   show("visits",a.visits);show("clicks",a.click_pronostic);
+  output("analytics-audit","Événements bruts : "+format(x.analytics_raw_visits)+" visites · "+format(x.analytics_excluded_suspected_ci)+" événements de tous types exclus des périodes suspectes de tests CI. Le résultat restant est une estimation, non une preuve de visiteurs humains.");
   // "share" may mirror platform-specific shares; never sum these as independent actions.
   show("shares",a.share_generic);show("signals",l.total);
   const settled=Number(l.wins||0)+Number(l.losses||0);
