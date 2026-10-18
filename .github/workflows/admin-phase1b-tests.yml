@@ -1,0 +1,22 @@
+name: Admin Phase 1B security and publishing QA
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/publish/index.ts'
+      - 'supabase/migrations/20261018170500_admin_analytics_vip_rpc_hardening.sql'
+      - 'assets/js/admin-real.js'
+      - 'tests/admin-phase1b-atomic.test.cjs'
+      - '.github/workflows/admin-phase1b-tests.yml'
+  workflow_dispatch:
+jobs:
+  test-security-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static publication and security tests
+        run: node tests/admin-phase1b-atomic.test.cjs
