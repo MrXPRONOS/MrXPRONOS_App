@@ -80,6 +80,11 @@ class ExchangeNewsTests(unittest.TestCase):
         self.assertEqual({d["main"]["source"], d["confirmation"]["source"]}, {"CoinDesk", "The Block"})
         ex.validate_real(d, self.now)
 
+    def test_corroboration_rejects_same_publisher(self):
+        one = self.item("Coinbase wallet hack prompts security breach response", "CoinDesk")
+        another = self.item("Coinbase wallet hack prompts security breach response", "CoinDesk")
+        self.assertFalse(ex.corroborates(one, another))
+
     def test_unrelated_events_do_not_correlate(self):
         a = self.item("Binance launches a new wallet payment service for users")
         b = self.item("Binance introduces new USDC spot trading fees", "The Block")
