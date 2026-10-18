@@ -7,6 +7,7 @@
   <title>Supervision | Mr XPRONOS</title>
   <link rel="icon" href="assets/images/favicon.webp">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="assets/css/admin-premium.css?v=20261018-v1">
   <style>
     :root{color-scheme:dark;--bg:#0b0d11;--panel:#171a20;--stroke:#2b3039;--gold:#d7b45e;--muted:#a0a5b0;--good:#45d19d;--bad:#ff8989;--text:#f2f4f8}
     *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
@@ -38,12 +39,13 @@
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important}}
   </style>
 </head>
-<body>
+<body class="supervision">
 <div class="wrap">
-  <header class="top">
-    <div><div class="brand">Mr <span>XPRONOS</span> <span class="muted">/ Supervision</span></div><div class="muted">Activité, signaux et état des automatisations</div></div>
-    <nav class="toplinks"><a href="admin.html">← Administration</a><a href="index.html">Voir le site ↗</a><button id="logout" class="button" hidden>Déconnexion</button></nav>
+  <header class="topbar">
+    <div class="identity"><div class="mark" aria-hidden="true">MX</div><div><div class="brand">Mr <span class="gold">XPRONOS</span> <span class="muted">/ ADMIN</span></div><span class="brand-tag">COMMAND CENTER</span></div></div>
+    <nav class="toplinks" aria-label="Navigation administration"><a href="admin.html">← Administration</a><a href="index.html">↗ Voir le site</a><button id="logout" class="quiet-btn" hidden>Déconnexion</button></nav>
   </header>
+  <div class="hero"><div><div class="kicker">VISION GLOBALE / MR XPRONOS</div><h1>Tableau de bord</h1><p>Les chiffres essentiels et l'état de tes automatisations, réunis dans un même espace.</p></div><span class="hero-label">✦ PREMIUM CONTROL</span></div>
   <section id="auth-form" class="panel">
     <h2>Connexion administrateur</h2><label for="email">Email</label><input id="email" type="email" autocomplete="username" placeholder="Adresse administrateur">
     <label for="password">Mot de passe</label><input id="password" type="password" autocomplete="current-password">
@@ -51,30 +53,33 @@
   </section>
   <div id="checking" class="center-note">Vérification de l'accès administrateur…</div>
   <main id="dashboard">
-    <div class="toolbar">
+    <div class="dashboard-tools">
+      <div class="period-control">
       <label for="period">Période :</label>
       <select id="period"><option value="1">Aujourd'hui (UTC)</option><option value="7">7 derniers jours</option><option value="30">30 derniers jours</option></select>
+      </div>
       <span class="badge"><span id="socket-dot" class="status-dot"></span><span id="socket-state">Connexion en cours</span></span>
       <span class="right muted" id="updated">–</span>
       <button id="refresh" class="button">Actualiser</button>
     </div>
+    <nav class="quicknav" aria-label="Accès rapide"><a href="#overview">Vue générale</a><a href="#activity">Audience</a><a href="#signals-panel">Signaux</a><a href="#ops-panel">Automatisations</a><a href="#health-panel">Performance</a></nav>
     <div id="error" aria-live="polite"></div>
-    <div class="notice" id="analytics-audit">Les visites restent des identifiants de navigateur, pas des personnes confirmées. Les pics de tests identifiés sont exclus des statistiques estimées.</div>
-    <div class="metric-grid" aria-live="polite">
-      <div class="metric"><div class="name">Erreurs navigateur</div><div class="val" id="errors-total">–</div><small id="errors-detail">Mesures anonymisées (échantillon)</small></div>
-      <div class="metric"><div class="name">Navigateurs distincts (est.)</div><div class="val" id="unique">–</div><small>Identifiants distincts dans les visites</small></div>
-      <div class="metric"><div class="name">Pages vues mesurées</div><div class="val" id="pageviews">–</div><small>Événements page_view uniquement</small></div>
-      <div class="metric"><div class="name">Abonnements Push</div><div class="val" id="pushcount">–</div><small>Appareils inscrits</small></div>
-      <div class="metric"><div class="name">Visiteurs connectés</div><div class="val" id="online">–</div><small>Présence temps réel sur les pages équipées</small></div>
-      <div class="metric"><div class="name">Visites estimées (hors CI)</div><div class="val" id="visits">–</div><small>Maximum 1 visite/jour et par navigateur</small></div>
-      <div class="metric"><div class="name">Clics pronostics</div><div class="val" id="clicks">–</div><small>Événements enregistrés</small></div>
-      <div class="metric"><div class="name">Partages</div><div class="val" id="shares">–</div><small>WhatsApp, Telegram et autres événements share</small></div>
-      <div class="metric"><div class="name">Signaux Live</div><div class="val" id="signals">–</div><small>Signaux créés durant la période</small></div>
-      <div class="metric"><div class="name">Réussite validée</div><div class="val" id="winrate">–</div><small>Sur les signaux success/failure enregistrés</small></div>
-      <div class="metric"><div class="name">Envois Telegram</div><div class="val" id="telegram">–</div><small>Enregistrements telegram_sent</small></div>
-      <div class="metric"><div class="name">Latence Supabase</div><div class="val" id="latency">–</div><small>Temps de réponse du tableau de bord, pas du site</small></div>
+    <details class="audit-disclosure"><summary>Comprendre les statistiques de visiteurs</summary><div id="analytics-audit">Les visites restent des identifiants de navigateur, pas des personnes confirmées. Les pics de tests identifiés sont exclus des statistiques estimées.</div></details>
+    <section id="overview"><div class="section-head"><div><div class="section-kicker">01 / LES INDICATEURS</div><h2>Vue générale</h2></div><p>Suivi estimé, hors périodes suspectes de tests</p></div><div class="metric-grid" aria-live="polite">
+      <div class="metric"><div class="metric-top"><div class="name">Erreurs navigateur</div><span class="metric-icon" aria-hidden="true">!</span></div><div class="val" id="errors-total">–</div><small id="errors-detail">Mesures anonymisées (échantillon)</small></div>
+      <div class="metric"><div class="metric-top"><div class="name">Navigateurs distincts (est.)</div><span class="metric-icon" aria-hidden="true">◎</span></div><div class="val" id="unique">–</div><small>Identifiants distincts dans les visites</small></div>
+      <div class="metric"><div class="metric-top"><div class="name">Pages vues mesurées</div><span class="metric-icon" aria-hidden="true">▤</span></div><div class="val" id="pageviews">–</div><small>Événements page_view uniquement</small></div>
+      <div class="metric"><div class="metric-top"><div class="name">Abonnements Push</div><span class="metric-icon" aria-hidden="true">↗</span></div><div class="val" id="pushcount">–</div><small>Appareils inscrits</small></div>
+      <div class="metric"><div class="metric-top"><div class="name">Visiteurs connectés</div><span class="metric-icon" aria-hidden="true">◉</span></div><div class="val" id="online">–</div><small>Présence temps réel sur les pages équipées</small></div>
+      <div class="metric highlight"><div class="metric-top"><div class="name">Visites estimées (hors CI)</div><span class="metric-icon" aria-hidden="true">↗</span></div><div class="val" id="visits">–</div><small>Maximum 1 visite/jour et par navigateur</small></div>
+      <div class="metric"><div class="metric-top"><div class="name">Clics pronostics</div><span class="metric-icon" aria-hidden="true">↗</span></div><div class="val" id="clicks">–</div><small>Événements enregistrés</small></div>
+      <div class="metric"><div class="metric-top"><div class="name">Partages</div><span class="metric-icon" aria-hidden="true">⇪</span></div><div class="val" id="shares">–</div><small>WhatsApp, Telegram et autres événements share</small></div>
+      <div class="metric highlight"><div class="metric-top"><div class="name">Signaux Live</div><span class="metric-icon" aria-hidden="true">⚡</span></div><div class="val" id="signals">–</div><small>Signaux créés durant la période</small></div>
+      <div class="metric highlight"><div class="metric-top"><div class="name">Réussite validée</div><span class="metric-icon" aria-hidden="true">✓</span></div><div class="val" id="winrate">–</div><small>Sur les signaux success/failure enregistrés</small></div>
+      <div class="metric"><div class="metric-top"><div class="name">Envois Telegram</div><span class="metric-icon" aria-hidden="true">➤</span></div><div class="val" id="telegram">–</div><small>Enregistrements telegram_sent</small></div>
+      <div class="metric"><div class="metric-top"><div class="name">Latence Supabase</div><span class="metric-icon" aria-hidden="true">◷</span></div><div class="val" id="latency">–</div><small>Temps de réponse du tableau de bord, pas du site</small></div>
     </div>
-    <p id="last-signal" class="muted">–</p><div class="double">
+    </section><section id="activity"><div class="section-head"><div><div class="section-kicker">02 / AUDIENCE</div><h2>Évolution de l’activité</h2></div></div><div class="panel"><div class="chart-toolbar"><div><h2>Visites et interactions</h2><p class="section-note">Événements de visite estimés, après exclusion des plages de tests suspectes.</p></div><div class="chart-toggle" role="group" aria-label="Métrique du graphique"><button id="chart-visits" type="button" aria-pressed="true">Visites</button><button id="chart-clicks" type="button" aria-pressed="false">Clics</button></div></div><div id="traffic-chart" class="chart-box" role="img" aria-label="Graphique du trafic"><div class="chart-empty">Chargement…</div></div><p id="chart-caption" class="chart-total">–</p></div></section><section id="signals-panel"><div class="section-head"><div><div class="section-kicker">03 / ANALYSE FOOTBALL</div><h2>Signaux & précision</h2></div></div><p id="last-signal" class="muted">–</p><div class="double">
       <section class="panel">
         <h2>État des tâches suivies</h2><div class="scroll"><table class="rows"><thead><tr><th>Workflow</th><th>Dernière exécution</th><th>Résultat</th></tr></thead><tbody id="crons"><tr><td colspan="3">Chargement…</td></tr></tbody></table></div>
         <p class="section-note">Affiche les tâches présentes dans cron_runs ; le statut cron-job.org et les workflows GitHub Actions devront aussi être raccordés.</p>
@@ -99,16 +104,17 @@
  <section class="panel"><h2>Core Web Vitals (p75)</h2><div class="scroll"><table class="rows"><thead><tr><th>Métrique/appareil</th><th>Échantillons</th><th>P75</th></tr></thead><tbody id="vitalsrows"></tbody></table></div><p class="section-note">Objectifs : LCP ≤2 500 ms, INP ≤200 ms, CLS ≤0,1. Échantillonnage des navigateurs compatibles.</p></section>
  <section class="panel"><h2>Fraîcheur et alertes de données</h2><div class="scroll"><table class="rows"><thead><tr><th>Source</th><th>Dernière donnée</th><th>Âge</th></tr></thead><tbody id="freshrows"></tbody></table></div><p id="health-extra" class="section-note">–</p><p class="section-note">Seuils indicatifs, à rapprocher du calendrier réel des workflows.</p></section>
 </div>
-<section class="panel" style="margin-top:14px">
+</section><section id="ops-panel"><div class="section-head"><div><div class="section-kicker">04 / AUTOMATISATION</div><h2>Workflows & GitHub</h2></div></div><section class="panel" style="margin-top:14px">
   <h2>Exécutions GitHub Actions <span class="badge">Lecture publique, cache 5 min</span></h2>
   <p class="section-note" id="github-alerts">Connexion GitHub en cours…</p>
   <div class="scroll"><table class="rows"><thead><tr><th>Workflow</th><th>Lancement UTC</th><th>État</th></tr></thead><tbody id="githubrows"></tbody></table></div>
   <p class="section-note">Les doublons affichés sont des suspicions basées sur des horaires proches, pas la preuve de deux envois Telegram.</p>
 </section>
-    <div class="notice">
+</section><section id="health-panel"><div class="section-head"><div><div class="section-kicker">05 / OBSERVABILITÉ</div><h2>Notes techniques</h2></div></div><div class="notice">
       <strong>Mesures à compléter :</strong> erreurs JavaScript du navigateur, latence détaillée des fournisseurs, corrélation complète des workflows GitHub et chronologie de la conversion confirmée. Elles nécessitent un collecteur dédié : aucun chiffre n'est inventé ici.
-    </div>
+    </div></section>
   </main>
+  <footer class="footer"><span>Mr XPRONOS · Supervision</span><span>Données issues des sources existantes · Aucun résultat garanti</span></footer>
 </div>
 <script type="module" src="assets/js/admin-supervision.js"></script>
 </body>
