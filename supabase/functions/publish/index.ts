@@ -146,13 +146,60 @@ serve(async (req) => {
     const actorUid = await requireAdmin(req);
     const requestBody = await req.json().catch(() => ({}));
     if (requestBody?.operation === "status") {
-      const sha = String(requestBody?.commit || "");
-      if (!/^[a-f0-9]{40}$/i.test(sha)) return json({error:"Commit GitHub invalide"},400);
-      const response = await ghJson("/actions/runs?head_sha="+encodeURIComponent(sha)+"&per_page=50");
-      const workflows = (response?.workflow_runs || []).filter((run: any) => ["Deploy to GitHub Pages","pages build and deployment"].includes(run.name));
-      const deployed = workflows.some((run: any) => run.status==="completed" && run.conclusion==="success");
-      const failed = workflows.some((run: any) => run.status==="completed" && run.conclusion==="failure");
-      return json({success:true,commit:sha,deployment:deployed?"deployed":failed?"failed":workflows.length?"pending":"unknown",workflow_url:workflows[0]?.html_url||null});
+      const sha=String(requestBody?.commit||"").trim();
+      if(!/^[0-9a-f]{40}$/i.test(sha)) return json({error:"Commit GitHub invalide"},400);
+      const {data:version,error:versionError}=await sb.from("publish_history")
+        .select("id,payload").contains("payload",{github_commit:sha}).limit(1).maybeSingle();
+      if(versionError) throw versionError;
+      if(!version) return json({error:"Commit non enregistré dans l'historique"},404);
+      const [runsResult,deployments]=await Promise.all([
+        ghJson("/actions/runs?head_sha="+encodeURIComponent(sha)+"&per_page=100"),
+        ghJson("/deployments?sha="+encodeURIComponent(sha)+"&environment=github-pages&per_page=20")
+      ]);
+      const pagesRuns=(runsResult.workflow_runs||[]).filter((run:any)=>
+        run.head_sha===sha && /pages|deploy.*site|deploy.*web/i.test(String(run.name||"")+" "+String(run.path||"")));
+      pagesRuns.sort((a:any,b:any)=>String(b.created_at||"").localeCompare(String(a.created_at||"")));
+      const run=pagesRuns[0];
+      let deployment="unknown";
+      let workflow_url=run?.html_url||null;
+      for(const d of Array.isArray(deployments)?deployments:[]) {
+        if(d.sha!==sha || d.environment!=="github-pages") continue;
+        const states=await ghJson("/deployments/"+d.id+"/statuses?per_page=10");
+        const latest=Array.isArray(states)?states[0]:null;
+        if(!latest) continue;
+        deployment=latest.state==="success"?"deployed":
+          ["failure","error"].includes(latest.state)?"failed":"pending";
+        workflow_url=latest.log_url||workflow_url;
+        break;
+      }
+      if(deployment==="unknown"&&run) {
+        deployment=run.status!=="completed"?"pending":run.conclusion==="success"?"deployed":
+          ["failure","cancelled","timed_out","action_required"].includes(run.conclusion)?"failed":"unknown";
+      }
+      const gitBranch=GITHUB_BRANCH.split("/").map(encodeURIComponent).join("/");
+      const head=(await ghJson("/git/ref/heads/"+gitBranch)).object?.sha;
+      const current=head===sha;
+      const status=deployment==="deployed"?"deployed":
+        deployment==="failed"?"deployment_failed":deployment==="pending"?"deployment_in_progress":"deployment_unknown";
+      if(version.payload?.status!==status) {
+        const {error:historyError}=await sb.from("publish_history")
+          .update({payload:{...version.payload,status,deployment,last_checked_at:nowIso()}}).eq("id",version.id);
+        if(historyError) console.error("Publication state persistence error",historyError.code);
+        const {error:auditError}=await sb.from("audit_log").insert({
+          actor_user_id:actorUid,action:"publish_deployment_state",details:{github_commit:sha,status}});
+        if(auditError) console.error("Publication status audit error",auditError.code);
+      }
+      return json({success:true,github_commit:sha,status,deployment,is_current:current,workflow_url});
+    }
+    if(requestBody?.operation==="history") {
+      const {data,error}=await sb.from("publish_history").select("id,created_at,payload")
+        .order("created_at",{ascending:false}).limit(30);
+      if(error) throw error;
+      return json({success:true,versions:(data||[]).filter((v:any)=>
+        /^[0-9a-f]{40}$/i.test(String(v.payload?.github_commit||""))).map((v:any)=>({
+          id:v.id,date:v.created_at,github_commit:v.payload.github_commit,
+          status:v.payload.status||"committed",deployment:v.payload.deployment||"unknown",
+          operation:v.payload.operation||"publish",counts:v.payload.counts||null}))});
     }
     if (requestBody?.operation && requestBody.operation !== "publish") return json({error:"Opération inconnue"},400);
 
