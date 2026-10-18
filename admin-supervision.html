@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Supervision | Mr XPRONOS</title>
+  <link rel="icon" href="assets/images/favicon.webp">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{color-scheme:dark;--bg:#0b0d11;--panel:#171a20;--stroke:#2b3039;--gold:#d7b45e;--muted:#a0a5b0;--good:#45d19d;--bad:#ff8989;--text:#f2f4f8}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+    a{color:var(--gold);text-decoration:none}button,input,select{font:inherit}
+    .wrap{max-width:1260px;margin:auto;padding:18px 16px 60px}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+    .brand{font-size:1.55rem;font-weight:850;letter-spacing:-.03em}.brand span{color:var(--gold)}.muted{color:var(--muted)}.toplinks{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .panel,.metric{border:1px solid var(--stroke);background:var(--panel);border-radius:14px;padding:18px}
+    h1,h2,h3,p{margin-top:0}h2{font-size:1.06rem;margin-bottom:13px}h3{font-size:.95rem;margin-bottom:8px}
+    .metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0 20px}
+    .metric{min-height:122px}.metric .val{font-size:clamp(1.7rem,3vw,2.4rem);font-weight:850;color:#fff;letter-spacing:-.04em;margin:10px 0 0}
+    .metric .name{font-weight:650;color:var(--muted)}.metric small{display:block;color:var(--muted);line-height:1.4}
+    .double{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.double>.panel{min-width:0}
+    .toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:12px}.button,select,input{padding:10px 13px;border-radius:9px;border:1px solid #52525c;background:#20232a;color:#fff}
+    .button{cursor:pointer;font-weight:750}.button.primary{background:var(--gold);color:#101010;border-color:var(--gold)}
+    .button:disabled{opacity:.55;cursor:not-allowed}.right{margin-left:auto}
+    .status-dot{display:inline-block;width:8px;height:8px;border-radius:100%;background:var(--muted);margin-right:5px}
+    .status-dot.good{background:var(--good)}.status-dot.bad{background:var(--bad)}
+    .rows{width:100%;border-collapse:collapse;table-layout:fixed}.rows td,.rows th{text-align:left;border-bottom:1px solid var(--stroke);padding:10px 6px;overflow-wrap:anywhere}
+    .rows th{font-weight:600;color:var(--muted)}.scroll{overflow-x:auto}.rows{min-width:400px}
+    .notice{padding:11px 13px;border:1px solid #51442a;background:#221e17;border-radius:9px;color:#e7d0a0;margin:15px 0}
+    .notice.error{border-color:#593438;background:#291719;color:#ffc4ca}
+    .good-txt{color:var(--good)}.bad-txt{color:var(--bad)}.badge{border:1px solid var(--stroke);border-radius:40px;padding:4px 9px;color:var(--muted);font-size:12px}
+    #dashboard,#auth-form{display:none}#auth-form{max-width:420px;margin:45px auto}#auth-form input{width:100%;margin:6px 0 12px}
+    .center-note{padding:30px;text-align:center;color:var(--muted)}
+    .section-note{font-size:12px;color:var(--muted);margin:10px 0 0}
+    @media(max-width:850px){.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.double{grid-template-columns:1fr}}
+    @media(max-width:420px){.wrap{padding:14px 11px 40px}.metric-grid{gap:8px}.metric{padding:13px;min-height:116px}.panel{padding:13px}.toplinks{font-size:12px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div><div class="brand">Mr <span>XPRONOS</span> <span class="muted">/ Supervision</span></div><div class="muted">Activité, signaux et état des automatisations</div></div>
+    <nav class="toplinks"><a href="admin.html">← Administration</a><a href="index.html">Voir le site ↗</a><button id="logout" class="button" hidden>Déconnexion</button></nav>
+  </header>
+  <section id="auth-form" class="panel">
+    <h2>Connexion administrateur</h2><label for="email">Email</label><input id="email" type="email" autocomplete="username" placeholder="Adresse administrateur">
+    <label for="password">Mot de passe</label><input id="password" type="password" autocomplete="current-password">
+    <button id="login" class="button primary">Se connecter</button><p id="auth-error" class="section-note" role="alert"></p>
+  </section>
+  <div id="checking" class="center-note">Vérification de l'accès administrateur…</div>
+  <main id="dashboard">
+    <div class="toolbar">
+      <label for="period">Période :</label>
+      <select id="period"><option value="1">Aujourd'hui (UTC)</option><option value="7">7 derniers jours</option><option value="30">30 derniers jours</option></select>
+      <span class="badge"><span id="socket-dot" class="status-dot"></span><span id="socket-state">Connexion en cours</span></span>
+      <span class="right muted" id="updated">–</span>
+      <button id="refresh" class="button">Actualiser</button>
+    </div>
+    <div id="error" aria-live="polite"></div>
+    <div class="metric-grid" aria-live="polite">
+      <div class="metric"><div class="name">Erreurs navigateur</div><div class="val" id="errors-total">–</div><small id="errors-detail">Mesures anonymisées (échantillon)</small></div>
+      <div class="metric"><div class="name">Visiteurs uniques</div><div class="val" id="unique">–</div><small>Identifiants distincts dans les visites</small></div>
+      <div class="metric"><div class="name">Pages vues mesurées</div><div class="val" id="pageviews">–</div><small>Événements page_view uniquement</small></div>
+      <div class="metric"><div class="name">Abonnements Push</div><div class="val" id="pushcount">–</div><small>Appareils inscrits</small></div>
+      <div class="metric"><div class="name">Visiteurs connectés</div><div class="val" id="online">–</div><small>Présence temps réel sur les pages équipées</small></div>
+      <div class="metric"><div class="name">Visites enregistrées</div><div class="val" id="visits">–</div><small>Maximum 1 visite/jour et par navigateur</small></div>
+      <div class="metric"><div class="name">Clics pronostics</div><div class="val" id="clicks">–</div><small>Événements enregistrés</small></div>
+      <div class="metric"><div class="name">Partages</div><div class="val" id="shares">–</div><small>WhatsApp, Telegram et autres événements share</small></div>
+      <div class="metric"><div class="name">Signaux Live</div><div class="val" id="signals">–</div><small>Signaux créés durant la période</small></div>
+      <div class="metric"><div class="name">Réussite validée</div><div class="val" id="winrate">–</div><small>Sur les signaux success/failure enregistrés</small></div>
+      <div class="metric"><div class="name">Envois Telegram</div><div class="val" id="telegram">–</div><small>Enregistrements telegram_sent</small></div>
+      <div class="metric"><div class="name">Latence Supabase</div><div class="val" id="latency">–</div><small>Temps de réponse du tableau de bord, pas du site</small></div>
+    </div>
+    <p id="last-signal" class="muted">–</p><div class="double">
+      <section class="panel">
+        <h2>État des tâches suivies</h2><div class="scroll"><table class="rows"><thead><tr><th>Workflow</th><th>Dernière exécution</th><th>Résultat</th></tr></thead><tbody id="crons"><tr><td colspan="3">Chargement…</td></tr></tbody></table></div>
+        <p class="section-note">Affiche les tâches présentes dans cron_runs ; le statut cron-job.org et les workflows GitHub Actions devront aussi être raccordés.</p>
+      </section>
+      <section class="panel">
+        <h2>Qualité des signaux Live</h2>
+        <div id="quality" class="muted">Chargement…</div>
+        <h3 style="margin-top:22px">Fraîcheur des données Live</h3>
+        <p id="freshness" class="muted">Chargement…</p>
+        <p class="section-note">Les résultats reflètent les enregistrements de la base, non une vérification externe de leur exactitude.</p>
+      </section>
+    </div>
+<div class="double">
+ <section class="panel"><h2>Live : performance par marché</h2><div class="scroll"><table class="rows"><thead><tr><th>Marché</th><th>Signaux</th><th>Réussite validée</th></tr></thead><tbody id="marketrows"></tbody></table></div></section>
+ <section class="panel"><h2>Live : performance par niveau</h2><div class="scroll"><table class="rows"><thead><tr><th>Niveau</th><th>Signaux</th><th>Réussite validée</th></tr></thead><tbody id="tierrows"></tbody></table></div></section>
+</div>
+<div class="double">
+ <section class="panel"><h2>Pronostics avant match (Simple / Pro / VIP)</h2><div class="scroll"><table class="rows"><thead><tr><th>Catégorie</th><th>Pronos</th><th>Réussite vérifiée</th></tr></thead><tbody id="prematchrows"></tbody></table></div><p class="section-note">Basé uniquement sur les pronostics terminés avec vérification booléenne en base.</p></section>
+ <section class="panel"><h2>Acquisition éditoriale attribuée</h2><div class="scroll"><table class="rows"><thead><tr><th>Source</th><th>Vues attribuées</th><th>Interactions</th></tr></thead><tbody id="sourcesrows"></tbody></table></div><p class="section-note">Les clics ne prouvent pas une inscription chez un partenaire.</p></section>
+</div>
+<div class="double">
+ <section class="panel"><h2>Core Web Vitals (p75)</h2><div class="scroll"><table class="rows"><thead><tr><th>Métrique/appareil</th><th>Échantillons</th><th>P75</th></tr></thead><tbody id="vitalsrows"></tbody></table></div><p class="section-note">Objectifs : LCP ≤2 500 ms, INP ≤200 ms, CLS ≤0,1. Échantillonnage des navigateurs compatibles.</p></section>
+ <section class="panel"><h2>Fraîcheur et alertes de données</h2><div class="scroll"><table class="rows"><thead><tr><th>Source</th><th>Dernière donnée</th><th>Âge</th></tr></thead><tbody id="freshrows"></tbody></table></div><p id="health-extra" class="section-note">–</p><p class="section-note">Seuils indicatifs, à rapprocher du calendrier réel des workflows.</p></section>
+</div>
+<section class="panel" style="margin-top:14px">
+  <h2>Exécutions GitHub Actions <span class="badge">Lecture publique, cache 5 min</span></h2>
+  <p class="section-note" id="github-alerts">Connexion GitHub en cours…</p>
+  <div class="scroll"><table class="rows"><thead><tr><th>Workflow</th><th>Lancement UTC</th><th>État</th></tr></thead><tbody id="githubrows"></tbody></table></div>
+  <p class="section-note">Les doublons affichés sont des suspicions basées sur des horaires proches, pas la preuve de deux envois Telegram.</p>
+</section>
+    <div class="notice">
+      <strong>Mesures à compléter :</strong> erreurs JavaScript du navigateur, latence détaillée des fournisseurs, corrélation complète des workflows GitHub et chronologie de la conversion confirmée. Elles nécessitent un collecteur dédié : aucun chiffre n'est inventé ici.
+    </div>
+  </main>
+</div>
+<script type="module" src="assets/js/admin-supervision.js"></script>
+</body>
+</html>
