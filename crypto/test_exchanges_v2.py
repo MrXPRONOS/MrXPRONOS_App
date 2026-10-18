@@ -40,6 +40,55 @@ class ExchangeNewsTests(unittest.TestCase):
         self.assertIsNone(ex.category_of("Sponsored: Coinbase launches a wallet"))
         self.assertIsNotNone(ex.category_of("OKX suspends withdrawals for maintenance"))
 
+    def test_eight_free_press_sources_and_two_official_apis(self):
+        self.assertGreaterEqual(len(ex.FEEDS), 8)
+        self.assertEqual(len(ex.OFFICIAL_STATUS_APIS), 2)
+        self.assertEqual(len(set(x[1] for x in ex.FEEDS.values())), len(ex.FEEDS))
+        self.assertTrue(all(x[0].startswith("https://") for x in ex.FEEDS.values()))
+
+    def test_official_incident_selected_without_press_confirmation(self):
+        raw = {"id": "abc12345def9", "name": "USDT withdrawals temporarily delayed",
+               "status": "investigating", "impact": "minor",
+               "created_at": (self.now - timedelta(hours=1)).isoformat()}
+        event = ex.parse_official_incident(raw, "Kraken Status", self.now)
+        self.assertTrue(event["official"])
+        self.assertEqual(event["exchange"], "KRAKEN")
+        self.assertEqual(event["category"], "ACCÈS & SERVICES")
+        d = ex.select_report([event], {"sent_urls": []}, self.now)
+        self.assertEqual(d["verification"], "official_notice")
+        self.assertEqual(d["main"]["incident_id"], "abc12345def9")
+        ex.validate_real(d, self.now)
+
+    def test_official_impact_and_status_must_be_valid(self):
+        raw = {"id": "abc12345def9", "name": "USD withdrawals are delayed",
+               "status": "resolved", "impact": "minor",
+               "created_at": (self.now - timedelta(hours=1)).isoformat()}
+        with self.assertRaises(ValueError):
+            ex.parse_official_incident(raw, "Coinbase Status", self.now)
+        raw["status"] = "investigating"
+        raw["impact"] = "none"
+        with self.assertRaises(ValueError):
+            ex.parse_official_incident(raw, "Coinbase Status", self.now)
+
+    def test_official_status_cannot_impersonate_another_exchange(self):
+        raw = {"id": "abc12345def9", "name": "USDT withdrawals temporarily delayed",
+               "status": "investigating", "impact": "major",
+               "created_at": (self.now - timedelta(hours=1)).isoformat()}
+        d = ex.select_report([ex.parse_official_incident(raw, "Kraken Status", self.now)],
+                             {"sent_urls": []}, self.now)
+        d["main"]["exchange"] = "COINBASE"
+        with self.assertRaises(ValueError):
+            ex.validate_real(d, self.now)
+
+    def test_official_incident_fingerprints_are_individual(self):
+        raw = {"id": "abc12345def9", "name": "USDT withdrawals temporarily delayed",
+               "status": "investigating", "impact": "minor",
+               "created_at": (self.now - timedelta(hours=1)).isoformat()}
+        a = ex.parse_official_incident(raw, "Kraken Status", self.now)
+        raw["id"] = "def12345abc9"
+        b = ex.parse_official_incident(raw, "Kraken Status", self.now)
+        self.assertNotEqual(ex.fingerprint(a), ex.fingerprint(b))
+
     def test_untrusted_urls_rejected(self):
         for bad in ("http://www.coindesk.com/post/article",
                     "https://coindesk.com.evil.org/post/article",
