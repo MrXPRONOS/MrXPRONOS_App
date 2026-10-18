@@ -51,7 +51,8 @@ class ProductionSchedulerTests(unittest.TestCase):
     def test_legal_review_never_checks_telegram_or_sends(self):
         with patch.object(live.seed, "run") as command:
             with patch.object(live.seed, "verify_production_route") as route:
-                with patch.object(live.REG, "is_file", return_value=False):
+                with patch.object(live, "REG") as reg:
+                    reg.is_file.return_value = False
                     live.execute("legal")
         route.assert_not_called()
         command.assert_called_once_with("python", "-m", "crypto.export_regulation_v2")
