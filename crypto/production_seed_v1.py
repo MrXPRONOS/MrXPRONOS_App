@@ -1,5 +1,8 @@
 """One-time, real-only, one-by-one crypto history seeding.
 
+Production retry after verified channel administrator rights were added.
+Second pass: sent IDs 2-6 recorded; only currently missing real posters may be posted.
+
 Usage: python -m crypto.production_seed_v1 --number 1..10
 Only sends supported validated REAL PNGs to ACTU_CRYPTO_CHAT_ID.
 Never sends demos, never targets @predict_mrxp and never retries uncertain posts.

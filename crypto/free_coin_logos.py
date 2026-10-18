@@ -205,5 +205,5 @@ def enrich_with_logos(rows):
     missing=[r["symbol"] for r in pending(rows)]
     if missing:
         LOG.warning("CRYPTO_LOGO_FALLBACK_SYMBOLS %s",missing)
-    LOG.info("CRYPTO_LOGOS_COMPLETE %s",[(r["symbol"],r["logo_source"]) for r in rows])
+    LOG.info("CRYPTO_LOGOS_COMPLETE %s",[(r["symbol"],r.get("logo_source","FALLBACK_MONOGRAM")) for r in rows])
     return rows

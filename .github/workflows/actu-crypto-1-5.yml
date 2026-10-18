@@ -1,12 +1,9 @@
 name: Actu Crypto - publications 1 a 5
 
 on:
-  schedule:
-    # Lomé (Togo) = UTC, horaires indicatifs (GitHub peut retarder les schedules).
-    - cron: '7 7 * * *'      # Briefing + top + sentiment
-    - cron: '17 12 * * *'    # Top hausses / baisses
-    - cron: '23 18 * * *'    # Cours du soir
-    - cron: '41 8-22/2 * * *' # Surveillance des alertes aux heures choisies
+  # Ancien rendu V1 disponible pour tests manuels uniquement.
+  # La programmation de production utilise actu-crypto-production-live.yml
+  # et ses affiches premium V2, sans doublons.
   workflow_dispatch:
     inputs:
       mode:
