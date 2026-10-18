@@ -27,7 +27,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install HTTP client
-        run: python -m pip install 'requests>=2.31,<3'
-      - name: Send exactly one diagnostic message to validated @predict_mrxp
+      - name: Install HTTP and image dependencies
+        run: python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12'
+      - name: Send one diagnostic PHOTO plus caption to validated @predict_mrxp
         run: python -m crypto.send_breaking_08_delivery_test
+      - name: Archive sent diagnostic image
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-publication-08-telegram-photo-delivery-test
+          path: crypto/generated/test/breaking_08_delivery_test.png
+          if-no-files-found: error
+          retention-days: 14
