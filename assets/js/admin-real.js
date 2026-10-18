@@ -1237,57 +1237,52 @@ function cmsInstallHistory(){
 // -----------------------------
 async function publishNow() {
   if (publishBusy) return;
-  publishBusy = true;
-  setBtnDisabled("btnPublish", true);
-
-  try {
-    const session = (await sb.auth.getSession()).data.session;
-    if (!session) return alert("Session expirée.");
-
-    const res = await fetch(`${supabaseUrl}/functions/v1/publish`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${session.access_token}`,
-        "apikey": supabaseAnonKey,
-      },
-      body: JSON.stringify({}),
-    });
-
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      return alert(data?.error || "Erreur publish");
-    }
-
+  publishBusy=true;
+  setBtnDisabled("btnPublish",true);
+  let panel=$("cms-publish-result");
+  if(!panel) {
+    panel=cmsDom("div");
+    panel.id="cms-publish-result";
+    panel.setAttribute("role","status");
+    panel.setAttribute("aria-live","polite");
+    panel.style.cssText="padding:12px;margin:12px 0;border:1px solid #666;border-radius:10px";
+    $("btnPublish").parentElement.appendChild(panel);
+  }
+  panel.replaceChildren(cmsDom("span","Publication préparée : création du commit GitHub…"));
+  try{
+    const data=await cmsAdminRequest("publish");
     const commit=data?.github_commit;
-    const statusBox=document.getElementById("cms-publish-result")||document.createElement("div");
-    statusBox.id="cms-publish-result";
-    statusBox.setAttribute("role","status");
-    statusBox.style.cssText="padding:12px;margin:12px 0;border:1px solid #666;border-radius:10px";
-    if(!statusBox.parentElement) $("btnPublish").parentElement.appendChild(statusBox);
-    if(!commit) {statusBox.textContent="Publication sans commit retourné — vérification requise.";return;}
-    statusBox.textContent="Commit GitHub créé : "+commit.slice(0,12)+". Mise en ligne non confirmée.";
-    const check=document.createElement("button");
-    check.type="button";check.className="btn btn-secondary";check.textContent="Vérifier le déploiement";
-    check.style.marginLeft="12px";
-    check.onclick=async()=>{
-      statusBox.textContent="Vérification du déploiement…";
+    if(!commit){panel.textContent="Le serveur n'a pas retourné de commit : mise en ligne non confirmée.";return;}
+    panel.textContent="Commit GitHub créé : "+commit.slice(0,12)+". Mise en ligne non confirmée.";
+    const check=cmsDom("button","Vérifier le déploiement","btn btn-secondary");
+    check.type="button";check.style.marginLeft="10px";
+    let pendingTimer=null,attempts=0;
+    async function verify(){
+      if(pendingTimer!==null){clearTimeout(pendingTimer);pendingTimer=null;}
+      const output=cmsDom("span","Vérification du déploiement…");
+      panel.replaceChildren(output,check);
       try{
-        const result=await fetch(`${supabaseUrl}/functions/v1/publish`,{
-          method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${session.access_token}`,"apikey":supabaseAnonKey},
-          body:JSON.stringify({operation:"status",commit})
-        });
-        const value=await result.json();if(!result.ok)throw new Error(value.error||"Erreur de vérification");
+        const value=await cmsAdminRequest("status",{commit});
         const labels={deployed:"Déploiement confirmé",pending:"Déploiement en cours",failed:"Déploiement échoué",unknown:"Déploiement non confirmé"};
-        statusBox.textContent=(labels[value.deployment]||"Déploiement non confirmé")+" — "+commit.slice(0,12)+(value.is_current?" (commit actuel)":" (version antérieure)");
-      }catch(error){statusBox.textContent="Vérification échouée : "+error.message;}
-      if(statusBox.textContent.includes("en cours")||statusBox.textContent.includes("non confirmé"))statusBox.appendChild(check);
-    };
-    statusBox.appendChild(check);
-
-  } finally {
-    publishBusy = false;
-    setBtnDisabled("btnPublish", false);
+        output.textContent=(labels[value.deployment]||"Déploiement non confirmé")+" — "+commit.slice(0,12)+
+          (value.is_current?" (commit actuel)":" (version antérieure)");
+        if(value.workflow_url&&/^https:\/\/github\.com\//.test(value.workflow_url)){
+          const url=cmsDom("a"," — Détails GitHub");url.href=value.workflow_url;url.rel="noopener noreferrer";url.target="_blank";
+          output.appendChild(url);
+        }
+        if(value.deployment==="pending"&&attempts++<12)pendingTimer=setTimeout(()=>void verify(),12000);
+      }catch(error){output.textContent="Vérification indisponible : "+error.message;}
+    }
+    check.addEventListener("click",()=>void verify());
+    panel.appendChild(check);
+    void verify();
+    const history=$("cms-history-root");
+    if(history?.childElementCount)void cmsLoadHistory(history);
+  }catch(error){
+    panel.textContent="Erreur de publication (vérifier l'historique avant de réessayer) : "+error.message;
+  }finally{
+    publishBusy=false;
+    setBtnDisabled("btnPublish",false);
   }
 }
 
