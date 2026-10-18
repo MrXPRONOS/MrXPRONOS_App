@@ -77,8 +77,19 @@ def verify_production_route() -> dict:
                 params=params, timeout=(8, 20))
             resp.raise_for_status()
             payload = resp.json()
-        except (requests.RequestException, ValueError):
-            raise RuntimeError("Telegram route verification failed") from None
+        except requests.HTTPError as exc:
+            code = getattr(exc.response, "status_code", "unknown")
+            raise RuntimeError(
+                "Telegram preflight " + method + " HTTP " + str(code) +
+                " (check bot token, channel membership, and bot permissions)"
+            ) from None
+        except requests.RequestException as exc:
+            raise RuntimeError(
+                "Telegram preflight " + method + " network failure: " +
+                type(exc).__name__
+            ) from None
+        except ValueError:
+            raise RuntimeError("Telegram preflight " + method + " invalid JSON") from None
         if not isinstance(payload, dict) or payload.get("ok") is not True:
             raise RuntimeError("Telegram rejected route check " + method)
         result = payload.get("result")
@@ -86,12 +97,13 @@ def verify_production_route() -> dict:
             raise RuntimeError("Telegram returned invalid " + method)
         return result
 
+    me = telegram_read("getMe", {})
+    print("CRYPTO_PROD_BOT_IDENTITY_OK")
     chat = telegram_read("getChat", {"chat_id": CHAT})
     if chat.get("type") != "channel":
         raise RuntimeError("ACTU_CRYPTO_CHAT_ID does not identify a Telegram channel")
     if str(chat.get("username") or "").lower() == "predict_mrxp":
         raise RuntimeError("Cannot publish production posts to test channel")
-    me = telegram_read("getMe", {})
     bot_id = me.get("id")
     if not isinstance(bot_id, int):
         raise RuntimeError("Bot identity not returned")
