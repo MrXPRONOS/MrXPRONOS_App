@@ -3594,6 +3594,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 });
-
-// Échantillonnage des performances réelles, sans identifiant visiteur.
-import "./web-vitals-monitor.js";
