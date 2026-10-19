@@ -161,8 +161,8 @@ def validate_real(d,now=None):
     if d.get("publication")!=11 or d.get("status")!="attributed_press" or d.get("is_demo") is not False:
         raise ValueError("Only real source-attributed #11 can pass")
     a=d.get("main")
-    if not isinstance(a,dict) or a.get("source") not in FEEDS or
-        a.get("legal_status_confirmed") is not False:
+    if (not isinstance(a,dict) or a.get("source") not in FEEDS or
+            a.get("legal_status_confirmed") is not False):
         raise ValueError("Invalid publisher or unsupported legal certainty")
     if a.get("high_impact") is not False or d.get("legal_status_confirmed") is not False:
         raise ValueError("High-impact legal claim requires official verification")
@@ -172,8 +172,8 @@ def validate_real(d,now=None):
         if row[key]!=a.get(key):raise ValueError("Tampered source article "+key)
     if d.get("fingerprint")!=fingerprint(a) or d.get("source_count")!=1:
         raise ValueError("Invalid attribution or fingerprint")
-    if not isinstance(d.get("synopsis_fr"),str) or len(d["synopsis_fr"])>180 or
-        "actualité" not in d["synopsis_fr"]:
+    if (not isinstance(d.get("synopsis_fr"),str) or len(d["synopsis_fr"])>180 or
+            "actualité" not in d["synopsis_fr"]):
         raise ValueError("Unverifiable French overview")
     since=(now-datetime.fromisoformat(d["collected_at"])).total_seconds()
     if not -300<=since<=3600: raise ValueError("Stale JSON")
