@@ -14,6 +14,7 @@ const screenTitles = {
  conseils:["Conseils","Éditer les contenus éducatifs et les guides.","CONTENUS"],
  bonus:["Bonus et bookmakers","Gérer les offres, bonus et partenaires.","CONTENUS"],
  infos:["Informations","Publier les actualités et communications.","CONTENUS"],
+ media:["Médiathèque","Importer, retrouver et sélectionner les images et vidéos.","CONTENUS"],
  health:["Automatisations","Surveiller les tâches programmées et leur état.","SYSTÈME"],
  audit:["Journal d’audit","Consulter les actions et les modifications.","SYSTÈME"]
 };

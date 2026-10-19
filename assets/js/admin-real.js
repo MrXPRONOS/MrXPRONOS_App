@@ -1,4 +1,7 @@
 import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
+import { mountCmsBlockEditor } from "./cms-block-editor.mjs";
+import { mountCmsRevisionPanel } from "./cms-revisions.mjs";
+import { mountCmsMediaFieldPicker, mountCmsMediaPicker } from "./cms-media-library.mjs";
 import { supabaseUrl, supabaseAnonKey } from "./config.js";
 import "./loading-ui.js";
 
@@ -18,7 +21,7 @@ const premiumAdminLoading = (kind = "admin", count = 3) =>
   window.MXLoading?.render?.(kind, count) || '<div class="muted">Chargement…</div>';
 
 
-const TAB_NAMES = ["overview","pronostics","push","articles","conseils","bonus","infos","vip","health","audit"];
+const TAB_NAMES = ["overview","pronostics","push","articles","conseils","bonus","infos","media","vip","health","audit"];
 const loadedTabs = new Set();
 let publishBusy = false;
 
@@ -68,6 +71,7 @@ const TAB_LOADERS = {
   conseils: renderCmsConseils,
   bonus: renderBonus,
   infos: renderInfos,
+  media: renderMediaTab,
   vip: renderVip,
   health: renderHealth,
   audit: renderAudit,
@@ -526,6 +530,10 @@ async function renderCmsArticles() {
 
       <label>Image URL</label><input id="a_image">
       <label>Meta description</label><input id="a_meta">
+      <div class="row">
+        <div><label>Catégorie</label><input id="a_category" placeholder="Analyse, actu, guide…"></div>
+        <div><label>Étiquettes (virgules)</label><input id="a_tags" placeholder="Football, tactique"></div>
+      </div>
       <label>Contenu</label><textarea id="a_content" rows="8"></textarea>
 
       <div class="row">
@@ -551,15 +559,23 @@ async function renderCmsArticles() {
     </div>
   `;
 
+  const cmsEditor = mountCmsBlockEditor({sb,textarea:$("a_content"),kind:"articles"});
+  mountCmsMediaFieldPicker(sb,$("a_image"));
+
+  const versions = mountCmsRevisionPanel({sb,table:"cms_articles",
+    container:root.querySelector(".card"),onChoose:row=>setForm(row)});
   const setForm = (a) => {
     $("a_slug").value = a.slug || "";
     $("a_title").value = a.title || "";
     $("a_image").value = a.image_url || "";
     $("a_meta").value = a.meta_description || "";
-    $("a_content").value = a.content || "";
+    $("a_category").value = a.category || "";
+    $("a_tags").value = (a.tags||[]).join(", ");
+    cmsEditor.setMarkdown(a.content || "",a.id);
     $("a_status").value = a.status || "draft";
     $("a_active").value = (a.active !== false) ? "true" : "false";
     $("a_save").dataset.id = a.id;
+    void versions.load(a.id);
   };
 
   root.querySelectorAll("[data-id]").forEach(el => {
@@ -571,13 +587,17 @@ async function renderCmsArticles() {
   });
 
   $("a_save").addEventListener("click", async () => {
+    let cmsText;
+    try { cmsText=cmsEditor.getMarkdown(); } catch(error) { alert(error.message); return; }
     const row = {
       slug: $("a_slug").value.trim(),
       title: $("a_title").value.trim(),
       image_url: $("a_image").value.trim(),
       og_image: $("a_image").value.trim(),
       meta_description: $("a_meta").value.trim(),
-      content: $("a_content").value,
+      category: $("a_category").value.trim(),
+      tags: $("a_tags").value.split(",").map(x=>x.trim()).filter(Boolean).slice(0,12),
+      content: cmsText,
       status: $("a_status").value,
       active: $("a_active").value === "true",
       updated_at: new Date().toISOString(),
@@ -619,6 +639,14 @@ async function renderCmsConseils() {
         <div><label>Titre</label><input id="c_title"></div>
       </div>
       <label>Image URL</label><input id="c_image">
+      <div class="row">
+        <div><label>Catégorie</label><input id="c_category" placeholder="Débutants, stratégie…"></div>
+        <div><label>Niveau</label><select id="c_level">
+          <option value="">Non précisé</option><option value="debutant">Débutant</option>
+          <option value="intermediaire">Intermédiaire</option><option value="avance">Avancé</option>
+        </select></div>
+      </div>
+      <label>Étiquettes</label><input id="c_tags" placeholder="Conseils, sécurité">
       <label>Contenu</label><textarea id="c_content" rows="6"></textarea>
 
       <div class="row">
@@ -644,14 +672,23 @@ async function renderCmsConseils() {
     </div>
   `;
 
+  const cmsEditor = mountCmsBlockEditor({sb,textarea:$("c_content"),kind:"conseils"});
+  mountCmsMediaFieldPicker(sb,$("c_image"));
+
+  const versions = mountCmsRevisionPanel({sb,table:"cms_conseils",
+    container:root.querySelector(".card"),onChoose:row=>setForm(row)});
   const setForm = (c) => {
     $("c_slug").value = c.slug || "";
     $("c_title").value = c.title || "";
     $("c_image").value = c.image_url || "";
-    $("c_content").value = c.content || "";
+    $("c_category").value = c.category || "";
+    $("c_level").value = c.difficulty || "";
+    $("c_tags").value = (c.tags||[]).join(", ");
+    cmsEditor.setMarkdown(c.content || "",c.id);
     $("c_status").value = c.status || "draft";
     $("c_active").value = (c.active !== false) ? "true" : "false";
     $("c_save").dataset.id = c.id;
+    void versions.load(c.id);
   };
 
   root.querySelectorAll("[data-id]").forEach(el => {
@@ -663,11 +700,16 @@ async function renderCmsConseils() {
   });
 
   $("c_save").addEventListener("click", async () => {
+    let cmsText;
+    try { cmsText=cmsEditor.getMarkdown(); } catch(error) { alert(error.message); return; }
     const row = {
       slug: $("c_slug").value.trim(),
       title: $("c_title").value.trim(),
       image_url: $("c_image").value.trim(),
-      content: $("c_content").value,
+      category: $("c_category").value.trim(),
+      difficulty: $("c_level").value,
+      tags: $("c_tags").value.split(",").map(x=>x.trim()).filter(Boolean).slice(0,12),
+      content: cmsText,
       status: $("c_status").value,
       active: $("c_active").value === "true",
       updated_at: new Date().toISOString(),
@@ -776,6 +818,9 @@ async function renderBonus() {
       </div>
     </div>
   `;
+
+  mountCmsMediaFieldPicker(sb,$("b_image"));
+  mountCmsMediaFieldPicker(sb,$("bk_logo"));
 
   const setBonus = (b) => {
     $("b_bookmaker").value = b.bookmaker || "";
@@ -889,6 +934,8 @@ async function renderInfos() {
     <div class="card">
       <h3 style="margin:0 0 10px;color:#D4AF37">Infos</h3>
       <label>Titre</label><input id="i_title">
+      <div class="row"><div><label>Catégorie</label><input id="i_category"></div>
+        <div><label>Image</label><input id="i_image"></div></div>
       <label>Contenu</label><textarea id="i_content" rows="6"></textarea>
       <div class="row">
         <div><label>Status</label>
@@ -910,12 +957,20 @@ async function renderInfos() {
     </div>
   `;
 
+  const cmsEditor = mountCmsBlockEditor({sb,textarea:$("i_content"),kind:"infos"});
+  mountCmsMediaFieldPicker(sb,$("i_image"));
+
+  const versions = mountCmsRevisionPanel({sb,table:"cms_infos",
+    container:root.querySelector(".card"),onChoose:row=>setForm(row)});
   const setForm = (i) => {
     $("i_title").value = i.title || "";
-    $("i_content").value = i.content || "";
+    $("i_category").value = i.category || "";
+    $("i_image").value = i.image_url || "";
+    cmsEditor.setMarkdown(i.content || "",i.id);
     $("i_status").value = i.status || "draft";
     $("i_active").value = (i.active !== false) ? "true" : "false";
     $("i_save").dataset.id = i.id;
+    void versions.load(i.id);
   };
 
   root.querySelectorAll("[data-id]").forEach(el => {
@@ -927,9 +982,13 @@ async function renderInfos() {
   });
 
   $("i_save").addEventListener("click", async () => {
+    let cmsText;
+    try { cmsText=cmsEditor.getMarkdown(); } catch(error) { alert(error.message); return; }
     const row = {
       title: $("i_title").value.trim(),
-      content: $("i_content").value,
+      category: $("i_category").value.trim(),
+      image_url: $("i_image").value.trim(),
+      content: cmsText,
       status: $("i_status").value,
       active: $("i_active").value === "true",
       updated_at: new Date().toISOString(),
@@ -947,6 +1006,25 @@ async function renderInfos() {
     loadedTabs.delete("infos");
     await renderInfos();
     loadedTabs.add("infos");
+  });
+}
+
+// -----------------------------
+// CMS MEDIA LIBRARY
+// -----------------------------
+async function renderMediaTab(){
+  const root=$("tab-media");if(!root)return;
+  root.replaceChildren();
+  const intro=document.createElement("div");
+  intro.className="card";
+  const h=document.createElement("h3");h.textContent="Médiathèque";
+  const p=document.createElement("p");p.className="muted";
+  p.textContent="Importer, rechercher et réutiliser les photos ou vidéos dans les publications. Les contenus restent privés jusqu'à la publication GitHub Pages.";
+  const selected=document.createElement("p");selected.setAttribute("role","status");
+  intro.append(h,p,selected);root.appendChild(intro);
+  mountCmsMediaPicker(sb,intro,media=>{
+    selected.textContent="Lien du média sélectionné : "+media.url;
+    if(navigator.clipboard?.writeText)void navigator.clipboard.writeText(media.url).catch(()=>{});
   });
 }
 
