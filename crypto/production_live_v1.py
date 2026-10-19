@@ -138,6 +138,59 @@ def news_already_posted(state: dict, data: dict) -> bool:
     return any(x in urls for x in ids)
 
 
+def publish_automatic_regulation():
+    """No human sign-off: publish ONLY verifiable first-party regulator notices.
+
+    These are *announcements* sourced to SEC/ESMA/European Commission.
+    We make no claim about legal force, enforcement or effective dates.
+    """
+    from crypto import regulation_10_auto as official
+    state = seed.read_state()
+    path = seed.ROOT / "regulation_10_auto.json"
+    path.unlink(missing_ok=True)
+    candidate = official.collect(state)
+    if candidate is None:
+        print("CRYPTO_REG10_SKIP_NO_VERIFIABLE_OFFICIAL_NOTICE")
+        return False
+    official.validate_auto(candidate)
+    fingerprint = candidate["fingerprint"]
+    key = "reg10_official:" + fingerprint
+    if key in state["sent"]:
+        print("CRYPTO_REG10_SKIP_ALREADY_PUBLISHED", fingerprint)
+        return False
+    path.parent.mkdir(parents=True,exist_ok=True)
+    path.write_text(json.dumps(candidate,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    seed.run("node","scripts/render_crypto_regulation_auto_v2.mjs")
+    image = seed.ROOT / "regulation_10_auto.png"
+    seed.validate_image(image)
+    a = candidate["primary"]
+    caption = (
+        "⚖️ MR XPRONOS · VEILLE RÉGLEMENTAIRE #10\n\n"
+        + "📌 " + a["source"] + " publie une annonce concernant les cryptoactifs.\n\n"
+        + "Titre original : " + a["title"] + "\n\n"
+        + "Source institutionnelle : " + candidate["official_verified_url"] + "\n"
+        + "Publication indiquée par le flux : " + a["published_at"][:16] + " UTC\n"
+        + "Zone de l'autorité : " + a["region"] + "\n\n"
+        + "Source et titre de la page vérifiés automatiquement. "
+        + "Le statut juridique, la date d'application et les effets de l'annonce "
+        + "ne sont pas déterminés automatiquement. Consultez le texte officiel."
+    )
+    if len(caption) > 1024:
+        raise ValueError("Official bulletin caption too long for Telegram")
+    chat = seed.verify_production_route()
+    message_id = record_send(chat,caption,image)
+    state["sent"][key] = {
+        "number":10,"message_id":message_id,
+        "source":a["source"],"official_url":candidate["official_verified_url"],
+        "sent_at":datetime.now(UTC).isoformat(),
+        "classification":"institutional_announcement_not_legal_advice",
+    }
+    seed.write_state(state)
+    print("CRYPTO_REG10_OFFICIAL_PUBLISHED","message_id="+str(message_id),
+          "fingerprint="+fingerprint)
+    return True
+
+
 def publish_approved_regulation():
     """Only manual dispatch after an editor committed a checkable approval."""
     from crypto.regulation_10_approval import run as make_public
@@ -177,18 +230,10 @@ def publish_approved_regulation():
 
 
 def execute(mode: str):
-    if mode == "legal_approved":
-        publish_approved_regulation()
-        return
     if mode == "legal":
-        # Regulatory articles are review candidates, never public assertions.
-        seed.run("python", "-m", "crypto.export_regulation_v2")
-        if REG.is_file():
-            seed.run("node", "scripts/render_crypto_regulation_v2.mjs")
-            print("CRYPTO_LIVE_REVIEW_CANDIDATE_ONLY", "number=10",
-                  "no_telegram_send=1", "check archived artifact")
-        else:
-            print("CRYPTO_LIVE_NO_LEGAL_CANDIDATE", "number=10")
+        # Automated from official first-party publications, no human approval.
+        # Source HTML/RSS disagreement means NO Telegram publication.
+        publish_automatic_regulation()
         return
 
     chat = seed.verify_production_route()
@@ -262,7 +307,7 @@ def execute(mode: str):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=tuple(MODES) + ("legal", "legal_approved"), required=True)
+    parser.add_argument("--mode", choices=tuple(MODES) + ("legal",), required=True)
     args = parser.parse_args()
     execute(args.mode)
 
