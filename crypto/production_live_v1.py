@@ -1,7 +1,7 @@
 """Controlled recurring production of verified Actu Crypto posters.
 
 Uses the same source validation and premium renderers as the tested one-time
-history seeder. Only trusted real data, never DEMO. #10: review archive only.
+history seeder. Only trusted real data, never DEMO. #10: auto publish only first-party official announcements, never legal-effect claims.
 The registry is tracked and committed by GitHub Actions with concurrency lock.
 """
 from __future__ import annotations
@@ -189,44 +189,6 @@ def publish_automatic_regulation():
     print("CRYPTO_REG10_OFFICIAL_PUBLISHED","message_id="+str(message_id),
           "fingerprint="+fingerprint)
     return True
-
-
-def publish_approved_regulation():
-    """Only manual dispatch after an editor committed a checkable approval."""
-    from crypto.regulation_10_approval import run as make_public
-    seed.run("python", "-m", "crypto.export_regulation_v2")
-    if not make_public():
-        print("CRYPTO_REG10_NOT_PUBLISHED_NO_MATCHING_HUMAN_APPROVAL")
-        return
-    data = seed.read_json(seed.ROOT / "regulation_v2_approved.json")
-    fp = data["fingerprint"]
-    state = seed.read_state()
-    key = "legal_approved_10:" + fp
-    if key in state["sent"]:
-        print("CRYPTO_REG10_ALREADY_PUBLISHED", fp)
-        return
-    chat = seed.verify_production_route()
-    seed.run("node", "scripts/render_crypto_regulation_approved_v2.mjs")
-    picture = seed.ROOT / "regulation_v2_approved.png"
-    a = data["approval"]
-    source = data["primary"]
-    caption = ("⚖️ MR XPRONOS • RÉGLEMENTATION CRYPTO #10\n\n"
-               + a["title_fr"] + "\n\n" + a["summary_fr"] + "\n\n"
-               + "Juridiction : " + a["jurisdiction"] + "\n"
-               + "Étape vérifiée : " + a["verified_stage"] + "\n"
-               + "Effet : " + (a["effective_date"] if a["effective_date"] != "non_applicable" else "Non annoncé pour cette étape") + "\n"
-               + "Texte officiel : " + a["official_url"] + "\n"
-               + "Article d'origine : " + source["url"] + "\n\n"
-               + "Analyse informative ; vérifiez la législation applicable.")
-    if len(caption) > 1024:
-        raise ValueError("Approved legal caption exceeds Telegram photo limit")
-    message_id = record_send(chat, caption, picture)
-    state["sent"][key] = {"number": 10, "message_id": message_id,
-                            "source": a["official_source"],
-                            "reviewed_by": a["approved_by"],
-                            "sent_at": datetime.now(UTC).isoformat()}
-    seed.write_state(state)
-    print("CRYPTO_REG10_APPROVED_PUBLISHED", "message_id="+str(message_id))
 
 
 def execute(mode: str):
