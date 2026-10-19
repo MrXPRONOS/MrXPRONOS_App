@@ -241,8 +241,16 @@ def audit_youtube():
         playlist = (channel["items"][0].get("contentDetails") or {}).get("relatedPlaylists", {}).get("uploads")
         if not playlist:
             return finish("youtube", [], {"status": "uploads_playlist_absent"})
-        entries = pages(api, "/playlistItems", token,
-                        {"part": "snippet,contentDetails", "playlistId": playlist, "maxResults": "50", "limit": "50"}, 3)
+        entries, page_token = [], None
+        for _ in range(3):
+            params = {"part": "snippet,contentDetails", "playlistId": playlist, "maxResults": 50}
+            if page_token:
+                params["pageToken"] = page_token
+            page = http_get(api, "/playlistItems", token, params)
+            entries.extend(page.get("items") or [])
+            page_token = page.get("nextPageToken")
+            if not page_token:
+                break
         ids, dates = [], {}
         for v in entries:
             vid = (v.get("contentDetails") or {}).get("videoId")
