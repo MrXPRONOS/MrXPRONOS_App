@@ -31,3 +31,7 @@
  .mx-block-top button{padding:8px 10px}
  .mx-media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+.mx-revision-choice{display:block;text-align:left;width:100%;margin:8px 0;padding:10px;
+ border:1px solid #3b5367;border-radius:8px;background:#202936;color:#fff;cursor:pointer;font:inherit}
+.mx-revision-choice:hover,.mx-revision-choice:focus-visible{outline:2px solid #d6b05b}
