@@ -4,6 +4,8 @@ on:
     paths:
       - 'assets/js/cms-block-editor.mjs'
       - 'assets/js/cms-media-library.mjs'
+      - 'assets/js/cms-revisions.mjs'
+      - 'assets/js/admin-shell.js'
       - 'assets/js/admin-real.js'
       - 'assets/js/main.js'
       - 'assets/css/admin-cms-editor.css'
@@ -29,4 +31,6 @@ jobs:
           node --check assets/js/admin-real.js
           node --check assets/js/cms-block-editor.mjs
           node --check assets/js/cms-media-library.mjs
+          node --check assets/js/cms-revisions.mjs
+          node --check assets/js/admin-shell.js
           node --check assets/js/main.js
