@@ -82,6 +82,23 @@ jobs:
           python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6.0,<7'
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium
+      - name: Mandatory 124-test crypto safety preflight
+        run: |
+          python -m compileall -q crypto
+          python -m unittest \
+            crypto.test_final_live_v2 \
+            crypto.test_quality_audit_10 \
+            crypto.test_publish_crypto_1_5 \
+            crypto.test_losers_v2 \
+            crypto.test_alerts_v2 \
+            crypto.test_fear_v2 \
+            crypto.test_dominance_v2 \
+            crypto.test_weekly_v2 \
+            crypto.test_breaking_v2 \
+            crypto.test_exchanges_v2 \
+            crypto.test_regulation_v2 \
+            crypto.test_production_live_v1 -v
+          node scripts/test_crypto_poster_format.mjs
       - name: Publish qualifying real content only (or archive #10 legal review)
         env:
           SELECTED_MODE: ${{ steps.select.outputs.mode }}
