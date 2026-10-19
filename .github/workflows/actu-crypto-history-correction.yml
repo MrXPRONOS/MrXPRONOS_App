@@ -1,0 +1,89 @@
+name: Actu Crypto - One-time historical corrections Oct 18
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'crypto/history_corrector.py'
+      - 'crypto/history_corrections_2026_10_18.json'
+      - 'crypto/render_history_corrections.py'
+      - '.github/workflows/actu-crypto-history-correction.yml'
+  workflow_dispatch:
+    inputs:
+      confirm_correct_originals:
+        type: boolean
+        required: true
+        default: false
+        description: 'Confirm replacement of Telegram 2,8,6 or dated correction replies'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: actu-crypto-premium-production
+  cancel-in-progress: false
+
+jobs:
+  corrections:
+    if: (github.event_name == 'push' && contains(github.event.head_commit.message, '[crypto-history-fix]')) || (github.event_name == 'workflow_dispatch' && inputs.confirm_correct_originals == true)
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      ACTU_CRYPTO_CHAT_ID: ${{ secrets.ACTU_CRYPTO_CHAT_ID || vars.ACTU_CRYPTO_CHAT_ID }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_ACTU_FOOT_BOT_TOKEN: ${{ secrets.TELEGRAM_ACTU_FOOT_BOT_TOKEN }}
+      ACTU_FOOT_BOT_TOKEN: ${{ secrets.ACTU_FOOT_BOT_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install safe photo correction dependencies
+        run: python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12'
+      - name: Preflight bot channel administrator and original message IDs
+        run: |
+          python -m crypto.production_seed_v1 --number 1 --preflight
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          records=json.loads(Path('crypto/history_corrections_2026_10_18.json').read_text())['corrections']
+          originals=json.loads(Path('crypto/production_state.json').read_text())['sent']
+          for r in records:
+              assert originals[f'initial_history_{r["number"]:02d}']['message_id']==r['message_id']
+          assert sorted(r['number'] for r in records)==[1,3,9]
+          print('HISTORY_ORIGINAL_PHOTO_IDS_CONFIRMED')
+          PY
+      - name: Render exactly three historical corrections with no simulated facts
+        run: python -m crypto.render_history_corrections
+      - name: Edit original images or post linked correction photos
+        run: python -m crypto.history_corrector
+      - name: Store confirmed Telegram outcomes and avoid future duplicates
+        if: always()
+        shell: bash
+        run: |
+          if git diff --quiet -- crypto/history_corrections_applied.json; then
+            echo "No changed correction receipt"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crypto/history_corrections_applied.json
+          git commit -m "chore(crypto): record Oct 18 historic Telegram corrections [skip ci]"
+          git pull --rebase --autostash origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+      - name: Archive generated source-grounded corrections for transparency
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-production-historical-corrections
+          path: |
+            crypto/generated/test/rectification_01.png
+            crypto/generated/test/rectification_03.png
+            crypto/generated/test/rectification_09.png
+            crypto/history_corrections_applied.json
+          if-no-files-found: warn
+          retention-days: 60
