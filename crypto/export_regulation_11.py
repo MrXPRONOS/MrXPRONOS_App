@@ -139,7 +139,7 @@ def build(article, now=None, demo=False):
                 "collected_at":now.isoformat(),"main":article,
                 "fingerprint":"DEMO_FAKE","source_count":0,
                 "legal_status_confirmed":False,
-                "synopsis_fr":"EXEMPLE FICTIF : veille sur les règles crypto en Afrique."}
+                "synopsis_fr":"EXEMPLE FICTIF : UN PROJET DE LOI CRYPTO AU BÉNIN."}
     # High-impact legal assertions need a primary official publication. Do not
     # imply factual verification from an RSS headline alone.
     if article["high_impact"]:
