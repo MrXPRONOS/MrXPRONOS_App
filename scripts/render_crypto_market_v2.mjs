@@ -35,4 +35,23 @@ let html=`<!doctype html><html><head><meta charset="utf-8"/><style>
 if(data.provider==='QA_SIMULATION'){
  html=html.replace('</body>','<div style="position:fixed;z-index:100;bottom:0;left:0;right:0;background:#a82c48;padding:13px;text-align:center;font:900 21px Arial;color:white">SIMULATION QA — DONNÉES FICTIVES — NE PAS PUBLIER</div></body>');
 }
-const browser=await chromium.launch({headless:true});try{const page=await browser.newPage({viewport:{width:1080,height:1350},deviceScaleFactor:1});await page.setContent(html);await mkdir('crypto/generated/test',{recursive:true});await page.screenshot({path:'crypto/generated/test/prices_v2.png'});console.log('V2_RENDERED real data, original V1 logos, 5 charts, global cap and global volume');}finally{await browser.close()}
+const browser=await chromium.launch({headless:true});try{const page=await browser.newPage({viewport:{width:1080,height:1350},deviceScaleFactor:1});await page.setContent(html);
+const layout=await page.evaluate(()=>{
+ const foot=document.querySelector('.foot');
+ const problems=[];
+ if(document.documentElement.scrollHeight>1350||foot.getBoundingClientRect().bottom>1342)
+   problems.push('poster content clipped vertically');
+ for(const [i,card] of [...document.querySelectorAll('.coin')].entries()){
+  const spark=card.querySelector('.spark').getBoundingClientRect();
+  const price=card.querySelector('.quote').getBoundingClientRect();
+  if(spark.right>price.left+3)problems.push('sparkline overlaps quote #'+(i+1));
+  if(price.right>card.getBoundingClientRect().right-6)
+    problems.push('quote clipped #'+(i+1));
+ }
+ for(const [i,value] of [...document.querySelectorAll('.metric .value')].entries())
+   if(value.scrollWidth>value.clientWidth+2)
+     problems.push('global metric overflow #'+(i+1));
+ return problems;
+});
+if(layout.length)throw Error('Visual QA failed: '+layout.join('; '));
+await mkdir('crypto/generated/test',{recursive:true});await page.screenshot({path:'crypto/generated/test/prices_v2.png'});console.log('V2_RENDERED real data, original V1 logos, 5 charts, global cap and global volume');}finally{await browser.close()}
