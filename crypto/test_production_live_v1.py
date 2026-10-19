@@ -48,14 +48,16 @@ class ProductionSchedulerTests(unittest.TestCase):
     def test_weekly_key_contains_iso_week(self):
         self.assertIn("weekly:07:", live.key_for(7, {}, "weekly"))
 
-    def test_legal_review_never_checks_telegram_or_sends(self):
-        with patch.object(live.seed, "run") as command:
-            with patch.object(live.seed, "verify_production_route") as route:
-                with patch.object(live, "REG") as reg:
-                    reg.is_file.return_value = False
-                    live.execute("legal")
+    def test_reg10_automatic_has_no_bot_contact_without_eligible_notice(self):
+        from crypto import regulation_10_auto as official
+        with patch.object(official, "collect", return_value=None) as collector:
+            with patch.object(live.seed, "read_state", return_value={"sent":{}}):
+                with patch.object(live.seed, "verify_production_route") as route:
+                    with patch.object(live, "record_send") as send:
+                        live.execute("legal")
+        collector.assert_called_once()
         route.assert_not_called()
-        command.assert_called_once_with("python", "-m", "crypto.export_regulation_v2")
+        send.assert_not_called()
 
     def test_real_sender_requires_image_and_photo_confirmation(self):
         with patch.object(live.seed, "validate_image") as validate:

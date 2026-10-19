@@ -1,3 +1,9 @@
+# ARCHIVE — Ancienne procédure de validation humaine (désactivée)
+
+Ce document est conservé pour historique. Le mode de production n°10 **n’utilise plus de validation humaine**. Le fonctionnement actuel est décrit dans [`REG10_AUTOMATIC_GUIDE.md`](./REG10_AUTOMATIC_GUIDE.md). Ne pas suivre la procédure ci-dessous pour de nouvelles publications.
+
+---
+
 # Publication n°10 : validation et diffusion d'une vraie annonce réglementaire
 
 **État technique :** le collecteur et le rendu continuent de fonctionner automatiquement avec 11 sources RSS gratuites, mais les articles restent dans un dossier de revue. Aucun système ne peut déduire qu'une règle est en vigueur sur la seule base d'un titre RSS.
