@@ -1,0 +1,29 @@
+name: CMS 2C editorial and media navigation QA
+on:
+  pull_request:
+    paths:
+      - 'assets/js/admin-real.js'
+      - 'assets/js/cms-list-filters.mjs'
+      - 'assets/js/cms-media-library.mjs'
+      - 'assets/css/admin-cms-editor.css'
+      - 'tests/cms-part2c-navigation.test.mjs'
+      - '.github/workflows/cms-part2c-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cms-navigation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Regression tests for CMS parts 2A 2B 2C
+        run: node --test tests/cms-multimedia-2a.test.mjs tests/cms-part2b-duplicate.test.mjs tests/cms-part2c-navigation.test.mjs
+      - name: JS syntax checks
+        run: |
+          node --check assets/js/admin-real.js
+          node --check assets/js/cms-media-library.mjs
+          node --check assets/js/cms-list-filters.mjs
+          node --check assets/js/cms-block-editor.mjs
