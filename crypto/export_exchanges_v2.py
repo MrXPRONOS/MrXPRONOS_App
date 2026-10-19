@@ -90,9 +90,9 @@ def exchange_of(title: str) -> str | None:
 # News centered on laws, regulators, issuers or policy belongs in #10,
 # even if an exchange name and a generic word like "listing" appear later.
 POLICY_ROUTE = re.compile(
-    r"\\b(sec|cftc|fca|esma|regulator|regulation|regulatory|"
+    r"\b(sec|cftc|fca|esma|regulator|regulation|regulatory|"
     r"legislation|lawmakers?|framework|securities law|tokenized stock|"
-    r"issuer pushback|court ruling|lawsuit|compliance rules?)\\b", re.I
+    r"issuer pushback|court ruling|lawsuit|compliance rules?)\b", re.I
 )
 
 
@@ -125,7 +125,7 @@ def parse_entry(entry, source: str, now: datetime) -> dict:
     if (len(title) < 23 or exchange_of(title) is None or category_of(title) is None
             or exchange_of(first_part) != exchange_of(title)
             or not re.match(r"^\\s*(?:the\\s+)?(?:"
-                + "|".join(EXCHANGES) + r")\\b", title, re.I)):
+                + "|".join(EXCHANGES) + r")\b", title, re.I)):
         raise ValueError("Exchange is not the principal subject")
     uri = canonical_url(entry.get("link"), FEEDS[source][1])
     stamp = entry.get("published_parsed") or entry.get("updated_parsed")
