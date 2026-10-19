@@ -129,7 +129,48 @@ def news_already_posted(state: dict, data: dict) -> bool:
     return any(x in urls for x in ids)
 
 
+def publish_approved_regulation():
+    """Only manual dispatch after an editor committed a checkable approval."""
+    from crypto.regulation_10_approval import run as make_public
+    seed.run("python", "-m", "crypto.export_regulation_v2")
+    if not make_public():
+        print("CRYPTO_REG10_NOT_PUBLISHED_NO_MATCHING_HUMAN_APPROVAL")
+        return
+    data = seed.read_json(seed.ROOT / "regulation_v2_approved.json")
+    fp = data["fingerprint"]
+    state = seed.read_state()
+    key = "legal_approved_10:" + fp
+    if key in state["sent"]:
+        print("CRYPTO_REG10_ALREADY_PUBLISHED", fp)
+        return
+    chat = seed.verify_production_route()
+    seed.run("node", "scripts/render_crypto_regulation_approved_v2.mjs")
+    picture = seed.ROOT / "regulation_v2_approved.png"
+    a = data["approval"]
+    source = data["primary"]
+    caption = ("⚖️ MR XPRONOS • RÉGLEMENTATION CRYPTO #10\n\n"
+               + a["title_fr"] + "\n\n" + a["summary_fr"] + "\n\n"
+               + "Juridiction : " + a["jurisdiction"] + "\n"
+               + "Étape vérifiée : " + a["verified_stage"] + "\n"
+               + "Effet : " + (a["effective_date"] if a["effective_date"] != "non_applicable" else "Non annoncé pour cette étape") + "\n"
+               + "Texte officiel : " + a["official_url"] + "\n"
+               + "Article d'origine : " + source["url"] + "\n\n"
+               + "Analyse informative ; vérifiez la législation applicable.")
+    if len(caption) > 1024:
+        raise ValueError("Approved legal caption exceeds Telegram photo limit")
+    message_id = record_send(chat, caption, picture)
+    state["sent"][key] = {"number": 10, "message_id": message_id,
+                            "source": a["official_source"],
+                            "reviewed_by": a["approved_by"],
+                            "sent_at": datetime.now(UTC).isoformat()}
+    seed.write_state(state)
+    print("CRYPTO_REG10_APPROVED_PUBLISHED", "message_id="+str(message_id))
+
+
 def execute(mode: str):
+    if mode == "legal_approved":
+        publish_approved_regulation()
+        return
     if mode == "legal":
         # Regulatory articles are review candidates, never public assertions.
         seed.run("python", "-m", "crypto.export_regulation_v2")
@@ -208,7 +249,7 @@ def execute(mode: str):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=tuple(MODES) + ("legal",), required=True)
+    parser.add_argument("--mode", choices=tuple(MODES) + ("legal", "legal_approved"), required=True)
     args = parser.parse_args()
     execute(args.mode)
 
