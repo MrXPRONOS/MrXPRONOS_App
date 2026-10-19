@@ -45,3 +45,40 @@ class ExactScoreTests(unittest.TestCase):
 
 if __name__=='__main__':
     unittest.main()
+
+
+from exact_scores_h2h import H2HIndex, h2h_signal, blended_goals
+from bsd_v2_core import V2History
+from exact_scores_full_2026 import evaluate_all
+
+class H2HStrictHistoryTests(unittest.TestCase):
+    def test_stable_low_scores_priority(self):
+        p=h2h_signal([(1,0),(2,0),(1,1),(0,0)])
+        self.assertTrue(p["prioritized"])
+        self.assertEqual(p["meetings"],4)
+        self.assertFalse(h2h_signal([(1,0),(2,0)])["prioritized"])
+        self.assertFalse(h2h_signal([(4,1),(0,0),(1,0)])["prioritized"])
+
+    def test_no_future_or_current_match_in_h2h(self):
+        def fixture(num,date,h,a):
+            return {"id":num,"event_date":date,"status":"finished",
+                    "home_team_id":10,"away_team_id":20,
+                    "home_score":h,"away_score":a}
+        past=fixture(1,"2025-08-01T15:00:00Z",1,0)
+        current=fixture(2,"2026-04-01T15:00:00Z",9,9)
+        future=fixture(3,"2026-04-02T15:00:00Z",0,0)
+        index=H2HIndex(V2History([past,current,future]))
+        history=index.past_scores(current)
+        self.assertEqual(history,[(1,0)])
+        self.assertEqual(index.past_scores(past),[])
+
+    def test_priority_only_without_weight_keeps_model(self):
+        s=h2h_signal([(1,0),(0,0),(1,1)])
+        self.assertEqual(blended_goals(1.7,1.1,s,influence=0),(1.7,1.1))
+        a,b=blended_goals(1.7,1.1,s,influence=.5)
+        self.assertLess(a+b,2.8)
+
+    def test_full_year_empty_history_explicitly_reports_zero(self):
+        report, audit=evaluate_all([],max_2025=1)
+        self.assertEqual(report["total_finished_2026"],0)
+        self.assertEqual(audit,[])
