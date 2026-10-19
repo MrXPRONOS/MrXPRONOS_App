@@ -1,4 +1,5 @@
 name: Actu Crypto - 11 AFRIQUE REGLEMENTATION PREMIUM TEST ONLY
+# One-time deliberately marked demo test delivery; absolutely no production route.
 
 on:
   push:
