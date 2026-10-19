@@ -141,6 +141,35 @@ class AutomaticRegulationTests(unittest.TestCase):
         route.assert_not_called()
         sender.assert_not_called()
 
+    def test_complete_production_path_uses_only_verified_document_and_dedupes(self):
+        with TemporaryDirectory() as temporary:
+            from pathlib import Path
+            state={"sent":{}}
+            doc=auto.verify_publication(self.row,self.now,getter=self.check)
+            with patch.object(auto,"collect",return_value=doc) as collect:
+                with patch.object(live.seed,"ROOT",Path(temporary)):
+                    with patch.object(live.seed,"read_state",return_value=state):
+                        with patch.object(live.seed,"verify_production_route",
+                                          return_value={"id":-1009988}) as route:
+                            with patch.object(live.seed,"run") as render:
+                                with patch.object(live.seed,"validate_image") as validate:
+                                    with patch.object(live,"record_send",return_value=702) as sender:
+                                        with patch.object(live.seed,"write_state") as write:
+                                            self.assertTrue(live.publish_automatic_regulation())
+                                            self.assertFalse(live.publish_automatic_regulation())
+            route.assert_called_once()
+            render.assert_called_once_with("node","scripts/render_crypto_regulation_auto_v2.mjs")
+            sender.assert_called_once()
+            caption=sender.call_args.args[1]
+            self.assertIn(self.row["title"],caption)
+            self.assertIn(self.row["url"],caption)
+            self.assertIn("statut juridique",caption.lower())
+            self.assertEqual(len(state["sent"]),1)
+            self.assertEqual(next(iter(state["sent"].values()))["message_id"],702)
+            write.assert_called_once()
+            validate.assert_called_once()
+            self.assertTrue(collect.called)
+
     def test_legal_auto_mode_rejects_human_approval_only(self):
         self.assertNotIn("legal_approved",("legal",)+tuple(live.MODES))
         self.assertIsNone(live.execute.__defaults__)
