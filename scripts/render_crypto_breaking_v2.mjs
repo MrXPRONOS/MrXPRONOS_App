@@ -36,7 +36,7 @@ const html='<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>'+
 '<div class="description">Une information majeure sur '+coin.toLowerCase()+'<br>confirmée par deux médias indépendants.</div>'+
 '<section class="feature"><div class="feature-head"><div class="feature-label">À LA UNE · TITRE ORIGINAL</div><div class="confirmed">✓ 2 SOURCES</div></div><img class="coin3d" src="'+coinData+'" alt="'+coin+'"/><div class="story">'+main+'</div><div class="original">TITRE SOURCE (ANGLAIS)</div></section>'+
 '<section class="confirm-panel"><div class="sourcecard"><div class="source-label">SOURCE PRINCIPALE</div><div class="source-name">'+source+'</div><div class="time">'+esc(dt(a.published_at))+' UTC</div></div>'+
-'<div class="sourcecard"><div class="source-label">DEUXIÈME CONFIRMATION</div><div class="source-name">'+confirm+'</div><div class="time">'+esc(dt(b.published_at))+' UTC</div></div></section>'+
+'<div class="sourcecard"><div class="source-label">DEUXIÈME MÉDIA</div><div class="source-name">'+confirm+'</div><div class="time">'+esc(dt(b.published_at))+' UTC</div></div></section>'+
 '<div class="bottom"><div class="bottom-top">SOURCES RECROISÉES · '+esc(dt(d.collected_at))+' UTC</div>'+
 '<p>Sources citées dans la légende Telegram. Vérifiez les articles complets pour connaître le contexte et les éventuelles mises à jour.</p></div>'+
 '<footer class="footer"><span>MR XPRONOS · ACTU CRYPTO</span><span>Information, pas conseil financier</span></footer>'+
