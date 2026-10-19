@@ -75,7 +75,7 @@ export async function uploadCmsFile(sb,file,alt="",caption=""){
       width:transformed.width||null,height:transformed.height||null,
       alt_text:String(alt).slice(0,300),caption:String(caption).slice(0,1000),thumbnail_path:thumbPath};
     const {data,error}=await sb.from("cms_media").insert(row).select("*").single();
-    if(error)throw error;
+    if(error)throw new Error(error.message||String(error));
     return {...data,url:bucket.getPublicUrl(path).data.publicUrl,
       thumbUrl:thumbPath?bucket.getPublicUrl(thumbPath).data.publicUrl:null};
   }catch(error){
