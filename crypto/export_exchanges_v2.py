@@ -124,7 +124,7 @@ def parse_entry(entry, source: str, now: datetime) -> dict:
     first_part = re.split(r"[:—–]", title, maxsplit=1)[0][:85]
     if (len(title) < 23 or exchange_of(title) is None or category_of(title) is None
             or exchange_of(first_part) != exchange_of(title)
-            or not re.match(r"^\\s*(?:the\\s+)?(?:"
+            or not re.match(r"^\s*(?:the\\s+)?(?:"
                 + "|".join(EXCHANGES) + r")\b", title, re.I)):
         raise ValueError("Exchange is not the principal subject")
     uri = canonical_url(entry.get("link"), FEEDS[source][1])
