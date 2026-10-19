@@ -156,7 +156,7 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
   }
   add.onclick=()=>{
     blocks.push({type:addType.value,value:"",url:"",alt:""});
-    render();list.lastElementChild?.querySelector("textarea,input")?.focus();
+    render();commit();list.lastElementChild?.querySelector("textarea,input")?.focus();
   };
   previewBtn.onclick=()=>{preview.hidden=!preview.hidden;if(!preview.hidden)refreshPreview();};
   sourceBtn.onclick=()=>{

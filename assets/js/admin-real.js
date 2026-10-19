@@ -1,6 +1,7 @@
 import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
 import { mountCmsBlockEditor } from "./cms-block-editor.mjs";
 import { mountCmsRevisionPanel } from "./cms-revisions.mjs";
+import { createCmsDraftCopy } from "./cms-duplicate.mjs";
 import { mountCmsMediaFieldPicker, mountCmsMediaPicker } from "./cms-media-library.mjs";
 import { supabaseUrl, supabaseAnonKey } from "./config.js";
 import "./loading-ui.js";
@@ -586,6 +587,8 @@ async function renderCmsArticles() {
     });
   });
 
+  attachDuplicateButtons(root,"[data-id]",rows,"articles",setForm,"a_save");
+
   $("a_save").addEventListener("click", async () => {
     let cmsText;
     try { cmsText=cmsEditor.getMarkdown(); } catch(error) { alert(error.message); return; }
@@ -616,6 +619,31 @@ async function renderCmsArticles() {
     await renderCmsArticles();
     loadedTabs.add("articles");
   });
+}
+
+// A copy must never reuse its source ID. No database write occurs until the admin saves it.
+function attachDuplicateButtons(root,selector,rows,kind,fillForm,saveButtonId) {
+  for(const card of root.querySelectorAll(selector)){
+    const button=document.createElement("button");
+    button.type="button";button.className="btn btn-secondary";
+    button.textContent="Dupliquer en brouillon";
+    button.style.marginTop="8px";
+    button.addEventListener("click",event=>{
+      event.preventDefault();event.stopPropagation();
+      const sourceId=card.getAttribute("data-id")||card.getAttribute("data-bonus-id")||card.getAttribute("data-book-id");
+      const original=rows.find(item=>safeIdEq(item.id,sourceId));
+      if(!original)return;
+      const draft=createCmsDraftCopy(kind,original,rows);
+      fillForm(draft);
+      delete $(saveButtonId).dataset.id;
+      const status=document.createElement("p");
+      status.className="muted";
+      status.textContent="Copie préparée en brouillon inactif. Vérifie puis enregistre : l'original est intact.";
+      $(saveButtonId).before(status);
+      $(saveButtonId).scrollIntoView({behavior:"smooth",block:"center"});
+    });
+    card.appendChild(button);
+  }
 }
 
 // -----------------------------
@@ -698,6 +726,8 @@ async function renderCmsConseils() {
       if (c) setForm(c);
     });
   });
+
+  attachDuplicateButtons(root,"[data-id]",rows,"conseils",setForm,"c_save");
 
   $("c_save").addEventListener("click", async () => {
     let cmsText;
@@ -862,6 +892,9 @@ async function renderBonus() {
     });
   });
 
+  attachDuplicateButtons(root,"[data-bonus-id]",bonusRows,"bonus",setBonus,"b_save");
+  attachDuplicateButtons(root,"[data-book-id]",bookRows,"bookmakers",setBook,"bk_save");
+
   $("b_save").addEventListener("click", async () => {
     const row = {
       bookmaker: $("b_bookmaker").value.trim(),
@@ -981,6 +1014,8 @@ async function renderInfos() {
     });
   });
 
+  attachDuplicateButtons(root,"[data-id]",rows,"infos",setForm,"i_save");
+
   $("i_save").addEventListener("click", async () => {
     let cmsText;
     try { cmsText=cmsEditor.getMarkdown(); } catch(error) { alert(error.message); return; }
@@ -1019,7 +1054,7 @@ async function renderMediaTab(){
   intro.className="card";
   const h=document.createElement("h3");h.textContent="Médiathèque";
   const p=document.createElement("p");p.className="muted";
-  p.textContent="Importer, rechercher et réutiliser les photos ou vidéos dans les publications. Les contenus restent privés jusqu'à la publication GitHub Pages.";
+  p.textContent="Importer, rechercher et réutiliser les photos ou vidéos dans les publications. Attention : les fichiers sont hébergés dans un bucket public ; toute personne possédant leur URL peut les consulter, même avant publication. Les brouillons CMS, eux, ne sont pas publiés automatiquement.";
   const selected=document.createElement("p");selected.setAttribute("role","status");
   intro.append(h,p,selected);root.appendChild(intro);
   mountCmsMediaPicker(sb,intro,media=>{

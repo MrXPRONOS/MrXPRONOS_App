@@ -181,6 +181,49 @@
         "-1001595907308:13468": 47
       },
       "title": "@Mangas fv Yu-Gi-Oh"
+    },
+    "mangas-fv-yu-gi-oh-duel-monsters": {
+      "episodes": {
+        "1": {
+          "10": {
+            "message_id": 50,
+            "url": "https://t.me/c/4416009337/50"
+          },
+          "11": {
+            "message_id": 51,
+            "url": "https://t.me/c/4416009337/51"
+          },
+          "12": {
+            "message_id": 52,
+            "url": "https://t.me/c/4416009337/52"
+          },
+          "13": {
+            "message_id": 53,
+            "url": "https://t.me/c/4416009337/53"
+          },
+          "14": {
+            "message_id": 54,
+            "url": "https://t.me/c/4416009337/54"
+          },
+          "15": {
+            "message_id": 55,
+            "url": "https://t.me/c/4416009337/55"
+          }
+        }
+      },
+      "main_index_id": 48,
+      "season_indices": {
+        "1": 49
+      },
+      "source_items": {
+        "-1001595907308:13524": 50,
+        "-1001595907308:13525": 51,
+        "-1001595907308:13526": 52,
+        "-1001595907308:13527": 53,
+        "-1001595907308:13528": 54,
+        "-1001595907308:13529": 55
+      },
+      "title": "@Mangas fv Yu-Gi-Oh! Duel Monsters"
     }
   }
 }
