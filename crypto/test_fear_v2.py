@@ -19,7 +19,7 @@ def mock_data(now, values=None):
 
 class FearV2Tests(unittest.TestCase):
     def setUp(self):
-        self.now = datetime(2026, 10, 17, 16, 0, tzinfo=UTC)
+        self.now = datetime.now(UTC)  # Fresh fixture: public validation checks current age
 
     def test_moods_exact_boundaries(self):
         expect = [(0,"PEUR EXTRÊME"),(24,"PEUR EXTRÊME"),

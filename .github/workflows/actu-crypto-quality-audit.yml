@@ -1,0 +1,121 @@
+name: Actu Crypto - QA 10 premium image regression
+
+on:
+  push:
+    branches: [fix/actu-crypto-10-quality-audit]
+    paths:
+      - 'crypto/**'
+      - 'scripts/render_crypto_*.mjs'
+      - 'scripts/crypto_poster_format.mjs'
+      - 'scripts/test_crypto_poster_format.mjs'
+      - '.github/workflows/actu-crypto-quality-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install public and offline dependencies
+        run: |
+          python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6.0,<7'
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Run all crypto offline data/source tests + new regressions
+        run: |
+          python -m compileall -q crypto
+          python -m unittest \
+            crypto.test_quality_audit_10 \
+            crypto.test_publish_crypto_1_5 \
+            crypto.test_losers_v2 \
+            crypto.test_alerts_v2 \
+            crypto.test_fear_v2 \
+            crypto.test_dominance_v2 \
+            crypto.test_weekly_v2 \
+            crypto.test_breaking_v2 \
+            crypto.test_exchanges_v2 \
+            crypto.test_regulation_v2 \
+            crypto.test_production_live_v1 -v
+      - name: Run global USD / small price / French date JavaScript checks
+        run: node scripts/test_crypto_poster_format.mjs
+      - name: Check syntax of all premium crypto renderers
+        run: |
+          for x in scripts/render_crypto_*_v2.mjs; do
+            node --check "$x"
+          done
+      - name: Create fake and watermarked QA-only fixtures #01 #02 #03
+        run: python -m crypto.quality_layout_fixtures
+      - name: Render QA fixture #01 prices
+        run: node scripts/render_crypto_market_v2.mjs
+      - name: Render QA fixture #02 gainers
+        run: node scripts/render_crypto_gainers_v2.mjs
+      - name: Render QA fixture #03 losers
+        run: node scripts/render_crypto_losers_v2.mjs
+      - name: Generate demo data for #04–#10
+        run: |
+          python -m crypto.export_alerts_v2 --demo
+          python -m crypto.export_fear_v2 --demo
+          python -m crypto.export_dominance_v2 --demo
+          python -m crypto.export_weekly_v2 --demo
+          python -m crypto.export_breaking_v2 --demo
+          python -m crypto.export_exchanges_v2 --demo
+          python -m crypto.export_regulation_v2 --demo
+      - name: Render all seven remaining DEMO posters
+        run: |
+          node scripts/render_crypto_alerts_v2.mjs --demo
+          node scripts/render_crypto_fear_v2.mjs --demo
+          node scripts/render_crypto_dominance_v2.mjs --demo
+          node scripts/render_crypto_weekly_v2.mjs --demo
+          node scripts/render_crypto_breaking_v2.mjs --demo
+          node scripts/render_crypto_exchanges_v2.mjs --demo
+          node scripts/render_crypto_regulation_v2.mjs --demo
+      - name: Verify all ten screenshots exist as 1080 x 1350 PNG images
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          base=Path("crypto/generated/test")
+          expected=["prices_v2.png","gainers_v2.png","losers_v2.png",
+                    "alerts_v2_demo.png","fear_v2_demo.png",
+                    "dominance_v2_demo.png","weekly_v2_demo.png",
+                    "breaking_v2_demo.png","exchanges_v2_demo.png",
+                    "regulation_v2_demo.png"]
+          for i,name in enumerate(expected,1):
+              path=base/name
+              if not path.is_file() or path.stat().st_size<10000:
+                  raise AssertionError(f"{i}: invalid PNG bytes {path}")
+              with Image.open(path) as im:
+                  if im.format!="PNG" or im.size!=(1080,1350):
+                      raise AssertionError(f"{i}: invalid rendered dimensions {im.size}")
+                  im.verify()
+              print(f"QUALITY_10_RENDERED_{i:02} {name} bytes={path.stat().st_size}")
+          print("QUALITY_10_ALL_10_IMAGES_RENDERED_AND_VERIFIED")
+          PY
+      - name: Archive exact corrected images for manual visual signoff
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: actu-crypto-10-QA-simulations-NOT-FOR-PUBLICATION
+          path: |
+            crypto/generated/test/prices_v2.png
+            crypto/generated/test/gainers_v2.png
+            crypto/generated/test/losers_v2.png
+            crypto/generated/test/alerts_v2_demo.png
+            crypto/generated/test/fear_v2_demo.png
+            crypto/generated/test/dominance_v2_demo.png
+            crypto/generated/test/weekly_v2_demo.png
+            crypto/generated/test/breaking_v2_demo.png
+            crypto/generated/test/exchanges_v2_demo.png
+            crypto/generated/test/regulation_v2_demo.png
+          if-no-files-found: warn
+          retention-days: 30
