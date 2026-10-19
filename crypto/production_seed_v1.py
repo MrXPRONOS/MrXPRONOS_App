@@ -324,7 +324,8 @@ def caption_for(number: int, d: dict) -> str:
         primary = d["main"]
         other = d.get("confirmation")
         prefix = "🚨 BREAKING NEWS BTC/ETH | #08" if number == 8 else "🏦 ACTU DES PLATEFORMES | #09"
-        result = prefix + "\n\n" + primary["title"] + "\n\n"
+        result = (prefix + "\n\n" + d["headline_fr"] + "\n\n" +
+                  "Titre original du média : " + primary["title"] + "\n\n")
         result += f"Source : {primary['source']}\n{primary['url']}\n"
         if other:
             result += f"Deuxième média : {other['source']}\n{other['url']}\n"

@@ -21,16 +21,17 @@ if(d.verification!==(d.main.official?'official_notice':(d.confirmation?'cross_re
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const stamp=v=>new Date(v).toLocaleString('fr-FR',{timeZone:'UTC',day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit',year:'numeric'});
 if(!Number.isFinite(Date.parse(d.collected_at))||!Number.isFinite(Date.parse(d.main.published_at)))throw Error('Unusable dates');
-const title=esc(d.main.title);
+if(!d.headline_fr||!/^.{20,105}$/.test(d.headline_fr))throw Error('French synopsis required');
+const title=esc(d.headline_fr);
 const category=esc(d.category);
 const exchange=esc(d.exchange);
 const source=esc(d.main.source);
 const second=esc(d.confirmation?.source||'—');
 const when=esc(stamp(d.main.published_at));
 const published=esc(stamp(d.collected_at));
-const headlineSize=d.main.title.length>153?42:d.main.title.length>117?47:d.main.title.length>86?53:60;
+const headlineSize=d.headline_fr.length>91?46:d.headline_fr.length>70?51:57;
 const status=d.main.official?'PAGE OFFICIELLE':d.confirmation?'DEUX MÉDIAS':'ARTICLE ATTRIBUÉ';
-const evidence=d.main.official?'INCIDENT SIGNALÉ PAR LA PLATEFORME':d.confirmation?'DEUX SOURCES RECROISÉES':'ARTICLE ATTRIBUÉ À SON MÉDIA';
+const evidence=d.main.official?'INCIDENT SIGNALÉ PAR LA PLATEFORME':d.confirmation?'DEUX TITRES DE MÉDIAS CONCORDANTS':'ARTICLE ATTRIBUÉ À SON MÉDIA';
 const svg='<svg viewBox="0 0 450 450" class="network" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
 '<defs><radialGradient id="orb" cx="30%" cy="25%"><stop offset="0%" stop-color="#ffe3b3"/><stop offset="39%" stop-color="#daa96e"/><stop offset="75%" stop-color="#8b653c"/><stop offset="100%" stop-color="#2b3a4b"/></radialGradient><linearGradient id="edge" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3d7a3"/><stop offset="1" stop-color="#b27c4d"/></linearGradient></defs>'+
 '<circle cx="225" cy="225" r="196" stroke="#d5a868" stroke-opacity=".17" fill="none" stroke-width="2"/>'+
@@ -101,7 +102,7 @@ body{font-family:Arial,Helvetica,sans-serif;color:#f8fbff;background:#061226}
 ${svg}
 <div class="exchange" data-long="${d.exchange.length>7}">${exchange}</div>
 <div class="rule"></div><div class="headline">${title}</div>
-<div class="origin">TITRE ORIGINAL EN ANGLAIS · LIEN SOURCE EN LÉGENDE</div>
+<div class="origin">SYNTHÈSE EN FRANÇAIS · ORIGINAL DANS LA LÉGENDE</div>
 </section>
 <div class="evidence">
 <div class="card"><div class="cardlabel">SOURCE À L'ORIGINE</div><div class="cardname">${source}</div><div class="cardtime">${when} UTC</div></div>

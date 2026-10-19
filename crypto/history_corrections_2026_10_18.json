@@ -1,0 +1,35 @@
+{
+  "corrections": [
+    {
+      "number": 1,
+      "message_id": 2,
+      "date_utc": "18/10/2026 23:34 UTC",
+      "kind": "global_units",
+      "headline": "COURS DU MARCHÉ",
+      "market_cap_usd": 2718295617920,
+      "volume_24h_usd": 84134511488,
+      "source": "CoinLore",
+      "reason": "L’ancienne image multipliait par un milliard les métriques globales avant d’afficher T / B."
+    },
+    {
+      "number": 3,
+      "message_id": 8,
+      "date_utc": "18/10/2026 23:38 UTC",
+      "kind": "global_units",
+      "headline": "TOP 5 DES BAISSES",
+      "market_cap_usd": 2718140640910,
+      "volume_24h_usd": 84256758343.4,
+      "source": "CoinLore",
+      "reason": "La capitalisation et le volume de l’ancienne image étaient artificiellement multipliés par un milliard."
+    },
+    {
+      "number": 9,
+      "message_id": 6,
+      "date_utc": "18/10/2026 23:35 UTC",
+      "kind": "editorial_classification",
+      "headline": "ACTUALITÉS DES PLATEFORMES",
+      "source": "CoinDesk",
+      "reason": "Une dépêche concernant un cadre SEC sur les actions tokenisées et l’opposition d’émetteurs avait été incorrectement classée « frais & trading » d’OKX. Le titre seul ne permet pas d’attribuer une nouvelle politique de frais à OKX."
+    }
+  ]
+}

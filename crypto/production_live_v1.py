@@ -88,7 +88,89 @@ def record_send(chat: dict, caption: str, image: Path) -> int:
     return m["message_id"]
 
 
+def alert_is_new(state: dict, data: dict) -> bool:
+    """Do not repost a sustained 24h threshold, even on the next calendar day."""
+    levels = state.setdefault("alert_levels", {})
+    if not isinstance(levels, dict):
+        raise ValueError("Corrupt alert monitor registry")
+    previous = dict(levels)
+    for sample in data.get("observations", []):
+        symbol = sample["symbol"]
+        change = float(sample["change"])
+        level = int(sample["level"])
+        levels[symbol] = {"level": level, "direction": "up" if change >= 0 else "down"}
+    seed.write_state(state)  # persist a re-arming event even if no send
+    if data.get("status") == "no_alert":
+        return False
+    row = data["row"]
+    symbol = row["symbol"]
+    current_level = int(row["level"])
+    current_dir = row["direction"]
+    former = previous.get(symbol, {})
+    if former.get("direction") == current_dir and int(former.get("level", 0)) >= current_level:
+        print("CRYPTO_ALERT_SUSTAINED_THRESHOLD_NO_DUPLICATE", symbol, current_level)
+        return False
+    last = state.get("alert_last_published", {}).get(symbol)
+    if last:
+        elapsed = (datetime.now(UTC) - seed.datetime_from(last)).total_seconds()
+        if elapsed < 12 * 3600:
+            print("CRYPTO_ALERT_COOLDOWN_12H", symbol)
+            return False
+    return True
+
+
+def news_already_posted(state: dict, data: dict) -> bool:
+    urls = state.setdefault("news_fingerprints", {})
+    if not isinstance(urls, dict):
+        raise ValueError("Corrupt news URL registry")
+    ids = data.get("fingerprints", [])
+    if not ids or not all(isinstance(i, str) for i in ids):
+        raise ValueError("Missing article source identity")
+    return any(x in urls for x in ids)
+
+
+def publish_approved_regulation():
+    """Only manual dispatch after an editor committed a checkable approval."""
+    from crypto.regulation_10_approval import run as make_public
+    seed.run("python", "-m", "crypto.export_regulation_v2")
+    if not make_public():
+        print("CRYPTO_REG10_NOT_PUBLISHED_NO_MATCHING_HUMAN_APPROVAL")
+        return
+    data = seed.read_json(seed.ROOT / "regulation_v2_approved.json")
+    fp = data["fingerprint"]
+    state = seed.read_state()
+    key = "legal_approved_10:" + fp
+    if key in state["sent"]:
+        print("CRYPTO_REG10_ALREADY_PUBLISHED", fp)
+        return
+    chat = seed.verify_production_route()
+    seed.run("node", "scripts/render_crypto_regulation_approved_v2.mjs")
+    picture = seed.ROOT / "regulation_v2_approved.png"
+    a = data["approval"]
+    source = data["primary"]
+    caption = ("⚖️ MR XPRONOS • RÉGLEMENTATION CRYPTO #10\n\n"
+               + a["title_fr"] + "\n\n" + a["summary_fr"] + "\n\n"
+               + "Juridiction : " + a["jurisdiction"] + "\n"
+               + "Étape vérifiée : " + a["verified_stage"] + "\n"
+               + "Effet : " + (a["effective_date"] if a["effective_date"] != "non_applicable" else "Non annoncé pour cette étape") + "\n"
+               + "Texte officiel : " + a["official_url"] + "\n"
+               + "Article d'origine : " + source["url"] + "\n\n"
+               + "Analyse informative ; vérifiez la législation applicable.")
+    if len(caption) > 1024:
+        raise ValueError("Approved legal caption exceeds Telegram photo limit")
+    message_id = record_send(chat, caption, picture)
+    state["sent"][key] = {"number": 10, "message_id": message_id,
+                            "source": a["official_source"],
+                            "reviewed_by": a["approved_by"],
+                            "sent_at": datetime.now(UTC).isoformat()}
+    seed.write_state(state)
+    print("CRYPTO_REG10_APPROVED_PUBLISHED", "message_id="+str(message_id))
+
+
 def execute(mode: str):
+    if mode == "legal_approved":
+        publish_approved_regulation()
+        return
     if mode == "legal":
         # Regulatory articles are review candidates, never public assertions.
         seed.run("python", "-m", "crypto.export_regulation_v2")
@@ -102,6 +184,7 @@ def execute(mode: str):
 
     chat = seed.verify_production_route()
     state = seed.read_state()
+    failures = []
     for number in MODES[mode]:
         if blocked_by_initial_history(state, number):
             print("CRYPTO_LIVE_SKIP_INITIAL_ALREADY_POSTED", number)
@@ -116,23 +199,41 @@ def execute(mode: str):
                 print("CRYPTO_LIVE_SKIP_ALREADY_POSTED", number)
                 continue
         try:
-            output = seed.prepared(number)
-            if output is None:
-                print("CRYPTO_LIVE_SKIP_NO_REAL_EVENT", number)
+            if number == 4:
+                seed.run("python", "-m", "crypto.export_alerts_v2")
+                data = seed.read_json(seed.ROOT / "alerts_v2_data.json")
+                if not alert_is_new(state, data):
+                    print("CRYPTO_LIVE_SKIP_NO_NEW_ALERT", number)
+                    continue
+                seed.validated_real(4, data)
+                seed.run("node", "scripts/render_crypto_alerts_v2.mjs")
+                image = seed.ROOT / "alerts_v2.png"
+                seed.validate_image(image)
+            else:
+                output = seed.prepared(number)
+                if output is None:
+                    print("CRYPTO_LIVE_SKIP_NO_REAL_EVENT", number)
+                    continue
+                data, image = output
+            if number in (8, 9) and news_already_posted(state, data):
+                print("CRYPTO_LIVE_SKIP_NEWS_ALREADY_SOURCED", number)
                 continue
-            data, image = output
             key = key_for(number, data, mode)
             if key in state["sent"]:
                 print("CRYPTO_LIVE_SKIP_DUPLICATE", number, key)
                 continue
             caption = seed.caption_for(number, data)
             message_id = record_send(chat, caption, image)
+            stamped = datetime.now(UTC).isoformat()
             state["sent"][key] = {
-                "number": number,
-                "message_id": message_id,
-                "sent_at": datetime.now(UTC).isoformat(),
+                "number": number, "message_id": message_id, "sent_at": stamped,
                 "source": data.get("provider") or data.get("main", {}).get("source") or "Alternative.me",
             }
+            if number == 4:
+                state.setdefault("alert_last_published", {})[data["row"]["symbol"]] = stamped
+            if number in (8, 9):
+                for fp in data["fingerprints"]:
+                    state["news_fingerprints"][fp] = {"number": number, "message_id": message_id}
             seed.write_state(state)
             print("CRYPTO_LIVE_PUBLISHED", "number="+str(number),
                   "message_id="+str(message_id), "photo_confirmed=1")
@@ -140,12 +241,15 @@ def execute(mode: str):
             # A one-off upstream source failure should not suppress unrelated news.
             # Do not auto-retry uncertain send calls on same iteration.
             print("CRYPTO_LIVE_FAILED", number, type(exc).__name__, str(exc)[:250])
+            failures.append(number)
             continue
+    if failures:
+        raise RuntimeError("Production stage(s) failed: " + ",".join(map(str, failures)))
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=tuple(MODES) + ("legal",), required=True)
+    parser.add_argument("--mode", choices=tuple(MODES) + ("legal", "legal_approved"), required=True)
     args = parser.parse_args()
     execute(args.mode)
 
