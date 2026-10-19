@@ -164,8 +164,12 @@ export function mountCmsMediaPicker(sb,container,onSelect,{defaultKind="all"}={}
       if(current===generation)status.textContent="Chargement impossible : "+error.message;
       return;
     }finally{
-      loading=false;
-      if(current===generation)render();
+      if(current===generation){
+        loading=false;
+        const errorText=status.textContent.startsWith("Chargement impossible")?status.textContent:null;
+        render();
+        if(errorText)status.textContent=errorText;
+      }
     }
   }
   async function reload(){
