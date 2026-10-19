@@ -5,6 +5,8 @@ on:
       - 'supabase/migrations/20261018174840_six_legacy_rls_lockdown.sql'
       - 'tests/admin-phase1d-rls.test.cjs'
       - 'tests/admin-rls-recursion.test.cjs'
+      - 'supabase/migrations/20261019005600_events_admin_only_read_privacy.sql'
+      - 'tests/admin-events-rls.test.cjs'
       - 'supabase/migrations/20261018233415_remove_recursive_admin_users_policy.sql'
       - '.github/workflows/admin-phase1d-tests.yml'
   workflow_dispatch:
@@ -20,3 +22,4 @@ jobs:
           node-version: '22'
       - run: node tests/admin-phase1d-rls.test.cjs
       - run: node tests/admin-rls-recursion.test.cjs
+      - run: node tests/admin-events-rls.test.cjs
