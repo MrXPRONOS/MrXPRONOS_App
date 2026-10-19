@@ -69,7 +69,7 @@ LAW=re.compile(r"\b(regulat(?:ion|ions|ory|ors|or|e|ed)|licen[sc](?:e|es|ing|ed)
 EXCLUDED=("price prediction","technical analysis","opinion:","sponsored","advertorial",
           "rumor","rumour","unconfirmed","how to buy","price analysis",
           "weekly roundup","daily roundup","could bitcoin","will bitcoin")
-HIGH_IMPACT=re.compile(r"\b(legal|illegal|banned|ban|prohibited|law passed|"
+HIGH_IMPACT=re.compile(r"\b(legal|illegal|banned|bans|ban|prohibited|law passed|"
                        r"now allows|legalized|entered into force|took effect|"
                        r"officially approved)\b",re.I)
 LABELS=(("FISCALITÉ",r"\b(tax|taxes|taxation|fiscal)\b"),
