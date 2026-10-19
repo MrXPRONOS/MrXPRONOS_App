@@ -74,8 +74,15 @@ def export_live():
     from crypto.test_channel_premium import get_sparkline
     rows, provider = market()
     selected = select_alert(rows)
+    observations = []
+    for r in rows:
+        if str(r.get("symbol", "")).upper() in WATCH and 1 <= int(r.get("rank") or 0) <= 100:
+            observations.append({"symbol":str(r["symbol"]).upper(),
+                                 "change":float(r["change"]),
+                                 "level":threshold(float(r["change"]))})
     payload = {"timestamp": datetime.now(timezone.utc).isoformat(), "provider": provider,
-               "status": "no_alert", "is_demo": False, "row": None}
+               "status": "no_alert", "is_demo": False, "row": None,
+               "observations": observations}
     if selected:
         series = get_sparkline(selected["symbol"])
         if (not isinstance(series, list) or len(series) < 36 or
