@@ -136,3 +136,17 @@ export function mountCmsMediaPicker(sb,container,onSelect){
   void reload();
   return {refresh:reload,root:holder};
 }
+
+export function mountCmsMediaFieldPicker(sb,input,{onlyKind="image"}={}){
+  if(!input?.parentElement)return null;
+  const toggle=el("button","Importer / médiathèque"),panel=el("div");
+  toggle.type="button";panel.hidden=true;
+  input.after(toggle,panel);
+  toggle.addEventListener("click",()=>{panel.hidden=!panel.hidden;});
+  const library=mountCmsMediaPicker(sb,panel,media=>{
+    if(media.kind!==onlyKind)return;
+    input.value=media.url;input.dispatchEvent(new Event("input",{bubbles:true}));
+    panel.hidden=true;
+  });
+  return library;
+}
