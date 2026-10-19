@@ -5,6 +5,7 @@ import { inspectPublishFiles } from "./guards.mjs";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 
+const REQUIRE_ADMIN_AAL2 = Deno.env.get("PUBLISH_REQUIRE_AAL2") === "true";
 const GITHUB_OWNER = Deno.env.get("GITHUB_OWNER") || "";
 const GITHUB_REPO = Deno.env.get("GITHUB_REPO") || "";
 const GITHUB_BRANCH = Deno.env.get("GITHUB_BRANCH") || "main";
@@ -66,6 +67,18 @@ async function requireAdmin(req: Request) {
   }
 
   const uid = data.user.id;
+  if (REQUIRE_ADMIN_AAL2) {
+    // getUser(token) validates signature, session and user before inspecting the AAL claim.
+    let claim: any;
+    try {
+      const part=(token.split(".")[1]||"").replace(/-/g,"+").replace(/_/g,"/");
+      const bytes=Uint8Array.from(atob(part),c=>c.charCodeAt(0));
+      claim=JSON.parse(new TextDecoder().decode(bytes));
+    } catch {throw Object.assign(new Error("Authentification MFA requise"),{code:403});}
+    if(claim?.sub!==uid || claim?.aal!=="aal2")
+      throw Object.assign(new Error("Authentification MFA requise"),{code:403});
+  }
+
 
   // Vérification admin par table
   const { data: adminRow, error: adminErr } = await sb

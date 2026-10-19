@@ -1,3 +1,4 @@
+import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
 import { supabaseUrl, supabaseAnonKey } from "./config.js";
 import "./loading-ui.js";
 
@@ -1334,6 +1335,7 @@ async function afterLogin() {
   $("loginCard").style.display = "none";
   $("app").style.display = "block";
   cmsInstallHistory();
+  await initAdminMfaControl(sb, $("btnLogout")?.parentElement);
 
   const user = (await sb.auth.getUser()).data.user;
   $("who").textContent = user?.email || user?.id || "";
