@@ -1,5 +1,23 @@
 {
   "sent": {
+    "daily:01:2026-10-19:morning": {
+      "message_id": 9,
+      "number": 1,
+      "sent_at": "2026-10-19T14:36:18.310179+00:00",
+      "source": "CoinPaprika"
+    },
+    "daily:05:2026-10-19:default": {
+      "message_id": 10,
+      "number": 5,
+      "sent_at": "2026-10-19T14:36:20.949600+00:00",
+      "source": "Alternative.me"
+    },
+    "daily:06:2026-10-19:default": {
+      "message_id": 11,
+      "number": 6,
+      "sent_at": "2026-10-19T14:36:23.627774+00:00",
+      "source": "CoinLore"
+    },
     "initial_history_01": {
       "message_id": 2,
       "number": 1,
