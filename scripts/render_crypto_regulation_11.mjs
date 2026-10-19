@@ -83,12 +83,12 @@ const css=[
 '.tilelabel{font-size:17px;color:#b5cadf;font-weight:900;letter-spacing:1.1px}',
 '.tilevalue{font-size:25px;color:#f5d09a;font-weight:900;margin-top:14px;line-height:1.16}',
 '.tiledetail{font-size:17px;color:#a6bed6;margin-top:10px}',
-'.review{margin-top:19px;padding:21px 24px;background:#142d4bcf;border:1px solid #4b7294;',
-'border-radius:23px;display:flex;gap:19px;align-items:center;height:111px}',
+'.review{margin-top:19px;padding:17px 24px;background:#142d4bcf;border:1px solid #4b7294;',
+'border-radius:23px;display:flex;gap:19px;align-items:center;height:129px}',
 '.reviewicon{font-size:37px;width:58px;height:58px;border-radius:17px;background:#c6a06930;',
 'display:grid;place-items:center;color:#f5d09a;flex:none}',
 '.reviewtitle{font-size:21px;color:#f7d39e;font-weight:900}',
-'.reviewdesc{font-size:18px;color:#c0d0e0;line-height:1.3;margin-top:7px}',
+'.reviewdesc{font-size:18px;color:#c0d0e0;line-height:1.25;margin-top:7px;overflow-wrap:break-word}',
 '.footer{margin-top:23px;padding-top:17px;border-top:1px solid #456d8d;',
 'display:flex;justify-content:space-between;gap:12px;font-size:15px;color:#b8cce1}',
 '.note{text-align:center;font-size:16px;color:#a0b9d2;margin-top:11px}',
@@ -115,8 +115,8 @@ const h=[
 '</div><div class="tilevalue">',qa?'DONNÉES FICTIVES':esc(a.source),'</div>',
 '<div class="tiledetail">',date,qa?'':' UTC','</div></div></section>',
 '<div class="review"><div class="reviewicon">⚖</div><div>',
-'<div class="reviewtitle">',qa?'MAQUETTE · AUCUNE ACTUALITÉ':'ARTICLE JOURNALISTIQUE ATTRIBUÉ','</div>',
-'<div class="reviewdesc">',qa?'Exemple de mise en page uniquement. Aucun fait ni changement de loi réel.':'Titre et source RSS identifiés. Vérifier les effets juridiques dans les textes officiels.','</div>',
+'<div class="reviewtitle">',qa?'MAQUETTE · AUCUNE ACTUALITÉ':'TITRE ORIGINAL · '+esc(a.source),'</div>',
+'<div class="reviewdesc">',qa?'Exemple de mise en page uniquement. Aucun fait ni changement de loi réel.':esc(a.title),'</div>',
 '</div></div><div class="footer"><span>',qa?'SIMULATION · PAS DE SOURCE RÉELLE':'Source : '+esc(a.source),'</span>',
 '<span>',qa?'MAQUETTE · SANS DATE':'Collecte : '+ts+' UTC','</span></div>',
 '<div class="note">',qa?'Scénario fictif pour valider le design · Aucun fait annoncé':'Information médiatique attribuée · Aucun statut légal certifié.','</div>',
@@ -135,13 +135,28 @@ try {
      font-=1;t.style.fontSize=font+'px';
    }
  });
+ await page.evaluate(()=>{
+   const t=document.querySelector('.reviewdesc'), box=document.querySelector('.review');
+   let size=parseFloat(getComputedStyle(t).fontSize);
+   while(t.getBoundingClientRect().bottom>box.getBoundingClientRect().bottom-9&&size>13){
+     size--;t.style.fontSize=size+'px';
+   }
+ });
  const bounds=await page.evaluate(()=>{
    const b=q=>document.querySelector(q).getBoundingClientRect();
    return {scroll:document.documentElement.scrollHeight,note:b('.note').bottom,
-     story:b('.story').bottom,hero:b('.hero').bottom}
+     story:b('.story').bottom,hero:b('.hero').bottom,
+     reviewText:b('.reviewdesc').bottom, review:b('.review').bottom,
+     storyRight:b('.story').right, africaLeft:b('.globe').left,
+     storyTop:b('.story').top,africaBottom:b('.globe').bottom,
+     africaTop:b('.globe').top, footer:b('.footer').top};
  });
- if(bounds.scroll>1350||bounds.note>1322||bounds.story>bounds.hero-59)
-   throw Error('Poster overflow '+JSON.stringify(bounds));
+ const mapTextOverlap=bounds.storyRight>bounds.africaLeft-14 &&
+     bounds.storyTop<bounds.africaBottom&&bounds.story>bounds.africaTop;
+ if(bounds.scroll>1350||bounds.note>1291||bounds.story>bounds.hero-59||
+    bounds.reviewText>bounds.review-7||mapTextOverlap||
+    bounds.review>bounds.footer-12)
+   throw Error('Poster overlap/overflow '+JSON.stringify(bounds));
  await mkdir('crypto/generated/test',{recursive:true});
  await page.screenshot({path:output});
  console.log('REG11_PREMIUM_TEST_RENDERED',qa?'QA_NOT_PUBLISHABLE':'REAL_TEST_ONLY',a.source,output);
