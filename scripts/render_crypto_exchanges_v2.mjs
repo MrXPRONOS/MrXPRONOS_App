@@ -102,7 +102,7 @@ body{font-family:Arial,Helvetica,sans-serif;color:#f8fbff;background:#061226}
 ${svg}
 <div class="exchange" data-long="${d.exchange.length>7}">${exchange}</div>
 <div class="rule"></div><div class="headline">${title}</div>
-<div class="origin">TITRE ORIGINAL EN ANGLAIS · LIEN SOURCE EN LÉGENDE</div>
+<div class="origin">SYNTHÈSE EN FRANÇAIS · ORIGINAL DANS LA LÉGENDE</div>
 </section>
 <div class="evidence">
 <div class="card"><div class="cardlabel">SOURCE À L'ORIGINE</div><div class="cardname">${source}</div><div class="cardtime">${when} UTC</div></div>
