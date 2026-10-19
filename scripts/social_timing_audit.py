@@ -134,6 +134,14 @@ def finish(name, rows, info=None, errors=None):
         "age_threshold_hours": 72,
         "data_window_days": 90, "diagnostic": info or {}, "errors": errors or [],
     }
+    formats = defaultdict(list)
+    for row in rows:
+        formats[row.get("kind") or "unknown"].append(row)
+    result["formats"] = {
+        name: {"posts": len(part), "views_by_slot": metric_groups(part, "views"),
+               "engagements_by_slot": metric_groups(part, "engagements")}
+        for name, part in formats.items()
+    }
     return result
 
 
@@ -189,7 +197,12 @@ def audit_instagram():
                         if len(errors) < 3: errors.append("media_insights:" + str(exc))
             engagements = (row.get("like_count") or 0) + (row.get("comments_count") or 0)
             add(items, row.get("timestamp"), views, engagements, typ)
-        return finish("instagram", items, {"status": "ok", "media_examined": len(rows)}, errors)
+        return finish("instagram", items, {
+            "status": "ok", "media_examined": len(rows),
+            "oldest_listed": min((r.get("timestamp") or "" for r in rows), default=""),
+            "format_counts": {key: sum(1 for r in rows if (r.get("media_product_type") or r.get("media_type") or "") == key)
+                              for key in sorted({str(r.get("media_product_type") or r.get("media_type") or "") for r in rows})},
+        }, errors)
     except (ValueError, RuntimeError) as e:
         return finish("instagram", items, {"status": "read_failed", "reason": str(e)}, errors)
 
@@ -216,7 +229,11 @@ def audit_threads():
                     if len(errors) < 3: errors.append("threads_insights:" + str(e))
             actions = sum(v or 0 for k,v in insight.items() if k in ("likes","replies","reposts"))
             add(items, row.get("timestamp"), insight.get("views"), actions, row.get("media_type", ""))
-        return finish("threads", items, {"status": "ok", "media_examined": len(rows)}, errors)
+        return finish("threads", items, {
+            "status": "ok", "media_examined": len(rows),
+            "oldest_listed": min((r.get("timestamp") or "" for r in rows), default=""),
+            "newest_listed": max((r.get("timestamp") or "" for r in rows), default=""),
+        }, errors)
     except (ValueError, RuntimeError) as e:
         return finish("threads", items, {"status": "read_failed", "reason": str(e)}, errors)
 
@@ -269,7 +286,13 @@ def audit_youtube():
                 comments = stats.get("commentCount")
                 add(items, dates.get(v["id"]), int(views) if views is not None else None,
                     (int(likes or 0) + int(comments or 0)), "video")
-        return finish("youtube", items, {"status": "ok", "videos_examined": len(ids)})
+        return finish("youtube", items, {
+            "status": "ok", "videos_examined": len(ids), "playlist_entries": len(entries),
+            "oldest_listed": min((str((v.get("contentDetails") or {}).get("videoPublishedAt") or "")
+                                   for v in entries), default=""),
+            "newest_listed": max((str((v.get("contentDetails") or {}).get("videoPublishedAt") or "")
+                                   for v in entries), default=""),
+        })
     except (ValueError, RuntimeError, requests.RequestException) as e:
         # Status-only / abbreviated error: no tokens or HTTP request parameters.
         return finish("youtube", [], {"status": "read_failed", "reason": str(e)[:100]})
@@ -320,6 +343,10 @@ def main():
         print("AUDIT", name, "status", brief.get("status"), "posts", data["posts_mature"],
               "with_views", data["posts_with_views"], "diagnostic", json.dumps(brief, ensure_ascii=False),
               "errors", ",".join(data.get("errors") or []), flush=True)
+        print("TIMING_SLOTS", name,
+              "views", json.dumps(data["views_by_slot"], ensure_ascii=False),
+              "engagements", json.dumps(data["engagements_by_slot"], ensure_ascii=False),
+              "formats", json.dumps(data.get("formats", {}), ensure_ascii=False), flush=True)
     path = Path("social_timing_audit.json")
     path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     print("SOCIAL_TIMING_AUDIT_READY", str(path.resolve()), flush=True)
