@@ -87,11 +87,22 @@ def exchange_of(title: str) -> str | None:
     return found[0] if len(found) == 1 else None
 
 
+# News centered on laws, regulators, issuers or policy belongs in #10,
+# even if an exchange name and a generic word like "listing" appear later.
+POLICY_ROUTE = re.compile(
+    r"\\b(sec|cftc|fca|esma|regulator|regulation|regulatory|"
+    r"legislation|lawmakers?|framework|securities law|tokenized stock|"
+    r"issuer pushback|court ruling|lawsuit|compliance rules?)\\b", re.I
+)
+
+
 def category_of(title: str) -> str | None:
     lower = title.lower()
-    if any(s in lower for s in EXCLUDED):
+    if any(s in lower for s in EXCLUDED) or POLICY_ROUTE.search(title):
         return None
     for label, cues in CATEGORIES.items():
+        if label == "RÉGLEMENTATION":
+            continue  # Publication 10 handles the legal/regulatory domain.
         if any(x in lower for x in cues):
             return label
     return None
@@ -108,8 +119,14 @@ def terms(title: str) -> set[str]:
 
 def parse_entry(entry, source: str, now: datetime) -> dict:
     title = clean(entry.get("title"))
-    if len(title) < 23 or exchange_of(title) is None or category_of(title) is None:
-        raise ValueError("Title not relevant or low-confidence")
+    # Editorial category #09 requires the PLATFORM to lead the headline.
+    # A mention of OKX near the end of a SEC article is NOT an OKX news item.
+    first_part = re.split(r"[:—–]", title, maxsplit=1)[0][:85]
+    if (len(title) < 23 or exchange_of(title) is None or category_of(title) is None
+            or exchange_of(first_part) != exchange_of(title)
+            or not re.match(r"^\\s*(?:the\\s+)?(?:"
+                + "|".join(EXCHANGES) + r")\\b", title, re.I)):
+        raise ValueError("Exchange is not the principal subject")
     uri = canonical_url(entry.get("link"), FEEDS[source][1])
     stamp = entry.get("published_parsed") or entry.get("updated_parsed")
     if stamp is None:
