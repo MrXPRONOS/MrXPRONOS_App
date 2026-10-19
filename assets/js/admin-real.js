@@ -1,4 +1,6 @@
 import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
+import { mountCmsBlockEditor } from "./cms-block-editor.mjs";
+import { mountCmsMediaFieldPicker } from "./cms-media-library.mjs";
 import { supabaseUrl, supabaseAnonKey } from "./config.js";
 import "./loading-ui.js";
 
@@ -551,12 +553,15 @@ async function renderCmsArticles() {
     </div>
   `;
 
+  const cmsEditor = mountCmsBlockEditor({sb,textarea:$("a_content"),kind:"articles"});
+  mountCmsMediaFieldPicker(sb,$("a_image"));
+
   const setForm = (a) => {
     $("a_slug").value = a.slug || "";
     $("a_title").value = a.title || "";
     $("a_image").value = a.image_url || "";
     $("a_meta").value = a.meta_description || "";
-    $("a_content").value = a.content || "";
+    cmsEditor.setMarkdown(a.content || "",a.id);
     $("a_status").value = a.status || "draft";
     $("a_active").value = (a.active !== false) ? "true" : "false";
     $("a_save").dataset.id = a.id;
@@ -571,13 +576,15 @@ async function renderCmsArticles() {
   });
 
   $("a_save").addEventListener("click", async () => {
+    let cmsText;
+    try { cmsText=cmsEditor.getMarkdown(); } catch(error) { alert(error.message); return; }
     const row = {
       slug: $("a_slug").value.trim(),
       title: $("a_title").value.trim(),
       image_url: $("a_image").value.trim(),
       og_image: $("a_image").value.trim(),
       meta_description: $("a_meta").value.trim(),
-      content: $("a_content").value,
+      content: cmsText,
       status: $("a_status").value,
       active: $("a_active").value === "true",
       updated_at: new Date().toISOString(),
@@ -644,11 +651,14 @@ async function renderCmsConseils() {
     </div>
   `;
 
+  const cmsEditor = mountCmsBlockEditor({sb,textarea:$("c_content"),kind:"conseils"});
+  mountCmsMediaFieldPicker(sb,$("c_image"));
+
   const setForm = (c) => {
     $("c_slug").value = c.slug || "";
     $("c_title").value = c.title || "";
     $("c_image").value = c.image_url || "";
-    $("c_content").value = c.content || "";
+    cmsEditor.setMarkdown(c.content || "",c.id);
     $("c_status").value = c.status || "draft";
     $("c_active").value = (c.active !== false) ? "true" : "false";
     $("c_save").dataset.id = c.id;
@@ -663,11 +673,13 @@ async function renderCmsConseils() {
   });
 
   $("c_save").addEventListener("click", async () => {
+    let cmsText;
+    try { cmsText=cmsEditor.getMarkdown(); } catch(error) { alert(error.message); return; }
     const row = {
       slug: $("c_slug").value.trim(),
       title: $("c_title").value.trim(),
       image_url: $("c_image").value.trim(),
-      content: $("c_content").value,
+      content: cmsText,
       status: $("c_status").value,
       active: $("c_active").value === "true",
       updated_at: new Date().toISOString(),
@@ -776,6 +788,9 @@ async function renderBonus() {
       </div>
     </div>
   `;
+
+  mountCmsMediaFieldPicker(sb,$("b_image"));
+  mountCmsMediaFieldPicker(sb,$("bk_logo"));
 
   const setBonus = (b) => {
     $("b_bookmaker").value = b.bookmaker || "";
@@ -910,9 +925,11 @@ async function renderInfos() {
     </div>
   `;
 
+  const cmsEditor = mountCmsBlockEditor({sb,textarea:$("i_content"),kind:"infos"});
+
   const setForm = (i) => {
     $("i_title").value = i.title || "";
-    $("i_content").value = i.content || "";
+    cmsEditor.setMarkdown(i.content || "",i.id);
     $("i_status").value = i.status || "draft";
     $("i_active").value = (i.active !== false) ? "true" : "false";
     $("i_save").dataset.id = i.id;
@@ -927,9 +944,11 @@ async function renderInfos() {
   });
 
   $("i_save").addEventListener("click", async () => {
+    let cmsText;
+    try { cmsText=cmsEditor.getMarkdown(); } catch(error) { alert(error.message); return; }
     const row = {
       title: $("i_title").value.trim(),
-      content: $("i_content").value,
+      content: cmsText,
       status: $("i_status").value,
       active: $("i_active").value === "true",
       updated_at: new Date().toISOString(),
