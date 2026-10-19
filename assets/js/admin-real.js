@@ -1054,7 +1054,7 @@ async function renderMediaTab(){
   intro.className="card";
   const h=document.createElement("h3");h.textContent="Médiathèque";
   const p=document.createElement("p");p.className="muted";
-  p.textContent="Importer, rechercher et réutiliser les photos ou vidéos dans les publications. Les contenus restent privés jusqu'à la publication GitHub Pages.";
+  p.textContent="Importer, rechercher et réutiliser les photos ou vidéos dans les publications. Attention : les fichiers sont hébergés dans un bucket public ; toute personne possédant leur URL peut les consulter, même avant publication. Les brouillons CMS, eux, ne sont pas publiés automatiquement.";
   const selected=document.createElement("p");selected.setAttribute("role","status");
   intro.append(h,p,selected);root.appendChild(intro);
   mountCmsMediaPicker(sb,intro,media=>{
