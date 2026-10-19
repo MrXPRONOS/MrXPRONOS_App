@@ -2,6 +2,12 @@ name: Exact scores - train and evaluate (shadow)
 
 on:
   workflow_dispatch:
+  push:
+    branches: ['feature/exact-score-v1-20261019']
+    paths:
+      - 'bsd/exact_scores.py'
+      - 'bsd/test_exact_scores.py'
+      - '.github/workflows/exact-scores-train.yml'
   pull_request:
     paths:
       - 'bsd/exact_scores.py'
@@ -28,7 +34,7 @@ jobs:
         run: python -m unittest bsd/test_exact_scores.py -v
 
   train:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 65
     steps:
