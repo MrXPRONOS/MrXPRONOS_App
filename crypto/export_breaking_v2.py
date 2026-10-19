@@ -18,6 +18,7 @@ import feedparser
 import requests
 
 from crypto.news_sources_v2 import EDITORIAL_FEEDS
+from crypto.editorial_fr import breaking_synopsis, validate_synopsis
 
 UTC = timezone.utc
 DEST = Path("crypto/generated/test")
@@ -153,8 +154,47 @@ def fetch_feed(source: str, url: str, now: datetime, getter=requests.get) -> lis
         return []
 
 
+# Distinguish unrelated stories with overlapping words (e.g. approval vs rejection,
+# SEC proposal vs legislation already effective). Lexical overlap != fact-checking.
+EVENT_FAMILIES = {
+    "approved": {"approve", "approval", "approved", "authorizes", "authorized"},
+    "rejected": {"reject", "rejected", "rejection", "denied", "deny", "blocks"},
+    "proposal": {"propose", "proposes", "proposed", "bill", "draft"},
+    "hack": {"hack", "hacked", "exploit", "breach", "stolen"},
+    "outage": {"outage", "shutdown", "network halt", "network down"},
+    "upgrade": {"upgrade", "fork", "upgraded"},
+    "acquisition": {"acquire", "acquires", "acquisition", "bought", "buys"},
+    "liquidation": {"liquidation", "liquidations"},
+    "launch": {"launch", "launched", "launches"},
+}
+ENTITIES = {
+    "etf": {"etf", "etfs"},
+    "sec": {"sec"},
+    "network": {"network", "chain", "blockchain"},
+    "reserve": {"reserve", "reserves", "treasury"},
+    "foundation": {"foundation"},
+}
+
+
+def event_signature(title: str) -> tuple[str, str] | None:
+    words = set(re.findall(r"[a-z0-9]+", title.lower()))
+    operations = [name for name, cues in EVENT_FAMILIES.items()
+                  if any(cue in words for cue in cues)]
+    objects = [name for name, cues in ENTITIES.items()
+               if any(cue in words for cue in cues)]
+    if len(operations) != 1 or not objects:
+        return None
+    # One unambiguous event family + one explicitly shared topic/actor.
+    return operations[0], sorted(objects)[0]
+
+
 def corroborates(a: dict, b: dict) -> bool:
     if a["source"] == b["source"] or a["topic"] != b["topic"]:
+        return False
+    # Both reports must describe the same action, not just the same crypto.
+    signature_a = event_signature(a["title"])
+    signature_b = event_signature(b["title"])
+    if signature_a is None or signature_a != signature_b:
         return False
     ta, tb = terms(a["title"]), terms(b["title"])
     shared = ta & tb
@@ -205,6 +245,7 @@ def build_report(pair: tuple, now: datetime) -> dict:
     return {"status": "real_data", "is_demo": False, "publication": 8,
             "topic": a["topic"], "collected_at": now.isoformat(),
             "main": items[0], "confirmation": items[1],
+            "headline_fr": validate_synopsis(breaking_synopsis(a["topic"], a["title"])),
             "fingerprints": [fingerprint(x) for x in items]}
 
 
@@ -229,6 +270,8 @@ def validate_real(data: dict, now: datetime | None = None) -> None:
             raise ValueError("Sujet non conforme")
         iso_time(a["published_at"], now)
         items.append(a)
+    if data.get("headline_fr") != validate_synopsis(breaking_synopsis(items[0]["topic"], items[0]["title"])):
+        raise ValueError("Unverifiable French synopsis")
     if data.get("topic") != items[0]["topic"] or not corroborates(*items):
         raise ValueError("Événement non corroboré")
     if data.get("fingerprints") != [fingerprint(x) for x in items]:

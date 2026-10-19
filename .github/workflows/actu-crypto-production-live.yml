@@ -16,7 +16,7 @@ on:
         required: true
         description: 'Premium production mode'
         default: morning
-        options: [morning, midday, evening, alerts, news, weekly, legal]
+        options: [morning, midday, evening, alerts, news, weekly, legal, legal_approved]
       confirm_real_production:
         type: boolean
         required: true

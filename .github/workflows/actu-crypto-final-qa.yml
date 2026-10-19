@@ -1,0 +1,97 @@
+name: Actu Crypto - Final editorial and Telegram history QA
+
+on:
+  push:
+    branches: [fix/actu-crypto-final-production]
+    paths:
+      - 'crypto/**'
+      - 'scripts/render_crypto_regulation_approved_v2.mjs'
+      - 'scripts/render_crypto_exchanges_v2.mjs'
+      - 'scripts/render_crypto_breaking_v2.mjs'
+      - '.github/workflows/actu-crypto-final-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  final-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install public data and graphics dependencies
+        run: |
+          python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6.0,<7'
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Compile and run all crypto regression suites
+        run: |
+          python -m compileall -q crypto
+          python -m unittest \
+            crypto.test_final_live_v2 \
+            crypto.test_quality_audit_10 \
+            crypto.test_publish_crypto_1_5 \
+            crypto.test_losers_v2 \
+            crypto.test_alerts_v2 \
+            crypto.test_fear_v2 \
+            crypto.test_dominance_v2 \
+            crypto.test_weekly_v2 \
+            crypto.test_breaking_v2 \
+            crypto.test_exchanges_v2 \
+            crypto.test_regulation_v2 \
+            crypto.test_production_live_v1 -v
+      - name: Validate original crypto visual templates and new French designs
+        run: |
+          for x in scripts/render_crypto_*_v2.mjs; do node --check "$x"; done
+          node scripts/test_crypto_poster_format.mjs
+      - name: Offline non-publishable QA for old Telegram correction cards
+        run: python -m crypto.render_history_corrections --qa
+      - name: Offline French image #08
+        run: |
+          python -m crypto.export_breaking_v2 --demo
+          node scripts/render_crypto_breaking_v2.mjs --demo
+      - name: Offline French image #09
+        run: |
+          python -m crypto.export_exchanges_v2 --demo
+          node scripts/render_crypto_exchanges_v2.mjs --demo
+      - name: Offline human-approved #10 simulation with prominent watermark
+        run: |
+          python -m crypto.quality_legal_approved_demo
+          node scripts/render_crypto_regulation_approved_v2.mjs --qa
+      - name: Verify six final 1080x1350 PNG proofs
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          names=["rectification_01.png","rectification_03.png",
+                 "rectification_09.png","breaking_v2_demo.png",
+                 "exchanges_v2_demo.png","regulation_v2_approved_QA.png"]
+          for p in [Path("crypto/generated/test")/n for n in names]:
+              assert p.is_file() and p.stat().st_size>10000,(p,"missing")
+              with Image.open(p) as im:
+                  assert im.format=="PNG" and im.size==(1080,1350),(p,im.size)
+                  im.verify()
+              print("CRYPTO_FINAL_QA_VISUAL",p.name,p.stat().st_size)
+          print("CRYPTO_FINAL_ALL_SIX_IMAGES_VERIFIED")
+          PY
+      - name: Archive exact visual proofs for approval before production
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-final-six-QA-ONLY-never-publish
+          path: |
+            crypto/generated/test/rectification_01.png
+            crypto/generated/test/rectification_03.png
+            crypto/generated/test/rectification_09.png
+            crypto/generated/test/breaking_v2_demo.png
+            crypto/generated/test/exchanges_v2_demo.png
+            crypto/generated/test/regulation_v2_approved_QA.png
+          retention-days: 21
+          if-no-files-found: warn

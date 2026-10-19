@@ -14,13 +14,14 @@ if(!a||!b||a.source===b.source||!['bitcoin','ethereum'].includes(d.topic))
     throw Error('Two independent confirmations required');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const dt=s=>new Date(s).toLocaleString('fr-FR',{timeZone:'UTC',day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
-const main=esc(a.title), source=esc(a.source), confirm=esc(b.source);
+if(!d.headline_fr||!/^.{20,105}$/.test(d.headline_fr))throw Error('French synopsis required');
+const main=esc(d.headline_fr), source=esc(a.source), confirm=esc(b.source);
 const coin=d.topic==='bitcoin'?'BITCOIN':'ETHEREUM';
 // Reuse the approved visual assets used by #01-04 instead of a simulated CSS coin.
 const art=await readFile(join('crypto/assets/premium_market',d.topic==='bitcoin'?'btc.png':'eth.png'));
 if(art.length<1000)throw Error('Approved premium coin artwork missing');
 const coinData='data:image/png;base64,'+art.toString('base64');
-const headlineSize=a.title.length>142?46:a.title.length>110?51:a.title.length>76?56:64;
+const headlineSize=d.headline_fr.length>86?45:d.headline_fr.length>65?52:61;
 // Automated title matching is preliminary corroboration, not independent fact-checking.
 const html='<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>'+
 '*{box-sizing:border-box}html,body{width:1080px;height:1350px;margin:0;overflow:hidden}body{background:#051123;color:#fff;font-family:Arial,Helvetica,sans-serif}'+
@@ -34,7 +35,7 @@ const html='<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>'+
 '<div class="eyebrow"><i class="dot"></i> BREAKING NEWS</div><div class="coinlabel">'+coin+'</div>'+
 '<h1 class="bigtitle">L’ACTU QUI<br><span>COMPTE.</span></h1><div class="underline"></div>'+
 '<div class="description">Un événement sur '+coin.toLowerCase()+'<br>rapporté par deux médias distincts. Titres rapprochés automatiquement.</div>'+
-'<section class="feature"><div class="feature-head"><div class="feature-label">À LA UNE · TITRE ORIGINAL</div><div class="confirmed">2 MÉDIAS · À LIRE</div></div><img class="coin3d" src="'+coinData+'" alt="'+coin+'"/><div class="story">'+main+'</div><div class="original">TITRE SOURCE (ANGLAIS)</div></section>'+
+'<section class="feature"><div class="feature-head"><div class="feature-label">À LA UNE · SYNTHÈSE FRANÇAISE</div><div class="confirmed">2 MÉDIAS · À LIRE</div></div><img class="coin3d" src="'+coinData+'" alt="'+coin+'"/><div class="story">'+main+'</div><div class="original">TITRE ORIGINAL ET LIEN EN LÉGENDE</div></section>'+
 '<section class="confirm-panel"><div class="sourcecard"><div class="source-label">SOURCE PRINCIPALE</div><div class="source-name">'+source+'</div><div class="time">'+esc(dt(a.published_at))+' UTC</div></div>'+
 '<div class="sourcecard"><div class="source-label">DEUXIÈME MÉDIA</div><div class="source-name">'+confirm+'</div><div class="time">'+esc(dt(b.published_at))+' UTC</div></div></section>'+
 '<div class="bottom"><div class="bottom-top">TITRES RECROISÉS · '+esc(dt(d.collected_at))+' UTC</div>'+
