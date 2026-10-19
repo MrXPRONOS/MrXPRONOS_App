@@ -7,6 +7,7 @@ const qa=process.argv.includes('--qa');
 const dataPath='crypto/generated/test/regulation_v2_approved.json';
 const output=qa?'crypto/generated/test/regulation_v2_approved_QA.png':'crypto/generated/test/regulation_v2_approved.png';
 const d=JSON.parse(await readFile(dataPath,'utf8'));
+if(Boolean(d.qa_only)!==qa)throw Error('QA simulation cannot enter production regulatory rendering');
 const sources=['CoinDesk','Cointelegraph','The Block','Decrypt','Blockworks','BeInCrypto',
   'Bitcoin Magazine','NewsBTC','SEC','ESMA','Commission européenne'];
 if(d.publication!==10||d.is_demo!==false||d.status!=='editorially_approved'||d.human_approved!==true||
