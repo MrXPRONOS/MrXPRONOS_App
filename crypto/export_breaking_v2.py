@@ -153,8 +153,47 @@ def fetch_feed(source: str, url: str, now: datetime, getter=requests.get) -> lis
         return []
 
 
+# Distinguish unrelated stories with overlapping words (e.g. approval vs rejection,
+# SEC proposal vs legislation already effective). Lexical overlap != fact-checking.
+EVENT_FAMILIES = {
+    "approved": {"approve", "approval", "approved", "authorizes", "authorized"},
+    "rejected": {"reject", "rejected", "rejection", "denied", "deny", "blocks"},
+    "proposal": {"propose", "proposes", "proposed", "bill", "draft"},
+    "hack": {"hack", "hacked", "exploit", "breach", "stolen"},
+    "outage": {"outage", "shutdown", "network halt", "network down"},
+    "upgrade": {"upgrade", "fork", "upgraded"},
+    "acquisition": {"acquire", "acquires", "acquisition", "bought", "buys"},
+    "liquidation": {"liquidation", "liquidations"},
+    "launch": {"launch", "launched", "launches"},
+}
+ENTITIES = {
+    "etf": {"etf", "etfs"},
+    "sec": {"sec"},
+    "network": {"network", "chain", "blockchain"},
+    "reserve": {"reserve", "reserves", "treasury"},
+    "foundation": {"foundation"},
+}
+
+
+def event_signature(title: str) -> tuple[str, str] | None:
+    words = set(re.findall(r"[a-z0-9]+", title.lower()))
+    operations = [name for name, cues in EVENT_FAMILIES.items()
+                  if any(cue in words for cue in cues)]
+    objects = [name for name, cues in ENTITIES.items()
+               if any(cue in words for cue in cues)]
+    if len(operations) != 1 or not objects:
+        return None
+    # One unambiguous event family + one explicitly shared topic/actor.
+    return operations[0], sorted(objects)[0]
+
+
 def corroborates(a: dict, b: dict) -> bool:
     if a["source"] == b["source"] or a["topic"] != b["topic"]:
+        return False
+    # Both reports must describe the same action, not just the same crypto.
+    signature_a = event_signature(a["title"])
+    signature_b = event_signature(b["title"])
+    if signature_a is None or signature_a != signature_b:
         return False
     ta, tb = terms(a["title"]), terms(b["title"])
     shared = ta & tb
