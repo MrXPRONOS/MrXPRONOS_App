@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><meta name="robots" content="noindex,nofollow">
+<title>Connexion TikTok — Mr XPRONOS</title>
+<style>
+:root{color-scheme:dark}body{font:16px system-ui,Arial,sans-serif;background:#10141d;color:#edf2fc;margin:0}
+main{max-width:700px;margin:6vh auto;padding:18px}article{background:#1c2230;border:1px solid #3a4559;padding:24px;border-radius:16px}
+h1{font-size:25px;margin-top:0}p{line-height:1.6;color:#ccd5e7}
+label{display:block;margin-top:18px;font-weight:650}
+input[type=text],textarea{box-sizing:border-box;margin-top:6px;background:#101720;border:1px solid #58677b;border-radius:8px;padding:12px;color:#fff;font:inherit;width:100%}
+input[type=checkbox]{margin-right:10px;accent-color:#f4c668}
+button{font:inherit;font-weight:650;border:0;border-radius:8px;padding:12px 18px;background:#ffce6a;color:#121620;cursor:pointer;margin-top:20px}
+code{overflow-wrap:anywhere}.muted{color:#b1bed0;font-size:14px}.error{color:#ffaaaa}.hidden{display:none}
+</style>
+</head>
+<body><main><article>
+<h1>Connecter TikTok à Mr XPRONOS</h1>
+<p>Connexion officielle TikTok. Ne fournis jamais ton mot de passe ni ton Client Secret sur cette page.</p>
+<div id="start">
+<label for="key">Client Key de l’application TikTok (public)</label>
+<input id="key" type="text" autocomplete="off" placeholder="Client Key TikTok">
+<label><input type="checkbox" id="scope-list">Demander <code>video.list</code> (statistiques, si autorisé)</label>
+<label><input type="checkbox" id="scope-post">Demander <code>video.publish</code> (publication directe, seulement si approuvé)</label>
+<p class="muted">Le scope <code>user.info.basic</code> est toujours demandé pour identifier le compte. TikTok peut refuser les scopes non approuvés.</p>
+<p><strong>Redirect URI à autoriser dans Login Kit :</strong><br><code id="callback"></code></p>
+<button id="connect" type="button">Autoriser TikTok</button>
+</div>
+<div id="success" class="hidden">
+<p><strong>Autorisation reçue.</strong> Copie ce code dans GitHub Actions Secrets sous le nom <code>TIKTOK_AUTH_CODE</code>. Il est temporaire et à usage unique.</p>
+<label for="code">Code temporaire</label>
+<textarea id="code" readonly rows="4" autocomplete="off"></textarea>
+<button id="copy" type="button">Copier le code</button>
+<p id="copied" class="muted" aria-live="polite"></p>
+<p>Ensuite, lance le workflow <strong>TikTok - Connexion et maintenance</strong> avec l'option <code>exchange</code>. Ne colle jamais ce code dans les inputs publics du workflow.</p>
+</div>
+<p id="err" class="error" role="alert"></p>
+</article></main>
+<script>
+(()=>{"use strict";
+ const $=id=>document.getElementById(id);
+ const redirect=location.origin+location.pathname;
+ $("callback").textContent=redirect;
+ const search=new URLSearchParams(location.search);
+ if(search.has("code")||search.has("error")){
+   const state=sessionStorage.getItem("mrx_tiktok_state");
+   sessionStorage.removeItem("mrx_tiktok_state");
+   const code=search.get("code");
+   const error=search.get("error");
+   history.replaceState(null,"",redirect);
+   $("start").classList.add("hidden");
+   if(error){$("err").textContent="TikTok a refusé la connexion : "+error;return;}
+   if(!state||search.get("state")!==state||!code){
+     $("err").textContent="Échec de vérification de sécurité (state). Recommence depuis cette page dans le même navigateur.";
+     return;
+   }
+   $("success").classList.remove("hidden");
+   $("code").value=code;
+   $("copy").onclick=async()=>{
+     try{await navigator.clipboard.writeText($("code").value);$("copied").textContent="Code copié.";}
+     catch(e){$("code").focus();$("code").select();$("copied").textContent="Copie la sélection manuellement.";}
+   };
+   return;
+ }
+ $("connect").onclick=()=>{
+   const key=$("key").value.trim();
+   if(!/^[a-zA-Z0-9_-]{6,160}$/.test(key)){$("err").textContent="Client Key TikTok invalide.";return;}
+   const bytes=new Uint8Array(24);crypto.getRandomValues(bytes);
+   const state=[...bytes].map(x=>x.toString(16).padStart(2,"0")).join("");
+   sessionStorage.setItem("mrx_tiktok_state",state);
+   const scope=["user.info.basic"];
+   if($("scope-list").checked)scope.push("video.list");
+   if($("scope-post").checked)scope.push("video.publish");
+   const url=new URL("https://www.tiktok.com/v2/auth/authorize/");
+   url.searchParams.set("client_key",key);
+   url.searchParams.set("scope",scope.join(","));
+   url.searchParams.set("response_type","code");
+   url.searchParams.set("redirect_uri",redirect);
+   url.searchParams.set("state",state);
+   location.assign(url.toString());
+ };
+})();
+</script></body></html>
