@@ -15,7 +15,7 @@ on:
         default: false
   schedule:
     # TikTok access tokens expire after 24h; refresh-token persists for 365 days.
-    - cron: '23 4 * * *'
+    - cron: '23 4,16 * * *'
   push:
     branches: [main]
     paths:
@@ -43,6 +43,23 @@ jobs:
       - run: pip install 'requests>=2.32,<3'
       - name: OAuth security tests (offline)
         run: python -m unittest discover -s tests -p test_tiktok_auth.py -v
+      - name: Credentials availability audit (values never logged)
+        shell: bash
+        env:
+          CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
+          CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+          ACCESS_TOKEN: ${{ secrets.TIKTOK_ACCESS_TOKEN }}
+          REFRESH_TOKEN: ${{ secrets.TIKTOK_REFRESH_TOKEN }}
+          OPEN_ID: ${{ secrets.TIKTOK_OPEN_ID }}
+          REPO_PAT: ${{ secrets.GH_PAT_SECRETS }}
+        run: |
+          for name in CLIENT_KEY CLIENT_SECRET ACCESS_TOKEN REFRESH_TOKEN OPEN_ID REPO_PAT; do
+            if [ -n "${!name}" ]; then
+              echo "TIKTOK_SECRET_${name}=configured"
+            else
+              echo "TIKTOK_SECRET_${name}=missing"
+            fi
+          done
 
   connect:
     needs: tests
