@@ -33,11 +33,11 @@ const html='<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>'+
 '<header class="top"><div class="brand">MR <span>XPRONOS</span> ◈</div><div class="serial">ACTU CRYPTO · #08</div></header>'+
 '<div class="eyebrow"><i class="dot"></i> BREAKING NEWS</div><div class="coinlabel">'+coin+'</div>'+
 '<h1 class="bigtitle">L’ACTU QUI<br><span>COMPTE.</span></h1><div class="underline"></div>'+
-'<div class="description">Une information majeure sur '+coin.toLowerCase()+'<br>confirmée par deux médias indépendants.</div>'+
-'<section class="feature"><div class="feature-head"><div class="feature-label">À LA UNE · TITRE ORIGINAL</div><div class="confirmed">✓ 2 SOURCES</div></div><img class="coin3d" src="'+coinData+'" alt="'+coin+'"/><div class="story">'+main+'</div><div class="original">TITRE SOURCE (ANGLAIS)</div></section>'+
+'<div class="description">Un événement sur '+coin.toLowerCase()+'<br>rapporté par deux médias distincts. Titres rapprochés automatiquement.</div>'+
+'<section class="feature"><div class="feature-head"><div class="feature-label">À LA UNE · TITRE ORIGINAL</div><div class="confirmed">2 MÉDIAS · À LIRE</div></div><img class="coin3d" src="'+coinData+'" alt="'+coin+'"/><div class="story">'+main+'</div><div class="original">TITRE SOURCE (ANGLAIS)</div></section>'+
 '<section class="confirm-panel"><div class="sourcecard"><div class="source-label">SOURCE PRINCIPALE</div><div class="source-name">'+source+'</div><div class="time">'+esc(dt(a.published_at))+' UTC</div></div>'+
 '<div class="sourcecard"><div class="source-label">DEUXIÈME MÉDIA</div><div class="source-name">'+confirm+'</div><div class="time">'+esc(dt(b.published_at))+' UTC</div></div></section>'+
-'<div class="bottom"><div class="bottom-top">SOURCES RECROISÉES · '+esc(dt(d.collected_at))+' UTC</div>'+
+'<div class="bottom"><div class="bottom-top">TITRES RECROISÉS · '+esc(dt(d.collected_at))+' UTC</div>'+
 '<p>Sources citées dans la légende Telegram. Vérifiez les articles complets pour connaître le contexte et les éventuelles mises à jour.</p></div>'+
 '<footer class="footer"><span>MR XPRONOS · ACTU CRYPTO</span><span>Information, pas conseil financier</span></footer>'+
 '</main>'+(demo?'<div class="watermark">SIMULATION • ACTUALITÉ FICTIVE • NON PUBLIABLE</div>':'')+'</div></body></html>';
