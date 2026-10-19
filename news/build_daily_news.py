@@ -45,8 +45,29 @@ UTC = timezone.utc
 
 SOURCES = [
     ("BBC Sport Football", "https://feeds.bbci.co.uk/sport/football/rss.xml", 15),
-    ("Sky Sports Football", "https://www.skysports.com/rss/12040", 13),
-    ("ESPN Soccer", "https://www.espn.com/espn/rss/soccer/news", 12),
+    ("The Guardian Football", "https://www.theguardian.com/football/rss", 14),
+    ("Sky Sports", "https://www.skysports.com/rss/12040", 11),
+]
+
+NON_FOOTBALL = [
+    "formula 1", "formula one", " f1 ", "grand prix", " gp ", "motogp",
+    "tennis", "wta", "atp", "boxing", "ufc", "mma", "nfl", "nba",
+    "rugby", "cricket", "golf", "darts", "wwe", "super league",
+]
+
+FOOTBALL_HINTS = [
+    "football", "soccer", "premier league", "champions league", "europa",
+    "la liga", "serie a", "bundesliga", "ligue 1", "world cup", "afcon",
+    "goal", "goals", "striker", "midfielder", "defender", "goalkeeper",
+    "manager", "coach", "transfer", "signing", "club", "match", "fixture",
+    "real madrid", "barcelona", "manchester", "liverpool", "arsenal",
+    "chelsea", "tottenham", "bayern", "psg", "juventus", "inter", "milan",
+    "celtic", "rangers", "mbappe", "mbappé", "haaland", "salah", "yamal",
+]
+
+LOW_CONFIDENCE = [
+    "gossip", "rumour", "rumor", "linked with", "target", "could sign",
+    "may sign", "reportedly", "reports suggest",
 ]
 
 BIG_ENTITIES = [
@@ -190,6 +211,15 @@ def dedupe(stories: Iterable[Story]) -> list[Story]:
     return kept
 
 
+def is_football_story(story: Story) -> bool:
+    text = " " + (story.title + " " + story.summary).lower() + " "
+    if any(term in text for term in NON_FOOTBALL):
+        return False
+    if story.source in {"BBC Sport Football", "The Guardian Football"}:
+        return True
+    return any(term in text for term in FOOTBALL_HINTS)
+
+
 def rank_story(story: Story, now: datetime) -> Story:
     text = (story.title + " " + story.summary).lower()
     trust = 10
@@ -222,10 +252,12 @@ def rank_story(story: Story, now: datetime) -> Story:
     viral_hits = sum(1 for k in VIRAL if k in text)
     viral = min(15, 3 + viral_hits * 4)
 
-    score = min(100, trust + freshness + impact + audience + viral)
+    confidence_penalty = 14 if any(k in text for k in LOW_CONFIDENCE) else 0
+    score = min(100, max(0, trust + freshness + impact + audience + viral - confidence_penalty))
     reasons = [
         f"trust={trust}", f"freshness={freshness}",
         f"impact={impact}", f"audience={audience}", f"viral={viral}",
+        f"confidence_penalty={confidence_penalty}",
     ]
     story.score = int(score)
     story.score_reasons = reasons
@@ -497,7 +529,8 @@ def main() -> int:
     recent = []
     for story in stories:
         try:
-            if datetime.fromisoformat(story.published_at).timestamp() >= cutoff:
+            if (datetime.fromisoformat(story.published_at).timestamp() >= cutoff
+                    and is_football_story(story)):
                 recent.append(story)
         except Exception:
             pass
