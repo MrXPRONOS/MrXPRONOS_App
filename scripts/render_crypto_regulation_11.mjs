@@ -10,7 +10,7 @@ const sources=['CoinDesk','Cointelegraph','The Block','Decrypt','Blockworks','Be
 if(d.publication!==11||d.is_demo!==qa||d.status!==(qa?'demo':'attributed_press')||
  d.legal_status_confirmed!==false||(!qa&&(d.source_count!==1||d.main?.high_impact!==false)))
  throw Error('Unsafe data or unverified Africa legal status');
-const a=d.primary;
+const a=d.main;
 if(!a||!sources.includes(a.source)||!a.title||!a.region||!a.topic||
   !Number.isFinite(Date.parse(a.published_at)))throw Error('Unverified regulatory source data');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
