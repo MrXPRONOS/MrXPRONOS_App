@@ -1,0 +1,89 @@
+name: TikTok - Connexion et maintenance
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "exchange (code), verify (lecture seule) ou refresh"
+        required: true
+        type: choice
+        default: verify
+        options: [verify, exchange, refresh]
+      check_publish_scope:
+        description: "Vérifier les droits video.publish et privacy options (aucune publication)"
+        type: boolean
+        required: false
+        default: false
+  schedule:
+    # TikTok access tokens expire after 24h; refresh-token persists for 365 days.
+    - cron: '23 4 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/tiktok_auth.py'
+      - 'tests/test_tiktok_auth.py'
+      - '.github/workflows/tiktok-auth.yml'
+      - 'config/tiktok_connection_trigger.txt'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tiktok-token-connection-rotation
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install 'requests>=2.32,<3'
+      - name: OAuth security tests (offline)
+        run: python -m unittest discover -s tests -p test_tiktok_auth.py -v
+
+  connect:
+    needs: tests
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' &&
+       github.event.head_commit.message == 'chore(tiktok): exchange authorization')
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    env:
+      TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
+      TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+      TIKTOK_AUTH_CODE: ${{ secrets.TIKTOK_AUTH_CODE }}
+      TIKTOK_REDIRECT_URI: 'https://mrxpronos.github.io/MrXPRONOS_App/tiktok-callback.html'
+      TIKTOK_ACCESS_TOKEN: ${{ secrets.TIKTOK_ACCESS_TOKEN }}
+      TIKTOK_REFRESH_TOKEN: ${{ secrets.TIKTOK_REFRESH_TOKEN }}
+      TIKTOK_OPEN_ID: ${{ secrets.TIKTOK_OPEN_ID }}
+      TIKTOK_EXPECTED_OPEN_ID: ${{ vars.TIKTOK_EXPECTED_OPEN_ID }}
+      TIKTOK_VERIFY_PUBLISH_SCOPE: ${{ inputs.check_publish_scope && 'true' || 'false' }}
+      GH_PAT_SECRETS: ${{ secrets.GH_PAT_SECRETS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install 'requests>=2.32,<3'
+      - name: Exchange code or securely validate and renew token
+        shell: bash
+        env:
+          EVENT: ${{ github.event_name }}
+          ACTION: ${{ inputs.action || 'verify' }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" = 'schedule' ]; then
+            if [ -z "$TIKTOK_REFRESH_TOKEN" ] || [ -z "$TIKTOK_CLIENT_KEY" ]; then
+              echo 'TIKTOK_NOT_CONNECTED: no refresh possible, initial Login Kit authorization required'
+              exit 0
+            fi
+            ACTION='refresh'
+          elif [ "$EVENT" = 'push' ]; then
+            ACTION='exchange'
+          fi
+          python -m scripts.tiktok_auth --action "$ACTION"
