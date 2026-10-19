@@ -330,6 +330,8 @@ serve(async (req) => {
       meta_description: a.meta_description || "",
       keywords: a.keywords || "",
       faq: a.faq || [],
+      category: a.category || "",
+      tags: Array.isArray(a.tags) ? a.tags.slice(0,12) : [],
       content: a.content || "",
       image_url: a.image_url || "",
       og_image: a.og_image || a.image_url || "",
@@ -354,6 +356,9 @@ serve(async (req) => {
       image_url: c.image_url || "",
       active: c.active !== false,
       keywords: c.keywords || "",
+      category: c.category || "",
+      difficulty: c.difficulty || "",
+      tags: Array.isArray(c.tags) ? c.tags.slice(0,12) : [],
     }));
 
     // BONUS (✅ filtrés par dates + active)
@@ -391,6 +396,8 @@ serve(async (req) => {
     const infosJson = (infos || []).map((i: any) => ({
       title: i.title,
       content: i.content,
+      category: i.category || "",
+      image_url: i.image_url || "",
       date: (i.published_at || i.updated_at || nowIso()),
       active: i.active !== false,
     }));
