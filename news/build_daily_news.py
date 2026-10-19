@@ -79,6 +79,11 @@ EDITORIAL_LOW_VALUE = [
     "classement des", "top 10", "le onze de", "les notes de",
 ]
 
+LIVE_LOW_VALUE = [
+    "direct.", "direct :", "en direct", "live", "compos probables",
+    "composition probable", "conférence de presse", "avant-match", "avant match",
+]
+
 BIG_ENTITIES = [
     "real madrid", "barcelona", "manchester united", "manchester city",
     "liverpool", "arsenal", "chelsea", "bayern", "psg", "paris saint-germain",
@@ -92,12 +97,20 @@ HIGH_IMPACT = [
     "injury", "injured", "suspended", "ban", "banned", "final", "winner",
     "wins", "record", "breaks record", "resigns", "appointed", "coach",
     "manager", "deal", "agrees", "retire", "retires", "return",
+    "officiel", "officialise", "officialisé", "confirme", "confirmé",
+    "signe", "signé", "prolonge", "prolongé", "transfert", "accord",
+    "blessure", "blessé", "forfait", "absent", "opéré", "indisponible",
+    "suspendu", "suspension", "sanction", "limogé", "licencié",
+    "démissionne", "nommé", "retraite", "retour", "record",
+    "victoire", "vainqueur", "doublé", "triplé", "but décisif",
 ]
 
 VIRAL = [
     "shock", "stunning", "dramatic", "controversy", "controversial",
     "red card", "derby", "clasico", "clásico", "record", "historic",
     "late winner", "comeback", "hat-trick", "hat trick",
+    "incroyable", "monstrueux", "énorme", "historique", "polémique",
+    "carton rouge", "remontada", "retournement", "choc", "exploit",
 ]
 
 
@@ -221,7 +234,10 @@ def dedupe(stories: Iterable[Story]) -> list[Story]:
 
 
 def is_football_story(story: Story) -> bool:
-    text = " " + (story.title + " " + story.summary).lower() + " "
+    title = strip_html(story.title).strip()
+    if len(title) < 20 or len(re.findall(r"[A-Za-zÀ-ÿ0-9]+", title)) < 3:
+        return False
+    text = " " + (title + " " + story.summary).lower() + " "
     if any(term in text for term in NON_FOOTBALL):
         return False
     if story.source in {"RMC Sport Football", "Foot Mercato", "So Foot"}:
@@ -263,12 +279,13 @@ def rank_story(story: Story, now: datetime) -> Story:
 
     confidence_penalty = 14 if any(k in text for k in LOW_CONFIDENCE) else 0
     editorial_penalty = 22 if any(k in text for k in EDITORIAL_LOW_VALUE) else 0
+    live_penalty = 14 if any(k in text for k in LIVE_LOW_VALUE) else 0
     score = min(
         100,
         max(
             0,
             trust + freshness + impact + audience + viral
-            - confidence_penalty - editorial_penalty,
+            - confidence_penalty - editorial_penalty - live_penalty,
         ),
     )
     reasons = [
@@ -276,6 +293,7 @@ def rank_story(story: Story, now: datetime) -> Story:
         f"impact={impact}", f"audience={audience}", f"viral={viral}",
         f"confidence_penalty={confidence_penalty}",
         f"editorial_penalty={editorial_penalty}",
+        f"live_penalty={live_penalty}",
     ]
     story.score = int(score)
     story.score_reasons = reasons
