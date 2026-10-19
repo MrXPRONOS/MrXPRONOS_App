@@ -35,3 +35,21 @@
 .mx-revision-choice{display:block;text-align:left;width:100%;margin:8px 0;padding:10px;
  border:1px solid #3b5367;border-radius:8px;background:#202936;color:#fff;cursor:pointer;font:inherit}
 .mx-revision-choice:hover,.mx-revision-choice:focus-visible{outline:2px solid #d6b05b}
+
+
+/* Editorial filters: readable on desktop, stacked inputs on small screens. */
+.mx-cms-list-filters,.mx-media-filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+.mx-cms-list-filters input,.mx-cms-list-filters select,.mx-media-filters input,.mx-media-filters select{
+ box-sizing:border-box;flex:1 1 155px;min-width:0;max-width:100%;padding:10px;
+ background:#0d1621;border:1px solid #566074;color:#f3f5f7;border-radius:9px;font:inherit
+}
+.mx-cms-list-filters input[type="search"],.mx-media-filters input[type="search"]{flex:2 1 220px}
+.mx-cms-list-filters :focus-visible,.mx-media-filters :focus-visible{
+ outline:2px solid #d6b05b;outline-offset:2px
+}
+.mx-filter-count{flex-basis:100%;margin:0;font-size:12px;line-height:1.5}
+@media(max-width:600px){
+ .mx-cms-list-filters input,.mx-cms-list-filters select,.mx-media-filters input,.mx-media-filters select{
+  flex:1 1 100%;width:100%
+ }
+}

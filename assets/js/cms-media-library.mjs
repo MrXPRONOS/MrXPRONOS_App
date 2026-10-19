@@ -84,55 +84,110 @@ export async function uploadCmsFile(sb,file,alt="",caption=""){
     throw error;
   }
 }
-export async function listCmsMedia(sb){
+export async function listCmsMedia(sb,{offset=0,pageSize=48}={}){
+  if(!Number.isInteger(offset)||offset<0||!Number.isInteger(pageSize)||pageSize<1||pageSize>100)
+    throw Error("Pagination média invalide");
   const {data,error}=await sb.from("cms_media").select(
     "id,kind,storage_path,mime_type,alt_text,caption,thumbnail_path,created_at,original_name"
-  ).order("created_at",{ascending:false}).limit(80);
+  ).order("created_at",{ascending:false}).range(offset,offset+pageSize-1);
   if(error)throw error;
-  return (data||[]).map(row=>{
-    const bucket=sb.storage.from(BUCKET);
-    return {...row,url:bucket.getPublicUrl(row.storage_path).data.publicUrl,
-      thumbUrl:row.thumbnail_path?bucket.getPublicUrl(row.thumbnail_path).data.publicUrl:null};
+  const bucket=sb.storage.from(BUCKET);
+  return (data||[]).map(row=>({
+    ...row,url:bucket.getPublicUrl(row.storage_path).data.publicUrl,
+    thumbUrl:row.thumbnail_path?bucket.getPublicUrl(row.thumbnail_path).data.publicUrl:null
+  }));
+}
+
+export function filterCmsMedia(items,{search="",kind="all"}={}){
+  const norm=x=>String(x??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+  const query=norm(search);
+  return (Array.isArray(items)?items:[]).filter(item=>{
+    if(!item||typeof item!=="object")return false;
+    if(kind!=="all"&&item.kind!==kind)return false;
+    const text=[item.original_name,item.alt_text,item.caption,item.mime_type].map(norm).join(" ");
+    return !query||text.includes(query);
   });
 }
-export function mountCmsMediaPicker(sb,container,onSelect){
+
+export function mountCmsMediaPicker(sb,container,onSelect,{defaultKind="all"}={}){
   const holder=el("section","","mx-cms-library"),status=el("p","","muted");
   const heading=el("h4","Médiathèque");
   const alt=el("input"),caption=el("input"),file=el("input"),upload=el("button","Importer"),
     refresh=el("button","Actualiser"),grid=el("div","","mx-media-grid");
+  const browse=el("div","","mx-media-filters"),search=el("input"),kind=el("select"),
+    more=el("button","Charger les médias suivants");
+  const pageSize=48;
+  let loaded=[],hasMore=false,loading=false,generation=0;
   alt.placeholder="Description de l’image (obligatoire)";
   alt.setAttribute("aria-label","Texte alternatif");
   caption.placeholder="Légende facultative";
   file.type="file";file.accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm";
-  upload.type="button";refresh.type="button";
-  holder.append(heading,alt,caption,file,upload,refresh,status,grid);container.appendChild(holder);
-  async function reload(){
-    grid.replaceChildren();status.textContent="Chargement des médias…";
+  search.type="search";search.placeholder="Rechercher parmi les médias chargés";
+  search.setAttribute("aria-label","Rechercher des médias");
+  kind.setAttribute("aria-label","Filtrer les médias");
+  for(const [value,label] of [["all","Images et vidéos"],["image","Images uniquement"],["video","Vidéos uniquement"]]){
+    const option=el("option",label);option.value=value;kind.appendChild(option);
+  }
+  kind.value=["all","image","video"].includes(defaultKind)?defaultKind:"all";
+  upload.type="button";refresh.type="button";more.type="button";
+  more.hidden=true;
+  browse.append(search,kind);
+  holder.append(heading,alt,caption,file,upload,refresh,browse,status,grid,more);
+  container.appendChild(holder);
+  function render(){
+    const filtered=filterCmsMedia(loaded,{search:search.value,kind:kind.value});
+    grid.replaceChildren();
+    for(const m of filtered){
+      const item=el("button","","mx-media-item");item.type="button";
+      if(m.kind==="image"&&isSafeCmsUrl(m.thumbUrl||m.url,"image")){
+        const img=document.createElement("img");img.src=m.thumbUrl||m.url;
+        img.alt=m.alt_text||m.original_name;img.loading="lazy";item.appendChild(img);
+      }else item.appendChild(el("span","Vidéo"));
+      item.appendChild(el("span",m.caption||m.original_name));
+      item.addEventListener("click",()=>onSelect?.(m));
+      grid.appendChild(item);
+    }
+    status.textContent=`${filtered.length} résultat(s) parmi ${loaded.length} média(s) chargés. ${hasMore?"D’autres médias peuvent être chargés.":"Fin des médias disponibles."}`;
+    more.hidden=!hasMore;
+    more.disabled=loading;
+  }
+  async function fetchNext(){
+    if(loading||!hasMore)return;
+    loading=true;more.disabled=true;
+    const current=generation,offset=loaded.length;
     try{
-      const rows=await listCmsMedia(sb);
-      status.textContent=`${rows.length} média(s) disponibles`;
-      for(const m of rows){
-        const item=el("button","","mx-media-item");item.type="button";
-        if(m.kind==="image"&&isSafeCmsUrl(m.thumbUrl||m.url,"image")){
-          const img=document.createElement("img");img.src=m.thumbUrl||m.url;img.alt=m.alt_text||m.original_name;img.loading="lazy";
-          item.appendChild(img);
-        }else item.appendChild(el("span","Vidéo"));
-        item.appendChild(el("span",m.caption||m.original_name));
-        item.addEventListener("click",()=>onSelect?.(m));
-        grid.appendChild(item);
+      const rows=await listCmsMedia(sb,{offset,pageSize});
+      if(current!==generation)return;
+      loaded.push(...rows);
+      hasMore=rows.length===pageSize;
+    }catch(error){
+      if(current===generation)status.textContent="Chargement impossible : "+error.message;
+      return;
+    }finally{
+      if(current===generation){
+        loading=false;
+        const errorText=status.textContent.startsWith("Chargement impossible")?status.textContent:null;
+        render();
+        if(errorText)status.textContent=errorText;
       }
-    }catch(error){status.textContent="Chargement impossible : "+error.message;}
+    }
+  }
+  async function reload(){
+    generation++;loaded=[];hasMore=true;loading=false;
+    grid.replaceChildren();status.textContent="Chargement des médias…";
+    await fetchNext();
   }
   upload.addEventListener("click",async()=>{
     upload.disabled=true;status.textContent="Vérification et import du média…";
     try{
       const m=await uploadCmsFile(sb,file.files?.[0],alt.value,caption.value);
-      status.textContent="Média importé : "+m.original_name;
       file.value="";await reload();onSelect?.(m);
     }catch(error){status.textContent="Échec : "+error.message;}
     finally{upload.disabled=false;}
   });
   refresh.addEventListener("click",()=>void reload());
+  more.addEventListener("click",()=>void fetchNext());
+  for(const control of [search,kind])control.addEventListener("input",render);
   void reload();
   return {refresh:reload,root:holder};
 }
@@ -147,6 +202,6 @@ export function mountCmsMediaFieldPicker(sb,input,{onlyKind="image"}={}){
     if(media.kind!==onlyKind)return;
     input.value=media.url;input.dispatchEvent(new Event("input",{bubbles:true}));
     panel.hidden=true;
-  });
+  },{defaultKind:onlyKind});
   return library;
 }
