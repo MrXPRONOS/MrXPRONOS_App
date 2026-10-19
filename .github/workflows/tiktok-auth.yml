@@ -21,6 +21,8 @@ on:
     paths:
       - 'scripts/tiktok_auth.py'
       - 'tests/test_tiktok_auth.py'
+      - 'tests/test_tiktok_post.py'
+      - 'scripts/post_shorts_video.py'
       - '.github/workflows/tiktok-auth.yml'
       - 'config/tiktok_connection_trigger.txt'
 
@@ -42,7 +44,7 @@ jobs:
           python-version: '3.12'
       - run: pip install 'requests>=2.32,<3'
       - name: OAuth security tests (offline)
-        run: python -m unittest discover -s tests -p test_tiktok_auth.py -v
+        run: python -m unittest discover -s tests -p 'test_tiktok_*.py' -v
       - name: Credentials availability audit (values never logged)
         shell: bash
         env:
