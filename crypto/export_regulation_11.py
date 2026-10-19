@@ -158,6 +158,8 @@ def build(article, now=None, demo=False):
 
 def validate_real(d,now=None):
     now=now or datetime.now(UTC)
+    if d.get("qa_only") is True:
+        raise ValueError("Fictional QA fixture forbidden in real delivery")
     if d.get("publication")!=11 or d.get("status")!="attributed_press" or d.get("is_demo") is not False:
         raise ValueError("Only real source-attributed #11 can pass")
     a=d.get("main")
