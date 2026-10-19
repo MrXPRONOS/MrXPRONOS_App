@@ -30,7 +30,7 @@ concurrency:
 env:
   PYTHON_VERSION: "3.12"
   VIDEO_FILE: "daily_pronos_coupon_short.mp4"
-  POST_PLATFORMS: "facebook,youtube,instagram,threads,tiktok"
+  POST_PLATFORMS: "facebook,youtube,instagram,threads" # TikTok awaits creator consent, app audit, and platform-policy review
 
 jobs:
   publish:
