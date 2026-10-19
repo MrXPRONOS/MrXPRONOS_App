@@ -75,7 +75,7 @@ def main():
                     nav_items = page.locator("#bottom-nav .bottom-nav-item")
                     if nav_items.count() != 5:
                         failures.append(f"{width}px: expected 5 mobile nav items, got {nav_items.count()}")
-                if not measurements["logo"] or not measurements["heading"] or measurements["tabs"] != 3:
+                if not measurements["logo"] or not measurements["heading"] or measurements["tabs"] != 4:
                     failures.append(f"{width}px: missing essential component")
                 if width == 390:
                     for category in ("pro", "vip", "simple"):
