@@ -1,0 +1,96 @@
+name: Actu Crypto #10 - Automatic official source safe QA
+
+on:
+  push:
+    branches: [feature/crypto-10-official-auto-publish]
+    paths:
+      - 'crypto/regulation_10_auto.py'
+      - 'crypto/test_regulation_10_auto.py'
+      - 'crypto/quality_regulation_10_auto_demo.py'
+      - 'crypto/production_live_v1.py'
+      - 'crypto/test_production_live_v1.py'
+      - 'scripts/render_crypto_regulation_auto_v2.mjs'
+      - '.github/workflows/actu-crypto-production-live.yml'
+      - '.github/workflows/actu-crypto-reg10-auto-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install free dependencies for crypto production
+        run: |
+          python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6.0,<7'
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: All crypto regression tests, including automatic regulator validation
+        run: |
+          python -m compileall -q crypto
+          python -m unittest \
+            crypto.test_final_live_v2 \
+            crypto.test_quality_audit_10 \
+            crypto.test_publish_crypto_1_5 \
+            crypto.test_losers_v2 \
+            crypto.test_alerts_v2 \
+            crypto.test_fear_v2 \
+            crypto.test_dominance_v2 \
+            crypto.test_weekly_v2 \
+            crypto.test_breaking_v2 \
+            crypto.test_exchanges_v2 \
+            crypto.test_regulation_v2 \
+            crypto.test_regulation_10_auto \
+            crypto.test_production_live_v1 -v
+          node --check scripts/render_crypto_regulation_auto_v2.mjs
+          node scripts/test_crypto_poster_format.mjs
+      - name: Render fake/clearly watermarked #10 design QA without Telegram
+        run: |
+          python -m crypto.quality_regulation_10_auto_demo
+          node scripts/render_crypto_regulation_auto_v2.mjs --qa
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          p=Path('crypto/generated/test/regulation_10_auto_qa.png')
+          assert p.stat().st_size > 10000
+          with Image.open(p) as im:
+              assert im.size==(1080,1350) and im.format=='PNG'
+          print('REG10_QA_POSTER_1080x1350_OK')
+          PY
+      - name: Real official RSS/HTML read-only probe, NO TELEGRAM
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from crypto.production_seed_v1 import read_state
+          from crypto import regulation_10_auto as a
+          d=a.collect(read_state())
+          path=Path('crypto/generated/test/reg10_official_readonly_result.json')
+          if d is None:
+              path.write_text(json.dumps({'status':'no_qualifying_current_official_news'},indent=2)+'\n')
+              print('REG10_OFFICIAL_READONLY_NO_NEWS')
+          else:
+              a.validate_auto(d)
+              path.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n')
+              print('REG10_OFFICIAL_READONLY_VERIFIED',d['primary']['source'],d['fingerprint'])
+          PY
+      - name: Archive non-publishable QA and real-source check
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mr-xpronos-10-institutional-automatic-qa
+          path: |
+            crypto/generated/test/regulation_10_auto_qa.png
+            crypto/generated/test/regulation_10_auto_qa.json
+            crypto/generated/test/reg10_official_readonly_result.json
+          retention-days: 20
+          if-no-files-found: warn

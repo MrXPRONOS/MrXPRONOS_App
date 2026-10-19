@@ -43,5 +43,6 @@ jobs:
             crypto.test_breaking_v2 \
             crypto.test_exchanges_v2 \
             crypto.test_regulation_v2 \
+            crypto.test_regulation_10_auto \
             crypto.test_production_live_v1 -v
           node scripts/test_crypto_poster_format.mjs
