@@ -1,6 +1,6 @@
 import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
 import { mountCmsBlockEditor } from "./cms-block-editor.mjs";
-import { mountCmsMediaFieldPicker } from "./cms-media-library.mjs";
+import { mountCmsMediaFieldPicker, mountCmsMediaPicker } from "./cms-media-library.mjs";
 import { supabaseUrl, supabaseAnonKey } from "./config.js";
 import "./loading-ui.js";
 
@@ -20,7 +20,7 @@ const premiumAdminLoading = (kind = "admin", count = 3) =>
   window.MXLoading?.render?.(kind, count) || '<div class="muted">Chargement…</div>';
 
 
-const TAB_NAMES = ["overview","pronostics","push","articles","conseils","bonus","infos","vip","health","audit"];
+const TAB_NAMES = ["overview","pronostics","push","articles","conseils","bonus","infos","media","vip","health","audit"];
 const loadedTabs = new Set();
 let publishBusy = false;
 
@@ -70,6 +70,7 @@ const TAB_LOADERS = {
   conseils: renderCmsConseils,
   bonus: renderBonus,
   infos: renderInfos,
+  media: renderMediaTab,
   vip: renderVip,
   health: renderHealth,
   audit: renderAudit,
@@ -966,6 +967,25 @@ async function renderInfos() {
     loadedTabs.delete("infos");
     await renderInfos();
     loadedTabs.add("infos");
+  });
+}
+
+// -----------------------------
+// CMS MEDIA LIBRARY
+// -----------------------------
+async function renderMediaTab(){
+  const root=$("tab-media");if(!root)return;
+  root.replaceChildren();
+  const intro=document.createElement("div");
+  intro.className="card";
+  const h=document.createElement("h3");h.textContent="Médiathèque";
+  const p=document.createElement("p");p.className="muted";
+  p.textContent="Importer, rechercher et réutiliser les photos ou vidéos dans les publications. Les contenus restent privés jusqu'à la publication GitHub Pages.";
+  const selected=document.createElement("p");selected.setAttribute("role","status");
+  intro.append(h,p,selected);root.appendChild(intro);
+  mountCmsMediaPicker(sb,intro,media=>{
+    selected.textContent="Lien du média sélectionné : "+media.url;
+    if(navigator.clipboard?.writeText)void navigator.clipboard.writeText(media.url).catch(()=>{});
   });
 }
 
