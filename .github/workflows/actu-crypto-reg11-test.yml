@@ -7,6 +7,7 @@ on:
     paths:
       - 'crypto/export_regulation_11.py'
       - 'crypto/test_regulation_11.py'
+      - 'crypto/quality_regulation_11_real_fixture.py'
       - 'crypto/send_regulation_11_test.py'
       - 'scripts/render_crypto_regulation_11.mjs'
       - '.github/workflows/actu-crypto-reg11-test.yml'
@@ -70,6 +71,19 @@ jobs:
           with Image.open(p) as im: assert im.size==(1080,1350)
           print('REG11_PREMIUM_DEMO_VERIFIED_1080X1350')
           PY
+      - name: Verify REAL-layout styling with entirely fictitious QA source
+        run: |
+          python -m crypto.quality_regulation_11_real_fixture
+          node scripts/render_crypto_regulation_11.mjs --qa-real
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          p=Path('crypto/generated/test/regulation_11_real_fixture_QA.png')
+          with Image.open(p) as img:
+              assert img.size==(1080,1350) and img.format=='PNG'
+          assert p.stat().st_size>10_000
+          print('REG11_REAL_LAYOUT_QA_WATERMARKED_VERIFIED')
+          PY
       - name: Archive DEMO without production publication
         uses: actions/upload-artifact@v4
         with:
@@ -77,6 +91,8 @@ jobs:
           path: |
             crypto/generated/test/regulation_11_demo.json
             crypto/generated/test/regulation_11_demo.png
+            crypto/generated/test/regulation_11_real_fixture.json
+            crypto/generated/test/regulation_11_real_fixture_QA.png
           retention-days: 30
           if-no-files-found: error
       - name: Collect current Africa regulation news from eight free RSS
