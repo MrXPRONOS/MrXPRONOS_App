@@ -1,0 +1,79 @@
+name: Snapchat - Prepare Spotlight (manual upload only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_url:
+        description: "URL MP4 publique du dossier Supabase videos/snapchat/ (sans publicités de paris)"
+        required: true
+        type: string
+      title:
+        description: "Titre / thème football sans coupon, bookmakers, codes promo ou liens"
+        required: true
+        type: string
+      review_confirmation:
+        description: "Tu dois avoir regardé toute la vidéo et validé qu'elle est sans contenus de paris"
+        required: true
+        type: choice
+        default: not_reviewed
+        options:
+          - not_reviewed
+          - football-only-reviewed-no-betting
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/snapchat_spotlight_pack.py'
+      - 'tests/test_snapchat_spotlight.py'
+      - '.github/workflows/snapchat-spotlight-prepare.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: snapchat-spotlight-prepare-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    name: Safe packaging tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install lightweight HTTP client
+        run: python -m pip install 'requests>=2.31,<3'
+      - name: Validate Python syntax
+        run: python -m py_compile scripts/snapchat_spotlight_pack.py
+      - name: Unit tests and actual FFmpeg test render
+        run: python -m unittest discover -s tests -p test_snapchat_spotlight.py -v
+
+  prepare:
+    name: Export ready-to-upload Spotlight
+    needs: tests
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'requests>=2.31,<3'
+      - name: Prepare, validate and encode non-betting football video
+        env:
+          SOURCE_URL: ${{ inputs.source_url }}
+          VIDEO_TITLE: ${{ inputs.title }}
+          HUMAN_REVIEW: ${{ inputs.review_confirmation }}
+        run: |
+          set -euo pipefail
+          python -m scripts.snapchat_spotlight_pack             --source-url "$SOURCE_URL"             --title "$VIDEO_TITLE"             --review-confirmation "$HUMAN_REVIEW"             --out-dir snapchat_ready
+      - name: Downloadable package (NO post sent to Snapchat)
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapchat-spotlight-review-and-upload
+          path: snapchat_ready/
+          if-no-files-found: error
+          retention-days: 14
