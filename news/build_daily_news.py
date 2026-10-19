@@ -44,9 +44,9 @@ FPS = 30
 UTC = timezone.utc
 
 SOURCES = [
-    ("BBC Sport Football", "https://feeds.bbci.co.uk/sport/football/rss.xml", 15),
-    ("The Guardian Football", "https://www.theguardian.com/football/rss", 14),
-    ("Sky Sports", "https://www.skysports.com/rss/12040", 11),
+    ("RMC Sport Football", "https://rmcsport.bfmtv.com/rss/football/", 15),
+    ("Foot Mercato", "https://www.footmercato.net/flux-rss", 14),
+    ("So Foot", "https://www.sofoot.com/rss", 12),
 ]
 
 NON_FOOTBALL = [
@@ -68,6 +68,15 @@ FOOTBALL_HINTS = [
 LOW_CONFIDENCE = [
     "gossip", "rumour", "rumor", "linked with", "target", "could sign",
     "may sign", "reportedly", "reports suggest",
+    "rumeur", "serait", "pourrait", "ciblé", "cible", "piste", "intéressé",
+    "selon la presse", "mercato :",
+]
+
+EDITORIAL_LOW_VALUE = [
+    "pourquoi ", "analyse", "décryptage", "chronique", "opinion", "édito",
+    "notre avis", "les enseignements", "ce qu'il faut retenir", "ce qu’il faut retenir",
+    "talking points", "barney ronay", "weekend’s action", "weekend's action",
+    "classement des", "top 10", "le onze de", "les notes de",
 ]
 
 BIG_ENTITIES = [
@@ -215,7 +224,7 @@ def is_football_story(story: Story) -> bool:
     text = " " + (story.title + " " + story.summary).lower() + " "
     if any(term in text for term in NON_FOOTBALL):
         return False
-    if story.source in {"BBC Sport Football", "The Guardian Football"}:
+    if story.source in {"RMC Sport Football", "Foot Mercato", "So Foot"}:
         return True
     return any(term in text for term in FOOTBALL_HINTS)
 
@@ -253,11 +262,20 @@ def rank_story(story: Story, now: datetime) -> Story:
     viral = min(15, 3 + viral_hits * 4)
 
     confidence_penalty = 14 if any(k in text for k in LOW_CONFIDENCE) else 0
-    score = min(100, max(0, trust + freshness + impact + audience + viral - confidence_penalty))
+    editorial_penalty = 22 if any(k in text for k in EDITORIAL_LOW_VALUE) else 0
+    score = min(
+        100,
+        max(
+            0,
+            trust + freshness + impact + audience + viral
+            - confidence_penalty - editorial_penalty,
+        ),
+    )
     reasons = [
         f"trust={trust}", f"freshness={freshness}",
         f"impact={impact}", f"audience={audience}", f"viral={viral}",
         f"confidence_penalty={confidence_penalty}",
+        f"editorial_penalty={editorial_penalty}",
     ]
     story.score = int(score)
     story.score_reasons = reasons
