@@ -1,0 +1,79 @@
+name: Actu Crypto - LIVE READ-ONLY #01-10 integration tests
+
+on:
+  push:
+    branches: [test/actu-crypto-live-readonly-20261019]
+    paths:
+      - 'crypto/live_readonly_audit.py'
+      - '.github/workflows/actu-crypto-live-readonly-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actu-crypto-live-readonly-integration
+  cancel-in-progress: false
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 32
+    env:
+      ACTU_CRYPTO_CHAT_ID: ${{ secrets.ACTU_CRYPTO_CHAT_ID || vars.ACTU_CRYPTO_CHAT_ID }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_ACTU_FOOT_BOT_TOKEN: ${{ secrets.TELEGRAM_ACTU_FOOT_BOT_TOKEN }}
+      ACTU_FOOT_BOT_TOKEN: ${{ secrets.ACTU_FOOT_BOT_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      COINGECKO_DEMO_API_KEY: ${{ secrets.COINGECKO_DEMO_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install free public API and graphic dependencies
+        run: |
+          python -m pip install 'requests>=2.31,<3' 'Pillow>=10,<12' 'feedparser>=6.0,<7'
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Run all offline crypto suites against current main source
+        run: |
+          python -m compileall -q crypto
+          python -m unittest \
+            crypto.test_final_live_v2 \
+            crypto.test_quality_audit_10 \
+            crypto.test_publish_crypto_1_5 \
+            crypto.test_losers_v2 \
+            crypto.test_alerts_v2 \
+            crypto.test_fear_v2 \
+            crypto.test_dominance_v2 \
+            crypto.test_weekly_v2 \
+            crypto.test_breaking_v2 \
+            crypto.test_exchanges_v2 \
+            crypto.test_regulation_v2 \
+            crypto.test_production_live_v1 -v
+          node scripts/test_crypto_poster_format.mjs
+      - name: Probe all 10 real data sources and render eligible premium PNGs WITHOUT Telegram POST
+        run: python -m crypto.live_readonly_audit
+      - name: Upload factual status report and real validated images
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: actu-crypto-real-10-readonly-test-report
+          path: |
+            crypto/generated/test/live_readonly_audit_20261019.json
+            crypto/generated/test/prices_v2.png
+            crypto/generated/test/gainers_v2.png
+            crypto/generated/test/losers_v2.png
+            crypto/generated/test/alerts_v2.png
+            crypto/generated/test/fear_v2.png
+            crypto/generated/test/dominance_v2.png
+            crypto/generated/test/weekly_v2.png
+            crypto/generated/test/breaking_v2.png
+            crypto/generated/test/exchanges_v2.png
+            crypto/generated/test/regulation_v2_candidate.png
+          if-no-files-found: warn
+          retention-days: 14
