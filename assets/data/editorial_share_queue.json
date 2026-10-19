@@ -4,7 +4,7 @@
     "kind": "article",
     "title": "Tout Puissant Mazembe vs Club Africain : fiche match BSD V2",
     "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-603727/",
-    "source_date": "2026-10-18T05:41:51.669224+00:00",
+    "source_date": "2026-10-19T05:41:42.757869+00:00",
     "visual_variant": "v1",
     "image": "assets/images/editorial/match-bsd-match-603727-a032169d-social.webp",
     "story_image": "assets/images/editorial/match-bsd-match-603727-a032169d-story.webp",
@@ -26,7 +26,7 @@
     "kind": "article",
     "title": "Leeds United vs Manchester United : fiche match BSD V2",
     "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-209600/",
-    "source_date": "2026-10-18T05:41:51.669224+00:00",
+    "source_date": "2026-10-19T05:41:42.757869+00:00",
     "visual_variant": "v2",
     "image": "assets/images/editorial/match-bsd-match-209600-e76095b4-social.webp",
     "story_image": "assets/images/editorial/match-bsd-match-209600-e76095b4-story.webp",
@@ -48,7 +48,7 @@
     "kind": "article",
     "title": "Club Atlético Belgrano vs River Plate : fiche match BSD V2",
     "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-223816/",
-    "source_date": "2026-10-18T05:41:51.669224+00:00",
+    "source_date": "2026-10-19T05:41:42.757869+00:00",
     "visual_variant": "v2",
     "image": "assets/images/editorial/match-bsd-match-223816-6cce8ec6-social.webp",
     "story_image": "assets/images/editorial/match-bsd-match-223816-6cce8ec6-story.webp",
@@ -70,7 +70,7 @@
     "kind": "article",
     "title": "Real Sociedad vs Fútbol Club Barcelona : fiche match BSD V2",
     "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-215282/",
-    "source_date": "2026-10-18T05:41:51.669224+00:00",
+    "source_date": "2026-10-19T05:41:42.757869+00:00",
     "visual_variant": "v2",
     "image": "assets/images/editorial/match-bsd-match-215282-490b21d3-social.webp",
     "story_image": "assets/images/editorial/match-bsd-match-215282-490b21d3-story.webp",
@@ -92,7 +92,7 @@
     "kind": "article",
     "title": "Inter Lagos FC vs Nasarawa United : fiche match BSD V2",
     "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-604582/",
-    "source_date": "2026-10-18T05:41:51.669224+00:00",
+    "source_date": "2026-10-19T05:41:42.757869+00:00",
     "visual_variant": "v2",
     "image": "assets/images/editorial/match-bsd-match-604582-6c34a610-social.webp",
     "story_image": "assets/images/editorial/match-bsd-match-604582-6c34a610-story.webp",
@@ -243,7 +243,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-223822-887dd983-social.jpg"
   },
   {
@@ -265,7 +265,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-214619-68e134a2-social.jpg"
   },
   {
@@ -287,7 +287,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-601222-51f2e55b-social.jpg"
   },
   {
@@ -309,7 +309,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-601341-30a97867-social.jpg"
   },
   {
@@ -331,7 +331,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-601406-b72112c1-social.jpg"
   },
   {
@@ -353,7 +353,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-601289-c73982ff-social.jpg"
   },
   {
@@ -1530,7 +1530,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-606060-1baa509e-social.jpg"
   },
   {
@@ -1552,7 +1552,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-602475-e57df5aa-social.jpg"
   },
   {
@@ -1574,7 +1574,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-222842-00aee2fa-social.jpg"
   },
   {
@@ -2751,7 +2751,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-601031-b30857f3-social.jpg"
   },
   {
@@ -4033,7 +4033,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-214085-489d3aaa-social.jpg"
   },
   {
@@ -4055,7 +4055,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-214088-e32ef30f-social.jpg"
   },
   {
@@ -4077,7 +4077,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-602615-133d5303-social.jpg"
   },
   {
@@ -5254,7 +5254,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-606058-a1edb3f5-social.jpg"
   },
   {
@@ -6326,7 +6326,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8976fab8fbea7207e0044a18",
@@ -6347,7 +6347,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d697305103410034bcb0ae6a",
@@ -6368,7 +6368,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f9b58bd1ad5ddfbb8a7c25d2",
@@ -6389,7 +6389,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "87136b84aeb45dff63f8539d",
@@ -6410,7 +6410,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "76a2fd69d0079fb664c189b0",
@@ -6431,7 +6431,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3be81cbc0dc3cab019c2e336",
@@ -6452,7 +6452,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "425d64147f538d3a4954fb70",
@@ -6473,7 +6473,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "dc1d54331ccfd79ef083a4fe",
@@ -6494,7 +6494,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3768e8b2da46fb46326332eb",
@@ -6515,7 +6515,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "675f23548a0b285a517e6422",
@@ -6536,7 +6536,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2daf30d263bef3a124fdf9a6",
@@ -6557,7 +6557,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c7201af3659761a153ac6928",
@@ -6578,7 +6578,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e9c97682cf056f0099a0a582",
@@ -6599,7 +6599,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "105a3ef12a1939c3b3a1da9c",
@@ -6620,7 +6620,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f10ccbffcfaadc8d064ec69a",
@@ -6641,7 +6641,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e5ef2191f205be4892b9b793",
@@ -6662,7 +6662,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "906e84cd9c21153e4c431dcf",
@@ -6683,7 +6683,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8af3f13155b75519d0319601",
@@ -6704,7 +6704,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ae256ed2d7d6c35391f64698",
@@ -6725,7 +6725,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "029591e24314431831e5a3d2",
@@ -6746,7 +6746,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "99e7c71343eaf348d9c5a813",
@@ -6767,7 +6767,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e1ae0156f552e3b575456384",
@@ -6956,7 +6956,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-10177-079d0477-social.jpg"
   },
   {
@@ -6978,7 +6978,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-223791-ba830ea6-social.jpg"
   },
   {
@@ -7000,7 +7000,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-10179-a843e40e-social.jpg"
   },
   {
@@ -7022,7 +7022,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-223785-732d0114-social.jpg"
   },
   {
@@ -7044,7 +7044,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false,
+    "retired": true,
     "instagram_image": "assets/images/editorial/match-bsd-match-211727-ce79c969-social.jpg"
   },
   {
@@ -7066,7 +7066,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4dea8ab946c5a0e65eb59969",
@@ -7087,7 +7087,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d70cc3da2ac718fd66802a0c",
@@ -7108,7 +7108,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "33edc2ac97d60057fd2b245b",
@@ -7129,7 +7129,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d95f462fac1ee2bc3ef26c91",
@@ -7150,7 +7150,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3a3988add5a4288ed707cb28",
@@ -7171,7 +7171,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6d8100ea8c7787d728a79e16",
@@ -7192,7 +7192,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5a5df44b5effbeb43d5dca37",
@@ -7213,7 +7213,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9a52795b2908f1d254f9e650",
@@ -7234,7 +7234,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0947fca4e6756ce0fe429c04",
@@ -7255,7 +7255,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "875121ee91e83d688cc4a12c",
@@ -7276,7 +7276,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "668e2d46ead3117c1b65905c",
@@ -7297,7 +7297,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c6607373939e6468c812211d",
@@ -7318,7 +7318,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7d55ce3300fd893c907a482c",
@@ -7339,7 +7339,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7dd03145cdde22f8574f28f4",
@@ -7360,7 +7360,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2d8f100ad1a5ab5e0b8d1f8f",
@@ -7381,7 +7381,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2a4837be522edea854c39156",
@@ -7402,7 +7402,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b2751d52f93ecd9ac0742aca",
@@ -7423,7 +7423,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5f5df93868fb2d7c57ceefaf",
@@ -7444,7 +7444,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6e6e6291bbe7d3e394628664",
@@ -7465,7 +7465,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "724f764e04cab44a115a50d1",
@@ -7486,7 +7486,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "27d18120f938b0768eddc419",
@@ -7507,7 +7507,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6eff861080233708f0840366",
@@ -7528,7 +7528,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4533aebe77345a208e20e93f",
@@ -7549,7 +7549,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0ff29ab6e014a235fbd866d6",
@@ -7570,7 +7570,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9032f65f9d7ed50f5ba3e768",
@@ -7591,7 +7591,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f91345eebe67ae1b63269d7f",
@@ -7612,7 +7612,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4b59dc77afe52a2c46a0abbe",
@@ -7633,7 +7633,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ecca3d02faf6da6f912593ed",
@@ -7654,7 +7654,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1d3652eb898aa3499afbe879",
@@ -7675,7 +7675,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ca408e771334f9e85d0863a2",
@@ -7696,7 +7696,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4a76d2deaf4ef6d7aa524c75",
@@ -7717,7 +7717,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b1b099c0d19084b2a758a611",
@@ -7738,7 +7738,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6de03ec886842a24e2fd84f4",
@@ -7759,7 +7759,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "faeceed8f399515948c0a032",
@@ -7780,7 +7780,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d913c523e7e189974d3b99ea",
@@ -7801,7 +7801,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "de3fc27f937c7b0100b27019",
@@ -7822,7 +7822,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cfa8f8029515e545bd825355",
@@ -7843,7 +7843,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1b005490a889851beaa399c9",
@@ -7864,7 +7864,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d17889f6a7fb656c4493d9ae",
@@ -7885,7 +7885,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "80674dc8d357be90e921face",
@@ -7906,7 +7906,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "50e9a29253013b99e954831c",
@@ -7927,7 +7927,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0ca911199c9976c3fe727e79",
@@ -7948,7 +7948,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6e1773a6801f3717368c29ae",
@@ -7969,7 +7969,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7842d9648a4efccbbf44812b",
@@ -7990,7 +7990,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f11f06e46be54ef9c7a0898c",
@@ -8011,7 +8011,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2f19514dc869d5a14c8434fd",
@@ -8032,7 +8032,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3ff580f65588a928ec67ae22",
@@ -8053,7 +8053,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e70cbc22399e231be30ec80d",
@@ -8074,7 +8074,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c65ab0ece1a651c5a187227b",
@@ -8095,7 +8095,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "334738669cd18bf77600e81a",
@@ -8116,7 +8116,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b578dd1b6eff37f41bc0a66a",
@@ -8326,7 +8326,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "10dfd3bd0d32d73c47aebf17",
@@ -8347,7 +8347,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9e7ca1b68fe21d1ab246adf9",
@@ -8368,7 +8368,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "93b84c0114a08b5af63322b9",
@@ -8389,7 +8389,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6ced8bba2b7e762cde26d51f",
@@ -8410,7 +8410,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e5daa94750de7b69dcb24466",
@@ -8431,7 +8431,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "fefdeeb6e8c2243110018083",
@@ -8452,7 +8452,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ab42e27b755781428a2c250e",
@@ -8473,7 +8473,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "043776091b150e7dd9dbaf85",
@@ -8494,7 +8494,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8e7d43c590c17115187bda63",
@@ -8536,7 +8536,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f8ca9226bd22a0e676447f81",
@@ -8557,7 +8557,7 @@
     },
     "source_date": "2026-10-07T04:56:41.189959Z",
     "visual_variant": "v3",
-    "retired": false
+    "retired": true
   },
   {
     "id": "2ab33c9912a143f0383c6661",
@@ -8578,7 +8578,7 @@
     },
     "source_date": "2026-10-06T05:27:48.357904Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "9f2c79a3d4518034186c3ea6",
@@ -8599,7 +8599,7 @@
     },
     "source_date": "2026-10-05T04:40:51.324564Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "499a75931ea8d52dd4bfbe84",
@@ -8620,7 +8620,7 @@
     },
     "source_date": "2026-10-04T04:54:18.429412Z",
     "visual_variant": "v3",
-    "retired": false
+    "retired": true
   },
   {
     "id": "4cf2b75f4d67b5148ce1f016",
@@ -8641,7 +8641,7 @@
     },
     "source_date": "2026-10-03T04:23:34.560683Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "45e93b1fb12b6d9b50c0fafb",
@@ -8662,7 +8662,7 @@
     },
     "source_date": "2026-10-02T04:39:38.433544Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "97366f7dffcd2523df2cf05b",
@@ -8683,7 +8683,7 @@
     },
     "source_date": "2026-10-01T04:49:10.850599Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "faba0b84caa0b4413a511577",
@@ -8704,7 +8704,7 @@
     },
     "source_date": "2026-09-30T04:36:54.388673Z",
     "visual_variant": "v2",
-    "retired": false
+    "retired": true
   },
   {
     "id": "73302263ed4262ce2d1c2305",
@@ -8725,7 +8725,7 @@
     },
     "source_date": "2026-09-29T04:50:45.246776Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "88235f46ead67bc925c87407",
@@ -8746,7 +8746,7 @@
     },
     "source_date": "2026-09-28T04:19:29.052149Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "e496ce372c9c944dc467a28d",
@@ -8767,7 +8767,7 @@
     },
     "source_date": "2026-09-27T04:18:51.713751Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "4308e78e9e8357ff7a76f7f8",
@@ -8788,7 +8788,7 @@
     },
     "source_date": "2026-09-26T04:06:57.356204Z",
     "visual_variant": "v2",
-    "retired": false
+    "retired": true
   },
   {
     "id": "91cbc6c7ca521c83c128df25",
@@ -8809,7 +8809,7 @@
     },
     "source_date": "2026-09-25T04:01:16.599068Z",
     "visual_variant": "v2",
-    "retired": false
+    "retired": true
   },
   {
     "id": "2fcc982f8bdc59b4a2d0a6b7",
@@ -8830,7 +8830,7 @@
     },
     "source_date": "2026-09-24T03:44:43.883100Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "40f27cff810633584ab104dd",
@@ -8851,7 +8851,7 @@
     },
     "source_date": "2026-09-23T03:52:23.222619Z",
     "visual_variant": "v3",
-    "retired": false
+    "retired": true
   },
   {
     "id": "3b3bc2bfb8b0d0dc4d0ad26f",
@@ -8872,7 +8872,7 @@
     },
     "source_date": "2026-09-22T03:56:24.574258Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "b4d2151c4fca27886c856afa",
@@ -8893,7 +8893,7 @@
     },
     "source_date": "2026-09-21T04:00:12.687682Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "5d9c356d463939e02ed13993",
@@ -8914,7 +8914,7 @@
     },
     "source_date": "2026-09-20T04:10:34.422121Z",
     "visual_variant": "v3",
-    "retired": false
+    "retired": true
   },
   {
     "id": "24cc7187754c3b344416a297",
@@ -8935,7 +8935,7 @@
     },
     "source_date": "2026-09-19T03:59:31.064431Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "441e85780e1f26c0f21315cf",
@@ -8956,7 +8956,7 @@
     },
     "source_date": "2026-09-18T03:54:23.185942Z",
     "visual_variant": "v2",
-    "retired": false
+    "retired": true
   },
   {
     "id": "5dacc5b29e1dc5d1b36dbcf6",
@@ -8977,7 +8977,7 @@
     },
     "source_date": "2026-09-04T03:54:46.574443Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "4059756177e7f007e6e25606",
@@ -8998,7 +8998,7 @@
     },
     "source_date": "2026-09-03T03:51:14.561465Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "011d9285561d02dbed91d9ef",
@@ -9019,7 +9019,7 @@
     },
     "source_date": "2026-09-01T04:20:27.443349Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "b6f38a1281da4505f7b0632b",
@@ -9040,7 +9040,7 @@
     },
     "source_date": "2026-08-31T04:40:16.917835Z",
     "visual_variant": "v3",
-    "retired": false
+    "retired": true
   },
   {
     "id": "f09b6b15a8fd94ea50e548b2",
@@ -9061,7 +9061,7 @@
     },
     "source_date": "2026-08-31T04:39:58.342694Z",
     "visual_variant": "v3",
-    "retired": false
+    "retired": true
   },
   {
     "id": "537c4a304618090a55222582",
@@ -9082,7 +9082,7 @@
     },
     "source_date": "2026-08-30T04:47:40.567147Z",
     "visual_variant": "v2",
-    "retired": false
+    "retired": true
   },
   {
     "id": "0ec65625e831b8ea25eced77",
@@ -9103,7 +9103,7 @@
     },
     "source_date": "2026-08-30T04:47:24.690518Z",
     "visual_variant": "v2",
-    "retired": false
+    "retired": true
   },
   {
     "id": "6467717abefa031c58d79e28",
@@ -9124,7 +9124,7 @@
     },
     "source_date": "2026-08-30T04:47:08.393114Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "28bc2fd7cde1fd4d913c2920",
@@ -9145,7 +9145,7 @@
     },
     "source_date": "2026-08-19T01:24:42.105484Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "b9837665ed063fa79871ea6b",
@@ -9187,7 +9187,7 @@
     },
     "source_date": "2026-08-03T03:00:31.303206Z",
     "visual_variant": "v2",
-    "retired": false
+    "retired": true
   },
   {
     "id": "17ecf31f4ffe67678b185269",
@@ -9208,7 +9208,7 @@
     },
     "source_date": "2026-07-24T02:51:54.600715Z",
     "visual_variant": "v3",
-    "retired": false
+    "retired": true
   },
   {
     "id": "a97ad36a04c80d93b83a06dd",
@@ -9229,7 +9229,7 @@
     },
     "source_date": "2026-07-23T02:56:25.146988Z",
     "visual_variant": "v2",
-    "retired": false
+    "retired": true
   },
   {
     "id": "a51bf8784929c0494bc3262c",
@@ -9250,7 +9250,7 @@
     },
     "source_date": "2026-07-20T03:24:55.998783Z",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "984c1b029784218851f1a83d",
@@ -9271,7 +9271,7 @@
     },
     "source_date": "2026-07-17T02:59:27.611656Z",
     "visual_variant": "v3",
-    "retired": false
+    "retired": true
   },
   {
     "id": "1914ea49ef7018ae3e4bad00",
@@ -9292,7 +9292,7 @@
     },
     "source_date": "2026-07-17T02:56:42.126861Z",
     "visual_variant": "v3",
-    "retired": false
+    "retired": true
   },
   {
     "id": "a16881c88babbc026296ff10",
@@ -9313,7 +9313,7 @@
     },
     "source_date": "2026-07-17T02:53:56.702669Z",
     "visual_variant": "v3",
-    "retired": false
+    "retired": true
   },
   {
     "id": "3e973dc4f0846352ac1abdbb",
@@ -9334,7 +9334,7 @@
     },
     "source_date": "2026-07-14T02:41:58.399692Z",
     "visual_variant": "v2",
-    "retired": false
+    "retired": true
   },
   {
     "id": "0aaef89de8a7c4738e8cfc2d",
