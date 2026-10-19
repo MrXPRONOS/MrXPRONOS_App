@@ -262,7 +262,10 @@ def main() -> int:
     all_tokens: Dict[str, str] = {}
     summaries: list[RefreshSummary] = []
 
-    for fn in (refresh_meta, refresh_threads, refresh_tiktok):
+    # TikTok rotates its REFRESH_TOKEN on refresh. Refreshing here during a video
+    # without updating GitHub Secrets risks invalidating the long-lived credential.
+    # The dedicated TikTok OAuth workflow handles rotation and persistence.
+    for fn in (refresh_meta, refresh_threads):
         try:
             tokens, summary = fn()
             all_tokens.update({k: v for k, v in tokens.items() if v})
