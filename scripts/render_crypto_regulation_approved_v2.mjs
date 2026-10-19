@@ -3,8 +3,9 @@ import {chromium} from 'playwright';
 import {readFile,mkdir} from 'node:fs/promises';
 
 const demo=false;
+const qa=process.argv.includes('--qa');
 const dataPath='crypto/generated/test/regulation_v2_approved.json';
-const output='crypto/generated/test/regulation_v2_approved.png';
+const output=qa?'crypto/generated/test/regulation_v2_approved_QA.png':'crypto/generated/test/regulation_v2_approved.png';
 const d=JSON.parse(await readFile(dataPath,'utf8'));
 const sources=['CoinDesk','Cointelegraph','The Block','Decrypt','Blockworks','BeInCrypto',
   'Bitcoin Magazine','NewsBTC','SEC','ESMA','Commission européenne'];
@@ -118,10 +119,11 @@ const h=[
 '</div>',demo?'<div class="demo">SIMULATION • ACTUALITÉ FICTIVE • NON PUBLIABLE</div>':'',
 '</main></body></html>'
 ].join('');
+const preview=qa?h.replace('</main></body></html>','<div style="position:absolute;bottom:0;left:0;right:0;height:54px;background:#b32c43;color:white;z-index:999;display:grid;place-items:center;font:900 21px Arial">SIMULATION QA · APPROBATION FICTIVE · NE PAS PUBLIER</div></main></body></html>'):h;
 const browser=await chromium.launch({headless:true});
 try {
  const page=await browser.newPage({viewport:{width:1080,height:1350},deviceScaleFactor:1});
- await page.setContent(h,{waitUntil:'load'});
+ await page.setContent(preview,{waitUntil:'load'});
  await page.evaluate(async()=>{
    await document.fonts.ready;
    const t=document.querySelector('.story'), hero=document.querySelector('.hero');
