@@ -82,3 +82,24 @@ class H2HStrictHistoryTests(unittest.TestCase):
         report, audit=evaluate_all([],max_2025=1)
         self.assertEqual(report["total_finished_2026"],0)
         self.assertEqual(audit,[])
+
+
+from exact_scores_under25 import probability_under25, reweight_scores, fused_probability
+
+class Under25FusionTests(unittest.TestCase):
+    def test_under25_counts_only_two_or_fewer(self):
+        m={(0,0):.2,(1,1):.3,(2,1):.5}
+        self.assertAlmostEqual(probability_under25(m),.5)
+
+    def test_fusion_normalized_and_exact_under_probability(self):
+        m=matrix_for(1.3,1.4)
+        r=reweight_scores(m,.7)
+        self.assertAlmostEqual(sum(r.values()),1.,places=10)
+        self.assertAlmostEqual(probability_under25(r),.7,places=10)
+        self.assertTrue(all(v>=0 for v in r.values()))
+
+    def test_zero_blend_keeps_poisson(self):
+        self.assertAlmostEqual(fused_probability(.48,.75,0),.48)
+
+    def test_blend_one_uses_bsd_specialist(self):
+        self.assertAlmostEqual(fused_probability(.48,.75,1),.75)
