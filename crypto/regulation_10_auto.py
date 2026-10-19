@@ -175,8 +175,7 @@ def validate_auto(document, now=None):
         raise ValueError("News is not first-party regulator announcement")
     if row.get("official") is not True or row.get("region") != reg.REGIONS[row["source"]]:
         raise ValueError("Regulator identity or jurisdiction mismatch")
-    if (not is_authority_url(row.get("url",""),row.get("source")) and
-            not is_authority_url(row.get("source",""),row.get("url",""))):
+    if not is_authority_url(row.get("source",""),row.get("url","")):
         raise ValueError("Invalid institutional URL")
     if not is_authority_url(row["source"],document.get("official_verified_url","")):
         raise ValueError("Official target lost source origin")
@@ -209,7 +208,9 @@ def collect(state, now=None, fetcher=None, verifier=verify_publication):
             rows.extend(fetcher(name,url,now))
         except (requests.RequestException,ValueError):
             print("REG10_FEED_UNAVAILABLE",name)
-    posted = {str(key).split(":")[-1] for key in state.get("sent",{})
+    if not isinstance(state.get("sent"),dict):
+        raise ValueError("Invalid Telegram publication registry")
+    posted = {str(key).split(":")[-1] for key in state["sent"]
               if str(key).startswith("reg10_official:")}
     rows = [x for x in rows if x.get("official") is True and
             reg.fingerprint(x) not in posted]
