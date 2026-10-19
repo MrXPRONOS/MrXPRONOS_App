@@ -530,6 +530,10 @@ async function renderCmsArticles() {
 
       <label>Image URL</label><input id="a_image">
       <label>Meta description</label><input id="a_meta">
+      <div class="row">
+        <div><label>Catégorie</label><input id="a_category" placeholder="Analyse, actu, guide…"></div>
+        <div><label>Étiquettes (virgules)</label><input id="a_tags" placeholder="Football, tactique"></div>
+      </div>
       <label>Contenu</label><textarea id="a_content" rows="8"></textarea>
 
       <div class="row">
@@ -565,6 +569,8 @@ async function renderCmsArticles() {
     $("a_title").value = a.title || "";
     $("a_image").value = a.image_url || "";
     $("a_meta").value = a.meta_description || "";
+    $("a_category").value = a.category || "";
+    $("a_tags").value = (a.tags||[]).join(", ");
     cmsEditor.setMarkdown(a.content || "",a.id);
     $("a_status").value = a.status || "draft";
     $("a_active").value = (a.active !== false) ? "true" : "false";
@@ -589,6 +595,8 @@ async function renderCmsArticles() {
       image_url: $("a_image").value.trim(),
       og_image: $("a_image").value.trim(),
       meta_description: $("a_meta").value.trim(),
+      category: $("a_category").value.trim(),
+      tags: $("a_tags").value.split(",").map(x=>x.trim()).filter(Boolean).slice(0,12),
       content: cmsText,
       status: $("a_status").value,
       active: $("a_active").value === "true",
@@ -631,6 +639,14 @@ async function renderCmsConseils() {
         <div><label>Titre</label><input id="c_title"></div>
       </div>
       <label>Image URL</label><input id="c_image">
+      <div class="row">
+        <div><label>Catégorie</label><input id="c_category" placeholder="Débutants, stratégie…"></div>
+        <div><label>Niveau</label><select id="c_level">
+          <option value="">Non précisé</option><option value="debutant">Débutant</option>
+          <option value="intermediaire">Intermédiaire</option><option value="avance">Avancé</option>
+        </select></div>
+      </div>
+      <label>Étiquettes</label><input id="c_tags" placeholder="Conseils, sécurité">
       <label>Contenu</label><textarea id="c_content" rows="6"></textarea>
 
       <div class="row">
@@ -665,6 +681,9 @@ async function renderCmsConseils() {
     $("c_slug").value = c.slug || "";
     $("c_title").value = c.title || "";
     $("c_image").value = c.image_url || "";
+    $("c_category").value = c.category || "";
+    $("c_level").value = c.difficulty || "";
+    $("c_tags").value = (c.tags||[]).join(", ");
     cmsEditor.setMarkdown(c.content || "",c.id);
     $("c_status").value = c.status || "draft";
     $("c_active").value = (c.active !== false) ? "true" : "false";
@@ -687,6 +706,9 @@ async function renderCmsConseils() {
       slug: $("c_slug").value.trim(),
       title: $("c_title").value.trim(),
       image_url: $("c_image").value.trim(),
+      category: $("c_category").value.trim(),
+      difficulty: $("c_level").value,
+      tags: $("c_tags").value.split(",").map(x=>x.trim()).filter(Boolean).slice(0,12),
       content: cmsText,
       status: $("c_status").value,
       active: $("c_active").value === "true",
@@ -912,6 +934,8 @@ async function renderInfos() {
     <div class="card">
       <h3 style="margin:0 0 10px;color:#D4AF37">Infos</h3>
       <label>Titre</label><input id="i_title">
+      <div class="row"><div><label>Catégorie</label><input id="i_category"></div>
+        <div><label>Image</label><input id="i_image"></div></div>
       <label>Contenu</label><textarea id="i_content" rows="6"></textarea>
       <div class="row">
         <div><label>Status</label>
@@ -934,11 +958,14 @@ async function renderInfos() {
   `;
 
   const cmsEditor = mountCmsBlockEditor({sb,textarea:$("i_content"),kind:"infos"});
+  mountCmsMediaFieldPicker(sb,$("i_image"));
 
   const versions = mountCmsRevisionPanel({sb,table:"cms_infos",
     container:root.querySelector(".card"),onChoose:row=>setForm(row)});
   const setForm = (i) => {
     $("i_title").value = i.title || "";
+    $("i_category").value = i.category || "";
+    $("i_image").value = i.image_url || "";
     cmsEditor.setMarkdown(i.content || "",i.id);
     $("i_status").value = i.status || "draft";
     $("i_active").value = (i.active !== false) ? "true" : "false";
@@ -959,6 +986,8 @@ async function renderInfos() {
     try { cmsText=cmsEditor.getMarkdown(); } catch(error) { alert(error.message); return; }
     const row = {
       title: $("i_title").value.trim(),
+      category: $("i_category").value.trim(),
+      image_url: $("i_image").value.trim(),
       content: cmsText,
       status: $("i_status").value,
       active: $("i_active").value === "true",
