@@ -1,6 +1,6 @@
 {
   "period_days": 30,
-  "generated_at": "2026-10-17T06:17:45.096995+00:00",
+  "generated_at": "2026-10-19T06:17:36.932110+00:00",
   "data_origin": "Supabase analytics events; anonymous attributed page reads",
   "attributed_visits": 1,
   "promo_copy_actions": 0,
@@ -15,7 +15,7 @@
       "kind": "article",
       "slug": "analyse-premium-test",
       "variant": "a",
-      "impressions": 16,
+      "impressions": 18,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -87,7 +87,7 @@
       "kind": "conseil",
       "slug": "comprendre-value",
       "variant": "a",
-      "impressions": 262,
+      "impressions": 390,
       "opens": 0,
       "open_rate": 0.0,
       "status": "descriptive_only"
@@ -231,7 +231,7 @@
       "kind": "conseil",
       "slug": "conseil-premium-test",
       "variant": "a",
-      "impressions": 24,
+      "impressions": 27,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
@@ -249,7 +249,7 @@
       "kind": "conseil",
       "slug": "erreurs-tilt",
       "variant": "a",
-      "impressions": 195,
+      "impressions": 291,
       "opens": 0,
       "open_rate": 0.0,
       "status": "descriptive_only"
@@ -267,7 +267,7 @@
       "kind": "conseil",
       "slug": "gerer-bankroll",
       "variant": "a",
-      "impressions": 264,
+      "impressions": 392,
       "opens": 0,
       "open_rate": 0.0,
       "status": "descriptive_only"
