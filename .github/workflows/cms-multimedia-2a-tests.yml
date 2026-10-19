@@ -1,0 +1,32 @@
+name: CMS 2A multimedia editor tests
+on:
+  pull_request:
+    paths:
+      - 'assets/js/cms-block-editor.mjs'
+      - 'assets/js/cms-media-library.mjs'
+      - 'assets/js/admin-real.js'
+      - 'assets/js/main.js'
+      - 'assets/css/admin-cms-editor.css'
+      - 'admin.html'
+      - 'supabase/migrations/20261019031500_cms_media_revisions_storage.sql'
+      - 'tests/cms-multimedia-2a.test.mjs'
+      - '.github/workflows/cms-multimedia-2a-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cms-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run CMS content and media security behavior tests
+        run: node --test tests/cms-multimedia-2a.test.mjs
+      - name: Check CMS and public JavaScript syntax
+        run: |
+          node --check assets/js/admin-real.js
+          node --check assets/js/cms-block-editor.mjs
+          node --check assets/js/cms-media-library.mjs
+          node --check assets/js/main.js
