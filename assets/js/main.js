@@ -1,3 +1,4 @@
+import { safeCmsUrl, isSafeCmsUrl } from "./cms-url-guard.mjs";
 /**
  * main.js - Mr XPRONOS
  * Version stable + SEO amélioré (slug articles + conseils + metas dynamiques)
@@ -280,7 +281,7 @@ function sanitizeHtml(unsafeHtml = "") {
           child.removeAttribute(attr.name);
           return;
         }
-        if ((name === "href" || name === "src") && /^\s*javascript:/i.test(value)) {
+        if ((name === "href" || name === "src") && !isSafeCmsUrl(value, name === "src" ? "image" : "link", window.location.href)) {
           child.removeAttribute(attr.name);
           return;
         }
@@ -1275,7 +1276,7 @@ function renderBookmakers(bookmakers) {
         <img src="${escapeAttribute(b.logo || "assets/images/default-logo.webp")}" alt="${escapeAttribute(b.name || "Bookmaker")}" loading="lazy" decoding="async">
         <h3>${escapeHtml(b.name || "Bookmaker")}</h3>
         <p>${escapeHtml(b.desc || b.description || "Bonus exclusif bookmaker")}</p>
-        <a href="${escapeAttribute(b.url || "#")}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">S'inscrire avec XPVIP</a>
+        <a href="${escapeAttribute(safeCmsUrl(b.url || "#", "link", "#", window.location.href))}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">S'inscrire avec XPVIP</a>
       `;
       DOM.bookmakersBonus.appendChild(div);
     });
@@ -2764,7 +2765,7 @@ window.showNewsDetail = function (index) {
     const espnUrl = String(espnVerification?.url || "");
     const espnCheckHtml = espnUrl.startsWith("https://www.espn.com/")
       ? "<p class=\"news-detail-attribution\">✅ Vérification croisée : une publication ESPN portant sur les mêmes éléments a été repérée automatiquement. "
-        + "<a href=\"" + escapeAttribute(espnUrl) + "\" target=\"_blank\" rel=\"noopener noreferrer\">Vérifier sur ESPN ↗</a></p>"
+        + "<a href=\"" + escapeAttribute(safeCmsUrl(espnUrl, "link", "#", window.location.href)) + "\" target=\"_blank\" rel=\"noopener noreferrer\">Vérifier sur ESPN ↗</a></p>"
       : "";
 
     contentEl.innerHTML =
@@ -2877,7 +2878,7 @@ function initBonusPage() {
 
             <div class="bonus-card-actions">
               <button class="btn btn-secondary" type="button" onclick="openPublishedBonusModal(${bonusIndex})">Détails</button>
-              ${b.link ? `<a href="${escapeAttribute(b.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Profiter de l'offre</a>` : ""}
+              ${b.link ? `<a href="${escapeAttribute(safeCmsUrl(b.link, "link", "#", window.location.href))}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Profiter de l'offre</a>` : ""}
             </div>
           </div>
         </div>
@@ -2945,7 +2946,7 @@ function renderBonusGrid(bookmakers) {
         <h3>${escapeHtml(b.name || "Bookmaker")}</h3>
         <p>${escapeHtml(b.desc || b.description || "Bonus exclusif bookmaker")}</p>
         <div class="bonus-actions">
-          <a href="${escapeAttribute(b.url || "#")}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Voir l'offre</a>
+          <a href="${escapeAttribute(safeCmsUrl(b.url || "#", "link", "#", window.location.href))}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Voir l'offre</a>
           <button class="btn btn-secondary" type="button" onclick="openBonusModal(${i})">Détails</button>
         </div>
       </div>
@@ -3029,7 +3030,7 @@ window.openPublishedBonusModal = function (index) {
   if (footerEl) {
     const footer = b.footer ? `<div>${escapeHtml(b.footer)}</div>` : "";
     const official = b.official_url
-      ? `<a class="bonus-official-link" href="${escapeAttribute(b.official_url)}" target="_blank" rel="noopener noreferrer">Voir les conditions officielles</a>`
+      ? `<a class="bonus-official-link" href="${escapeAttribute(safeCmsUrl(b.official_url, "link", "#", window.location.href))}" target="_blank" rel="noopener noreferrer">Voir les conditions officielles</a>`
       : "";
     footerEl.innerHTML = footer + official;
   }
