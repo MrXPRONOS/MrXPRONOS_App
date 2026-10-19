@@ -1,0 +1,38 @@
+name: Partie 1 final CMS and security regression
+on:
+  pull_request:
+    paths:
+      - 'assets/js/cms-url-guard.mjs'
+      - 'assets/js/main.js'
+      - 'assets/js/admin-real.js'
+      - 'assets/js/admin-mfa-*.mjs'
+      - 'admin.html'
+      - 'admin-vip.html'
+      - 'index.html'
+      - 'supabase/functions/publish/index.ts'
+      - 'supabase/migrations/20261019020000_telemetry_global_rate_caps.sql'
+      - 'supabase/migrations/20261019022000_remaining_function_security.sql'
+      - 'tests/part1-final-hardening.test.mjs'
+      - '.github/workflows/part1-final-hardening.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  isolated:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Behavioral CMS/MFA/URL/RPC tests
+        run: node --test tests/part1-final-hardening.test.mjs
+      - name: Browser JavaScript syntax
+        run: |
+          node --check assets/js/main.js
+          node --check assets/js/admin-real.js
+          node --check assets/js/admin-mfa-flow.mjs
+          node --check assets/js/admin-mfa-ui.mjs
+          node --check assets/js/cms-url-guard.mjs
+      - name: Supabase Edge Function TypeScript syntax
+        run: node --experimental-strip-types --check supabase/functions/publish/index.ts
