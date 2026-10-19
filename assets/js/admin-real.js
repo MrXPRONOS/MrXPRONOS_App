@@ -2,6 +2,7 @@ import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
 import { mountCmsBlockEditor } from "./cms-block-editor.mjs";
 import { mountCmsRevisionPanel } from "./cms-revisions.mjs";
 import { createCmsDraftCopy } from "./cms-duplicate.mjs";
+import { mountCmsListFilters } from "./cms-list-filters.mjs";
 import { mountCmsMediaFieldPicker, mountCmsMediaPicker } from "./cms-media-library.mjs";
 import { supabaseUrl, supabaseAnonKey } from "./config.js";
 import "./loading-ui.js";
@@ -588,6 +589,7 @@ async function renderCmsArticles() {
   });
 
   attachDuplicateButtons(root,"[data-id]",rows,"articles",setForm,"a_save");
+  mountCmsListFilters({root,cards:[...root.querySelectorAll("[data-id]")],rows,kind:"articles"});
 
   $("a_save").addEventListener("click", async () => {
     let cmsText;
@@ -728,6 +730,7 @@ async function renderCmsConseils() {
   });
 
   attachDuplicateButtons(root,"[data-id]",rows,"conseils",setForm,"c_save");
+  mountCmsListFilters({root,cards:[...root.querySelectorAll("[data-id]")],rows,kind:"conseils"});
 
   $("c_save").addEventListener("click", async () => {
     let cmsText;
@@ -894,6 +897,8 @@ async function renderBonus() {
 
   attachDuplicateButtons(root,"[data-bonus-id]",bonusRows,"bonus",setBonus,"b_save");
   attachDuplicateButtons(root,"[data-book-id]",bookRows,"bookmakers",setBook,"bk_save");
+  mountCmsListFilters({root,cards:[...root.querySelectorAll("[data-bonus-id]")],rows:bonusRows,kind:"bonus",showCategory:false});
+  mountCmsListFilters({root,cards:[...root.querySelectorAll("[data-book-id]")],rows:bookRows,kind:"bookmakers",showCategory:false});
 
   $("b_save").addEventListener("click", async () => {
     const row = {
@@ -1015,6 +1020,7 @@ async function renderInfos() {
   });
 
   attachDuplicateButtons(root,"[data-id]",rows,"infos",setForm,"i_save");
+  mountCmsListFilters({root,cards:[...root.querySelectorAll("[data-id]")],rows,kind:"informations"});
 
   $("i_save").addEventListener("click", async () => {
     let cmsText;
