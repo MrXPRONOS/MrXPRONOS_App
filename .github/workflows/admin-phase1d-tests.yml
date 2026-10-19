@@ -9,6 +9,8 @@ on:
       - 'tests/admin-events-rls.test.cjs'
       - 'supabase/migrations/20261019010035_harden_public_telemetry_rpc_search_path.sql'
       - 'tests/admin-telemetry-rpc-security.test.cjs'
+      - 'supabase/migrations/20261019010616_lockdown_legacy_online_users_privileges.sql'
+      - 'tests/admin-online-users-privacy.test.cjs'
       - 'supabase/migrations/20261018233415_remove_recursive_admin_users_policy.sql'
       - '.github/workflows/admin-phase1d-tests.yml'
   workflow_dispatch:
@@ -26,3 +28,4 @@ jobs:
       - run: node tests/admin-rls-recursion.test.cjs
       - run: node tests/admin-events-rls.test.cjs
       - run: node tests/admin-telemetry-rpc-security.test.cjs
+      - run: node tests/admin-online-users-privacy.test.cjs
