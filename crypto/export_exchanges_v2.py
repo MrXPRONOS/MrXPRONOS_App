@@ -18,6 +18,7 @@ from urllib.parse import urlsplit, urlunsplit
 import feedparser
 import requests
 from crypto.news_sources_v2 import EDITORIAL_FEEDS, OFFICIAL_STATUS_APIS
+from crypto.editorial_fr import exchange_synopsis, validate_synopsis
 
 UTC = timezone.utc
 OUTPUT = Path("crypto/generated/test")
@@ -256,6 +257,7 @@ def select_report(items, state, now):
             "category": article["category"],
             "verification": "official_notice" if article.get("official") else ("cross_reported" if confirmation else "attributed_report"),
             "main": article, "confirmation": confirmation,
+            "headline_fr": validate_synopsis(exchange_synopsis(article["exchange"], article["title"], article["category"])),
             "fingerprints": [fingerprint(i) for i in used],
         }
         validate_real(result, now)
@@ -298,6 +300,8 @@ def validate_real(d, now=None):
                 or severe(item["title"]) != item.get("severe")):
             raise ValueError("Article classification mismatch")
         parse_time(item.get("published_at"), now)
+    if d.get("headline_fr") != validate_synopsis(exchange_synopsis(main["exchange"], main["title"], main["category"])):
+        raise ValueError("French synopsis does not reflect source")
     if main["exchange"] != d.get("exchange") or main["category"] != d.get("category"):
         raise ValueError("Unmatched main event")
     if confirm and not corroborates(main, confirm):
@@ -327,6 +331,7 @@ def demo_report():
         "collected_at": now.isoformat(), "exchange": main["exchange"],
         "category": main["category"], "verification": "attributed_report",
         "main": main, "confirmation": None,
+        "headline_fr": validate_synopsis(exchange_synopsis(main["exchange"], main["title"], main["category"])),
         "fingerprints": [fingerprint(main)],
     }
 
