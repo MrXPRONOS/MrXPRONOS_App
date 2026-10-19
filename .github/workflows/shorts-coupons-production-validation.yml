@@ -22,7 +22,7 @@ concurrency:
 
 env:
   PYTHON_VERSION: "3.12"
-  POST_PLATFORMS: "facebook,youtube,instagram,threads,tiktok"
+  POST_PLATFORMS: "facebook,youtube,instagram,threads" # TikTok awaits creator consent, app audit, and platform-policy review
 
 jobs:
   settle:
