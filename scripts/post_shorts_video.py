@@ -345,65 +345,149 @@ def post_threads(public_video_url: Optional[str], caption: str) -> PublishResult
 # =====================================================
 # TIKTOK CONTENT POSTING API
 # =====================================================
+def tiktok_api_response(response: requests.Response) -> tuple[Dict[str, Any], Optional[str]]:
+    """Parse TikTok API reply; never expose access tokens or returned upload URLs."""
+    try:
+        data = response.json()
+    except ValueError:
+        return {}, f"HTTP {response.status_code}, réponse non JSON"
+    error = data.get("error") or {}
+    code = str(error.get("code") or "ok") if isinstance(error, dict) else str(error)
+    if response.status_code >= 400 or code not in ("ok", "0"):
+        return {}, f"HTTP {response.status_code}, code {code[:90]}"
+    return data, None
+
+
 def post_tiktok(video_path: Path, caption: str) -> PublishResult:
     platform = "tiktok"
+    # TikTok Direct Post requires app audit, creator-facing metadata/consent UX,
+    # and compliant content. Never auto-post sports betting coupons.
+    if env("TIKTOK_DIRECT_POST_ENABLED", "false").lower() != "true":
+        return PublishResult(platform, False,
+            "Publication désactivée: valider TikTok Direct Post, le consentement "
+            "de chaque créateur et la conformité des contenus avant activation.")
+    if env("TIKTOK_PER_VIDEO_CONSENT", "false").lower() != "true":
+        return PublishResult(platform, False, "Consentement explicite du créateur requis pour cette vidéo.")
     ok, msg = require_env(["TIKTOK_ACCESS_TOKEN"])
     if not ok:
         return PublishResult(platform, False, msg)
 
     token = env("TIKTOK_ACCESS_TOKEN")
-    privacy = env("TIKTOK_PRIVACY_LEVEL", "PUBLIC_TO_EVERYONE")
-    size = video_path.stat().st_size
-    # Upload en 1 chunk pour les shorts. Si la vidéo grossit, on pourra le découper.
-    chunk_size = size
+    privacy = env("TIKTOK_PRIVACY_LEVEL")
+    if not privacy:
+        return PublishResult(platform, False, "Le créateur doit choisir explicitement TIKTOK_PRIVACY_LEVEL.")
+    headers = {"Authorization": f"Bearer {token}",
+               "Content-Type": "application/json; charset=UTF-8"}
 
-    init_url = "https://open.tiktokapis.com/v2/post/publish/video/init/"
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json; charset=UTF-8",
-    }
+    creator_info_url = "https://open.tiktokapis.com/v2/post/publish/creator_info/query/"
+    try:
+        info_resp = requests.post(creator_info_url, headers=headers, json={}, timeout=45)
+    except requests.RequestException as exc:
+        return PublishResult(platform, False, "Creator info indisponible: " + type(exc).__name__)
+    info, error = tiktok_api_response(info_resp)
+    if error:
+        return PublishResult(platform, False, "TikTok creator_info: " + error)
+    creator = info.get("data") or {}
+    options = creator.get("privacy_level_options") or []
+    if privacy not in options:
+        return PublishResult(platform, False, "Confidentialité non autorisée pour ce créateur: "
+                             + ", ".join(options))
+
+    try:
+        size = video_path.stat().st_size
+    except OSError:
+        return PublishResult(platform, False, "Vidéo absente ou inaccessible")
+    if not 0 < size <= 64 * 1024 * 1024:
+        return PublishResult(platform, False, "Vidéo hors limites pour upload TikTok en un seul chunk.")
+
+    # TikTok requires video duration <= max_video_post_duration_sec from creator_info.
+    import subprocess
+    try:
+        probe = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                                "-of", "default=nokey=1:noprint_wrappers=1", str(video_path)],
+                               capture_output=True, text=True, timeout=25, check=True)
+        duration = float(probe.stdout.strip())
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return PublishResult(platform, False, "Durée vidéo impossible à vérifier avec ffprobe.")
+    allowed_duration = creator.get("max_video_post_duration_sec")
+    if not isinstance(allowed_duration, (int, float)) or duration > allowed_duration:
+        return PublishResult(platform, False, f"Durée vidéo {duration:.1f}s hors limite TikTok.")
+
     payload = {
         "post_info": {
             "title": caption[:2200],
             "privacy_level": privacy,
-            "disable_duet": env("TIKTOK_DISABLE_DUET", "false").lower() == "true",
-            "disable_comment": env("TIKTOK_DISABLE_COMMENT", "false").lower() == "true",
-            "disable_stitch": env("TIKTOK_DISABLE_STITCH", "false").lower() == "true",
-            "video_cover_timestamp_ms": int(env("TIKTOK_COVER_TIMESTAMP_MS", "1000")),
+            "disable_duet": creator.get("duet_disabled") or env("TIKTOK_DISABLE_DUET", "true") != "false",
+            "disable_comment": creator.get("comment_disabled") or env("TIKTOK_DISABLE_COMMENT", "true") != "false",
+            "disable_stitch": creator.get("stitch_disabled") or env("TIKTOK_DISABLE_STITCH", "true") != "false",
+            "video_cover_timestamp_ms": min(1000, int(duration * 1000)),
         },
         "source_info": {
-            "source": "FILE_UPLOAD",
-            "video_size": size,
-            "chunk_size": chunk_size,
-            "total_chunk_count": 1,
+            "source": "FILE_UPLOAD", "video_size": size,
+            "chunk_size": size, "total_chunk_count": 1,
         },
     }
 
-    log("📤 Initialisation upload TikTok...")
-    init_resp = requests.post(init_url, headers=headers, json=payload, timeout=180)
-    init_payload = read_json_response(init_resp)
-    if init_resp.status_code >= 400 or init_payload.get("error", {}).get("code") not in (None, "ok"):
-        return PublishResult(platform, False, f"TikTok init erreur: {init_payload}", init_payload)
+    try:
+        init_resp = requests.post(
+            "https://open.tiktokapis.com/v2/post/publish/video/init/",
+            headers=headers, json=payload, timeout=90)
+    except requests.RequestException as exc:
+        return PublishResult(platform, False, "TikTok init réseau: " + type(exc).__name__)
+    init, error = tiktok_api_response(init_resp)
+    if error:
+        return PublishResult(platform, False, "TikTok init: " + error)
+    from urllib.parse import urlsplit
+    data = init.get("data") or {}
+    upload_url, publish_id = data.get("upload_url"), data.get("publish_id")
+    parsed = urlsplit(str(upload_url or ""))
+    if parsed.scheme != "https" or parsed.hostname != "open-upload.tiktokapis.com":
+        return PublishResult(platform, False, "TikTok upload URL absente ou inattendue.")
+    if not publish_id:
+        return PublishResult(platform, False, "TikTok publish_id absent.")
 
-    data = init_payload.get("data") or {}
-    upload_url = data.get("upload_url")
-    publish_id = data.get("publish_id")
-    if not upload_url or not publish_id:
-        return PublishResult(platform, False, f"TikTok réponse incomplète: {init_payload}", init_payload)
-
-    log("📤 Upload vidéo TikTok...")
-    with open(video_path, "rb") as f:
-        upload_headers = {
-            "Content-Type": "video/mp4",
-            "Content-Length": str(size),
-            "Content-Range": f"bytes 0-{size - 1}/{size}",
-        }
-        upload_resp = requests.put(upload_url, headers=upload_headers, data=f, timeout=900)
-
+    log("📤 Upload TikTok (créateur et confidentialité vérifiés)...")
+    try:
+        with open(video_path, "rb") as f:
+            upload_resp = requests.put(upload_url,
+                headers={"Content-Type": "video/mp4", "Content-Length": str(size),
+                         "Content-Range": f"bytes 0-{size-1}/{size}"},
+                data=f, timeout=300)
+    except requests.RequestException as exc:
+        return PublishResult(platform, False,
+                             "TikTok upload ambigu, vérifier publish_id avant tout nouvel essai: "
+                             + type(exc).__name__, {"publish_id": publish_id})
     if upload_resp.status_code >= 400:
-        return PublishResult(platform, False, f"TikTok upload HTTP {upload_resp.status_code}: {upload_resp.text[:1000]}")
+        return PublishResult(platform, False,
+            "TikTok upload HTTP " + str(upload_resp.status_code), {"publish_id": publish_id})
 
-    return PublishResult(platform, True, f"TikTok upload OK, publish_id={publish_id}", {"publish_id": publish_id})
+    # Upload success is NOT publication success. TikTok processes and moderates later.
+    status_url = "https://open.tiktokapis.com/v2/post/publish/status/fetch/"
+    for _ in range(8):
+        time.sleep(10)
+        try:
+            response = requests.post(status_url, headers=headers,
+                                     json={"publish_id": publish_id}, timeout=30)
+        except requests.RequestException:
+            continue
+        info, status_error = tiktok_api_response(response)
+        if status_error:
+            return PublishResult(platform, False,
+                "TikTok statut: " + status_error, {"publish_id": publish_id})
+        record = info.get("data") or {}
+        status = str(record.get("status") or "").upper()
+        if status == "PUBLISH_COMPLETE":
+            return PublishResult(platform, True, "TikTok publication confirmée",
+                                 {"publish_id": publish_id, "status": status,
+                                  "post_ids": record.get("publicaly_available_post_id") or []})
+        if status == "FAILED":
+            return PublishResult(platform, False,
+                "TikTok publication refusée: " + str(record.get("fail_reason") or "unknown")[:100],
+                {"publish_id": publish_id, "status": status})
+    return PublishResult(platform, False,
+        "TikTok upload terminé mais publication encore en cours. "
+        "Consulter status/fetch avant toute nouvelle tentative.",
+        {"publish_id": publish_id, "status": "PROCESSING"})
 
 
 # =====================================================
