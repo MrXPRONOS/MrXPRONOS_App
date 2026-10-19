@@ -234,6 +234,8 @@ function sanitizeHtml(unsafeHtml = "") {
     "h6",
     "a",
     "img",
+    "video",
+    "source",
     "span",
     "hr",
     "table",
@@ -248,6 +250,8 @@ function sanitizeHtml(unsafeHtml = "") {
     "*": new Set(["class"]),
     a: new Set(["href", "target", "rel"]),
     img: new Set(["src", "alt", "loading", "decoding"]),
+    video: new Set(["src", "controls", "poster", "preload", "playsinline", "width", "height"]),
+    source: new Set(["src", "type"]),
     table: new Set(["class"]),
     th: new Set(["class"]),
     td: new Set(["class"]),
@@ -281,7 +285,7 @@ function sanitizeHtml(unsafeHtml = "") {
           child.removeAttribute(attr.name);
           return;
         }
-        if ((name === "href" || name === "src") && !isSafeCmsUrl(value, name === "src" ? "image" : "link", window.location.href)) {
+        if ((name === "href" || name === "src" || name === "poster") && !isSafeCmsUrl(value, name === "href" ? "link" : "image", window.location.href)) {
           child.removeAttribute(attr.name);
           return;
         }
