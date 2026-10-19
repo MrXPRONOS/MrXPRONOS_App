@@ -18,6 +18,7 @@ import feedparser
 import requests
 
 from crypto.news_sources_v2 import EDITORIAL_FEEDS
+from crypto.editorial_fr import breaking_synopsis, validate_synopsis
 
 UTC = timezone.utc
 DEST = Path("crypto/generated/test")
@@ -244,6 +245,7 @@ def build_report(pair: tuple, now: datetime) -> dict:
     return {"status": "real_data", "is_demo": False, "publication": 8,
             "topic": a["topic"], "collected_at": now.isoformat(),
             "main": items[0], "confirmation": items[1],
+            "headline_fr": validate_synopsis(breaking_synopsis(a["topic"], a["title"])),
             "fingerprints": [fingerprint(x) for x in items]}
 
 
@@ -268,6 +270,8 @@ def validate_real(data: dict, now: datetime | None = None) -> None:
             raise ValueError("Sujet non conforme")
         iso_time(a["published_at"], now)
         items.append(a)
+    if data.get("headline_fr") != validate_synopsis(breaking_synopsis(items[0]["topic"], items[0]["title"])):
+        raise ValueError("Unverifiable French synopsis")
     if data.get("topic") != items[0]["topic"] or not corroborates(*items):
         raise ValueError("Événement non corroboré")
     if data.get("fingerprints") != [fingerprint(x) for x in items]:
