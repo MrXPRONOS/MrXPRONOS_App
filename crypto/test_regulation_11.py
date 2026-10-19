@@ -92,6 +92,17 @@ class AfricaRegulation11Tests(unittest.TestCase):
         chosen=a.select([candidate],{"sent_urls":[]},self.now)
         self.assertIsNotNone(chosen)
         self.assertIsNone(a.select([candidate],{"sent_urls":[a.fingerprint(candidate)]},self.now))
+    def test_real_format_fixture_must_never_enter_telegram(self):
+        d=a.build(self.article(),self.now)
+        d["qa_only"]=True
+        with self.assertRaisesRegex(ValueError,"QA fixture"):
+            a.validate_real(d,self.now)
+
+    def test_demo_region_does_not_invent_country(self):
+        d=a.demo_report(self.now)
+        self.assertEqual(d["main"]["region"],"BÉNIN")
+        self.assertIn("EXEMPLE FICTIF",d["synopsis_fr"])
+
     def test_demo_must_never_validate_as_real(self):
         d=a.demo_report(self.now)
         self.assertTrue(d["is_demo"])
