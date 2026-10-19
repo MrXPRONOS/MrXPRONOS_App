@@ -4,7 +4,10 @@ const fs = require("node:fs");
 const vm = require("node:vm");
 const path = require("node:path");
 
-const script = fs.readFileSync(path.resolve(__dirname, "../assets/js/main.js"), "utf8");
+// vm.Script executes a classic-script fixture: remove only the new ESM import,
+ // while the real browser loads the module normally.
+const script = fs.readFileSync(path.resolve(__dirname, "../assets/js/main.js"), "utf8")
+  .replace(/^import \{ safeCmsUrl, isSafeCmsUrl \} from "\.\/cms-url-guard\.mjs";\r?\n/m, "");
 const today = new Date().toISOString().slice(0, 10);
 const kickoff = today + "T16:00:00Z";
 
