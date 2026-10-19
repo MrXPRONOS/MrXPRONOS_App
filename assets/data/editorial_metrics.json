@@ -1,34 +1,25 @@
 {
   "contents": {
     "articles.json": {
-      "count": 109,
-      "unique_titles": 109,
-      "with_editorial_image": 109,
+      "count": 5,
+      "unique_titles": 5,
+      "with_editorial_image": 5,
       "visual_variants": {
-        "v1": 47,
-        "v2": 33,
-        "v3": 29
+        "v1": 1,
+        "v2": 4
       },
       "source_types": {
-        "bsd": 29,
-        "evergreen": 63,
-        "match": 17
+        "bsd": 5
       },
-      "with_social_image": 109
+      "with_social_image": 5
     },
     "conseils.json": {
-      "count": 49,
-      "unique_titles": 49,
-      "with_editorial_image": 49,
-      "visual_variants": {
-        "v1": 17,
-        "v2": 19,
-        "v3": 13
-      },
-      "source_types": {
-        "unspecified": 49
-      },
-      "with_social_image": 49
+      "count": 0,
+      "unique_titles": 0,
+      "with_editorial_image": 0,
+      "visual_variants": {},
+      "source_types": {},
+      "with_social_image": 0
     },
     "footnews.json": {
       "count": 60,
@@ -53,8 +44,8 @@
   },
   "delivery": {
     "items": 463,
-    "active_items": 204,
-    "retired_items": 259,
+    "active_items": 65,
+    "retired_items": 398,
     "platform_states": {
       "facebook:not_requested": 463,
       "instagram:not_requested": 463,
