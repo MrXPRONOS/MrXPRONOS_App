@@ -9,6 +9,7 @@ on:
       - 'crypto/test_regulation_11.py'
       - 'crypto/quality_regulation_11_real_fixture.py'
       - 'crypto/send_regulation_11_test.py'
+      - 'crypto/edit_regulation_11_test_photo.py'
       - 'scripts/render_crypto_regulation_11.mjs'
       - '.github/workflows/actu-crypto-reg11-test.yml'
   workflow_dispatch:
@@ -95,6 +96,9 @@ jobs:
             crypto/generated/test/regulation_11_real_fixture_QA.png
           retention-days: 30
           if-no-files-found: error
+      - name: Replace historic #11 photo 1549 in TEST channel only (explicit commit opt-in)
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[reg11-preview-edit]')
+        run: python -m crypto.edit_regulation_11_test_photo
       - name: Collect current Africa regulation news from eight free RSS
         id: news
         shell: bash
