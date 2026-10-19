@@ -107,7 +107,7 @@ const h=[
 '<div class="globe">',globeSvg,'</div>',
 '<div class="kind">',qa?'APERÇU DE<br>LA RUBRIQUE':'ACTU CRYPTO<br>AFRICAINE','</div><div class="rule"></div>',
 '<div class="story">',esc(headline),'</div>',
-'<div class="original">',qa?'AUCUN ARTICLE RÉEL · MAQUETTE DE PRÉSENTATION':'TITRE ORIGINAL ET LIEN SOURCE EN LÉGENDE TELEGRAM','</div></section>',
+'<div class="original">',qa?'AUCUN ARTICLE RÉEL · MAQUETTE DE PRÉSENTATION':'ARTICLE COMPLET ET LIEN EN LÉGENDE TELEGRAM','</div></section>',
 '<section class="tiles"><div class="tile"><div class="tilelabel">',qa?'THÈME FICTIF':'THÈME DE L’ARTICLE','</div>',
 '<div class="tilevalue">',esc(a.topic),qa?' · EXEMPLE':'','</div>',
 '<div class="tiledetail">',qa?'Aucune réglementation annoncée':'Statut légal non confirmé','</div></div>',
