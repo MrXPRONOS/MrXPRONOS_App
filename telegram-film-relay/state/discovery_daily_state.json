@@ -7,13 +7,13 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 3,
+          "matching_pairs": 9,
           "redistribution_rights": "non_verifies",
-          "rejected_pairs": 1,
+          "rejected_pairs": 0,
           "sample_post_ids": [
-            383,
-            403,
-            428
+            1032,
+            1034,
+            1039
           ],
           "sampled_messages": 55,
           "source_status": "pending_rights",
@@ -22,22 +22,23 @@
             "min_video_megabytes": 30,
             "min_video_minutes": 10
           },
-          "title": "Anime Canal Vf👍✨",
+          "title": "BLACK TORCH VF VOSTFR",
           "transfer_restricted": false,
-          "url": "https://t.me/anime2_vf",
-          "username": "anime2_vf"
+          "url": "https://t.me/anime123454",
+          "username": "anime123454"
         },
         {
           "category": "anime",
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 2,
+          "matching_pairs": 10,
           "redistribution_rights": "non_verifies",
           "rejected_pairs": 0,
           "sample_post_ids": [
-            63700,
-            63737
+            19162,
+            19186,
+            19193
           ],
           "sampled_messages": 55,
           "source_status": "pending_rights",
@@ -46,22 +47,47 @@
             "min_video_megabytes": 30,
             "min_video_minutes": 10
           },
-          "title": "ANIMES VF/VOSTFR",
+          "title": "𝑨𝑵𝑰𝑴𝑬𝑺 𝑼𝑵𝑰𝑽𝑬𝑹𝑺 𝑽𝑭/𝑽𝑶𝑺𝑻𝑭𝑹",
           "transfer_restricted": false,
-          "url": "https://t.me/ANIMES_VF_VOSFR",
-          "username": "ANIMES_VF_VOSFR"
+          "url": "https://t.me/OtakusUnivers",
+          "username": "OtakusUnivers"
+        },
+        {
+          "category": "anime",
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
+          "joined_by_tool": false,
+          "matching_pairs": 5,
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 0,
+          "sample_post_ids": [
+            10856,
+            10862,
+            10869
+          ],
+          "sampled_messages": 55,
+          "source_status": "pending_rights",
+          "strict_filters": {
+            "min_verified_pairs": 2,
+            "min_video_megabytes": 30,
+            "min_video_minutes": 10
+          },
+          "title": "OTAKU ANIME VOSTFR 🇯🇵",
+          "transfer_restricted": false,
+          "url": "https://t.me/OTAKU_ANIM_VOSTFR",
+          "username": "OTAKU_ANIM_VOSTFR"
         }
       ],
       "statistics": {
         "attempted": 4,
         "checked": 4,
         "found": 15,
-        "next_candidate_offset": 8,
+        "next_candidate_offset": 12,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
         "rate_limited": false,
-        "strict_rejected": 2
+        "strict_rejected": 1
       }
     },
     "comedie": {
@@ -70,7 +96,7 @@
         "attempted": 4,
         "checked": 4,
         "found": 6,
-        "next_candidate_offset": 2,
+        "next_candidate_offset": 0,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
@@ -79,43 +105,17 @@
       }
     },
     "desir": {
-      "channels": [
-        {
-          "category": "desir",
-          "format": "photo_texte_puis_video",
-          "format_verified": true,
-          "joined_by_tool": false,
-          "matching_pairs": 8,
-          "redistribution_rights": "non_verifies",
-          "rejected_pairs": 0,
-          "sample_post_ids": [
-            258,
-            260,
-            262
-          ],
-          "sampled_messages": 21,
-          "source_status": "pending_rights",
-          "strict_filters": {
-            "min_verified_pairs": 2,
-            "min_video_megabytes": 150,
-            "min_video_minutes": 40
-          },
-          "title": "💖💖FILMS ROMANTIQUES💖💖",
-          "transfer_restricted": false,
-          "url": "https://t.me/filmsromatique",
-          "username": "filmsromatique"
-        }
-      ],
+      "channels": [],
       "statistics": {
         "attempted": 4,
         "checked": 4,
         "found": 13,
-        "next_candidate_offset": 8,
+        "next_candidate_offset": 12,
         "not_readable": 0,
         "protected": 0,
         "queries": 3,
         "rate_limited": false,
-        "strict_rejected": 3
+        "strict_rejected": 4
       }
     },
     "films": {
@@ -124,7 +124,7 @@
         "attempted": 4,
         "checked": 4,
         "found": 17,
-        "next_candidate_offset": 8,
+        "next_candidate_offset": 12,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
@@ -135,6 +135,7 @@
   },
   "known_usernames": [
     "amatera12345",
+    "anime123454",
     "anime2_vf",
     "anime_sama_vf_hd",
     "animeisekaic",
@@ -150,14 +151,16 @@
     "filmsnigerien",
     "filmsromantiques",
     "filmsromatique",
-    "mangas_anime_en_francais"
+    "mangas_anime_en_francais",
+    "otaku_anim_vostfr",
+    "otakusunivers"
   ],
-  "last_notification_day": "2026-10-18",
-  "last_scan": "2026-10-18T12:15:47.713582+00:00",
+  "last_notification_day": "2026-10-19",
+  "last_scan": "2026-10-19T15:01:31.590518+00:00",
   "offsets": {
-    "anime": 8,
-    "comedie": 2,
-    "desir": 8,
-    "films": 8
+    "anime": 12,
+    "comedie": 0,
+    "desir": 12,
+    "films": 12
   }
 }
