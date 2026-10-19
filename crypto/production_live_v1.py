@@ -93,22 +93,31 @@ def alert_is_new(state: dict, data: dict) -> bool:
     levels = state.setdefault("alert_levels", {})
     if not isinstance(levels, dict):
         raise ValueError("Corrupt alert monitor registry")
-    previous = dict(levels)
+    rearmed = state.setdefault("alert_rearmed", {})
+    published = state.setdefault("alert_last_published_signal", {})
+    if not isinstance(rearmed, dict) or not isinstance(published, dict):
+        raise ValueError("Corrupt alert delivery register")
     for sample in data.get("observations", []):
         symbol = sample["symbol"]
         change = float(sample["change"])
         level = int(sample["level"])
-        levels[symbol] = {"level": level, "direction": "up" if change >= 0 else "down"}
-    seed.write_state(state)  # persist a re-arming event even if no send
+        last_observed = levels.get(symbol, {})
+        direction = "up" if change >= 0 else "down"
+        if level == 0 or (last_observed and last_observed.get("direction") != direction):
+            rearmed[symbol] = True
+        levels[symbol] = {"level": level, "direction": direction}
+    seed.write_state(state)  # observations, not publication acknowledgements
     if data.get("status") == "no_alert":
         return False
     row = data["row"]
     symbol = row["symbol"]
     current_level = int(row["level"])
     current_dir = row["direction"]
-    former = previous.get(symbol, {})
-    if former.get("direction") == current_dir and int(former.get("level", 0)) >= current_level:
-        print("CRYPTO_ALERT_SUSTAINED_THRESHOLD_NO_DUPLICATE", symbol, current_level)
+    last_confirmed = published.get(symbol, {})
+    if (last_confirmed.get("direction") == current_dir
+            and int(last_confirmed.get("level", 0)) >= current_level
+            and not rearmed.get(symbol, False)):
+        print("CRYPTO_ALERT_ALREADY_CONFIRMED_SENT", symbol, current_level)
         return False
     last = state.get("alert_last_published", {}).get(symbol)
     if last:
@@ -230,7 +239,11 @@ def execute(mode: str):
                 "source": data.get("provider") or data.get("main", {}).get("source") or "Alternative.me",
             }
             if number == 4:
-                state.setdefault("alert_last_published", {})[data["row"]["symbol"]] = stamped
+                symbol = data["row"]["symbol"]
+                state.setdefault("alert_last_published", {})[symbol] = stamped
+                state.setdefault("alert_last_published_signal", {})[symbol] = {
+                    "level": int(data["row"]["level"]), "direction": data["row"]["direction"]}
+                state.setdefault("alert_rearmed", {})[symbol] = False
             if number in (8, 9):
                 for fp in data["fingerprints"]:
                     state["news_fingerprints"][fp] = {"number": number, "message_id": message_id}
