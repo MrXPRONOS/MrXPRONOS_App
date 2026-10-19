@@ -6,11 +6,15 @@ on:
     branches: ['feature/exact-score-v1-20261019']
     paths:
       - 'bsd/exact_scores.py'
+      - 'bsd/exact_scores_h2h.py'
+      - 'bsd/exact_scores_full_2026.py'
       - 'bsd/test_exact_scores.py'
       - '.github/workflows/exact-scores-train.yml'
   pull_request:
     paths:
       - 'bsd/exact_scores.py'
+      - 'bsd/exact_scores_h2h.py'
+      - 'bsd/exact_scores_full_2026.py'
       - 'bsd/test_exact_scores.py'
       - '.github/workflows/exact-scores-train.yml'
 
@@ -38,7 +42,7 @@ jobs:
   train:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 65
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -52,6 +56,8 @@ jobs:
         run: python bsd/bsd_archive.py restore
       - name: Train and measure held-out 2026 exact scores
         run: python bsd/exact_scores.py --out-dir tmp/exact-scores
+      - name: Evaluate all finished 2026 matches and H2H priority
+        run: python bsd/exact_scores_full_2026.py --out-dir tmp/exact-scores
       - name: Reject missing backtest results
         run: |
           python - <<'PY'
@@ -59,6 +65,11 @@ jobs:
           r=json.load(open('tmp/exact-scores/report.json'))
           assert r['test_2026']['trained_model']['evaluated'] > 0, 'No held-out match was evaluated'
           print('TRAINED_EVALUATION',r['test_2026'])
+          f=json.load(open('tmp/exact-scores/full-2026-report.json'))
+          assert f['total_finished_2026'] > 0 and f['eligible'] > 0
+          assert f['total_finished_2026'] == f['eligible'] + sum(f['rejected'].values())
+          assert f['sample_cap_2026'] is None
+          print('FULL_2026_COVERAGE',f['total_finished_2026'],f['eligible'])
           PY
       - name: Save model and evaluation artifacts
         uses: actions/upload-artifact@v4
