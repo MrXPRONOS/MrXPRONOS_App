@@ -7,7 +7,7 @@ import math
 from datetime import datetime, timezone
 from pathlib import Path
 
-from crypto.publish_crypto_1_5 import market, movers, fear_index
+from crypto.publish_crypto_1_5 import market, STABLE, fear_index
 from crypto.free_coin_logos import enrich_with_logos
 from crypto.test_channel_premium import get_sparkline, get_global_metrics
 
@@ -27,17 +27,51 @@ def validate_losers(rows):
         raise ValueError("Duplicate symbols in top-five losers")
     return rows
 
+def select_real_losers(rows, fetch_history=get_sparkline, max_candidates=24):
+    """Best five *eligible with verified real 48h history*, not synthetic charts.
+
+    CoinPaprika's top losers can include obscure symbols for which the free
+    time-series providers have no coverage. Keep scanning legitimate top-100
+    assets in descending loss order instead of aborting after the first miss.
+    """
+    eligible = []
+    unique = set()
+    for r in sorted(rows, key=lambda x: float(x.get("change") or 0)):
+        symbol = str(r.get("symbol") or "").upper()
+        try:
+            if (symbol in unique or symbol in STABLE
+                    or not 1 <= int(r["rank"]) <= 100
+                    or float(r["volume"]) < 1_000_000
+                    or float(r["change"]) >= 0 or not math.isfinite(float(r["change"]))
+                    or float(r["price"]) <= 0 or not math.isfinite(float(r["price"]))):
+                continue
+        except (KeyError,TypeError,ValueError,OverflowError):
+            continue
+        unique.add(symbol)
+        eligible.append(r)
+    chosen = []
+    for row in eligible[:max_candidates]:
+        try:
+            series = fetch_history(row["symbol"])
+            if (not isinstance(series,list) or len(series)<36 or
+                    any(not math.isfinite(float(v)) or float(v)<=0 for v in series)
+                    or max(series)==min(series)):
+                print("LOSER_HISTORY_NOT_AVAILABLE",row["symbol"])
+                continue
+            chosen.append({**row,"sparkline":series})
+            print("LOSER_HISTORY_VERIFIED",row["symbol"],len(series))
+            if len(chosen)==5:
+                return validate_losers(chosen)
+        except (ValueError,TypeError,OverflowError,RuntimeError) as exc:
+            print("LOSER_HISTORY_SKIP",row["symbol"],type(exc).__name__)
+    raise RuntimeError(
+        f"Only {len(chosen)} authentic loser charts across "
+        f"{min(max_candidates,len(eligible))} eligible candidates: no publication")
+
+
 def main():
     rows, provider = market()
-    chosen = validate_losers(movers(rows, "down"))
-    for row in chosen:
-        series = get_sparkline(row["symbol"])
-        if not series or len(series) < 12 or any(
-            not math.isfinite(float(v)) or float(v) <= 0 for v in series
-        ):
-            raise RuntimeError("Real 48h price history missing for " + row["symbol"] +
-                               "; do not invent a chart or publish")
-        row["sparkline"] = series
+    chosen = select_real_losers(rows)
     metrics = get_global_metrics()
     chosen[0].update(metrics)
     try:
