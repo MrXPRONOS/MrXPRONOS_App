@@ -1,0 +1,82 @@
+name: Football News - Test Telegram
+
+on:
+  push:
+    branches:
+      - feat/football-news-video-20261019
+    paths:
+      - "config/football_news_test_trigger.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: football-news-test-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout test branch
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install free dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-liberation
+          python -m pip install --upgrade pip setuptools wheel
+          pip install "numpy<2" "pillow<12" requests "moviepy==1.0.3" "edge-tts>=6.1.0"
+
+      - name: Static syntax check
+        run: |
+          python -m py_compile news/build_daily_news.py
+          python -m py_compile scripts/telegram_test_guard.py
+          python -m py_compile scripts/send_video_test_telegram.py
+
+      - name: Build football news video
+        run: |
+          python news/build_daily_news.py             --out football_news_test.mp4             --work-dir telegram_out/football_news_test             --max 3             --hours 36             --min-score 55
+
+      - name: Inspect generated video
+        run: |
+          test -s football_news_test.mp4
+          ffprobe -v error             -show_entries format=duration,size             -show_entries stream=codec_name,width,height,r_frame_rate             -of json football_news_test.mp4
+          echo "----- SELECTED NEWS -----"
+          cat telegram_out/football_news_test/manifest.json
+
+      - name: Verify exact Telegram test destination
+        env:
+          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: python scripts/telegram_test_guard.py
+
+      - name: Send football news video to test Telegram
+        env:
+          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          COUNT="$(python -c 'import json; print(json.load(open("telegram_out/football_news_test/manifest.json",encoding="utf-8"))["selected_count"])')"
+          python scripts/send_video_test_telegram.py             --video football_news_test.mp4             --caption "🧪 TEST — ACTU FOOT MR XPRONOS
+          ${COUNT} actualités sélectionnées automatiquement.
+          Collecte RSS • déduplication • scoring • voix IA • rendu vertical.
+          Version MVP sans photos externes."
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: football-news-test
+          path: |
+            football_news_test.mp4
+            telegram_out/football_news_test/
+          if-no-files-found: warn
+          retention-days: 7
