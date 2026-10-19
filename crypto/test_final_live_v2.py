@@ -19,6 +19,11 @@ class FinalLiveTests(unittest.TestCase):
              "observations":[{"symbol":"BTC","change":5.5,"level":5}]}
         with patch("crypto.production_live_v1.seed.write_state"):
             self.assertTrue(alert_is_new(state,raw))
+            # An unacknowledged detection is not a published Telegram alert.
+            self.assertTrue(alert_is_new(state,raw))
+            state.setdefault("alert_last_published_signal",{})["BTC"] = {
+                "level":5,"direction":"up"}
+            state.setdefault("alert_rearmed",{})["BTC"] = False
             self.assertFalse(alert_is_new(state,raw))
             raw["observations"][0]["change"]=10.1
             raw["observations"][0]["level"]=10
