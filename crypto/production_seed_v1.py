@@ -163,15 +163,22 @@ def validated_real(number: int, d: dict):
         raise ValueError("Demo source cannot enter production")
     if number == 1:
         recent(d["timestamp"])
+        from crypto.financial_sanity import validate_global_usd
+        validate_global_usd(d["rows"][0].get("market_cap_total"),
+                            d["rows"][0].get("global_volume_24h"))
         if d["provider"] not in ALLOWED_PROVIDERS:
             raise ValueError("Unknown market data provider")
         rows = d["rows"]
         if len(rows) != 5 or set(r["symbol"] for r in rows) != WATCH:
             raise ValueError("Wrong major assets")
-        if any(not isinstance(r.get("sparkline"), list) or len(r["sparkline"]) < 12 or r["price"] <= 0 for r in rows):
+        if any(not isinstance(r.get("sparkline"), list) or len(r["sparkline"]) < 36 or r["price"] <= 0 for r in rows):
             raise ValueError("Invalid real 48h price charts")
     elif number in (2, 3):
         recent(d["timestamp"])
+        if number == 3:
+            from crypto.financial_sanity import validate_global_usd
+            validate_global_usd(d["rows"][0].get("market_cap_total"),
+                                d["rows"][0].get("global_volume_24h"))
         if d["provider"] not in ALLOWED_PROVIDERS or len(d["rows"]) != 5:
             raise ValueError("Top five data provider/count invalid")
         if any(int(r["rank"]) not in range(1, 101)
@@ -191,7 +198,7 @@ def validated_real(number: int, d: dict):
                 threshold(float(row["change"])) != int(row["level"]) or
                 int(row["level"]) < 5 or
                 not isinstance(row.get("sparkline"), list) or
-                len(row["sparkline"]) < 12):
+                len(row["sparkline"]) < 36):
             raise ValueError("Invalid real threshold alert")
         recent(d["collected_at"] if "collected_at" in d else d["timestamp"])
     elif number == 5:
@@ -254,18 +261,30 @@ def prepared(number: int):
     return d, p
 
 
+def price_caption(value: float) -> str:
+    """Do not turn a real micro-cap token price into 0.00 USD in captions."""
+    value = float(value)
+    if value <= 0 or not __import__("math").isfinite(value):
+        raise ValueError("Invalid asset price")
+    if value >= 1:
+        return f"{value:,.2f}"
+    if value < 1e-10:
+        return f"{value:.5g}"
+    return f"{value:.12f}".rstrip("0").rstrip(".")
+
+
 def caption_for(number: int, d: dict) -> str:
     if number == 1:
         rows = d["rows"]
         body = "\n".join(
-            f"{r['symbol']}: {float(r['price']):,.2f} USD | 24h {float(r['change']):+.2f}%"
+            f"{r['symbol']}: {price_caption(r['price'])} USD | 24h {float(r['change']):+.2f}%"
             for r in rows)
         result = "📈 COURS DES CRYPTOS | #01\n\n" + body + "\n\nGraphiques 48h réels. Source : " + d["provider"]
     elif number in (2, 3):
         label = "HAUSSES" if number == 2 else "BAISSES"
         rows = d["rows"]
         body = "\n".join(
-            f"{i}. {r['symbol']}: {float(r['change']):+.2f}% | {float(r['price']):,.2f} USD"
+            f"{i}. {r['symbol']}: {float(r['change']):+.2f}% | {price_caption(r['price'])} USD"
             for i, r in enumerate(rows, 1))
         result = f"📊 TOP 5 {label} SUR 24H | #{number:02d}\n\n" + body + "\n\nTop 100, volume ≥1 M USD/j. Source : " + d["provider"]
     elif number == 4:

@@ -12,6 +12,7 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 from crypto.publish_crypto_1_5 import request_json
+from crypto.financial_sanity import validate_global_usd
 
 UTC = timezone.utc
 PAPRIKA_URL = "https://api.coinpaprika.com/v1/global"
@@ -41,6 +42,7 @@ def normalized(provider: str, market_cap, volume, dominance, change, count,
         raise ValueError("Source non autorisée")
     cap = finite_number(market_cap, "market_cap_usd", low=1_000_000, high=1e16)
     vol = finite_number(volume, "volume_24h_usd", low=1, high=1e15)
+    validate_global_usd(cap, vol)  # shared USD scale guard across #01/#03/#06/#07
     btc = finite_number(dominance, "btc_dominance_pct", low=0.01, high=99.99)
     variation = finite_number(change, "market_cap_change_24h_pct", low=-100, high=100)
     coins = int(finite_number(count, "cryptocurrencies_number", low=1, high=1000000))

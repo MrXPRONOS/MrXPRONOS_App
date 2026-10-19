@@ -84,9 +84,13 @@ def get_global_metrics():
     change=float(raw["mcap_change"])
     if not all(math.isfinite(v) for v in (cap,volume,change)) or cap<=0 or volume<=0 or abs(change)>50:
         raise RuntimeError("CoinLore global: invalid metrics")
-    # CoinLore documents total_mcap and total_volume in USD billions.
-    return {"market_cap_total":cap*1e9,"market_cap_change_24h":change,
-            "global_volume_24h":volume*1e9,"global_metrics_source":"CoinLore"}
+    # CoinLore /api/global/ already reports total_mcap and total_volume in USD.
+    # Never multiply by 1e9; that silently inflated the Oct 18 posters.
+    # Reject impossible orders of magnitude before ANY poster can be published.
+    if not (1e11 <= cap <= 1e14 and 1e9 <= volume <= 1e13):
+        raise RuntimeError("CoinLore global: USD order of magnitude invalid")
+    return {"market_cap_total":cap,"market_cap_change_24h":change,
+            "global_volume_24h":volume,"global_metrics_source":"CoinLore"}
 
 def main():
     now=datetime.now(timezone.utc)

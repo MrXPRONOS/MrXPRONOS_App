@@ -15,7 +15,7 @@ if(!d.main||!providers.includes(d.main.source)||!exchanges.includes(d.exchange)|
    !cats.includes(d.category)||d.exchange!==d.main.exchange||d.main.category!==d.category)
   throw Error('Bad exchange news metadata');
 if(d.confirmation&&!providers.includes(d.confirmation.source))throw Error('Unrecognized confirmation source');
-if(d.main.severe&&!d.confirmation)throw Error('Sensitive headline needs corroboration');
+if(d.main.severe&&!d.confirmation&&!d.main.official)throw Error('Sensitive press headline needs independent corroboration');
 if(d.verification!==(d.main.official?'official_notice':(d.confirmation?'cross_reported':'attributed_report')))
   throw Error('Bad provenance label');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -29,7 +29,7 @@ const second=esc(d.confirmation?.source||'—');
 const when=esc(stamp(d.main.published_at));
 const published=esc(stamp(d.collected_at));
 const headlineSize=d.main.title.length>153?42:d.main.title.length>117?47:d.main.title.length>86?53:60;
-const status=d.main.official?'SOURCE OFFICIELLE':d.confirmation?'DEUX MÉDIAS':'SOURCE ATTRIBUÉE';
+const status=d.main.official?'PAGE OFFICIELLE':d.confirmation?'DEUX MÉDIAS':'ARTICLE ATTRIBUÉ';
 const evidence=d.main.official?'INCIDENT SIGNALÉ PAR LA PLATEFORME':d.confirmation?'DEUX SOURCES RECROISÉES':'ARTICLE ATTRIBUÉ À SON MÉDIA';
 const svg='<svg viewBox="0 0 450 450" class="network" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
 '<defs><radialGradient id="orb" cx="30%" cy="25%"><stop offset="0%" stop-color="#ffe3b3"/><stop offset="39%" stop-color="#daa96e"/><stop offset="75%" stop-color="#8b653c"/><stop offset="100%" stop-color="#2b3a4b"/></radialGradient><linearGradient id="edge" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3d7a3"/><stop offset="1" stop-color="#b27c4d"/></linearGradient></defs>'+
@@ -37,8 +37,9 @@ const svg='<svg viewBox="0 0 450 450" class="network" xmlns="http://www.w3.org/2
 '<circle cx="225" cy="225" r="161" stroke="#d5a868" stroke-opacity=".24" fill="none" stroke-width="3"/>'+
 '<circle cx="225" cy="225" r="139" fill="url(#orb)" stroke="#f5d9a6" stroke-width="6"/>'+
 '<circle cx="225" cy="225" r="114" fill="#0e2b47" stroke="#f7ddae" stroke-width="5"/>'+
-'<g fill="none" stroke="url(#edge)" stroke-width="19" stroke-linecap="round" stroke-linejoin="round">'+
-'<path d="M149 201h148l-42-39M297 250H148l43 39"/></g>'+
+'<g fill="none" stroke="url(#edge)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">'+
+'<path d="M152 177L222 136L301 190L288 277L209 312L141 252Z M152 177L288 277 M301 190L141 252 M222 136L209 312"/></g>'+
+'<g fill="#f5d7a3" stroke="#9e7447" stroke-width="3"><circle cx="152" cy="177" r="15"/><circle cx="222" cy="136" r="15"/><circle cx="301" cy="190" r="15"/><circle cx="288" cy="277" r="15"/><circle cx="209" cy="312" r="15"/><circle cx="141" cy="252" r="15"/></g>'+
 '<circle cx="225" cy="225" r="102" fill="none" stroke="#d6b680" stroke-opacity=".3" stroke-width="2"/>'+
 '<circle cx="64" cy="153" r="8" fill="#f8dca1"/><circle cx="387" cy="317" r="8" fill="#f8dca1"/>'+
 '</svg>';
@@ -54,7 +55,7 @@ body{font-family:Arial,Helvetica,sans-serif;color:#f8fbff;background:#061226}
 .top{display:flex;align-items:center;justify-content:space-between;height:51px;border-bottom:1px solid #4c6b86;padding-bottom:19px}
 .eyebrow{font-size:18px;font-weight:900;letter-spacing:3px;color:#edc58a}
 .brand{font-size:29px;font-weight:900;letter-spacing:.4px;color:#fff;text-shadow:0 5px 11px #0008}.brand span{color:#f0c482}
-.heading{margin:33px 0 0;font-size:77px;font-weight:900;line-height:1.01;letter-spacing:-2.7px;text-shadow:0 7px 16px #000a}
+.heading{margin:28px 0 0;font-size:68px;font-weight:900;line-height:1.01;letter-spacing:-2.7px;text-shadow:0 7px 16px #000a}
 .heading em{font-style:normal;color:#f5c783}
 .goldline{margin-top:20px;height:5px;width:139px;border-radius:3px;background:linear-gradient(90deg,#ecc284,#fff4bf);box-shadow:0 0 18px #f3c47375}
 .sub{margin-top:15px;font-size:20px;color:#b9cde1;line-height:1.35}
@@ -100,7 +101,7 @@ body{font-family:Arial,Helvetica,sans-serif;color:#f8fbff;background:#061226}
 ${svg}
 <div class="exchange" data-long="${d.exchange.length>7}">${exchange}</div>
 <div class="rule"></div><div class="headline">${title}</div>
-<div class="origin">TITRE ORIGINAL DE LA SOURCE · ANGLAIS</div>
+<div class="origin">TITRE ORIGINAL EN ANGLAIS · LIEN SOURCE EN LÉGENDE</div>
 </section>
 <div class="evidence">
 <div class="card"><div class="cardlabel">SOURCE À L'ORIGINE</div><div class="cardname">${source}</div><div class="cardtime">${when} UTC</div></div>
@@ -108,7 +109,7 @@ ${svg}
 <div class="cardtime">${d.confirmation?'Recoupement de titres':d.main.official?'Vérifier le statut actuel':'À consulter dans son contexte'}</div></div>
 </div>
 <div class="info"><div><div class="infotitle">${evidence}</div><div class="infodesc">Lien de la source primaire ou du média dans la légende Telegram.</div></div>
-<div class="marker">EXCHANGE<br/>WATCH</div></div>
+<div class="marker">VEILLE<br/>CRYPTO</div></div>
 <footer class="footer"><span>Sources : ${source}${d.confirmation?' + '+second:''}</span><span>Collecte : ${published} UTC</span></footer>
 <div class="footnote">Information sourcée, pas une recommandation de trading. Vérifiez la disponibilité selon votre pays.</div>
 </main>${demo?'<div class="demo">SIMULATION • ACTUALITÉ FICTIVE • NON PUBLIABLE</div>':''}</div></body></html>`;

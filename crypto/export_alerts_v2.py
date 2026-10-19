@@ -78,7 +78,7 @@ def export_live():
                "status": "no_alert", "is_demo": False, "row": None}
     if selected:
         series = get_sparkline(selected["symbol"])
-        if (not isinstance(series, list) or len(series) < 12 or
+        if (not isinstance(series, list) or len(series) < 36 or
             any(not math.isfinite(float(v)) or float(v) <= 0 for v in series)):
             raise RuntimeError("Historique réel 48 h insuffisant : aucune alerte publiée")
         selected["sparkline"] = series

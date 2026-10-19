@@ -1,3 +1,4 @@
+import {moneyGlobalUsd,moneyPriceUsd,validateGlobalUsd,shortDateFr} from './crypto_poster_format.mjs';
 /** Mr XPRONOS — Publication 06, dominance du Bitcoin, 1080×1350. */
 import {chromium} from 'playwright';
 import {readFile, mkdir} from 'node:fs/promises';
@@ -13,7 +14,8 @@ if(fields.some(k => typeof d[k] !== 'number' || !Number.isFinite(d[k]))) throw E
 if(d.market_cap_usd < 1e6 || d.volume_24h_usd <= 0 || d.btc_dominance_pct <= 0 ||
    d.btc_dominance_pct >= 100 || Math.abs(d.btc_dominance_pct+d.other_dominance_pct-100)>0.001) throw Error('Valeurs financières incohérentes');
 const num=(v, digits=1)=>v.toLocaleString('fr-FR',{minimumFractionDigits:digits,maximumFractionDigits:digits});
-const big=(v)=>v>=1e12?num(v/1e12,2)+' billions $':num(v/1e9,1)+' Md $';
+const big=moneyGlobalUsd;
+validateGlobalUsd(d.market_cap_usd,d.volume_24h_usd);
 const stamp=new Date(d.source_updated_at || d.collected_at);
 if(Number.isNaN(stamp.getTime())) throw Error('Date invalide');
 const when=stamp.toLocaleString('fr-FR',{timeZone:'UTC',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
