@@ -36,6 +36,16 @@ class GlobalMetricRegressionTests(unittest.TestCase):
         self.assertEqual(validate_global_usd(d["market_cap_total"], d["global_volume_24h"]),
                          (2_718_295_617_920, 84_134_511_488))
 
+    def test_dominance_and_weekly_provider_reject_bad_usd_scale(self):
+        from crypto.export_dominance_v2 import normalized
+        now = datetime.now(UTC)
+        with self.assertRaises(ValueError):
+            normalized("CoinLore", 2.72e21, 84e18, 59.2, 1.37,
+                       15000, now, None)
+        self.assertEqual(
+            normalized("CoinLore", 2.72e12, 84e9, 59.2, 1.37,
+                       15000, now, None)["market_cap_usd"], 2.72e12)
+
     def test_scaled_x_billion_rejected(self):
         with self.assertRaises(ValueError):
             validate_global_usd(2.72e21, 84e18)
