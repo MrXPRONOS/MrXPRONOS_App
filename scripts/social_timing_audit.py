@@ -17,7 +17,8 @@ import requests
 
 UTC = timezone.utc
 NOW = datetime.now(UTC)
-SINCE = NOW - timedelta(days=90)
+WINDOW_DAYS = max(30, min(365, int(os.getenv("AUDIT_WINDOW_DAYS", "90"))))
+SINCE = NOW - timedelta(days=WINDOW_DAYS)
 MATURE = NOW - timedelta(hours=72)
 GRAPH = "https://graph.facebook.com/v25.0"
 THREADS = "https://graph.threads.net/v1.0"
@@ -132,7 +133,7 @@ def finish(name, rows, info=None, errors=None):
         "views_by_slot": metric_groups(rows, "views"),
         "engagements_by_slot": metric_groups(rows, "engagements"),
         "age_threshold_hours": 72,
-        "data_window_days": 90, "diagnostic": info or {}, "errors": errors or [],
+        "data_window_days": WINDOW_DAYS, "diagnostic": info or {}, "errors": errors or [],
     }
     formats = defaultdict(list)
     for row in rows:
@@ -288,6 +289,8 @@ def audit_youtube():
                     (int(likes or 0) + int(comments or 0)), "video")
         return finish("youtube", items, {
             "status": "ok", "videos_examined": len(ids), "playlist_entries": len(entries),
+            "within_72h": sum(1 for v in entries if parse_date((v.get("contentDetails") or {}).get("videoPublishedAt")) and
+                               parse_date((v.get("contentDetails") or {}).get("videoPublishedAt")) > MATURE),
             "oldest_listed": min((str((v.get("contentDetails") or {}).get("videoPublishedAt") or "")
                                    for v in entries), default=""),
             "newest_listed": max((str((v.get("contentDetails") or {}).get("videoPublishedAt") or "")
