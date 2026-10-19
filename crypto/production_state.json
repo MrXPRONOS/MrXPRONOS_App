@@ -1,4 +1,34 @@
 {
+  "alert_last_published_signal": {},
+  "alert_levels": {
+    "BNB": {
+      "direction": "up",
+      "level": 0
+    },
+    "BTC": {
+      "direction": "up",
+      "level": 0
+    },
+    "ETH": {
+      "direction": "up",
+      "level": 0
+    },
+    "SOL": {
+      "direction": "up",
+      "level": 0
+    },
+    "XRP": {
+      "direction": "up",
+      "level": 0
+    }
+  },
+  "alert_rearmed": {
+    "BNB": true,
+    "BTC": true,
+    "ETH": true,
+    "SOL": true,
+    "XRP": true
+  },
   "sent": {
     "daily:01:2026-10-19:morning": {
       "message_id": 9,
