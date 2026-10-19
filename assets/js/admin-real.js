@@ -1,5 +1,6 @@
 import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
 import { mountCmsBlockEditor } from "./cms-block-editor.mjs";
+import { mountCmsRevisionPanel } from "./cms-revisions.mjs";
 import { mountCmsMediaFieldPicker, mountCmsMediaPicker } from "./cms-media-library.mjs";
 import { supabaseUrl, supabaseAnonKey } from "./config.js";
 import "./loading-ui.js";
@@ -557,6 +558,8 @@ async function renderCmsArticles() {
   const cmsEditor = mountCmsBlockEditor({sb,textarea:$("a_content"),kind:"articles"});
   mountCmsMediaFieldPicker(sb,$("a_image"));
 
+  const versions = mountCmsRevisionPanel({sb,table:"cms_articles",
+    container:root.querySelector(".card"),onChoose:row=>setForm(row)});
   const setForm = (a) => {
     $("a_slug").value = a.slug || "";
     $("a_title").value = a.title || "";
@@ -566,6 +569,7 @@ async function renderCmsArticles() {
     $("a_status").value = a.status || "draft";
     $("a_active").value = (a.active !== false) ? "true" : "false";
     $("a_save").dataset.id = a.id;
+    void versions.load(a.id);
   };
 
   root.querySelectorAll("[data-id]").forEach(el => {
@@ -655,6 +659,8 @@ async function renderCmsConseils() {
   const cmsEditor = mountCmsBlockEditor({sb,textarea:$("c_content"),kind:"conseils"});
   mountCmsMediaFieldPicker(sb,$("c_image"));
 
+  const versions = mountCmsRevisionPanel({sb,table:"cms_conseils",
+    container:root.querySelector(".card"),onChoose:row=>setForm(row)});
   const setForm = (c) => {
     $("c_slug").value = c.slug || "";
     $("c_title").value = c.title || "";
@@ -663,6 +669,7 @@ async function renderCmsConseils() {
     $("c_status").value = c.status || "draft";
     $("c_active").value = (c.active !== false) ? "true" : "false";
     $("c_save").dataset.id = c.id;
+    void versions.load(c.id);
   };
 
   root.querySelectorAll("[data-id]").forEach(el => {
@@ -928,12 +935,15 @@ async function renderInfos() {
 
   const cmsEditor = mountCmsBlockEditor({sb,textarea:$("i_content"),kind:"infos"});
 
+  const versions = mountCmsRevisionPanel({sb,table:"cms_infos",
+    container:root.querySelector(".card"),onChoose:row=>setForm(row)});
   const setForm = (i) => {
     $("i_title").value = i.title || "";
     cmsEditor.setMarkdown(i.content || "",i.id);
     $("i_status").value = i.status || "draft";
     $("i_active").value = (i.active !== false) ? "true" : "false";
     $("i_save").dataset.id = i.id;
+    void versions.load(i.id);
   };
 
   root.querySelectorAll("[data-id]").forEach(el => {
