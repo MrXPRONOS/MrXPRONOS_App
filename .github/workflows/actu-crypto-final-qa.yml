@@ -2,7 +2,7 @@ name: Actu Crypto - Final editorial and Telegram history QA
 
 on:
   push:
-    branches: [fix/actu-crypto-final-production]
+    branches: [fix/actu-crypto-final-production, fix/crypto-alert-delivery-retry]
     paths:
       - 'crypto/**'
       - 'scripts/render_crypto_regulation_approved_v2.mjs'
