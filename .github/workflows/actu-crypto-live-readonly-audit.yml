@@ -5,6 +5,8 @@ on:
     branches: [test/actu-crypto-live-readonly-20261019]
     paths:
       - 'crypto/live_readonly_audit.py'
+      - 'crypto/export_losers_v2.py'
+      - 'crypto/test_losers_v2.py'
       - '.github/workflows/actu-crypto-live-readonly-audit.yml'
   workflow_dispatch:
 
