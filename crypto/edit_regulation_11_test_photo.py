@@ -12,6 +12,7 @@ from scripts.telegram_test_guard import validate_test_channel
 
 CHANNEL="@predict_mrxp"
 MESSAGE_ID=1549
+# Existing demonstration message ONLY; no new publication or production destination.
 PNG=Path("crypto/generated/test/regulation_11_demo.png")
 DATA=Path("crypto/generated/test/regulation_11_demo.json")
 
