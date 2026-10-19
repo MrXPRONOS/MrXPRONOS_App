@@ -107,7 +107,7 @@ const h=[
 '<div class="original">TITRE VÉRIFIÉ PAR UN ÉDITEUR · SOURCE OFFICIELLE EN LÉGENDE</div></section>',
 '<section class="tiles"><div class="tile"><div class="tilelabel">ÉTAPE ANNONCÉE</div>',
 '<div class="tilevalue">',esc(stage),'</div>',
-'<div class="tiledetail">Qualification vérifiée lors d'une revue humaine</div></div>',
+'<div class="tiledetail">Qualification vérifiée par un éditeur</div></div>',
 '<div class="tile"><div class="tilelabel">',isOfficial?'SOURCE INSTITUTIONNELLE':'MÉDIA SOURCE',
 '</div><div class="tilevalue">',esc(a.source),'</div>',
 '<div class="tiledetail">',date,' UTC</div></div></section>',
