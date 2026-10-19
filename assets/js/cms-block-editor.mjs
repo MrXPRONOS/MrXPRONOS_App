@@ -77,7 +77,7 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
   const draftKey=()=>`mx:cms:v2:${kind}:${documentKey}`;
   const commit=()=>{
     textarea.value=serializeCmsBlocks(blocks);
-    textarea.dispatchEvent(new Event("input",{bubbles:true}));
+    // Do not emit a synthetic input event here: source mode already listens for input.
     editGeneration+=1;
     status.textContent="Modifications non enregistrées";
     clearTimeout(saveTimer);
