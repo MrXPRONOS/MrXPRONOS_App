@@ -7,6 +7,7 @@ This is not the 1xBet TOTO market, nor the changing live group-bet market.
 from __future__ import annotations
 from datetime import datetime, timezone
 from math import isfinite
+import re
 from urllib.parse import urlparse
 
 MARKET="Correct Score - Group Bet"
@@ -158,20 +159,31 @@ def validate_1xbet_snapshot(document,*,event_id,kickoff,now):
     seen=set()
     items=[]
     for item in document.get("selections",[]):
-        if item.get("group_id") not in GROUPS or item["group_id"] in seen:
-            raise ValueError("Unexpected or duplicate group id")
+        gid=item.get("group_id")
+        if not isinstance(gid,str) or gid in seen:
+            raise ValueError("Missing or duplicate bookmaker selection identifier")
+        is_reference=gid in GROUPS
+        is_custom=bool(re.fullmatch(r"XBET_[A-Z0-9_]{1,20}",gid))
+        if not is_reference and not (
+            is_custom and document.get("market_variant")=="per_fixture_grouping"
+        ):
+            raise ValueError("Unknown 1xBet score group requires explicit per-fixture definition")
         scores=normalize_scores(item["scores"])
-        if set(scores)!=set(GROUPS[item["group_id"]]):
-            raise ValueError("Observed selection differs from 1xBet reference: reject")
+        if is_reference and set(scores)!=set(GROUPS[gid]):
+            raise ValueError("Observed reference group differs from 1xBet template")
+        if is_custom and not (2<=len(scores)<=6):
+            raise ValueError("A dynamic grouped selection must enumerate 2-6 exact scores")
         quote=item.get("odds")
         if type(quote) not in (int,float) or not isfinite(quote) or not 1.01<=quote<=1000:
             raise ValueError("Real decimal odd required")
-        seen.add(item["group_id"])
-        items.append({"group_id":item["group_id"],"scores":[list(x) for x in GROUPS[item["group_id"]]],
+        seen.add(gid)
+        items.append({"group_id":gid,
+                      "scores":[list(x) for x in (GROUPS[gid] if is_reference else scores)],
                       "odds":quote,"quote_source":"documented_1xbet_snapshot",
                       "captured_utc":stamp.astimezone(timezone.utc).isoformat(),
                       "source_url":document["source_url"],
-                      "bookmaker_event_id":bookid})
+                      "bookmaker_event_id":bookid,
+                      "dynamic_group":bool(is_custom)})
     if not items:
         raise ValueError("No available bookmaker selection documented")
     return items
