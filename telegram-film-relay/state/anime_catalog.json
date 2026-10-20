@@ -1,7 +1,7 @@
 {
   "audit": {
     "category": "anime_catalog",
-    "checked_at": "2026-10-20T17:25:05.470216+00:00",
+    "checked_at": "2026-10-20T21:52:58.896271+00:00",
     "not_yet_indexed": [
       {
         "episode": 2,
@@ -424,42 +424,6 @@
         "source_instances": 1
       },
       {
-        "episode": 37,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
-        "episode": 38,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
-        "episode": 39,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
-        "episode": 40,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
-        "episode": 41,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
-        "episode": 42,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
         "episode": 43,
         "season": "1",
         "series": "mangas-fv-yu-gi-oh-duel-monsters",
@@ -602,20 +566,50 @@
         "season": "1",
         "series": "mangas-fv-yu-gi-oh-duel-monsters",
         "source_instances": 1
+      },
+      {
+        "episode": 67,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 68,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 69,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 70,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 71,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 72,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
       }
     ],
-    "not_yet_indexed_total": 374,
+    "not_yet_indexed_total": 368,
     "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
     "numbering_gap_seasons": 1,
     "numbering_gaps": [
       {
         "missing_between_known": [
-          37,
-          38,
-          39,
-          40,
-          41,
-          42,
           43,
           44,
           45,
@@ -649,11 +643,17 @@
           73,
           74,
           75,
-          76
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82
         ],
         "season": "1",
         "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "truncated": true
+        "truncated": false
       }
     ],
     "scanned_episode_candidates": 385,
@@ -1003,9 +1003,33 @@
             "message_id": 93,
             "url": "https://t.me/c/4416009337/93"
           },
+          "37": {
+            "message_id": 94,
+            "url": "https://t.me/c/4416009337/94"
+          },
+          "38": {
+            "message_id": 95,
+            "url": "https://t.me/c/4416009337/95"
+          },
+          "39": {
+            "message_id": 96,
+            "url": "https://t.me/c/4416009337/96"
+          },
           "4": {
             "message_id": 77,
             "url": "https://t.me/c/4416009337/77"
+          },
+          "40": {
+            "message_id": 97,
+            "url": "https://t.me/c/4416009337/97"
+          },
+          "41": {
+            "message_id": 98,
+            "url": "https://t.me/c/4416009337/98"
+          },
+          "42": {
+            "message_id": 99,
+            "url": "https://t.me/c/4416009337/99"
           },
           "5": {
             "message_id": 78,
@@ -1095,6 +1119,12 @@
         "-1001595907308:13548": 91,
         "-1001595907308:13549": 92,
         "-1001595907308:13550": 93,
+        "-1001595907308:13551": 94,
+        "-1001595907308:13552": 95,
+        "-1001595907308:13553": 96,
+        "-1001595907308:13554": 97,
+        "-1001595907308:13555": 98,
+        "-1001595907308:13556": 99,
         "-1001595907308:13597": 68,
         "-1001595907308:13598": 69,
         "-1001595907308:13599": 70,
