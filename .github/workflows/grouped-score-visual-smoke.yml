@@ -1,0 +1,47 @@
+name: Grouped scores - responsive browser QA
+on:
+  push:
+    branches: ['feature/exact-score-v1-20261019']
+    paths:
+      - 'scores-groupes.html'
+      - 'assets/css/grouped-score.css'
+      - 'assets/js/grouped-score.js'
+      - 'scripts/grouped_score_visual_smoke.py'
+      - '.github/workflows/grouped-score-visual-smoke.yml'
+  pull_request:
+    paths:
+      - 'scores-groupes.html'
+      - 'assets/css/grouped-score.css'
+      - 'assets/js/grouped-score.js'
+      - 'scripts/grouped_score_visual_smoke.py'
+      - '.github/workflows/grouped-score-visual-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium
+        run: |
+          python -m pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Start local static review server
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 > /tmp/grouped-http.log 2>&1 &
+          sleep 2
+      - name: Validate mobile and desktop score group previews
+        run: python scripts/grouped_score_visual_smoke.py
+      - name: Archive visual QA screenshots only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: grouped-score-visual-qa-${{ github.run_id }}
+          path: artifacts/grouped-score-responsive/
+          if-no-files-found: warn
+          retention-days: 30
