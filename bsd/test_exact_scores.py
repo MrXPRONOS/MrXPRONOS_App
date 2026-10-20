@@ -133,3 +133,22 @@ class H2HPhaseOneTests(unittest.TestCase):
         self.assertEqual(result["finished_2026"],0)
         self.assertEqual(result["variants"]["combined"]["n"],0)
         self.assertEqual(audit,[])
+
+class H2HStandaloneVariantTests(unittest.TestCase):
+    def test_legacy_rejection_does_not_force_v2_rejection(self):
+        from exact_scores_phase1_backtest import VARIANTS
+        self.assertIn("v2_standalone",VARIANTS)
+        self.assertIn("legacy",VARIANTS)
+    def test_exact_settlement_four_hour_delay(self):
+        from exact_scores_h2h_v2 import meetings_before
+        from exact_scores_h2h import H2HIndex
+        def ev(i,t,s):
+            return {"id":i,"event_date":t,"status":"finished",
+                    "home_team_id":100,"away_team_id":200,
+                    "home_score":s,"away_score":0}
+        old=ev(11,"2026-05-01T09:00:00Z",1)
+        too_soon=ev(12,"2026-05-01T12:59:00Z",2)
+        settled=ev(13,"2026-05-01T13:01:00Z",3)
+        idx=V2History([old,too_soon,settled])
+        self.assertEqual(meetings_before(too_soon,H2HIndex(idx)),[])
+        self.assertEqual(len(meetings_before(settled,H2HIndex(idx))),1)
