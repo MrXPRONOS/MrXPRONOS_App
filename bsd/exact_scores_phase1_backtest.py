@@ -14,7 +14,7 @@ from exact_scores_h2h import H2HIndex
 from exact_scores_h2h_v2 import profile
 from exact_scores_under25 import train_under25,reweight_scores
 
-VARIANTS=("legacy","recency","venue","strength","reliability","combined")
+VARIANTS=("legacy","recency","venue","strength","reliability","combined","v2_standalone")
 def bucket():return {"n":0,"top1":0,"top3":0,"under":0,"sum_p_under":0.0,"brier":0.0,"quality_sum":0.0}
 
 def update(b,actual,matrix,p_under,quality):
@@ -72,12 +72,12 @@ def evaluate(events):
         if not hp.get("candidate"):continue
         totals["h2h_with_three_matches"]+=1
         variants=hp["variants"]
-        if not variants["legacy"]:continue
-        totals["legacy_h2h"]+=1
+        if variants["legacy"]:totals["legacy_h2h"]+=1
         original=matrix_for(exp["home"]*sh,exp["away"]*sa,rho=rho)
         under=model.predict(event,index,original)
         if not under["priority"]:continue
-        totals["legacy_h2h_with_under25"]+=1
+        if variants["legacy"]:totals["legacy_h2h_with_under25"]+=1
+        if variants["v2_standalone"]:totals["v2_standalone_with_under25"]+=1
         matrix=reweight_scores(original,under["probability"])
         actual=outcome_scores(event)
         kickoff=fixture_datetime(event)
@@ -94,7 +94,7 @@ def evaluate(events):
                 update(halves[half][key],actual,matrix,under["probability"],quality)
                 update(months[kickoff.strftime("%Y-%m")][key],actual,matrix,
                        under["probability"],quality)
-    report={"format":"mrx-h2h-v2-phase1-2026-research-v1",
+    report={"format":"mrx-h2h-v2-phase1-2026-research-v2",
             "published":False,"experimental":True,"odds_used":False,
             "model_parameters":{"rho":rho,"scale_home":sh,"scale_away":sa,
                                 "under25_blend":model.blend,"under25_threshold":model.threshold},
@@ -109,8 +109,11 @@ def evaluate(events):
                                     "venue":"same home/away orientation",
                                     "strength":"current pre-match attacking strength vs league",
                                     "reliability":"shrunken low-goals estimate with n_eff",
-                                    "combined":"all four gates together"},
-            "warning":"EXPLORATORY: 2026 outcomes have been inspected in prior research. No final unseen test or implied profitability."}
+                                    "combined":"all four gates AND legacy signal",
+                                    "v2_standalone":"all four gates WITHOUT legacy preselection"},
+            "warning":"EXPLORATORY: 2026 outcomes have been inspected in prior research. No final unseen test or implied profitability.",
+            "minimum_samples_for_comparison":60,
+            "decision_guidance":"Never prefer a lower-sample variant on historical hit-rate alone; require prospective verification."}
     return report,saved
 
 def main():
