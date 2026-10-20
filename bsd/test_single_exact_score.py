@@ -480,7 +480,7 @@ class SingleExactScoreTests(unittest.TestCase):
         chosen=group["records"][NOW.date().isoformat()]["picks"]
         self.assertEqual(len(chosen),3)
         self.assertTrue(all(v["rank_provenance"]==
-            "legacy-first-seen-probability-margin-v1" for v in chosen))
+            RANK_VERSION for v in chosen))
         self.assertEqual(set(v["id"] for v in chosen),
                          {"22202","22203","22204"})
     def test_encrypted_lineup_sidecar_from_existing_first_seen_score(self):
