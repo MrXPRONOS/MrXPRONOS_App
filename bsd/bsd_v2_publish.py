@@ -21,7 +21,8 @@ from bsd_v2_over_under import fit_total_model
 from bsd_v2_double_chance import fit_model as fit_dc_model
 from bsd_v2_odds import fetch_event_odds
 from bsd_odds_fallback import OddsRouter
-from bsd_v2_estimated_odds import ESTIMATED_SOURCE, valid_standalone_prediction, price_selected_market
+from bsd_v2_estimated_odds import (ESTIMATED_SOURCE, valid_standalone_prediction,
+    price_selected_market, model_reference_for_observation)
 from bsd_vip_diagnostics import summarize_vip_funnel
 from bsd_v2_labels import normalize_match,market_label
 from bsd_v2_assets import image_fields
@@ -426,6 +427,8 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             "category": prediction.get("category"),
             "selection_key": selected_football_market.get("key"),
             "conservative_probability": selected_football_market.get("conservative_probability"),
+            "probability": selected_football_market.get("probability"),
+            "market_code": selected_football_market.get("internal_market_code"),
             "league_samples": model_audit.get("league_samples"),
             "home_recent_matches": model_audit.get("home_recent_matches"),
             "away_recent_matches": model_audit.get("away_recent_matches"),
@@ -441,6 +444,13 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                 pricing_event["_odds_target_market"]=(selected_football_market.get("internal_market_code")
                                                     or selected_football_market.get("market_code"))
                 quotes,_diagnostics=odds_fetcher(pricing_event,now)
+                if isinstance(_diagnostics,dict):
+                    entry["odds_comparison"]={
+                        "verified_provider_count":_diagnostics.get("verified_provider_count",0),
+                        "chosen_provider":_diagnostics.get("provider"),
+                        "compared_only_exact_selected_market":_diagnostics.get(
+                            "quotes_compared_only_for_selected_market",False),
+                    }
                 if not isinstance(quotes,dict):
                     quotes={}
             except Exception as exc:

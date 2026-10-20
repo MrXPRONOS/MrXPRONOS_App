@@ -87,6 +87,46 @@ def estimated_quote(candidate_row, quotes, *, now=None):
     }
 
 
+def model_reference_for_observation(selection, *, now=None):
+    """Non-executable math quote for a rejected/unpublished football market.
+
+    Never used to bypass an already observed real quote, or V2.1/edge gates.
+    Returns a separate watchlist calculation with a fixed, disclosed
+    hypothetical margin. A price below 1.20 may still be a mathematical
+    observation but must NOT be published as a recommended selection.
+    """
+    if not isinstance(selection,dict):
+        return None
+    key=selection.get("key") or selection.get("selection_key")
+    code=selection.get("internal_market_code") or selection.get("market_code")
+    p=selection.get("probability")
+    conservative=selection.get("conservative_probability")
+    if (not code or key in (None,"","UNDER_45","12")
+        or type(p) not in (int,float) or type(conservative) not in (int,float)
+        or not isfinite(p) or not isfinite(conservative)
+        or not 0.70 <= p < 1 or not 0 < conservative <= p):
+        return None
+    fair=1.0/p
+    indicative=1.0/(p*(1+DEFAULT_OVERROUND))
+    if not 1.01 <= indicative <= fair:
+        return None
+    return {
+        "selection_key":key,"market_code":code,
+        "model_probability":round(p,6),
+        "conservative_probability":round(conservative,6),
+        "fair_odds":round(fair,4),
+        "odds":round(indicative,3),
+        "odds_source":ESTIMATED_SOURCE,
+        "estimated_odds":True,
+        "hypothetical_margin":DEFAULT_OVERROUND,
+        "odds_updated_at":now.isoformat() if now is not None else None,
+        "status":"observation_only",
+        "recommendation_eligible":False,
+        "telegram_eligible":False,
+        "not_an_executable_bookmaker_quote":True,
+    }
+
+
 def valid_standalone_prediction(pick, combo_only=False):
     """Source et prix explicites, jamais de cote théorique baptisée BSD."""
     if not isinstance(pick, dict):

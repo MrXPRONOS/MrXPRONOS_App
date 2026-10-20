@@ -78,7 +78,8 @@ class RouterTests(unittest.TestCase):
     def test_fallback_on_empty_and_rate_limit(self):
         session=FakeSession([FakeResponse(429,{}),FakeResponse(200,{"matches":[{
             **ROW,"in_play":False,"quotes":[{"group_name":"match result",
-                "label":"Real Madrid","odds_dec":1.8}]}]})])
+                "label":"Real Madrid","odds_dec":1.8}],
+                "polled_at":NOW.isoformat()}]})])
         with patch.dict(os.environ,{"PINNWIRE_API_KEY":"demo","ODDSLINK_API_KEY":"","MOVIODDS_ENABLE":"1"},clear=False):
             router=OddsRouter(lambda ev,at: ({},{}),session=session,
                 order=("goaldir","pinnwire","moviodds"))
@@ -91,13 +92,65 @@ class RouterTests(unittest.TestCase):
     def test_fallback_if_first_provider_has_wrong_market(self):
         session=FakeSession([FakeResponse(200,{"matches":[{
             **ROW,"in_play":False,"quotes":[{"group_name":"Goals Over/Under",
-                "side":"O","line":"2.5","odds_dec":1.91}]}]})])
+                "side":"O","line":"2.5","odds_dec":1.91}],
+                "polled_at":NOW.isoformat()}]})])
         router=OddsRouter(lambda event,at: ({"1X2_HOME_FT":{"odds":1.50}}, {}),
                           session=session, order=("goaldir","moviodds"))
         with patch.dict(os.environ,{"MOVIODDS_ENABLE":"1"}):
             out,diag=router.fetch(EVENT,NOW,market_code="OU_2.5_OVER_FT")
         self.assertEqual(diag["provider"],"moviodds")
         self.assertEqual(out["OU_2.5_OVER_FT"]["odds"],1.91)
+
+
+    def test_market_quote_comparison_selects_highest_verified_same_market(self):
+        captured=NOW
+        session=FakeSession([FakeResponse(200,{"matches":[{
+            **ROW,"in_play":False,"polled_at":captured.isoformat(),
+            "quotes":[{"group_name":"Match Result","label":"Real Madrid",
+                       "odds_dec":1.62}]}]})])
+        def bsd(event, when):
+            return {"1X2_HOME_FT":{"odds":1.33,"origin":"bsd_consensus",
+                    "updated_at":when.isoformat()}},{}
+        with patch.dict(os.environ,{"MOVIODDS_ENABLE":"1"}):
+            router=OddsRouter(bsd,session=session,order=("goaldir","moviodds"))
+            out,diag=router.fetch(EVENT,captured,market_code="1X2_HOME_FT")
+        self.assertEqual(out["1X2_HOME_FT"]["odds"],1.62)
+        self.assertEqual(diag["provider"],"moviodds")
+        self.assertEqual(diag["verified_provider_count"],2)
+        self.assertEqual(diag["exact_market_code"],"1X2_HOME_FT")
+        self.assertEqual(router.usage.get("moviodds"),1)
+
+    def test_stale_higher_quote_cannot_override_fresh_bsd(self):
+        stale=(NOW-timedelta(hours=3)).isoformat()
+        session=FakeSession([FakeResponse(200,{"matches":[{
+            **ROW,"in_play":False,"polled_at":stale,
+            "quotes":[{"group_name":"Match Result","label":"Real Madrid",
+                       "odds_dec":9.99}]}]})])
+        with patch.dict(os.environ,{"MOVIODDS_ENABLE":"1"}):
+            router=OddsRouter(lambda ev,now:({"1X2_HOME_FT":{
+                "odds":1.36,"origin":"bsd_consensus",
+                "updated_at":now.isoformat()}},{}),
+                session=session,order=("goaldir","moviodds"))
+            out,diag=router.fetch(EVENT,NOW,market_code="1X2_HOME_FT")
+        self.assertEqual(out["1X2_HOME_FT"]["odds"],1.36)
+        self.assertEqual(diag["provider"],"goaldir")
+        self.assertEqual(diag["verified_provider_count"],1)
+
+    def test_untimed_external_quote_is_not_a_verified_offer(self):
+        session=FakeSession([FakeResponse(200,{"matches":[{
+            **ROW,"in_play":False,
+            "quotes":[{"group_name":"Match Result","label":"Real Madrid",
+                       "odds_dec":8.88}]}]})])
+        with patch.dict(os.environ,{"MOVIODDS_ENABLE":"1"}):
+            router=OddsRouter(lambda ev,now:({},{}),
+                session=session,order=("goaldir","moviodds"))
+            out,diag=router.fetch(EVENT,NOW,market_code="1X2_HOME_FT")
+        self.assertEqual(out,{})
+        self.assertEqual(diag["verified_provider_count"],0)
+
+    def test_fifteen_minute_kickoff_gate(self):
+        self.assertTrue(match_fixture({**ROW,"kickoff_utc":"2026-10-14T19:15:00Z"},EVENT))
+        self.assertFalse(match_fixture({**ROW,"kickoff_utc":"2026-10-14T19:16:00Z"},EVENT))
 
     def test_all_unavailable_returns_empty_not_fake_quote(self):
         router=OddsRouter(lambda ev,at: ({},{}),order=("goaldir",))
