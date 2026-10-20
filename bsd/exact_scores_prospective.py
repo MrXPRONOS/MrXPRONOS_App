@@ -32,6 +32,8 @@ MODEL = {
     "under_threshold": 0.62,
     "h2h_rule": "legacy_low_stable_h2h_v1",
 }
+FORECAST_SETTLEMENT_FIELDS = frozenset(("status","forecast_sha256","settled_utc",
+                                        "actual_score","under25_hit","top1_hit","top3_hit"))
 MIN_LEAD_MINUTES = 30
 SETTLEMENT_DELAY_HOURS = 4
 
@@ -51,6 +53,15 @@ def read_ledger(path=LEDGER, encryption=None):
     if (value.get("format") != FORMAT or value.get("model") != MODEL
             or not isinstance(value.get("predictions"), dict)):
         raise ValueError("Ledger schema/model mismatch: do not overwrite previous forecasts")
+    # An already-recorded forecast may be settled, but its original inputs,
+    # probabilities and timestamp must never be rewritten.
+    for row in value["predictions"].values():
+        evidence = json.dumps({k:v for k,v in row.items()
+                               if k not in FORECAST_SETTLEMENT_FIELDS},
+                              sort_keys=True,separators=(",",":"))
+        digest = hashlib.sha256(evidence.encode("utf-8")).hexdigest()
+        if row.get("forecast_sha256") != digest:
+            raise ValueError("Immutable prediction was modified")
     return value
 
 
@@ -106,7 +117,7 @@ def make_snapshot(fixture, index, hindex, now):
                  for (h, a), p in top3],
         "status": "pending",
     }
-    evidence = json.dumps({k: v for k, v in record.items() if k != "status"},
+    evidence = json.dumps({k: v for k, v in record.items() if k not in FORECAST_SETTLEMENT_FIELDS},
                           sort_keys=True, separators=(",", ":"))
     record["forecast_sha256"] = hashlib.sha256(evidence.encode("utf-8")).hexdigest()
     return record, "ok"
