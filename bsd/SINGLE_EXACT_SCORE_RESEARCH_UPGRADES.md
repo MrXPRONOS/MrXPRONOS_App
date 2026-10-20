@@ -39,3 +39,6 @@ A separate `bsd/single_exact_score_xg_history.enc.json` saves only BSD *measured
 
 ## Automated pre-match data monitoring
 The isolated daily workflow reports verified pre-match lineup coverage, number of settled observations eligible for absence training and validation losses. A missing or weak provider signal never becomes a made-up adjustment; the training gate remains inactive until the independent prospective sample passes. The historical baseline stays separate.
+
+## Verified source sidecar for immutable first-seen forecasts
+Production-style initial shakedown on Oct 20 captured 134 still-pending predictions yet no usable lineup observations in their immutable score records. The independent encrypted `single_exact_score_context_observations.enc.json` now attaches a verified BSD pre-match lineup first-seen snapshot to a previously archived unstarted match by forecast hash. Scores and probabilities are NEVER edited. Training consumes either the original before-kickoff context or a later independently observed before-kickoff sidecar, only once the match is settled, and only after temporal cross-validation. The model remains inactive until enough verified observations exist.

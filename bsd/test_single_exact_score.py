@@ -19,6 +19,9 @@ from single_exact_score_xg_history import empty as xg_empty,read as xg_read,save
 from single_exact_score_top3 import empty as top3_empty,read as top3_read,save as top3_save,select_groups,settle_groups,report as top3_report
 from single_exact_score_research import RANK_VERSION
 from single_exact_score_context_model import learn as learn_absence,adjust as apply_absence,source_features as absence_features
+from single_exact_score_context_observations import (
+    empty as obs_empty,read as obs_read,save as obs_save,
+    capture as obs_capture,valid as obs_valid)
 from single_exact_score_prospective import (
     empty,read,save,digest,capture,settle,summary)
 
@@ -480,6 +483,45 @@ class SingleExactScoreTests(unittest.TestCase):
             "legacy-first-seen-probability-margin-v1" for v in chosen))
         self.assertEqual(set(v["id"] for v in chosen),
                          {"22202","22203","22204"})
+    def test_encrypted_lineup_sidecar_from_existing_first_seen_score(self):
+        index=sample_history()
+        event=fixture(99888,NOW+timedelta(hours=8))
+        archive=empty()
+        self.assertEqual(capture(archive,[event],index,DummyDC(),NOW,
+                                 clock=lambda:NOW)["captured"],1)
+        score=archive["records"][str(event["id"])]["score"][:]
+        baseline_sha=archive["records"][str(event["id"])]["forecast_sha256"]
+        class LineupClient:
+            requests_made=0
+            max_requests=15
+            def get_json(self,path,ttl=0):
+                self.requests_made+=1
+                return {"lineup_status":"confirmed",
+                        "unavailable_players":{"home":[1,2],"away":[3]}}
+        obs=obs_empty()
+        stats=obs_capture(obs,[event],archive,LineupClient(),NOW,
+                          clock=lambda:NOW,max_lookups=3)
+        self.assertEqual(stats["captured"],1)
+        self.assertEqual(len(obs["records"]),1)
+        evidence=obs["records"][str(event["id"])]
+        self.assertTrue(obs_valid(evidence))
+        self.assertEqual(archive["records"][str(event["id"])]["score"],score)
+        self.assertEqual(archive["records"][str(event["id"])]["forecast_sha256"],baseline_sha)
+        finished=fixture(event["id"],NOW+timedelta(hours=8),
+                        score=tuple(score),finished=True)
+        self.assertEqual(settle(archive,[finished],NOW+timedelta(days=1))["settled"],1)
+        learned=learn_absence(archive,NOW+timedelta(days=1),obs)
+        self.assertEqual(learned["diagnostic"]["eligible"],1)
+        obs["records"][str(event["id"])]["forecast_digest"]="WRONG"
+        self.assertEqual(learn_absence(archive,NOW+timedelta(days=1),obs)
+                         ["diagnostic"]["eligible"],0)
+        obs["records"][str(event["id"])]["forecast_digest"]=baseline_sha
+        secret=Fernet(Fernet.generate_key())
+        with tempfile.TemporaryDirectory() as t:
+            fn=Path(t)/"lineups.enc.json"
+            obs_save(obs,fn,secret)
+            self.assertEqual(obs_read(fn,secret),obs)
+            self.assertNotIn("confirmed",fn.read_text())
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)

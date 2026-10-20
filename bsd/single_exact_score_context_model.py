@@ -61,12 +61,24 @@ def _fit(rows):
                     eta*(grad[side][i]/len(rows)+regularizer)))
     return tuple(tuple(w) for w in weights)
 
-def learn(ledger,now):
+def learn(ledger,now,observations=None):
     rows=[]
     for record in (ledger.get("records") or {}).values():
         if record.get("status")!="settled":continue
         advanced=record.get("advanced_research") or {}
         context=advanced.get("context") or {}
+        sidecar=False
+        if source_features(context) is None and observations is not None:
+            evidence=(observations.get("records") or {}).get(str(record.get("id")))
+            if evidence and evidence.get("forecast_digest")==record.get("forecast_sha256"):
+                # Separate immutable source collection after the score was
+                # recorded. Validate its own capture time and integrity first.
+                from single_exact_score_context_observations import valid as verified
+                if (verified(evidence) and
+                    evidence.get("forecast_captured_at_utc")==record.get("captured_at") and
+                    evidence.get("kickoff_utc")==record.get("kickoff")):
+                    context=evidence["context"]
+                    sidecar=True
         x=source_features(context)
         if x is None:continue
         try:
@@ -74,7 +86,8 @@ def learn(ledger,now):
             kickoff=utc(record["kickoff"])
             observed=utc(context["observed_at_utc"])
             settled=utc(record["settled_at"])
-            if (observed>captured or observed>kickoff-timedelta(minutes=30) or
+            if ((observed>captured and not sidecar) or observed>now or
+                observed>kickoff-timedelta(minutes=30) or
                 captured>kickoff-timedelta(minutes=30) or settled>now or
                 kickoff>now-timedelta(hours=4)):
                 continue

@@ -22,6 +22,9 @@ from single_exact_score_context import enrich_lineups,hydrate_history_xg
 from single_exact_score_xg_history import read as read_xg,save as save_xg,apply as apply_xg,add as add_xg
 from single_exact_score_top3 import read as read_top3,save as save_top3,select_groups,settle_groups,report as top3_report
 from single_exact_score_context_model import learn as learn_context,fingerprint as context_fingerprint
+from single_exact_score_context_observations import (
+    read as read_lineup_evidence,save as save_lineup_evidence,
+    capture as capture_lineup_evidence)
 
 PATH=Path("bsd/single_exact_score_ledger.enc.json")
 SCHEMA="mrx-single-exact-score-ledger-v1"
@@ -173,7 +176,8 @@ def main():
     client=BSDClient(max_requests=args.max_requests)
     upcoming=fetch_fixture_window(client,now)
     archive=read(Path(args.ledger))
-    context_model=learn_context(archive,now)
+    observations=read_lineup_evidence()
+    context_model=learn_context(archive,now,observations)
     pending_new=[e for e in upcoming if str(e.get("id")) not in archive["records"]]
     # Budgeted requests only for prematch candidates; missing data is explicit.
     newly_measured={}
@@ -184,6 +188,13 @@ def main():
     lineup_diag=enrich_lineups(pending_new,client,now,max_lookups=6)
     added=capture(archive,upcoming,index,dc,now,advanced_model=advanced,
                   context_model=context_model)
+    # Earlier immutable forecasts have no lineup evidence. Collect fresh
+    # evidence in a separate encrypted archive before their kickoffs.
+    lineup_evidence=capture_lineup_evidence(
+        observations,upcoming,archive,client,datetime.now(timezone.utc),
+        max_lookups=12)
+    if lineup_evidence["captured"]:
+        save_lineup_evidence(observations)
     selection_now=datetime.now(timezone.utc)
     top3=read_top3()
     created_groups=select_groups(top3,archive,selection_now)
@@ -216,7 +227,11 @@ def main():
         "new_collector_found":lineup_diag["found"],
         "new_collector_errors":lineup_diag["errors"],
         "historical_measured_xg_collected":xg_diag["measured"],
-        "historical_measured_xg_restored":restored_xg}
+        "historical_measured_xg_restored":restored_xg,
+        "sidecar_verified_lineups_total":len(observations["records"]),
+        "sidecar_capture_attempted":lineup_evidence["attempted"],
+        "sidecar_capture_new":lineup_evidence["captured"],
+        "sidecar_capture_errors":lineup_evidence["errors"]}
     dest=Path(args.report);dest.parent.mkdir(parents=True,exist_ok=True)
     dest.write_text(json.dumps(result,indent=2,ensure_ascii=False),encoding="utf-8")
     print("ONE_SCORE_PROSPECTIVE",json.dumps({"capture":added,"settlement":finished,
@@ -227,6 +242,7 @@ def main():
         "absence_context_model":{"active":context_model["active"],
            "fingerprint":context_fingerprint(context_model),
            "diagnostic":context_model["diagnostic"]},
+        "verified_lineup_evidence":lineup_evidence,
         "top3":{
             "new_groups":created_groups,"settled":settled_groups,
             "report":top3_report(top3)}},ensure_ascii=False))
