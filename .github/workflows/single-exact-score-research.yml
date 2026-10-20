@@ -15,8 +15,10 @@ permissions:
   contents: write
 
 concurrency:
+  # Superseded source revisions should not queue costly 2025/2026 full-history
+  # replays or block verification of the latest research commit.
   group: mrx-single-score-research-one-writer
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   validate:
