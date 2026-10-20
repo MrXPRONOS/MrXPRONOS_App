@@ -2,8 +2,10 @@
   "scope": "read_only_identity_evidence",
   "external_total": 872,
   "external_cc0_verified": 1,
+  "external_independent_provider_verified": 0,
+  "external_verified_total": 1,
   "native_total": 140,
-  "native_unique_eligible": 135,
+  "native_unique_eligible": 133,
   "native_invalid_records": 5,
   "native_invalid_breakdown": {
     "native_not_prematch": 5
@@ -24,7 +26,8 @@
     "duplicated_native_id": 0,
     "external_ambiguous_native_matches": 0,
     "external_not_independently_cc0_verified": 871,
-    "native_ambiguous_external_matches": 0
+    "native_ambiguous_external_matches": 0,
+    "native_not_future": 2
   },
   "read_only_native_consensus_price_audit": {
     "event_ids_selected_only_from_confirmed_native_links": true,
@@ -90,5 +93,7 @@
   "bsd_max_http_requests": 24,
   "calendar_files_verified": 8,
   "independent_cc0_calendar_confirmed": 1,
+  "independent_two_provider_confirmed": 0,
+  "independently_verified_fixtures_total": 1,
   "qualified_candidate_rows_staged": 0
 }
