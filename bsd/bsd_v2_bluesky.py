@@ -190,8 +190,20 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", default="data.json")
     parser.add_argument("--publish", action="store_true", help="Autorise les envois réels")
+    parser.add_argument("--check-auth", action="store_true", help="Teste uniquement la connexion Bluesky")
     parser.add_argument("--max-posts", type=int, default=4)
     args = parser.parse_args()
+    if args.check_auth:
+        handle = os.getenv("BLUESKY_HANDLE", "").strip().lstrip("@")
+        password = os.getenv("BLUESKY_APP_PASSWORD", "").strip()
+        if not handle or not password:
+            raise RuntimeError("BLUESKY_HANDLE ou BLUESKY_APP_PASSWORD manquant")
+        from atproto import Client
+        client = Client()
+        profile = client.login(handle, password)
+        print("BLUESKY_AUTH_OK", getattr(profile, "handle", handle))
+        return 0
+
     now = datetime.now(timezone.utc)
     data = json.loads(Path(args.data).read_text(encoding="utf-8"))
     queue = selections(data, now)
