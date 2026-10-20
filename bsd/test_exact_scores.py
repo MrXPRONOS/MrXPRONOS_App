@@ -170,3 +170,22 @@ class PhaseTwoUnder25Tests(unittest.TestCase):
         self.assertIsNone(features({"id":1,"event_date":"2026-10-25T12:00:00Z",
                                     "home_team_id":111,"away_team_id":222},
                                    V2History([]),.5))
+
+from exact_scores_phase3 import coherent_fusion,btts_probability,decision
+class PhaseThreeTests(unittest.TestCase):
+    def test_joint_fusion_marginals(self):
+        m=matrix_for(1.25,1.14)
+        x=coherent_fusion(m,.69,.42)
+        self.assertAlmostEqual(sum(x.values()),1,places=8)
+        self.assertAlmostEqual(probability_under25(x),.69,places=5)
+        self.assertAlmostEqual(btts_probability(x),.42,places=5)
+    def test_abstention_is_explainable(self):
+        m=matrix_for(1.25,1.14)
+        d=decision(m,under_v1=.40,under_v2=.70,h2h_prioritized=True)
+        self.assertFalse(d["selected"])
+        self.assertIn("model_disagreement",d["reasons"])
+    def test_low_h2h_is_not_forced_to_publish(self):
+        m=matrix_for(1.15,.9)
+        d=decision(m,under_v1=.70,under_v2=.70,h2h_prioritized=False)
+        self.assertFalse(d["selected"])
+        self.assertIn("h2h_not_stable",d["reasons"])
