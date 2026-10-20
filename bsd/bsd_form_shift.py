@@ -161,5 +161,5 @@ def simple_market_veto_keys(shift):
     """Allowed only in research opt-in BSD V2 comparison, never global deploy."""
     if not shift or not shift.get("valid") or not shift.get("bsd_low_goals_veto"):
         return ()
-    return ("UNDER_15","UNDER_25","UNDER_35","BTTS_NO","X")
+    return ("UNDER_15","UNDER_25","UNDER_35","UNDER_45","BTTS_NO","X")
 
