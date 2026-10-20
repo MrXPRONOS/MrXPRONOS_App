@@ -585,6 +585,36 @@ class MatchLifecycleTests(unittest.TestCase):
 
     @patch("football_match_lifecycle.fetch_espn_summary")
     @patch("football_match_lifecycle.collect_external")
+    def test_supabase_merged_score_uses_espn_confirmed_goal(self, collect, fetch_summary):
+        base = [{
+            "id": "bsd-test", "event_date": "2026-10-13T18:00:00+00:00",
+            "home_team": {"name": "Arsenal"},
+            "away_team": {"name": "Chelsea"},
+            "league_name": "Premier League",
+        }]
+        collect.return_value = [{
+            "source": "supabase_merged", "id": "fixture-123",
+            "espn_id": "401912650",
+            "home_team": "Arsenal", "away_team": "Chelsea",
+            "home_score": 2, "away_score": 1,
+            "minute": 67, "state": "in",
+            "event_date": "2026-10-13T18:00:00+00:00",
+        }]
+        fetch_summary.return_value = {"details": [{
+            "scoringPlay": True, "type": {"text": "Goal"},
+            "clock": {"displayValue": "64'"},
+            "athletes": [{"displayName": "Bukayo Saka"}],
+            "team": {"id": "1"},
+        }]}
+        signals = m.lifecycle_signals(base, set(), NOW, object(), lambda _: 100)
+        goals = [row for row in signals if row["kind"] == "goal"]
+        self.assertEqual(len(goals), 1)
+        self.assertEqual(goals[0]["espn_event_id"], "401912650")
+        self.assertEqual(goals[0]["goal"]["player"], "Bukayo Saka")
+        fetch_summary.assert_any_call(unittest.mock.ANY, "401912650")
+
+    @patch("football_match_lifecycle.fetch_espn_summary")
+    @patch("football_match_lifecycle.collect_external")
     def test_old_goal_is_not_announced(self, collect_external, fetch_summary):
         base = [{
             "id": "bsd-1",
