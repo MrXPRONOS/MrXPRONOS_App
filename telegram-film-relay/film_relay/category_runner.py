@@ -41,7 +41,7 @@ def category_config(category: str, env: dict | None = None) -> dict:
     category_info = CATEGORIES[category]
     prefix = category_info["prefix"]
     default_sources = {
-        "comedie": ("@comexflex", "@filmcomplets"),
+        "comedie": ("@comexflex",),
         "anime": ("@orak_dessinanime",),
     }
     # Backward compatible: existing singular variable + additional bulk list.
@@ -56,8 +56,8 @@ def category_config(category: str, env: dict | None = None) -> dict:
     # singular GitHub variable must never leak comedy movies into Anime or
     # episodes into Comedy, while other user-added sources remain permitted.
     cross_category = {
-        "comedie": {"@orak_dessinanime"},
-        "anime": {"@comexflex", "@filmcomplets"},
+        "comedie": {"@orak_dessinanime", "@cineromances", "@filmsromantiques"},
+        "anime": {"@comexflex", "@filmcomplets", "@cineromances", "@filmsromantiques"},
     }
     forbidden_sources = cross_category.get(category, set())
     for value in sources:
@@ -69,6 +69,11 @@ def category_config(category: str, env: dict | None = None) -> dict:
             )
     sources = [value for value in sources
                if value.casefold() not in forbidden_sources]
+    # @filmcomplets feeds the classic film pipeline; keep it out of the
+    # comedy pipeline to avoid duplicate films across categories.
+    if category == "comedie":
+        sources = [value for value in sources
+                   if value.casefold() != "@filmcomplets"]
     source = sources[0] if sources else ""
     public = (env.get(prefix + "_PUBLIC_CHANNEL") or "").strip()
     private = (env.get(prefix + "_PRIVATE_CHANNEL") or "").strip()

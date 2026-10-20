@@ -82,13 +82,14 @@ async def run():
                 check(report, "Session Telegram autorisée", auth,
                       "Session invalide ou révoquée ; générer une nouvelle StringSession.")
                 if auth:
-                    expected_public = "Super Mario Film"
-                    matched = await asyncio.wait_for(
-                        find_broadcast_by_exact_title(client, expected_public), timeout=35
-                    )
-                    check(report, "Super Mario Film trouvé dans ce compte",
-                          len(matched) == 1,
-                          "Impossible de trouver un canal unique de ce nom dans les dialogues Telegram.")
+                    expected_public = os.getenv("TG_EXPECTED_PUBLIC_TITLE", "").strip()
+                    if expected_public:
+                        matched = await asyncio.wait_for(
+                            find_broadcast_by_exact_title(client, expected_public), timeout=35
+                        )
+                        check(report, "Canal public attendu trouvé dans ce compte",
+                              len(matched) == 1,
+                              "Titre attendu introuvable ou ambigu ; vérifier TG_EXPECTED_PUBLIC_TITLE.")
                     for kind, name, is_private in (("privé", private, True), ("public", public, False)):
                         if not format_ok(name, private=is_private):
                             continue
@@ -98,12 +99,12 @@ async def run():
                                   "La destination doit être un canal, pas un groupe.")
                             is_expected = True
                             if kind == "public":
-                                is_expected = expected_public.casefold() in str(
-                                    getattr(peer, "title", "") or "").casefold()
-                                check(report, "TG_PUBLIC_CHANNEL correspond à Super Mario Film",
-                                      is_expected,
-                                      "Le canal défini sur GitHub porte un autre nom. "
-                                      "Mettre l'ID -100 ou @username de Super Mario Film.")
+                                if expected_public:
+                                    is_expected = expected_public.casefold() in str(
+                                        getattr(peer, "title", "") or "").casefold()
+                                    check(report, "TG_PUBLIC_CHANNEL correspond au titre attendu",
+                                          is_expected,
+                                          "Le canal configuré ne correspond pas à TG_EXPECTED_PUBLIC_TITLE.")
                             if getattr(peer, "broadcast", False) and is_expected and flag("FILM_HEALTH_SEND_TEST"):
                                 try:
                                     await asyncio.wait_for(client.send_message(

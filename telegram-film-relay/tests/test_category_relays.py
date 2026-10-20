@@ -38,7 +38,7 @@ class CategoryRelayTests(unittest.TestCase):
             "COMEDIE_PRIVATE_CHANNEL": "-1001234567890",
         })
         self.assertEqual(com["sources"],
-                         ["@comexflex", "@filmcomplets", "@autre_comedie"])
+                         ["@comexflex", "@autre_comedie"])
         ani = category_config("anime", {
             "ANIME_SOURCE_CHANNELS": "@orak_dessinanime;@AnimeExtra_1",
             "ANIME_PUBLIC_CHANNEL": "@CineXAnimeFR",
@@ -61,7 +61,7 @@ class CategoryRelayTests(unittest.TestCase):
             "COMEDIE_PUBLIC_CHANNEL": "@CineXComediefr",
             "COMEDIE_PRIVATE_CHANNEL": "-1001234567890",
         })
-        self.assertEqual(com["sources"], ["@comexflex", "@filmcomplets"])
+        self.assertEqual(com["sources"], ["@comexflex"])
 
     def test_source_list_with_spaces_newlines_and_json(self):
         from film_relay.source_channels import source_list

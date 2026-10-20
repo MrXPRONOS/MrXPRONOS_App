@@ -24,6 +24,7 @@ from telethon.errors import FloodWaitError, PeerFloodError
 from telethon.sessions import StringSession
 
 from .bot_http import BotHTTPClient, url_button
+from .editing import edit_message_if_changed
 from .category_runner import preflight
 from .runner import config_from
 from .source_channels import source_list
@@ -105,6 +106,7 @@ def episode_numbers(text: str):
 def series_title(text: str) -> str:
     value = first_title(text or "").strip()
     # Supprimer la signature du canal source, pas le titre de la série.
+    value = re.sub(r"^@[A-Za-z0-9_]{5,32}\s+", "", value)
     value = value.split("@", 1)[0].strip()
     value = CLEAN_CODES.sub(" ", value)
     value = SEASON_HEADER.sub(" ", value)
@@ -171,9 +173,15 @@ def classify(messages, source_id: int):
         context = str(getattr(latest_poster, "raw_text", "") or "")
         video_title = series_title(raw) or series_title(Path(filename).stem)
         poster_title = series_title(context)
-        # If file is only "S01E02.mkv", poster provides series identity.
-        # If filename has a clear separate series title, prefer it.
-        title = video_title or poster_title
+        # Episode-only labels (E01, Episode_01, S02E03) must not
+        # become the name of a separate series. Prefer the poster title.
+        episode_only = re.fullmatch(
+            r"(?i)(?:s\d{1,2}\s*[-._ ]*e\d{1,3}|"
+            r"(?:episode|épisode|ep|e)\s*[-._ ]*\d{1,3}|"
+            r"\d{1,2}x\d{1,3})"
+            r"(?:\s*\.(?:mkv|mp4))?", (raw or filename).strip()
+        ) is not None
+        title = (poster_title or video_title) if episode_only else (video_title or poster_title)
         if not title:
             continue
         series_key = slug(title)
@@ -378,14 +386,14 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 season_msg_id = int(series["season_indices"][season_key])
                 body = season_text(title, row["season"], ep)
                 # Keep marker for interrupted-run recovery of the season index.
-                await client.edit_message(private, season_msg_id,
+                await edit_message_if_changed(client, private, season_msg_id,
                                           body + "\n" + marker + "_S" + season_key,
                                           parse_mode="html", link_preview=False)
                 await asyncio.sleep(pause)
 
             index_id = int(series["main_index_id"])
             index_text = main_index_text(title, private_id, series["season_indices"])
-            await client.edit_message(private, index_id,
+            await edit_message_if_changed(client, private, index_id,
                                       index_text + "\n" + marker,
                                       parse_mode="html", link_preview=False)
             await asyncio.sleep(pause)
