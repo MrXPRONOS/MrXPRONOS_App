@@ -1,17 +1,15 @@
 name: One exact score - scheduled shadow forecast
 
 on:
-  schedule:
-    # UTC / Africa-Lome. Runs on the default branch; research checkout below
-    # always targets ONLY the independent one-score experimental branch.
-    - cron: '37 6,14,22 * * *'
+  # Retired duplicate cron. The single writer is now handled by
+  # single-exact-score-prospective-schedule.yml; keep manual recovery only.
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: mrx-single-score-research-one-writer
+  group: mrx-single-score-prospective-writer
   cancel-in-progress: false
 
 jobs:
