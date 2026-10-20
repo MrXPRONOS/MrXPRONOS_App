@@ -175,6 +175,24 @@ jobs:
           fi
           python scripts/post_shorts_video.py             --video "$VIDEO_FILE"             --platforms "$POST_PLATFORMS"             --title "Pronostics $TARGET - Mr XPRONOS"             --description "$LABEL. $COUNT sélections. 18+ et joue responsablement."             --caption "$LABEL ⚽\n$COUNT sélections Mr XPRONOS.\n18+ • Joue responsablement.\n\n#football #pronostic #pronosdujour #mrxpronos"
 
+      - name: Verify all requested social platform publishing results
+        if: steps.render.outputs.has_video == 'true'
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("social_post_results.json")
+          if not p.exists():
+              raise SystemExit("SOCIAL_REPORT_MISSING: publication status cannot be verified")
+          rows=json.loads(p.read_text(encoding="utf-8"))
+          expected={x.strip() for x in "facebook,youtube,instagram,threads".split(",")}
+          actual={str(x.get("platform","")).lower() for x in rows}
+          failures=[str(x.get("platform","unknown")) for x in rows if x.get("ok") is not True]
+          print("SOCIAL_PUBLICATION_AUDIT",{"expected":sorted(expected),"actual":sorted(actual),"failed":failures})
+          if actual!=expected or failures:
+              raise SystemExit("SOCIAL_PARTIAL_FAILURE: inspect attached social_post_results.json")
+          PY
       - name: Upload production artifacts
         if: always()
         uses: actions/upload-artifact@v4
