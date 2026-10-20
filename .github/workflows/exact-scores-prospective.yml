@@ -76,6 +76,8 @@ jobs:
             exit 0
           fi
           git commit -m "data(shadow): archive encrypted immutable prospective forecasts [skip ci]"
+          # Restore the tracked encrypted *input* changed by fetching main.
+          git restore -- bsd/all_matches_bsd.enc.json
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin "HEAD:${GITHUB_REF_NAME}"
       - name: Upload aggregate summary only
