@@ -44,10 +44,10 @@ def metrics(rows,eligible):
         "small_sample":n<100,
         "wilson95":wilson95(rows["hits"],n),
         "calibration_gap":round(rows["hits"]/n-rows["sum_p"]/n,6) if n else None}
-def run(events,*,max_2026=0):
+def run(events,*,max_2026=0,year=2026):
     index=V2History(events);h2h=H2HIndex(index)
     dc,dc_training=fit_direction(index)
-    samples=year_sample(index,2026,max_2026)
+    samples=year_sample(index,year,max_2026)
     buckets={k:new_bucket() for k in POLICIES}
     months=defaultdict(lambda:{k:new_bucket() for k in POLICIES})
     halves={"H1":{k:new_bucket() for k in POLICIES},
@@ -110,7 +110,9 @@ def run(events,*,max_2026=0):
        "historical_only":True,"published":False,"bookmaker_prices_available":False,
        "no_live_1xbet_quotes":True,"template_not_guaranteed_book_availability":True,
        "sample_cap":max_2026 if max_2026>0 else None,
-       "finished_2026":len(samples),"eligible":eligible,"skipped":dict(skips),
+       "sample_year":year,
+       "finished_in_year":len(samples),"finished_2026":len(samples) if year==2026 else None,
+       "eligible":eligible,"skipped":dict(skips),
        "dc_training":dc_training,
        "variants":{k:metrics(v,eligible) for k,v in buckets.items()},
        "group_breakdown":{policy:{gid:metrics(bucket,eligible) for gid,bucket in groups.items()}
@@ -133,14 +135,15 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--history",default="bsd/all_matches_bsd.json")
     parser.add_argument("--cap",type=int,default=0)
+    parser.add_argument("--year",type=int,choices=(2025,2026),default=2026)
     parser.add_argument("--out",default="tmp/grouped-correct-score/historical-backtest.json")
     args=parser.parse_args()
     if args.cap<0:parser.error("cap must be positive or zero")
     events=json.loads(Path(args.history).read_text(encoding="utf-8"))
-    result=run(events,max_2026=args.cap)
+    result=run(events,max_2026=args.cap,year=args.year)
     dest=Path(args.out);dest.parent.mkdir(parents=True,exist_ok=True)
     dest.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
-    print("GROUPED_2026_BACKTEST",json.dumps({"eligible":result["eligible"],
+    print("GROUPED_2026_BACKTEST",json.dumps({"year":args.year,"eligible":result["eligible"],
           "dc_training":result["dc_training"],"variants":result["variants"],
           "paired_comparisons":result["paired_comparisons"],
           "actual_direction_changes":result["actual_direction_changes"],
