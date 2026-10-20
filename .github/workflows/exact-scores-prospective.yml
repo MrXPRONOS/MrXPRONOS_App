@@ -8,6 +8,12 @@ on:
     paths:
       - 'bsd/exact_scores_prospective.py'
       - 'bsd/exact_scores_dashboard.py'
+      - 'bsd/grouped_correct_score.py'
+      - 'bsd/grouped_correct_score_engine.py'
+      - 'bsd/grouped_correct_score_prospective.py'
+      - 'bsd/grouped_correct_score_feed.py'
+      - 'bsd/grouped_correct_score_backtest.py'
+      - 'bsd/test_grouped_correct_score.py'
       - 'bsd/test_exact_scores_prospective.py'
       - '.github/workflows/exact-scores-prospective.yml'
   schedule:
@@ -36,7 +42,10 @@ jobs:
       - name: Install bounded dependencies
         run: python -m pip install requests cryptography
       - name: Test immutable prospective ledger
-        run: python -m unittest bsd/test_exact_scores_prospective.py -v
+        run: |
+          python -m unittest bsd/test_exact_scores_prospective.py -v
+          python -m unittest bsd/test_grouped_correct_score.py -v
+          node --check assets/js/grouped-score.js
       - name: Restore latest PRIVATE history from default branch
         env:
           BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
@@ -57,6 +66,16 @@ jobs:
         env:
           BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
         run: python bsd/exact_scores_dashboard.py
+      - name: Record unpublished 1xBet grouped score forecasts
+        env:
+          BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+          FOOTBALL_MULTI_SOURCE: '0'
+        run: python bsd/grouped_correct_score_prospective.py --max-requests 90
+      - name: Prepare group score website preview for review only
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: python bsd/grouped_correct_score_feed.py
       - name: Verify prospective report
         run: |
           python - <<'PY'
@@ -69,6 +88,12 @@ jobs:
           assert dashboard["total_captured"] == r["total_captured"]
           assert dashboard["all"]["n"] == r["all"]["n"]
           assert dashboard["published"] is False
+          g=json.load(open("tmp/grouped-correct-score/prospective-report.json",encoding="utf-8"))
+          v=json.load(open("tmp/grouped-correct-score/scores-groupes-review.json",encoding="utf-8"))
+          assert g["published"] is False and v["published"] is False
+          assert g["total_captured"]>=g["settled"]+g["pending"]
+          assert v["format"]=="mrx-1xbet-grouped-preview-v1"
+          print("GROUPED_RESEARCH_STATUS",json.dumps({"captured":g["total_captured"],"settled":g["settled"],"review_visible":len(v["matches"])}))
           print("PROSPECTIVE_METRICS",json.dumps(r,ensure_ascii=False))
           PY
       - name: Commit encrypted ledger ONLY (never scores in cleartext)
@@ -79,7 +104,7 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- bsd/exact_score_shadow_ledger.enc.json
+          git add -- bsd/exact_score_shadow_ledger.enc.json bsd/grouped_1xbet_shadow_ledger.enc.json
           if git diff --cached --quiet; then
             echo "No new prospective predictions or results"
             exit 0
@@ -98,6 +123,8 @@ jobs:
             tmp/exact-scores/prospective-report.json
             tmp/exact-scores/prospective-dashboard.json
             tmp/exact-scores/prospective-dashboard.html
+            tmp/grouped-correct-score/prospective-report.json
+            tmp/grouped-correct-score/scores-groupes-review.json
           if-no-files-found: ignore
           retention-days: 90
       - name: Remove decrypted inputs
