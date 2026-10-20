@@ -5,6 +5,7 @@ on:
     paths:
       - 'research/exact_scores_2026.py'
       - 'research/refresh_recent.py'
+      - 'research/enrich_late_xg.py'
       - '.github/workflows/exact-score-2026.yml'
   workflow_dispatch:
 permissions:
@@ -37,10 +38,16 @@ jobs:
           SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
         run: |
           PYTHONPATH=. python research/refresh_recent.py --source cache/all_matches.json --output /tmp/mrx_all_matches_research.json --audit /tmp/mrx_refresh_audit.json --end 2026-10-19
+      - name: Enrich historical training with matched provisional late-game xG
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          python research/enrich_late_xg.py --source /tmp/mrx_all_matches_research.json --out /tmp/mrx_augmented_xg.json --audit /tmp/mrx_xg_audit.json --end 2026-10-19
       - name: Backtest all available matches Jan 1 through Oct 19, 2026
         run: |
           python -u research/exact_scores_2026.py \
-            --source /tmp/mrx_all_matches_research.json \
+            --source /tmp/mrx_augmented_xg.json \
             --start 2026-01-01 \
             --end 2026-10-19 \
             --out research/results/exact_scores_2026 \
@@ -58,6 +65,7 @@ jobs:
         run: |
           mkdir -p research/results/exact_scores_2026
           cp /tmp/mrx_refresh_audit.json research/results/exact_scores_2026/refresh_audit.json || true
+          cp /tmp/mrx_xg_audit.json research/results/exact_scores_2026/xg_audit.json || true
       - name: Upload full results
         uses: actions/upload-artifact@v4
         if: always()
