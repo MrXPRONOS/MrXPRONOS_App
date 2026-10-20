@@ -10,7 +10,8 @@ import path from 'node:path';
 const mode=process.env.ACCUMULATOR_MODE==='production'?'production':'test';
 const now=new Date();
 const day = process.env.ACCUMULATOR_TEST_DATE || now.toISOString().slice(0,10);
-const MAX_PROD=Math.min(14,Math.max(2,Number(process.env.ACCUMULATOR_MAX_MATCHES||12)));
+const MAX_PROD=Math.min(14,Math.max(4,Number(process.env.ACCUMULATOR_MAX_MATCHES||12)));
+const MIN_PROD=4;
 if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) throw new Error('Date UTC invalide (YYYY-MM-DD)');
 const sourcePath=process.env.ACCUMULATOR_SOURCE||'data.json';
 const dest=process.env.ACCUMULATOR_INPUT||'telegram_out/accumulator_today.json';
@@ -19,11 +20,21 @@ const raw=JSON.parse(fs.readFileSync(sourcePath,'utf-8'));
 const items=Array.isArray(raw.matches)?raw.matches:[];
 const allToday=items.filter(m=>String(m?.event_date||m?.date||'').slice(0,10)===day);
 let selected=allToday;
+let videoIds=new Set();
 if(mode==='production'){
+ const ledgerPath=process.env.ACCUMULATOR_VIDEO_MANIFEST||'telegram_out/video_used_matches.json';
+ if(!fs.existsSync(ledgerPath))throw Error('Registre des matchs vidéos requis, aucun combiné sans vidéo vérifiée');
+ const ledger=JSON.parse(fs.readFileSync(ledgerPath,'utf8'));
+ if(ledger.date!==day||ledger.kind!=='shorts_video_coupon'||!Array.isArray(ledger.published_video_ids))
+   throw Error('Registre vidéo incorrect ou daté');
+ videoIds=new Set(ledger.published_video_ids);
+ if(videoIds.size===0){console.log('ACCUMULATOR_SKIP_NO_PUBLISHED_VIDEO',day);process.exit(3)}
+
  if(raw.source!=='bsd'||raw.model_version!=='bsd-v2-isolated')throw Error('Flux BSD V2 non vérifié');
  const generated=new Date(raw.generated_at||'');
- if(!Number.isFinite(generated.getTime())||Math.abs(now-generated)>3*3600000)throw Error('Flux récent BSD V2 requis (moins de 3 heures)');
+ if(!Number.isFinite(generated.getTime())||generated>now||now-generated>24*3600000)throw Error('Flux BSD V2 récent requis (moins de 24 heures)');
  const valid=allToday.filter(m=>{
+  if(videoIds.has(String(m.id||m.source_event_id||'')))return false;
   const p=m.prediction||{},odd=Number(p.odds),kick=Date.parse(m.event_date||'');
   return Number.isFinite(kick)&&kick>now.getTime()+30*60000
     && !m.is_finished && !['finished','cancelled','postponed','live'].includes(String(m.status||'').toLowerCase())
@@ -41,8 +52,8 @@ if(mode==='production'){
  selected=valid.slice(0,MAX_PROD);
 }
 
-if(mode==='production'&&selected.length<2){
- console.log('ACCUMULATOR_PRODUCTION_NO_DUE_MATCHES',JSON.stringify({day,available:allToday.length,eligible:selected.length}));
+if(mode==='production'&&selected.length<MIN_PROD){
+ console.log('ACCUMULATOR_PRODUCTION_NO_DUE_MATCHES',JSON.stringify({day,available:allToday.length,used_in_video:videoIds.size,remaining_eligible:selected.length,minimum_required:MIN_PROD}));
  process.exit(3);
 }
 if (!selected.length) throw new Error('Aucun match pour '+day+' dans '+sourcePath+' (échec fermé, aucune donnée fictive)');
@@ -107,7 +118,7 @@ const doc={
 };
 const summary={
  day,mode,source:sourcePath,source_generated_at:raw.generated_at||null,
- available_today:allToday.length,included:mapped.length,
+ available_today:allToday.length,used_in_video:videoIds.size,included:mapped.length,
  by_category:Object.fromEntries(['simple','pro','vip'].map(c=>[c,mapped.filter(m=>m.category===c).length])),
  estimated_odds:estimatedCount,bookmaker_or_consensus_odds:mapped.length-estimatedCount,
  home_logos_provided:mapped.filter(m=>m.home_logo).length,
