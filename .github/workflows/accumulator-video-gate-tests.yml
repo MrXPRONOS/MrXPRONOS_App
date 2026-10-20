@@ -1,0 +1,37 @@
+name: Mr XPRONOS - Contrôle vidéo puis combiné
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/accumulator-video-gate-tests.yml'
+      - '.github/workflows/shorts-coupons-production.yml'
+      - '.github/workflows/accumulator-photo-production.yml'
+      - 'scripts/prepare_accumulator_today.mjs'
+      - 'scripts/read_accumulator_video_ledger.py'
+      - 'scripts/create_short_from_telegram_coupons.py'
+      - 'scripts/send_short_production_telegram.py'
+      - 'tests/accumulator-video-gate.test.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Contrôler la syntaxe sans aucune publication
+        run: |
+          python -m py_compile scripts/create_short_from_telegram_coupons.py scripts/send_short_production_telegram.py scripts/read_accumulator_video_ledger.py
+          node --check scripts/prepare_accumulator_today.mjs
+      - name: Tester quatre matchs restants, exclusion et absence de doublons
+        run: node --test tests/accumulator-video-gate.test.mjs
