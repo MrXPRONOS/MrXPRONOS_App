@@ -18,6 +18,7 @@ from single_exact_score_context import enrich_lineups,hydrate_history_xg,lineup_
 from single_exact_score_xg_history import empty as xg_empty,read as xg_read,save as xg_save,add as xg_add,apply as xg_apply
 from single_exact_score_top3 import empty as top3_empty,read as top3_read,save as top3_save,select_groups,settle_groups,report as top3_report
 from single_exact_score_research import RANK_VERSION
+from single_exact_score_context_model import learn as learn_absence,adjust as apply_absence,source_features as absence_features
 from single_exact_score_prospective import (
     empty,read,save,digest,capture,settle,summary)
 
@@ -323,6 +324,40 @@ class SingleExactScoreTests(unittest.TestCase):
             model.bias_weights,model.bias_strength,model.reliability_weights,
             .25,model.diagnostic)
         self.assertNotEqual(model.fingerprint(),changed.fingerprint())
+    def test_missing_or_unvalidated_absences_have_no_effect(self):
+        h,a,used=apply_absence(1.4,1.1,{"available":False},None)
+        self.assertEqual((h,a,used),(1.4,1.1,False))
+        disabled={"active":False,"weights":((-.2,0.),(0.,-.3))}
+        ctx={"available":True,"source":"bsd-v2-events-lineups",
+             "values":{"home_absences":10,"away_absences":5,
+                       "lineup_status":"confirmed"}}
+        self.assertEqual(apply_absence(1.4,1.1,ctx,disabled),(1.4,1.1,False))
+        self.assertEqual(absence_features(ctx),(1.,.5))
+        active={"active":True,"weights":((-.2,0.),(0.,-.3))}
+        self.assertTrue(apply_absence(1.4,1.1,ctx,active)[2])
+        self.assertLess(apply_absence(1.4,1.1,ctx,active)[0],1.4)
+    def test_absences_trained_only_on_settled_prematch_snapshots(self):
+        archive={"records":{}}
+        for i in range(300):
+            capture_at=NOW-timedelta(days=400-i)
+            kickoff_at=capture_at+timedelta(hours=4)
+            archive["records"][str(i)]={
+                "status":"settled","captured_at":capture_at.isoformat(),
+                "kickoff":kickoff_at.isoformat(),
+                "settled_at":(kickoff_at+timedelta(hours=8)).isoformat(),
+                "actual_score":[0,0],
+                "advanced_research":{"expected_goals":{"home":2.,"away":2.},
+                    "context":{"available":True,"source":"bsd-v2-events-lineups",
+                        "observed_at_utc":capture_at.isoformat(),
+                        "values":{"lineup_status":"confirmed",
+                            "home_absences":10,"away_absences":10}}}}
+        model=learn_absence(archive,NOW)
+        self.assertEqual(model["diagnostic"]["eligible"],300)
+        self.assertTrue(model["active"])
+        # Any pending or future-settled row cannot influence training.
+        archive["records"]["late"]={**archive["records"]["0"],
+            "settled_at":(NOW+timedelta(hours=10)).isoformat()}
+        self.assertEqual(learn_absence(archive,NOW)["diagnostic"]["eligible"],300)
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)

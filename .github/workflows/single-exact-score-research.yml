@@ -34,7 +34,7 @@ jobs:
       - name: Validate one-score model and private archive
         run: |
           python -m unittest bsd/test_single_exact_score.py -v
-          python -m py_compile bsd/single_exact_score_engine.py bsd/single_exact_score_backtest.py bsd/single_exact_score_prospective.py bsd/single_exact_score_advanced.py bsd/single_exact_score_context.py bsd/single_exact_score_xg_history.py bsd/single_exact_score_top3.py
+          python -m py_compile bsd/single_exact_score_engine.py bsd/single_exact_score_backtest.py bsd/single_exact_score_prospective.py bsd/single_exact_score_advanced.py bsd/single_exact_score_context.py bsd/single_exact_score_xg_history.py bsd/single_exact_score_top3.py bsd/single_exact_score_context_model.py
       - name: Recover private BSD history from main
         env:
           BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'

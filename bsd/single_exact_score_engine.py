@@ -81,7 +81,7 @@ def entropy(matrix):
     return -fsum(p*log(p) for p in matrix.values() if p>0)
 
 def forecast(fixture,index,hindex,*,now,dc_model=None,require_prematch=True,
-             compute_form=True,advanced_model=None):
+             compute_form=True,advanced_model=None,context_model=None):
     kickoff=fixture_datetime(fixture)
     if require_prematch and kickoff<=now+timedelta(minutes=PARAMETERS["minimum_lead_minutes"]):
         return None,"too_close_or_started"
@@ -125,7 +125,8 @@ def forecast(fixture,index,hindex,*,now,dc_model=None,require_prematch=True,
     low_entropy=entropy(adjusted)<=PARAMETERS["low_entropy_cut"]
     high_priority=bool(can_prioritize and low_entropy)
     # Advanced branch is a separate research score: immutable legacy scores stay identical.
-    advanced=(advanced_prediction(fixture,index,advanced_model,now=now,expected=expected)
+    advanced=(advanced_prediction(fixture,index,advanced_model,now=now,
+                                  expected=expected,context_model=context_model)
               if advanced_model is not None else None)
     # Rank the actual ONE-score pick only, without any result labels.
     selection_rank=rank({"variants":{**{"original":baseline,

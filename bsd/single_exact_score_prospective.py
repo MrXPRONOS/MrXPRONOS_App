@@ -21,6 +21,7 @@ from single_exact_score_advanced import train_advanced
 from single_exact_score_context import enrich_lineups,hydrate_history_xg
 from single_exact_score_xg_history import read as read_xg,save as save_xg,apply as apply_xg,add as add_xg
 from single_exact_score_top3 import read as read_top3,save as save_top3,select_groups,settle_groups,report as top3_report
+from single_exact_score_context_model import learn as learn_context,fingerprint as context_fingerprint
 
 PATH=Path("bsd/single_exact_score_ledger.enc.json")
 SCHEMA="mrx-single-exact-score-ledger-v1"
@@ -57,7 +58,7 @@ def save(data,path=PATH,secret=None):
     temp.chmod(0o600)
     temp.replace(path)
 
-def capture(archive,fixtures,index,model,now,*,limit=500,advanced_model=None,clock=None):
+def capture(archive,fixtures,index,model,now,*,limit=500,advanced_model=None,context_model=None,clock=None):
     hindex=H2HIndex(index)
     counter=Counter()
     for event in sorted(fixtures,key=lambda x:(fixture_datetime(x),str(x["id"]))):
@@ -72,7 +73,7 @@ def capture(archive,fixtures,index,model,now,*,limit=500,advanced_model=None,clo
         if live_now.tzinfo is None:raise ValueError("UTC-aware clock required")
         # A stale pipeline-start timestamp must never override live_now.
         output,reason=forecast(event,index,hindex,dc_model=model,now=live_now,
-                               advanced_model=advanced_model)
+                               advanced_model=advanced_model,context_model=context_model)
         if output is None:
             counter[reason]+=1;continue
         row={"id":key,"model":VERSION,"captured_at":live_now.isoformat(),
@@ -166,6 +167,7 @@ def main():
     client=BSDClient(max_requests=args.max_requests)
     upcoming=fetch_fixture_window(client,now)
     archive=read(Path(args.ledger))
+    context_model=learn_context(archive,now)
     pending_new=[e for e in upcoming if str(e.get("id")) not in archive["records"]]
     # Budgeted requests only for prematch candidates; missing data is explicit.
     newly_measured={}
@@ -174,7 +176,8 @@ def main():
     saved_xg=add_xg(xg_archive,newly_measured)
     if saved_xg:save_xg(xg_archive)
     lineup_diag=enrich_lineups(pending_new,client,now,max_lookups=6)
-    added=capture(archive,upcoming,index,dc,now,advanced_model=advanced)
+    added=capture(archive,upcoming,index,dc,now,advanced_model=advanced,
+                  context_model=context_model)
     selection_now=datetime.now(timezone.utc)
     top3=read_top3()
     created_groups=select_groups(top3,archive,selection_now)
@@ -193,7 +196,11 @@ def main():
         "summary":result,"api_requests":client.requests_made,
         "historical_measured_xg":{**xg_diag,"restored":restored_xg,
             "new_persisted":saved_xg},"lineups":lineup_diag,
-        "advanced_training":advanced.info(),"top3":{
+        "advanced_training":advanced.info(),
+        "absence_context_model":{"active":context_model["active"],
+           "fingerprint":context_fingerprint(context_model),
+           "diagnostic":context_model["diagnostic"]},
+        "top3":{
             "new_groups":created_groups,"settled":settled_groups,
             "report":top3_report(top3)}},ensure_ascii=False))
 if __name__=="__main__":main()

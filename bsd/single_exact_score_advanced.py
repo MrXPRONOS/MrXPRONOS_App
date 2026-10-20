@@ -22,6 +22,7 @@ from bsd_v2_core import estimate_goals, fixture_datetime, outcome_scores
 from exact_scores import year_sample, matrix_for
 from exact_scores_under25 import Under25Model, reweight_scores
 from single_exact_score_research import prematch_context
+from single_exact_score_context_model import adjust as context_adjust,fingerprint as context_fingerprint
 
 SCORES=((0,0),(1,0),(0,1),(1,1),(2,0),(0,2),(2,1),(1,2))
 FEATURES=5
@@ -129,9 +130,12 @@ def goal_loss(rows,weights,strength):
     return loss/len(rows)
 
 
-def matrix(event,index,base,weights,goal_strength):
+def matrix(event,index,base,weights,goal_strength,*,context_model=None,now=None):
     feat,meta=features(event,index,base)
     h,a=adjusted(base,feat,weights,goal_strength)
+    contextual=prematch_context(event,now or fixture_datetime(event),fixture_datetime(event))
+    h,a,context_used=context_adjust(h,a,contextual,context_model)
+    meta["context_model_used"]=context_used
     raw=matrix_for(h,a,rho=0.,scale_home=1.,scale_away=1.)
     under=UNDER.predict(event,index,raw)
     return reweight_scores(raw,under["probability"]),feat,meta,(h,a)
@@ -237,13 +241,13 @@ class AdvancedModel:
                 "reliability_blend":self.reliability_blend}
 
 
-def advanced_prediction(event,index,model,*,now=None,expected=None):
+def advanced_prediction(event,index,model,*,now=None,expected=None,context_model=None):
     if expected is None:
         expected,reason=estimate_goals(event,index)
         if expected is None:return None
     if now is None:now=fixture_datetime(event)
     raw,feat,meta,goals=matrix(event,index,expected,model.goal_weights,
-                              model.goal_strength)
+                              model.goal_strength,context_model=context_model,now=now)
     mat=bias_matrix(raw,model.bias_weights,model.bias_strength)
     chosen=pick(mat)
     score_prob=chosen["probability"]
@@ -256,6 +260,9 @@ def advanced_prediction(event,index,model,*,now=None,expected=None):
             "away":round(goals[1],5)},"rest_and_xg":meta,
             "context":context,"score_model":"2024_frozen",
             "model_fingerprint_sha256":model.fingerprint(),
+            "context_model_fingerprint_sha256":(context_fingerprint(context_model)
+                if context_model else None),
+            "context_model_applied":meta["context_model_used"],
             "experimental":True}
 
 
