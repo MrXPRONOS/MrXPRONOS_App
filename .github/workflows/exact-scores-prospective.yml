@@ -132,3 +132,52 @@ jobs:
         run: |
           rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
           rm -rf bsd/cache
+
+  grouped-history:
+    if: github.event_name == 'push'
+    needs: prospective
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install BSD dependencies
+        run: python -m pip install requests cryptography
+      - name: Restore main BSD archive privately
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: |
+          test -n "$BSD_HISTORY_KEY"
+          git fetch --no-tags origin main
+          git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
+          python bsd/bsd_archive.py restore
+      - name: Full retrospective evaluation of nine 1xBet groups and DC signal
+        run: python bsd/grouped_correct_score_backtest.py --cap 0
+      - name: Verify paired-group comparison without fictitious bookmaker odds
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('tmp/grouped-correct-score/historical-backtest.json'))
+          assert p["eligible"] > 0
+          assert p["variants"]["baseline"]["n"] == p["eligible"]
+          assert p["variants"]["with_verified_price"]["n"] == 0
+          assert p["bookmaker_prices_available"] is False
+          print('GROUPED_2026_VALIDATED',json.dumps(p["variants"],ensure_ascii=False))
+          PY
+      - name: Upload historical group metrics only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: grouped-1xbet-historical-${{ github.run_id }}
+          path: tmp/grouped-correct-score/historical-backtest.json
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Remove decrypted history
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
