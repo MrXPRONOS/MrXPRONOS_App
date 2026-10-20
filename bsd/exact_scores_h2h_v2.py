@@ -113,6 +113,7 @@ def profile(event,index,hindex):
     out["gates"]=gates
     out["variants"]={"legacy":original["prioritized"],
                      **{key:original["prioritized"] and passed for key,passed in gates.items()},
-                     "combined":original["prioritized"] and all(gates.values())}
+                     "combined":original["prioritized"] and all(gates.values()),
+                     "v2_standalone":all(gates.values())}
     out["candidate"]=True
     return out
