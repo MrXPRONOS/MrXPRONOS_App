@@ -1,4 +1,702 @@
 {
+  "audit": {
+    "category": "anime_catalog",
+    "checked_at": "2026-10-20T05:04:52.128394+00:00",
+    "not_yet_indexed": [
+      {
+        "episode": 168,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 169,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 170,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 171,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 172,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 173,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 174,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 175,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 176,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 177,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 178,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 179,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 180,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 181,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 182,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 183,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 184,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 185,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 186,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 187,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 188,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 189,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 190,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 191,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 192,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 193,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 194,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 195,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 196,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 197,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 198,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 199,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 200,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 201,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 202,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 203,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 204,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 205,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 206,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 207,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 208,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 209,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 210,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 211,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 212,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 213,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 214,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 215,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 216,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 217,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 218,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 219,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 220,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 221,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 222,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 223,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 224,
+        "season": "2",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 7,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 8,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 9,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 22,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 29,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 30,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 31,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 32,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 33,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 34,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 35,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 36,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 37,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 38,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 39,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 40,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 41,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 42,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 43,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 44,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 45,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 46,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 47,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 48,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 49,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 50,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 51,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 52,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 53,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 54,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 55,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 56,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 57,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 58,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 59,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 60,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 61,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 62,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 63,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 64,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 65,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 66,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 67,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      }
+    ],
+    "not_yet_indexed_total": 329,
+    "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
+    "numbering_gap_seasons": 1,
+    "numbering_gaps": [
+      {
+        "missing_between_known": [
+          7,
+          8,
+          9,
+          22,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64
+        ],
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "truncated": true
+      }
+    ],
+    "scanned_episode_candidates": 385,
+    "source_episode_numbers_observed": 384,
+    "source_numbering_gap_seasons": 3,
+    "source_numbering_gaps": [
+      {
+        "not_observed_between_known": [
+          16
+        ],
+        "season": "4",
+        "series": "kingdom",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          5
+        ],
+        "season": "2",
+        "series": "one-punch-man",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          5,
+          6
+        ],
+        "season": "1",
+        "series": "spyfamily",
+        "truncated": false
+      }
+    ],
+    "source_scan_complete": true,
+    "unnumbered_videos_skipped": 102
+  },
+  "scans": {
+    "-1001787980027": {
+      "complete": true,
+      "cursor": 1,
+      "last_checked": "2026-10-20T05:04:52.126367+00:00",
+      "pages": 1
+    }
+  },
   "series": {
     "mangas-fv-no-longer-rangers-s02-mp4": {
       "episodes": {
@@ -185,6 +883,10 @@
     "mangas-fv-yu-gi-oh-duel-monsters": {
       "episodes": {
         "1": {
+          "1": {
+            "message_id": 74,
+            "url": "https://t.me/c/4416009337/74"
+          },
           "10": {
             "message_id": 50,
             "url": "https://t.me/c/4416009337/50"
@@ -225,6 +927,10 @@
             "message_id": 59,
             "url": "https://t.me/c/4416009337/59"
           },
+          "2": {
+            "message_id": 75,
+            "url": "https://t.me/c/4416009337/75"
+          },
           "20": {
             "message_id": 60,
             "url": "https://t.me/c/4416009337/60"
@@ -257,6 +963,22 @@
             "message_id": 67,
             "url": "https://t.me/c/4416009337/67"
           },
+          "3": {
+            "message_id": 76,
+            "url": "https://t.me/c/4416009337/76"
+          },
+          "4": {
+            "message_id": 77,
+            "url": "https://t.me/c/4416009337/77"
+          },
+          "5": {
+            "message_id": 78,
+            "url": "https://t.me/c/4416009337/78"
+          },
+          "6": {
+            "message_id": 79,
+            "url": "https://t.me/c/4416009337/79"
+          },
           "83": {
             "message_id": 68,
             "url": "https://t.me/c/4416009337/68"
@@ -284,10 +1006,17 @@
         }
       },
       "main_index_id": 48,
+      "public_id": 33,
       "season_indices": {
         "1": 49
       },
       "source_items": {
+        "-1001595907308:13515": 74,
+        "-1001595907308:13516": 75,
+        "-1001595907308:13517": 76,
+        "-1001595907308:13518": 77,
+        "-1001595907308:13519": 78,
+        "-1001595907308:13520": 79,
         "-1001595907308:13524": 50,
         "-1001595907308:13525": 51,
         "-1001595907308:13526": 52,
@@ -314,6 +1043,1219 @@
         "-1001595907308:13602": 73
       },
       "title": "@Mangas fv Yu-Gi-Oh! Duel Monsters"
+    }
+  },
+  "source_observed": {
+    "animes-canal-presque-maries": {
+      "1": {
+        "2": [
+          "-1001613652137:429"
+        ],
+        "3": [
+          "-1001613652137:430"
+        ],
+        "4": [
+          "-1001613652137:431"
+        ],
+        "5": [
+          "-1001613652137:432"
+        ]
+      }
+    },
+    "boruto-animes-canal": {
+      "1": {
+        "259": [
+          "-1001613652137:157"
+        ]
+      }
+    },
+    "eden": {
+      "1": {
+        "1": [
+          "-1001613652137:399"
+        ],
+        "2": [
+          "-1001613652137:400"
+        ],
+        "3": [
+          "-1001613652137:401"
+        ],
+        "4": [
+          "-1001613652137:402"
+        ]
+      }
+    },
+    "kimetsu-no-yaiba": {
+      "1": {
+        "1": [
+          "-1001613652137:291"
+        ],
+        "10": [
+          "-1001613652137:300"
+        ],
+        "11": [
+          "-1001613652137:301"
+        ],
+        "12": [
+          "-1001613652137:302"
+        ],
+        "13": [
+          "-1001613652137:303"
+        ],
+        "14": [
+          "-1001613652137:304"
+        ],
+        "15": [
+          "-1001613652137:305"
+        ],
+        "16": [
+          "-1001613652137:306"
+        ],
+        "17": [
+          "-1001613652137:307"
+        ],
+        "18": [
+          "-1001613652137:308"
+        ],
+        "19": [
+          "-1001613652137:309"
+        ],
+        "2": [
+          "-1001613652137:292"
+        ],
+        "20": [
+          "-1001613652137:310"
+        ],
+        "21": [
+          "-1001613652137:311"
+        ],
+        "22": [
+          "-1001613652137:312"
+        ],
+        "23": [
+          "-1001613652137:313"
+        ],
+        "24": [
+          "-1001613652137:314"
+        ],
+        "25": [
+          "-1001613652137:315"
+        ],
+        "3": [
+          "-1001613652137:293"
+        ],
+        "4": [
+          "-1001613652137:294"
+        ],
+        "5": [
+          "-1001613652137:295"
+        ],
+        "6": [
+          "-1001613652137:296"
+        ],
+        "7": [
+          "-1001613652137:297"
+        ],
+        "8": [
+          "-1001613652137:298"
+        ],
+        "9": [
+          "-1001613652137:299"
+        ]
+      },
+      "2": {
+        "1": [
+          "-1001613652137:321"
+        ],
+        "10": [
+          "-1001613652137:330"
+        ],
+        "11": [
+          "-1001613652137:331"
+        ],
+        "2": [
+          "-1001613652137:322"
+        ],
+        "3": [
+          "-1001613652137:323"
+        ],
+        "4": [
+          "-1001613652137:324"
+        ],
+        "5": [
+          "-1001613652137:325"
+        ],
+        "6": [
+          "-1001613652137:326"
+        ],
+        "7": [
+          "-1001613652137:327"
+        ],
+        "8": [
+          "-1001613652137:328"
+        ],
+        "9": [
+          "-1001613652137:329"
+        ]
+      }
+    },
+    "kingdom": {
+      "4": {
+        "1": [
+          "-1001613652137:270"
+        ],
+        "10": [
+          "-1001613652137:280"
+        ],
+        "11": [
+          "-1001613652137:281"
+        ],
+        "12": [
+          "-1001613652137:282"
+        ],
+        "13": [
+          "-1001613652137:283"
+        ],
+        "14": [
+          "-1001613652137:284"
+        ],
+        "15": [
+          "-1001613652137:285"
+        ],
+        "17": [
+          "-1001613652137:334"
+        ],
+        "18": [
+          "-1001613652137:419"
+        ],
+        "19": [
+          "-1001613652137:420"
+        ],
+        "2": [
+          "-1001613652137:271"
+        ],
+        "20": [
+          "-1001613652137:421"
+        ],
+        "21": [
+          "-1001613652137:422"
+        ],
+        "22": [
+          "-1001613652137:423"
+        ],
+        "23": [
+          "-1001613652137:424"
+        ],
+        "24": [
+          "-1001613652137:425"
+        ],
+        "25": [
+          "-1001613652137:426"
+        ],
+        "26": [
+          "-1001613652137:427"
+        ],
+        "3": [
+          "-1001613652137:272",
+          "-1001613652137:273"
+        ],
+        "4": [
+          "-1001613652137:274"
+        ],
+        "5": [
+          "-1001613652137:275"
+        ],
+        "6": [
+          "-1001613652137:276"
+        ],
+        "7": [
+          "-1001613652137:277"
+        ],
+        "8": [
+          "-1001613652137:278"
+        ],
+        "9": [
+          "-1001613652137:279"
+        ]
+      }
+    },
+    "mangas-fv-yu-gi-oh": {
+      "1": {
+        "156": [
+          "-1001595907308:13444"
+        ],
+        "157": [
+          "-1001595907308:13445"
+        ],
+        "158": [
+          "-1001595907308:13446"
+        ],
+        "159": [
+          "-1001595907308:13447"
+        ],
+        "160": [
+          "-1001595907308:13448"
+        ],
+        "161": [
+          "-1001595907308:13449"
+        ],
+        "162": [
+          "-1001595907308:13450"
+        ],
+        "163": [
+          "-1001595907308:13451"
+        ],
+        "164": [
+          "-1001595907308:13452"
+        ],
+        "165": [
+          "-1001595907308:13453"
+        ],
+        "166": [
+          "-1001595907308:13454"
+        ],
+        "167": [
+          "-1001595907308:13455"
+        ],
+        "168": [
+          "-1001595907308:13456"
+        ],
+        "169": [
+          "-1001595907308:13457"
+        ],
+        "170": [
+          "-1001595907308:13458"
+        ],
+        "171": [
+          "-1001595907308:13459"
+        ],
+        "172": [
+          "-1001595907308:13460"
+        ],
+        "173": [
+          "-1001595907308:13461"
+        ],
+        "174": [
+          "-1001595907308:13462"
+        ],
+        "175": [
+          "-1001595907308:13463"
+        ],
+        "176": [
+          "-1001595907308:13464"
+        ],
+        "177": [
+          "-1001595907308:13465"
+        ],
+        "178": [
+          "-1001595907308:13466"
+        ],
+        "179": [
+          "-1001595907308:13467"
+        ],
+        "180": [
+          "-1001595907308:13468"
+        ]
+      }
+    },
+    "mangas-fv-yu-gi-oh-duel-monsters": {
+      "1": {
+        "1": [
+          "-1001595907308:13515"
+        ],
+        "10": [
+          "-1001595907308:13524"
+        ],
+        "100": [
+          "-1001595907308:13614"
+        ],
+        "101": [
+          "-1001595907308:13615"
+        ],
+        "102": [
+          "-1001595907308:13616"
+        ],
+        "103": [
+          "-1001595907308:13617"
+        ],
+        "104": [
+          "-1001595907308:13618"
+        ],
+        "105": [
+          "-1001595907308:13619"
+        ],
+        "106": [
+          "-1001595907308:13620"
+        ],
+        "107": [
+          "-1001595907308:13621"
+        ],
+        "108": [
+          "-1001595907308:13622"
+        ],
+        "109": [
+          "-1001595907308:13623"
+        ],
+        "11": [
+          "-1001595907308:13525"
+        ],
+        "110": [
+          "-1001595907308:13624"
+        ],
+        "111": [
+          "-1001595907308:13625"
+        ],
+        "112": [
+          "-1001595907308:13626"
+        ],
+        "113": [
+          "-1001595907308:13627"
+        ],
+        "114": [
+          "-1001595907308:13628"
+        ],
+        "115": [
+          "-1001595907308:13629"
+        ],
+        "116": [
+          "-1001595907308:13630"
+        ],
+        "117": [
+          "-1001595907308:13631"
+        ],
+        "118": [
+          "-1001595907308:13632"
+        ],
+        "119": [
+          "-1001595907308:13633"
+        ],
+        "12": [
+          "-1001595907308:13526"
+        ],
+        "120": [
+          "-1001595907308:13634"
+        ],
+        "121": [
+          "-1001595907308:13635"
+        ],
+        "122": [
+          "-1001595907308:13636"
+        ],
+        "123": [
+          "-1001595907308:13637"
+        ],
+        "124": [
+          "-1001595907308:13638"
+        ],
+        "125": [
+          "-1001595907308:13639"
+        ],
+        "126": [
+          "-1001595907308:13640"
+        ],
+        "127": [
+          "-1001595907308:13641"
+        ],
+        "128": [
+          "-1001595907308:13642"
+        ],
+        "129": [
+          "-1001595907308:13643"
+        ],
+        "13": [
+          "-1001595907308:13527"
+        ],
+        "130": [
+          "-1001595907308:13644"
+        ],
+        "131": [
+          "-1001595907308:13645"
+        ],
+        "132": [
+          "-1001595907308:13646"
+        ],
+        "133": [
+          "-1001595907308:13647"
+        ],
+        "134": [
+          "-1001595907308:13648"
+        ],
+        "135": [
+          "-1001595907308:13649"
+        ],
+        "136": [
+          "-1001595907308:13650"
+        ],
+        "137": [
+          "-1001595907308:13651"
+        ],
+        "138": [
+          "-1001595907308:13652"
+        ],
+        "139": [
+          "-1001595907308:13653"
+        ],
+        "14": [
+          "-1001595907308:13528"
+        ],
+        "140": [
+          "-1001595907308:13654"
+        ],
+        "141": [
+          "-1001595907308:13655"
+        ],
+        "142": [
+          "-1001595907308:13656"
+        ],
+        "143": [
+          "-1001595907308:13657"
+        ],
+        "144": [
+          "-1001595907308:13658"
+        ],
+        "145": [
+          "-1001595907308:13659"
+        ],
+        "146": [
+          "-1001595907308:13660"
+        ],
+        "147": [
+          "-1001595907308:13661"
+        ],
+        "148": [
+          "-1001595907308:13662"
+        ],
+        "149": [
+          "-1001595907308:13663"
+        ],
+        "15": [
+          "-1001595907308:13529"
+        ],
+        "150": [
+          "-1001595907308:13664"
+        ],
+        "151": [
+          "-1001595907308:13665"
+        ],
+        "152": [
+          "-1001595907308:13666"
+        ],
+        "153": [
+          "-1001595907308:13667"
+        ],
+        "154": [
+          "-1001595907308:13668"
+        ],
+        "155": [
+          "-1001595907308:13669"
+        ],
+        "156": [
+          "-1001595907308:13670"
+        ],
+        "157": [
+          "-1001595907308:13671"
+        ],
+        "158": [
+          "-1001595907308:13672"
+        ],
+        "159": [
+          "-1001595907308:13673"
+        ],
+        "16": [
+          "-1001595907308:13530"
+        ],
+        "160": [
+          "-1001595907308:13674"
+        ],
+        "161": [
+          "-1001595907308:13675"
+        ],
+        "162": [
+          "-1001595907308:13676"
+        ],
+        "163": [
+          "-1001595907308:13677"
+        ],
+        "164": [
+          "-1001595907308:13678"
+        ],
+        "165": [
+          "-1001595907308:13679"
+        ],
+        "166": [
+          "-1001595907308:13680"
+        ],
+        "167": [
+          "-1001595907308:13681"
+        ],
+        "17": [
+          "-1001595907308:13531"
+        ],
+        "18": [
+          "-1001595907308:13532"
+        ],
+        "19": [
+          "-1001595907308:13533"
+        ],
+        "2": [
+          "-1001595907308:13516"
+        ],
+        "20": [
+          "-1001595907308:13534"
+        ],
+        "21": [
+          "-1001595907308:13535"
+        ],
+        "22": [
+          "-1001595907308:13536"
+        ],
+        "23": [
+          "-1001595907308:13537"
+        ],
+        "24": [
+          "-1001595907308:13538"
+        ],
+        "25": [
+          "-1001595907308:13539"
+        ],
+        "26": [
+          "-1001595907308:13540"
+        ],
+        "27": [
+          "-1001595907308:13541"
+        ],
+        "28": [
+          "-1001595907308:13542"
+        ],
+        "29": [
+          "-1001595907308:13543"
+        ],
+        "3": [
+          "-1001595907308:13517"
+        ],
+        "30": [
+          "-1001595907308:13544"
+        ],
+        "31": [
+          "-1001595907308:13545"
+        ],
+        "32": [
+          "-1001595907308:13546"
+        ],
+        "33": [
+          "-1001595907308:13547"
+        ],
+        "34": [
+          "-1001595907308:13548"
+        ],
+        "35": [
+          "-1001595907308:13549"
+        ],
+        "36": [
+          "-1001595907308:13550"
+        ],
+        "37": [
+          "-1001595907308:13551"
+        ],
+        "38": [
+          "-1001595907308:13552"
+        ],
+        "39": [
+          "-1001595907308:13553"
+        ],
+        "4": [
+          "-1001595907308:13518"
+        ],
+        "40": [
+          "-1001595907308:13554"
+        ],
+        "41": [
+          "-1001595907308:13555"
+        ],
+        "42": [
+          "-1001595907308:13556"
+        ],
+        "43": [
+          "-1001595907308:13557"
+        ],
+        "44": [
+          "-1001595907308:13558"
+        ],
+        "45": [
+          "-1001595907308:13559"
+        ],
+        "46": [
+          "-1001595907308:13560"
+        ],
+        "47": [
+          "-1001595907308:13561"
+        ],
+        "48": [
+          "-1001595907308:13562"
+        ],
+        "49": [
+          "-1001595907308:13563"
+        ],
+        "5": [
+          "-1001595907308:13519"
+        ],
+        "50": [
+          "-1001595907308:13564"
+        ],
+        "51": [
+          "-1001595907308:13565"
+        ],
+        "52": [
+          "-1001595907308:13566"
+        ],
+        "53": [
+          "-1001595907308:13567"
+        ],
+        "54": [
+          "-1001595907308:13568"
+        ],
+        "55": [
+          "-1001595907308:13569"
+        ],
+        "56": [
+          "-1001595907308:13570"
+        ],
+        "57": [
+          "-1001595907308:13571"
+        ],
+        "58": [
+          "-1001595907308:13572"
+        ],
+        "59": [
+          "-1001595907308:13573"
+        ],
+        "6": [
+          "-1001595907308:13520"
+        ],
+        "60": [
+          "-1001595907308:13574"
+        ],
+        "61": [
+          "-1001595907308:13575"
+        ],
+        "62": [
+          "-1001595907308:13576"
+        ],
+        "63": [
+          "-1001595907308:13577"
+        ],
+        "64": [
+          "-1001595907308:13578"
+        ],
+        "65": [
+          "-1001595907308:13579"
+        ],
+        "66": [
+          "-1001595907308:13580"
+        ],
+        "67": [
+          "-1001595907308:13581"
+        ],
+        "68": [
+          "-1001595907308:13582"
+        ],
+        "69": [
+          "-1001595907308:13583"
+        ],
+        "7": [
+          "-1001595907308:13521"
+        ],
+        "70": [
+          "-1001595907308:13584"
+        ],
+        "71": [
+          "-1001595907308:13585"
+        ],
+        "72": [
+          "-1001595907308:13586"
+        ],
+        "73": [
+          "-1001595907308:13587"
+        ],
+        "74": [
+          "-1001595907308:13588"
+        ],
+        "75": [
+          "-1001595907308:13589"
+        ],
+        "76": [
+          "-1001595907308:13590"
+        ],
+        "77": [
+          "-1001595907308:13591"
+        ],
+        "78": [
+          "-1001595907308:13592"
+        ],
+        "79": [
+          "-1001595907308:13593"
+        ],
+        "8": [
+          "-1001595907308:13522"
+        ],
+        "80": [
+          "-1001595907308:13594"
+        ],
+        "81": [
+          "-1001595907308:13595"
+        ],
+        "82": [
+          "-1001595907308:13596"
+        ],
+        "83": [
+          "-1001595907308:13597"
+        ],
+        "84": [
+          "-1001595907308:13598"
+        ],
+        "85": [
+          "-1001595907308:13599"
+        ],
+        "86": [
+          "-1001595907308:13600"
+        ],
+        "87": [
+          "-1001595907308:13601"
+        ],
+        "88": [
+          "-1001595907308:13602"
+        ],
+        "89": [
+          "-1001595907308:13603"
+        ],
+        "9": [
+          "-1001595907308:13523"
+        ],
+        "90": [
+          "-1001595907308:13604"
+        ],
+        "91": [
+          "-1001595907308:13605"
+        ],
+        "92": [
+          "-1001595907308:13606"
+        ],
+        "93": [
+          "-1001595907308:13607"
+        ],
+        "94": [
+          "-1001595907308:13608"
+        ],
+        "95": [
+          "-1001595907308:13609"
+        ],
+        "96": [
+          "-1001595907308:13610"
+        ],
+        "97": [
+          "-1001595907308:13611"
+        ],
+        "98": [
+          "-1001595907308:13612"
+        ],
+        "99": [
+          "-1001595907308:13613"
+        ]
+      },
+      "2": {
+        "168": [
+          "-1001595907308:13704"
+        ],
+        "169": [
+          "-1001595907308:13705"
+        ],
+        "170": [
+          "-1001595907308:13706"
+        ],
+        "171": [
+          "-1001595907308:13707"
+        ],
+        "172": [
+          "-1001595907308:13708"
+        ],
+        "173": [
+          "-1001595907308:13709"
+        ],
+        "174": [
+          "-1001595907308:13710"
+        ],
+        "175": [
+          "-1001595907308:13711"
+        ],
+        "176": [
+          "-1001595907308:13712"
+        ],
+        "177": [
+          "-1001595907308:13713"
+        ],
+        "178": [
+          "-1001595907308:13714"
+        ],
+        "179": [
+          "-1001595907308:13715"
+        ],
+        "180": [
+          "-1001595907308:13716"
+        ],
+        "181": [
+          "-1001595907308:13717"
+        ],
+        "182": [
+          "-1001595907308:13718"
+        ],
+        "183": [
+          "-1001595907308:13719"
+        ],
+        "184": [
+          "-1001595907308:13720"
+        ],
+        "185": [
+          "-1001595907308:13721"
+        ],
+        "186": [
+          "-1001595907308:13722"
+        ],
+        "187": [
+          "-1001595907308:13723"
+        ],
+        "188": [
+          "-1001595907308:13724"
+        ],
+        "189": [
+          "-1001595907308:13725"
+        ],
+        "190": [
+          "-1001595907308:13726"
+        ],
+        "191": [
+          "-1001595907308:13727"
+        ],
+        "192": [
+          "-1001595907308:13728"
+        ],
+        "193": [
+          "-1001595907308:13729"
+        ],
+        "194": [
+          "-1001595907308:13730"
+        ],
+        "195": [
+          "-1001595907308:13731"
+        ],
+        "196": [
+          "-1001595907308:13732"
+        ],
+        "197": [
+          "-1001595907308:13733"
+        ],
+        "198": [
+          "-1001595907308:13734"
+        ],
+        "199": [
+          "-1001595907308:13735"
+        ],
+        "200": [
+          "-1001595907308:13736"
+        ],
+        "201": [
+          "-1001595907308:13737"
+        ],
+        "202": [
+          "-1001595907308:13738"
+        ],
+        "203": [
+          "-1001595907308:13739"
+        ],
+        "204": [
+          "-1001595907308:13740"
+        ],
+        "205": [
+          "-1001595907308:13741"
+        ],
+        "206": [
+          "-1001595907308:13742"
+        ],
+        "207": [
+          "-1001595907308:13743"
+        ],
+        "208": [
+          "-1001595907308:13744"
+        ],
+        "209": [
+          "-1001595907308:13745"
+        ],
+        "210": [
+          "-1001595907308:13746"
+        ],
+        "211": [
+          "-1001595907308:13747"
+        ],
+        "212": [
+          "-1001595907308:13748"
+        ],
+        "213": [
+          "-1001595907308:13749"
+        ],
+        "214": [
+          "-1001595907308:13750"
+        ],
+        "215": [
+          "-1001595907308:13751"
+        ],
+        "216": [
+          "-1001595907308:13752"
+        ],
+        "217": [
+          "-1001595907308:13753"
+        ],
+        "218": [
+          "-1001595907308:13754"
+        ],
+        "219": [
+          "-1001595907308:13755"
+        ],
+        "220": [
+          "-1001595907308:13756"
+        ],
+        "221": [
+          "-1001595907308:13757"
+        ],
+        "222": [
+          "-1001595907308:13758"
+        ],
+        "223": [
+          "-1001595907308:13759"
+        ],
+        "224": [
+          "-1001595907308:13760"
+        ]
+      }
+    },
+    "mushoku-tensei": {
+      "1": {
+        "1": [
+          "-1001613652137:338"
+        ],
+        "10": [
+          "-1001613652137:347"
+        ],
+        "11": [
+          "-1001613652137:348"
+        ],
+        "2": [
+          "-1001613652137:339"
+        ],
+        "3": [
+          "-1001613652137:340"
+        ],
+        "4": [
+          "-1001613652137:341"
+        ],
+        "5": [
+          "-1001613652137:342"
+        ],
+        "6": [
+          "-1001613652137:343"
+        ],
+        "7": [
+          "-1001613652137:344"
+        ],
+        "8": [
+          "-1001613652137:345"
+        ],
+        "9": [
+          "-1001613652137:346"
+        ]
+      }
+    },
+    "one-punch-man": {
+      "1": {
+        "10": [
+          "-1001613652137:174"
+        ],
+        "11": [
+          "-1001613652137:175"
+        ],
+        "12": [
+          "-1001613652137:176"
+        ],
+        "7": [
+          "-1001613652137:171"
+        ],
+        "8": [
+          "-1001613652137:172"
+        ],
+        "9": [
+          "-1001613652137:173"
+        ]
+      },
+      "2": {
+        "1": [
+          "-1001613652137:177"
+        ],
+        "10": [
+          "-1001613652137:185"
+        ],
+        "11": [
+          "-1001613652137:186"
+        ],
+        "12": [
+          "-1001613652137:187"
+        ],
+        "2": [
+          "-1001613652137:178"
+        ],
+        "3": [
+          "-1001613652137:179"
+        ],
+        "4": [
+          "-1001613652137:180"
+        ],
+        "6": [
+          "-1001613652137:181"
+        ],
+        "7": [
+          "-1001613652137:182"
+        ],
+        "8": [
+          "-1001613652137:183"
+        ],
+        "9": [
+          "-1001613652137:184"
+        ]
+      }
+    },
+    "shokugeki-no-soma": {
+      "2": {
+        "1": [
+          "-1001613652137:370"
+        ],
+        "10": [
+          "-1001613652137:379"
+        ],
+        "11": [
+          "-1001613652137:380"
+        ],
+        "12": [
+          "-1001613652137:381"
+        ],
+        "13": [
+          "-1001613652137:382"
+        ],
+        "2": [
+          "-1001613652137:371"
+        ],
+        "3": [
+          "-1001613652137:372"
+        ],
+        "4": [
+          "-1001613652137:373"
+        ],
+        "5": [
+          "-1001613652137:374"
+        ],
+        "6": [
+          "-1001613652137:375"
+        ],
+        "7": [
+          "-1001613652137:376"
+        ],
+        "8": [
+          "-1001613652137:377"
+        ],
+        "9": [
+          "-1001613652137:378"
+        ]
+      }
+    },
+    "spy-x-family": {
+      "1": {
+        "5": [
+          "-1001613652137:149"
+        ],
+        "6": [
+          "-1001613652137:150"
+        ]
+      }
+    },
+    "spyfamily": {
+      "1": {
+        "1": [
+          "-1001613652137:145"
+        ],
+        "10": [
+          "-1001613652137:154"
+        ],
+        "11": [
+          "-1001613652137:155"
+        ],
+        "12": [
+          "-1001613652137:156"
+        ],
+        "2": [
+          "-1001613652137:146"
+        ],
+        "3": [
+          "-1001613652137:147"
+        ],
+        "4": [
+          "-1001613652137:148"
+        ],
+        "7": [
+          "-1001613652137:151"
+        ],
+        "8": [
+          "-1001613652137:152"
+        ],
+        "9": [
+          "-1001613652137:153"
+        ]
+      }
+    },
+    "sword-gai-the-animation": {
+      "1": {
+        "1": [
+          "-1001613652137:405"
+        ],
+        "10": [
+          "-1001613652137:414"
+        ],
+        "11": [
+          "-1001613652137:415"
+        ],
+        "12": [
+          "-1001613652137:416"
+        ],
+        "2": [
+          "-1001613652137:406"
+        ],
+        "3": [
+          "-1001613652137:407"
+        ],
+        "4": [
+          "-1001613652137:408"
+        ],
+        "5": [
+          "-1001613652137:409"
+        ],
+        "6": [
+          "-1001613652137:410"
+        ],
+        "7": [
+          "-1001613652137:411"
+        ],
+        "8": [
+          "-1001613652137:412"
+        ],
+        "9": [
+          "-1001613652137:413"
+        ]
+      }
     }
   }
 }
