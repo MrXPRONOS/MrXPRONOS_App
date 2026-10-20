@@ -424,6 +424,8 @@ def summarize(stats):
             "exact_hit_rate_pct": round(100*hit/n, 3),
             "mean_top_score_confidence_pct": round(100*mean_prob, 3),
             "log_loss": round(avg_loss, 5),
+            "top3_hit_rate_pct": round(100*sum(x["top3_hit"] for x in entries)/n, 3),
+            "mean_brier_top_score": round(sum((x["hit"]-x["top_probability"])**2 for x in entries)/n, 6),
             "calibration_gap_pct_points": round(100*abs(mean_prob-hit/n), 3),
             "quoted_odds_n": len(roi),
             "flat_stake_roi_pct": round(100*sum(roi)/len(roi), 3) if roi else None,
@@ -445,6 +447,8 @@ def backtest(matches, begin, end, out, max_eval=0):
     ml = None
     last_retrain = None
     played = 0
+    first_evaluated = None
+    last_evaluated = None
     for day, grouped in groupby(matches, lambda m: m.day):
         daily = list(grouped)
         if day > end:
@@ -466,6 +470,9 @@ def backtest(matches, begin, end, out, max_eval=0):
             if not evaluating or (max_eval and played >= max_eval):
                 continue
             played += 1
+            if first_evaluated is None:
+                first_evaluated = day
+            last_evaluated = day
             audit["evaluated_matches"] += 1
             if m.xgh is not None and m.xga is not None:
                 audit["targets_having_postmatch_xg_ignored"] += 1
@@ -497,8 +504,10 @@ def backtest(matches, begin, end, out, max_eval=0):
                 i, j = np.unravel_index(grid.argmax(), grid.shape)
                 prob = float(grid[m.hg, m.ag])
                 quoted = score_odds_for(m, i, j)
+                top3 = np.argpartition(grid.ravel(), -3)[-3:]
+                top3_hit = int(m.hg*(MAX_GOALS+1) + m.ag in top3)
                 row = {
-                    "model": name, "date": str(m.day), "id": m.key, "league": m.league,
+                    "top3_hit": top3_hit, "model": name, "date": str(m.day), "id": m.key, "league": m.league,
                     "home": m.home, "away": m.away, "actual_score": f"{m.hg}:{m.ag}",
                     "predicted_score": f"{i}:{j}", "top_probability": float(grid[i, j]),
                     "actual_probability": prob, "hit": int(i == m.hg and j == m.ag),
@@ -523,6 +532,8 @@ def backtest(matches, begin, end, out, max_eval=0):
     report = {
         "source": "cache/all_matches.json",
         "period_start": str(begin), "period_end": str(end),
+        "first_actual_match_date": str(first_evaluated) if first_evaluated else None,
+        "last_actual_match_date": str(last_evaluated) if last_evaluated else None,
         "no_leakage_policy": "Strictly previous UTC calendar dates for ALL models",
         "n_evaluation_matches": audit["evaluated_matches"],
         "skips": dict(audit),
@@ -539,6 +550,37 @@ def backtest(matches, begin, end, out, max_eval=0):
         },
         "warning": "Backtested probabilities are not guarantees. Models have different coverage when external inputs are missing.",
     }
+    monthly = defaultdict(list)
+    leagues = defaultdict(list)
+    reliability = defaultdict(list)
+    for model_name, entries in results.items():
+        for entry in entries:
+            monthly[(model_name, entry["date"][:7])].append(entry)
+            leagues[(model_name, entry["league"])].append(entry)
+            bin_id = min(9, int(entry["top_probability"] * 10))
+            reliability[(model_name, bin_id)].append(entry)
+
+    def grouped_report(filename, groups, minimum, label):
+        with (Path(out) / filename).open("w", newline="", encoding="utf8") as fh:
+            wr = csv.writer(fh)
+            wr.writerow(["model", label, "matches", "exact_hits", "hit_rate_pct",
+                         "log_loss", "mean_confidence_pct", "top3_hit_rate_pct"])
+            for (model_name, key), entries in sorted(groups.items()):
+                n = len(entries)
+                if n < minimum:
+                    continue
+                hits = sum(e["hit"] for e in entries)
+                wr.writerow([model_name, key, n, hits, round(100*hits/n, 4),
+                             round(sum(e["log_loss"] for e in entries)/n, 5),
+                             round(100*sum(e["top_probability"] for e in entries)/n, 4),
+                             round(100*sum(e["top3_hit"] for e in entries)/n, 4)])
+
+    grouped_report("monthly.csv", monthly, 1, "month")
+    grouped_report("leagues.csv", leagues, 100, "league")
+    grouped_report("calibration.csv", reliability, 20, "probability_bin")
+    report["files"] = ["summary.json", "all_predictions.csv", "monthly.csv",
+                       "leagues.csv", "calibration.csv"]
+    report["bivariate_fitted_global_common_fraction"] = round(shared, 6)
     with open(Path(out)/"summary.json", "w", encoding="utf8") as fh:
         json.dump(report, fh, ensure_ascii=False, indent=2)
     with open(Path(out)/"all_predictions.csv", "w", newline="", encoding="utf8") as fh:
