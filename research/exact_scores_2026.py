@@ -60,6 +60,27 @@ def utc_day(value):
         return None
 
 
+def utc_instant(value):
+    """UTC datetime; date-only strings cannot certify same-day pre-kickoff odds."""
+    if value is None or value == "":
+        return None
+    try:
+        if isinstance(value, (int, float)) or str(value).strip().isdigit():
+            x = float(value)
+            if x > 1e11:
+                x /= 1000.0
+            return datetime.fromtimestamp(x, timezone.utc)
+        string = str(value).strip()
+        if len(string) == 10:
+            return datetime.fromisoformat(string).replace(tzinfo=timezone.utc)
+        result = datetime.fromisoformat(string.replace("Z", "+00:00"))
+        if result.tzinfo is None:
+            result = result.replace(tzinfo=timezone.utc)
+        return result.astimezone(timezone.utc)
+    except (TypeError, ValueError, OverflowError):
+        return None
+
+
 def normalize_odds(raw):
     """Only certified pre-kickoff odds are eligible; absent timestamp => skip."""
     value = raw.get("prematch_odds") or raw.get("odds") or raw.get("odds_1x2")
@@ -67,10 +88,10 @@ def normalize_odds(raw):
         return None
     stamp = (raw.get("odds_timestamp") or raw.get("odds_updated_at")
              or value.get("timestamp") or value.get("updated_at"))
-    event_day = utc_day(raw.get("start_time") or raw.get("event_date") or raw.get("startTime"))
-    stamp_day = utc_day(stamp)
-    # Conservative: previous calendar day only, never same-day unverified prices.
-    if not stamp_day or not event_day or stamp_day >= event_day:
+    kickoff = utc_instant(raw.get("start_time") or raw.get("event_date") or raw.get("startTime"))
+    quoted_at = utc_instant(stamp)
+    # Reject at- or post-kickoff prices. Date-only quotes require a prior day.
+    if kickoff is None or quoted_at is None or quoted_at >= kickoff:
         return None
     pair = value.get("1x2") or value.get("match_winner") or value
     if isinstance(pair, dict):
@@ -609,6 +630,9 @@ def self_test():
                            "odds":{"1x2":{"1":2,"X":3,"2":4}}}) is None
     assert normalize_odds({"start_time":"2026-05-02T19:00:00Z",
                            "odds_timestamp":"2026-05-01T19:00:00Z",
+                           "odds":{"1x2":{"1":2,"X":3,"2":4}}}) is not None
+    assert normalize_odds({"start_time":"2026-05-02T19:00:00Z",
+                           "odds_timestamp":"2026-05-02T18:00:00Z",
                            "odds":{"1x2":{"1":2,"X":3,"2":4}}}) is not None
     print("SELF_TEST_OK", flush=True)
 
