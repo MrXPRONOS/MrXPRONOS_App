@@ -275,7 +275,7 @@ class SingleExactScoreTests(unittest.TestCase):
         before=rank(case)
         case["variants"]["advanced_2024"]=dict(x)
         self.assertAlmostEqual(rank(case),before)
-        self.assertIn("independent",RANK_VERSION)
+        self.assertIn("common-probability-margin",RANK_VERSION)
     def test_top3_first_seen_immutable_and_settlement(self):
         ledger={"records":{}}
         for i in range(5):
@@ -283,6 +283,7 @@ class SingleExactScoreTests(unittest.TestCase):
             key=str(9001+i)
             ledger["records"][key]={"id":key,"status":"pending",
                 "score":[1,0],"selection_rank":.20+i*.01,
+                "score_margin":.01,
                 "rank_version":RANK_VERSION,
                 "kickoff":kickoff.isoformat(),"captured_at":NOW.isoformat(),
                 "estimated_probability":.18,
@@ -313,6 +314,7 @@ class SingleExactScoreTests(unittest.TestCase):
             key=str(i)
             ledger["records"][key]={"id":key,"status":"pending",
                 "score":[1,1],"selection_rank":.25,
+                "estimated_probability":.17,"score_margin":.02,
                 "rank_version":RANK_VERSION,
                 "kickoff":(NOW+timedelta(minutes=35+i)).isoformat(),
                 "captured_at":NOW.isoformat(),"forecast_sha256":key}
@@ -368,6 +370,7 @@ class SingleExactScoreTests(unittest.TestCase):
             x["records"][name]={"id":name,"status":"pending",
                  "score":[0,1],"kickoff":(NOW+timedelta(hours=4+i)).isoformat(),
                  "captured_at":NOW.isoformat(),"selection_rank":.20+i*.01,
+                 "estimated_probability":.18,"score_margin":.02,
                  "rank_version":RANK_VERSION,"forecast_sha256":"hash"+name}
         basket=top3_empty()
         self.assertEqual(select_groups(basket,x,NOW)["created"],1)
@@ -535,6 +538,7 @@ class SingleExactScoreTests(unittest.TestCase):
             key=str(72000+i)
             ledger["records"][key]={"id":key,"status":"pending",
                 "score":[1,0],"selection_rank":.2+i*.01,
+                "estimated_probability":.18,"score_margin":.02,
                 "rank_version":RANK_VERSION,
                 "captured_at":NOW.isoformat(),
                 "kickoff":(NOW+timedelta(hours=3+i)).isoformat(),
@@ -554,6 +558,7 @@ class SingleExactScoreTests(unittest.TestCase):
             key=str(72100+i)
             ledger["records"][key]={"id":key,"status":"pending",
                 "score":[0,1],"selection_rank":.2+i*.01,
+                "estimated_probability":.18,"score_margin":.02,
                 "rank_version":RANK_VERSION,
                 "captured_at":NOW.isoformat(),
                 "kickoff":(NOW+timedelta(hours=3+i)).isoformat(),
