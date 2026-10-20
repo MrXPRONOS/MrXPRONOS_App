@@ -1,0 +1,62 @@
+name: Mr XPRONOS - Reproduction combine reference TEST
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/accumulator-reference-test.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: accumulator-reference-test
+  cancel-in-progress: false
+
+jobs:
+  render-and-send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      ACCUMULATOR_OUTPUT: telegram_out/accumulator_reference.png
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer Playwright
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          python -m pip install requests Pillow
+      - name: Confirmer canal TEST, jamais production
+        env:
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+        run: python scripts/telegram_test_guard.py
+      - name: Render image de reference (une seule sortie)
+        run: node scripts/render_accumulator_ticket.mjs --output "$ACCUMULATOR_OUTPUT"
+      - name: Valider image 1080px / 11 matchs
+        run: |
+          python - <<'PY'
+          import os
+          from PIL import Image
+          path=os.environ["ACCUMULATOR_OUTPUT"]
+          with Image.open(path) as im:
+              assert im.format=="PNG" and im.width==1080 and im.height>3000, (im.format, im.size)
+              print("ACCUMULATOR_IMAGE_VERIFIED", im.size)
+          PY
+      - name: Envoyer un seul document PNG au canal Telegram TEST
+        run: python scripts/send_accumulator_test.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: accumulator-reference-image
+          path: telegram_out/accumulator_reference.png
+          if-no-files-found: ignore
