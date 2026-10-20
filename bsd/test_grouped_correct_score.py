@@ -289,7 +289,7 @@ class ExpandedGoalBandsTests(unittest.TestCase):
         with self.assertRaises(ValueError):goal_profile({(0,0):.8})
         with self.assertRaises(ValueError):goal_profile({(0,0):1.1,(1,0):-.1})
         with self.assertRaises(ValueError):
-            select_for_ceiling([],goal_profile({(0,0):1.0}),8)
+            select_for_ceiling([],goal_profile({(0,0):1.0}),{(0,0):1.0},8)
     def test_grouped_analysis_includes_six_screening_policies_without_book_odds(self):
         fixture_obj=fixture(989,NOW+timedelta(days=1))
         idx=history()
