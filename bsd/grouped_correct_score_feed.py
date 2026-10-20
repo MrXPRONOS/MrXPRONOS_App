@@ -40,6 +40,9 @@ def group_feed(ledger,*,now):
             "direction":r["double_chance"]["direction"],
             "h2h_priority":r["h2h_priority"],
             "under25_priority":r["under25_priority"],
+            "goals_profile":r.get("goals_profile"),
+            "ceiling_choices":{k:v for k,v in r.get("rules",{}).items()
+                               if k.startswith("ceiling_under_")},
             "groups":out})
     rows.sort(key=lambda x:(x["kickoff_utc"],x["id"]))
     return {"format":FORMAT,"generated_utc":now.isoformat(),"bookmaker":"1xbet",
