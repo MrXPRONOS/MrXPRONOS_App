@@ -175,10 +175,10 @@ def classify(messages, source_id: int):
         # Episode-only labels (E01, Episode_01, S02E03) must not
         # become the name of a separate series. Prefer the poster title.
         episode_only = re.fullmatch(
-            r"(?i)(?:s\\d{1,2}\\s*[-._ ]*e\\d{1,3}|"
-            r"(?:episode|épisode|ep|e)\\s*[-._ ]*\\d{1,3}|"
-            r"\\d{1,2}x\\d{1,3})"
-            r"(?:\\s*\\.(?:mkv|mp4))?", (raw or filename).strip()
+            r"(?i)(?:s\d{1,2}\s*[-._ ]*e\d{1,3}|"
+            r"(?:episode|épisode|ep|e)\s*[-._ ]*\d{1,3}|"
+            r"\d{1,2}x\d{1,3})"
+            r"(?:\s*\.(?:mkv|mp4))?", (raw or filename).strip()
         ) is not None
         title = (poster_title or video_title) if episode_only else (video_title or poster_title)
         if not title:
