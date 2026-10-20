@@ -1,0 +1,92 @@
+name: One exact score - scheduled shadow forecast
+
+on:
+  schedule:
+    # UTC / Africa-Lome. Runs on the default branch; research checkout below
+    # always targets ONLY the independent one-score experimental branch.
+    - cron: '37 6,14,22 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mrx-single-score-research-one-writer
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    if: github.repository == 'MrXPRONOS/MrXPRONOS_App'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout independent one-score research branch, not main
+        uses: actions/checkout@v4
+        with:
+          ref: feature/single-exact-score-v1-20261020
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install BSD dependencies
+        run: python -m pip install requests cryptography
+      - name: Test single score, point-in-time and encrypted archive behavior
+        run: python -m unittest bsd/test_single_exact_score.py -v
+      - name: Update immutable research branch before reading its ledger
+        run: |
+          git fetch --no-tags origin feature/single-exact-score-v1-20261020
+          git merge --ff-only origin/feature/single-exact-score-v1-20261020
+      - name: Restore latest private BSD history from default branch
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: |
+          test -n "$BSD_HISTORY_KEY" || { echo "::error::Missing BSD_HISTORY_KEY"; exit 1; }
+          git fetch --no-tags origin main
+          git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
+          python bsd/bsd_archive.py restore
+      - name: Capture ONE frozen score per eligible future match and reconcile results
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+          BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+          FOOTBALL_MULTI_SOURCE: '0'
+        run: |
+          test -n "$BSD_API_KEY" || { echo "::error::Missing BSD_API_KEY"; exit 1; }
+          python bsd/single_exact_score_prospective.py --max-requests 90
+      - name: Verify no published picks and chronological integrity
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open("tmp/single-exact-score/prospective-report.json"))
+          assert d["format"]=="mrx-single-exact-score-summary-v1"
+          assert d["experimental"] is True and d["published"] is False
+          assert d["captured"]==d["pending"]+d["settled"]
+          print("ONE_SCORE_DAILY_AUDIT",json.dumps({
+              "captured":d["captured"],"settled":d["settled"],
+              "top1_rate":d["all"]["top1_rate"],
+              "priority_settled":d["priority"]["n"]},ensure_ascii=False))
+          PY
+      - name: Commit ONLY encrypted one-score ledger to research branch
+        run: |
+          test -f bsd/single_exact_score_ledger.enc.json || exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- bsd/single_exact_score_ledger.enc.json
+          if git diff --cached --quiet; then
+            echo "No new prediction or match result"; exit 0
+          fi
+          git commit -m "data(single shadow): sealed pre-match score archive [skip ci]"
+          git restore -- bsd/all_matches_bsd.enc.json
+          git pull --rebase origin feature/single-exact-score-v1-20261020
+          git push origin HEAD:feature/single-exact-score-v1-20261020
+      - name: Upload aggregate audit only, never per-match plaintext archive
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: single-score-daily-summary-${{ github.run_id }}
+          path: tmp/single-exact-score/prospective-report.json
+          retention-days: 90
+          if-no-files-found: ignore
+      - name: Remove decrypted historical private data
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
