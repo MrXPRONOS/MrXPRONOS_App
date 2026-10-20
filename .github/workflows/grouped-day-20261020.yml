@@ -1,0 +1,81 @@
+name: Grouped exact scores - retrospective test for 2026-10-20
+on:
+  push:
+    branches: [feature/exact-score-v1-20261020]
+    paths:
+      - .github/workflows/grouped-day-20261020.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: grouped-1xbet-day-20261020-research
+  cancel-in-progress: true
+
+jobs:
+  review-next-day:
+    if: github.repository == 'MrXPRONOS/MrXPRONOS_App'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout research branch only (read-only)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install archive dependencies
+        run: python -m pip install cryptography requests
+      - name: Python syntax and existing regression tests
+        run: |
+          python -m py_compile bsd/grouped_day_replay_audit.py
+          python -m unittest bsd/test_grouped_correct_score.py -v
+      - name: Restore encrypted BSD archive from production WITHOUT changing production
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$BSD_HISTORY_KEY"
+          git fetch --no-tags origin main
+          git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
+          python bsd/bsd_archive.py restore
+      - name: Audit actual fixtures from October 20, compare archived predications and reconstruction
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: |
+          python bsd/grouped_day_replay_audit.py --date 2026-10-20 --out tmp/grouped-correct-score/day-2026-10-20.json
+      - name: Validate statistics and origin caveats
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open("tmp/grouped-correct-score/day-2026-10-20.json"))
+          assert r["experimental"] and not r["published"]
+          assert not r["real_roi_available"]
+          assert r["finished_with_score"] >= r["replay_eligible"]
+          assert r["replay_policy_metrics"]["baseline"]["n"] == r["replay_eligible"]
+          assert all(0<=v["wins"]<=v["n"] for v in r["replay_policy_metrics"].values())
+          for v in r["replay_all_nine_groups_on_same_matches"].values():
+              assert v["n"]==r["replay_eligible"]
+          assert r["prematch_archive"]["recorded_for_date"]>=0
+          print("GROUPED_DAY_AUDIT_VERIFIED",json.dumps({
+            "date":r["target_utc_date"],
+            "finished":r["finished_with_score"],
+            "eligible":r["replay_eligible"],
+            "archived_prematch":r["prematch_archive"]["recorded_for_date"],
+            "strategies":r["replay_policy_metrics"]
+          },ensure_ascii=False))
+          PY
+      - name: Upload completed matches review (no decrypted historic archive)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: grouped-1xbet-day-20261020-${{ github.run_id }}
+          path: tmp/grouped-correct-score/day-2026-10-20.json
+          if-no-files-found: ignore
+          retention-days: 30
+      - name: Destroy private restored archive
+        if: always()
+        run: |
+          rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+          rm -rf bsd/cache
