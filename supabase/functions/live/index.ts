@@ -133,15 +133,29 @@ if (!SUPABASE_SERVICE_ROLE_KEY) console.error("SUPABASE_SERVICE_ROLE_KEY non dé
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 async function setCronRun(jobName: string, success: boolean, details: any = {}) {
-  // La table cron_runs de ce projet n'a pas le schéma attendu par l'ancien code
-  // (notamment pas de colonne "details"). Le suivi reste donc dans les logs Edge,
-  // sans requête DB supplémentaire et sans risque de casser le refresh.
+  const at = nowIso();
   console.log("CRON_RUN", {
     job_name: jobName,
     success,
     details,
-    at: nowIso(),
+    at,
   });
+
+  // Separate health from the HTTP acknowledgement. GitHub's failover checks
+  // last_ok, not just the lease timestamp (which moves even when work fails).
+  // Persisting health is best-effort: database outages must never prevent
+  // release of the lock or cause an unhandled rejection.
+  try {
+    const { error } = await supabase.from("cron_runs").upsert({
+      name: jobName,
+      last_run_at: at,
+      last_ok: success,
+      meta: details,
+    }, { onConflict: "name" });
+    if (error) console.warn("CRON_HEALTH_PERSIST_FAILED", jobName, error.message);
+  } catch (e: any) {
+    console.warn("CRON_HEALTH_PERSIST_FAILED", jobName, e?.message || String(e));
+  }
 }
 
 
@@ -8963,33 +8977,37 @@ serve(async (req) => {
     if (path === "/refresh" && req.method === "POST") {
       requireCronAuth(req, url);
 
-      const lockOwner = crypto.randomUUID();
-      const { data: acquired, error: lockError } = await supabase.rpc(
-        "claim_live_refresh", { p_owner: lockOwner },
-      );
-      if (lockError) throw lockError;
-      if (!acquired) {
-        // A second heavy coordinator is forbidden, but upcoming discovery
-        // continues independently of the analysis lease.
-        const pulse=syncUpcomingFixtures().catch(e=>console.warn("UPCOMING_PULSE_FAILED",e));
-        const runtime=(globalThis as any).EdgeRuntime;
-        if(runtime?.waitUntil)runtime.waitUntil(pulse);else await pulse;
-        return json({ accepted: false, already_running: true, fixture_sync:true }, 202);
-      }
-      const pulse=syncUpcomingFixtures().catch(e=>console.warn("UPCOMING_PULSE_FAILED",e));
-      const pulseRuntime=(globalThis as any).EdgeRuntime;
-      if(pulseRuntime?.waitUntil)pulseRuntime.waitUntil(pulse);else await pulse;
-      const { data: previousProgress } = await supabase
-        .from("live_refresh_control")
-        .select("cursor").eq("key", "live_refresh").maybeSingle();
-      let releaseCursor: string | null = previousProgress?.cursor || null;
-
+      // Never block cron-job.org on PostgREST, upstream APIs or an active
+      // database lease. After authentication, acknowledge promptly and let
+      // EdgeRuntime.waitUntil keep the coordinator alive. The actual result
+      // is recorded in cron_runs + Edge logs, checked by GitHub failover.
       const refreshTask = (async () => {
+        const lockOwner = crypto.randomUUID();
+        let acquired = false;
+        let releaseCursor: string | null = null;
+
         try {
+          const { data, error } = await supabase.rpc(
+            "claim_live_refresh", { p_owner: lockOwner },
+          );
+          if (error) throw error;
+          if (!data) {
+            console.log("LIVE_REFRESH_ALREADY_RUNNING", { at: nowIso() });
+            return;
+          }
+          acquired = true;
+
+          const { data: previousProgress, error: progressError } = await supabase
+            .from("live_refresh_control")
+            .select("cursor").eq("key", "live_refresh").maybeSingle();
+          if (progressError) throw progressError;
+          releaseCursor = previousProgress?.cursor || null;
+
           const result = await refreshLiveDataInBatches(
             LIVE_REFRESH_BATCH_SIZE, lockOwner,
           );
           releaseCursor = result.has_more ? result.next_cursor : null;
+
           await setCronRun("live_refresh", !result.has_more, {
             processed_matches: result.processed_matches,
             total_live_matches: result.total_live_matches,
@@ -8997,15 +9015,33 @@ serve(async (req) => {
             ...result.meta,
           });
         } catch (e: any) {
+          console.error("LIVE_REFRESH_BACKGROUND_ERROR", e);
           await setCronRun("live_refresh", false, {
             error: e?.message || String(e),
           });
-          console.error("Background live refresh failed:", e);
         } finally {
-          const { error: releaseError } = await supabase.rpc("release_live_refresh", {
-            p_owner: lockOwner, p_cursor: releaseCursor,
-          });
-          if (releaseError) console.error("Refresh lease release failed", releaseError);
+          if (acquired) {
+            try {
+              const { error: releaseError } = await supabase.rpc(
+                "release_live_refresh",
+                { p_owner: lockOwner, p_cursor: releaseCursor },
+              );
+              if (releaseError) console.error("LIVE_REFRESH_RELEASE_FAILED", releaseError);
+            } catch (e: any) {
+              console.error("LIVE_REFRESH_RELEASE_FAILED", e?.message || String(e));
+            }
+          }
+        }
+
+        // Fetch upcoming fixtures only after the analysis lock is released.
+        // In particular, do not run this extra database-intensive task on
+        // every cron tick while a coordinator is already running or DB is down.
+        if (acquired) {
+          try {
+            await syncUpcomingFixtures();
+          } catch (e: any) {
+            console.warn("UPCOMING_PULSE_FAILED", e?.message || String(e));
+          }
         }
       })();
 
@@ -9015,14 +9051,18 @@ serve(async (req) => {
         return json({
           accepted: true,
           background: true,
-          message: "Refresh LIVE démarré en arrière-plan",
+          message: "Refresh LIVE pris en charge; état réel suivi dans cron_runs",
         }, 202);
       }
 
-      // Fallback: one bounded batch (background task already started).
-      // Avoid running a second batch while holding the same distributed lease.
+      // Local/non-Edge fallback: no duplicate processing and no false 500
+      // caused by a transient database error inside the coordinator.
       await refreshTask;
-      return json({ accepted: true, background: false, message: "Refresh LIVE terminé" }, 200);
+      return json({
+        accepted: true,
+        background: false,
+        message: "Refresh LIVE exécuté; consulter cron_runs pour le résultat",
+      }, 202);
     }
 
     // ===================================================
