@@ -150,6 +150,77 @@ def write_csv(path,rows):
         wr.writerows(rows)
 
 
+
+def walk_forward_top_probability_calibration(by_game, first_day="2026-04-01"):
+    """Recalibrate only P(top predicted exact score wins), not the 121-score grid.
+    Calibration parameters are fixed BEFORE evaluation, learned from prior UTC days.
+    All fixtures on each UTC day are calibrated before ANY of their labels are learned.
+    """
+    counts={m:{"n":0,"hit":0,"sum_p":0.0,"bins":defaultdict(lambda:[0,0])} for m in MODELS}
+    actual=defaultdict(list)
+    diagnostics=defaultdict(list)
+    day_groups=defaultdict(list)
+    for key,items in by_game.items():
+        day_groups[key[0]].append(items)
+    for day in sorted(day_groups):
+        pending=[]
+        for item in day_groups[day]:
+            for m in MODELS:
+                r=item[m]
+                raw=r["top_probability"]
+                hit=r["hit"]
+                b=min(19,int(raw*20))
+                state=counts[m]
+                # Empirical vs expected top-score event ratio, with fixed 200
+                # pseudo-observations at 10% prior. No target-match label here.
+                factor=(state["hit"]+20.0)/(state["sum_p"]+20.0)
+                factor=max(.45,min(1.50,factor))
+                adjusted_global=raw*factor
+                n_bin,win_bin=state["bins"][b]
+                # Local reliability shrinkage toward globally adjusted probability.
+                calibrated=max(.002,min(.65,(win_bin+120*adjusted_global)/(n_bin+120)))
+                if day>=first_day:
+                    row={"model":m,"date":day,"hit":hit,"raw":raw,
+                         "calibrated":calibrated,
+                         "raw_brier":(raw-hit)**2,
+                         "cal_brier":(calibrated-hit)**2,
+                         "raw_binary_logloss":-(hit*math.log(raw)+(1-hit)*math.log(1-raw)),
+                         "cal_binary_logloss":-(hit*math.log(calibrated)+(1-hit)*math.log(1-calibrated))}
+                    actual[m].append(row)
+                    diagnostics[(m,day[:7])].append(row)
+                pending.append((m,b,raw,hit))
+        # Update training state AFTER complete day's predictions.
+        for m,b,raw,hit in pending:
+            state=counts[m]
+            state["n"]+=1
+            state["hit"]+=hit
+            state["sum_p"]+=raw
+            v=state["bins"][b]
+            v[0]+=1
+            v[1]+=hit
+
+    def summarise(rows):
+        if not rows:
+            return None
+        n=len(rows)
+        return {
+            "n":n,
+            "observed_top1_pct":round(100*sum(x["hit"] for x in rows)/n,4),
+            "raw_confidence_pct":round(100*sum(x["raw"] for x in rows)/n,4),
+            "recalibrated_confidence_pct":round(100*sum(x["calibrated"] for x in rows)/n,4),
+            "raw_top_score_brier":round(sum(x["raw_brier"] for x in rows)/n,7),
+            "recalibrated_top_score_brier":round(sum(x["cal_brier"] for x in rows)/n,7),
+            "brier_gain":round(sum(x["raw_brier"]-x["cal_brier"] for x in rows)/n,7),
+            "raw_top_score_binary_logloss":round(sum(x["raw_binary_logloss"] for x in rows)/n,7),
+            "recalibrated_top_score_binary_logloss":round(sum(x["cal_binary_logloss"] for x in rows)/n,7)
+        }
+    summary={m:summarise(rows) for m,rows in actual.items()}
+    monthly=[dict(model=m,month=month,**summarise(rows))
+             for (m,month),rows in sorted(diagnostics.items())]
+    return {"first_evaluation_date":first_day,
+            "method":"expanding prior-day reliability shrinkage with fixed global 200-sample prior and 120-bin prior; no score reranking",
+            "models":summary}, monthly
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("--predictions",required=True)
@@ -169,12 +240,14 @@ def main():
     cal=[dict(model=m,bin=f"{k*10}-{k*10+10}%",**summ(v),
               gap_pp=round(100*mean([x["top_probability"]-x["hit"] for x in v]),4))
          for (m,k),v in sorted(calibration.items())]
+    forward_calibration,monthly_calibration=walk_forward_top_probability_calibration(games)
     xs={key:entries for key,entries in games.items() if "xg_poisson" in entries}
     report={
         "source_workflow_run":args.source_run,
         "audit":audit,
         "models":{m:summ(rows) for m,rows in by_model.items()},
         "paired_day_cluster_bootstrap_95pct":bootstrap(games,args.bootstrap),
+        "walk_forward_top_score_calibration":forward_calibration,
         "xg_same_match_comparison":{"n":len(xs),"models":{
             m:summ([entries[m] for entries in xs.values() if m in entries])
             for m in MODELS+OTHER}},
@@ -191,10 +264,12 @@ def main():
     write_csv(out/"monthly.csv",monthly)
     write_csv(out/"leagues.csv",leagues)
     write_csv(out/"calibration.csv",cal)
+    write_csv(out/"walk_forward_calibration_monthly.csv",monthly_calibration)
     print("STATISTICAL_AUDIT",json.dumps({
         "source_workflow_run":args.source_run,"audit":audit,
         "models":report["models"],"paired_day_cluster_bootstrap_95pct":report["paired_day_cluster_bootstrap_95pct"],
-        "xg_same_match_comparison":report["xg_same_match_comparison"]},ensure_ascii=False),flush=True)
+        "xg_same_match_comparison":report["xg_same_match_comparison"],
+        "walk_forward_top_score_calibration":forward_calibration},ensure_ascii=False),flush=True)
 
 
 if __name__=="__main__":
