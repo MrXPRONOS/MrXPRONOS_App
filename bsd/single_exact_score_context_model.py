@@ -78,7 +78,15 @@ def learn(ledger,now):
                 captured>kickoff-timedelta(minutes=30) or settled>now or
                 kickoff>now-timedelta(hours=4)):
                 continue
-            p=advanced["expected_goals"]
+            p=(advanced.get("rest_and_xg") or {}).get("context_free_expected_goals")
+            if p is None:
+                # Legacy first-seen forecasts before the context learner
+                # existed have context_model_applied=False and are safe.
+                # Forbid rows where the stored expected goals include our own
+                # learned absence adjustment: feedback would compound itself.
+                if advanced.get("context_model_applied"):
+                    continue
+                p=advanced["expected_goals"]
             base=(float(p["home"]),float(p["away"]))
             actual=tuple(record["actual_score"])
             if (len(actual)!=2 or any(type(y)!=int or y<0 for y in actual)

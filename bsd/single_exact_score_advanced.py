@@ -133,6 +133,9 @@ def goal_loss(rows,weights,strength):
 def matrix(event,index,base,weights,goal_strength,*,context_model=None,now=None):
     feat,meta=features(event,index,base)
     h,a=adjusted(base,feat,weights,goal_strength)
+    # Preserve the context-free baseline for future incremental learning;
+    # otherwise an already-activated context model teaches itself its own effect.
+    meta["context_free_expected_goals"]={"home":round(h,5),"away":round(a,5)}
     contextual=prematch_context(event,now or fixture_datetime(event),fixture_datetime(event))
     h,a,context_used=context_adjust(h,a,contextual,context_model)
     meta["context_model_used"]=context_used

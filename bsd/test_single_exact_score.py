@@ -441,6 +441,26 @@ class SingleExactScoreTests(unittest.TestCase):
         self.assertEqual(got["source"],"bsd-v2-events-lineups")
         self.assertEqual(got["observed_at_utc"],now.isoformat())
         self.assertEqual(got["home_absences"],1)
+    def test_absence_training_excludes_own_adjusted_predictions(self):
+        record={
+            "status":"settled",
+            "captured_at":(NOW-timedelta(days=3)).isoformat(),
+            "kickoff":(NOW-timedelta(days=3)+timedelta(hours=4)).isoformat(),
+            "settled_at":(NOW-timedelta(days=2)).isoformat(),
+            "actual_score":[1,1],
+            "advanced_research":{
+                "context_model_applied":True,
+                "expected_goals":{"home":.5,"away":.5},
+                "context":{"available":True,"source":"bsd-v2-events-lineups",
+                    "observed_at_utc":(NOW-timedelta(days=3)).isoformat(),
+                    "values":{"lineup_status":"confirmed","home_absences":2,
+                              "away_absences":2}}}}
+        self.assertEqual(learn_absence({"records":{"1":record}},NOW)
+                         ["diagnostic"]["eligible"],0)
+        record["advanced_research"]["rest_and_xg"]={
+            "context_free_expected_goals":{"home":1.5,"away":1.2}}
+        self.assertEqual(learn_absence({"records":{"1":record}},NOW)
+                         ["diagnostic"]["eligible"],1)
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)
