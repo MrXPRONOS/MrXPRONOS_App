@@ -4,13 +4,17 @@ on:
   schedule:
     - cron: '*/5 * * * *'
   workflow_dispatch:
+  # One-time smoke-test whenever the failover workflow itself is changed.
+  push:
+    paths:
+      - '.github/workflows/live-refresh-failover.yml'
 
 permissions:
   contents: read
 
 concurrency:
   group: mrxpronos-live-refresh-failover
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   recover-live-refresh:
@@ -21,6 +25,7 @@ jobs:
       CRON_SECRET: ${{ secrets.CRON_SECRET }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       SUPABASE_KEY_FALLBACK: ${{ secrets.SUPABASE_KEY }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
     steps:
       - name: Check refresh heartbeat and recover if stale
         shell: bash
@@ -79,19 +84,32 @@ jobs:
 
           # The Edge Function uses claim_live_refresh to prevent concurrent heavy refreshes.
           # Do not backfill old LIVE predictions: only the current match data is eligible.
+          # Include the optional publishable/anon key for gateways that enforce it.
+          GATEWAY_HEADERS=()
+          if [[ -n "${SUPABASE_ANON_KEY}" ]]; then
+            GATEWAY_HEADERS+=(-H "apikey: ${SUPABASE_ANON_KEY}")
+            GATEWAY_HEADERS+=(-H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
+          fi
+
           curl --fail-with-body --show-error --silent --max-time 210 \
             --retry 1 --retry-delay 5 \
             -X POST "${SUPABASE_URL}/functions/v1/live/refresh" \
             -H "Content-Type: application/json" \
             -H "x-cron-secret: ${CRON_SECRET}" \
+            "${GATEWAY_HEADERS[@]}" \
             -o /tmp/live-refresh-response.json
 
           python3 - <<'PY'
           import json
-          try:
-              with open("/tmp/live-refresh-response.json", encoding="utf-8") as f:
-                  response = json.load(f)
-              print("Refresh endpoint response:", json.dumps(response, ensure_ascii=False)[:500])
-          except Exception as exc:
-              print(f"Refresh endpoint returned non-JSON: {type(exc).__name__}")
+          import sys
+          with open("/tmp/live-refresh-response.json", encoding="utf-8") as f:
+              response = json.load(f)
+          print("Refresh endpoint response:", json.dumps(response, ensure_ascii=False)[:1000])
+          if response.get("already_running") is True:
+              print("Another refresh coordinator already holds the lock.")
+          elif response.get("accepted") is not True and response.get("success") is not True:
+              print("ERROR: Refresh endpoint did not accept the recovery job.")
+              sys.exit(1)
+          if response.get("background") is True:
+              print("Background refresh accepted; actual predictions must still be verified.")
           PY
