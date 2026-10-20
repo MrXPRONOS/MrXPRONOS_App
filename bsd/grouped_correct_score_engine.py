@@ -10,6 +10,7 @@ from bsd_v2_core import V2History,estimate_goals,fixture_datetime,outcome_scores
 from exact_scores import matrix_for
 from exact_scores_under25 import Under25Model,reweight_scores
 from exact_scores_h2h import H2HIndex,h2h_signal
+from bsd_form_shift import form_shift
 from bsd_v2_double_chance import fit_model
 from grouped_correct_score import (template_groups,validate_1xbet_snapshot,
                                     evaluate_groups,direction_probabilities,
@@ -26,7 +27,7 @@ def fit_direction(index):
     return model,metadata
 
 def analyze(fixture,index,hindex,dc_model,*,now,quote_snapshot=None,
-            require_prematch=True):
+            require_prematch=True,evaluate_form_shift=False):
     kickoff=fixture_datetime(fixture)
     if require_prematch and not now<kickoff:
         return None,"already_started"
@@ -43,6 +44,12 @@ def analyze(fixture,index,hindex,dc_model,*,now,quote_snapshot=None,
     dc_triple=dc_model.predict(fixture,index,(prior["1"],prior["X"],prior["2"]))
     direction=double_chance_direction(dict(zip(("1","X","2"),dc_triple)))
     h2h=h2h_signal(hindex.past_scores(fixture))
+    # Compute expensive historical-context form signals only when the
+    # underlying H2H + Under 2.5 priority is already eligible.
+    change=None
+    if evaluate_form_shift and h2h["prioritized"] and under["priority"]:
+        change=form_shift(fixture,index,hindex,expected=estimate,
+                          under25=under["probability"],direction=direction)
     offered=(validate_1xbet_snapshot(quote_snapshot,event_id=fixture["id"],
              kickoff=kickoff,now=now) if quote_snapshot is not None
              else template_groups())
@@ -73,6 +80,7 @@ def analyze(fixture,index,hindex,dc_model,*,now,quote_snapshot=None,
         "double_chance":direction,"under25_probability":under["probability"],
         "under25_priority":under["priority"],
         "h2h_priority":h2h["prioritized"],"h2h_meetings":h2h["meetings"],
+        "form_shift":change,
         "groups":scored,"published":False,"experimental":True,
         "note":"No wager recommendation; all 1xBet selection availability and decimal odds must be observed pre-match."},"ok"
 
@@ -95,5 +103,10 @@ def selection_summary(record):
     priceable=[x for x in high_conf if x["odds"] is not None and
                x["expected_value"] is not None and x["expected_value"]>=.03]
     value=max(priceable,key=lambda x:x["expected_value"]) if priceable else None
-    return {"baseline":benchmark,"with_double_chance":directed,
+    result={"baseline":benchmark,"with_double_chance":directed,
             "with_h2h_under":priority,"with_verified_price":value}
+    shift=record.get("form_shift")
+    if shift is not None:
+        for label,passed in (shift.get("variant_pass") or {}).items():
+            result["form_"+label]=priority if passed else None
+    return result
