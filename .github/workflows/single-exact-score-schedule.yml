@@ -64,14 +64,15 @@ jobs:
               "top1_rate":d["all"]["top1_rate"],
               "priority_settled":d["priority"]["n"]},ensure_ascii=False))
           PY
-      - name: Commit ONLY encrypted one-score ledger to research branch
+      - name: Commit ONLY encrypted research archives to research branch
         run: |
-          test -f bsd/single_exact_score_ledger.enc.json || exit 0
+          for archive in bsd/single_exact_score_ledger.enc.json bsd/single_exact_score_top3.enc.json bsd/single_exact_score_xg_history.enc.json bsd/single_exact_score_context_observations.enc.json; do
+            if test -f "$archive"; then git add -- "$archive"; fi
+          done
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- bsd/single_exact_score_ledger.enc.json
           if git diff --cached --quiet; then
-            echo "No new prediction or match result"; exit 0
+            echo "No new encrypted research snapshots"; exit 0
           fi
           git commit -m "data(single shadow): sealed pre-match score archive [skip ci]"
           git restore -- bsd/all_matches_bsd.enc.json
