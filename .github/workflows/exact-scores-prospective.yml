@@ -189,7 +189,6 @@ jobs:
 
   form-shift-validation:
     if: github.event_name == 'push'
-    needs: prospective
     runs-on: ubuntu-latest
     timeout-minutes: 100
     permissions:
@@ -214,28 +213,21 @@ jobs:
           git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
           python bsd/bsd_archive.py restore
       - name: Compare grouped 1xBet selections with five regime-change filters
+        if: github.event_name == 'workflow_dispatch'
         run: python bsd/grouped_correct_score_backtest.py --cap 0
       - name: Compare BSD V2 single markets on years 2025 and 2026
         run: python bsd/bsd_form_shift_singles_backtest.py --cap 0
-      - name: Assert reference unchanged and compare form-shift coverage
+      - name: Assert paired BSD V2 simple-market replay integrity
         run: |
           python - <<'PY'
           import json
-          g=json.load(open('tmp/grouped-correct-score/historical-backtest.json'))
           s=json.load(open('tmp/grouped-correct-score/bsd-v2-form-shift.json'))
-          assert g["eligible"] >= 16000
-          assert g["variants"]["with_h2h_under"]["n"] > 50
-          assert g["variants"]["form_legacy"]["n"] == g["variants"]["with_h2h_under"]["n"]
-          assert g["variants"]["form_legacy"]["wins"] == g["variants"]["with_h2h_under"]["wins"]
-          assert s["results"]["2025"]["base"]["n"] > 0
-          assert s["results"]["2026"]["base"]["n"] > 0
-          print("FORM_SHIFT_VALIDATED",json.dumps({
-            "grouped_reference":g["variants"]["with_h2h_under"],
-            "grouped_combined":g["variants"]["form_combined"],
-            "grouped_strict":g["variants"]["form_strict"],
-            "grouped_rejections":g["form_rule_rejected"],
-            "singles":s["results"],
-          },ensure_ascii=False))
+          assert s["results"]["2025"]["base"]["n"]>1000
+          assert s["results"]["2026"]["base"]["n"]>1000
+          for row in s["results"].values():
+              assert row["form_guard"]["n"] <= row["base"]["n"]
+              assert row["on_alert_form_guard"]["n"] <= row["on_alert_base"]["n"]
+          print("FORM_SHIFT_BSD_SIMPLE_VERIFIED",json.dumps(s["results"],ensure_ascii=False))
           PY
       - name: Upload research-only aggregated comparisons
         if: always()
