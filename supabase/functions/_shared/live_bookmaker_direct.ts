@@ -69,7 +69,7 @@ function extractPinnwire(data:any,input:Match):LiveQuote|null{
 }
 async function getJSON(provider:"moviodds"|"pinnwire",input:Match,db:Rpc):Promise<any|null>{
   const url=provider==="moviodds"?
-    "https://moviodds.com/odds?sport=soccer&in_play=1":
+    "https://moviodds.com/odds?sport=soccer&in_play=1&stats=1":
     Deno.env.get("LIVE_ODDS_PINNWIRE_DIRECT_URL")||"";
   if(!url||!url.startsWith("https://"))return null;
   const key=provider+":"+url;
@@ -110,4 +110,75 @@ export async function fetchLiveBookmakerOdds(input:Match,db:Rpc):Promise<LiveQuo
   }
   return null;
 }
-export const __test={extractMovi,extractPinnwire,marketMatches,fixtureMatches};
+
+/**
+ * Verified, directly observed MoviOdds LIVE statistics.
+ * Unlike the odds parser this consumes the documented optional stats=1 block.
+ * No odds, guesses, interpolations or missing-as-zero values are admitted here.
+ * Each match must match BOTH normalized names and the kickoff (within 2 hours).
+ */
+type StatsInput={match_id:string;home:string;away:string;kickoff?:string};
+type StatsResult={match_id:string;stats:{home:Record<string,number>;away:Record<string,number>}};
+function verifiedStatNumber(x:any, field:string):number|null{
+  if(x===null||x===undefined||x===""||typeof x==="boolean")return null;
+  const n=typeof x==="number"?x:Number(x);
+  const max=field==="ball_possession"?100:400;
+  return Number.isFinite(n)&&n>=0&&n<=max?n:null;
+}
+function observedSoccerPairs(value:any):StatsResult["stats"]|null{
+  if(!value||typeof value!=="object")return null;
+  if(value.sport&&![ "soccer","football" ].includes(String(value.sport).toLowerCase()))return null;
+  const home=value.home,away=value.away;
+  if(!home||typeof home!=="object"||!away||typeof away!=="object")return null;
+  const specs:Record<string,string[]>={
+    corner_kicks:["corners","corner_kicks"],
+    total_shots:["shots","total_shots","shots_total"],
+    shots_on_target:["shots_on_target"],
+    shots_off_target:["shots_off_target"],
+    attacks:["attacks"],
+    dangerous_attacks:["dangerous_attacks"],
+    yellow_cards:["yellow_cards"],
+    red_cards:["red_cards"],
+    ball_possession:["possession","ball_possession"],
+  };
+  const result={home:{} as Record<string,number>,away:{} as Record<string,number>};
+  for(const [target,keys] of Object.entries(specs)){
+    const pick=(side:any):number|null=>{
+      for(const k of keys){
+        const n=verifiedStatNumber(side[k],target);
+        if(n!==null)return n;
+      }
+      return null;
+    };
+    const h=pick(home),a=pick(away);
+    if(h!==null&&a!==null){result.home[target]=h;result.away[target]=a;}
+  }
+  return Object.keys(result.home).length?result:null;
+}
+export async function fetchVerifiedMoviOddsLiveStats(
+  inputs:StatsInput[],db:Rpc,
+):Promise<StatsResult[]>{
+  if(!inputs.length)return [];
+  // The same endpoint/15s isolate cache serves both quotes and stats.
+  const board=await getJSON("moviodds",{
+    match_id:"audit",home:"",away:"",market:"",line:0,minute:0,
+  },db);
+  if(!board)return [];
+  const events=Array.isArray(board?.matches)?board.matches:[];
+  const used=new Set<string>();
+  const results:StatsResult[]=[];
+  for(const input of inputs.slice(0,100)){
+    if(!input.match_id||used.has(input.match_id))continue;
+    const row=events.find((event:any)=>event?.in_play===true &&
+      fixtureMatches(event,{...input,market:"",line:0,minute:0}));
+    if(!row||!isFresh({updated_at:row.polled_at},180_000)||
+       !isFresh({updated_at:row.stats?.updated_at},180_000))continue;
+    const stats=observedSoccerPairs(row.stats);
+    if(!stats)continue;
+    results.push({match_id:input.match_id,stats});
+    used.add(input.match_id);
+  }
+  return results;
+}
+
+export const __test={extractMovi,extractPinnwire,marketMatches,fixtureMatches,observedSoccerPairs};
