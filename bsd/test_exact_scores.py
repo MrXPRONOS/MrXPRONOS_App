@@ -103,3 +103,33 @@ class Under25FusionTests(unittest.TestCase):
 
     def test_blend_one_uses_bsd_specialist(self):
         self.assertAlmostEqual(fused_probability(.48,.75,1),.75)
+
+
+from exact_scores_h2h_v2 import meetings_before,profile
+
+class H2HPhaseOneTests(unittest.TestCase):
+    def test_h2h_orientation_and_no_leakage(self):
+        def f(i,dt,h,a,hs,aw):
+            return {"id":i,"event_date":dt,"home_team_id":h,"away_team_id":a,
+                    "home_score":hs,"away_score":aw,"status":"finished"}
+        old=f(1,"2025-01-01T14:00:00Z",20,10,2,0)
+        target=f(2,"2026-01-01T14:00:00Z",10,20,9,9)
+        from exact_scores_h2h import H2HIndex
+        index=V2History([old,target])
+        rows=meetings_before(target,H2HIndex(index))
+        self.assertEqual([r["score"] for r in rows],[(0,2)])
+        self.assertFalse(rows[0]["same_venue"])
+    def test_recent_unsettled_score_not_used(self):
+        def f(i,dt,h,a,hs,aw):
+            return {"id":i,"event_date":dt,"home_team_id":h,"away_team_id":a,
+                    "home_score":hs,"away_score":aw,"status":"finished"}
+        past=f(1,"2026-05-01T12:00:00Z",10,20,1,0)
+        same_day=f(2,"2026-05-01T15:00:00Z",10,20,0,0)
+        index=V2History([past,same_day])
+        self.assertEqual(meetings_before(same_day,H2HIndex(index)),[])
+    def test_phase1_ablation_has_stable_keys(self):
+        from exact_scores_phase1_backtest import evaluate
+        result,audit=evaluate([])
+        self.assertEqual(result["finished_2026"],0)
+        self.assertEqual(result["variants"]["combined"]["n"],0)
+        self.assertEqual(audit,[])
