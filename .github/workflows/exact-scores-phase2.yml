@@ -1,0 +1,55 @@
+name: Exact scores - Phase 2 Under 2.5 validation
+on:
+  workflow_dispatch:
+  push:
+    branches: ['feature/exact-score-v1-20261019']
+    paths:
+      - 'bsd/exact_scores_under25_v2.py'
+      - 'bsd/exact_scores_phase2_backtest.py'
+      - 'bsd/test_exact_scores.py'
+      - '.github/workflows/exact-scores-phase2.yml'
+permissions:
+  contents: read
+concurrency:
+  group: exact-score-phase2-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  phase2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Dependencies
+        run: python -m pip install requests cryptography
+      - name: Phase 2 tests
+        run: python -m unittest bsd/test_exact_scores.py -v
+      - name: Restore private football history
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: python bsd/bsd_archive.py restore
+      - name: Evaluate V1 versus V2 on complete 2026 archive
+        run: python bsd/exact_scores_phase2_backtest.py
+      - name: Validate all-fixture coverage
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open('tmp/exact-scores/phase2-under25-report.json'))
+          assert r['finished'] > 0
+          assert r['eligible'] == r['groups']['all']['v1']['n'] == r['groups']['all']['v2']['n']
+          print('PHASE2_VALIDATED',r['finished'],r['eligible'])
+          PY
+      - name: Save aggregate metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: exact-score-phase2-${{ github.run_id }}
+          path: tmp/exact-scores/phase2-under25-report.json
+          retention-days: 90
+          if-no-files-found: error
+      - name: Erase decrypted archive
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
