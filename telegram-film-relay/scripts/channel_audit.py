@@ -19,6 +19,7 @@ from film_relay.bot_http import BotHTTPClient
 from film_relay.category_runner import category_config, preflight
 from film_relay.runner import config_from
 from film_relay.series_catalog import series_config
+from film_relay.source_channels import source_list
 
 LOG = logging.getLogger("cinex_channel_audit")
 
@@ -35,6 +36,14 @@ def requested_channels():
     }, os.getenv("CINEX_FILM_BOT_TOKEN") or os.getenv("CINEX_BOT_TOKEN", "")))
     entries.append(("series", series_config(),
                     os.getenv("CINEX_SERIES_BOT_TOKEN") or os.getenv("CINEX_BOT_TOKEN", "")))
+    entries.append(("desir", {
+        "category": "desir",
+        "sources": source_list(os.getenv("DESIR_SOURCE_CHANNEL", "@Filmromatique"),
+                               os.getenv("DESIR_EXTRA_SOURCE_CHANNEL", "@g_romanticfilm"),
+                               os.getenv("DESIR_SOURCE_CHANNELS", "")),
+        "private": os.getenv("DESIR_PRIVATE_CHANNEL", ""),
+        "public": os.getenv("DESIR_PUBLIC_CHANNEL", "@CineXDesirfr"),
+    }, os.getenv("DESIR_BOT_TOKEN") or os.getenv("CINEX_CATEGORY_BOT_TOKEN", "")))
     for name in ("comedie", "anime"):
         entries.append((name, category_config(name),
                         os.getenv("CINEX_CATEGORY_BOT_TOKEN", "")))
