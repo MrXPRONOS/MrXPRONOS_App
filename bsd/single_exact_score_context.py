@@ -4,7 +4,7 @@ Requests are budgeted, strictly time guarded, and never use match results of
 the upcoming fixture. Missing stats are never interpreted as zero. No logging
 of player identities, access tokens or sensitive data.
 """
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 from bsd_api import BSDAPIError, BSDQuotaError, BSDRequestBudgetError
 from bsd_h2h import _team_id
 from bsd_v2_core import fixture_datetime, outcome_scores
@@ -32,7 +32,7 @@ def lineup_context(payload,now):
     # Do not derive absent starter status from predicted/confirmed XI alone.
     return out
 
-def enrich_lineups(fixtures,client,now,already_seen=(),max_lookups=6):
+def enrich_lineups(fixtures,client,now,already_seen=(),max_lookups=6,clock=None):
     seen=set(map(str,already_seen))
     stats={"attempts":0,"found":0,"missing":0,"errors":0,"skipped":0}
     if max_lookups<=0:return stats
@@ -54,7 +54,12 @@ def enrich_lineups(fixtures,client,now,already_seen=(),max_lookups=6):
             stats["errors"]+=1;break
         except (BSDAPIError,ValueError,TypeError):
             stats["errors"]+=1;continue
-        info=lineup_context(payload,now)
+        observed=clock() if clock is not None else datetime.now(timezone.utc)
+        if observed.tzinfo is None:raise ValueError("Timezone-aware observation required")
+        if fixture_datetime(event)<=observed+timedelta(minutes=30):
+            stats["skipped"]+=1
+            continue
+        info=lineup_context(payload,observed)
         if info:
             prior=event.get("prematch_context")
             if not isinstance(prior,dict):prior={}
@@ -80,7 +85,7 @@ def _measured_xg(payload):
         numbers.append(float(value))
     return tuple(numbers)
 
-def hydrate_history_xg(index,fixtures,client,now,max_lookups=12,capture_into=None):
+def hydrate_history_xg(index,fixtures,client,now,max_lookups=12,capture_into=None,clock=None):
     """Acquire xG for already settled games, never current/future fixtures."""
     stats={"attempts":0,"measured":0,"not_measured":0,"errors":0}
     target=[]
@@ -111,19 +116,23 @@ def hydrate_history_xg(index,fixtures,client,now,max_lookups=12,capture_into=Non
             stats["errors"]+=1;break
         except (BSDAPIError,ValueError,TypeError):
             stats["errors"]+=1;continue
-        measured=_measured_xg(payload)
-        if measured:
+        observed=clock() if clock is not None else datetime.now(timezone.utc)
+        if observed.tzinfo is None:raise ValueError("Timezone-aware observation required")
+        if measured:=_measured_xg(payload):
+            if fixture_datetime(old)+timedelta(hours=4)>observed:
+                stats["errors"]+=1
+                continue
             if capture_into is not None:
                 capture_into[str(old["id"])]={
                     "home_xg":measured[0],"away_xg":measured[1],
                     "home_team_id":_team_id(old,"home"),
                     "away_team_id":_team_id(old,"away"),
                     "kickoff_utc":fixture_datetime(old).isoformat(),
-                    "captured_at_utc":now.isoformat()}
+                    "captured_at_utc":observed.isoformat()}
             old["home_xg_live"]=measured[0]
             old["away_xg_live"]=measured[1]
             old["xg_estimated"]=False
-            old["xg_available_at_utc"]=now.isoformat()
+            old["xg_available_at_utc"]=observed.isoformat()
             stats["measured"]+=1
         else:stats["not_measured"]+=1
     return stats

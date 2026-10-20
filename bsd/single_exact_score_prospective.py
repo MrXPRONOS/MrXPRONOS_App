@@ -76,7 +76,13 @@ def capture(archive,fixtures,index,model,now,*,limit=500,advanced_model=None,con
                                advanced_model=advanced_model,context_model=context_model)
         if output is None:
             counter[reason]+=1;continue
-        row={"id":key,"model":VERSION,"captured_at":live_now.isoformat(),
+        # A forecast can become too late while the computation is running.
+        stored_at=clock() if clock is not None else datetime.now(timezone.utc)
+        if stored_at.tzinfo is None:raise ValueError("UTC-aware capture clock required")
+        if fixture_datetime(event)<=stored_at+timedelta(minutes=PARAMETERS["minimum_lead_minutes"]):
+            counter["too_close_after_compute"]+=1
+            continue
+        row={"id":key,"model":VERSION,"captured_at":stored_at.isoformat(),
              "kickoff":output["kickoff_utc"],"home_id":_team_id(event,"home"),
              "away_id":_team_id(event,"away"),"score":output["score"],
              "estimated_probability":output["estimated_score_probability"],

@@ -173,7 +173,7 @@ class SingleExactScoreTests(unittest.TestCase):
                                  "away":{"xg":{"actual":.9,"estimated":False}}}}
         game=fixture(721,NOW+timedelta(days=1))
         cl=StubClient()
-        info=enrich_lineups([game],cl,NOW,max_lookups=1)
+        info=enrich_lineups([game],cl,NOW,max_lookups=1,clock=lambda:NOW)
         self.assertEqual(info["found"],1)
         self.assertTrue(prematch_context(game,NOW,NOW+timedelta(days=1))["available"])
         earlier=sample_history()
@@ -401,6 +401,27 @@ class SingleExactScoreTests(unittest.TestCase):
         self.assertEqual(basket["records"][day]["digest"],digest)
         self.assertEqual(basket["records"][day]["hits"],3)
         self.assertEqual(top3_report(basket)["winning_basket_rate"],1.)
+    def test_long_calculation_is_blocked_by_second_deadline_check(self):
+        index=sample_history()
+        e=fixture(9912,NOW+timedelta(hours=2))
+        readings=iter((NOW,NOW+timedelta(hours=1,minutes=45)))
+        archive=empty()
+        result=capture(archive,[e],index,DummyDC(),NOW,clock=lambda:next(readings))
+        self.assertEqual(result.get("too_close_after_compute"),1)
+        self.assertEqual(len(archive["records"]),0)
+    def test_context_fetch_timestamp_is_actual_response_time(self):
+        game=fixture(9914,NOW+timedelta(hours=2))
+        class DummyResponse:
+            requests_made=0
+            max_requests=20
+            def get_json(self,path,ttl=0):
+                self.requests_made+=1
+                return {"lineup_status":"confirmed",
+                        "unavailable_players":{"home":[1],"away":[2]}}
+        stats=enrich_lineups([game],DummyResponse(),NOW,max_lookups=1,
+                  clock=lambda:NOW+timedelta(hours=1,minutes=40))
+        self.assertEqual(stats["found"],0)
+        self.assertNotIn("prematch_context",game)
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)
