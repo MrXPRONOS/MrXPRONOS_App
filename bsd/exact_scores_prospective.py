@@ -134,7 +134,13 @@ def record_fixtures(ledger, events, index, now, *, max_new=600):
 
 
 def reconcile_results(ledger, events, now):
-    known = {fixture_key(e): e for e in events}
+    known = {}
+    for e in events:
+        try:
+            key = fixture_key(e)
+        except (KeyError, TypeError, ValueError):
+            continue
+        known[key] = e
     counts = Counter()
     for key, row in ledger["predictions"].items():
         if row["status"] != "pending":
@@ -181,11 +187,20 @@ def report(ledger, now):
                 "under25_brier": round(
                     sum((r["under25"]["probability"] - r["under25_hit"])**2
                         for r in rows) / n, 6)}
+    as_of = now - timedelta(days=4)
+    overdue = sum(
+        r["status"] == "pending" and datetime.fromisoformat(r["kickoff_utc"]) < as_of
+        for r in forecasts
+    )
     return {"format": "mrx-exact-score-prospective-report-v1",
             "created_utc": now.isoformat(), "model": MODEL["version"],
             "experimental": True, "published": False,
             "total_captured": len(forecasts),
             "pending": sum(r["status"] == "pending" for r in forecasts),
+            "overdue_unsettled": overdue,
+            "priority_captured": sum(bool(r["selected"]) for r in forecasts),
+            "priority_pending": sum(
+                r["selected"] and r["status"] == "pending" for r in forecasts),
             "all": metrics(settled),
             "priority": metrics([r for r in settled if r["selected"]]),
             "warning": "Prospective only; no guaranteed outcome or profit. Small samples are unstable."}
@@ -226,7 +241,13 @@ def main():
     fixtures = fetch_fixture_window(client, now)
     index = V2History(history)
     capture = record_fixtures(original, fixtures, index, now)
-    settlement = reconcile_results(original, fixtures, now)
+    # An archive refresh may supply a delayed result after its live API
+    # fixture leaves the four-day query window. API fixtures take precedence.
+    pending_ids = {row["match_id"] for row in original["predictions"].values()
+                   if row["status"] == "pending"}
+    completed = [e for _at, e in index.global_games
+                 if str(e["id"]) in pending_ids]
+    settlement = reconcile_results(original, completed + fixtures, now)
     # Re-encrypt ONLY when first-seen records or settlements changed.
     # Prevent needless diffs: Fernet ciphertext is randomized every write.
     if capture['added'] or settlement.get('settled'):
