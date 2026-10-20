@@ -12,6 +12,8 @@ on:
       - 'bsd/exact_scores_under25.py'
       - 'bsd/exact_scores_under25_v2.py'
       - 'bsd/exact_scores_phase2_backtest.py'
+      - 'bsd/exact_scores_phase3.py'
+      - 'bsd/exact_scores_phase3_backtest.py'
       - 'bsd/exact_scores_under25_backtest.py'
       - 'bsd/exact_scores_full_2026.py'
       - 'bsd/test_exact_scores.py'
@@ -76,6 +78,8 @@ jobs:
         run: python bsd/exact_scores_phase1_backtest.py
       - name: Evaluate Phase 2 Under 2.5 on full 2026 history
         run: python bsd/exact_scores_phase2_backtest.py
+      - name: Evaluate Phase 3 coherent fusion and abstention
+        run: python bsd/exact_scores_phase3_backtest.py
       - name: Reject missing backtest results
         run: |
           python - <<'PY'
@@ -101,6 +105,7 @@ jobs:
             tmp/exact-scores/under25-full-2026-report.json
             tmp/exact-scores/phase1-h2h-report.json
             tmp/exact-scores/phase2-under25-report.json
+            tmp/exact-scores/phase3-report.json
           retention-days: 90
           if-no-files-found: error
       - name: Remove decrypted archive from runner
