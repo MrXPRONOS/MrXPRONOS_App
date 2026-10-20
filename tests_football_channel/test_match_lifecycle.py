@@ -754,7 +754,12 @@ class MatchLifecycleTests(unittest.TestCase):
         updates = [x for x in found if x["kind"] == "score_update"]
         self.assertEqual(len(updates), 1)
         self.assertEqual(updates[0]["score"], "1-1")
-        publication = channel.lifecycle_publication(updates[0])
+        # Ce signal de score reste visible en interne mais n'est pas un but.
+        with patch.dict("os.environ", {"FOOTBALL_ENABLE_SCORE_UPDATES": "0"}):
+            self.assertIsNone(channel.lifecycle_publication(updates[0]))
+        # Le mode diagnostic peut re-activer l'ancien format au besoin.
+        with patch.dict("os.environ", {"FOOTBALL_ENABLE_SCORE_UPDATES": "1"}):
+            publication = channel.lifecycle_publication(updates[0])
         self.assertEqual(publication.card["score"], "1-1")
         self.assertIn("1-1", publication.text)
         self.assertIn("SCORE LIVE", publication.text)
