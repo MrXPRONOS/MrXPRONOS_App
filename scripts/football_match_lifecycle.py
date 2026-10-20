@@ -1646,8 +1646,17 @@ def lifecycle_signals(
         return explicit, espn_match_url(explicit)
 
     def normalized_detail(ext: dict, event_id: str) -> dict:
-        if ext.get("source") == "espn":
+        # Les scores consolidés Supabase n'incluent pas forcément les buteurs.
+        # Utiliser la chronologie ESPN liée au même match lorsqu'elle existe.
+        provider = str(ext.get("source") or "")
+        if provider == "espn":
             return extract_match_enrichment(summary_for(event_id))
+        if provider in {"supabase_merged", "supabase_live"}:
+            linked_id, _ = espn_identity(ext)
+            if linked_id:
+                summary = summary_for(linked_id)
+                if isinstance(summary, dict) and summary.get("details"):
+                    return extract_match_enrichment(summary)
         return provider_detail(ext)
 
     def lineup_hash(players: list[str]) -> str:
@@ -1949,7 +1958,7 @@ def lifecycle_signals(
         # Buts récents : chaque événement est traité, même si plusieurs buts
         # sont apparus entre deux passages du lifecycle.
         if (
-            is_live(ext) and ext.get("source") in {"espn", "sportscore", "thesportsdb"}
+            is_live(ext) and ext.get("source") in {"espn", "sportscore", "thesportsdb", "supabase_merged", "supabase_live"}
             and hs is not None and aws is not None and hs + aws > 0
         ):
             goal_match_data = normalized_detail(ext, event_id)
