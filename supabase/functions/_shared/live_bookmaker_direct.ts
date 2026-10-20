@@ -76,7 +76,7 @@ async function getJSON(provider:"moviodds"|"pinnwire",input:Match,db:Rpc):Promis
   const stored=cache.get(key);
   if(stored&&Date.now()-stored.at<15000)return stored.data;
   if((disabled.get(provider)||0)>Date.now())return null;
-  const limits=provider==="moviodds"?{day:cap("LIVE_MOVIODDS_DAILY_CAP",600),minute:cap("LIVE_MOVIODDS_MINUTE_CAP",12)}:
+  const limits=provider==="moviodds"?{day:cap("LIVE_MOVIODDS_DAILY_CAP",1800),minute:cap("LIVE_MOVIODDS_MINUTE_CAP",3)}:
     {day:cap("LIVE_PINNWIRE_DAILY_CAP",90),minute:cap("LIVE_PINNWIRE_MINUTE_CAP",2)};
   if(provider==="pinnwire"&&!Deno.env.get("LIVE_ODDS_PINNWIRE_KEY"))return null;
   const slot=await db.rpc("odds_take_request_slot",{
@@ -86,6 +86,10 @@ async function getJSON(provider:"moviodds"|"pinnwire",input:Match,db:Rpc):Promis
   const timer=setTimeout(()=>ac.abort(),5000);
   try{
     const headers:Record<string,string>={Accept:"application/json"};
+    if(provider==="moviodds"){
+      const apiKey=Deno.env.get("MOVIODDS_API_KEY");
+      if(apiKey)headers["X-API-Key"]=apiKey;
+    }
     if(provider==="pinnwire"){
       const secret=Deno.env.get("LIVE_ODDS_PINNWIRE_KEY");
       if(!secret)return null;
@@ -118,7 +122,7 @@ export async function fetchLiveBookmakerOdds(input:Match,db:Rpc):Promise<LiveQuo
  * Each match must match BOTH normalized names and the kickoff (within 2 hours).
  */
 type StatsInput={match_id:string;home:string;away:string;kickoff?:string};
-type StatsResult={match_id:string;stats:{home:Record<string,number>;away:Record<string,number>}};
+type StatsResult={match_id:string;provider_id:string;stats:{home:Record<string,number>;away:Record<string,number>}};
 function verifiedStatNumber(x:any, field:string):number|null{
   if(x===null||x===undefined||x===""||typeof x==="boolean")return null;
   const n=typeof x==="number"?x:Number(x);
@@ -175,7 +179,8 @@ export async function fetchVerifiedMoviOddsLiveStats(
        !isFresh({updated_at:row.stats?.updated_at},180_000))continue;
     const stats=observedSoccerPairs(row.stats);
     if(!stats)continue;
-    results.push({match_id:input.match_id,stats});
+    if(row.id===null || row.id===undefined || String(row.id).trim()==="")continue;
+    results.push({match_id:input.match_id,provider_id:String(row.id),stats});
     used.add(input.match_id);
   }
   return results;
