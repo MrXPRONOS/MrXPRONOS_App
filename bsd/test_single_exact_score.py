@@ -648,6 +648,35 @@ class SingleExactScoreTests(unittest.TestCase):
         item["hits"]=1
         with self.assertRaises(ValueError):
             verify_top3(group,ledger,NOW+timedelta(days=1))
+    def test_predicted_lineups_are_not_trainable_or_adjusted(self):
+        now=NOW
+        rec={"id":"1200","status":"settled",
+             "kickoff":(NOW-timedelta(days=3)).isoformat(),
+             "captured_at":(NOW-timedelta(days=3,hours=5)).isoformat(),
+             "settled_at":(NOW-timedelta(days=2)).isoformat(),
+             "actual_score":[2,1],
+             "advanced_research":{"expected_goals":{"home":1.5,"away":1.2},
+                "context":{"source":"bsd-v2-events-lineups",
+                   "available":True,"observed_at_utc":(NOW-timedelta(days=3,hours=5)).isoformat(),
+                   "values":{"lineup_status":"predicted","home_absences":2,
+                             "away_absences":1}}}}
+        self.assertEqual(learn_absence({"records":{"1200":rec}},now)
+                         ["diagnostic"]["eligible"],0)
+        active={"active":True,"weights":((-.2,0.),(0.,-.3))}
+        self.assertEqual(apply_absence(1.5,1.2,rec["advanced_research"]["context"],active),
+                         (1.5,1.2,False))
+        rec["advanced_research"]["context"]["values"]["lineup_status"]="confirmed"
+        self.assertEqual(learn_absence({"records":{"1200":rec}},now)
+                         ["diagnostic"]["eligible"],1)
+    def test_fixed_clock_history_bound_excludes_between_capture_and_kickoff(self):
+        from single_exact_score_snapshot_replay import PointInTimeHistory,cutoff_for
+        game=fixture(333333,NOW+timedelta(hours=7))
+        cutoff=cutoff_for(datetime.fromisoformat(game["event_date"]))
+        self.assertEqual(cutoff,NOW+timedelta(minutes=13))
+        hist=sample_history()
+        wrapper=PointInTimeHistory(hist,cutoff)
+        self.assertEqual(wrapper.team(10,game and datetime.fromisoformat(game["event_date"])),
+                         hist.team(10,cutoff))
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)

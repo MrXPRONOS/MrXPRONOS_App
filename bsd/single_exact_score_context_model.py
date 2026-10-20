@@ -81,6 +81,10 @@ def learn(ledger,now,observations=None):
                     sidecar=True
         x=source_features(context)
         if x is None:continue
+        # Predicted XI are provider guesses: never use as labelled training
+        # evidence or mix with verified confirmed lineups.
+        if (context.get("values") or {}).get("lineup_status")!="confirmed":
+            continue
         try:
             captured=utc(record["captured_at"])
             kickoff=utc(record["kickoff"])
@@ -139,7 +143,8 @@ def adjust(home,away,context,model):
     """No valid context or no validation: EXACT mathematical no-op."""
     if not model or not model.get("active"):return home,away,False
     x=source_features(context)
-    if x is None:return home,away,False
+    if x is None or (context.get("values") or {}).get("lineup_status")!="confirmed":
+        return home,away,False
     weights=model["weights"]
     mu=[home,away]
     values=tuple(max(.1,min(5.,mu[i]*exp(sum(

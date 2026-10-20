@@ -42,3 +42,13 @@ The isolated daily workflow reports verified pre-match lineup coverage, number o
 
 ## Verified source sidecar for immutable first-seen forecasts
 Production-style initial shakedown on Oct 20 captured 134 still-pending predictions yet no usable lineup observations in their immutable score records. The independent encrypted `single_exact_score_context_observations.enc.json` now attaches a verified BSD pre-match lineup first-seen snapshot to a previously archived unstarted match by forecast hash. Scores and probabilities are NEVER edited. Training consumes either the original before-kickoff context or a later independently observed before-kickoff sidecar, only once the match is settled, and only after temporal cross-validation. The model remains inactive until enough verified observations exist.
+
+## Audit 2026-10-20 : correction des erreurs 4-10
+- Les matchs annulés, reportés, abandonnés et les coups d'envoi décalés de plus de 90 minutes sont déclarés VOID (jamais comptés comme une défaite). Les groupes Top 3 correspondants sont VOID.
+- Le digest de la sélection initiale reste inchangé; les résultats Top 3 sont vérifiés match par match et le nombre de réussites est recalculé.
+- Le rang est désormais la même formule probabilité + 0.08*min(0.20,marge) pour tous les pronostics, y compris historiques; les champs et scores d'origine restent intacts.
+- Un Top 3 n'est plus figé lors du passage de 01:13 UTC. Il attend le contrôle de 12:13 UTC et ne concerne que les matchs restants; cela élimine les matchs précoces, ce qui est explicite dans le rapport.
+- Les archives chiffrées des anciennes versions de paramètres restent lisibles, sous réserve du même schéma et du digest individuel intact.
+- L'apprentissage des absences et son application n'utilisent que les compositions confirmées, jamais les compositions simplement prédites.
+- Le nouveau module `single_exact_score_snapshot_replay.py` limite les statistiques historiques à 12:13 UTC pour chaque journée et ne revendique PAS l'existence de snapshots de calendrier historique que l'archive ne détient pas.
+- Un verrou GitHub supplémentaire empêche le job de capture manuelle du workflow de recherche d'écrire en même temps que le planificateur.

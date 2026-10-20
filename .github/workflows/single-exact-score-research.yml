@@ -97,6 +97,10 @@ jobs:
         run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
 
   prospective:
+    # Lock against the automatic and manual prospective writers on main.
+    concurrency:
+      group: mrx-single-score-prospective-writer
+      cancel-in-progress: false
     # Automatic prospective snapshots are handled by the separate daily
     # cron workflow; skip extra API calls on full-history benchmark commits.
     if: github.event_name == 'workflow_dispatch'
@@ -136,10 +140,10 @@ jobs:
           import json
           d=json.load(open("tmp/single-exact-score/prospective-report.json"))
           assert d["published"] is False and d["experimental"] is True
-          assert d["captured"] == d["pending"] + d["settled"]
+          assert d["captured"] == d["pending"] + d["settled"] + d["void"]
           assert d["priority"]["n"]<=d["all"]["n"]
           assert d["top3"]["selected_match_count"] == 3*d["top3"]["baskets_created"]
-          assert d["top3"]["settled_baskets"] <= d["top3"]["baskets_created"]
+          assert d["top3"]["settled_baskets"] + d["top3"]["void_baskets"] <= d["top3"]["baskets_created"]
           assert d["absence_context_model"]["training_rows"] >= 0
           assert len(d["advanced_model_fingerprint_sha256"]) == 64
           print("SINGLE_EXACT_LEDGER",json.dumps({
