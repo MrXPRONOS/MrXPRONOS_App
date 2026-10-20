@@ -99,6 +99,8 @@ def capture(archive,fixtures,index,model,now,*,limit=500,advanced_model=None,con
              "rank_version":output["rank_version"],
              "research_priority":output["research_priority"],
              "expected_goals":output["expected_goals"],
+             "primary_model":"under25_fusion",
+             "advanced_model_used_for_primary":False,
              "h2h_low_stable":output["h2h_low_stable"],
              "under25_probability":output["under25_probability"],
              "form_risk":output["form_risk"],
@@ -170,6 +172,14 @@ def summary(archive,now):
     values=list(archive["records"].values())
     done=[v for v in values if v["status"]=="settled"]
     void=[v for v in values if v["status"]=="void"]
+    frequency=Counter("-".join(map(str,v["score"])) for v in values)
+    by_score={}
+    for name,count in frequency.items():
+        subs=[v for v in done if "-".join(map(str,v["score"]))==name]
+        by_score[name]={"captured":count,"settled":len(subs),
+                        "hits":sum(v["hit"] for v in subs),
+                        "observed_accuracy":round(sum(v["hit"] for v in subs)/len(subs),6)
+                            if subs else None}
     def calculate(rows):
         n=len(rows);hits=sum(x["hit"] for x in rows)
         return {"n":n,"hits":hits,"top1_rate":round(hits/n,6) if n else None,
@@ -178,7 +188,15 @@ def summary(archive,now):
             "experimental":True,"published":False,"model":VERSION,
             "captured":len(values),"pending":len(values)-len(done)-len(void),
             "settled":len(done),"void":len(void),
-            "void_reasons":dict(Counter(v.get("void_reason","unknown") for v in void)),"all":calculate(done),
+            "void_reasons":dict(Counter(v.get("void_reason","unknown") for v in void)),
+            "primary_model":"under25_fusion",
+            "advanced_model":"experimental_comparison_only",
+            "selected_score_frequency":dict(frequency.most_common()),
+            "selected_score_hit_rates":by_score,
+            "one_one_selection_share":round(frequency.get("1-1",0)/len(values),6)
+                if values else None,
+            "excessive_one_one_warning":bool(values and
+                frequency.get("1-1",0)/len(values)>.60),"all":calculate(done),
             "priority":calculate([v for v in done if v["research_priority"]]),
             "h2h_under":calculate([v for v in done if v["h2h_low_stable"] and v["under25_probability"]>=.62]),
             "experimental_alternatives":{

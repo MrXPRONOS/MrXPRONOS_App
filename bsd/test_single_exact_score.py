@@ -677,6 +677,23 @@ class SingleExactScoreTests(unittest.TestCase):
         wrapper=PointInTimeHistory(hist,cutoff)
         self.assertEqual(wrapper.team(10,game and datetime.fromisoformat(game["event_date"])),
                          hist.team(10,cutoff))
+    def test_primary_model_is_explicit_and_score_concentration_monitored(self):
+        idx=sample_history()
+        event=fixture(191919,NOW+timedelta(hours=6))
+        out,_=forecast(event,idx,H2HIndex(idx),now=NOW)
+        self.assertEqual(out["primary_model"],"under25_fusion")
+        self.assertFalse(out["advanced_model_used_for_primary"])
+        sample=empty()
+        for i in range(10):
+            sample["records"][str(i)]={
+                "score":[1,1] if i<7 else [0,0],
+                "status":"pending","estimated_probability":.17,
+                "research_priority":False,"h2h_low_stable":False,
+                "under25_probability":.6}
+        r=summary(sample,NOW)
+        self.assertTrue(r["excessive_one_one_warning"])
+        self.assertEqual(r["selected_score_frequency"]["1-1"],7)
+        self.assertEqual(r["primary_model"],"under25_fusion")
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)
