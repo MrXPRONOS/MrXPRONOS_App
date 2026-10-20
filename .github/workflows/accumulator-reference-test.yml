@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/accumulator-reference-test.yml'
+      - 'scripts/accumulator_french.mjs'
 
 permissions:
   contents: read
@@ -40,6 +41,18 @@ jobs:
         env:
           TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
         run: python scripts/telegram_test_guard.py
+      - name: Vérifier les traductions françaises
+        run: |
+          node --input-type=module - <<'NODE'
+          import { categoryFrench, statusFrench, selectionFrench } from './scripts/accumulator_french.mjs';
+          import assert from 'node:assert/strict';
+          assert.equal(categoryFrench('Akumulator'), 'Combiné');
+          assert.equal(statusFrench('Diterima'), 'Accepté');
+          assert.equal(selectionFrench('Total (1.5) Over'), 'Total buts : plus de 1,5');
+          assert.equal(selectionFrench('Double Chance. 1X'), 'Double chance : 1X');
+          assert.equal(selectionFrench('Kedua Tim Mencetak Skor. Ya'), 'Les deux équipes marquent : Oui');
+          console.log('ACCUMULATOR_FRENCH_TRANSLATIONS_OK');
+          NODE
       - name: Render image de reference (une seule sortie)
         run: node scripts/render_accumulator_ticket.mjs --output "$ACCUMULATOR_OUTPUT"
       - name: Valider image 1080px / 11 matchs
