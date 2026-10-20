@@ -2,6 +2,7 @@
 import asyncio
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 from types import SimpleNamespace as NS
 import unittest
 
@@ -26,7 +27,9 @@ class MirrorTests(unittest.TestCase):
         bot_public = NS(username="cinex_public")
         mirror = NS(username="Torrent9SeriesFilm")
         client = FakeForwarder()
-        result_id = asyncio.run(forward_public_message(client, bot_public, mirror, 77))
+        # Unit-test native forward semantics without enabling production transfers.
+        with patch("film_relay.mirror_policy.assert_torrent9_enabled"):
+            result_id = asyncio.run(forward_public_message(client, bot_public, mirror, 77))
         self.assertEqual(result_id, 9876)
         self.assertEqual(client.calls, [(mirror, 77, bot_public)])
 
