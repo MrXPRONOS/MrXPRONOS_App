@@ -8,6 +8,18 @@ on:
       - 'research/enrich_late_xg.py'
       - '.github/workflows/exact-score-2026.yml'
   workflow_dispatch:
+    inputs:
+      refresh_history:
+        description: "Run optional historical SportData backfill (consumes API quota)"
+        type: boolean
+        default: false
+      full_backfill:
+        description: "Attempt all missing dates rather than the newest fifteen"
+        type: boolean
+        default: false
+concurrency:
+  group: exact-score-2026-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -28,7 +40,11 @@ jobs:
         run: |
           test -s cache/all_matches.json
           wc -c cache/all_matches.json
-      - name: Refresh missing historical fixtures (best effort, never overwrite production)
+      - name: Prepare read-only history copy
+        run: |
+          cp cache/all_matches.json /tmp/mrx_all_matches_research.json
+      - name: Refresh missing historical fixtures (manual opt-in only)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.refresh_history == true }}
         env:
           SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY }}
           SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
@@ -37,7 +53,7 @@ jobs:
           SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
           SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
         run: |
-          PYTHONPATH=. python research/refresh_recent.py --source cache/all_matches.json --output /tmp/mrx_all_matches_research.json --audit /tmp/mrx_refresh_audit.json --end 2026-10-19 --max-days 15
+          PYTHONPATH=. python research/refresh_recent.py --source cache/all_matches.json --output /tmp/mrx_all_matches_research.json --audit /tmp/mrx_refresh_audit.json --end 2026-10-19 --max-days ${{ inputs.full_backfill && '0' || '15' }}
       - name: Enrich historical training with matched provisional late-game xG
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
