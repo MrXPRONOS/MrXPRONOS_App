@@ -1,6 +1,11 @@
 name: MRX isolated single-score prospective capture
 
 on:
+  # One-off verification after this scheduler workflow is created or edited.
+  # No model or publication file on main triggers this workflow.
+  push:
+    branches: [main]
+    paths: ['.github/workflows/single-exact-score-prospective-schedule.yml']
   schedule:
     - cron: '13 1,12 * * *'
   workflow_dispatch:
