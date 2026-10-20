@@ -143,5 +143,31 @@ class ProspectiveTests(unittest.TestCase):
         self.assertEqual(result["all"]["n"],0)
         self.assertFalse(result["priority_minimum_sample_met"])
 
+    def test_rescheduled_event_never_duplicates_and_settles_after_new_kickoff(self):
+        idx=history()
+        first=fixture(981,NOW+timedelta(days=1))
+        moved=fixture(981,NOW+timedelta(days=2))
+        led=empty_ledger()
+        self.assertEqual(record_fixtures(led,[first],idx,NOW)["added"],1)
+        before=next(iter(led["predictions"].values()))["forecast_sha256"]
+        changed=record_fixtures(led,[moved],idx,NOW+timedelta(hours=1))
+        self.assertEqual(changed["added"],0)
+        self.assertEqual(changed["skipped"]["rescheduled_preserve_original"],1)
+        self.assertEqual(len(led["predictions"]),1)
+        self.assertEqual(next(iter(led["predictions"].values()))["forecast_sha256"],before)
+        finished=fixture(981,NOW+timedelta(days=2),status="finished",score=(1,0))
+        self.assertEqual(reconcile_results(led,[finished],
+                           NOW+timedelta(days=2,hours=3)),{})
+        self.assertEqual(reconcile_results(led,[finished],
+                           NOW+timedelta(days=2,hours=5)),{"settled":1})
+        row=next(iter(led["predictions"].values()))
+        self.assertEqual(row["actual_kickoff_utc"],finished["event_date"])
+        self.assertEqual(row["forecast_sha256"],before)
+        key=Fernet(Fernet.generate_key())
+        with tempfile.TemporaryDirectory() as folder:
+            p=Path(folder)/"archive.enc.json"
+            write_ledger(led,p,key)
+            self.assertEqual(read_ledger(p,key),led)
+
 if __name__=="__main__":
     unittest.main()
