@@ -74,7 +74,8 @@ def capture(ledger,fixtures,index,dc,*,now,quotes=None,max_new=500):
               "finished","cancelled","canceled","abandoned","postponed"):
             counts["not_future"]+=1;continue
         quotation=(quotes or {}).get(eid)
-        result,reason=analyze(e,index,hindex,dc,now=now,quote_snapshot=quotation)
+        result,reason=analyze(e,index,hindex,dc,now=now,quote_snapshot=quotation,
+                              evaluate_form_shift=True)
         if result is None:counts[reason]+=1;continue
         selected=selection_summary(result)
         row={"match_id":eid,"kickoff_utc":kick.isoformat(),
@@ -90,6 +91,11 @@ def capture(ledger,fixtures,index,dc,*,now,quotes=None,max_new=500):
              "under25_probability":round(result["under25_probability"],7),
              "groups":result["groups"],
              "market_status":result["market_status"],
+             "form_shift":({
+                 "version":result["form_shift"]["version"],
+                 "flags":result["form_shift"]["flags"],
+                 "variant_pass":result["form_shift"]["variant_pass"]}
+                 if result.get("form_shift") else None),
              "rules":{k:v["group_id"] if v else None for k,v in selected.items()},
              "status":"pending"}
         row["forecast_sha256"]=digest(row)
@@ -129,11 +135,14 @@ def settle(ledger,fixtures,now):
 def report(ledger,now):
     all_rows=list(ledger["predictions"].values())
     past=[r for r in all_rows if r["status"]=="settled"]
-    policies=("baseline","with_double_chance","with_h2h_under","with_verified_price")
+    policies=("baseline","with_double_chance","with_h2h_under",
+              "with_verified_price","form_recent_attack","form_recent_defence",
+              "form_historical_h2h_context","form_venue_shift",
+              "form_model_agreement","form_combined","form_strict")
     policies_out={}
     for policy in policies:
-        values=[r["results"][policy] for r in past if r["results"][policy] is not None]
-        group_ids={r["rules"][policy] for r in past if r["rules"][policy]}
+        values=[r["results"].get(policy) for r in past if r["results"].get(policy) is not None]
+        group_ids={r["rules"].get(policy) for r in past if r["rules"].get(policy)}
         policies_out[policy]={"n":len(values),"wins":sum(values),
                               "hit_rate":round(sum(values)/len(values),5) if values else None,
                               "distinct_groups":len(group_ids)}
