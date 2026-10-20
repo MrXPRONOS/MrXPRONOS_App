@@ -1,0 +1,97 @@
+name: LIVE - refresh failover
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrxpronos-live-refresh-failover
+  cancel-in-progress: true
+
+jobs:
+  recover-live-refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      SUPABASE_URL: https://nhwafcpndlufzzxexikh.supabase.co
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_KEY_FALLBACK: ${{ secrets.SUPABASE_KEY }}
+    steps:
+      - name: Check refresh heartbeat and recover if stale
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${CRON_SECRET}" ]]; then
+            echo "::error::Missing CRON_SECRET GitHub Actions secret."
+            exit 1
+          fi
+
+          SERVICE_KEY="${SUPABASE_SERVICE_ROLE_KEY:-${SUPABASE_KEY_FALLBACK:-}}"
+          SHOULD_REFRESH=1
+
+          if [[ -n "${SERVICE_KEY}" ]]; then
+            HEARTBEAT="$(curl --silent --show-error --fail --max-time 15 \
+              -H "apikey: ${SERVICE_KEY}" \
+              -H "Authorization: Bearer ${SERVICE_KEY}" \
+              "${SUPABASE_URL}/rest/v1/live_refresh_control?select=updated_at&key=eq.live_refresh" || true)"
+
+            if [[ -n "${HEARTBEAT}" ]]; then
+              export HEARTBEAT
+              if python3 - <<'PY'
+          import datetime
+          import json
+          import os
+          import sys
+
+          try:
+              rows = json.loads(os.environ.get("HEARTBEAT", ""))
+              timestamp = rows[0]["updated_at"]
+              last = datetime.datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+              age = (datetime.datetime.now(datetime.timezone.utc) - last).total_seconds()
+              print(f"Refresh heartbeat age: {age:.0f} seconds")
+              sys.exit(0 if age >= 360 or age < -30 else 2)
+          except Exception as exc:
+              print(f"Heartbeat unavailable: {type(exc).__name__}")
+              sys.exit(0)
+          PY
+              then
+                echo "Heartbeat stale or unknown: failover will invoke refresh."
+              else
+                SHOULD_REFRESH=0
+                echo "Primary refresh is healthy: skipping failover."
+              fi
+            else
+              echo "::warning::Heartbeat read failed. Attempting refresh recovery."
+            fi
+          else
+            echo "::warning::No service-role secret available for the heartbeat; invoking refresh as failover."
+          fi
+
+          if [[ "${SHOULD_REFRESH}" != "1" ]]; then
+            exit 0
+          fi
+
+          # The Edge Function uses claim_live_refresh to prevent concurrent heavy refreshes.
+          # Do not backfill old LIVE predictions: only the current match data is eligible.
+          curl --fail-with-body --show-error --silent --max-time 210 \
+            --retry 1 --retry-delay 5 \
+            -X POST "${SUPABASE_URL}/functions/v1/live/refresh" \
+            -H "Content-Type: application/json" \
+            -H "x-cron-secret: ${CRON_SECRET}" \
+            -o /tmp/live-refresh-response.json
+
+          python3 - <<'PY'
+          import json
+          try:
+              with open("/tmp/live-refresh-response.json", encoding="utf-8") as f:
+                  response = json.load(f)
+              print("Refresh endpoint response:", json.dumps(response, ensure_ascii=False)[:500])
+          except Exception as exc:
+              print(f"Refresh endpoint returned non-JSON: {type(exc).__name__}")
+          PY
