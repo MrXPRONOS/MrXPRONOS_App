@@ -1,20 +1,18 @@
 {
   "scope": "read_only_identity_evidence",
-  "external_total": 872,
-  "external_cc0_verified": 1,
+  "external_total": 879,
+  "external_cc0_verified": 0,
   "external_independent_provider_verified": 0,
-  "external_verified_total": 1,
+  "external_verified_total": 0,
   "native_total": 140,
-  "native_unique_eligible": 130,
-  "native_invalid_records": 10,
+  "native_unique_eligible": 88,
+  "native_invalid_records": 52,
   "native_invalid_breakdown": {
-    "native_not_prematch": 10
+    "native_not_prematch": 52
   },
   "one_to_one_native_event_links": 0,
-  "unmatched_or_ambiguous_external": 1,
-  "unmatched_external_breakdown": {
-    "no_exact_teams_and_kickoff": 1
-  },
+  "unmatched_or_ambiguous_external": 0,
+  "unmatched_external_breakdown": {},
   "identity_evidence": "exact_league_home_away_utc_kickoff_15m_unique",
   "native_event_ids_exported": false,
   "native_bookmaker_prices_fetched": false,
@@ -25,7 +23,7 @@
   "rejected_reasons": {
     "duplicated_native_id": 0,
     "external_ambiguous_native_matches": 0,
-    "external_not_independently_cc0_verified": 871,
+    "external_not_independently_cc0_verified": 879,
     "native_ambiguous_external_matches": 0
   },
   "read_only_native_consensus_price_audit": {
@@ -91,8 +89,8 @@
   "bsd_http_calls": 4,
   "bsd_max_http_requests": 24,
   "calendar_files_verified": 8,
-  "independent_cc0_calendar_confirmed": 1,
+  "independent_cc0_calendar_confirmed": 0,
   "independent_two_provider_confirmed": 0,
-  "independently_verified_fixtures_total": 1,
+  "independently_verified_fixtures_total": 0,
   "qualified_candidate_rows_staged": 0
 }
