@@ -69,10 +69,10 @@
         left.append(node('div','prob',pct(Number(g.probability))));
         left.append(node('div','small','Probabilité estimée par le modèle'));
         stats.append(left);
-        const price=g.available_verified&&Number.isFinite(g.odds)
+        const price=g.quote_documented&&Number.isFinite(g.odds)
           ?'Cote observée : '+g.odds.toFixed(2)
           :'Cote 1xBet : non vérifiée';
-        stats.append(node('div',g.available_verified?'state':'warn',price));
+        stats.append(node('div',g.quote_documented?'state':'warn',price));
         gbox.append(stats);
         if(m.status==='settled'&&typeof g.hit==='number')
           gbox.append(node('div','small',g.hit?'Score groupé réussi':'Score groupé non réalisé'));
