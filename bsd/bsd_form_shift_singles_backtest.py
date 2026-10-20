@@ -23,7 +23,7 @@ def count(b,pred,score):
     c=Candidate(key=key,label="",family="goals" if key.startswith(("OVER_","UNDER_")) else
                 "double_chance" if key in ("1X","X2","12") else
                 "btts" if key.startswith("BTTS_") else "result",
-                market="",outcome="",line=market["line"],market_code="")
+                market="",outcome="",probability=market["probability"],line=market["line"])
     b["n"]+=1;b["wins"]+=realized(c,*score)
     b["sum_p"]+=market["probability"]
     b["families"][key]+=1
