@@ -7,6 +7,17 @@ from pathlib import Path
 def merge(remote: dict, local: dict) -> dict:
     # Preserve audit and cursor metadata during the workflow's state merge.
     result = {**remote, **local, "series": {}}
+    result["source_observed"] = {}
+    for snapshot in (remote, local):
+        for key, seasons in snapshot.get("source_observed", {}).items():
+            target = result["source_observed"].setdefault(key, {})
+            for season, numbers in seasons.items():
+                dest = target.setdefault(season, {})
+                for episode, refs in numbers.items():
+                    item = dest.setdefault(str(episode), [])
+                    for ref in refs:
+                        if ref not in item:
+                            item.append(ref)
     result["scans"] = {**remote.get("scans", {})}
     for source, incoming in local.get("scans", {}).items():
         prior = result["scans"].get(source)
