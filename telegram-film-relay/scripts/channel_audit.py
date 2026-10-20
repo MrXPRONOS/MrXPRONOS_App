@@ -64,6 +64,12 @@ async def verify():
                 if len(sources) != len(cfg["sources"]):
                     raise RuntimeError(
                         f"Sources accessibles {len(sources)}/{len(cfg['sources'])} ; vérifier les canaux.")
+                user = await client.get_me()
+                user_permissions = await client.get_permissions(private, user)
+                if not (getattr(user_permissions, "is_creator", False) or
+                        (getattr(user_permissions, "is_admin", False) and
+                         getattr(user_permissions, "post_messages", False))):
+                    raise RuntimeError("Le compte utilisateur ne peut pas publier dans la bibliothèque privée.")
                 if not token:
                     raise RuntimeError("Bot de publication absent de la configuration.")
                 bot = BotHTTPClient(token, client)
@@ -76,6 +82,7 @@ async def verify():
                                             "sources_validated": len(sources),
                                             "private_id_verified": True,
                                             "public_id_verified": True,
+                                            "user_can_post_private": True,
                                             "bot_can_post": True}
                 LOG.info("Canaux %s : sources=%s, IDs cohérents, droits bot OK",
                          name, len(sources))
