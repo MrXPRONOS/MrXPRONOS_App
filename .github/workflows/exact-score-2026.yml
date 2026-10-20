@@ -19,13 +19,23 @@ jobs:
           python-version: '3.12'
           cache: pip
       - name: Install benchmark dependencies
-        run: python -m pip install numpy scipy scikit-learn
+        run: python -m pip install numpy scipy scikit-learn requests
       - name: Test core algorithms and time-guard
         run: python research/exact_scores_2026.py --self-test-only
       - name: Verify large historical data file exists
         run: |
           test -s cache/all_matches.json
           wc -c cache/all_matches.json
+      - name: Refresh missing historical fixtures (best effort, never overwrite production)
+        env:
+          SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY }}
+          SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
+          SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
+          SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
+          SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
+          SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
+        run: |
+          PYTHONPATH=. python research/refresh_recent.py --source cache/all_matches.json --output /tmp/mrx_all_matches_research.json --audit /tmp/mrx_refresh_audit.json --end 2026-10-19
       - name: Backtest all available matches Jan 1 through Oct 19, 2026
         run: |
           python -u research/exact_scores_2026.py \
@@ -42,6 +52,11 @@ jobs:
           if test -f research/results/exact_scores_2026/summary.json; then
             cat research/results/exact_scores_2026/summary.json
           fi
+      - name: Copy refresh audit into final results
+        if: always()
+        run: |
+          mkdir -p research/results/exact_scores_2026
+          cp /tmp/mrx_refresh_audit.json research/results/exact_scores_2026/refresh_audit.json || true
       - name: Upload full results
         uses: actions/upload-artifact@v4
         if: always()
