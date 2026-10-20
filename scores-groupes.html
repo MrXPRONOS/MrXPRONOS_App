@@ -14,10 +14,20 @@
 <main class="container">
 <div class="hero"><div class="eyebrow">1XBET · CORRECT SCORE — GROUP BET</div>
 <h1>Scores exacts <em>groupés</em></h1>
-<p>Analyse des groupes de scores avec le moteur Double Chance 1X / X2 / 12, Under 2,5 et confrontations H2H.</p>
+<p>Analyse des groupes de scores avec le moteur Double Chance 1X / X2 / 12, six plages de buts jusqu’à 7, et confrontations H2H.</p>
 <div class="notice">Version expérimentale : aucune sélection n'est un conseil de mise. Une cote n'est affichée que lorsqu'un relevé pré-match du bookmaker a été documenté. Les groupes varient selon les matchs.</div></div>
 <section aria-label="Filtres de pronostics">
 <div class="filters"><div class="toggle" role="group" aria-label="Statut"><button data-status="upcoming" class="active" type="button">À venir</button><button data-status="history" type="button">Historique</button></div>
+<label class="visually-hidden" for="goal-cap">Nombre maximal de buts</label>
+<select id="goal-cap" aria-label="Sélectionner un plafond de buts">
+<option value="all">Tous les plafonds</option>
+<option value="2">Moins de 3 buts (Under 2,5)</option>
+<option value="3">Moins de 4 buts (Under 3,5)</option>
+<option value="4">Moins de 5 buts (Under 4,5)</option>
+<option value="5">Moins de 6 buts (Under 5,5)</option>
+<option value="6">Moins de 7 buts (Under 6,5)</option>
+<option value="7">Jusqu'à 7 buts (Under 7,5)</option>
+</select>
 <label class="visually-hidden" for="camp">Direction</label>
 <select id="camp" aria-label="Filtrer par orientation Double Chance">
 <option value="all">Tous les camps</option><option value="home">Domicile (1X)</option><option value="away">Extérieur (X2)</option><option value="draw">Nul dominant</option><option value="neutral">Incertain</option></select>
