@@ -25,6 +25,7 @@ from telethon.errors import FloodWaitError, PeerFloodError
 from telethon.sessions import StringSession
 
 from .bot_http import BotHTTPClient, url_button
+from .editing import edit_message_if_changed
 from .category_runner import category_config, preflight
 from .desir_matching import is_supported_video
 from .desir_runner import ReceiptState, DesirPromotionsState
@@ -346,14 +347,14 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 season_msg_id = int(series["season_indices"][season_key])
                 body = season_text(title, row["season"], ep)
                 # Keep marker for interrupted-run recovery of the season index.
-                await client.edit_message(private, season_msg_id,
+                await edit_message_if_changed(client, private, season_msg_id,
                                           body + "\n" + marker + "_S" + season_key,
                                           parse_mode="html", link_preview=False)
                 await asyncio.sleep(pause)
 
             index_id = int(series["main_index_id"])
             index_text = main_index_text(title, private_id, series["season_indices"])
-            await client.edit_message(private, index_id,
+            await edit_message_if_changed(client, private, index_id,
                                       index_text + "\n" + marker,
                                       parse_mode="html", link_preview=False)
             await asyncio.sleep(pause)
