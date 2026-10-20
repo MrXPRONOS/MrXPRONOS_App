@@ -3,7 +3,7 @@ from collections import Counter, defaultdict
 from datetime import datetime, timezone, timedelta
 from math import ceil, erfc, sqrt
 
-VARIANTS=("original","under25_fusion","optional_dc_fusion","conditional_dc")
+VARIANTS=("original","under25_fusion","optional_dc_fusion","conditional_dc","advanced_2024")
 COVERAGES=(.02,.05,.10,.20,.50,1.0)
 BINS=(0.,.08,.10,.12,.14,.16,.18,.20,.25,.35,1.01)
 
@@ -134,6 +134,8 @@ def prematch_context(fixture,now,kickoff):
     for k in ("home_absences","away_absences","home_rest_days","away_rest_days"):
         v=data.get(k)
         if type(v) in (int,float) and 0<=v<=30:values[k]=v
+    status=data.get("lineup_status")
+    if status in ("predicted","confirmed"):values["lineup_status"]=status
     if not values:return {"available":False,"reason":"no_verified_fields"}
     return {"available":True,"observed_at_utc":at.isoformat(),
             "source":str(data.get("source") or "unspecified")[:80],
@@ -158,4 +160,4 @@ def audit(rows):
         "context_counts":dict(Counter(("available" if r.get("context",{}).get("available")
                                       else r.get("context",{}).get("reason","missing"))
                                     for r in rows)),
-        "notes":"All tested 2025/26 selection results are retrospective, exploratory, not guaranteed."}}
+        "notes":"2024-frozen advanced score+reliability; 2025/26 retrospective exploration, not guaranteed."}}

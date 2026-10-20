@@ -17,6 +17,8 @@ from bsd_v2_core import V2History,fixture_datetime,outcome_scores
 from exact_scores_prospective import fetch_fixture_window
 from exact_scores_h2h import H2HIndex
 from single_exact_score_engine import VERSION,PARAMETERS,forecast,train_dc
+from single_exact_score_advanced import train_advanced
+from single_exact_score_context import enrich_lineups,hydrate_history_xg
 
 PATH=Path("bsd/single_exact_score_ledger.enc.json")
 SCHEMA="mrx-single-exact-score-ledger-v1"
@@ -53,7 +55,7 @@ def save(data,path=PATH,secret=None):
     temp.chmod(0o600)
     temp.replace(path)
 
-def capture(archive,fixtures,index,model,now,*,limit=500):
+def capture(archive,fixtures,index,model,now,*,limit=500,advanced_model=None):
     hindex=H2HIndex(index)
     counter=Counter()
     for event in sorted(fixtures,key=lambda x:(fixture_datetime(x),str(x["id"]))):
@@ -63,7 +65,8 @@ def capture(archive,fixtures,index,model,now,*,limit=500):
             continue
         if counter["captured"]>=limit:
             counter["limit_reached"]+=1;continue
-        output,reason=forecast(event,index,hindex,dc_model=model,now=now)
+        output,reason=forecast(event,index,hindex,dc_model=model,now=now,
+                               advanced_model=advanced_model)
         if output is None:
             counter[reason]+=1;continue
         row={"id":key,"model":VERSION,"captured_at":now.isoformat(),
@@ -77,8 +80,11 @@ def capture(archive,fixtures,index,model,now,*,limit=500):
              "under25_probability":output["under25_probability"],
              "form_risk":output["form_risk"],
              "experimental_ablation":{
-                 k:(v["score"] if v else None)
-                 for k,v in output["ablation"].items()},
+                 **{k:(v["score"] if v else None)
+                    for k,v in output["ablation"].items()},
+                 "advanced_2024":(output["advanced_research"]["choice"]["score"]
+                                  if output.get("advanced_research") else None)},
+             "advanced_research":output.get("advanced_research"),
              "status":"pending"}
         row["forecast_sha256"]=digest(row)
         archive["records"][key]=row
@@ -132,7 +138,7 @@ def summary(archive,now):
             "experimental_alternatives":{
                name:{"n":len(rows:=[r for r in done if r["alternatives_hit"].get(name) is not None]),
                      "hits":sum(r["alternatives_hit"][name] for r in rows)}
-               for name in ("original","under25_fusion","optional_dc_fusion")},
+               for name in ("original","under25_fusion","optional_dc_fusion","advanced_2024")},
             "note":"Exact ONE score per fixture. No odds, ROI or guarantee."}
 def main():
     parser=argparse.ArgumentParser()
@@ -146,10 +152,15 @@ def main():
     if not matches:raise RuntimeError("Historical BSD archive empty")
     index=V2History(matches)
     dc,training=train_dc(index)
+    advanced=train_advanced(index)
     client=BSDClient(max_requests=args.max_requests)
     upcoming=fetch_fixture_window(client,now)
     archive=read(Path(args.ledger))
-    added=capture(archive,upcoming,index,dc,now)
+    pending_new=[e for e in upcoming if str(e.get("id")) not in archive["records"]]
+    # Budgeted requests only for prematch candidates; missing data is explicit.
+    xg_diag=hydrate_history_xg(index,pending_new,client,now,max_lookups=12)
+    lineup_diag=enrich_lineups(pending_new,client,now,max_lookups=6)
+    added=capture(archive,upcoming,index,dc,now,advanced_model=advanced)
     pending={key for key,r in archive["records"].items() if r["status"]=="pending"}
     completed=[event for _t,event in index.global_games if str(event["id"]) in pending]
     finished=settle(archive,completed+upcoming,now)
@@ -159,5 +170,7 @@ def main():
     dest=Path(args.report);dest.parent.mkdir(parents=True,exist_ok=True)
     dest.write_text(json.dumps(result,indent=2,ensure_ascii=False),encoding="utf-8")
     print("ONE_SCORE_PROSPECTIVE",json.dumps({"capture":added,"settlement":finished,
-        "summary":result,"api_requests":client.requests_made},ensure_ascii=False))
+        "summary":result,"api_requests":client.requests_made,
+        "historical_measured_xg":xg_diag,"lineups":lineup_diag,
+        "advanced_training":advanced.info()},ensure_ascii=False))
 if __name__=="__main__":main()

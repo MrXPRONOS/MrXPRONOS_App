@@ -13,6 +13,7 @@ from exact_scores_h2h import H2HIndex
 from single_exact_score_engine import forecast,train_dc
 from single_exact_score_research import audit
 from single_exact_score_distributions import candidates
+from single_exact_score_advanced import train_advanced
 
 LABELS=("original","under25_fusion","optional_dc_fusion")
 
@@ -39,12 +40,14 @@ def summary(b,all_n):
             "single_score_brier":round(b["brier"]/n,6) if n else None,
             "binary_logloss":round(b["logloss"]/n,6) if n else None,
             "wilson95":wilson95(wins,n),"small_sample":n<100}
-def compare(events,year=2026,cap=0,*,dc_model=None):
+def compare(events,year=2026,cap=0,*,dc_model=None,advanced_model=None):
     index=V2History(events)
     hindex=H2HIndex(index)
     training=None
     if dc_model is None:
         dc_model,training=train_dc(index)
+    if advanced_model is None:
+        advanced_model=train_advanced(index)
     variants={k:bucket() for k in LABELS}
     groups={label:{k:bucket() for k in LABELS} for label in (
         "priority","other","h2h_under","high_total_goals","top_score_zero")}
@@ -59,12 +62,15 @@ def compare(events,year=2026,cap=0,*,dc_model=None):
         total_finished+=1
         at=fixture_datetime(event)
         pred,why=forecast(event,index,hindex,now=at,dc_model=dc_model,
-                          require_prematch=False,compute_form=False)
+                          require_prematch=False,compute_form=False,
+                          advanced_model=advanced_model)
         if pred is None:
             reasons[why]+=1;continue
         picked=tuple(pred["score"])
+        advanced=pred["advanced_research"]
+        research_variants={**pred["ablation"],"advanced_2024":advanced["choice"] if advanced else None}
         research_rows.append({"id":str(event["id"]),"kickoff":at.isoformat(),
-            "actual":list(truth),"variants":pred["ablation"],
+            "actual":list(truth),"variants":research_variants,
             "league":event.get("league_id") or event.get("league_name"),
             "total_expected_goals":pred["total_expected_goals"],
             "quality":pred["data_quality"],"context":pred["prematch_context"]})
@@ -105,6 +111,7 @@ def compare(events,year=2026,cap=0,*,dc_model=None):
             "selected_score_frequency":dict(score_frequency.most_common(15)),
             "dc_changes":dict(direction_changes),
             "not_evaluated":dict(reasons),
+            "advanced_training":advanced_model.info(),
             "distribution_experiments":{k:{"matches":v["n"],"wins":v["wins"],
                  "top1_rate":round(v["wins"]/v["n"],6) if v["n"] else None,
                  "multiclass_logloss":round(v["nll"]/v["n"],6) if v["n"] else None,

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from datetime import datetime,timedelta,timezone
 from single_exact_score_research import prematch_context
+from single_exact_score_advanced import advanced_prediction
 from math import fsum,log
 from bsd_v2_core import estimate_goals, fixture_datetime
 from exact_scores import matrix_for,top_scores
@@ -80,7 +81,7 @@ def entropy(matrix):
     return -fsum(p*log(p) for p in matrix.values() if p>0)
 
 def forecast(fixture,index,hindex,*,now,dc_model=None,require_prematch=True,
-             compute_form=True):
+             compute_form=True,advanced_model=None):
     kickoff=fixture_datetime(fixture)
     if require_prematch and kickoff<=now+timedelta(minutes=PARAMETERS["minimum_lead_minutes"]):
         return None,"too_close_or_started"
@@ -123,6 +124,9 @@ def forecast(fixture,index,hindex,*,now,dc_model=None,require_prematch=True,
                     and selected["margin"]>=PARAMETERS["priority_top1_margin"])
     low_entropy=entropy(adjusted)<=PARAMETERS["low_entropy_cut"]
     high_priority=bool(can_prioritize and low_entropy)
+    # Advanced branch is a separate research score: immutable legacy scores stay identical.
+    advanced=(advanced_prediction(fixture,index,advanced_model,now=now,expected=expected)
+              if advanced_model is not None else None)
     # Does NOT claim confidence calibration; prioritization is a research filter.
     return {
         "format":"mrx-single-exact-score-v1",
@@ -151,6 +155,7 @@ def forecast(fixture,index,hindex,*,now,dc_model=None,require_prematch=True,
                   {k:round(p_dc[i],7) for i,k in enumerate(OUTCOMES)},
             "applied_to_published_pick":False,
         },
+        "advanced_research":advanced,
         "ablation":{
             "original":baseline,
             "under25_fusion":selected,

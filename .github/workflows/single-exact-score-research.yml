@@ -34,7 +34,7 @@ jobs:
       - name: Validate one-score model and private archive
         run: |
           python -m unittest bsd/test_single_exact_score.py -v
-          python -m py_compile bsd/single_exact_score_engine.py bsd/single_exact_score_backtest.py bsd/single_exact_score_prospective.py
+          python -m py_compile bsd/single_exact_score_engine.py bsd/single_exact_score_backtest.py bsd/single_exact_score_prospective.py bsd/single_exact_score_advanced.py bsd/single_exact_score_context.py
       - name: Recover private BSD history from main
         env:
           BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
@@ -62,7 +62,11 @@ jobs:
               assert counts[0]==counts[1]==counts[2]==d["eligible"]
               assert all(x["wins"]<=x["matches"] for x in d["variants"].values())
               rd=d["research_diagnostics"]
-              assert rd["label_blind_ranking"] and len(rd["models"])==4
+              assert rd["label_blind_ranking"] and len(rd["models"])==5
+              training=d["advanced_training"]
+              assert training["diagnostic"]["no_future_year_labels"] is True
+              assert training["fitted_on"]=="2024 only"
+              assert rd["models"]["advanced_2024"]["summary"]["matches"]==d["eligible"]
               for m in rd["models"].values():
                   assert m["summary"]["matches"]==d["eligible"]
                   assert sum(b["matches"] for b in m["scores"]["predicted"].values())==d["eligible"]

@@ -13,6 +13,8 @@ from single_exact_score_engine import (
 from single_exact_score_backtest import compare
 from single_exact_score_research import audit,rank,prematch_context
 from single_exact_score_distributions import candidates,bivariate,negative_binomial
+from single_exact_score_advanced import train_advanced,advanced_prediction,historic_measured_xg
+from single_exact_score_context import enrich_lineups,hydrate_history_xg,lineup_context
 from single_exact_score_prospective import (
     empty,read,save,digest,capture,settle,summary)
 
@@ -129,6 +131,47 @@ class SingleExactScoreTests(unittest.TestCase):
         e["prematch_context"]["observed_at_utc"]=(NOW+timedelta(hours=1)).isoformat()
         self.assertFalse(prematch_context(e,NOW,kickoff)["available"])
         self.assertFalse(prematch_context({"prematch_context":{"home_absences":2}},NOW,kickoff)["available"])
+    def test_advanced_2024_only_training_and_future_leakage(self):
+        early=sample_history()
+        late=sample_history(add_future=True)
+        m1=train_advanced(early)
+        m2=train_advanced(late)
+        self.assertEqual(m1.info(),m2.info())
+        self.assertEqual(m1.diagnostic["eligible_2024"],0)
+        game=fixture(999,NOW+timedelta(days=1))
+        a,_=forecast(game,early,H2HIndex(early),now=NOW,compute_form=False,advanced_model=m1)
+        b,_=forecast(game,late,H2HIndex(late),now=NOW,compute_form=False,advanced_model=m2)
+        self.assertEqual(a["advanced_research"]["choice"],b["advanced_research"]["choice"])
+        self.assertEqual(a["score"],b["score"])
+        self.assertEqual(len(a["advanced_research"]["choice"]["score"]),2)
+    def test_only_measured_historical_xg(self):
+        old=fixture(700,NOW-timedelta(days=8),score=(2,0),finished=True)
+        old.update({"home_xg_live":1.56,"away_xg_live":.72,"xg_estimated":True})
+        self.assertIsNone(historic_measured_xg(old))
+        old["xg_estimated"]=False
+        self.assertEqual(historic_measured_xg(old),(1.56,.72))
+    def test_bsd_lineup_context_and_no_lookahead(self):
+        valid={"lineup_status":"predicted","unavailable_players":{"home":[1,2],"away":[3]}}
+        d=lineup_context(valid,NOW)
+        self.assertEqual(d["home_absences"],2)
+        self.assertEqual(d["away_absences"],1)
+        self.assertIsNone(lineup_context({"lineup_status":"unavailable"},NOW))
+        class StubClient:
+            requests_made=0
+            max_requests=10
+            def get_json(self,path,ttl=0):
+                self.requests_made+=1
+                if path.endswith("/lineups/"):return valid
+                return {"stats":{"home":{"xg":{"actual":1.2,"estimated":False}},
+                                 "away":{"xg":{"actual":.9,"estimated":False}}}}
+        game=fixture(721,NOW+timedelta(days=1))
+        cl=StubClient()
+        info=enrich_lineups([game],cl,NOW,max_lookups=1)
+        self.assertEqual(info["found"],1)
+        self.assertTrue(prematch_context(game,NOW,NOW+timedelta(days=1))["available"])
+        earlier=sample_history()
+        updated=hydrate_history_xg(earlier,[game],cl,NOW,max_lookups=2)
+        self.assertLessEqual(updated["attempts"],2)
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)
