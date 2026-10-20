@@ -16,6 +16,8 @@ from single_exact_score_distributions import candidates,bivariate,negative_binom
 from single_exact_score_advanced import train_advanced,advanced_prediction,historic_measured_xg
 from single_exact_score_context import enrich_lineups,hydrate_history_xg,lineup_context
 from single_exact_score_xg_history import empty as xg_empty,read as xg_read,save as xg_save,add as xg_add,apply as xg_apply
+from single_exact_score_top3 import empty as top3_empty,read as top3_read,save as top3_save,select_groups,settle_groups,report as top3_report
+from single_exact_score_research import RANK_VERSION
 from single_exact_score_prospective import (
     empty,read,save,digest,capture,settle,summary)
 
@@ -270,6 +272,49 @@ class SingleExactScoreTests(unittest.TestCase):
         case["variants"]["advanced_2024"]=dict(x)
         self.assertAlmostEqual(rank(case),before)
         self.assertIn("independent",RANK_VERSION)
+    def test_top3_first_seen_immutable_and_settlement(self):
+        ledger={"records":{}}
+        for i in range(5):
+            kickoff=NOW+timedelta(hours=6+i)
+            key=str(9001+i)
+            ledger["records"][key]={"id":key,"status":"pending",
+                "score":[1,0],"selection_rank":.20+i*.01,
+                "rank_version":RANK_VERSION,
+                "kickoff":kickoff.isoformat(),"captured_at":NOW.isoformat(),
+                "estimated_probability":.18,
+                "forecast_sha256":"fixture_"+key}
+        archive=top3_empty()
+        created=select_groups(archive,ledger,NOW)
+        self.assertEqual(created["created"],1)
+        frozen=archive["records"][NOW.date().isoformat()]["digest"]
+        self.assertEqual(len(archive["records"][NOW.date().isoformat()]["picks"]),3)
+        ledger["records"]["9001"]["selection_rank"]=.99
+        self.assertEqual(select_groups(archive,ledger,NOW)["already_seen"],1)
+        self.assertEqual(archive["records"][NOW.date().isoformat()]["digest"],frozen)
+        for j,pick in enumerate(archive["records"][NOW.date().isoformat()]["picks"]):
+            row=ledger["records"][pick["id"]]
+            row["status"]="settled"
+            row["actual_score"]=[1,0] if j==0 else [0,1]
+        self.assertEqual(settle_groups(archive,ledger,NOW+timedelta(days=1))["settled"],1)
+        self.assertEqual(top3_report(archive)["baskets_with_at_least_one_hit"],1)
+        key=Fernet(Fernet.generate_key())
+        with tempfile.TemporaryDirectory() as folder:
+            file=Path(folder)/"top3.enc.json"
+            top3_save(archive,file,key)
+            self.assertEqual(top3_read(file,key),archive)
+            self.assertNotIn("fixture_900",file.read_text())
+    def test_top3_never_includes_started_or_unsorted_fixture(self):
+        ledger={"records":{}}
+        for i in range(3):
+            key=str(i)
+            ledger["records"][key]={"id":key,"status":"pending",
+                "score":[1,1],"selection_rank":.25,
+                "rank_version":RANK_VERSION,
+                "kickoff":(NOW+timedelta(minutes=35+i)).isoformat(),
+                "captured_at":NOW.isoformat(),"forecast_sha256":key}
+        group=top3_empty()
+        self.assertEqual(select_groups(group,ledger,NOW+timedelta(minutes=6))["created"],0)
+        self.assertFalse(group["records"])
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)

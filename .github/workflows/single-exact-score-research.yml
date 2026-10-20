@@ -34,7 +34,7 @@ jobs:
       - name: Validate one-score model and private archive
         run: |
           python -m unittest bsd/test_single_exact_score.py -v
-          python -m py_compile bsd/single_exact_score_engine.py bsd/single_exact_score_backtest.py bsd/single_exact_score_prospective.py bsd/single_exact_score_advanced.py bsd/single_exact_score_context.py bsd/single_exact_score_xg_history.py
+          python -m py_compile bsd/single_exact_score_engine.py bsd/single_exact_score_backtest.py bsd/single_exact_score_prospective.py bsd/single_exact_score_advanced.py bsd/single_exact_score_context.py bsd/single_exact_score_xg_history.py bsd/single_exact_score_top3.py
       - name: Recover private BSD history from main
         env:
           BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
@@ -139,10 +139,10 @@ jobs:
           PY
       - name: Commit only new encrypted single-score and measured-xG archives
         run: |
-          test -f bsd/single_exact_score_ledger.enc.json || test -f bsd/single_exact_score_xg_history.enc.json || exit 0
+          test -f bsd/single_exact_score_ledger.enc.json || test -f bsd/single_exact_score_xg_history.enc.json || test -f bsd/single_exact_score_top3.enc.json || exit 0
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for target in bsd/single_exact_score_ledger.enc.json bsd/single_exact_score_xg_history.enc.json; do
+          for target in bsd/single_exact_score_ledger.enc.json bsd/single_exact_score_xg_history.enc.json bsd/single_exact_score_top3.enc.json; do
             if test -f "$target"; then git add -- "$target"; fi
           done
           if git diff --cached --quiet; then exit 0; fi

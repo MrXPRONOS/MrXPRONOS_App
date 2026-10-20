@@ -20,6 +20,7 @@ from single_exact_score_engine import VERSION,PARAMETERS,forecast,train_dc
 from single_exact_score_advanced import train_advanced
 from single_exact_score_context import enrich_lineups,hydrate_history_xg
 from single_exact_score_xg_history import read as read_xg,save as save_xg,apply as apply_xg,add as add_xg
+from single_exact_score_top3 import read as read_top3,save as save_top3,select_groups,settle_groups,report as top3_report
 
 PATH=Path("bsd/single_exact_score_ledger.enc.json")
 SCHEMA="mrx-single-exact-score-ledger-v1"
@@ -174,17 +175,25 @@ def main():
     if saved_xg:save_xg(xg_archive)
     lineup_diag=enrich_lineups(pending_new,client,now,max_lookups=6)
     added=capture(archive,upcoming,index,dc,now,advanced_model=advanced)
+    selection_now=datetime.now(timezone.utc)
+    top3=read_top3()
+    created_groups=select_groups(top3,archive,selection_now)
     pending={key for key,r in archive["records"].items() if r["status"]=="pending"}
     completed=[event for _t,event in index.global_games if str(event["id"]) in pending]
-    finished=settle(archive,completed+upcoming,now)
+    finished=settle(archive,completed+upcoming,datetime.now(timezone.utc))
+    settled_groups=settle_groups(top3,archive,datetime.now(timezone.utc))
     if added.get("captured") or finished.get("settled"):
         save(archive,Path(args.ledger))
-    result=summary(archive,now)
+    if created_groups.get("created") or settled_groups.get("settled"):
+        save_top3(top3)
+    result=summary(archive,datetime.now(timezone.utc))
     dest=Path(args.report);dest.parent.mkdir(parents=True,exist_ok=True)
     dest.write_text(json.dumps(result,indent=2,ensure_ascii=False),encoding="utf-8")
     print("ONE_SCORE_PROSPECTIVE",json.dumps({"capture":added,"settlement":finished,
         "summary":result,"api_requests":client.requests_made,
         "historical_measured_xg":{**xg_diag,"restored":restored_xg,
             "new_persisted":saved_xg},"lineups":lineup_diag,
-        "advanced_training":advanced.info()},ensure_ascii=False))
+        "advanced_training":advanced.info(),"top3":{
+            "new_groups":created_groups,"settled":settled_groups,
+            "report":top3_report(top3)}},ensure_ascii=False))
 if __name__=="__main__":main()
