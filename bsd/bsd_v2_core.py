@@ -229,7 +229,7 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
                   form_samples=10, require_odds=False, min_odds=1.20,
                   excluded_keys=None, market_audit=None,
                   family_adjustments=None, selection_adjustments=None,
-                  family_minimums=None, allow_combo_prices=False):
+                  family_minimums=None, selection_conservative_minimums=None, allow_combo_prices=False):
     """Fiabilité = meilleure probabilité calibrée (PAS meilleure cote).
 
     Mode value explicit : exige des cotes fournies et retourne le meilleur EV.
@@ -288,6 +288,12 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
         if family_floor is not None and ranking_confidence < family_floor:
             audit(c,"below_family_conservative_floor",p,price,ranking_confidence)
             continue
+        # Align new-publication ranking with hard V2.1 per-selection floors.
+        # This is applied before pricing: bookmaker quotes cannot choose a market.
+        selection_floor = (selection_conservative_minimums or {}).get(c.key)
+        if selection_floor is not None and ranking_confidence < selection_floor:
+            audit(c,"below_publication_conservative_floor",p,price,ranking_confidence)
+            continue
         if require_odds and c.family in ("goals","btts","double_chance","result"):
             # Odds below 1.20 are only eligible as high-confidence combo legs.
             threshold = .90 if allow_combo_prices and price < 1.20 else max(.50,1.0/price+edge)
@@ -336,7 +342,8 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
                require_odds=False, min_odds=1.20, excluded_keys=None,
                btts_model=None, total_model=None, dc_model=None,
                market_audit=None, allow_combo_prices=False,
-               selection_adjustments=None, prospective_family_adjustments=None):
+               selection_adjustments=None, prospective_family_adjustments=None,
+                selection_conservative_minimums=None):
     if str(event.get("status") or "").lower() not in ("notstarted", "upcoming"):
         return None, "not_upcoming"
     if event.get("id") is None:
@@ -408,6 +415,7 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
         },
         selection_adjustments=selection_adjustments,
         family_minimums=MIN_CONSERVATIVE_BY_FAMILY,
+        selection_conservative_minimums=selection_conservative_minimums,
     )
     if choice is None:
         return None, "no_qualified_market"
