@@ -4,6 +4,7 @@ on:
     branches: [research/exact-score-backtest-2026]
     paths:
       - 'research/exact_scores_2026.py'
+      - 'research/refresh_recent.py'
       - '.github/workflows/exact-score-2026.yml'
   workflow_dispatch:
 permissions:
@@ -39,7 +40,7 @@ jobs:
       - name: Backtest all available matches Jan 1 through Oct 19, 2026
         run: |
           python -u research/exact_scores_2026.py \
-            --source cache/all_matches.json \
+            --source /tmp/mrx_all_matches_research.json \
             --start 2026-01-01 \
             --end 2026-10-19 \
             --out research/results/exact_scores_2026 \
