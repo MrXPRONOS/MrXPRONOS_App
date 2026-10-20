@@ -41,7 +41,7 @@ def run(events):
         if est is None:skips[reason]+=1;continue
         matrix=matrix_for(est["home"]*sh,est["away"]*sa,rho=rho)
         o=old.predict(e,index,matrix)
-        x=features(e,index,probability_under25(matrix))
+        x=features(e,index,probability_under25(matrix)) if model.blend>0 else None
         v2=model.predict(x,o["probability"])
         y=int(sum(outcome_scores(e))<=2)
         selected=["all"]
