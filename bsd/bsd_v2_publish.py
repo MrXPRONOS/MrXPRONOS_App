@@ -584,14 +584,41 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
     for row in result:
         row.update(image_fields(row))
     result.sort(key=lambda r:(str(r.get("event_date","")),str(r.get("id",""))))
+    # Non-published model odds are a SEPARATE informative watchlist.
+    # Never append these observations to matches or Telegram queues. In
+    # particular, an existing real quote is never replaced by a fake offer.
+    published_ids={str(row.get("source_event_id")) for row in result}
+    model_observations=[]
+    for audit in detailed:
+        if (audit.get("status")=="published" or not audit.get("reason")
+            or str(audit.get("event_id")) in published_ids):
+            continue
+        ref=model_reference_for_observation(audit.get("preprice"),now=now)
+        if ref is None:
+            continue  # No defensible calibrated selection; never fake a price.
+        model_observations.append({
+            "id":"bsd:"+str(audit["event_id"]),
+            "home_team":audit.get("home_team"),
+            "away_team":audit.get("away_team"),
+            "event_date":audit.get("event_date"),
+            "rejected_reason":audit["reason"],
+            "market":ref,
+            "publication_status":"not_published",
+            "prediction_eligible":False,
+            "do_not_send_to_telegram":True,
+        })
+    # Observations never alter the append-only publication ledger.
     # Un flux BSD vide est préférable au maintien de pronostics SportData périmés.
     output={
         "source":"bsd","model_version":"bsd-v2-isolated",
         "generated_at":now.isoformat(),"policy_version":POLICY_VERSION,"matches":result,
+        "model_odds_observations":model_observations,
         "retired_predictions":retired,
         "performance_tracker":performance_tracker,
         "bookmakers":existing.get("bookmakers",[]) if isinstance(existing,dict) else [],
-        "diagnostics":{"total":len(result),"rejections":dict(stats),
+        "diagnostics":{"total":len(result),
+                       "model_odds_observations_count":len(model_observations),
+                       "rejections":dict(stats),
                        "fixture_details":detailed,
                        "vip_funnel":summarize_vip_funnel(detailed,result),
                        "prospective_selection_penalties":selection_penalties,
