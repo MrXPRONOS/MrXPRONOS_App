@@ -22,11 +22,15 @@ from exact_scores_under25 import Under25Model,reweight_scores
 from bsd_v2_double_chance import fit_model as fit_double_chance
 from bsd_form_shift import form_shift
 
-VERSION="mrx-single-exact-score-shadow-2026-10-20-v1"
+VERSION="mrx-single-exact-score-shadow-2026-10-20-v2-debiased11"
 PARAMETERS={
     "version":VERSION,
     "rho":0.0,"scale_home":1.10,"scale_away":1.0,
     "under_blend":1.0,"under_variance_scale":0.85,"under_threshold":0.62,
+    # Explicit exact-score diversity objective: 2024 Oct-Dec validation cut 1-1
+    # share from 63.96% to 28.33%, at an accuracy cost of 18/5744 (0.31pp).
+    # No quotas, no retroactive rewrite. Apply only to NEW predictions.
+    "one_one_factor":0.80,
     "minimum_lead_minutes":30,
     # Exploratory filter, fixed before new prospective validation.
     "priority_score_probability":0.16,
@@ -69,6 +73,20 @@ def direction_adjusted(matrix,desired,*,blend=1.0):
     if abs(total-1)>1e-5:raise ValueError("Reweighting is not normalized")
     return adjusted
 
+def debias_one_one(matrix,*,factor=.80):
+    """Penalize ONLY the 1-1 score cell, then renormalize all score probabilities.
+
+    Does not force an arbitrary replacement: the most likely remaining score
+    wins naturally. All matrices remain proper normalized distributions.
+    """
+    if not 0 < factor <= 1:
+        raise ValueError("1-1 factor must be in (0,1]")
+    total=fsum(p*(factor if score==(1,1) else 1.)
+               for score,p in matrix.items())
+    if not total>0:raise ValueError("Empty score matrix")
+    return {score:p*(factor if score==(1,1) else 1.)/total
+            for score,p in matrix.items()}
+
 def score_choice(matrix):
     top=top_scores(matrix,count=2)
     if len(top)<2:raise ValueError("At least two possible scores required")
@@ -98,8 +116,10 @@ def forecast(fixture,index,hindex,*,now,dc_model=None,require_prematch=True,
                        PARAMETERS["under_variance_scale"],
                        PARAMETERS["under_threshold"]).predict(fixture,index,base)
     adjusted=reweight_scores(base,under["probability"])
+    debiased=debias_one_one(adjusted,factor=PARAMETERS["one_one_factor"])
     baseline=score_choice(base)
-    selected=score_choice(adjusted)
+    under_choice=score_choice(adjusted)
+    selected=score_choice(debiased)
 
     prior=result_probabilities(base)
     p_dc=None
@@ -122,7 +142,7 @@ def forecast(fixture,index,hindex,*,now,dc_model=None,require_prematch=True,
                         under25=under["probability"],include_h2h=signal["prioritized"])
     can_prioritize=(selected["probability"]>=PARAMETERS["priority_score_probability"]
                     and selected["margin"]>=PARAMETERS["priority_top1_margin"])
-    low_entropy=entropy(adjusted)<=PARAMETERS["low_entropy_cut"]
+    low_entropy=entropy(debiased)<=PARAMETERS["low_entropy_cut"]
     high_priority=bool(can_prioritize and low_entropy)
     # Advanced branch is a separate research score: immutable legacy scores stay identical.
     advanced=(advanced_prediction(fixture,index,advanced_model,now=now,
@@ -130,11 +150,12 @@ def forecast(fixture,index,hindex,*,now,dc_model=None,require_prematch=True,
               if advanced_model is not None else None)
     # Rank the actual ONE-score pick only, without any result labels.
     selection_rank=rank({"variants":{**{"original":baseline,
-                          "under25_fusion":selected,"optional_dc_fusion":dc_choice},
+                          "under25_fusion":under_choice,"debiased_11":selected,
+                          "optional_dc_fusion":dc_choice},
                           "advanced_2024":advanced["choice"] if advanced else None},
                          "quality":{k:expected.get(k) for k in
                              ("home_recent_matches","away_recent_matches")}},
-                        "under25_fusion")
+                        "debiased_11")
     # Does NOT claim confidence calibration; prioritization is a research filter.
     return {
         "format":"mrx-single-exact-score-v1",
@@ -142,9 +163,10 @@ def forecast(fixture,index,hindex,*,now,dc_model=None,require_prematch=True,
         "match_id":str(fixture["id"]),
         "kickoff_utc":kickoff.isoformat(),"forecast_utc":now.isoformat(),
         "score":selected["score"],
-        "primary_model":"under25_fusion",
+        "primary_model":"under25_debiased_11_v2",
         "advanced_model_used_for_primary":False,
         "estimated_score_probability":selected["probability"],
+        "one_one_factor":PARAMETERS["one_one_factor"],
         "score_margin":selected["margin"],
         "selection_rank":round(selection_rank,9),
         "rank_version":RANK_VERSION,
@@ -170,10 +192,11 @@ def forecast(fixture,index,hindex,*,now,dc_model=None,require_prematch=True,
         "advanced_research":advanced,
         "ablation":{
             "original":baseline,
-            "under25_fusion":selected,
+            "under25_fusion":under_choice,
+            "debiased_11":selected,
             "optional_dc_fusion":dc_choice,
         },
-        "estimated_entropy":round(entropy(adjusted),5),
+        "estimated_entropy":round(entropy(debiased),5),
         "disclaimer":"One proposed score, estimated chance; not a guaranteed outcome or a bookmaker quote.",
     },"ok"
 

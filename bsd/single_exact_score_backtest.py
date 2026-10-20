@@ -15,7 +15,7 @@ from single_exact_score_research import audit
 from single_exact_score_distributions import candidates
 from single_exact_score_advanced import train_advanced
 
-LABELS=("original","under25_fusion","optional_dc_fusion")
+LABELS=("original","under25_fusion","debiased_11","optional_dc_fusion")
 
 def bucket():
     return {"n":0,"hits":0,"sum_predicted_p":0.,"brier":0.,"logloss":0.}
@@ -100,7 +100,7 @@ def compare(events,year=2026,cap=0,*,dc_model=None,advanced_model=None):
                 pred["score"]==list(truth))
             direction_changes["dc_correct_when_changed"]+=int(
                 pred["ablation"]["optional_dc_fusion"]["score"]==list(truth))
-    n=variants["under25_fusion"]["n"]
+    n=variants["debiased_11"]["n"]
     return {"format":"mrx-single-score-historical-backtest-v1",
             "year":year,"finished":total_finished,"eligible":n,
             "sample_cap":cap or None,"dc_training":training,
@@ -109,6 +109,8 @@ def compare(events,year=2026,cap=0,*,dc_model=None,advanced_model=None):
             "groups":{g:{k:summary(b,n) for k,b in policies.items()} for g,policies in groups.items()},
             "monthly":{m:{k:summary(b,n) for k,b in v.items()} for m,v in sorted(months.items())},
             "selected_score_frequency":dict(score_frequency.most_common(15)),
+            "debiased_11_version":"under25_debiased_11_v2",
+            "one_one_factor":0.8,
             "dc_changes":dict(direction_changes),
             "not_evaluated":dict(reasons),
             "advanced_training":advanced_model.info(),

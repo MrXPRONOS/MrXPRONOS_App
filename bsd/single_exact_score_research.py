@@ -3,7 +3,7 @@ from collections import Counter, defaultdict
 from datetime import datetime, timezone, timedelta
 from math import ceil, erfc, sqrt
 
-VARIANTS=("original","under25_fusion","optional_dc_fusion","conditional_dc","advanced_2024")
+VARIANTS=("original","under25_fusion","debiased_11","optional_dc_fusion","conditional_dc","advanced_2024")
 COVERAGES=(.02,.05,.10,.20,.50,1.0)
 BINS=(0.,.08,.10,.12,.14,.16,.18,.20,.25,.35,1.01)
 

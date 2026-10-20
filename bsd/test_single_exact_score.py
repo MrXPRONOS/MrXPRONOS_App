@@ -57,7 +57,20 @@ class SingleExactScoreTests(unittest.TestCase):
         self.assertNotIn("groups",result)
         self.assertNotIn("top3",result)
         self.assertFalse(result["published"])
-        self.assertEqual(result["ablation"]["under25_fusion"]["score"],result["score"])
+        self.assertEqual(result["ablation"]["debiased_11"]["score"],result["score"])
+        self.assertEqual(result["primary_model"],"under25_debiased_11_v2")
+        self.assertEqual(result["one_one_factor"],.8)
+    def test_one_one_penalty_changes_real_top_score_without_quota(self):
+        from single_exact_score_engine import debias_one_one,score_choice
+        original={(1,1):.22,(1,0):.205,(0,1):.17,(0,0):.15,(2,1):.255}
+        # 2-1 must stay top when already more probable.
+        self.assertEqual(score_choice(debias_one_one(original))["score"],[2,1])
+        table={(1,1):.27,(1,0):.25,(0,1):.18,(0,0):.15,(2,1):.15}
+        self.assertEqual(score_choice(table)["score"],[1,1])
+        fixed=debias_one_one(table,factor=.8)
+        self.assertEqual(score_choice(fixed)["score"],[1,0])
+        self.assertAlmostEqual(sum(fixed.values()),1.)
+        self.assertEqual(score_choice(debias_one_one(table,factor=1.))["score"],[1,1])
     def test_no_predictions_after_kickoff_or_too_close(self):
         idx=sample_history()
         for d in (-3,0,20):
@@ -694,7 +707,7 @@ class SingleExactScoreTests(unittest.TestCase):
         idx=sample_history()
         event=fixture(191919,NOW+timedelta(hours=6))
         out,_=forecast(event,idx,H2HIndex(idx),now=NOW)
-        self.assertEqual(out["primary_model"],"under25_fusion")
+        self.assertEqual(out["primary_model"],"under25_debiased_11_v2")
         self.assertFalse(out["advanced_model_used_for_primary"])
         sample=empty()
         for i in range(10):
@@ -706,7 +719,7 @@ class SingleExactScoreTests(unittest.TestCase):
         r=summary(sample,NOW)
         self.assertTrue(r["excessive_one_one_warning"])
         self.assertEqual(r["selected_score_frequency"]["1-1"],7)
-        self.assertEqual(r["primary_model"],"under25_fusion")
+        self.assertEqual(r["primary_model"],"under25_debiased_11_v2")
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)

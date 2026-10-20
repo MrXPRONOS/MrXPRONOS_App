@@ -116,6 +116,9 @@ def evaluate(matches,cap=0):
     model=frozen_fit(rows24)
     conf=model["parameters"]
     params=(conf["under_blend"],conf["one_one_factor"])
+    # Explicit user objective is to reduce excessive 1-1 score forecasts.
+    # Report the 0.80 policy even if the accuracy-optimal learning gate declines.
+    reduction_policy=(1.,.80)
     reports={}
     for year in (2025,2026):
         rows,skips=records(idx,year,cap)
@@ -123,12 +126,20 @@ def evaluate(matches,cap=0):
         reports[str(year)]={
             "baseline":tally(observations,BASE),
             "candidate":tally(observations,params),
+            "reduce_one_one_20_percent":tally(observations,reduction_policy),
             "available_fixtures":len(rows),"rejected":skips}
     return {"format":"mrx-1-1-bias-historical-validation-v1",
             "research_only":True,"published":False,
             "backtest_clock":"kickoff; as-of historic 4h result delay",
             "no_true_blind_2026_claim":True,
-            "training_2024":model,"years":reports,"2024_rejected":skip24,
+            "training_2024":model,
+            "2024_reduction_policy":{
+                "validation":tally([(part,actual) for at,part,actual in rows24
+                                    if at.month>=9],reduction_policy),
+                "training":tally([(part,actual) for at,part,actual in rows24
+                                  if at.month<=8],reduction_policy),
+                "policy":reduction_policy},
+            "years":reports,"2024_rejected":skip24,
             "warning":"Historical study, not a prospective win guarantee. "
                       "Do not change live predictions solely to reduce 1-1 share."}
 

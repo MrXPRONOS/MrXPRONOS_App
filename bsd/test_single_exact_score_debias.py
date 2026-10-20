@@ -16,6 +16,14 @@ class TestOneOneDebias(unittest.TestCase):
         self.assertLess(tally(rows,(1.,.7))["one_one_predictions"],
                         tally(rows,BASE)["one_one_predictions"])
         self.assertLess(tally(rows,(1.,.7))["wins"],tally(rows,BASE)["wins"])
+    def test_2024_weak_accuracy_is_exposed_not_hidden(self):
+        from single_exact_score_debias_study import tally
+        d={(1,1):.32,(1,0):.30,(0,0):.13,(0,1):.15,(2,1):.10}
+        rows=[((d,.9,.92),(1,1))]*20
+        baseline=tally(rows,(1.,1.))
+        reduced=tally(rows,(1.,.8))
+        self.assertLess(reduced["one_one_share"],baseline["one_one_share"])
+        self.assertLess(reduced["wins"],baseline["wins"])
     def test_no_2024_means_no_activation(self):
         model=frozen_fit([])
         self.assertFalse(model["activated"])

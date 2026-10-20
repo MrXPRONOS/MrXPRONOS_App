@@ -99,7 +99,7 @@ def capture(archive,fixtures,index,model,now,*,limit=500,advanced_model=None,con
              "rank_version":output["rank_version"],
              "research_priority":output["research_priority"],
              "expected_goals":output["expected_goals"],
-             "primary_model":"under25_fusion",
+             "primary_model":output["primary_model"],
              "advanced_model_used_for_primary":False,
              "h2h_low_stable":output["h2h_low_stable"],
              "under25_probability":output["under25_probability"],
@@ -189,7 +189,19 @@ def summary(archive,now):
             "captured":len(values),"pending":len(values)-len(done)-len(void),
             "settled":len(done),"void":len(void),
             "void_reasons":dict(Counter(v.get("void_reason","unknown") for v in void)),
-            "primary_model":"under25_fusion",
+            "primary_model":"under25_debiased_11_v2",
+            "archived_primary_model_counts":dict(Counter(
+                v.get("primary_model","under25_fusion") for v in values)),
+            "debiased_new_forecasts":{
+                "captured":sum(v.get("primary_model")=="under25_debiased_11_v2" for v in values),
+                "one_one":sum(v.get("primary_model")=="under25_debiased_11_v2"
+                              and v.get("score")==[1,1] for v in values),
+                "one_one_share":(
+                    round(sum(v.get("primary_model")=="under25_debiased_11_v2" and v.get("score")==[1,1]
+                              for v in values)/sum(v.get("primary_model")=="under25_debiased_11_v2"
+                              for v in values),6)
+                    if any(v.get("primary_model")=="under25_debiased_11_v2" for v in values)
+                    else None)},
             "advanced_model":"experimental_comparison_only",
             "selected_score_frequency":dict(frequency.most_common()),
             "selected_score_hit_rates":by_score,
@@ -202,7 +214,7 @@ def summary(archive,now):
             "experimental_alternatives":{
                name:{"n":len(rows:=[r for r in done if r["alternatives_hit"].get(name) is not None]),
                      "hits":sum(r["alternatives_hit"][name] for r in rows)}
-               for name in ("original","under25_fusion","optional_dc_fusion","advanced_2024")},
+               for name in ("original","under25_fusion","debiased_11","optional_dc_fusion","advanced_2024")},
             "note":"Exact ONE score per fixture. No odds, ROI or guarantee."}
 def main():
     parser=argparse.ArgumentParser()
