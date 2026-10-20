@@ -22,11 +22,16 @@ from bsd_v2_odds import fetch_event_odds
 
 
 def generate_shadow(events, history, calibration, policy, rho, *, now, mode="reliability",
-                    quote_fetcher=None, max_odds_events=20, btts_model=None, total_model=None, dc_model=None):
+                    quote_fetcher=None, max_odds_events=20, btts_model=None, total_model=None, dc_model=None,
+                    form_diagnostics=False):
     index=V2History(history)
     output=[]
     skips=Counter()
     odds_queried=0
+    if form_diagnostics:
+        from exact_scores_h2h import H2HIndex
+        from bsd_form_shift import form_shift
+        hindex=H2HIndex(index)
     for fixture in events:
         try:
             kickoff=fixture_datetime(fixture)
@@ -63,6 +68,18 @@ def generate_shadow(events, history, calibration, policy, rho, *, now, mode="rel
                 "captured_at":selected_quote["captured_at"],
                 "updated_at":selected_quote["updated_at"],
             }
+        # Diagnostic-only: no market is removed, repriced or replaced.
+        # This is deliberately downstream of the existing BSD V2 selection.
+        if form_diagnostics:
+            shift=form_shift(fixture,index,hindex,expected=pred.get("estimated_goals"))
+            pred.setdefault("model_audit",{})["form_shift_shadow"]={
+                "valid":shift["valid"],
+                "version":shift.get("version"),
+                "flags":shift.get("flags",{}),
+                "regime_change_components":shift.get("positive_drift_components",0),
+                "low_goals_veto_would_trigger":bool(shift.get("bsd_low_goals_veto")),
+                "applied_to_selection":False,
+            }
         pred["prediction_generated_at"]=now.isoformat()
         output.append(pred)
     result={
@@ -84,6 +101,7 @@ def main():
     parser.add_argument("--max-odds-events",type=int,default=15)
     parser.add_argument("--max-requests",type=int,default=90)
     parser.add_argument("--bookmaker",default="consensus")
+    parser.add_argument("--form-diagnostics",action="store_true",help="Research-only form regime audit; does not change selections")
     parser.add_argument("--output",default="bsd/v2_shadow_predictions.json")
     args=parser.parse_args()
     if not 1<=args.days<=3 or not 0<=args.max_odds_events<=100: parser.error("Invalid bounds")
@@ -108,8 +126,10 @@ def main():
                                 captured_at=when,bookmaker_slug=args.bookmaker)
     result=generate_shadow(events,history,cal,policy,rho,now=now,mode=args.mode,
                            quote_fetcher=fetcher if args.max_odds_events else None,
-                           max_odds_events=args.max_odds_events,btts_model=btts_model,total_model=total_model,dc_model=dc_model)
+                           max_odds_events=args.max_odds_events,btts_model=btts_model,total_model=total_model,dc_model=dc_model,
+                           form_diagnostics=args.form_diagnostics)
     result["diagnostics"].update({"http_calls":client.requests_made,"rho":rho,
+                                   "form_shift_enabled":args.form_diagnostics,
                                    "odds_bookmaker_requested":args.bookmaker,
                                    "quality_validation":info,"btts_training":btts_info,"totals_training":total_info,"double_chance_training":dc_info})
     dest=Path(args.output);dest.parent.mkdir(parents=True,exist_ok=True)
