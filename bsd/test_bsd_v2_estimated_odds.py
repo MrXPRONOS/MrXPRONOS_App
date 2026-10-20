@@ -3,7 +3,7 @@ import unittest
 from datetime import datetime, timezone
 from bsd_v2_estimated_odds import (
     reference_overround, estimated_quote, valid_standalone_prediction,
-    ESTIMATED_SOURCE,
+    ESTIMATED_SOURCE, model_reference_for_observation,
 )
 
 class IndicativeOddsTests(unittest.TestCase):
@@ -37,6 +37,16 @@ class IndicativeOddsTests(unittest.TestCase):
     def test_never_overwrites_real_quote_on_same_market(self):
         existing={"DC_1X_FT":{"odds":1.23,"origin":"bsd_consensus"}}
         self.assertIsNone(estimated_quote(self.row,existing,now=self.now))
+
+    def test_observation_calculated_even_if_actual_market_quote_fails_value(self):
+        observation=model_reference_for_observation(self.row,now=self.now)
+        self.assertEqual(observation["odds_source"],ESTIMATED_SOURCE)
+        self.assertEqual(observation["status"],"observation_only")
+        self.assertFalse(observation["recommendation_eligible"])
+        self.assertFalse(observation["telegram_eligible"])
+        self.assertLess(observation["odds"],observation["fair_odds"])
+        self.assertIsNone(model_reference_for_observation({
+            **self.row,"conservative_probability":.99},now=self.now))
 
     def test_reject_untrusted_or_unsafe_pricing(self):
         self.assertFalse(valid_standalone_prediction({

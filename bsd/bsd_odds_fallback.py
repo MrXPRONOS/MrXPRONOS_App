@@ -14,6 +14,8 @@ from pathlib import Path
 from requests import Session
 
 ORDER = ("goaldir", "pinnwire", "oddslink", "moviodds", "oddsharvester")
+MAX_COMPARABLE_QUOTE_AGE_SECONDS = 2 * 3600
+VERIFIED_QUOTE_ORIGINS = frozenset(ORDER)
 CODES = {"home": "1X2_HOME_FT", "draw": "1X2_DRAW_FT", "away": "1X2_AWAY_FT",
          "1x": "DC_1X_FT", "x2": "DC_X2_FT",
          "btts_yes": "BTTS_YES_FT", "btts_no": "BTTS_NO_FT"}
@@ -46,7 +48,8 @@ def match_fixture(row, event):
         return False
     expected = utc(event.get("event_date"))
     actual = utc(row.get("kickoff_utc") or row.get("starts") or row.get("commence_time"))
-    return bool(expected and actual and abs((expected - actual).total_seconds()) <= 7200)
+    # A two-hour identity tolerance can attach a different match's odds.
+    return bool(expected and actual and abs((expected - actual).total_seconds()) <= 900)
 
 
 def decimal(v):
@@ -64,6 +67,7 @@ def quote(price, origin, captured, *, updated=None):
         return None
     return {"odds": n, "origin": origin, "bookmaker": origin,
             "updated_at": at.isoformat(), "captured_at": captured.isoformat(),
+            "quote_timestamp_verified": updated is not None,
             "bookmaker_selection_code": None}
 
 
@@ -188,6 +192,12 @@ class OddsRouter:
             return None
 
     def fetch(self, event, captured, market_code=None):
+        # The football engine has already chosen market_code without odds.
+        # Preserve historical first-source behavior for diagnostic callers
+        # without a market, but compare independent REAL quotes for the
+        # preselected market in production.
+        comparable = []
+        sources_seen = []
         for name in self.order:
             try:
                 rows = {}
@@ -231,14 +241,49 @@ class OddsRouter:
                         if match_fixture(row, event):
                             rows = from_harvester(row, captured)
                             break
-                if rows and (market_code is None or market_code in rows):
+                if not rows or (market_code is not None and market_code not in rows):
+                    continue
+                if market_code is None:
                     self.events.append((name, "selected"))
                     return rows, {"provider":name, "fallback_events":self.events[-15:],
                                   "request_counts":dict(self.usage)}
+                selected = rows.get(market_code)
+                if not isinstance(selected, dict):
+                    continue
+                updated = utc(selected.get("updated_at"))
+                price = decimal(selected.get("odds"))
+                # Never call a derived/untimed price a verified bookmaker quote.
+                # A two-hour maximum applies uniformly to all providers.
+                timed = selected.get("quote_timestamp_verified")
+                if timed is False or updated is None or not (0 <= (captured-updated).total_seconds() <= MAX_COMPARABLE_QUOTE_AGE_SECONDS):
+                    self.events.append((name,"stale_or_unverified_quote_time"))
+                    continue
+                if selected.get("origin") not in VERIFIED_QUOTE_ORIGINS | frozenset(("bsd_consensus","bsd_bookmaker")) or price is None:
+                    self.events.append((name,"unverified_market_quote"))
+                    continue
+                comparable.append((price, name, rows))
+                sources_seen.append(name)
+                self.events.append((name, "comparable"))
             except Exception as ex:
                 self.events.append((name, type(ex).__name__))
                 if name == "goaldir" and ("429" in str(ex) or "quota" in str(ex).lower()):
                     self.disabled.add(name)
                 continue
+        if comparable:
+            # Higher VERIFIED executable/consensus price gives better
+            # conservative edge for the same immutable football selection.
+            # Tie-break by fixed provider order, never by different markets.
+            best = max(comparable,key=lambda entry:(entry[0],-self.order.index(entry[1])))
+            self.events.append((best[1], "selected_best_price"))
+            return best[2], {
+                "provider":best[1],"fallback_events":self.events[-15:],
+                "request_counts":dict(self.usage),
+                "exact_market_code":market_code,
+                "verified_provider_count":len(comparable),
+                "best_real_market_odds":best[0],
+                "quotes_compared_only_for_selected_market":True,
+            }
         return {}, {"provider":None, "fallback_events":self.events[-15:],
-                    "request_counts":dict(self.usage)}
+                    "request_counts":dict(self.usage),
+                    "exact_market_code":market_code,
+                    "verified_provider_count":0}
