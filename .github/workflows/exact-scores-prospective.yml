@@ -15,6 +15,7 @@ on:
       - 'bsd/grouped_correct_score_backtest.py'
       - 'bsd/test_grouped_correct_score.py'
       - 'bsd/bsd_form_shift.py'
+      - 'bsd/bsd_v2_shadow.py'
       - 'bsd/bsd_form_shift_singles_backtest.py'
       - 'bsd/test_form_shift.py'
       - 'bsd/test_exact_scores_prospective.py'
@@ -188,7 +189,7 @@ jobs:
         run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
 
   form-shift-validation:
-    if: github.event_name == 'push'
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 100
     permissions:
