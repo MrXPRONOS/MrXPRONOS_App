@@ -147,6 +147,29 @@ class PriceAdapterTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_1xbet_snapshot(b,event_id=800,
                 kickoff=NOW+timedelta(days=1),now=NOW)
+    def test_explicit_dynamic_group_accepts_documented_fixture_variation(self):
+        doc=self.doc()
+        doc["market_variant"]="per_fixture_grouping"
+        doc["selections"]=[{"group_id":"XBET_A1",
+                            "scores":["0-0","1-0","2-0","3-0"],"odds":2.8}]
+        rows=validate_1xbet_snapshot(doc,event_id=800,
+             kickoff=NOW+timedelta(days=1),now=NOW)
+        self.assertEqual(rows[0]["group_id"],"XBET_A1")
+        self.assertEqual(len(rows[0]["scores"]),4)
+        self.assertTrue(rows[0]["dynamic_group"])
+        m=matrix_for(1.6,.9)
+        values=evaluate_groups(m,rows)
+        self.assertAlmostEqual(values[0]["probability"],
+             round(m[(0,0)]+m[(1,0)]+m[(2,0)]+m[(3,0)],7),places=7)
+
+    def test_dynamic_group_requires_explicit_market_variant(self):
+        doc=self.doc()
+        doc["selections"]=[{"group_id":"XBET_A1","scores":["0-0","1-0"],
+                             "odds":2.8}]
+        with self.assertRaises(ValueError):
+            validate_1xbet_snapshot(doc,event_id=800,
+                kickoff=NOW+timedelta(days=1),now=NOW)
+
     def test_missing_bookmaker_quote_cannot_produce_live_site_feed(self):
         result,why=analyze(fixture(900,NOW+timedelta(days=1)),history(),
                            H2HIndex(history()),StubDC(),now=NOW)
