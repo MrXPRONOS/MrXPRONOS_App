@@ -81,6 +81,37 @@ class PricedSelectionTests(unittest.TestCase):
         self.assertTrue(any(out["diagnostics"]["rejections"].get(k, 0) == 1 for k in ("v21_observation_not_recommended", "v21_model_confidence_or_price_below_floor")))
         self.assertEqual([x["id"] for x in due(out["matches"],self.now)],[])
 
+    def test_rejected_real_price_keeps_model_calculation_only_in_watchlist(self):
+        fixture={**self.fixture}
+        base={"id":"bsd:17","home_team_id":1,"away_team_id":2,
+            "category":"pro","model_version":"bsd-v2-isolated",
+            "prediction":{"key":"1X","name":"Double chance 1X",
+                "market":"double_chance","outcome":"1X","line":None,
+                "internal_market_code":"DC_1X_FT",
+                "probability":.80,"conservative_probability":.78,
+                "fair_odds":1.25,"bookmaker_odds":None,
+                "calibration_samples":40},
+            "ranked_candidates":[]}
+        quotes={"DC_1X_FT":{"odds":1.22,"origin":"bsd_consensus",
+                            "updated_at":self.now.isoformat()}}
+        with patch("bsd_v2_publish.predict_v2",return_value=(base,"ok")):
+            result=assemble({},[fixture],self.history,now=self.now,
+                calibration=None,policy=None,rho=0,
+                odds_fetcher=lambda *a:(quotes,{"verified_provider_count":1}),
+                max_odds_requests=2)
+        self.assertEqual(result["matches"],[])
+        self.assertEqual(len(result["model_odds_observations"]),1)
+        row=result["model_odds_observations"][0]
+        self.assertEqual(row["id"],"bsd:17")
+        self.assertEqual(row["publication_status"],"not_published")
+        self.assertFalse(row["prediction_eligible"])
+        self.assertTrue(row["do_not_send_to_telegram"])
+        self.assertTrue(row["market"]["estimated_odds"])
+        self.assertFalse(row["market"]["recommendation_eligible"])
+        self.assertEqual(row["market"]["odds_source"],"mrxpronos_model")
+        self.assertGreaterEqual(row["market"]["odds"],1.01)
+        self.assertEqual([x["id"] for x in due(result["matches"],self.now)],[])
+
     def test_selected_market_remains_identical_with_or_without_bsd_quote(self):
         fixture={**self.fixture}
         base={"id":"bsd:17","home_team_id":1,"away_team_id":2,

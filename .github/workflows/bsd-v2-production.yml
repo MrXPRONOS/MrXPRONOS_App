@@ -12,6 +12,7 @@ on:
       - 'bsd/**'
       - 'scripts/football_native_bsd_identity_probe.py'
       - 'scripts/football_cc0_calendar_verification.py'
+      - 'scripts/football_daily_multisource_shadow.py'
       - 'scripts/football_multisource_market_gate.py'
       - 'scripts/football_multisource_apply_qualified.py'
       - 'assets/js/main.js'
