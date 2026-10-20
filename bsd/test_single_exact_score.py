@@ -315,6 +315,14 @@ class SingleExactScoreTests(unittest.TestCase):
         group=top3_empty()
         self.assertEqual(select_groups(group,ledger,NOW+timedelta(minutes=6))["created"],0)
         self.assertFalse(group["records"])
+    def test_model_fingerprint_stable_and_changes_with_coefficients(self):
+        from single_exact_score_advanced import train_advanced,AdvancedModel
+        model=train_advanced(sample_history())
+        self.assertEqual(model.fingerprint(),model.info()["model_fingerprint_sha256"])
+        changed=AdvancedModel(model.goal_weights,model.goal_strength,
+            model.bias_weights,model.bias_strength,model.reliability_weights,
+            .25,model.diagnostic)
+        self.assertNotEqual(model.fingerprint(),changed.fingerprint())
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)

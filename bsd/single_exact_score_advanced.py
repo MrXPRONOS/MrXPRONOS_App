@@ -12,6 +12,8 @@ Uses only settled matches before a fixture as features. Always experimental.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from hashlib import sha256
+import json
 from datetime import timedelta
 from math import exp, log, isfinite
 from collections import defaultdict
@@ -218,8 +220,17 @@ class AdvancedModel:
     reliability_blend:float
     diagnostic:dict
 
+    def fingerprint(self):
+        payload={"revision":"mrx-single-advanced-code-v2",
+            "goal_weights":self.goal_weights,"goal_strength":self.goal_strength,
+            "bias_weights":self.bias_weights,"bias_strength":self.bias_strength,
+            "reliability_weights":self.reliability_weights,
+            "reliability_blend":self.reliability_blend,"training":self.diagnostic}
+        return sha256(json.dumps(payload,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+
     def info(self):
         return {"format":"mrx-single-advanced-2024-frozen-v1",
+                "model_fingerprint_sha256":self.fingerprint(),
                 "fitted_on":"2024 only","diagnostic":self.diagnostic,
                 "goal_strength":self.goal_strength,
                 "bias_strength":self.bias_strength,
@@ -243,7 +254,9 @@ def advanced_prediction(event,index,model,*,now=None,expected=None):
     context=prematch_context(event,now,fixture_datetime(event))
     return {"choice":chosen,"expected_goals":{"home":round(goals[0],5),
             "away":round(goals[1],5)},"rest_and_xg":meta,
-            "context":context,"score_model":"2024_frozen","experimental":True}
+            "context":context,"score_model":"2024_frozen",
+            "model_fingerprint_sha256":model.fingerprint(),
+            "experimental":True}
 
 
 def train_advanced(index,cap=1700):

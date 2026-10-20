@@ -80,7 +80,9 @@ def _candidate(rec,now,minimum_lead_minutes=30):
             "score":list(rec["score"]),"captured_at":rec["captured_at"],
             "selection_rank":round(rank,9),
             "probability":rec.get("estimated_probability"),
-            "forecast_digest":rec.get("forecast_sha256")}
+            "forecast_digest":rec.get("forecast_sha256"),
+            "advanced_model_fingerprint_sha256":(rec.get("advanced_research") or {}).get(
+                "model_fingerprint_sha256")}
 
 def select_groups(archive,match_ledger,now,*,max_groups=3,minimum_lead_minutes=30):
     """Freeze at first seen slate; no result/label influences rank or inclusion."""
