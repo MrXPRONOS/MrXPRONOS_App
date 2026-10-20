@@ -170,7 +170,15 @@ try{
  await page.setContent(html,{waitUntil:'load',timeout:30000});
  await page.evaluate(()=>document.fonts.ready);
  const element=page.locator('#app');
+ const rows=page.locator('.leg');
+ const cropCount=Math.min(n,2);
+ const lastBox=await rows.nth(cropCount-1).boundingBox();
+ if(!lastBox)throw new Error('Impossible de calculer la fin du deuxième match');
+ const previewHeight=Math.ceil(lastBox.y+lastBox.height);
  await element.screenshot({path:output,type:'png',animations:'disabled'});
+ const metaPath=process.env.ACCUMULATOR_CROP_META||'telegram_out/accumulator_crop.json';
+ fs.mkdirSync(path.dirname(metaPath),{recursive:true});
+ fs.writeFileSync(metaPath,JSON.stringify({preview_height:previewHeight,preview_matches:cropCount,match_count:n,width:1080},null,2));
  const dims=await element.evaluate(e=>({w:e.clientWidth,h:e.scrollHeight}));
  console.log('ACCUMULATOR_FRENCH_LABELS_OK',data.legs.map(l=>selectionFrench(l.selection||l.prediction?.label||'',l.prediction?.selection_key)));
  console.log('ACCUMULATOR_RENDER_OK',JSON.stringify({matches:n,width:dims.w,height:dims.h,logos_resolved:[...logos.values()].filter(Boolean).length,logo_total:teams.length,render_mode:'native-1080-css',output}));
