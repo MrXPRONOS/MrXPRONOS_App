@@ -158,6 +158,8 @@ jobs:
           git add -- bsd/exact_score_shadow_ledger.enc.json
           if git diff --cached --quiet; then exit 0; fi
           git commit -m "data(shadow): encrypted frozen prematch predictions [skip ci]"
+          # Restore the tracked encrypted *input* changed by fetching main.
+          git restore -- bsd/all_matches_bsd.enc.json
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin "HEAD:${GITHUB_REF_NAME}"
       - name: Save aggregate metrics only
