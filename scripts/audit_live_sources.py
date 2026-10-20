@@ -81,7 +81,10 @@ if fixtures:
                stats_keys=sorted(stat_payload.keys())[:22] if isinstance(stat_payload,dict) else [],
                first_row_keys=(sorted(stat_payload[0].keys())[:22]
                                if isinstance(stat_payload,list) and stat_payload
-                               and isinstance(stat_payload[0],dict) else []))
+                               and isinstance(stat_payload[0],dict) else []),
+               stat_labels=[str(z.get("label",""))[:45] for z in stat_payload[:22] if isinstance(z,dict)]
+               if isinstance(stat_payload,list) else [],
+               live_minute_present=root.get("live_minute") is not None)
 
 # 2. ESPN: unofficial but observable scoreboard + optional match summary.
 info, board = probe("espn_scoreboard", "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard?"+
@@ -141,6 +144,9 @@ record("moviodds_live", info, matches=len(matches),
        with_stats=sum(1 for m in matches if isinstance(m.get("stats"), dict) and bool(m["stats"])),
        with_quotes=sum(1 for m in matches if m.get("quotes")),
        first_stats_fields=sorted(observed.keys())[:24],
+       current_play_type=type(observed.get("current_play")).__name__,
+       current_play=(str(observed.get("current_play"))[:70]
+                     if isinstance(observed.get("current_play"), (str,int,float)) else None),
        home_stats_fields=sorted(movi_home.keys())[:32],
        away_stats_fields=sorted(movi_away.keys())[:32],
        sample_stats_updated_at=bool(observed.get("updated_at")))
