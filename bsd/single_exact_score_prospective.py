@@ -69,8 +69,7 @@ def capture(archive,fixtures,index,model,now,*,limit=500,advanced_model=None,clo
         # Live time is checked per fixture, never trusted from pipeline start.
         live_now=clock() if clock is not None else datetime.now(timezone.utc)
         if live_now.tzinfo is None:raise ValueError("UTC-aware clock required")
-        if live_now>now+timedelta(minutes=1) and clock is None:
-            pass  # long-running API fetch: use accurate later capture time
+        # A stale pipeline-start timestamp must never override live_now.
         output,reason=forecast(event,index,hindex,dc_model=model,now=live_now,
                                advanced_model=advanced_model)
         if output is None:

@@ -242,6 +242,23 @@ class SingleExactScoreTests(unittest.TestCase):
         ok=capture(archive,[e],index,DummyDC(),NOW,clock=lambda:NOW+timedelta(minutes=2))
         self.assertEqual(ok["captured"],1)
         self.assertEqual(archive["records"][str(e["id"])]["captured_at"],(NOW+timedelta(minutes=2)).isoformat())
+    def test_zero_advanced_correction_matches_baseline_matrix(self):
+        from single_exact_score_advanced import adjusted,matrix as advanced_matrix
+        from exact_scores_under25 import Under25Model,reweight_scores
+        from single_exact_score_advanced import bias_matrix
+        event=fixture(997,NOW+timedelta(days=1))
+        index=sample_history()
+        base={"home":3.4,"away":1.15,"home_venue_matches":3,"away_venue_matches":3}
+        weights=tuple(tuple(0. for _ in range(5)) for _ in range(2))
+        h,a=adjusted(base,(1.,0.,0.,0.,0.),weights,0.)
+        self.assertAlmostEqual(h,3.74,places=9)
+        raw=matrix_for(base["home"],base["away"],scale_home=1.10)
+        specialized=Under25Model(1.,.85,.62).predict(event,index,raw)
+        original=reweight_scores(raw,specialized["probability"])
+        candidate,*_=advanced_matrix(event,index,base,weights,0.)
+        for score in raw:
+            self.assertAlmostEqual(original[score],candidate[score],places=10)
+        self.assertEqual(candidate,bias_matrix(candidate,(1.,)*8,0.))
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)

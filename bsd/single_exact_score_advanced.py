@@ -3,8 +3,8 @@
 All learned labels are from fixtures occurring in 2024. The pre-existing
 home scale 1.10 and Under2.5 parameters come from earlier exploratory
 research; therefore 2025 is NOT a genuinely untouched blind test. Goal-rate training:
-Jan-Apr; validation May-Jun. Score-mass calibration: Jan-Jun; validation
-Jul-Aug. Independent hit-probability learner: Sep-Oct; validation Nov-Dec.
+Jan-Jun; validation Jul-Aug. Score-mass calibration: Jan-Aug; validation
+Sep-Oct. Independent hit-probability learner: Nov; validation Dec.
 Neither 2025 nor 2026 results enter fit or hyperparameter selection.
 
 Uses only settled matches before a fixture as features. Always experimental.
@@ -89,8 +89,10 @@ def dot(a,b):
 
 
 def adjusted(base,feat,goal_weights,strength=1.):
-    home=clip(base["home"]*1.10*exp(strength*dot(goal_weights[0],feat)),.35,3.5)
-    away=clip(base["away"]*exp(strength*dot(goal_weights[1],feat)),.35,3.5)
+    # Exact same intensity clamp as matrix_for(..., scale_home=1.10)
+    # when strength=0; no invisible cap at 3.5 in baseline mode.
+    home=clip(base["home"]*1.10*exp(strength*dot(goal_weights[0],feat)),.1,5.)
+    away=clip(base["away"]*exp(strength*dot(goal_weights[1],feat)),.1,5.)
     return home,away
 
 
@@ -103,7 +105,7 @@ def goal_fit(rows,epochs=230):
             feat=row["feat"];base=row["base"];actual=row["truth"]
             for side in range(2):
                 base_mu=base["home" if side==0 else "away"]*(1.10 if side==0 else 1.)
-                mu=clip(base_mu*exp(clip(dot(weights[side],feat),-.7,.7)),.35,3.5)
+                mu=clip(base_mu*exp(clip(dot(weights[side],feat),-.7,.7)),.1,5.)
                 for j,v in enumerate(feat):
                     grad[side][j]+=(mu-actual[side])*v
         learning=.14/(1+iteration/125)
@@ -255,16 +257,18 @@ def train_advanced(index,cap=1700):
         rows.append({"index":index,"event":event,"base":base,
                     "feat":feat,"truth":tuple(truth),
                     "month":fixture_datetime(event).month})
-    goal_train=[r for r in rows if r["month"]<=4]
-    goal_valid=[r for r in rows if 5<=r["month"]<=6]
+    # The original Jan-Apr subset had only 72 eligible matches and silently
+    # disabled training. Each time window is now chronological and measurable.
+    goal_train=[r for r in rows if r["month"]<=6]
+    goal_valid=[r for r in rows if 7<=r["month"]<=8]
     weights=goal_fit(goal_train)
     gbase=goal_loss(goal_valid,weights,0)
     strengths=(0.,.5,1.)
     gstrength=min(strengths,key=lambda s:goal_loss(goal_valid,weights,s)) if goal_valid else 0.
     if gbase is None or gbase-goal_loss(goal_valid,weights,gstrength)<.0003:
         gstrength=0.
-    bias_train=[r for r in rows if r["month"]<=6]
-    bias_valid=[r for r in rows if 7<=r["month"]<=8]
+    bias_train=[r for r in rows if r["month"]<=8]
+    bias_valid=[r for r in rows if 9<=r["month"]<=10]
     bias=bias_fit(bias_train,weights,gstrength)
     bbase=distribution_loss(bias_valid,weights,gstrength,bias,0)
     bstrength=min(strengths,key=lambda s:distribution_loss(
@@ -273,12 +277,12 @@ def train_advanced(index,cap=1700):
         bstrength=0.
     train=[];valid=[]
     for row in rows:
-        if row["month"]<9:continue
+        if row["month"]<11:continue
         mat,feat,_,goals=matrix(row["event"],index,row["base"],weights,gstrength)
         ch=pick(bias_matrix(mat,bias,bstrength))
         sample=(rel_features(ch,feat,goals),int(tuple(ch["score"])==row["truth"]),
                 ch["probability"])
-        (train if row["month"]<=10 else valid).append(sample)
+        (train if row["month"]==11 else valid).append(sample)
     rel=fit_logistic([(x,y) for x,y,_ in train])
     rbase=reliability_loss(valid,rel,0.)
     rblend=min((0.,.25,.5,.75,1.),key=lambda s:reliability_loss(valid,rel,s)) if valid else 0.
