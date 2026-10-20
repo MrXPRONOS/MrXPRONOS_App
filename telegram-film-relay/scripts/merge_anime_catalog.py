@@ -5,7 +5,22 @@ from pathlib import Path
 
 
 def merge(remote: dict, local: dict) -> dict:
-    result = {"series": {}}
+    # Preserve audit and cursor metadata during the workflow's state merge.
+    result = {**remote, **local, "series": {}}
+    result["scans"] = {**remote.get("scans", {})}
+    for source, incoming in local.get("scans", {}).items():
+        prior = result["scans"].get(source)
+        if not prior:
+            result["scans"][source] = incoming
+        elif incoming.get("complete") and not prior.get("complete"):
+            result["scans"][source] = incoming
+        elif prior.get("complete") and not incoming.get("complete"):
+            continue
+        elif incoming.get("cursor") is None:
+            if not prior.get("cursor"):
+                result["scans"][source] = incoming
+        elif prior.get("cursor") is None or int(incoming["cursor"]) <= int(prior["cursor"]):
+            result["scans"][source] = incoming
     rseries = remote.get("series", {})
     lseries = local.get("series", {})
     for key in set(rseries) | set(lseries):
