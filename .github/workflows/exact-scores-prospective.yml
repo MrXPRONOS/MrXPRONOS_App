@@ -135,7 +135,7 @@ jobs:
           rm -rf bsd/cache
 
   grouped-history:
-    if: github.event_name == 'push'
+    if: github.event_name == 'workflow_dispatch'
     needs: prospective
     runs-on: ubuntu-latest
     timeout-minutes: 90
