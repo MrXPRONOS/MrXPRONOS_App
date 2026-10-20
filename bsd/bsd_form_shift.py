@@ -123,8 +123,8 @@ def form_shift(fixture,index,hindex=None,*,expected=None,under25=None,direction=
     projected=(float(expected["home"])+float(expected["away"])) if expected else None
     model_conflict=(projected is not None and projected>=2.75
                     and under25 is not None and under25>=.62)
-    home_form=hp["recent"]["scored"]-ap["recent"]["conceded"]
-    away_form=ap["recent"]["scored"]-hp["recent"]["conceded"]
+    home_form=.5*(hp["recent"]["scored"]+ap["recent"]["conceded"])
+    away_form=.5*(ap["recent"]["scored"]+hp["recent"]["conceded"])
     # A Double Chance orientation is not proof of outright victory.
     dc_contradiction=bool(direction and (
       (direction.get("direction")=="home" and away_form-home_form>=.8) or
