@@ -1,6 +1,8 @@
 """2024-frozen, isolated ONE-score research model: goal rates, score bias and reliability.
 
-All learned labels are from fixtures occurring in 2024. Goal-rate training:
+All learned labels are from fixtures occurring in 2024. The pre-existing
+home scale 1.10 and Under2.5 parameters come from earlier exploratory
+research; therefore 2025 is NOT a genuinely untouched blind test. Goal-rate training:
 Jan-Apr; validation May-Jun. Score-mass calibration: Jan-Jun; validation
 Jul-Aug. Independent hit-probability learner: Sep-Oct; validation Nov-Dec.
 Neither 2025 nor 2026 results enter fit or hyperparameter selection.
@@ -75,7 +77,7 @@ def dot(a,b):
 
 
 def adjusted(base,feat,goal_weights,strength=1.):
-    home=clip(base["home"]*exp(strength*dot(goal_weights[0],feat)),.35,3.5)
+    home=clip(base["home"]*1.10*exp(strength*dot(goal_weights[0],feat)),.35,3.5)
     away=clip(base["away"]*exp(strength*dot(goal_weights[1],feat)),.35,3.5)
     return home,away
 
@@ -88,7 +90,7 @@ def goal_fit(rows,epochs=230):
         for row in rows:
             feat=row["feat"];base=row["base"];actual=row["truth"]
             for side in range(2):
-                base_mu=base["home" if side==0 else "away"]
+                base_mu=base["home" if side==0 else "away"]*(1.10 if side==0 else 1.)
                 mu=clip(base_mu*exp(clip(dot(weights[side],feat),-.7,.7)),.35,3.5)
                 for j,v in enumerate(feat):
                     grad[side][j]+=(mu-actual[side])*v
