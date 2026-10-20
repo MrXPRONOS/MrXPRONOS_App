@@ -280,13 +280,44 @@ def bivariate_grid(lh, la, shared):
     return normalized(p)
 
 
-def estimate_shared(residuals):
-    if len(residuals) < 100:
-        return .10  # fixed historical prior
-    r = np.asarray(residuals[-7000:], dtype=float)
-    covariance = float(np.mean(r[:, 0]*r[:, 1]) - np.mean(r[:, 0])*np.mean(r[:, 1]))
-    # Shrink small samples, bound latent common component.
-    return float(np.clip(covariance * len(r)/(len(r)+250), 0, .40))
+def estimate_shared(observations):
+    """Maximum likelihood fit of the bivariate common Poisson factor on PRIOR forecasts.
+    Returns a shared-goal fraction (0-0.45). Zero is a legitimate fitted result.
+    """
+    if len(observations) < 120:
+        return 0.0
+    recent = np.asarray(observations[-6500:], dtype=float)
+    lh, la, gh0, ga0 = [recent[:, i] for i in range(4)]
+    gh, ga = gh0.astype(int), ga0.astype(int)
+    min_goals = np.minimum(gh, ga)
+    max_k = int(min(MAX_GOALS, min_goals.max()))
+    def negative_ll(fraction):
+        shared = np.minimum(lh, la) * fraction
+        x, y = np.maximum(.001, lh-shared), np.maximum(.001, la-shared)
+        log_terms = np.full(len(lh), -np.inf)
+        for k in range(max_k+1):
+            mask = min_goals >= k
+            if not np.any(mask):
+                continue
+            u, v = gh[mask]-k, ga[mask]-k
+            v_log = u*np.log(x[mask]) - gammaln(u+1) + v*np.log(y[mask]) - gammaln(v+1)
+            if k:
+                v_log += k*np.log(np.maximum(shared[mask], 1e-15))-gammaln(k+1)
+            log_terms[mask] = np.logaddexp(log_terms[mask], v_log)
+        return -float(np.sum(-x-y-shared+log_terms)) + 15*fraction*fraction
+    opt = minimize_scalar(negative_ll, bounds=(.000001, .45),
+                          method="bounded", options={"xatol": .001})
+    return float(opt.x) if opt.success and opt.fun < negative_ll(0) else 0.0
+
+
+def league_shared_covariance(residuals, global_shared):
+    """Partial pooling allows positive correlation in leagues with support."""
+    if len(residuals) < 60:
+        return global_shared
+    r = np.asarray(residuals[-650:], dtype=float)
+    cov = float(np.mean(r[:,0]*r[:,1]) - r[:,0].mean()*r[:,1].mean())
+    weight = len(r)/(len(r)+180)
+    return float(np.clip(.65*global_shared + .35*max(0, cov)*weight, 0, .45))
 
 
 def bayesian_grid(f, seed):
@@ -405,6 +436,7 @@ def backtest(matches, begin, end, out, max_eval=0):
     training = []
     recent_low = []
     recent_residuals = []
+    league_residuals = defaultdict(list)
     results = defaultdict(list)
     audit = Counter()
     detail = []
@@ -421,7 +453,7 @@ def backtest(matches, begin, end, out, max_eval=0):
         if evaluating and (last_retrain is None or last_retrain != (day.year, day.month)):
             ml = train_ml(training)
             dc_rho = estimate_dc_rho(recent_low[-9000:])
-            shared = estimate_shared(recent_residuals)
+            shared = estimate_shared(recent_low)
             last_retrain = (day.year, day.month)
             print("RETRAIN", day, "train_rows", len(training),
                   "rho", round(dc_rho, 4), "shared", round(shared, 4),
@@ -442,7 +474,7 @@ def backtest(matches, begin, end, out, max_eval=0):
             forecasts = {
                 "poisson": p0,
                 "dixon_coles": dixon_coles(f["h"], f["a"], dc_rho),
-                "bivariate_poisson": bivariate_grid(f["h"], f["a"], shared),
+                "bivariate_poisson": bivariate_grid(f["h"], f["a"], league_shared_covariance(league_residuals[m.league], shared*min(f["h"], f["a"]))),
                 "bayesian_gamma": bayesian_grid(f, seed),
                 "monte_carlo": monte_carlo_grid(f["h"], f["a"], seed+1),
             }
@@ -481,6 +513,7 @@ def backtest(matches, begin, end, out, max_eval=0):
         for m, f in pending:
             recent_low.append((f["h"], f["a"], m.hg, m.ag))
             recent_residuals.append((m.hg-f["h"], m.ag-f["a"]))
+            league_residuals[m.league].append((m.hg-f["h"], m.ag-f["a"]))
             training.append((f["vector"], m.hg, m.ag))
             states.add(m)
         if evaluating and (day.day == 1 or day == end):
@@ -524,6 +557,7 @@ def self_test():
     assert np.isclose(a.sum(), 1.0)
     assert np.isclose(dixon_coles(1.7,1.1,-.06).sum(),1.0)
     assert np.isclose(bivariate_grid(1.7,1.1,.12).sum(),1.0)
+    assert np.max(np.abs(bivariate_grid(1.7,1.1,.12)-poisson_grid(1.7,1.1))) > .001
     assert np.isclose(monte_carlo_grid(1.7,1.1,1234).sum(),1.0)
     f = {"hs": np.array([15, 24, 13, 0, 0, 0]), "as": np.array([12, 12, 16, 0, 0, 0]),
          "mu_h": 1.4, "mu_a": 1.1}
