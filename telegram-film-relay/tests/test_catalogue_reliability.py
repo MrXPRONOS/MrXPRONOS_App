@@ -34,7 +34,7 @@ class CatalogueReliabilityTests(unittest.TestCase):
 
     def test_anime_source_signature_removed(self):
         self.assertEqual(anime_title("@Mangas fv Yu-Gi-Oh! Duel Monsters"),
-                         "fv Yu-Gi-Oh! Duel Monsters")
+                         "Yu-Gi-Oh! Duel Monsters")
 
 
 if __name__ == "__main__":
