@@ -97,7 +97,7 @@ def main():
  source=need("SUPABASE_URL");key=need("SUPABASE_SERVICE_ROLE_KEY")
  odds=report["combined_odds"];count=report["included"]
  caption=(f"⚽ Combiné Mr XPRONOS · {day}\n{count} sélections · Cote indicative : {odds}\n"
-          "Mise simulée : 50 000 F CFA. Aucun pari placé.\n"
+          "Mise simulée : 50 000 F CFA.\n"
           "18+ · Joue responsablement.\n#football #pronostics #mrxpronos")
  public=public_url(image,day)
  session=requests.Session()
