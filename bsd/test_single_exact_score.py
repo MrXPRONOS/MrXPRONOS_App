@@ -172,6 +172,40 @@ class SingleExactScoreTests(unittest.TestCase):
         earlier=sample_history()
         updated=hydrate_history_xg(earlier,[game],cl,NOW,max_lookups=2)
         self.assertLessEqual(updated["attempts"],2)
+    def test_goal_rates_learn_without_forced_result(self):
+        from single_exact_score_advanced import goal_fit,adjusted
+        flat={"home":1.,"away":1.}
+        rows=[{"base":flat,"feat":(1.,0.,0.,0.,0.),"truth":(2,0)}
+              for _ in range(120)]
+        w=goal_fit(rows,epochs=150)
+        h,a=adjusted(flat,(1.,0.,0.,0.,0.),w)
+        self.assertGreater(h,1.)
+        self.assertLess(a,1.)
+    def test_score_bias_probability_conserved(self):
+        from single_exact_score_advanced import bias_matrix,SCORES
+        m=matrix_for(1.4,1.2)
+        factors=tuple(.72 if score==(1,1) else 1. for score in SCORES)
+        corrected=bias_matrix(m,factors,1.)
+        self.assertAlmostEqual(sum(corrected.values()),1.,places=10)
+        self.assertLess(corrected[(1,1)],m[(1,1)])
+        self.assertEqual(m,bias_matrix(m,factors,0.))
+    def test_reliability_learner_fits_independent_labels(self):
+        from single_exact_score_advanced import fit_logistic,sigmoid,dot
+        samples=[((1.,-.6,0.,0.,0.),0) for _ in range(100)]
+        samples += [((1.,-.15,0.,0.,0.),1) for _ in range(100)]
+        weights=fit_logistic(samples,epochs=200)
+        a=sigmoid(dot(weights,(1.,-.6,0.,0.,0.)))
+        b=sigmoid(dot(weights,(1.,-.15,0.,0.,0.)))
+        self.assertLess(a,b)
+    def test_historical_xg_never_reads_future_fixture_result(self):
+        from single_exact_score_advanced import features
+        start=sample_history()
+        with_future=sample_history(add_future=True)
+        match=fixture(992,NOW+timedelta(days=1))
+        expected={"home":1.2,"away":1.3,"home_venue_matches":4,"away_venue_matches":4}
+        first,_=features(match,start,expected)
+        second,_=features(match,with_future,expected)
+        self.assertEqual(first,second)
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)
