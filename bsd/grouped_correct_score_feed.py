@@ -23,11 +23,11 @@ def group_feed(ledger,*,now):
             continue
         out=[]
         for g in r["groups"]:
-            if not g["available_verified"]:continue
+            if not g["quote_documented"]:continue
             item={"group_id":g["group_id"],"scores":g["scores"],
                   "probability":g["probability"],
                   "direction_eligible":g["direction_eligible"],
-                  "odds":g["odds"],"available_verified":True,
+                  "odds":g["odds"],"quote_documented":True,
                   "expected_value":g["expected_value"],
                   "quote_captured_utc":g["odds_captured_utc"]}
             if r["status"]=="settled":
