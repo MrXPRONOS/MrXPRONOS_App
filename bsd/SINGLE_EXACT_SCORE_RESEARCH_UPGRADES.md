@@ -23,3 +23,16 @@ This branch remains experimental. No production, grouped scores, Telegram, bookm
 
 ## Encrypted xG persistence
 A separate `bsd/single_exact_score_xg_history.enc.json` saves only BSD *measured* home/away xG from finished games observed >=4h after kickoff. Event ID, team IDs, dates and UTC captures must match before applying. A newly captured xG value is available only to *future* feature calculations; no prior forecast is rewritten. The prospective workflow commits this encrypted file alongside (but separately from) the existing encrypted score ledger. No public xG records are uploaded. BSD may provide no measured xG for some competitions; that is not fabricated.
+
+## Logic audit fixes — 2026-10-20
+1. **As-of measured xG**: every accepted prior-match xG must carry an observed UTC timestamp <= the fixture being predicted. Cache restores the original capture time. No historical post-match xG can leak backward.
+2. **Capture clock**: the UTC clock is re-read immediately before issuing each ONE-score prediction; no stale run-start clock is accepted.
+3. **Training periods**: goal train 2024 Jan-Jun, validation Jul-Aug; score-mass train Jan-Aug, validation Sep-Oct; reliability train Nov, validation Dec. Minimum training counts are enforced by full historical CI. Validation may still correctly decline a modification.
+4. **Identity correction**: model strength=0 reproduces the exact reference Poisson+Under2.5 matrix, including the same home scaling and rate clipping.
+5. **Frozen pre-match Top3**: separate encrypted `bsd/single_exact_score_top3.enc.json`, exactly one score each across three distinct fixtures, snapshot integrity hash, immutable selection, three-match settlement, no retrospective score switching. Selection is restricted to records whose real capture time and rank preceded all fixtures. Importantly, no daily automation is claimed on this experimental branch.
+6. **Rank independence**: base, under and advanced scores are highly related; agreement is counted at most once using independent DC advisory. Ranking requires no outcome labels.
+7. **Injuries/lineups**: only verified timestamped BSD unavailable-player counts from first-seen prematch snapshots may train the experimental adjustment; must pass chronological validation on at least 240 settled observations. No adjustment until it actually passes.
+8. **Reproducibility**: learned coefficient and selection-rule cryptographic fingerprints accompany each *new* prospective forecast and first-seen Top3.
+9. **CI**: isolated unit tests, chronological smoke check and full history assertions. Encrypted archives and main production remain untouched.
+
+**Scope**: The last three elements requiring live BSD lineups, live measured xG and the scheduled daily prospective capture are conditional on external data/service configuration; do not mark them as production-complete until an actual successful prospective run and enough settled captures exist. A full historical backtest cannot verify these live requirements.

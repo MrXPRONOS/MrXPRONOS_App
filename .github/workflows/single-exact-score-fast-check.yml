@@ -63,6 +63,9 @@ jobs:
               assert d["finished"]>50
               assert d["advanced_training"]["fitted_on"]=="2024 only"
               assert d["advanced_training"]["diagnostic"]["eligible_2024"]>=100
+              assert d["advanced_training"]["diagnostic"]["goal_train"]>=80
+              assert d["advanced_training"]["diagnostic"]["goal_valid"]>=60
+              assert len(d["advanced_training"]["model_fingerprint_sha256"])==64
               advanced=d["research_diagnostics"]["models"]["advanced_2024"]
               assert advanced["summary"]["matches"]==d["eligible"]
               assert 0<=advanced["summary"]["wins"]<=d["eligible"]

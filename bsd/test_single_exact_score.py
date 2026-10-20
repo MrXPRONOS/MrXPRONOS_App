@@ -358,6 +358,22 @@ class SingleExactScoreTests(unittest.TestCase):
         archive["records"]["late"]={**archive["records"]["0"],
             "settled_at":(NOW+timedelta(hours=10)).isoformat()}
         self.assertEqual(learn_absence(archive,NOW)["diagnostic"]["eligible"],300)
+    def test_top3_refuses_forecast_digest_mismatch_in_settlement(self):
+        x={"records":{}}
+        for i in range(3):
+            name=str(9500+i)
+            x["records"][name]={"id":name,"status":"pending",
+                 "score":[0,1],"kickoff":(NOW+timedelta(hours=4+i)).isoformat(),
+                 "captured_at":NOW.isoformat(),"selection_rank":.20+i*.01,
+                 "rank_version":RANK_VERSION,"forecast_sha256":"hash"+name}
+        basket=top3_empty()
+        self.assertEqual(select_groups(basket,x,NOW)["created"],1)
+        for rec in x["records"].values():
+            rec["status"]="settled"
+            rec["actual_score"]=[0,1]
+        x["records"]["9500"]["forecast_sha256"]="tampered"
+        self.assertEqual(settle_groups(basket,x,NOW+timedelta(days=2))["settled"],0)
+        self.assertEqual(top3_report(basket)["settled_baskets"],0)
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)

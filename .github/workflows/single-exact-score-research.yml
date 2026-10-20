@@ -63,6 +63,11 @@ jobs:
               assert all(x["wins"]<=x["matches"] for x in d["variants"].values())
               rd=d["research_diagnostics"]
               assert rd["label_blind_ranking"] and len(rd["models"])==5
+              assert d["advanced_training"]["diagnostic"]["goal_train"]>=80
+              assert d["advanced_training"]["diagnostic"]["goal_valid"]>=60
+              assert d["advanced_training"]["diagnostic"]["bias_valid"]>=60
+              assert d["advanced_training"]["diagnostic"]["reliability_train"]>=60
+              assert d["advanced_training"]["diagnostic"]["reliability_valid"]>=40
               training=d["advanced_training"]
               assert training["diagnostic"]["no_future_year_labels"] is True
               assert training["fitted_on"]=="2024 only"
@@ -133,6 +138,10 @@ jobs:
           assert d["published"] is False and d["experimental"] is True
           assert d["captured"] == d["pending"] + d["settled"]
           assert d["priority"]["n"]<=d["all"]["n"]
+          assert d["top3"]["selected_match_count"] == 3*d["top3"]["baskets_created"]
+          assert d["top3"]["settled_baskets"] <= d["top3"]["baskets_created"]
+          assert d["absence_context_model"]["training_rows"] >= 0
+          assert len(d["advanced_model_fingerprint_sha256"]) == 64
           print("SINGLE_EXACT_LEDGER",json.dumps({
             "captured":d["captured"],"pending":d["pending"],
             "settled":d["settled"]},ensure_ascii=False))

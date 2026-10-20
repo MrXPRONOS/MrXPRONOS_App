@@ -190,6 +190,12 @@ def main():
     if created_groups.get("created") or settled_groups.get("settled"):
         save_top3(top3)
     result=summary(archive,datetime.now(timezone.utc))
+    result["top3"]=top3_report(top3)
+    result["advanced_model_fingerprint_sha256"]=advanced.fingerprint()
+    result["absence_context_model"]={"active":context_model["active"],
+        "fingerprint_sha256":context_fingerprint(context_model),
+        "training_rows":context_model["diagnostic"]["eligible"],
+        "validation_reason":context_model["diagnostic"].get("reason")}
     dest=Path(args.report);dest.parent.mkdir(parents=True,exist_ok=True)
     dest.write_text(json.dumps(result,indent=2,ensure_ascii=False),encoding="utf-8")
     print("ONE_SCORE_PROSPECTIVE",json.dumps({"capture":added,"settlement":finished,
