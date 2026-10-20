@@ -553,6 +553,19 @@ def backtest(matches, begin, end, out, max_eval=0):
         if evaluating and (day.day == 1 or day == end):
             print("PROGRESS", day, "scored", played, flush=True)
     summary = summarize(results)
+    paired_cohorts = {}
+    for conditional_model in ("xg_poisson", "market_adjusted"):
+        eligible = {(r["date"], r["id"]) for r in results[conditional_model]}
+        if not eligible:
+            paired_cohorts[conditional_model] = {"matched_games": 0}
+            continue
+        matched = defaultdict(list)
+        for model_name, entries in results.items():
+            matched[model_name] = [r for r in entries if (r["date"],r["id"]) in eligible]
+        paired_cohorts[conditional_model] = {
+            "matched_games": len(eligible),
+            "comparisons": summarize(matched)
+        }
     os.makedirs(out, exist_ok=True)
     report = {
         "source": "cache/all_matches.json",
@@ -603,6 +616,7 @@ def backtest(matches, begin, end, out, max_eval=0):
     grouped_report("monthly.csv", monthly, 1, "month")
     grouped_report("leagues.csv", leagues, 100, "league")
     grouped_report("calibration.csv", reliability, 20, "probability_bin")
+    report["matched_cohort_comparisons"] = paired_cohorts
     report["files"] = ["summary.json", "all_predictions.csv", "monthly.csv",
                        "leagues.csv", "calibration.csv"]
     report["bivariate_fitted_global_common_fraction"] = round(shared, 6)
