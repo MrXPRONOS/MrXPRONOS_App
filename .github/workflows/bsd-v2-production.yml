@@ -10,6 +10,10 @@ on:
     branches: [main]
     paths:
       - 'bsd/**'
+      - 'scripts/football_native_bsd_identity_probe.py'
+      - 'scripts/football_cc0_calendar_verification.py'
+      - 'scripts/football_multisource_market_gate.py'
+      - 'scripts/football_multisource_apply_qualified.py'
       - 'assets/js/main.js'
       - '.github/workflows/bsd-v2-production.yml'
   workflow_dispatch:
