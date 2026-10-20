@@ -105,5 +105,19 @@ class ProspectiveTests(unittest.TestCase):
         self.assertIsNone(r["all"]["top1_rate"])
         self.assertEqual(r["priority"]["n"],0)
 
+
+    def test_overdue_pending_is_not_fake_loss(self):
+        idx=history()
+        future=fixture(999,NOW+timedelta(days=1))
+        led=empty_ledger()
+        record_fixtures(led,[future],idx,NOW)
+        r=report(led,NOW+timedelta(days=10))
+        self.assertEqual(r["overdue_unsettled"],1)
+        self.assertEqual(r["all"]["n"],0)
+        self.assertEqual(r["all"]["top3_rate"],None)
+    def test_bad_external_event_does_not_corrupt_reconciliation(self):
+        self.assertEqual(reconcile_results(empty_ledger(),
+                        [{"id": 9,"event_date": None}],NOW),{})
+
 if __name__=="__main__":
     unittest.main()
