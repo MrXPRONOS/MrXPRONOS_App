@@ -374,6 +374,33 @@ class SingleExactScoreTests(unittest.TestCase):
         x["records"]["9500"]["forecast_sha256"]="tampered"
         self.assertEqual(settle_groups(basket,x,NOW+timedelta(days=2))["settled"],0)
         self.assertEqual(top3_report(basket)["settled_baskets"],0)
+    def test_end_to_end_three_distinct_match_snapshot_then_results(self):
+        index=sample_history()
+        fixtures=[fixture(9800+i,NOW+timedelta(hours=4+i))
+                  for i in range(3)]
+        match_ledger=empty()
+        counters=capture(match_ledger,fixtures,index,DummyDC(),NOW,
+                         clock=lambda:NOW)
+        self.assertEqual(counters.get("captured"),3)
+        self.assertEqual(len(match_ledger["records"]),3)
+        self.assertEqual(len({record["id"] for record in match_ledger["records"].values()}),3)
+        basket=top3_empty()
+        self.assertEqual(select_groups(basket,match_ledger,NOW)["created"],1)
+        day=NOW.date().isoformat()
+        digest=basket["records"][day]["digest"]
+        original_scores={row["id"]:row["score"][:] for row in
+                         match_ledger["records"].values()}
+        complete=[fixture(int(key),datetime.fromisoformat(
+                  match_ledger["records"][key]["kickoff"]),
+                  score=tuple(original_scores[key]),finished=True)
+                  for key in original_scores]
+        result=settle(match_ledger,complete,NOW+timedelta(days=1))
+        self.assertEqual(result.get("settled"),3)
+        self.assertEqual(settle_groups(basket,match_ledger,
+                                      NOW+timedelta(days=1))["settled"],1)
+        self.assertEqual(basket["records"][day]["digest"],digest)
+        self.assertEqual(basket["records"][day]["hits"],3)
+        self.assertEqual(top3_report(basket)["winning_basket_rate"],1.)
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)
