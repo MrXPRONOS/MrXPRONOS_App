@@ -104,7 +104,7 @@ def main():
         print("SHORTS_DAILY_ALREADY_SENT",published_day)
         output=os.getenv("GITHUB_OUTPUT")
         if output:
-            with open(output,"a",encoding="utf-8") as fh: fh.write("video_sent=false\n"))
+            with open(output,"a",encoding="utf-8") as fh: fh.write("video_sent=false\n")
         return 0
     label = "Sélection du jour"
     caption = (
@@ -149,7 +149,7 @@ def main():
     record_batch(session, base, key, manifest)
     output=os.getenv("GITHUB_OUTPUT")
     if output:
-        with open(output,"a",encoding="utf-8") as fh: fh.write("video_sent=true\n"))
+        with open(output,"a",encoding="utf-8") as fh: fh.write("video_sent=true\n")
     return 0
 
 
