@@ -61,6 +61,15 @@ jobs:
               counts=[x["matches"] for x in d["variants"].values()]
               assert counts[0]==counts[1]==counts[2]==d["eligible"]
               assert all(x["wins"]<=x["matches"] for x in d["variants"].values())
+              rd=d["research_diagnostics"]
+              assert rd["label_blind_ranking"] and len(rd["models"])==4
+              for m in rd["models"].values():
+                  assert m["summary"]["matches"]==d["eligible"]
+                  assert sum(b["matches"] for b in m["scores"]["predicted"].values())==d["eligible"]
+                  assert sum(b["matches"] for b in m["calibration"]["bins"].values())==d["eligible"]
+              assert len(d["distribution_experiments"])==4
+              assert all(b["matches"]==d["eligible"] for b in d["distribution_experiments"].values())
+              assert rd["paired"]["under_vs_dc"]["net_b_minus_a"] == (d["variants"]["optional_dc_fusion"]["wins"]-d["variants"]["under25_fusion"]["wins"])
               print("SINGLE_EXACT_FULL_YEAR_VERIFIED",year,json.dumps({
               "finished":d["finished"],"eligible":d["eligible"],
               "variants":d["variants"],"subgroups":d["groups"],

@@ -11,6 +11,8 @@ from bsd_v2_core import V2History,fixture_datetime,outcome_scores
 from exact_scores import year_sample
 from exact_scores_h2h import H2HIndex
 from single_exact_score_engine import forecast,train_dc
+from single_exact_score_research import audit
+from single_exact_score_distributions import candidates
 
 LABELS=("original","under25_fusion","optional_dc_fusion")
 
@@ -49,6 +51,8 @@ def compare(events,year=2026,cap=0,*,dc_model=None):
     months=defaultdict(lambda:{k:bucket() for k in LABELS})
     score_frequency=Counter();reasons=Counter();direction_changes=Counter()
     total_finished=0
+    research_rows=[]
+    distributions=defaultdict(lambda:{"n":0,"wins":0,"nll":0.,"brier":0.})
     for event in year_sample(index,year,cap):
         truth=outcome_scores(event)
         if truth is None:continue
@@ -59,6 +63,16 @@ def compare(events,year=2026,cap=0,*,dc_model=None):
         if pred is None:
             reasons[why]+=1;continue
         picked=tuple(pred["score"])
+        research_rows.append({"id":str(event["id"]),"kickoff":at.isoformat(),
+            "actual":list(truth),"variants":pred["ablation"],
+            "league":event.get("league_id") or event.get("league_name"),
+            "total_expected_goals":pred["total_expected_goals"],
+            "quality":pred["data_quality"],"context":pred["prematch_context"]})
+        for name,mat in candidates(pred["expected_goals"]["home"],pred["expected_goals"]["away"]).items():
+            b=distributions[name];actual_p=max(mat.get(truth,0.),1e-12)
+            b["n"]+=1;b["wins"]+=int(max(mat,key=mat.get)==truth)
+            b["nll"]+=-math.log(actual_p)
+            b["brier"]+=1+sum(p*p for p in mat.values())-2*actual_p
         score_frequency[f"{picked[0]}-{picked[1]}"]+=1
         names=["priority" if pred["research_priority"] else "other"]
         if pred["h2h_low_stable"] and pred["under25_probability"]>=.62:
@@ -91,6 +105,12 @@ def compare(events,year=2026,cap=0,*,dc_model=None):
             "selected_score_frequency":dict(score_frequency.most_common(15)),
             "dc_changes":dict(direction_changes),
             "not_evaluated":dict(reasons),
+            "distribution_experiments":{k:{"matches":v["n"],"wins":v["wins"],
+                 "top1_rate":round(v["wins"]/v["n"],6) if v["n"] else None,
+                 "multiclass_logloss":round(v["nll"]/v["n"],6) if v["n"] else None,
+                 "multiclass_brier":round(v["brier"]/v["n"],6) if v["n"] else None}
+                for k,v in distributions.items()},
+            **audit(research_rows),
             "note":"One actual score only. Previously examined 2026 is exploratory, not a blind out-of-sample test. No bookmaker odds or ROI."}
 
 def main():

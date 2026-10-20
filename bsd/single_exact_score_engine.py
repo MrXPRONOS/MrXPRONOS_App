@@ -12,6 +12,7 @@ No write to data.json, no Telegram, no published bets.
 from __future__ import annotations
 
 from datetime import datetime,timedelta,timezone
+from single_exact_score_research import prematch_context
 from math import fsum,log
 from bsd_v2_core import estimate_goals, fixture_datetime
 from exact_scores import matrix_for,top_scores
@@ -135,6 +136,8 @@ def forecast(fixture,index,hindex,*,now,dc_model=None,require_prematch=True,
         "research_priority":high_priority,
         "expected_goals":{"home":expected["home"],"away":expected["away"]},
         "total_expected_goals":round(expected["home"]+expected["away"],5),
+        "data_quality":{k:expected.get(k) for k in ("home_recent_matches","away_recent_matches","home_venue_matches","away_venue_matches","league_samples","max_last_match_age_days")},
+        "prematch_context":prematch_context(fixture,now,kickoff),
         "under25_probability":round(under["probability"],7),
         "h2h_low_stable":bool(signal["prioritized"]),
         "h2h_meetings":signal["meetings"],

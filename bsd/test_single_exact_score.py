@@ -11,6 +11,8 @@ from single_exact_score_engine import (
     forecast,score_choice,PARAMETERS,VERSION,train_dc,
     result_probabilities,direction_adjusted)
 from single_exact_score_backtest import compare
+from single_exact_score_research import audit,rank,prematch_context
+from single_exact_score_distributions import candidates,bivariate,negative_binomial
 from single_exact_score_prospective import (
     empty,read,save,digest,capture,settle,summary)
 
@@ -95,6 +97,38 @@ class SingleExactScoreTests(unittest.TestCase):
             self.assertEqual(read(path,secret),archive)
             archive["records"]["922"]["score"]=[9,9]
             with self.assertRaises(ValueError):save(archive,path,secret)
+    def test_research_score_breakdown_selection_no_outcome_leak(self):
+        rows=[]
+        for i in range(5):
+            base={"score":[1,1],"probability":.15+i*.01,"margin":.02}
+            dc={"score":[1,0],"probability":.20+i*.01,"margin":.04}
+            rows.append({"id":str(i),"kickoff":f"2026-05-02T1{i}:00:00+00:00",
+                "actual":[1,0] if i%2==0 else [0,0],
+                "total_expected_goals":2.4,
+                "quality":{"home_recent_matches":10,"away_recent_matches":10},
+                "context":{"available":False,"reason":"missing"},
+                "variants":{"original":base,"under25_fusion":base,"optional_dc_fusion":dc}})
+        before=rank(rows[0])
+        rows[0]["actual"]=[8,5]
+        self.assertEqual(rank(rows[0]),before)
+        d=audit(rows)["research_diagnostics"]
+        self.assertTrue(d["label_blind_ranking"])
+        self.assertEqual(d["models"]["under25_fusion"]["selection"]["daily_top_three"]["baskets"],1)
+        self.assertEqual(sum(v["matches"] for v in d["models"]["under25_fusion"]["scores"]["predicted"].values()),5)
+        self.assertEqual(d["paired"]["under_vs_conditional_dc"]["net_b_minus_a"],2)
+    def test_distribution_variants_are_normalized(self):
+        for matrix in candidates(1.7,1.1).values():
+            self.assertAlmostEqual(sum(matrix.values()),1.,places=8)
+        with self.assertRaises(ValueError):bivariate(1.,1.,shared=1.)
+        with self.assertRaises(ValueError):negative_binomial(1.,1.,dispersion=-1.)
+    def test_context_rejects_future_observations(self):
+        kickoff=NOW+timedelta(hours=5)
+        e={"prematch_context":{"observed_at_utc":(NOW-timedelta(hours=1)).isoformat(),
+                               "home_absences":2,"source":"source before game"}}
+        self.assertTrue(prematch_context(e,NOW,kickoff)["available"])
+        e["prematch_context"]["observed_at_utc"]=(NOW+timedelta(hours=1)).isoformat()
+        self.assertFalse(prematch_context(e,NOW,kickoff)["available"])
+        self.assertFalse(prematch_context({"prematch_context":{"home_absences":2}},NOW,kickoff)["available"])
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)
