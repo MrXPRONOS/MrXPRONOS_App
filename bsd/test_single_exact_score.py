@@ -488,6 +488,7 @@ class SingleExactScoreTests(unittest.TestCase):
         event=fixture(99888,NOW+timedelta(hours=8))
         archive=empty()
         self.assertEqual(capture(archive,[event],index,DummyDC(),NOW,
+                                 advanced_model=train_advanced(index),
                                  clock=lambda:NOW)["captured"],1)
         score=archive["records"][str(event["id"])]["score"][:]
         baseline_sha=archive["records"][str(event["id"])]["forecast_sha256"]
@@ -512,6 +513,12 @@ class SingleExactScoreTests(unittest.TestCase):
         self.assertEqual(settle(archive,[finished],NOW+timedelta(days=1))["settled"],1)
         learned=learn_absence(archive,NOW+timedelta(days=1),obs)
         self.assertEqual(learned["diagnostic"]["eligible"],1)
+        # An older immutable forecast with no advanced xG baseline must not
+        # secretly enter training using an invented expected-goal baseline.
+        legacy=json.loads(json.dumps(archive))
+        legacy["records"][str(event["id"])]["advanced_research"]=None
+        self.assertEqual(learn_absence(legacy,NOW+timedelta(days=1),obs)
+                         ["diagnostic"]["eligible"],0)
         obs["records"][str(event["id"])]["forecast_digest"]="WRONG"
         self.assertEqual(learn_absence(archive,NOW+timedelta(days=1),obs)
                          ["diagnostic"]["eligible"],0)
