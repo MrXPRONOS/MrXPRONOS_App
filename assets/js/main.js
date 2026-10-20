@@ -759,7 +759,10 @@ async function recordEvent(type, page = "") {
   if (!supabaseAvailable || !supabase) return;
   const userId = getUserId();
   try {
-    await supabase.from("analytics").insert({ event_type: type, user_id: userId, page });
+    const { error } = await supabase.rpc("insert_analytics", {
+      p_event_type: type, p_user_id: userId, p_page: page
+    });
+    if (error) throw error;
   } catch (e) {
     console.error("Erreur analytics:", e);
   }
@@ -784,10 +787,8 @@ async function recordEditorialAttribution(page) {
   if (!payload || isLocalTestEnvironment() || !supabaseAvailable || !supabase) return;
   async function sendEditorialMetric(eventType) {
     try {
-      const { error } = await supabase.from("analytics").insert({
-        event_type: eventType,
-        user_id: null,
-        page: payload,
+      const { error } = await supabase.rpc("insert_analytics", {
+        p_event_type: eventType, p_user_id: null, p_page: payload
       });
       if (error) throw error;
     } catch (error) {
@@ -1970,10 +1971,9 @@ async function postEditorialAbEvent(kind, slug, variant, eventType) {
     return;
   }
   try {
-    const { error } = await supabase.from("analytics").insert({
-      event_type: eventType,
-      user_id: null,
-      page: [kind,slug,"onsite",variant].join("|")
+    const { error } = await supabase.rpc("insert_analytics", {
+      p_event_type: eventType, p_user_id: null,
+      p_page: [kind,slug,"onsite",variant].join("|")
     });
     if (error) throw error;
   } catch(e) {
