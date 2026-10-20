@@ -422,6 +422,25 @@ class SingleExactScoreTests(unittest.TestCase):
                   clock=lambda:NOW+timedelta(hours=1,minutes=40))
         self.assertEqual(stats["found"],0)
         self.assertNotIn("prematch_context",game)
+    def test_bsd_verified_lineup_replaces_unverified_payload(self):
+        now=NOW
+        upcoming=fixture(99877,NOW+timedelta(days=1))
+        upcoming["prematch_context"]={
+            "source":"fake-source","observed_at_utc":(NOW+timedelta(days=2)).isoformat(),
+            "home_absences":25}
+        class Source:
+            requests_made=0
+            max_requests=4
+            def get_json(self, path, ttl=0):
+                self.requests_made+=1
+                return {"lineup_status":"confirmed",
+                        "unavailable_players":{"home":[1],"away":[2]}}
+        status=enrich_lineups([upcoming],Source(),now,clock=lambda:now)
+        self.assertEqual(status["found"],1)
+        got=upcoming["prematch_context"]
+        self.assertEqual(got["source"],"bsd-v2-events-lineups")
+        self.assertEqual(got["observed_at_utc"],now.isoformat())
+        self.assertEqual(got["home_absences"],1)
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)

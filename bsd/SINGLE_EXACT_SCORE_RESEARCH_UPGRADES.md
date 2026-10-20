@@ -36,3 +36,6 @@ A separate `bsd/single_exact_score_xg_history.enc.json` saves only BSD *measured
 9. **CI**: isolated unit tests, chronological smoke check and full history assertions. Encrypted archives and main production remain untouched.
 
 **Scope**: The last three elements requiring live BSD lineups, live measured xG and the scheduled daily prospective capture are conditional on external data/service configuration; do not mark them as production-complete until an actual successful prospective run and enough settled captures exist. A full historical backtest cannot verify these live requirements.
+
+## Automated pre-match data monitoring
+The isolated daily workflow reports verified pre-match lineup coverage, number of settled observations eligible for absence training and validation losses. A missing or weak provider signal never becomes a made-up adjustment; the training gate remains inactive until the independent prospective sample passes. The historical baseline stays separate.

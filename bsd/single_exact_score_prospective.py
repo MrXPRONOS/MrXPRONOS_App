@@ -201,7 +201,22 @@ def main():
     result["absence_context_model"]={"active":context_model["active"],
         "fingerprint_sha256":context_fingerprint(context_model),
         "training_rows":context_model["diagnostic"]["eligible"],
-        "validation_reason":context_model["diagnostic"].get("reason")}
+        "min_training_rows":context_model["diagnostic"]["min_required"],
+        "validation_reason":context_model["diagnostic"].get("reason"),
+        "validation_baseline":context_model["diagnostic"]["validation_baseline"],
+        "validation_candidate":context_model["diagnostic"]["validation_candidate"]}
+    result["context_coverage"]={
+        "pending_verified_lineups":sum(
+            bool((v.get("advanced_research") or {}).get("context",{}).get("available"))
+            for v in archive["records"].values() if v["status"]=="pending"),
+        "settled_verified_lineups":sum(
+            bool((v.get("advanced_research") or {}).get("context",{}).get("available"))
+            for v in archive["records"].values() if v["status"]=="settled"),
+        "new_collector_attempts":lineup_diag["attempts"],
+        "new_collector_found":lineup_diag["found"],
+        "new_collector_errors":lineup_diag["errors"],
+        "historical_measured_xg_collected":xg_diag["measured"],
+        "historical_measured_xg_restored":restored_xg}
     dest=Path(args.report);dest.parent.mkdir(parents=True,exist_ok=True)
     dest.write_text(json.dumps(result,indent=2,ensure_ascii=False),encoding="utf-8")
     print("ONE_SCORE_PROSPECTIVE",json.dumps({"capture":added,"settlement":finished,

@@ -61,11 +61,10 @@ def enrich_lineups(fixtures,client,now,already_seen=(),max_lookups=6,clock=None)
             continue
         info=lineup_context(payload,observed)
         if info:
-            prior=event.get("prematch_context")
-            if not isinstance(prior,dict):prior={}
-            # Preserve manually supplied timestamped inputs; never silently
-            # replace pre-existing evidence with an API guess.
-            event["prematch_context"]={**info,**prior}
+            # Preserve BSD's authenticated capture timestamp/source as written.
+            # A pre-existing fixture payload may be stale or unverified and
+            # must never silently override the live measured source.
+            event["prematch_context"]=info
             stats["found"]+=1
         else:stats["missing"]+=1
     return stats
