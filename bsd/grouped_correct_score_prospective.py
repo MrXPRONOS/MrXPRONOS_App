@@ -55,6 +55,12 @@ def save(ledger,path=PATH,secret=None):
     tmp.chmod(0o600)
     tmp.replace(path)
 
+def _team_name(event,side):
+    value=event.get(side+"_team")
+    if isinstance(value,dict):return str(value.get("name") or "")
+    if isinstance(value,str):return value.strip()
+    return ""
+
 def capture(ledger,fixtures,index,dc,*,now,quotes=None,max_new=500):
     hindex=H2HIndex(index);known={r["match_id"] for r in ledger["predictions"].values()}
     counts=Counter();new=0
@@ -75,6 +81,9 @@ def capture(ledger,fixtures,index,dc,*,now,quotes=None,max_new=500):
              "captured_utc":now.isoformat(),
              "home_id":_team_id(e,"home"),"away_id":_team_id(e,"away"),
              "model":VERSION,
+             "home_team":_team_name(e,"home"),
+             "away_team":_team_name(e,"away"),
+             "league":str(e.get("league_name") or ""),
              "h2h_priority":result["h2h_priority"],
              "under25_priority":result["under25_priority"],
              "double_chance":result["double_chance"],
