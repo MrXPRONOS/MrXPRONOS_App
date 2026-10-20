@@ -10,6 +10,7 @@ on:
       - 'bsd/exact_scores_dashboard.py'
       - 'bsd/grouped_correct_score.py'
       - 'bsd/grouped_correct_score_engine.py'
+      - 'bsd/grouped_total_goals.py'
       - 'bsd/grouped_correct_score_prospective.py'
       - 'bsd/grouped_correct_score_feed.py'
       - 'bsd/grouped_correct_score_backtest.py'
@@ -241,5 +242,72 @@ jobs:
           if-no-files-found: ignore
           retention-days: 90
       - name: Erase restored private archive
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+
+  goal-ceiling-validation:
+    if: github.event_name == 'push'
+    needs: prospective
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install BSD read-only backtest dependencies
+        run: python -m pip install requests cryptography
+      - name: Verify goal-ceiling math, fake-odds rejection and old H2H rules
+        run: python -m unittest bsd/test_grouped_correct_score.py -v
+      - name: Restore latest private historical archive for local calculations
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: |
+          test -n "$BSD_HISTORY_KEY"
+          git fetch --no-tags origin main
+          git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
+          python bsd/bsd_archive.py restore
+      - name: Measure six goal ceilings on 2025 sampled fixtures
+        run: |
+          python bsd/grouped_correct_score_backtest.py --year 2025 --cap 3000 --out tmp/grouped-correct-score/goal-ceilings-2025.json
+      - name: Measure goal ceilings on full historical 2026
+        run: |
+          python bsd/grouped_correct_score_backtest.py --year 2026 --cap 0 --out tmp/grouped-correct-score/goal-ceilings-2026.json
+      - name: Assert more selection opportunities, no invented 1xBet prices
+        run: |
+          python - <<'PY'
+          import json
+          for year in (2025,2026):
+              data=json.load(open(f'tmp/grouped-correct-score/goal-ceilings-{year}.json'))
+              assert data["eligible"]>1000
+              assert data["bookmaker_prices_available"] is False
+              assert data["variants"]["with_verified_price"]["n"]==0
+              rates=[data["variants"][f"ceiling_under_{n}5"]["n"] for n in (2,3,4,5,6,7)]
+              assert rates==sorted(rates),rates
+              assert rates[-1] >= rates[0]
+              print("GROUPED_CEILINGS_EVALUATED",json.dumps({
+                  "year":year,"eligible":data["eligible"],
+                  "old_h2h_under":data["variants"]["with_h2h_under"],
+                  "ceilings":{f"under_{n}5":data["variants"][f"ceiling_under_{n}5"]
+                              for n in (2,3,4,5,6,7)},
+                  "smallest_eligible_max_goals":data["goal_tier_distribution"],
+                  "observed_goals":data["actual_total_goals_bands"]
+                  },ensure_ascii=False))
+          PY
+      - name: Save research-only two-season total-goal comparisons
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: goal-ceilings-bsd-research-${{ github.run_id }}
+          path: |
+            tmp/grouped-correct-score/goal-ceilings-2025.json
+            tmp/grouped-correct-score/goal-ceilings-2026.json
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Remove decrypted match history
         if: always()
         run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
