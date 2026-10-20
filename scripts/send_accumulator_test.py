@@ -34,11 +34,15 @@ def main():
     if height_preview >= height_full:
         raise SystemExit("L'aperçu doit être plus court que le coupon complet")
     verified = validate_test_channel(chat, token)
+    report_path = Path(os.getenv("ACCUMULATOR_DATA_REPORT", "telegram_out/accumulator_data_report.json"))
+    report = json.loads(report_path.read_text(encoding="utf-8")) if report_path.exists() else None
+    count = int(report["included"]) if report else 11
+    mode_label = "TEST DONNÉES RÉELLES DU JOUR" if report else "TEST MAQUETTE"
     media = [
         {
             "type": "photo",
             "media": "attach://preview",
-            "caption": "🧪 MR XPRONOS — TEST ALBUM COMBINÉ\n1/2 : aperçu du coupon (2 premiers matchs)\n2/2 : coupon complet (11 matchs)\nMaquette de démonstration, pas une preuve de pari."
+            "caption": f"🧪 MR XPRONOS — {mode_label}\n1/2 : aperçu du coupon (deux premiers matchs)\n2/2 : coupon complet ({count} matchs)\nSimulation visuelle, pas un pari accepté."
         },
         {"type": "photo", "media": "attach://full"},
     ]

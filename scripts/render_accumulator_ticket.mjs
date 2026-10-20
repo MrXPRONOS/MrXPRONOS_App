@@ -31,6 +31,7 @@ const getArg=(name,def)=>{const i=args.indexOf(name);return i>=0&&args[i+1]?args
 const input=getArg('--input',process.env.ACCUMULATOR_INPUT||'');
 const output=getArg('--output',process.env.ACCUMULATOR_OUTPUT||'telegram_out/accumulator_reference.png');
 const data=input?JSON.parse(fs.readFileSync(input,'utf8')):sample;
+if(data.demo&&data.status==='Accepté')throw Error('La simulation ne peut pas revendiquer un pari accepté');
 if(!Array.isArray(data.legs)||!data.legs.length||data.legs.length>80)throw Error('legs doit contenir 1 à 80 matchs');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
@@ -123,7 +124,7 @@ const teams=[...new Set(data.legs.flatMap(l=>[l.home_team,l.away_team]))];
 const logos=new Map(await Promise.all(teams.map(async name=>[name,await getLogo(name,overrides[name])])));
 const shirt='data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 76"><path d="M24 5h22l7 9 13 7-8 15-8-3v34H20V33l-8 3-8-15 13-7z" stroke="#d9ad00" stroke-width="2" fill="#ffda00"/><path d="M24 5q11 17 22 0" fill="#212121"/><path d="M21 65h29" stroke="#cf0000" stroke-width="7"/></svg>');
 function imageOf(name){
- const value=name==='Borussia Dortmund'?shirt:logos.get(name);
+ const value=data.demo?logos.get(name):(name==='Borussia Dortmund'?shirt:logos.get(name));
  return value?'<img class="crest" src="'+esc(value)+'" alt="">':'<div class="crest fallback">'+esc(String(name||'?').slice(0,2).toUpperCase())+'</div>';
 }
 const ball='<span class="small-ball" aria-hidden="true">⚽</span>'; // identique au pictogramme des coupons Telegram
@@ -138,9 +139,10 @@ function dateOf(val){
 function leg(l){
  const prediction=selectionFrench(l.selection||l.prediction?.label||l.prediction?.type||l.prediction?.double_chance||'Pronostic',l.prediction?.selection_key);
  const odds=l.odds||l.prediction?.odds||'—';
+ const estimated=l.prediction?.odds_source==='mrxpronos_model';
  return '<section class="leg"><div class="league-head">'+ball+'<div><div class="league">'+esc(leagueFrench(l.league))+'</div><div class="date">'+esc(dateOf(l.event_date||l.date))+' <span class="utc">UTC</span></div></div></div>'
  +'<div class="teams"><span class="team home">'+esc(l.home_team)+'</span>'+imageOf(l.home_team)+'<b class="vs">VS</b>'+imageOf(l.away_team)+'<span class="team away">'+esc(l.away_team)+'</span></div>'
- +'<div class="market"><span>'+esc(prediction)+'</span><b>'+esc(odds)+'</b></div>'
+ +'<div class="market"><span>'+esc(prediction)+(estimated?' · Cote estimée':'')+'</span><b>'+esc(odds)+'</b></div>'
  +'<div class="status"><span>Statut :</span><span>'+esc(statusFrench(l.status||data.status||'Prévision'))+'</span></div></section>';
 }
 const n=data.legs.length;
@@ -159,9 +161,9 @@ const CSS=CSS_BASE.replace(/(-?\d+(?:\.\d+)?)px/g,(_whole,number)=>Number((Numbe
  +'html{font-synthesis:none;text-rendering:optimizeLegibility}';
 
 const html='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=262,initial-scale=1"><style>'+CSS+'</style></head><body><div id="app">'
-+'<div class="phone"><span>11:21 | 0,0KB/d ● ▪</span><span>▂ ▅ ▪ ◧</span></div><div class="nav"><span class="back">‹</span><span class="nav-title">Détail du combiné</span><span class="nav-right">♧ ⋮</span></div><div class="ticket"><div class="summary">'
++'<div class="nav"><span class="back">‹</span><span class="nav-title">Détail du combiné</span><span class="nav-right">♧ ⋮</span></div><div class="ticket"><div class="summary">'
 +'<div class="stamp">'+esc(data.created_at||'')+' <span class="utc">UTC</span></div><div><span class="name">'+esc(categoryFrench(data.category))+'</span><span class="nr">№ '+esc(data.ticket_id||'—')+'</span></div><div class="overview"><div class="overview-top"><span class="left"><span class="tile">▦</span>Nombre de matchs : '+n+'</span><span>'+esc(data.completed??0)+' sur '+n+' terminés</span></div>'
-+'<div class="overview-line"><span class="label" >Cote combinée :</span><strong>'+esc(combined)+'</strong></div><div class="overview-line"><span class="label" >Mise :</span><strong>'+esc(data.stake??'—')+'</strong></div><div class="overview-line"><span class="label" >Gains potentiels :</span><strong>'+esc(data.potential_win??'—')+'</strong></div><div class="overview-line"><span class="label" >Statut :</span><strong class="accept"><span class="check">✓</span>'+esc(statusFrench(data.status))+'</strong></div></div></div>'
++'<div class="overview-line"><span class="label" >'+(data.combined_odds_estimated?'Cote combinée estimée :':'Cote combinée :')+'</span><strong>'+esc(combined)+'</strong></div><div class="overview-line"><span class="label" >Mise :</span><strong>'+esc(data.stake??'—')+'</strong></div><div class="overview-line"><span class="label" >Gains potentiels :</span><strong>'+esc(data.potential_win??'—')+'</strong></div><div class="overview-line"><span class="label" >Statut :</span><strong class="accept"><span class="check">✓</span>'+esc(statusFrench(data.status))+'</strong></div></div></div>'
 +data.legs.map(leg).join('')+'</div><div class="bottomgap"></div><div class="duplicate"><div class="duplicate-btn">DUPLIQUER LE TICKET</div></div><div class="tabs"><div class="tab"><i>♨</i>Populaire</div><div class="tab"><i>★</i>Favoris</div><div class="tab center active"><i>▣</i>Ticket</div><div class="tab"><i>◷</i>Historique</div><div class="tab"><i>☷</i>Menu</div></div></div></body></html>';
 fs.mkdirSync(path.dirname(output),{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
