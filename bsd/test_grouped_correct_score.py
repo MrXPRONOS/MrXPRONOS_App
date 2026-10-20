@@ -153,6 +153,14 @@ class PriceAdapterTests(unittest.TestCase):
         self.assertEqual(why,"ok")
         self.assertTrue(all(not p["quote_documented"] for p in result["groups"]))
         self.assertIsNone(selection_summary(result)["with_verified_price"])
+    def test_priority_research_without_quote_does_not_invent_value(self):
+        g={"group_id":"G4","scores":[[1,0],[2,0],[3,0]],
+           "probability":.28,"direction_eligible":True,
+           "tier":"recherche_prioritaire","odds":None,"expected_value":None}
+        selections=selection_summary({"groups":[g]})
+        self.assertEqual(selections["with_h2h_under"]["group_id"],"G4")
+        self.assertIsNone(selections["with_verified_price"])
+
 class ProspectiveGroupTests(unittest.TestCase):
     def test_shadow_capture_then_settle_without_recomputing(self):
         led=empty();idx=history()
