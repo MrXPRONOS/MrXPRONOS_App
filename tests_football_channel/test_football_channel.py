@@ -807,6 +807,32 @@ class FootballChannelTests(unittest.TestCase):
         self.assertIsNotNone(post)
         self.assertEqual(post.card["time"], "23h30")
 
+    def test_live_score_not_published_as_false_goal(self):
+        from unittest.mock import patch
+        signal = {
+            "kind": "score_update",
+            "key": "score_update:real-barca:2-1",
+            "home": "Real Madrid",
+            "away": "Barcelona",
+            "league": "La Liga",
+            "score": "2-1",
+            "minute": 63,
+        }
+        with patch.dict("os.environ", {"FOOTBALL_ENABLE_SCORE_UPDATES": "0"}):
+            self.assertIsNone(m.lifecycle_publication(signal))
+            real_goal = {
+                **signal,
+                "kind": "goal",
+                "key": "goal:real-barca:63:mbappe",
+                "goal": {"player": "Mbappe", "minute": 63},
+            }
+            post = m.lifecycle_publication(real_goal)
+            self.assertIsNotNone(post)
+            self.assertEqual(post.category, "goal")
+            self.assertIn("BUUUT", post.text)
+        with patch.dict("os.environ", {"FOOTBALL_ENABLE_SCORE_UPDATES": "1"}):
+            self.assertIsNotNone(m.lifecycle_publication(signal))
+
     def test_sender_flash_avec_card_envoie_image_preparee_sans_renderer_flash(self):
         import os
         from unittest.mock import Mock
