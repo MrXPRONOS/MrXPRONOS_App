@@ -461,6 +461,25 @@ class SingleExactScoreTests(unittest.TestCase):
             "context_free_expected_goals":{"home":1.5,"away":1.2}}
         self.assertEqual(learn_absence({"records":{"1":record}},NOW)
                          ["diagnostic"]["eligible"],1)
+    def test_top3_uses_pre_match_legacy_probabilities_without_rewriting(self):
+        ledger={"records":{}}
+        for i in range(4):
+            rec={"id":str(22201+i),"status":"pending",
+                "score":[1,1],"estimated_probability":.14+i*.01,
+                "score_margin":.012,"captured_at":NOW.isoformat(),
+                "kickoff":(NOW+timedelta(hours=5+i)).isoformat(),
+                "forecast_sha256":"old_immutable_"+str(i)}
+            ledger["records"][rec["id"]]=rec
+        immutable_copy=json.loads(json.dumps(ledger))
+        group=top3_empty()
+        self.assertEqual(select_groups(group,ledger,NOW)["created"],1)
+        self.assertEqual(ledger,immutable_copy)
+        chosen=group["records"][NOW.date().isoformat()]["picks"]
+        self.assertEqual(len(chosen),3)
+        self.assertTrue(all(v["rank_provenance"]==
+            "legacy-first-seen-probability-margin-v1" for v in chosen))
+        self.assertEqual(set(v["id"] for v in chosen),
+                         {"22202","22203","22204"})
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)

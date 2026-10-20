@@ -68,17 +68,28 @@ def _candidate(rec,now,minimum_lead_minutes=30):
             or len(rec["score"])!=2 or any(type(n)!=int or n<0 for n in rec["score"])):
             return None
         rank=rec.get("selection_rank")
+        rank_rule=rec.get("rank_version")
         if type(rank) not in (float,int) or not math.isfinite(rank):
-            # Old immutable per-match records have no score ranking feature.
-            # Do not invent it retrospectively.
-            return None
-        if rec.get("rank_version")!=RANK_VERSION:
+            # Earlier immutable first-seen records predate the ranking field.
+            # Their archived probability/margin were available pre-match;
+            # reconstruct an explicitly versioned compatibility rank WITHOUT
+            # modifying the original score/record or inspecting results.
+            p=rec.get("estimated_probability")
+            margin=rec.get("score_margin")
+            if (type(p) not in (int,float) or not math.isfinite(p)
+                    or p<=0 or p>=1 or type(margin) not in (int,float)
+                    or not math.isfinite(margin) or margin<0):
+                return None
+            rank=float(p)+.08*min(.20,float(margin))
+            rank_rule="legacy-first-seen-probability-margin-v1"
+        elif rank_rule!=RANK_VERSION:
             return None
     except (TypeError,ValueError,OverflowError,KeyError):
         return None
     return {"id":str(rec["id"]),"kickoff":rec["kickoff"],
             "score":list(rec["score"]),"captured_at":rec["captured_at"],
             "selection_rank":round(rank,9),
+            "rank_provenance":rank_rule,
             "probability":rec.get("estimated_probability"),
             "forecast_digest":rec.get("forecast_sha256"),
             "advanced_model_fingerprint_sha256":(rec.get("advanced_research") or {}).get(
