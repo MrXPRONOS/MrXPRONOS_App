@@ -1,0 +1,59 @@
+name: Precompile LIVE JSX for GitHub Pages
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/live-precompile.yml"
+      - "scripts/build_live_assets.js"
+      - "live.html"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: live-precompiled-site-writer
+  cancel-in-progress: false
+
+jobs:
+  precompile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install pinned JSX compiler
+        run: npm install --no-save --no-package-lock esbuild@0.25.12
+      - name: Transform original LIVE JSX into static production JavaScript
+        run: |
+          set -euo pipefail
+          node scripts/build_live_assets.js
+          node --check assets/js/live.precompiled.js
+          python - <<'PY'
+          from pathlib import Path
+          page=Path("live.html").read_text()
+          bundle=Path("assets/js/live.precompiled.js")
+          assert bundle.stat().st_size>25000
+          assert 'assets/js/live.precompiled.js' in page
+          assert 'type="text/babel"' not in page
+          assert '@babel/standalone' not in page
+          print("LIVE_PRECOMPILE_STATIC_AUDIT_OK",bundle.stat().st_size)
+          PY
+      - name: Commit precompiled LIVE assets atomically
+        run: |
+          set -euo pipefail
+          git add live.html assets/js/live.precompiled.js
+          if git diff --cached --quiet; then
+            echo "LIVE_ALREADY_PRECOMPILED"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "build(live): replace browser Babel transform with static JSX bundle [skip ci]"
+          git pull --rebase origin main
+          git push origin HEAD:main
