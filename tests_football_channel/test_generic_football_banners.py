@@ -158,11 +158,20 @@ class GenericBannerTests(unittest.TestCase):
             "quiz": ({"question": "Question test ?"}, "🧠 QUIZ FOOT"),
             "sondage": ({"question": "Vote test ?"}, "🗳️ VOTE DU JOUR"),
             "reaction": ({"question": "Votre note ?"}, "⭐ VOTRE RÉACTION ?"),
-            "changement_composition": ({"club": "Arsenal", "entrant": "A", "sortant": "B"}, "🔁 CHANGEMENT DE XI"),
+            "changement_composition": ({"club": "Arsenal", "entrant": "A", "sortant": "B"}, "🔁 COMPOSITION MODIFIÉE"),
         }
         for category, (payload, title) in samples.items():
             caption = content.banner_caption(category, payload)
             self.assertTrue(caption.startswith("<b>" + title + "</b>"), (category, caption))
+
+    def test_composition_change_uses_accessible_words(self):
+        self.assertEqual(banners.CLUB_LABELS["changement_composition"], "COMPOSITION MODIFIÉE")
+        caption = content.banner_caption("changement_composition", {
+            "club": "Arsenal", "entrant": "Joueur A", "sortant": "Joueur B",
+        })
+        self.assertIn("Ajouté parmi les titulaires", caption)
+        self.assertIn("Retiré des titulaires", caption)
+        self.assertNotIn("XI", caption)
 
     def test_short_action_buttons_share_the_same_row(self):
         keyboard = content.live_keyboard({
