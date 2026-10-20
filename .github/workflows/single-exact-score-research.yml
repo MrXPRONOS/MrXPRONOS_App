@@ -1,0 +1,139 @@
+name: Single exact score - isolated research
+
+on:
+  push:
+    branches:
+      - feature/single-exact-score-v1-20261020
+    paths:
+      - 'bsd/single_exact_score_*.py'
+      - 'bsd/test_single_exact_score.py'
+      - 'bsd/SINGLE_EXACT_SCORE_README.md'
+      - '.github/workflows/single-exact-score-research.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mrx-single-score-research-one-writer
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install isolated BSD dependencies
+        run: python -m pip install requests cryptography
+      - name: Validate one-score model and private archive
+        run: |
+          python -m unittest bsd/test_single_exact_score.py -v
+          python -m py_compile bsd/single_exact_score_engine.py bsd/single_exact_score_backtest.py bsd/single_exact_score_prospective.py
+      - name: Recover private BSD history from main
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: |
+          test -n "$BSD_HISTORY_KEY" || { echo "::error::Missing BSD_HISTORY_KEY"; exit 1; }
+          git fetch --no-tags origin main
+          git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
+          python bsd/bsd_archive.py restore
+      - name: Compare one-score exact 2025 chronological sample
+        run: python bsd/single_exact_score_backtest.py --year 2025 --cap 1500 --output tmp/single-exact-score/2025-sample.json
+      - name: Compare one-score exact 2026 chronological sample
+        run: python bsd/single_exact_score_backtest.py --year 2026 --cap 3000 --output tmp/single-exact-score/2026-sample.json
+      - name: Check reproducible TOP ONE metrics and paired match counts
+        run: |
+          python - <<'PY'
+          import json
+          for year in (2025,2026):
+              d=json.load(open(f"tmp/single-exact-score/{year}-sample.json"))
+              assert d["eligible"] >= 500
+              assert d["published"] is False
+              counts=[x["matches"] for x in d["variants"].values()]
+              assert counts[0]==counts[1]==counts[2]==d["eligible"]
+              assert all(x["wins"]<=x["matches"] for x in d["variants"].values())
+              print("SINGLE_EXACT_VERIFIED",year,json.dumps(d["variants"],ensure_ascii=False))
+          PY
+      - name: Upload historical Top 1 only aggregate reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: single-exact-score-historical-${{ github.run_id }}
+          path: tmp/single-exact-score/*-sample.json
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Delete decrypted BSD history
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+
+  prospective:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: python -m pip install requests cryptography
+      - name: Fast-forward encrypted research archive before capturing
+        run: |
+          git fetch --no-tags origin feature/single-exact-score-v1-20261020
+          git merge --ff-only origin/feature/single-exact-score-v1-20261020
+      - name: Restore current main BSD private history
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: |
+          git fetch --no-tags origin main
+          git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
+          python bsd/bsd_archive.py restore
+      - name: Snapshot ONE score per eligible prematch fixture privately
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+          BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+          FOOTBALL_MULTI_SOURCE: '0'
+        run: python bsd/single_exact_score_prospective.py --max-requests 90
+      - name: Check no public data emitted
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open("tmp/single-exact-score/prospective-report.json"))
+          assert d["published"] is False and d["experimental"] is True
+          assert d["captured"] == d["pending"] + d["settled"]
+          assert d["priority"]["n"]<=d["all"]["n"]
+          print("SINGLE_EXACT_LEDGER",json.dumps({
+            "captured":d["captured"],"pending":d["pending"],
+            "settled":d["settled"]},ensure_ascii=False))
+          PY
+      - name: Commit only new encrypted single-score archive
+        run: |
+          test -f bsd/single_exact_score_ledger.enc.json || exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- bsd/single_exact_score_ledger.enc.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "data(single shadow): immutable encrypted pre-match scores [skip ci]"
+          git restore -- bsd/all_matches_bsd.enc.json
+          git pull --rebase origin feature/single-exact-score-v1-20261020
+          git push origin HEAD:feature/single-exact-score-v1-20261020
+      - name: Save aggregate performance report only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: single-exact-score-prospective-${{ github.run_id }}
+          path: tmp/single-exact-score/prospective-report.json
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Remove decrypted BSD history
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
