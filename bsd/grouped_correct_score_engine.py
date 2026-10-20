@@ -60,8 +60,8 @@ def analyze(fixture,index,hindex,dc_model,*,now,quote_snapshot=None,
         entry["research_candidate"]=(entry["direction_eligible"] and
                        entry["probability"]>=.12)
         entry["bet_recommendation"]=False
-        entry["quote_required"]=not entry["available_verified"]
-        entry["group_is_bookmaker_confirmed"]=has_verified_quotes
+        entry["quote_required"]=not entry["quote_documented"]
+        entry["group_is_bookmaker_documented"]=has_verified_quotes
     return {"format":"mrx-1xbet-grouped-research-v1",
         "match_id":str(fixture["id"]),"kickoff_utc":kickoff.isoformat(),
         "evaluated_utc":now.isoformat(),"model":VERSION,
