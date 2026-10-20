@@ -55,7 +55,7 @@ def aggregates(ledger, now):
                      for m,items in sorted(by_month.items())}
     base["selection_rate"]=round(base["priority_captured"]/base["total_captured"],6) if base["total_captured"] else None
     base["samples_required_for_stability"]=100
-    base["validated"] = base["priority"]["n"] >= 100
+    base["priority_minimum_sample_met"] = base["priority"]["n"] >= 100
     base["prospective_only"]=True
     base["historical_reference"]={"n":124,"top1_rate":.19355,"top3_rate":.49194,
                                   "under25_rate":.70968,
