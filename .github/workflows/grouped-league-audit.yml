@@ -1,0 +1,77 @@
+name: Mr XPRONOS grouped-score league review (research only)
+on:
+  push:
+    branches:
+      - feature/exact-score-v1-20261019
+    paths:
+      - bsd/grouped_league_segmentation_audit.py
+      - .github/workflows/grouped-league-audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: grouped-league-review-research
+  cancel-in-progress: true
+
+jobs:
+  historical-leagues:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout research branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prepare Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install research dependencies
+        run: python -m pip install requests cryptography
+      - name: Check read-only analysis syntax and existing regression tests
+        run: |
+          python -m py_compile bsd/grouped_league_segmentation_audit.py
+          python -m unittest bsd/test_grouped_correct_score.py -v
+      - name: Restore encrypted match history without exposing individual fixtures
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$BSD_HISTORY_KEY"
+          git fetch --no-tags origin main
+          git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
+          python bsd/bsd_archive.py restore
+      - name: Compare all nine groups on identical match populations by league and period
+        run: python bsd/grouped_league_segmentation_audit.py
+      - name: Validate report and privacy guardrails
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open("tmp/grouped-correct-score/league-review.json"))
+          assert p["experimental"] and not p["published"]
+          assert p["bookmaker_prices"] is False and p["history_explored"] is True
+          assert all(p["counts"].get(str(y),0)>1000 for y in (2025,2026))
+          assert p["filter_funnel"]["2026"]["eligible"]==p["counts"]["2026"]
+          assert len(p["all_nine_groups_on_same_fixtures_by_league"])>0
+          assert len(p["by_league"])>0
+          print("GROUPED_LEAGUE_AUDIT_VERIFIED", json.dumps({
+            "counts":p["counts"],"funnel":p["filter_funnel"],
+            "leagues":len(p["league_labels"]),
+            "paired_group_rows":len(p["all_nine_groups_on_same_fixtures_by_league"])
+          }))
+          PY
+      - name: Upload aggregated statistical report only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: grouped-score-league-research-${{ github.run_id }}
+          path: tmp/grouped-correct-score/league-review.json
+          if-no-files-found: ignore
+          retention-days: 60
+      - name: Remove decrypted private history
+        if: always()
+        run: |
+          rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+          rm -rf bsd/cache
