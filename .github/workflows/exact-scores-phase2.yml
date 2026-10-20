@@ -5,6 +5,7 @@ on:
     branches: ['feature/exact-score-v1-20261019']
     paths:
       - 'bsd/exact_scores_under25_v2.py'
+      - 'bsd/exact_scores_phase3.py'
       - 'bsd/exact_scores_phase2_backtest.py'
       - 'bsd/test_exact_scores.py'
       - '.github/workflows/exact-scores-phase2.yml'
