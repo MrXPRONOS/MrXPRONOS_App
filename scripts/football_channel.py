@@ -2285,12 +2285,6 @@ def avant_match(events: list[dict], history: History, now: datetime,
         )
     story = prematch_story(h, a, home_form, away_form, h2h_values)
     reason = live_tracking_reason(e)
-    if str(e.get("plan_role") or "") == "match_du_jour":
-        focus_label = "⭐ MATCH DU JOUR • FIL ROUGE"
-    elif str(e.get("plan_role") or "") == "fil_rouge":
-        focus_label = "🔥 GRANDE AFFICHE • FIL ROUGE"
-    else:
-        focus_label = "🔥 FIL ROUGE • GRANDE AFFICHE" if reason in ("choc_grands_clubs", "grand_club") else "🏆 FIL ROUGE • MATCH À ENJEU"
     story_block = (
         "\n\n<b>📖 L’HISTOIRE AVANT LE MATCH</b>\n" + esc(story)
         if story else ""
@@ -2306,9 +2300,8 @@ def avant_match(events: list[dict], history: History, now: datetime,
     if h2h_block:
         facts_block += "\n\n" + h2h_block
     message = (
-        "<b>🔎 AVANT-MATCH</b>\n"
-        "<b>" + focus_label + "</b>\n"
-        "<i>Le coup d’envoi approche. Actu Foot suivra cette rencontre jusqu’au coup de sifflet final.</i>"
+        "<b>🔎 AVANT-MATCH : " + esc(h) + " – " + esc(a) + "</b>\n"
+        "<i>Le coup d’envoi approche ! Découvrez les infos clés avant la rencontre.</i>"
         + story_block
         + facts_block
         + "\n\n<b>💬 Quel scénario imaginez-vous ?</b>"
@@ -2720,12 +2713,6 @@ def lifecycle_publication(signal: dict) -> Publication | None:
         "plan_role": plain(signal.get("plan_role") or "", 40),
         "plan_rank": signal.get("plan_rank"),
     }
-    focus = (
-        "⭐ MATCH DU JOUR • FIL ROUGE"
-        if base_card["plan_role"] == "match_du_jour"
-        else "🔥 GRANDE AFFICHE • FIL ROUGE"
-    )
-
     if kind == "composition":
         lineups = signal.get("lineups") if isinstance(signal.get("lineups"), dict) else {}
         home_players = [plain(x, 45) for x in lineups.get("home", []) if plain(x, 45)][:11]
@@ -2745,7 +2732,7 @@ def lifecycle_publication(signal: dict) -> Publication | None:
             "lineup_home_hash": signal.get("lineup_home_hash") or "",
             "lineup_away_hash": signal.get("lineup_away_hash") or "",
         }
-        message = "<b>" + focus + "</b>\n<b>🚨 OFFICIEL ! LES COMPOSITIONS SONT CONFIRMÉES</b>"
+        message = "<b>🚨 COMPOSITIONS OFFICIELLES !</b>\n<b>" + esc(home) + " – " + esc(away) + "</b>"
         keyboard = None
     else:
         # Toutes les catégories compatibles avec les trois bannières génériques
@@ -2758,7 +2745,7 @@ def lifecycle_publication(signal: dict) -> Publication | None:
         }}
         if not is_banner_category(kind, card):
             return None
-        message = "<b>" + focus + "</b>\n" + banner_caption(kind, card)
+        message = banner_caption(kind, card)
         keyboard = None
 
     event_id = plain(signal.get("espn_event_id"), 32)
@@ -2827,15 +2814,10 @@ def followed_interruption_publication(signal: dict) -> Publication | None:
         "away": away,
         "score": plain(signal.get("score"), 20),
     } if event_id else None
-    focus = (
-        "⭐ MATCH DU JOUR • FIL ROUGE"
-        if plain(signal.get("plan_role"), 40) == "match_du_jour"
-        else "🔥 GRANDE AFFICHE • FIL ROUGE"
-    )
     return Publication(
         "suivi_interrompu",
         str(signal.get("key") or ""),
-        "<b>" + focus + "</b>\n" + banner_caption("suivi_interrompu", card),
+        banner_caption("suivi_interrompu", card),
         card=card,
         keyboard=live_keyboard(card),
         verification=verification,
@@ -2916,15 +2898,10 @@ def followed_final_publication(signal: dict) -> Publication | None:
         + (("<br/>" + result) if result else "") + "</blockquote>"
         if shootout_score else ""
     )
-    focus = (
-        "⭐ MATCH DU JOUR • FIL ROUGE"
-        if plain(signal.get("plan_role"), 40) == "match_du_jour"
-        else "🔥 GRANDE AFFICHE • FIL ROUGE"
-    )
     message = (
-        "<b>" + focus + "</b>\n"
         "<b>🏁 RÉSULTAT FINAL</b>\n"
-        "<i>Fin du match suivi depuis l’avant-match.</i>"
+        "<b>" + esc(home) + " " + esc(h) + "–" + esc(a) + " " + esc(away) + "</b>\n"
+        "<i>Le coup de sifflet final a retenti.</i>"
         + shootout_block
         + "\n\n<b>💬 Votre avis sur le match ?</b>"
     )
