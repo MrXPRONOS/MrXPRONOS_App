@@ -106,6 +106,7 @@ def episode_numbers(text: str):
 def series_title(text: str) -> str:
     value = first_title(text or "").strip()
     # Supprimer la signature du canal source, pas le titre de la série.
+    value = re.sub(r"^@[A-Za-z0-9_]{5,32}\s+", "", value)
     value = value.split("@", 1)[0].strip()
     value = CLEAN_CODES.sub(" ", value)
     value = SEASON_HEADER.sub(" ", value)
