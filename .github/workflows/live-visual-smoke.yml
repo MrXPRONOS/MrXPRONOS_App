@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'live.html'
+      - 'assets/js/live.precompiled.js'
       - 'assets/css/live-premium.css'
       - 'assets/images/live-premium/**'
       - 'scripts/live_visual_smoke.py'
@@ -12,6 +13,7 @@ on:
   pull_request:
     paths:
       - 'live.html'
+      - 'assets/js/live.precompiled.js'
       - 'assets/css/live-premium.css'
       - 'assets/images/live-premium/**'
       - 'scripts/live_visual_smoke.py'
