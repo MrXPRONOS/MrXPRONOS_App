@@ -31,3 +31,43 @@ jobs:
         run: python -m py_compile bsd/single_exact_score_advanced.py bsd/single_exact_score_context.py bsd/single_exact_score_research.py bsd/single_exact_score_engine.py bsd/single_exact_score_backtest.py bsd/single_exact_score_prospective.py
       - name: Run single-score unit tests
         run: python -m unittest bsd/test_single_exact_score.py -v
+
+  capped-historical-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install minimal research dependencies
+        run: python -m pip install requests cryptography
+      - name: Restore encrypted private history without uploading records
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: |
+          test -n "$BSD_HISTORY_KEY"
+          git fetch --no-tags origin main
+          git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
+          python bsd/bsd_archive.py restore
+      - name: Exercise new learned model on point-in-time matches
+        run: |
+          python bsd/single_exact_score_backtest.py --year 2025 --cap 120 --output tmp/single-exact-score/2025-smoke.json
+          python bsd/single_exact_score_backtest.py --year 2026 --cap 120 --output tmp/single-exact-score/2026-smoke.json
+          python - <<'PY'
+          import json
+          for year in (2025,2026):
+              d=json.load(open(f"tmp/single-exact-score/{year}-smoke.json"))
+              assert d["finished"]>50
+              assert d["advanced_training"]["fitted_on"]=="2024 only"
+              assert d["advanced_training"]["diagnostic"]["eligible_2024"]>=100
+              advanced=d["research_diagnostics"]["models"]["advanced_2024"]
+              assert advanced["summary"]["matches"]==d["eligible"]
+              assert 0<=advanced["summary"]["wins"]<=d["eligible"]
+              print("EXPERIMENTAL_ADVANCED_SMOKE_OK",year,d["eligible"],advanced["summary"]["wins"])
+          PY
+      - name: Remove decrypted match history and capped reports
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json tmp/single-exact-score/*-smoke.json
