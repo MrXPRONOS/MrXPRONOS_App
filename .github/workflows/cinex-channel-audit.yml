@@ -1,0 +1,70 @@
+name: CineX - Audit des canaux sans publication
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/film_relay/category_runner.py'
+      - 'telegram-film-relay/film_relay/catalog_scan.py'
+      - 'telegram-film-relay/scripts/channel_audit.py'
+      - '.github/workflows/cinex-channel-audit.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrx-telegram-personal-account
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les dépendances
+        run: python -m pip install -r telegram-film-relay/requirements.txt
+      - name: Audit de vrais canaux et droits, sans aucune publication
+        working-directory: telegram-film-relay
+        env:
+          PYTHONPATH: .
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+          CINEX_SERIES_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+          CINEX_CATEGORY_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+          DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
+          DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
+          DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
+          DESIR_SOURCE_CHANNEL: ${{ vars.DESIR_SOURCE_CHANNEL || '@Filmromatique' }}
+          DESIR_EXTRA_SOURCE_CHANNEL: ${{ vars.DESIR_EXTRA_SOURCE_CHANNEL || '@g_romanticfilm' }}
+          DESIR_SOURCE_CHANNELS: ${{ vars.DESIR_SOURCE_CHANNELS }}
+          TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+          TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
+          CINEX_SOURCE_CHANNELS: ${{ vars.CINEX_SOURCE_CHANNELS }}
+          FILM_SOURCE_CHANNELS: ${{ vars.FILM_SOURCE_CHANNELS }}
+          SERIES_SOURCE_CHANNELS: ${{ vars.SERIES_SOURCE_CHANNELS }}
+          SERIES_SOURCE_CHANNEL: ${{ vars.SERIES_SOURCE_CHANNEL }}
+          COMEDIE_SOURCE_CHANNEL: ${{ vars.COMEDIE_SOURCE_CHANNEL }}
+          COMEDIE_SOURCE_CHANNELS: ${{ vars.COMEDIE_SOURCE_CHANNELS || '@comexflex' }}
+          COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
+          COMEDIE_PRIVATE_CHANNEL: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
+          ANIME_SOURCE_CHANNEL: ${{ vars.ANIME_SOURCE_CHANNEL }}
+          ANIME_SOURCE_CHANNELS: ${{ vars.ANIME_SOURCE_CHANNELS || '@orak_dessinanime' }}
+          ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
+          ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+          CINEX_PAUSE_SECONDS: '12'
+        run: python scripts/channel_audit.py
+      - name: Archiver le rapport anonyme
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinex-channel-audit
+          path: telegram-film-relay/state/channel_audit.json
+          if-no-files-found: ignore
+          retention-days: 7

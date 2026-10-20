@@ -119,10 +119,25 @@ async def preflight(client, bot, cfg: dict):
     from telethon.errors import FloodWaitError, PeerFloodError
     private = await resolve_peer(client, cfg["private"])
     public = await resolve_peer(client, cfg["public"])
-    if (str(getattr(public, "username", "") or "").casefold()
-            != cfg["public"].lstrip("@").casefold()):
+    public_config = str(cfg["public"]).strip()
+    if public_config.startswith("-100") and public_config[1:].isdigit():
+        if utils.get_peer_id(public) != int(public_config):
+            raise RuntimeError("Le numéro -100 du canal public résolu ne correspond pas à sa configuration.")
+    elif (str(getattr(public, "username", "") or "").casefold()
+          != public_config.lstrip("@").casefold()):
         raise RuntimeError("Le canal public résolu ne correspond pas à celui configuré.")
-    forbidden = {utils.get_peer_id(private), utils.get_peer_id(public)}
+    private_id, public_id = utils.get_peer_id(private), utils.get_peer_id(public)
+    if private_id != int(cfg["private"]):
+        raise RuntimeError("Le numéro TG du canal privé résolu ne correspond pas au -100 configuré.")
+    if private_id == public_id:
+        raise RuntimeError("Les canaux privé et public ont le même identifiant Telegram.")
+    if not getattr(private, "broadcast", False):
+        raise RuntimeError("Le canal privé configuré n'est pas un canal de diffusion.")
+    if not getattr(public, "broadcast", False):
+        raise RuntimeError("Le canal public configuré n'est pas un canal de diffusion.")
+    forbidden = {private_id, public_id}
+    LOG.info("Audit canaux %s : destinations privées/publiques distinctes, numéros et types validés.",
+             cfg.get("category", "series"))
     source_peers = []
     seen_ids = set()
     for name in cfg["sources"]:
@@ -131,6 +146,8 @@ async def preflight(client, bot, cfg: dict):
             if (str(getattr(source, "username", "") or "").casefold()
                     != name.lstrip("@").casefold()):
                 raise ValueError("La source résolue ne correspond pas à " + name)
+            if not getattr(source, "broadcast", False):
+                raise ValueError("La source doit être un canal de diffusion (pas un groupe).")
             if getattr(source, "noforwards", False):
                 LOG.warning("Source %s protégée contre la copie : ignorée.", name)
                 continue
@@ -147,6 +164,8 @@ async def preflight(client, bot, cfg: dict):
             LOG.warning("Source %s inaccessible : %s", name, exc)
     if not source_peers:
         raise RuntimeError("Aucun des canaux sources configurés n'est accessible et non protégé.")
+    LOG.info("Audit sources : %s/%s canaux accessibles et distincts.",
+             len(source_peers), len(cfg["sources"]))
     bot_public = None
     mirror = None
     mirror_key = ""

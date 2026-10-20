@@ -148,7 +148,12 @@ class BotHTTPClient:
         keyboard = self._keyboard(buttons)
         data["reply_markup"] = json.dumps(keyboard or {"inline_keyboard": []},
                                           ensure_ascii=False)
-        return await self._call("editMessageReplyMarkup", data)
+        try:
+            return await self._call("editMessageReplyMarkup", data)
+        except TelegramBotHTTPError as exc:
+            if "message is not modified" in str(exc).casefold():
+                return False  # Catalogue already carries these exact buttons.
+            raise
 
     async def disconnect(self):
         # Aucun état d'authentification MTProto à libérer.

@@ -31,6 +31,8 @@ jobs:
       CINEX_PAUSE_SECONDS: '20'
       CINEX_FORWARD_PAUSE_SECONDS: '18'
       CINEX_SERIES_CATALOG_ENABLED: 'true'
+      CINEX_CATALOG_PAGE_SIZE: '160'
+      CINEX_CATALOG_RESCAN: 'false'
     steps:
       - name: Charger le code
         uses: actions/checkout@v4
@@ -77,6 +79,8 @@ jobs:
           python -m unittest discover -s tests -p 'test_desir.py' -q
           python -m unittest discover -s tests -p 'test_category_relays.py' -q
           python -m unittest discover -s tests -p 'test_anime_catalog.py' -v
+          python -m unittest discover -s tests -p 'test_catalog_scan.py' -v
+          python -m unittest discover -s tests -p 'test_catalogue_reliability.py' -v
           python -m unittest discover -s tests -p 'test_series_catalog.py' -v
           python -m unittest discover -s tests -p 'test_promotions.py' -q
           python -m unittest discover -s tests -p 'test_mkv.py' -q
@@ -278,7 +282,7 @@ jobs:
           TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
           CINEX_CATEGORY_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
           COMEDIE_SOURCE_CHANNEL: ${{ vars.COMEDIE_SOURCE_CHANNEL }}
-          COMEDIE_SOURCE_CHANNELS: ${{ vars.COMEDIE_SOURCE_CHANNELS || '@comexflex,@filmcomplets' }}
+          COMEDIE_SOURCE_CHANNELS: ${{ vars.COMEDIE_SOURCE_CHANNELS || '@comexflex' }}
           COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
           COMEDIE_PRIVATE_CHANNEL: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
           COMEDIE_MIRROR_CHANNEL: '@Torrent9SeriesFilms'

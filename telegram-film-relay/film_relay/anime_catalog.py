@@ -26,6 +26,7 @@ from telethon.sessions import StringSession
 
 from .bot_http import BotHTTPClient, url_button
 from .editing import edit_message_if_changed
+from .catalog_scan import read_source_window, source_window_ids, finalize_scan, episode_audit
 from .category_runner import category_config, preflight
 from .desir_matching import is_supported_video
 from .desir_runner import ReceiptState, DesirPromotionsState
@@ -258,9 +259,26 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         sources, private, public, bot_public, mirror, mirror_key = await preflight(client, bot, cfg)
         private_id = utils.get_peer_id(private)
         all_candidates = []
+        scan_plans = []
+        unnumbered_skipped = 0
         for source in sources:
-            messages = [m async for m in client.iter_messages(source, limit=160)]
-            all_candidates.extend(classify(messages, utils.get_peer_id(source)))
+            source_id = utils.get_peer_id(source)
+            messages, plan = await read_source_window(client, source, catalogue, source_id)
+            allowed = source_window_ids(messages, plan)
+            candidates = [row for row in classify(messages, source_id)
+                          if int(row["video"].id) in allowed]
+            all_candidates.extend(candidates)
+            if plan is not None:
+                scan_plans.append(plan)
+            # Unnumbered uploads are reported, never assigned a guessed number.
+            numbered_ids = {int(row["video"].id) for row in candidates}
+            unnumbered_skipped += sum(
+                1 for msg in messages
+                if int(msg.id) in allowed and is_supported_video(msg)
+                and int(msg.id) not in numbered_ids
+            )
+            LOG.info("Canal source validé : catégorie=%s, épisodes identifiés=%s, vidéos sans index=%s",
+                     "anime_catalog", len(candidates), unnumbered_skipped)
             await asyncio.sleep(pause)
         all_candidates.sort(key=lambda x: x["timestamp"], reverse=True)
         groups = {}
@@ -407,6 +425,13 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             await asyncio.sleep(pause)
 
         if publish:
+            scan_progress = finalize_scan(catalogue, scan_plans, all_candidates)
+            audit = episode_audit(catalogue, all_candidates, category="anime_catalog",
+                                  ignored_unnumbered=unnumbered_skipped)
+            save_catalog(catalogue)
+            LOG.info("Historique %s : %s ; audit : %s épisodes en attente, %s saisons avec trous",
+                     "anime_catalog", scan_progress, audit["not_yet_indexed_total"],
+                     audit["numbering_gap_seasons"])
             report = await publish_promotions(
                 client, bot, private, public,
                 None if os.getenv("CINEX_DEFER_MIRROR") else mirror,
