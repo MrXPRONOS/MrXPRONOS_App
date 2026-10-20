@@ -50,7 +50,7 @@ def analyze(fixture,index,hindex,dc_model,*,now,quote_snapshot=None,
     has_verified_quotes=quote_snapshot is not None
     for entry in scored:
         confident=bool(h2h["prioritized"] and under["priority"])
-        if has_verified_quotes and entry["direction_eligible"] and confident:
+        if entry["direction_eligible"] and confident:
             entry["tier"]="recherche_prioritaire"
         elif entry["direction_eligible"] and under["priority"]:
             entry["tier"]="observation"
