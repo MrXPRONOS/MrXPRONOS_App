@@ -86,7 +86,7 @@ def capture(ledger,fixtures,index,dc,*,now,quotes=None,max_new=500):
              "league":str(e.get("league_name") or ""),
              "h2h_priority":result["h2h_priority"],
              "under25_priority":result["under25_priority"],
-             "double_chance":result["double_chance"],
+             "double_chance":json.loads(json.dumps(result["double_chance"])),
              "under25_probability":round(result["under25_probability"],7),
              "groups":result["groups"],
              "market_status":result["market_status"],
