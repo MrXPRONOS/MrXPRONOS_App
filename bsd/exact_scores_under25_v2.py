@@ -88,7 +88,8 @@ def training_rows(index,year,base_model,params,max_rows=1600):
         score=matrix_for(est["home"]*params["scale_home"],
                          est["away"]*params["scale_away"],rho=params["rho"])
         base=base_model.predict(e,index,score)["probability"]
-        x=features(e,index,base)
+        # Avoid feeding a 2025-fitted probability into 2024 training features.
+        x=features(e,index,probability_under25(score))
         if x is None:continue
         data.append((x,int(sum(outcome_scores(e))<=2),base))
     return data
