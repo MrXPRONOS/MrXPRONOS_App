@@ -50,7 +50,7 @@ jobs:
       - name: All BSD unit tests
         run: python -m unittest discover -s bsd -p 'test_*.py' -v
       - name: Strict multisource qualification and coverage regression tests
-        run: python -m unittest tests.test_football_multisource_apply_qualified tests.test_football_multisource_volume_diagnostics tests.test_football_native_bsd_identity_probe -v
+        run: python -m unittest tests.test_football_multisource_apply_qualified tests.test_football_multisource_volume_diagnostics tests.test_football_native_bsd_identity_probe tests.test_football_two_provider_corroboration -v
       - name: Settlement-only Pages deployment guard tests
         run: python -m unittest tests.test_bsd_v2_settlement_site_sync -v
       - name: Website JavaScript syntax

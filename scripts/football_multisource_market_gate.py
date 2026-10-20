@@ -36,7 +36,7 @@ def certified_native_shadow_fixture(discovered,adapted,native,*,at:datetime):
     here fails closed even after the original verification.
     """
     if (not isinstance(discovered,dict) or
-        discovered.get("_schedule_verified_by")!="openfootball_cc0" or
+        discovered.get("_schedule_verified_by") not in ("openfootball_cc0","two_independent_providers") or
         discovered.get("league_verified") is not True or
         discovered.get("ambiguous_match") or discovered.get("league_conflict") or
         discovered.get("scores_conflict") or discovered.get("status")!="prematch"):

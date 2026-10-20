@@ -31,6 +31,35 @@ SEASON_FILES={
 }
 HOST_PREFIX="https://raw.githubusercontent.com/openfootball/football.json/master/"
 MAX_DOWNLOADS=8
+INDEPENDENT_PROVIDERS=frozenset(("espn","sportscore","thesportsdb","openligadb"))
+
+def strict_two_provider_fixture(row,*,at):
+    """Independent native schedule evidence; NEVER infer from one feed."""
+    if not isinstance(row,dict) or row.get("status")!="prematch":
+        return False
+    if row.get("ambiguous_match") or row.get("scores_conflict") or row.get("league_conflict") or row.get("league_verified") is not True:
+        return False
+    names={competition(s) for s in row.get("league_labels") or [] if competition(s)}
+    if len(names)!=1:
+        return False
+    sources=row.get("sources")
+    if (not isinstance(sources,dict) or not 2<=len(sources)<=4
+        or row.get("source_count")!=len(sources)
+        or not set(sources).issubset(INDEPENDENT_PROVIDERS)):
+        return False
+    primary=aware_time(row.get("kickoff_utc"))
+    if primary is None or primary<=at:
+        return False
+    times=[]
+    for provider,record in sources.items():
+        if not isinstance(record,dict) or not str(record.get("id") or "").strip() or str(record.get("state") or "").lower() not in ("pre","ns","notstarted","upcoming",""):
+            return False
+        when=aware_time(record.get("kickoff_utc"))
+        if when is None or when<=at or abs((when-primary).total_seconds())>900:
+            return False
+        times.append(when)
+    return (max(times)-min(times)).total_seconds()<=900
+
 
 def download_schedules(session, *, season: str="2026-27", timeout: int=15) -> tuple[list[dict],dict]:
     if not re.fullmatch(r"20\d{2}-\d{2}",season):
@@ -136,6 +165,16 @@ def corroborate(fixtures: list[dict], calendar: list[dict], *,
             reasons["multiple_calendar_leagues"]+=1
             by_discovery_source[provider]["multiple_calendar_leagues"]+=1
         else:
+            # Eight CC0 league files cannot cover the global football slate.
+            # A precise two-independent-source prematch identity is separately
+            # admissible, with no guessed league/name/kickoff or synthetic BSD ID.
+            if strict_two_provider_fixture(item,at=as_of):
+                copy["_schedule_verified_by"]="two_independent_providers"
+                copy["league_verified"]=True
+                reasons["two_independent_providers_confirmed"]+=1
+                by_discovery_source[provider]["two_provider_confirmed"]+=1
+                enriched.append(copy)
+                continue
             reasons["no_cc0_schedule_match"]+=1
             by_discovery_source[provider]["no_calendar_match"]+=1
             day,home,away=key
@@ -157,7 +196,9 @@ def corroborate(fixtures: list[dict], calendar: list[dict], *,
         enriched.append(copy)
     return enriched,{
         "input_fixtures":len(fixtures),
-        "schedule_matches_confirmed":reasons["schedule_exact_league_confirmed"],
+        "schedule_matches_confirmed":reasons["schedule_exact_league_confirmed"]+reasons["two_independent_providers_confirmed"],
+        "cc0_matches_confirmed":reasons["schedule_exact_league_confirmed"],
+        "two_provider_matches_confirmed":reasons["two_independent_providers_confirmed"],
         "refused":dict(sorted(reasons.items())),
         "by_discovery_source":{k:dict(sorted(v.items())) for k,v in sorted(by_discovery_source.items())},
         "no_time_inference":True,

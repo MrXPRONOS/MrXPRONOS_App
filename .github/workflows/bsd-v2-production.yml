@@ -135,6 +135,18 @@ jobs:
           assert coverage["quote_probe_attempts"]<=8
           assert coverage["quote_attempts_within_48h"]<=coverage["quote_probe_attempts"]
           assert coverage["independent_calendar_confirmed"]<=coverage["public_fixtures_found"]
+          assert coverage["cc0_confirmed"]+coverage["two_provider_confirmed"]<=coverage["independent_calendar_confirmed"]
+          observations=data.get("model_odds_observations",[])
+          assert isinstance(observations,list)
+          match_ids={m["id"] for m in data["matches"]}
+          assert all(o.get("id") not in match_ids and
+                     o.get("publication_status")=="not_published" and
+                     o.get("do_not_send_to_telegram") is True and
+                     o.get("prediction_eligible") is False and
+                     (o.get("market") or {}).get("odds_source")=="mrxpronos_model" and
+                     (o.get("market") or {}).get("estimated_odds") is True and
+                     (o.get("market") or {}).get("recommendation_eligible") is False
+                     for o in observations), "Model observations may not publish or send Telegram"
           assert mg.get("thresholds_lowered") is False
           assert mg.get("telegram_sent_by_this_step") is False
           assert 0<=mg.get("added_rows",0)<=mg.get("staged_rows",0)<=8

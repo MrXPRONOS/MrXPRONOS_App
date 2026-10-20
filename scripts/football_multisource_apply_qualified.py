@@ -105,7 +105,11 @@ def _safe_pipeline_coverage(aggregate, staged):
         "official_league_ids_resolved":metric(directory,"directory_competition_ids_verified",zero_if_missing=True),
         "official_league_directory_pages":metric(directory,"directory_pages_completed",zero_if_missing=True),
         "public_fixtures_found":metric(aggregate,"external_total"),
-        "independent_calendar_confirmed":metric(aggregate,"independent_cc0_calendar_confirmed"),
+        "independent_calendar_confirmed":(metric(aggregate,"independently_verified_fixtures_total")
+            if "independently_verified_fixtures_total" in aggregate else
+            metric(aggregate,"independent_cc0_calendar_confirmed")),
+        "cc0_confirmed":metric(aggregate,"independent_cc0_calendar_confirmed"),
+        "two_provider_confirmed":metric(aggregate,"independent_two_provider_confirmed",zero_if_missing=True),
         "official_bsd_event_links":metric(aggregate,"one_to_one_native_event_links"),
         "historical_events_excluded_from_price_probes":
             metric(price,"historically_published_native_links_excluded"),
@@ -130,6 +134,7 @@ def _safe_pipeline_coverage(aggregate, staged):
     if (result["qualified_candidates"]!=staged
         or result["independent_calendar_confirmed"]>result["public_fixtures_found"]
         or result["official_bsd_event_links"]>result["independent_calendar_confirmed"]
+        or result["cc0_confirmed"]+result["two_provider_confirmed"]>result["independent_calendar_confirmed"]
         or result["official_league_ids_resolved"]>result["official_league_ids_present"]
         or result["quote_attempts_within_48h"]>result["quote_probe_attempts"]
         or result["quote_probe_attempts"]>8
@@ -213,7 +218,7 @@ def apply(feed, accepted, *, now, publication_ledger, aggregate_report=None):
                "no_recent_qualified_bsd_consensus_market"
                if coverage["qualified_candidates"]==0 else "qualified")
         diagnostics["multisource_generation"]["bottleneck_stage"]=stage
-        diagnostics["multisource_generation"]["calendar_scope"]="8_verified_CC0_domestic_league_files"
+        diagnostics["multisource_generation"]["calendar_scope"]="8_CC0_leagues_and_strict_two_independent_provider_schedules"
         diagnostics["multisource_generation"]["league_names_from_authenticated_bsd_directory"]=True
         diagnostics["multisource_generation"]["unverified_external_matches_never_published"]=True
     feed["matches"].extend(additions)
