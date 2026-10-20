@@ -4,6 +4,7 @@
   const root=document.querySelector('#matches');
   const summary=document.querySelector('#summary');
   const filter=document.querySelector('#camp');
+  const goalCap=document.querySelector('#goal-cap');
   const search=document.querySelector('#filter-team');
   const statusButtons=[...document.querySelectorAll('[data-status]')];
   let payload={matches:[]};
@@ -42,8 +43,18 @@
     pills.append(node('span','pill strong',side));
     if(m.h2h_priority)pills.append(node('span','pill','H2H stable'));
     if(m.under25_priority)pills.append(node('span','pill','Under 2,5 favorable'));
+    const cap=goalCap.value;
+    if(cap!=='all' && m.goals_profile?.under_probabilities){
+      const prob=m.goals_profile.under_probabilities['under_'+cap+'5'];
+      pills.append(node('span','pill','Total ≤ '+cap+' buts : '+pct(Number(prob))));
+    }
     wrap.append(pills);
-    const rows=Array.isArray(m.groups)?m.groups:[];
+    let rows=Array.isArray(m.groups)?m.groups:[];
+    if(cap!=='all'){
+      const policy='ceiling_under_'+cap+'5';
+      const selected=m.ceiling_choices?.[policy];
+      rows=selected?rows.filter(g=>g.group_id===selected):[];
+    }
     if(rows.length===0) {
       wrap.append(node('div','small','Aucun groupe répertorié pour ce match.'));
       return wrap;
@@ -99,6 +110,8 @@
       const completed=m.status==='settled';
       if(state==='history'?!completed:completed)return false;
       if(dir!=='all'&&m.direction!==dir)return false;
+      if(goalCap.value!=='all' && !m.goals_profile?.eligible_ceiling?.['under_'+goalCap.value+'5'])return false;
+      if(goalCap.value!=='all' && !m.ceiling_choices?.['ceiling_under_'+goalCap.value+'5'])return false;
       const hay=[m.home_team,m.away_team,m.league].map(x=>String(x||'')).join(' ').toLocaleLowerCase('fr');
       return !query||hay.includes(query);
     });
@@ -119,6 +132,7 @@
     render();
   }));
   filter.addEventListener('change',render);
+  goalCap.addEventListener('change',render);
   search.addEventListener('input',render);
   fetch('./scores-groupes-preview.json',{cache:'no-store'})
     .then(response=>{if(!response.ok)throw new Error('Aucun flux');return response.json();})
