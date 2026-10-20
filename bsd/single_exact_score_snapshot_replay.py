@@ -24,12 +24,31 @@ class PointInTimeHistory:
         self.as_of=as_of
     def _at(self,when):
         return min(when,self.as_of)
+    def _visible(self,rows):
+        # A past result may have been available, while its later measured xG
+        # was still unknown. Mask those future feature values as well.
+        result=[]
+        for event in rows:
+            stamp=event.get("xg_available_at_utc")
+            if stamp:
+                try:
+                    xg_at=datetime.fromisoformat(str(stamp).replace("Z","+00:00"))
+                    if xg_at.tzinfo is None or xg_at>self.as_of:
+                        event={k:v for k,v in event.items() if k not in (
+                            "home_xg_live","away_xg_live","xg_estimated",
+                            "xg_available_at_utc")}
+                except (ValueError,TypeError,OverflowError):
+                    event={k:v for k,v in event.items() if k not in (
+                        "home_xg_live","away_xg_live","xg_estimated",
+                        "xg_available_at_utc")}
+            result.append(event)
+        return result
     def team(self,team,when,limit=12,venue=None):
-        return self._history.team(team,self._at(when),limit=limit,venue=venue)
+        return self._visible(self._history.team(team,self._at(when),limit=limit,venue=venue))
     def league(self,key,when,limit=600):
-        return self._history.league(key,self._at(when),limit=limit)
+        return self._visible(self._history.league(key,self._at(when),limit=limit))
     def global_prior(self,when,limit=1200):
-        return self._history.global_prior(self._at(when),limit=limit)
+        return self._visible(self._history.global_prior(self._at(when),limit=limit))
     def league_baselines(self,key,when):
         return self._history.league_baselines(key,self._at(when))
 

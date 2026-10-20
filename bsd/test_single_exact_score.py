@@ -668,6 +668,19 @@ class SingleExactScoreTests(unittest.TestCase):
         rec["advanced_research"]["context"]["values"]["lineup_status"]="confirmed"
         self.assertEqual(learn_absence({"records":{"1200":rec}},now)
                          ["diagnostic"]["eligible"],1)
+    def test_fixed_clock_masks_xg_only_available_after_capture(self):
+        from single_exact_score_snapshot_replay import PointInTimeHistory
+        hist=sample_history()
+        old=hist.team(10,NOW)[0]
+        old["home_xg_live"]=2.7
+        old["away_xg_live"]=.6
+        old["xg_estimated"]=False
+        old["xg_available_at_utc"]=(NOW+timedelta(hours=1)).isoformat()
+        view=PointInTimeHistory(hist,NOW)
+        visible=view.team(10,NOW+timedelta(hours=2))[0]
+        self.assertNotIn("home_xg_live",visible)
+        self.assertEqual(old["home_xg_live"],2.7)
+        self.assertIn("home_xg_live",hist.team(10,NOW)[0])
     def test_fixed_clock_history_bound_excludes_between_capture_and_kickoff(self):
         from single_exact_score_snapshot_replay import PointInTimeHistory,cutoff_for
         game=fixture(333333,NOW+timedelta(hours=7))
