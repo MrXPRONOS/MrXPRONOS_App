@@ -123,6 +123,7 @@ def hydrate_history_xg(index,fixtures,client,now,max_lookups=12,capture_into=Non
             old["home_xg_live"]=measured[0]
             old["away_xg_live"]=measured[1]
             old["xg_estimated"]=False
+            old["xg_available_at_utc"]=now.isoformat()
             stats["measured"]+=1
         else:stats["not_measured"]+=1
     return stats

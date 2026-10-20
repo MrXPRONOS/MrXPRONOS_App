@@ -150,7 +150,10 @@ class SingleExactScoreTests(unittest.TestCase):
         old.update({"home_xg_live":1.56,"away_xg_live":.72,"xg_estimated":True})
         self.assertIsNone(historic_measured_xg(old))
         old["xg_estimated"]=False
-        self.assertEqual(historic_measured_xg(old),(1.56,.72))
+        self.assertIsNone(historic_measured_xg(old,as_of=NOW))
+        old["xg_available_at_utc"]=(NOW-timedelta(days=1)).isoformat()
+        self.assertEqual(historic_measured_xg(old,as_of=NOW),(1.56,.72))
+        self.assertIsNone(historic_measured_xg(old,as_of=NOW-timedelta(days=2)))
     def test_bsd_lineup_context_and_no_lookahead(self):
         valid={"lineup_status":"predicted","unavailable_players":{"home":[1,2],"away":[3]}}
         d=lineup_context(valid,NOW)
@@ -221,6 +224,7 @@ class SingleExactScoreTests(unittest.TestCase):
         self.assertEqual(xg_add(doc,{str(old["id"]):one}),0)
         self.assertEqual(xg_apply(history,doc,NOW),1)
         self.assertEqual(old["home_xg_live"],1.4)
+        self.assertEqual(old["xg_available_at_utc"],one["captured_at_utc"])
         key=Fernet(Fernet.generate_key())
         with tempfile.TemporaryDirectory() as folder:
             path=Path(folder)/"xg.enc.json"
@@ -229,6 +233,15 @@ class SingleExactScoreTests(unittest.TestCase):
             self.assertEqual(xg_read(path,key),doc)
         invalid={**one,"captured_at_utc":(old_time+timedelta(hours=2)).isoformat()}
         self.assertEqual(xg_add(xg_empty(),{"bad":invalid}),0)
+    def test_capture_rechecks_live_clock_for_each_forecast(self):
+        archive=empty();index=sample_history()
+        e=fixture(994,NOW+timedelta(hours=2))
+        result=capture(archive,[e],index,DummyDC(),NOW,clock=lambda:NOW+timedelta(hours=1,minutes=45))
+        self.assertEqual(result.get("too_close_or_started"),1)
+        self.assertEqual(len(archive["records"]),0)
+        ok=capture(archive,[e],index,DummyDC(),NOW,clock=lambda:NOW+timedelta(minutes=2))
+        self.assertEqual(ok["captured"],1)
+        self.assertEqual(archive["records"][str(e["id"])]["captured_at"],(NOW+timedelta(minutes=2)).isoformat())
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)

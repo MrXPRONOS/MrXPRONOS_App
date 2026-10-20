@@ -56,7 +56,7 @@ def save(data,path=PATH,secret=None):
     temp.chmod(0o600)
     temp.replace(path)
 
-def capture(archive,fixtures,index,model,now,*,limit=500,advanced_model=None):
+def capture(archive,fixtures,index,model,now,*,limit=500,advanced_model=None,clock=None):
     hindex=H2HIndex(index)
     counter=Counter()
     for event in sorted(fixtures,key=lambda x:(fixture_datetime(x),str(x["id"]))):
@@ -66,11 +66,16 @@ def capture(archive,fixtures,index,model,now,*,limit=500,advanced_model=None):
             continue
         if counter["captured"]>=limit:
             counter["limit_reached"]+=1;continue
-        output,reason=forecast(event,index,hindex,dc_model=model,now=now,
+        # Live time is checked per fixture, never trusted from pipeline start.
+        live_now=clock() if clock is not None else datetime.now(timezone.utc)
+        if live_now.tzinfo is None:raise ValueError("UTC-aware clock required")
+        if live_now>now+timedelta(minutes=1) and clock is None:
+            pass  # long-running API fetch: use accurate later capture time
+        output,reason=forecast(event,index,hindex,dc_model=model,now=live_now,
                                advanced_model=advanced_model)
         if output is None:
             counter[reason]+=1;continue
-        row={"id":key,"model":VERSION,"captured_at":now.isoformat(),
+        row={"id":key,"model":VERSION,"captured_at":live_now.isoformat(),
              "kickoff":output["kickoff_utc"],"home_id":_team_id(event,"home"),
              "away_id":_team_id(event,"away"),"score":output["score"],
              "estimated_probability":output["estimated_score_probability"],

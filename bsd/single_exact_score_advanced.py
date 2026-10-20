@@ -30,8 +30,20 @@ def clip(x,lo,hi):
     return min(hi,max(lo,x))
 
 
-def historic_measured_xg(event):
-    """Historical match ONLY. Never read xG of the match being predicted."""
+def historic_measured_xg(event, *,as_of=None):
+    """Only xG known at this prediction's timestamp; missing timestamps are excluded."""
+    if as_of is None:
+        return None
+    available_at=event.get("xg_available_at_utc")
+    if not isinstance(available_at,str):
+        return None
+    from datetime import datetime, timezone
+    try:
+        observed=datetime.fromisoformat(available_at.replace("Z","+00:00"))
+        if observed.tzinfo is None or observed.astimezone(timezone.utc)>as_of.astimezone(timezone.utc):
+            return None
+    except (ValueError,TypeError,OverflowError):
+        return None
     if event.get("xg_estimated") is not False:
         return None
     a=event.get("home_xg_live")
@@ -56,7 +68,7 @@ def features(event,index,base):
     def mean_xg(games,team):
         vals=[]
         for g in games:
-            x=historic_measured_xg(g)
+            x=historic_measured_xg(g,as_of=at)
             if x:
                 vals.append(x[0] if _team_id(g,"home")==team else x[1])
         return sum(vals)/len(vals) if len(vals)>=3 else None

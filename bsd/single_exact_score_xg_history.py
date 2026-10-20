@@ -74,6 +74,7 @@ def apply(index,data,now):
         event["home_xg_live"]=row["home_xg"]
         event["away_xg_live"]=row["away_xg"]
         event["xg_estimated"]=False
+        event["xg_available_at_utc"]=row["captured_at_utc"]
         count+=1
     return count
 
