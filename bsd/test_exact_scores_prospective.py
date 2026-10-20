@@ -85,11 +85,11 @@ class ProspectiveTests(unittest.TestCase):
     def test_encrypted_archive_roundtrip_no_plaintext(self):
         key=Fernet(Fernet.generate_key())
         led=empty_ledger()
-        led["predictions"]["example"]={"secret_test_content":"do_not_publish"}
+        record_fixtures(led,[fixture(906,NOW+timedelta(days=1))],history(),NOW)
         with tempfile.TemporaryDirectory() as folder:
             p=Path(folder)/"forecasts.enc.json"
             write_ledger(led,p,key)
-            self.assertNotIn("do_not_publish",p.read_text(encoding="utf-8"))
+            self.assertNotIn('"top3"',p.read_text(encoding="utf-8"))
             self.assertEqual(read_ledger(p,key),led)
 
     def test_archive_rejects_model_version_change(self):
@@ -118,6 +118,30 @@ class ProspectiveTests(unittest.TestCase):
     def test_bad_external_event_does_not_corrupt_reconciliation(self):
         self.assertEqual(reconcile_results(empty_ledger(),
                         [{"id": 9,"event_date": None}],NOW),{})
+
+    def test_forecast_integrity_tampering_is_rejected(self):
+        key=Fernet(Fernet.generate_key())
+        led=empty_ledger()
+        record_fixtures(led,[fixture(940,NOW+timedelta(days=1))],history(),NOW)
+        row=next(iter(led["predictions"].values()))
+        row["top3"][0]["score"]=[8,8]
+        with tempfile.TemporaryDirectory() as folder:
+            p=Path(folder)/"x.enc.json"
+            write_ledger(led,p,key)
+            with self.assertRaisesRegex(ValueError,"Immutable prediction"):
+                read_ledger(p,key)
+
+    def test_dashboard_safe_aggregation_and_no_match_ids(self):
+        from exact_scores_dashboard import aggregates,html_report
+        led=empty_ledger()
+        record_fixtures(led,[fixture(942,NOW+timedelta(days=1))],history(),NOW)
+        result=aggregates(led,NOW)
+        page=html_report(result)
+        self.assertIn("Tableau de bord",page)
+        self.assertNotIn('"match_id"',page)
+        self.assertNotIn('"forecast_sha256"',page)
+        self.assertEqual(result["all"]["n"],0)
+        self.assertFalse(result["priority_minimum_sample_met"])
 
 if __name__=="__main__":
     unittest.main()
