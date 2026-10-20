@@ -1,11 +1,19 @@
 """Full 2026 comparison: Under 2.5 specialist, stable H2H, exact-score fusion."""
 import argparse,json
-from collections import Counter
+from collections import Counter,defaultdict
+from math import sqrt
 from pathlib import Path
 from bsd_v2_core import V2History,estimate_goals,fixture_datetime,outcome_scores
 from exact_scores import matrix_for,feature_rows,fit_rho_2024,fit_goal_scales_2025,top_scores
 from exact_scores_h2h import H2HIndex,h2h_signal
 from exact_scores_under25 import train_under25,reweight_scores
+
+def wilson(hits,n):
+    if not n:return None
+    z=1.96;p=hits/n;den=1+z*z/n
+    center=(p+z*z/(2*n))/den
+    half=z*sqrt((p*(1-p)+z*z/(4*n))/n)/den
+    return [round(max(0,center-half),5),round(min(1,center+half),5)]
 
 def summary(rows):
     n=len(rows)
@@ -16,7 +24,11 @@ def summary(rows):
             "top1_hits":sum(x["top1_hit"] for x in rows),
             "top3_hits":sum(x["top3_hit"] for x in rows),
             "top1_rate":round(sum(x["top1_hit"] for x in rows)/n,5),
-            "top3_rate":round(sum(x["top3_hit"] for x in rows)/n,5)}
+            "top3_rate":round(sum(x["top3_hit"] for x in rows)/n,5),
+            "under25_wilson95":wilson(sum(x["under_hit"] for x in rows),n),
+            "top1_wilson95":wilson(sum(x["top1_hit"] for x in rows),n),
+            "top3_wilson95":wilson(sum(x["top3_hit"] for x in rows),n),
+            "mean_forecast_under25":round(sum(x["p_under"] for x in rows)/n,5)}
 
 def evaluate(events):
     index=V2History(events);hindex=H2HIndex(index)
@@ -26,6 +38,8 @@ def evaluate(events):
     groups={name:{"base":[],"fused":[]} for name in
             ("all","h2h","under25","h2h_and_under25","not_selected")}
     counters=Counter()
+    monthly=defaultdict(lambda:{"all":[],"selected":[]})
+    half_year={"2026_H1":{"all":[],"selected":[]},"2026_H2":{"all":[],"selected":[]}}
     fixtures=sorted((e for _,e in index.global_games if fixture_datetime(e).year==2026),
                     key=lambda e:(fixture_datetime(e),str(e["id"])))
     for event in fixtures:
@@ -40,12 +54,21 @@ def evaluate(events):
         if under["priority"]:applicable.append("under25")
         if h2h["prioritized"] and under["priority"]:applicable.append("h2h_and_under25")
         y=int(sum(actual)<=2)
+        date=fixture_datetime(event)
+        month=date.strftime("%Y-%m")
+        half="2026_H1" if date.month<=6 else "2026_H2"
         for name,matrix,p in (("base",original,under["baseline"]),
                               ("fused",fused,under["probability"])):
             top=top_scores(matrix)
             row={"under_hit":y,"p_under":p,"top1_hit":int(top[0][0]==actual),
                  "top3_hit":int(actual in [sc for sc,_ in top])}
             for category in applicable:groups[category][name].append(row)
+            if name=="fused":
+                monthly[month]["all"].append(row)
+                half_year[half]["all"].append(row)
+                if "h2h_and_under25" in applicable:
+                    monthly[month]["selected"].append(row)
+                    half_year[half]["selected"].append(row)
     result={
         "format":"mrx-under25-h2h-exact-full-2026-v1","finished_2026":len(fixtures),
         "eligible_2026":len(groups["all"]["base"]),"skipped":dict(counters),
@@ -53,6 +76,10 @@ def evaluate(events):
                          "threshold":model.threshold},"training":training,
         "comparisons":{g:{name:summary(rows) for name,rows in models.items()}
                        for g,models in groups.items()},
+        "by_month":{month:{tag:summary(v) for tag,v in stats.items()}
+                    for month,stats in sorted(monthly.items())},
+        "by_half":{period:{tag:summary(v) for tag,v in stats.items()}
+                   for period,stats in half_year.items()},
         "experimental":True,"published":False,"used_odds":False,
         "note":"2026 retrospective, each forecast uses only settled past matches. Selection changes coverage. No profit claims."
     }
