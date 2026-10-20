@@ -72,8 +72,15 @@ def native_parts(event, *, official_leagues=None):
     league_raw=(event.get("league_name") or event.get("competition_name") or
                 event.get("tournament_name") or
                 (league_value.get("name") if isinstance(league_value,dict) else league_value))
-    if not league_raw and official_leagues:
-        league_raw=official_leagues.get(lid)
+    # The BSD league directory is authoritative for the native competition
+    # ID. Never infer the competition from clubs, free calendars or a
+    # similarly-named tournament; conflicting supplied names fail closed.
+    official_raw=official_leagues.get(lid) if official_leagues else None
+    if official_raw:
+        verified_league=competition(str(official_raw))
+        if league_raw and competition(str(league_raw))!=verified_league:
+            return None,"official_competition_name_conflict"
+        league_raw=official_raw
     league=competition(str(league_raw or ""))
     if not league:return None,"missing_native_competition_name"
     stamp=aware_time(event.get("event_date"))
@@ -153,6 +160,22 @@ def prove(external:list[dict], native:list[dict], *, at:datetime, official_leagu
     rejected["external_ambiguous_native_matches"]+=sum(len(ids)>1 for ids in edges.values())
     rejected["native_ambiguous_external_matches"]+=sum(len(v)>1 for v in per_native.values())
     unmatched=len(external_ok)-len({i for i,_ in confirmed})
+    # Report safe aggregate reasons for the remaining mismatch, never club
+    # names or native event IDs. No automatic aliasing is authorized.
+    unmatched_reasons=Counter()
+    matched_external={i for i,_ in confirmed}
+    for i,ext in enumerate(external_ok):
+        if i in matched_external:
+            continue
+        nearby=[key for key in unique_native.values()
+                if key[1:3]==ext[1:3]
+                and abs((key[3]-ext[3]).total_seconds())<=MAX_DELTA_SECONDS]
+        if nearby and not any(key[0]==ext[0] for key in nearby):
+            unmatched_reasons["exact_teams_kickoff_wrong_competition"]+=1
+        elif nearby:
+            unmatched_reasons["ambiguous_exact_native_identity"]+=1
+        else:
+            unmatched_reasons["no_exact_teams_and_kickoff"]+=1
     return {
         "scope":"read_only_identity_evidence",
         "external_total":len(external),
@@ -163,6 +186,7 @@ def prove(external:list[dict], native:list[dict], *, at:datetime, official_leagu
         "native_invalid_breakdown":dict(sorted(native_issues.items())),
         "one_to_one_native_event_links":len(confirmed),
         "unmatched_or_ambiguous_external":unmatched,
+        "unmatched_external_breakdown":dict(sorted(unmatched_reasons.items())),
         "identity_evidence":"exact_league_home_away_utc_kickoff_15m_unique",
         "native_event_ids_exported":False,
         "native_bookmaker_prices_fetched":False,
@@ -200,6 +224,90 @@ def candidate_official_league_ids(external, native, *, at):
                 and abs((t-ext_time).total_seconds())<=MAX_DELTA_SECONDS):
                 lids.add(lid)
     return sorted(lids)
+
+
+def fetch_official_league_catalog(client,native,*,max_pages=3):
+    """Resolve native league IDs exclusively against BSD's official directory.
+
+    The event-list endpoint exposes league_id but generally omits its name.
+    One authenticated /leagues/ request resolves many IDs without guessing
+    from an external fixture's clubs. Pagination/schema/API failures discard
+    the entire catalog: partial lookup must not unlock publication.
+    """
+    wanted=set()
+    for event in native:
+        if not isinstance(event,dict):
+            continue
+        raw=event.get("league_id")
+        if raw is None and isinstance(event.get("league"),dict):
+            raw=event["league"].get("id")
+        ident=positive_native_id(raw)
+        if ident is not None:
+            wanted.add(ident)
+    stats=Counter()
+    stats["native_competition_ids_present"]=len(wanted)
+    if not wanted:
+        return {},dict(stats)
+    mapped={}
+    conflicts=set()
+    total=None
+    received=0
+    complete=False
+    for page in range(max_pages):
+        if client.requests_made>=MAX_BSD_REQUESTS-2:
+            stats["request_budget_exhausted"]+=1
+            break
+        stats["directory_requests"]+=1
+        try:
+            payload=client.get_json(
+                "/leagues/",
+                {"limit":200,"offset":200*page,"include_inactive":"true"},
+                ttl=0)
+        except Exception as exc:
+            stats["directory_error_"+type(exc).__name__]+=1
+            break
+        if (not isinstance(payload,dict)
+            or type(payload.get("count")) is not int
+            or payload["count"]<0 or not isinstance(payload.get("results"),list)):
+            stats["directory_invalid_schema"]+=1
+            break
+        if total is not None and total!=payload["count"]:
+            stats["directory_unstable_pagination"]+=1
+            break
+        total=payload["count"]
+        rows=payload["results"]
+        if len(rows)>200 or received+len(rows)>total or (not rows and received<total):
+            stats["directory_invalid_pagination"]+=1
+            break
+        received+=len(rows)
+        for row in rows:
+            if not isinstance(row,dict):
+                stats["directory_invalid_entries"]+=1
+                continue
+            lid=positive_native_id(row.get("id"))
+            if lid not in wanted:
+                continue
+            label=row.get("name") or row.get("league_name")
+            if not isinstance(label,str) or not competition(label):
+                stats["directory_invalid_competition_name"]+=1
+                continue
+            if lid in mapped and competition(mapped[lid])!=competition(label):
+                conflicts.add(lid)
+            else:
+                mapped[lid]=label
+        if received==total:
+            complete=True
+            break
+    if not complete:
+        stats["directory_incomplete"]+=1
+        return {},dict(sorted(stats.items()))
+    for lid in conflicts:
+        mapped.pop(lid,None)
+    stats["directory_pages_completed"]=stats["directory_requests"]
+    stats["directory_competition_ids_verified"]=len(mapped)
+    stats["directory_conflicting_ids_quarantined"]=len(conflicts)
+    stats["directory_competition_ids_unresolved"]=len(wanted-set(mapped))
+    return mapped,dict(sorted(stats.items()))
 
 
 def audit_official_consensus_quotes(client,native,linked_ids,league_names,*,at,verified_quotes_sink=None,historical_published_ids=None):
@@ -345,13 +453,15 @@ def main():
         if not page.complete:
             raise RuntimeError("BSD fixture pagination incomplete (do not infer missing matches)")
         native.extend(page.events)
-    # Resolve real competition names ONLY through the official BSD
-    # league-detail endpoint for exact team+time candidates; no inferred alias.
+    # The official /events/ list contains league IDs but rarely names.
+    # First fetch the authenticated league directory; use individually
+    # verified detail only for exact team+kickoff candidates still unresolved.
+    names,catalog_health=fetch_official_league_catalog(client,native)
     ids=candidate_official_league_ids(verified,native,at=clock)
-    names={}
+    unresolved_ids=[lid for lid in ids if lid not in names]
     metadata_issues=Counter()
-    available=max(0,min(8,MAX_BSD_REQUESTS-client.requests_made))
-    for lid in ids[:available]:
+    available=max(0,min(8,MAX_BSD_REQUESTS-client.requests_made-2))
+    for lid in unresolved_ids[:available]:
         try:
             details=client.get_json(f"/leagues/{lid}/",ttl=0)
             if not isinstance(details,dict) or positive_native_id(details.get("id"))!=lid:
@@ -364,8 +474,8 @@ def main():
             names[lid]=label
         except Exception as exc:
             metadata_issues["api_"+type(exc).__name__]+=1
-    if len(ids)>available:
-        metadata_issues["league_metadata_budget_exceeded"]+=len(ids)-available
+    if len(unresolved_ids)>available:
+        metadata_issues["league_metadata_budget_exceeded"]+=len(unresolved_ids)-available
     linked_ids=[]
     confirmed_pairs=[]
     result=prove(verified,native,at=clock,official_leagues=names,
@@ -408,8 +518,9 @@ def main():
         "read_only_native_consensus_price_audit":pricing,
         "full_model_selected_market_consensus_audit":market_proof,
         "candidate_official_league_metadata_ids":len(ids),
-        "official_league_metadata_requested":min(len(ids),available),
+        "official_league_metadata_requested":min(len(unresolved_ids),available),
         "official_league_metadata_verified":len(names),
+        "official_league_directory_health":catalog_health,
         "official_league_metadata_issues":dict(sorted(metadata_issues.items())),
         "bsd_http_calls":client.requests_made,
         "bsd_max_http_requests":MAX_BSD_REQUESTS,

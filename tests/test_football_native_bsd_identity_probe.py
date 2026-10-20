@@ -1,7 +1,8 @@
 import unittest
 from datetime import datetime,timezone
 
-from scripts.football_native_bsd_identity_probe import prove,positive_native_id,native_parts,candidate_official_league_ids,audit_official_consensus_quotes
+from scripts.football_native_bsd_identity_probe import (prove,positive_native_id,native_parts,
+    candidate_official_league_ids,audit_official_consensus_quotes,fetch_official_league_catalog)
 
 NOW=datetime(2026,10,14,12,tzinfo=timezone.utc)
 
@@ -198,6 +199,77 @@ class IdentityBridgeTests(unittest.TestCase):
         mismatch=native(start="2026-10-15T20:00:00Z")
         self.assertEqual(candidate_official_league_ids([ext()],[mismatch],at=NOW),[])
         self.assertEqual(candidate_official_league_ids([ext(cc0=False)],[native()],at=NOW),[])
+
+
+    def test_official_directory_resolves_missing_league_names_without_club_guessing(self):
+        row=native()
+        row.pop("league_name")
+        class OfficialCatalog:
+            requests_made=0
+            def get_json(self,path,params,ttl=0):
+                self.requests_made+=1
+                self.path=path
+                self.params=params
+                return {"count":2,"results":[
+                    {"id":8,"name":"Premier League"},
+                    {"id":19,"name":"Bundesliga"}]}
+        client=OfficialCatalog()
+        names,health=fetch_official_league_catalog(client,[row])
+        self.assertEqual(names,{8:"Premier League"})
+        self.assertEqual(health["directory_competition_ids_verified"],1)
+        self.assertEqual(client.path,"/leagues/")
+        self.assertEqual(client.params["include_inactive"],"true")
+        resolved=prove([ext()],[row],at=NOW,official_leagues=names)
+        self.assertEqual(resolved["native_unique_eligible"],1)
+        self.assertEqual(resolved["one_to_one_native_event_links"],1)
+
+    def test_official_directory_rejects_incomplete_or_unstable_pagination(self):
+        row=native()
+        row.pop("league_name")
+        class BrokenCatalog:
+            requests_made=0
+            def get_json(self,path,params,ttl=0):
+                self.requests_made+=1
+                if params["offset"]==0:
+                    return {"count":201,"results":[{"id":8,"name":"Premier League"}]}
+                raise ValueError("Page unavailable")
+        names,health=fetch_official_league_catalog(BrokenCatalog(),[row])
+        self.assertEqual(names,{})
+        self.assertEqual(health["directory_incomplete"],1)
+        self.assertEqual(prove([ext()],[row],at=NOW,official_leagues=names)
+                         ["one_to_one_native_event_links"],0)
+
+    def test_official_directory_name_conflict_does_not_replace_native_name(self):
+        row=native(league="Bundesliga")
+        key,issue=native_parts(row,official_leagues={8:"Premier League"})
+        self.assertIsNone(key)
+        self.assertEqual(issue,"official_competition_name_conflict")
+        report=prove([ext()],[row],at=NOW,official_leagues={8:"Premier League"})
+        self.assertEqual(report["native_invalid_breakdown"]
+                         ["official_competition_name_conflict"],1)
+        self.assertEqual(report["one_to_one_native_event_links"],0)
+
+    def test_official_directory_cannot_infer_from_wrong_native_league_id(self):
+        row=native()
+        row.pop("league_name")
+        row["league_id"]=4444
+        class Catalog:
+            requests_made=0
+            def get_json(self,path,params,ttl=0):
+                self.requests_made+=1
+                return {"count":1,"results":[{"id":8,"name":"Premier League"}]}
+        names,health=fetch_official_league_catalog(Catalog(),[row])
+        self.assertEqual(names,{})
+        self.assertEqual(health["directory_competition_ids_unresolved"],1)
+        self.assertEqual(prove([ext()],[row],at=NOW,official_leagues=names)
+                         ["one_to_one_native_event_links"],0)
+
+    def test_unmatched_breakdown_does_not_expose_fixture_details(self):
+        report=prove([ext()],[native(league="Bundesliga")],at=NOW)
+        self.assertEqual(report["unmatched_external_breakdown"]
+                         ["exact_teams_kickoff_wrong_competition"],1)
+        self.assertNotIn("Arsenal",str(report))
+        self.assertNotIn("Chelsea",str(report))
 
     def test_invalid_native_schema_is_explained_without_exposing_ids(self):
         malformed=native()

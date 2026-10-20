@@ -98,7 +98,11 @@ def _safe_pipeline_coverage(aggregate, staged):
     model=aggregate.get("full_model_selected_market_consensus_audit")
     market=model.get("aggregate") if isinstance(model,dict) else None
     canary=model.get("native_full_assembler_canary") if isinstance(model,dict) else None
+    directory=aggregate.get("official_league_directory_health")
     result={
+        "official_league_ids_present":metric(directory,"native_competition_ids_present",zero_if_missing=True),
+        "official_league_ids_resolved":metric(directory,"directory_competition_ids_verified",zero_if_missing=True),
+        "official_league_directory_pages":metric(directory,"directory_pages_completed",zero_if_missing=True),
         "public_fixtures_found":metric(aggregate,"external_total"),
         "independent_calendar_confirmed":metric(aggregate,"independent_cc0_calendar_confirmed"),
         "official_bsd_event_links":metric(aggregate,"one_to_one_native_event_links"),
@@ -125,6 +129,7 @@ def _safe_pipeline_coverage(aggregate, staged):
     if (result["qualified_candidates"]!=staged
         or result["independent_calendar_confirmed"]>result["public_fixtures_found"]
         or result["official_bsd_event_links"]>result["independent_calendar_confirmed"]
+        or result["official_league_ids_resolved"]>result["official_league_ids_present"]
         or result["quote_attempts_within_48h"]>result["quote_probe_attempts"]
         or result["quote_probe_attempts"]>8
         or result["selected_markets_with_fresh_consensus_price"]>
@@ -208,6 +213,7 @@ def apply(feed, accepted, *, now, publication_ledger, aggregate_report=None):
                if coverage["qualified_candidates"]==0 else "qualified")
         diagnostics["multisource_generation"]["bottleneck_stage"]=stage
         diagnostics["multisource_generation"]["calendar_scope"]="8_verified_CC0_domestic_league_files"
+        diagnostics["multisource_generation"]["league_names_from_authenticated_bsd_directory"]=True
         diagnostics["multisource_generation"]["unverified_external_matches_never_published"]=True
     feed["matches"].extend(additions)
     feed["diagnostics"]=diagnostics
