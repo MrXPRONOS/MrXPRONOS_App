@@ -150,6 +150,19 @@ def report(ledger,now):
         policies_out[policy]={"n":len(values),"wins":sum(values),
                               "hit_rate":round(sum(values)/len(values),5) if values else None,
                               "distinct_groups":len(group_ids)}
+    ceiling_metrics={}
+    for cap in (2,3,4,5,6,7):
+        key=f"under_{cap}5"
+        available=[(float(r["goals_profile"]["under_probabilities"][key]),
+                    int(sum(r["actual_score"])<=cap))
+                   for r in past if isinstance(r.get("goals_profile"),dict)
+                   and r["goals_profile"].get("under_probabilities",{}).get(key) is not None]
+        n=len(available)
+        ceiling_metrics[key]={
+            "n":n,"hits":sum(hit for _,hit in available),
+            "observed_under":round(sum(hit for _,hit in available)/n,5) if n else None,
+            "mean_estimated":round(sum(p for p,_ in available)/n,5) if n else None,
+            "brier":round(sum((p-hit)**2 for p,hit in available)/n,6) if n else None}
     cutoff=now-timedelta(days=4)
     return {"format":"mrx-grouped-prospective-metrics-v1",
             "generated_utc":now.isoformat(),"experimental":True,"published":False,
@@ -162,6 +175,7 @@ def report(ledger,now):
             "goals_profile_captured":sum("goals_profile" in r for r in all_rows),
             "goals_profile_note":"Older archived forecasts remain immutable and have no new ceiling predictions.",
             "policies":policies_out,
+            "goal_ceiling_calibration":ceiling_metrics,
             "warning":"No bookmaker actual market, no real-odds EV or betting return without observed 1xBet prematch quotes."}
 
 def main():
