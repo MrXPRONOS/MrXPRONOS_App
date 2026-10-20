@@ -2,7 +2,7 @@ name: Mr XPRONOS - Combiné Photo Production
 
 on:
   workflow_run:
-    workflows: ["BSD V2 - Generation quotidienne"]
+    workflows: ["Shorts Coupons - Production"]
     types: [completed]
   push:
     branches: [main]
@@ -36,6 +36,7 @@ jobs:
       ACCUMULATOR_CROP_META: telegram_out/accumulator_crop.json
       ACCUMULATOR_SOCIAL_IMAGE: telegram_out/accumulator_preview.jpg
       ACCUMULATOR_MAX_MATCHES: '12'
+      ACCUMULATOR_VIDEO_MANIFEST: telegram_out/video_used_matches.json
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       SUPABASE_BUCKET: videos
@@ -53,19 +54,18 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-      - name: Check latest BSD feed belongs to successful generation
+      - name: Check latest BSD feed is valid when daily video has completed
         if: github.event_name == 'workflow_run'
         env:
-          BSD_RUN_STARTED: ${{ github.event.workflow_run.run_started_at }}
+          VIDEO_RUN_STARTED: ${{ github.event.workflow_run.run_started_at }}
         run: |
           python - <<'PY'
           import json,os
           from datetime import datetime,timezone,timedelta
           feed=json.load(open("data.json",encoding="utf-8"))
           generated=datetime.fromisoformat(feed["generated_at"].replace("Z","+00:00"))
-          started=datetime.fromisoformat(os.environ["BSD_RUN_STARTED"].replace("Z","+00:00"))
-          assert generated>=started-timedelta(minutes=10), "Flux data.json non actualisé après cette génération BSD"
-          assert datetime.now(timezone.utc)-generated<timedelta(hours=3), "Flux BSD trop ancien"
+          now=datetime.now(timezone.utc)
+          assert generated<=now and now-generated<timedelta(hours=24), "Flux BSD trop ancien pour le combiné"
           print("ACCUMULATOR_POST_GENERATION_VERIFIED",generated.isoformat())
           PY
       - uses: actions/setup-node@v4
@@ -80,7 +80,13 @@ jobs:
           npm ci
           npx playwright install --with-deps chromium
           python -m pip install requests Pillow 'atproto>=0.0.60,<1'
-      - name: Select eligible fixtures and calculate simulated 50000 FCFA stake
+      - name: Verify and load IDs of fixtures already published in daily video
+        run: python scripts/read_accumulator_video_ledger.py
+      - name: Validate production scripts
+        run: |
+          python -m py_compile scripts/read_accumulator_video_ledger.py scripts/send_accumulator_production.py scripts/post_accumulator_social.py scripts/send_short_production_telegram.py scripts/create_short_from_telegram_coupons.py
+          node --check scripts/prepare_accumulator_today.mjs
+      - name: Select remaining fixtures and calculate simulated 50000 FCFA stake
         id: selection
         shell: bash
         run: |
@@ -102,7 +108,7 @@ jobs:
           import assert from 'node:assert/strict';
           const d=JSON.parse(fs.readFileSync(process.env.ACCUMULATOR_INPUT));
           assert.equal(d.status,'Accepté');
-          assert.ok(d.legs.length>=2 && d.legs.length<=12);
+          assert.ok(d.legs.length>=4 && d.legs.length<=12);
           assert.equal(d.stake_is_simulated,true);
           const calculated=Math.round(50000*Number(d.combined_odds));
           assert.equal(d.potential_win.replaceAll(/\D/g,''),String(calculated));
@@ -140,6 +146,7 @@ jobs:
             telegram_out/accumulator_today.json
             telegram_out/accumulator_crop.json
             telegram_out/accumulator_data_report.json
+            telegram_out/video_used_matches.json
             telegram_out/accumulator_social_results.json
           if-no-files-found: ignore
           retention-days: 7
