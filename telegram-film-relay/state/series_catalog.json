@@ -1,7 +1,7 @@
 {
   "audit": {
     "category": "series_catalog",
-    "checked_at": "2026-10-20T17:10:53.865030+00:00",
+    "checked_at": "2026-10-20T21:38:16.808376+00:00",
     "not_yet_indexed": [],
     "not_yet_indexed_total": 0,
     "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
