@@ -6,6 +6,7 @@ on:
     paths:
       - 'bsd/exact_scores_under25_v2.py'
       - 'bsd/exact_scores_phase3.py'
+      - 'bsd/exact_scores_phase3_backtest.py'
       - 'bsd/exact_scores_phase2_backtest.py'
       - 'bsd/test_exact_scores.py'
       - '.github/workflows/exact-scores-phase2.yml'
@@ -35,6 +36,8 @@ jobs:
         run: python bsd/bsd_archive.py restore
       - name: Evaluate V1 versus V2 on complete 2026 archive
         run: python bsd/exact_scores_phase2_backtest.py
+      - name: Compare phase3 fusion and abstention across all 2026 fixtures
+        run: python bsd/exact_scores_phase3_backtest.py
       - name: Validate all-fixture coverage
         run: |
           python - <<'PY'
@@ -43,12 +46,18 @@ jobs:
           assert r['finished'] > 0
           assert r['eligible'] == r['groups']['all']['v1']['n'] == r['groups']['all']['v2']['n']
           print('PHASE2_VALIDATED',r['finished'],r['eligible'])
+          s=json.load(open('tmp/exact-scores/phase3-report.json'))
+          assert s['finished']==r['finished']
+          assert s['eligible']==r['eligible']
+          print('PHASE3_VALIDATED',s['comparison'])
           PY
       - name: Save aggregate metrics
         uses: actions/upload-artifact@v4
         with:
           name: exact-score-phase2-${{ github.run_id }}
-          path: tmp/exact-scores/phase2-under25-report.json
+          path: |
+            tmp/exact-scores/phase2-under25-report.json
+            tmp/exact-scores/phase3-report.json
           retention-days: 90
           if-no-files-found: error
       - name: Erase decrypted archive
