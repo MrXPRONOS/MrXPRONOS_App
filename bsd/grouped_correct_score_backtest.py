@@ -7,7 +7,6 @@ Only evaluate full-time scores after the 4h settlement delay.
 from __future__ import annotations
 import argparse,json
 from collections import Counter,defaultdict
-from math import sqrt
 from datetime import datetime,timezone
 from pathlib import Path
 from math import sqrt
@@ -26,13 +25,6 @@ def record(bucket,selection,score):
     bucket["n"]+=1;bucket["hits"]+=y;bucket["sum_p"]+=p
     bucket["brier"]+=(p-y)**2
     bucket["ev_count"]+=int(selection["expected_value"] is not None)
-def wilson95(wins,n):
-    if not n:return None
-    z=1.96;p=wins/n;den=1+z*z/n
-    center=(p+z*z/(2*n))/den
-    radius=z*sqrt((p*(1-p)+z*z/(4*n*n))/n)/den
-    return [round(max(0,center-radius),6),round(min(1,center+radius),6)]
-
 def wilson95(hits,n):
     if not n:return None
     z=1.96;p=hits/n;den=1+z*z/n
@@ -47,6 +39,7 @@ def metrics(rows,eligible):
         "mean_probability":round(rows["sum_p"]/n,6) if n else None,
         "group_brier":round(rows["brier"]/n,6) if n else None,
         "priced_selections":rows["ev_count"],
+        "small_sample":n<100,
         "wilson95":wilson95(rows["hits"],n),
         "calibration_gap":round(rows["hits"]/n-rows["sum_p"]/n,6) if n else None}
 def run(events,*,max_2026=0):
