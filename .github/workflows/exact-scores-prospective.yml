@@ -7,6 +7,7 @@ on:
       - 'feature/exact-score-v1-20261019'
     paths:
       - 'bsd/exact_scores_prospective.py'
+      - 'bsd/exact_scores_dashboard.py'
       - 'bsd/test_exact_scores_prospective.py'
       - '.github/workflows/exact-scores-prospective.yml'
   schedule:
@@ -17,7 +18,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: exact-prospective-${{ github.ref }}
+  group: mrx-exact-prospective-one-writer
   cancel-in-progress: false
 
 jobs:
@@ -52,6 +53,10 @@ jobs:
         run: |
           test -n "$BSD_API_KEY" || { echo "::error::Missing BSD_API_KEY"; exit 1; }
           python bsd/exact_scores_prospective.py --max-requests 90
+      - name: Generate standalone aggregate dashboard
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: python bsd/exact_scores_dashboard.py
       - name: Verify prospective report
         run: |
           python - <<'PY'
@@ -60,6 +65,10 @@ jobs:
           assert r["experimental"] is True and r["published"] is False
           assert r["total_captured"] >= r["pending"] + r["all"]["n"]
           assert r["priority"]["n"] <= r["all"]["n"]
+          dashboard=json.load(open("tmp/exact-scores/prospective-dashboard.json",encoding="utf-8"))
+          assert dashboard["total_captured"] == r["total_captured"]
+          assert dashboard["all"]["n"] == r["all"]["n"]
+          assert dashboard["published"] is False
           print("PROSPECTIVE_METRICS",json.dumps(r,ensure_ascii=False))
           PY
       - name: Commit encrypted ledger ONLY (never scores in cleartext)
@@ -85,7 +94,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: exact-prospective-summary-${{ github.run_id }}
-          path: tmp/exact-scores/prospective-report.json
+          path: |
+            tmp/exact-scores/prospective-report.json
+            tmp/exact-scores/prospective-dashboard.json
+            tmp/exact-scores/prospective-dashboard.html
           if-no-files-found: ignore
           retention-days: 90
       - name: Remove decrypted inputs
