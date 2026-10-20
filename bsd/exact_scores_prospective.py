@@ -33,7 +33,7 @@ MODEL = {
     "h2h_rule": "legacy_low_stable_h2h_v1",
 }
 FORECAST_SETTLEMENT_FIELDS = frozenset(("status","forecast_sha256","settled_utc",
-                                        "actual_score","under25_hit","top1_hit","top3_hit"))
+                                        "actual_score","actual_kickoff_utc","under25_hit","top1_hit","top3_hit"))
 MIN_LEAD_MINUTES = 30
 SETTLEMENT_DELAY_HOURS = 4
 
@@ -128,9 +128,13 @@ def record_fixtures(ledger, events, index, now, *, max_new=600):
     added = 0
     skipped = Counter()
     seen = ledger["predictions"]
+    recorded_ids = {str(row["match_id"]) for row in seen.values()}
     for fixture in sorted(events, key=lambda e: (fixture_datetime(e), str(e["id"]))):
         if fixture_key(fixture) in seen:
             skipped["already_recorded"] += 1
+            continue
+        if str(fixture["id"]) in recorded_ids:
+            skipped["rescheduled_preserve_original"] += 1
             continue
         if added >= max_new:
             skipped["capture_limit_reached"] += 1
@@ -140,31 +144,40 @@ def record_fixtures(ledger, events, index, now, *, max_new=600):
             skipped[why] += 1
             continue
         seen[fixture_key(fixture)] = result
+        recorded_ids.add(str(fixture["id"]))
         added += 1
     return {"added": added, "skipped": dict(skipped)}
 
 
 def reconcile_results(ledger, events, now):
+    # First try exact match identity; for reschedules, allow same BSD id
+    # only after the ACTUAL latest kickoff + settlement delay.
     known = {}
+    by_id = {}
     for e in events:
         try:
             key = fixture_key(e)
         except (KeyError, TypeError, ValueError):
             continue
-        known[key] = e
+        ident = str(e["id"])
+        if key not in known or outcome_scores(e) is not None:
+            known[key] = e
+        if ident not in by_id or outcome_scores(e) is not None:
+            by_id[ident] = e
     counts = Counter()
     for key, row in ledger["predictions"].items():
         if row["status"] != "pending":
             continue
-        kickoff = datetime.fromisoformat(row["kickoff_utc"])
-        if now < kickoff + timedelta(hours=SETTLEMENT_DELAY_HOURS):
-            continue
-        candidate = known.get(key)
+        original_kickoff = datetime.fromisoformat(row["kickoff_utc"])
+        candidate = known.get(key) or by_id.get(row["match_id"])
         if candidate is None:
-            continue  # missing API result; never assume a loss or invent a result
+            continue
+        actual_kickoff = fixture_datetime(candidate)
+        if now < max(original_kickoff, actual_kickoff) + timedelta(hours=SETTLEMENT_DELAY_HOURS):
+            continue
         score = outcome_scores(candidate)
         if score is None:
-            continue
+            continue  # missing result is NOT a lost prediction
         if (_team_id(candidate, "home") != row["home_id"]
                 or _team_id(candidate, "away") != row["away_id"]):
             counts["identity_mismatch"] += 1
@@ -172,6 +185,7 @@ def reconcile_results(ledger, events, now):
         top = [tuple(x["score"]) for x in row["top3"]]
         row["status"] = "settled"
         row["settled_utc"] = now.isoformat()
+        row["actual_kickoff_utc"] = actual_kickoff.isoformat()
         row["actual_score"] = list(score)
         row["under25_hit"] = int(sum(score) <= 2)
         row["top1_hit"] = int(score == top[0])
