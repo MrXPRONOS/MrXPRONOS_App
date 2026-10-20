@@ -1,0 +1,36 @@
+name: Audit LIVE football APIs
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/audit_live_sources.py'
+      - '.github/workflows/audit-live-apis.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrxpronos-api-audit
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile and review audit script
+        run: python -m py_compile scripts/audit_live_sources.py
+      - name: Probe each provider once or twice, safely
+        env:
+          BSD_API_TOKEN: ${{ secrets.BSD_API_TOKEN }}
+          MOVIODDS_API_KEY: ${{ secrets.MOVIODDS_API_KEY }}
+          SUPABASE_URL: https://nhwafcpndlufzzxexikh.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python scripts/audit_live_sources.py
