@@ -53,12 +53,24 @@ class HistoryTests(unittest.TestCase):
                     "episodes": {"1": {"1": {"message_id": 1},
                                       "3": {"message_id": 3}}}}}}
         result = episode_audit(catalogue, [
-            {"series": "naruto", "season": 1, "episode": 2},
+            {"series": "naruto", "season": 1, "episode": 2, "source_key": "-100555:5"},
         ], category="anime", ignored_unnumbered=4)
         self.assertEqual(result["numbering_gaps"][0]["missing_between_known"], [2])
         self.assertEqual(result["not_yet_indexed_total"], 1)
         self.assertEqual(result["unnumbered_videos_skipped"], 4)
         self.assertIn("pas la preuve", result["note"])
+
+    def test_source_inventory_persists_across_scanned_pages(self):
+        catalogue = {"series": {}}
+        first = [{"series": "naruto", "season": 1, "episode": 1,
+                  "source_key": "-100123:11"}]
+        episode_audit(catalogue, first, category="anime")
+        later = [{"series": "naruto", "season": 1, "episode": 3,
+                  "source_key": "-100123:13"}]
+        result = episode_audit(catalogue, later, category="anime")
+        self.assertEqual(result["source_episode_numbers_observed"], 2)
+        self.assertEqual(result["source_numbering_gaps"][0]["not_observed_between_known"], [2])
+        self.assertEqual(result["not_yet_indexed_total"], 2)
 
     def test_preflight_rejects_mistyped_private_id(self):
         private = NS(peer_id=-100444, broadcast=True, username=None)
@@ -98,6 +110,11 @@ class HistoryTests(unittest.TestCase):
         merged = merge(remote, local)
         self.assertEqual(merged["scans"]["s"]["cursor"], 40)
         self.assertEqual(merged["audit"]["checked_at"], "new")
+        merged2 = merge({"series": {}, "source_observed": {
+            "naruto": {"1": {"1": ["a:1"]}}}}, {"series": {}, "source_observed": {
+            "naruto": {"1": {"1": ["a:1", "b:1"], "2": ["a:2"]}}}})
+        self.assertEqual(merged2["source_observed"]["naruto"]["1"]["1"], ["a:1", "b:1"])
+        self.assertEqual(merged2["source_observed"]["naruto"]["1"]["2"], ["a:2"])
 
 
 if __name__ == "__main__":
