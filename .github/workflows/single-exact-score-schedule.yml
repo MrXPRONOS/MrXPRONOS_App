@@ -58,7 +58,7 @@ jobs:
           d=json.load(open("tmp/single-exact-score/prospective-report.json"))
           assert d["format"]=="mrx-single-exact-score-summary-v1"
           assert d["experimental"] is True and d["published"] is False
-          assert d["captured"]==d["pending"]+d["settled"]
+          assert d["captured"]==d["pending"]+d["settled"]+d["void"]
           print("ONE_SCORE_DAILY_AUDIT",json.dumps({
               "captured":d["captured"],"settled":d["settled"],
               "top1_rate":d["all"]["top1_rate"],
