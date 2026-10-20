@@ -571,6 +571,78 @@ class SingleExactScoreTests(unittest.TestCase):
         report=top3_report(group,NOW+timedelta(days=1))
         self.assertEqual(report["settled_hit_distribution"]["2"],1)
         self.assertEqual(report["settled_selected_match_hits"],2)
+    def test_score_void_cancels_basket_without_counting_as_loss(self):
+        idx=sample_history()
+        archive=empty()
+        events=[fixture(60000+i,NOW+timedelta(hours=4+i)) for i in range(3)]
+        self.assertEqual(capture(archive,events,idx,DummyDC(),NOW,clock=lambda:NOW)["captured"],3)
+        basket=top3_empty()
+        self.assertEqual(select_groups(basket,archive,NOW)["created"],1)
+        cancelled=fixture(60000,NOW+timedelta(hours=4))
+        cancelled["status"]="cancelled"
+        self.assertEqual(settle(archive,[cancelled],NOW)["void"],1)
+        self.assertEqual(summary(archive,NOW)["void"],1)
+        self.assertEqual(settle_groups(basket,archive,NOW)["void"],1)
+        self.assertEqual(top3_report(basket,NOW)["void_baskets"],1)
+        self.assertEqual(verify_top3(basket,archive,NOW)["verified_baskets"],1)
+    def test_changed_kickoff_invalidates_original(self):
+        idx=sample_history()
+        archive=empty()
+        f=fixture(60100,NOW+timedelta(hours=3))
+        capture(archive,[f],idx,DummyDC(),NOW,clock=lambda:NOW)
+        rescheduled=fixture(60100,NOW+timedelta(hours=5))
+        self.assertEqual(settle(archive,[rescheduled],NOW)["void"],1)
+        self.assertEqual(archive["records"]["60100"]["void_reason"],
+                         "kickoff_rescheduled_over_90_minutes")
+    def test_archived_model_params_migrate_without_changing_forecasts(self):
+        idx=sample_history();archive=empty()
+        f=fixture(60200,NOW+timedelta(hours=6))
+        capture(archive,[f],idx,DummyDC(),NOW,clock=lambda:NOW)
+        archive["model"]={**archive["model"],"future_parameter_not_used":.713}
+        secret=Fernet(Fernet.generate_key())
+        with tempfile.TemporaryDirectory() as d:
+            path=Path(d)/"single.enc.json"
+            save(archive,path,secret)
+            self.assertEqual(read(path,secret),archive)
+    def test_top3_rank_version_mixed_is_comparable_and_no_lookahead(self):
+        from single_exact_score_top3 import _candidate
+        row={"id":"700","status":"pending","score":[1,1],
+             "estimated_probability":.15,"score_margin":.02,
+             "kickoff":(NOW+timedelta(hours=6)).isoformat(),
+             "captured_at":NOW.isoformat(),"forecast_sha256":"old"}
+        a=_candidate(row,NOW)
+        row["selection_rank"]=.99
+        row["rank_version"]="old-irrelevant"
+        self.assertEqual(_candidate(row,NOW)["selection_rank"],a["selection_rank"])
+        self.assertEqual(a["rank_provenance"],RANK_VERSION)
+    def test_top3_cutoff_prevents_early_frozen_selection(self):
+        ledger={"records":{}}
+        for i in range(3):
+            t=NOW+timedelta(hours=5+i)
+            ledger["records"][str(i)]={"id":str(i),"status":"pending","score":[1,1],
+                "estimated_probability":.17,"score_margin":.02,
+                "kickoff":t.isoformat(),"captured_at":NOW.isoformat()}
+        group=top3_empty()
+        self.assertEqual(select_groups(group,ledger,NOW,enforce_cutoff=True)["created"],0)
+        at=NOW+timedelta(minutes=15)
+        self.assertEqual(select_groups(group,ledger,at,enforce_cutoff=True)["created"],1)
+    def test_top3_settlement_verification_rejects_modified_hit_count(self):
+        ledger={"records":{}}
+        for i in range(3):
+            k=str(71000+i)
+            ledger["records"][k]={"id":k,"status":"pending","score":[1,1],
+                "estimated_probability":.17,"score_margin":.02,
+                "kickoff":(NOW+timedelta(hours=5+i)).isoformat(),
+                "captured_at":NOW.isoformat(),"forecast_sha256":"h"+k}
+        group=top3_empty()
+        select_groups(group,ledger,NOW)
+        for row in ledger["records"].values():
+            row["status"]="settled";row["actual_score"]=[1,1]
+        settle_groups(group,ledger,NOW+timedelta(days=1))
+        item=next(iter(group["records"].values()))
+        item["hits"]=1
+        with self.assertRaises(ValueError):
+            verify_top3(group,ledger,NOW+timedelta(days=1))
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)

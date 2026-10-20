@@ -13,7 +13,8 @@ from single_exact_score_research import RANK_VERSION
 
 PATH=Path("bsd/single_exact_score_top3.enc.json")
 FORMAT="mrx-single-exact-top3-prospective-v1"
-RESULT_FIELDS=frozenset(("status","settled_at","matched","hits","winning","digest"))
+RESULT_FIELDS=frozenset(("status","settled_at","matched","hits","winning",
+                         "void_reason","voided_at","digest"))
 
 def empty():
     return {"format":FORMAT,"selection_rule":RANK_VERSION,"records":{}}
@@ -67,23 +68,17 @@ def _candidate(rec,now,minimum_lead_minutes=30):
             or captured>at-timedelta(minutes=minimum_lead_minutes)
             or len(rec["score"])!=2 or any(type(n)!=int or n<0 for n in rec["score"])):
             return None
-        rank=rec.get("selection_rank")
-        rank_rule=rec.get("rank_version")
-        if type(rank) not in (float,int) or not math.isfinite(rank):
-            # Earlier immutable first-seen records predate the ranking field.
-            # Their archived probability/margin were available pre-match;
-            # reconstruct an explicitly versioned compatibility rank WITHOUT
-            # modifying the original score/record or inspecting results.
-            p=rec.get("estimated_probability")
-            margin=rec.get("score_margin")
-            if (type(p) not in (int,float) or not math.isfinite(p)
-                    or p<=0 or p>=1 or type(margin) not in (int,float)
-                    or not math.isfinite(margin) or margin<0):
-                return None
-            rank=float(p)+.08*min(.20,float(margin))
-            rank_rule="legacy-first-seen-probability-margin-v1"
-        elif rank_rule!=RANK_VERSION:
+        # Re-evaluate rank on the SAME comparable feature scale,
+        # regardless of the historic rank-version persisted in each record.
+        # Never change the original immutable record or score.
+        p=rec.get("estimated_probability")
+        margin=rec.get("score_margin")
+        if (type(p) not in (int,float) or not math.isfinite(p)
+                or p<=0 or p>=1 or type(margin) not in (int,float)
+                or not math.isfinite(margin) or margin<0):
             return None
+        rank=float(p)+.08*min(.20,float(margin))
+        rank_rule=RANK_VERSION
     except (TypeError,ValueError,OverflowError,KeyError):
         return None
     return {"id":str(rec["id"]),"kickoff":rec["kickoff"],
@@ -95,7 +90,8 @@ def _candidate(rec,now,minimum_lead_minutes=30):
             "advanced_model_fingerprint_sha256":(rec.get("advanced_research") or {}).get(
                 "model_fingerprint_sha256")}
 
-def select_groups(archive,match_ledger,now,*,max_groups=3,minimum_lead_minutes=30):
+def select_groups(archive,match_ledger,now,*,max_groups=3,minimum_lead_minutes=30,
+                  enforce_cutoff=False,cutoff_hour=12,cutoff_minute=13):
     """Freeze at first seen slate; no result/label influences rank or inclusion."""
     if now.tzinfo is None:raise ValueError("UTC timestamp required")
     candidates={}
@@ -104,8 +100,14 @@ def select_groups(archive,match_ledger,now,*,max_groups=3,minimum_lead_minutes=3
         if item is not None:
             date=_utc(item["kickoff"]).date().isoformat()
             candidates.setdefault(date,[]).append(item)
-    stats={"created":0,"days_short":0,"already_seen":0}
+    stats={"created":0,"days_short":0,"already_seen":0,"before_cutoff":0}
     for day,items in sorted(candidates.items()):
+        if enforce_cutoff:
+            cutoff=datetime.fromisoformat(day).replace(
+                hour=cutoff_hour,minute=cutoff_minute,tzinfo=timezone.utc)
+            if now.astimezone(timezone.utc)<cutoff:
+                stats["before_cutoff"]+=1
+                continue
         if day in archive["records"]:
             stats["already_seen"]+=1
             continue
@@ -122,18 +124,27 @@ def select_groups(archive,match_ledger,now,*,max_groups=3,minimum_lead_minutes=3
     return stats
 
 def settle_groups(archive,match_ledger,now):
-    stats={"settled":0,"pending":0,"incomplete":0}
+    stats={"settled":0,"pending":0,"incomplete":0,"void":0}
     for rec in archive["records"].values():
-        if rec["status"]=="settled":continue
+        if rec["status"] in ("settled","void"):continue
         labels=[]
+        void_reason=None
         for pick in rec["picks"]:
             match=match_ledger["records"].get(str(pick["id"]))
-            if (not match or match.get("status")!="settled" or
-                match.get("forecast_sha256")!=pick["forecast_digest"] or
-                match.get("score")!=pick["score"]):
+            if not match or match.get("forecast_sha256")!=pick["forecast_digest"] or match.get("score")!=pick["score"]:
                 break
-            if not isinstance(match.get("actual_score"),list):break
+            if match.get("status")=="void":
+                void_reason="fixture_void:"+str(match.get("void_reason") or "unknown")
+                break
+            if match.get("status")!="settled" or not isinstance(match.get("actual_score"),list):
+                break
             labels.append(int(match["actual_score"]==pick["score"]))
+        if void_reason is not None:
+            rec["status"]="void"
+            rec["void_reason"]=void_reason
+            rec["voided_at"]=now.isoformat()
+            stats["void"]+=1
+            continue
         if len(labels)<3:
             stats["incomplete"]+=1
             stats["pending"]+=1
@@ -161,7 +172,7 @@ def verify(archive, match_ledger, now):
             raise ValueError("A basket must contain three distinct match snapshots")
         if day!=record.get("date_utc") or record.get("digest")!=_sha(record):
             raise ValueError("Frozen basket identity/digest mismatch")
-        if record.get("status") not in ("pending","settled"):
+        if record.get("status") not in ("pending","settled","void"):
             raise ValueError("Unexpected basket status")
         issued=_utc(record["issued_at_utc"])
         if issued>now+timedelta(minutes=1):
@@ -184,11 +195,22 @@ def verify(archive, match_ledger, now):
                 record_original.get("captured_at")!=pick.get("captured_at")):
                 raise ValueError("First-seen match forecast and frozen Top3 disagree")
         if record["status"]=="settled":
+            expected_hits=0
+            for pick in picks:
+                source=match_ledger["records"][str(pick["id"])]
+                if source.get("status")!="settled" or not isinstance(source.get("actual_score"),list):
+                    raise ValueError("Settled basket without three final results")
+                expected_hits+=int(source["actual_score"]==pick["score"])
             hits=record.get("hits")
-            if (record.get("matched")!=3 or type(hits)!=int or not 0<=hits<=3 or
+            if (record.get("matched")!=3 or type(hits)!=int or hits!=expected_hits or not 0<=hits<=3 or
                 record.get("winning")!=int(hits>0) or
                 _utc(record["settled_at"])<issued):
                 raise ValueError("Impossible settled Top3 result")
+        if record["status"]=="void":
+            if (not record.get("void_reason") or
+                not any(match_ledger["records"][str(p["id"])].get("status")=="void"
+                        for p in picks)):
+                raise ValueError("Basket marked void without void fixture")
         verified+=1
     return {"verified_baskets":verified,"structural_errors":0}
 
@@ -197,6 +219,7 @@ def report(archive,now=None):
     values=list(archive["records"].values())
     done=[r for r in values if r.get("status")=="settled"]
     pending=[r for r in values if r.get("status")=="pending"]
+    void=[r for r in values if r.get("status")=="void"]
     wins=sum(r["winning"] for r in done)
     histogram={str(i):sum(r.get("hits")==i for r in done) for i in range(4)}
     overdue=0
@@ -208,7 +231,8 @@ def report(archive,now=None):
                 overdue+=1
     return {"format":"mrx-top3-prospective-summary-v1","research_only":True,
             "published":False,"baskets_created":len(values),
-            "pending_baskets":len(pending),"overdue_unsettled_baskets":overdue,
+            "pending_baskets":len(pending),"void_baskets":len(void),
+            "overdue_unsettled_baskets":overdue,
             "settled_baskets":len(done),"baskets_with_at_least_one_hit":wins,
             "winning_basket_rate":round(wins/len(done),6) if done else None,
             "selected_match_count":3*len(values),

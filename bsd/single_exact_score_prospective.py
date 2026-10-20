@@ -29,7 +29,7 @@ from single_exact_score_context_observations import (
 PATH=Path("bsd/single_exact_score_ledger.enc.json")
 SCHEMA="mrx-single-exact-score-ledger-v1"
 RESULT_FIELDS=frozenset(("status","settled_at","actual_score","actual_kickoff_utc",
-                          "hit","alternatives_hit","forecast_sha256"))
+                          "hit","alternatives_hit","forecast_sha256","void_reason","voided_at"))
 def empty():
     return {"format":SCHEMA,"model":PARAMETERS,"records":{}}
 def digest(row):
@@ -42,15 +42,20 @@ def read(path=PATH,secret=None):
     if env.get("format")!=SCHEMA or not isinstance(env.get("encrypted"),str):
         raise ValueError("Encrypted ledger required")
     result=json.loads((secret or cipher()).decrypt(env["encrypted"].encode("ascii")))
-    if result.get("format")!=SCHEMA or result.get("model")!=PARAMETERS:
-        raise ValueError("Incompatible model: preserve original archive")
+    if result.get("format")!=SCHEMA or not isinstance(result.get("model"),dict):
+        raise ValueError("Incompatible archive schema: preserve original archive")
+    # Immutable per-row model/version and forecast digest are authoritative;
+    # changes in CURRENT model parameters must never make old records unreadable.
+    if not isinstance(result.get("records"),dict):
+        raise ValueError("Missing immutable forecast records")
     for row in result["records"].values():
         if digest(row)!=row.get("forecast_sha256"):
             raise ValueError("The original single-score prediction was edited")
     return result
 def save(data,path=PATH,secret=None):
-    if data.get("format")!=SCHEMA or data.get("model")!=PARAMETERS:
-        raise ValueError("Refusing to overwrite another model's archive")
+    if (data.get("format")!=SCHEMA or not isinstance(data.get("model"),dict)
+            or not isinstance(data.get("records"),dict)):
+        raise ValueError("Refusing to overwrite malformed or incompatible archive")
     if any(digest(row)!=row.get("forecast_sha256") for row in data["records"].values()):
         raise ValueError("Cannot save modified pre-match forecast")
     contents=json.dumps(data,ensure_ascii=False,sort_keys=True,separators=(",",":"))
@@ -116,7 +121,11 @@ def settle(archive,fixtures,now):
             event_at=fixture_datetime(event)
         except (TypeError,ValueError):continue
         key=str(event["id"])
-        if key not in by_id or outcome_scores(event) is not None:
+        state=str(event.get("status") or "").lower()
+        previous=by_id.get(key)
+        # Prefer terminal fixture outcomes to an older unresolved snapshot.
+        if (previous is None or outcome_scores(event) is not None or
+                state in ("cancelled","canceled","abandoned","postponed")):
             by_id[key]=event
     counter=Counter()
     for key,row in archive["records"].items():
@@ -125,6 +134,23 @@ def settle(archive,fixtures,now):
         if found is None:continue
         at=fixture_datetime(found)
         original=datetime.fromisoformat(row["kickoff"])
+        state=str(found.get("status") or "").lower()
+        if (_team_id(found,"home")!=row["home_id"] or
+            _team_id(found,"away")!=row["away_id"]):
+            counter["different_teams"]+=1;continue
+        # An invalidated/changed fixture is NOT a losing exact-score pick.
+        reason=None
+        if state in ("cancelled","canceled","abandoned","postponed"):
+            reason=state
+        elif abs((at-original).total_seconds())>5400:
+            reason="kickoff_rescheduled_over_90_minutes"
+        if reason is not None:
+            row["status"]="void"
+            row["voided_at"]=now.isoformat()
+            row["void_reason"]=reason
+            row["actual_kickoff_utc"]=at.isoformat()
+            counter["void"]+=1
+            continue
         if now<max(original,at)+timedelta(hours=4):continue
         score=outcome_scores(found)
         if score is None:continue
@@ -143,14 +169,16 @@ def settle(archive,fixtures,now):
 def summary(archive,now):
     values=list(archive["records"].values())
     done=[v for v in values if v["status"]=="settled"]
+    void=[v for v in values if v["status"]=="void"]
     def calculate(rows):
         n=len(rows);hits=sum(x["hit"] for x in rows)
         return {"n":n,"hits":hits,"top1_rate":round(hits/n,6) if n else None,
                 "average_estimated_probability":round(sum(x["estimated_probability"] for x in rows)/n,6) if n else None}
     return {"format":"mrx-single-exact-score-summary-v1","generated_at":now.isoformat(),
             "experimental":True,"published":False,"model":VERSION,
-            "captured":len(values),"pending":len(values)-len(done),
-            "settled":len(done),"all":calculate(done),
+            "captured":len(values),"pending":len(values)-len(done)-len(void),
+            "settled":len(done),"void":len(void),
+            "void_reasons":dict(Counter(v.get("void_reason","unknown") for v in void)),"all":calculate(done),
             "priority":calculate([v for v in done if v["research_priority"]]),
             "h2h_under":calculate([v for v in done if v["h2h_low_stable"] and v["under25_probability"]>=.62]),
             "experimental_alternatives":{
@@ -197,14 +225,14 @@ def main():
         save_lineup_evidence(observations)
     selection_now=datetime.now(timezone.utc)
     top3=read_top3()
-    created_groups=select_groups(top3,archive,selection_now)
+    created_groups=select_groups(top3,archive,selection_now,enforce_cutoff=True)
     pending={key for key,r in archive["records"].items() if r["status"]=="pending"}
     completed=[event for _t,event in index.global_games if str(event["id"]) in pending]
     finished=settle(archive,completed+upcoming,datetime.now(timezone.utc))
     settled_groups=settle_groups(top3,archive,datetime.now(timezone.utc))
-    if added.get("captured") or finished.get("settled"):
+    if added.get("captured") or finished.get("settled") or finished.get("void"):
         save(archive,Path(args.ledger))
-    if created_groups.get("created") or settled_groups.get("settled"):
+    if created_groups.get("created") or settled_groups.get("settled") or settled_groups.get("void"):
         save_top3(top3)
     result=summary(archive,datetime.now(timezone.utc))
     result["top3"]=top3_report(top3,datetime.now(timezone.utc))
