@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Envoi unique du rendu accumulateur (document PNG non compressé) en canal TEST."""
+"""Envoi unique du rendu accumulateur (photo PNG dans le fil Telegram) en canal TEST."""
 import os
 from pathlib import Path
 import requests
@@ -14,13 +14,13 @@ def main():
     verified=validate_test_channel(chat,token)
     with file.open("rb") as f:
         response=requests.post(
-            "https://api.telegram.org/bot"+token+"/sendDocument",
+            "https://api.telegram.org/bot"+token+"/sendPhoto",
             data={"chat_id":verified["chat_id"],"caption":"🧪 REPRODUCTION VISUELLE — 11 matchs de la capture de référence. Maquette de test, pas un ticket réel. Mr XPRONOS."},
-            files={"document":("mrxpronos-combine-reference.png",f,"image/png")},
+            files={"photo":("mrxpronos-combine-reference.png",f,"image/png")},
             timeout=(10,120),
         )
     response.raise_for_status()
     payload=response.json()
-    if not payload.get("ok"):raise RuntimeError("Telegram a refusé le document")
+    if not payload.get("ok"):raise RuntimeError("Telegram a refusé la photo")
     print("ACCUMULATOR_TEST_SENT message_id",payload["result"]["message_id"],"chat",verified["username"])
 if __name__=="__main__":main()
