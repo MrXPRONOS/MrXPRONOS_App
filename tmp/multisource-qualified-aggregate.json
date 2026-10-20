@@ -5,10 +5,10 @@
   "external_independent_provider_verified": 0,
   "external_verified_total": 1,
   "native_total": 140,
-  "native_unique_eligible": 132,
-  "native_invalid_records": 8,
+  "native_unique_eligible": 130,
+  "native_invalid_records": 10,
   "native_invalid_breakdown": {
-    "native_not_prematch": 8
+    "native_not_prematch": 10
   },
   "one_to_one_native_event_links": 0,
   "unmatched_or_ambiguous_external": 1,
