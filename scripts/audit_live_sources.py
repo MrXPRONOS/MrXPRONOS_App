@@ -76,7 +76,12 @@ if fixtures:
         root = (body.get("match") or body.get("data") or body) if isinstance(body, dict) else {}
         stat_payload = root.get("stats") or root.get("statistics") or {} if isinstance(root, dict) else {}
         record("sportscore_detail", info, fields=sorted(root.keys())[:30] if isinstance(root, dict) else [],
-               has_statistics=bool(stat_payload), corners_pair=pairs(stat_payload, "corner_kicks"))
+               has_statistics=bool(stat_payload), corners_pair=pairs(stat_payload, "corner_kicks"),
+               stats_type=type(stat_payload).__name__,
+               stats_keys=sorted(stat_payload.keys())[:22] if isinstance(stat_payload,dict) else [],
+               first_row_keys=(sorted(stat_payload[0].keys())[:22]
+                               if isinstance(stat_payload,list) and stat_payload
+                               and isinstance(stat_payload[0],dict) else []))
 
 # 2. ESPN: unofficial but observable scoreboard + optional match summary.
 info, board = probe("espn_scoreboard", "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard?"+
@@ -124,11 +129,16 @@ record("openligadb_next_match", info, available=isinstance(body, dict),
 movikey = os.environ.get("MOVIODDS_API_KEY", "").strip()
 info, body = probe("moviodds_live", "https://moviodds.com/odds?sport=soccer&in_play=1&stats=1", movikey)
 matches = arr(body, "matches")
+observed = next((m["stats"] for m in matches if isinstance(m.get("stats"), dict) and bool(m["stats"])), {})
+movi_home = observed.get("home") if isinstance(observed.get("home"),dict) else {}
+movi_away = observed.get("away") if isinstance(observed.get("away"),dict) else {}
 record("moviodds_live", info, matches=len(matches),
        with_stats=sum(1 for m in matches if isinstance(m.get("stats"), dict) and bool(m["stats"])),
        with_quotes=sum(1 for m in matches if m.get("quotes")),
-       first_stats_fields=sorted(next((m["stats"] for m in matches
-           if isinstance(m.get("stats"), dict) and bool(m["stats"])), {}).keys())[:24])
+       first_stats_fields=sorted(observed.keys())[:24],
+       home_stats_fields=sorted(movi_home.keys())[:32],
+       away_stats_fields=sorted(movi_away.keys())[:32],
+       sample_stats_updated_at=bool(observed.get("updated_at")))
 
 # Store the non-secret summary for comparison with later audits.
 summary = {"checked_at": NOW.isoformat(), "day": DAY, "providers": RESULTS}
