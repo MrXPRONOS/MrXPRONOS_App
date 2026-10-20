@@ -28,6 +28,7 @@ def main():
     parser.add_argument("--output", default="/tmp/mrx_all_matches_research.json")
     parser.add_argument("--audit", default="/tmp/mrx_refresh_audit.json")
     parser.add_argument("--end", default="2026-10-19")
+    parser.add_argument("--max-days",type=int,default=0,help="0=all missing days; positive bound for fast CI")
     args=parser.parse_args()
     end=date.fromisoformat(args.end)
     source=Path(args.source)
@@ -54,9 +55,14 @@ def main():
         day+=timedelta(days=1)
     # Recover the newest unknown dates first, but also attempt older 2026 holes.
     missing.sort(reverse=True)
+    total_missing=len(missing)
+    if args.max_days>0:
+        missing=missing[:args.max_days]
     summary={"source_max_date":str(maximum),"target_end":str(end),
              "observed_days_before_refresh":len(observed_dates),
              "missing_days_to_attempt":len(missing),
+             "missing_days_total":total_missing,
+             "missing_days_unattempted":total_missing-len(missing),
              "api_configured":bool(get_api_keys()),
              "calls":0,"failed_calls":0,"received_matches":0,
              "accepted_finished":0,"days_recovered":0}
