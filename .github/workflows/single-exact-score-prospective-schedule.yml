@@ -74,6 +74,11 @@ jobs:
           assert d["captured"] == d["pending"] + d["settled"]
           assert d["top3"]["selected_match_count"] == 3*d["top3"]["baskets_created"]
           assert d["top3"]["baskets_with_at_least_one_hit"] <= d["top3"]["settled_baskets"]
+          assert d["top3_integrity"]["structural_errors"] == 0
+          assert d["top3_integrity"]["verified_baskets"] == d["top3"]["baskets_created"]
+          assert d["top3"]["pending_baskets"] + d["top3"]["settled_baskets"] == d["top3"]["baskets_created"]
+          assert sum(d["top3"]["settled_hit_distribution"].values()) == d["top3"]["settled_baskets"]
+          assert d["top3"]["settled_selected_match_hits"] <= 3*d["top3"]["settled_baskets"]
           assert 0 <= d["context_coverage"]["new_collector_found"] <= d["context_coverage"]["new_collector_attempts"] <= 6
           assert d["absence_context_model"]["training_rows"] >= 0
           assert 0 <= d["context_coverage"]["sidecar_capture_new"] <= d["context_coverage"]["sidecar_capture_attempted"] <= 12
