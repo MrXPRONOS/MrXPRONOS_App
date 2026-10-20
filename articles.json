@@ -1,5 +1,38 @@
 [
   {
+    "slug": "bsd-match-605005",
+    "title": "Horoya vs Al-Merrikh Khartoum Club : fiche match BSD V2",
+    "date": "2026-10-20T05:41:56.500809+00:00",
+    "author": "Mr XPRONOS",
+    "reading_time": 1,
+    "excerpt": "Horoya – Al-Merrikh Khartoum Club : affiche vérifiée dans le flux football BSD V2, le 18/10/2026 à 16h00 (heure du Togo).",
+    "meta_description": "Horoya – Al-Merrikh Khartoum Club : affiche vérifiée dans le flux football BSD V2, le 18/10/2026 à 16h00 (heure du Togo).",
+    "keywords": "football, BSD V2, CAF Champions League, Horoya, Al-Merrikh Khartoum Club",
+    "content": "# Horoya – Al-Merrikh Khartoum Club\n\n**Date et heure :** 18/10/2026 à 16h00 (GMT, Togo).\n**Compétition :** CAF Champions League.\n**Source des données :** BSD V2, identifiant 605005.\n\n**Score final BSD :** Horoya 1 – 0 Al-Merrikh Khartoum Club.\n\n## Signal calculé par le moteur BSD V2\n**Marché identifié :** Total buts : Under 3,5.\nIl s'agit d'une estimation du modèle, pas d'un résultat certain. Vérifie l'état du match et les cotes au moment de consulter le site.\n\n## Consulter les données en direct\nRetrouve les éventuelles mises à jour sur la page Pronostics de Mr XPRONOS.\n\n**18+ — Les paris sportifs comportent un risque de perte.**",
+    "active": true,
+    "type": "match",
+    "source": "bsd",
+    "match": "Horoya vs Al-Merrikh Khartoum Club",
+    "league": "CAF Champions League",
+    "bsd_event_id": "605005",
+    "bsd_match_date": "2026-10-18T16:00:00+00:00",
+    "editorial_importance": 505,
+    "editorial_reasons": [
+      "Ligue des champions CAF"
+    ],
+    "editorial_role": "grande_affiche",
+    "home_logo": "https://sports.bzzoiro.com/img/team/611/?bg=transparent",
+    "away_logo": "https://sports.bzzoiro.com/img/team/616/?bg=transparent",
+    "visual_variant": "v3",
+    "visual_hash": "11b338bb",
+    "visual_format": "webp",
+    "image_url": "assets/images/editorial/match-bsd-match-605005-11b338bb-og.webp",
+    "social_image": "assets/images/editorial/match-bsd-match-605005-11b338bb-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-605005-11b338bb-story.webp",
+    "og_image": "assets/images/editorial/match-bsd-match-605005-11b338bb-og.webp",
+    "ab_image_url": "assets/images/editorial/match-bsd-match-605005-11b338bb-ab.webp"
+  },
+  {
     "slug": "bsd-match-603727",
     "title": "Tout Puissant Mazembe vs Club Africain : fiche match BSD V2",
     "date": "2026-10-19T05:41:42.757869+00:00",

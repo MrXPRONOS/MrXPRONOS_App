@@ -11,6 +11,10 @@
     "anime-series:mangas-fv-no-longer-rangers-s02-mp4": {
       "public_id": 17,
       "video_id": 13
+    },
+    "anime-series:mangas-fv-yu-gi-oh-duel-monsters": {
+      "public_id": 33,
+      "video_id": 50
     }
   },
   "mirrors": {
@@ -29,17 +33,19 @@
       }
     },
     "-1004347937458": {
-      "last_film_total": 2,
-      "next_index": 1,
+      "last_film_total": 4,
+      "next_index": 2,
       "sent": {
-        "0": 15
+        "0": 15,
+        "1": 34
       }
     },
     "-1004416009337": {
-      "last_film_total": 2,
-      "next_index": 1,
+      "last_film_total": 4,
+      "next_index": 2,
       "sent": {
-        "0": 10
+        "0": 10,
+        "1": 80
       }
     }
   },

@@ -1,5 +1,27 @@
 [
   {
+    "id": "9234b1ec9e9e820b88e8be32",
+    "kind": "article",
+    "title": "Horoya vs Al-Merrikh Khartoum Club : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-605005/",
+    "source_date": "2026-10-20T05:41:56.500809+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-605005-11b338bb-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-605005-11b338bb-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-20T05:41:56.790254+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-605005-11b338bb-social.jpg"
+  },
+  {
     "id": "b31d18e39ab7732a62bcb638",
     "kind": "article",
     "title": "Tout Puissant Mazembe vs Club Africain : fiche match BSD V2",

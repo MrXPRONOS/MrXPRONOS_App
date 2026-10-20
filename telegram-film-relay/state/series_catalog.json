@@ -1,4 +1,33 @@
 {
+  "audit": {
+    "category": "series_catalog",
+    "checked_at": "2026-10-20T04:50:17.779832+00:00",
+    "not_yet_indexed": [],
+    "not_yet_indexed_total": 0,
+    "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
+    "numbering_gap_seasons": 0,
+    "numbering_gaps": [],
+    "scanned_episode_candidates": 8,
+    "source_episode_numbers_observed": 8,
+    "source_numbering_gap_seasons": 0,
+    "source_numbering_gaps": [],
+    "source_scan_complete": true,
+    "unnumbered_videos_skipped": 51
+  },
+  "scans": {
+    "-1001733930841": {
+      "complete": true,
+      "cursor": 1,
+      "last_checked": "2026-10-20T04:50:17.778966+00:00",
+      "pages": 0
+    },
+    "-1003990708673": {
+      "complete": true,
+      "cursor": 1,
+      "last_checked": "2026-10-20T04:50:17.778935+00:00",
+      "pages": 0
+    }
+  },
   "series": {
     "little-house-on-the-prairie-2026": {
       "episodes": {
@@ -53,6 +82,36 @@
         "-1003990708673:24": 118
       },
       "title": "little house on the prairie 2026"
+    }
+  },
+  "source_observed": {
+    "little-house-on-the-prairie-2026": {
+      "1": {
+        "1": [
+          "-1003990708673:17"
+        ],
+        "2": [
+          "-1003990708673:18"
+        ],
+        "3": [
+          "-1003990708673:19"
+        ],
+        "4": [
+          "-1003990708673:20"
+        ],
+        "5": [
+          "-1003990708673:21"
+        ],
+        "6": [
+          "-1003990708673:22"
+        ],
+        "7": [
+          "-1003990708673:23"
+        ],
+        "8": [
+          "-1003990708673:24"
+        ]
+      }
     }
   }
 }
