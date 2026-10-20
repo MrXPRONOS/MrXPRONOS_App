@@ -16,7 +16,7 @@ from exact_scores_h2h import H2HIndex
 from grouped_correct_score import group_hit
 from grouped_correct_score_engine import fit_direction,analyze,selection_summary
 
-FORM_RULES=("recent_attack","recent_defence","historical_h2h_context","venue_shift","model_agreement","combined","strict")
+FORM_RULES=("legacy","recent_attack","recent_defence","historical_h2h_context","venue_shift","model_agreement","combined","strict")
 POLICIES=("baseline","with_double_chance","with_h2h_under","with_verified_price")+tuple("form_"+k for k in FORM_RULES)
 def new_bucket():return {"n":0,"hits":0,"sum_p":0.,"brier":0.,"ev_count":0}
 def record(bucket,selection,score):
