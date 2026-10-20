@@ -163,6 +163,24 @@ def _already_sent_ids(target_date: str, kind: str):
     return {_canonical_event_id(row.get("ref_id")) for row in rows if row.get("ref_id")}
 
 
+def _daily_video_already_claimed(now):
+    """Vérifie le verrou quotidien, qui empêche une deuxième vidéo."""
+    base=(os.getenv("SUPABASE_URL") or "").rstrip("/")
+    key=os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or ""
+    if not base or not key:
+        raise RuntimeError("Supabase obligatoire pour limiter les vidéos à une par jour")
+    res=requests.get(base+"/rest/v1/telegram_sent",
+        params={"select":"ref_id","kind":"eq.shorts_video_daily_guard",
+                "ref_id":"eq.one_daily_video",
+                "ref_date":"eq."+now.date().isoformat(),"limit":"1"},
+        headers=_ledger_headers(key),timeout=30)
+    res.raise_for_status()
+    rows=res.json()
+    if not isinstance(rows,list):
+        raise RuntimeError("Registre des vidéos quotidiennes invalide")
+    return bool(rows)
+
+
 def select_matches(data, slot: str, now: datetime, *, limit=MAX_MATCHES, ledger_kind=LEDGER_DEFAULT):
     matches = data.get("matches") or []
     if not isinstance(matches, list):
@@ -179,6 +197,9 @@ def select_matches(data, slot: str, now: datetime, *, limit=MAX_MATCHES, ledger_
         return candidates[:limit], "preview"
 
     target = _target_date(slot, now)
+    if _daily_video_already_claimed(now):
+        print("SHORTS_DAILY_ALREADY_SENT",now.date().isoformat())
+        return [],target
     already = _already_sent_ids(target, ledger_kind)
 
     candidates = []
@@ -192,13 +213,10 @@ def select_matches(data, slot: str, now: datetime, *, limit=MAX_MATCHES, ledger_
         if event_id in already:
             continue
 
-        # Two daily production waves:
-        # - evening run: tomorrow's earlier fixtures (< 15:00 UTC)
-        # - morning run: today's later fixtures (>= 15:00 UTC)
-        if slot == "evening" and dt.hour >= DAY_SPLIT_HOUR_UTC:
-            continue
-        if slot == "morning" and dt.hour < DAY_SPLIT_HOUR_UTC:
-            continue
+        # Le mode matin couvre TOUS les matchs restants du jour :
+        # aucune coupure à 15 h pour ne pas perdre les rencontres matinales.
+        # Les anciens déclenchements manuels evening restent compatibles,
+        # mais le verrou journalier interdit deux vidéos le même jour.
         candidates.append(match)
 
     # Within the target day, prefer higher odds first; kickoff breaks ties.
