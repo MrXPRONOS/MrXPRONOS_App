@@ -49,10 +49,10 @@ jobs:
           from PIL import Image
           path=os.environ["ACCUMULATOR_OUTPUT"]
           with Image.open(path) as im:
-              assert im.format=="PNG" and im.width==1080 and im.height>3000, (im.format, im.size)
+              assert im.format=="PNG" and im.width==1080 and 3000<im.height<=9000 and (im.width+im.height)<=10000, (im.format, im.size)
               print("ACCUMULATOR_IMAGE_VERIFIED", im.size)
           PY
-      - name: Envoyer un seul document PNG au canal Telegram TEST
+      - name: Envoyer une seule photo PNG au canal Telegram TEST
         run: python scripts/send_accumulator_test.py
       - uses: actions/upload-artifact@v4
         if: always()
