@@ -8,7 +8,7 @@ from collections import Counter,defaultdict
 from pathlib import Path
 from bsd_v2_core import V2History,estimate_goals,fixture_datetime,outcome_scores
 from exact_scores import feature_rows,fit_rho_2024,fit_goal_scales_2025,matrix_for
-from exact_scores_under25 import train_under25
+from exact_scores_under25 import train_under25,probability_under25
 from exact_scores_under25_v2 import train,features
 from exact_scores_h2h import H2HIndex,h2h_signal
 
@@ -41,7 +41,7 @@ def run(events):
         if est is None:skips[reason]+=1;continue
         matrix=matrix_for(est["home"]*sh,est["away"]*sa,rho=rho)
         o=old.predict(e,index,matrix)
-        x=features(e,index,o["probability"])
+        x=features(e,index,probability_under25(matrix))
         v2=model.predict(x,o["probability"])
         y=int(sum(outcome_scores(e))<=2)
         selected=["all"]
