@@ -16,6 +16,7 @@ from pathlib import Path
 import requests
 
 KIND = "shorts_video_coupon"
+DAILY_GUARD_KIND = "shorts_video_daily_guard"
 
 
 def headers(key: str):
@@ -82,7 +83,30 @@ def main():
 
     target = str(manifest.get("target") or "")
     slot = str(manifest.get("slot") or "")
-    label = "1re vague" if slot == "evening" else "2e vague"
+    from datetime import datetime, timezone
+    published_day = datetime.now(timezone.utc).date().isoformat()
+    # Réservation atomique : une seule vidéo de pronostics PAR JOUR, même en
+    # présence de relances manuelles ou cron-job.org. Jamais deux vagues.
+    session = requests.Session()
+    guard = session.post(
+        base.rstrip("/") + "/rest/v1/telegram_sent",
+        params={"on_conflict": "kind,ref_id,ref_date"},
+        headers=headers(key),
+        json={"kind": DAILY_GUARD_KIND, "ref_id": "one_daily_video",
+              "ref_date": published_day, "validation_sent": False},
+        timeout=30,
+    )
+    guard.raise_for_status()
+    claimed = guard.json()
+    if not isinstance(claimed,list):
+        raise RuntimeError("Registre d'unicité quotidienne invalide")
+    if not claimed:
+        print("SHORTS_DAILY_ALREADY_SENT",published_day)
+        output=os.getenv("GITHUB_OUTPUT")
+        if output:
+            with open(output,"a",encoding="utf-8") as fh: fh.write("video_sent=false\\n".replace("\\\\n","\\n"))
+        return 0
+    label = "Sélection du jour"
     caption = (
         f"⚽ Pronostics Mr XPRONOS — {target}\n"
         f"{label} · {manifest.get('count')} sélection(s)\n"
@@ -95,7 +119,6 @@ def main():
              "url": "https://mrxpronos.github.io/MrXPRONOS_App/pronos.html"}
         ]]
     }
-    session = requests.Session()
     url = "https://api.telegram.org/bot" + token + "/sendVideo"
     with video.open("rb") as fh:
         response = session.post(
@@ -124,6 +147,9 @@ def main():
     }, ensure_ascii=False))
 
     record_batch(session, base, key, manifest)
+    output=os.getenv("GITHUB_OUTPUT")
+    if output:
+        with open(output,"a",encoding="utf-8") as fh: fh.write("video_sent=true\\n".replace("\\\\n","\\n"))
     return 0
 
 
