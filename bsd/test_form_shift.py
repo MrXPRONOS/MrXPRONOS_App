@@ -53,6 +53,7 @@ class TeamRegimeTests(unittest.TestCase):
         self.assertFalse(risk["variant_pass"]["combined"])
         self.assertTrue(risk["bsd_low_goals_veto"])
         self.assertIn("UNDER_25",simple_market_veto_keys(risk))
+        self.assertIn("UNDER_45",simple_market_veto_keys(risk))
     def test_h2h_context_uses_only_form_before_old_meeting(self):
         idx=dataset(True)
         r=form_shift(TARGET,idx,H2HIndex(idx))
