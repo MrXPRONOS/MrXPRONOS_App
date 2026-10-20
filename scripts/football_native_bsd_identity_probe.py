@@ -100,7 +100,7 @@ def prove(external:list[dict], native:list[dict], *, at:datetime, official_leagu
     external_ok_rows=[]
     rejected=Counter()
     for row in external:
-        if not isinstance(row,dict) or row.get("_schedule_verified_by")!="openfootball_cc0" or row.get("league_verified") is not True:
+        if not isinstance(row,dict) or row.get("_schedule_verified_by") not in ("openfootball_cc0","two_independent_providers") or row.get("league_verified") is not True:
             rejected["external_not_independently_cc0_verified"]+=1
             continue
         if row.get("ambiguous_match") or row.get("league_conflict") or row.get("scores_conflict") or row.get("status")!="prematch":
@@ -179,7 +179,9 @@ def prove(external:list[dict], native:list[dict], *, at:datetime, official_leagu
     return {
         "scope":"read_only_identity_evidence",
         "external_total":len(external),
-        "external_cc0_verified":len(external_ok),
+        "external_cc0_verified":sum(1 for row in external_ok_rows if row.get("_schedule_verified_by")=="openfootball_cc0"),
+        "external_independent_provider_verified":sum(1 for row in external_ok_rows if row.get("_schedule_verified_by")=="two_independent_providers"),
+        "external_verified_total":len(external_ok),
         "native_total":len(native),
         "native_unique_eligible":len(unique_native),
         "native_invalid_records":invalid_native,
@@ -201,7 +203,7 @@ def candidate_official_league_ids(external, native, *, at):
     """Lookup IDs only after exact time+team match; no league guessed."""
     lids=set()
     for row in external:
-        if not isinstance(row,dict) or row.get("_schedule_verified_by")!="openfootball_cc0" or row.get("league_verified") is not True:
+        if not isinstance(row,dict) or row.get("_schedule_verified_by") not in ("openfootball_cc0","two_independent_providers") or row.get("league_verified") is not True:
             continue
         if row.get("status")!="prematch" or row.get("ambiguous_match") or row.get("league_conflict") or row.get("scores_conflict"):
             continue
@@ -525,7 +527,9 @@ def main():
         "bsd_http_calls":client.requests_made,
         "bsd_max_http_requests":MAX_BSD_REQUESTS,
         "calendar_files_verified":health["files_ok"],
-        "independent_cc0_calendar_confirmed":coverage["schedule_matches_confirmed"],
+        "independent_cc0_calendar_confirmed":coverage["cc0_matches_confirmed"],
+        "independent_two_provider_confirmed":coverage["two_provider_matches_confirmed"],
+        "independently_verified_fixtures_total":coverage["schedule_matches_confirmed"],
         "qualified_candidate_rows_staged":len(accepted_rows),
     })
     assert client.requests_made<=MAX_BSD_REQUESTS
