@@ -1,0 +1,93 @@
+name: Exact scores - prospective shadow tracking
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'feature/exact-score-v1-20261019'
+    paths:
+      - 'bsd/exact_scores_prospective.py'
+      - 'bsd/test_exact_scores_prospective.py'
+      - '.github/workflows/exact-scores-prospective.yml'
+  schedule:
+    # Cron schedules only execute on GitHub's default branch after merge.
+    - cron: '11 6,14,22 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: exact-prospective-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  prospective:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install bounded dependencies
+        run: python -m pip install requests cryptography
+      - name: Test immutable prospective ledger
+        run: python -m unittest bsd/test_exact_scores_prospective.py -v
+      - name: Restore latest PRIVATE history from default branch
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: |
+          test -n "$BSD_HISTORY_KEY" || { echo "::error::Missing BSD_HISTORY_KEY"; exit 1; }
+          git fetch --no-tags origin main
+          git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
+          python bsd/bsd_archive.py restore
+      - name: Fetch future fixtures and record frozen pre-match predictions
+        env:
+          BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+          FOOTBALL_MULTI_SOURCE: '0'
+        run: |
+          test -n "$BSD_API_KEY" || { echo "::error::Missing BSD_API_KEY"; exit 1; }
+          python bsd/exact_scores_prospective.py --max-requests 90
+      - name: Verify prospective report
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open("tmp/exact-scores/prospective-report.json",encoding="utf-8"))
+          assert r["experimental"] is True and r["published"] is False
+          assert r["total_captured"] >= r["pending"] + r["all"]["n"]
+          assert r["priority"]["n"] <= r["all"]["n"]
+          print("PROSPECTIVE_METRICS",json.dumps(r,ensure_ascii=False))
+          PY
+      - name: Commit encrypted ledger ONLY (never scores in cleartext)
+        run: |
+          if [ ! -f bsd/exact_score_shadow_ledger.enc.json ]; then
+            echo "No pre-match predictions captured yet"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- bsd/exact_score_shadow_ledger.enc.json
+          if git diff --cached --quiet; then
+            echo "No new prospective predictions or results"
+            exit 0
+          fi
+          git commit -m "data(shadow): archive encrypted immutable prospective forecasts [skip ci]"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+      - name: Upload aggregate summary only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exact-prospective-summary-${{ github.run_id }}
+          path: tmp/exact-scores/prospective-report.json
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Remove decrypted inputs
+        if: always()
+        run: |
+          rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+          rm -rf bsd/cache
