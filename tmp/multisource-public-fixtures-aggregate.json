@@ -1,53 +1,12 @@
 {
   "days": [
-    "2026-10-19",
     "2026-10-20",
-    "2026-10-21"
+    "2026-10-21",
+    "2026-10-22"
   ],
   "sources": {
-    "2026-10-19": {
-      "fixtures": 237,
-      "provider_health": {
-        "bsd": {
-          "reported": 0,
-          "valid": 0,
-          "rejected": 0,
-          "error": ""
-        },
-        "api_football": {
-          "reported": 0,
-          "valid": 0,
-          "rejected": 0,
-          "error": "not queried"
-        },
-        "espn": {
-          "reported": 38,
-          "valid": 38,
-          "rejected": 0,
-          "error": ""
-        },
-        "sportscore": {
-          "reported": 200,
-          "valid": 200,
-          "rejected": 0,
-          "error": ""
-        },
-        "thesportsdb": {
-          "reported": 3,
-          "valid": 3,
-          "rejected": 0,
-          "error": ""
-        },
-        "openligadb": {
-          "reported": 0,
-          "valid": 0,
-          "rejected": 0,
-          "error": ""
-        }
-      }
-    },
     "2026-10-20": {
-      "fixtures": 286,
+      "fixtures": 293,
       "provider_health": {
         "bsd": {
           "reported": 0,
@@ -127,11 +86,52 @@
           "error": ""
         }
       }
+    },
+    "2026-10-22": {
+      "fixtures": 286,
+      "provider_health": {
+        "bsd": {
+          "reported": 0,
+          "valid": 0,
+          "rejected": 0,
+          "error": ""
+        },
+        "api_football": {
+          "reported": 0,
+          "valid": 0,
+          "rejected": 0,
+          "error": "not queried"
+        },
+        "espn": {
+          "reported": 130,
+          "valid": 130,
+          "rejected": 0,
+          "error": ""
+        },
+        "sportscore": {
+          "reported": 165,
+          "valid": 165,
+          "rejected": 0,
+          "error": ""
+        },
+        "thesportsdb": {
+          "reported": 3,
+          "valid": 3,
+          "rejected": 0,
+          "error": ""
+        },
+        "openligadb": {
+          "reported": 0,
+          "valid": 0,
+          "rejected": 0,
+          "error": ""
+        }
+      }
     }
   },
-  "total_fixtures": 810,
+  "total_fixtures": 864,
   "sportscore_page_size_limit": 200,
-  "sportscore_days_at_page_limit": 3,
+  "sportscore_days_at_page_limit": 2,
   "sportscore_coverage_possibly_incomplete": true,
   "dedupe_key_includes_kickoff_and_both_club_names": true,
   "requests": {
