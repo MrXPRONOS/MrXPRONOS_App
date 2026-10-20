@@ -47,7 +47,8 @@ def main():
         original_count=len(by_id)
         now=start
         while now<=end:
-            until=min(end,now+timedelta(days=2))
+            # Single-day SportData calls: multi-day queries can return invalid envelopes.
+            until=now
             response=fetch_games(now,until,timeout=35,show_odds=False)
             summary["calls"]+=1
             if not response.ok:
