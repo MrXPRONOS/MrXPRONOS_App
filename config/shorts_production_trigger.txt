@@ -1,1 +1,1 @@
-morning 2026-10-18 recovery missed 08:15 scheduled wave after cron-resolution fix
+morning 2026-10-20 manual production video new BSD V2 qualified pronos with updated verified-odds source support

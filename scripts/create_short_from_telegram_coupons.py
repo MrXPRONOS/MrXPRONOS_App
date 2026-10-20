@@ -116,9 +116,10 @@ def _valid_match(match, now: datetime, *, require_future=True):
     # itself accepts verified/estimated BSD prices from 1.20 upward.
     if not math.isfinite(odds) or not (1.20 <= odds <= 100):
         return False
-    if str(pick.get("odds_source") or "") not in {
-        "bsd_consensus", "bsd_bookmaker", "mrxpronos_model"
-    }:
+    # All verified BSD V2 odds providers are eligible. Preserve the existing
+    # source/estimated flag checks and never admit a model observation
+    # or an unverified price as if it were a bookmaker coupon.
+    if not valid_standalone_prediction(pick):
         return False
     return True
 
