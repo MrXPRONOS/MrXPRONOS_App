@@ -2,6 +2,10 @@ name: BSD V2 - Generation quotidienne
 run-name: "BSD V2 - Generation quotidienne (${{ inputs.trigger_source || github.event_name }})"
 
 on:
+  # Extra intraday re-evaluations of only unpublished future fixtures.
+  # Existing selections remain frozen by the append-only ledger.
+  schedule:
+    - cron: '17 11,16 * * *'
   push:
     branches: [main]
     paths:

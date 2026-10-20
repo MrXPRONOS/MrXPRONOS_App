@@ -27,7 +27,8 @@ from bsd_v2_labels import normalize_match,market_label
 from bsd_v2_assets import image_fields
 from bsd_v2_guardrails import (POLICY_VERSION, post_price_value_guard,
     update_performance_tracker, tracker_penalties, v21_accept_priced, v21_signal_tier,
-    v21_league_market_performance, V21_DAILY_NEW_PICKS, V21_EXCLUDED_KEYS)
+    v21_league_market_performance, V21_DAILY_NEW_PICKS, V21_EXCLUDED_KEYS,
+    V21_MIN_OVER15_CONSERVATIVE, VERIFIED_ODDS_SOURCES)
 
 SITE_FILE = Path("data.json")
 HISTORY_DAYS = 14
@@ -329,7 +330,8 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             rho=rho,clock=now,mode="reliability",odds_by_market={},require_odds=False,
             excluded_keys=EXCLUDED_SELECTIONS,btts_model=btts_model,total_model=total_model,
             dc_model=dc_model,selection_adjustments=selection_penalties,
-            prospective_family_adjustments=prospective_family_penalties)
+            prospective_family_adjustments=prospective_family_penalties,
+            selection_conservative_minimums={"OVER_15":V21_MIN_OVER15_CONSERVATIVE})
         original_key=(row.get("prediction") or {}).get("selection_key")
         # Legacy future picks cannot bypass the new V2.1 publication policy.
         legacy_pred=row.get("prediction") or {}
@@ -411,7 +413,8 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             excluded_keys=EXCLUDED_SELECTIONS,
             btts_model=btts_model,total_model=total_model,dc_model=dc_model,
             market_audit=market_audit,selection_adjustments=selection_penalties,
-            prospective_family_adjustments=prospective_family_penalties)
+            prospective_family_adjustments=prospective_family_penalties,
+            selection_conservative_minimums={"OVER_15":V21_MIN_OVER15_CONSERVATIVE})
         if prediction is None:
             entry["reason"]=reason
             stats[reason]+=1
@@ -447,6 +450,20 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             stats["odds_unavailable_or_budget"]+=1
         entry["quotes"]=[{"market":code,"odds":q.get("odds"),"source":q.get("origin")}
                           for code,q in sorted(quotes.items()) if isinstance(q,dict)]
+        # Quote provenance audit. The model's exact market code is immutable
+        # through the pricing step; offers for other market codes are never used.
+        target_code=(selected_football_market.get("internal_market_code")
+                     or selected_football_market.get("market_code"))
+        quoted=quotes.get(target_code) if isinstance(quotes,dict) else None
+        entry["quote_audit"]={
+            "requested_market_code":target_code,
+            "exact_market_quote_present":isinstance(quoted,dict),
+            "exact_market_quote_verified_source":(
+                isinstance(quoted,dict) and quoted.get("origin") in VERIFIED_ODDS_SOURCES),
+            "exact_market_quote_source":quoted.get("origin") if isinstance(quoted,dict) else None,
+            "other_market_quote_count":sum(1 for code in quotes if code!=target_code),
+            "no_cross_market_substitution":True,
+        }
         chosen=price_selected_market(prediction["prediction"],quotes,now=now)
         if chosen is None:
             entry["reason"]="chosen_market_unpriceable"
@@ -461,6 +478,8 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         }
         value_guard=post_price_value_guard(chosen)
         entry["post_price_value_guard"]=value_guard
+        entry["priced_selection_key"]=chosen.get("key")
+        entry["priced_market_code"]=chosen.get("internal_market_code") or chosen.get("market_code")
         league_bucket=league_market_performance.get(str(league_name(f) or "")+"|"+str(chosen.get("key") or ""))
         v21_ok,v21_reason=v21_accept_priced(chosen,performance_tracker,league_bucket)
         entry["v21_policy"]={"passed":v21_ok,"reason":v21_reason,"tier":v21_signal_tier(chosen)}

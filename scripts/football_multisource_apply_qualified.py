@@ -199,6 +199,16 @@ def apply(feed, accepted, *, now, publication_ledger, aggregate_report=None):
     }
     if coverage is not None:
         diagnostics["multisource_generation"]["coverage"]=coverage
+        # Explain zero additions without weakening identity, price or value gates.
+        stage=("no_independent_calendar_confirmation"
+               if coverage["independent_calendar_confirmed"]==0 else
+               "no_unique_official_bsd_fixture_identity"
+               if coverage["official_bsd_event_links"]==0 else
+               "no_recent_qualified_bsd_consensus_market"
+               if coverage["qualified_candidates"]==0 else "qualified")
+        diagnostics["multisource_generation"]["bottleneck_stage"]=stage
+        diagnostics["multisource_generation"]["calendar_scope"]="8_verified_CC0_domestic_league_files"
+        diagnostics["multisource_generation"]["unverified_external_matches_never_published"]=True
     feed["matches"].extend(additions)
     feed["diagnostics"]=diagnostics
     return {"staged":len(accepted),"added":len(added),"duplicates":duplicates}
