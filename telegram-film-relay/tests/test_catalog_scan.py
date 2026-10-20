@@ -2,7 +2,9 @@
 import asyncio
 import unittest
 from types import SimpleNamespace as NS
-from unittest.mock import patch
+from unittest.mock import patch, AsyncMock
+
+from film_relay.category_runner import preflight
 
 from film_relay.catalog_scan import (
     read_source_window, source_window_ids, finalize_scan, episode_audit,
@@ -57,6 +59,36 @@ class HistoryTests(unittest.TestCase):
         self.assertEqual(result["not_yet_indexed_total"], 1)
         self.assertEqual(result["unnumbered_videos_skipped"], 4)
         self.assertIn("pas la preuve", result["note"])
+
+    def test_preflight_rejects_mistyped_private_id(self):
+        private = NS(peer_id=-100444, broadcast=True, username=None)
+        public = NS(peer_id=-100555, broadcast=True, username="publictest")
+        source = NS(peer_id=-100666, broadcast=True, username="sourcetest", noforwards=False)
+        cfg = {"private": "-100999", "public": "@publictest",
+               "sources": ["@sourcetest"], "category": "anime"}
+        client = NS(is_user_authorized=AsyncMock(return_value=True))
+        mapping = {cfg["private"]: private, cfg["public"]: public, "@sourcetest": source}
+        with patch("film_relay.category_runner.resolve_peer",
+                   new=AsyncMock(side_effect=lambda client, value: mapping[value])), \
+             patch("film_relay.category_runner.asyncio.sleep", new=AsyncMock()), \
+             patch("telethon.utils.get_peer_id", side_effect=lambda value: value.peer_id):
+            with self.assertRaisesRegex(RuntimeError, "canal privé"):
+                asyncio.run(preflight(client, None, cfg))
+
+    def test_preflight_accepts_numeric_public_id(self):
+        private = NS(peer_id=-100444, broadcast=True, username=None)
+        public = NS(peer_id=-100555, broadcast=True, username="publictest")
+        source = NS(peer_id=-100666, broadcast=True, username="sourcetest", noforwards=False)
+        cfg = {"private": "-100444", "public": "-100555",
+               "sources": ["@sourcetest"], "category": "series"}
+        client = NS(is_user_authorized=AsyncMock(return_value=True))
+        mapping = {cfg["private"]: private, cfg["public"]: public, "@sourcetest": source}
+        with patch("film_relay.category_runner.resolve_peer",
+                   new=AsyncMock(side_effect=lambda client, value: mapping[value])), \
+             patch("film_relay.category_runner.asyncio.sleep", new=AsyncMock()), \
+             patch("telethon.utils.get_peer_id", side_effect=lambda value: value.peer_id):
+            result = asyncio.run(preflight(client, None, cfg))
+        self.assertEqual(len(result[0]), 1)
 
     def test_github_merge_keeps_oldest_checkpoint_and_audit(self):
         remote = {"series": {}, "scans": {"s": {"cursor": 80, "complete": False}},
