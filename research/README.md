@@ -27,3 +27,10 @@ View GitHub Actions workflow **Exact Score 2026 - Research Backtest** and downlo
 
 ## Limitations
 This is a full runnable RESEARCH implementation of the 8 model families, not evidence that each has externally validated predictive performance. Historical xG and odds are not present in the documented `allmatches.py` extraction. Correlations, priors, decay and hyperparameters are defaults, NOT exhaustively tuned. No guarantees of score exactness or profit. These results should not be merged into the production site before independent audit.
+
+## 2026 historical repairs and provisional xG
+- The refresh utility retries missing UTC dates one at a time. API failures are recorded, not silently omitted. Routine GitHub Actions uses `--max-days 15` to avoid runaway requests; for exhaustive recovery, run locally using `--max-days 0`.
+- The optional xG bridge requests *read-only* historical `live_stats_sources` snapshots. It accepts only snapshots observed at minute 90 or later, valid non-negative xG, matching both normalized teams on the same calendar day with kickoff within 90 minutes. Source quality is tagged `supabase_late_match_provisional_90plus`.
+- A late snapshot is not a certified final xG and does not necessarily include added-time chances. Interpret any xG-subset backtest as exploratory, not a full official xG benchmark.
+- Supabase also contains recorded double-chance 1X/X2 odds; those are not a correct-score odds distribution and are not reused as though they were one.
+- Check `refresh_audit.json` and `xg_audit.json` for exact coverage, failures and missing data; `summary.json` reports the last date actually backtested.
