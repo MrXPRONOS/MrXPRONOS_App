@@ -136,6 +136,10 @@ observed = next((m["stats"] for m in matches if isinstance(m.get("stats"), dict)
 movi_home = observed.get("home") if isinstance(observed.get("home"),dict) else {}
 movi_away = observed.get("away") if isinstance(observed.get("away"),dict) else {}
 record("moviodds_live", info, matches=len(matches),
+       first_match_fields=sorted(matches[0].keys())[:45] if matches else [],
+       first_match_clock_fields={k:str(matches[0][k])[:85] for k in
+           ["minute","elapsed","clock","timer","match_time","live_minute","status_text","time","period"]
+           if matches and k in matches[0] and isinstance(matches[0][k],(str,int,float))},
        corner_pairs=sum(1 for m in matches if pairs(m.get("stats"), "corners")),
        shots_pairs=sum(1 for m in matches if pairs(m.get("stats"), "shots")),
        attacks_pairs=sum(1 for m in matches if pairs(m.get("stats"), "attacks")),
