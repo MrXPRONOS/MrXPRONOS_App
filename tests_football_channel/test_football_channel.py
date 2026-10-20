@@ -686,6 +686,8 @@ class FootballChannelTests(unittest.TestCase):
             },
         )
         self.assertIsNotNone(post)
+        self.assertTrue(post.text.startswith("<b>🔎 AVANT-MATCH : Arsenal – Chelsea</b>"))
+        self.assertNotIn("FIL ROUGE", post.text)
         self.assertIn("L’HISTOIRE AVANT LE MATCH", post.text)
         self.assertIn("10/15", post.text)
         self.assertEqual(post.card["prematch_story"], m.prematch_story(
@@ -832,6 +834,40 @@ class FootballChannelTests(unittest.TestCase):
             self.assertIn("BUUUT", post.text)
         with patch.dict("os.environ", {"FOOTBALL_ENABLE_SCORE_UPDATES": "1"}):
             self.assertIsNotNone(m.lifecycle_publication(signal))
+
+    def test_live_messages_start_with_the_event_not_fil_rouge(self):
+        base = {
+            "home": "Arsenal", "away": "Chelsea", "league": "Premier League",
+            "source": "ESPN", "score": "1-0", "minute": 24,
+            "plan_role": "match_du_jour",
+        }
+        goal = m.lifecycle_publication({
+            **base, "kind": "goal", "key": "goal:test:1",
+            "goal": {"player": "Saka", "minute_text": "24'"},
+        })
+        self.assertIsNotNone(goal)
+        self.assertTrue(goal.text.startswith("🌟 <b>BUUUT"), goal.text)
+        change = m.lifecycle_publication({
+            **base, "kind": "changement_composition", "key": "change:test:1",
+            "club": "Arsenal", "entrant": "A", "sortant": "B",
+        })
+        self.assertIsNotNone(change)
+        self.assertTrue(change.text.startswith("<b>🔁 COMPOSITION MODIFIÉE</b>"), change.text)
+        interrupted = m.followed_interruption_publication({
+            **base, "kind": "suivi_interrompu", "key": "interruption:test:1",
+            "status": "Suspended",
+        })
+        self.assertIsNotNone(interrupted)
+        self.assertTrue(interrupted.text.startswith("⚠️ <b>MATCH INTERROMPU</b>"), interrupted.text)
+        final = m.followed_final_publication({
+            **base, "kind": "resultat_final", "key": "resultat:test:1",
+        })
+        self.assertIsNotNone(final)
+        self.assertTrue(final.text.startswith("<b>🏁 RÉSULTAT FINAL</b>"), final.text)
+        self.assertIn("Arsenal 1–0 Chelsea", final.text)
+        for post in (goal, change, interrupted, final):
+            self.assertNotIn("FIL ROUGE", post.text)
+            self.assertNotIn("GRANDE AFFICHE", post.text)
 
     def test_sender_flash_avec_card_envoie_image_preparee_sans_renderer_flash(self):
         import os
