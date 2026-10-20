@@ -89,7 +89,8 @@ def _safe_pipeline_coverage(aggregate, staged):
         raise ValueError("Malformed multisource aggregate report")
 
     def metric(obj,name,*,zero_if_missing=False):
-        val=obj.get(name,0 if zero_if_missing else None) if isinstance(obj,dict) else None
+        val=(obj.get(name,0 if zero_if_missing else None) if isinstance(obj,dict)
+             else (0 if zero_if_missing and obj is None else None))
         if type(val) is not int or not 0<=val<=1_000_000:
             raise ValueError("Missing or invalid multisource coverage counter: "+name)
         return val
