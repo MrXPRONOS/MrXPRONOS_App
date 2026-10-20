@@ -1,0 +1,48 @@
+name: Social publishing integrity tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/post_shorts_video.py"
+      - "scripts/verify_social_publications.py"
+      - "scripts/test_social_publication_validation.py"
+      - ".github/workflows/social-publishing-audit-tests.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  dry-run-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile the production scripts and run all isolated audit tests
+        run: |
+          python -m py_compile scripts/post_shorts_video.py scripts/verify_social_publications.py
+          python -m unittest discover -s scripts -p 'test_social_publication_validation.py' -v
+      - name: Test provider result validator without any live social API calls
+        run: |
+          python - <<'PY'
+          import json,subprocess,sys,tempfile
+          from pathlib import Path
+          data=[{"platform":p,"ok":True,"data":{"id":"mock-"+p}}
+                for p in ("facebook","instagram","threads","youtube")]
+          with tempfile.TemporaryDirectory() as d:
+              p=Path(d)/"results.json"
+              p.write_text(json.dumps(data))
+              cmd=[sys.executable,"scripts/verify_social_publications.py",
+                   "--report",str(p),"--expected","facebook,instagram,threads,youtube"]
+              subprocess.run(cmd,check=True)
+              data[2]["ok"]=False
+              p.write_text(json.dumps(data))
+              check=subprocess.run(cmd,capture_output=True)
+              if check.returncode==0:
+                  raise RuntimeError("False success: partial publication was accepted")
+          print("SOCIAL_PUBLISHING_FAIL_CLOSED_OK")
+          PY
