@@ -14,10 +14,6 @@ on:
         type: boolean
         default: false
         required: true
-  workflow_run:
-    workflows: ["BSD V2 - Diffusion Telegram aux 15 minutes"]
-    types: [completed]
-
 permissions:
   contents: read
 
@@ -27,7 +23,6 @@ concurrency:
 
 jobs:
   publish:
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -51,7 +46,7 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          WANT_PUBLISH: ${{ github.event_name == 'workflow_run' || inputs.publish }}
+          WANT_PUBLISH: ${{ inputs.publish }}
         run: |
           set -euo pipefail
           if [ "$WANT_PUBLISH" = "true" ]; then
