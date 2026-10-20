@@ -1,0 +1,107 @@
+name: MRX isolated single-score prospective capture
+
+on:
+  schedule:
+    - cron: '13 1,12 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mrx-single-score-prospective-writer
+  cancel-in-progress: false
+
+jobs:
+  private-capture:
+    if: github.repository == 'MrXPRONOS/MrXPRONOS_App'
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - name: Checkout research-only branch (never main engine)
+        uses: actions/checkout@v4
+        with:
+          ref: feature/single-exact-score-v1-20261020
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Verify identity and required repository secrets
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+          BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+        run: |
+          set -euo pipefail
+          test "$(git branch --show-current)" = "feature/single-exact-score-v1-20261020"
+          test -n "$BSD_HISTORY_KEY" && test -n "$BSD_API_KEY"
+          test -f bsd/single_exact_score_prospective.py
+          test -f bsd/single_exact_score_top3.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install isolated dependencies
+        run: python -m pip install requests cryptography
+      - name: Fail closed on research unit test regressions
+        run: python -m unittest bsd/test_single_exact_score.py -v
+      - name: Restore private finished-match archive
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: |
+          set -euo pipefail
+          umask 077
+          git fetch --no-tags origin main
+          git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
+          python bsd/bsd_archive.py restore
+          test -s bsd/all_matches_bsd.json
+      - name: Capture pre-match forecasts and encrypted Top3
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+          BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+          FOOTBALL_MULTI_SOURCE: '0'
+        run: |
+          set -euo pipefail
+          python bsd/single_exact_score_prospective.py --max-requests 90
+      - name: Validate aggregate output and source coverage
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open("tmp/single-exact-score/prospective-report.json"))
+          assert d["published"] is False and d["experimental"] is True
+          assert d["captured"] == d["pending"] + d["settled"]
+          assert d["top3"]["selected_match_count"] == 3*d["top3"]["baskets_created"]
+          assert d["top3"]["baskets_with_at_least_one_hit"] <= d["top3"]["settled_baskets"]
+          assert 0 <= d["context_coverage"]["new_collector_found"] <= d["context_coverage"]["new_collector_attempts"] <= 6
+          assert d["absence_context_model"]["training_rows"] >= 0
+          assert len(d["advanced_model_fingerprint_sha256"]) == 64
+          print("SINGLE_SHADOW_AUDIT_OK",json.dumps({
+            "total":d["captured"],"settled":d["settled"],
+            "top3":d["top3"]["baskets_created"],
+            "verified_lineups":d["context_coverage"]["new_collector_found"],
+            "absence_model_active":d["absence_context_model"]["active"]}))
+          PY
+      - name: Commit only encrypted research snapshots to feature branch
+        run: |
+          set -euo pipefail
+          test "$(git branch --show-current)" = "feature/single-exact-score-v1-20261020"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for file in bsd/single_exact_score_ledger.enc.json bsd/single_exact_score_top3.enc.json bsd/single_exact_score_xg_history.enc.json; do
+            if test -f "$file"; then git add -- "$file"; fi
+          done
+          if git diff --cached --quiet; then
+            echo "No new private first-seen snapshots or settlements"
+            exit 0
+          fi
+          git commit -m "data(single shadow): encrypted first-seen score and Top3 [skip ci]"
+          git restore -- bsd/all_matches_bsd.enc.json
+          git pull --rebase origin feature/single-exact-score-v1-20261020
+          git push origin HEAD:feature/single-exact-score-v1-20261020
+      - name: Upload aggregate research report only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: single-exact-prospective-${{ github.run_id }}
+          path: tmp/single-exact-score/prospective-report.json
+          retention-days: 90
+          if-no-files-found: ignore
+      - name: Purge decrypted history
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
