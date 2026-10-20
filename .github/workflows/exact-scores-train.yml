@@ -7,6 +7,8 @@ on:
     paths:
       - 'bsd/exact_scores.py'
       - 'bsd/exact_scores_h2h.py'
+      - 'bsd/exact_scores_h2h_v2.py'
+      - 'bsd/exact_scores_phase1_backtest.py'
       - 'bsd/exact_scores_under25.py'
       - 'bsd/exact_scores_under25_backtest.py'
       - 'bsd/exact_scores_full_2026.py'
@@ -16,6 +18,8 @@ on:
     paths:
       - 'bsd/exact_scores.py'
       - 'bsd/exact_scores_h2h.py'
+      - 'bsd/exact_scores_h2h_v2.py'
+      - 'bsd/exact_scores_phase1_backtest.py'
       - 'bsd/exact_scores_under25.py'
       - 'bsd/exact_scores_under25_backtest.py'
       - 'bsd/exact_scores_full_2026.py'
@@ -64,6 +68,8 @@ jobs:
         run: python bsd/exact_scores_full_2026.py --out-dir tmp/exact-scores
       - name: Evaluate Under 2.5 x H2H x exact score on all 2026 matches
         run: python bsd/exact_scores_under25_backtest.py
+      - name: Evaluate Phase 1 H2H V2 independently on all 2026 results
+        run: python bsd/exact_scores_phase1_backtest.py
       - name: Reject missing backtest results
         run: |
           python - <<'PY'
