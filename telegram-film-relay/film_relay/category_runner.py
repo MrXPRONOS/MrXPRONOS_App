@@ -119,8 +119,12 @@ async def preflight(client, bot, cfg: dict):
     from telethon.errors import FloodWaitError, PeerFloodError
     private = await resolve_peer(client, cfg["private"])
     public = await resolve_peer(client, cfg["public"])
-    if (str(getattr(public, "username", "") or "").casefold()
-            != cfg["public"].lstrip("@").casefold()):
+    public_config = str(cfg["public"]).strip()
+    if public_config.startswith("-100") and public_config[1:].isdigit():
+        if utils.get_peer_id(public) != int(public_config):
+            raise RuntimeError("Le numéro -100 du canal public résolu ne correspond pas à sa configuration.")
+    elif (str(getattr(public, "username", "") or "").casefold()
+          != public_config.lstrip("@").casefold()):
         raise RuntimeError("Le canal public résolu ne correspond pas à celui configuré.")
     private_id, public_id = utils.get_peer_id(private), utils.get_peer_id(public)
     if private_id != int(cfg["private"]):
