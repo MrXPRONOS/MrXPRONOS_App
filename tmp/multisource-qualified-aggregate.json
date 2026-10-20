@@ -86,7 +86,7 @@
     "native_competition_ids_present": 22
   },
   "official_league_metadata_issues": {},
-  "bsd_http_calls": 5,
+  "bsd_http_calls": 4,
   "bsd_max_http_requests": 24,
   "calendar_files_verified": 8,
   "independent_cc0_calendar_confirmed": 1,
