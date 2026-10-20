@@ -16,7 +16,8 @@ from exact_scores_h2h import H2HIndex
 from grouped_correct_score import group_hit
 from grouped_correct_score_engine import fit_direction,analyze,selection_summary
 
-POLICIES=("baseline","with_double_chance","with_h2h_under","with_verified_price")
+FORM_RULES=("recent_attack","recent_defence","historical_h2h_context","venue_shift","model_agreement","combined","strict")
+POLICIES=("baseline","with_double_chance","with_h2h_under","with_verified_price")+tuple("form_"+k for k in FORM_RULES)
 def new_bucket():return {"n":0,"hits":0,"sum_p":0.,"brier":0.,"ev_count":0}
 def record(bucket,selection,score):
     if selection is None:return
@@ -53,18 +54,28 @@ def run(events,*,max_2026=0):
     skips=Counter()
     group_stats={policy:{group:new_bucket() for group in ("G1","G2","G3","G4","G5","G6","G7","G8","G9")} for policy in POLICIES}
     pairs={name:{"baseline":new_bucket(),"candidate":new_bucket()} for name in ("dc_selected","priority_selected")}
+    form_rejected={name:new_bucket() for name in FORM_RULES}
+    risk_counts=Counter()
     paired_direction_changes={"n":0,"baseline_wins":0,"dc_wins":0,
                               "both_won":0,"both_lost":0}
     eligible=0
     for event in samples:
         now=fixture_datetime(event)
         pred,reason=analyze(event,index,h2h,dc,now=now,
-                            require_prematch=False)
+                            require_prematch=False,evaluate_form_shift=True)
         if pred is None:skips[reason]+=1;continue
         score=outcome_scores(event)
         if score is None:skips["missing_final_score"]+=1;continue
         eligible+=1
         variants=selection_summary(pred)
+        selected_old=variants.get("with_h2h_under")
+        shift=pred.get("form_shift")
+        if selected_old is not None and shift is not None:
+            for flag,on in shift.get("flags",{}).items():
+                if on:risk_counts[flag]+=1
+            for name in FORM_RULES:
+                if not shift.get("variant_pass",{}).get(name,False):
+                    record(form_rejected[name],selected_old,score)
         month=now.strftime("%Y-%m")
         for key,item in variants.items():
             record(buckets[key],item,score)
@@ -99,6 +110,8 @@ def run(events,*,max_2026=0):
        "paired_comparisons":{name:{key:metrics(b,eligible) for key,b in groups.items()}
                              for name,groups in pairs.items()},
        "actual_direction_changes":paired_direction_changes,
+       "form_rule_rejected":{name:metrics(row,eligible) for name,row in form_rejected.items()},
+       "form_shift_flag_frequency":dict(risk_counts),
        "halves":{h:{k:metrics(v,eligible) for k,v in groups.items()}
                  for h,groups in halves.items()},
        "months":{m:{k:metrics(v,eligible) for k,v in d.items()}
@@ -120,6 +133,9 @@ def main():
           "dc_training":result["dc_training"],"variants":result["variants"],
           "paired_comparisons":result["paired_comparisons"],
           "actual_direction_changes":result["actual_direction_changes"],
-          "group_breakdown":result["group_breakdown"]},ensure_ascii=False))
+          "group_breakdown":result["group_breakdown"],
+          "form_rule_rejected":result["form_rule_rejected"],
+          "form_shift_flag_frequency":result["form_shift_flag_frequency"],
+          "halves":result["halves"]},ensure_ascii=False))
 
 if __name__=="__main__":main()
