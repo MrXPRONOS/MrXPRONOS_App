@@ -76,7 +76,7 @@ def select_for_ceiling(groups,profile,matrix,cap,*,require_direction=True):
             continue
         candidates.append((group,share))
     if not candidates:return None
-    best,share=max(candidates,key=lambda x:(x[0]["probability"],-str(x[0]["group_id"])))
+    best,share=max(candidates,key=lambda x:(x[0]["probability"],x[1]))
     return best,round(share,6)
 
 def select_many(groups,profile,matrix):
