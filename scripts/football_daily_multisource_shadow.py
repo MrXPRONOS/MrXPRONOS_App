@@ -254,7 +254,9 @@ def merge(snapshots: dict[str, Any], *, bsd_events: list | None = None) -> tuple
             "discovered_by": anchor["source"],
             "home_team": anchor["home"], "away_team": anchor["away"],
             "kickoff_utc": anchor["kickoff_utc"], "league_labels": leagues,
-            "sources": {provider: {"id": item["source_id"], "kickoff_utc": item["kickoff_utc"], "state": item["state"]} for provider, item in sorted(providers.items())},
+            "sources": {provider: {"id": item["source_id"], "kickoff_utc": item["kickoff_utc"],
+                                    "state": item["state"],"league":item["league"]}
+                        for provider, item in sorted(providers.items())},
             "source_count": len(providers), "scores_conflict": scores_conflict,
             "league_conflict": len(league_keys) > 1,
             "league_verified": len(league_keys) == 1,

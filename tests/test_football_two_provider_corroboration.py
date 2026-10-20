@@ -12,8 +12,8 @@ def ext():
         "league_labels":["Premier League"],"league_verified":True,
         "source_count":2,"ambiguous_match":False,"scores_conflict":False,
         "league_conflict":False,
-        "sources":{"espn":{"id":"1","kickoff_utc":KICK,"state":"pre"},
-                   "sportscore":{"id":"2","kickoff_utc":"2026-10-20T18:48:00+00:00","state":"pre"}}}
+        "sources":{"espn":{"id":"1","kickoff_utc":KICK,"state":"pre","league":"Premier League"},
+                   "sportscore":{"id":"2","kickoff_utc":"2026-10-20T18:48:00+00:00","state":"pre","league":"Premier League"}}}
 class DualSourceTests(unittest.TestCase):
     def test_independent_verification_and_real_native_one_to_one(self):
         item=ext()
@@ -27,6 +27,12 @@ class DualSourceTests(unittest.TestCase):
             "home_team_id":7,"away_team_id":9,"home_team":"Arsenal",
             "away_team":"Chelsea","event_date":KICK,"status":"notstarted"}]
         self.assertEqual(prove(rows,native,at=AT)["one_to_one_native_event_links"],1)
+    def test_both_providers_must_independently_verify_league(self):
+        r=ext();r["sources"]["sportscore"]["league"]=""
+        self.assertFalse(strict_two_provider_fixture(r,at=AT))
+        r=ext();r["sources"]["sportscore"]["league"]="FA Cup"
+        self.assertFalse(strict_two_provider_fixture(r,at=AT))
+
     def test_rejects_single_provider(self):
         r=ext();r["sources"].pop("sportscore");r["source_count"]=1
         self.assertFalse(strict_two_provider_fixture(r,at=AT))

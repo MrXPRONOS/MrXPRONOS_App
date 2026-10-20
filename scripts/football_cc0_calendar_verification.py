@@ -51,8 +51,13 @@ def strict_two_provider_fixture(row,*,at):
     if primary is None or primary<=at:
         return False
     times=[]
+    # Each provider must itself name the same competition. A single provider
+    # league label with an unlabeled second schedule is not independent proof.
+    expected_league=next(iter(names))
     for provider,record in sources.items():
-        if not isinstance(record,dict) or not str(record.get("id") or "").strip() or str(record.get("state") or "").lower() not in ("pre","ns","notstarted","upcoming",""):
+        if (not isinstance(record,dict) or not str(record.get("id") or "").strip()
+            or competition(str(record.get("league") or ""))!=expected_league
+            or str(record.get("state") or "").lower() not in ("pre","ns","notstarted","upcoming","")):
             return False
         when=aware_time(record.get("kickoff_utc"))
         if when is None or when<=at or abs((when-primary).total_seconds())>900:
