@@ -227,15 +227,19 @@ class FormState:
         against_h = (hs[2] + k * mu_a) / (hs[0] + k)
         lam_h = float(np.clip(for_h * against_a / mu_h, .12, 4.5))
         lam_a = float(np.clip(for_a * against_h / mu_a, .12, 4.5))
+        # League-level xG estimates from previous games ONLY; a sparse team's
+        # shots are partially pooled with its league. Never use an invented
+        # xG field when there are fewer than six recorded xG matches in league.
         xg_lamh = xg_lama = None
-        if hs[5] >= 3 and as_[5] >= 3:
-            xgf_h = (hs[3] + 5 * mu_h) / (hs[5] + 5)
-            xga_a = (as_[4] + 5 * mu_h) / (as_[5] + 5)
-            xg_lamh = float(np.clip(.55 * lam_h + .45 * xgf_h * xga_a / mu_h, .12, 4.5))
-        if as_[5] >= 3 and hs[5] >= 3:
-            xgf_a = (as_[3] + 5 * mu_a) / (as_[5] + 5)
-            xga_h = (hs[4] + 5 * mu_a) / (hs[5] + 5)
-            xg_lama = float(np.clip(.55 * lam_a + .45 * xgf_a * xga_h / mu_a, .12, 4.5))
+        if min(lh[5], la[5]) >= 6:
+            lgx_h = (lh[3] + 8.0 * mu_h) / (lh[5] + 8.0)
+            lgx_a = (la[3] + 8.0 * mu_a) / (la[5] + 8.0)
+            xgf_h = (hs[3] + 5.0*lgx_h) / (hs[5] + 5.0)
+            xga_a = (as_[4] + 5.0*lgx_h) / (as_[5] + 5.0)
+            xgf_a = (as_[3] + 5.0*lgx_a) / (as_[5] + 5.0)
+            xga_h = (hs[4] + 5.0*lgx_a) / (hs[5] + 5.0)
+            xg_lamh = float(np.clip(.55*lam_h + .45*xgf_h*xga_a/max(.2,lgx_h), .12, 4.5))
+            xg_lama = float(np.clip(.55*lam_a + .45*xgf_a*xga_h/max(.2,lgx_a), .12, 4.5))
         vector = np.array([lam_h, lam_a, mu_h, mu_a, hs[0], as_[0], lh[0],
                            for_h, against_h, for_a, against_a,
                            (hs[1]-hs[2])/(hs[0]+3),
@@ -245,8 +249,8 @@ class FormState:
                 "vector": vector}
 
     def add(self, m):
-        self.league_h[m.league].add(m.day, m.hg, m.ag)
-        self.league_a[m.league].add(m.day, m.ag, m.hg)
+        self.league_h[m.league].add(m.day, m.hg, m.ag, m.xgh, m.xga)
+        self.league_a[m.league].add(m.day, m.ag, m.hg, m.xga, m.xgh)
         self.home[(m.league, m.home)].add(m.day, m.hg, m.ag, m.xgh, m.xga)
         self.away[(m.league, m.away)].add(m.day, m.ag, m.hg, m.xga, m.xgh)
 
