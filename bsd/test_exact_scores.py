@@ -152,3 +152,21 @@ class H2HStandaloneVariantTests(unittest.TestCase):
         idx=V2History([old,too_soon,settled])
         self.assertEqual(meetings_before(too_soon,H2HIndex(idx)),[])
         self.assertEqual(len(meetings_before(settled,H2HIndex(idx))),1)
+
+
+from exact_scores_under25_v2 import fit_logistic,Under25V2,features
+
+class PhaseTwoUnder25Tests(unittest.TestCase):
+    def test_regularized_training_simple_data(self):
+        x=(1.,.2,0.,0.,0.,0.,0.,0.,0.,0.,0.)
+        rows=[(x,1,.5)]*40+[(tuple([-1.]+[0.]*10),0,.5)]*40
+        weights=fit_logistic(rows,epochs=15)
+        self.assertEqual(len(weights),11)
+        self.assertTrue(all(abs(w)<100 for w in weights))
+    def test_disabled_blend_keeps_existing_probability(self):
+        m=Under25V2((0.,)*11,blend=0.)
+        self.assertEqual(m.predict((1.,)*11,.47),.47)
+    def test_v2_no_history_returns_no_features(self):
+        self.assertIsNone(features({"id":1,"event_date":"2026-10-25T12:00:00Z",
+                                    "home_team_id":111,"away_team_id":222},
+                                   V2History([]),.5))
