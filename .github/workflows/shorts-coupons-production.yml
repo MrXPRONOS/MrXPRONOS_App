@@ -2,8 +2,7 @@ name: Shorts Coupons - Production
 
 on:
   schedule:
-    - cron: "15 8 * * *"
-    - cron: "15 18 * * *"
+    - cron: "15 6 * * *"  # une vidéo tôt le matin, heure UTC/Togo
   workflow_dispatch:
     inputs:
       slot:
@@ -108,8 +107,7 @@ jobs:
             # GitHub scheduled runs can be delayed for hours. Select by the
             # scheduled cron expression, NEVER by runner start time.
             case "$SCHEDULE_CRON" in
-              "15 8 * * *") SLOT="morning" ;;
-              "15 18 * * *") SLOT="evening" ;;
+              "15 6 * * *") SLOT="morning" ;;
               *) echo "::error::Unexpected schedule expression: $SCHEDULE_CRON"; exit 1 ;;
             esac
           elif [ "$EVENT_NAME" = "push" ]; then
@@ -117,12 +115,7 @@ jobs:
             # to config/shorts_production_trigger.txt (first token).
             SLOT="$(head -n 1 config/shorts_production_trigger.txt | awk '{print $1}')"
           elif [ "$SLOT" = "auto" ]; then
-            HOUR="$(date -u +%H)"
-            if [ "$HOUR" -lt 12 ]; then
-              SLOT="morning"
-            else
-              SLOT="evening"
-            fi
+            SLOT="morning"
           fi
           if [ "$SLOT" != "evening" ] && [ "$SLOT" != "morning" ]; then
             echo "::error::Vague invalide: $SLOT"
@@ -153,18 +146,19 @@ jobs:
           echo "has_video=true" >> "$GITHUB_OUTPUT"
 
       - name: Send production Telegram video and record exact batch
+        id: send
         if: steps.render.outputs.has_video == 'true'
         run: |
           python scripts/send_short_production_telegram.py             --video "$VIDEO_FILE"             --manifest telegram_out/production_short/manifest.json
 
       - name: Refresh social tokens
-        if: steps.render.outputs.has_video == 'true'
+        if: steps.send.outputs.video_sent == 'true'
         continue-on-error: true
         run: |
           python scripts/refresh_social_tokens.py             --out refreshed_tokens.json             --github-env "$GITHUB_ENV"
 
       - name: Publish prediction video to social platforms
-        if: steps.render.outputs.has_video == 'true'
+        if: steps.send.outputs.video_sent == 'true'
         shell: bash
         run: |
           TARGET="$(python -c 'import json; print(json.load(open("telegram_out/production_short/manifest.json"))["target"])')"
@@ -172,12 +166,12 @@ jobs:
           if [ "$SLOT" = "evening" ]; then
             LABEL="Première vague des pronostics de demain"
           else
-            LABEL="Pronostics de la soirée"
+            LABEL="Pronostics du jour"
           fi
           python scripts/post_shorts_video.py             --require-all             --video "$VIDEO_FILE"             --platforms "$POST_PLATFORMS"             --title "Pronostics $TARGET - Mr XPRONOS"             --description "$LABEL. $COUNT sélections. 18+ et joue responsablement."             --caption "$LABEL ⚽\n$COUNT sélections Mr XPRONOS.\n18+ • Joue responsablement.\n\n#football #pronostic #pronosdujour #mrxpronos"
 
       - name: Verify all requested social platform publishing results
-        if: always() && steps.render.outputs.has_video == 'true'
+        if: always() && steps.send.outputs.video_sent == 'true'
         shell: bash
         run: |
           set -euo pipefail
