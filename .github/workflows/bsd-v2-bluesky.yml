@@ -1,0 +1,65 @@
+name: BSD V2 - Publication Bluesky
+run-name: "BSD V2 - Bluesky (${{ inputs.trigger_source || github.event_name }})"
+
+on:
+  workflow_dispatch:
+    inputs:
+      trigger_source:
+        description: "Déclenchement manuel ou cron-job.org"
+        required: false
+        default: "manual"
+        type: string
+      publish:
+        description: "Publier réellement sur Bluesky (false = diagnostic)"
+        type: boolean
+        default: false
+        required: true
+  workflow_run:
+    workflows: ["BSD V2 - Diffusion Telegram aux 15 minutes"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bsd-v2-bluesky
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout official production feed
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Dependencies
+        run: python -m pip install 'atproto>=0.0.60,<1' requests pillow
+      - name: Verify program syntax
+        run: python -m compileall -q bsd/bsd_v2_bluesky.py
+      - name: Publish or diagnose BSD V2
+        env:
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          WANT_PUBLISH: ${{ github.event_name == 'workflow_run' || inputs.publish }}
+        run: |
+          set -euo pipefail
+          if [ "$WANT_PUBLISH" = "true" ]; then
+            if [ -z "${BLUESKY_HANDLE:-}" ] || [ -z "${BLUESKY_APP_PASSWORD:-}" ]; then
+              echo "Bluesky non configuré : aucune publication."
+              exit 0
+            fi
+            python bsd/bsd_v2_bluesky.py --data data.json --publish --max-posts 4
+          else
+            python bsd/bsd_v2_bluesky.py --data data.json
+          fi
