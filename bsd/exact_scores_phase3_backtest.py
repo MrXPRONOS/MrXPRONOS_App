@@ -37,7 +37,7 @@ def evaluate(events):
         if f is None:counts[why]+=1;continue
         old_matrix=matrix_for(f["home"]*sh,f["away"]*sa,rho=rho)
         o=old.predict(event,index,old_matrix)
-        x=features(event,index,probability_under25(old_matrix))
+        x=features(event,index,probability_under25(old_matrix)) if newer.blend>0 else None
         p=newer.predict(x,o["probability"])
         flag=h2h_signal(hindex.past_scores(event))["prioritized"]
         d=decision(old_matrix,under_v1=o["probability"],under_v2=p,h2h_prioritized=flag)
