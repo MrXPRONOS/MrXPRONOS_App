@@ -39,6 +39,7 @@ jobs:
           test -n "$BSD_HISTORY_KEY" && test -n "$BSD_API_KEY"
           test -f bsd/single_exact_score_prospective.py
           test -f bsd/single_exact_score_top3.py
+          test -f bsd/single_exact_score_context_observations.py
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
