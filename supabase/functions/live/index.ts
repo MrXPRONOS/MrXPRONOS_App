@@ -4323,15 +4323,42 @@ async function enrichLiveMatchesWithMoviOddsStats(matches:any[]) {
       if(typeof i!=="number")continue;
       const before=result.matches[i];
       const baseline=ensureLiveStatsShape(getMatchLiveStats(before));
-      // Preserve BSD/ESPN/other existing observations; fill missing pairs.
-      const merged=mergeLiveStats(baseline,item.stats,false);
+      // Fill only genuinely missing pairs. mergeLiveStats(..., false) alone
+      // may still replace a complete pair when the new total is greater;
+      // that would incorrectly override ESPN/BSD observations.
+      const fillOnly={home:{} as Record<string,number>,away:{} as Record<string,number>};
+      for(const key of ["corner_kicks","total_shots","shots_on_target",
+                        "shots_off_target","attacks","dangerous_attacks",
+                        "yellow_cards","red_cards"]){
+        if(hasCompleteStatPair(baseline,key))continue;
+        const h=nullableNumber(item.stats?.home?.[key]);
+        const a=nullableNumber(item.stats?.away?.[key]);
+        if(h!==null&&a!==null){
+          fillOnly.home[key]=h;
+          fillOnly.away[key]=a;
+        }
+      }
+      for(const side of ["home","away"] as const){
+        if(nullableNumber(baseline?.[side]?.ball_possession)==null){
+          const p=nullableNumber(item.stats?.[side]?.ball_possession);
+          if(p!==null)fillOnly[side].ball_possession=p;
+        }
+      }
+      const merged=mergeLiveStats(baseline,fillOnly,false);
       result.observations++;
-      result.sourceRows.push(sourceRowFromMatch({
-        ...before,
-        live_stats:item.stats,
-        raw_data:{...(before?.raw_data||{}),live_stats:item.stats,
-          stats_authority:"moviodds_live_stats"},
-      },"moviodds"));
+      // Use the provider's actual event ID, never our internal match ID.
+      // Keep the original canonical match identity for safe cross-source joins.
+      result.sourceRows.push({
+        ...sourceRowFromMatch({
+          ...before,
+          live_stats:item.stats,
+          raw_data:{...(before?.raw_data||{}),live_stats:item.stats,
+            provider_refs:{...(before?.raw_data?.provider_refs||{}),
+              moviodds:{id:item.provider_id}},
+            stats_authority:"moviodds_live_stats"},
+        },"moviodds"),
+        source_match_id:item.provider_id,
+      });
       if(JSON.stringify(merged)===JSON.stringify(baseline))continue;
       result.matches[i]={
         ...before,live_stats:merged,stats_last_updated_at:nowIso(),
@@ -6777,6 +6804,13 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       await enrichLiveMatchesWithEspnSummaries(allRawMatches);
     allRawMatches = sortMatchesForRefresh(espnSummaryEnrichment.matches);
 
+    // Live bet365/MoviOdds stats fill missing corners/shots BEFORE
+    // spending scarce BSD detail calls. Foul stats remain unknown.
+    const movioddsStatsEnrichment =
+      await enrichLiveMatchesWithMoviOddsStats(allRawMatches);
+    allRawMatches = sortMatchesForRefresh(movioddsStatsEnrichment.matches);
+    sourceRows.push(...movioddsStatsEnrichment.sourceRows);
+
     const statsEnrichment = await enrichLiveMatchesWithBsdStats(allRawMatches);
     allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
 
@@ -6784,11 +6818,6 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     // stats fill missing markets only; they never override verified BSD pairs.
     const apiFootballCache = await enrichLiveMatchesWithApiFootballCache(allRawMatches);
     allRawMatches = sortMatchesForRefresh(apiFootballCache.matches);
-
-    const movioddsStatsEnrichment =
-      await enrichLiveMatchesWithMoviOddsStats(allRawMatches);
-    allRawMatches = sortMatchesForRefresh(movioddsStatsEnrichment.matches);
-    sourceRows.push(...movioddsStatsEnrichment.sourceRows);
 
     const freeStatsEnrichment =
       await enrichLiveMatchesWithFreeStats(allRawMatches);
