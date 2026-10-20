@@ -227,8 +227,10 @@ def main():
     index = V2History(history)
     capture = record_fixtures(original, fixtures, index, now)
     settlement = reconcile_results(original, fixtures, now)
-    # The append-only encrypted ledger is the only persistent file.
-    write_ledger(original, ledger_path)
+    # Re-encrypt ONLY when first-seen records or settlements changed.
+    # Prevent needless diffs: Fernet ciphertext is randomized every write.
+    if capture['added'] or settlement.get('settled'):
+        write_ledger(original, ledger_path)
     data = report(original, now)
     destination = Path(args.report)
     destination.parent.mkdir(parents=True, exist_ok=True)
