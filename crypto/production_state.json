@@ -42,6 +42,12 @@
       "sent_at": "2026-10-19T14:36:18.310179+00:00",
       "source": "CoinPaprika"
     },
+    "daily:01:2026-10-20:morning": {
+      "message_id": 14,
+      "number": 1,
+      "sent_at": "2026-10-20T12:41:19.533994+00:00",
+      "source": "CoinPaprika"
+    },
     "daily:02:2026-10-19:default": {
       "message_id": 12,
       "number": 2,
@@ -54,11 +60,23 @@
       "sent_at": "2026-10-19T14:36:20.949600+00:00",
       "source": "Alternative.me"
     },
+    "daily:05:2026-10-20:default": {
+      "message_id": 15,
+      "number": 5,
+      "sent_at": "2026-10-20T12:41:22.021665+00:00",
+      "source": "Alternative.me"
+    },
     "daily:06:2026-10-19:default": {
       "message_id": 11,
       "number": 6,
       "sent_at": "2026-10-19T14:36:23.627774+00:00",
       "source": "CoinLore"
+    },
+    "daily:06:2026-10-20:default": {
+      "message_id": 16,
+      "number": 6,
+      "sent_at": "2026-10-20T12:41:24.401433+00:00",
+      "source": "CoinPaprika"
     },
     "initial_history_01": {
       "message_id": 2,
