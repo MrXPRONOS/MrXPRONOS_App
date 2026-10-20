@@ -245,5 +245,75 @@ class ProspectiveGroupTests(unittest.TestCase):
         self.assertEqual(out["eligible"],0)
         self.assertEqual(out["variants"]["with_double_chance"]["n"],0)
 
+class ExpandedGoalBandsTests(unittest.TestCase):
+    def test_cumulative_probability_is_monotone_to_seven(self):
+        from grouped_total_goals import goal_profile,CEILINGS
+        matrix=matrix_for(1.5,1.1)
+        profile=goal_profile(matrix)
+        cdf=[profile["under_probabilities"][f"under_{n}5"] for n in CEILINGS]
+        self.assertEqual(len(cdf),6)
+        self.assertTrue(all(0<=a<=b<=1 for a,b in zip(cdf,cdf[1:])))
+        self.assertAlmostEqual(sum(profile["exclusive_goal_bands"].values()),1,places=5)
+        self.assertAlmostEqual(cdf[0],sum(p for (h,a),p in matrix.items() if h+a<=2),places=6)
+    def test_high_goal_away_group_can_enter_under_seven(self):
+        from grouped_total_goals import goal_profile,select_for_ceiling
+        # High scoring synthetic match: G7 (2-3 / 2-4 / 3-4) rather than G1.
+        matrix={(0,0):.05,(1,0):.10,(2,3):.30,(2,4):.30,(3,4):.25}
+        profile=goal_profile(matrix)
+        self.assertIsNone(profile["smallest_eligible_max_goals"] if False else None)
+        self.assertEqual(profile["smallest_eligible_max_goals"],6)
+        self.assertFalse(profile["eligible_ceiling"]["under_45"])
+        self.assertTrue(profile["eligible_ceiling"]["under_65"])
+        options=evaluate_groups(matrix,template_groups(),
+                 direction=double_chance_direction({"1":.1,"X":.05,"2":.85}))
+        picked=select_for_ceiling(options,profile,matrix,6)
+        self.assertIsNotNone(picked)
+        self.assertEqual(picked[0]["group_id"],"G7")
+        self.assertIsNone(select_for_ceiling(options,profile,matrix,4))
+    def test_group_not_resized_to_goal_ceiling_and_probabilities_not_inflated(self):
+        from grouped_total_goals import goal_profile,select_for_ceiling
+        matrix=matrix_for(1.2,.8)
+        profile=goal_profile(matrix)
+        groups=evaluate_groups(matrix,template_groups(),
+                 direction=double_chance_direction({"1":.6,"X":.28,"2":.12}))
+        chosen=select_for_ceiling(groups,profile,matrix,7)
+        self.assertIsNotNone(chosen)
+        group,share=chosen
+        self.assertEqual(group["scores"],[list(x) for x in GROUPS[group["group_id"]]])
+        self.assertAlmostEqual(group["probability"],
+                 group_probability(matrix,group["scores"]),places=6)
+        self.assertIsNone(group["odds"])
+        self.assertIsNone(group["expected_value"])
+    def test_invalid_matrix_and_invalid_limit_rejected(self):
+        from grouped_total_goals import cumulative_goals,goal_profile,select_for_ceiling
+        with self.assertRaises(ValueError):goal_profile({(0,0):.8})
+        with self.assertRaises(ValueError):goal_profile({(0,0):1.1,(1,0):-.1})
+        with self.assertRaises(ValueError):
+            select_for_ceiling([],goal_profile({(0,0):1.0}),8)
+    def test_grouped_analysis_includes_six_screening_policies_without_book_odds(self):
+        fixture_obj=fixture(989,NOW+timedelta(days=1))
+        idx=history()
+        pred,reason=analyze(fixture_obj,idx,H2HIndex(idx),StubDC(),now=NOW)
+        self.assertEqual(reason,"ok")
+        self.assertEqual(len(pred["ceiling_choices"]),6)
+        choices=selection_summary(pred)
+        self.assertIn("ceiling_under_75",choices)
+        self.assertIn("with_h2h_under",choices)
+        self.assertTrue(all(g["odds"] is None for g in pred["groups"]))
+    def test_archived_legacy_forecast_without_ceiling_keys_still_valid(self):
+        from grouped_correct_score_prospective import report
+        led=empty()
+        capture(led,[fixture(989,NOW+timedelta(days=1))],history(),StubDC(),now=NOW)
+        row=led["predictions"]["989"]
+        self.assertIn("goals_profile",row)
+        self.assertIn("ceiling_under_75",row["rules"])
+        # First-seen snapshots predating this module contain no ceiling keys.
+        del row["goals_profile"]
+        for k in tuple(row["rules"]):
+            if k.startswith("ceiling_"):del row["rules"][k]
+        from grouped_correct_score_prospective import digest
+        row["forecast_sha256"]=digest(row)
+        self.assertIn("ceiling_under_75",report(led,NOW)["policies"])
+
 if __name__=="__main__":
     unittest.main()
