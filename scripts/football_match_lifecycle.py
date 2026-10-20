@@ -2057,10 +2057,14 @@ def lifecycle_signals(
                 if logo_url and not signal.get(side + "_logo"):
                     signal[side + "_logo"] = logo_url
 
+    # Ne pas publier un simple score non nul comme une nouvelle actualité.
+    # La chronologie de buts confirmés reste prioritaire. Ancien fallback
+    # réactivable explicitement après validation de la détection des deltas.
+    enable_score_updates = os.getenv("FOOTBALL_ENABLE_SCORE_UPDATES", "0") == "1"
     # Relevé de score, toujours limité aux rencontres explicitement retenues.
     goal_score_pairs = {(item.get("follow_ref"), item.get("score"))
                         for item in signals if item.get("kind") == "goal"}
-    for base in base_events:
+    for base in (base_events if enable_score_updates else []):
         match = best_external_match(base, external)
         if not match or not (is_live(match) or is_halftime(match)):
             continue
