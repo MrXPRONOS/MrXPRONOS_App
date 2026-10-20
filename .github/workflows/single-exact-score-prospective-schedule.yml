@@ -75,11 +75,14 @@ jobs:
           assert d["top3"]["baskets_with_at_least_one_hit"] <= d["top3"]["settled_baskets"]
           assert 0 <= d["context_coverage"]["new_collector_found"] <= d["context_coverage"]["new_collector_attempts"] <= 6
           assert d["absence_context_model"]["training_rows"] >= 0
+          assert 0 <= d["context_coverage"]["sidecar_capture_new"] <= d["context_coverage"]["sidecar_capture_attempted"] <= 12
+          assert d["context_coverage"]["sidecar_verified_lineups_total"] >= d["context_coverage"]["sidecar_capture_new"]
           assert len(d["advanced_model_fingerprint_sha256"]) == 64
           print("SINGLE_SHADOW_AUDIT_OK",json.dumps({
             "total":d["captured"],"settled":d["settled"],
             "top3":d["top3"]["baskets_created"],
             "verified_lineups":d["context_coverage"]["new_collector_found"],
+            "sidecar_lineups":d["context_coverage"]["sidecar_verified_lineups_total"],
             "absence_model_active":d["absence_context_model"]["active"]}))
           PY
       - name: Commit only encrypted research snapshots to feature branch
@@ -88,7 +91,7 @@ jobs:
           test "$(git branch --show-current)" = "feature/single-exact-score-v1-20261020"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for file in bsd/single_exact_score_ledger.enc.json bsd/single_exact_score_top3.enc.json bsd/single_exact_score_xg_history.enc.json; do
+          for file in bsd/single_exact_score_ledger.enc.json bsd/single_exact_score_top3.enc.json bsd/single_exact_score_xg_history.enc.json bsd/single_exact_score_context_observations.enc.json; do
             if test -f "$file"; then git add -- "$file"; fi
           done
           if git diff --cached --quiet; then
