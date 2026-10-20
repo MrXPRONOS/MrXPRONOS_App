@@ -52,6 +52,15 @@ class HTTPTests(unittest.TestCase):
         self.assertEqual(sent[0][0], "sendPhoto")
         self.assertEqual(json.loads(sent[0][1]["reply_markup"])["inline_keyboard"][0][0]["style"], "primary")
 
+    def test_unchanged_public_buttons_are_idempotent(self):
+        async def unchanged(method, data=None, files=None):
+            raise TelegramBotHTTPError("Bad Request: message is not modified")
+        self.bot._call = unchanged
+        channel = Channel(id=123456789, title="CineX", photo=None, date=None)
+        rows = [[url_button("Saison 1", "https://t.me/c/123/1")]]
+        result = asyncio.run(self.bot.edit_reply_markup(channel, 4, buttons=rows))
+        self.assertFalse(result)
+
     def test_429_never_retries(self):
         called = []
         class Response:
