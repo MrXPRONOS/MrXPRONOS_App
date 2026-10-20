@@ -1,18 +1,18 @@
 {
   "audit": {
     "category": "series_catalog",
-    "checked_at": "2026-10-20T11:36:23.133166+00:00",
+    "checked_at": "2026-10-20T17:10:53.865030+00:00",
     "not_yet_indexed": [],
     "not_yet_indexed_total": 0,
     "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
     "numbering_gap_seasons": 0,
     "numbering_gaps": [],
-    "scanned_episode_candidates": 8,
-    "source_episode_numbers_observed": 8,
+    "scanned_episode_candidates": 14,
+    "source_episode_numbers_observed": 14,
     "source_numbering_gap_seasons": 0,
     "source_numbering_gaps": [],
     "source_scan_complete": true,
-    "unnumbered_videos_skipped": 51
+    "unnumbered_videos_skipped": 52
   },
   "scans": {
     "-1001733930841": {
@@ -82,6 +82,50 @@
         "-1003990708673:24": 118
       },
       "title": "little house on the prairie 2026"
+    },
+    "zodiaque-2026": {
+      "episodes": {
+        "1": {
+          "1": {
+            "message_id": 159,
+            "url": "https://t.me/c/4392607284/159"
+          },
+          "2": {
+            "message_id": 160,
+            "url": "https://t.me/c/4392607284/160"
+          },
+          "3": {
+            "message_id": 161,
+            "url": "https://t.me/c/4392607284/161"
+          },
+          "4": {
+            "message_id": 162,
+            "url": "https://t.me/c/4392607284/162"
+          },
+          "5": {
+            "message_id": 163,
+            "url": "https://t.me/c/4392607284/163"
+          },
+          "6": {
+            "message_id": 164,
+            "url": "https://t.me/c/4392607284/164"
+          }
+        }
+      },
+      "main_index_id": 157,
+      "public_id": 112,
+      "season_indices": {
+        "1": 158
+      },
+      "source_items": {
+        "-1003990708673:123": 159,
+        "-1003990708673:124": 160,
+        "-1003990708673:125": 161,
+        "-1003990708673:126": 162,
+        "-1003990708673:127": 163,
+        "-1003990708673:128": 164
+      },
+      "title": "zodiaque 2026"
     }
   },
   "source_observed": {
@@ -110,6 +154,28 @@
         ],
         "8": [
           "-1003990708673:24"
+        ]
+      }
+    },
+    "zodiaque-2026": {
+      "1": {
+        "1": [
+          "-1003990708673:123"
+        ],
+        "2": [
+          "-1003990708673:124"
+        ],
+        "3": [
+          "-1003990708673:125"
+        ],
+        "4": [
+          "-1003990708673:126"
+        ],
+        "5": [
+          "-1003990708673:127"
+        ],
+        "6": [
+          "-1003990708673:128"
         ]
       }
     }
