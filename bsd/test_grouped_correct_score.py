@@ -73,6 +73,27 @@ class CatalogTests(unittest.TestCase):
         m=matrix_for(1.5,.9)
         self.assertAlmostEqual(group_probability(m,["1-0","2-0","3-0"]),
                                m[1,0]+m[2,0]+m[3,0])
+class StatisticalIntegrityTests(unittest.TestCase):
+    def test_wilson_bounds_without_false_certainty(self):
+        from grouped_correct_score_backtest import wilson95,metrics,new_bucket
+        self.assertIsNone(wilson95(0,0))
+        lo,hi=wilson95(65,122)
+        self.assertGreater(lo,.44)
+        self.assertLess(hi,.62)
+        self.assertLess(lo,65/122)
+        self.assertGreater(hi,65/122)
+        tiny=new_bucket()
+        self.assertTrue(metrics(tiny,16257)["small_sample"])
+        self.assertIsNone(metrics(tiny,16257)["hit_rate"])
+    def test_same_population_baseline_policy(self):
+        from grouped_correct_score_backtest import metrics,new_bucket
+        b=new_bucket()
+        b.update({"n":122,"hits":65,"sum_p":50.08})
+        r=metrics(b,16257)
+        self.assertEqual(r["wins"],65)
+        self.assertEqual(r["coverage"],round(122/16257,6))
+        self.assertFalse(r["small_sample"])
+
 class DirectionTests(unittest.TestCase):
     def test_home_one_x_is_not_home_win_only(self):
         d=double_chance_direction({"1":.56,"X":.29,"2":.15})
