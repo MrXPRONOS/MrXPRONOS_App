@@ -44,7 +44,7 @@ jobs:
             HEARTBEAT="$(curl --silent --show-error --fail --max-time 15 \
               -H "apikey: ${SERVICE_KEY}" \
               -H "Authorization: Bearer ${SERVICE_KEY}" \
-              "${SUPABASE_URL}/rest/v1/live_refresh_control?select=updated_at&key=eq.live_refresh" || true)"
+              "${SUPABASE_URL}/rest/v1/cron_runs?select=last_run_at,last_ok&name=eq.live_refresh" || true)"
 
             if [[ -n "${HEARTBEAT}" ]]; then
               export HEARTBEAT
@@ -56,20 +56,22 @@ jobs:
 
           try:
               rows = json.loads(os.environ.get("HEARTBEAT", ""))
-              timestamp = rows[0]["updated_at"]
+              timestamp = rows[0]["last_run_at"]
+              success = rows[0]["last_ok"] is True
               last = datetime.datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
               age = (datetime.datetime.now(datetime.timezone.utc) - last).total_seconds()
               print(f"Refresh heartbeat age: {age:.0f} seconds")
-              sys.exit(0 if age >= 360 or age < -30 else 2)
+              print(f"Last refresh successful: {success}")
+              sys.exit(0 if age >= 360 or age < -30 or not success else 2)
           except Exception as exc:
               print(f"Heartbeat unavailable: {type(exc).__name__}")
               sys.exit(0)
           PY
               then
-                echo "Heartbeat stale or unknown: failover will invoke refresh."
+                echo "Refresh stale/failed/unknown: failover will invoke refresh."
               else
                 SHOULD_REFRESH=0
-                echo "Primary refresh is healthy: skipping failover."
+                echo "Primary refresh last completed successfully: skipping failover."
               fi
             else
               echo "::warning::Heartbeat read failed. Attempting refresh recovery."
