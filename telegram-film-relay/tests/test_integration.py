@@ -117,7 +117,12 @@ class RelayEndToEndTests(unittest.TestCase):
             'CINEX_PROMO_ASSETS_DIR': str(Path(state_path).parent / 'promo-assets'),
         }
         with patch.dict(os.environ, environment), patch.dict(sys.modules, mocks_for(client)):
-            with patch.object(runner.asyncio, 'sleep', new=AsyncMock()):
+            # Legacy MTProto fake: route the modern HTTP Bot adapter to the
+            # same in-memory fake, never an actual Telegram HTTP request.
+            with patch("film_relay.bot_http.BotHTTPClient", side_effect=lambda token, user: client), \
+                 patch("film_relay.mirror_policy.torrent9_paused", return_value=False), \
+                 patch("film_relay.mirror_policy.assert_torrent9_enabled"), \
+                 patch.object(runner.asyncio, 'sleep', new=AsyncMock()):
                 return asyncio.run(runner.execute())
 
     def setup_files(self, temp, max_posts=5, with_mirror=False):
@@ -151,7 +156,7 @@ class RelayEndToEndTests(unittest.TestCase):
             self.assertTrue(client.sent[1].caption.startswith('<b>🎞️ Excellente histoire'))
             self.assertNotIn('http', client.sent[1].caption)
             self.assertNotIn('https://t.me/c/1020304050/102', client.sent[2].caption)
-            self.assertEqual(client.sent[2].options['buttons'][0][0][1], 'https://t.me/c/1020304050/102')
+            self.assertEqual(client.sent[2].options['buttons'][0][0].url, 'https://t.me/c/1020304050/102')
             self.assertIn('<b>', client.sent[2].caption)
             self.assertEqual(State(str(state)).seen(str(SRC)), 11)
             second_client = FakeTelegramClient(sample_messages())
@@ -198,7 +203,7 @@ class RelayEndToEndTests(unittest.TestCase):
             self.assertEqual([x.channel for x in ads], [PUB, PRIV])
             self.assertTrue(all(len(x.caption.splitlines()) == 4 for x in ads))
             self.assertTrue(all(len(x.caption.splitlines()) == 4 for x in ads))
-            self.assertTrue(all(x.options["buttons"][0][0][1] ==
+            self.assertTrue(all(x.options["buttons"][0][0].url ==
                                 "https://t.me/actufoot_mrxp" for x in ads))
             forwarded = [x for x in client.forwarded if x.origin_id == ads[0].id]
             self.assertEqual(len(forwarded), 1)
@@ -218,7 +223,7 @@ class RelayEndToEndTests(unittest.TestCase):
             self.assertEqual(self.start(second, cfg, state), 0)
             self.assertEqual(len(second.sent), 1)
             self.assertEqual(second.sent[0].channel, PUB)
-            self.assertEqual(second.sent[0].options['buttons'][0][0][1], 'https://t.me/c/1020304050/102')
+            self.assertEqual(second.sent[0].options['buttons'][0][0].url, 'https://t.me/c/1020304050/102')
             self.assertEqual(State(str(state)).get_staged_posts(f'{SRC}:10:11'), {})
 
     def test_hard_cap_two_even_when_configuration_requests_nine(self):
