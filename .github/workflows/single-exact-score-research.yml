@@ -21,7 +21,7 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,29 +43,35 @@ jobs:
           git fetch --no-tags origin main
           git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
           python bsd/bsd_archive.py restore
-      - name: Compare one-score exact 2025 chronological sample
-        run: python bsd/single_exact_score_backtest.py --year 2025 --cap 1500 --output tmp/single-exact-score/2025-sample.json
-      - name: Compare one-score exact 2026 chronological sample
-        run: python bsd/single_exact_score_backtest.py --year 2026 --cap 3000 --output tmp/single-exact-score/2026-sample.json
+      - name: Compare ONE score per match over ALL available 2025 finished fixtures
+        run: python bsd/single_exact_score_backtest.py --year 2025 --cap 0 --output tmp/single-exact-score/2025-full.json
+      - name: Compare ONE score per match over ALL 2026 finished fixtures to date
+        run: python bsd/single_exact_score_backtest.py --year 2026 --cap 0 --output tmp/single-exact-score/2026-full.json
       - name: Check reproducible TOP ONE metrics and paired match counts
         run: |
           python - <<'PY'
           import json
           for year in (2025,2026):
-              d=json.load(open(f"tmp/single-exact-score/{year}-sample.json"))
-              assert d["eligible"] >= 500
+              d=json.load(open(f"tmp/single-exact-score/{year}-full.json"))
+              assert d["eligible"] >= 10000, (year,d["eligible"])
+              assert d["sample_cap"] is None
+              assert d["finished"] >= d["eligible"]
+              assert sum(m["matches"] for m in d["monthly"].values() for k,m in m.items() if k=="under25_fusion") == d["eligible"]
               assert d["published"] is False
               counts=[x["matches"] for x in d["variants"].values()]
               assert counts[0]==counts[1]==counts[2]==d["eligible"]
               assert all(x["wins"]<=x["matches"] for x in d["variants"].values())
-              print("SINGLE_EXACT_VERIFIED",year,json.dumps(d["variants"],ensure_ascii=False))
+              print("SINGLE_EXACT_FULL_YEAR_VERIFIED",year,json.dumps({
+              "finished":d["finished"],"eligible":d["eligible"],
+              "variants":d["variants"],"subgroups":d["groups"],
+              "changed_by_dc":d["dc_changes"],"monthly":d["monthly"]},ensure_ascii=False))
           PY
       - name: Upload historical Top 1 only aggregate reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: single-exact-score-historical-${{ github.run_id }}
-          path: tmp/single-exact-score/*-sample.json
+          path: tmp/single-exact-score/*-full.json
           if-no-files-found: ignore
           retention-days: 90
       - name: Delete decrypted BSD history
@@ -73,6 +79,9 @@ jobs:
         run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
 
   prospective:
+    # Automatic prospective snapshots are handled by the separate daily
+    # cron workflow; skip extra API calls on full-history benchmark commits.
+    if: github.event_name == 'workflow_dispatch'
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 30
