@@ -59,6 +59,7 @@ def run(events,*,max_2026=0,year=2026):
     risk_counts=Counter()
     goal_tier_counts=Counter()
     goal_actual_counts=Counter()
+    total_probability_validation={cap:{"n":0,"hits":0,"probability_sum":0.,"squared_error_sum":0.} for cap in CEILINGS}
     paired_direction_changes={"n":0,"baseline_wins":0,"dc_wins":0,
                               "both_won":0,"both_lost":0}
     eligible=0
@@ -75,6 +76,13 @@ def run(events,*,max_2026=0,year=2026):
         total_goals=sum(score)
         goal_actual_counts["0_to_2" if total_goals<=2 else "3_to_4" if total_goals<=4
                           else "5_to_7" if total_goals<=7 else "8_plus"]+=1
+        for cap in CEILINGS:
+            p_under=profile["under_probabilities"][f"under_{cap}5"]
+            actual_under=int(total_goals<=cap)
+            cell=total_probability_validation[cap]
+            cell["n"]+=1;cell["hits"]+=actual_under
+            cell["probability_sum"]+=p_under
+            cell["squared_error_sum"]+=(p_under-actual_under)**2
         variants=selection_summary(pred)
         selected_old=variants.get("with_h2h_under")
         shift=pred.get("form_shift")
@@ -124,6 +132,11 @@ def run(events,*,max_2026=0,year=2026):
        "form_shift_flag_frequency":dict(risk_counts),
        "goal_tier_distribution":dict(goal_tier_counts),
        "actual_total_goals_bands":dict(goal_actual_counts),
+       "goal_probability_validation":{f"under_{cap}5":{
+           "matches":v["n"],"actual_rate":round(v["hits"]/v["n"],6) if v["n"] else None,
+           "mean_estimated":round(v["probability_sum"]/v["n"],6) if v["n"] else None,
+           "brier":round(v["squared_error_sum"]/v["n"],6) if v["n"] else None,
+           "actual_hits":v["hits"]} for cap,v in total_probability_validation.items()},
        "goal_ceiling_policy_note":"Nested total-goal CDFs permit more eligible fixtures; each selected bet still covers exactly one 1xBet 3-score group; price unavailable.",
        "halves":{h:{k:metrics(v,eligible) for k,v in groups.items()}
                  for h,groups in halves.items()},
@@ -152,6 +165,7 @@ def main():
           "form_shift_flag_frequency":result["form_shift_flag_frequency"],
           "halves":result["halves"],
           "goal_tier_distribution":result["goal_tier_distribution"],
-          "actual_total_goals_bands":result["actual_total_goals_bands"]},ensure_ascii=False))
+          "actual_total_goals_bands":result["actual_total_goals_bands"],
+          "goal_probability_validation":result["goal_probability_validation"]},ensure_ascii=False))
 
 if __name__=="__main__":main()
