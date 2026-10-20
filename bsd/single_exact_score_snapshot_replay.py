@@ -49,6 +49,14 @@ class PointInTimeHistory:
         return self._visible(self._history.league(key,self._at(when),limit=limit))
     def global_prior(self,when,limit=1200):
         return self._visible(self._history.global_prior(self._at(when),limit=limit))
+    @property
+    def global_games(self):
+        # Compatibility with DC Elo historical computation. Never expose
+        # any match result whose settlement timestamp exceeds the snapshot.
+        cutoff=self.as_of.timestamp()
+        return [(available,self._visible([event])[0])
+                for available,event in self._history.global_games
+                if available <= cutoff]
     def league_baselines(self,key,when):
         return self._history.league_baselines(key,self._at(when))
 
