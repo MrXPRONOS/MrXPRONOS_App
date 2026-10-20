@@ -38,6 +38,8 @@ def run(events,*,max_2026=0):
     buckets={k:new_bucket() for k in POLICIES}
     months=defaultdict(lambda:{k:new_bucket() for k in POLICIES})
     skips=Counter()
+    group_stats={policy:{group:new_bucket() for group in ("G1","G2","G3","G4","G5","G6","G7","G8","G9")} for policy in POLICIES}
+    pairs={name:{"baseline":new_bucket(),"candidate":new_bucket()} for name in ("dc_selected","priority_selected")}
     eligible=0
     for event in samples:
         now=fixture_datetime(event)
@@ -52,13 +54,24 @@ def run(events,*,max_2026=0):
         for key,item in variants.items():
             record(buckets[key],item,score)
             record(months[month][key],item,score)
-    return {"format":"mrx-1xbet-grouped-2026-comparison-v1",
+            if item is not None:
+                record(group_stats[key][item["group_id"]],item,score)
+        for pair,policy in (("dc_selected","with_double_chance"),
+                            ("priority_selected","with_h2h_under")):
+            if variants[policy] is not None:
+                record(pairs[pair]["baseline"],variants["baseline"],score)
+                record(pairs[pair]["candidate"],variants[policy],score)
+    return {"format":"mrx-1xbet-grouped-2026-comparison-v2",
        "historical_only":True,"published":False,"bookmaker_prices_available":False,
        "no_live_1xbet_quotes":True,"template_not_guaranteed_book_availability":True,
        "sample_cap":max_2026 if max_2026>0 else None,
        "finished_2026":len(samples),"eligible":eligible,"skipped":dict(skips),
        "dc_training":dc_training,
        "variants":{k:metrics(v,eligible) for k,v in buckets.items()},
+       "group_breakdown":{policy:{gid:metrics(bucket,eligible) for gid,bucket in groups.items()}
+                          for policy,groups in group_stats.items()},
+       "paired_comparisons":{name:{key:metrics(b,eligible) for key,b in groups.items()}
+                             for name,groups in pairs.items()},
        "months":{m:{k:metrics(v,eligible) for k,v in d.items()}
                  for m,d in sorted(months.items())},
        "warning":"Exploratory 2026 selection; rates do not prove betting value or future profit. No 1xBet historical odds."}
@@ -75,6 +88,8 @@ def main():
     dest=Path(args.out);dest.parent.mkdir(parents=True,exist_ok=True)
     dest.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
     print("GROUPED_2026_BACKTEST",json.dumps({"eligible":result["eligible"],
-          "dc_training":result["dc_training"],"variants":result["variants"]},ensure_ascii=False))
+          "dc_training":result["dc_training"],"variants":result["variants"],
+          "paired_comparisons":result["paired_comparisons"],
+          "group_breakdown":result["group_breakdown"]},ensure_ascii=False))
 
 if __name__=="__main__":main()
