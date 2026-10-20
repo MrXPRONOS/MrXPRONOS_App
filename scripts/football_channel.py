@@ -2900,7 +2900,7 @@ def followed_final_publication(signal: dict) -> Publication | None:
     )
     message = (
         "<b>🏁 RÉSULTAT FINAL</b>\n"
-        "<b>" + esc(home) + " " + esc(h) + "–" + esc(a) + " " + esc(away) + "</b>\n"
+        "<b>" + esc(home) + " " + esc(str(h)) + "–" + esc(str(a)) + " " + esc(away) + "</b>\n"
         "<i>Le coup de sifflet final a retenti.</i>"
         + shootout_block
         + "\n\n<b>💬 Votre avis sur le match ?</b>"
