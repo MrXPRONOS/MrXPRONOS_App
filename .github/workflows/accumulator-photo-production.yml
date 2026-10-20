@@ -1,0 +1,142 @@
+name: Mr XPRONOS - Combiné Photo Production
+
+on:
+  workflow_run:
+    workflows: ["BSD V2 - Generation quotidienne"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      mode:
+        required: true
+        default: dry-run
+        type: choice
+        options: [dry-run, production]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrxpronos-accumulator-photo-production
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ACCUMULATOR_MODE: production
+      ACCUMULATOR_OUTPUT: telegram_out/accumulator_reference.png
+      ACCUMULATOR_INPUT: telegram_out/accumulator_today.json
+      ACCUMULATOR_DATA_REPORT: telegram_out/accumulator_data_report.json
+      ACCUMULATOR_PREVIEW: telegram_out/accumulator_preview.png
+      ACCUMULATOR_CROP_META: telegram_out/accumulator_crop.json
+      ACCUMULATOR_SOCIAL_IMAGE: telegram_out/accumulator_preview.jpg
+      ACCUMULATOR_MAX_MATCHES: '12'
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_BUCKET: videos
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
+      META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+      META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+      IG_USER_ID: ${{ secrets.IG_USER_ID }}
+      THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+      THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+      BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+      BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Check latest BSD feed belongs to successful generation
+        if: github.event_name == 'workflow_run'
+        env:
+          BSD_RUN_STARTED: ${{ github.event.workflow_run.run_started_at }}
+        run: |
+          python - <<'PY'
+          import json,os
+          from datetime import datetime,timezone,timedelta
+          feed=json.load(open("data.json",encoding="utf-8"))
+          generated=datetime.fromisoformat(feed["generated_at"].replace("Z","+00:00"))
+          started=datetime.fromisoformat(os.environ["BSD_RUN_STARTED"].replace("Z","+00:00"))
+          assert generated>=started-timedelta(minutes=10), "Flux data.json non actualisé après cette génération BSD"
+          assert datetime.now(timezone.utc)-generated<timedelta(hours=3), "Flux BSD trop ancien"
+          print("ACCUMULATOR_POST_GENERATION_VERIFIED",generated.isoformat())
+          PY
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install render and photo network dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          python -m pip install requests Pillow 'atproto>=0.0.60,<1'
+      - name: Select eligible fixtures and calculate simulated 50000 FCFA stake
+        id: selection
+        shell: bash
+        run: |
+          set +e
+          node scripts/prepare_accumulator_today.mjs
+          CODE=$?
+          set -e
+          if [ "$CODE" = "3" ]; then
+            echo "has_matches=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "$CODE" != "0" ]; then exit "$CODE"; fi
+          echo "has_matches=true" >> "$GITHUB_OUTPUT"
+      - name: Verify calculated potential win and selections
+        if: steps.selection.outputs.has_matches == 'true'
+        run: |
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          const d=JSON.parse(fs.readFileSync(process.env.ACCUMULATOR_INPUT));
+          assert.equal(d.status,'Accepté');
+          assert.ok(d.legs.length>=2 && d.legs.length<=12);
+          assert.equal(d.stake_is_simulated,true);
+          const calculated=Math.round(50000*Number(d.combined_odds));
+          assert.equal(d.potential_win.replaceAll(/\D/g,''),String(calculated));
+          console.log('ACCUMULATOR_PRODUCTION_CALC_OK',d.legs.length,calculated);
+          NODE
+      - name: Render full HD ticket and exact two-match preview
+        if: steps.selection.outputs.has_matches == 'true'
+        run: |
+          node scripts/render_accumulator_ticket.mjs --input "$ACCUMULATOR_INPUT" --output "$ACCUMULATOR_OUTPUT"
+          python scripts/create_accumulator_preview.py
+          python - <<'PY'
+          import os
+          from PIL import Image
+          with Image.open(os.environ["ACCUMULATOR_OUTPUT"]) as full, Image.open(os.environ["ACCUMULATOR_PREVIEW"]) as preview:
+              assert full.width==preview.width==1080
+              assert full.height>preview.height
+              assert full.height+full.width<=10000
+              preview.convert("RGB").save(os.environ["ACCUMULATOR_SOCIAL_IMAGE"],"JPEG",quality=88,optimize=True)
+              print("ACCUMULATOR_PRODUCTION_IMAGES_OK",preview.size,full.size)
+          PY
+      - name: Send Telegram production photo album once
+        if: steps.selection.outputs.has_matches == 'true' && (github.event_name != 'workflow_dispatch' || inputs.mode == 'production')
+        run: python scripts/send_accumulator_production.py
+      - name: Publish photo to Facebook Instagram Threads Bluesky
+        if: steps.selection.outputs.has_matches == 'true' && (github.event_name != 'workflow_dispatch' || inputs.mode == 'production')
+        run: python scripts/post_accumulator_social.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: accumulator-photos-${{ github.run_id }}
+          path: |
+            telegram_out/accumulator_reference.png
+            telegram_out/accumulator_preview.png
+            telegram_out/accumulator_preview.jpg
+            telegram_out/accumulator_today.json
+            telegram_out/accumulator_crop.json
+            telegram_out/accumulator_data_report.json
+            telegram_out/accumulator_social_results.json
+          if-no-files-found: ignore
+          retention-days: 7
