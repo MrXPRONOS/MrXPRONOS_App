@@ -105,12 +105,12 @@ def evaluate_groups(matrix,available,*,direction=None,min_aligned_share=.62):
                                  not isfinite(odds) or not 1.01<=odds<=1000):
             raise ValueError("Invalid group odds")
         source=item.get("quote_source","unavailable")
-        actual=odds if source=="verified_1xbet_snapshot" else None
+        actual=odds if source=="documented_1xbet_snapshot" else None
         value=p*actual-1 if actual is not None else None
         row={"group_id":item.get("group_id"),"scores":[list(s) for s in scores],
              "probability":round(p,7),"direction_share":round(aligned,6),
              "direction_eligible":aligned>=min_aligned_share,
-             "available_verified":source=="verified_1xbet_snapshot",
+             "quote_documented":source=="documented_1xbet_snapshot",
              "odds":actual,"quote_source":source,
              "fair_odds":round(1/p,4) if p>0 else None,
              "expected_value":round(value,6) if value is not None else None,
@@ -162,7 +162,7 @@ def validate_1xbet_snapshot(document,*,event_id,kickoff,now):
             raise ValueError("Real decimal odd required")
         seen.add(item["group_id"])
         items.append({"group_id":item["group_id"],"scores":[list(x) for x in scores],
-                      "odds":quote,"quote_source":"verified_1xbet_snapshot",
+                      "odds":quote,"quote_source":"documented_1xbet_snapshot",
                       "captured_utc":stamp.astimezone(timezone.utc).isoformat()})
     if not items:
         raise ValueError("No available bookmaker selection documented")
