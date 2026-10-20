@@ -7,7 +7,8 @@ from exact_scores import feature_rows,fit_rho_2024,fit_goal_scales_2025,matrix_f
 from exact_scores_under25 import train_under25,probability_under25
 from exact_scores_under25_v2 import train,features
 from exact_scores_h2h import H2HIndex,h2h_signal
-from exact_scores_phase3 import decision,coherent_fusion
+from exact_scores_phase3 import decision,coherent_fusion,btts_probability
+from bsd_v2_btts import fit_btts_model
 
 def bucket():return {"n":0,"under":0,"top1":0,"top3":0}
 def observe(b,actual,matrix):
@@ -27,9 +28,12 @@ def evaluate(events):
     params={"rho":rho,"scale_home":sh,"scale_away":sa}
     old,_=train_under25(index,params)
     newer,training=train(index,old,params)
+    btts_model,btts_training=fit_btts_model(index,rho=rho,max_training=900,max_validation=250)
     counts=Counter()
     groups={name:{"baseline":bucket(),"fused":bucket()} for name in
             ("all","legacy_h2h_under","phase3_selected")}
+    groups["legacy_h2h_under"]["joint_btts"]=bucket()
+    groups["phase3_selected"]["joint_btts"]=bucket()
     rows=sorted((e for _,e in index.global_games if fixture_datetime(e).year==2026),
                 key=lambda e:(fixture_datetime(e),str(e["id"])))
     for event in rows:
@@ -46,12 +50,23 @@ def evaluate(events):
         if flag and o["priority"]:groups_to.append("legacy_h2h_under")
         if d["selected"]:groups_to.append("phase3_selected")
         else:counts.update({"abstain_"+reason:1 for reason in d["reasons"]})
+        # A second, independently trained BTTS marginal is tested ONLY for
+        # the shortlisted matches. This avoids 16k expensive BTTS calls.
+        joint=None
+        if len(groups_to)>1:
+            p_btts=btts_model.predict(event,index,btts_probability(old_matrix))
+            joint=(coherent_fusion(old_matrix,p,btts=p_btts)
+                   if btts_model.blend>0 else d["matrix"])
         for group in groups_to:
             observe(groups[group]["baseline"],actual,old_matrix)
             observe(groups[group]["fused"],actual,d["matrix"])
+            if group!="all":observe(groups[group]["joint_btts"],actual,joint)
     return {"format":"mrx-phase3-full-2026-v1","finished":len(rows),
             "eligible":groups["all"]["baseline"]["n"],
             "counts":dict(counts),"training":training,
+            "btts_training":btts_training,
+            "btts_model_blend":btts_model.blend,
+            "btts_joint_only_for_shortlisted":True,
             "comparison":{k:{m:summary(v) for m,v in gs.items()} for k,gs in groups.items()},
             "experimental":True,"published":False,
             "warning":"2026 has been explored before; the results are not a blind prospective test."}
