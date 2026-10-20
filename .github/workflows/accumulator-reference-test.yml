@@ -23,6 +23,8 @@ jobs:
       FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
       TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
       ACCUMULATOR_OUTPUT: telegram_out/accumulator_reference.png
+      ACCUMULATOR_PREVIEW: telegram_out/accumulator_preview.png
+      ACCUMULATOR_CROP_META: telegram_out/accumulator_crop.json
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -65,11 +67,31 @@ jobs:
               assert im.format=="PNG" and im.width==1080 and 3000<im.height<=9000 and (im.width+im.height)<=10000, (im.format, im.size)
               print("ACCUMULATOR_IMAGE_VERIFIED", im.size)
           PY
-      - name: Envoyer une seule photo PNG au canal Telegram TEST
+      - name: Découper l'en-tête et les deux premiers matchs sans altérer les pixels
+        run: python scripts/create_accumulator_preview.py
+      - name: Vérifier les deux fichiers PNG avant envoi
+        run: |
+          python - <<'PY'
+          import json,os
+          from PIL import Image
+          with Image.open(os.environ["ACCUMULATOR_PREVIEW"]) as cover, Image.open(os.environ["ACCUMULATOR_OUTPUT"]) as full:
+              assert cover.format == full.format == "PNG"
+              assert cover.width == full.width == 1080
+              assert cover.height < full.height
+              assert 1080 + full.height <= 10000
+              meta=json.load(open(os.environ["ACCUMULATOR_CROP_META"],encoding="utf-8"))
+              assert cover.height == meta["preview_height"]
+              assert meta["preview_matches"] == 2
+              print("ACCUMULATOR_ALBUM_IMAGES_OK", cover.size, full.size)
+          PY
+      - name: Envoyer l'album de deux photos au canal Telegram TEST
         run: python scripts/send_accumulator_test.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: accumulator-reference-image
-          path: telegram_out/accumulator_reference.png
+          name: accumulator-reference-album
+          path: |
+            telegram_out/accumulator_reference.png
+            telegram_out/accumulator_preview.png
+            telegram_out/accumulator_crop.json
           if-no-files-found: ignore
