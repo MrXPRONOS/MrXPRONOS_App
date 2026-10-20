@@ -85,7 +85,12 @@ jobs:
           assert 0 <= d["context_coverage"]["sidecar_capture_new"] <= d["context_coverage"]["sidecar_capture_attempted"] <= 12
           assert d["context_coverage"]["sidecar_verified_lineups_total"] >= d["context_coverage"]["sidecar_capture_new"]
           assert len(d["advanced_model_fingerprint_sha256"]) == 64
-          assert d["primary_model"] == "under25_fusion"
+          assert d["primary_model"] == "under25_debiased_11_v2"
+          # Previously archived v1 forecasts are immutable; evaluate new picks separately.
+          assert d["debiased_new_forecasts"]["captured"] <= d["captured"]
+          assert d["debiased_new_forecasts"]["one_one"] <= d["debiased_new_forecasts"]["captured"]
+          if d["debiased_new_forecasts"]["captured"]:
+              assert 0 <= d["debiased_new_forecasts"]["one_one_share"] <= 1
           assert d["advanced_model"] == "experimental_comparison_only"
           assert sum(d["selected_score_frequency"].values()) == d["captured"]
           assert d["one_one_selection_share"] is None or 0 <= d["one_one_selection_share"] <= 1
