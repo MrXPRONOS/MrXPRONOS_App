@@ -89,6 +89,7 @@ def capture(ledger,fixtures,index,dc,*,now,quotes=None,max_new=500):
              "under25_priority":result["under25_priority"],
              "double_chance":json.loads(json.dumps(result["double_chance"])),
              "under25_probability":round(result["under25_probability"],7),
+             "goals_profile":result["goals_profile"],
              "groups":result["groups"],
              "market_status":result["market_status"],
              "form_shift":({
@@ -136,7 +137,10 @@ def report(ledger,now):
     all_rows=list(ledger["predictions"].values())
     past=[r for r in all_rows if r["status"]=="settled"]
     policies=("baseline","with_double_chance","with_h2h_under",
-              "with_verified_price","form_recent_attack","form_recent_defence",
+              "with_verified_price",
+              "ceiling_under_25","ceiling_under_35","ceiling_under_45",
+              "ceiling_under_55","ceiling_under_65","ceiling_under_75",
+              "form_recent_attack","form_recent_defence",
               "form_historical_h2h_context","form_venue_shift",
               "form_model_agreement","form_combined","form_strict")
     policies_out={}
@@ -155,6 +159,8 @@ def report(ledger,now):
             "overdue_missing_results":sum(r["status"]=="pending" and
                datetime.fromisoformat(r["kickoff_utc"])<cutoff for r in all_rows),
             "priced_captured":sum(r["market_status"]=="fixture_quote_snapshot" for r in all_rows),
+            "goals_profile_captured":sum("goals_profile" in r for r in all_rows),
+            "goals_profile_note":"Older archived forecasts remain immutable and have no new ceiling predictions.",
             "policies":policies_out,
             "warning":"No bookmaker actual market, no real-odds EV or betting return without observed 1xBet prematch quotes."}
 
