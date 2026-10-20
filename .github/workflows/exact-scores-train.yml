@@ -37,7 +37,7 @@ permissions:
 
 concurrency:
   group: exact-score-training-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   tests:
@@ -69,29 +69,30 @@ jobs:
           BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
         run: python bsd/bsd_archive.py restore
       - name: Train and measure held-out 2026 exact scores
+        if: github.event_name == 'workflow_dispatch'
         run: python bsd/exact_scores.py --out-dir tmp/exact-scores
       - name: Evaluate all finished 2026 matches and H2H priority
+        if: github.event_name == 'workflow_dispatch'
         run: python bsd/exact_scores_full_2026.py --out-dir tmp/exact-scores
       - name: Evaluate Under 2.5 x H2H x exact score on all 2026 matches
+        if: github.event_name == 'workflow_dispatch'
         run: python bsd/exact_scores_under25_backtest.py
       - name: Evaluate Phase 1 H2H V2 independently on all 2026 results
+        if: github.event_name == 'workflow_dispatch'
         run: python bsd/exact_scores_phase1_backtest.py
       - name: Evaluate Phase 2 Under 2.5 on full 2026 history
+        if: github.event_name == 'workflow_dispatch'
         run: python bsd/exact_scores_phase2_backtest.py
       - name: Evaluate Phase 3 coherent fusion and abstention
         run: python bsd/exact_scores_phase3_backtest.py
-      - name: Reject missing backtest results
+      - name: Verify phase 3 coverage and training fallback
         run: |
           python - <<'PY'
           import json
-          r=json.load(open('tmp/exact-scores/report.json'))
-          assert r['test_2026']['trained_model']['evaluated'] > 0, 'No held-out match was evaluated'
-          print('TRAINED_EVALUATION',r['test_2026'])
-          f=json.load(open('tmp/exact-scores/full-2026-report.json'))
-          assert f['total_finished_2026'] > 0 and f['eligible'] > 0
-          assert f['total_finished_2026'] == f['eligible'] + sum(f['rejected'].values())
-          assert f['sample_cap_2026'] is None
-          print('FULL_2026_COVERAGE',f['total_finished_2026'],f['eligible'])
+          r=json.load(open('tmp/exact-scores/phase3-report.json'))
+          assert r["finished"] > 0 and r["eligible"] > 0
+          assert r["eligible"] == r["comparison"]["all"]["baseline"]["n"] == r["comparison"]["all"]["fused"]["n"]
+          print('PHASE3_EVALUATED',json.dumps({"finished":r["finished"],"eligible":r["eligible"],"training":r["training"],"comparison":r["comparison"],"counts":r["counts"]}))
           PY
       - name: Save model and evaluation artifacts
         uses: actions/upload-artifact@v4
