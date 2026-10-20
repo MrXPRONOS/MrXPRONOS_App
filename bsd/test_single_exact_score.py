@@ -259,6 +259,17 @@ class SingleExactScoreTests(unittest.TestCase):
         for score in raw:
             self.assertAlmostEqual(original[score],candidate[score],places=10)
         self.assertEqual(candidate,bias_matrix(candidate,(1.,)*8,0.))
+    def test_rank_does_not_count_redundant_same_score_variants(self):
+        from single_exact_score_research import rank,RANK_VERSION
+        x={"score":[1,1],"probability":.17,"margin":.012}
+        y={"score":[1,0],"probability":.18,"margin":.013}
+        case={"quality":{"home_recent_matches":10,"away_recent_matches":10},
+            "variants":{"original":x,"under25_fusion":x,
+                        "optional_dc_fusion":y,"advanced_2024":x}}
+        before=rank(case)
+        case["variants"]["advanced_2024"]=dict(x)
+        self.assertAlmostEqual(rank(case),before)
+        self.assertIn("independent",RANK_VERSION)
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)

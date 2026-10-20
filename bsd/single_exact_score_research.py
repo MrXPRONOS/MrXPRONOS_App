@@ -24,6 +24,8 @@ def choice(row,variant):
         dc["margin"]>=under["margin"]*1.10):return dc
     return under
 
+RANK_VERSION="mrx-single-top3-rank-v2-independent-dc"
+
 def rank(row,variant="under25_fusion"):
     """Never consult outcome/actual for selection."""
     p=choice(row,variant)
@@ -31,9 +33,12 @@ def rank(row,variant="under25_fusion"):
     q=row.get("quality") or {}
     samples=(min(12,max(0,q.get("home_recent_matches") or 0))+
              min(12,max(0,q.get("away_recent_matches") or 0)))/24.
-    agree=sum(int(option and option["score"]==p["score"])
-              for option in row["variants"].values())
-    return float(p["probability"])*(.84+.16*samples)+min(.20,p["margin"])*.08+agree*.003
+    # Under2.5, original and advanced models have overlapping inputs.
+    # Their identical votes are not independent evidence; use one additional
+    # direction-trained DC advisory (trained separately on 2024) at most once.
+    dc=row["variants"].get("optional_dc_fusion")
+    independent_agreement=int(bool(dc and dc["score"]==p["score"]))
+    return float(p["probability"])*(.84+.16*samples)+min(.20,p["margin"])*.08+independent_agreement*.003
 
 def hit(row,variant):
     p=choice(row,variant)

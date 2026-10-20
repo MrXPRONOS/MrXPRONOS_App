@@ -12,7 +12,7 @@ No write to data.json, no Telegram, no published bets.
 from __future__ import annotations
 
 from datetime import datetime,timedelta,timezone
-from single_exact_score_research import prematch_context
+from single_exact_score_research import prematch_context, rank, RANK_VERSION
 from single_exact_score_advanced import advanced_prediction
 from math import fsum,log
 from bsd_v2_core import estimate_goals, fixture_datetime
@@ -127,6 +127,13 @@ def forecast(fixture,index,hindex,*,now,dc_model=None,require_prematch=True,
     # Advanced branch is a separate research score: immutable legacy scores stay identical.
     advanced=(advanced_prediction(fixture,index,advanced_model,now=now,expected=expected)
               if advanced_model is not None else None)
+    # Rank the actual ONE-score pick only, without any result labels.
+    selection_rank=rank({"variants":{**{"original":baseline,
+                          "under25_fusion":selected,"optional_dc_fusion":dc_choice},
+                          "advanced_2024":advanced["choice"] if advanced else None},
+                         "quality":{k:expected.get(k) for k in
+                             ("home_recent_matches","away_recent_matches")}},
+                        "under25_fusion")
     # Does NOT claim confidence calibration; prioritization is a research filter.
     return {
         "format":"mrx-single-exact-score-v1",
@@ -136,6 +143,8 @@ def forecast(fixture,index,hindex,*,now,dc_model=None,require_prematch=True,
         "score":selected["score"],
         "estimated_score_probability":selected["probability"],
         "score_margin":selected["margin"],
+        "selection_rank":round(selection_rank,9),
+        "rank_version":RANK_VERSION,
         "one_score_only":True,
         "research_priority":high_priority,
         "expected_goals":{"home":expected["home"],"away":expected["away"]},

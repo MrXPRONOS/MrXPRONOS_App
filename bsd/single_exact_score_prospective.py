@@ -79,6 +79,8 @@ def capture(archive,fixtures,index,model,now,*,limit=500,advanced_model=None,clo
              "away_id":_team_id(event,"away"),"score":output["score"],
              "estimated_probability":output["estimated_score_probability"],
              "score_margin":output["score_margin"],
+             "selection_rank":output["selection_rank"],
+             "rank_version":output["rank_version"],
              "research_priority":output["research_priority"],
              "expected_goals":output["expected_goals"],
              "h2h_low_stable":output["h2h_low_stable"],
