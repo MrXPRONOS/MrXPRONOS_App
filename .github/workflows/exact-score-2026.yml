@@ -37,7 +37,7 @@ jobs:
           SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
           SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
         run: |
-          PYTHONPATH=. python research/refresh_recent.py --source cache/all_matches.json --output /tmp/mrx_all_matches_research.json --audit /tmp/mrx_refresh_audit.json --end 2026-10-19
+          PYTHONPATH=. python research/refresh_recent.py --source cache/all_matches.json --output /tmp/mrx_all_matches_research.json --audit /tmp/mrx_refresh_audit.json --end 2026-10-19 --max-days 15
       - name: Enrich historical training with matched provisional late-game xG
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
