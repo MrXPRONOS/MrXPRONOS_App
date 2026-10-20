@@ -26,7 +26,7 @@ def main():
   print("ACCUMULATOR_TELEGRAM_ALREADY_SENT",day);return
  media=[
   {"type":"photo","media":"attach://preview",
-   "caption":f"⚽ Combiné du jour · Mr XPRONOS\n{count} sélections · Cote indicative : {report['combined_odds']}\nMise simulée : 50 000 F CFA, aucun pari placé.\n18+ · Joue responsablement."},
+   "caption":f"⚽ Combiné du jour · Mr XPRONOS\n{count} sélections · Cote indicative : {report['combined_odds']}\nMise simulée : 50 000 F CFA.\n18+ · Joue responsablement."},
   {"type":"photo","media":"attach://full"}]
  with preview.open("rb") as a,complete.open("rb") as b:
   r=session.post("https://api.telegram.org/bot"+token+"/sendMediaGroup",
