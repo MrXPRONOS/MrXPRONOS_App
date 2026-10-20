@@ -40,7 +40,7 @@ async def read_source_window(client, source, catalogue: dict, source_id: int):
     recent_ids = {int(m.id) for m in recent}
     if not recent:
         return [], {"source_id": source_key, "archive_ids": set(),
-                    "next_cursor": None, "complete": True, "count": 0}
+                    "next_cursor": None, "complete": True, "count": 0, "allowed_ids": set()}
 
     rescan = os.getenv("CINEX_CATALOG_RESCAN", "").lower() in ("1", "true", "yes")
     if scan.get("complete") and not rescan:
@@ -50,7 +50,7 @@ async def read_source_window(client, source, catalogue: dict, source_id: int):
     archive_ids = {int(m.id) for m in archive}
     if not archive:
         return recent, {"source_id": source_key, "archive_ids": set(),
-                        "next_cursor": cursor, "complete": True, "count": 0}
+                        "next_cursor": cursor, "complete": True, "count": 0, "allowed_ids": recent_ids}
 
     # Older context precedes the archived page, preserving its earliest poster
     # and season label when an episode happens to fall on the page boundary.
@@ -67,19 +67,11 @@ async def read_source_window(client, source, catalogue: dict, source_id: int):
     return ordered, plan
 
 
-def restrict_window_candidates(candidates: list, plans: list, recent_ids_by_source=None):
-    """Do not publish the lookbehind context fetched only for title matching."""
-    # The caller may optionally pass allowed message ids. No filtering is
-    # needed when the scan marks lookbehind messages, see source_window_ids().
-    return candidates
-
-
 def source_window_ids(messages, plan):
     """Return ids eligible for indexing (recent + archived; exclude context)."""
     if plan is None:
         return {int(m.id) for m in messages}
-    # plan contains the archive IDs, plus the most recent page IDs via
-    # allowed_ids set by read_source_window.
+    # The plan includes only recent + archived IDs, not the lookbehind.
     return set(plan["allowed_ids"])
 
 
@@ -97,7 +89,7 @@ def finalize_scan(catalogue: dict, plans: list, observed: list) -> dict:
         if plan is None:
             continue
         eligible = {row["source_key"] for row in observed
-                    if str(row["source_key"]).split(":")[0] == plan["source_id"]
+                    if str(row["source_key"]).rsplit(":", 1)[0] == plan["source_id"]
                     and int(row["video"].id) in plan["archive_ids"]}
         outstanding = eligible - receipted
         if outstanding:
