@@ -51,7 +51,7 @@ def run(events,*,years=(2025,2026),cap=0):
             t["eligible"]+=1
             selected=base
             key=base["prediction"]["key"]
-            if key in ("UNDER_15","UNDER_25","UNDER_35","BTTS_NO","X"):
+            if key in ("UNDER_15","UNDER_25","UNDER_35","UNDER_45","BTTS_NO","X"):
                 expected=base["estimated_goals"]
                 shift=form_shift(f,index,hindex,expected=expected,include_h2h=True)
                 if shift["valid"] and shift["bsd_low_goals_veto"]:
