@@ -16,9 +16,6 @@ on:
       - 'bsd/test_grouped_correct_score.py'
       - 'bsd/test_exact_scores_prospective.py'
       - '.github/workflows/exact-scores-prospective.yml'
-  schedule:
-    # Cron schedules only execute on GitHub's default branch after merge.
-    - cron: '11 6,14,22 * * *'
 
 permissions:
   contents: write
@@ -36,6 +33,10 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: true
+      - name: Fast-forward to newest immutable research archives
+        run: |
+          git fetch --no-tags origin feature/exact-score-v1-20261019
+          git merge --ff-only origin/feature/exact-score-v1-20261019
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
