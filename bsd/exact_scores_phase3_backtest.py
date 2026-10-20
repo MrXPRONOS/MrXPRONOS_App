@@ -4,7 +4,7 @@ from collections import Counter
 from pathlib import Path
 from bsd_v2_core import V2History,estimate_goals,fixture_datetime,outcome_scores
 from exact_scores import feature_rows,fit_rho_2024,fit_goal_scales_2025,matrix_for,top_scores
-from exact_scores_under25 import train_under25
+from exact_scores_under25 import train_under25,probability_under25
 from exact_scores_under25_v2 import train,features
 from exact_scores_h2h import H2HIndex,h2h_signal
 from exact_scores_phase3 import decision,coherent_fusion
@@ -37,7 +37,7 @@ def evaluate(events):
         if f is None:counts[why]+=1;continue
         old_matrix=matrix_for(f["home"]*sh,f["away"]*sa,rho=rho)
         o=old.predict(event,index,old_matrix)
-        x=features(event,index,o["probability"])
+        x=features(event,index,probability_under25(old_matrix))
         p=newer.predict(x,o["probability"])
         flag=h2h_signal(hindex.past_scores(event))["prioritized"]
         d=decision(old_matrix,under_v1=o["probability"],under_v2=p,h2h_prioritized=flag)
