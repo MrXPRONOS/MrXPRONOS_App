@@ -147,6 +147,12 @@ def validate_1xbet_snapshot(document,*,event_id,kickoff,now):
         raise ValueError("Timezone missing")
     if stamp>=kickoff or stamp>now or (now-stamp).total_seconds()>48*3600:
         raise ValueError("Invalid or stale pre-match quote")
+    bookid=str(document["bookmaker_event_id"]).strip()
+    if not bookid.isdigit() or bookid not in url.path:
+        raise ValueError("Bookmaker match id missing from fixture URL")
+    observed_kickoff=datetime.fromisoformat(str(document["kickoff_utc"]).replace("Z","+00:00"))
+    if observed_kickoff.tzinfo is None or abs((observed_kickoff-kickoff).total_seconds())>600:
+        raise ValueError("Bookmaker and BSD kickoffs must match within 10 minutes")
     if str(document.get("capture_reference","")).strip()=="":
         raise ValueError("Auditable capture reference is required")
     seen=set()
@@ -155,15 +161,17 @@ def validate_1xbet_snapshot(document,*,event_id,kickoff,now):
         if item.get("group_id") not in GROUPS or item["group_id"] in seen:
             raise ValueError("Unexpected or duplicate group id")
         scores=normalize_scores(item["scores"])
-        if scores!=GROUPS[item["group_id"]]:
+        if set(scores)!=set(GROUPS[item["group_id"]]):
             raise ValueError("Observed selection differs from 1xBet reference: reject")
         quote=item.get("odds")
         if type(quote) not in (int,float) or not isfinite(quote) or not 1.01<=quote<=1000:
             raise ValueError("Real decimal odd required")
         seen.add(item["group_id"])
-        items.append({"group_id":item["group_id"],"scores":[list(x) for x in scores],
+        items.append({"group_id":item["group_id"],"scores":[list(x) for x in GROUPS[item["group_id"]]],
                       "odds":quote,"quote_source":"documented_1xbet_snapshot",
-                      "captured_utc":stamp.astimezone(timezone.utc).isoformat()})
+                      "captured_utc":stamp.astimezone(timezone.utc).isoformat(),
+                      "source_url":document["source_url"],
+                      "bookmaker_event_id":bookid})
     if not items:
         raise ValueError("No available bookmaker selection documented")
     return items
