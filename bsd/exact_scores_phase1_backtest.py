@@ -32,7 +32,7 @@ def wilson(k,n):
     if not n:return None
     z=1.96;p=k/n;den=1+z*z/n
     c=(p+z*z/(2*n))/den
-    e=z*sqrt((p*(1-p)+z*z/(4*n*n)))/den
+    e=z*sqrt((p*(1-p)/n+z*z/(4*n*n)))/den
     return [round(max(0,c-e),5),round(min(1,c+e),5)]
 
 def stats(b):
