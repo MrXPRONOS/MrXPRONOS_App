@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { chromium } from 'playwright';
+import { categoryFrench, leagueFrench, statusFrench, selectionFrench } from './accumulator_french.mjs';
 
 const pairs=[
  ['Sabah Baku','Borussia Dortmund','20.10.2026 (23:45)','Total (1.5) Over','1.063'],
@@ -135,12 +136,12 @@ function dateOf(val){
  return p.replace(', ',' (')+')';
 }
 function leg(l){
- const prediction=l.selection||l.prediction?.label||l.prediction?.type||l.prediction?.double_chance||'—';
+ const prediction=selectionFrench(l.selection||l.prediction?.label||l.prediction?.type||l.prediction?.double_chance||'Pronostic',l.prediction?.selection_key);
  const odds=l.odds||l.prediction?.odds||'—';
- return '<section class="leg"><div class="league-head">'+ball+'<div><div class="league">'+esc(l.league||'Sepak bola. Liga Champions UEFA')+'</div><div class="date">'+esc(dateOf(l.event_date||l.date))+' <span class="utc">UTC</span></div></div></div>'
+ return '<section class="leg"><div class="league-head">'+ball+'<div><div class="league">'+esc(leagueFrench(l.league))+'</div><div class="date">'+esc(dateOf(l.event_date||l.date))+' <span class="utc">UTC</span></div></div></div>'
  +'<div class="teams"><span class="team home">'+esc(l.home_team)+'</span>'+imageOf(l.home_team)+'<b class="vs">VS</b>'+imageOf(l.away_team)+'<span class="team away">'+esc(l.away_team)+'</span></div>'
  +'<div class="market"><span>'+esc(prediction)+'</span><b>'+esc(odds)+'</b></div>'
- +'<div class="status"><span>Status:</span><span>'+esc(l.status||data.status||'—')+'</span></div></section>';
+ +'<div class="status"><span>Statut :</span><span>'+esc(statusFrench(l.status||data.status||'Prévision'))+'</span></div></section>';
 }
 const n=data.legs.length;
 const combined=data.combined_odds??data.legs.reduce((p,l)=>p*Number(l.odds||l.prediction?.odds||1),1).toFixed(3);
@@ -158,10 +159,10 @@ const CSS=CSS_BASE.replace(/(-?\d+(?:\.\d+)?)px/g,(_whole,number)=>Number((Numbe
  +'html{font-synthesis:none;text-rendering:optimizeLegibility}';
 
 const html='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=262,initial-scale=1"><style>'+CSS+'</style></head><body><div id="app">'
-+'<div class="phone"><span>11:21 | 0,0KB/d ● ▪</span><span>▂ ▅ ▪ ◧</span></div><div class="nav"><span class="back">‹</span><span class="nav-title">Detail taruhan</span><span class="nav-right">♧ ⋮</span></div><div class="ticket"><div class="summary">'
-+'<div class="stamp">'+esc(data.created_at||'')+' <span class="utc">UTC</span></div><div><span class="name">'+esc(data.category||'Akumulator')+'</span><span class="nr">№ '+esc(data.ticket_id||'—')+'</span></div><div class="overview"><div class="overview-top"><span class="left"><span class="tile">▦</span>Jumlah event: '+n+'</span><span>'+esc(data.completed??0)+' dari '+n+' diselesaikan</span></div>'
-+'<div class="overview-line"><span class="label">Odd:</span><strong>'+esc(combined)+'</strong></div><div class="overview-line"><span class="label">Taruhan:</span><strong>'+esc(data.stake??'—')+'</strong></div><div class="overview-line"><span class="label">Potensi kemenangan:</span><strong>'+esc(data.potential_win??'—')+'</strong></div><div class="overview-line"><span class="label">Status:</span><strong class="accept"><span class="check">✓</span>'+esc(data.status||'—')+'</strong></div></div></div>'
-+data.legs.map(leg).join('')+'</div><div class="bottomgap"></div><div class="duplicate"><div class="duplicate-btn">DUPLIKASIKAN SLIP TARUHAN</div></div><div class="tabs"><div class="tab"><i>♨</i>Populer</div><div class="tab"><i>★</i>Favorit</div><div class="tab center active"><i>▣</i>Slip</div><div class="tab"><i>◷</i>Riwayat</div><div class="tab"><i>☷</i>Menu</div></div></div></body></html>';
++'<div class="phone"><span>11:21 | 0,0KB/d ● ▪</span><span>▂ ▅ ▪ ◧</span></div><div class="nav"><span class="back">‹</span><span class="nav-title">Détail du combiné</span><span class="nav-right">♧ ⋮</span></div><div class="ticket"><div class="summary">'
++'<div class="stamp">'+esc(data.created_at||'')+' <span class="utc">UTC</span></div><div><span class="name">'+esc(categoryFrench(data.category))+'</span><span class="nr">№ '+esc(data.ticket_id||'—')+'</span></div><div class="overview"><div class="overview-top"><span class="left"><span class="tile">▦</span>Nombre de matchs : '+n+'</span><span>'+esc(data.completed??0)+' sur '+n+' terminés</span></div>'
++'<div class="overview-line"><span class="label" >Cote combinée :</span><strong>'+esc(combined)+'</strong></div><div class="overview-line"><span class="label" >Mise :</span><strong>'+esc(data.stake??'—')+'</strong></div><div class="overview-line"><span class="label" >Gains potentiels :</span><strong>'+esc(data.potential_win??'—')+'</strong></div><div class="overview-line"><span class="label" >Statut :</span><strong class="accept"><span class="check">✓</span>'+esc(statusFrench(data.status))+'</strong></div></div></div>'
++data.legs.map(leg).join('')+'</div><div class="bottomgap"></div><div class="duplicate"><div class="duplicate-btn">DUPLIQUER LE TICKET</div></div><div class="tabs"><div class="tab"><i>♨</i>Populaire</div><div class="tab"><i>★</i>Favoris</div><div class="tab center active"><i>▣</i>Ticket</div><div class="tab"><i>◷</i>Historique</div><div class="tab"><i>☷</i>Menu</div></div></div></body></html>';
 fs.mkdirSync(path.dirname(output),{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 try{
@@ -171,5 +172,6 @@ try{
  const element=page.locator('#app');
  await element.screenshot({path:output,type:'png',animations:'disabled'});
  const dims=await element.evaluate(e=>({w:e.clientWidth,h:e.scrollHeight}));
+ console.log('ACCUMULATOR_FRENCH_LABELS_OK',data.legs.map(l=>selectionFrench(l.selection||l.prediction?.label||'',l.prediction?.selection_key)));
  console.log('ACCUMULATOR_RENDER_OK',JSON.stringify({matches:n,width:dims.w,height:dims.h,logos_resolved:[...logos.values()].filter(Boolean).length,logo_total:teams.length,render_mode:'native-1080-css',output}));
 } finally { await browser.close(); }
