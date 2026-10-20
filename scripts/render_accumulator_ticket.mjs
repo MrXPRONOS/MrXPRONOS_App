@@ -139,10 +139,9 @@ function dateOf(val){
 function leg(l){
  const prediction=selectionFrench(l.selection||l.prediction?.label||l.prediction?.type||l.prediction?.double_chance||'Pronostic',l.prediction?.selection_key);
  const odds=l.odds||l.prediction?.odds||'—';
- const estimated=l.prediction?.odds_source==='mrxpronos_model';
  return '<section class="leg"><div class="league-head">'+ball+'<div><div class="league">'+esc(leagueFrench(l.league))+'</div><div class="date">'+esc(dateOf(l.event_date||l.date))+' <span class="utc">UTC</span></div></div></div>'
  +'<div class="teams"><span class="team home">'+esc(l.home_team)+'</span>'+imageOf(l.home_team)+'<b class="vs">VS</b>'+imageOf(l.away_team)+'<span class="team away">'+esc(l.away_team)+'</span></div>'
- +'<div class="market"><span>'+esc(prediction)+(estimated?' · Cote estimée':'')+'</span><b>'+esc(odds)+'</b></div>'
+ +'<div class="market"><span>'+esc(prediction)+'</span><b>'+esc(odds)+'</b></div>'
  +'<div class="status"><span>Statut :</span><span>'+esc(statusFrench(l.status||data.status||'Prévision'))+'</span></div></section>';
 }
 const n=data.legs.length;
@@ -163,8 +162,8 @@ const CSS=CSS_BASE.replace(/(-?\d+(?:\.\d+)?)px/g,(_whole,number)=>Number((Numbe
 const html='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=262,initial-scale=1"><style>'+CSS+'</style></head><body><div id="app">'
 +'<div class="nav"><span class="back">‹</span><span class="nav-title">Détail du combiné</span><span class="nav-right">♧ ⋮</span></div><div class="ticket"><div class="summary">'
 +'<div class="stamp">'+esc(data.created_at||'')+' <span class="utc">UTC</span></div><div><span class="name">'+esc(categoryFrench(data.category))+'</span><span class="nr">№ '+esc(data.ticket_id||'—')+'</span></div><div class="overview"><div class="overview-top"><span class="left"><span class="tile">▦</span>Nombre de matchs : '+n+'</span><span>'+esc(data.completed??0)+' sur '+n+' terminés</span></div>'
-+'<div class="overview-line"><span class="label" >'+(data.combined_odds_estimated?'Cote combinée estimée :':'Cote combinée :')+'</span><strong>'+esc(combined)+'</strong></div><div class="overview-line"><span class="label" >Mise :</span><strong>'+esc(data.stake??'—')+'</strong></div><div class="overview-line"><span class="label" >Gains potentiels :</span><strong>'+esc(data.potential_win??'—')+'</strong></div><div class="overview-line"><span class="label" >Statut :</span><strong class="accept"><span class="check">✓</span>'+esc(statusFrench(data.status))+'</strong></div></div></div>'
-+(data.stake_is_simulated?'<div style="font-size:22px;color:#648296;padding:8px 38px">Sélections acceptées par Mr XPRONOS · Mise simulée, aucun pari placé</div>':'')+data.legs.map(leg).join('')+'</div><div class="bottomgap"></div><div class="duplicate"><div class="duplicate-btn">DUPLIQUER LE TICKET</div></div><div class="tabs"><div class="tab"><i>♨</i>Populaire</div><div class="tab"><i>★</i>Favoris</div><div class="tab center active"><i>▣</i>Ticket</div><div class="tab"><i>◷</i>Historique</div><div class="tab"><i>☷</i>Menu</div></div></div></body></html>';
++'<div class="overview-line"><span class="label" >'+'Cote combinée :'+'</span><strong>'+esc(combined)+'</strong></div><div class="overview-line"><span class="label" >Mise :</span><strong>'+esc(data.stake??'—')+'</strong></div><div class="overview-line"><span class="label" >Gains potentiels :</span><strong>'+esc(data.potential_win??'—')+'</strong></div><div class="overview-line"><span class="label" >Statut :</span><strong class="accept"><span class="check">✓</span>'+esc(statusFrench(data.status))+'</strong></div></div></div>'
++data.legs.map(leg).join('')+'</div><div class="bottomgap"></div><div class="duplicate"><div class="duplicate-btn">DUPLIQUER LE TICKET</div></div><div class="tabs"><div class="tab"><i>♨</i>Populaire</div><div class="tab"><i>★</i>Favoris</div><div class="tab center active"><i>▣</i>Ticket</div><div class="tab"><i>◷</i>Historique</div><div class="tab"><i>☷</i>Menu</div></div></div></body></html>';
 fs.mkdirSync(path.dirname(output),{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 try{
