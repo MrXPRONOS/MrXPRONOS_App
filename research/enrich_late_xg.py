@@ -146,6 +146,8 @@ def main():
             audit["unmatched"]=max(0,len(indexed)-audit["historical_matches_enriched"])
             audit["status"]="provisional_only"
             out.write_text(json.dumps(records,ensure_ascii=False),encoding="utf8")
+        elif not out.exists():
+            shutil.copyfile(source,out)
     Path(a.audit).write_text(json.dumps(audit,ensure_ascii=False,indent=2),encoding="utf8")
     print("XG_AUDIT",json.dumps(audit,ensure_ascii=False),flush=True)
 
