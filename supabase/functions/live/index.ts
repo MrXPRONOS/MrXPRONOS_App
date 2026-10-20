@@ -62,7 +62,7 @@ const LIVE_REQUIRE_BOOKMAKER_LINE = (Deno.env.get("LIVE_REQUIRE_BOOKMAKER_LINE")
 import { richPhotoOrLegacy, richTextOrLegacy } from "../_shared/telegram_rich.ts";
 import { attachLiveSponsorBanner } from "../_shared/live_sponsor_banner.ts";
 import { fetchFiveSourceLiveOdds } from "../_shared/live_odds_failover.ts";
-import { fetchLiveBookmakerOdds } from "../_shared/live_bookmaker_direct.ts";
+import { fetchLiveBookmakerOdds, fetchVerifiedMoviOddsLiveStats } from "../_shared/live_bookmaker_direct.ts";
 const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || "";
 const TELEGRAM_CHAT_ID = Deno.env.get("TELEGRAM_CHAT_ID") || "";
 // Deux destinations Telegram voulues : canal principal + canal secondaire.
@@ -4292,6 +4292,67 @@ async function enrichLiveMatchesWithEspnSummaries(matches:any[]){
   return {matches:out,calls,enriched,complete_pairs_gained:completePairsGained};
 }
 
+// Supplemental observed soccer markets from MoviOdds's documented stats=1.
+// The resolver refuses ambiguous fixture identities and stale observations.
+// Existing complete market pairs retain precedence over this backup feed.
+async function enrichLiveMatchesWithMoviOddsStats(matches:any[]) {
+  const result={
+    matches:[...(matches||[])],
+    sourceRows:[] as any[],
+    observations:0,
+    enriched:0,
+  };
+  if((Deno.env.get("LIVE_MOVIODDS_STATS_ENABLED")||"1")==="0")return result;
+  const inputs=result.matches
+    .filter((m:any)=>m?.is_live===true && !m?.is_finished &&
+      statsCompleteness(getMatchLiveStats(m)).core_complete<3)
+    .map((m:any)=>({
+      match_id:String(m?.id||""),
+      home:String(m?.home_team?.name??m?.home_team??""),
+      away:String(m?.away_team?.name??m?.away_team??""),
+      kickoff:String(getMatchEventDate(m)||""),
+    }))
+    .filter((m:any)=>m.match_id && m.home && m.away && Number.isFinite(Date.parse(m.kickoff)))
+    .slice(0,100);
+  if(!inputs.length)return result;
+  try{
+    const observed=await fetchVerifiedMoviOddsLiveStats(inputs,supabase);
+    const index=new Map(result.matches.map((m:any,i:number)=>[String(m?.id),i]));
+    for(const item of observed){
+      const i=index.get(item.match_id);
+      if(typeof i!=="number")continue;
+      const before=result.matches[i];
+      const baseline=ensureLiveStatsShape(getMatchLiveStats(before));
+      // Preserve BSD/ESPN/other existing observations; fill missing pairs.
+      const merged=mergeLiveStats(baseline,item.stats,false);
+      result.observations++;
+      result.sourceRows.push(sourceRowFromMatch({
+        ...before,
+        live_stats:item.stats,
+        raw_data:{...(before?.raw_data||{}),live_stats:item.stats,
+          stats_authority:"moviodds_live_stats"},
+      },"moviodds"));
+      if(JSON.stringify(merged)===JSON.stringify(baseline))continue;
+      result.matches[i]={
+        ...before,live_stats:merged,stats_last_updated_at:nowIso(),
+        raw_data:{
+          ...(before?.raw_data||{}),
+          live_stats:merged,
+          moviodds_observed_stats:item.stats,
+          stats_sources:[...new Set([
+            ...((before?.raw_data?.stats_sources||[]) as string[]),
+            "moviodds_live_stats",
+          ])],
+        },
+      };
+      result.enriched++;
+    }
+  }catch(e:any){
+    console.warn("MOVIODDS_LIVE_STATS_UNAVAILABLE",e?.message||String(e));
+  }
+  return result;
+}
+
 async function enrichLiveMatchesWithFreeStats(matches: any[]) {
   const out = [...(matches || [])];
   let sportscoreCalls = 0;
@@ -6621,7 +6682,16 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       regional_matches:regionalEspnResult.matches.length,
       combined_matches:espnResult.matches.length,
     });
-    const skipBsdLive = options.skipBsd === true || liveNow === 0;
+    // The public BSD /coverage/ counter can lag actual /events/live/ rows.
+    // Audit 2026-10-20: /events/live/ returned a match even while the
+    // primary refresh omitted BSD. Never trust a zero coverage count when
+    // another live provider has an ongoing fixture. Probe every 5 min if all
+    // free feeds are empty, to recover BSD-only fixtures without burning quota.
+    const freeShowsLive = [...(espnResult.matches || []),...sportscoreRows,
+      ...tsdbRows,...openligaRows].some((m:any)=>m?.is_live === true);
+    const periodicBsdProbe = Math.floor(Date.now() / 60000) % 5 === 0;
+    const skipBsdLive = options.skipBsd === true ||
+      (liveNow === 0 && !freeShowsLive && !periodicBsdProbe);
 
     if (!skipBsdLive) {
       try {
@@ -6715,6 +6785,11 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     const apiFootballCache = await enrichLiveMatchesWithApiFootballCache(allRawMatches);
     allRawMatches = sortMatchesForRefresh(apiFootballCache.matches);
 
+    const movioddsStatsEnrichment =
+      await enrichLiveMatchesWithMoviOddsStats(allRawMatches);
+    allRawMatches = sortMatchesForRefresh(movioddsStatsEnrichment.matches);
+    sourceRows.push(...movioddsStatsEnrichment.sourceRows);
+
     const freeStatsEnrichment =
       await enrichLiveMatchesWithFreeStats(allRawMatches);
     allRawMatches = sortMatchesForRefresh(freeStatsEnrichment.matches);
@@ -6725,6 +6800,8 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       espn_summary_stats_calls: espnSummaryEnrichment.calls,
       espn_summary_stats_enriched: espnSummaryEnrichment.enriched,
       espn_summary_stats_pairs_gained: espnSummaryEnrichment.complete_pairs_gained,
+      moviodds_stats_observations: movioddsStatsEnrichment.observations,
+      moviodds_stats_enriched: movioddsStatsEnrichment.enriched,
       free_stats_calls: freeStatsEnrichment.calls,
       free_stats_enriched: freeStatsEnrichment.enriched,
       sportscore_stats_calls: freeStatsEnrichment.sportscore_calls,
