@@ -137,6 +137,11 @@ movi_home = observed.get("home") if isinstance(observed.get("home"),dict) else {
 movi_away = observed.get("away") if isinstance(observed.get("away"),dict) else {}
 record("moviodds_live", info, matches=len(matches),
        first_match_fields=sorted(matches[0].keys())[:45] if matches else [],
+       first_clock_keys=sorted(matches[0]["clock"].keys())[:20] if matches
+           and isinstance(matches[0].get("clock"),dict) else [],
+       first_clock_sample=({k:str(v)[:45] for k,v in matches[0]["clock"].items()
+                           if isinstance(v,(str,int,float))}
+                           if matches and isinstance(matches[0].get("clock"),dict) else {}),
        first_match_clock_fields={k:str(matches[0][k])[:85] for k in
            ["minute","elapsed","clock","timer","match_time","live_minute","status_text","time","period"]
            if matches and k in matches[0] and isinstance(matches[0][k],(str,int,float))},
