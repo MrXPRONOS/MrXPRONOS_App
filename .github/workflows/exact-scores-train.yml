@@ -87,7 +87,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: exact-score-research-${{ github.run_id }}
-          path: tmp/exact-scores/*.json
+          path: |
+            tmp/exact-scores/report.json
+            tmp/exact-scores/model.json
+            tmp/exact-scores/preview.json
+            tmp/exact-scores/full-2026-report.json
+            tmp/exact-scores/under25-full-2026-report.json
+            tmp/exact-scores/phase1-h2h-report.json
           retention-days: 90
           if-no-files-found: error
       - name: Remove decrypted archive from runner
