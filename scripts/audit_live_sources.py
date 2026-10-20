@@ -145,6 +145,10 @@ record("moviodds_live", info, matches=len(matches),
        with_quotes=sum(1 for m in matches if m.get("quotes")),
        first_stats_fields=sorted(observed.keys())[:24],
        current_play_type=type(observed.get("current_play")).__name__,
+       current_play_keys=(sorted(observed["current_play"].keys())[:24]
+                          if isinstance(observed.get("current_play"),dict) else []),
+       current_play_sample=({k:str(v)[:60] for k,v in observed["current_play"].items()
+                             if isinstance(v,(str,int,float))} if isinstance(observed.get("current_play"),dict) else {}),
        current_play=(str(observed.get("current_play"))[:70]
                      if isinstance(observed.get("current_play"), (str,int,float)) else None),
        home_stats_fields=sorted(movi_home.keys())[:32],
