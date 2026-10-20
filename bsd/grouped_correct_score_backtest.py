@@ -7,6 +7,7 @@ Only evaluate full-time scores after the 4h settlement delay.
 from __future__ import annotations
 import argparse,json
 from collections import Counter,defaultdict
+from math import sqrt
 from datetime import datetime,timezone
 from pathlib import Path
 from math import sqrt
@@ -32,6 +33,13 @@ def wilson95(wins,n):
     radius=z*sqrt((p*(1-p)+z*z/(4*n*n))/n)/den
     return [round(max(0,center-radius),6),round(min(1,center+radius),6)]
 
+def wilson95(hits,n):
+    if not n:return None
+    z=1.96;p=hits/n;den=1+z*z/n
+    mid=(p+z*z/(2*n))/den
+    rad=z*sqrt(p*(1-p)/n+z*z/(4*n*n))/den
+    return [round(max(0.,mid-rad),5),round(min(1.,mid+rad),5)]
+
 def metrics(rows,eligible):
     n=rows["n"]
     return {"n":n,"coverage":round(n/eligible,6) if eligible else None,
@@ -47,6 +55,8 @@ def run(events,*,max_2026=0):
     samples=year_sample(index,2026,max_2026)
     buckets={k:new_bucket() for k in POLICIES}
     months=defaultdict(lambda:{k:new_bucket() for k in POLICIES})
+    halves={"H1":{k:new_bucket() for k in POLICIES},
+            "H2":{k:new_bucket() for k in POLICIES}}
     skips=Counter()
     group_stats={policy:{group:new_bucket() for group in ("G1","G2","G3","G4","G5","G6","G7","G8","G9")} for policy in POLICIES}
     pairs={name:{"baseline":new_bucket(),"candidate":new_bucket()} for name in ("dc_selected","priority_selected")}
@@ -66,6 +76,7 @@ def run(events,*,max_2026=0):
         for key,item in variants.items():
             record(buckets[key],item,score)
             record(months[month][key],item,score)
+            record(halves["H1" if now.month<=6 else "H2"][key],item,score)
             if item is not None:
                 record(group_stats[key][item["group_id"]],item,score)
         base=variants["baseline"]
@@ -95,9 +106,11 @@ def run(events,*,max_2026=0):
        "paired_comparisons":{name:{key:metrics(b,eligible) for key,b in groups.items()}
                              for name,groups in pairs.items()},
        "actual_direction_changes":paired_direction_changes,
+       "halves":{h:{k:metrics(v,eligible) for k,v in groups.items()}
+                 for h,groups in halves.items()},
        "months":{m:{k:metrics(v,eligible) for k,v in d.items()}
                  for m,d in sorted(months.items())},
-       "warning":"Exploratory 2026 selection; rates do not prove betting value or future profit. No 1xBet historical odds."}
+       "warning":"Exploratory 2026 selection; 2026 already examined and repeatedly revised, not a blind test. Rates do not prove bookmaker availability, betting value or future profit. No 1xBet historical odds."}
 
 def main():
     parser=argparse.ArgumentParser()
