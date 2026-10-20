@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scores exacts groupés — Mr XPRONOS</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Module expérimental de scores exacts groupés 1xBet et analyse double chance.">
+<link rel="icon" href="assets/images/mrxpronos-mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/css/grouped-score.css?v=20261020-alpha1">
+<script defer src="assets/js/grouped-score.js?v=20261020-alpha1"></script>
+</head><body>
+<header class="top"><div class="container bar">
+<a class="brand" href="index.html"><img src="assets/images/mrxpronos-horizontal.webp" alt="Mr XPRONOS"><span>Scores groupés</span></a>
+<nav aria-label="Navigation"><a href="pronos.html">Pronostics</a><a href="historique.html">Historique</a></nav></div></header>
+<main class="container">
+<div class="hero"><div class="eyebrow">1XBET · CORRECT SCORE — GROUP BET</div>
+<h1>Scores exacts <em>groupés</em></h1>
+<p>Analyse des groupes de scores avec le moteur Double Chance 1X / X2 / 12, Under 2,5 et confrontations H2H.</p>
+<div class="notice">Version expérimentale : aucune sélection n'est un conseil de mise. Une cote n'est affichée que lorsqu'un relevé pré-match du bookmaker a été documenté. Les groupes varient selon les matchs.</div></div>
+<section aria-label="Filtres de pronostics">
+<div class="filters"><div class="toggle" role="group" aria-label="Statut"><button data-status="upcoming" class="active" type="button">À venir</button><button data-status="history" type="button">Historique</button></div>
+<label class="visually-hidden" for="camp">Direction</label>
+<select id="camp" aria-label="Filtrer par orientation Double Chance">
+<option value="all">Tous les camps</option><option value="home">Domicile (1X)</option><option value="away">Extérieur (X2)</option><option value="draw">Nul dominant</option><option value="neutral">Incertain</option></select>
+<label class="visually-hidden" for="filter-team">Chercher un match</label><input id="filter-team" type="search" placeholder="Rechercher une équipe…"></div>
+</section>
+<div id="summary" class="summary" aria-live="polite">Chargement des analyses…</div>
+<section id="matches" class="matches" aria-live="polite"></section>
+<footer><p>Marché observé : Correct Score – Group Bet (1xBet). Probabilités de modèle ≠ cotes du bookmaker. Le suivi historique exige un résultat final confirmé.</p><a href="pronos.html">← Retour aux pronostics</a></footer>
+</main></body></html>
