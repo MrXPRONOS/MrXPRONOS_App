@@ -90,6 +90,27 @@ class TeamRegimeTests(unittest.TestCase):
         self.assertIsNone(choices["form_combined"])
         self.assertEqual(choices["form_recent_attack"],item)
         self.assertEqual(choices["with_h2h_under"],item)
+    def test_shadow_audit_does_not_change_bsd_simple_selection(self):
+        from bsd_v2_shadow import generate_shadow
+        from copy import deepcopy
+        history=[e for _available,e in dataset(False).global_games]
+        fixtures=[deepcopy(TARGET)]
+        kwargs={"now":AT-timedelta(days=1),"mode":"reliability",
+                "quote_fetcher":None,"max_odds_events":0}
+        regular=generate_shadow(fixtures,history,None,None,0.,**kwargs)
+        audited=generate_shadow(fixtures,history,None,None,0.,
+                                form_diagnostics=True,**kwargs)
+        self.assertEqual(len(regular["matches"]),1)
+        self.assertEqual(len(audited["matches"]),1)
+        x=regular["matches"][0]
+        y=audited["matches"][0]
+        self.assertEqual(x["prediction"],y["prediction"])
+        self.assertEqual(x["ranked_candidates"],y["ranked_candidates"])
+        self.assertEqual(x["estimated_goals"],y["estimated_goals"])
+        diag=y["model_audit"]["form_shift_shadow"]
+        self.assertFalse(diag["applied_to_selection"])
+        self.assertTrue(diag["valid"])
+        self.assertNotIn("form_shift_shadow",x["model_audit"])
     def test_single_market_backtest_handles_empty_history(self):
         out=run([],years=(2025,2026))
         self.assertEqual(out["results"]["2026"]["base"]["n"],0)
