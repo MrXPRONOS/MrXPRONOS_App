@@ -11,6 +11,7 @@ from exact_scores import matrix_for
 from exact_scores_under25 import Under25Model,reweight_scores
 from exact_scores_h2h import H2HIndex,h2h_signal
 from bsd_form_shift import form_shift
+from grouped_total_goals import goal_profile,select_many,CEILINGS
 from bsd_v2_double_chance import fit_model
 from grouped_correct_score import (template_groups,validate_1xbet_snapshot,
                                     evaluate_groups,direction_probabilities,
@@ -54,6 +55,10 @@ def analyze(fixture,index,hindex,dc_model,*,now,quote_snapshot=None,
              kickoff=kickoff,now=now) if quote_snapshot is not None
              else template_groups())
     scored=evaluate_groups(adjusted,offered,direction=direction)
+    # Goal ceilings are candidate MATCH filters, not new 1xBet groups;
+    # retain exact official 3-score compositions at every ceiling.
+    goals=goal_profile(adjusted)
+    ceiling_choices=select_many(scored,goals,adjusted)
     has_verified_quotes=quote_snapshot is not None
     for entry in scored:
         confident=bool(h2h["prioritized"] and under["priority"])
@@ -81,6 +86,9 @@ def analyze(fixture,index,hindex,dc_model,*,now,quote_snapshot=None,
         "under25_priority":under["priority"],
         "h2h_priority":h2h["prioritized"],"h2h_meetings":h2h["meetings"],
         "form_shift":change,
+        "goals_profile":goals,
+        "ceiling_choices":{key:(choice["group_id"] if choice else None)
+                           for key,choice in ceiling_choices.items()},
         "groups":scored,"published":False,"experimental":True,
         "note":"No wager recommendation; all 1xBet selection availability and decimal odds must be observed pre-match."},"ok"
 
@@ -105,6 +113,10 @@ def selection_summary(record):
     value=max(priceable,key=lambda x:x["expected_value"]) if priceable else None
     result={"baseline":benchmark,"with_double_chance":directed,
             "with_h2h_under":priority,"with_verified_price":value}
+    ids={row["group_id"]:row for row in rows}
+    # Existing historical, unmodified records may have no goal-ceiling rules.
+    for policy,group_id in record.get("ceiling_choices",{}).items():
+        result[policy]=ids.get(group_id) if group_id else None
     shift=record.get("form_shift")
     if shift is not None:
         for label,passed in (shift.get("variant_pass") or {}).items():
