@@ -74,8 +74,8 @@ NON_LIVE_TITLES = {
     "composition_probable": "📋 COMPOSITION PROBABLE",
     "composition_probable_full": "📋 COMPOSITION PROBABLE",
     "composition_probable_partial": "📋 COMPOSITION PROBABLE",
-    "changement_de_composition": "🔁 CHANGEMENT DE XI",
-    "changement_composition": "🔁 CHANGEMENT DE XI",
+    "changement_de_composition": "🔁 COMPOSITION MODIFIÉE",
+    "changement_composition": "🔁 COMPOSITION MODIFIÉE",
     "absence_confirmée": "🚑 ABSENCE CONFIRMÉE",
     "absence_confirmee": "🚑 ABSENCE CONFIRMÉE",
     "retour_dans_le_groupe": "✅ RETOUR DANS LE GROUPE",
@@ -470,9 +470,9 @@ def banner_caption(category: str, payload: dict[str, Any]) -> str:
         entrant = _plain(payload.get("in_player") or payload.get("entrant"), 80)
         sortant = _plain(payload.get("out_player") or payload.get("sortant"), 80)
         if entrant:
-            rows.append("🟢 Entre dans le XI : <b>" + _esc(entrant) + "</b>")
+            rows.append("🟢 Ajouté parmi les titulaires : <b>" + _esc(entrant) + "</b>")
         if sortant:
-            rows.append("🔴 Sort du XI : <b>" + _esc(sortant) + "</b>")
+            rows.append("🔴 Retiré des titulaires : <b>" + _esc(sortant) + "</b>")
         formation = _plain(payload.get("formation"), 30)
         if formation:
             rows.append("Formation : <b>" + _esc(formation) + "</b>")
