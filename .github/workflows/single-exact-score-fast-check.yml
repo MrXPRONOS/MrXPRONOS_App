@@ -28,9 +28,9 @@ jobs:
       - name: Install minimal test dependencies
         run: python -m pip install requests cryptography
       - name: Compile advanced research modules
-        run: python -m py_compile bsd/single_exact_score_advanced.py bsd/single_exact_score_context.py bsd/single_exact_score_context_model.py bsd/single_exact_score_context_observations.py bsd/single_exact_score_research.py bsd/single_exact_score_engine.py bsd/single_exact_score_backtest.py bsd/single_exact_score_prospective.py bsd/single_exact_score_snapshot_replay.py
+        run: python -m py_compile bsd/single_exact_score_advanced.py bsd/single_exact_score_context.py bsd/single_exact_score_context_model.py bsd/single_exact_score_context_observations.py bsd/single_exact_score_research.py bsd/single_exact_score_engine.py bsd/single_exact_score_backtest.py bsd/single_exact_score_prospective.py bsd/single_exact_score_snapshot_replay.py bsd/single_exact_score_debias_study.py
       - name: Run single-score unit tests
-        run: python -m unittest bsd/test_single_exact_score.py -v
+        run: python -m unittest bsd/test_single_exact_score.py bsd/test_single_exact_score_debias.py -v
 
   capped-historical-smoke:
     runs-on: ubuntu-latest

@@ -5,6 +5,8 @@ on:
     paths:
       - 'bsd/single_exact_score_debias_study.py'
       - 'bsd/test_single_exact_score_debias.py'
+      - 'bsd/single_exact_score_engine.py'
+      - 'bsd/single_exact_score_backtest.py'
       - '.github/workflows/single-exact-score-debias.yml'
   workflow_dispatch:
 permissions:
@@ -53,6 +55,7 @@ jobs:
               report=x["years"][y]
               assert report["baseline"]["n"]>=1000
               assert report["candidate"]["n"]==report["baseline"]["n"]
+              assert report["reduce_one_one_20_percent"]["n"]==report["baseline"]["n"]
               assert 0<=report["candidate"]["one_one_share"]<=1
           assert x["research_only"] and not x["published"]
           print("ONE_ONE_FULL_HISTORICAL_AUDIT_OK",model["activated"])

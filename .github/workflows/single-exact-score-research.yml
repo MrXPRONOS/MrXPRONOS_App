@@ -64,7 +64,7 @@ jobs:
               assert counts[0]==counts[1]==counts[2]==d["eligible"]
               assert all(x["wins"]<=x["matches"] for x in d["variants"].values())
               rd=d["research_diagnostics"]
-              assert rd["label_blind_ranking"] and len(rd["models"])==5
+              assert rd["label_blind_ranking"] and len(rd["models"])==6
               assert d["advanced_training"]["diagnostic"]["goal_train"]>=80
               assert d["advanced_training"]["diagnostic"]["goal_valid"]>=60
               assert d["advanced_training"]["diagnostic"]["bias_valid"]>=60
