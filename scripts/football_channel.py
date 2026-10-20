@@ -2690,6 +2690,11 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
 def lifecycle_publication(signal: dict) -> Publication | None:
     """Transforme toute transition compatible en publication premium compacte."""
     kind = str(signal.get("kind") or "")
+    # Une valeur de score n'est pas en soi une nouvelle action de match.
+    # Le signal reste disponible en interne; seuls les buts confirmes
+    # donnent lieu a une notification Telegram par defaut.
+    if kind == "score_update" and os.getenv("FOOTBALL_ENABLE_SCORE_UPDATES", "0") != "1":
+        return None
     home = plain(signal.get("home"), 55)
     away = plain(signal.get("away"), 55)
     competition = plain(signal.get("league") or "Football", 70)
