@@ -45,7 +45,7 @@ et transferts connus après la date du pronostic sont exclus du calcul.
 - `bsd/bsd_form_shift_singles_backtest.py` garde le moteur
   `predict_v2` **inchangé** et compare sur 2025 et 2026 la sortie
   standard aux choix après exclusion de `UNDER_15`, `UNDER_25`,
-  `UNDER_35`, `BTTS_NO` ou `X` lorsqu'un risque haussier
+  `UNDER_35`, `UNDER_45`, `BTTS_NO` ou `X` lorsqu'un risque haussier
   suffisamment étayé est détecté. Les Over, BTTS Oui et autres marchés
   ne sont pas systématiquement supprimés.
 
@@ -71,3 +71,53 @@ transfert. Aucun calcul de rendement financier n'est possible sans les
 cotes et marchés réellement proposés.
 
 **Aucun changement de sélection n'est activé en production.**
+
+## Verdict des backtests complets — 20 octobre 2026
+
+### Scores groupés 1xBet
+
+Backtest complet réussi : https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/39372238140
+
+| Règle (référence) | Matchs | Gagnants | Taux |
+|---|---:|---:|---:|
+| H2H + Under 2,5 original | 122 | 65 | 53,28 % |
+| Changement de forme de l'attaque | 103 | 55 | 53,40 % |
+| Comparaison de l'époque des H2H | 111 | 59 | 53,15 % |
+| Défense | 114 | 59 | 51,75 % |
+| Domicile/extérieur | 89 | 46 | 51,69 % |
+| Forme combinée | 109 | 56 | 51,38 % |
+| Forme stricte | 70 | 37 | 52,86 % |
+
+Le filtre combiné écarte 13 matchs, dont 9 gagnants. **Ne pas activer.**
+L'analyse des transferts/attaquants réels reste impossible sans autre fournisseur.
+
+### Pronostics simples BSD V2
+
+Backtest complet réussi : https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/39373474923
+
+| Année | Moteur original | Veto + Under 4,5 | Base matchs | Filtre conservés |
+|---|---|---|---:|---:|
+| 2025 | 14 447 / 16 600 = 87,03 % | 13 534 / 15 874 = 85,26 % | 16 600 | 95,63 % |
+| 2026 | 13 875 / 16 257 = 85,35 % | 13 100 / 15 640 = 83,76 % | 16 257 | 96,20 % |
+
+En 2026, 2 875 sélections Under 4,5 ont déclenché l'alerte ;
+**2 495/2 875 (86,78 %) étaient gagnantes**, alors que les 2 258 marchés
+de remplacement n'ont réussi que 1 720 fois (76,17 %).
+Le moteur s'est abstenu sur 617 matchs, et **557 de leurs sélections
+Under 4,5 originales étaient gagnantes**.
+
+**Ne pas adopter le veto dans BSD V2**. Under 4,5 tolère jusqu'à quatre
+buts : une hausse du rythme offensif n'implique pas suffisamment de
+défaites de ce marché.
+
+### Monitoring sans risque de changement de comportement
+
+`bsd/bsd_v2_shadow.py` possède maintenant l'option explicite
+`--form-diagnostics`. Après la décision de pronostic normal du moteur,
+il attache les drapeaux de forme à `model_audit.form_shift_shadow`.
+Il ne modifie ni le marché sélectionné, ni la cote, ni les candidats.
+L'option est **désactivée par défaut** et ne publie rien sur le site.
+
+Les prochains signaux doivent être évalués sur des prédictions
+horodatées réellement futures. Il ne faut pas réoptimiser les seuils
+sur le même historique 2026 sans validation indépendante.
