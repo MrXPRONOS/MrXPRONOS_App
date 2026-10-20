@@ -4,6 +4,9 @@ on:
   workflow_run:
     workflows: ["BSD V2 - Generation quotidienne"]
     types: [completed]
+  push:
+    branches: [main]
+    paths: ['.github/workflows/accumulator-photo-production.yml']
   workflow_dispatch:
     inputs:
       mode:
@@ -21,7 +24,7 @@ concurrency:
 
 jobs:
   publish:
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -121,7 +124,7 @@ jobs:
               print("ACCUMULATOR_PRODUCTION_IMAGES_OK",preview.size,full.size)
           PY
       - name: Send Telegram production photo album once
-        if: steps.selection.outputs.has_matches == 'true' && (github.event_name != 'workflow_dispatch' || inputs.mode == 'production')
+        if: steps.selection.outputs.has_matches == 'true' && (github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'production'))
         run: python scripts/send_accumulator_production.py
       - name: Publish photo to Facebook Instagram Threads Bluesky
         if: steps.selection.outputs.has_matches == 'true' && (github.event_name != 'workflow_dispatch' || inputs.mode == 'production')
