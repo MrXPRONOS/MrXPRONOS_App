@@ -23,6 +23,9 @@ jobs:
       FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
       TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
       ACCUMULATOR_OUTPUT: telegram_out/accumulator_reference.png
+      ACCUMULATOR_INPUT: telegram_out/accumulator_today.json
+      ACCUMULATOR_DATA_REPORT: telegram_out/accumulator_data_report.json
+      ACCUMULATOR_TEST_DATE: '2026-10-20'
       ACCUMULATOR_PREVIEW: telegram_out/accumulator_preview.png
       ACCUMULATOR_CROP_META: telegram_out/accumulator_crop.json
     steps:
@@ -55,8 +58,10 @@ jobs:
           assert.equal(selectionFrench('Kedua Tim Mencetak Skor. Ya'), 'Les deux équipes marquent : Oui');
           console.log('ACCUMULATOR_FRENCH_TRANSLATIONS_OK');
           NODE
-      - name: Render image de reference (une seule sortie)
-        run: node scripts/render_accumulator_ticket.mjs --output "$ACCUMULATOR_OUTPUT"
+      - name: Préparer tous les vrais matchs du jour depuis data.json
+        run: node scripts/prepare_accumulator_today.mjs
+      - name: Render image du jour (une seule sortie)
+        run: node scripts/render_accumulator_ticket.mjs --input "$ACCUMULATOR_INPUT" --output "$ACCUMULATOR_OUTPUT"
       - name: Valider image 1080px / 11 matchs
         run: |
           python - <<'PY'
@@ -64,7 +69,7 @@ jobs:
           from PIL import Image
           path=os.environ["ACCUMULATOR_OUTPUT"]
           with Image.open(path) as im:
-              assert im.format=="PNG" and im.width==1080 and 3000<im.height<=9000 and (im.width+im.height)<=10000, (im.format, im.size)
+              assert im.format=="PNG" and im.width==1080 and 2000<im.height<=9000 and (im.width+im.height)<=10000, (im.format, im.size)
               print("ACCUMULATOR_IMAGE_VERIFIED", im.size)
           PY
       - name: Découper l'en-tête et les deux premiers matchs sans altérer les pixels
@@ -81,7 +86,7 @@ jobs:
               assert 1080 + full.height <= 10000
               meta=json.load(open(os.environ["ACCUMULATOR_CROP_META"],encoding="utf-8"))
               assert cover.height == meta["preview_height"]
-              assert meta["preview_matches"] == 2
+              assert meta["preview_matches"] == min(2,meta["match_count"])
               print("ACCUMULATOR_ALBUM_IMAGES_OK", cover.size, full.size)
           PY
       - name: Envoyer l'album de deux photos au canal Telegram TEST
@@ -89,9 +94,11 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: accumulator-reference-album
+          name: accumulator-real-data-test-album
           path: |
             telegram_out/accumulator_reference.png
             telegram_out/accumulator_preview.png
             telegram_out/accumulator_crop.json
+            telegram_out/accumulator_today.json
+            telegram_out/accumulator_data_report.json
           if-no-files-found: ignore
