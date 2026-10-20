@@ -179,6 +179,7 @@ def run(events,day,ledger):
       "replay_all_nine_groups_on_same_matches":groups,
       "replay_leagues":ligas,
       "replay_sample_matches":example_rows[:50],
+      "replay_all_matches":replayed,
       "replay_errors":errors,
       "prematch_archive":{
         "recorded_for_date":len(recorded),
