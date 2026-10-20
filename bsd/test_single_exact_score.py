@@ -15,6 +15,7 @@ from single_exact_score_research import audit,rank,prematch_context
 from single_exact_score_distributions import candidates,bivariate,negative_binomial
 from single_exact_score_advanced import train_advanced,advanced_prediction,historic_measured_xg
 from single_exact_score_context import enrich_lineups,hydrate_history_xg,lineup_context
+from single_exact_score_xg_history import empty as xg_empty,read as xg_read,save as xg_save,add as xg_add,apply as xg_apply
 from single_exact_score_prospective import (
     empty,read,save,digest,capture,settle,summary)
 
@@ -206,6 +207,28 @@ class SingleExactScoreTests(unittest.TestCase):
         first,_=features(match,start,expected)
         second,_=features(match,with_future,expected)
         self.assertEqual(first,second)
+    def test_encrypted_measured_xg_cache_roundtrip_and_chronology(self):
+        history=sample_history()
+        old=history.global_games[-1][1]
+        one={"home_xg":1.4,"away_xg":.8,
+             "kickoff_utc":old["event_date"],
+             "captured_at_utc":(NOW-timedelta(days=1)).isoformat(),
+             "home_team_id":old["home_team_id"],"away_team_id":old["away_team_id"]}
+        old_time=datetime.fromisoformat(old["event_date"])
+        one["captured_at_utc"]=(old_time+timedelta(hours=6)).isoformat()
+        doc=xg_empty()
+        self.assertEqual(xg_add(doc,{str(old["id"]):one}),1)
+        self.assertEqual(xg_add(doc,{str(old["id"]):one}),0)
+        self.assertEqual(xg_apply(history,doc,NOW),1)
+        self.assertEqual(old["home_xg_live"],1.4)
+        key=Fernet(Fernet.generate_key())
+        with tempfile.TemporaryDirectory() as folder:
+            path=Path(folder)/"xg.enc.json"
+            xg_save(doc,path,key)
+            self.assertNotIn('"home_xg"',path.read_text())
+            self.assertEqual(xg_read(path,key),doc)
+        invalid={**one,"captured_at_utc":(old_time+timedelta(hours=2)).isoformat()}
+        self.assertEqual(xg_add(xg_empty(),{"bad":invalid}),0)
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)

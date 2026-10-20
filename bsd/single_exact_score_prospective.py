@@ -19,6 +19,7 @@ from exact_scores_h2h import H2HIndex
 from single_exact_score_engine import VERSION,PARAMETERS,forecast,train_dc
 from single_exact_score_advanced import train_advanced
 from single_exact_score_context import enrich_lineups,hydrate_history_xg
+from single_exact_score_xg_history import read as read_xg,save as save_xg,apply as apply_xg,add as add_xg
 
 PATH=Path("bsd/single_exact_score_ledger.enc.json")
 SCHEMA="mrx-single-exact-score-ledger-v1"
@@ -151,6 +152,8 @@ def main():
     matches=json.loads(Path(args.history).read_text(encoding="utf-8"))
     if not matches:raise RuntimeError("Historical BSD archive empty")
     index=V2History(matches)
+    xg_archive=read_xg()
+    restored_xg=apply_xg(index,xg_archive,now)
     dc,training=train_dc(index)
     advanced=train_advanced(index)
     client=BSDClient(max_requests=args.max_requests)
@@ -158,7 +161,11 @@ def main():
     archive=read(Path(args.ledger))
     pending_new=[e for e in upcoming if str(e.get("id")) not in archive["records"]]
     # Budgeted requests only for prematch candidates; missing data is explicit.
-    xg_diag=hydrate_history_xg(index,pending_new,client,now,max_lookups=12)
+    newly_measured={}
+    xg_diag=hydrate_history_xg(index,pending_new,client,now,max_lookups=12,
+                               capture_into=newly_measured)
+    saved_xg=add_xg(xg_archive,newly_measured)
+    if saved_xg:save_xg(xg_archive)
     lineup_diag=enrich_lineups(pending_new,client,now,max_lookups=6)
     added=capture(archive,upcoming,index,dc,now,advanced_model=advanced)
     pending={key for key,r in archive["records"].items() if r["status"]=="pending"}
@@ -171,6 +178,7 @@ def main():
     dest.write_text(json.dumps(result,indent=2,ensure_ascii=False),encoding="utf-8")
     print("ONE_SCORE_PROSPECTIVE",json.dumps({"capture":added,"settlement":finished,
         "summary":result,"api_requests":client.requests_made,
-        "historical_measured_xg":xg_diag,"lineups":lineup_diag,
+        "historical_measured_xg":{**xg_diag,"restored":restored_xg,
+            "new_persisted":saved_xg},"lineups":lineup_diag,
         "advanced_training":advanced.info()},ensure_ascii=False))
 if __name__=="__main__":main()

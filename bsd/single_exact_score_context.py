@@ -80,7 +80,7 @@ def _measured_xg(payload):
         numbers.append(float(value))
     return tuple(numbers)
 
-def hydrate_history_xg(index,fixtures,client,now,max_lookups=12):
+def hydrate_history_xg(index,fixtures,client,now,max_lookups=12,capture_into=None):
     """Acquire xG for already settled games, never current/future fixtures."""
     stats={"attempts":0,"measured":0,"not_measured":0,"errors":0}
     target=[]
@@ -113,6 +113,13 @@ def hydrate_history_xg(index,fixtures,client,now,max_lookups=12):
             stats["errors"]+=1;continue
         measured=_measured_xg(payload)
         if measured:
+            if capture_into is not None:
+                capture_into[str(old["id"])]={
+                    "home_xg":measured[0],"away_xg":measured[1],
+                    "home_team_id":_team_id(old,"home"),
+                    "away_team_id":_team_id(old,"away"),
+                    "kickoff_utc":fixture_datetime(old).isoformat(),
+                    "captured_at_utc":now.isoformat()}
             old["home_xg_live"]=measured[0]
             old["away_xg_live"]=measured[1]
             old["xg_estimated"]=False

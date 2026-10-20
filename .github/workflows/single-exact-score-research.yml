@@ -34,7 +34,7 @@ jobs:
       - name: Validate one-score model and private archive
         run: |
           python -m unittest bsd/test_single_exact_score.py -v
-          python -m py_compile bsd/single_exact_score_engine.py bsd/single_exact_score_backtest.py bsd/single_exact_score_prospective.py bsd/single_exact_score_advanced.py bsd/single_exact_score_context.py
+          python -m py_compile bsd/single_exact_score_engine.py bsd/single_exact_score_backtest.py bsd/single_exact_score_prospective.py bsd/single_exact_score_advanced.py bsd/single_exact_score_context.py bsd/single_exact_score_xg_history.py
       - name: Recover private BSD history from main
         env:
           BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
@@ -137,12 +137,12 @@ jobs:
             "captured":d["captured"],"pending":d["pending"],
             "settled":d["settled"]},ensure_ascii=False))
           PY
-      - name: Commit only new encrypted single-score archive
+      - name: Commit only new encrypted single-score and measured-xG archives
         run: |
           test -f bsd/single_exact_score_ledger.enc.json || exit 0
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- bsd/single_exact_score_ledger.enc.json
+          git add -- bsd/single_exact_score_ledger.enc.json bsd/single_exact_score_xg_history.enc.json
           if git diff --cached --quiet; then exit 0; fi
           git commit -m "data(single shadow): immutable encrypted pre-match scores [skip ci]"
           git restore -- bsd/all_matches_bsd.enc.json
