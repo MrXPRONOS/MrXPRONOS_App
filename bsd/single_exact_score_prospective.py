@@ -20,7 +20,7 @@ from single_exact_score_engine import VERSION,PARAMETERS,forecast,train_dc
 from single_exact_score_advanced import train_advanced
 from single_exact_score_context import enrich_lineups,hydrate_history_xg
 from single_exact_score_xg_history import read as read_xg,save as save_xg,apply as apply_xg,add as add_xg
-from single_exact_score_top3 import read as read_top3,save as save_top3,select_groups,settle_groups,report as top3_report
+from single_exact_score_top3 import read as read_top3,save as save_top3,select_groups,settle_groups,report as top3_report,verify as verify_top3
 from single_exact_score_context_model import learn as learn_context,fingerprint as context_fingerprint
 from single_exact_score_context_observations import (
     read as read_lineup_evidence,save as save_lineup_evidence,
@@ -207,7 +207,8 @@ def main():
     if created_groups.get("created") or settled_groups.get("settled"):
         save_top3(top3)
     result=summary(archive,datetime.now(timezone.utc))
-    result["top3"]=top3_report(top3)
+    result["top3"]=top3_report(top3,datetime.now(timezone.utc))
+    result["top3_integrity"]=verify_top3(top3,archive,datetime.now(timezone.utc))
     result["advanced_model_fingerprint_sha256"]=advanced.fingerprint()
     result["absence_context_model"]={"active":context_model["active"],
         "fingerprint_sha256":context_fingerprint(context_model),

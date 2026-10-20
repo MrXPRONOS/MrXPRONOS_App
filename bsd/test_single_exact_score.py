@@ -16,7 +16,7 @@ from single_exact_score_distributions import candidates,bivariate,negative_binom
 from single_exact_score_advanced import train_advanced,advanced_prediction,historic_measured_xg
 from single_exact_score_context import enrich_lineups,hydrate_history_xg,lineup_context
 from single_exact_score_xg_history import empty as xg_empty,read as xg_read,save as xg_save,add as xg_add,apply as xg_apply
-from single_exact_score_top3 import empty as top3_empty,read as top3_read,save as top3_save,select_groups,settle_groups,report as top3_report
+from single_exact_score_top3 import empty as top3_empty,read as top3_read,save as top3_save,select_groups,settle_groups,report as top3_report,verify as verify_top3
 from single_exact_score_research import RANK_VERSION
 from single_exact_score_context_model import learn as learn_absence,adjust as apply_absence,source_features as absence_features
 from single_exact_score_context_observations import (
@@ -529,6 +529,48 @@ class SingleExactScoreTests(unittest.TestCase):
             obs_save(obs,fn,secret)
             self.assertEqual(obs_read(fn,secret),obs)
             self.assertNotIn("confirmed",fn.read_text())
+    def test_top3_integrity_checks_real_first_seen_scores(self):
+        ledger={"records":{}}
+        for i in range(3):
+            key=str(72000+i)
+            ledger["records"][key]={"id":key,"status":"pending",
+                "score":[1,0],"selection_rank":.2+i*.01,
+                "rank_version":RANK_VERSION,
+                "captured_at":NOW.isoformat(),
+                "kickoff":(NOW+timedelta(hours=3+i)).isoformat(),
+                "forecast_sha256":"firstseen_"+key}
+        frozen=top3_empty()
+        self.assertEqual(select_groups(frozen,ledger,NOW)["created"],1)
+        self.assertEqual(verify_top3(frozen,ledger,NOW)["verified_baskets"],1)
+        self.assertEqual(top3_report(frozen,NOW)["pending_baskets"],1)
+        self.assertEqual(top3_report(frozen,NOW+timedelta(days=2))
+                         ["overdue_unsettled_baskets"],1)
+        ledger["records"]["72002"]["score"]=[0,2]
+        with self.assertRaises(ValueError):
+            verify_top3(frozen,ledger,NOW)
+    def test_top3_settlement_monitoring_histogram(self):
+        ledger={"records":{}}
+        for i in range(3):
+            key=str(72100+i)
+            ledger["records"][key]={"id":key,"status":"pending",
+                "score":[0,1],"selection_rank":.2+i*.01,
+                "rank_version":RANK_VERSION,
+                "captured_at":NOW.isoformat(),
+                "kickoff":(NOW+timedelta(hours=3+i)).isoformat(),
+                "forecast_sha256":"firstseen_"+key}
+        group=top3_empty()
+        select_groups(group,ledger,NOW)
+        self.assertEqual(settle_groups(group,ledger,NOW)["pending"],1)
+        for i,match in enumerate(ledger["records"].values()):
+            match["status"]="settled"
+            match["actual_score"]=[0,1] if i<2 else [2,0]
+        self.assertEqual(settle_groups(group,ledger,NOW+timedelta(days=1))
+                         ["settled"],1)
+        self.assertEqual(verify_top3(group,ledger,NOW+timedelta(days=1))
+                         ["verified_baskets"],1)
+        report=top3_report(group,NOW+timedelta(days=1))
+        self.assertEqual(report["settled_hit_distribution"]["2"],1)
+        self.assertEqual(report["settled_selected_match_hits"],2)
     def test_empty_backtest_no_false_accuracy(self):
         empty_report=compare([],year=2026,dc_model=DummyDC())
         self.assertEqual(empty_report["eligible"],0)

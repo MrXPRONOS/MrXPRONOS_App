@@ -136,6 +136,7 @@ def settle_groups(archive,match_ledger,now):
             labels.append(int(match["actual_score"]==pick["score"]))
         if len(labels)<3:
             stats["incomplete"]+=1
+            stats["pending"]+=1
             continue
         rec["status"]="settled"
         rec["settled_at"]=now.isoformat()
@@ -145,13 +146,72 @@ def settle_groups(archive,match_ledger,now):
         stats["settled"]+=1
     return stats
 
-def report(archive):
+def verify(archive, match_ledger, now):
+    """Fail closed if any frozen Top3 contains a late/changed prediction.
+
+    This uses scores and hashes saved at issuance, never outcome labels to
+    determine which three matches would have been chosen.
+    """
+    if now.tzinfo is None:
+        raise ValueError("UTC-aware audit clock required")
+    verified=0
+    for day,record in archive["records"].items():
+        picks=record.get("picks")
+        if not isinstance(picks,list) or len(picks)!=3:
+            raise ValueError("A basket must contain three distinct match snapshots")
+        if day!=record.get("date_utc") or record.get("digest")!=_sha(record):
+            raise ValueError("Frozen basket identity/digest mismatch")
+        if record.get("status") not in ("pending","settled"):
+            raise ValueError("Unexpected basket status")
+        issued=_utc(record["issued_at_utc"])
+        if issued>now+timedelta(minutes=1):
+            raise ValueError("Basket issued in the future")
+        ids=set()
+        for pick in picks:
+            key=str(pick.get("id"))
+            if key in ids:raise ValueError("Duplicate fixture in Top3")
+            ids.add(key)
+            kickoff=_utc(pick["kickoff"])
+            captured=_utc(pick["captured_at"])
+            if (kickoff.date().isoformat()!=day or
+                issued>kickoff-timedelta(minutes=30) or
+                captured>issued or captured>kickoff-timedelta(minutes=30)):
+                raise ValueError("Late or wrong-day basket selection")
+            record_original=match_ledger["records"].get(key)
+            if (not record_original or
+                record_original.get("forecast_sha256")!=pick.get("forecast_digest") or
+                record_original.get("score")!=pick.get("score") or
+                record_original.get("captured_at")!=pick.get("captured_at")):
+                raise ValueError("First-seen match forecast and frozen Top3 disagree")
+        if record["status"]=="settled":
+            hits=record.get("hits")
+            if (record.get("matched")!=3 or type(hits)!=int or not 0<=hits<=3 or
+                record.get("winning")!=int(hits>0) or
+                _utc(record["settled_at"])<issued):
+                raise ValueError("Impossible settled Top3 result")
+        verified+=1
+    return {"verified_baskets":verified,"structural_errors":0}
+
+
+def report(archive,now=None):
     values=list(archive["records"].values())
     done=[r for r in values if r.get("status")=="settled"]
+    pending=[r for r in values if r.get("status")=="pending"]
     wins=sum(r["winning"] for r in done)
+    histogram={str(i):sum(r.get("hits")==i for r in done) for i in range(4)}
+    overdue=0
+    if now is not None:
+        if now.tzinfo is None:raise ValueError("UTC-aware reporting clock required")
+        for record in pending:
+            last=max(_utc(p["kickoff"]) for p in record["picks"])
+            if last+timedelta(hours=4)<now:
+                overdue+=1
     return {"format":"mrx-top3-prospective-summary-v1","research_only":True,
             "published":False,"baskets_created":len(values),
+            "pending_baskets":len(pending),"overdue_unsettled_baskets":overdue,
             "settled_baskets":len(done),"baskets_with_at_least_one_hit":wins,
             "winning_basket_rate":round(wins/len(done),6) if done else None,
             "selected_match_count":3*len(values),
+            "settled_selected_match_hits":sum(r["hits"] for r in done),
+            "settled_hit_distribution":histogram,
             "no_guarantee":True}
