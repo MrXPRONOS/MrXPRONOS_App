@@ -6946,10 +6946,16 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
   // Diagnostic by market, without changing thresholds or generating
   // artificial coupons. Distinguish missing data, preliminary eligibility,
   // model-line rejection and final signal quality filters.
+  const emptyMarketAudit = () => ({
+    missing_stats: 0, missing_minute: 0, out_of_window: 0,
+    below_minimum: 0, with_stats: 0, preflight: 0,
+    model_rejected: 0, model_candidates: 0,
+    quality_rejected: 0, signals: 0,
+  });
   const marketAudit: Record<string,any> = {
-    shots: {with_stats:0,preflight:0,model_candidates:0,signals:0},
-    corners: {with_stats:0,preflight:0,model_candidates:0,signals:0},
-    fouls: {with_stats:0,preflight:0,model_candidates:0,signals:0},
+    shots: emptyMarketAudit(),
+    corners: emptyMarketAudit(),
+    fouls: emptyMarketAudit(),
   };
   const categories = [
     {name:"shots",stat:"total_shots",prediction:"total_shots",min:6,earliest:15,latest:83},
@@ -6959,16 +6965,26 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
   for(const m of normalizedMatches){
     const minute=safeNumber(m.current_minute,0);
     for(const cat of categories){
-      if(!hasCompleteStatPair(m.live_stats,cat.stat))continue;
       const gate=marketAudit[cat.name];
+      if(!hasCompleteStatPair(m.live_stats,cat.stat)){
+        gate.missing_stats++;
+        continue;
+      }
       gate.with_stats++;
       const total=statPairTotal(m.live_stats,cat.stat,
         cat.name==="corners"?"corners":cat.stat);
-      if(minute>=cat.earliest&&minute<=cat.latest&&Number.isFinite(total)&&total>=cat.min){
-        gate.preflight++;
-      }
-      if((m.all_predictions||[]).some((p:any)=>p.type===cat.prediction))gate.model_candidates++;
-      if((m.predictions||[]).some((p:any)=>p.type===cat.prediction))gate.signals++;
+      const eligibleMinute = minute>=cat.earliest && minute<=cat.latest;
+      const eligibleTotal = Number.isFinite(total) && total>=cat.min;
+      if(minute<=0) gate.missing_minute++;
+      else if(!eligibleMinute) gate.out_of_window++;
+      else if(!eligibleTotal) gate.below_minimum++;
+      else gate.preflight++;
+      const modelCandidate=(m.all_predictions||[]).some((p:any)=>p.type===cat.prediction);
+      const publishable=(m.predictions||[]).some((p:any)=>p.type===cat.prediction);
+      if(modelCandidate) gate.model_candidates++;
+      else if(eligibleMinute && eligibleTotal) gate.model_rejected++;
+      if(publishable) gate.signals++;
+      else if(modelCandidate) gate.quality_rejected++;
     }
   }
   console.info("LIVE_MARKET_GATE_AUDIT",{
@@ -7054,6 +7070,8 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       bsd_rate_limited: bsdRateLimited,
       bsd_skipped: options.skipBsd === true || safeNumber(coverage?.live_now, -1) === 0,
       snapshot_reused: snapshotReused,
+      market_diagnostics: marketAudit,
+      matches_missing_minute: normalizedMatches.filter((m:any)=>safeNumber(m?.current_minute,0)<=0).length,
       telegram_in_refresh: allowTelegram,
       predictions_created: createdPreds,
       predictions_existing: existingPreds,
@@ -7161,6 +7179,10 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE, loc
     bsd_stats_enriched: 0,
     api_football_stats_enriched: 0,
     espn_summary_stats_pairs_gained: 0,
+    matches_missing_minute: 0,
+    market_diagnostics: {
+      shots: {}, corners: {}, fouls: {},
+    },
   };
 
   while (hasMore && batchNumber < LIVE_REFRESH_MAX_BATCHES) {
@@ -7248,6 +7270,14 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE, loc
     aggregate.bsd_stats_enriched += safeNumber(meta.bsd_stats_enriched, 0);
     aggregate.api_football_stats_enriched += safeNumber(meta.api_football_stats_enriched, 0);
     aggregate.espn_summary_stats_pairs_gained += safeNumber(meta.espn_summary_stats_pairs_gained, 0);
+    aggregate.matches_missing_minute += safeNumber(meta.matches_missing_minute, 0);
+    for (const market of ["shots", "corners", "fouls"]) {
+      const source = meta.market_diagnostics?.[market] || {};
+      const target = aggregate.market_diagnostics[market];
+      for (const [reason, count] of Object.entries(source)) {
+        target[reason] = safeNumber(target[reason], 0) + safeNumber(count, 0);
+      }
+    }
 
     hasMore = Boolean(result?.has_more);
     const nextCursor =
