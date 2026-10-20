@@ -193,7 +193,9 @@ def post_facebook_page(video_path: Path, caption: str) -> PublishResult:
     if resp.status_code >= 400:
         return PublishResult(platform, False, f"HTTP {resp.status_code}: {payload}", payload)
 
-    return PublishResult(platform, True, f"Facebook OK: {payload}", payload)
+    media_id=payload.get("id") if isinstance(payload,dict) else None
+    return PublishResult(platform, bool(media_id),
+        f"Facebook {'OK' if media_id else 'sans identifiant de publication'}: {payload}",payload)
 
 
 # =====================================================
@@ -264,7 +266,9 @@ def post_instagram_reel(public_video_url: Optional[str], caption: str) -> Publis
         timeout=180,
     )
 
-    return PublishResult(platform, True, f"Instagram OK: {publish_payload}", publish_payload)
+    media_id=publish_payload.get("id") if isinstance(publish_payload,dict) else None
+    return PublishResult(platform, bool(media_id),
+        f"Instagram {'OK' if media_id else 'sans identifiant de publication'}: {publish_payload}",publish_payload)
 
 
 # =====================================================
@@ -339,7 +343,9 @@ def post_threads(public_video_url: Optional[str], caption: str) -> PublishResult
         timeout=180,
     )
 
-    return PublishResult(platform, True, f"Threads OK: {publish_payload}", publish_payload)
+    media_id=publish_payload.get("id") if isinstance(publish_payload,dict) else None
+    return PublishResult(platform, bool(media_id),
+        f"Threads {'OK' if media_id else 'sans identifiant de publication'}: {publish_payload}",publish_payload)
 
 
 # =====================================================
@@ -553,7 +559,9 @@ def post_youtube(video_path: Path, title: str, description: str) -> PublishResul
                 log(f"   YouTube upload: {int(_status.progress() * 100)}%")
 
         video_id = response.get("id")
-        return PublishResult(platform, True, f"YouTube OK: https://youtube.com/watch?v={video_id}", response)
+        return PublishResult(platform, bool(video_id), 
+            f"YouTube OK: https://youtube.com/watch?v={video_id}" if video_id
+            else "YouTube: réponse sans identifiant vidéo", response)
 
     except Exception as e:
         # HttpError est converti en message lisible.
@@ -588,7 +596,8 @@ def main() -> int:
     parser.add_argument("--description", default=None, help="Description YouTube")
     parser.add_argument("--public-url", default=None, help="URL publique du MP4 pour Instagram/Threads")
     parser.add_argument("--dry-run", action="store_true", help="Affiche ce qui serait publié sans appeler les API")
-    parser.add_argument("--strict", action="store_true", help="Échoue si une plateforme est ignorée ou en erreur")
+    parser.add_argument("--strict", action="store_true", help="Échoue immédiatement à la première erreur")
+    parser.add_argument("--require-all", action="store_true", help="Tente toutes les plateformes, puis échoue si l'une manque ou échoue")
     args = parser.parse_args()
 
     video_path = absolute_path(args.video)
@@ -648,7 +657,7 @@ def main() -> int:
     log(f"🧾 Rapport écrit: {report_path}")
 
     failed = [r for r in results if not r.ok]
-    if failed and args.strict:
+    if (failed or len(results)!=len(platforms)) and (args.strict or args.require_all):
         return 1
     return 0
 
