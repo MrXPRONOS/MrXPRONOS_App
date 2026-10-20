@@ -14,10 +14,11 @@ from bsd_v2_core import V2History,fixture_datetime,outcome_scores
 from exact_scores import year_sample
 from exact_scores_h2h import H2HIndex
 from grouped_correct_score import group_hit
+from grouped_total_goals import CEILINGS
 from grouped_correct_score_engine import fit_direction,analyze,selection_summary
 
 FORM_RULES=("legacy","recent_attack","recent_defence","historical_h2h_context","venue_shift","model_agreement","combined","strict")
-POLICIES=("baseline","with_double_chance","with_h2h_under","with_verified_price")+tuple("form_"+k for k in FORM_RULES)
+POLICIES=("baseline","with_double_chance","with_h2h_under","with_verified_price")+tuple("form_"+k for k in FORM_RULES)+tuple(f"ceiling_under_{n}5" for n in CEILINGS)
 def new_bucket():return {"n":0,"hits":0,"sum_p":0.,"brier":0.,"ev_count":0}
 def record(bucket,selection,score):
     if selection is None:return
@@ -56,6 +57,8 @@ def run(events,*,max_2026=0):
     pairs={name:{"baseline":new_bucket(),"candidate":new_bucket()} for name in ("dc_selected","priority_selected")}
     form_rejected={name:new_bucket() for name in FORM_RULES}
     risk_counts=Counter()
+    goal_tier_counts=Counter()
+    goal_actual_counts=Counter()
     paired_direction_changes={"n":0,"baseline_wins":0,"dc_wins":0,
                               "both_won":0,"both_lost":0}
     eligible=0
@@ -67,6 +70,11 @@ def run(events,*,max_2026=0):
         score=outcome_scores(event)
         if score is None:skips["missing_final_score"]+=1;continue
         eligible+=1
+        profile=pred["goals_profile"]
+        goal_tier_counts[str(profile["smallest_eligible_max_goals"])]+=1
+        total_goals=sum(score)
+        goal_actual_counts["0_to_2" if total_goals<=2 else "3_to_4" if total_goals<=4
+                          else "5_to_7" if total_goals<=7 else "8_plus"]+=1
         variants=selection_summary(pred)
         selected_old=variants.get("with_h2h_under")
         shift=pred.get("form_shift")
@@ -112,6 +120,9 @@ def run(events,*,max_2026=0):
        "actual_direction_changes":paired_direction_changes,
        "form_rule_rejected":{name:metrics(row,eligible) for name,row in form_rejected.items()},
        "form_shift_flag_frequency":dict(risk_counts),
+       "goal_tier_distribution":dict(goal_tier_counts),
+       "actual_total_goals_bands":dict(goal_actual_counts),
+       "goal_ceiling_policy_note":"Nested total-goal CDFs permit more eligible fixtures; each selected bet still covers exactly one 1xBet 3-score group; price unavailable.",
        "halves":{h:{k:metrics(v,eligible) for k,v in groups.items()}
                  for h,groups in halves.items()},
        "months":{m:{k:metrics(v,eligible) for k,v in d.items()}
@@ -136,6 +147,8 @@ def main():
           "group_breakdown":result["group_breakdown"],
           "form_rule_rejected":result["form_rule_rejected"],
           "form_shift_flag_frequency":result["form_shift_flag_frequency"],
-          "halves":result["halves"]},ensure_ascii=False))
+          "halves":result["halves"],
+          "goal_tier_distribution":result["goal_tier_distribution"],
+          "actual_total_goals_bands":result["actual_total_goals_bands"]},ensure_ascii=False))
 
 if __name__=="__main__":main()
