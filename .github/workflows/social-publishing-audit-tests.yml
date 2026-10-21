@@ -28,6 +28,17 @@ jobs:
         run: |
           python -m py_compile scripts/post_shorts_video.py scripts/verify_social_publications.py scripts/share_latest_video_bluesky.py
           python -m unittest discover -s scripts -p 'test_social_publication_validation.py' -v
+      - name: Smoke-test simultaneous five-platform dispatch in dry-run
+        run: |
+          python -m pip install -q requests
+          printf 'mock-no-real-upload' > "$RUNNER_TEMP/mock.mp4"
+          python scripts/post_shorts_video.py \
+            --dry-run \
+            --video "$RUNNER_TEMP/mock.mp4" \
+            --platforms "facebook,youtube,instagram,threads,bluesky" \
+            > "$RUNNER_TEMP/five-platforms.log"
+          grep -Fq "Plateformes: facebook, youtube, instagram, threads, bluesky" "$RUNNER_TEMP/five-platforms.log"
+          grep -Fq "DRY RUN" "$RUNNER_TEMP/five-platforms.log"
       - name: Test provider result validator without any live social API calls
         run: |
           python - <<'PY'
