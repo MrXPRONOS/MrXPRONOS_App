@@ -77,6 +77,7 @@ Moteur source : environ 9 422 lignes / 249 fonctions nommées.
 - Image : `render/live/Dockerfile` utilisant Deno ; les sources originales et polices sont copiées sans modification.
 - Façade HTTP `render/live/server.ts` : proxy transparent 10000 → Deno original sur 8000, avec `/healthz` et `/audit`.
 - **Standby par défaut** : ne jamais produire de prédiction ou envoyer Telegram tant que `RENDER_LIVE_ENABLED=1` et quatre variables obligatoires ne sont pas configurées. Même après activation technique, `RENDER_LIVE_READONLY=1` bloque les POST jusqu’à la bascule explicitement choisie.
+- `engine_bootstrap.ts` émule `EdgeRuntime.waitUntil` : `POST /refresh` répond immédiatement en HTTP 202 pendant que les lots continuent dans le processus Render, avec verrou DB et état réel dans `cron_runs`; calculs inchangés.
 - Fonction indépendante `telegram-live/index.ts` : port interne 8001, via `RENDER_DEDICATED_TELEGRAM` (actif par défaut si moteur activé) ; ses règles sont intactes sauf la ligne de bind. Un second SHA Git strict est contrôlé au build.
 - Variables minimales à configurer dans Render (en secret, jamais dans GitHub) : `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `BSD_API_TOKEN`, `CRON_SECRET`.
 - Variables fonctionnelles à reproduire selon configuration en production : `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `TELEGRAM_CHAT_ID_SECONDARY`, `DEBUG_KEY`, `SITE_URL`, `BSD_TZ`, `ENABLE_ESPN_MERGE`, `LIVE_PROP_ODDS_URL`, `LIVE_PROP_ODDS_TOKEN`, `LIVE_REQUIRE_BOOKMAKER_LINE`, `LIVE_ODDS_*`, `MOVIODDS_API_KEY` et réglages de quotas/TTL/batches.
