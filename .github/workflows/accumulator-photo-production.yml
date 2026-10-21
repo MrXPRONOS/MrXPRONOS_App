@@ -48,8 +48,6 @@ jobs:
       IG_USER_ID: ${{ secrets.IG_USER_ID }}
       THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
       THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
-      BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
-      BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -79,7 +77,7 @@ jobs:
         run: |
           npm ci
           npx playwright install --with-deps chromium
-          python -m pip install requests Pillow 'atproto>=0.0.60,<1'
+          python -m pip install requests Pillow
       - name: Verify and load IDs of fixtures already published in daily video
         run: python scripts/read_accumulator_video_ledger.py
       - name: Validate production scripts
@@ -132,7 +130,7 @@ jobs:
       - name: Send Telegram production photo album once
         if: steps.selection.outputs.has_matches == 'true' && (github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'production'))
         run: python scripts/send_accumulator_production.py
-      - name: Publish photo to Facebook Instagram Threads Bluesky
+      - name: Publish photo to Facebook Instagram Threads
         if: steps.selection.outputs.has_matches == 'true' && (github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'production'))
         run: python scripts/post_accumulator_social.py
       - uses: actions/upload-artifact@v4
