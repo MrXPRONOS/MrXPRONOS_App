@@ -562,9 +562,8 @@ async def execute() -> int:
             except Exception as exc:
                 failed_count += 1
                 LOG.exception("Source inaccessible %s : %s", channel_name, exc)
-        # Les promotions font partie du MÊME passage que les films.
-        # Elles sont strictement bloquées tant que CE passage n'a pas publié
-        # deux nouveaux films, même si l'historique contient un ancien retard.
+        # Les promotions utilisent un quota cumulatif de 4 films.
+        # Un passage sans nouveau film ne peut jamais déclencher de publicité.
         promo_count = 0
         if publish and flag("CINEX_PROMOS_ENABLED", True):
             try:
