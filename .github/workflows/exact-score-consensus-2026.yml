@@ -1,0 +1,69 @@
+name: Six Model Consensus 2026 Backtest
+on:
+  push:
+    branches: [research/exact-score-backtest-2026]
+    paths:
+      - 'research/ensemble_consensus_2026.py'
+      - '.github/workflows/exact-score-consensus-2026.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: exact-score-consensus-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  six-model-score-consensus:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unit-test voting rules, abstention, and chronology
+        run: python research/ensemble_consensus_2026.py --self-test-only
+      - name: Download original frozen predictions for 81,154 historical matches
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 39511299147
+          name: exact-score-backtest-2026
+          path: prior_predictions
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+      - name: Verify only one frozen source CSV
+        run: |
+          find prior_predictions -name 'all_predictions.csv' -ls
+          test "$(find prior_predictions -name 'all_predictions.csv' | wc -l)" -eq 1
+      - name: Evaluate six votes with 3/6, 4/6, 5/6, 6/6 consensus thresholds
+        shell: bash
+        run: |
+          set -o pipefail
+          INPUT="$(find prior_predictions -name 'all_predictions.csv' -print -quit)"
+          python -u research/ensemble_consensus_2026.py \
+            --predictions "$INPUT" \
+            --output research/results/consensus_2026 \
+            --bootstrap 1300 \
+            2>&1 | tee exact-score-consensus.log
+      - name: Show concise summary
+        run: |
+          python - <<'PY'
+          import json
+          doc=json.load(open("research/results/consensus_2026/summary.json",encoding="utf8"))
+          print("N",doc["n_total_matches"])
+          print("VOTES",doc["votes_distribution"])
+          for part,values in doc["cumulative_strategies"].items():
+              print(part, "matches", values["base_matches"])
+              for threshold,m in values["thresholds"].items():
+                  print(threshold, "votes", {k:m.get(k) for k in ("n","coverage_pct","hits","hit_rate_pct","vs_poisson_on_same_matches_pp","day_cluster_95pct_intervals")})
+          print("WALK_FORWARD", doc["holdout_walk_forward_vote_confidence"])
+          PY
+      - name: Upload complete consensus backtest
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: exact-score-six-model-consensus-2026
+          path: |
+            research/results/consensus_2026/
+            exact-score-consensus.log
+          retention-days: 30
