@@ -77,7 +77,8 @@ class DesirPromotionsState:
 
 
 async def publish_desir_promotions(user_client, bot, library, public, mirror,
-                                   receipt_state: ReceiptState) -> dict:
+                                   receipt_state: ReceiptState, *,
+                                   current_run_films: int = 0) -> dict:
     """One identical blue-button advert per destination after every two Desire films.
 
     The secondary channel receives an attributed native forward of the Desire
@@ -85,8 +86,11 @@ async def publish_desir_promotions(user_client, bot, library, public, mirror,
     """
     from .promotions import publish_promotions
     bridge = DesirPromotionsState(receipt_state)
-    result = await publish_promotions(user_client, bot, library, public, mirror, bridge,
-                                      private_fallback=True)
+    result = await publish_promotions(
+        user_client, bot, library, public, mirror, bridge,
+        private_fallback=True,
+        current_run_films=current_run_films,
+    )
     LOG.info("PUBS DÉSIR après deux films : privé=%s public=%s Torrent9=%s ignorées=%s",
              result["private"], result["public"], result["mirror"], result["skipped"])
     return result
@@ -417,8 +421,12 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
         # Count films separately from CinéX classique. Publications are after
         # the second movie and always after its native Torrent9 mirror forward.
         if publish:
-            await publish_desir_promotions(client, bot, library, public_user,
-                                           None if os.getenv('CINEX_DEFER_MIRROR') else mirror_peer, state)
+            await publish_desir_promotions(
+                client, bot, library, public_user,
+                None if os.getenv('CINEX_DEFER_MIRROR') else mirror_peer,
+                state,
+                current_run_films=completed,
+            )
         LOG.info("Bilan CinéX Désir : %s publication(s) ou aperçu(s)", completed)
         if publish and require_publication and completed == 0:
             LOG.error("Premier test non validé : aucun nouveau film publié.")
