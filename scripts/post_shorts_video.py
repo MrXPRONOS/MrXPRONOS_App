@@ -655,7 +655,7 @@ def parse_platforms(raw: str) -> List[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Publier la vidéo Mr XPRONOS sur les réseaux sociaux")
     parser.add_argument("--video", default="daily_pronos_shorts.mp4", help="Chemin du fichier MP4")
-    parser.add_argument("--platforms", default=env("POST_PLATFORMS", "facebook,instagram,threads,tiktok,youtube"))
+    parser.add_argument("--platforms", default=env("POST_PLATFORMS", "facebook,youtube,instagram,threads,bluesky"))
     parser.add_argument("--caption", default=None, help="Texte/caption à publier")
     parser.add_argument("--title", default=None, help="Titre YouTube")
     parser.add_argument("--description", default=None, help="Description YouTube")
