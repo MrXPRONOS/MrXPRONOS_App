@@ -27,6 +27,7 @@ jobs:
     env:
       CINEX_DEFER_MIRROR: 'true'
       CINEX_TORRENT9_PAUSED: 'true'
+      CINEX_PARTNERSHIP_ENABLED: 'false'
       CINEX_SAFE_MODE: 'true'
       CINEX_PAUSE_SECONDS: '20'
       CINEX_FORWARD_PAUSE_SECONDS: '18'
@@ -104,14 +105,14 @@ jobs:
           PYTHONPATH: .
         run: python -m film_relay.discovery
 
-      # Classic relay sends its public/private/mirror promotion AFTER two movies,
-      # using its own durable counter in state/state.json.
+      # Promotions use a durable quota of 4 contents. Empty runs never advertise.
+      # Torrent9 and pre-content partnership adverts are currently paused.
       - name: Pause de securite avant publication
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         run: sleep 20
 
-      - name: "Partenariat AVANT films"
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
+      - name: "Partenariat AVANT films (désactivé)"
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_PARTNERSHIP_ENABLED == 'true' }}
         working-directory: telegram-film-relay
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
@@ -126,7 +127,7 @@ jobs:
           PYTHONPATH: .
         run: python scripts/partnership_cycle.py --category films --phase before
 
-      - name: 2 - Deux films CineX classiques puis une pub
+      - name: 2 - Films CineX classiques (pub chaque 4 contenus)
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         working-directory: telegram-film-relay
         env:
@@ -194,8 +195,8 @@ jobs:
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         run: sleep 45
 
-      - name: "Partenariat AVANT desir"
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
+      - name: "Partenariat AVANT desir (désactivé)"
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_PARTNERSHIP_ENABLED == 'true' }}
         working-directory: telegram-film-relay
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
@@ -210,7 +211,7 @@ jobs:
           PYTHONPATH: .
         run: python scripts/partnership_cycle.py --category desir --phase before
 
-      - name: 3 - Deux films CineX Desir puis une pub
+      - name: 3 - CineX Desir (pub chaque 4 contenus)
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         working-directory: telegram-film-relay
         env:
@@ -255,8 +256,8 @@ jobs:
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         run: sleep 45
 
-      - name: "Partenariat AVANT comedie"
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
+      - name: "Partenariat AVANT comedie (désactivé)"
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_PARTNERSHIP_ENABLED == 'true' }}
         working-directory: telegram-film-relay
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
@@ -271,7 +272,7 @@ jobs:
           PYTHONPATH: .
         run: python scripts/partnership_cycle.py --category comedie --phase before
 
-      - name: 4 - Deux comedies et publicite CineX Comedie
+      - name: 4 - CineX Comedie (pub chaque 4 contenus)
         id: comedy
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         continue-on-error: true
@@ -315,8 +316,8 @@ jobs:
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         run: sleep 45
 
-      - name: "Partenariat AVANT anime"
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
+      - name: "Partenariat AVANT anime (désactivé)"
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_PARTNERSHIP_ENABLED == 'true' }}
         working-directory: telegram-film-relay
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
@@ -331,7 +332,7 @@ jobs:
           PYTHONPATH: .
         run: python scripts/partnership_cycle.py --category anime --phase before
 
-      - name: 5 - Deux catalogues d'animes et publicite CineX Anime
+      - name: 5 - CineX Anime (pub chaque 4 contenus)
         id: anime
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         continue-on-error: true
