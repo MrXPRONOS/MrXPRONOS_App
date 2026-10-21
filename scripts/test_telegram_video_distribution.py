@@ -63,6 +63,42 @@ class TelegramVideoDistributionTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             module.load()
 
+    def test_seven_destinations_share_original_media_and_forward_to_torrent9(self):
+        config, receipt = module.load()
+        forwarded = []
+        class FakeBot:
+            def __init__(self, token, name):
+                self.token, self.name, self.source, self.bot_id = token, name, None, 42
+            def identify(self):
+                pass
+            def chat(self, username):
+                targets = [d["chat"] for d in config["destinations"]]
+                return {"id": 1000 + targets.index(username)}
+            def can_post(self, username):
+                return username != "@Torrent9SeriesFilms"
+            def copy(self, target, keyboard, caption):
+                self_case.assertEqual(len(keyboard["inline_keyboard"]), 3)
+                self_case.assertEqual(self.source, ("@mrxpronosfr", 12345))
+                forwarded.append(target)
+                return 100 + len(forwarded)
+            def upload(self, *args):
+                raise AssertionError("main bot must copy; no second MP4 upload")
+        self_case = self
+        with mock.patch.dict(module.os.environ, {
+            "TELEGRAM_BOT_TOKEN": "mock", "SUPABASE_URL": "https://test.supabase.co",
+            "SUPABASE_SERVICE_ROLE_KEY": "mock_key", "FOOTBALL_NEWS_BOT_TOKEN": "",
+            "DESIR_BOT_TOKEN": "",
+        }):
+            with mock.patch.object(module, "Bot", FakeBot), \
+                 mock.patch.object(module, "claim", return_value=True), \
+                 mock.patch.object(module.asyncio, "run", return_value=777), \
+                 mock.patch.object(module.requests, "Session"):
+                result = module.distribute(config, receipt, Path("unused.mp4"))
+        self.assertEqual(len(forwarded), 6)
+        self.assertEqual(len(result["results"]), 7)
+        self.assertEqual(result["torrent9"]["id"], 777)
+        self.assertFalse(result["errors"])
+
     def test_claim_has_atomic_uniqueness_key(self):
         fake_session = mock.Mock()
         fake_response = mock.Mock()
