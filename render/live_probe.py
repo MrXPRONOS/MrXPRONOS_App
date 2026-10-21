@@ -112,70 +112,104 @@ def detail(source,event):
     stats=(normalize_espn(event,body) if source=="espn" else normalize_sportscore(body)) if body else {}
     return {"source":source,"id":uid,"error":error,"stats":stats,"duration":duration}
 
+def unique_key(source,ev):
+    if source=="espn":
+        competitors=(((ev.get("competitions") or [{}])[0]).get("competitors") or [])
+        teams=sorted(str((t.get("team") or {}).get("displayName") or "").lower() for t in competitors)
+        kickoff=str(ev.get("date") or "")[:10]
+    else:
+        def team(v):return str((v or {}).get("name") if isinstance(v,dict) else v or "").lower()
+        teams=sorted([team(ev.get("home")),team(ev.get("away"))])
+        kickoff=str(ev.get("time") or ev.get("date") or ev.get("start_time") or "")[:10]
+    if not any(teams):return source+":"+str(ev.get("id") or ev.get("match_id") or ev.get("name"))
+    normalize=lambda s:re.sub(r"[^a-z0-9]","",s)
+    return kickoff+":"+":".join(normalize(t) for t in teams)
+
 def probe():
     with run_lock:
         quota_stop.clear()
         start=time.monotonic()
         now=datetime.now(timezone.utc)
-        days=[now.strftime("%Y%m%d")]
-        if now.hour<7:days.insert(0,(now-timedelta(days=1)).strftime("%Y%m%d"))
+        today=now.strftime("%Y%m%d")
+        yesterday=(now-timedelta(days=1)).strftime("%Y%m%d")
         discovery=[]
-        jobs=[]
+        available=[]
         espn_events={}
-        for d in days:
-            p,e,lat=fetch(ESPN+"/scoreboard?"+urlencode({"dates":d,"limit":500}))
-            events=p.get("events",[]) if isinstance(p,dict) else []
-            discovery.append({"source":"espn","date":d,"events":len(events),"error":e,"seconds":lat})
-            for evt in events:
-                if evt.get("id"):espn_events[str(evt["id"])]=evt
-        for evt in espn_events.values():
-            status=(((evt.get("status") or {}).get("type") or {}).get("state") or "")
-            if state(status)=="in":jobs.append(("espn",evt))
-        raw,err,lat=fetch(SPORTSCORE+"/fixtures/?"+urlencode({"sport":"football","date":now.strftime("%Y-%m-%d"),"status":"live","limit":200}))
-        rows=[]
-        if isinstance(raw,dict):
-            rows=next((raw[k] for k in ("matches","fixtures","results") if isinstance(raw.get(k),list)),[])
-        discovery.append({"source":"sportscore","date":now.strftime("%Y-%m-%d"),"events":len(rows),"error":err,"seconds":lat,
-                          "pagination_unverified":True,"requested_limit":200})
-        for evt in rows:
-            if not isinstance(evt,dict):continue
-            if state(evt.get("status") or evt.get("status_text"))=="in":jobs.append(("sportscore",evt))
-        real_live_count=len(jobs)
-        sample_used=False
-        if not jobs:
-            finished=[e for e in espn_events.values()
-                if state((((e.get("status") or {}).get("type") or {}).get("state") or ""))=="post"]
-            jobs=[("espn",e) for e in finished[:5]]
-            sample_used=True
+        for d in [today,yesterday]:
+            body,error,lat=fetch(ESPN+"/scoreboard?"+urlencode({"dates":d,"limit":500}))
+            events=body.get("events",[]) if isinstance(body,dict) else []
+            discovery.append({"source":"espn","date":d,"events":len(events),"error":error,"seconds":lat})
+            for ev in events:
+                if ev.get("id"):espn_events[str(ev["id"])]=ev
+        for ev in espn_events.values():
+            status=(((ev.get("status") or {}).get("type") or {}).get("state") or "")
+            phase=state(status)
+            if phase in ("in","post"):
+                available.append((0 if phase=="in" else 2,"espn",ev,phase))
+
+        body,error,lat=fetch(SPORTSCORE+"/fixtures/?"+urlencode({
+            "sport":"football","date":now.strftime("%Y-%m-%d"),"status":"live","limit":200}))
+        sportscore_rows=[]
+        if isinstance(body,dict):
+            sportscore_rows=next((body[k] for k in ("matches","fixtures","results") if isinstance(body.get(k),list)),[])
+        discovery.append({"source":"sportscore","date":now.strftime("%Y-%m-%d"),
+                          "events":len(sportscore_rows),"error":error,"seconds":lat,
+                          "requested_limit":200,"pagination_unverified":True})
+        for ev in sportscore_rows:
+            if not isinstance(ev,dict):continue
+            if state(ev.get("status") or ev.get("status_text"))=="in":
+                available.append((1,"sportscore",ev,"in"))
+
+        # Exactly 100 different *real* fixtures if providers cover that many;
+        # prioritize live, then completed. Never invent match IDs or synthetic results.
+        available.sort(key=lambda row:row[0])
+        selected=[]
+        seen=set()
+        for _priority,source,ev,phase in available:
+            key=unique_key(source,ev)
+            if key in seen:continue
+            seen.add(key)
+            selected.append((source,ev,phase))
+            if len(selected)==100:break
+        print("LIVE_100_SELECTED "+json.dumps({"selected":len(selected),
+              "live":sum(p=="in" for _,_,p in selected),
+              "finished":sum(p=="post" for _,_,p in selected),
+              "discovery":discovery}),flush=True)
         results=[]
         with ThreadPoolExecutor(max_workers=WORKERS) as pool:
-            fs=[pool.submit(detail,source,evt) for source,evt in jobs]
-            for f in as_completed(fs):
+            futures=[pool.submit(detail,src,ev) for src,ev,_ in selected]
+            for f in as_completed(futures):
                 try:results.append(f.result())
                 except Exception as e:results.append({"source":"unknown","id":"","error":str(e),"stats":{},"duration":0})
         by_source={}
         for source in ("espn","sportscore"):
-            subset=[r for r in results if r["source"]==source]
+            subset=[r for r in results if r.get("source")==source]
             by_source[source]={
-                "details":len(subset),"ok":sum(not r["error"] for r in subset),
-                "with_stat_pairs":sum(bool(r["stats"]) for r in subset),
-                "complete_core_7":sum(len(r["stats"])==7 for r in subset),
-                "available_stat_fields":{k:sum(k in r["stats"] for r in subset) for k in CORE}}
-        duration=round(time.monotonic()-start,2)
-        result={"at_utc":datetime.now(timezone.utc).isoformat(),"coverage":"ESPN + SportScore feeds only; NOT all football worldwide",
-                "discovery":discovery,"live_detail_tasks":real_live_count,
-                "historical_sanity_sample":sample_used,
-                "details_attempted":len(results),
-                "details_ok":sum(r["error"] is None for r in results),
-                "details_with_stats":sum(bool(r["stats"]) for r in results),
-                "workers":WORKERS,"duration_seconds":duration,
-                "completed_under_60s":duration<60,
-                "rate_limit_hit":quota_stop.is_set(),"by_source":by_source,
-                "failures":[{"source":r["source"],"id":r["id"],"error":r["error"]} for r in results if r["error"]][:15],
-                "match_samples":[{"source":r["source"],"id":r["id"],"stat_fields":list(r["stats"])} for r in results[:10]]}
-        cache["last"]=result
-        print("LIVE_PROBE_RESULT "+json.dumps(result,ensure_ascii=False),flush=True)
-        return result
+                "requested":len(subset),
+                "http_ok":sum(r.get("error") is None for r in subset),
+                "any_stats":sum(bool(r.get("stats")) for r in subset),
+                "full_core_seven":sum(len(r.get("stats") or {})==7 for r in subset),
+                "fields":{key:sum(key in (r.get("stats") or {}) for r in subset) for key in CORE}}
+        took=round(time.monotonic()-start,2)
+        report={
+            "at_utc":datetime.now(timezone.utc).isoformat(),
+            "test":"100 unique real fixtures, live prioritized; finished used to fill if fewer than 100 live",
+            "target":100,"actual_matches":len(selected),
+            "live_matches":sum(p=="in" for _,_,p in selected),
+            "finished_matches":sum(p=="post" for _,_,p in selected),
+            "source_discovery":discovery,
+            "details_attempted":len(results),
+            "http_ok":sum(r.get("error") is None for r in results),
+            "with_any_stats":sum(bool(r.get("stats")) for r in results),
+            "with_all_seven_stats":sum(len(r.get("stats") or {})==7 for r in results),
+            "duration_seconds":took,"under_60_seconds":took<60,
+            "workers":WORKERS,"rate_limit_hit":quota_stop.is_set(),
+            "by_source":by_source,
+            "failures":[{"source":r.get("source"),"id":r.get("id"),"error":r.get("error")}
+                        for r in results if r.get("error")][:20]}
+        cache["last"]=report
+        print("LIVE_100_RESULT "+json.dumps(report,ensure_ascii=False),flush=True)
+        return report
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
