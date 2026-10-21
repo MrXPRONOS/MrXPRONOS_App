@@ -167,6 +167,14 @@ async def user_forward(primary: str, original_id: int, torrent: str) -> int:
         # No reupload: Telegram native forward, retaining Coupons du jour as origin.
         from_peer = await client.get_entity(primary)
         to_peer = await client.get_entity(torrent)
+        if getattr(from_peer, "noforwards", False):
+            raise RuntimeError("Le canal Coupons du jour protège les messages contre le transfert")
+        me = await client.get_me()
+        rights = await client.get_permissions(to_peer, me)
+        can_post = bool(getattr(rights, "is_creator", False) or (
+            getattr(rights, "is_admin", False) and getattr(rights, "post_messages", False)))
+        if not can_post:
+            raise RuntimeError("Le compte Telegram personnel ne peut pas publier dans Torrent9")
         sent = await client.forward_messages(to_peer, original_id, from_peer=from_peer)
         item = sent[0] if isinstance(sent, list) else sent
         if not item or not getattr(item, "id", None):
@@ -298,6 +306,29 @@ def distribute(config: dict, receipt: dict, path: Path, *, dry_run=False) -> dic
 
 
 
+async def audit_personal_forward(primary: str, torrent: str) -> dict:
+    """Verify real personal-account forwarding rights without publishing."""
+    from telethon import TelegramClient
+    from telethon.sessions import StringSession
+    api_id=os.getenv("TG_API_ID","").strip()
+    api_hash=os.getenv("TG_API_HASH","").strip()
+    session=(os.getenv("TG_SESSION_STRING") or os.getenv("TG_STRING_SESSION") or "").strip()
+    if not all((api_id,api_hash,session)):
+        return {"ready":False,"reason":"session personnelle non configurée"}
+    async with TelegramClient(StringSession(session),int(api_id),api_hash) as client:
+        source=await client.get_entity(primary)
+        target=await client.get_entity(torrent)
+        me=await client.get_me()
+        rights=await client.get_permissions(target,me)
+        can_post=bool(getattr(rights,"is_creator",False) or (
+            getattr(rights,"is_admin",False) and getattr(rights,"post_messages",False)))
+        return {
+            "ready":True,
+            "source_forward_allowed": not bool(getattr(source,"noforwards",False)),
+            "can_post_in_torrent9":can_post,
+        }
+
+
 def audit_permissions() -> int:
     """Read-only Telegram Bot API check. Never sends or forwards any media."""
     cfg=json.loads(CONFIG.read_text(encoding="utf-8"))
@@ -330,11 +361,17 @@ def audit_permissions() -> int:
     )
     session_ready=all((os.getenv("TG_API_ID"),os.getenv("TG_API_HASH"),
                        os.getenv("TG_SESSION_STRING") or os.getenv("TG_STRING_SESSION")))
+    try:
+        personal_rights=asyncio.run(audit_personal_forward(origin,cfg["torrent9_forward"]))
+    except Exception as exc:
+        personal_rights={"ready":False,"error_type":type(exc).__name__}
+    print("TELEGRAM_VIDEO_PERSONAL_FORWARD_AUDIT",json.dumps(personal_rights,ensure_ascii=False))
     print("TELEGRAM_VIDEO_PERMISSION_REPORT",json.dumps({
         "main_bot_can_publish_coupon":main_ok,
         "missing_bot_admin_channels":missing,
         "torrent9_bot_forward_possible":mirror_bot,
         "torrent9_personal_forward_secrets_present":bool(session_ready),
+        "torrent9_personal_forward":personal_rights,
     },ensure_ascii=False))
     return 0 if main_ok else 1
 
