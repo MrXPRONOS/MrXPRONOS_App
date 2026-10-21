@@ -29,6 +29,12 @@
     "SOL": true,
     "XRP": true
   },
+  "news_fingerprints": {
+    "b749ed0af0294525b34931bc": {
+      "message_id": 22,
+      "number": 9
+    }
+  },
   "sent": {
     "daily:01:2026-10-19:evening": {
       "message_id": 13,
@@ -149,6 +155,12 @@
       "number": 9,
       "sent_at": "2026-10-18T23:35:02Z",
       "source": "confirmed Telegram photo, workflow 39177002087"
+    },
+    "news:09:e44d8a305e368ff1bd8429a1": {
+      "message_id": 22,
+      "number": 9,
+      "sent_at": "2026-10-21T18:14:11.447113+00:00",
+      "source": "CoinDesk"
     }
   }
 }
