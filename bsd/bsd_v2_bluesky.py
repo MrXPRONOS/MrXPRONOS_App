@@ -193,6 +193,8 @@ def main() -> int:
     parser.add_argument("--check-auth", action="store_true", help="Teste uniquement la connexion Bluesky")
     parser.add_argument("--max-posts", type=int, default=4)
     args = parser.parse_args()
+    if args.publish:
+        raise SystemExit("Publication des coupons photo Bluesky désactivée. Seules les vidéos Shorts sont autorisées.")
     if args.check_auth:
         handle = os.getenv("BLUESKY_HANDLE", "").strip().lstrip("@")
         password = os.getenv("BLUESKY_APP_PASSWORD", "").strip()
