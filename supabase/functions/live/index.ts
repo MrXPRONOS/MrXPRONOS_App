@@ -7195,7 +7195,8 @@ async function invokeRefreshBatch(
   useSnapshot = false,
 ) {
   const endpoint = new URL(
-    `${SUPABASE_URL.replace(/\/$/, "")}/functions/v1/live/refresh/batch`,
+    Deno.env.get("LIVE_BATCH_ENDPOINT") ||
+      `${SUPABASE_URL.replace(/\/$/, "")}/functions/v1/live/refresh/batch`,
   );
 
   endpoint.searchParams.set("batch_size", String(batchSize));
