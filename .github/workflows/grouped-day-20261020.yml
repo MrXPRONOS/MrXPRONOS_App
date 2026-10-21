@@ -1,7 +1,7 @@
 name: Grouped exact scores - retrospective test for 2026-10-20
 on:
   push:
-    branches: [feature/exact-score-v1-20261020]
+    branches: [feature/exact-score-v1-20261019]
     paths:
       - .github/workflows/grouped-day-20261020.yml
   workflow_dispatch:
