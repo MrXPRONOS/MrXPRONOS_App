@@ -14,7 +14,7 @@ from urllib.parse import urlencode, urlparse
 from urllib.request import Request, urlopen
 
 ESPN = "https://site.api.espn.com/apis/site/v2/sports/soccer/all"
-MAX_WORKERS = min(16, max(1, int(os.getenv("MAX_WORKERS", "12"))))
+MAX_WORKERS = min(6, max(1, int(os.getenv("MAX_WORKERS", "12"))))
 REQUEST_TIMEOUT = float(os.getenv("REQUEST_TIMEOUT", "10"))
 TARGET = 100
 FIELDS = (
@@ -78,6 +78,25 @@ def parse_espn_stats(body):
     b = parse_stat_list(teams[1].get("statistics",[]))
     return {key:[a[key],b[key]] for key in FIELDS if key in a and key in b}
 
+def parse_scoreboard_stats(game):
+    # ESPN-only fallback: use statistics already embedded in the ESPN scoreboard.
+    comps = game.get("competitions") or []
+    if not comps:
+        return {}
+    teams = comps[0].get("competitors") or []
+    if len(teams) != 2:
+        return {}
+    sides = {}
+    for team in teams:
+        side = str(team.get("homeAway") or "")
+        if side not in ("home", "away"):
+            return {}
+        sides[side] = parse_stat_list(team.get("statistics") or [])
+    if len(sides) != 2:
+        return {}
+    return {key: [sides["home"][key], sides["away"][key]]
+            for key in FIELDS if key in sides["home"] and key in sides["away"]}
+
 def game_state(game):
     typ = ((game.get("status") or {}).get("type") or {})
     return str(typ.get("state") or "").lower()
@@ -87,9 +106,15 @@ def fetch_fixture_detail(game):
     url = ESPN + "/summary?" + urlencode({"event":mid})
     body, error, latency = fetch_json(url)
     pairs = parse_espn_stats(body) if body else {}
+    existing = set(pairs)
+    fallback = parse_scoreboard_stats(game)
+    # Only fill unknown stats; do not replace observed ESPN summary figures.
+    pairs.update({key:value for key,value in fallback.items() if key not in pairs})
+    added = len(set(pairs) - existing)
     return {"id":mid, "state":game_state(game), "http_error":error,
             "fields":list(pairs), "complete":len(pairs)==len(FIELDS),
-            "has_stats":bool(pairs), "latency":latency}
+            "has_stats":bool(pairs), "latency":latency,
+            "fallback_added_pairs":added}
 
 def run_probe():
     with run_lock:
@@ -145,6 +170,15 @@ def run_probe():
             "with_at_least_one_stat_pair":sum(d["has_stats"] for d in details),
             "with_all_seven_stat_pairs":sum(d["complete"] for d in details),
             "stats_by_field":field_counts,
+            "matches_helped_by_espn_scoreboard":sum(d.get("fallback_added_pairs",0)>0 for d in details),
+            "stat_pairs_added_from_espn_scoreboard":sum(d.get("fallback_added_pairs",0) for d in details),
+            "error_breakdown":{kind:sum(
+                bool(d.get("http_error")) and (
+                    (kind=="HTTP 403" and d.get("http_error")=="HTTP 403") or
+                    (kind=="HTTP 429" and d.get("http_error")=="HTTP 429") or
+                    (kind=="timeout/other" and d.get("http_error") not in ("HTTP 403","HTTP 429")))
+                for d in details)
+                for kind in ("HTTP 403","HTTP 429","timeout/other")},
             "live_with_at_least_one_stat_pair":sum(d["has_stats"] for d in actual_live),
             "live_with_all_seven_stat_pairs":sum(d["complete"] for d in actual_live),
             "workers":MAX_WORKERS,
@@ -155,7 +189,7 @@ def run_probe():
                 for d in details if d.get("http_error")][:12],
         }
         cache["last"]=report
-        print("ESPN_ONLY_100_RESULT "+json.dumps(report,ensure_ascii=False),flush=True)
+        print("ESPN_ONLY_100_RECHECK_RESULT "+json.dumps(report,ensure_ascii=False),flush=True)
         return report
 
 class Handler(BaseHTTPRequestHandler):
