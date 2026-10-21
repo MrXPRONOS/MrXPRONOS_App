@@ -37,17 +37,22 @@ def clean_score(s):
     return h, a
 
 
-def supplement_training(cache_path, predictions_csv):
+def supplement_training(cache_path, predictions_csv, allowed_competitions):
     """Historical results stored in previous FULL-backfill GitHub Actions output.
 
     Archive contains pre-generated predictions and final labels on 2026 dates.
     Target day scores cannot appear. Do not use any predictions/probabilities
     from archive as a feature or target for learning.
     """
-    history = load_matches(str(cache_path), HISTORY_MAX)
+    original = load_matches(str(cache_path), HISTORY_MAX)
+    def allowed(league):
+        return league in allowed_competitions
+    history = [m for m in original if allowed(m.league)]
     cache = {m.key: m for m in history}
     audit = Counter({
         "cache_matches_before_cutoff": len(history),
+        "raw_cache_matches_before_sport_filter": len(original),
+        "football_competition_labels_allowed": len(allowed_competitions),
         "csv_rows_checked": 0,
         "csv_training_matches_added": 0,
         "overlap_same_outcome": 0,
@@ -72,6 +77,12 @@ def supplement_training(cache_path, predictions_csv):
             if not (ident and score and league and home and away):
                 audit["invalid_archive_record"] += 1
                 continue
+            if not allowed(league):
+                audit["historical_matches_excluded_as_unverified_football"] += 1
+                continue
+            if not (ident and score and league and home and away):
+                audit["invalid_archive_record"] += 1
+                continue
             if ident in observed_keys:
                 raise ValueError("Duplicate frozen historical fixture: " + ident)
             observed_keys.add(ident)
@@ -93,21 +104,50 @@ def supplement_training(cache_path, predictions_csv):
 
 def final_results_from_sportdata(day):
     fetched=fetch_games(day,day,timeout=45,show_odds=False)
+    # allscores is MULTI-SPORT despite its URL. sportId=1 is Football,
+    # sportId=3 tennis, sportId=8 volleyball; never infer sport from score.
+    recognized_football=set()
+    recognized_other=set()
+    competition_metadata=(fetched.payload.get("competitions") or []) if isinstance(fetched.payload,dict) else []
+    for g in fetched.games:
+        name=str(g.get("competitionDisplayName") or "").strip()
+        if name:
+            if g.get("sportId")==1:
+                recognized_football.add(name)
+            else:
+                recognized_other.add(name)
+    for league in competition_metadata:
+        if not isinstance(league,dict):
+            continue
+        name=str(league.get("name") or "").strip()
+        if name:
+            if league.get("sportId")==1:
+                recognized_football.add(name)
+            else:
+                recognized_other.add(name)
+    # A league name that identifies several sports cannot certify history.
+    leagues=recognized_football-recognized_other
     audit={
         "source":"SportsAPI Pro /v1/football/games/allscores",
         "requested_day":str(day),"api_ok":fetched.ok,
         "failure_reason":(fetched.reason or "")[:220] if not fetched.ok else None,
         "returned_raw_games":len(fetched.games),
+        "raw_football_games":sum(g.get("sportId")==1 for g in fetched.games),
+        "raw_other_sports_excluded":sum(g.get("sportId")!=1 for g in fetched.games),
+        "certified_soccer_competition_names_for_training":len(leagues),
         "endpoint":fetched.endpoint,
         "filter":"is_finished == True, statusGroup == 4, kickoff UTC date == requested day, valid final score",
     }
     if not fetched.ok:
-        return [],audit
+        return [],audit,[]
     by_id={}
     bad=Counter()
     for raw in fetched.games:
         if not isinstance(raw,dict):
             bad["non_object"]+=1
+            continue
+        if raw.get("sportId")!=1:
+            bad["not_football_sportId"]+=1
             continue
         rec=extract_game_info(raw)
         d=utc_day(rec.get("start_time"))
@@ -135,7 +175,7 @@ def final_results_from_sportdata(day):
         }
     audit["total_accepted_finished_matches"]=len(by_id)
     audit["discarded"]=dict(bad)
-    return sorted(by_id.values(),key=lambda x:(x["league"],x["home_team"],x["away_team"])),audit
+    return sorted(by_id.values(),key=lambda x:(x["league"],x["home_team"],x["away_team"])),audit,sorted(leagues)
 
 
 def create_report(targets,predictions,history_audit,source_audit,out):
@@ -238,6 +278,7 @@ def main():
     p.add_argument("--history",default="cache/all_matches.json")
     p.add_argument("--outcomes-file",help="Reuse previously verified final-score snapshot; no repeat SportData request")
     p.add_argument("--outcomes-audit-file",help="Original SportData audit JSON")
+    p.add_argument("--football-leagues-file",help="Verified SportData football competition names for training filter")
     p.add_argument("--output",default="research/results/yesterday_2026_10_20")
     args=p.parse_args()
     output=Path(args.output)
@@ -255,17 +296,23 @@ def main():
                 raise ValueError("Invalid archived final score record, aborting")
         if len({r["id"] for r in targets}) != len(targets):
             raise ValueError("Duplicated fixtures in archived actual-score snapshot")
+        if not args.football_leagues_file:
+            raise ValueError("A verified football competition whitelist is mandatory for archived target data")
+        leagues=json.loads(Path(args.football_leagues_file).read_text(encoding="utf8"))
         audit["reused_snapshot_from_previous_run"]=True
     else:
-        targets,audit=final_results_from_sportdata(TARGET)
+        targets,audit,leagues=final_results_from_sportdata(TARGET)
     (output/"sportdata_fetch_audit.json").write_text(json.dumps(audit,ensure_ascii=False,indent=2),encoding="utf8")
+    (output/"verified_football_competitions.json").write_text(json.dumps(leagues,ensure_ascii=False,indent=2),encoding="utf8")
     print("YESTERDAY_SOURCE_AUDIT",json.dumps(audit,ensure_ascii=False),flush=True)
     if not audit["api_ok"] or len(targets)==0:
         raise RuntimeError("No verified finished fixtures were recovered for 2026-10-20. Never invent results.")
     # The final scores are isolated from prediction generation.
     (output/"verified_finished_fixtures_2026_10_20.json").write_text(
         json.dumps(targets,ensure_ascii=False,indent=2),encoding="utf8")
-    hist,histaudit=supplement_training(args.history,args.prior_predictions)
+    # Filter historical training by provably football-only competition labels
+    # because older normalized all_matches.json did not store sportId.
+    hist,histaudit=supplement_training(args.history,args.prior_predictions,set(leagues))
     print("YESTERDAY_TRAINING_CUTOFF",json.dumps(histaudit,ensure_ascii=False),flush=True)
     features=[{"date":TARGET, **{k:row[k] for k in ("id","league","home_team","away_team")}} for row in targets]
     predicted=predict(features,hist,minimum=5)
