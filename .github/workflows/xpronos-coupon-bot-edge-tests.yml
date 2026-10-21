@@ -25,4 +25,4 @@ jobs:
       - name: Tests cotes et structure des coupons
         run: |
           deno test supabase/functions/xpronos-coupons-bot/coupon_logic_test.ts
-          deno check supabase/functions/xpronos-coupons-bot/index.ts
+          deno check --config supabase/functions/xpronos-coupons-bot/deno.json supabase/functions/xpronos-coupons-bot/index.ts
