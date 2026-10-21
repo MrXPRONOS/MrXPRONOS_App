@@ -17,7 +17,7 @@ if (enabled) {
     LIVE_BATCH_ENDPOINT: upstream + "/refresh/batch",
   };
   child = new Deno.Command(Deno.execPath(), {
-    args: ["run", "--allow-all", "supabase/functions/live/index.ts"],
+    args: ["run", "--allow-all", "render/live/engine_bootstrap.ts"],
     env, stdin: "null", stdout: "inherit", stderr: "inherit",
   }).spawn();
   child.status.then(({code}) => {
