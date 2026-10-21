@@ -1,18 +1,18 @@
 {
   "contents": {
     "articles.json": {
-      "count": 6,
-      "unique_titles": 6,
-      "with_editorial_image": 6,
+      "count": 11,
+      "unique_titles": 11,
+      "with_editorial_image": 11,
       "visual_variants": {
-        "v1": 1,
+        "v1": 5,
         "v2": 4,
-        "v3": 1
+        "v3": 2
       },
       "source_types": {
-        "bsd": 6
+        "bsd": 11
       },
-      "with_social_image": 6
+      "with_social_image": 11
     },
     "conseils.json": {
       "count": 0,
@@ -44,24 +44,24 @@
     }
   },
   "delivery": {
-    "items": 464,
-    "active_items": 66,
+    "items": 469,
+    "active_items": 71,
     "retired_items": 398,
     "platform_states": {
-      "facebook:not_requested": 464,
-      "instagram:not_requested": 464,
-      "telegram:not_requested": 464,
-      "threads:not_requested": 464,
-      "tiktok:not_requested": 464,
-      "youtube:not_requested": 464
+      "facebook:not_requested": 469,
+      "instagram:not_requested": 469,
+      "telegram:not_requested": 469,
+      "threads:not_requested": 469,
+      "tiktok:not_requested": 469,
+      "youtube:not_requested": 469
     }
   },
   "assets": {
-    "files": 1499,
-    "size_mb": 81.91,
+    "files": 1524,
+    "size_mb": 83.43,
     "by_format": {
-      ".jpg": 40,
-      ".webp": 1459
+      ".jpg": 45,
+      ".webp": 1479
     }
   },
   "real_clicks": null,

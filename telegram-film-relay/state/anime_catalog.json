@@ -1,7 +1,7 @@
 {
   "audit": {
     "category": "anime_catalog",
-    "checked_at": "2026-10-20T21:52:58.896271+00:00",
+    "checked_at": "2026-10-21T00:54:06.625660+00:00",
     "not_yet_indexed": [
       {
         "episode": 2,
@@ -424,42 +424,6 @@
         "source_instances": 1
       },
       {
-        "episode": 43,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
-        "episode": 44,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
-        "episode": 45,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
-        "episode": 46,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
-        "episode": 47,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
-        "episode": 48,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
         "episode": 49,
         "season": "1",
         "series": "mangas-fv-yu-gi-oh-duel-monsters",
@@ -602,20 +566,50 @@
         "season": "1",
         "series": "mangas-fv-yu-gi-oh-duel-monsters",
         "source_instances": 1
+      },
+      {
+        "episode": 73,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 74,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 75,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 76,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 77,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 78,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
       }
     ],
-    "not_yet_indexed_total": 368,
+    "not_yet_indexed_total": 362,
     "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
     "numbering_gap_seasons": 1,
     "numbering_gaps": [
       {
         "missing_between_known": [
-          43,
-          44,
-          45,
-          46,
-          47,
-          48,
           49,
           50,
           51,
@@ -1031,6 +1025,30 @@
             "message_id": 99,
             "url": "https://t.me/c/4416009337/99"
           },
+          "43": {
+            "message_id": 100,
+            "url": "https://t.me/c/4416009337/100"
+          },
+          "44": {
+            "message_id": 101,
+            "url": "https://t.me/c/4416009337/101"
+          },
+          "45": {
+            "message_id": 102,
+            "url": "https://t.me/c/4416009337/102"
+          },
+          "46": {
+            "message_id": 103,
+            "url": "https://t.me/c/4416009337/103"
+          },
+          "47": {
+            "message_id": 104,
+            "url": "https://t.me/c/4416009337/104"
+          },
+          "48": {
+            "message_id": 105,
+            "url": "https://t.me/c/4416009337/105"
+          },
           "5": {
             "message_id": 78,
             "url": "https://t.me/c/4416009337/78"
@@ -1125,6 +1143,12 @@
         "-1001595907308:13554": 97,
         "-1001595907308:13555": 98,
         "-1001595907308:13556": 99,
+        "-1001595907308:13557": 100,
+        "-1001595907308:13558": 101,
+        "-1001595907308:13559": 102,
+        "-1001595907308:13560": 103,
+        "-1001595907308:13561": 104,
+        "-1001595907308:13562": 105,
         "-1001595907308:13597": 68,
         "-1001595907308:13598": 69,
         "-1001595907308:13599": 70,
