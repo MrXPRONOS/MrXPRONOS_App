@@ -1,14 +1,14 @@
 {
   "audit": {
     "category": "series_catalog",
-    "checked_at": "2026-10-21T07:39:36.555488+00:00",
+    "checked_at": "2026-10-21T13:54:29.087667+00:00",
     "not_yet_indexed": [],
     "not_yet_indexed_total": 0,
     "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
     "numbering_gap_seasons": 0,
     "numbering_gaps": [],
-    "scanned_episode_candidates": 14,
-    "source_episode_numbers_observed": 14,
+    "scanned_episode_candidates": 20,
+    "source_episode_numbers_observed": 20,
     "source_numbering_gap_seasons": 0,
     "source_numbering_gaps": [],
     "source_scan_complete": true,
@@ -29,6 +29,50 @@
     }
   },
   "series": {
+    "gign": {
+      "episodes": {
+        "1": {
+          "1": {
+            "message_id": 167,
+            "url": "https://t.me/c/4392607284/167"
+          },
+          "2": {
+            "message_id": 168,
+            "url": "https://t.me/c/4392607284/168"
+          },
+          "3": {
+            "message_id": 169,
+            "url": "https://t.me/c/4392607284/169"
+          },
+          "4": {
+            "message_id": 170,
+            "url": "https://t.me/c/4392607284/170"
+          },
+          "5": {
+            "message_id": 171,
+            "url": "https://t.me/c/4392607284/171"
+          },
+          "6": {
+            "message_id": 172,
+            "url": "https://t.me/c/4392607284/172"
+          }
+        }
+      },
+      "main_index_id": 165,
+      "public_id": 117,
+      "season_indices": {
+        "1": 166
+      },
+      "source_items": {
+        "-1003990708673:132": 167,
+        "-1003990708673:133": 168,
+        "-1003990708673:134": 169,
+        "-1003990708673:135": 170,
+        "-1003990708673:136": 171,
+        "-1003990708673:137": 172
+      },
+      "title": "gign"
+    },
     "little-house-on-the-prairie-2026": {
       "episodes": {
         "1": {
@@ -129,6 +173,28 @@
     }
   },
   "source_observed": {
+    "gign": {
+      "1": {
+        "1": [
+          "-1003990708673:132"
+        ],
+        "2": [
+          "-1003990708673:133"
+        ],
+        "3": [
+          "-1003990708673:134"
+        ],
+        "4": [
+          "-1003990708673:135"
+        ],
+        "5": [
+          "-1003990708673:136"
+        ],
+        "6": [
+          "-1003990708673:137"
+        ]
+      }
+    },
     "little-house-on-the-prairie-2026": {
       "1": {
         "1": [
