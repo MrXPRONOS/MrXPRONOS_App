@@ -39,24 +39,30 @@ jobs:
           repository: ${{ github.repository }}
           github-token: ${{ github.token }}
           path: previous_archived_predictions
+      - name: Download immutable October 20 finished-score snapshot from first fetch
+        uses: actions/download-artifact@v4
+        with:
+          name: consensus-test-2026-10-20
+          run-id: 39521308967
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          path: frozen_october20_scores
       - name: Verify source uniqueness
         run: |
           test "$(find previous_archived_predictions -name 'all_predictions.csv' | wc -l)" -eq 1
           test -s cache/all_matches.json
       - name: Simulate all 6 methods with pre-Oct-20 history, compare verified Oct-20 final scores
-        env:
-          SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY }}
-          SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
-          SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
-          SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
-          SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
-          SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
         shell: bash
         run: |
           set -o pipefail
           INPUT="$(find previous_archived_predictions -name all_predictions.csv -print -quit)"
+          SCORES="$(find frozen_october20_scores -name verified_finished_fixtures_2026_10_20.json -print -quit)"
+          SCORE_AUDIT="$(find frozen_october20_scores -name sportdata_fetch_audit.json -print -quit)"
+          test -s "$SCORES" && test -s "$SCORE_AUDIT"
           PYTHONPATH=.:research python -u research/backtest_yesterday_2026_10_20.py \
             --history cache/all_matches.json \
+            --outcomes-file "$SCORES" \
+            --outcomes-audit-file "$SCORE_AUDIT" \
             --prior-predictions "$INPUT" \
             --output research/results/yesterday_2026_10_20 \
             2>&1 | tee october-20-consensus.log
