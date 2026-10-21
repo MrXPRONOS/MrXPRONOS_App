@@ -10,14 +10,13 @@ on:
         default: "manual"
         type: string
       mode:
-        description: "Tester la connexion, diagnostiquer les pronostics ou publier"
+        description: "Tester la connexion ou diagnostiquer les pronostics (coupons photo désactivés)"
         type: choice
         default: "auth"
         required: true
         options:
           - "auth"
           - "dry-run"
-          - "publish"
 permissions:
   contents: read
 
@@ -59,9 +58,6 @@ jobs:
               ;;
             dry-run)
               python bsd/bsd_v2_bluesky.py --data data.json
-              ;;
-            publish)
-              python bsd/bsd_v2_bluesky.py --data data.json --publish --max-posts 4
               ;;
             *)
               echo "::error::Mode Bluesky inconnu"
