@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Photo du coupon quotidien sur Facebook, Instagram, Threads et Bluesky.
+"""Photo du coupon quotidien sur Facebook, Instagram et Threads.
 Publie UNIQUEMENT la couverture recadrée, jamais YouTube.
 Registre anti-doublon Supabase telegram_sent avec un kind propre par plateforme.
 """
@@ -9,7 +9,7 @@ import requests
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"bsd"))
-from bsd_v2_bluesky import claim, jpeg_bytes
+from bsd_v2_bluesky import claim
 
 def need(name):
  value=os.getenv(name,"").strip()
@@ -81,12 +81,6 @@ def publish(platform,public,image,caption):
   d=post("https://graph.threads.net/v1.0/"+user+"/threads_publish",
     data={"creation_id":creation,"access_token":token})
   return str(d["id"])
- if platform=="bluesky":
-  from atproto import Client
-  client=Client();client.login(need("BLUESKY_HANDLE"),need("BLUESKY_APP_PASSWORD"))
-  img,_=jpeg_bytes(Path(image))
-  d=client.send_image(text=caption[:280],image=img,image_alt="Aperçu du combiné Mr XPRONOS")
-  return str(d.uri)
  raise ValueError("Plateforme interdite: "+platform)
 
 def main():
@@ -102,7 +96,7 @@ def main():
  public=public_url(image,day)
  session=requests.Session()
  results=[];failures=[]
- for platform in ("facebook","instagram","threads","bluesky"):
+ for platform in ("facebook","instagram","threads"):
   identity=("accumulator_photo_"+platform,day,day)
   try:
    if not claim(session,source,key,identity):

@@ -72,6 +72,12 @@
       "sent_at": "2026-10-20T17:19:52.518496+00:00",
       "source": "CoinPaprika"
     },
+    "daily:02:2026-10-21:default": {
+      "message_id": 21,
+      "number": 2,
+      "sent_at": "2026-10-21T17:23:11.960919+00:00",
+      "source": "CoinPaprika"
+    },
     "daily:05:2026-10-19:default": {
       "message_id": 10,
       "number": 5,
