@@ -29,7 +29,7 @@ concurrency:
 env:
   PYTHON_VERSION: "3.12"
   VIDEO_FILE: "daily_pronos_coupon_short.mp4"
-  POST_PLATFORMS: "facebook,youtube,instagram,threads" # TikTok awaits creator consent, app audit, and platform-policy review
+  POST_PLATFORMS: "facebook,youtube,instagram,threads,bluesky" # TikTok awaits creator consent, app audit, and platform-policy review
 
 jobs:
   publish:
@@ -53,6 +53,8 @@ jobs:
       THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
       THREADS_APP_SECRET: ${{ secrets.THREADS_APP_SECRET }}
       THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+      BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+      BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
       TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
       TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
       TIKTOK_REFRESH_TOKEN: ${{ secrets.TIKTOK_REFRESH_TOKEN }}
@@ -91,6 +93,8 @@ jobs:
           python -m py_compile scripts/create_short_from_telegram_coupons.py
           python -m py_compile scripts/send_short_production_telegram.py
           python -m py_compile scripts/post_shorts_video.py
+          python -m py_compile scripts/share_latest_video_bluesky.py
+          python -m py_compile scripts/verify_social_publications.py
           python -m unittest discover -s scripts -p 'test_social_publication_validation.py' -v
 
       - name: Resolve production wave
