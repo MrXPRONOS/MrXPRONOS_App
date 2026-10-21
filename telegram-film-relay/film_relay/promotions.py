@@ -15,6 +15,8 @@ import os
 from PIL import Image
 
 LOG = logging.getLogger("cinex_promotions")
+PROMO_INTERVAL = 4
+
 # Exact SHA-256 of the three user-approved original PNGs.
 ORIGINAL_SHA256 = {
     "actu": "fb86f14886237b9c2bf5a57f5693c48cf535f30f401ef367ad7e95288b2424f7",
@@ -85,8 +87,10 @@ def _cursor(state, target: str):
 def due(state, target: str, film_total: int, *, force=False):
     entry=_cursor(state,target)
     index=int(entry["next_index"]) % len(CAMPAIGNS)
-    # Exactly two completed films between consecutive adverts in each channel.
-    return index if (force or film_total-int(entry["last_film_total"]) >= 2) else None
+    # Four completed contents between consecutive adverts in each channel.
+    # The total is durable, so two contents in one run + two in the next
+    # correctly trigger the advert after the fourth content.
+    return index if (force or film_total-int(entry["last_film_total"]) >= PROMO_INTERVAL) else None
 
 
 async def _recently_published(client, channel, caption, *, limit=80, exclude_ids=()):
@@ -137,20 +141,17 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
                              current_run_films: int = 0) -> dict[str,int]:
     """One campaign per channel per run; primary forwarded intact to mirror.
 
-    Normal rotation is allowed only when THIS execution has actually published
-    at least two new films/content cards. Historical backlog alone must never
-    make an advert appear before fresh content in the current run.
+    Normal rotation requires four completed contents since the previous advert.
+    That quota is cumulative across runs. However, a run with zero new public
+    content can never emit an advert merely because an old quota was pending.
 
     force=True intentionally bypasses this guard for an explicit one-shot
     rollout or maintenance command.
     """
     report={"private":0,"public":0,"mirror":0,"skipped":0}
     current_run_films = max(0, int(current_run_films or 0))
-    if not force and current_run_films < 2:
-        LOG.info(
-            "Publicités différées : %s nouveau(x) contenu(s) dans ce passage ; 2 requis.",
-            current_run_films,
-        )
+    if not force and current_run_films == 0:
+        LOG.info("Publicités différées : aucun nouveau contenu dans ce passage.")
         return report
 
     from telethon import utils
@@ -190,7 +191,7 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
     elif idx is not None:
         report["skipped"]+=1
         LOG.error("Public principal : le bot doit être administrateur.")
-    # Ad forwarded in the mirror only after 2–3 forwarded films there.
+    # Mirror advertising follows the same four-content interval when enabled.
     if mirror is not None and due(state,mirror_id,mirror_total,force=force) is not None:
         e=_cursor(state,mirror_id)
         # The selected ad must exist in primary; don't make a detached poster.
