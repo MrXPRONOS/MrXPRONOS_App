@@ -55,7 +55,9 @@ jobs:
         with:
           deno-version: v2.x
       - name: Tester le calcul des cotes avant déploiement
-        run: deno test supabase/functions/xpronos-coupons-bot/coupon_logic_test.ts
+        run: |
+          deno test supabase/functions/xpronos-coupons-bot/coupon_logic_test.ts
+          deno check supabase/functions/xpronos-coupons-bot/index.ts
       - name: Installer PostgreSQL CLI
         run: |
           sudo apt-get update -qq
