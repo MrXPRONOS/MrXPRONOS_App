@@ -562,16 +562,18 @@ async def execute() -> int:
             except Exception as exc:
                 failed_count += 1
                 LOG.exception("Source inaccessible %s : %s", channel_name, exc)
-        # Les promotions font partie du MÊME passage que les films.
-        # Une seule rotation par destination et par exécution, même si le
-        # dernier film avait été publié lors d'un passage précédent.
+        # Les promotions utilisent un quota cumulatif de 4 films.
+        # Un passage sans nouveau film ne peut jamais déclencher de publicité.
         promo_count = 0
         if publish and flag("CINEX_PROMOS_ENABLED", True):
             try:
                 from .promotions import publish_promotions
                 promo_report = await publish_promotions(
                     client, bot_client, destination_private,
-                    destination_public, (None if flag('CINEX_DEFER_MIRROR', False) else mirror_destination), state
+                    destination_public,
+                    (None if flag('CINEX_DEFER_MIRROR', False) else mirror_destination),
+                    state,
+                    current_run_films=published_count,
                 )
                 promo_count = sum(promo_report[k] for k in ("private", "public", "mirror"))
                 LOG.info(
