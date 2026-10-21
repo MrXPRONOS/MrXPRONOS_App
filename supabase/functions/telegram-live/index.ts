@@ -1296,4 +1296,4 @@ serve(async (req) => {
       500,
     );
   }
-});
+}, { hostname: "127.0.0.1", port: Number(Deno.env.get("TELEGRAM_LIVE_INTERNAL_PORT") || 8001) });
