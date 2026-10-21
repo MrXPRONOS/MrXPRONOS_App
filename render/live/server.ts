@@ -4,6 +4,7 @@ const required = ["SUPABASE_URL","SUPABASE_SERVICE_ROLE_KEY","CRON_SECRET","BSD_
 const missing = required.filter(k => !(Deno.env.get(k) || "").trim());
 const requested = Deno.env.get("RENDER_LIVE_ENABLED") === "1";
 const enabled = requested && missing.length === 0;
+const readOnly = Deno.env.get("RENDER_LIVE_READONLY") !== "0";
 const port = Number(Deno.env.get("PORT") || "10000");
 const upstream = "http://127.0.0.1:8000";
 let child: Deno.ChildProcess | null = null;
@@ -37,7 +38,7 @@ Deno.serve({hostname:"0.0.0.0",port}, async (req) => {
   const url = new URL(req.url);
   if (url.pathname === "/healthz" || url.pathname === "/") {
     if (!enabled) return Response.json({
-      status:"standby", engine_running:false,
+      status:"standby", engine_running:false, read_only_guard:readOnly,
       requested_activation:requested, missing_env_names:missing,
       audit_source:"supabase/functions/live/index.ts",
       migration_rule:"Original source preserved, except local batch endpoint.",
@@ -47,7 +48,7 @@ Deno.serve({hostname:"0.0.0.0",port}, async (req) => {
         signal:AbortSignal.timeout(1800),
       });
       return Response.json({
-        status: "live", engine_running: true, engine_http_status:check.status,
+        status: "live", engine_running: true, read_only_guard:readOnly, engine_http_status:check.status,
         audit_source:"supabase/functions/live/index.ts",
       }, {headers:cors});
     } catch (e) {
@@ -61,6 +62,7 @@ Deno.serve({hostname:"0.0.0.0",port}, async (req) => {
       scope:"full LIVE engine, including source merge, 3 prediction markets, backtest, validation, Telegram, daily endpoints",
       source_hash_verification:"deno run --allow-read render/live/verify_engine.ts",
       engine_running:enabled,
+      read_only_guard:readOnly,
       original_logic_modified:false,
       required_env_names:required,
     }, {headers:cors});
@@ -71,6 +73,9 @@ Deno.serve({hostname:"0.0.0.0",port}, async (req) => {
     missing_env_names:missing,
   }, {status:503,headers:cors});
 
+  if (readOnly && !["GET", "HEAD", "OPTIONS"].includes(req.method)) {
+    return Response.json({error:"RENDER_READONLY_PROTECTION", reason:"Writes and refreshes are disabled for migration tests."}, {status:403,headers:cors});
+  }
   // Transparently stream requests/responses; calculation lives only in original engine.
   const target = upstream + url.pathname + url.search;
   const headers = new Headers(req.headers);
