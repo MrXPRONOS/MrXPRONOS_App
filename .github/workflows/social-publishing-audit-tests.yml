@@ -6,6 +6,8 @@ on:
     branches: [main]
     paths:
       - "scripts/post_shorts_video.py"
+      - "scripts/share_latest_video_bluesky.py"
+      - "requirements_social.txt"
       - "scripts/verify_social_publications.py"
       - "scripts/test_social_publication_validation.py"
       - ".github/workflows/social-publishing-audit-tests.yml"
@@ -24,7 +26,7 @@ jobs:
           python-version: "3.12"
       - name: Compile the production scripts and run all isolated audit tests
         run: |
-          python -m py_compile scripts/post_shorts_video.py scripts/verify_social_publications.py
+          python -m py_compile scripts/post_shorts_video.py scripts/verify_social_publications.py scripts/share_latest_video_bluesky.py
           python -m unittest discover -s scripts -p 'test_social_publication_validation.py' -v
       - name: Test provider result validator without any live social API calls
         run: |
@@ -32,12 +34,13 @@ jobs:
           import json,subprocess,sys,tempfile
           from pathlib import Path
           data=[{"platform":p,"ok":True,"data":{"id":"mock-"+p}}
-                for p in ("facebook","instagram","threads","youtube")]
+                for p in ("facebook","instagram","threads","youtube","bluesky")]
+          data[-1]["data"]["id"]="at://did:plc:mock/app.bsky.feed.post/abc"
           with tempfile.TemporaryDirectory() as d:
               p=Path(d)/"results.json"
               p.write_text(json.dumps(data))
               cmd=[sys.executable,"scripts/verify_social_publications.py",
-                   "--report",str(p),"--expected","facebook,instagram,threads,youtube"]
+                   "--report",str(p),"--expected","facebook,instagram,threads,youtube,bluesky"]
               subprocess.run(cmd,check=True)
               data[2]["ok"]=False
               p.write_text(json.dumps(data))
