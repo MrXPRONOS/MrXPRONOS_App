@@ -74,11 +74,23 @@ def load(path):
             raise ValueError(f"Unpaired models on {key}")
         if len({r["actual_score"] for r in entries.values()})!=1:
             raise ValueError(f"Conflicting final score on {key}")
+    observed_days={key[0] for key in by_game}
+    start=date(2026,1,1)
+    end=max(date.fromisoformat(x) for x in observed_days)
+    calendar_days=(end-start).days+1
+    league_counts=defaultdict(int)
+    for item in by_game.values():
+        league_counts[item["poisson"]["league"]]+=1
     audit={"input_csv_rows":total,"matches":len(by_game),
-           "unique_utc_dates":len({key[0] for key in by_game}),
-           "first_actual_date":min(key[0] for key in by_game),
-           "last_actual_date":max(key[0] for key in by_game),
-           "leagues":len({x["poisson"]["league"] for x in by_game.values()}),
+           "unique_utc_dates":len(observed_days),
+           "first_actual_date":min(observed_days),
+           "last_actual_date":max(observed_days),
+           "calendar_days_2026_until_last_observed":calendar_days,
+           "dates_without_completed_matches_in_archive":calendar_days-len(observed_days),
+           "observed_date_coverage_pct":round(100*len(observed_days)/calendar_days,2),
+           "leagues":len(league_counts),
+           "leagues_with_100plus_matches":sum(n>=100 for n in league_counts.values()),
+           "matches_in_leagues_with_100plus":sum(n for n in league_counts.values() if n>=100),
            "conditional_coverage":{m:sum(m in x for x in by_game.values()) for m in OTHER}}
     return by_game,audit
 
@@ -217,9 +229,37 @@ def walk_forward_top_probability_calibration(by_game, first_day="2026-04-01"):
     summary={m:summarise(rows) for m,rows in actual.items()}
     monthly=[dict(model=m,month=month,**summarise(rows))
              for (m,month),rows in sorted(diagnostics.items())]
+    daily=defaultdict(lambda:defaultdict(lambda:[0,0.0,0.0]))
+    for model,rows in actual.items():
+        for row in rows:
+            cell=daily[row["date"]][model]
+            cell[0]+=1
+            cell[1]+=row["raw_brier"]-row["cal_brier"]
+            cell[2]+=row["raw_binary_logloss"]-row["cal_binary_logloss"]
+    days=sorted(daily)
+    rng=random.Random(20261021)
+    bootstrap_samples=defaultdict(lambda:defaultdict(list))
+    for _ in range(1200):
+        total={m:[0,0.0,0.0] for m in MODELS}
+        for day in rng.choices(days,k=len(days)):
+            values=daily[day]
+            for model in MODELS:
+                count,brier,log=values[model]
+                cell=total[model]
+                cell[0]+=count
+                cell[1]+=brier
+                cell[2]+=log
+        for model,vec in total.items():
+            if vec[0]:
+                bootstrap_samples[model]["brier_gain"].append(vec[1]/vec[0])
+                bootstrap_samples[model]["binary_log_loss_gain"].append(vec[2]/vec[0])
+    gain_intervals={m:{k:{"lo95":round(pctile(v,.025),7),"hi95":round(pctile(v,.975),7)}
+                        for k,v in values.items()}
+                    for m,values in bootstrap_samples.items()}
     return {"first_evaluation_date":first_day,
             "method":"expanding prior-day reliability shrinkage with fixed global 200-sample prior and 120-bin prior; no score reranking",
-            "models":summary}, monthly
+            "models":summary,
+            "day_cluster_bootstrap_calibration_gain_95pct":gain_intervals}, monthly
 
 def main():
     p=argparse.ArgumentParser()
