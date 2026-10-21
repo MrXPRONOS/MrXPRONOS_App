@@ -69,14 +69,15 @@ Moteur source : environ 9 422 lignes / 249 fonctions nommées.
 | C09 | Routes public `/matches`, `/opportunities`, `/today`, `/predictions/history`, `/predictions/by-id`, `/notifications` | CODE CONSERVÉ | À EFFECTUER |
 | C10 | `/refresh`, `/refresh/batch`, `/validate`, `/telegram/process-one`, `/daily/generate`, `/daily/validate` | CODE CONSERVÉ | À EFFECTUER |
 | C11 | `/daily/today`, backtest headroom, statistiques sources et agrégation, synchronisation des rencontres à venir | CODE CONSERVÉ | À EFFECTUER |
-| C12 | Fonction Edge `telegram-live` indépendante et autres Edge Functions | NON INCLUS dans le premier conteneur | NON BASCULÉ |
+| C12 | Fonction Edge indépendante `telegram-live` : même code, port local 8001, route `/telegram-live` | TRANSPORT ADAPTÉ ; code métier conservé | À EFFECTUER |
 | C13 | Site GitHub Pages et six workflows Cron externes actuels | NON BASCULÉ | NON BASCULÉ |
 
 ## D — Architecture de bascule
 
 - Image : `render/live/Dockerfile` utilisant Deno ; les sources originales et polices sont copiées sans modification.
 - Façade HTTP `render/live/server.ts` : proxy transparent 10000 → Deno original sur 8000, avec `/healthz` et `/audit`.
-- **Standby par défaut** : ne jamais produire de prédiction ou envoyer Telegram tant que `RENDER_LIVE_ENABLED=1` et quatre variables obligatoires ne sont pas configurées.
+- **Standby par défaut** : ne jamais produire de prédiction ou envoyer Telegram tant que `RENDER_LIVE_ENABLED=1` et quatre variables obligatoires ne sont pas configurées. Même après activation technique, `RENDER_LIVE_READONLY=1` bloque les POST jusqu’à la bascule explicitement choisie.
+- Fonction indépendante `telegram-live/index.ts` : port interne 8001, via `RENDER_DEDICATED_TELEGRAM` (actif par défaut si moteur activé) ; ses règles sont intactes sauf la ligne de bind. Un second SHA Git strict est contrôlé au build.
 - Variables minimales à configurer dans Render (en secret, jamais dans GitHub) : `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `BSD_API_TOKEN`, `CRON_SECRET`.
 - Variables fonctionnelles à reproduire selon configuration en production : `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `TELEGRAM_CHAT_ID_SECONDARY`, `DEBUG_KEY`, `SITE_URL`, `BSD_TZ`, `ENABLE_ESPN_MERGE`, `LIVE_PROP_ODDS_URL`, `LIVE_PROP_ODDS_TOKEN`, `LIVE_REQUIRE_BOOKMAKER_LINE`, `LIVE_ODDS_*`, `MOVIODDS_API_KEY` et réglages de quotas/TTL/batches.
 - Le stockage PostgreSQL, les tables et fonctions RPC restent chez Supabase (cela déplace le moteur de calcul, pas la base de données).
