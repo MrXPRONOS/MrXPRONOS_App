@@ -1,0 +1,50 @@
+name: Bluesky - Nettoyage ponctuel des coupons photo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - config/bluesky_photo_cleanup_trigger.txt
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bluesky-photo-cleanup-once
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Bluesky SDK
+        run: pip install 'atproto>=0.0.60,<1'
+      - name: Inspect or remove ONLY legacy photo coupons
+        env:
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/remove_bluesky_photo_coupons.py
+          mode="$(head -n 1 config/bluesky_photo_cleanup_trigger.txt | tr -d '\r' | xargs)"
+          case "$mode" in
+            audit)
+              python scripts/remove_bluesky_photo_coupons.py
+              ;;
+            delete)
+              python scripts/remove_bluesky_photo_coupons.py --delete
+              ;;
+            *)
+              echo "::error::Mode inconnu. Seulement audit ou delete."
+              exit 2
+              ;;
+          esac
