@@ -22,7 +22,7 @@ concurrency:
 
 env:
   PYTHON_VERSION: "3.12"
-  POST_PLATFORMS: "facebook,youtube,instagram,threads" # TikTok awaits creator consent, app audit, and platform-policy review
+  POST_PLATFORMS: "facebook,youtube,instagram,threads,bluesky" # TikTok awaits creator consent, app audit, and platform-policy review
 
 jobs:
   settle:
@@ -46,6 +46,8 @@ jobs:
       THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
       THREADS_APP_SECRET: ${{ secrets.THREADS_APP_SECRET }}
       THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+      BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+      BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
       TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
       TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
       TIKTOK_REFRESH_TOKEN: ${{ secrets.TIKTOK_REFRESH_TOKEN }}
@@ -83,6 +85,8 @@ jobs:
           python -m py_compile scripts/shorts_video_fx.py
           python -m py_compile scripts/create_validation_shorts_from_telegram.py
           python -m py_compile scripts/settle_short_production_batches.py
+          python -m py_compile scripts/post_shorts_video.py
+          python -m py_compile scripts/verify_social_publications.py
 
       - name: Settle exact published batches and send Telegram validations
         run: |
@@ -94,7 +98,6 @@ jobs:
           python scripts/refresh_social_tokens.py             --out refreshed_tokens.json             --github-env "$GITHUB_ENV"
 
       - name: Publish ready validation videos to social platforms
-        continue-on-error: true
         shell: bash
         run: |
           python - <<'PY' > /tmp/validation-videos.tsv
@@ -109,10 +112,17 @@ jobs:
               ]))
           PY
 
+          FAILED=0
+          INDEX=0
           while IFS=$'\t' read -r VIDEO TARGET SUMMARY; do
             [ -n "$VIDEO" ] || continue
-            python scripts/post_shorts_video.py               --video "$VIDEO"               --platforms "$POST_PLATFORMS"               --title "Résultats $TARGET - Mr XPRONOS"               --description "$SUMMARY. Résultats vérifiés. 18+ et joue responsablement."               --caption "Résultats Mr XPRONOS ✅\n$SUMMARY\n18+ • Joue responsablement.\n\n#football #pronostic #resultats #mrxpronos"
+            python scripts/post_shorts_video.py               --require-all --video "$VIDEO"               --platforms "$POST_PLATFORMS"               --title "Résultats $TARGET - Mr XPRONOS"               --description "$SUMMARY. Résultats vérifiés. 18+ et joue responsablement."               --caption "Résultats Mr XPRONOS ✅\n$SUMMARY\n18+ • Joue responsablement.\n\n#football #pronostic #resultats #mrxpronos" || FAILED=1
+            INDEX=$((INDEX+1))
+            if [ -s social_post_results.json ]; then
+              cp social_post_results.json "telegram_out/production_validation/social_post_results_$INDEX.json"
+            fi
           done < /tmp/validation-videos.tsv
+          test "$FAILED" -eq 0
 
       - name: Upload validation artifacts
         if: always()
