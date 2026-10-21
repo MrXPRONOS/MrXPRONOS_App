@@ -11,6 +11,7 @@ Plateformes supportées :
 - Threads : nécessite une URL vidéo publique (ou upload Supabase public)
 - TikTok : upload direct via Content Posting API, si app/token autorisés
 - YouTube Shorts : upload direct via YouTube Data API avec refresh token OAuth
+- Bluesky : upload MP4 natif, anti-doublon Supabase, même campagne que les autres plateformes
 
 Usage GitHub Actions :
 python scripts/post_shorts_video.py --video daily_pronos_shorts.mp4 --platforms facebook,youtube
@@ -22,11 +23,13 @@ SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_BUCKET
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import mimetypes
 import os
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -569,12 +572,74 @@ def post_youtube(video_path: Path, title: str, description: str) -> PublishResul
 
 
 # =====================================================
+# BLUESKY - native video in the same social publishing batch
+# =====================================================
+def post_bluesky_video(video_path: Path, caption: str, title: str) -> PublishResult:
+    platform = "bluesky"
+    handle = (env("BLUESKY_HANDLE") or "").lstrip("@").lower()
+    password = env("BLUESKY_APP_PASSWORD")
+    base = env("SUPABASE_URL")
+    key = env("SUPABASE_SERVICE_ROLE_KEY") or env("SUPABASE_KEY")
+    if not all((handle, password, base, key)):
+        return PublishResult(platform, False,
+                             "BLUESKY_HANDLE, BLUESKY_APP_PASSWORD et secrets Supabase requis")
+
+    size = video_path.stat().st_size
+    if not 100_000 <= size <= 50_000_000 or video_path.suffix.lower() != ".mp4":
+        return PublishResult(platform, False, "Vidéo MP4 absente ou hors limites Bluesky (100 Ko à 50 Mo)")
+
+    # Content hash guarantees a retry cannot upload the same MP4 twice in one day.
+    # Different validation clips from the same GitHub run get different keys.
+    data = video_path.read_bytes()
+    sha256 = hashlib.sha256(data).hexdigest()
+    ref_date = datetime.now(timezone.utc).date().isoformat()
+    ident = ("bsd_v2_bluesky_video", handle + ":sha256:" + sha256, ref_date)
+
+    from atproto import Client
+    from share_latest_video_bluesky import claim, release
+
+    client = Client()
+    client.login(handle, password)  # Verify auth BEFORE creating a dedup reservation.
+    session = requests.Session()
+    if not claim(session, base, key, ident):
+        # The existing claim could represent a prior successful upload OR an
+        # ambiguous timeout: do not claim unverified publication success.
+        return PublishResult(platform, False,
+                             "Vidéo déjà réservée sur Bluesky (anti-doublon). Vérifier le post précédent.",
+                             {"status": "already_claimed"})
+
+    upload_started = False
+    try:
+        text = caption.replace("\\n", "\n").strip()[:280]
+        upload_started = True
+        response = client.send_video(
+            text=text,
+            video=data,
+            video_alt=(title or "Vidéo de football Mr XPRONOS")[:900],
+            langs=["fr"],
+        )
+        uri = str(response.uri)
+        if not uri.startswith("at://"):
+            raise RuntimeError("Réponse Bluesky sans URI de publication")
+    except Exception:
+        # Keep reservation after an ambiguous network/upload failure: never
+        # automatically send a second video that might already exist.
+        if not upload_started:
+            release(session, base, key, ident)
+        raise
+
+    url = "https://bsky.app/profile/" + handle + "/post/" + uri.rsplit("/", 1)[-1]
+    return PublishResult(platform, True, "Bluesky OK: " + url,
+                         {"id": uri, "url": url, "status": "published"})
+
+
+# =====================================================
 # RUNNER
 # =====================================================
 def parse_platforms(raw: str) -> List[str]:
     if not raw:
         return []
-    allowed = {"facebook", "instagram", "threads", "tiktok", "youtube"}
+    allowed = {"facebook", "instagram", "threads", "tiktok", "youtube", "bluesky"}
     out = []
     for item in raw.split(","):
         p = item.strip().lower()
@@ -637,19 +702,33 @@ def main() -> int:
         "threads": lambda: post_threads(public_url, caption),
         "tiktok": lambda: post_tiktok(video_path, caption),
         "youtube": lambda: post_youtube(video_path, title, description),
+        "bluesky": lambda: post_bluesky_video(video_path, caption, title),
     }
 
-    results: List[PublishResult] = []
-    for platform in platforms:
+    def attempt(platform: str) -> PublishResult:
         try:
-            result = dispatch[platform]()
+            return dispatch[platform]()
         except Exception as e:
-            result = PublishResult(platform, False, f"Exception: {e}")
-        results.append(result)
-        icon = "✅" if result.ok else "❌"
-        log(f"{icon} {platform.upper()} : {result.message}")
-        if args.strict and not result.ok:
-            break
+            return PublishResult(platform, False, f"Exception: {type(e).__name__}: {e}")
+
+    results: List[PublishResult] = []
+    if args.strict:
+        # Explicit strict mode keeps the historical stop-on-first-error behavior.
+        for platform in platforms:
+            result = attempt(platform)
+            results.append(result)
+            log(f"{'✅' if result.ok else '❌'} {platform.upper()} : {result.message}")
+            if not result.ok:
+                break
+    elif platforms:
+        # Start uploads together once the common public URL is ready.
+        # Preserve requested platform order in the final report.
+        with ThreadPoolExecutor(max_workers=min(len(platforms), 6)) as executor:
+            futures = {platform: executor.submit(attempt, platform) for platform in platforms}
+            for platform in platforms:
+                result = futures[platform].result()
+                results.append(result)
+                log(f"{'✅' if result.ok else '❌'} {platform.upper()} : {result.message}")
 
     report_path = ROOT_DIR / "social_post_results.json"
     report = [r.__dict__ for r in results]
