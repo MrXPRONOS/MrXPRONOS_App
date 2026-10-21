@@ -47,7 +47,7 @@
       }
     },
     "2026-10-22": {
-      "fixtures": 317,
+      "fixtures": 323,
       "provider_health": {
         "bsd": {
           "reported": 0,
@@ -68,8 +68,8 @@
           "error": ""
         },
         "sportscore": {
-          "reported": 195,
-          "valid": 195,
+          "reported": 200,
+          "valid": 200,
           "rejected": 0,
           "error": ""
         },
@@ -129,9 +129,9 @@
       }
     }
   },
-  "total_fixtures": 913,
+  "total_fixtures": 920,
   "sportscore_page_size_limit": 200,
-  "sportscore_days_at_page_limit": 2,
+  "sportscore_days_at_page_limit": 3,
   "sportscore_coverage_possibly_incomplete": true,
   "dedupe_key_includes_kickoff_and_both_club_names": true,
   "requests": {
