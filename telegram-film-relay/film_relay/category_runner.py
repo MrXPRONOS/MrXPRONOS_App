@@ -332,6 +332,7 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                 None if os.getenv('CINEX_DEFER_MIRROR') else mirror,
                 DesirPromotionsState(state),
                 private_fallback=True,
+                current_run_films=completed,
             )
             LOG.info("%s : pub privé=%s public=%s Torrent9=%s",
                      cfg["label"], report["private"], report["public"], report["mirror"])
