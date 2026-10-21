@@ -1,7 +1,7 @@
 {
   "audit": {
     "category": "anime_catalog",
-    "checked_at": "2026-10-21T14:08:24.256918+00:00",
+    "checked_at": "2026-10-21T18:55:08.245538+00:00",
     "not_yet_indexed": [
       {
         "episode": 2,
@@ -448,18 +448,6 @@
         "source_instances": 1
       },
       {
-        "episode": 9,
-        "season": "1",
-        "series": "mangas-fv-death-parade-ep09",
-        "source_instances": 1
-      },
-      {
-        "episode": 10,
-        "season": "1",
-        "series": "mangas-fv-death-parade-ep10",
-        "source_instances": 1
-      },
-      {
         "episode": 11,
         "season": "1",
         "series": "mangas-fv-death-parade-ep11",
@@ -602,9 +590,21 @@
         "season": "1",
         "series": "mangas-fv-yu-gi-oh-duel-monsters",
         "source_instances": 1
+      },
+      {
+        "episode": 71,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
+      },
+      {
+        "episode": 72,
+        "season": "1",
+        "series": "mangas-fv-yu-gi-oh-duel-monsters",
+        "source_instances": 1
       }
     ],
-    "not_yet_indexed_total": 370,
+    "not_yet_indexed_total": 368,
     "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
     "numbering_gap_seasons": 1,
     "numbering_gaps": [
@@ -681,7 +681,7 @@
       }
     ],
     "source_scan_complete": true,
-    "unnumbered_videos_skipped": 78
+    "unnumbered_videos_skipped": 81
   },
   "scans": {
     "-1001787980027": {
@@ -767,6 +767,44 @@
         "-1001595907308:13794": 118
       },
       "title": "@Mangas fv Death Parade EP08"
+    },
+    "mangas-fv-death-parade-ep09": {
+      "episodes": {
+        "1": {
+          "9": {
+            "message_id": 122,
+            "url": "https://t.me/c/4416009337/122"
+          }
+        }
+      },
+      "main_index_id": 120,
+      "public_id": 52,
+      "season_indices": {
+        "1": 121
+      },
+      "source_items": {
+        "-1001595907308:13795": 122
+      },
+      "title": "@Mangas fv Death Parade EP09"
+    },
+    "mangas-fv-death-parade-ep10": {
+      "episodes": {
+        "1": {
+          "10": {
+            "message_id": 125,
+            "url": "https://t.me/c/4416009337/125"
+          }
+        }
+      },
+      "main_index_id": 123,
+      "public_id": 53,
+      "season_indices": {
+        "1": 124
+      },
+      "source_items": {
+        "-1001595907308:13796": 125
+      },
+      "title": "@Mangas fv Death Parade EP10"
     },
     "mangas-fv-no-longer-rangers-s02-mp4": {
       "episodes": {
