@@ -1,5 +1,115 @@
 [
   {
+    "id": "3779e30a9c9ba6834f43e645",
+    "kind": "article",
+    "title": "Palmeiras vs Fluminense : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-604437/",
+    "source_date": "2026-10-21T05:41:43.302261+00:00",
+    "visual_variant": "v1",
+    "image": "assets/images/editorial/match-bsd-match-604437-72942c16-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-604437-72942c16-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-21T05:41:43.482466+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-604437-72942c16-social.jpg"
+  },
+  {
+    "id": "ff1304695fd49947dde41b4d",
+    "kind": "article",
+    "title": "Real Madrid vs RB Leipzig : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-601027/",
+    "source_date": "2026-10-21T05:41:43.302261+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-601027-698f45f5-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-601027-698f45f5-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-21T05:41:43.482466+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-601027-698f45f5-social.jpg"
+  },
+  {
+    "id": "3ca2aab4e7997085f1bbfde9",
+    "kind": "article",
+    "title": "Celtic vs Celta Vigo : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-601207/",
+    "source_date": "2026-10-21T05:41:43.302261+00:00",
+    "visual_variant": "v1",
+    "image": "assets/images/editorial/match-bsd-match-601207-a68bb7ab-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-601207-a68bb7ab-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-21T05:41:43.482466+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-601207-a68bb7ab-social.jpg"
+  },
+  {
+    "id": "af8d4c063ce23c694c78c09c",
+    "kind": "article",
+    "title": "Beşiktaş JK vs Crystal Palace : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-601195/",
+    "source_date": "2026-10-21T05:41:43.302261+00:00",
+    "visual_variant": "v1",
+    "image": "assets/images/editorial/match-bsd-match-601195-769ffe8c-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-601195-769ffe8c-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-21T05:41:43.482466+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-601195-769ffe8c-social.jpg"
+  },
+  {
+    "id": "992a24ce5134209633093120",
+    "kind": "article",
+    "title": "AS Roma vs ŠK Slovan Bratislava : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-601110/",
+    "source_date": "2026-10-21T05:41:43.302261+00:00",
+    "visual_variant": "v1",
+    "image": "assets/images/editorial/match-bsd-match-601110-62a83c00-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-601110-62a83c00-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-21T05:41:43.482466+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-601110-62a83c00-social.jpg"
+  },
+  {
     "id": "9234b1ec9e9e820b88e8be32",
     "kind": "article",
     "title": "Horoya vs Al-Merrikh Khartoum Club : fiche match BSD V2",
