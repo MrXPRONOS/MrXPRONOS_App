@@ -39,6 +39,12 @@ jobs:
       GH_PAT_SECRETS: ${{ secrets.GH_PAT_SECRETS }}
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      TG_VIDEO_PRIMARY_CHANNEL: "@mrxpronosfr"
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      DESIR_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN }}
+      TG_API_ID: ${{ secrets.TG_API_ID }}
+      TG_API_HASH: ${{ secrets.TG_API_HASH }}
+      TG_SESSION_STRING: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
@@ -82,7 +88,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-liberation
           python -m pip install --upgrade pip setuptools wheel
-          pip install "numpy<2" pillow requests moviepy==1.0.3
+          pip install "numpy<2" pillow requests moviepy==1.0.3 "telethon>=1.36,<2"
           if [ -f requirements_social.txt ]; then
             pip install -r requirements_social.txt
           fi
@@ -92,6 +98,8 @@ jobs:
           python -m py_compile scripts/shorts_video_fx.py
           python -m py_compile scripts/create_short_from_telegram_coupons.py
           python -m py_compile scripts/send_short_production_telegram.py
+          python -m py_compile scripts/distribute_short_telegram.py
+          python -m unittest discover -s scripts -p "test_telegram_video_distribution.py" -v
           python -m py_compile scripts/post_shorts_video.py
           python -m py_compile scripts/share_latest_video_bluesky.py
           python -m py_compile scripts/verify_social_publications.py
@@ -155,6 +163,13 @@ jobs:
         run: |
           python scripts/send_short_production_telegram.py             --video "$VIDEO_FILE"             --manifest telegram_out/production_short/manifest.json
 
+      - name: Copy the Telegram video with three buttons to all owned channels and forward to Torrent9
+        if: steps.send.outputs.video_sent == 'true'
+        continue-on-error: true
+        shell: bash
+        run: |
+          python scripts/distribute_short_telegram.py --video "$VIDEO_FILE"
+
       - name: Refresh social tokens
         if: steps.send.outputs.video_sent == 'true'
         continue-on-error: true
@@ -180,6 +195,25 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/verify_social_publications.py --report social_post_results.json --expected "$POST_PLATFORMS"
+      - name: Audit Telegram distribution across channels and Torrent9
+        if: always() && steps.send.outputs.video_sent == 'true'
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("telegram_out/production_short/telegram_distribution_report.json")
+          if not p.is_file():
+              raise SystemExit("Rapport de diffusion Telegram absent")
+          report=json.loads(p.read_text(encoding="utf-8"))
+          errors=report.get("errors") or []
+          if errors:
+              raise SystemExit("Diffusion Telegram incomplète: "+str(errors))
+          if report.get("torrent9",{}).get("status") not in ("forwarded","already_claimed"):
+              raise SystemExit("Transfert vers Torrent9 non confirmé")
+          print("SHORTS_TELEGRAM_DISTRIBUTION_VERIFIED",len(report.get("results") or []))
+          PY
+
       - name: Upload production artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -188,6 +222,8 @@ jobs:
           path: |
             ${{ env.VIDEO_FILE }}
             telegram_out/production_short/manifest.json
+            telegram_out/production_short/telegram_primary_receipt.json
+            telegram_out/production_short/telegram_distribution_report.json
             telegram_out/production_short/cards/
             social_post_results.json
           if-no-files-found: ignore
