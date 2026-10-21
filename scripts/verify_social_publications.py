@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-KNOWN = frozenset({"facebook", "instagram", "threads", "tiktok", "youtube"})
+KNOWN = frozenset({"facebook", "instagram", "threads", "tiktok", "youtube", "bluesky"})
 
 def validate(expected_csv, report):
     expected = [p.strip().lower() for p in expected_csv.split(",") if p.strip()]
@@ -33,6 +33,8 @@ def validate(expected_csv, report):
         identity = data.get("id")
         if not isinstance(identity,(str,int)) or not str(identity).strip():
             raise ValueError("SOCIAL_MISSING_PROVIDER_ID: "+name)
+        if name == "bluesky" and not str(identity).startswith("at://"):
+            raise ValueError("SOCIAL_INVALID_BLUESKY_URI")
     return {"checked":len(rows),"verified_platforms":expected,"failed":[]}
 
 def main():
