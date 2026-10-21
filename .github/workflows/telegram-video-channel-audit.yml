@@ -22,8 +22,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install requests
-        run: python -m pip install requests
+      - name: Install Telegram diagnostic dependencies
+        run: python -m pip install requests "telethon>=1.36,<2"
       - name: Audit bot access without sending Telegram content
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
