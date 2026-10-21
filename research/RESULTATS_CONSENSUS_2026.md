@@ -64,3 +64,37 @@ Le critère de championnat sélectionne encore un sous-ensemble plus restreint e
 - Ne pas confondre votes de modèles corrélés et indépendance statistique. Ne pas compter 6 accords comme une probabilité de 100 %.
 
 Détails du workflow : `summary.json`, `all_consensus_decisions.csv`, `monthly.csv`, `leagues_100plus.csv`.
+
+## Génération réelle sur les prochains matchs
+
+La commande `research/predict_consensus.py` reprend **les six modèles réels** sur l'historique des matchs passés, produit un score favori pour chacun, puis applique la même règle de vote. Elle peut fonctionner sur un fichier `fixtures.json` :
+
+```json
+{"fixtures":[
+  {"id":"fixture-id","date":"2026-10-22","league":"League Name",
+   "home_team":"Team A","away_team":"Team B"}
+]}
+```
+
+```bash
+python research/predict_consensus.py \
+  --fixtures fixtures.json \
+  --history cache/all_matches.json \
+  --minimum-votes 5 \
+  --output research/results/upcoming_consensus.json
+```
+
+**Important :** ces équipes sont des placeholders fictifs destinés à expliquer la structure des entrées ; ce n'est pas un véritable pronostic.
+
+Le module produit les 6 scores favoris, le décompte de chaque score, le niveau d'accord, et `SELECTED` ou `ABSTAIN`. Si moins de 350 rencontres historiques peuvent entraîner le moteur ML, il **s'abstient plutôt que simuler un sixième avis**. Les scores finaux des matchs de même date (UTC) ne sont jamais utilisés pour les prédire.
+
+La suite de tests complète (unanimité, égalité 3-3, rejet sous le seuil, six moteurs calculés, et vérification antifuite sur un match de la même date) a réussi : [GitHub Actions 39520234094](https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/39520234094).
+
+L'intégration au site public est **volontairement désactivée** : cette branche de recherche ne modifie pas les publications existantes, jusqu'à revue du système.
+
+## Notes méthodologiques de la stratégie retenue
+
+- **Option de recherche 5/6** : fréquence modérée (66,69 % de toutes les rencontres ; 67,77 % pendant août–octobre), précision globale 9,003 % mais seulement 8,115 % en contrôle récent.
+- **Option de recherche 6/6** : publication plus stricte (32,55 % global ; 31,89 % pendant août–octobre), précision 10,248 % global mais 9,972 % pendant août–octobre.
+- Sur les **mêmes matchs**, l'unanimité ne surpasse aucun modèle individuel : tous ont choisi le score unanime. Cela ne démontre pas une nouvelle capacité de prédiction.
+- La calibration empirique des seuils de consensus fondée sur les seules dates passées montre une dérive dans la période récente : pour 5/6, prédiction moyenne 9,305 % et réalisation 8,115 %. Pour 6/6, prédiction moyenne 10,351 % et réalisation 9,972 %. La fréquence historique doit donc rester descriptive.
