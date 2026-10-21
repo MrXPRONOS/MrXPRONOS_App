@@ -133,12 +133,26 @@ async def _bot_can_post(bot, channel, identity):
 
 
 async def publish_promotions(user_client,bot,private,primary,mirror,state,
-                             *,force=False, private_fallback=False) -> dict[str,int]:
+                             *,force=False, private_fallback=False,
+                             current_run_films: int = 0) -> dict[str,int]:
     """One campaign per channel per run; primary forwarded intact to mirror.
 
-    A campaign runs once after exactly 2 additional films on each channel. In the mirror,
-    it forwards the actual branded/public post with the Telegram source header.
+    Normal rotation is allowed only when THIS execution has actually published
+    at least two new films/content cards. Historical backlog alone must never
+    make an advert appear before fresh content in the current run.
+
+    force=True intentionally bypasses this guard for an explicit one-shot
+    rollout or maintenance command.
     """
+    report={"private":0,"public":0,"mirror":0,"skipped":0}
+    current_run_films = max(0, int(current_run_films or 0))
+    if not force and current_run_films < 2:
+        LOG.info(
+            "Publicités différées : %s nouveau(x) contenu(s) dans ce passage ; 2 requis.",
+            current_run_films,
+        )
+        return report
+
     from telethon import utils
     from .mirror_policy import torrent9_paused
     if torrent9_paused():
@@ -154,7 +168,6 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
     mirror_id=str(utils.get_peer_id(mirror)) if mirror is not None else ""
     total=len(state.data.get("processed",{}))
     mirror_total=len(state.data.get("mirrors",{}).get(mirror_id,{})) if mirror else 0
-    report={"private":0,"public":0,"mirror":0,"skipped":0}
     # Send *primary first* so mirror can keep Telegram's "Forwarded from..." origin.
     ready=await _bot_can_post(bot,primary,identity)
     idx=due(state,first_id,total,force=force)
