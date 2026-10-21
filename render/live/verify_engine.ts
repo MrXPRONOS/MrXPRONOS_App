@@ -2,15 +2,12 @@
 // the exact original source with the GitHub main branch blob SHA.
 const path = "supabase/functions/live/index.ts";
 const source = await Deno.readTextFile(path);
-const addition = '    Deno.env.get("LIVE_BATCH_ENDPOINT") ||\n      ';
-const target = '    ${SUPABASE_URL.replace(/\\/$/, "")}/functions/v1/live/refresh/batch';
-if (!source.includes(addition + target)) {
-  throw new Error("Missing expected, unique Render transport adaptation");
+const patch = "  const endpoint = new URL(\n    Deno.env.get(\"LIVE_BATCH_ENDPOINT\") ||\n      `${SUPABASE_URL.replace(/\\/$/, \"\")}/functions/v1/live/refresh/batch`,\n  );\n";
+const original = "  const endpoint = new URL(\n    `${SUPABASE_URL.replace(/\\/$/, \"\")}/functions/v1/live/refresh/batch`,\n  );\n";
+if (!source.includes(patch) || source.indexOf(patch) !== source.lastIndexOf(patch)) {
+  throw new Error("Transport-only patch missing or duplicated");
 }
-if (source.indexOf(addition + target) !== source.lastIndexOf(addition + target)) {
-  throw new Error("Multiple render transport adaptations");
-}
-const restored = source.replace(addition + target, target);
+const restored = source.replace(patch, original);
 const data = new TextEncoder().encode(restored);
 const meta = new TextEncoder().encode("blob " + data.byteLength + "\u0000");
 const githubBlob = new Uint8Array(meta.byteLength + data.byteLength);
