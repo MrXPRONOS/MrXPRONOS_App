@@ -38,6 +38,26 @@ for (const name of mandatory) {
   if (!source.includes("function "+name+"("))
     throw new Error("LIVE function missing: "+name);
 }
+// Independent Telegram LIVE handler: restore only its private port binding
+// and check its original GitHub main blob hash.
+const telegramPath = "supabase/functions/telegram-live/index.ts";
+const telegramPatched = await Deno.readTextFile(telegramPath);
+const telegramPortTail = '}, { hostname: "127.0.0.1", port: Number(Deno.env.get("TELEGRAM_LIVE_INTERNAL_PORT") || 8001) });\\n'.replace(/\\\\n$/, "\\n");
+const originalTelegramTail = '});\\n'.replace(/\\\\n$/, "\\n");
+if (!telegramPatched.endsWith(telegramPortTail))
+  throw new Error("Telegram handler has unexpected changes at tail");
+const telegramOriginal = telegramPatched.slice(0,-telegramPortTail.length) + originalTelegramTail;
+const telegramBytes = new TextEncoder().encode(telegramOriginal);
+const telegramMeta = new TextEncoder().encode("blob " + telegramBytes.byteLength + "\\u0000");
+const telegramBlob = new Uint8Array(telegramMeta.byteLength + telegramBytes.byteLength);
+telegramBlob.set(telegramMeta);
+telegramBlob.set(telegramBytes,telegramMeta.byteLength);
+const telegramDigest = new Uint8Array(await crypto.subtle.digest("SHA-1",telegramBlob));
+const telegramHash = [...telegramDigest].map(n=>n.toString(16).padStart(2,"0")).join("");
+if (telegramHash !== "44f09c7c1b74066090d74af49f6f4da0f5ae85c9")
+  throw new Error("Dedicated Telegram LIVE handler business code changed: "+telegramHash);
+console.log("TELEGRAM_SOURCE_PARITY_PASS",telegramHash);
+
 console.log("LIVE_SOURCE_PARITY_PASS", {
   original_git_blob:hash,
   preserved_functions:mandatory.length,
