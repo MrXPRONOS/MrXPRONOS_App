@@ -30,7 +30,8 @@ from .category_runner import preflight
 from .runner import config_from
 from .source_channels import source_list
 from .desir_matching import is_supported_video
-from .desir_runner import ReceiptState
+from .desir_runner import ReceiptState, DesirPromotionsState
+from .promotions import publish_promotions
 from .matching import filename_of
 from .text import first_title, private_message_link
 
@@ -456,8 +457,6 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             completed_series.add(key)
             await asyncio.sleep(pause)
 
-        # Publicités déjà gérées par le relais Films pour cette même destination.
-        # Ne pas dupliquer leurs envois dans le catalogue Séries.
         if publish:
             scan_progress = finalize_scan(catalogue, scan_plans, all_candidates)
             audit = episode_audit(catalogue, all_candidates, category="series_catalog",
@@ -465,6 +464,14 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             save_catalog(catalogue)
             LOG.info("Historique Séries : %s ; en attente=%s ; saisons avec trous=%s",
                      scan_progress, audit["not_yet_indexed_total"], audit["numbering_gap_seasons"])
+            report = await publish_promotions(
+                client, bot, private, public,
+                None if os.getenv("CINEX_DEFER_MIRROR") else mirror,
+                DesirPromotionsState(state),
+                private_fallback=True,
+                current_run_films=posted_cards,
+            )
+            LOG.info("Publicités Séries : %s", report)
         LOG.info("FIN : %s séries mises à jour, %s fiches nouvelles, %s épisodes privés",
                  len(completed_series), posted_cards, copied_episodes)
         return 0
