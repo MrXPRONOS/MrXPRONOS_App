@@ -236,11 +236,28 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument("--prior-predictions",required=True)
     p.add_argument("--history",default="cache/all_matches.json")
+    p.add_argument("--outcomes-file",help="Reuse previously verified final-score snapshot; no repeat SportData request")
+    p.add_argument("--outcomes-audit-file",help="Original SportData audit JSON")
     p.add_argument("--output",default="research/results/yesterday_2026_10_20")
     args=p.parse_args()
     output=Path(args.output)
     output.mkdir(parents=True,exist_ok=True)
-    targets,audit=final_results_from_sportdata(TARGET)
+    if args.outcomes_file:
+        targets=json.loads(Path(args.outcomes_file).read_text(encoding="utf8"))
+        if args.outcomes_audit_file:
+            audit=json.loads(Path(args.outcomes_audit_file).read_text(encoding="utf8"))
+        else:
+            audit={"source":"archived verified SportsAPI Pro Oct-20 snapshot",
+                   "api_ok":True,"total_accepted_finished_matches":len(targets),
+                   "requested_day":str(TARGET)}
+        for row in targets:
+            if row["date"]!=str(TARGET) or row["finish_status"]!=4 or not clean_score(row["actual_score"]):
+                raise ValueError("Invalid archived final score record, aborting")
+        if len({r["id"] for r in targets}) != len(targets):
+            raise ValueError("Duplicated fixtures in archived actual-score snapshot")
+        audit["reused_snapshot_from_previous_run"]=True
+    else:
+        targets,audit=final_results_from_sportdata(TARGET)
     (output/"sportdata_fetch_audit.json").write_text(json.dumps(audit,ensure_ascii=False,indent=2),encoding="utf8")
     print("YESTERDAY_SOURCE_AUDIT",json.dumps(audit,ensure_ascii=False),flush=True)
     if not audit["api_ok"] or len(targets)==0:
@@ -250,7 +267,7 @@ def main():
         json.dumps(targets,ensure_ascii=False,indent=2),encoding="utf8")
     hist,histaudit=supplement_training(args.history,args.prior_predictions)
     print("YESTERDAY_TRAINING_CUTOFF",json.dumps(histaudit,ensure_ascii=False),flush=True)
-    features=[{k:row[k] for k in ("date","id","league","home_team","away_team")} for row in targets]
+    features=[{"date":TARGET, **{k:row[k] for k in ("id","league","home_team","away_team")}} for row in targets]
     predicted=predict(features,hist,minimum=5)
     create_report(targets,predicted,histaudit,audit,output)
 
