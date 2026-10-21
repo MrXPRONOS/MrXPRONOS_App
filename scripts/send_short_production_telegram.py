@@ -67,7 +67,7 @@ def main():
     args = ap.parse_args()
 
     token = (os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
-    chat = (os.getenv("TELEGRAM_CHAT_ID") or "").strip()
+    chat = (os.getenv("TG_VIDEO_PRIMARY_CHANNEL") or "@mrxpronosfr").strip()
     base = (os.getenv("SUPABASE_URL") or "").strip()
     key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or "").strip()
     if not all((token, chat, base, key)):
@@ -113,11 +113,14 @@ def main():
         "18+ · Joue responsablement."
     )
 
+    # Trois vrais boutons inline sur la vidéo d'origine; les copies des autres
+    # canaux réutiliseront exactement le même clavier.
     keyboard = {
-        "inline_keyboard": [[
-            {"text": "Plus de pronostics 🔥",
-             "url": "https://mrxpronos.github.io/MrXPRONOS_App/pronos.html"}
-        ]]
+        "inline_keyboard": [
+            [{"text": "🎯 Coupons du jour", "url": "https://t.me/mrxpronosfr"}],
+            [{"text": "⚽ Actualités Foot", "url": "https://t.me/actufoot_mrxp"}],
+            [{"text": "🎬 Films, animés et séries", "url": "https://t.me/addlist/ZmW4vfwcrMAwNzJk"}],
+        ]
     }
     url = "https://api.telegram.org/bot" + token + "/sendVideo"
     with video.open("rb") as fh:
@@ -145,6 +148,24 @@ def main():
         "target": target,
         "count": manifest.get("count"),
     }, ensure_ascii=False))
+
+    if not isinstance(message.get("message_id"), int):
+        raise RuntimeError("Telegram n'a pas fourni l'ID du message principal")
+    # Reçu nécessaire pour recopier la même vidéo sans devoir la générer.
+    receipt = {
+        "primary_chat": chat,
+        "primary_message_id": message["message_id"],
+        "primary_chat_id": (message.get("chat") or {}).get("id"),
+        "primary_file_id": ((message.get("video") or {}).get("file_id")),
+        "target": target,
+        "slot": slot,
+        "published_day": published_day,
+        "keyboard": keyboard,
+        "caption": caption,
+    }
+    receipt_file = Path("telegram_out/production_short/telegram_primary_receipt.json")
+    receipt_file.parent.mkdir(parents=True, exist_ok=True)
+    receipt_file.write_text(json.dumps(receipt, ensure_ascii=False, indent=2), encoding="utf-8")
 
     record_batch(session, base, key, manifest)
     output=os.getenv("GITHUB_OUTPUT")
