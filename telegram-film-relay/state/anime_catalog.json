@@ -1,7 +1,7 @@
 {
   "audit": {
     "category": "anime_catalog",
-    "checked_at": "2026-10-21T00:54:06.625660+00:00",
+    "checked_at": "2026-10-21T14:08:24.256918+00:00",
     "not_yet_indexed": [
       {
         "episode": 2,
@@ -424,6 +424,54 @@
         "source_instances": 1
       },
       {
+        "episode": 1,
+        "season": "1",
+        "series": "mangas-fv-death-parade-ep01",
+        "source_instances": 1
+      },
+      {
+        "episode": 2,
+        "season": "1",
+        "series": "mangas-fv-death-parade-ep02",
+        "source_instances": 1
+      },
+      {
+        "episode": 3,
+        "season": "1",
+        "series": "mangas-fv-death-parade-ep03",
+        "source_instances": 1
+      },
+      {
+        "episode": 4,
+        "season": "1",
+        "series": "mangas-fv-death-parade-ep04",
+        "source_instances": 1
+      },
+      {
+        "episode": 9,
+        "season": "1",
+        "series": "mangas-fv-death-parade-ep09",
+        "source_instances": 1
+      },
+      {
+        "episode": 10,
+        "season": "1",
+        "series": "mangas-fv-death-parade-ep10",
+        "source_instances": 1
+      },
+      {
+        "episode": 11,
+        "season": "1",
+        "series": "mangas-fv-death-parade-ep11",
+        "source_instances": 1
+      },
+      {
+        "episode": 12,
+        "season": "1",
+        "series": "mangas-fv-death-parade-ep12",
+        "source_instances": 1
+      },
+      {
         "episode": 49,
         "season": "1",
         "series": "mangas-fv-yu-gi-oh-duel-monsters",
@@ -554,57 +602,9 @@
         "season": "1",
         "series": "mangas-fv-yu-gi-oh-duel-monsters",
         "source_instances": 1
-      },
-      {
-        "episode": 71,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
-        "episode": 72,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
-        "episode": 73,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
-        "episode": 74,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
-        "episode": 75,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
-        "episode": 76,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
-        "episode": 77,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
-      },
-      {
-        "episode": 78,
-        "season": "1",
-        "series": "mangas-fv-yu-gi-oh-duel-monsters",
-        "source_instances": 1
       }
     ],
-    "not_yet_indexed_total": 362,
+    "not_yet_indexed_total": 370,
     "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
     "numbering_gap_seasons": 1,
     "numbering_gaps": [
@@ -650,8 +650,8 @@
         "truncated": false
       }
     ],
-    "scanned_episode_candidates": 385,
-    "source_episode_numbers_observed": 441,
+    "scanned_episode_candidates": 397,
+    "source_episode_numbers_observed": 453,
     "source_numbering_gap_seasons": 3,
     "source_numbering_gaps": [
       {
@@ -681,7 +681,7 @@
       }
     ],
     "source_scan_complete": true,
-    "unnumbered_videos_skipped": 77
+    "unnumbered_videos_skipped": 78
   },
   "scans": {
     "-1001787980027": {
@@ -692,6 +692,82 @@
     }
   },
   "series": {
+    "mangas-fv-death-parade-ep05": {
+      "episodes": {
+        "1": {
+          "5": {
+            "message_id": 108,
+            "url": "https://t.me/c/4416009337/108"
+          }
+        }
+      },
+      "main_index_id": 106,
+      "public_id": 44,
+      "season_indices": {
+        "1": 107
+      },
+      "source_items": {
+        "-1001595907308:13791": 108
+      },
+      "title": "@Mangas fv Death Parade EP05"
+    },
+    "mangas-fv-death-parade-ep06": {
+      "episodes": {
+        "1": {
+          "6": {
+            "message_id": 111,
+            "url": "https://t.me/c/4416009337/111"
+          }
+        }
+      },
+      "main_index_id": 109,
+      "public_id": 45,
+      "season_indices": {
+        "1": 110
+      },
+      "source_items": {
+        "-1001595907308:13792": 111
+      },
+      "title": "@Mangas fv Death Parade EP06"
+    },
+    "mangas-fv-death-parade-ep07": {
+      "episodes": {
+        "1": {
+          "7": {
+            "message_id": 115,
+            "url": "https://t.me/c/4416009337/115"
+          }
+        }
+      },
+      "main_index_id": 113,
+      "public_id": 48,
+      "season_indices": {
+        "1": 114
+      },
+      "source_items": {
+        "-1001595907308:13793": 115
+      },
+      "title": "@Mangas fv Death Parade EP07"
+    },
+    "mangas-fv-death-parade-ep08": {
+      "episodes": {
+        "1": {
+          "8": {
+            "message_id": 118,
+            "url": "https://t.me/c/4416009337/118"
+          }
+        }
+      },
+      "main_index_id": 116,
+      "public_id": 49,
+      "season_indices": {
+        "1": 117
+      },
+      "source_items": {
+        "-1001595907308:13794": 118
+      },
+      "title": "@Mangas fv Death Parade EP08"
+    },
     "mangas-fv-no-longer-rangers-s02-mp4": {
       "episodes": {
         "2": {
@@ -1390,6 +1466,90 @@
         ],
         "9": [
           "-1001613652137:279"
+        ]
+      }
+    },
+    "mangas-fv-death-parade-ep01": {
+      "1": {
+        "1": [
+          "-1001595907308:13787"
+        ]
+      }
+    },
+    "mangas-fv-death-parade-ep02": {
+      "1": {
+        "2": [
+          "-1001595907308:13788"
+        ]
+      }
+    },
+    "mangas-fv-death-parade-ep03": {
+      "1": {
+        "3": [
+          "-1001595907308:13789"
+        ]
+      }
+    },
+    "mangas-fv-death-parade-ep04": {
+      "1": {
+        "4": [
+          "-1001595907308:13790"
+        ]
+      }
+    },
+    "mangas-fv-death-parade-ep05": {
+      "1": {
+        "5": [
+          "-1001595907308:13791"
+        ]
+      }
+    },
+    "mangas-fv-death-parade-ep06": {
+      "1": {
+        "6": [
+          "-1001595907308:13792"
+        ]
+      }
+    },
+    "mangas-fv-death-parade-ep07": {
+      "1": {
+        "7": [
+          "-1001595907308:13793"
+        ]
+      }
+    },
+    "mangas-fv-death-parade-ep08": {
+      "1": {
+        "8": [
+          "-1001595907308:13794"
+        ]
+      }
+    },
+    "mangas-fv-death-parade-ep09": {
+      "1": {
+        "9": [
+          "-1001595907308:13795"
+        ]
+      }
+    },
+    "mangas-fv-death-parade-ep10": {
+      "1": {
+        "10": [
+          "-1001595907308:13796"
+        ]
+      }
+    },
+    "mangas-fv-death-parade-ep11": {
+      "1": {
+        "11": [
+          "-1001595907308:13797"
+        ]
+      }
+    },
+    "mangas-fv-death-parade-ep12": {
+      "1": {
+        "12": [
+          "-1001595907308:13798"
         ]
       }
     },

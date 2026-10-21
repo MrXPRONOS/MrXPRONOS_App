@@ -1,6 +1,6 @@
 {
   "period_days": 30,
-  "generated_at": "2026-10-19T06:17:36.932110+00:00",
+  "generated_at": "2026-10-21T06:17:39.300592+00:00",
   "data_origin": "Supabase analytics events; anonymous attributed page reads",
   "attributed_visits": 1,
   "promo_copy_actions": 0,
@@ -31,6 +31,24 @@
     },
     {
       "kind": "article",
+      "slug": "bsd-match-209600",
+      "variant": "a",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-209600",
+      "variant": "b",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
       "slug": "bsd-match-214085",
       "variant": "a",
       "impressions": 0,
@@ -67,6 +85,42 @@
     },
     {
       "kind": "article",
+      "slug": "bsd-match-215282",
+      "variant": "a",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-215282",
+      "variant": "b",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-223816",
+      "variant": "a",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-223816",
+      "variant": "b",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
       "slug": "bsd-match-602615",
       "variant": "a",
       "impressions": 0,
@@ -77,6 +131,60 @@
     {
       "kind": "article",
       "slug": "bsd-match-602615",
+      "variant": "b",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-603727",
+      "variant": "a",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-603727",
+      "variant": "b",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-604582",
+      "variant": "a",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-604582",
+      "variant": "b",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-605005",
+      "variant": "a",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-605005",
       "variant": "b",
       "impressions": 1,
       "opens": 0,

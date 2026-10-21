@@ -6,7 +6,7 @@
   ],
   "sources": {
     "2026-10-21": {
-      "fixtures": 293,
+      "fixtures": 295,
       "provider_health": {
         "bsd": {
           "reported": 0,
@@ -21,8 +21,8 @@
           "error": "not queried"
         },
         "espn": {
-          "reported": 106,
-          "valid": 106,
+          "reported": 105,
+          "valid": 105,
           "rejected": 0,
           "error": ""
         },
@@ -47,7 +47,7 @@
       }
     },
     "2026-10-22": {
-      "fixtures": 298,
+      "fixtures": 317,
       "provider_health": {
         "bsd": {
           "reported": 0,
@@ -62,14 +62,14 @@
           "error": "not queried"
         },
         "espn": {
-          "reported": 131,
-          "valid": 131,
+          "reported": 132,
+          "valid": 132,
           "rejected": 0,
           "error": ""
         },
         "sportscore": {
-          "reported": 176,
-          "valid": 176,
+          "reported": 195,
+          "valid": 195,
           "rejected": 0,
           "error": ""
         },
@@ -88,7 +88,7 @@
       }
     },
     "2026-10-23": {
-      "fixtures": 310,
+      "fixtures": 309,
       "provider_health": {
         "bsd": {
           "reported": 0,
@@ -103,8 +103,8 @@
           "error": "not queried"
         },
         "espn": {
-          "reported": 109,
-          "valid": 109,
+          "reported": 108,
+          "valid": 108,
           "rejected": 0,
           "error": ""
         },
@@ -129,7 +129,7 @@
       }
     }
   },
-  "total_fixtures": 892,
+  "total_fixtures": 912,
   "sportscore_page_size_limit": 200,
   "sportscore_days_at_page_limit": 2,
   "sportscore_coverage_possibly_incomplete": true,

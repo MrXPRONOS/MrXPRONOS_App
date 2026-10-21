@@ -7,13 +7,13 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 4,
+          "matching_pairs": 3,
           "redistribution_rights": "non_verifies",
           "rejected_pairs": 0,
           "sample_post_ids": [
-            539,
-            560,
-            565
+            16659,
+            16674,
+            16689
           ],
           "sampled_messages": 55,
           "source_status": "pending_rights",
@@ -22,45 +22,47 @@
             "min_video_megabytes": 30,
             "min_video_minutes": 10
           },
-          "title": "🌀🌀",
+          "title": "ANIME SAMA VF",
           "transfer_restricted": false,
-          "url": "https://t.me/Anime_VOSTFR",
-          "username": "Anime_VOSTFR"
+          "url": "https://t.me/ANIME_SAMA_VF_HD",
+          "username": "ANIME_SAMA_VF_HD"
         },
         {
           "category": "anime",
-          "format": "non_verifie",
-          "format_verified": false,
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 1,
+          "matching_pairs": 4,
           "redistribution_rights": "non_verifies",
-          "rejected_pairs": 0,
+          "rejected_pairs": 2,
           "sample_post_ids": [
-            13763
+            5523,
+            5629,
+            5645
           ],
           "sampled_messages": 55,
-          "source_status": "pending_review",
+          "source_status": "pending_rights",
           "strict_filters": {
             "min_verified_pairs": 2,
             "min_video_megabytes": 30,
             "min_video_minutes": 10
           },
-          "title": "MANGAS TV VF 🇫🇷",
+          "title": "ANIMÉ 卂 MOMENT VF",
           "transfer_restricted": false,
-          "url": "https://t.me/MANGAS_ANIME_EN_FRANCAIS",
-          "username": "MANGAS_ANIME_EN_FRANCAIS"
+          "url": "https://t.me/ANIMEISEKAIC",
+          "username": "ANIMEISEKAIC"
         }
       ],
       "statistics": {
         "attempted": 4,
         "checked": 4,
         "found": 15,
-        "next_candidate_offset": 1,
+        "next_candidate_offset": 5,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
         "rate_limited": false,
-        "strict_rejected": 3
+        "strict_rejected": 2
       }
     },
     "comedie": {
@@ -69,7 +71,7 @@
         "attempted": 4,
         "checked": 4,
         "found": 6,
-        "next_candidate_offset": 4,
+        "next_candidate_offset": 2,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
@@ -84,62 +86,37 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 3,
-          "redistribution_rights": "non_verifies",
-          "rejected_pairs": 1,
-          "sample_post_ids": [
-            676,
-            695,
-            811
-          ],
-          "sampled_messages": 23,
-          "source_status": "pending_rights",
-          "strict_filters": {
-            "min_verified_pairs": 2,
-            "min_video_megabytes": 150,
-            "min_video_minutes": 40
-          },
-          "title": "ÉROTIQUE",
-          "transfer_restricted": false,
-          "url": "https://t.me/Filmromatique",
-          "username": "Filmromatique"
-        },
-        {
-          "category": "desir",
-          "format": "photo_texte_puis_video",
-          "format_verified": true,
-          "joined_by_tool": false,
-          "matching_pairs": 14,
+          "matching_pairs": 8,
           "redistribution_rights": "non_verifies",
           "rejected_pairs": 0,
           "sample_post_ids": [
-            42,
-            45,
-            48
+            258,
+            260,
+            262
           ],
-          "sampled_messages": 55,
+          "sampled_messages": 21,
           "source_status": "pending_rights",
           "strict_filters": {
             "min_verified_pairs": 2,
             "min_video_megabytes": 150,
             "min_video_minutes": 40
           },
-          "title": "Films Romantiques",
+          "title": "💖💖FILMS ROMANTIQUES💖💖",
           "transfer_restricted": false,
-          "url": "https://t.me/cineromances",
-          "username": "cineromances"
+          "url": "https://t.me/filmsromatique",
+          "username": "filmsromatique"
         }
       ],
       "statistics": {
         "attempted": 4,
         "checked": 4,
-        "found": 13,
-        "next_candidate_offset": 3,
+        "found": 14,
+        "next_candidate_offset": 7,
         "not_readable": 0,
         "protected": 0,
         "queries": 3,
         "rate_limited": false,
-        "strict_rejected": 2
+        "strict_rejected": 3
       }
     },
     "films": {
@@ -149,12 +126,13 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 2,
+          "matching_pairs": 16,
           "redistribution_rights": "non_verifies",
-          "rejected_pairs": 0,
+          "rejected_pairs": 3,
           "sample_post_ids": [
-            96,
-            105
+            2716,
+            2718,
+            2720
           ],
           "sampled_messages": 55,
           "source_status": "pending_rights",
@@ -163,17 +141,17 @@
             "min_video_megabytes": 150,
             "min_video_minutes": 40
           },
-          "title": "French movies | cinématographie française",
+          "title": "FILMS, SÉRIES & DESSIN ANIMÉ COMPLET VF🎥",
           "transfer_restricted": false,
-          "url": "https://t.me/cinematographiefrancaise",
-          "username": "cinematographiefrancaise"
+          "url": "https://t.me/annimechannel53jjh",
+          "username": "annimechannel53jjh"
         }
       ],
       "statistics": {
         "attempted": 4,
         "checked": 4,
-        "found": 17,
-        "next_candidate_offset": 16,
+        "found": 18,
+        "next_candidate_offset": 2,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
@@ -207,12 +185,12 @@
     "otaku_anim_vostfr",
     "otakusunivers"
   ],
-  "last_notification_day": "2026-10-20",
-  "last_scan": "2026-10-20T13:00:35.109136+00:00",
+  "last_notification_day": "2026-10-21",
+  "last_scan": "2026-10-21T13:14:57.290478+00:00",
   "offsets": {
-    "anime": 1,
-    "comedie": 4,
-    "desir": 3,
-    "films": 16
+    "anime": 5,
+    "comedie": 2,
+    "desir": 7,
+    "films": 2
   }
 }
