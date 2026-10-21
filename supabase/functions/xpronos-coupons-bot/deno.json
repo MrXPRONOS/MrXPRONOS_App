@@ -1,4 +1,12 @@
 {
-  "compilerOptions": { "strict": true, "lib": ["deno.ns", "dom", "esnext"] },
-  "imports": {}
+  "compilerOptions": {
+    "strict": true,
+    "lib": [
+      "deno.ns",
+      "dom",
+      "esnext"
+    ]
+  },
+  "imports": {},
+  "nodeModulesDir": "auto"
 }
