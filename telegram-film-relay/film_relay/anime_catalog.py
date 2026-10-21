@@ -435,7 +435,10 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             report = await publish_promotions(
                 client, bot, private, public,
                 None if os.getenv("CINEX_DEFER_MIRROR") else mirror,
-                DesirPromotionsState(state), private_fallback=True)
+                DesirPromotionsState(state),
+                private_fallback=True,
+                current_run_films=posted_cards,
+            )
             LOG.info("Publicités Anime : %s", report)
         LOG.info("FIN : %s séries mises à jour, %s fiches nouvelles, %s épisodes privés",
                  len(completed_series), posted_cards, copied_episodes)
