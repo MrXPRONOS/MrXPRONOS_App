@@ -5,6 +5,7 @@ WORKDIR /app
 COPY supabase/functions/ ./supabase/functions/
 COPY render/live/ ./render/live/
 RUN deno run --allow-read render/live/verify_engine.ts
+RUN deno cache render/live/engine_bootstrap.ts
 RUN deno cache supabase/functions/live/index.ts
 RUN deno cache supabase/functions/telegram-live/index.ts
 ENV DENO_NO_UPDATE_CHECK=1
