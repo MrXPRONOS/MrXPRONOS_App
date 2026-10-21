@@ -297,11 +297,58 @@ def distribute(config: dict, receipt: dict, path: Path, *, dry_run=False) -> dic
     return report
 
 
+
+def audit_permissions() -> int:
+    """Read-only Telegram Bot API check. Never sends or forwards any media."""
+    cfg=json.loads(CONFIG.read_text(encoding="utf-8"))
+    raw=[
+        ("pronos",os.getenv("TELEGRAM_BOT_TOKEN","")),
+        ("actu_cinex",os.getenv("FOOTBALL_NEWS_BOT_TOKEN","")),
+        ("desir",os.getenv("DESIR_BOT_TOKEN",""))
+    ]
+    bots=[]
+    for name,token in raw:
+        if token and not any(b.token==token for b in bots):
+            b=Bot(token,name)
+            try:
+                b.identify()
+                bots.append(b)
+            except RuntimeError as exc:
+                print("TELEGRAM_VIDEO_PERMISSION_BOT_ERROR",name,str(exc))
+    targets=[d["chat"] for d in cfg["destinations"]]+[cfg["torrent9_forward"]]
+    rights={}
+    for target in targets:
+        rights[target]={bot.name:bot.can_post(target) for bot in bots}
+        print("TELEGRAM_VIDEO_PERMISSION",target,json.dumps(rights[target],ensure_ascii=False))
+    missing=[target for target in targets if not any(rights[target].values())]
+    origin=cfg["primary"]
+    main_ok=bool(bots and any(b.name=="pronos" and b.can_post(origin) for b in bots))
+    mirror_bot=any(
+        b.can_post(cfg["torrent9_forward"]) and
+        (b.name=="pronos" or b.can_post(origin))
+        for b in bots
+    )
+    session_ready=all((os.getenv("TG_API_ID"),os.getenv("TG_API_HASH"),
+                       os.getenv("TG_SESSION_STRING") or os.getenv("TG_STRING_SESSION")))
+    print("TELEGRAM_VIDEO_PERMISSION_REPORT",json.dumps({
+        "main_bot_can_publish_coupon":main_ok,
+        "missing_bot_admin_channels":missing,
+        "torrent9_bot_forward_possible":mirror_bot,
+        "torrent9_personal_forward_secrets_present":bool(session_ready),
+    },ensure_ascii=False))
+    return 0 if main_ok else 1
+
+
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--video", type=Path, required=True)
+    p.add_argument("--video", type=Path)
+    p.add_argument("--audit-permissions", action="store_true")
     p.add_argument("--dry-run", action="store_true")
     args = p.parse_args()
+    if args.audit_permissions:
+        return audit_permissions()
+    if args.video is None:
+        p.error("--video est requis hors audit permissions")
     config, receipt = load()
     if not args.dry_run and (not args.video.is_file() or args.video.stat().st_size < 1000):
         raise RuntimeError("Le MP4 de production manque")
