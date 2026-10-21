@@ -9,6 +9,7 @@ from PIL import Image
 
 from film_relay.promotions import (
     CAMPAIGNS, render_poster, poster_path, campaign_caption, campaign_button, due,
+    publish_promotions,
 )
 from film_relay.state import State
 
@@ -72,6 +73,24 @@ class PromoTests(unittest.TestCase):
                     asyncio.run(_send_bot_poster(bot, "test-channel", 2))
         bot.send_message.assert_not_awaited()
         bot.send_file.assert_not_awaited()
+
+    def test_no_ad_without_two_fresh_posts_in_current_run(self):
+        """Historical backlog must never emit an advert before fresh content."""
+        with TemporaryDirectory() as folder:
+            state = State(str(Path(folder) / "state.json"))
+            state.data["processed"] = {
+                "old-1": {}, "old-2": {}, "old-3": {}, "old-4": {},
+            }
+
+            for fresh_count in (0, 1):
+                result = asyncio.run(publish_promotions(
+                    None, None, None, None, None, state,
+                    current_run_films=fresh_count,
+                ))
+                self.assertEqual(
+                    result,
+                    {"private": 0, "public": 0, "mirror": 0, "skipped": 0},
+                )
 
     def test_two_movie_cursor_consumes_backlog_in_one_promotion(self):
         """An old backlog must not generate many consecutive adverts."""
