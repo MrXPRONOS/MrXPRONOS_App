@@ -1,0 +1,48 @@
+{
+  "primary": "@mrxpronosfr",
+  "buttons": [
+    {
+      "text": "🎯 Coupons du jour",
+      "url": "https://t.me/mrxpronosfr"
+    },
+    {
+      "text": "⚽ Actualités Foot",
+      "url": "https://t.me/actufoot_mrxp"
+    },
+    {
+      "text": "🎬 Films, animés et séries",
+      "url": "https://t.me/addlist/ZmW4vfwcrMAwNzJk"
+    }
+  ],
+  "destinations": [
+    {
+      "label": "Coupons simples / Coupons du jour",
+      "chat": "@mrxpronosfr"
+    },
+    {
+      "label": "Pronos LIVE VIP",
+      "chat": "@mr_xpronos_vip"
+    },
+    {
+      "label": "Actualités / Actu Foot",
+      "chat": "@actufoot_mrxp"
+    },
+    {
+      "label": "CinéX Films et Séries",
+      "chat": "@CineXFilms_vf"
+    },
+    {
+      "label": "CinéX Désir",
+      "chat": "@CineXDesirfr"
+    },
+    {
+      "label": "CinéX Comédie",
+      "chat": "@CineXComediefr"
+    },
+    {
+      "label": "CinéX Animés",
+      "chat": "@CineXAnimeFR"
+    }
+  ],
+  "torrent9_forward": "@Torrent9SeriesFilms"
+}
