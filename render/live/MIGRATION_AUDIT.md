@@ -86,3 +86,36 @@ Moteur source : environ 9 422 lignes / 249 fonctions nommées.
 - Render Free : la suspension après inactivité et les plafonds CPU/RAM empêchent de garantir 24/7 une cadence d'une minute. Un appel entrant cron toutes les minutes doit être piloté de l'extérieur et surveillé.
 - Tests de recette bloquants : import Deno et dépendances, port web, environnement secret, DB lecture, 1 lot en préproduction sans Telegram, >50 matchs et statistiques, calculs équivalents, inserts / anti-doublons, Telegram x2, validation et site, failover & backout.
 - **Ne pas activer les écritures ou les crons tant que les tests de recette ne sont pas réussis.**
+
+
+## E — Recette technique Render, 21 octobre 2026
+
+**Tests exécutés sur l'offre Free et uniquement avec clé publique `anon` de test** (la vraie clé service-role n'a pas été copiée ; aucune publication ni écriture LIVE autorisée) :
+
+| Contrôle | Résultat | Portée |
+|---|---|---|
+| Construction du conteneur Docker Deno 2.6.1 | RÉUSSI | compilation / import des modules |
+| Empreinte Git du moteur d'origine | PASS `36c0f2b2b9c4a24e62e03e83f5f4818849af16e2` | prouve que toutes les règles sont inchangées hormis le routage local des lots |
+| Empreinte Git du Telegram indépendant | PASS `44f09c7c1b74066090d74af49f6f4da0f5ae85c9` | seule modification : port local |
+| Proxy / port HTTP Render 10000 | RÉUSSI | premier serveur |
+| Moteur Deno 8000 | RÉUSSI | import et écoute sans crash |
+| Handler Telegram indépendant 8001 | RÉUSSI | import et écoute sans crash |
+| `EdgeRuntime.waitUntil` émulation | INITIALISÉ | traitement asynchrone réel à tester lors d'un cycle /refresh |
+| GET `/matches` | HTTP 200 | lecture de test uniquement |
+| GET `/opportunities` | HTTP 200 | lecture de test uniquement |
+| GET `/today` | HTTP 200 | lecture de test uniquement |
+| GET `/daily/today` | HTTP 200 | lecture de test uniquement |
+| GET `/telegram-live/status` avec secret de test | HTTP 200 | auth & handler GET uniquement |
+| `/refresh` 100+ matchs et requêtes stats | NON TESTÉ SUR MOTEUR MIGRÉ | nécessite les vraies sources et validation des quotas |
+| Insertion / validation et précision des signaux | NON TESTÉ SUR RENDER | nécessite une recette DB contrôlée |
+| Image coupon Telegram x2, anti-doublons, retry, historique | NON TESTÉ EN ENVOI RÉEL | nécessite configuration et canal de test |
+| Cron chaque minute, site et failover | NON BASCULÉ | éviter les doubles tâches |
+
+### Position finale de l'audit
+
+- **Code original conservé** : OUI pour les deux fichiers métiers, vérifié cryptographiquement.
+- **Infrastructure Render du moteur complet** : DÉPLOYÉE ET DÉMARRÉE (test lecture seule).
+- **Fonctionnalité réelle du moteur avec secrets / fournisseurs** : PARTIELLE / PAS ENCORE VALIDÉE.
+- **Migration de la production** : NON, délibérément tant que la configuration et les tests critiques manquent.
+
+Lire `render/live/README.md` pour les variables nécessaires, l'ordre de bascule et le retour arrière.
