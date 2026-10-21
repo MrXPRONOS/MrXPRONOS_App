@@ -279,7 +279,15 @@ def caption_for(number: int, d: dict) -> str:
         body = "\n".join(
             f"{r['symbol']}: {price_caption(r['price'])} USD | 24h {float(r['change']):+.2f}%"
             for r in rows)
-        result = "📈 COURS DES CRYPTOS | #01\n\n" + body + "\n\nGraphiques 48h réels. Source : " + d["provider"]
+        chart_sources = ", ".join(sorted({r.get("sparkline_source", "SOURCE NON RENSEIGNÉE") for r in rows}))
+        sentiment_source = " · Sentiment : Alternative.me" if rows[0].get("fear_greed") is not None else ""
+        result = (
+            "📈 COURS DES CRYPTOS | #01\n\n" + body
+            + "\n\nVariations affichées : 24 h. Courbes et tendances : 48 h.\n"
+            + "Cours : " + d["provider"]
+            + " · Courbes : " + chart_sources
+            + " · Marché global : CoinLore" + sentiment_source
+        )
     elif number in (2, 3):
         label = "HAUSSES" if number == 2 else "BAISSES"
         rows = d["rows"]
