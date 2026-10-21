@@ -37,16 +37,41 @@ if (enabled) {
   }
   if (readOnly) {
     (async () => {
-      await new Promise(resolve => setTimeout(resolve,2000));
-      const routes = ["/matches","/opportunities","/today","/daily/today"];
-      for (const route of routes) {
-        const started=Date.now();
+      let engineReady = false;
+      for (let retry=0;retry<30;retry++) {
         try {
-          const res = await fetch(upstream + route, {signal:AbortSignal.timeout(12000)});
-          console.log("RENDER_READONLY_SMOKE", {route,status:res.status,ms:Date.now()-started});
-          await res.body?.cancel();
-        } catch (e) {
-          console.warn("RENDER_READONLY_SMOKE_FAIL", {route,error:String(e)});
+          const response = await fetch(upstream+"/render-health-probe", {
+            signal:AbortSignal.timeout(1000),
+          });
+          await response.body?.cancel();
+          engineReady = true;
+          break;
+        } catch {
+          await new Promise(resolve=>setTimeout(resolve,500));
+        }
+      }
+      console.log("RENDER_SMOKE_ENGINE_READY",{ready:engineReady});
+      if (!engineReady) return;
+      for(const route of ["/matches","/opportunities","/today","/daily/today"]) {
+        const at=Date.now();
+        try {
+          const response=await fetch(upstream+route,{signal:AbortSignal.timeout(12000)});
+          console.log("RENDER_READONLY_SMOKE",{route,status:response.status,ms:Date.now()-at});
+          await response.body?.cancel();
+        } catch(e){
+          console.warn("RENDER_READONLY_SMOKE_FAIL",{route,error:String(e)});
+        }
+      }
+      if (dedicatedTelegram) {
+        try {
+          const response=await fetch(telegramUpstream+"/status",{
+            headers:{"x-cron-secret":Deno.env.get("CRON_SECRET")||""},
+            signal:AbortSignal.timeout(12000),
+          });
+          console.log("RENDER_TELEGRAM_READONLY_SMOKE",{status:response.status});
+          await response.body?.cancel();
+        } catch(e){
+          console.warn("RENDER_TELEGRAM_READONLY_SMOKE_FAIL",String(e));
         }
       }
     })();
