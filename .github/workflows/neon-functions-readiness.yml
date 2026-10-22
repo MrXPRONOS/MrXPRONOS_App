@@ -1,0 +1,45 @@
+name: Mr XPRONOS - Neon functions readiness audit
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/neon-functions-readiness.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe Neon functions without sending messages or modifying data
+        run: |
+          python3 - <<'PY'
+          import urllib.request,urllib.error,json
+          base="https://br-winter-truth-b9of9tss-{}.compute.c-7.eu-central-1.aws.neon.tech/"
+          cases=[
+            ("mxhealthprobe","GET",None),
+            ("telegrammembership","GET",None),
+            ("vapidpublickey","GET",None),
+            ("generateembedding","POST",{}),
+            ("quickaction","POST",{"name":"HealthCheck"}),
+            ("mediaimport","GET",None),
+          ]
+          for slug,method,payload in cases:
+            data=json.dumps(payload).encode() if payload is not None else None
+            req=urllib.request.Request(base.format(slug),data=data,method=method)
+            if data is not None:req.add_header("content-type","application/json")
+            try:
+              with urllib.request.urlopen(req,timeout=25) as response:
+                status=response.status;body=response.read(400).decode(errors="replace")
+            except urllib.error.HTTPError as error:
+              status=error.code;body=error.read(400).decode(errors="replace")
+            except Exception as error:
+              status="network_error";body=type(error).__name__
+            if slug=="vapidpublickey" and status==200:
+              body="public key exists; value redacted"
+            if slug=="mediaimport" and status==200:
+              try:
+                parsed=json.loads(body);body=json.dumps({"service":parsed.get("service"),"ready":parsed.get("ready")})
+              except Exception:pass
+            print(f"{slug}: HTTP {status}, {body[:180]}",flush=True)
+          PY
