@@ -1,0 +1,20 @@
+name: Neon LIVE ESPN corners read-only audit
+on:
+  push:
+    branches: [fix/neon-live-corners-diagnostics-20261022]
+    paths:
+      - "scripts/live_espn_corner_audit.mjs"
+      - ".github/workflows/live-espn-corner-audit.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/live_espn_corner_audit.mjs
