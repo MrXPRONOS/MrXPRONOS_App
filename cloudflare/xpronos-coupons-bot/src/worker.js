@@ -53,7 +53,7 @@ let profilePhotoId=null,profilePhotoAt=0;
 async function brandedWelcome(env,chat,text){
   try{
     const now=Date.now();
-    if(!profilePhotoId||now-profilePhotoAt>3600000){
+    if(!profilePhotoAt||now-profilePhotoAt>3600000){
       const me=await telegram(env,'getMe',{});
       const pictures=await telegram(env,'getUserProfilePhotos',{user_id:me.id,limit:1});
       const sizes=pictures.photos?.[0]||[];
@@ -82,8 +82,10 @@ async function joined(env,uid,channel) {
   }catch(e){console.warn('Membership check failed',String(channel),String(e));return false}
 }
 async function requirements(env,uid){
-  for(const c of channels(env))if(!(await joined(env,uid,c.id)))return false;
-  return true;
+  // La vérification des canaux ne dépend pas de l'ordre : requêtes Telegram parallèles.
+  const list=channels(env);
+  if(!list.length)return true;
+  return (await Promise.all(list.map(c=>joined(env,uid,c.id)))).every(Boolean);
 }
 async function verify(env,uid,chat) {
   const u=await user(env,uid);
@@ -291,14 +293,22 @@ async function handle(env,update) {
   const q=update.callback_query,m=q?.message||update.message,from=q?.from||update.message?.from;
   if(!m||!from||m.chat?.type!=='private'||!Number.isSafeInteger(from.id))return;
   const uid=from.id,chat=m.chat.id;
+  // Le clic Telegram est acquitté IMMÉDIATEMENT, en parallèle des lectures D1.
+  // La logique d'XP et les permissions sont ensuite vérifiées normalement.
+  const callbackAcknowledged=q?ack(env,q.id):null;
   const txt=String(update.message?.text||'').trim();
   const fullName=([from.first_name||'',from.last_name||''].join(' ').trim()||from.username||'Membre').slice(0,100);
   const ref=/^\/start(?:@\w+)?\s+ref_(\d+)$/.exec(txt)?.[1];
-  await run(env,"INSERT OR IGNORE INTO users(id,name,referred_by) VALUES(?,?,(SELECT id FROM users WHERE id=? AND id<>?))",uid,fullName,ref?Number(ref):null,uid);
-  await run(env,'UPDATE users SET name=? WHERE id=?',fullName,uid);
+  // Un bouton inline provient déjà d'une conversation enregistrée.
+  // Ne pas effectuer deux écritures inutiles pour CHAQUE clic Telegram.
+  if(!q){
+    await run(env,"INSERT OR IGNORE INTO users(id,name,referred_by) VALUES(?,?,(SELECT id FROM users WHERE id=? AND id<>?))",uid,fullName,ref?Number(ref):null,uid);
+        if(txt==='/start'||txt.startsWith('/start ')||txt.startsWith('/start@'))
+      await run(env,'UPDATE users SET name=? WHERE id=? AND name<>?',fullName,uid,fullName);
+  }
   if(q){
     const data=String(q.data||'');
-    await ack(env,q.id);
+    await callbackAcknowledged;
     if(data==='nav:share')return share(env,uid,chat);
     if(data==='nav:channeltasks')return tasks(env,uid,chat);
     if(data.startsWith('nav:')||data.startsWith('filter:'))
