@@ -120,7 +120,7 @@ def rank_markets(markets, quotes, *, now, validation=None, min_edge=0.04):
     ranked.sort(key=lambda x:(-x["quote"]["expected_return_per_unit"],x["key"]))
     return ranked
 
-def generate_shadow(events, history, *, now, rho=0.,quotes=None,validation=None):
+def generate_shadow(events, history, *, now, rho=0.,quotes=None,validation=None,goal_calibration=None):
     now=_utc(now)
     if not -.13<=rho<=.13:raise ValueError("Unvalidated rho")
     index=V2History(history)
@@ -139,6 +139,14 @@ def generate_shadow(events, history, *, now, rho=0.,quotes=None,validation=None)
                 if estimate is not None:
                     matrix=score_matrix(estimate["home"],estimate["away"],rho=rho)
                     market_rows=enrich_all_markets(probabilities(matrix),estimate,validation=validation)
+                    if goal_calibration is not None and goal_calibration.applied:
+                        new_home,new_away=goal_calibration.apply(estimate['home'],estimate['away'])
+                        experimental=probabilities(score_matrix(new_home,new_away,rho=rho))
+                        for base, alt in zip(market_rows,experimental):
+                            if base['key']!=alt['key']:raise AssertionError('Incoherent V3 calibration')
+                            base['calibrated_probability_pct_experimental']=round(100*alt['probability'],1)
+                            base['calibrated_fair_odds_experimental']=alt['fair_odds']
+                            base['calibration_trial_only']=True
                     event_id=str(event["id"])
                     recommended=rank_markets(market_rows,(quotes or {}).get(event_id,{}),
                                              now=now,validation=validation)
@@ -149,6 +157,7 @@ def generate_shadow(events, history, *, now, rho=0.,quotes=None,validation=None)
                                  "home":event.get("home_team"),"away":event.get("away_team")},
                         "expected_goals":estimate,"rho":rho,
                         "score_model":"Dixon-Coles" if rho else "Poisson",
+                        "calibration_experiment":goal_calibration.to_dict() if goal_calibration is not None else None,
                         "features_asof":form_features(index,event),
                         "markets":market_rows,"market_count":len(market_rows),
                         "multi_market_mode":"all_40_no_selection_cap",
