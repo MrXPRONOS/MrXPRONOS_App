@@ -56,8 +56,9 @@ def ledger_token():
         raise RuntimeError("GitHub OIDC token missing")
     return token
 
-def ledger_call(path: str, ref_id: str, ref_date: str, token: str):
+def ledger_call(path: str, ref_id: str, ref_date: str, token: str, message_id: int | None = None):
     payload={"kind":"live_neon_signal","ref_id":ref_id,"ref_date":ref_date}
+    if message_id is not None: payload["telegram_message_id"]=message_id
     response=requests.post(
         LEDGER+path, json=payload,
         headers={"Authorization":"Bearer "+token,"Accept":"application/json"},
@@ -232,6 +233,7 @@ def publish(bot: str, slot: str, chatid: int, pred: dict):
     if not isinstance(result,dict) or not isinstance(result.get("message_id"),int):
         raise RuntimeError("Telegram did not confirm message id")
     print("TELEGRAM_SEND_OK slot="+slot+" prediction_id="+str(pred["id"]),flush=True)
+    return int(result["message_id"])
 
 def execute(mode: str):
     bot=os.environ.get("TELEGRAM_BOT_TOKEN","").strip()
@@ -273,9 +275,11 @@ def execute(mode: str):
                 print("TELEGRAM_DUPLICATE_SKIPPED "+slot+" "+str(p["id"]),flush=True)
                 continue
             try:
-                publish(bot,slot,channel,p)
+                message_id=publish(bot,slot,channel,p)
+                marked=ledger_call("/mark",key,date,token,message_id)
+                if marked.get("marked") is not True:
+                    raise RuntimeError("Telegram sent but D1 delivery acknowledgement failed")
                 sent+=1
-                # D1 claim is permanently kept after a successful send.
             except TelegramRejection as e:
                 # Only definitive API rejections are safe to retry.
                 ledger_call("/release",key,date,token)
