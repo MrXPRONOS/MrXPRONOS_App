@@ -153,6 +153,30 @@ test("8bis — Mini App saves language, favorite category and opt-in notificatio
 test("8ter — Welcome photo is delivered on first start",async()=>{
  assert.ok(messages.some(x=>x.method==="sendPhoto"&&x.body.photo.endsWith("/assets/welcome.png")));
 });
+test("8quad — Native Telegram /profil remains accessible without opening Mini App",async()=>{
+ const prev=messages.length;
+ await botUpdate(env,message(104,"/profil"));
+ const sent=messages.slice(prev).find(x=>x.method==="sendMessage");
+ assert.ok(sent);
+ assert.match(sent.body.text,/MON PROFIL CINÉ RADAR/);
+ assert.ok(sent.body.reply_markup.inline_keyboard.flat().some(b=>b.callback_data==="preferences"));
+});
+test("8quin — Profile renders even when Telegram getMe fails temporarily",async()=>{
+ const signed=await signInit(104);
+ const prevFetch=globalThis.fetch;
+ globalThis.fetch=async(url,opts)=>{
+  if(String(url).includes("/getMe"))return Response.json({ok:false,error_code:502,description:"Temporary failure"});
+  return prevFetch(url,opts);
+ };
+ try{
+  const r=await miniAppAPI(env,new Request("https://test.workers.dev/api/profile",{headers:{"X-Telegram-Init-Data":signed}}));
+  assert.equal(r.status,200);
+  const body=await r.json();
+  assert.equal(body.first_name,"Test");
+  assert.equal(body.referral_link,null);
+  assert.ok(body.preferences);
+ }finally{globalThis.fetch=prevFetch;}
+});
 test("9 — Worker health and HTML Mini App routes",async()=>{
  const h=await worker.fetch(new Request("https://test.workers.dev/health"),env,{waitUntil(){}});
  assert.equal(h.status,200);assert.equal((await h.json()).version,3);
