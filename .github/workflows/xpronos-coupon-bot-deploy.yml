@@ -24,7 +24,6 @@ jobs:
     env:
       PROJECT_REF: nhwafcpndlufzzxexikh
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
       XPRONOS_COUPON_BOT_TOKEN: ${{ secrets.XPRONOS_COUPON_BOT_TOKEN }}
       XPRONOS_COUPON_ADMIN_IDS: ${{ vars.XPRONOS_COUPON_ADMIN_IDS }}
       XPRONOS_COUPON_CHANNELS_JSON: ${{ vars.XPRONOS_COUPON_CHANNELS_JSON || '[]' }}
@@ -37,7 +36,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for name in SUPABASE_ACCESS_TOKEN SUPABASE_DB_URL XPRONOS_COUPON_BOT_TOKEN XPRONOS_COUPON_ADMIN_IDS; do
+          for name in SUPABASE_ACCESS_TOKEN XPRONOS_COUPON_BOT_TOKEN XPRONOS_COUPON_ADMIN_IDS; do
             if [ -z "${!name:-}" ]; then echo "::error::Variable GitHub manquante : $name"; exit 1; fi
           done
           if ! [[ "$XPRONOS_COUPON_ADMIN_IDS" =~ ^[0-9]+(,[0-9]+)*$ ]]; then
@@ -58,20 +57,48 @@ jobs:
         run: |
           deno test supabase/functions/xpronos-coupons-bot/coupon_logic_test.ts
           deno check --config supabase/functions/xpronos-coupons-bot/deno.json supabase/functions/xpronos-coupons-bot/index.ts
-      - name: Installer PostgreSQL CLI
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq postgresql-client
-      - name: Installer Supabase CLI
-        uses: supabase/setup-cli@v1
-        with:
-          version: latest
-      - name: Préparer les tables isolées et fonctions atomiques
+      - name: Préparer les tables isolées avec le token Supabase déjà utilisé
         shell: bash
         run: |
           set -euo pipefail
-          psql "$SUPABASE_DB_URL" -X -v ON_ERROR_STOP=1 -f telegram-coupons-bot/sql/001_coupons_bot.sql >/dev/null
-          echo 'Schéma des coupons 4+ prêt.'
+          # Management API : évite de demander un nouveau secret SUPABASE_DB_URL.
+          # Le token existant doit autoriser les requêtes database:write.
+          python - <<'PY'
+          import json
+          import os
+          import urllib.error
+          import urllib.request
+          from pathlib import Path
+
+          sql = Path('telegram-coupons-bot/sql/001_coupons_bot.sql').read_text(encoding='utf-8')
+          project_ref = os.environ['PROJECT_REF']
+          endpoint = f'https://api.supabase.com/v1/projects/{project_ref}/database/query'
+          payload = json.dumps({'query': sql}).encode('utf-8')
+          request = urllib.request.Request(
+              endpoint,
+              data=payload,
+              headers={
+                  'Authorization': 'Bearer ' + os.environ['SUPABASE_ACCESS_TOKEN'],
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json',
+              },
+              method='POST',
+          )
+          try:
+              with urllib.request.urlopen(request, timeout=120) as response:
+                  if response.status not in (200, 201):
+                      raise SystemExit(f'Erreur HTTP {response.status} pendant la préparation des tables')
+          except urllib.error.HTTPError as exc:
+              raise SystemExit(
+                  f'Supabase Management API HTTP {exc.code} : vérifie la validité de '
+                  'SUPABASE_ACCESS_TOKEN et son autorisation database:write. '
+                  'Aucun jeton ni contenu sensible ne sera affiché.'
+              ) from None
+          except urllib.error.URLError as exc:
+              raise SystemExit('Connexion à Supabase Management API impossible : ' + str(exc.reason)) from None
+
+          print('Tables XPRONOS 4+ configurées via Supabase Management API.')
+          PY
       - name: Déployer la fonction Telegram sans toucher aux autres fonctions
         run: supabase functions deploy xpronos-coupons-bot --project-ref "$PROJECT_REF" --no-verify-jwt
       - name: Configurer les secrets Edge et le webhook Telegram
