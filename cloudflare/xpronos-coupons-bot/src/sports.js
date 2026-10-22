@@ -50,7 +50,7 @@ export function settleCoupon(selections,matches){
  return {status:pending?'pending':losing?'lost':'won',items};
 }
 export async function settleFromESPN(env,fetcher=fetch,limit=5){
- const rows=(await env.DB.prepare("SELECT id,selections,result_status FROM coupons WHERE auto_settlement=1 AND active=1 AND result_status IN ('available','live') ORDER BY id ASC LIMIT ?").bind(Math.min(10,limit)).all()).results||[];
+ const rows=(await env.DB.prepare("SELECT id,selections,result_status FROM coupons WHERE auto_settlement=1 AND active=1 AND result_status IN ('available','live') AND (settlement_checked_at IS NULL OR settlement_checked_at<strftime('%Y-%m-%dT%H:%M:%fZ','now','-30 minutes')) ORDER BY id ASC LIMIT ?").bind(Math.min(10,limit)).all()).results||[];
  const cache=new Map(),stats={checked:0,finished:0,needsReview:0,unavailable:0};
  for(const row of rows){
   let selections;try{selections=JSON.parse(row.selections)}catch{stats.needsReview++;continue}
@@ -65,11 +65,16 @@ export async function settleFromESPN(env,fetcher=fetch,limit=5){
   }
   const report=error?{status:'review',reason:error}:settleCoupon(selections,matches);
   stats.checked++;
-  if(report.status==='review'){stats.needsReview++;continue}
+  if(report.status==='review'){
+   stats.needsReview++;
+   await env.DB.prepare("UPDATE coupons SET settlement_checked_at=?,settlement_report=? WHERE id=? AND auto_settlement=1")
+      .bind(new Date().toISOString(),JSON.stringify(report),row.id).run();
+   continue;
+  }
   if(report.status==='pending'){
-   if(report.items?.some(i=>i.result==='live')&&row.result_status==='available'){
-     await env.DB.prepare("UPDATE coupons SET result_status='live' WHERE id=? AND result_status='available'").bind(row.id).run();
-   }
+   const state=report.items?.some(i=>i.result==='live')?'live':row.result_status;
+   await env.DB.prepare("UPDATE coupons SET result_status=?,settlement_checked_at=?,settlement_report=? WHERE id=? AND auto_settlement=1 AND result_status IN ('available','live')")
+    .bind(state,new Date().toISOString(),JSON.stringify(report),row.id).run();
    continue;
   }
   const source=report.items?.find(i=>i.source)?.source||'';
