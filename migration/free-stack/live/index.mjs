@@ -48,7 +48,7 @@ async function currentMatches(){
    selected_uplift,model_version,final_value,headroom,confidence,validated,outcome,validation_type,created_at,
    signal_home_score,signal_away_score,signal_minute,signal_half1_home,signal_half1_away,signal_half2_home,
    signal_half2_away,live_odds,stake_fcfa,potential_gain_fcfa,odds_source
-   FROM public.live_predictions WHERE match_id=ANY(${sql.array(ids,'text')}) AND validated=false
+   FROM public.live_predictions WHERE match_id=ANY(${sql.array(ids)}) AND validated=false
    ORDER BY created_at DESC LIMIT 1000`;
  const byId=new Map();
  for(const p of pp){const k=String(p.match_id);if(!byId.has(k))byId.set(k,[]);byId.get(k).push(prediction(p));}
