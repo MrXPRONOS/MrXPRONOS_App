@@ -96,13 +96,39 @@ jobs:
           printf '%s' "$new_secret" | npx --no-install wrangler secret put CF_BOT_WEBHOOK_SECRET --name xpronos-coupons-bot
 
           python3 - <<'PY'
-          import json,os,urllib.request
-          base=os.environ['WORKER_URL']
-          with urllib.request.urlopen(base+'/health',timeout=20) as r:
-              health=json.load(r)
-          if health.get('status')!='ready':
-              raise SystemExit('Worker disponible mais secrets non initialisés.')
-          print('Worker Cloudflare prêt.')
+          import json, os, urllib.error, urllib.request
+          base = os.environ['WORKER_URL'].rstrip('/')
+
+          def request(path):
+              req = urllib.request.Request(base + path, headers={
+                  'Accept': 'application/json',
+                  'User-Agent': 'MrXPRONOS-Cloudflare-Healthcheck/1.0',
+              })
+              try:
+                  with urllib.request.urlopen(req, timeout=20) as res:
+                      return res.status, dict(res.headers), res.read(4096)
+              except urllib.error.HTTPError as err:
+                  return err.code, dict(err.headers), err.read(4096)
+
+          code, headers, body = request('/health')
+          print('Cloudflare Worker /health: HTTP', code, '(Ray ID:', headers.get('cf-ray', 'non fourni'), ')')
+          if code == 200:
+              try:
+                  status = json.loads(body).get('status')
+              except (json.JSONDecodeError, ValueError):
+                  raise SystemExit('Healthcheck HTTP 200, mais JSON de santé invalide.')
+              if status != 'ready':
+                  raise SystemExit('Le Worker répond, mais sa configuration est incomplète.')
+              print('Worker Cloudflare prêt : /health a confirmé ready.')
+          elif code == 403:
+              other, other_headers, _ = request('/')
+              print('Cloudflare Worker / : HTTP', other, '(Ray ID:', other_headers.get('cf-ray', 'non fourni'), ')')
+              if other != 403:
+                  raise SystemExit('La racine est joignable, mais /health est interdite : diagnostiquer la protection du chemin.')
+              print('::warning::La passerelle workers.dev renvoie 403 depuis GitHub sur tous les chemins. Le code du Worker /health ne retourne pas 403. Le déploiement et les secrets sont déjà confirmés par Wrangler ; on enregistre le webhook pour tester ensuite le trajet Telegram -> Cloudflare.')
+              print('::warning::Si /start reste sans réponse, tester l’URL workers.dev depuis un navigateur et consulter Cloudflare Worker Observability / règles de sécurité.')
+          else:
+              raise SystemExit('Worker Cloudflare inaccessible : /health retourne HTTP ' + str(code))
           PY
 
           export NEW_WEBHOOK_SECRET="$new_secret"
