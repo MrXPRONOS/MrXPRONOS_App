@@ -37,6 +37,21 @@ def get_oidc():
     expires=int(claims["exp"])
     return token
 verified=0
+if os.getenv("NEON_MEDIA_SMOKE")=="1":
+    blob=b"mrxpronos-neon-oidc-smoke"
+    key="shorts/2026/10/22/0000000000-migration-smoke.mp4"
+    response=requests.post(URL,headers={
+      "Authorization":"Bearer "+get_oidc(),
+      "Content-Type":"video/mp4",
+      "X-MRX-Object-Key":key,
+      "X-MRX-Object-Size":str(len(blob)),
+      "X-MRX-SHA256":hashlib.sha256(blob).hexdigest(),
+    },data=blob,timeout=(20,70))
+    print("Smoke upload response status:",response.status_code)
+    response.raise_for_status()
+    assert response.json().get("verified") is True
+    print("OIDC + Neon S3 round-trip SHA256 passed")
+    sys.exit(0)
 for item in inventory:
     key=item["name"]
     assert key.startswith("shorts/2026/") and key.endswith(".mp4")
