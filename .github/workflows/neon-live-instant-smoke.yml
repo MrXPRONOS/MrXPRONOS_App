@@ -18,7 +18,7 @@ jobs:
           url="https://mrxpronos-live-telegram-instant.cinecanaux-xpronos.workers.dev"
           def call(path,data=None):
             req=urllib.request.Request(url+path,data=data,method="POST" if data is not None else "GET",
-              headers={"Accept":"application/json","Content-Type":"application/json"})
+              headers={"Accept":"application/json","Content-Type":"application/json","User-Agent":"Mozilla/5.0 (compatible; MrXPRONOSLiveGatewayAudit/1.0)"})
             try:
               with urllib.request.urlopen(req,timeout=18) as res:
                 return res.status,json.load(res)
