@@ -114,9 +114,40 @@ test("5 — One personal invite, no self-referral, unique attribution",async()=>
  await botUpdate(env,message(104,"/start ref_"+code));
  assert.equal(state.refvisits.size,1);assert.equal(state.refvisits.get(205),104);
 });
-test("6 — Telegram Mini App rejects unsigned browser requests",async()=>{
+test("6 — Public catalogue works without Telegram session while private profile remains protected",async()=>{
  const r=await miniAppAPI(env,new Request("https://test.workers.dev/api/catalog"));
- assert.equal(r.status,401);
+ assert.equal(r.status,200);
+ const data=await r.json();
+ assert.equal(data.authenticated,false);
+ assert.ok(Array.isArray(data.channels));
+ assert.equal(data.channels.length,1);
+ assert.equal(data.favorite_ids.length,0);
+ const protectedRequest=await miniAppAPI(env,new Request("https://test.workers.dev/api/profile"));
+ assert.equal(protectedRequest.status,401);
+ const protectedData=await protectedRequest.json();
+ assert.equal(protectedData.code,"telegram_session_required");
+});
+test("6bis — A forged or expired Telegram session cannot access private endpoints",async()=>{
+ const bad=await miniAppAPI(env,new Request("https://test.workers.dev/api/profile",{headers:{"X-Telegram-Init-Data":"user=forged&hash=ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff&auth_date=1"}}));
+ assert.equal(bad.status,401);
+ const guestCatalog=await miniAppAPI(env,new Request("https://test.workers.dev/api/catalog",{headers:{"X-Telegram-Init-Data":"user=forged&hash=ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff&auth_date=1"}}));
+ assert.equal(guestCatalog.status,200);
+ assert.equal((await guestCatalog.json()).authenticated,false);
+});
+test("6ter — Signed sessions validate with optional Telegram signature field",async()=>{
+ for(const includeSignature of [true,false]){
+  const auth_date=String(Math.floor(Date.now()/1000));
+  const user=JSON.stringify({id:104,first_name:"Test"});
+  const signature="telegram-third-party-ed25519-signature";
+  const pairs=includeSignature?[["auth_date",auth_date],["signature",signature],["user",user]]:[["auth_date",auth_date],["user",user]];
+  const check=pairs.map(([key,val])=>key+"="+val).join("\n");
+  const secret=createHmac("sha256","WebAppData").update(token).digest();
+  const hash=createHmac("sha256",secret).update(check).digest("hex");
+  const init=new URLSearchParams({...Object.fromEntries(pairs),hash}).toString();
+  const resp=await miniAppAPI(env,new Request("https://test.workers.dev/api/profile",{headers:{"X-Telegram-Init-Data":init}}));
+  assert.equal(resp.status,200);
+  assert.equal((await resp.json()).first_name,"Test");
+ }
 });
 test("7 — Signed Telegram Mini App initData returns only eligible catalog",async()=>{
  const init=await signInit(104);
