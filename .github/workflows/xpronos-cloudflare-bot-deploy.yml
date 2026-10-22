@@ -69,6 +69,7 @@ jobs:
           node --test tests/*.test.js
           python3 tests/test_schema.py
           python3 tests/test_v2.py
+          python3 tests/test_v3.py
 
       - name: Installer Wrangler version déterministe
         run: npm install --no-save --package-lock=false --no-audit --no-fund wrangler@4.50.0
@@ -176,7 +177,9 @@ jobs:
             ('results','Résultats des coupons vérifiés'),
             ('referrals','Mes parrainages'),
             ('share','Partager Free Pronos'),
-            ('help','Aide et fonctionnement')
+            ('help','Aide et fonctionnement'),
+            ('support','Contacter l’assistance'),
+            ('mytickets','Mes demandes d’assistance')
           ]
           actions={
             'setMyName':{'name':'Free Pronos'},
