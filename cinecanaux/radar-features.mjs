@@ -529,10 +529,19 @@ export async function miniAppAPI(env,request){
    await env.DB.prepare("INSERT INTO channel_telemetry(channel_id,opens) VALUES(?,1) ON CONFLICT(channel_id) DO UPDATE SET opens=channel_telemetry.opens+1").bind(id).run();
    return json({ok:true});
   }
+  if(path==="/api/preferences"&&request.method==="POST"){
+    if(Number(request.headers.get("content-length")||0)>4096)return json({error:"Requête trop grande"},413);
+    const body=await request.json();
+    const category=String(body?.category||""),language=String(body?.language||"");
+    if(!CATEGORY.some(x=>x[0]===category)||!LANG.some(x=>x[0]===language)||typeof body?.notifications!=="boolean")
+      return json({error:"Préférences non valides"},400);
+    await setPrefs(env,user.id,{category,language,notification_enabled:body.notifications?1:0});
+    return json({ok:true,preferences:await prefs(env,user.id)});
+  }
   if(path==="/api/profile"&&request.method==="GET"){
    const f=await env.DB.prepare("SELECT COUNT(*) n FROM favorites WHERE user_id=?").bind(user.id).first();
    const r=await env.DB.prepare("SELECT COUNT(*) n FROM referral_visits WHERE referrer_id=?").bind(user.id).first();
-   return json({first_name:user.first_name,favorites:f?.n||0,referrals:r?.n||0});
+   return json({first_name:user.first_name,favorites:f?.n||0,referrals:r?.n||0,preferences:await prefs(env,user.id),referral_link:await referralLink(env,user.id)});
   }
   if(path==="/api/favorite"&&request.method==="POST"){
    if(Number(request.headers.get("content-length")||0)>4096)return json({error:"Requête trop grande"},413);
