@@ -30,8 +30,9 @@ jobs:
         run: |
           node --check src/worker.js
           node --check src/logic.js
-          node --test tests/logic.test.js
+          node --test tests/*.test.js
           python3 tests/test_schema.py
+          python3 tests/test_v2.py
       - name: Bundler le Worker avec Wrangler (sans secrets)
         run: |
           npm install --no-save --package-lock=false --no-audit --no-fund wrangler@4.50.0
