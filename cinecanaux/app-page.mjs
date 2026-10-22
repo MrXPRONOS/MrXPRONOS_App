@@ -1,7 +1,7 @@
 export const APP_HTML=String.raw`<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Ciné Radar — Trouve ton canal</title><meta name="theme-color" content="#0b1223"><meta name="description" content="Découvre des canaux Telegram publics de films, séries et animés.">
-<script src="https://telegram.org/js/telegram-web-app.js?64"></script>
+<script defer src="https://telegram.org/js/telegram-web-app.js?64"></script>
 <style>
 :root{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#f4f7ff;background:#0b1223;--muted:#afc0db;--panel:#16203a;--stroke:#304064;--blue:#5b8dfa}
 *{box-sizing:border-box}
@@ -70,7 +70,10 @@ button,input{font:inherit}
 <div class="sheet-bg" id="overlay" hidden role="dialog" aria-modal="true" aria-label="Aperçu du canal"><div class="sheet" id="sheet"></div></div>
 <script>
 (function(){
-const tg=window.Telegram?.WebApp||null;try{tg?.ready();tg?.expand();}catch{}
+// Browser starts rendering before the optional Telegram SDK finishes downloading.
+const PRELOADED_CATALOG=null;
+const telegram=()=>window.Telegram?.WebApp||null;
+document.addEventListener("DOMContentLoaded",()=>{try{telegram()?.ready();telegram()?.expand();}catch{}});
 const $=id=>document.getElementById(id);
 const validLink=url=>/^https:\/\/t\.me\/[A-Za-z][A-Za-z0-9_]{4,31}\/?$/.test(String(url||""));
 const photoHost=url=>/^https:\/\/(?:[a-z0-9-]+\.)*(?:telesco\.pe|telegram\.org|telegram-cdn\.org|t\.me)\/[^\s"'<>]{1,1200}$/i.test(String(url||""));
@@ -82,7 +85,7 @@ async function api(path){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
  try{const r=await fetch(path,{cache:"default",signal:controller.signal});const body=await r.json();if(!r.ok)throw Error(body.error||"Service indisponible");return body;}finally{clearTimeout(timer);}
 }
-function openTelegram(link){if(!validLink(link))return;if(tg?.openTelegramLink)tg.openTelegramLink(link);else window.open(link,"_blank","noopener");}
+function openTelegram(link){if(!validLink(link))return;const tg=telegram();if(tg?.openTelegramLink)tg.openTelegramLink(link);else window.open(link,"_blank","noopener");}
 function close(){ previewToken++;$("overlay").hidden=true;$("sheet").textContent=""; }
 function buildCard(channel){
  const card=node("article","card"),cover=node("div","card-cover");card.dataset.channelId=String(channel.id);
@@ -214,6 +217,11 @@ document.addEventListener("visibilitychange",()=>{
 });
 $("overlay").onclick=e=>{if(e.target===$("overlay"))close();};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")close();});
+if(Array.isArray(PRELOADED_CATALOG)&&PRELOADED_CATALOG.length){
+ allChannels=PRELOADED_CATALOG;
+ lastFetch=Date.now();
+ applyFilters();
+}
 load();
 })();
 </script></body></html>`;
