@@ -152,9 +152,9 @@ export default {
   if(u.pathname.startsWith("/api/"))return miniAppAPI(env,request,channelPreview);
   if(request.method==="POST"&&u.pathname==="/telegram")return receiveTelegram(request,env);
   if(request.method==="GET"&&u.pathname==="/health"){
-   const status=await env.DB.prepare("SELECT status FROM bot_webhook_status WHERE id=1").first();
-   const count=await env.DB.prepare("SELECT COUNT(*) AS n FROM channels WHERE status='approved'").first();
-   return Response.json({service:"cine-radar",version:6,database:!!env.DB,webhook:status?.status||"waiting",publicChannels:Number(count?.n||0),miniApp:APP_URL},{headers:{"cache-control":"no-store"}});
+   // One D1 round trip for service health, instead of two sequential queries.
+   const state=await env.DB.prepare("SELECT (SELECT status FROM bot_webhook_status WHERE id=1) AS webhook,(SELECT COUNT(*) FROM channels WHERE status='approved') AS n").first();
+   return Response.json({service:"cine-radar",version:6,database:!!env.DB,webhook:state?.webhook||"waiting",publicChannels:Number(state?.n||0),miniApp:APP_URL},{headers:{"cache-control":"no-store"}});
   }
   return new Response("Not found",{status:404});
  },

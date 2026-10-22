@@ -58,7 +58,7 @@ test("Telegram home and public posts URLs start in parallel",async()=>{
  let settle;
  const gate=new Promise(resolve=>{settle=resolve;});
  const sample='<meta property="og:title" content="Cinéma test | Telegram"/>';
- const env={DB:{prepare(sql){return {bind(){return this},async first(){if(sql.includes("FROM channels WHERE id="))return {id:7,title:"Cinema",link:LINK,description:"Info",last_post_at:null};return null;},async run(){return {meta:{changes:1}};}}}}};
+ const env={DB:{prepare(sql){return {bind(){return this},async first(){if(sql.includes("FROM channels c LEFT JOIN channel_profile_cache"))return {id:7,title:"Cinema",link:LINK,description:"Info",last_post_at:null};return null;},async run(){return {meta:{changes:1}};}}}}};
  globalThis.fetch=async url=>{calls.push(String(url));await gate;return new Response(sample,{status:200,headers:{"content-type":"text/html"}});};
  try{
   const pending=channelPreview(env,7);
