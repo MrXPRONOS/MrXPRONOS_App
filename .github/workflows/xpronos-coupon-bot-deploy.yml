@@ -57,6 +57,18 @@ jobs:
         run: |
           deno test supabase/functions/xpronos-coupons-bot/coupon_logic_test.ts
           deno check --config supabase/functions/xpronos-coupons-bot/deno.json supabase/functions/xpronos-coupons-bot/index.ts
+      - name: Installer la CLI Supabase
+        uses: supabase/setup-cli@v3
+        with:
+          version: '2.84.2'
+      - name: Vérifier la CLI Supabase avant de l'utiliser
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v supabase
+          supabase --version
+          supabase functions deploy --help >/dev/null
+          supabase secrets set --help >/dev/null
       - name: Préparer les tables isolées avec le token Supabase déjà utilisé
         shell: bash
         run: |
