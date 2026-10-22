@@ -1,0 +1,46 @@
+name: Neon Telegram connectivity audit
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/neon-telegram-connectivity-audit.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      NEON_MEMBERSHIP_URL: https://br-winter-truth-b9of9tss-telegrammembership.compute.c-7.eu-central-1.aws.neon.tech/
+    steps:
+      - name: Check Neon endpoint and read Telegram webhook without modification
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,os,urllib.request
+          dest=os.environ['NEON_MEMBERSHIP_URL']
+          try:
+              with urllib.request.urlopen(urllib.request.Request(dest,method='GET'),timeout=20) as res:
+                  state=json.load(res)
+              print("Neon membership endpoint status:",state.get("service"),"configured:",state.get("configured"))
+          except Exception as exc:
+              print("Neon membership endpoint error:",type(exc).__name__)
+              raise SystemExit(1)
+          if state.get('service')!='telegram-membership' or state.get('configured') is not True:
+              raise SystemExit("Neon membership is not ready; Telegram webhook unchanged")
+          token=os.environ.get('TELEGRAM_BOT_TOKEN','')
+          if not token:raise SystemExit("Telegram bot token missing")
+          req=urllib.request.Request('https://api.telegram.org/bot'+token+'/getWebhookInfo',method='GET')
+          try:
+              with urllib.request.urlopen(req,timeout=20) as res: info=json.load(res)
+              result=info.get('result') or {}
+              url=result.get('url') or ''
+              provider='supabase' if 'supabase.co' in url else 'neon' if 'neon.tech' in url else 'other' if url else 'unset'
+              print("Current Telegram webhook provider:",provider)
+              print("Last Telegram webhook error present:",bool(result.get('last_error_message')))
+              print("Pending updates:",result.get('pending_update_count'))
+          except Exception as exc:
+              print("Telegram webhook check error:",type(exc).__name__)
+              raise SystemExit(1)
+          PY
