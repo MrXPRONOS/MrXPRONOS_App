@@ -222,7 +222,8 @@ export async function results(env,uid,chat,send,telegram,editId){
   const txt='📊 <b>RÉSULTATS DES COUPONS</b>\n\n'+
     (rows.length?rows.map(c=>
       '<b>#'+c.id+' · '+H(c.title)+'</b>\n'+statusLabel(c.result_status)+
-      (c.result_reviewed_at?'\n<i>Mise à jour : '+H(c.result_reviewed_at.slice(0,16).replace('T',' '))+' UTC</i>':'')).join('\n\n'):
+      (c.result_reviewed_at?'\n<i>Mise à jour : '+H(c.result_reviewed_at.slice(0,16).replace('T',' '))+' UTC</i>':'')+
+      (typeof c.result_source==='string'&&c.result_source.startsWith('https://')?'\n🔎 <a href="'+H(c.result_source)+'">Consulter la source du résultat</a>':'')).join('\n\n'):
       '<i>Aucun résultat confirmé pour le moment.</i>')+
     '\n\n<blockquote>Résultats renseignés par un administrateur après contrôle des matchs, sans garantie de données automatiques.</blockquote>';
   return deliver(env,chat,txt,send,telegram,editId);

@@ -133,14 +133,14 @@ async function redeem(env,uid,chat,id) {
   const r=await one(env,
     "INSERT OR IGNORE INTO redemptions(user_id,coupon_id,snapshot,xp_spent) "+
     "SELECT ?,c.id,json_object('title',c.title,'tier',c.tier,'total_odds',c.total_odds,'selections',json(c.selections),'expires_at',c.expires_at),c.xp_cost "+
-    "FROM coupons c JOIN users u ON u.id=? WHERE c.id=? AND c.active=1 AND c.expires_at>? AND c.stock<>0 "+
+    "FROM coupons c JOIN users u ON u.id=? WHERE c.id=? AND c.active=1 AND c.expires_at>? AND c.stock<>0 AND c.result_status='available' "+
     "AND u.adult_confirmed=1 AND u.required_verified=1 AND u.xp>=c.xp_cost RETURNING coupon_id",
     uid,uid,id,new Date().toISOString());
   if(r)return send(env,chat,'✅ <b>COUPON DÉBLOQUÉ !</b>\n\n🎫 Retrouve les sélections dans <b>Mes coupons</b>.\n<i>Vérifie les cotes avant de jouer.</i>');
   const already=await one(env,'SELECT 1 AS yes FROM redemptions WHERE user_id=? AND coupon_id=?',uid,id);
   if(already)return send(env,chat,'ℹ️ <b>Déjà débloqué</b>\n\nRetrouve ce coupon dans <b>🎫 Mes coupons</b>.');
   const c=await one(env,'SELECT * FROM coupons WHERE id=?',id);
-  if(!c||!c.active||c.stock===0||c.expires_at<=new Date().toISOString())return send(env,chat,'⏳ <b>Coupon indisponible</b>\n\n<i>Stock épuisé ou date dépassée.</i>');
+  if(!c||!c.active||c.stock===0||c.result_status!=='available'||c.expires_at<=new Date().toISOString())return send(env,chat,'⏳ <b>Coupon indisponible</b>\n\n<i>Stock épuisé ou date dépassée.</i>');
   return send(env,chat,'💎 <b>XP insuffisants</b>\n\n<i>Accomplis des missions ou récupère ton bonus pour débloquer ce coupon.</i>');
 }
 async function mine(env,uid,chat) {
