@@ -38,12 +38,17 @@ export async function miniApi(request,env){
   const verified=await authenticateInitData(dedicated||legacy,env.CF_BOT_TOKEN);
   if(!verified)return json({error:'invalid_or_expired_telegram_session'},401);
   const id=verified.userId,url=new URL(request.url);
-  const me=await summary(env,id);
-  if(!me)return json({error:'start_bot_first'},403);
-  if(!me.adult)return json({error:'adult_confirmation_required'},403);
+  // Route rapide : un contrôle de droits D1 léger suffit aux écrans ordinaires.
+  // Les six agrégats XP ne sont calculés que lorsqu'un écran demande /api/me.
+  const access=await env.DB.prepare('SELECT adult_confirmed,required_verified FROM users WHERE id=?').bind(id).first();
+  if(!access)return json({error:'start_bot_first'},403);
+  if(!access.adult_confirmed)return json({error:'adult_confirmation_required'},403);
   if(url.pathname.startsWith('/api/admin/'))return adminApi(request,env,id);
   if(url.pathname==='/api/me'&&request.method==='GET'){
-    const p=await env.DB.prepare('SELECT notify_coupons,notify_results FROM user_preferences WHERE user_id=?').bind(id).first();
+    const [me,p]=await Promise.all([
+      summary(env,id),
+      env.DB.prepare('SELECT notify_coupons,notify_results FROM user_preferences WHERE user_id=?').bind(id).first()
+    ]);
     return json({me:{...me,is_admin:isAdmin(env,id)},alerts:{coupons:!!p?.notify_coupons,results:!!p?.notify_results}});
   }
   if(url.pathname==='/api/mytickets'&&request.method==='GET'){
@@ -65,7 +70,7 @@ export async function miniApi(request,env){
     await informAdmins(env,{id:ticket.id,uid:id,message:ticket.message},tg);
     return json({status:'ok',ticket_id:ticket.id});
   }
-  if(!me.verified)return json({error:'channel_verification_required'},403);
+  if(!access.required_verified)return json({error:'channel_verification_required'},403);
   if(url.pathname==='/api/coupons'&&request.method==='GET'){
     const tier=url.searchParams.get('category')||'ALL';
     if(!['ALL','SIMPLE','PRO','VIP'].includes(tier))return json({error:'invalid_category'},400);
