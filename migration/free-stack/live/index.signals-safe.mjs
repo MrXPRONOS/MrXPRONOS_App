@@ -2361,6 +2361,7 @@ function normalizeStatsList(stats) {
   const result={};
   const map={
     corners:"corner_kicks",cornerkicks:"corner_kicks",totalcorners:"corner_kicks",
+    woncorners:"corner_kicks",cornerswon:"corner_kicks",
     totalshots:"total_shots",shots:"total_shots",shotattempts:"total_shots",
     shotsongoal:"shots_on_target",shotsontarget:"shots_on_target",
     foul:"fouls",fouls:"fouls",foulscommitted:"fouls",
@@ -2489,7 +2490,11 @@ function diagnostic(events) {
   const live=events.filter(e=>e.is_live);
   const scheduled=events.filter(e=>!e.is_live);
   const observed=live.filter(e=>Object.keys(e.live_stats.home||{}).length+Object.keys(e.live_stats.away||{}).length>0);
+  const paired=(key)=>live.filter(e=>Number.isFinite(e.live_stats?.home?.[key])&&Number.isFinite(e.live_stats?.away?.[key]));
   return {live_matches:live.length,scheduled_matches:scheduled.length,
+    live_with_corner_pairs:paired("corner_kicks").length,
+    live_with_shot_pairs:paired("total_shots").length,
+    live_with_foul_pairs:paired("fouls").length,
     live_with_observed_statistics:observed.length,statistics_fields:observed.reduce((acc,e)=>acc+Object.keys(e.live_stats.home||{}).length+Object.keys(e.live_stats.away||{}).length,0),
     generated_signals:0,telegram_sent:0};
 }
