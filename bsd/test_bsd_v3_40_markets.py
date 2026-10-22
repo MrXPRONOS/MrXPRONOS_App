@@ -6,6 +6,7 @@ sys.path.insert(0,str(Path(__file__).parent))
 from bsd_v2_core import score_matrix
 from bsd_v3_40_markets import SPECS, BY_KEY, probabilities, result, settle_market
 from bsd_v3_40_engine import rank_markets, enrich_all_markets
+from bsd_v3_40_calibration import from_sums, GoalCalibration
 from datetime import datetime,timezone
 
 class V3MarketsTests(unittest.TestCase):
@@ -75,6 +76,24 @@ class V3MarketsTests(unittest.TestCase):
                          "chronological_holdout":True}
         picks=rank_markets(list(self.rows.values()),quotes,now=now,validation=checks)
         self.assertEqual(len(picks),3)
+
+    def test_goal_calibration_preserves_all_market_coherence(self):
+        m=from_sums(n=400,actual_home=580,actual_away=440,
+                    predicted_home=600,predicted_away=400)
+        home,away=m.apply(1.4,1.1)
+        self.assertEqual(len(probabilities(score_matrix(home,away))),40)
+        p={x["key"]:x["probability"] for x in probabilities(score_matrix(home,away))}
+        self.assertAlmostEqual(p["RESULT_HOME"]+p["RESULT_DRAW"]+p["RESULT_AWAY"],1,places=7)
+        self.assertAlmostEqual(p["DC_1X"],p["RESULT_HOME"]+p["RESULT_DRAW"],places=7)
+        self.assertTrue(.88<=m.home_scale<=1.12)
+        self.assertTrue(.88<=m.away_scale<=1.12)
+        self.assertEqual(GoalCalibration.from_dict(m.to_dict()).trained,400)
+
+    def test_goal_calibration_small_sample_is_identity(self):
+        m=from_sums(n=20,actual_home=40,actual_away=30,
+                    predicted_home=20,predicted_away=20)
+        self.assertEqual(m.apply(1.3,1.1),(1.3,1.1))
+        self.assertFalse(m.applied)
 
     def test_invalid_distribution(self):
         with self.assertRaises(ValueError):
