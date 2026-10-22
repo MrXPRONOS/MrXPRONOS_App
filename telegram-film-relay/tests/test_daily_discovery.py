@@ -3,9 +3,9 @@ import unittest
 from scripts.discovery_daily import categories, format_report, make_category_cfg
 
 class DailyDiscoveryTests(unittest.TestCase):
-    def test_four_categories_in_exact_order(self):
+    def test_five_categories_in_exact_order(self):
         self.assertEqual([c["id"] for c in categories()],
-                         ["films", "desir", "comedie", "anime"])
+                         ["films", "desir", "comedie", "anime", "series"])
 
     def test_daily_digest_has_html_and_visible_links(self):
         record = {"username": "romancecinex2026",
@@ -35,13 +35,20 @@ class DailyDiscoveryTests(unittest.TestCase):
         self.assertEqual(cfg["min_video_minutes"], 10)
         self.assertTrue(cfg["include_unverified"])
 
+    def test_series_constraints(self):
+        cfg = make_category_cfg(categories()[-1], {
+            "results_per_query": 8, "max_channels_per_category": 4,
+            "sample_messages": 55, "pause_seconds": 12})
+        self.assertEqual(cfg["min_video_minutes"], 20)
+        self.assertEqual(cfg["min_video_megabytes"], 70)
+
     def test_digest_remains_below_telegram_limit(self):
         sections = [
             {"id":cat, "label": cat.upper(), "channels": [
                 {"username": "cinexchannel" + str(i + n*5),
                  "title": "Une chaîne avec un titre très long 1234567" * 2,
                  "format_verified":True} for i in range(4)]}
-            for n, cat in enumerate(["films", "desir", "comedie", "anime"])
+            for n, cat in enumerate(["films", "desir", "comedie", "anime", "series"])
         ]
         body = format_report("2026-10-17", sections, set())
         self.assertLess(len(body.encode("utf-8")), 3900)
