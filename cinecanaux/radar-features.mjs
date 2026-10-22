@@ -76,8 +76,8 @@ async function startMessage(env,id,uid,cb){
   [bx("🎬 Films","type:films",null,"primary"),bx("📺 Séries","type:series",null,"primary")],
   [bx("🎌 Animés","type:animes",null,"primary"),bx("🔎 Rechercher","search",null,"primary")],
   [bx("⭐ Mes favoris","favorites"),bx("🆕 Nouveautés","latest",null,"success")],
-  [bx("✨ Pour moi","recommend"),bx("🎛 Mes préférences","preferences")],
-  [bx("🎁 Parrainage","referral",null,"success"),bx("📊 Mes filleuls","refstats")],
+  [bx("✨ Pour moi","recommend"),bx("👤 Mon profil","profile",null,"primary")],
+  [bx("🎁 Parrainage","referral",null,"success"),bx("🎛 Préférences","preferences")],
   [bx("📣 Nos canaux","owned"),bx("🖥 Mini App","miniapp",null,"primary")],
   [bx("📨 Proposer","suggest"),bx("💡 Aide","help")]
  ];
@@ -173,6 +173,25 @@ async function preferencePanel(env,id,uid,cb){
  rows.push([bx(p.notification_enabled?"🔕 Couper les alertes":"🔔 Activer les alertes","notify",null,p.notification_enabled?"danger":"success")]);
  rows.push(navHome());
  await show(env,id,cb,regularHeader("MES PRÉFÉRENCES 🎛","<b>Catégorie :</b> "+esc(p.category)+"\n<b>Langue :</b> "+esc(p.language)+"\n<b>Alertes :</b> "+(p.notification_enabled?"activées":"désactivées"),"Aucune notification n'est envoyée sans ton accord."),kb(rows));
+}
+async function profilePanel(env,id,uid,cb){
+ const p=await prefs(env,uid);
+ const favoritesCount=await env.DB.prepare("SELECT COUNT(*) AS n FROM favorites WHERE user_id=?").bind(uid).first();
+ const referralCount=await env.DB.prepare("SELECT COUNT(*) AS n FROM referral_visits WHERE referrer_id=?").bind(uid).first();
+ const msg=regularHeader("MON PROFIL CINÉ RADAR 👤",
+   "⭐ <b>"+Number(favoritesCount?.n||0)+"</b> favoris\n"+
+   "👥 <b>"+Number(referralCount?.n||0)+"</b> invitation(s)\n"+
+   "🎞️ <b>Catégorie :</b> "+esc(p.category)+"\n"+
+   "🌐 <b>Langue :</b> "+esc(p.language)+"\n"+
+   "🔔 <b>Alertes :</b> "+(p.notification_enabled?"activées":"désactivées"),
+   "Tu peux modifier tes choix directement ici, sans ouvrir la Mini App.");
+ await show(env,id,cb,msg,kb([
+  [bx("🎛 Modifier mes préférences","preferences",null,"primary")],
+  [bx("⭐ Mes favoris","favorites"),bx("📊 Parrainages","refstats")],
+  [bx("🎁 Partager mon invitation","referral",null,"success")],
+  [{text:"🖥 Ouvrir l'application",web_app:{url:BASE+"/app"},style:"primary"}],
+  navHome()
+ ]));
 }
 async function referralCode(env,uid){
  const existing=await env.DB.prepare("SELECT code FROM referral_codes WHERE user_id=?").bind(uid).first();
@@ -353,6 +372,7 @@ export async function botUpdate(env,update){
  if(!(await access(env,uid,chat,cb)))return;
  if(action==="referral"||raw==="/parrainage"||raw==="/inviter")return shareReferral(env,chat,uid);
  if(action==="refstats"||raw==="/mesparrainages")return referralStats(env,chat,uid,cb);
+ if(action==="profile"||raw==="/profil")return profilePanel(env,chat,uid,cb);
  if(action==="preferences")return preferencePanel(env,chat,uid,cb);
  if(parts[0]==="prefcat"&&CATEGORY.some(x=>x[0]===parts[1])){
   await setPrefs(env,uid,{category:parts[1]});return preferencePanel(env,chat,uid,cb);
@@ -407,7 +427,7 @@ export async function botUpdate(env,update){
  if(action==="suggest"||raw==="/proposer")return suggest(env,chat,uid,cb);
  if(action==="help"||raw==="/aide"){
   return show(env,chat,cb,regularHeader("MODE D'EMPLOI 💡",
-   "<b>/menu</b> — Accueil\n<b>/recherche</b> — Rechercher\n<b>/favoris</b> — Favoris\n<b>/parrainage</b> — Invitation\n<b>/mesparrainages</b> — Statistiques\n<b>/proposer</b> — Proposer un canal\n<b>/monid</b> — Ton identifiant","Utilise les boutons pour naviguer sans encombrer la discussion."),kb([navHome()]));
+   "<b>/menu</b> — Accueil\n<b>/profil</b> — Mon profil\n<b>/recherche</b> — Rechercher\n<b>/favoris</b> — Favoris\n<b>/parrainage</b> — Invitation\n<b>/mesparrainages</b> — Statistiques\n<b>/proposer</b> — Proposer un canal\n<b>/monid</b> — Ton identifiant","Utilise les boutons pour naviguer sans encombrer la discussion."),kb([navHome()]));
  }
  if(!raw)return;
  const state=await env.DB.prepare("SELECT mode FROM user_states WHERE user_id=?").bind(uid).first();
@@ -419,12 +439,12 @@ export async function botUpdate(env,update){
 export async function initializeProfile(env){
  if(!env.TELEGRAM_TOKEN)return;
  const old=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='profile_version'").first();
- if(old?.value==="3")return;
+ if(old?.value==="4")return;
  const tasks=[
   ["setMyName",{name:"Ciné Radar"}],
   ["setMyDescription",{description:"🎬 Ciné Radar — explore des canaux de films, séries et animés, classés par genre. Favoris, découverte et recommandations. 🍿"}],
   ["setMyShortDescription",{short_description:"🎬 Ton radar cinéma : films, séries, animés et favoris. 🍿"}],
-  ["setMyCommands",{commands:[{command:"start",description:"🍿 Découvrir Ciné Radar"},{command:"menu",description:"🎬 Accueil"},{command:"recherche",description:"🔎 Rechercher"},{command:"favoris",description:"⭐ Mes favoris"},{command:"parrainage",description:"🎁 Inviter des amis"},{command:"mesparrainages",description:"📊 Mes filleuls"},{command:"proposer",description:"📨 Proposer un canal"},{command:"aide",description:"💡 Aide"}]}],
+  ["setMyCommands",{commands:[{command:"start",description:"🍿 Découvrir Ciné Radar"},{command:"menu",description:"🎬 Accueil"},{command:"recherche",description:"🔎 Rechercher"},{command:"favoris",description:"⭐ Mes favoris"},{command:"profil",description:"👤 Mon profil"},{command:"parrainage",description:"🎁 Inviter des amis"},{command:"mesparrainages",description:"📊 Mes filleuls"},{command:"proposer",description:"📨 Proposer un canal"},{command:"aide",description:"💡 Aide"}]}],
   ["setChatMenuButton",{menu_button:{type:"web_app",text:"🎬 Ciné Radar",web_app:{url:BASE+"/app"}}}]
  ];
  let failures=[];
@@ -447,7 +467,7 @@ export async function initializeProfile(env){
    await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_photo_status',?) ON CONFLICT(setting_key) DO UPDATE SET value=excluded.value,updated_at=CURRENT_TIMESTAMP").bind(("pending: "+String(e)).slice(0,170)).run();
    return; // Do not mark profile as completed. Next cron retries.
  }
- await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','3') ON CONFLICT(setting_key) DO UPDATE SET value='3',updated_at=CURRENT_TIMESTAMP").run();
+ await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','4') ON CONFLICT(setting_key) DO UPDATE SET value='4',updated_at=CURRENT_TIMESTAMP").run();
  await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_photo_status','complete') ON CONFLICT(setting_key) DO UPDATE SET value='complete',updated_at=CURRENT_TIMESTAMP").run();
 }
 export async function maintenance(env,mode){
@@ -541,9 +561,11 @@ async function validateMiniApp(env,request){
 export async function miniAppAPI(env,request){
  const hdr={"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"};
  function json(body,code=200){return new Response(JSON.stringify(body),{status:code,headers:hdr});}
+ let user;
+ try{user=await validateMiniApp(env,request);}
+ catch(e){return json({error:"Session Telegram indisponible. Ouvre l'application depuis le bot Ciné Radar."},401);}
  try{
-  const user=await validateMiniApp(env,request);
-  if((await membership(env,user.id)).length)return json({error:"Abonne-toi d'abord aux canaux officiels via le bot."},403);
+  if((await membership(env,user.id)).length)return json({error:"Rejoins d'abord nos canaux via le bot Ciné Radar."},403);
   const url=new URL(request.url),path=url.pathname;
   if(path==="/api/catalog"&&request.method==="GET"){
    const type=url.searchParams.get("type"),kind=CATEGORY.some(x=>x[0]===type)?type:null;
@@ -597,7 +619,9 @@ export async function miniAppAPI(env,request){
   if(path==="/api/profile"&&request.method==="GET"){
    const f=await env.DB.prepare("SELECT COUNT(*) n FROM favorites WHERE user_id=?").bind(user.id).first();
    const r=await env.DB.prepare("SELECT COUNT(*) n FROM referral_visits WHERE referrer_id=?").bind(user.id).first();
-   return json({first_name:user.first_name,favorites:f?.n||0,referrals:r?.n||0,preferences:await prefs(env,user.id),referral_link:await referralLink(env,user.id)});
+   let inviteLink=null;
+   try{inviteLink=await referralLink(env,user.id);}catch(e){console.warn(JSON.stringify({event:"referral_link_unavailable",reason:String(e).slice(0,80)}));}
+   return json({first_name:user.first_name,favorites:f?.n||0,referrals:r?.n||0,preferences:await prefs(env,user.id),referral_link:inviteLink});
   }
   if(path==="/api/favorite"&&request.method==="POST"){
    if(Number(request.headers.get("content-length")||0)>4096)return json({error:"Requête trop grande"},413);
@@ -613,6 +637,6 @@ export async function miniAppAPI(env,request){
   return json({error:"Route inconnue"},404);
  }catch(error){
   console.error(JSON.stringify({event:"mini_app_api_error",reason:String(error).slice(0,100)}));
-  return json({error:!String(error).includes("D1")?String(error.message||error):"Service indisponible"},401);
+  return json({error:"Un problème temporaire empêche l'ouverture de cette rubrique. Réessaie ou utilise /profil dans le bot."},503);
  }
 }
