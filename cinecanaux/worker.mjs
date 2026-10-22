@@ -1,5 +1,5 @@
 import {channelPreview} from "./channel-preview.mjs";
-import {botUpdate,miniAppAPI,initializeProfile,maintenance,cleanup,telegram} from "./radar-lean.mjs";
+import {botUpdate,miniAppAPI,initializeProfile,maintenance,cleanup,telegram,invalidateDirectoryCache} from "./radar-lean.mjs";
 import {APP_HTML} from "./app-page.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
 function sameString(a,b){
@@ -133,6 +133,7 @@ export async function indexQualifiedChannels(env){
  "ON CONFLICT(link) DO UPDATE SET title=excluded.title,content_type=excluded.content_type,genre=excluded.genre "+
  "WHERE channels.title<>excluded.title OR channels.content_type<>excluded.content_type OR channels.genre<>excluded.genre";
  const result=await env.DB.prepare(sql).run();
+ if(Number(result.meta?.changes||0)>0)invalidateDirectoryCache();
  return {indexed:Number(result.meta?.changes||0)};
 }
 
