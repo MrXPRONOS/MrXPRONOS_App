@@ -25,3 +25,6 @@ VALUES ('Canal autorisé','https://t.me/exemple','Films du domaine public','film
 
 ## Limitations
 Recherche dans la base D1 uniquement; découverte externe automatisée et inspection historique des vidéos non intégrées. Le bot n'est pas utilisable dans Telegram tant que les secrets et le webhook ne sont pas configurés. Éviter les doublons et les canaux sans droits de diffusion.
+
+## Provision automatique du webhook
+Le Worker possède un handler `scheduled` déclenché par Cloudflare toutes les cinq minutes. Tant que le webhook n'est pas installé, il tente `setWebhook` directement depuis le Worker avec les secrets `TELEGRAM_TOKEN` et `TELEGRAM_WEBHOOK_SECRET`; aucune valeur n'est exportée ni ajoutée au dépôt GitHub. Le statut de cet enregistrement est conservé dans `bot_webhook_status` (table créée dans D1). Après succès, les exécutions suivantes s'arrêtent après le contrôle de la base. Si les secrets changent, remettre cet état à jour via `DELETE FROM bot_webhook_status WHERE id=1;` pour redéclencher l'installation.
