@@ -142,10 +142,41 @@ async function xp(env,uid,chat) {
   const refs=await one(env,'SELECT count(*) AS n FROM users WHERE referred_by=? AND referral_rewarded=1',uid);
   return send(env,chat,'⭐ <b>Mes XP</b>\nSolde : <b>'+u.xp+' XP</b>\nParrainages validés : '+refs.n+'\n\nLes XP sont virtuels, non convertibles en argent.');
 }
+// Ce message est autonome : il ne contient ni solde, ni consignes privées.
+export function referralCard(link) {
+  return '⚽ <b>XPRONOS 4+ | DÉCOUVRE LES COUPONS</b>\n\n'+
+    '<blockquote>🎯 Des coupons football de cote totale <b>4.00 ou plus</b>, débloqués grâce aux points XP.</blockquote>\n\n'+
+    '✨ <b>Comment ça marche ?</b>\n'+
+    '① Rejoins la communauté.\n'+
+    '② Accomplis des missions et récolte des <b>XP</b>.\n'+
+    '③ Utilise tes XP pour accéder aux coupons.\n\n'+
+    '🚀 <b>Commence ici :</b>\n'+html(link)+'\n\n'+
+    '<i>🔞 Réservé aux 18 ans et plus. Les pronostics ne garantissent aucun résultat. Joue avec modération.</i>';
+}
+// Le lien natif Telegram partage un texte simple ; pour garder les styles HTML,
+// l'utilisateur doit transférer le premier message du bot.
+export function telegramShareUrl(link) {
+  const caption='⚽ XPRONOS 4+ | Coupons football cote 4+\n'+
+    '🎯 Accomplis des missions, gagne des XP et débloque des coupons.\n'+
+    '🔞 18+ • Aucun gain garanti. Joue responsablement.';
+  return 'https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+encodeURIComponent(caption);
+}
 async function share(env,uid,chat) {
   const me=await telegram(env,'getMe',{});
-  return send(env,chat,'↗️ <b>Ton lien de parrainage</b>\nhttps://t.me/'+html(me.username)+'?start=ref_'+uid+'\n\n'+
-    (channels(env).length?'Invite des amis : +'+POINTS_REFERRAL+' XP après vérification réelle des canaux.':'Le parrainage est désactivé jusqu’à configuration d’un canal obligatoire.'));
+  const link='https://t.me/'+encodeURIComponent(me.username)+'?start=ref_'+uid;
+  // 1. Message destiné uniquement au partage, sans bouton ni instructions.
+  await send(env,chat,referralCard(link),null);
+  // 2. Message distinct, destiné uniquement à la personne qui invite.
+  return send(env,chat,'↗️ <b>TON PARRAINAGE</b>\n\n'+
+    '👆 <b>Transfère le message précédent</b> à tes contacts pour conserver la mise en forme : gras, italique et citation.\n\n'+
+    '📤 Sinon, utilise le bouton ci-dessous pour préparer un partage Telegram (texte simple).\n\n'+
+    (channels(env).length
+      ? '🎁 <b>+'+POINTS_REFERRAL+' XP</b> pour toi lorsque ton invité valide réellement les canaux obligatoires. Une récompense par filleul.'
+      : '<i>ℹ️ Bonus de parrainage désactivé tant qu’aucun canal obligatoire n’est configuré.</i>'),
+    inline([
+      [{text:'📤 Partager sur Telegram',url:telegramShareUrl(link),style:'success'}],
+      [{text:'🔗 Copier mon lien',copy_text:{text:link},style:'primary'}]
+    ]));
 }
 async function admin(env,uid,chat,raw,updateId){
   if(!admins(env).has(uid))return send(env,chat,'⛔ Commande réservée aux administrateurs.');
