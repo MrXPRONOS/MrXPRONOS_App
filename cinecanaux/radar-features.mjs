@@ -406,7 +406,7 @@ export async function botUpdate(env,update){
 export async function initializeProfile(env){
  if(!env.TELEGRAM_TOKEN)return;
  const old=await env.DB.prepare("SELECT value FROM bot_settings WHERE setting_key='profile_version'").first();
- if(old?.value==="2")return;
+ if(old?.value==="3")return;
  const tasks=[
   ["setMyName",{name:"Ciné Radar"}],
   ["setMyDescription",{description:"🎬 Ciné Radar — explore des canaux de films, séries et animés, classés par genre. Favoris, découverte et recommandations. 🍿"}],
@@ -417,7 +417,23 @@ export async function initializeProfile(env){
  let failures=[];
  for(const [method,data] of tasks){try{const r=await telegram(env,method,data);if(!r.ok)failures.push(method+":"+(r.description||r.error_code));}catch(e){failures.push(method+":"+String(e));}}
  if(failures.length){console.error(JSON.stringify({event:"profile_setup_errors",failures}));return;}
- await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','2') ON CONFLICT(setting_key) DO UPDATE SET value='2',updated_at=CURRENT_TIMESTAMP").run();
+ try{
+   const avatar=await fetch(BASE+"/assets/avatar.jpg");
+   if(!avatar.ok)throw Error("Branded avatar unavailable (HTTP "+avatar.status+")");
+   const bytes=await avatar.arrayBuffer();
+   if(bytes.byteLength<10000||bytes.byteLength>3000000)throw Error("Avatar JPEG invalid size");
+   const form=new FormData();
+   form.append("photo",JSON.stringify({type:"static",photo:"attach://avatar"}));
+   form.append("avatar",new Blob([bytes],{type:"image/jpeg"}),"cine-radar-avatar.jpg");
+   const response=await fetch("https://api.telegram.org/bot"+env.TELEGRAM_TOKEN+"/setMyProfilePhoto",{method:"POST",body:form});
+   const result=await response.json();
+   if(!result.ok)throw Error("Telegram refused avatar: "+String(result.description||result.error_code).slice(0,100));
+   console.log(JSON.stringify({event:"cine_radar_profile_photo_updated"}));
+ }catch(e){
+   console.error(JSON.stringify({event:"profile_photo_pending",error:String(e).slice(0,135)}));
+   return; // Do not mark profile as completed. Next cron retries.
+ }
+ await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','3') ON CONFLICT(setting_key) DO UPDATE SET value='3',updated_at=CURRENT_TIMESTAMP").run();
 }
 export async function maintenance(env,mode){
  if(mode==="activity"){
