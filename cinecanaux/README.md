@@ -1,4 +1,4 @@
-# CinéCanaux — Telegram Bot sur Cloudflare
+# Ciné Radar — Bot Telegram et Mini App sur Cloudflare
 
 Service: `cinecanaux-bot` · D1: `cinecanaux-directory`
 
@@ -96,3 +96,35 @@ INSERT OR IGNORE INTO admin_users(user_id,role) VALUES(123456789,'owner');
 - Le lien du bot existant ne change pas automatiquement : son **nom affiché** est modifié par l'API Telegram, mais son **@username** se modifie uniquement dans BotFather.
 - La bannière SVG est servie sur \`/assets/banner.svg\` ; le message d'accueil du bot reste textuel en attendant une version JPEG/PNG.
 - Mini App, recherches et notifications nécessitent une validation réelle sur Telegram avant de déclarer l'ensemble « entièrement testé en production ».
+
+
+## Ciné Radar V3 — finitions (22 octobre 2026)
+
+### Design et profil
+- Nom affiché **Ciné Radar**, identité cinématographique bleu/violet, bannière originale et avatar carré générés par GitHub Actions.
+- La bannière est envoyée sur /start ; l'avatar JPEG est installé via Telegram Bot API setMyProfilePhoto. Le succès du profil est traçable par bot_settings.profile_version=3.
+- Tutoriel facultatif en trois écrans, navigation éditable, boutons colorés, textes HTML en gras/italique/citations.
+- Mini App responsive : hero cinéma, cartes illustrées originales par catégorie, affiches approuvées en option, profils, filtres, pagination, favoris et recommandations.
+- Aucun faux poster de film n'est inventé : un canal sans média autorisé reçoit une vignette graphique propre à Cine Radar.
+
+### Recherche, classements, activité
+- Le moteur quotidien GitHub/Telethon recherche maintenant cinq catégories : films, romance, comédie, animés et séries. Les candidats ne deviennent jamais publiés sans validation de droits.
+- La recherche exploite les accents, fautes légères et synonymes de genres (dictionnaire déterministe). Ce n'est pas un modèle de compréhension du langage libre.
+- Le score qualité est heuristique et présenté comme indicatif. Il utilise activité observée, métadonnées, accessibilité et usage, sans garantir la légalité du contenu.
+- Vérification de l'activité sur les prévisualisations publiques Telegram ; lorsque les données sont cachées, l'état reste non vérifiable.
+- Recommandations personnalisées à partir des genres favoris et des préférences déclarées, sans données privées provenant d'autres applications.
+- Mini App : filtres catégorie, genre, VF/VOSTFR/VO, canaux accessibles, publications récentes, tri par indice qualité et accès direct aux canaux.
+
+### Notifications, administration et droits
+- Choix volontaire d'activer les alertes, prise en compte de la catégorie/langue/genres favoris, quotas, refus du spam et anti-doublons dans D1.
+- Administration Telegram : file d'attente, justification documentée des droits avant approbation, refus et signalements.
+- Aucun administrateur n'est activé automatiquement. Le propriétaire récupère son identifiant via /monid puis le déclare dans la table admin_users.
+- Pour rendre l'abonnement obligatoire, renseigner owned_channels et placer le bot comme administrateur de chacun des canaux concernés.
+- La découverte d'un fichier vidéo ne constitue pas une autorisation de diffusion ; un canal non validé n'est pas visible publiquement.
+- Les tests GitHub Actions ne remplacent pas un essai réel sur iPhone, Android et Telegram Desktop. Les notifications ne peuvent être observées sans canaux approuvés et utilisateurs opt-in.
+
+### Code et tests
+- Module de recherche/activité/classement : cinecanaux/radar-intelligence.mjs.
+- Interface premium Mini App : cinecanaux/app-page.mjs ; bot, catalogue, notifications et administration : cinecanaux/radar-features.mjs.
+- CI Node : .github/workflows/cine-radar-v2-ci.yml ; CI Python : .github/workflows/cine-radar-discovery-ci.yml.
+- Visuels : cinecanaux/assets/banner.svg, avatar.svg, welcome.png, avatar.jpg.
