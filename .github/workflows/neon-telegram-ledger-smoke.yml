@@ -1,0 +1,52 @@
+name: Neon Telegram ledger OIDC smoke
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/neon-telegram-ledger-smoke.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Test D1 claim, duplicate, release and unauthorized requests without sending any Telegram message
+        env:
+          API: https://mrxpronos-telegram-ledger-staging.cinecanaux-xpronos.workers.dev
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request,urllib.error,urllib.parse
+          base=os.environ["API"].rstrip("/")
+          def call(path,body=None,token=None):
+              data=None if body is None else json.dumps(body).encode()
+              req=urllib.request.Request(base+path,data=data,method="GET" if body is None else "POST")
+              if data is not None: req.add_header("Content-Type","application/json")
+              if token:req.add_header("Authorization","Bearer "+token)
+              try:
+                  with urllib.request.urlopen(req,timeout=20) as r:
+                      return r.status,json.load(r)
+              except urllib.error.HTTPError as e:
+                  return e.code,json.loads(e.read().decode())
+          status,body=call("/health")
+          assert status==200 and body.get("ready") is True,(status,body)
+          payload={"kind":"bsd_v2_hourly","ref_id":"ci-smoke:"+os.environ["GITHUB_RUN_ID"],"ref_date":"2026-10-22"}
+          status,body=call("/claim",payload)
+          assert status==401,(status,body)
+          url=os.environ["ACTIONS_ID_TOKEN_REQUEST_URL"]
+          url+=("&" if "?" in url else "?")+"audience="+urllib.parse.quote("mrxpronos-telegram-ledger")
+          req=urllib.request.Request(url,headers={"Authorization":"Bearer "+os.environ["ACTIONS_ID_TOKEN_REQUEST_TOKEN"]})
+          with urllib.request.urlopen(req,timeout=20) as res: jwt=json.load(res)["value"]
+          status,body=call("/claim",payload,jwt)
+          assert status==200 and body.get("claimed") is True,(status,body)
+          status,body=call("/claim",payload,jwt)
+          assert status==200 and body.get("claimed") is False,(status,body)
+          status,body=call("/release",payload,jwt)
+          assert status==200 and body.get("released") is True,(status,body)
+          status,body=call("/claim",payload,jwt)
+          assert status==200 and body.get("claimed") is True,(status,body)
+          status,body=call("/release",payload,jwt)
+          assert status==200 and body.get("released") is True,(status,body)
+          print("GitHub OIDC authenticated. D1 ledger duplicate claim and cleanup PASS.")
+          PY
