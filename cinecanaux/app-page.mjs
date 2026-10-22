@@ -74,17 +74,18 @@ const tg=window.Telegram?.WebApp||null;try{tg?.ready();tg?.expand();}catch{}
 const $=id=>document.getElementById(id);
 const validLink=url=>/^https:\/\/t\.me\/[A-Za-z][A-Za-z0-9_]{4,31}\/?$/.test(String(url||""));
 const photoHost=url=>/^https:\/\/(?:[a-z0-9-]+\.)*(?:telesco\.pe|telegram\.org|telegram-cdn\.org|t\.me)\/[^\s"'<>]{1,1200}$/i.test(String(url||""));
-let type="all",query="",channels=[],requestId=0,searchTimer,images=new Map(),inFlight=new Map();
+let type="all",query="",channels=[],allChannels=[],lastFetch=0,fetchPending=null,images=new Map(),inFlight=new Map(),previewToken=0,thumbQueue=[],thumbActive=0;
+const MAX_THUMB_FETCH=2;
 const node=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
 const btn=(text,cls,callback)=>{const b=node("button",cls,text);b.type="button";b.onclick=e=>{e.stopPropagation();callback();};return b;};
 async function api(path){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
- try{const r=await fetch(path,{cache:"no-store",signal:controller.signal});const body=await r.json();if(!r.ok)throw Error(body.error||"Service indisponible");return body;}finally{clearTimeout(timer);}
+ try{const r=await fetch(path,{cache:"default",signal:controller.signal});const body=await r.json();if(!r.ok)throw Error(body.error||"Service indisponible");return body;}finally{clearTimeout(timer);}
 }
 function openTelegram(link){if(!validLink(link))return;if(tg?.openTelegramLink)tg.openTelegramLink(link);else window.open(link,"_blank","noopener");}
-function close(){ $("overlay").hidden=true;$("sheet").textContent=""; }
+function close(){ previewToken++;$("overlay").hidden=true;$("sheet").textContent=""; }
 function buildCard(channel){
- const card=node("article","card"),cover=node("div","card-cover");
+ const card=node("article","card"),cover=node("div","card-cover");card.dataset.channelId=String(channel.id);
  cover.append(node("span","placeholder",channel.type==="animes"?"🎌":channel.type==="series"?"📺":"🎬"));
  if(photoHost(channel.photo)){const image=node("img");image.alt="Photo publique de "+channel.title;image.loading="lazy";image.onerror=()=>{image.remove();};image.src=channel.photo;cover.append(image);}
  const main=node("div","content");main.append(node("h4",null,channel.title));
@@ -100,73 +101,117 @@ function render(){
 }
 function updatePreviewThumb(id,data){
  images.set(id,data);
- const index=channels.findIndex(x=>x.id===id);
- if(index<0)return;
- const row=channels[index];
- if(photoHost(data.photo)||photoHost(data.post_image)){row.photo=data.post_image||data.photo;}
- const card=$("cards").children[index];
+ const item=allChannels.find(x=>x.id===id);
+ if(!item)return;
+ const imageUrl=[data.post_image,data.photo].find(photoHost);
+ if(!imageUrl)return;
+ item.photo=imageUrl;
+ const card=Array.from($("cards").children).find(x=>Number(x.dataset.channelId)===id);
  const cover=card?.querySelector(".card-cover");
- if(cover&&photoHost(row.photo)&&!cover.querySelector("img")){
-  const image=node("img");image.alt="Image publique du canal "+row.title;image.loading="lazy";
-  image.onerror=()=>image.remove();image.src=row.photo;cover.append(image);
+ if(cover&&!cover.querySelector("img")){
+  const img=node("img");img.alt="Image publique du canal "+item.title;img.loading="lazy";
+  img.onerror=()=>img.remove();img.src=imageUrl;cover.append(img);
  }
 }
 async function getPreview(id){
  if(images.has(id))return images.get(id);
  if(inFlight.has(id))return inFlight.get(id);
- const pending=api("/api/channel-preview?id="+encodeURIComponent(id)).then(x=>x.channel).then(p=>{updatePreviewThumb(id,p);return p;}).finally(()=>inFlight.delete(id));
+ const pending=api("/api/channel-preview?id="+encodeURIComponent(id)).then(r=>r.channel)
+  .then(p=>{updatePreviewThumb(id,p);return p;}).finally(()=>inFlight.delete(id));
  inFlight.set(id,pending);return pending;
 }
-function refreshPhotos(rows){
- // Fetch a few real photos progressively, rather than scraping dozens of
- // channels in parallel or storing users' browsing histories.
- const selected=rows.slice(0,9).filter(x=>!x.photo);
- let index=0;
- const process=async()=>{while(index<selected.length){const r=selected[index++];try{await getPreview(r.id);}catch{}}};
- process();process();process();
+function enqueueVisiblePhotos(){
+ // At most two metadata requests at a time; card clicks are never queued.
+ const candidates=channels.slice(0,4).filter(c=>!photoHost(c.photo)&&!images.has(c.id)&&!inFlight.has(c.id));
+ for(const c of candidates)if(!thumbQueue.includes(c.id))thumbQueue.push(c.id);
+ pumpThumbs();
 }
-async function load(){
- const run=++requestId;
- $("count").textContent="…";$("cards").textContent="";
- $("cards").append(node("div","empty loading","Chargement…"));
- try{
-  const params=new URLSearchParams({type,q:query});
-  const result=await api("/api/catalog?"+params);
-  if(run!==requestId)return;
-  channels=result.channels||[];render();refreshPhotos(channels);
- }catch{
-  if(run!==requestId)return;
-  $("cards").textContent="";
-  const empty=node("div","empty");empty.append(node("strong",null,"Connexion momentanément indisponible"),document.createTextNode("Réessaie en touchant une catégorie."));$("cards").append(empty);
+function pumpThumbs(){
+ while(thumbActive<MAX_THUMB_FETCH&&thumbQueue.length){
+  const id=thumbQueue.shift();
+  if(images.has(id)||inFlight.has(id))continue;
+  thumbActive++;
+  getPreview(id).catch(()=>{}).finally(()=>{thumbActive--;pumpThumbs();});
  }
 }
-async function showPreview(c){
- $("overlay").hidden=false;const sheet=$("sheet");sheet.textContent="";
- const bar=node("div","sheet-top", "🎬 Aperçu du canal");bar.append(btn("×","close",close));sheet.append(bar);
- sheet.append(node("div","empty loading","Chargement de la photo publique…"));
- try{
-  const p=await getPreview(c.id);
-  if($("overlay").hidden)return;
-  sheet.textContent="";sheet.append(bar);
-  if(photoHost(p.post_image)||photoHost(p.photo)){
-   const visual=node("div","preview-photo");
-   const image=node("img");image.alt="Véritable image publique du canal";image.onerror=()=>{visual.textContent="🎬";};image.src=p.post_image||p.photo;visual.append(image);sheet.append(visual);
-  }
-  const identity=node("div","profile-row"),avatar=node("div","avatar","🎬");
-  if(photoHost(p.photo)){avatar.textContent="";const pic=node("img");pic.alt="Photo du canal";pic.src=p.photo;pic.onerror=()=>{avatar.textContent="🎬";};avatar.append(pic);}
-  const label=node("div");label.append(node("h3",null,p.title||c.title));identity.append(avatar,label);sheet.append(identity);
-  if(p.description&&!(p.description||"").startsWith("Canal Telegram public •"))sheet.append(node("p","bio",p.description));
-  sheet.append(btn("Ouvrir le canal ↗","big-open",()=>openTelegram(c.link)));
- }catch{
-  if($("overlay").hidden)return;
-  sheet.textContent="";sheet.append(bar,node("h3",null,c.title),btn("Ouvrir le canal ↗","big-open",()=>openTelegram(c.link)));
+function applyFilters(){
+ const key=query.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().trim();
+ channels=allChannels.filter(c=>{
+  if(type!=="all"&&c.type!==type)return false;
+  if(!key)return true;
+  return (String(c.title)+" "+String(c.genre||"")).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().includes(key);
+ });
+ render();
+ enqueueVisiblePhotos();
+}
+async function load(force=false){
+ if(allChannels.length)applyFilters();
+ if(fetchPending)return fetchPending;
+ if(!force&&allChannels.length&&Date.now()-lastFetch<120000)return;
+ if(!allChannels.length){
+  $("count").textContent="…";$("cards").textContent="";
+  $("cards").append(node("div","empty loading","Chargement des canaux…"));
  }
+ fetchPending=(async()=>{
+  try{
+   const result=await api("/api/catalog");
+   allChannels=result.channels||[];
+   lastFetch=Date.now();
+   // Keep the user's current category and search, regardless of when fetch finishes.
+   applyFilters();
+  }catch{
+   if(!allChannels.length){
+    $("cards").textContent="";
+    const box=node("div","empty");
+    box.append(node("strong",null,"Connexion momentanément indisponible"),document.createTextNode("Retouche une catégorie pour réessayer."));
+    $("cards").append(box);
+   }
+  }finally{fetchPending=null;}
+ })();
+ return fetchPending;
+}
+function fillPreview(c,p){
+ const sheet=$("sheet");sheet.textContent="";
+ const bar=node("div","sheet-top","🎬 Aperçu du canal");
+ bar.append(btn("×","close",close));sheet.append(bar);
+ const visualUrl=[p?.post_image,p?.photo,c.photo].find(photoHost);
+ if(visualUrl){
+  const visual=node("div","preview-photo");
+  const image=node("img");image.alt="Photo publique du canal";image.onerror=()=>{visual.textContent="🎬";};
+  image.src=visualUrl;visual.append(image);sheet.append(visual);
+ }
+ const row=node("div","profile-row"),avatar=node("div","avatar","🎬");
+ if(photoHost(p?.photo)){
+  const pic=node("img");pic.alt="Photo du canal";pic.onerror=()=>{avatar.textContent="🎬";};
+  avatar.textContent="";pic.src=p.photo;avatar.append(pic);
+ }
+ const label=node("div");label.append(node("h3",null,p?.title||c.title));
+ row.append(avatar,label);sheet.append(row);
+ if(p?.description&&!p.description.startsWith("Canal Telegram public"))sheet.append(node("p","bio",p.description));
+ sheet.append(btn("Ouvrir le canal ↗","big-open",()=>openTelegram(c.link)));
+}
+function showPreview(c){
+ const token=++previewToken;
+ $("overlay").hidden=false;
+ // Immediate sheet; never wait for Telegram metadata to show the open button.
+ fillPreview(c,images.get(c.id));
+ if(images.has(c.id))return;
+ getPreview(c.id).then(p=>{
+  if(token===previewToken&&!$("overlay").hidden)fillPreview(c,p);
+ }).catch(()=>{});
 }
 for(const b of document.querySelectorAll("[data-type]"))b.onclick=()=>{
- type=b.dataset.type;for(const x of document.querySelectorAll("[data-type]"))x.classList.toggle("active",x===b);
- load();
+ type=b.dataset.type;
+ for(const x of document.querySelectorAll("[data-type]"))x.classList.toggle("active",x===b);
+ if(allChannels.length)applyFilters();else load();
 };
-$("search").oninput=e=>{query=e.target.value.slice(0,70);clearTimeout(searchTimer);searchTimer=setTimeout(load,280);};
+$("search").oninput=e=>{
+ query=e.target.value.slice(0,70);
+ if(allChannels.length)applyFilters();
+};
+document.addEventListener("visibilitychange",()=>{
+ if(document.visibilityState==="visible"&&Date.now()-lastFetch>120000)load(true);
+});
 $("overlay").onclick=e=>{if(e.target===$("overlay"))close();};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")close();});
 load();
