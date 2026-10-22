@@ -308,7 +308,9 @@ function fillPreview(c,p){
  if(photoHost(p?.photo)){avatar.textContent="";const img=node("img");img.alt="Photo du canal";img.src=p.photo;img.onerror=()=>{avatar.textContent="";avatar.append(ico("film"));};avatar.append(img);}
  const names=node("div","sheet-name");names.append(node("h3",null,p?.title||c.title),node("small",null,"Canal public Telegram"));
  const tag=node("div","genre-tag",typeLabel(c.type));names.append(tag);profile.append(avatar,names);detail.append(profile);
- if(p?.description&&!p.description.startsWith("Canal Telegram public"))detail.append(node("p","sheet-description",p.description));
+ const usefulBio=p?.description&&!p.description.startsWith("Canal Telegram public")?p.description:
+  "Canal public classé dans « "+typeLabel(c.type)+" ». Consulte ses publications directement sur Telegram.";
+ detail.append(node("p","sheet-description",usefulBio));
  detail.append(button("Ouvrir le canal","sheet-open",()=>openTelegram(c.link),"send"));
  sheet.append(detail);
 }
