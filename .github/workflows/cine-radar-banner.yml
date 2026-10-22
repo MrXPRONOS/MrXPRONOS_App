@@ -1,0 +1,52 @@
+name: Cine Radar - Bannière image
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cinecanaux/assets/banner.svg'
+      - '.github/workflows/cine-radar-banner.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: cine-radar-banner-asset
+  cancel-in-progress: false
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Installer convertisseur SVG → PNG
+        run: python -m pip install 'cairosvg>=2.7,<3'
+      - name: Créer l'image d'accueil Telegram en haute qualité
+        run: |
+          python - <<'PY'
+          import cairosvg
+          cairosvg.svg2png(
+            url="cinecanaux/assets/banner.svg",
+            write_to="cinecanaux/assets/welcome.png",
+            output_width=960,
+            output_height=460,
+          )
+          from pathlib import Path
+          assert Path("cinecanaux/assets/welcome.png").stat().st_size > 10000
+          print("Image Ciné Radar créée.")
+          PY
+      - name: Conserver le visuel dans GitHub
+        run: |
+          git add cinecanaux/assets/welcome.png
+          if git diff --cached --quiet; then
+            echo "L'image est déjà à jour."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "asset(cine-radar): render Telegram welcome banner [skip ci]"
+          git pull --rebase origin main
+          git push origin HEAD:main
