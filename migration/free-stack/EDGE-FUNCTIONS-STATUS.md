@@ -35,3 +35,9 @@ Les fonctions sont en ligne selon le contrôleur Neon, mais ne sont pas intégr�
 3. Tests de chaque fonction : succès nominal + refus d'un appel non autorisé + cas secrets manquants.
 4. Pour Telegram : configurer le nouveau webhook uniquement après tests, ne pas dupliquer les anciens déclencheurs.
 5. Réécrire les routes/frontend/GitHub Actions/Cron-job.org puis vérifier en production et conserver une procédure de retour arrière.
+
+## Cloudflare Worker stage, 22 octobre 2026
+- `threads-uninstall` et `threads-data-deletion` : Worker `mrxpronos-threads-privacy-staging` déployé, liaison D1 contrôlée. Variable `THREADS_APP_SECRET` non configurée ; URL Meta non basculée.
+- `push-subscribe` : Worker `mrxpronos-push-staging` déployé, liaison D1 contrôlée. 57 abonnements copiés, 57 endpoints distincts ; empreinte stable sur la liste triée des endpoints concordante avec Supabase. Route publique du site encore sur Supabase.
+- **7 fonctions métier avec code de remplacement déployé** : 4 via Neon Functions + 3 via les deux Workers Cloudflare. `clean-cache` restaurée comme routine SQL non planifiée, interdite aux rôles anonymes.
+- Les 12 autres Edge Functions nécessitent encore réécriture, secrets et tests. Aucun callback Telegram ou Meta de production n'a été déplacé.
