@@ -6,6 +6,7 @@ import {miniApi} from './miniapp.js';
 import {miniPage} from './minipage.js';
 import {brandingResponse} from './branding.js';
 import {settleFromESPN} from './sports.js';
+import {newBotMetrics,recordTelegram,scheduleSample} from './telemetry.js';
 import {supportGuide,createTicket,informAdmins,ticketsForUser,pendingTickets,replyToTicket,closeUserTicket,ticketSummary} from './support.js';
 
 const POINTS_REFERRAL=30,POINTS_BONUS=5,DAILY_CAP=10,COOLDOWN=2*3600000;
@@ -35,11 +36,13 @@ function admins(env) {
   return new Set(String(env.CF_BOT_ADMIN_IDS||'').split(',').map(x=>Number(x.trim())).filter(x=>Number.isSafeInteger(x)&&x>0));
 }
 async function telegram(env,method,data) {
+  const started=performance.now();
   const response=await fetch('https://api.telegram.org/bot'+env.CF_BOT_TOKEN+'/'+method,{
     method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(data),signal:AbortSignal.timeout(10000)
   });
   const j=await response.json();
   if(!response.ok||!j.ok)throw Error('Telegram '+method+': HTTP '+response.status+' '+String(j.description||'').slice(0,130));
+  recordTelegram(env.__perf,method,performance.now()-started);
   return j.result;
 }
 // Passer null comme clavier pour produire un message facilement transférable.
@@ -396,11 +399,19 @@ async function handle(env,update) {
   return send(env,chat,'👋 <b>Que souhaites-tu faire ?</b>\n\n<i>Utilise les boutons ci-dessous ou envoie /start pour afficher l’accueil.</i>');
 }
 export default {
-  async fetch(req,env){
+  async fetch(req,env,ctx){
+    const started=performance.now();
     const url=new URL(req.url);
     if(req.method==='GET'&&url.pathname==='/app')return miniPage();
     if(req.method==='GET'&&url.pathname==='/brand.svg')return brandingResponse();
-    if(url.pathname.startsWith('/api/'))return miniApi(req,env);
+    if(url.pathname.startsWith('/api/')){
+      const response=await miniApi(req,env);
+      // Timing real Mini App navigation; exclude CI benchmark traffic.
+      scheduleSample(ctx,env,{kind:'miniapp',route:url.pathname,response_ms:performance.now()-started,
+        status:response.status>=500?'error':'ok',colo:req.cf?.colo,
+        isBenchmark:String(req.headers.get('user-agent')||'').startsWith('FreePronos-Latency-Audit/')});
+      return response;
+    }
     if(req.method==='GET'&&url.pathname==='/health'){
       const ok=!!(env.DB&&env.CF_BOT_TOKEN&&env.CF_BOT_WEBHOOK_SECRET&&admins(env).size);
       return new Response(JSON.stringify({status:ok?'ready':'not_configured',bot:'Free Pronos'}),{
@@ -412,15 +423,20 @@ export default {
       return new Response('Not configured',{status:503});
     const provided=req.headers.get('x-telegram-bot-api-secret-token')||'';
     if(!provided||provided!==env.CF_BOT_WEBHOOK_SECRET)return new Response('Forbidden',{status:403});
-    let updateId=null,claimed=false;
+    let updateId=null,claimed=false,kind='bot_message';
+    const metrics=newBotMetrics(started);
+    const botEnv={...env,__perf:metrics};
     try{
       const data=await req.json();
       if(!Number.isSafeInteger(data.update_id))return new Response('Bad request',{status:400});
       updateId=data.update_id;
+      kind=data.callback_query?'bot_callback':'bot_message';
       const fresh=await one(env,'INSERT OR IGNORE INTO processed_updates(update_id) VALUES(?) RETURNING update_id',updateId);
       if(!fresh)return out('ok'); // Déjà traité ou traitement en cours.
       claimed=true;
-      await handle(env,data);
+      await handle(botEnv,data);
+      scheduleSample(ctx,env,{kind,route:kind==='bot_callback'?'/callback':'/message',
+        response_ms:performance.now()-started,metrics,status:'ok',colo:req.cf?.colo});
       return out('ok');
     }catch(error){
       if(claimed&&updateId!==null){
@@ -428,6 +444,8 @@ export default {
         catch(cleanError){console.warn('Free Pronos dedup rollback failed',String(cleanError))}
       }
       console.error('Free Pronos webhook failed:',String(error));
+      if(claimed)scheduleSample(ctx,env,{kind,route:kind==='bot_callback'?'/callback':'/message',
+        response_ms:performance.now()-started,metrics,status:'error',colo:req.cf?.colo});
       return new Response('retry',{status:500});
     }
   },
@@ -447,6 +465,8 @@ export default {
         ]);
         console.log('Free Pronos notifications',coupons.sent,results.sent);
         await run(env,"DELETE FROM processed_updates WHERE received_at<datetime('now','-10 days')");
+        // Clean anonymized samples after seven days. One cron per 10 min, cheap index.
+        await run(env,"DELETE FROM perf_samples WHERE observed_at<strftime('%Y-%m-%dT%H:%M:%fZ','now','-7 days')");
       }catch(err){console.error('Free Pronos notification task failed',String(err))}
     })());
   }

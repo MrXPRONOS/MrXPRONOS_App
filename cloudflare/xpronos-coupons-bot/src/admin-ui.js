@@ -4,6 +4,7 @@ import {calculateCoupon} from './logic.js';
 import {normalizeSelection,getFixture,settleFromESPN,MARKETS} from './sports.js';
 import {adminResult} from './features.js';
 import {pendingTickets,replyToTicket} from './support.js';
+import {performanceReport} from './telemetry.js';
 export const isAdmin=(env,id)=>String(env.CF_BOT_ADMIN_IDS||'').split(',').some(s=>Number(s.trim())===id);
 const json=(result,status=200)=>new Response(JSON.stringify(result),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store'}});
 const all=async(db,sql,...p)=>(await db.prepare(sql).bind(...p).all()).results||[];
@@ -51,6 +52,10 @@ export async function createEnrichedCoupon(env,input,{lookup=getFixture}={}){
 export async function adminApi(req,env,uid){
  if(!isAdmin(env,uid))return json({error:'admin_access_required'},403);
  const url=new URL(req.url);
+ if(url.pathname==='/api/admin/performance'&&req.method==='GET'){
+   const report=await performanceReport(env);
+   return json(report);
+ }
  if(url.pathname==='/api/admin/overview'&&req.method==='GET'){
   // Ces deux lectures sont indépendantes : ne pas ajouter une latence D1
   // en attendant la requête d'agrégats avant la liste des coupons.
