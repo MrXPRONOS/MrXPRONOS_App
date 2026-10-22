@@ -541,19 +541,28 @@ async function validateMiniApp(env,request){
  if(!env.TELEGRAM_TOKEN||input.length<30||input.length>8192)throw Error("Authentification Telegram requise.");
  const data=new URLSearchParams(input),hash=data.get("hash");
  if(!hash||!/^[a-f0-9]{64}$/.test(hash))throw Error("Signature Telegram invalide.");
- data.delete("hash");data.delete("signature");
+ data.delete("hash");
+ // The Telegram Bot-token HMAC documentation signs all fields except hash.
+ // Some compatible clients/libraries omit the optional third-party 'signature'
+ // from the Bot-token check, so accept either *cryptographically verified* form.
+ // Never trust user fields unless one HMAC comparison succeeds.
  const authDate=Number(data.get("auth_date"));
  if(!Number.isFinite(authDate)||authDate>Math.floor(Date.now()/1000)+120||authDate<Math.floor(Date.now()/1000)-86400)throw Error("Session expirée : rouvre la Mini App.");
- const check=Array.from(data.entries()).sort(([a],[b])=>a.localeCompare(b,"en")).map(([k,v])=>k+"="+v).join("\n");
+ const pairs=Array.from(data.entries()).sort(([a],[b])=>a<b?-1:a>b?1:0);
+ const checks=[pairs.map(([k,v])=>k+"="+v).join("\n")];
+ if(data.has("signature"))checks.push(pairs.filter(([k])=>k!=="signature").map(([k,v])=>k+"="+v).join("\n"));
  const encoder=new TextEncoder();
  const baseKey=await crypto.subtle.importKey("raw",encoder.encode("WebAppData"),{name:"HMAC",hash:"SHA-256"},false,["sign"]);
  const keyBytes=await crypto.subtle.sign("HMAC",baseKey,encoder.encode(env.TELEGRAM_TOKEN));
  const key=await crypto.subtle.importKey("raw",keyBytes,{name:"HMAC",hash:"SHA-256"},false,["sign"]);
- const bytes=new Uint8Array(await crypto.subtle.sign("HMAC",key,encoder.encode(check)));
- const expected=Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
- if(expected.length!==hash.length)throw Error("Signature invalide");
- let mismatch=0;for(let i=0;i<hash.length;i++)mismatch|=hash.charCodeAt(i)^expected.charCodeAt(i);
- if(mismatch!==0)throw Error("Signature invalide");
+ let matched=0;
+ for(const check of checks){
+  const bytes=new Uint8Array(await crypto.subtle.sign("HMAC",key,encoder.encode(check)));
+  const expected=Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
+  let mismatch=0;for(let i=0;i<hash.length;i++)mismatch|=hash.charCodeAt(i)^expected.charCodeAt(i);
+  matched|=Number(mismatch===0);
+ }
+ if(!matched)throw Error("Signature invalide");
  let user;
  try{user=JSON.parse(data.get("user")||"null")}catch{throw Error("Profil Telegram invalide");}
  if(!user||!Number.isSafeInteger(Number(user.id))||Number(user.id)<=0)throw Error("Profil Telegram absent");
@@ -562,12 +571,25 @@ async function validateMiniApp(env,request){
 export async function miniAppAPI(env,request){
  const hdr={"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"};
  function json(body,code=200){return new Response(JSON.stringify(body),{status:code,headers:hdr});}
- let user;
- try{user=await validateMiniApp(env,request);}
- catch(e){return json({error:"Session Telegram indisponible. Ouvre l'application depuis le bot Ciné Radar."},401);}
+ const url=new URL(request.url),path=url.pathname;
+ const publicRequest=request.method==="GET"&&(path==="/api/catalog"||path==="/api/channel-preview");
+ const session=request.headers.get("X-Telegram-Init-Data")||"";
+ let user=null,authFailure=null;
+ if(session){
+  try{user=await validateMiniApp(env,request);}
+  catch(e){
+   authFailure=String(e?.message||"auth_failed");
+   // Do not log signed initData, user identity, or bot credentials.
+   console.warn(JSON.stringify({event:"mini_app_session_rejected",reason:authFailure.slice(0,65)}));
+  }
+ }
+ if(!user&&!publicRequest)return json({
+  error:"Cette fonction nécessite une connexion via le bouton Mini App du bot Telegram.",
+  code:"telegram_session_required"},401);
  try{
-  if((await membership(env,user.id)).length)return json({error:"Rejoins d'abord nos canaux via le bot Ciné Radar."},403);
-  const url=new URL(request.url),path=url.pathname;
+  // Public links must remain accessible in a browser. If mandatory channels
+  // are configured in future, retain membership checks for signed sessions.
+  if(user&&(await membership(env,user.id)).length)return json({error:"Rejoins d'abord nos canaux via le bot Ciné Radar.",code:"subscription_required"},403);
   if(path==="/api/channel-preview"&&request.method==="GET"){
    const requested=String(url.searchParams.get("id")||"");
    if(!/^[1-9][0-9]{0,10}$/.test(requested))return json({error:"Canal invalide"},400);
@@ -586,17 +608,22 @@ export async function miniAppAPI(env,request){
    if(status==="reachable")rows=rows.filter(x=>x.check_status==="reachable");
    else if(status==="active30")rows=rows.filter(x=>Number.isFinite(Date.parse(String(x.last_post_at||"").replace(" ","T").replace(/Z?$/,"Z")))&&Date.now()-Date.parse(String(x.last_post_at).replace(" ","T").replace(/Z?$/,"Z"))<=30*86400000);
    if(tab==="recommend"){
-     const fv=(await env.DB.prepare("SELECT c.id,c.genre FROM favorites f JOIN channels c ON c.id=f.channel_id WHERE f.user_id=? AND c.status='approved' LIMIT 60").bind(user.id).all()).results||[];
-     const own=await prefs(env,user.id);
-     rows=recommendations(rows,fv,own,1500);
+     if(user){
+      const fv=(await env.DB.prepare("SELECT c.id,c.genre FROM favorites f JOIN channels c ON c.id=f.channel_id WHERE f.user_id=? AND c.status='approved' LIMIT 60").bind(user.id).all()).results||[];
+      const own=await prefs(env,user.id);
+      rows=recommendations(rows,fv,own,1500);
+     }else rows.sort((a,b)=>qualityScore(b)-qualityScore(a));
    }
    if(tab==="favorites"){
-    const favorites=(await env.DB.prepare("SELECT channel_id FROM favorites WHERE user_id=?").bind(user.id).all()).results||[];
-    const accepted=new Set(favorites.map(x=>Number(x.channel_id)));rows=rows.filter(x=>accepted.has(Number(x.id)));
+    if(!user)rows=[];
+    else{
+     const favorites=(await env.DB.prepare("SELECT channel_id FROM favorites WHERE user_id=?").bind(user.id).all()).results||[];
+     const accepted=new Set(favorites.map(x=>Number(x.channel_id)));rows=rows.filter(x=>accepted.has(Number(x.id)));
+    }
    }
    if(tab==="new")rows=rows.filter(x=>Date.parse(x.updated_at?.replace(" ","T")+"Z")>Date.now()-14*86400000);
-   const fav=(await env.DB.prepare("SELECT channel_id FROM favorites WHERE user_id=?").bind(user.id).all()).results||[];
-   return json({channels:rows.slice(0,100).map(x=>({id:x.id,title:x.title,link:x.link,description:x.description,genre:x.genre,language:x.language,content_type:x.content_type,favorites_count:x.favorites_count,check_status:x.check_status,last_post_at:x.last_post_at,banner_url:x.banner_url,quality_score:qualityScore(x)})),favorite_ids:fav.map(x=>x.channel_id),total:rows.length});
+   const fav=user?(await env.DB.prepare("SELECT channel_id FROM favorites WHERE user_id=?").bind(user.id).all()).results||[]:[];
+   return json({channels:rows.slice(0,100).map(x=>({id:x.id,title:x.title,link:x.link,description:x.description,genre:x.genre,language:x.language,content_type:x.content_type,favorites_count:x.favorites_count,check_status:x.check_status,last_post_at:x.last_post_at,banner_url:x.banner_url,quality_score:qualityScore(x)})),favorite_ids:fav.map(x=>x.channel_id),total:rows.length,authenticated:!!user,total_public:rows.length});
   }
   if(path==="/api/report"&&request.method==="POST"){
    const data=await request.json(),id=Number(data?.id),reason=String(data?.reason||"broken").slice(0,20);
