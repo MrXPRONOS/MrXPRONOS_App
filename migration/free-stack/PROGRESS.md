@@ -46,3 +46,12 @@ Ces données sont une copie de test ponctuelle. Les changements intervenant ensu
 - Aucun déploiement en production ni changement des secrets / endpoints.
 - **Toujours manquants** : la majorité des enregistrements et les données sensibles, 13 clés étrangères, 10 triggers, routines SQL applicatives, 55 politiques RLS, adaptation de l'authentification et des appels client, 19 Edge Functions, objets Storage.
 - Les 90 enregistrements copiés ne constituent **pas une sauvegarde complète**, ni une synchronisation temps réel. Relancer un export/restauration cohérent et vérifier les séquences après le transfert intégral, avant toute bascule.
+
+
+## Suite : nouveaux lots et contrôle d'intégrité (22/10/2026)
+- Copie effectuée de `matches_scheduled` : 93 lignes source / 93 cible ; empreinte globale `md5(jsonb_agg(...))` égale.
+- Copie effectuée de `telegram_channel_metrics_daily` : 67 lignes source / 67 cible ; empreinte complète différente. Une seconde comparaison en supprimant temporairement du calcul les champs horodatés `last_post_at`, `collected_at` et `official_stats_checked_at` produit des empreintes égales. Les valeurs temporelles exactes doivent être comparées au niveau microseconde avant validation intégrale ; aucune modification corrective à l'aveugle.
+- Volume total de données présentes et comptées dans les tables déjà vérifiées : **250 lignes sur 14 tables** (90 précédemment + 160 transférées dans ces deux tables).
+- La tentative d'import de `live_predictions_scrape` a été bloquée par les contrôles de l'environnement d'exécution ; ne pas prétendre que cette table a été transférée.
+- Production et branche `main` de GitHub inchangées.
+- Prochaine opération prioritaire : un export PostgreSQL client-serveur sécurisé (pg_dump/pg_restore) avec secrets, puis checksum stable par clés métiers et réglage de séquences.
