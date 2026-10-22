@@ -1,0 +1,18 @@
+name: LIVE real team logos regression
+on:
+  push:
+    branches: [fix/live-logos-20261022]
+    paths: [live.html, assets/js/live.precompiled.js, tests/live-team-logos.test.mjs, .github/workflows/live-team-logos-tests.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  logos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node tests/live-team-logos.test.mjs
