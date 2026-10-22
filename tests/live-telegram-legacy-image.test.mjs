@@ -5,7 +5,7 @@ import {resolve,dirname} from "node:path";
 import {createHmac} from "node:crypto";
 import worker from "../cloudflare/telegram-live-instant/worker.mjs";
 
-const root=resolve(dirname(fileURLToPath(import.meta.url)),"../..");
+const root=resolve(dirname(fileURLToPath(import.meta.url)),"..");
 const uuid="11111111-2222-4333-8444-555555555555";
 const rawPng=async name=>new Uint8Array(await readFile(resolve(root,"assets/images",name)));
 for(const name of ["telegram-xpvip-banner.png","telegram-xpvip-banner-1win-betwinner.png"]){
