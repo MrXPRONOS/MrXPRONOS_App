@@ -136,7 +136,7 @@ test("8 — Mini App favorites and reports work with signed user",async()=>{
 });
 test("9 — Worker health and HTML Mini App routes",async()=>{
  const h=await worker.fetch(new Request("https://test.workers.dev/health"),env,{waitUntil(){}});
- assert.equal(h.status,200);assert.equal((await h.json()).version,2);
+ assert.equal(h.status,200);assert.equal((await h.json()).version,3);
  const r=await worker.fetch(new Request("https://test.workers.dev/app"),env,{waitUntil(){}});
  assert.equal(r.status,200);assert.match(await r.text(),/Ciné Radar/);
 });
