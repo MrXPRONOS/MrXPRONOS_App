@@ -42,3 +42,11 @@ Keep database URL/password server-only, never in GitHub Pages.
 - The migration status remains INCOMPLETE: original 19 functions not all migrated; Telegram workflows `bsd-v2-telegram-hourly`, `bsd-v2-telegram-wins`, `telegram-daily-xpvip-promo`, `telegram-channel-monitor-daily` still refer to Supabase secrets; workflow `editorial-telegram` does not. Cron-job.org remote tasks were not inspected in this operation.
 - Videos source inventory is 113 files and 215013480 bytes; latest Neon Storage listing has 0 objects. GitHub media copier is staged and uses service role authentication, but no confirmed executed transfer.
 - **Production cutover is not verified**. Avoid changing live Telegram webhook, website main branch or granting broad anonymous SQL access until replacement endpoints and media checks pass.
+
+
+## D1 coupon bot activity verification
+- Cloudflare D1 database `xpronos-coupons-bot` has 1 user row and 10 processed_updates rows, showing updates have been recorded independently of Supabase.
+- No coupon or delivery_audit rows in this check; do not claim successful coupon publication without a delivery test.
+- Worker `xpronos-coupons-bot` has Telegram secrets configured (names only inspected) and cron `*/10 * * * *`.
+- Neon Functions deployment status `completed` verified for quickaction, vapidpublickey and generateembedding. VAPID and embedding still need runtime credentials and HTTP functional tests.
+- GitHub source archive recovered for push-notifications, telegram_webhook, admin-list-subscribers and admin-push, as well as quick-action, clean-cache and generate-embedding; other code remains in supabase/functions.
