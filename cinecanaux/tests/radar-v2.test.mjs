@@ -122,8 +122,8 @@ test("6 — Telegram Mini App rejects unsigned browser requests",async()=>{
 test("7 — Signed Telegram Mini App initData returns only eligible catalog",async()=>{
  const init=await signInit(104);
  const r=await miniAppAPI(env,new Request("https://test.workers.dev/api/catalog?type=films&genre=general&language=VF",{headers:{"X-Telegram-Init-Data":init}}));
- assert.equal(r.status,200,await r.text());
- const obj=await r.clone().json().catch(()=>null);
+ assert.equal(r.status,200);
+ const obj=await r.json();
  assert.equal(obj?.channels?.length,1);
 });
 test("8 — Mini App favorites and reports work with signed user",async()=>{
