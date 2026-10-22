@@ -4,3 +4,35 @@ CREATE TABLE IF NOT EXISTS suggestions(id INTEGER PRIMARY KEY AUTOINCREMENT,user
 CREATE TABLE IF NOT EXISTS user_states(user_id INTEGER PRIMARY KEY,mode TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS update_log(update_id INTEGER PRIMARY KEY,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
 CREATE INDEX IF NOT EXISTS idx_channels_search ON channels(status,content_type,genre);
+
+CREATE TABLE IF NOT EXISTS discovery_candidates (
+ username TEXT PRIMARY KEY COLLATE NOCASE,
+ title TEXT NOT NULL,
+ link TEXT NOT NULL,
+ content_type TEXT NOT NULL CHECK(content_type IN ('films','series','animes')),
+ genre TEXT NOT NULL,
+ source_category TEXT NOT NULL,
+ matching_pairs INTEGER NOT NULL DEFAULT 0,
+ technical_status TEXT NOT NULL CHECK(technical_status IN ('qualified','rejected_format')),
+ rights_status TEXT NOT NULL DEFAULT 'unverified',
+ first_seen TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ last_seen TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ last_scan TEXT NOT NULL,
+ updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_discovery_status ON discovery_candidates(technical_status,rights_status,content_type,genre);
+CREATE TABLE IF NOT EXISTS discovery_sync_status (
+ id INTEGER PRIMARY KEY CHECK(id=1),
+ scan_date TEXT NOT NULL,
+ imported INTEGER NOT NULL DEFAULT 0,
+ qualified INTEGER NOT NULL DEFAULT 0,
+ rejected INTEGER NOT NULL DEFAULT 0,
+ last_error TEXT NOT NULL DEFAULT '',
+ updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS bot_webhook_status (
+ id INTEGER PRIMARY KEY CHECK(id=1),
+ status TEXT NOT NULL,
+ detail TEXT NOT NULL DEFAULT '',
+ updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
