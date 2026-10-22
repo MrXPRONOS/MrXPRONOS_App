@@ -422,3 +422,73 @@ export async function maintenance(env,mode){
   }
  }
 }
+
+
+async function validateMiniApp(env,request){
+ const input=request.headers.get("X-Telegram-Init-Data")||"";
+ if(!env.TELEGRAM_TOKEN||input.length<30||input.length>8192)throw Error("Authentification Telegram requise.");
+ const data=new URLSearchParams(input),hash=data.get("hash");
+ if(!hash||!/^[a-f0-9]{64}$/.test(hash))throw Error("Signature Telegram invalide.");
+ data.delete("hash");data.delete("signature");
+ const authDate=Number(data.get("auth_date"));
+ if(!Number.isFinite(authDate)||authDate>Math.floor(Date.now()/1000)+120||authDate<Math.floor(Date.now()/1000)-86400)throw Error("Session expirée : rouvre la Mini App.");
+ const check=Array.from(data.entries()).sort(([a],[b])=>a.localeCompare(b,"en")).map(([k,v])=>k+"="+v).join("\n");
+ const encoder=new TextEncoder();
+ const baseKey=await crypto.subtle.importKey("raw",encoder.encode("WebAppData"),{name:"HMAC",hash:"SHA-256"},false,["sign"]);
+ const keyBytes=await crypto.subtle.sign("HMAC",baseKey,encoder.encode(env.TELEGRAM_TOKEN));
+ const key=await crypto.subtle.importKey("raw",keyBytes,{name:"HMAC",hash:"SHA-256"},false,["sign"]);
+ const bytes=new Uint8Array(await crypto.subtle.sign("HMAC",key,encoder.encode(check)));
+ const expected=Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
+ if(expected.length!==hash.length)throw Error("Signature invalide");
+ let mismatch=0;for(let i=0;i<hash.length;i++)mismatch|=hash.charCodeAt(i)^expected.charCodeAt(i);
+ if(mismatch!==0)throw Error("Signature invalide");
+ let user;
+ try{user=JSON.parse(data.get("user")||"null")}catch{throw Error("Profil Telegram invalide");}
+ if(!user||!Number.isSafeInteger(Number(user.id))||Number(user.id)<=0)throw Error("Profil Telegram absent");
+ return {id:Number(user.id),first_name:String(user.first_name||"Utilisateur").slice(0,80)};
+}
+export async function miniAppAPI(env,request){
+ const hdr={"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"};
+ function json(body,code=200){return new Response(JSON.stringify(body),{status:code,headers:hdr});}
+ try{
+  const user=await validateMiniApp(env,request);
+  if((await membership(env,user.id)).length)return json({error:"Abonne-toi d'abord aux canaux officiels via le bot."},403);
+  const url=new URL(request.url),path=url.pathname;
+  if(path==="/api/catalog"&&request.method==="GET"){
+   const type=url.searchParams.get("type"),kind=CATEGORY.some(x=>x[0]===type)?type:null;
+   const genre=String(url.searchParams.get("genre")||"general").slice(0,40);
+   const language=String(url.searchParams.get("language")||"tous").slice(0,20);
+   const sort=String(url.searchParams.get("sort")||"recent");
+   const q=String(url.searchParams.get("q")||"").slice(0,80);
+   const tab=String(url.searchParams.get("tab")||"explore");
+   let rows=await listRows(env,kind,genre,LANG.some(x=>x[0]===language)?language:"tous",q,["recent","popular","active"].includes(sort)?sort:"recent");
+   if(tab==="favorites"){
+    const favorites=(await env.DB.prepare("SELECT channel_id FROM favorites WHERE user_id=?").bind(user.id).all()).results||[];
+    const accepted=new Set(favorites.map(x=>Number(x.channel_id)));rows=rows.filter(x=>accepted.has(Number(x.id)));
+   }
+   if(tab==="new")rows=rows.filter(x=>Date.parse(x.updated_at?.replace(" ","T")+"Z")>Date.now()-14*86400000);
+   const fav=(await env.DB.prepare("SELECT channel_id FROM favorites WHERE user_id=?").bind(user.id).all()).results||[];
+   return json({channels:rows.slice(0,100).map(x=>({id:x.id,title:x.title,link:x.link,description:x.description,genre:x.genre,language:x.language,content_type:x.content_type,favorites_count:x.favorites_count})),favorite_ids:fav.map(x=>x.channel_id),total:rows.length});
+  }
+  if(path==="/api/profile"&&request.method==="GET"){
+   const f=await env.DB.prepare("SELECT COUNT(*) n FROM favorites WHERE user_id=?").bind(user.id).first();
+   const r=await env.DB.prepare("SELECT COUNT(*) n FROM referral_visits WHERE referrer_id=?").bind(user.id).first();
+   return json({first_name:user.first_name,favorites:f?.n||0,referrals:r?.n||0});
+  }
+  if(path==="/api/favorite"&&request.method==="POST"){
+   if(Number(request.headers.get("content-length")||0)>4096)return json({error:"Requête trop grande"},413);
+   const data=await request.json(),id=Number(data?.id);
+   if(!Number.isSafeInteger(id)||id<=0)return json({error:"Canal invalide"},400);
+   const found=await env.DB.prepare("SELECT id FROM channels WHERE id=? AND status='approved' AND rights_confirmed=1").bind(id).first();
+   if(!found)return json({error:"Canal indisponible"},404);
+   const old=await env.DB.prepare("SELECT 1 FROM favorites WHERE user_id=? AND channel_id=?").bind(user.id,id).first();
+   if(old)await env.DB.prepare("DELETE FROM favorites WHERE user_id=? AND channel_id=?").bind(user.id,id).run();
+   else await env.DB.prepare("INSERT OR IGNORE INTO favorites(user_id,channel_id) VALUES(?,?)").bind(user.id,id).run();
+   return json({favorite:!old});
+  }
+  return json({error:"Route inconnue"},404);
+ }catch(error){
+  console.error(JSON.stringify({event:"mini_app_api_error",reason:String(error).slice(0,100)}));
+  return json({error:!String(error).includes("D1")?String(error.message||error):"Service indisponible"},401);
+ }
+}
