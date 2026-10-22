@@ -33,3 +33,19 @@ test("Telegram membership rejects webhook when token is not configured",async()=
  const res=await membership.fetch(new Request("https://staging.example/",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat_join_request:{}})}));
  assert.equal(res.status,503);
 });
+
+import privacy from "../cloudflare/threads-privacy-worker.mjs";
+import push from "../cloudflare/push-subscribe-worker.mjs";
+test("Threads staging callbacks fail closed",async()=>{
+ const db={prepare(){throw new Error("unexpected DB access")}};
+ const get=await privacy.fetch(new Request("https://example.invalid/threads-data-deletion?code=invalid"),{DB:db});
+ assert.equal(get.status,400);
+ const post=await privacy.fetch(new Request("https://example.invalid/threads-uninstall",{method:"POST",body:"signed_request=invalid"}),{DB:db});
+ assert.equal(post.status,503);
+});
+test("Push staging has restrictive origin checks",async()=>{
+ const res=await push.fetch(new Request("https://example.invalid/push-subscribe",{method:"POST",headers:{origin:"https://unknown.invalid"},body:"{}"}),{});
+ assert.equal(res.status,403);
+ const preflight=await push.fetch(new Request("https://example.invalid/push-subscribe",{method:"OPTIONS",headers:{origin:"https://mrxpronos.github.io"}}),{});
+ assert.equal(preflight.status,204);
+});
