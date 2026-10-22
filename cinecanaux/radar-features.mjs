@@ -515,8 +515,11 @@ export async function miniAppAPI(env,request){
    const language=String(url.searchParams.get("language")||"tous").slice(0,20);
    const sort=String(url.searchParams.get("sort")||"recent");
    const q=String(url.searchParams.get("q")||"").slice(0,80);
+   const status=String(url.searchParams.get("status")||"all");
    const tab=String(url.searchParams.get("tab")||"explore");
    let rows=await listRows(env,kind,genre,LANG.some(x=>x[0]===language)?language:"tous",q,["recent","popular","active","quality"].includes(sort)?sort:"recent");
+   if(status==="reachable")rows=rows.filter(x=>x.check_status==="reachable");
+   else if(status==="active30")rows=rows.filter(x=>Number.isFinite(Date.parse(String(x.last_post_at||"").replace(" ","T").replace(/Z?$/,"Z")))&&Date.now()-Date.parse(String(x.last_post_at).replace(" ","T").replace(/Z?$/,"Z"))<=30*86400000);
    if(tab==="recommend"){
      const fv=(await env.DB.prepare("SELECT c.id,c.genre FROM favorites f JOIN channels c ON c.id=f.channel_id WHERE f.user_id=? AND c.status='approved' AND c.rights_confirmed=1 LIMIT 60").bind(user.id).all()).results||[];
      const own=await prefs(env,user.id);
