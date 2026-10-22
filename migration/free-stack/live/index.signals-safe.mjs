@@ -2565,7 +2565,9 @@ async function dispatchInstantTelegram(){
     candidates=await sql.unsafe(
       "SELECT p.id::text AS id,p.created_at,p.model_version,p.pricing_mode,"+
       "p.prediction_type AS type,p.signal_tier,p.home_team,p.away_team,p.probability,"+
-      "p.threshold,p.signal_value,p.reliability_score AS reliability,p.data_quality_score,p.minute "+
+      "p.threshold,p.signal_value,p.reliability_score AS reliability,p.data_quality_score,p.minute,"+
+      "p.home_score,p.away_score,p.league_name,p.model_fair_odds,"+
+      "m.raw_data->>'home_logo' AS home_logo,m.raw_data->>'away_logo' AS away_logo "+
       "FROM public.live_predictions p JOIN public.matches_live m ON p.match_id=m.id "+
       "WHERE p.model_version=$1 AND p.created_at>=now()-interval '14 minutes' "+
       "AND p.created_at<=now()+interval '30 seconds' AND COALESCE(p.telegram_sent,false)=false "+
@@ -2602,6 +2604,9 @@ async function dispatchInstantTelegram(){
       id:String(row.id),created_at:row.created_at,model_version:row.model_version,
       pricing_mode:row.pricing_mode,type:row.type,signal_tier:row.signal_tier,
       home_team:row.home_team,away_team:row.away_team,
+      home_logo:row.home_logo||null,away_logo:row.away_logo||null,
+      home_score:row.home_score,away_score:row.away_score,league_name:row.league_name||"Football",
+      model_fair_odds:Number(row.model_fair_odds),
       probability:Number(row.probability),threshold:Number(row.threshold),
       signal_value:Number(row.signal_value),reliability:Number(row.reliability),
       data_quality_score:Number(row.data_quality_score),minute:Number(row.minute)
