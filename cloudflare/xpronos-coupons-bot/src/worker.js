@@ -16,6 +16,7 @@ export const MENU={keyboard:[
   [{text:'🎁 Bonus',style:'success'},{text:'⭐ Mes XP',style:'primary'}],
   [{text:'↗️ Partager',style:'success'},{text:'✅ Vérifier',style:'success'}],
   [{text:'📋 Procédure',style:'primary'},{text:'📣 Alertes',style:'primary'}],
+  [{text:'💬 Support',style:'primary'}],
   [{text:'📱 Mini App Free Pronos',web_app:{url:APP_URL},style:'success'}]
 ],resize_keyboard:true};
 const inline=(rows)=>({inline_keyboard:rows});
@@ -328,6 +329,7 @@ async function handle(env,update) {
       newTicket.status==='locked'?'🔞 Confirme tes 18 ans ou plus avec /start.':
       '⚠️ <b>Ton message est trop court.</b>\n<i>Décris le problème en au moins 12 caractères.</i>');
   }
+  if(txt==='💬 Support')return send(env,chat,supportGuide(),navKeyboard());
   if(txt==='/mytickets')return send(env,chat,ticketSummary(await ticketsForUser(env,uid)),navKeyboard());
   if(/^\/closeticket\s+\d+$/.test(txt)){
     const id=Number(txt.split(/\s+/)[1]);
