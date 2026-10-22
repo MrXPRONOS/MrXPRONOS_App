@@ -113,6 +113,30 @@ jobs:
           PY
       - name: Déployer la fonction Telegram sans toucher aux autres fonctions
         run: supabase functions deploy xpronos-coupons-bot --project-ref "$PROJECT_REF" --no-verify-jwt
+      - name: Vérifier que Supabase accepte les requêtes avant d'enregistrer le webhook
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Le bot retourne 404 sur GET. Une réponse 402 provient de la
+          # restriction globale Supabase (Fair Use / quota / facturation).
+          # Ne pas exposer les secrets ni lancer une requête Telegram artificielle.
+          status="$(curl --silent --show-error --max-time 20 \
+            --output /dev/null --write-out '%{http_code}' \
+            "https://${PROJECT_REF}.supabase.co/functions/v1/xpronos-coupons-bot")"
+          case "$status" in
+            404)
+              echo 'Passerelle Supabase accessible (404 GET attendu).'
+              ;;
+            402)
+              echo '::error::Supabase renvoie HTTP 402 : restriction de service (quota ou facturation).'
+              echo '::error::Consulte Supabase Dashboard > Organisation > Usage / Billing avant de relancer. Aucun changement de code ne peut lever la restriction.'
+              exit 1
+              ;;
+            *)
+              echo "::error::Réponse inattendue de la passerelle Supabase : HTTP $status (404 attendu)."
+              exit 1
+              ;;
+          esac
       - name: Configurer les secrets Edge et le webhook Telegram
         shell: bash
         run: |
