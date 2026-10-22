@@ -30,8 +30,12 @@ const query=async(env,sql,...args)=>(await env.DB.prepare(sql).bind(...args).all
 export async function miniApi(request,env){
   if(request.method!=='GET'&&request.method!=='POST')return json({error:'method_not_allowed'},405);
   const header=request.headers.get('authorization')||'';
-  if(!header.startsWith('tma '))return json({error:'telegram_auth_required'},401);
-  const verified=await authenticateInitData(header.slice(4),env.CF_BOT_TOKEN);
+  const dedicated=request.headers.get('x-telegram-init-data')||'';
+  const legacy=header.startsWith('tma ')?header.slice(4):'';
+  if(!dedicated&&!legacy)return json({error:'telegram_auth_required'},401);
+  if(dedicated&&legacy&&dedicated!==legacy)return json({error:'conflicting_telegram_sessions'},401);
+  // La signature HMAC Telegram reste obligatoire quel que soit l'en-tête.
+  const verified=await authenticateInitData(dedicated||legacy,env.CF_BOT_TOKEN);
   if(!verified)return json({error:'invalid_or_expired_telegram_session'},401);
   const id=verified.userId,url=new URL(request.url);
   const me=await summary(env,id);
