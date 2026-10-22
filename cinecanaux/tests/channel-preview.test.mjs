@@ -22,8 +22,15 @@ test("29 — Restrict external image hosts and escape user supplied text",()=>{
 test("30 — Channel metadata is cached and only public approved links can be inspected",async()=>{
  const oldFetch=globalThis.fetch,state={cache:null,calls:0};
  const db={prepare(sql){let args=[];return {bind(...v){args=v;return this},async first(){
-  if(sql.includes("FROM channels WHERE id="))return args[0]===17?{id:17,title:"Catalogue original",link:"https://t.me/PublicCinema2026",description:"Référencé",last_post_at:null}:null;
-  if(sql.includes("FROM channel_profile_cache"))return state.cache;return null;
+  if(sql.includes("FROM channels c LEFT JOIN channel_profile_cache")){
+    if(args[0]!==17)return null;
+    const cached=state.cache;
+    return {id:17,title:"Catalogue original",link:"https://t.me/PublicCinema2026",description:"Référencé",last_post_at:null,
+      cached_title:cached?.title,cached_description:cached?.description,cached_avatar_url:cached?.avatar_url,
+      cached_post_image_url:cached?.post_image_url,cached_last_post_at:cached?.last_post_at,
+      cached_preview_status:cached?.preview_status,cached_checked_at:cached?.checked_at};
+  }
+  return null;
  },async run(){
   if(sql.includes("INSERT INTO channel_profile_cache"))state.cache={title:args[1],description:args[2],avatar_url:args[3],last_post_at:args[4],preview_status:args[5],checked_at:new Date().toISOString().replace("T"," ").replace(/\.\d+Z$/,"")};
   return {meta:{changes:1}};
@@ -41,7 +48,7 @@ test("30 — Channel metadata is cached and only public approved links can be in
 test("31 — Network outage leaves a usable in-app basic public profile",async()=>{
  const oldFetch=globalThis.fetch;
  const db={prepare(sql){return {bind(){return this},async first(){
-  if(sql.includes("FROM channels WHERE id="))return {id:6,title:"Public fallback",link:"https://t.me/TestPublic123",description:"Description enregistrée",last_post_at:null};
+  if(sql.includes("FROM channels c LEFT JOIN channel_profile_cache"))return {id:6,title:"Public fallback",link:"https://t.me/TestPublic123",description:"Description enregistrée",last_post_at:null};
   return null;
  },async run(){return {meta:{changes:1}}}}}};
  globalThis.fetch=async()=>{throw Error("Telegram temporarily unavailable")};
