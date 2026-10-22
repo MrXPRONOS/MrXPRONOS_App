@@ -64,3 +64,5 @@ jobs:
             print("Unauthorized refresh status:",exc.code,flush=True)
             assert exc.code==401
           PY
+
+# Rerun after correcting bundled module identifiers
