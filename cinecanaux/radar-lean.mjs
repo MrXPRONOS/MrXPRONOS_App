@@ -125,7 +125,7 @@ export async function maintenance(env){
  }
 }
 export async function cleanup(env){
- await env.DB.prepare("DELETE FROM update_log WHERE created_at < datetime('now','-7 days')").run();
+ // No per-user update history or browsing events are stored.
  await env.DB.prepare("DELETE FROM channel_profile_cache WHERE channel_id NOT IN (SELECT id FROM channels)").run();
  await env.DB.prepare("DELETE FROM discovery_candidates WHERE technical_status='rejected_format' AND updated_at < datetime('now','-120 days')").run();
 }
