@@ -2572,7 +2572,24 @@ async function dispatchInstantTelegram(){
     console.error("NEON_TELEGRAM_OUTBOX_QUERY_FAILED",e?.code||e?.name);
     return {...summary,telegram_delivery:"db_error"};
   }
-  if(!candidates.length)return summary;
+  if(!candidates.length){
+    // Signed empty request confirms that the Neon function reaches Cloudflare.
+    // This never calls Telegram, and reveals network/WAF issues in cron health.
+    try{
+      const payload=JSON.stringify({signals:[]}),ts=String(Date.now());
+      const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(secret),
+        {name:"HMAC",hash:"SHA-256"},false,["sign"]);
+      const signature=Buffer.from(await crypto.subtle.sign("HMAC",key,new TextEncoder().encode(ts+"."+payload))).toString("hex");
+      const resp=await fetch(INSTANT_TELEGRAM_URL,{method:"POST",
+        headers:{"content-type":"application/json","x-mrx-timestamp":ts,"x-mrx-signature":signature},
+        body:payload,signal:AbortSignal.timeout(9000)});
+      const result=await resp.json().catch(()=>({}));
+      summary.telegram_delivery=resp.ok&&result.ok===true?"idle_verified":"gateway_http_"+resp.status;
+    }catch(e){
+      summary.telegram_delivery="gateway_network_"+String(e?.name||"error").slice(0,20);
+    }
+    return summary;
+  }
   const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(secret),
     {name:"HMAC",hash:"SHA-256"},false,["sign"]);
   async function one(row){
@@ -2667,6 +2684,10 @@ index_default.fetch=async function(req){
       try{delivery=await dispatchInstantTelegram();}
       catch(e){console.error("NEON_INSTANT_TELEGRAM_FAILED",e?.code||e?.name);delivery.telegram_delivery="failed";}
     }
+    try {
+      await sql.unsafe("UPDATE public.cron_runs SET meta=COALESCE(meta,'{}'::jsonb) || $1::text::jsonb WHERE name='live_refresh'",
+        [JSON.stringify(delivery)]);
+    }catch(e){console.error("NEON_TELEGRAM_HEALTH_SAVE_FAILED",e?.code||e?.name);}
     return json(req,{mode:"apply",...report,...signalReport,...delivery,
       no_signal_generation:signalReport.signal_backend!=="active"},200);
   }catch(e){
