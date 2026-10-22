@@ -1,6 +1,12 @@
 name: BSD V3 - Apercu de test (sans publication)
 on:
   workflow_dispatch:
+  # First real run is triggered by this isolated workflow update.
+  # Later JSON refreshes cannot recursively trigger this workflow.
+  push:
+    branches: [feature/bsd-v3-40-markets-shadow-20261022]
+    paths:
+      - '.github/workflows/bsd-v3-preview-generation.yml'
 permissions:
   contents: write
 concurrency:
