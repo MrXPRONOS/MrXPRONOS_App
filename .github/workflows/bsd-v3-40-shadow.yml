@@ -1,0 +1,25 @@
+name: BSD V3 40 Markets Shadow - Isolated Tests
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'bsd/bsd_v3_40_*.py'
+      - 'bsd/test_bsd_v3_40_markets.py'
+      - '.github/workflows/bsd-v3-40-shadow.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Compile isolated modules
+        run: python -m compileall -q bsd/bsd_v3_40_markets.py bsd/bsd_v3_40_engine.py bsd/test_bsd_v3_40_markets.py
+      - name: Validate 40 markets with BSD V2 mathematics
+        run: python -m unittest discover -s bsd -p 'test_bsd_v3_40_markets.py' -v
+      - name: Run production BSD regression tests without publishing
+        run: python -m unittest discover -s bsd -p 'test_*.py' -v
