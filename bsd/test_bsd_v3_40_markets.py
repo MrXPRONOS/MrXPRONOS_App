@@ -5,7 +5,7 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).parent))
 from bsd_v2_core import score_matrix
 from bsd_v3_40_markets import SPECS, BY_KEY, probabilities, result, settle_market
-from bsd_v3_40_engine import rank_markets
+from bsd_v3_40_engine import rank_markets, enrich_all_markets
 from datetime import datetime,timezone
 
 class V3MarketsTests(unittest.TestCase):
@@ -54,6 +54,28 @@ class V3MarketsTests(unittest.TestCase):
         self.assertEqual(settle_market("DNB_HOME",status="finished",home_score=1,away_score=1),"push")
     def test_never_rank_without_verified_quoted_odds_and_holdout(self):
         self.assertEqual(rank_markets(list(self.rows.values()),{},now=datetime.now(timezone.utc)),[])
+    def test_all_40_confidence_independent_of_quote(self):
+        expected={"home_recent_matches":10,"away_recent_matches":8,"league_samples":120,
+                  "home_venue_matches":5,"away_venue_matches":4}
+        rows=enrich_all_markets(list(self.rows.values()),expected)
+        self.assertEqual(len(rows),40)
+        for item in rows:
+            self.assertAlmostEqual(item["confidence_pct"],round(item["probability"]*100,1))
+            self.assertFalse(item["confidence_calibrated"])
+            self.assertEqual(item["market_status"],"model_option_unverified")
+
+    def test_multiple_qualified_markets_are_not_capped(self):
+        now=datetime.now(timezone.utc)
+        quotes={}
+        checks={}
+        for key in ("TOTAL_OVER_15","TOTAL_UNDER_45","DC_1X"):
+            quotes[key]={"verified":True,"estimated":False,"source":"bsd_consensus",
+                         "odds":99,"captured_at":now.isoformat()}
+            checks[key]={"samples":200,"test_brier":0.1,"baseline_brier":0.2,
+                         "chronological_holdout":True}
+        picks=rank_markets(list(self.rows.values()),quotes,now=now,validation=checks)
+        self.assertEqual(len(picks),3)
+
     def test_invalid_distribution(self):
         with self.assertRaises(ValueError):
             probabilities({(0,0):.5})
