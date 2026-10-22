@@ -63,3 +63,21 @@ test('JavaScript embarqué de la Mini App est syntaxiquement valide',()=>{
  assert.match(scripts[0][1],/data-sort/);
  assert.match(scripts[0][1],/api\/support/);
 });
+
+
+test('API accepte un en-tête Telegram dédié seulement après vérification HMAC',async()=>{
+ const raw=await signed(Math.floor(Date.now()/1000));
+ const DB={prepare(sql){return {bind(){return {async first(){
+  if(sql.startsWith('SELECT * FROM users'))return {id:80599,name:'Test',adult_confirmed:1,required_verified:1,xp:0};
+  if(sql.includes('notify_coupons,notify_results'))return {notify_coupons:0,notify_results:0};
+  return {total:0};
+ }}}}}};
+ const env={DB,CF_BOT_TOKEN:'123:TEST',CF_BOT_ADMIN_IDS:'80599'};
+ const valid=await miniApi(new Request('https://worker.invalid/api/me',{headers:{'X-Telegram-Init-Data':raw}}),env);
+ assert.equal(valid.status,200);
+ assert.equal((await valid.json()).me.is_admin,true);
+ const invalid=await miniApi(new Request('https://worker.invalid/api/me',{headers:{'X-Telegram-Init-Data':raw+'tampered'}}),env);
+ assert.equal(invalid.status,401);
+ const unsigned=await miniApi(new Request('https://worker.invalid/api/me'),env);
+ assert.equal(unsigned.status,401);
+});
