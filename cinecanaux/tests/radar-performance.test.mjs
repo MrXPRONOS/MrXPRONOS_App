@@ -99,3 +99,24 @@ test("A cached channel profile uses one D1 read, not two",async()=>{
  assert.equal(p.data.cached,true);
  assert.equal(calls,1);
 });
+
+
+test("Concurrent requests for the same preview reuse one D1 read and no extra rows",async()=>{
+ let databaseReads=0;
+ const checked_at=new Date().toISOString().replace("T"," ").replace(/\.\d+Z$/,"");
+ const env={DB:{prepare(sql){
+  databaseReads++;
+  return {bind(){return this},async first(){
+   await Promise.resolve();
+   return {id:99,title:"Public cinema",link:"https://t.me/FastPublic2026",description:"Official profile",
+    cached_title:"Fast public preview",cached_description:"Cinema",cached_avatar_url:"",
+    cached_post_image_url:null,cached_last_post_at:null,cached_checked_at:checked_at,cached_preview_status:"available"};
+  }};
+ }}};
+ const [one,two,three]=await Promise.all([channelPreview(env,99),channelPreview(env,99),channelPreview(env,99)]);
+ assert.equal(one.status,200);assert.equal(two.status,200);assert.equal(three.status,200);
+ assert.equal(databaseReads,1);
+ const repeat=await channelPreview(env,99);
+ assert.equal(repeat.data.cached,true);
+ assert.equal(databaseReads,1);
+});
