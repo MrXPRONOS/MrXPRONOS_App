@@ -1,0 +1,15 @@
+{
+  "name": "cinecanaux-bot",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-22",
+  "observability": {
+    "enabled": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "cinecanaux-directory",
+      "database_id": "fa8b5009-bc1a-4a6e-b143-7a487c7297a5"
+    }
+  ]
+}
