@@ -299,3 +299,37 @@ export async function notificationBatch(env,telegram,max=12){
   }
   return {queued:queue.length,sent};
 }
+
+export async function resultNotificationBatch(env,telegram,max=8){
+  // Utilisateurs ayant explicitement choisi les alertes de résultats.
+  // Seuls les statuts finaux saisis par un administrateur sont annoncés.
+  const queue=await all(env,
+    "SELECT r.user_id AS uid,c.id AS coupon_id,c.title,c.result_status FROM coupons c "+
+    "JOIN redemptions r ON r.coupon_id=c.id "+
+    "JOIN user_preferences p ON p.user_id=r.user_id AND p.notify_results=1 "+
+    "JOIN users u ON u.id=r.user_id AND u.adult_confirmed=1 AND u.required_verified=1 "+
+    "WHERE c.result_status IN ('won','lost','void') AND c.result_reviewed_at IS NOT NULL "+
+    "AND NOT EXISTS(SELECT 1 FROM coupon_notifications n WHERE n.user_id=r.user_id AND n.coupon_id=c.id AND n.kind='result') "+
+    "ORDER BY c.result_reviewed_at ASC LIMIT ?",Math.min(max,8));
+  let sent=0;
+  for(const item of queue){
+    const reserved=await one(env,
+      "INSERT OR IGNORE INTO coupon_notifications(user_id,coupon_id,kind) VALUES(?,?,'result') RETURNING user_id",
+      item.uid,item.coupon_id);
+    if(!reserved)continue;
+    try{
+      await telegram(env,'sendMessage',{
+        chat_id:item.uid,text:'📊 <b>FREE PRONOS · RÉSULTAT VÉRIFIÉ</b>\n\n'+
+          '🎟️ '+H(item.title)+'\n'+statusLabel(item.result_status)+
+          '\n\n<i>Résultat renseigné par l’équipe après vérification. Aucun pronostic n’est garanti.</i>',
+        parse_mode:'HTML'
+      });
+      await run(env,"UPDATE coupon_notifications SET sent_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE user_id=? AND coupon_id=? AND kind='result'",item.uid,item.coupon_id);
+      sent++;
+    }catch(err){
+      console.warn('Free Pronos results notification failed',item.uid,String(err).slice(0,120));
+      await run(env,"DELETE FROM coupon_notifications WHERE user_id=? AND coupon_id=? AND kind='result' AND sent_at IS NULL",item.uid,item.coupon_id);
+    }
+  }
+  return {queued:queue.length,sent};
+}
