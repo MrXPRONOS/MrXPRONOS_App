@@ -134,6 +134,25 @@ test("8 — Mini App favorites and reports work with signed user",async()=>{
  assert.equal(report.status,200);
  assert.equal(state.reports.length,1);
 });
+test("8bis — Mini App saves language, favorite category and opt-in notifications",async()=>{
+ const init=await signInit(104);
+ const headers={"X-Telegram-Init-Data":init,"content-type":"application/json"};
+ const response=await miniAppAPI(env,new Request("https://test.workers.dev/api/preferences",{
+   method:"POST",headers,body:JSON.stringify({category:"animes",language:"VOSTFR",notifications:true})
+ }));
+ assert.equal(response.status,200);
+ const saved=await response.json();
+ assert.equal(saved.preferences.category,"animes");
+ assert.equal(saved.preferences.language,"VOSTFR");
+ assert.equal(saved.preferences.notification_enabled,1);
+ const invalid=await miniAppAPI(env,new Request("https://test.workers.dev/api/preferences",{
+   method:"POST",headers,body:JSON.stringify({category:"unknown",language:"VF",notifications:true})
+ }));
+ assert.equal(invalid.status,400);
+});
+test("8ter — Welcome photo is delivered on first start",async()=>{
+ assert.ok(messages.some(x=>x.method==="sendPhoto"&&x.body.photo.endsWith("/assets/welcome.png")));
+});
 test("9 — Worker health and HTML Mini App routes",async()=>{
  const h=await worker.fetch(new Request("https://test.workers.dev/health"),env,{waitUntil(){}});
  assert.equal(h.status,200);assert.equal((await h.json()).version,3);
