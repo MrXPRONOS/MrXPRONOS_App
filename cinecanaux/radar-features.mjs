@@ -120,7 +120,7 @@ async function card(env,id,uid,cb,channelId,origin="latest"){
  const body="📂 <b>"+esc(kind)+"</b> • "+esc(c.genre)+"\n🌐 <b>Langue :</b> "+esc(c.language||"VF")+
   "\n\n<blockquote>"+esc((c.description||"Canal référencé et vérifié.").slice(0,370))+"</blockquote>\n\n✅ <i>Canal autorisé</i>";
  const buttons=[
-  [bx("🔗 Ouvrir le canal",null,c.link,"success")],
+  [bx("🔗 Ouvrir le canal",null,BASE+"/go/"+c.id,"success")],
   [bx(favorite?"💔 Retirer des favoris":"⭐ Ajouter aux favoris","fav:"+c.id+":"+origin,null,"primary"),bx("📤 Partager","share:"+c.id)],
   [bx("🚩 Signaler","report:"+c.id,null,"danger"),bx("⬅️ Liste","return:"+origin)],
   navHome()
@@ -205,6 +205,7 @@ async function shareChannel(env,id,uid,cb,channelId){
  const ref=await referralCode(env,uid);
  const target="https://t.me/"+username+"?start=ch_"+channelId+"_ref_"+ref;
  const share="https://t.me/share/url?url="+encodeURIComponent(target)+"&text="+encodeURIComponent("🎬 "+c.title+" • Découvre cette chaîne sur Ciné Radar");
+ await env.DB.prepare("INSERT INTO channel_telemetry(channel_id,shares) VALUES(?,1) ON CONFLICT(channel_id) DO UPDATE SET shares=channel_telemetry.shares+1").bind(channelId).run();
  await show(env,id,cb,regularHeader("PARTAGER CE CANAL","<b>"+esc(c.title)+"</b>\n\n<code>"+esc(target)+"</code>","Ce lien ramène ton ami vers le bot Ciné Radar, puis vers la fiche du canal."),kb([[bx("📤 Envoyer à un ami",null,share,"success")],[bx("🎬 Voir le canal","card:"+channelId+":latest")],navHome()]));
 }
 async function reportPanel(env,id,uid,cb,channelId){
@@ -469,6 +470,22 @@ export async function miniAppAPI(env,request){
    if(tab==="new")rows=rows.filter(x=>Date.parse(x.updated_at?.replace(" ","T")+"Z")>Date.now()-14*86400000);
    const fav=(await env.DB.prepare("SELECT channel_id FROM favorites WHERE user_id=?").bind(user.id).all()).results||[];
    return json({channels:rows.slice(0,100).map(x=>({id:x.id,title:x.title,link:x.link,description:x.description,genre:x.genre,language:x.language,content_type:x.content_type,favorites_count:x.favorites_count})),favorite_ids:fav.map(x=>x.channel_id),total:rows.length});
+  }
+  if(path==="/api/report"&&request.method==="POST"){
+   const data=await request.json(),id=Number(data?.id),reason=String(data?.reason||"broken").slice(0,20);
+   if(!Number.isSafeInteger(id)||id<=0||!["broken","category","content","rights"].includes(reason))return json({error:"Signalement invalide"},400);
+   const channel=await env.DB.prepare("SELECT 1 FROM channels WHERE id=? AND status='approved' AND rights_confirmed=1").bind(id).first();
+   if(!channel)return json({error:"Canal non disponible"},404);
+   await env.DB.prepare("INSERT OR IGNORE INTO channel_reports(channel_id,user_id,reason) VALUES(?,?,?)").bind(id,user.id,reason).run();
+   return json({ok:true});
+  }
+  if(path==="/api/open"&&request.method==="POST"){
+   const data=await request.json(),id=Number(data?.id);
+   if(!Number.isSafeInteger(id)||id<=0)return json({error:"Canal invalide"},400);
+   const channel=await env.DB.prepare("SELECT link FROM channels WHERE id=? AND status='approved' AND rights_confirmed=1").bind(id).first();
+   if(!channel||!BOT_LINK_RE.test(channel.link))return json({error:"Canal indisponible"},404);
+   await env.DB.prepare("INSERT INTO channel_telemetry(channel_id,opens) VALUES(?,1) ON CONFLICT(channel_id) DO UPDATE SET opens=channel_telemetry.opens+1").bind(id).run();
+   return json({ok:true});
   }
   if(path==="/api/profile"&&request.method==="GET"){
    const f=await env.DB.prepare("SELECT COUNT(*) n FROM favorites WHERE user_id=?").bind(user.id).first();
