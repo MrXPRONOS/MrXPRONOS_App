@@ -66,3 +66,5 @@ jobs:
           PY
 
 # Rerun after correcting bundled module identifiers
+
+# Retry for Neon deployment propagation after successful preview
