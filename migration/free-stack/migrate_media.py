@@ -11,7 +11,11 @@ for item in inventory:
     key=item["name"]
     assert not key.startswith("/") and ".." not in key.split("/")
     url="https://nhwafcpndlufzzxexikh.supabase.co/storage/v1/object/public/videos/"+quote(key,safe="/")
-    response=requests.get(url,timeout=120)
+    headers={"apikey":os.environ["SUPABASE_SERVICE_ROLE_KEY"],"Authorization":"Bearer "+os.environ["SUPABASE_SERVICE_ROLE_KEY"]}
+    auth_url="https://nhwafcpndlufzzxexikh.supabase.co/storage/v1/object/authenticated/videos/"+quote(key,safe="/")
+    response=requests.get(auth_url,headers=headers,timeout=120)
+    if response.status_code in (401,403):
+        response=requests.get(url,headers=headers,timeout=120)
     response.raise_for_status()
     data=response.content
     assert len(data)==int(item["size"]), "Source object size mismatch"
