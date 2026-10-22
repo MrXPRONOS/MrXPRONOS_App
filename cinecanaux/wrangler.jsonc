@@ -11,5 +11,10 @@
       "database_name": "cinecanaux-directory",
       "database_id": "fa8b5009-bc1a-4a6e-b143-7a487c7297a5"
     }
-  ]
+  ],
+  "triggers": {
+    "crons": [
+      "*/5 * * * *"
+    ]
+  }
 }
