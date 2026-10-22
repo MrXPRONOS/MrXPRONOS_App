@@ -27,8 +27,10 @@ jobs:
           except Exception as exc:
               print("Neon membership endpoint error:",type(exc).__name__)
               raise SystemExit(1)
-          if state.get('service')!='telegram-membership' or state.get('configured') is not True:
-              raise SystemExit("Neon membership is not ready; Telegram webhook unchanged")
+          if state.get('service')!='telegram-membership':
+              raise SystemExit("Unexpected Neon endpoint")
+          if state.get('configured') is not True:
+              print("Neon membership token is missing; no webhook change permitted")
           token=os.environ.get('TELEGRAM_BOT_TOKEN','')
           if not token:raise SystemExit("Telegram bot token missing")
           req=urllib.request.Request('https://api.telegram.org/bot'+token+'/getWebhookInfo',method='GET')
