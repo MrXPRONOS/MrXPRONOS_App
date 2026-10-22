@@ -81,15 +81,14 @@ async function startMessage(env,id,uid,cb){
   [bx("📣 Nos canaux","owned"),bx("🖥 Mini App","miniapp",null,"primary")],
   [bx("📨 Proposer","suggest"),bx("💡 Aide","help")]
  ];
- await show(env,id,cb,msg,kb(rows));
  if(!p.onboarded&&!cb){
   const picture=await telegram(env,"sendPhoto",{chat_id:id,photo:BASE+"/assets/welcome.png",
    caption:"🎬 <b>CINÉ RADAR</b> — Ton cinéma, tes découvertes. 🍿",parse_mode:"HTML"});
   if(!picture.ok)console.warn(JSON.stringify({event:"welcome_photo_fallback",code:picture.error_code}));
+  rows.push([bx("🎓 Guide de démarrage (3 étapes)","guide:0",null,"success")]);
   await setPrefs(env,uid,{onboarded:1});
-  await send(env,id,"💡 <b>PREMIÈRE VISITE ?</b>\n<i>Découvre Ciné Radar en trois étapes rapides.</i>",
-    kb([[bx("🎓 Découvrir comment ça marche","guide:0",null,"success")]]));
  }
+ await show(env,id,cb,msg,kb(rows));
 }
 async function showCategory(env,id,uid,cb,kind){
  await setPrefs(env,uid,{category:kind});
