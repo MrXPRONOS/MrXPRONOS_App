@@ -54,3 +54,13 @@ Les fichiers d'événements/historique doivent respecter le schéma BSD, dates e
 6. Protections contre le déclenchement double, l'injection de pronostics après coup et la modification d'un pari publié.
 
 Aucun pari ni score de confiance n'offre de garantie de réussite ou de profit.
+
+
+## Update: experimental page and Neon test branch (22 October 2026)
+- Cloned `pronos.html` to `pronos-v3-test.html`; production `pronos.html` remains unchanged.
+- Dedicated JS `assets/js/pronos-v3-test.js` renders `bsd/v3_preview_feed.json` only, never `data.json` or the live V2 publication feed.
+- Initial preview feed contains **zero genuine forecasts**; no synthetic or invented match. To populate, manually run `BSD V3 - Apercu de test (sans publication)` on experimental GitHub branch. This workflow restores the licensed BSD history, fetches real future BSD fixtures, computes up to 40 probabilities/match, archives an artifact and updates *only the experimental branch* preview JSON.
+- Neon project `MrXPRONOS-Migration`: dedicated database branch `bsd-v3-40-markets-preview`; schema `bsd_v3_shadow` was successfully applied on this branch only. No database write integration or synchronization from the preview workflow yet.
+- No Cloudflare deployment configured yet; a GitHub branch file is not a live web URL, and must not be described as deployed.
+- V3 ML chronological evaluation and priced, fully verified ticket publication are **not completed**; the page labels probabilities as observations only.
+- CI must be reconfirmed after the latest commits. Under no circumstances merge the draft PR automatically.
