@@ -53,7 +53,7 @@ nav{position:fixed;bottom:0;left:0;right:0;border-top:1px solid #2b3d64;backgrou
 <div class="toast" id="toast"></div>
 <script>
 (function(){
-const tg=window.Telegram?.WebApp||null; const initData=tg?.initData||""; let type="all",tab="explore",favIds=new Set(),keyword="",channels=[],timer=0,page=0,pageSize=12,profileData=null,requestSerial=0,filterOpen=false,botUrl="";
+const tg=window.Telegram?.WebApp||null; const initData=tg?.initData||""; let type="all",tab="explore",favIds=new Set(),keyword="",channels=[],timer=0,page=0,pageSize=12,profileData=null,requestSerial=0,filterOpen=false,botUrl="",sessionValid=false;
 if(tg){tg.ready();tg.expand();tg.setHeaderColor?.("#0e1529");tg.setBackgroundColor?.("#090e1e");}
 const $=id=>document.getElementById(id);
 const toast=message=>{const el=$("toast");el.textContent=message;el.style.display="block";setTimeout(()=>{el.style.display="none";},3200);};
@@ -115,7 +115,11 @@ async function showChannelPreview(id){
 function render(list){
  const root=$("cards");root.textContent="";
  $("counter").textContent=list.length+" canal"+(list.length>1?"aux":"");
- if(!list.length){empty(tab==="favorites"?"Aucun favori":"Aucun canal disponible",tab==="favorites"?"Utilise l'étoile ⭐ sur une fiche pour la retrouver ici.":"Aucun résultat disponible pour ces filtres. Essaie une autre catégorie.");return;}
+ if(!list.length){
+  if(tab==="favorites"&&!sessionValid){telegramEntry("Les favoris sont personnels : ouvre la Mini App depuis le bouton Ciné Radar dans Telegram.");return;}
+  empty(tab==="favorites"?"Aucun favori":"Aucun canal disponible",tab==="favorites"?"Utilise l'étoile ⭐ sur une fiche pour la retrouver ici.":"Aucun résultat disponible pour ces filtres. Essaie une autre catégorie.");
+  return;
+ }
  const maxPage=Math.max(0,Math.ceil(list.length/pageSize)-1);page=Math.min(page,maxPage);
  for(const c of list.slice(page*pageSize,(page+1)*pageSize)){
   const card=document.createElement("article");card.className="card";
@@ -130,7 +134,10 @@ function render(list){
   const sub=document.createElement("div");sub.className="caption";sub.textContent=(c.genre||"Cinéma")+" • "+(c.description||"Canal approuvé").slice(0,62);
   const actions=document.createElement("div");actions.className="card-actions";
   actions.append(button("👁 Aperçu","primary",()=>showChannelPreview(c.id)),
-    button(favIds.has(c.id)?"★":"☆","icon",async()=>{try{const r=await request("/api/favorite",{method:"POST",body:JSON.stringify({id:c.id})});if(r.favorite)favIds.add(c.id);else favIds.delete(c.id);render(channels);}catch(e){toast(e.message);}}),
+    button(favIds.has(c.id)?"★":"☆","icon",async()=>{
+     if(!sessionValid){toast("⭐ Les favoris nécessitent Telegram : ouvre la Mini App depuis le bouton du bot.");return;}
+     try{const r=await request("/api/favorite",{method:"POST",body:JSON.stringify({id:c.id})});if(r.favorite)favIds.add(c.id);else favIds.delete(c.id);render(channels);}catch(e){toast(e.message);}
+    }),
     button("↗","icon",()=>{const url="https://t.me/share/url?url="+encodeURIComponent(c.link)+"&text="+encodeURIComponent("🎬 "+c.title+" • Découvert sur Ciné Radar");if(tg?.openTelegramLink)tg.openTelegramLink(url);else window.open(url,"_blank","noopener");}),
     button("⚑","icon",async()=>{const reasons={"broken":"Lien inaccessible","category":"Mauvaise catégorie","content":"Contenu inadapté","rights":"Problème de droits"};const v=window.prompt("Quel problème ?\n1 = Lien inaccessible\n2 = Mauvaise catégorie\n3 = Contenu problématique\n4 = Droits de diffusion","1");const chosen=({"1":"broken","2":"category","3":"content","4":"rights"})[v];if(!chosen)return;try{await request("/api/report",{method:"POST",body:JSON.stringify({id:c.id,reason:chosen})});toast("Signalement enregistré. Merci !");}catch(e){toast(e.message);}}));
   const score=document.createElement("div");score.className="quality"+(c.quality_score==null?" missing":"");score.textContent=c.quality_score!=null?"✦ Indice indicatif : "+c.quality_score:"Canal référencé";score.title="Score estimé selon métadonnées, activité observée, favoris et accessibilité — ce n'est pas une garantie.";
@@ -148,16 +155,15 @@ function render(list){
 }
 async function load(){
  const current=++requestSerial;
- if(!initData){$("state").textContent="Ouvrir dans Telegram";await telegramEntry("Appuie sur « Ouvrir le bot Telegram », puis utilise le bouton Mini App pour te connecter.");return;}
  try{
  $("state").textContent="● Connexion…";
  $("cards").innerHTML='<div class="loading-card"></div><div class="loading-card"></div>';
  const query=new URLSearchParams({type,genre:$("genre").value,language:$("language").value,sort:$("sort").value,status:$("status").value,q:keyword,tab});
  const result=await request("/api/catalog?"+query.toString());
  if(current!==requestSerial||tab==="profile")return;
- channels=result.channels;favIds=new Set(result.favorite_ids);render(channels);
- $("state").textContent="● Connecté";$("heading").textContent=tab==="favorites"?"Mes favoris":tab==="new"?"Nouveautés":tab==="recommend"?"✨ Recommandé pour toi":"À découvrir";
- }catch(e){if(current!==requestSerial||tab==="profile")return;$("state").textContent="● Indisponible";if(String(e.message).includes("Session Telegram"))await telegramEntry("Réouvre cette application depuis Ciné Radar dans Telegram.");else empty("Connexion impossible",e.message);}}
+ channels=result.channels;favIds=new Set(result.favorite_ids);sessionValid=!!result.authenticated;render(channels);
+ $("state").textContent=sessionValid?"● Connecté":"● Catalogue public";$("heading").textContent=tab==="favorites"?"Mes favoris":tab==="new"?"Nouveautés":tab==="recommend"?"✨ Recommandé pour toi":"À découvrir";
+ }catch(e){if(current!==requestSerial||tab==="profile")return;$("state").textContent="● Indisponible";empty("Catalogue temporairement indisponible",e.message+" · Réessaie dans un instant.");}}
 for(const b of document.querySelectorAll("[data-type]"))b.onclick=()=>{page=0;if(b.dataset.type==="recommend"){type="all";changeTab("recommend");return;}type=b.dataset.type;if(tab==="recommend")tab="explore";for(const x of document.querySelectorAll("[data-type]"))x.classList.toggle("active",x===b);load();};
 for(const id of ["genre","language","sort","status"])$(id).addEventListener("change",()=>{page=0;load();});
 $("search").addEventListener("input",e=>{page=0;keyword=e.target.value.slice(0,80);clearTimeout(timer);timer=setTimeout(load,350);});
