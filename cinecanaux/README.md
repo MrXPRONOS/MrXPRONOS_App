@@ -62,3 +62,15 @@ FROM discovery_candidates ORDER BY last_seen DESC LIMIT 50;
 ```
 
 Les catégories reconnues par l'ancien moteur sont Films, Comédie, Romance/Désir et Animés. Une vraie classification détaillée des séries et des sous-genres nécessitera des critères ou recherches supplémentaires. La détection d'une pièce jointe vidéo et d'une affiche ne garantit ni le titre du film ni sa légalité.
+
+
+## Design Telegram et parrainage (22 octobre 2026)
+
+- Tous les messages utilisent `parse_mode: HTML` : gras, italique, citations `<blockquote>` et échappement HTML des données provenant des utilisateurs ou du catalogue.
+- Les boutons utilisent `style: primary` (bleu) et `style: success` (vert), pris en charge depuis Telegram Bot API 9.4 (couleurs adaptées par le client et son thème).
+- Le menu inclut **🎁 Parrainage** et **📊 Mes filleuls**. Les commandes correspondantes sont `/parrainage`, `/inviter`, `/mesparrainages` et `/aide`.
+- Chaque utilisateur peut générer un lien individuel `https://t.me/<bot-username>?start=ref_<code>` dont le code personnel est enregistré dans `referral_codes`.
+- Le bot envoie **deux messages séparés** : une invitation élégante à transférer avec son lien, puis les consignes réservées au parrain. Pour préserver les textes en gras, en italique et en citation, transférer nativement le **premier** message Telegram.
+- Le bouton de partage `t.me/share/url` est une alternative simplifiée ; Telegram ne garantit pas qu'il conserve les mises en forme du message original.
+- Le suivi des filleuls évite les doublons et le parrainage de soi-même. Les accès confirmés sont enregistrés après validation de l'abonnement aux canaux officiels, s'ils sont configurés.
+- Les tables `referral_codes` et `referral_visits` sont définies dans `schema.sql` et déployées dans D1. Aucun jeton Telegram n'est ajouté au dépôt.
