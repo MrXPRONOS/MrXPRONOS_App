@@ -154,3 +154,48 @@ jobs:
               raise SystemExit('Webhook Telegram mal configuré.')
           print('Webhook Telegram enregistré vers Cloudflare Workers (Supabase abandonné pour ce bot).')
           PY
+
+      - name: Configurer la fiche Telegram et le bouton Mini App Free Pronos
+        # L'affichage de la fiche est accessoire : ne jamais bloquer le bot si
+        # Telegram refuse une métadonnée. Aucun token n'est journalisé.
+        run: |
+          python3 - <<'PY'
+          import json,os,urllib.request,urllib.error
+          api='https://api.telegram.org/bot'+os.environ['XPRONOS_CF_BOT_TOKEN']+'/'
+          app=os.environ['WORKER_URL'].rstrip('/')+'/app'
+          cmds=[
+            ('start','Démarrer Free Pronos'),
+            ('dashboard','Mon tableau de bord'),
+            ('coupons','Découvrir les coupons cote 4+'),
+            ('xp','Mes XP et mon niveau'),
+            ('history','Historique de mes XP'),
+            ('daily','Mission quotidienne +3 XP'),
+            ('weekly','Mission hebdomadaire +10 XP'),
+            ('tasks','Missions des canaux'),
+            ('alerts','Gérer mes notifications'),
+            ('results','Résultats des coupons vérifiés'),
+            ('referrals','Mes parrainages'),
+            ('share','Partager Free Pronos'),
+            ('help','Aide et fonctionnement')
+          ]
+          actions={
+            'setMyName':{'name':'Free Pronos'},
+            'setMyShortDescription':{'short_description':'⚽ Free Pronos : coupons football 4+, missions, XP et communauté. 18+. Aucun gain garanti.'},
+            'setMyDescription':{'description':'⚽ Free Pronos : découvre des coupons football de cote 4+, réalise des missions, gagne des XP virtuels et consulte ton suivi personnel. Les XP ne sont pas convertibles en argent. Aucun pronostic ne garantit un résultat. Service 18+ uniquement.'},
+            'setMyCommands':{'commands':[{'command':a,'description':b} for a,b in cmds]},
+            'setChatMenuButton':{'menu_button':{'type':'web_app','text':'Free Pronos','web_app':{'url':app}}}
+          }
+          for method,payload in actions.items():
+              request=urllib.request.Request(api+method,
+                data=json.dumps(payload,ensure_ascii=False).encode('utf-8'),
+                headers={'Content-Type':'application/json'},method='POST')
+              try:
+                  with urllib.request.urlopen(request,timeout=20) as result:
+                      response=json.load(result)
+                  if response.get('ok'):
+                      print('Fiche Telegram mise à jour :',method)
+                  else:
+                      print('::warning::Telegram refuse une métadonnée :',method)
+              except (urllib.error.URLError,ValueError) as error:
+                  print('::warning::Mise à jour facultative de la fiche impossible :',method)
+          PY
