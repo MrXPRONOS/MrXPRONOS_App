@@ -1,0 +1,90 @@
+name: Neon PostgreSQL Migration Staging (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: "Type STAGING to copy Supabase public schema and data into a dedicated empty Neon database"
+        required: true
+        type: string
+      target_database:
+        description: "Neon staging database name, NOT live database"
+        required: true
+        type: choice
+        options:
+          - mrxpronos_full_stage
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrxpronos-neon-database-staging
+  cancel-in-progress: false
+
+jobs:
+  stage:
+    if: ${{ github.event.inputs.confirmation == 'STAGING' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Check prerequisites and no-production guard
+        shell: bash
+        env:
+          SOURCE_URL: ${{ secrets.SUPABASE_DB_URL }}
+          TARGET_URL: ${{ secrets.NEON_STAGING_DB_URL }}
+          TARGET_NAME: ${{ inputs.target_database }}
+        run: |
+          set -euo pipefail
+          test -n "$SOURCE_URL" || { echo "::error::Missing SUPABASE_DB_URL secret"; exit 1; }
+          test -n "$TARGET_URL" || { echo "::error::Missing NEON_STAGING_DB_URL secret"; exit 1; }
+          test "$TARGET_NAME" = "mrxpronos_full_stage"
+          case "$SOURCE_URL" in postgresql://*|postgres://*) ;; *) exit 1;; esac
+          case "$TARGET_URL" in postgresql://*|postgres://*) ;; *) exit 1;; esac
+          test "$SOURCE_URL" != "$TARGET_URL"
+          docker run --rm --network host -e PG_URL="$TARGET_URL" postgres:17             sh -c 'test "$(psql "$PG_URL" -qAtX -c "select current_database()")" = "mrxpronos_full_stage"'
+          docker run --rm --network host -e PG_URL="$TARGET_URL" postgres:17             sh -c 'test "$(psql "$PG_URL" -qAtX -c "select count(*) from pg_tables where schemaname=\x27public\x27")" = "0"'
+          echo "Destination is isolated and empty."
+
+      - name: Dump and restore into disposable staging
+        shell: bash
+        env:
+          SOURCE_URL: ${{ secrets.SUPABASE_DB_URL }}
+          TARGET_URL: ${{ secrets.NEON_STAGING_DB_URL }}
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$RUNNER_TEMP/neon-copy"
+          trap 'rm -f "$RUNNER_TEMP/neon-copy/source.dump"' EXIT
+          docker run --rm --network host \
+            -e PG_URL="$SOURCE_URL" \
+            -v "$RUNNER_TEMP/neon-copy:/backup" postgres:17 \
+            sh -c 'pg_dump --dbname="$PG_URL" -Fc --schema=public --no-owner --no-acl --file=/backup/source.dump'
+          sha256sum "$RUNNER_TEMP/neon-copy/source.dump" | cut -d' ' -f1 | xargs -I{} echo "Backup checksum: {}"
+          docker run --rm --network host \
+            -e PG_URL="$TARGET_URL" \
+            -v "$RUNNER_TEMP/neon-copy:/backup:ro" postgres:17 \
+            sh -c 'pg_restore --dbname="$PG_URL" --no-owner --no-acl --exit-on-error --schema=public /backup/source.dump'
+
+      - name: Compare table counts (read-only)
+        shell: bash
+        env:
+          SOURCE_URL: ${{ secrets.SUPABASE_DB_URL }}
+          TARGET_URL: ${{ secrets.NEON_STAGING_DB_URL }}
+        run: |
+          set -euo pipefail
+          SQL="select string_agg(format('select %L as tbl,count(*)::bigint as n from %I.%I',schemaname||'.'||tablename,schemaname,tablename),' union all ' order by tablename) from pg_tables where schemaname='public'"
+          docker run --rm --network host -e PG_URL="$SOURCE_URL" -e SQL="$SQL" postgres:17 \
+            sh -c 'psql "$PG_URL" -qAtX -c "$SQL" | psql "$PG_URL" -qAtX' | sort > "$RUNNER_TEMP/src_counts"
+          docker run --rm --network host -e PG_URL="$TARGET_URL" -e SQL="$SQL" postgres:17 \
+            sh -c 'psql "$PG_URL" -qAtX -c "$SQL" | psql "$PG_URL" -qAtX' | sort > "$RUNNER_TEMP/dst_counts"
+          if ! diff -u "$RUNNER_TEMP/src_counts" "$RUNNER_TEMP/dst_counts"; then
+            echo "::error::Count mismatch. Staging is NOT ready."
+            exit 1
+          fi
+          echo "Table counts agree at the two query times. Further integrity and authorization tests required."
+
+      - name: Explicit staging-only conclusion
+        if: always()
+        run: |
+          echo "No production files, secrets, endpoints, policies or webhooks have been changed."
+          echo "Do not switch clients before Auth/RLS, functions, media, snapshots and rollback are validated."
