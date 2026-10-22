@@ -17,7 +17,7 @@ async function main(){
  const first=Number(listing.channels?.[0]?.id);
  if(!Number.isSafeInteger(first)||first<=0)throw new Error("No public channel available for read-only preview benchmark");
  const paths=["/health","/app","/api/catalog","/api/catalog?type=films","/api/catalog?type=series","/api/catalog?type=animes","/api/channel-preview?id="+first];
- const report={version:process.env.BENCH_VERSION||"after",run_at:new Date().toISOString(),samples:RUNS,location:"GitHub Actions runner (not end-user phone)",rows:[]};
+ const report={version:process.env.BENCH_VERSION||"final",run_at:new Date().toISOString(),samples:RUNS,location:"GitHub Actions runner (not end-user phone)",rows:[]};
  for(const path of paths){
   const observations=[];
   for(let j=0;j<RUNS;j++){
