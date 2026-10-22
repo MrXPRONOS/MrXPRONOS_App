@@ -1,0 +1,2487 @@
+{
+  "format": "bsd-v3-validation-holdout-v1",
+  "model": "bsd-v3-40-poisson-dixon-coles-shared-score-model",
+  "created_at_utc": "2026-10-22T06:10:28.274673+00:00",
+  "reference_period": "2025-01-01/2025-12-31",
+  "holdout_period": "2026-01-01/2026-10-20",
+  "strict_temporal_order": true,
+  "no_future_results_in_features": true,
+  "historical_price_snapshots_used": false,
+  "profitability_assessed": false,
+  "rho_fitted_only_on_2024": true,
+  "rho": 0.0,
+  "rho_diagnostics": {
+    "training": 400,
+    "validation": 200,
+    "fitted_rho": 0.04,
+    "chosen_rho": 0.0,
+    "poisson_validation_logloss": 2.83718,
+    "dixon_coles_validation_logloss": 2.8407
+  },
+  "reference": {
+    "eligible_games": 18002,
+    "sampled": 700,
+    "with_pre_match_history": 659,
+    "skipped": 41
+  },
+  "holdout": {
+    "eligible_games": 20213,
+    "sampled": 700,
+    "with_pre_match_history": 566,
+    "skipped": 134
+  },
+  "passed_markets": 21,
+  "total_markets": 40,
+  "markets": {
+    "DC_1X": {
+      "number": 1,
+      "family": "outcome",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 403,
+      "pushes": 0,
+      "mean_forecast_probability": 0.633123,
+      "observed_win_rate": 0.712014,
+      "test_brier": 0.205728,
+      "baseline_brier": 0.20505,
+      "ece_10_bins": 0.087581,
+      "reliability_bins": [
+        {
+          "bin": 2,
+          "count": 7,
+          "observed_win_rate": 0.571429,
+          "predicted_win_rate": 0.268547
+        },
+        {
+          "bin": 3,
+          "count": 21,
+          "observed_win_rate": 0.47619,
+          "predicted_win_rate": 0.366748
+        },
+        {
+          "bin": 4,
+          "count": 56,
+          "observed_win_rate": 0.625,
+          "predicted_win_rate": 0.454103
+        },
+        {
+          "bin": 5,
+          "count": 108,
+          "observed_win_rate": 0.62963,
+          "predicted_win_rate": 0.556207
+        },
+        {
+          "bin": 6,
+          "count": 203,
+          "observed_win_rate": 0.743842,
+          "predicted_win_rate": 0.649883
+        },
+        {
+          "bin": 7,
+          "count": 128,
+          "observed_win_rate": 0.726562,
+          "predicted_win_rate": 0.745775
+        },
+        {
+          "bin": 8,
+          "count": 41,
+          "observed_win_rate": 0.97561,
+          "predicted_win_rate": 0.828684
+        },
+        {
+          "bin": 9,
+          "count": 2,
+          "observed_win_rate": 1.0,
+          "predicted_win_rate": 0.952256
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "DC_X2": {
+      "number": 2,
+      "family": "outcome",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 303,
+      "pushes": 0,
+      "mean_forecast_probability": 0.613492,
+      "observed_win_rate": 0.535336,
+      "test_brier": 0.244296,
+      "baseline_brier": 0.249357,
+      "ece_10_bins": 0.080954,
+      "reliability_bins": [
+        {
+          "bin": 1,
+          "count": 1,
+          "observed_win_rate": 0.0,
+          "predicted_win_rate": 0.103942
+        },
+        {
+          "bin": 2,
+          "count": 5,
+          "observed_win_rate": 0.4,
+          "predicted_win_rate": 0.255433
+        },
+        {
+          "bin": 3,
+          "count": 19,
+          "observed_win_rate": 0.210526,
+          "predicted_win_rate": 0.364523
+        },
+        {
+          "bin": 4,
+          "count": 74,
+          "observed_win_rate": 0.391892,
+          "predicted_win_rate": 0.455878
+        },
+        {
+          "bin": 5,
+          "count": 147,
+          "observed_win_rate": 0.530612,
+          "predicted_win_rate": 0.555444
+        },
+        {
+          "bin": 6,
+          "count": 185,
+          "observed_win_rate": 0.556757,
+          "predicted_win_rate": 0.64759
+        },
+        {
+          "bin": 7,
+          "count": 105,
+          "observed_win_rate": 0.6,
+          "predicted_win_rate": 0.747946
+        },
+        {
+          "bin": 8,
+          "count": 29,
+          "observed_win_rate": 0.793103,
+          "predicted_win_rate": 0.837055
+        },
+        {
+          "bin": 9,
+          "count": 1,
+          "observed_win_rate": 1.0,
+          "predicted_win_rate": 0.930965
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "TOTAL_UNDER_55": {
+      "number": 3,
+      "family": "total",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 525,
+      "pushes": 0,
+      "mean_forecast_probability": 0.918757,
+      "observed_win_rate": 0.927562,
+      "test_brier": 0.066735,
+      "baseline_brier": 0.067198,
+      "ece_10_bins": 0.011221,
+      "reliability_bins": [
+        {
+          "bin": 4,
+          "count": 1,
+          "observed_win_rate": 1.0,
+          "predicted_win_rate": 0.443081
+        },
+        {
+          "bin": 5,
+          "count": 2,
+          "observed_win_rate": 1.0,
+          "predicted_win_rate": 0.55346
+        },
+        {
+          "bin": 6,
+          "count": 9,
+          "observed_win_rate": 0.888889,
+          "predicted_win_rate": 0.647546
+        },
+        {
+          "bin": 7,
+          "count": 25,
+          "observed_win_rate": 0.84,
+          "predicted_win_rate": 0.758192
+        },
+        {
+          "bin": 8,
+          "count": 107,
+          "observed_win_rate": 0.859813,
+          "predicted_win_rate": 0.865563
+        },
+        {
+          "bin": 9,
+          "count": 422,
+          "observed_win_rate": 0.950237,
+          "predicted_win_rate": 0.9504
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "TOTAL_OVER_05": {
+      "number": 4,
+      "family": "total",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 532,
+      "pushes": 0,
+      "mean_forecast_probability": 0.9302,
+      "observed_win_rate": 0.939929,
+      "test_brier": 0.056857,
+      "baseline_brier": 0.056666,
+      "ece_10_bins": 0.012848,
+      "reliability_bins": [
+        {
+          "bin": 7,
+          "count": 4,
+          "observed_win_rate": 0.75,
+          "predicted_win_rate": 0.782002
+        },
+        {
+          "bin": 8,
+          "count": 105,
+          "observed_win_rate": 0.933333,
+          "predicted_win_rate": 0.872482
+        },
+        {
+          "bin": 9,
+          "count": 457,
+          "observed_win_rate": 0.943107,
+          "predicted_win_rate": 0.944758
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "TOTAL_UNDER_45": {
+      "number": 5,
+      "family": "total",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 466,
+      "pushes": 0,
+      "mean_forecast_probability": 0.831051,
+      "observed_win_rate": 0.823322,
+      "test_brier": 0.145068,
+      "baseline_brier": 0.145764,
+      "ece_10_bins": 0.042855,
+      "reliability_bins": [
+        {
+          "bin": 2,
+          "count": 1,
+          "observed_win_rate": 1.0,
+          "predicted_win_rate": 0.282887
+        },
+        {
+          "bin": 3,
+          "count": 1,
+          "observed_win_rate": 1.0,
+          "predicted_win_rate": 0.341929
+        },
+        {
+          "bin": 4,
+          "count": 7,
+          "observed_win_rate": 0.714286,
+          "predicted_win_rate": 0.445798
+        },
+        {
+          "bin": 5,
+          "count": 17,
+          "observed_win_rate": 0.705882,
+          "predicted_win_rate": 0.560866
+        },
+        {
+          "bin": 6,
+          "count": 33,
+          "observed_win_rate": 0.787879,
+          "predicted_win_rate": 0.659983
+        },
+        {
+          "bin": 7,
+          "count": 102,
+          "observed_win_rate": 0.735294,
+          "predicted_win_rate": 0.761178
+        },
+        {
+          "bin": 8,
+          "count": 250,
+          "observed_win_rate": 0.824,
+          "predicted_win_rate": 0.853686
+        },
+        {
+          "bin": 9,
+          "count": 155,
+          "observed_win_rate": 0.903226,
+          "predicted_win_rate": 0.930668
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "TOTAL_OVER_15": {
+      "number": 6,
+      "family": "total",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 444,
+      "pushes": 0,
+      "mean_forecast_probability": 0.754763,
+      "observed_win_rate": 0.784452,
+      "test_brier": 0.171847,
+      "baseline_brier": 0.172064,
+      "ece_10_bins": 0.053983,
+      "reliability_bins": [
+        {
+          "bin": 4,
+          "count": 6,
+          "observed_win_rate": 0.666667,
+          "predicted_win_rate": 0.462129
+        },
+        {
+          "bin": 5,
+          "count": 32,
+          "observed_win_rate": 0.875,
+          "predicted_win_rate": 0.56022
+        },
+        {
+          "bin": 6,
+          "count": 118,
+          "observed_win_rate": 0.644068,
+          "predicted_win_rate": 0.657653
+        },
+        {
+          "bin": 7,
+          "count": 217,
+          "observed_win_rate": 0.801843,
+          "predicted_win_rate": 0.752284
+        },
+        {
+          "bin": 8,
+          "count": 154,
+          "observed_win_rate": 0.850649,
+          "predicted_win_rate": 0.8401
+        },
+        {
+          "bin": 9,
+          "count": 39,
+          "observed_win_rate": 0.794872,
+          "predicted_win_rate": 0.930059
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "TOTAL_UNDER_35": {
+      "number": 7,
+      "family": "total",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 384,
+      "pushes": 0,
+      "mean_forecast_probability": 0.68312,
+      "observed_win_rate": 0.678445,
+      "test_brier": 0.223704,
+      "baseline_brier": 0.218484,
+      "ece_10_bins": 0.072256,
+      "reliability_bins": [
+        {
+          "bin": 1,
+          "count": 2,
+          "observed_win_rate": 1.0,
+          "predicted_win_rate": 0.170108
+        },
+        {
+          "bin": 2,
+          "count": 7,
+          "observed_win_rate": 0.714286,
+          "predicted_win_rate": 0.269438
+        },
+        {
+          "bin": 3,
+          "count": 15,
+          "observed_win_rate": 0.533333,
+          "predicted_win_rate": 0.364336
+        },
+        {
+          "bin": 4,
+          "count": 33,
+          "observed_win_rate": 0.606061,
+          "predicted_win_rate": 0.459264
+        },
+        {
+          "bin": 5,
+          "count": 68,
+          "observed_win_rate": 0.661765,
+          "predicted_win_rate": 0.559227
+        },
+        {
+          "bin": 6,
+          "count": 158,
+          "observed_win_rate": 0.588608,
+          "predicted_win_rate": 0.653994
+        },
+        {
+          "bin": 7,
+          "count": 176,
+          "observed_win_rate": 0.732955,
+          "predicted_win_rate": 0.749325
+        },
+        {
+          "bin": 8,
+          "count": 98,
+          "observed_win_rate": 0.755102,
+          "predicted_win_rate": 0.83968
+        },
+        {
+          "bin": 9,
+          "count": 9,
+          "observed_win_rate": 0.888889,
+          "predicted_win_rate": 0.91893
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "TOTAL_OVER_25": {
+      "number": 8,
+      "family": "total",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 317,
+      "pushes": 0,
+      "mean_forecast_probability": 0.525274,
+      "observed_win_rate": 0.560071,
+      "test_brier": 0.249801,
+      "baseline_brier": 0.248912,
+      "ece_10_bins": 0.067997,
+      "reliability_bins": [
+        {
+          "bin": 1,
+          "count": 2,
+          "observed_win_rate": 0.0,
+          "predicted_win_rate": 0.185855
+        },
+        {
+          "bin": 2,
+          "count": 22,
+          "observed_win_rate": 0.409091,
+          "predicted_win_rate": 0.262703
+        },
+        {
+          "bin": 3,
+          "count": 81,
+          "observed_win_rate": 0.530864,
+          "predicted_win_rate": 0.359049
+        },
+        {
+          "bin": 4,
+          "count": 150,
+          "observed_win_rate": 0.493333,
+          "predicted_win_rate": 0.455642
+        },
+        {
+          "bin": 5,
+          "count": 153,
+          "observed_win_rate": 0.588235,
+          "predicted_win_rate": 0.549864
+        },
+        {
+          "bin": 6,
+          "count": 99,
+          "observed_win_rate": 0.646465,
+          "predicted_win_rate": 0.642135
+        },
+        {
+          "bin": 7,
+          "count": 39,
+          "observed_win_rate": 0.615385,
+          "predicted_win_rate": 0.745407
+        },
+        {
+          "bin": 8,
+          "count": 18,
+          "observed_win_rate": 0.666667,
+          "predicted_win_rate": 0.83871
+        },
+        {
+          "bin": 9,
+          "count": 2,
+          "observed_win_rate": 0.5,
+          "predicted_win_rate": 0.928227
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "TOTAL_UNDER_25": {
+      "number": 9,
+      "family": "total",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 249,
+      "pushes": 0,
+      "mean_forecast_probability": 0.474726,
+      "observed_win_rate": 0.439929,
+      "test_brier": 0.249801,
+      "baseline_brier": 0.248912,
+      "ece_10_bins": 0.067997,
+      "reliability_bins": [
+        {
+          "bin": 0,
+          "count": 2,
+          "observed_win_rate": 0.5,
+          "predicted_win_rate": 0.071773
+        },
+        {
+          "bin": 1,
+          "count": 18,
+          "observed_win_rate": 0.333333,
+          "predicted_win_rate": 0.16129
+        },
+        {
+          "bin": 2,
+          "count": 39,
+          "observed_win_rate": 0.384615,
+          "predicted_win_rate": 0.254593
+        },
+        {
+          "bin": 3,
+          "count": 99,
+          "observed_win_rate": 0.353535,
+          "predicted_win_rate": 0.357865
+        },
+        {
+          "bin": 4,
+          "count": 153,
+          "observed_win_rate": 0.411765,
+          "predicted_win_rate": 0.450136
+        },
+        {
+          "bin": 5,
+          "count": 150,
+          "observed_win_rate": 0.506667,
+          "predicted_win_rate": 0.544358
+        },
+        {
+          "bin": 6,
+          "count": 81,
+          "observed_win_rate": 0.469136,
+          "predicted_win_rate": 0.640951
+        },
+        {
+          "bin": 7,
+          "count": 22,
+          "observed_win_rate": 0.590909,
+          "predicted_win_rate": 0.737297
+        },
+        {
+          "bin": 8,
+          "count": 2,
+          "observed_win_rate": 1.0,
+          "predicted_win_rate": 0.814145
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "BTTS_NO": {
+      "number": 10,
+      "family": "btts",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 244,
+      "pushes": 0,
+      "mean_forecast_probability": 0.456556,
+      "observed_win_rate": 0.431095,
+      "test_brier": 0.24869,
+      "baseline_brier": 0.246798,
+      "ece_10_bins": 0.059732,
+      "reliability_bins": [
+        {
+          "bin": 1,
+          "count": 6,
+          "observed_win_rate": 0.666667,
+          "predicted_win_rate": 0.160406
+        },
+        {
+          "bin": 2,
+          "count": 36,
+          "observed_win_rate": 0.277778,
+          "predicted_win_rate": 0.255766
+        },
+        {
+          "bin": 3,
+          "count": 121,
+          "observed_win_rate": 0.404959,
+          "predicted_win_rate": 0.359348
+        },
+        {
+          "bin": 4,
+          "count": 200,
+          "observed_win_rate": 0.43,
+          "predicted_win_rate": 0.450264
+        },
+        {
+          "bin": 5,
+          "count": 162,
+          "observed_win_rate": 0.475309,
+          "predicted_win_rate": 0.543075
+        },
+        {
+          "bin": 6,
+          "count": 36,
+          "observed_win_rate": 0.388889,
+          "predicted_win_rate": 0.641067
+        },
+        {
+          "bin": 7,
+          "count": 5,
+          "observed_win_rate": 0.8,
+          "predicted_win_rate": 0.730019
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "BTTS_YES": {
+      "number": 11,
+      "family": "btts",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 322,
+      "pushes": 0,
+      "mean_forecast_probability": 0.543444,
+      "observed_win_rate": 0.568905,
+      "test_brier": 0.24869,
+      "baseline_brier": 0.246798,
+      "ece_10_bins": 0.059732,
+      "reliability_bins": [
+        {
+          "bin": 2,
+          "count": 5,
+          "observed_win_rate": 0.2,
+          "predicted_win_rate": 0.269981
+        },
+        {
+          "bin": 3,
+          "count": 36,
+          "observed_win_rate": 0.611111,
+          "predicted_win_rate": 0.358933
+        },
+        {
+          "bin": 4,
+          "count": 162,
+          "observed_win_rate": 0.524691,
+          "predicted_win_rate": 0.456925
+        },
+        {
+          "bin": 5,
+          "count": 200,
+          "observed_win_rate": 0.57,
+          "predicted_win_rate": 0.549736
+        },
+        {
+          "bin": 6,
+          "count": 121,
+          "observed_win_rate": 0.595041,
+          "predicted_win_rate": 0.640652
+        },
+        {
+          "bin": 7,
+          "count": 36,
+          "observed_win_rate": 0.722222,
+          "predicted_win_rate": 0.744234
+        },
+        {
+          "bin": 8,
+          "count": 6,
+          "observed_win_rate": 0.333333,
+          "predicted_win_rate": 0.839594
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "DNB_HOME": {
+      "number": 12,
+      "family": "dnb",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 263,
+      "pushes": 140,
+      "mean_forecast_probability": 0.386508,
+      "observed_win_rate": 0.464664,
+      "test_brier": 0.244296,
+      "baseline_brier": 0.249357,
+      "ece_10_bins": 0.080954,
+      "reliability_bins": [
+        {
+          "bin": 0,
+          "count": 1,
+          "observed_win_rate": 0.0,
+          "predicted_win_rate": 0.069035
+        },
+        {
+          "bin": 1,
+          "count": 29,
+          "observed_win_rate": 0.206897,
+          "predicted_win_rate": 0.162945
+        },
+        {
+          "bin": 2,
+          "count": 105,
+          "observed_win_rate": 0.4,
+          "predicted_win_rate": 0.252054
+        },
+        {
+          "bin": 3,
+          "count": 185,
+          "observed_win_rate": 0.443243,
+          "predicted_win_rate": 0.35241
+        },
+        {
+          "bin": 4,
+          "count": 147,
+          "observed_win_rate": 0.469388,
+          "predicted_win_rate": 0.444556
+        },
+        {
+          "bin": 5,
+          "count": 74,
+          "observed_win_rate": 0.608108,
+          "predicted_win_rate": 0.544122
+        },
+        {
+          "bin": 6,
+          "count": 19,
+          "observed_win_rate": 0.789474,
+          "predicted_win_rate": 0.635477
+        },
+        {
+          "bin": 7,
+          "count": 5,
+          "observed_win_rate": 0.6,
+          "predicted_win_rate": 0.744567
+        },
+        {
+          "bin": 8,
+          "count": 1,
+          "observed_win_rate": 1.0,
+          "predicted_win_rate": 0.896058
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "DNB_AWAY": {
+      "number": 13,
+      "family": "dnb",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 163,
+      "pushes": 140,
+      "mean_forecast_probability": 0.366877,
+      "observed_win_rate": 0.287986,
+      "test_brier": 0.205728,
+      "baseline_brier": 0.20505,
+      "ece_10_bins": 0.087581,
+      "reliability_bins": [
+        {
+          "bin": 0,
+          "count": 2,
+          "observed_win_rate": 0.0,
+          "predicted_win_rate": 0.047744
+        },
+        {
+          "bin": 1,
+          "count": 41,
+          "observed_win_rate": 0.02439,
+          "predicted_win_rate": 0.171316
+        },
+        {
+          "bin": 2,
+          "count": 128,
+          "observed_win_rate": 0.273438,
+          "predicted_win_rate": 0.254225
+        },
+        {
+          "bin": 3,
+          "count": 203,
+          "observed_win_rate": 0.256158,
+          "predicted_win_rate": 0.350117
+        },
+        {
+          "bin": 4,
+          "count": 108,
+          "observed_win_rate": 0.37037,
+          "predicted_win_rate": 0.443793
+        },
+        {
+          "bin": 5,
+          "count": 56,
+          "observed_win_rate": 0.375,
+          "predicted_win_rate": 0.545897
+        },
+        {
+          "bin": 6,
+          "count": 21,
+          "observed_win_rate": 0.52381,
+          "predicted_win_rate": 0.633252
+        },
+        {
+          "bin": 7,
+          "count": 7,
+          "observed_win_rate": 0.428571,
+          "predicted_win_rate": 0.731453
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "HOME_OVER_05": {
+      "number": 14,
+      "family": "team_goals",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 461,
+      "pushes": 0,
+      "mean_forecast_probability": 0.743546,
+      "observed_win_rate": 0.814488,
+      "test_brier": 0.15846,
+      "baseline_brier": 0.15404,
+      "ece_10_bins": 0.076899,
+      "reliability_bins": [
+        {
+          "bin": 4,
+          "count": 3,
+          "observed_win_rate": 0.666667,
+          "predicted_win_rate": 0.461469
+        },
+        {
+          "bin": 5,
+          "count": 35,
+          "observed_win_rate": 0.771429,
+          "predicted_win_rate": 0.56087
+        },
+        {
+          "bin": 6,
+          "count": 141,
+          "observed_win_rate": 0.794326,
+          "predicted_win_rate": 0.659674
+        },
+        {
+          "bin": 7,
+          "count": 225,
+          "observed_win_rate": 0.791111,
+          "predicted_win_rate": 0.751104
+        },
+        {
+          "bin": 8,
+          "count": 142,
+          "observed_win_rate": 0.880282,
+          "predicted_win_rate": 0.838969
+        },
+        {
+          "bin": 9,
+          "count": 20,
+          "observed_win_rate": 0.85,
+          "predicted_win_rate": 0.934298
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "AWAY_OVER_05": {
+      "number": 15,
+      "family": "team_goals",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 393,
+      "pushes": 0,
+      "mean_forecast_probability": 0.730098,
+      "observed_win_rate": 0.694346,
+      "test_brier": 0.209133,
+      "baseline_brier": 0.21223,
+      "ece_10_bins": 0.052019,
+      "reliability_bins": [
+        {
+          "bin": 3,
+          "count": 2,
+          "observed_win_rate": 0.0,
+          "predicted_win_rate": 0.392531
+        },
+        {
+          "bin": 4,
+          "count": 10,
+          "observed_win_rate": 0.4,
+          "predicted_win_rate": 0.461059
+        },
+        {
+          "bin": 5,
+          "count": 45,
+          "observed_win_rate": 0.666667,
+          "predicted_win_rate": 0.564366
+        },
+        {
+          "bin": 6,
+          "count": 147,
+          "observed_win_rate": 0.646259,
+          "predicted_win_rate": 0.65381
+        },
+        {
+          "bin": 7,
+          "count": 219,
+          "observed_win_rate": 0.675799,
+          "predicted_win_rate": 0.747211
+        },
+        {
+          "bin": 8,
+          "count": 120,
+          "observed_win_rate": 0.808333,
+          "predicted_win_rate": 0.844319
+        },
+        {
+          "bin": 9,
+          "count": 23,
+          "observed_win_rate": 0.826087,
+          "predicted_win_rate": 0.929389
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "HOME_UNDER_25": {
+      "number": 16,
+      "family": "team_goals",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 447,
+      "pushes": 0,
+      "mean_forecast_probability": 0.817655,
+      "observed_win_rate": 0.789753,
+      "test_brier": 0.166024,
+      "baseline_brier": 0.166057,
+      "ece_10_bins": 0.054104,
+      "reliability_bins": [
+        {
+          "bin": 3,
+          "count": 2,
+          "observed_win_rate": 0.5,
+          "predicted_win_rate": 0.324073
+        },
+        {
+          "bin": 4,
+          "count": 9,
+          "observed_win_rate": 0.555556,
+          "predicted_win_rate": 0.458265
+        },
+        {
+          "bin": 5,
+          "count": 11,
+          "observed_win_rate": 0.818182,
+          "predicted_win_rate": 0.549552
+        },
+        {
+          "bin": 6,
+          "count": 42,
+          "observed_win_rate": 0.738095,
+          "predicted_win_rate": 0.661129
+        },
+        {
+          "bin": 7,
+          "count": 136,
+          "observed_win_rate": 0.720588,
+          "predicted_win_rate": 0.758938
+        },
+        {
+          "bin": 8,
+          "count": 251,
+          "observed_win_rate": 0.804781,
+          "predicted_win_rate": 0.854044
+        },
+        {
+          "bin": 9,
+          "count": 115,
+          "observed_win_rate": 0.878261,
+          "predicted_win_rate": 0.927193
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "AWAY_UNDER_25": {
+      "number": 17,
+      "family": "team_goals",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 486,
+      "pushes": 0,
+      "mean_forecast_probability": 0.826053,
+      "observed_win_rate": 0.858657,
+      "test_brier": 0.120672,
+      "baseline_brier": 0.122042,
+      "ece_10_bins": 0.058592,
+      "reliability_bins": [
+        {
+          "bin": 3,
+          "count": 3,
+          "observed_win_rate": 1.0,
+          "predicted_win_rate": 0.320872
+        },
+        {
+          "bin": 4,
+          "count": 7,
+          "observed_win_rate": 0.571429,
+          "predicted_win_rate": 0.443462
+        },
+        {
+          "bin": 5,
+          "count": 14,
+          "observed_win_rate": 0.428571,
+          "predicted_win_rate": 0.565297
+        },
+        {
+          "bin": 6,
+          "count": 49,
+          "observed_win_rate": 0.857143,
+          "predicted_win_rate": 0.660697
+        },
+        {
+          "bin": 7,
+          "count": 102,
+          "observed_win_rate": 0.764706,
+          "predicted_win_rate": 0.759276
+        },
+        {
+          "bin": 8,
+          "count": 239,
+          "observed_win_rate": 0.90795,
+          "predicted_win_rate": 0.854829
+        },
+        {
+          "bin": 9,
+          "count": 152,
+          "observed_win_rate": 0.894737,
+          "predicted_win_rate": 0.930528
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "RESULT_HOME": {
+      "number": 18,
+      "family": "outcome",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 263,
+      "pushes": 0,
+      "mean_forecast_probability": 0.386508,
+      "observed_win_rate": 0.464664,
+      "test_brier": 0.244296,
+      "baseline_brier": 0.249357,
+      "ece_10_bins": 0.080954,
+      "reliability_bins": [
+        {
+          "bin": 0,
+          "count": 1,
+          "observed_win_rate": 0.0,
+          "predicted_win_rate": 0.069035
+        },
+        {
+          "bin": 1,
+          "count": 29,
+          "observed_win_rate": 0.206897,
+          "predicted_win_rate": 0.162945
+        },
+        {
+          "bin": 2,
+          "count": 105,
+          "observed_win_rate": 0.4,
+          "predicted_win_rate": 0.252054
+        },
+        {
+          "bin": 3,
+          "count": 185,
+          "observed_win_rate": 0.443243,
+          "predicted_win_rate": 0.35241
+        },
+        {
+          "bin": 4,
+          "count": 147,
+          "observed_win_rate": 0.469388,
+          "predicted_win_rate": 0.444556
+        },
+        {
+          "bin": 5,
+          "count": 74,
+          "observed_win_rate": 0.608108,
+          "predicted_win_rate": 0.544122
+        },
+        {
+          "bin": 6,
+          "count": 19,
+          "observed_win_rate": 0.789474,
+          "predicted_win_rate": 0.635477
+        },
+        {
+          "bin": 7,
+          "count": 5,
+          "observed_win_rate": 0.6,
+          "predicted_win_rate": 0.744567
+        },
+        {
+          "bin": 8,
+          "count": 1,
+          "observed_win_rate": 1.0,
+          "predicted_win_rate": 0.896058
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "RESULT_AWAY": {
+      "number": 19,
+      "family": "outcome",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 163,
+      "pushes": 0,
+      "mean_forecast_probability": 0.366877,
+      "observed_win_rate": 0.287986,
+      "test_brier": 0.205728,
+      "baseline_brier": 0.20505,
+      "ece_10_bins": 0.087581,
+      "reliability_bins": [
+        {
+          "bin": 0,
+          "count": 2,
+          "observed_win_rate": 0.0,
+          "predicted_win_rate": 0.047744
+        },
+        {
+          "bin": 1,
+          "count": 41,
+          "observed_win_rate": 0.02439,
+          "predicted_win_rate": 0.171316
+        },
+        {
+          "bin": 2,
+          "count": 128,
+          "observed_win_rate": 0.273438,
+          "predicted_win_rate": 0.254225
+        },
+        {
+          "bin": 3,
+          "count": 203,
+          "observed_win_rate": 0.256158,
+          "predicted_win_rate": 0.350117
+        },
+        {
+          "bin": 4,
+          "count": 108,
+          "observed_win_rate": 0.37037,
+          "predicted_win_rate": 0.443793
+        },
+        {
+          "bin": 5,
+          "count": 56,
+          "observed_win_rate": 0.375,
+          "predicted_win_rate": 0.545897
+        },
+        {
+          "bin": 6,
+          "count": 21,
+          "observed_win_rate": 0.52381,
+          "predicted_win_rate": 0.633252
+        },
+        {
+          "bin": 7,
+          "count": 7,
+          "observed_win_rate": 0.428571,
+          "predicted_win_rate": 0.731453
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "RESULT_DRAW": {
+      "number": 20,
+      "family": "outcome",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 140,
+      "pushes": 0,
+      "mean_forecast_probability": 0.246615,
+      "observed_win_rate": 0.24735,
+      "test_brier": 0.186096,
+      "baseline_brier": 0.186757,
+      "ece_10_bins": 0.016111,
+      "reliability_bins": [
+        {
+          "bin": 0,
+          "count": 1,
+          "observed_win_rate": 0.0,
+          "predicted_win_rate": 0.07394
+        },
+        {
+          "bin": 1,
+          "count": 58,
+          "observed_win_rate": 0.258621,
+          "predicted_win_rate": 0.176424
+        },
+        {
+          "bin": 2,
+          "count": 469,
+          "observed_win_rate": 0.240938,
+          "predicted_win_rate": 0.249645
+        },
+        {
+          "bin": 3,
+          "count": 38,
+          "observed_win_rate": 0.315789,
+          "predicted_win_rate": 0.32089
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "HANDICAP_HOME_P15": {
+      "number": 21,
+      "family": "handicap",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 501,
+      "pushes": 0,
+      "mean_forecast_probability": 0.823642,
+      "observed_win_rate": 0.885159,
+      "test_brier": 0.103711,
+      "baseline_brier": 0.101659,
+      "ece_10_bins": 0.062543,
+      "reliability_bins": [
+        {
+          "bin": 4,
+          "count": 5,
+          "observed_win_rate": 0.4,
+          "predicted_win_rate": 0.45808
+        },
+        {
+          "bin": 5,
+          "count": 14,
+          "observed_win_rate": 0.857143,
+          "predicted_win_rate": 0.557385
+        },
+        {
+          "bin": 6,
+          "count": 43,
+          "observed_win_rate": 0.72093,
+          "predicted_win_rate": 0.655731
+        },
+        {
+          "bin": 7,
+          "count": 109,
+          "observed_win_rate": 0.853211,
+          "predicted_win_rate": 0.756734
+        },
+        {
+          "bin": 8,
+          "count": 280,
+          "observed_win_rate": 0.910714,
+          "predicted_win_rate": 0.852431
+        },
+        {
+          "bin": 9,
+          "count": 115,
+          "observed_win_rate": 0.93913,
+          "predicted_win_rate": 0.928055
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "HANDICAP_AWAY_P15": {
+      "number": 22,
+      "family": "handicap",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 432,
+      "pushes": 0,
+      "mean_forecast_probability": 0.811128,
+      "observed_win_rate": 0.763251,
+      "test_brier": 0.179019,
+      "baseline_brier": 0.181815,
+      "ece_10_bins": 0.050304,
+      "reliability_bins": [
+        {
+          "bin": 2,
+          "count": 1,
+          "observed_win_rate": 0.0,
+          "predicted_win_rate": 0.249117
+        },
+        {
+          "bin": 4,
+          "count": 5,
+          "observed_win_rate": 0.6,
+          "predicted_win_rate": 0.46263
+        },
+        {
+          "bin": 5,
+          "count": 12,
+          "observed_win_rate": 0.5,
+          "predicted_win_rate": 0.566734
+        },
+        {
+          "bin": 6,
+          "count": 50,
+          "observed_win_rate": 0.64,
+          "predicted_win_rate": 0.662104
+        },
+        {
+          "bin": 7,
+          "count": 146,
+          "observed_win_rate": 0.732877,
+          "predicted_win_rate": 0.75978
+        },
+        {
+          "bin": 8,
+          "count": 264,
+          "observed_win_rate": 0.80303,
+          "predicted_win_rate": 0.849302
+        },
+        {
+          "bin": 9,
+          "count": 88,
+          "observed_win_rate": 0.818182,
+          "predicted_win_rate": 0.925983
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "HANDICAP_HOME_P25": {
+      "number": 23,
+      "family": "handicap",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 535,
+      "pushes": 0,
+      "mean_forecast_probability": 0.928665,
+      "observed_win_rate": 0.94523,
+      "test_brier": 0.051609,
+      "baseline_brier": 0.051773,
+      "ece_10_bins": 0.017894,
+      "reliability_bins": [
+        {
+          "bin": 5,
+          "count": 1,
+          "observed_win_rate": 1.0,
+          "predicted_win_rate": 0.598254
+        },
+        {
+          "bin": 6,
+          "count": 5,
+          "observed_win_rate": 0.6,
+          "predicted_win_rate": 0.675253
+        },
+        {
+          "bin": 7,
+          "count": 20,
+          "observed_win_rate": 0.95,
+          "predicted_win_rate": 0.763205
+        },
+        {
+          "bin": 8,
+          "count": 97,
+          "observed_win_rate": 0.876289,
+          "predicted_win_rate": 0.865495
+        },
+        {
+          "bin": 9,
+          "count": 443,
+          "observed_win_rate": 0.963883,
+          "predicted_win_rate": 0.953573
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "HANDICAP_AWAY_P25": {
+      "number": 24,
+      "family": "handicap",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 509,
+      "pushes": 0,
+      "mean_forecast_probability": 0.922984,
+      "observed_win_rate": 0.899293,
+      "test_brier": 0.087737,
+      "baseline_brier": 0.090631,
+      "ece_10_bins": 0.026145,
+      "reliability_bins": [
+        {
+          "bin": 4,
+          "count": 1,
+          "observed_win_rate": 0.0,
+          "predicted_win_rate": 0.444889
+        },
+        {
+          "bin": 6,
+          "count": 5,
+          "observed_win_rate": 0.8,
+          "predicted_win_rate": 0.667931
+        },
+        {
+          "bin": 7,
+          "count": 17,
+          "observed_win_rate": 0.764706,
+          "predicted_win_rate": 0.762697
+        },
+        {
+          "bin": 8,
+          "count": 113,
+          "observed_win_rate": 0.831858,
+          "predicted_win_rate": 0.86702
+        },
+        {
+          "bin": 9,
+          "count": 430,
+          "observed_win_rate": 0.925581,
+          "predicted_win_rate": 0.948105
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "HOME_OVER_15": {
+      "number": 25,
+      "family": "team_goals",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 278,
+      "pushes": 0,
+      "mean_forecast_probability": 0.412042,
+      "observed_win_rate": 0.491166,
+      "test_brier": 0.255318,
+      "baseline_brier": 0.254116,
+      "ece_10_bins": 0.098435,
+      "reliability_bins": [
+        {
+          "bin": 1,
+          "count": 20,
+          "observed_win_rate": 0.35,
+          "predicted_win_rate": 0.17322
+        },
+        {
+          "bin": 2,
+          "count": 88,
+          "observed_win_rate": 0.386364,
+          "predicted_win_rate": 0.258481
+        },
+        {
+          "bin": 3,
+          "count": 178,
+          "observed_win_rate": 0.449438,
+          "predicted_win_rate": 0.349125
+        },
+        {
+          "bin": 4,
+          "count": 149,
+          "observed_win_rate": 0.530201,
+          "predicted_win_rate": 0.450469
+        },
+        {
+          "bin": 5,
+          "count": 86,
+          "observed_win_rate": 0.604651,
+          "predicted_win_rate": 0.544135
+        },
+        {
+          "bin": 6,
+          "count": 26,
+          "observed_win_rate": 0.653846,
+          "predicted_win_rate": 0.633859
+        },
+        {
+          "bin": 7,
+          "count": 14,
+          "observed_win_rate": 0.428571,
+          "predicted_win_rate": 0.737352
+        },
+        {
+          "bin": 8,
+          "count": 5,
+          "observed_win_rate": 0.6,
+          "predicted_win_rate": 0.828427
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "AWAY_OVER_15": {
+      "number": 26,
+      "family": "team_goals",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 196,
+      "pushes": 0,
+      "mean_forecast_probability": 0.397212,
+      "observed_win_rate": 0.34629,
+      "test_brier": 0.22142,
+      "baseline_brier": 0.226716,
+      "ece_10_bins": 0.056535,
+      "reliability_bins": [
+        {
+          "bin": 0,
+          "count": 2,
+          "observed_win_rate": 0.0,
+          "predicted_win_rate": 0.089736
+        },
+        {
+          "bin": 1,
+          "count": 29,
+          "observed_win_rate": 0.172414,
+          "predicted_win_rate": 0.164978
+        },
+        {
+          "bin": 2,
+          "count": 119,
+          "observed_win_rate": 0.268908,
+          "predicted_win_rate": 0.257602
+        },
+        {
+          "bin": 3,
+          "count": 168,
+          "observed_win_rate": 0.297619,
+          "predicted_win_rate": 0.352659
+        },
+        {
+          "bin": 4,
+          "count": 129,
+          "observed_win_rate": 0.403101,
+          "predicted_win_rate": 0.447011
+        },
+        {
+          "bin": 5,
+          "count": 69,
+          "observed_win_rate": 0.449275,
+          "predicted_win_rate": 0.551572
+        },
+        {
+          "bin": 6,
+          "count": 34,
+          "observed_win_rate": 0.470588,
+          "predicted_win_rate": 0.64299
+        },
+        {
+          "bin": 7,
+          "count": 12,
+          "observed_win_rate": 0.75,
+          "predicted_win_rate": 0.747725
+        },
+        {
+          "bin": 8,
+          "count": 4,
+          "observed_win_rate": 0.25,
+          "predicted_win_rate": 0.849896
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "HOME_UNDER_15": {
+      "number": 27,
+      "family": "team_goals",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 288,
+      "pushes": 0,
+      "mean_forecast_probability": 0.587958,
+      "observed_win_rate": 0.508834,
+      "test_brier": 0.255318,
+      "baseline_brier": 0.254116,
+      "ece_10_bins": 0.098435,
+      "reliability_bins": [
+        {
+          "bin": 1,
+          "count": 5,
+          "observed_win_rate": 0.4,
+          "predicted_win_rate": 0.171573
+        },
+        {
+          "bin": 2,
+          "count": 14,
+          "observed_win_rate": 0.571429,
+          "predicted_win_rate": 0.262648
+        },
+        {
+          "bin": 3,
+          "count": 26,
+          "observed_win_rate": 0.346154,
+          "predicted_win_rate": 0.366141
+        },
+        {
+          "bin": 4,
+          "count": 86,
+          "observed_win_rate": 0.395349,
+          "predicted_win_rate": 0.455865
+        },
+        {
+          "bin": 5,
+          "count": 149,
+          "observed_win_rate": 0.469799,
+          "predicted_win_rate": 0.549531
+        },
+        {
+          "bin": 6,
+          "count": 178,
+          "observed_win_rate": 0.550562,
+          "predicted_win_rate": 0.650875
+        },
+        {
+          "bin": 7,
+          "count": 88,
+          "observed_win_rate": 0.613636,
+          "predicted_win_rate": 0.741519
+        },
+        {
+          "bin": 8,
+          "count": 20,
+          "observed_win_rate": 0.65,
+          "predicted_win_rate": 0.82678
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "AWAY_UNDER_15": {
+      "number": 28,
+      "family": "team_goals",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 370,
+      "pushes": 0,
+      "mean_forecast_probability": 0.602788,
+      "observed_win_rate": 0.65371,
+      "test_brier": 0.22142,
+      "baseline_brier": 0.226716,
+      "ece_10_bins": 0.056535,
+      "reliability_bins": [
+        {
+          "bin": 1,
+          "count": 4,
+          "observed_win_rate": 0.75,
+          "predicted_win_rate": 0.150104
+        },
+        {
+          "bin": 2,
+          "count": 12,
+          "observed_win_rate": 0.25,
+          "predicted_win_rate": 0.252275
+        },
+        {
+          "bin": 3,
+          "count": 34,
+          "observed_win_rate": 0.529412,
+          "predicted_win_rate": 0.35701
+        },
+        {
+          "bin": 4,
+          "count": 69,
+          "observed_win_rate": 0.550725,
+          "predicted_win_rate": 0.448428
+        },
+        {
+          "bin": 5,
+          "count": 129,
+          "observed_win_rate": 0.596899,
+          "predicted_win_rate": 0.552989
+        },
+        {
+          "bin": 6,
+          "count": 168,
+          "observed_win_rate": 0.702381,
+          "predicted_win_rate": 0.647341
+        },
+        {
+          "bin": 7,
+          "count": 119,
+          "observed_win_rate": 0.731092,
+          "predicted_win_rate": 0.742398
+        },
+        {
+          "bin": 8,
+          "count": 29,
+          "observed_win_rate": 0.827586,
+          "predicted_win_rate": 0.835022
+        },
+        {
+          "bin": 9,
+          "count": 2,
+          "observed_win_rate": 1.0,
+          "predicted_win_rate": 0.910264
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "CLEAN_HOME": {
+      "number": 29,
+      "family": "btts",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 173,
+      "pushes": 0,
+      "mean_forecast_probability": 0.269902,
+      "observed_win_rate": 0.305654,
+      "test_brier": 0.209133,
+      "baseline_brier": 0.21223,
+      "ece_10_bins": 0.052019,
+      "reliability_bins": [
+        {
+          "bin": 0,
+          "count": 23,
+          "observed_win_rate": 0.173913,
+          "predicted_win_rate": 0.070611
+        },
+        {
+          "bin": 1,
+          "count": 120,
+          "observed_win_rate": 0.191667,
+          "predicted_win_rate": 0.155681
+        },
+        {
+          "bin": 2,
+          "count": 219,
+          "observed_win_rate": 0.324201,
+          "predicted_win_rate": 0.252789
+        },
+        {
+          "bin": 3,
+          "count": 147,
+          "observed_win_rate": 0.353741,
+          "predicted_win_rate": 0.34619
+        },
+        {
+          "bin": 4,
+          "count": 45,
+          "observed_win_rate": 0.333333,
+          "predicted_win_rate": 0.435634
+        },
+        {
+          "bin": 5,
+          "count": 10,
+          "observed_win_rate": 0.6,
+          "predicted_win_rate": 0.538941
+        },
+        {
+          "bin": 6,
+          "count": 2,
+          "observed_win_rate": 1.0,
+          "predicted_win_rate": 0.607469
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "CLEAN_AWAY": {
+      "number": 30,
+      "family": "btts",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 105,
+      "pushes": 0,
+      "mean_forecast_probability": 0.256454,
+      "observed_win_rate": 0.185512,
+      "test_brier": 0.15846,
+      "baseline_brier": 0.15404,
+      "ece_10_bins": 0.076899,
+      "reliability_bins": [
+        {
+          "bin": 0,
+          "count": 20,
+          "observed_win_rate": 0.15,
+          "predicted_win_rate": 0.065702
+        },
+        {
+          "bin": 1,
+          "count": 142,
+          "observed_win_rate": 0.119718,
+          "predicted_win_rate": 0.161031
+        },
+        {
+          "bin": 2,
+          "count": 225,
+          "observed_win_rate": 0.208889,
+          "predicted_win_rate": 0.248896
+        },
+        {
+          "bin": 3,
+          "count": 141,
+          "observed_win_rate": 0.205674,
+          "predicted_win_rate": 0.340326
+        },
+        {
+          "bin": 4,
+          "count": 35,
+          "observed_win_rate": 0.228571,
+          "predicted_win_rate": 0.43913
+        },
+        {
+          "bin": 5,
+          "count": 3,
+          "observed_win_rate": 0.333333,
+          "predicted_win_rate": 0.538531
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "WIN_TO_NIL_HOME": {
+      "number": 31,
+      "family": "btts",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 139,
+      "pushes": 0,
+      "mean_forecast_probability": 0.200101,
+      "observed_win_rate": 0.245583,
+      "test_brier": 0.181872,
+      "baseline_brier": 0.185495,
+      "ece_10_bins": 0.04654,
+      "reliability_bins": [
+        {
+          "bin": 0,
+          "count": 60,
+          "observed_win_rate": 0.133333,
+          "predicted_win_rate": 0.073602
+        },
+        {
+          "bin": 1,
+          "count": 229,
+          "observed_win_rate": 0.222707,
+          "predicted_win_rate": 0.156164
+        },
+        {
+          "bin": 2,
+          "count": 219,
+          "observed_win_rate": 0.269406,
+          "predicted_win_rate": 0.24079
+        },
+        {
+          "bin": 3,
+          "count": 53,
+          "observed_win_rate": 0.339623,
+          "predicted_win_rate": 0.338724
+        },
+        {
+          "bin": 4,
+          "count": 3,
+          "observed_win_rate": 0.333333,
+          "predicted_win_rate": 0.433214
+        },
+        {
+          "bin": 5,
+          "count": 2,
+          "observed_win_rate": 1.0,
+          "predicted_win_rate": 0.547371
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "WIN_TO_NIL_AWAY": {
+      "number": 32,
+      "family": "btts",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 71,
+      "pushes": 0,
+      "mean_forecast_probability": 0.186654,
+      "observed_win_rate": 0.125442,
+      "test_brier": 0.115122,
+      "baseline_brier": 0.111303,
+      "ece_10_bins": 0.061212,
+      "reliability_bins": [
+        {
+          "bin": 0,
+          "count": 52,
+          "observed_win_rate": 0.019231,
+          "predicted_win_rate": 0.071076
+        },
+        {
+          "bin": 1,
+          "count": 291,
+          "observed_win_rate": 0.127148,
+          "predicted_win_rate": 0.153
+        },
+        {
+          "bin": 2,
+          "count": 187,
+          "observed_win_rate": 0.160428,
+          "predicted_win_rate": 0.240076
+        },
+        {
+          "bin": 3,
+          "count": 32,
+          "observed_win_rate": 0.09375,
+          "predicted_win_rate": 0.336731
+        },
+        {
+          "bin": 4,
+          "count": 4,
+          "observed_win_rate": 0.0,
+          "predicted_win_rate": 0.439317
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "TOTAL_OVER_35": {
+      "number": 33,
+      "family": "total",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 182,
+      "pushes": 0,
+      "mean_forecast_probability": 0.31688,
+      "observed_win_rate": 0.321555,
+      "test_brier": 0.223704,
+      "baseline_brier": 0.218484,
+      "ece_10_bins": 0.072256,
+      "reliability_bins": [
+        {
+          "bin": 0,
+          "count": 9,
+          "observed_win_rate": 0.111111,
+          "predicted_win_rate": 0.08107
+        },
+        {
+          "bin": 1,
+          "count": 98,
+          "observed_win_rate": 0.244898,
+          "predicted_win_rate": 0.16032
+        },
+        {
+          "bin": 2,
+          "count": 176,
+          "observed_win_rate": 0.267045,
+          "predicted_win_rate": 0.250675
+        },
+        {
+          "bin": 3,
+          "count": 158,
+          "observed_win_rate": 0.411392,
+          "predicted_win_rate": 0.346006
+        },
+        {
+          "bin": 4,
+          "count": 68,
+          "observed_win_rate": 0.338235,
+          "predicted_win_rate": 0.440773
+        },
+        {
+          "bin": 5,
+          "count": 33,
+          "observed_win_rate": 0.393939,
+          "predicted_win_rate": 0.540736
+        },
+        {
+          "bin": 6,
+          "count": 15,
+          "observed_win_rate": 0.466667,
+          "predicted_win_rate": 0.635664
+        },
+        {
+          "bin": 7,
+          "count": 7,
+          "observed_win_rate": 0.285714,
+          "predicted_win_rate": 0.730562
+        },
+        {
+          "bin": 8,
+          "count": 2,
+          "observed_win_rate": 0.0,
+          "predicted_win_rate": 0.829892
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "TOTAL_OVER_45": {
+      "number": 34,
+      "family": "total",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 100,
+      "pushes": 0,
+      "mean_forecast_probability": 0.168949,
+      "observed_win_rate": 0.176678,
+      "test_brier": 0.145068,
+      "baseline_brier": 0.145764,
+      "ece_10_bins": 0.042855,
+      "reliability_bins": [
+        {
+          "bin": 0,
+          "count": 155,
+          "observed_win_rate": 0.096774,
+          "predicted_win_rate": 0.069332
+        },
+        {
+          "bin": 1,
+          "count": 250,
+          "observed_win_rate": 0.176,
+          "predicted_win_rate": 0.146314
+        },
+        {
+          "bin": 2,
+          "count": 102,
+          "observed_win_rate": 0.264706,
+          "predicted_win_rate": 0.238822
+        },
+        {
+          "bin": 3,
+          "count": 33,
+          "observed_win_rate": 0.212121,
+          "predicted_win_rate": 0.340017
+        },
+        {
+          "bin": 4,
+          "count": 17,
+          "observed_win_rate": 0.294118,
+          "predicted_win_rate": 0.439134
+        },
+        {
+          "bin": 5,
+          "count": 7,
+          "observed_win_rate": 0.285714,
+          "predicted_win_rate": 0.554202
+        },
+        {
+          "bin": 6,
+          "count": 1,
+          "observed_win_rate": 0.0,
+          "predicted_win_rate": 0.658071
+        },
+        {
+          "bin": 7,
+          "count": 1,
+          "observed_win_rate": 0.0,
+          "predicted_win_rate": 0.717113
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "TOTAL_UNDER_15": {
+      "number": 35,
+      "family": "total",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 122,
+      "pushes": 0,
+      "mean_forecast_probability": 0.245237,
+      "observed_win_rate": 0.215548,
+      "test_brier": 0.171847,
+      "baseline_brier": 0.172064,
+      "ece_10_bins": 0.053983,
+      "reliability_bins": [
+        {
+          "bin": 0,
+          "count": 39,
+          "observed_win_rate": 0.205128,
+          "predicted_win_rate": 0.069941
+        },
+        {
+          "bin": 1,
+          "count": 154,
+          "observed_win_rate": 0.149351,
+          "predicted_win_rate": 0.1599
+        },
+        {
+          "bin": 2,
+          "count": 217,
+          "observed_win_rate": 0.198157,
+          "predicted_win_rate": 0.247716
+        },
+        {
+          "bin": 3,
+          "count": 118,
+          "observed_win_rate": 0.355932,
+          "predicted_win_rate": 0.342347
+        },
+        {
+          "bin": 4,
+          "count": 32,
+          "observed_win_rate": 0.125,
+          "predicted_win_rate": 0.43978
+        },
+        {
+          "bin": 5,
+          "count": 6,
+          "observed_win_rate": 0.333333,
+          "predicted_win_rate": 0.537871
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "HOME_OVER_25": {
+      "number": 36,
+      "family": "team_goals",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 119,
+      "pushes": 0,
+      "mean_forecast_probability": 0.182345,
+      "observed_win_rate": 0.210247,
+      "test_brier": 0.166024,
+      "baseline_brier": 0.166057,
+      "ece_10_bins": 0.054104,
+      "reliability_bins": [
+        {
+          "bin": 0,
+          "count": 115,
+          "observed_win_rate": 0.121739,
+          "predicted_win_rate": 0.072807
+        },
+        {
+          "bin": 1,
+          "count": 251,
+          "observed_win_rate": 0.195219,
+          "predicted_win_rate": 0.145956
+        },
+        {
+          "bin": 2,
+          "count": 136,
+          "observed_win_rate": 0.279412,
+          "predicted_win_rate": 0.241062
+        },
+        {
+          "bin": 3,
+          "count": 42,
+          "observed_win_rate": 0.261905,
+          "predicted_win_rate": 0.338871
+        },
+        {
+          "bin": 4,
+          "count": 11,
+          "observed_win_rate": 0.181818,
+          "predicted_win_rate": 0.450448
+        },
+        {
+          "bin": 5,
+          "count": 9,
+          "observed_win_rate": 0.444444,
+          "predicted_win_rate": 0.541735
+        },
+        {
+          "bin": 6,
+          "count": 2,
+          "observed_win_rate": 0.5,
+          "predicted_win_rate": 0.675927
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "AWAY_OVER_25": {
+      "number": 37,
+      "family": "team_goals",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 80,
+      "pushes": 0,
+      "mean_forecast_probability": 0.173947,
+      "observed_win_rate": 0.141343,
+      "test_brier": 0.120672,
+      "baseline_brier": 0.122042,
+      "ece_10_bins": 0.058592,
+      "reliability_bins": [
+        {
+          "bin": 0,
+          "count": 152,
+          "observed_win_rate": 0.105263,
+          "predicted_win_rate": 0.069472
+        },
+        {
+          "bin": 1,
+          "count": 239,
+          "observed_win_rate": 0.09205,
+          "predicted_win_rate": 0.145171
+        },
+        {
+          "bin": 2,
+          "count": 102,
+          "observed_win_rate": 0.235294,
+          "predicted_win_rate": 0.240724
+        },
+        {
+          "bin": 3,
+          "count": 49,
+          "observed_win_rate": 0.142857,
+          "predicted_win_rate": 0.339303
+        },
+        {
+          "bin": 4,
+          "count": 14,
+          "observed_win_rate": 0.571429,
+          "predicted_win_rate": 0.434703
+        },
+        {
+          "bin": 5,
+          "count": 7,
+          "observed_win_rate": 0.428571,
+          "predicted_win_rate": 0.556538
+        },
+        {
+          "bin": 6,
+          "count": 3,
+          "observed_win_rate": 0.0,
+          "predicted_win_rate": 0.679128
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": true,
+      "validation_level": "holdout_pass",
+      "roi": null,
+      "odds_available": false
+    },
+    "TOTAL_RANGE_2_3": {
+      "number": 38,
+      "family": "total",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 262,
+      "pushes": 0,
+      "mean_forecast_probability": 0.437883,
+      "observed_win_rate": 0.462898,
+      "test_brier": 0.251932,
+      "baseline_brier": 0.249955,
+      "ece_10_bins": 0.025014,
+      "reliability_bins": [
+        {
+          "bin": 1,
+          "count": 2,
+          "observed_win_rate": 0.5,
+          "predicted_win_rate": 0.149366
+        },
+        {
+          "bin": 2,
+          "count": 15,
+          "observed_win_rate": 0.4,
+          "predicted_win_rate": 0.258341
+        },
+        {
+          "bin": 3,
+          "count": 60,
+          "observed_win_rate": 0.466667,
+          "predicted_win_rate": 0.362871
+        },
+        {
+          "bin": 4,
+          "count": 489,
+          "observed_win_rate": 0.464213,
+          "predicted_win_rate": 0.453775
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "TOTAL_RANGE_3_4": {
+      "number": 39,
+      "family": "total",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 217,
+      "pushes": 0,
+      "mean_forecast_probability": 0.356325,
+      "observed_win_rate": 0.383392,
+      "test_brier": 0.238803,
+      "baseline_brier": 0.237482,
+      "ece_10_bins": 0.030271,
+      "reliability_bins": [
+        {
+          "bin": 1,
+          "count": 5,
+          "observed_win_rate": 0.0,
+          "predicted_win_rate": 0.181359
+        },
+        {
+          "bin": 2,
+          "count": 70,
+          "observed_win_rate": 0.4,
+          "predicted_win_rate": 0.267912
+        },
+        {
+          "bin": 3,
+          "count": 406,
+          "observed_win_rate": 0.37931,
+          "predicted_win_rate": 0.363929
+        },
+        {
+          "bin": 4,
+          "count": 85,
+          "observed_win_rate": 0.411765,
+          "predicted_win_rate": 0.403109
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    },
+    "TOTAL_EXACT_2": {
+      "number": 40,
+      "family": "total",
+      "samples": 566,
+      "reference_samples_2025": 659,
+      "wins": 127,
+      "pushes": 0,
+      "mean_forecast_probability": 0.229489,
+      "observed_win_rate": 0.224382,
+      "test_brier": 0.17466,
+      "baseline_brier": 0.174053,
+      "ece_10_bins": 0.015972,
+      "reliability_bins": [
+        {
+          "bin": 0,
+          "count": 9,
+          "observed_win_rate": 0.111111,
+          "predicted_win_rate": 0.078099
+        },
+        {
+          "bin": 1,
+          "count": 97,
+          "observed_win_rate": 0.195876,
+          "predicted_win_rate": 0.167243
+        },
+        {
+          "bin": 2,
+          "count": 460,
+          "observed_win_rate": 0.232609,
+          "predicted_win_rate": 0.245577
+        }
+      ],
+      "chronological_holdout": true,
+      "model_skill_validated": false,
+      "validation_level": "insufficient_or_unvalidated",
+      "roi": null,
+      "odds_available": false
+    }
+  }
+}
