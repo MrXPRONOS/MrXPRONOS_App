@@ -291,8 +291,8 @@ export async function notificationBatch(env,telegram,max=12){
       const delivered=await telegram(env,'sendMessage',{chat_id:item.uid,
         text:'🎟️ <b>NOUVEAU COUPON FREE PRONOS</b>\n\n🎯 <b>'+H(item.title)+'</b>\n📊 Cote totale : <b>'+H(item.total_odds)+'</b>\n\n<i>Ouvre le bot pour consulter les détails. Aucun résultat garanti.</i>',
         parse_mode:'HTML',reply_markup:{inline_keyboard:[[{text:'🎟️ Voir les coupons',callback_data:'nav:coupons',style:'primary'}]]}});
-      await run(env,"INSERT INTO delivery_audit(user_id,delivery_type,coupon_id,telegram_message_id,status) VALUES(?,'coupon',?,?,'sent')",item.uid,item.coupon_id,delivered?.message_id||null);
       await run(env,"UPDATE coupon_notifications SET sent_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE user_id=? AND coupon_id=? AND kind='new'",item.uid,item.coupon_id);
+      try{await run(env,"INSERT INTO delivery_audit(user_id,delivery_type,coupon_id,telegram_message_id,status) VALUES(?,'coupon',?,?,'sent')",item.uid,item.coupon_id,delivered?.message_id||null);}catch(logError){console.warn('Audit log failure; message already sent',String(logError))}
       sent++;
     }catch(err){
       console.warn('Free Pronos notification failed',item.uid,String(err).slice(0,120));
@@ -326,8 +326,8 @@ export async function resultNotificationBatch(env,telegram,max=8){
           '\n\n<i>Résultat renseigné par l’équipe après vérification. Aucun pronostic n’est garanti.</i>',
         parse_mode:'HTML'
       });
-      await run(env,"INSERT INTO delivery_audit(user_id,delivery_type,coupon_id,telegram_message_id,status) VALUES(?,'result',?,?,'sent')",item.uid,item.coupon_id,delivered?.message_id||null);
       await run(env,"UPDATE coupon_notifications SET sent_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE user_id=? AND coupon_id=? AND kind='result'",item.uid,item.coupon_id);
+      try{await run(env,"INSERT INTO delivery_audit(user_id,delivery_type,coupon_id,telegram_message_id,status) VALUES(?,'result',?,?,'sent')",item.uid,item.coupon_id,delivered?.message_id||null);}catch(logError){console.warn('Audit log failure; message already sent',String(logError))}
       sent++;
     }catch(err){
       console.warn('Free Pronos results notification failed',item.uid,String(err).slice(0,120));
