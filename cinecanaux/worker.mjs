@@ -1,4 +1,5 @@
-import {botUpdate,miniAppAPI,initializeProfile,maintenance,telegram} from "./radar-features.mjs";
+import {channelPreview} from "./channel-preview.mjs";
+import {botUpdate,miniAppAPI,initializeProfile,maintenance,cleanup,telegram} from "./radar-lean.mjs";
 import {APP_HTML} from "./app-page.mjs";
 const APP_URL="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app";
 function sameString(a,b){
@@ -13,15 +14,8 @@ async function receiveTelegram(request,env){
  if(Number(request.headers.get("content-length")||0)>750000)return new Response("Too large",{status:413});
  const update=await request.json();
  if(!Number.isSafeInteger(update?.update_id))return Response.json({ok:true});
- const id=update.update_id;
- const stored=await env.DB.prepare("INSERT OR IGNORE INTO update_log(update_id) VALUES(?)").bind(id).run();
- if(stored.meta?.changes===0)return Response.json({ok:true});
  try{await botUpdate(env,update);return Response.json({ok:true});}
- catch(e){
-  console.error(JSON.stringify({event:"cine_radar_update_failure",error:String(e).slice(0,180)}));
-  await env.DB.prepare("DELETE FROM update_log WHERE update_id=?").bind(id).run();
-  return new Response("Retry",{status:500});
- }
+ catch(e){console.error("cine_radar_update_failed",String(e).slice(0,120));return new Response("Retry",{status:500});}
 }
 function banner(){
  const svg=String.raw`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="960" height="460" role="img" aria-labelledby="title"><title id="title">Ciné Radar, le cinéma à portée de clic</title><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#111a39"/><stop offset=".65" stop-color="#263b76"/><stop offset="1" stop-color="#653fa4"/></linearGradient><radialGradient id="light"><stop stop-color="#8662fd" stop-opacity=".42"/><stop offset="1" stop-color="#8662fd" stop-opacity="0"/></radialGradient></defs><rect width="960" height="460" rx="25" fill="url(#bg)"/><circle cx="745" cy="160" r="255" fill="url(#light)"/><g fill="none" stroke="#adbcff" opacity=".15" stroke-width="24"><circle cx="770" cy="230" r="139"/><circle cx="770" cy="230" r="68"/></g><path d="M713 135l180 38-35 173-181-38z" fill="#3e71df" stroke="#c6d4ff" stroke-width="5"/><path d="M690 98l205 42-10 45-205-42z" fill="#101b39" stroke="#b9c8ff" stroke-width="5"/><path d="M715 105l-30 46m90-34-30 46m90-34-30 46" stroke="#f8fbff" stroke-width="15"/><path d="M737 204l89 44-89 52z" fill="#fff"/><text x="76" y="145" fill="#d6dfff" font-family="Arial, sans-serif" font-size="24" font-weight="bold" letter-spacing="6">DÉCOUVRE • EXPLORE</text><text x="70" y="251" fill="#fff" font-family="Arial, sans-serif" font-size="86" font-weight="bold">CINÉ RADAR</text><text x="77" y="311" fill="#d5dfff" font-family="Arial, sans-serif" font-size="30">Films  •  Séries  •  Animés</text><rect x="75" y="346" width="250" height="52" rx="26" fill="#437dfa"/><text x="118" y="381" fill="#fff" font-family="Arial, sans-serif" font-weight="bold" font-size="21">LE BON CANAL</text></svg>`;
