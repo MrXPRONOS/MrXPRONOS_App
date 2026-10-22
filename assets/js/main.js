@@ -1174,8 +1174,48 @@ async function fetchJsonWithCache(url, cacheKey, timeoutMs = 8000) {
   }
 }
 
+const NEON_PUBLIC_FEED_URL = "https://br-winter-truth-b9of9tss-mrxfeed.compute.c-7.eu-central-1.aws.neon.tech/data.json";
+
+// Flux BSD V2 sur Neon. Si Neon ne répond pas ou renvoie un snapshot ancien,
+// revenir au data.json publié par GitHub Actions sans bloquer le site.
+async function fetchPublishedPronostics() {
+  const previous = safeJsonParse(localStorage.getItem("cachedData"), null);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 2400);
+  try {
+    const response = await fetch(NEON_PUBLIC_FEED_URL, {
+      signal: controller.signal,
+      cache: "no-store",
+      headers: { Accept: "application/json" },
+    });
+    if (!response.ok) throw new Error("Neon HTTP " + response.status);
+    const fresh = await response.json();
+    const ts = getPayloadTimestamp(fresh);
+    const current = Date.now();
+    if (
+      !isPronosticsPayload(fresh) ||
+      fresh.source !== "bsd" ||
+      fresh.model_version !== "bsd-v2-isolated" ||
+      fresh.matches.length === 0 ||
+      ts <= 0 ||
+      ts > current + 600000 ||
+      current - ts > 36 * 60 * 60 * 1000 ||
+      (isPronosticsPayload(previous) && getPayloadTimestamp(previous) > ts)
+    ) {
+      throw new Error("Neon feed invalid or superseded");
+    }
+    try { localStorage.setItem("cachedData", JSON.stringify(fresh)); } catch {}
+    return { data: fresh, fromCache: false, reason: "neon" };
+  } catch (error) {
+    console.warn("Neon feed unavailable; use static BSD V2 feed", error?.message || error);
+    return await fetchJsonWithCache(`data.json?t=${Date.now()}`, "cachedData", 8000);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function loadData() {
-  const { data, fromCache } = await fetchJsonWithCache(`data.json?t=${Date.now()}`, "cachedData", 8000);
+  const { data, fromCache } = await fetchPublishedPronostics();
   usingCachedData = fromCache;
   allData = data;
 
@@ -1190,7 +1230,7 @@ async function loadData() {
 }
 
 async function loadDataGeneric() {
-  const { data, fromCache } = await fetchJsonWithCache(`data.json?t=${Date.now()}`, "cachedData", 8000);
+  const { data, fromCache } = await fetchPublishedPronostics();
   usingCachedData = fromCache;
   return data;
 }
