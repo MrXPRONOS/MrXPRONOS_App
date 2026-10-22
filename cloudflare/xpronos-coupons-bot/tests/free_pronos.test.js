@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {webcrypto} from 'node:crypto';
+import {Script} from 'node:vm';
 import {levelFor,periodKey,dashboardText,faqText} from '../src/features.js';
 import {authenticateInitData,miniApi} from '../src/miniapp.js';
 import {html,miniPage} from '../src/minipage.js';
@@ -52,4 +53,13 @@ test('Mini App responsive présente couleurs et menus; ne révèle aucun token',
  assert.match(html,/data-page="history"/);
  assert.match(html,/telegram-web-app\.js/);
  assert.equal(miniPage().status,200);
+});
+
+test('JavaScript embarqué de la Mini App est syntaxiquement valide',()=>{
+ const scripts=[...html.matchAll(/<script(?:\s+[^>]*)?>([\s\S]*?)<\/script>/g)];
+ assert.equal(scripts.length,1);
+ assert.doesNotThrow(()=>new Script(scripts[0][1],{filename:'FreePronosMiniApp.js'}));
+ assert.match(scripts[0][1],/data-filter-xp/);
+ assert.match(scripts[0][1],/data-sort/);
+ assert.match(scripts[0][1],/api\/support/);
 });
