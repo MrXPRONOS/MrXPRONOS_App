@@ -2224,8 +2224,21 @@ async function predictionHistory() {
  signal_minute,signal_half1_home,signal_half1_away,signal_half2_home,signal_half2_away,live_odds,stake_fcfa,
  potential_gain_fcfa,odds_source FROM public.live_predictions WHERE created_at >= now()-INTERVAL '48 hours'
  ORDER BY created_at DESC LIMIT 350`;
+  const lookupIds=[...new Set(rows.map(p=>String(p.match_id)).filter(Boolean))];
+  let matchLogos=new Map();
+  if(lookupIds.length){
+    try{
+      const logos=await sql`SELECT id,raw_data->>'home_logo' AS home_logo,
+        raw_data->>'away_logo' AS away_logo,raw_data->>'league_logo' AS league_logo
+        FROM public.matches_live WHERE id=ANY(${sql.array(lookupIds)})`;
+      matchLogos=new Map(logos.map(x=>[String(x.id),x]));
+    }catch(e){console.error("NEON_LIVE_HISTORY_LOGO_LOOKUP_FAILED",e?.code||e?.name);}
+  }
   return rows.map((p) => ({
     ...prediction(p),
+    home_logo:matchLogos.get(String(p.match_id))?.home_logo||null,
+    away_logo:matchLogos.get(String(p.match_id))?.away_logo||null,
+    league_logo:matchLogos.get(String(p.match_id))?.league_logo||null,
     match_id: String(p.match_id),
     home_team: p.home_team,
     away_team: p.away_team,
@@ -2458,10 +2471,10 @@ async function fetchFromESPN() {
   });
   if(failures.length===paths.length)throw new Error("ALL_ESPN_SOURCES_FAILED:"+failures.map(x=>x.error).join(","));
   const normalized=[...events.values()].map(x=>parseEvent(x.event,x.source)).filter(Boolean);
-  // Enrich up to 20 LIVE matches per refresh. Limit bursts to 10 concurrent
-  // ESPN summaries to reduce upstream throttling without changing the schedule.
+  // Enrich up to 20 LIVE matches per refresh in a single parallel batch.
+  // Incomplete upstream feeds remain incomplete; never invent missing statistics.
   const ESPN_DETAIL_MAX_PER_REFRESH=20;
-  const ESPN_DETAIL_CONCURRENCY=10;
+  const ESPN_DETAIL_CONCURRENCY=20;
   const live=normalized.filter(e=>e.is_live).slice(0,ESPN_DETAIL_MAX_PER_REFRESH);
   const detail=[];
   for(let start=0;start<live.length;start+=ESPN_DETAIL_CONCURRENCY){
@@ -2664,6 +2677,7 @@ async function persistRefresh(events,fetchDetails) {
       const stats=diagnostic(events);
       const report={...stats,engine:"neon-espn-safe-v1",source_events:fetchDetails.sourceEvents,
         feed_requests:fetchDetails.feedRequests,detail_requests:fetchDetails.detailRequested,detail_cap:fetchDetails.detailCap,
+        detail_parallel_limit:20,detail_target_when_available:20,
         detail_success:fetchDetails.detailSuccess,failures:fetchDetails.failures,supplemental:fetchDetails.supplemental,
         no_telegram:true,no_signal_generation:true};
       await tx.unsafe(
