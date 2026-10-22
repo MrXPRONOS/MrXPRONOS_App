@@ -31,3 +31,14 @@ Keep database URL/password server-only, never in GitHub Pages.
 - La vérification Cloudflare Workers est bloquée par le contrôle de l'intégration lors de cette session. Impossible de confirmer une requête HTTP publique au nouveau Worker.
 - Le nouveau site ne doit pas être pointé vers Neon tant que les 83 autres tables, leurs règles d'accès, les Edge Functions, et le webhook Telegram ne sont pas adaptés et testés.
 - Tests nécessaires avant production : endpoints publics GET et erreurs, lecture/écriture authentifiée, refus accès VIP/admin anonyme, Live refresh, callbacks Telegram, publications, médias et rollback.
+
+
+## Reprise du 22 octobre, fonctions et Telegram
+- Neon Functions verifies `quickaction`, `vapidpublickey`, `generateembedding`, `telegrammembership`, `mxhealthprobe`, `mediaimport` as deployed `completed`. Deployment completion is not an HTTP end-to-end assertion. `vapidpublickey` needs VAPID_PUBLIC_KEY, `generateembedding` needs MISTRAL_API_KEY and an authorization gate, `telegrammembership` needs bot token and tested webhook routing.
+- The old Cloudflare `xpronos-coupons-bot` Worker is deployed and has a `*/10 * * * *` schedule, bindings including Telegram secrets, and D1-based code with no apparent Supabase URL usage. Actual Telegram delivery was not verified.
+- D1 databases `mrxpronos-push-subscriptions` and `mrxpronos-threads-privacy` exist, with application tables `push_subscriptions` and `privacy_requests`.
+- Cloudflare deployment of `mrxpronos-privacy-staging` and `mrxpronos-push-staging` via direct connector was blocked; they are not confirmed deployed.
+- Sources recovered to migration GitHub branch: `quick-action`, `clean-cache`, `generate-embedding`, `push-notifications`, `telegram_webhook`, `admin-list-subscribers`, `admin-push`. Other original functions reside in `supabase/functions/`. Some source recovery calls were blocked.
+- The migration status remains INCOMPLETE: original 19 functions not all migrated; Telegram workflows `bsd-v2-telegram-hourly`, `bsd-v2-telegram-wins`, `telegram-daily-xpvip-promo`, `telegram-channel-monitor-daily` still refer to Supabase secrets; workflow `editorial-telegram` does not. Cron-job.org remote tasks were not inspected in this operation.
+- Videos source inventory is 113 files and 215013480 bytes; latest Neon Storage listing has 0 objects. GitHub media copier is staged and uses service role authentication, but no confirmed executed transfer.
+- **Production cutover is not verified**. Avoid changing live Telegram webhook, website main branch or granting broad anonymous SQL access until replacement endpoints and media checks pass.
