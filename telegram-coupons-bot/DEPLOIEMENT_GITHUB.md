@@ -6,15 +6,16 @@ Ce nouveau déploiement **webhook** s'ajoute au bot Python historique sans déma
 
 Dans Telegram, ouvre [@BotFather](https://t.me/BotFather) : `/newbot` → nom **XPRONOS 4+**, username libre terminant par `bot` (ex. `XPronos4Bot` si disponible). Copie son token. Il **ne faut pas** réutiliser `TELEGRAM_BOT_TOKEN` déjà utilisé par les autres workflows.
 
-## 2. Secrets GitHub (obligatoires)
+## 2. Secrets GitHub (obligatoires : réutiliser celui de Supabase)
 
 Sur [le dépôt](https://github.com/MrXPRONOS/MrXPRONOS_App/settings/secrets/actions) : Settings → Secrets and variables → Actions → **New repository secret**.
 
 | Nom exact | Valeur | Où l'obtenir |
 | --- | --- | --- |
 | `XPRONOS_COUPON_BOT_TOKEN` | Token complet de **ce nouveau** bot | `@BotFather` (`/newbot` ou `/token`) |
-| `SUPABASE_ACCESS_TOKEN` | Jeton d'accès personnel Supabase | https://supabase.com/dashboard/account/tokens |
-| `SUPABASE_DB_URL` | URI complète PostgreSQL **avec mot de passe**, SSL | Supabase → projet `nhwafcpndlufzzxexikh` → **Connect** → **Session pooler** URI (IPv4 pour GitHub Actions) ; préférer URI avec `sslmode=require` |
+| `SUPABASE_ACCESS_TOKEN` | Jeton d'accès personnel Supabase **déjà référencé par les autres workflows** de ce dépôt. Ne le recrée pas s'il existe. Il doit autoriser `database:write` pour la création des tables. | https://supabase.com/dashboard/account/tokens |
+
+**Aucun nouveau secret de connexion PostgreSQL n'est nécessaire.** Le workflow utilise l'API de gestion Supabase et le secret existant `SUPABASE_ACCESS_TOKEN` pour appliquer uniquement le SQL du bot. Cette API est expérimentale (Beta) et peut changer. En cas d'erreur 401/403, vérifie les droits de ce token : un droit `database:write` peut être exigé. Le connecteur GitHub permet de lire les noms référencés dans les workflows, **pas de lister les noms réellement enregistrés dans les paramètres Secrets** : vérifie donc sa présence dans GitHub Settings.
 
 **Important** : aucun mot de passe, token, lien de connexion secret ou URI PostgreSQL ne doit être écrit dans le code ou dans une discussion publique.
 
@@ -34,7 +35,7 @@ Pour un canal privé, `id` est son identifiant numérique `-100...` **encodé co
 
 1. Ouvre https://github.com/MrXPRONOS/MrXPRONOS_App/actions/workflows/xpronos-coupon-bot-deploy.yml
 2. Clique **Run workflow**, branche **main**, puis lance.
-3. Le workflow : teste le calcul des cotes, initialise les nouvelles tables uniquement, déploie **une** fonction, lui configure les secrets, génère un secret webhook aléatoire, configure Telegram et vérifie l'URL enregistrée.
+3. Le workflow : teste le calcul des cotes, initialise les tables isolées via l'API Supabase avec `SUPABASE_ACCESS_TOKEN`, déploie **une** fonction, lui configure les secrets, génère un secret webhook aléatoire, configure Telegram et vérifie l'URL enregistrée.
 4. Ouvre ton bot sur Telegram, envoie `/start`, valide 18+, rejoins les canaux requis, puis `/admin` et `/addcoupon ...`.
 5. Pour vérifier les abonnements Telegram, **ajoute le bot en tant qu'administrateur** dans chaque canal obligatoire ou utilisé comme mission.
 
@@ -56,7 +57,7 @@ Cote totale calculée : 4.08. Le bot refuse toute cote strictement inférieure �
 
 ## 6. Dépannage
 
-- GitHub Actions échoue sur `SUPABASE_DB_URL` : vérifier le nom d'utilisateur, le mot de passe, le port et la connexion **session pooler** accessible en IPv4. Vérifier que SSL est configuré.
+- Échec HTTP 401/403 de l'API de gestion Supabase : contrôler que `SUPABASE_ACCESS_TOKEN` existe dans GitHub et possède le droit `database:write`. L'API d'exécution SQL est en Beta et peut ne pas être disponible selon le compte.
 - `Webhook invalid token` : token `BotFather` invalide ou révoqué.
 - Le bot répond, mais `Check` échoue : bot absent des admins du canal, ou `id` du canal erroné.
 - Pas de bonus par parrainage avec `[]` : **normal**, les primes de parrainage sont désactivées sans vérification d'un canal obligatoire.
