@@ -937,7 +937,7 @@ async function renderPremiumImage(row,env){
  if(!env.BROWSER?.quickAction)throw Error("browser_binding_missing");
  const response=await env.BROWSER.quickAction("screenshot",{
     html:premiumHtml(row),viewport:{width:429,height:455,deviceScaleFactor:1},
-    screenshotOptions:{fullPage:false},waitForSelector:"svg",
+    screenshotOptions:{fullPage:false},waitForSelector:{selector:"svg"},
     actionTimeout:18000
  });
  if(!response?.ok)throw Error("browser_render_http_"+String(response?.status));
