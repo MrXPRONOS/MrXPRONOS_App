@@ -56,7 +56,7 @@ test('Mini App responsive présente couleurs et menus; ne révèle aucun token',
 });
 
 test('JavaScript embarqué de la Mini App est syntaxiquement valide',()=>{
- const scripts=[...html.matchAll(/<script(?:\s+[^>]*)?>([\s\S]*?)<\/script>/g).filter(x=>x[1].trim());
+ const scripts=[...html.matchAll(/<script(?:\s+[^>]*)?>([\s\S]*?)<\/script>/g]).filter(x=>x[1].trim());
  assert.equal(scripts.length,1);
  assert.doesNotThrow(()=>new Script(scripts[0][1],{filename:'FreePronosMiniApp.js'}));
  assert.match(scripts[0][1],/data-filter-xp/);
