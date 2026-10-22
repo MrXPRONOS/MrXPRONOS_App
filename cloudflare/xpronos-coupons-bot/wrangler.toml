@@ -9,3 +9,7 @@ binding = "DB"
 database_name = "xpronos-coupons-bot"
 database_id = "b08664ff-2fbb-4719-8d35-f272f30dc801"
 migrations_dir = "migrations"
+
+# Notifications opt-in, petit lot toutes les dix minutes, UTC.
+[triggers]
+crons = ["*/10 * * * *"]
