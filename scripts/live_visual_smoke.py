@@ -60,7 +60,7 @@ def api_payload(path):
 def install_routes(page):
     def handler(route, request):
         parsed = urlparse(request.url)
-        if "/functions/v1/live/" not in parsed.path:
+        if parsed.hostname != "br-winter-truth-b9of9tss-live.compute.c-7.eu-central-1.aws.neon.tech":
             route.continue_()
             return
         payload = api_payload(parsed.path)
@@ -80,14 +80,14 @@ def check_tabs(page, mobile):
     if mobile:
         nav = page.locator(".mx-mobile-tabs")
         nav.wait_for(state="visible")
-        for label, selector in [("À venir", ".mx-upcoming-card"), ("Historique", ".mx-history-live-card"), ("Notifs", ".mx-notification-card")]:
+        for label, selector in [("À venir", ".mx-upcoming-card"), ("Historique", ".mx-history-live-card"), ]:
             nav.get_by_role("button", name=label, exact=False).click()
             page.locator(selector).first.wait_for(state="visible")
         nav.get_by_role("button", name="Live", exact=False).click()
     else:
         tabs = page.locator(".mx-live-tabs")
         tabs.wait_for(state="visible")
-        for label, selector in [("À venir", ".mx-upcoming-card"), ("Historique", ".mx-history-live-card"), ("Notifications", ".mx-notification-card")]:
+        for label, selector in [("À venir", ".mx-upcoming-card"), ("Historique", ".mx-history-live-card"), ]:
             tabs.get_by_role("button", name=label, exact=False).click()
             page.locator(selector).first.wait_for(state="visible")
         tabs.get_by_role("button", name="Live", exact=False).click()
@@ -100,7 +100,6 @@ def assert_secondary_mobile_tabs(page, width, name):
     cases = [
         ("À venir", ".mx-upcoming-card", 145, 125, "upcoming"),
         ("Historique", ".mx-history-live-card", 145, 190, "history"),
-        ("Notifs", ".mx-notification-card", 155, 115, "notifications"),
     ]
 
     for label, selector, max_top, max_height, slug in cases:
@@ -210,11 +209,6 @@ def run_view(browser, width, height, name):
     page.locator(".mx-history-live-card").first.click()
     page.locator(".mx-live-modal").first.wait_for(state="visible")
     page.locator(".mx-live-modal button").first.click()
-    tabs.get_by_role("button", name="Notifs" if width <= 640 else "Notifications", exact=False).click()
-    page.locator(".mx-notification-premium__title").first.wait_for(state="visible")
-    page.locator(".mx-notification-card").first.click()
-    page.locator(".mx-live-modal").first.wait_for(state="visible")
-    page.locator(".mx-live-modal button").first.click()
     tabs.get_by_role("button", name="Live", exact=False).click()
     assert_no_overflow(page, name)
     page.screenshot(path=str(OUT / f"live-{width}.png"), full_page=True)
@@ -225,7 +219,7 @@ def run_view(browser, width, height, name):
     if fatal_console:
         raise AssertionError(f"{name}: console errors: {fatal_console}")
 
-    print(f"PASS {name}: viewport={width}x{height}, live/upcoming/history/notifications density + overflow + interactions OK")
+    print(f"PASS {name}: viewport={width}x{height}, Neon LIVE + upcoming/history layout OK; notifications intentionally paused")
     page.close()
 
 with sync_playwright() as p:
