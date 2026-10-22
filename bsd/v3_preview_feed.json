@@ -1,0 +1,12 @@
+{
+  "format": "bsd-v3-40-shadow-v1",
+  "experimental": true,
+  "published": false,
+  "do_not_send_to_telegram": true,
+  "generated_at_utc": "2026-10-22T00:00:00+00:00",
+  "matches": [],
+  "diagnostics": {
+    "state": "awaiting_first_real_run",
+    "markets_per_match": 40
+  }
+}
