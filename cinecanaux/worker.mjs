@@ -49,7 +49,8 @@ const DISCOVERY_MAP = {
   films: {content_type: "films", genre: "general"},
   comedie: {content_type: "films", genre: "comedie"},
   desir: {content_type: "films", genre: "romance"},
-  anime: {content_type: "animes", genre: "general"}
+  anime: {content_type: "animes", genre: "general"},
+  series: {content_type: "series", genre: "general"}
 };
 const CHANNEL_USERNAME_RE = /^[a-zA-Z][a-zA-Z0-9_]{4,31}$/;
 async function syncGitHubDiscovery(env) {
@@ -81,7 +82,7 @@ async function syncGitHubDiscovery(env) {
     if (old && old.scan_date >= scanDate) return;
     const rows = [], used = new Set();
     // Prefer specific tags when one channel is found in multiple categories.
-    for (const category of ["anime","desir","comedie","films"]) {
+    for (const category of ["anime","series","desir","comedie","films"]) {
       const cat = DISCOVERY_MAP[category];
       const channels = state?.categories?.[category]?.channels;
       if (!Array.isArray(channels)) continue;

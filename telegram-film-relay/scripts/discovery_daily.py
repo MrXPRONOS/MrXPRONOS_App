@@ -1,4 +1,4 @@
-"""Découverte quotidienne CinéX : 4 catégories, une session, un récapitulatif privé.
+"""Découverte quotidienne CinéX : 5 catégories, une session, un récapitulatif privé.
 
 Lecture seule des canaux publics : aucun abonnement, média copié ou transfert.
 Un message HTML par jour (même si aucun nouveau canal), avec un marqueur
@@ -44,8 +44,8 @@ def save_json(path: Path, data: dict) -> None:
 def categories() -> list[dict]:
     cfg = read_json(CONFIG)
     names = tuple(c["id"] for c in cfg.get("categories", []))
-    if names != ("films", "desir", "comedie", "anime"):
-        raise ValueError("La recherche doit contenir les quatre catégories dans l'ordre.")
+    if names != ("films", "desir", "comedie", "anime", "series"):
+        raise ValueError("La recherche doit contenir les cinq catégories dans l'ordre.")
     if any(not c.get("queries") or len(c["queries"]) > 3 for c in cfg["categories"]):
         raise ValueError("Chaque catégorie doit contenir de 1 à 3 recherches.")
     return cfg["categories"]
@@ -63,6 +63,10 @@ def make_category_cfg(category: dict, settings: dict) -> dict:
     if category["id"] == "anime":
         cfg["min_video_minutes"] = 10
         cfg["min_video_megabytes"] = 30
+        cfg["min_caption_chars"] = 15
+    if category["id"] == "series":
+        cfg["min_video_minutes"] = 20
+        cfg["min_video_megabytes"] = 70
         cfg["min_caption_chars"] = 15
     return cfg
 
@@ -82,7 +86,9 @@ def format_report(day: str, sections: list[dict], known: set[str]) -> str:
         if not entries:
             lines.append("<i>Aucun canal correspondant trouvé lors de ce passage.</i>")
             continue
-        for entry in entries:
+        if len(entries) > 3:
+            lines.append("<i>3 liens affichés ; autres candidats conservés dans l'historique.</i>")
+        for entry in entries[:3]:
             name = normalize_username(entry.get("username", ""))
             if not name:
                 continue
