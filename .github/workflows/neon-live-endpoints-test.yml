@@ -32,8 +32,8 @@ jobs:
           status,body,_=call('/predictions/by-id?id=bad')
           assert status==400 and body.get('error')=='invalid_id'
           status,body,_=call('/refresh','POST')
-          assert status==503 and body.get('error')=='refresh_engine_not_migrated'
-          print('Neon LIVE route compatibility PASS; refresh correctly disabled until fully ported')
+          assert status==401 and body.get('error')=='unauthorized'
+          print('Neon LIVE read routes PASS; refresh requires authentication')
           PY
 
 # Verify POST-refreshed Neon LIVE reads after text-array binding correction.
