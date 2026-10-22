@@ -254,6 +254,24 @@ async function handle(env,update) {
   if(q){
     const data=String(q.data||'');
     await ack(env,q.id);
+    if(data==='nav:share')return share(env,uid,chat);
+    if(data==='nav:channeltasks')return tasks(env,uid,chat);
+    if(data.startsWith('nav:')||data.startsWith('filter:'))
+      return navigate(env,uid,chat,data,send,telegram,m.message_id);
+    if(data.startsWith('pref:')){
+      const updated=await toggleAlert(env,uid,data.slice(5));
+      if(updated.status==='locked')return send(env,chat,'🔒 <b>Valide ton accès pour régler les notifications.</b>');
+      return alerts(env,uid,chat,send,telegram,m.message_id);
+    }
+    if(data.startsWith('claim:')){
+      const kind=data.slice(6);
+      const claim=await claimEngagement(env,uid,kind);
+      const label=kind==='daily'?'du jour':'hebdomadaire';
+      await send(env,chat,claim.status==='ok'?'🎉 <b>MISSION VALIDÉE !</b>\n\n💎 <b>+'+claim.xp+' XP</b> reçus pour ta mission '+label+'.':
+        claim.status==='locked'?'🔒 Confirme ton âge et vérifie les canaux d’abord.':
+        'ℹ️ <b>Récompense déjà reçue</b> pour cette période.');
+      return showMissions(env,uid,chat,send);
+    }
     if(data==='adult_yes'){
       await run(env,'UPDATE users SET adult_confirmed=1 WHERE id=?',uid);
       await send(env,chat,'✅ <b>Âge confirmé !</b>\n\n<i>Dernière étape : vérifie les canaux pour activer tes récompenses.</i>');
@@ -276,11 +294,27 @@ async function handle(env,update) {
     const names=new Set(['/admin','/addcoupon','/listcoupons','/delcoupon','/activatecoupon','/addtask','/listtasks','/deltask','/grantxp','/stats']);
     if(names.has(command))return admin(env,uid,chat,command+txt.slice(txt.split(/\s+/)[0].length),update.update_id);
   }
+  if(txt==='🏠 Mon espace'||txt==='/dashboard'||txt==='/menu')return dashboard(env,uid,chat,send);
+  if(txt==='/history'||txt==='/xphistory')return xpHistory(env,uid,chat,send);
+  if(txt==='/levels'||txt==='/level')return xpScreen(env,uid,chat,send);
+  if(txt==='/missions')return showMissions(env,uid,chat,send);
+  if(txt==='/daily'||txt==='/weekly'){
+    const kind=txt.slice(1),res=await claimEngagement(env,uid,kind);
+    return send(env,chat,res.status==='ok'?'✅ <b>+'+res.xp+' XP</b> reçus !':
+      res.status==='already'?'⏳ <b>Mission déjà réclamée</b> pour cette période.':
+      '🔒 <b>Vérifie ton accès avant de participer.</b>',navKeyboard());
+  }
+  if(txt==='📣 Alertes'||txt==='/alerts')return alerts(env,uid,chat,send);
+  if(txt==='/referrals')return referrals(env,uid,chat,send);
+  if(txt==='/results')return results(env,uid,chat,send);
+  if(/^\/coupons\s+(ALL|SIMPLE|PRO|VIP)$/i.test(txt))
+    return couponsFiltered(env,uid,chat,send,telegram,undefined,txt.split(/\s+/)[1].toUpperCase());
+  if(txt==='/faq')return send(env,chat,faqText(),navKeyboard());
   if(txt==='✅ Vérifier'||txt==='/verify')return verify(env,uid,chat);
   if(txt==='🚩 Tâche'||txt==='/tasks')return tasks(env,uid,chat);
   if(txt==='🎁 Bonus'||txt==='/bonus')return bonus(env,uid,chat);
-  if(txt==='⭐ Mes XP'||txt==='/xp')return xp(env,uid,chat);
-  if(txt==='🎟️ Coupons cote 4+'||txt==='/coupons')return coupons(env,uid,chat);
+  if(txt==='⭐ Mes XP'||txt==='/xp')return xpScreen(env,uid,chat,send);
+  if(txt==='🎟️ Coupons cote 4+'||txt==='/coupons')return couponsFiltered(env,uid,chat,send);
   if(txt==='🎫 Mes coupons'||txt==='/mine')return mine(env,uid,chat);
   if(txt==='↗️ Partager'||txt==='/share')return share(env,uid,chat);
   if(txt==='📋 Procédure'||txt==='/help')return send(env,chat,'📋 <b>COMMENT ÇA MARCHE ?</b>\n\n<blockquote>① Confirme tes <b>18 ans ou plus</b> et vérifie les canaux.\n② Accomplis des missions pour gagner des <b>XP</b>.\n③ Récupère <b>5 XP</b> toutes les 2 heures, maximum <b>10 XP/jour</b>.\n④ Échange tes XP contre l’accès aux coupons <b>4+</b>.</blockquote>\n\n🌐 '+SITE+'\n\n<i>Les XP sont virtuels et ne représentent pas de l’argent. Joue responsablement.</i>');
