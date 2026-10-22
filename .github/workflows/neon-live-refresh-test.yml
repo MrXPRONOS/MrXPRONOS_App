@@ -70,3 +70,5 @@ jobs:
 # Retry for Neon deployment propagation after successful preview
 
 # Retry debug for Neon PostgreSQL upsert
+
+# Test JSONB parameter casting fix
