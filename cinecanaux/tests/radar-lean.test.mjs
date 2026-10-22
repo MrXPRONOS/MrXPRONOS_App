@@ -123,3 +123,24 @@ test("12. Health shows public channels, no private data",async()=>{
  const d=await r.json();assert.equal(d.version,6);assert.equal(d.publicChannels,3);
  assert.equal(d.favorites,undefined);
 });
+
+test("13. Premium mockup: four existing views preserve navigation and cinematic art",()=>{
+ for(const part of ['class="hero"','class="brand-mark"','class="tabs"','class="search"','class="cards"','class="overlay"','class="sheet"','sheet-visual','scene-film','scene-anime']){
+  assert.ok(APP_HTML.includes(part),"Missing premium design element "+part);
+ }
+ for(const state of ["all","films","series","animes"]){
+  assert.ok(APP_HTML.includes('data-type="'+state+'"'),"Missing existing catalogue category "+state);
+ }
+ assert.ok(APP_HTML.includes('function showPreview(c){'));
+ assert.ok(APP_HTML.includes('function applyFilters(){'));
+ assert.ok(APP_HTML.includes('fillPreview(c,images.get(c.id))'));
+ assert.ok(APP_HTML.includes("button(\"Aperçu\""));
+ assert.ok(APP_HTML.includes("button(\"Ouvrir\""));
+});
+test("14. Redesign contains no accounts, sharing, favorites, unrelated features or demo data",()=>{
+ for(const disallowed of ["Mes favoris","Copier le lien","Parrainage","Inscription","Mes préférences","124 canaux","Ciné Vault","Anime Horizon"]){
+  assert.ok(!APP_HTML.includes(disallowed),"Unwanted screenshot-only text or feature: "+disallowed);
+ }
+ assert.ok(APP_HTML.includes("textContent=text"),"Channel names should use safe textContent");
+ assert.ok(APP_HTML.includes("PRELOADED_CATALOG"),"Fast first paint remains available");
+});
