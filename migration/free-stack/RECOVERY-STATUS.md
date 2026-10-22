@@ -23,3 +23,11 @@ Keep database URL/password server-only, never in GitHub Pages.
 - Vérifié Neon Functions : **0 déploiement** sur la branche. Les 19 fonctions Supabase ne sont pas migrées.
 - Vérifié Neon Object Storage `videos` : **0 objet**. Les 113 médias ne sont pas transférés.
 - Aucune bascule GitHub Pages, aucun webhook Telegram/cron modifié. La migration complète ne peut pas être annoncée comme terminée.
+
+
+## Contrôle de préparation à la production (2026-10-22)
+- Vérification directe Neon : 85 tables, 227 index, 2 politiques RLS seulement ; 4037 pronostics, 2011 predictions et 6230 live_predictions.
+- Data API Neon active pour mrxpronos.
+- La vérification Cloudflare Workers est bloquée par le contrôle de l'intégration lors de cette session. Impossible de confirmer une requête HTTP publique au nouveau Worker.
+- Le nouveau site ne doit pas être pointé vers Neon tant que les 83 autres tables, leurs règles d'accès, les Edge Functions, et le webhook Telegram ne sont pas adaptés et testés.
+- Tests nécessaires avant production : endpoints publics GET et erreurs, lecture/écriture authentifiée, refus accès VIP/admin anonyme, Live refresh, callbacks Telegram, publications, médias et rollback.
