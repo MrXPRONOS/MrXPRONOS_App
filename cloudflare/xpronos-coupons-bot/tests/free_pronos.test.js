@@ -68,7 +68,7 @@ test('JavaScript embarqué de la Mini App est syntaxiquement valide',()=>{
 test('API accepte un en-tête Telegram dédié seulement après vérification HMAC',async()=>{
  const raw=await signed(Math.floor(Date.now()/1000));
  const DB={prepare(sql){return {bind(){return {async first(){
-  if(sql.includes('FROM users')&&sql.includes('adult_confirmed'))return {id:80599,name:'Test',adult_confirmed:1,required_verified:1,xp:0,earned_total:0,today_total:0,tasks_total:0,coupons_total:0,referrals_total:0};
+  if(sql.includes('FROM users')&&(sql.includes('adult_confirmed')||sql.includes('earned_total')))return {id:80599,name:'Test',adult_confirmed:1,required_verified:1,xp:0,earned_total:0,today_total:0,tasks_total:0,coupons_total:0,referrals_total:0};
   if(sql.includes('notify_coupons,notify_results'))return {notify_coupons:0,notify_results:0};
   return {total:0};
  }}}}}};
