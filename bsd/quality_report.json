@@ -1,29 +1,29 @@
 {
   "schema": "bsd-v2-quality-report-1",
-  "generated_at": "2026-10-22T16:20:45.796811+00:00",
-  "total_ever_observed": 339,
-  "in_current_feed": 337,
+  "generated_at": "2026-10-22T20:13:22.330995+00:00",
+  "total_ever_observed": 343,
+  "in_current_feed": 341,
   "absent_from_current_feed": 2,
-  "unexplained_absences": 1,
-  "unsettled": 28,
-  "settled": 311,
+  "unexplained_absences": 2,
+  "unsettled": 30,
+  "settled": 313,
   "primary": {
-    "n": 311,
-    "wins": 245,
+    "n": 313,
+    "wins": 247,
     "losses": 66,
-    "hit_rate": 0.7878,
+    "hit_rate": 0.7891,
     "wilson95": [
-      0.739,
-      0.8296
+      0.7406,
+      0.8307
     ],
-    "mean_forecast": 0.7829,
-    "brier": 0.16058,
-    "calibration_gap": -0.0049,
+    "mean_forecast": 0.783,
+    "brier": 0.15979,
+    "calibration_gap": -0.0061,
     "statistically_qualified": true,
-    "priced_by_verified_source": 113,
-    "estimated_or_unpriced": 198,
-    "theoretical_flat_stake_net_units_on_verified_quotes": -0.093,
-    "theoretical_flat_stake_yield_on_verified_quotes": -0.0008
+    "priced_by_verified_source": 114,
+    "estimated_or_unpriced": 199,
+    "theoretical_flat_stake_net_units_on_verified_quotes": 1.057,
+    "theoretical_flat_stake_yield_on_verified_quotes": 0.0093
   },
   "secondary": {
     "n": 185,
@@ -45,22 +45,22 @@
   },
   "by_category": {
     "pro": {
-      "n": 141,
-      "wins": 119,
+      "n": 142,
+      "wins": 120,
       "losses": 22,
-      "hit_rate": 0.844,
+      "hit_rate": 0.8451,
       "wilson95": [
-        0.7751,
-        0.8946
+        0.7766,
+        0.8954
       ],
-      "mean_forecast": 0.8051,
-      "brier": 0.1333,
-      "calibration_gap": -0.0389,
+      "mean_forecast": 0.805,
+      "brier": 0.13266,
+      "calibration_gap": -0.0401,
       "statistically_qualified": true,
-      "priced_by_verified_source": 41,
+      "priced_by_verified_source": 42,
       "estimated_or_unpriced": 100,
-      "theoretical_flat_stake_net_units_on_verified_quotes": 6.996,
-      "theoretical_flat_stake_yield_on_verified_quotes": 0.1706
+      "theoretical_flat_stake_net_units_on_verified_quotes": 8.146,
+      "theoretical_flat_stake_yield_on_verified_quotes": 0.194
     },
     "simple": {
       "n": 149,
@@ -81,20 +81,20 @@
       "theoretical_flat_stake_yield_on_verified_quotes": -0.1271
     },
     "vip": {
-      "n": 21,
-      "wins": 19,
+      "n": 22,
+      "wins": 20,
       "losses": 2,
-      "hit_rate": 0.9048,
+      "hit_rate": 0.9091,
       "wilson95": [
-        0.7109,
-        0.9735
+        0.7218,
+        0.9747
       ],
-      "mean_forecast": 0.8324,
-      "brier": 0.08993,
-      "calibration_gap": -0.0723,
+      "mean_forecast": 0.8321,
+      "brier": 0.08724,
+      "calibration_gap": -0.077,
       "statistically_qualified": false,
       "priced_by_verified_source": 7,
-      "estimated_or_unpriced": 14,
+      "estimated_or_unpriced": 15,
       "theoretical_flat_stake_net_units_on_verified_quotes": 1.175,
       "theoretical_flat_stake_yield_on_verified_quotes": 0.1679
     }
@@ -119,22 +119,22 @@
       "theoretical_flat_stake_yield_on_verified_quotes": null
     },
     "1X": {
-      "n": 102,
-      "wins": 82,
+      "n": 104,
+      "wins": 84,
       "losses": 20,
-      "hit_rate": 0.8039,
+      "hit_rate": 0.8077,
       "wilson95": [
-        0.7165,
-        0.8693
+        0.7215,
+        0.8719
       ],
-      "mean_forecast": 0.7988,
-      "brier": 0.15081,
-      "calibration_gap": -0.0051,
+      "mean_forecast": 0.799,
+      "brier": 0.14862,
+      "calibration_gap": -0.0087,
       "statistically_qualified": true,
-      "priced_by_verified_source": 38,
-      "estimated_or_unpriced": 64,
-      "theoretical_flat_stake_net_units_on_verified_quotes": 2.601,
-      "theoretical_flat_stake_yield_on_verified_quotes": 0.0684
+      "priced_by_verified_source": 39,
+      "estimated_or_unpriced": 65,
+      "theoretical_flat_stake_net_units_on_verified_quotes": 3.751,
+      "theoretical_flat_stake_yield_on_verified_quotes": 0.0962
     },
     "BTTS_YES": {
       "n": 1,
@@ -229,20 +229,20 @@
   },
   "by_signal_tier": {
     "INDICATIF": {
-      "n": 67,
-      "wins": 54,
+      "n": 68,
+      "wins": 55,
       "losses": 13,
-      "hit_rate": 0.806,
+      "hit_rate": 0.8088,
       "wilson95": [
-        0.6958,
-        0.8829
+        0.6999,
+        0.8847
       ],
-      "mean_forecast": 0.8111,
-      "brier": 0.15514,
-      "calibration_gap": 0.0051,
+      "mean_forecast": 0.8113,
+      "brier": 0.15331,
+      "calibration_gap": 0.0025,
       "statistically_qualified": false,
       "priced_by_verified_source": 0,
-      "estimated_or_unpriced": 67,
+      "estimated_or_unpriced": 68,
       "theoretical_flat_stake_net_units_on_verified_quotes": null,
       "theoretical_flat_stake_yield_on_verified_quotes": null
     },
@@ -265,22 +265,22 @@
       "theoretical_flat_stake_yield_on_verified_quotes": 0.1429
     },
     "QUALIFIE": {
-      "n": 19,
-      "wins": 14,
+      "n": 20,
+      "wins": 15,
       "losses": 5,
-      "hit_rate": 0.7368,
+      "hit_rate": 0.75,
       "wilson95": [
-        0.5121,
-        0.8819
+        0.5313,
+        0.8881
       ],
-      "mean_forecast": 0.7854,
-      "brier": 0.19764,
-      "calibration_gap": 0.0485,
+      "mean_forecast": 0.7857,
+      "brier": 0.1899,
+      "calibration_gap": 0.0357,
       "statistically_qualified": false,
-      "priced_by_verified_source": 18,
+      "priced_by_verified_source": 19,
       "estimated_or_unpriced": 1,
-      "theoretical_flat_stake_net_units_on_verified_quotes": 0.369,
-      "theoretical_flat_stake_yield_on_verified_quotes": 0.0205
+      "theoretical_flat_stake_net_units_on_verified_quotes": 1.519,
+      "theoretical_flat_stake_yield_on_verified_quotes": 0.0799
     },
     "unknown": {
       "n": 209,
@@ -303,38 +303,38 @@
   },
   "by_price_source": {
     "bsd_consensus": {
-      "n": 113,
-      "wins": 82,
+      "n": 114,
+      "wins": 83,
       "losses": 31,
-      "hit_rate": 0.7257,
+      "hit_rate": 0.7281,
       "wilson95": [
-        0.637,
-        0.7995
+        0.64,
+        0.8013
       ],
-      "mean_forecast": 0.7652,
-      "brier": 0.18785,
-      "calibration_gap": 0.0395,
+      "mean_forecast": 0.7655,
+      "brier": 0.18658,
+      "calibration_gap": 0.0374,
       "statistically_qualified": true,
-      "priced_by_verified_source": 113,
+      "priced_by_verified_source": 114,
       "estimated_or_unpriced": 0,
-      "theoretical_flat_stake_net_units_on_verified_quotes": -0.093,
-      "theoretical_flat_stake_yield_on_verified_quotes": -0.0008
+      "theoretical_flat_stake_net_units_on_verified_quotes": 1.057,
+      "theoretical_flat_stake_yield_on_verified_quotes": 0.0093
     },
     "mrxpronos_model": {
-      "n": 196,
-      "wins": 161,
+      "n": 197,
+      "wins": 162,
       "losses": 35,
-      "hit_rate": 0.8214,
+      "hit_rate": 0.8223,
       "wilson95": [
-        0.7618,
-        0.8687
+        0.7629,
+        0.8694
       ],
-      "mean_forecast": 0.7929,
-      "brier": 0.14609,
-      "calibration_gap": -0.0286,
+      "mean_forecast": 0.793,
+      "brier": 0.14551,
+      "calibration_gap": -0.0293,
       "statistically_qualified": true,
       "priced_by_verified_source": 0,
-      "estimated_or_unpriced": 196,
+      "estimated_or_unpriced": 197,
       "theoretical_flat_stake_net_units_on_verified_quotes": null,
       "theoretical_flat_stake_yield_on_verified_quotes": null
     },
@@ -395,38 +395,38 @@
       "theoretical_flat_stake_yield_on_verified_quotes": -0.3125
     },
     "0.70-0.80": {
-      "n": 186,
-      "wins": 145,
+      "n": 187,
+      "wins": 146,
       "losses": 41,
-      "hit_rate": 0.7796,
+      "hit_rate": 0.7807,
       "wilson95": [
-        0.7147,
-        0.8332
+        0.7161,
+        0.8341
       ],
-      "mean_forecast": 0.7731,
-      "brier": 0.1715,
-      "calibration_gap": -0.0065,
+      "mean_forecast": 0.7732,
+      "brier": 0.17081,
+      "calibration_gap": -0.0076,
       "statistically_qualified": true,
-      "priced_by_verified_source": 71,
+      "priced_by_verified_source": 72,
       "estimated_or_unpriced": 115,
-      "theoretical_flat_stake_net_units_on_verified_quotes": 1.365,
-      "theoretical_flat_stake_yield_on_verified_quotes": 0.0192
+      "theoretical_flat_stake_net_units_on_verified_quotes": 2.515,
+      "theoretical_flat_stake_yield_on_verified_quotes": 0.0349
     },
     "0.80-0.90": {
-      "n": 112,
-      "wins": 96,
+      "n": 113,
+      "wins": 97,
       "losses": 16,
-      "hit_rate": 0.8571,
+      "hit_rate": 0.8584,
       "wilson95": [
-        0.7805,
-        0.9101
+        0.7823,
+        0.9109
       ],
-      "mean_forecast": 0.8182,
-      "brier": 0.12379,
-      "calibration_gap": -0.0389,
+      "mean_forecast": 0.8183,
+      "brier": 0.12297,
+      "calibration_gap": -0.0401,
       "statistically_qualified": true,
       "priced_by_verified_source": 29,
-      "estimated_or_unpriced": 83,
+      "estimated_or_unpriced": 84,
       "theoretical_flat_stake_net_units_on_verified_quotes": 3.572,
       "theoretical_flat_stake_yield_on_verified_quotes": 0.1232
     }
