@@ -2205,6 +2205,7 @@ async function currentMatches() {
     return {
       ...base,
       id: String(row.id),
+      league: { name: base.league?.name || base.league_name || 'Football' },
       predictions: preds,
       all_predictions: preds,
       events: [],
@@ -2242,7 +2243,7 @@ async function scheduled() {
   const rows = await sql`SELECT fixture,updated_at,event_date FROM public.live_scheduled_fixtures
    WHERE event_date BETWEEN now()-INTERVAL '10 minutes' AND now()+INTERVAL '48 hours'
    AND updated_at >= now()-INTERVAL '45 minutes' ORDER BY event_date LIMIT 150`;
-  return rows.map((x) => x.fixture).filter((x) => x && !x.is_live && !x.is_finished);
+  return rows.map((x) => ({...x.fixture,league:{name:x.fixture?.league?.name || x.fixture?.league_name || 'Football'}})).filter((x) => x && !x.is_live && !x.is_finished);
 }
 var index_default = {
   async fetch(req) {
