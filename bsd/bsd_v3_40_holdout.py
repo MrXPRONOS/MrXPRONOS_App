@@ -16,6 +16,7 @@ from math import isfinite
 from bsd_archive import MATCHES_FILE, _read_json
 from bsd_v2_core import V2History, fixture_datetime, estimate_goals, outcome_scores, score_matrix, fit_rho_2024
 from bsd_v3_40_markets import SPECS, probabilities, result as settle
+from bsd_v3_40_calibration import fit_goal_calibration
 
 REPORT_FILE=Path("bsd/v3_market_validation.json")
 
@@ -23,7 +24,7 @@ def thin(events, limit):
     if limit<=0: raise ValueError("sample limit must be positive")
     return events if len(events)<=limit else [events[i*len(events)//limit] for i in range(limit)]
 
-def chronological_rows(index, start, end, limit, rho):
+def chronological_rows(index, start, end, limit, rho, calibration=None):
     eligible=[]
     for _available, event in index.global_games:
         try:
@@ -43,7 +44,9 @@ def chronological_rows(index, start, end, limit, rho):
             continue
         score=outcome_scores(event)
         if score is None:continue
-        options=probabilities(score_matrix(estimates["home"],estimates["away"],rho))
+        home,away=(calibration.apply(estimates["home"],estimates["away"])
+                   if calibration is not None else (estimates["home"],estimates["away"]))
+        options=probabilities(score_matrix(home,away,rho))
         if len(options)!=40: raise AssertionError("Invalid 40 market coverage")
         valid+=1
         for opt in options:
@@ -108,7 +111,18 @@ def build_report(history, *, clock=None, max_reference=700, max_holdout=700):
     holdout_end=min(datetime(2027,1,1,tzinfo=timezone.utc),clock-timedelta(days=2))
     test,test_info=chronological_rows(index,datetime(2026,1,1,tzinfo=timezone.utc),
                          holdout_end,max_holdout,rho) if holdout_end>datetime(2026,1,1,tzinfo=timezone.utc) else ({},{})
+    cal,cal_info=fit_goal_calibration(index,max_training=max_reference)
+    recal_test,recal_info=chronological_rows(index,datetime(2026,1,1,tzinfo=timezone.utc),
+                         holdout_end,max_holdout,rho,calibration=cal) if holdout_end>datetime(2026,1,1,tzinfo=timezone.utc) else ({},{})
     markets=summarize(ref,test)
+    calibrated=summarize(ref,recal_test)
+    for key, row in markets.items():
+        alt=calibrated[key]
+        row["calibrated_test_brier"]=alt["test_brier"]
+        row["calibrated_ece_10_bins"]=alt["ece_10_bins"]
+        row["calibrated_model_skill_validated"]=alt["model_skill_validated"]
+        row["calibration_brier_improvement"]=(round(row["test_brier"]-alt["test_brier"],6)
+             if row["test_brier"] is not None and alt["test_brier"] is not None else None)
     return {
         "format":"bsd-v3-validation-holdout-v1",
         "model":"bsd-v3-40-poisson-dixon-coles-shared-score-model",
@@ -121,6 +135,9 @@ def build_report(history, *, clock=None, max_reference=700, max_holdout=700):
         "profitability_assessed":False,
         "rho_fitted_only_on_2024":True,
         "rho":rho,"rho_diagnostics":rho_info,
+        "goal_calibration":cal.to_dict(),"calibration_training":cal_info,
+        "calibrated_holdout":recal_info,
+        "calibrated_passed_markets":sum(int(v["calibrated_model_skill_validated"]) for v in markets.values()),
         "reference":ref_info,"holdout":test_info,
         "passed_markets":sum(int(v["model_skill_validated"]) for v in markets.values()),
         "total_markets":40,
