@@ -4,6 +4,9 @@ on:
     branches: [main]
     paths:
       - 'telegram-film-relay/scripts/discovery_daily.py'
+      - 'telegram-film-relay/film_relay/public_directory.py'
+      - 'telegram-film-relay/film_relay/discovery.py'
+      - 'telegram-film-relay/tests/test_cine_radar_public_formats.py'
       - 'telegram-film-relay/config/discovery_daily.json'
       - 'telegram-film-relay/tests/test_daily_discovery.py'
       - '.github/workflows/cine-radar-discovery-ci.yml'
@@ -28,3 +31,4 @@ jobs:
         run: |
           python -m compileall -q film_relay scripts tests
           python -m unittest discover -s tests -p 'test_daily_discovery.py' -v
+          python -m unittest discover -s tests -p 'test_cine_radar_public_formats.py' -v
