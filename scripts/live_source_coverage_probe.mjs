@@ -31,3 +31,17 @@ for(const [label,url] of [["moviodds_stats","https://moviodds.com/odds?sport=soc
     console.log("OPTIONAL_FEED",JSON.stringify(report).slice(0,2400));
   }catch(e){console.log("OPTIONAL_FEED",JSON.stringify({label,error:String(e.name||e).slice(0,100)}))}
 }
+
+try{
+ const res=await fetch("https://moviodds.com/odds?sport=soccer&in_play=1&stats=1",{signal:AbortSignal.timeout(7000)});
+ if(!res.ok)throw Error("HTTP "+res.status);
+ const body=await res.json(),rows=body.matches||[],now=Date.now();
+ for(const m of rows.slice(0,15)){
+  const ts=Date.parse(m.stats?.updated_at),polled=Date.parse(m.polled_at),kickoff=Date.parse(m.kickoff_utc||m.kickoff||m.starts||m.start_time);
+  const stats=m.stats||{},h=stats.home||{},a=stats.away||{};
+  console.log("MOVI_MATCH",JSON.stringify({id:m.id,home:m.home||m.home_team||m.homeTeam?.name,away:m.away||m.away_team||m.awayTeam?.name,in_play:m.in_play,minute:m.minute||m.elapsed||m.live_minute,
+   kickoff:m.kickoff_utc||m.kickoff||m.starts||m.start_time||null,kickoffAgoMin:Number.isFinite(kickoff)?Math.round((now-kickoff)/60000):null,
+   pollAgeSec:Number.isFinite(polled)?Math.round((now-polled)/1000):null,statsAgeSec:Number.isFinite(ts)?Math.round((now-ts)/1000):null,
+   corners:[h.corners??null,a.corners??null],shots:[h.shots??null,a.shots??null],shotsOnTarget:[h.shots_on_target??null,a.shots_on_target??null],fouls:[h.fouls??null,a.fouls??null]}));
+ }
+}catch(e){console.log("MOVI_META_FAILED",String(e?.message||e).slice(0,250))}
