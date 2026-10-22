@@ -245,7 +245,7 @@ export default {
       });
     }
     if(req.method!=='POST'||url.pathname!=='/telegram')return new Response('Not found',{status:404});
-    if(!env.DB||!env.CF_BOT_TOKEN||!env.CF_BOT_WEBHOOK_SECRET||!admins(env).size)return out('Not configured',{status:503});
+    if(!env.DB||!env.CF_BOT_TOKEN||!env.CF_BOT_WEBHOOK_SECRET||!admins(env).size)return new Response('Not configured',{status:503});
     const provided=req.headers.get('x-telegram-bot-api-secret-token')||'';
     if(!provided||provided!==env.CF_BOT_WEBHOOK_SECRET)return new Response('Forbidden',{status:403});
     try{
