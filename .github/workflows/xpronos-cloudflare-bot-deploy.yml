@@ -71,6 +71,7 @@ jobs:
           python3 tests/test_v2.py
           python3 tests/test_v3.py
           python3 tests/test_v4.py
+          python3 tests/test_v5.py
           python3 -m py_compile scripts/set_profile.py
 
       - name: Installer Wrangler version déterministe
