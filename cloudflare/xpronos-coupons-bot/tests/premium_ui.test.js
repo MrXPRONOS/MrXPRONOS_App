@@ -19,7 +19,7 @@ test('Premium Free Pronos Mini App serves one complete browser script and 10 exi
  }
 });
 test('Premium uses soft vector icons and mockup navigation, without glossy generated images',()=>{
- assert.match(premiumJS,/stroke-linecap="round"/);
+ assert.match(premiumCSS,/stroke-linecap:round/);
  assert.match(premiumJS,/pPaths/);
  assert.match(premiumJS,/Coupons cote 4\+/);
  assert.match(premiumJS,/Parrainage/);
