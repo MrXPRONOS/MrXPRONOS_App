@@ -25,9 +25,8 @@ async function verifyGithubOidc(req) {
       claims.iss !== "https://token.actions.githubusercontent.com" ||
       claims.aud !== NEON_REFRESH_AUD ||
       claims.repository !== ALLOWED_REPO ||
-      claims.ref !== ALLOWED_REF ||
-      claims.workflow_ref !== EXPECTED_WORKFLOW ||
-      claims.event_name !== "push" && claims.event_name !== "workflow_dispatch" ||
+      !((claims.ref === ALLOWED_REF && claims.workflow_ref === EXPECTED_WORKFLOW) || (claims.ref === "refs/heads/main" && claims.workflow_ref === ALLOWED_REPO + "/.github/workflows/neon-live-refresh.yml@refs/heads/main")) ||
+      claims.event_name !== "push" && claims.event_name !== "workflow_dispatch" && claims.event_name !== "schedule" ||
       !(Number(claims.iat) <= now + 60) || !(Number(claims.exp) > now) ||
       Number(claims.exp) > now + 7200) return false;
   try {
