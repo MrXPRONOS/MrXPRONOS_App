@@ -48,7 +48,8 @@ function message(row){
   "📊 Au signal : "+Number(row.signal_value),
   "🧠 Probabilité estimée (modèle) : "+prob+"%",
   "Cote bookmaker non disponible. Estimation non garantie.",
-  "18+ • Joue responsablement."
+  "18+ • Joue responsablement.",
+  ...(String(row.match_id||"").startsWith("sportscore:")?["Données : Powered by SportScore — https://sportscore.com/"]:[])
  ].join("\n");
 }
 
