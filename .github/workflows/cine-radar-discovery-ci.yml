@@ -1,0 +1,30 @@
+name: Cine Radar - Découverte cinq catégories
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/scripts/discovery_daily.py'
+      - 'telegram-film-relay/config/discovery_daily.json'
+      - 'telegram-film-relay/tests/test_daily_discovery.py'
+      - '.github/workflows/cine-radar-discovery-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-discovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install original discovery dependencies
+        run: pip install -r telegram-film-relay/requirements.txt
+      - name: Compile and verify discovery without connecting Telegram
+        working-directory: telegram-film-relay
+        env:
+          PYTHONPATH: .
+        run: |
+          python -m compileall -q film_relay scripts tests
+          python -m unittest discover -s tests -p 'test_daily_discovery.py' -v
