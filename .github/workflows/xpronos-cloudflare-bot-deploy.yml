@@ -70,6 +70,8 @@ jobs:
           python3 tests/test_schema.py
           python3 tests/test_v2.py
           python3 tests/test_v3.py
+          python3 tests/test_v4.py
+          python3 -m py_compile scripts/set_profile.py
 
       - name: Installer Wrangler version déterministe
         run: npm install --no-save --package-lock=false --no-audit --no-fund wrangler@4.50.0
@@ -230,4 +232,60 @@ jobs:
           if protected!=401:
               raise SystemExit('SECURITE : /api/me sans signature doit répondre 401, obtenu '+str(protected))
           print('Free Pronos : Worker HTTP 200, Mini App HTTP 200 et API privée HTTP 401 sans signature.')
+          PY
+
+      - name: Installer la photo officielle Free Pronos
+        if: contains(github.event.head_commit.message, '[set-free-pronos-avatar]') || (github.event_name == 'workflow_dispatch' && vars.FREE_PRONOS_AVATAR_UPDATE == 'true')
+        run: |
+          python3 -m pip install --disable-pip-version-check --quiet 'CairoSVG>=2.7,<3' 'Pillow>=10,<13'
+          python3 scripts/set_profile.py
+
+      - name: Tester réellement l'envoi des notifications Telegram
+        if: contains(github.event.head_commit.message, '[verify-free-pronos-alerts]') || (github.event_name == 'workflow_dispatch' && vars.FREE_PRONOS_ALERT_TEST == 'true')
+        run: |
+          python3 - <<'PY'
+          import json,os,urllib.request
+          bot=os.environ['XPRONOS_CF_BOT_TOKEN']
+          admin=os.environ['CF_BOT_ADMIN_IDS'].split(',')[0].strip()
+          payload=json.dumps({
+            'chat_id':int(admin),'parse_mode':'HTML',
+            'text':'🔔 <b>FREE PRONOS — TEST LIVRAISON</b>\n\n✅ Le service de notifications Telegram répond correctement.\n<i>Ceci est un test technique de l’administrateur, sans modification des XP ni des coupons.</i>'
+          },ensure_ascii=False).encode('utf-8')
+          request=urllib.request.Request('https://api.telegram.org/bot'+bot+'/sendMessage',
+            data=payload,headers={'Content-Type':'application/json'},method='POST')
+          with urllib.request.urlopen(request,timeout=20) as response:
+            result=json.load(response)
+          if not result.get('ok') or not result.get('result',{}).get('message_id'):
+            raise SystemExit('Le message de test Telegram n’a pas été accepté.')
+          print('Free Pronos : message test de notification accepté par Telegram, message ID '+str(result['result']['message_id']))
+          PY
+
+      - name: Confirmer la connexion sécurisée à Admin et au fournisseur ESPN
+        run: |
+          python3 - <<'PY'
+          import hashlib,hmac,json,os,time,urllib.parse,urllib.request,urllib.error
+          token=os.environ['XPRONOS_CF_BOT_TOKEN']
+          admin=int(os.environ['CF_BOT_ADMIN_IDS'].split(',')[0])
+          now=str(int(time.time()))
+          user=json.dumps({'id':admin,'first_name':'Free Pronos Admin'},separators=(',',':'),ensure_ascii=False)
+          message='auth_date='+now+'\nuser='+user
+          secret=hmac.new(b'WebAppData',token.encode(),hashlib.sha256).digest()
+          hash_value=hmac.new(secret,message.encode(),hashlib.sha256).hexdigest()
+          auth=urllib.parse.urlencode({'auth_date':now,'user':user,'hash':hash_value})
+          root=os.environ['WORKER_URL'].rstrip('/')
+          def call(path):
+              req=urllib.request.Request(root+path,headers={'Authorization':'tma '+auth,'Accept':'application/json'})
+              try:
+                  with urllib.request.urlopen(req,timeout=20) as response:
+                      return response.status,json.load(response)
+              except urllib.error.HTTPError as error:
+                  return error.code,json.load(error)
+          status,result=call('/api/admin/overview')
+          if status!=200 or not isinstance(result.get('stats'),dict):
+              raise SystemExit('Administration sécurisée non disponible : HTTP '+str(status))
+          print('Admin Telegram authentifié : HTTP 200, tableau de bord D1 opérationnel.')
+          provider_status,provider=call('/api/admin/provider-check')
+          print('Source football :',provider.get('provider'),'HTTP',provider_status,'état',provider.get('state'))
+          if provider_status!=200:
+              print('::warning::ESPN inaccessible depuis Cloudflare : seules les validations manuelles sont sûres tant que le fournisseur ne répond pas.')
           PY

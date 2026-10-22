@@ -4,6 +4,8 @@ import {parseCouponCommand} from './logic.js';
 import {APP_URL,navKeyboard,navigate,dashboard,xpScreen,xpHistory,showMissions,claimEngagement,alerts,toggleAlert,referrals,couponsFiltered,results,adminResult,adminAnalytics,faqText,notificationBatch,resultNotificationBatch,statusLabel} from './features.js';
 import {miniApi} from './miniapp.js';
 import {miniPage} from './minipage.js';
+import {brandingResponse} from './branding.js';
+import {settleFromESPN} from './sports.js';
 import {supportGuide,createTicket,informAdmins,ticketsForUser,pendingTickets,replyToTicket,closeUserTicket,ticketSummary} from './support.js';
 
 const POINTS_REFERRAL=30,POINTS_BONUS=5,DAILY_CAP=10,COOLDOWN=2*3600000;
@@ -46,6 +48,27 @@ const send=(env,chat,text,reply=MENU)=>telegram(env,'sendMessage',{
   ...(reply?{reply_markup:reply}:{}),
   disable_web_page_preview:true
 });
+// En-tête de bienvenue enrichi avec l'avatar Free Pronos officiel.
+let profilePhotoId=null,profilePhotoAt=0;
+async function brandedWelcome(env,chat,text){
+  try{
+    const now=Date.now();
+    if(!profilePhotoId||now-profilePhotoAt>3600000){
+      const me=await telegram(env,'getMe',{});
+      const pictures=await telegram(env,'getUserProfilePhotos',{user_id:me.id,limit:1});
+      const sizes=pictures.photos?.[0]||[];
+      profilePhotoId=sizes.length?sizes[sizes.length-1].file_id:null;
+      profilePhotoAt=now;
+    }
+    if(profilePhotoId){
+      return await telegram(env,'sendPhoto',{
+        chat_id:chat,photo:profilePhotoId,caption:pad(text).slice(0,1000),parse_mode:'HTML',
+        reply_markup:MENU
+      });
+    }
+  }catch(error){console.warn('Free Pronos avatar welcome fallback',String(error).slice(0,100))}
+  return send(env,chat,text);
+}
 const ack=async(env,id)=>{try{await telegram(env,'answerCallbackQuery',{callback_query_id:id})}catch(e){console.warn('Callback acknowledgment failed:',String(e))}};
 const one=async(env,sql,...params)=>env.DB.prepare(sql).bind(...params).first();
 const all=async(env,sql,...params)=>(await env.DB.prepare(sql).bind(...params).all()).results||[];
@@ -307,7 +330,7 @@ async function handle(env,update) {
   }
   if(/^\/start(?:@\w+)?(?:\s|$)/.test(txt)){
     const u=await user(env,uid);
-    await send(env,chat,'⚽ <b>BIENVENUE SUR FREE PRONOS</b>\n\n<blockquote>🎯 Des coupons football de cote totale <b>4.00 ou plus</b>, accessibles grâce à tes <b>XP</b>.</blockquote>\n\n🚩 <b>Réalise des missions</b>\n🎁 <b>Récupère des bonus</b>\n🎟️ <b>Débloque des coupons</b>\n\n<i>🔞 18+ • Aucun résultat garanti. Joue avec modération.</i>');
+    await brandedWelcome(env,chat,'⚽ <b>BIENVENUE SUR FREE PRONOS</b>\n\n<blockquote>🎯 Des coupons football de cote totale <b>4.00 ou plus</b>, accessibles grâce à tes <b>XP</b>.</blockquote>\n\n🚩 <b>Réalise des missions</b>\n🎁 <b>Récupère des bonus</b>\n🎟️ <b>Débloque des coupons</b>\n\n<i>🔞 18+ • Aucun résultat garanti. Joue avec modération.</i>');
     if(!u?.adult_confirmed)return send(env,chat,'🔞 <b>CONFIRMATION D’ÂGE</b>\n\n<i>Pour continuer, confirme que tu as 18 ans ou plus.</i>',inline([[{text:'✅ Oui, 18 ans ou plus',callback_data:'adult_yes',style:'success'}],[{text:'❌ Non',callback_data:'adult_no',style:'danger'}]]));
     return verify(env,uid,chat);
   }
@@ -366,6 +389,7 @@ export default {
   async fetch(req,env){
     const url=new URL(req.url);
     if(req.method==='GET'&&url.pathname==='/app')return miniPage();
+    if(req.method==='GET'&&url.pathname==='/brand.svg')return brandingResponse();
     if(url.pathname.startsWith('/api/'))return miniApi(req,env);
     if(req.method==='GET'&&url.pathname==='/health'){
       const ok=!!(env.DB&&env.CF_BOT_TOKEN&&env.CF_BOT_WEBHOOK_SECRET&&admins(env).size);
@@ -400,6 +424,8 @@ export default {
   async scheduled(controller,env,ctx){
     ctx.waitUntil((async()=>{
       try{
+        const settlement=await settleFromESPN(env,fetch,5);
+        console.log('Free Pronos score-check',settlement.checked,settlement.finished,settlement.needsReview);
         const [coupons,results]=await Promise.all([
           notificationBatch(env,telegram,10),
           resultNotificationBatch(env,telegram,6)

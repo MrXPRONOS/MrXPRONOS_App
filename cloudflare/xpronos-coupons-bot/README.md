@@ -1,4 +1,4 @@
-# XPRONOS 4+ — Cloudflare Workers + D1
+# Free Pronos — Bot Telegram et Mini App Cloudflare
 
 Ce bot Telegram fonctionne sans Supabase. Il utilise un Worker Cloudflare et une base D1 indépendante pour les comptes, les XP, les missions, le parrainage et les coupons de cote totale minimum 4.00. Les XP sont virtuels, non convertibles en argent. Accès réservé aux 18 ans ou plus ; aucun résultat sportif n'est garanti.
 
@@ -92,3 +92,28 @@ L'exemple est **fictif**, uniquement destiné aux tests (1.70 × 2.40 = 4.08). L
 - Logs : Cloudflare Dashboard → Workers & Pages → xpronos-coupons-bot → Observability.
 
 Le bot ne dépend plus du quota Egress Supabase, mais les quotas propres à Cloudflare restent applicables.
+
+
+## V3 — finalisation des améliorations visuelles et fonctionnelles
+
+**Nom public : Free Pronos.** Les identifiants historiques du dépôt, du Worker et de D1 restent inchangés pour protéger les données et le webhook.
+
+- **Logo :** `assets/free-pronos-emblem.svg`; `GET /brand.svg` sur le Worker ; affiché dans l'en-tête et l'accueil de la Mini App. Le workflow peut définir la photo Telegram `setMyProfilePhoto` en JPEG à partir de ce SVG lors d'une fusion marquée `[set-free-pronos-avatar]`.
+- **Coupons enrichis :** Mini App affiche équipe domicile/extérieur, compétition, écussons ESPN lorsque le match est référencé et réellement identifié. Le formulaire de publication est dans l'onglet *Admin* pour les identifiants administrateurs autorisés.
+- **Résultats automatiques prudents :** scores finaux ESPN uniquement ; marchés supportés : HOME/DRAW/AWAY, OVER_1_5/OVER_2_5/UNDER_2_5, BTTS_YES/BTTS_NO. Les corners, cartons, cotes dynamiques et autres marchés **ne sont jamais évalués à partir du seul score**. Si ESPN est inaccessible ou ne confirme pas la fin du match, aucun résultat gagné/perdu n'est inventé.
+- **Résultats manuels :** toujours possibles dans le tableau Admin, avec une source HTTPS ; les URLs des preuves sont visibles dans le bot.
+- **Alertes :** opt-in explicite, contrôle des envois via `delivery_audit`, test de livraison à l'administrateur par le workflow `[verify-free-pronos-alerts]`, aucune modification des XP pendant un test.
+- **Support :** tickets et réponses via bot ou Mini App, avec état et contrôle des droits.
+- **Tableau de bord Admin :** statistiques, publication coupon (IDs ESPN), contrôle des résultats, suivi tickets, bouton test notification, relance manuelle limitée de la vérification des matchs. Sécurisé par la validation cryptographique `Telegram.WebApp.initData`.
+
+### Limites importantes
+
+- Les logos ne peuvent pas être rattachés automatiquement aux anciens coupons dont le modèle ne contient aucun identifiant fiable de match ou équipe : les modifier avec une référence ESPN correcte si nécessaire.
+- ESPN n'offre pas nécessairement une couverture complète de toutes les compétitions, catégories et marchés. Le moteur échoue prudemment et garde la revue humaine en secours.
+- Un test `sendMessage` accepté prouve que Telegram a reçu le message, **pas** que l'utilisateur l'a ouvert. Les alertes des membres nécessitent leur accord explicite.
+- La photo de profil Bot API doit être confirmée via l'étape correspondante du déploiement, et le rendu des boutons peut dépendre de la version de l'application Telegram.
+
+### Commandes et vérifications
+
+`/admin`, `/support`, `/mytickets`, `/results`, `/alerts` et menu Mini App.
+`/health`, `/app` et `/api/me` (sans initData → HTTP 401) sont vérifiés par le smoke test du déploiement.
