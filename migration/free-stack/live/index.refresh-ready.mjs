@@ -2181,7 +2181,7 @@ function prediction(p) {
 }
 async function currentMatches() {
   const rows = await sql`SELECT id,raw_data,updated_at FROM public.matches_live
-   WHERE updated_at >= now()-INTERVAL '240 seconds' ORDER BY updated_at DESC LIMIT 150`;
+   WHERE updated_at >= now()-INTERVAL '900 seconds' ORDER BY updated_at DESC LIMIT 150`;
   if (!rows.length) return [];
   const ids = rows.map((x) => String(x.id));
   const pp = await sql`SELECT id,match_id,prediction_type,probability,message,threshold,current_value,projected_value,
@@ -2241,7 +2241,7 @@ async function predictionHistory() {
 async function scheduled() {
   const rows = await sql`SELECT fixture,updated_at,event_date FROM public.live_scheduled_fixtures
    WHERE event_date BETWEEN now()-INTERVAL '10 minutes' AND now()+INTERVAL '48 hours'
-   AND updated_at >= now()-INTERVAL '6 hours' ORDER BY event_date LIMIT 150`;
+   AND updated_at >= now()-INTERVAL '45 minutes' ORDER BY event_date LIMIT 150`;
   return rows.map((x) => x.fixture).filter((x) => x && !x.is_live && !x.is_finished);
 }
 var index_default = {
@@ -2327,9 +2327,8 @@ async function verifyGithubOidc(req) {
       claims.iss !== "https://token.actions.githubusercontent.com" ||
       claims.aud !== NEON_REFRESH_AUD ||
       claims.repository !== ALLOWED_REPO ||
-      claims.ref !== ALLOWED_REF ||
-      claims.workflow_ref !== EXPECTED_WORKFLOW ||
-      claims.event_name !== "push" && claims.event_name !== "workflow_dispatch" ||
+      !((claims.ref === ALLOWED_REF && claims.workflow_ref === EXPECTED_WORKFLOW) || (claims.ref === "refs/heads/main" && claims.workflow_ref === ALLOWED_REPO + "/.github/workflows/neon-live-refresh.yml@refs/heads/main")) ||
+      claims.event_name !== "push" && claims.event_name !== "workflow_dispatch" && claims.event_name !== "schedule" ||
       !(Number(claims.iat) <= now + 60) || !(Number(claims.exp) > now) ||
       Number(claims.exp) > now + 7200) return false;
   try {
