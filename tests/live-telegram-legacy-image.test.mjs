@@ -3,6 +3,7 @@ import {readFile} from "node:fs/promises";
 import {fileURLToPath} from "node:url";
 import {resolve,dirname} from "node:path";
 import {createHmac} from "node:crypto";
+import {deflateSync} from "node:zlib";
 import worker from "../cloudflare/telegram-live-instant/worker.mjs";
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),"..");
@@ -11,6 +12,14 @@ const rawPng=async name=>new Uint8Array(await readFile(resolve(root,"assets/imag
 for(const name of ["telegram-xpvip-banner.png","telegram-xpvip-banner-1win-betwinner.png"]){
  const b=await rawPng(name);
  assert.deepEqual([...b.slice(0,8)],[137,80,78,71,13,10,26,10]);
+}
+function crc(buf){let c=~0;for(let x of buf){c^=x;for(let k=0;k<8;k++)c=(c>>>1)^(c&1?0xedb88320:0)}return (c^~0)>>>0}
+function chunk(name,b){let head=Buffer.alloc(8);head.writeUInt32BE(b.length,0);head.write(name,4);let crcbuf=Buffer.alloc(4);crcbuf.writeUInt32BE(crc(Buffer.concat([Buffer.from(name),b])));return Buffer.concat([head,b,crcbuf])}
+function syntheticBrowserPng(){
+ const head=Buffer.alloc(13);head.writeUInt32BE(429,0);head.writeUInt32BE(455,4);head[8]=8;head[9]=2;
+ const bytes=Buffer.alloc((429*3+1)*455);
+ for(let y=0;y<455;y++)bytes[y*(429*3+1)]=0;
+ return Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),chunk("IHDR",head),chunk("IDAT",deflateSync(bytes)),chunk("IEND",Buffer.alloc(0))]);
 }
 const originalFetch=globalThis.fetch;
 const sent=[];const claims=new Map();const posted=[];
@@ -27,8 +36,8 @@ globalThis.fetch=async (input,opts={})=>{
   const bytes=new Uint8Array(await file.arrayBuffer());
   assert.deepEqual([...bytes.slice(0,8)],[137,80,78,71,13,10,26,10]);
   const view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
-  assert.equal(view.getUint32(16),640);
-  assert(view.getUint32(20)>720,"banner must be appended to original 720px card");
+  assert.equal(view.getUint32(16),429);
+  assert(view.getUint32(20)>455,"banner must be appended to original 455px card");
   assert.equal(form.get("caption").includes("NOUVEAU"),true);
   const buttons=JSON.parse(form.get("reply_markup"));
   assert.equal(buttons.inline_keyboard.length,2);
@@ -55,7 +64,7 @@ const database={
    }}
  }}
 };
-const env={DB:database,NEON_DELIVERY_HMAC_KEY:"test-secret",TELEGRAM_BOT_TOKEN:"fake",TELEGRAM_CHAT_ID:"@primary",TELEGRAM_CHAT_ID_SECONDARY:"@secondary"};
+const env={BROWSER:{quickAction:async (operation,args)=>{assert.equal(operation,"screenshot");assert(args.html.includes('width="429" height="455"'));return new Response(syntheticBrowserPng(),{status:200,headers:{"content-type":"image/png"}})}},DB:database,NEON_DELIVERY_HMAC_KEY:"test-secret",TELEGRAM_BOT_TOKEN:"fake",TELEGRAM_CHAT_ID:"@primary",TELEGRAM_CHAT_ID_SECONDARY:"@secondary"};
 function signal(date){return {id:uuid,created_at:date,model_version:"neon-live-value-v2.3-playability-espn",
  pricing_mode:"model_only",type:"total_corners",signal_tier:"quality",home_team:"Arsenal",
  away_team:"Chelsea",home_score:2,away_score:1,league_name:"Premier League",
@@ -70,7 +79,7 @@ async function request(date){
 }
 try{
  const health=await worker.fetch(new Request("https://worker.invalid/health"),env);
- assert.equal((await health.json()).format,"original-supabase-png");
+ assert.equal((await health.json()).format,"original-live-svg-browser");
  const a=await request(new Date().toISOString());
  assert.equal(a.status,200,JSON.stringify(a.data));
  assert.equal(a.data.all_sent,true);
@@ -82,5 +91,5 @@ try{
  const b=await request(new Date().toISOString());
  assert.equal(b.data.all_sent,true);
  assert.equal(sent.length,2,"D1 must prevent a duplicate send");
- console.log("PASS: png original 640-wide + real sponsor banner, buttons, HMAC, 2 destinations, no duplicate");
+ console.log("PASS: SVG 429x455 browser-rendered PNG + original XPVIP banner, buttons, HMAC, 2 destinations, no duplicate");
 }finally{globalThis.fetch=originalFetch}
