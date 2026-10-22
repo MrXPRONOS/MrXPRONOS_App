@@ -2501,25 +2501,25 @@ async function persistRefresh(events,fetchDetails) {
       const scheduledCount=events.filter(e=>!e.is_live).length;
       if(events.length){
         await tx.unsafe(
-          "WITH src AS (SELECT value AS e FROM jsonb_array_elements($1::jsonb))"+
+          "WITH src AS (SELECT value AS e FROM jsonb_array_elements($1::text::jsonb))"+
           " INSERT INTO public.matches_live(id,home_team,away_team,home_score,away_score,current_minute,league_name,status,raw_data,updated_at)"+
           " SELECT e->>'id',e->>'home_team',e->>'away_team',(e->>'home_score')::int,(e->>'away_score')::int,(e->>'current_minute')::int,e->>'league_name',e->>'status',e,now() FROM src WHERE e->>'is_live'='true'"+
           " ON CONFLICT(id) DO UPDATE SET home_team=EXCLUDED.home_team,away_team=EXCLUDED.away_team,home_score=EXCLUDED.home_score,away_score=EXCLUDED.away_score,current_minute=EXCLUDED.current_minute,league_name=EXCLUDED.league_name,status=EXCLUDED.status,raw_data=EXCLUDED.raw_data,updated_at=EXCLUDED.updated_at",
           [encoded]);
         await tx.unsafe(
-          "WITH src AS (SELECT value AS e FROM jsonb_array_elements($1::jsonb))"+
+          "WITH src AS (SELECT value AS e FROM jsonb_array_elements($1::text::jsonb))"+
           " INSERT INTO public.live_scheduled_fixtures(fixture_id,event_date,home_team,away_team,source_names,fixture,updated_at)"+
           " SELECT e->>'id',(e->>'event_date')::timestamptz,e->>'home_team',e->>'away_team',ARRAY['espn']::text[],e,now() FROM src WHERE e->>'is_live'='false'"+
           " ON CONFLICT(fixture_id) DO UPDATE SET event_date=EXCLUDED.event_date,home_team=EXCLUDED.home_team,away_team=EXCLUDED.away_team,source_names=EXCLUDED.source_names,fixture=EXCLUDED.fixture,updated_at=EXCLUDED.updated_at",
           [encoded]);
         await tx.unsafe(
-          "WITH src AS (SELECT value AS e FROM jsonb_array_elements($1::jsonb))"+
+          "WITH src AS (SELECT value AS e FROM jsonb_array_elements($1::text::jsonb))"+
           " INSERT INTO public.live_stats_sources(canonical_match_id,source_name,source_match_id,home_team,away_team,league_name,event_date,minute,home_score,away_score,is_live,is_finished,stats_json,raw_json,updated_at)"+
           " SELECT e->>'id','espn',e->>'provider_id',e->>'home_team',e->>'away_team',e->>'league_name',(e->>'event_date')::timestamptz,(e->>'current_minute')::int,(e->>'home_score')::int,(e->>'away_score')::int,true,false,e->'live_stats',e,now() FROM src WHERE e->>'is_live'='true'"+
           " ON CONFLICT(source_name,source_match_id) DO UPDATE SET minute=EXCLUDED.minute,home_score=EXCLUDED.home_score,away_score=EXCLUDED.away_score,stats_json=EXCLUDED.stats_json,raw_json=EXCLUDED.raw_json,updated_at=EXCLUDED.updated_at",
           [encoded]);
         await tx.unsafe(
-          "WITH src AS (SELECT value AS e FROM jsonb_array_elements($1::jsonb))"+
+          "WITH src AS (SELECT value AS e FROM jsonb_array_elements($1::text::jsonb))"+
           " INSERT INTO public.live_stats_merged(canonical_match_id,primary_match_id,home_team,away_team,league_name,event_date,minute,home_score,away_score,is_live,is_finished,merged_stats,sources_used,confidence_score,merged_match_json,updated_at)"+
           " SELECT e->>'id',e->>'id',e->>'home_team',e->>'away_team',e->>'league_name',(e->>'event_date')::timestamptz,(e->>'current_minute')::int,(e->>'home_score')::int,(e->>'away_score')::int,true,false,e->'live_stats','[\"espn\"]'::jsonb,50,e,now() FROM src WHERE e->>'is_live'='true'"+
           " ON CONFLICT(canonical_match_id) DO UPDATE SET minute=EXCLUDED.minute,home_score=EXCLUDED.home_score,away_score=EXCLUDED.away_score,merged_stats=EXCLUDED.merged_stats,merged_match_json=EXCLUDED.merged_match_json,updated_at=EXCLUDED.updated_at",
@@ -2531,7 +2531,7 @@ async function persistRefresh(events,fetchDetails) {
         detail_success:fetchDetails.detailSuccess,failures:fetchDetails.failures,
         no_telegram:true,no_signal_generation:true};
       await tx.unsafe(
-        "INSERT INTO public.cron_runs(name,last_run_at,last_ok,meta) VALUES ('live_refresh',now(),true,$1::jsonb) ON CONFLICT(name) DO UPDATE SET last_run_at=EXCLUDED.last_run_at,last_ok=EXCLUDED.last_ok,meta=EXCLUDED.meta",
+        "INSERT INTO public.cron_runs(name,last_run_at,last_ok,meta) VALUES ('live_refresh',now(),true,$1::text::jsonb) ON CONFLICT(name) DO UPDATE SET last_run_at=EXCLUDED.last_run_at,last_ok=EXCLUDED.last_ok,meta=EXCLUDED.meta",
         [JSON.stringify(report)]
       );
       return {success:true,...report};
