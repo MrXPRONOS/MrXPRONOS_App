@@ -1,11 +1,7 @@
 name: Neon LIVE automatic refresh - no Telegram
+# Native Neon cron is the sole automatic trigger; manual GitHub rollback/test retained.
 on:
-  schedule:
-    - cron: '*/5 * * * *'
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: ['.github/workflows/neon-live-refresh.yml']
 permissions:
   id-token: write
   contents: read
