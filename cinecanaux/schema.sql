@@ -36,3 +36,19 @@ CREATE TABLE IF NOT EXISTS bot_webhook_status (
  detail TEXT NOT NULL DEFAULT '',
  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Code personnel de parrainage opaque.
+CREATE TABLE IF NOT EXISTS referral_codes (
+  user_id INTEGER PRIMARY KEY,
+  code TEXT NOT NULL UNIQUE,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+-- Un filleul ne peut être attribué qu'à un seul parrain et jamais à lui-même.
+CREATE TABLE IF NOT EXISTS referral_visits (
+  invited_id INTEGER PRIMARY KEY,
+  referrer_id INTEGER NOT NULL,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  confirmed_at TEXT,
+  CHECK (invited_id <> referrer_id)
+);
+CREATE INDEX IF NOT EXISTS idx_referral_visits_referrer ON referral_visits(referrer_id,confirmed_at);
