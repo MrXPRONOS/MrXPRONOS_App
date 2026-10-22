@@ -72,3 +72,5 @@ jobs:
 # Retry debug for Neon PostgreSQL upsert
 
 # Test JSONB parameter casting fix
+
+# Verify normalized JSON array SQL ingestion
