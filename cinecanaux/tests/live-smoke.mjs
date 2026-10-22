@@ -41,4 +41,19 @@ for(const route of ["/api/favorite","/api/profile","/api/preferences"]){
 }
 console.log("PASS old personal APIs removed");
 
+
+// Speed behavior: all categories/search must be filtered from one fetched catalog.
+assert.ok(app.body.includes("function applyFilters()"));
+assert.ok(app.body.includes('api("/api/catalog")'));
+assert.ok(!app.body.includes('api("/api/catalog?'));
+assert.ok(app.body.includes("fillPreview(c,images.get(c.id))"));
+console.log("PASS instant client-side category/search and immediate preview shell");
+for(const type of ["films","series","animes"]){
+ const start=performance.now();
+ const response=await get("/api/catalog?type="+type);
+ assert.equal(response.status,200);
+ assert.ok(response.body.channels.every(x=>x.type===type));
+ console.log("PASS "+type+" live API "+Math.round(performance.now()-start)+" ms");
+}
+
 // Production check: minimal Ciné Radar release V6.
