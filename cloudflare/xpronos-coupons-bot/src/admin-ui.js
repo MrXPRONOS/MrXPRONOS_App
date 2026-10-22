@@ -61,6 +61,17 @@ export async function adminApi(req,env,uid){
   const coupons=await all(env.DB,"SELECT id,title,tier,total_odds,xp_cost,active,auto_settlement,result_status,expires_at,media_json FROM coupons ORDER BY id DESC LIMIT 40");
   return json({stats,coupons:coupons.map(c=>({...c,media:JSON.parse(c.media_json||'{}')})),markets:MARKETS});
  }
+ if(url.pathname==='/api/admin/provider-check'&&req.method==='GET'){
+  const day=new Date().toISOString().slice(0,10).replaceAll('-','');
+  const upstream='https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates='+day;
+  try{
+   const response=await fetch(upstream,{headers:{accept:'application/json'},signal:AbortSignal.timeout(9000)});
+   if(!response.ok)return json({provider:'ESPN soccer',state:'unavailable',http_status:response.status},503);
+   const data=await response.json();
+   if(!Array.isArray(data.events))return json({provider:'ESPN soccer',state:'invalid_response'},503);
+   return json({provider:'ESPN soccer',state:'reachable',matches_for_today:data.events.length});
+  }catch(error){return json({provider:'ESPN soccer',state:'unavailable',reason:String(error).slice(0,130)},503)}
+ }
  if(url.pathname==='/api/admin/tickets'&&req.method==='GET')
   return json({tickets:await pendingTickets(env)});
  if(req.method!=='POST')return json({error:'method_not_allowed'},405);
