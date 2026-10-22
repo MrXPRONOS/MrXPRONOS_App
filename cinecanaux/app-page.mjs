@@ -17,7 +17,7 @@ body{margin:0;font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,'Segoe U
 .search:focus-within{border-color:#6a91ff;box-shadow:0 0 0 3px #4d82ec29}.search input{width:100%;background:none;border:none;outline:none;color:var(--ink);font:inherit}.search input::placeholder{color:#8898bb}
 .pills{display:flex;gap:8px;overflow:auto;padding-bottom:10px;scrollbar-width:none}.pills::-webkit-scrollbar{display:none}
 .pill{white-space:nowrap;padding:10px 13px;background:var(--paper);border:1px solid var(--line);color:var(--muted);border-radius:50px;font-size:13px;cursor:pointer}.pill.active{background:var(--blue);color:white;border-color:var(--blue);font-weight:800}
-.filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:6px 0 20px}.filters select{flex:1;min-width:0;padding:10px 8px;background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:12px}
+[hidden]{display:none!important}.filter-toggle{width:100%;text-align:left;background:#16203a;color:#d7e3ff;border:1px solid #2f426e;border-radius:12px;padding:11px 14px;font:inherit;font-size:13px;font-weight:700;margin:0 0 10px;cursor:pointer}.filter-toggle:focus-visible,.nav-link:focus-visible,.btn:focus-visible{outline:2px solid #93bbff;outline-offset:2px}.filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:6px 0 20px}.filters select{flex:1;min-width:0;padding:10px 8px;background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:12px}
 .section{display:flex;align-items:center;justify-content:space-between;margin:10px 0 15px}.section h2{font-size:16px;margin:0}.section span{font-size:12px;color:var(--muted)}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:12px}
 .card{border:1px solid var(--line);background:var(--paper);border-radius:17px;overflow:hidden;min-width:0}
@@ -39,19 +39,19 @@ nav{position:fixed;bottom:0;left:0;right:0;border-top:1px solid #2b3d64;backgrou
 <section class="hero"><small>Le cinéma à portée de clic</small><h1>Le bon canal.<br/>Au bon moment.</h1><p>Explore les films, séries et animés. Sauvegarde les chaînes qui te plaisent.</p><div class="sticker">🍿</div></section>
 <label class="search"><span aria-hidden="true">🔎</span><input id="search" placeholder="Film, genre, chaîne..." autocomplete="off" aria-label="Rechercher un canal"/></label>
 <div class="pills" id="types" aria-label="Catégories">
-<button class="pill active" data-type="all">✨ Tout</button><button class="pill" data-type="films">🎬 Films</button><button class="pill" data-type="series">📺 Séries</button><button class="pill" data-type="animes">🎌 Animés</button></div>
-<div class="filters">
+<button class="pill active" data-type="all">✨ Tout</button><button class="pill" data-type="recommend">💜 Pour moi</button><button class="pill" data-type="films">🎬 Films</button><button class="pill" data-type="series">📺 Séries</button><button class="pill" data-type="animes">🎌 Animés</button></div>
+<button class="filter-toggle" id="filtersToggle" type="button" aria-expanded="false" aria-controls="advancedFilters">⚙️ Plus de filtres ▾</button><div class="filters" id="advancedFilters" hidden>
 <select id="genre" aria-label="Genre"><option value="general">Tous les genres</option><option value="action">Action</option><option value="comedie">Comédie</option><option value="romance">Romance</option><option value="horreur">Horreur</option><option value="drame">Drame</option><option value="sciencefiction">Science-fiction</option><option value="policier">Policier</option><option value="shonen">Shōnen</option><option value="seinen">Seinen</option><option value="fantasy">Fantasy</option></select>
 <select id="language" aria-label="Langue"><option value="tous">🌍 Toutes langues</option><option value="VF">🇫🇷 VF</option><option value="VOSTFR">💬 VOSTFR</option><option value="VO">🎞 VO</option></select>
 <select id="sort" aria-label="Tri"><option value="recent">Nouveautés</option><option value="popular">Popularité</option><option value="active">Activité récente</option><option value="quality">Qualité des canaux</option></select><select id="status" aria-label="Activité"><option value="all">Toute activité</option><option value="active30">Actifs 30 jours</option><option value="reachable">Accessibles vérifiés</option></select></div>
 <div class="section"><h2 id="heading">À découvrir</h2><span id="counter">—</span></div><div class="notice" id="catalogNote">🔒 Annuaire automatique des canaux Telegram publics dont le format a été vérifié.</div>
 <div id="cards" class="cards" aria-live="polite"><div class="empty"><div class="emoji">🎬</div><b>Bienvenue sur Ciné Radar</b>Chargement du catalogue…</div></div>
 <div class="footer">Ciné Radar · Annuaire de canaux publics · © 2026</div>
-</main><nav><div class="nav-inner"><button class="nav-link active" data-tab="explore"><strong>🧭</strong>Explorer</button><button class="nav-link" data-tab="favorites"><strong>⭐</strong>Favoris</button><button class="nav-link" data-tab="new"><strong>🆕</strong>Nouveautés</button><button class="nav-link" data-tab="recommend"><strong>✨</strong>Pour moi</button><button class="nav-link" data-tab="profile"><strong>👤</strong>Profil</button></div></nav>
+</main><nav><div class="nav-inner"><button class="nav-link active" data-tab="explore"><strong>🧭</strong>Explorer</button><button class="nav-link" data-tab="favorites"><strong>⭐</strong>Favoris</button><button class="nav-link" data-tab="new"><strong>🆕</strong>Nouveautés</button><button class="nav-link" data-tab="profile"><strong>👤</strong>Profil</button></div></nav>
 <div class="toast" id="toast"></div>
 <script>
 (function(){
-const tg=window.Telegram?.WebApp||null; const initData=tg?.initData||""; let type="all",tab="explore",favIds=new Set(),keyword="",channels=[],timer=0,page=0,pageSize=12,profileData=null;
+const tg=window.Telegram?.WebApp||null; const initData=tg?.initData||""; let type="all",tab="explore",favIds=new Set(),keyword="",channels=[],timer=0,page=0,pageSize=12,profileData=null,requestSerial=0,filterOpen=false,botUrl="";
 if(tg){tg.ready();tg.expand();tg.setHeaderColor?.("#0e1529");tg.setBackgroundColor?.("#090e1e");}
 const $=id=>document.getElementById(id);
 const toast=message=>{const el=$("toast");el.textContent=message;el.style.display="block";setTimeout(()=>{el.style.display="none";},3200);};
@@ -63,6 +63,8 @@ async function request(path,options={}){
  if(!r.ok)throw new Error(data.error||"Erreur réseau");
  return data;
 }
+async function getBotUrl(){if(botUrl)return botUrl;try{const r=await fetch("/api/bot-info",{cache:"no-store"});if(r.ok){const x=await r.json();if(x.username)botUrl="https://t.me/"+x.username;}}catch{}return botUrl;}
+async function telegramEntry(message){const link=await getBotUrl();const root=$("cards");const box=document.createElement("div");box.className="empty";box.style.gridColumn="1/-1";const h=document.createElement("b");h.textContent="Ouvre Ciné Radar dans Telegram";const detail=document.createElement("p");detail.textContent=message||"Ton profil et tes favoris sont accessibles depuis Telegram.";box.append(h,detail);if(link){const a=document.createElement("a");a.className="btn primary";a.style.display="inline-block";a.style.marginTop="12px";a.href=link;a.textContent="📲 Ouvrir le bot Telegram";box.append(a);}else{const hint=document.createElement("p");hint.textContent="Dans le bot, envoie /profil.";box.append(hint);}root.textContent="";root.append(box);}
 function button(label,kind,action){const b=document.createElement("button");b.className="btn "+kind;b.textContent=label;b.addEventListener("click",action);return b;}
 function render(list){
  const root=$("cards");root.textContent="";
@@ -99,22 +101,26 @@ function render(list){
  }
 }
 async function load(){
- if(!initData){$("state").textContent="Ouvrir dans Telegram";empty("Mini App Telegram","Ouvre cette Mini App depuis le menu de ton bot pour accéder à ton catalogue et à tes favoris.");return;}
+ const current=++requestSerial;
+ if(!initData){$("state").textContent="Ouvrir dans Telegram";await telegramEntry("Appuie sur « Ouvrir le bot Telegram », puis utilise le bouton Mini App pour te connecter.");return;}
  try{
  $("state").textContent="● Connexion…";
  $("cards").innerHTML='<div class="loading-card"></div><div class="loading-card"></div>';
  const query=new URLSearchParams({type,genre:$("genre").value,language:$("language").value,sort:$("sort").value,status:$("status").value,q:keyword,tab});
  const result=await request("/api/catalog?"+query.toString());
+ if(current!==requestSerial||tab==="profile")return;
  channels=result.channels;favIds=new Set(result.favorite_ids);render(channels);
  $("state").textContent="● Connecté";$("heading").textContent=tab==="favorites"?"Mes favoris":tab==="new"?"Nouveautés":tab==="recommend"?"✨ Recommandé pour toi":"À découvrir";
- }catch(e){$("state").textContent="● Indisponible";empty("Connexion impossible",e.message);}}
-for(const b of document.querySelectorAll("[data-type]"))b.onclick=()=>{page=0;type=b.dataset.type;for(const x of document.querySelectorAll("[data-type]"))x.classList.toggle("active",x===b);load();};
+ }catch(e){if(current!==requestSerial||tab==="profile")return;$("state").textContent="● Indisponible";if(String(e.message).includes("Session Telegram"))await telegramEntry("Réouvre cette application depuis Ciné Radar dans Telegram.");else empty("Connexion impossible",e.message);}}
+for(const b of document.querySelectorAll("[data-type]"))b.onclick=()=>{page=0;if(b.dataset.type==="recommend"){type="all";changeTab("recommend");return;}type=b.dataset.type;if(tab==="recommend")tab="explore";for(const x of document.querySelectorAll("[data-type]"))x.classList.toggle("active",x===b);load();};
 for(const id of ["genre","language","sort","status"])$(id).addEventListener("change",()=>{page=0;load();});
 $("search").addEventListener("input",e=>{page=0;keyword=e.target.value.slice(0,80);clearTimeout(timer);timer=setTimeout(load,350);});
 async function renderProfile(){
- if(!initData){empty("Mini App Telegram","Ouvre ce catalogue depuis Telegram.");return;}
+ const current=++requestSerial;
+ if(!initData){await telegramEntry("Pour voir ton profil, ouvre Ciné Radar via Telegram. Tu peux aussi envoyer /profil au bot.");return;}
+ $("heading").textContent="Mon profil";$("counter").textContent="";$("cards").textContent="";
  try{
-  const p=await request("/api/profile");profileData=p;
+  const p=await request("/api/profile");if(current!==requestSerial||tab!=="profile")return;profileData=p;
   channels=[];$("heading").textContent="Mon profil";$("counter").textContent="";const root=$("cards");root.textContent="";
   const box=document.createElement("div");box.className="profile";
   const title=document.createElement("h3");title.textContent="👤 "+p.first_name;
@@ -131,20 +137,29 @@ async function renderProfile(){
    try{await request("/api/preferences",{method:"POST",body:JSON.stringify({category:preferred.value,language:lang.value,notifications:opt.value==="1"})});toast("✅ Préférences enregistrées");$("language").value=lang.value;}
    catch(e){toast(e.message);}
   });
-  const invite=button("🎁 Partager mon lien de parrainage","green",()=>{
+  const invite=button(p.referral_link?"🎁 Partager mon invitation":"🎁 Parrainage dans le bot","green",async()=>{
+   if(!p.referral_link){const link=await getBotUrl();if(link)window.location.href=link;else toast("Dans Telegram, utilise la commande /parrainage");return;}
    const url="https://t.me/share/url?url="+encodeURIComponent(p.referral_link||"")+"&text="+encodeURIComponent("🎬 Découvre Ciné Radar : films, séries et animés.");
    if(tg?.openTelegramLink)tg.openTelegramLink(url);else window.open(url,"_blank","noopener");
   });
   box.append(title,stats,note,label("Catégorie préférée"),preferred,label("Langue"),lang,label("Notifications volontaires"),opt,save,invite);
   root.append(box);
- }catch(e){empty("Impossible de charger ton profil",e.message);}
+ }catch(e){if(current!==requestSerial||tab!=="profile")return;await telegramEntry("Le profil n'a pas pu s'ouvrir. Dans le bot Telegram, envoie /profil pour accéder à tes préférences, même sans la Mini App.");}
 }
-for(const n of document.querySelectorAll("[data-tab]"))n.onclick=()=>{
- tab=n.dataset.tab;page=0;
- for(const x of document.querySelectorAll("[data-tab]"))x.classList.toggle("active",x===n);
- if(tab==="profile"){renderProfile();return;}
+$("filtersToggle").addEventListener("click",()=>{filterOpen=!filterOpen;$("advancedFilters").hidden=!filterOpen;$("filtersToggle").setAttribute("aria-expanded",String(filterOpen));$("filtersToggle").textContent=filterOpen?"⚙️ Masquer les filtres ▴":"⚙️ Plus de filtres ▾";});
+function changeTab(name){
+ tab=name;page=0;
+ for(const n of document.querySelectorAll("[data-tab]"))n.classList.toggle("active",n.dataset.tab===tab);
+ const inProfile=tab==="profile";
+ document.querySelector(".search").hidden=inProfile;
+ $("types").hidden=inProfile;$("filtersToggle").hidden=inProfile;
+ $("advancedFilters").hidden=inProfile||!filterOpen;
+ $("catalogNote").hidden=inProfile;
+ if(inProfile){renderProfile();return;}
  load();
-};
+}
+for(const n of document.querySelectorAll("[data-tab]"))n.onclick=()=>changeTab(n.dataset.tab);
+
 load();
 })();
 </script></body></html>`;
