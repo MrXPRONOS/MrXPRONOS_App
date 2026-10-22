@@ -1,13 +1,8 @@
 name: LIVE - refresh failover
 
+# Legacy Supabase failover retained for manual rollback; automated runs disabled.
 on:
-  schedule:
-    - cron: '*/5 * * * *'
   workflow_dispatch:
-  # One-time smoke-test whenever the failover workflow itself is changed.
-  push:
-    paths:
-      - '.github/workflows/live-refresh-failover.yml'
 
 permissions:
   contents: read
