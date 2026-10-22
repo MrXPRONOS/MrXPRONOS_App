@@ -26,7 +26,7 @@ jobs:
       - run: pip install requests cryptography pillow
       - name: Validate source and unit tests
         run: |
-          python -m compileall -q bsd/bsd_v3_40_holdout.py
+          python -m compileall -q bsd/bsd_v3_40_holdout.py bsd/bsd_v3_40_calibration.py
           python -m unittest discover -s bsd -p 'test_bsd_v3_40_markets.py' -v
       - name: Restore private BSD history
         env:
@@ -41,6 +41,8 @@ jobs:
           d=json.load(open('bsd/v3_market_validation.json'))
           assert d["format"]=="bsd-v3-validation-holdout-v1"
           assert d["total_markets"]==40 and len(d["markets"])==40
+          assert d["goal_calibration"]["training_period"]=="2025-01-01/2025-12-31"
+          assert all("calibrated_test_brier" in row for row in d["markets"].values())
           assert d["strict_temporal_order"] and not d["profitability_assessed"]
           assert all(row["roi"] is None for row in d["markets"].values())
           print("V3_VALIDATION",d["passed_markets"],"/",d["total_markets"],"markets pass selected model-quality gates")
