@@ -151,7 +151,7 @@ export default {
  async fetch(request,env,ctx){
   const url=new URL(request.url);
   if(request.method==="GET"&&url.pathname==="/app"){
-   return new Response(APP_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"public, max-age=600","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"}});
+   return new Response(APP_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"}});
   }
   if(request.method==="GET"&&url.pathname==="/assets/banner.svg")return banner();
   if(request.method==="GET"&&["/assets/welcome.png","/assets/avatar.jpg"].includes(url.pathname)){
@@ -171,6 +171,15 @@ export default {
    return Response.redirect(target.link,302);
   }
 
+  if(request.method==="GET"&&url.pathname==="/api/bot-info"){
+   try{
+    const me=await telegram(env,"getMe",{});
+    if(me.ok&&/^[A-Za-z0-9_]{5,32}$/.test(me.result?.username||"")){
+     return Response.json({username:me.result.username,name:"Ciné Radar"},{headers:{"cache-control":"public, max-age=300"}});
+    }
+   }catch(e){console.warn("bot_info_unavailable",String(e).slice(0,80));}
+   return Response.json({error:"Bot momentanément indisponible"},{status:503,headers:{"cache-control":"no-store"}});
+  }
   if(url.pathname.startsWith("/api/"))return miniAppAPI(env,request);
   if(request.method==="POST"&&url.pathname==="/telegram")return receiveTelegram(request,env);
   if(request.method==="GET"&&url.pathname==="/health"){
