@@ -38,6 +38,65 @@ export async function miniApi(request,env){
   const verified=await authenticateInitData(dedicated||legacy,env.CF_BOT_TOKEN);
   if(!verified)return json({error:'invalid_or_expired_telegram_session'},401);
   const id=verified.userId,url=new URL(request.url);
+
+  // Fast path : route de lecture après validation cryptographique Telegram.
+  // Les contrôles d'accès et les lectures D1 peuvent se produire EN PARALLÈLE,
+  // mais aucun résultat n'est divulgué tant que les droits ne sont pas confirmés.
+  if(request.method==='GET' && ['/api/me','/api/mytickets','/api/coupons','/api/tasks','/api/history','/api/results','/api/admin/overview','/api/admin/tickets'].includes(url.pathname)){
+    if(url.pathname==='/api/me'){
+      // summary charge l'utilisateur, l'âge et les agrégats en une seule requête.
+      const [me,p]=await Promise.all([
+        summary(env,id),
+        env.DB.prepare('SELECT notify_coupons,notify_results FROM user_preferences WHERE user_id=?').bind(id).first()
+      ]);
+      if(!me)return json({error:'start_bot_first'},403);
+      if(!me.adult)return json({error:'adult_confirmation_required'},403);
+      return json({me:{...me,is_admin:isAdmin(env,id)},alerts:{coupons:!!p?.notify_coupons,results:!!p?.notify_results}});
+    }
+    if(url.pathname==='/api/coupons' && !['ALL','SIMPLE','PRO','VIP'].includes(url.searchParams.get('category')||'ALL'))
+      return json({error:'invalid_category'},400);
+    // adminApi verifies CF_BOT_ADMIN_IDS internally, before touching private data.
+    const accessPromise=env.DB.prepare('SELECT adult_confirmed,required_verified FROM users WHERE id=?').bind(id).first();
+    const responsePromise=(async()=>{
+      const name=url.pathname;
+      if(name==='/api/mytickets')return json({tickets:await ticketsForUser(env,id)});
+      if(name==='/api/coupons'){
+        const tier=url.searchParams.get('category')||'ALL';
+        const rows=await query(env,
+          "SELECT id,title,tier,total_odds,xp_cost,stock,expires_at,competition,media_json,auto_settlement FROM coupons WHERE active=1 AND result_status='available' AND stock<>0 AND expires_at>?"+
+          (tier==='ALL'?'':' AND tier=?')+" ORDER BY created_at DESC,id DESC LIMIT 50",
+          ...[new Date().toISOString(),...(tier==='ALL'?[]:[tier])]);
+        return json({coupons:rows.map(c=>({...c,media:JSON.parse(c.media_json||'{}')}))});
+      }
+      if(name==='/api/tasks'){
+        const [tasks,claims]=await Promise.all([
+          query(env,'SELECT t.id,t.chat_id,t.url,t.xp FROM tasks t WHERE t.active=1 AND NOT EXISTS(SELECT 1 FROM task_claims c WHERE c.task_id=t.id AND c.user_id=?) ORDER BY t.id DESC LIMIT 30',id),
+          query(env,'SELECT kind,period_key,claimed_at FROM engagement_claims WHERE user_id=? ORDER BY claimed_at DESC LIMIT 30',id)
+        ]);
+        return json({tasks,claims,dailyKey:periodKey('daily'),weeklyKey:periodKey('weekly')});
+      }
+      if(name==='/api/history'){
+        const [ledger,coupons,referrals]=await Promise.all([
+          query(env,'SELECT delta,reason,created_at FROM ledger WHERE user_id=? ORDER BY id DESC LIMIT 30',id),
+          query(env,'SELECT r.coupon_id,r.claimed_at,r.xp_spent,r.snapshot,c.title,c.tier,c.total_odds,c.result_status,c.expires_at,c.competition,c.media_json FROM redemptions r JOIN coupons c ON c.id=r.coupon_id WHERE r.user_id=? ORDER BY r.claimed_at DESC LIMIT 20',id),
+          query(env,'SELECT name,referral_rewarded,created_at FROM users WHERE referred_by=? ORDER BY created_at DESC LIMIT 20',id)
+        ]);
+        return json({ledger,coupons:coupons.map(({snapshot,media_json,...row})=>({...row,snapshot:JSON.parse(snapshot),media:JSON.parse(media_json||'{}')})),referrals});
+      }
+      if(name==='/api/results'){
+        const rows=await query(env,"SELECT id,title,tier,result_status,result_reviewed_at,result_source,competition,media_json FROM coupons WHERE result_status IN ('live','won','lost','void') ORDER BY coalesce(result_reviewed_at,created_at) DESC LIMIT 30");
+        return json({results:rows.map(c=>({...c,media:JSON.parse(c.media_json||'{}')}))});
+      }
+      return adminApi(request,env,id);
+    })();
+    const [access,response]=await Promise.all([accessPromise,responsePromise]);
+    if(!access)return json({error:'start_bot_first'},403);
+    if(!access.adult_confirmed)return json({error:'adult_confirmation_required'},403);
+    if(url.pathname!=='/api/mytickets' && !url.pathname.startsWith('/api/admin/') && !access.required_verified)
+      return json({error:'channel_verification_required'},403);
+    return response;
+  }
+
   // Route rapide : un contrôle de droits D1 léger suffit aux écrans ordinaires.
   // Les six agrégats XP ne sont calculés que lorsqu'un écran demande /api/me.
   const access=await env.DB.prepare('SELECT adult_confirmed,required_verified FROM users WHERE id=?').bind(id).first();
