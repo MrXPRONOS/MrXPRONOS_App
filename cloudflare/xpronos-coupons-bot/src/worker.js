@@ -4,11 +4,13 @@ import {parseCouponCommand} from './logic.js';
 
 const POINTS_REFERRAL=30,POINTS_BONUS=5,DAILY_CAP=10,COOLDOWN=2*3600000;
 const SITE='https://mrxpronos.github.io/MrXPRONOS_App/';
-const MENU={keyboard:[
-  [{text:'🎟️ Coupons cote 4+'},{text:'🎫 Mes coupons'}],
-  [{text:'🚩 Tâche'},{text:'🎁 Bonus'}],
-  [{text:'⭐ Mes XP'},{text:'↗️ Partager'}],
-  [{text:'✅ Vérifier'},{text:'📋 Procédure'}]
+// Styles officiels Telegram : primary (bleu), success (vert), danger (rouge).
+// Les thèmes et versions des clients Telegram peuvent adapter leur rendu.
+export const MENU={keyboard:[
+  [{text:'🎟️ Coupons cote 4+',style:'primary'},{text:'🎫 Mes coupons',style:'primary'}],
+  [{text:'🚩 Tâche',style:'primary'},{text:'🎁 Bonus',style:'success'}],
+  [{text:'⭐ Mes XP',style:'primary'},{text:'↗️ Partager',style:'success'}],
+  [{text:'✅ Vérifier',style:'success'},{text:'📋 Procédure',style:'primary'}]
 ],resize_keyboard:true};
 const inline=(rows)=>({inline_keyboard:rows});
 const html=(s)=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
@@ -31,8 +33,11 @@ async function telegram(env,method,data) {
   if(!response.ok||!j.ok)throw Error('Telegram '+method+': HTTP '+response.status+' '+String(j.description||'').slice(0,130));
   return j.result;
 }
+// Passer null comme clavier pour produire un message facilement transférable.
 const send=(env,chat,text,reply=MENU)=>telegram(env,'sendMessage',{
-  chat_id:chat,text:pad(text),parse_mode:'HTML',reply_markup:reply,disable_web_page_preview:true
+  chat_id:chat,text:pad(text),parse_mode:'HTML',
+  ...(reply?{reply_markup:reply}:{}),
+  disable_web_page_preview:true
 });
 const ack=async(env,id)=>{try{await telegram(env,'answerCallbackQuery',{callback_query_id:id})}catch(e){console.warn('Callback acknowledgment failed:',String(e))}};
 const one=async(env,sql,...params)=>env.DB.prepare(sql).bind(...params).first();
@@ -52,30 +57,30 @@ async function requirements(env,uid){
 }
 async function verify(env,uid,chat) {
   const u=await user(env,uid);
-  if(!u?.adult_confirmed)return send(env,chat,'🔞 Confirme d’abord que tu as 18 ans ou plus avec /start.');
+  if(!u?.adult_confirmed)return send(env,chat,'🔞 <b>Accès réservé aux adultes</b>\n\n<i>Commence par /start et confirme avoir 18 ans ou plus.</i>');
   const required=channels(env);
   if(!(await requirements(env,uid))){
-    const rows=required.map(c=>[{text:'📢 Rejoindre le canal',url:c.url}]);
-    rows.push([{text:'✅ Vérifier',callback_data:'verify'}]);
-    return send(env,chat,'Rejoins les canaux obligatoires, puis appuie sur ✅ Vérifier. Le bot doit être administrateur du canal.',inline(rows));
+    const rows=required.map(c=>[{text:'📢 Rejoindre le canal',url:c.url,style:'primary'}]);
+    rows.push([{text:'✅ Vérifier',callback_data:'verify',style:'success'}]);
+    return send(env,chat,'🔒 <b>VALIDATION DE TON ACCÈS</b>\n\n<blockquote>Rejoins les canaux indiqués ci-dessous, puis appuie sur <b>✅ Vérifier</b>.</blockquote>\n\n<i>Déjà abonné ? Vérifie que le bot est administrateur de chaque canal.</i>',inline(rows));
   }
   const ref=required.length>0 && !!u.referred_by && !u.referral_rewarded;
   await run(env,'UPDATE users SET required_verified=1, referral_rewarded=CASE WHEN ?=1 THEN 1 ELSE referral_rewarded END WHERE id=? AND adult_confirmed=1',ref?1:0,uid);
-  return send(env,chat,'✅ Abonnement vérifié !'+(ref?' Le parrain a reçu '+POINTS_REFERRAL+' XP.':''));
+  return send(env,chat,'✅ <b>ACCÈS VALIDÉ !</b>\n\n🎉 Tu as désormais accès aux missions, bonus et coupons XPRONOS 4+.\n\n<i>Utilise les boutons du menu pour commencer.</i>'+(ref?'\n\n🎁 <b>'+POINTS_REFERRAL+' XP</b> attribués à ton parrain.':''));
 }
 async function tasks(env,uid,chat) {
   const u=await user(env,uid);
-  if(!u?.adult_confirmed||!u?.required_verified)return send(env,chat,'🔒 Confirme ton âge et valide les canaux via ✅ Vérifier.');
+  if(!u?.adult_confirmed||!u?.required_verified)return send(env,chat,'🔒 <b>Missions verrouillées</b>\n\n<i>Confirme ton âge et valide les canaux avec ✅ Vérifier.</i>');
   const ts=await all(env,'SELECT t.* FROM tasks t WHERE t.active=1 AND NOT EXISTS (SELECT 1 FROM task_claims c WHERE c.task_id=t.id AND c.user_id=?) ORDER BY t.id DESC LIMIT 25',uid);
-  const rows=ts.map(t=>[{text:'📢 Canal (+'+t.xp+' XP)',url:t.url},{text:'✅ Check',callback_data:'task:'+t.id}]);
-  return send(env,chat,rows.length?'🚩 Missions disponibles : rejoins chaque canal puis appuie sur Check.':'✅ Toutes les missions sont terminées.',rows.length?inline(rows):MENU);
+  const rows=ts.map(t=>[{text:'📢 Canal (+'+t.xp+' XP)',url:t.url,style:'primary'},{text:'✅ Check',callback_data:'task:'+t.id,style:'success'}]);
+  return send(env,chat,rows.length?'🚩 <b>MISSIONS DISPONIBLES</b>\n\n<blockquote>Rejoins un canal pour gagner des <b>XP</b>, puis valide ta mission avec le bouton ✅ Check.</blockquote>':'✅ <b>Missions terminées !</b>\n\n<i>Reviens plus tard pour découvrir de nouvelles opportunités.</i>',rows.length?inline(rows):MENU);
 }
 async function claimTask(env,uid,chat,id) {
   const t=await one(env,'SELECT * FROM tasks WHERE id=? AND active=1',id);
-  if(!t)return send(env,chat,'Mission indisponible.');
-  if(!(await joined(env,uid,t.chat_id)))return send(env,chat,'Tu dois rejoindre ce canal avant la validation.',inline([[{text:'📢 Rejoindre',url:t.url}],[{text:'✅ Check',callback_data:'task:'+id}]]));
+  if(!t)return send(env,chat,'⚠️ <b>Mission indisponible.</b>\n<i>Elle a peut-être été retirée.</i>');
+  if(!(await joined(env,uid,t.chat_id)))return send(env,chat,'📢 <b>Abonnement requis</b>\n\n<i>Rejoins ce canal, puis appuie sur ✅ Check pour réclamer tes XP.</i>',inline([[{text:'📢 Rejoindre',url:t.url,style:'primary'}],[{text:'✅ Check',callback_data:'task:'+id,style:'success'}]]));
   const res=await one(env,'INSERT OR IGNORE INTO task_claims(user_id,task_id) SELECT ?,t.id FROM tasks t JOIN users u ON u.id=? WHERE t.id=? AND t.active=1 AND u.adult_confirmed=1 AND u.required_verified=1 RETURNING user_id',uid,uid,id);
-  return send(env,chat,res?'✅ +'+t.xp+' XP ajoutés !':'Mission déjà récompensée ou compte non vérifié.');
+  return send(env,chat,res?'✅ <b>MISSION VALIDÉE !</b>\n\n🎁 <b>+'+t.xp+' XP</b> ajoutés à ton compte.':'ℹ️ <b>Récompense non disponible</b>\n\n<i>Mission déjà récompensée ou compte non vérifié.</i>');
 }
 async function bonus(env,uid,chat) {
   const now=new Date(),iso=now.toISOString(),day=iso.slice(0,10),cutoff=new Date(now.getTime()-COOLDOWN).toISOString();
@@ -84,29 +89,39 @@ async function bonus(env,uid,chat) {
     'WHERE id=? AND adult_confirmed=1 AND required_verified=1 AND (bonus_day IS NULL OR bonus_day<>? OR bonus_day_total<=?) '+
     'AND (bonus_last_at IS NULL OR bonus_last_at<=?) RETURNING xp',
     iso,day,day,uid,day,DAILY_CAP-POINTS_BONUS,cutoff);
-  if(r)return send(env,chat,'🎁 Bravo ! +'+POINTS_BONUS+' XP.');
+  if(r)return send(env,chat,'🎉 <b>BONUS RÉCUPÉRÉ !</b>\n\n🎁 <b>+'+POINTS_BONUS+' XP</b> ajoutés à ton solde.\n\n<i>À bientôt pour ton prochain bonus !</i>');
   const u=await user(env,uid);
-  if(!u?.adult_confirmed||!u?.required_verified)return send(env,chat,'🔒 Confirme ton âge et vérifie les canaux requis.');
-  if(u.bonus_day===day&&u.bonus_day_total+POINTS_BONUS>DAILY_CAP)return send(env,chat,'🎁 Plafond quotidien atteint. Reviens demain (UTC).');
+  if(!u?.adult_confirmed||!u?.required_verified)return send(env,chat,'🔒 <b>Bonus verrouillé</b>\n\n<i>Confirme ton âge et vérifie les canaux pour recevoir tes XP.</i>');
+  if(u.bonus_day===day&&u.bonus_day_total+POINTS_BONUS>DAILY_CAP)return send(env,chat,'⏳ <b>Plafond du jour atteint</b>\n\nTu as déjà obtenu tous tes bonus du jour.\n<i>Reviens demain (UTC) !</i>');
   const minutes=Math.ceil((COOLDOWN-(now.getTime()-new Date(u.bonus_last_at).getTime()))/60000);
-  return send(env,chat,'⏳ Prochain bonus dans '+Math.max(1,minutes)+' minutes.');
+  return send(env,chat,'⏳ <b>Bonus en recharge</b>\n\nProchaine récompense dans <b>'+Math.max(1,minutes)+' minutes</b>.\n<i>Encore un peu de patience !</i>');
 }
 function pretty(c,details=false) {
-  let txt='🎟️ <b>'+html(c.title)+'</b> ['+html(c.tier)+']\nCote totale : <b>'+html(c.total_odds)+'</b>\nCoût : '+c.xp_cost+' XP';
-  if(details)for(const x of safeJson(c.selections,[]))txt+='\n• '+html(x.match)+' — '+html(x.market)+' ('+html(x.odds)+')';
+  let txt='🎟️ <b>'+html(c.title)+'</b>\n'+
+    '🏷️ <i>Catégorie : '+html(c.tier)+'</i>\n'+
+    '📊 Cote totale : <b>'+html(c.total_odds)+'</b>\n'+
+    '💎 Accès : <b>'+html(c.xp_cost)+' XP</b>';
+  if(details) {
+    const selections=safeJson(c.selections,[]);
+    if(selections.length){
+      txt+='\n\n<b>⚽ LES SÉLECTIONS</b>\n<blockquote>';
+      txt+=selections.map((x,i)=>'🎯 <b>'+(i+1)+'. '+html(x.match)+'</b>\n'+html(x.market)+' • <b>'+html(x.odds)+'</b>').join('\n\n');
+      txt+='</blockquote>';
+    }
+  }
   return txt;
 }
 async function coupons(env,uid,chat) {
   const u=await user(env,uid);
-  if(!u?.adult_confirmed||!u?.required_verified)return send(env,chat,'🔒 Confirme ton âge et valide les canaux.');
+  if(!u?.adult_confirmed||!u?.required_verified)return send(env,chat,'🔒 <b>Accès verrouillé</b>\n\n<i>Confirme ton âge et valide les canaux pour débloquer cette fonctionnalité.</i>');
   const rows=await all(env,'SELECT * FROM coupons WHERE active=1 AND expires_at>? AND stock<>0 ORDER BY created_at DESC,id DESC LIMIT 10',new Date().toISOString());
-  if(!rows.length)return send(env,chat,'📭 Aucun coupon cote 4+ disponible actuellement.');
-  await send(env,chat,'🎟️ Coupons disponibles ('+rows.length+') : les cotes sont indicatives, aucun résultat garanti.');
-  for(const c of rows)await send(env,chat,pretty(c),inline([[{text:'🔓 Débloquer pour '+c.xp_cost+' XP',callback_data:'coupon:'+c.id}]]));
+  if(!rows.length)return send(env,chat,'📭 <b>AUCUN COUPON DISPONIBLE</b>\n\n<i>De nouveaux coupons de cote 4+ seront publiés ici. Reviens consulter le menu !</i>');
+  await send(env,chat,'🎟️ <b>COUPONS XPRONOS 4+</b>\n\n📊 <b>'+rows.length+'</b> coupon(s) disponible(s).\n<blockquote>Les cotes peuvent évoluer. Aucun résultat n’est garanti.</blockquote>');
+  for(const c of rows)await send(env,chat,pretty(c),inline([[{text:'🔓 Débloquer pour '+c.xp_cost+' XP',callback_data:'coupon:'+c.id,style:'success'}]]));
 }
 async function redeem(env,uid,chat,id) {
   const u=await user(env,uid);
-  if(!u?.adult_confirmed||!u?.required_verified)return send(env,chat,'🔒 Confirme ton âge et valide les canaux.');
+  if(!u?.adult_confirmed||!u?.required_verified)return send(env,chat,'🔒 <b>Accès verrouillé</b>\n\n<i>Confirme ton âge et valide les canaux pour débloquer cette fonctionnalité.</i>');
   // INSERT atomique + trigger : la déduction XP et la baisse du stock ne peuvent pas être séparées.
   const r=await one(env,
     "INSERT OR IGNORE INTO redemptions(user_id,coupon_id,snapshot,xp_spent) "+
@@ -114,16 +129,16 @@ async function redeem(env,uid,chat,id) {
     "FROM coupons c JOIN users u ON u.id=? WHERE c.id=? AND c.active=1 AND c.expires_at>? AND c.stock<>0 "+
     "AND u.adult_confirmed=1 AND u.required_verified=1 AND u.xp>=c.xp_cost RETURNING coupon_id",
     uid,uid,id,new Date().toISOString());
-  if(r)return send(env,chat,'✅ Coupon débloqué. Consulte 🎫 Mes coupons.');
+  if(r)return send(env,chat,'✅ <b>COUPON DÉBLOQUÉ !</b>\n\n🎫 Retrouve les sélections dans <b>Mes coupons</b>.\n<i>Vérifie les cotes avant de jouer.</i>');
   const already=await one(env,'SELECT 1 AS yes FROM redemptions WHERE user_id=? AND coupon_id=?',uid,id);
-  if(already)return send(env,chat,'Ce coupon est déjà dans 🎫 Mes coupons.');
+  if(already)return send(env,chat,'ℹ️ <b>Déjà débloqué</b>\n\nRetrouve ce coupon dans <b>🎫 Mes coupons</b>.');
   const c=await one(env,'SELECT * FROM coupons WHERE id=?',id);
-  if(!c||!c.active||c.stock===0||c.expires_at<=new Date().toISOString())return send(env,chat,'Coupon épuisé ou expiré.');
-  return send(env,chat,'XP insuffisants. Accomplis des missions ou réclame ton bonus.');
+  if(!c||!c.active||c.stock===0||c.expires_at<=new Date().toISOString())return send(env,chat,'⏳ <b>Coupon indisponible</b>\n\n<i>Stock épuisé ou date dépassée.</i>');
+  return send(env,chat,'💎 <b>XP insuffisants</b>\n\n<i>Accomplis des missions ou récupère ton bonus pour débloquer ce coupon.</i>');
 }
 async function mine(env,uid,chat) {
   const rows=await all(env,'SELECT snapshot,xp_spent FROM redemptions WHERE user_id=? ORDER BY claimed_at DESC LIMIT 10',uid);
-  if(!rows.length)return send(env,chat,'🎫 Tu n’as pas encore débloqué de coupon.');
+  if(!rows.length)return send(env,chat,'🎫 <b>MES COUPONS</b>\n\n<blockquote>Aucun coupon débloqué pour le moment.</blockquote>\n<i>Découvre les coupons disponibles dans le menu principal.</i>');
   for(const row of rows){
     const c=safeJson(row.snapshot,{});
     c.xp_cost=row.xp_spent;
@@ -133,62 +148,93 @@ async function mine(env,uid,chat) {
 }
 async function xp(env,uid,chat) {
   const u=await user(env,uid);
-  if(!u)return send(env,chat,'Commence par /start.');
+  if(!u)return send(env,chat,'👋 <b>Bienvenue !</b>\n\n<i>Envoie /start pour activer ton compte.</i>');
   const refs=await one(env,'SELECT count(*) AS n FROM users WHERE referred_by=? AND referral_rewarded=1',uid);
-  return send(env,chat,'⭐ <b>Mes XP</b>\nSolde : <b>'+u.xp+' XP</b>\nParrainages validés : '+refs.n+'\n\nLes XP sont virtuels, non convertibles en argent.');
+  return send(env,chat,'💎 <b>MON PORTEFEUILLE XP</b>\n\n<blockquote>⭐ Solde actuel : <b>'+u.xp+' XP</b>\n👥 Parrainages validés : <b>'+refs.n+'</b></blockquote>\n\n<i>Les XP sont des points virtuels, non convertibles en argent.</i>');
+}
+// Ce message est autonome : il ne contient ni solde, ni consignes privées.
+export function referralCard(link) {
+  return '⚽ <b>XPRONOS 4+ | DÉCOUVRE LES COUPONS</b>\n\n'+
+    '<blockquote>🎯 Des coupons football de cote totale <b>4.00 ou plus</b>, débloqués grâce aux points XP.</blockquote>\n\n'+
+    '✨ <b>Comment ça marche ?</b>\n'+
+    '① Rejoins la communauté.\n'+
+    '② Accomplis des missions et récolte des <b>XP</b>.\n'+
+    '③ Utilise tes XP pour accéder aux coupons.\n\n'+
+    '🚀 <b>Commence ici :</b>\n'+html(link)+'\n\n'+
+    '<i>🔞 Réservé aux 18 ans et plus. Les pronostics ne garantissent aucun résultat. Joue avec modération.</i>';
+}
+// Le lien natif Telegram partage un texte simple ; pour garder les styles HTML,
+// l'utilisateur doit transférer le premier message du bot.
+export function telegramShareUrl(link) {
+  const caption='⚽ XPRONOS 4+ | Coupons football cote 4+\n'+
+    '🎯 Accomplis des missions, gagne des XP et débloque des coupons.\n'+
+    '🔞 18+ • Aucun gain garanti. Joue responsablement.';
+  return 'https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+encodeURIComponent(caption);
 }
 async function share(env,uid,chat) {
   const me=await telegram(env,'getMe',{});
-  return send(env,chat,'↗️ <b>Ton lien de parrainage</b>\nhttps://t.me/'+html(me.username)+'?start=ref_'+uid+'\n\n'+
-    (channels(env).length?'Invite des amis : +'+POINTS_REFERRAL+' XP après vérification réelle des canaux.':'Le parrainage est désactivé jusqu’à configuration d’un canal obligatoire.'));
+  const link='https://t.me/'+encodeURIComponent(me.username)+'?start=ref_'+uid;
+  // 1. Message destiné uniquement au partage, sans bouton ni instructions.
+  await send(env,chat,referralCard(link),null);
+  // 2. Message distinct, destiné uniquement à la personne qui invite.
+  return send(env,chat,'↗️ <b>TON PARRAINAGE</b>\n\n'+
+    '👆 <b>Transfère le message précédent</b> à tes contacts pour conserver la mise en forme : gras, italique et citation.\n\n'+
+    '📤 Sinon, utilise le bouton ci-dessous pour préparer un partage Telegram (texte simple).\n\n'+
+    (channels(env).length
+      ? '🎁 <b>+'+POINTS_REFERRAL+' XP</b> pour toi lorsque ton invité valide réellement les canaux obligatoires. Une récompense par filleul.'
+      : '<i>ℹ️ Bonus de parrainage désactivé tant qu’aucun canal obligatoire n’est configuré.</i>'),
+    inline([
+      [{text:'📤 Partager sur Telegram',url:telegramShareUrl(link),style:'success'}],
+      [{text:'🔗 Copier mon lien',copy_text:{text:link},style:'primary'}]
+    ]));
 }
 async function admin(env,uid,chat,raw,updateId){
-  if(!admins(env).has(uid))return send(env,chat,'⛔ Commande réservée aux administrateurs.');
+  if(!admins(env).has(uid))return send(env,chat,'⛔ <b>Accès administrateur uniquement</b>\n\n<i>Cette commande est réservée à l’équipe XPRONOS.</i>');
   const name=raw.split(/\s+/)[0],arg=raw.slice(name.length).trim();
-  if(name==='/admin')return send(env,chat,'🛠️ <b>Administration XPRONOS 4+</b>\n/addcoupon PRO | 50 | 2099-01-01T18:00 | -1 | Titre | Équipe A - B ; Plus 1,5 ; 1.70 | Équipe C - D ; 1X ; 2.40\n/listcoupons\n/delcoupon ID\n/activatecoupon ID\n/addtask @canal https://t.me/canal 15\n/listtasks\n/deltask ID\n/grantxp USER_ID 30\n/stats');
+  if(name==='/admin')return send(env,chat,'🛠️ <b>ESPACE ADMINISTRATEUR</b>\n\n<b>🎟️ Gestion des coupons</b>\n<code>/addcoupon</code> · <code>/listcoupons</code>\n<code>/delcoupon ID</code> · <code>/activatecoupon ID</code>\n\n<b>🚩 Missions et récompenses</b>\n<code>/addtask</code> · <code>/listtasks</code> · <code>/deltask ID</code>\n<code>/grantxp USER_ID 30</code>\n\n<b>📊 Statistiques</b>\n<code>/stats</code>\n\n<blockquote><b>Exemple de coupon :</b>\n<code>/addcoupon PRO | 50 | 2099-01-01T18:00 | -1 | Titre | Équipe A - B ; Plus 1,5 ; 1.70 | Équipe C - D ; 1X ; 2.40</code></blockquote>\n\n<i>Exemple fictif à remplacer par des matchs réels.</i>');
   if(name==='/addcoupon'){
     const c=parseCouponCommand(arg);
     await run(env,'INSERT INTO coupons(tier,title,selections,total_odds,xp_cost,expires_at,stock) VALUES(?,?,?,?,?,?,?)',
       c.tier,c.title,c.selections,c.total_odds,c.xp_cost,c.expires_at,c.stock);
-    return send(env,chat,'✅ Coupon ajouté : cote '+c.total_odds+', '+c.xp_cost+' XP.');
+    return send(env,chat,'✅ <b>COUPON PUBLIÉ !</b>\n\n📊 Cote totale : <b>'+html(c.total_odds)+'</b>\n💎 Coût : <b>'+c.xp_cost+' XP</b>');
   }
   if(name==='/listcoupons'){
     const rows=await all(env,'SELECT * FROM coupons ORDER BY id DESC LIMIT 20');
-    return send(env,chat,rows.map(c=>'#'+c.id+' '+(c.active?'✅':'❌')+' '+html(c.tier)+' • '+html(c.title)+' • '+c.total_odds+' • stock '+c.stock).join('\n')||'Aucun coupon.');
+    return send(env,chat,'🎟️ <b>LISTE DES COUPONS</b>\n\n'+(rows.map(c=>'<b>#'+c.id+'</b> '+(c.active?'✅':'❌')+' '+html(c.tier)+' — '+html(c.title)+'\n📊 '+html(c.total_odds)+'  •  Stock : '+c.stock).join('\n\n')||'<i>Aucun coupon disponible.</i>'));
   }
   if(name==='/delcoupon'||name==='/activatecoupon'){
     const id=Number(arg);
-    if(!Number.isSafeInteger(id)||id<1)return send(env,chat,'ID invalide.');
+    if(!Number.isSafeInteger(id)||id<1)return send(env,chat,'⚠️ <b>Identifiant invalide</b>\n\n<i>Indique un identifiant numérique valide.</i>');
     const active=name==='/activatecoupon'?1:0;
     await run(env,'UPDATE coupons SET active=? WHERE id=? AND (?=0 OR expires_at>?)',active,id,active,new Date().toISOString());
-    return send(env,chat,'✅ Modification du coupon enregistrée.');
+    return send(env,chat,'✅ <b>Coupon mis à jour.</b>');
   }
   if(name==='/addtask'){
     const bits=arg.split(/\s+/),[channel,url,cost]=bits;
-    if(bits.length!==3||!/^(@[\w]{5,}|-100\d{5,})$/.test(channel)||!/^https:\/\/t\.me\//.test(url)||!/^\d{1,5}$/.test(cost)||Number(cost)<1)return send(env,chat,'Format : /addtask @canal https://t.me/canal 15');
+    if(bits.length!==3||!/^(@[\w]{5,}|-100\d{5,})$/.test(channel)||!/^https:\/\/t\.me\//.test(url)||!/^\d{1,5}$/.test(cost)||Number(cost)<1)return send(env,chat,'⚠️ <b>Format attendu</b>\n<code>/addtask @canal https://t.me/canal 15</code>');
     const r=await run(env,'INSERT OR IGNORE INTO tasks(chat_id,url,xp) VALUES(?,?,?)',channel,url,Number(cost));
-    return send(env,chat,r.meta.changes?'✅ Mission ajoutée.':'Canal déjà enregistré.');
+    return send(env,chat,r.meta.changes?'✅ <b>Mission créée avec succès !</b>':'ℹ️ <b>Ce canal possède déjà une mission.</b>');
   }
   if(name==='/listtasks'){
     const rows=await all(env,'SELECT * FROM tasks ORDER BY id DESC LIMIT 30');
-    return send(env,chat,rows.map(t=>'#'+t.id+' '+(t.active?'✅':'❌')+' '+html(t.chat_id)+' (+'+t.xp+' XP)').join('\n')||'Aucune mission.');
+    return send(env,chat,'🚩 <b>LISTE DES MISSIONS</b>\n\n'+(rows.map(t=>'<b>#'+t.id+'</b> '+(t.active?'✅':'❌')+' '+html(t.chat_id)+' — <b>+'+t.xp+' XP</b>').join('\n')||'<i>Aucune mission disponible.</i>'));
   }
   if(name==='/deltask'){
     const id=Number(arg);
-    if(!Number.isSafeInteger(id)||id<1)return send(env,chat,'ID invalide.');
+    if(!Number.isSafeInteger(id)||id<1)return send(env,chat,'⚠️ <b>Identifiant invalide</b>\n\n<i>Indique un identifiant numérique valide.</i>');
     await run(env,'UPDATE tasks SET active=0 WHERE id=?',id);
-    return send(env,chat,'✅ Mission désactivée.');
+    return send(env,chat,'✅ <b>Mission désactivée.</b>');
   }
   if(name==='/grantxp'){
     const bits=arg.split(/\s+/),userId=Number(bits[0]),points=Number(bits[1]);
     if(bits.length!==2||!Number.isSafeInteger(userId)||userId<1||!Number.isInteger(points)||points<1||points>100000)
-      return send(env,chat,'Format : /grantxp 123456789 30');
+      return send(env,chat,'⚠️ <b>Format attendu</b>\n<code>/grantxp 123456789 30</code>');
     const grant=await one(env,'INSERT OR IGNORE INTO manual_grants(user_id,xp,update_id) SELECT ?,?,? WHERE EXISTS(SELECT 1 FROM users WHERE id=?) RETURNING id',userId,points,updateId,userId);
-    return send(env,chat,grant?'✅ XP crédités.':'Utilisateur introuvable ou commande déjà appliquée.');
+    return send(env,chat,grant?'✅ <b>XP crédités avec succès !</b>':'ℹ️ <b>Utilisateur introuvable</b> ou commande déjà appliquée.');
   }
   if(name==='/stats'){
     const r=await one(env,'SELECT (SELECT count(*) FROM users) AS members,(SELECT count(*) FROM tasks) AS tasks,(SELECT count(*) FROM coupons) AS coupons,(SELECT count(*) FROM redemptions) AS redemptions');
-    return send(env,chat,'📊 Membres : '+r.members+'\nMissions : '+r.tasks+'\nCoupons : '+r.coupons+'\nCoupons débloqués : '+r.redemptions);
+    return send(env,chat,'📊 <b>STATISTIQUES XPRONOS 4+</b>\n\n<blockquote>👥 Membres : <b>'+r.members+'</b>\n🚩 Missions : <b>'+r.tasks+'</b>\n🎟️ Coupons : <b>'+r.coupons+'</b>\n🔓 Déblocages : <b>'+r.redemptions+'</b></blockquote>');
   }
 }
 async function handle(env,update) {
@@ -205,10 +251,10 @@ async function handle(env,update) {
     await ack(env,q.id);
     if(data==='adult_yes'){
       await run(env,'UPDATE users SET adult_confirmed=1 WHERE id=?',uid);
-      await send(env,chat,'✅ Merci. Vérifie les canaux pour activer tes récompenses.');
+      await send(env,chat,'✅ <b>Âge confirmé !</b>\n\n<i>Dernière étape : vérifie les canaux pour activer tes récompenses.</i>');
       return verify(env,uid,chat);
     }
-    if(data==='adult_no')return send(env,chat,'🔞 Ce service est réservé aux adultes.');
+    if(data==='adult_no')return send(env,chat,'🔞 <b>Accès réservé aux personnes de 18 ans ou plus.</b>\n\n<i>Merci de ta compréhension.</i>');
     if(data==='verify')return verify(env,uid,chat);
     if(/^task:\d+$/.test(data))return claimTask(env,uid,chat,Number(data.split(':')[1]));
     if(/^coupon:\d+$/.test(data))return redeem(env,uid,chat,Number(data.split(':')[1]));
@@ -216,8 +262,8 @@ async function handle(env,update) {
   }
   if(/^\/start(?:@\w+)?(?:\s|$)/.test(txt)){
     const u=await user(env,uid);
-    await send(env,chat,'⚽ Bienvenue sur <b>XPRONOS 4+</b> !\n\nAccomplis des missions, gagne des XP et débloque des coupons de cote <b>4.00 ou plus</b>.\n\n⚠️ Aucun résultat garanti. 18+ • Joue responsablement.');
-    if(!u?.adult_confirmed)return send(env,chat,'🔞 Confirme que tu as 18 ans ou plus :',inline([[{text:'✅ Oui, 18 ans ou plus',callback_data:'adult_yes'}],[{text:'❌ Non',callback_data:'adult_no'}]]));
+    await send(env,chat,'⚽ <b>BIENVENUE SUR XPRONOS 4+</b>\n\n<blockquote>🎯 Des coupons football de cote totale <b>4.00 ou plus</b>, accessibles grâce à tes <b>XP</b>.</blockquote>\n\n🚩 <b>Réalise des missions</b>\n🎁 <b>Récupère des bonus</b>\n🎟️ <b>Débloque des coupons</b>\n\n<i>🔞 18+ • Aucun résultat garanti. Joue avec modération.</i>');
+    if(!u?.adult_confirmed)return send(env,chat,'🔞 <b>CONFIRMATION D’ÂGE</b>\n\n<i>Pour continuer, confirme que tu as 18 ans ou plus.</i>',inline([[{text:'✅ Oui, 18 ans ou plus',callback_data:'adult_yes',style:'success'}],[{text:'❌ Non',callback_data:'adult_no',style:'danger'}]]));
     return verify(env,uid,chat);
   }
   if(txt.startsWith('/')){
@@ -232,8 +278,8 @@ async function handle(env,update) {
   if(txt==='🎟️ Coupons cote 4+'||txt==='/coupons')return coupons(env,uid,chat);
   if(txt==='🎫 Mes coupons'||txt==='/mine')return mine(env,uid,chat);
   if(txt==='↗️ Partager'||txt==='/share')return share(env,uid,chat);
-  if(txt==='📋 Procédure'||txt==='/help')return send(env,chat,'1️⃣ Confirme tes 18 ans et vérifie les canaux.\n2️⃣ Accomplis des missions pour gagner des XP.\n3️⃣ Bonus de 5 XP toutes les 2 heures (maximum 10 XP/jour).\n4️⃣ Débloque les coupons cote 4+ avec tes XP.\n\nLes XP ne représentent pas de l’argent.\n'+SITE);
-  return send(env,chat,'Utilise les boutons du menu ou envoie /start.');
+  if(txt==='📋 Procédure'||txt==='/help')return send(env,chat,'📋 <b>COMMENT ÇA MARCHE ?</b>\n\n<blockquote>① Confirme tes <b>18 ans ou plus</b> et vérifie les canaux.\n② Accomplis des missions pour gagner des <b>XP</b>.\n③ Récupère <b>5 XP</b> toutes les 2 heures, maximum <b>10 XP/jour</b>.\n④ Échange tes XP contre l’accès aux coupons <b>4+</b>.</blockquote>\n\n🌐 '+SITE+'\n\n<i>Les XP sont virtuels et ne représentent pas de l’argent. Joue responsablement.</i>');
+  return send(env,chat,'👋 <b>Que souhaites-tu faire ?</b>\n\n<i>Utilise les boutons ci-dessous ou envoie /start pour afficher l’accueil.</i>');
 }
 export default {
   async fetch(req,env){
