@@ -52,13 +52,17 @@ export async function adminApi(req,env,uid){
  if(!isAdmin(env,uid))return json({error:'admin_access_required'},403);
  const url=new URL(req.url);
  if(url.pathname==='/api/admin/overview'&&req.method==='GET'){
-  const stats=await one(env.DB,"SELECT "+
-   "(SELECT count(*) FROM users) AS users,(SELECT count(*) FROM users WHERE required_verified=1) AS verified,"+
-   "(SELECT count(*) FROM coupons) AS coupons,(SELECT count(*) FROM redemptions) AS redemptions,"+
-   "(SELECT count(*) FROM user_preferences WHERE notify_coupons=1) AS coupon_subscribers,"+
-   "(SELECT count(*) FROM support_tickets WHERE status='open') AS open_tickets,"+
-   "(SELECT count(*) FROM delivery_audit WHERE status='sent') AS alerts_sent");
-  const coupons=await all(env.DB,"SELECT id,title,tier,total_odds,xp_cost,active,auto_settlement,result_status,expires_at,media_json FROM coupons ORDER BY id DESC LIMIT 40");
+  // Ces deux lectures sont indépendantes : ne pas ajouter une latence D1
+  // en attendant la requête d'agrégats avant la liste des coupons.
+  const [stats,coupons]=await Promise.all([
+    one(env.DB,"SELECT "+
+      "(SELECT count(*) FROM users) AS users,(SELECT count(*) FROM users WHERE required_verified=1) AS verified,"+
+      "(SELECT count(*) FROM coupons) AS coupons,(SELECT count(*) FROM redemptions) AS redemptions,"+
+      "(SELECT count(*) FROM user_preferences WHERE notify_coupons=1) AS coupon_subscribers,"+
+      "(SELECT count(*) FROM support_tickets WHERE status='open') AS open_tickets,"+
+      "(SELECT count(*) FROM delivery_audit WHERE status='sent') AS alerts_sent"),
+    all(env.DB,"SELECT id,title,tier,total_odds,xp_cost,active,auto_settlement,result_status,expires_at,media_json FROM coupons ORDER BY id DESC LIMIT 40")
+  ]);
   return json({stats,coupons:coupons.map(c=>({...c,media:JSON.parse(c.media_json||'{}')})),markets:MARKETS});
  }
  if(url.pathname==='/api/admin/provider-check'&&req.method==='GET'){
