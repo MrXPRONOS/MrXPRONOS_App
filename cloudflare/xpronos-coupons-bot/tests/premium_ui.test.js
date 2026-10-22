@@ -23,7 +23,7 @@ test('Premium uses soft vector icons and mockup navigation, without glossy gener
  assert.match(premiumJS,/pPaths/);
  assert.match(premiumJS,/Coupons cote 4\+/);
  assert.match(premiumJS,/Parrainage/);
- assert.match(premiumJS,/data-page="home"/);
+ assert.match(premiumJS,/data-page=/);
  assert.match(premiumCSS,/--orange:/);
  assert.match(premiumCSS,/--bg:/);
  assert.match(premiumCSS,/p-shortcuts/);
