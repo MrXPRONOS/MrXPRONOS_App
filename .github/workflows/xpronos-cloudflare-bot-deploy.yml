@@ -202,3 +202,32 @@ jobs:
               except (urllib.error.URLError,ValueError) as error:
                   print('::warning::Mise à jour facultative de la fiche impossible :',method)
           PY
+
+      - name: Contrôle réel de la Mini App et de la protection des comptes
+        run: |
+          python3 - <<'PY'
+          import os,urllib.request,urllib.error
+          base=os.environ['WORKER_URL'].rstrip('/')
+
+          def check(path):
+              request=urllib.request.Request(base+path,headers={
+                  'Accept':'text/html,application/json',
+                  'User-Agent':'FreePronos-Production-SmokeTest/1.0'
+              })
+              try:
+                  with urllib.request.urlopen(request,timeout=20) as response:
+                      return response.status,response.read(32768),response.headers.get('content-type','')
+              except urllib.error.HTTPError as err:
+                  return err.code,err.read(512),err.headers.get('content-type','')
+
+          health,body,_=check('/health')
+          if health!=200 or b'ready' not in body:
+              raise SystemExit('Erreur de santé sur Cloudflare : HTTP '+str(health))
+          page,body,ctype=check('/app')
+          if page!=200 or 'text/html' not in ctype or b'FREE PRONOS' not in body or b'telegram-web-app.js' not in body:
+              raise SystemExit('Mini App inaccessible ou contenu attendu manquant : HTTP '+str(page))
+          protected,_,_=check('/api/me')
+          if protected!=401:
+              raise SystemExit('SECURITE : /api/me sans signature doit répondre 401, obtenu '+str(protected))
+          print('Free Pronos : Worker HTTP 200, Mini App HTTP 200 et API privée HTTP 401 sans signature.')
+          PY
