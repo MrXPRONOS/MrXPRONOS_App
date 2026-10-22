@@ -299,8 +299,13 @@ async function handle(env,update) {
   const txt=String(update.message?.text||'').trim();
   const fullName=([from.first_name||'',from.last_name||''].join(' ').trim()||from.username||'Membre').slice(0,100);
   const ref=/^\/start(?:@\w+)?\s+ref_(\d+)$/.exec(txt)?.[1];
-  await run(env,"INSERT OR IGNORE INTO users(id,name,referred_by) VALUES(?,?,(SELECT id FROM users WHERE id=? AND id<>?))",uid,fullName,ref?Number(ref):null,uid);
-  await run(env,'UPDATE users SET name=? WHERE id=?',fullName,uid);
+  // Un bouton inline provient déjà d'une conversation enregistrée.
+  // Ne pas effectuer deux écritures inutiles pour CHAQUE clic Telegram.
+  if(!q){
+    await run(env,"INSERT OR IGNORE INTO users(id,name,referred_by) VALUES(?,?,(SELECT id FROM users WHERE id=? AND id<>?))",uid,fullName,ref?Number(ref):null,uid);
+    if(/^\\/start(?:@\\w+)?(?:\\s|$)/.test(txt))
+      await run(env,'UPDATE users SET name=? WHERE id=? AND name<>?',fullName,uid,fullName);
+  }
   if(q){
     const data=String(q.data||'');
     await callbackAcknowledged;
