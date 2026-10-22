@@ -15,7 +15,7 @@ const configured = {
 test('GET /health est public et retourne 200 ready si configuré', async () => {
   const response = await worker.fetch(new Request('https://example.invalid/health'), configured);
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), { status: 'ready' });
+  assert.deepEqual(await response.json(), { status: 'ready', bot: 'Free Pronos' });
 });
 
 test('GET /health retourne 503 quand un secret manque', async () => {
