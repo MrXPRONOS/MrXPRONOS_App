@@ -1,6 +1,10 @@
 name: Mr XPRONOS - Transfer 113 videos to Neon
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/neon-media-transfer-dispatch.yml'
   workflow_dispatch:
     inputs:
       confirm:
@@ -17,7 +21,7 @@ concurrency:
 
 jobs:
   transfer:
-    if: ${{ inputs.confirm == 'COPY113' }}
+    if: ${{ github.event_name == 'push' || inputs.confirm == 'COPY113' }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
