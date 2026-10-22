@@ -1,7 +1,7 @@
 name: LIVE legacy Telegram image tests
 on:
   push:
-    branches: [fix/legacy-live-telegram-images-20261022]
+    branches: [fix/legacy-live-telegram-images-20261022, fix/neon-live-original-vector-coupons-20261022]
     paths:
       - "cloudflare/telegram-live-instant/worker.mjs"
       - "tests/live-telegram-legacy-image.test.mjs"

@@ -868,6 +868,106 @@ async function renderLegacyImage(row){
  return encodeRgb(result,WIDTH,HEIGHT+bannerHeight);
 }
 
+
+/** Geometry and copy of the original Supabase LIVE SVG ticket (429x455). */
+function liveSvg(row){
+ const escapeXml=(v)=>String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&apos;");
+ const esc=escapeXml;
+ const when=new Date(row.created_at);
+ const date=when.toLocaleDateString("fr-FR",{timeZone:"UTC"})+" ("+when.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit",timeZone:"UTC"})+")";
+ const home=String(row.home_team||"Domicile").slice(0,18), away=String(row.away_team||"Extérieur").slice(0,18),league=String(row.league_name||"Football").slice(0,33);
+ const minute=Math.max(0,Math.min(130,Math.trunc(Number(row.minute)||0)));
+ const homeScore=Number.isFinite(Number(row.home_score))&&row.home_score!==null?Math.trunc(Number(row.home_score)):"—";
+ const awayScore=Number.isFinite(Number(row.away_score))&&row.away_score!==null?Math.trunc(Number(row.away_score)):"—";
+ const periodText="";
+ const odds=Number.isFinite(Number(row.model_fair_odds))&&Number(row.model_fair_odds)>1?Number(row.model_fair_odds):1/Number(row.probability);
+ const oddsLabel=row.pricing_mode==="external_live"?"Cote bookmaker":"Cote modèle";
+ const stake=500000, potential=Math.round(stake*odds);
+ const value=(v)=>Number.isFinite(Number(v))?Number(v).toFixed(2):"—";
+ const money=(v)=>Number.isFinite(Number(v))?Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g," ")+" F":"—";
+ const slip=String(row.id||"").replace(/[^a-zA-Z0-9]/g,"").slice(-11);
+ const threshold=String(row.threshold).replace(".",",");
+ const type=({total_corners:"Corners",total_shots:"Tirs",total_fouls:"Fautes"})[row.type]||"";
+ const selection="Total. ("+threshold+") Plus de. "+type;
+ const receiptStatus="Accepté",slipStatus="Accepté",statusColor="#4f96d7";
+ const football=(x,y,sz)=>'<circle cx="'+(x+sz/2)+'" cy="'+(y+sz/2)+'" r="'+(sz*.45)+'" fill="#edf1f4" stroke="#b2bec8"/><text x="'+(x+sz/2)+'" y="'+(y+sz*.67)+'" font-size="'+(sz*.7)+'" text-anchor="middle">⚽</text>';
+ const getInitials=(name)=>String(name).split(/\s+/).map(x=>x[0]||"").join("").slice(0,2).toUpperCase();
+ const safeLogo=(v)=>/^https:\/\/(?:a\.espncdn\.com|cdn\.espn\.com)\//.test(String(v||""))?String(v):"";
+ const circle=(logo,x,name)=>logo?'<image href="'+esc(logo)+'" x="'+x+'" y="282" width="34" height="34" preserveAspectRatio="xMidYMid meet"/>'
+ :'<circle cx="'+(x+17)+'" cy="299" r="16" fill="#eff2f4" stroke="#a8b6c2"/><text x="'+(x+17)+'" y="303" font-size="9" font-weight="700" fill="#1e3645" text-anchor="middle">'+esc(getInitials(name))+'</text>';
+ const homeLogo=safeLogo(row.home_logo),awayLogo=safeLogo(row.away_logo);
+ const tx=(x,y,raw,size,color="#1c3242",weight=700,anchor="start")=>
+  '<text x="'+x+'" y="'+y+'" font-size="'+size+'" font-family="Noto Sans,Arial,sans-serif" font-weight="'+weight+'" fill="'+color+'" text-anchor="'+anchor+'">'+esc(raw)+'</text>';
+ const formatTelegramClock=(minute)=>String(Math.floor(minute)).padStart(2,"0")+":00";
+   const svg='<svg xmlns="http://www.w3.org/2000/svg" width="429" height="455" viewBox="0 0 429 455">'+
+    '<rect width="429" height="455" rx="9" fill="#fff" stroke="#dbe0e5"/>'+
+    '<circle cx="42" cy="48" r="25" fill="#ecf1f4"/>'+football(29,35,26)+
+    '<circle cx="62" cy="69" r="9" fill="#29b36c"/><path d="M58 69l3 3 5-7" fill="none" stroke="white" stroke-width="1.7"/>'+
+    tx(80,34,date,12,"#8698a6")+tx(80,55,"Simple",19)+tx(80,72,"N° "+slip,10,"#24313a",600)+
+    '<rect x="348" y="24" width="67" height="14" rx="3" fill="#ef4338"/>'+tx(381.5,34,"• En direct",9,"#fff",700,"middle")+
+    '<path d="M0 87h429" stroke="#e4e8eb"/>'+
+    tx(16,113,oddsLabel+":",15,"#8497a5")+tx(16,141,"Mise:",15,"#8497a5")+
+    tx(16,167,"Gains potentiels:",15,"#8497a5")+tx(16,193,"Statut:",15,"#8497a5")+
+    tx(414,113,value(odds),15,"#1c3242",700,"end")+tx(414,141,money(stake),15,"#1c3242",700,"end")+
+    tx(414,167,money(potential),15,"#4dbb69",700,"end")+tx(414,193,receiptStatus,15,statusColor,700,"end")+
+    '<path d="M0 211h429" stroke="#eff3f5" stroke-width="8"/><rect x="7" y="219" width="415" height="234" rx="11" fill="#fbfbfb" stroke="#d9e1e7"/>'+
+    football(18,235,24)+tx(52,245,"Football · "+league,12,"#8599a7")+tx(52,262,date,12,"#8599a7")+
+    '<rect x="352" y="226" width="67" height="13" rx="3" fill="#ef4338"/>'+tx(385.5,235,"• En direct",9,"#fff",700,"middle")+
+    tx(139,304,home,13,"#20323f",700,"end")+circle(homeLogo,150,home)+
+    tx(216,305,homeScore+":"+awayScore,19,"#20323f",800,"middle")+circle(awayLogo,249,away)+
+    tx(292,304,away,13,"#20323f")+
+    tx(216,351,periodText,12,"#879da9",400,"middle")+
+    '<path d="M8 363h414" stroke="#dbe1e6"/>'+
+    tx(19,383,selection,13,"#24333e",700)+tx(412,383,value(odds),14,"#24333e",700,"end")+
+    tx(19,410,"EN DIRECT",13,"#869aa7")+tx(412,410,"temps écoulé : "+formatTelegramClock(minute),13,"#24333e",700,"end")+
+    tx(19,439,"Statut:",13,"#869aa7")+tx(412,439,slipStatus,13,statusColor,700,"end")+
+    '</svg>';
+ return svg;
+}
+function premiumHtml(row){
+ const svg=liveSvg(row);
+ // Actual source SVG, not synthetic bitmap letters. BrowserRun renders fonts and images.
+ return '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=429,initial-scale=1">'+
+ '<style>*{box-sizing:border-box}html,body{margin:0;width:429px;height:455px;overflow:hidden;background:#fff}'+
+ '@font-face{font-family:"Noto Sans";src:url("https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/supabase/functions/live/_fonts/NotoSans-Regular.ttf") format("truetype");font-style:normal;font-weight:400}'+
+ '@font-face{font-family:"Noto Sans";src:url("https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/supabase/functions/live/_fonts/NotoSans-Bold.ttf") format("truetype");font-style:normal;font-weight:700 900}'+
+ 'svg{width:429px;height:455px;display:block}</style></head><body>'+svg+'</body></html>';
+}
+async function renderPremiumImage(row,env){
+ if(!env.BROWSER?.quickAction)throw Error("browser_binding_missing");
+ const response=await env.BROWSER.quickAction("screenshot",{
+    html:premiumHtml(row),viewport:{width:429,height:455,deviceScaleFactor:1},
+    screenshotOptions:{fullPage:false},waitForSelector:{selector:"svg"},
+    actionTimeout:18000
+ });
+ if(!response?.ok)throw Error("browser_render_http_"+String(response?.status));
+ const bytes=new Uint8Array(await response.arrayBuffer());
+ const decoded=await decodePng(bytes);
+ if(decoded.width!==429||decoded.height!==455)throw Error("bad_coupon_dimensions");
+ const day=new Date(row.created_at).toISOString().slice(0,10);
+ const banner=await partnerBanner(day);
+ const width=429, couponHeight=455;
+ const bannerHeight=Math.max(1,Math.round(banner.height*width/banner.width));
+ if(bannerHeight>width/3)throw Error("invalid_banner_dimensions");
+ const result=new Uint8Array(width*(couponHeight+bannerHeight)*3);
+ const drawImage=(image,x,y,w,h)=>{
+  const source=image.pixels;
+  for(let dy=0;dy<h;dy++){
+   const sy=Math.min(image.height-1,Math.floor((dy+.5)*image.height/h));
+   for(let dx=0;dx<w;dx++){
+    const sx=Math.min(image.width-1,Math.floor((dx+.5)*image.width/w));
+    const s=(sy*image.width+sx)*4,d=((dy+y)*width+x+dx)*3,a=source[s+3]/255;
+    result[d]=Math.round(source[s]*a+255*(1-a));
+    result[d+1]=Math.round(source[s+1]*a+255*(1-a));
+    result[d+2]=Math.round(source[s+2]*a+255*(1-a));
+   }
+  }
+ };
+ drawImage(banner,0,0,width,bannerHeight);
+ drawImage(decoded,0,bannerHeight,width,couponHeight);
+ return encodeRgb(result,width,couponHeight+bannerHeight);
+}
+
 async function send(env,chat,row,png){
  const token=env.TELEGRAM_BOT_TOKEN;
  const url="https://api.telegram.org/bot"+token+"/sendPhoto";
@@ -890,7 +990,7 @@ async function send(env,chat,row,png){
 }
 async function dispatchOne(env,row){
  const date=new Date(row.created_at).toISOString().slice(0,10);
- const photo=await renderLegacyImage(row);
+ const photo=await renderPremiumImage(row,env);
  const destinations=[["primary",env.TELEGRAM_CHAT_ID],["secondary",env.TELEGRAM_CHAT_ID_SECONDARY]]
  .filter(([_,v])=>!!String(v||"").trim());
  const seen=new Set(),res=[];
@@ -937,7 +1037,7 @@ export default {
   if(url.pathname==="/health"&&req.method==="GET")return json({
    service:"mrxpronos-neon-live-telegram-instant",
    ready:!!(env.DB&&env.NEON_DELIVERY_HMAC_KEY&&env.TELEGRAM_BOT_TOKEN&&env.TELEGRAM_CHAT_ID&&env.TELEGRAM_CHAT_ID_SECONDARY),
-   mode:"post-commit",format:"original-supabase-png",sponsor_banner:"daily-utc-alternation",
+   mode:"post-commit",format:"original-live-svg-browser",sponsor_banner:"daily-utc-alternation",
    live_send:false
   });
   if(url.pathname!=="/deliver")return json({error:"not_found"},404);
