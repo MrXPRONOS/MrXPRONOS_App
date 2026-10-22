@@ -24,11 +24,11 @@
 | 11 | Sélection EV / cotes vérifiées | PARTIEL | `rank_markets` refuse cotes estimées, vieillies, sans validation; aucune connexion bookmaker vers ces 40 clés |
 | 12 | Règlement automatique | PARTIEL | `settle_market` résultats pending/win/lose/push/void, sans rattachement au workflow de settlement réel |
 | 13 | Métriques / ROI | PARTIEL | `bsd_v3_40_evaluate.py` métriques par marché, uniquement cotes vérifiées; pas de validation prospective exécutée |
-| 14 | Neon | NON APPLIQUÉ | Aucun schéma / credentials / accès live; ne pas écrire en base prématurément |
+| 14 | Neon | PARTIEL | Schéma SQL de préparation `bsd/v3_neon_schema.sql`; migration non exécutée, pas de connecteur de production |
 | 15 | Cloudflare | NON APPLIQUÉ | Aucun déploiement de Worker ou adaptation du frontend |
 | 16 | GitHub Actions | PARTIEL | Workflow PR/manual de test lecture seule; pas de génération quotidienne V3 |
 | 17 | Site web | NON APPLIQUÉ | Pas de modification de `pronos.html` ou `assets/js/main.js` |
-| 18 | Tests / audit | PARTIEL | Suite de tests rédigée et CI définie; statut d'exécution CI à vérifier séparément |
+| 18 | Tests / audit | PARTIEL | Tests V3 et régressions BSD V2 passés en CI du 22/10/2026 (run 39724148348); manque validation historique réelle / Neon / Cloudflare / end-to-end |
 
 ## Organisation des 40 marchés
 - **G1 Résultat / double chance (5)** : 1,2,18,19,20.
