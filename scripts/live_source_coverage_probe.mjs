@@ -8,10 +8,11 @@ return json}catch(e){console.log("PROBE",JSON.stringify({label,error:e?.name||"u
 const today=new Date().toISOString().slice(0,10);
 const sport=await check("sportscore_live","https://sportscore.com/api/v1/fixtures/?sport=football&date="+today+"&status=live&limit=200");
 const events=sport?.matches||sport?.fixtures||sport?.results||[];
-const first=Array.isArray(events)?events.find(e=>e?.slug||e?.match_slug):null;
-if(first){
- const slug=first.slug||first.match_slug;
- const j=await check("sportscore_detail","https://sportscore.com/api/v1/match/?sport=football&slug="+encodeURIComponent(slug));
- if(j) console.log("DETAIL_SHAPE",JSON.stringify({keys:Object.keys(j),matchKeys:Object.keys(j.match||j.data?.match||{}),statsSample:JSON.stringify(j.match?.statistics||j.match?.stats||j.data?.match?.statistics||j.statistics||j.stats||null).slice(0,1700)}));
+for(const [i,first] of (Array.isArray(events)?events:[]).entries()){
+ const parsed=String(first?.url||"").match(/\/match\/([^/?#]+)\/([^/?#]+)/);
+ const slug=first.slug||first.match_slug||parsed?.[1];
+ if(!slug){console.log("DETAIL_MISSING_SLUG",i);continue}
+ const j=await check("sportscore_detail_"+i,"https://sportscore.com/api/v1/match/?sport=football&slug="+encodeURIComponent(slug));
+ if(j) console.log("DETAIL_SHAPE",JSON.stringify({i,slug,keys:Object.keys(j),matchKeys:Object.keys(j.match||j.data?.match||{}),statsSample:JSON.stringify(j.match?.statistics||j.match?.stats||j.data?.match?.statistics||j.statistics||j.stats||null).slice(0,3000)}));
 }
 await check("espn_recent","https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard?dates="+today.replace(/-/g,"")+"&limit=500");
