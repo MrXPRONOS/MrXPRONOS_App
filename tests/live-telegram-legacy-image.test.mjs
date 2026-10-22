@@ -3,7 +3,7 @@ import {readFile} from "node:fs/promises";
 import {fileURLToPath} from "node:url";
 import {resolve,dirname} from "node:path";
 import {createHmac} from "node:crypto";
-import worker from "../../cloudflare/telegram-live-instant/worker.mjs";
+import worker from "../cloudflare/telegram-live-instant/worker.mjs";
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),"../..");
 const uuid="11111111-2222-4333-8444-555555555555";
