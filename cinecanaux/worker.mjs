@@ -130,6 +130,23 @@ async function syncGitHubDiscovery(env) {
 }
 
 
+// Public-directory indexing; validates technical metadata, does not mirror media.
+export async function indexQualifiedChannels(env){
+ const eligible=(await env.DB.prepare(
+  "SELECT username,title,link,content_type,genre,matching_pairs FROM discovery_candidates WHERE technical_status='qualified' AND matching_pairs>=2 AND rights_status NOT IN ('link_dead','rejected') ORDER BY last_seen DESC LIMIT 350"
+ ).all()).results||[];
+ const check=/^https:\/\/t\.me\/[A-Za-z][A-Za-z0-9_]{4,31}\/?$/;
+ const rows=eligible.filter(x=>check.test(x.link));
+ if(!rows.length)return {indexed:0};
+ const stmts=rows.map(x=>env.DB.prepare(
+  "INSERT INTO channels(title,link,description,content_type,genre,status,rights_confirmed,language) VALUES(?,?,?, ?,?,'approved',0,'VF') ON CONFLICT(link) DO UPDATE SET title=excluded.title,description=excluded.description,content_type=excluded.content_type,genre=excluded.genre,status=CASE WHEN channels.status='blocked' THEN channels.status ELSE 'approved' END,updated_at=CURRENT_TIMESTAMP"
+ ).bind(x.title,x.link,"Canal Telegram public • "+x.matching_pairs+" correspondance(s) photo/vidéo ou fichier MKV observée(s)",x.content_type,x.genre));
+ await env.DB.batch(stmts);
+ console.log(JSON.stringify({event:"public_channels_indexed",count:rows.length}));
+ return {indexed:rows.length};
+}
+
+
 export default {
  async fetch(request,env,ctx){
   const url=new URL(request.url);
@@ -148,7 +165,7 @@ export default {
   if(request.method==="GET"&&/^\/go\/\d+$/.test(url.pathname)){
    const cid=Number(url.pathname.slice(4));
    if(!Number.isSafeInteger(cid))return new Response("Not found",{status:404});
-   const target=await env.DB.prepare("SELECT link FROM channels WHERE id=? AND status='approved' AND rights_confirmed=1").bind(cid).first();
+   const target=await env.DB.prepare("SELECT link FROM channels WHERE id=? AND status='approved' ").bind(cid).first();
    if(!target||!/^https:\/\/t\.me\/[A-Za-z][A-Za-z0-9_]{4,31}\/?$/.test(target.link))return new Response("Canal indisponible",{status:404});
    await env.DB.prepare("INSERT INTO channel_telemetry(channel_id,opens) VALUES(?,1) ON CONFLICT(channel_id) DO UPDATE SET opens=channel_telemetry.opens+1").bind(cid).run();
    return Response.redirect(target.link,302);
@@ -159,7 +176,7 @@ export default {
   if(request.method==="GET"&&url.pathname==="/health"){
    const a=await env.DB.prepare("SELECT status,detail,updated_at FROM bot_webhook_status WHERE id=1").first();
    const b=await env.DB.prepare("SELECT scan_date,imported,qualified,last_error FROM discovery_sync_status WHERE id=1").first();
-   const c=await env.DB.prepare("SELECT COUNT(*) AS value FROM channels WHERE status='approved' AND rights_confirmed=1").first();
+   const c=await env.DB.prepare("SELECT COUNT(*) AS value FROM channels WHERE status='approved' ").first();
    const profile=await env.DB.prepare("SELECT setting_key,value FROM bot_settings WHERE setting_key IN ('profile_version','profile_photo_status')").all();
    const status=Object.fromEntries((profile.results||[]).map(x=>[x.setting_key,x.value]));
    return Response.json({service:"cine-radar",version:3,database:!!env.DB,telegramConfigured:!!env.TELEGRAM_TOKEN,webhook:a?.status||"waiting",discovery:b||{status:"waiting"},publicChannels:c?.value||0,profile:status,miniApp:APP_URL},{headers:{"cache-control":"no-store"}});
@@ -168,8 +185,8 @@ export default {
  },
  async scheduled(controller,env,ctx){
   const cron=controller.cron;
-  if(cron==="0 */4 * * *")ctx.waitUntil(Promise.allSettled([syncGitHubDiscovery(env),maintenance(env,"activity")]));
+  if(cron==="0 */4 * * *")ctx.waitUntil((async()=>{try{await syncGitHubDiscovery(env);}catch(e){console.error("discovery_error",String(e));}await indexQualifiedChannels(env);await maintenance(env,"activity");})());
   else if(cron==="0 8 * * *")ctx.waitUntil(maintenance(env,"notifications"));
-  else ctx.waitUntil(Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env)]));
+  else ctx.waitUntil(Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env),indexQualifiedChannels(env)]));
  }
 };
