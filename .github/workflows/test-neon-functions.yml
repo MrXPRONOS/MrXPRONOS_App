@@ -1,0 +1,20 @@
+name: Validate ported Neon Edge Functions
+on:
+  push:
+    branches: ["migration/**"]
+    paths:
+      - "migration/free-stack/neon-functions/**"
+      - "migration/free-stack/tests/**"
+      - ".github/workflows/test-neon-functions.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  security-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test migration/free-stack/tests/neon-functions.test.mjs
