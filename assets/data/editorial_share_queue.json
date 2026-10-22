@@ -1,5 +1,27 @@
 [
   {
+    "id": "0433c39159f54dd859eddd76",
+    "kind": "article",
+    "title": "Mamelodi Sundowns vs Wiliete SC : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-603663/",
+    "source_date": "2026-10-22T05:41:48.258956+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-603663-fd16a474-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-603663-fd16a474-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-22T05:41:48.554685+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-603663-fd16a474-social.jpg"
+  },
+  {
     "id": "3779e30a9c9ba6834f43e645",
     "kind": "article",
     "title": "Palmeiras vs Fluminense : fiche match BSD V2",
