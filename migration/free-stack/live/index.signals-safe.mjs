@@ -2486,6 +2486,130 @@ async function fetchFromESPN() {
   }
   return {events:normalized.slice(0,250),sourceEvents:events.size,feedRequests:paths.length,detailCap:ESPN_DETAIL_MAX_PER_REFRESH,detailRequested:live.length,detailSuccess,failures};
 }
+
+/**
+ * Real-match-only supplementary observations.
+ * SportScore proves fixture identity and live clock; MoviOdds supplies recent
+ * measured corner/shot values. No provider statistics => no signal.
+ * Both live feeds must agree on teams and kickoff. Explicit esports excluded.
+ */
+function supplementalName(value){
+ return String(value||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+  .replace(/\(\s*w\s*\)/g," women ").replace(/\b(youth|under\s*20)\b/g," u20 ")
+  .replace(/\b(rj|fc|cf|cd)\b/g," ").replace(/[^a-z0-9]+/g," ")
+  .replace(/\s+/g," ").trim();
+}
+function supplementalRecent(value,maxAgeMs=150000){
+ const when=Date.parse(value||"");
+ const age=Date.now()-when;
+ return Number.isFinite(when)&&age>=-30000&&age<=maxAgeMs;
+}
+function supplementalStatPair(stats,key,limit=400){
+ const h=stats?.home?.[key],a=stats?.away?.[key];
+ if(h===null||h===undefined||a===null||a===undefined)return null;
+ const hv=Number(h),av=Number(a);
+ return Number.isInteger(hv)&&Number.isInteger(av)&&hv>=0&&av>=0&&hv<=limit&&av<=limit?[hv,av]:null;
+}
+async function supplementalJson(url){
+ const response=await fetch(url,{headers:{"Accept":"application/json","User-Agent":"MrXPRONOS/2.0 (+live statistics; https://mrxpronos.github.io)"},
+  signal:AbortSignal.timeout(9000)});
+ if(!response.ok)throw new Error("http_"+response.status);
+ if(!(response.headers.get("content-type")||"").includes("json"))throw new Error("non_json");
+ return response.json();
+}
+function supplementalFixtureIdentity(f){
+ const home=String(typeof f?.home==="string"?f.home:f?.home?.name||"").trim();
+ const away=String(typeof f?.away==="string"?f.away:f?.away?.name||"").trim();
+ const match=String(f?.url||"").match(/\/match\/([^/?#]+)\/([^/?#]+)/);
+ const slug=String(f?.slug||match?.[1]||"");
+ const id=String(f?.id||f?.match_id||match?.[2]||"");
+ const when=Date.parse(f?.time||f?.date||f?.start_time||"");
+ return {home,away,slug,id,when};
+}
+async function fetchVerifiedSupplementalLive(existing){
+ const report={sportscore_live:0,moviodds_live:0,matched_fixtures:0,eligible_verified:0,
+  missing_stats:0,stale_stats:0,virtual_rejected:0,clock_unavailable:0,duplicate_espn:0,errors:[]};
+ let fixtures,board;
+ try{
+  const [f,b]=await Promise.all([
+   supplementalJson("https://sportscore.com/api/v1/fixtures/?sport=football&date="+new Date().toISOString().slice(0,10)+"&status=live&limit=200"),
+   supplementalJson("https://moviodds.com/odds?sport=soccer&in_play=1&stats=1")
+  ]);
+  fixtures=Array.isArray(f?.matches)?f.matches:[];
+  board=Array.isArray(b?.matches)?b.matches:[];
+ }catch(e){report.errors.push("supplemental_fetch_"+String(e?.message||"error").slice(0,45));return {matches:[],report}}
+ report.sportscore_live=fixtures.length;report.moviodds_live=board.length;
+ const matches=[];
+ for(const fixture of fixtures.slice(0,60)){
+  const sf=supplementalFixtureIdentity(fixture);
+  if(!sf.home||!sf.away||!sf.slug||!sf.id||!Number.isFinite(sf.when)||String(fixture.status).toLowerCase()!=="live")continue;
+  const sportHome=supplementalName(sf.home),sportAway=supplementalName(sf.away);
+  if(!sportHome||!sportAway)continue;
+  const matched=board.filter(m=>{
+   if(m?.in_play!==true)return false;
+   const hm=String(m?.home??m?.home_team??m?.homeTeam?.name??"");
+   const aw=String(m?.away??m?.away_team??m?.awayTeam?.name??"");
+   if(/\((?!\s*w\s*\))[^)]{2,}\)/i.test(hm+" "+aw) ||
+      /\b(esoccer|cyber|virtual|simulated|efootball)\b/i.test(hm+" "+aw))return false;
+   const km=Date.parse(m.kickoff_utc||m.kickoff||m.starts||m.start_time||"");
+   if(!Number.isFinite(km)||Math.abs(km-sf.when)>7200000)return false;
+   return supplementalName(hm)===sportHome&&supplementalName(aw)===sportAway;
+  });
+  if(matched.length!==1)continue;
+  report.matched_fixtures++;
+  const m=matched[0];
+  if(!supplementalRecent(m.polled_at)||!supplementalRecent(m.stats?.updated_at)){
+    report.stale_stats++;continue;
+  }
+  const corner=supplementalStatPair(m.stats,"corners");
+  const shots=supplementalStatPair(m.stats,"shots");
+  const target=supplementalStatPair(m.stats,"shots_on_target");
+  if(!corner&&!shots){report.missing_stats++;continue}
+  if(shots&&target&&(target[0]>shots[0]||target[1]>shots[1])){report.missing_stats++;continue}
+  // Never create a duplicate for the same real fixture in ESPN.
+  if((existing||[]).some(x=>x.is_live &&
+      supplementalName(x.home_team)===sportHome&&supplementalName(x.away_team)===sportAway&&
+      Math.abs(Date.parse(x.event_date)-sf.when)<=7200000)){report.duplicate_espn++;continue}
+  let detail;
+  try{detail=await supplementalJson("https://sportscore.com/api/v1/match/?sport=football&slug="+encodeURIComponent(sf.slug))}
+  catch(e){report.errors.push("detail_"+String(e?.message||"error").slice(0,30));continue}
+  const match=detail?.match||detail?.data?.match||{};
+  const liveMinute=Number(match.live_minute??match.minute??match.elapsed);
+  if(!Number.isInteger(liveMinute)||liveMinute<1||liveMinute>95){
+   report.clock_unavailable++;continue;
+  }
+  if(!["live","inprogress","in_progress"].includes(String(match.status||fixture.status).toLowerCase()))continue;
+  const detailedHome=supplementalName(typeof match.home==="string"?match.home:match.home?.name);
+  const detailedAway=supplementalName(typeof match.away==="string"?match.away:match.away?.name);
+  if(detailedHome&&detailedAway&&(detailedHome!==sportHome||detailedAway!==sportAway))continue;
+  // Score disagreement could indicate wrong identity or a lagged feed.
+  const score=(v)=>v===null||v===undefined||v===""?null:Number(v);
+  const fh=score(fixture.home_score),fa=score(fixture.away_score);
+  const mh=score(m.home_score),ma=score(m.away_score);
+  if([fh,fa,mh,ma].every(Number.isFinite)&&(fh!==mh||fa!==ma))continue;
+  const home={},away={};
+  for(const [key,pair] of [["corner_kicks",corner],["total_shots",shots],["shots_on_target",target]]){
+    if(pair){home[key]=pair[0];away[key]=pair[1]}
+  }
+  const pos=supplementalStatPair(m.stats,"possession",100);
+  if(pos){home.ball_possession=pos[0];away.ball_possession=pos[1]}
+  const league=typeof fixture.competition==="string"?fixture.competition:
+    String(fixture.competition?.name||"Football");
+  matches.push({
+    id:"sportscore:"+sf.id,provider_id:String(m.id),source_name:"moviodds",
+    home_team:sf.home,away_team:sf.away,home_score:fh??mh??0,away_score:fa??ma??0,
+    current_minute:liveMinute,event_date:new Date(sf.when).toISOString(),
+    league_name:league.slice(0,200),status:"inprogress",period:"",
+    home_logo:String(fixture.home_logo||""),away_logo:String(fixture.away_logo||""),
+    is_live:true,is_finished:false,stats_sources:["sportscore_fixture","moviodds_verified"],
+    live_stats:buildLiveStats({home,away})
+  });
+  report.eligible_verified++;
+  if(matches.length>=12)break;
+ }
+ return {matches,report};
+}
+
 function diagnostic(events) {
   const live=events.filter(e=>e.is_live);
   const scheduled=events.filter(e=>!e.is_live);
@@ -2527,20 +2651,20 @@ async function persistRefresh(events,fetchDetails) {
         await tx.unsafe(
           "WITH src AS (SELECT value AS e FROM jsonb_array_elements(CASE WHEN jsonb_typeof($1::jsonb)='string' THEN ($1::jsonb #>> '{}')::jsonb ELSE $1::jsonb END))"+
           " INSERT INTO public.live_stats_sources(canonical_match_id,source_name,source_match_id,home_team,away_team,league_name,event_date,minute,home_score,away_score,is_live,is_finished,stats_json,raw_json,updated_at)"+
-          " SELECT e->>'id','espn',e->>'provider_id',e->>'home_team',e->>'away_team',e->>'league_name',(e->>'event_date')::timestamptz,(e->>'current_minute')::int,(e->>'home_score')::int,(e->>'away_score')::int,true,false,e->'live_stats',e,now() FROM src WHERE e->>'is_live'='true'"+
+          " SELECT e->>'id',COALESCE(e->>'source_name','espn'),e->>'provider_id',e->>'home_team',e->>'away_team',e->>'league_name',(e->>'event_date')::timestamptz,(e->>'current_minute')::int,(e->>'home_score')::int,(e->>'away_score')::int,true,false,e->'live_stats',e,now() FROM src WHERE e->>'is_live'='true'"+
           " ON CONFLICT(source_name,source_match_id) DO UPDATE SET minute=EXCLUDED.minute,home_score=EXCLUDED.home_score,away_score=EXCLUDED.away_score,stats_json=EXCLUDED.stats_json,raw_json=EXCLUDED.raw_json,updated_at=EXCLUDED.updated_at",
           [encoded]);
         await tx.unsafe(
           "WITH src AS (SELECT value AS e FROM jsonb_array_elements(CASE WHEN jsonb_typeof($1::jsonb)='string' THEN ($1::jsonb #>> '{}')::jsonb ELSE $1::jsonb END))"+
           " INSERT INTO public.live_stats_merged(canonical_match_id,primary_match_id,home_team,away_team,league_name,event_date,minute,home_score,away_score,is_live,is_finished,merged_stats,sources_used,confidence_score,merged_match_json,updated_at)"+
-          " SELECT e->>'id',e->>'id',e->>'home_team',e->>'away_team',e->>'league_name',(e->>'event_date')::timestamptz,(e->>'current_minute')::int,(e->>'home_score')::int,(e->>'away_score')::int,true,false,e->'live_stats','[\"espn\"]'::jsonb,50,e,now() FROM src WHERE e->>'is_live'='true'"+
+          " SELECT e->>'id',e->>'id',e->>'home_team',e->>'away_team',e->>'league_name',(e->>'event_date')::timestamptz,(e->>'current_minute')::int,(e->>'home_score')::int,(e->>'away_score')::int,true,false,e->'live_stats',COALESCE(e->'stats_sources','[\"espn\"]'::jsonb),50,e,now() FROM src WHERE e->>'is_live'='true'"+
           " ON CONFLICT(canonical_match_id) DO UPDATE SET minute=EXCLUDED.minute,home_score=EXCLUDED.home_score,away_score=EXCLUDED.away_score,merged_stats=EXCLUDED.merged_stats,merged_match_json=EXCLUDED.merged_match_json,updated_at=EXCLUDED.updated_at",
           [encoded]);
       }
       const stats=diagnostic(events);
       const report={...stats,engine:"neon-espn-safe-v1",source_events:fetchDetails.sourceEvents,
         feed_requests:fetchDetails.feedRequests,detail_requests:fetchDetails.detailRequested,detail_cap:fetchDetails.detailCap,
-        detail_success:fetchDetails.detailSuccess,failures:fetchDetails.failures,
+        detail_success:fetchDetails.detailSuccess,failures:fetchDetails.failures,supplemental:fetchDetails.supplemental,
         no_telegram:true,no_signal_generation:true};
       await tx.unsafe(
         "INSERT INTO public.cron_runs(name,last_run_at,last_ok,meta) VALUES ('live_refresh',now(),true,$1::text::jsonb) ON CONFLICT(name) DO UPDATE SET last_run_at=EXCLUDED.last_run_at,last_ok=EXCLUDED.last_ok,meta=EXCLUDED.meta",
@@ -2670,8 +2794,11 @@ index_default.fetch=async function(req){
   if(!["preview","apply"].includes(mode))return json(req,{error:"invalid_mode"},400);
   try {
     const pulled=await fetchFromESPN();
+    const supplementary=await fetchVerifiedSupplementalLive(pulled.events);
+    pulled.events.push(...supplementary.matches);
+    pulled.supplemental=supplementary.report;
     const summary=diagnostic(pulled.events);
-    if(mode==="preview")return json(req,{success:true,mode:"preview",...summary,source_events:pulled.sourceEvents,feed_requests:pulled.feedRequests,detail_success:pulled.detailSuccess,detail_cap:pulled.detailCap,failures:pulled.failures,no_database_writes:true});
+    if(mode==="preview")return json(req,{success:true,mode:"preview",...summary,source_events:pulled.sourceEvents,feed_requests:pulled.feedRequests,detail_success:pulled.detailSuccess,detail_cap:pulled.detailCap,failures:pulled.failures,supplemental:pulled.supplemental,no_database_writes:true});
     const report=await persistRefresh(pulled.events,pulled);
     if(report.already_running)return json(req,{mode:"apply",...report},409);
     let signalReport={generated_signals:0,validation_successes:0,notifications_created:0,signal_backend:"ready"};
