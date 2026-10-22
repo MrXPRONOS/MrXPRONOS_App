@@ -44,9 +44,9 @@ nav{position:fixed;bottom:0;left:0;right:0;border-top:1px solid #2b3d64;backgrou
 <select id="genre" aria-label="Genre"><option value="general">Tous les genres</option><option value="action">Action</option><option value="comedie">Comédie</option><option value="romance">Romance</option><option value="horreur">Horreur</option><option value="drame">Drame</option><option value="sciencefiction">Science-fiction</option><option value="policier">Policier</option><option value="shonen">Shōnen</option><option value="seinen">Seinen</option><option value="fantasy">Fantasy</option></select>
 <select id="language" aria-label="Langue"><option value="tous">🌍 Toutes langues</option><option value="VF">🇫🇷 VF</option><option value="VOSTFR">💬 VOSTFR</option><option value="VO">🎞 VO</option></select>
 <select id="sort" aria-label="Tri"><option value="recent">Nouveautés</option><option value="popular">Popularité</option><option value="active">Activité récente</option><option value="quality">Qualité des canaux</option></select><select id="status" aria-label="Activité"><option value="all">Toute activité</option><option value="active30">Actifs 30 jours</option><option value="reachable">Accessibles vérifiés</option></select></div>
-<div class="section"><h2 id="heading">À découvrir</h2><span id="counter">—</span></div><div class="notice" id="catalogNote">🔒 Seuls les canaux vérifiés et autorisés sont publiés.</div>
+<div class="section"><h2 id="heading">À découvrir</h2><span id="counter">—</span></div><div class="notice" id="catalogNote">🔒 Annuaire automatique des canaux Telegram publics dont le format a été vérifié.</div>
 <div id="cards" class="cards" aria-live="polite"><div class="empty"><div class="emoji">🎬</div><b>Bienvenue sur Ciné Radar</b>Chargement du catalogue…</div></div>
-<div class="footer">Ciné Radar · Répertoire de canaux autorisés · © 2026</div>
+<div class="footer">Ciné Radar · Annuaire de canaux publics · © 2026</div>
 </main><nav><div class="nav-inner"><button class="nav-link active" data-tab="explore"><strong>🧭</strong>Explorer</button><button class="nav-link" data-tab="favorites"><strong>⭐</strong>Favoris</button><button class="nav-link" data-tab="new"><strong>🆕</strong>Nouveautés</button><button class="nav-link" data-tab="recommend"><strong>✨</strong>Pour moi</button><button class="nav-link" data-tab="profile"><strong>👤</strong>Profil</button></div></nav>
 <div class="toast" id="toast"></div>
 <script>
@@ -67,7 +67,7 @@ function button(label,kind,action){const b=document.createElement("button");b.cl
 function render(list){
  const root=$("cards");root.textContent="";
  $("counter").textContent=list.length+" canal"+(list.length>1?"aux":"");
- if(!list.length){empty(tab==="favorites"?"Aucun favori":"Aucun canal disponible",tab==="favorites"?"Utilise l'étoile ⭐ sur une fiche pour la retrouver ici.":"Les canaux sont publiés après validation des droits. Essaie un autre filtre.");return;}
+ if(!list.length){empty(tab==="favorites"?"Aucun favori":"Aucun canal disponible",tab==="favorites"?"Utilise l'étoile ⭐ sur une fiche pour la retrouver ici.":"Aucun résultat disponible pour ces filtres. Essaie une autre catégorie.");return;}
  const maxPage=Math.max(0,Math.ceil(list.length/pageSize)-1);page=Math.min(page,maxPage);
  for(const c of list.slice(page*pageSize,(page+1)*pageSize)){
   const card=document.createElement("article");card.className="card";
