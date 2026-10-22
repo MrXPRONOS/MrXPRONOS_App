@@ -52,3 +52,38 @@ CREATE TABLE IF NOT EXISTS referral_visits (
   CHECK (invited_id <> referrer_id)
 );
 CREATE INDEX IF NOT EXISTS idx_referral_visits_referrer ON referral_visits(referrer_id,confirmed_at);
+
+
+-- Cine Radar V2: favorites, filters, moderation, notifications, metrics.
+CREATE TABLE IF NOT EXISTS favorites (
+ user_id INTEGER NOT NULL,channel_id INTEGER NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY(user_id,channel_id));
+CREATE TABLE IF NOT EXISTS preferences (
+ user_id INTEGER PRIMARY KEY,category TEXT NOT NULL DEFAULT 'films',
+ language TEXT NOT NULL DEFAULT 'tous',notification_enabled INTEGER NOT NULL DEFAULT 0,
+ onboarded INTEGER NOT NULL DEFAULT 0,updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS channel_reports (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,channel_id INTEGER NOT NULL,user_id INTEGER NOT NULL,
+ reason TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'open',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ UNIQUE(channel_id,user_id,reason));
+CREATE TABLE IF NOT EXISTS channel_telemetry (
+ channel_id INTEGER PRIMARY KEY,opens INTEGER NOT NULL DEFAULT 0,shares INTEGER NOT NULL DEFAULT 0,
+ check_status TEXT NOT NULL DEFAULT 'unknown',last_checked_at TEXT,last_good_at TEXT);
+CREATE TABLE IF NOT EXISTS bot_settings (
+ setting_key TEXT PRIMARY KEY,value TEXT NOT NULL,updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS admin_users (
+ user_id INTEGER PRIMARY KEY,role TEXT NOT NULL DEFAULT 'admin',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS channel_moderation_log (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,channel_id INTEGER NOT NULL,
+ admin_id INTEGER NOT NULL,action TEXT NOT NULL,evidence TEXT NOT NULL DEFAULT '',
+ created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS notices_sent (
+ user_id INTEGER NOT NULL,channel_id INTEGER NOT NULL,PRIMARY KEY(user_id,channel_id));
+CREATE INDEX IF NOT EXISTS idx_channels_approved_recent ON channels(status,rights_confirmed,updated_at);
+CREATE INDEX IF NOT EXISTS idx_reports_pending ON channel_reports(status,created_at);
+-- For existing D1 databases, apply the ALTER TABLE statements below once.
+-- ALTER TABLE channels ADD COLUMN language TEXT NOT NULL DEFAULT 'VF';
+-- ALTER TABLE channels ADD COLUMN verified_at TEXT;
+-- ALTER TABLE channels ADD COLUMN last_post_at TEXT;
+-- ALTER TABLE channels ADD COLUMN rights_evidence TEXT NOT NULL DEFAULT '';
+-- ALTER TABLE channels ADD COLUMN banner_url TEXT NOT NULL DEFAULT '';
