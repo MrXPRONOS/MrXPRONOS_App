@@ -1,5 +1,5 @@
 // Free Pronos Telegram Mini App: trusted, signed initData only.
-import {summary,periodKey} from './features.js';
+import {summary,periodKey,claimEngagement} from './features.js';
 const enc=new TextEncoder();
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{
   'content-type':'application/json; charset=utf-8','cache-control':'no-store',
@@ -67,6 +67,49 @@ export async function miniApi(request,env){
   if(url.pathname==='/api/results'&&request.method==='GET'){
     const rows=await query(env,"SELECT id,title,tier,result_status,result_reviewed_at,result_source FROM coupons WHERE result_status IN ('live','won','lost','void') ORDER BY coalesce(result_reviewed_at,created_at) DESC LIMIT 30");
     return json({results:rows});
+  }
+  if(url.pathname==='/api/claim'&&request.method==='POST'){
+    let data;try{data=await request.json()}catch{return json({error:'invalid_json'},400)}
+    if(!['daily','weekly'].includes(data?.kind))return json({error:'invalid_mission'},400);
+    const result=await claimEngagement(env,id,data.kind);
+    return json(result,result.status==='ok'?200:result.status==='already'?409:403);
+  }
+  if(url.pathname==='/api/redeem'&&request.method==='POST'){
+    let data;try{data=await request.json()}catch{return json({error:'invalid_json'},400)}
+    const couponId=Number(data?.coupon_id);
+    if(!Number.isSafeInteger(couponId)||couponId<1)return json({error:'invalid_coupon'},400);
+    const claimed=await env.DB.prepare(
+      "INSERT OR IGNORE INTO redemptions(user_id,coupon_id,snapshot,xp_spent) "+
+      "SELECT ?,c.id,json_object('title',c.title,'tier',c.tier,'total_odds',c.total_odds,'selections',json(c.selections),'expires_at',c.expires_at),c.xp_cost "+
+      "FROM coupons c JOIN users u ON u.id=? WHERE c.id=? AND c.active=1 AND c.expires_at>? AND c.stock<>0 "+
+      "AND c.result_status='available' AND u.adult_confirmed=1 AND u.required_verified=1 AND u.xp>=c.xp_cost RETURNING coupon_id"
+    ).bind(id,id,couponId,new Date().toISOString()).first();
+    if(claimed)return json({status:'ok'});
+    const existing=await env.DB.prepare('SELECT 1 AS yes FROM redemptions WHERE user_id=? AND coupon_id=?').bind(id,couponId).first();
+    return json({error:existing?'already_redeemed':'coupon_unavailable_or_xp_insufficient'},409);
+  }
+  if(url.pathname==='/api/channel-claim'&&request.method==='POST'){
+    let data;try{data=await request.json()}catch{return json({error:'invalid_json'},400)}
+    const taskId=Number(data?.task_id);
+    if(!Number.isSafeInteger(taskId)||taskId<1)return json({error:'invalid_task'},400);
+    const task=await env.DB.prepare('SELECT chat_id,xp FROM tasks WHERE id=? AND active=1').bind(taskId).first();
+    if(!task)return json({error:'task_unavailable'},404);
+    try{
+      const response=await fetch('https://api.telegram.org/bot'+env.CF_BOT_TOKEN+'/getChatMember',{
+        method:'POST',headers:{'content-type':'application/json'},
+        body:JSON.stringify({chat_id:task.chat_id,user_id:id}),signal:AbortSignal.timeout(9000)
+      });
+      const result=await response.json(),member=result.result;
+      const isMember=result.ok&&member&&(
+        ['creator','administrator','member'].includes(member.status)||
+        (member.status==='restricted'&&member.is_member===true));
+      if(!isMember)return json({error:'membership_not_verified'},403);
+    }catch(error){console.warn('Free Pronos membership check unavailable',String(error).slice(0,120));return json({error:'membership_not_verified'},403)}
+    const claim=await env.DB.prepare(
+      'INSERT OR IGNORE INTO task_claims(user_id,task_id) SELECT ?,t.id FROM tasks t JOIN users u ON u.id=? '+
+      'WHERE t.id=? AND t.active=1 AND u.adult_confirmed=1 AND u.required_verified=1 RETURNING user_id'
+    ).bind(id,id,taskId).first();
+    return claim?json({status:'ok',xp:task.xp}):json({error:'already_claimed'},409);
   }
   if(url.pathname==='/api/alerts'&&request.method==='POST'){
     if(Number(request.headers.get('content-length')||0)>1024)return json({error:'too_large'},413);
