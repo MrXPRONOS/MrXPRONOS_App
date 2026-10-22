@@ -5,8 +5,24 @@ const LINK=/^https:\/\/t\.me\/[A-Za-z][A-Za-z0-9_]{4,31}\/?$/;
 const esc=t=>String(t??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const button=(text,data,url)=>url?{text,url}:{text,callback_data:data};
 const keyboard=rows=>({inline_keyboard:rows});
+const categoryCache=new Map();
+let catalogCache=null;
+export function invalidateDirectoryCache(){categoryCache.clear();catalogCache=null;}
+async function categoryRows(env,kind){
+ const now=Date.now(),saved=categoryCache.get(kind);
+ if(saved&&saved.expires>now)return saved.value;
+ const pending=env.DB.prepare("SELECT title,link FROM channels WHERE status='approved' AND content_type=? ORDER BY updated_at DESC LIMIT 160").bind(kind).all().then(x=>x.results||[]);
+ categoryCache.set(kind,{expires:now+60000,value:pending});
+ try{return await pending;}catch(e){categoryCache.delete(kind);throw e;}
+}
+async function catalogRows(env){
+ if(catalogCache&&catalogCache.expires>Date.now())return catalogCache.value;
+ const pending=env.DB.prepare("SELECT c.id,c.title,c.link,c.content_type,c.genre,COALESCE(p.avatar_url,'') avatar_url FROM channels c LEFT JOIN channel_profile_cache p ON c.id=p.channel_id WHERE c.status='approved' ORDER BY c.updated_at DESC LIMIT 400").all().then(x=>x.results||[]);
+ catalogCache={expires:Date.now()+90000,value:pending};
+ try{return await pending;}catch(e){catalogCache=null;throw e;}
+}
 export async function telegram(env,method,data){
- const r=await fetch("https://api.telegram.org/bot"+env.TELEGRAM_TOKEN+"/"+method,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
+ const r=await fetch("https://api.telegram.org/bot"+env.TELEGRAM_TOKEN+"/"+method,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data),signal:AbortSignal.timeout(method==="answerCallbackQuery"?3500:7500)});
  const d=await r.json();
  if(!d.ok)console.warn(JSON.stringify({event:"telegram_api_error",method,code:d.error_code}));
  return d;
@@ -24,11 +40,10 @@ const homeButtons=()=>keyboard([
  [{text:"🍿 Voir tous les canaux",web_app:{url:BASE+"/app"}}]
 ]);
 function categoriesLabel(k){return TYPES.find(x=>x[0]===k)?.[1]||"Films";}
-export async function botUpdate(env,update){
+async function processBotUpdate(env,update){
  const cb=update.callback_query, msg=cb?.message||update.message;
  const chat=msg?.chat?.id;
  if(!chat)return;
- if(cb?.id)await telegram(env,"answerCallbackQuery",{callback_query_id:cb.id});
  const value=String(cb?.data||"");
  const text=String(update.message?.text||"").trim();
  if(value==="home"||/^\/(start|menu|aide|help|profil|favoris|parrainage|preferences)(?:@[A-Za-z0-9_]+)?(?:\s+.*)?$/i.test(text)||(!value&&!text)){
@@ -42,7 +57,7 @@ export async function botUpdate(env,update){
  }
  if(!match){await display(env,chat,cb,"🎬 <b>CINÉ RADAR</b>\n\nChoisis une catégorie 👇",homeButtons());return;}
  const kind=match[1],requested=Math.min(50,Math.max(0,Number(match[2]||0)));
- const rows=(await env.DB.prepare("SELECT title,link FROM channels WHERE status='approved' AND content_type=? ORDER BY updated_at DESC LIMIT 160").bind(kind).all()).results||[];
+ const rows=await categoryRows(env,kind);
  const filtered=rows.filter(c=>LINK.test(c.link));
  const page=Math.min(requested,Math.max(0,Math.ceil(filtered.length/8)-1)),slice=filtered.slice(page*8,page*8+8);
  const nav=slice.map(c=>[button("🎞 "+String(c.title||"Canal public").slice(0,43),null,c.link)]);
@@ -55,6 +70,13 @@ export async function botUpdate(env,update){
  (slice.length?"Appuie sur un canal pour l'ouvrir 👇":"Aucun canal disponible pour le moment.");
  await display(env,chat,cb,msgText,keyboard(nav));
 }
+// Acknowledge the Telegram tap in parallel with loading and editing the message.
+export async function botUpdate(env,update){
+ const cb=update.callback_query;
+ const ack=cb?.id?telegram(env,"answerCallbackQuery",{callback_query_id:cb.id}).catch(e=>{console.warn("callback_ack_failed",String(e).slice(0,80));}):Promise.resolve();
+ const outcome=await Promise.allSettled([ack,processBotUpdate(env,update)]);
+ if(outcome[1].status==="rejected")throw outcome[1].reason;
+}
 export async function miniAppAPI(env,request,previewFn){
  const json=(obj,status=200)=>Response.json(obj,{status,headers:{"Cache-Control":"public, max-age=120","X-Content-Type-Options":"nosniff"}});
  const u=new URL(request.url);
@@ -63,11 +85,9 @@ export async function miniAppAPI(env,request,previewFn){
   const type=String(u.searchParams.get("type")||"all");
   if(!["all","films","series","animes"].includes(type))return json({error:"Catégorie inconnue"},400);
   const q=String(u.searchParams.get("q")||"").trim().toLowerCase().slice(0,70);
-  const rows=(await env.DB.prepare(
-   "SELECT c.id,c.title,c.link,c.content_type,c.genre,COALESCE(p.avatar_url,'') avatar_url FROM channels c LEFT JOIN channel_profile_cache p ON c.id=p.channel_id WHERE c.status='approved' ORDER BY c.updated_at DESC LIMIT 400"
-  ).all()).results||[];
+  const rows=await catalogRows(env);
   const eligible=rows.filter(c=>LINK.test(c.link)&&(type==="all"||c.content_type===type)&&(!q||String(c.title+" "+c.genre).toLocaleLowerCase().includes(q)));
-  return json({channels:eligible.map(x=>({id:x.id,title:x.title,link:x.link,type:x.content_type,photo:x.avatar_url||null})),total:eligible.length});
+  return json({channels:eligible.map(x=>({id:x.id,title:x.title,link:x.link,type:x.content_type,photo:x.avatar_url||null,genre:x.genre})),total:eligible.length});
  }
  if(u.pathname==="/api/channel-preview"){
   const id=Number(u.searchParams.get("id"));
