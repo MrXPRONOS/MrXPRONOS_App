@@ -80,7 +80,7 @@ jobs:
           npx --no-install wrangler secret put --help >/dev/null
 
       - name: Appliquer uniquement les migrations D1 du bot
-        run: npx --no-install wrangler d1 migrations apply xpronos-coupons-bot --remote --yes
+        run: npx --no-install wrangler d1 migrations apply xpronos-coupons-bot --remote
 
       - name: Déployer XPRONOS 4+ sur Cloudflare
         run: npx --no-install wrangler deploy
