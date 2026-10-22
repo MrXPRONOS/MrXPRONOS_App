@@ -20,7 +20,8 @@ if not SERVICE_KEY or not OIDC_REQUEST_URL or not OIDC_REQUEST_TOKEN:
 inventory=json.load(open(INVENTORY_FILE,encoding="utf-8"))
 assert len(inventory)==113 and sum(int(x["size"]) for x in inventory)==215013480
 headers={"apikey":SERVICE_KEY,"Authorization":"Bearer "+SERVICE_KEY}
-token="",expires=0
+token=""
+expires=0
 source=requests.Session()
 def get_oidc():
     global token,expires
