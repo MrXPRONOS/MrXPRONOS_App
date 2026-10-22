@@ -77,6 +77,13 @@ export async function botUpdate(env,update){
  const outcome=await Promise.allSettled([ack,processBotUpdate(env,update)]);
  if(outcome[1].status==="rejected")throw outcome[1].reason;
 }
+export async function listPublicChannels(env){
+ const rows=await catalogRows(env);
+ return rows.filter(c=>LINK.test(c.link)).map(x=>({
+  id:x.id,title:x.title,link:x.link,type:x.content_type,
+  photo:x.avatar_url||null,genre:x.genre
+ }));
+}
 export async function miniAppAPI(env,request,previewFn){
  const json=(obj,status=200)=>Response.json(obj,{status,headers:{"Cache-Control":"public, max-age=120","X-Content-Type-Options":"nosniff"}});
  const u=new URL(request.url);
@@ -85,9 +92,9 @@ export async function miniAppAPI(env,request,previewFn){
   const type=String(u.searchParams.get("type")||"all");
   if(!["all","films","series","animes"].includes(type))return json({error:"Catégorie inconnue"},400);
   const q=String(u.searchParams.get("q")||"").trim().toLowerCase().slice(0,70);
-  const rows=await catalogRows(env);
-  const eligible=rows.filter(c=>LINK.test(c.link)&&(type==="all"||c.content_type===type)&&(!q||String(c.title+" "+c.genre).toLocaleLowerCase().includes(q)));
-  return json({channels:eligible.map(x=>({id:x.id,title:x.title,link:x.link,type:x.content_type,photo:x.avatar_url||null,genre:x.genre})),total:eligible.length});
+  const channels=await listPublicChannels(env);
+  const eligible=channels.filter(c=>(type==="all"||c.type===type)&&(!q||String(c.title+" "+c.genre).toLocaleLowerCase().includes(q)));
+  return json({channels:eligible,total:eligible.length});
  }
  if(u.pathname==="/api/channel-preview"){
   const id=Number(u.searchParams.get("id"));
