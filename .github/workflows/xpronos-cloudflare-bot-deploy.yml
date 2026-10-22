@@ -224,7 +224,7 @@ jobs:
           if health!=200 or b'ready' not in body:
               raise SystemExit('Erreur de santé sur Cloudflare : HTTP '+str(health))
           page,body,ctype=check('/app')
-          if page!=200 or 'text/html' not in ctype or b'FREE PRONOS' not in body or b'telegram-web-app.js' not in body:
+          if page!=200 or 'text/html' not in ctype or b'<title>Free Pronos' not in body or b'telegram-web-app.js' not in body:
               raise SystemExit('Mini App inaccessible ou contenu attendu manquant : HTTP '+str(page))
           protected,_,_=check('/api/me')
           if protected!=401:
