@@ -1,0 +1,18 @@
+name: Neon LIVE 20 match parallel statistics regression
+on:
+  push:
+    branches: [migration/supabase-to-free-stack-20261022]
+    paths: [migration/free-stack/live/index.signals-safe.mjs, tests/neon-live-20-parallel.test.mjs, .github/workflows/neon-live-20-parallel-tests.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  parallel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: node tests/neon-live-20-parallel.test.mjs
