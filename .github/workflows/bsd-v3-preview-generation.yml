@@ -1,7 +1,7 @@
 name: BSD V3 - Apercu de test (sans publication)
 on:
   workflow_dispatch:
-  # First real run is triggered by this isolated workflow update.
+  # Re-run V3 market confidence generation on isolated branch.
   # Later JSON refreshes cannot recursively trigger this workflow.
   push:
     branches: [feature/bsd-v3-40-markets-shadow-20261022]
@@ -44,7 +44,8 @@ jobs:
           import json
           d=json.load(open('bsd/v3_preview_feed.json'))
           assert d['format']=='bsd-v3-40-shadow-v1' and not d['published'] and d['experimental']
-          assert all(m['experimental'] and not m['published'] and len(m['markets'])==40 for m in d['matches'])
+          assert all(m['experimental'] and not m['published'] and len(m['markets'])==40 and m['multi_market_mode']=='all_40_no_selection_cap' for m in d['matches'])
+          assert all(all('confidence_pct' in opt and opt['confidence_calibrated'] is False for opt in m['markets']) for m in d['matches'])
           print('V3 previews',len(d['matches']))
           PY
       - name: Store test results
