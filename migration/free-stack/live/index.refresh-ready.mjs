@@ -2299,6 +2299,7 @@ export {
   index_default as default
 };
 
+{
 // MrXPRONOS: Neon LIVE bounded refresh, isolated from Telegram.
 // Runs only after verifying a GitHub Actions OIDC token.
 // Intentionally DOES NOT generate betting signals or invoke Telegram.
@@ -2559,3 +2560,4 @@ index_default.fetch=async function(req){
     return json(req,{success:false,error:"refresh_failed",reason:String(e?.code||e?.message||"unknown").slice(0,140),telegram_sent:0},503);
   }
 };
+}
