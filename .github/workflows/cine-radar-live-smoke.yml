@@ -1,0 +1,21 @@
+name: Cine Radar - Production smoke
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cinecanaux/tests/live-smoke.mjs'
+      - '.github/workflows/cine-radar-live-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-live-catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify live Cloudflare catalog, previews and auth boundaries
+        run: node cinecanaux/tests/live-smoke.mjs
