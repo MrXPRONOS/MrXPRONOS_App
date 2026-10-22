@@ -1,0 +1,22 @@
+name: LIVE legacy Telegram image tests
+on:
+  push:
+    branches: [fix/legacy-live-telegram-images-20261022]
+    paths:
+      - "cloudflare/telegram-live-instant/worker.mjs"
+      - "tests/live-telegram-legacy-image.test.mjs"
+      - ".github/workflows/live-telegram-legacy-image-tests.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  png:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Original bitmap + sponsor banner and D1 mock checks
+        run: node tests/live-telegram-legacy-image.test.mjs
