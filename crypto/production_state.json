@@ -30,6 +30,10 @@
     "XRP": true
   },
   "news_fingerprints": {
+    "77af8c2a1a9b955173bd486e": {
+      "message_id": 28,
+      "number": 9
+    },
     "b749ed0af0294525b34931bc": {
       "message_id": 22,
       "number": 9
@@ -185,6 +189,12 @@
       "number": 9,
       "sent_at": "2026-10-18T23:35:02Z",
       "source": "confirmed Telegram photo, workflow 39177002087"
+    },
+    "news:09:52858e96da29d4dcbe0d1fb3": {
+      "message_id": 28,
+      "number": 9,
+      "sent_at": "2026-10-22T18:09:31.847473+00:00",
+      "source": "Kraken Status"
     },
     "news:09:e44d8a305e368ff1bd8429a1": {
       "message_id": 22,
