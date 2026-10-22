@@ -1,5 +1,7 @@
 name: Neon LIVE - Signaux Telegram
 on:
+  schedule:
+    - cron: '*/5 * * * *'
   push:
     branches: [main]
     paths:
@@ -36,7 +38,7 @@ jobs:
         run: python -m py_compile scripts/neon_live_telegram.py
       - name: Publish qualifying new LIVE signals (no backfill)
         env:
-          MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'probe' }}
+          MODE: ${{ github.event_name == 'schedule' && 'live' || (github.event_name == 'workflow_dispatch' && inputs.mode || 'probe') }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
