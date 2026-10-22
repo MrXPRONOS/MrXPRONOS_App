@@ -237,6 +237,14 @@ async function admin(env,uid,chat,raw,updateId){
     const grant=await one(env,'INSERT OR IGNORE INTO manual_grants(user_id,xp,update_id) SELECT ?,?,? WHERE EXISTS(SELECT 1 FROM users WHERE id=?) RETURNING id',userId,points,updateId,userId);
     return send(env,chat,grant?'✅ <b>XP crédités avec succès !</b>':'ℹ️ <b>Utilisateur introuvable</b> ou commande déjà appliquée.');
   }
+  if(name==='/result'){
+    const result=await adminResult(env,arg);
+    return send(env,chat,result.status==='ok'?
+      '✅ <b>RÉSULTAT ENREGISTRÉ</b>\n\n🎟️ Coupon #'+result.id+'\n📊 '+result.label+'\n\n<i>La mise à jour est identifiée comme validation administrative.</i>':
+      result.status==='missing'?'⚠️ Coupon introuvable.':
+      '⚠️ <b>Format attendu</b>\n<code>/result ID won|lost|void|live|available https://source-fiable.example</code>\n\n<i>Indique une source vérifiable et réelle.</i>');
+  }
+  if(name==='/adminstats')return adminAnalytics(env,chat,send);
   if(name==='/stats'){
     const r=await one(env,'SELECT (SELECT count(*) FROM users) AS members,(SELECT count(*) FROM tasks) AS tasks,(SELECT count(*) FROM coupons) AS coupons,(SELECT count(*) FROM redemptions) AS redemptions');
     return send(env,chat,'📊 <b>STATISTIQUES FREE PRONOS</b>\n\n<blockquote>👥 Membres : <b>'+r.members+'</b>\n🚩 Missions : <b>'+r.tasks+'</b>\n🎟️ Coupons : <b>'+r.coupons+'</b>\n🔓 Déblocages : <b>'+r.redemptions+'</b></blockquote>');
@@ -291,7 +299,7 @@ async function handle(env,update) {
   }
   if(txt.startsWith('/')){
     const command=txt.split(/\s+/)[0].split('@')[0];
-    const names=new Set(['/admin','/addcoupon','/listcoupons','/delcoupon','/activatecoupon','/addtask','/listtasks','/deltask','/grantxp','/stats']);
+    const names=new Set(['/admin','/addcoupon','/listcoupons','/delcoupon','/activatecoupon','/addtask','/listtasks','/deltask','/grantxp','/stats','/adminstats','/result']);
     if(names.has(command))return admin(env,uid,chat,command+txt.slice(txt.split(/\s+/)[0].length),update.update_id);
   }
   if(txt==='🏠 Mon espace'||txt==='/dashboard'||txt==='/menu')return dashboard(env,uid,chat,send);
