@@ -107,7 +107,7 @@ async function syncGitHubDiscovery(env) {
        content_type=excluded.content_type,
        genre=CASE WHEN excluded.genre='general' AND discovery_candidates.genre!='general'
                   THEN discovery_candidates.genre ELSE excluded.genre END,
-       last_scan=excluded.last_scan, last_seen=CURRENT_TIMESTAMP, updated_at=CURRENT_TIMESTAMP`
+       last_scan=excluded.last_scan, last_seen=CURRENT_TIMESTAMP, updated_at=CURRENT_TIMESTAMP, rights_status=CASE WHEN discovery_candidates.rights_status='link_dead' AND excluded.last_scan > discovery_candidates.last_scan THEN 'unverified' ELSE discovery_candidates.rights_status END`
     ).bind(x.username,x.title,x.link,x.content_type,x.genre,x.source_category,x.pairs,x.technical_status,scanDate));
     const qualified = rows.filter(x=>x.technical_status==="qualified").length;
     statements.push(env.DB.prepare(
@@ -139,7 +139,7 @@ export async function indexQualifiedChannels(env){
  const rows=eligible.filter(x=>check.test(x.link));
  if(!rows.length)return {indexed:0};
  const stmts=rows.map(x=>env.DB.prepare(
-  "INSERT INTO channels(title,link,description,content_type,genre,status,rights_confirmed,language) VALUES(?,?,?, ?,?,'approved',0,'VF') ON CONFLICT(link) DO UPDATE SET title=excluded.title,description=excluded.description,content_type=excluded.content_type,genre=excluded.genre,status=CASE WHEN channels.status='blocked' THEN channels.status ELSE 'approved' END,updated_at=CURRENT_TIMESTAMP"
+  "INSERT INTO channels(title,link,description,content_type,genre,status,rights_confirmed,language,verified_at) VALUES(?,?,?, ?,?,'approved',0,'VF',CURRENT_TIMESTAMP) ON CONFLICT(link) DO UPDATE SET title=excluded.title,description=excluded.description,content_type=excluded.content_type,genre=excluded.genre,status=CASE WHEN channels.status='blocked' THEN channels.status ELSE 'approved' END,updated_at=CURRENT_TIMESTAMP"
  ).bind(x.title,x.link,"Canal Telegram public • "+x.matching_pairs+" correspondance(s) photo/vidéo ou fichier MKV observée(s)",x.content_type,x.genre));
  await env.DB.batch(stmts);
  console.log(JSON.stringify({event:"public_channels_indexed",count:rows.length}));
