@@ -62,4 +62,4 @@ for(const type of ["films","series","animes"]){
  console.log("PASS "+type+" live API "+Math.round(performance.now()-start)+" ms");
 }
 
-// Production check: minimal Ciné Radar release V6.
+// Production check: minimal Ciné Radar release V6, verified after performance deployment.
