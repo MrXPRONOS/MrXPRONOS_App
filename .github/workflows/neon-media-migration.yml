@@ -21,6 +21,7 @@ jobs:
       - run: pip install boto3 requests
       - name: Copy and SHA256 validate 113 objects
         env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NEON_S3_ENDPOINT: ${{ secrets.NEON_S3_ENDPOINT }}
           NEON_S3_ACCESS_KEY_ID: ${{ secrets.NEON_S3_ACCESS_KEY_ID }}
           NEON_S3_SECRET_ACCESS_KEY: ${{ secrets.NEON_S3_SECRET_ACCESS_KEY }}
