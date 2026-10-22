@@ -1,0 +1,31 @@
+name: Mr XPRONOS - D1 Telegram ledger API audit
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/mrx-d1-ledger-api-check.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - name: Verify Cloudflare API can read migrated Telegram ledger
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request
+          token=os.environ.get('CLOUDFLARE_API_TOKEN','')
+          if not token:raise SystemExit('Cloudflare API token secret absent')
+          url='https://api.cloudflare.com/client/v4/accounts/9c86118191b804d91b5f5b2c89114999/d1/database/ff88b45f-9c3b-4592-a2d6-e32ed7e75fe6/query'
+          req=urllib.request.Request(url,method='POST',
+                data=json.dumps({'sql':'SELECT COUNT(*) AS n FROM telegram_sent'}).encode(),
+                headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'})
+          with urllib.request.urlopen(req,timeout=25) as r:payload=json.load(r)
+          if not payload.get('success'):raise SystemExit('D1 API rejected query')
+          count=int(payload['result'][0]['results'][0]['n'])
+          assert count==733,'Historical ledger count differs from Supabase snapshot'
+          print('D1 HTTP API usable from GitHub Actions; 733 archived Telegram delivery rows verified')
+          PY
