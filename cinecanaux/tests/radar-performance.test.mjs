@@ -46,7 +46,7 @@ test("Mini App gets one all-category payload and is locally filterable",async()=
  assert.equal(listing.channels[0].genre,"general");
  assert.ok(APP_HTML.includes('api("/api/catalog")'),"one initial catalog request");
  assert.ok(APP_HTML.includes("function applyFilters()"),"filters are local");
- assert.ok(!APP_HTML.includes('api("/api/catalog?"),"no network query for each tab");
+ assert.ok(!APP_HTML.includes('api("/api/catalog?'),"no network query for each tab");
  assert.ok(APP_HTML.includes('function showPreview(c){'),"sheet is shown without awaiting remote preview");
  assert.ok(APP_HTML.includes("fillPreview(c,images.get(c.id))"),"basic preview paints immediately");
  assert.equal(state.queries,1);
