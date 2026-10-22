@@ -4,11 +4,13 @@ import {parseCouponCommand} from './logic.js';
 
 const POINTS_REFERRAL=30,POINTS_BONUS=5,DAILY_CAP=10,COOLDOWN=2*3600000;
 const SITE='https://mrxpronos.github.io/MrXPRONOS_App/';
-const MENU={keyboard:[
-  [{text:'🎟️ Coupons cote 4+'},{text:'🎫 Mes coupons'}],
-  [{text:'🚩 Tâche'},{text:'🎁 Bonus'}],
-  [{text:'⭐ Mes XP'},{text:'↗️ Partager'}],
-  [{text:'✅ Vérifier'},{text:'📋 Procédure'}]
+// Styles officiels Telegram : primary (bleu), success (vert), danger (rouge).
+// Les thèmes et versions des clients Telegram peuvent adapter leur rendu.
+export const MENU={keyboard:[
+  [{text:'🎟️ Coupons cote 4+',style:'primary'},{text:'🎫 Mes coupons',style:'primary'}],
+  [{text:'🚩 Tâche',style:'primary'},{text:'🎁 Bonus',style:'success'}],
+  [{text:'⭐ Mes XP',style:'primary'},{text:'↗️ Partager',style:'success'}],
+  [{text:'✅ Vérifier',style:'success'},{text:'📋 Procédure',style:'primary'}]
 ],resize_keyboard:true};
 const inline=(rows)=>({inline_keyboard:rows});
 const html=(s)=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
@@ -31,8 +33,11 @@ async function telegram(env,method,data) {
   if(!response.ok||!j.ok)throw Error('Telegram '+method+': HTTP '+response.status+' '+String(j.description||'').slice(0,130));
   return j.result;
 }
+// Passer null comme clavier pour produire un message facilement transférable.
 const send=(env,chat,text,reply=MENU)=>telegram(env,'sendMessage',{
-  chat_id:chat,text:pad(text),parse_mode:'HTML',reply_markup:reply,disable_web_page_preview:true
+  chat_id:chat,text:pad(text),parse_mode:'HTML',
+  ...(reply?{reply_markup:reply}:{}),
+  disable_web_page_preview:true
 });
 const ack=async(env,id)=>{try{await telegram(env,'answerCallbackQuery',{callback_query_id:id})}catch(e){console.warn('Callback acknowledgment failed:',String(e))}};
 const one=async(env,sql,...params)=>env.DB.prepare(sql).bind(...params).first();
@@ -55,8 +60,8 @@ async function verify(env,uid,chat) {
   if(!u?.adult_confirmed)return send(env,chat,'🔞 Confirme d’abord que tu as 18 ans ou plus avec /start.');
   const required=channels(env);
   if(!(await requirements(env,uid))){
-    const rows=required.map(c=>[{text:'📢 Rejoindre le canal',url:c.url}]);
-    rows.push([{text:'✅ Vérifier',callback_data:'verify'}]);
+    const rows=required.map(c=>[{text:'📢 Rejoindre le canal',url:c.url,style:'primary'}]);
+    rows.push([{text:'✅ Vérifier',callback_data:'verify',style:'success'}]);
     return send(env,chat,'Rejoins les canaux obligatoires, puis appuie sur ✅ Vérifier. Le bot doit être administrateur du canal.',inline(rows));
   }
   const ref=required.length>0 && !!u.referred_by && !u.referral_rewarded;
@@ -67,13 +72,13 @@ async function tasks(env,uid,chat) {
   const u=await user(env,uid);
   if(!u?.adult_confirmed||!u?.required_verified)return send(env,chat,'🔒 Confirme ton âge et valide les canaux via ✅ Vérifier.');
   const ts=await all(env,'SELECT t.* FROM tasks t WHERE t.active=1 AND NOT EXISTS (SELECT 1 FROM task_claims c WHERE c.task_id=t.id AND c.user_id=?) ORDER BY t.id DESC LIMIT 25',uid);
-  const rows=ts.map(t=>[{text:'📢 Canal (+'+t.xp+' XP)',url:t.url},{text:'✅ Check',callback_data:'task:'+t.id}]);
+  const rows=ts.map(t=>[{text:'📢 Canal (+'+t.xp+' XP)',url:t.url,style:'primary'},{text:'✅ Check',callback_data:'task:'+t.id,style:'success'}]);
   return send(env,chat,rows.length?'🚩 Missions disponibles : rejoins chaque canal puis appuie sur Check.':'✅ Toutes les missions sont terminées.',rows.length?inline(rows):MENU);
 }
 async function claimTask(env,uid,chat,id) {
   const t=await one(env,'SELECT * FROM tasks WHERE id=? AND active=1',id);
   if(!t)return send(env,chat,'Mission indisponible.');
-  if(!(await joined(env,uid,t.chat_id)))return send(env,chat,'Tu dois rejoindre ce canal avant la validation.',inline([[{text:'📢 Rejoindre',url:t.url}],[{text:'✅ Check',callback_data:'task:'+id}]]));
+  if(!(await joined(env,uid,t.chat_id)))return send(env,chat,'Tu dois rejoindre ce canal avant la validation.',inline([[{text:'📢 Rejoindre',url:t.url,style:'primary'}],[{text:'✅ Check',callback_data:'task:'+id,style:'success'}]]));
   const res=await one(env,'INSERT OR IGNORE INTO task_claims(user_id,task_id) SELECT ?,t.id FROM tasks t JOIN users u ON u.id=? WHERE t.id=? AND t.active=1 AND u.adult_confirmed=1 AND u.required_verified=1 RETURNING user_id',uid,uid,id);
   return send(env,chat,res?'✅ +'+t.xp+' XP ajoutés !':'Mission déjà récompensée ou compte non vérifié.');
 }
@@ -102,7 +107,7 @@ async function coupons(env,uid,chat) {
   const rows=await all(env,'SELECT * FROM coupons WHERE active=1 AND expires_at>? AND stock<>0 ORDER BY created_at DESC,id DESC LIMIT 10',new Date().toISOString());
   if(!rows.length)return send(env,chat,'📭 Aucun coupon cote 4+ disponible actuellement.');
   await send(env,chat,'🎟️ Coupons disponibles ('+rows.length+') : les cotes sont indicatives, aucun résultat garanti.');
-  for(const c of rows)await send(env,chat,pretty(c),inline([[{text:'🔓 Débloquer pour '+c.xp_cost+' XP',callback_data:'coupon:'+c.id}]]));
+  for(const c of rows)await send(env,chat,pretty(c),inline([[{text:'🔓 Débloquer pour '+c.xp_cost+' XP',callback_data:'coupon:'+c.id,style:'success'}]]));
 }
 async function redeem(env,uid,chat,id) {
   const u=await user(env,uid);
@@ -217,7 +222,7 @@ async function handle(env,update) {
   if(/^\/start(?:@\w+)?(?:\s|$)/.test(txt)){
     const u=await user(env,uid);
     await send(env,chat,'⚽ Bienvenue sur <b>XPRONOS 4+</b> !\n\nAccomplis des missions, gagne des XP et débloque des coupons de cote <b>4.00 ou plus</b>.\n\n⚠️ Aucun résultat garanti. 18+ • Joue responsablement.');
-    if(!u?.adult_confirmed)return send(env,chat,'🔞 Confirme que tu as 18 ans ou plus :',inline([[{text:'✅ Oui, 18 ans ou plus',callback_data:'adult_yes'}],[{text:'❌ Non',callback_data:'adult_no'}]]));
+    if(!u?.adult_confirmed)return send(env,chat,'🔞 Confirme que tu as 18 ans ou plus :',inline([[{text:'✅ Oui, 18 ans ou plus',callback_data:'adult_yes',style:'success'}],[{text:'❌ Non',callback_data:'adult_no',style:'danger'}]]));
     return verify(env,uid,chat);
   }
   if(txt.startsWith('/')){
