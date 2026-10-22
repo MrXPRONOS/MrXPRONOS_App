@@ -15,12 +15,16 @@ assert.ok(health.body.publicChannels>0);
 console.log("PASS lean worker deployed; channels="+health.body.publicChannels);
 const app=await get("/app");
 assert.equal(app.status,200);
-for(const name of ["Ciné Radar","👁 Aperçu","🎬 Films","📺 Séries","🎌 Animés"]){
+for(const name of ['Ciné Radar','data-type="films"','data-type="series"','data-type="animes"','sheet-detail','class="brand-mark"','class="hero"']){
  assert.ok(app.body.includes(name),name+" missing");
 }
 for(const removed of ["Mes favoris","Parrainage","Copier le lien","Mes préférences"]){
  assert.ok(!app.body.includes(removed),removed+" not removed");
 }
+assert.ok(app.body.includes("button(\"Aperçu\""),"Eye icon button must remain available");
+assert.ok(app.body.includes("button(\"Ouvrir\""),"Direct open button must remain available");
+assert.ok(app.body.includes("scene-film"),"Movie hero background missing");
+assert.ok(app.body.includes("scene-anime"),"Anime hero background missing");
 console.log("PASS lightweight UI without favorites, referral or sharing");
 const channels=await get("/api/catalog");
 assert.equal(channels.status,200);
