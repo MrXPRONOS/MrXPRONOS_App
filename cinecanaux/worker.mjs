@@ -136,6 +136,15 @@ export default {
    return new Response(APP_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"public, max-age=600","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"}});
   }
   if(request.method==="GET"&&url.pathname==="/assets/banner.svg")return banner();
+  if(request.method==="GET"&&/^\/go\/\d+$/.test(url.pathname)){
+   const cid=Number(url.pathname.slice(4));
+   if(!Number.isSafeInteger(cid))return new Response("Not found",{status:404});
+   const target=await env.DB.prepare("SELECT link FROM channels WHERE id=? AND status='approved' AND rights_confirmed=1").bind(cid).first();
+   if(!target||!/^https:\/\/t\.me\/[A-Za-z][A-Za-z0-9_]{4,31}\/?$/.test(target.link))return new Response("Canal indisponible",{status:404});
+   await env.DB.prepare("INSERT INTO channel_telemetry(channel_id,opens) VALUES(?,1) ON CONFLICT(channel_id) DO UPDATE SET opens=channel_telemetry.opens+1").bind(cid).run();
+   return Response.redirect(target.link,302);
+  }
+
   if(url.pathname.startsWith("/api/"))return miniAppAPI(env,request);
   if(request.method==="POST"&&url.pathname==="/telegram")return receiveTelegram(request,env);
   if(request.method==="GET"&&url.pathname==="/health"){
