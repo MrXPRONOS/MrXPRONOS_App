@@ -54,18 +54,28 @@ const errPreview=(channel,username)=>({
 });
 export async function channelPreview(env,id){
  if(!Number.isSafeInteger(id)||id<1)return {status:400,error:"Identifiant de canal invalide"};
- const c=await env.DB.prepare("SELECT id,title,link,description,last_post_at FROM channels WHERE id=? AND status='approved'").bind(id).first();
+ // One joined D1 read instead of two sequential round trips for every preview.
+ const c=await env.DB.prepare(
+  "SELECT c.id,c.title,c.link,c.description,c.last_post_at,"+
+  "p.title AS cached_title,p.description AS cached_description,"+
+  "p.avatar_url AS cached_avatar_url,p.post_image_url AS cached_post_image_url,"+
+  "p.last_post_at AS cached_last_post_at,p.checked_at AS cached_checked_at,"+
+  "p.preview_status AS cached_preview_status "+
+  "FROM channels c LEFT JOIN channel_profile_cache p ON p.channel_id=c.id "+
+  "WHERE c.id=? AND c.status='approved'"
+ ).bind(id).first();
  if(!c)return {status:404,error:"Canal non disponible"};
  const match=PUBLIC_LINK.exec(c.link||"");
  if(!match)return {status:404,error:"Lien public invalide"};
  const username=match[1],fallback=errPreview(c,username);
- const cached=await env.DB.prepare("SELECT title,description,avatar_url,post_image_url,last_post_at,checked_at,preview_status FROM channel_profile_cache WHERE channel_id=?").bind(id).first();
- if(cached){
-  const checked=Date.parse(String(cached.checked_at||"").replace(" ","T")+"Z");
-  if(Number.isFinite(checked)&&Date.now()-checked<(cached.preview_status==="available"?7:1)*86400000) {
-   return {status:200,data:{...fallback,title:cached.title||c.title,description:cached.description||c.description,
-    avatar_url:cached.avatar_url||null,post_image_url:cached.post_image_url||null,last_post_at:cached.last_post_at||c.last_post_at,
-    preview_status:cached.preview_status||"unavailable",cached:true}};
+ if(c.cached_checked_at){
+  const checked=Date.parse(String(c.cached_checked_at).replace(" ","T")+"Z");
+  if(Number.isFinite(checked)&&Date.now()-checked<(c.cached_preview_status==="available"?7:1)*86400000) {
+   return {status:200,data:{...fallback,
+    title:c.cached_title||c.title,description:c.cached_description||c.description,
+    avatar_url:c.cached_avatar_url||null,post_image_url:c.cached_post_image_url||null,
+    last_post_at:c.cached_last_post_at||c.last_post_at,
+    preview_status:c.cached_preview_status||"unavailable",cached:true}};
   }
  }
  // Retrieve the landing preview and the public post preview concurrently.
