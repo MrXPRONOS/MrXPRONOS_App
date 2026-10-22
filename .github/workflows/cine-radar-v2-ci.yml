@@ -1,0 +1,32 @@
+name: Cine Radar V2 - CI
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cinecanaux/**'
+      - '.github/workflows/cine-radar-v2-ci.yml'
+  pull_request:
+    paths:
+      - 'cinecanaux/**'
+      - '.github/workflows/cine-radar-v2-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate syntax
+        run: |
+          node --check cinecanaux/worker.mjs
+          node --check cinecanaux/radar-features.mjs
+          node --check cinecanaux/app-page.mjs
+      - name: Run isolated Telegram and Mini App tests
+        run: node --test cinecanaux/tests/radar-v2.test.mjs
