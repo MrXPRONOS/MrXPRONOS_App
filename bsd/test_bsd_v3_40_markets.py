@@ -1,0 +1,62 @@
+"""Regression tests for the 40-market shadow prototype. No API or production feed."""
+import sys
+import unittest
+from pathlib import Path
+sys.path.insert(0,str(Path(__file__).parent))
+from bsd_v2_core import score_matrix
+from bsd_v3_40_markets import SPECS, BY_KEY, probabilities, result, settle_market
+from bsd_v3_40_engine import rank_markets
+from datetime import datetime,timezone
+
+class V3MarketsTests(unittest.TestCase):
+    def setUp(self):
+        self.matrix=score_matrix(1.4,1.1,rho=-0.02)
+        self.rows={r["key"]:r for r in probabilities(self.matrix)}
+    def test_40_exact(self):
+        self.assertEqual(len(SPECS),40)
+        self.assertEqual(set(s.number for s in SPECS),set(range(1,41)))
+        self.assertEqual(len(self.rows),40)
+    def test_full_probability_partition(self):
+        for row in self.rows.values():
+            self.assertAlmostEqual(sum(row[x] for x in ("probability","push_probability","lose_probability")),1.,places=7)
+    def test_coherent_totals(self):
+        self.assertAlmostEqual(self.rows["TOTAL_OVER_25"]["probability"]+self.rows["TOTAL_UNDER_25"]["probability"],1.,places=7)
+        self.assertGreaterEqual(self.rows["TOTAL_OVER_05"]["probability"],self.rows["TOTAL_OVER_15"]["probability"])
+        self.assertGreaterEqual(self.rows["TOTAL_OVER_15"]["probability"],self.rows["TOTAL_OVER_25"]["probability"])
+        self.assertAlmostEqual(self.rows["BTTS_YES"]["probability"]+self.rows["BTTS_NO"]["probability"],1.,places=7)
+    def test_coherent_outcomes(self):
+        p1=self.rows["RESULT_HOME"]["probability"]
+        px=self.rows["RESULT_DRAW"]["probability"]
+        p2=self.rows["RESULT_AWAY"]["probability"]
+        self.assertAlmostEqual(p1+px+p2,1.,places=7)
+        self.assertAlmostEqual(self.rows["DC_1X"]["probability"],p1+px,places=7)
+        self.assertAlmostEqual(self.rows["DC_X2"]["probability"],p2+px,places=7)
+        self.assertAlmostEqual(self.rows["DNB_HOME"]["push_probability"],px,places=7)
+    def test_handicap(self):
+        self.assertEqual(result("HANDICAP_HOME_P15",0,1),"win")
+        self.assertEqual(result("HANDICAP_HOME_P15",0,2),"lose")
+        self.assertEqual(result("HANDICAP_AWAY_P25",3,1),"win")
+        self.assertEqual(result("HANDICAP_AWAY_P25",4,1),"lose")
+    def test_dnb(self):
+        self.assertEqual(result("DNB_HOME",1,1),"push")
+        self.assertEqual(result("DNB_HOME",2,1),"win")
+        self.assertEqual(result("DNB_HOME",0,1),"lose")
+        self.assertAlmostEqual(self.rows["DNB_HOME"]["fair_odds"],
+            (1-self.rows["DNB_HOME"]["push_probability"])/self.rows["DNB_HOME"]["probability"],places=5)
+    def test_win_to_nil(self):
+        self.assertEqual(result("WIN_TO_NIL_HOME",2,0),"win")
+        self.assertEqual(result("WIN_TO_NIL_HOME",2,1),"lose")
+        self.assertEqual(result("CLEAN_HOME",0,0),"win")
+        self.assertEqual(result("BTTS_YES",2,0),"lose")
+    def test_time_and_cancel(self):
+        self.assertEqual(settle_market("DNB_HOME",status="postponed"),"pending")
+        self.assertEqual(settle_market("DNB_HOME",status="cancelled"),"void")
+        self.assertEqual(settle_market("DNB_HOME",status="finished",home_score=1,away_score=1),"push")
+    def test_never_rank_without_verified_quoted_odds_and_holdout(self):
+        self.assertEqual(rank_markets(list(self.rows.values()),{},now=datetime.now(timezone.utc)),[])
+    def test_invalid_distribution(self):
+        with self.assertRaises(ValueError):
+            probabilities({(0,0):.5})
+
+if __name__=="__main__":
+    unittest.main()
