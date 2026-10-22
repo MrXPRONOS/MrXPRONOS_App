@@ -31,4 +31,31 @@ if(state?.mode==="suggest"){await env.DB.prepare("DELETE FROM user_states WHERE 
 await send(env,chatId,"Utilise le menu pour naviguer.",menu());
 }
 async function webhook(request,env){if(!env.TELEGRAM_TOKEN||!env.TELEGRAM_WEBHOOK_SECRET)return new Response("Configuration Telegram incomplète",{status:503});const received=request.headers.get("X-Telegram-Bot-Api-Secret-Token")||"";const expected=env.TELEGRAM_WEBHOOK_SECRET;const a=new TextEncoder().encode(received),b=new TextEncoder().encode(expected);if(a.length!==b.length||!crypto.subtle.timingSafeEqual(a,b))return new Response("Forbidden",{status:403});const data=await request.json();if(!data.update_id)return Response.json({ok:true});const id=data.update_id;const written=await env.DB.prepare("INSERT OR IGNORE INTO update_log(update_id) VALUES(?)").bind(id).run();if(written.meta.changes===0)return Response.json({ok:true});try{await handle(env,data);}catch(e){console.error("update_failed",String(e));await env.DB.prepare("DELETE FROM update_log WHERE update_id=?").bind(id).run();return new Response("Retry",{status:500});}return Response.json({ok:true});}
-export default {async fetch(request,env){const url=new URL(request.url);if(url.pathname==="/health")return Response.json({service:"cinecanaux",database:!!env.DB,telegram_configured:!!env.TELEGRAM_TOKEN});if(url.pathname==="/telegram"&&request.method==="POST")return webhook(request,env);return new Response("CinéCanaux Telegram directory • use /health",{status:200});}};
+
+async function provisionTelegramWebhook(env) {
+  const current=await env.DB.prepare("SELECT status FROM bot_webhook_status WHERE id=1").first();
+  if(current?.status==="ok")return;
+  if(!env.TELEGRAM_TOKEN||!env.TELEGRAM_WEBHOOK_SECRET) {
+    await env.DB.prepare("INSERT INTO bot_webhook_status(id,status,detail) VALUES(1,'error','Secrets Telegram manquants') ON CONFLICT(id) DO UPDATE SET status=excluded.status,detail=excluded.detail,updated_at=CURRENT_TIMESTAMP").run();
+    return;
+  }
+  const target="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/telegram";
+  const r=await api(env,"setWebhook",{url:target,secret_token:env.TELEGRAM_WEBHOOK_SECRET,allowed_updates:["message","callback_query"]});
+  const status=r.ok?"ok":"error";
+  const detail=r.ok?"Webhook accepté par Telegram":("Telegram HTTP "+String(r.error_code||"") + ": " + String(r.description||"").slice(0,140));
+  await env.DB.prepare("INSERT INTO bot_webhook_status(id,status,detail) VALUES(1,?,?) ON CONFLICT(id) DO UPDATE SET status=excluded.status,detail=excluded.detail,updated_at=CURRENT_TIMESTAMP").bind(status,detail).run();
+  if(!r.ok)throw Error("Configuration webhook refusée par Telegram");
+}
+
+export default {
+ async fetch(request,env){
+   const url=new URL(request.url);
+   if(url.pathname==="/health"){
+     const state=await env.DB.prepare("SELECT status,detail,updated_at FROM bot_webhook_status WHERE id=1").first();
+     return Response.json({service:"cinecanaux",database:!!env.DB,telegram_configured:!!env.TELEGRAM_TOKEN,webhook:state||{status:"waiting",detail:"Installation Cloudflare planifiée"}});
+   }
+   if(url.pathname==="/telegram"&&request.method==="POST")return webhook(request,env);
+   return new Response("CinéCanaux Telegram directory • use /health",{status:200});
+ },
+ async scheduled(controller,env,ctx){ctx.waitUntil(provisionTelegramWebhook(env));}
+};
