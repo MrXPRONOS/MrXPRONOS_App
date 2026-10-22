@@ -57,7 +57,7 @@ test('Signed /api/me does load the dashboard and alert settings only once',async
  assert.equal(result.status,200);
  const d=await result.json();
  assert.equal(d.me.xp,90);
- assert.equal(sql.length,3); // authorization + summary + settings
+ assert.equal(sql.length,2); // optimized summary (which validates age) + preferences
 });
 test('Instant UI script parses, uses in-memory cache with dedupe and invalidates after writes',async()=>{
  const source=await miniPage().text();
