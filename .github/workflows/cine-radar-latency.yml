@@ -1,0 +1,21 @@
+name: Cine Radar - Latency benchmark
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cinecanaux/tests/latency-benchmark.mjs'
+      - '.github/workflows/cine-radar-latency.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Measure live Cloudflare API and Mini App response times
+        run: node cinecanaux/tests/latency-benchmark.mjs
