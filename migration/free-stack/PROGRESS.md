@@ -37,3 +37,12 @@ Ces données sont une copie de test ponctuelle. Les changements intervenant ensu
 - Aucune politique RLS n'a été copiée : les **55 politiques d'origine** exigent une revue `auth.*`/rôles et de la Data API. **Ne pas mettre les clients en relation directe avec cette base à ce stade**.
 - Données copiées et confirmées à date : les 53 lignes des 6 tables mentionnées ci-dessus. Les données changent encore sur Supabase.
 - Aucun changement dans `main`, aucun changement sur la production.
+
+
+## Mise à jour (suite) — 22/10/2026
+- Relecture comparative des définitions des 124 index autonomes de Supabase.
+- **124/124** index autonomes restaurés sur Neon et noms vérifiés ; total **227/227** index.
+- Données supplémentaires copiées vers Neon et présence comptabilisée : `actu_foot_provider_health` (4), `counters` (1), `actu_foot_news_snapshot` (1), `telegram_channel_official_stats` (10), `live_provider_probe_cache` (14), `matches_live_cache` (7). Total nouveau **37** enregistrements ; **90** enregistrements copiés sur 12 tables au total.
+- Aucun déploiement en production ni changement des secrets / endpoints.
+- **Toujours manquants** : la majorité des enregistrements et les données sensibles, 13 clés étrangères, 10 triggers, routines SQL applicatives, 55 politiques RLS, adaptation de l'authentification et des appels client, 19 Edge Functions, objets Storage.
+- Les 90 enregistrements copiés ne constituent **pas une sauvegarde complète**, ni une synchronisation temps réel. Relancer un export/restauration cohérent et vérifier les séquences après le transfert intégral, avant toute bascule.
