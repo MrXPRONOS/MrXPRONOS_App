@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {createHmac,webcrypto} from "node:crypto";
+import {createHmac} from "node:crypto";
 import worker from "../worker.mjs";
 import {botUpdate,miniAppAPI} from "../radar-features.mjs";
 import {APP_HTML} from "../app-page.mjs";
@@ -16,7 +16,6 @@ globalThis.fetch=async(url,options={})=>{
  if(method==="getMe")return Response.json({ok:true,result:{id:111111111,username:"CineRadarTestBot",first_name:"Ciné Radar"}});
  return Response.json({ok:true,result:{message_id:messages.length,ok:true}});
 };
-globalThis.crypto=webcrypto;
 const state={preferences:new Map(),favorites:new Set(),refcodes:new Map(),refvisits:new Map(),modes:new Map(),reports:[],channels:[{id:42,title:"Le Cinéma Autorisé",link:"https://t.me/TestCinemaPublic",description:"Une chaîne sous licence",content_type:"films",genre:"action",language:"VF",updated_at:"2026-10-22 00:00:00",rights_confirmed:1,status:"approved"}],admin:new Set([999])};
 function db(){
  return {
