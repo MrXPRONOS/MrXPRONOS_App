@@ -409,7 +409,7 @@ export default {
       // Timing real Mini App navigation; exclude CI benchmark traffic.
       scheduleSample(ctx,env,{kind:'miniapp',route:url.pathname,response_ms:performance.now()-started,
         status:response.status>=500?'error':'ok',colo:req.cf?.colo,
-        isBenchmark:String(req.headers.get('user-agent')||'').startsWith('FreePronos-Latency-Audit/')});
+        isBenchmark:/^FreePronos-(?:Latency-Audit|Production-SmokeTest)\//.test(String(req.headers.get('user-agent')||''))});
       return response;
     }
     if(req.method==='GET'&&url.pathname==='/health'){
