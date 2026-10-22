@@ -1,0 +1,20 @@
+name: Mr XPRONOS multi-source availability read-only
+on:
+  push:
+    branches: [fix/live-multisource-coverage-audit-20261022]
+    paths:
+      - .github/workflows/live-source-coverage-probe.yml
+      - scripts/live_source_coverage_probe.mjs
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node scripts/live_source_coverage_probe.mjs
