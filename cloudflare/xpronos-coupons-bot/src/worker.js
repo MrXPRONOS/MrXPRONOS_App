@@ -4,6 +4,8 @@ import {parseCouponCommand} from './logic.js';
 import {APP_URL,navKeyboard,navigate,dashboard,xpScreen,xpHistory,showMissions,claimEngagement,alerts,toggleAlert,referrals,couponsFiltered,results,adminResult,adminAnalytics,faqText,notificationBatch,resultNotificationBatch,statusLabel} from './features.js';
 import {miniApi} from './miniapp.js';
 import {miniPage} from './minipage.js';
+import {brandingResponse} from './branding.js';
+import {settleFromESPN} from './sports.js';
 import {supportGuide,createTicket,informAdmins,ticketsForUser,pendingTickets,replyToTicket,closeUserTicket,ticketSummary} from './support.js';
 
 const POINTS_REFERRAL=30,POINTS_BONUS=5,DAILY_CAP=10,COOLDOWN=2*3600000;
@@ -366,6 +368,7 @@ export default {
   async fetch(req,env){
     const url=new URL(req.url);
     if(req.method==='GET'&&url.pathname==='/app')return miniPage();
+    if(req.method==='GET'&&url.pathname==='/brand.svg')return brandingResponse();
     if(url.pathname.startsWith('/api/'))return miniApi(req,env);
     if(req.method==='GET'&&url.pathname==='/health'){
       const ok=!!(env.DB&&env.CF_BOT_TOKEN&&env.CF_BOT_WEBHOOK_SECRET&&admins(env).size);
@@ -400,6 +403,8 @@ export default {
   async scheduled(controller,env,ctx){
     ctx.waitUntil((async()=>{
       try{
+        const settlement=await settleFromESPN(env,fetch,5);
+        console.log('Free Pronos score-check',settlement.checked,settlement.finished,settlement.needsReview);
         const [coupons,results]=await Promise.all([
           notificationBatch(env,telegram,10),
           resultNotificationBatch(env,telegram,6)
