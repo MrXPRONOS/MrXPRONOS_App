@@ -4,6 +4,7 @@ import {parseCouponCommand} from './logic.js';
 import {APP_URL,navKeyboard,navigate,dashboard,xpScreen,xpHistory,showMissions,claimEngagement,alerts,toggleAlert,referrals,couponsFiltered,results,adminResult,adminAnalytics,faqText,notificationBatch,resultNotificationBatch,statusLabel} from './features.js';
 import {miniApi} from './miniapp.js';
 import {miniPage} from './minipage.js';
+import {supportGuide,createTicket,informAdmins,ticketsForUser,pendingTickets,replyToTicket,closeUserTicket,ticketSummary} from './support.js';
 
 const POINTS_REFERRAL=30,POINTS_BONUS=5,DAILY_CAP=10,COOLDOWN=2*3600000;
 const SITE='https://mrxpronos.github.io/MrXPRONOS_App/';
@@ -237,6 +238,18 @@ async function admin(env,uid,chat,raw,updateId){
     const grant=await one(env,'INSERT OR IGNORE INTO manual_grants(user_id,xp,update_id) SELECT ?,?,? WHERE EXISTS(SELECT 1 FROM users WHERE id=?) RETURNING id',userId,points,updateId,userId);
     return send(env,chat,grant?'✅ <b>XP crédités avec succès !</b>':'ℹ️ <b>Utilisateur introuvable</b> ou commande déjà appliquée.');
   }
+  if(name==='/tickets'){
+    const rows=await pendingTickets(env);
+    return send(env,chat,'📬 <b>TICKETS À TRAITER</b>\n\n'+(rows.length?rows.map(x=>'#'+x.id+' · <code>'+x.user_id+'</code>\n'+html(x.message.slice(0,160))+'\n<i>/replyticket '+x.id+' votre réponse</i>').join('\n\n'):'✅ Aucun ticket en attente.'));
+  }
+  if(name==='/replyticket'){
+    const parts=arg.match(/^(\d+)\s+([\s\S]+)$/);
+    if(!parts)return send(env,chat,'⚠️ <b>Format attendu</b>\n<code>/replyticket ID Votre réponse ici</code>');
+    const result=await replyToTicket(env,uid,parts[1],parts[2],telegram);
+    return send(env,chat,result.status==='ok'?'✅ <b>Réponse envoyée et ticket archivé.</b>':
+      result.status==='delivery_failed'?'⚠️ Telegram n’a pas pu livrer la réponse. Ticket conservé.':
+      '⚠️ Ticket introuvable, déjà traité ou réponse invalide.');
+  }
   if(name==='/result'){
     const result=await adminResult(env,arg);
     return send(env,chat,result.status==='ok'?
@@ -299,8 +312,27 @@ async function handle(env,update) {
   }
   if(txt.startsWith('/')){
     const command=txt.split(/\s+/)[0].split('@')[0];
-    const names=new Set(['/admin','/addcoupon','/listcoupons','/delcoupon','/activatecoupon','/addtask','/listtasks','/deltask','/grantxp','/stats','/adminstats','/result']);
+    const names=new Set(['/admin','/addcoupon','/listcoupons','/delcoupon','/activatecoupon','/addtask','/listtasks','/deltask','/grantxp','/stats','/adminstats','/result','/tickets','/replyticket']);
     if(names.has(command))return admin(env,uid,chat,command+txt.slice(txt.split(/\s+/)[0].length),update.update_id);
+  }
+  if(/^\/support(?:\s|$)/.test(txt)){
+    const content=txt.replace(/^\/support\s*/,'').trim();
+    if(!content)return send(env,chat,supportGuide(),navKeyboard());
+    const newTicket=await createTicket(env,uid,content);
+    if(newTicket.status==='ok'){
+      await informAdmins(env,{id:newTicket.id,uid,message:newTicket.message},telegram);
+      return send(env,chat,'✅ <b>DEMANDE ENREGISTRÉE !</b>\n\n📮 Ticket <b>#'+newTicket.id+'</b>\n<i>Notre équipe pourra te répondre directement dans cette conversation.</i>',navKeyboard());
+    }
+    return send(env,chat,newTicket.status==='rate_limited'?
+      '⏳ <b>Limite atteinte.</b>\n<i>Patiente 10 minutes ou attends une réponse à tes tickets ouverts.</i>':
+      newTicket.status==='locked'?'🔞 Confirme tes 18 ans ou plus avec /start.':
+      '⚠️ <b>Ton message est trop court.</b>\n<i>Décris le problème en au moins 12 caractères.</i>');
+  }
+  if(txt==='/mytickets')return send(env,chat,ticketSummary(await ticketsForUser(env,uid)),navKeyboard());
+  if(/^\/closeticket\s+\d+$/.test(txt)){
+    const id=Number(txt.split(/\s+/)[1]);
+    const closed=await closeUserTicket(env,uid,id);
+    return send(env,chat,closed?'✅ <b>Ticket clôturé.</b>':'⚠️ Ticket introuvable ou déjà fermé.');
   }
   if(txt==='🏠 Mon espace'||txt==='/dashboard'||txt==='/menu')return dashboard(env,uid,chat,send);
   if(txt==='/history'||txt==='/xphistory')return xpHistory(env,uid,chat,send);
