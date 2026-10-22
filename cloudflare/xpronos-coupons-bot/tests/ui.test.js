@@ -25,7 +25,7 @@ test('Lien de partage Telegram conserve le parrainage dans URL',()=>{
   assert.equal(url.origin,'https://t.me');
   assert.equal(url.pathname,'/share/url');
   assert.equal(url.searchParams.get('url'),ref);
-  assert.match(url.searchParams.get('text'),/XPRONOS 4\+/);
+  assert.match(url.searchParams.get('text'),/FREE PRONOS/);
 });
 test('La commande /share envoie une carte SANS clavier puis les instructions AVEC boutons colorés',async()=>{
   const oldFetch=globalThis.fetch;
@@ -38,7 +38,7 @@ test('La commande /share envoie une carte SANS clavier puis les instructions AVE
   const env={
     CF_BOT_TOKEN:'test',CF_BOT_WEBHOOK_SECRET:'secret',CF_BOT_ADMIN_IDS:'8099115334',
     CF_BOT_CHANNELS_JSON:'[{"id":"@canal","url":"https://t.me/canal"}]',
-    DB:{prepare:()=>({bind:()=>({run:async()=>({meta:{changes:1}})})})}
+    DB:{prepare:()=>({bind:()=>({run:async()=>({meta:{changes:1}}),first:async()=>({update_id:1234})})})}
   };
   try {
     const update={

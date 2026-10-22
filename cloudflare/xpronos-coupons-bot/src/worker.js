@@ -1,16 +1,21 @@
-// XPRONOS 4+ : webhook Telegram Cloudflare Workers + D1.
+// FREE PRONOS : webhook Telegram Cloudflare Workers + D1.
 // Aucune dépendance Supabase. Les crédits XP sont virtuels et non monétaires.
 import {parseCouponCommand} from './logic.js';
+import {APP_URL,navKeyboard,navigate,dashboard,xpScreen,xpHistory,showMissions,claimEngagement,alerts,toggleAlert,referrals,couponsFiltered,results,adminResult,adminAnalytics,faqText,notificationBatch,resultNotificationBatch,statusLabel} from './features.js';
+import {miniApi} from './miniapp.js';
+import {miniPage} from './minipage.js';
 
 const POINTS_REFERRAL=30,POINTS_BONUS=5,DAILY_CAP=10,COOLDOWN=2*3600000;
 const SITE='https://mrxpronos.github.io/MrXPRONOS_App/';
 // Styles officiels Telegram : primary (bleu), success (vert), danger (rouge).
 // Les thèmes et versions des clients Telegram peuvent adapter leur rendu.
 export const MENU={keyboard:[
-  [{text:'🎟️ Coupons cote 4+',style:'primary'},{text:'🎫 Mes coupons',style:'primary'}],
-  [{text:'🚩 Tâche',style:'primary'},{text:'🎁 Bonus',style:'success'}],
-  [{text:'⭐ Mes XP',style:'primary'},{text:'↗️ Partager',style:'success'}],
-  [{text:'✅ Vérifier',style:'success'},{text:'📋 Procédure',style:'primary'}]
+  [{text:'🏠 Mon espace',style:'primary'},{text:'🎟️ Coupons cote 4+',style:'primary'}],
+  [{text:'🎫 Mes coupons',style:'primary'},{text:'🚩 Tâche',style:'primary'}],
+  [{text:'🎁 Bonus',style:'success'},{text:'⭐ Mes XP',style:'primary'}],
+  [{text:'↗️ Partager',style:'success'},{text:'✅ Vérifier',style:'success'}],
+  [{text:'📋 Procédure',style:'primary'},{text:'📣 Alertes',style:'primary'}],
+  [{text:'📱 Mini App Free Pronos',web_app:{url:APP_URL},style:'success'}]
 ],resize_keyboard:true};
 const inline=(rows)=>({inline_keyboard:rows});
 const html=(s)=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
@@ -66,7 +71,7 @@ async function verify(env,uid,chat) {
   }
   const ref=required.length>0 && !!u.referred_by && !u.referral_rewarded;
   await run(env,'UPDATE users SET required_verified=1, referral_rewarded=CASE WHEN ?=1 THEN 1 ELSE referral_rewarded END WHERE id=? AND adult_confirmed=1',ref?1:0,uid);
-  return send(env,chat,'✅ <b>ACCÈS VALIDÉ !</b>\n\n🎉 Tu as désormais accès aux missions, bonus et coupons XPRONOS 4+.\n\n<i>Utilise les boutons du menu pour commencer.</i>'+(ref?'\n\n🎁 <b>'+POINTS_REFERRAL+' XP</b> attribués à ton parrain.':''));
+  return send(env,chat,'✅ <b>ACCÈS VALIDÉ !</b>\n\n🎉 Tu as désormais accès aux missions, bonus et coupons FREE PRONOS.\n\n<i>Utilise les boutons du menu pour commencer.</i>'+(ref?'\n\n🎁 <b>'+POINTS_REFERRAL+' XP</b> attribués à ton parrain.':''));
 }
 async function tasks(env,uid,chat) {
   const u=await user(env,uid);
@@ -116,7 +121,7 @@ async function coupons(env,uid,chat) {
   if(!u?.adult_confirmed||!u?.required_verified)return send(env,chat,'🔒 <b>Accès verrouillé</b>\n\n<i>Confirme ton âge et valide les canaux pour débloquer cette fonctionnalité.</i>');
   const rows=await all(env,'SELECT * FROM coupons WHERE active=1 AND expires_at>? AND stock<>0 ORDER BY created_at DESC,id DESC LIMIT 10',new Date().toISOString());
   if(!rows.length)return send(env,chat,'📭 <b>AUCUN COUPON DISPONIBLE</b>\n\n<i>De nouveaux coupons de cote 4+ seront publiés ici. Reviens consulter le menu !</i>');
-  await send(env,chat,'🎟️ <b>COUPONS XPRONOS 4+</b>\n\n📊 <b>'+rows.length+'</b> coupon(s) disponible(s).\n<blockquote>Les cotes peuvent évoluer. Aucun résultat n’est garanti.</blockquote>');
+  await send(env,chat,'🎟️ <b>COUPONS FREE PRONOS</b>\n\n📊 <b>'+rows.length+'</b> coupon(s) disponible(s).\n<blockquote>Les cotes peuvent évoluer. Aucun résultat n’est garanti.</blockquote>');
   for(const c of rows)await send(env,chat,pretty(c),inline([[{text:'🔓 Débloquer pour '+c.xp_cost+' XP',callback_data:'coupon:'+c.id,style:'success'}]]));
 }
 async function redeem(env,uid,chat,id) {
@@ -137,13 +142,13 @@ async function redeem(env,uid,chat,id) {
   return send(env,chat,'💎 <b>XP insuffisants</b>\n\n<i>Accomplis des missions ou récupère ton bonus pour débloquer ce coupon.</i>');
 }
 async function mine(env,uid,chat) {
-  const rows=await all(env,'SELECT snapshot,xp_spent FROM redemptions WHERE user_id=? ORDER BY claimed_at DESC LIMIT 10',uid);
+  const rows=await all(env,'SELECT r.snapshot,r.xp_spent,c.result_status,c.result_source FROM redemptions r JOIN coupons c ON c.id=r.coupon_id WHERE r.user_id=? ORDER BY r.claimed_at DESC LIMIT 10',uid);
   if(!rows.length)return send(env,chat,'🎫 <b>MES COUPONS</b>\n\n<blockquote>Aucun coupon débloqué pour le moment.</blockquote>\n<i>Découvre les coupons disponibles dans le menu principal.</i>');
   for(const row of rows){
     const c=safeJson(row.snapshot,{});
     c.xp_cost=row.xp_spent;
     c.selections=JSON.stringify(c.selections||[]);
-    await send(env,chat,pretty(c,true)+'\n\n⚠️ Vérifie les cotes en direct. 18+ • Joue responsablement.');
+    await send(env,chat,pretty(c,true)+'\n\n📊 <b>Statut :</b> '+statusLabel(row.result_status)+'\n\n<i>Résultat enregistré après contrôle administratif. Les cotes peuvent évoluer. 18+ • Joue responsablement.</i>');
   }
 }
 async function xp(env,uid,chat) {
@@ -154,7 +159,7 @@ async function xp(env,uid,chat) {
 }
 // Ce message est autonome : il ne contient ni solde, ni consignes privées.
 export function referralCard(link) {
-  return '⚽ <b>XPRONOS 4+ | DÉCOUVRE LES COUPONS</b>\n\n'+
+  return '⚽ <b>FREE PRONOS | DÉCOUVRE LES COUPONS</b>\n\n'+
     '<blockquote>🎯 Des coupons football de cote totale <b>4.00 ou plus</b>, débloqués grâce aux points XP.</blockquote>\n\n'+
     '✨ <b>Comment ça marche ?</b>\n'+
     '① Rejoins la communauté.\n'+
@@ -166,7 +171,7 @@ export function referralCard(link) {
 // Le lien natif Telegram partage un texte simple ; pour garder les styles HTML,
 // l'utilisateur doit transférer le premier message du bot.
 export function telegramShareUrl(link) {
-  const caption='⚽ XPRONOS 4+ | Coupons football cote 4+\n'+
+  const caption='⚽ FREE PRONOS | Coupons football cote 4+\n'+
     '🎯 Accomplis des missions, gagne des XP et débloque des coupons.\n'+
     '🔞 18+ • Aucun gain garanti. Joue responsablement.';
   return 'https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+encodeURIComponent(caption);
@@ -232,9 +237,17 @@ async function admin(env,uid,chat,raw,updateId){
     const grant=await one(env,'INSERT OR IGNORE INTO manual_grants(user_id,xp,update_id) SELECT ?,?,? WHERE EXISTS(SELECT 1 FROM users WHERE id=?) RETURNING id',userId,points,updateId,userId);
     return send(env,chat,grant?'✅ <b>XP crédités avec succès !</b>':'ℹ️ <b>Utilisateur introuvable</b> ou commande déjà appliquée.');
   }
+  if(name==='/result'){
+    const result=await adminResult(env,arg);
+    return send(env,chat,result.status==='ok'?
+      '✅ <b>RÉSULTAT ENREGISTRÉ</b>\n\n🎟️ Coupon #'+result.id+'\n📊 '+result.label+'\n\n<i>La mise à jour est identifiée comme validation administrative.</i>':
+      result.status==='missing'?'⚠️ Coupon introuvable.':
+      '⚠️ <b>Format attendu</b>\n<code>/result ID won|lost|void|live|available https://source-fiable.example</code>\n\n<i>Indique une source vérifiable et réelle.</i>');
+  }
+  if(name==='/adminstats')return adminAnalytics(env,chat,send);
   if(name==='/stats'){
     const r=await one(env,'SELECT (SELECT count(*) FROM users) AS members,(SELECT count(*) FROM tasks) AS tasks,(SELECT count(*) FROM coupons) AS coupons,(SELECT count(*) FROM redemptions) AS redemptions');
-    return send(env,chat,'📊 <b>STATISTIQUES XPRONOS 4+</b>\n\n<blockquote>👥 Membres : <b>'+r.members+'</b>\n🚩 Missions : <b>'+r.tasks+'</b>\n🎟️ Coupons : <b>'+r.coupons+'</b>\n🔓 Déblocages : <b>'+r.redemptions+'</b></blockquote>');
+    return send(env,chat,'📊 <b>STATISTIQUES FREE PRONOS</b>\n\n<blockquote>👥 Membres : <b>'+r.members+'</b>\n🚩 Missions : <b>'+r.tasks+'</b>\n🎟️ Coupons : <b>'+r.coupons+'</b>\n🔓 Déblocages : <b>'+r.redemptions+'</b></blockquote>');
   }
 }
 async function handle(env,update) {
@@ -249,6 +262,24 @@ async function handle(env,update) {
   if(q){
     const data=String(q.data||'');
     await ack(env,q.id);
+    if(data==='nav:share')return share(env,uid,chat);
+    if(data==='nav:channeltasks')return tasks(env,uid,chat);
+    if(data.startsWith('nav:')||data.startsWith('filter:'))
+      return navigate(env,uid,chat,data,send,telegram,m.message_id);
+    if(data.startsWith('pref:')){
+      const updated=await toggleAlert(env,uid,data.slice(5));
+      if(updated.status==='locked')return send(env,chat,'🔒 <b>Valide ton accès pour régler les notifications.</b>');
+      return alerts(env,uid,chat,send,telegram,m.message_id);
+    }
+    if(data.startsWith('claim:')){
+      const kind=data.slice(6);
+      const claim=await claimEngagement(env,uid,kind);
+      const label=kind==='daily'?'du jour':'hebdomadaire';
+      await send(env,chat,claim.status==='ok'?'🎉 <b>MISSION VALIDÉE !</b>\n\n💎 <b>+'+claim.xp+' XP</b> reçus pour ta mission '+label+'.':
+        claim.status==='locked'?'🔒 Confirme ton âge et vérifie les canaux d’abord.':
+        'ℹ️ <b>Récompense déjà reçue</b> pour cette période.');
+      return showMissions(env,uid,chat,send);
+    }
     if(data==='adult_yes'){
       await run(env,'UPDATE users SET adult_confirmed=1 WHERE id=?',uid);
       await send(env,chat,'✅ <b>Âge confirmé !</b>\n\n<i>Dernière étape : vérifie les canaux pour activer tes récompenses.</i>');
@@ -262,20 +293,36 @@ async function handle(env,update) {
   }
   if(/^\/start(?:@\w+)?(?:\s|$)/.test(txt)){
     const u=await user(env,uid);
-    await send(env,chat,'⚽ <b>BIENVENUE SUR XPRONOS 4+</b>\n\n<blockquote>🎯 Des coupons football de cote totale <b>4.00 ou plus</b>, accessibles grâce à tes <b>XP</b>.</blockquote>\n\n🚩 <b>Réalise des missions</b>\n🎁 <b>Récupère des bonus</b>\n🎟️ <b>Débloque des coupons</b>\n\n<i>🔞 18+ • Aucun résultat garanti. Joue avec modération.</i>');
+    await send(env,chat,'⚽ <b>BIENVENUE SUR FREE PRONOS</b>\n\n<blockquote>🎯 Des coupons football de cote totale <b>4.00 ou plus</b>, accessibles grâce à tes <b>XP</b>.</blockquote>\n\n🚩 <b>Réalise des missions</b>\n🎁 <b>Récupère des bonus</b>\n🎟️ <b>Débloque des coupons</b>\n\n<i>🔞 18+ • Aucun résultat garanti. Joue avec modération.</i>');
     if(!u?.adult_confirmed)return send(env,chat,'🔞 <b>CONFIRMATION D’ÂGE</b>\n\n<i>Pour continuer, confirme que tu as 18 ans ou plus.</i>',inline([[{text:'✅ Oui, 18 ans ou plus',callback_data:'adult_yes',style:'success'}],[{text:'❌ Non',callback_data:'adult_no',style:'danger'}]]));
     return verify(env,uid,chat);
   }
   if(txt.startsWith('/')){
     const command=txt.split(/\s+/)[0].split('@')[0];
-    const names=new Set(['/admin','/addcoupon','/listcoupons','/delcoupon','/activatecoupon','/addtask','/listtasks','/deltask','/grantxp','/stats']);
+    const names=new Set(['/admin','/addcoupon','/listcoupons','/delcoupon','/activatecoupon','/addtask','/listtasks','/deltask','/grantxp','/stats','/adminstats','/result']);
     if(names.has(command))return admin(env,uid,chat,command+txt.slice(txt.split(/\s+/)[0].length),update.update_id);
   }
+  if(txt==='🏠 Mon espace'||txt==='/dashboard'||txt==='/menu')return dashboard(env,uid,chat,send);
+  if(txt==='/history'||txt==='/xphistory')return xpHistory(env,uid,chat,send);
+  if(txt==='/levels'||txt==='/level')return xpScreen(env,uid,chat,send);
+  if(txt==='/missions')return showMissions(env,uid,chat,send);
+  if(txt==='/daily'||txt==='/weekly'){
+    const kind=txt.slice(1),res=await claimEngagement(env,uid,kind);
+    return send(env,chat,res.status==='ok'?'✅ <b>+'+res.xp+' XP</b> reçus !':
+      res.status==='already'?'⏳ <b>Mission déjà réclamée</b> pour cette période.':
+      '🔒 <b>Vérifie ton accès avant de participer.</b>',navKeyboard());
+  }
+  if(txt==='📣 Alertes'||txt==='/alerts')return alerts(env,uid,chat,send);
+  if(txt==='/referrals')return referrals(env,uid,chat,send);
+  if(txt==='/results')return results(env,uid,chat,send);
+  if(/^\/coupons\s+(ALL|SIMPLE|PRO|VIP)$/i.test(txt))
+    return couponsFiltered(env,uid,chat,send,telegram,undefined,txt.split(/\s+/)[1].toUpperCase());
+  if(txt==='/faq')return send(env,chat,faqText(),navKeyboard());
   if(txt==='✅ Vérifier'||txt==='/verify')return verify(env,uid,chat);
   if(txt==='🚩 Tâche'||txt==='/tasks')return tasks(env,uid,chat);
   if(txt==='🎁 Bonus'||txt==='/bonus')return bonus(env,uid,chat);
-  if(txt==='⭐ Mes XP'||txt==='/xp')return xp(env,uid,chat);
-  if(txt==='🎟️ Coupons cote 4+'||txt==='/coupons')return coupons(env,uid,chat);
+  if(txt==='⭐ Mes XP'||txt==='/xp')return xpScreen(env,uid,chat,send);
+  if(txt==='🎟️ Coupons cote 4+'||txt==='/coupons')return couponsFiltered(env,uid,chat,send);
   if(txt==='🎫 Mes coupons'||txt==='/mine')return mine(env,uid,chat);
   if(txt==='↗️ Partager'||txt==='/share')return share(env,uid,chat);
   if(txt==='📋 Procédure'||txt==='/help')return send(env,chat,'📋 <b>COMMENT ÇA MARCHE ?</b>\n\n<blockquote>① Confirme tes <b>18 ans ou plus</b> et vérifie les canaux.\n② Accomplis des missions pour gagner des <b>XP</b>.\n③ Récupère <b>5 XP</b> toutes les 2 heures, maximum <b>10 XP/jour</b>.\n④ Échange tes XP contre l’accès aux coupons <b>4+</b>.</blockquote>\n\n🌐 '+SITE+'\n\n<i>Les XP sont virtuels et ne représentent pas de l’argent. Joue responsablement.</i>');
@@ -284,21 +331,48 @@ async function handle(env,update) {
 export default {
   async fetch(req,env){
     const url=new URL(req.url);
+    if(req.method==='GET'&&url.pathname==='/app')return miniPage();
+    if(url.pathname.startsWith('/api/'))return miniApi(req,env);
     if(req.method==='GET'&&url.pathname==='/health'){
-      return new Response(JSON.stringify({status:env.DB&&env.CF_BOT_TOKEN&&env.CF_BOT_WEBHOOK_SECRET&&admins(env).size?'ready':'not_configured'}),{
-        status:env.DB&&env.CF_BOT_TOKEN&&env.CF_BOT_WEBHOOK_SECRET&&admins(env).size?200:503,
-        headers:{'content-type':'application/json','cache-control':'no-store'}
+      const ok=!!(env.DB&&env.CF_BOT_TOKEN&&env.CF_BOT_WEBHOOK_SECRET&&admins(env).size);
+      return new Response(JSON.stringify({status:ok?'ready':'not_configured',bot:'Free Pronos'}),{
+        status:ok?200:503,headers:{'content-type':'application/json','cache-control':'no-store'}
       });
     }
     if(req.method!=='POST'||url.pathname!=='/telegram')return new Response('Not found',{status:404});
-    if(!env.DB||!env.CF_BOT_TOKEN||!env.CF_BOT_WEBHOOK_SECRET||!admins(env).size)return new Response('Not configured',{status:503});
+    if(!env.DB||!env.CF_BOT_TOKEN||!env.CF_BOT_WEBHOOK_SECRET||!admins(env).size)
+      return new Response('Not configured',{status:503});
     const provided=req.headers.get('x-telegram-bot-api-secret-token')||'';
     if(!provided||provided!==env.CF_BOT_WEBHOOK_SECRET)return new Response('Forbidden',{status:403});
+    let updateId=null,claimed=false;
     try{
       const data=await req.json();
       if(!Number.isSafeInteger(data.update_id))return new Response('Bad request',{status:400});
+      updateId=data.update_id;
+      const fresh=await one(env,'INSERT OR IGNORE INTO processed_updates(update_id) VALUES(?) RETURNING update_id',updateId);
+      if(!fresh)return out('ok'); // Déjà traité ou traitement en cours.
+      claimed=true;
       await handle(env,data);
       return out('ok');
-    }catch(error){console.error('Webhook failed:',String(error));return new Response('retry',{status:500})}
+    }catch(error){
+      if(claimed&&updateId!==null){
+        try{await run(env,'DELETE FROM processed_updates WHERE update_id=?',updateId)}
+        catch(cleanError){console.warn('Free Pronos dedup rollback failed',String(cleanError))}
+      }
+      console.error('Free Pronos webhook failed:',String(error));
+      return new Response('retry',{status:500});
+    }
+  },
+  async scheduled(controller,env,ctx){
+    ctx.waitUntil((async()=>{
+      try{
+        const [coupons,results]=await Promise.all([
+          notificationBatch(env,telegram,10),
+          resultNotificationBatch(env,telegram,6)
+        ]);
+        console.log('Free Pronos notifications',coupons.sent,results.sent);
+        await run(env,"DELETE FROM processed_updates WHERE received_at<datetime('now','-10 days')");
+      }catch(err){console.error('Free Pronos notification task failed',String(err))}
+    })());
   }
 };
