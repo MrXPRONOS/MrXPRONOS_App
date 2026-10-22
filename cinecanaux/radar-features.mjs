@@ -473,7 +473,7 @@ export async function initializeProfile(env){
 export async function maintenance(env,mode){
  if(mode==="activity"){
   const channels=(await env.DB.prepare(
-    "SELECT c.id,c.link,COALESCE(t.check_status,'unknown') previous_status FROM channels c LEFT JOIN channel_telemetry t ON t.channel_id=c.id WHERE c.status='approved' AND (t.last_checked_at IS NULL OR t.last_checked_at < datetime('now','-4 hours')) ORDER BY c.updated_at DESC LIMIT 24"
+    "SELECT c.id,c.link,COALESCE(t.check_status,'unknown') previous_status FROM channels c LEFT JOIN channel_telemetry t ON t.channel_id=c.id WHERE c.status='approved' AND (t.last_checked_at IS NULL OR t.last_checked_at < datetime('now','-4 hours') OR (t.check_status='not_found' AND t.last_checked_at < datetime('now','-5 minutes'))) ORDER BY c.updated_at DESC LIMIT 24"
   ).all()).results||[];
   for(const channel of channels){
    let status="unverifiable",lastPost=null;
