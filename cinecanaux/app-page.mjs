@@ -76,9 +76,10 @@ function render(list){
   const title=document.createElement("h3");title.textContent=c.title;
   const sub=document.createElement("div");sub.className="caption";sub.textContent=(c.genre||"Cinéma")+" • "+(c.description||"Canal approuvé").slice(0,62);
   const actions=document.createElement("div");actions.className="card-actions";
-  actions.append(button("Ouvrir ↗","primary",()=>{if(tg?.openTelegramLink)tg.openTelegramLink(c.link);else window.open(c.link,"_blank","noopener");}),
+  actions.append(button("Ouvrir ↗","primary",async()=>{try{await request("/api/open",{method:"POST",body:JSON.stringify({id:c.id})});}catch{}if(tg?.openTelegramLink)tg.openTelegramLink(c.link);else window.open(c.link,"_blank","noopener");}),
     button(favIds.has(c.id)?"★":"☆","icon",async()=>{try{const r=await request("/api/favorite",{method:"POST",body:JSON.stringify({id:c.id})});if(r.favorite)favIds.add(c.id);else favIds.delete(c.id);render(channels);}catch(e){toast(e.message);}}),
-    button("↗","icon",()=>{const url="https://t.me/share/url?url="+encodeURIComponent(c.link)+"&text="+encodeURIComponent("🎬 "+c.title+" • Découvert sur Ciné Radar");if(tg?.openTelegramLink)tg.openTelegramLink(url);else window.open(url,"_blank","noopener");}));
+    button("↗","icon",()=>{const url="https://t.me/share/url?url="+encodeURIComponent(c.link)+"&text="+encodeURIComponent("🎬 "+c.title+" • Découvert sur Ciné Radar");if(tg?.openTelegramLink)tg.openTelegramLink(url);else window.open(url,"_blank","noopener");}),
+    button("⚑","icon",async()=>{const reasons={"broken":"Lien inaccessible","category":"Mauvaise catégorie","content":"Contenu inadapté","rights":"Problème de droits"};const v=window.prompt("Quel problème ?\n1 = Lien inaccessible\n2 = Mauvaise catégorie\n3 = Contenu problématique\n4 = Droits de diffusion","1");const chosen=({"1":"broken","2":"category","3":"content","4":"rights"})[v];if(!chosen)return;try{await request("/api/report",{method:"POST",body:JSON.stringify({id:c.id,reason:chosen})});toast("Signalement enregistré. Merci !");}catch(e){toast(e.message);}}));
   info.append(title,sub,actions);card.append(poster,info);root.append(card);
  }
 }
