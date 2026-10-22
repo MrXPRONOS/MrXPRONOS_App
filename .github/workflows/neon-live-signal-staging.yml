@@ -21,7 +21,7 @@ jobs:
       - name: Check ESM syntax of model and entire Neon handler
         run: |
           node --check migration/free-stack/live/neon_prediction_model.mjs
-          node --check migration/free-stack/live/index.signals-staging.mjs
+          node --check migration/free-stack/live/index.signals-safe.mjs
       - name: Test strict filters and at-least-one real model candidate
         run: |
           node --input-type=module <<'NODE'
@@ -53,3 +53,5 @@ jobs:
           assert 'read_status_is_local_to_browser' in s
           print('DB_AND_NOTIFICATIONS_SAFETY_OK')
           PY
+
+# Verify isolated prediction transaction bundle
