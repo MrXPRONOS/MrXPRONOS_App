@@ -69,3 +69,33 @@ test("Telegram home and public posts URLs start in parallel",async()=>{
   assert.equal(response.status,200);
  }finally{globalThis.fetch=previous;}
 });
+
+
+test("First Mini App HTML embeds the directory safely without another client request",async()=>{
+ invalidateDirectoryCache();
+ const {env,state}=ctx();
+ state.rows=[{...channel(),title:'Cinema </script><script>alert(1)</script> & more'}];
+ const {default:worker}=await import("../worker.mjs");
+ const r=await worker.fetch(new Request("https://test.local/app"),env);
+ assert.equal(r.status,200);
+ const html=await r.text();
+ assert.ok(html.includes("const PRELOADED_CATALOG=["));
+ assert.ok(html.includes("\\u003c/script\\u003e"));
+ assert.ok(!html.includes('Cinema </script><script>alert(1)</script>'));
+ assert.ok(html.includes('const telegram=()=>window.Telegram?.WebApp||null'));
+ assert.ok(html.includes('<script defer src="https://telegram.org/js/telegram-web-app.js?64"></script>'));
+ invalidateDirectoryCache();
+});
+test("A cached channel profile uses one D1 read, not two",async()=>{
+ let calls=0;
+ const recent=new Date().toISOString().replace("T"," ").replace(/\.\d+Z$/,"");
+ const env={DB:{prepare(sql){calls++;return {bind(){return this},async first(){return {
+  id:32,title:"Listed cinema",link:"https://t.me/ListedCinema2026",description:"Listed profile",
+  cached_title:"Public cinema",cached_description:"Public Telegram bio",cached_avatar_url:"https://cdn4.telesco.pe/file/avatar.jpg",
+  cached_post_image_url:null,cached_last_post_at:null,cached_checked_at:recent,cached_preview_status:"available"
+ };}}}}};
+ const p=await channelPreview(env,32);
+ assert.equal(p.status,200);
+ assert.equal(p.data.cached,true);
+ assert.equal(calls,1);
+});
