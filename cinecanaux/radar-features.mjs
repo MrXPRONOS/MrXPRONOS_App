@@ -252,26 +252,40 @@ async function submitSuggestion(env,id,uid,text){
  await send(env,id,regularHeader("MERCI POUR TA PROPOSITION ✅","<i>Le canal sera évalué par la modération avant son référencement.</i>"),kb([navHome()]));
 }
 async function adminHome(env,id,uid,cb){
- const stats=await env.DB.prepare("SELECT (SELECT COUNT(*) FROM discovery_candidates WHERE rights_status='unverified' AND technical_status='qualified') waiting,(SELECT COUNT(*) FROM channel_reports WHERE status='open') reports,(SELECT COUNT(*) FROM channels WHERE status='approved') live").first();
- const msg=regularHeader("ADMINISTRATION 🛡","⏳ <b>"+stats.waiting+"</b> candidature(s)\n🚩 <b>"+stats.reports+"</b> signalement(s)\n✅ <b>"+stats.live+"</b> canal(aux) publiés","La validation technique est automatique : surveille les liens et traite les signalements.");
- await show(env,id,cb,msg,kb([[bx("📥 En attente","admqueue:0",null,"primary"),bx("🚩 Signalements","admreports:0",null,"danger")],[bx("📊 Statistiques","admstats")],navHome()]));
+ const stats=await env.DB.prepare(
+ "SELECT (SELECT COUNT(*) FROM discovery_candidates WHERE technical_status='qualified') detected,(SELECT COUNT(*) FROM channels WHERE status='approved') listed,(SELECT COUNT(*) FROM discovery_candidates WHERE rights_status='link_dead') dead,(SELECT COUNT(*) FROM channel_reports WHERE status='open') reports"
+ ).first();
+ const text=regularHeader("CENTRE DE CONTRÔLE CINÉ RADAR 🛡",
+ "🔎 <b>"+Number(stats?.detected||0)+"</b> source(s) vérifiée(s) techniquement\n"+
+ "📡 <b>"+Number(stats?.listed||0)+"</b> canal(aux) dans l'annuaire\n"+
+ "🗑️ <b>"+Number(stats?.dead||0)+"</b> lien(s) invalides retiré(s)\n"+
+ "🚩 <b>"+Number(stats?.reports||0)+"</b> signalement(s)",
+ "L'indexation est automatique. Tu n'as pas besoin d'approuver chaque canal.");
+ await show(env,id,cb,text,kb([[bx("🔎 Sources trouvées","admqueue:0",null,"primary"),bx("🚩 Signalements","admreports:0",null,"danger")],[bx("📊 Actualiser","admin",null,"success")],navHome()]));
 }
 async function adminQueue(env,id,uid,cb,page){
  const p=Math.max(0,Math.min(30,Number(page)||0));
- const rows=(await env.DB.prepare("SELECT username,title,matching_pairs,source_category FROM discovery_candidates WHERE technical_status='qualified' AND rights_status='unverified' ORDER BY last_seen DESC LIMIT 5 OFFSET ?").bind(p*5).all()).results||[];
- if(!rows.length){await show(env,id,cb,"🛡 <b>AUCUNE CANDIDATURE EN ATTENTE</b>",kb([[bx("⬅️ Administration","admin")]]));return;}
- const buttons=rows.map(x=>[bx("🔍 "+clean(x.title).slice(0,30),"admreview:"+x.username,"","primary")]);
+ const rows=(await env.DB.prepare(
+  "SELECT username,title,matching_pairs,source_category FROM discovery_candidates WHERE technical_status='qualified' AND rights_status NOT IN ('link_dead','rejected') ORDER BY last_seen DESC LIMIT 5 OFFSET ?"
+ ).bind(p*5).all()).results||[];
+ if(!rows.length){await show(env,id,cb,"🔎 <b>AUCUNE SOURCE DISPONIBLE</b>",kb([[bx("⬅️ Administration","admin")]]));return;}
+ const buttons=rows.map(x=>[bx("🔍 "+clean(x.title).slice(0,30),"admreview:"+x.username,null,"primary")]);
  const controls=[];if(p>0)controls.push(bx("◀️","admqueue:"+(p-1)));
  if(rows.length===5)controls.push(bx("▶️","admqueue:"+(p+1)));
  if(controls.length)buttons.push(controls);
  buttons.push([bx("⬅️ Administration","admin")]);
- await show(env,id,cb,"🛡 <b>CANDIDATURES — PAGE "+(p+1)+"</b>\n<i>Consulte les informations et établis les droits avant publication.</i>",kb(buttons));
+ await show(env,id,cb,"📡 <b>SOURCES PUBLIQUES — PAGE "+(p+1)+"</b>\n<i>Référencées automatiquement lorsque le format est reconnu.</i>",kb(buttons));
 }
 async function adminReview(env,id,uid,cb,username){
  if(!/^[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(username))return;
  const row=await env.DB.prepare("SELECT * FROM discovery_candidates WHERE username=?").bind(username).first();if(!row)return;
- const content="🎬 <b>"+esc(row.title)+"</b>\n\n🔗 <code>"+esc(row.link)+"</code>\n📁 "+esc(row.content_type)+" / "+esc(row.genre)+"\n🎞 "+Number(row.matching_pairs||0)+" paires vidéo\n🔒 <i>Droits : "+esc(row.rights_status)+"</i>\n\n<blockquote>Une vidéo présente sur Telegram ne constitue pas une autorisation de diffusion.</blockquote>";
- await show(env,id,cb,content,kb([[bx("📋 J'ai une preuve d'autorisation","admrequest:"+username,null,"success")],[bx("⛔ Rejeter","admreject:"+username,null,"danger")],[bx("◀️ En attente","admqueue:0")]]));
+ const text="🔎 <b>"+esc(row.title)+"</b>\n\n🔗 <code>"+esc(row.link)+"</code>\n"+
+ "📁 "+esc(row.content_type)+" / "+esc(row.genre)+"\n🎞 <b>"+Number(row.matching_pairs||0)+"</b> correspondance(s) de format\n"+
+ "📡 <i>"+esc(row.technical_status)+"</i>\n\n<blockquote>La présence de médias est observée automatiquement. Aucun fichier n'est copié par Ciné Radar.</blockquote>";
+ await show(env,id,cb,text,kb([
+  [bx("🔗 Ouvrir le canal",null,row.link,"success")],
+  [bx("⬅️ Sources trouvées","admqueue:0")]
+ ]));
 }
 async function adminStartApproval(env,id,uid,cb,username){
  await env.DB.prepare("INSERT INTO user_states(user_id,mode) VALUES(?,?) ON CONFLICT(user_id) DO UPDATE SET mode=excluded.mode").bind(uid,"approve:"+username).run();
