@@ -2457,9 +2457,16 @@ async function fetchFromESPN() {
   });
   if(failures.length===paths.length)throw new Error("ALL_ESPN_SOURCES_FAILED:"+failures.map(x=>x.error).join(","));
   const normalized=[...events.values()].map(x=>parseEvent(x.event,x.source)).filter(Boolean);
-  // A single detailed ESPN summary is requested only for live events, max 6.
-  const live=normalized.filter(e=>e.is_live).slice(0,6);
-  const detail=await Promise.allSettled(live.map(e=>getEspn("all/summary?event="+e.provider_id)));
+  // Enrich up to 20 LIVE matches per refresh. Limit bursts to 10 concurrent
+  // ESPN summaries to reduce upstream throttling without changing the schedule.
+  const ESPN_DETAIL_MAX_PER_REFRESH=20;
+  const ESPN_DETAIL_CONCURRENCY=10;
+  const live=normalized.filter(e=>e.is_live).slice(0,ESPN_DETAIL_MAX_PER_REFRESH);
+  const detail=[];
+  for(let start=0;start<live.length;start+=ESPN_DETAIL_CONCURRENCY){
+    const batch=live.slice(start,start+ESPN_DETAIL_CONCURRENCY);
+    detail.push(...await Promise.allSettled(batch.map(e=>getEspn("all/summary?event="+e.provider_id))));
+  }
   let detailSuccess=0;
   for(let i=0;i<live.length;i++){
     let extra={home:{},away:{}};
@@ -2476,7 +2483,7 @@ async function fetchFromESPN() {
     if(!e.is_live)e.live_stats=buildLiveStats(e._scoreboard_stats);
     delete e._scoreboard_stats;
   }
-  return {events:normalized.slice(0,250),sourceEvents:events.size,feedRequests:paths.length,detailRequested:live.length,detailSuccess,failures};
+  return {events:normalized.slice(0,250),sourceEvents:events.size,feedRequests:paths.length,detailCap:ESPN_DETAIL_MAX_PER_REFRESH,detailRequested:live.length,detailSuccess,failures};
 }
 function diagnostic(events) {
   const live=events.filter(e=>e.is_live);
@@ -2527,7 +2534,7 @@ async function persistRefresh(events,fetchDetails) {
       }
       const stats=diagnostic(events);
       const report={...stats,engine:"neon-espn-safe-v1",source_events:fetchDetails.sourceEvents,
-        feed_requests:fetchDetails.feedRequests,detail_requests:fetchDetails.detailRequested,
+        feed_requests:fetchDetails.feedRequests,detail_requests:fetchDetails.detailRequested,detail_cap:fetchDetails.detailCap,
         detail_success:fetchDetails.detailSuccess,failures:fetchDetails.failures,
         no_telegram:true,no_signal_generation:true};
       await tx.unsafe(
@@ -2560,7 +2567,7 @@ index_default.fetch=async function(req){
   try {
     const pulled=await fetchFromESPN();
     const summary=diagnostic(pulled.events);
-    if(mode==="preview")return json(req,{success:true,mode:"preview",...summary,source_events:pulled.sourceEvents,feed_requests:pulled.feedRequests,detail_success:pulled.detailSuccess,failures:pulled.failures,no_database_writes:true});
+    if(mode==="preview")return json(req,{success:true,mode:"preview",...summary,source_events:pulled.sourceEvents,feed_requests:pulled.feedRequests,detail_success:pulled.detailSuccess,detail_cap:pulled.detailCap,failures:pulled.failures,no_database_writes:true});
     const report=await persistRefresh(pulled.events,pulled);
     if(report.already_running)return json(req,{mode:"apply",...report},409);
     let signalReport={generated_signals:0,validation_successes:0,notifications_created:0,signal_backend:"ready"};
