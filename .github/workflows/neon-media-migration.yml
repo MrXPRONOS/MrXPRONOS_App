@@ -1,0 +1,27 @@
+name: Copy Supabase videos to Neon (manual)
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: Type COPY113
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  copy:
+    if: ${{ inputs.confirm == 'COPY113' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install boto3 requests
+      - name: Copy and SHA256 validate 113 objects
+        env:
+          NEON_S3_ENDPOINT: ${{ secrets.NEON_S3_ENDPOINT }}
+          NEON_S3_ACCESS_KEY_ID: ${{ secrets.NEON_S3_ACCESS_KEY_ID }}
+          NEON_S3_SECRET_ACCESS_KEY: ${{ secrets.NEON_S3_SECRET_ACCESS_KEY }}
+        run: python migration/free-stack/migrate_media.py
