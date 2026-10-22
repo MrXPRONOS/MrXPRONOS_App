@@ -18,7 +18,9 @@ concurrency:
 
 jobs:
   production:
-    if: github.event_name == 'workflow_dispatch' || vars.XPRONOS_COUPON_DEPLOY_ENABLED == 'true'
+    # Migration 2026-10-22 : remplacé par xpronos-cloudflare-bot-deploy.yml.
+    # Bloquer aussi les exécutions manuelles pour ne jamais réinstaller l'ancien webhook Supabase.
+    if: false
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:

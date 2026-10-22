@@ -1,0 +1,129 @@
+name: XPRONOS 4+ - Cloudflare Worker & D1 (sans Supabase)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'cloudflare/xpronos-coupons-bot/**'
+      - '.github/workflows/xpronos-cloudflare-bot-deploy.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: xpronos-coupons-cloudflare-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || vars.XPRONOS_CF_AUTO_DEPLOY == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: 9c86118191b804d91b5f5b2c89114999
+      XPRONOS_CF_BOT_TOKEN: ${{ secrets.XPRONOS_CF_BOT_TOKEN }}
+      CF_BOT_ADMIN_IDS: ${{ vars.XPRONOS_COUPON_ADMIN_IDS }}
+      CF_BOT_CHANNELS_JSON: ${{ vars.XPRONOS_COUPON_CHANNELS_JSON || '[]' }}
+      WORKER_URL: https://xpronos-coupons-bot.cinecanaux-xpronos.workers.dev
+      CI: '1'
+
+    defaults:
+      run:
+        working-directory: cloudflare/xpronos-coupons-bot
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Contrôler la configuration sans afficher les tokens
+        run: |
+          set -euo pipefail
+          for item in CLOUDFLARE_API_TOKEN XPRONOS_CF_BOT_TOKEN CF_BOT_ADMIN_IDS; do
+            if [[ -z "${!item:-}" ]]; then
+              echo "::error::Identifiant ou variable manquant : $item"
+              exit 1
+            fi
+          done
+          if ! [[ "$CF_BOT_ADMIN_IDS" =~ ^[0-9]+(,[0-9]+)*$ ]]; then
+            echo '::error::XPRONOS_COUPON_ADMIN_IDS doit contenir des identifiants numériques (séparés par virgule).'
+            exit 1
+          fi
+          python3 - <<'PY'
+          import os,json,re
+          cs=json.loads(os.environ['CF_BOT_CHANNELS_JSON'])
+          assert isinstance(cs,list), 'La variable des canaux doit être un tableau JSON'
+          for c in cs:
+              assert isinstance(c,dict) and re.fullmatch(r'(@\w{5,}|-100\d{5,})',str(c.get('id',''))) and str(c.get('url','')).startswith('https://t.me/'), 'Canal non valide'
+          print('Configuration des canaux validée.')
+          PY
+
+      - name: Exécuter les tests du bot et de la base D1
+        run: |
+          set -euo pipefail
+          node --test tests/logic.test.js
+          python3 tests/test_schema.py
+
+      - name: Installer Wrangler version déterministe
+        run: npm install --no-save --package-lock=false --no-audit --no-fund wrangler@4.50.0
+
+      - name: Vérifier la CLI Wrangler
+        run: |
+          npx --no-install wrangler --version
+          npx --no-install wrangler d1 migrations apply --help >/dev/null
+          npx --no-install wrangler deploy --help >/dev/null
+          npx --no-install wrangler secret put --help >/dev/null
+
+      - name: Appliquer uniquement les migrations D1 du bot
+        run: npx --no-install wrangler d1 migrations apply xpronos-coupons-bot --remote --yes
+
+      - name: Déployer XPRONOS 4+ sur Cloudflare
+        run: npx --no-install wrangler deploy
+
+      - name: Configurer les secrets Worker et remplacer le webhook Telegram
+        run: |
+          set -euo pipefail
+          # Les valeurs sont envoyées sur stdin. Ne jamais les afficher.
+          printf '%s' "$XPRONOS_CF_BOT_TOKEN" | npx --no-install wrangler secret put CF_BOT_TOKEN --name xpronos-coupons-bot
+          printf '%s' "$CF_BOT_ADMIN_IDS" | npx --no-install wrangler secret put CF_BOT_ADMIN_IDS --name xpronos-coupons-bot
+          printf '%s' "$CF_BOT_CHANNELS_JSON" | npx --no-install wrangler secret put CF_BOT_CHANNELS_JSON --name xpronos-coupons-bot
+          new_secret="$(openssl rand -hex 32)"
+          printf '%s' "$new_secret" | npx --no-install wrangler secret put CF_BOT_WEBHOOK_SECRET --name xpronos-coupons-bot
+
+          python3 - <<'PY'
+          import json,os,urllib.request
+          base=os.environ['WORKER_URL']
+          with urllib.request.urlopen(base+'/health',timeout=20) as r:
+              health=json.load(r)
+          if health.get('status')!='ready':
+              raise SystemExit('Worker disponible mais secrets non initialisés.')
+          print('Worker Cloudflare prêt.')
+          PY
+
+          export NEW_WEBHOOK_SECRET="$new_secret"
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request
+          bot=os.environ['XPRONOS_CF_BOT_TOKEN']
+          api='https://api.telegram.org/bot'+bot+'/'
+          endpoint=os.environ['WORKER_URL']+'/telegram'
+          data=urllib.parse.urlencode({
+              'url':endpoint,
+              'secret_token':os.environ['NEW_WEBHOOK_SECRET'],
+              'max_connections':8,
+              'allowed_updates':json.dumps(['message','callback_query'])
+          }).encode('utf-8')
+          with urllib.request.urlopen(urllib.request.Request(api+'setWebhook',data=data,method='POST'),timeout=20) as r:
+              result=json.load(r)
+          if not result.get('ok'):
+              raise SystemExit('Telegram a refusé le nouveau webhook.')
+          with urllib.request.urlopen(api+'getWebhookInfo',timeout=20) as r:
+              info=json.load(r)
+          if not info.get('ok') or info.get('result',{}).get('url')!=endpoint:
+              raise SystemExit('Webhook Telegram mal configuré.')
+          print('Webhook Telegram enregistré vers Cloudflare Workers (Supabase abandonné pour ce bot).')
+          PY

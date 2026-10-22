@@ -1,0 +1,38 @@
+name: XPRONOS Cloudflare Bot - Tests indépendants
+
+on:
+  pull_request:
+    paths:
+      - 'cloudflare/xpronos-coupons-bot/**'
+      - '.github/workflows/xpronos-cloudflare-bot-tests.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'cloudflare/xpronos-coupons-bot/**'
+      - '.github/workflows/xpronos-cloudflare-bot-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: cloudflare/xpronos-coupons-bot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Tests du calcul des cotes, syntaxe Worker et SQLite
+        run: |
+          node --check src/worker.js
+          node --check src/logic.js
+          node --test tests/logic.test.js
+          python3 tests/test_schema.py
+      - name: Bundler le Worker avec Wrangler (sans secrets)
+        run: |
+          npm install --no-save --package-lock=false --no-audit --no-fund wrangler@4.50.0
+          npx --no-install wrangler deploy --dry-run --outdir ./dist
