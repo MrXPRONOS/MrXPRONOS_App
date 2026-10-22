@@ -1,5 +1,5 @@
 // Free Pronos — anonymized request timing: no IDs, message text, IPs, hashes or tokens.
-const ALLOWED_ROUTES=new Set(['/me','/coupons','/tasks','/history','/results','/mytickets','/admin/overview','/admin/tickets','/admin/performance','/support','/claim','/redeem','/channel-claim','/alerts']);
+const ALLOWED_ROUTES=new Set(['/me','/coupons','/tasks','/history','/results','/mytickets','/admin/overview','/admin/tickets','/admin/performance','/support','/claim','/redeem','/channel-claim','/alerts','/callback','/message']);
 export function routeLabel(path){
  const label=String(path||'').startsWith('/api/')?String(path).slice(4):String(path||'');
  return ALLOWED_ROUTES.has('/'+label.replace(/^\//,''))?'/'+label.replace(/^\//,''):'/other';
