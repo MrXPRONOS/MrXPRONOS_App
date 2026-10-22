@@ -35,3 +35,5 @@ jobs:
           assert status==503 and body.get('error')=='refresh_engine_not_migrated'
           print('Neon LIVE route compatibility PASS; refresh correctly disabled until fully ported')
           PY
+
+# Verify POST-refreshed Neon LIVE reads after text-array binding correction.
