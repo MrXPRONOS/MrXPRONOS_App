@@ -40,3 +40,5 @@ for(const route of ["/api/favorite","/api/profile","/api/preferences"]){
  const r=await get(route);assert.equal(r.status,404);
 }
 console.log("PASS old personal APIs removed");
+
+// Production check: minimal Ciné Radar release V6.
