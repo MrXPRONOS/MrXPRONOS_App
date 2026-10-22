@@ -1,7 +1,7 @@
 // FREE PRONOS : webhook Telegram Cloudflare Workers + D1.
 // Aucune dépendance Supabase. Les crédits XP sont virtuels et non monétaires.
 import {parseCouponCommand} from './logic.js';
-import {APP_URL,navKeyboard,navigate,dashboard,xpScreen,xpHistory,showMissions,claimEngagement,alerts,toggleAlert,referrals,couponsFiltered,results,adminResult,adminAnalytics,faqText,notificationBatch,statusLabel} from './features.js';
+import {APP_URL,navKeyboard,navigate,dashboard,xpScreen,xpHistory,showMissions,claimEngagement,alerts,toggleAlert,referrals,couponsFiltered,results,adminResult,adminAnalytics,faqText,notificationBatch,resultNotificationBatch,statusLabel} from './features.js';
 import {miniApi} from './miniapp.js';
 import {miniPage} from './minipage.js';
 
@@ -331,21 +331,48 @@ async function handle(env,update) {
 export default {
   async fetch(req,env){
     const url=new URL(req.url);
+    if(req.method==='GET'&&url.pathname==='/app')return miniPage();
+    if(url.pathname.startsWith('/api/'))return miniApi(req,env);
     if(req.method==='GET'&&url.pathname==='/health'){
-      return new Response(JSON.stringify({status:env.DB&&env.CF_BOT_TOKEN&&env.CF_BOT_WEBHOOK_SECRET&&admins(env).size?'ready':'not_configured'}),{
-        status:env.DB&&env.CF_BOT_TOKEN&&env.CF_BOT_WEBHOOK_SECRET&&admins(env).size?200:503,
-        headers:{'content-type':'application/json','cache-control':'no-store'}
+      const ok=!!(env.DB&&env.CF_BOT_TOKEN&&env.CF_BOT_WEBHOOK_SECRET&&admins(env).size);
+      return new Response(JSON.stringify({status:ok?'ready':'not_configured',bot:'Free Pronos'}),{
+        status:ok?200:503,headers:{'content-type':'application/json','cache-control':'no-store'}
       });
     }
     if(req.method!=='POST'||url.pathname!=='/telegram')return new Response('Not found',{status:404});
-    if(!env.DB||!env.CF_BOT_TOKEN||!env.CF_BOT_WEBHOOK_SECRET||!admins(env).size)return new Response('Not configured',{status:503});
+    if(!env.DB||!env.CF_BOT_TOKEN||!env.CF_BOT_WEBHOOK_SECRET||!admins(env).size)
+      return new Response('Not configured',{status:503});
     const provided=req.headers.get('x-telegram-bot-api-secret-token')||'';
     if(!provided||provided!==env.CF_BOT_WEBHOOK_SECRET)return new Response('Forbidden',{status:403});
+    let updateId=null,claimed=false;
     try{
       const data=await req.json();
       if(!Number.isSafeInteger(data.update_id))return new Response('Bad request',{status:400});
+      updateId=data.update_id;
+      const fresh=await one(env,'INSERT OR IGNORE INTO processed_updates(update_id) VALUES(?) RETURNING update_id',updateId);
+      if(!fresh)return out('ok'); // Déjà traité ou traitement en cours.
+      claimed=true;
       await handle(env,data);
       return out('ok');
-    }catch(error){console.error('Webhook failed:',String(error));return new Response('retry',{status:500})}
+    }catch(error){
+      if(claimed&&updateId!==null){
+        try{await run(env,'DELETE FROM processed_updates WHERE update_id=?',updateId)}
+        catch(cleanError){console.warn('Free Pronos dedup rollback failed',String(cleanError))}
+      }
+      console.error('Free Pronos webhook failed:',String(error));
+      return new Response('retry',{status:500});
+    }
+  },
+  async scheduled(controller,env,ctx){
+    ctx.waitUntil((async()=>{
+      try{
+        const [coupons,results]=await Promise.all([
+          notificationBatch(env,telegram,10),
+          resultNotificationBatch(env,telegram,6)
+        ]);
+        console.log('Free Pronos notifications',coupons.sent,results.sent);
+        await run(env,"DELETE FROM processed_updates WHERE received_at<datetime('now','-10 days')");
+      }catch(err){console.error('Free Pronos notification task failed',String(err))}
+    })());
   }
 };
