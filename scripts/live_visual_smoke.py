@@ -68,7 +68,7 @@ def install_routes(page):
             route.fulfill(status=404, content_type="application/json", body=json.dumps({"error": "mock not found"}))
             return
         route.fulfill(status=200, content_type="application/json", headers={"Access-Control-Allow-Origin": "*"}, body=json.dumps(payload))
-    page.route("**/functions/v1/live/**", handler)
+    page.route("https://br-winter-truth-b9of9tss-live.compute.c-7.eu-central-1.aws.neon.tech/**", handler)
 
 def assert_no_overflow(page, label):
     values = page.evaluate("""() => ({viewport: window.innerWidth, doc: document.documentElement.scrollWidth, body: document.body.scrollWidth})""")
