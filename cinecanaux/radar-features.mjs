@@ -1,3 +1,4 @@
+import {searchRank,qualityScore,recommendations,extractTelegramActivity,notificationEligible} from "./radar-intelligence.mjs";
 // Cine Radar V2 — Cloudflare Workers / Telegram API / D1. No Supabase dependency.
 const BASE="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev";
 const BOT_LINK_RE=/^https:\/\/t\.me\/[a-zA-Z][a-zA-Z0-9_]{4,31}\/?$/;
@@ -82,8 +83,12 @@ async function startMessage(env,id,uid,cb){
  ];
  await show(env,id,cb,msg,kb(rows));
  if(!p.onboarded&&!cb){
+  const picture=await telegram(env,"sendPhoto",{chat_id:id,photo:BASE+"/assets/welcome.jpg",
+   caption:"🎬 <b>CINÉ RADAR</b> — Ton cinéma, tes découvertes. 🍿",parse_mode:"HTML"});
+  if(!picture.ok)console.warn(JSON.stringify({event:"welcome_photo_fallback",code:picture.error_code}));
   await setPrefs(env,uid,{onboarded:1});
-  await send(env,id,"💡 <b>ASTUCE DE DÉPART</b>\n<i>Choisis une catégorie, utilise les flèches pour naviguer et sauvegarde tes chaînes préférées avec ⭐.</i>");
+  await send(env,id,"💡 <b>PREMIÈRE VISITE ?</b>\n<i>Découvre Ciné Radar en trois étapes rapides.</i>",
+    kb([[bx("🎓 Découvrir comment ça marche","guide:0",null,"success")]]));
  }
 }
 async function showCategory(env,id,uid,cb,kind){
@@ -94,23 +99,25 @@ async function showCategory(env,id,uid,cb,kind){
  await show(env,id,cb,regularHeader(esc(label.toUpperCase()),"<i>Choisis ton style de contenu :</i>","Les résultats sont classés et actualisés régulièrement."),kb(rows));
 }
 async function listRows(env,kind,genre,language,search,sort="recent"){
- // Only explicitly rights-confirmed channels appear anywhere in the public application.
- const all=(await env.DB.prepare("SELECT c.id,c.title,c.link,c.description,c.content_type,c.genre,c.language,c.updated_at,c.last_post_at,c.banner_url,COALESCE(t.opens,0) opens,t.check_status,COALESCE((SELECT COUNT(*) FROM favorites f WHERE f.channel_id=c.id),0) favorites_count FROM channels c LEFT JOIN channel_telemetry t ON t.channel_id=c.id WHERE c.status='approved' AND c.rights_confirmed=1 ORDER BY c.updated_at DESC LIMIT 400").all()).results||[];
+ const all=(await env.DB.prepare("SELECT c.id,c.title,c.link,c.description,c.content_type,c.genre,c.language,c.updated_at,c.last_post_at,c.banner_url,COALESCE(t.opens,0) opens,COALESCE(t.shares,0) shares,t.check_status,COALESCE((SELECT COUNT(*) FROM favorites f WHERE f.channel_id=c.id),0) favorites_count FROM channels c LEFT JOIN channel_telemetry t ON t.channel_id=c.id WHERE c.status='approved' AND c.rights_confirmed=1 ORDER BY c.updated_at DESC LIMIT 1500").all()).results||[];
  let filtered=all.filter(c=>BOT_LINK_RE.test(c.link));
  if(kind)filtered=filtered.filter(c=>c.content_type===kind);
  if(genre&&genre!=="general")filtered=filtered.filter(c=>c.genre===genre);
  if(language&&language!=="tous")filtered=filtered.filter(c=>c.language===language);
  if(search){
-  const tokens=strip(search).split(" ").filter(Boolean);filtered=filtered.filter(c=>tokens.every(t=>strip([c.title,c.description,c.content_type,c.genre,c.language].join(" ")).includes(t)));
-  if(!filtered.length){
-   // Minor typo tolerance: ignore one edit in a token of 5+ characters.
-   filtered=all.filter(c=>tokens.some(t=>t.length>=5&&strip(c.title+" "+c.genre).split(" ").some(w=>Math.abs(w.length-t.length)<=1&&editDistanceAtMostOne(t,w))));
-  }
+  filtered=filtered.map(c=>({...c,_search_rank:searchRank(c,search)}))
+    .filter(c=>c._search_rank>0)
+    .sort((a,b)=>b._search_rank-a._search_rank||qualityScore(b)-qualityScore(a));
+ } else if(sort==="popular"||sort==="quality"){
+  filtered.sort((a,b)=>qualityScore(b)-qualityScore(a)||Number(b.favorites_count)-Number(a.favorites_count));
+ } else if(sort==="active"){
+  filtered.sort((a,b)=>String(b.last_post_at||"").localeCompare(String(a.last_post_at||""))||qualityScore(b)-qualityScore(a));
+ } else{
+  filtered.sort((a,b)=>String(b.updated_at).localeCompare(String(a.updated_at)));
  }
- if(sort==="popular")filtered.sort((a,b)=>b.favorites_count-a.favorites_count||b.opens-a.opens);
- if(sort==="active")filtered.sort((a,b)=>String(b.last_post_at||"").localeCompare(String(a.last_post_at||""))||String(b.updated_at).localeCompare(String(a.updated_at)));
  return filtered;
 }
+
 function editDistanceAtMostOne(a,b){if(a===b)return true;let i=0,j=0,edits=0;while(i<a.length&&j<b.length){if(a[i]===b[j]){i++;j++;continue;}if(++edits>1)return false;if(a.length>b.length)i++;else if(b.length>a.length)j++;else{i++;j++;}}return edits+Number(i<a.length||j<b.length)<=1;}
 async function card(env,id,uid,cb,channelId,origin="latest"){
  const c=await env.DB.prepare("SELECT c.*,t.check_status,COALESCE(t.opens,0) opens FROM channels c LEFT JOIN channel_telemetry t ON c.id=t.channel_id WHERE c.id=? AND c.status='approved' AND c.rights_confirmed=1").bind(channelId).first();
@@ -130,10 +137,13 @@ async function card(env,id,uid,cb,channelId,origin="latest"){
 async function listPage(env,id,uid,cb,kind,genre,page,mode="recent",search=""){
  const p=await prefs(env,uid);
  let rows=await listRows(env,kind,genre,p.language,search,mode);
- if(mode==="recommend"){const tag=p.category;rows=rows.filter(x=>x.content_type===tag||x.genre===genre);rows.sort((a,b)=>b.favorites_count-a.favorites_count);}
+ if(mode==="recommend"){
+  const fav=(await env.DB.prepare("SELECT c.id,c.genre FROM favorites f JOIN channels c ON c.id=f.channel_id WHERE f.user_id=? AND c.status='approved' AND c.rights_confirmed=1 LIMIT 60").bind(uid).all()).results||[];
+  rows=recommendations(rows,fav,p,1500);
+ }
  const total=rows.length,number=Math.min(Math.max(0,Number(page)||0),Math.max(0,Math.ceil(total/5)-1)),slice=rows.slice(number*5,number*5+5);
  if(!total){await show(env,id,cb,regularHeader("AUCUN RÉSULTAT","<i>Aucun canal approuvé ne correspond encore à ce choix.</i>","Essaie un autre genre ou une autre langue."),kb([[bx("🔎 Rechercher","search",null,"primary")],navHome()]));return;}
- const title=mode==="latest"?"🆕 <b>NOUVEAUX CANAUX</b>":mode==="recommend"?"✨ <b>POUR TOI</b>":mode==="popular"?"🏆 <b>CANaux POPULAIRES</b>":"🎬 <b>CANaux À DÉCOUVRIR</b>";
+ const title=mode==="latest"?"🆕 <b>NOUVEAUX CANAUX</b>":mode==="recommend"?"✨ <b>POUR TOI</b>":mode==="popular"?"🏆 <b>CANAUX POPULAIRES</b>":"🎬 <b>CANAUX À DÉCOUVRIR</b>";
  const summary=title+"\n<i>"+total+" résultat(s) • Page "+(number+1)+"/"+Math.ceil(total/5)+" • Langue : "+esc(p.language)+"</i>\n\n"+slice.map((x,i)=>(number*5+i+1)+". <b>"+esc(x.title)+"</b>\n    <i>"+esc(x.genre)+" · "+esc(x.language||"VF")+"</i>").join("\n\n");
  const key=mode==="latest"?"latest":mode==="recommend"?"recommend":"list:"+kind+":"+genre;
  const buttons=slice.map(x=>[bx("🎞 "+clean(x.title).slice(0,32),"card:"+x.id+":"+key,"","primary")]);
@@ -159,10 +169,11 @@ async function toggleFavorite(env,id,uid,cb,channelId,origin){
 }
 async function preferencePanel(env,id,uid,cb){
  const p=await prefs(env,uid);
- const rows=LANG.map(([code,label])=>[bx((p.language===code?"✅ ":"")+label,"lang:"+code,null,p.language===code?"success":undefined)]);
+ const rows=[[bx("🎬 Films","prefcat:films",null,p.category==="films"?"success":undefined),bx("📺 Séries","prefcat:series",null,p.category==="series"?"success":undefined),bx("🎌 Animés","prefcat:animes",null,p.category==="animes"?"success":undefined)]];
+ rows.push(...LANG.map(([code,label])=>[bx((p.language===code?"✅ ":"")+label,"lang:"+code,null,p.language===code?"success":undefined)]));
  rows.push([bx(p.notification_enabled?"🔕 Couper les alertes":"🔔 Activer les alertes","notify",null,p.notification_enabled?"danger":"success")]);
  rows.push(navHome());
- await show(env,id,cb,regularHeader("MES PRÉFÉRENCES 🎛","<b>Langue :</b> "+esc(p.language)+"\n<b>Alertes :</b> "+(p.notification_enabled?"activées":"désactivées"),"Aucune notification n'est envoyée sans ton accord."),kb(rows));
+ await show(env,id,cb,regularHeader("MES PRÉFÉRENCES 🎛","<b>Catégorie :</b> "+esc(p.category)+"\n<b>Langue :</b> "+esc(p.language)+"\n<b>Alertes :</b> "+(p.notification_enabled?"activées":"désactivées"),"Aucune notification n'est envoyée sans ton accord."),kb(rows));
 }
 async function referralCode(env,uid){
  const existing=await env.DB.prepare("SELECT code FROM referral_codes WHERE user_id=?").bind(uid).first();
@@ -330,6 +341,9 @@ export async function botUpdate(env,update){
  if(action==="referral"||raw==="/parrainage"||raw==="/inviter")return shareReferral(env,chat,uid);
  if(action==="refstats"||raw==="/mesparrainages")return referralStats(env,chat,uid,cb);
  if(action==="preferences")return preferencePanel(env,chat,uid,cb);
+ if(parts[0]==="prefcat"&&CATEGORY.some(x=>x[0]===parts[1])){
+  await setPrefs(env,uid,{category:parts[1]});return preferencePanel(env,chat,uid,cb);
+ }
  if(action==="notify"){
   const p=await prefs(env,uid);await setPrefs(env,uid,{notification_enabled:p.notification_enabled?0:1});
   return preferencePanel(env,chat,uid,cb);
@@ -354,6 +368,17 @@ export async function botUpdate(env,update){
   return listPage(env,chat,uid,cb,kind,genre,parts[4],mode);
  }
  if(action==="latest")return listPage(env,chat,uid,cb,null,null,0,"latest");
+ if(parts[0]==="guide"&&["0","1","2"].includes(parts[1])){
+  const stage=Number(parts[1]);
+  const lessons=[
+   ["1/3 — DÉCOUVRIR","🎬 Choisis <b>Films</b>, <b>Séries</b> ou <b>Animés</b>, puis un genre.\n<i>La Mini App présente les résultats avec de jolies fiches.</i>"],
+   ["2/3 — PERSONNALISER","⭐ Ajoute tes canaux préférés aux <b>Favoris</b>.\n🎛 Sélectionne tes langues et tes thèmes dans <b>Préférences</b>."],
+   ["3/3 — PARTICIPER","🔎 Recherche avec des mots simples, même si tu fais une faute.\n🎁 Invite un ami avec ton lien personnel.\n🚩 Signale les liens qui ne fonctionnent plus."]
+  ];
+  const b=stage<2?[[bx("Suivant ▶️","guide:"+(stage+1),null,"success")]]:[];
+  b.push([bx("Terminer ✅","home",null,"primary")]);
+  return show(env,chat,cb,regularHeader("GUIDE CINÉ RADAR · "+lessons[stage][0],lessons[stage][1]),kb(b));
+ }
  if(action==="popular")return listPage(env,chat,uid,cb,null,null,0,"popular");
  if(action==="recommend"){const p=await prefs(env,uid);return listPage(env,chat,uid,cb,p.category,"general",0,"recommend");}
  if(action==="favorites"||raw==="/favoris")return favorites(env,chat,uid,cb);
@@ -396,31 +421,43 @@ export async function initializeProfile(env){
 }
 export async function maintenance(env,mode){
  if(mode==="activity"){
-  const candidates=(await env.DB.prepare("SELECT c.id,c.link FROM channels c WHERE c.status='approved' AND c.rights_confirmed=1 AND (NOT EXISTS(SELECT 1 FROM channel_telemetry t WHERE t.channel_id=c.id) OR c.id IN (SELECT channel_id FROM channel_telemetry WHERE last_checked_at IS NULL OR last_checked_at < datetime('now','-24 hours'))) ORDER BY c.updated_at DESC LIMIT 8").all()).results||[];
+  const candidates=(await env.DB.prepare("SELECT c.id,c.link FROM channels c WHERE c.status='approved' AND c.rights_confirmed=1 AND (NOT EXISTS(SELECT 1 FROM channel_telemetry t WHERE t.channel_id=c.id) OR c.id IN (SELECT channel_id FROM channel_telemetry WHERE last_checked_at IS NULL OR last_checked_at < datetime('now','-24 hours'))) ORDER BY c.updated_at DESC LIMIT 12").all()).results||[];
   for(const c of candidates) {
+   let status="unverifiable",lastPost=null;
    try{
     const name=new URL(c.link).pathname.replace(/^\//,"").replace(/\/$/,"");
     if(!/^[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(name))continue;
-    const r=await fetch("https://t.me/s/"+name,{method:"GET",redirect:"follow",signal:AbortSignal.timeout(5500)});
-    const status=r.status===200?"reachable":r.status===404?"not_found":"unverifiable";
-    await env.DB.prepare("INSERT INTO channel_telemetry(channel_id,check_status,last_checked_at,last_good_at) VALUES(?,?,CURRENT_TIMESTAMP,CASE WHEN ?='reachable' THEN CURRENT_TIMESTAMP END) ON CONFLICT(channel_id) DO UPDATE SET check_status=excluded.check_status,last_checked_at=CURRENT_TIMESTAMP,last_good_at=CASE WHEN excluded.check_status='reachable' THEN CURRENT_TIMESTAMP ELSE channel_telemetry.last_good_at END").bind(c.id,status,status).run();
-   }catch(e){
-    await env.DB.prepare("INSERT INTO channel_telemetry(channel_id,check_status,last_checked_at) VALUES(?,'unverifiable',CURRENT_TIMESTAMP) ON CONFLICT(channel_id) DO UPDATE SET check_status='unverifiable',last_checked_at=CURRENT_TIMESTAMP").bind(c.id).run();
-   }
+    const r=await fetch("https://t.me/s/"+name,{method:"GET",redirect:"follow",signal:AbortSignal.timeout(8000)});
+    if(r.status===404)status="not_found";
+    else if(r.status===200) {
+      const body=await r.text();
+      const parsed=extractTelegramActivity(body);
+      status=parsed.status;
+      lastPost=parsed.lastPost;
+    }
+   }catch(e){console.warn(JSON.stringify({event:"channel_activity_unverified",channel:c.id,reason:String(e).slice(0,70)}));}
+   await env.DB.prepare("INSERT INTO channel_telemetry(channel_id,check_status,last_checked_at,last_good_at) VALUES(?,?,CURRENT_TIMESTAMP,CASE WHEN ?='reachable' THEN CURRENT_TIMESTAMP END) ON CONFLICT(channel_id) DO UPDATE SET check_status=excluded.check_status,last_checked_at=CURRENT_TIMESTAMP,last_good_at=CASE WHEN excluded.check_status='reachable' THEN CURRENT_TIMESTAMP ELSE channel_telemetry.last_good_at END").bind(c.id,status,status).run();
+   if(lastPost)await env.DB.prepare("UPDATE channels SET last_post_at=? WHERE id=?").bind(lastPost,c.id).run();
+   // Explicit admin review, not automatic suspension, to avoid false 404/Telegram bot-blocks.
   }
+
  }else if(mode==="notifications"){
-  // Opt-in only, idempotent per user+channel; user limits avoid spikes.
-  const channels=(await env.DB.prepare("SELECT id,title FROM channels WHERE status='approved' AND rights_confirmed=1 AND verified_at>=datetime('now','-1 day') ORDER BY verified_at DESC LIMIT 5").all()).results||[];
-  const users=(await env.DB.prepare("SELECT user_id FROM preferences WHERE notification_enabled=1 ORDER BY updated_at LIMIT 80").all()).results||[];
+  const channels=(await env.DB.prepare("SELECT id,title,content_type,genre,language FROM channels WHERE status='approved' AND rights_confirmed=1 AND verified_at>=datetime('now','-2 days') ORDER BY verified_at DESC LIMIT 8").all()).results||[];
+  const users=(await env.DB.prepare("SELECT user_id,category,language,notification_enabled FROM preferences WHERE notification_enabled=1 ORDER BY updated_at LIMIT 200").all()).results||[];
+  const totalCap=80;let delivered=0;
   for(const ch of channels)for(const u of users){
+   if(delivered>=totalCap)break;
    try{
+    const favoriteGenres=(await env.DB.prepare("SELECT DISTINCT c.genre FROM favorites f JOIN channels c ON c.id=f.channel_id WHERE f.user_id=? LIMIT 10").bind(u.user_id).all()).results?.map(x=>x.genre)||[];
+    if(!notificationEligible(u,ch,favoriteGenres))continue;
     const old=await env.DB.prepare("SELECT 1 FROM notices_sent WHERE user_id=? AND channel_id=?").bind(u.user_id,ch.id).first();
-    if(old)continue;
-    if((await membership(env,u.user_id)).length)continue;
-    await send(env,u.user_id,"🆕 <b>NOUVEAUTÉ CINÉ RADAR</b>\n<i>Une nouvelle chaîne vient d'être approuvée :</i>\n\n🎞️ <b>"+esc(ch.title)+"</b>",kb([[bx("🎬 Voir la fiche","card:"+ch.id+":latest",null,"success")]]));
+    if(old||(await membership(env,u.user_id)).length)continue;
+    await send(env,u.user_id,"🆕 <b>NOUVEAUTÉ CINÉ RADAR</b>\n<i>Une nouvelle chaîne dans tes thèmes préférés :</i>\n\n🎞️ <b>"+esc(ch.title)+"</b>\n🌐 "+esc(ch.language),kb([[bx("🎬 Voir la fiche","card:"+ch.id+":latest",null,"success")],[bx("🎛 Mes alertes","preferences")]]));
     await env.DB.prepare("INSERT OR IGNORE INTO notices_sent(user_id,channel_id) VALUES(?,?)").bind(u.user_id,ch.id).run();
-   }catch(e){console.error(JSON.stringify({event:"notify_failed",reason:String(e).slice(0,95)}));}
+    delivered++;
+   }catch(e){console.error(JSON.stringify({event:"notify_failed",reason:String(e).slice(0,100)}));}
   }
+
  }
 }
 
@@ -462,14 +499,19 @@ export async function miniAppAPI(env,request){
    const sort=String(url.searchParams.get("sort")||"recent");
    const q=String(url.searchParams.get("q")||"").slice(0,80);
    const tab=String(url.searchParams.get("tab")||"explore");
-   let rows=await listRows(env,kind,genre,LANG.some(x=>x[0]===language)?language:"tous",q,["recent","popular","active"].includes(sort)?sort:"recent");
+   let rows=await listRows(env,kind,genre,LANG.some(x=>x[0]===language)?language:"tous",q,["recent","popular","active","quality"].includes(sort)?sort:"recent");
+   if(tab==="recommend"){
+     const fv=(await env.DB.prepare("SELECT c.id,c.genre FROM favorites f JOIN channels c ON c.id=f.channel_id WHERE f.user_id=? AND c.status='approved' AND c.rights_confirmed=1 LIMIT 60").bind(user.id).all()).results||[];
+     const own=await prefs(env,user.id);
+     rows=recommendations(rows,fv,own,1500);
+   }
    if(tab==="favorites"){
     const favorites=(await env.DB.prepare("SELECT channel_id FROM favorites WHERE user_id=?").bind(user.id).all()).results||[];
     const accepted=new Set(favorites.map(x=>Number(x.channel_id)));rows=rows.filter(x=>accepted.has(Number(x.id)));
    }
    if(tab==="new")rows=rows.filter(x=>Date.parse(x.updated_at?.replace(" ","T")+"Z")>Date.now()-14*86400000);
    const fav=(await env.DB.prepare("SELECT channel_id FROM favorites WHERE user_id=?").bind(user.id).all()).results||[];
-   return json({channels:rows.slice(0,100).map(x=>({id:x.id,title:x.title,link:x.link,description:x.description,genre:x.genre,language:x.language,content_type:x.content_type,favorites_count:x.favorites_count})),favorite_ids:fav.map(x=>x.channel_id),total:rows.length});
+   return json({channels:rows.slice(0,100).map(x=>({id:x.id,title:x.title,link:x.link,description:x.description,genre:x.genre,language:x.language,content_type:x.content_type,favorites_count:x.favorites_count,check_status:x.check_status,last_post_at:x.last_post_at,banner_url:x.banner_url,quality_score:qualityScore(x)})),favorite_ids:fav.map(x=>x.channel_id),total:rows.length});
   }
   if(path==="/api/report"&&request.method==="POST"){
    const data=await request.json(),id=Number(data?.id),reason=String(data?.reason||"broken").slice(0,20);
