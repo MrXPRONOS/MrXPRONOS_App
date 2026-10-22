@@ -23,3 +23,24 @@ for label,url in urls:
   print(label,type(e).__name__,str(e)[:160],flush=True);failures+=1
 print("MISSING_OR_BLOCKED",failures)
 assert failures==0,"Some real LIVE image hosts did not provide valid images; investigate an allowed cache/proxy."
+
+print("LIVE_SITE_CHECK")
+url="https://mrxpronos.github.io/MrXPRONOS_App/live.html"
+try:
+ with urllib.request.urlopen(urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0"}),timeout=16) as r:
+  html=r.read().decode(errors="replace")
+  assert "assets/js/live.precompiled.js?v=20261022-real-logos1" in html,"published live.html still points to old script"
+  print("GITHUB_PAGES_NEW_BUNDLE",r.status)
+except Exception as e:
+ print("PAGES_ERROR",type(e).__name__,str(e)[:250]);raise
+api="https://br-winter-truth-b9of9tss-live.compute.c-7.eu-central-1.aws.neon.tech/matches"
+try:
+ import json
+ with urllib.request.urlopen(urllib.request.Request(api,headers={"Accept":"application/json"}),timeout=22) as r:
+  body=json.load(r)
+  matches=body.get("matches") or []
+  paired=sum(bool(x.get("home_logo")) and bool(x.get("away_logo")) for x in matches)
+  print("NEON_LIVE_MATCHES",len(matches),"WITH_LOGO_PAIRS",paired,"status",r.status)
+  if matches: assert paired>0,"Neon /matches does not provide team logos"
+except Exception as e:
+ print("NEON_LOGO_CHECK_ERROR",type(e).__name__,str(e)[:250]);raise
