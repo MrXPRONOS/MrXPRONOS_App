@@ -136,6 +136,14 @@ export default {
    return new Response(APP_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"public, max-age=600","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"}});
   }
   if(request.method==="GET"&&url.pathname==="/assets/banner.svg")return banner();
+  if(request.method==="GET"&&["/assets/welcome.png","/assets/avatar.jpg"].includes(url.pathname)){
+   const name=url.pathname.endsWith(".jpg")?"avatar.jpg":"welcome.png";
+   const remote="https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/cinecanaux/assets/"+name;
+   const img=await fetch(remote,{cf:{cacheTtl:3600,cacheEverything:true}});
+   if(!img.ok)return new Response("Image temporairement indisponible",{status:503});
+   return new Response(img.body,{headers:{"content-type":name.endsWith(".jpg")?"image/jpeg":"image/png","cache-control":"public, max-age=3600","x-content-type-options":"nosniff"}});
+  }
+
   if(request.method==="GET"&&/^\/go\/\d+$/.test(url.pathname)){
    const cid=Number(url.pathname.slice(4));
    if(!Number.isSafeInteger(cid))return new Response("Not found",{status:404});
