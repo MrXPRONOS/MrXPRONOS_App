@@ -126,7 +126,7 @@ def assert_secondary_mobile_tabs(page, width, name):
     page.locator(".mx-live-hero").wait_for(state="visible", timeout=5000)
 
 def run_view(browser, width, height, name):
-    page = browser.new_page(viewport={"width": width, "height": height})
+    page = browser.new_page(viewport={"width": width, "height": height}, service_workers="block")
     install_routes(page)
     page_errors, console_errors = [], []
     page.on("pageerror", lambda exc: page_errors.append(str(exc)))
