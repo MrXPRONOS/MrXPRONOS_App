@@ -892,7 +892,7 @@ function liveSvg(row){
  const receiptStatus="Accepté",slipStatus="Accepté",statusColor="#4f96d7";
  const football=(x,y,sz)=>'<circle cx="'+(x+sz/2)+'" cy="'+(y+sz/2)+'" r="'+(sz*.45)+'" fill="#edf1f4" stroke="#b2bec8"/><text x="'+(x+sz/2)+'" y="'+(y+sz*.67)+'" font-size="'+(sz*.7)+'" text-anchor="middle">⚽</text>';
  const getInitials=(name)=>String(name).split(/\s+/).map(x=>x[0]||"").join("").slice(0,2).toUpperCase();
- const safeLogo=(v)=>/^https:\/\/(?:a\.espncdn\.com|cdn\.espn\.com)\//.test(String(v||""))?String(v):"";
+ const safeLogo=(v)=>/^(?:data:image\/(?:png|jpeg|webp);base64,|https:\/\/(?:a\.espncdn\.com|cdn\.espn\.com)\/)/.test(String(v||""))?String(v):"";
  const circle=(logo,x,name)=>logo?'<image href="'+esc(logo)+'" x="'+x+'" y="282" width="34" height="34" preserveAspectRatio="xMidYMid meet"/>'
  :'<circle cx="'+(x+17)+'" cy="299" r="16" fill="#eff2f4" stroke="#a8b6c2"/><text x="'+(x+17)+'" y="303" font-size="9" font-weight="700" fill="#1e3645" text-anchor="middle">'+esc(getInitials(name))+'</text>';
  const homeLogo=safeLogo(row.home_logo),awayLogo=safeLogo(row.away_logo);
@@ -933,10 +933,33 @@ function premiumHtml(row){
  '@font-face{font-family:"Noto Sans";src:url("https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/supabase/functions/live/_fonts/NotoSans-Bold.ttf") format("truetype");font-style:normal;font-weight:700 900}'+
  'svg{width:429px;height:455px;display:block}</style></head><body>'+svg+'</body></html>';
 }
+// Trusted ESPN team-logo URLs only. Inline the bytes so Browser Run doesn't
+// depend on a third-party image request completing inside Chromium.
+async function embeddedEspnLogo(value){
+ const url=String(value||"");
+ if(!/^https:\/\/(?:a\.espncdn\.com|cdn\.espn\.com)\//.test(url))return "";
+ try{
+  const response=await fetch(url,{signal:AbortSignal.timeout(4500)});
+  if(!response.ok)return url;
+  const type=(response.headers.get("content-type")||"").split(";")[0].toLowerCase();
+  if(!["image/png","image/jpeg","image/webp"].includes(type))return url;
+  const data=new Uint8Array(await response.arrayBuffer());
+  if(data.length<64||data.length>200000)return url;
+  let base64="";
+  for(let start=0;start<data.length;start+=8192){
+   const chunk=data.subarray(start,start+8192);
+   base64+=String.fromCharCode(...chunk);
+  }
+  return "data:"+type+";base64,"+btoa(base64);
+ }catch{return url}
+}
 async function renderPremiumImage(row,env){
  if(!env.BROWSER?.quickAction)throw Error("browser_binding_missing");
+ const [home_logo,away_logo]=await Promise.all([
+   embeddedEspnLogo(row.home_logo),embeddedEspnLogo(row.away_logo)
+ ]);
  const response=await env.BROWSER.quickAction("screenshot",{
-    html:premiumHtml(row),viewport:{width:429,height:455,deviceScaleFactor:1},
+    html:premiumHtml({...row,home_logo,away_logo}),viewport:{width:429,height:455,deviceScaleFactor:1},
     screenshotOptions:{fullPage:false},waitForSelector:{selector:"svg"},
     actionTimeout:18000
  });
