@@ -67,6 +67,38 @@ def quoted_value(row, quote, *, now):
     return {"odds":odds,"source":quote["source"],"captured_at":captured.isoformat(),
             "expected_return_per_unit":round(ev,6)}
 
+
+def enrich_all_markets(rows, expected, *, validation=None):
+    """Keep every one of the 40 possibilities, including low-probability outcomes.
+
+    Confidence is the estimated event probability, NOT an observed win rate or
+    statistically calibrated prediction. Expose evidence separately; don't
+    pretend that more markets means 40 independent tips.
+    """
+    validation = validation or {}
+    coverage = {
+        "home_recent_matches": expected["home_recent_matches"],
+        "away_recent_matches": expected["away_recent_matches"],
+        "league_samples": expected["league_samples"],
+        "home_venue_matches": expected["home_venue_matches"],
+        "away_venue_matches": expected["away_venue_matches"],
+    }
+    for row in rows:
+        p = row["probability"]
+        report = validation.get(row["key"], {})
+        row.update({
+            "confidence_pct": round(100 * p, 1),
+            "model_probability_pct": round(100 * p, 1),
+            "confidence_basis": "modeled_event_probability_not_historical_hit_rate",
+            "confidence_calibrated": False,
+            "evidence": coverage,
+            "market_status": "model_option_unverified",
+            "validation_samples": int(report.get("samples", 0)),
+            "recommended_only_if_verified": True,
+            "recommendation_eligible": False,
+        })
+    return rows
+
 def rank_markets(markets, quotes, *, now, validation=None, min_edge=0.04):
     """Shadow-only recommendations: REAL quote AND adequate out-of-time evaluation."""
     validation=validation or {}
@@ -84,9 +116,9 @@ def rank_markets(markets, quotes, *, now, validation=None, min_edge=0.04):
         row["evaluation_passed"]=bool(vetted)
         row["recommendation_eligible"]=bool(q and vetted and q["expected_return_per_unit"]>=min_edge)
         if row["recommendation_eligible"]:ranked.append(row)
-    # Do not recommend multiple correlated positions on the same game by default.
+    # No one-selection-per-fixture cap. Risks remain correlated and visible.
     ranked.sort(key=lambda x:(-x["quote"]["expected_return_per_unit"],x["key"]))
-    return ranked[:1]
+    return ranked
 
 def generate_shadow(events, history, *, now, rho=0.,quotes=None,validation=None):
     now=_utc(now)
@@ -106,7 +138,7 @@ def generate_shadow(events, history, *, now, rho=0.,quotes=None,validation=None)
                 estimate, reason=estimate_goals(event,index)
                 if estimate is not None:
                     matrix=score_matrix(estimate["home"],estimate["away"],rho=rho)
-                    market_rows=probabilities(matrix)
+                    market_rows=enrich_all_markets(probabilities(matrix),estimate,validation=validation)
                     event_id=str(event["id"])
                     recommended=rank_markets(market_rows,(quotes or {}).get(event_id,{}),
                                              now=now,validation=validation)
@@ -118,7 +150,9 @@ def generate_shadow(events, history, *, now, rho=0.,quotes=None,validation=None)
                         "expected_goals":estimate,"rho":rho,
                         "score_model":"Dixon-Coles" if rho else "Poisson",
                         "features_asof":form_features(index,event),
-                        "markets":market_rows,"recommended_shadow_only":recommended,
+                        "markets":market_rows,"market_count":len(market_rows),
+                        "multi_market_mode":"all_40_no_selection_cap",
+                        "recommended_shadow_only":recommended,
                         "experimental":True,"published":False,
                         "do_not_send_to_telegram":True
                     })
