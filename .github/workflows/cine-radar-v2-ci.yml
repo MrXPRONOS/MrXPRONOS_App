@@ -30,4 +30,4 @@ jobs:
           node --check cinecanaux/app-page.mjs
           node --check cinecanaux/channel-preview.mjs
       - name: Run isolated Telegram and Mini App tests
-        run: node --test cinecanaux/tests/radar-lean.test.mjs cinecanaux/tests/channel-preview.test.mjs
+        run: node --test cinecanaux/tests/radar-lean.test.mjs cinecanaux/tests/channel-preview.test.mjs cinecanaux/tests/radar-performance.test.mjs
