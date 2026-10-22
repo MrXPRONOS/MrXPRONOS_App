@@ -1,6 +1,7 @@
 // Free Pronos Telegram Mini App: trusted, signed initData only.
 import {summary,periodKey,claimEngagement} from './features.js';
 import {createTicket,informAdmins,ticketsForUser} from './support.js';
+import {adminApi,isAdmin} from './admin-ui.js';
 const enc=new TextEncoder();
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{
   'content-type':'application/json; charset=utf-8','cache-control':'no-store',
@@ -36,9 +37,10 @@ export async function miniApi(request,env){
   const me=await summary(env,id);
   if(!me)return json({error:'start_bot_first'},403);
   if(!me.adult)return json({error:'adult_confirmation_required'},403);
+  if(url.pathname.startsWith('/api/admin/'))return adminApi(request,env,id);
   if(url.pathname==='/api/me'&&request.method==='GET'){
     const p=await env.DB.prepare('SELECT notify_coupons,notify_results FROM user_preferences WHERE user_id=?').bind(id).first();
-    return json({me,alerts:{coupons:!!p?.notify_coupons,results:!!p?.notify_results}});
+    return json({me:{...me,is_admin:isAdmin(env,id)},alerts:{coupons:!!p?.notify_coupons,results:!!p?.notify_results}});
   }
   if(url.pathname==='/api/mytickets'&&request.method==='GET'){
     return json({tickets:await ticketsForUser(env,id)});
@@ -64,10 +66,10 @@ export async function miniApi(request,env){
     const tier=url.searchParams.get('category')||'ALL';
     if(!['ALL','SIMPLE','PRO','VIP'].includes(tier))return json({error:'invalid_category'},400);
     const rows=await query(env,
-      "SELECT id,title,tier,total_odds,xp_cost,stock,expires_at FROM coupons WHERE active=1 AND result_status='available' AND stock<>0 AND expires_at>?"+
+      "SELECT id,title,tier,total_odds,xp_cost,stock,expires_at,competition,media_json,auto_settlement FROM coupons WHERE active=1 AND result_status='available' AND stock<>0 AND expires_at>?"+
       (tier==='ALL'?'':' AND tier=?')+" ORDER BY created_at DESC,id DESC LIMIT 50",
       ...[new Date().toISOString(),...(tier==='ALL'?[]:[tier])]);
-    return json({coupons:rows});
+    return json({coupons:rows.map(c=>({...c,media:JSON.parse(c.media_json||'{}')}))});
   }
   if(url.pathname==='/api/tasks'&&request.method==='GET'){
     const [tasks,claims]=await Promise.all([
@@ -85,8 +87,8 @@ export async function miniApi(request,env){
     return json({ledger,coupons,referrals});
   }
   if(url.pathname==='/api/results'&&request.method==='GET'){
-    const rows=await query(env,"SELECT id,title,tier,result_status,result_reviewed_at,result_source FROM coupons WHERE result_status IN ('live','won','lost','void') ORDER BY coalesce(result_reviewed_at,created_at) DESC LIMIT 30");
-    return json({results:rows});
+    const rows=await query(env,"SELECT id,title,tier,result_status,result_reviewed_at,result_source,competition,media_json FROM coupons WHERE result_status IN ('live','won','lost','void') ORDER BY coalesce(result_reviewed_at,created_at) DESC LIMIT 30");
+    return json({results:rows.map(c=>({...c,media:JSON.parse(c.media_json||'{}')}))});
   }
   if(url.pathname==='/api/claim'&&request.method==='POST'){
     let data;try{data=await request.json()}catch{return json({error:'invalid_json'},400)}
