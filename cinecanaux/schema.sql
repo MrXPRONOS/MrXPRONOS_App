@@ -87,3 +87,15 @@ CREATE INDEX IF NOT EXISTS idx_reports_pending ON channel_reports(status,created
 -- ALTER TABLE channels ADD COLUMN last_post_at TEXT;
 -- ALTER TABLE channels ADD COLUMN rights_evidence TEXT NOT NULL DEFAULT '';
 -- ALTER TABLE channels ADD COLUMN banner_url TEXT NOT NULL DEFAULT '';
+
+
+-- Cache des aperçus de profils de canaux Telegram publics (aucune vidéo recopiée).
+CREATE TABLE IF NOT EXISTS channel_profile_cache (
+  channel_id INTEGER PRIMARY KEY,
+  title TEXT,
+  description TEXT,
+  avatar_url TEXT,
+  last_post_at TEXT,
+  preview_status TEXT NOT NULL DEFAULT 'unavailable',
+  checked_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
