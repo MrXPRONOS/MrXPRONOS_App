@@ -57,7 +57,7 @@ test('Admin report includes D1 read probe but never exposes identifiers',async()
  const db={prepare(sql){return {bind(){return {
   first:async()=>({ready:1}),
   all:async()=>({results:[{kind:'miniapp',route:'/me',colo:'LFW',response_ms:111,telegram_ms:0,callback_ack_ms:null,first_reply_ms:null}]})
- }},first:async()=>({ready:1}),all:async()=>({results:[]})}}};
+ }},first:async()=>({ready:1}),all:async()=>({results:[{kind:'miniapp',route:'/me',colo:'LFW',response_ms:111,telegram_ms:0,callback_ack_ms:null,first_reply_ms:null}]})}}};
  const report=await performanceReport({DB:db});
  assert.equal(report.samples,1);
  assert.equal(report.groups[0].colo,'LFW');
