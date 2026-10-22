@@ -28,3 +28,37 @@ Recherche dans la base D1 uniquement; découverte externe automatisée et inspec
 
 ## Provision automatique du webhook
 Le Worker possède un handler `scheduled` déclenché par Cloudflare toutes les cinq minutes. Tant que le webhook n'est pas installé, il tente `setWebhook` directement depuis le Worker avec les secrets `TELEGRAM_TOKEN` et `TELEGRAM_WEBHOOK_SECRET`; aucune valeur n'est exportée ni ajoutée au dépôt GitHub. Le statut de cet enregistrement est conservé dans `bot_webhook_status` (table créée dans D1). Après succès, les exécutions suivantes s'arrêtent après le contrôle de la base. Si les secrets changent, remettre cet état à jour via `DELETE FROM bot_webhook_status WHERE id=1;` pour redéclencher l'installation.
+
+
+## Réutilisation du moteur de découverte CinéX (22 octobre 2026)
+
+Le workflow existant `.github/workflows/telegram-discovery-daily.yml` et le script `telegram-film-relay/scripts/discovery_daily.py` conservent leur fonctionnement actuel : recherche via **la session personnelle Telegram déjà définie dans GitHub**, lecture publique sans rejoindre les canaux, digest privé dans « Messages enregistrés » et état sauvegardé dans `telegram-film-relay/state/discovery_daily_state.json`.
+
+**Aucun nouvel identifiant Telegram ou GitHub n'est requis pour cette synchronisation.** Le Worker Cloudflare lit le fichier JSON public du dépôt via HTTPS, toutes les quatre heures (cron `0 */4 * * *`, heure UTC) et l'importe dans **Cloudflare D1**. Le code n'importe jamais les jetons ou les messages privés.
+
+- `discovery_candidates` : table dédiée aux canaux détectés, dédoublonnés par nom d'utilisateur.
+- `technical_status=qualified` : canal public et non protégé, avec au moins 2 couples affiche/vidéo vérifiés par le moteur existant.
+- `technical_status=rejected_format` : format non suffisamment confirmé.
+- `rights_status=unverified` : droits non validés, même quand une vidéo est présente.
+- `discovery_sync_status` : horodatage du dernier scan et compteurs d'import.
+
+Le bot Telegram lit uniquement la table `channels` **où `status='approved' AND rights_confirmed=1`** : un canal découvert automatiquement n'est jamais publié sur ce seul critère. Pour publier un canal, il faut avoir établi les droits de diffusion, puis l'approuver dans D1. Par exemple, **après vérification et validation effective des droits** (adapte le nom d'utilisateur) :
+
+```sql
+INSERT INTO channels(title,link,description,content_type,genre,status,rights_confirmed)
+SELECT title,link,'Canal autorisé',content_type,genre,'approved',1
+FROM discovery_candidates
+WHERE username='NOM_CANAL_A_VERIFIER' AND technical_status='qualified'
+ON CONFLICT(link) DO UPDATE SET
+ status='approved',rights_confirmed=1,updated_at=CURRENT_TIMESTAMP;
+```
+
+Pour examiner les nouveaux canaux :
+
+```sql
+SELECT username,title,content_type,genre,matching_pairs,technical_status,
+       rights_status,last_scan
+FROM discovery_candidates ORDER BY last_seen DESC LIMIT 50;
+```
+
+Les catégories reconnues par l'ancien moteur sont Films, Comédie, Romance/Désir et Animés. Une vraie classification détaillée des séries et des sous-genres nécessitera des critères ou recherches supplémentaires. La détection d'une pièce jointe vidéo et d'une affiche ne garantit ni le titre du film ni sa légalité.
