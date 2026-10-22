@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 from .verification import screen_pairs, channel_format_verified
+from .public_directory import assess_public_channel
 from .text import clean_caption, first_title
 
 LOG = logging.getLogger("telegram_film_discovery")
@@ -50,12 +51,15 @@ def evaluate_messages(messages: list[Any], cfg: dict | None = None) -> dict:
         min_caption_chars=int(cfg.get("min_caption_chars", 25)),
     )
     pairs_needed = max(2, int(cfg.get("min_verified_pairs", 2)))
-    verified = channel_format_verified(screening, min_pairs=pairs_needed)
+    public = assess_public_channel(messages, min_examples=pairs_needed)
+    verified = channel_format_verified(screening, min_pairs=pairs_needed) or public["format_verified"]
     return {
-        "matching_pairs": len(screening.pairs),
-        "sample_post_ids": [int(pair.poster.id) for pair in screening.pairs[:3]],
+        "matching_pairs": max(len(screening.pairs), public["matching_pairs"]),
+        "sample_post_ids": public["sample_post_ids"] if public["format_verified"] else [int(pair.poster.id) for pair in screening.pairs[:3]],
         "format": "photo_texte_puis_video" if verified else "non_verifie",
         "format_verified": verified,
+        "patterns": public["patterns"],
+        "verification_method": "public_message_structure" if public["format_verified"] else "strict_caption_video",
         "strict_filters": {"min_verified_pairs": pairs_needed,
                            "min_video_minutes": int(cfg.get("min_video_minutes", 40)),
                            "min_video_megabytes": int(cfg.get("min_video_megabytes", 150))},
