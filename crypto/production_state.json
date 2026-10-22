@@ -27,7 +27,7 @@
     },
     "XRP": {
       "direction": "down",
-      "level": 5
+      "level": 0
     }
   },
   "alert_rearmed": {
@@ -35,7 +35,7 @@
     "BTC": true,
     "ETH": true,
     "SOL": true,
-    "XRP": false
+    "XRP": true
   },
   "news_fingerprints": {
     "77af8c2a1a9b955173bd486e": {
