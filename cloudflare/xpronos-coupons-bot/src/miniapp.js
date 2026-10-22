@@ -85,10 +85,10 @@ export async function miniApi(request,env){
   if(url.pathname==='/api/history'&&request.method==='GET'){
     const [ledger,coupons,referrals]=await Promise.all([
       query(env,'SELECT delta,reason,created_at FROM ledger WHERE user_id=? ORDER BY id DESC LIMIT 30',id),
-      query(env,'SELECT r.coupon_id,r.claimed_at,r.xp_spent,c.title,c.tier,c.total_odds,c.result_status FROM redemptions r JOIN coupons c ON c.id=r.coupon_id WHERE r.user_id=? ORDER BY r.claimed_at DESC LIMIT 20',id),
+      query(env,'SELECT r.coupon_id,r.claimed_at,r.xp_spent,r.snapshot,c.title,c.tier,c.total_odds,c.result_status,c.expires_at,c.competition,c.media_json FROM redemptions r JOIN coupons c ON c.id=r.coupon_id WHERE r.user_id=? ORDER BY r.claimed_at DESC LIMIT 20',id),
       query(env,'SELECT name,referral_rewarded,created_at FROM users WHERE referred_by=? ORDER BY created_at DESC LIMIT 20',id)
     ]);
-    return json({ledger,coupons,referrals});
+    return json({ledger,coupons:coupons.map(({snapshot,media_json,...row})=>({...row,snapshot:JSON.parse(snapshot),media:JSON.parse(media_json||'{}')})),referrals});
   }
   if(url.pathname==='/api/results'&&request.method==='GET'){
     const rows=await query(env,"SELECT id,title,tier,result_status,result_reviewed_at,result_source,competition,media_json FROM coupons WHERE result_status IN ('live','won','lost','void') ORDER BY coalesce(result_reviewed_at,created_at) DESC LIMIT 30");
