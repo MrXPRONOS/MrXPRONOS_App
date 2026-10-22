@@ -137,54 +137,32 @@ export async function indexQualifiedChannels(env){
 }
 
 export default {
- async fetch(request,env,ctx){
-  const url=new URL(request.url);
-  if(request.method==="GET"&&url.pathname==="/app"){
+ async fetch(request,env){
+  const u=new URL(request.url);
+  if(request.method==="GET"&&(u.pathname==="/app"||u.pathname==="/"))
    return new Response(APP_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data: https://*.telesco.pe https://*.telegram.org https://*.telegram-cdn.org https://t.me; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"}});
+  if(request.method==="GET"&&u.pathname==="/assets/banner.svg")return banner();
+  if(request.method==="GET"&&["/assets/welcome.png","/assets/avatar.jpg"].includes(u.pathname)){
+   const name=u.pathname.endsWith(".jpg")?"avatar.jpg":"welcome.png";
+   const image=await fetch("https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/cinecanaux/assets/"+name,{cf:{cacheTtl:86400,cacheEverything:true}});
+   if(!image.ok)return new Response("Image indisponible",{status:503});
+   return new Response(image.body,{headers:{"content-type":name.endsWith(".jpg")?"image/jpeg":"image/png","cache-control":"public,max-age=86400"}});
   }
-  if(request.method==="GET"&&url.pathname==="/assets/banner.svg")return banner();
-  if(request.method==="GET"&&["/assets/welcome.png","/assets/avatar.jpg"].includes(url.pathname)){
-   const name=url.pathname.endsWith(".jpg")?"avatar.jpg":"welcome.png";
-   const remote="https://raw.githubusercontent.com/MrXPRONOS/MrXPRONOS_App/main/cinecanaux/assets/"+name;
-   const img=await fetch(remote,{cf:{cacheTtl:3600,cacheEverything:true}});
-   if(!img.ok)return new Response("Image temporairement indisponible",{status:503});
-   return new Response(img.body,{headers:{"content-type":name.endsWith(".jpg")?"image/jpeg":"image/png","cache-control":"public, max-age=3600","x-content-type-options":"nosniff"}});
+  if(u.pathname.startsWith("/api/"))return miniAppAPI(env,request,channelPreview);
+  if(request.method==="POST"&&u.pathname==="/telegram")return receiveTelegram(request,env);
+  if(request.method==="GET"&&u.pathname==="/health"){
+   const status=await env.DB.prepare("SELECT status FROM bot_webhook_status WHERE id=1").first();
+   const count=await env.DB.prepare("SELECT COUNT(*) AS n FROM channels WHERE status='approved'").first();
+   return Response.json({service:"cine-radar",version:6,database:!!env.DB,webhook:status?.status||"waiting",publicChannels:Number(count?.n||0),miniApp:APP_URL},{headers:{"cache-control":"no-store"}});
   }
-
-  if(request.method==="GET"&&/^\/go\/\d+$/.test(url.pathname)){
-   const cid=Number(url.pathname.slice(4));
-   if(!Number.isSafeInteger(cid))return new Response("Not found",{status:404});
-   const target=await env.DB.prepare("SELECT link FROM channels WHERE id=? AND status='approved' ").bind(cid).first();
-   if(!target||!/^https:\/\/t\.me\/[A-Za-z][A-Za-z0-9_]{4,31}\/?$/.test(target.link))return new Response("Canal indisponible",{status:404});
-   await env.DB.prepare("INSERT INTO channel_telemetry(channel_id,opens) VALUES(?,1) ON CONFLICT(channel_id) DO UPDATE SET opens=channel_telemetry.opens+1").bind(cid).run();
-   return Response.redirect(target.link,302);
-  }
-
-  if(request.method==="GET"&&url.pathname==="/api/bot-info"){
-   try{
-    const me=await telegram(env,"getMe",{});
-    if(me.ok&&/^[A-Za-z0-9_]{5,32}$/.test(me.result?.username||"")){
-     return Response.json({username:me.result.username,name:"Ciné Radar"},{headers:{"cache-control":"public, max-age=300"}});
-    }
-   }catch(e){console.warn("bot_info_unavailable",String(e).slice(0,80));}
-   return Response.json({error:"Bot momentanément indisponible"},{status:503,headers:{"cache-control":"no-store"}});
-  }
-  if(url.pathname.startsWith("/api/"))return miniAppAPI(env,request);
-  if(request.method==="POST"&&url.pathname==="/telegram")return receiveTelegram(request,env);
-  if(request.method==="GET"&&url.pathname==="/health"){
-   const a=await env.DB.prepare("SELECT status,detail,updated_at FROM bot_webhook_status WHERE id=1").first();
-   const b=await env.DB.prepare("SELECT scan_date,imported,qualified,last_error FROM discovery_sync_status WHERE id=1").first();
-   const c=await env.DB.prepare("SELECT COUNT(*) AS value FROM channels WHERE status='approved' ").first();
-   const profile=await env.DB.prepare("SELECT setting_key,value FROM bot_settings WHERE setting_key IN ('profile_version','profile_photo_status')").all();
-   const status=Object.fromEntries((profile.results||[]).map(x=>[x.setting_key,x.value]));
-   return Response.json({service:"cine-radar",version:3,database:!!env.DB,telegramConfigured:!!env.TELEGRAM_TOKEN,webhook:a?.status||"waiting",discovery:b||{status:"waiting"},publicChannels:c?.value||0,profile:status,miniApp:APP_URL},{headers:{"cache-control":"no-store"}});
-  }
-  return new Response("🎬 Ciné Radar — bot Telegram et Mini App",{headers:{"content-type":"text/plain; charset=utf-8"}});
+  return new Response("Not found",{status:404});
  },
  async scheduled(controller,env,ctx){
-  const cron=controller.cron;
-  if(cron==="0 */4 * * *")ctx.waitUntil((async()=>{try{await syncGitHubDiscovery(env);}catch(e){console.error("discovery_error",String(e));}await indexQualifiedChannels(env);await maintenance(env,"activity");})());
-  else if(cron==="0 8 * * *")ctx.waitUntil(maintenance(env,"notifications"));
-  else ctx.waitUntil(Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env),(async()=>{await indexQualifiedChannels(env);await maintenance(env,"activity");})()]));
+  if(controller.cron==="0 */4 * * *")ctx.waitUntil((async()=>{
+   try{await syncGitHubDiscovery(env);}catch(e){console.error("sync_failed",String(e).slice(0,120));}
+   await indexQualifiedChannels(env);
+   await cleanup(env);
+  })());
+  else ctx.waitUntil(Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env),maintenance(env)]));
  }
 };
