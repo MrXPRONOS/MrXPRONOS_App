@@ -66,8 +66,9 @@ jobs:
       - name: Exécuter les tests du bot et de la base D1
         run: |
           set -euo pipefail
-          node --test tests/logic.test.js
+          node --test tests/*.test.js
           python3 tests/test_schema.py
+          python3 tests/test_v2.py
 
       - name: Installer Wrangler version déterministe
         run: npm install --no-save --package-lock=false --no-audit --no-fund wrangler@4.50.0
