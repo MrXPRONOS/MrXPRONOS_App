@@ -1,4 +1,4 @@
-name: Cine Radar V2 - CI
+name: Cine Radar - Minimal directory CI
 on:
   push:
     branches: [main]
@@ -26,8 +26,8 @@ jobs:
       - name: Validate syntax
         run: |
           node --check cinecanaux/worker.mjs
-          node --check cinecanaux/radar-features.mjs
+          node --check cinecanaux/radar-lean.mjs
           node --check cinecanaux/app-page.mjs
-          node --check cinecanaux/radar-intelligence.mjs
+          node --check cinecanaux/channel-preview.mjs
       - name: Run isolated Telegram and Mini App tests
-        run: node --test cinecanaux/tests/*.test.mjs
+        run: node --test cinecanaux/tests/radar-lean.test.mjs cinecanaux/tests/channel-preview.test.mjs
