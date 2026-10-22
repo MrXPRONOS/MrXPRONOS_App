@@ -1,0 +1,11 @@
+name = "xpronos-coupons-bot"
+main = "src/worker.js"
+compatibility_date = "2026-10-22"
+workers_dev = true
+account_id = "9c86118191b804d91b5f5b2c89114999"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "xpronos-coupons-bot"
+database_id = "b08664ff-2fbb-4719-8d35-f272f30dc801"
+migrations_dir = "migrations"
