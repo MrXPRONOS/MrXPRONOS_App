@@ -33,6 +33,10 @@ button:active{transform:scale(.97)}
 .hero-copy h2{font-size:clamp(22px,5.4vw,36px);line-height:1.06;font-weight:880;letter-spacing:-1.2px;margin:0 0 8px;text-shadow:0 3px 14px #020a2088}
 .hero-copy p{font-size:clamp(10.5px,2.8vw,14px);line-height:1.45;margin:0;color:#deebff;max-width:220px}
 .hero-copy .accent{display:block;color:#dbe8ff}
+.scene-film,.scene-anime{display:none}
+html[data-scene="films"] .scene-default,html[data-scene="series"] .scene-default,html[data-scene="animes"] .scene-default{display:none}
+html[data-scene="films"] .scene-film,html[data-scene="series"] .scene-film{display:block}
+html[data-scene="animes"] .scene-anime{display:block}
 html[data-scene="films"] .hero{background:linear-gradient(110deg,#0c1e40,#233557 55%,#40345b)}
 html[data-scene="series"] .hero{background:linear-gradient(110deg,#102142,#25305e 52%,#61345d)}
 html[data-scene="animes"] .hero{background:linear-gradient(110deg,#1a2054,#3c3a86 55%,#9e557d)}
@@ -120,8 +124,32 @@ html[data-scene="animes"] .hero:after{background:radial-gradient(ellipse at 82% 
    <path d="M0 174 33 160 33 136 53 136 53 158 69 158 69 140 98 140 98 154 129 147 129 124 145 124 145 149 169 140 169 116 181 116 181 139 217 146 217 128 239 128 239 147 264 147 264 119 292 119 292 140 320 138 320 125 340 125 340 146 384 149 384 117 398 117 398 153 430 153 430 143 460 143V228H0Z" fill="#101c40" opacity=".93"/>
    <g fill="#9dc5ff" opacity=".3"><path d="M141 134h3v5h-3zM151 134h3v5h-3zM272 127h4v6h-4zM282 127h4v6h-4zM386 122h4v5h-4zM386 132h4v5h-4zM79 147h3v4h-3zM90 147h3v4h-3z"/></g>
    <path d="M0 189Q170 172 460 189V228H0Z" fill="url(#scene-ground)"/>
+   <g class="scene-default">
    <g transform="translate(330 116)"><ellipse cx="6" cy="107" rx="75" ry="11" fill="#030819" opacity=".48" filter="url(#scene-blur)"/><path d="M-29 90c-14-32 5-51 37-50 42 2 53 29 45 55l-17 24h-52z" fill="#091a34"/><ellipse cx="9" cy="20" rx="18" ry="22" fill="#07182f"/><path d="M-10 17C-10-5 24-12 32 16l-19-5-20 13z" fill="#08192e"/><path d="M-29 77Q-60 77-69 65" stroke="#081729" stroke-width="14" fill="none" stroke-linecap="round"/></g>
    <g transform="translate(353 38) rotate(-18)"><circle r="34" fill="#55aaff" opacity=".93" stroke="#b6dbff" stroke-width="3"/><path d="m-11-14 29 16-29 16z" fill="#f5f9ff"/><path d="M-37 6Q0-1 31-30" fill="none" stroke="#d0e7ff" stroke-width="3" opacity=".4"/></g>
+   </g>
+   <g class="scene-film">
+    <path d="M280 0h76L230 220h-88Z" fill="#ffe9cd" opacity=".17"/>
+    <circle cx="321" cy="35" r="31" fill="#ffdab0" opacity=".27"/>
+    <path d="M380 83 417 58 444 75 413 99Z" fill="#a5b9e8" stroke="#d5e5ff" stroke-width="3"/>
+    <path d="M398 85 366 186M421 86l28 100M403 94v97" stroke="#0a1430" stroke-width="6"/>
+    <rect x="267" y="101" width="91" height="58" rx="8" fill="#0d1b3c" stroke="#a9cdff" stroke-width="4"/>
+    <circle cx="296" cy="98" r="27" fill="#163968" stroke="#b3d2ff" stroke-width="3"/>
+    <circle cx="333" cy="91" r="24" fill="#163968" stroke="#b3d2ff" stroke-width="3"/>
+    <g fill="#b4d8fa"><circle cx="289" cy="87" r="6"/><circle cx="305" cy="102" r="6"/><circle cx="335" cy="81" r="6"/><circle cx="347" cy="96" r="5"/></g>
+    <path d="m273 131-28-17v35z" fill="#8cc4fa"/>
+    <path d="m283 159-32 61m88-61 29 61m-56-61v61" stroke="#09172f" stroke-width="9"/>
+    <g fill="#0a142c"><path d="M205 149h63v10h-63zM211 160h9v40h-9zM258 160h9v40h-9z"/><path d="m197 202 25-10h46l24 10z"/></g>
+   </g>
+   <g class="scene-anime">
+    <circle cx="351" cy="66" r="42" fill="#ffc5bc" opacity=".87"/>
+    <path d="M210 151 256 113 292 142 331 105 379 143 418 121 460 149v80H210Z" fill="#5d468a" opacity=".87"/>
+    <path d="M195 164q61-17 129 2t136-10v72H195z" fill="#162b58" opacity=".88"/>
+    <path d="M250 181q70-16 155 0M260 194q62-10 142 0" stroke="#ffb6c6" opacity=".56" stroke-width="3" fill="none"/>
+    <path d="M380 58v115M440 58v115M355 59h111M365 68l-11 37h18M450 68l12 37h-18" stroke="#172047" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <path d="M359 63h103" stroke="#ffa3b9" stroke-width="4"/>
+    <g fill="#ffd2df" opacity=".85"><circle cx="275" cy="38" r="3"/><circle cx="304" cy="14" r="3"/><circle cx="436" cy="28" r="3"/><circle cx="241" cy="76" r="4"/></g>
+   </g>
   </svg>
  </div>
  <div class="hero-copy"><h2>Un clic,<span class="accent">un canal.</span></h2><p>Films, séries et animés au même endroit.</p></div>
