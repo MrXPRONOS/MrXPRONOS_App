@@ -2,6 +2,9 @@ name: Neon LIVE automatic refresh - no Telegram
 # Native Neon cron is the sole automatic trigger; manual GitHub rollback/test retained.
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/neon-live-refresh.yml']
 permissions:
   id-token: write
   contents: read
@@ -44,11 +47,12 @@ jobs:
             print(mode,status,json.dumps(safe,ensure_ascii=False)[:1400],flush=True)
             assert status==200 and body.get("success") is True,(mode,status,body)
             assert body.get("telegram_sent")==0,(mode,body)
-            assert body.get("generated_signals")==0,(mode,body)
+            assert isinstance(body.get("generated_signals"),int) and body["generated_signals"]>=0,(mode,body)
             if mode=="preview":
               assert body.get("no_database_writes") is True
             else:
               assert body.get("no_telegram") is True
+              assert body.get("signal_backend")=="active",(mode,body)
           print("NEON LIVE REFRESH PASS",flush=True)
           PY
           python3 - <<'PY'
