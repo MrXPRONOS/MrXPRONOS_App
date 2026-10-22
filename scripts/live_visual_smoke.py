@@ -67,7 +67,7 @@ def install_routes(page):
         if payload is None:
             route.fulfill(status=404, content_type="application/json", body=json.dumps({"error": "mock not found"}))
             return
-        route.fulfill(status=200, content_type="application/json", body=json.dumps(payload))
+        route.fulfill(status=200, content_type="application/json", headers={"Access-Control-Allow-Origin": "*"}, body=json.dumps(payload))
     page.route("**/functions/v1/live/**", handler)
 
 def assert_no_overflow(page, label):
@@ -133,7 +133,15 @@ def run_view(browser, width, height, name):
     page.on("console", lambda msg: console_errors.append(msg.text) if msg.type == "error" else None)
 
     page.goto("http://127.0.0.1:8000/live.html", wait_until="domcontentloaded", timeout=60000)
-    page.locator(".mx-live-row").first.wait_for(state="visible", timeout=60000)
+    try:
+        page.locator(".mx-live-row").first.wait_for(state="visible", timeout=15000)
+    except Exception:
+        print("Neon UI debug url", page.url, flush=True)
+        print("Neon UI page text", page.locator("body").inner_text()[:1300], flush=True)
+        print("Neon UI exceptions", page_errors[:8], flush=True)
+        print("Neon UI console errors", console_errors[:8], flush=True)
+        page.screenshot(path=str(OUT / "neon-ui-boot-error.png"), full_page=True)
+        raise
     page.wait_for_timeout(1200)
 
     if page.locator("#boot-screen").count() and page.locator("#boot-screen").is_visible():
