@@ -303,7 +303,7 @@ async function handle(env,update) {
   // Ne pas effectuer deux écritures inutiles pour CHAQUE clic Telegram.
   if(!q){
     await run(env,"INSERT OR IGNORE INTO users(id,name,referred_by) VALUES(?,?,(SELECT id FROM users WHERE id=? AND id<>?))",uid,fullName,ref?Number(ref):null,uid);
-    if(/^\\/start(?:@\\w+)?(?:\\s|$)/.test(txt))
+        if(txt==='/start'||txt.startsWith('/start ')||txt.startsWith('/start@'))
       await run(env,'UPDATE users SET name=? WHERE id=? AND name<>?',fullName,uid,fullName);
   }
   if(q){
