@@ -1,0 +1,60 @@
+name: BSD V3 - Validation historique 40 marches
+on:
+  push:
+    branches: [feature/bsd-v3-40-markets-shadow-20261022]
+    paths:
+      - '.github/workflows/bsd-v3-holdout.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: bsd-v3-holdout
+  cancel-in-progress: false
+jobs:
+  validate:
+    if: github.ref_name == 'feature/bsd-v3-40-markets-shadow-20261022'
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/bsd-v3-40-markets-shadow-20261022
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: pip install requests cryptography pillow
+      - name: Validate source and unit tests
+        run: |
+          python -m compileall -q bsd/bsd_v3_40_holdout.py
+          python -m unittest discover -s bsd -p 'test_bsd_v3_40_markets.py' -v
+      - name: Restore private BSD history
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: python bsd/bsd_archive.py restore
+      - name: Evaluate 40 markets against past results
+        run: python bsd/bsd_v3_40_holdout.py --reference-cap 700 --holdout-cap 700
+      - name: Strict output verification
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open('bsd/v3_market_validation.json'))
+          assert d["format"]=="bsd-v3-validation-holdout-v1"
+          assert d["total_markets"]==40 and len(d["markets"])==40
+          assert d["strict_temporal_order"] and not d["profitability_assessed"]
+          assert all(row["roi"] is None for row in d["markets"].values())
+          print("V3_VALIDATION",d["passed_markets"],"/",d["total_markets"],"markets pass selected model-quality gates")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bsd-v3-holdout-${{ github.run_id }}
+          path: bsd/v3_market_validation.json
+          retention-days: 60
+      - name: Commit only V3 evaluation report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add bsd/v3_market_validation.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "data(v3): update isolated 2026 holdout report"
+          git push origin HEAD:feature/bsd-v3-40-markets-shadow-20261022
