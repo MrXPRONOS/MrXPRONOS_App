@@ -1,0 +1,38 @@
+name: Neon LIVE instant Telegram gateway smoke
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/neon-live-instant-smoke.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Verify gateway configuration and reject anonymous sends
+        run: |
+          python3 - <<'PY'
+          import json,urllib.request,urllib.error
+          url="https://mrxpronos-live-telegram-instant.cinecanaux-xpronos.workers.dev"
+          def call(path,data=None):
+            req=urllib.request.Request(url+path,data=data,method="POST" if data is not None else "GET",
+              headers={"Accept":"application/json","Content-Type":"application/json"})
+            try:
+              with urllib.request.urlopen(req,timeout=18) as res:
+                return res.status,json.load(res)
+            except urllib.error.HTTPError as e:
+              try: return e.code,json.load(e)
+              except ValueError: return e.code,{}
+          status,health=call("/health")
+          assert status==200 and health.get("ready") is True,(status,health)
+          print("LIVE_GATEWAY_CONFIGURED")
+          status,result=call("/deliver",b'{"signals":[]}')
+          assert status==401 and result.get("error")=="unauthorized",(status,result)
+          print("LIVE_GATEWAY_AUTH_REQUIRED_401")
+          neon="https://br-winter-truth-b9of9tss-live.compute.c-7.eu-central-1.aws.neon.tech/health"
+          with urllib.request.urlopen(neon,timeout=20) as res:
+            assert res.status==200 and json.load(res)["ok"] is True
+          print("NEON_LIVE_READY; no Telegram posts sent during test")
+          PY
