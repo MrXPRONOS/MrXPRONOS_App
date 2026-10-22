@@ -1,0 +1,31 @@
+name: Free Pronos - Real Latency Audit
+
+on:
+  push:
+    branches:
+      - perf/free-pronos-measure-and-tune-20261022
+    paths:
+      - 'cloudflare/xpronos-coupons-bot/scripts/latency_audit.py'
+      - '.github/workflows/free-pronos-latency.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      WORKER_URL: https://xpronos-coupons-bot.cinecanaux-xpronos.workers.dev
+      XPRONOS_CF_BOT_TOKEN: ${{ secrets.XPRONOS_CF_BOT_TOKEN }}
+      CF_BOT_ADMIN_IDS: ${{ vars.XPRONOS_COUPON_ADMIN_IDS }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Mesures du Worker depuis GitHub
+        run: python3 cloudflare/xpronos-coupons-bot/scripts/latency_audit.py --phase baseline --samples 10
+      - uses: actions/upload-artifact@v4
+        with:
+          name: free-pronos-latency-${{ github.run_number }}
+          path: latency-report.json
+          retention-days: 14
