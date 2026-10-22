@@ -16,3 +16,18 @@ for(const [i,first] of (Array.isArray(events)?events:[]).entries()){
  if(j) console.log("DETAIL_SHAPE",JSON.stringify({i,slug,keys:Object.keys(j),matchKeys:Object.keys(j.match||j.data?.match||{}),statsSample:JSON.stringify(j.match?.statistics||j.match?.stats||j.data?.match?.statistics||j.statistics||j.stats||null).slice(0,3000)}));
 }
 await check("espn_recent","https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard?dates="+today.replace(/-/g,"")+"&limit=500");
+
+for(const [label,url] of [["moviodds_stats","https://moviodds.com/odds?sport=soccer&in_play=1&stats=1"],["bsd_no_token","https://sports.bzzoiro.com/api/v2/events/live/?sport=football"]]){
+  try{
+    const r=await fetch(url,{signal:AbortSignal.timeout(7000),headers:{Accept:"application/json","User-Agent":"MrXPRONOS-Live-Audit/1.0"}});
+    let report={label,status:r.status,content_type:r.headers.get("content-type")};
+    if(r.ok){
+      const j=await r.json().catch(()=>null);
+      const matches=Array.isArray(j?.matches)?j.matches:Array.isArray(j?.data)?j.data:Array.isArray(j)?j:[];
+      report={...report,rootKeys:Object.keys(j||{}).slice(0,14),n:matches.length,
+        liveStatsCount:matches.filter(m=>m?.stats&&Object.keys(m.stats).length).length,
+        marketShape:matches.slice(0,2).map(m=>({has_stats:!!m.stats,homeKeys:Object.keys(m.stats?.home||{}),awayKeys:Object.keys(m.stats?.away||{}),updated:!!m.stats?.updated_at}))};
+    }
+    console.log("OPTIONAL_FEED",JSON.stringify(report).slice(0,2400));
+  }catch(e){console.log("OPTIONAL_FEED",JSON.stringify({label,error:String(e.name||e).slice(0,100)}))}
+}
