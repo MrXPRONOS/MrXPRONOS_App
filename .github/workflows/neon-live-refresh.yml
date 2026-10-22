@@ -1,0 +1,70 @@
+name: Neon LIVE automatic refresh - no Telegram
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/neon-live-refresh.yml']
+permissions:
+  id-token: write
+  contents: read
+concurrency:
+  group: mrx-neon-live-refresh-prod
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Verify preview and apply against Neon; never use Telegram
+        env:
+          NEON_REFRESH_URL: https://br-winter-truth-b9of9tss-live.compute.c-7.eu-central-1.aws.neon.tech/refresh
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.request,urllib.error
+          aud="mrxpronos-neon-live-refresh-20261022"
+          url=os.environ["ACTIONS_ID_TOKEN_REQUEST_URL"]
+          sep='&' if '?' in url else '?'
+          req=urllib.request.Request(url+sep+"audience="+aud,
+                headers={"Authorization":"Bearer "+os.environ["ACTIONS_ID_TOKEN_REQUEST_TOKEN"]})
+          with urllib.request.urlopen(req,timeout=12) as res:
+            jwt=json.load(res)["value"]
+          endpoint=os.environ["NEON_REFRESH_URL"]
+          def post(mode):
+            req=urllib.request.Request(endpoint,method="POST",
+                data=json.dumps({"mode":mode}).encode(),
+                headers={"Content-Type":"application/json","Authorization":"Bearer "+jwt})
+            try:
+              with urllib.request.urlopen(req,timeout=45) as res:
+                return res.status,json.load(res)
+            except urllib.error.HTTPError as exc:
+              return exc.code,json.loads(exc.read().decode())
+          for mode in (("apply",) if os.environ.get("GITHUB_EVENT_NAME")=="schedule" else ("preview","apply")):
+            status,body=post(mode)
+            safe={k:v for k,v in body.items() if k not in ("token","secret","credentials")}
+            print(mode,status,json.dumps(safe,ensure_ascii=False)[:1400],flush=True)
+            assert status==200 and body.get("success") is True,(mode,status,body)
+            assert body.get("telegram_sent")==0,(mode,body)
+            assert body.get("generated_signals")==0,(mode,body)
+            if mode=="preview":
+              assert body.get("no_database_writes") is True
+            else:
+              assert body.get("no_telegram") is True
+          print("NEON LIVE REFRESH PASS",flush=True)
+          PY
+          python3 - <<'PY'
+          import urllib.request,urllib.error,json
+          url="https://br-winter-truth-b9of9tss-live.compute.c-7.eu-central-1.aws.neon.tech/refresh"
+          req=urllib.request.Request(url,method="POST",
+            data=b'{"mode":"apply"}',headers={"Content-Type":"application/json"})
+          try:
+            with urllib.request.urlopen(req,timeout=12) as response:
+              raise RuntimeError("SECURITY FAILED: unauthorized POST accepted")
+          except urllib.error.HTTPError as exc:
+            print("Unauthorized refresh status:",exc.code,flush=True)
+            assert exc.code==401
+          PY
+
