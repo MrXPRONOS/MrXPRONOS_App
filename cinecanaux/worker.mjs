@@ -196,6 +196,6 @@ export default {
   const cron=controller.cron;
   if(cron==="0 */4 * * *")ctx.waitUntil((async()=>{try{await syncGitHubDiscovery(env);}catch(e){console.error("discovery_error",String(e));}await indexQualifiedChannels(env);await maintenance(env,"activity");})());
   else if(cron==="0 8 * * *")ctx.waitUntil(maintenance(env,"notifications"));
-  else ctx.waitUntil(Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env),indexQualifiedChannels(env)]));
+  else ctx.waitUntil(Promise.allSettled([provisionTelegramWebhook(env),initializeProfile(env),(async()=>{await indexQualifiedChannels(env);await maintenance(env,"activity");})()]));
  }
 };
