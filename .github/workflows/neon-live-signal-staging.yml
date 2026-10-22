@@ -1,0 +1,55 @@
+name: Neon LIVE signal model staging audit
+on:
+  push:
+    branches: [migration/supabase-to-free-stack-20261022]
+    paths:
+      - .github/workflows/neon-live-signal-staging.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: migration/supabase-to-free-stack-20261022
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check ESM syntax of model and entire Neon handler
+        run: |
+          node --check migration/free-stack/live/neon_prediction_model.mjs
+          node --check migration/free-stack/live/index.signals-staging.mjs
+      - name: Test strict filters and at-least-one real model candidate
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import {evaluateNeonLiveMatch,NEON_SIGNAL_MODEL_VERSION} from './migration/free-stack/live/neon_prediction_model.mjs';
+          const stats={home:{corner_kicks:5,total_shots:4,shots_on_target:2,fouls:6,ball_possession:50},away:{corner_kicks:4,total_shots:3,shots_on_target:2,fouls:7,ball_possession:50}};
+          const base={is_live:true,is_finished:false,current_minute:60,freshness_seconds:3,live_stats:stats};
+          const res=evaluateNeonLiveMatch(base);
+          assert.ok(res.signals.length>0,'A verified-pair example should pass the model');
+          assert.ok(res.signals.every(p=>p.threshold-p.current_value>=2));
+          assert.ok(res.signals.every(p=>p.signal_tier&&p.pricing_mode==='model_only'));
+          assert.ok(res.signals.every(p=>p.live_odds===null&&p.bookmaker_odds===null));
+          assert.ok(res.signals.every(p=>p.model_version===NEON_SIGNAL_MODEL_VERSION));
+          assert.equal(evaluateNeonLiveMatch({...base,freshness_seconds:400}).signals.length,0);
+          assert.equal(evaluateNeonLiveMatch({...base,is_live:false}).signals.length,0);
+          const missing={...base,live_stats:{home:{total_shots:9,corner_kicks:5},away:{total_shots:null,corner_kicks:null}}};
+          assert.equal(evaluateNeonLiveMatch(missing).signals.length,0);
+          console.log('MODEL_PASS',res.signals.map(p=>({type:p.type,threshold:p.threshold,probability:p.probability,pricing:p.pricing_mode})));
+          NODE
+      - name: Assert no Telegram publishing and safe notifications
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('migration/free-stack/live/neon_signals_db.patch.mjs').read_text()
+          assert 'sendTelegram' not in s and 'api.telegram.org' not in s
+          assert "WHERE user_id='all'" in s
+          assert 'ON CONFLICT DO NOTHING' in s
+          assert 'model_version=$4' in s
+          assert 'read_status_is_local_to_browser' in s
+          print('DB_AND_NOTIFICATIONS_SAFETY_OK')
+          PY
