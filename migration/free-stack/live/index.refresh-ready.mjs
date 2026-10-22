@@ -2255,7 +2255,7 @@ var index_default = {
       if (path === "/" || path === "/health") {
         const rows = await sql`SELECT (SELECT count(*)::integer FROM public.live_predictions) AS prediction_count,
       (SELECT max(updated_at) FROM public.matches_live) AS latest_match_update`;
-        return json(req, { ok: true, service: "neon-live-readonly", engine: "not_started", prediction_count: rows[0].prediction_count, latest_match_update: rows[0].latest_match_update });
+        return json(req, { ok: true, service: "neon-live", engine: "neon-espn-safe-v1", prediction_count: rows[0].prediction_count, latest_match_update: rows[0].latest_match_update });
       }
       if (path === "/matches") return json(req, { matches: await currentMatches() });
       if (path === "/opportunities") {
@@ -2270,7 +2270,7 @@ var index_default = {
         const future = await scheduled();
         return json(req, {
           data: { live: { count: live.length, matches: live }, scheduled: { count: future.length, matches: future }, finished: { count: 0, matches: [] } },
-          meta: { source: "neon-live-staging", bsd_calls: 0, upstream_espn_calls: 0, refresh_engine: "not_started" }
+          meta: { source: "neon-live-staging", bsd_calls: 0, upstream_espn_calls: 0, refresh_engine: "neon-espn-safe-v1" }
         });
       }
       if (path === "/predictions/history") return json(req, { history: await predictionHistory() });
@@ -2546,13 +2546,21 @@ index_default.fetch=async function(req){
   if(path!=="/refresh"&&path!=="/functions/v1/live/refresh")return oldNeonLiveFetch(req);
   if(req.method==="OPTIONS")return new Response(null,{status:204,headers:{...headers(req),"access-control-allow-methods":"POST,OPTIONS","access-control-allow-headers":"authorization,content-type"}});
   if(req.method!=="POST")return json(req,{error:"method_not_allowed"},405);
-  if(!(await verifyGithubOidc(req)))return json(req,{error:"unauthorized"},401);
   const body=await req.json().catch(()=>({}));
-  if(!["preview","apply"].includes(body?.mode))return json(req,{error:"invalid_mode"},400);
+  // Neon strips client-originated X-Neon-* headers at its edge.
+  // Only a native schedule trigger can supply this trusted header.
+  const invocation=req.headers.get("x-neon-trigger-invocation-id")||"";
+  const scheduledAt=Date.parse(body?.data?.scheduled_at||"");
+  const nativeSchedule=!!(invocation && body?.invocation_id===invocation &&
+      body?.trigger?.type==="schedule" && body?.trigger?.name==="mrxpronos-live-refresh-v1" &&
+      Number.isFinite(scheduledAt) && Math.abs(Date.now()-scheduledAt)<=20*60*1000);
+  if(!nativeSchedule && !(await verifyGithubOidc(req)))return json(req,{error:"unauthorized"},401);
+  const mode=nativeSchedule?"apply":body?.mode;
+  if(!["preview","apply"].includes(mode))return json(req,{error:"invalid_mode"},400);
   try {
     const pulled=await fetchFromESPN();
     const summary=diagnostic(pulled.events);
-    if(body.mode==="preview")return json(req,{success:true,mode:"preview",...summary,source_events:pulled.sourceEvents,feed_requests:pulled.feedRequests,detail_success:pulled.detailSuccess,failures:pulled.failures,no_database_writes:true});
+    if(mode==="preview")return json(req,{success:true,mode:"preview",...summary,source_events:pulled.sourceEvents,feed_requests:pulled.feedRequests,detail_success:pulled.detailSuccess,failures:pulled.failures,no_database_writes:true});
     const report=await persistRefresh(pulled.events,pulled);
     return json(req,{mode:"apply",...report},report.already_running?409:200);
   }catch(e){
