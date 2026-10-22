@@ -1,0 +1,32 @@
+name: LIVE attribution and Telegram rendering regression
+on:
+  push:
+    branches: [fix/live-sportscore-attribution-20261022]
+    paths: [live.html, cloudflare/telegram-live-instant/worker.mjs, .github/workflows/live-attribution-telegram-regression.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Page attribution and worker syntax
+        run: |
+          node --check cloudflare/telegram-live-instant/worker.mjs
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          doc=Path("live.html").read_text()
+          code=Path("cloudflare/telegram-live-instant/worker.mjs").read_text()
+          assert '<a href="https://sportscore.com/" rel="dofollow" title="Sports data by SportScore"' in doc
+          assert 'startsWith("sportscore:")' in code
+          assert "renderPremiumImage(row,env)" in code
+          print("SportScore visible attribution and original coupon renderer PASS")
+          PY
+      - name: Image flow mock checks (no Telegram sends)
+        run: node tests/live-telegram-legacy-image.test.mjs
