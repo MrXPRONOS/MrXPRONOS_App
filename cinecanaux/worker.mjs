@@ -151,7 +151,7 @@ export default {
  async fetch(request,env,ctx){
   const url=new URL(request.url);
   if(request.method==="GET"&&url.pathname==="/app"){
-   return new Response(APP_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"}});
+   return new Response(APP_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff","content-security-policy":"default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data: https://*.telesco.pe https://*.telegram.org https://*.telegram-cdn.org https://t.me; base-uri 'none'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org"}});
   }
   if(request.method==="GET"&&url.pathname==="/assets/banner.svg")return banner();
   if(request.method==="GET"&&["/assets/welcome.png","/assets/avatar.jpg"].includes(url.pathname)){
