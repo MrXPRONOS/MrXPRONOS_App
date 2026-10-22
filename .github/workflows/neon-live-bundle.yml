@@ -1,0 +1,42 @@
+name: Bundle Neon LIVE PostgreSQL handler
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/neon-live-bundle.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: mrx-neon-live-build
+  cancel-in-progress: false
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: migration/supabase-to-free-stack-20261022
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install only vetted open-source dependencies
+        run: npm install --no-save --no-package-lock --no-audit --no-fund postgres@3.4.7 esbuild@0.25.12
+      - name: Build self-contained Neon Node.js 24 handler
+        run: |
+          ./node_modules/.bin/esbuild migration/free-stack/live/index.mjs --bundle --platform=node --format=esm --target=node24 --outfile=migration/free-stack/live/index.bundle.mjs
+          node --check migration/free-stack/live/index.bundle.mjs
+          test "$(wc -c < migration/free-stack/live/index.bundle.mjs)" -lt 350000
+      - name: Commit bundle to migration branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add migration/free-stack/live/index.bundle.mjs
+          if git diff --cached --quiet; then
+            echo 'Bundled handler unchanged'
+            exit 0
+          fi
+          git commit -m 'build(live): bundle Postgres driver for Neon function'
+          git push origin HEAD:refs/heads/migration/supabase-to-free-stack-20261022
