@@ -142,13 +142,13 @@ async function redeem(env,uid,chat,id) {
   return send(env,chat,'💎 <b>XP insuffisants</b>\n\n<i>Accomplis des missions ou récupère ton bonus pour débloquer ce coupon.</i>');
 }
 async function mine(env,uid,chat) {
-  const rows=await all(env,'SELECT snapshot,xp_spent FROM redemptions WHERE user_id=? ORDER BY claimed_at DESC LIMIT 10',uid);
+  const rows=await all(env,'SELECT r.snapshot,r.xp_spent,c.result_status,c.result_source FROM redemptions r JOIN coupons c ON c.id=r.coupon_id WHERE r.user_id=? ORDER BY r.claimed_at DESC LIMIT 10',uid);
   if(!rows.length)return send(env,chat,'🎫 <b>MES COUPONS</b>\n\n<blockquote>Aucun coupon débloqué pour le moment.</blockquote>\n<i>Découvre les coupons disponibles dans le menu principal.</i>');
   for(const row of rows){
     const c=safeJson(row.snapshot,{});
     c.xp_cost=row.xp_spent;
     c.selections=JSON.stringify(c.selections||[]);
-    await send(env,chat,pretty(c,true)+'\n\n⚠️ Vérifie les cotes en direct. 18+ • Joue responsablement.');
+    await send(env,chat,pretty(c,true)+'\n\n📊 <b>Statut :</b> '+statusLabel(row.result_status)+'\n\n<i>Résultat enregistré après contrôle administratif. Les cotes peuvent évoluer. 18+ • Joue responsablement.</i>');
   }
 }
 async function xp(env,uid,chat) {
