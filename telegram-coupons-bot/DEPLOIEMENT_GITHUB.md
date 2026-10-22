@@ -58,6 +58,8 @@ Cote totale calculée : 4.08. Le bot refuse toute cote strictement inférieure �
 ## 6. Dépannage
 
 - Échec HTTP 401/403 de l'API de gestion Supabase : contrôler que `SUPABASE_ACCESS_TOKEN` existe dans GitHub et possède le droit `database:write`. L'API d'exécution SQL est en Beta et peut ne pas être disponible selon le compte.
+- **HTTP 402 Supabase (observé le 22 octobre 2026)** : Telegram atteint bien le webhook, mais la passerelle Supabase refuse les requêtes. Les autres endpoints REST et Edge du projet renvoient aussi 402 : ce n'est pas un bug du bot ni un nom de secret GitHub. Sur le projet `nhwafcpndlufzzxexikh` (organisation actuellement Free), ouvre **Supabase Dashboard → Organization → Usage**, puis **Billing** : identifie le motif exact (`exceeded_*` ou `overdue_payment`) et traite la restriction via le compte Supabase. Tu peux consulter https://supabase.com/docs/guides/troubleshooting/http-status-codes et https://supabase.com/docs/guides/platform/billing-faq. Une fois l'accès rétabli, relance ce workflow, puis teste `/start`.
+- Le déploiement vérifie désormais la réponse HTTP de la passerelle **avant de remplacer le webhook** ; `404` sur GET est attendu (la fonction accepte seulement POST), tandis que `402` bloque le workflow avec un message explicite.
 - `Webhook invalid token` : token `BotFather` invalide ou révoqué.
 - Le bot répond, mais `Check` échoue : bot absent des admins du canal, ou `id` du canal erroné.
 - Pas de bonus par parrainage avec `[]` : **normal**, les primes de parrainage sont désactivées sans vérification d'un canal obligatoire.
