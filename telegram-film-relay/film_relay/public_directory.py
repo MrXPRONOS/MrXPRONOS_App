@@ -25,7 +25,7 @@ def _plain_text(message: Any) -> bool:
 def _meaningful(text: str) -> bool:
     import re
     content=re.sub(r"(?i)(?:https?://|www\.|t\.me/)\S+","",str(text or "")).strip()
-    return len(content)>=8 and len(content.split())>=2
+    return len(content)>=14 and len(content.split())>=3
 
 def _usable_media(message: Any) -> bool:
     return not getattr(message,"noforwards",False) and is_video(message)
