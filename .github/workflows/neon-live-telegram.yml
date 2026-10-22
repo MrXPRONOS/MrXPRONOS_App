@@ -1,0 +1,44 @@
+name: Neon LIVE - Signaux Telegram
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/neon-live-telegram.yml"
+      - "scripts/neon_live_telegram.py"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "probe = vérification sans envoi, live = vrais signaux, test = canal test"
+        required: true
+        type: choice
+        default: probe
+        options: [probe, test, live]
+permissions:
+  id-token: write
+  contents: read
+concurrency:
+  group: neon-live-telegram-single-sender
+  cancel-in-progress: false
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install image and Telegram dependencies
+        run: python -m pip install "requests==2.32.5" "Pillow==12.0.0"
+      - name: Verify Python code compiles
+        run: python -m py_compile scripts/neon_live_telegram.py
+      - name: Publish qualifying new LIVE signals (no backfill)
+        env:
+          MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'probe' }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
+          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID }}
+        run: python scripts/neon_live_telegram.py --mode "$MODE"
