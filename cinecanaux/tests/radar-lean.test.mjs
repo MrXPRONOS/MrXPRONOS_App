@@ -24,6 +24,7 @@ const db={prepare(sql){
    return {results:[]};
   },
   async first(){
+   if(sql.includes("FROM bot_webhook_status")&&sql.includes("COUNT(*) FROM channels"))return {n:state.channels.length,webhook:"ok"};
    if(sql.includes("COUNT(*) AS n FROM channels"))return {n:state.channels.length};
    if(sql.includes("SELECT status FROM bot_webhook_status"))return {status:"ok"};
    return null;
