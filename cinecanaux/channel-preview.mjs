@@ -52,8 +52,27 @@ const errPreview=(channel,username)=>({
  avatar_url:null,post_image_url:null,last_post_at:channel.last_post_at||null,
  link:channel.link,public_posts_url:"https://t.me/s/"+username,preview_status:"unavailable"
 });
+// Small shared-isolate cache: no user history, no extra D1 writes.
+// A channel removed by link-health checks may remain cached for at most 30 seconds.
+const recentPreviews=new Map();
 export async function channelPreview(env,id){
  if(!Number.isSafeInteger(id)||id<1)return {status:400,error:"Identifiant de canal invalide"};
+ const current=recentPreviews.get(id);
+ if(current&&current.expires>Date.now()){
+  const result=await current.value;
+  return result.status===200?{...result,data:{...result.data,cached:true}}:result;
+ }
+ if(current)recentPreviews.delete(id);
+ const pending=loadChannelPreview(env,id);
+ recentPreviews.set(id,{expires:Date.now()+30000,value:pending});
+ if(recentPreviews.size>100)recentPreviews.delete(recentPreviews.keys().next().value);
+ try{
+  const result=await pending;
+  if(result.status!==200)recentPreviews.delete(id);
+  return result;
+ }catch(e){recentPreviews.delete(id);throw e;}
+}
+async function loadChannelPreview(env,id){
  // One joined D1 read instead of two sequential round trips for every preview.
  const c=await env.DB.prepare(
   "SELECT c.id,c.title,c.link,c.description,c.last_post_at,"+
