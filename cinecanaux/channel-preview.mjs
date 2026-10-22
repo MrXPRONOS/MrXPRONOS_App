@@ -33,18 +33,23 @@ export function parseTelegramPublicProfile(page,username){
  const description=plain(metadata["og:description"]||metadata.description||metadata["twitter:description"]||"",460);
  const avatar=String(metadata["og:image"]||metadata["twitter:image"]||"").trim();
  const image_url=IMAGE_URL.test(avatar)?avatar:null;
+ let post_image_url=null;
+ for(const fragment of html.matchAll(/tgme_widget_message_photo_wrap[\s\S]{0,1400}?background-image\s*:\s*url\s*\(\s*['"]?(https:\/\/[^'"\s)<>]{10,1050})/gi)){
+  const candidate=htmlDecode(fragment[1]).replace(/\\u0026/g,"&");
+  if(IMAGE_URL.test(candidate)){post_image_url=candidate;break;}
+ }
  // Telegram often shows its own "Telegram" title when a preview is unavailable.
  const trustedTitle=cleanTitle&&!/^telegram(?:\s*messenger)?$/i.test(cleanTitle)?cleanTitle:"";
  // Last visible public posting time, not a guarantee of complete channel history.
  const dates=[...html.matchAll(/<time\b[^>]{0,400}\bdatetime=["']([0-9T:+Z.-]{16,40})["']/gi)]
   .map(x=>Date.parse(x[1])).filter(t=>Number.isFinite(t)&&t<=Date.now()+86400000&&t>Date.now()-3650*86400000);
- return {title:trustedTitle||null,description:description||null,avatar_url:image_url,
+ return {title:trustedTitle||null,description:description||null,avatar_url:image_url,post_image_url,
   last_post_at:dates.length?new Date(Math.max(...dates)).toISOString():null,
   username,source:"public_telegram_preview"};
 }
 const errPreview=(channel,username)=>({
  id:channel.id,username,title:channel.title,description:channel.description||null,
- avatar_url:null,last_post_at:channel.last_post_at||null,
+ avatar_url:null,post_image_url:null,last_post_at:channel.last_post_at||null,
  link:channel.link,public_posts_url:"https://t.me/s/"+username,preview_status:"unavailable"
 });
 export async function channelPreview(env,id){
@@ -54,16 +59,16 @@ export async function channelPreview(env,id){
  const match=PUBLIC_LINK.exec(c.link||"");
  if(!match)return {status:404,error:"Lien public invalide"};
  const username=match[1],fallback=errPreview(c,username);
- const cached=await env.DB.prepare("SELECT title,description,avatar_url,last_post_at,checked_at,preview_status FROM channel_profile_cache WHERE channel_id=?").bind(id).first();
+ const cached=await env.DB.prepare("SELECT title,description,avatar_url,post_image_url,last_post_at,checked_at,preview_status FROM channel_profile_cache WHERE channel_id=?").bind(id).first();
  if(cached){
   const checked=Date.parse(String(cached.checked_at||"").replace(" ","T")+"Z");
-  if(Number.isFinite(checked)&&Date.now()-checked<2*3600000) {
+  if(Number.isFinite(checked)&&Date.now()-checked<(cached.preview_status==="available"?7:1)*86400000) {
    return {status:200,data:{...fallback,title:cached.title||c.title,description:cached.description||c.description,
-    avatar_url:cached.avatar_url||null,last_post_at:cached.last_post_at||c.last_post_at,
+    avatar_url:cached.avatar_url||null,post_image_url:cached.post_image_url||null,last_post_at:cached.last_post_at||c.last_post_at,
     preview_status:cached.preview_status||"unavailable",cached:true}};
   }
  }
- let found={title:null,description:null,avatar_url:null,last_post_at:null},gotPage=false;
+ let found={title:null,description:null,avatar_url:null,post_image_url:null,last_post_at:null},gotPage=false;
  // Fixed Telegram host: a link in the catalog cannot induce arbitrary server-side requests.
  for(const location of ["https://t.me/"+username,"https://t.me/s/"+username]){
   try{
@@ -77,16 +82,17 @@ export async function channelPreview(env,id){
     title:found.title||parsed.title,
     description:found.description||parsed.description,
     avatar_url:found.avatar_url||parsed.avatar_url,
+    post_image_url:found.post_image_url||parsed.post_image_url,
     last_post_at:parsed.last_post_at||found.last_post_at
    };
-   if(found.title&&found.avatar_url&&found.description)break;
+   if(found.title&&found.avatar_url&&found.description&&found.post_image_url)break;
   }catch(e){console.warn(JSON.stringify({event:"public_profile_fetch_failed",reason:String(e).slice(0,95)}));}
  }
  const final={...fallback,title:found.title||c.title,description:found.description||c.description,
-  avatar_url:found.avatar_url,last_post_at:found.last_post_at||c.last_post_at,
+  avatar_url:found.avatar_url,post_image_url:found.post_image_url,last_post_at:found.last_post_at||c.last_post_at,
   preview_status:gotPage&&(found.title||found.description||found.avatar_url)?"available":"unavailable"};
  await env.DB.prepare(
- "INSERT INTO channel_profile_cache(channel_id,title,description,avatar_url,last_post_at,preview_status) VALUES(?,?,?,?,?,?) ON CONFLICT(channel_id) DO UPDATE SET title=excluded.title,description=excluded.description,avatar_url=excluded.avatar_url,last_post_at=excluded.last_post_at,preview_status=excluded.preview_status,checked_at=CURRENT_TIMESTAMP"
- ).bind(c.id,final.title,final.description||"",final.avatar_url||"",final.last_post_at||null,final.preview_status).run();
+ "INSERT INTO channel_profile_cache(channel_id,title,description,avatar_url,post_image_url,last_post_at,preview_status) VALUES(?,?,?,?,?,?,?) ON CONFLICT(channel_id) DO UPDATE SET title=excluded.title,description=excluded.description,avatar_url=excluded.avatar_url,post_image_url=excluded.post_image_url,last_post_at=excluded.last_post_at,preview_status=excluded.preview_status,checked_at=CURRENT_TIMESTAMP"
+ ).bind(c.id,final.title,final.description||"",final.avatar_url||"",final.post_image_url||"",final.last_post_at||null,final.preview_status).run();
  return {status:200,data:final};
 }
