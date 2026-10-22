@@ -294,3 +294,13 @@ jobs:
           if provider_status!=200:
               print('::warning::ESPN inaccessible depuis Cloudflare : seules les validations manuelles sont sûres tant que le fournisseur ne répond pas.')
           PY
+
+      - name: Mesurer les temps de réponse après mise en production
+        run: |
+          python3 scripts/latency_audit.py --phase after-deploy --samples 10
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: free-pronos-latency-after-${{ github.run_number }}
+          path: cloudflare/xpronos-coupons-bot/latency-report.json
+          retention-days: 14
