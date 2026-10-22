@@ -97,8 +97,18 @@ async function bonus(env,uid,chat) {
   return send(env,chat,'⏳ <b>Bonus en recharge</b>\n\nProchaine récompense dans <b>'+Math.max(1,minutes)+' minutes</b>.\n<i>Encore un peu de patience !</i>');
 }
 function pretty(c,details=false) {
-  let txt='🎟️ <b>'+html(c.title)+'</b> ['+html(c.tier)+']\nCote totale : <b>'+html(c.total_odds)+'</b>\nCoût : '+c.xp_cost+' XP';
-  if(details)for(const x of safeJson(c.selections,[]))txt+='\n• '+html(x.match)+' — '+html(x.market)+' ('+html(x.odds)+')';
+  let txt='🎟️ <b>'+html(c.title)+'</b>\n'+
+    '🏷️ <i>Catégorie : '+html(c.tier)+'</i>\n'+
+    '📊 Cote totale : <b>'+html(c.total_odds)+'</b>\n'+
+    '💎 Accès : <b>'+html(c.xp_cost)+' XP</b>';
+  if(details) {
+    const selections=safeJson(c.selections,[]);
+    if(selections.length){
+      txt+='\n\n<b>⚽ LES SÉLECTIONS</b>\n<blockquote>';
+      txt+=selections.map((x,i)=>'🎯 <b>'+(i+1)+'. '+html(x.match)+'</b>\n'+html(x.market)+' • <b>'+html(x.odds)+'</b>').join('\n\n');
+      txt+='</blockquote>';
+    }
+  }
   return txt;
 }
 async function coupons(env,uid,chat) {
