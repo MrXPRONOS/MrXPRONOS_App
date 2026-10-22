@@ -89,7 +89,7 @@ test("5. Channel preview returns essential fields only",async()=>{
  assert.equal(previewCalls,1);
 });
 test("6. Real public Telegram post images are extracted from preview HTML",()=>{
- const html='<a class="tgme_widget_message_photo_wrap" style="background-image:url(\\'https://cdn4.telesco.pe/file/real_post.jpg\\')"></a>';
+ const html=`<a class="tgme_widget_message_photo_wrap" style="background-image:url('https://cdn4.telesco.pe/file/real_post.jpg')"></a>`;
  const p=parseTelegramPublicProfile(html,"CinemaPublic2026");
  assert.equal(p.post_image_url,"https://cdn4.telesco.pe/file/real_post.jpg");
 });

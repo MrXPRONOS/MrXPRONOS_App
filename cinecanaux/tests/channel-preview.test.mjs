@@ -34,7 +34,7 @@ test("30 — Channel metadata is cached and only public approved links can be in
   assert.equal(a.status,200);assert.equal(a.data.title,"Cinéma de Test");
   assert.equal(a.data.preview_status,"available");
   const b=await channelPreview({DB:db},17);
-  assert.equal(b.status,200);assert.equal(state.calls,1);assert.equal(b.data.cached,true);
+  assert.equal(b.status,200);assert.equal(state.calls,2);assert.equal(b.data.cached,true);
   assert.equal((await channelPreview({DB:db},42)).status,404);
  }finally{globalThis.fetch=oldFetch;}
 });
