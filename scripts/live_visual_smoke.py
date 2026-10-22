@@ -10,6 +10,8 @@ OUT.mkdir(parents=True, exist_ok=True)
 LIVE_MATCHES = [
     {
         "id": "live-corners", "home_team": "Manchester City", "away_team": "Arsenal",
+        "home_logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2066.png",
+        "away_logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2885.png",
         "home_score": 1, "away_score": 1, "current_minute": 67,
         "league": {"name": "Premier League"}, "freshness_seconds": 8,
         "reliability_score": 91, "value_score": 84,
@@ -18,6 +20,8 @@ LIVE_MATCHES = [
     },
     {
         "id": "live-shots", "home_team": "Real Madrid", "away_team": "Barcelona",
+        "home_logo": "https://img.thesports.com/football/team/8fa50258352c8079c5fcc2f31a77a0ce.png",
+        "away_logo": "https://img.thesports.com/football/team/eed5c3c3c14be4180be2114f1eda1890.png",
         "home_score": 2, "away_score": 1, "current_minute": 72,
         "league": {"name": "LaLiga"}, "freshness_seconds": 13,
         "reliability_score": 86, "value_score": 77,
@@ -58,6 +62,11 @@ def api_payload(path):
     return None
 
 def install_routes(page):
+    # Deterministic valid image responses: tests the browser's real img element,
+    # source URL mapping and image decoding without relying on external CDN uptime.
+    for provider in ("a.espncdn.com", "img.thesports.com"):
+        page.route(f"https://{provider}/**", lambda route: route.fulfill(
+            status=200, content_type="image/png", path="assets/images/default-logo.png"))
     def handler(route, request):
         parsed = urlparse(request.url)
         if parsed.hostname != "br-winter-truth-b9of9tss-live.compute.c-7.eu-central-1.aws.neon.tech":
@@ -143,6 +152,19 @@ def run_view(browser, width, height, name):
         page.screenshot(path=str(OUT / "neon-ui-boot-error.png"), full_page=True)
         raise
     page.wait_for_timeout(1200)
+
+    # Verify actual React LIVE cards render the stored ESPN and SportScore logos.
+    logos = page.locator(".mx-live-row img[src^='https://a.espncdn.com/'], .mx-live-row img[src^='https://img.thesports.com/']")
+    logos.first.wait_for(state="visible", timeout=12000)
+    if logos.count() < 4:
+        raise AssertionError(f"{name}: expected four actual team logo images, found {logos.count()}")
+    conditions = logos.evaluate_all("""imgs => imgs.map(img => ({
+        src:img.currentSrc, visible:!!(img.offsetWidth&&img.offsetHeight),
+        loaded:img.complete&&img.naturalWidth>0
+    }))""")
+    if any(not x["loaded"] or not x["visible"] for x in conditions):
+        raise AssertionError(f"{name}: broken team logos: {conditions}")
+    print(f"PASS {name}: {len(conditions)} true LIVE team logos rendered & decoded", flush=True)
 
     if page.locator("#boot-screen").count() and page.locator("#boot-screen").is_visible():
         raise AssertionError(f"{name}: boot screen still visible")
