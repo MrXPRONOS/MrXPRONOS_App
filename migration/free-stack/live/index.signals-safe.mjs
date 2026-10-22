@@ -2687,7 +2687,7 @@ async function dispatchInstantTelegram(){
   let candidates;
   try{
     candidates=await sql.unsafe(
-      "SELECT p.id::text AS id,p.created_at,p.model_version,p.pricing_mode,"+
+      "SELECT p.id::text AS id,p.match_id,p.created_at,p.model_version,p.pricing_mode,"+
       "p.prediction_type AS type,p.signal_tier,p.home_team,p.away_team,p.probability,"+
       "p.threshold,p.signal_value,p.reliability_score AS reliability,p.data_quality_score,p.minute,"+
       "p.home_score,p.away_score,p.league_name,p.model_fair_odds,"+
@@ -2725,7 +2725,7 @@ async function dispatchInstantTelegram(){
     {name:"HMAC",hash:"SHA-256"},false,["sign"]);
   async function one(row){
     const payload=JSON.stringify({signals:[{
-      id:String(row.id),created_at:row.created_at,model_version:row.model_version,
+      id:String(row.id),match_id:row.match_id,created_at:row.created_at,model_version:row.model_version,
       pricing_mode:row.pricing_mode,type:row.type,signal_tier:row.signal_tier,
       home_team:row.home_team,away_team:row.away_team,
       home_logo:row.home_logo||null,away_logo:row.away_logo||null,
