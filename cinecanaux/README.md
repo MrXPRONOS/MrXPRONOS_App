@@ -74,3 +74,25 @@ Les catégories reconnues par l'ancien moteur sont Films, Comédie, Romance/Dés
 - Le bouton de partage `t.me/share/url` est une alternative simplifiée ; Telegram ne garantit pas qu'il conserve les mises en forme du message original.
 - Le suivi des filleuls évite les doublons et le parrainage de soi-même. Les accès confirmés sont enregistrés après validation de l'abonnement aux canaux officiels, s'ils sont configurés.
 - Les tables `referral_codes` et `referral_visits` sont définies dans `schema.sql` et déployées dans D1. Aucun jeton Telegram n'est ajouté au dépôt.
+
+
+## Ciné Radar V2 (22 octobre 2026)
+
+- Rebranding « Ciné Radar » : textes, menu, aide et descriptions programmées du bot.
+- Navigation dans un seul message par callbacks Telegram, pagination 5 canaux/page, filtres Films/Séries/Animés et sous-genres.
+- Formatage HTML Telegram : gras, italique, citations, statuts colorés et messages d'accueil plus courts.
+- Favoris personnels, « Nouveautés », recommandations basées sur catégorie choisie et populaires par favoris.
+- Recherche insensible aux accents et tolérance à 1 faute de frappe dans un mot suffisamment long.
+- Préférences VF, VOSTFR, VO et notifications strictement volontaires (cron 08:00 UTC).
+- Vérification périodique prudente : accessibilité HTTP du site public d'une chaîne Telegram ; HTTP 403/429/inconnu n'implique pas le retrait automatique.
+- Signalements dédoublonnés et tableau d'administration privé accessible aux comptes ajoutés explicitement dans \`admin_users\`. AUCUN administrateur n'est créé par défaut.
+- Pour activer l'administration, récupérer son propre identifiant via la commande \`/monid\`, puis l'inscrire dans D1 :
+\`\`\`sql
+INSERT OR IGNORE INTO admin_users(user_id,role) VALUES(123456789,'owner');
+\`\`\`
+- Validation des droits à effectuer explicitement, via justificatif enregistré avant publication.
+- Référencement des liens après droits établis uniquement (\`status='approved'\` + \`rights_confirmed=1\`).
+- Mini App responsive à l'adresse \`https://cinecanaux-bot.cinecanaux-xpronos.workers.dev/app\`, accessible depuis le menu Telegram. Elle présente le catalogue avec recherche, filtres, favoris, navigation et profil. Les API vérifient cryptographiquement \`Telegram.WebApp.initData\` et l'appartenance aux canaux obligatoires.
+- Le lien du bot existant ne change pas automatiquement : son **nom affiché** est modifié par l'API Telegram, mais son **@username** se modifie uniquement dans BotFather.
+- La bannière SVG est servie sur \`/assets/banner.svg\` ; le message d'accueil du bot reste textuel en attendant une version JPEG/PNG.
+- Mini App, recherches et notifications nécessitent une validation réelle sur Telegram avant de déclarer l'ensemble « entièrement testé en production ».
