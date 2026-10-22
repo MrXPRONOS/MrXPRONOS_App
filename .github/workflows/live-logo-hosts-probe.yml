@@ -1,0 +1,15 @@
+name: LIVE team logo remote availability audit
+on:
+  push:
+    branches: [test/live-logo-actual-browser-20261022]
+    paths: [tests/live-logo-hosts-probe.py, .github/workflows/live-logo-hosts-probe.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  remote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tests/live-logo-hosts-probe.py
