@@ -1,0 +1,279 @@
+{
+  "audited_at": "2026-10-22",
+  "source": "Supabase deployed edge function metadata",
+  "functions": [
+    {
+      "slug": "quick-action",
+      "verify_jwt": true,
+      "version": 32,
+      "files": [
+        {
+          "name": "index.ts",
+          "chars": 471
+        }
+      ]
+    },
+    {
+      "slug": "assistant",
+      "verify_jwt": false,
+      "version": 70,
+      "files": [
+        {
+          "name": "index.ts",
+          "chars": 54911
+        }
+      ]
+    },
+    {
+      "slug": "live",
+      "verify_jwt": false,
+      "version": 276,
+      "files": [
+        {
+          "name": "functions/live/index.ts",
+          "chars": 354661
+        },
+        {
+          "name": "functions/_shared/espn.ts",
+          "chars": 8502
+        },
+        {
+          "name": "functions/_shared/football_sources.ts",
+          "chars": 20287
+        },
+        {
+          "name": "functions/_shared/telegram_rich.ts",
+          "chars": 3290
+        },
+        {
+          "name": "functions/_shared/live_sponsor_banner.ts",
+          "chars": 2110
+        },
+        {
+          "name": "functions/_shared/live_odds_failover.ts",
+          "chars": 4813
+        },
+        {
+          "name": "functions/_shared/live_bookmaker_direct.ts",
+          "chars": 9603
+        },
+        {
+          "name": "functions/live/_fonts/NotoSans-Regular.ttf",
+          "chars": 568627
+        },
+        {
+          "name": "functions/live/_fonts/NotoSans-Bold.ttf",
+          "chars": 574938
+        },
+        {
+          "name": "functions/live/_fonts/NotoSans-ExtraBold.ttf",
+          "chars": 576415
+        }
+      ]
+    },
+    {
+      "slug": "clean-cache",
+      "verify_jwt": false,
+      "version": 28,
+      "files": [
+        {
+          "name": "index.ts",
+          "chars": 2427
+        }
+      ]
+    },
+    {
+      "slug": "generate-embedding",
+      "verify_jwt": false,
+      "version": 27,
+      "files": [
+        {
+          "name": "index.ts",
+          "chars": 1626
+        }
+      ]
+    },
+    {
+      "slug": "vapid-public-key",
+      "verify_jwt": false,
+      "version": 29,
+      "files": [
+        {
+          "name": "index.ts",
+          "chars": 1421
+        }
+      ]
+    },
+    {
+      "slug": "push-subscribe",
+      "verify_jwt": false,
+      "version": 31,
+      "files": [
+        {
+          "name": "index.ts",
+          "chars": 2354
+        }
+      ]
+    },
+    {
+      "slug": "push-notifications",
+      "verify_jwt": false,
+      "version": 29,
+      "files": [
+        {
+          "name": "index.ts",
+          "chars": 4787
+        }
+      ]
+    },
+    {
+      "slug": "publish",
+      "verify_jwt": true,
+      "version": 27,
+      "files": [
+        {
+          "name": "publish/index.ts",
+          "chars": 23501
+        },
+        {
+          "name": "publish/guards.mjs",
+          "chars": 1369
+        }
+      ]
+    },
+    {
+      "slug": "telegram_webhook",
+      "verify_jwt": false,
+      "version": 35,
+      "files": [
+        {
+          "name": "index.ts",
+          "chars": 48461
+        }
+      ]
+    },
+    {
+      "slug": "admin-push",
+      "verify_jwt": false,
+      "version": 18,
+      "files": [
+        {
+          "name": "index.ts",
+          "chars": 4299
+        }
+      ]
+    },
+    {
+      "slug": "admin-list-subscribers",
+      "verify_jwt": false,
+      "version": 14,
+      "files": [
+        {
+          "name": "index.ts",
+          "chars": 3737
+        }
+      ]
+    },
+    {
+      "slug": "live-scrape-test",
+      "verify_jwt": false,
+      "version": 33,
+      "files": [
+        {
+          "name": "index.ts",
+          "chars": 93965
+        },
+        {
+          "name": "_fonts/NotoSans-Regular.ttf",
+          "chars": 568627
+        },
+        {
+          "name": "_fonts/NotoSans-Bold.ttf",
+          "chars": 574938
+        },
+        {
+          "name": "_fonts/NotoSans-ExtraBold.ttf",
+          "chars": 576415
+        }
+      ]
+    },
+    {
+      "slug": "telegram-live",
+      "verify_jwt": false,
+      "version": 23,
+      "files": [
+        {
+          "name": "functions/telegram-live/index.ts",
+          "chars": 27379
+        },
+        {
+          "name": "functions/_shared/telegram_rich.ts",
+          "chars": 3290
+        },
+        {
+          "name": "functions/_shared/live_sponsor_banner.ts",
+          "chars": 2110
+        }
+      ]
+    },
+    {
+      "slug": "daily-pronos",
+      "verify_jwt": false,
+      "version": 5,
+      "files": [
+        {
+          "name": "daily-pronos/index.ts",
+          "chars": 14651
+        }
+      ]
+    },
+    {
+      "slug": "telegram-membership",
+      "verify_jwt": false,
+      "version": 5,
+      "files": [
+        {
+          "name": "telegram-membership/index.ts",
+          "chars": 5045
+        }
+      ]
+    },
+    {
+      "slug": "threads-uninstall",
+      "verify_jwt": false,
+      "version": 4,
+      "files": [
+        {
+          "name": "index.ts",
+          "chars": 4839
+        }
+      ]
+    },
+    {
+      "slug": "threads-data-deletion",
+      "verify_jwt": false,
+      "version": 4,
+      "files": [
+        {
+          "name": "index.ts",
+          "chars": 4838
+        }
+      ]
+    },
+    {
+      "slug": "xpronos-coupons-bot",
+      "verify_jwt": false,
+      "version": 3,
+      "files": [
+        {
+          "name": "xpronos-coupons-bot/index.ts",
+          "chars": 17580
+        },
+        {
+          "name": "xpronos-coupons-bot/coupon_logic.ts",
+          "chars": 2795
+        }
+      ]
+    }
+  ]
+}
