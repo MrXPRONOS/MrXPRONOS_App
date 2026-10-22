@@ -2547,6 +2547,83 @@ async function persistRefresh(events,fetchDetails) {
     await sql.unsafe("DELETE FROM public.worker_locks WHERE lock_name='neon_live_refresh' AND owner=$1",[owner]).catch(()=>{});
   }
 }
+// Instant Telegram dispatch after the live_predictions transaction has committed.
+// The Cloudflare endpoint is HMAC-verified and holds Telegram tokens as secrets.
+const INSTANT_TELEGRAM_URL="https://mrxpronos-live-telegram-instant.cinecanaux-xpronos.workers.dev/deliver";
+async function dispatchInstantTelegram(){
+  const secret=process.env.NEON_DELIVERY_HMAC_KEY||"";
+  const summary={telegram_delivery:"disabled",telegram_delivery_attempted:0,telegram_delivery_confirmed:0,telegram_delivery_pending:0};
+  if(!secret)return summary;
+  summary.telegram_delivery="ready";
+  let candidates;
+  try{
+    candidates=await sql.unsafe(
+      "SELECT p.id::text AS id,p.created_at,p.model_version,p.pricing_mode,"+
+      "p.prediction_type AS type,p.signal_tier,p.home_team,p.away_team,p.probability,"+
+      "p.threshold,p.signal_value,p.reliability_score AS reliability,p.data_quality_score,p.minute "+
+      "FROM public.live_predictions p JOIN public.matches_live m ON p.match_id=m.id "+
+      "WHERE p.model_version=$1 AND p.created_at>=now()-interval '14 minutes' "+
+      "AND p.created_at<=now()+interval '30 seconds' AND COALESCE(p.telegram_sent,false)=false "+
+      "AND COALESCE(p.validated,false)=false AND m.updated_at>=now()-interval '3 minutes' "+
+      "AND m.raw_data->>'is_live'='true' ORDER BY p.created_at ASC LIMIT 12",
+      [NEON_SIGNAL_MODEL_VERSION]
+    );
+  }catch(e){
+    console.error("NEON_TELEGRAM_OUTBOX_QUERY_FAILED",e?.code||e?.name);
+    return {...summary,telegram_delivery:"db_error"};
+  }
+  if(!candidates.length)return summary;
+  const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(secret),
+    {name:"HMAC",hash:"SHA-256"},false,["sign"]);
+  async function one(row){
+    const payload=JSON.stringify({signals:[{
+      id:String(row.id),created_at:row.created_at,model_version:row.model_version,
+      pricing_mode:row.pricing_mode,type:row.type,signal_tier:row.signal_tier,
+      home_team:row.home_team,away_team:row.away_team,
+      probability:Number(row.probability),threshold:Number(row.threshold),
+      signal_value:Number(row.signal_value),reliability:Number(row.reliability),
+      data_quality_score:Number(row.data_quality_score),minute:Number(row.minute)
+    }]});
+    const ts=String(Date.now());
+    const signature=Buffer.from(await crypto.subtle.sign("HMAC",key,new TextEncoder().encode(ts+"."+payload))).toString("hex");
+    let status="worker_unavailable",deliveryConfirmed=0,pending=1;
+    try{
+      const response=await fetch(INSTANT_TELEGRAM_URL,{method:"POST",
+        headers:{"content-type":"application/json","x-mrx-timestamp":ts,"x-mrx-signature":signature},
+        body:payload,signal:AbortSignal.timeout(18000)});
+      const result=await response.json().catch(()=>({}));
+      if(response.ok&&result.ok===true){
+        const d=result.results?.[0];
+        if(d?.prediction_id===String(row.id)&&d.all_sent===true){
+          status="sent";deliveryConfirmed=d.deliveries?.length||0;pending=0;
+        }else status="unresolved";
+      }else status="worker_http_"+response.status;
+    }catch(e){status="transport_"+String(e?.name||"error").slice(0,24);}
+    try{
+      await sql.unsafe(
+        "UPDATE public.live_predictions SET telegram_sent=$1,telegram_sent_at=CASE WHEN $1 THEN now() ELSE telegram_sent_at END,"+
+        "telegram_attempts=COALESCE(telegram_attempts,0)+1,telegram_last_attempt_at=now(),"+
+        "telegram_last_error=CASE WHEN $1 THEN NULL ELSE $2 END WHERE id=$3::uuid",
+        [status==="sent",status==="sent"?null:status,String(row.id)]
+      );
+    }catch(e){console.error("NEON_TELEGRAM_DELIVERY_UPDATE_FAILED",e?.code||e?.name);}
+    return {status,confirmed:deliveryConfirmed,pending};
+  }
+  // 4 simultaneous HTTP calls; avoid slowing down the one-minute refresh.
+  for(let i=0;i<candidates.length;i+=4){
+    const settled=await Promise.allSettled(candidates.slice(i,i+4).map(one));
+    for(const item of settled){
+      summary.telegram_delivery_attempted++;
+      if(item.status==="fulfilled"){
+        summary.telegram_delivery_confirmed+=item.value.confirmed;
+        summary.telegram_delivery_pending+=item.value.pending;
+      }else summary.telegram_delivery_pending++;
+    }
+  }
+  summary.telegram_delivery=summary.telegram_delivery_pending?"partial":"ok";
+  return summary;
+}
+
 const oldNeonLiveFetch=index_default.fetch.bind(index_default);
 index_default.fetch=async function(req){
   const path=new URL(req.url).pathname.replace(/\/$/,"");
@@ -2585,7 +2662,12 @@ index_default.fetch=async function(req){
       signalReport={generated_signals:0,validation_successes:0,notifications_created:0,
         signal_backend:"error",signal_error:String(signalError?.code||signalError?.name||"unknown").slice(0,40)};
     }
-    return json(req,{mode:"apply",...report,...signalReport,
+    let delivery={telegram_delivery:"not_attempted",telegram_delivery_attempted:0,telegram_delivery_confirmed:0,telegram_delivery_pending:0};
+    if(signalReport.signal_backend==="active"){
+      try{delivery=await dispatchInstantTelegram();}
+      catch(e){console.error("NEON_INSTANT_TELEGRAM_FAILED",e?.code||e?.name);delivery.telegram_delivery="failed";}
+    }
+    return json(req,{mode:"apply",...report,...signalReport,...delivery,
       no_signal_generation:signalReport.signal_backend!=="active"},200);
   }catch(e){
     console.error("NEON_REFRESH_FAILED",e?.code||e?.name,String(e?.message||"").slice(0,250));
