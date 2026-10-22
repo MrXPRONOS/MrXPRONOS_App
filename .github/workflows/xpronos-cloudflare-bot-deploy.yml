@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.event_name == 'workflow_dispatch' || vars.XPRONOS_CF_AUTO_DEPLOY == 'true'
+    if: github.event_name == 'workflow_dispatch' || vars.XPRONOS_CF_AUTO_DEPLOY == 'true' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[deploy-free-pronos]'))
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
