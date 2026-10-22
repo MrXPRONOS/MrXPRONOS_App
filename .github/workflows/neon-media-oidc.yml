@@ -1,5 +1,8 @@
 name: Neon OIDC media validation
 on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/neon-media-oidc.yml']
   workflow_dispatch:
     inputs:
       confirm:
@@ -11,7 +14,7 @@ permissions:
   id-token: write
 jobs:
   transfer:
-    if: ${{ inputs.confirm == 'COPY113' }}
+    if: ${{ github.event_name == 'push' || inputs.confirm == 'COPY113' }}
     runs-on: ubuntu-latest
     timeout-minutes: 100
     steps:
