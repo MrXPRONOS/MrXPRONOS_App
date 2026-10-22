@@ -160,7 +160,9 @@ export default {
    const a=await env.DB.prepare("SELECT status,detail,updated_at FROM bot_webhook_status WHERE id=1").first();
    const b=await env.DB.prepare("SELECT scan_date,imported,qualified,last_error FROM discovery_sync_status WHERE id=1").first();
    const c=await env.DB.prepare("SELECT COUNT(*) AS value FROM channels WHERE status='approved' AND rights_confirmed=1").first();
-   return Response.json({service:"cine-radar",version:2,database:!!env.DB,telegramConfigured:!!env.TELEGRAM_TOKEN,webhook:a?.status||"waiting",discovery:b||{status:"waiting"},publicChannels:c?.value||0,miniApp:APP_URL},{headers:{"cache-control":"no-store"}});
+   const profile=await env.DB.prepare("SELECT setting_key,value FROM bot_settings WHERE setting_key IN ('profile_version','profile_photo_status')").all();
+   const status=Object.fromEntries((profile.results||[]).map(x=>[x.setting_key,x.value]));
+   return Response.json({service:"cine-radar",version:3,database:!!env.DB,telegramConfigured:!!env.TELEGRAM_TOKEN,webhook:a?.status||"waiting",discovery:b||{status:"waiting"},publicChannels:c?.value||0,profile:status,miniApp:APP_URL},{headers:{"cache-control":"no-store"}});
   }
   return new Response("🎬 Ciné Radar — bot Telegram et Mini App",{headers:{"content-type":"text/plain; charset=utf-8"}});
  },

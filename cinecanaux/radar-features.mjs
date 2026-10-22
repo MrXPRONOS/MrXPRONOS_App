@@ -430,9 +430,11 @@ export async function initializeProfile(env){
    console.log(JSON.stringify({event:"cine_radar_profile_photo_updated"}));
  }catch(e){
    console.error(JSON.stringify({event:"profile_photo_pending",error:String(e).slice(0,135)}));
+   await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_photo_status',?) ON CONFLICT(setting_key) DO UPDATE SET value=excluded.value,updated_at=CURRENT_TIMESTAMP").bind(("pending: "+String(e)).slice(0,170)).run();
    return; // Do not mark profile as completed. Next cron retries.
  }
  await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_version','3') ON CONFLICT(setting_key) DO UPDATE SET value='3',updated_at=CURRENT_TIMESTAMP").run();
+ await env.DB.prepare("INSERT INTO bot_settings(setting_key,value) VALUES('profile_photo_status','complete') ON CONFLICT(setting_key) DO UPDATE SET value='complete',updated_at=CURRENT_TIMESTAMP").run();
 }
 export async function maintenance(env,mode){
  if(mode==="activity"){
