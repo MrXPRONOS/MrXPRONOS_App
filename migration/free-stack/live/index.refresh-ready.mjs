@@ -2556,7 +2556,7 @@ index_default.fetch=async function(req){
     const report=await persistRefresh(pulled.events,pulled);
     return json(req,{mode:"apply",...report},report.already_running?409:200);
   }catch(e){
-    console.error("NEON_REFRESH_FAILED",e?.code||e?.message?.slice(0,140)||e?.name);
+    console.error("NEON_REFRESH_FAILED",e?.code||e?.name,String(e?.message||"").slice(0,250));
     return json(req,{success:false,error:"refresh_failed",reason:String(e?.code||e?.message||"unknown").slice(0,140),telegram_sent:0},503);
   }
 };
