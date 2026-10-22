@@ -32,6 +32,7 @@ nav{position:fixed;bottom:0;left:0;right:0;border-top:1px solid #2b3d64;backgrou
 .nav-inner{display:flex;width:min(100%,760px);justify-content:space-around}.nav-link{border:0;background:none;color:#8ea1c7;display:flex;flex-direction:column;gap:2px;align-items:center;font:inherit;font-size:11px;min-width:64px;cursor:pointer}.nav-link strong{font-size:19px}.nav-link.active{color:#67a0ff}
 .toast{position:fixed;bottom:87px;left:50%;transform:translateX(-50%);background:#28385b;border:1px solid #4b6799;color:white;padding:11px 16px;border-radius:14px;max-width:90%;font-size:13px;z-index:4;box-shadow:0 12px 32px #0005;display:none}.card:hover{transform:translateY(-2px);border-color:#568cf790;box-shadow:0 10px 23px #0004}.card{transition:transform .15s ease,border-color .15s ease}.quality{font-size:10px;color:#a5f5df;padding:4px 0}.quality.missing{color:#b1bed9}.profile{border:1px solid var(--line);background:var(--paper);border-radius:17px;padding:20px;grid-column:1/-1}.profile h3{margin:0 0 10px}.profile label{display:block;font-weight:700;margin:14px 0 5px}.profile select,.profile button{width:100%;padding:12px;border-radius:11px;background:var(--paper2);border:1px solid var(--line);color:var(--ink);font:inherit}.profile button{margin-top:12px;background:#2e72de;border-color:#418cff;font-weight:700;cursor:pointer}.profile small{color:var(--muted);display:block}.pages{grid-column:1/-1;display:flex;justify-content:center;gap:10px;align-items:center;margin-top:6px}.pages button{padding:10px 16px;border:1px solid var(--line);border-radius:10px;background:var(--paper2);color:white}.pages button:disabled{opacity:.3}.info-status{font-size:11px;color:var(--muted)}.notice{font-size:12px;color:#c3d5ff;margin-bottom:12px}.loading-card{height:180px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(100deg,#121b31,#273957,#121b31);background-size:300% 100%;animation:shine 1.8s infinite}@keyframes shine{0%{background-position:100%}100%{background-position:-100%}}@media(prefers-reduced-motion:reduce){.card{transition:none}.loading-card{animation:none}}
 .smallrow{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.smallrow span{color:var(--muted);font-size:12px}.footer{margin-top:30px;text-align:center;color:#8798bf;font-size:11px}
+.preview-overlay{position:fixed;inset:0;background:#040a17d9;z-index:80;display:flex;align-items:end;justify-content:center;padding:10px;backdrop-filter:blur(8px)}.preview-sheet{width:min(100%,560px);max-height:90dvh;overflow:auto;border:1px solid #4c6798;border-radius:24px;background:#111c36;box-shadow:0 24px 65px #000a;padding:20px}.preview-heading{display:flex;justify-content:space-between;align-items:center;color:#a9c5fa;font-size:13px;font-weight:700}.preview-close{border:0;border-radius:50%;font-size:21px;background:#263657;color:white;width:36px;height:36px}.preview-identity{display:flex;align-items:center;gap:15px;margin:22px 0 12px}.preview-avatar{width:72px;height:72px;flex-shrink:0;display:grid;place-items:center;background:linear-gradient(135deg,#3b7ef1,#8953dc);border-radius:19px;font-size:32px;overflow:hidden}.preview-avatar img{width:100%;height:100%;object-fit:cover}.preview-identity h3{font-size:20px;line-height:1.2;margin:0 0 5px;overflow-wrap:anywhere}.preview-description{border:1px solid #334c77;background:#1b2a48;padding:13px;border-radius:13px;color:#dbe7ff;white-space:pre-line;margin:15px 0;overflow-wrap:anywhere}.preview-link{display:block;color:#91bdff;overflow-wrap:anywhere;margin:12px 0}.preview-ctas{display:grid;grid-template-columns:1fr 1fr;gap:9px}.preview-ctas button{padding:13px 8px}.preview-ctas .wide{grid-column:1/-1}.preview-note{font-size:12px;color:#aabbdb;margin:12px 0}@media(min-width:600px){.preview-overlay{align-items:center}}
 @media(min-width:540px){.hero h1{font-size:38px;max-width:400px}.hero .sticker{font-size:84px;right:35px}.poster{height:155px}}
 </style></head>
 <body><main class="shell">
@@ -48,6 +49,7 @@ nav{position:fixed;bottom:0;left:0;right:0;border-top:1px solid #2b3d64;backgrou
 <div id="cards" class="cards" aria-live="polite"><div class="empty"><div class="emoji">🎬</div><b>Bienvenue sur Ciné Radar</b>Chargement du catalogue…</div></div>
 <div class="footer">Ciné Radar · Annuaire de canaux publics · © 2026</div>
 </main><nav><div class="nav-inner"><button class="nav-link active" data-tab="explore"><strong>🧭</strong>Explorer</button><button class="nav-link" data-tab="favorites"><strong>⭐</strong>Favoris</button><button class="nav-link" data-tab="new"><strong>🆕</strong>Nouveautés</button><button class="nav-link" data-tab="profile"><strong>👤</strong>Profil</button></div></nav>
+<div class="preview-overlay" id="previewOverlay" role="dialog" aria-modal="true" aria-label="Aperçu du canal" hidden><section class="preview-sheet" id="previewSheet"></section></div>
 <div class="toast" id="toast"></div>
 <script>
 (function(){
@@ -66,6 +68,50 @@ async function request(path,options={}){
 async function getBotUrl(){if(botUrl)return botUrl;try{const r=await fetch("/api/bot-info",{cache:"no-store"});if(r.ok){const x=await r.json();if(x.username)botUrl="https://t.me/"+x.username;}}catch{}return botUrl;}
 async function telegramEntry(message){const link=await getBotUrl();const root=$("cards");const box=document.createElement("div");box.className="empty";box.style.gridColumn="1/-1";const h=document.createElement("b");h.textContent="Ouvre Ciné Radar dans Telegram";const detail=document.createElement("p");detail.textContent=message||"Ton profil et tes favoris sont accessibles depuis Telegram.";box.append(h,detail);if(link){const a=document.createElement("a");a.className="btn primary";a.style.display="inline-block";a.style.marginTop="12px";a.href=link;a.textContent="📲 Ouvrir le bot Telegram";box.append(a);}else{const hint=document.createElement("p");hint.textContent="Dans le bot, envoie /profil.";box.append(hint);}root.textContent="";root.append(box);}
 function button(label,kind,action){const b=document.createElement("button");b.className="btn "+kind;b.textContent=label;b.addEventListener("click",action);return b;}
+
+const previewLink=url=>/^https:\/\/t\.me\/[a-zA-Z][a-zA-Z0-9_]{4,31}\/?$/.test(String(url||""));
+const profileImage=url=>/^https:\/\/(?:[a-z0-9-]+\.)*(?:telesco\.pe|telegram\.org|telegram-cdn\.org|t\.me)\/[^\s"'<>]{1,1200}$/i.test(String(url||""));
+const el=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=text;return x;};
+function closePreview(){$("previewOverlay").hidden=true;$("previewSheet").textContent="";}
+function startPreview(){
+ $("previewOverlay").hidden=false;const root=$("previewSheet");root.textContent="";
+ const head=el("div","preview-heading","CINÉ RADAR · PROFIL PUBLIC");const close=el("button","preview-close","×");
+ close.type="button";close.setAttribute("aria-label","Fermer");close.onclick=closePreview;head.append(close);root.append(head);return root;
+}
+function publicViewer(url){if(!/^https:\/\/t\.me\/s\/[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(url))return;if(tg?.openLink)tg.openLink(url);else window.open(url,"_blank","noopener");}
+function telegramChannel(url){if(!previewLink(url))return;if(tg?.openTelegramLink)tg.openTelegramLink(url);else window.open(url,"_blank","noopener");}
+async function showChannelPreview(id){
+ let panel=startPreview();panel.append(el("p","preview-note","🔎 Récupération de l'aperçu public…"));
+ try{
+  const result=await request("/api/channel-preview?id="+id);
+  if($("previewOverlay").hidden)return;
+  const c=result.channel;if(!c||!previewLink(c.link))throw Error("Lien indisponible");
+  panel=startPreview();
+  const identity=el("div","preview-identity"),avatar=el("div","preview-avatar","🎬");
+  if(profileImage(c.avatar_url)){
+   const image=el("img");image.alt="Photo publique de "+c.title;image.loading="lazy";
+   image.onerror=()=>{avatar.textContent="🎬";};image.src=c.avatar_url;avatar.textContent="";avatar.append(image);
+  }
+  const names=el("div");names.append(el("h3",null,c.title),el("small",null,"@"+c.username));
+  identity.append(avatar,names);panel.append(identity);
+  panel.append(el("div","preview-description",c.description||"Aucune description publique disponible."));
+  if(c.last_post_at){
+   const d=new Date(c.last_post_at);if(Number.isFinite(d.getTime()))panel.append(el("p","preview-note","🕒 Dernière publication visible : "+d.toLocaleDateString("fr-FR")));
+  }
+  if(c.preview_status!=="available")panel.append(el("p","preview-note","ℹ️ Telegram ne fournit pas toutes les informations de ce canal actuellement."));
+  const link=el("a","preview-link",c.link);link.href=c.link;link.target="_blank";link.rel="noopener noreferrer";panel.append(link);
+  const actions=el("div","preview-ctas");
+  const posts=button("👁 Voir les publications","primary wide",()=>publicViewer(c.public_posts_url));
+  const join=button("📲 Rejoindre le canal","green",()=>telegramChannel(c.link));
+  const copy=button("🔗 Copier le lien","secondary",async()=>{try{await navigator.clipboard.writeText(c.link);toast("Lien copié ✅");}catch{toast("Copie le lien ci-dessus.");}});
+  actions.append(posts,join,copy);panel.append(actions);
+  panel.append(el("p","preview-note","L'aperçu est consultable ici. Seul l'abonnement nécessite Telegram."));
+ }catch(e){
+  if($("previewOverlay").hidden)return;
+  panel=startPreview();panel.append(el("p","preview-note","Aperçu indisponible pour ce canal. Tu peux toujours utiliser son lien public."));
+ }
+}
+
 function render(list){
  const root=$("cards");root.textContent="";
  $("counter").textContent=list.length+" canal"+(list.length>1?"aux":"");
@@ -83,7 +129,7 @@ function render(list){
   const title=document.createElement("h3");title.textContent=c.title;
   const sub=document.createElement("div");sub.className="caption";sub.textContent=(c.genre||"Cinéma")+" • "+(c.description||"Canal approuvé").slice(0,62);
   const actions=document.createElement("div");actions.className="card-actions";
-  actions.append(button("Ouvrir ↗","primary",async()=>{try{await request("/api/open",{method:"POST",body:JSON.stringify({id:c.id})});}catch{}if(tg?.openTelegramLink)tg.openTelegramLink(c.link);else window.open(c.link,"_blank","noopener");}),
+  actions.append(button("👁 Aperçu","primary",()=>showChannelPreview(c.id)),
     button(favIds.has(c.id)?"★":"☆","icon",async()=>{try{const r=await request("/api/favorite",{method:"POST",body:JSON.stringify({id:c.id})});if(r.favorite)favIds.add(c.id);else favIds.delete(c.id);render(channels);}catch(e){toast(e.message);}}),
     button("↗","icon",()=>{const url="https://t.me/share/url?url="+encodeURIComponent(c.link)+"&text="+encodeURIComponent("🎬 "+c.title+" • Découvert sur Ciné Radar");if(tg?.openTelegramLink)tg.openTelegramLink(url);else window.open(url,"_blank","noopener");}),
     button("⚑","icon",async()=>{const reasons={"broken":"Lien inaccessible","category":"Mauvaise catégorie","content":"Contenu inadapté","rights":"Problème de droits"};const v=window.prompt("Quel problème ?\n1 = Lien inaccessible\n2 = Mauvaise catégorie\n3 = Contenu problématique\n4 = Droits de diffusion","1");const chosen=({"1":"broken","2":"category","3":"content","4":"rights"})[v];if(!chosen)return;try{await request("/api/report",{method:"POST",body:JSON.stringify({id:c.id,reason:chosen})});toast("Signalement enregistré. Merci !");}catch(e){toast(e.message);}}));
@@ -159,6 +205,8 @@ function changeTab(name){
  load();
 }
 for(const n of document.querySelectorAll("[data-tab]"))n.onclick=()=>changeTab(n.dataset.tab);
+$("previewOverlay").onclick=e=>{if(e.target===$("previewOverlay"))closePreview();};
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closePreview();});
 
 load();
 })();
