@@ -1,0 +1,66 @@
+name: Neon LIVE frontend staging browser test
+on:
+  push:
+    branches: [migration/supabase-to-free-stack-20261022]
+    paths: ['.github/workflows/neon-live-ui-staging.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: migration/supabase-to-free-stack-20261022
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify prepared frontend has no Supabase dependency
+        run: |
+          node --check assets/js/live.precompiled.js
+          python - <<'PY'
+          from pathlib import Path
+          page=Path('live.html').read_text()
+          script=Path('assets/js/live.precompiled.js').read_text()
+          assert 'https://nhwafcpndlufzzxexikh.supabase.co' not in script
+          assert '@supabase/supabase-js' not in page
+          assert 'br-winter-truth-b9of9tss-live.compute.c-7.eu-central-1.aws.neon.tech' in script
+          assert 'live.precompiled.js?v=20261022-neon1' in page
+          print("NEON_LIVE_FRONTEND_STATIC_OK")
+          PY
+      - name: Check Neon API public read-only routes and origin
+        run: |
+          python - <<'PY'
+          import json,urllib.request
+          base='https://br-winter-truth-b9of9tss-live.compute.c-7.eu-central-1.aws.neon.tech'
+          for path,key in [('/health','ok'),('/matches','matches'),('/today','data'),('/opportunities','opportunities'),('/predictions/history','history')]:
+            req=urllib.request.Request(base+path,headers={'Origin':'https://mrxpronos.github.io','Accept':'application/json'})
+            with urllib.request.urlopen(req,timeout=30) as res:
+              value=json.load(res)
+              assert res.status==200
+              assert key in value,(path,value)
+              assert res.headers.get('access-control-allow-origin')=='https://mrxpronos.github.io'
+              print(path,'OK',key, 'items',len(value[key]) if isinstance(value[key],list) else 'object',flush=True)
+          PY
+      - name: Install browser automation
+        run: |
+          pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Start local site
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 > /tmp/live-staging-http.log 2>&1 &
+          sleep 2
+      - name: Test responsive views and interaction
+        run: python scripts/neon_live_visual_smoke.py
+      - name: Save screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: neon-live-ui-staging
+          path: artifacts/live-responsive/
+          if-no-files-found: warn
