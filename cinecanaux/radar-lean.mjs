@@ -17,7 +17,7 @@ async function categoryRows(env,kind){
 }
 async function catalogRows(env){
  if(catalogCache&&catalogCache.expires>Date.now())return catalogCache.value;
- const pending=env.DB.prepare("SELECT c.id,c.title,c.link,c.content_type,c.genre,COALESCE(p.avatar_url,'') avatar_url FROM channels c LEFT JOIN channel_profile_cache p ON c.id=p.channel_id WHERE c.status='approved' ORDER BY c.updated_at DESC LIMIT 400").all().then(x=>x.results||[]);
+ const pending=env.DB.prepare("SELECT c.id,c.title,c.link,c.content_type,c.genre,COALESCE(NULLIF(p.post_image_url,''),NULLIF(p.avatar_url,''),'') avatar_url FROM channels c LEFT JOIN channel_profile_cache p ON c.id=p.channel_id WHERE c.status='approved' ORDER BY c.updated_at DESC LIMIT 400").all().then(x=>x.results||[]);
  catalogCache={expires:Date.now()+90000,value:pending};
  try{return await pending;}catch(e){catalogCache=null;throw e;}
 }
