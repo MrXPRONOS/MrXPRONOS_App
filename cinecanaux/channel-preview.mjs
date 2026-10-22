@@ -68,26 +68,31 @@ export async function channelPreview(env,id){
     preview_status:cached.preview_status||"unavailable",cached:true}};
   }
  }
- let found={title:null,description:null,avatar_url:null,post_image_url:null,last_post_at:null},gotPage=false;
- // Fixed Telegram host: a link in the catalog cannot induce arbitrary server-side requests.
- for(const location of ["https://t.me/"+username,"https://t.me/s/"+username]){
+ // Retrieve the landing preview and the public post preview concurrently.
+ // A slow Telegram endpoint cannot block the other endpoint.
+ const fetchPublic=async(location)=>{
   try{
-   const response=await fetch(location,{method:"GET",redirect:"error",signal:AbortSignal.timeout(4500),
+   const response=await fetch(location,{method:"GET",redirect:"error",signal:AbortSignal.timeout(3300),
     headers:{"accept":"text/html","user-agent":"Mozilla/5.0 (compatible; CineRadarChannelPreview/1.0)"}});
-   if(!response.ok||!String(response.headers.get("content-type")||"").includes("text/html"))continue;
-   const content=(await response.text()).slice(0,350000);
-   const parsed=parseTelegramPublicProfile(content,username);
-   gotPage=true;
-   found={
-    title:found.title||parsed.title,
-    description:found.description||parsed.description,
-    avatar_url:found.avatar_url||parsed.avatar_url,
-    post_image_url:found.post_image_url||parsed.post_image_url,
-    last_post_at:parsed.last_post_at||found.last_post_at
-   };
-   if(found.title&&found.avatar_url&&found.description&&found.post_image_url)break;
-  }catch(e){console.warn(JSON.stringify({event:"public_profile_fetch_failed",reason:String(e).slice(0,95)}));}
- }
+   if(!response.ok||!String(response.headers.get("content-type")||"").includes("text/html"))return null;
+   return parseTelegramPublicProfile((await response.text()).slice(0,350000),username);
+  }catch(e){
+   console.warn(JSON.stringify({event:"public_profile_fetch_failed",reason:String(e).slice(0,90)}));
+   return null;
+  }
+ };
+ const [home,posts]=await Promise.all([
+  fetchPublic("https://t.me/"+username),
+  fetchPublic("https://t.me/s/"+username)
+ ]);
+ const gotPage=!!(home||posts);
+ const found={
+  title:home?.title||posts?.title||null,
+  description:home?.description||posts?.description||null,
+  avatar_url:home?.avatar_url||posts?.avatar_url||null,
+  post_image_url:posts?.post_image_url||home?.post_image_url||null,
+  last_post_at:posts?.last_post_at||home?.last_post_at||null
+ };
  const final={...fallback,title:found.title||c.title,description:found.description||c.description,
   avatar_url:found.avatar_url,post_image_url:found.post_image_url,last_post_at:found.last_post_at||c.last_post_at,
   preview_status:gotPage&&(found.title||found.description||found.avatar_url)?"available":"unavailable"};
