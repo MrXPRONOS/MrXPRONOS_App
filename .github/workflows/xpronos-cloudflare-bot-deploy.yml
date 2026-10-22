@@ -231,3 +231,29 @@ jobs:
               raise SystemExit('SECURITE : /api/me sans signature doit répondre 401, obtenu '+str(protected))
           print('Free Pronos : Worker HTTP 200, Mini App HTTP 200 et API privée HTTP 401 sans signature.')
           PY
+
+      - name: Installer la photo officielle Free Pronos
+        if: contains(github.event.head_commit.message, '[set-free-pronos-avatar]') || (github.event_name == 'workflow_dispatch' && vars.FREE_PRONOS_AVATAR_UPDATE == 'true')
+        run: |
+          python3 -m pip install --disable-pip-version-check --quiet 'CairoSVG>=2.7,<3' 'Pillow>=10,<13'
+          python3 scripts/set_profile.py
+
+      - name: Tester réellement l'envoi des notifications Telegram
+        if: contains(github.event.head_commit.message, '[verify-free-pronos-alerts]') || (github.event_name == 'workflow_dispatch' && vars.FREE_PRONOS_ALERT_TEST == 'true')
+        run: |
+          python3 - <<'PY'
+          import json,os,urllib.request
+          bot=os.environ['XPRONOS_CF_BOT_TOKEN']
+          admin=os.environ['CF_BOT_ADMIN_IDS'].split(',')[0].strip()
+          payload=json.dumps({
+            'chat_id':int(admin),'parse_mode':'HTML',
+            'text':'🔔 <b>FREE PRONOS — TEST LIVRAISON</b>\n\n✅ Le service de notifications Telegram répond correctement.\n<i>Ceci est un test technique de l’administrateur, sans modification des XP ni des coupons.</i>'
+          },ensure_ascii=False).encode('utf-8')
+          request=urllib.request.Request('https://api.telegram.org/bot'+bot+'/sendMessage',
+            data=payload,headers={'Content-Type':'application/json'},method='POST')
+          with urllib.request.urlopen(request,timeout=20) as response:
+            result=json.load(response)
+          if not result.get('ok') or not result.get('result',{}).get('message_id'):
+            raise SystemExit('Le message de test Telegram n’a pas été accepté.')
+          print('Free Pronos : message test de notification accepté par Telegram, message ID '+str(result['result']['message_id']))
+          PY
