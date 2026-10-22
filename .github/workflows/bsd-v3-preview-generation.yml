@@ -1,0 +1,57 @@
+name: BSD V3 - Apercu de test (sans publication)
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: bsd-v3-preview-only
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.ref_name == 'feature/bsd-v3-40-markets-shadow-20261022'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/bsd-v3-40-markets-shadow-20261022
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: pip install requests cryptography pillow
+      - name: Validate experimental modules
+        run: |
+          python -m unittest discover -s bsd -p 'test_bsd_v3_40_markets.py' -v
+          node --check assets/js/pronos-v3-test.js
+      - name: Restore private BSD archive
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: python bsd/bsd_archive.py restore
+      - name: Build V3 test feed from BSD (no messages, no production data)
+        env:
+          BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+        run: python bsd/bsd_v3_40_live_preview.py --days 2 --max-requests 120
+      - name: Verify isolated V3 feed
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open('bsd/v3_preview_feed.json'))
+          assert d['format']=='bsd-v3-40-shadow-v1' and not d['published'] and d['experimental']
+          assert all(m['experimental'] and not m['published'] and len(m['markets'])==40 for m in d['matches'])
+          print('V3 previews',len(d['matches']))
+          PY
+      - name: Store test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: bsd-v3-preview-${{ github.run_id }}
+          path: bsd/v3_preview_feed.json
+          retention-days: 30
+      - name: Update only V3 preview JSON on test branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add bsd/v3_preview_feed.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "data(v3): refresh isolated test page feed"
+          git push origin HEAD:feature/bsd-v3-40-markets-shadow-20261022
