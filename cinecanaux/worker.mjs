@@ -126,20 +126,15 @@ async function syncGitHubDiscovery(env) {
 
 // Public-directory indexing; validates technical metadata, does not mirror media.
 export async function indexQualifiedChannels(env){
- const eligible=(await env.DB.prepare(
-  "SELECT username,title,link,content_type,genre,matching_pairs FROM discovery_candidates WHERE technical_status='qualified' AND matching_pairs>=2 AND rights_status NOT IN ('link_dead','rejected') ORDER BY last_seen DESC LIMIT 350"
- ).all()).results||[];
- const check=/^https:\/\/t\.me\/[A-Za-z][A-Za-z0-9_]{4,31}\/?$/;
- const rows=eligible.filter(x=>check.test(x.link));
- if(!rows.length)return {indexed:0};
- const stmts=rows.map(x=>env.DB.prepare(
-  "INSERT INTO channels(title,link,description,content_type,genre,status,rights_confirmed,language,verified_at) VALUES(?,?,?, ?,?,'approved',0,'VF',CURRENT_TIMESTAMP) ON CONFLICT(link) DO UPDATE SET title=excluded.title,description=excluded.description,content_type=excluded.content_type,genre=excluded.genre,status=CASE WHEN channels.status='blocked' THEN channels.status ELSE 'approved' END,updated_at=CURRENT_TIMESTAMP"
- ).bind(x.title,x.link,"Canal Telegram public • "+x.matching_pairs+" correspondance(s) photo/vidéo ou fichier MKV observée(s)",x.content_type,x.genre));
- await env.DB.batch(stmts);
- console.log(JSON.stringify({event:"public_channels_indexed",count:rows.length}));
- return {indexed:rows.length};
+ const sql="INSERT INTO channels(title,link,description,content_type,genre,status,rights_confirmed,language,verified_at) "+
+ "SELECT d.title,d.link,'Canal Telegram public',d.content_type,d.genre,'approved',0,'VF',CURRENT_TIMESTAMP "+
+ "FROM discovery_candidates d WHERE d.technical_status='qualified' AND d.matching_pairs>=2 AND d.rights_status NOT IN ('link_dead','rejected') "+
+ "AND d.link GLOB 'https://t.me/*' "+
+ "ON CONFLICT(link) DO UPDATE SET title=excluded.title,content_type=excluded.content_type,genre=excluded.genre "+
+ "WHERE channels.title<>excluded.title OR channels.content_type<>excluded.content_type OR channels.genre<>excluded.genre";
+ const result=await env.DB.prepare(sql).run();
+ return {indexed:Number(result.meta?.changes||0)};
 }
-
 
 export default {
  async fetch(request,env,ctx){
