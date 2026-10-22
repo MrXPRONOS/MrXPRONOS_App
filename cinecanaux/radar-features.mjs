@@ -1,4 +1,5 @@
 import {searchRank,qualityScore,recommendations,extractTelegramActivity,notificationEligible} from "./radar-intelligence.mjs";
+import {channelPreview} from "./channel-preview.mjs";
 // Cine Radar V2 — Cloudflare Workers / Telegram API / D1. No Supabase dependency.
 const BASE="https://cinecanaux-bot.cinecanaux-xpronos.workers.dev";
 const BOT_LINK_RE=/^https:\/\/t\.me\/[a-zA-Z][a-zA-Z0-9_]{4,31}\/?$/;
@@ -567,6 +568,12 @@ export async function miniAppAPI(env,request){
  try{
   if((await membership(env,user.id)).length)return json({error:"Rejoins d'abord nos canaux via le bot Ciné Radar."},403);
   const url=new URL(request.url),path=url.pathname;
+  if(path==="/api/channel-preview"&&request.method==="GET"){
+   const requested=String(url.searchParams.get("id")||"");
+   if(!/^[1-9][0-9]{0,10}$/.test(requested))return json({error:"Canal invalide"},400);
+   const preview=await channelPreview(env,Number(requested));
+   return preview.status===200?json({channel:preview.data}):json({error:preview.error},preview.status);
+  }
   if(path==="/api/catalog"&&request.method==="GET"){
    const type=url.searchParams.get("type"),kind=CATEGORY.some(x=>x[0]===type)?type:null;
    const genre=String(url.searchParams.get("genre")||"general").slice(0,40);
