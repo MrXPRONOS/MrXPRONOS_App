@@ -211,6 +211,16 @@ def run_view(browser, width, height, name):
 
     check_tabs(page, mobile=width <= 640)
     assert_secondary_mobile_tabs(page, width, name)
+
+    # Broadcast notification renders and read status stays in this browser.
+    notice_tabs = page.locator(".mx-mobile-tabs" if width <= 640 else ".mx-live-tabs")
+    notice_tabs.get_by_role("button", name="Notifs" if width <= 640 else "Notifications", exact=False).click()
+    page.locator(".mx-notification-card").first.wait_for(state="visible", timeout=8000)
+    page.locator(".mx-notifications-premium__clear").click()
+    read_state = page.evaluate("localStorage.getItem('mx_live_read_notifs')")
+    if "notif-1" not in (read_state or ""):
+        raise AssertionError(f"{name}: notification read status missing from localStorage")
+    notice_tabs.get_by_role("button", name="Live", exact=False).click()
     tabs = page.locator(".mx-mobile-tabs" if width <= 640 else ".mx-live-tabs")
     tabs.get_by_role("button", name="Historique", exact=False).click()
     page.locator(".mx-history-premium__score").first.wait_for(state="visible")
