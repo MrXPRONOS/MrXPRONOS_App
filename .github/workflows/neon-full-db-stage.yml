@@ -42,7 +42,7 @@ jobs:
           case "$TARGET_URL" in postgresql://*|postgres://*) ;; *) exit 1;; esac
           test "$SOURCE_URL" != "$TARGET_URL"
           docker run --rm --network host -e PG_URL="$TARGET_URL" postgres:17             sh -c 'test "$(psql "$PG_URL" -qAtX -c "select current_database()")" = "mrxpronos_full_stage"'
-          docker run --rm --network host -e PG_URL="$TARGET_URL" postgres:17             sh -c 'test "$(psql "$PG_URL" -qAtX -c "select count(*) from pg_tables where schemaname=\x27public\x27")" = "0"'
+          docker run --rm --network host -e PG_URL="$TARGET_URL" postgres:17             sh -c 'test "$(psql "$PG_URL" -qAtX -c "select count(*) from pg_tables where schemaname = current_schema()")" = "0"'
           echo "Destination is isolated and empty."
 
       - name: Dump and restore into disposable staging
