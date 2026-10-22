@@ -45,15 +45,20 @@ export const navKeyboard=(current='home')=>({inline_keyboard:[
 ]});
 export async function summary(env,uid){
   const today=periodKey('daily')+'T00:00:00.000Z';
-  const [u,earned,todayEarned,tasks,coupons,referrals]=await Promise.all([
-    one(env,SQL.user,uid),one(env,SQL.lifetime,uid),one(env,SQL.earnedToday,uid,today),
-    one(env,SQL.taskCount,uid),one(env,SQL.couponCount,uid),one(env,SQL.referralCount,uid)
-  ]);
+  // Une seule requête indexée, au lieu de six allers-retours D1 par tableau de bord.
+  const u=await one(env,
+    "SELECT u.*, "+
+    "(SELECT coalesce(sum(delta),0) FROM ledger WHERE user_id=u.id AND delta>0) AS earned_total, "+
+    "(SELECT coalesce(sum(delta),0) FROM ledger WHERE user_id=u.id AND delta>0 AND created_at>=?) AS today_total, "+
+    "(SELECT count(*) FROM task_claims WHERE user_id=u.id) AS tasks_total, "+
+    "(SELECT count(*) FROM redemptions WHERE user_id=u.id) AS coupons_total, "+
+    "(SELECT count(*) FROM users WHERE referred_by=u.id AND referral_rewarded=1) AS referrals_total "+
+    "FROM users u WHERE u.id=?",today,uid);
   if(!u)return null;
   return {id:uid,name:u.name,adult:!!u.adult_confirmed,verified:!!u.required_verified,
-    xp:u.xp,earned:Number(earned.total),earnedToday:Number(todayEarned.total),
-    tasks:Number(tasks.total),coupons:Number(coupons.total),referrals:Number(referrals.total),
-    level:levelFor(Number(earned.total))};
+    xp:u.xp,earned:Number(u.earned_total||0),earnedToday:Number(u.today_total||0),
+    tasks:Number(u.tasks_total||0),coupons:Number(u.coupons_total||0),referrals:Number(u.referrals_total||0),
+    level:levelFor(Number(u.earned_total||0))};
 }
 export function dashboardText(u){
   const level=u.level;
