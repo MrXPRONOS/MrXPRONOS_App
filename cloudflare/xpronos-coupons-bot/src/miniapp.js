@@ -1,5 +1,6 @@
 // Free Pronos Telegram Mini App: trusted, signed initData only.
 import {summary,periodKey,claimEngagement} from './features.js';
+import {createTicket,informAdmins,ticketsForUser} from './support.js';
 const enc=new TextEncoder();
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{
   'content-type':'application/json; charset=utf-8','cache-control':'no-store',
@@ -38,6 +39,25 @@ export async function miniApi(request,env){
   if(url.pathname==='/api/me'&&request.method==='GET'){
     const p=await env.DB.prepare('SELECT notify_coupons,notify_results FROM user_preferences WHERE user_id=?').bind(id).first();
     return json({me,alerts:{coupons:!!p?.notify_coupons,results:!!p?.notify_results}});
+  }
+  if(url.pathname==='/api/mytickets'&&request.method==='GET'){
+    return json({tickets:await ticketsForUser(env,id)});
+  }
+  if(url.pathname==='/api/support'&&request.method==='POST'){
+    if(Number(request.headers.get('content-length')||0)>1200)return json({error:'message_too_large'},413);
+    let payload;
+    try{payload=await request.json()}catch{return json({error:'invalid_json'},400)}
+    const ticket=await createTicket(env,id,payload?.message);
+    if(ticket.status!=='ok')return json({error:ticket.status},ticket.status==='invalid'?400:429);
+    const tg=async(_env,method,data)=>{
+      const r=await fetch('https://api.telegram.org/bot'+env.CF_BOT_TOKEN+'/'+method,{
+        method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(data),
+        signal:AbortSignal.timeout(8500)
+      });
+      if(!r.ok)throw Error('Telegram: HTTP '+r.status);
+    };
+    await informAdmins(env,{id:ticket.id,uid:id,message:ticket.message},tg);
+    return json({status:'ok',ticket_id:ticket.id});
   }
   if(!me.verified)return json({error:'channel_verification_required'},403);
   if(url.pathname==='/api/coupons'&&request.method==='GET'){
