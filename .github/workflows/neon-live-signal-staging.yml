@@ -27,7 +27,7 @@ jobs:
           node --input-type=module <<'NODE'
           import assert from 'node:assert/strict';
           import {evaluateNeonLiveMatch,NEON_SIGNAL_MODEL_VERSION} from './migration/free-stack/live/neon_prediction_model.mjs';
-          const stats={home:{corner_kicks:5,total_shots:4,shots_on_target:2,fouls:6,ball_possession:50},away:{corner_kicks:4,total_shots:3,shots_on_target:2,fouls:7,ball_possession:50}};
+          const stats={home:{corner_kicks:5,total_shots:4,shots_on_target:2,fouls:7,ball_possession:52},away:{corner_kicks:4,total_shots:3,shots_on_target:1,fouls:6,ball_possession:48}};
           const base={is_live:true,is_finished:false,current_minute:60,freshness_seconds:3,live_stats:stats};
           const res=evaluateNeonLiveMatch(base);
           assert.ok(res.signals.length>0,'A verified-pair example should pass the model');
