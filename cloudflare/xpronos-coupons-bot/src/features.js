@@ -243,7 +243,7 @@ export function faqText(){
     '<b>🎟️ Où sont mes coupons ?</b>\n<i>Dans le bouton 🎫 Mes coupons.</i>\n\n'+
     '<b>👥 Quand mon parrain gagne-t-il 30 XP ?</b>\n<i>Lorsque le filleul majeur valide les canaux obligatoires.</i>\n\n'+
     '<b>🔕 Puis-je couper les notifications ?</b>\n<i>Oui, dans Mes alertes (/alerts).</i>\n\n'+
-    '<b>💬 Besoin d’aide ?</b>\n<i>Réponds via le support indiqué dans le canal officiel Free Pronos.</i>\n\n'+
+    '<b>💬 Besoin d’aide ?</b>\n<i>Contacte notre équipe directement : /support ton message, puis suis tes demandes avec /mytickets.</i>\n\n'+
     '<blockquote>🔞 18+ · Aucun résultat garanti. Joue responsablement.</blockquote>';
 }
 export async function adminAnalytics(env,chat,send){
