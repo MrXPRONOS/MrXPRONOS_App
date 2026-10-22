@@ -424,8 +424,13 @@ export default {
   async scheduled(controller,env,ctx){
     ctx.waitUntil((async()=>{
       try{
-        const settlement=await settleFromESPN(env,fetch,5);
-        console.log('Free Pronos score-check',settlement.checked,settlement.finished,settlement.needsReview);
+        try {
+          const settlement=await settleFromESPN(env,fetch,5);
+          console.log('Free Pronos score-check',settlement.checked,settlement.finished,settlement.needsReview);
+        } catch (providerError) {
+          // Une indisponibilité d'ESPN ne doit jamais suspendre les notifications Telegram.
+          console.warn('Free Pronos provider unavailable; keeping manual results and alerts',String(providerError).slice(0,160));
+        }
         const [coupons,results]=await Promise.all([
           notificationBatch(env,telegram,10),
           resultNotificationBatch(env,telegram,6)
