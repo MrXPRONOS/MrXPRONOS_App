@@ -1,14 +1,14 @@
 {
   "scope": "read_only_identity_evidence",
-  "external_total": 1232,
+  "external_total": 1233,
   "external_cc0_verified": 24,
   "external_independent_provider_verified": 3,
   "external_verified_total": 27,
-  "native_total": 347,
-  "native_unique_eligible": 343,
-  "native_invalid_records": 4,
+  "native_total": 348,
+  "native_unique_eligible": 336,
+  "native_invalid_records": 12,
   "native_invalid_breakdown": {
-    "native_not_prematch": 4
+    "native_not_prematch": 12
   },
   "one_to_one_native_event_links": 22,
   "unmatched_or_ambiguous_external": 5,
@@ -26,7 +26,7 @@
   "rejected_reasons": {
     "duplicated_native_id": 0,
     "external_ambiguous_native_matches": 0,
-    "external_not_independently_cc0_verified": 1205,
+    "external_not_independently_cc0_verified": 1206,
     "native_ambiguous_external_matches": 0
   },
   "read_only_native_consensus_price_audit": {
