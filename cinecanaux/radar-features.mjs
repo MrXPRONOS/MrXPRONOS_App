@@ -83,7 +83,7 @@ async function startMessage(env,id,uid,cb){
  ];
  await show(env,id,cb,msg,kb(rows));
  if(!p.onboarded&&!cb){
-  const picture=await telegram(env,"sendPhoto",{chat_id:id,photo:BASE+"/assets/welcome.jpg",
+  const picture=await telegram(env,"sendPhoto",{chat_id:id,photo:BASE+"/assets/welcome.png",
    caption:"🎬 <b>CINÉ RADAR</b> — Ton cinéma, tes découvertes. 🍿",parse_mode:"HTML"});
   if(!picture.ok)console.warn(JSON.stringify({event:"welcome_photo_fallback",code:picture.error_code}));
   await setPrefs(env,uid,{onboarded:1});
