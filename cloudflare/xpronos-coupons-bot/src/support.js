@@ -16,7 +16,7 @@ export async function createTicket(env,uid,content){
  const message=String(content||'').trim().slice(0,800);
  if(message.length<12)return {status:'invalid'};
  const u=await one(env,'SELECT adult_confirmed,required_verified FROM users WHERE id=?',uid);
- if(!u?.adult_confirmed||!u?.required_verified)return {status:'locked'};
+ if(!u?.adult_confirmed)return {status:'locked'};
  const cutoff=new Date(Date.now()-600000).toISOString();
  const q=await one(env,
    "SELECT count(*) AS open,(SELECT count(*) FROM support_tickets WHERE user_id=? AND created_at>?) AS recent FROM support_tickets WHERE user_id=? AND status='open'",
