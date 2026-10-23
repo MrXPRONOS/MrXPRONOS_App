@@ -5,7 +5,7 @@ import { createCmsDraftCopy } from "./cms-duplicate.mjs";
 import { mountCmsListFilters } from "./cms-list-filters.mjs";
 import { mountCmsMediaFieldPicker, mountCmsMediaPicker } from "./cms-media-library.mjs";
 import {neonAuthUrl,neonDataApiUrl} from "./config.js";
-import {createClient, NeonAuthAdapter} from "https://esm.sh/@neondatabase/neon-js";
+import {createClient, SupabaseAuthAdapter} from "https://esm.sh/@neondatabase/neon-js";
 import "./loading-ui.js";
 
 
@@ -17,7 +17,7 @@ if (!document.querySelector('link[href*="loading-ui.css"]')) {
   document.head.appendChild(mxLoadingSheet);
 }
 
-const sb = createClient({auth:{adapter:NeonAuthAdapter(),url:neonAuthUrl},dataApi:{url:neonDataApiUrl}});
+const sb = createClient({auth:{adapter:SupabaseAuthAdapter(),url:neonAuthUrl},dataApi:{url:neonDataApiUrl}});
 const adminApiUrl = String(window.MX_ADMIN_API_URL||"").replace(/\/$/,"");
 const $ = (id) => document.getElementById(id);
 
