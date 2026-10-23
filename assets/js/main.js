@@ -12,9 +12,9 @@ if (location.hostname !== "localhost" && !location.hostname.includes("127.0.0.1"
   console.warn = () => {};
 }
 
-let supabase = null;
-let supabaseAvailable = false;
-let supabaseConfig = { url: "", anonKey: "" };
+let neon = null;
+let neonAvailable = false;
+let neonConfig = { url: "", anonKey: "" };
 
 let allData = null;
 let currentCategory = "all";
@@ -473,7 +473,7 @@ function cleanupChannels() {
   activeChannels.forEach((channel) => {
     try {
       channel.unsubscribe?.();
-      if (supabaseAvailable && supabase?.removeChannel) supabase.removeChannel(channel);
+      if (neonAvailable && neon?.removeChannel) neon.removeChannel(channel);
     } catch (e) {}
   });
   activeChannels.clear();
@@ -498,27 +498,23 @@ function detectPage() {
 }
 
 /* =======================================================
- SUPABASE
+ NEON
 ======================================================= */
-async function initSupabase() {
-  const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout Supabase")), 5000));
+async function initNeon() {
+  const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout Neon")), 6000));
   try {
     const initPromise = (async () => {
-      const { supabaseUrl, supabaseAnonKey } = await import("./config.js");
-      if (!supabaseUrl || !supabaseUrl.startsWith("https://")) throw new Error("URL Supabase invalide");
-      if (!supabaseAnonKey) throw new Error("Clé Supabase manquante");
-
-      supabaseConfig.url = supabaseUrl;
-      supabaseConfig.anonKey = supabaseAnonKey;
-
-      const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
-      supabase = createClient(supabaseUrl, supabaseAnonKey);
-      supabaseAvailable = true;
+      const {neonDataApiUrl} = await import("./config.js");
+      if (!neonDataApiUrl?.startsWith("https://")) throw new Error("Neon Data API indisponible");
+      neonConfig.url = neonDataApiUrl;
+      const {createClient} = await import("https://esm.sh/@neondatabase/neon-js");
+      neon = createClient({dataApi:{url:neonDataApiUrl}});
+      neonAvailable = true;
     })();
-
     await Promise.race([initPromise, timeout]);
   } catch (error) {
-    supabaseAvailable = false;
+    neonAvailable = false;
+    console.warn("Neon disponible via JSON de secours seulement",error?.message);
   }
 }
 
@@ -536,7 +532,7 @@ function urlBase64ToUint8Array(base64String) {
 
 async function subscribeToPush(askPermission = false) {
   if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) return;
-  if (!supabaseConfig.url) return;
+  if (!window.MX_PUSH_API_URL) return; // Cloudflare Push backend is not configured.
 
   try {
     let permission = Notification.permission;
@@ -558,7 +554,7 @@ async function subscribeToPush(askPermission = false) {
     let subscription = await swReady.pushManager.getSubscription();
     if (!subscription) {
       try {
-        const keyResp = await fetch(`${supabaseConfig.url}/functions/v1/vapid-public-key`, {
+        const keyResp = await fetch(`${window.MX_PUSH_API_URL}/vapid-public-key`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         }).catch(() => null);
@@ -582,7 +578,7 @@ async function subscribeToPush(askPermission = false) {
     }
 
     const userId = getUserId();
-    await fetch(`${supabaseConfig.url}/functions/v1/push-subscribe`, {
+    await fetch(`${window.MX_PUSH_API_URL}/push-subscribe`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user_id: userId, subscription }),
@@ -711,22 +707,22 @@ function isLocalTestEnvironment() {
 
 async function incrementCounter(counterName) {
   if (isLocalTestEnvironment()) return;
-  if (!supabaseAvailable || !supabase) {
+  if (!neonAvailable || !neon) {
     const local = parseInt(localStorage.getItem(counterName) || "0", 10);
     localStorage.setItem(counterName, String(local + 1));
     return;
   }
   try {
-    await supabase.rpc("increment_counter", { counter_name: counterName });
+    await neon.rpc("increment_counter", { counter_name: counterName });
   } catch (e) {
     console.error("Erreur incrémentation:", e);
   }
 }
 
 async function updateDisplayedCounters() {
-  if (!supabaseAvailable || !supabase) return;
+  if (!neonAvailable || !neon) return;
   try {
-    const { data, error } = await supabase
+    const { data, error } = await neon
       .from("counters")
       .select("total_visits, total_shares, unique_users")
       .eq("id", 1)
@@ -741,25 +737,17 @@ async function updateDisplayedCounters() {
 }
 
 function subscribeToCounters() {
-  if (!supabaseAvailable || !supabase) return;
-
-  const channel = supabase
-    .channel("counters-live")
-    .on("postgres_changes", { event: "UPDATE", schema: "public", table: "counters", filter: "id=eq.1" }, (payload) => {
-      if (DOM.usersCount) DOM.usersCount.textContent = (payload.new?.unique_users || 0).toLocaleString() + "+";
-      if (DOM.sharesCount) DOM.sharesCount.textContent = (payload.new?.total_shares || 0).toLocaleString() + "+";
-    })
-    .subscribe((status) => {
-      if (status === "SUBSCRIBED") activeChannels.add(channel);
-    });
+  if (!neonAvailable || !neon) return;
+  void updateDisplayedCounters();
+  setInterval(() => { if (!document.hidden) void updateDisplayedCounters(); }, 90000);
 }
 
 async function recordEvent(type, page = "") {
   if (isLocalTestEnvironment()) return;
-  if (!supabaseAvailable || !supabase) return;
+  if (!neonAvailable || !neon) return;
   const userId = getUserId();
   try {
-    const { error } = await supabase.rpc("insert_analytics", {
+    const { error } = await neon.rpc("insert_analytics", {
       p_event_type: type, p_user_id: userId, p_page: page
     });
     if (error) throw error;
@@ -784,10 +772,10 @@ function editorialAttributionPayload(page) {
 
 async function recordEditorialAttribution(page) {
   const payload = editorialAttributionPayload(page);
-  if (!payload || isLocalTestEnvironment() || !supabaseAvailable || !supabase) return;
+  if (!payload || isLocalTestEnvironment() || !neonAvailable || !neon) return;
   async function sendEditorialMetric(eventType) {
     try {
-      const { error } = await supabase.rpc("insert_analytics", {
+      const { error } = await neon.rpc("insert_analytics", {
         p_event_type: eventType, p_user_id: null, p_page: payload
       });
       if (error) throw error;
@@ -818,14 +806,14 @@ function countVisitOncePerDay() {
 
 async function registerUniqueUser() {
   if (isLocalTestEnvironment()) return;
-  if (!supabaseAvailable || !supabase) return;
+  if (!neonAvailable || !neon) return;
   const userId = getUserId();
   const registered = localStorage.getItem("mx_registered");
   if (registered) return;
 
   try {
-    const { error } = await supabase.from("users").insert({ user_id: userId });
-    if (!error) await supabase.rpc("increment_counter", { counter_name: "unique_users" });
+    const { error } = await neon.rpc("register_public_user", {p_user_id: userId});
+    if (error) throw error;
     localStorage.setItem("mx_registered", "true");
   } catch (e) {
     console.error("Erreur enregistrement user:", e);
@@ -833,33 +821,16 @@ async function registerUniqueUser() {
 }
 
 async function initOnlineUsers() {
-  if (!supabaseAvailable || !supabase || !DOM.onlineCount) return;
-
-  if (onlineChannel) {
+  if (!DOM.onlineCount || !neonAvailable || !neon) return;
+  const refresh = async () => {
+    if (document.hidden) return;
     try {
-      onlineChannel.unsubscribe();
-      supabase.removeChannel?.(onlineChannel);
-    } catch {}
-  }
-
-  onlineChannel = supabase.channel("online-users", {
-    config: { presence: { key: getUserId() } },
-  });
-
-  onlineChannel
-    .on("presence", { event: "sync" }, () => {
-      const state = onlineChannel.presenceState();
-      const onlineUsers = Object.keys(state).length;
-      if (DOM.onlineCount) DOM.onlineCount.textContent = onlineUsers;
-    })
-    .subscribe(async (status) => {
-      if (status === "SUBSCRIBED") {
-        try {
-          await onlineChannel.track({ online_at: new Date().toISOString() });
-          activeChannels.add(onlineChannel);
-        } catch (e) {}
-      }
-    });
+      const {data,error}=await neon.rpc("get_recent_online_count");
+      if (!error && Number.isFinite(Number(data))) DOM.onlineCount.textContent=String(Math.max(0,Number(data)));
+    } catch (_) {}
+  };
+  await refresh();
+  setInterval(refresh,60000);
 }
 
 /* =======================================================
@@ -2006,12 +1977,12 @@ async function postEditorialAbEvent(kind, slug, variant, eventType) {
   if (!["article","conseil"].includes(kind)) return;
   if (!/^[a-z0-9_-]{2,180}$/i.test(String(slug)) || !["a","b"].includes(variant)) return;
   if (!["editorial_ab_exposure","editorial_ab_click"].includes(eventType)) return;
-  if (!supabaseAvailable || !supabase) {
+  if (!neonAvailable || !neon) {
     if (editorialAbPending.length < 120) editorialAbPending.push({kind,slug,variant,eventType});
     return;
   }
   try {
-    const { error } = await supabase.rpc("insert_analytics", {
+    const { error } = await neon.rpc("insert_analytics", {
       p_event_type: eventType, p_user_id: null,
       p_page: [kind,slug,"onsite",variant].join("|")
     });
@@ -2021,7 +1992,7 @@ async function postEditorialAbEvent(kind, slug, variant, eventType) {
   }
 }
 function flushEditorialAbPending() {
-  if (!supabaseAvailable || !supabase) return;
+  if (!neonAvailable || !neon) return;
   const waiting=editorialAbPending.splice(0,editorialAbPending.length);
   waiting.forEach(row => { void postEditorialAbEvent(row.kind,row.slug,row.variant,row.eventType); });
 }
@@ -2710,11 +2681,11 @@ async function displayFootNews() {
   try {
     let rssNews = [];
 
-    // Source principale : snapshot public Supabase alimenté par Actu Foot.
-    // Le JSON Git reste uniquement un filet de secours si Supabase est indisponible.
-    if (supabaseAvailable && supabase) {
+    // Source principale : snapshot public Neon alimenté par Actu Foot.
+    // Le JSON Git reste uniquement un filet de secours si Neon est indisponible.
+    if (neonAvailable && neon) {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await neon
           .from("actu_foot_news_snapshot")
           .select("payload,generated_at")
           .eq("id", "latest")
@@ -2723,7 +2694,7 @@ async function displayFootNews() {
           rssNews = data.payload;
         }
       } catch (snapshotError) {
-        console.warn("Snapshot Infos Foot Supabase indisponible:", snapshotError);
+        console.warn("Snapshot Infos Foot Neon indisponible:", snapshotError);
       }
     }
 
@@ -3525,7 +3496,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   try {
-    // Priorité absolue : afficher les pronostics avant toute dépendance Supabase.
+    // Priorité absolue : afficher les pronostics avant toute dépendance Neon.
     if (page === "pronos") {
       setupPronosticPageListeners();
       await loadData();
@@ -3536,7 +3507,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadPublishedExtras();
     void (async () => {
       try {
-        await initSupabase();
+        await initNeon();
         flushEditorialAbPending();
         await recordEditorialAttribution(page);
         await updateDisplayedCounters();
