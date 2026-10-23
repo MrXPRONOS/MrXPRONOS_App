@@ -1,7 +1,7 @@
 // Supabase PostgREST compatibility adapter for the original LIVE business logic.
 // All queries use identifier allowlists and bound parameters, not string interpolation.
 import postgres from "postgres";
-const db=postgres(process.env.DATABASE_URL!,{max:3,prepare:false,connect_timeout:8,idle_timeout:20,transform:{undefined:null}});
+const db=postgres((process.env.MRX_LIVE_DATABASE_URL || process.env.DATABASE_URL)!,{max:3,prepare:false,connect_timeout:8,idle_timeout:20,transform:{undefined:null}});
 const tables=new Set(["cron_runs","live_stats_sources","live_stats_merged","notifications","matches_live","live_predictions","espn_feed_cache","espn_match_map","actu_foot_live_events","live_scheduled_fixtures","pronostics","daily_predictions","live_refresh_control"]);
 const safe=(name:string)=>{if(!/^[a-z_][a-z0-9_]*$/i.test(name))throw Error("INVALID_COLUMN");return name;};
 const table=(name:string)=>{if(!tables.has(name))throw Error("INVALID_TABLE");return name;};
