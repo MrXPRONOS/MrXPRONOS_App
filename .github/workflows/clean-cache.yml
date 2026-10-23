@@ -5,6 +5,7 @@ on:
 
 jobs:
   clean-cache:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - name: Appeler la fonction de nettoyage
