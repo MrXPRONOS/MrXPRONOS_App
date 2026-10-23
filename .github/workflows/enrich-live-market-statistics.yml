@@ -3,7 +3,7 @@ name: Mr XPRONOS - verified LIVE market statistics
 on:
   # Hourly at most: <= 72 API-Football requests / UTC day
   # (24 fixture-list requests + up to 48 coverage/statistics requests).
-  # League/season coverage and empty statistics are now cached in Supabase.
+  # League/season coverage and empty statistics are cached in Neon.
   # Rejected provider calls are retried only after an explicit cooldown.
   # Operational smoke test: cached unavailable leagues should spend no detail calls.
   schedule:
@@ -29,8 +29,8 @@ jobs:
     timeout-minutes: 8
     env:
       API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEON_LIVE_GATEWAY_URL: https://br-winter-truth-b9of9tss-live.compute.c-7.eu-central-1.aws.neon.tech
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
