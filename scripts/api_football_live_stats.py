@@ -224,19 +224,64 @@ def safe_remaining(raw):
 
 
 def db_json(base, secret, method, table, params=None, body=None):
-    uri=base.rstrip("/")+"/rest/v1/"+table
-    if params:
-        uri+="?"+urlencode(params)
-    data=None if body is None else json.dumps(body,ensure_ascii=False).encode("utf-8")
-    req=Request(uri,method=method,data=data,headers={
-        "apikey":secret,"Authorization":"Bearer "+secret,
-        "Content-Type":"application/json",
-        "Prefer":"resolution=merge-duplicates,return=minimal",
-    })
-    with urlopen(req,timeout=16) as r:
-        if method == "GET":
-            return json.load(r)
-        return r.status
+    """Preserve the existing call interface with direct private Neon SQL."""
+    import psycopg
+    from psycopg.rows import dict_row
+    from psycopg.types.json import Jsonb
+    dsn = os.getenv("NEON_DATABASE_URL", "").strip()
+    if not dsn:
+        raise RuntimeError("NEON_DATABASE_URL missing")
+    params = params or {}
+    with psycopg.connect(dsn, connect_timeout=12, row_factory=dict_row) as db:
+        with db.cursor() as cursor:
+            if method == "GET" and table == "live_stats_merged":
+                cursor.execute("""SELECT canonical_match_id,home_team,away_team,league_name,
+                    event_date,minute,is_live,is_finished,merged_stats,updated_at
+                    FROM public.live_stats_merged
+                    WHERE is_live=true AND is_finished=false AND updated_at >= %s
+                    LIMIT 300""", (params["updated_at"].removeprefix("gte."),))
+            elif method == "GET" and table == PROBE_CACHE_TABLE:
+                cursor.execute("""SELECT probe_key,supports_stats,next_probe_at
+                    FROM public.live_provider_probe_cache
+                    WHERE provider='api_football' AND next_probe_at > %s
+                    LIMIT 600""", (params["next_probe_at"].removeprefix("gt."),))
+            elif method == "POST" and table == PROBE_CACHE_TABLE:
+                for row in (body or []):
+                    cursor.execute("""INSERT INTO public.live_provider_probe_cache
+                       (provider,probe_key,supports_stats,next_probe_at,last_checked_at,details)
+                       VALUES (%s,%s,%s,%s,%s,%s)
+                       ON CONFLICT (provider,probe_key) DO UPDATE SET
+                       supports_stats=EXCLUDED.supports_stats,
+                       next_probe_at=EXCLUDED.next_probe_at,
+                       last_checked_at=EXCLUDED.last_checked_at,details=EXCLUDED.details""",
+                       (row["provider"],row["probe_key"],row["supports_stats"],
+                        row["next_probe_at"],row["last_checked_at"],Jsonb(row["details"])))
+                return 200
+            elif method == "POST" and table == "live_stats_sources":
+                for row in (body or []):
+                    cursor.execute("""INSERT INTO public.live_stats_sources
+                        (source_name,source_match_id,canonical_match_id,home_team,away_team,
+                        league_name,event_date,minute,home_score,away_score,is_live,is_finished,
+                        stats_json,raw_json,updated_at)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                        ON CONFLICT (source_name,source_match_id) DO UPDATE SET
+                        canonical_match_id=EXCLUDED.canonical_match_id,
+                        home_team=EXCLUDED.home_team,away_team=EXCLUDED.away_team,
+                        league_name=EXCLUDED.league_name,event_date=EXCLUDED.event_date,
+                        minute=EXCLUDED.minute,home_score=EXCLUDED.home_score,
+                        away_score=EXCLUDED.away_score,is_live=EXCLUDED.is_live,
+                        is_finished=EXCLUDED.is_finished,stats_json=EXCLUDED.stats_json,
+                        raw_json=EXCLUDED.raw_json,updated_at=EXCLUDED.updated_at""",
+                        (row["source_name"],row["source_match_id"],row["canonical_match_id"],
+                         row["home_team"],row["away_team"],row["league_name"],row["event_date"],
+                         row["minute"],row["home_score"],row["away_score"],row["is_live"],
+                         row["is_finished"],Jsonb(row["stats_json"]),Jsonb(row["raw_json"]),row["updated_at"]))
+                return 200
+            else:
+                raise RuntimeError("Neon SQL operation not permitted: "+method+" "+table)
+            rows=cursor.fetchall()
+            return json.loads(json.dumps(rows,default=lambda item: item.isoformat()
+                if hasattr(item, "isoformat") else str(item)))
 
 
 def build_row(match, fixture, stats):
@@ -272,17 +317,17 @@ def build_row(match, fixture, stats):
 
 def main():
     key=os.getenv("API_FOOTBALL_KEY","").strip()
-    supabase_url=os.getenv("SUPABASE_URL","").strip()
-    supabase_secret=os.getenv("SUPABASE_SERVICE_ROLE_KEY","").strip()
+    neon_url=os.getenv("NEON_DATABASE_URL","").strip()
+    neon_secret=""
     if not key:
         print("API_FOOTBALL_SKIPPED: configure API_FOOTBALL_KEY in GitHub Actions secrets")
         return 0
-    if not supabase_url.startswith("https://") or not supabase_secret:
-        print("::error::Supabase URL / server-side key missing")
+    if not neon_url:
+        print("::error::NEON_DATABASE_URL missing")
         return 1
 
     # Never consume a provider request when there are no fresh live fixtures.
-    rows=db_json(supabase_url,supabase_secret,"GET","live_stats_merged",{
+    rows=db_json(neon_url,neon_secret,"GET","live_stats_merged",{
         "select":"canonical_match_id,home_team,away_team,league_name,event_date,minute,is_live,is_finished,merged_stats,updated_at",
         "is_live":"eq.true",
         "is_finished":"eq.false",
@@ -299,7 +344,7 @@ def main():
         print("API_FOOTBALL_QUOTA_RESERVE",remaining)
         return 0
     pairs=find_matches(rows,fixtures)
-    probes=active_probe_cache(supabase_url,supabase_secret)
+    probes=active_probe_cache(neon_url,neon_secret)
     print("API_FOOTBALL_MATCHES",json.dumps({
         "local":len(rows),"remote":len(fixtures),"strict_pairs":len(pairs),
         "cached_probes":len(probes),
@@ -340,7 +385,7 @@ def main():
                 except ProviderRejectedRequest as error:
                     # Free-tier access may differ by league/season.
                     # Do not retry a rejected request in every hourly run.
-                    save_probe(supabase_url,supabase_secret,coverage_key,None,360)
+                    save_probe(neon_url,neon_secret,coverage_key,None,360)
                     print("API_FOOTBALL_LEAGUE_RESTRICTED",json.dumps({
                         "league":league_id,"season":season,
                         "error_fields":error.error_keys,
@@ -348,7 +393,7 @@ def main():
                     }))
                     continue
                 covered=league_stats_coverage(response,league_id,season)
-                save_probe(supabase_url,supabase_secret,coverage_key,covered,
+                save_probe(neon_url,neon_secret,coverage_key,covered,
                            720 if covered is not None else 120)
                 probes[coverage_key]={"supports_stats":covered}
                 print("API_FOOTBALL_LEAGUE_COVERAGE",json.dumps({
@@ -371,7 +416,7 @@ def main():
         try:
             response,remaining=fetch_stats(key,f"/fixtures/statistics?fixture={fid}")
         except ProviderRejectedRequest as error:
-            save_probe(supabase_url,supabase_secret,negative_key,None,90)
+            save_probe(neon_url,neon_secret,negative_key,None,90)
             print("API_FOOTBALL_STATS_RESTRICTED",json.dumps({
                 "fixture":fid,"error_fields":error.error_keys,
                 "retry_in_minutes":90,
@@ -393,14 +438,14 @@ def main():
         }))
         row=build_row(match,fixture,stats)
         if row is not None:
-            db_json(supabase_url,supabase_secret,"POST","live_stats_sources",
+            db_json(neon_url,neon_secret,"POST","live_stats_sources",
                     {"on_conflict":"source_name,source_match_id"},[row])
             successful+=1
         else:
             # A 90-minute negative cache avoids repeated polling of the
             # same unreported fixture while retaining another opportunity
             # to check later in the match or at next matchday.
-            save_probe(supabase_url,supabase_secret,negative_key,False,90)
+            save_probe(neon_url,neon_secret,negative_key,False,90)
         if (safe_remaining(remaining) is not None and
                 safe_remaining(remaining)<=BUDGET_RESERVE):
             break
