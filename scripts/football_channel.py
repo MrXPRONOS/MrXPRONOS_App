@@ -28,7 +28,7 @@ from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
 import requests
-from neon_rest_compat import NeonRestSession
+from scripts.neon_rest_compat import NeonRestSession
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "bsd"))
