@@ -56,6 +56,27 @@ jobs:
               assert "const prioritySlots" in acquisition
               assert "sportscore_minute_observed_at: nowIso()" in acquisition
             adapted=adapted[:begin_new]+source[begin_old:end_old]+adapted[end_new:]
-          assert adapted==source, "LIVE BUSINESS SOURCE HAS CHANGED OUTSIDE ACQUISITION FUNCTIONS — STOP DEPLOYMENT"
+          # Exactly four 5 -> 20 batch-limit adaptations are permitted. Prove
+          # that every prediction, probability and quality rule is untouched.
+          allowed_batch_changes=[
+            ('// Refresh par petits lots pour rester sous la limite CPU Supabase.\\n// Valeur choisie : 5 matchs par invocation enfant.',
+             '// Refresh LIVE Neon : 20 matchs par lot (repli automatique en cas de surcharge CPU).'),
+            ('Math.min(5, safeEnvInt("LIVE_REFRESH_BATCH_SIZE", 5))',
+             'Math.min(20, safeEnvInt("LIVE_REFRESH_BATCH_SIZE", 20))'),
+            ('Math.min(5, Math.floor(options.batchSize ?? LIVE_REFRESH_BATCH_SIZE))',
+             'Math.min(20, Math.floor(options.batchSize ?? LIVE_REFRESH_BATCH_SIZE))'),
+            ('let effectiveBatchSize = Math.max(1, Math.min(5, batchSize));',
+             'let effectiveBatchSize = Math.max(1, Math.min(20, batchSize));'),
+            ('// - si un lot de 5 reçoit encore un 546, on retente 2 puis 1;',
+             '// - si un lot de 20 reçoit un 546, on réduit progressivement la taille jusqu’à 1;'),
+            ('// Un lot interne : maximum 5 matchs.','// Un lot interne : maximum 20 matchs.'),
+            ('const batchSize = Math.max(1, Math.min(5, requestedBatchSize));',
+             'const batchSize = Math.max(1, Math.min(20, requestedBatchSize));'),
+          ]
+          for original,changed in allowed_batch_changes:
+            assert adapted.count(changed)==1,("BATCH_CHANGE_NOT_FOUND_OR_DUPLICATE",changed)
+            adapted=adapted.replace(changed,original)
+          assert adapted==source, "LIVE BUSINESS SOURCE HAS CHANGED OUTSIDE ACQUISITION AND BATCH TRANSPORT — STOP DEPLOYMENT"
+          print("LEGACY_BUSINESS_EXACT_PARITY_PASS",len(source),"characters; BATCH_SIZE_20_VERIFIED")
           print("LEGACY_BUSINESS_EXACT_PARITY_PASS",len(source),"characters")
           PY
