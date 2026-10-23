@@ -2,14 +2,42 @@ name: Validation des prédictions
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/validate_predictions.yml']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrx-live-validate-neon
+  cancel-in-progress: false
 
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 4
     steps:
-      - name: Appel Edge Function validate
+      - name: Valider les pronostics LIVE directement sur Neon
+        env:
+          LIVE_BASE_URL: https://br-winter-truth-b9of9tss-live.compute.c-7.eu-central-1.aws.neon.tech
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        shell: bash
         run: |
-          curl --fail-with-body --silent --show-error --max-time 60 -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/live/validate" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
-            -H "Content-Type: application/json"
+          set -euo pipefail
+          test -n "$CRON_SECRET"
+          python3 - <<'PY'
+          import json,os,urllib.request,urllib.error
+          base=os.environ["LIVE_BASE_URL"]
+          req=urllib.request.Request(base+"/validate",method="POST",data=b"{}",
+            headers={"Content-Type":"application/json","x-cron-secret":os.environ["CRON_SECRET"]})
+          try:
+            with urllib.request.urlopen(req,timeout=100) as response:
+              body=json.load(response)
+              assert response.status==200,(response.status,body)
+          except urllib.error.HTTPError as error:
+            print("NEON_LIVE_VALIDATE_HTTP_FAILURE",error.code,error.read().decode(errors="replace")[:1500])
+            raise
+          assert body.get("success") is True,body
+          print("NEON_LIVE_VALIDATE_SUCCESS",json.dumps({k:v for k,v in body.items() if k not in ("secret","token","credentials")},ensure_ascii=False)[:2500])
+          PY
