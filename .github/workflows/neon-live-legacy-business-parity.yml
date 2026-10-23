@@ -56,6 +56,17 @@ jobs:
               assert "const prioritySlots" in acquisition
               assert "sportscore_minute_observed_at: nowIso()" in acquisition
             adapted=adapted[:begin_new]+source[begin_old:end_old]+adapted[end_new:]
+          # Acquisition-only canonical deduplication: reconcile the same
+          # canonical selection already used by the PostgreSQL snapshot.
+          dedup_start="    // Acquisition-only deduplication: the DB snapshot already uses this"
+          dedup_end="    // LIVE coverage telemetry: actual available complete market pairs,"
+          assert adapted.count(dedup_start)==1
+          begin=adapted.index(dedup_start)
+          end=adapted.index(dedup_end,begin)
+          segment=adapted[begin:end]
+          assert "uniqueMergedStatsRows(allRawMatches.map(mergedRowFromMatch))" in segment
+          assert "LIVE_CANONICAL_MATCH_DEDUP" in segment
+          adapted=adapted[:begin]+adapted[end:]
           # Exactly four 5 -> 20 batch-limit adaptations are permitted. Prove
           # that every prediction, probability and quality rule is untouched.
           allowed_batch_changes=[
