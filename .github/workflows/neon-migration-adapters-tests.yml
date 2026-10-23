@@ -6,6 +6,12 @@ on:
     paths:
       - 'scripts/api_football_scheduled_fixtures.py'
       - 'scripts/api_football_live_stats.py'
+      - 'scripts/neon_telegram_ledger.py'
+      - 'scripts/neon_public_media.py'
+      - 'bsd/bsd_v2_telegram.py'
+      - 'bsd/bsd_v2_verify_telegram.py'
+      - 'scripts/post_shorts_video.py'
+      - 'scripts/post_accumulator_social.py'
       - 'tests/test_neon_migration_adapters.py'
       - '.github/workflows/neon-migration-adapters-tests.yml'
 permissions:
@@ -19,7 +25,24 @@ jobs:
         with:
           python-version: '3.11'
       - name: Parse migrated modules
-        run: python -m py_compile scripts/api_football_scheduled_fixtures.py scripts/api_football_live_stats.py
+        run: |
+          python -m py_compile \
+            scripts/api_football_scheduled_fixtures.py \
+            scripts/api_football_live_stats.py \
+            scripts/neon_telegram_ledger.py \
+            scripts/neon_public_media.py \
+            bsd/bsd_v2_telegram.py \
+            bsd/bsd_v2_verify_telegram.py \
+            bsd/bsd_v2_bluesky.py \
+            scripts/create_short_from_telegram_coupons.py \
+            scripts/send_short_production_telegram.py \
+            scripts/distribute_short_telegram.py \
+            scripts/settle_short_production_batches.py \
+            scripts/share_latest_video_bluesky.py \
+            scripts/read_accumulator_video_ledger.py \
+            scripts/send_accumulator_production.py \
+            scripts/post_shorts_video.py \
+            scripts/post_accumulator_social.py
       - name: Verify migration contracts
         run: python -m unittest discover -s tests -p 'test_neon_migration_adapters.py' -v
       - name: Existing API-Football normalization tests
