@@ -3,6 +3,9 @@ import {adminMfaStatus,beginAdminTotp,completeAdminTotp} from "./admin-mfa-flow.
 // Non-blocking enrollment: AAL2 server enforcement is enabled only after verified enrollment.
 export async function initAdminMfaControl(sb,container){
   if(!container||container.querySelector("[data-admin-mfa-setup]"))return;
+  // Neon Managed Better Auth has not shipped this legacy Supabase TOTP API.
+  // Do not offer enrollment that cannot be completed. Keep database admin RLS enforced.
+  if(!sb?.auth?.mfa?.getAuthenticatorAssuranceLevel)return;
   const button=document.createElement("button");
   button.type="button";button.dataset.adminMfaSetup="1";button.className="admin-btn outline";
   button.textContent="Sécurité du compte · MFA";container.appendChild(button);
