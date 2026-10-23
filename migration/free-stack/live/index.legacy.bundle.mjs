@@ -13589,28 +13589,8 @@ async function collectFreeLiveProviders() {
   return results;
 }
 
-// supabase/functions/live/_neon_serve.ts
-var handler = null;
-var SCHEDULE_TRIGGER_ID = "trigger-539f987f-b22b-4108-a1c2-05d41f9fe929";
-function serve(fn) {
-  handler = fn;
-}
-function neonGetHandler() {
-  if (!handler) throw new Error("LIVE_HANDLER_NOT_REGISTERED");
-  return async (request) => {
-    const url2 = new URL(request.url);
-    const invocation = request.headers.get("x-neon-trigger-invocation-id");
-    if (request.method === "POST" && url2.pathname.replace(/\/$/, "") === "/refresh" && invocation) {
-      const payload = await request.clone().json().catch(() => null);
-      const ok = payload?.version === 1 && payload?.invocation_id === invocation && payload?.trigger?.type === "schedule" && payload?.trigger?.id === SCHEDULE_TRIGGER_ID && payload?.trigger?.name === "mrxpronos-live-refresh-v1" && typeof payload?.data?.scheduled_at === "string" && Math.abs(Date.now() - Date.parse(payload.data.scheduled_at)) <= 18e4 && Boolean(process.env.CRON_SECRET);
-      if (!ok) return new Response(JSON.stringify({ error: "invalid_neon_trigger" }), { status: 403, headers: { "content-type": "application/json" } });
-      const headers = new Headers(request.headers);
-      headers.set("x-cron-secret", process.env.CRON_SECRET);
-      return await handler(new Request(request, { headers }));
-    }
-    return await handler(request);
-  };
-}
+// supabase/functions/live/_neon_api_football.ts
+import { timingSafeEqual } from "node:crypto";
 
 // node_modules/postgres/src/index.js
 import os from "os";
@@ -15874,6 +15854,131 @@ function createClient(_url, _key) {
   } };
 }
 
+// supabase/functions/live/_neon_api_football.ts
+var db2 = createClient("neon-compat", "service");
+var JSON_HEADERS = { "content-type": "application/json", "cache-control": "no-store" };
+function response(body, status2 = 200) {
+  return new Response(JSON.stringify(body), { status: status2, headers: JSON_HEADERS });
+}
+function authorized(got) {
+  const expected = process.env.CRON_SECRET || "";
+  if (!expected || !got) return false;
+  const a = Buffer.from(got), b2 = Buffer.from(expected);
+  return a.length === b2.length && timingSafeEqual(a, b2);
+}
+function iso2(value) {
+  const t = Date.parse(String(value || ""));
+  return Number.isFinite(t) ? t : null;
+}
+var MINUTE = 6e4;
+var STATS_FIELDS = ["corner_kicks", "total_shots", "fouls"];
+var VALUE_FIELDS = ["corner_kicks", "total_shots", "fouls", "shots_on_target", "shots_off_target", "attacks", "dangerous_attacks", "yellow_cards", "red_cards", "ball_possession"];
+function realCorePair(stats) {
+  return STATS_FIELDS.some((k) => {
+    const a = stats?.home?.[k], b2 = stats?.away?.[k];
+    return typeof a === "number" && Number.isFinite(a) && a >= 0 && typeof b2 === "number" && Number.isFinite(b2) && b2 >= 0;
+  });
+}
+function validStats(stats) {
+  if (!stats || typeof stats !== "object" || !realCorePair(stats)) return false;
+  for (const side of ["home", "away"]) {
+    for (const [key, val] of Object.entries(stats[side] || {})) {
+      if (!VALUE_FIELDS.includes(key) || typeof val !== "number" || !Number.isFinite(val) || val < 0 || val > (key === "ball_possession" ? 100 : 400)) return false;
+    }
+  }
+  return true;
+}
+async function getRows(table2, params) {
+  if (!params || typeof params !== "object") throw Error("invalid_filter");
+  const allowed = table2 === "live_stats_merged" ? /* @__PURE__ */ new Set(["select", "limit", "is_live", "is_finished", "updated_at"]) : /* @__PURE__ */ new Set(["select", "limit", "provider", "next_probe_at"]);
+  if (Object.keys(params).some((k) => !allowed.has(k))) throw Error("invalid_filter");
+  const cols = String(params.select || "");
+  const expectedColumns = table2 === "live_stats_merged" ? "canonical_match_id,home_team,away_team,league_name,event_date,minute,is_live,is_finished,merged_stats,updated_at" : "probe_key,supports_stats,next_probe_at";
+  if (cols !== expectedColumns) throw Error("invalid_columns");
+  const lim = Number(params.limit);
+  if (!Number.isInteger(lim) || lim < 1 || lim > (table2 === "live_stats_merged" ? 300 : 600)) throw Error("invalid_limit");
+  let query = db2.from(table2).select(cols);
+  if (table2 === "live_stats_merged") {
+    if (params.is_live !== "eq.true" || params.is_finished !== "eq.false" || !String(params.updated_at || "").startsWith("gte.")) throw Error("invalid_filters");
+    const date2 = String(params.updated_at).slice(4), ts = iso2(date2);
+    if (ts === null || Math.abs(Date.now() - ts) > 15 * MINUTE) throw Error("stale_filter");
+    query = query.eq("is_live", true).eq("is_finished", false).gte("updated_at", date2);
+  } else {
+    if (params.provider !== "eq.api_football" || !String(params.next_probe_at || "").startsWith("gt.")) throw Error("invalid_filters");
+    const date2 = String(params.next_probe_at).slice(3), ts = iso2(date2);
+    if (ts === null || Math.abs(Date.now() - ts) > 5 * MINUTE) throw Error("stale_filter");
+    query = query.eq("provider", "api_football").gt("next_probe_at", date2);
+  }
+  const { data, error } = await query.limit(lim);
+  if (error) throw Error("database_read_failed:" + error.message);
+  return data || [];
+}
+async function storeRow(table2, params, rows) {
+  if (!Array.isArray(rows) || rows.length !== 1 || !rows[0] || typeof rows[0] !== "object") throw Error("invalid_rows");
+  const item = rows[0];
+  if (table2 === "live_provider_probe_cache") {
+    if (params?.on_conflict !== "provider,probe_key" || item.provider !== "api_football" || !/^(league|empty):[a-z0-9:-]{1,96}$/i.test(String(item.probe_key || "")) || iso2(item.next_probe_at) === null || iso2(item.last_checked_at) === null) throw Error("invalid_probe");
+  } else if (table2 === "live_stats_sources") {
+    const age = Date.now() - (iso2(item.updated_at) || 0);
+    if (params?.on_conflict !== "source_name,source_match_id" || item.source_name !== "api_football" || !/^\d{1,18}$/.test(String(item.source_match_id || "")) || !item.canonical_match_id || typeof item.canonical_match_id !== "string" || !Number.isInteger(item.minute) || item.minute < 1 || item.minute > 130 || item.is_live !== true || item.is_finished !== false || age < -3e4 || age > 8 * MINUTE || !validStats(item.stats_json) || item.raw_json?.statistics_verified !== true) throw Error("invalid_observation");
+    const { data: match, error: error2 } = await db2.from("live_stats_merged").select("canonical_match_id,home_team,away_team,event_date,is_live,is_finished,updated_at").eq("canonical_match_id", item.canonical_match_id).maybeSingle();
+    if (error2 || !match || match.is_live !== true || match.is_finished !== false || Date.now() - (iso2(match.updated_at) || 0) > 10 * MINUTE || String(match.home_team) !== String(item.home_team) || String(match.away_team) !== String(item.away_team) || Math.abs((iso2(match.event_date) || 0) - (iso2(item.event_date) || 0)) > 2 * 60 * MINUTE)
+      throw Error("canonical_identity_not_verified");
+  } else throw Error("invalid_write_table");
+  const { error } = await db2.from(table2).upsert(rows, { onConflict: params.on_conflict });
+  if (error) throw Error("database_write_failed:" + error.message);
+  return { saved: 1 };
+}
+async function apiFootballGateway(req) {
+  if (req.method !== "POST") return response({ error: "method_not_allowed" }, 405);
+  if (!authorized(req.headers.get("x-cron-secret"))) return response({ error: "unauthorized" }, 403);
+  const size2 = Number(req.headers.get("content-length") || 0);
+  if (size2 > 96e3) return response({ error: "payload_too_large" }, 413);
+  let payload;
+  try {
+    payload = await req.json();
+  } catch {
+    return response({ error: "invalid_json" }, 400);
+  }
+  if (!payload || typeof payload !== "object") return response({ error: "invalid_request" }, 400);
+  const { method, table: table2, params, body } = payload;
+  try {
+    if (method === "GET" && (table2 === "live_stats_merged" || table2 === "live_provider_probe_cache"))
+      return response({ data: await getRows(table2, params) });
+    if (method === "POST" && (table2 === "live_provider_probe_cache" || table2 === "live_stats_sources"))
+      return response(await storeRow(table2, params, body));
+    return response({ error: "unsupported_operation" }, 400);
+  } catch (e) {
+    const message = String(e?.message || "gateway_failure");
+    console.warn("LIVE_API_FOOTBALL_GATEWAY_REJECTED", message.slice(0, 250));
+    return response({ error: message }, /^(invalid_|stale_|canonical_)/.test(message) ? 400 : 503);
+  }
+}
+
+// supabase/functions/live/_neon_serve.ts
+var handler = null;
+var SCHEDULE_TRIGGER_ID = "trigger-539f987f-b22b-4108-a1c2-05d41f9fe929";
+function serve(fn) {
+  handler = fn;
+}
+function neonGetHandler() {
+  if (!handler) throw new Error("LIVE_HANDLER_NOT_REGISTERED");
+  return async (request) => {
+    const url2 = new URL(request.url);
+    if (url2.pathname.replace(/\/$/, "") === "/ingest/api-football") return apiFootballGateway(request);
+    const invocation = request.headers.get("x-neon-trigger-invocation-id");
+    if (request.method === "POST" && url2.pathname.replace(/\/$/, "") === "/refresh" && invocation) {
+      const payload = await request.clone().json().catch(() => null);
+      const ok = payload?.version === 1 && payload?.invocation_id === invocation && payload?.trigger?.type === "schedule" && payload?.trigger?.id === SCHEDULE_TRIGGER_ID && payload?.trigger?.name === "mrxpronos-live-refresh-v1" && typeof payload?.data?.scheduled_at === "string" && Math.abs(Date.now() - Date.parse(payload.data.scheduled_at)) <= 18e4 && Boolean(process.env.CRON_SECRET);
+      if (!ok) return new Response(JSON.stringify({ error: "invalid_neon_trigger" }), { status: 403, headers: { "content-type": "application/json" } });
+      const headers = new Headers(request.headers);
+      headers.set("x-cron-secret", process.env.CRON_SECRET);
+      return await handler(new Request(request, { headers }));
+    }
+    return await handler(request);
+  };
+}
+
 // supabase/functions/_shared/telegram_rich.ts
 function richBody(text2, rows, hasPhoto) {
   const escapeHtml = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -15948,9 +16053,9 @@ async function loadBanner(pack) {
   let promise = bannerCache.get(pack);
   if (!promise) {
     promise = (async () => {
-      const response = await fetch(ART_BASE + ART[pack]);
-      if (!response.ok) throw new Error("XPVIP image HTTP " + response.status);
-      return new Uint8Array(await response.arrayBuffer());
+      const response2 = await fetch(ART_BASE + ART[pack]);
+      if (!response2.ok) throw new Error("XPVIP image HTTP " + response2.status);
+      return new Uint8Array(await response2.arrayBuffer());
     })();
     bannerCache.set(pack, promise);
   }
@@ -16031,20 +16136,20 @@ async function fetchFiveSourceLiveOdds(input) {
       if (token) headers["Authorization"] = "Bearer " + token;
       const ctl = new AbortController();
       const id = setTimeout(() => ctl.abort(), 4500);
-      let response;
+      let response2;
       try {
-        response = await fetch(u, { headers, signal: ctl.signal });
+        response2 = await fetch(u, { headers, signal: ctl.signal });
       } finally {
         clearTimeout(id);
       }
       state2.count++;
-      if ([401, 402, 403, 429].includes(response.status)) {
-        state2.disabledUntil = response.status === 429 ? Date.now() + 36e5 : Date.now() + 864e5;
-        console.warn("LIVE_ODDS_PROVIDER_RESTRICTED", provider, response.status);
+      if ([401, 402, 403, 429].includes(response2.status)) {
+        state2.disabledUntil = response2.status === 429 ? Date.now() + 36e5 : Date.now() + 864e5;
+        console.warn("LIVE_ODDS_PROVIDER_RESTRICTED", provider, response2.status);
         continue;
       }
-      if (!response.ok) continue;
-      const payload = await response.json().catch(() => null);
+      if (!response2.ok) continue;
+      const payload = await response2.json().catch(() => null);
       const body = payload?.data ?? payload;
       if (!body || Array.isArray(body) || typeof body !== "object") continue;
       const sourceMatch = String(body.match_id ?? body.event_id ?? "");
@@ -16129,7 +16234,7 @@ function extractPinnwire(data, input) {
   }
   return null;
 }
-async function getJSON(provider, input, db2) {
+async function getJSON(provider, input, db3) {
   const url2 = provider === "moviodds" ? "https://moviodds.com/odds?sport=soccer&in_play=1&stats=1" : Deno.env.get("LIVE_ODDS_PINNWIRE_DIRECT_URL") || "";
   if (!url2 || !url2.startsWith("https://")) return null;
   const key = provider + ":" + url2;
@@ -16138,7 +16243,7 @@ async function getJSON(provider, input, db2) {
   if ((disabled.get(provider) || 0) > Date.now()) return null;
   const limits = provider === "moviodds" ? { day: cap("LIVE_MOVIODDS_DAILY_CAP", 1800), minute: cap("LIVE_MOVIODDS_MINUTE_CAP", 3) } : { day: cap("LIVE_PINNWIRE_DAILY_CAP", 90), minute: cap("LIVE_PINNWIRE_MINUTE_CAP", 2) };
   if (provider === "pinnwire" && !Deno.env.get("LIVE_ODDS_PINNWIRE_KEY")) return null;
-  const slot = await db2.rpc("odds_take_request_slot", {
+  const slot = await db3.rpc("odds_take_request_slot", {
     p_provider: provider,
     p_day_limit: limits.day,
     p_minute_limit: limits.minute
@@ -16176,10 +16281,10 @@ async function getJSON(provider, input, db2) {
     clearTimeout(timer2);
   }
 }
-async function fetchLiveBookmakerOdds(input, db2) {
+async function fetchLiveBookmakerOdds(input, db3) {
   if (!input.match_id || !input.market || !Number.isFinite(input.line) || input.line <= 0) return null;
   for (const p of ["moviodds", "pinnwire"]) {
-    const raw = await getJSON(p, input, db2);
+    const raw = await getJSON(p, input, db3);
     if (!raw) continue;
     const q = p === "moviodds" ? extractMovi(raw, input) : extractPinnwire(raw, input);
     if (q) return q;
@@ -16225,7 +16330,7 @@ function observedSoccerPairs(value) {
   }
   return Object.keys(result.home).length ? result : null;
 }
-async function fetchVerifiedMoviOddsLiveStats(inputs, db2) {
+async function fetchVerifiedMoviOddsLiveStats(inputs, db3) {
   if (!inputs.length) return [];
   const board = await getJSON("moviodds", {
     match_id: "audit",
@@ -16234,7 +16339,7 @@ async function fetchVerifiedMoviOddsLiveStats(inputs, db2) {
     market: "",
     line: 0,
     minute: 0
-  }, db2);
+  }, db3);
   if (!board) return [];
   const events = Array.isArray(board?.matches) ? board.matches : [];
   const used = /* @__PURE__ */ new Set();
@@ -19544,8 +19649,8 @@ function bookmakerCandidateList(pred) {
   }
   return [...unique.values()].sort((a, b2) => {
     const da = Math.abs(Number(a.threshold) - selectedThreshold);
-    const db2 = Math.abs(Number(b2.threshold) - selectedThreshold);
-    if (Math.abs(da - db2) > 1e-9) return da - db2;
+    const db3 = Math.abs(Number(b2.threshold) - selectedThreshold);
+    if (Math.abs(da - db3) > 1e-9) return da - db3;
     return Number(a.threshold) - Number(b2.threshold);
   });
 }
