@@ -1,6 +1,7 @@
-import {supabaseUrl,supabaseAnonKey} from "./config.js";
+import {neonAuthUrl,neonDataApiUrl} from "./config.js";
+import {createClient,SupabaseAuthAdapter} from "https://esm.sh/@neondatabase/neon-js";
 const $=id=>document.getElementById(id);
-const sb=window.supabase.createClient(supabaseUrl,supabaseAnonKey);
+const sb=createClient({auth:{adapter:SupabaseAuthAdapter(),url:neonAuthUrl},dataApi:{url:neonDataApiUrl}});
 let channel=null, refreshTimer=null, pending=false, lastRealtime=0;
 let chartRows=[], chartMode="visits";
 const format=n=>Number(n||0).toLocaleString("fr-FR");
@@ -89,26 +90,20 @@ async function establishSession(){
  if(ok){await startDashboard()}else stopDashboard();
 }
 function stopDashboard(){
- if(channel){sb.removeChannel(channel);channel=null}
  if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null}
 }
 async function startDashboard(){
- stopDashboard();connection("Connexion en cours");
- channel=sb.channel("online-users",{config:{presence:{key:"dashboard-supervision-"+Math.random().toString(36).slice(2)}}});
- channel.on("presence",{event:"sync"},()=>{
-  const states=channel.presenceState();
-  output("online",format(Object.keys(states).filter(k=>!k.startsWith("dashboard-")).length));
-  lastRealtime=Date.now();
- });
- channel.subscribe(status=>{
-  if(status==="SUBSCRIBED"){connection("En direct");channel.track({online_at:new Date().toISOString(),admin_dashboard:true});}
-  else if(["CHANNEL_ERROR","TIMED_OUT","CLOSED"].includes(status))connection("Repli 60 s");
- });
+ stopDashboard();connection("Synchronisation 60 s");
  await fetchSnapshot();
+ const updateOnline=async()=>{
+  const {data,error}=await sb.rpc("get_recent_online_count");
+  if(!error)output("online",format(data));
+ };
+ await updateOnline();
  refreshTimer=setInterval(()=>{
   if(document.hidden)return;
   void fetchSnapshot();
-  if(Date.now()-lastRealtime>120000&&channel?.state!=="joined")connection("Repli 60 s");
+  void updateOnline();
  },60000);
 }
 $("period").addEventListener("change",()=>void fetchSnapshot());
