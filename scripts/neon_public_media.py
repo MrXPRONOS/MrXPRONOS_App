@@ -18,6 +18,32 @@ def upload_public(path, object_key, *, content_type=None):
         raise FileNotFoundError(src)
     if object_key.startswith("/") or ".." in object_key.split("/"):
         raise ValueError("Unsafe media object key")
+    # Preferred in GitHub Actions: short-lived, signed GitHub OIDC token.
+    # S3 credentials stay only in Cloudflare, never in GitHub Secrets.
+    worker=os.getenv("NEON_MEDIA_UPLOAD_URL","").strip()
+    if worker:
+        token_url=os.getenv("ACTIONS_ID_TOKEN_REQUEST_URL","").strip()
+        token_secret=os.getenv("ACTIONS_ID_TOKEN_REQUEST_TOKEN","").strip()
+        if not token_url or not token_secret:
+            raise RuntimeError("GitHub Actions id-token: write permission required for Neon media")
+        from urllib.parse import urlencode
+        joiner="&" if "?" in token_url else "?"
+        jwt_response=requests.get(token_url+joiner+urlencode({"audience":"mrxpronos-media"}),
+            headers={"Authorization":"Bearer "+token_secret},timeout=(8,20))
+        jwt_response.raise_for_status()
+        jwt=jwt_response.json().get("value")
+        if not jwt:
+            raise RuntimeError("GitHub OIDC request did not return a token")
+        mime=content_type or mimetypes.guess_type(src.name)[0] or "application/octet-stream"
+        with src.open("rb") as content:
+            response=requests.post(worker,headers={
+                "Authorization":"Bearer "+jwt,"Content-Type":mime},data=content,
+                timeout=(12,160))
+        response.raise_for_status()
+        result=response.json()
+        if not result.get("url") or not result.get("key"):
+            raise RuntimeError("Cloudflare Neon upload missing public media URL")
+        return result["url"]
     endpoint=(os.getenv("NEON_S3_ENDPOINT") or "").rstrip("/")
     public=(os.getenv("NEON_PUBLIC_MEDIA_BASE_URL") or "").rstrip("/")
     access=os.getenv("NEON_S3_ACCESS_KEY_ID")
