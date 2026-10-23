@@ -1,4 +1,4 @@
-name: Deploy Supabase Functions
+name: RETIRED - Supabase Functions disabled
 
 on:
   push:
@@ -16,6 +16,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
