@@ -162,7 +162,15 @@ def resolve_public_url(video_path: Path, explicit_url: Optional[str]) -> Optiona
         return explicit_url
     if env("PUBLIC_VIDEO_URL"):
         return env("PUBLIC_VIDEO_URL")
-    # Si Supabase est configuré, on crée automatiquement une URL publique.
+    # New production media uploads go directly to Neon Object Storage.
+    if env("NEON_S3_ENDPOINT"):
+        from neon_public_media import upload_public
+        from datetime import datetime, timezone
+        from uuid import uuid4
+        date_part = datetime.now(timezone.utc).strftime("%Y/%m/%d")
+        key = f"shorts/{date_part}/{uuid4().hex[:10]}-{video_path.name}"
+        return upload_public(video_path, key, "video/mp4")
+    # Legacy fallback for previously configured environments only.
     if env("SUPABASE_URL") and env("SUPABASE_SERVICE_ROLE_KEY") and env("SUPABASE_BUCKET"):
         return upload_to_supabase_public(video_path)
     return None
