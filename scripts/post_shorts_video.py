@@ -123,7 +123,7 @@ def resolve_public_url(video_path: Path, explicit_url: Optional[str]) -> Optiona
         return explicit_url
     if env("PUBLIC_VIDEO_URL"):
         return env("PUBLIC_VIDEO_URL")
-    if env("NEON_S3_ENDPOINT"):
+    if env("NEON_MEDIA_UPLOAD_URL") or env("NEON_S3_ENDPOINT"):
         from neon_public_media import upload_public
         date_part=datetime.now(timezone.utc).strftime("%Y/%m/%d")
         object_name=env("NEON_OBJECT_NAME") or f"shorts/{date_part}/{int(time.time())}-{video_path.name}"
