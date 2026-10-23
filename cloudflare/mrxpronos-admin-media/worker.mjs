@@ -1,4 +1,37 @@
-import { AwsClient } from "aws4fetch";
+// Signature Version 4 implemented with the Workers Web Crypto API.
+// Keep S3 credentials private; they are never sent to browsers.
+const utf8 = value => new TextEncoder().encode(value);
+const hex = b => [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+async function digest(b) {return hex(await crypto.subtle.digest("SHA-256",b));}
+async function hmac(key,message){
+  const secret=await crypto.subtle.importKey("raw",typeof key==="string"?utf8(key):key,
+    {name:"HMAC",hash:"SHA-256"},false,["sign"]);
+  return new Uint8Array(await crypto.subtle.sign("HMAC",secret,utf8(message)));
+}
+async function signedStorageFetch(env,url,method,body=null,mime=null){
+  const date=new Date().toISOString().replace(/[:-]|\.\d{3}/g,"");
+  const ymd=date.slice(0,8),region=env.NEON_S3_REGION||"eu-central-1";
+  const scope=ymd+"/"+region+"/s3/aws4_request";
+  const parsed=new URL(url),payload=body===null?new Uint8Array():new Uint8Array(body);
+  const payloadHash=await digest(payload);
+  const fields={"host":parsed.host,"x-amz-content-sha256":payloadHash,"x-amz-date":date};
+  if(mime)fields["content-type"]=mime;
+  const keys=Object.keys(fields).sort();
+  const canonicalHeaders=keys.map(x=>x+":"+fields[x].trim()+"\n").join("");
+  const signedHeaders=keys.join(";");
+  const canonical=[method,parsed.pathname,parsed.search.slice(1),canonicalHeaders,signedHeaders,payloadHash].join("\n");
+  const stringToSign=["AWS4-HMAC-SHA256",date,scope,await digest(utf8(canonical))].join("\n");
+  let key=await hmac("AWS4"+env.NEON_S3_SECRET_ACCESS_KEY,ymd);
+  key=await hmac(key,region);key=await hmac(key,"s3");key=await hmac(key,"aws4_request");
+  const signature=hex(await hmac(key,stringToSign));
+  const headers={
+    "x-amz-content-sha256":payloadHash,"x-amz-date":date,
+    "Authorization":"AWS4-HMAC-SHA256 Credential="+env.NEON_S3_ACCESS_KEY_ID+"/"+scope+
+     ", SignedHeaders="+signedHeaders+", Signature="+signature
+  };
+  if(mime)headers["content-type"]=mime;
+  return fetch(url,{method,headers,...(body===null?{}:{body})});
+}
 
 const ORIGIN = "https://mrxpronos.github.io";
 const FORMATS = {
@@ -37,14 +70,6 @@ async function verifyAdmin(token,env) {
   if(!r.ok)return false;
   return (await r.json())===true;
 }
-function storage(env) {
-  return new AwsClient({
-    accessKeyId:env.NEON_S3_ACCESS_KEY_ID,
-    secretAccessKey:env.NEON_S3_SECRET_ACCESS_KEY,
-    region:env.NEON_S3_REGION||"eu-central-1",
-    service:"s3"
-  });
-}
 function objectUrl(env,key) {
   const bucket=env.NEON_S3_BUCKET||"videos";
   return env.NEON_S3_ENDPOINT.replace(/\/$/,"")+"/"+bucket+"/"+key.split("/").map(encodeURIComponent).join("/");
@@ -75,9 +100,7 @@ export default {
         if(!buffer.byteLength||buffer.byteLength>format[1]||!signatureOk(mime,new Uint8Array(buffer).slice(0,16)))
           return json({error:"Média invalide"},422);
         const key="cms/"+crypto.randomUUID()+"."+format[0];
-        const upstream=await storage(env).fetch(objectUrl(env,key),{
-          method:"PUT",headers:{"Content-Type":mime},body:buffer
-        });
+        const upstream=await signedStorageFetch(env,objectUrl(env,key),"PUT",buffer,mime);
         if(!upstream.ok)return json({error:"Écriture Neon refusée"},502);
         // Public-readable bucket is a prerequisite; never claim a URL without checking.
         const link=publicUrl(env,key);
@@ -89,7 +112,7 @@ export default {
         const key=new URL(request.url).searchParams.get("key")||"";
         if(!/^cms\/[0-9a-f-]{36}\.(jpg|png|webp|gif|mp4|webm)$/.test(key))
           return json({error:"Clé invalide"},400);
-        const upstream=await storage(env).fetch(objectUrl(env,key),{method:"DELETE"});
+        const upstream=await signedStorageFetch(env,objectUrl(env,key),"DELETE");
         if(!upstream.ok&&upstream.status!==404)return json({error:"Suppression refusée"},502);
         return json({deleted:true});
       }
