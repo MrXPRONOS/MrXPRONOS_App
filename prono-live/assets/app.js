@@ -1,14 +1,20 @@
 const NEON_REST='https://ep-wild-hall-b9u7ikuy.apirest.c-7.eu-central-1.aws.neon.tech/mrxpronos/rest/v1';
-const API=NEON_REST;
-const DAILY_API=NEON_REST;
-let lastSnapshot=null,lastSnapshotTime=0,loadSnapshotPromise=null;
+const NEON_AUTH='https://ep-wild-hall-b9u7ikuy.neonauth.c-7.eu-central-1.aws.neon.tech/mrxpronos/auth';
+let neonClientPromise=null,lastSnapshot=null,lastSnapshotTime=0,loadSnapshotPromise=null;
+async function liveNeonClient(){
+ if(!neonClientPromise)neonClientPromise=import('https://esm.sh/@neondatabase/neon-js')
+  .then(({createClient})=>createClient({auth:{url:NEON_AUTH,allowAnonymous:true},dataApi:{url:NEON_REST}}))
+  .catch(error=>{neonClientPromise=null;throw error});
+ return neonClientPromise;
+}
 async function loadNeonSnapshot(){
  if(lastSnapshot&&Date.now()-lastSnapshotTime<12000)return lastSnapshot;
  if(loadSnapshotPromise)return loadSnapshotPromise;
  loadSnapshotPromise=(async()=>{
-  const r=await fetch(NEON_REST+'/rpc/prono_live_public_snapshot',{cache:'no-store'});
-  if(!r.ok)throw Error('Neon live HTTP '+r.status);
-  const data=await r.json();lastSnapshot=data||{};lastSnapshotTime=Date.now();return lastSnapshot;
+  const client=await liveNeonClient();
+  const {data,error}=await client.rpc('prono_live_public_snapshot');
+  if(error)throw Error('Neon live unavailable: '+String(error.message||'query'));
+  lastSnapshot=data||{};lastSnapshotTime=Date.now();return lastSnapshot;
  })();
  try{return await loadSnapshotPromise}finally{loadSnapshotPromise=null}
 }
