@@ -41,3 +41,5 @@ jobs:
             assert e.code>=400
           print("LIVE_STAGE_REAL_DB_PASS",results,flush=True)
           PY
+
+# Rerun against Neon stage deployment 2 with explicit PostgreSQL service role
