@@ -52,3 +52,5 @@ jobs:
 # Batch size 20 isolated deployment 8; no refresh executed by this test.
 
 # Canonical uniqueness staging deployment 9: authenticated refresh not used in QA.
+
+# Staging #10: verified content marker LIVE_CANONICAL_MATCH_DEDUP.
