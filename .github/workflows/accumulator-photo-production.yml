@@ -38,9 +38,10 @@ jobs:
       ACCUMULATOR_SOCIAL_IMAGE: telegram_out/accumulator_preview.jpg
       ACCUMULATOR_MAX_MATCHES: '12'
       ACCUMULATOR_VIDEO_MANIFEST: telegram_out/video_used_matches.json
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      SUPABASE_BUCKET: videos
+      NEON_S3_ENDPOINT: https://br-winter-truth-b9of9tss.storage.c-7.eu-central-1.aws.neon.tech
+      NEON_S3_ACCESS_KEY_ID: ${{ secrets.NEON_S3_ACCESS_KEY_ID }}
+      NEON_S3_SECRET_ACCESS_KEY: ${{ secrets.NEON_S3_SECRET_ACCESS_KEY }}
+      NEON_S3_BUCKET: videos
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
@@ -78,7 +79,7 @@ jobs:
         run: |
           npm ci
           npx playwright install --with-deps chromium
-          python -m pip install requests Pillow
+          python -m pip install requests Pillow boto3
       - name: Authenticate publication ledger through GitHub OIDC
         run: python scripts/ledger_cloudflare_oidc.py
       - name: Verify and load IDs of fixtures already published in daily video
