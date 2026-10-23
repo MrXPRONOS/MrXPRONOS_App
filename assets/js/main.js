@@ -718,7 +718,7 @@ async function incrementCounter(counterName) {
     return;
   }
   try {
-    await neon.rpc("increment_counter", { counter_name: counterName });
+    await neon.rpc("mx_site_counter", { p_counter: counterName });
   } catch (e) {
     console.error("Erreur incrémentation:", e);
   }
@@ -752,8 +752,8 @@ async function recordEvent(type, page = "") {
   if (!neonAvailable || !neon) return;
   const userId = getUserId();
   try {
-    const { error } = await neon.rpc("insert_analytics", {
-      p_event_type: type, p_user_id: userId, p_page: page
+    const { error } = await neon.rpc("mx_site_event", {
+      p_type: type, p_user: userId, p_page: page
     });
     if (error) throw error;
   } catch (e) {
@@ -780,8 +780,8 @@ async function recordEditorialAttribution(page) {
   if (!payload || isLocalTestEnvironment() || !neonAvailable || !neon) return;
   async function sendEditorialMetric(eventType) {
     try {
-      const { error } = await neon.rpc("insert_analytics", {
-        p_event_type: eventType, p_user_id: null, p_page: payload
+      const { error } = await neon.rpc("mx_site_event", {
+        p_type: eventType, p_user: null, p_page: payload
       });
       if (error) throw error;
     } catch (error) {
@@ -817,7 +817,7 @@ async function registerUniqueUser() {
   if (registered) return;
 
   try {
-    const { error } = await neon.rpc("register_public_user", {p_user_id: userId});
+    const { error } = await neon.rpc("register_public_user", {p_user: userId});
     if (error) throw error;
     localStorage.setItem("mx_registered", "true");
   } catch (e) {
@@ -1987,8 +1987,8 @@ async function postEditorialAbEvent(kind, slug, variant, eventType) {
     return;
   }
   try {
-    const { error } = await neon.rpc("insert_analytics", {
-      p_event_type: eventType, p_user_id: null,
+    const { error } = await neon.rpc("mx_site_event", {
+      p_type: eventType, p_user: null,
       p_page: [kind,slug,"onsite",variant].join("|")
     });
     if (error) throw error;
