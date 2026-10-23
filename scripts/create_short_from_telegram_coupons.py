@@ -143,42 +143,19 @@ def _ledger_headers(key):
 
 
 def _already_sent_ids(target_date: str, kind: str):
-    base = (os.getenv("SUPABASE_URL") or "").rstrip("/")
-    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or ""
-    if not base or not key:
-        raise RuntimeError("SUPABASE_URL et une clé serveur obligatoires pour éviter les doublons en production")
-    response = requests.get(
-        base + "/rest/v1/telegram_sent",
-        params={
-            "select": "ref_id",
-            "kind": "eq." + kind,
-            "ref_date": "eq." + target_date,
-            "limit": "100",
-        },
-        headers=_ledger_headers(key),
-        timeout=30,
-    )
-    response.raise_for_status()
-    rows = response.json() or []
-    return {_canonical_event_id(row.get("ref_id")) for row in rows if row.get("ref_id")}
+    from scripts.neon_telegram_ledger import records
+    rows=records(kind,target_date,limit=1000,columns=["ref_id","ref_date"])
+    return {_canonical_event_id(row.get("ref_id")) for row in rows
+            if str(row.get("ref_date"))==target_date and row.get("ref_id")}
 
 
 def _daily_video_already_claimed(now):
-    """Vérifie le verrou quotidien, qui empêche une deuxième vidéo."""
-    base=(os.getenv("SUPABASE_URL") or "").rstrip("/")
-    key=os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or ""
-    if not base or not key:
-        raise RuntimeError("Supabase obligatoire pour limiter les vidéos à une par jour")
-    res=requests.get(base+"/rest/v1/telegram_sent",
-        params={"select":"ref_id","kind":"eq.shorts_video_daily_guard",
-                "ref_id":"eq.one_daily_video",
-                "ref_date":"eq."+now.date().isoformat(),"limit":"1"},
-        headers=_ledger_headers(key),timeout=30)
-    res.raise_for_status()
-    rows=res.json()
-    if not isinstance(rows,list):
-        raise RuntimeError("Registre des vidéos quotidiennes invalide")
-    return bool(rows)
+    from scripts.neon_telegram_ledger import records
+    today=now.date().isoformat()
+    rows=records("shorts_video_daily_guard",today,limit=1000,
+                 columns=["ref_id","ref_date"])
+    return any(row.get("ref_id")=="one_daily_video" and
+               str(row.get("ref_date"))==today for row in rows)
 
 
 def select_matches(data, slot: str, now: datetime, *, limit=MAX_MATCHES, ledger_kind=LEDGER_DEFAULT):
