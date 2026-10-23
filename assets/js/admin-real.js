@@ -4,7 +4,8 @@ import { mountCmsRevisionPanel } from "./cms-revisions.mjs";
 import { createCmsDraftCopy } from "./cms-duplicate.mjs";
 import { mountCmsListFilters } from "./cms-list-filters.mjs";
 import { mountCmsMediaFieldPicker, mountCmsMediaPicker } from "./cms-media-library.mjs";
-import { supabaseUrl, supabaseAnonKey } from "./config.js";
+import {neonAuthUrl,neonDataApiUrl} from "./config.js";
+import {createClient, NeonAuthAdapter} from "https://esm.sh/@neondatabase/neon-js";
 import "./loading-ui.js";
 
 
@@ -16,7 +17,8 @@ if (!document.querySelector('link[href*="loading-ui.css"]')) {
   document.head.appendChild(mxLoadingSheet);
 }
 
-const sb = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+const sb = createClient({auth:{adapter:NeonAuthAdapter(),url:neonAuthUrl},dataApi:{url:neonDataApiUrl}});
+const adminApiUrl = String(window.MX_ADMIN_API_URL||"").replace(/\/$/,"");
 const $ = (id) => document.getElementById(id);
 
 const premiumAdminLoading = (kind = "admin", count = 3) =>
@@ -217,12 +219,12 @@ async function renderPushAdmin() {
     const session = (await sb.auth.getSession()).data.session;
     if (!session) throw new Error("Session expirée.");
 
-    const res = await fetch(`${supabaseUrl}/functions/v1/admin-push`, {
+    if (!adminApiUrl) throw new Error("API administrateur Cloudflare non configurée");
+    const res = await fetch(`${adminApiUrl}/admin-push`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${session.access_token}`,
-        "apikey": supabaseAnonKey,
       },
       body: JSON.stringify(payload),
     });
@@ -236,11 +238,11 @@ async function renderPushAdmin() {
     const session = (await sb.auth.getSession()).data.session;
     if (!session) throw new Error("Session expirée.");
 
-    const res = await fetch(`${supabaseUrl}/functions/v1/admin-list-subscribers`, {
+    if (!adminApiUrl) throw new Error("API administrateur Cloudflare non configurée");
+    const res = await fetch(`${adminApiUrl}/admin-list-subscribers`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${session.access_token}`,
-        "apikey": supabaseAnonKey,
       },
     });
 
@@ -1247,9 +1249,9 @@ async function renderAudit() {
 async function cmsAdminRequest(operation,extra={}) {
   const session=(await sb.auth.getSession()).data.session;
   if(!session) throw new Error("Session administrateur expirée");
-  const response=await fetch(`${supabaseUrl}/functions/v1/publish`,{
+  const response=await fetch(`${adminApiUrl}/publish`,{
     method:"POST",
-    headers:{"Content-Type":"application/json","Authorization":`Bearer ${session.access_token}`,"apikey":supabaseAnonKey},
+    headers:{"Content-Type":"application/json","Authorization":`Bearer ${session.access_token}`},
     body:JSON.stringify({operation,...extra})
   });
   const data=await response.json().catch(()=>({}));
@@ -1300,7 +1302,7 @@ async function cmsShowPreview(entry,root) {
     table.appendChild(body);root.appendChild(table);
     const changes=Object.values(p.changes||{}).some(c=>c.different);
     if(!changes){root.appendChild(cmsDom("p","Ces fichiers sont identiques. Aucune restauration nécessaire."));return;}
-    const warning=cmsDom("p","Attention : seuls les cinq fichiers de contenu seront restaurés. L'historique Git et la base Supabase restent inchangés.");
+    const warning=cmsDom("p","Attention : seuls les cinq fichiers de contenu seront restaurés. L'historique Git et la base Neon restent inchangés.");
     root.appendChild(warning);
     const restore=cmsDom("button","Restaurer cette version","btn btn-secondary");restore.type="button";
     restore.addEventListener("click",async()=>{
