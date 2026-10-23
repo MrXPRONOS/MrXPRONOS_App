@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Cache Supabase très court des sources Actu Foot.
+"""Cache Neon très court des sources Actu Foot.
 
 Il mutualise les appels des runners full/lifecycle sans remplacer la timeline
-canonique Supabase ni les caches propres aux fournisseurs.
+canonique Neon ni les caches propres aux fournisseurs.
 """
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ import os
 from datetime import date, datetime, timedelta, timezone
 
 import requests
+from neon_rest_compat import NeonRestSession
 
 _SHARED_SNAPSHOT_FIELDS = (
     "source", "id", "provider_event_id", "home_team", "away_team",
@@ -21,8 +22,8 @@ _SHARED_SNAPSHOT_FIELDS = (
 
 
 def _config() -> tuple[str, str]:
-    base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
+    base = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
+    key = "server" if os.getenv("NEON_DATABASE_URL") else ""
     return base, key
 
 
@@ -33,6 +34,7 @@ def fetch_shared_source_snapshot(
     base, key = _config()
     if not base or not key:
         return None
+    session = NeonRestSession(session)
     snapshot_key = "football:" + fixture_day.isoformat()
     try:
         response = session.get(
@@ -68,6 +70,7 @@ def persist_shared_source_snapshot(
     base, key = _config()
     if not base or not key or not rows:
         return
+    session = NeonRestSession(session)
     try:
         ttl = max(30, min(180, int(os.getenv("FOOTBALL_SHARED_SNAPSHOT_TTL", "150"))))
     except ValueError:
