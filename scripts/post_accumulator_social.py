@@ -93,7 +93,11 @@ def main():
  caption=(f"⚽ Combiné Mr XPRONOS · {day}\n{count} sélections · Cote indicative : {odds}\n"
           "Mise simulée : 50 000 F CFA.\n"
           "18+ · Joue responsablement.\n#football #pronostics #mrxpronos")
- public=public_url(image,day)
+ if os.getenv("NEON_S3_ENDPOINT"):
+  from neon_public_media import upload_public
+  public=upload_public(image,"images/mrxpronos-combine/"+day+"/preview.jpg","image/jpeg")
+ else:
+  public=public_url(image,day)
  session=requests.Session()
  results=[];failures=[]
  for platform in ("facebook","instagram","threads"):

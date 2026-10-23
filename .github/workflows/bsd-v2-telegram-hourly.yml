@@ -21,6 +21,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 concurrency:
   group: bsd-v2-telegram-hourly
@@ -81,6 +82,8 @@ jobs:
           TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
           TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: python scripts/telegram_test_guard.py
+      - name: Authenticate publication ledger through GitHub OIDC
+        run: python scripts/ledger_cloudflare_oidc.py
       - name: Send single picks and combinations around one hour before kickoff
         env:
           TELEGRAM_BOT_TOKEN: '${{ secrets.TELEGRAM_BOT_TOKEN }}'
@@ -90,15 +93,14 @@ jobs:
         run: python bsd/bsd_v2_telegram.py --data data.json
 
       # Bluesky shares the production cron cadence, but test Telegram runs never post.
+      - name: Refresh publication ledger authentication through GitHub OIDC
+        run: python scripts/ledger_cloudflare_oidc.py
       - name: Publish eligible BSD V2 cards to Bluesky (production only)
         if: ${{ steps.route.outputs.destination == 'production' }}
         continue-on-error: true
         env:
           BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
           BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         shell: bash
         run: |
           set -euo pipefail
