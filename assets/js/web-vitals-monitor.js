@@ -4,7 +4,9 @@
  * Measurements are aggregated privately by the administrator-only RPC.
  * No personal identifier, querystring, error text or stack is transmitted.
  */
-import {neonDataApiUrl} from "./config.js";
+import {neonDataApiUrl,neonAuthUrl} from "./config.js";
+import {createClient} from "https://esm.sh/@neondatabase/neon-js";
+const neon = createClient({auth:{url:neonAuthUrl,allowAnonymous:true},dataApi:{url:neonDataApiUrl}});
 
 const page = (location.pathname.replace(/^\/MrXPRONOS_App/i, "").slice(0, 140) || "/");
 const eligiblePage = /^\/[a-zA-Z0-9/_.-]+$/.test(page);
@@ -12,21 +14,11 @@ const device = /iPad|Tablet/i.test(navigator.userAgent)
   ? "tablet" : /iPhone|Android|Mobile/i.test(navigator.userAgent) ? "mobile" : "desktop";
 
 function sendMetric(table, payload) {
-  if (!eligiblePage) return;
-  // Neon Data API; RLS only permits validated telemetry inserts.
-  try {
-    void fetch(neonDataApiUrl + "/" + table, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Prefer: "return=minimal"
-      },
-      body: JSON.stringify({ ...payload, page, device }),
-      mode: "cors",
-      credentials: "omit",
-      keepalive: true
-    }).catch(() => {});
-  } catch (_) {}
+  if (!eligiblePage || !["admin_web_vitals","admin_client_errors"].includes(table)) return;
+  // JWT anonymous Neon Auth + restrictive INSERT-only RLS policy.
+  void neon.from(table).insert({...payload,page,device}).then(({error})=>{
+    if(error)console.debug("Neon telemetry deferred");
+  }).catch(()=>{});
 }
 
 if (eligiblePage && Math.random() < 0.12) {
