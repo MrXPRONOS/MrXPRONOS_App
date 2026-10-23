@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 import requests
-from neon_rest_compat import NeonRestSession
+from scripts.neon_rest_compat import NeonRestSession
 
 
 def _config() -> tuple[str, str]:
