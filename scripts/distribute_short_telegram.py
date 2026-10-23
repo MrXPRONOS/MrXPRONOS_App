@@ -4,7 +4,7 @@
 public channels; forward the Coupons du jour original natively to Torrent9.
 
 Never touches films/private libraries or the existing suspended film->Torrent9
-mirrors. Uses an atomic per-chat Supabase claim and does not retry an ambiguous
+mirrors. Uses an atomic per-chat Neon claim and does not retry an ambiguous
 Telegram send to avoid duplicates.
 """
 from __future__ import annotations
@@ -37,18 +37,8 @@ def headers(key: str) -> dict:
 
 
 def claim(session, url: str, key: str, kind: str, target: str, day: str) -> bool:
-    response = session.post(
-        url.rstrip("/") + "/rest/v1/telegram_sent",
-        params={"on_conflict": "kind,ref_id,ref_date"},
-        headers=headers(key),
-        json={"kind": kind, "ref_id": target, "ref_date": day, "validation_sent": False},
-        timeout=35,
-    )
-    response.raise_for_status()
-    result = response.json()
-    if not isinstance(result, list):
-        raise RuntimeError("Réponse du registre de diffusion inattendue")
-    return len(result) > 0
+    from neon_telegram_ledger import claim as reserve
+    return bool(reserve(kind,target,day))
 
 
 def load() -> tuple[dict, dict]:
@@ -186,10 +176,10 @@ def distribute(config: dict, receipt: dict, path: Path, *, dry_run=False) -> dic
     token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
     alternative = (os.getenv("FOOTBALL_NEWS_BOT_TOKEN") or "").strip()
     desir_bot = (os.getenv("DESIR_BOT_TOKEN") or "").strip()
-    base = os.getenv("SUPABASE_URL", "").strip()
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or "").strip()
-    if not all((token, base, key)) and not dry_run:
-        raise RuntimeError("Secrets Telegram et Supabase requis")
+    base = ""
+    key = ""
+    if not all((token, os.getenv("NEON_DATABASE_URL"))) and not dry_run:
+        raise RuntimeError("Secrets Telegram et Neon requis")
     primary = config["primary"]
     main_id = receipt["primary_message_id"]
     keyboard = receipt["keyboard"]
