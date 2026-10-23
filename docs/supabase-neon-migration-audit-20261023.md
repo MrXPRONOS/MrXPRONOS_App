@@ -102,3 +102,15 @@ atomically at cutover. Do not delete D1 history.
 
 **Non-functional constraints preserved:** no modifications to coupon rendering,
 site CSS, video frames, football prediction calculations, banners or match selection algorithms.
+
+
+## Reprise et contrôles — 23 octobre 2026
+
+- Neon PostgreSQL `users`: **7 157 lignes** (historique utilisateur complet).
+- Neon PostgreSQL `analytics`: **11 212 lignes** (historique analytics complet).
+- Neon PostgreSQL `telegram_sent`: **739 lignes** conservant les garde-fous anti-doublons.
+- Neon PostgreSQL `admin_users`: **1 administrateur**.
+- Nouveau site public : Neon Data API avec `allowAnonymous: true` (jeton anonyme fourni par Neon Auth) au lieu d'accès REST sans JWT. Corrigé dans `assets/js/main.js`, `prono-live/assets/app.js`, `assets/js/assistant.js`, `assets/js/web-vitals-monitor.js`.
+- `public.mx_site_counter` et `public.mx_site_event` créées avec paramètres contrôlés et droits d'exécution limités, puis raccordées dans `assets/js/main.js`. Les formulaires de l'administration utilisent Neon Auth.
+- Tests Python adaptés pour simuler Neon plutôt que Supabase : routage Telegram, événements Actu Foot, photos BSD, combinés et batch nocturne. Les exécutions du dernier commit GitHub doivent encore terminer avant fusion.
+- **Bascule en production NON effectuée.** Reste à confirmer GitHub Actions secrets et URL média publique, API Cloudflare pour push/admin, tests navigateur administrateur, scripts CMS média et workflows secondaires. Le référentiel `main` demeure inchangé.
