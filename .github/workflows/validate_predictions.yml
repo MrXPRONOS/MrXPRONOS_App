@@ -5,6 +5,7 @@ on:
 
 jobs:
   validate:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - name: Appel Edge Function validate
