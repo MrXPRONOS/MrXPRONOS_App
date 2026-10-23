@@ -1,0 +1,43 @@
+name: Neon exact LIVE PostgreSQL staging HTTP smoke
+on:
+  push:
+    branches: [migration/supabase-to-free-stack-20261022]
+    paths: ['.github/workflows/neon-live-legacy-staging-http.yml']
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Confirm LIVE staging routes against actual Neon database (read-only)
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,urllib.request,urllib.error
+          root="https://br-winter-truth-b9of9tss-livelegacytest.compute.c-7.eu-central-1.aws.neon.tech"
+          results={}
+          for path,expected in [
+            ("/matches","matches"),("/opportunities","opportunities"),("/today","data"),
+            ("/predictions/history","history"),("/daily/today","predictions"),
+            ("/notifications","notifications")
+          ]:
+            req=urllib.request.Request(root+path,headers={"Origin":"https://mrxpronos.github.io"})
+            try:
+              with urllib.request.urlopen(req,timeout=60) as res:
+                code=res.status; data=json.load(res)
+            except urllib.error.HTTPError as e:
+              code=e.code;raw=e.read().decode(errors="replace")
+              try:data=json.loads(raw)
+              except:data={"raw":raw[:250]}
+            results[path]=(code,list(data.keys()),len(data.get(expected)) if isinstance(data.get(expected),list) else None)
+            print(path,code,"keys",list(data.keys())[:9],flush=True)
+            assert code==200 and expected in data,(path,code,data)
+          req=urllib.request.Request(root+"/refresh",method="POST",data=b"{}",headers={"Content-Type":"application/json"})
+          try:
+            with urllib.request.urlopen(req,timeout=15) as res:raise RuntimeError("Unauthenticated refresh accepted")
+          except urllib.error.HTTPError as e:
+            print("unauth_refresh",e.code,flush=True)
+            assert e.code>=400
+          print("LIVE_STAGE_REAL_DB_PASS",results,flush=True)
+          PY
