@@ -6,7 +6,7 @@ Combined coupons are different: as soon as BOTH frozen legs are officially
 finished with valid BSD scores and both original selections are winners,
 a single verified combined-win card is sent to Telegram.
 
-Supabase is the source of truth for delivery de-duplication. New combo ledger
+Neon is the source of truth for delivery de-duplication. New combo ledger
 references contain both frozen match IDs, selection keys and dates so the
 validation does not depend on the current website feed. Legacy hash-only combo
 rows are reconstructed only from committed historical data.json versions.
@@ -42,24 +42,15 @@ COMBO_VALIDATION_KIND="bsd_v2_combo_validation"
 
 
 def _ledger_rows(session,base,key,kind,*,since_days=10,limit=500,max_pages=12):
+    from neon_telegram_ledger import records
     since=(datetime.now(timezone.utc)-timedelta(days=since_days)).date().isoformat()
     all_rows=[]
     for page in range(max_pages):
-        response=session.get(base.rstrip("/")+"/rest/v1/telegram_sent",
-            headers=headers(key),params={
-                "select":"id,ref_id,ref_date,validation_sent",
-                "kind":"eq."+kind,
-                "ref_date":"gte."+since,
-                "order":"ref_date.asc,id.asc",
-                "limit":limit,"offset":page*limit},timeout=30)
-        response.raise_for_status()
-        rows=response.json()
-        if not isinstance(rows,list):
-            raise RuntimeError("Malformed Telegram ledger page")
+        rows=records(kind,since,limit=limit,offset=page*limit)
         all_rows.extend(rows)
         if len(rows)<limit:
             return all_rows
-    raise RuntimeError("Telegram ledger exceeds safe pagination limit")
+    raise RuntimeError("Neon ledger exceeds safe pagination limit")
 
 
 def sent_records(session,base,key,limit=500,max_pages=12):
@@ -183,35 +174,17 @@ def post_combo_gain(session,token,chat,combo):
 
 
 def mark_verified(session,base,key,row_id):
-    response=session.patch(base.rstrip("/")+"/rest/v1/telegram_sent",
-        headers=headers(key),params={"id":"eq."+str(row_id),
-        "kind":"eq."+KIND,"validation_sent":"eq.false"},
-        json={"validation_sent":True},timeout=30)
-    response.raise_for_status()
+    from neon_telegram_ledger import mark_verified as mark
+    mark(row_id,KIND)
 
 
 def _record_combo_completion(session,base,key,row):
-    """Write completion marker first; then mark the source row if applicable.
-
-    The separate marker is what prevents duplicate verified-win posts,
-    including for legacy source rows that already had validation_sent=True.
-    """
+    from neon_telegram_ledger import claim as reserve, mark_verified as mark
     ref=str(row.get("ref_id") or "")
     date=str(row.get("ref_date") or "")
-    response=session.post(base.rstrip("/")+"/rest/v1/telegram_sent",
-        params={"on_conflict":"kind,ref_id,ref_date"},
-        headers=headers(key),
-        json={"kind":COMBO_VALIDATION_KIND,"ref_id":ref,
-              "ref_date":date,"validation_sent":True},timeout=30)
-    response.raise_for_status()
+    reserve(COMBO_VALIDATION_KIND,ref,date,validation_sent=True)
     if row.get("validation_sent") is False:
-        patch=session.patch(base.rstrip("/")+"/rest/v1/telegram_sent",
-            headers=headers(key),params={
-                "id":"eq."+str(row["id"]),
-                "kind":"eq."+COMBO_KIND,
-                "validation_sent":"eq.false"},
-            json={"validation_sent":True},timeout=30)
-        patch.raise_for_status()
+        mark(row["id"],COMBO_KIND)
 
 
 def _select_original_market(match,key):
@@ -444,9 +417,9 @@ def main():
         raise RuntimeError("Site feed not BSD")
 
     token=os.getenv("TELEGRAM_BOT_TOKEN")
-    base=os.getenv("SUPABASE_URL")
-    key=os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY")
-    if not base or not key or (not token and not args.dry_run):
+    base=""
+    key=""
+    if not os.getenv("NEON_DATABASE_URL") or (not token and not args.dry_run):
         raise RuntimeError("Missing credentials")
 
     session=requests.Session()
