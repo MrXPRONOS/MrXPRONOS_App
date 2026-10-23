@@ -8,12 +8,15 @@ on:
       - '.github/workflows/neon-live-exact-port.yml'
   workflow_dispatch:
 permissions: {contents: write}
+concurrency: {group: neon-live-bundle, cancel-in-progress: true}
 jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+      - name: Align checkout with latest migration branch
+        run: git pull --ff-only origin migration/supabase-to-free-stack-20261022
       - uses: actions/setup-node@v4
         with: {node-version: '24'}
       - name: Install pinned runtime and build dependencies
@@ -85,8 +88,12 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add migration/free-stack/live/index.legacy.bundle.mjs migration/free-stack/live/legacy-neon-candidate.zip migration/free-stack/live/legacy-neon-candidate.zip.b64 migration/free-stack/live/legacy-neon-part-*
           if ! git diff --cached --quiet; then
+            git fetch origin migration/supabase-to-free-stack-20261022
+            if [[ "$(git rev-parse HEAD)" != "$(git rev-parse origin/migration/supabase-to-free-stack-20261022)" ]]; then
+              echo "Branch advanced during compilation; skip stale bundle publication"
+              exit 0
+            fi
             git commit -m 'build(live): tested exact legacy bundle for Neon runtime'
-            git pull --rebase origin migration/supabase-to-free-stack-20261022
             git push origin HEAD:refs/heads/migration/supabase-to-free-stack-20261022
           fi
       - name: Confirm no writes to production during build
