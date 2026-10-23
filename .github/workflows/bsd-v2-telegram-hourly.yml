@@ -84,7 +84,6 @@ jobs:
       - name: Send single picks and combinations around one hour before kickoff
         env:
           TELEGRAM_BOT_TOKEN: '${{ secrets.TELEGRAM_BOT_TOKEN }}'
-        env:
           NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
         run: python bsd/bsd_v2_telegram.py --data data.json
 
