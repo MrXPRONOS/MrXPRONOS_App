@@ -817,7 +817,7 @@ async function registerUniqueUser() {
   if (registered) return;
 
   try {
-    const { error } = await neon.rpc("register_public_user", {p_user: userId});
+    const { error } = await neon.rpc("register_public_user", {p_user_id: userId});
     if (error) throw error;
     localStorage.setItem("mx_registered", "true");
   } catch (e) {
