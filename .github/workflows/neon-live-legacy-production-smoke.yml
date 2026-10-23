@@ -46,3 +46,5 @@ jobs:
             print("PROD_REFRESH_UNAUTHORIZED_REJECTED",err.code,flush=True)
           print("NEON_LIVE_PRODUCTION_SMOKE_PASS",flush=True)
           PY
+
+# Recheck production LIVE deployment 23 — 20 stats acquisition candidates per refresh.
