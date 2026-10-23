@@ -43,6 +43,5 @@ jobs:
         env:
           BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
           TELEGRAM_BOT_TOKEN: '${{ secrets.TELEGRAM_BOT_TOKEN }}'
-        env:
           NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
         run: python bsd/bsd_v2_verify_telegram.py --feed data.json
