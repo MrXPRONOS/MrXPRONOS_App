@@ -63,6 +63,43 @@ function configured(env) {
     env.NEON_S3_ENDPOINT?.startsWith("https://")&&
     env.NEON_S3_ACCESS_KEY_ID&&env.NEON_S3_SECRET_ACCESS_KEY);
 }
+const decodeSegment = text => {
+  const raw=atob(text.replace(/-/g,"+").replace(/_/g,"/").padEnd(Math.ceil(text.length/4)*4,"="));
+  return Uint8Array.from(raw,c=>c.charCodeAt(0));
+};
+async function verifyGithubOIDC(token) {
+  try{
+    const jwt=token.replace(/^Bearer /,"");
+    const parts=jwt.split(".");
+    if(parts.length!==3)return false;
+    const head=JSON.parse(new TextDecoder().decode(decodeSegment(parts[0])));
+    const claims=JSON.parse(new TextDecoder().decode(decodeSegment(parts[1])));
+    if(head.alg!=="RS256"||!head.kid)return false;
+    const now=Math.floor(Date.now()/1000);
+    if(claims.iss!=="https://token.actions.githubusercontent.com"||
+       claims.aud!=="mrxpronos-media"||
+       claims.repository!=="MrXPRONOS/MrXPRONOS_App"||
+       ![ "refs/heads/main",
+          "refs/heads/migration/neon-cloudflare-adaptation-20261023" ].includes(claims.ref)||
+       !Number.isFinite(claims.exp)||claims.exp<=now||
+       !Number.isFinite(claims.iat)||claims.iat>now+60||
+       !Number.isFinite(claims.nbf)||claims.nbf>now)return false;
+    const allowed=["shorts-coupons-production.yml",
+      "shorts-coupons-production-validation.yml","accumulator-photo-production.yml"];
+    const ref=String(claims.workflow_ref||"");
+    if(!allowed.some(name=>ref==="MrXPRONOS/MrXPRONOS_App/.github/workflows/"+name+"@"+claims.ref))
+      return false;
+    const r=await fetch("https://token.actions.githubusercontent.com/.well-known/jwks",{
+      cf:{cacheTtl:600,cacheEverything:true}});
+    if(!r.ok)return false;
+    const jwk=(await r.json()).keys.find(x=>x.kid===head.kid&&x.kty==="RSA");
+    if(!jwk)return false;
+    const key=await crypto.subtle.importKey("jwk",jwk,
+      {name:"RSASSA-PKCS1-v1_5",hash:"SHA-256"},false,["verify"]);
+    return crypto.subtle.verify("RSASSA-PKCS1-v1_5",key,decodeSegment(parts[2]),
+      utf8(parts[0]+"."+parts[1]));
+  }catch(_){return false}
+}
 async function verifyAdmin(token,env) {
   const r=await fetch(env.NEON_DATA_API_URL.replace(/\/$/,"")+"/rpc/is_admin",{
     method:"POST",headers:{"Authorization":token,"Content-Type":"application/json"},
@@ -82,12 +119,15 @@ function publicUrl(env,key) {
 export default {
   async fetch(request,env) {
     const origin=request.headers.get("Origin");
-    if(origin!==ORIGIN)return json({error:"Origine interdite"},403);
-    if(request.method==="OPTIONS")return json({ok:true});
+    if(origin!==ORIGIN&&origin!==null)return json({error:"Origine interdite"},403);
+    if(request.method==="OPTIONS")return origin===ORIGIN?json({ok:true}):json({error:"Origine interdite"},403);
     if(!configured(env))return json({error:"Stockage Neon non configuré"},503);
     const bearer=request.headers.get("Authorization")||"";
     if(!/^Bearer [A-Za-z0-9_.-]+$/.test(bearer))return json({error:"Session requise"},401);
-    if(!await verifyAdmin(bearer,env))return json({error:"Accès administrateur interdit"},403);
+    // Browser: signed-in Neon administrator. GitHub: short-lived OIDC with exact workflow_ref.
+    const fromGithub=origin===null;
+    if(fromGithub ? !(await verifyGithubOIDC(bearer)) : !(await verifyAdmin(bearer,env)))
+      return json({error:"Accès refusé"},403);
     const pathname=new URL(request.url).pathname;
     try {
       if(request.method==="POST"&&pathname==="/upload") {
@@ -99,7 +139,8 @@ export default {
         const buffer=await request.arrayBuffer();
         if(!buffer.byteLength||buffer.byteLength>format[1]||!signatureOk(mime,new Uint8Array(buffer).slice(0,16)))
           return json({error:"Média invalide"},422);
-        const key="cms/"+crypto.randomUUID()+"."+format[0];
+        const key=(fromGithub ? (mime==="video/mp4"?"shorts/":"accumulator/") : "cms/")+
+          crypto.randomUUID()+"."+format[0];
         const upstream=await signedStorageFetch(env,objectUrl(env,key),"PUT",buffer,mime);
         if(!upstream.ok)return json({error:"Écriture Neon refusée"},502);
         // Public-readable bucket is a prerequisite; never claim a URL without checking.
@@ -108,7 +149,7 @@ export default {
         if(!probe.ok)return json({error:"Média stocké mais URL publique non accessible"},502);
         return json({key,url:link,size:buffer.byteLength,mime},201);
       }
-      if(request.method==="DELETE"&&pathname==="/object") {
+      if(!fromGithub&&request.method==="DELETE"&&pathname==="/object") {
         const key=new URL(request.url).searchParams.get("key")||"";
         if(!/^cms\/[0-9a-f-]{36}\.(jpg|png|webp|gif|mp4|webm)$/.test(key))
           return json({error:"Clé invalide"},400);
