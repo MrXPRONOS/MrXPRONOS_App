@@ -21,8 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,7 +34,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install news dependencies
-        run: python -m pip install feedparser requests Pillow
+        run: python -m pip install feedparser requests Pillow "psycopg[binary]>=3.2,<4"
 
       - name: Fetch and translate football news
         env:
@@ -71,5 +70,5 @@ jobs:
           from pathlib import Path
           rows=json.loads(Path("footnews.json").read_text(encoding="utf-8"))
           assert rows, "Snapshot local vide"
-          print("NEWS_SUPABASE_READY", len(rows))
+          print("NEWS_NEON_READY", len(rows))
           PY
