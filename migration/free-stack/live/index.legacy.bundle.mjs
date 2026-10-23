@@ -20872,6 +20872,15 @@ async function refreshLiveDataBatch(options = {}) {
         };
       });
     }
+    const beforeCanonicalDedup = allRawMatches.length;
+    allRawMatches = sortMatchesForRefresh(
+      uniqueMergedStatsRows(allRawMatches.map(mergedRowFromMatch)).map((row) => row.merged_match_json).filter(Boolean)
+    );
+    console.info("LIVE_CANONICAL_MATCH_DEDUP", {
+      discovered: beforeCanonicalDedup,
+      canonical_matches: allRawMatches.length,
+      duplicate_entries: beforeCanonicalDedup - allRawMatches.length
+    });
     const liveCoverage = {
       total: allRawMatches.length,
       bsd_primary: 0,
