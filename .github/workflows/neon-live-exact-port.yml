@@ -69,11 +69,19 @@ jobs:
           for k in BSD_API_TOKEN CRON_SECRET TELEGRAM_BOT_TOKEN TELEGRAM_CHAT_ID TELEGRAM_CHAT_ID_SECONDARY NEON_API_KEY NEON_DATABASE_URL NEON_DB_URL DATABASE_URL NEON_DELIVERY_HMAC_KEY NEON_API_TOKEN NEON_TOKEN; do
             if [[ -n "${!k}" ]]; then echo "$k: present"; else echo "$k: missing"; fi
           done
+      - name: Package Neon production candidate with original fonts
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/mrx-neon-package/_fonts
+          cp migration/free-stack/live/index.legacy.bundle.mjs /tmp/mrx-neon-package/index.mjs
+          cp supabase/functions/live/_fonts/NotoSans-{Regular,Bold,ExtraBold}.ttf /tmp/mrx-neon-package/_fonts/
+          (cd /tmp/mrx-neon-package && zip -q -r "$GITHUB_WORKSPACE/migration/free-stack/live/legacy-neon-candidate.zip" index.mjs _fonts)
+          unzip -l migration/free-stack/live/legacy-neon-candidate.zip | tail -7
       - name: Store compiled entrypoint on migration branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add migration/free-stack/live/index.legacy.bundle.mjs
+          git add migration/free-stack/live/index.legacy.bundle.mjs migration/free-stack/live/legacy-neon-candidate.zip
           if ! git diff --cached --quiet; then
             git commit -m 'build(live): tested exact legacy bundle for Neon runtime'
             git pull --rebase origin migration/supabase-to-free-stack-20261022
