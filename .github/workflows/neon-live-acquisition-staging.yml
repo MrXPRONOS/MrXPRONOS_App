@@ -50,3 +50,5 @@ jobs:
 # Acquisition target: 20 distinct matches. Deployment 7 read-only smoke.
 
 # Batch size 20 isolated deployment 8; no refresh executed by this test.
+
+# Canonical uniqueness staging deployment 9: authenticated refresh not used in QA.
