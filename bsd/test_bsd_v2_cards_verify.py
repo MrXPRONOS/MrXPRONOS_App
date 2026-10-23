@@ -4,6 +4,7 @@ import unittest
 from datetime import datetime,timedelta,timezone
 from pathlib import Path
 import requests
+from unittest.mock import patch
 
 from PIL import Image
 from bsd_v2_card import render,BALL,BRAND_ONE,BRAND_TWO,wrap_name,_odds,TEAM_ICON_CACHE,_lookup_team_badge
@@ -128,12 +129,13 @@ class CardAndSettlement(unittest.TestCase):
             def post(self,*a,**kw):
                 raise AssertionError("Telegram must not receive a loss")
         client=Stub()
-        result=validate({"matches":[m]},[record],official,
-                 datetime(2026,10,9,tzinfo=timezone.utc),
-                 client,"x","https://example.supabase.co","secret")
+        with patch("neon_telegram_ledger.mark_verified",return_value=1) as mark:
+            result=validate({"matches":[m]},[record],official,
+                     datetime(2026,10,9,tzinfo=timezone.utc),
+                     client,"x","","")
         self.assertEqual(result["losses_silent"],1)
-        self.assertEqual(len(client.calls),1)
-        self.assertEqual(client.calls[0][0],"patch")
+        mark.assert_called_once()
+        self.assertEqual(len(client.calls),0)
 
     def test_winning_coupon_posts_one_image_then_marks_verified(self):
         from unittest.mock import patch
@@ -149,13 +151,15 @@ class CardAndSettlement(unittest.TestCase):
                     def raise_for_status(self):pass
                 return Resp()
         http=Stub()
-        with patch("bsd_v2_verify_telegram.post_gain", return_value=987) as send:
+        with patch("bsd_v2_verify_telegram.post_gain", return_value=987) as send, \
+             patch("neon_telegram_ledger.mark_verified",return_value=1) as mark:
             result=validate({"matches":[m]},[record],official,
                 datetime(2026,10,9,tzinfo=timezone.utc),
-                http,"token","https://example.supabase.co","secret")
+                http,"token","","")
         self.assertEqual(result["wins_sent"],1)
         self.assertEqual(send.call_count,1)
-        self.assertEqual(len(http.patches),1)
+        mark.assert_called_once()
+        self.assertEqual(len(http.patches),0)
 
     def test_unfinished_not_validated(self):
         m=sample_match()
