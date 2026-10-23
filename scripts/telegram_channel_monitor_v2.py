@@ -20,7 +20,10 @@ def f(x):return "—" if x is None else f"{x:,.0f}".replace(","," ")
 def esc(x):return html.escape(str(x or ""),quote=True)
 class DB:
  def __init__(self):
-  from scripts.neon_rest_compat import NeonRestSession
+  try:
+   from scripts.neon_rest_compat import NeonRestSession
+  except ModuleNotFoundError:
+   from neon_rest_compat import NeonRestSession
   self.base="neon://private/rest/v1/"
   if not os.getenv("NEON_DATABASE_URL"):
    raise RuntimeError("NEON_DATABASE_URL is required")
