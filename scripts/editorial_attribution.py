@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Agrégats de vrais événements Supabase; aucune donnée individuelle publiée.
+"""Agrégats de vrais événements Neon; aucune donnée individuelle publiée.
 
 Mesure des atterrissages sociaux ET du clic sur le code promo; ni taux
 d'inscription, ni gains, ni comparaison expérimentale causale.
@@ -92,7 +92,7 @@ def summarize(events, *, now=None, lookback_days=30):
     return {
         "period_days": lookback_days,
         "generated_at": now.isoformat(),
-        "data_origin": "Supabase analytics events; anonymous attributed page reads",
+        "data_origin": "Neon analytics events; anonymous attributed page reads",
         "attributed_visits": total_visits,
         "promo_copy_actions": total_actions,
         "promo_copy_per_visit": round(total_actions / total_visits, 4) if total_visits else None,
@@ -109,33 +109,23 @@ def summarize(events, *, now=None, lookback_days=30):
 
 
 def fetch_events(session=requests, max_rows=4000, lookback_days=30):
-    url = os.getenv("SUPABASE_URL", "").rstrip("/")
-    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
-    parsed = urlparse(url)
-    if parsed.scheme != "https" or not parsed.netloc.endswith(".supabase.co") or not key:
+    """Read aggregated editorial events directly from private Neon PostgreSQL."""
+    import psycopg
+    from psycopg.rows import dict_row
+    url=os.getenv("NEON_DATABASE_URL","")
+    if not url:
         return None
-    since = datetime.now(timezone.utc) - timedelta(days=lookback_days)
-    endpoint = url + "/rest/v1/analytics"
-    headers = {"apikey": key, "Authorization": "Bearer " + key, "Accept": "application/json"}
-    collected = []
-    for offset in range(0, max_rows, 500):
-        params = {
-            "select": "event_type,page,created_at",
-            "event_type": "in.(editorial_view,editorial_promo_copy,editorial_ab_exposure,editorial_ab_click)",
-            "created_at": "gte." + since.isoformat(),
-            "order": "id.desc",
-            "limit": 500,
-            "offset": offset,
-        }
-        result = session.get(endpoint, headers=headers, params=params, timeout=(8, 25))
-        result.raise_for_status()
-        rows = result.json()
-        if not isinstance(rows, list):
-            raise ValueError("Format de réponse Supabase non valide")
-        collected.extend(rows)
-        if len(rows) < 500:
-            break
-    return collected
+    since=datetime.now(timezone.utc)-timedelta(days=lookback_days)
+    events=[]
+    with psycopg.connect(url,connect_timeout=12,row_factory=dict_row) as db:
+        with db.cursor() as cur:
+            cur.execute("""SELECT event_type,page,created_at FROM public.analytics
+                WHERE event_type = ANY(%s) AND created_at >= %s
+                ORDER BY id DESC LIMIT %s""",
+                (["editorial_view","editorial_promo_copy","editorial_ab_exposure","editorial_ab_click"],since,min(max_rows,4000)))
+            for row in cur.fetchall():
+                events.append({**row,"created_at":row["created_at"].isoformat() if row.get("created_at") else None})
+    return events
 
 
 def export(root=ROOT, session=requests, *, lookback_days=30):
