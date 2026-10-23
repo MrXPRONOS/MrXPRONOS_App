@@ -61,6 +61,11 @@ jobs:
           assert.ok(r.status>=400 && String(body.error).includes('Unauthorized'),'Cron endpoint rejects wrong secret');
           r=await handler.fetch(new Request('https://localhost/live/telegram/process-one',{method:'POST'}));
           assert.ok(r.status>=400,'Telegram delivery rejects wrong secret');
+          const blocked=await handler.fetch(new Request('https://localhost/ingest/api-football',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({method:'GET',table:'live_stats_merged'})}));
+          assert.equal(blocked.status,403,'Ingestion needs verified cron secret');
+          const bad=await handler.fetch(new Request('https://localhost/ingest/api-football',{method:'POST',headers:{'content-type':'application/json','x-cron-secret':'dummy-cron-secret'},body:JSON.stringify({method:'GET',table:'forbidden'})}));
+          assert.equal(bad.status,400,'Ingestion must reject tables outside allowlist');
+          console.log('NEON_API_FOOTBALL_TRANSPORT_GUARDS_PASS');
           console.log('LEGACY_LIVE_SMOKE_PASS');
           NODE
       - name: Display configured secret presence only (never values)
