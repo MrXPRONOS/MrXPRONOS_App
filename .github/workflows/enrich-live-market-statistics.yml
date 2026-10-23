@@ -47,3 +47,5 @@ jobs:
           python scripts/api_football_live_stats.py
 
 # Neon gateway production bootstrap: existing quota-safe collector, no prediction edits.
+
+# One-run diagnostic bootstrap: distinguish provider HTTP failures from Neon writes.
