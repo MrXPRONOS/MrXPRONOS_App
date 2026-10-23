@@ -7009,6 +7009,22 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       });
     }
 
+    // Acquisition-only deduplication: the DB snapshot already uses this
+    // canonical merger. Apply the very same selection BEFORE the first
+    // analysis batch, so all batches use identical 20-match windows and
+    // one real fixture cannot consume two prediction slots.
+    const beforeCanonicalDedup = allRawMatches.length;
+    allRawMatches = sortMatchesForRefresh(
+      uniqueMergedStatsRows(allRawMatches.map(mergedRowFromMatch))
+        .map((row: any) => row.merged_match_json)
+        .filter(Boolean),
+    );
+    console.info("LIVE_CANONICAL_MATCH_DEDUP", {
+      discovered: beforeCanonicalDedup,
+      canonical_matches: allRawMatches.length,
+      duplicate_entries: beforeCanonicalDedup - allRawMatches.length,
+    });
+
     // LIVE coverage telemetry: actual available complete market pairs,
     // not estimated events and not arbitrary provider "quality" scores.
     const liveCoverage = {
