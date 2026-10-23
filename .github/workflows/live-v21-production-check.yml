@@ -1,4 +1,4 @@
-name: Live V2.1 Production Check
+name: LIVE V2.1 - Neon production check
 
 on:
   push:
@@ -14,59 +14,47 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
     steps:
-      - name: Check production V2.1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'psycopg[binary]>=3.2,<4'
+      - name: Check LIVE signals and V2.1 history directly in Neon (read-only)
         run: |
-          set -euo pipefail
-
-          curl --fail-with-body --silent --show-error --retry 3 --max-time 30             "https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/live/matches"             -o /tmp/matches.json
-
-          curl --fail-with-body --silent --show-error --retry 3 --max-time 30             "https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/live/predictions/history"             -o /tmp/history.json
-
           python - <<'PY'
-          import json
-          from collections import Counter
-
-          matches=json.load(open('/tmp/matches.json')).get('matches') or []
-          history=json.load(open('/tmp/history.json')).get('history') or []
-
-          print('MATCHES=', len(matches))
-          print('HISTORY=', len(history))
-
-          versions=Counter(str(r.get('model_version')) for r in history)
-          print('MODEL_VERSIONS=', dict(versions))
-
-          required={
-              'baseline_threshold',
-              'historical_uplift_cap',
-              'selected_uplift',
-              'model_version',
-              'model_fair_odds',
-              'signal_tier',
-              'projected_value',
-              'final_value',
-              'headroom',
-          }
-
-          if history:
-              print('V21_SCHEMA_FIELDS=', sorted(required.intersection(history[0].keys())))
-
-          v21=[r for r in history if r.get('model_version')=='live-value-v2.1-history-calibrated']
-          print('V21_SIGNALS=', len(v21))
-
-          for r in v21[:10]:
-              print('V21_SAMPLE=', {
-                  'match': r.get('match'),
-                  'type': r.get('type'),
-                  'minute': r.get('signal_minute') or r.get('minute'),
-                  'signal_value': r.get('signal_value'),
-                  'baseline': r.get('baseline_threshold'),
-                  'uplift_cap': r.get('historical_uplift_cap'),
-                  'selected_uplift': r.get('selected_uplift'),
-                  'threshold': r.get('threshold'),
-                  'model_odds': r.get('model_fair_odds'),
-                  'tier': r.get('signal_tier'),
-                  'validated': r.get('validated'),
-                  'outcome': r.get('outcome'),
-              })
+          import os, psycopg
+          dsn=os.getenv("NEON_DATABASE_URL","").strip()
+          if not dsn:raise SystemExit("GitHub secret NEON_DATABASE_URL manquant")
+          with psycopg.connect(dsn,connect_timeout=12) as db:
+              with db.cursor() as cur:
+                  cur.execute("SELECT current_database()")
+                  assert cur.fetchone()[0]=="mrxpronos","Ce n'est pas la bonne base Neon"
+                  cur.execute("""SELECT count(*) FROM public.live_stats_merged
+                      WHERE is_live=true AND is_finished=false
+                      AND updated_at>now()-interval '2 hours'""")
+                  print("LIVE_MATCHES=",cur.fetchone()[0])
+                  cur.execute("""SELECT count(*) FROM public.live_predictions
+                      WHERE validated=true AND validated_at>now()-interval '30 days'""")
+                  print("HISTORY=",cur.fetchone()[0])
+                  cols=("baseline_threshold","historical_uplift_cap","selected_uplift",
+                      "model_version","model_fair_odds","signal_tier","projected_value",
+                      "final_value","headroom")
+                  cur.execute("""SELECT column_name FROM information_schema.columns
+                      WHERE table_schema='public' AND table_name='live_predictions'""")
+                  existing={r[0] for r in cur.fetchall()}
+                  missing=set(cols)-existing
+                  if missing:raise SystemExit("V2.1 Neon fields missing: "+str(sorted(missing)))
+                  cur.execute("""SELECT match_id,prediction_type,minute,threshold,
+                      model_version,validated,outcome FROM public.live_predictions
+                      WHERE model_version='live-value-v2.1-history-calibrated'
+                      ORDER BY created_at DESC LIMIT 10""")
+                  data=cur.fetchall()
+                  print("V21_SAMPLE_SIGNALS=",len(data))
+                  for match,kind,minute,threshold,model,validated,outcome in data:
+                      print("V21",{"match":match,"type":kind,"minute":minute,
+                          "threshold":threshold,"model_version":model,
+                          "validated":validated,"outcome":outcome})
+          print("NEON_LIVE_V21_READONLY_CHECK_OK")
           PY
