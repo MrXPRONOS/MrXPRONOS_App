@@ -39,8 +39,8 @@ jobs:
           # The only permitted deviations are acquisition/clock transport functions.
           # Restore their historical implementations before comparing all other bytes.
           for start,end in [
-            ("async function reuseCachedStats(matches: any[]) {","\\nfunction isBsdNumericEvent("),
-            ("async function enrichLiveMatchesWithFreeStats(matches: any[]) {","\\nasync function cacheLiveMatches("),
+            ("async function reuseCachedStats(matches: any[]) {","function isBsdNumericEvent("),
+            ("async function enrichLiveMatchesWithFreeStats(matches: any[]) {","async function cacheLiveMatches("),
           ]:
             begin_new=adapted.index(start)
             end_new=adapted.index(end,begin_new)
