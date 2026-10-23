@@ -14,6 +14,8 @@ TABLES = {
  "actu_foot_run_metrics","actu_foot_provider_health",
  "actu_foot_source_snapshots","live_stats_merged","matches_live",
  "actu_foot_news_snapshot","actu_foot_client_errors",
+ "telegram_channel_metrics_daily","telegram_channel_official_stats",
+ "telegram_channel_post_snapshots","telegram_channel_report_dispatch",
 }
 RPCS={"actu_foot_claim_publication","actu_foot_retryable_publications",
       "actu_foot_store_live_events"}
