@@ -1,0 +1,41 @@
+name: Neon LIVE strict historical business parity
+on:
+  push:
+    branches: [migration/supabase-to-free-stack-20261022]
+    paths:
+      - supabase/functions/live/index.ts
+      - supabase/functions/live/index.neon.ts
+      - .github/workflows/neon-live-legacy-business-parity.yml
+  workflow_dispatch:
+permissions: { contents: read }
+jobs:
+  exact-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify complete business source is unchanged outside transport
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          source=Path("supabase/functions/live/index.ts").read_text()
+          adapted=Path("supabase/functions/live/index.neon.ts").read_text()
+          assert adapted.startswith('import "./_neon_runtime.ts";\n')
+          adapted=adapted.removeprefix('import "./_neon_runtime.ts";\n')
+          marker='\n// Neon Node.js 24 Fetch entrypoint. Business functions above are preserved.\n'
+          assert adapted.count(marker)==1
+          adapted=adapted.split(marker,1)[0]
+          for original,replacement in [
+            ("serve, neonGetHandler","serve"),
+            ("./_neon_serve.ts","https://deno.land/std@0.170.0/http/server.ts"),
+            ("./_neon_db.ts","https://esm.sh/@supabase/supabase-js@2"),
+            ("./_neon_banner.ts","../_shared/live_sponsor_banner.ts"),
+            ('"@resvg/resvg-wasm"','"https://esm.sh/@resvg/resvg-wasm@2.6.2?target=deno"'),
+            ('"satori"','"npm:satori@0.12.0"'),
+            ('"satori-html"','"npm:satori-html@0.3.2"'),
+            ('"opentype.js"','"npm:opentype.js@1.3.4"')
+          ]:
+            adapted=adapted.replace(original,replacement)
+          assert adapted==source, "LIVE BUSINESS SOURCE HAS CHANGED — STOP DEPLOYMENT"
+          print("LEGACY_BUSINESS_EXACT_PARITY_PASS",len(source),"characters")
+          PY
