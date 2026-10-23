@@ -28,6 +28,7 @@ concurrency:
 
 jobs:
   setup:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
