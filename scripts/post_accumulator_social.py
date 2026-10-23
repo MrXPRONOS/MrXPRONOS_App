@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Photo du coupon quotidien sur Facebook, Instagram et Threads.
 Publie UNIQUEMENT la couverture recadrée, jamais YouTube.
-Registre anti-doublon Supabase telegram_sent avec un kind propre par plateforme.
+Registre anti-doublon Neon telegram_sent avec un kind propre par plateforme.
 """
 import io, json, os, sys, time
 from pathlib import Path
@@ -24,23 +24,15 @@ def post(url,**kwargs):
  return d
 
 def public_url(image,day):
- base=need("SUPABASE_URL").rstrip("/")
- key=need("SUPABASE_SERVICE_ROLE_KEY")
- bucket=os.getenv("SUPABASE_BUCKET","videos")
+ from neon_public_media import upload_public
+ from tempfile import TemporaryDirectory
  obj="images/mrxpronos-combine/"+day+"/preview.jpg"
- buffer=io.BytesIO()
- with Image.open(image) as im:
-  rgb=im.convert("RGB")
-  rgb.save(buffer,"JPEG",quality=88,optimize=True)
- url=base+"/storage/v1/object/"+bucket+"/"+obj
- r=requests.post(url,headers={"apikey":key,"Authorization":"Bearer "+key,
-   "Content-Type":"image/jpeg","x-upsert":"true"},data=buffer.getvalue(),timeout=120)
- if not r.ok:raise RuntimeError("Upload photo publique: HTTP "+str(r.status_code))
- public=base+"/storage/v1/object/public/"+bucket+"/"+obj
- check=requests.get(public,timeout=30)
- if check.status_code!=200 or not check.headers.get("content-type","").startswith("image/"):
-  raise RuntimeError("Bucket photo non public / photo non accessible")
- return public
+ with TemporaryDirectory() as folder:
+  filename=Path(folder)/"preview.jpg"
+  with Image.open(image) as im:
+   im.convert("RGB").save(filename,"JPEG",quality=88,optimize=True)
+  return upload_public(filename,obj,content_type="image/jpeg")
+
 
 def publish(platform,public,image,caption):
  if platform=="facebook":
@@ -88,7 +80,8 @@ def main():
  day=report["day"]
  image=Path(os.getenv("ACCUMULATOR_SOCIAL_IMAGE","telegram_out/accumulator_preview.jpg"))
  if not image.exists():raise RuntimeError("Aperçu JPEG absent")
- source=need("SUPABASE_URL");key=need("SUPABASE_SERVICE_ROLE_KEY")
+ if not os.getenv("NEON_DATABASE_URL"):raise RuntimeError("Accès Neon requis")
+ source="";key=""
  odds=report["combined_odds"];count=report["included"]
  caption=(f"⚽ Combiné Mr XPRONOS · {day}\n{count} sélections · Cote indicative : {odds}\n"
           "Mise simulée : 50 000 F CFA.\n"
