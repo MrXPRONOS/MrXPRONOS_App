@@ -4415,9 +4415,25 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
       statsCompleteness(getMatchLiveStats(a.m)).core_complete -
       statsCompleteness(getMatchLiveStats(b.m)).core_complete
     );
-  // Time-slice SportScore detail requests fairly across the eligible games.
-  const sportRotation=candidates.length?(Math.floor(Date.now()/60_000)*Math.max(1,maxSportScore))%candidates.length:0;
-  const rotatedCandidates=[...candidates.slice(sportRotation),...candidates.slice(0,sportRotation)];
+  // Prioritize verified market pairs with no observed LIVE clock, without
+  // changing the request budget. The remaining calls keep minute rotation.
+  const clockRescue=candidates.filter(({m}) =>
+    safeNumber(m?.current_minute ?? m?.minute,0)<=0 &&
+    statsCompleteness(getMatchLiveStats(m)).core_complete>=1 &&
+    Boolean(m?.raw_data?.provider_refs?.sportscore?.slug)
+  );
+  const routine=candidates.filter(item => !clockRescue.includes(item));
+  const rotate=(rows:any[],step:number)=>rows.length
+    ? [...rows.slice(step%rows.length),...rows.slice(0,step%rows.length)] : [];
+  const minuteSlot=Math.floor(Date.now()/60_000);
+  const prioritySlots=Math.min(clockRescue.length,Math.max(1,Math.ceil(maxSportScore/2)));
+  const clockRotation=rotate(clockRescue,minuteSlot*prioritySlots);
+  const routineRotation=rotate(routine,minuteSlot*Math.max(1,maxSportScore-prioritySlots));
+  const rotatedCandidates=[
+    ...clockRotation.slice(0,prioritySlots),
+    ...routineRotation,
+    ...clockRotation.slice(prioritySlots),
+  ];
 
   for (const { m, index } of rotatedCandidates) {
     let current = out[index];
@@ -4451,6 +4467,7 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
             raw_data: {
               ...(current?.raw_data || {}),
               sportscore_minute_source: "detail",
+              sportscore_minute_observed_at: nowIso(),
               sportscore_minute_raw: String(payload?.match?.live_minute ?? ""),
             },
           };
@@ -6279,8 +6296,26 @@ async function reuseCachedStats(matches: any[]) {
       getMatchLiveStats(match),
     );
 
+    // Transport-only clock retention: use ONLY a minute observed in this exact
+    // fixture's SportScore detail, never a clock estimated from kickoff time.
+    // Expire after 120 seconds so an old observation cannot masquerade as LIVE.
+    const observedAt = Date.parse(String(cached?.raw_data?.sportscore_minute_observed_at || ""));
+    const observationAge = Date.now() - observedAt;
+    const observedMinute = safeNumber(cached?.current_minute, 0);
+    const currentMinute = safeNumber(match?.current_minute ?? match?.minute, 0);
+    const sameKickoff = String(cached?.event_date || "") === String(match?.event_date || "");
+    const verifiedRecentClock =
+      String(cached?.id || "") === String(match?.id || "") &&
+      sameKickoff && match?.is_live === true && cached?.is_live === true &&
+      match?.is_finished !== true && cached?.is_finished !== true &&
+      Number.isFinite(observedAt) && observationAge >= -5000 && observationAge <= 120000 &&
+      observedMinute > 0 && observedMinute <= 95 &&
+      cached?.raw_data?.sportscore_minute_source === "detail";
+    const retainedMinute = verifiedRecentClock ? Math.max(currentMinute, observedMinute) : currentMinute;
+
     return {
       ...match,
+      current_minute: retainedMinute,
       live_stats: mergedStats,
       stats_last_updated_at:
         match?.stats_last_updated_at ||
@@ -6295,6 +6330,11 @@ async function reuseCachedStats(matches: any[]) {
           cached?.raw_data?.bsd_detail_last_attempt_at || null,
         sportscore_detail_last_attempt_at: match?.raw_data?.sportscore_detail_last_attempt_at ||
           cached?.raw_data?.sportscore_detail_last_attempt_at || null,
+        sportscore_minute_observed_at: verifiedRecentClock
+          ? cached?.raw_data?.sportscore_minute_observed_at
+          : match?.raw_data?.sportscore_minute_observed_at || null,
+        sportscore_minute_source: verifiedRecentClock
+          ? "detail" : match?.raw_data?.sportscore_minute_source || null,
         live_stats: mergedStats,
       },
     };
