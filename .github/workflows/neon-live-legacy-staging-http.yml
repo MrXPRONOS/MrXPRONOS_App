@@ -43,3 +43,5 @@ jobs:
           PY
 
 # Rerun against Neon stage deployment 2 with explicit PostgreSQL service role
+
+# Rerun after encrypted GitHub secrets bootstrap on Neon stage deployment 3
