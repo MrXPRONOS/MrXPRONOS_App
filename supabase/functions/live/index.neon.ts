@@ -89,11 +89,10 @@ const ESPN_SUMMARY_URL =
 const ENABLE_ESPN_MERGE =
   String(Deno.env.get("ENABLE_ESPN_MERGE") || "true").toLowerCase() !== "false";
 
-// Refresh par petits lots pour rester sous la limite CPU Supabase.
-// Valeur choisie : 5 matchs par invocation enfant.
+// Refresh LIVE Neon : 20 matchs par lot (repli automatique en cas de surcharge CPU).
 const LIVE_REFRESH_BATCH_SIZE = Math.max(
   1,
-  Math.min(5, safeEnvInt("LIVE_REFRESH_BATCH_SIZE", 5)),
+  Math.min(20, safeEnvInt("LIVE_REFRESH_BATCH_SIZE", 20)),
 );
 const LIVE_REFRESH_MAX_BATCHES = Math.max(
   1,
@@ -6708,7 +6707,7 @@ async function pulseAllLiveFixtures(matches:any[]) {
 async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
   const batchSize = Math.max(
     1,
-    Math.min(5, Math.floor(options.batchSize ?? LIVE_REFRESH_BATCH_SIZE)),
+    Math.min(20, Math.floor(options.batchSize ?? LIVE_REFRESH_BATCH_SIZE)),
   );
   const cursor = String(options.cursor || "");
   const allowTelegram = TELEGRAM_IN_REFRESH && options.allowTelegram !== false;
@@ -7358,12 +7357,12 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE, loc
       const {data:renewed,error:renewError}=await supabase.rpc("renew_live_refresh",{p_owner:lockOwner});
       if (renewError || !renewed) throw new Error("Live refresh lease lost; aborting stale coordinator");
     }
-    let effectiveBatchSize = Math.max(1, Math.min(5, batchSize));
+    let effectiveBatchSize = Math.max(1, Math.min(20, batchSize));
     let allowTelegram = true;
     let result: any = null;
 
     // Protection supplémentaire :
-    // - si un lot de 5 reçoit encore un 546, on retente 2 puis 1;
+    // - si un lot de 20 reçoit un 546, on réduit progressivement la taille jusqu’à 1;
     // - si même 1 échoue, on retente sans rendu Telegram pour sauver les données.
     while (!result) {
       try {
@@ -9075,7 +9074,7 @@ serve(async (req) => {
       return json({ merged: data || [] });
     }
 
-    // Un lot interne : maximum 5 matchs.
+    // Un lot interne : maximum 20 matchs.
     // Cette route est appelée par le coordinateur /refresh.
     if (path === "/refresh/batch" && req.method === "POST") {
       requireCronAuth(req, url);
@@ -9087,7 +9086,7 @@ serve(async (req) => {
         ),
       );
 
-      const batchSize = Math.max(1, Math.min(5, requestedBatchSize));
+      const batchSize = Math.max(1, Math.min(20, requestedBatchSize));
       const cursor = url.searchParams.get("cursor") || null;
       const allowTelegram =
         String(url.searchParams.get("allow_telegram") || "1") !== "0";
