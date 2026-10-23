@@ -22,7 +22,7 @@ class Query implements PromiseLike<{data:any;error:any;count?:number}> {
  lte(key:string,val:any){this.conditions.push({text:safe(key)+" <= ",value:val});return this}
  lt(key:string,val:any){this.conditions.push({text:safe(key)+" < ",value:val});return this}
  is(key:string,val:any){if(val!==null)throw Error("UNSUPPORTED_IS");this.conditions.push({text:safe(key)+" IS NULL",value:undefined});return this}
- in(key:string,vals:any[]){this.conditions.push({text:safe(key)+" IN ",value:Array.isArray(vals)?vals:[]});return this}
+ in(key:string,vals:any[]){if(!Array.isArray(vals)||vals.length===0){this.conditions.push({text:"1=0",value:undefined});return this;}this.conditions.push({text:safe(key)+" IN ",value:vals});return this}
  or(value:string){if(value!=="telegram_sent.is.null,telegram_sent.eq.false")throw Error("UNSUPPORTED_OR");this.orClause="(telegram_sent IS NULL OR telegram_sent = false)";return this}
  order(key:string,opts:any={}){this.sorts.push({key:safe(key),asc:opts.ascending!==false});return this}
  limit(n:number){this.maxRows=Math.max(0,Math.min(10000,Math.floor(n)));return this}
@@ -32,7 +32,7 @@ class Query implements PromiseLike<{data:any;error:any;count?:number}> {
   const params:any[]=[];const bind=(v:any)=>{params.push(v);return "$"+params.length};
   let where=this.conditions.map(c=>c.value===undefined?c.text:Array.isArray(c.value)?c.text+"("+c.value.map(bind).join(",")+")":c.text+bind(c.value)).join(" AND ");
   if(this.orClause)where+=(where?" AND ":"")+this.orClause;
-  const clause=where?" WHERE "+where:"";
+  let clause=where?" WHERE "+where:"";
   const source="public."+this.name;
   const order=this.sorts.length?" ORDER BY "+this.sorts.map(s=>s.key+(s.asc?" ASC":" DESC")).join(","):"";
   const limit=this.maxRows!==null?" LIMIT "+this.maxRows:"";
@@ -42,7 +42,9 @@ class Query implements PromiseLike<{data:any;error:any;count?:number}> {
   else if(this.action==="delete")statement="DELETE FROM "+source+clause+(this.returning?" RETURNING "+cols:"");
   else if(this.action==="update"){
    const entries=Object.entries(this.data||{});if(!entries.length)throw Error("EMPTY_UPDATE");
-   statement="UPDATE "+source+" SET "+entries.map(([key,v])=>safe(key)+"="+bind(v)).join(",")+clause+(this.returning?" RETURNING "+cols:"");
+   const assignments=entries.map(([key,v])=>safe(key)+"="+bind(v)).join(",");
+   // Conditions were bound first; PostgreSQL permits out-of-order parameter indices.
+   statement="UPDATE "+source+" SET "+assignments+clause+(this.returning?" RETURNING "+cols:"");
   }else{
    const rows=Array.isArray(this.data)?this.data:[this.data];if(!rows.length)return {data:[],error:null};
    const keys=[...new Set(rows.flatMap(x=>Object.keys(x||{})))].map(safe);
