@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 concurrency:
   group: shorts-coupons-production-validation
@@ -33,11 +34,7 @@ jobs:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
-      NEON_S3_ENDPOINT: ${{ secrets.NEON_S3_ENDPOINT }}
-      NEON_S3_ACCESS_KEY_ID: ${{ secrets.NEON_S3_ACCESS_KEY_ID }}
-      NEON_S3_SECRET_ACCESS_KEY: ${{ secrets.NEON_S3_SECRET_ACCESS_KEY }}
-      NEON_S3_BUCKET: videos
-      NEON_PUBLIC_MEDIA_BASE_URL: ${{ secrets.NEON_PUBLIC_MEDIA_BASE_URL }}
+      NEON_MEDIA_UPLOAD_URL: https://mrxpronos-admin-media.cinecanaux-xpronos.workers.dev/upload
       META_APP_ID: ${{ secrets.META_APP_ID }}
       META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
       META_LONG_LIVED_USER_TOKEN: ${{ secrets.META_LONG_LIVED_USER_TOKEN }}
