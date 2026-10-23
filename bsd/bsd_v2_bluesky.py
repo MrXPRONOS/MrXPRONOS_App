@@ -89,31 +89,14 @@ def ledger_headers(key: str) -> dict:
     }
 
 
-def claim(session: requests.Session, base: str, key: str, ident: tuple[str, str, str]) -> bool:
-    kind, ref_id, ref_date = ident
-    response = session.post(
-        base.rstrip("/") + "/rest/v1/" + LEDGER_TABLE,
-        params={"on_conflict": "kind,ref_id,ref_date"},
-        headers=ledger_headers(key),
-        json={"kind": kind, "ref_id": ref_id, "ref_date": ref_date,
-              "validation_sent": False},
-        timeout=30,
-    )
-    response.raise_for_status()
-    rows = response.json()
-    return isinstance(rows, list) and len(rows) > 0
+def claim(session, base, key, ident):
+    from neon_telegram_ledger import claim as reserve
+    return bool(reserve(*ident))
 
 
-def release(session: requests.Session, base: str, key: str, ident: tuple[str, str, str]) -> None:
-    kind, ref_id, ref_date = ident
-    response = session.delete(
-        base.rstrip("/") + "/rest/v1/" + LEDGER_TABLE,
-        params={"kind": "eq." + kind, "ref_id": "eq." + ref_id,
-                "ref_date": "eq." + ref_date},
-        headers=ledger_headers(key),
-        timeout=30,
-    )
-    response.raise_for_status()
+def release(session, base, key, ident):
+    from neon_telegram_ledger import release as undo
+    undo(*ident)
 
 
 def jpeg_bytes(path: Path, limit: int = 950_000) -> tuple[bytes, tuple[int, int]]:
@@ -218,11 +201,10 @@ def main() -> int:
 
     handle = os.getenv("BLUESKY_HANDLE", "").strip().lstrip("@")
     password = os.getenv("BLUESKY_APP_PASSWORD", "").strip()
-    supabase_url = os.getenv("SUPABASE_URL", "").strip()
-    supabase_key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or
-                    os.getenv("SUPABASE_KEY") or "").strip()
-    if not all((handle, password, supabase_url, supabase_key)):
-        raise RuntimeError("Secrets BLUESKY_HANDLE, BLUESKY_APP_PASSWORD, SUPABASE requis")
+    supabase_url = ""  # legacy internal call signature; Neon does not need an HTTP URL
+    supabase_key = ""
+    if not all((handle, password, os.getenv("NEON_DATABASE_URL"))):
+        raise RuntimeError("Secrets BLUESKY and NEON_DATABASE_URL required")
     if not queue:
         print("BLUESKY_NO_DUE_POSTS")
         return 0
