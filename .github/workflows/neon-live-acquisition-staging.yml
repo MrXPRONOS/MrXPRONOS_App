@@ -1,0 +1,40 @@
+name: Neon LIVE acquisition read-only staging smoke
+on:
+  push:
+    branches: [migration/supabase-to-free-stack-20261022]
+    paths: ['.github/workflows/neon-live-acquisition-staging.yml']
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Verify staged Neon function and observed statistics without writing
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,urllib.request,urllib.error
+          base="https://br-winter-truth-b9of9tss-livelegacytest.compute.c-7.eu-central-1.aws.neon.tech"
+          for path,key in [("/matches","matches"),("/opportunities","opportunities"),("/today","data"),("/predictions/history","history")]:
+            req=urllib.request.Request(base+path,headers={"Origin":"https://mrxpronos.github.io"})
+            with urllib.request.urlopen(req,timeout=50) as response:
+              body=json.load(response)
+              assert response.status==200 and key in body,(path,response.status,body)
+              print("STAGE_ACQUISITION_HTTP_PASS",path,flush=True)
+          with urllib.request.urlopen(base+"/matches",timeout=50) as response:
+            body=json.load(response)
+          matches=body.get("matches",[])
+          assert isinstance(matches,list)
+          matched=[m for m in matches if isinstance(m,dict)]
+          known_minutes=sum(1 for m in matched if float(m.get("current_minute") or 0)>0)
+          known_corners=sum(1 for m in matched if all((m.get("live_stats") or {}).get(s,{}).get("corner_kicks") is not None for s in ("home","away")))
+          print("STAGE_ACQUISITION_COVERAGE",json.dumps({"matches":len(matched),"observed_minutes":known_minutes,"observed_corner_pairs":known_corners}),flush=True)
+          req=urllib.request.Request(base+"/refresh",method="POST",data=b"{}",headers={"Content-Type":"application/json"})
+          try:
+            with urllib.request.urlopen(req,timeout=12):raise AssertionError("Unauthorized refresh accepted")
+          except urllib.error.HTTPError as e:
+            assert e.code>=400,e.code
+            print("STAGE_UNAUTHORIZED_REFRESH_REJECTED",e.code,flush=True)
+          print("STAGE_ACQUISITION_PASS",flush=True)
+          PY
