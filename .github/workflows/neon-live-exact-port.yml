@@ -7,7 +7,7 @@ on:
       - 'supabase/functions/live/_neon_*.ts'
       - '.github/workflows/neon-live-exact-port.yml'
   workflow_dispatch:
-permissions: {contents: read}
+permissions: {contents: write}
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -19,14 +19,59 @@ jobs:
       - name: Install pinned runtime and build dependencies
         run: |
           npm install --no-save --no-package-lock --no-audit --no-fund \
-            postgres@3.4.7 esbuild@0.25.12 imagescript@1.3.0 \
+            postgres@3.4.7 esbuild@0.25.12 \
             @resvg/resvg-wasm@2.6.2 satori@0.12.0 satori-html@0.3.2 opentype.js@1.3.4
       - name: Bundle exact historical LIVE business implementation
         run: |
           ./node_modules/.bin/esbuild supabase/functions/live/index.neon.ts \
             --bundle --platform=node --format=esm --target=node24 \
-            --outfile=/tmp/live.neon.production-candidate.mjs
-          node --check /tmp/live.neon.production-candidate.mjs
-          node -e 'const f=require("fs");const s=f.readFileSync("/tmp/live.neon.production-candidate.mjs","utf8"); for(const x of ["LIVE_VALUE_MODEL_VERSION","predictTotalCorners","predictTotalShots","predictTotalFouls","buildLivePrediction","refreshLiveDataBatch","sendTelegramLiveCoupon","validate"]) if(!s.includes(x)) throw Error("MISSING: "+x); console.log("LEGACY_FUNCTIONS_RETAINED")'
+            --outfile=migration/free-stack/live/index.legacy.bundle.mjs
+          node --check migration/free-stack/live/index.legacy.bundle.mjs
+          node -e 'const f=require("fs");const s=f.readFileSync("migration/free-stack/live/index.legacy.bundle.mjs","utf8"); for(const x of ["LIVE_VALUE_MODEL_VERSION","predictTotalCorners","predictTotalShots","predictTotalFouls","buildLivePrediction","refreshLiveDataBatch","sendTelegramLiveCoupon","validate"]) if(!s.includes(x)) throw Error("MISSING: "+x); console.log("LEGACY_FUNCTIONS_RETAINED")'
+
+      - name: Smoke test without accessing PostgreSQL or Telegram
+        env:
+          DATABASE_URL: postgres://smoke:smoke@127.0.0.1:5432/smoke
+          SUPABASE_URL: https://placeholder.invalid
+          SUPABASE_SERVICE_ROLE_KEY: dummy
+          CRON_SECRET: dummy-cron-secret
+          DEBUG_KEY: dummy-debug-secret
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import handler from './migration/free-stack/live/index.legacy.bundle.mjs';
+          assert.equal(typeof handler.fetch,'function','Neon fetch handler available');
+          assert.equal(globalThis.Deno.env.get('CRON_SECRET'), 'dummy-cron-secret');
+          let r=await handler.fetch(new Request('https://localhost/live/unknown'));
+          assert.equal(r.status,404,'Unknown route must be 404');
+          r=await handler.fetch(new Request('https://localhost/live/refresh',{method:'POST'}));
+          const body=await r.json();
+          assert.ok(r.status>=400 && String(body.error).includes('Unauthorized'),'Cron endpoint rejects wrong secret');
+          r=await handler.fetch(new Request('https://localhost/live/telegram/process-one',{method:'POST'}));
+          assert.ok(r.status>=400,'Telegram delivery rejects wrong secret');
+          console.log('LEGACY_LIVE_SMOKE_PASS');
+          NODE
+      - name: Display configured secret presence only (never values)
+        env:
+          BSD_API_TOKEN: ${{ secrets.BSD_API_TOKEN }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+        run: |
+          for k in BSD_API_TOKEN CRON_SECRET TELEGRAM_BOT_TOKEN TELEGRAM_CHAT_ID TELEGRAM_CHAT_ID_SECONDARY NEON_API_KEY; do
+            if [[ -n "${!k}" ]]; then echo "$k: present"; else echo "$k: missing"; fi
+          done
+      - name: Store compiled entrypoint on migration branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add migration/free-stack/live/index.legacy.bundle.mjs
+          if ! git diff --cached --quiet; then
+            git commit -m 'build(live): tested exact legacy bundle for Neon runtime'
+            git pull --rebase origin migration/supabase-to-free-stack-20261022
+            git push origin HEAD:refs/heads/migration/supabase-to-free-stack-20261022
+          fi
       - name: Confirm no writes to production during build
         run: echo "BUILD_ONLY_NO_DEPLOY"
