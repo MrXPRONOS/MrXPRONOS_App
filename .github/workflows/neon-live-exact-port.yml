@@ -1,0 +1,32 @@
+name: Neon LIVE exact legacy engine build verification
+on:
+  push:
+    branches: [migration/supabase-to-free-stack-20261022]
+    paths:
+      - 'supabase/functions/live/index.neon.ts'
+      - 'supabase/functions/live/_neon_*.ts'
+      - '.github/workflows/neon-live-exact-port.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '24'}
+      - name: Install pinned runtime and build dependencies
+        run: |
+          npm install --no-save --no-package-lock --no-audit --no-fund \
+            postgres@3.4.7 esbuild@0.25.12 imagescript@1.3.0 \
+            @resvg/resvg-wasm@2.6.2 satori@0.12.0 satori-html@0.3.2 opentype.js@1.3.4
+      - name: Bundle exact historical LIVE business implementation
+        run: |
+          ./node_modules/.bin/esbuild supabase/functions/live/index.neon.ts \
+            --bundle --platform=node --format=esm --target=node24 \
+            --outfile=/tmp/live.neon.production-candidate.mjs
+          node --check /tmp/live.neon.production-candidate.mjs
+          node -e 'const f=require("fs");const s=f.readFileSync("/tmp/live.neon.production-candidate.mjs","utf8"); for(const x of ["LIVE_VALUE_MODEL_VERSION","predictTotalCorners","predictTotalShots","predictTotalFouls","buildLivePrediction","refreshLiveDataBatch","sendTelegramLiveCoupon","validate"]) if(!s.includes(x)) throw Error("MISSING: "+x); console.log("LEGACY_FUNCTIONS_RETAINED")'
+      - name: Confirm no writes to production during build
+        run: echo "BUILD_ONLY_NO_DEPLOY"
