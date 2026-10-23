@@ -11,7 +11,10 @@ from datetime import datetime, timezone
 from typing import Any
 
 import requests
-from scripts.neon_rest_compat import NeonRestSession
+try:
+    from scripts.neon_rest_compat import NeonRestSession
+except ModuleNotFoundError:
+    from neon_rest_compat import NeonRestSession
 
 
 def _config() -> tuple[str, str]:
