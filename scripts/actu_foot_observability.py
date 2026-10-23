@@ -11,6 +11,7 @@ import os
 from datetime import datetime, timezone
 
 import requests
+from neon_rest_compat import NeonRestSession
 
 
 def _parse_moment(value) -> datetime | None:
@@ -54,8 +55,9 @@ def _actionable_outbox_count(rows: list[dict], now: datetime | None = None) -> i
 
 
 def _outbox_pending(session: requests.Session) -> int:
-    base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
+    session = NeonRestSession(session)
+    base = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
+    key = "server" if os.getenv("NEON_DATABASE_URL") else ""
     if not base or not key:
         return 0
     try:
@@ -87,10 +89,11 @@ def persist_run_metrics(
     ranking: dict,
 ) -> None:
     """Persiste une métrique privée sans jamais lever d'erreur vers le canal."""
+    session = NeonRestSession(session)
     if os.getenv("FOOTBALL_RUN_METRICS", "0") != "1":
         return
-    base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
+    base = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
+    key = "server" if os.getenv("NEON_DATABASE_URL") else ""
     if not base or not key:
         return
 
