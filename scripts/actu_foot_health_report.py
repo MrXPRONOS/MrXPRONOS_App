@@ -6,7 +6,7 @@ import os
 from datetime import datetime, timezone
 
 import requests
-from neon_rest_compat import NeonRestSession
+from scripts.neon_rest_compat import NeonRestSession
 
 from actu_foot_observability import _actionable_outbox_count
 
