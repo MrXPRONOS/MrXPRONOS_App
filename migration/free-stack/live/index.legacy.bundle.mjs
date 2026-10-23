@@ -20300,7 +20300,7 @@ async function reuseCachedStats(matches) {
     const observedMinute = safeNumber(cached?.current_minute, 0);
     const currentMinute = safeNumber(match?.current_minute ?? match?.minute, 0);
     const sameKickoff = String(cached?.event_date || "") === String(match?.event_date || "");
-    const verifiedRecentClock = String(cached?.id || "") === String(match?.id || "") && sameKickoff && match?.is_live === true && cached?.is_live === true && match?.is_finished !== true && cached?.is_finished !== true && Number.isFinite(observedAt) && observationAge >= -5e3 && observationAge <= 12e4 && observedMinute > 0 && observedMinute <= 95 && cached?.raw_data?.sportscore_minute_source === "detail";
+    const verifiedRecentClock = String(cached?.id || "") === String(match?.id || "") && sameKickoff && match?.is_live === true && cached?.is_live === true && match?.is_finished !== true && cached?.is_finished !== true && Number.isFinite(observedAt) && observationAge >= -5e3 && observationAge <= 12e4 && currentMinute <= 0 && observedMinute > 0 && observedMinute <= 95 && cached?.raw_data?.sportscore_minute_source === "detail";
     const retainedMinute = verifiedRecentClock ? Math.max(currentMinute, observedMinute) : currentMinute;
     return {
       ...match,
