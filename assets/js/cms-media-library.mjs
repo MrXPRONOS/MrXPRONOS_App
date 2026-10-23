@@ -1,5 +1,6 @@
 // Mr XPRONOS — Admin-only media library. Public URLs are display-only.
 import { isSafeCmsUrl } from "./cms-url-guard.mjs";
+import { cloudflareCmsMediaApiUrl,neonPublicMediaUrl } from "./config.js";
 const BUCKET="cms-media";
 export const MIME_EXT=Object.freeze({
   "image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/gif":"gif",
@@ -47,6 +48,34 @@ async function optimizeImage(file,mime){
       mime:"image/webp",ext:"webp"};
   }finally{URL.revokeObjectURL(url);}
 }
+function publicMediaUrl(key) {
+  if(!/^cms\/[0-9a-f-]{36}\.(jpg|png|webp|gif|mp4|webm)$/.test(String(key||"")))return null;
+  return neonPublicMediaUrl.replace(/\/$/,"")+"/"+key;
+}
+async function mediaTransfer(sb,content,mime) {
+  const {data:{session},error}=await sb.auth.getSession();
+  if(error||!session?.access_token)throw Error("Session administrateur requise");
+  if(!cloudflareCmsMediaApiUrl.startsWith("https://"))throw Error("Cloudflare média non déployé");
+  const response=await fetch(cloudflareCmsMediaApiUrl+"/upload",{
+    method:"POST",headers:{"Content-Type":mime,"Authorization":"Bearer "+session.access_token},
+    body:content
+  });
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok||!result.key||!result.url)throw Error(result.error||"Upload Neon refusé");
+  if(!isSafeCmsUrl(result.url,"image"))throw Error("URL publique incorrecte");
+  return result;
+}
+async function removeMedia(sb,keys) {
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    for(const key of keys){
+      if(!key)continue;
+      await fetch(cloudflareCmsMediaApiUrl+"/object?key="+encodeURIComponent(key),{
+        method:"DELETE",headers:{"Authorization":"Bearer "+session.access_token}
+      });
+    }
+  }catch(_) {/* Cleanup is best effort; server logs should track orphans. */}
+}
 export async function uploadCmsFile(sb,file,alt="",caption=""){
   if(!file||typeof file.slice!=="function")throw Error("Sélectionne un fichier.");
   const signature=new Uint8Array(await file.slice(0,16).arrayBuffer());
@@ -56,31 +85,21 @@ export async function uploadCmsFile(sb,file,alt="",caption=""){
   if(userErr||!user?.id)throw Error("Session administrateur absente");
   const transformed=check.kind==="image"?await optimizeImage(file,check.mime):
     {file,thumbnail:null,width:null,height:null};
-  const mime=transformed.mime||check.mime,ext=transformed.ext||check.ext;
-  const id=crypto.randomUUID(),path=`cms/${user.id}/${id}.${ext}`;
-  const bucket=sb.storage.from(BUCKET);
-  const opts={contentType:mime,upsert:false,cacheControl:"3600"};
-  const {error:upErr}=await bucket.upload(path,transformed.file,opts);
-  if(upErr)throw Error("Upload refusé : "+upErr.message);
-  let thumbPath=null;
+  const mime=transformed.mime||check.mime;
+  const main=await mediaTransfer(sb,transformed.file,mime);
+  let thumb=null;
   try{
-    if(transformed.thumbnail){
-      thumbPath=`cms/${user.id}/${crypto.randomUUID()}.webp`;
-      const {error:thumbErr}=await bucket.upload(thumbPath,transformed.thumbnail,
-        {contentType:"image/webp",upsert:false,cacheControl:"3600"});
-      if(thumbErr)throw thumbErr;
-    }
-    const row={storage_path:path,kind:check.kind,mime_type:mime,
+    if(transformed.thumbnail)thumb=await mediaTransfer(sb,transformed.thumbnail,"image/webp");
+    const row={storage_path:main.key,kind:check.kind,mime_type:mime,
       original_name:String(file.name||"media").slice(0,240),file_size:transformed.file.size,
       width:transformed.width||null,height:transformed.height||null,
-      alt_text:String(alt).slice(0,300),caption:String(caption).slice(0,1000),thumbnail_path:thumbPath};
+      alt_text:String(alt).slice(0,300),caption:String(caption).slice(0,1000),
+      thumbnail_path:thumb?.key||null};
     const {data,error}=await sb.from("cms_media").insert(row).select("*").single();
     if(error)throw new Error(error.message||String(error));
-    return {...data,url:bucket.getPublicUrl(path).data.publicUrl,
-      thumbUrl:thumbPath?bucket.getPublicUrl(thumbPath).data.publicUrl:null};
+    return {...data,url:main.url,thumbUrl:thumb?.url||null};
   }catch(error){
-    // Prevent orphaned public files when metadata insertion fails.
-    await bucket.remove([path,...(thumbPath?[thumbPath]:[])]).catch(()=>{});
+    await removeMedia(sb,[main.key,thumb?.key]);
     throw error;
   }
 }
@@ -91,10 +110,9 @@ export async function listCmsMedia(sb,{offset=0,pageSize=48}={}){
     "id,kind,storage_path,mime_type,alt_text,caption,thumbnail_path,created_at,original_name"
   ).order("created_at",{ascending:false}).range(offset,offset+pageSize-1);
   if(error)throw error;
-  const bucket=sb.storage.from(BUCKET);
   return (data||[]).map(row=>({
-    ...row,url:bucket.getPublicUrl(row.storage_path).data.publicUrl,
-    thumbUrl:row.thumbnail_path?bucket.getPublicUrl(row.thumbnail_path).data.publicUrl:null
+    ...row,url:publicMediaUrl(row.storage_path),
+    thumbUrl:row.thumbnail_path?publicMediaUrl(row.thumbnail_path):null
   }));
 }
 
