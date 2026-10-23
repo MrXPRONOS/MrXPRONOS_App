@@ -1,0 +1,48 @@
+name: Neon LIVE API-Football gateway staging read-only tests
+on:
+  push:
+    branches: [migration/supabase-to-free-stack-20261022]
+    paths: ['.github/workflows/neon-live-api-football-gateway-smoke.yml']
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    env:
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+    steps:
+      - name: Verify authenticated Neon ingestion read-only interface
+        run: |
+          python3 - <<'PY'
+          import json,os,urllib.request,urllib.error
+          base="https://br-winter-truth-b9of9tss-livelegacytest.compute.c-7.eu-central-1.aws.neon.tech"
+          assert os.environ.get("CRON_SECRET")
+          def ask(secret,body):
+            data=json.dumps(body).encode()
+            req=urllib.request.Request(base+"/ingest/api-football",data=data,method="POST",
+              headers={"Content-Type":"application/json","x-cron-secret":secret})
+            try:
+              with urllib.request.urlopen(req,timeout=35) as res:return res.status,json.load(res)
+            except urllib.error.HTTPError as e:return e.code,json.loads(e.read().decode())
+          code,_=ask("invalid",{"method":"GET","table":"live_stats_merged"})
+          assert code==403,code
+          print("API_GATEWAY_BAD_AUTH_REJECTED",code)
+          code,_=ask(os.environ["CRON_SECRET"],{"method":"POST","table":"live_stats_sources","body":[{"source_name":"forbidden"}]})
+          assert code==400,code
+          print("API_GATEWAY_BAD_OBSERVATION_REJECTED",code)
+          import datetime
+          now=datetime.datetime.now(datetime.timezone.utc)
+          since=(now-datetime.timedelta(minutes=7)).isoformat()
+          until=now.isoformat()
+          code,body=ask(os.environ["CRON_SECRET"],{"method":"GET","table":"live_stats_merged","params":{
+            "select":"canonical_match_id,home_team,away_team,league_name,event_date,minute,is_live,is_finished,merged_stats,updated_at",
+            "is_live":"eq.true","is_finished":"eq.false","updated_at":"gte."+since,"limit":"300"}})
+          assert code==200 and isinstance(body.get("data"),list),(code,body)
+          print("API_GATEWAY_NEON_MATCH_READ_PASS",len(body["data"]))
+          code,body=ask(os.environ["CRON_SECRET"],{"method":"GET","table":"live_provider_probe_cache","params":{
+            "select":"probe_key,supports_stats,next_probe_at","provider":"eq.api_football",
+            "next_probe_at":"gt."+until,"limit":"600"}})
+          assert code==200 and isinstance(body.get("data"),list),(code,body)
+          print("API_GATEWAY_PROBE_READ_PASS",len(body["data"]))
+          PY
