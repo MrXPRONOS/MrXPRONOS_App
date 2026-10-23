@@ -6,21 +6,22 @@ import os
 from datetime import datetime, timezone
 
 import requests
+from neon_rest_compat import NeonRestSession
 
 from actu_foot_observability import _actionable_outbox_count
 
 
 def _config() -> tuple[str, str]:
-    base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
+    base = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
+    key = "server" if os.getenv("NEON_DATABASE_URL") else ""
     if not base or not key:
-        raise SystemExit("SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY manquants")
+        raise SystemExit("NEON_DATABASE_URL manquants")
     return base, key
 
 
 def _get(session: requests.Session, table: str, params: dict) -> list[dict]:
     base, key = _config()
-    response = session.get(
+    response = NeonRestSession(session).get(
         base + "/rest/v1/" + table,
         params=params,
         headers={"apikey": key, "Authorization": "Bearer " + key},
