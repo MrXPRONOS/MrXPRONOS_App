@@ -94,6 +94,7 @@ jobs:
         env:
           BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
           BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
         shell: bash
         run: |
           set -euo pipefail
