@@ -153,9 +153,14 @@ def find_matches(canonical_rows, live_fixtures):
 
 
 def get_json(url, headers, timeout=17):
-    with urlopen(Request(url,headers=headers),timeout=timeout) as r:
-        payload = json.load(r)
-        return payload, r.headers.get("x-ratelimit-requests-remaining")
+    try:
+        with urlopen(Request(url,headers=headers),timeout=timeout) as r:
+            payload = json.load(r)
+            return payload, r.headers.get("x-ratelimit-requests-remaining")
+    except HTTPError as error:
+        # No tokens or private provider URLs in diagnostics.
+        print("API_FOOTBALL_PROVIDER_HTTP_ERROR",error.code,flush=True)
+        raise
 
 
 class ProviderRejectedRequest(RuntimeError):
@@ -231,7 +236,12 @@ def db_json(base, secret, method, table, params=None, body=None):
         payload={"method":method,"table":table,"params":params or {},"body":body}
         req=Request(uri,method="POST",data=json.dumps(payload,ensure_ascii=False).encode("utf-8"),
             headers={"x-cron-secret":secret,"Content-Type":"application/json"})
-        with urlopen(req,timeout=30) as response:
+        try:
+            response=urlopen(req,timeout=30)
+        except HTTPError as error:
+            print("NEON_API_FOOTBALL_GATEWAY_HTTP_ERROR",error.code,table,method,flush=True)
+            raise
+        with response:
             data=json.load(response)
             if method=="GET":
                 if not isinstance(data.get("data"),list):
