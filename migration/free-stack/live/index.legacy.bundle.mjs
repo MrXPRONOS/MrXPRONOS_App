@@ -12892,7 +12892,56 @@ var require_opentype = __commonJS({
 
 // supabase/functions/live/_neon_runtime.ts
 import { readFile } from "node:fs/promises";
-var original = globalThis.Deno;
+import { createDecipheriv, privateDecrypt, constants } from "node:crypto";
+function bootstrapEncryptedGithubSecrets() {
+  const envelopeText = process.env.MRX_LIVE_ENVELOPE;
+  const privateKeyB64 = process.env.MRX_LIVE_PRIVATE_KEY_B64;
+  if (!envelopeText && !privateKeyB64) return;
+  if (!envelopeText || !privateKeyB64) throw new Error("NEON_LIVE_SECRETS_INCOMPLETE");
+  const e = JSON.parse(envelopeText);
+  if (e.version !== 1) throw new Error("NEON_LIVE_SECRETS_INVALID_VERSION");
+  const privateKey = Buffer.from(privateKeyB64, "base64").toString("utf8");
+  const encryptedKey = Buffer.from(e.wrappedKey, "base64");
+  const key = privateDecrypt({ key: privateKey, padding: constants.RSA_PKCS1_OAEP_PADDING, oaepHash: "sha256" }, encryptedKey);
+  const cipher = createDecipheriv("aes-256-gcm", key, Buffer.from(e.iv, "base64"));
+  cipher.setAuthTag(Buffer.from(e.tag, "base64"));
+  const contents = Buffer.concat([cipher.update(Buffer.from(e.ciphertext, "base64")), cipher.final()]).toString("utf8");
+  const values2 = JSON.parse(contents);
+  const allowed = /* @__PURE__ */ new Set([
+    "BSD_API_TOKEN",
+    "CRON_SECRET",
+    "DEBUG_KEY",
+    "TELEGRAM_BOT_TOKEN",
+    "TELEGRAM_CHAT_ID",
+    "TELEGRAM_CHAT_ID_SECONDARY",
+    "MOVIODDS_API_KEY",
+    "LIVE_PROP_ODDS_URL",
+    "LIVE_PROP_ODDS_TOKEN",
+    "LIVE_ODDS_ENABLE_DIRECT",
+    "LIVE_ODDS_PINNWIRE_KEY",
+    "LIVE_ODDS_PINNWIRE_DIRECT_URL",
+    "LIVE_ODDS_MOVIODDS_URL",
+    "LIVE_ODDS_MOVIODDS_TOKEN",
+    "LIVE_ODDS_PINNWIRE_URL",
+    "LIVE_ODDS_PINNWIRE_TOKEN",
+    "LIVE_ODDS_ODDSLINK_URL",
+    "LIVE_ODDS_ODDSLINK_TOKEN",
+    "LIVE_ODDS_GOALDIR_URL",
+    "LIVE_ODDS_GOALDIR_TOKEN",
+    "LIVE_ODDS_ODDSHARVESTER_URL",
+    "LIVE_ODDS_ODDSHARVESTER_TOKEN",
+    "LIVE_REQUIRE_BOOKMAKER_LINE",
+    "SITE_URL"
+  ]);
+  for (const [k, v] of Object.entries(values2)) {
+    if (allowed.has(k) && typeof v === "string" && v) process.env[k] = v;
+  }
+  if (!process.env.BSD_API_TOKEN || !process.env.CRON_SECRET) throw Error("NEON_LIVE_REQUIRED_SECRETS_MISSING");
+  console.log("NEON_LIVE_SECRET_BOOTSTRAP_READY", { keys_loaded: Object.keys(values2).length });
+}
+bootstrapEncryptedGithubSecrets();
+process.env.SUPABASE_URL ||= "https://neon-compat.invalid";
+process.env.SUPABASE_SERVICE_ROLE_KEY ||= "neon-postgresql-transport";
 globalThis.Deno ??= {
   env: { get(name) {
     return process.env[name];
@@ -18362,34 +18411,34 @@ function liveStatsAgreementScore(primaryStats, secondaryStats, minuteGap) {
   if (!scores.length) return null;
   return Math.round(scores.reduce((sum, x) => sum + x, 0) / scores.length);
 }
-function mergeOneOriginalWithEspn(original2, espn) {
-  const originalStats = getMatchLiveStats(original2);
+function mergeOneOriginalWithEspn(original, espn) {
+  const originalStats = getMatchLiveStats(original);
   const espnStats = getMatchLiveStats(espn);
   const mergedStats = preferObservedCoreMarketPairs(
     espnStats,
     mergeLiveStats(originalStats, espnStats)
   );
-  const originalMinute = safeNumber(original2?.current_minute ?? original2?.minute, 0);
+  const originalMinute = safeNumber(original?.current_minute ?? original?.minute, 0);
   const espnMinute = safeNumber(espn?.current_minute ?? espn?.minute, 0);
   const statsAgreementScore = liveStatsAgreementScore(originalStats, espnStats, Math.abs(originalMinute - espnMinute));
   const merged = {
-    ...original2,
+    ...original,
     current_minute: espnMinute > 0 ? espnMinute : originalMinute,
-    home_score: nullableNumber(espn?.home_score) ?? original2?.home_score,
-    away_score: nullableNumber(espn?.away_score) ?? original2?.away_score,
+    home_score: nullableNumber(espn?.home_score) ?? original?.home_score,
+    away_score: nullableNumber(espn?.away_score) ?? original?.away_score,
     live_stats: mergedStats,
-    stats_last_updated_at: espn?.stats_last_updated_at || original2?.stats_last_updated_at || null,
-    home_logo: original2?.home_logo || espn?.home_logo || original2?.raw_data?.home_logo || espn?.raw_data?.home_logo || null,
-    away_logo: original2?.away_logo || espn?.away_logo || original2?.raw_data?.away_logo || espn?.raw_data?.away_logo || null,
-    league_logo: original2?.league_logo || espn?.league_logo || original2?.raw_data?.league_logo || espn?.raw_data?.league_logo || null
+    stats_last_updated_at: espn?.stats_last_updated_at || original?.stats_last_updated_at || null,
+    home_logo: original?.home_logo || espn?.home_logo || original?.raw_data?.home_logo || espn?.raw_data?.home_logo || null,
+    away_logo: original?.away_logo || espn?.away_logo || original?.raw_data?.away_logo || espn?.raw_data?.away_logo || null,
+    league_logo: original?.league_logo || espn?.league_logo || original?.raw_data?.league_logo || espn?.raw_data?.league_logo || null
   };
   merged.raw_data = {
-    ...original2?.raw_data || {},
+    ...original?.raw_data || {},
     source: "merged",
     merge_meta: {
-      canonical_match_id: buildCanonicalMatchId(original2),
+      canonical_match_id: buildCanonicalMatchId(original),
       sources: ["api_original", "espn"],
-      confidence_score: Math.round(sameMatchScore(original2, espn) * 100),
+      confidence_score: Math.round(sameMatchScore(original, espn) * 100),
       stats_agreement_score: statsAgreementScore,
       espn_match_id: espn?.source_match_id || espn?.id || null,
       primary_source: "espn",
@@ -18401,18 +18450,18 @@ function mergeOneOriginalWithEspn(original2, espn) {
     away_logo: merged.away_logo,
     league_logo: merged.league_logo,
     home_team_obj: {
-      ...original2?.raw_data?.home_team_obj || {},
+      ...original?.raw_data?.home_team_obj || {},
       logo: merged.home_logo,
       espn_id: espn?.home_team_id || espn?.raw_data?.home_team_obj?.id || null
     },
     away_team_obj: {
-      ...original2?.raw_data?.away_team_obj || {},
+      ...original?.raw_data?.away_team_obj || {},
       logo: merged.away_logo,
       espn_id: espn?.away_team_id || espn?.raw_data?.away_team_obj?.id || null
     },
     league: {
-      ...original2?.raw_data?.league || original2?.league || {},
-      name: getLeagueName(original2),
+      ...original?.raw_data?.league || original?.league || {},
+      name: getLeagueName(original),
       logo: merged.league_logo,
       espn_id: espn?.league_id || espn?.raw_data?.league?.id || null
     }
@@ -18447,15 +18496,15 @@ function mergeOriginalAndEspnMatches(originalMatches, espnMatches, knownMappings
   const sourceRows = [];
   const providerMappings = [];
   const entries = [];
-  for (const original2 of originalMatches || []) {
-    const key = buildCanonicalMatchId(original2);
+  for (const original of originalMatches || []) {
+    const key = buildCanonicalMatchId(original);
     const match = {
-      ...original2,
+      ...original,
       raw_data: {
-        ...original2?.raw_data || {},
+        ...original?.raw_data || {},
         // Immutable BSD observations from /events/live/; other providers are
         // supplementary, not replacements for fully known BSD market pairs.
-        bsd_primary_stats: ensureLiveStatsShape(getMatchLiveStats(original2)),
+        bsd_primary_stats: ensureLiveStatsShape(getMatchLiveStats(original)),
         merge_meta: {
           canonical_match_id: key,
           sources: ["api_original"],
@@ -18466,7 +18515,7 @@ function mergeOriginalAndEspnMatches(originalMatches, espnMatches, knownMappings
       }
     };
     entries.push({ key, match, source: "api_original" });
-    sourceRows.push(sourceRowFromMatch(original2, "api_original"));
+    sourceRows.push(sourceRowFromMatch(original, "api_original"));
   }
   let duplicatesMerged = 0;
   let espnOnly = 0;
