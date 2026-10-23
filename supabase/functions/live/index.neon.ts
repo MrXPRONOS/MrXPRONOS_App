@@ -4382,6 +4382,9 @@ async function enrichLiveMatchesWithMoviOddsStats(matches:any[]) {
 }
 
 async function enrichLiveMatchesWithFreeStats(matches: any[]) {
+  // Acquisition only: inspect up to 20 distinct LIVE fixtures for real stats.
+  // Prediction eligibility, thresholds and probabilities are unchanged.
+  const LIVE_STATS_MATCHES_PER_REFRESH = 20;
   const out = [...(matches || [])];
   let sportscoreCalls = 0;
   let thesportsdbCalls = 0;
@@ -4390,7 +4393,7 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
   let oddsSectionsDetected = 0;
   const maxSportScore = Math.max(
     0,
-    Math.min(8, safeEnvInt("SPORTSCORE_STATS_MAX_CALLS_PER_REFRESH", 4)),
+    Math.min(LIVE_STATS_MATCHES_PER_REFRESH, safeEnvInt("SPORTSCORE_STATS_MAX_CALLS_PER_REFRESH", 20)),
   );
   const maxTsdb = Math.max(
     0,
@@ -4435,7 +4438,10 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
     ...clockRotation.slice(prioritySlots),
   ];
 
-  for (const { m, index } of rotatedCandidates) {
+  const selectedCandidates = rotatedCandidates.slice(0, LIVE_STATS_MATCHES_PER_REFRESH);
+  // Four simultaneous provider lookups keep a full 20-match refresh responsive.
+  // Calls remain subject to the original per-provider budgets and cooldowns.
+  const enrichOne = async ({ m, index }: { m: any; index: number }) => {
     let current = out[index];
     let before = statsCompleteness(getMatchLiveStats(current)).core_complete;
     const refs = current?.raw_data?.provider_refs || {};
@@ -4621,10 +4627,25 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
     }
 
     out[index] = current;
+  };
+  for (let offset = 0; offset < selectedCandidates.length; offset += 4) {
+    await Promise.all(selectedCandidates.slice(offset, offset + 4).map(enrichOne));
   }
 
+  console.info("LIVE_STATS_ACQUISITION_BUDGET", {
+    target_matches: LIVE_STATS_MATCHES_PER_REFRESH,
+    eligible_matches: candidates.length,
+    selected_matches: selectedCandidates.length,
+    sportscore_calls: sportscoreCalls,
+    thesportsdb_calls: thesportsdbCalls,
+    thesportsdb_resolve_calls: thesportsdbResolveCalls,
+    enriched_matches: enriched,
+  });
   return {
     matches: out,
+    target_matches: LIVE_STATS_MATCHES_PER_REFRESH,
+    selected_matches: selectedCandidates.length,
+    eligible_matches: candidates.length,
     calls: sportscoreCalls + thesportsdbResolveCalls + thesportsdbCalls,
     sportscore_calls: sportscoreCalls,
     thesportsdb_resolve_calls: thesportsdbResolveCalls,
@@ -6874,6 +6895,9 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       moviodds_stats_enriched: movioddsStatsEnrichment.enriched,
       free_stats_calls: freeStatsEnrichment.calls,
       free_stats_enriched: freeStatsEnrichment.enriched,
+      free_stats_match_target: freeStatsEnrichment.target_matches,
+      free_stats_selected_matches: freeStatsEnrichment.selected_matches,
+      free_stats_eligible_matches: freeStatsEnrichment.eligible_matches,
       sportscore_stats_calls: freeStatsEnrichment.sportscore_calls,
       thesportsdb_resolve_calls: freeStatsEnrichment.thesportsdb_resolve_calls,
       thesportsdb_stats_calls: freeStatsEnrichment.thesportsdb_calls,
