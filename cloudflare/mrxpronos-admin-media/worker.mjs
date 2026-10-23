@@ -83,7 +83,7 @@ async function verifyGithubOIDC(token) {
           "refs/heads/migration/neon-cloudflare-adaptation-20261023" ].includes(claims.ref)||
        !Number.isFinite(claims.exp)||claims.exp<=now||
        !Number.isFinite(claims.iat)||claims.iat>now+60||
-       !Number.isFinite(claims.nbf)||claims.nbf>now)return false;
+       (claims.nbf!==undefined&&(!Number.isFinite(claims.nbf)||claims.nbf>now)))return false;
     const allowed=["shorts-coupons-production.yml",
       "shorts-coupons-production-validation.yml","accumulator-photo-production.yml"];
     const ref=String(claims.workflow_ref||"");
