@@ -36,9 +36,17 @@ jobs:
           except urllib.error.HTTPError as e:
             assert e.code>=400,e.code
             print("STAGE_UNAUTHORIZED_REFRESH_REJECTED",e.code,flush=True)
-          print("STAGE_ACQUISITION_PASS",flush=True)
+          req=urllib.request.Request(base+"/refresh/batch?batch_size=20",method="POST",data=b"{}",headers={"Content-Type":"application/json"})
+          try:
+            with urllib.request.urlopen(req,timeout=12):raise AssertionError("Unauthenticated batch accepted")
+          except urllib.error.HTTPError as e:
+            assert e.code>=400,e.code
+            print("STAGE_20_BATCH_AUTH_GUARD_PASS",e.code,flush=True)
+          print("STAGE_ACQUISITION_20_BATCH_PASS",flush=True)
           PY
 
 # Revalidate isolated staging deployment 6 after clock acquisition hardening.
 
 # Acquisition target: 20 distinct matches. Deployment 7 read-only smoke.
+
+# Batch size 20 isolated deployment 8; no refresh executed by this test.
