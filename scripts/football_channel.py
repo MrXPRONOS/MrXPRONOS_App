@@ -28,6 +28,7 @@ from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
 import requests
+from neon_rest_compat import NeonRestSession
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "bsd"))
@@ -42,7 +43,7 @@ from free_football_sources import (  # noqa: E402
     SOURCE_QUALITY,
 )
 from telegram_rich import post_photo, post_text, post_animation, _post_rate_limited  # noqa: E402
-from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish, fetch_supabase_live, persist_canonical_live_events, confirm_canonical_live_event)  # noqa: E402
+from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish, fetch_neon_live, persist_canonical_live_events, confirm_canonical_live_event)  # noqa: E402
 import football_followup as followup  # noqa: E402
 from actu_foot_observability import persist_run_metrics  # noqa: E402
 from actu_foot_ranking import LiveRankingEngine, RankingDeps, _weighted_term_score as _ranking_weighted_term_score  # noqa: E402
@@ -1132,7 +1133,7 @@ def _ambiguous_delivery_error(exc: Exception) -> bool:
 
 
 class RemotePublicationLedger:
-    """Outbox Supabase atomique, persistante et reprenable.
+    """Outbox Neon atomique, persistante et reprenable.
 
     - claim() crée/réclame atomiquement une publication;
     - retryable() restitue les échecs certains même si le signal source a expiré;
@@ -1142,12 +1143,12 @@ class RemotePublicationLedger:
     """
 
     def __init__(self, session: requests.Session, *, enabled: bool):
-        self.session = session
+        self.session = NeonRestSession(session)
         self.enabled = bool(enabled)
-        self.url = (os.getenv("SUPABASE_URL") or "").rstrip("/")
-        self.key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
+        self.url = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
+        self.key = "server" if os.getenv("NEON_DATABASE_URL") else ""
         if self.enabled and (not self.url or not self.key):
-            raise RuntimeError("Outbox Actu Foot requise mais secrets Supabase absents")
+            raise RuntimeError("Outbox Actu Foot requise mais secrets Neon absents")
 
     @property
     def endpoint(self) -> str:
@@ -3011,7 +3012,7 @@ def enough(history: History, cat: str, now: datetime) -> bool:
 def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[str, int]:
     """Passage léger Actu Foot : aucun RSS, aucune image site, aucun appel BSD.
 
-    Les transitions viennent d'ESPN public et, si disponible, du cache Supabase
+    Les transitions viennent d'ESPN public et, si disponible, du cache Neon
     déjà alimenté par notre moteur live BSD+ESPN.
     """
     run_started_at = datetime.now(timezone.utc)
@@ -3192,7 +3193,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
     class_counter = {key: 0 for key in CLASS_BUDGETS}
     try:
         urgent_live_active = any(
-            popular_live_match(match) for match in fetch_supabase_live(sender.session)
+            popular_live_match(match) for match in fetch_neon_live(sender.session)
         )
     except Exception as exc:
         urgent_live_active = False
