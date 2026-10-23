@@ -25,7 +25,10 @@ from typing import Any
 from urllib.parse import urlparse
 
 import requests
-from scripts.neon_rest_compat import NeonRestSession
+try:
+    from scripts.neon_rest_compat import NeonRestSession
+except ModuleNotFoundError:
+    from neon_rest_compat import NeonRestSession
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "bsd"))
