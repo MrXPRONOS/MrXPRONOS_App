@@ -45,3 +45,5 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/api_football_live_stats.py
+
+# Neon gateway production bootstrap: existing quota-safe collector, no prediction edits.
