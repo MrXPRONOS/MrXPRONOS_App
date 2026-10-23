@@ -8,6 +8,9 @@ on:
       - 'scripts/api_football_live_stats.py'
       - 'scripts/neon_telegram_ledger.py'
       - 'scripts/neon_public_media.py'
+      - 'scripts/telegram_channel_monitor_v2.py'
+      - 'scripts/telegram_research/discover_foot_channels.py'
+      - 'cloudflare/mrxpronos-admin-media/worker.mjs'
       - 'bsd/bsd_v2_telegram.py'
       - 'bsd/bsd_v2_verify_telegram.py'
       - 'scripts/post_shorts_video.py'
@@ -42,8 +45,45 @@ jobs:
             scripts/read_accumulator_video_ledger.py \
             scripts/send_accumulator_production.py \
             scripts/post_shorts_video.py \
-            scripts/post_accumulator_social.py
+            scripts/post_accumulator_social.py \
+            scripts/telegram_channel_monitor_v2.py \
+            scripts/telegram_research/discover_foot_channels.py
       - name: Verify migration contracts
         run: python -m unittest discover -s tests -p 'test_neon_migration_adapters.py' -v
       - name: Existing API-Football normalization tests
         run: python -m unittest scripts.test_api_football_live_stats -v
+
+  public-media-smoke:
+    name: Verify GitHub OIDC Cloudflare Neon upload
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      NEON_MEDIA_UPLOAD_URL: https://mrxpronos-admin-media.cinecanaux-xpronos.workers.dev/upload
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install HTTP client
+        run: python -m pip install 'requests>=2.31,<3'
+      - name: Real end-to-end Neon storage upload with signed GitHub OIDC
+        run: |
+          python - <<'PY'
+          import pathlib,struct,zlib,requests
+          from scripts.neon_public_media import upload_public
+          def chunk(name,body):
+              return struct.pack('!I',len(body))+name+body+struct.pack('!I',zlib.crc32(name+body)&0xffffffff)
+          data=b'\\x89PNG\\r\\n\\x1a\\n'+chunk(b'IHDR',struct.pack('!IIBBBBB',1,1,8,2,0,0,0))+chunk(b'IDAT',zlib.compress(b'\\x00\\x00\\x88\\xff'))+chunk(b'IEND',b'')
+          path=pathlib.Path('/tmp/mrxpronos-oidc-smoke.png')
+          path.write_bytes(data)
+          url=upload_public(path,'smoke/verification.png',content_type='image/png')
+          assert url.startswith('https://') and '/videos/' in url,url
+          response=requests.get(url,timeout=(8,20))
+          response.raise_for_status()
+          assert response.content.startswith(b'\\x89PNG\\r\\n\\x1a\\n'),'Unexpected public media'
+          print('NEON_CLOUDFLARE_MEDIA_SMOKE_OK')
+          PY
