@@ -1,0 +1,48 @@
+name: Neon LIVE original engine production smoke
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/neon-live-legacy-production-smoke.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Read-only smoke of production Neon LIVE
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,os,urllib.request,urllib.error
+          base="https://br-winter-truth-b9of9tss-live.compute.c-7.eu-central-1.aws.neon.tech"
+          cases=[
+            ("/matches","matches"),("/opportunities","opportunities"),
+            ("/today","data"),("/predictions/history","history"),
+            ("/daily/today","predictions"),("/notifications","notifications")
+          ]
+          for path,key in cases:
+            req=urllib.request.Request(base+path,headers={"Origin":"https://mrxpronos.github.io"})
+            with urllib.request.urlopen(req,timeout=40) as r:
+              payload=json.load(r)
+              assert r.status==200 and key in payload,(path,r.status,payload)
+            count=len(payload[key]) if isinstance(payload[key],list) else None
+            print("PROD_HTTP_PASS",path,"count",count,flush=True)
+          assert os.environ.get("CRON_SECRET"),"Missing GitHub CRON_SECRET"
+          req=urllib.request.Request(base+"/telegram/status",headers={"x-cron-secret":os.environ["CRON_SECRET"]})
+          with urllib.request.urlopen(req,timeout=35) as res:
+            body=json.load(res)
+            assert res.status==200 and body.get("telegram_configured") is True and body.get("target_chat_count")==2
+          print("PROD_TELEGRAM_CONFIG_TWO_CHANNELS_PASS",flush=True)
+          req=urllib.request.Request(base+"/refresh",method="POST",data=b"{}",headers={"Content-Type":"application/json"})
+          try:
+            with urllib.request.urlopen(req,timeout=15):
+              raise AssertionError("Unauthorized refresh accepted")
+          except urllib.error.HTTPError as err:
+            assert err.code>=400
+            print("PROD_REFRESH_UNAUTHORIZED_REJECTED",err.code,flush=True)
+          print("NEON_LIVE_PRODUCTION_SMOKE_PASS",flush=True)
+          PY
