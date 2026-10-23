@@ -6309,7 +6309,7 @@ async function reuseCachedStats(matches: any[]) {
       sameKickoff && match?.is_live === true && cached?.is_live === true &&
       match?.is_finished !== true && cached?.is_finished !== true &&
       Number.isFinite(observedAt) && observationAge >= -5000 && observationAge <= 120000 &&
-      observedMinute > 0 && observedMinute <= 95 &&
+      currentMinute <= 0 && observedMinute > 0 && observedMinute <= 95 &&
       cached?.raw_data?.sportscore_minute_source === "detail";
     const retainedMinute = verifiedRecentClock ? Math.max(currentMinute, observedMinute) : currentMinute;
 
