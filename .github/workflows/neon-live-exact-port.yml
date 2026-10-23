@@ -59,8 +59,14 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+          NEON_DB_URL: ${{ secrets.NEON_DB_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEON_DELIVERY_HMAC_KEY: ${{ secrets.NEON_DELIVERY_HMAC_KEY }}
+          NEON_API_TOKEN: ${{ secrets.NEON_API_TOKEN }}
+          NEON_TOKEN: ${{ secrets.NEON_TOKEN }}
         run: |
-          for k in BSD_API_TOKEN CRON_SECRET TELEGRAM_BOT_TOKEN TELEGRAM_CHAT_ID TELEGRAM_CHAT_ID_SECONDARY NEON_API_KEY; do
+          for k in BSD_API_TOKEN CRON_SECRET TELEGRAM_BOT_TOKEN TELEGRAM_CHAT_ID TELEGRAM_CHAT_ID_SECONDARY NEON_API_KEY NEON_DATABASE_URL NEON_DB_URL DATABASE_URL NEON_DELIVERY_HMAC_KEY NEON_API_TOKEN NEON_TOKEN; do
             if [[ -n "${!k}" ]]; then echo "$k: present"; else echo "$k: missing"; fi
           done
       - name: Store compiled entrypoint on migration branch
