@@ -41,36 +41,62 @@ const video=()=>{
  return {type:"video/mp4",size:200,name:"video.mp4",
  slice:()=>({arrayBuffer:async()=>bytes.buffer})};
 };
-function fakeDb(fail=false){
+function fakeDb(fail=false) {
  const uploads=[],deleted=[];
- const bucket={upload:async(path,body,opts)=>{uploads.push({path,opts});return{error:null};},
- remove:async paths=>{deleted.push(...paths);return {error:null};},
- getPublicUrl:path=>({data:{publicUrl:"https://cdn.example.org/"+path}})};
  const sb={
- auth:{getUser:async()=>({data:{user:{id:"11111111-1111-4111-8111-111111111111"}},error:null})},
- storage:{from:()=>bucket},
- from:()=>({insert:row=>({select:()=>({single:async()=>fail?
- {data:null,error:{message:"Database rejection"}}:{data:{id:"m1",...row},error:null}})})})
+  auth:{
+   getUser:async()=>({data:{user:{id:"11111111-1111-4111-8111-111111111111"}},error:null}),
+   getSession:async()=>({data:{session:{access_token:"fake-test-token"}},error:null})
+  },
+  from:table=>{
+   assert.equal(table,"cms_media");
+   return {insert:row=>({select:()=>({single:async()=>fail?
+    {data:null,error:{message:"Database rejection"}}:{data:{id:"m1",...row},error:null}})})};
+  }
  };
  return {sb,uploads,deleted};
 }
-test("Video uploads are owner scoped and never overwrite existing files",async()=>{
- const x=fakeDb(),value=await uploadCmsFile(x.sb,video());
- assert.match(x.uploads[0].path,/^cms\/11111111-1111-4111-8111-111111111111\/[0-9a-f-]+\.mp4$/);
- assert.equal(x.uploads[0].opts.upsert,false);
+async function fakeMediaNetwork(state,callback) {
+ const original=globalThis.fetch;
+ globalThis.fetch=async (input,opts={})=>{
+  const path=new URL(String(input)).pathname;
+  if(path==="/upload"){
+   assert.match(opts.headers.Authorization,/^Bearer fake-test-token$/);
+   assert.equal(opts.method,"POST");
+   assert.equal(opts.headers["Content-Type"],"video/mp4");
+   assert.equal(opts.body.type,"video/mp4");
+   const key="cms/11111111-1111-4111-8111-111111111111.mp4";
+   state.uploads.push(key);
+   return {ok:true,status:201,json:async()=>({key,url:"https://cdn.example.org/"+key})};
+  }
+  if(path==="/object"){
+   assert.equal(opts.method,"DELETE");
+   state.deleted.push(new URL(String(input)).searchParams.get("key"));
+   return {ok:true,status:200,json:async()=>({deleted:true})};
+  }
+  throw Error("Unexpected network request: "+String(input));
+ };
+ try{return await callback()}finally{globalThis.fetch=original}
+}
+test("Video uploads pass an admin JWT to Cloudflare and never expose S3 credentials",async()=>{
+ const x=fakeDb();
+ const value=await fakeMediaNetwork(x,()=>uploadCmsFile(x.sb,video()));
+ assert.match(x.uploads[0],/^cms\/[0-9a-f-]{36}\.mp4$/);
  assert.equal(value.kind,"video");
+ assert.equal(value.url,"https://cdn.example.org/"+x.uploads[0]);
 });
-test("Metadata failure rolls uploaded file back",async()=>{
+test("Metadata failure triggers Cloudflare object rollback",async()=>{
  const x=fakeDb(true);
- await assert.rejects(()=>uploadCmsFile(x.sb,video()),/Database rejection/);
- assert.deepEqual(x.deleted,[x.uploads[0].path]);
+ await fakeMediaNetwork(x,async()=>{
+  await assert.rejects(()=>uploadCmsFile(x.sb,video()),/Database rejection/);
+ });
+ assert.deepEqual(x.deleted,x.uploads);
 });
-test("Migration enforces storage and CMS revision authorization",()=>{
- const sql=read("supabase/migrations/20261019031500_cms_media_revisions_storage.sql");
- for(const pattern of [/cms_media_admin_insert ON storage\.objects/,/cms_media_admin ON public\.cms_media/,
- /cms_revisions_admin_read/,/cms_revision_audit AFTER INSERT OR UPDATE OR DELETE/])
-   assert.match(sql,pattern);
- assert.doesNotMatch(sql,/GRANT ALL ON public\.cms_media TO anon/);
+test("Neon CMS media requests enforce admin login and storage object validation",()=>{
+ const worker=read("cloudflare/mrxpronos-admin-media/worker.mjs");
+ for(const pattern of [/verifyAdmin\(bearer,env\)/,/NEON_S3_SECRET_ACCESS_KEY/,/signatureOk\(mime/])
+  assert.match(worker,pattern);
+ assert.doesNotMatch(worker,/SUPABASE_URL|supabase\.co/i);
 });
 test("CMS screens use real editor and image picker, and public video is sanitized",()=>{
  const admin=read("assets/js/admin-real.js"),site=read("assets/js/main.js");
