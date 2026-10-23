@@ -12,10 +12,7 @@ from typing import Any
 
 import requests
 
-PROJECT_REF = "nhwafcpndlufzzxexikh"
-DEFAULT_WEBHOOK_URL = (
-    f"https://{PROJECT_REF}.supabase.co/functions/v1/telegram-membership"
-)
+DEFAULT_WEBHOOK_URL = "https://br-winter-truth-b9of9tss-telegrammembership.compute.c-7.eu-central-1.aws.neon.tech/"
 
 LINK_PREFIX = "MX_ADHESION_"
 
