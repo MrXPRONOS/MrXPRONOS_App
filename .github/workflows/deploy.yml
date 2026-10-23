@@ -21,7 +21,7 @@ jobs:
 
       - name: Generate config.js from template
         run: |
-          sed "s|SUPABASE_URL|${{ secrets.SUPABASE_URL }}|g; s|SUPABASE_ANON_KEY|${{ secrets.SUPABASE_ANON_KEY }}|g" config.template.js > assets/js/config.js
+          cp config.template.js assets/js/config.js
 
       - name: Generate admin config (optional)
         run: |
