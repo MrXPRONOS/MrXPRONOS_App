@@ -59,7 +59,7 @@ jobs:
           # Exactly four 5 -> 20 batch-limit adaptations are permitted. Prove
           # that every prediction, probability and quality rule is untouched.
           allowed_batch_changes=[
-            ('// Refresh par petits lots pour rester sous la limite CPU Supabase.\\n// Valeur choisie : 5 matchs par invocation enfant.',
+            ('// Refresh par petits lots pour rester sous la limite CPU Supabase.\n// Valeur choisie : 5 matchs par invocation enfant.',
              '// Refresh LIVE Neon : 20 matchs par lot (repli automatique en cas de surcharge CPU).'),
             ('Math.min(5, safeEnvInt("LIVE_REFRESH_BATCH_SIZE", 5))',
              'Math.min(20, safeEnvInt("LIVE_REFRESH_BATCH_SIZE", 20))'),
