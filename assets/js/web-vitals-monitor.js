@@ -4,7 +4,7 @@
  * Measurements are aggregated privately by the administrator-only RPC.
  * No personal identifier, querystring, error text or stack is transmitted.
  */
-import { supabaseUrl, supabaseAnonKey } from "./config.js";
+import {neonDataApiUrl} from "./config.js";
 
 const page = (location.pathname.replace(/^\/MrXPRONOS_App/i, "").slice(0, 140) || "/");
 const eligiblePage = /^\/[a-zA-Z0-9/_.-]+$/.test(page);
@@ -13,12 +13,11 @@ const device = /iPad|Tablet/i.test(navigator.userAgent)
 
 function sendMetric(table, payload) {
   if (!eligiblePage) return;
-  // Supabase Data API with publishable key; RLS only permits INSERT for anonymous clients.
+  // Neon Data API; RLS only permits validated telemetry inserts.
   try {
-    void fetch(supabaseUrl + "/rest/v1/" + table, {
+    void fetch(neonDataApiUrl + "/" + table, {
       method: "POST",
       headers: {
-        apikey: supabaseAnonKey,
         "Content-Type": "application/json",
         Prefer: "return=minimal"
       },
