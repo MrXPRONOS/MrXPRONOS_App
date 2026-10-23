@@ -11,7 +11,7 @@ import os
 from datetime import datetime, timezone
 
 import requests
-from neon_rest_compat import NeonRestSession
+from scripts.neon_rest_compat import NeonRestSession
 
 
 def _parse_moment(value) -> datetime | None:
