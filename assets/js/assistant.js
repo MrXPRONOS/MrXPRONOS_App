@@ -15,7 +15,16 @@
   // ============================================================
   // Neon official FAQ powers an always-available, conservative offline assistant.
   // No LLM is claimed and no feedback is falsely recorded.
-  const NEON_FAQ_URL = 'https://ep-wild-hall-b9u7ikuy.apirest.c-7.eu-central-1.aws.neon.tech/mrxpronos/rest/v1/faq?select=question,reponse&official=eq.true&limit=100';
+  const NEON_FAQ_URL = 'https://ep-wild-hall-b9u7ikuy.apirest.c-7.eu-central-1.aws.neon.tech/mrxpronos/rest/v1';
+  const NEON_AUTH_URL = 'https://ep-wild-hall-b9u7ikuy.neonauth.c-7.eu-central-1.aws.neon.tech/mrxpronos/auth';
+  let neonFaqClientPromise=null;
+  function neonFaqClient(){
+    if(!neonFaqClientPromise)neonFaqClientPromise=import('https://esm.sh/@neondatabase/neon-js')
+      .then(({createClient})=>createClient({auth:{url:NEON_AUTH_URL,allowAnonymous:true},
+                                            dataApi:{url:NEON_FAQ_URL}}))
+      .catch(error=>{neonFaqClientPromise=null;throw error});
+    return neonFaqClientPromise;
+  }
   const safeText = text => String(text ?? '').replace(/[&<>"']/g, c =>
     ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let cachedFaq = null;
@@ -25,9 +34,11 @@
     const question = String(body.question || '').slice(0,400).trim();
     if (!question) return {ok:false,status:400,text:async()=> 'Question vide'};
     if (!cachedFaq) {
-      const res = await fetch(NEON_FAQ_URL,{cache:'no-store'});
-      if (!res.ok) throw Error('Base FAQ Neon indisponible');
-      cachedFaq = (await res.json()).filter(x=>x.question&&x.reponse);
+      const client = await neonFaqClient();
+      const {data,error}=await client.from('faq').select('question,reponse')
+        .eq('official',true).limit(100);
+      if(error)throw Error('Base FAQ Neon indisponible');
+      cachedFaq = (Array.isArray(data)?data:[]).filter(x=>x.question&&x.reponse);
     }
     const normalize = text=>String(text).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
     const terms = normalize(question).split(/[^a-z0-9]+/).filter(x=>x.length>3);
