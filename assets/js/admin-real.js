@@ -18,6 +18,7 @@ if (!document.querySelector('link[href*="loading-ui.css"]')) {
 }
 
 const sb = createClient({auth:{adapter:SupabaseAuthAdapter(),url:neonAuthUrl},dataApi:{url:neonDataApiUrl}});
+const otpAuth = createClient({auth:{url:neonAuthUrl},dataApi:{url:neonDataApiUrl}});
 const adminApiUrl = String(window.MX_ADMIN_API_URL||"").replace(/\/$/,"");
 const $ = (id) => document.getElementById(id);
 
@@ -1486,6 +1487,32 @@ $("loginForm").addEventListener("submit", async event => {
   setLoginMsg("");
   try { await afterLogin(); }
   finally { $("btnLogin").disabled=false; }
+});
+
+// Les comptes historiques n'ont pas leur mot de passe Supabase transféré.
+// Une connexion Neon par code à usage unique permet de récupérer l'accès.
+const otpButton=document.createElement("button");
+otpButton.type="button";
+otpButton.className="btn btn-secondary";
+otpButton.style.cssText="margin-top:8px;width:100%";
+otpButton.textContent="Recevoir un code de connexion par e-mail";
+$("loginForm").appendChild(otpButton);
+otpButton.addEventListener("click",async()=>{
+  const email=$("email").value.trim();
+  if(!email){setLoginMsg("Saisis ton adresse e-mail administrateur.");return;}
+  otpButton.disabled=true;
+  try{
+    const {error:sendError}=await otpAuth.auth.emailOtp.sendVerificationOtp({email,type:"sign-in"});
+    if(sendError)throw sendError;
+    const otp=window.prompt("Code à usage unique reçu par e-mail (6 chiffres) :");
+    if(!otp)return;
+    if(!/^\d{6}$/.test(otp.trim()))throw Error("Le code doit comporter six chiffres.");
+    const {error:signError}=await otpAuth.auth.signIn.emailOtp({email,otp:otp.trim()});
+    if(signError)throw signError;
+    await afterLogin();
+  }catch(error){
+    setLoginMsg("Connexion Neon : "+String(error.message||error));
+  }finally{otpButton.disabled=false;}
 });
 
 $("btnLogout").addEventListener("click", async () => {
