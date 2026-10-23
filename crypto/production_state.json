@@ -18,7 +18,7 @@
       "level": 0
     },
     "ETH": {
-      "direction": "down",
+      "direction": "up",
       "level": 0
     },
     "SOL": {
@@ -26,7 +26,7 @@
       "level": 0
     },
     "XRP": {
-      "direction": "down",
+      "direction": "up",
       "level": 0
     }
   },
