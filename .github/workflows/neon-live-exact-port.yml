@@ -77,11 +77,12 @@ jobs:
           cp supabase/functions/live/_fonts/NotoSans-{Regular,Bold,ExtraBold}.ttf /tmp/mrx-neon-package/_fonts/
           (cd /tmp/mrx-neon-package && zip -q -r "$GITHUB_WORKSPACE/migration/free-stack/live/legacy-neon-candidate.zip" index.mjs _fonts)
           unzip -l migration/free-stack/live/legacy-neon-candidate.zip | tail -7
+          base64 -w0 migration/free-stack/live/legacy-neon-candidate.zip > migration/free-stack/live/legacy-neon-candidate.zip.b64
       - name: Store compiled entrypoint on migration branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add migration/free-stack/live/index.legacy.bundle.mjs migration/free-stack/live/legacy-neon-candidate.zip
+          git add migration/free-stack/live/index.legacy.bundle.mjs migration/free-stack/live/legacy-neon-candidate.zip migration/free-stack/live/legacy-neon-candidate.zip.b64
           if ! git diff --cached --quiet; then
             git commit -m 'build(live): tested exact legacy bundle for Neon runtime'
             git pull --rebase origin migration/supabase-to-free-stack-20261022
