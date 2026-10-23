@@ -1,4 +1,4 @@
-name: Live Headroom Backfill
+name: LIVE history headroom - Neon audit (old backfill retired)
 
 on:
   push:
@@ -11,32 +11,31 @@ permissions:
   contents: read
 
 jobs:
-  backfill:
+  inspect:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 7
+    env:
+      NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
     steps:
-      - name: Backfill historical final values
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'psycopg[binary]>=3.2,<4'
+      - name: Inspect historical LIVE calibration gaps without changing pronostics
         run: |
-          set -euo pipefail
-          for i in $(seq 1 10); do
-            echo "=== Historical backfill batch $i/10 ==="
-            body=$(curl --fail-with-body --silent --show-error --max-time 45 \
-              -X POST "$SUPABASE_URL/functions/v1/live/validate" \
-              -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
-              -H "x-cron-secret: $CRON_SECRET" \
-              -H "Content-Type: application/json")
-            echo "$body"
-            sleep 3
-          done
-
-# retry_after_backlog_fix
-
-# retry_after_espn_fallback
-
-# finalize_pending_history
-
-# espn_fallback_diagnostic
+          python - <<'PY'
+          import os,psycopg
+          dsn=os.getenv("NEON_DATABASE_URL","").strip()
+          if not dsn:raise SystemExit("NEON_DATABASE_URL GitHub secret missing")
+          with psycopg.connect(dsn,connect_timeout=12) as db:
+              with db.cursor() as cur:
+                  cur.execute("SELECT current_database()")
+                  if cur.fetchone()[0]!="mrxpronos":raise SystemExit("Wrong Neon database")
+                  cur.execute("""SELECT count(*),
+                    count(*) FILTER(WHERE final_value IS NULL OR headroom IS NULL)
+                    FROM public.live_predictions
+                    WHERE validated=true AND created_at>now()-interval '90 days'""")
+                  total,missing=cur.fetchone()
+                  print("NEON_HISTORICAL_VALIDATED",total,"NEEDING_CALIBRATION_REVIEW",missing)
+                  if missing:print("::warning::Historical LIVE headroom needs engine-faithful Neon backfill; no values were fabricated or overwritten.")
+          PY
