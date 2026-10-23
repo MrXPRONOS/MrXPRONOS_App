@@ -2,7 +2,7 @@
 // All queries use identifier allowlists and bound parameters, not string interpolation.
 import postgres from "postgres";
 const db=postgres((process.env.MRX_LIVE_DATABASE_URL || process.env.DATABASE_URL)!,{max:3,prepare:false,connect_timeout:8,idle_timeout:20,transform:{undefined:null}});
-const tables=new Set(["cron_runs","live_stats_sources","live_stats_merged","notifications","matches_live","live_predictions","espn_feed_cache","espn_match_map","actu_foot_live_events","live_scheduled_fixtures","pronostics","daily_predictions","live_refresh_control"]);
+const tables=new Set(["cron_runs","live_stats_sources","live_stats_merged","notifications","matches_live","live_predictions","espn_feed_cache","espn_match_map","actu_foot_live_events","live_scheduled_fixtures","pronostics","daily_predictions","live_refresh_control","live_provider_probe_cache"]);
 const safe=(name:string)=>{if(!/^[a-z_][a-z0-9_]*$/i.test(name))throw Error("INVALID_COLUMN");return name;};
 const table=(name:string)=>{if(!tables.has(name))throw Error("INVALID_TABLE");return name;};
 const functions=new Set(["espn_take_request_slot","espn_provider_backoff","upsert_live_fixture_status","renew_live_refresh","claim_live_refresh","release_live_refresh","odds_take_request_slot"]);
@@ -19,6 +19,7 @@ class Query implements PromiseLike<{data:any;error:any;count?:number}> {
  delete(){this.action="delete";return this}
  eq(key:string,val:any){this.conditions.push({text:safe(key)+" = ",value:val});return this}
  gte(key:string,val:any){this.conditions.push({text:safe(key)+" >= ",value:val});return this}
+ gt(key:string,val:any){this.conditions.push({text:safe(key)+" > ",value:val});return this}
  lte(key:string,val:any){this.conditions.push({text:safe(key)+" <= ",value:val});return this}
  lt(key:string,val:any){this.conditions.push({text:safe(key)+" < ",value:val});return this}
  is(key:string,val:any){if(val!==null)throw Error("UNSUPPORTED_IS");this.conditions.push({text:safe(key)+" IS NULL",value:undefined});return this}
