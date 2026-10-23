@@ -16269,7 +16269,7 @@ var BSD_IMG_BASE = "https://sports.bzzoiro.com/img";
 var ENABLE_ESPN_MERGE = String(Deno.env.get("ENABLE_ESPN_MERGE") || "true").toLowerCase() !== "false";
 var LIVE_REFRESH_BATCH_SIZE = Math.max(
   1,
-  Math.min(5, safeEnvInt("LIVE_REFRESH_BATCH_SIZE", 5))
+  Math.min(20, safeEnvInt("LIVE_REFRESH_BATCH_SIZE", 20))
 );
 var LIVE_REFRESH_MAX_BATCHES = Math.max(
   1,
@@ -20616,7 +20616,7 @@ async function pulseAllLiveFixtures(matches) {
 async function refreshLiveDataBatch(options = {}) {
   const batchSize = Math.max(
     1,
-    Math.min(5, Math.floor(options.batchSize ?? LIVE_REFRESH_BATCH_SIZE))
+    Math.min(20, Math.floor(options.batchSize ?? LIVE_REFRESH_BATCH_SIZE))
   );
   const cursor = String(options.cursor || "");
   const allowTelegram = TELEGRAM_IN_REFRESH && options.allowTelegram !== false;
@@ -21169,7 +21169,7 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE, loc
       const { data: renewed, error: renewError } = await supabase.rpc("renew_live_refresh", { p_owner: lockOwner });
       if (renewError || !renewed) throw new Error("Live refresh lease lost; aborting stale coordinator");
     }
-    let effectiveBatchSize = Math.max(1, Math.min(5, batchSize));
+    let effectiveBatchSize = Math.max(1, Math.min(20, batchSize));
     let allowTelegram = true;
     let result = null;
     while (!result) {
@@ -22406,7 +22406,7 @@ serve(async (req) => {
           LIVE_REFRESH_BATCH_SIZE
         )
       );
-      const batchSize = Math.max(1, Math.min(5, requestedBatchSize));
+      const batchSize = Math.max(1, Math.min(20, requestedBatchSize));
       const cursor = url2.searchParams.get("cursor") || null;
       const allowTelegram = String(url2.searchParams.get("allow_telegram") || "1") !== "0";
       const skipBsd = String(url2.searchParams.get("skip_bsd") || "0") === "1";
