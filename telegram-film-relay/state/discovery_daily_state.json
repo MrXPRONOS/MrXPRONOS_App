@@ -7,13 +7,18 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 3,
+          "matching_pairs": 7,
+          "patterns": [
+            "photo_caption_video",
+            "photo_text_video",
+            "standalone_mkv"
+          ],
           "redistribution_rights": "non_verifies",
-          "rejected_pairs": 0,
+          "rejected_pairs": 1,
           "sample_post_ids": [
-            16659,
-            16674,
-            16689
+            383,
+            397,
+            403
           ],
           "sampled_messages": 55,
           "source_status": "pending_rights",
@@ -22,23 +27,28 @@
             "min_video_megabytes": 30,
             "min_video_minutes": 10
           },
-          "title": "ANIME SAMA VF",
+          "title": "Anime Canal Vf👍✨",
           "transfer_restricted": false,
-          "url": "https://t.me/ANIME_SAMA_VF_HD",
-          "username": "ANIME_SAMA_VF_HD"
+          "url": "https://t.me/anime2_vf",
+          "username": "anime2_vf",
+          "verification_method": "public_message_structure"
         },
         {
           "category": "anime",
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 4,
+          "matching_pairs": 12,
+          "patterns": [
+            "photo_text_video",
+            "standalone_mkv"
+          ],
           "redistribution_rights": "non_verifies",
-          "rejected_pairs": 2,
+          "rejected_pairs": 0,
           "sample_post_ids": [
-            5523,
-            5629,
-            5645
+            64199,
+            64149,
+            64150
           ],
           "sampled_messages": 55,
           "source_status": "pending_rights",
@@ -47,22 +57,52 @@
             "min_video_megabytes": 30,
             "min_video_minutes": 10
           },
-          "title": "ANIMÉ 卂 MOMENT VF",
+          "title": "ANIMES VF/VOSTFR",
           "transfer_restricted": false,
-          "url": "https://t.me/ANIMEISEKAIC",
-          "username": "ANIMEISEKAIC"
+          "url": "https://t.me/ANIMES_VF_VOSFR",
+          "username": "ANIMES_VF_VOSFR",
+          "verification_method": "public_message_structure"
+        },
+        {
+          "category": "anime",
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
+          "joined_by_tool": false,
+          "matching_pairs": 8,
+          "patterns": [
+            "photo_caption_video"
+          ],
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 0,
+          "sample_post_ids": [
+            1034,
+            1039,
+            1046
+          ],
+          "sampled_messages": 55,
+          "source_status": "pending_rights",
+          "strict_filters": {
+            "min_verified_pairs": 2,
+            "min_video_megabytes": 30,
+            "min_video_minutes": 10
+          },
+          "title": "BLACK TORCH VF VOSTFR",
+          "transfer_restricted": false,
+          "url": "https://t.me/anime123454",
+          "username": "anime123454",
+          "verification_method": "public_message_structure"
         }
       ],
       "statistics": {
         "attempted": 4,
         "checked": 4,
         "found": 15,
-        "next_candidate_offset": 5,
+        "next_candidate_offset": 9,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
         "rate_limited": false,
-        "strict_rejected": 2
+        "strict_rejected": 1
       }
     },
     "comedie": {
@@ -71,7 +111,7 @@
         "attempted": 4,
         "checked": 4,
         "found": 6,
-        "next_candidate_offset": 2,
+        "next_candidate_offset": 0,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
@@ -86,32 +126,37 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 8,
-          "redistribution_rights": "non_verifies",
-          "rejected_pairs": 0,
-          "sample_post_ids": [
-            258,
-            260,
-            262
+          "matching_pairs": 5,
+          "patterns": [
+            "photo_text_video",
+            "standalone_mkv"
           ],
-          "sampled_messages": 21,
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 1,
+          "sample_post_ids": [
+            3,
+            6,
+            7
+          ],
+          "sampled_messages": 18,
           "source_status": "pending_rights",
           "strict_filters": {
             "min_verified_pairs": 2,
             "min_video_megabytes": 150,
             "min_video_minutes": 40
           },
-          "title": "💖💖FILMS ROMANTIQUES💖💖",
+          "title": "College romance 1,2(Cinemax Original)",
           "transfer_restricted": false,
-          "url": "https://t.me/filmsromatique",
-          "username": "filmsromatique"
+          "url": "https://t.me/Collegeromanceallseason",
+          "username": "Collegeromanceallseason",
+          "verification_method": "public_message_structure"
         }
       ],
       "statistics": {
         "attempted": 4,
         "checked": 4,
-        "found": 14,
-        "next_candidate_offset": 7,
+        "found": 15,
+        "next_candidate_offset": 11,
         "not_readable": 0,
         "protected": 0,
         "queries": 3,
@@ -126,37 +171,174 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 16,
-          "redistribution_rights": "non_verifies",
-          "rejected_pairs": 3,
-          "sample_post_ids": [
-            2716,
-            2718,
-            2720
+          "matching_pairs": 11,
+          "patterns": [
+            "photo_caption_video"
           ],
-          "sampled_messages": 55,
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 6,
+          "sample_post_ids": [
+            3,
+            5,
+            26
+          ],
+          "sampled_messages": 52,
           "source_status": "pending_rights",
           "strict_filters": {
             "min_verified_pairs": 2,
             "min_video_megabytes": 150,
             "min_video_minutes": 40
           },
-          "title": "FILMS, SÉRIES & DESSIN ANIMÉ COMPLET VF🎥",
+          "title": "Film VF complet, Vaiana 2 🎥🎞️",
           "transfer_restricted": false,
-          "url": "https://t.me/annimechannel53jjh",
-          "username": "annimechannel53jjh"
+          "url": "https://t.me/filmsvf29",
+          "username": "filmsvf29",
+          "verification_method": "public_message_structure"
+        },
+        {
+          "category": "films",
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
+          "joined_by_tool": false,
+          "matching_pairs": 20,
+          "patterns": [
+            "photo_caption_video",
+            "standalone_mkv"
+          ],
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 3,
+          "sample_post_ids": [
+            3,
+            5,
+            11
+          ],
+          "sampled_messages": 41,
+          "source_status": "pending_rights",
+          "strict_filters": {
+            "min_verified_pairs": 2,
+            "min_video_megabytes": 150,
+            "min_video_minutes": 40
+          },
+          "title": "Film & Dessin animé complet VF🎥",
+          "transfer_restricted": false,
+          "url": "https://t.me/animexgej",
+          "username": "animexgej",
+          "verification_method": "public_message_structure"
+        },
+        {
+          "category": "films",
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
+          "joined_by_tool": false,
+          "matching_pairs": 3,
+          "patterns": [
+            "photo_caption_video",
+            "standalone_mkv"
+          ],
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 0,
+          "sample_post_ids": [
+            7,
+            3,
+            6
+          ],
+          "sampled_messages": 17,
+          "source_status": "pending_rights",
+          "strict_filters": {
+            "min_verified_pairs": 2,
+            "min_video_megabytes": 150,
+            "min_video_minutes": 40
+          },
+          "title": "Film complet en français",
+          "transfer_restricted": false,
+          "url": "https://t.me/film_complet_vf",
+          "username": "film_complet_vf",
+          "verification_method": "public_message_structure"
         }
       ],
       "statistics": {
         "attempted": 4,
         "checked": 4,
-        "found": 18,
-        "next_candidate_offset": 2,
+        "found": 16,
+        "next_candidate_offset": 6,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
         "rate_limited": false,
-        "strict_rejected": 3
+        "strict_rejected": 1
+      }
+    },
+    "series": {
+      "channels": [
+        {
+          "category": "series",
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
+          "joined_by_tool": false,
+          "matching_pairs": 22,
+          "patterns": [
+            "photo_caption_video"
+          ],
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 18,
+          "sample_post_ids": [
+            303,
+            308,
+            311
+          ],
+          "sampled_messages": 55,
+          "source_status": "pending_rights",
+          "strict_filters": {
+            "min_verified_pairs": 2,
+            "min_video_megabytes": 70,
+            "min_video_minutes": 20
+          },
+          "title": "Séries et Films TV. VF🇫🇷",
+          "transfer_restricted": false,
+          "url": "https://t.me/Film_et_serie_TV",
+          "username": "Film_et_serie_TV",
+          "verification_method": "public_message_structure"
+        },
+        {
+          "category": "series",
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
+          "joined_by_tool": false,
+          "matching_pairs": 17,
+          "patterns": [
+            "photo_caption_video"
+          ],
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 0,
+          "sample_post_ids": [
+            2805,
+            2808,
+            2814
+          ],
+          "sampled_messages": 55,
+          "source_status": "pending_rights",
+          "strict_filters": {
+            "min_verified_pairs": 2,
+            "min_video_megabytes": 70,
+            "min_video_minutes": 20
+          },
+          "title": "🎬 𝗙𝗶𝗹𝗺𝘀 & 𝗦𝗲𝗿𝗶𝗲𝘀 | VF - HD - 4K 🇲🇫",
+          "transfer_restricted": false,
+          "url": "https://t.me/films_series_vf_TV",
+          "username": "films_series_vf_TV",
+          "verification_method": "public_message_structure"
+        }
+      ],
+      "statistics": {
+        "attempted": 4,
+        "checked": 4,
+        "found": 14,
+        "next_candidate_offset": 4,
+        "not_readable": 0,
+        "protected": 0,
+        "queries": 2,
+        "rate_limited": false,
+        "strict_rejected": 2
       }
     }
   },
@@ -168,29 +350,36 @@
     "anime_vostfr",
     "animeisekaic",
     "animes_vf_vosfr",
+    "animexgej",
     "annimechannel53jjh",
     "aquilaserie",
     "bestmovievf",
     "canal_cinemavf",
     "cinematographiefrancaise",
     "cineromances",
+    "collegeromanceallseason",
     "film_action2026",
+    "film_complet_vf",
     "film_divers_vf",
+    "film_et_serie_tv",
     "filmcomplets",
     "filmromatique",
+    "films_series_vf_tv",
     "filmsnigerien",
     "filmsromantiques",
     "filmsromatique",
+    "filmsvf29",
     "mangas_anime_en_francais",
     "otaku_anim_vostfr",
     "otakusunivers"
   ],
-  "last_notification_day": "2026-10-21",
-  "last_scan": "2026-10-21T13:14:57.290478+00:00",
+  "last_notification_day": "2026-10-23",
+  "last_scan": "2026-10-23T12:56:39.269118+00:00",
   "offsets": {
-    "anime": 5,
-    "comedie": 2,
-    "desir": 7,
-    "films": 2
+    "anime": 9,
+    "comedie": 0,
+    "desir": 11,
+    "films": 6,
+    "series": 4
   }
 }
