@@ -105,9 +105,12 @@ def _neon_query(method,url,params,body,headers):
     return Response(cur.fetchone()["result"])
    table=segment
    if table not in TABLES:raise ValueError("Unauthorized Neon table: "+table)
-   cur.execute("""SELECT column_name FROM information_schema.columns
+   cur.execute("""SELECT column_name, data_type FROM information_schema.columns
                   WHERE table_schema='public' AND table_name=%s""",(table,))
-   columns={r["column_name"] for r in cur.fetchall()}
+   types={r["column_name"]:r["data_type"] for r in cur.fetchall()}
+   columns=set(types)
+   def adapt(name,value):
+    return Jsonb(value) if types.get(name) in {"json","jsonb"} else value
    if not columns:raise ValueError("Neon table unavailable: "+table)
    tab=sql.Identifier("public",table)
    if method=="GET":
@@ -144,7 +147,7 @@ def _neon_query(method,url,params,body,headers):
     for item in items:
      names=list(item.keys())
      if not names or not set(names).issubset(columns):raise ValueError("Unauthorized insert columns")
-     vals=[Jsonb(item[x]) if isinstance(item[x],(dict,list)) else item[x] for x in names]
+     vals=[adapt(x,item[x]) for x in names]
      query=sql.SQL("INSERT INTO {} ({}) VALUES ({})").format(
        tab,sql.SQL(",").join(map(sql.Identifier,names)),
        sql.SQL(",").join(sql.Placeholder() for _ in names))
@@ -152,7 +155,7 @@ def _neon_query(method,url,params,body,headers):
       query+=sql.SQL(" ON CONFLICT ({}) DO UPDATE SET ").format(
         sql.SQL(",").join(map(sql.Identifier,conflict_cols)))
       mutable=[x for x in names if x not in conflict_cols]
-      if not mutable:query+=sql.SQL("NOTHING")
+      if not mutable:query=sql.SQL("INSERT INTO {} ({}) VALUES ({}) ON CONFLICT ({}) DO NOTHING").format(tab,sql.SQL(",").join(map(sql.Identifier,names)),sql.SQL(",").join(sql.Placeholder() for _ in names),sql.SQL(",").join(map(sql.Identifier,conflict_cols)))
       else:query+=sql.SQL(",").join(sql.SQL("{}=EXCLUDED.{}").format(sql.Identifier(n),sql.Identifier(n)) for n in mutable)
      pref=str(headers.get("Prefer",""))
      if "return=representation" in pref:query+=sql.SQL(" RETURNING *")
@@ -169,6 +172,6 @@ def _neon_query(method,url,params,body,headers):
       tab,sql.SQL(",").join(sql.SQL("{}=%s").format(sql.Identifier(x)) for x in upd),
       sql.SQL(" AND ").join(wh))
     if "return=representation" in str(headers.get("Prefer","")):query+=sql.SQL(" RETURNING *")
-    cur.execute(query,[Jsonb(body[x]) if isinstance(body[x],(dict,list)) else body[x] for x in upd]+vals)
+    cur.execute(query,[adapt(x,body[x]) for x in upd]+vals)
     return Response(cur.fetchall() if "RETURNING" in query.as_string(db) else [])
    raise ValueError("Unsupported method "+method)
