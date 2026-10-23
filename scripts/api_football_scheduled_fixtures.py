@@ -9,6 +9,28 @@ from urllib.request import Request, urlopen
 from urllib.parse import urlencode
 from urllib.error import HTTPError, URLError
 
+
+def save_neon(fixtures):
+    """Upsert unchanged fixture payloads in private Neon PostgreSQL."""
+    import psycopg
+    from psycopg.types.json import Jsonb
+    connection = os.getenv("NEON_DATABASE_URL", "").strip()
+    if not connection:
+        raise RuntimeError("NEON_DATABASE_URL missing; no fallback to Supabase")
+    sql = """INSERT INTO public.live_scheduled_fixtures
+        (fixture_id,event_date,home_team,away_team,source_names,fixture,updated_at)
+        VALUES (%s,%s,%s,%s,%s,%s,%s)
+        ON CONFLICT (fixture_id) DO UPDATE SET
+        event_date=EXCLUDED.event_date,home_team=EXCLUDED.home_team,
+        away_team=EXCLUDED.away_team,source_names=EXCLUDED.source_names,
+        fixture=EXCLUDED.fixture,updated_at=EXCLUDED.updated_at"""
+    with psycopg.connect(connection, connect_timeout=12) as db:
+        with db.cursor() as cursor:
+            for row in fixtures[:500]:
+                cursor.execute(sql,(row["fixture_id"],row["event_date"],row["home_team"],
+                    row["away_team"],row["source_names"],Jsonb(row["fixture"]),row["updated_at"]))
+
+
 BASE="https://v3.football.api-sports.io"
 def request_json(url,headers):
     with urlopen(Request(url,headers=headers),timeout=20) as r:
@@ -16,13 +38,11 @@ def request_json(url,headers):
 
 def main():
     key=os.getenv("API_FOOTBALL_KEY","").strip()
-    db=os.getenv("SUPABASE_URL","").rstrip("/")
-    token=os.getenv("SUPABASE_SERVICE_ROLE_KEY","").strip()
     if not key:
         print("API_FOOTBALL_SCHEDULE_SKIPPED: API_FOOTBALL_KEY not configured")
         return 0
-    if not db.startswith("https://") or not token:
-        print("::error::Supabase endpoint/secret not configured")
+    if not os.getenv("NEON_DATABASE_URL", "").strip():
+        print("::error::NEON_DATABASE_URL not configured")
         return 1
     now=datetime.now(timezone.utc)
     imported=[]
@@ -71,17 +91,11 @@ def main():
                 "fixture":match,"updated_at":now.isoformat()
             })
     if imported:
-        url=db+"/rest/v1/live_scheduled_fixtures?on_conflict=fixture_id"
-        payload=json.dumps(imported[:500]).encode()
-        req=Request(url,data=payload,method="POST",headers={
-            "apikey":token,"Authorization":"Bearer "+token,
-            "Content-Type":"application/json","Prefer":"resolution=merge-duplicates,return=minimal"
-        })
         try:
-            with urlopen(req,timeout=25) as r:
-                print("API_FOOTBALL_SCHEDULE_IMPORTED",len(imported),r.status)
-        except (HTTPError,URLError) as e:
-            print("::error::Supabase scheduled fixture write failed",type(e).__name__)
+            save_neon(imported)
+            print("API_FOOTBALL_SCHEDULE_IMPORTED",len(imported),"NEON")
+        except Exception as exc:
+            print("::error::Neon scheduled fixture write failed",type(exc).__name__)
             return 1
     else:
         print("API_FOOTBALL_SCHEDULE_NO_FIXTURES_OR_NO_ACCESS")
