@@ -30,6 +30,15 @@ jobs:
             --bundle --platform=node --format=esm --target=node24 \
             --outfile=migration/free-stack/live/index.legacy.bundle.mjs
           node --check migration/free-stack/live/index.legacy.bundle.mjs
+          node - <<'NODE'
+          const fs=require('node:fs');
+          const src=fs.readFileSync('supabase/functions/live/index.neon.ts','utf8');
+          const build=fs.readFileSync('migration/free-stack/live/index.legacy.bundle.mjs','utf8');
+          for(const marker of ['LIVE_CANONICAL_MATCH_DEDUP','LIVE_STATS_ACQUISITION_BUDGET']){
+            if(src.includes(marker) && !build.includes(marker)) throw Error('STALE_BUNDLE_MISSING_'+marker);
+          }
+          console.log('BUNDLE_SOURCE_MARKERS_VERIFIED');
+          NODE
           node -e 'const f=require("fs");const s=f.readFileSync("migration/free-stack/live/index.legacy.bundle.mjs","utf8"); for(const x of ["LIVE_VALUE_MODEL_VERSION","predictTotalCorners","predictTotalShots","predictTotalFouls","buildLivePrediction","refreshLiveDataBatch","sendTelegramLiveCoupon","validate"]) if(!s.includes(x)) throw Error("MISSING: "+x); console.log("LEGACY_FUNCTIONS_RETAINED")'
 
       - name: Smoke test without accessing PostgreSQL or Telegram
@@ -90,8 +99,8 @@ jobs:
           if ! git diff --cached --quiet; then
             git fetch origin migration/supabase-to-free-stack-20261022
             if [[ "$(git rev-parse HEAD)" != "$(git rev-parse origin/migration/supabase-to-free-stack-20261022)" ]]; then
-              echo "Branch advanced during compilation; skip stale bundle publication"
-              exit 0
+              echo "::error::Branch advanced during compilation; candidate NOT published. Run build again."
+              exit 1
             fi
             git commit -m 'build(live): tested exact legacy bundle for Neon runtime'
             git push origin HEAD:refs/heads/migration/supabase-to-free-stack-20261022
