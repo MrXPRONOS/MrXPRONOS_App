@@ -21,6 +21,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 concurrency:
   group: shorts-coupons-production
@@ -137,6 +138,8 @@ jobs:
           echo "slot=$SLOT" >> "$GITHUB_OUTPUT"
           echo "SHORTS_PRODUCTION_WAVE=$SLOT"
 
+      - name: Authenticate publication ledger through GitHub OIDC
+        run: python scripts/ledger_cloudflare_oidc.py
       - name: Build exact Telegram-coupon video
         id: render
         shell: bash
@@ -157,6 +160,8 @@ jobs:
           ffprobe -v error -show_entries format=duration,size -of json "$VIDEO_FILE"
           echo "has_video=true" >> "$GITHUB_OUTPUT"
 
+      - name: Refresh publication ledger authentication through GitHub OIDC
+        run: python scripts/ledger_cloudflare_oidc.py
       - name: Send production Telegram video and record exact batch
         id: send
         if: steps.render.outputs.has_video == 'true'
@@ -176,6 +181,8 @@ jobs:
         run: |
           python scripts/refresh_social_tokens.py             --out refreshed_tokens.json             --github-env "$GITHUB_ENV"
 
+      - name: Refresh publication ledger authentication for social publication through GitHub OIDC
+        run: python scripts/ledger_cloudflare_oidc.py
       - name: Publish prediction video to social platforms
         if: steps.send.outputs.video_sent == 'true'
         shell: bash
