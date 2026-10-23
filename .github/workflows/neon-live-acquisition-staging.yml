@@ -38,3 +38,5 @@ jobs:
             print("STAGE_UNAUTHORIZED_REFRESH_REJECTED",e.code,flush=True)
           print("STAGE_ACQUISITION_PASS",flush=True)
           PY
+
+# Revalidate isolated staging deployment 6 after clock acquisition hardening.
