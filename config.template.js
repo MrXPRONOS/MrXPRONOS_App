@@ -5,3 +5,5 @@ export const neonAuthUrl = "https://ep-wild-hall-b9u7ikuy.neonauth.c-7.eu-centra
 // They point to Neon only, never to Supabase.
 export const supabaseUrl = neonDataApiUrl;
 export const supabaseAnonKey = "";
+export const cloudflareCmsMediaApiUrl = "https://mrxpronos-admin-media.cinecanaux-xpronos.workers.dev";
+export const neonPublicMediaUrl = "https://br-winter-truth-b9of9tss.storage.c-7.eu-central-1.aws.neon.tech/videos";
