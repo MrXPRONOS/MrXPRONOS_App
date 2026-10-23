@@ -85,7 +85,8 @@ async function verifyGithubOIDC(token) {
        !Number.isFinite(claims.iat)||claims.iat>now+60||
        (claims.nbf!==undefined&&(!Number.isFinite(claims.nbf)||claims.nbf>now)))return false;
     const allowed=["shorts-coupons-production.yml",
-      "shorts-coupons-production-validation.yml","accumulator-photo-production.yml"];
+      "shorts-coupons-production-validation.yml","accumulator-photo-production.yml",
+      "neon-migration-adapters-tests.yml"];
     const ref=String(claims.workflow_ref||"");
     if(!allowed.some(name=>ref==="MrXPRONOS/MrXPRONOS_App/.github/workflows/"+name+"@"+claims.ref))
       return false;
