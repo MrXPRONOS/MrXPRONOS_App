@@ -10,7 +10,7 @@ import os
 from datetime import date, datetime, timedelta, timezone
 
 import requests
-from neon_rest_compat import NeonRestSession
+from scripts.neon_rest_compat import NeonRestSession
 
 _SHARED_SNAPSHOT_FIELDS = (
     "source", "id", "provider_event_id", "home_team", "away_team",
