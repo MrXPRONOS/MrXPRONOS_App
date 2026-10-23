@@ -504,11 +504,16 @@ async function initNeon() {
   const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout Neon")), 6000));
   try {
     const initPromise = (async () => {
-      const {neonDataApiUrl} = await import("./config.js");
-      if (!neonDataApiUrl?.startsWith("https://")) throw new Error("Neon Data API indisponible");
+      const {neonDataApiUrl,neonAuthUrl} = await import("./config.js");
+      if (!neonDataApiUrl?.startsWith("https://") || !neonAuthUrl?.startsWith("https://"))
+        throw new Error("Configuration Neon indisponible");
       neonConfig.url = neonDataApiUrl;
       const {createClient} = await import("https://esm.sh/@neondatabase/neon-js");
-      neon = createClient({dataApi:{url:neonDataApiUrl}});
+      neon = createClient({auth:{url:neonAuthUrl,allowAnonymous:true},
+                           dataApi:{url:neonDataApiUrl}});
+      // Anonymous JWT is supplied automatically by Neon Auth on the first query.
+      const {error} = await neon.from("counters").select("id").eq("id",1).limit(1);
+      if (error) throw error;
       neonAvailable = true;
     })();
     await Promise.race([initPromise, timeout]);
