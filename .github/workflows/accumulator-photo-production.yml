@@ -37,10 +37,12 @@ jobs:
       ACCUMULATOR_SOCIAL_IMAGE: telegram_out/accumulator_preview.jpg
       ACCUMULATOR_MAX_MATCHES: '12'
       ACCUMULATOR_VIDEO_MANIFEST: telegram_out/video_used_matches.json
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      SUPABASE_BUCKET: videos
+      NEON_S3_ENDPOINT: ${{ secrets.NEON_S3_ENDPOINT }}
+      NEON_S3_ACCESS_KEY_ID: ${{ secrets.NEON_S3_ACCESS_KEY_ID }}
+      NEON_S3_SECRET_ACCESS_KEY: ${{ secrets.NEON_S3_SECRET_ACCESS_KEY }}
+      NEON_S3_BUCKET: videos
+      NEON_PUBLIC_MEDIA_BASE_URL: ${{ secrets.NEON_PUBLIC_MEDIA_BASE_URL }}
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
@@ -78,7 +80,7 @@ jobs:
         run: |
           npm ci
           npx playwright install --with-deps chromium
-          python -m pip install requests Pillow "psycopg[binary]>=3.2,<4"
+          python -m pip install requests Pillow boto3 "psycopg[binary]>=3.2,<4"
       - name: Verify and load IDs of fixtures already published in daily video
         run: python scripts/read_accumulator_video_ledger.py
       - name: Validate production scripts
