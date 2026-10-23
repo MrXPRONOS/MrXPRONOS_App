@@ -4,9 +4,9 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 
 BASE = "http://127.0.0.1:8000"
-FAKE_SUPABASE = r"""
-window.supabase = {
-  createClient() {
+FAKE_NEON = r"""
+export const SupabaseAuthAdapter = () => ({});
+export function createClient() {
     const records = {data: [], error: null};
     const chain = {
       select: () => chain,
@@ -26,14 +26,13 @@ window.supabase = {
       rpc: async (name) => ({data: name === "is_admin" ? true : {}, error:null}),
       from: () => chain
     };
-  }
-};
+}
 """
 
 def run(page, mobile=False):
-    page.route("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2", lambda route: route.fulfill(
-        status=200, content_type="application/javascript", body=FAKE_SUPABASE))
-    # The full live iframe is tested independently; navigation must not need live Supabase.
+    page.route("https://esm.sh/@neondatabase/neon-js", lambda route: route.fulfill(
+        status=200, content_type="text/javascript", body=FAKE_NEON))
+    # The full live iframe is tested independently; navigation must not need a real Neon session.
     page.route("**/admin-supervision.html?embedded=1", lambda route: route.fulfill(
         status=200, content_type="text/html",
         body="<html><body><h2>Supervision intégrée</h2></body></html>"))

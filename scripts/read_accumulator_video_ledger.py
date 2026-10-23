@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exporte les matchs déjà PUBLIÉS en vidéo, depuis le registre Supabase.
+"""Exporte les matchs déjà PUBLIÉS en vidéo, depuis le registre Neon.
 
 Aucun combiné ne peut être créé si ce registre est inaccessible ou vide.
 La clé est celle utilisée par send_short_production_telegram.py après envoi confirmé.
@@ -15,17 +15,9 @@ KIND="shorts_video_coupon"
 
 def main():
     day=os.getenv("ACCUMULATOR_TEST_DATE") or datetime.now(timezone.utc).date().isoformat()
-    base=(os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
-    key=(os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or "").strip()
-    if not (base and key):
-        raise RuntimeError("Supabase indisponible : impossible de vérifier quels matchs ont été publiés en vidéo")
-    response=requests.get(base+"/rest/v1/telegram_sent",params={
-        "select":"ref_id,ref_date","kind":"eq."+KIND,
-        "ref_date":"eq."+day,"limit":"1000",
-    },headers={"apikey":key,"Authorization":"Bearer "+key},timeout=30)
-    response.raise_for_status()
-    rows=response.json()
-    if not isinstance(rows,list):raise RuntimeError("Registre Supabase vidéo invalide")
+    from neon_telegram_ledger import records
+    rows=records(KIND,day,limit=1000,columns=["ref_id","ref_date"])
+    rows=[row for row in rows if str(row["ref_date"])==day]
     excluded=set()
     for row in rows:
         ref=str(row.get("ref_id") or "").strip()

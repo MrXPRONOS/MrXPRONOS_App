@@ -84,8 +84,7 @@ jobs:
       FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
       PROD_FOOTBALL_NEWS_CHAT_ID: ${{ secrets.FOOTBALL_NEWS_CHAT_ID }}
       TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
       FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
       API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
       PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
@@ -114,9 +113,9 @@ jobs:
         shell: bash
         run: |
           if [ "$RUN_MODE" = "lifecycle" ]; then
-            python -m pip install --disable-pip-version-check requests Pillow
+            python -m pip install --disable-pip-version-check 'psycopg[binary]>=3.2,<4' requests Pillow
           else
-            python -m pip install --disable-pip-version-check requests Pillow feedparser imageio-ffmpeg
+            python -m pip install --disable-pip-version-check 'psycopg[binary]>=3.2,<4' requests Pillow feedparser imageio-ffmpeg
           fi
 
       - name: Router canal Telegram production ou test
@@ -306,4 +305,4 @@ jobs:
           cat /tmp/actu-foot-health.md >> "$GITHUB_STEP_SUMMARY"
 
       # Les Infos Foot sont déjà publiées par fetch_foot_news.py dans le snapshot
-      # Supabase public en lecture seule. Aucun commit de données dynamiques sur main.
+      # Neon public en lecture seule. Aucun commit de données dynamiques sur main.

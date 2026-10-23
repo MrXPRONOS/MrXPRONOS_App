@@ -10,6 +10,7 @@ import requests
 import csv
 import json
 import os
+import sys
 import re
 import statistics
 from datetime import datetime, timedelta, timezone
@@ -210,17 +211,13 @@ def main():
         parser.error("Pause obligatoire de 10 à 60 secondes entre appels")
     # This manual research job shares the SAME session lease as daily monitoring.
     # Never scan when the daily collector is running or a Telegram cooldown is active.
-    base = os.getenv("SUPABASE_URL", "").rstrip("/") + "/rest/v1/rpc/"
-    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
-    if not base.startswith("https://") or not key:
-        raise SystemExit("Private monitoring guard requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY")
-    session = requests.Session()
-    session.headers.update({"apikey": key, "Authorization": "Bearer " + key})
+    # Shared private Neon SQL lease, same as scheduled Telegram monitoring.
+    sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+    from telegram_channel_monitor_v2 import DB
+    db=DB()
     owner = secrets.token_hex(20)
     def lease(name, **payload):
-        response = session.post(base + name, json=payload, timeout=25)
-        response.raise_for_status()
-        return response.json()
+        return db.rpc(name,**payload)
     status = lease("telegram_monitor_acquire", p_owner=owner, p_minutes=25)
     if status != "ok":
         raise SystemExit(f"Telegram user session unavailable: {status}; research not started.")

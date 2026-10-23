@@ -22,14 +22,15 @@ class TelegramTestRoutingTests(unittest.TestCase):
         self.assertIn("workflow_dispatch", text)
         self.assertIn("telegram_test_guard.py", text)
 
-    def test_production_workflow_has_separate_test_state_and_supabase_news_path(self):
+    def test_production_workflow_has_separate_test_state_and_neon_news_path(self):
         text=self.read(".github/workflows/football-production.yml")
         self.assertIn(".state/mrxpronos-football-test.json",text)
         self.assertIn(".state/mrxpronos-football.json",text)
         self.assertIn('default: "test"',text)
         self.assertIn("TELEGRAM_TEST_CHAT_ID manquant",text)
-        self.assertIn("SUPABASE_URL", text)
-        self.assertIn("SUPABASE_SERVICE_ROLE_KEY", text)
+        self.assertIn("NEON_DATABASE_URL", text)
+        self.assertNotIn("SUPABASE_URL", text)
+        self.assertNotIn("SUPABASE_SERVICE_ROLE_KEY", text)
         self.assertNotIn("git add footnews.json", text)
         self.assertNotIn("git push origin HEAD:main", text)
 

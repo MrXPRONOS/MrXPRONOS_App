@@ -31,7 +31,10 @@ test("admin includes duplicate actions, content remains unpublished, and bucket 
  assert.match(admin,/attachDuplicateButtons\(root,"\[data-id\]",rows,"articles"/);
  assert.match(admin,/attachDuplicateButtons\(root,"\[data-bonus-id\]",bonusRows,"bonus"/);
  assert.match(admin,/delete \$\(saveButtonId\)\.dataset\.id/);
- assert.match(admin,/bucket public/);
+ const cms=readFileSync(new URL("../assets/js/cms-media-library.mjs",import.meta.url),"utf8");
+ assert.match(cms,/mediaTransfer\(sb,transformed\.file,mime\)/);
+ assert.match(cms,/cloudflareCmsMediaApiUrl/);
+ assert.doesNotMatch(cms,/sb\.storage\.from/);
  const editor=readFileSync(new URL("../assets/js/cms-block-editor.mjs",import.meta.url),"utf8");
  assert.match(editor,/render\(\);commit\(\);list\.lastElementChild/);
 });

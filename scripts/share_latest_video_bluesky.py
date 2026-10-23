@@ -52,29 +52,14 @@ def headers(key: str) -> dict:
     }
 
 
-def claim(session: requests.Session, base: str, key: str, ident: tuple[str, str, str]) -> bool:
-    kind, ref_id, ref_date = ident
-    response = session.post(
-        base.rstrip("/") + "/rest/v1/" + TABLE,
-        params={"on_conflict": "kind,ref_id,ref_date"},
-        headers=headers(key),
-        json={"kind": kind, "ref_id": ref_id, "ref_date": ref_date, "validation_sent": False},
-        timeout=35,
-    )
-    response.raise_for_status()
-    result = response.json()
-    return isinstance(result, list) and bool(result)
+def claim(session, base, key, ident):
+    from neon_telegram_ledger import claim as reserve
+    return bool(reserve(*ident))
 
 
-def release(session: requests.Session, base: str, key: str, ident: tuple[str, str, str]) -> None:
-    kind, ref_id, ref_date = ident
-    response = session.delete(
-        base.rstrip("/") + "/rest/v1/" + TABLE,
-        params={"kind": "eq." + kind, "ref_id": "eq." + ref_id, "ref_date": "eq." + ref_date},
-        headers=headers(key),
-        timeout=35,
-    )
-    response.raise_for_status()
+def release(session, base, key, ident):
+    from neon_telegram_ledger import release as undo
+    undo(*ident)
 
 
 def main() -> int:
@@ -102,10 +87,10 @@ def main() -> int:
 
     handle = os.getenv("BLUESKY_HANDLE", "").strip().lstrip("@").lower()
     password = os.getenv("BLUESKY_APP_PASSWORD", "").strip()
-    base = os.getenv("SUPABASE_URL", "").strip()
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or "").strip()
-    if not all((handle, password, base, key)):
-        raise RuntimeError("Secrets Bluesky et Supabase non configurés")
+    base = ""
+    key = ""
+    if not all((handle, password, os.getenv("NEON_DATABASE_URL"))):
+        raise RuntimeError("Secrets Bluesky et Neon non configurés")
 
     from atproto import Client
     client = Client()

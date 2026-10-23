@@ -13,7 +13,46 @@
   // ============================================================
   // CONFIGURATION
   // ============================================================
-  const API_BASE = 'https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/assistant';
+  // Neon official FAQ powers an always-available, conservative offline assistant.
+  // No LLM is claimed and no feedback is falsely recorded.
+  const NEON_FAQ_URL = 'https://ep-wild-hall-b9u7ikuy.apirest.c-7.eu-central-1.aws.neon.tech/mrxpronos/rest/v1';
+  const NEON_AUTH_URL = 'https://ep-wild-hall-b9u7ikuy.neonauth.c-7.eu-central-1.aws.neon.tech/mrxpronos/auth';
+  let neonFaqClientPromise=null;
+  function neonFaqClient(){
+    if(!neonFaqClientPromise)neonFaqClientPromise=import('https://esm.sh/@neondatabase/neon-js')
+      .then(({createClient})=>createClient({auth:{url:NEON_AUTH_URL,allowAnonymous:true},
+                                            dataApi:{url:NEON_FAQ_URL}}))
+      .catch(error=>{neonFaqClientPromise=null;throw error});
+    return neonFaqClientPromise;
+  }
+  const safeText = text => String(text ?? '').replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let cachedFaq = null;
+  async function assistantRequest(_url, options) {
+    const body = JSON.parse(options?.body || '{}');
+    if (body.action === 'feedback') return {ok:false,status:501,text:async()=> 'Feedback temporairement désactivé'};
+    const question = String(body.question || '').slice(0,400).trim();
+    if (!question) return {ok:false,status:400,text:async()=> 'Question vide'};
+    if (!cachedFaq) {
+      const client = await neonFaqClient();
+      const {data,error}=await client.from('faq').select('question,reponse')
+        .eq('official',true).limit(100);
+      if(error)throw Error('Base FAQ Neon indisponible');
+      cachedFaq = (Array.isArray(data)?data:[]).filter(x=>x.question&&x.reponse);
+    }
+    const normalize = text=>String(text).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    const terms = normalize(question).split(/[^a-z0-9]+/).filter(x=>x.length>3);
+    let ranked = cachedFaq.map(row=>{
+      const target=normalize(row.question);
+      return {row,score:terms.reduce((sum,t)=>sum+(target.includes(t)?1:0),0)};
+    }).sort((a,b)=>b.score-a.score);
+    const best=ranked[0];
+    const answer=best&&best.score>0
+      ? '<p>'+safeText(best.row.reponse).replace(/\n/g,'</p><p>')+'</p>'
+      : '<p>Je peux répondre aux questions couvertes par la FAQ officielle Mr XPRONOS. Pour les résultats et pronostics actuels, consultez les pages LIVE et Pronostics du site.</p>';
+    return {ok:true,status:200,json:async()=>({answer,conversation_id:null})};
+  }
+  const API_BASE = 'neon-faq-local';
   const DEFAULT_SUGGESTIONS = [];
   const CACHE_TTL = 24 * 60 * 60 * 1000;
   const DYNAMIC_QUESTION = /\b(aujourd.?hui|demain|hier|live|direct|score|résultat|resultat|prono|pronostic|match|cote|signal|vip|bonus|promo|prix|tarif|disponible)\b/i;
@@ -287,7 +326,7 @@
           const convId = btn.dataset.id;
 
           try {
-            const response = await fetch(API_BASE, {
+            const response = await assistantRequest(API_BASE, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -416,7 +455,7 @@
     }
 
     try {
-      const response = await fetch(API_BASE, {
+      const response = await assistantRequest(API_BASE, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

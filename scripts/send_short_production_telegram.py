@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Send a production prediction video to Telegram and record its exact batch.
 
-The Supabase ledger rows are written only after Telegram accepts the video.
+The Neon ledger rows are written only after Telegram accepts the video.
 This makes the morning run exclude selections already used by the evening run
 and gives the validation workflow an exact batch to settle later.
 """
@@ -45,16 +45,10 @@ def record_batch(session, base, key, manifest):
     if not rows:
         raise RuntimeError("Manifest sans sélection à enregistrer")
 
-    url = base.rstrip("/") + "/rest/v1/telegram_sent"
+    from neon_telegram_ledger import claim as reserve
     for row in rows:
-        response = session.post(
-            url,
-            params={"on_conflict": "kind,ref_id,ref_date"},
-            headers=headers(key),
-            json=row,
-            timeout=30,
-        )
-        response.raise_for_status()
+        reserve(row["kind"],row["ref_id"],row["ref_date"])
+
     print("SHORTS_BATCH_LEDGER_RECORDED", json.dumps({
         "slot": slot, "target": target, "count": len(rows)
     }, ensure_ascii=False))
@@ -68,10 +62,10 @@ def main():
 
     token = (os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
     chat = (os.getenv("TG_VIDEO_PRIMARY_CHANNEL") or "@mrxpronosfr").strip()
-    base = (os.getenv("SUPABASE_URL") or "").strip()
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or "").strip()
-    if not all((token, chat, base, key)):
-        raise RuntimeError("Secrets Telegram/Supabase manquants")
+    base = ""
+    key = ""
+    if not all((token, chat, os.getenv("NEON_DATABASE_URL"))):
+        raise RuntimeError("Secrets Telegram/Neon manquants")
 
     video = Path(args.video)
     manifest_path = Path(args.manifest)
@@ -88,18 +82,8 @@ def main():
     # Réservation atomique : une seule vidéo de pronostics PAR JOUR, même en
     # présence de relances manuelles ou cron-job.org. Jamais deux vagues.
     session = requests.Session()
-    guard = session.post(
-        base.rstrip("/") + "/rest/v1/telegram_sent",
-        params={"on_conflict": "kind,ref_id,ref_date"},
-        headers=headers(key),
-        json={"kind": DAILY_GUARD_KIND, "ref_id": "one_daily_video",
-              "ref_date": published_day, "validation_sent": False},
-        timeout=30,
-    )
-    guard.raise_for_status()
-    claimed = guard.json()
-    if not isinstance(claimed,list):
-        raise RuntimeError("Registre d'unicité quotidienne invalide")
+    from neon_telegram_ledger import claim as reserve
+    claimed=bool(reserve(DAILY_GUARD_KIND,"one_daily_video",published_day))
     if not claimed:
         print("SHORTS_DAILY_ALREADY_SENT",published_day)
         output=os.getenv("GITHUB_OUTPUT")

@@ -3,7 +3,7 @@ name: Mr XPRONOS - verified LIVE market statistics
 on:
   # Hourly at most: <= 72 API-Football requests / UTC day
   # (24 fixture-list requests + up to 48 coverage/statistics requests).
-  # League/season coverage and empty statistics are now cached in Supabase.
+  # League/season coverage and empty statistics are now cached in Neon.
   # Rejected provider calls are retried only after an explicit cooldown.
   # Operational smoke test: cached unavailable leagues should spend no detail calls.
   schedule:
@@ -29,13 +29,14 @@ jobs:
     timeout-minutes: 8
     env:
       API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Install Neon PostgreSQL driver
+        run: python -m pip install "psycopg[binary]>=3.2,<4"
       - name: Offline market-stat normalization and matching tests
         run: python -m unittest scripts.test_api_football_live_stats -v
       - name: Enrich LIVE from official market stats (BSD remains primary)

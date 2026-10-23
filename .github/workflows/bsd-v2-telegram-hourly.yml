@@ -47,7 +47,7 @@ jobs:
         with:
           python-version: '3.10'
       - name: Telegram HTTP dependency only
-        run: python -m pip install requests pillow
+        run: python -m pip install requests pillow "psycopg[binary]>=3.2,<4"
       - name: Router le canal Telegram
         id: route
         env:
@@ -84,9 +84,7 @@ jobs:
       - name: Send single picks and combinations around one hour before kickoff
         env:
           TELEGRAM_BOT_TOKEN: '${{ secrets.TELEGRAM_BOT_TOKEN }}'
-          SUPABASE_URL: '${{ secrets.SUPABASE_URL }}'
-          SUPABASE_SERVICE_ROLE_KEY: '${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}'
-          SUPABASE_KEY: '${{ secrets.SUPABASE_KEY }}'
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
         run: python bsd/bsd_v2_telegram.py --data data.json
 
       # Bluesky shares the production cron cadence, but test Telegram runs never post.
@@ -96,9 +94,7 @@ jobs:
         env:
           BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
           BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
         shell: bash
         run: |
           set -euo pipefail

@@ -54,34 +54,16 @@ def canonical_ref(ref: str):
 
 
 def pending_rows(session, base, key):
-    since = (datetime.now(UTC).date() - timedelta(days=4)).isoformat()
-    r = session.get(
-        base.rstrip("/") + "/rest/v1/telegram_sent",
-        headers=sb_headers(key),
-        params={
-            "select": "id,ref_id,ref_date,validation_sent",
-            "kind": "eq." + KIND,
-            "validation_sent": "eq.false",
-            "ref_date": "gte." + since,
-            "order": "ref_date.asc,id.asc",
-            "limit": "200",
-        },
-        timeout=30,
-    )
-    r.raise_for_status()
-    return r.json() or []
+    from scripts.neon_telegram_ledger import records
+    since=(datetime.now(UTC).date()-timedelta(days=4)).isoformat()
+    rows=records(KIND,since,limit=200)
+    return [row for row in rows if row.get("validation_sent") is False]
 
 
 def mark_rows(session, base, key, row_ids):
+    from scripts.neon_telegram_ledger import mark_verified
     for row_id in row_ids:
-        r = session.patch(
-            base.rstrip("/") + "/rest/v1/telegram_sent",
-            headers=sb_headers(key),
-            params={"id": "eq." + str(row_id), "kind": "eq." + KIND},
-            json={"validation_sent": True},
-            timeout=30,
-        )
-        r.raise_for_status()
+        mark_verified(row_id,KIND,was_unverified=False)
 
 
 def restore_matches(feed_path: Path, wanted_ids):
@@ -151,12 +133,12 @@ def main():
     ap.add_argument("--no-send", action="store_true")
     args = ap.parse_args()
 
-    base = (os.getenv("SUPABASE_URL") or "").strip()
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or "").strip()
+    base = ""
+    key = ""
     token = (os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
     chat = (os.getenv("TELEGRAM_CHAT_ID") or "").strip()
-    if not base or not key:
-        raise RuntimeError("Secrets Supabase manquants")
+    if not os.getenv("NEON_DATABASE_URL"):
+        raise RuntimeError("NEON_DATABASE_URL manquant")
     if not args.no_send and (not token or not chat):
         raise RuntimeError("Secrets Telegram production manquants")
 

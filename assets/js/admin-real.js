@@ -4,7 +4,8 @@ import { mountCmsRevisionPanel } from "./cms-revisions.mjs";
 import { createCmsDraftCopy } from "./cms-duplicate.mjs";
 import { mountCmsListFilters } from "./cms-list-filters.mjs";
 import { mountCmsMediaFieldPicker, mountCmsMediaPicker } from "./cms-media-library.mjs";
-import { supabaseUrl, supabaseAnonKey } from "./config.js";
+import {neonAuthUrl,neonDataApiUrl} from "./config.js";
+import {createClient, SupabaseAuthAdapter} from "https://esm.sh/@neondatabase/neon-js";
 import "./loading-ui.js";
 
 
@@ -16,7 +17,9 @@ if (!document.querySelector('link[href*="loading-ui.css"]')) {
   document.head.appendChild(mxLoadingSheet);
 }
 
-const sb = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+const sb = createClient({auth:{adapter:SupabaseAuthAdapter(),url:neonAuthUrl},dataApi:{url:neonDataApiUrl}});
+const otpAuth = createClient({auth:{url:neonAuthUrl},dataApi:{url:neonDataApiUrl}});
+const adminApiUrl = String(window.MX_ADMIN_API_URL||"").replace(/\/$/,"");
 const $ = (id) => document.getElementById(id);
 
 const premiumAdminLoading = (kind = "admin", count = 3) =>
@@ -217,12 +220,12 @@ async function renderPushAdmin() {
     const session = (await sb.auth.getSession()).data.session;
     if (!session) throw new Error("Session expirée.");
 
-    const res = await fetch(`${supabaseUrl}/functions/v1/admin-push`, {
+    if (!adminApiUrl) throw new Error("API administrateur Cloudflare non configurée");
+    const res = await fetch(`${adminApiUrl}/admin-push`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${session.access_token}`,
-        "apikey": supabaseAnonKey,
       },
       body: JSON.stringify(payload),
     });
@@ -236,11 +239,11 @@ async function renderPushAdmin() {
     const session = (await sb.auth.getSession()).data.session;
     if (!session) throw new Error("Session expirée.");
 
-    const res = await fetch(`${supabaseUrl}/functions/v1/admin-list-subscribers`, {
+    if (!adminApiUrl) throw new Error("API administrateur Cloudflare non configurée");
+    const res = await fetch(`${adminApiUrl}/admin-list-subscribers`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${session.access_token}`,
-        "apikey": supabaseAnonKey,
       },
     });
 
@@ -1247,9 +1250,9 @@ async function renderAudit() {
 async function cmsAdminRequest(operation,extra={}) {
   const session=(await sb.auth.getSession()).data.session;
   if(!session) throw new Error("Session administrateur expirée");
-  const response=await fetch(`${supabaseUrl}/functions/v1/publish`,{
+  const response=await fetch(`${adminApiUrl}/publish`,{
     method:"POST",
-    headers:{"Content-Type":"application/json","Authorization":`Bearer ${session.access_token}`,"apikey":supabaseAnonKey},
+    headers:{"Content-Type":"application/json","Authorization":`Bearer ${session.access_token}`},
     body:JSON.stringify({operation,...extra})
   });
   const data=await response.json().catch(()=>({}));
@@ -1300,7 +1303,7 @@ async function cmsShowPreview(entry,root) {
     table.appendChild(body);root.appendChild(table);
     const changes=Object.values(p.changes||{}).some(c=>c.different);
     if(!changes){root.appendChild(cmsDom("p","Ces fichiers sont identiques. Aucune restauration nécessaire."));return;}
-    const warning=cmsDom("p","Attention : seuls les cinq fichiers de contenu seront restaurés. L'historique Git et la base Supabase restent inchangés.");
+    const warning=cmsDom("p","Attention : seuls les cinq fichiers de contenu seront restaurés. L'historique Git et la base Neon restent inchangés.");
     root.appendChild(warning);
     const restore=cmsDom("button","Restaurer cette version","btn btn-secondary");restore.type="button";
     restore.addEventListener("click",async()=>{
@@ -1484,6 +1487,32 @@ $("loginForm").addEventListener("submit", async event => {
   setLoginMsg("");
   try { await afterLogin(); }
   finally { $("btnLogin").disabled=false; }
+});
+
+// Les comptes historiques n'ont pas leur mot de passe Supabase transféré.
+// Une connexion Neon par code à usage unique permet de récupérer l'accès.
+const otpButton=document.createElement("button");
+otpButton.type="button";
+otpButton.className="btn btn-secondary";
+otpButton.style.cssText="margin-top:8px;width:100%";
+otpButton.textContent="Recevoir un code de connexion par e-mail";
+$("loginForm").appendChild(otpButton);
+otpButton.addEventListener("click",async()=>{
+  const email=$("email").value.trim();
+  if(!email){setLoginMsg("Saisis ton adresse e-mail administrateur.");return;}
+  otpButton.disabled=true;
+  try{
+    const {error:sendError}=await otpAuth.auth.emailOtp.sendVerificationOtp({email,type:"sign-in"});
+    if(sendError)throw sendError;
+    const otp=window.prompt("Code à usage unique reçu par e-mail (6 chiffres) :");
+    if(!otp)return;
+    if(!/^\d{6}$/.test(otp.trim()))throw Error("Le code doit comporter six chiffres.");
+    const {error:signError}=await otpAuth.auth.signIn.emailOtp({email,otp:otp.trim()});
+    if(signError)throw signError;
+    await afterLogin();
+  }catch(error){
+    setLoginMsg("Connexion Neon : "+String(error.message||error));
+  }finally{otpButton.disabled=false;}
 });
 
 $("btnLogout").addEventListener("click", async () => {

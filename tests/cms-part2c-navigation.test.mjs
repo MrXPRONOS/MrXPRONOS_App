@@ -37,13 +37,13 @@ test("media filters by kind and searches caption, alt and filenames",()=>{
 });
 test("media list reads the requested page and preserves public display URLs",async()=>{
  let rangeArgs;
- const rows=[{id:"m1",kind:"image",storage_path:"cms/x/media.webp",thumbnail_path:null}];
+ const rows=[{id:"m1",kind:"image",storage_path:"cms/11111111-1111-4111-8111-111111111111.webp",thumbnail_path:null}];
  const query={order:()=>query,range:async(a,b)=>{rangeArgs=[a,b];return{data:rows,error:null}}};
- const db={from:table=>{assert.equal(table,"cms_media");return{select:()=>query}},
-  storage:{from:bucket=>{assert.equal(bucket,"cms-media");return {getPublicUrl:path=>({data:{publicUrl:"https://cdn.example.com/"+path}})}}}};
+ const db={from:table=>{assert.equal(table,"cms_media");return{select:()=>query}}};
  const got=await listCmsMedia(db,{offset:48,pageSize:48});
  assert.deepEqual(rangeArgs,[48,95]);
- assert.equal(got[0].url,"https://cdn.example.com/cms/x/media.webp");
+ assert.match(got[0].url,/https:\/\/br-winter-truth-b9of9tss\.storage\./);
+ assert.ok(got[0].url.endsWith("/cms/11111111-1111-4111-8111-111111111111.webp"));
  await assert.rejects(()=>listCmsMedia(db,{offset:-1}),/invalide/);
 });
 test("five CMS lists have new controls without altering publication, live or cron pipelines",()=>{

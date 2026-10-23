@@ -21,6 +21,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 concurrency:
   group: shorts-coupons-production
@@ -45,9 +46,8 @@ jobs:
       TG_API_ID: ${{ secrets.TG_API_ID }}
       TG_API_HASH: ${{ secrets.TG_API_HASH }}
       TG_SESSION_STRING: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+      NEON_MEDIA_UPLOAD_URL: https://mrxpronos-admin-media.cinecanaux-xpronos.workers.dev/upload
       META_APP_ID: ${{ secrets.META_APP_ID }}
       META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
       META_LONG_LIVED_USER_TOKEN: ${{ secrets.META_LONG_LIVED_USER_TOKEN }}
@@ -69,7 +69,6 @@ jobs:
       YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
       YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
       YOUTUBE_PRIVACY_STATUS: public
-      SUPABASE_BUCKET: videos
 
     steps:
       - name: Checkout production
@@ -88,7 +87,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-liberation
           python -m pip install --upgrade pip setuptools wheel
-          pip install "numpy<2" pillow requests moviepy==1.0.3 "telethon>=1.36,<2"
+          pip install "psycopg[binary]>=3.2,<4" boto3 "numpy<2" pillow requests moviepy==1.0.3 "telethon>=1.36,<2"
           if [ -f requirements_social.txt ]; then
             pip install -r requirements_social.txt
           fi

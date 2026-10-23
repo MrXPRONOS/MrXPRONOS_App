@@ -7,17 +7,17 @@ Publie daily_pronos_shorts.mp4 sur plusieurs plateformes après la génération 
 
 Plateformes supportées :
 - Facebook Page : upload direct du fichier local via Meta Graph Video API
-- Instagram Reels : nécessite une URL vidéo publique (ou upload Supabase public)
-- Threads : nécessite une URL vidéo publique (ou upload Supabase public)
+- Instagram Reels : nécessite une URL vidéo publique (ou upload Neon public)
+- Threads : nécessite une URL vidéo publique (ou upload Neon public)
 - TikTok : upload direct via Content Posting API, si app/token autorisés
 - YouTube Shorts : upload direct via YouTube Data API avec refresh token OAuth
-- Bluesky : upload MP4 natif, anti-doublon Supabase, même campagne que les autres plateformes
+- Bluesky : upload MP4 natif, anti-doublon Neon, même campagne que les autres plateformes
 
 Usage GitHub Actions :
 python scripts/post_shorts_video.py --video daily_pronos_shorts.mp4 --platforms facebook,youtube
 
-Pour Instagram/Threads, fournissez PUBLIC_VIDEO_URL ou configurez Supabase Storage public :
-SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_BUCKET
+Pour Instagram/Threads, fournissez PUBLIC_VIDEO_URL ou configurez Neon Object Storage public :
+NEON_S3_ENDPOINT, NEON_S3_ACCESS_KEY_ID, NEON_S3_SECRET_ACCESS_KEY, NEON_PUBLIC_MEDIA_BASE_URL
 """
 
 from __future__ import annotations
@@ -116,55 +116,18 @@ def make_description(user_description: Optional[str]) -> str:
 
 
 # =====================================================
-# PUBLIC HOSTING OPTIONNEL : SUPABASE STORAGE
+# PUBLIC HOSTING : NEON OBJECT STORAGE
 # =====================================================
-def upload_to_supabase_public(video_path: Path) -> str:
-    """
-    Upload la vidéo dans un bucket Supabase public et retourne l'URL publique.
-    Requis : SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_BUCKET.
-    """
-    ok, msg = require_env(["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_BUCKET"])
-    if not ok:
-        raise RuntimeError(msg)
-
-    supabase_url = env("SUPABASE_URL", "").rstrip("/")
-    service_key = env("SUPABASE_SERVICE_ROLE_KEY", "")
-    bucket = env("SUPABASE_BUCKET", "videos")
-
-    date_part = datetime.now(timezone.utc).strftime("%Y/%m/%d")
-    object_name = env("SUPABASE_OBJECT_NAME") or f"shorts/{date_part}/{int(time.time())}-{video_path.name}"
-    object_name_q = quote(object_name, safe="/")
-
-    upload_url = f"{supabase_url}/storage/v1/object/{bucket}/{object_name_q}"
-    public_url = f"{supabase_url}/storage/v1/object/public/{bucket}/{object_name_q}"
-
-    mime = mimetypes.guess_type(str(video_path))[0] or "video/mp4"
-    headers = {
-        "Authorization": f"Bearer {service_key}",
-        "apikey": service_key,
-        "Content-Type": mime,
-        "x-upsert": "true",
-    }
-
-    log(f"☁️ Upload Supabase Storage : {bucket}/{object_name}")
-    with open(video_path, "rb") as f:
-        resp = requests.post(upload_url, headers=headers, data=f, timeout=600)
-
-    if resp.status_code >= 400:
-        raise RuntimeError(f"Erreur upload Supabase HTTP {resp.status_code}: {resp.text[:1000]}")
-
-    log(f"✅ URL publique vidéo : {public_url}")
-    return public_url
-
-
 def resolve_public_url(video_path: Path, explicit_url: Optional[str]) -> Optional[str]:
     if explicit_url:
         return explicit_url
     if env("PUBLIC_VIDEO_URL"):
         return env("PUBLIC_VIDEO_URL")
-    # Si Supabase est configuré, on crée automatiquement une URL publique.
-    if env("SUPABASE_URL") and env("SUPABASE_SERVICE_ROLE_KEY") and env("SUPABASE_BUCKET"):
-        return upload_to_supabase_public(video_path)
+    if env("NEON_MEDIA_UPLOAD_URL") or env("NEON_S3_ENDPOINT"):
+        from neon_public_media import upload_public
+        date_part=datetime.now(timezone.utc).strftime("%Y/%m/%d")
+        object_name=env("NEON_OBJECT_NAME") or f"shorts/{date_part}/{int(time.time())}-{video_path.name}"
+        return upload_public(video_path,object_name,content_type="video/mp4")
     return None
 
 
@@ -233,7 +196,7 @@ def post_instagram_reel(public_video_url: Optional[str], caption: str) -> Publis
         return PublishResult(
             platform,
             False,
-            "PUBLIC_VIDEO_URL requis pour Instagram Reels, ou configure Supabase Storage public.",
+            "PUBLIC_VIDEO_URL requis pour Instagram Reels, ou configure Neon Object Storage public.",
         )
 
     ig_user_id = env("IG_USER_ID")
@@ -309,7 +272,7 @@ def post_threads(public_video_url: Optional[str], caption: str) -> PublishResult
         return PublishResult(
             platform,
             False,
-            "PUBLIC_VIDEO_URL requis pour Threads, ou configure Supabase Storage public.",
+            "PUBLIC_VIDEO_URL requis pour Threads, ou configure Neon Object Storage public.",
         )
 
     user_id = env("THREADS_USER_ID")
@@ -578,11 +541,11 @@ def post_bluesky_video(video_path: Path, caption: str, title: str) -> PublishRes
     platform = "bluesky"
     handle = (env("BLUESKY_HANDLE") or "").lstrip("@").lower()
     password = env("BLUESKY_APP_PASSWORD")
-    base = env("SUPABASE_URL")
-    key = env("SUPABASE_SERVICE_ROLE_KEY") or env("SUPABASE_KEY")
-    if not all((handle, password, base, key)):
+    base = ""
+    key = ""
+    if not all((handle, password, env("NEON_DATABASE_URL"))):
         return PublishResult(platform, False,
-                             "BLUESKY_HANDLE, BLUESKY_APP_PASSWORD et secrets Supabase requis")
+                             "BLUESKY_HANDLE, BLUESKY_APP_PASSWORD et accès Neon requis")
 
     size = video_path.stat().st_size
     if not 100_000 <= size <= 50_000_000 or video_path.suffix.lower() != ".mp4":

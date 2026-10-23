@@ -66,6 +66,7 @@ class NightScheduleTests(unittest.TestCase):
         with patch("bsd_v2_telegram.claim",return_value=True), \
              patch("bsd_v2_telegram.send_one",side_effect=send_one), \
              patch("bsd_v2_telegram.send_combo",side_effect=send_combo), \
+             patch("neon_telegram_ledger.claim",return_value={"id":"stub"}), \
              patch("bsd_v2_telegram.time.sleep",return_value=None):
             report=process(data,when(8,20,5),session=Session(),token="token",
                 chat_ids=["-100123"],supabase_url="https://test.supabase.co",supabase_key="key")

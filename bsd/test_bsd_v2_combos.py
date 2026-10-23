@@ -149,14 +149,15 @@ class CombosTests(unittest.TestCase):
                     def raise_for_status(self):pass
                 return Response()
         session=FakeHTTP()
-        with patch("bsd_v2_verify_telegram.post_gain",return_value=411) as post:
+        with patch("bsd_v2_verify_telegram.post_gain",return_value=411) as post, \
+             patch("neon_telegram_ledger.mark_verified",return_value=1) as mark:
             counts=validate({"matches":[fixture]},rows,official,NOW,
-                            session,"token","https://test.supabase.co","key")
+                            session,"token","","")
         self.assertEqual(counts["wins_sent"],1)
         self.assertEqual(counts["losses_silent"],1)
         self.assertEqual(post.call_count,1)
-        self.assertEqual(len(session.patches),2)
-
+        self.assertEqual(mark.call_count,2)
+        self.assertEqual(len(session.patches),0)
 
     def test_combo_ledger_ref_contains_both_frozen_legs_and_roundtrips(self):
         combo=build_combos([match(1,40),match(2,50)])[0]
@@ -217,14 +218,16 @@ class CombosTests(unittest.TestCase):
                 self.patches.append(kwargs)
                 return Response([])
         session=FakeHTTP()
-        with patch("bsd_v2_verify_telegram.post_combo_gain",return_value=777) as send:
-            result=validate_combos(data,[row],events,session,"token",
-                                   "https://test.supabase.co","key")
+        with patch("bsd_v2_verify_telegram.post_combo_gain",return_value=777) as send, \
+             patch("neon_telegram_ledger.claim",return_value={"id":"stub"}) as reserve, \
+             patch("neon_telegram_ledger.mark_verified",return_value=1) as mark:
+            result=validate_combos(data,[row],events,session,"token","","")
         self.assertEqual(result["combo_wins_sent"],1)
         self.assertEqual(send.call_count,1)
-        self.assertEqual(len(session.posts),1)
-        self.assertEqual(session.posts[0]["json"]["kind"],COMBO_VALIDATION_KIND)
-        self.assertEqual(len(session.patches),1)
+        reserve.assert_called_once()
+        mark.assert_called_once()
+        self.assertEqual(len(session.posts),0)
+        self.assertEqual(len(session.patches),0)
 
     def test_combo_with_one_pending_leg_does_not_send_or_complete(self):
         combo=build_combos([match(1,-120),match(2,-60)])[0]

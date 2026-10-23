@@ -20,19 +20,60 @@ def f(x):return "—" if x is None else f"{x:,.0f}".replace(","," ")
 def esc(x):return html.escape(str(x or ""),quote=True)
 class DB:
  def __init__(self):
-  self.base=env("SUPABASE_URL").rstrip("/")+"/rest/v1/"
-  key=env("SUPABASE_SERVICE_ROLE_KEY")
-  self.s=requests.Session();self.s.headers.update({"apikey":key,"Authorization":"Bearer "+key,"Content-Type":"application/json"})
+  try:
+   from scripts.neon_rest_compat import NeonRestSession
+  except ModuleNotFoundError:
+   from neon_rest_compat import NeonRestSession
+  self.base="neon://private/rest/v1/"
+  if not os.getenv("NEON_DATABASE_URL"):
+   raise RuntimeError("NEON_DATABASE_URL is required")
+  self.s=NeonRestSession(requests.Session())
  def call(self,method,path,**kw):
-  r=self.s.request(method,self.base+path,timeout=30,**kw);r.raise_for_status()
-  return r.json() if r.content and r.text.strip() else None
- def rpc(self,name,**args):return self.call("POST","rpc/"+name,json=args)
+  r=getattr(self.s,method.lower())(self.base+path,**kw)
+  r.raise_for_status()
+  return r.json() if r.text.strip() else None
+ def rpc(self,name,**args):
+  import psycopg
+  dsn=env("NEON_DATABASE_URL")
+  with psycopg.connect(dsn,connect_timeout=12) as db:
+   with db.cursor() as cur:
+    if name=="telegram_monitor_acquire":
+     owner=str(args["p_owner"]);minutes=max(1,min(int(args.get("p_minutes",25)),60))
+     cur.execute("INSERT INTO public.telegram_monitor_runtime(singleton) VALUES(true) ON CONFLICT DO NOTHING")
+     cur.execute("""UPDATE public.telegram_monitor_runtime SET lock_owner=%s,
+       lock_expires_at=now()+(%s * interval '1 minute'),updated_at=now()
+       WHERE singleton=true AND (lock_expires_at IS NULL OR lock_expires_at<now())
+       AND (cooldown_until IS NULL OR cooldown_until<now()) RETURNING lock_owner""",
+       (owner,minutes))
+     return "ok" if cur.fetchone() else "busy"
+    if name=="telegram_monitor_reserve_report":
+     cur.execute("""INSERT INTO public.telegram_channel_report_dispatch
+       (report_on,channels_count,status,reservation_owner)
+       SELECT %s,%s,'reserved',%s
+       WHERE EXISTS(SELECT 1 FROM public.telegram_monitor_runtime
+       WHERE singleton=true AND lock_owner=%s AND lock_expires_at>now())
+       ON CONFLICT(report_on) DO NOTHING RETURNING report_on""",
+       (args["p_on"],args["p_count"],args["p_owner"],args["p_owner"]))
+     return cur.fetchone() is not None
+    if name=="telegram_monitor_release":
+     seconds=max(0,min(int(args.get("p_cooldown_seconds") or 0),604800))
+     cur.execute("""UPDATE public.telegram_monitor_runtime
+       SET lock_owner=NULL,lock_expires_at=NULL,updated_at=now(),
+       cooldown_until=CASE WHEN %s>0 THEN now()+(%s * interval '1 second')
+         ELSE cooldown_until END,last_error_class=%s
+       WHERE singleton=true AND lock_owner=%s""",
+       (seconds,seconds,args.get("p_error"),args["p_owner"]))
+     return cur.rowcount>0
+    raise ValueError("Unknown Neon monitor RPC "+str(name))
  def read(self,table,**params):return self.call("GET",table,params=params) or []
  def put(self,table,rows,conflict):
-  if rows:self.call("POST",table,params={"on_conflict":conflict},headers={"Prefer":"resolution=merge-duplicates,return=minimal"},json=rows)
+  if rows:self.call("POST",table,params={"on_conflict":conflict},
+   headers={"Prefer":"resolution=merge-duplicates,return=minimal"},json=rows)
  def history(self,id,day,window):
   start=(datetime.fromisoformat(day).date()-timedelta(days=window)).isoformat()
-  return self.read("telegram_channel_metrics_daily",select="observed_on,subscriber_count",channel_id="eq."+str(id),observed_on="gte."+start,order="observed_on.asc")
+  return self.read("telegram_channel_metrics_daily",select="observed_on,subscriber_count",
+   channel_id="eq."+str(id),observed_on="gte."+start,order="observed_on.asc")
+
 def change(rows,now):
  if not rows or now is None or rows[0]["subscriber_count"] is None:return None
  return now-int(rows[0]["subscriber_count"])

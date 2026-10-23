@@ -6,7 +6,6 @@
   <meta name="robots" content="noindex,nofollow">
   <title>Supervision | Mr XPRONOS</title>
   <link rel="icon" href="assets/images/favicon.webp">
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="assets/css/admin-premium.css?v=20261018-future2">
   <style>
     :root{color-scheme:dark;--bg:#0b0d11;--panel:#171a20;--stroke:#2b3039;--gold:#d7b45e;--muted:#a0a5b0;--good:#45d19d;--bad:#ff8989;--text:#f2f4f8}
@@ -85,7 +84,7 @@
       <div class="metric highlight"><div class="metric-top"><div class="name">Signaux Live</div><span class="metric-icon" aria-hidden="true">⚡</span></div><div class="val" id="signals">–</div><small>Signaux créés durant la période</small></div>
       <div class="metric highlight"><div class="metric-top"><div class="name">Réussite validée</div><span class="metric-icon" aria-hidden="true">✓</span></div><div class="val" id="winrate">–</div><small>Sur les signaux success/failure enregistrés</small></div>
       <div class="metric"><div class="metric-top"><div class="name">Envois Telegram</div><span class="metric-icon" aria-hidden="true">➤</span></div><div class="val" id="telegram">–</div><small>Enregistrements telegram_sent</small></div>
-      <div class="metric"><div class="metric-top"><div class="name">Latence Supabase</div><span class="metric-icon" aria-hidden="true">◷</span></div><div class="val" id="latency">–</div><small>Temps de réponse du tableau de bord, pas du site</small></div>
+      <div class="metric"><div class="metric-top"><div class="name">Latence Neon</div><span class="metric-icon" aria-hidden="true">◷</span></div><div class="val" id="latency">–</div><small>Temps de réponse du tableau de bord, pas du site</small></div>
     </div>
     </section><section id="activity"><div class="section-head"><div><div class="section-kicker">02 / AUDIENCE</div><h2>Évolution de l’activité</h2></div></div><div class="panel"><div class="chart-toolbar"><div><h2>Visites et interactions</h2><p class="section-note">Événements de visite estimés, après exclusion des plages de tests suspectes.</p></div><div class="chart-toggle" role="group" aria-label="Métrique du graphique"><button id="chart-visits" type="button" aria-pressed="true">Visites</button><button id="chart-clicks" type="button" aria-pressed="false">Clics</button></div></div><div id="traffic-chart" class="chart-box" role="img" aria-label="Graphique du trafic"><div class="chart-empty">Chargement…</div></div><p id="chart-caption" class="chart-total">–</p></div></section><section id="signals-panel"><div class="section-head"><div><div class="section-kicker">03 / ANALYSE FOOTBALL</div><h2>Signaux & précision</h2></div></div><p id="last-signal" class="muted">–</p><div class="double">
       <section class="panel">

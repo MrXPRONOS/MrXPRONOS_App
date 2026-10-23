@@ -2,7 +2,7 @@
 """BSD V2 -> Telegram: 20h batch of night coupons plus normal daily windows.
 
 Night coupons: 21h–05h local Togo time (UTC) grouped at 20h.
-Supabase unique(kind,ref_id,ref_date) prevents resending eligible picks.
+Neon unique(kind,ref_id,ref_date) prevents resending eligible picks.
 """
 import argparse,json,os,time
 from datetime import datetime,timedelta,timezone
@@ -118,30 +118,15 @@ def headers(key):
 
 
 def claim(session,base,key,match,chat_id):
-    # One row per channel+match, anchored in the existing unique index.
-    # Only the insert winner will send. This is at-most-once for this channel,
-    # with a possible missed delivery if the runner crashes after claiming.
+    from neon_telegram_ledger import claim as reserve
     event_id=str(match.get("_telegram_selection_ref") or match["id"])
-    ref=chat_id+":"+event_id
-    date=match["date"]
-    payload={"kind":KIND,"ref_id":ref,"ref_date":date,"validation_sent":False}
-    r=session.post(base.rstrip("/")+"/rest/v1/telegram_sent",
-                   params={"on_conflict":"kind,ref_id,ref_date"},
-                   headers=headers(key),json=payload,timeout=30)
-    r.raise_for_status()
-    rows=r.json()
-    return isinstance(rows,list) and len(rows)>0
+    return bool(reserve(KIND,chat_id+":"+event_id,match["date"]))
 
 
 def release_failed_claim(session,base,key,match,chat_id):
-    # Autorise le réessai lors du prochain cron si Telegram a rejeté l'envoi.
-    # Un timeout après acceptation par Telegram reste intrinsèquement ambigu.
-    params={"kind":"eq."+KIND,"ref_id":"eq."+chat_id+":"+str(match.get("_telegram_selection_ref") or match["id"]),
-            "ref_date":"eq."+match["date"]}
-    h=headers(key)
-    r=session.delete(base.rstrip("/")+"/rest/v1/telegram_sent",
-                     params=params,headers=h,timeout=30)
-    r.raise_for_status()
+    from neon_telegram_ledger import release
+    event_id=str(match.get("_telegram_selection_ref") or match["id"])
+    release(KIND,chat_id+":"+event_id,match["date"])
 
 
 def send_one(session,token,chat_id,match,*,night=False):
@@ -215,18 +200,13 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
     for combo in combo_picks:
         for chat in chat_ids:
             # Kind is separate from one-event predictions but uses the
-            # existing unique kind+ref_id+date Supabase ledger.
+            # existing unique kind+ref_id+date Neon ledger.
             claimed=False
             try:
                 combo_ref={"id":combo["id"],"date":combo["date"]}
                 ref=combo_ledger_ref(chat,combo)
-                response=session.post(supabase_url.rstrip("/")+"/rest/v1/telegram_sent",
-                    params={"on_conflict":"kind,ref_id,ref_date"},
-                    headers=headers(supabase_key),
-                    json={"kind":COMBO_KIND,"ref_id":ref,
-                          "ref_date":combo_ref["date"],"validation_sent":False},timeout=30)
-                response.raise_for_status()
-                claimed=isinstance(response.json(),list) and bool(response.json())
+                from neon_telegram_ledger import claim as reserve
+                claimed=bool(reserve(COMBO_KIND,ref,combo_ref["date"]))
                 if not claimed:
                     report["combos_claimed"]+=1
                     continue
@@ -239,10 +219,8 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
                 print("BSD_COMBO_ERROR",combo["id"],type(exc).__name__,str(exc)[:170])
                 if claimed:
                     try:
-                        session.delete(supabase_url.rstrip("/")+"/rest/v1/telegram_sent",
-                            params={"kind":"eq."+COMBO_KIND,"ref_id":"eq."+ref,
-                                    "ref_date":"eq."+combo["date"]},
-                            headers=headers(supabase_key),timeout=30).raise_for_status()
+                        from neon_telegram_ledger import release
+                        release(COMBO_KIND,ref,combo["date"])
                     except Exception as secondary:
                         print("BSD_COMBO_RELEASE_ERROR",type(secondary).__name__)
     return report
@@ -270,11 +248,10 @@ def main():
         return
     token=os.getenv("TELEGRAM_BOT_TOKEN")
     chat=os.getenv("TELEGRAM_CHAT_ID")
-    sb_url=os.getenv("SUPABASE_URL")
-    sb_key=os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY")
-    if not all((token,chat,sb_url,sb_key)):raise RuntimeError("Missing Telegram or Supabase secrets")
+    if not all((token,chat,os.getenv("NEON_DATABASE_URL"))):
+        raise RuntimeError("Missing Telegram or Neon credentials")
     report=process(data,now,session=requests.Session(),token=token,
-                   chat_ids=[chat],supabase_url=sb_url,supabase_key=sb_key)
+                   chat_ids=[chat],supabase_url="",supabase_key="")
     print("BSD_V2_TELEGRAM:",json.dumps(report))
     if report["errors"]:raise SystemExit("Telegram delivery errors; investigate ledger")
 
