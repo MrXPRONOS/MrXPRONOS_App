@@ -16,7 +16,8 @@ def main():
  token=os.environ["TELEGRAM_BOT_TOKEN"].strip()
  chat=os.environ["TELEGRAM_CHAT_ID"].strip()
  if not token or not chat:raise RuntimeError("Configuration Telegram production absente")
- base=os.environ["SUPABASE_URL"].strip();key=os.environ["SUPABASE_SERVICE_ROLE_KEY"].strip()
+ if not os.getenv("NEON_DATABASE_URL"):raise RuntimeError("NEON_DATABASE_URL obligatoire")
+ base="";key=""
  preview=Path(os.getenv("ACCUMULATOR_PREVIEW","telegram_out/accumulator_preview.png"))
  complete=Path(os.getenv("ACCUMULATOR_OUTPUT","telegram_out/accumulator_reference.png"))
  check_photo(preview);check_photo(complete)
