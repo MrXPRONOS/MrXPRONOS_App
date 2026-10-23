@@ -18,7 +18,7 @@
       "level": 0
     },
     "ETH": {
-      "direction": "down",
+      "direction": "up",
       "level": 0
     },
     "SOL": {
@@ -26,7 +26,7 @@
       "level": 0
     },
     "XRP": {
-      "direction": "down",
+      "direction": "up",
       "level": 0
     }
   },
@@ -44,6 +44,10 @@
     },
     "b749ed0af0294525b34931bc": {
       "message_id": 22,
+      "number": 9
+    },
+    "f9d78348be882c6834f8b7f4": {
+      "message_id": 36,
       "number": 9
     }
   },
@@ -244,6 +248,12 @@
       "message_id": 28,
       "number": 9,
       "sent_at": "2026-10-22T18:09:31.847473+00:00",
+      "source": "Kraken Status"
+    },
+    "news:09:e0f3d809276d38630d429f64": {
+      "message_id": 36,
+      "number": 9,
+      "sent_at": "2026-10-23T17:58:24.337393+00:00",
       "source": "Kraken Status"
     },
     "news:09:e44d8a305e368ff1bd8429a1": {

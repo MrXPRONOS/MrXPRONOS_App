@@ -6,7 +6,7 @@
   ],
   "sources": {
     "2026-10-23": {
-      "fixtures": 310,
+      "fixtures": 308,
       "provider_health": {
         "bsd": {
           "reported": 0,
@@ -21,8 +21,8 @@
           "error": "not queried"
         },
         "espn": {
-          "reported": 109,
-          "valid": 109,
+          "reported": 107,
+          "valid": 107,
           "rejected": 0,
           "error": ""
         },
@@ -129,7 +129,7 @@
       }
     }
   },
-  "total_fixtures": 1436,
+  "total_fixtures": 1433,
   "sportscore_page_size_limit": 200,
   "sportscore_days_at_page_limit": 3,
   "sportscore_coverage_possibly_incomplete": true,
