@@ -87,3 +87,36 @@ jobs:
           assert response.content.startswith(b'\\x89PNG\\r\\n\\x1a\\n'),'Unexpected public media'
           print('NEON_CLOUDFLARE_MEDIA_SMOKE_OK')
           PY
+
+  neon-database-smoke:
+    name: Verify configured GitHub Neon PostgreSQL connection (read only)
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    env:
+      NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'psycopg[binary]>=3.2,<4'
+      - name: Check database name and migration row counts without writes
+        run: |
+          python - <<'PY'
+          import os,psycopg
+          dsn=os.getenv('NEON_DATABASE_URL','').strip()
+          if not dsn:raise SystemExit('NEON_DATABASE_URL GitHub secret is missing')
+          with psycopg.connect(dsn,connect_timeout=12) as db:
+              with db.cursor() as cur:
+                  cur.execute("SELECT current_database()")
+                  name=cur.fetchone()[0]
+                  if name!='mrxpronos':raise SystemExit('Wrong Neon database selected')
+                  cur.execute("SELECT (SELECT count(*) FROM public.users),"
+                              "(SELECT count(*) FROM public.analytics),"
+                              "(SELECT count(*) FROM public.telegram_sent),"
+                              "(SELECT count(*) FROM public.admin_users)")
+                  users,analytics,ledger,admins=cur.fetchone()
+                  assert users>=7157 and analytics>=11212 and ledger>=739 and admins>=1
+                  print('NEON_DATABASE_GITHUB_SECRET_OK',name,
+                        'users',users,'analytics',analytics,'ledger',ledger,'admins',admins)
+          PY
