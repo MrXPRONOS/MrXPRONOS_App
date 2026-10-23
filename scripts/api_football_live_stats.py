@@ -224,6 +224,22 @@ def safe_remaining(raw):
 
 
 def db_json(base, secret, method, table, params=None, body=None):
+    # Existing provider quota, matching, parse and eligibility rules remain.
+    # Only the authenticated Neon PostgreSQL transport is substituted.
+    if os.getenv("NEON_LIVE_GATEWAY_URL","").strip():
+        uri=base.rstrip("/")+"/ingest/api-football"
+        payload={"method":method,"table":table,"params":params or {},"body":body}
+        req=Request(uri,method="POST",data=json.dumps(payload,ensure_ascii=False).encode("utf-8"),
+            headers={"x-cron-secret":secret,"Content-Type":"application/json"})
+        with urlopen(req,timeout=30) as response:
+            data=json.load(response)
+            if method=="GET":
+                if not isinstance(data.get("data"),list):
+                    raise ValueError("Neon gateway returned no data array")
+                return data["data"]
+            if data.get("saved")!=1:
+                raise ValueError("Neon gateway did not confirm write")
+            return response.status
     uri=base.rstrip("/")+"/rest/v1/"+table
     if params:
         uri+="?"+urlencode(params)
@@ -272,13 +288,15 @@ def build_row(match, fixture, stats):
 
 def main():
     key=os.getenv("API_FOOTBALL_KEY","").strip()
-    supabase_url=os.getenv("SUPABASE_URL","").strip()
-    supabase_secret=os.getenv("SUPABASE_SERVICE_ROLE_KEY","").strip()
+    neon_url=os.getenv("NEON_LIVE_GATEWAY_URL","").strip()
+    supabase_url=neon_url or os.getenv("SUPABASE_URL","").strip()
+    supabase_secret=(os.getenv("CRON_SECRET","").strip() if neon_url
+                     else os.getenv("SUPABASE_SERVICE_ROLE_KEY","").strip())
     if not key:
         print("API_FOOTBALL_SKIPPED: configure API_FOOTBALL_KEY in GitHub Actions secrets")
         return 0
     if not supabase_url.startswith("https://") or not supabase_secret:
-        print("::error::Supabase URL / server-side key missing")
+        print("::error::LIVE statistics storage URL or authenticated secret missing")
         return 1
 
     # Never consume a provider request when there are no fresh live fixtures.
