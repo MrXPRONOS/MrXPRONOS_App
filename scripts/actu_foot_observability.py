@@ -11,7 +11,10 @@ import os
 from datetime import datetime, timezone
 
 import requests
-from scripts.neon_rest_compat import NeonRestSession
+try:
+    from scripts.neon_rest_compat import NeonRestSession
+except ModuleNotFoundError:
+    from neon_rest_compat import NeonRestSession
 
 
 def _parse_moment(value) -> datetime | None:
