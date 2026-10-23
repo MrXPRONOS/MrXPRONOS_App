@@ -1,3 +1,4 @@
+import { apiFootballGateway } from "./_neon_api_football.ts";
 // Neon Node.js 24 request transport for the historical Supabase serve(handler).
 // Adds only Neon schedule authentication; original business functions remain unchanged.
 type Handler = (request: Request) => Response | Promise<Response>;
@@ -8,6 +9,7 @@ export function neonGetHandler(): Handler {
  if (!handler) throw new Error("LIVE_HANDLER_NOT_REGISTERED");
  return async (request: Request) => {
   const url=new URL(request.url);
+  if(url.pathname.replace(/\/$/,"")==="/ingest/api-football")return apiFootballGateway(request);
   const invocation=request.headers.get("x-neon-trigger-invocation-id");
   // Neon strips spoofed x-neon-* request headers at its edge. Only the
   // registered production trigger can satisfy both this header and body.
