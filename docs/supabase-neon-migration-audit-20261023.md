@@ -60,3 +60,45 @@ daily-update.yml (if false), daily-pronos.yml (if false), telegram-simple-coupon
 3. Run guarded fixture and live-enrichment jobs and compare provider quota, rows and payload schema.
 4. Cut over one workflow group at a time; maintain production rollback.
 5. Migrate dependent telemetry/auth/CMS functions before retiring Supabase; do not delete old storage objects still referenced.
+
+
+## Implementation update — 2026-10-23, round 2
+
+**Code migrated on this branch; do not equate with a tested production cutover:**
+- Telegram singles/combinations: `bsd/bsd_v2_telegram.py`, `bsd/bsd_v2_verify_telegram.py`.
+- Bluesky: `bsd/bsd_v2_bluesky.py`, `scripts/share_latest_video_bluesky.py`.
+- Shorts and batch settlement: `scripts/create_short_from_telegram_coupons.py`,
+  `scripts/send_short_production_telegram.py`, `scripts/distribute_short_telegram.py`,
+  `scripts/settle_short_production_batches.py`, `scripts/post_shorts_video.py`.
+- Daily accumulator: `scripts/read_accumulator_video_ledger.py`,
+  `scripts/send_accumulator_production.py`, `scripts/post_accumulator_social.py`.
+- Supporting modules: `scripts/neon_telegram_ledger.py` (private PostgreSQL, atomic unique claims)
+  and `scripts/neon_public_media.py` (Neon S3 with externally verified public CDN URL).
+- Configuration: `bsd-v2-telegram-hourly.yml`, `bsd-v2-telegram-wins.yml`,
+  `bsd-v2-bluesky.yml`, `shorts-coupons-production.yml`,
+  `shorts-coupons-production-validation.yml`, `accumulator-photo-production.yml`.
+- API-Football scheduled and live market statistics files migrated in round 1.
+
+**Data migration:** Cloudflare D1 publication-ledger history copied idempotently into Neon
+`public.telegram_sent`; comparison showed 739 matching entries in both backends,
+broken down by `kind` and unique `(kind,ref_id,ref_date)` on Neon at the time checked.
+Since D1 remains live, perform one final differential sync and disable the OLD writers
+atomically at cutover. Do not delete D1 history.
+
+**Mandatory blockers to production:**
+1. GitHub secrets `NEON_DATABASE_URL`, `NEON_S3_ENDPOINT`,
+   `NEON_S3_ACCESS_KEY_ID`, `NEON_S3_SECRET_ACCESS_KEY`,
+   `NEON_PUBLIC_MEDIA_BASE_URL` must be provisioned/tested by deployment environment;
+   their existence is not confirmed.
+2. Neon S3 public CDN URL for Instagram/Threads must be proven with GET and correct MIME;
+   the uploader intentionally fails closed if unconfigured.
+3. Offline compile/tests and real dry-runs for every migrated workflow are still not confirmed.
+4. **Actu Foot is NOT migrated:** production scripts and RPCs still rely on Supabase.
+5. **Administration and site interface are NOT migrated:** Neon `users`, `admin_users`
+   and `analytics` are empty; Neon tables require RLS and have no anonymous SELECT grants.
+   Do not expose privileged credentials in public JS and do not remove Supabase Auth
+   without a tested Neon Auth account migration and role mapping.
+6. Production `main` remains unchanged; this branch/PR is a draft.
+
+**Non-functional constraints preserved:** no modifications to coupon rendering,
+site CSS, video frames, football prediction calculations, banners or match selection algorithms.
