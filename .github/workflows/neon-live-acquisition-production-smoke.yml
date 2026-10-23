@@ -1,0 +1,41 @@
+name: Neon LIVE acquisition production 22 read-only verification
+on:
+  push:
+    branches: [migration/supabase-to-free-stack-20261022]
+    paths: ['.github/workflows/neon-live-acquisition-production-smoke.yml']
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Read-only production HTTP + two Telegram channels + unauthorized denial
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          python3 - <<'PY'
+          import json,os,urllib.request,urllib.error
+          base="https://br-winter-truth-b9of9tss-live.compute.c-7.eu-central-1.aws.neon.tech"
+          for path,key in [
+            ("/matches","matches"),("/opportunities","opportunities"),
+            ("/today","data"),("/predictions/history","history"),("/daily/today","predictions"),
+            ("/notifications","notifications")]:
+            req=urllib.request.Request(base+path,headers={"Origin":"https://mrxpronos.github.io"})
+            with urllib.request.urlopen(req,timeout=50) as response:
+              body=json.load(response)
+              assert response.status==200 and key in body,(path,response.status,body)
+              print("PRODUCTION_ACQUISITION_ROUTE_PASS",path,flush=True)
+          assert os.environ.get("CRON_SECRET")
+          req=urllib.request.Request(base+"/telegram/status",headers={"x-cron-secret":os.environ["CRON_SECRET"]})
+          with urllib.request.urlopen(req,timeout=40) as response:
+            body=json.load(response)
+            assert response.status==200 and body.get("telegram_configured") is True and body.get("target_chat_count")==2
+          print("TWO_TELEGRAM_CHANNELS_CONFIGURED_PASS",flush=True)
+          req=urllib.request.Request(base+"/refresh",method="POST",data=b"{}",headers={"Content-Type":"application/json"})
+          try:
+            with urllib.request.urlopen(req,timeout=15):raise AssertionError("Unauthenticated refresh accepted")
+          except urllib.error.HTTPError as e:
+            assert e.code>=400
+          print("PRODUCTION_ACQUISITION_HTTP_PASS",flush=True)
+          PY
