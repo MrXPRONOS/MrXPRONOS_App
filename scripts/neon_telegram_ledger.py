@@ -29,7 +29,8 @@ def claim(kind, ref_id, ref_date, *, validation_sent=False):
                    RETURNING id,kind,ref_id,ref_date""",
                 (kind, ref_id, ref_date, validation_sent),
             )
-            return cur.fetchone()
+            value=cur.fetchone()
+            return {k:(v.isoformat() if hasattr(v,"isoformat") else str(v) if k=="id" and v is not None else v) for k,v in value.items()} if value else None
 
 
 def release(kind, ref_id, ref_date):
@@ -59,7 +60,7 @@ def records(kind, since, *, limit=500, offset=0, columns=None):
                  ORDER BY ref_date ASC,id ASC LIMIT %s OFFSET %s""",
                 (kind, since, max(1,min(int(limit),1000)), max(0,int(offset))),
             )
-            return cur.fetchall()
+            return [{k:(v.isoformat() if hasattr(v,"isoformat") else str(v) if k=="id" and v is not None else v) for k,v in row.items()} for row in cur.fetchall()]
 
 
 def mark_verified(row_id, kind, *, was_unverified=True):
