@@ -15699,7 +15699,7 @@ function osUsername() {
 }
 
 // supabase/functions/live/_neon_db.ts
-var db = src_default(process.env.DATABASE_URL, { max: 3, prepare: false, connect_timeout: 8, idle_timeout: 20, transform: { undefined: null } });
+var db = src_default(process.env.MRX_LIVE_DATABASE_URL || process.env.DATABASE_URL, { max: 3, prepare: false, connect_timeout: 8, idle_timeout: 20, transform: { undefined: null } });
 var tables = /* @__PURE__ */ new Set(["cron_runs", "live_stats_sources", "live_stats_merged", "notifications", "matches_live", "live_predictions", "espn_feed_cache", "espn_match_map", "actu_foot_live_events", "live_scheduled_fixtures", "pronostics", "daily_predictions", "live_refresh_control"]);
 var safe = (name) => {
   if (!/^[a-z_][a-z0-9_]*$/i.test(name)) throw Error("INVALID_COLUMN");
