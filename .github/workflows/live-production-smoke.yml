@@ -1,4 +1,4 @@
-name: Live Production Smoke Test
+name: Neon LIVE Production Smoke Test
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Check live matches endpoint
         run: |
-          curl --fail-with-body --silent --show-error --retry 3 --max-time 30             "https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/live/matches"             -o /tmp/matches.json
+          curl --fail-with-body --silent --show-error --retry 3 --max-time 30 -H "Origin: https://mrxpronos.github.io" "https://br-winter-truth-b9of9tss-live.compute.c-7.eu-central-1.aws.neon.tech/matches"             -o /tmp/matches.json
           python - <<'PY'
           import json
           data=json.load(open('/tmp/matches.json'))
@@ -30,7 +30,7 @@ jobs:
 
       - name: Check prediction history endpoint and V2 schema
         run: |
-          curl --fail-with-body --silent --show-error --retry 3 --max-time 30             "https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/live/predictions/history"             -o /tmp/history.json
+          curl --fail-with-body --silent --show-error --retry 3 --max-time 30 -H "Origin: https://mrxpronos.github.io" "https://br-winter-truth-b9of9tss-live.compute.c-7.eu-central-1.aws.neon.tech/predictions/history"             -o /tmp/history.json
           python - <<'PY'
           import json
           data=json.load(open('/tmp/history.json'))
