@@ -1,10 +1,10 @@
-name: ML V2 - Probe 2024 historical football V2
+name: ML V2 - Historical football availability probe
 on:
   workflow_dispatch:
     inputs:
       history_day:
         description: 'One historical UTC football date to test using SportsAPIPro V2'
-        default: '2024-01-01'
+        default: '2025-12-20'
         required: true
 permissions:
   contents: read
@@ -31,7 +31,7 @@ jobs:
               raise SystemExit("ERROR invalid historical UTC date")
           key=os.environ.get("SPORTSAPI_V2_PROBE_KEY","").strip()
           if not key:raise SystemExit("ERROR: SPORTDATA_API_KEY_2 is missing")
-          url="https://v2.football.sportsapipro.com/api/scheduled?"+urllib.parse.urlencode({"date":d.isoformat()})
+          url="https://api.sportsapipro.com/v2/football/schedule/"+d.isoformat()
           req=urllib.request.Request(url,headers={"x-api-key":key,"Accept":"application/json",
                       "User-Agent":"MrXPRONOS-Historical-Research-2026"})
           print("V2 historical date requested:",d)
