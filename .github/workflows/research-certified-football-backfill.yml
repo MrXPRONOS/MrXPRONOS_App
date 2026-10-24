@@ -1,0 +1,91 @@
+name: Certified football history - ML V2 research
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        description: 'Backfill start UTC'
+        required: true
+        default: '2024-01-01'
+      end:
+        description: 'Backfill end UTC; blank uses yesterday'
+        required: false
+        default: ''
+      max_days:
+        description: 'Maximum fresh days per run (quotas)'
+        required: true
+        default: '80'
+      train_after_completion:
+        description: 'Run ML-V2 only when complete certified archive exists'
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: mrx-single-ml-v2-football-certified
+  cancel-in-progress: false
+jobs:
+  certified-football-history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install requests numpy scipy scikit-learn
+      - name: Backfill only verified football and persist privately
+        id: history
+        shell: bash
+        env:
+          SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY }}
+          SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
+          SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
+          SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
+          SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
+          SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          INPUT_START: ${{ inputs.start }}
+          INPUT_END: ${{ inputs.end }}
+          INPUT_MAX: ${{ inputs.max_days }}
+        run: |
+          set -euo pipefail
+          end_args=()
+          if [[ -n "$INPUT_END" ]]; then end_args=(--end "$INPUT_END"); fi
+          set +e
+          PYTHONPATH=.:research python -u research/single_ml_v2_cloud.py \
+            --start "$INPUT_START" "${end_args[@]}" \
+            --max-days "$INPUT_MAX" --output /tmp/mrx-cert-football.json \
+            --audit /tmp/mrx-football-audit.json
+          code=$?
+          set -e
+          if [[ "$code" -eq 2 ]]; then
+            echo 'Archive incomplete: saved days are durable. Repeat dispatch to resume.'
+            echo 'complete=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [[ "$code" -ne 0 ]]; then exit "$code"; fi
+          echo 'complete=true' >> "$GITHUB_OUTPUT"
+      - name: Optional ML-V2 on COMPLETE certified football archive only
+        if: ${{ steps.history.outputs.complete == 'true' && inputs.train_after_completion }}
+        shell: bash
+        env:
+          INPUT_START: ${{ inputs.start }}
+          INPUT_END: ${{ inputs.end }}
+        run: |
+          set -euo pipefail
+          first="2026-01-01"
+          if [[ -n "$INPUT_END" ]]; then last="$INPUT_END"; else last="$(date -u -d 'yesterday' +%F)"; fi
+          PYTHONPATH=.:research python -u research/single_ml_v2.py \
+            --source /tmp/mrx-cert-football.json --start "$first" --end "$last" \
+            --out /tmp/mrx-mlv2-certified-results
+      - name: Upload audit and ML research outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: certified-football-ml-v2-research
+          path: |
+            /tmp/mrx-football-audit.json
+            /tmp/mrx-mlv2-certified-results/
+          if-no-files-found: warn
+          retention-days: 30
