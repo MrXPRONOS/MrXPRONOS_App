@@ -58,18 +58,24 @@ jobs:
       - name: Install dependencies
         run: python -m pip install requests cryptography pillow
       - name: Compile Python sources
+        id: compile
         run: python -m compileall -q bsd
       - name: Run regression tests
+        id: regression
         run: python -m unittest discover -s bsd -p 'test_*.py' -v
       - name: Check website JavaScript syntax
+        id: javascript
         run: node --check assets/js/main.js
       - name: Check pronostic category defaults
+        id: category
         run: node --test tests/pronos-category-selection.test.cjs
       - name: Restore private BSD historical matches
+        id: restore
         env:
           BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
         run: python bsd/bsd_archive.py restore
       - name: Build BSD V2 site feed and settle completed matches
+        id: build
         env:
           BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
           PINNWIRE_API_KEY: ${{ secrets.PINNWIRE_API_KEY }}
@@ -78,6 +84,7 @@ jobs:
           BSD_MULTISOURCE_CC0: '1'
         run: python bsd/bsd_v2_publish.py --max-requests 1400 --max-odds-events 1000
       - name: Build and apply fully-qualified multisource candidates
+        id: multisource
         env:
           BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
           FOOTBALL_MULTI_SOURCE: '0'
@@ -106,8 +113,10 @@ jobs:
           PY
           rm -f tmp/multisource-qualified-history.jsonl                 tmp/multisource-public-fixtures.json                 tmp/multisource-qualified-accepted.json
       - name: Archive first-seen published selections and audit quality
+        id: quality
         run: python bsd/bsd_v2_audit.py --data data.json
       - name: Validate feed and commit website data
+        id: publish
         run: |
           python - <<'PY'
           import json
@@ -214,6 +223,7 @@ jobs:
             fi
           fi
       - name: Upload per-match price and rejection diagnostics
+        id: artifacts
         uses: actions/upload-artifact@v4
         with:
           name: bsd-v2-market-rejections
@@ -221,6 +231,7 @@ jobs:
           retention-days: 14
           if-no-files-found: error
       - name: Prepare public browser config
+        id: browser
         env:
           PUBLIC_SUPABASE_URL: '${{ secrets.SUPABASE_URL }}'
           PUBLIC_SUPABASE_ANON_KEY: '${{ secrets.SUPABASE_ANON_KEY }}'
@@ -238,10 +249,12 @@ jobs:
               target.write_text(value,encoding="utf-8")
           PY
       - name: Remove private runtime files before website deployment
+        id: cleanup
         run: |
           rm -f bsd/all_matches_bsd.json bsd/backfill_state.json bsd/v2_calibration.json bsd/rejections_report.json
           rm -rf bsd/cache bsd/private_history
       - name: Deploy updated BSD V2 website on GitHub Pages
+        id: deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: '${{ secrets.GITHUB_TOKEN }}'
@@ -249,3 +262,39 @@ jobs:
           destination_dir: ./
           keep_files: true
 
+
+      - name: Record failed BSD production phase for follow-up diagnosis
+        if: ${{ failure() }}
+        env:
+          BSD_CI_STEPS: "${{ steps.compile.outcome }}|${{ steps.regression.outcome }}|${{ steps.javascript.outcome }}|${{ steps.category.outcome }}|${{ steps.restore.outcome }}|${{ steps.build.outcome }}|${{ steps.multisource.outcome }}|${{ steps.quality.outcome }}|${{ steps.publish.outcome }}|${{ steps.artifacts.outcome }}|${{ steps.browser.outcome }}|${{ steps.cleanup.outcome }}|${{ steps.deploy.outcome }}"
+          BSD_RUN_ID: ${{ github.run_id }}
+          BSD_RUN_SHA: ${{ github.sha }}
+          BSD_RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          python - <<'PY'
+          import json,os
+          from datetime import datetime,timezone
+          from pathlib import Path
+          names="compile regression javascript category restore build multisource quality publish artifacts browser cleanup deploy".split()
+          outcomes=os.environ.get("BSD_CI_STEPS","").split("|")
+          report={"time_utc":datetime.now(timezone.utc).isoformat(),
+                  "run_id":os.getenv("BSD_RUN_ID"),"attempt":os.getenv("BSD_RUN_ATTEMPT"),
+                  "trigger_sha":os.getenv("BSD_RUN_SHA"),
+                  "steps":dict(zip(names,outcomes))}
+          path=Path("ops/bsd-v2-last-failure.json")
+          path.parent.mkdir(parents=True,exist_ok=True)
+          path.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          print("BSD_FAILURE_DIAG",json.dumps(report,ensure_ascii=False))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/bsd-v2-last-failure.json
+          git commit -m "ops(bsd): record failing production phase [skip ci]" || exit 0
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then
+              echo "Failure phase report pushed to ops/bsd-v2-last-failure.json"
+              break
+            fi
+            sleep "$attempt"
+          done
