@@ -14,19 +14,19 @@
       "level": 0
     },
     "BTC": {
-      "direction": "up",
+      "direction": "down",
       "level": 0
     },
     "ETH": {
-      "direction": "up",
+      "direction": "down",
       "level": 0
     },
     "SOL": {
-      "direction": "up",
+      "direction": "down",
       "level": 0
     },
     "XRP": {
-      "direction": "up",
+      "direction": "down",
       "level": 0
     }
   },
@@ -104,6 +104,12 @@
       "message_id": 24,
       "number": 1,
       "sent_at": "2026-10-22T12:55:58.314113+00:00",
+      "source": "CoinPaprika"
+    },
+    "daily:01:2026-10-23:evening": {
+      "message_id": 37,
+      "number": 1,
+      "sent_at": "2026-10-23T21:33:35.071202+00:00",
       "source": "CoinPaprika"
     },
     "daily:01:2026-10-23:morning": {
