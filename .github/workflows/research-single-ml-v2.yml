@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: python -m pip install numpy scipy scikit-learn requests
       - name: Compile all research modules
-        run: python -m py_compile research/single_ml_v2.py research/single_ml_v2_experiments.py research/single_ml_v2_candidates.py research/single_ml_v2_data.py research/single_ml_v2_xg.py research/test_single_ml_v2.py research/test_single_ml_v2_data.py
+        run: python -m py_compile research/single_ml_v2.py research/single_ml_v2_experiments.py research/single_ml_v2_candidates.py research/single_ml_v2_data.py research/single_ml_v2_xg.py research/test_single_ml_v2.py research/test_single_ml_v2_data.py research/single_ml_v2_form.py research/test_single_ml_v2_form.py
       - name: Run independent unit tests
         run: python -m unittest discover -s research -p 'test_single_ml_v2*.py' -v
       - name: Assert production untouched
@@ -38,39 +38,3 @@ jobs:
           print('PRODUCTION_UNTOUCHED_LAST_COMMIT_OK')
           PY
 
-  football-data-smoke:
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.fetch_certified_history }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: python -m pip install requests numpy scipy scikit-learn
-      - name: Collect certified historical checkpoints (research only)
-        env:
-          SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY }}
-          SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
-          SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
-          SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
-          SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
-          SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
-        run: |
-          PYTHONPATH=. python research/single_ml_v2_data.py --start 2026-10-20 --end 2026-10-22 --max-days 3 --checkpoints /tmp/xpronos-football-days --output /tmp/xpronos-football.json --audit /tmp/xpronos-football-audit.json
-      - name: Enrich from recorded historical xG snapshots
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: |
-          PYTHONPATH=.:research python research/single_ml_v2_xg.py --football /tmp/xpronos-football.json --output /tmp/xpronos-football-xg.json --audit /tmp/xpronos-xg-audit.json
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: ml-v2-football-xg-smoke
-          path: |
-            /tmp/xpronos-football-audit.json
-            /tmp/xpronos-xg-audit.json
-            /tmp/xpronos-football.json
-            /tmp/xpronos-football-xg.json
-          retention-days: 7
