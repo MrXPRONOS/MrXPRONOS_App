@@ -147,44 +147,42 @@ def _is_full_period(text):
 
 
 def extract_xg(stats):
-    """Return (xg_home,xg_away) or None: no 1H/live/shotmaps assumed to be totals.
+    """Read ONLY documented full-match ALL-period expectedGoals statistics.
 
-    Supported schemas: object-level paired expectedGoals, explicit ALL/FT
-    group with expected goals items. Contradictory values -> reject.
+    V2 shape: data.statistics=[{period:"ALL",groups:
+    [{statisticsItems:[{key:"expectedGoals",home:"1.24",away:"0.82"}]}]}].
+    Never use a first/second-half xG statistic as full match xG.
     """
     if not isinstance(stats,dict):return None
-    block=stats.get("data") if isinstance(stats.get("data"),dict) else stats
-    candidates=_direct_candidates(block)
-    if block is not stats:
-        candidates.extend(_direct_candidates(stats))
-    for section in ("statistics","periods"):
-        container=block.get(section) if isinstance(block,dict) else None
-        if not isinstance(container,(dict,list)):continue
-        # Some providers return {"statistics": {"expectedGoals": {"home": ...}}}
-        candidates.extend(_direct_candidates(container))
-        nodes=container if isinstance(container,list) else [container]
-        for node in nodes:
-            if not isinstance(node,dict):continue
-            period=node.get("period",node.get("periodName",node.get("name")))
-            if not _is_full_period(period):continue
-            candidates.extend(_direct_candidates(node))
-            for item in _stat_items(node):
+    data=stats.get("data",stats)
+    if not isinstance(data,dict):return None
+    periods=data.get("statistics")
+    if not isinstance(periods,list):return None
+    pairs=[]
+    for period in periods:
+        if not isinstance(period,dict) or normalized_name(period.get("period")) not in ("all","fulltime","fullmatch"):
+            continue
+        groups=period.get("groups")
+        if not isinstance(groups,list):continue
+        for group in groups:
+            if not isinstance(group,dict):continue
+            items=group.get("statisticsItems")
+            if not isinstance(items,list):continue
+            for item in items:
                 if not isinstance(item,dict):continue
-                group_name=str(item.get("name") or item.get("key") or item.get("title") or "")
-                if normalized_name(group_name) in SUPPORTED_LABELS:
-                    pair=as_pair(item)
-                    if pair is not None:candidates.append(pair)
-                for child in _stat_items(item):
-                    if not isinstance(child,dict):continue
-                    label=child.get("name") or child.get("key") or ""
-                    if normalized_name(label) in SUPPORTED_LABELS:
-                        pair=as_pair(child)
-                        if pair is not None:candidates.append(pair)
-    if not candidates:return None
-    baseline=candidates[0]
-    # Fail closed if the source has inconsistent xG totals.
-    if any(max(abs(a-baseline[0]),abs(b-baseline[1]))>.02 for a,b in candidates):
-        raise ValueError("Conflicting expected-goals values")
+                if normalized_name(item.get("key") or item.get("name")) not in SUPPORTED_LABELS:continue
+                # Explicit primary fields, plus explicitly documented numeric mirrors.
+                home=xg_number(item.get("home"))
+                away=xg_number(item.get("away"))
+                if home is None or away is None:
+                    home=xg_number(item.get("homeValue"))
+                    away=xg_number(item.get("awayValue"))
+                if home is not None and away is not None:
+                    pairs.append((home,away))
+    if not pairs:return None
+    baseline=pairs[0]
+    if any(max(abs(a-baseline[0]),abs(b-baseline[1]))>.02 for a,b in pairs):
+        raise ValueError("Conflicting V2 fulltime xG")
     return baseline
 
 
