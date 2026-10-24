@@ -1,20 +1,20 @@
 {
   "scope": "read_only_identity_evidence",
-  "external_total": 1297,
-  "external_cc0_verified": 27,
-  "external_independent_provider_verified": 4,
-  "external_verified_total": 31,
+  "external_total": 1322,
+  "external_cc0_verified": 9,
+  "external_independent_provider_verified": 2,
+  "external_verified_total": 11,
   "native_total": 459,
-  "native_unique_eligible": 443,
-  "native_invalid_records": 16,
+  "native_unique_eligible": 308,
+  "native_invalid_records": 148,
   "native_invalid_breakdown": {
-    "native_not_prematch": 16
+    "native_not_prematch": 148
   },
-  "one_to_one_native_event_links": 24,
-  "unmatched_or_ambiguous_external": 7,
+  "one_to_one_native_event_links": 6,
+  "unmatched_or_ambiguous_external": 5,
   "unmatched_external_breakdown": {
     "exact_teams_kickoff_wrong_competition": 1,
-    "no_exact_teams_and_kickoff": 6
+    "no_exact_teams_and_kickoff": 4
   },
   "identity_evidence": "exact_league_home_away_utc_kickoff_15m_unique",
   "native_event_ids_exported": false,
@@ -26,20 +26,21 @@
   "rejected_reasons": {
     "duplicated_native_id": 0,
     "external_ambiguous_native_matches": 0,
-    "external_not_independently_cc0_verified": 1266,
-    "native_ambiguous_external_matches": 0
+    "external_not_independently_cc0_verified": 1311,
+    "native_ambiguous_external_matches": 0,
+    "native_not_future": 3
   },
   "read_only_native_consensus_price_audit": {
     "event_ids_selected_only_from_confirmed_native_links": true,
     "max_linked_events_for_quote_probe": 8,
-    "official_native_events_quoted_attempts": 8,
-    "historically_published_native_links_excluded": 0,
-    "unpublished_native_links_available": 24,
-    "unpublished_native_links_in_48h_window": 24,
-    "actual_48h_publication_window_quote_attempts": 8,
-    "linked_events_exceeding_eight_quote_cap": 16,
-    "events_with_fresh_consensus_market_prices": 8,
-    "fresh_consensus_market_prices": 112,
+    "official_native_events_quoted_attempts": 5,
+    "historically_published_native_links_excluded": 1,
+    "unpublished_native_links_available": 5,
+    "unpublished_native_links_in_48h_window": 5,
+    "actual_48h_publication_window_quote_attempts": 5,
+    "linked_events_exceeding_eight_quote_cap": 0,
+    "events_with_fresh_consensus_market_prices": 5,
+    "fresh_consensus_market_prices": 70,
     "consensus_is_not_executable_bookmaker_offer": true,
     "independent_bookmaker_selection_codes_verified": 0,
     "production_market_policy_approved": false,
@@ -49,8 +50,8 @@
   "full_model_selected_market_consensus_audit": {
     "native_full_assembler_canary": {
       "executed": true,
-      "native_event_ids_verified_in_process": 6,
-      "events_within_native_48h_window": 6,
+      "native_event_ids_verified_in_process": 4,
+      "events_within_native_48h_window": 4,
       "actual_publication_window_exercised": true,
       "empty_window_is_not_publication_path_validation": false,
       "in_memory_quote_fetches": 2,
@@ -76,15 +77,16 @@
     "production_authorized": false,
     "telegram_posts": 0,
     "aggregate": {
-      "events_examined": 8,
-      "frozen_bsd_v2_model_market_candidates": 6,
-      "frozen_markets_with_exact_fresh_bsd_consensus_quote": 6,
-      "insufficient_historical_identity_or_form": 2,
-      "v21_or_value_guard_veto": 6,
-      "v21_reason:v21_over15_conservative_too_low": 6
+      "events_examined": 5,
+      "frozen_bsd_v2_model_market_candidates": 4,
+      "frozen_markets_with_exact_fresh_bsd_consensus_quote": 4,
+      "insufficient_historical_identity_or_form": 1,
+      "v21_or_value_guard_veto": 4,
+      "v21_reason:v21_insufficient_real_price_edge": 1,
+      "v21_reason:v21_over15_conservative_too_low": 3
     }
   },
-  "candidate_official_league_metadata_ids": 6,
+  "candidate_official_league_metadata_ids": 4,
   "official_league_metadata_requested": 0,
   "official_league_metadata_verified": 55,
   "official_league_directory_health": {
@@ -96,11 +98,11 @@
     "native_competition_ids_present": 55
   },
   "official_league_metadata_issues": {},
-  "bsd_http_calls": 13,
+  "bsd_http_calls": 10,
   "bsd_max_http_requests": 24,
   "calendar_files_verified": 8,
-  "independent_cc0_calendar_confirmed": 27,
-  "independent_two_provider_confirmed": 4,
-  "independently_verified_fixtures_total": 31,
+  "independent_cc0_calendar_confirmed": 9,
+  "independent_two_provider_confirmed": 2,
+  "independently_verified_fixtures_total": 11,
   "qualified_candidate_rows_staged": 0
 }
