@@ -230,6 +230,46 @@ async def find_marked(client, peer, marker: str, limit=160):
     return None
 
 
+async def backfill_private_covers(client, private, catalogue, groups, pause):
+    """Repair earlier short series that had episodes but no private cover image."""
+    from .short_series import normalized_key
+    for key, items in groups.items():
+        entry = catalogue.get("series", {}).get(key)
+        if not entry or entry.get("private_poster_id") or not entry.get("episodes"):
+            continue
+        title = normalized_key(key)
+        known = set()
+        for candidate, seasons in catalogue.get("source_observed", {}).items():
+            if normalized_key(candidate) != title:
+                continue
+            for season, eps in seasons.items():
+                known.update((int(season), int(ep)) for ep in eps)
+        for season, eps in entry.get("episodes", {}).items():
+            known.update((int(season), int(ep)) for ep in eps)
+        if len(known) > 12 or any(ep > 12 for _, ep in known):
+            continue
+        poster = next((r["poster"] for r in items if r.get("poster") is not None), None)
+        if poster is None:
+            continue
+        cover_marker = "#CXANIME_" + hashlib.sha256(key.encode()).hexdigest()[:15] + "_POSTER"
+        recovered = await find_marked(client, private, cover_marker, limit=700)
+        if not recovered:
+            media = await client.download_media(poster.media, file=bytes)
+            if not media:
+                continue
+            stream = io.BytesIO(media)
+            stream.name = "cinex_private_series.jpg"
+            caption = f"📺 <b>{escape(str(entry.get('title') or key))}</b>\\n" + cover_marker
+            photo = await client.send_file(
+                private, stream, caption=caption, parse_mode="html", force_document=False
+            )
+            recovered = int(photo.id)
+            await asyncio.sleep(pause)
+        entry["private_poster_id"] = int(recovered)
+        save_catalog(catalogue)
+        LOG.info("Fiche privée historique réparée pour %s : %s", key, recovered)
+
+
 async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int:
     cfg = category_config("anime")  # sources historiques + variables inchangées
     session = (os.getenv("TG_STRING_SESSION") or os.getenv("TG_SESSION_STRING") or
@@ -287,6 +327,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             groups.setdefault(row["series"], []).append(row)
         LOG.info("CinéX Anime : %s séries, %s épisodes identifiables, sources=%s",
                  len(groups), len(all_candidates), cfg["sources"])
+        if publish:
+            await backfill_private_covers(client, private, catalogue, groups, pause)
         # Select a whole short series BEFORE any Telegram uploads: no six-episode slices.
         eligible = short_complete_groups(groups, catalogue, maximum=episode_cap)
         LOG.info("%s : %s séries complètes (1 à %s épisodes) admissibles",
