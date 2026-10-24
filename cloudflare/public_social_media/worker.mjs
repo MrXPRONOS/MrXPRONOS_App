@@ -54,8 +54,7 @@ function headersFor(key, size) {
            "Cache-Control": "public, max-age=3600", "X-Content-Type-Options": "nosniff",
            "Content-Length": String(size) };
 }
-export default {
-  async fetch(request, env) {
+async function handle(request, env) {
     const url = new URL(request.url);
     if (url.pathname === "/health" && request.method === "GET")
       return new Response("media-ready", { headers: { "Cache-Control": "no-store" } });
@@ -99,5 +98,5 @@ export default {
         { status: 206, headers });
     }
     return new Response(request.method === "HEAD" ? null : stored, { status: 200, headers });
-  }
-};
+}
+addEventListener('fetch', event => event.respondWith(handle(event.request, { MRX_MEDIA })));
