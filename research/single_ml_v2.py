@@ -31,6 +31,7 @@ from single_ml_v2_form import FORM_FEATURE_NAMES, team_form, form_quality
 from single_ml_v2_direct import (DIRECT_MODEL_ID, DIRECT_MODEL_VERSION, train_direct_score, direct_grid)
 from single_ml_v2_candidates import (CANDIDATES, CANDIDATE_MODEL_NAMES, CANDIDATE_VERSION, fit_pair, predict_grid)
 from single_ml_v2_tune import (BASELINE, MLConfig, TUNE_VERSION, fit_histgb, select_hyperparameters)
+from single_ml_v2_selection import (VERSION as SELECTOR_VERSION, SELECTABLE_MODELS, PastForecast, prediction_features, prematch_quality, fit_reliability, decide, report_selections)
 
 MAX_GOALS = 10
 GOALS = np.arange(MAX_GOALS + 1)
@@ -593,8 +594,13 @@ def summarize(stats):
     return result
 
 
-def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None, auto_tune=True, tuning_interval_days=90):
+def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None, auto_tune=True, tuning_interval_days=90, selection_coverage=.25):
     states = FormState()
+    reliability_history = defaultdict(list)
+    reliability_models = {k: None for k in SELECTABLE_MODELS}
+    selection_rows = defaultdict(list)
+    selector_refits = []
+    last_selector_refit = None
     training = []
     dated_training = []
     selected_config = BASELINE
@@ -625,6 +631,17 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         for earlier in sorted(d for d in pending_xg if d<=day):
             for historical in pending_xg.pop(earlier):states.add_xg(historical, earlier)
         evaluating = begin <= day <= end
+        if evaluating and (last_selector_refit is None or (day-last_selector_refit).days >= 30):
+            for target_name in SELECTABLE_MODELS:
+                fitted = fit_reliability(reliability_history[target_name], asof=day,
+                                         target_coverage=selection_coverage)
+                reliability_models[target_name] = fitted
+                selector_refits.append({"asof":str(day),"model":target_name,
+                    "trained":fitted is not None,
+                    "fit_rows":fitted.fit_rows if fitted else 0,
+                    "calibration_rows":fitted.calibration_rows if fitted else 0,
+                    "threshold":fitted.threshold if fitted else None})
+            last_selector_refit = day
         if evaluating and auto_tune and (last_tuned is None or (day-last_tuned).days >= tuning_interval_days):
             selected_config, tuning = select_hyperparameters(
                 dated_training, asof=day, feature_count=len(FEATURE_NAMES))
@@ -706,6 +723,29 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                 forecasts["market_adjusted"] = market
             else:
                 audit["market_model_missing_verified_odds"] += 1
+            # Capture predictions BEFORE observing full-time labels; labels are
+            # appended to reliability history only after all same-day forecasts.
+            quality=prematch_quality(f["form_samples"])
+            frozen_today=[]
+            for target_name in SELECTABLE_MODELS:
+                grid_for_gate=forecasts.get(target_name)
+                if grid_for_gate is None:
+                    selection_rows[target_name].append({"date":str(day),"id":m.key,
+                        "status":"ABSTAIN","reason":"underlying_model_unavailable",
+                        "hit":0,"underlying_available":False})
+                    continue
+                gate=decide(reliability_models[target_name],grid_for_gate,
+                            form_samples=f["form_samples"])
+                gh0,ga0=np.unravel_index(np.argmax(grid_for_gate),grid_for_gate.shape)
+                did_hit=int((gh0,ga0)==(m.hg,m.ag))
+                selection_rows[target_name].append({"date":str(day),"id":m.key,
+                    "status":gate["status"],"reason":gate["reason"],
+                    "hit":did_hit,"underlying_available":True,
+                    "estimated_hit_probability":gate["estimated_hit_probability"],
+                    "threshold":gate["threshold"],"predicted_score":f"{gh0}:{ga0}",
+                    "quality":quality})
+                frozen_today.append((target_name, prediction_features(grid_for_gate,quality),did_hit))
+            pending[-1] = (m,f,frozen_today)
             for name, grid in forecasts.items():
                 i, j = np.unravel_index(grid.argmax(), grid.shape)
                 prob = float(grid[m.hg, m.ag])
@@ -725,7 +765,10 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                 detail.append({k: (round(v, 7) if isinstance(v, float) else v)
                                for k, v in row.items() if k not in ("roi",)})
         # A day's final scores become visible no earlier than the following day.
-        for m, f in pending:
+        for pending_row in pending:
+            m, f = pending_row[:2]
+            for model_name, frozen_vector, did_hit in (pending_row[2] if len(pending_row)>2 else []):
+                reliability_history[model_name].append(PastForecast(m.day,frozen_vector,did_hit))
             recent_low.append((f["h"], f["a"], m.hg, m.ag))
             recent_residuals.append((m.hg-f["h"], m.ag-f["a"]))
             league_residuals[m.league].append((m.hg-f["h"], m.ag-f["a"]))
@@ -739,6 +782,8 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         if evaluating and (day.day == 1 or day == end):
             print("PROGRESS", day, "scored", played, flush=True)
     summary = summarize(results)
+    selected_report=report_selections(selection_rows,total_matches=audit["evaluated_matches"],
+                                      policy_coverage=selection_coverage)
     paired_cohorts = {}
     # Exact same match IDs/dates for the new direct classifier and the
     # legacy home/away Poisson-rate ML: no misleading unequal denominators.
@@ -786,6 +831,10 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         "form_policy":"last 5/10 league games overall AND last 5/10 matching home/away venue; previous UTC dates only; explicit missing flags",
         "form_quality_counts":dict(audit),
         "n_evaluation_matches": audit["evaluated_matches"],
+        "selection_version":SELECTOR_VERSION,
+        "selection_coverage_policy":selection_coverage,
+        "selection_report":selected_report,
+        "selection_refits":selector_refits,
         "direct_score_version": DIRECT_MODEL_VERSION,
         "candidate_version": CANDIDATE_VERSION,
         "tuning_version":TUNE_VERSION if auto_tune else None,
@@ -843,9 +892,18 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
     grouped_report("leagues.csv", leagues, 100, "league")
     grouped_report("calibration.csv", reliability, 20, "probability_bin")
     report["matched_cohort_comparisons"] = paired_cohorts
-    report["files"] = ["summary.json", "all_predictions.csv", "monthly.csv",
+    report["files"] = ["summary.json", "all_predictions.csv", "selection_decisions.csv", "monthly.csv",
                        "leagues.csv", "calibration.csv"]
     report["bivariate_fitted_global_common_fraction"] = round(shared, 6)
+    with open(Path(out)/"selection_decisions.csv","w",newline="",encoding="utf8") as fh:
+        entries=[dict(model=name,**row) for name,rows in selection_rows.items() for row in rows]
+        if entries:
+            fields=sorted(set().union(*(set(e) for e in entries)))
+            writer=csv.DictWriter(fh,fieldnames=fields)
+            writer.writeheader()
+            writer.writerows(entries)
+        else:
+            fh.write("no_selection_decisions\\n")
     with open(Path(out)/"summary.json", "w", encoding="utf8") as fh:
         json.dump(report, fh, ensure_ascii=False, indent=2)
     with open(Path(out)/"all_predictions.csv", "w", newline="", encoding="utf8") as fh:
@@ -891,6 +949,7 @@ def main():
     ap.add_argument("--retrain-days", type=int, choices=(7,14,30,60), default=30)
     ap.add_argument("--ml-params-json", default=None)
     ap.add_argument("--disable-auto-tune",action="store_true")
+    ap.add_argument("--selection-coverage",type=float,choices=(.15,.25,.40,.60),default=.25)
     ap.add_argument("--tuning-interval-days",type=int,choices=(30,60,90,180),default=90)
     ap.add_argument("--self-test-only", action="store_true")
     args = ap.parse_args()
@@ -910,7 +969,8 @@ def main():
     backtest(matches, begin, end, args.out, max_eval=args.max_eval,
              retrain_days=args.retrain_days, ml_parameters=params,
              auto_tune=not args.disable_auto_tune,
-             tuning_interval_days=args.tuning_interval_days)
+             tuning_interval_days=args.tuning_interval_days,
+             selection_coverage=args.selection_coverage)
 
 
 if __name__ == "__main__":
