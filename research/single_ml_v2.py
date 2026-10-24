@@ -30,6 +30,7 @@ from sklearn.ensemble import HistGradientBoostingRegressor
 from single_ml_v2_form import FORM_FEATURE_NAMES, team_form, form_quality
 from single_ml_v2_direct import (DIRECT_MODEL_ID, DIRECT_MODEL_VERSION, train_direct_score, direct_grid)
 from single_ml_v2_candidates import (CANDIDATES, CANDIDATE_MODEL_NAMES, CANDIDATE_VERSION, fit_pair, predict_grid)
+from single_ml_v2_tune import (BASELINE, MLConfig, TUNE_VERSION, fit_histgb, select_hyperparameters)
 
 MAX_GOALS = 10
 GOALS = np.arange(MAX_GOALS + 1)
@@ -592,9 +593,13 @@ def summarize(stats):
     return result
 
 
-def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None):
+def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None, auto_tune=True, tuning_interval_days=90):
     states = FormState()
     training = []
+    dated_training = []
+    selected_config = BASELINE
+    tuning_history = []
+    last_tuned = None
     direct_training = []
     direct_model = None
     candidate_models = {name: None for name in CANDIDATES}
@@ -620,8 +625,20 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         for earlier in sorted(d for d in pending_xg if d<=day):
             for historical in pending_xg.pop(earlier):states.add_xg(historical, earlier)
         evaluating = begin <= day <= end
-        if evaluating and (last_retrain is None or (day-last_retrain).days >= retrain_days):
-            ml = train_ml(training, **(ml_parameters or {}))
+        if evaluating and auto_tune and (last_tuned is None or (day-last_tuned).days >= tuning_interval_days):
+            selected_config, tuning = select_hyperparameters(
+                dated_training, asof=day, feature_count=len(FEATURE_NAMES))
+            tuning_history.append(tuning)
+            last_tuned = day
+            print("NESTED_TUNING", day, tuning["status"],
+                  "selected", tuning["selected"], flush=True)
+        cadence = selected_config.retrain_days if auto_tune else retrain_days
+        if evaluating and (last_retrain is None or (day-last_retrain).days >= cadence):
+            if auto_tune:
+                ml = fit_histgb(dated_training, config=selected_config,
+                                asof=day, feature_count=len(FEATURE_NAMES))
+            else:
+                ml = train_ml(training, **(ml_parameters or {}))
             direct_model = train_direct_score(direct_training)
             for candidate_name in CANDIDATES:
                 candidate_models[candidate_name] = fit_pair(candidate_name, training, feature_count=len(FEATURE_NAMES))
@@ -713,6 +730,7 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             recent_residuals.append((m.hg-f["h"], m.ag-f["a"]))
             league_residuals[m.league].append((m.hg-f["h"], m.ag-f["a"]))
             training.append((f["vector"], m.hg, m.ag))
+            dated_training.append((f["vector"], m.hg, m.ag, m.day))
             direct_training.append((f["vector"], poisson_grid(f["h"], f["a"]), m.hg, m.ag))
             if m.xg_available is not None:
                 activation=max(day+timedelta(days=1),m.xg_available.date()+timedelta(days=1))
@@ -770,6 +788,11 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         "n_evaluation_matches": audit["evaluated_matches"],
         "direct_score_version": DIRECT_MODEL_VERSION,
         "candidate_version": CANDIDATE_VERSION,
+        "tuning_version":TUNE_VERSION if auto_tune else None,
+        "automatic_tuning":auto_tune,
+        "tuning_interval_days":tuning_interval_days,
+        "selected_ml_params":tuning_history[-1]["selected"] if tuning_history else None,
+        "tuning_history":tuning_history,
         "candidate_training_rows":{name:(fitted.training_rows if fitted is not None else 0) for name,fitted in candidate_models.items()},
         "direct_score_training_samples":direct_model.samples if direct_model else 0,
         "direct_score_training_classes":len(direct_model.label_counts) if direct_model else 0,
@@ -867,6 +890,8 @@ def main():
     ap.add_argument("--max-eval", type=int, default=0)
     ap.add_argument("--retrain-days", type=int, choices=(7,14,30,60), default=30)
     ap.add_argument("--ml-params-json", default=None)
+    ap.add_argument("--disable-auto-tune",action="store_true")
+    ap.add_argument("--tuning-interval-days",type=int,choices=(30,60,90,180),default=90)
     ap.add_argument("--self-test-only", action="store_true")
     args = ap.parse_args()
     self_test()
@@ -883,7 +908,9 @@ def main():
     if params is not None and (not isinstance(params,dict) or set(params)-allowed):
         raise ValueError("Invalid ML parameters")
     backtest(matches, begin, end, args.out, max_eval=args.max_eval,
-             retrain_days=args.retrain_days, ml_parameters=params)
+             retrain_days=args.retrain_days, ml_parameters=params,
+             auto_tune=not args.disable_auto_tune,
+             tuning_interval_days=args.tuning_interval_days)
 
 
 if __name__ == "__main__":
