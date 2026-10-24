@@ -62,7 +62,7 @@ class MultiTests(unittest.TestCase):
         self.assertEqual(audit["pages"],1)
     def test_200_cap_is_not_certified_complete(self):
         import unittest.mock as mock
-        items=[sport_fixture(home=f"Home {i}",away=f"Away {i}") for i in range(200)]
+        items=[dict(sport_fixture(home=f"Home {i}",away=f"Away {i}"),url=f"/fixture/{i}") for i in range(200)]
         # Every simulated day has at least 200 records, requiring incomplete status.
         session=Session([],items)
         with mock.patch("single_ml_v2_bsd_sportscore_2024.time.sleep",return_value=None):
