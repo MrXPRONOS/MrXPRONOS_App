@@ -98,23 +98,3 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: python bsd/bsd_v2_telegram.py --data data.json
 
-      # Bluesky shares the production cron cadence, but test Telegram runs never post.
-      - name: Publish eligible BSD V2 cards to Bluesky (production only)
-        if: ${{ steps.route.outputs.destination == 'production' }}
-        continue-on-error: true
-        env:
-          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
-          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -z "${BLUESKY_HANDLE:-}" ] || [ -z "${BLUESKY_APP_PASSWORD:-}" ]; then
-            echo "BLUESKY_DISABLED: compte ou mot de passe d'application non configuré"
-            exit 0
-          fi
-          python -m pip install 'atproto>=0.0.60,<1'
-          python bsd/bsd_v2_bluesky.py --data data.json --publish --max-posts 4
-
