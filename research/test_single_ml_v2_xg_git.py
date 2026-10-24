@@ -77,7 +77,8 @@ class XGTests(unittest.TestCase):
             record={"match_id":MATCH["id"],"kickoff":KICK,"home_team":"Home FC",
                     "away_team":"Away FC","status":"measured","home_xg":0.0,
                     "away_xg":1.2,"xg_source":xg.PROVIDER,"xg_quality":xg.QUALITY,
-                    "xg_usable_after":self.now.isoformat(),"provider_match_id":"999999"}
+                    "xg_usable_after":self.now.isoformat(),"provider_match_id":"999999",
+                    "match_resolution_method":"v2_schedule_unique_teams_utc_kickoff_score"}
             self.assertTrue(xg.write_record(record,self.key,root))
             self.assertFalse(xg.write_record(record,self.key,root))
             p=xg.record_path(MATCH["id"],self.key,root)
