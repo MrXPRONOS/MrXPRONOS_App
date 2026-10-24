@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -115,6 +116,38 @@ class ForwardTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,"not committed"):
                     fw.settle(key=self.key,now=self.start+timedelta(hours=5),
                               root=root,fetcher=Feed([fixture(self.start,finished=True)]))
+
+    def test_authentic_first_git_blob_and_tamper_detection(self):
+        with tempfile.TemporaryDirectory(dir="/tmp") as folder:
+            project=Path(folder)
+            subprocess.run(["git","init","-q"],cwd=folder,check=True)
+            subprocess.run(["git","config","user.name","ML Research"],cwd=folder,check=True)
+            subprocess.run(["git","config","user.email","research@example.invalid"],cwd=folder,check=True)
+            target=project/"research/encrypted_football/forward/issued/2026/10/24/a.enc"
+            target.parent.mkdir(parents=True)
+            target.write_bytes(b"encrypted first prediction")
+            subprocess.run(["git","add","."],cwd=folder,check=True)
+            subprocess.run(["git","commit","-qm","Lock first encrypted prediction"],cwd=folder,check=True)
+            committed=fw.git_commit_time(target,repo_root=folder)
+            self.assertIsNotNone(committed)
+            target.write_bytes(b"encrypted ATTACK postevent replacement")
+            with self.assertRaisesRegex(ValueError,"TAMPERED"):
+                fw.git_commit_time(target,repo_root=folder)
+
+    def test_real_github_hosted_run_proof(self):
+        issued={"github_workflow_run":"789","issued_at":self.issued.isoformat()}
+        good={"id":789,"status":"completed","conclusion":"success",
+              "name":"ML V2 - blind prekickoff football research",
+              "created_at":"2026-10-24T06:45:00Z",
+              "updated_at":"2026-10-24T07:16:00Z"}
+        with patch.dict(os.environ,{"GITHUB_ACTIONS":"true",
+                                     "GITHUB_REPOSITORY":"MrXPRONOS/MrXPRONOS_App"}):
+            with patch.object(fw,"github_server_run",return_value=good):
+                self.assertTrue(fw.verify_server_pre_kickoff(issued,self.start))
+            too_late=dict(good,updated_at="2026-10-25T11:40:00Z")
+            with patch.object(fw,"github_server_run",return_value=too_late):
+                with self.assertRaisesRegex(ValueError,"did not complete"):
+                    fw.verify_server_pre_kickoff(issued,self.start)
 
     def test_unconfirmed_result_stays_pending(self):
         with tempfile.TemporaryDirectory(dir="/tmp") as tmp:
