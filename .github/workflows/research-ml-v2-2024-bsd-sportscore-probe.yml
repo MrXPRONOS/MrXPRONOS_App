@@ -1,0 +1,57 @@
+name: Research ML V2 - BSD and SportScore 2024 source probe
+on:
+  push:
+    branches: [research/single-ml-v2-20261024]
+    paths: ['.github/workflows/research-ml-v2-2024-bsd-sportscore-probe.yml']
+permissions:
+  contents: read
+jobs:
+  sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Probe 2024 availability, inspect only minimal schema/counts
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,os,urllib.request,urllib.error,urllib.parse
+          days=("2024-01-20","2024-06-15","2024-10-20")
+          key=os.getenv("BSD_API_KEY","")
+          print("BSD_CREDENTIAL_CONFIGURED",bool(key))
+          sources=(("bsd","https://sports.bzzoiro.com/api/v2/events/"),
+                   ("sportscore","https://sportscore.com/api/v1/fixtures/"))
+          for provider,base in sources:
+              if provider=="bsd" and not key:
+                  print("PROBE",provider,"NO_CREDENTIAL");continue
+              for day in days:
+                  params=({"date_from":day,"date_to":day,"status":"finished","limit":5,"offset":0}
+                          if provider=="bsd" else
+                          {"sport":"football","date":day,"status":"finished","limit":200})
+                  url=base+"?"+urllib.parse.urlencode(params)
+                  headers={"Accept":"application/json","User-Agent":"MrXPRONOS-Research-2024-Probe"}
+                  if provider=="bsd":headers["Authorization"]="Token "+key
+                  request=urllib.request.Request(url,headers=headers)
+                  try:
+                      with urllib.request.urlopen(request,timeout=15) as response:
+                          status=response.status
+                          raw=response.read(1024*1024+1)
+                          if len(raw)>1024*1024:raise ValueError("Oversize response")
+                      data=json.loads(raw)
+                      arr=data if isinstance(data,list) else next(
+                          (data[k] for k in ("results","matches","fixtures","events") if isinstance(data.get(k),list)),[])
+                      first=next((x for x in arr if isinstance(x,dict)),{})
+                      print("PROBE",provider,day,"HTTP",status,
+                            "REPORTED",data.get("count","unknown") if isinstance(data,dict) else "unknown",
+                            "RETURNED",len(arr),"FIELDS",sorted(first)[:24],
+                            "ENVELOPE",sorted(data)[:14] if isinstance(data,dict) else "list")
+                  except urllib.error.HTTPError as exc:
+                      print("PROBE",provider,day,"HTTP_ERROR",exc.code)
+                  except Exception as exc:
+                      print("PROBE",provider,day,"ERROR",type(exc).__name__)
+          print("PROBE_COMPLETED_NO_RAW_DATA_STORED")
+          PY
