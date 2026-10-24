@@ -16,7 +16,7 @@ on:
         options: [dry-run, production]
 
 permissions:
-  contents: write
+  contents: read
   id-token: write
 
 concurrency:
@@ -80,7 +80,6 @@ jobs:
       - name: Verify and load IDs of fixtures already published in daily video
         run: python scripts/read_accumulator_video_ledger.py
       - name: Validate production scripts
-        id: validation
         run: |
           python -m py_compile scripts/d1_publication_ledger.py
           python -m unittest discover -s tests -p test_d1_publication_ledger.py -v
@@ -153,33 +152,3 @@ jobs:
           retention-days: 7
 
 
-      - name: One-time verify complete independent accumulator job
-        if: ${{ always() && github.event_name == 'push' }}
-        env:
-          CHECK_RUN: ${{ github.run_id }}
-          CHECK_VALIDATION: ${{ steps.validation.outcome }}
-          CHECK_SELECTION: ${{ steps.selection.outcome }}
-          CHECK_HAS_MATCHES: ${{ steps.selection.outputs.has_matches }}
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import os,json
-          from datetime import datetime,timezone
-          info={"run_id":os.environ["CHECK_RUN"],"at":datetime.now(timezone.utc).isoformat(),
-            "validation":os.getenv("CHECK_VALIDATION"),"selection":os.getenv("CHECK_SELECTION"),
-            "has_matches":os.getenv("CHECK_HAS_MATCHES"),"trigger":"push","no_real_post":True}
-          p=Path("ops/probes/accumulator-ci-"+info["run_id"]+".json")
-          p.parent.mkdir(parents=True,exist_ok=True)
-          p.write_text(json.dumps(info,indent=2)+"\n",encoding="utf-8")
-          print("ACCUMULATOR_CI_PROBE",json.dumps(info))
-          PY
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "ops/probes/accumulator-ci-${CHECK_RUN}.json"
-          git commit -m "ops(probe): confirm independent accumulator after tests fix [skip ci]" || exit 0
-          for attempt in 1 2 3 4; do
-            git pull --rebase origin main
-            if git push origin HEAD:main; then exit 0; fi
-            sleep "$attempt"
-          done
-          exit 1
