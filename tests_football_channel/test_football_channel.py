@@ -31,6 +31,9 @@ def event(ident, start=NOW, status="notstarted", hs=None, a_s=None):
 
 class FootballChannelTests(unittest.TestCase):
     def setUp(self):
+        adapter = patch.object(m, "NeonRestSession", side_effect=lambda session: session)
+        adapter.start()
+        self.addCleanup(adapter.stop)
         self.directory = tempfile.TemporaryDirectory()
         self.history = m.History(Path(self.directory.name) / "history.json")
 
@@ -935,8 +938,7 @@ class FootballChannelTests(unittest.TestCase):
         session = Mock()
         session.post.return_value = response
         with patch.dict("os.environ", {
-            "SUPABASE_URL": "https://example.supabase.co",
-            "SUPABASE_SERVICE_ROLE_KEY": "service",
+            "NEON_DATABASE_URL": "postgresql://fake-neon-test",
         }):
             ledger = m.RemotePublicationLedger(session, enabled=True)
             claim = ledger.claim(m.Publication("goal", "goal:locked", "goal"), NOW)
@@ -971,8 +973,7 @@ class FootballChannelTests(unittest.TestCase):
         session.get.return_value = get_response
         session.patch.return_value = patch_response
         with patch.dict("os.environ", {
-            "SUPABASE_URL": "https://example.supabase.co",
-            "SUPABASE_SERVICE_ROLE_KEY": "service",
+            "NEON_DATABASE_URL": "postgresql://fake-neon-test",
         }):
             ledger = m.RemotePublicationLedger(session, enabled=True)
             restored = ledger._hydrate_legacy_item(item)
