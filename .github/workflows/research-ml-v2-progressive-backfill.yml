@@ -1,0 +1,140 @@
+name: ML V2 - Progressive encrypted football history
+on:
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: 'UTC first historical day'
+        required: true
+        default: '2024-01-01'
+      end_date:
+        description: 'UTC last historical day for this initial window'
+        required: true
+        default: '2024-01-07'
+      max_days:
+        description: 'Maximum NEW API days per run (1 to 5)'
+        required: true
+        default: '3'
+permissions:
+  contents: write
+concurrency:
+  group: ml-v2-encrypted-history
+  cancel-in-progress: false
+jobs:
+  small-encrypted-backfill:
+    name: Bounded historical football fetch and encrypted Git commit
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY }}
+      SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
+      SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
+      SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
+      SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
+      SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
+      START_DATE: ${{ inputs.start_date }}
+      END_DATE: ${{ inputs.end_date }}
+      DAY_LIMIT: ${{ inputs.max_days }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/single-ml-v2-20261024
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Minimal packages only
+        run: python -m pip install cryptography requests
+      - name: Verify inputs and secret presence
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python - <<'PY'
+          import os
+          from datetime import date,datetime,timezone,timedelta
+          start=date.fromisoformat(os.environ["START_DATE"])
+          end=date.fromisoformat(os.environ["END_DATE"])
+          limit=int(os.environ["DAY_LIMIT"])
+          today=datetime.now(timezone.utc).date()
+          if not date(2024,1,1)<=start<=end<today:
+              raise SystemExit("ERROR: Need 2024-01-01 <= start <= end < today UTC")
+          if not 1<=limit<=5:
+              raise SystemExit("ERROR: max_days must be 1..5")
+          if (end-start).days>366*4:
+              raise SystemExit("ERROR: interval cannot exceed four years")
+          if not os.getenv("ML_V2_HISTORY_KEY_B64"):
+              raise SystemExit("ERROR: encryption secret missing")
+          if not any(os.getenv(k) for k in ("SPORTDATA_API_KEY",)+tuple(f"SPORTDATA_API_KEY_{i}" for i in range(1,6))):
+              raise SystemExit("ERROR: all football API keys missing")
+          print("Research football-only encrypted history:",start,end,"max new days",limit)
+          PY
+      - name: Fetch and encrypt bounded daily checkpoints
+        id: backfill
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          PYTHONPATH=.:research python research/single_ml_v2_git.py collect \
+            --start "$START_DATE" --end "$END_DATE" --limit "$DAY_LIMIT"
+          status=$?
+          set -e
+          if [[ "$status" -ne 0 && "$status" -ne 2 ]]; then
+            echo "Collection error code: $status"
+            exit "$status"
+          fi
+          if [[ "$status" == 0 ]]; then
+            echo "coverage=complete" >> "$GITHUB_OUTPUT"
+          else
+            echo "coverage=incomplete" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Verify encrypted snapshots and complete coverage status
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python - <<'PY'
+          import os
+          from datetime import date
+          from pathlib import Path
+          from single_ml_v2_git import key_from_environment,load_days,load_manifest,ROOT
+          first=date.fromisoformat(os.environ["START_DATE"])
+          last=date.fromisoformat(os.environ["END_DATE"])
+          key=key_from_environment()
+          rows,missing,hashes=load_days(first,last,key=key,allow_missing=True)
+          manifest=load_manifest(key)
+          if manifest["start"]!=str(first) or manifest["end"]!=str(last):
+              raise SystemExit("ERROR: encrypted manifest date range mismatch")
+          if len(hashes)!=manifest["days"] or len(rows)!=manifest["match_count"]:
+              raise SystemExit("ERROR: encrypted manifest consistency failed")
+          print("Certified football days:",len(hashes))
+          print("Certified finished football fixtures:",len(rows))
+          print("Missing days:",len(missing))
+          print("Full interval complete:",not missing)
+          print("All persisted checkpoints are AES-GCM encrypted.")
+          PY
+      - name: Commit only encrypted history checkpoint files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add research/encrypted_football/manifest.enc
+          if [[ -d research/encrypted_football/days ]]; then
+            git add research/encrypted_football/days/
+          fi
+          unexpected="$(git diff --cached --name-only | grep -Ev '^research/encrypted_football/(manifest\.enc|days/[0-9]{4}/[0-9]{2}/[0-9]{4}-[0-9]{2}-[0-9]{2}\.enc)$' || true)"
+          if [[ -n "$unexpected" ]]; then
+            echo "ERROR: refusing unexpected staged file names"
+            exit 1
+          fi
+          if ! git diff --cached --quiet; then
+            git commit -m 'data(research): extend encrypted certified football archive'
+            git push origin HEAD:research/single-ml-v2-20261024
+          else
+            echo 'No new encrypted snapshots; all requested days may already exist.'
+          fi
+      - name: Report status
+        run: |
+          echo "Encrypted GitHub-only football history collection finished."
+          echo "Window coverage: ${{ steps.backfill.outputs.coverage }}"
+          echo "Incomplete coverage is expected during incremental backfill."
+          echo "No Supabase, no Neon, no plaintext Git commits, no xG API calls."
