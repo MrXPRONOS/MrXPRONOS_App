@@ -147,44 +147,46 @@ class DesirTests(unittest.TestCase):
             self.assertEqual(len(bridge.data["processed"]), 1)
             self.assertIsNone(due(bridge, "-100public", len(bridge.data["processed"])))
 
-    def test_two_desir_films_trigger_one_ad_rotation(self):
+    def test_four_desir_films_trigger_one_ad_rotation(self):
         from film_relay.promotions import due, _cursor
         with TemporaryDirectory() as folder:
-            state = ReceiptState(str(Path(folder)/"desir.json"))
-            bridge = DesirPromotionsState(state)
+            state = ReceiptState(str(Path(folder) / "desir.json"))
             target = "-100publicdesir"
-            # One movie is not enough to advertise.
-            state.complete("film1", 1, 21)
-            self.assertIsNone(due(bridge, target, len(bridge.data["processed"])))
-            state.complete("film2", 2, 22)
+            for n in range(1, 4):
+                state.complete(f"film{n}", n, 20 + n)
+                bridge = DesirPromotionsState(state)
+                self.assertIsNone(due(bridge, target, len(bridge.data["processed"])))
+            state.complete("film4", 4, 24)
             bridge = DesirPromotionsState(state)
             self.assertEqual(due(bridge, target, len(bridge.data["processed"])), 0)
             cursor = _cursor(bridge, target)
-            cursor["last_film_total"] = 2
+            cursor["last_film_total"] = 4
             cursor["next_index"] += 1
             bridge.save()
-            self.assertIsNone(due(bridge, target, len(bridge.data["processed"])))
-            # Subsequent pairs trigger exactly one new campaign.
-            state.complete("film3", 3, 23)
-            state.complete("film4", 4, 24)
+            for n in range(5, 8):
+                state.complete(f"film{n}", n, 20 + n)
+                bridge = DesirPromotionsState(state)
+                self.assertIsNone(due(bridge, target, len(bridge.data["processed"])))
+            state.complete("film8", 8, 28)
             bridge = DesirPromotionsState(state)
             self.assertEqual(due(bridge, target, len(bridge.data["processed"])), 1)
-            self.assertEqual(ReceiptState(str(Path(folder)/"desir.json")).data[
+            self.assertEqual(ReceiptState(str(Path(folder) / "desir.json")).data[
                 "promotions"][target]["next_index"], 1)
 
     def test_private_and_torrent_mirror_have_independent_promo_counters(self):
         from film_relay.promotions import due
         with TemporaryDirectory() as folder:
-            state = ReceiptState(str(Path(folder)/"desir.json"))
-            state.complete("film1", 1, 21)
-            state.complete("film2", 2, 22)
+            state = ReceiptState(str(Path(folder) / "desir.json"))
+            for n in range(1, 5):
+                state.complete(f"film{n}", n, 20 + n)
             state.mirror_done("-100mirror", 21, 101)
             bridge = DesirPromotionsState(state)
-            self.assertEqual(due(bridge, "-100public", 2), 0)
-            self.assertEqual(due(bridge, "-100private", 2), 0)
+            self.assertEqual(due(bridge, "-100public", 4), 0)
+            self.assertEqual(due(bridge, "-100private", 4), 0)
             self.assertIsNone(due(bridge, "-100mirror", 1))
-            state.mirror_done("-100mirror", 22, 102)
-            self.assertEqual(due(bridge, "-100mirror", 2), 0)
+            for n in range(2, 5):
+                state.mirror_done("-100mirror", 20 + n, 100 + n)
+            self.assertEqual(due(bridge, "-100mirror", 4), 0)
 
     def test_receipt_checkpoint(self):
         with TemporaryDirectory() as folder:
