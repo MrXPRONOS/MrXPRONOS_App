@@ -1,0 +1,14 @@
+{
+  "run_id": "40060008272",
+  "trigger_sha": "c10778f84ab3c85ee74dd5bad90a2f3bfbc760dc",
+  "checked_at": "2026-10-24T03:52:22.496863+00:00",
+  "event": "workflow_run",
+  "source_conclusion": "failure",
+  "ledger_read": "success",
+  "selection": "success",
+  "has_matches": "false",
+  "telegram": "skipped",
+  "social": "skipped",
+  "ticket": null,
+  "cloudflare_token_present": true
+}
