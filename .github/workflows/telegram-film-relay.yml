@@ -172,7 +172,7 @@ jobs:
           SERIES_SOURCE_CHANNEL: ${{ vars.SERIES_SOURCE_CHANNEL }}
           CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
           PYTHONPATH: .
-        run: python -m film_relay.series_catalog --publish --limit 2 --episode-cap 6
+        run: python -m film_relay.series_catalog --publish --limit 2 --episode-cap 12
 
       - name: Pause de securite avant transfert du film CinéX
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
@@ -356,7 +356,7 @@ jobs:
           CINEX_ANIME_CATALOG_ENABLED: 'true'
           CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
           PYTHONPATH: .
-        run: python -m film_relay.anime_catalog --publish --limit 2 --episode-cap 6
+        run: python -m film_relay.anime_catalog --publish --limit 2 --episode-cap 12
 
       - name: Pause de securite avant transfert anime
         if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_TORRENT9_PAUSED != 'true' }}
