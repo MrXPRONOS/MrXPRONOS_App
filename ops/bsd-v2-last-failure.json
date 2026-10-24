@@ -1,0 +1,21 @@
+{
+  "time_utc": "2026-10-24T03:19:28.261136+00:00",
+  "run_id": "40057746096",
+  "attempt": "1",
+  "trigger_sha": "19a2d4370550ea701bc4f4fb4a312894e72527d0",
+  "steps": {
+    "compile": "success",
+    "regression": "failure",
+    "javascript": "skipped",
+    "category": "skipped",
+    "restore": "skipped",
+    "build": "skipped",
+    "multisource": "skipped",
+    "quality": "skipped",
+    "publish": "skipped",
+    "artifacts": "skipped",
+    "browser": "skipped",
+    "cleanup": "skipped",
+    "deploy": "skipped"
+  }
+}
