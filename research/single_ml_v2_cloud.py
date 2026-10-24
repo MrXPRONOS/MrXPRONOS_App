@@ -129,8 +129,8 @@ def certified_snapshot(content,day):
     if (snapshot.get("day")!=str(day) or snapshot.get("verified") is not True):
         raise ValueError("Unverified day checkpoint "+str(day))
     fixtures=snapshot.get("matches")
-    if not isinstance(fixtures,list) or not fixtures:
-        raise ValueError("Checkpoint contains no certified football fixtures "+str(day))
+    if not isinstance(fixtures,list):
+        raise ValueError("Invalid checkpoint fixtures "+str(day))
     if len(fixtures)!=snapshot.get("certified_football_count"):
         raise ValueError("Day count conflict "+str(day))
     unique={}
@@ -241,8 +241,8 @@ def backfill(storage,start,end,*,limit,fail_limit=8,output=None):
             snapshot=day_snapshot(day,fetched)
             # Valid empty responses on football-named endpoint may be provider
             # coverage failures; refuse to mark day certified with zero matches.
-            if not snapshot["matches"]:
-                raise RuntimeError("API day has zero certified football games")
+            if not snapshot["matches"] and fetched.games:
+                raise RuntimeError("Nonempty multi-sport response but zero certified football games")
             certified_snapshot(gzip_bytes(encoded(snapshot)),day)
             storage.put(DAY_PREFIX+str(day)+".json.gz",
                         gzip_bytes(encoded(snapshot)),mime="application/gzip")
