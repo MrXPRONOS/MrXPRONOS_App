@@ -240,8 +240,14 @@ def stage(history,*,key,now=None,fetcher=fetch_games,root=ROOT,hours=30,repo_roo
     for item in fixtures:
         if (item["id"],item["kickoff"]) in already:continue
         new.append(forecast_fixture(item,state,trained,rho,timestamp,last,digest))
+    # Training may consume time; enforce lead-time again after fitting.
+    # The git-commit timestamp is also checked independently at settlement.
+    current=utcnow() if now is None else timestamp
+    new=[forecast for forecast in new
+         if utc_dt(forecast["fixture"]["kickoff"]) >
+            current+timedelta(minutes=MIN_LEAD_MINUTES)]
     if not new:
-        return {"status":"ALREADY_ISSUED","created":0}
+        return {"status":"NO_ELIGIBLE_PREKICKOFF_MATCHES","created":0}
     if not any(any(x["status"]=="FORECAST" for x in row["models"].values()) for row in new):
         raise RuntimeError("No fitted research ML model available: refuse empty predictions")
     record={"version":VERSION,"issued_at":timestamp.isoformat(),
@@ -302,8 +308,8 @@ def settle(*,key,now=None,days=10,root=ROOT,fetcher=fetch_games,repo_root="."):
             target=settled_path(key,row["fixture"],root=root)
             if target.exists():continue
             commit_at=git_commit_time(path,repo_root=repo_root)
-            if commit_at>=kickoff:
-                raise ValueError("Rejected: encrypted forecast not committed before kickoff")
+            if commit_at+timedelta(minutes=MIN_LEAD_MINUTES)>=kickoff:
+                raise ValueError("Rejected: encrypted forecast commit did not precede kickoff by required lead")
             if commit_at<utc_dt(doc["issued_at"])-timedelta(minutes=5):
                 raise ValueError("Git commit time precedes forecasting event")
             outstanding.append((path,row,commit_at))
@@ -346,7 +352,7 @@ def forward_report(*,key,now=None,root=ROOT,repo_root=".",test_start=TEST_START)
             if issued_at is None or kickoff is None or issued_at>=kickoff-timedelta(minutes=MIN_LEAD_MINUTES):
                 raise ValueError("Invalid prekickoff snapshot timestamp")
             commit_at=git_commit_time(path,repo_root=repo_root)
-            if commit_at>=kickoff or commit_at<issued_at-timedelta(minutes=5):
+            if commit_at+timedelta(minutes=MIN_LEAD_MINUTES)>=kickoff or commit_at<issued_at-timedelta(minutes=5):
                 late_or_tampered+=1
                 continue
             settled_file=settled_path(key,fixture,root=root)
