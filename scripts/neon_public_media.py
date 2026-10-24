@@ -11,8 +11,6 @@ import requests
 
 
 def upload_public(path, object_key, *, content_type=None):
-    import boto3
-    from botocore.config import Config
     src=Path(path)
     if not src.is_file() or src.stat().st_size<1:
         raise FileNotFoundError(src)
@@ -44,6 +42,8 @@ def upload_public(path, object_key, *, content_type=None):
         if not result.get("url") or not result.get("key"):
             raise RuntimeError("Cloudflare Neon upload missing public media URL")
         return result["url"]
+    import boto3
+    from botocore.config import Config
     endpoint=(os.getenv("NEON_S3_ENDPOINT") or "").rstrip("/")
     public=(os.getenv("NEON_PUBLIC_MEDIA_BASE_URL") or "").rstrip("/")
     access=os.getenv("NEON_S3_ACCESS_KEY_ID")
