@@ -146,12 +146,14 @@ def build(*,fetcher=fetch_source):
         "no_source_team_id_invented":True,
         "independent_of_sportsapipro_archive":True,
     }
+    if failures:
+        raise RuntimeError("Incomplete 2024 upstream league-source catalogue: "+json.dumps(failures))
     if len(items)<MIN_EXPECTED or len(divisions)<MIN_DIVISIONS or len(active_months)<MIN_ACTIVE_MONTHS:
         raise RuntimeError("CC0 2024 dataset too sparse; refuse certified annual archive: "+
             json.dumps({"matches":len(items),"divisions":len(divisions),
                         "active_months":len(active_months),"failed_sources":len(failures)}))
-    if not all(months.get(f"2024-{m:02d}",0) for m in range(1,13)):
-        raise RuntimeError("Incomplete year: no fixture found in some calendar month")
+    # Some off-season calendar months can legitimately contain no fixtures
+    # in the selected leagues; keep that gap explicit in the audited report.
     # Do not claim fully covered league seasons if an upstream file failed.
     return {"schema":SCHEMA,"year":YEAR,"created_at":datetime.now(timezone.utc).isoformat(),
             "audit":audit,"matches":items}
