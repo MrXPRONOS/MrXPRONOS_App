@@ -144,17 +144,36 @@ def load_days(start, end, *,key,root=ROOT,allow_missing=False):
 
 
 def rebuild_manifest(start,end,*,key,root=ROOT):
-    records,missing,hashes=load_days(start,end,key=key,root=root,allow_missing=True)
+    """Rebuild the authenticated catalog of ALL encrypted checkpoint dates.
+
+    Never forget a saved day when backfilling a disjoint historical window.
+    A partial global catalog is valid for exporting any separately complete,
+    hash-matched interval. Global completeness is never fabricated.
+    """
+    root=Path(root)
+    discovered=[]
+    for path in (root/"days").glob("*/*/*.enc"):
+        try:day=date.fromisoformat(path.stem)
+        except ValueError as exc:
+            raise ValueError("Unknown encrypted football checkpoint date") from exc
+        if path!=path_for(day,root):
+            raise ValueError("Unrecognized encrypted checkpoint path: "+str(path))
+        discovered.append(day)
+    overall_start=min([start,*discovered])
+    overall_end=max([end,*discovered])
+    records,missing,hashes=load_days(overall_start,overall_end,key=key,root=root,allow_missing=True)
     manifest={
-        "schema":1,"start":str(start),"end":str(end),"days":len(hashes),
-        "total_requested_days":len(dates(start,end)),"complete":not missing,
+        "schema":2,"start":str(overall_start),"end":str(overall_end),
+        "last_requested_start":str(start),"last_requested_end":str(end),
+        "days":len(hashes),
+        "total_requested_days":len(dates(overall_start,overall_end)),
+        "complete":not missing,
         "missing_days":missing,"match_count":len(records),
         "daily_cipher_sha256":hashes,
         "source":"SportsAPIPro-verified-sportId-1",
         "legacy_mixed_cache_used":False,
     }
-    # manifest itself encrypted, including match counts, failures, audit.
-    target=Path(root)/"manifest.enc"
+    target=root/"manifest.enc"
     target.parent.mkdir(parents=True,exist_ok=True)
     blob=seal(manifest,key,"football-manifest")
     tmp=target.with_name("manifest.enc.tmp")
@@ -164,7 +183,6 @@ def rebuild_manifest(start,end,*,key,root=ROOT):
     finally:
         if tmp.exists():tmp.unlink()
     return manifest
-
 
 def load_manifest(key, root=ROOT):
     blob=(Path(root)/"manifest.enc").read_bytes()
@@ -205,9 +223,13 @@ def collect(start,end,*,key,root=ROOT,limit=40,fail_limit=5,fetcher=fetch_games)
             failures.append({"day":str(d),"reason":str(exc)[:140]})
             print("FOOTBALL_DAY_INCOMPLETE",str(d),flush=True)
     manifest=rebuild_manifest(start,end,key=key,root=root)
+    _,window_missing,_=load_days(start,end,key=key,root=root,allow_missing=True)
     return {
-        "complete":manifest["complete"],"requested_days":manifest["total_requested_days"],
-        "certified_days":manifest["days"],"remaining_days":len(manifest["missing_days"]),
+        "complete":not window_missing,"requested_days":len(dates(start,end)),
+        "certified_days":len(dates(start,end))-len(window_missing),
+        "remaining_days":len(window_missing),
+        "global_manifest_complete":manifest["complete"],
+        "global_manifest_encrypted_days":manifest["days"],
         "attempted":attempted,"persisted_new":completed,"failed_days":failures,
     }
 
@@ -215,8 +237,10 @@ def collect(start,end,*,key,root=ROOT,limit=40,fail_limit=5,fetcher=fetch_games)
 def export(start,end,target,*,key,root=ROOT):
     root=Path(root)
     manifest=load_manifest(key,root)
-    if not manifest.get("complete") or manifest.get("source")!="SportsAPIPro-verified-sportId-1":
-        raise RuntimeError("Encrypted manifest is incomplete or uncertified")
+    if manifest.get("source")!="SportsAPIPro-verified-sportId-1":
+        raise RuntimeError("Encrypted manifest has uncertified provenance")
+    # An incomplete GLOBAL catalog is expected during incremental backfill.
+    # The exported SUBRANGE itself must be complete, verified and hash-matched.
     if manifest.get("legacy_mixed_cache_used") is not False:
         raise RuntimeError("Archive provenance invalid")
     if str(start)<manifest["start"] or str(end)>manifest["end"]:
