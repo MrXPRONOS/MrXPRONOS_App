@@ -63,17 +63,31 @@ class NightScheduleTests(unittest.TestCase):
         def send_combo(*args,**kwargs):
             posted.append(("combo",args[-1]["id"],kwargs.get("night")))
             return 2
-        with patch("bsd_v2_telegram.claim",return_value=True), \
-             patch("bsd_v2_telegram.send_one",side_effect=send_one), \
+        class Ledger:
+            def __init__(self):
+                self.claims=[]
+                self.acks=[]
+            def claim(self,kind,ref_id,ref_date):
+                self.claims.append((kind,ref_id,ref_date))
+                return True
+            def mark(self,kind,ref_id,ref_date,*,message_id):
+                self.acks.append((kind,ref_id,ref_date,message_id))
+                return True
+        ledger=Ledger()
+        with patch("bsd_v2_telegram.send_one",side_effect=send_one), \
              patch("bsd_v2_telegram.send_combo",side_effect=send_combo), \
              patch("bsd_v2_telegram.time.sleep",return_value=None):
             report=process(data,when(8,20,5),session=Session(),token="token",
-                chat_ids=["-100123"],supabase_url="https://test.supabase.co",supabase_key="key")
+                chat_ids=["-100123"],ledger=ledger)
         self.assertEqual(report["night_matches"],3)
         self.assertEqual(report["night_picks_sent"],0)
         self.assertEqual(report["night_combos_sent"],1)
         self.assertEqual(len(posted),1)
         self.assertTrue(all(item[2] for item in posted))
+        self.assertEqual(len(ledger.claims),1)
+        self.assertEqual(len(ledger.acks),1)
+        self.assertEqual(ledger.acks[0][0],"bsd_v2_combo_hourly")
+        self.assertEqual(ledger.acks[0][-1],2)
 
     def test_independent_tickets_keep_distinct_ids(self):
         match=fixture(1,when(8,22),1.55)
