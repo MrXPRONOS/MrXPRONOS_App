@@ -23,6 +23,10 @@ class V2Tests(unittest.TestCase):
         self.assertEqual((m["home_score"],m["away_score"]),(2,1))
         self.assertEqual(m["source_home_team_id"],13)
         self.assertEqual(m["sportId"],1)
+        fallback=evt()
+        fallback["homeScore"]["normaltime"]=None
+        fallback["awayScore"]["normaltime"]=None
+        self.assertEqual(v2_fixture(fallback,DAY)["home_score"],3)
     def test_strict_verified_no_synthetic(self):
         self.assertIsNone(v2_fixture(evt(status="inprogress"),DAY))
         self.assertIsNone(v2_fixture(evt(sport=3),DAY))
