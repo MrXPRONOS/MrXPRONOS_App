@@ -1,5 +1,635 @@
 [
   {
+    "id": "a4c9744b14eb6364222fa2a0",
+    "kind": "news",
+    "title": "Lens-Paris FC : chaîne TV, streaming… À quelle heure et où suivre cette prometteuse affiche de la 8ème journée de Ligue 1 ?",
+    "url": "https://www.onzemondial.com/ligue-1/lens-paris-fc-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-cette-prometteuse-affiche-de-la-8eme-journee-de-ligue-1-1003884",
+    "source_date": "2026-10-24T04:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0eff41e99a54fbbcc2b012d8",
+    "kind": "news",
+    "title": "OGC Nice : de zéro à héros, Yehvann Diouf répond aux critiques après son incroyable soirée face à Brest !",
+    "url": "https://www.footmercato.net/a265390651629808218-ogc-nice-de-zero-a-heros-yehvann-diouf-repond-aux-critiques-apres-son-incroyable-soiree-face-a-brest",
+    "source_date": "2026-10-23T21:23:07+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a5daca8ff9c8b65fbc9869e4",
+    "kind": "news",
+    "title": "All. : le réveil de Mönchengladbach",
+    "url": "https://www.maxifoot.fr/allemagne/le-reveil-de-monchengladbach-foot-466324.htm",
+    "source_date": "2026-10-23T20:25:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f22584eea93b6b9fe1d3fca5",
+    "kind": "news",
+    "title": "Allemagne : Même avec une défenseuse dans les cages, le Bayern féminin signe un 50e match d’affilée sans défaite en championnat",
+    "url": "https://www.sofoot.com/breves/allemagne-meme-avec-une-defenseure-dans-les-cages-le-bayern-feminin-signe-un-50e-match-daffilee-sans-defaite-en-championnat",
+    "source_date": "2026-10-23T19:39:34+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7a7940be5f5cfda89fac4bf3",
+    "kind": "news",
+    "title": "Yan Diomandé, l’Ivoirien qui commence à trouver ses marques au Real Madrid",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261023-yan-diomand%C3%A9-l-ivoirien-qui-commence-%C3%A0-trouver-ses-marques-au-real-madrid",
+    "source_date": "2026-10-23T10:13:29+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1901d7f8193f59762a320257",
+    "kind": "news",
+    "title": "L'OM s'incline une nouvelle fois en Ligue Europa face au Sturm Graz",
+    "url": "https://www.france24.com/fr/%C3%A9missions/sports/20261023-l-om-s-incline-une-nouvelle-fois-en-ligue-europa-face-au-sturm-graz",
+    "source_date": "2026-10-23T07:06:59+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "85ec736041c6fd9e3b1be1d1",
+    "kind": "news",
+    "title": "Ligue Europa : l'OL corrigé, l'OM encore battu, Rennes décroche un nul",
+    "url": "https://www.france24.com/fr/sports/20261023-football-ligue-europa-ol-corrige-hoffenheim-om-battu-rennes-match-nul",
+    "source_date": "2026-10-23T01:25:26+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3214b78adf19b9c9293dfc10",
+    "kind": "news",
+    "title": "Ligue des Champions : Côme, une belle aventure !",
+    "url": "https://www.rfi.fr/fr/podcasts/radio-foot-internationale/20261022-ligue-des-champions-c%C3%B4me-une-belle-aventure",
+    "source_date": "2026-10-22T17:00:19+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "fa6a83da5de71534a4246791",
+    "kind": "news",
+    "title": "Les déplacements de supporters lyonnais interdits pour PSG-OL, notamment en raison des manifestations de ce week-end",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-1/les-deplacements-de-supporters-lyonnais-interdits-pour-psg-ol-notamment-en-raison-des-manifestations-de-ce-week-end_8248621.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-10-22T08:34:57+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "71f7eb091f1543ccf88803d0",
+    "kind": "news",
+    "title": "Critique : pourquoi la saison 4 de Ted Lasso sur Apple est ratée",
+    "url": "https://www.sofoot.com/articles/critique-pourquoi-la-saison-4-de-ted-lasso-sur-apple-est-ratee",
+    "source_date": "2026-10-24T04:00:51+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d7e050a75654bbedc56c1199",
+    "kind": "news",
+    "title": "Ligue 1 et couvre-feu : à quoi bon regarder du foot dans un pays en pleine bascule autoritaire ?",
+    "url": "https://www.sofoot.com/articles/ligue-1-et-couvre-feu-a-quoi-bon-regarder-du-foot-dans-un-pays-en-pleine-bascule-autoritaire",
+    "source_date": "2026-10-24T04:00:06+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "62b0925e962b91981cbbdac5",
+    "kind": "news",
+    "title": "FC Barcelone : Gavi révèle son Ballon d’Or",
+    "url": "https://www.footmercato.net/a5757858669975030811-fc-barcelone-gavi-revele-son-ballon-dor",
+    "source_date": "2026-10-23T22:06:15+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "efb9e7d8ab14d068067a314e",
+    "kind": "news",
+    "title": "Coupe du monde U15 : 189 nations, près de 1 000 matchs… Le format étonnant de la nouvelle compétition de la FIFA",
+    "url": "https://www.onzemondial.com/coupe-du-monde/coupe-du-monde-u15-189-nations-pres-de-1-000-matchs-le-format-etonnant-de-la-nouvelle-competition-de-la-fifa-1004644",
+    "source_date": "2026-10-23T22:02:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "58be7a5409e2c31654aeb910",
+    "kind": "news",
+    "title": "Bayern Munich : Lewandowski totalement sous le charme d’Olise",
+    "url": "https://www.footmercato.net/a2052621092426744013-bayern-munich-lewandowski-totalement-sous-le-charme-dolise",
+    "source_date": "2026-10-23T21:50:46+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "445385000219dd47b618630c",
+    "kind": "news",
+    "title": "Ligue 1 : Le match entre l’OM et Le Havre ne sera pas décalé au dimanche soir",
+    "url": "https://www.sofoot.com/breves/ligue-1-le-match-entre-lom-et-le-havre-ne-sera-pas-decale-au-dimanche-soir",
+    "source_date": "2026-10-23T21:29:25+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0ff4b2a7cdfe4d8befa75f54",
+    "kind": "news",
+    "title": "Barça : Deco lorgne sur un crack français",
+    "url": "https://www.onzemondial.com/liga/barca-deco-lorgne-sur-un-crack-francais-1004630",
+    "source_date": "2026-10-23T21:29:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2263992d759c6945b9ecbe1c",
+    "kind": "news",
+    "title": "OGC Nice : L'énorme hommage de Sofiane Diop envers Yehvann Diouf après son penalty arrêté",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ogc-nice-l-enorme-hommage-de-sofiane-diop-envers-yehvann-diouf-apres-son-penalty-arrete-543337.html",
+    "source_date": "2026-10-23T21:26:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4b018f658583740214464298",
+    "kind": "news",
+    "title": "Brest-Nice : Diouf prend sa revanche sur les critiques !",
+    "url": "https://www.onzemondial.com/ligue-1/brest-nice-diouf-prend-sa-revanche-sur-les-critiques-1004648",
+    "source_date": "2026-10-23T21:24:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "eabceda60d1a126286d60d9e",
+    "kind": "news",
+    "title": "Benoit Trémoulinas prépare son grand retour à Bordeaux",
+    "url": "https://www.footmercato.net/a3688416336043205081-benoit-tremoulinas-prepare-son-grand-retour-a-bordeaux",
+    "source_date": "2026-10-23T21:23:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "85a66fb60880ddf7e292001f",
+    "kind": "news",
+    "title": "OGC Nice : La réaction pleine de classe de Yehvann Diouf après son penalty arrêté",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ogc-nice-la-reaction-pleine-de-classe-de-yehvann-diouf-apres-son-penalty-arrete-543336.html",
+    "source_date": "2026-10-23T21:18:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4080cdc470fdefd30d7e3197",
+    "kind": "news",
+    "title": "Yehvann Diouf après la victoire de Nice à Brest : « Le penalty, je l’arrête aussi parce qu’ils sont tous venus me voir quand je fais l’erreur »",
+    "url": "https://www.sofoot.com/breves/yehvann-diouf-apres-la-victoire-de-nice-a-brest-le-penalty-je-larrete-aussi-parce-quils-sont-tous-venus-me-voir-quand-je-fais-lerreur",
+    "source_date": "2026-10-23T21:15:42+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "42e2ea78c7babfeed14121e8",
+    "kind": "news",
+    "title": "OL : Une nouvelle rassurante pour Steeve Kango avant le choc contre le PSG, Pavel Sulc dans le doute",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ol-une-nouvelle-rassurante-pour-steeve-kango-avant-le-choc-contre-le-psg-pavel-sulc-dans-le-doute-543335.html",
+    "source_date": "2026-10-23T21:09:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "12cd47dc9239db5afb546524",
+    "kind": "news",
+    "title": "Arsenal : Arteta orphelin de l'un de ses cadres pour une longue durée",
+    "url": "https://www.onzemondial.com/premier-league/arsenal-arteta-orphelin-de-lun-de-ses-cadres-pour-une-longue-duree-1004611",
+    "source_date": "2026-10-23T21:02:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0d44fe48a52916a756407453",
+    "kind": "news",
+    "title": "FC Barcelone vs Real Madrid : un Clásico équilibré ?",
+    "url": "https://www.france24.com/fr/%C3%A9missions/caf%C3%A9-des-sports/20261023-fc-barcelone-vs-real-madrid-un-cl%C3%A1sico-%C3%A9quilibr%C3%A9",
+    "source_date": "2026-10-23T20:57:03+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e7187fec885731efd38ea858",
+    "kind": "news",
+    "title": "Brest-Nice : Sofiane Diop rend un immense hommage à Yehvann Diouf",
+    "url": "https://www.footmercato.net/a3926641355936074901-brest-nice-sofiane-diop-rend-un-immense-hommage-a-yehvann-diouf",
+    "source_date": "2026-10-23T20:52:43+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ba5421b5c1eebcfad5ced714",
+    "kind": "news",
+    "title": "Le gros coup du Gym - Débrief et NOTES des joueurs (Brest 1-2 Nice)",
+    "url": "https://m.maxifoot.fr/football/article-66359.htm",
+    "source_date": "2026-10-23T20:45:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c1177e02650ff6a25b86745a",
+    "kind": "news",
+    "title": "Ligue 1 : Nice débloque son compteur à l’extérieur contre Brest et monte à la huitième place",
+    "url": "https://www.sofoot.com/breves/ligue-1-nice-debloque-son-compteur-a-lexterieur-contre-brest-et-monte-a-la-huitieme-place",
+    "source_date": "2026-10-23T20:45:01+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e02f68617ec6af6029d6bddd",
+    "kind": "news",
+    "title": "Ligue 1 : au mental, l’OGC Nice renverse Brest",
+    "url": "https://www.footmercato.net/a7630916798653710953-ligue-1-au-mental-logc-nice-renverse-brest",
+    "source_date": "2026-10-23T20:44:52+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "06573a7234df62d9838bca0d",
+    "kind": "news",
+    "title": "Ligue 1 : L'OGC Nice renverse le Stade Brestois et réalise une belle opération au classement (analyse)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-l-ogc-nice-renverse-le-stade-brestois-et-realise-une-belle-operation-au-classement-analyse-543334.html",
+    "source_date": "2026-10-23T20:43:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "66c403a223046902f436ace9",
+    "kind": "news",
+    "title": "\"Je soutiens Lamine Yamal au Ballon d'Or\" : Lewandowski apporte son soutien à son ancien coéquipier",
+    "url": "https://www.onzemondial.com/liga/je-soutiens-lamine-yamal-au-ballon-dor-lewandowski-apporte-son-soutien-a-son-ancien-coequipier-2-1004657",
+    "source_date": "2026-10-23T20:31:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-24T05:41:55.365446+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "9d492c003b8387ab6f6e838c",
     "kind": "article",
     "title": "Club Africain vs Tout Puissant Mazembe : fiche match BSD V2",
@@ -573,7 +1203,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4ac7d8dd1feba07ebc70ccbb",
@@ -594,7 +1224,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6f3d467885efa5c0cbe7e940",
@@ -615,7 +1245,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5529cd1968f70dbb28af5f10",
@@ -636,7 +1266,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7fb42ea72c29f8c6f39b2420",
@@ -657,7 +1287,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "525c6fbc7ccfdd72188470a5",
@@ -678,7 +1308,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a331a58b24b2f2f3917a2ef0",
@@ -699,7 +1329,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5e64ca1a494eada53b3bb588",
@@ -720,7 +1350,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e1db073531872fb5b1bed62a",
@@ -741,7 +1371,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "29b709c43de49e11c1c35e87",
@@ -762,7 +1392,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8428a4adda71f4013db34e8c",
@@ -783,7 +1413,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e26b7612e9302cd6cf4e8a42",
@@ -804,7 +1434,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4f957c9c118e6df4d3af3315",
@@ -825,7 +1455,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c5f9642b28e20570a93ce9d5",
@@ -846,7 +1476,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "12a770a37af898b61134656d",
@@ -867,7 +1497,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4483342b122ed38a72f69a05",
@@ -888,7 +1518,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a5c70aef6bd2090f5148c99a",
@@ -909,7 +1539,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2a4e16f72c22278616a52871",
@@ -930,7 +1560,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "716a7120a5c562bd9bc59b0f",
@@ -951,7 +1581,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "41f46e693089c29d81396e21",
@@ -972,7 +1602,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1032598ae9f6d41b9247264b",
@@ -993,7 +1623,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3968716ae1ddc23f8cb0cf12",
@@ -1014,7 +1644,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b87c22ebc77d47f2dc8f39e7",
@@ -1035,7 +1665,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "06d0ed8dafd881dadfcfbcce",
@@ -1056,7 +1686,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c503f165a947dc5ec67c720a",
@@ -1077,7 +1707,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4b27f6fd56bf5aa281ab226f",
@@ -1098,7 +1728,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cc9231b0a649fd359f66885d",
@@ -1119,7 +1749,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e36c5182fceb88abea2bcc2b",
@@ -1140,7 +1770,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "edb89f7cd3a753446c0c8fa0",
@@ -1161,7 +1791,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ab2525cabdd32c98265819ad",
@@ -1182,7 +1812,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "db7b9c4d908aeeff334ebc0a",
@@ -1203,7 +1833,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "74caac86d4dda5d560f65492",
@@ -1224,7 +1854,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7acb4ef05167b36d27a1d18c",
@@ -1245,7 +1875,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "fd656308199398e7ee48077b",
@@ -1266,7 +1896,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ea73309109f8bc3443888c3a",
@@ -1287,7 +1917,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b2d28d2ea5d63c1b972b3ae8",
@@ -1308,7 +1938,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2563264a1147b299bf2b63e1",
@@ -1329,7 +1959,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4665527c10b983255bfdce7a",
@@ -1350,7 +1980,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "aa319526a4302c2763eb0b1b",
@@ -1371,7 +2001,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "90ed93fed893b523abf4a6e6",
@@ -1392,7 +2022,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d16bc2fe9042143a934e8caf",
@@ -1413,7 +2043,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "02b80270d94ef063479a8574",
@@ -1434,7 +2064,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e2cf18d2155233848c0bd1d5",
@@ -1455,7 +2085,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cb20674cb9d52ea9a22ef99c",
@@ -1476,7 +2106,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "110fc82759580d1e2fd42818",
@@ -1497,7 +2127,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c6fd594905bda37bf105d65a",
@@ -1518,7 +2148,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e8b57b18416a4c619039f354",
@@ -1539,7 +2169,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6eb5822b16614e4ec2656b01",
@@ -1560,7 +2190,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a67f1fdb8fa3d2c8eddbaaf3",
@@ -1581,7 +2211,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d3d2bfd2d3e0306ed4e4a6ff",
@@ -1602,7 +2232,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2391058b5a7be7fe4f866da5",
@@ -1623,7 +2253,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3d38f7699594fb093784915b",
@@ -1644,7 +2274,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "fb27c7eb4da33cdee7b4a1c5",
@@ -1665,7 +2295,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "671e226e13cb98ec787403aa",
@@ -1686,7 +2316,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f49628f600019621006a9001",
@@ -1707,7 +2337,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "da85e5819b74eff83f035810",
@@ -2971,7 +3601,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6f6c9f1055b7dcd16daa715e",
@@ -5095,7 +5725,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "86f9e4dcee53fce688b633fa",
@@ -6461,7 +7091,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c5de60c1f69815675638a7af",
@@ -9868,7 +10498,7 @@
     },
     "source_date": "2026-10-12T06:00:30+00:00",
     "visual_variant": "v3",
-    "retired": false
+    "retired": true
   },
   {
     "id": "152eaff493bce8da7032a7a6",
@@ -9889,7 +10519,7 @@
     },
     "source_date": "2026-10-10T14:31:57+00:00",
     "visual_variant": "v1",
-    "retired": false
+    "retired": true
   },
   {
     "id": "ac7cb16864be96582e581ad3",
