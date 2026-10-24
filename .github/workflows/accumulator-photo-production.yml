@@ -39,9 +39,6 @@ jobs:
       ACCUMULATOR_MAX_MATCHES: '12'
       ACCUMULATOR_VIDEO_MANIFEST: telegram_out/video_used_matches.json
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      SUPABASE_BUCKET: videos
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
@@ -86,7 +83,7 @@ jobs:
         run: |
           python -m py_compile scripts/d1_publication_ledger.py
           python -m unittest discover -s tests -p test_d1_publication_ledger.py -v
-          python -m py_compile scripts/read_accumulator_video_ledger.py scripts/send_accumulator_production.py scripts/post_accumulator_social.py scripts/send_short_production_telegram.py scripts/create_short_from_telegram_coupons.py
+          python -m py_compile scripts/cloudflare_public_media.py scripts/read_accumulator_video_ledger.py scripts/send_accumulator_production.py scripts/post_accumulator_social.py scripts/send_short_production_telegram.py scripts/create_short_from_telegram_coupons.py
           node --check scripts/prepare_accumulator_today.mjs
       - name: Select remaining fixtures and calculate simulated 50000 FCFA stake
         id: selection
