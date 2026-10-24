@@ -25,7 +25,7 @@ on:
       - ".github/workflows/shorts-coupons-production.yml"
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 concurrency:
@@ -186,6 +186,7 @@ jobs:
           python scripts/refresh_social_tokens.py             --out refreshed_tokens.json             --github-env "$GITHUB_ENV"
 
       - name: Publish prediction video to social platforms
+        id: social_publish
         if: steps.send.outputs.video_sent == 'true'
         shell: bash
         run: |
@@ -199,12 +200,14 @@ jobs:
           python scripts/post_shorts_video.py             --require-all             --video "$VIDEO_FILE"             --platforms "$POST_PLATFORMS"             --title "Pronostics $TARGET - Mr XPRONOS"             --description "$LABEL. $COUNT sélections. 18+ et joue responsablement."             --caption "$LABEL ⚽\n$COUNT sélections Mr XPRONOS.\n18+ • Joue responsablement.\n\n#football #pronostic #pronosdujour #mrxpronos"
 
       - name: Verify all requested social platform publishing results
+        id: social_verify
         if: always() && steps.send.outputs.video_sent == 'true'
         shell: bash
         run: |
           set -euo pipefail
           python scripts/verify_social_publications.py --report social_post_results.json --expected "$POST_PLATFORMS"
       - name: Audit Telegram distribution across channels and Torrent9
+        id: telegram_audit
         if: always() && steps.send.outputs.video_sent == 'true'
         shell: bash
         run: |
@@ -237,3 +240,63 @@ jobs:
             social_post_results.json
           if-no-files-found: ignore
           retention-days: 7
+
+      - name: Record Shorts production probe
+        if: ${{ always() }}
+        env:
+          PROBE_ID: ${{ github.run_id }}
+          PROBE_ATTEMPT: ${{ github.run_attempt }}
+          PROBE_SHA: ${{ github.sha }}
+          PROBE_EVENT: ${{ github.event_name }}
+          PROBE_SLOT: ${{ steps.wave.outputs.slot }}
+          PROBE_RENDER: ${{ steps.render.outcome }}
+          PROBE_HAS_VIDEO: ${{ steps.render.outputs.has_video }}
+          PROBE_SEND: ${{ steps.send.outcome }}
+          PROBE_VIDEO_SENT: ${{ steps.send.outputs.video_sent }}
+          PROBE_SOCIAL: ${{ steps.social_publish.outcome }}
+          PROBE_SOCIAL_VERIFY: ${{ steps.social_verify.outcome }}
+          PROBE_AUDIT: ${{ steps.telegram_audit.outcome }}
+        run: |
+          python - <<'PY'
+          import json, os, datetime
+          from pathlib import Path
+          manifest=Path("telegram_out/production_short/manifest.json")
+          matches=None
+          if manifest.exists():
+              try:
+                  m=json.loads(manifest.read_text(encoding="utf-8"))
+                  matches={"target":m.get("target"),"count":m.get("count")}
+              except (ValueError,OSError): pass
+          social=None
+          p=Path("social_post_results.json")
+          if p.exists():
+              try:
+                  items=json.loads(p.read_text(encoding="utf-8"))
+                  social=[{"platform":x.get("platform"),"ok":x.get("ok")} for x in items]
+              except (ValueError,OSError): pass
+          x={
+              "run_id":os.getenv("PROBE_ID"),"attempt":os.getenv("PROBE_ATTEMPT"),
+              "trigger_sha":os.getenv("PROBE_SHA"),"event":os.getenv("PROBE_EVENT"),
+              "checked_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              "slot":os.getenv("PROBE_SLOT"),"render":os.getenv("PROBE_RENDER"),
+              "has_video":os.getenv("PROBE_HAS_VIDEO"),"send":os.getenv("PROBE_SEND"),
+              "video_sent":os.getenv("PROBE_VIDEO_SENT"),"manifest":matches,
+              "social_step":os.getenv("PROBE_SOCIAL"),"social_verify":os.getenv("PROBE_SOCIAL_VERIFY"),
+              "telegram_audit":os.getenv("PROBE_AUDIT"),"social":social,
+              "cloudflare_token_present":bool(os.getenv("CLOUDFLARE_API_TOKEN")),
+          }
+          path=Path("ops/probes/shorts-"+x["run_id"]+".json")
+          path.parent.mkdir(parents=True,exist_ok=True)
+          path.write_text(json.dumps(x,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          print("MRX_SHORTS_PROBE",json.dumps(x,ensure_ascii=False))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "ops/probes/shorts-${PROBE_ID}.json"
+          git commit -m "ops(probe): record Shorts production outcome [skip ci]" || exit 0
+          for attempt in 1 2 3 4; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+            sleep "$attempt"
+          done
+          exit 1
