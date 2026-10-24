@@ -1,0 +1,112 @@
+name: Research ML V2 - 2024 BSD and SportScore full-year enrichment
+on:
+  push:
+    branches: [research/single-ml-v2-20261024]
+    paths: ['.github/workflows/research-ml-v2-bsd-sportscore-2024.yml']
+permissions:
+  contents: write
+concurrency:
+  group: ml-v2-encrypted-history
+  cancel-in-progress: false
+jobs:
+  enrich-2024:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/single-ml-v2-20261024
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install research-only dependencies
+        run: python -m pip install cryptography requests numpy scipy scikit-learn lightgbm==4.6.0 catboost==1.2.8
+      - name: Verify key and reference archive, no raw data in logs
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python - <<'PY'
+          from single_ml_v2_git import key_from_environment,open_sealed
+          from pathlib import Path
+          assert len(key_from_environment())==32
+          baseline=Path("research/encrypted_football/openfootball/2024.enc")
+          assert baseline.is_file()
+          archive=open_sealed(baseline.read_bytes(),key_from_environment(),
+                              "openfootball-cc0-calendar-2024")
+          assert archive["year"]==2024 and archive["audit"]["matches"]==5789
+          print("Original OpenFootball 2024 reference authenticated: 5789 matches")
+          PY
+          test -n "$BSD_API_KEY" || { echo 'BSD credential missing'; exit 1; }
+      - name: Offline tests - 2024 BSD SportScore merge
+        run: PYTHONPATH=.:research python -m unittest discover -s research -p 'test_single_ml_v2_bsd_sportscore_2024.py' -v
+      - name: Fetch whole year, audit and encrypt month by month
+        shell: bash
+        id: enrichment
+        run: |
+          set -euo pipefail
+          set +e
+          PYTHONPATH=.:research python research/single_ml_v2_bsd_sportscore_2024.py
+          result=$?
+          set -e
+          if [[ "$result" -ne 0 && "$result" -ne 2 ]]; then
+            echo "::error::Research collection failed unexpectedly, preserving only authenticated partial checkpoints"
+          fi
+          echo "status=$result" >> "$GITHUB_OUTPUT"
+      - name: Verify encrypted monthly checkpoints in memory
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python - <<'PY'
+          from pathlib import Path
+          from single_ml_v2_git import key_from_environment,open_sealed
+          from collections import Counter
+          key=key_from_environment()
+          checked=0
+          matches=0
+          for month in range(1,13):
+              path=Path(f"research/encrypted_football/bsd_sportscore/2024/{month:02d}.enc")
+              if not path.exists():continue
+              doc=open_sealed(path.read_bytes(),key,
+                      "bsd-sportscore-2024-month:"+str(month))
+              assert doc["year"]==2024 and doc["month"]==month
+              assert doc["schema"]=="bsd_sportscore_2024_private_verified_v1"
+              assert all(row["date"].startswith(f"2024-{month:02d}-") for row in doc["matches"])
+              assert doc["audit"]["bsd"]["reported"] >= doc["audit"]["bsd"]["parsed"]
+              assert doc["audit"]["sportscore"]["days_at_200_cap_incomplete"]>=0
+              checked+=1
+              matches+=len(doc["matches"])
+          print("BSD_SPORTSCORE_2024_VERIFIED_ENCRYPTED_MONTHS",checked)
+          print("BSD_SPORTSCORE_2024_SOURCED_MATCHES",matches)
+          if checked==0:raise SystemExit("No months recovered: mark workflow failure")
+          PY
+      - name: Commit only encrypted month checkpoint blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add research/encrypted_football/bsd_sportscore/2024/
+          unexpected="$(git diff --cached --name-only | grep -Ev '^research/encrypted_football/bsd_sportscore/2024/(0[1-9]|1[0-2])\.enc$' || true)"
+          if [[ -n "$unexpected" ]]; then
+            echo "::error::Refusing unexpected file staged for commit"
+            exit 1
+          fi
+          if ! git diff --cached --quiet; then
+            git commit -m 'data(research): BSD and SportScore 2024 encrypted month checkpoints'
+            git push origin HEAD:research/single-ml-v2-20261024
+          fi
+      - name: Fail visibly if the complete-year validation was not achieved
+        shell: bash
+        env:
+          EXIT_CODE: ${{ steps.enrichment.outputs.status }}
+        run: |
+          if [[ "$EXIT_CODE" != '0' ]]; then
+            echo "::error::2024 source enrichment INCOMPLETE, partial encrypted data safely saved"
+            exit 1
+          fi
+          echo 'SUCCESS: 12 audited encrypted 2024 BSD/SportScore monthly archives.'
