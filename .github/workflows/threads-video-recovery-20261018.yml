@@ -1,4 +1,4 @@
-name: Threads - Video Recovery 18 Oct 2026
+name: RETIRED - Threads old Supabase video recovery
 on:
   workflow_dispatch:
   push:
@@ -15,6 +15,7 @@ concurrency:
 
 jobs:
   publish-once:
+    if: ${{ false }} # Legacy October 18 one-time video references offline Supabase Storage
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
