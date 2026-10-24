@@ -1,140 +1,402 @@
 #!/usr/bin/env python3
-"""As-of safe xG provenance enrichment for certified football archive.
+"""Source-verified real historical xG, encrypted in public GitHub.
 
-Supabase API original late-match snapshots are genuine OBSERVED live expected-goals,
-but not certified final xG. Never rename these final xG or use a target match's xG.
-A snapshot becomes usable only after its actual recorded updated_at instant.
-Unmatched and ambiguous fixture mappings are left without xG.
+No Supabase or Neon. SportsAPIPro V2 match statistics are accepted only for
+a football fixture whose independent provider match detail matches the
+certified V1 football archive by ID, both team names and kickoff UTC.
+Unknown schemas, missing values, ambiguous periods, unsupported competition
+or API errors are NOT replaced by fabricated values.
+
+CRITICAL: Historical xG fetched today is available to our model from the
+actual first-observed timestamp TODAY, not retroactively from kickoff.
 """
 from __future__ import annotations
+
 import argparse
+import hashlib
+import hmac
 import json
+import math
 import os
 import re
+import sys
+import time
 import unicodedata
-from collections import Counter, defaultdict
-from datetime import datetime, timezone, timedelta
+from collections import Counter
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+
 import requests
-from single_ml_v2_data import utc_dt, atomic_json
 
-def norm(s):
-    s=unicodedata.normalize("NFKD",str(s or "")).encode("ascii","ignore").decode().casefold()
-    return re.sub(r"[^a-z0-9]+","",s)
+from single_ml_v2_data import utc_dt
+from single_ml_v2_git import (ROOT, atomic_bytes, key_from_environment, load_days,
+                              open_sealed, seal)
+from sportdata_api import get_api_keys
 
-def xg_num(v):
+PROVIDER = "sportsapipro_v2_match_statistics"
+QUALITY = "measured_postmatch_provider"
+BASE_URL = "https://api.sportsapipro.com/v2/football/api"
+SAFE_ID = re.compile(r"^[0-9]{1,18}$")
+SUPPORTED_LABELS = frozenset(("expectedgoals","xg","expectedgoal"))
+TIMEOUT = 24
+
+
+def utc_now():
+    return datetime.now(timezone.utc)
+
+
+def normalized_name(s):
+    text=unicodedata.normalize("NFKD",str(s or ""))
+    text="".join(c for c in text if not unicodedata.combining(c))
+    return re.sub(r"[^a-z0-9]+","",text.casefold())
+
+
+def xg_number(value):
+    if isinstance(value,bool) or value is None:
+        return None
     try:
-        if isinstance(v,bool): return None
-        f=float(v)
-        if 0<=f<=10 and f==f:return f
-    except (ValueError,TypeError,OverflowError):pass
+        n=float(value)
+    except (ValueError,TypeError,OverflowError):
+        return None
+    return n if math.isfinite(n) and 0.0<=n<=10.0 else None
+
+
+def one_event(obj):
+    if not isinstance(obj,dict):
+        return None
+    for candidate in (obj.get("event"),obj.get("match"),obj.get("game"),obj.get("data")):
+        if isinstance(candidate,dict):
+            if "homeTeam" in candidate or "homeCompetitor" in candidate:
+                return candidate
+            nested=one_event(candidate)
+            if nested is not None:return nested
+    if "homeTeam" in obj or "homeCompetitor" in obj:
+        return obj
     return None
 
-def validated_snapshots(rows,*,asof):
-    indexed=defaultdict(list)
-    audit=Counter()
-    for row in rows:
-        if row.get("source_name")!="api_original":
-            audit["other_source"]+=1;continue
-        k=utc_dt(row.get("event_date"))
-        updated=utc_dt(row.get("updated_at"))
-        try:minute=int(row.get("minute"))
-        except (ValueError,TypeError):minute=-1
-        v=row.get("stats_json") or {}
-        if not isinstance(v,dict):continue
-        h=xg_num((v.get("home") or {}).get("expected_goals"))
-        a=xg_num((v.get("away") or {}).get("expected_goals"))
-        if not k or not updated or updated<=k or updated>asof or not 90<=minute<=135 or h is None or a is None:
-            audit["invalid_or_future"]+=1;continue
-        key=(norm(row.get("home_team")),norm(row.get("away_team")),k.date())
-        if not all(key):audit["unnamed"]+=1;continue
-        indexed[key].append({"kickoff":k,"updated":updated,"h":h,"a":a,
-                             "minute":minute,"provider":"supabase_live_stats_sources_api_original",
-                             "snapshot_id":str(row.get("canonical_match_id") or "")})
-        audit["valid"]+=1
-    return indexed,audit
 
-def enrich(football_rows,stats_rows,*,asof):
-    idx,audit=validated_snapshots(stats_rows,asof=asof)
-    out=[]
-    for src in football_rows:
-        row=dict(src)
-        # Clear unverifiable xG fields; never inherit an unidentified external value.
-        for key in ("home_xg","away_xg","xg_source","xg_observed_at",
-                    "xg_quality","xg_kickoff","xg_usable_after"):row.pop(key,None)
-        if str(row.get("sportId"))!="1":
-            raise ValueError("Non-football input in certified archive")
-        k=utc_dt(row.get("start_time"))
-        if k is None:raise ValueError("Missing kickoff in certified archive")
-        key=(norm(row["home_team"]),norm(row["away_team"]),k.date())
-        c=[v for v in idx.get(key,[]) if abs((v["kickoff"]-k).total_seconds())<=5400]
-        if not c:
-            audit["no_xg_match"]+=1;out.append(row);continue
-        fixtures={(v["snapshot_id"],v["kickoff"]) for v in c}
-        if len(fixtures)>1:
-            audit["ambiguous_fixture"]+=1;out.append(row);continue
-        # Pick the latest captured snapshot from the same fixture.
-        c.sort(key=lambda v:(v["updated"],v["minute"]))
-        chosen=c[-1]
-        if chosen["updated"]<k:
-            raise AssertionError("Impossible pre-kickoff late snapshot")
-        row["home_xg"]=chosen["h"]
-        row["away_xg"]=chosen["a"]
-        row["xg_source"]=chosen["provider"]
-        row["xg_observed_at"]=chosen["updated"].isoformat()
-        row["xg_usable_after"]=chosen["updated"].isoformat()
-        row["xg_quality"]="observed_late_match_90plus_provisional"
-        row["xg_kickoff"]=k.isoformat()
-        audit["enriched"]+=1
-        out.append(row)
-    return out,dict(audit)
+def get_team_name(event, side):
+    obj=event.get(side+"Team") or event.get(side+"Competitor")
+    if isinstance(obj,dict):
+        return str(obj.get("name") or "").strip()
+    return str(obj or "").strip()
 
-def retrieve_supabase(*,base_url,token,end,asof,max_pages=25):
-    if not token:raise RuntimeError("SUPABASE_SERVICE_ROLE_KEY is absent")
-    url=base_url.rstrip("/")+"/rest/v1/live_stats_sources"
-    headers={"apikey":token,"Authorization":"Bearer "+token,"Accept":"application/json"}
-    for page in range(max_pages):
-        params={"select":"canonical_match_id,home_team,away_team,event_date,minute,stats_json,updated_at,source_name",
-                "source_name":"eq.api_original",
-                "minute":"gte.90",
-                "event_date":"lte."+end+"T23:59:59Z",
-                "updated_at":"lte."+asof.isoformat(),
-                "order":"event_date.asc,canonical_match_id.asc,updated_at.asc",
-                "limit":"1000","offset":str(page*1000)}
-        r=requests.get(url,headers=headers,params=params,timeout=45)
-        r.raise_for_status()
-        data=r.json()
-        if not isinstance(data,list):raise RuntimeError("Invalid Supabase JSON response")
-        yield from data
-        if len(data)<1000:return
-    raise RuntimeError("Pagination cap reached: do not silently truncate xG source")
+
+def require_matching_identity(event, match):
+    """Never assume V1 and V2 numeric identifiers share their namespace."""
+    if not isinstance(event,dict):
+        raise ValueError("Provider response has no verifiable match identity")
+    provider_id=event.get("id",event.get("matchId",event.get("eventId")))
+    if str(provider_id or "") != str(match["id"]):
+        raise ValueError("V1/V2 match ID mismatch")
+    if normalized_name(get_team_name(event,"home"))!=normalized_name(match["home_team"]):
+        raise ValueError("Home club mismatch")
+    if normalized_name(get_team_name(event,"away"))!=normalized_name(match["away_team"]):
+        raise ValueError("Away club mismatch")
+    start=(event.get("startTimestamp") or event.get("startTime")
+           or event.get("start_time") or event.get("event_date"))
+    actual=utc_dt(start)
+    expected=utc_dt(match["start_time"])
+    if not actual or not expected or abs((actual-expected).total_seconds())>5400:
+        raise ValueError("Kickoff difference >90 minutes or timezone unverified")
+    if str(match.get("sportId"))!="1" or match.get("is_finished") is not True:
+        raise ValueError("Not certified historical football")
+    return True
+
+
+def as_pair(group):
+    if not isinstance(group,dict):
+        return None
+    home=xg_number(group.get("home"))
+    away=xg_number(group.get("away"))
+    return (home,away) if home is not None and away is not None else None
+
+
+def _direct_candidates(obj):
+    """Accept explicit match totals only; generic stats and shot counts are NOT xG."""
+    if not isinstance(obj,dict):return []
+    pairs=[]
+    for name in ("expectedGoals","expected_goals","xG","xg"):
+        x=obj.get(name)
+        pair=as_pair(x)
+        if pair is not None:pairs.append(pair)
+    for home_key,away_key in (
+        ("homeExpectedGoals","awayExpectedGoals"),
+        ("home_xg","away_xg"),
+        ("expectedGoalsHome","expectedGoalsAway"),
+    ):
+        if home_key in obj and away_key in obj:
+            pair=(xg_number(obj[home_key]),xg_number(obj[away_key]))
+            if pair[0] is not None and pair[1] is not None:pairs.append(pair)
+    return pairs
+
+
+def _stat_items(container):
+    if isinstance(container,list):
+        yield from container
+    elif isinstance(container,dict):
+        for key in ("statisticsItems","statistics","items","groups"):
+            if isinstance(container.get(key),list):
+                yield from container[key]
+
+
+def _is_full_period(text):
+    t=normalized_name(text)
+    return t in ("all","overall","fulltime","fullmatch","ft","total","match")
+
+
+def extract_xg(stats):
+    """Return (xg_home,xg_away) or None: no 1H/live/shotmaps assumed to be totals.
+
+    Supported schemas: object-level paired expectedGoals, explicit ALL/FT
+    group with expected goals items. Contradictory values -> reject.
+    """
+    if not isinstance(stats,dict):return None
+    block=stats.get("data") if isinstance(stats.get("data"),dict) else stats
+    candidates=_direct_candidates(block)
+    if block is not stats:
+        candidates.extend(_direct_candidates(stats))
+    for section in ("statistics","periods"):
+        container=block.get(section) if isinstance(block,dict) else None
+        if not isinstance(container,(dict,list)):continue
+        # Some providers return {"statistics": {"expectedGoals": {"home": ...}}}
+        candidates.extend(_direct_candidates(container))
+        nodes=container if isinstance(container,list) else [container]
+        for node in nodes:
+            if not isinstance(node,dict):continue
+            period=node.get("period",node.get("periodName",node.get("name")))
+            if not _is_full_period(period):continue
+            candidates.extend(_direct_candidates(node))
+            for item in _stat_items(node):
+                if not isinstance(item,dict):continue
+                group_name=str(item.get("name") or item.get("key") or item.get("title") or "")
+                if normalized_name(group_name) in SUPPORTED_LABELS:
+                    pair=as_pair(item)
+                    if pair is not None:candidates.append(pair)
+                for child in _stat_items(item):
+                    if not isinstance(child,dict):continue
+                    label=child.get("name") or child.get("key") or ""
+                    if normalized_name(label) in SUPPORTED_LABELS:
+                        pair=as_pair(child)
+                        if pair is not None:candidates.append(pair)
+    if not candidates:return None
+    baseline=candidates[0]
+    # Fail closed if the source has inconsistent xG totals.
+    if any(max(abs(a-baseline[0]),abs(b-baseline[1]))>.02 for a,b in candidates):
+        raise ValueError("Conflicting expected-goals values")
+    return baseline
+
+
+class QuotaExceeded(RuntimeError):
+    pass
+
+
+class MatchStatsClient:
+    def __init__(self, keys, *,request_limit,session=None,base_url=BASE_URL):
+        self.keys=list(dict.fromkeys(k.strip() for k in keys if k and k.strip()))
+        if not self.keys:
+            raise RuntimeError("No configured SportData API keys")
+        if request_limit<1:
+            raise ValueError("Request limit must be positive")
+        self.limit=request_limit
+        self.used=0
+        self.session=session or requests.Session()
+        self.base_url=base_url.rstrip("/")
+        self.skipped_keys=set()
+
+    def get(self, endpoint):
+        if not endpoint.startswith("/match/"):
+            raise ValueError("Endpoint not allowlisted")
+        last=None
+        for i,key in enumerate(self.keys):
+            if i in self.skipped_keys:continue
+            if self.used>=self.limit:
+                raise QuotaExceeded("Configured API request ceiling reached")
+            self.used+=1
+            try:
+                resp=self.session.get(self.base_url+endpoint,
+                    headers={"x-api-key":key,"Accept":"application/json"},timeout=TIMEOUT)
+            except requests.RequestException:
+                last="network_unavailable"
+                continue
+            if resp.status_code in (401,403,429):
+                self.skipped_keys.add(i)
+                last="api_key_restricted"
+                continue
+            if resp.status_code==404:
+                return None
+            if resp.status_code!=200:
+                last="provider_http_"+str(resp.status_code)
+                continue
+            try:
+                body=resp.json()
+            except ValueError:
+                last="invalid_json"
+                continue
+            if not isinstance(body,dict) or body.get("success") is False or body.get("error"):
+                last="provider_error"
+                continue
+            return body
+        raise QuotaExceeded("No provider request capacity remaining: "+str(last))
+
+
+def record_path(match_id,key,root=ROOT):
+    token=hmac.new(key,("xg:match:"+str(match_id)).encode("utf8"),hashlib.sha256).hexdigest()
+    return Path(root)/"xg"/"matches"/token[:2]/(token+".enc")
+
+
+def record_name(match_id):
+    return "xg:match:"+str(match_id)
+
+
+def record_from_file(match_id,key,root=ROOT):
+    path=record_path(match_id,key,root)
+    if not path.is_file():return None
+    record=open_sealed(path.read_bytes(),key,record_name(match_id))
+    if str(record.get("match_id"))!=str(match_id):
+        raise ValueError("Encrypted xG record is for another match")
+    return record
+
+
+def write_record(record,key,root=ROOT):
+    match_id=record["match_id"]
+    path=record_path(match_id,key,root)
+    if path.exists():
+        # Already independently authenticated: do not overwrite to avoid
+        # mutating observation time or model history.
+        record_from_file(match_id,key,root)
+        return False
+    atomic_bytes(path,seal(record,key,record_name(match_id)))
+    return True
+
+
+def fetch_observation(client,match,*,now):
+    """Maximum 2 provider calls per match. Never infer missing identity."""
+    ident=str(match.get("id") or "")
+    if not SAFE_ID.fullmatch(ident):
+        return {"status":"unsupported_match_id","reason":"not_numeric"}
+    statistics=client.get("/match/"+ident+"/statistics")
+    if statistics is None:
+        return {"status":"not_available","reason":"stats_404"}
+    measured=extract_xg(statistics)
+    if measured is None:
+        return {"status":"not_available","reason":"no_explicit_fulltime_xg"}
+    event=one_event(statistics)
+    if event is None:
+        detail=client.get("/match/"+ident)
+        event=one_event(detail)
+    if event is None:
+        return {"status":"identity_unverified","reason":"match_detail_unavailable"}
+    try:
+        require_matching_identity(event,match)
+    except ValueError:
+        return {"status":"identity_unverified","reason":"id_team_or_kickoff_mismatch"}
+    return {
+        "status":"measured","home_xg":measured[0],"away_xg":measured[1],
+        "xg_source":PROVIDER,"xg_quality":QUALITY,
+        # This is the time OUR model first knows this value. Never backdate.
+        "xg_observed_at":now.isoformat(),
+        "xg_usable_after":now.isoformat(),
+        "provider_match_id":ident,
+    }
+
+
+def collect(start,end,*,key,root=ROOT,limit=24,request_limit=35,client=None):
+    if start>end or end>=utc_now().date():
+        raise ValueError("End must be strictly before the current UTC day")
+    matches,missing,_=load_days(start,end,key=key,root=root,allow_missing=True)
+    stats=Counter()
+    stats["certified_football_matches_seen"]=len(matches)
+    stats["football_days_missing"]=len(missing)
+    cli=client or MatchStatsClient(get_api_keys(),request_limit=request_limit)
+    for match in matches:
+        mid=str(match["id"])
+        old=record_from_file(mid,key,root)
+        if old is not None:
+            stats["previously_checked"]+=1
+            continue
+        if stats["newly_checked"]>=limit:break
+        try:
+            value=fetch_observation(cli,match,now=utc_now())
+        except QuotaExceeded:
+            stats["stopped_due_to_api_limit"]+=1
+            break
+        except (ValueError,requests.RequestException):
+            stats["temporary_source_error"]+=1
+            continue
+        record={
+            "match_id":mid,"kickoff":match["start_time"],"home_team":match["home_team"],
+            "away_team":match["away_team"],
+            "checked_at":utc_now().isoformat(),**value,
+        }
+        if write_record(record,key,root):
+            stats["newly_checked"]+=1
+            stats["outcome_"+value["status"]]+=1
+    stats["requests_used"]=cli.used
+    stats["request_limit"]=cli.limit
+    return dict(stats)
+
+
+def enrich_from_encrypted(matches,key,*,root=ROOT):
+    """The verified historical football archive is the ONLY match source."""
+    report=Counter()
+    result=[]
+    for source in matches:
+        match=dict(source)
+        # Strip unsigned xG fields from any input.
+        for field in ("home_xg","away_xg","xg_source","xg_quality",
+                      "xg_observed_at","xg_usable_after"):
+            match.pop(field,None)
+        if match.get("sportId")!=1 or match.get("is_finished") is not True:
+            raise ValueError("xG enrichment received uncertified football source")
+        record=record_from_file(match["id"],key,root)
+        if record is not None and record.get("status")=="measured":
+            if (record.get("xg_source")!=PROVIDER or record.get("xg_quality")!=QUALITY
+                or record.get("kickoff")!=match.get("start_time")
+                or normalized_name(record.get("home_team"))!=normalized_name(match["home_team"])
+                or normalized_name(record.get("away_team"))!=normalized_name(match["away_team"])):
+                raise ValueError("xG overlay does not match certified football match")
+            h,a=xg_number(record.get("home_xg")),xg_number(record.get("away_xg"))
+            recorded=utc_dt(record.get("xg_usable_after"))
+            kickoff=utc_dt(match.get("start_time"))
+            if h is None or a is None or recorded is None or kickoff is None or recorded<=kickoff:
+                raise ValueError("xG record has invalid measured values or availability")
+            match.update({
+                "home_xg":h,"away_xg":a,"xg_source":PROVIDER,
+                "xg_quality":QUALITY,"xg_usable_after":recorded.isoformat(),
+                "xg_observed_at":recorded.isoformat(),
+            })
+            report["measured"]+=1
+        else:
+            report["missing"]+=1
+        result.append(match)
+    return result,dict(report)
+
 
 def main():
     p=argparse.ArgumentParser()
-    p.add_argument("--football",default="research/private/football_history.json")
-    p.add_argument("--output",default="research/private/football_with_xg.json")
-    p.add_argument("--audit",default="research/private/xg_audit.json")
-    p.add_argument("--snapshots-json",default=None,
-                   help="Offline snapshot with recorded timestamps; avoids network access")
-    p.add_argument("--asof",default=None,
-                   help="UTC cutoff timestamp, defaults to present")
+    p.add_argument("action",choices=("collect","audit"))
+    p.add_argument("--start",default="2024-01-01")
+    p.add_argument("--end",default=None)
+    p.add_argument("--root",default=str(ROOT))
+    p.add_argument("--limit",type=int,default=24)
+    p.add_argument("--request-limit",type=int,default=35)
     a=p.parse_args()
-    asof=utc_dt(a.asof) if a.asof else datetime.now(timezone.utc)
-    if asof is None or asof>datetime.now(timezone.utc)+timedelta(seconds=1):
-        raise ValueError("Invalid future as-of")
-    football=json.loads(Path(a.football).read_text(encoding="utf8"))
-    if a.snapshots_json:
-        snapshots=json.loads(Path(a.snapshots_json).read_text(encoding="utf8"))
-    else:
-        snapshots=list(retrieve_supabase(base_url=os.environ.get("SUPABASE_URL",""),
-             token=os.environ.get("SUPABASE_SERVICE_ROLE_KEY",""),end=max(
-             r["start_time"][:10] for r in football),asof=asof))
-    result,audit=enrich(football,snapshots,asof=asof)
-    audit.update({"source_rows":len(snapshots),"football_rows":len(result),
-                  "asof":asof.isoformat(),"source":"supabase_live_stats_sources_api_original",
-                  "xg_certified_final":False,"xg_type":"provisional_observed_90plus"})
-    atomic_json(a.output,result)
-    atomic_json(a.audit,audit)
-    print("XG_ENRICH_AUDIT",json.dumps(audit,ensure_ascii=False),flush=True)
+    key=key_from_environment()
+    end=date.fromisoformat(a.end) if a.end else utc_now().date()-timedelta(days=1)
+    start=date.fromisoformat(a.start)
+    if a.action=="collect":
+        result=collect(start,end,key=key,root=a.root,
+                       limit=a.limit,request_limit=a.request_limit)
+        print("ENCRYPTED_GITHUB_REAL_XG",json.dumps(result,ensure_ascii=False))
+        return 0
+    matches,missing,_=load_days(start,end,key=key,root=a.root,allow_missing=True)
+    enriched,status=enrich_from_encrypted(matches,key,root=a.root)
+    print("ENCRYPTED_GITHUB_REAL_XG_AUDIT",json.dumps({
+        **status,"football_days_missing":len(missing),
+        "certified_matches":len(enriched)},ensure_ascii=False))
+    return 0
 
-if __name__=="__main__":main()
+
+if __name__=="__main__":
+    sys.exit(main())
