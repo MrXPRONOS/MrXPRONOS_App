@@ -1,0 +1,101 @@
+name: ML V2 - First encrypted football day
+on:
+  workflow_dispatch:
+    inputs:
+      football_day:
+        description: 'UTC day to verify (one day only)'
+        required: true
+        default: '2026-10-20'
+permissions:
+  contents: write
+concurrency:
+  group: ml-v2-encrypted-history
+  cancel-in-progress: false
+jobs:
+  encrypted-one-day-check:
+    name: Certify, encrypt, verify and save one football day
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY }}
+      SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
+      SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
+      SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
+      SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
+      SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
+      TEST_DAY: ${{ inputs.football_day }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/single-ml-v2-20261024
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install minimal dependencies
+        run: python -m pip install cryptography requests
+      - name: Validate inputs and ensure both secret families exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$ML_V2_HISTORY_KEY_B64" || { echo 'ERROR Missing encryption secret'; exit 1; }
+          if [[ -z "$SPORTDATA_API_KEY" && -z "$SPORTDATA_API_KEY_1" && -z "$SPORTDATA_API_KEY_2" && -z "$SPORTDATA_API_KEY_3" && -z "$SPORTDATA_API_KEY_4" && -z "$SPORTDATA_API_KEY_5" ]]; then
+            echo 'ERROR No SportsAPI Pro secrets'
+            exit 1
+          fi
+          python - <<'PY'
+          import os
+          from datetime import date,datetime,timezone,timedelta
+          test_day=date.fromisoformat(os.environ["TEST_DAY"])
+          yesterday=datetime.now(timezone.utc).date()-timedelta(days=1)
+          if not (date(2024,1,1)<=test_day<=yesterday):
+              raise SystemExit("ERROR Select a completed day between 2024-01-01 and yesterday UTC")
+          print("Selected football calendar day:",test_day)
+          PY
+      - name: Fetch, certify and encrypt exactly one UTC day
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python research/single_ml_v2_git.py collect \
+            --start "$TEST_DAY" --end "$TEST_DAY" --limit 1
+      - name: Verify AES-GCM decryption in memory, no plaintext artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python - <<'PY'
+          import os
+          from datetime import date
+          from pathlib import Path
+          from single_ml_v2_git import day_data, key_from_environment, path_for
+          selected=date.fromisoformat(os.environ["TEST_DAY"])
+          path=path_for(selected)
+          if not path.is_file():
+              raise SystemExit("ERROR Certified encrypted day missing")
+          doc=day_data(path,key_from_environment(),selected)
+          if not doc["matches"]:
+              raise SystemExit("ERROR No certified football fixtures")
+          print("SUCCESS - certified football matches:",len(doc["matches"]))
+          print("SUCCESS - encrypted file:",path)
+          print("SUCCESS - encryption/decryption integrity verified")
+          PY
+      - name: Commit encrypted data only to the research branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add research/encrypted_football/manifest.enc
+          git add "research/encrypted_football/days/${TEST_DAY:0:4}/${TEST_DAY:5:2}/$TEST_DAY.enc"
+          if git diff --cached --name-only | grep -vE '^research/encrypted_football/(manifest\.enc|days/[0-9]{4}/[0-9]{2}/[0-9]{4}-[0-9]{2}-[0-9]{2}\.enc)$'; then
+            echo 'ERROR unexpected staged path'; exit 1
+          fi
+          if ! git diff --cached --quiet; then
+            git commit -m "data(research): first verified encrypted football day"
+            git push origin HEAD:research/single-ml-v2-20261024
+          else
+            echo 'Encrypted test day already present; no new Git commit necessary.'
+          fi
+      - name: Done - no public plaintext
+        run: echo 'SUCCESS - encrypted football checkpoint verified and saved in GitHub research branch.'
