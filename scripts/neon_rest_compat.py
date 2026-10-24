@@ -8,6 +8,8 @@ import json
 import os
 from urllib.parse import urlsplit
 import requests
+from decimal import Decimal
+from uuid import UUID
 
 TABLES = {
  "actu_foot_publications","actu_foot_live_events",
@@ -21,6 +23,8 @@ RPCS={"actu_foot_claim_publication","actu_foot_retryable_publications",
       "actu_foot_store_live_events"}
 
 def _serialize(value):
+ if isinstance(value,(Decimal,)):return float(value)
+ if isinstance(value,UUID):return str(value)
  if hasattr(value,"isoformat"):return value.isoformat()
  if isinstance(value,dict):return {k:_serialize(v) for k,v in value.items()}
  if isinstance(value,(list,tuple)):return [_serialize(x) for x in value]
