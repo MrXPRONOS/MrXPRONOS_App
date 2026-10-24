@@ -5,7 +5,7 @@ from types import SimpleNamespace as N
 
 from film_relay.anime_catalog import (
     classify, episode_numbers, series_title, slug, season_text,
-    main_index_text, public_buttons,
+    main_index_text, public_buttons, eligible_short_series,
 )
 from film_relay.category_runner import category_config
 from scripts.merge_anime_catalog import merge
@@ -22,6 +22,27 @@ def poster(number, caption):
 
 
 class AnimeCatalogTests(unittest.TestCase):
+    def test_full_twelve_episode_batch_selected(self):
+        poster_msg = poster(1, "Demo complet")
+        rows = classify([poster_msg] + [video(2+i, f"Episode_{i:02d}.mp4")
+                         for i in range(1, 13)], -100555)
+        groups = {"demo": rows}
+        chosen = eligible_short_series(groups, {"series": {}, "source_observed": {}}, 12)
+        self.assertEqual(len(chosen), 1)
+        self.assertEqual(len(chosen[0][1]), 12)
+
+    def test_series_longer_than_twelve_is_skipped(self):
+        p = poster(1, "Long Anime complet")
+        rows = classify([p] + [video(2+i, f"Episode_{i:02d}.mp4")
+                          for i in range(1, 15)], -100555)
+        self.assertEqual(eligible_short_series({"long-anime": rows}, {}, 12), [])
+
+    def test_incomplete_short_series_waits(self):
+        p = poster(1, "Unfinished anime")
+        rows = classify([p] + [video(2+i, f"Episode_{i:02d}.mp4")
+                          for i in range(1, 7)], -100555)
+        self.assertEqual(eligible_short_series({"unfinished-anime": rows}, {}, 12), [])
+
     def test_season_episode_formats(self):
         for value, wanted in (
             ("Naruto S01E03.mkv", (1, 3)),
