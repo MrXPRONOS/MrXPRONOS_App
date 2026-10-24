@@ -1,5 +1,28 @@
 # Mr XPRONOS – Inventory of Supabase dependencies and Neon transition
 
+## Mise à jour vérifiée — 24 octobre 2026
+
+**Tests effectivement réalisés sur GitHub Actions**
+- `Verify Neon migration adapters`, run **40053796834**: compilation / tests hors ligne **succès**, tests de sécurité des réservations Telegram **succès**, téléversement réel média avec GitHub OIDC vers Cloudflare et lecture publique sur Neon Object Storage **succès**.
+- Seul échec de cette série : `neon-database-smoke` ; les logs constatent **`NEON_DATABASE_URL` absent des secrets GitHub Actions**. Cette lacune empêche l'exécution de plusieurs workflows PostgreSQL malgré le code migré.
+- Tentative de relai automatique de secrets non retenue : l'accès au mot de passe Neon doit passer par le gestionnaire de secrets GitHub officiellement autorisé. Aucun mot de passe en code ou dans le rapport.
+- Rôle PostgreSQL dédié `mrxpronos_ci` créé, avec DML sur les tables applicatives requises et sans privilège propriétaire. Utiliser la chaîne de connexion PostgreSQL du rôle `mrxpronos_ci` et de la base `mrxpronos`.
+
+**Actions de restauration encore obligatoires**
+1. Dans **Neon Console → MrXPRONOS-Migration → Connect**, sélectionner la base `mrxpronos` et le rôle `mrxpronos_ci`, puis copier son URI de connexion complet avec TLS.
+2. Dans **GitHub → MrXPRONOS/MrXPRONOS_App → Settings → Secrets and variables → Actions → New repository secret**, créer `NEON_DATABASE_URL`. Coller l'URI sans la diffuser dans une issue, une PR ni un message de chat.
+3. Relancer `Verify Neon migration adapters`, vérifier l'étape `neon-database-smoke`, puis vérifier les workflows de coupons, Actu Foot et surveillance Telegram.
+4. **La PR #222 comporte des conflits avec `main`** (au moins 18 chemins modifiés de part et d'autre). Ne pas forcer une fusion avant réconciliation et nouveaux tests.
+5. Les fonctions Push et CMS Publish exigent encore un backend Cloudflare avec authentification et autorisations; ne pas annoncer ces services comme rétablis.
+6. Les anciens jobs `live-refresh-failover.yml`, `neon-media-transfer-dispatch.yml`, `neon-media-oidc.yml`, `threads-video-recovery-20261018.yml` sont neutralisés sur la branche; les archives sources sont conservées.
+
+**État des données confirmé en lecture** : Neon `users=7157`, `analytics=11212`, `telegram_sent=739`, `admin_users=1`, avec `telegram_channel_metrics_daily=67` lignes historiques. Le bucket `videos` est configuré en `public_read`.
+
+**Important** : ce document conserve ci-dessous les observations **historiques du 23 octobre**, dont certaines parlent de tables vides avant importation ou d'éléments non encore migrés. La présente section du 24 octobre prévaut sur ces observations obsolètes.
+
+---
+
+
 Audit date: 2026-10-23. Source: GitHub main at 83f72e97 plus direct Neon and Cloudflare read-only inspections.
 This is a migration progress register, not a certificate that all 206 workflows are migrated.
 
