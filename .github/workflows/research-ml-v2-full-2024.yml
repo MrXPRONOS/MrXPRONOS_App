@@ -1,0 +1,88 @@
+name: Research ML V2 - Full 2024 CC0 encrypted archive
+on:
+  push:
+    branches:
+      - research/single-ml-v2-20261024
+    paths:
+      - '.github/workflows/research-ml-v2-full-2024.yml'
+permissions:
+  contents: write
+concurrency:
+  group: ml-v2-encrypted-history
+  cancel-in-progress: false
+jobs:
+  full-year-2024:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/single-ml-v2-20261024
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install research and cryptography dependencies
+        run: python -m pip install cryptography requests numpy scipy scikit-learn lightgbm==4.6.0 catboost==1.2.8
+      - name: Validate encryption key without disclosing it
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python - <<'PY'
+          from single_ml_v2_git import key_from_environment
+          assert len(key_from_environment()) == 32
+          print('AES-256 key verified. No key value printed.')
+          PY
+      - name: Test 2024 source provenance, day-precision and AES-GCM roundtrip
+        run: PYTHONPATH=.:research python -m unittest discover -s research -p test_single_ml_v2_openfootball2024.py -v
+      - name: Download complete 2024 calendar from CC0 season files and encrypt
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python research/single_ml_v2_openfootball2024.py collect
+      - name: Verify ciphertext and source audit in memory
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python - <<'PY'
+          from pathlib import Path
+          from single_ml_v2_git import key_from_environment,open_sealed
+          path=Path('research/encrypted_football/openfootball/2024.enc')
+          if not path.exists():raise SystemExit('ERROR: missing encrypted year file')
+          doc=open_sealed(path.read_bytes(),key_from_environment(),
+                          'openfootball-cc0-calendar-2024')
+          report=doc['audit']
+          assert doc['year']==2024 and report['calendar_days']==366
+          assert len(doc['matches'])==report['matches']
+          assert report['season_files_failed']==0
+          assert report['season_files_checked']==report['season_files_expected']
+          assert all(r['date'].startswith('2024-') for r in doc['matches'])
+          print('ENCRYPTED_YEAR_2024_OK matches=',report['matches'])
+          print('COMPETITIONS=',report['divisions'],
+                'SEASON_FILES=',report['season_files_checked'],
+                'ACTIVE_DAYS=',report['match_days'])
+          print('MONTHLY_MATCHES=',report['by_month'])
+          print('NOTE: documented CC0 league subset; not all global football.')
+          PY
+      - name: Commit ONLY encrypted annual 2024 result to research branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add research/encrypted_football/openfootball/2024.enc
+          actual="$(git diff --cached --name-only)"
+          if [[ -n "$actual" && "$actual" != "research/encrypted_football/openfootball/2024.enc" ]]; then
+            echo 'ERROR: plaintext or unexpected staged content'; exit 1
+          fi
+          if ! git diff --cached --quiet; then
+            git commit -m 'data(research): one-shot full-calendar 2024 CC0 encrypted league results'
+            git push origin HEAD:research/single-ml-v2-20261024
+          else
+            echo 'Encrypted annual 2024 archive already present. No overwrite.'
+          fi
+      - name: Complete full-year 2024 CC0 research
+        run: echo 'One-shot 2024 CC0 league match archive encrypted and saved on research branch; source scope audited.'
