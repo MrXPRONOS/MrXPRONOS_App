@@ -9,6 +9,7 @@ on:
       - 'scripts/neon_telegram_ledger.py'
       - 'scripts/neon_public_media.py'
       - 'scripts/telegram_channel_monitor_v2.py'
+      - 'tests/test_telegram_monitor_neon.py'
       - 'scripts/telegram_research/discover_foot_channels.py'
       - 'cloudflare/mrxpronos-admin-media/worker.mjs'
       - 'bsd/bsd_v2_telegram.py'
@@ -52,6 +53,20 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_neon_migration_adapters.py' -v
       - name: Existing API-Football normalization tests
         run: python -m unittest scripts.test_api_football_live_stats -v
+
+  telegram-monitor-unit:
+    name: Check Telegram monitoring lease safety (offline)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install offline dependencies
+        run: python -m pip install 'telethon>=1.36,<2' 'requests>=2.31,<3' 'psycopg[binary]>=3.2,<4'
+      - name: Test Neon lease ownership and anti-duplicate report
+        run: python -m unittest discover -s tests -p 'test_telegram_monitor_neon.py' -v
 
   public-media-smoke:
     name: Verify GitHub OIDC Cloudflare Neon upload
