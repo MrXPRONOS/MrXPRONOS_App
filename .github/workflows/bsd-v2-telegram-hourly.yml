@@ -27,7 +27,7 @@ on:
           - "production"
 
 permissions:
-  contents: write
+  contents: read
   id-token: write
 
 concurrency:
@@ -49,7 +49,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
-          persist-credentials: true
+          persist-credentials: false
       - name: Python runtime
         uses: actions/setup-python@v5
         with:
@@ -94,13 +94,9 @@ jobs:
           python -m py_compile bsd/bsd_v2_telegram.py scripts/telegram_ledger_gateway.py
           python -m unittest discover -s tests -p test_telegram_ledger_gateway.py -v
       - name: Send single picks and combinations around one hour before kickoff
-        id: coupon_send
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        shell: bash
-        run: |
-          set -o pipefail
-          python bsd/bsd_v2_telegram.py --data data.json 2>&1 | tee telegram-production-probe.log
+        run: python bsd/bsd_v2_telegram.py --data data.json
 
       # Bluesky shares the production cron cadence, but test Telegram runs never post.
       - name: Publish eligible BSD V2 cards to Bluesky (production only)
@@ -122,49 +118,3 @@ jobs:
           python -m pip install 'atproto>=0.0.60,<1'
           python bsd/bsd_v2_bluesky.py --data data.json --publish --max-posts 4
 
-      - name: Record production coupon workflow probe
-        if: ${{ always() }}
-        env:
-          PROBE_ID: ${{ github.run_id }}
-          PROBE_ATTEMPT: ${{ github.run_attempt }}
-          PROBE_SHA: ${{ github.sha }}
-          PROBE_EVENT: ${{ github.event_name }}
-          PROBE_COUPON: ${{ steps.coupon_send.outcome }}
-          PROBE_DEST: ${{ steps.route.outputs.destination }}
-        run: |
-          python - <<'PY'
-          import os, json, datetime
-          from pathlib import Path
-          log=Path("telegram-production-probe.log")
-          raw=log.read_text(encoding="utf-8",errors="replace") if log.exists() else ""
-          report=None
-          for line in raw.splitlines():
-              if line.startswith("BSD_V2_TELEGRAM:"):
-                  try: report=json.loads(line.split(":",1)[1].strip())
-                  except (ValueError,TypeError): pass
-          data={
-              "run_id":os.environ["PROBE_ID"],"attempt":os.environ["PROBE_ATTEMPT"],
-              "event":os.environ["PROBE_EVENT"],"trigger_sha":os.environ["PROBE_SHA"],
-              "checked_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),
-              "destination":os.environ.get("PROBE_DEST"),
-              "coupon_step":os.environ.get("PROBE_COUPON"),
-              "report":report,
-              "error_hints":[line[:150] for line in raw.splitlines()
-                  if line.startswith(("TELEGRAM_BSD_ERROR:","BSD_COMBO_ERROR","TELEGRAM_BSD_RELEASE_ERROR:"))][:5],
-          }
-          p=Path("ops/probes/telegram-"+data["run_id"]+".json")
-          p.parent.mkdir(parents=True,exist_ok=True)
-          p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-          print("MRX_TELEGRAM_PROBE",json.dumps(data,ensure_ascii=False))
-          PY
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "ops/probes/telegram-${PROBE_ID}.json"
-          git commit -m "ops(probe): record Telegram production attempt [skip ci]" || exit 0
-          for attempt in 1 2 3 4; do
-            git pull --rebase origin main
-            if git push origin HEAD:main; then exit 0; fi
-            sleep "$attempt"
-          done
-          echo "::error::Could not persist Telegram probe" >&2
-          exit 1
