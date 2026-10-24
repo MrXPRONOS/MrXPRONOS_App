@@ -1,0 +1,27 @@
+{
+  "year": 2024,
+  "months_verified": 12,
+  "baseline_openfootball_records": 5789,
+  "bsd_sportscore_month_records": 83425,
+  "source_entries": {
+    "openfootball_cc0": 5789,
+    "bsd_v2_2024": 20239,
+    "sportscore_2024": 63186
+  },
+  "distinct_safe_matches": 87948,
+  "duplicates_same_identity_same_score": 1266,
+  "conflicting_outcome_identities_quarantined": 0,
+  "kept_by_source": {
+    "bsd_v2_2024": 20239,
+    "openfootball_football_json_cc0": 4523,
+    "sportscore_2024": 63186
+  },
+  "sportscore_daily_limit": "200; some 2024 dates may be truncated",
+  "sportscore_failed_days": 19,
+  "sportscore_at_cap_days": 278,
+  "scope": "audited source coverage only; NOT all real-world football matches",
+  "sources": "OpenFootball CC0, BSD API, SportScore",
+  "verified_utc_kickoff_only_when_source_supplies_it": true,
+  "missing_xg_not_invented": true,
+  "no_supabase_or_neon": true
+}
