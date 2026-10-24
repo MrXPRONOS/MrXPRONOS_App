@@ -2,7 +2,7 @@
 """BSD V2 -> Telegram: 20h batch of night coupons plus normal daily windows.
 
 Night coupons: 21h–05h local Togo time (UTC) grouped at 20h.
-Supabase unique(kind,ref_id,ref_date) prevents resending eligible picks.
+Cloudflare D1 unique(kind,ref_id,ref_date) prevents duplicate coupons.
 """
 import argparse,json,os,time
 from datetime import datetime,timedelta,timezone
@@ -17,6 +17,7 @@ from bsd_v2_night import is_night_match,matches_for_night,batch_date
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parent.parent/"scripts"))
 from telegram_rich import post_photo
+from telegram_ledger_gateway import Ledger
 
 KIND="bsd_v2_hourly"
 COMBO_KIND="bsd_v2_combo_hourly"
@@ -173,7 +174,12 @@ def send_combo(session,token,chat,combo,*,night=False):
         caption=combo_caption(combo,night=night)
         return post_photo(session,token,chat,photo,caption,prediction_action_buttons(pack),timeout=60)
 
-def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
+def process(data,now,*,session,token,chat_ids,ledger):
+    """Publish BSD photos using the same historical D1 keys as Supabase.
+
+    Reservation is atomic. On ambiguous Telegram or D1 errors the claim is
+    deliberately retained; automatically releasing it could duplicate posts.
+    """
     if data.get("source")!="bsd" or data.get("model_version")!="bsd-v2-isolated":
         raise ValueError("Production JSON is not BSD V2")
     night_matches=matches_for_night(data["matches"],now)
@@ -184,25 +190,22 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
             "night_matches":len(night_matches),"night_picks_sent":0,"night_combos_sent":0}
     for match in selections:
         for chat in chat_ids:
-            claimed=False
+            event_id=str(match.get("_telegram_selection_ref") or match["id"])
+            ref=str(chat)+":"+event_id
             try:
-                claimed=claim(session,supabase_url,supabase_key,match,chat)
-                if not claimed:
+                if not ledger.claim(KIND,ref,str(match["date"])):
                     report["already_claimed"]+=1
                     continue
                 night=is_night_match(match)
-                send_one(session,token,chat,match,night=night)
+                message_id=send_one(session,token,chat,match,night=night)
+                ledger.mark(KIND,ref,str(match["date"]),message_id=message_id)
                 report["sent"]+=1
                 if night:report["night_picks_sent"]+=1
                 time.sleep(.3)
-            except Exception as e:
+            except Exception as exc:
                 report["errors"]+=1
-                print("TELEGRAM_BSD_ERROR:",match["id"],type(e).__name__,str(e)[:180])
-                if claimed:
-                    try:
-                        release_failed_claim(session,supabase_url,supabase_key,match,chat)
-                    except Exception as release_error:
-                        print("TELEGRAM_BSD_RELEASE_ERROR:",type(release_error).__name__)
+                print("TELEGRAM_BSD_ERROR:",match["id"],type(exc).__name__)
+                # Uncertain network errors retain the D1 reservation.
     combo_picks=combos_due(data["matches"],now)
     from bsd_v2_combos import build_combos
     from bsd_v2_night import night_date
@@ -214,39 +217,20 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
     report["combos_claimed"]=0
     for combo in combo_picks:
         for chat in chat_ids:
-            # Kind is separate from one-event predictions but uses the
-            # existing unique kind+ref_id+date Supabase ledger.
-            claimed=False
             try:
-                combo_ref={"id":combo["id"],"date":combo["date"]}
                 ref=combo_ledger_ref(chat,combo)
-                response=session.post(supabase_url.rstrip("/")+"/rest/v1/telegram_sent",
-                    params={"on_conflict":"kind,ref_id,ref_date"},
-                    headers=headers(supabase_key),
-                    json={"kind":COMBO_KIND,"ref_id":ref,
-                          "ref_date":combo_ref["date"],"validation_sent":False},timeout=30)
-                response.raise_for_status()
-                claimed=isinstance(response.json(),list) and bool(response.json())
-                if not claimed:
+                if not ledger.claim(COMBO_KIND,ref,str(combo["date"])):
                     report["combos_claimed"]+=1
                     continue
                 night=night_mode and is_night_match(combo["legs"][0])
-                send_combo(session,token,chat,combo,night=night)
+                message_id=send_combo(session,token,chat,combo,night=night)
+                ledger.mark(COMBO_KIND,ref,str(combo["date"]),message_id=message_id)
                 report["combos_sent"]+=1
                 if night:report["night_combos_sent"]+=1
             except Exception as exc:
                 report["errors"]+=1
-                print("BSD_COMBO_ERROR",combo["id"],type(exc).__name__,str(exc)[:170])
-                if claimed:
-                    try:
-                        session.delete(supabase_url.rstrip("/")+"/rest/v1/telegram_sent",
-                            params={"kind":"eq."+COMBO_KIND,"ref_id":"eq."+ref,
-                                    "ref_date":"eq."+combo["date"]},
-                            headers=headers(supabase_key),timeout=30).raise_for_status()
-                    except Exception as secondary:
-                        print("BSD_COMBO_RELEASE_ERROR",type(secondary).__name__)
+                print("BSD_COMBO_ERROR",combo["id"],type(exc).__name__)
     return report
-
 
 def main():
     p=argparse.ArgumentParser()
@@ -270,11 +254,10 @@ def main():
         return
     token=os.getenv("TELEGRAM_BOT_TOKEN")
     chat=os.getenv("TELEGRAM_CHAT_ID")
-    sb_url=os.getenv("SUPABASE_URL")
-    sb_key=os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY")
-    if not all((token,chat,sb_url,sb_key)):raise RuntimeError("Missing Telegram or Supabase secrets")
+    if not all((token,chat)):raise RuntimeError("Missing Telegram secrets")
+    ledger=Ledger()
     report=process(data,now,session=requests.Session(),token=token,
-                   chat_ids=[chat],supabase_url=sb_url,supabase_key=sb_key)
+                   chat_ids=[chat],ledger=ledger)
     print("BSD_V2_TELEGRAM:",json.dumps(report))
     if report["errors"]:raise SystemExit("Telegram delivery errors; investigate ledger")
 
