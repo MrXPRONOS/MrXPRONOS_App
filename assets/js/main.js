@@ -2710,18 +2710,24 @@ async function displayFootNews() {
   try {
     let rssNews = [];
 
-    // Source principale : snapshot Neon public via Neon Auth (aucun appel Supabase).
-    // Le JSON Git conserve le rôle de secours si Neon est temporairement inaccessible.
+    // Source principale: snapshot statique publié sur GitHub Pages.
+    // Évite les limitations Neon / Supabase pendant leur indisponibilité.
     try {
-      const {loadNeonFootNews}=await import("./actu-foot-neon.js");
-      rssNews=await loadNeonFootNews();
-    } catch (snapshotError) {
-      console.warn("Snapshot Infos Foot Neon indisponible",snapshotError?.message||"Erreur");
-    }
-
-    if (!rssNews.length) {
       const resp = await fetch(`footnews.json?t=${Date.now()}`, { cache: "no-cache" });
       rssNews = resp.ok ? await resp.json() : [];
+    } catch (snapshotError) {
+      console.warn("Actualités GitHub Pages indisponibles", snapshotError?.message || "Erreur");
+    }
+
+    // Neon reste un recours de lecture seulement si le JSON public manque.
+    // Ne pas remplacer un flux Git frais par un snapshot Neon périmé.
+    if (!rssNews.length) {
+      try {
+        const {loadNeonFootNews}=await import("./actu-foot-neon.js");
+        rssNews=await loadNeonFootNews();
+      } catch (neonError) {
+        console.warn("Source de secours Neon indisponible", neonError?.message || "Erreur");
+      }
     }
 
     const manualInfos = Array.isArray(window.publishedInfos) ? window.publishedInfos : [];
