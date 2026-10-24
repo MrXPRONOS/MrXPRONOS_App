@@ -117,6 +117,13 @@ jobs:
           PYTHONPATH=.:research python research/single_ml_v2_prepare_xg.py --source /tmp/mrx_football_history.json --out /tmp/mrx_football_with_xg.json
           python -m pip install numpy scipy scikit-learn lightgbm==4.6.0 catboost==1.2.8
           PYTHONPATH=.:research python research/single_ml_v2.py --source /tmp/mrx_football_with_xg.json --start 2026-01-01 --end "$end" --out /tmp/ml-v2-output
+          test_start="$(date -u -d "$end - 60 days" +%F)"
+          validation_start="$(date -u -d "$test_start - 60 days" +%F)"
+          PYTHONPATH=.:research python research/single_ml_v2_validation.py \
+            --predictions /tmp/ml-v2-output/all_predictions.csv \
+            --validation-start "$validation_start" \
+            --test-start "$test_start" --test-end "$end" \
+            --output /tmp/ml-v2-output/independent_validation.json
       - uses: actions/upload-artifact@v4
         if: ${{ steps.collect.outputs.complete == 'true' && inputs.train_after_completion }}
         with:
