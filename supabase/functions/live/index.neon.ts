@@ -6326,8 +6326,23 @@ async function reuseCachedStats(matches: any[]) {
     const cached = row?.raw_data || null;
     if (!cached) return match;
 
+    // Cache boundary: the same source id alone does not establish a safe
+    // observation. Never carry stats into a different kickoff or a finished
+    // match; never promote market counts older than ten minutes as current.
+    const sameFixture =
+      String(cached?.id||"")===String(match?.id||"") &&
+      String(cached?.event_date||"")===String(match?.event_date||"") &&
+      Boolean(cached?.event_date) &&
+      cached?.is_live===true && match?.is_live===true &&
+      cached?.is_finished!==true && match?.is_finished!==true;
+    const cacheObservedAt=Date.parse(String(
+      cached?.stats_last_updated_at||cached?.raw_data?.stats_last_updated_at||""
+    ));
+    const cachedStatAge=Date.now()-cacheObservedAt;
+    const safeCachedStats=sameFixture && Number.isFinite(cacheObservedAt) &&
+      cachedStatAge>=-5000 && cachedStatAge<=600000;
     const mergedStats = mergeLiveStats(
-      cached?.live_stats || cached?.raw_data?.live_stats || {},
+      safeCachedStats ? (cached?.live_stats||cached?.raw_data?.live_stats||{}) : {},
       getMatchLiveStats(match),
     );
 
@@ -6354,8 +6369,8 @@ async function reuseCachedStats(matches: any[]) {
       live_stats: mergedStats,
       stats_last_updated_at:
         match?.stats_last_updated_at ||
-        cached?.stats_last_updated_at ||
-        cached?.raw_data?.stats_last_updated_at ||
+        (safeCachedStats ? (cached?.stats_last_updated_at ||
+          cached?.raw_data?.stats_last_updated_at) : null) ||
         null,
       raw_data: {
         ...(match?.raw_data || {}),
