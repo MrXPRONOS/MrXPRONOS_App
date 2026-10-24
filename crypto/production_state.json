@@ -10,7 +10,7 @@
   },
   "alert_levels": {
     "BNB": {
-      "direction": "up",
+      "direction": "down",
       "level": 0
     },
     "BTC": {
