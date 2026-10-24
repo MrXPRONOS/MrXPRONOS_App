@@ -7,8 +7,8 @@ Publie daily_pronos_shorts.mp4 sur plusieurs plateformes après la génération 
 
 Plateformes supportées :
 - Facebook Page : upload direct du fichier local via Meta Graph Video API
-- Instagram Reels : nécessite une URL vidéo publique (Neon Storage)
-- Threads : nécessite une URL vidéo publique (Neon Storage)
+- Instagram Reels : URL vidéo publique Cloudflare KV, indépendante de Neon et Supabase
+- Threads : URL vidéo publique Cloudflare KV, indépendante de Neon et Supabase
 - TikTok : upload direct via Content Posting API, si app/token autorisés
 - YouTube Shorts : upload direct via YouTube Data API avec refresh token OAuth
 - Bluesky : upload MP4 natif, anti-doublon Cloudflare D1, même campagne que les autres plateformes
@@ -16,7 +16,7 @@ Plateformes supportées :
 Usage GitHub Actions :
 python scripts/post_shorts_video.py --video daily_pronos_shorts.mp4 --platforms facebook,youtube
 
-Pour Instagram/Threads : URL publique fournie ou transfert vers Neon Storage via GitHub OIDC.
+Pour Instagram/Threads : URL publique ou transfert sécurisé vers Cloudflare KV avec GitHub OIDC.
 """
 
 from __future__ import annotations
@@ -113,15 +113,15 @@ def make_description(user_description: Optional[str]) -> str:
 
 
 # =====================================================
-# HÉBERGEMENT PUBLIC : NEON STORAGE (via GitHub OIDC)
+# HÉBERGEMENT PUBLIC : CLOUDFLARE KV (via GitHub OIDC)
 # =====================================================
 def resolve_public_url(video_path: Path, explicit_url: Optional[str]) -> Optional[str]:
-    """Return an externally readable MP4 URL; never silently fall back to Supabase."""
+    """Return a verified public MP4 URL; never require Neon or Supabase."""
     if explicit_url:
         return explicit_url
     if env("PUBLIC_VIDEO_URL"):
         return env("PUBLIC_VIDEO_URL")
-    from neon_public_media import upload_public_media
+    from cloudflare_public_media import upload_public_media
     stamp = datetime.now(timezone.utc).strftime("%Y/%m/%d")
     digest = hashlib.sha256(video_path.read_bytes()).hexdigest()[:24]
     key = f"shorts/{stamp}/{digest}.mp4"
@@ -193,7 +193,7 @@ def post_instagram_reel(public_video_url: Optional[str], caption: str) -> Publis
         return PublishResult(
             platform,
             False,
-            "URL vidéo publique requise pour Instagram Reels : vérifier Neon Storage/OIDC.",
+            "URL vidéo publique requise pour Instagram Reels : vérifier Cloudflare KV/OIDC.",
         )
 
     ig_user_id = env("IG_USER_ID")
@@ -269,7 +269,7 @@ def post_threads(public_video_url: Optional[str], caption: str) -> PublishResult
         return PublishResult(
             platform,
             False,
-            "URL vidéo publique requise pour Threads : vérifier Neon Storage/OIDC.",
+            "URL vidéo publique requise pour Threads : vérifier Cloudflare KV/OIDC.",
         )
 
     user_id = env("THREADS_USER_ID")

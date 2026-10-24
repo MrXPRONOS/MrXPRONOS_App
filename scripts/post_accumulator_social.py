@@ -24,7 +24,7 @@ def post(url,**kwargs):
  return d
 
 def public_url(image,day):
- from neon_public_media import upload_public_media
+ from cloudflare_public_media import upload_public_media
  # Immutable object name prevents simultaneous jobs overwriting public photos.
  import hashlib
  digest=hashlib.sha256(Path(image).read_bytes()).hexdigest()[:24]
