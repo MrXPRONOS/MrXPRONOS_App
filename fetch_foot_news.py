@@ -525,8 +525,20 @@ def persist_public_news_snapshot(records: list[dict]) -> bool:
 def main() -> None:
     records, diagnostics = fetch_news()
     save_news(records, diagnostics)
-    if not persist_public_news_snapshot(records):
-        raise RuntimeError("NEWS_NEON_SNAPSHOT_NOT_PUBLISHED: publication réelle du snapshot non confirmée")
+    backend = os.getenv("FOOTNEWS_BACKEND", "neon").strip().lower()
+    if backend == "github":
+        # Site public: les photos d'origine sont chargées directement depuis
+        # les sites d'actualité. Aucun quota Neon/Supabase pour le lecteur.
+        published = public_snapshot_records(records)
+        if not published:
+            raise RuntimeError("NEWS_STATIC_EMPTY: aucun article vérifié")
+        NEWS_FILE.write_text(json.dumps(published, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        logger.info("NEWS_GITHUB_STATIC_READY %s", len(published))
+    elif backend == "neon":
+        if not persist_public_news_snapshot(records):
+            raise RuntimeError("NEWS_NEON_SNAPSHOT_NOT_PUBLISHED: publication réelle du snapshot non confirmée")
+    else:
+        raise ValueError("FOOTNEWS_BACKEND inconnu: " + backend)
 
 
 if __name__ == "__main__":
