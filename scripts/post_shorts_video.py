@@ -578,11 +578,8 @@ def post_bluesky_video(video_path: Path, caption: str, title: str) -> PublishRes
     platform = "bluesky"
     handle = (env("BLUESKY_HANDLE") or "").lstrip("@").lower()
     password = env("BLUESKY_APP_PASSWORD")
-    base = env("SUPABASE_URL")
-    key = env("SUPABASE_SERVICE_ROLE_KEY") or env("SUPABASE_KEY")
-    if not all((handle, password, base, key)):
-        return PublishResult(platform, False,
-                             "BLUESKY_HANDLE, BLUESKY_APP_PASSWORD et secrets Supabase requis")
+    if not all((handle, password)):
+        return PublishResult(platform, False, "Identifiants Bluesky absents")
 
     size = video_path.stat().st_size
     if not 100_000 <= size <= 50_000_000 or video_path.suffix.lower() != ".mp4":
@@ -596,12 +593,12 @@ def post_bluesky_video(video_path: Path, caption: str, title: str) -> PublishRes
     ident = ("bsd_v2_bluesky_video", handle + ":sha256:" + sha256, ref_date)
 
     from atproto import Client
-    from share_latest_video_bluesky import claim, release
+    from d1_publication_ledger import D1Ledger
 
     client = Client()
     client.login(handle, password)  # Verify auth BEFORE creating a dedup reservation.
-    session = requests.Session()
-    if not claim(session, base, key, ident):
+    ledger = D1Ledger()
+    if not ledger.claim(*ident):
         # The existing claim could represent a prior successful upload OR an
         # ambiguous timeout: do not claim unverified publication success.
         return PublishResult(platform, False,
@@ -625,9 +622,10 @@ def post_bluesky_video(video_path: Path, caption: str, title: str) -> PublishRes
         # Keep reservation after an ambiguous network/upload failure: never
         # automatically send a second video that might already exist.
         if not upload_started:
-            release(session, base, key, ident)
+            ledger.release(*ident)
         raise
 
+    ledger.mark(*ident)
     url = "https://bsky.app/profile/" + handle + "/post/" + uri.rsplit("/", 1)[-1]
     return PublishResult(platform, True, "Bluesky OK: " + url,
                          {"id": uri, "url": url, "status": "published"})
