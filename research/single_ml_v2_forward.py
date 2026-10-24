@@ -20,6 +20,8 @@ from itertools import groupby
 from pathlib import Path
 from types import SimpleNamespace
 import hashlib,hmac,json,math,os,secrets,subprocess,sys
+from functools import lru_cache
+import requests
 
 import numpy as np
 
@@ -219,6 +221,50 @@ def git_commit_time(path,*,repo_root="."):
     return times[0]
 
 
+@lru_cache(maxsize=128)
+def github_server_run(run_id, repository):
+    """GitHub-hosted creation/completion times, not self-declared commit clocks."""
+    if not str(run_id).isdigit() or not repository or "/" not in repository:
+        raise ValueError("Missing authoritative Actions run ID or repository")
+    token=os.getenv("GH_RESEARCH_READ_TOKEN")
+    if not token:
+        raise RuntimeError("GitHub Actions read token unavailable for server provenance")
+    url=f"https://api.github.com/repos/{repository}/actions/runs/{run_id}"
+    resp=requests.get(url,headers={"Authorization":"Bearer "+token,
+                    "Accept":"application/vnd.github+json",
+                    "X-GitHub-Api-Version":"2022-11-28"},timeout=25)
+    resp.raise_for_status()
+    obj=resp.json()
+    if str(obj.get("id"))!=str(run_id):
+        raise ValueError("Wrong GitHub run response")
+    return obj
+
+
+def verify_server_pre_kickoff(issued_record, kickoff):
+    """In CI, refuse settlement without GitHub SERVER run completion proof.
+
+    The workflow must have FINISHED successfully well before kickoff.
+    This supplement is stronger than forgeable Git author/committer dates.
+    """
+    if os.getenv("GITHUB_ACTIONS")!="true":
+        return False  # A local fixture test is never considered hosted evidence.
+    run_id=issued_record.get("github_workflow_run")
+    repo=os.getenv("GITHUB_REPOSITORY")
+    info=github_server_run(run_id,repo)
+    if info.get("status")!="completed" or info.get("conclusion")!="success":
+        raise ValueError("Pre-kickoff workflow was not successfully completed")
+    if info.get("name")!="ML V2 - blind prekickoff football research":
+        raise ValueError("Prediction did not come from official research workflow")
+    started=utc_dt(info.get("created_at"))
+    ended=utc_dt(info.get("updated_at"))
+    issued=utc_dt(issued_record.get("issued_at"))
+    if not started or not ended or not issued or started>issued or ended<issued:
+        raise ValueError("Inconsistent hosted run timestamps")
+    if ended+timedelta(minutes=MIN_LEAD_MINUTES)>=kickoff:
+        raise ValueError("GitHub-hosted run did not complete before prematch cutoff")
+    return True
+
+
 def stage(history,*,key,now=None,fetcher=fetch_games,root=ROOT,hours=30,repo_root="."):
     timestamp=now or utcnow()
     history=Path(history)
@@ -312,10 +358,11 @@ def settle(*,key,now=None,days=10,root=ROOT,fetcher=fetch_games,repo_root="."):
                 raise ValueError("Rejected: encrypted forecast commit did not precede kickoff by required lead")
             if commit_at<utc_dt(doc["issued_at"])-timedelta(minutes=5):
                 raise ValueError("Git commit time precedes forecasting event")
-            outstanding.append((path,row,commit_at))
+            hosted=verify_server_pre_kickoff(doc,kickoff)
+            outstanding.append((path,row,commit_at,hosted))
     source_cache={}
     stats=Counter()
-    for path,row,commit_at in outstanding:
+    for path,row,commit_at,hosted in outstanding:
         fixture=row["fixture"]
         kickoff=utc_dt(fixture["kickoff"])
         if kickoff.date() not in source_cache:
@@ -329,6 +376,7 @@ def settle(*,key,now=None,days=10,root=ROOT,fetcher=fetch_games,repo_root="."):
         record={"version":VERSION,"original_forecast_sha256":
                 hashlib.sha256(path.read_bytes()).hexdigest(),
                 "forecast_file":str(path),"original_git_commit_at":commit_at.isoformat(),
+                "github_hosted_run_verified":hosted,
                 "fixture":fixture,"settlement":resolution}
         atomic_bytes(settled_path(key,fixture,root=root),
                      seal(record,key,"prospective:settled"))
@@ -355,6 +403,8 @@ def forward_report(*,key,now=None,root=ROOT,repo_root=".",test_start=TEST_START)
             if commit_at+timedelta(minutes=MIN_LEAD_MINUTES)>=kickoff or commit_at<issued_at-timedelta(minutes=5):
                 late_or_tampered+=1
                 continue
+            if now>kickoff+timedelta(hours=MIN_SETTLEMENT_HOURS):
+                verify_server_pre_kickoff(doc,kickoff)
             settled_file=settled_path(key,fixture,root=root)
             if not settled_file.exists():
                 pending+=1
@@ -363,6 +413,8 @@ def forward_report(*,key,now=None,root=ROOT,repo_root=".",test_start=TEST_START)
             if settlement["original_forecast_sha256"]!=hashlib.sha256(path.read_bytes()).hexdigest():
                 raise ValueError("Settlement does not match original immutable forecast")
             if settlement["fixture"]!=fixture:raise ValueError("Settlement fixture changed")
+            if os.getenv("GITHUB_ACTIONS")=="true" and settlement.get("github_hosted_run_verified") is not True:
+                raise ValueError("Settlement has no verified GitHub-hosted prematch run")
             h,a=(settlement["settlement"]["home_goals"],settlement["settlement"]["away_goals"])
             if kickoff.date()<test_start:continue
             for model,pred in event["models"].items():
@@ -383,7 +435,7 @@ def forward_report(*,key,now=None,root=ROOT,repo_root=".",test_start=TEST_START)
                     "log_loss":-math.log(max(float(probs[h,a]),1e-15)),
                     "quoted_odds":None,
                 })
-    outcomes={"version":VERSION,"status":"BLIND_PREKICKOFF_VERIFIED" if any(source_rows.values()) else "NOT_EVALUABLE",
+    outcomes={"version":VERSION,"status":("BLIND_PREKICKOFF_GITHUB_ATTESTED" if os.getenv("GITHUB_ACTIONS")=="true" else "LOCAL_GIT_ONLY_UNVERIFIED") if any(source_rows.values()) else "NOT_EVALUABLE",
               "start":str(test_start),"generated_at":now.isoformat(),
               "total_issued":len(seen),"awaiting_result":pending,
               "late_or_invalid_commit":late_or_tampered,
