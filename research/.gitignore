@@ -1,0 +1,4 @@
+# Never commit decrypted ML-V2 research history
+private/
+*.decrypted.json
+*.plaintext.json
