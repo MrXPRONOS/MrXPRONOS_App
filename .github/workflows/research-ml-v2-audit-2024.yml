@@ -37,6 +37,7 @@ jobs:
           assert all(m.get("sportId")==1 and m.get("is_finished") is True for m in rows)
           assert all(str(m["date"]).startswith("2024-") for m in rows)
           assert len({(m["date"],m["home_team"],m["away_team"]) for m in rows})==len(rows)
+          assert len({m["id"] for m in rows})==len(rows)
           print("ML_READY_2024_MULTI_SOURCE_ROWS",len(rows))
           p.unlink()
           print("DECRYPTED_PLAINTEXT_DELETED_FROM_EPHEMERAL_RUNNER")
