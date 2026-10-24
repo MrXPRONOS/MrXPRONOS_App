@@ -358,7 +358,7 @@ def settle(*,key,now=None,days=10,root=ROOT,fetcher=fetch_games,repo_root="."):
             if target.exists():continue
             commit_at=git_commit_time(path,repo_root=repo_root)
             if commit_at+timedelta(minutes=MIN_LEAD_MINUTES)>=kickoff:
-                raise ValueError("Rejected: encrypted forecast commit did not precede kickoff by required lead")
+                raise ValueError("Rejected: encrypted forecast was not committed >=45min before kickoff")
             if commit_at<utc_dt(doc["issued_at"])-timedelta(minutes=5):
                 raise ValueError("Git commit time precedes forecasting event")
             hosted=verify_server_pre_kickoff(doc,kickoff)
