@@ -623,6 +623,8 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
     played = 0
     first_evaluated = None
     last_evaluated = None
+    last_history_day = None
+    model_fit_history_day = None
     for day, grouped in groupby(matches, lambda m: m.day):
         daily = list(grouped)
         if day > end:
@@ -662,6 +664,7 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             dc_rho = estimate_dc_rho(recent_low[-9000:])
             shared = estimate_shared(recent_low)
             last_retrain = day
+            model_fit_history_day = last_history_day
             print("RETRAIN", day, "train_rows", len(training),
                   "rho", round(dc_rho, 4), "shared", round(shared, 4),
                   "ml", ml is not None, "direct", direct_model is not None,
@@ -753,6 +756,8 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                 top3 = np.argpartition(grid.ravel(), -3)[-3:]
                 top3_hit = int(m.hg*(MAX_GOALS+1) + m.ag in top3)
                 row = {
+                    "history_latest_day":str(last_history_day) if last_history_day else "",
+                    "model_fit_latest_day":str(model_fit_history_day) if model_fit_history_day and name.startswith("machine_learning") else "",
                     "top3_hit": top3_hit, "model": name, "date": str(m.day), "id": m.key, "league": m.league,
                     "home": m.home, "away": m.away, "actual_score": f"{m.hg}:{m.ag}",
                     "predicted_score": f"{i}:{j}", "top_probability": float(grid[i, j]),
@@ -779,6 +784,7 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                 activation=max(day+timedelta(days=1),m.xg_available.date()+timedelta(days=1))
                 pending_xg[activation].append(m)
         states.add_day(daily)
+        last_history_day = day
         if evaluating and (day.day == 1 or day == end):
             print("PROGRESS", day, "scored", played, flush=True)
     summary = summarize(results)
