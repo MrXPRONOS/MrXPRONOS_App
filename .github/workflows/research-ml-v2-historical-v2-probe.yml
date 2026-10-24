@@ -9,7 +9,7 @@ on:
     inputs:
       history_day:
         description: 'One historical UTC football date to test using SportsAPIPro V2'
-        default: '2025-10-20'
+        default: '2026-09-20'
         required: true
 permissions:
   contents: read
@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 8
     env:
       SPORTSAPI_V2_PROBE_KEY: ${{ secrets.SPORTDATA_API_KEY_2 }}
-      PROBE_DAY: ${{ inputs.history_day || '2025-10-20' }}
+      PROBE_DAY: ${{ inputs.history_day || '2026-09-20' }}
     steps:
       - uses: actions/setup-python@v5
         with:
