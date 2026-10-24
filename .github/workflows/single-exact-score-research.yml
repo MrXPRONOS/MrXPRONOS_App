@@ -1,0 +1,178 @@
+name: Single exact score - isolated research
+
+on:
+  push:
+    branches:
+      - feature/single-exact-score-v1-20261020
+    paths:
+      - 'bsd/single_exact_score_*.py'
+      - 'bsd/test_single_exact_score.py'
+      - 'bsd/SINGLE_EXACT_SCORE_README.md'
+      - '.github/workflows/single-exact-score-research.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  # Superseded source revisions should not queue costly 2025/2026 full-history
+  # replays or block verification of the latest research commit.
+  group: mrx-single-score-research-one-writer
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install isolated BSD dependencies
+        run: python -m pip install requests cryptography
+      - name: Validate one-score model and private archive
+        run: |
+          python -m unittest bsd/test_single_exact_score.py -v
+          python -m py_compile bsd/single_exact_score_engine.py bsd/single_exact_score_backtest.py bsd/single_exact_score_prospective.py bsd/single_exact_score_advanced.py bsd/single_exact_score_context.py bsd/single_exact_score_xg_history.py bsd/single_exact_score_top3.py bsd/single_exact_score_context_model.py bsd/single_exact_score_context_observations.py
+      - name: Recover private BSD history from main
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: |
+          test -n "$BSD_HISTORY_KEY" || { echo "::error::Missing BSD_HISTORY_KEY"; exit 1; }
+          git fetch --no-tags origin main
+          git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
+          python bsd/bsd_archive.py restore
+      - name: Compare ONE score per match over ALL available 2025 finished fixtures
+        run: python bsd/single_exact_score_backtest.py --year 2025 --cap 0 --output tmp/single-exact-score/2025-full.json
+      - name: Compare ONE score per match over ALL 2026 finished fixtures to date
+        run: python bsd/single_exact_score_backtest.py --year 2026 --cap 0 --output tmp/single-exact-score/2026-full.json
+      - name: Check reproducible TOP ONE metrics and paired match counts
+        run: |
+          python - <<'PY'
+          import json
+          for year in (2025,2026):
+              d=json.load(open(f"tmp/single-exact-score/{year}-full.json"))
+              assert d["eligible"] >= 10000, (year,d["eligible"])
+              assert d["sample_cap"] is None
+              assert d["finished"] >= d["eligible"]
+              assert sum(m["matches"] for m in d["monthly"].values() for k,m in m.items() if k=="under25_fusion") == d["eligible"]
+              assert d["published"] is False
+              counts=[x["matches"] for x in d["variants"].values()]
+              assert counts[0]==counts[1]==counts[2]==d["eligible"]
+              assert all(x["wins"]<=x["matches"] for x in d["variants"].values())
+              rd=d["research_diagnostics"]
+              assert rd["label_blind_ranking"] and len(rd["models"])==6
+              assert d["advanced_training"]["diagnostic"]["goal_train"]>=80
+              assert d["advanced_training"]["diagnostic"]["goal_valid"]>=60
+              assert d["advanced_training"]["diagnostic"]["bias_valid"]>=60
+              assert d["advanced_training"]["diagnostic"]["reliability_train"]>=60
+              assert d["advanced_training"]["diagnostic"]["reliability_valid"]>=40
+              training=d["advanced_training"]
+              assert training["diagnostic"]["no_future_year_labels"] is True
+              assert training["fitted_on"]=="2024 only"
+              assert rd["models"]["advanced_2024"]["summary"]["matches"]==d["eligible"]
+              for m in rd["models"].values():
+                  assert m["summary"]["matches"]==d["eligible"]
+                  assert sum(b["matches"] for b in m["scores"]["predicted"].values())==d["eligible"]
+                  assert sum(b["matches"] for b in m["calibration"]["bins"].values())==d["eligible"]
+              assert len(d["distribution_experiments"])==4
+              assert all(b["matches"]==d["eligible"] for b in d["distribution_experiments"].values())
+              assert rd["paired"]["under_vs_dc"]["net_b_minus_a"] == (d["variants"]["optional_dc_fusion"]["wins"]-d["variants"]["under25_fusion"]["wins"])
+              print("SINGLE_EXACT_FULL_YEAR_VERIFIED",year,json.dumps({
+              "finished":d["finished"],"eligible":d["eligible"],
+              "variants":d["variants"],"subgroups":d["groups"],
+              "changed_by_dc":d["dc_changes"],"monthly":d["monthly"]},ensure_ascii=False))
+          PY
+      - name: Upload historical Top 1 only aggregate reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: single-exact-score-historical-${{ github.run_id }}
+          path: tmp/single-exact-score/*-full.json
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Delete decrypted BSD history
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+
+  prospective:
+    # Lock against the automatic and manual prospective writers on main.
+    concurrency:
+      group: mrx-single-score-prospective-writer
+      cancel-in-progress: false
+    # Automatic prospective snapshots are handled by the separate daily
+    # cron workflow; skip extra API calls on full-history benchmark commits.
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: python -m pip install requests cryptography
+      - name: Fast-forward encrypted research archive before capturing
+        run: |
+          git fetch --no-tags origin feature/single-exact-score-v1-20261020
+          git merge --ff-only origin/feature/single-exact-score-v1-20261020
+      - name: Restore current main BSD private history
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: |
+          git fetch --no-tags origin main
+          git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
+          python bsd/bsd_archive.py restore
+      - name: Snapshot ONE score per eligible prematch fixture privately
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+          BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+          FOOTBALL_MULTI_SOURCE: '0'
+        run: python bsd/single_exact_score_prospective.py --max-requests 90
+      - name: Check no public data emitted
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open("tmp/single-exact-score/prospective-report.json"))
+          assert d["published"] is False and d["experimental"] is True
+          assert d["captured"] == d["pending"] + d["settled"] + d["void"]
+          assert d["priority"]["n"]<=d["all"]["n"]
+          assert d["top3"]["selected_match_count"] == 3*d["top3"]["baskets_created"]
+          assert d["top3"]["settled_baskets"] + d["top3"]["void_baskets"] <= d["top3"]["baskets_created"]
+          assert d["absence_context_model"]["training_rows"] >= 0
+          assert len(d["advanced_model_fingerprint_sha256"]) == 64
+          print("SINGLE_EXACT_LEDGER",json.dumps({
+            "captured":d["captured"],"pending":d["pending"],
+            "settled":d["settled"]},ensure_ascii=False))
+          PY
+      - name: Commit only new encrypted single-score and measured-xG archives
+        run: |
+          test -f bsd/single_exact_score_ledger.enc.json || test -f bsd/single_exact_score_xg_history.enc.json || test -f bsd/single_exact_score_top3.enc.json || test -f bsd/single_exact_score_context_observations.enc.json || exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for target in bsd/single_exact_score_ledger.enc.json bsd/single_exact_score_xg_history.enc.json bsd/single_exact_score_top3.enc.json bsd/single_exact_score_context_observations.enc.json; do
+            if test -f "$target"; then git add -- "$target"; fi
+          done
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "data(single shadow): immutable encrypted pre-match scores [skip ci]"
+          git restore -- bsd/all_matches_bsd.enc.json
+          git pull --rebase origin feature/single-exact-score-v1-20261020
+          git push origin HEAD:feature/single-exact-score-v1-20261020
+      - name: Save aggregate performance report only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: single-exact-score-prospective-${{ github.run_id }}
+          path: tmp/single-exact-score/prospective-report.json
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Remove decrypted BSD history
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
