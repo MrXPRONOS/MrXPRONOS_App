@@ -32,6 +32,7 @@ from single_ml_v2_data import utc_dt
 from single_ml_v2_git import (ROOT, atomic_bytes, key_from_environment, load_days,
                               open_sealed, seal)
 from sportdata_api import get_api_keys
+from single_ml_v2_xg_resolve import daily_schedule, reconcile, provider_match_id, match_candidates
 
 PROVIDER = "sportsapipro_v2_match_statistics"
 QUALITY = "measured_postmatch_provider"
@@ -205,7 +206,7 @@ class MatchStatsClient:
         self.skipped_keys=set()
 
     def get(self, endpoint):
-        if not endpoint.startswith("/match/"):
+        if not (endpoint.startswith("/match/") or endpoint.startswith("/scheduled?date=")):
             raise ValueError("Endpoint not allowlisted")
         last=None
         for i,key in enumerate(self.keys):
@@ -282,12 +283,20 @@ def write_record(record,key,root=ROOT):
     return True
 
 
-def fetch_observation(client,match,*,now):
+def fetch_observation(client,match,*,now,schedule_cache=None):
     """Maximum 2 provider calls per match. Never infer missing identity."""
     ident=str(match.get("id") or "")
-    if not SAFE_ID.fullmatch(ident):
-        return {"status":"unsupported_match_id","reason":"not_numeric"}
-    statistics=client.get("/match/"+ident+"/statistics")
+    # V1 ID is NOT reused as V2 ID. Resolve from independent V2 schedule.
+    try:
+        events=daily_schedule(client,match["start_time"][:10],schedule_by_date=schedule_cache)
+    except (ValueError,QuotaExceeded):
+        raise
+    resolved,reason=reconcile(match,events)
+    if resolved is None:
+        return {"status":"identity_unverified","reason":reason}
+    if not SAFE_ID.fullmatch(resolved):
+        return {"status":"unsupported_match_id","reason":"invalid_v2_id"}
+    statistics=client.get("/match/"+resolved+"/statistics")
     if statistics is None:
         return {"status":"not_available","reason":"stats_404"}
     measured=extract_xg(statistics)
@@ -295,12 +304,14 @@ def fetch_observation(client,match,*,now):
         return {"status":"not_available","reason":"no_explicit_fulltime_xg"}
     event=one_event(statistics)
     if event is None:
-        detail=client.get("/match/"+ident)
+        detail=client.get("/match/"+resolved)
         event=one_event(detail)
     if event is None:
         return {"status":"identity_unverified","reason":"match_detail_unavailable"}
     try:
-        require_matching_identity(event,match)
+        # Require V2 ID to agree with independently matched schedule.
+        if str(event.get("id",event.get("matchId",event.get("eventId"))))!=resolved or not match_candidates(match,event):
+            raise ValueError("V2 detail differs from independently matched schedule")
     except ValueError:
         return {"status":"identity_unverified","reason":"id_team_or_kickoff_mismatch"}
     return {
@@ -309,7 +320,7 @@ def fetch_observation(client,match,*,now):
         # This is the time OUR model first knows this value. Never backdate.
         "xg_observed_at":now.isoformat(),
         "xg_usable_after":now.isoformat(),
-        "provider_match_id":ident,
+        "provider_match_id":resolved,
     }
 
 
@@ -323,6 +334,7 @@ def collect(start,end,*,key,root=ROOT,limit=24,request_limit=35,client=None):
     cli=client or MatchStatsClient(get_api_keys(),request_limit=request_limit)
     # Newest matches first for fresher ML coverage. Negative checkpoints
     # are retried only after their explicit cooldown has passed.
+    schedule_cache={}
     for match in reversed(matches):
         mid=str(match["id"])
         old=record_from_file(mid,key,root)
@@ -336,7 +348,7 @@ def collect(start,end,*,key,root=ROOT,limit=24,request_limit=35,client=None):
                 continue
         if stats["newly_checked"]>=limit:break
         try:
-            value=fetch_observation(cli,match,now=utc_now())
+            value=fetch_observation(cli,match,now=utc_now(),schedule_cache=schedule_cache)
         except QuotaExceeded:
             stats["stopped_due_to_api_limit"]+=1
             break
