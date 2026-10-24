@@ -20427,8 +20427,14 @@ async function reuseCachedStats(matches) {
     const row = cache2.get(String(match?.id));
     const cached = row?.raw_data || null;
     if (!cached) return match;
+    const sameFixture = String(cached?.id || "") === String(match?.id || "") && String(cached?.event_date || "") === String(match?.event_date || "") && Boolean(cached?.event_date) && cached?.is_live === true && match?.is_live === true && cached?.is_finished !== true && match?.is_finished !== true;
+    const cacheObservedAt = Date.parse(String(
+      cached?.stats_last_updated_at || cached?.raw_data?.stats_last_updated_at || ""
+    ));
+    const cachedStatAge = Date.now() - cacheObservedAt;
+    const safeCachedStats = sameFixture && Number.isFinite(cacheObservedAt) && cachedStatAge >= -5e3 && cachedStatAge <= 6e5;
     const mergedStats = mergeLiveStats(
-      cached?.live_stats || cached?.raw_data?.live_stats || {},
+      safeCachedStats ? cached?.live_stats || cached?.raw_data?.live_stats || {} : {},
       getMatchLiveStats(match)
     );
     const observedAt = Date.parse(String(cached?.raw_data?.sportscore_minute_observed_at || ""));
@@ -20442,7 +20448,7 @@ async function reuseCachedStats(matches) {
       ...match,
       current_minute: retainedMinute,
       live_stats: mergedStats,
-      stats_last_updated_at: match?.stats_last_updated_at || cached?.stats_last_updated_at || cached?.raw_data?.stats_last_updated_at || null,
+      stats_last_updated_at: match?.stats_last_updated_at || (safeCachedStats ? cached?.stats_last_updated_at || cached?.raw_data?.stats_last_updated_at : null) || null,
       raw_data: {
         ...match?.raw_data || {},
         // Cache is a full normalized match; restore per-provider request timestamps.
