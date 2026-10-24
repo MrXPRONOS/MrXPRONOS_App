@@ -61,7 +61,7 @@ def main():
     # Validate public URL BEFORE claiming a platform's one-shot dedup key.
     url=resolve_public_url(args.video,None)
     if not isinstance(url,str) or not url.startswith("https://"):
-        raise RuntimeError("Public Neon media URL unavailable")
+        raise RuntimeError("Public hosted media URL unavailable")
     ledger=D1Ledger()
     caption=(f"Pronostics du jour ⚽\n{count} sélections Mr XPRONOS.\n"
              "18+ • Joue responsablement.\n\n"
