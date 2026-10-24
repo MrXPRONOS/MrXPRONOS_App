@@ -174,8 +174,8 @@ def load_matches(path: str, end: date):
         xga = number(raw.get("away_xg", xg.get("away")))
         stamp = utc_instant(raw.get("xg_usable_after") or raw.get("xg_observed_at"))
         kickoff = utc_instant(raw.get("start_time") or raw.get("startTime"))
-        verified = (raw.get("xg_source")=="supabase_live_stats_sources_api_original"
-                    and raw.get("xg_quality")=="observed_late_match_90plus_provisional"
+        verified = (raw.get("xg_source")=="sportsapipro_v2_match_statistics"
+                    and raw.get("xg_quality")=="measured_postmatch_provider"
                     and stamp is not None and kickoff is not None and stamp>kickoff
                     and xgh is not None and xga is not None and 0<=xgh<=10 and 0<=xga<=10)
         if verified:
