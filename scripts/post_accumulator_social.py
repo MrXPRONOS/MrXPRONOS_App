@@ -98,13 +98,13 @@ def main():
  for platform in ("facebook","instagram","threads"):
   identity=("accumulator_photo_"+platform,day,day)
   try:
+   # Verify public media BEFORE consuming the one-shot publication lock.
+   if platform!="facebook" and public is None:
+    public=public_url(image,day)
    if not ledger.claim(*identity):
     print("ACCUMULATOR_SOCIAL_ALREADY_SENT",platform,day)
     results.append({"platform":platform,"status":"already_sent"});continue
    # Après claim, ne pas relancer en cas d'erreur réseau ambiguë (protection anti-doublon).
-   # Facebook accepts the image bytes directly. Only IG/Threads need a URL.
-   if platform!="facebook" and public is None:
-    public=public_url(image,day)
    pid=publish(platform,public,image,caption)
    ledger.mark(*identity)
    results.append({"platform":platform,"status":"sent","id":pid})
