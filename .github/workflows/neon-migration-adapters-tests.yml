@@ -77,14 +77,14 @@ jobs:
           from scripts.neon_public_media import upload_public
           def chunk(name,body):
               return struct.pack('!I',len(body))+name+body+struct.pack('!I',zlib.crc32(name+body)&0xffffffff)
-          data=b'\\x89PNG\\r\\n\\x1a\\n'+chunk(b'IHDR',struct.pack('!IIBBBBB',1,1,8,2,0,0,0))+chunk(b'IDAT',zlib.compress(b'\\x00\\x00\\x88\\xff'))+chunk(b'IEND',b'')
+          data=b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('!IIBBBBB',1,1,8,2,0,0,0))+chunk(b'IDAT',zlib.compress(b'\x00\x00\x88\xff'))+chunk(b'IEND',b'')
           path=pathlib.Path('/tmp/mrxpronos-oidc-smoke.png')
           path.write_bytes(data)
           url=upload_public(path,'smoke/verification.png',content_type='image/png')
           assert url.startswith('https://') and '/videos/' in url,url
           response=requests.get(url,timeout=(8,20))
           response.raise_for_status()
-          assert response.content.startswith(b'\\x89PNG\\r\\n\\x1a\\n'),'Unexpected public media'
+          assert response.content.startswith(b'\x89PNG\r\n\x1a\n'),'Unexpected public media'
           print('NEON_CLOUDFLARE_MEDIA_SMOKE_OK')
           PY
 
