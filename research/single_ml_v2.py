@@ -444,19 +444,19 @@ def market_grid(baseline, odds):
     return normalized(p)
 
 
-def train_ml(records):
+def train_ml(records, *, max_rows=65000, learning_rate=.055, max_iter=95, max_leaf_nodes=18, l2_regularization=5):
     if len(records) < 350:
         return None
     # All features are snapshotted before the target matches. Labels only after final.
-    data = records[-65000:]
+    data = records[-max_rows:]
     X = np.array([r[0] for r in data], dtype=float)
     yh = np.array([r[1] for r in data], dtype=float)
     ya = np.array([r[2] for r in data], dtype=float)
     trained = []
     for y in (yh, ya):
-        model = HistGradientBoostingRegressor(loss="poisson", learning_rate=.055,
-                                              max_iter=95, max_leaf_nodes=18,
-                                              l2_regularization=5, random_state=SEED)
+        model = HistGradientBoostingRegressor(loss="poisson", learning_rate=learning_rate,
+                                              max_iter=max_iter, max_leaf_nodes=max_leaf_nodes,
+                                              l2_regularization=l2_regularization, random_state=SEED)
         model.fit(X, y)
         trained.append(model)
     return trained
@@ -502,7 +502,7 @@ def summarize(stats):
     return result
 
 
-def backtest(matches, begin, end, out, max_eval=0):
+def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None):
     states = FormState()
     training = []
     recent_low = []
@@ -523,11 +523,11 @@ def backtest(matches, begin, end, out, max_eval=0):
         if day > end:
             break
         evaluating = begin <= day <= end
-        if evaluating and (last_retrain is None or last_retrain != (day.year, day.month)):
-            ml = train_ml(training)
+        if evaluating and (last_retrain is None or (day-last_retrain).days >= retrain_days):
+            ml = train_ml(training, **(ml_parameters or {}))
             dc_rho = estimate_dc_rho(recent_low[-9000:])
             shared = estimate_shared(recent_low)
-            last_retrain = (day.year, day.month)
+            last_retrain = day
             print("RETRAIN", day, "train_rows", len(training),
                   "rho", round(dc_rho, 4), "shared", round(shared, 4),
                   "ml", ml is not None, flush=True)
@@ -707,6 +707,8 @@ def main():
     ap.add_argument("--end", default="2026-10-19")
     ap.add_argument("--out", default="research/results/single_ml_v2")
     ap.add_argument("--max-eval", type=int, default=0)
+    ap.add_argument("--retrain-days", type=int, choices=(7,14,30,60), default=30)
+    ap.add_argument("--ml-params-json", default=None)
     ap.add_argument("--self-test-only", action="store_true")
     args = ap.parse_args()
     self_test()
@@ -718,7 +720,12 @@ def main():
     matches = load_matches(args.source, end)
     if not matches:
         raise ValueError("No sportId=1 completed football matches; rebuild certified research history")
-    backtest(matches, begin, end, args.out, max_eval=args.max_eval)
+    params = json.loads(Path(args.ml_params_json).read_text()) if args.ml_params_json else None
+    allowed = {"max_rows","learning_rate","max_iter","max_leaf_nodes","l2_regularization"}
+    if params is not None and (not isinstance(params,dict) or set(params)-allowed):
+        raise ValueError("Invalid ML parameters")
+    backtest(matches, begin, end, args.out, max_eval=args.max_eval,
+             retrain_days=args.retrain_days, ml_parameters=params)
 
 
 if __name__ == "__main__":
