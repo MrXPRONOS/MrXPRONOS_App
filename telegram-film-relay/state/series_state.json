@@ -8,12 +8,31 @@
       "public_id": 68,
       "video_id": 106
     },
+    "tv-series:ransom-canyon": {
+      "public_id": 122,
+      "video_id": 181
+    },
     "tv-series:zodiaque-2026": {
       "public_id": 112,
       "video_id": 159
     }
   },
   "mirrors": {},
-  "promotions": {},
+  "promotions": {
+    "-1003921647496": {
+      "last_film_total": 4,
+      "next_index": 1,
+      "sent": {
+        "0": 123
+      }
+    },
+    "-1004392607284": {
+      "last_film_total": 4,
+      "next_index": 1,
+      "sent": {
+        "0": 187
+      }
+    }
+  },
   "staged": {}
 }

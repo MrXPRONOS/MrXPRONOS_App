@@ -1,7 +1,7 @@
 {
   "audit": {
     "category": "anime_catalog",
-    "checked_at": "2026-10-21T18:55:08.245538+00:00",
+    "checked_at": "2026-10-24T03:55:16.447510+00:00",
     "not_yet_indexed": [
       {
         "episode": 2,
@@ -604,7 +604,7 @@
         "source_instances": 1
       }
     ],
-    "not_yet_indexed_total": 368,
+    "not_yet_indexed_total": 390,
     "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
     "numbering_gap_seasons": 1,
     "numbering_gaps": [
@@ -650,8 +650,8 @@
         "truncated": false
       }
     ],
-    "scanned_episode_candidates": 397,
-    "source_episode_numbers_observed": 453,
+    "scanned_episode_candidates": 396,
+    "source_episode_numbers_observed": 477,
     "source_numbering_gap_seasons": 3,
     "source_numbering_gaps": [
       {
@@ -681,7 +681,7 @@
       }
     ],
     "source_scan_complete": true,
-    "unnumbered_videos_skipped": 81
+    "unnumbered_videos_skipped": 80
   },
   "scans": {
     "-1001787980027": {
@@ -849,6 +849,44 @@
         "-1001595907308:13266": 18
       },
       "title": "No Longer Rangers"
+    },
+    "mangas-fv-tomb-raider-king-ep11": {
+      "episodes": {
+        "1": {
+          "11": {
+            "message_id": 129,
+            "url": "https://t.me/c/4416009337/129"
+          }
+        }
+      },
+      "main_index_id": 127,
+      "public_id": 55,
+      "season_indices": {
+        "1": 128
+      },
+      "source_items": {
+        "-1001595907308:13876": 129
+      },
+      "title": "@Mangas fv Tomb Raider King EP11"
+    },
+    "mangas-fv-tomb-raider-king-ep12-fin": {
+      "episodes": {
+        "1": {
+          "12": {
+            "message_id": 132,
+            "url": "https://t.me/c/4416009337/132"
+          }
+        }
+      },
+      "main_index_id": 130,
+      "public_id": 56,
+      "season_indices": {
+        "1": 131
+      },
+      "source_items": {
+        "-1001595907308:13877": 132
+      },
+      "title": "@Mangas fv Tomb Raider King EP12 #FIN"
     },
     "mangas-fv-yu-gi-oh": {
       "episodes": {
@@ -1588,6 +1626,174 @@
       "1": {
         "12": [
           "-1001595907308:13798"
+        ]
+      }
+    },
+    "mangas-fv-kill-blue-ep01": {
+      "1": {
+        "1": [
+          "-1001595907308:13841"
+        ]
+      }
+    },
+    "mangas-fv-kill-blue-ep02": {
+      "1": {
+        "2": [
+          "-1001595907308:13842"
+        ]
+      }
+    },
+    "mangas-fv-kill-blue-ep03": {
+      "1": {
+        "3": [
+          "-1001595907308:13843"
+        ]
+      }
+    },
+    "mangas-fv-kill-blue-ep04": {
+      "1": {
+        "4": [
+          "-1001595907308:13844"
+        ]
+      }
+    },
+    "mangas-fv-kill-blue-ep05": {
+      "1": {
+        "5": [
+          "-1001595907308:13845"
+        ]
+      }
+    },
+    "mangas-fv-kill-blue-ep06": {
+      "1": {
+        "6": [
+          "-1001595907308:13846"
+        ]
+      }
+    },
+    "mangas-fv-kill-blue-ep07": {
+      "1": {
+        "7": [
+          "-1001595907308:13847"
+        ]
+      }
+    },
+    "mangas-fv-kill-blue-ep08": {
+      "1": {
+        "8": [
+          "-1001595907308:13848"
+        ]
+      }
+    },
+    "mangas-fv-kill-blue-ep09": {
+      "1": {
+        "9": [
+          "-1001595907308:13849"
+        ]
+      }
+    },
+    "mangas-fv-kill-blue-ep10": {
+      "1": {
+        "10": [
+          "-1001595907308:13850"
+        ]
+      }
+    },
+    "mangas-fv-kill-blue-ep11": {
+      "1": {
+        "11": [
+          "-1001595907308:13851"
+        ]
+      }
+    },
+    "mangas-fv-kill-blue-ep12-fin": {
+      "1": {
+        "12": [
+          "-1001595907308:13852"
+        ]
+      }
+    },
+    "mangas-fv-tomb-raider-king-ep01": {
+      "1": {
+        "1": [
+          "-1001595907308:13866"
+        ]
+      }
+    },
+    "mangas-fv-tomb-raider-king-ep02": {
+      "1": {
+        "2": [
+          "-1001595907308:13867"
+        ]
+      }
+    },
+    "mangas-fv-tomb-raider-king-ep03": {
+      "1": {
+        "3": [
+          "-1001595907308:13868"
+        ]
+      }
+    },
+    "mangas-fv-tomb-raider-king-ep04": {
+      "1": {
+        "4": [
+          "-1001595907308:13869"
+        ]
+      }
+    },
+    "mangas-fv-tomb-raider-king-ep05": {
+      "1": {
+        "5": [
+          "-1001595907308:13870"
+        ]
+      }
+    },
+    "mangas-fv-tomb-raider-king-ep06": {
+      "1": {
+        "6": [
+          "-1001595907308:13871"
+        ]
+      }
+    },
+    "mangas-fv-tomb-raider-king-ep07": {
+      "1": {
+        "7": [
+          "-1001595907308:13872"
+        ]
+      }
+    },
+    "mangas-fv-tomb-raider-king-ep08": {
+      "1": {
+        "8": [
+          "-1001595907308:13873"
+        ]
+      }
+    },
+    "mangas-fv-tomb-raider-king-ep09": {
+      "1": {
+        "9": [
+          "-1001595907308:13874"
+        ]
+      }
+    },
+    "mangas-fv-tomb-raider-king-ep10": {
+      "1": {
+        "10": [
+          "-1001595907308:13875"
+        ]
+      }
+    },
+    "mangas-fv-tomb-raider-king-ep11": {
+      "1": {
+        "11": [
+          "-1001595907308:13876"
+        ]
+      }
+    },
+    "mangas-fv-tomb-raider-king-ep12-fin": {
+      "1": {
+        "12": [
+          "-1001595907308:13877"
         ]
       }
     },
