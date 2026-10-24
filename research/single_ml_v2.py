@@ -32,6 +32,7 @@ from single_ml_v2_direct import (DIRECT_MODEL_ID, DIRECT_MODEL_VERSION, train_di
 from single_ml_v2_candidates import (CANDIDATES, CANDIDATE_MODEL_NAMES, CANDIDATE_VERSION, fit_pair, predict_grid)
 from single_ml_v2_tune import (BASELINE, MLConfig, TUNE_VERSION, fit_histgb, select_hyperparameters)
 from single_ml_v2_selection import (VERSION as SELECTOR_VERSION, SELECTABLE_MODELS, PastForecast, prediction_features, prematch_quality, fit_reliability, decide, report_selections)
+from single_ml_v2_hybrid import (HYBRID_VERSION, DEFAULT_DC_WEIGHT, PastHybridForecast, calibrate as calibrate_hybrid, blend as blend_hybrid, comparison_metrics as compare_hybrids)
 
 MAX_GOALS = 10
 GOALS = np.arange(MAX_GOALS + 1)
@@ -569,7 +570,7 @@ def score_odds_for(m, gh, ga):
 
 def summarize(stats):
     result = {}
-    for name in (*MODELS, "machine_learning_hybrid"):
+    for name in (*MODELS, "machine_learning_hybrid", "machine_learning_hybrid_fixed"):
         entries = stats[name]
         if not entries:
             result[name] = {"status": "NOT_EVALUABLE", "n": 0, "reason":
@@ -611,6 +612,11 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
     candidate_models = {name: None for name in CANDIDATES}
     pending_xg = defaultdict(list)
     recent_low = []
+    hybrid_history = []
+    hybrid_setting = None
+    hybrid_audit = []
+    hybrid_latest_weight = DEFAULT_DC_WEIGHT
+    last_hybrid_calibration = None
     recent_residuals = []
     league_residuals = defaultdict(list)
     results = defaultdict(list)
@@ -633,6 +639,14 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         for earlier in sorted(d for d in pending_xg if d<=day):
             for historical in pending_xg.pop(earlier):states.add_xg(historical, earlier)
         evaluating = begin <= day <= end
+        if evaluating and (last_hybrid_calibration is None or (day-last_hybrid_calibration).days >= 30):
+            hybrid_setting = calibrate_hybrid(hybrid_history, asof=day)
+            hybrid_latest_weight = hybrid_setting.dc_weight
+            hybrid_audit.append({"asof":str(day),"calibrated":hybrid_setting.calibrated,
+                "dc_weight":hybrid_setting.dc_weight,"training_games":hybrid_setting.training_games,
+                "training_days":hybrid_setting.training_days,
+                "reason":hybrid_setting.note,"candidates":list(hybrid_setting.candidate_metrics)})
+            last_hybrid_calibration = day
         if evaluating and (last_selector_refit is None or (day-last_selector_refit).days >= 30):
             for target_name in SELECTABLE_MODELS:
                 fitted = fit_reliability(reliability_history[target_name], asof=day,
@@ -707,7 +721,10 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                 lh = float(np.clip(ml[0].predict(f["vector"][None, :])[0], .12, 5))
                 la = float(np.clip(ml[1].predict(f["vector"][None, :])[0], .12, 5))
                 forecasts["machine_learning"] = poisson_grid(lh, la)
-                forecasts["machine_learning_hybrid"] = ml_hybrid_grid(ml, f["vector"], dc_rho)
+                # Truly independent DC forecast uses historical team-form rates,
+                # not the goal-rate ML intensities; refit weight on past OOS rows.
+                forecasts["machine_learning_hybrid"] = blend_hybrid(forecasts["machine_learning"], forecasts["dixon_coles"], hybrid_latest_weight)
+                forecasts["machine_learning_hybrid_fixed"] = blend_hybrid(forecasts["machine_learning"], forecasts["dixon_coles"], DEFAULT_DC_WEIGHT)
             else:
                 audit["ml_not_enough_training"] += 1
             if direct_model is not None:
@@ -748,6 +765,9 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                     "threshold":gate["threshold"],"predicted_score":f"{gh0}:{ga0}",
                     "quality":quality})
                 frozen_today.append((target_name, prediction_features(grid_for_gate,quality),did_hit))
+            if ml is not None:
+                frozen_today.append(("__hybrid__", forecasts["machine_learning"].copy(),
+                                     forecasts["dixon_coles"].copy()))
             pending[-1] = (m,f,frozen_today)
             for name, grid in forecasts.items():
                 i, j = np.unravel_index(grid.argmax(), grid.shape)
@@ -772,7 +792,11 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         # A day's final scores become visible no earlier than the following day.
         for pending_row in pending:
             m, f = pending_row[:2]
-            for model_name, frozen_vector, did_hit in (pending_row[2] if len(pending_row)>2 else []):
+            for frozen in (pending_row[2] if len(pending_row)>2 else []):
+                if frozen[0] == "__hybrid__":
+                    hybrid_history.append(PastHybridForecast(m.day,m.key,frozen[1],frozen[2],m.hg,m.ag))
+                    continue
+                model_name, frozen_vector, did_hit = frozen
                 reliability_history[model_name].append(PastForecast(m.day,frozen_vector,did_hit))
             recent_low.append((f["h"], f["a"], m.hg, m.ag))
             recent_residuals.append((m.hg-f["h"], m.ag-f["a"]))
@@ -788,6 +812,7 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         if evaluating and (day.day == 1 or day == end):
             print("PROGRESS", day, "scored", played, flush=True)
     summary = summarize(results)
+    hybrid_paired = compare_hybrids(results, ("machine_learning","dixon_coles","machine_learning_hybrid_fixed","machine_learning_hybrid"))
     selected_report=report_selections(selection_rows,total_matches=audit["evaluated_matches"],
                                       policy_coverage=selection_coverage)
     paired_cohorts = {}
@@ -838,6 +863,11 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         "form_quality_counts":dict(audit),
         "n_evaluation_matches": audit["evaluated_matches"],
         "selection_version":SELECTOR_VERSION,
+        "hybrid_version":HYBRID_VERSION,
+        "hybrid_independent_dixon_coles":True,
+        "hybrid_calibration_history":hybrid_audit,
+        "hybrid_paired_comparison":hybrid_paired,
+        "hybrid_fallback_dc_weight":DEFAULT_DC_WEIGHT,
         "selection_coverage_policy":selection_coverage,
         "selection_report":selected_report,
         "selection_refits":selector_refits,
@@ -861,6 +891,8 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             "xg_poisson": "Uses past-match genuine xG only; disabled if the source lacks xG",
             "bayesian_gamma": "Gamma strength priors with posterior predictive Monte Carlo integration",
             "machine_learning": "Chronologically refitted Poisson-gradient-boosting for home/away goals",
+            "machine_learning_hybrid": "Prequential, calibrated probability mix of independent ML and Dixon-Coles grids (past-only refits)",
+            "machine_learning_hybrid_fixed": "Uncalibrated 35% independent Dixon-Coles probability pool comparator",
             DIRECT_MODEL_ID: "Direct multiclass gradient boosting of exact-score labels; 36 classes plus tail, prematch prior blend",
             "machine_learning_lightgbm":"Genuine LightGBM Poisson pair, fixed predeclared parameters, same frozen prematch features",
             "machine_learning_catboost":"Genuine CatBoost Poisson pair, fixed predeclared parameters, same frozen prematch features",
