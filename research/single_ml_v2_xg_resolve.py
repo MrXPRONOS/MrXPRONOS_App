@@ -92,8 +92,8 @@ def daily_schedule(client,day,*,schedule_by_date=None):
     key=str(day)
     if schedule_by_date is not None and key in schedule_by_date:
         return schedule_by_date[key]
-    # Documented V2 /api/scheduled?date=YYYY-MM-DD endpoint.
-    response=client.get("/scheduled?date="+key)
+    # Documented V2 /api/schedule/{date} endpoint.
+    response=client.get("/schedule/"+key)
     if response is None:
         raise ValueError("No V2 schedule for "+key)
     events=scheduled_events(response)
