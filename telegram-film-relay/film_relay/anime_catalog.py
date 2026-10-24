@@ -307,7 +307,7 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             known_keys = set(existing.get("source_items", {}))
             pending = [x for x in sorted(items, key=lambda x: (x["season"], x["episode"]))
                        if x["source_key"] not in known_keys]
-            if not pending:
+            if not pending and existing.get("private_poster_id"):
                 continue
             title = str(existing.get("title") or items[0]["title"])
             LOG.info("Animé %s : %s épisodes nouveaux (lot borné)", title, len(pending))
@@ -319,6 +319,34 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 key, {"title": title, "public_id": None, "main_index_id": None,
                       "season_indices": {}, "episodes": {}, "source_items": {}})
             marker = "#CXANIME_" + hashlib.sha256(key.encode()).hexdigest()[:15]
+            # Save the original series illustration in the PRIVATE channel too.
+            # Its deterministic caption marker prevents duplicate posters after a crash.
+            if not series.get("private_poster_id"):
+                poster_marker = marker + "_POSTER"
+                private_poster = await find_marked(client, private, poster_marker, limit=700)
+                if not private_poster:
+                    original_poster = next(
+                        (row["poster"] for row in items if row.get("poster") is not None), None
+                    )
+                    if original_poster is None:
+                        LOG.warning("Affiche absente pour %s : aucun épisode envoyé.", title)
+                        continue
+                    raw_poster = await client.download_media(original_poster.media, file=bytes)
+                    if not raw_poster:
+                        LOG.warning("Affiche introuvable pour %s : aucun épisode envoyé.", title)
+                        continue
+                    photo_stream = io.BytesIO(raw_poster)
+                    photo_stream.name = "cinex_private_series.jpg"
+                    sent_poster = await client.send_file(
+                        private, photo_stream,
+                        caption=f"🌸 <b>{escape(title)}</b>\\n"
+                                f"<i>Fiche de la série et épisodes ci-dessous.</i>\\n{poster_marker}",
+                        parse_mode="html", force_document=False,
+                    )
+                    private_poster = int(sent_poster.id)
+                    await asyncio.sleep(pause)
+                series["private_poster_id"] = int(private_poster)
+                save_catalog(catalogue)
             if not series.get("main_index_id"):
                 recovered = await find_marked(client, private, marker)
                 if recovered:
