@@ -71,7 +71,15 @@ jobs:
           assert job['env']['CINEX_DEFER_MIRROR']=='true'
           assert job['env']['CINEX_TORRENT9_PAUSED']=='true'
           steps=[s.get('name','') for s in job['steps']]
-          for category in ('films','desir','comedie','anime'):
+          first=next(i for i,x in enumerate(steps) if x=='Partenariat AVANT films')
+          film=next(i for i,x in enumerate(steps) if x.startswith('Un seul film CinéX transféré'))
+          assert first < film
+          scoped=next(s for s in job['steps'] if s.get('name','').startswith('Un seul film CinéX transféré'))
+          assert "CINEX_TORRENT9_PAUSED" not in str(scoped.get('if'))
+          policy=yaml.safe_load(Path('telegram-film-relay/config/torrent9_policy.json').read_text())
+          assert policy.get('film_single_forward_enabled') is True
+          assert policy.get('transfers_enabled') is False
+          for category in ('desir','comedie','anime'):
               first=next(i for i,x in enumerate(steps) if x=='Partenariat AVANT '+category)
               end=next(i for i,x in enumerate(steps) if x=='Transfert ordonné APRÈS '+category+' vers Torrent9')
               assert first<end and end-first>=2, (category,first,end)
