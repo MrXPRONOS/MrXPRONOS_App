@@ -128,36 +128,3 @@ jobs:
         run: |
           python scripts/actu_foot_d1_news.py --news telegram_out/actu_foot_source_news.json
 
-      - name: Actualisation diagnostic Actu Foot du 24 octobre
-        if: ${{ always() && github.event_name == 'push' }}
-        env:
-          NEWS_FETCH: ${{ steps.fetch.outcome }}
-          NEWS_QUALITY: ${{ steps.quality.outcome }}
-          NEWS_NEON: ${{ steps.public_verify.outcome }}
-          NEWS_PUBLISH: ${{ steps.publish.outcome }}
-          NEWS_TELEGRAM: ${{ steps.telegram.outcome }}
-          NEWS_RUN: ${{ github.run_id }}
-          NEWS_REF: ${{ github.sha }}
-        run: |
-          python - <<'PY'
-          import json,os
-          from datetime import datetime,timezone
-          from pathlib import Path
-          summary={"run_id":os.environ["NEWS_RUN"],"sha":os.environ["NEWS_REF"],
-             "time_utc":datetime.now(timezone.utc).isoformat(),
-             "steps":{k:os.environ.get(k,"") for k in ("NEWS_FETCH","NEWS_QUALITY","NEWS_NEON","NEWS_PUBLISH","NEWS_TELEGRAM")}}
-          file=Path("ops/probes/actufoot-news-"+summary["run_id"]+".json")
-          file.parent.mkdir(parents=True,exist_ok=True)
-          file.write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-          print("ACTUFOOT_NEWS_PROBE",json.dumps(summary,ensure_ascii=False))
-          PY
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "ops/probes/actufoot-news-${NEWS_RUN}.json"
-          git commit -m "ops(actu-foot): record one-shot news refresh phase [skip ci]" || exit 0
-          for attempt in 1 2 3 4; do
-            git pull --rebase origin main
-            if git push origin HEAD:main; then exit 0; fi
-            sleep "$attempt"
-          done
-          exit 1
