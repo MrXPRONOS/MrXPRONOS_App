@@ -27,6 +27,7 @@ from telethon.sessions import StringSession
 from .bot_http import BotHTTPClient, url_button
 from .editing import edit_message_if_changed
 from .catalog_scan import read_source_window, source_window_ids, finalize_scan, episode_audit
+from .short_series import short_complete_groups
 from .category_runner import category_config, preflight
 from .desir_matching import is_supported_video
 from .desir_runner import ReceiptState, DesirPromotionsState
@@ -286,9 +287,12 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             groups.setdefault(row["series"], []).append(row)
         LOG.info("CinéX Anime : %s séries, %s épisodes identifiables, sources=%s",
                  len(groups), len(all_candidates), cfg["sources"])
-        # Do not publish public cards based on uncertain inferred episode numbers.
-        for key, items in groups.items():
-            if len(completed_series) >= limit or copied_episodes >= episode_cap:
+        # Select a whole short series BEFORE any Telegram uploads: no six-episode slices.
+        eligible = short_complete_groups(groups, catalogue, maximum=episode_cap)
+        LOG.info("%s : %s séries complètes (1 à %s épisodes) admissibles",
+                 "anime_catalog", len(eligible), episode_cap)
+        for key, items in eligible:
+            if len(completed_series) >= limit:
                 break
             # Compatibilité avec les catalogues créés avant la correction S02.
             # Ne pas créer une deuxième fiche ni recharger les épisodes déjà copiés.
@@ -305,7 +309,6 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                        if x["source_key"] not in known_keys]
             if not pending:
                 continue
-            pending = pending[:episode_cap - copied_episodes]
             title = str(existing.get("title") or items[0]["title"])
             LOG.info("Animé %s : %s épisodes nouveaux (lot borné)", title, len(pending))
             if not publish:
@@ -456,7 +459,7 @@ def main():
     arg = argparse.ArgumentParser()
     arg.add_argument("--publish", action="store_true")
     arg.add_argument("--limit", type=int, choices=(1, 2), default=2)
-    arg.add_argument("--episode-cap", type=int, choices=range(1, 13), default=6)
+    arg.add_argument("--episode-cap", type=int, choices=range(1, 13), default=12)
     args = arg.parse_args()
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s | %(levelname)s | %(message)s")
