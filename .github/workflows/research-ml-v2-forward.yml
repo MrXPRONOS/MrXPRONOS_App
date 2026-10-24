@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  actions: read
 concurrency:
   group: ml-v2-encrypted-history
   cancel-in-progress: false
@@ -13,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 145
     env:
+      GH_RESEARCH_READ_TOKEN: ${{ github.token }}
       ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
       SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY }}
       SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
