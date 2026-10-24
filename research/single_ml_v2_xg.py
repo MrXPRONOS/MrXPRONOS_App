@@ -206,7 +206,7 @@ class MatchStatsClient:
         self.skipped_keys=set()
 
     def get(self, endpoint):
-        if not (endpoint.startswith("/match/") or endpoint.startswith("/scheduled?date=")):
+        if not (endpoint.startswith("/match/") or endpoint.startswith("/schedule/")):
             raise ValueError("Endpoint not allowlisted")
         last=None
         for i,key in enumerate(self.keys):
