@@ -77,7 +77,7 @@ def episode_numbers(text: str):
 def series_title(text: str) -> str:
     value = first_title(text or "").strip()
     value = re.sub(r"(?i)^@[A-Za-z0-9_]{5,32}\s+(?:vf|fv)?\s*", "", value)
-    value = CLEAN_CODES.sub(" ", value)
+    value = re.sub(r"(?i)\\b(?:episode|épisode|ep)[\\s._-]*0*\\d{1,3}\\b", " ", value)\n    value = CLEAN_CODES.sub(" ", value)
     value = SEASON_HEADER.sub(" ", value)
     value = re.sub(r"(?i)(?:\b(?:mp4|mkv)\b|^@[^\s]+\s+(?:vf|fv)\b)", " ", value)
     value = re.sub(r"(?i)\b(?:vf|vostfr|1080p|720p|dub|hd|complet)\b", " ", value)
@@ -237,11 +237,9 @@ def eligible_short_series(groups, catalogue, cap=12):
     for key, items in groups.items():
         numbers = {(int(x["season"]), int(x["episode"])) for x in items}
         for name, seasons in observed.items():
-            if name == key:
-                numbers.update((int(season), int(num)) for season, eps in seasons.items() for num in eps)
+            if name == key or name.startswith(key + "-ep") or name.startswith(key + "-episode"):\n                numbers.update((int(season), int(num)) for season, eps in seasons.items() for num in eps)
         for name, entry in existing.items():
-            if name == key:
-                numbers.update((int(season), int(num)) for season, eps in entry.get("episodes", {}).items() for num in eps)
+            if name == key or name.startswith(key + "-ep") or name.startswith(key + "-episode"):\n                numbers.update((int(season), int(num)) for season, eps in entry.get("episodes", {}).items() for num in eps)
         if len(numbers) > cap or any(ep > cap for _, ep in numbers):
             continue
         if not numbers or any(
