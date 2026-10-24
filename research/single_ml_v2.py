@@ -29,12 +29,13 @@ from scipy.stats import poisson
 from sklearn.ensemble import HistGradientBoostingRegressor
 from single_ml_v2_form import FORM_FEATURE_NAMES, team_form, form_quality
 from single_ml_v2_direct import (DIRECT_MODEL_ID, DIRECT_MODEL_VERSION, train_direct_score, direct_grid)
+from single_ml_v2_candidates import (CANDIDATES, CANDIDATE_MODEL_NAMES, CANDIDATE_VERSION, fit_pair, predict_grid)
 
 MAX_GOALS = 10
 GOALS = np.arange(MAX_GOALS + 1)
 MODELS = ("poisson", "dixon_coles", "bivariate_poisson", "xg_poisson",
           "bayesian_gamma", "machine_learning", "monte_carlo", "market_adjusted",
-          DIRECT_MODEL_ID)
+          DIRECT_MODEL_ID, *CANDIDATE_MODEL_NAMES.values())
 SEED = 20261020
 
 
@@ -596,6 +597,7 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
     training = []
     direct_training = []
     direct_model = None
+    candidate_models = {name: None for name in CANDIDATES}
     pending_xg = defaultdict(list)
     recent_low = []
     recent_residuals = []
@@ -621,12 +623,15 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         if evaluating and (last_retrain is None or (day-last_retrain).days >= retrain_days):
             ml = train_ml(training, **(ml_parameters or {}))
             direct_model = train_direct_score(direct_training)
+            for candidate_name in CANDIDATES:
+                candidate_models[candidate_name] = fit_pair(candidate_name, training, feature_count=len(FEATURE_NAMES))
             dc_rho = estimate_dc_rho(recent_low[-9000:])
             shared = estimate_shared(recent_low)
             last_retrain = day
             print("RETRAIN", day, "train_rows", len(training),
                   "rho", round(dc_rho, 4), "shared", round(shared, 4),
-                  "ml", ml is not None, "direct", direct_model is not None, flush=True)
+                  "ml", ml is not None, "direct", direct_model is not None,
+                  "candidates", {k: v is not None for k,v in candidate_models.items()}, flush=True)
         # FIRST calculate ALL forecasts for the date, THEN add their results to history.
         pending = []
         for m in daily:
@@ -674,6 +679,11 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                     forecasts[DIRECT_MODEL_ID] = grid_direct
             else:
                 audit["direct_ml_not_enough_training"] += 1
+            for candidate_name, fitted in candidate_models.items():
+                if fitted is not None:
+                    forecasts[CANDIDATE_MODEL_NAMES[candidate_name]] = predict_grid(fitted, f["vector"], poisson_grid)
+                else:
+                    audit[f"{candidate_name}_not_enough_training"] += 1
             market = market_grid(p0, m.odds)
             if market is not None:
                 forecasts["market_adjusted"] = market
@@ -726,6 +736,13 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         }
     else:
         paired_cohorts["direct_vs_goal_rate_ml"] = {"matched_games":0}
+    competitor_names = ["machine_learning", *CANDIDATE_MODEL_NAMES.values()]
+    matched_sets = [{(r["date"],r["id"]) for r in results[name]} for name in competitor_names]
+    common = set.intersection(*matched_sets) if matched_sets else set()
+    paired_cohorts["all_goal_rate_ml_competitors"] = {
+        "matched_games":len(common),
+        "comparisons":summarize({name:[r for r in results[name] if (r["date"],r["id"]) in common] for name in competitor_names}),
+    }
     for conditional_model in ("xg_poisson", "market_adjusted"):
         eligible = {(r["date"], r["id"]) for r in results[conditional_model]}
         if not eligible:
@@ -752,6 +769,8 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         "form_quality_counts":dict(audit),
         "n_evaluation_matches": audit["evaluated_matches"],
         "direct_score_version": DIRECT_MODEL_VERSION,
+        "candidate_version": CANDIDATE_VERSION,
+        "candidate_training_rows":{name:(fitted.training_rows if fitted is not None else 0) for name,fitted in candidate_models.items()},
         "direct_score_training_samples":direct_model.samples if direct_model else 0,
         "direct_score_training_classes":len(direct_model.label_counts) if direct_model else 0,
         "direct_score_training_policy":"Prior calendar days only; 36 explicit exact scores (0..5) + rare tail; refit on ML cadence",
@@ -765,6 +784,8 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             "bayesian_gamma": "Gamma strength priors with posterior predictive Monte Carlo integration",
             "machine_learning": "Chronologically refitted Poisson-gradient-boosting for home/away goals",
             DIRECT_MODEL_ID: "Direct multiclass gradient boosting of exact-score labels; 36 classes plus tail, prematch prior blend",
+            "machine_learning_lightgbm":"Genuine LightGBM Poisson pair, fixed predeclared parameters, same frozen prematch features",
+            "machine_learning_catboost":"Genuine CatBoost Poisson pair, fixed predeclared parameters, same frozen prematch features",
             "monte_carlo": "4,000 simulations with shared Gamma tempo; stochastic scenario technique",
             "market_adjusted": "Only verified timestamped PREMATCH market quotes; incomplete score odds are not treated as a full market distribution",
         },
