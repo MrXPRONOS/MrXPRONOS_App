@@ -1,4 +1,4 @@
-name: LIVE - refresh failover
+name: RETIRED - live refresh failover
 
 # Legacy Supabase failover retained for manual rollback; automated runs disabled.
 on:
@@ -13,6 +13,7 @@ concurrency:
 
 jobs:
   recover-live-refresh:
+    if: ${{ false }} # Old Supabase-dependent recovery cannot run against offline Supabase
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
