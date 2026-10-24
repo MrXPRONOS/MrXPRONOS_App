@@ -173,8 +173,8 @@ jobs:
         if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_TORRENT9_PAUSED != 'true' }}
         run: sleep 25
 
-      - name: "Transfert ordonné APRÈS films vers Torrent9"
-        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_TORRENT9_PAUSED != 'true' }}
+      - name: "Un seul film CinéX transféré vers Torrent9 (avec attribution)"
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         working-directory: telegram-film-relay
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
