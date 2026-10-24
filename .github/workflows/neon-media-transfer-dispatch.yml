@@ -1,4 +1,4 @@
-name: Mr XPRONOS - Transfer 113 videos to Neon
+name: RETIRED - neon media transfer dispatch
 
 on:
   push:
@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   transfer:
-    if: ${{ github.event_name == 'push' || inputs.confirm == 'COPY113' }}
+    if: ${{ false }} # Old Supabase-dependent recovery cannot run against offline Supabase
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
