@@ -23,9 +23,11 @@ on:
       - "scripts/d1_publication_ledger.py"
       - "scripts/post_shorts_video.py"
       - ".github/workflows/shorts-coupons-production.yml"
+      - "config/shorts_social_recovery_trigger.txt"
 
 permissions:
   contents: write
+  actions: read
   id-token: write
 
 concurrency:
@@ -39,6 +41,7 @@ env:
 
 jobs:
   publish:
+    if: ${{ !contains(github.event.head_commit.message, '[recover-social-only]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -294,6 +297,84 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "ops/probes/shorts-${PROBE_ID}.json"
           git commit -m "ops(probe): record Shorts production outcome [skip ci]" || exit 0
+          for attempt in 1 2 3 4; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+            sleep "$attempt"
+          done
+          exit 1
+
+  recover_missing_social:
+    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[recover-social-only]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      IG_USER_ID: ${{ secrets.IG_USER_ID }}
+      META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+      THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+      THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install requests
+      - name: Download original already-published Short (never regenerate or resend Telegram)
+        uses: actions/download-artifact@v4
+        with:
+          name: shorts-coupons-production-morning
+          run-id: 40060124461
+          repository: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: recovered_short
+      - name: Verify production video source and recover only Instagram and Threads
+        id: recover
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/recover_short_social.py scripts/post_shorts_video.py scripts/neon_public_media.py
+          python scripts/recover_short_social.py \
+            --video recovered_short/daily_pronos_coupon_short.mp4 \
+            --manifest recovered_short/telegram_out/production_short/manifest.json \
+            --previous-report recovered_short/social_post_results.json \
+            --dry-run
+          python scripts/recover_short_social.py \
+            --video recovered_short/daily_pronos_coupon_short.mp4 \
+            --manifest recovered_short/telegram_out/production_short/manifest.json \
+            --previous-report recovered_short/social_post_results.json
+      - name: Record one-shot social recovery result
+        if: ${{ always() }}
+        env:
+          PROBE_RUN: ${{ github.run_id }}
+          PROBE_RECOVERY: ${{ steps.recover.outcome }}
+          PROBE_ORIGIN: 40060124461
+        run: |
+          python - <<'PY'
+          import json,os,datetime
+          from pathlib import Path
+          p=Path("social_recovery_results.json")
+          result=None
+          if p.exists():
+              try:result=json.loads(p.read_text(encoding="utf-8"))
+              except (OSError,ValueError):pass
+          data={"run_id":os.getenv("PROBE_RUN"),
+                "origin_run_id":os.getenv("PROBE_ORIGIN"),
+                "recovery_step":os.getenv("PROBE_RECOVERY"),
+                "time":datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "result":result}
+          out=Path("ops/probes/shorts-social-recovery-"+data["run_id"]+".json")
+          out.parent.mkdir(parents=True,exist_ok=True)
+          out.write_text(json.dumps(data,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+          print("SHORTS_RECOVERY_PROBE",json.dumps(data,ensure_ascii=False))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "ops/probes/shorts-social-recovery-${PROBE_RUN}.json"
+          git commit -m "ops(probe): record partial Shorts social recovery [skip ci]" || exit 0
           for attempt in 1 2 3 4; do
             git pull --rebase origin main
             if git push origin HEAD:main; then exit 0; fi
