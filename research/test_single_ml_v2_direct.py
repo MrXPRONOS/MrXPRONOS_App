@@ -65,7 +65,7 @@ class DirectScoreClassifierTests(unittest.TestCase):
             direct_score_features(np.array([float("nan")]),grid)
         with self.assertRaises(ValueError):
             direct_score_features(np.ones(5),np.zeros((11,11)))
-        rows=[(np.ones(len(FEATURE_NAMES)+i%2),grid,i%3,1)]*16
+        rows=[(np.ones(len(FEATURE_NAMES)+i%2),grid,i%3,1) for i in range(16)]
         with self.assertRaises(ValueError):
             train_direct_score(rows,min_samples=8,max_iter=4)
 
