@@ -229,6 +229,41 @@ async def find_marked(client, peer, marker: str, limit=160):
     return None
 
 
+def eligible_short_series(groups, catalogue, cap=12):
+    """Only complete small anime; never misread a long series as a short excerpt."""
+    observed = catalogue.get("source_observed", {})
+    existing = catalogue.get("series", {})
+    results = []
+    for key, items in groups.items():
+        numbers = {(int(x["season"]), int(x["episode"])) for x in items}
+        for name, seasons in observed.items():
+            if name == key:
+                numbers.update((int(season), int(num)) for season, eps in seasons.items() for num in eps)
+        for name, entry in existing.items():
+            if name == key:
+                numbers.update((int(season), int(num)) for season, eps in entry.get("episodes", {}).items() for num in eps)
+        if len(numbers) > cap or any(ep > cap for _, ep in numbers):
+            continue
+        if not numbers or any(
+            {ep for sn, ep in numbers if sn == season} != set(range(1, max(ep for sn, ep in numbers if sn == season) + 1))
+            for season in {sn for sn, _ in numbers}
+        ):
+            continue
+        # Treat a 12-episode run as complete only with all numbers 1..12.
+        # Shorter runs require an explicit completion marker in source metadata.
+        text = " ".join(str(getattr(x.get("poster"), "raw_text", "") or "") for x in items)
+        complete = bool(re.search(r"(?i)(complet|intégrale|integrale|fin de saison|fin de série|fin de serie)", text))
+        if len(numbers) < cap and not complete:
+            continue
+        if numbers != {(int(x["season"]), int(x["episode"])) for x in items}:
+            continue
+        unique = {}
+        for item in items:
+            unique.setdefault((item["season"], item["episode"]), item)
+        results.append((key, sorted(unique.values(), key=lambda x: (x["season"], x["episode"]))))
+    return results
+
+
 async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int:
     cfg = category_config("anime")  # sources historiques + variables inchangées
     session = (os.getenv("TG_STRING_SESSION") or os.getenv("TG_SESSION_STRING") or
@@ -287,8 +322,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         LOG.info("CinéX Anime : %s séries, %s épisodes identifiables, sources=%s",
                  len(groups), len(all_candidates), cfg["sources"])
         # Do not publish public cards based on uncertain inferred episode numbers.
-        for key, items in groups.items():
-            if len(completed_series) >= limit or copied_episodes >= episode_cap:
+        for key, items in eligible_short_series(groups, catalogue, episode_cap):
+            if len(completed_series) >= limit:
                 break
             # Compatibilité avec les catalogues créés avant la correction S02.
             # Ne pas créer une deuxième fiche ni recharger les épisodes déjà copiés.
@@ -305,7 +340,6 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                        if x["source_key"] not in known_keys]
             if not pending:
                 continue
-            pending = pending[:episode_cap - copied_episodes]
             title = str(existing.get("title") or items[0]["title"])
             LOG.info("Animé %s : %s épisodes nouveaux (lot borné)", title, len(pending))
             if not publish:
@@ -456,7 +490,7 @@ def main():
     arg = argparse.ArgumentParser()
     arg.add_argument("--publish", action="store_true")
     arg.add_argument("--limit", type=int, choices=(1, 2), default=2)
-    arg.add_argument("--episode-cap", type=int, choices=range(1, 13), default=6)
+    arg.add_argument("--episode-cap", type=int, choices=range(1, 13), default=12)
     args = arg.parse_args()
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s | %(levelname)s | %(message)s")
