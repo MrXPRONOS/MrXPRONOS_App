@@ -1,0 +1,18 @@
+{
+  "run_id": "40059890840",
+  "attempt": "1",
+  "trigger_sha": "6c7ed148378e30d9a8429ab5cc0e62ac202a496b",
+  "event": "push",
+  "checked_at": "2026-10-24T03:51:21.107465+00:00",
+  "slot": "",
+  "render": "skipped",
+  "has_video": "",
+  "send": "skipped",
+  "video_sent": "",
+  "manifest": null,
+  "social_step": "skipped",
+  "social_verify": "skipped",
+  "telegram_audit": "skipped",
+  "social": null,
+  "cloudflare_token_present": true
+}

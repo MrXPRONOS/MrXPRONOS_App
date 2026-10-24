@@ -1,0 +1,14 @@
+{
+  "run_id": "40059918640",
+  "trigger_sha": "4605ee110d3a97cf85be1fb2866666812067245e",
+  "checked_at": "2026-10-24T03:51:04.751047+00:00",
+  "event": "push",
+  "source_conclusion": "",
+  "ledger_read": "success",
+  "selection": "success",
+  "has_matches": "false",
+  "telegram": "skipped",
+  "social": "skipped",
+  "ticket": null,
+  "cloudflare_token_present": true
+}
