@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -40,6 +41,9 @@ class Feed:
 
 class ForwardTests(unittest.TestCase):
     def setUp(self):
+        self.environment=patch.dict(os.environ,{"GITHUB_ACTIONS":"false"})
+        self.environment.start()
+        self.addCleanup(self.environment.stop)
         self.key=b"X"*32
         self.issued=datetime(2026,10,24,7,0,tzinfo=UTC)
         self.start=datetime(2026,10,25,12,0,tzinfo=UTC)
@@ -83,7 +87,7 @@ class ForwardTests(unittest.TestCase):
                 settled=fw.settle(key=self.key,now=later,root=root,fetcher=source)
                 report=fw.forward_report(key=self.key,now=later,root=root)
             self.assertEqual(settled["settled_matches"],1)
-            self.assertEqual(report["status"],"BLIND_PREKICKOFF_VERIFIED")
+            self.assertEqual(report["status"],"LOCAL_GIT_ONLY_UNVERIFIED")
             self.assertEqual(report["models"]["machine_learning"]["n"],1)
             self.assertEqual(report["models"]["machine_learning"]["exact_hits"],0)
             self.assertIsNone(report["models"]["machine_learning"]["flat_stake_roi_pct"])
