@@ -329,9 +329,13 @@ def collect(start,end,*,key,root=ROOT,limit=24,request_limit=35,client=None):
             "away_team":match["away_team"],
             "checked_at":utc_now().isoformat(),**value,
         }
-        if write_record(record,key,root):
-            stats["newly_checked"]+=1
-            stats["outcome_"+value["status"]]+=1
+        # Persist only source-confirmed measured xG. "Not available" may be
+        # transient or uncovered by this provider; a future run must retry.
+        # Never pin an unsupported response forever as a historical truth.
+        stats["newly_checked"]+=1
+        stats["outcome_"+value["status"]]+=1
+        if value["status"]=="measured" and write_record(record,key,root):
+            stats["persisted_measured"]+=1
     stats["requests_used"]=cli.used
     stats["request_limit"]=cli.limit
     return dict(stats)
