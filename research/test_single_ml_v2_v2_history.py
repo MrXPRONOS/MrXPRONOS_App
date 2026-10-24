@@ -30,7 +30,9 @@ class V2Tests(unittest.TestCase):
     def test_strict_verified_no_synthetic(self):
         self.assertIsNone(v2_fixture(evt(status="inprogress"),DAY))
         self.assertIsNone(v2_fixture(evt(sport=3),DAY))
-        self.assertIsNone(v2_fixture(evt(home=None),DAY))
+        missing_score=evt(home=None)
+        missing_score["homeScore"]["current"]=None
+        self.assertIsNone(v2_fixture(missing_score,DAY))
         x=evt();x["id"]=None
         self.assertIsNone(v2_fixture(x,DAY))
     def test_one_day_encrypted_and_global_catalog(self):
