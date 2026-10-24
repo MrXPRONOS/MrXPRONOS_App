@@ -14,6 +14,14 @@ on:
         description: 'Maximum API days per run'
         default: '40'
         required: true
+      xg_matches_per_run:
+        description: 'Historical xG fixtures to query per run (0 skips)'
+        default: '12'
+        required: true
+      xg_requests_per_run:
+        description: 'Hard provider API request budget for xG'
+        default: '24'
+        required: true
       train_after_completion:
         description: 'Run research ML when archive is complete'
         type: boolean
@@ -69,6 +77,20 @@ jobs:
           set -e
           if [[ "$code" -ne 0 && "$code" -ne 2 ]]; then exit "$code"; fi
           if [[ "$code" == 0 ]]; then echo "complete=true" >> "$GITHUB_OUTPUT"; else echo "complete=false" >> "$GITHUB_OUTPUT"; fi
+      - name: Collect measured historical xG from source
+        shell: bash
+        env:
+          HISTORY_START: ${{ inputs.start }}
+          HISTORY_END: ${{ inputs.end }}
+          XG_MATCH_LIMIT: ${{ inputs.xg_matches_per_run }}
+          XG_REQUEST_LIMIT: ${{ inputs.xg_requests_per_run }}
+        run: |
+          set -euo pipefail
+          if [[ "$XG_MATCH_LIMIT" -gt 0 ]]; then
+            args=(--start "$HISTORY_START" --limit "$XG_MATCH_LIMIT" --request-limit "$XG_REQUEST_LIMIT")
+            if [[ -n "$HISTORY_END" ]]; then args+=(--end "$HISTORY_END"); fi
+            PYTHONPATH=.:research python research/single_ml_v2_xg.py collect "${args[@]}"
+          fi
       - name: Commit encrypted snapshots ONLY
         shell: bash
         run: |
@@ -92,8 +114,9 @@ jobs:
           end="$HISTORY_END"
           if [[ -z "$end" ]]; then end="$(date -u -d yesterday +%F)"; fi
           PYTHONPATH=.:research python research/single_ml_v2_git.py export --start "$HISTORY_START" --end "$end" --output /tmp/mrx_football_history.json
+          PYTHONPATH=.:research python research/single_ml_v2_prepare_xg.py --source /tmp/mrx_football_history.json --out /tmp/mrx_football_with_xg.json
           python -m pip install numpy scipy scikit-learn
-          PYTHONPATH=.:research python research/single_ml_v2.py --source /tmp/mrx_football_history.json --start 2026-01-01 --end "$end" --out /tmp/ml-v2-output
+          PYTHONPATH=.:research python research/single_ml_v2.py --source /tmp/mrx_football_with_xg.json --start 2026-01-01 --end "$end" --out /tmp/ml-v2-output
       - uses: actions/upload-artifact@v4
         if: ${{ steps.collect.outputs.complete == 'true' && inputs.train_after_completion }}
         with:
