@@ -6,8 +6,9 @@ on:
   # League/season coverage and empty statistics are cached in Neon.
   # Rejected provider calls are retried only after an explicit cooldown.
   # Operational smoke test: cached unavailable leagues should spend no detail calls.
-  schedule:
-    - cron: '10 * * * *'
+  # Paused at user's request (2026-10-24). Manual dispatch remains available.
+  # schedule:
+  #   - cron: '10 * * * *'
   workflow_dispatch:
   push:
     branches: [main]
