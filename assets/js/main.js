@@ -2710,21 +2710,13 @@ async function displayFootNews() {
   try {
     let rssNews = [];
 
-    // Source principale : snapshot public Supabase alimenté par Actu Foot.
-    // Le JSON Git reste uniquement un filet de secours si Supabase est indisponible.
-    if (supabaseAvailable && supabase) {
-      try {
-        const { data, error } = await supabase
-          .from("actu_foot_news_snapshot")
-          .select("payload,generated_at")
-          .eq("id", "latest")
-          .maybeSingle();
-        if (!error && Array.isArray(data?.payload) && data.payload.length) {
-          rssNews = data.payload;
-        }
-      } catch (snapshotError) {
-        console.warn("Snapshot Infos Foot Supabase indisponible:", snapshotError);
-      }
+    // Source principale : snapshot Neon public via Neon Auth (aucun appel Supabase).
+    // Le JSON Git conserve le rôle de secours si Neon est temporairement inaccessible.
+    try {
+      const {loadNeonFootNews}=await import("./actu-foot-neon.js");
+      rssNews=await loadNeonFootNews();
+    } catch (snapshotError) {
+      console.warn("Snapshot Infos Foot Neon indisponible",snapshotError?.message||"Erreur");
     }
 
     if (!rssNews.length) {
