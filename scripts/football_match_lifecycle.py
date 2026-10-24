@@ -4,7 +4,7 @@
 Priorité par qualité de données:
 1. ESPN pour les événements détaillés.
 2. SportScore pour couverture/live, timeline et lineups.
-3. Cache Supabase/BSD pour continuité et couverture.
+3. Cache Neon/BSD pour continuité et couverture.
 4. TheSportsDB pour enrichissement ciblé.
 5. OpenLigaDB pour confirmation des ligues disponibles.
 
@@ -25,6 +25,10 @@ from typing import Any
 from urllib.parse import urlparse
 
 import requests
+try:
+    from scripts.neon_rest_compat import NeonRestSession
+except ModuleNotFoundError:
+    from neon_rest_compat import NeonRestSession
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "bsd"))
@@ -220,17 +224,18 @@ def _event_time(event: dict) -> datetime | None:
 
 
 
-def fetch_supabase_live(session: requests.Session, max_age_seconds: int = 360) -> list[dict]:
+def fetch_neon_live(session: requests.Session, max_age_seconds: int = 360) -> list[dict]:
     """Lit d'abord l'état canonique déjà produit pour le site LIVE.
 
-    live_stats_merged est la vue normalisée multi-source du moteur Supabase.
+    live_stats_merged est la vue normalisée multi-source du moteur Neon.
     matches_live reste un fallback de compatibilité si la table fusionnée est
     momentanément vide ou indisponible.
     """
-    base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or "").strip()
+    base = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
+    key = "server" if os.getenv("NEON_DATABASE_URL") else ""
     if not base or not key:
         return []
+    session = NeonRestSession(session)
     since = (datetime.now(timezone.utc) - timedelta(seconds=max_age_seconds)).isoformat()
     headers = {"apikey": key, "Authorization": "Bearer " + key}
 
@@ -268,7 +273,7 @@ def fetch_supabase_live(session: requests.Session, max_age_seconds: int = 360) -
             or ""
         )
         merged_rows.append({
-            "source": "supabase_merged",
+            "source": "neon_merged",
             "id": str(row.get("primary_match_id") or row.get("canonical_match_id") or ""),
             "home_team": _plain(row.get("home_team")),
             "away_team": _plain(row.get("away_team")),
@@ -320,7 +325,7 @@ def fetch_supabase_live(session: requests.Session, max_age_seconds: int = 360) -
             or ""
         )
         rows.append({
-            "source": "supabase_live",
+            "source": "neon_live",
             "id": str(row.get("id") or raw.get("id") or ""),
             "home_team": _plain(row.get("home_team") or raw.get("home_team")),
             "away_team": _plain(row.get("away_team") or raw.get("away_team")),
@@ -349,11 +354,12 @@ def persist_canonical_live_events(
     """Persiste puis relit la timeline canonique utilisée par Telegram et le site."""
     if not signals:
         return []
-    base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
+    session = NeonRestSession(session)
+    base = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
+    key = "server" if os.getenv("NEON_DATABASE_URL") else ""
     if not base or not key:
         if strict:
-            raise RuntimeError("Timeline canonique requise mais Supabase est indisponible")
+            raise RuntimeError("Timeline canonique requise mais Neon est indisponible")
         return signals
 
     now_iso = datetime.now(timezone.utc).isoformat()
@@ -422,7 +428,7 @@ def persist_canonical_live_events(
         saved = response.json()
     except (requests.RequestException, ValueError) as exc:
         if strict:
-            raise RuntimeError("Échec timeline canonique Supabase") from exc
+            raise RuntimeError("Échec timeline canonique Neon") from exc
         print("CANONICAL_LIVE_EVENTS_FALLBACK", type(exc).__name__)
         return signals
 
@@ -443,11 +449,12 @@ def confirm_canonical_live_event(
     event_key = _plain(event_key)
     if not event_key:
         return False
-    base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
+    session = NeonRestSession(session)
+    base = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
+    key = "server" if os.getenv("NEON_DATABASE_URL") else ""
     if not base or not key:
         if strict:
-            raise RuntimeError("Confirmation canonique requise mais Supabase est indisponible")
+            raise RuntimeError("Confirmation canonique requise mais Neon est indisponible")
         return False
     headers = {
         "apikey": key,
@@ -1543,7 +1550,7 @@ def collect_external(session: requests.Session, day: date, base_events: list[dic
 
     # Le snapshot serveur LIVE reste la donnée la plus fraîche pour score/minute.
     # Il est ajouté même lorsqu'un snapshot fournisseur court a été réutilisé.
-    rows.extend(fetch_supabase_live(session))
+    rows.extend(fetch_neon_live(session))
     return rows
 
 
@@ -1646,12 +1653,12 @@ def lifecycle_signals(
         return explicit, espn_match_url(explicit)
 
     def normalized_detail(ext: dict, event_id: str) -> dict:
-        # Les scores consolidés Supabase n'incluent pas forcément les buteurs.
+        # Les scores consolidés Neon n'incluent pas forcément les buteurs.
         # Utiliser la chronologie ESPN liée au même match lorsqu'elle existe.
         provider = str(ext.get("source") or "")
         if provider == "espn":
             return extract_match_enrichment(summary_for(event_id))
-        if provider in {"supabase_merged", "supabase_live"}:
+        if provider in {"neon_merged", "neon_live"}:
             linked_id, _ = espn_identity(ext)
             if linked_id:
                 summary = summary_for(linked_id)
@@ -1958,7 +1965,7 @@ def lifecycle_signals(
         # Buts récents : chaque événement est traité, même si plusieurs buts
         # sont apparus entre deux passages du lifecycle.
         if (
-            is_live(ext) and ext.get("source") in {"espn", "sportscore", "thesportsdb", "supabase_merged", "supabase_live"}
+            is_live(ext) and ext.get("source") in {"espn", "sportscore", "thesportsdb", "neon_merged", "neon_live"}
             and hs is not None and aws is not None and hs + aws > 0
         ):
             goal_match_data = normalized_detail(ext, event_id)
