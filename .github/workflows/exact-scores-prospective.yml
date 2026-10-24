@@ -1,0 +1,313 @@
+name: Exact scores - prospective shadow tracking
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'feature/exact-score-v1-20261019'
+    paths:
+      - 'bsd/exact_scores_prospective.py'
+      - 'bsd/exact_scores_dashboard.py'
+      - 'bsd/grouped_correct_score.py'
+      - 'bsd/grouped_correct_score_engine.py'
+      - 'bsd/grouped_total_goals.py'
+      - 'bsd/grouped_correct_score_prospective.py'
+      - 'bsd/grouped_correct_score_feed.py'
+      - 'bsd/grouped_correct_score_backtest.py'
+      - 'bsd/test_grouped_correct_score.py'
+      - 'bsd/bsd_form_shift.py'
+      - 'bsd/bsd_v2_shadow.py'
+      - 'bsd/bsd_form_shift_singles_backtest.py'
+      - 'bsd/test_form_shift.py'
+      - 'bsd/test_exact_scores_prospective.py'
+      - '.github/workflows/exact-scores-prospective.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mrx-exact-prospective-one-writer
+  cancel-in-progress: false
+
+jobs:
+  prospective:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Fast-forward to newest immutable research archives
+        run: |
+          git fetch --no-tags origin feature/exact-score-v1-20261019
+          git merge --ff-only origin/feature/exact-score-v1-20261019
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install bounded dependencies
+        run: python -m pip install requests cryptography
+      - name: Test immutable prospective ledger
+        run: |
+          python -m unittest bsd/test_exact_scores_prospective.py -v
+          python -m unittest bsd/test_grouped_correct_score.py -v
+          python -m unittest bsd/test_form_shift.py -v
+          node --check assets/js/grouped-score.js
+      - name: Restore latest PRIVATE history from default branch
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: |
+          test -n "$BSD_HISTORY_KEY" || { echo "::error::Missing BSD_HISTORY_KEY"; exit 1; }
+          git fetch --no-tags origin main
+          git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
+          python bsd/bsd_archive.py restore
+      - name: Fetch future fixtures and record frozen pre-match predictions
+        env:
+          BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+          FOOTBALL_MULTI_SOURCE: '0'
+        run: |
+          test -n "$BSD_API_KEY" || { echo "::error::Missing BSD_API_KEY"; exit 1; }
+          python bsd/exact_scores_prospective.py --max-requests 90
+      - name: Generate standalone aggregate dashboard
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: python bsd/exact_scores_dashboard.py
+      - name: Record unpublished 1xBet grouped score forecasts
+        env:
+          BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+          FOOTBALL_MULTI_SOURCE: '0'
+        run: python bsd/grouped_correct_score_prospective.py --max-requests 90
+      - name: Prepare group score website preview for review only
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: python bsd/grouped_correct_score_feed.py
+      - name: Verify prospective report
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open("tmp/exact-scores/prospective-report.json",encoding="utf-8"))
+          assert r["experimental"] is True and r["published"] is False
+          assert r["total_captured"] >= r["pending"] + r["all"]["n"]
+          assert r["priority"]["n"] <= r["all"]["n"]
+          dashboard=json.load(open("tmp/exact-scores/prospective-dashboard.json",encoding="utf-8"))
+          assert dashboard["total_captured"] == r["total_captured"]
+          assert dashboard["all"]["n"] == r["all"]["n"]
+          assert dashboard["published"] is False
+          g=json.load(open("tmp/grouped-correct-score/prospective-report.json",encoding="utf-8"))
+          v=json.load(open("tmp/grouped-correct-score/scores-groupes-review.json",encoding="utf-8"))
+          assert g["published"] is False and v["published"] is False
+          assert g["total_captured"]>=g["settled"]+g["pending"]
+          assert v["format"]=="mrx-1xbet-grouped-preview-v1"
+          print("GROUPED_RESEARCH_STATUS",json.dumps({"captured":g["total_captured"],"settled":g["settled"],"review_visible":len(v["matches"])}))
+          print("PROSPECTIVE_METRICS",json.dumps(r,ensure_ascii=False))
+          PY
+      - name: Commit encrypted ledger ONLY (never scores in cleartext)
+        run: |
+          if [ ! -f bsd/exact_score_shadow_ledger.enc.json ]; then
+            echo "No pre-match predictions captured yet"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- bsd/exact_score_shadow_ledger.enc.json bsd/grouped_1xbet_shadow_ledger.enc.json
+          if git diff --cached --quiet; then
+            echo "No new prospective predictions or results"
+            exit 0
+          fi
+          git commit -m "data(shadow): archive encrypted immutable prospective forecasts [skip ci]"
+          # Restore the tracked encrypted *input* changed by fetching main.
+          git restore -- bsd/all_matches_bsd.enc.json
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+      - name: Upload aggregate summary only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exact-prospective-summary-${{ github.run_id }}
+          path: |
+            tmp/exact-scores/prospective-report.json
+            tmp/exact-scores/prospective-dashboard.json
+            tmp/exact-scores/prospective-dashboard.html
+            tmp/grouped-correct-score/prospective-report.json
+            tmp/grouped-correct-score/scores-groupes-review.json
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Remove decrypted inputs
+        if: always()
+        run: |
+          rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+          rm -rf bsd/cache
+
+  grouped-history:
+    if: github.event_name == 'workflow_dispatch'
+    needs: prospective
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install BSD dependencies
+        run: python -m pip install requests cryptography
+      - name: Restore main BSD archive privately
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: |
+          test -n "$BSD_HISTORY_KEY"
+          git fetch --no-tags origin main
+          git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
+          python bsd/bsd_archive.py restore
+      - name: Full retrospective evaluation of nine 1xBet groups and DC signal
+        run: python bsd/grouped_correct_score_backtest.py --cap 0
+      - name: Verify paired-group comparison without fictitious bookmaker odds
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('tmp/grouped-correct-score/historical-backtest.json'))
+          assert p["eligible"] > 0
+          assert p["variants"]["baseline"]["n"] == p["eligible"]
+          assert p["variants"]["with_verified_price"]["n"] == 0
+          assert p["bookmaker_prices_available"] is False
+          print('GROUPED_2026_VALIDATED',json.dumps(p["variants"],ensure_ascii=False))
+          PY
+      - name: Upload historical group metrics only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: grouped-1xbet-historical-${{ github.run_id }}
+          path: tmp/grouped-correct-score/historical-backtest.json
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Remove decrypted history
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+
+  form-shift-validation:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install BSD research dependencies
+        run: python -m pip install requests cryptography
+      - name: Validate form-shift tests and historical-time privacy
+        run: python -m unittest bsd/test_form_shift.py -v
+      - name: Restore full BSD private historical archive
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: |
+          test -n "$BSD_HISTORY_KEY"
+          git fetch --no-tags origin main
+          git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
+          python bsd/bsd_archive.py restore
+      - name: Compare grouped 1xBet selections with five regime-change filters
+        if: github.event_name == 'workflow_dispatch'
+        run: python bsd/grouped_correct_score_backtest.py --cap 0
+      - name: Compare BSD V2 single markets on years 2025 and 2026
+        run: python bsd/bsd_form_shift_singles_backtest.py --cap 0
+      - name: Assert paired BSD V2 simple-market replay integrity
+        run: |
+          python - <<'PY'
+          import json
+          s=json.load(open('tmp/grouped-correct-score/bsd-v2-form-shift.json'))
+          assert s["results"]["2025"]["base"]["n"]>1000
+          assert s["results"]["2026"]["base"]["n"]>1000
+          for row in s["results"].values():
+              assert row["form_guard"]["n"] <= row["base"]["n"]
+              assert row["on_alert_form_guard"]["n"] <= row["on_alert_base"]["n"]
+          print("FORM_SHIFT_BSD_SIMPLE_VERIFIED",json.dumps(s["results"],ensure_ascii=False))
+          PY
+      - name: Upload research-only aggregated comparisons
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mrx-form-shift-ablation-${{ github.run_id }}
+          path: |
+            tmp/grouped-correct-score/historical-backtest.json
+            tmp/grouped-correct-score/bsd-v2-form-shift.json
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Erase restored private archive
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+
+  goal-ceiling-validation:
+    if: github.event_name == 'push'
+    needs: prospective
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install BSD read-only backtest dependencies
+        run: python -m pip install requests cryptography
+      - name: Verify goal-ceiling math, fake-odds rejection and old H2H rules
+        run: python -m unittest bsd/test_grouped_correct_score.py -v
+      - name: Restore latest private historical archive for local calculations
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: |
+          test -n "$BSD_HISTORY_KEY"
+          git fetch --no-tags origin main
+          git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
+          python bsd/bsd_archive.py restore
+      - name: Measure six goal ceilings on 2025 sampled fixtures
+        run: |
+          python bsd/grouped_correct_score_backtest.py --year 2025 --cap 3000 --out tmp/grouped-correct-score/goal-ceilings-2025.json
+      - name: Measure goal ceilings on full historical 2026
+        run: |
+          python bsd/grouped_correct_score_backtest.py --year 2026 --cap 0 --out tmp/grouped-correct-score/goal-ceilings-2026.json
+      - name: Assert more selection opportunities, no invented 1xBet prices
+        run: |
+          python - <<'PY'
+          import json
+          for year in (2025,2026):
+              data=json.load(open(f'tmp/grouped-correct-score/goal-ceilings-{year}.json'))
+              assert data["eligible"]>1000
+              assert data["bookmaker_prices_available"] is False
+              assert data["variants"]["with_verified_price"]["n"]==0
+              rates=[data["variants"][f"ceiling_under_{n}5"]["n"] for n in (2,3,4,5,6,7)]
+              assert rates==sorted(rates),rates
+              assert rates[-1] >= rates[0]
+              print("GROUPED_CEILINGS_EVALUATED",json.dumps({
+                  "year":year,"eligible":data["eligible"],
+                  "old_h2h_under":data["variants"]["with_h2h_under"],
+                  "ceilings":{f"under_{n}5":data["variants"][f"ceiling_under_{n}5"]
+                              for n in (2,3,4,5,6,7)},
+                  "smallest_eligible_max_goals":data["goal_tier_distribution"],
+                  "observed_goals":data["actual_total_goals_bands"]
+                  },ensure_ascii=False))
+          PY
+      - name: Save research-only two-season total-goal comparisons
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: goal-ceilings-bsd-research-${{ github.run_id }}
+          path: |
+            tmp/grouped-correct-score/goal-ceilings-2025.json
+            tmp/grouped-correct-score/goal-ceilings-2026.json
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Remove decrypted match history
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
