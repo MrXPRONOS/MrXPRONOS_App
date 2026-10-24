@@ -1,0 +1,23 @@
+name: Ledger D1 gateway regression (no publishing)
+on:
+  push:
+    branches: [audit/supabase-offload-20261024]
+    paths:
+      - 'scripts/telegram_ledger_gateway.py'
+      - 'tests/test_telegram_ledger_gateway.py'
+      - '.github/workflows/ledger-d1-gateway-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install requests
+      - run: python -m py_compile scripts/telegram_ledger_gateway.py
+      - run: python -m unittest discover -s tests -p test_telegram_ledger_gateway.py -v
