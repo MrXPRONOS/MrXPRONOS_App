@@ -11,6 +11,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   blind-forward:
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.ML_V2_FORWARD_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 145
     env:
