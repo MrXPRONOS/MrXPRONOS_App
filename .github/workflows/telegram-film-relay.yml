@@ -1,4 +1,4 @@
-name: CineX - Films, Desir, Comedie, Anime et Decouverte (2h)
+name: CineX - Films, Desir, Comedie, Anime et Decouverte (6h)
 
 on:
   workflow_dispatch:
