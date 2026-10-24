@@ -1,6 +1,8 @@
 name: Update football news
 
 on:
+  schedule:
+    - cron: '17 * * * *'  # limite quotas: une collecte par heure
   workflow_dispatch:
   push:
     branches: [main]
@@ -11,17 +13,21 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: update-footnews
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   update:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+      FOOTNEWS_BACKEND: github
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.FOOTBALL_NEWS_CHAT_ID }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,15 +42,19 @@ jobs:
       - name: Install news dependencies
         run: python -m pip install feedparser requests Pillow 'psycopg[binary]>=3.2,<4'
 
+      - name: Offline regressions and syntax before any external APIs
+        run: |
+          python -m py_compile fetch_foot_news.py scripts/actu_foot_d1_news.py scripts/d1_publication_ledger.py
+          python -m unittest discover -s tests_football_channel -p 'test_actu_foot_d1_news.py' -v
+          node --check assets/js/main.js
       - name: Fetch and translate football news
         id: fetch
         env:
           FOOTBALL_RSS_FEED: https://madeinfoot.ouest-france.fr/flux/rss_news.php
-          MAX_ARTICLES: '60'
-          MAX_ARTICLES_PER_FEED: '16'
-          MAX_NEWS_AGE_HOURS: '120'
+          MAX_ARTICLES: '30'
+          MAX_ARTICLES_PER_FEED: '8'
+          MAX_NEWS_AGE_HOURS: '48'
         run: |
-          test -n "$NEON_DATABASE_URL" || { echo '::error::NEON_DATABASE_URL requis'; exit 1; }
           python fetch_foot_news.py
 
       - name: Validate enriched News Football output
@@ -58,8 +68,8 @@ jobs:
           real=sum(
               1 for item in items
               if item.get("image_origin")=="source"
-              and str(item.get("image") or "").startswith("assets/images/footnews/")
-              and Path(item["image"]).is_file()
+              and str(item.get("source_image") or "").startswith("https://")
+              and str(item.get("image") or "").startswith("https://")
           )
           complete=sum(1 for item in items if item.get("content") and item.get("site_url") and item.get("telegram_summary"))
           print("NEWS_VALID",len(items),"complete",complete,"real_images",real)
@@ -67,33 +77,65 @@ jobs:
           assert real>=max(1,len(items)//2), "Couverture images réelles insuffisante"
           PY
 
-      - name: Confirm snapshot publication path
-        id: neon
+      - name: Verify correct public RSS snapshot
+        id: public_verify
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
-          rows=json.loads(Path("footnews.json").read_text(encoding="utf-8"))
-          assert rows, "Snapshot local vide"
-          import os
-          import psycopg
-          from datetime import datetime,timezone,timedelta
-          with psycopg.connect(os.environ["NEON_DATABASE_URL"],connect_timeout=12) as connection:
-              with connection.cursor() as cursor:
-                  cursor.execute("SELECT jsonb_array_length(payload),generated_at FROM public.actu_foot_news_snapshot WHERE id='latest'")
-                  snapshot=cursor.fetchone()
-          assert snapshot is not None, "Snapshot Actu Foot Neon absent"
-          assert snapshot[0]>0, "Snapshot Neon vide"
-          assert snapshot[1]>=datetime.now(timezone.utc)-timedelta(minutes=15), "Snapshot Neon non actualisé"
-          print("NEWS_NEON_READY", snapshot[0])
+          site=json.loads(Path("footnews.json").read_text(encoding="utf-8"))
+          telegram=json.loads(Path("telegram_out/actu_foot_source_news.json").read_text(encoding="utf-8"))
+          assert site and telegram and len(site)==len(telegram)
+          assert all(str(x.get("site_url") or "").startswith("https://") for x in site)
+          print("ACTU_FOOT_STATIC_READY",len(site),"articles","photos sources chargées hors GitHub")
           PY
+
+      - name: Publish sourced news snapshot to GitHub Pages source
+        id: publish
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add footnews.json
+          if git diff --cached --quiet; then
+            echo "published=false" >> "$GITHUB_OUTPUT"
+            echo "ACTU_FOOT_NEWS_UNCHANGED"
+            exit 0
+          fi
+          git commit -m "data(infos): publish verified football news to Pages"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then
+              echo "published=true" >> "$GITHUB_OUTPUT"
+              echo "ACTU_FOOT_STATIC_PUSH_SUCCESS"
+              exit 0
+            fi
+            sleep "$attempt"
+          done
+          echo "::error::Git push failed, news not deployed"
+          exit 1
+
+      - name: Deploy updated public news to GitHub Pages
+        if: steps.publish.outputs.published == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main
+
+      - name: Send one genuine fresh football Flash with D1 deduplication
+        id: telegram
+        shell: bash
+        run: |
+          python scripts/actu_foot_d1_news.py --news telegram_out/actu_foot_source_news.json
 
       - name: Actualisation diagnostic Actu Foot du 24 octobre
         if: ${{ always() && github.event_name == 'push' }}
         env:
           NEWS_FETCH: ${{ steps.fetch.outcome }}
           NEWS_QUALITY: ${{ steps.quality.outcome }}
-          NEWS_NEON: ${{ steps.neon.outcome }}
+          NEWS_NEON: ${{ steps.public_verify.outcome }}
+          NEWS_PUBLISH: ${{ steps.publish.outcome }}
+          NEWS_TELEGRAM: ${{ steps.telegram.outcome }}
           NEWS_RUN: ${{ github.run_id }}
           NEWS_REF: ${{ github.sha }}
         run: |
@@ -103,7 +145,7 @@ jobs:
           from pathlib import Path
           summary={"run_id":os.environ["NEWS_RUN"],"sha":os.environ["NEWS_REF"],
              "time_utc":datetime.now(timezone.utc).isoformat(),
-             "steps":{k:os.environ.get(k,"") for k in ("NEWS_FETCH","NEWS_QUALITY","NEWS_NEON")}}
+             "steps":{k:os.environ.get(k,"") for k in ("NEWS_FETCH","NEWS_QUALITY","NEWS_NEON","NEWS_PUBLISH","NEWS_TELEGRAM")}}
           file=Path("ops/probes/actufoot-news-"+summary["run_id"]+".json")
           file.parent.mkdir(parents=True,exist_ok=True)
           file.write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
