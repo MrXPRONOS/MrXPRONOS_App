@@ -24,23 +24,11 @@ def post(url,**kwargs):
  return d
 
 def public_url(image,day):
- base=need("SUPABASE_URL").rstrip("/")
- key=need("SUPABASE_SERVICE_ROLE_KEY")
- bucket=os.getenv("SUPABASE_BUCKET","videos")
- obj="images/mrxpronos-combine/"+day+"/preview.jpg"
- buffer=io.BytesIO()
- with Image.open(image) as im:
-  rgb=im.convert("RGB")
-  rgb.save(buffer,"JPEG",quality=88,optimize=True)
- url=base+"/storage/v1/object/"+bucket+"/"+obj
- r=requests.post(url,headers={"apikey":key,"Authorization":"Bearer "+key,
-   "Content-Type":"image/jpeg","x-upsert":"true"},data=buffer.getvalue(),timeout=120)
- if not r.ok:raise RuntimeError("Upload photo publique: HTTP "+str(r.status_code))
- public=base+"/storage/v1/object/public/"+bucket+"/"+obj
- check=requests.get(public,timeout=30)
- if check.status_code!=200 or not check.headers.get("content-type","").startswith("image/"):
-  raise RuntimeError("Bucket photo non public / photo non accessible")
- return public
+ from neon_public_media import upload_public_media
+ # Immutable object name prevents simultaneous jobs overwriting public photos.
+ import hashlib
+ digest=hashlib.sha256(Path(image).read_bytes()).hexdigest()[:24]
+ return upload_public_media(image,f"images/mrxpronos-combine/{day}/{digest}.jpg")
 
 def publish(platform,public,image,caption):
  if platform=="facebook":
