@@ -13,6 +13,7 @@ from datetime import datetime
 from pathlib import Path
 
 import requests
+from d1_publication_ledger import D1Ledger
 
 
 TABLE = "telegram_sent"
@@ -102,18 +103,16 @@ def main() -> int:
 
     handle = os.getenv("BLUESKY_HANDLE", "").strip().lstrip("@").lower()
     password = os.getenv("BLUESKY_APP_PASSWORD", "").strip()
-    base = os.getenv("SUPABASE_URL", "").strip()
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or "").strip()
-    if not all((handle, password, base, key)):
-        raise RuntimeError("Secrets Bluesky et Supabase non configurés")
+    if not all((handle, password)):
+        raise RuntimeError("Secrets Bluesky non configurés")
 
     from atproto import Client
     client = Client()
     client.login(handle, password)  # Authenticate before any dedup claim.
 
     ident = ("bsd_v2_bluesky_video", handle + ":shorts:" + args.source_run_id, item["target"])
-    session = requests.Session()
-    claimed = claim(session, base, key, ident)
+    ledger = D1Ledger()
+    claimed = ledger.claim(*ident)
     if not claimed:
         print("BLUESKY_VIDEO_ALREADY_POSTED", args.source_run_id)
         return 0
@@ -133,9 +132,10 @@ def main() -> int:
         # prevent unintended duplicate posting. For local preflight failures,
         # release the claim so another workflow attempt is possible.
         if not upload_started:
-            release(session, base, key, ident)
+            ledger.release(*ident)
         raise
 
+    ledger.mark(*ident)
     uri = str(response.uri)
     key = uri.rsplit("/", 1)[-1]
     url = f"https://bsky.app/profile/{handle}/post/{key}"

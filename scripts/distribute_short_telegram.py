@@ -4,7 +4,7 @@
 public channels; forward the Coupons du jour original natively to Torrent9.
 
 Never touches films/private libraries or the existing suspended film->Torrent9
-mirrors. Uses an atomic per-chat Supabase claim and does not retry an ambiguous
+mirrors. Uses an atomic per-chat Cloudflare D1 claim and does not retry an ambiguous
 Telegram send to avoid duplicates.
 """
 from __future__ import annotations
@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
+from d1_publication_ledger import D1Ledger
 
 CONFIG = Path("config/telegram_video_distribution.json")
 RECEIPT = Path("telegram_out/production_short/telegram_primary_receipt.json")
@@ -186,10 +187,8 @@ def distribute(config: dict, receipt: dict, path: Path, *, dry_run=False) -> dic
     token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
     alternative = (os.getenv("FOOTBALL_NEWS_BOT_TOKEN") or "").strip()
     desir_bot = (os.getenv("DESIR_BOT_TOKEN") or "").strip()
-    base = os.getenv("SUPABASE_URL", "").strip()
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or "").strip()
-    if not all((token, base, key)) and not dry_run:
-        raise RuntimeError("Secrets Telegram et Supabase requis")
+    if not token and not dry_run:
+        raise RuntimeError("Jeton du bot Telegram manquant")
     primary = config["primary"]
     main_id = receipt["primary_message_id"]
     keyboard = receipt["keyboard"]
@@ -202,6 +201,7 @@ def distribute(config: dict, receipt: dict, path: Path, *, dry_run=False) -> dic
         report["torrent9"] = config["torrent9_forward"]
         return report
 
+    ledger = D1Ledger()
     bots = [Bot(token, "pronos")]
     for name, other in (("actu_cinex", alternative), ("desir", desir_bot)):
         if other and all(bot.token != other for bot in bots):
@@ -244,7 +244,7 @@ def distribute(config: dict, receipt: dict, path: Path, *, dry_run=False) -> dic
         if selected is None:
             report["errors"].append({"channel": name, "reason": "Aucun bot administrateur avec Publier des messages"})
             continue
-        if not claim(requests.Session(), base, key, KIND, resolved, day):
+        if not ledger.claim(KIND, resolved, day):
             report["results"].append({"channel": name, "status": "already_claimed"})
             continue
         try:
@@ -255,6 +255,7 @@ def distribute(config: dict, receipt: dict, path: Path, *, dry_run=False) -> dic
                 posted_id = selected.upload(name, path, keyboard, caption)
                 method = "sendVideo"
                 selected.source = (name, posted_id)
+            ledger.mark(KIND, resolved, day, message_id=posted_id)
             report["results"].append({"channel": name, "status": "sent", "id": posted_id,
                                       "method": method, "bot": selected.name})
             print("SHORTS_TELEGRAM_CHANNEL_SENT", name, posted_id, method, selected.name)
@@ -264,7 +265,7 @@ def distribute(config: dict, receipt: dict, path: Path, *, dry_run=False) -> dic
 
     torrent = config["torrent9_forward"]
     try:
-        if claim(requests.Session(), base, key, FORWARD_KIND, primary + ":" + torrent, day):
+        if ledger.claim(FORWARD_KIND, primary + ":" + torrent, day):
             forwarded_id = None
             used_method = None
             for bot in active:
@@ -294,6 +295,7 @@ def distribute(config: dict, receipt: dict, path: Path, *, dry_run=False) -> dic
             if forwarded_id is None:
                 forwarded_id = asyncio.run(user_forward(primary, main_id, torrent))
                 used_method = "native_forward_personal_account"
+            ledger.mark(FORWARD_KIND, primary + ":" + torrent, day, message_id=int(forwarded_id))
             report["torrent9"] = {"status": "forwarded", "id": int(forwarded_id), "method": used_method}
             print("SHORTS_TORRENT9_FORWARDED", int(forwarded_id), used_method)
         else:
