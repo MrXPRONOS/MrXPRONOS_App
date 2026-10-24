@@ -1,4 +1,5 @@
 name: Research ML V2 - encrypted V2 sample collection
+# Single-shot research smoke test: immutable 2025-12-20 archive
 on:
   push:
     branches:
