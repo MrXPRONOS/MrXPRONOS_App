@@ -1,0 +1,35 @@
+name: Research ML V2 exact score - isolated checks
+on:
+  push:
+    branches:
+      - research/single-ml-v2-20261024
+    paths:
+      - 'research/single_ml_v2*.py'
+      - '.github/workflows/research-single-ml-v2.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install numpy scipy scikit-learn requests cryptography lightgbm==4.6.0 catboost==1.2.8
+      - name: Compile all research modules
+        run: python -m py_compile research/single_ml_v2.py research/single_ml_v2_experiments.py research/single_ml_v2_candidates.py research/single_ml_v2_data.py research/single_ml_v2_xg.py research/single_ml_v2_xg_resolve.py research/test_single_ml_v2.py research/test_single_ml_v2_data.py research/single_ml_v2_form.py research/test_single_ml_v2_form.py research/single_ml_v2_git.py research/single_ml_v2_prepare_xg.py research/test_single_ml_v2_xg_git.py research/single_ml_v2_direct.py research/test_single_ml_v2_direct.py research/test_single_ml_v2_candidates.py research/single_ml_v2_tune.py research/test_single_ml_v2_tune.py research/single_ml_v2_selection.py research/test_single_ml_v2_selection.py research/single_ml_v2_validation.py research/test_single_ml_v2_validation.py research/single_ml_v2_hybrid.py research/test_single_ml_v2_hybrid.py research/single_ml_v2_opponents.py research/test_single_ml_v2_opponents.py research/single_ml_v2_forward.py research/test_single_ml_v2_forward.py
+      - name: Run independent unit tests
+        run: python -m unittest discover -s research -p 'test_single_ml_v2*.py' -v
+      - name: Assert production untouched
+        run: |
+          python - <<'PY'
+          import subprocess
+          changed=subprocess.check_output(['git','diff-tree','--no-commit-id','--name-only','-r','HEAD'],text=True).splitlines()
+          assert all(x.startswith('research/') or x=='.github/workflows/research-single-ml-v2.yml' for x in changed), changed
+          print('PRODUCTION_UNTOUCHED_LAST_COMMIT_OK')
+          PY
+
