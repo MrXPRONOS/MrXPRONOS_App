@@ -6,7 +6,7 @@ import requests
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"bsd"))
-from bsd_v2_bluesky import claim
+from d1_publication_ledger import D1Ledger
 from send_accumulator_test import check_photo
 
 def main():
@@ -16,13 +16,13 @@ def main():
  token=os.environ["TELEGRAM_BOT_TOKEN"].strip()
  chat=os.environ["TELEGRAM_CHAT_ID"].strip()
  if not token or not chat:raise RuntimeError("Configuration Telegram production absente")
- base=os.environ["SUPABASE_URL"].strip();key=os.environ["SUPABASE_SERVICE_ROLE_KEY"].strip()
  preview=Path(os.getenv("ACCUMULATOR_PREVIEW","telegram_out/accumulator_preview.png"))
  complete=Path(os.getenv("ACCUMULATOR_OUTPUT","telegram_out/accumulator_reference.png"))
  check_photo(preview);check_photo(complete)
  session=requests.Session()
  ident=("accumulator_photo_telegram","mrxpronos:"+day,day)
- if not claim(session,base,key,ident):
+ ledger=D1Ledger()
+ if not ledger.claim(*ident):
   print("ACCUMULATOR_TELEGRAM_ALREADY_SENT",day);return
  media=[
   {"type":"photo","media":"attach://preview",
@@ -37,5 +37,6 @@ def main():
  d=r.json()
  if d.get("ok") is not True or len(d.get("result") or [])!=2:
   raise RuntimeError("Album Telegram production non confirmé")
+ ledger.mark(*ident,message_id=int(d["result"][0]["message_id"]))
  print("ACCUMULATOR_TELEGRAM_PRODUCTION_SENT",json.dumps({"date":day,"count":count,"message_ids":[m["message_id"] for m in d["result"]]}))
 if __name__=="__main__":main()
