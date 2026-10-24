@@ -110,6 +110,10 @@ jobs:
           print("Missing days:",len(missing))
           print("Full interval complete:",not missing)
           print("All persisted checkpoints are AES-GCM encrypted.")
+          # CRITICAL: a green workflow must mean at least one certified day
+          # exists in this selected window. Otherwise fail with honest status.
+          if not hashes:
+              raise SystemExit("ERROR: zero certified days. V1 history unavailable; do not interpret GitHub success as successful archive collection.")
           PY
       - name: Commit only encrypted history checkpoint files
         shell: bash
