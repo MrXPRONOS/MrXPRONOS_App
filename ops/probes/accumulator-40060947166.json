@@ -1,0 +1,17 @@
+{
+  "run_id": "40060947166",
+  "trigger_sha": "abe5e97592e79f876e01a3e857b8dc84370f0956",
+  "checked_at": "2026-10-24T04:06:24.184318+00:00",
+  "event": "workflow_run",
+  "source_conclusion": "success",
+  "ledger_read": "success",
+  "selection": "success",
+  "has_matches": "true",
+  "telegram": "success",
+  "social": "success",
+  "ticket": {
+    "day": "2026-10-24",
+    "included": 6
+  },
+  "cloudflare_token_present": true
+}

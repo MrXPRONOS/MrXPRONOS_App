@@ -525,7 +525,8 @@ def persist_public_news_snapshot(records: list[dict]) -> bool:
 def main() -> None:
     records, diagnostics = fetch_news()
     save_news(records, diagnostics)
-    persist_public_news_snapshot(records)
+    if not persist_public_news_snapshot(records):
+        raise RuntimeError("NEWS_NEON_SNAPSHOT_NOT_PUBLISHED: publication réelle du snapshot non confirmée")
 
 
 if __name__ == "__main__":

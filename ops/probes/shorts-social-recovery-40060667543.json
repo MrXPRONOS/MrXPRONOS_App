@@ -1,0 +1,22 @@
+{
+  "run_id": "40060667543",
+  "origin_run_id": "40060124461",
+  "recovery_step": "success",
+  "time": "2026-10-24T04:05:10.950033+00:00",
+  "result": {
+    "date": "2026-10-24",
+    "count": 5,
+    "platforms": [
+      {
+        "platform": "instagram",
+        "status": "sent",
+        "verified_id": true
+      },
+      {
+        "platform": "threads",
+        "status": "sent",
+        "verified_id": true
+      }
+    ]
+  }
+}
