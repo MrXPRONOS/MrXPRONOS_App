@@ -18981,7 +18981,15 @@ async function enrichLiveMatchesWithFreeStats(matches) {
     ...routineRotation,
     ...clockRotation.slice(prioritySlots)
   ];
-  const selectedCandidates = rotatedCandidates.slice(0, LIVE_STATS_MATCHES_PER_REFRESH);
+  const canFetchDirectDetail = ({ m }) => {
+    const refs = m?.raw_data?.provider_refs || {};
+    const last = Date.parse(String(m?.raw_data?.sportscore_detail_last_attempt_at || ""));
+    const due = !Number.isFinite(last) || Date.now() - last >= SPORTSCORE_STATS_REFRESH_SECONDS * 1e3;
+    return Boolean(refs?.sportscore?.slug) && due || /^\d+$/.test(String(refs?.thesportsdb?.id || "").replace(/^thesportsdb:/, ""));
+  };
+  const directDetailCandidates = rotatedCandidates.filter(canFetchDirectDetail);
+  const fallbackCandidates = rotatedCandidates.filter((row) => !canFetchDirectDetail(row));
+  const selectedCandidates = [...directDetailCandidates, ...fallbackCandidates].slice(0, LIVE_STATS_MATCHES_PER_REFRESH);
   const enrichOne = async ({ m, index }) => {
     let current = out[index];
     let before = statsCompleteness(getMatchLiveStats(current)).core_complete;
@@ -19146,6 +19154,8 @@ async function enrichLiveMatchesWithFreeStats(matches) {
     target_matches: LIVE_STATS_MATCHES_PER_REFRESH,
     eligible_matches: candidates.length,
     selected_matches: selectedCandidates.length,
+    directly_resolvable: directDetailCandidates.length,
+    selected_directly_resolvable: selectedCandidates.filter(canFetchDirectDetail).length,
     sportscore_calls: sportscoreCalls,
     thesportsdb_calls: thesportsdbCalls,
     thesportsdb_resolve_calls: thesportsdbResolveCalls,
