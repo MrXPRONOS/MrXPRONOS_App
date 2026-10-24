@@ -115,47 +115,56 @@ class CardAndSettlement(unittest.TestCase):
 
     def test_lost_coupon_never_sends_a_photo(self):
         m=sample_match()
-        record={"id":15,"ref_id":"-100123:bsd:77","ref_date":"2026-10-08"}
+        record={"id":"15","ref_id":"-100123:bsd:77","ref_date":"2026-10-08"}
         official={"77":{"status":"finished","event_date":m["event_date"],
                         "home_score":3,"away_score":2}}
-        class Stub:
-            def __init__(self):self.calls=[]
-            def patch(self,*a,**kw):
-                self.calls.append(("patch",a,kw))
-                class Response:
-                    def raise_for_status(self):pass
-                return Response()
-            def post(self,*a,**kw):
+        class LedgerStub:
+            def __init__(self):self.queries=[]
+            def query(self,sql,params):
+                self.queries.append((sql,params))
+                return {"results":[],"meta":{"changes":1}}
+            def claim(self,*args):
+                raise AssertionError("Losing coupon must not acquire a send claim")
+        ledger=LedgerStub()
+        class HttpStub:
+            def post(self,*args,**kwargs):
                 raise AssertionError("Telegram must not receive a loss")
-        client=Stub()
         result=validate({"matches":[m]},[record],official,
                  datetime(2026,10,9,tzinfo=timezone.utc),
-                 client,"x","https://example.supabase.co","secret")
+                 HttpStub(),"token",ledger)
         self.assertEqual(result["losses_silent"],1)
-        self.assertEqual(len(client.calls),1)
-        self.assertEqual(client.calls[0][0],"patch")
+        self.assertEqual(len(ledger.queries),1)
+        self.assertIn("UPDATE telegram_sent SET validation_sent=1",ledger.queries[0][0])
+        self.assertEqual(ledger.queries[0][1],("15","bsd_v2_hourly"))
 
     def test_winning_coupon_posts_one_image_then_marks_verified(self):
         from unittest.mock import patch
         m=sample_match()
-        record={"id":16,"ref_id":"-100123:bsd:77","ref_date":"2026-10-08"}
+        record={"id":"16","ref_id":"-100123:bsd:77","ref_date":"2026-10-08"}
         official={"77":{"status":"finished","event_date":m["event_date"],
                        "home_score":2,"away_score":1}}
-        class Stub:
-            def __init__(self):self.patches=[]
-            def patch(self,*args,**kwargs):
-                self.patches.append((args,kwargs))
-                class Resp:
-                    def raise_for_status(self):pass
-                return Resp()
-        http=Stub()
+        class LedgerStub:
+            def __init__(self):self.calls=[]
+            def claim(self,*identity):
+                self.calls.append(("claim",identity))
+                return True
+            def mark(self,*identity,**kwargs):
+                self.calls.append(("mark",identity,kwargs))
+                return True
+            def query(self,sql,params):
+                self.calls.append(("query",sql,params))
+                return {"results":[],"meta":{"changes":1}}
+        ledger=LedgerStub()
         with patch("bsd_v2_verify_telegram.post_gain", return_value=987) as send:
             result=validate({"matches":[m]},[record],official,
                 datetime(2026,10,9,tzinfo=timezone.utc),
-                http,"token","https://example.supabase.co","secret")
+                object(),"token",ledger)
         self.assertEqual(result["wins_sent"],1)
         self.assertEqual(send.call_count,1)
-        self.assertEqual(len(http.patches),1)
+        self.assertEqual([x[0] for x in ledger.calls],["claim","mark","query"])
+        self.assertEqual(ledger.calls[0][1],
+                         ("bsd_v2_single_validation","-100123:bsd:77","2026-10-08"))
+        self.assertEqual(ledger.calls[1][-1]["message_id"],987)
 
     def test_unfinished_not_validated(self):
         m=sample_match()
