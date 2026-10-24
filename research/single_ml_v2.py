@@ -28,11 +28,13 @@ from scipy.special import gammaln
 from scipy.stats import poisson
 from sklearn.ensemble import HistGradientBoostingRegressor
 from single_ml_v2_form import FORM_FEATURE_NAMES, team_form, form_quality
+from single_ml_v2_direct import (DIRECT_MODEL_ID, DIRECT_MODEL_VERSION, train_direct_score, direct_grid)
 
 MAX_GOALS = 10
 GOALS = np.arange(MAX_GOALS + 1)
 MODELS = ("poisson", "dixon_coles", "bivariate_poisson", "xg_poisson",
-          "bayesian_gamma", "machine_learning", "monte_carlo", "market_adjusted")
+          "bayesian_gamma", "machine_learning", "monte_carlo", "market_adjusted",
+          DIRECT_MODEL_ID)
 SEED = 20261020
 
 
@@ -592,6 +594,8 @@ def summarize(stats):
 def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None):
     states = FormState()
     training = []
+    direct_training = []
+    direct_model = None
     pending_xg = defaultdict(list)
     recent_low = []
     recent_residuals = []
@@ -616,12 +620,13 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         evaluating = begin <= day <= end
         if evaluating and (last_retrain is None or (day-last_retrain).days >= retrain_days):
             ml = train_ml(training, **(ml_parameters or {}))
+            direct_model = train_direct_score(direct_training)
             dc_rho = estimate_dc_rho(recent_low[-9000:])
             shared = estimate_shared(recent_low)
             last_retrain = day
             print("RETRAIN", day, "train_rows", len(training),
                   "rho", round(dc_rho, 4), "shared", round(shared, 4),
-                  "ml", ml is not None, flush=True)
+                  "ml", ml is not None, "direct", direct_model is not None, flush=True)
         # FIRST calculate ALL forecasts for the date, THEN add their results to history.
         pending = []
         for m in daily:
@@ -663,6 +668,12 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                 forecasts["machine_learning_hybrid"] = ml_hybrid_grid(ml, f["vector"], dc_rho)
             else:
                 audit["ml_not_enough_training"] += 1
+            if direct_model is not None:
+                grid_direct = direct_grid(direct_model, f["vector"], p0)
+                if grid_direct is not None:
+                    forecasts[DIRECT_MODEL_ID] = grid_direct
+            else:
+                audit["direct_ml_not_enough_training"] += 1
             market = market_grid(p0, m.odds)
             if market is not None:
                 forecasts["market_adjusted"] = market
@@ -692,6 +703,7 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             recent_residuals.append((m.hg-f["h"], m.ag-f["a"]))
             league_residuals[m.league].append((m.hg-f["h"], m.ag-f["a"]))
             training.append((f["vector"], m.hg, m.ag))
+            direct_training.append((f["vector"], poisson_grid(f["h"], f["a"]), m.hg, m.ag))
             if m.xg_available is not None:
                 activation=max(day+timedelta(days=1),m.xg_available.date()+timedelta(days=1))
                 pending_xg[activation].append(m)
@@ -725,6 +737,10 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         "form_policy":"last 5/10 league games overall AND last 5/10 matching home/away venue; previous UTC dates only; explicit missing flags",
         "form_quality_counts":dict(audit),
         "n_evaluation_matches": audit["evaluated_matches"],
+        "direct_score_version": DIRECT_MODEL_VERSION,
+        "direct_score_training_samples":direct_model.samples if direct_model else 0,
+        "direct_score_training_classes":len(direct_model.label_counts) if direct_model else 0,
+        "direct_score_training_policy":"Prior calendar days only; 36 explicit exact scores (0..5) + rare tail; refit on ML cadence",
         "skips": dict(audit),
         "results": summary,
         "method_notes": {
@@ -734,6 +750,7 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             "xg_poisson": "Uses past-match genuine xG only; disabled if the source lacks xG",
             "bayesian_gamma": "Gamma strength priors with posterior predictive Monte Carlo integration",
             "machine_learning": "Chronologically refitted Poisson-gradient-boosting for home/away goals",
+            DIRECT_MODEL_ID: "Direct multiclass gradient boosting of exact-score labels; 36 classes plus tail, prematch prior blend",
             "monte_carlo": "4,000 simulations with shared Gamma tempo; stochastic scenario technique",
             "market_adjusted": "Only verified timestamped PREMATCH market quotes; incomplete score odds are not treated as a full market distribution",
         },
