@@ -62,9 +62,12 @@ def verified_source_target(raw, now, maximum):
     away=raw.get("awayCompetitor") or {}
     if not isinstance(home,dict) or not isinstance(away,dict):
         return None
-    # Reject any provider record containing a score: pregame proof cannot
-    # be built from an already-playing or completed target.
-    if home.get("score") is not None or away.get("score") is not None:
+    # Some feeds prefill 0:0 on unstarted events. Never consume those as
+    # outcomes. Reject any NONZERO score, any started/finished status, and
+    # any kickoff not safely in the future according to the real UTC clock.
+    values=(home.get("score"),away.get("score"))
+    if any(v is not None and (isinstance(v,bool) or str(v) not in ("0","0.0"))
+           for v in values):
         return None
     mid=str(raw.get("id") or "").strip()
     league=str(raw.get("competitionDisplayName") or "").strip()
