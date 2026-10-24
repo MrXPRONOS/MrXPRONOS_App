@@ -286,7 +286,7 @@ jobs:
       - name: Download original already-published Short (never regenerate or resend Telegram)
         uses: actions/download-artifact@v4
         with:
-          name: shorts-coupons-production-morning
+          name: shorts-coupons-production-${{ inputs.slot == 'evening' && 'evening' || 'morning' }}
           run-id: ${{ inputs.recovery_run_id }}
           repository: ${{ github.repository }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
