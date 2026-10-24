@@ -146,7 +146,7 @@ class CategoryRelayTests(unittest.TestCase):
             self.assertEqual(len(states[0].data["completed"]), 2)
             self.assertEqual(len(states[1].data["completed"]), 0)
             self.assertEqual(
-                due(DesirPromotionsState(states[0]), "-100public", 2), 0
+                due(DesirPromotionsState(states[0]), "-100public", 2), None
             )
             self.assertIsNone(
                 due(DesirPromotionsState(states[1]), "-100public", 0)
