@@ -6,7 +6,7 @@ Combined coupons are different: as soon as BOTH frozen legs are officially
 finished with valid BSD scores and both original selections are winners,
 a single verified combined-win card is sent to Telegram.
 
-Supabase is the source of truth for delivery de-duplication. New combo ledger
+Cloudflare D1 is the source of truth for delivery de-duplication. New combo ledger
 references contain both frozen match IDs, selection keys and dates so the
 validation does not depend on the current website feed. Legacy hash-only combo
 rows are reconstructed only from committed historical data.json versions.
@@ -37,46 +37,36 @@ from bsd_v2_night import is_night_match, night_date
 from bsd_v2_telegram import KIND, COMBO_KIND, headers, action_buttons
 from bsd_v2_verify_history import restore_published_matches
 from telegram_rich import post_photo
+from d1_publication_ledger import D1Ledger
 
 COMBO_VALIDATION_KIND="bsd_v2_combo_validation"
 
 
-def _ledger_rows(session,base,key,kind,*,since_days=10,limit=500,max_pages=12):
+def _ledger_rows(ledger,kind,*,since_days=10,limit=500,max_pages=12):
     since=(datetime.now(timezone.utc)-timedelta(days=since_days)).date().isoformat()
     all_rows=[]
     for page in range(max_pages):
-        response=session.get(base.rstrip("/")+"/rest/v1/telegram_sent",
-            headers=headers(key),params={
-                "select":"id,ref_id,ref_date,validation_sent",
-                "kind":"eq."+kind,
-                "ref_date":"gte."+since,
-                "order":"ref_date.asc,id.asc",
-                "limit":limit,"offset":page*limit},timeout=30)
-        response.raise_for_status()
-        rows=response.json()
+        result=ledger.query(
+            "SELECT id,ref_id,ref_date,validation_sent FROM telegram_sent "
+            "WHERE kind=? AND ref_date>=? ORDER BY ref_date ASC,id ASC LIMIT ? OFFSET ?",
+            (kind,since,limit,page*limit))
+        rows=result.get("results") or []
         if not isinstance(rows,list):
-            raise RuntimeError("Malformed Telegram ledger page")
+            raise RuntimeError("Malformed D1 Telegram ledger page")
         all_rows.extend(rows)
         if len(rows)<limit:
             return all_rows
-    raise RuntimeError("Telegram ledger exceeds safe pagination limit")
+    raise RuntimeError("D1 Telegram ledger exceeds safe pagination limit")
 
 
-def sent_records(session,base,key,limit=500,max_pages=12):
-    """Pending individual selections only."""
-    rows=_ledger_rows(session,base,key,KIND,limit=limit,max_pages=max_pages)
-    return [row for row in rows if row.get("validation_sent") is False]
+def sent_records(ledger,limit=500,max_pages=12):
+    rows=_ledger_rows(ledger,KIND,limit=limit,max_pages=max_pages)
+    return [row for row in rows if not bool(row.get("validation_sent"))]
 
 
-def combo_records(session,base,key,limit=500,max_pages=12):
-    """All uncompleted combined coupons, including legacy rows marked true.
-
-    Older code incorrectly created combo rows with validation_sent=True from the
-    moment they were sent. A separate completion ledger lets us safely recover
-    those rows once without ever double-posting a verified win.
-    """
-    combos=_ledger_rows(session,base,key,COMBO_KIND,limit=limit,max_pages=max_pages)
-    completed=_ledger_rows(session,base,key,COMBO_VALIDATION_KIND,
+def combo_records(ledger,limit=500,max_pages=12):
+    combos=_ledger_rows(ledger,COMBO_KIND,limit=limit,max_pages=max_pages)
+    completed=_ledger_rows(ledger,COMBO_VALIDATION_KIND,
                            limit=limit,max_pages=max_pages)
     done={str(row.get("ref_id") or "") for row in completed}
     return [row for row in combos if str(row.get("ref_id") or "") not in done]
@@ -182,36 +172,18 @@ def post_combo_gain(session,token,chat,combo):
                           action_buttons(),timeout=60)
 
 
-def mark_verified(session,base,key,row_id):
-    response=session.patch(base.rstrip("/")+"/rest/v1/telegram_sent",
-        headers=headers(key),params={"id":"eq."+str(row_id),
-        "kind":"eq."+KIND,"validation_sent":"eq.false"},
-        json={"validation_sent":True},timeout=30)
-    response.raise_for_status()
+def mark_verified(ledger,row_id):
+    ledger.query("UPDATE telegram_sent SET validation_sent=1 WHERE id=? AND kind=? AND validation_sent=0",
+                 (str(row_id),KIND))
 
 
-def _record_combo_completion(session,base,key,row):
-    """Write completion marker first; then mark the source row if applicable.
-
-    The separate marker is what prevents duplicate verified-win posts,
-    including for legacy source rows that already had validation_sent=True.
-    """
+def _record_combo_completion(ledger,row,message_id=None):
+    """Mark an already-claimed validation reservation, then settle source row."""
     ref=str(row.get("ref_id") or "")
     date=str(row.get("ref_date") or "")
-    response=session.post(base.rstrip("/")+"/rest/v1/telegram_sent",
-        params={"on_conflict":"kind,ref_id,ref_date"},
-        headers=headers(key),
-        json={"kind":COMBO_VALIDATION_KIND,"ref_id":ref,
-              "ref_date":date,"validation_sent":True},timeout=30)
-    response.raise_for_status()
-    if row.get("validation_sent") is False:
-        patch=session.patch(base.rstrip("/")+"/rest/v1/telegram_sent",
-            headers=headers(key),params={
-                "id":"eq."+str(row["id"]),
-                "kind":"eq."+COMBO_KIND,
-                "validation_sent":"eq.false"},
-            json={"validation_sent":True},timeout=30)
-        patch.raise_for_status()
+    ledger.mark(COMBO_VALIDATION_KIND,ref,date,message_id=message_id)
+    ledger.query("UPDATE telegram_sent SET validation_sent=1 WHERE id=? AND kind=?",
+                 (str(row["id"]),COMBO_KIND))
 
 
 def _select_original_market(match,key):
@@ -316,7 +288,7 @@ def combo_from_ledger(row,data):
     return parsed,combo
 
 
-def validate(data,rows,events,now,session,token,base,key,dry_run=False):
+def validate(data,rows,events,now,session,token,ledger,dry_run=False):
     matches={str(m.get("id")):m for m in data.get("matches",[])
              if isinstance(m,dict) and m.get("source")=="bsd"}
     report=Counter()
@@ -346,23 +318,27 @@ def validate(data,rows,events,now,session,token,base,key,dry_run=False):
             report["would_win" if won else "would_lose"]+=1
             continue
         if won:
-            match_for_image={**match,"home_score":home,"away_score":away,
-                             "status":"finished","is_finished":True}
+            identity=("bsd_v2_single_validation",str(row["ref_id"]),str(row["ref_date"]))
             try:
-                post_gain(session,token,chat,match_for_image)
+                if not ledger.claim(*identity):
+                    report["already_claimed"]+=1
+                    continue
+                match_for_image={**match,"home_score":home,"away_score":away,
+                                 "status":"finished","is_finished":True}
+                message_id=post_gain(session,token,chat,match_for_image)
+                ledger.mark(*identity,message_id=message_id)
+                mark_verified(ledger,row["id"])
+                report["wins_sent"]+=1
             except Exception as exc:
                 report["delivery_errors"]+=1
-                print("BSD_WIN_SEND_ERROR",ident,type(exc).__name__,str(exc)[:160])
-                continue
-            mark_verified(session,base,key,row["id"])
-            report["wins_sent"]+=1
+                print("BSD_WIN_SEND_ERROR",ident,type(exc).__name__)
         else:
-            mark_verified(session,base,key,row["id"])
+            mark_verified(ledger,row["id"])
             report["losses_silent"]+=1
     return dict(report)
 
 
-def validate_combos(data,rows,events,session,token,base,key,dry_run=False):
+def validate_combos(data,rows,events,session,token,ledger,dry_run=False):
     report=Counter()
     for row in rows:
         parsed,combo=combo_from_ledger(row,data)
@@ -380,20 +356,23 @@ def validate_combos(data,rows,events,session,token,base,key,dry_run=False):
         if dry_run:
             report["combo_would_win" if won else "combo_would_lose"]+=1
             continue
-        if won:
-            verified={**combo,"legs":legs,"status":"finished","verified":True}
-            try:
-                post_combo_gain(session,token,parsed["chat"],verified)
-            except Exception as exc:
-                report["combo_delivery_errors"]+=1
-                print("BSD_COMBO_WIN_SEND_ERROR",combo["id"],
-                      type(exc).__name__,str(exc)[:160])
+        identity=(COMBO_VALIDATION_KIND,str(row["ref_id"]),str(row["ref_date"]))
+        try:
+            if not ledger.claim(*identity):
+                report["combo_already_claimed"]+=1
                 continue
-            _record_combo_completion(session,base,key,row)
-            report["combo_wins_sent"]+=1
-        else:
-            _record_combo_completion(session,base,key,row)
-            report["combo_losses_silent"]+=1
+            if won:
+                verified={**combo,"legs":legs,"status":"finished","verified":True}
+                message_id=post_combo_gain(session,token,parsed["chat"],verified)
+                _record_combo_completion(ledger,row,message_id=message_id)
+                report["combo_wins_sent"]+=1
+            else:
+                _record_combo_completion(ledger,row)
+                report["combo_losses_silent"]+=1
+        except Exception as exc:
+            report["combo_delivery_errors"]+=1
+            print("BSD_COMBO_WIN_ERROR",combo["id"],type(exc).__name__)
+            continue
         if parsed.get("legacy"):
             report["combo_legacy_recovered"]+=1
     return dict(report)
@@ -444,14 +423,13 @@ def main():
         raise RuntimeError("Site feed not BSD")
 
     token=os.getenv("TELEGRAM_BOT_TOKEN")
-    base=os.getenv("SUPABASE_URL")
-    key=os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY")
-    if not base or not key or (not token and not args.dry_run):
-        raise RuntimeError("Missing credentials")
+    if not token and not args.dry_run:
+        raise RuntimeError("Missing Telegram credentials")
 
     session=requests.Session()
-    rows=sent_records(session,base,key)
-    combo_rows=combo_records(session,base,key)
+    ledger=D1Ledger()
+    rows=sent_records(ledger)
+    combo_rows=combo_records(ledger)
     if not rows and not combo_rows:
         print("BSD_V2_VERIFY: no pending published coupons")
         return
@@ -465,8 +443,8 @@ def main():
     client=BSDClient(max_requests=120) if days else None
     events=official_results(client,days) if client else {}
 
-    singles=validate(data,rows,events,now,session,token,base,key,args.dry_run)
-    combos=validate_combos(data,combo_rows,events,session,token,base,key,args.dry_run)
+    singles=validate(data,rows,events,now,session,token,ledger,args.dry_run)
+    combos=validate_combos(data,combo_rows,events,session,token,ledger,args.dry_run)
     summary={**singles,**combos,
              "api_calls":client.requests_made if client else 0,
              "ledger_items":len(rows),
