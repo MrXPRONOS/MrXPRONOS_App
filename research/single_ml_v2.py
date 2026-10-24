@@ -27,6 +27,7 @@ from scipy.optimize import minimize_scalar
 from scipy.special import gammaln
 from scipy.stats import poisson
 from sklearn.ensemble import HistGradientBoostingRegressor
+from single_ml_v2_form import FORM_FEATURE_NAMES, team_form, form_quality
 
 MAX_GOALS = 10
 GOALS = np.arange(MAX_GOALS + 1)
@@ -228,20 +229,47 @@ class Decayed:
         self.last = d
 
 
+# Stable deterministic schema. All target games are represented using ONLY
+# previous UTC calendar days; no same-day or later match results are permitted.
+BASE_FEATURE_NAMES = (
+    "baseline_home_goals", "baseline_away_goals", "league_home_mean",
+    "league_away_mean", "home_venue_effective_games",
+    "away_venue_effective_games", "league_effective_games",
+    "home_attack", "home_defense", "away_attack", "away_defense",
+    "home_venue_goal_diff", "away_venue_goal_diff",
+)
+TAIL_FEATURE_NAMES = (
+    "home_prior_opponent_strength", "away_prior_opponent_strength",
+    "prior_xg_home", "prior_xg_away", "prior_xg_missing",
+)
+FEATURE_NAMES = (
+    BASE_FEATURE_NAMES
+    + tuple(name for name in FORM_FEATURE_NAMES if name.startswith("home_"))
+    + tuple(name for name in FORM_FEATURE_NAMES if name.startswith("away_"))
+    + TAIL_FEATURE_NAMES
+)
+FORM_SCHEMA_VERSION = "last5_last10_overall_venue_20261024_v2"
+
+
 class FormState:
+    """Strict pre-match state; grouped days are added atomically to prevent leaks."""
+
     def __init__(self):
         self.league_h = defaultdict(Decayed)
         self.league_a = defaultdict(Decayed)
         self.home = defaultdict(Decayed)
         self.away = defaultdict(Decayed)
         self.team_history = defaultdict(list)
+        self.last_ingested_day = None
+        self.seen_match_ids = set()
 
     def features(self, m):
+        if self.last_ingested_day is not None and m.day <= self.last_ingested_day:
+            raise ValueError("Form leakage: cannot use current or earlier results")
         lh = self.league_h[m.league].at(m.day)
         la = self.league_a[m.league].at(m.day)
         hs = self.home[(m.league, m.home)].at(m.day)
         as_ = self.away[(m.league, m.away)].at(m.day)
-        # League-level shrinkage prevents unstable estimates in low-volume leagues.
         mu_h = (lh[1] + 35 * 1.42) / (lh[0] + 35)
         mu_a = (la[1] + 35 * 1.14) / (la[0] + 35)
         k = 8.0
@@ -251,61 +279,103 @@ class FormState:
         against_h = (hs[2] + k * mu_a) / (hs[0] + k)
         lam_h = float(np.clip(for_h * against_a / mu_h, .12, 4.5))
         lam_a = float(np.clip(for_a * against_h / mu_a, .12, 4.5))
-        # League-level xG estimates from previous games ONLY; a sparse team's
-        # shots are partially pooled with its league. Never use an invented
-        # xG field when there are fewer than six recorded xG matches in league.
+        # xG unchanged from previous implementation: only time-eligible,
+        # previously available measurements enter the state.
         xg_lamh = xg_lama = None
         if min(lh[5], la[5]) >= 6:
             lgx_h = (lh[3] + 8.0 * mu_h) / (lh[5] + 8.0)
             lgx_a = (la[3] + 8.0 * mu_a) / (la[5] + 8.0)
-            xgf_h = (hs[3] + 5.0*lgx_h) / (hs[5] + 5.0)
-            xga_a = (as_[4] + 5.0*lgx_h) / (as_[5] + 5.0)
-            xgf_a = (as_[3] + 5.0*lgx_a) / (as_[5] + 5.0)
-            xga_h = (hs[4] + 5.0*lgx_a) / (hs[5] + 5.0)
-            xg_lamh = float(np.clip(.55*lam_h + .45*xgf_h*xga_a/max(.2,lgx_h), .12, 4.5))
-            xg_lama = float(np.clip(.55*lam_a + .45*xgf_a*xga_h/max(.2,lgx_a), .12, 4.5))
-        def rolling(team, n):
-            rec = self.team_history[(m.league, team)][-n:]
-            if not rec:
-                return [0., 0., 0., 0.]
-            return [float(len(rec)), float(np.mean([x[1] for x in rec])),
-                    float(np.mean([x[2] for x in rec])),
-                    float((m.day - rec[-1][0]).days)]
-        recent = rolling(m.home, 5) + rolling(m.away, 5)
-        longer = rolling(m.home, 10) + rolling(m.away, 10)
+            xgf_h = (hs[3] + 5.0 * lgx_h) / (hs[5] + 5.0)
+            xga_a = (as_[4] + 5.0 * lgx_h) / (as_[5] + 5.0)
+            xgf_a = (as_[3] + 5.0 * lgx_a) / (as_[5] + 5.0)
+            xga_h = (hs[4] + 5.0 * lgx_a) / (hs[5] + 5.0)
+            xg_lamh = float(np.clip(.55 * lam_h + .45 * xgf_h * xga_a / max(.2, lgx_h), .12, 4.5))
+            xg_lama = float(np.clip(.55 * lam_a + .45 * xgf_a * xga_h / max(.2, lgx_a), .12, 4.5))
+        home_hist = self.team_history[(m.league, m.home)]
+        away_hist = self.team_history[(m.league, m.away)]
+        home_recent = team_form(home_hist, "home", m.day)
+        away_recent = team_form(away_hist, "away", m.day)
+        # Opponent strength remains a separate historical feature (#6).
         opponent = []
-        for team in (m.home, m.away):
-            hist = self.team_history[(m.league, team)][-10:]
-            opponent.append(float(np.mean([x[3] for x in hist])) if hist else 0.)
-        prior_xg = [float(xg_lamh or 0.), float(xg_lama or 0.),
-                    float(xg_lamh is None or xg_lama is None)]
-        vector = np.array([lam_h, lam_a, mu_h, mu_a, hs[0], as_[0], lh[0],
-                           for_h, against_h, for_a, against_a,
-                           (hs[1]-hs[2])/(hs[0]+3),
-                           (as_[1]-as_[2])/(as_[0]+3), *recent, *longer, *opponent, *prior_xg], dtype=float)
-        return {"h": lam_h, "a": lam_a, "mu_h": mu_h, "mu_a": mu_a,
-                "hs": hs, "as": as_, "xgh": xg_lamh, "xga": xg_lama,
-                "vector": vector}
+        for hist in (home_hist, away_hist):
+            opponent.append(float(np.mean([x[3] for x in hist[-10:]])) if hist else 0.)
+        previous_xg = [float(xg_lamh if xg_lamh is not None else 0.),
+                       float(xg_lama if xg_lama is not None else 0.),
+                       float(xg_lamh is None or xg_lama is None)]
+        baseline = [
+            lam_h, lam_a, mu_h, mu_a, hs[0], as_[0], lh[0],
+            for_h, against_h, for_a, against_a,
+            (hs[1] - hs[2]) / (hs[0] + 3),
+            (as_[1] - as_[2]) / (as_[0] + 3),
+        ]
+        vector = np.asarray([*baseline, *home_recent, *away_recent,
+                             *opponent, *previous_xg], dtype=float)
+        if vector.shape != (len(FEATURE_NAMES),) or not np.all(np.isfinite(vector)):
+            raise ValueError("Invalid form feature vector shape or values")
+        samples = {
+            "home": form_quality(home_hist, "home", m.day),
+            "away": form_quality(away_hist, "away", m.day),
+        }
+        return {
+            "h":lam_h, "a":lam_a, "mu_h":mu_h, "mu_a":mu_a,
+            "hs":hs, "as":as_, "xgh":xg_lamh, "xga":xg_lama,
+            "vector":vector, "form_samples":samples,
+        }
 
     def add_xg(self, m, availability_day):
-        if m.xgh is None or m.xga is None:return
-        self.league_h[m.league].add(availability_day,0,0,m.xgh,m.xga,xg_only=True)
-        self.league_a[m.league].add(availability_day,0,0,m.xga,m.xgh,xg_only=True)
-        self.home[(m.league,m.home)].add(availability_day,0,0,m.xgh,m.xga,xg_only=True)
-        self.away[(m.league,m.away)].add(availability_day,0,0,m.xga,m.xgh,xg_only=True)
+        if m.xgh is None or m.xga is None:
+            return
+        self.league_h[m.league].add(availability_day, 0, 0, m.xgh, m.xga, xg_only=True)
+        self.league_a[m.league].add(availability_day, 0, 0, m.xga, m.xgh, xg_only=True)
+        self.home[(m.league, m.home)].add(availability_day, 0, 0, m.xgh, m.xga, xg_only=True)
+        self.away[(m.league, m.away)].add(availability_day, 0, 0, m.xga, m.xgh, xg_only=True)
+
+    def add_day(self, matches):
+        """Atomically commit one completed UTC day AFTER all predictions."""
+        matches = list(matches)
+        if not matches:
+            return
+        day = matches[0].day
+        if self.last_ingested_day is not None and day <= self.last_ingested_day:
+            raise ValueError("Cannot add an already-observed or earlier day")
+        ids = set()
+        for match in matches:
+            if match.day != day:
+                raise ValueError("Different UTC days in one batch")
+            if match.key in ids or match.key in self.seen_match_ids:
+                raise ValueError("Duplicate match would pollute historical form")
+            ids.add(match.key)
+            if not match.league or not match.home or not match.away or match.home == match.away:
+                raise ValueError("Missing or contradictory team identities")
+            if (not isinstance(match.hg, int) or not isinstance(match.ag, int)
+                    or min(match.hg, match.ag) < 0 or max(match.hg, match.ag) > MAX_GOALS):
+                raise ValueError("Invalid result in form history")
+        # Freeze historical opponent strength BEFORE today's results. A team
+        # playing multiple matches the same day cannot leak the first result.
+        def prior_strength(league, team):
+            hist = self.team_history[(league, team)][-10:]
+            return float(np.mean([r[1]-r[2] for r in hist])) if hist else 0.
+        strengths = {
+            (m.league, name):prior_strength(m.league, name)
+            for m in matches for name in (m.home, m.away)
+        }
+        for m in matches:
+            hkey, akey = (m.league, m.home), (m.league, m.away)
+            self.team_history[hkey].append((day, m.hg, m.ag, strengths[akey], "home"))
+            self.team_history[akey].append((day, m.ag, m.hg, strengths[hkey], "away"))
+            # Only the last ten league-scoped games are needed for both windows.
+            self.team_history[hkey] = self.team_history[hkey][-10:]
+            self.team_history[akey] = self.team_history[akey][-10:]
+            self.league_h[m.league].add(day, m.hg, m.ag)
+            self.league_a[m.league].add(day, m.ag, m.hg)
+            self.home[hkey].add(day, m.hg, m.ag)
+            self.away[akey].add(day, m.ag, m.hg)
+        self.seen_match_ids.update(ids)
+        self.last_ingested_day = day
 
     def add(self, m):
-        def strength(team):
-            rec = self.team_history[(m.league, team)][-10:]
-            return float(np.mean([x[1]-x[2] for x in rec])) if rec else 0.
-        old_home, old_away = strength(m.home), strength(m.away)
-        self.team_history[(m.league, m.home)].append((m.day, m.hg, m.ag, old_away))
-        self.team_history[(m.league, m.away)].append((m.day, m.ag, m.hg, old_home))
-        self.league_h[m.league].add(m.day, m.hg, m.ag)
-        self.league_a[m.league].add(m.day, m.ag, m.hg)
-        self.home[(m.league, m.home)].add(m.day, m.hg, m.ag)
-        self.away[(m.league, m.away)].add(m.day, m.ag, m.hg)
-
+        # Backwards compatible single-match operation for research tests.
+        self.add_day([m])
 
 def normalized(p):
     p = np.nan_to_num(np.asarray(p, dtype=float), nan=0, posinf=0, neginf=0)
@@ -465,6 +535,8 @@ def train_ml(records, *, max_rows=65000, learning_rate=.055, max_iter=95, max_le
     # All features are snapshotted before the target matches. Labels only after final.
     data = records[-max_rows:]
     X = np.array([r[0] for r in data], dtype=float)
+    if X.ndim != 2 or X.shape[1] != len(FEATURE_NAMES) or not np.isfinite(X).all():
+        raise ValueError("ML feature schema mismatch / nonfinite training data")
     yh = np.array([r[1] for r in data], dtype=float)
     ya = np.array([r[2] for r in data], dtype=float)
     trained = []
@@ -562,6 +634,13 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                 first_evaluated = day
             last_evaluated = day
             audit["evaluated_matches"] += 1
+            for side, sample in f["form_samples"].items():
+                for key, required in (("overall_last5",5),("overall_last10",10),
+                                      ("venue_last5",5),("venue_last10",10)):
+                    if sample[key] >= required:
+                        audit[f"{side}_{key}_complete"] += 1
+                    else:
+                        audit[f"{side}_{key}_insufficient"] += 1
             if m.xgh is not None and m.xga is not None:
                 audit["targets_having_postmatch_xg_ignored"] += 1
             seed = (SEED + sum(ord(c) for c in m.key) * 8191) % (2**32)
@@ -613,10 +692,10 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             recent_residuals.append((m.hg-f["h"], m.ag-f["a"]))
             league_residuals[m.league].append((m.hg-f["h"], m.ag-f["a"]))
             training.append((f["vector"], m.hg, m.ag))
-            states.add(m)
             if m.xg_available is not None:
                 activation=max(day+timedelta(days=1),m.xg_available.date()+timedelta(days=1))
                 pending_xg[activation].append(m)
+        states.add_day(daily)
         if evaluating and (day.day == 1 or day == end):
             print("PROGRESS", day, "scored", played, flush=True)
     summary = summarize(results)
@@ -640,6 +719,11 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         "first_actual_match_date": str(first_evaluated) if first_evaluated else None,
         "last_actual_match_date": str(last_evaluated) if last_evaluated else None,
         "no_leakage_policy": "Strictly previous UTC calendar dates for ALL models",
+        "form_schema_version":FORM_SCHEMA_VERSION,
+        "ml_feature_count":len(FEATURE_NAMES),
+        "ml_feature_names":list(FEATURE_NAMES),
+        "form_policy":"last 5/10 league games overall AND last 5/10 matching home/away venue; previous UTC dates only; explicit missing flags",
+        "form_quality_counts":dict(audit),
         "n_evaluation_matches": audit["evaluated_matches"],
         "skips": dict(audit),
         "results": summary,
