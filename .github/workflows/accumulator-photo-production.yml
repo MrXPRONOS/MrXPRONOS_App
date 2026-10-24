@@ -17,6 +17,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
   id-token: write
 
 concurrency:
@@ -113,6 +114,35 @@ jobs:
             sleep "$retry"
           done
           exit 1
+      - name: Retrieve original confirmed Telegram Short as a no-send upload probe
+        if: github.event_name == 'push'
+        uses: actions/download-artifact@v4
+        with:
+          name: shorts-coupons-production-morning
+          run-id: 40060124461
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          path: probe_original_short
+      - name: Verify original 8MB MP4 can be hosted publicly without Neon
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from datetime import datetime,timezone
+          from pathlib import Path
+          import requests
+          from scripts.cloudflare_public_media import upload_public_media
+          video=Path("probe_original_short/daily_pronos_coupon_short.mp4")
+          assert video.is_file() and 500000 <= video.stat().st_size < 24*1024*1024, "Missing original Telegram MP4"
+          date=datetime.now(timezone.utc).strftime("%Y/%m/%d")
+          digest=hashlib.sha256(video.read_bytes()).hexdigest()[:24]
+          url=upload_public_media(video,f"shorts/{date}/{digest}.mp4")
+          assert url.startswith("https://mrxpronos-public-social-media.")
+          response=requests.get(url,headers={"Range":"bytes=0-1023"},timeout=30)
+          assert response.status_code==206 and len(response.content)==1024
+          print("MRX_PUBLIC_MP4_PROBE",json.dumps({"source":"original daily Shorts already sent to Telegram","bytes":video.stat().st_size,"head":200,"range":206,"publication":False}))
+          PY
       - name: Install render and photo network dependencies
         run: |
           npm ci
