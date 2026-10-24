@@ -216,12 +216,23 @@ def git_commit_time(path,*,repo_root="."):
     rel=str(Path(path))
     if Path(rel).is_absolute():
         rel=str(Path(rel).relative_to(Path(repo_root)))
-    cmd=["git","log","--diff-filter=A","--format=%cI","--",rel]
+    cmd=["git","log","--diff-filter=A","--format=%H %cI","--",rel]
     response=subprocess.run(cmd,cwd=repo_root,text=True,capture_output=True,check=True)
-    times=[utc_dt(line) for line in response.stdout.splitlines() if line]
-    if len(times)!=1 or times[0] is None:
+    lines=[line.split(maxsplit=1) for line in response.stdout.splitlines() if line]
+    if len(lines)!=1 or len(lines[0])!=2:
         raise ValueError("Missing/ambiguous original Git commit for "+rel)
-    return times[0]
+    commit_id,timestamp=lines[0]
+    committed_at=utc_dt(timestamp)
+    if committed_at is None:
+        raise ValueError("Git first-add commit has no valid timestamp")
+    # The exact current ciphertext MUST be the ciphertext in that FIRST
+    # pregame Git commit. Merely retaining an early file creation history is
+    # NOT enough: an attacker could otherwise overwrite encrypted predictions.
+    original=subprocess.run(["git","show",commit_id+":"+rel],
+                            cwd=repo_root,capture_output=True,check=True).stdout
+    if hashlib.sha256(original).digest()!=hashlib.sha256(Path(path).read_bytes()).digest():
+        raise ValueError("ENCRYPTED FORECAST TAMPERED AFTER FIRST GIT COMMIT")
+    return committed_at
 
 
 @lru_cache(maxsize=128)
