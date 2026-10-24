@@ -158,11 +158,16 @@ def upload_to_supabase_public(video_path: Path) -> str:
 
 
 def resolve_public_url(video_path: Path, explicit_url: Optional[str]) -> Optional[str]:
+    """Return an externally readable MP4 URL; never silently fall back to Supabase."""
     if explicit_url:
         return explicit_url
     if env("PUBLIC_VIDEO_URL"):
         return env("PUBLIC_VIDEO_URL")
-    # Neon public bucket is primary; Supabase is not a production fallback.\n    from neon_public_media import upload_public_media\n    stamp = datetime.now(timezone.utc).strftime("%Y/%m/%d")\n    key = f"shorts/{stamp}/{hashlib.sha256(video_path.read_bytes()).hexdigest()[:24]}.mp4"\n    return upload_public_media(video_path,key)\n
+    from neon_public_media import upload_public_media
+    stamp = datetime.now(timezone.utc).strftime("%Y/%m/%d")
+    digest = hashlib.sha256(video_path.read_bytes()).hexdigest()[:24]
+    key = f"shorts/{stamp}/{digest}.mp4"
+    return upload_public_media(video_path, key)
 
 
 # =====================================================
