@@ -1,0 +1,65 @@
+name: Research ML V2 - Audit merged 2024 football history
+on:
+  push:
+    branches: [research/single-ml-v2-20261024]
+    paths: ['.github/workflows/research-ml-v2-audit-2024.yml']
+permissions:
+  contents: write
+jobs:
+  independent-archive-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/single-ml-v2-20261024
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install minimal offline dependencies
+        run: python -m pip install cryptography requests
+      - name: Test deduplication and conflict quarantine
+        run: PYTHONPATH=.:research python -m unittest discover -s research -p 'test_single_ml_v2_2024_union.py' -v
+      - name: Independently decrypt 13 archives, audit 2024 coverage
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python research/single_ml_v2_2024_union.py --export --output /tmp/mrx_ml_v2_2024_multisource.json | tee /tmp/mrx_2024_aggregate_audit.log
+          PYTHONPATH=.:research python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("/tmp/mrx_ml_v2_2024_multisource.json")
+          rows=json.loads(p.read_text(encoding="utf-8"))
+          assert rows and len(rows)>5000
+          assert all(m.get("sportId")==1 and m.get("is_finished") is True for m in rows)
+          assert all(str(m["date"]).startswith("2024-") for m in rows)
+          assert len({(m["date"],m["home_team"],m["away_team"]) for m in rows})==len(rows)
+          print("ML_READY_2024_MULTI_SOURCE_ROWS",len(rows))
+          p.unlink()
+          print("DECRYPTED_PLAINTEXT_DELETED_FROM_EPHEMERAL_RUNNER")
+          PY
+      - name: Save aggregate-only audit JSON in research branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python research/single_ml_v2_2024_union.py | python -c '
+          import json,sys,pathlib
+          line=sys.stdin.read().strip().split("ML_V2_2024_INDEPENDENT_AUDIT ",1)
+          if len(line)!=2:raise SystemExit("Malformed audit output")
+          stats=json.loads(line[1])
+          out=pathlib.Path("research/2024_multisource_audit.json")
+          out.write_text(json.dumps(stats,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          print("AUDIT_ONLY_NO_RAW_FIXTURES",stats["distinct_safe_matches"])
+          '
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add research/2024_multisource_audit.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'docs(research): independent 2024 BSD SportScore OpenFootball aggregate audit'
+            git push origin HEAD:research/single-ml-v2-20261024
+          fi
+      - name: Final status
+        run: echo 'Verified all encrypted 2024 months. Research-only aggregate report persisted, no plaintext fixture file committed.'
