@@ -16,11 +16,14 @@ NOW = datetime(2026, 10, 13, 18, 30, tzinfo=timezone.utc)
 
 
 class MatchLifecycleTests(unittest.TestCase):
+    def setUp(self):
+        adapter=patch.object(m,"NeonRestSession",side_effect=lambda session: session)
+        adapter.start()
+        self.addCleanup(adapter.stop)
     @patch.dict("os.environ", {
-        "SUPABASE_URL": "https://example.supabase.co",
-        "SUPABASE_SERVICE_ROLE_KEY": "secret",
+        "NEON_DATABASE_URL": "postgresql://fake-neon-test",
     }, clear=False)
-    def test_supabase_live_prefers_canonical_merged_state(self):
+    def test_neon_live_prefers_canonical_merged_state(self):
         class Response:
             status_code = 200
             def raise_for_status(self):
@@ -53,15 +56,15 @@ class MatchLifecycleTests(unittest.TestCase):
                 return Response()
 
         session = Session()
-        rows = m.fetch_supabase_live(session, max_age_seconds=999999)
+        rows = m.fetch_neon_live(session, max_age_seconds=999999)
         self.assertEqual(len(rows), 1)
-        self.assertEqual(rows[0]["source"], "supabase_merged")
+        self.assertEqual(rows[0]["source"], "neon_merged")
         self.assertEqual(rows[0]["home_score"], 2)
         self.assertEqual(rows[0]["sources_used"], ["espn", "sportscore"])
         self.assertTrue(session.urls[0].endswith("/rest/v1/live_stats_merged"))
         self.assertEqual(len(session.urls), 1)
 
-    @patch("football_match_lifecycle.fetch_supabase_live", return_value=[])
+    @patch("football_match_lifecycle.fetch_neon_live", return_value=[])
     @patch("football_match_lifecycle.collect_free_day")
     @patch("football_match_lifecycle.fetch_shared_source_snapshot")
     def test_collect_external_reuses_shared_snapshot(self, shared, collect, _supabase):
@@ -184,8 +187,7 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertIn("fin_tirs_au_but", kinds)
 
     @patch.dict("os.environ", {
-        "SUPABASE_URL": "https://example.supabase.co",
-        "SUPABASE_SERVICE_ROLE_KEY": "secret",
+        "NEON_DATABASE_URL": "postgresql://fake-neon-test",
     }, clear=False)
     def test_canonical_live_events_roundtrip(self):
         canonical_payload = {
@@ -213,8 +215,7 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertFalse(row["confirmed"])
 
     @patch.dict("os.environ", {
-        "SUPABASE_URL": "https://example.supabase.co",
-        "SUPABASE_SERVICE_ROLE_KEY": "secret",
+        "NEON_DATABASE_URL": "postgresql://fake-neon-test",
     }, clear=False)
     def test_canonical_event_becomes_visible_only_after_confirmation(self):
         class Response:
@@ -585,7 +586,7 @@ class MatchLifecycleTests(unittest.TestCase):
 
     @patch("football_match_lifecycle.fetch_espn_summary")
     @patch("football_match_lifecycle.collect_external")
-    def test_supabase_merged_score_uses_espn_confirmed_goal(self, collect, fetch_summary):
+    def test_neon_merged_score_uses_espn_confirmed_goal(self, collect, fetch_summary):
         base = [{
             "id": "bsd-test", "event_date": "2026-10-13T18:00:00+00:00",
             "home_team": {"name": "Arsenal"},
@@ -593,7 +594,7 @@ class MatchLifecycleTests(unittest.TestCase):
             "league_name": "Premier League",
         }]
         collect.return_value = [{
-            "source": "supabase_merged", "id": "fixture-123",
+            "source": "neon_merged", "id": "fixture-123",
             "espn_id": "401912650",
             "home_team": "Arsenal", "away_team": "Chelsea",
             "home_score": 2, "away_score": 1,
@@ -773,7 +774,7 @@ class MatchLifecycleTests(unittest.TestCase):
     @patch("football_match_lifecycle.collect_external")
     def test_espn_cache_confirms_score_update_1_1(self, collect, _summary):
         collect.return_value = [{
-            "source": "supabase_live", "id": "espn:401912650",
+            "source": "neon_live", "id": "espn:401912650",
             "home_team": "Newcastle Jets", "away_team": "Gamba Osaka",
             "home_score": 1, "away_score": 1,
             "minute": 59, "state": "in",
