@@ -1,6 +1,11 @@
 name: CineX - Films, Desir, Comedie, Anime et Decouverte (6h)
 
 on:
+  # Déclenchement ponctuel contrôlé : seul le fichier témoin lance ce workflow.
+  push:
+    branches: [main]
+    paths:
+      - 'telegram-film-relay/.cinex-manual-run-once'
   workflow_dispatch:
     inputs:
       publish:
