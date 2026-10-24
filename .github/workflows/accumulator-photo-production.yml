@@ -16,7 +16,7 @@ on:
         options: [dry-run, production]
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 concurrency:
@@ -72,6 +72,47 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: One-time public media delivery probe (GitHub OIDC + Cloudflare KV)
+        if: github.event_name == 'push'
+        id: cloudflare_media_probe
+        env:
+          PROBE_RUN_ID: ${{ github.run_id }}
+        run: |
+          python -m pip install requests Pillow
+          python -m unittest discover -s tests -p test_cloudflare_public_media.py -v
+          python - <<'PY'
+          import hashlib,json,os
+          from datetime import datetime,timezone
+          from pathlib import Path
+          from PIL import Image
+          from scripts.cloudflare_public_media import upload_public_media
+          import requests
+          test=Path("/tmp/mrx-media-probe.jpg")
+          Image.new("RGB",(90,70),"#1579bd").save(test,"JPEG",quality=90)
+          digest=hashlib.sha256(test.read_bytes()).hexdigest()
+          today=datetime.now(timezone.utc).date().isoformat()
+          key=f"images/mrxpronos-combine/{today}/{digest[:24]}.jpg"
+          url=upload_public_media(test,key)
+          test_range=requests.get(url,headers={"Range":"bytes=0-10"},timeout=20)
+          assert test_range.status_code==206 and len(test_range.content)==11, "KV media byte-range failure"
+          payload={"run_id":os.environ["PROBE_RUN_ID"],"time":datetime.now(timezone.utc).isoformat(),
+                    "storage":"cloudflare-kv","public_head":"200","public_range":"206",
+                    "bytes":test.stat().st_size,"test_only":True}
+          path=Path("ops/probes/cloudflare-media-"+payload["run_id"]+".json")
+          path.parent.mkdir(parents=True,exist_ok=True)
+          path.write_text(json.dumps(payload,indent=2)+"\n",encoding="utf-8")
+          print("MRX_PUBLIC_MEDIA_PROBE",json.dumps(payload))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "ops/probes/cloudflare-media-${PROBE_RUN_ID}.json"
+          git commit -m "ops(media): verify live Cloudflare KV publishing [skip ci]" || exit 0
+          for retry in 1 2 3 4; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+            sleep "$retry"
+          done
+          exit 1
       - name: Install render and photo network dependencies
         run: |
           npm ci
@@ -83,7 +124,8 @@ jobs:
         run: |
           python -m py_compile scripts/d1_publication_ledger.py
           python -m unittest discover -s tests -p test_d1_publication_ledger.py -v
-          python -m py_compile scripts/cloudflare_public_media.py scripts/read_accumulator_video_ledger.py scripts/send_accumulator_production.py scripts/post_accumulator_social.py scripts/send_short_production_telegram.py scripts/create_short_from_telegram_coupons.py
+          python -m py_compile scripts/cloudflare_public_media.py scripts/read_accumulator_video_ledger.py
+          python -m unittest discover -s tests -p test_cloudflare_public_media.py -v scripts/send_accumulator_production.py scripts/post_accumulator_social.py scripts/send_short_production_telegram.py scripts/create_short_from_telegram_coupons.py
           node --check scripts/prepare_accumulator_today.mjs
       - name: Select remaining fixtures and calculate simulated 50000 FCFA stake
         id: selection
