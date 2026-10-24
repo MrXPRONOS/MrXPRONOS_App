@@ -16,8 +16,7 @@ on:
         options: [dry-run, production]
 
 permissions:
-  contents: write
-  actions: read
+  contents: read
   id-token: write
 
 concurrency:
@@ -73,76 +72,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: One-time public media delivery probe (GitHub OIDC + Cloudflare KV)
-        if: github.event_name == 'push'
-        id: cloudflare_media_probe
-        env:
-          PROBE_RUN_ID: ${{ github.run_id }}
-        run: |
-          python -m pip install requests Pillow
-          python -m unittest discover -s tests -p test_cloudflare_public_media.py -v
-          python - <<'PY'
-          import hashlib,json,os
-          from datetime import datetime,timezone
-          from pathlib import Path
-          from PIL import Image
-          from scripts.cloudflare_public_media import upload_public_media
-          import requests
-          test=Path("/tmp/mrx-media-probe.jpg")
-          Image.new("RGB",(90,70),"#1579bd").save(test,"JPEG",quality=90)
-          digest=hashlib.sha256(test.read_bytes()).hexdigest()
-          today=datetime.now(timezone.utc).date().isoformat()
-          key=f"images/mrxpronos-combine/{today}/{digest[:24]}.jpg"
-          url=upload_public_media(test,key)
-          test_range=requests.get(url,headers={"Range":"bytes=0-10"},timeout=20)
-          assert test_range.status_code==206 and len(test_range.content)==11, "KV media byte-range failure"
-          payload={"run_id":os.environ["PROBE_RUN_ID"],"time":datetime.now(timezone.utc).isoformat(),
-                    "storage":"cloudflare-kv","public_head":"200","public_range":"206",
-                    "bytes":test.stat().st_size,"test_only":True}
-          path=Path("ops/probes/cloudflare-media-"+payload["run_id"]+".json")
-          path.parent.mkdir(parents=True,exist_ok=True)
-          path.write_text(json.dumps(payload,indent=2)+"\n",encoding="utf-8")
-          print("MRX_PUBLIC_MEDIA_PROBE",json.dumps(payload))
-          PY
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "ops/probes/cloudflare-media-${PROBE_RUN_ID}.json"
-          git commit -m "ops(media): verify live Cloudflare KV publishing [skip ci]" || exit 0
-          for retry in 1 2 3 4; do
-            git pull --rebase origin main
-            if git push origin HEAD:main; then exit 0; fi
-            sleep "$retry"
-          done
-          exit 1
-      - name: Retrieve original confirmed Telegram Short as a no-send upload probe
-        if: github.event_name == 'push'
-        uses: actions/download-artifact@v4
-        with:
-          name: shorts-coupons-production-morning
-          run-id: 40060124461
-          repository: ${{ github.repository }}
-          github-token: ${{ github.token }}
-          path: probe_original_short
-      - name: Verify original 8MB MP4 can be hosted publicly without Neon
-        if: github.event_name == 'push'
-        shell: bash
-        run: |
-          python - <<'PY'
-          import hashlib, json
-          from datetime import datetime,timezone
-          from pathlib import Path
-          import requests
-          from scripts.cloudflare_public_media import upload_public_media
-          video=Path("probe_original_short/daily_pronos_coupon_short.mp4")
-          assert video.is_file() and 500000 <= video.stat().st_size < 24*1024*1024, "Missing original Telegram MP4"
-          date=datetime.now(timezone.utc).strftime("%Y/%m/%d")
-          digest=hashlib.sha256(video.read_bytes()).hexdigest()[:24]
-          url=upload_public_media(video,f"shorts/{date}/{digest}.mp4")
-          assert url.startswith("https://mrxpronos-public-social-media.")
-          response=requests.get(url,headers={"Range":"bytes=0-1023"},timeout=30)
-          assert response.status_code==206 and len(response.content)==1024
-          print("MRX_PUBLIC_MP4_PROBE",json.dumps({"source":"original daily Shorts already sent to Telegram","bytes":video.stat().st_size,"head":200,"range":206,"publication":False}))
-          PY
       - name: Install render and photo network dependencies
         run: |
           npm ci
