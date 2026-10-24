@@ -169,12 +169,12 @@ jobs:
           PYTHONPATH: .
         run: python -m film_relay.series_catalog --publish --limit 2 --episode-cap 6
 
-      - name: Pause de securite avant transfert films
-        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_TORRENT9_PAUSED != 'true' }}
+      - name: Pause de securite avant transfert du film CinéX
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         run: sleep 25
 
-      - name: "Transfert ordonné APRÈS films vers Torrent9"
-        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_TORRENT9_PAUSED != 'true' }}
+      - name: "Un seul film CinéX transféré vers Torrent9 (avec attribution)"
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         working-directory: telegram-film-relay
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}

@@ -39,6 +39,8 @@ def settings(category):
     env, path = TARGETS[category]
     public = (os.getenv(env) or ("@CineXDesirfr" if category == "desir" else "")).strip()
     mirror = (os.getenv("TG_MIRROR_CHANNEL") or "@Torrent9SeriesFilms").strip()
+    if mirror.lower() == "@torrent9seriesfilm":
+        mirror = "@Torrent9SeriesFilms"  # ancienne variable GitHub corrigee
     if not public or mirror.lower() != "@torrent9seriesfilms" or public.lower() == mirror.lower():
         raise RuntimeError("Destinations CinéX invalides pour " + category)
     return public, mirror, ROOT / path, ROOT / (".partnership_" + category + ".json")
@@ -134,7 +136,104 @@ async def before(category):
             await bot.disconnect()
         await client.disconnect()
 
+
+def film_single_transfer_enabled():
+    """Scoped owner authorization: other Torrent9 transfers remain paused."""
+    from film_relay.mirror_policy import POLICY
+    if os.getenv("CINEX_SINGLE_FILM_FORWARD_PAUSED", "").lower() in ("1", "yes", "true", "on"):
+        return False
+    try:
+        policy = json.loads(POLICY.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+    return policy.get("film_single_forward_enabled") is True
+
+
+def pending_main_films(state, mirror_key):
+    """Newest successfully published *film* poster first, excluding receipts."""
+    processed = state.get("processed", {})
+    transferred = state.get("mirrors", {}).get(mirror_key, {})
+    candidates = []
+    for item_key, receipt in processed.items():
+        if item_key in transferred or not isinstance(receipt, dict):
+            continue
+        public_id = receipt.get("public_message_id")
+        if public_id:
+            candidates.append((str(item_key), int(public_id)))
+    candidates.sort(key=lambda row: row[1], reverse=True)
+    return candidates
+
+
+async def forward_one_main_film():
+    """At most ONE new native forward from primary CineX to Torrent9 per run.
+
+    Does not depend on the disabled pre-content partnership announcement.
+    Existing forwarded posts are reconciled before any new send, and a
+    durable receipt is saved immediately after Telegram accepts a forward.
+    """
+    if not film_single_transfer_enabled():
+        print("UN_SEUL_FILM_SUSPENDU : aucun transfert autorise.")
+        return 0
+    public_name, mirror_name, state_path, _ = settings("films")
+    state = load(state_path)
+    if not state.get("processed"):
+        print("AUCUN_FILM_DISPONIBLE : rien a transferer.")
+        return 0
+    client, _, _ = await session()
+    try:
+        source = await resolve_peer(client, public_name)
+        target = await resolve_peer(client, mirror_name)
+        source_id = utils.get_peer_id(source)
+        mirror_key = str(utils.get_peer_id(target))
+        if source_id == utils.get_peer_id(target):
+            raise RuntimeError("Le canal principal et le miroir sont identiques.")
+        if getattr(source, "noforwards", False):
+            raise RuntimeError("CineX principal interdit les transferts avec attribution.")
+        if not getattr(target, "broadcast", False):
+            raise RuntimeError("Le canal secondaire n'est pas un canal broadcast.")
+        current = await client.get_me()
+        permission = await client.get_permissions(target, current)
+        if not (getattr(permission, "is_creator", False) or
+                (getattr(permission, "is_admin", False) and
+                 getattr(permission, "post_messages", False))):
+            raise RuntimeError("Le compte Telegram ne peut pas publier dans Torrent9.")
+        mirrored = state.setdefault("mirrors", {}).setdefault(mirror_key, {})
+        prior = await existing_native_forwards(client, target, source_id, limit=900)
+        transferred = 0
+        for item_key, public_id in pending_main_films(state, mirror_key):
+            if public_id in prior:
+                mirrored[item_key] = int(prior[public_id])
+                save(state_path, state)
+                print("TRANSFERT_EXISTANT : public=", public_id,
+                      "miroir=", prior[public_id])
+                continue
+            original = await client.get_messages(source, ids=public_id)
+            if not original or getattr(original, "noforwards", False):
+                print("FILM_INACCESSIBLE_OU_PROTEGE :", public_id)
+                continue
+            forwarded = await client.forward_messages(
+                target, int(public_id), from_peer=source
+            )
+            if isinstance(forwarded, list):
+                forwarded = forwarded[0] if forwarded else None
+            if forwarded is None or not getattr(forwarded, "id", None):
+                raise RuntimeError("Telegram n'a pas confirme le transfert du film.")
+            mirrored[item_key] = int(forwarded.id)
+            save(state_path, state)
+            transferred = 1
+            print("UN_FILM_TRANSFERE :", public_name, public_id,
+                  "->", mirror_name, forwarded.id)
+            break  # Hard limit, even when many earlier films are pending.
+        if not transferred:
+            print("AUCUN_NOUVEAU_TRANSFERT : aucun film eligible non duplique.")
+        return transferred
+    finally:
+        await client.disconnect()
+
+
 async def after(category):
+    if category == "films":
+        return await forward_one_main_film()
     from film_relay.mirror_policy import torrent9_paused
     if torrent9_paused():
         print('TORRENT9_SUSPENDU : aucun transfert, aucune reprise des messages en attente.')
