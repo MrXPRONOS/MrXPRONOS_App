@@ -81,6 +81,6 @@ class FormFeatureTests(unittest.TestCase):
             window_features(sample,date(2026,10,2))
     def test_form_schema_stable(self):
         self.assertEqual(len(FORM_FEATURE_NAMES),112)
-        self.assertEqual(len(m.FEATURE_NAMES),130)
+        self.assertEqual(len(m.FEATURE_NAMES),160)
         self.assertEqual(len(set(m.FEATURE_NAMES)),len(m.FEATURE_NAMES))
 if __name__=="__main__":unittest.main()
