@@ -712,6 +712,20 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             print("PROGRESS", day, "scored", played, flush=True)
     summary = summarize(results)
     paired_cohorts = {}
+    # Exact same match IDs/dates for the new direct classifier and the
+    # legacy home/away Poisson-rate ML: no misleading unequal denominators.
+    direct_ids = {(r["date"],r["id"]) for r in results[DIRECT_MODEL_ID]}
+    if direct_ids:
+        paired = defaultdict(list)
+        for model_name in ("machine_learning", DIRECT_MODEL_ID):
+            paired[model_name] = [r for r in results[model_name]
+                                  if (r["date"],r["id"]) in direct_ids]
+        paired_cohorts["direct_vs_goal_rate_ml"] = {
+            "matched_games":len(direct_ids),
+            "comparisons":summarize(paired),
+        }
+    else:
+        paired_cohorts["direct_vs_goal_rate_ml"] = {"matched_games":0}
     for conditional_model in ("xg_poisson", "market_adjusted"):
         eligible = {(r["date"], r["id"]) for r in results[conditional_model]}
         if not eligible:
