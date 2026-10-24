@@ -179,7 +179,7 @@ class DiscoveryTests(unittest.TestCase):
     def test_schedules(self):
         root = Path(__file__).resolve().parent.parent
         relay = (root.parent / '.github/workflows/telegram-film-relay.yml').read_text()
-        self.assertIn("17 */2 * * *", relay)
+        self.assertIn("17 */6 * * *", relay)
         self.assertIn("python -m film_relay.discovery", relay)
         self.assertIn("python -m film_relay.desir_runner --publish --limit 2", relay)
         self.assertFalse((root.parent / '.github/workflows/telegram-film-discovery.yml').exists())

@@ -194,23 +194,14 @@ class RelayEndToEndTests(unittest.TestCase):
             self.assertEqual(len(second.forwarded), 1)
             self.assertTrue(State(str(state)).mirrored(f'{SRC}:10:11', str(MIRROR)))
 
-    def test_two_films_trigger_all_three_button_promos(self):
+    def test_two_films_do_not_trigger_ads_before_quota(self):
         with TemporaryDirectory() as temp:
             cfg, state = self.setup_files(temp, max_posts=2, with_mirror=True)
             client = FakeTelegramClient(sample_messages(count=2))
             self.assertEqual(self.start(client, cfg, state), 0)
             ads = [x for x in client.sent if x.media == "mrx_actu.png"]
-            self.assertEqual([x.channel for x in ads], [PUB, PRIV])
-            self.assertTrue(all(len(x.caption.splitlines()) == 4 for x in ads))
-            self.assertTrue(all(len(x.caption.splitlines()) == 4 for x in ads))
-            self.assertTrue(all(x.options["buttons"][0][0].url ==
-                                "https://t.me/actufoot_mrxp" for x in ads))
-            forwarded = [x for x in client.forwarded if x.origin_id == ads[0].id]
-            self.assertEqual(len(forwarded), 1)
-            self.assertEqual(forwarded[0].destination, MIRROR)
-            promos = State(str(state)).data["promotions"]
-            self.assertEqual(len(promos), 3)
-            self.assertTrue(all(p["next_index"] == 1 for p in promos.values()))
+            self.assertEqual(ads, [])
+            self.assertFalse(State(str(state)).data.get("promotions"))
 
     def test_failure_after_private_video_resume_only_public(self):
         with TemporaryDirectory() as temp:
@@ -247,7 +238,7 @@ class RelayEndToEndTests(unittest.TestCase):
             second = FakeTelegramClient(samples)
             self.assertEqual(self.start(second, cfg, state), 0)
             self.assertEqual([x.media for x in second.sent[:3]], ['poster-1', 'video-1', 'poster-1'])
-            self.assertEqual([x.media for x in second.sent[3:]], ['mrx_actu.png', 'mrx_actu.png'])
+            self.assertEqual([x.media for x in second.sent[3:]], [])
             self.assertEqual(State(str(state)).seen(str(SRC)), 13)
 
 
