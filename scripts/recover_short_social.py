@@ -31,11 +31,12 @@ def preflight(video: Path, manifest_file: Path, previous_file: Path):
     expected={"facebook","youtube","instagram","threads","bluesky"}
     if not expected.issubset(status):
         raise RuntimeError("Original social publication report is incomplete")
-    if status["instagram"] is not False or status["threads"] is not False:
-        raise RuntimeError("Recovery refused: original Instagram/Threads outcome is not a confirmed failure")
+    if not all(status[x] in (True,False) for x in PLATFORMS):
+        raise RuntimeError("Recovery refused: original Instagram/Threads outcomes are unknown")
     if not all(status[x] is True for x in ("facebook","youtube","bluesky")):
         raise RuntimeError("Recovery refused: main video campaign is not confirmed")
-    return target,count,hashlib.sha256(video.read_bytes()).hexdigest()
+    missing=[platform for platform in PLATFORMS if status[platform] is False]
+    return target,count,hashlib.sha256(video.read_bytes()).hexdigest(),missing
 
 def main():
     p=argparse.ArgumentParser()
@@ -44,13 +45,18 @@ def main():
     p.add_argument("--previous-report",type=Path,required=True)
     p.add_argument("--dry-run",action="store_true")
     args=p.parse_args()
-    day,count,digest=preflight(args.video,args.manifest,args.previous_report)
+    day,count,digest,missing=preflight(args.video,args.manifest,args.previous_report)
     if args.dry_run:
-        print("SOCIAL_RECOVERY_DRY_RUN",json.dumps({"date":day,"count":count,"sha256":digest,"platforms":PLATFORMS}))
+        print("SOCIAL_RECOVERY_DRY_RUN",json.dumps({"date":day,"count":count,"sha256":digest,"missing_platforms":missing}))
         return 0
 
-    for group in (["IG_USER_ID","META_ACCESS_TOKEN"],["THREADS_USER_ID","THREADS_ACCESS_TOKEN"]):
-        ok,msg=require_env(group)
+    if not missing:
+        print("SHORTS_SOCIAL_RECOVERY_NOT_NEEDED")
+        return 0
+    required={"instagram":["IG_USER_ID","META_ACCESS_TOKEN"],
+              "threads":["THREADS_USER_ID","THREADS_ACCESS_TOKEN"]}
+    for platform in missing:
+        ok,msg=require_env(required[platform])
         if not ok:raise RuntimeError(msg)
     # Validate public URL BEFORE claiming a platform's one-shot dedup key.
     url=resolve_public_url(args.video,None)
@@ -62,6 +68,9 @@ def main():
              "#football #pronostic #pronosdujour #mrxpronos")
     out=[]
     for platform,send in (("instagram",post_instagram_reel),("threads",post_threads)):
+        if platform not in missing:
+            out.append({"platform":platform,"status":"previously_sent"})
+            continue
         key=("shorts_social_recovery_"+platform,"sha256:"+digest,day)
         if not ledger.claim(*key):
             out.append({"platform":platform,"status":"already_claimed"})
