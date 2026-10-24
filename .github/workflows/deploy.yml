@@ -56,3 +56,28 @@ jobs:
           publish_dir: ./
           destination_dir: ./
           keep_files: true
+      - name: Verify Infos Foot JSON reached gh-pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s footnews.json
+          for attempt in 1 2 3 4 5; do
+            git fetch origin gh-pages
+            if git show origin/gh-pages:footnews.json > /tmp/footnews-deployed.json 2>/dev/null; then
+              if cmp -s footnews.json /tmp/footnews-deployed.json; then
+                echo "ACTUFOOT_GITHUB_PAGES_DEPLOY_CONFIRMED"
+                python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("footnews.json")
+          items=json.loads(p.read_text(encoding="utf-8"))
+          assert isinstance(items,list) and len(items)>0
+          print("ACTUFOOT_PUBLIC_ARTICLES",len(items))
+          PY
+                exit 0
+              fi
+            fi
+            sleep 5
+          done
+          echo "::error::Gh-pages football news JSON out of sync"
+          exit 1
