@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Photo du coupon quotidien sur Facebook, Instagram et Threads.
 Publie UNIQUEMENT la couverture recadrée, jamais YouTube.
-Registre anti-doublon Supabase telegram_sent avec un kind propre par plateforme.
+Registre anti-doublon Cloudflare D1 avec un kind propre par plateforme.
 """
 import io, json, os, sys, time
 from pathlib import Path
@@ -9,7 +9,7 @@ import requests
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"bsd"))
-from bsd_v2_bluesky import claim
+from d1_publication_ledger import D1Ledger
 
 def need(name):
  value=os.getenv(name,"").strip()
@@ -88,22 +88,25 @@ def main():
  day=report["day"]
  image=Path(os.getenv("ACCUMULATOR_SOCIAL_IMAGE","telegram_out/accumulator_preview.jpg"))
  if not image.exists():raise RuntimeError("Aperçu JPEG absent")
- source=need("SUPABASE_URL");key=need("SUPABASE_SERVICE_ROLE_KEY")
  odds=report["combined_odds"];count=report["included"]
  caption=(f"⚽ Combiné Mr XPRONOS · {day}\n{count} sélections · Cote indicative : {odds}\n"
           "Mise simulée : 50 000 F CFA.\n"
           "18+ · Joue responsablement.\n#football #pronostics #mrxpronos")
- public=public_url(image,day)
- session=requests.Session()
+ public=None
+ ledger=D1Ledger()
  results=[];failures=[]
  for platform in ("facebook","instagram","threads"):
   identity=("accumulator_photo_"+platform,day,day)
   try:
-   if not claim(session,source,key,identity):
+   if not ledger.claim(*identity):
     print("ACCUMULATOR_SOCIAL_ALREADY_SENT",platform,day)
     results.append({"platform":platform,"status":"already_sent"});continue
    # Après claim, ne pas relancer en cas d'erreur réseau ambiguë (protection anti-doublon).
+   # Facebook accepts the image bytes directly. Only IG/Threads need a URL.
+   if platform!="facebook" and public is None:
+    public=public_url(image,day)
    pid=publish(platform,public,image,caption)
+   ledger.mark(*identity)
    results.append({"platform":platform,"status":"sent","id":pid})
    print("ACCUMULATOR_SOCIAL_SENT",platform,pid)
   except Exception as exc:
