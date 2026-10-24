@@ -32,13 +32,13 @@ jobs:
       - name: Offline V2 integrity test
         run: PYTHONPATH=.:research python -m unittest discover -s research -p test_single_ml_v2_v2_history.py -v
       - name: Fetch and certify one V2 calendar day
-        run: PYTHONPATH=.:research python research/single_ml_v2_v2_history.py --start 2026-09-20 --end 2026-09-20 --limit 1
+        run: PYTHONPATH=.:research python research/single_ml_v2_v2_history.py --start 2025-12-20 --end 2025-12-20 --limit 1
       - name: Confirm ciphertext can be authenticated and decrypted
         run: |
           PYTHONPATH=.:research python - <<'PY'
           from datetime import date
           from single_ml_v2_git import key_from_environment,path_for,day_data
-          day=date(2026,9,20)
+          day=date(2025,12,20)
           p=path_for(day)
           if not p.exists():raise SystemExit("ERROR No encrypted V2 snapshot")
           content=day_data(p,key_from_environment(),day)
@@ -53,8 +53,8 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add research/encrypted_football/manifest.enc
-          git add research/encrypted_football/days/2026/09/2026-09-20.enc
-          unexpected="$(git diff --cached --name-only | grep -Ev '^research/encrypted_football/(manifest\.enc|days/2026/09/2026-09-20\.enc)$' || true)"
+          git add research/encrypted_football/days/2025/12/2025-12-20.enc
+          unexpected="$(git diff --cached --name-only | grep -Ev '^research/encrypted_football/(manifest\.enc|days/2026/09/2025-12-20\.enc)$' || true)"
           if [[ -n "$unexpected" ]]; then echo "ERROR unexpected files"; exit 1; fi
           if ! git diff --cached --quiet; then
             git commit -m 'data(research): certified encrypted SportsAPI Pro V2 sample day'
