@@ -1,4 +1,4 @@
-name: ML V2 - Probe 2024 historical football V2
+name: ML V2 - Historical football availability probe
 on:
   push:
     branches:
@@ -9,7 +9,7 @@ on:
     inputs:
       history_day:
         description: 'One historical UTC football date to test using SportsAPIPro V2'
-        default: '2026-09-20'
+        default: '2026-01-20'
         required: true
 permissions:
   contents: read
@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 8
     env:
       SPORTSAPI_V2_PROBE_KEY: ${{ secrets.SPORTDATA_API_KEY_2 }}
-      PROBE_DAY: ${{ inputs.history_day || '2026-09-20' }}
+      PROBE_DAY: ${{ inputs.history_day || '2026-01-20' }}
     steps:
       - uses: actions/setup-python@v5
         with:
