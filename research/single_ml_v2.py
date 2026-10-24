@@ -176,7 +176,7 @@ def load_matches(path: str, end: date):
         verified = (raw.get("xg_source")=="supabase_live_stats_sources_api_original"
                     and raw.get("xg_quality")=="observed_late_match_90plus_provisional"
                     and stamp is not None and kickoff is not None and stamp>kickoff
-                    and 0<=float(xgh or -1)<=10 and 0<=float(xga or -1)<=10)
+                    and xgh is not None and xga is not None and 0<=xgh<=10 and 0<=xga<=10)
         if verified:
             xg_found += 1
         else:
