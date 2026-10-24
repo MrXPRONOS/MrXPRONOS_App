@@ -61,6 +61,7 @@ def normalize(raw, requested_day):
         "home_score":hg,"away_score":ag,"status_group":4,"is_finished":True,
         "source":"sportsapipro_v1_allscores","source_match_id":key,
         "source_competition_id":raw.get("competitionId"),
+        "source_home_team_id":home.get("id"),"source_away_team_id":away.get("id"),
     },None
 
 def atomic_json(path, obj):
