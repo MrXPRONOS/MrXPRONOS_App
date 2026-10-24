@@ -77,7 +77,8 @@ def episode_numbers(text: str):
 def series_title(text: str) -> str:
     value = first_title(text or "").strip()
     value = re.sub(r"(?i)^@[A-Za-z0-9_]{5,32}\s+(?:vf|fv)?\s*", "", value)
-    value = re.sub(r"(?i)\\b(?:episode|épisode|ep)[\\s._-]*0*\\d{1,3}\\b", " ", value)\n    value = CLEAN_CODES.sub(" ", value)
+    value = re.sub(r"(?i)\b(?:episode|épisode|ep)[\s._-]*0*\d{1,3}\b", " ", value)
+    value = CLEAN_CODES.sub(" ", value)
     value = SEASON_HEADER.sub(" ", value)
     value = re.sub(r"(?i)(?:\b(?:mp4|mkv)\b|^@[^\s]+\s+(?:vf|fv)\b)", " ", value)
     value = re.sub(r"(?i)\b(?:vf|vostfr|1080p|720p|dub|hd|complet)\b", " ", value)
