@@ -33,6 +33,8 @@ on:
       - "scripts/send_short_production_telegram.py"
       - "scripts/d1_publication_ledger.py"
       - "scripts/post_shorts_video.py"
+      - "scripts/cloudflare_public_media.py"
+      - "cloudflare/public_social_media/worker.mjs"
       - ".github/workflows/shorts-coupons-production.yml"
 
 permissions:
@@ -65,9 +67,6 @@ jobs:
       TG_API_HASH: ${{ secrets.TG_API_HASH }}
       TG_SESSION_STRING: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
       META_APP_ID: ${{ secrets.META_APP_ID }}
       META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
       META_LONG_LIVED_USER_TOKEN: ${{ secrets.META_LONG_LIVED_USER_TOKEN }}
@@ -89,7 +88,6 @@ jobs:
       YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
       YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
       YOUTUBE_PRIVACY_STATUS: public
-      SUPABASE_BUCKET: videos
 
     steps:
       - name: Checkout production
@@ -122,7 +120,7 @@ jobs:
           python -m py_compile scripts/send_short_production_telegram.py
           python -m py_compile scripts/distribute_short_telegram.py
           python -m unittest discover -s scripts -p "test_telegram_video_distribution.py" -v
-          python -m py_compile scripts/post_shorts_video.py
+          python -m py_compile scripts/cloudflare_public_media.py scripts/post_shorts_video.py
           python -m py_compile scripts/share_latest_video_bluesky.py
           python -m py_compile scripts/verify_social_publications.py
           python -m unittest discover -s scripts -p 'test_social_publication_validation.py' -v
@@ -296,7 +294,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile scripts/recover_short_social.py scripts/post_shorts_video.py scripts/neon_public_media.py
+          python -m py_compile scripts/recover_short_social.py scripts/post_shorts_video.py scripts/cloudflare_public_media.py
           python scripts/recover_short_social.py \
             --video recovered_short/daily_pronos_coupon_short.mp4 \
             --manifest recovered_short/telegram_out/production_short/manifest.json \
