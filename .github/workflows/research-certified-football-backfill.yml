@@ -1,0 +1,132 @@
+name: Encrypted Git football history - ML V2
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        description: 'Start of historical collection'
+        default: '2024-01-01'
+        required: true
+      end:
+        description: 'End UTC, leave blank for yesterday'
+        default: ''
+        required: false
+      limit:
+        description: 'Maximum API days per run'
+        default: '40'
+        required: true
+      xg_matches_per_run:
+        description: 'Historical xG fixtures to query per run (0 skips)'
+        default: '12'
+        required: true
+      xg_requests_per_run:
+        description: 'Hard provider API request budget for xG'
+        default: '24'
+        required: true
+      train_after_completion:
+        description: 'Run research ML when archive is complete'
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency:
+  group: ml-v2-encrypted-history
+  cancel-in-progress: false
+jobs:
+  football-history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY }}
+      SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
+      SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
+      SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
+      SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
+      SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/single-ml-v2-20261024
+          persist-credentials: true
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install cryptography requests
+      - name: Validate key exists
+        shell: bash
+        run: |
+          if [[ -z "$ML_V2_HISTORY_KEY_B64" ]]; then
+            echo 'Missing Actions secret ML_V2_HISTORY_KEY_B64'
+            exit 1
+          fi
+      - name: Incremental encrypted football backfill
+        id: collect
+        shell: bash
+        env:
+          HISTORY_START: ${{ inputs.start }}
+          HISTORY_END: ${{ inputs.end }}
+          HISTORY_LIMIT: ${{ inputs.limit }}
+        run: |
+          set -euo pipefail
+          args=(--start "$HISTORY_START" --limit "$HISTORY_LIMIT")
+          if [[ -n "$HISTORY_END" ]]; then args+=(--end "$HISTORY_END"); fi
+          set +e
+          PYTHONPATH=.:research python research/single_ml_v2_git.py collect "${args[@]}"
+          code=$?
+          set -e
+          if [[ "$code" -ne 0 && "$code" -ne 2 ]]; then exit "$code"; fi
+          if [[ "$code" == 0 ]]; then echo "complete=true" >> "$GITHUB_OUTPUT"; else echo "complete=false" >> "$GITHUB_OUTPUT"; fi
+      - name: Collect measured historical xG from source
+        shell: bash
+        env:
+          HISTORY_START: ${{ inputs.start }}
+          HISTORY_END: ${{ inputs.end }}
+          XG_MATCH_LIMIT: ${{ inputs.xg_matches_per_run }}
+          XG_REQUEST_LIMIT: ${{ inputs.xg_requests_per_run }}
+        run: |
+          set -euo pipefail
+          if [[ "$XG_MATCH_LIMIT" -gt 0 ]]; then
+            args=(--start "$HISTORY_START" --limit "$XG_MATCH_LIMIT" --request-limit "$XG_REQUEST_LIMIT")
+            if [[ -n "$HISTORY_END" ]]; then args+=(--end "$HISTORY_END"); fi
+            PYTHONPATH=.:research python research/single_ml_v2_xg.py collect "${args[@]}"
+          fi
+      - name: Commit encrypted snapshots ONLY
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/encrypted_football/
+          git diff --cached --name-only | grep -v -E '^research/encrypted_football/(manifest\.enc|days/[0-9]{4}/[0-9]{2}/[0-9]{4}-[0-9]{2}-[0-9]{2}\.enc|xg/matches/[a-f0-9]{2}/[a-f0-9]{64}\.enc)$' && exit 1 || true
+          if ! git diff --cached --quiet; then
+            git commit -m "data(ml-v2): append encrypted football checkpoints"
+            git push origin HEAD:research/single-ml-v2-20261024
+          fi
+      - name: ML research on verified complete archive only
+        if: ${{ steps.collect.outputs.complete == 'true' && inputs.train_after_completion }}
+        shell: bash
+        env:
+          HISTORY_START: ${{ inputs.start }}
+          HISTORY_END: ${{ inputs.end }}
+        run: |
+          set -euo pipefail
+          end="$HISTORY_END"
+          if [[ -z "$end" ]]; then end="$(date -u -d yesterday +%F)"; fi
+          PYTHONPATH=.:research python research/single_ml_v2_git.py export --start "$HISTORY_START" --end "$end" --output /tmp/mrx_football_history.json
+          PYTHONPATH=.:research python research/single_ml_v2_prepare_xg.py --source /tmp/mrx_football_history.json --out /tmp/mrx_football_with_xg.json
+          python -m pip install numpy scipy scikit-learn lightgbm==4.6.0 catboost==1.2.8
+          PYTHONPATH=.:research python research/single_ml_v2.py --source /tmp/mrx_football_with_xg.json --start 2026-01-01 --end "$end" --out /tmp/ml-v2-output
+          test_start="$(date -u -d "$end - 60 days" +%F)"
+          validation_start="$(date -u -d "$test_start - 60 days" +%F)"
+          PYTHONPATH=.:research python research/single_ml_v2_validation.py \
+            --predictions /tmp/ml-v2-output/all_predictions.csv \
+            --validation-start "$validation_start" \
+            --test-start "$test_start" --test-end "$end" \
+            --output /tmp/ml-v2-output/independent_validation.json
+      - uses: actions/upload-artifact@v4
+        if: ${{ steps.collect.outputs.complete == 'true' && inputs.train_after_completion }}
+        with:
+          name: ml-v2-research-only
+          path: /tmp/ml-v2-output/
+          retention-days: 7
