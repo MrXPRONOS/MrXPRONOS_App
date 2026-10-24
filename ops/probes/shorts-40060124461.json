@@ -1,0 +1,42 @@
+{
+  "run_id": "40060124461",
+  "attempt": "1",
+  "trigger_sha": "ba7803940a2be42e9d6e652902bf98334ff6ca5d",
+  "event": "push",
+  "checked_at": "2026-10-24T03:57:10.731544+00:00",
+  "slot": "morning",
+  "render": "success",
+  "has_video": "true",
+  "send": "success",
+  "video_sent": "true",
+  "manifest": {
+    "target": "2026-10-24",
+    "count": 5
+  },
+  "social_step": "failure",
+  "social_verify": "failure",
+  "telegram_audit": "success",
+  "social": [
+    {
+      "platform": "facebook",
+      "ok": true
+    },
+    {
+      "platform": "youtube",
+      "ok": true
+    },
+    {
+      "platform": "instagram",
+      "ok": false
+    },
+    {
+      "platform": "threads",
+      "ok": false
+    },
+    {
+      "platform": "bluesky",
+      "ok": true
+    }
+  ],
+  "cloudflare_token_present": true
+}
