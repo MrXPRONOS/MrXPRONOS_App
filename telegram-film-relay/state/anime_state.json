@@ -47,6 +47,10 @@
     "anime-series:mangas-fv-yu-gi-oh-duel-monsters": {
       "public_id": 33,
       "video_id": 50
+    },
+    "anime-series:sword-gai-the-animation": {
+      "public_id": 58,
+      "video_id": 142
     }
   },
   "mirrors": {
