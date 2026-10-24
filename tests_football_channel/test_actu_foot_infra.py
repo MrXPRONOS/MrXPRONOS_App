@@ -184,11 +184,16 @@ class ActuFootInfrastructureTests(unittest.TestCase):
         self.assertNotIn("git add footnews.json", update_news)
         self.assertNotIn("git push origin HEAD:main", update_news)
 
-    def test_site_prefers_public_supabase_news_snapshot_with_git_fallback(self):
+    def test_site_prefers_public_neon_news_snapshot_with_git_fallback(self):
         js = (ROOT / "assets/js/main.js").read_text(encoding="utf-8")
-        self.assertIn('from("actu_foot_news_snapshot")', js)
+        neon = (ROOT / "assets/js/actu-foot-neon.js").read_text(encoding="utf-8")
+        self.assertIn('import("./actu-foot-neon.js")', js)
+        self.assertIn("loadNeonFootNews()", js)
+        self.assertIn('from("actu_foot_news_snapshot")', neon)
+        self.assertIn("allowAnonymous:true", neon)
         self.assertIn('fetch(`footnews.json?t=${Date.now()}`', js)
         self.assertIn("source_image || n.image", js)
+        self.assertNotIn("Snapshot Infos Foot Supabase", js)
 
     def test_deprecated_one_shot_workflows_are_removed(self):
         removed = [
