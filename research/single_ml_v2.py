@@ -226,6 +226,7 @@ class FormState:
         self.league_a = defaultdict(Decayed)
         self.home = defaultdict(Decayed)
         self.away = defaultdict(Decayed)
+        self.team_history = defaultdict(list)
 
     def features(self, m):
         lh = self.league_h[m.league].at(m.day)
@@ -255,15 +256,36 @@ class FormState:
             xga_h = (hs[4] + 5.0*lgx_a) / (hs[5] + 5.0)
             xg_lamh = float(np.clip(.55*lam_h + .45*xgf_h*xga_a/max(.2,lgx_h), .12, 4.5))
             xg_lama = float(np.clip(.55*lam_a + .45*xgf_a*xga_h/max(.2,lgx_a), .12, 4.5))
+        def rolling(team, n):
+            rec = self.team_history[(m.league, team)][-n:]
+            if not rec:
+                return [0., 0., 0., 0.]
+            return [float(len(rec)), float(np.mean([x[1] for x in rec])),
+                    float(np.mean([x[2] for x in rec])),
+                    float((m.day - rec[-1][0]).days)]
+        recent = rolling(m.home, 5) + rolling(m.away, 5)
+        longer = rolling(m.home, 10) + rolling(m.away, 10)
+        opponent = []
+        for team in (m.home, m.away):
+            hist = self.team_history[(m.league, team)][-10:]
+            opponent.append(float(np.mean([x[3] for x in hist])) if hist else 0.)
+        prior_xg = [float(xg_lamh or 0.), float(xg_lama or 0.),
+                    float(xg_lamh is None or xg_lama is None)]
         vector = np.array([lam_h, lam_a, mu_h, mu_a, hs[0], as_[0], lh[0],
                            for_h, against_h, for_a, against_a,
                            (hs[1]-hs[2])/(hs[0]+3),
-                           (as_[1]-as_[2])/(as_[0]+3)], dtype=float)
+                           (as_[1]-as_[2])/(as_[0]+3), *recent, *longer, *opponent, *prior_xg], dtype=float)
         return {"h": lam_h, "a": lam_a, "mu_h": mu_h, "mu_a": mu_a,
                 "hs": hs, "as": as_, "xgh": xg_lamh, "xga": xg_lama,
                 "vector": vector}
 
     def add(self, m):
+        def strength(team):
+            rec = self.team_history[(m.league, team)][-10:]
+            return float(np.mean([x[1]-x[2] for x in rec])) if rec else 0.
+        old_home, old_away = strength(m.home), strength(m.away)
+        self.team_history[(m.league, m.home)].append((m.day, m.hg, m.ag, old_away))
+        self.team_history[(m.league, m.away)].append((m.day, m.ag, m.hg, old_home))
         self.league_h[m.league].add(m.day, m.hg, m.ag, m.xgh, m.xga)
         self.league_a[m.league].add(m.day, m.ag, m.hg, m.xga, m.xgh)
         self.home[(m.league, m.home)].add(m.day, m.hg, m.ag, m.xgh, m.xga)
@@ -440,6 +462,13 @@ def train_ml(records):
     return trained
 
 
+def ml_hybrid_grid(models, vector, rho=-.04, weight=.35):
+    home = float(np.clip(models[0].predict(vector[None, :])[0], .12, 5))
+    away = float(np.clip(models[1].predict(vector[None, :])[0], .12, 5))
+    return normalized((1-weight)*poisson_grid(home, away)
+                      + weight*dixon_coles(home, away, rho))
+
+
 def score_odds_for(m, gh, ga):
     if not m.odds or not m.odds.get("exact"):
         return None
@@ -448,7 +477,7 @@ def score_odds_for(m, gh, ga):
 
 def summarize(stats):
     result = {}
-    for name in MODELS:
+    for name in (*MODELS, "machine_learning_hybrid"):
         entries = stats[name]
         if not entries:
             result[name] = {"status": "NOT_EVALUABLE", "n": 0, "reason":
@@ -533,6 +562,7 @@ def backtest(matches, begin, end, out, max_eval=0):
                 lh = float(np.clip(ml[0].predict(f["vector"][None, :])[0], .12, 5))
                 la = float(np.clip(ml[1].predict(f["vector"][None, :])[0], .12, 5))
                 forecasts["machine_learning"] = poisson_grid(lh, la)
+                forecasts["machine_learning_hybrid"] = ml_hybrid_grid(ml, f["vector"], dc_rho)
             else:
                 audit["ml_not_enough_training"] += 1
             market = market_grid(p0, m.odds)
