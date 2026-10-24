@@ -134,50 +134,18 @@ def _canonical_event_id(value):
     return text.rsplit(":", 1)[-1]
 
 
-def _ledger_headers(key):
-    return {
-        "apikey": key,
-        "Authorization": "Bearer " + key,
-        "Content-Type": "application/json",
-    }
-
-
 def _already_sent_ids(target_date: str, kind: str):
-    base = (os.getenv("SUPABASE_URL") or "").rstrip("/")
-    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or ""
-    if not base or not key:
-        raise RuntimeError("SUPABASE_URL et une clé serveur obligatoires pour éviter les doublons en production")
-    response = requests.get(
-        base + "/rest/v1/telegram_sent",
-        params={
-            "select": "ref_id",
-            "kind": "eq." + kind,
-            "ref_date": "eq." + target_date,
-            "limit": "100",
-        },
-        headers=_ledger_headers(key),
-        timeout=30,
-    )
-    response.raise_for_status()
-    rows = response.json() or []
+    # D1 stores all previously sent Supabase IDs as well, so we never reuse
+    # an old published match merely because the storage backend changed.
+    from d1_publication_ledger import D1Ledger
+    rows = D1Ledger().rows(kind, target_date)
     return {_canonical_event_id(row.get("ref_id")) for row in rows if row.get("ref_id")}
 
 
 def _daily_video_already_claimed(now):
-    """Vérifie le verrou quotidien, qui empêche une deuxième vidéo."""
-    base=(os.getenv("SUPABASE_URL") or "").rstrip("/")
-    key=os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or ""
-    if not base or not key:
-        raise RuntimeError("Supabase obligatoire pour limiter les vidéos à une par jour")
-    res=requests.get(base+"/rest/v1/telegram_sent",
-        params={"select":"ref_id","kind":"eq.shorts_video_daily_guard",
-                "ref_id":"eq.one_daily_video",
-                "ref_date":"eq."+now.date().isoformat(),"limit":"1"},
-        headers=_ledger_headers(key),timeout=30)
-    res.raise_for_status()
-    rows=res.json()
-    if not isinstance(rows,list):
-        raise RuntimeError("Registre des vidéos quotidiennes invalide")
+    from d1_publication_ledger import D1Ledger
+    rows = D1Ledger().rows("shorts_video_daily_guard",
+                           now.date().isoformat(), ref_id="one_daily_video")
     return bool(rows)
 
 

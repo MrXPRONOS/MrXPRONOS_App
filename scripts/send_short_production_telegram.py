@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Send a production prediction video to Telegram and record its exact batch.
 
-The Supabase ledger rows are written only after Telegram accepts the video.
+The Cloudflare D1 ledger rows are written only after Telegram accepts the video.
 This makes the morning run exclude selections already used by the evening run
 and gives the validation workflow an exact batch to settle later.
 """
@@ -14,49 +14,25 @@ import os
 from pathlib import Path
 
 import requests
+from d1_publication_ledger import D1Ledger
 
 KIND = "shorts_video_coupon"
 DAILY_GUARD_KIND = "shorts_video_daily_guard"
 
 
-def headers(key: str):
-    return {
-        "apikey": key,
-        "Authorization": "Bearer " + key,
-        "Content-Type": "application/json",
-        "Prefer": "return=representation,resolution=ignore-duplicates",
-    }
-
-
-def record_batch(session, base, key, manifest):
+def record_batch(ledger, manifest):
     slot = str(manifest.get("slot") or "").strip()
     target = str(manifest.get("target") or "").strip()
-    rows = []
-    for match in manifest.get("matches") or []:
-        ident = str(match.get("id") or "").strip()
-        if not ident:
-            continue
-        rows.append({
-            "kind": KIND,
-            "ref_id": f"{slot}:{ident}",
-            "ref_date": target,
-            "validation_sent": False,
-        })
-    if not rows:
+    ids = [str(m.get("id") or "").strip() for m in manifest.get("matches") or []]
+    ids = [x for x in ids if x]
+    if not ids:
         raise RuntimeError("Manifest sans sélection à enregistrer")
-
-    url = base.rstrip("/") + "/rest/v1/telegram_sent"
-    for row in rows:
-        response = session.post(
-            url,
-            params={"on_conflict": "kind,ref_id,ref_date"},
-            headers=headers(key),
-            json=row,
-            timeout=30,
-        )
-        response.raise_for_status()
+    for event_id in ids:
+        ref = f"{slot}:{event_id}"
+        if ledger.claim(KIND, ref, target):
+            ledger.mark(KIND, ref, target)
     print("SHORTS_BATCH_LEDGER_RECORDED", json.dumps({
-        "slot": slot, "target": target, "count": len(rows)
+        "slot": slot, "target": target, "count": len(ids)
     }, ensure_ascii=False))
 
 
@@ -68,10 +44,8 @@ def main():
 
     token = (os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
     chat = (os.getenv("TG_VIDEO_PRIMARY_CHANNEL") or "@mrxpronosfr").strip()
-    base = (os.getenv("SUPABASE_URL") or "").strip()
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or "").strip()
-    if not all((token, chat, base, key)):
-        raise RuntimeError("Secrets Telegram/Supabase manquants")
+    if not all((token, chat)):
+        raise RuntimeError("Secrets Telegram manquants")
 
     video = Path(args.video)
     manifest_path = Path(args.manifest)
@@ -88,23 +62,12 @@ def main():
     # Réservation atomique : une seule vidéo de pronostics PAR JOUR, même en
     # présence de relances manuelles ou cron-job.org. Jamais deux vagues.
     session = requests.Session()
-    guard = session.post(
-        base.rstrip("/") + "/rest/v1/telegram_sent",
-        params={"on_conflict": "kind,ref_id,ref_date"},
-        headers=headers(key),
-        json={"kind": DAILY_GUARD_KIND, "ref_id": "one_daily_video",
-              "ref_date": published_day, "validation_sent": False},
-        timeout=30,
-    )
-    guard.raise_for_status()
-    claimed = guard.json()
-    if not isinstance(claimed,list):
-        raise RuntimeError("Registre d'unicité quotidienne invalide")
-    if not claimed:
-        print("SHORTS_DAILY_ALREADY_SENT",published_day)
-        output=os.getenv("GITHUB_OUTPUT")
+    ledger = D1Ledger()
+    if not ledger.claim(DAILY_GUARD_KIND, "one_daily_video", published_day):
+        print("SHORTS_DAILY_ALREADY_SENT", published_day)
+        output = os.getenv("GITHUB_OUTPUT")
         if output:
-            with open(output,"a",encoding="utf-8") as fh: fh.write("video_sent=false\n")
+            with open(output, "a", encoding="utf-8") as fh: fh.write("video_sent=false\n")
         return 0
     label = "Sélection du jour"
     caption = (
@@ -167,7 +130,9 @@ def main():
     receipt_file.parent.mkdir(parents=True, exist_ok=True)
     receipt_file.write_text(json.dumps(receipt, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    record_batch(session, base, key, manifest)
+    ledger.mark(DAILY_GUARD_KIND, "one_daily_video", published_day,
+                message_id=message["message_id"])
+    record_batch(ledger, manifest)
     output=os.getenv("GITHUB_OUTPUT")
     if output:
         with open(output,"a",encoding="utf-8") as fh: fh.write("video_sent=true\n")
