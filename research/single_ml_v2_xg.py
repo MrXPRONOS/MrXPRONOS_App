@@ -319,6 +319,7 @@ def fetch_observation(client,match,*,now,schedule_cache=None):
         "xg_observed_at":now.isoformat(),
         "xg_usable_after":now.isoformat(),
         "provider_match_id":resolved,
+        "match_resolution_method":"v2_schedule_unique_teams_utc_kickoff_score",
     }
 
 
@@ -371,6 +372,9 @@ def collect(start,end,*,key,root=ROOT,limit=24,request_limit=35,client=None):
                 stats["persisted_measured"]+=1
     stats["requests_used"]=cli.used
     stats["request_limit"]=cli.limit
+    stats["schedule_dates_queried"]=len(schedule_cache)
+    stats["documented_endpoint"]="/api/schedule/{date} + /api/match/{id}/statistics"
+    stats["source_availability_not_guaranteed"]=True
     return dict(stats)
 
 
@@ -389,6 +393,8 @@ def enrich_from_encrypted(matches,key,*,root=ROOT):
         record=record_from_file(match["id"],key,root)
         if record is not None and record.get("status")=="measured":
             if (record.get("xg_source")!=PROVIDER or record.get("xg_quality")!=QUALITY
+                or record.get("match_resolution_method")!="v2_schedule_unique_teams_utc_kickoff_score"
+                or not SAFE_ID.fullmatch(str(record.get("provider_match_id") or ""))
                 or record.get("kickoff")!=match.get("start_time")
                 or normalized_name(record.get("home_team"))!=normalized_name(match["home_team"])
                 or normalized_name(record.get("away_team"))!=normalized_name(match["away_team"])):
