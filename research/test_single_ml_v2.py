@@ -10,8 +10,8 @@ import single_ml_v2_experiments as x
 
 class ExactScoreMLV2Tests(unittest.TestCase):
     def mk(self, d, hg, ag):
-        return SimpleNamespace(day=d,league="Verified league",home="A",away="B",
-                               hg=hg,ag=ag,xgh=None,xga=None)
+        return m.Match(key=f"test:{d}:{hg}:{ag}",day=d,league="Verified league",
+                       home="A",away="B",hg=hg,ag=ag)
     def test_strict_sport(self):
         # Ingestion must reject missing sportId and other sports.
         from tempfile import NamedTemporaryFile
