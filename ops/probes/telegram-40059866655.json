@@ -1,0 +1,22 @@
+{
+  "run_id": "40059866655",
+  "attempt": "1",
+  "event": "push",
+  "trigger_sha": "7a4a5889d3d15766255aec8a8c857399e4d0c49b",
+  "checked_at": "2026-10-24T03:50:22.625478+00:00",
+  "destination": "production",
+  "coupon_step": "success",
+  "report": {
+    "due": 0,
+    "sent": 0,
+    "already_claimed": 0,
+    "errors": 0,
+    "night_matches": 0,
+    "night_picks_sent": 0,
+    "night_combos_sent": 0,
+    "combos_due": 0,
+    "combos_sent": 0,
+    "combos_claimed": 0
+  },
+  "error_hints": []
+}
