@@ -372,8 +372,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                     photo_stream.name = "cinex_private_series.jpg"
                     sent_poster = await client.send_file(
                         private, photo_stream,
-                        caption=f"📺 <b>{escape(title)}</b>\\n"
-                                f"<i>Fiche de la série et épisodes ci-dessous.</i>\\n{poster_marker}",
+                        caption=f"📺 <b>{escape(title)}</b>\n"
+                                f"<i>Fiche de la série et épisodes ci-dessous.</i>\n{poster_marker}",
                         parse_mode="html", force_document=False,
                     )
                     private_poster = int(sent_poster.id)
