@@ -527,8 +527,16 @@ def main() -> None:
     save_news(records, diagnostics)
     backend = os.getenv("FOOTNEWS_BACKEND", "neon").strip().lower()
     if backend == "github":
-        # Site public: les photos d'origine sont chargées directement depuis
-        # les sites d'actualité. Aucun quota Neon/Supabase pour le lecteur.
+        # Le diffuseur Telegram utilise les images RSS récupérées localement.
+        # Le site web reçoit des URL source, pas des fichiers RSS non commités.
+        telegram_source = ROOT / "telegram_out" / "actu_foot_source_news.json"
+        telegram_source.parent.mkdir(parents=True, exist_ok=True)
+        telegram_source.write_text(
+            json.dumps(records, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        # Site public: photos d'origine chargées sur les sites des sources.
+        # Aucun quota Neon/Supabase pour le lecteur.
         published = public_snapshot_records(records)
         if not published:
             raise RuntimeError("NEWS_STATIC_EMPTY: aucun article vérifié")
