@@ -127,3 +127,13 @@ Scope: research only. Branch `research/single-ml-v2-20261024`. No production, gr
 - `research/test_single_ml_v2_forward.py` includes a simulated end-to-end sealed prekickoff forecast, independently fetched score, forward report, unavailable results, real Git first-commit ciphertext tampering and forged/too-late run tests. GitHub Actions offline CI now registered in main as well.
 - `research/ML_V2_VALIDATION_PROTOCOL.md` documents exact requirements, limitations, 2026-10-25 predeclared prospective start date, ROI restrictions, and security caveats.
 - No real prekickoff observations or green CI runs were confirmed. Complete code integration **is not** equivalent to evidence of high accuracy; the encrypted archive still needs to be populated and the scheduled watcher explicitly enabled.
+
+
+## 2024 one-shot alternative-source history — verified 2026-10-24
+- GitHub Actions: [successful run 40110821613](https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/40110821613).
+- Stored encrypted annual checkpoint: `research/encrypted_football/openfootball/2024.enc`, using the existing `ML_V2_HISTORY_KEY_B64` and AES-256-GCM. No plaintext committed.
+- Actual independently logged counts: **5,789** finished football matches in **26** source divisions over **261** calendar dates in 2024; **36/36** approved source JSON season files downloaded; **3/3** focused tests passed. Monthly distribution: Jan 264, Feb 388, Mar 369, Apr 417, May 297, Jun 1, Jul 44, Aug 643, Sep 748, Oct 850, Nov 844, Dec 924.
+- Source: openfootball/football.json (CC0/public domain), using 2023-24 and 2024-25 season files. All 366 calendar dates were considered, but 105 dates had no match from the selected leagues. This is explicitly **NOT** comprehensive global football coverage in 2024, and source-level 2024 league coverage may vary.
+- This alternative research archive is deliberately separate from SportsAPI Pro V1/V2 encrypted daily manifests and has **no xG**, no verified global team IDs and **date-only** provenance. Its date-only records are supported by the existing `single_ml_v2.load_matches` research loader, with whole UTC-day chronological grouping; do not claim a verified kickoff UTC instant or prekickoff odds.
+- Export locally **only inside GitHub Actions ephemeral /tmp**: `PYTHONPATH=.:research python research/single_ml_v2_openfootball2024.py export --output /tmp/mrx_openfootball_2024.json`.
+- Production/site/Telegram/Supabase/Neon left unchanged. Integration of a full 2024 historical backtest is **not** the same as real pre-match prediction validation.
