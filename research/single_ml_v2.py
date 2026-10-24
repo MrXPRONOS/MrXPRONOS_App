@@ -33,6 +33,7 @@ from single_ml_v2_candidates import (CANDIDATES, CANDIDATE_MODEL_NAMES, CANDIDAT
 from single_ml_v2_tune import (BASELINE, MLConfig, TUNE_VERSION, fit_histgb, select_hyperparameters)
 from single_ml_v2_selection import (VERSION as SELECTOR_VERSION, SELECTABLE_MODELS, PastForecast, prediction_features, prematch_quality, fit_reliability, decide, report_selections)
 from single_ml_v2_hybrid import (HYBRID_VERSION, DEFAULT_DC_WEIGHT, PastHybridForecast, calibrate as calibrate_hybrid, blend as blend_hybrid, comparison_metrics as compare_hybrids)
+from single_ml_v2_opponents import (OpponentStrengthState, OPPONENT_FEATURE_NAMES, OPPONENT_VERSION)
 
 MAX_GOALS = 10
 GOALS = np.arange(MAX_GOALS + 1)
@@ -129,6 +130,9 @@ class Match:
     xga: float | None = None
     odds: dict | None = None
     xg_available: datetime | None = None
+    home_id: str | None = None
+    away_id: str | None = None
+    competition_id: str | None = None
 
 
 def load_matches(path: str, end: date):
@@ -193,7 +197,9 @@ def load_matches(path: str, end: date):
         if odds:
             odds_found += 1
         key = str(raw.get("id") or raw.get("game_id") or (str(day) + ":" + league + ":" + home + ":" + away))
-        candidate = Match(key, day, league, home, away, int(hv), int(av), xgh, xga, odds, stamp)
+        candidate = Match(key, day, league, home, away, int(hv), int(av), xgh, xga, odds, stamp,
+                          raw.get('source_home_team_id'), raw.get('source_away_team_id'),
+                          raw.get('source_competition_id'))
         if key in by_key:
             previous = by_key[key]
             if (previous.day, previous.league, previous.home, previous.away,
@@ -247,6 +253,7 @@ BASE_FEATURE_NAMES = (
 TAIL_FEATURE_NAMES = (
     "home_prior_opponent_strength", "away_prior_opponent_strength",
     "prior_xg_home", "prior_xg_away", "prior_xg_missing",
+    *OPPONENT_FEATURE_NAMES,
 )
 FEATURE_NAMES = (
     BASE_FEATURE_NAMES
@@ -268,6 +275,7 @@ class FormState:
         self.team_history = defaultdict(list)
         self.last_ingested_day = None
         self.seen_match_ids = set()
+        self.opponent_state = OpponentStrengthState()
 
     def features(self, m):
         if self.last_ingested_day is not None and m.day <= self.last_ingested_day:
@@ -305,6 +313,7 @@ class FormState:
         opponent = []
         for hist in (home_hist, away_hist):
             opponent.append(float(np.mean([x[3] for x in hist[-10:]])) if hist else 0.)
+        opponent_vector, opponent_quality = self.opponent_state.features(m)
         previous_xg = [float(xg_lamh if xg_lamh is not None else 0.),
                        float(xg_lama if xg_lama is not None else 0.),
                        float(xg_lamh is None or xg_lama is None)]
@@ -315,7 +324,7 @@ class FormState:
             (as_[1] - as_[2]) / (as_[0] + 3),
         ]
         vector = np.asarray([*baseline, *home_recent, *away_recent,
-                             *opponent, *previous_xg], dtype=float)
+                             *opponent, *previous_xg, *opponent_vector], dtype=float)
         if vector.shape != (len(FEATURE_NAMES),) or not np.all(np.isfinite(vector)):
             raise ValueError("Invalid form feature vector shape or values")
         samples = {
@@ -326,6 +335,7 @@ class FormState:
             "h":lam_h, "a":lam_a, "mu_h":mu_h, "mu_a":mu_a,
             "hs":hs, "as":as_, "xgh":xg_lamh, "xga":xg_lama,
             "vector":vector, "form_samples":samples,
+            "opponent_quality":opponent_quality,
         }
 
     def add_xg(self, m, availability_day):
@@ -365,6 +375,7 @@ class FormState:
             (m.league, name):prior_strength(m.league, name)
             for m in matches for name in (m.home, m.away)
         }
+        self.opponent_state.add_day(matches)
         for m in matches:
             hkey, akey = (m.league, m.home), (m.league, m.away)
             self.team_history[hkey].append((day, m.hg, m.ag, strengths[akey], "home"))
@@ -695,6 +706,10 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                 first_evaluated = day
             last_evaluated = day
             audit["evaluated_matches"] += 1
+            for side, opp in f["opponent_quality"].items():
+                audit[f"{side}_verified_opponent_identity"] += int(opp["verified_global_id"])
+                audit[f"{side}_cross_competition_history"] += int(opp["cross_competition_prior_games"] > 0)
+                audit[f"{side}_opponents_last10_complete"] += int(opp["opponents_last10_n"] >= 10)
             for side, sample in f["form_samples"].items():
                 for key, required in (("overall_last5",5),("overall_last10",10),
                                       ("venue_last5",5),("venue_last10",10)):
@@ -859,6 +874,8 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         "form_schema_version":FORM_SCHEMA_VERSION,
         "ml_feature_count":len(FEATURE_NAMES),
         "ml_feature_names":list(FEATURE_NAMES),
+        "opponent_strength_version":OPPONENT_VERSION,
+        "opponent_strength_report":states.opponent_state.audit_summary(),
         "form_policy":"last 5/10 league games overall AND last 5/10 matching home/away venue; previous UTC dates only; explicit missing flags",
         "form_quality_counts":dict(audit),
         "n_evaluation_matches": audit["evaluated_matches"],
