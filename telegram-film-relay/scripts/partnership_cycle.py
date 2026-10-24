@@ -39,6 +39,8 @@ def settings(category):
     env, path = TARGETS[category]
     public = (os.getenv(env) or ("@CineXDesirfr" if category == "desir" else "")).strip()
     mirror = (os.getenv("TG_MIRROR_CHANNEL") or "@Torrent9SeriesFilms").strip()
+    if mirror.lower() == "@torrent9seriesfilm":
+        mirror = "@Torrent9SeriesFilms"  # ancienne variable GitHub corrigee
     if not public or mirror.lower() != "@torrent9seriesfilms" or public.lower() == mirror.lower():
         raise RuntimeError("Destinations CinéX invalides pour " + category)
     return public, mirror, ROOT / path, ROOT / (".partnership_" + category + ".json")
@@ -174,8 +176,7 @@ async def forward_one_main_film():
         return 0
     public_name, mirror_name, state_path, _ = settings("films")
     state = load(state_path)
-    pending = pending_main_films(state, "")
-    if not pending:
+    if not state.get("processed"):
         print("AUCUN_FILM_DISPONIBLE : rien a transferer.")
         return 0
     client, _, _ = await session()
