@@ -28,7 +28,7 @@ class ExactScoreMLV2Tests(unittest.TestCase):
     def test_pregame_features_immutable(self):
         state=m.FormState();d=date(2026,9,1);fixture=self.mk(d,2,1)
         before=state.features(fixture)["vector"].copy()
-        self.assertEqual(len(before),34)
+        self.assertEqual(len(before),len(m.FEATURE_NAMES))
         state.add(fixture)
         after=state.features(self.mk(d+timedelta(days=1),0,0))["vector"]
         self.assertGreater(after[13],0)
