@@ -38,7 +38,9 @@ def goals(raw):
     if not isinstance(raw,dict):
         raise ValueError("Missing score object")
     # Regular-time score is preferred to current scores that may include ET.
-    value=raw.get("normaltime",raw.get("current"))
+    value=raw.get("normaltime")
+    if value is None:
+        value=raw.get("current")
     if value is None or isinstance(value,bool):
         raise ValueError("Missing verified FT goals")
     candidate=int(value)
