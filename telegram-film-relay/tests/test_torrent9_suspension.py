@@ -44,7 +44,7 @@ class Torrent9SuspensionTests(unittest.TestCase):
     def test_category_forward_phase_is_skipped(self):
         with patch.object(partnership_cycle, "settings",
                           side_effect=AssertionError("should not read Telegram settings")):
-            self.assertIsNone(asyncio.run(partnership_cycle.after("films")))
+            self.assertIsNone(asyncio.run(partnership_cycle.after("desir")))
 
     def test_resume_never_changes_publications(self):
         # Un miroir désactivé ne doit pas rendre les canaux Films/Anime/Désir inactifs.
