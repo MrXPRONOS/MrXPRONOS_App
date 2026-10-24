@@ -59,8 +59,12 @@ class ForwardTests(unittest.TestCase):
         self.assertIsNone(fw.verified_source_target(rejected,self.issued,self.start+timedelta(hours=2)))
         self.assertIsNone(fw.verified_source_target(fixture(self.start,finished=True),self.issued,self.start+timedelta(hours=2)))
         bad=fixture(self.start)
-        bad["homeCompetitor"]["score"]=0
+        bad["homeCompetitor"]["score"]=1
         self.assertIsNone(fw.verified_source_target(bad,self.issued,self.start+timedelta(hours=2)))
+        default_zero=fixture(self.start)
+        default_zero["homeCompetitor"]["score"]=0
+        default_zero["awayCompetitor"]["score"]=0
+        self.assertIsNotNone(fw.verified_source_target(default_zero,self.issued,self.start+timedelta(hours=2)))
         self.assertEqual(fw.verified_source_target(good,self.issued,self.start+timedelta(hours=2))["id"],"1234")
 
     def test_encrypted_commit_settle_and_report(self):
