@@ -1,4 +1,4 @@
-name: Neon OIDC media validation
+name: RETIRED - neon media oidc
 on:
   push:
     branches: [main]
@@ -14,7 +14,7 @@ permissions:
   id-token: write
 jobs:
   transfer:
-    if: ${{ github.event_name == 'push' || inputs.confirm == 'COPY113' }}
+    if: ${{ false }} # Old Supabase-dependent recovery cannot run against offline Supabase
     runs-on: ubuntu-latest
     timeout-minutes: 100
     steps:
