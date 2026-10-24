@@ -25,3 +25,10 @@ Scope: research only. Branch `research/single-ml-v2-20261024`. No production, gr
 - Point 1: programmatic ingestion/validation COMPLETE. Full 2024–2026 backfill NOT performed or certified; dataset incomplete. No production writes.
 - Point 3: historical provisional observed xG ingestion, matching, origin, timestamp and strict as-of state COMPLETE in code. Not complete in the sense of official final xG or complete coverage; additional provider data are required.
 - Unit tests added (`test_single_ml_v2_data.py`) and CI workflow updated; **no green CI run observed yet**, so do not call tested/verified in production.
+
+## Point 1 — finalized end-to-end implementation
+- Durable PRIVATE Supabase Storage bucket `mrxpronos-mlv2-football-history` created and checked for public=false.
+- `single_ml_v2_cloud.py` resumes by listing per-day SHA-verifiable gzip checkpoints, filters original API source by `sportId=1`, rejects source conflicts, fails closed on contaminated days, persists each day before continuing, and verifies full requested-date coverage.
+- On completion publishes `certified/football_history_latest.json.gz` plus SHA-256 manifest LAST. Consumers verify compressed and uncompressed hashes and sport provenance before reading. Legacy mixed cache is never imported.
+- `.github/workflows/research-certified-football-backfill.yml` implements manually dispatched incremental backfill with Supabase and SportData GitHub secrets. Repeated dispatch resumes existing progress; optional post-completion ML backtest consumes only the certified resulting archive.
+- **Deployment state:** code and private bucket implemented. No confirmed full 2024–present backfill has run, and workflow in research branch is not yet enabled on default branch. Operational backfill, tests, and independent data-audit remain pending. Do not claim a complete populated dataset or a new model accuracy.
