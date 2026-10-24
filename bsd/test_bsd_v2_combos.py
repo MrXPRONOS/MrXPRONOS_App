@@ -141,21 +141,27 @@ class CombosTests(unittest.TestCase):
               {"id":11,"ref_id":"-10012:bsd:17:BTTS_YES","ref_date":fixture["date"]}]
         official={"17":{"status":"finished","event_date":fixture["event_date"],
                         "home_score":2,"away_score":0}}
-        class FakeHTTP:
-            def __init__(self):self.patches=[]
-            def patch(self,*args,**kwargs):
-                self.patches.append(kwargs)
-                class Response:
-                    def raise_for_status(self):pass
-                return Response()
-        session=FakeHTTP()
+        class FakeLedger:
+            def __init__(self):self.calls=[]
+            def claim(self,*ident):
+                self.calls.append(("claim",ident))
+                return True
+            def mark(self,*ident,**kwargs):
+                self.calls.append(("mark",ident,kwargs))
+                return True
+            def query(self,sql,params):
+                self.calls.append(("query",sql,params))
+                return {"results":[],"meta":{"changes":1}}
+        ledger=FakeLedger()
         with patch("bsd_v2_verify_telegram.post_gain",return_value=411) as post:
             counts=validate({"matches":[fixture]},rows,official,NOW,
-                            session,"token","https://test.supabase.co","key")
+                            object(),"token",ledger)
         self.assertEqual(counts["wins_sent"],1)
         self.assertEqual(counts["losses_silent"],1)
         self.assertEqual(post.call_count,1)
-        self.assertEqual(len(session.patches),2)
+        self.assertEqual(len([entry for entry in ledger.calls if entry[0]=="query"]),2)
+        self.assertEqual(len([entry for entry in ledger.calls if entry[0]=="claim"]),1)
+        self.assertEqual(len([entry for entry in ledger.calls if entry[0]=="mark"]),1)
 
 
     def test_combo_ledger_ref_contains_both_frozen_legs_and_roundtrips(self):
@@ -204,27 +210,26 @@ class CombosTests(unittest.TestCase):
             ident=str(leg["source_event_id"])
             events[ident]={"status":"finished","event_date":leg["event_date"],
                            "home_score":2,"away_score":0}
-        class Response:
-            def __init__(self,payload=None):self.payload=[] if payload is None else payload
-            def raise_for_status(self):pass
-            def json(self):return self.payload
-        class FakeHTTP:
-            def __init__(self):self.posts=[];self.patches=[]
-            def post(self,*args,**kwargs):
-                self.posts.append(kwargs)
-                return Response([{"id":99}])
-            def patch(self,*args,**kwargs):
-                self.patches.append(kwargs)
-                return Response([])
-        session=FakeHTTP()
+        class FakeLedger:
+            def __init__(self):self.calls=[]
+            def claim(self,*ident):
+                self.calls.append(("claim",ident))
+                return True
+            def mark(self,*ident,**kwargs):
+                self.calls.append(("mark",ident,kwargs))
+                return True
+            def query(self,sql,params):
+                self.calls.append(("query",sql,params))
+                return {"results":[],"meta":{"changes":1}}
+        ledger=FakeLedger()
         with patch("bsd_v2_verify_telegram.post_combo_gain",return_value=777) as send:
-            result=validate_combos(data,[row],events,session,"token",
-                                   "https://test.supabase.co","key")
+            result=validate_combos(data,[row],events,object(),"token",ledger)
         self.assertEqual(result["combo_wins_sent"],1)
         self.assertEqual(send.call_count,1)
-        self.assertEqual(len(session.posts),1)
-        self.assertEqual(session.posts[0]["json"]["kind"],COMBO_VALIDATION_KIND)
-        self.assertEqual(len(session.patches),1)
+        self.assertEqual([x[0] for x in ledger.calls],["claim","mark","query"])
+        self.assertEqual(ledger.calls[0][1][0],COMBO_VALIDATION_KIND)
+        self.assertEqual(ledger.calls[1][2]["message_id"],777)
+
 
     def test_combo_with_one_pending_leg_does_not_send_or_complete(self):
         combo=build_combos([match(1,-120),match(2,-60)])[0]
@@ -234,14 +239,15 @@ class CombosTests(unittest.TestCase):
         first=combo["legs"][0]
         events={"1":{"status":"finished","event_date":first["event_date"],
                      "home_score":2,"away_score":0}}
-        class FakeHTTP:
-            def post(self,*a,**kw):raise AssertionError("must not complete pending combo")
-            def patch(self,*a,**kw):raise AssertionError("must not patch pending combo")
+        class FakeLedger:
+            def claim(self,*args):raise AssertionError("must not claim pending combo")
+            def mark(self,*args,**kwargs):raise AssertionError("must not mark pending combo")
+            def query(self,*args,**kwargs):raise AssertionError("must not update pending combo")
         with patch("bsd_v2_verify_telegram.post_combo_gain") as send:
-            result=validate_combos(data,[row],events,FakeHTTP(),"token",
-                                   "https://test.supabase.co","key")
+            result=validate_combos(data,[row],events,object(),"token",FakeLedger())
         self.assertEqual(result["combo_pending"],1)
         send.assert_not_called()
+
 
     def test_combo_dark_image_generated_offline(self):
         combo=build_combos([match(1,40),match(2,50)])[0]
