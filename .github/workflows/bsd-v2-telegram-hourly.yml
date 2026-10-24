@@ -2,7 +2,14 @@ name: BSD V2 - Diffusion Telegram aux 15 minutes
 run-name: "BSD V2 - Coupons Telegram (${{ inputs.trigger_source || github.event_name }})"
 
 on:
-
+  push:
+    branches: [main]
+    paths:
+      - 'bsd/bsd_v2_telegram.py'
+      - 'scripts/telegram_ledger_gateway.py'
+      - '.github/workflows/bsd-v2-telegram-hourly.yml'
+  schedule:
+    - cron: '*/15 * * * *'
   workflow_dispatch:
     inputs:
       trigger_source:
@@ -21,6 +28,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 concurrency:
   group: bsd-v2-telegram-hourly
@@ -59,7 +67,7 @@ jobs:
         run: |
           set -euo pipefail
           DEST="$MANUAL_DESTINATION"
-          if [ "$TRIGGER_SOURCE" = "cron-job.org" ]; then
+          if [ "$TRIGGER_SOURCE" = "cron-job.org" ] || [ "$TRIGGER_SOURCE" = "push" ] || [ "$TRIGGER_SOURCE" = "schedule" ]; then
             DEST="production"
           fi
           if [ "$DEST" = "production" ]; then
@@ -81,12 +89,13 @@ jobs:
           TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
           TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: python scripts/telegram_test_guard.py
+      - name: D1 ledger tests before production delivery
+        run: |
+          python -m py_compile bsd/bsd_v2_telegram.py scripts/telegram_ledger_gateway.py
+          python -m unittest discover -s tests -p test_telegram_ledger_gateway.py -v
       - name: Send single picks and combinations around one hour before kickoff
         env:
-          TELEGRAM_BOT_TOKEN: '${{ secrets.TELEGRAM_BOT_TOKEN }}'
-          SUPABASE_URL: '${{ secrets.SUPABASE_URL }}'
-          SUPABASE_SERVICE_ROLE_KEY: '${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}'
-          SUPABASE_KEY: '${{ secrets.SUPABASE_KEY }}'
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: python bsd/bsd_v2_telegram.py --data data.json
 
       # Bluesky shares the production cron cadence, but test Telegram runs never post.
