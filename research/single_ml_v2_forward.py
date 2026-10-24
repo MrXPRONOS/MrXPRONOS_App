@@ -54,7 +54,7 @@ def verified_source_target(raw, now, maximum):
     start=utc_dt(raw.get("startTime"))
     if start is None or start<=now+timedelta(minutes=MIN_LEAD_MINUTES) or start>maximum:
         return None
-    if str(raw.get("statusGroup")) in ("4",):
+    if str(raw.get("statusGroup")) in ("2","3","4") or raw.get("isFinished") is True:
         return None
     home=raw.get("homeCompetitor") or {}
     away=raw.get("awayCompetitor") or {}
@@ -124,10 +124,7 @@ def frozen_training(history_path,asof):
         for old in pending_xg.pop(active):
             state.add_xg(old,active)
     # No hyperparameter or choice is made using any of the target fixtures.
-    trained={
-        "machine_learning":fit_histgb(
-            [(v,h,a,mday) for (v,h,a),mday in []],config=BASELINE,asof=asof.date())
-    } if False else {}
+    trained={}
     # fit_histgb needs dated, genuinely previous-day training snapshots
     # retaining exact source match dates (not inferred from vector contents).
     dated=[]
@@ -189,7 +186,7 @@ def forecast_fixture(item,state,trained,rho,created_at,latest_day,history_digest
     return {"fixture":item,"models":output,"forecasted_at":created_at.isoformat(),
             "historical_latest_day":str(latest_day),
             "historical_plaintext_sha256":history_digest,
-            "feature_schema":len(FEATURE_NAMES),"train_examples":sum(1 for _ in []),
+            "feature_schema":len(FEATURE_NAMES),
             "dc_rho":float(rho)}
 
 
