@@ -133,6 +133,8 @@ jobs:
         run: python scripts/partnership_cycle.py --category films --phase before
 
       - name: 2 - Films CineX classiques (pub chaque 4 contenus)
+        id: films
+        continue-on-error: true
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         working-directory: telegram-film-relay
         env:
@@ -158,6 +160,7 @@ jobs:
 
       - name: 2bis - Catalogues de series TV par saison et episode
         id: tvseries
+        continue-on-error: true
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         working-directory: telegram-film-relay
         env:
@@ -217,6 +220,8 @@ jobs:
         run: python scripts/partnership_cycle.py --category desir --phase before
 
       - name: 3 - CineX Desir (pub chaque 4 contenus)
+        id: desir
+        continue-on-error: true
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         working-directory: telegram-film-relay
         env:
@@ -279,6 +284,7 @@ jobs:
 
       - name: 4 - CineX Comedie (pub chaque 4 contenus)
         id: comedy
+        continue-on-error: true
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         continue-on-error: true
         working-directory: telegram-film-relay
@@ -339,6 +345,7 @@ jobs:
 
       - name: 5 - CineX Anime (pub chaque 4 contenus)
         id: anime
+        continue-on-error: true
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         continue-on-error: true
         working-directory: telegram-film-relay
@@ -428,9 +435,9 @@ jobs:
           echo '::error::Impossible de sauvegarder les historiques Telegram.'
           exit 1
 
-      - name: 7 - Contrôler le résultat des deux nouvelles catégories
-        if: ${{ always() && (steps.comedy.outcome == 'failure' || steps.anime.outcome == 'failure') }}
+      - name: 7 - Contrôler le résultat de toutes les catégories
+        if: ${{ always() && (steps.films.outcome == 'failure' || steps.tvseries.outcome == 'failure' || steps.desir.outcome == 'failure' || steps.comedy.outcome == 'failure' || steps.anime.outcome == 'failure') }}
         shell: bash
         run: |
-          echo '::error::Comédie ou Anime a échoué. Les autres catégories et historiques ont été conservés. Vérifier les étapes précédentes.'
+          echo '::error::Une ou plusieurs catégories CinéX ont échoué ; les autres ont tout de même été exécutées. Vérifier les étapes précédentes.'
           exit 1
