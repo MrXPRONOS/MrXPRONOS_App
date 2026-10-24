@@ -140,6 +140,9 @@ jobs:
             DESTINATION="production"
             FOOTBALL_PROGRAMME_RELAUNCH_ONLY=1
             echo "FOOTBALL_PROGRAMME_RELAUNCH_ONLY=1" >> "$GITHUB_ENV"
+          elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_MESSAGE" == "ops(actu-foot): restore full editorial production now"* ]]; then
+            # One explicit, auditable production recovery, without --force.
+            DESTINATION="production"
           elif [ "$EVENT_NAME" = "push" ]; then
             DESTINATION="dry-run"
           fi
@@ -231,6 +234,7 @@ jobs:
           PY
 
       - name: Actualiser le moteur News Football commun au site et à Telegram
+        id: news_refresh
         if: ${{ (inputs.mode || 'full') != 'lifecycle' }}
         env:
           MAX_ARTICLES: '60'
@@ -270,7 +274,7 @@ jobs:
 
           if [ "$ROUTED_DESTINATION" = "dry-run" ]; then
             ARGS+=(--dry-run)
-          elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_MESSAGE" != "ops(actu-foot): relaunch Matchs du jour now"* ]]; then
+          elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_MESSAGE" != "ops(actu-foot): relaunch Matchs du jour now"* ]] && [[ "$HEAD_MESSAGE" != "ops(actu-foot): restore full editorial production now"* ]]; then
             ARGS+=(--dry-run)
           elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_DRY_RUN" = "true" ] && [ "$CRON_PRODUCTION" != "true" ]; then
             ARGS+=(--dry-run)
@@ -291,7 +295,7 @@ jobs:
           echo "effective_dry_run=$EFFECTIVE_DRY_RUN" >> "$GITHUB_OUTPUT"
           echo "ACTUFOOT_MODE event=$EVENT_NAME source=$TRIGGER_SOURCE mode=$RUN_MODE effective_dry_run=$EFFECTIVE_DRY_RUN"
 
-          python scripts/football_channel.py "${ARGS[@]}"
+          python scripts/football_channel.py "${ARGS[@]}" 2>&1 | tee /tmp/actu-foot-production.log
 
       - name: Sauvegarder historique anti-doublon
         if: ${{ always() && steps.telegram_dispatch.outputs.effective_dry_run == 'false' && (github.event_name == 'workflow_dispatch' || steps.telegram_route.outputs.programme_relaunch_only == 'true') }}
@@ -310,3 +314,45 @@ jobs:
 
       # Les Infos Foot sont déjà publiées par fetch_foot_news.py dans le snapshot
       # Neon public en lecture seule. Aucun commit de données dynamiques sur main.
+
+      - name: Enregistrer diagnostic de relance Actu Foot
+        if: ${{ always() && github.event_name == 'push' && startsWith(github.event.head_commit.message, 'ops(actu-foot): restore full editorial production now') }}
+        env:
+          RECOVERY_RUN_ID: ${{ github.run_id }}
+          RECOVERY_MODE: ${{ steps.telegram_route.outputs.destination }}
+          RECOVERY_NEWS: ${{ steps.news_refresh.outcome }}
+          RECOVERY_SEND: ${{ steps.telegram_dispatch.outcome }}
+          RECOVERY_DRY_RUN: ${{ steps.telegram_dispatch.outputs.effective_dry_run }}
+          RECOVERY_SHA: ${{ github.sha }}
+          RECOVERY_NEON: ${{ secrets.NEON_DATABASE_URL }}
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          from datetime import datetime,timezone
+          raw=Path("/tmp/actu-foot-production.log")
+          lines=raw.read_text(encoding="utf-8",errors="replace").splitlines() if raw.exists() else []
+          summaries=[line[:200] for line in lines if line.startswith(("XPRONOS_FOOTBALL ","NEWS_NEON_","REMOTE_OUTBOX_","ERREUR_"))][:25]
+          payload={"run_id":os.getenv("RECOVERY_RUN_ID"),"trigger_sha":os.getenv("RECOVERY_SHA"),
+              "time_utc":datetime.now(timezone.utc).isoformat(),
+              "destination":os.getenv("RECOVERY_MODE"),
+              "news_refresh":os.getenv("RECOVERY_NEWS"),
+              "dispatch":os.getenv("RECOVERY_SEND"),
+              "effective_dry_run":os.getenv("RECOVERY_DRY_RUN"),
+              "neon_secret_present":bool(os.getenv("RECOVERY_NEON")),
+              "summaries":summaries}
+          path=Path("ops/probes/actufoot-telegram-"+payload["run_id"]+".json")
+          path.parent.mkdir(parents=True,exist_ok=True)
+          path.write_text(json.dumps(payload,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          print("ACTU_FOOT_RECOVERY",json.dumps(payload,ensure_ascii=False))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "ops/probes/actufoot-telegram-${RECOVERY_RUN_ID}.json"
+          git commit -m "ops(actu-foot): record one-shot production recovery [skip ci]" || exit 0
+          for attempt in 1 2 3 4; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+            sleep "$attempt"
+          done
+          exit 1
