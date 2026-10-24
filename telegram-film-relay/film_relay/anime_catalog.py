@@ -237,7 +237,8 @@ def eligible_short_series(groups, catalogue, cap=12):
     for key, items in groups.items():
         numbers = {(int(x["season"]), int(x["episode"])) for x in items}
         for name, seasons in observed.items():
-            if name == key or name.startswith(key + "-ep") or name.startswith(key + "-episode"):\n                numbers.update((int(season), int(num)) for season, eps in seasons.items() for num in eps)
+            if name == key or name.startswith(key + "-ep") or name.startswith(key + "-episode"):
+                numbers.update((int(season), int(num)) for season, eps in seasons.items() for num in eps)
         for name, entry in existing.items():
             if name == key or name.startswith(key + "-ep") or name.startswith(key + "-episode"):\n                numbers.update((int(season), int(num)) for season, eps in entry.get("episodes", {}).items() for num in eps)
         if len(numbers) > cap or any(ep > cap for _, ep in numbers):
