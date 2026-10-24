@@ -18,7 +18,7 @@ import math
 import os
 from collections import Counter, defaultdict
 from dataclasses import dataclass
-from datetime import datetime, timezone, date
+from datetime import datetime, timezone, date, timedelta
 from itertools import groupby
 from pathlib import Path
 
@@ -121,6 +121,7 @@ class Match:
     xgh: float | None = None
     xga: float | None = None
     odds: dict | None = None
+    xg_available: datetime | None = None
 
 
 def load_matches(path: str, end: date):
@@ -170,15 +171,22 @@ def load_matches(path: str, end: date):
             xg = {}
         xgh = number(raw.get("home_xg", xg.get("home")))
         xga = number(raw.get("away_xg", xg.get("away")))
-        if xgh is not None and xga is not None and min(xgh, xga) >= 0:
+        stamp = utc_instant(raw.get("xg_usable_after") or raw.get("xg_observed_at"))
+        kickoff = utc_instant(raw.get("start_time") or raw.get("startTime"))
+        verified = (raw.get("xg_source")=="supabase_live_stats_sources_api_original"
+                    and raw.get("xg_quality")=="observed_late_match_90plus_provisional"
+                    and stamp is not None and kickoff is not None and stamp>kickoff
+                    and 0<=float(xgh or -1)<=10 and 0<=float(xga or -1)<=10)
+        if verified:
             xg_found += 1
         else:
-            xgh = xga = None
+            xgh = xga = stamp = None
+            errors["uncertified_or_missing_xg"] += 1
         odds = normalize_odds(raw)
         if odds:
             odds_found += 1
         key = str(raw.get("id") or raw.get("game_id") or (str(day) + ":" + league + ":" + home + ":" + away))
-        candidate = Match(key, day, league, home, away, int(hv), int(av), xgh, xga, odds)
+        candidate = Match(key, day, league, home, away, int(hv), int(av), xgh, xga, odds, stamp)
         if key in by_key:
             previous = by_key[key]
             if (previous.day, previous.league, previous.home, previous.away,
@@ -211,9 +219,9 @@ class Decayed:
         days = max(0, (d - self.last).days)
         return self.values * (2.0 ** (-days / 240.0))
 
-    def add(self, d, scored, conceded, xgf=None, xga=None):
+    def add(self, d, scored, conceded, xgf=None, xga=None, *, xg_only=False):
         arr = self.at(d)
-        arr[:3] += (1, scored, conceded)
+        if not xg_only: arr[:3] += (1, scored, conceded)
         if xgf is not None and xga is not None:
             arr[3:6] += (xgf, xga, 1)
         self.values = arr
@@ -279,6 +287,13 @@ class FormState:
                 "hs": hs, "as": as_, "xgh": xg_lamh, "xga": xg_lama,
                 "vector": vector}
 
+    def add_xg(self, m, availability_day):
+        if m.xgh is None or m.xga is None:return
+        self.league_h[m.league].add(availability_day,0,0,m.xgh,m.xga,xg_only=True)
+        self.league_a[m.league].add(availability_day,0,0,m.xga,m.xgh,xg_only=True)
+        self.home[(m.league,m.home)].add(availability_day,0,0,m.xgh,m.xga,xg_only=True)
+        self.away[(m.league,m.away)].add(availability_day,0,0,m.xga,m.xgh,xg_only=True)
+
     def add(self, m):
         def strength(team):
             rec = self.team_history[(m.league, team)][-10:]
@@ -286,10 +301,10 @@ class FormState:
         old_home, old_away = strength(m.home), strength(m.away)
         self.team_history[(m.league, m.home)].append((m.day, m.hg, m.ag, old_away))
         self.team_history[(m.league, m.away)].append((m.day, m.ag, m.hg, old_home))
-        self.league_h[m.league].add(m.day, m.hg, m.ag, m.xgh, m.xga)
-        self.league_a[m.league].add(m.day, m.ag, m.hg, m.xga, m.xgh)
-        self.home[(m.league, m.home)].add(m.day, m.hg, m.ag, m.xgh, m.xga)
-        self.away[(m.league, m.away)].add(m.day, m.ag, m.hg, m.xga, m.xgh)
+        self.league_h[m.league].add(m.day, m.hg, m.ag)
+        self.league_a[m.league].add(m.day, m.ag, m.hg)
+        self.home[(m.league, m.home)].add(m.day, m.hg, m.ag)
+        self.away[(m.league, m.away)].add(m.day, m.ag, m.hg)
 
 
 def normalized(p):
@@ -505,6 +520,7 @@ def summarize(stats):
 def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None):
     states = FormState()
     training = []
+    pending_xg = defaultdict(list)
     recent_low = []
     recent_residuals = []
     league_residuals = defaultdict(list)
@@ -522,6 +538,9 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         daily = list(grouped)
         if day > end:
             break
+        # Release previously captured xG only on calendar dates STRICTLY after capture.
+        for earlier in sorted(d for d in pending_xg if d<=day):
+            for historical in pending_xg.pop(earlier):states.add_xg(historical, earlier)
         evaluating = begin <= day <= end
         if evaluating and (last_retrain is None or (day-last_retrain).days >= retrain_days):
             ml = train_ml(training, **(ml_parameters or {}))
@@ -595,6 +614,9 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             league_residuals[m.league].append((m.hg-f["h"], m.ag-f["a"]))
             training.append((f["vector"], m.hg, m.ag))
             states.add(m)
+            if m.xg_available is not None:
+                activation=max(day+timedelta(days=1),m.xg_available.date()+timedelta(days=1))
+                pending_xg[activation].append(m)
         if evaluating and (day.day == 1 or day == end):
             print("PROGRESS", day, "scored", played, flush=True)
     summary = summarize(results)
