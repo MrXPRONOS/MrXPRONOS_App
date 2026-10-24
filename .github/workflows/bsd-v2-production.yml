@@ -1,3 +1,4 @@
+# Production relaunch requested 2026-10-24: force BSD V2 generation through push event.
 name: BSD V2 - Generation quotidienne
 run-name: "BSD V2 - Generation quotidienne (${{ inputs.trigger_source || github.event_name }})"
 
