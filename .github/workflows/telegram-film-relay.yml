@@ -286,7 +286,6 @@ jobs:
         id: comedy
         continue-on-error: true
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
-        continue-on-error: true
         working-directory: telegram-film-relay
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
@@ -347,7 +346,6 @@ jobs:
         id: anime
         continue-on-error: true
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
-        continue-on-error: true
         working-directory: telegram-film-relay
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
