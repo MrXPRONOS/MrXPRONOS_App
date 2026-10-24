@@ -261,12 +261,24 @@ def record_from_file(match_id,key,root=ROOT):
 def write_record(record,key,root=ROOT):
     match_id=record["match_id"]
     path=record_path(match_id,key,root)
-    if path.exists():
-        # Already independently authenticated: do not overwrite to avoid
-        # mutating observation time or model history.
-        record_from_file(match_id,key,root)
+    old=record_from_file(match_id,key,root)
+    if old is not None and old.get("status")=="measured":
+        # A measured observation is immutable and its first-observed time
+        # can never be rewritten or retroactively moved.
         return False
-    atomic_bytes(path,seal(record,key,record_name(match_id)))
+    ciphertext=seal(record,key,record_name(match_id))
+    if old is None:
+        atomic_bytes(path,ciphertext)
+    else:
+        # Recheck of an earlier negative/provider-unavailable observation.
+        # This is an encrypted replacement; Git retains prior ciphertext.
+        temporary=path.with_name(path.name+".tmp")
+        try:
+            with temporary.open("xb") as output:
+                output.write(ciphertext)
+            temporary.replace(path)
+        finally:
+            if temporary.exists():temporary.unlink()
     return True
 
 
@@ -309,12 +321,19 @@ def collect(start,end,*,key,root=ROOT,limit=24,request_limit=35,client=None):
     stats["certified_football_matches_seen"]=len(matches)
     stats["football_days_missing"]=len(missing)
     cli=client or MatchStatsClient(get_api_keys(),request_limit=request_limit)
-    for match in matches:
+    # Newest matches first for fresher ML coverage. Negative checkpoints
+    # are retried only after their explicit cooldown has passed.
+    for match in reversed(matches):
         mid=str(match["id"])
         old=record_from_file(mid,key,root)
-        if old is not None:
-            stats["previously_checked"]+=1
+        if old is not None and old.get("status")=="measured":
+            stats["previously_measured"]+=1
             continue
+        if old is not None:
+            deadline=utc_dt(old.get("retry_after"))
+            if deadline is not None and utc_now()<deadline:
+                stats["cooldown_skipped"]+=1
+                continue
         if stats["newly_checked"]>=limit:break
         try:
             value=fetch_observation(cli,match,now=utc_now())
@@ -324,18 +343,22 @@ def collect(start,end,*,key,root=ROOT,limit=24,request_limit=35,client=None):
         except (ValueError,requests.RequestException):
             stats["temporary_source_error"]+=1
             continue
+        now=utc_now()
         record={
             "match_id":mid,"kickoff":match["start_time"],"home_team":match["home_team"],
             "away_team":match["away_team"],
-            "checked_at":utc_now().isoformat(),**value,
+            "checked_at":now.isoformat(),**value,
         }
-        # Persist only source-confirmed measured xG. "Not available" may be
-        # transient or uncovered by this provider; a future run must retry.
-        # Never pin an unsupported response forever as a historical truth.
+        # Negative results are encrypted as temporary retryable checkpoints.
+        # A missing xG is NEVER converted into synthetic measurements.
+        if value["status"]!="measured":
+            record["retry_after"]=(now+timedelta(days=14)).isoformat()
         stats["newly_checked"]+=1
         stats["outcome_"+value["status"]]+=1
-        if value["status"]=="measured" and write_record(record,key,root):
-            stats["persisted_measured"]+=1
+        if write_record(record,key,root):
+            stats["encrypted_checkpoint_written"]+=1
+            if value["status"]=="measured":
+                stats["persisted_measured"]+=1
     stats["requests_used"]=cli.used
     stats["request_limit"]=cli.limit
     return dict(stats)
