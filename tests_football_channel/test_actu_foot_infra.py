@@ -177,14 +177,16 @@ class ActuFootInfrastructureTests(unittest.TestCase):
         self.assertEqual(kwargs["json"]["outbox_pending"], 1)
 
 
-    def test_news_workflows_do_not_commit_dynamic_rss_to_main(self):
+    def test_news_workflows_restore_public_static_feed_without_neon(self):
         production = (ROOT / ".github/workflows/football-production.yml").read_text(encoding="utf-8")
         update_news = (ROOT / ".github/workflows/update-footnews.yml").read_text(encoding="utf-8")
         self.assertNotIn("git add footnews.json", production)
-        self.assertNotIn("git add footnews.json", update_news)
-        self.assertNotIn("git push origin HEAD:main", update_news)
+        self.assertIn("FOOTNEWS_BACKEND", update_news)
+        self.assertIn("git add footnews.json", update_news)
+        self.assertIn("scripts/actu_foot_d1_news.py", update_news)
+        self.assertNotIn("SUPABASE_SERVICE_ROLE_KEY", update_news)
 
-    def test_site_prefers_public_neon_news_snapshot_with_git_fallback(self):
+    def test_site_prefers_fresh_git_news_with_optional_neon_read_fallback(self):
         js = (ROOT / "assets/js/main.js").read_text(encoding="utf-8")
         neon = (ROOT / "assets/js/actu-foot-neon.js").read_text(encoding="utf-8")
         self.assertIn('import("./actu-foot-neon.js")', js)
@@ -192,6 +194,8 @@ class ActuFootInfrastructureTests(unittest.TestCase):
         self.assertIn('from("actu_foot_news_snapshot")', neon)
         self.assertIn("allowAnonymous:true", neon)
         self.assertIn('fetch(`footnews.json?t=${Date.now()}`', js)
+        self.assertLess(js.index('fetch(`footnews.json?t=${Date.now()}`'),
+                        js.index("rssNews=await loadNeonFootNews()"))
         self.assertIn("source_image || n.image", js)
         self.assertNotIn("Snapshot Infos Foot Supabase", js)
 
