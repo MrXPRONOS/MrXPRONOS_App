@@ -259,7 +259,7 @@ async def backfill_private_covers(client, private, catalogue, groups, pause):
                 continue
             stream = io.BytesIO(media)
             stream.name = "cinex_private_series.jpg"
-            caption = f"📺 <b>{escape(str(entry.get('title') or key))}</b>\\n" + cover_marker
+            caption = f"📺 <b>{escape(str(entry.get('title') or key))}</b>\n" + cover_marker
             photo = await client.send_file(
                 private, stream, caption=caption, parse_mode="html", force_document=False
             )
