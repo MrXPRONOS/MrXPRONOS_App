@@ -498,36 +498,27 @@ def public_snapshot_records(records: list[dict]) -> list[dict]:
 
 
 def persist_public_news_snapshot(records: list[dict]) -> bool:
-    """Publie le snapshot Infos Foot dans Supabase sans bloquer Telegram en cas de panne."""
-    base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
-    if not base or not key or not records:
+    """Publie Infos Foot directement dans Neon (pas de fallback Supabase)."""
+    if not records:
         return False
-    now = datetime.now(timezone.utc).isoformat()
-    payload = {
-        "id": "latest",
-        "payload": public_snapshot_records(records),
-        "generated_at": now,
-        "updated_at": now,
-    }
+    from scripts.neon_rest_compat import NeonRestSession
+    if not os.getenv("NEON_DATABASE_URL"):
+        logger.error("NEWS_NEON_SNAPSHOT_NO_DATABASE_URL")
+        return False
+    now=datetime.now(timezone.utc).isoformat()
+    payload={"id":"latest","payload":public_snapshot_records(records),
+             "generated_at":now,"updated_at":now}
     try:
-        response = requests.post(
-            base + "/rest/v1/actu_foot_news_snapshot",
-            params={"on_conflict": "id"},
-            headers={
-                "apikey": key,
-                "Authorization": "Bearer " + key,
-                "Content-Type": "application/json",
-                "Prefer": "resolution=merge-duplicates,return=minimal",
-            },
-            json=payload,
-            timeout=(5, 15),
-        )
+        response=NeonRestSession(requests.Session()).post(
+            "neon://private/rest/v1/actu_foot_news_snapshot",
+            params={"on_conflict":"id"},
+            headers={"Prefer":"resolution=merge-duplicates,return=minimal"},
+            json=payload,timeout=(5,15))
         response.raise_for_status()
-        logger.info("NEWS_SUPABASE_SNAPSHOT_OK %s", len(payload["payload"]))
+        logger.info("NEWS_NEON_SNAPSHOT_OK %s",len(payload["payload"]))
         return True
     except requests.RequestException as exc:
-        logger.warning("NEWS_SUPABASE_SNAPSHOT_SKIP %s", type(exc).__name__)
+        logger.error("NEWS_NEON_SNAPSHOT_FAILED %s",type(exc).__name__)
         return False
 
 

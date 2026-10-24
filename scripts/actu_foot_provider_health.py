@@ -11,11 +11,15 @@ from datetime import datetime, timezone
 from typing import Any
 
 import requests
+try:
+    from scripts.neon_rest_compat import NeonRestSession
+except ModuleNotFoundError:
+    from neon_rest_compat import NeonRestSession
 
 
 def _config() -> tuple[str, str]:
-    base = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or "").strip()
+    base = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
+    key = "server" if os.getenv("NEON_DATABASE_URL") else ""
     return base, key
 
 
@@ -40,6 +44,7 @@ def load_provider_health(
     session: requests.Session,
     source_quality: dict[str, dict[str, Any]],
 ) -> dict[str, dict[str, Any]]:
+    session = NeonRestSession(session)
     state = _defaults(source_quality)
     base, key = _config()
     if not base or not key:
@@ -81,6 +86,7 @@ def record_provider_health(
     source_quality: dict[str, dict[str, Any]],
     state: dict[str, dict[str, Any]],
 ) -> dict[str, dict[str, Any]]:
+    session = NeonRestSession(session)
     base, key = _config()
     now = datetime.now(timezone.utc).isoformat()
     changed: list[dict[str, Any]] = []

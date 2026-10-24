@@ -1,0 +1,90 @@
+name: Actu Foot · Neon release check
+on:
+  push:
+    branches: [release/actu-foot-neon-20261024]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/neon_rest_compat.py'
+      - 'scripts/football_channel.py'
+      - 'scripts/football_match_lifecycle.py'
+      - 'scripts/actu_foot_*.py'
+      - 'fetch_foot_news.py'
+      - 'assets/js/actu-foot-neon.js'
+      - 'assets/js/main.js'
+      - '.github/workflows/football-production.yml'
+      - '.github/workflows/actu-foot-neon-release-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    name: Offline Actu Foot regressions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: python -m pip install requests Pillow feedparser imageio-ffmpeg "psycopg[binary]>=3.2,<4"
+      - name: Verify Python syntax
+        run: |
+          python -m py_compile scripts/neon_rest_compat.py scripts/football_channel.py scripts/football_match_lifecycle.py scripts/actu_foot_observability.py scripts/actu_foot_source_cache.py scripts/actu_foot_provider_health.py scripts/actu_foot_health_report.py fetch_foot_news.py
+      - name: Actu Foot regression tests
+        run: python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
+      - name: Verify main site assets
+        run: |
+          node --check assets/js/main.js
+          node --check assets/js/actu-foot-neon.js
+
+  neon:
+    name: Actual Neon database read-only smoke
+    needs: offline
+    runs-on: ubuntu-latest
+    env:
+      NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install "psycopg[binary]>=3.2,<4"
+      - name: Verify credentials and query permissions without writes
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${NEON_DATABASE_URL:-}" ]; then
+            echo "::error::NEON_DATABASE_URL GitHub Actions secret absent."
+            exit 1
+          fi
+          python - <<'PY'
+          import os, psycopg
+          REQUIRED_TABLES=(
+              "actu_foot_publications","actu_foot_live_events",
+              "actu_foot_news_snapshot","actu_foot_run_metrics",
+              "actu_foot_provider_health","actu_foot_source_snapshots",
+              "matches_live","live_stats_merged",
+          )
+          REQUIRED_FUNCTIONS=(
+              "actu_foot_claim_publication","actu_foot_retryable_publications",
+              "actu_foot_store_live_events",
+          )
+          with psycopg.connect(os.environ["NEON_DATABASE_URL"],connect_timeout=12) as conn:
+              with conn.cursor() as cursor:
+                  cursor.execute("SELECT current_database()")
+                  name=cursor.fetchone()[0]
+                  assert name=="mrxpronos", "Incorrect Neon database"
+                  for table in REQUIRED_TABLES:
+                      cursor.execute("SELECT to_regclass(%s)",("public."+table,))
+                      assert cursor.fetchone()[0] is not None, table
+                  cursor.execute("SELECT proname FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND proname=ANY(%s)",(list(REQUIRED_FUNCTIONS),))
+                  installed={r[0] for r in cursor.fetchall()}
+                  assert set(REQUIRED_FUNCTIONS)==installed, "Missing Actu Foot RPCs"
+                  cursor.execute("SELECT jsonb_array_length(payload) FROM public.actu_foot_news_snapshot WHERE id='latest'")
+                  snapshot=cursor.fetchone()
+                  assert snapshot and snapshot[0]>0, "Actu Foot snapshot absent"
+                  print("ACTU_FOOT_NEON_SMOKE_OK tables",len(REQUIRED_TABLES),"functions",len(installed),"news",snapshot[0])
+          PY

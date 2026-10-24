@@ -48,6 +48,13 @@ class _Session:
 
 
 class ActuFootInfrastructureTests(unittest.TestCase):
+    def setUp(self):
+        from unittest.mock import patch as mock_patch
+        for module in (source_cache,observability,provider_health):
+            adapter=mock_patch.object(module,"NeonRestSession",side_effect=lambda session:session)
+            adapter.start()
+            self.addCleanup(adapter.stop)
+
     @patch.dict(os.environ, {}, clear=True)
     def test_source_cache_is_noop_without_supabase_credentials(self):
         session = _Session()
@@ -61,8 +68,7 @@ class ActuFootInfrastructureTests(unittest.TestCase):
         self.assertEqual(session.post_calls, [])
 
     @patch.dict(os.environ, {
-        "SUPABASE_URL": "https://example.supabase.co",
-        "SUPABASE_SERVICE_ROLE_KEY": "secret",
+        "NEON_DATABASE_URL": "postgresql://fake-neon-test",
     }, clear=True)
     def test_source_cache_default_ttl_covers_next_lifecycle_run(self):
         session = _Session()
@@ -148,8 +154,7 @@ class ActuFootInfrastructureTests(unittest.TestCase):
 
     @patch.dict(os.environ, {
         "FOOTBALL_RUN_METRICS": "1",
-        "SUPABASE_URL": "https://example.supabase.co",
-        "SUPABASE_SERVICE_ROLE_KEY": "secret",
+        "NEON_DATABASE_URL": "postgresql://fake-neon-test",
         "GITHUB_RUN_ID": "123",
     }, clear=True)
     def test_metrics_persist_private_health_snapshot(self):
@@ -179,11 +184,16 @@ class ActuFootInfrastructureTests(unittest.TestCase):
         self.assertNotIn("git add footnews.json", update_news)
         self.assertNotIn("git push origin HEAD:main", update_news)
 
-    def test_site_prefers_public_supabase_news_snapshot_with_git_fallback(self):
+    def test_site_prefers_public_neon_news_snapshot_with_git_fallback(self):
         js = (ROOT / "assets/js/main.js").read_text(encoding="utf-8")
-        self.assertIn('from("actu_foot_news_snapshot")', js)
+        neon = (ROOT / "assets/js/actu-foot-neon.js").read_text(encoding="utf-8")
+        self.assertIn('import("./actu-foot-neon.js")', js)
+        self.assertIn("loadNeonFootNews()", js)
+        self.assertIn('from("actu_foot_news_snapshot")', neon)
+        self.assertIn("allowAnonymous:true", neon)
         self.assertIn('fetch(`footnews.json?t=${Date.now()}`', js)
         self.assertIn("source_image || n.image", js)
+        self.assertNotIn("Snapshot Infos Foot Supabase", js)
 
     def test_deprecated_one_shot_workflows_are_removed(self):
         removed = [
