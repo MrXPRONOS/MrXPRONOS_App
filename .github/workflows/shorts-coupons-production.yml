@@ -18,6 +18,11 @@ on:
     branches: [main]
     paths:
       - "config/shorts_production_trigger.txt"
+      - "scripts/create_short_from_telegram_coupons.py"
+      - "scripts/send_short_production_telegram.py"
+      - "scripts/d1_publication_ledger.py"
+      - "scripts/post_shorts_video.py"
+      - ".github/workflows/shorts-coupons-production.yml"
 
 permissions:
   contents: read
@@ -45,6 +50,7 @@ jobs:
       TG_API_ID: ${{ secrets.TG_API_ID }}
       TG_API_HASH: ${{ secrets.TG_API_HASH }}
       TG_SESSION_STRING: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
@@ -95,6 +101,8 @@ jobs:
 
       - name: Static syntax check
         run: |
+          python -m py_compile scripts/d1_publication_ledger.py
+          python -m unittest discover -s tests -p test_d1_publication_ledger.py -v
           python -m py_compile scripts/shorts_video_fx.py
           python -m py_compile scripts/create_short_from_telegram_coupons.py
           python -m py_compile scripts/send_short_production_telegram.py
