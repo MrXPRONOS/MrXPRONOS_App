@@ -6,7 +6,7 @@ fictional global IDs. Conflicting outcomes are QUARANTINED and excluded from
 training. Source archives are read-only and remain separately encrypted.
 """
 from __future__ import annotations
-import argparse,json
+import argparse,json,hashlib
 from collections import Counter,defaultdict
 from datetime import date
 from pathlib import Path
@@ -56,10 +56,20 @@ def combine(key,*,root=ROOT):
         # If multiple independent records of the same fixture have identical
         # teams, day and result, keep one with the strongest source identity.
         ordered=sorted(records,key=lambda r:priority.get(r.get("source"),9))
-        chosen=ordered[0]
+        chosen=dict(ordered[0])
+        if chosen.get('source')=='sportscore_2024':
+            # SportScore's URL/slug may repeat on later fixtures; derive a
+            # per-calendar-fixture ML identifier without presenting it as
+            # a provider-issued unique event ID.
+            chosen['source_archive_id']=chosen['id']
+            chosen['id']='sportscore_2024_ml:'+hashlib.sha256(
+                '|'.join(key).encode('utf8')).hexdigest()[:32]
+            chosen['source_model_id_is_derived']=True
         if len(records)>1:duplicated+=len(records)-1
         kept.append(chosen)
     kept.sort(key=lambda r:(r["date"],r["id"]))
+    if len({r['id'] for r in kept})!=len(kept):
+        raise ValueError('ML match identities not unique across the full 2024 year')
     counts=Counter(r.get("source","?") for r in kept)
     report={"year":2024,"months_verified":len(months),
        "baseline_openfootball_records":len(original["matches"]),
