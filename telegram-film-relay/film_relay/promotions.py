@@ -150,7 +150,7 @@ async def publish_promotions(user_client,bot,private,primary,mirror,state,
     """
     report={"private":0,"public":0,"mirror":0,"skipped":0}
     current_run_films = max(0, int(current_run_films or 0))
-    if not force and current_run_films == 0:
+    if current_run_films == 0:
         LOG.info("Publicités différées : aucun nouveau contenu dans ce passage.")
         return report
 
