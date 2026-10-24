@@ -1,0 +1,93 @@
+name: ML V2 - Probe 2024 historical football V2
+on:
+  push:
+    branches:
+      - research/single-ml-v2-20261024
+    paths:
+      - '.github/workflows/research-ml-v2-historical-v2-probe.yml'
+  workflow_dispatch:
+    inputs:
+      history_day:
+        description: 'One historical UTC football date to test using SportsAPIPro V2'
+        default: '2024-01-01'
+        required: true
+permissions:
+  contents: read
+jobs:
+  historical-v2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      SPORTSAPI_V2_PROBE_KEY: ${{ secrets.SPORTDATA_API_KEY_2 }}
+      PROBE_DAY: ${{ inputs.history_day || '2024-01-01' }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Safely query exactly one day and one historical V2 endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os,urllib.parse,urllib.request,urllib.error
+          from datetime import date,datetime,timezone,timedelta
+          d=date.fromisoformat(os.environ["PROBE_DAY"])
+          if not date(2024,1,1)<=d<datetime.now(timezone.utc).date():
+              raise SystemExit("ERROR invalid historical UTC date")
+          key=os.environ.get("SPORTSAPI_V2_PROBE_KEY","").strip()
+          if not key:raise SystemExit("ERROR: SPORTDATA_API_KEY_2 is missing")
+          url="https://api.sportsapipro.com/v2/football/schedule/"+d.isoformat()
+          req=urllib.request.Request(url,headers={"x-api-key":key,"Accept":"application/json",
+                      "User-Agent":"MrXPRONOS-Historical-Research-2026"})
+          print("V2 historical date requested:",d)
+          try:
+              with urllib.request.urlopen(req,timeout=30) as response:
+                  status=response.status
+                  data=json.loads(response.read(2_000_000))
+          except urllib.error.HTTPError as exc:
+              # No body: avoid ever printing credentials or provider internals.
+              raise SystemExit("ERROR: V2 provider HTTP "+str(exc.code))
+          except Exception as exc:
+              raise SystemExit("ERROR: V2 historical API not readable ("+type(exc).__name__+")")
+          print("Provider HTTP:",status)
+          if not isinstance(data,dict):
+              raise SystemExit("ERROR: V2 response not a JSON object")
+          print("Response keys:",sorted(data.keys())[:25])
+          if data.get("success") is False:
+              raise SystemExit("ERROR: V2 provider reported failure")
+          possible=[data]
+          if isinstance(data.get("data"),dict):possible.append(data["data"])
+          events=None
+          for block in possible:
+              for field in ("events","matches","fixtures"):
+                  if isinstance(block.get(field),list):
+                      events=block[field];break
+              if events is not None:break
+          if events is None:
+              print("Nested data keys:",sorted(data.get("data",{}).keys())[:25] if isinstance(data.get("data"),dict) else [])
+              raise SystemExit("ERROR: V2 did not return a recognized events array, not certified history")
+          print("Historical V2 event count:",len(events))
+          if not events:raise SystemExit("ERROR: V2 historical day has zero events")
+          first=next((x for x in events if isinstance(x,dict)),None)
+          if not first:raise SystemExit("ERROR: non-object event rows")
+          print("Event field names:",sorted(first.keys())[:30])
+          completed=0
+          for row in events:
+              if not isinstance(row,dict):continue
+              status=row.get("status") or {}
+              if isinstance(status,dict):
+                  code=str(status.get("type","")).lower()
+                  desc=str(status.get("description","")).lower()
+              else:
+                  code=""
+                  desc=str(status).lower()
+              hs=row.get("homeScore",{})
+              as_=row.get("awayScore",{})
+              if isinstance(hs,dict) and isinstance(as_,dict) and hs.get("current") is not None and as_.get("current") is not None and (code in ("finished","ended","after") or "finish" in desc or "after" in desc or desc in ("ft","full time")):
+                  completed+=1
+          print("Recognized completed matches:",completed)
+          print("No data or API key saved in GitHub. Exactly one provider call.")
+          if not completed:
+              raise SystemExit("ERROR: historical response has no verifiable finished match")
+          print("SUCCESS: V2 historical football is queryable and supplies finished matches")
+          PY
