@@ -98,7 +98,7 @@ def parse_sportscore(event,day):
     if not identity:
         identity=sha256((str(day)+"|"+str(home)+"|"+str(away)+"|"+str(league)).encode()).hexdigest()[:24]
     return ft_row(day,home,away,event.get("home_score"),event.get("away_score"),
-                  league,"sportscore_"+str(day.year),sha256(str(identity).encode()).hexdigest()[:24],
+                  league,"sportscore_"+str(day.year),sha256((str(day)+"|"+str(identity)).encode()).hexdigest()[:24],
                   kickoff=when)
 
 def identity(row):
