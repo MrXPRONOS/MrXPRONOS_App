@@ -46,6 +46,10 @@
       "message_id": 50,
       "number": 9
     },
+    "afcb26cb17e7c27f143251a5": {
+      "message_id": 52,
+      "number": 9
+    },
     "b749ed0af0294525b34931bc": {
       "message_id": 22,
       "number": 9
@@ -341,6 +345,12 @@
       "number": 9,
       "sent_at": "2026-10-25T12:44:21.042000+00:00",
       "source": "Coinbase Status"
+    },
+    "news:09:7657cf05f22198f24bab49bc": {
+      "message_id": 52,
+      "number": 9,
+      "sent_at": "2026-10-25T22:01:14.454402+00:00",
+      "source": "NewsBTC"
     },
     "news:09:e0f3d809276d38630d429f64": {
       "message_id": 36,
