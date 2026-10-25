@@ -1,19 +1,18 @@
 {
   "scope": "read_only_identity_evidence",
-  "external_total": 1320,
-  "external_cc0_verified": 7,
+  "external_total": 1019,
+  "external_cc0_verified": 6,
   "external_independent_provider_verified": 2,
-  "external_verified_total": 9,
-  "native_total": 458,
-  "native_unique_eligible": 251,
-  "native_invalid_records": 206,
+  "external_verified_total": 8,
+  "native_total": 289,
+  "native_unique_eligible": 286,
+  "native_invalid_records": 3,
   "native_invalid_breakdown": {
-    "native_not_prematch": 206
+    "native_not_prematch": 3
   },
   "one_to_one_native_event_links": 4,
-  "unmatched_or_ambiguous_external": 5,
+  "unmatched_or_ambiguous_external": 4,
   "unmatched_external_breakdown": {
-    "exact_teams_kickoff_wrong_competition": 1,
     "no_exact_teams_and_kickoff": 4
   },
   "identity_evidence": "exact_league_home_away_utc_kickoff_15m_unique",
@@ -26,9 +25,8 @@
   "rejected_reasons": {
     "duplicated_native_id": 0,
     "external_ambiguous_native_matches": 0,
-    "external_not_independently_cc0_verified": 1311,
-    "native_ambiguous_external_matches": 0,
-    "native_not_future": 1
+    "external_not_independently_cc0_verified": 1011,
+    "native_ambiguous_external_matches": 0
   },
   "read_only_native_consensus_price_audit": {
     "event_ids_selected_only_from_confirmed_native_links": true,
@@ -85,23 +83,23 @@
       "v21_reason:v21_over15_conservative_too_low": 3
     }
   },
-  "candidate_official_league_metadata_ids": 4,
+  "candidate_official_league_metadata_ids": 3,
   "official_league_metadata_requested": 0,
-  "official_league_metadata_verified": 55,
+  "official_league_metadata_verified": 57,
   "official_league_directory_health": {
     "directory_competition_ids_unresolved": 0,
-    "directory_competition_ids_verified": 55,
+    "directory_competition_ids_verified": 57,
     "directory_conflicting_ids_quarantined": 0,
     "directory_pages_completed": 1,
     "directory_requests": 1,
-    "native_competition_ids_present": 55
+    "native_competition_ids_present": 57
   },
   "official_league_metadata_issues": {},
-  "bsd_http_calls": 9,
+  "bsd_http_calls": 8,
   "bsd_max_http_requests": 24,
   "calendar_files_verified": 8,
-  "independent_cc0_calendar_confirmed": 7,
+  "independent_cc0_calendar_confirmed": 6,
   "independent_two_provider_confirmed": 2,
-  "independently_verified_fixtures_total": 9,
+  "independently_verified_fixtures_total": 8,
   "qualified_candidate_rows_staged": 0
 }
