@@ -1,0 +1,80 @@
+name: Research ML V2 - Repair missing SportScore 2025 dates
+on:
+  push:
+    branches: [research/single-ml-v2-20261024]
+    paths: ['.github/workflows/research-ml-v2-repair-2025.yml']
+permissions:
+  contents: write
+concurrency:
+  group: ml-v2-encrypted-history
+  cancel-in-progress: false
+jobs:
+  retry-2025-failed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/single-ml-v2-20261024
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install encryption and provider clients
+        run: python -m pip install cryptography requests
+      - name: Offline 2025 date-only repair validation
+        run: PYTHONPATH=.:research python -m unittest discover -s research -p 'test_single_ml_v2_2025_repair.py' -v
+      - name: Retry 2025 SportScore failures only, with bounded API attempts
+        shell: bash
+        id: retry
+        run: |
+          set -euo pipefail
+          set +e
+          PYTHONPATH=.:research python research/single_ml_v2_2024_repair.py --year 2025
+          code=$?
+          set -e
+          echo "status=$code" >> "$GITHUB_OUTPUT"
+          if [[ "$code" != 0 && "$code" != 2 ]]; then
+            echo "::error::2025 repair failed unexpectedly"; exit "$code"
+          fi
+      - name: Verify sealed 2025 repair payload
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python - <<'PY'
+          from pathlib import Path
+          from single_ml_v2_git import key_from_environment,open_sealed
+          from single_ml_v2_2024_repair import aad_for_year
+          p=Path('research/encrypted_football/bsd_sportscore/2025_repair.enc')
+          v=open_sealed(p.read_bytes(),key_from_environment(),aad_for_year(2025))
+          assert v['year']==2025
+          assert v['schema']==aad_for_year(2025)
+          print('2025_FAILED_DAYS_ORIGINAL',v['audit']['original_failed_dates'])
+          print('2025_FAILED_DAYS_RECOVERED',v['audit']['recovered_dates'])
+          print('2025_FAILED_DAYS_REMAINING',len(v['audit']['unresolved_dates']))
+          print('2025_EXTRA_FOOTBALL_RECORDS',v['audit']['additional_source_records'])
+          PY
+      - name: Commit only AES-GCM 2025 repair delta
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add research/encrypted_football/bsd_sportscore/2025_repair.enc
+          if ! git diff --cached --quiet; then
+            git commit -m 'data(research): encrypted 2025 SportScore failed-day recoveries'
+            git fetch origin research/single-ml-v2-20261024
+            git rebase origin/research/single-ml-v2-20261024
+            git push origin HEAD:research/single-ml-v2-20261024
+          fi
+      - name: Mark unresolved dates
+        shell: bash
+        env:
+          CODE: ${{ steps.retry.outputs.status }}
+        run: |
+          if [[ "$CODE" != 0 ]]; then
+            echo "::error::2025 SportScore failed days still incomplete; archive stored without false success"
+            exit 1
+          fi
+          echo 'All historical 2025 failed SportScore dates recovered.'
