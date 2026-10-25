@@ -1,7 +1,7 @@
 {
   "audit": {
     "category": "anime_catalog",
-    "checked_at": "2026-10-25T16:39:37.988773+00:00",
+    "checked_at": "2026-10-25T21:04:53.161151+00:00",
     "not_yet_indexed": [
       {
         "episode": 2,
@@ -650,7 +650,7 @@
         "truncated": false
       }
     ],
-    "scanned_episode_candidates": 392,
+    "scanned_episode_candidates": 391,
     "source_episode_numbers_observed": 554,
     "source_numbering_gap_seasons": 4,
     "source_numbering_gaps": [
