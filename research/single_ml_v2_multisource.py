@@ -34,9 +34,10 @@ def certified_rows(key, *, root=None, audit_root=Path("research"), through=CUTOF
             options["root"] = root
         rows, report = combine(key, **options)
         stored = json.loads((audit_root / f"{year}_multisource_audit.json").read_text(encoding="utf8"))
-        if report != stored:
-            # Fail closed instead of quietly ignoring a changed source/audit.
-            differences = sorted(k for k in set(report) | set(stored) if report.get(k) != stored.get(k))
+        if any(k not in report or report[k] != v for k, v in stored.items()):
+            # Published audit schemas differ by year; require EVERY stored assertion,
+            # while permitting newer diagnostic-only fields in calculated reports.
+            differences = sorted(k for k, v in stored.items() if report.get(k) != v)
             raise ValueError(f"{year} encrypted audit disagreement: {differences}")
         if len(rows) != expected or report["distinct_safe_matches"] != expected:
             raise ValueError(f"{year} incorrect source reconciliation total")
