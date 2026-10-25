@@ -103,7 +103,13 @@ def combine(key,*,root=ROOT,year=2024,through=None):
     if len({r['id'] for r in kept})!=len(kept):
         raise ValueError('ML match identities not unique across the full 2024 year')
     counts=Counter(r.get("source","?") for r in kept)
+    last_allowed_day=through if year==2026 else date(year,12,31)
+    expected_days=(last_allowed_day-date(year,1,1)).days+1
+    days_with_fixture=len({r["date"] for r in kept})
     report={"year":year,"months_verified":len(months),
+       "calendar_days_requested":expected_days,
+       "calendar_days_with_certified_fixture":days_with_fixture,
+       "calendar_days_without_certified_fixture":expected_days-days_with_fixture,
        "cutoff_utc_day":str(through) if year==2026 else f"{year}-12-31",
        "months_requested":requested_months,
        "baseline_openfootball_records":len(original["matches"]),
@@ -112,6 +118,8 @@ def combine(key,*,root=ROOT,year=2024,through=None):
        "recovered_provider_failed_dates":repairs["audit"]["recovered_dates"] if repairs else 0,
        "remaining_provider_failed_dates":repairs["audit"]["unresolved_dates"] if repairs else [],
        "sportscore_repair_extra_records":len(repairs["matches"]) if repairs else 0,
+       "sportscore_failed_days_remaining":len(repairs["audit"]["unresolved_dates"]) if repairs else sum(x["audit"]["sportscore"]["days_failed"] for x in months),
+       "sportscore_repaired_days_at_200_cap":repairs["audit"]["recovered_at_200_cap"] if repairs else 0,
        "distinct_safe_matches":len(kept),
        "duplicates_same_identity_same_score":duplicated,
        "conflicting_outcome_identities_quarantined":conflicts,
