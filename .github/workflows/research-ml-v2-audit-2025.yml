@@ -1,0 +1,70 @@
+name: Research ML V2 - Audit 2025 BSD SportScore year
+on:
+  push:
+    branches: [research/single-ml-v2-20261024]
+    paths: ['.github/workflows/research-ml-v2-audit-2025.yml']
+permissions:
+  contents: write
+concurrency:
+  group: ml-v2-encrypted-history
+  cancel-in-progress: false
+jobs:
+  audit-2025:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/single-ml-v2-20261024
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install isolated crypto packages
+        run: python -m pip install cryptography requests
+      - name: Unit test complete annual archive deduplication
+        run: PYTHONPATH=.:research python -m unittest discover -s research -p 'test_single_ml_v2_2025_union.py' -v
+      - name: Independently authenticate all 12 2025 months and export only to ephemeral /tmp
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python research/single_ml_v2_2024_union.py \
+            --year 2025 --export --output /tmp/mrx_2025_research.json
+          PYTHONPATH=.:research python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("/tmp/mrx_2025_research.json")
+          r=json.loads(p.read_text(encoding="utf8"))
+          assert len(r)>5000
+          assert all(x.get('sportId')==1 and x.get('is_finished') is True for x in r)
+          assert all(x['date'].startswith('2025-') for x in r)
+          assert len({x['id'] for x in r})==len(r)
+          print('VERIFIED_2025_DEDUPLICATED_MATCHES',len(r))
+          p.unlink()
+          print('SENSITIVE_TEMPORARY_RESEARCH_PLAINTEXT_REMOVED')
+          PY
+      - name: Commit only aggregate counts, never plaintext records
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python research/single_ml_v2_2024_union.py --year 2025 | python -c '
+          import json,sys,pathlib
+          output=sys.stdin.read().strip().split("ML_V2_2024_INDEPENDENT_AUDIT ",1)
+          if len(output)!=2:raise SystemExit("Missing 2025 audit output")
+          report=json.loads(output[1])
+          assert report["year"]==2025 and report["months_verified"]==12
+          p=pathlib.Path("research/2025_multisource_audit.json")
+          p.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n")
+          print("2025_PUBLIC_AGGREGATE_ONLY",report["distinct_safe_matches"])
+          '
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add research/2025_multisource_audit.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'docs(research): audited 2025 football BSD SportScore aggregate counts'
+            git fetch origin research/single-ml-v2-20261024
+            git rebase origin/research/single-ml-v2-20261024
+            git push origin HEAD:research/single-ml-v2-20261024
+          fi
