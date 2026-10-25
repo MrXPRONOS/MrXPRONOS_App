@@ -1,20 +1,18 @@
 {
   "scope": "read_only_identity_evidence",
-  "external_total": 1023,
-  "external_cc0_verified": 3,
+  "external_total": 1033,
+  "external_cc0_verified": 0,
   "external_independent_provider_verified": 0,
-  "external_verified_total": 3,
+  "external_verified_total": 0,
   "native_total": 289,
-  "native_unique_eligible": 168,
-  "native_invalid_records": 105,
+  "native_unique_eligible": 112,
+  "native_invalid_records": 176,
   "native_invalid_breakdown": {
-    "native_not_prematch": 105
+    "native_not_prematch": 176
   },
-  "one_to_one_native_event_links": 1,
-  "unmatched_or_ambiguous_external": 2,
-  "unmatched_external_breakdown": {
-    "no_exact_teams_and_kickoff": 2
-  },
+  "one_to_one_native_event_links": 0,
+  "unmatched_or_ambiguous_external": 0,
+  "unmatched_external_breakdown": {},
   "identity_evidence": "exact_league_home_away_utc_kickoff_15m_unique",
   "native_event_ids_exported": false,
   "native_bookmaker_prices_fetched": false,
@@ -25,21 +23,21 @@
   "rejected_reasons": {
     "duplicated_native_id": 0,
     "external_ambiguous_native_matches": 0,
-    "external_not_independently_cc0_verified": 1020,
+    "external_not_independently_cc0_verified": 1033,
     "native_ambiguous_external_matches": 0,
-    "native_not_future": 16
+    "native_not_future": 1
   },
   "read_only_native_consensus_price_audit": {
     "event_ids_selected_only_from_confirmed_native_links": true,
     "max_linked_events_for_quote_probe": 8,
-    "official_native_events_quoted_attempts": 1,
+    "official_native_events_quoted_attempts": 0,
     "historically_published_native_links_excluded": 0,
-    "unpublished_native_links_available": 1,
-    "unpublished_native_links_in_48h_window": 1,
-    "actual_48h_publication_window_quote_attempts": 1,
+    "unpublished_native_links_available": 0,
+    "unpublished_native_links_in_48h_window": 0,
+    "actual_48h_publication_window_quote_attempts": 0,
     "linked_events_exceeding_eight_quote_cap": 0,
-    "events_with_fresh_consensus_market_prices": 1,
-    "fresh_consensus_market_prices": 14,
+    "events_with_fresh_consensus_market_prices": 0,
+    "fresh_consensus_market_prices": 0,
     "consensus_is_not_executable_bookmaker_offer": true,
     "independent_bookmaker_selection_codes_verified": 0,
     "production_market_policy_approved": false,
@@ -49,11 +47,11 @@
   "full_model_selected_market_consensus_audit": {
     "native_full_assembler_canary": {
       "executed": true,
-      "native_event_ids_verified_in_process": 1,
-      "events_within_native_48h_window": 1,
-      "actual_publication_window_exercised": true,
-      "empty_window_is_not_publication_path_validation": false,
-      "in_memory_quote_fetches": 1,
+      "native_event_ids_verified_in_process": 0,
+      "events_within_native_48h_window": 0,
+      "actual_publication_window_exercised": false,
+      "empty_window_is_not_publication_path_validation": true,
+      "in_memory_quote_fetches": 0,
       "projected_new_rows_not_published": 0,
       "qualified_rows_available_process_local": 0,
       "historical_append_only_ids_enforced": true,
@@ -75,15 +73,9 @@
     "bookmaker_selection_codes_verified": 0,
     "production_authorized": false,
     "telegram_posts": 0,
-    "aggregate": {
-      "events_examined": 1,
-      "frozen_bsd_v2_model_market_candidates": 1,
-      "frozen_markets_with_exact_fresh_bsd_consensus_quote": 1,
-      "v21_or_value_guard_veto": 1,
-      "v21_reason:v21_over15_conservative_too_low": 1
-    }
+    "aggregate": {}
   },
-  "candidate_official_league_metadata_ids": 1,
+  "candidate_official_league_metadata_ids": 0,
   "official_league_metadata_requested": 0,
   "official_league_metadata_verified": 57,
   "official_league_directory_health": {
@@ -95,11 +87,11 @@
     "native_competition_ids_present": 57
   },
   "official_league_metadata_issues": {},
-  "bsd_http_calls": 5,
+  "bsd_http_calls": 4,
   "bsd_max_http_requests": 24,
   "calendar_files_verified": 8,
-  "independent_cc0_calendar_confirmed": 3,
+  "independent_cc0_calendar_confirmed": 0,
   "independent_two_provider_confirmed": 0,
-  "independently_verified_fixtures_total": 3,
+  "independently_verified_fixtures_total": 0,
   "qualified_candidate_rows_staged": 0
 }
