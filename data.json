@@ -4048,11 +4048,11 @@
       "revalidated_at": "2026-10-14T02:26:34.529189+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-25T04:20:50.404210+00:00",
+      "settlement_checked_at": "2026-10-25T08:20:51.401168+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-10-25T08:20:50.404210+00:00"
+        "next_retry_after": "2026-10-25T12:20:51.401168+00:00"
       }
     },
     {
@@ -9225,11 +9225,11 @@
       "revalidated_at": "2026-10-18T13:39:06.861715+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-25T04:20:50.404210+00:00",
+      "settlement_checked_at": "2026-10-25T08:20:51.401168+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-10-25T08:20:50.404210+00:00"
+        "next_retry_after": "2026-10-25T12:20:51.401168+00:00"
       }
     },
     {
@@ -9936,11 +9936,11 @@
       "revalidated_at": "2026-10-19T03:27:51.821696+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-25T04:20:50.404210+00:00",
+      "settlement_checked_at": "2026-10-25T08:20:51.401168+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-10-25T08:20:50.404210+00:00"
+        "next_retry_after": "2026-10-25T12:20:51.401168+00:00"
       }
     },
     {
@@ -10881,11 +10881,11 @@
       "revalidated_at": "2026-10-20T20:00:42.348517+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-25T04:20:50.404210+00:00",
+      "settlement_checked_at": "2026-10-25T08:20:51.401168+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-10-25T08:20:50.404210+00:00"
+        "next_retry_after": "2026-10-25T12:20:51.401168+00:00"
       }
     },
     {
@@ -13195,11 +13195,11 @@
       "revalidated_at": "2026-10-24T04:25:16.936502+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-25T04:20:50.404210+00:00",
+      "settlement_checked_at": "2026-10-25T08:20:51.401168+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-10-25T08:20:50.404210+00:00"
+        "next_retry_after": "2026-10-25T12:20:51.401168+00:00"
       }
     },
     {
@@ -13290,11 +13290,11 @@
       "revalidated_at": "2026-10-24T04:25:16.936502+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-25T04:20:50.404210+00:00",
+      "settlement_checked_at": "2026-10-25T08:20:51.401168+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-10-25T08:20:50.404210+00:00"
+        "next_retry_after": "2026-10-25T12:20:51.401168+00:00"
       }
     },
     {
@@ -14255,12 +14255,12 @@
       "badge": "BSD V2",
       "signal_tier": "INDICATIF",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -14322,7 +14322,12 @@
       "generated_at": "2026-10-23T19:57:53.145790+00:00",
       "combo_only": false,
       "revalidated_at": "2026-10-25T00:05:52.046386+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-25T08:20:51.401168+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:220267",
@@ -14343,12 +14348,12 @@
       "badge": "BSD V2",
       "signal_tier": "INDICATIF",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -14461,7 +14466,12 @@
         }
       ],
       "revalidated_at": "2026-10-25T00:05:52.046386+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-25T08:20:51.401168+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:212294",
@@ -19457,16 +19467,18 @@
       "bsd:7309:UNDER_35:2026-10-24T19:30:00+00:00",
       "bsd:10201:X2:2026-10-24T21:30:00+00:00",
       "bsd:220263:1X:2026-10-24T23:05:00+00:00",
-      "bsd:5369:1X:2026-10-24T23:30:00+00:00"
+      "bsd:5369:1X:2026-10-24T23:30:00+00:00",
+      "bsd:223855:UNDER_35:2026-10-25T00:30:00+00:00",
+      "bsd:220267:1X:2026-10-25T01:15:00+00:00"
     ],
     "by_selection": {
       "1X": {
-        "n": 116,
-        "wins": 91,
-        "sum_pred": 92.86300000000006,
-        "penalty": 0.005896,
-        "hit_rate": 0.784483,
-        "average_predicted": 0.800543
+        "n": 117,
+        "wins": 92,
+        "sum_pred": 93.66300000000005,
+        "penalty": 0.005246,
+        "hit_rate": 0.786325,
+        "average_predicted": 0.800538
       },
       "BTTS_YES": {
         "n": 1,
@@ -19477,12 +19489,12 @@
         "average_predicted": 0.561
       },
       "UNDER_35": {
-        "n": 102,
-        "wins": 86,
-        "sum_pred": 79.88499999999996,
+        "n": 103,
+        "wins": 87,
+        "sum_pred": 80.69599999999997,
         "penalty": 0.0,
-        "hit_rate": 0.843137,
-        "average_predicted": 0.783186
+        "hit_rate": 0.84466,
+        "average_predicted": 0.783456
       },
       "OVER_15": {
         "n": 109,
@@ -19519,12 +19531,12 @@
     },
     "by_family": {
       "double_chance": {
-        "n": 126,
-        "wins": 96,
-        "sum_pred": 100.19800000000004,
-        "penalty": 0.012877,
-        "hit_rate": 0.761905,
-        "average_predicted": 0.795222
+        "n": 127,
+        "wins": 97,
+        "sum_pred": 100.99800000000003,
+        "penalty": 0.012226,
+        "hit_rate": 0.76378,
+        "average_predicted": 0.79526
       },
       "btts": {
         "n": 1,
@@ -19535,16 +19547,16 @@
         "average_predicted": 0.561
       },
       "goals": {
-        "n": 212,
-        "wins": 172,
-        "sum_pred": 165.438,
+        "n": 213,
+        "wins": 173,
+        "sum_pred": 166.249,
         "penalty": 0.0,
-        "hit_rate": 0.811321,
-        "average_predicted": 0.780368
+        "hit_rate": 0.812207,
+        "average_predicted": 0.780512
       }
     },
     "last_added": 2,
-    "updated_at": "2026-10-25T04:20:50.404210+00:00",
+    "updated_at": "2026-10-25T08:20:51.401168+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -19710,12 +19722,12 @@
         "average_predicted": 0.83
       },
       "Categoría Primera A|1X": {
-        "n": 4,
-        "wins": 3,
-        "sum_pred": 3.223,
+        "n": 5,
+        "wins": 4,
+        "sum_pred": 4.023,
         "penalty": 0.0,
-        "hit_rate": 0.75,
-        "average_predicted": 0.80575
+        "hit_rate": 0.8,
+        "average_predicted": 0.8046
       },
       "Segunda División|1X": {
         "n": 2,
@@ -20118,12 +20130,12 @@
         "average_predicted": 0.797
       },
       "Argentine Division 1|UNDER_35": {
-        "n": 2,
-        "wins": 2,
-        "sum_pred": 1.589,
+        "n": 3,
+        "wins": 3,
+        "sum_pred": 2.4,
         "penalty": 0.0,
         "hit_rate": 1.0,
-        "average_predicted": 0.7945
+        "average_predicted": 0.8
       },
       "Spanish Primera División de la Liga de Fútbol Femenino|1X": {
         "n": 1,
@@ -64802,7 +64814,7 @@
     }
   },
   "settlement_watchdog": {
-    "updated_at": "2026-10-25T04:20:50.404210+00:00",
+    "updated_at": "2026-10-25T08:20:51.401168+00:00",
     "checked": 8,
     "settled": 2,
     "pending": 6,
