@@ -38,12 +38,13 @@ def combine(key,*,root=ROOT,year=2024):
             raise ValueError("Mixed or incorrect archive month")
         months.append(doc)
     repairs=None
-    repair_path=root/"bsd_sportscore"/"2024_repair.enc"
-    if year==2024 and repair_path.exists():
-        from single_ml_v2_2024_repair import AAD as REPAIR_AAD
+    repair_path=root/"bsd_sportscore"/f"{year}_repair.enc"
+    if repair_path.exists():
+        from single_ml_v2_2024_repair import aad_for_year
+        REPAIR_AAD=aad_for_year(year)
         repairs=open_sealed(repair_path.read_bytes(),key,REPAIR_AAD)
-        if repairs.get("schema")!=REPAIR_AAD or repairs.get("year")!=2024:
-            raise ValueError("Unverified encrypted 2024 repair archive")
+        if repairs.get("schema")!=REPAIR_AAD or repairs.get("year")!=year:
+            raise ValueError("Unverified encrypted yearly repair archive")
         expected_failures={
             x["date"] for doc in months
             for x in doc["audit"]["sportscore"].get("failed_dates",[])
@@ -64,7 +65,7 @@ def combine(key,*,root=ROOT,year=2024):
     if repairs:
         for entry in repairs["matches"]:
             grouped[match_key(entry)].append(entry)
-            provider_entries["sportscore_2024_repaired"]+=1
+            provider_entries[f"sportscore_{year}_repaired"]+=1
     priority={f"bsd_v2_{year}":0,"openfootball_football_json_cc0":1,f"sportscore_{year}":2}
     kept=[]
     duplicated=0
@@ -99,15 +100,15 @@ def combine(key,*,root=ROOT,year=2024):
        "baseline_openfootball_records":len(original["matches"]),
        "bsd_sportscore_month_records":sum(len(m["matches"]) for m in months),
        "source_entries":dict(provider_entries),
-       "repaired_2024_dates":repairs["audit"]["recovered_dates"] if repairs else 0,
-       "repair_2024_unresolved_dates":repairs["audit"]["unresolved_dates"] if repairs else [],
+       "recovered_provider_failed_dates":repairs["audit"]["recovered_dates"] if repairs else 0,
+       "remaining_provider_failed_dates":repairs["audit"]["unresolved_dates"] if repairs else [],
        "sportscore_repair_extra_records":len(repairs["matches"]) if repairs else 0,
        "distinct_safe_matches":len(kept),
        "duplicates_same_identity_same_score":duplicated,
        "conflicting_outcome_identities_quarantined":conflicts,
        "kept_by_source":dict(counts),
-       "sportscore_daily_limit":"200; some 2024 dates may be truncated",
-       "sportscore_failed_days":sum(x["audit"]["sportscore"]["days_failed"] for x in months),
+       "sportscore_daily_limit":"200; some dates may be truncated",
+       "sportscore_original_failed_days":sum(x["audit"]["sportscore"]["days_failed"] for x in months),
        "sportscore_at_cap_days":sum(x["audit"]["sportscore"]["days_at_200_cap_incomplete"] for x in months),
        "scope":"audited source coverage only; NOT all real-world football matches",
        "sources":"OpenFootball CC0, BSD API, SportScore",
