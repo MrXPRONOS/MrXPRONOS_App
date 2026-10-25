@@ -22,7 +22,7 @@
   "sportscore_original_failed_days": 10,
   "sportscore_at_cap_days": 281,
   "scope": "audited source coverage only; NOT all real-world football matches",
-  "sources": "OpenFootball CC0, BSD API, SportScore",
+  "sources": "BSD API, SportScore",
   "verified_utc_kickoff_only_when_source_supplies_it": true,
   "missing_xg_not_invented": true,
   "no_supabase_or_neon": true
