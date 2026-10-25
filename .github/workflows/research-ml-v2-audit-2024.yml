@@ -1,10 +1,14 @@
 name: Research ML V2 - Audit merged 2024 football history
+# Includes AES-GCM 19-day repair delta; rerun after original failed dates recovered
 on:
   push:
     branches: [research/single-ml-v2-20261024]
     paths: ['.github/workflows/research-ml-v2-audit-2024.yml']
 permissions:
   contents: write
+concurrency:
+  group: ml-v2-encrypted-history
+  cancel-in-progress: false
 jobs:
   independent-archive-audit:
     runs-on: ubuntu-latest
@@ -60,6 +64,8 @@ jobs:
           git add research/2024_multisource_audit.json
           if ! git diff --cached --quiet; then
             git commit -m 'docs(research): independent 2024 BSD SportScore OpenFootball aggregate audit'
+            git fetch origin research/single-ml-v2-20261024
+            git rebase origin/research/single-ml-v2-20261024
             git push origin HEAD:research/single-ml-v2-20261024
           fi
       - name: Final status
