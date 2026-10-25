@@ -17,24 +17,29 @@ from single_ml_v2_openfootball2024 import SCHEMA as OF_SCHEMA
 def match_key(row):
     return (str(row["date"]),norm(row["home_team"]),norm(row["away_team"]))
 
-def combine(key,*,root=ROOT):
+def combine(key,*,root=ROOT,year=2024):
+    if year not in (2024,2025):
+        raise ValueError("Only the 2024 and 2025 research cohorts are supported")
     root=Path(root)
-    original=open_sealed((root/"openfootball/2024.enc").read_bytes(),
-                    key,"openfootball-cc0-calendar-2024")
-    if original["schema"]!=OF_SCHEMA or original["year"]!=2024:
-        raise ValueError("Unverified OpenFootball reference")
+    if year==2024:
+        original=open_sealed((root/"openfootball/2024.enc").read_bytes(),
+                            key,"openfootball-cc0-calendar-2024")
+        if original["schema"]!=OF_SCHEMA or original["year"]!=2024:
+            raise ValueError("Unverified OpenFootball reference")
+    else:
+        original={"matches":[]}
     months=[]
     for month in range(1,13):
-        blob=(root/"bsd_sportscore"/"2024"/f"{month:02d}.enc").read_bytes()
-        doc=open_sealed(blob,key,"bsd-sportscore-2024-month:"+str(month))
-        if doc.get("schema")!=BSD_SCHEMA or doc.get("month")!=month or doc.get("year")!=2024:
+        blob=(root/"bsd_sportscore"/str(year)/f"{month:02d}.enc").read_bytes()
+        doc=open_sealed(blob,key,"bsd-sportscore-"+str(year)+"-month:"+str(month))
+        if doc.get("schema")!=f"bsd_sportscore_{year}_private_verified_v1" or doc.get("month")!=month or doc.get("year")!=year:
             raise ValueError("Wrong 2024 month checkpoint")
-        if any(not x["date"].startswith(f"2024-{month:02d}-") for x in doc["matches"]):
+        if any(not x["date"].startswith(f"{year}-{month:02d}-") for x in doc["matches"]):
             raise ValueError("Mixed or incorrect archive month")
         months.append(doc)
     repairs=None
     repair_path=root/"bsd_sportscore"/"2024_repair.enc"
-    if repair_path.exists():
+    if year==2024 and repair_path.exists():
         from single_ml_v2_2024_repair import AAD as REPAIR_AAD
         repairs=open_sealed(repair_path.read_bytes(),key,REPAIR_AAD)
         if repairs.get("schema")!=REPAIR_AAD or repairs.get("year")!=2024:
@@ -60,13 +65,13 @@ def combine(key,*,root=ROOT):
         for entry in repairs["matches"]:
             grouped[match_key(entry)].append(entry)
             provider_entries["sportscore_2024_repaired"]+=1
-    priority={"bsd_v2_2024":0,"openfootball_football_json_cc0":1,"sportscore_2024":2}
+    priority={f"bsd_v2_{year}":0,"openfootball_football_json_cc0":1,f"sportscore_{year}":2}
     kept=[]
     duplicated=0
     conflicts=0
     rejected=Counter()
     for key,records in grouped.items():
-        if not key[0].startswith("2024-"):
+        if not key[0].startswith(f"{year}-"):
             raise ValueError("Invalid year in combined archive")
         scores={(r["home_score"],r["away_score"]) for r in records}
         if len(scores)!=1:
@@ -76,12 +81,12 @@ def combine(key,*,root=ROOT):
         # teams, day and result, keep one with the strongest source identity.
         ordered=sorted(records,key=lambda r:priority.get(r.get("source"),9))
         chosen=dict(ordered[0])
-        if chosen.get('source')=='sportscore_2024':
+        if chosen.get('source')==f'sportscore_{year}':
             # SportScore's URL/slug may repeat on later fixtures; derive a
             # per-calendar-fixture ML identifier without presenting it as
             # a provider-issued unique event ID.
             chosen['source_archive_id']=chosen['id']
-            chosen['id']='sportscore_2024_ml:'+hashlib.sha256(
+            chosen['id']=f'sportscore_{year}_ml:'+hashlib.sha256(
                 '|'.join(key).encode('utf8')).hexdigest()[:32]
             chosen['source_model_id_is_derived']=True
         if len(records)>1:duplicated+=len(records)-1
@@ -90,7 +95,7 @@ def combine(key,*,root=ROOT):
     if len({r['id'] for r in kept})!=len(kept):
         raise ValueError('ML match identities not unique across the full 2024 year')
     counts=Counter(r.get("source","?") for r in kept)
-    report={"year":2024,"months_verified":len(months),
+    report={"year":year,"months_verified":len(months),
        "baseline_openfootball_records":len(original["matches"]),
        "bsd_sportscore_month_records":sum(len(m["matches"]) for m in months),
        "source_entries":dict(provider_entries),
@@ -116,9 +121,10 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument("--output",default="/tmp/mrx_ml_v2_2024_multisource.json")
     p.add_argument("--export",action="store_true")
+    p.add_argument("--year",type=int,choices=(2024,2025),default=2024)
     a=p.parse_args()
     key=key_from_environment()
-    records,report=combine(key)
+    records,report=combine(key,year=a.year)
     if a.export:
         dest=Path(a.output)
         if not str(dest.resolve()).startswith("/tmp/"):
