@@ -115,8 +115,12 @@ def http_json(session,url,headers,params,counter,*,sleep=.12):
     time.sleep(sleep)
     return result
 
-def bsd_month(session,month,token,counter,*,year=2024):
-    start=date(year,month,1);end=date(year,month,calendar.monthrange(year,month)[1])
+def bsd_month(session,month,token,counter,*,year=2024,through=None):
+    start=date(year,month,1)
+    end=date(year,month,calendar.monthrange(year,month)[1])
+    if through is not None:
+        if through<start:raise ValueError("BSD requested month after last allowed completed UTC day")
+        end=min(end,through)
     rows={};total=None;pages=0
     while True:
         if pages>=MAX_BSD_PAGES:raise RuntimeError("BSD pagination incomplete")
@@ -150,9 +154,15 @@ def bsd_month(session,month,token,counter,*,year=2024):
         accepted[m["id"]]=m
     return list(accepted.values()),{"reported":total,"pages":pages,"parsed":len(accepted),"rejected":rejected}
 
-def score_month(session,month,counter,*,year=2024):
+def score_month(session,month,counter,*,year=2024,through=None):
     validated={};days=[];truncated=0;failures=[]
-    for daynum in range(1,calendar.monthrange(year,month)[1]+1):
+    maxday=calendar.monthrange(year,month)[1]
+    if through is not None:
+        start=date(year,month,1)
+        if through<start:raise ValueError("SportScore requested month after completed cutoff")
+        if through.year==year and through.month==month:
+            maxday=min(maxday,through.day)
+    for daynum in range(1,maxday+1):
         day=date(year,month,daynum)
         try:
             payload=http_json(session,SCORE,{"Accept":"application/json"},
@@ -232,8 +242,18 @@ def merge_with_openfootball(bsd_rows,score_rows,of_rows):
 
 def month_file(month):return BASE_DIR/f"{month:02d}.enc"
 
-def collect(*,root=ROOT,budget=MAX_REQUESTS,year=2024):
-    if year not in (2024,2025):raise ValueError("Supported years are 2024 and 2025")
+def collect(*,root=ROOT,budget=MAX_REQUESTS,year=2024,through=None):
+    if year not in (2024,2025,2026):raise ValueError("Supported research years are 2024, 2025 and 2026")
+    if through is not None and isinstance(through,str):
+        through=date.fromisoformat(through)
+    if year==2026 and through is None:
+        raise ValueError("2026 must have an explicit last completed UTC day")
+    if through is not None:
+        if through.year!=year or through<date(year,1,1):
+            raise ValueError("Historical cutoff must be inside selected year")
+        yesterday=datetime.now(timezone.utc).date()-timedelta(days=1)
+        if through>yesterday:raise ValueError("Cannot archive an unfinished or future UTC day")
+    requested_months=through.month if through is not None else 12
     if not os.getenv("BSD_API_KEY"):
         raise RuntimeError("BSD_API_KEY missing")
     key=key_from_environment()
@@ -252,24 +272,28 @@ def collect(*,root=ROOT,budget=MAX_REQUESTS,year=2024):
         metrics=Counter()
         failures=[]
         print("OPENFOOTBALL_REFERENCE_YEAR",year,"COUNT",len(original["matches"]),flush=True)
-        for month in range(1,13):
+        for month in range(1,requested_months+1):
             path=root/"bsd_sportscore"/str(year)/f"{month:02d}.enc"
             if path.exists():
                 cached=open_sealed(path.read_bytes(),key,
                                    "bsd-sportscore-"+str(year)+"-month:"+str(month))
                 if cached.get("schema")!=f"bsd_sportscore_{year}_private_verified_v1" or cached.get("month")!=month or cached.get("year")!=year:
                     raise RuntimeError("Bad existing encrypted monthly snapshot")
+                if through is not None and cached.get("cutoff_date")!=str(through):
+                    raise RuntimeError("Existing archive cutoff differs; use explicit additive delta instead of overwriting")
                 metrics["months_already_saved"]+=1
                 continue
             try:
-                bsd,ba=bsd_month(session,month,os.environ["BSD_API_KEY"],metrics,year=year)
-                sc,sa=score_month(session,month,metrics,year=year)
+                bsd,ba=bsd_month(session,month,os.environ["BSD_API_KEY"],metrics,year=year,through=through)
+                sc,sa=score_month(session,month,metrics,year=year,through=through)
                 merged,comparison=merge_with_openfootball(bsd,sc,of_by_month[month])
                 report={"bsd":ba,"sportscore":sa,"comparison":comparison,
                         "new_data_scope":"BSD finished + SportScore verified unique; NOT every world match",
                         "sportscore_not_exhaustive_if_200":True,
                         "source_license":"BSD internal R&D; SportScore API attribution required on public displays"}
                 envelope={"schema":f"bsd_sportscore_{year}_private_verified_v1","month":month,"year":year,
+                    "cutoff_date":str(through) if through is not None else None,
+                    "source_window_last_day":str(min(date(year,month,calendar.monthrange(year,month)[1]),through)) if through is not None else str(date(year,month,calendar.monthrange(year,month)[1])),
                     "created_at":datetime.now(timezone.utc).isoformat(),
                     "audit":report,"matches":merged}
                 payload=seal(envelope,key,"bsd-sportscore-"+str(year)+"-month:"+str(month))
@@ -289,9 +313,9 @@ def collect(*,root=ROOT,budget=MAX_REQUESTS,year=2024):
                 failures.append({"month":month,"error":type(exc).__name__+":"+str(exc)[:90]})
                 print("BSD_SPORTSCORE_MONTH_FAILED",month,type(exc).__name__,flush=True)
                 break
-    status={"year":year,"months_newly_saved":metrics["months_saved"],
+    status={"year":year,"last_completed_utc_day":str(through) if through is not None else str(date(year,12,31)),"months_requested":requested_months,"months_newly_saved":metrics["months_saved"],
         "months_already_saved":metrics["months_already_saved"],
-        "months_remaining":12-metrics["months_saved"]-metrics["months_already_saved"],
+        "months_remaining":requested_months-metrics["months_saved"]-metrics["months_already_saved"],
         "bsd_matches_this_run":metrics["bsd_new_matches"],
         "sportscore_extra_this_run":metrics["sportscore_new_vs_bsd_and_openfootball"],
         "provider_http_requests":metrics["total"],"failures":failures}
@@ -301,8 +325,10 @@ def collect(*,root=ROOT,budget=MAX_REQUESTS,year=2024):
 if __name__=="__main__":
     import argparse
     cli=argparse.ArgumentParser()
-    cli.add_argument("--year",type=int,default=2024,choices=(2024,2025))
+    cli.add_argument("--year",type=int,default=2024,choices=(2024,2025,2026))
+    cli.add_argument("--through",default=None,
+        help="Last verified completed UTC date YYYY-MM-DD; mandatory for 2026")
     args=cli.parse_args()
-    status=collect(year=args.year)
+    status=collect(year=args.year,through=args.through)
     if status["months_remaining"] or status["failures"]:
         raise SystemExit(2)
