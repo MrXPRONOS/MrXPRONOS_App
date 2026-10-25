@@ -1,0 +1,79 @@
+name: Research ML V2 - Repair missing SportScore 2024 dates
+on:
+  push:
+    branches: [research/single-ml-v2-20261024]
+    paths: ['.github/workflows/research-ml-v2-repair-2024.yml']
+permissions:
+  contents: write
+concurrency:
+  group: ml-v2-encrypted-history
+  cancel-in-progress: false
+jobs:
+  retry-failed-dates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/single-ml-v2-20261024
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install minimum encryption and source libraries
+        run: python -m pip install cryptography requests
+      - name: Regression tests for immutable archives and repair
+        run: PYTHONPATH=.:research python -m unittest discover -s research -p 'test_single_ml_v2_2024_repair.py' -v
+      - name: Retry original SportScore failed days up to three times
+        id: repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          PYTHONPATH=.:research python research/single_ml_v2_2024_repair.py
+          code=$?
+          set -e
+          if [[ "$code" != 0 && "$code" != 2 ]]; then
+            echo "::error::2024 repair crashed"; exit "$code"
+          fi
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+      - name: Confirm encrypted-only patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python - <<'PY'
+          from pathlib import Path
+          from single_ml_v2_git import key_from_environment,open_sealed
+          from single_ml_v2_2024_repair import AAD
+          p=Path('research/encrypted_football/bsd_sportscore/2024_repair.enc')
+          a=open_sealed(p.read_bytes(),key_from_environment(),AAD)
+          assert a['schema']==AAD
+          assert a['audit']['original_failed_dates']>=a['audit']['recovered_dates']
+          print('REPAIR_ORIGINAL_FAILED',a['audit']['original_failed_dates'])
+          print('REPAIR_RECOVERED',a['audit']['recovered_dates'])
+          print('REPAIR_UNRESOLVED',len(a['audit']['unresolved_dates']))
+          print('REPAIR_NEW_MATCH_RECORDS',a['audit']['additional_source_records'])
+          PY
+      - name: Commit only encrypted repair checkpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add research/encrypted_football/bsd_sportscore/2024_repair.enc
+          if ! git diff --cached --quiet; then
+            git commit -m 'data(research): encrypted 2024 SportScore missing-days patch'
+            git push origin HEAD:research/single-ml-v2-20261024
+          fi
+      - name: Mark unresolved provider failures accurately
+        shell: bash
+        env:
+          EXIT_CODE: ${{ steps.repair.outputs.code }}
+        run: |
+          if [[ "$EXIT_CODE" != 0 ]]; then
+            echo "::error::Some 2024 historical days still unavailable"
+            exit 1
+          fi
+          echo 'All originally failed SportScore 2024 dates repaired.'
