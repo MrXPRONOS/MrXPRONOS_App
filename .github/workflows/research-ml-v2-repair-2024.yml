@@ -65,6 +65,8 @@ jobs:
           git add research/encrypted_football/bsd_sportscore/2024_repair.enc
           if ! git diff --cached --quiet; then
             git commit -m 'data(research): encrypted 2024 SportScore missing-days patch'
+            git fetch origin research/single-ml-v2-20261024
+            git rebase origin/research/single-ml-v2-20261024
             git push origin HEAD:research/single-ml-v2-20261024
           fi
       - name: Mark unresolved provider failures accurately
