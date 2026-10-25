@@ -1,4 +1,5 @@
 name: Research ML V2 - Verify all historical years unchanged
+# Regression audit after 2025 source-label correction
 on:
   push:
     branches: [research/single-ml-v2-20261024]
