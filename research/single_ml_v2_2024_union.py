@@ -17,9 +17,14 @@ from single_ml_v2_openfootball2024 import SCHEMA as OF_SCHEMA
 def match_key(row):
     return (str(row["date"]),norm(row["home_team"]),norm(row["away_team"]))
 
-def combine(key,*,root=ROOT,year=2024):
-    if year not in (2024,2025):
-        raise ValueError("Only the 2024 and 2025 research cohorts are supported")
+def combine(key,*,root=ROOT,year=2024,through=None):
+    if year not in (2024,2025,2026):
+        raise ValueError("Only the 2024-2026 research cohorts are supported")
+    if isinstance(through,str):through=date.fromisoformat(through)
+    if year==2026:
+        if through is None or through.year!=2026 or through>=date.today():
+            raise ValueError("2026 union requires an explicit UTC completed-day cutoff")
+    requested_months=through.month if year==2026 else 12
     root=Path(root)
     if year==2024:
         original=open_sealed((root/"openfootball/2024.enc").read_bytes(),
@@ -29,12 +34,14 @@ def combine(key,*,root=ROOT,year=2024):
     else:
         original={"matches":[]}
     months=[]
-    for month in range(1,13):
+    for month in range(1,requested_months+1):
         blob=(root/"bsd_sportscore"/str(year)/f"{month:02d}.enc").read_bytes()
         doc=open_sealed(blob,key,"bsd-sportscore-"+str(year)+"-month:"+str(month))
         if doc.get("schema")!=f"bsd_sportscore_{year}_private_verified_v1" or doc.get("month")!=month or doc.get("year")!=year:
-            raise ValueError("Wrong 2024 month checkpoint")
-        if any(not x["date"].startswith(f"{year}-{month:02d}-") for x in doc["matches"]):
+            raise ValueError("Wrong encrypted year/month checkpoint")
+        if year==2026 and doc.get("cutoff_date")!=str(through):
+            raise ValueError("Unexpected 2026 UTC archive cutoff")
+        if any(not x["date"].startswith(f"{year}-{month:02d}-") or (through is not None and x["date"]>str(through)) for x in doc["matches"]):
             raise ValueError("Mixed or incorrect archive month")
         months.append(doc)
     repairs=None
@@ -97,6 +104,8 @@ def combine(key,*,root=ROOT,year=2024):
         raise ValueError('ML match identities not unique across the full 2024 year')
     counts=Counter(r.get("source","?") for r in kept)
     report={"year":year,"months_verified":len(months),
+       "cutoff_utc_day":str(through) if year==2026 else f"{year}-12-31",
+       "months_requested":requested_months,
        "baseline_openfootball_records":len(original["matches"]),
        "bsd_sportscore_month_records":sum(len(m["matches"]) for m in months),
        "source_entries":dict(provider_entries),
@@ -111,7 +120,7 @@ def combine(key,*,root=ROOT,year=2024):
        "sportscore_original_failed_days":sum(x["audit"]["sportscore"]["days_failed"] for x in months),
        "sportscore_at_cap_days":sum(x["audit"]["sportscore"]["days_at_200_cap_incomplete"] for x in months),
        "scope":"audited source coverage only; NOT all real-world football matches",
-       "sources":"OpenFootball CC0, BSD API, SportScore",
+       "sources":"OpenFootball CC0, BSD API, SportScore" if year==2024 else "BSD API, SportScore",
        "verified_utc_kickoff_only_when_source_supplies_it":True,
        "missing_xg_not_invented":True,
        "no_supabase_or_neon":True}
@@ -122,10 +131,11 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument("--output",default="/tmp/mrx_ml_v2_2024_multisource.json")
     p.add_argument("--export",action="store_true")
-    p.add_argument("--year",type=int,choices=(2024,2025),default=2024)
+    p.add_argument("--year",type=int,choices=(2024,2025,2026),default=2024)
+    p.add_argument("--through",default=None)
     a=p.parse_args()
     key=key_from_environment()
-    records,report=combine(key,year=a.year)
+    records,report=combine(key,year=a.year,through=a.through)
     if a.export:
         dest=Path(a.output)
         if not str(dest.resolve()).startswith("/tmp/"):
