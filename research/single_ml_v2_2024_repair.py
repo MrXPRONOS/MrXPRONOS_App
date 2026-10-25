@@ -13,37 +13,42 @@ import json,os,time,requests
 from single_ml_v2_git import ROOT,key_from_environment,open_sealed,seal,atomic_bytes
 from single_ml_v2_bsd_sportscore_2024 import SCHEMA,parse_sportscore,SCORE,SPORTSCORE_CAP,http_json
 
-AAD="bsd-sportscore-2024-repaired-days-v1"
+def aad_for_year(year):
+    if year not in (2024,2025):raise ValueError("Unsupported year")
+    return f"bsd-sportscore-{year}-repaired-days-v1"
+
+AAD=aad_for_year(2024)
 PATCH=ROOT/"bsd_sportscore"/"2024_repair.enc"
 
-def target_dates(*,root=ROOT,key):
+def target_dates(*,root=ROOT,key,year=2024):
     dates=set()
     for month in range(1,13):
-        p=Path(root)/"bsd_sportscore"/"2024"/f"{month:02d}.enc"
+        p=Path(root)/"bsd_sportscore"/str(year)/f"{month:02d}.enc"
         document=open_sealed(p.read_bytes(),key,
-                            "bsd-sportscore-2024-month:"+str(month))
-        if document.get("schema")!=SCHEMA or document.get("month")!=month:
+                            "bsd-sportscore-"+str(year)+"-month:"+str(month))
+        if document.get("schema")!=f"bsd_sportscore_{year}_private_verified_v1" or document.get("month")!=month:
             raise ValueError("Invalid base encrypted monthly snapshot")
         failed=document.get("audit",{}).get("sportscore",{}).get("failed_dates",[])
         if not isinstance(failed,list):
             raise ValueError("Missing SportScore original failed-date report")
         for row in failed:
             day=date.fromisoformat(row["date"])
-            if day.year!=2024 or day.month!=month:
+            if day.year!=year or day.month!=month:
                 raise ValueError("Repair request outside verified failure list")
             dates.add(str(day))
     return sorted(dates)
 
-def repair(*,root=ROOT,key=None,retries=3,session=None):
+def repair(*,root=ROOT,key=None,retries=3,session=None,year=2024):
+    associated_data=aad_for_year(year)
     root=Path(root)
     key=key or key_from_environment()
-    failed=target_dates(root=root,key=key)
-    if not failed:raise RuntimeError("No 2024 failed SportScore day to repair")
+    failed=target_dates(root=root,key=key,year=year)
+    if not failed:raise RuntimeError("No failed SportScore day to repair for "+str(year))
     if retries not in (1,2,3):
         raise ValueError("Retry cap must be 1..3")
-    path=root/"bsd_sportscore"/"2024_repair.enc"
+    path=root/"bsd_sportscore"/f"{year}_repair.enc"
     if path.exists():
-        prior=open_sealed(path.read_bytes(),key,AAD)
+        prior=open_sealed(path.read_bytes(),key,associated_data)
         if prior.get("original_failed_dates")!=failed:
             raise RuntimeError("Existing patch does not match original failure audit")
         return prior["audit"],False
@@ -98,16 +103,20 @@ def repair(*,root=ROOT,key=None,retries=3,session=None):
         "source_requests":counter["total"],
         "sportscore_daily_ceiling_unpaged":200,
         "not_globally_exhaustive":True}
-    envelope={"schema":AAD,"year":2024,
+    envelope={"schema":associated_data,"year":year,
         "original_failed_dates":failed,"created_at":datetime.now(timezone.utc).isoformat(),
         "audit":audit,"matches":list(seen.values())}
-    atomic_bytes(path,seal(envelope,key,AAD))
-    verify=open_sealed(path.read_bytes(),key,AAD)
-    if verify["audit"]!=audit or verify["schema"]!=AAD:
+    atomic_bytes(path,seal(envelope,key,associated_data))
+    verify=open_sealed(path.read_bytes(),key,associated_data)
+    if verify["audit"]!=audit or verify["schema"]!=associated_data:
         raise RuntimeError("AES-GCM repair verification failure")
     return audit,True
 
 if __name__=="__main__":
-    audit,_=repair()
+    import argparse
+    ap=argparse.ArgumentParser()
+    ap.add_argument("--year",type=int,default=2024,choices=(2024,2025))
+    args=ap.parse_args()
+    audit,_=repair(year=args.year)
     print("BSD_SPORTSCORE_2024_REPAIR",json.dumps(audit,ensure_ascii=False))
     if audit["unresolved_dates"]:raise SystemExit(2)
