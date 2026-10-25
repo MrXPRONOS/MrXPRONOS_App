@@ -32,6 +32,21 @@ def combine(key,*,root=ROOT):
         if any(not x["date"].startswith(f"2024-{month:02d}-") for x in doc["matches"]):
             raise ValueError("Mixed or incorrect archive month")
         months.append(doc)
+    repairs=None
+    repair_path=root/"bsd_sportscore"/"2024_repair.enc"
+    if repair_path.exists():
+        from single_ml_v2_2024_repair import AAD as REPAIR_AAD
+        repairs=open_sealed(repair_path.read_bytes(),key,REPAIR_AAD)
+        if repairs.get("schema")!=REPAIR_AAD or repairs.get("year")!=2024:
+            raise ValueError("Unverified encrypted 2024 repair archive")
+        expected_failures={
+            x["date"] for doc in months
+            for x in doc["audit"]["sportscore"].get("failed_dates",[])
+        }
+        if set(repairs.get("original_failed_dates",[]))!=expected_failures:
+            raise ValueError("2024 repair date list differs from archived failures")
+        if any(x.get("date") not in expected_failures for x in repairs.get("matches",[])):
+            raise ValueError("2024 repair contains unrequested calendar day")
     grouped=defaultdict(list)
     provider_entries=Counter()
     for entry in original["matches"]:
@@ -41,6 +56,10 @@ def combine(key,*,root=ROOT):
         for entry in doc["matches"]:
             grouped[match_key(entry)].append(entry)
             provider_entries[str(entry.get("source") or "unknown")]+=1
+    if repairs:
+        for entry in repairs["matches"]:
+            grouped[match_key(entry)].append(entry)
+            provider_entries["sportscore_2024_repaired"]+=1
     priority={"bsd_v2_2024":0,"openfootball_football_json_cc0":1,"sportscore_2024":2}
     kept=[]
     duplicated=0
@@ -75,6 +94,9 @@ def combine(key,*,root=ROOT):
        "baseline_openfootball_records":len(original["matches"]),
        "bsd_sportscore_month_records":sum(len(m["matches"]) for m in months),
        "source_entries":dict(provider_entries),
+       "repaired_2024_dates":repairs["audit"]["recovered_dates"] if repairs else 0,
+       "repair_2024_unresolved_dates":repairs["audit"]["unresolved_dates"] if repairs else [],
+       "sportscore_repair_extra_records":len(repairs["matches"]) if repairs else 0,
        "distinct_safe_matches":len(kept),
        "duplicates_same_identity_same_score":duplicated,
        "conflicting_outcome_identities_quarantined":conflicts,
