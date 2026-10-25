@@ -1,5 +1,659 @@
 [
   {
+    "id": "6537dbec83d403b3c836acce",
+    "kind": "article",
+    "title": "Chelsea vs Tottenham Hotspur : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-209607/",
+    "source_date": "2026-10-25T05:41:55.179144+00:00",
+    "visual_variant": "v2",
+    "image": "assets/images/editorial/match-bsd-match-209607-c475fdaf-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-209607-c475fdaf-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-209607-c475fdaf-social.jpg"
+  },
+  {
+    "id": "23f02415f18d0e428695b6d1",
+    "kind": "article",
+    "title": "Atlético Madrid vs Deportivo de A Coruña : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-213611/",
+    "source_date": "2026-10-25T05:41:55.179144+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-213611-9e29bf9c-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-213611-9e29bf9c-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-213611-9e29bf9c-social.jpg"
+  },
+  {
+    "id": "c0cefb42d4aea19adb84bd96",
+    "kind": "article",
+    "title": "AS Monaco vs Lille : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-210500/",
+    "source_date": "2026-10-25T05:41:55.179144+00:00",
+    "visual_variant": "v2",
+    "image": "assets/images/editorial/match-bsd-match-210500-82771955-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-210500-82771955-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-210500-82771955-social.jpg"
+  },
+  {
+    "id": "bb62ff4b79c16bfac79cf069",
+    "kind": "news",
+    "title": "Auxerre-Le Mans : chaîne TV, streaming… À quelle heure et où suivre ce match de Ligue 1 de deuxième partie de tableau ?",
+    "url": "https://www.onzemondial.com/ligue-1/auxerre-le-mans-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-ce-match-de-ligue-1-de-deuxieme-partie-de-tableau-1003911",
+    "source_date": "2026-10-25T04:50:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c7dc9ac74224f1ae7168ab54",
+    "kind": "news",
+    "title": "Toulouse-Troyes : chaîne TV, streaming… À quelle heure et où suivre ce match de la 8ème journée de Ligue 1 ?",
+    "url": "https://www.onzemondial.com/ligue-1/toulouse-troyes-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-ce-match-de-la-8eme-journee-de-ligue-1-1003870",
+    "source_date": "2026-10-25T03:50:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "40f08b58382ef612c108f695",
+    "kind": "news",
+    "title": "« J’aurais été en colère à leur place » : Julián Álvarez demande pardon à l’Atlético de Madrid !",
+    "url": "https://www.footmercato.net/a3110518028200086184-jaurais-ete-en-colere-a-leur-place-julian-alvarez-demande-pardon-a-latletico-de-madrid",
+    "source_date": "2026-10-24T22:14:31+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "313a6137db3d44e92fccf5c2",
+    "kind": "news",
+    "title": "Coupe de la confédération: Al-Ahli Tripoli s’éclate face au Welwalu Adigrat et se qualifie pour la phase finale",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261024-coupe-de-la-conf%C3%A9d%C3%A9ration-al-ahli-tripoli-s-%C3%A9clate-face-au-welwalu-adigrat-et-se-qualifie-pour-la-phase-finale",
+    "source_date": "2026-10-24T22:04:32+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "741c59164118cebbc8b4efeb",
+    "kind": "news",
+    "title": "Lorient bientôt européen ? Koscielny répond au propriétaire !",
+    "url": "https://www.onzemondial.com/ligue-1/lorient-bientot-europeen-koscielny-repond-au-proprietaire-1004794",
+    "source_date": "2026-10-24T22:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e3569f5c1894dd1f8e8bb661",
+    "kind": "news",
+    "title": "FC Barcelone : la défaite face au PSG a eu une grosse conséquence",
+    "url": "https://www.footmercato.net/a6640116036942066687-barcelone-la-defaite-face-au-psg-a-eu-une-grosse-consequence",
+    "source_date": "2026-10-24T21:55:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "bf5d09246d98d157d2e944c9",
+    "kind": "news",
+    "title": "Ligue des champions CAF: le Pyramids FC et le RS Berkane font le travail, l’Espérance de Tunis passe de justesse",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261024-ligue-des-champions-caf-le-pyramids-fc-et-le-rs-berkane-font-le-travail-l-esp%C3%A9rance-de-tunis-passe-de-justesse",
+    "source_date": "2026-10-24T21:38:49+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c904038d1fb191de3022a410",
+    "kind": "news",
+    "title": "Equipe de France : \"On fera confiance à notre légende, notre sélectionneur, pour faire ses choix\" ... Le petit message de Thauvin à Zidane",
+    "url": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-on-fera-confiance-a-notre-legende-notre-selectionneur-pour-faire-ses-choix-le-petit-message-de-thauvin-a-zidane-1004858",
+    "source_date": "2026-10-24T21:35:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f8e5f690eca04af96092fb86",
+    "kind": "news",
+    "title": "Paris FC : les gros regrets de Pierre Lees-Melou après la défaite à Lens",
+    "url": "https://www.footmercato.net/a2835223969906495473-paris-fc-les-gros-regrets-de-pierre-lees-melou-apres-la-defaite-a-lens",
+    "source_date": "2026-10-24T21:12:07+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "fa9c757f26eff0a8a5fdba04",
+    "kind": "news",
+    "title": "Ligue des champions CAF: le Mamelodi Sundowns, tenant du titre, prend déjà la porte",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261024-ligue-des-champions-caf-le-mamelodi-sundowns-tenant-du-titre-prend-d%C3%A9j%C3%A0-la-porte",
+    "source_date": "2026-10-24T15:13:22+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0cd36c10ed1e4e3cdaf1892c",
+    "kind": "news",
+    "title": "Angers-Lorient : streaming, chaîne TV… À quelle heure et où suivre cette rencontre de Ligue 1 entre deux équipes au dynamiques opposées ?",
+    "url": "https://www.onzemondial.com/ligue-1/angers-lorient-streaming-chaine-tv-a-quelle-heure-et-ou-suivre-cette-rencontre-de-ligue-1-entre-deux-equipes-au-dynamiques-opposees-1003903",
+    "source_date": "2026-10-25T04:30:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b19ff90091a80337b02c82fb",
+    "kind": "news",
+    "title": "Monaco-Lille : chaîne TV, streaming… À quelle heure et où suivre cette affiche entre européens comptant pour la 8ème journée de Ligue 1 ?",
+    "url": "https://www.onzemondial.com/ligue-1/monaco-lille-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-cette-affiche-entre-europeens-comptant-pour-la-8eme-journee-de-ligue-1-1003894",
+    "source_date": "2026-10-25T04:10:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "26b22e53378ea6b501344031",
+    "kind": "news",
+    "title": "Florian Thauvin, héros de la victoire de Lens contre le Paris FC : « Ce but-là, je vais le chercher avec la rage »",
+    "url": "https://www.sofoot.com/breves/florian-thauvin-heros-de-la-victoire-de-lens-contre-le-paris-fc-ce-but-la-je-vais-le-chercher-avec-la-rage",
+    "source_date": "2026-10-24T21:56:09+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "24598fce0dd64f8896da57c7",
+    "kind": "news",
+    "title": "Lens - Paris FC : \"On a un gros mental\" ... L'énorme joie de Cahuzac",
+    "url": "https://www.onzemondial.com/ligue-1/lens-paris-fc-on-a-un-gros-mental-lenorme-joie-de-cahuzac-1004869",
+    "source_date": "2026-10-24T21:55:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "598a664a4b17ced6d14ca11c",
+    "kind": "news",
+    "title": "FC Barcelone : l’hommage poignant de Joan Laporta à Lionel Messi",
+    "url": "https://www.footmercato.net/a4660901163081117278-fc-barcelone-lhommage-poignant-de-joan-laporta-a-lionel-messi",
+    "source_date": "2026-10-24T21:50:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "36cfa7e61df2229378e30240",
+    "kind": "news",
+    "title": "Lens : l’hommage de Florian Thauvin à Cahuzac et Leca",
+    "url": "https://www.footmercato.net/a3487557232871589012-lens-lhommage-de-florian-thauvin-a-yannick-cahuzac",
+    "source_date": "2026-10-24T21:46:24+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f23f709737bcc7974fd0ef63",
+    "kind": "news",
+    "title": "RC Lens : \"Je suis impressionné\" : Yannick Cahuzac souligne la force mentale de son groupe après la victoire face au Paris FC",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-je-suis-impressionne-yannick-cahuzac-souligne-la-force-mentale-de-son-groupe-apres-la-victoire-face-au-paris-fc-543457.html",
+    "source_date": "2026-10-24T21:40:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "40551344146aa309d286c5b3",
+    "kind": "news",
+    "title": "Monaco - Lille : la superbe passe d'armes entre Filipe Luis et Ancelotti avant le choc",
+    "url": "https://www.onzemondial.com/ligue-1/monaco-lille-la-superbe-passe-darmes-entre-filipe-luis-et-ancelotti-avant-le-choc-1004787",
+    "source_date": "2026-10-24T21:33:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7e4bcc0356a698fe2ba40f7a",
+    "kind": "news",
+    "title": "RC Lens : \"Je démontre tous les week-ends que je suis performant\", Florian Thauvin envoie un message à Zinédine Zidane !",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-je-demontre-tous-les-week-ends-que-je-suis-performant-florian-thauvin-envoie-un-message-a-zinedine-zidane-543456.html",
+    "source_date": "2026-10-24T21:31:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5bdf306285e99ac9a2c613c2",
+    "kind": "news",
+    "title": "« J’ai gueulé à la mi-temps » : Florian Thauvin explique le réveil de Lens contre le Paris FC",
+    "url": "https://www.footmercato.net/a663932126550079944-jai-gueule-a-la-mi-temps-florian-thauvin-explique-le-reveil-de-lens-contre-le-paris-fc",
+    "source_date": "2026-10-24T21:27:46+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ddfcf74799ffb8afd7926f52",
+    "kind": "news",
+    "title": "FC Nantes : Grégory Poirier est fier des Canaris malgré la défaite face à l'ASSE",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-fc-nantes-gregory-poirier-est-fier-des-canaris-malgre-la-defaite-face-a-l-asse-543453.html",
+    "source_date": "2026-10-24T21:25:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3ccc21df4b66699b6f00446e",
+    "kind": "news",
+    "title": "RC Lens : Florian Thauvin raconte son but sensationnel face au Paris FC et sa 300ème en Ligue 1",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-florian-thauvin-raconte-son-but-sensationnel-face-au-paris-fc-et-sa-300eme-en-ligue-1-543452.html",
+    "source_date": "2026-10-24T21:25:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "acb8dd8780f7ae4dc2563762",
+    "kind": "news",
+    "title": "Equipe de France : le nouvel appel du pied de Thauvin à Zidane",
+    "url": "https://www.footmercato.net/a3314947102482255941-equipe-de-france-le-nouvel-appel-du-pied-de-thauvin-a-zidane",
+    "source_date": "2026-10-24T21:21:58+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a37ee81e512c344af99d8d22",
+    "kind": "news",
+    "title": "Lens : Florian Thauvin fait mieux que Messi et Neymar",
+    "url": "https://www.footmercato.net/a4697571710255622079-lens-florian-thauvin-fait-mieux-que-messi-et-neymar",
+    "source_date": "2026-10-24T21:08:01+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "59d74948f91f7925207670a0",
+    "kind": "news",
+    "title": "Première Ligue : L’OL Lyonnes écrase Marseille",
+    "url": "https://www.sofoot.com/breves/premiere-ligue-lol-lyonnes-ecrase-marseille",
+    "source_date": "2026-10-24T21:07:43+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "492d790c2c78a5bf5329c7d6",
+    "kind": "news",
+    "title": "RC Lens : Thorgan Hazard libéré après son premier but avec Lens",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-thorgan-hazard-libere-apres-son-premier-but-avec-lens-543448.html",
+    "source_date": "2026-10-24T21:02:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "41f65f9dc7591ae50f3625be",
+    "kind": "news",
+    "title": "Ligue 2 : Saint-Étienne fait sauter Nantes sur le gong et s’envole en tête du championnat",
+    "url": "https://www.sofoot.com/breves/ligue-2-saint-etienne-fait-sauter-nantes-sur-le-gong-et-senvole-en-tete-du-championnat",
+    "source_date": "2026-10-24T20:59:05+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "10a5ac4c3d7ae1ede5cadc4c",
+    "kind": "news",
+    "title": "Ligue 1 : Lens prive le Paris FC de la première place grâce à un immense Florian Thauvin, buteur et passeur",
+    "url": "https://www.sofoot.com/breves/ligue-1-lens-prive-le-paris-fc-de-la-premiere-place-grace-a-un-immense-florian-thauvin-buteur-et-passeur",
+    "source_date": "2026-10-24T20:48:45+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-25T05:41:55.498593+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "a4c9744b14eb6364222fa2a0",
     "kind": "news",
     "title": "Lens-Paris FC : chaîne TV, streaming… À quelle heure et où suivre cette prometteuse affiche de la 8ème journée de Ligue 1 ?",
@@ -18,7 +672,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0eff41e99a54fbbcc2b012d8",
@@ -39,7 +693,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a5daca8ff9c8b65fbc9869e4",
@@ -60,7 +714,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f22584eea93b6b9fe1d3fca5",
@@ -81,7 +735,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7a7940be5f5cfda89fac4bf3",
@@ -144,7 +798,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3214b78adf19b9c9293dfc10",
@@ -165,7 +819,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "fa6a83da5de71534a4246791",
@@ -186,7 +840,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "71f7eb091f1543ccf88803d0",
@@ -207,7 +861,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d7e050a75654bbedc56c1199",
@@ -228,7 +882,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "62b0925e962b91981cbbdac5",
@@ -249,7 +903,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "efb9e7d8ab14d068067a314e",
@@ -270,7 +924,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "58be7a5409e2c31654aeb910",
@@ -291,7 +945,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "445385000219dd47b618630c",
@@ -312,7 +966,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0ff4b2a7cdfe4d8befa75f54",
@@ -333,7 +987,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2263992d759c6945b9ecbe1c",
@@ -354,7 +1008,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4b018f658583740214464298",
@@ -375,7 +1029,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "eabceda60d1a126286d60d9e",
@@ -396,7 +1050,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "85a66fb60880ddf7e292001f",
@@ -417,7 +1071,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4080cdc470fdefd30d7e3197",
@@ -438,7 +1092,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "42e2ea78c7babfeed14121e8",
@@ -459,7 +1113,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "12cd47dc9239db5afb546524",
@@ -480,7 +1134,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0d44fe48a52916a756407453",
@@ -501,7 +1155,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e7187fec885731efd38ea858",
@@ -522,7 +1176,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ba5421b5c1eebcfad5ced714",
@@ -543,7 +1197,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c1177e02650ff6a25b86745a",
@@ -564,7 +1218,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e02f68617ec6af6029d6bddd",
@@ -585,7 +1239,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "06573a7234df62d9838bca0d",
@@ -606,7 +1260,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "66c403a223046902f436ace9",
@@ -627,7 +1281,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9d492c003b8387ab6f6e838c",
