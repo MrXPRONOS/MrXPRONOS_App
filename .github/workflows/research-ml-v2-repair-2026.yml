@@ -1,0 +1,95 @@
+name: Research ML V2 - Repair 2026 SportScore failed days
+on:
+  push:
+    branches: [research/single-ml-v2-20261024]
+    paths: ['.github/workflows/research-ml-v2-repair-2026.yml']
+permissions:
+  contents: write
+concurrency:
+  group: ml-v2-encrypted-history
+  cancel-in-progress: false
+jobs:
+  repair-completed-2026:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/single-ml-v2-20261024
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install crypto and HTTP clients
+        run: python -m pip install cryptography requests
+      - name: Test that 2026 repair is restricted to failed, completed days
+        run: PYTHONPATH=.:research python -m unittest discover -s research -p 'test_single_ml_v2_2026_repair.py' -v
+      - name: Authenticate all 2026 monthly archives and detect missing days
+        id: inspect
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python - <<'PY'
+          import os
+          from single_ml_v2_git import key_from_environment
+          from single_ml_v2_2024_repair import target_dates
+          missing=target_dates(key=key_from_environment(),year=2026,through="2026-10-24")
+          print("2026_ORIGINAL_SPORTSCORE_FAILED_DAYS",len(missing))
+          with open(os.environ["GITHUB_OUTPUT"],"a") as fd:fd.write("missing="+str(len(missing))+"\n")
+          PY
+      - name: Retry only unavailable 2026 days and AES-GCM seal patch
+        id: repair
+        if: steps.inspect.outputs.missing != '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          PYTHONPATH=.:research python research/single_ml_v2_2024_repair.py --year 2026 --through 2026-10-24
+          status=$?
+          set -e
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          if [[ "$status" != 0 && "$status" != 2 ]]; then exit "$status";fi
+      - name: Independently inspect decrypted 2026 repair
+        if: steps.inspect.outputs.missing != '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python - <<'PY'
+          from pathlib import Path
+          from single_ml_v2_git import key_from_environment,open_sealed
+          from single_ml_v2_2024_repair import aad_for_year
+          path=Path('research/encrypted_football/bsd_sportscore/2026_repair.enc')
+          d=open_sealed(path.read_bytes(),key_from_environment(),aad_for_year(2026))
+          assert d['schema']==aad_for_year(2026) and d['year']==2026
+          assert len(d['original_failed_dates'])==d['audit']['original_failed_dates']
+          assert all(x["date"] in d['original_failed_dates'] and x["date"]<="2026-10-24" for x in d['matches'])
+          print("2026_FAILED_RECOVERED",d['audit']['recovered_dates'])
+          print("2026_FAILED_STILL_UNRESOLVED",len(d['audit']['unresolved_dates']))
+          print("2026_REPAIRED_SPORTSCORE_RECORDS",d['audit']['additional_source_records'])
+          PY
+      - name: Commit encrypted 2026 recovery patch, no plaintext
+        if: steps.inspect.outputs.missing != '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add research/encrypted_football/bsd_sportscore/2026_repair.enc
+          if ! git diff --cached --quiet; then
+            git commit -m 'data(research): encrypted recovered SportScore 2026 historical days'
+            git fetch origin research/single-ml-v2-20261024
+            git rebase origin/research/single-ml-v2-20261024
+            git push origin HEAD:research/single-ml-v2-20261024
+          fi
+      - name: Require all originally failed 2026 dates recovered
+        shell: bash
+        env:
+          FAILED_REPAIR: ${{ steps.repair.outputs.status }}
+        run: |
+          if [[ -n "$FAILED_REPAIR" && "$FAILED_REPAIR" != "0" ]]; then
+            echo "::error::2026 SportScore repair incomplete; encrypted partial record committed"
+            exit 1
+          fi
+          echo 'SUCCESS: all originally failed 2026 historical days addressed.'
