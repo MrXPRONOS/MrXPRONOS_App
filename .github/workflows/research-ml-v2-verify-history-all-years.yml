@@ -1,5 +1,5 @@
 name: Research ML V2 - Verify all historical years unchanged
-# Regression audit after 2025 source-label correction
+# Regression audit after 2026 BSD source-ID reconciliation (9 score conflicts excluded)
 on:
   push:
     branches: [research/single-ml-v2-20261024]
@@ -41,7 +41,7 @@ jobs:
           from single_ml_v2_git import key_from_environment
           from single_ml_v2_2024_union import combine
           key=key_from_environment()
-          expected={2024:91331,2025:87451,2026:76943}
+          expected={2024:91331,2025:87451,2026:76934}
           total=0
           for year,number in expected.items():
               through=date(2026,10,24) if year==2026 else None
@@ -58,7 +58,7 @@ jobs:
               assert len({m['id'] for m in rows})==len(rows)
               total+=number
               print('VERIFIED_HISTORICAL_YEAR',year,'MATCHES',number)
-          assert total==255725
+          assert total==255716
           print('ALL_THREE_YEARS_CERTIFIED_RESEARCH_IDENTITIES',total)
           print('NO_PLAINTEXT_FIXTURE_ARCHIVES_WRITTEN')
           PY
