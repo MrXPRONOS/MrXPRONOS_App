@@ -1,4 +1,5 @@
 import sys,tempfile,unittest
+from unittest import mock
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from single_ml_v2_git import seal,open_sealed,atomic_bytes
@@ -27,7 +28,7 @@ class RepairTests(unittest.TestCase):
                 atomic_bytes(path,seal(original,key,"bsd-sportscore-2024-month:"+str(m)))
             self.assertEqual(target_dates(root=root,key=key),["2024-03-09"])
             sess=Session()
-            with unittest.mock.patch("single_ml_v2_2024_repair.time.sleep",return_value=None):
+            with mock.patch("single_ml_v2_2024_repair.time.sleep",return_value=None):
                 report,created=repair(root=root,key=key,session=sess)
             self.assertTrue(created)
             self.assertEqual(report["recovered_dates"],1)
@@ -40,6 +41,4 @@ class RepairTests(unittest.TestCase):
             second,created=repair(root=root,key=key,session=sess)
             self.assertFalse(created)
             self.assertEqual(second["source_requests"],1)
-if __name__=="__main__":
-    from unittest import mock
-    unittest.main()
+if __name__=="__main__":unittest.main()
