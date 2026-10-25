@@ -58,7 +58,7 @@ def ft_row(day,home,away,hs,aws,league,provider,identifier,*,kickoff=None):
         "home_team":home,"away_team":away,"competition":league,
         "home_score":hs,"away_score":aws,"status_group":4,
         "is_finished":True,"source":provider,
-        "source_date_precision":"calendar_date","source_year":2024,
+        "source_date_precision":"calendar_date","source_year":day.year,
         "source_home_team_id":None,"source_away_team_id":None,
         "source_competition_id":None}
     if kickoff is not None:
@@ -76,7 +76,7 @@ def parse_bsd(event,day):
     home,away=event.get("home_team"),event.get("away_team")
     league=event.get("league_name") or event.get("competition_name") or event.get("league_id")
     m=ft_row(day,home,away,event.get("home_score"),event.get("away_score"),
-             league,"bsd_v2_2024",event.get("id"),kickoff=kickoff)
+             league,"bsd_v2_"+str(day.year),event.get("id"),kickoff=kickoff)
     if m:
         m["source_home_team_id"]=event.get("home_team_id")
         m["source_away_team_id"]=event.get("away_team_id")
@@ -98,7 +98,7 @@ def parse_sportscore(event,day):
     if not identity:
         identity=sha256((str(day)+"|"+str(home)+"|"+str(away)+"|"+str(league)).encode()).hexdigest()[:24]
     return ft_row(day,home,away,event.get("home_score"),event.get("away_score"),
-                  league,"sportscore_2024",sha256(str(identity).encode()).hexdigest()[:24],
+                  league,"sportscore_"+str(day.year),sha256(str(identity).encode()).hexdigest()[:24],
                   kickoff=when)
 
 def identity(row):
@@ -115,8 +115,8 @@ def http_json(session,url,headers,params,counter,*,sleep=.12):
     time.sleep(sleep)
     return result
 
-def bsd_month(session,month,token,counter):
-    start=date(2024,month,1);end=date(2024,month,calendar.monthrange(2024,month)[1])
+def bsd_month(session,month,token,counter,*,year=2024):
+    start=date(year,month,1);end=date(year,month,calendar.monthrange(year,month)[1])
     rows={};total=None;pages=0
     while True:
         if pages>=MAX_BSD_PAGES:raise RuntimeError("BSD pagination incomplete")
@@ -143,17 +143,17 @@ def bsd_month(session,month,token,counter):
     rejected=0
     for event in rows.values():
         dt=utc_dt(event.get("event_date"))
-        if not dt or dt.year!=2024 or dt.month!=month:
+        if not dt or dt.year!=year or dt.month!=month:
             rejected+=1;continue
         m=parse_bsd(event,dt.date())
         if m is None:rejected+=1;continue
         accepted[m["id"]]=m
     return list(accepted.values()),{"reported":total,"pages":pages,"parsed":len(accepted),"rejected":rejected}
 
-def score_month(session,month,counter):
+def score_month(session,month,counter,*,year=2024):
     validated={};days=[];truncated=0;failures=[]
-    for daynum in range(1,calendar.monthrange(2024,month)[1]+1):
-        day=date(2024,month,daynum)
+    for daynum in range(1,calendar.monthrange(year,month)[1]+1):
+        day=date(year,month,daynum)
         try:
             payload=http_json(session,SCORE,{"Accept":"application/json"},
                   {"sport":"football","date":str(day),"status":"finished",
@@ -232,40 +232,44 @@ def merge_with_openfootball(bsd_rows,score_rows,of_rows):
 
 def month_file(month):return BASE_DIR/f"{month:02d}.enc"
 
-def collect(*,root=ROOT,budget=MAX_REQUESTS):
+def collect(*,root=ROOT,budget=MAX_REQUESTS,year=2024):
+    if year not in (2024,2025):raise ValueError("Supported years are 2024 and 2025")
     if not os.getenv("BSD_API_KEY"):
         raise RuntimeError("BSD_API_KEY missing")
     key=key_from_environment()
     root=Path(root)
     with requests.Session() as session:
-        original=open_sealed((root/"openfootball/2024.enc").read_bytes(),key,
-                             "openfootball-cc0-calendar-2024")
-        if original.get("year")!=2024:
-            raise RuntimeError("Original OpenFootball annual archive missing")
         of_by_month=defaultdict(list)
-        for row in original["matches"]:
-            of_by_month[int(row["date"][5:7])].append(row)
+        if year==2024:
+            original=open_sealed((root/"openfootball/2024.enc").read_bytes(),key,
+                                 "openfootball-cc0-calendar-2024")
+            if original.get("year")!=2024:
+                raise RuntimeError("Original OpenFootball annual archive missing")
+            for row in original["matches"]:
+                of_by_month[int(row["date"][5:7])].append(row)
+        else:
+            original={"matches":[]}
         metrics=Counter()
         failures=[]
-        print("OPENFOOTBALL_2024_BASE",len(original["matches"]),flush=True)
+        print("OPENFOOTBALL_REFERENCE_YEAR",year,"COUNT",len(original["matches"]),flush=True)
         for month in range(1,13):
-            path=root/"bsd_sportscore"/"2024"/f"{month:02d}.enc"
+            path=root/"bsd_sportscore"/str(year)/f"{month:02d}.enc"
             if path.exists():
                 cached=open_sealed(path.read_bytes(),key,
-                                   "bsd-sportscore-2024-month:"+str(month))
-                if cached.get("schema")!=SCHEMA or cached.get("month")!=month:
+                                   "bsd-sportscore-"+str(year)+"-month:"+str(month))
+                if cached.get("schema")!=f"bsd_sportscore_{year}_private_verified_v1" or cached.get("month")!=month or cached.get("year")!=year:
                     raise RuntimeError("Bad existing encrypted monthly snapshot")
                 metrics["months_already_saved"]+=1
                 continue
             try:
-                bsd,ba=bsd_month(session,month,os.environ["BSD_API_KEY"],metrics)
-                sc,sa=score_month(session,month,metrics)
+                bsd,ba=bsd_month(session,month,os.environ["BSD_API_KEY"],metrics,year=year)
+                sc,sa=score_month(session,month,metrics,year=year)
                 merged,comparison=merge_with_openfootball(bsd,sc,of_by_month[month])
                 report={"bsd":ba,"sportscore":sa,"comparison":comparison,
                         "new_data_scope":"BSD finished + SportScore verified unique; NOT every world match",
                         "sportscore_not_exhaustive_if_200":True,
                         "source_license":"BSD internal R&D; SportScore API attribution required on public displays"}
-                envelope={"schema":SCHEMA,"month":month,"year":2024,
+                envelope={"schema":f"bsd_sportscore_{year}_private_verified_v1","month":month,"year":year,
                     "created_at":datetime.now(timezone.utc).isoformat(),
                     "audit":report,"matches":merged}
                 payload=seal(envelope,key,"bsd-sportscore-2024-month:"+str(month))
@@ -285,16 +289,20 @@ def collect(*,root=ROOT,budget=MAX_REQUESTS):
                 failures.append({"month":month,"error":type(exc).__name__+":"+str(exc)[:90]})
                 print("BSD_SPORTSCORE_MONTH_FAILED",month,type(exc).__name__,flush=True)
                 break
-    status={"year":2024,"months_newly_saved":metrics["months_saved"],
+    status={"year":year,"months_newly_saved":metrics["months_saved"],
         "months_already_saved":metrics["months_already_saved"],
         "months_remaining":12-metrics["months_saved"]-metrics["months_already_saved"],
         "bsd_matches_this_run":metrics["bsd_new_matches"],
         "sportscore_extra_this_run":metrics["sportscore_new_vs_bsd_and_openfootball"],
         "provider_http_requests":metrics["total"],"failures":failures}
-    print("BSD_SPORTSCORE_2024_STATUS",json.dumps(status),flush=True)
+    print("BSD_SPORTSCORE_YEAR_STATUS",json.dumps(status),flush=True)
     return status
 
 if __name__=="__main__":
-    status=collect()
+    import argparse
+    cli=argparse.ArgumentParser()
+    cli.add_argument("--year",type=int,default=2024,choices=(2024,2025))
+    args=cli.parse_args()
+    status=collect(year=args.year)
     if status["months_remaining"] or status["failures"]:
         raise SystemExit(2)
