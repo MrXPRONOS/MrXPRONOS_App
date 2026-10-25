@@ -1,0 +1,43 @@
+name: Research ML V2 - SportScore historical pagination test
+on:
+  push:
+    branches: [research/single-ml-v2-20261024]
+    paths: ['.github/workflows/research-ml-v2-sportscore-pagination.yml']
+permissions:
+  contents: read
+jobs:
+  one-day:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compare genuine distinct fixture IDs at offsets and page 2
+        run: |
+          python - <<'PY'
+          import json,urllib.request,urllib.parse,hashlib
+          base="https://sportscore.com/api/v1/fixtures/"
+          def fetch(day,**opts):
+              q={"sport":"football","date":day,"status":"finished","limit":200,**opts}
+              req=urllib.request.Request(base+"?"+urllib.parse.urlencode(q),headers={"Accept":"application/json"})
+              with urllib.request.urlopen(req,timeout=25) as r:doc=json.load(r)
+              if not isinstance(doc,dict) or not isinstance(doc.get("matches"),list):
+                  raise ValueError("Unexpected SportScore schema")
+              ids={hashlib.sha256(json.dumps(m,sort_keys=True).encode()).hexdigest() for m in doc["matches"]}
+              return {"count":doc.get("count"),"received":len(doc["matches"]),"ids":ids}
+          for day in ("2024-10-20","2025-10-20"):
+              try:
+                  first=fetch(day)
+                  print("BASE",day,first["received"],"reported",first["count"])
+                  for options in ({"offset":200},{"page":2},{"limit":100,"offset":100}):
+                      try:
+                          other=fetch(day,**options)
+                          shared=len(first["ids"]&other["ids"])
+                          new=len(other["ids"]-first["ids"])
+                          print("PAGINATION",day,options,"received",other["received"],"shared",shared,"new",new,"reported",other["count"])
+                      except Exception as err:
+                          print("PAGINATION_ERROR",day,options,type(err).__name__)
+              except Exception as err:
+                  print("BASE_ERROR",day,type(err).__name__)
+          PY
