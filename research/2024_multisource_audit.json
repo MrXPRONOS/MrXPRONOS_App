@@ -6,18 +6,22 @@
   "source_entries": {
     "openfootball_cc0": 5789,
     "bsd_v2_2024": 20239,
-    "sportscore_2024": 63186
+    "sportscore_2024": 63186,
+    "sportscore_2024_repaired": 3530
   },
-  "distinct_safe_matches": 87948,
-  "duplicates_same_identity_same_score": 1266,
-  "conflicting_outcome_identities_quarantined": 0,
+  "recovered_provider_failed_dates": 19,
+  "remaining_provider_failed_dates": [],
+  "sportscore_repair_extra_records": 3530,
+  "distinct_safe_matches": 91331,
+  "duplicates_same_identity_same_score": 1393,
+  "conflicting_outcome_identities_quarantined": 10,
   "kept_by_source": {
-    "bsd_v2_2024": 20239,
+    "bsd_v2_2024": 20229,
     "openfootball_football_json_cc0": 4523,
-    "sportscore_2024": 63186
+    "sportscore_2024": 66579
   },
-  "sportscore_daily_limit": "200; some 2024 dates may be truncated",
-  "sportscore_failed_days": 19,
+  "sportscore_daily_limit": "200; some dates may be truncated",
+  "sportscore_original_failed_days": 19,
   "sportscore_at_cap_days": 278,
   "scope": "audited source coverage only; NOT all real-world football matches",
   "sources": "OpenFootball CC0, BSD API, SportScore",
