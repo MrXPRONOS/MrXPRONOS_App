@@ -75,4 +75,5 @@ jobs:
             git push origin HEAD:research/single-ml-v2-20261024
           fi
       - name: Confirm research-only audit verified
-        run: echo 'SUCCESS: 2026 year-to-date AES-GCM football history verified; no raw scores committed'
+        run: |
+          echo 'SUCCESS: 2026 year-to-date AES-GCM football history verified; no raw scores committed'
