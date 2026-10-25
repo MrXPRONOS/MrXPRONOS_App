@@ -1,4 +1,5 @@
 name: Research ML V2 - Audit 2026 football through Oct 24
+# Includes authenticated BSD source-ID reconciliation and quarantine of contradictory labels
 on:
   push:
     branches: [research/single-ml-v2-20261024]
