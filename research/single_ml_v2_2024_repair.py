@@ -14,15 +14,21 @@ from single_ml_v2_git import ROOT,key_from_environment,open_sealed,seal,atomic_b
 from single_ml_v2_bsd_sportscore_2024 import SCHEMA,parse_sportscore,SCORE,SPORTSCORE_CAP,http_json
 
 def aad_for_year(year):
-    if year not in (2024,2025):raise ValueError("Unsupported year")
+    if year not in (2024,2025,2026):raise ValueError("Unsupported year")
     return f"bsd-sportscore-{year}-repaired-days-v1"
 
 AAD=aad_for_year(2024)
 PATCH=ROOT/"bsd_sportscore"/"2024_repair.enc"
 
-def target_dates(*,root=ROOT,key,year=2024):
+def target_dates(*,root=ROOT,key,year=2024,through=None):
+    if year==2026 and through is None:
+        raise ValueError("Require completed cutoff for partial 2026 repair")
+    if isinstance(through,str):through=date.fromisoformat(through)
+    if through is not None:
+        if through.year!=year or through>=datetime.now(timezone.utc).date():
+            raise ValueError("Repair cutoff must not include current or future UTC day")
     dates=set()
-    for month in range(1,13):
+    for month in range(1,(through.month if through is not None else 12)+1):
         p=Path(root)/"bsd_sportscore"/str(year)/f"{month:02d}.enc"
         document=open_sealed(p.read_bytes(),key,
                             "bsd-sportscore-"+str(year)+"-month:"+str(month))
@@ -38,11 +44,11 @@ def target_dates(*,root=ROOT,key,year=2024):
             dates.add(str(day))
     return sorted(dates)
 
-def repair(*,root=ROOT,key=None,retries=3,session=None,year=2024):
+def repair(*,root=ROOT,key=None,retries=3,session=None,year=2024,through=None):
     associated_data=aad_for_year(year)
     root=Path(root)
     key=key or key_from_environment()
-    failed=target_dates(root=root,key=key,year=year)
+    failed=target_dates(root=root,key=key,year=year,through=through)
     if not failed:raise RuntimeError("No failed SportScore day to repair for "+str(year))
     if retries not in (1,2,3):
         raise ValueError("Retry cap must be 1..3")
@@ -115,8 +121,9 @@ def repair(*,root=ROOT,key=None,retries=3,session=None,year=2024):
 if __name__=="__main__":
     import argparse
     ap=argparse.ArgumentParser()
-    ap.add_argument("--year",type=int,default=2024,choices=(2024,2025))
+    ap.add_argument("--year",type=int,default=2024,choices=(2024,2025,2026))
+    ap.add_argument("--through",default=None)
     args=ap.parse_args()
-    audit,_=repair(year=args.year)
+    audit,_=repair(year=args.year,through=args.through)
     print("BSD_SPORTSCORE_YEAR_REPAIR",args.year,json.dumps(audit,ensure_ascii=False))
     if audit["unresolved_dates"]:raise SystemExit(2)
