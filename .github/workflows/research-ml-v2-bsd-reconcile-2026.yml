@@ -1,0 +1,65 @@
+name: Research ML V2 - Reconcile BSD 2026 source IDs
+on:
+  push:
+    branches: [research/single-ml-v2-20261024]
+    paths: ['.github/workflows/research-ml-v2-bsd-reconcile-2026.yml']
+permissions:
+  contents: write
+concurrency:
+  group: ml-v2-encrypted-history
+  cancel-in-progress: false
+jobs:
+  source-id-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/single-ml-v2-20261024
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install minimal research libraries
+        run: python -m pip install cryptography requests
+      - name: Recheck original BSD provider IDs vs 2026 authenticated archived months
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python research/single_ml_v2_2026_bsd_reconcile.py
+      - name: Verify encrypted source-ID diagnostic and no plaintext data staged
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python - <<'PY'
+          from pathlib import Path
+          from single_ml_v2_git import key_from_environment,open_sealed
+          from single_ml_v2_2026_bsd_reconcile import AAD
+          p=Path('research/encrypted_football/bsd_sportscore/2026_bsd_reconcile.enc')
+          v=open_sealed(p.read_bytes(),key_from_environment(),AAD)
+          assert v['schema']==AAD and v['through']=='2026-10-24'
+          assert v['audit']['months']==10
+          assert len(v['omitted_bsd_source_records'])==v['audit']['omitted_distinct_bsd_source_ids']
+          print('2026_BSD_UNARCHIVED_SOURCE_IDS_PRESERVED_ENCRYPTED',v['audit']['omitted_distinct_bsd_source_ids'])
+          print('NO_AUTOMATIC_INFLATION_OF_ML_SAMPLE_SIZE')
+          PY
+      - name: Commit only sealed BSD missing-ID diagnostic
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add research/encrypted_football/bsd_sportscore/2026_bsd_reconcile.enc
+          unexpected="$(git diff --cached --name-only | grep -Ev '^research/encrypted_football/bsd_sportscore/2026_bsd_reconcile\.enc$' || true)"
+          if [[ -n "$unexpected" ]]; then echo "::error::Unexpected staged data";exit 1;fi
+          if ! git diff --cached --quiet; then
+            git commit -m 'data(research): encrypted 2026 BSD source-ID reconciliation'
+            git fetch origin research/single-ml-v2-20261024
+            git rebase origin/research/single-ml-v2-20261024
+            git push origin HEAD:research/single-ml-v2-20261024
+          fi
+      - name: Result
+        run: echo 'BSD 2026 source-ID completeness rechecked; provider observations sealed without exposing fixture-level data.'
