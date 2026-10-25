@@ -9,7 +9,7 @@ concurrency:
   group: ml-v2-encrypted-history
   cancel-in-progress: false
 jobs:
-  2026-year-to-date:
+  archive-2026-year-to-date:
     name: Encrypt 2026 completed months Jan to Oct 24
     runs-on: ubuntu-latest
     timeout-minutes: 120
