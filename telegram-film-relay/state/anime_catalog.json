@@ -1,7 +1,7 @@
 {
   "audit": {
     "category": "anime_catalog",
-    "checked_at": "2026-10-24T21:07:01.001427+00:00",
+    "checked_at": "2026-10-25T05:00:26.974031+00:00",
     "not_yet_indexed": [
       {
         "episode": 2,
@@ -681,7 +681,7 @@
       }
     ],
     "source_scan_complete": true,
-    "unnumbered_videos_skipped": 80
+    "unnumbered_videos_skipped": 79
   },
   "scans": {
     "-1001787980027": {
