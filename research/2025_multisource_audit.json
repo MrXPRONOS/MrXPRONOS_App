@@ -1,0 +1,28 @@
+{
+  "year": 2025,
+  "months_verified": 12,
+  "baseline_openfootball_records": 0,
+  "bsd_sportscore_month_records": 85518,
+  "source_entries": {
+    "bsd_v2_2025": 20251,
+    "sportscore_2025": 65267
+  },
+  "recovered_provider_failed_dates": 0,
+  "remaining_provider_failed_dates": [],
+  "sportscore_repair_extra_records": 0,
+  "distinct_safe_matches": 85518,
+  "duplicates_same_identity_same_score": 0,
+  "conflicting_outcome_identities_quarantined": 0,
+  "kept_by_source": {
+    "bsd_v2_2025": 20251,
+    "sportscore_2025": 65267
+  },
+  "sportscore_daily_limit": "200; some dates may be truncated",
+  "sportscore_original_failed_days": 10,
+  "sportscore_at_cap_days": 281,
+  "scope": "audited source coverage only; NOT all real-world football matches",
+  "sources": "OpenFootball CC0, BSD API, SportScore",
+  "verified_utc_kickoff_only_when_source_supplies_it": true,
+  "missing_xg_not_invented": true,
+  "no_supabase_or_neon": true
+}
