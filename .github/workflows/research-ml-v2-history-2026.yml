@@ -1,0 +1,115 @@
+name: Research ML V2 - 2026 history through Oct 24
+on:
+  push:
+    branches: [research/single-ml-v2-20261024]
+    paths: ['.github/workflows/research-ml-v2-history-2026.yml']
+permissions:
+  contents: write
+concurrency:
+  group: ml-v2-encrypted-history
+  cancel-in-progress: false
+jobs:
+  2026-year-to-date:
+    name: Encrypt 2026 completed months Jan to Oct 24
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/single-ml-v2-20261024
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Minimal isolated research packages
+        run: python -m pip install cryptography requests
+      - name: Ensure keys and Oct 24 is a past UTC day
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python - <<'PY'
+          import os
+          from datetime import date,datetime,timezone
+          from single_ml_v2_git import key_from_environment
+          assert len(key_from_environment())==32
+          assert os.getenv("BSD_API_KEY"), "Missing BSD API secret"
+          assert date(2026,10,24)<datetime.now(timezone.utc).date(), "Do not run before full day has completed UTC"
+          print("AUTHENTICATED_2026_HISTORY_CUTOFF 2026-10-24")
+          PY
+      - name: Run independent cutoff and year-specific source-ID regression tests
+        run: PYTHONPATH=.:research python -m unittest discover -s research -p 'test_single_ml_v2_2026_cutoff.py' -v
+      - name: Collect Jan 1 to Oct 24 2026 with full BSD pagination and daily SportScore
+        id: collecting
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          PYTHONPATH=.:research python research/single_ml_v2_bsd_sportscore_2024.py --year 2026 --through 2026-10-24
+          code=$?
+          set -e
+          echo "status=$code" >> "$GITHUB_OUTPUT"
+          if [[ "$code" != 0 && "$code" != 2 ]]; then
+            echo "::error::Unexpected 2026 collect failure"
+          fi
+      - name: Verify every persisted 2026 AES-256-GCM checkpoint without plaintext Git files
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python - <<'PY'
+          from pathlib import Path
+          from single_ml_v2_git import key_from_environment,open_sealed
+          key=key_from_environment()
+          months=0
+          bsd=0
+          sportscore=0
+          errors=0
+          capped=0
+          for m in range(1,11):
+              file=Path(f"research/encrypted_football/bsd_sportscore/2026/{m:02d}.enc")
+              if not file.exists():continue
+              doc=open_sealed(file.read_bytes(),key,f"bsd-sportscore-2026-month:{m}")
+              assert doc["year"]==2026 and doc["month"]==m
+              assert doc["schema"]=="bsd_sportscore_2026_private_verified_v1"
+              assert doc["cutoff_date"]=="2026-10-24"
+              assert all(x["date"][:7]==f"2026-{m:02d}" and x["date"]<="2026-10-24" for x in doc["matches"])
+              audit=doc["audit"]
+              assert audit["bsd"]["reported"]>=audit["bsd"]["parsed"]
+              bsd+=audit["bsd"]["parsed"]
+              sportscore+=audit["sportscore"]["parsed"]
+              errors+=audit["sportscore"]["days_failed"]
+              capped+=audit["sportscore"]["days_at_200_cap_incomplete"]
+              months+=1
+          print("2026_ENCRYPTED_MONTHS",months)
+          print("2026_BSD_CERTIFIED_GAMES",bsd)
+          print("2026_SPORTSCORE_CERTIFIED_RECORDS",sportscore)
+          print("2026_SPORTSCORE_FAILED_DATES",errors)
+          print("2026_SPORTSCORE_CAPPED_200_DATES",capped)
+          if months==0:raise SystemExit("ERROR zero 2026 encrypted months")
+          PY
+      - name: Commit only authenticated encrypted 2026 month records
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add research/encrypted_football/bsd_sportscore/2026/
+          unexpected="$(git diff --cached --name-only | grep -Ev '^research/encrypted_football/bsd_sportscore/2026/(0[1-9]|10)\.enc$' || true)"
+          if [[ -n "$unexpected" ]]; then echo "::error::Unexpected staged path";exit 1;fi
+          if ! git diff --cached --quiet; then
+            git commit -m 'data(research): encrypted 2026 football Jan to Oct 24 checkpoints'
+            git fetch origin research/single-ml-v2-20261024
+            git rebase origin/research/single-ml-v2-20261024
+            git push origin HEAD:research/single-ml-v2-20261024
+          fi
+      - name: Fail visibly on incomplete year-to-date but preserve checkpoints
+        shell: bash
+        env:
+          EXIT_CODE: ${{ steps.collecting.outputs.status }}
+        run: |
+          if [[ "$EXIT_CODE" != "0" ]]; then
+            echo "::error::2026 through Oct 24 only partially archived"
+            exit 1
+          fi
+          echo 'SUCCESS 2026 January through completed October 24 football history encrypted and saved'
