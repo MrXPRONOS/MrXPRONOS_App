@@ -272,10 +272,10 @@ def collect(*,root=ROOT,budget=MAX_REQUESTS,year=2024):
                 envelope={"schema":f"bsd_sportscore_{year}_private_verified_v1","month":month,"year":year,
                     "created_at":datetime.now(timezone.utc).isoformat(),
                     "audit":report,"matches":merged}
-                payload=seal(envelope,key,"bsd-sportscore-2024-month:"+str(month))
+                payload=seal(envelope,key,"bsd-sportscore-"+str(year)+"-month:"+str(month))
                 atomic_bytes(path,payload)
                 verified=open_sealed(path.read_bytes(),key,
-                        "bsd-sportscore-2024-month:"+str(month))
+                        "bsd-sportscore-"+str(year)+"-month:"+str(month))
                 if verified["audit"]!=report:raise RuntimeError("Encryption integrity mismatch")
                 metrics["months_saved"]+=1
                 metrics["bsd_new_matches"]+=len(bsd)
