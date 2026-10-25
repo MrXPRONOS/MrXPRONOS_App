@@ -10,11 +10,11 @@
   },
   "alert_levels": {
     "BNB": {
-      "direction": "down",
+      "direction": "up",
       "level": 0
     },
     "BTC": {
-      "direction": "down",
+      "direction": "up",
       "level": 0
     },
     "ETH": {
@@ -22,7 +22,7 @@
       "level": 0
     },
     "SOL": {
-      "direction": "down",
+      "direction": "up",
       "level": 0
     },
     "XRP": {
@@ -44,6 +44,10 @@
     },
     "b749ed0af0294525b34931bc": {
       "message_id": 22,
+      "number": 9
+    },
+    "eaf3122a414d9a7dfd5dd3da": {
+      "message_id": 47,
       "number": 9
     },
     "f9d78348be882c6834f8b7f4": {
@@ -130,6 +134,12 @@
       "sent_at": "2026-10-24T11:57:55.818715+00:00",
       "source": "CoinPaprika"
     },
+    "daily:01:2026-10-25:morning": {
+      "message_id": 44,
+      "number": 1,
+      "sent_at": "2026-10-25T12:30:52.314265+00:00",
+      "source": "CoinPaprika"
+    },
     "daily:02:2026-10-19:default": {
       "message_id": 12,
       "number": 2,
@@ -214,6 +224,12 @@
       "sent_at": "2026-10-24T11:57:58.503006+00:00",
       "source": "Alternative.me"
     },
+    "daily:05:2026-10-25:default": {
+      "message_id": 45,
+      "number": 5,
+      "sent_at": "2026-10-25T12:30:55.390008+00:00",
+      "source": "Alternative.me"
+    },
     "daily:06:2026-10-19:default": {
       "message_id": 11,
       "number": 6,
@@ -242,6 +258,12 @@
       "message_id": 40,
       "number": 6,
       "sent_at": "2026-10-24T11:58:00.730492+00:00",
+      "source": "CoinPaprika"
+    },
+    "daily:06:2026-10-25:default": {
+      "message_id": 46,
+      "number": 6,
+      "sent_at": "2026-10-25T12:30:58.538404+00:00",
       "source": "CoinPaprika"
     },
     "initial_history_01": {
@@ -291,6 +313,12 @@
       "number": 9,
       "sent_at": "2026-10-22T18:09:31.847473+00:00",
       "source": "Kraken Status"
+    },
+    "news:09:6ae34b71d7cc249a5ac1bdb8": {
+      "message_id": 47,
+      "number": 9,
+      "sent_at": "2026-10-25T12:44:21.042000+00:00",
+      "source": "Coinbase Status"
     },
     "news:09:e0f3d809276d38630d429f64": {
       "message_id": 36,
