@@ -1,4 +1,5 @@
 name: Research ML V2 - BSD SportScore whole year 2025
+# Rerun after date-scoped SportScore identity regression fix
 on:
   push:
     branches: [research/single-ml-v2-20261024]
