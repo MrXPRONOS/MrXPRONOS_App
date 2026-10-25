@@ -118,5 +118,5 @@ if __name__=="__main__":
     ap.add_argument("--year",type=int,default=2024,choices=(2024,2025))
     args=ap.parse_args()
     audit,_=repair(year=args.year)
-    print("BSD_SPORTSCORE_2024_REPAIR",json.dumps(audit,ensure_ascii=False))
+    print("BSD_SPORTSCORE_YEAR_REPAIR",args.year,json.dumps(audit,ensure_ascii=False))
     if audit["unresolved_dates"]:raise SystemExit(2)
