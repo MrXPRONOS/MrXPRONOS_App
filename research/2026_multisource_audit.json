@@ -1,0 +1,35 @@
+{
+  "year": 2026,
+  "months_verified": 10,
+  "calendar_days_requested": 297,
+  "calendar_days_with_certified_fixture": 297,
+  "calendar_days_without_certified_fixture": 0,
+  "cutoff_utc_day": "2026-10-24",
+  "months_requested": 10,
+  "baseline_openfootball_records": 0,
+  "bsd_sportscore_month_records": 76943,
+  "source_entries": {
+    "bsd_v2_2026": 22272,
+    "sportscore_2026": 54671
+  },
+  "recovered_provider_failed_dates": 0,
+  "remaining_provider_failed_dates": [],
+  "sportscore_repair_extra_records": 0,
+  "sportscore_failed_days_remaining": 0,
+  "sportscore_repaired_days_at_200_cap": 0,
+  "distinct_safe_matches": 76943,
+  "duplicates_same_identity_same_score": 0,
+  "conflicting_outcome_identities_quarantined": 0,
+  "kept_by_source": {
+    "bsd_v2_2026": 22272,
+    "sportscore_2026": 54671
+  },
+  "sportscore_daily_limit": "200; some dates may be truncated",
+  "sportscore_original_failed_days": 0,
+  "sportscore_at_cap_days": 251,
+  "scope": "audited source coverage only; NOT all real-world football matches",
+  "sources": "BSD API, SportScore",
+  "verified_utc_kickoff_only_when_source_supplies_it": true,
+  "missing_xg_not_invented": true,
+  "no_supabase_or_neon": true
+}
