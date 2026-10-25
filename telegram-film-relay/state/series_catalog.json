@@ -1,7 +1,7 @@
 {
   "audit": {
     "category": "series_catalog",
-    "checked_at": "2026-10-25T11:39:56.869845+00:00",
+    "checked_at": "2026-10-25T16:32:21.193300+00:00",
     "not_yet_indexed": [
       {
         "episode": 8,
@@ -92,7 +92,7 @@
       }
     ],
     "source_scan_complete": true,
-    "unnumbered_videos_skipped": 55
+    "unnumbered_videos_skipped": 58
   },
   "scans": {
     "-1001733930841": {
