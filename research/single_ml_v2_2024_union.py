@@ -60,6 +60,34 @@ def combine(key,*,root=ROOT,year=2024,through=None):
             raise ValueError("2024 repair date list differs from archived failures")
         if any(x.get("date") not in expected_failures for x in repairs.get("matches",[])):
             raise ValueError("2024 repair contains unrequested calendar day")
+    # 2026 first pass collapsed a handful of BSD source IDs sharing the
+    # same day/team names. Reconcile the encrypted provider-ID patch before
+    # choosing a single score label for any training example.
+    bsd_reconciliation=None
+    if year==2026:
+        recon_path=root/"bsd_sportscore"/"2026_bsd_reconcile.enc"
+        if recon_path.exists():
+            from single_ml_v2_2026_bsd_reconcile import AAD as BSD_RECON_AAD
+            bsd_reconciliation=open_sealed(recon_path.read_bytes(),key,BSD_RECON_AAD)
+            if (bsd_reconciliation.get("schema")!=BSD_RECON_AAD
+                    or bsd_reconciliation.get("year")!=2026
+                    or bsd_reconciliation.get("through")!=str(through)):
+                raise ValueError("Untrusted 2026 BSD reconciliation checkpoint")
+            extras=bsd_reconciliation.get("omitted_bsd_source_records")
+            audit=bsd_reconciliation.get("audit",{})
+            if not isinstance(extras,list) or len(extras)!=audit.get("omitted_distinct_bsd_source_ids"):
+                raise ValueError("Invalid BSD missing-ID count")
+            if any(x.get("sportId")!=1 or x.get("is_finished") is not True
+                    or x.get("source")!="bsd_v2_2026"
+                    or not ("2026-01-01"<=x.get("date","")<=str(through))
+                    for x in extras):
+                raise ValueError("Invalid reconciled BSD football result")
+            existing_bsd_ids={x["id"] for doc in months for x in doc["matches"]
+                              if x.get("source")=="bsd_v2_2026"}
+            if any(x["id"] in existing_bsd_ids for x in extras):
+                raise ValueError("Reconciliation overlaps original archived BSD IDs")
+            if len({x["id"] for x in extras})!=len(extras):
+                raise ValueError("Duplicate BSD reconciled source ID")
     grouped=defaultdict(list)
     provider_entries=Counter()
     for entry in original["matches"]:
@@ -73,6 +101,10 @@ def combine(key,*,root=ROOT,year=2024,through=None):
         for entry in repairs["matches"]:
             grouped[match_key(entry)].append(entry)
             provider_entries[f"sportscore_{year}_repaired"]+=1
+    if bsd_reconciliation:
+        for entry in bsd_reconciliation["omitted_bsd_source_records"]:
+            grouped[match_key(entry)].append(entry)
+            provider_entries["bsd_v2_2026_reconciled"]+=1
     priority={f"bsd_v2_{year}":0,"openfootball_football_json_cc0":1,f"sportscore_{year}":2}
     kept=[]
     duplicated=0
@@ -118,6 +150,8 @@ def combine(key,*,root=ROOT,year=2024,through=None):
        "recovered_provider_failed_dates":repairs["audit"]["recovered_dates"] if repairs else 0,
        "remaining_provider_failed_dates":repairs["audit"]["unresolved_dates"] if repairs else [],
        "sportscore_repair_extra_records":len(repairs["matches"]) if repairs else 0,
+       "bsd_reconciled_source_id_observations":len(bsd_reconciliation["omitted_bsd_source_records"]) if bsd_reconciliation else 0,
+       "bsd_reconciliation_source_id_verified":bsd_reconciliation is not None if year==2026 else None,
        "sportscore_failed_days_remaining":len(repairs["audit"]["unresolved_dates"]) if repairs else sum(x["audit"]["sportscore"]["days_failed"] for x in months),
        "sportscore_repaired_days_at_200_cap":repairs["audit"]["recovered_at_200_cap"] if repairs else 0,
        "distinct_safe_matches":len(kept),
