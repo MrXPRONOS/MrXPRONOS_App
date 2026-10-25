@@ -10,18 +10,21 @@
   "bsd_sportscore_month_records": 76943,
   "source_entries": {
     "bsd_v2_2026": 22272,
-    "sportscore_2026": 54671
+    "sportscore_2026": 54671,
+    "bsd_v2_2026_reconciled": 15
   },
   "recovered_provider_failed_dates": 0,
   "remaining_provider_failed_dates": [],
   "sportscore_repair_extra_records": 0,
+  "bsd_reconciled_source_id_observations": 15,
+  "bsd_reconciliation_source_id_verified": true,
   "sportscore_failed_days_remaining": 0,
   "sportscore_repaired_days_at_200_cap": 0,
-  "distinct_safe_matches": 76943,
-  "duplicates_same_identity_same_score": 0,
-  "conflicting_outcome_identities_quarantined": 0,
+  "distinct_safe_matches": 76934,
+  "duplicates_same_identity_same_score": 6,
+  "conflicting_outcome_identities_quarantined": 9,
   "kept_by_source": {
-    "bsd_v2_2026": 22272,
+    "bsd_v2_2026": 22263,
     "sportscore_2026": 54671
   },
   "sportscore_daily_limit": "200; some dates may be truncated",
