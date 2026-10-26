@@ -29,9 +29,9 @@ from zoneinfo import ZoneInfo
 
 import requests
 try:
-    from scripts.neon_rest_compat import NeonRestSession
+    from scripts.neon_rest_compat import NeonRestSession, database_config
 except ModuleNotFoundError:
-    from neon_rest_compat import NeonRestSession
+    from neon_rest_compat import NeonRestSession, database_config
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "bsd"))
@@ -1148,10 +1148,9 @@ class RemotePublicationLedger:
     def __init__(self, session: requests.Session, *, enabled: bool):
         self.session = NeonRestSession(session)
         self.enabled = bool(enabled)
-        self.url = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
-        self.key = "server" if os.getenv("NEON_DATABASE_URL") else ""
+        self.url, self.key = database_config()
         if self.enabled and (not self.url or not self.key):
-            raise RuntimeError("Outbox Actu Foot requise mais secrets Neon absents")
+            raise RuntimeError("Outbox Actu Foot requise mais backend de données indisponible")
 
     @property
     def endpoint(self) -> str:
