@@ -24,6 +24,10 @@ on:
         description: 'RESTORE_ENCRYPTED_V2 or ROTATE_ENCRYPTED_V2 for writes'
         type: string
         required: false
+      backup_artifact_id:
+        description: 'Numeric artifact ID from successful V2 backup workflow'
+        type: string
+        required: false
       expected_sha:
         description: 'GitHub SHA for guarded restore'
         type: string
@@ -61,6 +65,7 @@ jobs:
       COLLECTION: ${{ inputs.collection }}
       CONFIRM: ${{ inputs.confirmation }}
       EXPECTED_SHA: ${{ inputs.expected_sha }}
+      BACKUP_ARTIFACT_ID: ${{ inputs.backup_artifact_id }}
       MIN_GENERATION: ${{ inputs.minimum_generation }}
       NEW_VERSION: ${{ inputs.target_version }}
     steps:
@@ -79,8 +84,11 @@ jobs:
               python -m scripts.actu_foot_v2_operations --operation verify
               ;;
             restore)
-              echo "::error::Remote restoration requires a verified backup input; intentionally disabled to avoid empty-directory restore."
-              exit 2
+              test "$CONFIRM" = "RESTORE_ENCRYPTED_V2"
+              [[ "$BACKUP_ARTIFACT_ID" =~ ^[0-9]+$ ]]
+              test -n "$EXPECTED_SHA"
+              python -m scripts.actu_foot_v2_operations --operation recover-artifact --artifact-id "$BACKUP_ARTIFACT_ID"
+              python -m scripts.actu_foot_v2_operations --operation restore --collection "$COLLECTION" --expected-sha "$EXPECTED_SHA" --minimum-generation "$MIN_GENERATION" --confirm "$CONFIRM"
               ;;
             rotate)
               test "$CONFIRM" = "ROTATE_ENCRYPTED_V2"
