@@ -105,13 +105,18 @@ def from_predictions(path, *, start, end):
     audit_days=[]
     for day in days:
         day_ids=None
+        observed_labels=None
         for model in MODELS:
             candidates=grouped[(day,model)]
             if len(candidates)<max(KS):
                 raise ValueError(f"{day} {model}: insufficient daily football games ({len(candidates)})")
-            if day_ids is None:day_ids=set(candidates)
+            if day_ids is None:
+                day_ids=set(candidates)
+                observed_labels={key:row["actual_score"] for key,row in candidates.items()}
             if set(candidates)!=day_ids:
                 raise ValueError(f"Candidates not identical across models on {day}")
+            if any(observed_labels[key]!=row["actual_score"] for key,row in candidates.items()):
+                raise ValueError(f"Outcome labels differ across models on {day}")
             ordered=sorted(candidates.values(),
                            key=lambda x:(-x["confidence"], x["id"]))
             if len({x["id"] for x in ordered})!=len(ordered):
@@ -191,6 +196,14 @@ def _validate_period_report(item):
                     raise ValueError("Invalid aggregate count")
                 if row["top3_hits"]<row["hits"] or row["days_any_hit"]!=int(row["hits"]>0):
                     raise ValueError("Inconsistent top-K statistics")
+                if k>5:
+                    prior=data[model][str(5)][d]
+                    if not prior["hits"]<=row["hits"]<=prior["hits"]+k-5:
+                        raise ValueError("Top-K success counts violate nested selection")
+                    if not prior["top3_hits"]<=row["top3_hits"]<=prior["top3_hits"]+k-5:
+                        raise ValueError("Top-K top3 count violates nesting")
+                    if row["confidence_sum"]+1e-7<prior["confidence_sum"]:
+                        raise ValueError("Nested probability sums must increase")
                 for f in ("confidence_sum","loss_sum"):
                     value=float(row[f])
                     if not math.isfinite(value) or value<0:
