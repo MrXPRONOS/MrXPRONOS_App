@@ -792,12 +792,21 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                 quoted = score_odds_for(m, i, j)
                 top3 = np.argpartition(grid.ravel(), -3)[-3:]
                 top3_hit = int(m.hg*(MAX_GOALS+1) + m.ag in top3)
+                # Pre-result diagnostic: probability allocated to 1-1, and how
+                # narrowly the chosen modal score beats its runner-up.
+                competing = grid.ravel().copy()
+                competing[i*(MAX_GOALS+1)+j] = -1.
+                runner_idx = int(np.argmax(competing))
+                runner_h, runner_a = divmod(runner_idx, MAX_GOALS+1)
+                runner_prob = float(competing[runner_idx])
                 row = {
                     "history_latest_day":str(last_history_day) if last_history_day else "",
                     "model_fit_latest_day":str(model_fit_history_day) if model_fit_history_day and name.startswith("machine_learning") else "",
                     "top3_hit": top3_hit, "model": name, "date": str(m.day), "id": m.key, "league": m.league,
                     "home": m.home, "away": m.away, "actual_score": f"{m.hg}:{m.ag}",
                     "predicted_score": f"{i}:{j}", "top_probability": float(grid[i, j]),
+                    "p_1_1": float(grid[1,1]), "runner_up_score": f"{runner_h}:{runner_a}",
+                    "runner_up_probability": runner_prob, "top2_margin":float(grid[i,j])-runner_prob,
                     "actual_probability": prob, "hit": int(i == m.hg and j == m.ag),
                     "log_loss": -math.log(max(prob, 1e-15)),
                     "quoted_odds": quoted, "roi": (quoted if i==m.hg and j==m.ag else 0)-1
