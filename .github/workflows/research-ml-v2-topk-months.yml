@@ -38,7 +38,7 @@ jobs:
           python-version: '3.12'
       - name: Install fixed model and archive dependencies
         run: python -m pip install numpy scipy scikit-learn requests cryptography lightgbm==4.6.0 catboost==1.2.8
-      # Research replay: tolerate 7-digit probabilities and upstream argpartition modal-score ties.
+      # Research replay: independently validate ranked modal score and labels, not lossy secondary CSV likelihood identities.
       - name: Confirm frozen selection policy and synthetic regression tests
         run: |
           set -euo pipefail
