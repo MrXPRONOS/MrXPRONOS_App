@@ -11,6 +11,25 @@ import requests
 from decimal import Decimal
 from uuid import UUID
 
+def database_config() -> tuple[str, str]:
+    """Actu Foot private storage credentials (never expose service role to clients).
+
+    Backend selection is explicit for migration/quota recovery. The PostgREST
+    service-role key stays in GitHub Actions secrets, never in the repository.
+    """
+    backend = os.getenv("ACTU_FOOT_BACKEND", "auto").strip().lower()
+    if backend not in {"auto", "neon", "supabase"}:
+        raise RuntimeError("Invalid ACTU_FOOT_BACKEND")
+    if backend in {"auto", "neon"} and os.getenv("NEON_DATABASE_URL", "").strip():
+        return "neon://private", "server"
+    if backend in {"auto", "supabase"}:
+        base = os.getenv("SUPABASE_URL", "").strip().rstrip("/")
+        key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
+        if base.startswith("https://") and key:
+            return base, key
+    return "", ""
+
+
 TABLES = {
  "actu_foot_publications","actu_foot_live_events",
  "actu_foot_run_metrics","actu_foot_provider_health",
