@@ -61,8 +61,79 @@ def certified_rows(key, *, root=None, audit_root=Path("research"), through=CUTOF
     return all_rows
 
 
+
+def safe_source_identities(rows):
+    """Provider namespaced ID joins, dropping collisions instead of merging clubs.
+
+    This changes ONLY temporary in-memory training copies, never source archives.
+    A provider ID linked to multiple distinct normalized team names is not a
+    reliable global key; the opponent module then falls back to local league
+    identity, retaining all fixtures without misjoining their team histories.
+    """
+    from collections import defaultdict
+    from single_ml_v2_opponents import canonical_name, identifier
+    mapped = defaultdict(set)
+    def family(record):
+        source = str(record.get("source", ""))
+        if source.startswith("bsd_v2_"):
+            return "bsd"
+        # Unverified IDs from other vendors cannot be trusted or mixed into
+        # BSD's global ID namespace. Their namespaced keys are still distinct.
+        return "src_" + source.replace("-", "_")
+    for row in rows:
+        for side in ("home", "away"):
+            raw = identifier(row.get(f"source_{side}_team_id"))
+            if raw is not None:
+                mapped[(family(row), raw)].add(canonical_name(row[f"{side}_team"]))
+    unsafe = {key for key, labels in mapped.items() if len(labels) > 1}
+    affected = 0
+    for row in rows:
+        for side in ("home", "away"):
+            field = f"source_{side}_team_id"
+            raw = identifier(row.get(field))
+            if raw is None:
+                continue
+            scope = (family(row), raw)
+            if scope in unsafe:
+                row[field] = None
+                affected += 1
+            else:
+                row[field] = scope[0] + "_" + raw
+    # Competition IDs may be reused across unrelated competition names as
+    # well: reject ambiguous competition-wide joins and use the league name.
+    competitions = defaultdict(set)
+    for row in rows:
+        raw = identifier(row.get("source_competition_id"))
+        if raw is not None:
+            competitions[(family(row), raw)].add(canonical_name(row["competition"]))
+    unsafe_comp = {key for key, labels in competitions.items() if len(labels) > 1}
+    affected_comp = 0
+    for row in rows:
+        field = "source_competition_id"
+        raw = identifier(row.get(field))
+        if raw is None:
+            continue
+        scope = (family(row), raw)
+        if scope in unsafe_comp:
+            row[field] = None
+            affected_comp += 1
+        else:
+            row[field] = scope[0] + "_" + raw
+    audit = {
+        "provider_team_ids_seen": len(mapped),
+        "ambiguous_team_ids": len(unsafe),
+        "team_id_occurrences_downgraded_to_local": affected,
+        "ambiguous_competition_ids": len(unsafe_comp),
+        "competition_id_occurrences_downgraded_to_name": affected_comp,
+        "policy": "Provider namespace + strict normalized name; ambiguous IDs discarded only for ML identity, no matches dropped",
+    }
+    print("SOURCE_IDENTITY_SAFETY_AUDIT", json.dumps(audit, sort_keys=True), flush=True)
+    return rows
+
+
 def check_ml_loader(rows, *, loader=load_matches):
     """Use the ACTUAL ML V2 loader, not a reimplemented schema validator."""
+    rows = safe_source_identities(rows)
     fd, name = tempfile.mkstemp(prefix="mlv2-source-", suffix=".json", dir="/tmp")
     os.close(fd)
     path = Path(name)
