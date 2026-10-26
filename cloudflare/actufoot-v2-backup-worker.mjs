@@ -34,8 +34,9 @@ async function authenticate(header) {
      || !["schedule","workflow_dispatch","push"].includes(claims.event_name)
      || typeof claims.exp!=="number" || claims.exp<now-30 || claims.exp>now+900
      || typeof claims.iat!=="number" || claims.iat>now+60 || claims.iat<now-900
-     || !/^\\d+$/.test(String(claims.run_id||""))
-     || !/^\\d+$/.test(String(claims.run_attempt||""))
+     || (claims.nbf!==undefined && (typeof claims.nbf!=="number" || claims.nbf>now+60))
+     || !/^\d+$/.test(String(claims.run_id||""))
+     || !/^\d+$/.test(String(claims.run_attempt||""))
      || !/^[0-9a-f]{40}$/.test(String(claims.sha||""))) {
     throw new Error("claims");
   }
