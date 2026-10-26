@@ -1,5 +1,594 @@
 [
   {
+    "id": "ff39d8487d5348991efc3d34",
+    "kind": "article",
+    "title": "Flamengo vs Atlético Mineiro : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-7307/",
+    "source_date": "2026-10-26T05:41:50.918387+00:00",
+    "visual_variant": "v2",
+    "image": "assets/images/editorial/match-bsd-match-7307-869cee20-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-7307-869cee20-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-7307-869cee20-social.jpg"
+  },
+  {
+    "id": "3c9c03fff01d678c15314e35",
+    "kind": "news",
+    "title": "Barça : Flick va donner des vacances aux joueurs après avoir perdu le Clasico",
+    "url": "https://www.footmercato.net/a5919531537293062772-barca-flick-va-donner-des-vacances-aux-joueurs-apres-avoir-perdu-le-clasico",
+    "source_date": "2026-10-25T23:37:39+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2aa0af0e66dfbc6924ca8bc3",
+    "kind": "news",
+    "title": "Real Madrid : Kylian Mbappé réagit à son 100e but",
+    "url": "https://www.footmercato.net/a7905309099689285051-real-madrid-kylian-mbappe-reagit-a-son-100e-but",
+    "source_date": "2026-10-25T23:27:12+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "288b749164b6938e68673cf3",
+    "kind": "news",
+    "title": "Real Madrid : la drôle de réaction de Vinicius Junior après la victoire face au Barça",
+    "url": "https://www.footmercato.net/a99101381932394095-real-madrid-la-drole-de-reaction-de-vinicius-junior-apres-la-victoire-face-au-barca",
+    "source_date": "2026-10-25T22:25:50+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2bd90dd75fb71ffbd180afc9",
+    "kind": "news",
+    "title": "Real Madrid : Kylian Mbappé a encore traumatisé le FC Barcelone !",
+    "url": "https://www.footmercato.net/a3786446238801409522-real-madrid-kylian-mbappe-a-encore-traumatise-le-fc-barcelone",
+    "source_date": "2026-10-25T22:24:30+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "84186e6b7b356ba266713cc6",
+    "kind": "news",
+    "title": "OM : Le gros rétropédalage de Himad Abdelli après sa sortie virulente à l'encontre des jeunes de l'OM",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-le-gros-retropedalage-de-himad-abdelli-apres-sa-sortie-virulente-a-l-encontre-des-jeunes-de-l-om-543565.html",
+    "source_date": "2026-10-25T22:20:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "eb8e96f6d1434c4c9b3979c2",
+    "kind": "news",
+    "title": "AJ Auxerre : Will Still révolté après \"un problème informatique inédit\" sur un but du Mans FC",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-aj-auxerre-will-still-revolte-apres-un-probleme-informatique-inedit-sur-un-but-du-mans-fc-543560.html",
+    "source_date": "2026-10-25T20:57:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e3a71017b2323903c9163e82",
+    "kind": "news",
+    "title": "OM : \"Le football, ça se respecte\", les mots forts d'Amine Harit après la victoire étriquée de l'OM face au Havre AC (vidéo)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-le-football-ca-se-respecte-les-mots-forts-d-amine-harit-apres-la-victoire-etriquee-de-l-om-face-au-havre-ac-video-543559.html",
+    "source_date": "2026-10-25T20:35:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "417159760bc8285ad4dba571",
+    "kind": "news",
+    "title": "OM : Bruno Genesio énumère tout ce qui lui a plu face au Havre AC, malgré la fin de match totalement ratée",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-bruno-genesio-enumere-tout-ce-qui-lui-a-plu-face-au-havre-ac-malgre-la-fin-de-match-totalement-ratee-543555.html",
+    "source_date": "2026-10-25T20:15:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5c07f5bce4d40e13f05892e0",
+    "kind": "news",
+    "title": "AS Monaco : Les premières nouvelles ne sont pas très bonnes pour Ansu Fati, de nouveau blessé",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-as-monaco-les-premieres-nouvelles-ne-sont-pas-tres-bonnes-pour-ansu-fati-de-nouveau-blesse-543552.html",
+    "source_date": "2026-10-25T19:45:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b04d067728e9894afa0cf9ca",
+    "kind": "news",
+    "title": "Coupe de la confédération: Al Ahly se qualifie avec autorité face au Kitara FC",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261025-coupe-de-la-conf%C3%A9d%C3%A9ration-al-ahly-se-qualifie-avec-autorit%C3%A9-face-au-kitara-fc",
+    "source_date": "2026-10-25T19:05:15+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2ffbc2cd48fa4ad112d47158",
+    "kind": "news",
+    "title": "Ligue des champions CAF: Al-Hilal Omdurman assure sa qualification, l’ASEC Mimosas éliminé",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261025-ligue-des-champions-caf-al-hilal-omdurman-assure-sa-qualification-l-asec-mimosas-%C3%A9limin%C3%A9",
+    "source_date": "2026-10-25T19:04:01+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "de947fc3fe4b4979b8a4c14b",
+    "kind": "news",
+    "title": "\"Deux superstars qui s'affrontent\" : à la veille du Ballon d'or, le Clasico entre le FC Barcelone et le Real Madrid prend une autre dimension",
+    "url": "https://www.franceinfo.fr/sports/foot/ballon-d-or/deux-superstars-qui-s-affrontent-a-la-veille-du-ballon-d-or-le-clasico-entre-le-fc-barcelone-et-le-real-madrid-prend-une-autre-dimension_8253112.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-10-25T13:53:20+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ab7549df4f2ab1b8a83a2b2c",
+    "kind": "news",
+    "title": "Barcelone-Real Madrid – A-t-on retrouvé le grand Real Madrid ?",
+    "url": "https://www.sofoot.com/articles/barcelone-real-madrid-a-t-on-retrouve-le-grand-real-madrid",
+    "source_date": "2026-10-26T00:00:41+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "12fe75093a65db36ec4e1350",
+    "kind": "news",
+    "title": "OM : Bruno Genesio rétrograde Keyliane Abdallah en Pro2 !",
+    "url": "https://www.footmercato.net/a7521156803620905145-om-bruno-genesio-retrograde-keyliane-abdallah-en-pro2",
+    "source_date": "2026-10-25T23:53:52+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9c21e6722368254a4d4615b0",
+    "kind": "news",
+    "title": "Real Madrid : José Mourinho bombe le torse après le Clasico",
+    "url": "https://www.footmercato.net/a6365173731186838472-real-madrid-jose-mourinho-bombe-le-torse-apres-le-clasico",
+    "source_date": "2026-10-25T23:12:13+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "274daca69628b58dcbd8b750",
+    "kind": "news",
+    "title": "FC Barcelone : Lamine Yamal s’est de nouveau liquéfié dans un gros match",
+    "url": "https://www.footmercato.net/a6486136936101599146-fc-barcelone-lamine-yamal-sest-de-nouveau-liquefie-dans-un-gros-match",
+    "source_date": "2026-10-25T22:58:28+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e8941844468633f0fc7b3996",
+    "kind": "news",
+    "title": "OM : Keyliane Abdallah sanctionné après son entrée ratée face au Havre ?",
+    "url": "https://www.sofoot.com/breves/om-keyliane-abdallah-sanctionne-apres-son-entree-ratee-face-au-havre",
+    "source_date": "2026-10-25T22:56:21+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "bea3711191645702af5796b8",
+    "kind": "news",
+    "title": "« Le Barça était supérieur » selon João Cancelo",
+    "url": "https://www.footmercato.net/a4701429159270915915-le-barca-etait-superieur-selon-joao-cancelo",
+    "source_date": "2026-10-25T22:45:06+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8f6756e9a4da073ededfd6e3",
+    "kind": "news",
+    "title": "Clásico : Pedri reconnaît que le Barça a raté son match face au Real Madrid",
+    "url": "https://www.sofoot.com/breves/clasico-pedri-reconnait-que-le-barca-a-rate-son-match-face-au-real-madrid",
+    "source_date": "2026-10-25T22:35:43+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "209ea1983751ade343bfff2a",
+    "kind": "news",
+    "title": "OM : La sanction de Bruno Genesio contre Keyliane Abdallah est déjà tombée !",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-la-sanction-de-bruno-genesio-contre-keyliane-abdallah-est-deja-tombee-543569.html",
+    "source_date": "2026-10-25T22:35:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8f502f433216428a46c519f9",
+    "kind": "news",
+    "title": "PSG-OL : \"On est prêts à jouer à Paris\", Tolisso lance les hostilités",
+    "url": "https://www.onzemondial.com/ligue-1/psg-ol-on-est-prets-a-jouer-a-paris-tolisso-lance-les-hostilites-1004981",
+    "source_date": "2026-10-25T22:33:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "72835c7368a2c1415d513933",
+    "kind": "news",
+    "title": "Barça-Real Madrid : transparent, 25 ballons perdus, les statistiques flippantes de Yamal",
+    "url": "https://www.onzemondial.com/liga/barca-real-madrid-transparent-25-ballons-perdus-les-statistiques-flippantes-de-yamal-1005067",
+    "source_date": "2026-10-25T22:30:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1e6515c4aaaa3b60aa09f0df",
+    "kind": "news",
+    "title": "Football: le Real Madrid s’adjuge le Clasico face au FC Barcelone grâce à Kylian Mbappé",
+    "url": "https://www.rfi.fr/fr/sports/20261025-football-le-real-madrid-s-adjuge-le-clasico-face-au-fc-barcelone-gr%C3%A2ce-%C3%A0-kylian-mbapp%C3%A9",
+    "source_date": "2026-10-25T22:23:57+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9dc62571942c593de055c483",
+    "kind": "news",
+    "title": "OM : Genesio ne rigole pas, un entrant coupable exilé en N2 jusqu'à nouvel ordre",
+    "url": "https://www.onzemondial.com/ligue-1/om-genesio-ne-rigole-pas-un-entrant-coupable-exile-en-n2-jusqua-nouvel-ordre-1005064",
+    "source_date": "2026-10-25T22:22:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "42bb3de650b49a16dff55529",
+    "kind": "news",
+    "title": "Kylian Mbappé a atteint la barre des 100 buts avec le Real Madrid avec son doublé contre le Barça",
+    "url": "https://www.sofoot.com/breves/kylian-mbappe-a-atteint-la-barre-des-100-buts-avec-le-real-madrid-avec-son-double-contre-le-barca",
+    "source_date": "2026-10-25T22:18:43+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "857d24bfcd1740850ea65006",
+    "kind": "news",
+    "title": "Auteur d'un doublé, Kylian Mbappé offre le Clasico au Real Madrid face au FC Barcelone de Lamine Yamal",
+    "url": "https://www.franceinfo.fr/sports/foot/auteur-d-un-double-kylian-mbappe-offre-le-clasico-au-real-madrid-face-au-fc-barcelone-de-lamine-yamal_8253475.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-10-25T22:16:12+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "12b1c698f5616b0364ce2891",
+    "kind": "news",
+    "title": "FC Barcelone-Real Madrid : Les notes du Clásico",
+    "url": "https://www.sofoot.com/articles/fc-barcelone-real-madrid-les-notes-du-clasico",
+    "source_date": "2026-10-25T22:15:59+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T05:41:51.226601+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "6537dbec83d403b3c836acce",
     "kind": "article",
     "title": "Chelsea vs Tottenham Hotspur : fiche match BSD V2",
@@ -84,7 +673,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c7dc9ac74224f1ae7168ab54",
@@ -105,7 +694,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "40f08b58382ef612c108f695",
@@ -126,7 +715,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "313a6137db3d44e92fccf5c2",
@@ -168,7 +757,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e3569f5c1894dd1f8e8bb661",
@@ -189,7 +778,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "bf5d09246d98d157d2e944c9",
@@ -231,7 +820,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f8e5f690eca04af96092fb86",
@@ -252,7 +841,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "fa9c757f26eff0a8a5fdba04",
@@ -294,7 +883,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b19ff90091a80337b02c82fb",
@@ -315,7 +904,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "26b22e53378ea6b501344031",
@@ -336,7 +925,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "24598fce0dd64f8896da57c7",
@@ -357,7 +946,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "598a664a4b17ced6d14ca11c",
@@ -378,7 +967,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "36cfa7e61df2229378e30240",
@@ -399,7 +988,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f23f709737bcc7974fd0ef63",
@@ -420,7 +1009,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "40551344146aa309d286c5b3",
@@ -441,7 +1030,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7e4bcc0356a698fe2ba40f7a",
@@ -462,7 +1051,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5bdf306285e99ac9a2c613c2",
@@ -483,7 +1072,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ddfcf74799ffb8afd7926f52",
@@ -504,7 +1093,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3ccc21df4b66699b6f00446e",
@@ -525,7 +1114,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "acb8dd8780f7ae4dc2563762",
@@ -546,7 +1135,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a37ee81e512c344af99d8d22",
@@ -567,7 +1156,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "59d74948f91f7925207670a0",
@@ -588,7 +1177,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "492d790c2c78a5bf5329c7d6",
@@ -609,7 +1198,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "41f65f9dc7591ae50f3625be",
@@ -630,7 +1219,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "10a5ac4c3d7ae1ede5cadc4c",
@@ -651,7 +1240,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a4c9744b14eb6364222fa2a0",
@@ -756,7 +1345,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1901d7f8193f59762a320257",
@@ -777,7 +1366,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "85ec736041c6fd9e3b1be1d1",
