@@ -582,7 +582,9 @@ def score_odds_for(m, gh, ga):
 def summarize(stats):
     result = {}
     for name in (*MODELS, "machine_learning_hybrid", "machine_learning_hybrid_fixed"):
-        entries = stats[name]
+        # Paired/ablation cohorts contain intentionally selected model keys.
+        # Missing models are NOT_EVALUABLE, not a report-breaking KeyError.
+        entries = stats.get(name, [])
         if not entries:
             result[name] = {"status": "NOT_EVALUABLE", "n": 0, "reason":
                             "Required historical observations or verified pre-match inputs unavailable"}
