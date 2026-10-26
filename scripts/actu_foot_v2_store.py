@@ -23,6 +23,7 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
 from scripts.actu_foot_github_vault import VaultError, VaultConflict
+from scripts.actu_foot_v2_validation import validate_domain
 from urllib.parse import quote
 import requests
 
@@ -80,6 +81,7 @@ def validate_records(collection: str, records: Any) -> dict:
             for field in ("sequence", "previous_hash", "entry_hash", "operation", "occurred_at"):
                 if field not in record:
                     raise VaultError("Incomplete audit entry")
+    validate_domain(collection, records)
     return records
 
 
@@ -89,7 +91,9 @@ def master_key(version: int) -> bytes:
     # V2 can have its own master; legacy secret is used solely as a migration option.
     raw = os.getenv(f"ACTU_FOOT_V2_KEY_B64_V{version}", "").strip()
     if not raw and version == 1:
-        raw = os.getenv("ACTU_FOOT_V2_KEY_B64", "").strip() or os.getenv("ML_V2_HISTORY_KEY_B64", "").strip()
+        raw = os.getenv("ACTU_FOOT_V2_KEY_B64", "").strip()
+        if not raw and os.getenv("ACTU_FOOT_V2_ALLOW_LEGACY_KEY", "0") == "1":
+            raw = os.getenv("ML_V2_HISTORY_KEY_B64", "").strip()
     try:
         key = base64.b64decode(raw, validate=True)
     except Exception as exc:
@@ -184,10 +188,14 @@ class CollectionVault:
             raise VaultError("Unexpected GitHub response")
         envelope = base64.b64decode(doc["content"], validate=True).decode()
         records, header = decrypt(self.collection, envelope)
+        if self.collection == "audit":
+            verify_audit(records)
         return records, doc["sha"], header
 
     def write(self, records: dict, *, expected_sha: str | None, generation: int,
               key_version: int = 1, message: str = "ops(actu-foot): update encrypted collection") -> str:
+        if self.collection == "audit":
+            verify_audit(records)
         envelope = encrypt(self.collection, records, generation=generation, key_version=key_version)
         body = {"message": message, "branch": self.branch,
                 "content": base64.b64encode(envelope.encode()).decode()}
@@ -277,6 +285,8 @@ def restore_backup(vault: CollectionVault, backup: str, *, expected_sha: str,
     if not confirm or not expected_sha:
         raise VaultError("Restoration requires explicit confirmation and current SHA")
     saved, info = verify_backup(vault.collection, backup)
+    if vault.collection == "audit":
+        verify_audit(saved)
     _, current_sha, current = vault.read()
     if current_sha != expected_sha:
         raise VaultConflict("Storage has changed since restoration approval")
