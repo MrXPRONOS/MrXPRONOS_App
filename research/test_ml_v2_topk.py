@@ -73,6 +73,17 @@ class TopKTests(unittest.TestCase):
             _validate_period_report(result)
             self.assertEqual(result["daily_selected_aggregates"][MODELS[0]]["5"][0]["hits"],1)
 
+    def test_argpartition_tie_does_not_reject_a_correct_modal_score(self):
+        with tempfile.TemporaryDirectory() as temp:
+            start,end=WINDOWS[0]
+            rows=fake_rows(start,end)
+            rows[0]["top3_hit"]=0  # legacy argpartition can drop tied argmax
+            path=Path(temp)/"top3-tie.csv"
+            make_csv(rows,path)
+            out=from_predictions(path,start=start,end=end)
+            self.assertEqual(out["daily_selected_aggregates"][MODELS[0]]["5"][0]["hits"],1)
+            self.assertGreaterEqual(out["daily_selected_aggregates"][MODELS[0]]["5"][0]["top3_hits"],1)
+
     def test_reject_future_train(self):
         with tempfile.TemporaryDirectory() as temp:
             start,end=WINDOWS[0]
