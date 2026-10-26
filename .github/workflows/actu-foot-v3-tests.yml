@@ -4,6 +4,7 @@ on:
     paths:
       - 'scripts/actu_foot_v3_*.py'
       - 'tests_football_channel/test_actu_foot_v3_engine.py'
+      - 'tests_football_channel/test_actu_foot_v3_complete.py'
       - '.github/workflows/actu-foot-v3-tests.yml'
   push:
     branches: [main]
@@ -25,5 +26,5 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install 'cryptography>=43,<47' 'requests>=2.31,<3'
       - run: |
-          python -m py_compile scripts/actu_foot_v3_query.py scripts/actu_foot_v3_engine.py
-          python -m unittest tests_football_channel.test_actu_foot_v3_engine tests_football_channel.test_actu_foot_v2_store -v
+          python -m py_compile scripts/actu_foot_v3_query.py scripts/actu_foot_v3_engine.py scripts/actu_foot_v3_atomic.py scripts/actu_foot_v3_archive.py
+          python -m unittest tests_football_channel.test_actu_foot_v3_engine tests_football_channel.test_actu_foot_v3_complete tests_football_channel.test_actu_foot_v2_store -v
