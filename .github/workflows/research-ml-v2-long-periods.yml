@@ -1,0 +1,103 @@
+name: ML V2 - 4 frozen 28-day periods 1-1 calibration and five-model comparison
+on:
+  push:
+    branches: [research/single-ml-v2-20261024]
+    paths: ['.github/workflows/research-ml-v2-long-periods.yml']
+permissions:
+  contents: read
+concurrency:
+  group: ml-v2-long-evidence-research
+  cancel-in-progress: false
+jobs:
+  walkforward-period:
+    name: Predeclared ${{ matrix.label }} five models
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - {label: mar2025, start: '2025-03-01', end: '2025-03-28'}
+          - {label: sep2025, start: '2025-09-01', end: '2025-09-28'}
+          - {label: mar2026, start: '2026-03-01', end: '2026-03-28'}
+          - {label: sep2026, start: '2026-09-01', end: '2026-09-28'}
+    env:
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      OPENBLAS_NUM_THREADS: '2'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned candidate models and retrospective research packages
+        run: python -m pip install numpy scipy scikit-learn requests cryptography lightgbm==4.6.0 catboost==1.2.8
+      - name: Strict offline model/identity/summary/aggregation regression tests
+        run: |
+          PYTHONPATH=.:research python -m unittest \
+            research.test_single_ml_v2_multisource_identities \
+            research.test_single_ml_v2_multisource_compare \
+            research.test_single_ml_v2_multiperiod \
+            research.test_single_ml_v2_subset_summary -v
+      - name: Decrypt into temporary RAM-only research workflow and run chronologically
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python research/single_ml_v2_multisource.py \
+            --start "${{ matrix.start }}" --end "${{ matrix.end }}" --max-eval 0 \
+            --out "/tmp/mlv2-${{ matrix.label }}"
+      - name: Independently verify identical matches and audit P(1-1)
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python research/single_ml_v2_multisource_compare.py \
+            --predictions "/tmp/mlv2-${{ matrix.label }}/all_predictions.csv" \
+            --start "${{ matrix.start }}" --end "${{ matrix.end }}" \
+            --minimum 500 --out "/tmp/mlv2-${{ matrix.label }}/period_report.json"
+      - name: Upload only anonymous daily/model summary counts and model diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ml-v2-long-${{ matrix.label }}
+          path: |
+            /tmp/mlv2-${{ matrix.label }}/summary.json
+            /tmp/mlv2-${{ matrix.label }}/period_report.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  predeclared-pooled-report:
+    needs: [walkforward-period]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install only numerical aggregators (NO dataset downloads)
+        run: python -m pip install numpy
+      - name: Offline pooled regression tests
+        run: PYTHONPATH=.:research python -m unittest research.test_single_ml_v2_multiperiod -v
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ml-v2-long-*
+          path: /tmp/period-reports
+          merge-multiple: false
+      - name: Require all four immutable chronological periods and pooled paired bootstrap
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python research/single_ml_v2_multiperiod_aggregate.py \
+            --inputs /tmp/period-reports/ml-v2-long-*/period_report.json \
+            --out /tmp/four-period-pooled-results.json
+      - name: Publish aggregated research-only pooled report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ml-v2-four-period-pooled-aggregate
+          path: /tmp/four-period-pooled-results.json
+          if-no-files-found: error
+          retention-days: 30
