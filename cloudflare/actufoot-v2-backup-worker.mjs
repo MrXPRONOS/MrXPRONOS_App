@@ -8,6 +8,7 @@ const AUDIENCE = "mrxpronos-actufoot-v2-backup";
 const ISSUER = "https://token.actions.githubusercontent.com";
 const REPO = "MrXPRONOS/MrXPRONOS_App";
 const WORKFLOW = REPO + "/.github/workflows/actu-foot-v2-backup.yml@refs/heads/main";
+const RECOVERY_WORKFLOW = REPO + "/.github/workflows/actu-foot-v2-recovery-drill.yml@refs/heads/main";
 const COLLECTIONS = ["audit", "live_events", "matches", "news", "publications", "settings", "statistics"];
 const MAX_BODY = 14500000;
 const MAX_FILE = 2200000;
@@ -20,7 +21,7 @@ function b64url(s) {
   return Uint8Array.from(atob(base.padEnd(Math.ceil(base.length/4)*4,"=")), c=>c.charCodeAt(0));
 }
 function readJson(bytes) { return JSON.parse(new TextDecoder().decode(bytes)); }
-async function authenticate(header) {
+async function authenticate(header, expectedWorkflow = WORKFLOW) {
   if(!header || !header.startsWith("Bearer ") || header.length>10000) throw new Error("auth");
   const jwt=header.slice(7);
   const segments=jwt.split(".");
@@ -30,7 +31,7 @@ async function authenticate(header) {
   const now=Math.floor(Date.now()/1000);
   if(claims.iss!==ISSUER || claims.aud!==AUDIENCE || claims.repository!==REPO
      || claims.repository_id!=="1169480535" || claims.repository_owner_id!=="256667374"
-     || claims.workflow_ref!==WORKFLOW || claims.ref!=="refs/heads/main"
+     || claims.workflow_ref!==expectedWorkflow || claims.ref!=="refs/heads/main"
      || !["schedule","workflow_dispatch","push"].includes(claims.event_name)
      || typeof claims.exp!=="number" || claims.exp<now-30 || claims.exp>now+900
      || typeof claims.iat!=="number" || claims.iat>now+60 || claims.iat<now-900
@@ -59,6 +60,22 @@ async function digestHex(data) {
 }
 export default {
  async fetch(request, env) {
+   const pathname = new URL(request.url).pathname;
+   if(request.method==="POST" && pathname==="/v2/recover") {
+     let claims;
+     try {claims=await authenticate(request.headers.get("Authorization"), RECOVERY_WORKFLOW);} catch(e){return fail(401);}
+     let requestBody;
+     try {requestBody=await request.json();}catch(e){return fail(400);}
+     if(!requestBody || !/^\d{5,16}$/.test(String(requestBody.run||"")) || !/^\d{1,4}$/.test(String(requestBody.attempt||""))) return fail(400);
+     const prefix="snapshots/"+requestBody.run+"/"+requestBody.attempt;
+     const names=[...COLLECTIONS.map(c=>c+".aes.json"),"manifest.json","provenance.json"];
+     const values=await Promise.all(names.map(n=>env.BACKUPS.get(prefix+"/"+n)));
+     if(values.some(v=>v===null)) return fail(404);
+     const provenance=JSON.parse(values[values.length-1]);
+     if(provenance.repository!==REPO || provenance.workflow!==WORKFLOW || provenance.run!==String(requestBody.run) || provenance.attempt!==String(requestBody.attempt)) return fail(409);
+     const files=Object.fromEntries(COLLECTIONS.map((c,i)=>[c,values[i]]));
+     return new Response(JSON.stringify({ok:true,files,manifest:values[COLLECTIONS.length],provenance}),{headers:{"Content-Type":"application/json","Cache-Control":"no-store"}});
+   }
    if(request.method==="GET" && new URL(request.url).pathname==="/health") return new Response("healthy", {headers:{"Cache-Control":"no-store"}});
    if(request.method!=="POST" || new URL(request.url).pathname!=="/v2/backup") return fail(404);
    const size=Number(request.headers.get("Content-Length")||0);
