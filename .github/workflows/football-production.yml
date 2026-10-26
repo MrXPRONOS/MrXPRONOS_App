@@ -197,15 +197,7 @@ jobs:
             test -n "$BSD_API_KEY"
           fi
           if [ "${{ steps.telegram_route.outputs.destination }}" != "dry-run" ]; then
-            python - <<'PY'
-            import sys
-            sys.path.insert(0,"scripts")
-            from neon_rest_compat import database_config
-            base, key = database_config()
-            if not base or not key:
-                raise SystemExit("::error::Actu Foot database credentials unavailable")
-            print("ACTU_FOOT_BACKEND_READY", "Supabase" if base.startswith("https://") else "Neon")
-            PY
+            python -c 'import sys; sys.path.insert(0,"scripts"); from neon_rest_compat import database_config; base,key=database_config(); assert base and key, "Actu Foot backend unavailable"; print("ACTU_FOOT_BACKEND_READY", "Supabase" if base.startswith("https://") else "Neon")'
           fi
           echo "PRODUCTION_SECRETS_OK mode=$RUN_MODE"
 
