@@ -7,18 +7,17 @@ from datetime import datetime, timezone
 
 import requests
 try:
-    from scripts.neon_rest_compat import NeonRestSession
+    from scripts.neon_rest_compat import NeonRestSession, database_config
 except ModuleNotFoundError:
-    from neon_rest_compat import NeonRestSession
+    from neon_rest_compat import NeonRestSession, database_config
 
 from actu_foot_observability import _actionable_outbox_count
 
 
 def _config() -> tuple[str, str]:
-    base = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
-    key = "server" if os.getenv("NEON_DATABASE_URL") else ""
+    base, key = database_config()
     if not base or not key:
-        raise SystemExit("NEON_DATABASE_URL manquants")
+        raise SystemExit("Actu Foot : backend de données indisponible")
     return base, key
 
 

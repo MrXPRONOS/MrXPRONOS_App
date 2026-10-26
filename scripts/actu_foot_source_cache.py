@@ -11,9 +11,9 @@ from datetime import date, datetime, timedelta, timezone
 
 import requests
 try:
-    from scripts.neon_rest_compat import NeonRestSession
+    from scripts.neon_rest_compat import NeonRestSession, database_config
 except ModuleNotFoundError:
-    from neon_rest_compat import NeonRestSession
+    from neon_rest_compat import NeonRestSession, database_config
 
 _SHARED_SNAPSHOT_FIELDS = (
     "source", "id", "provider_event_id", "home_team", "away_team",
@@ -25,8 +25,7 @@ _SHARED_SNAPSHOT_FIELDS = (
 
 
 def _config() -> tuple[str, str]:
-    base = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
-    key = "server" if os.getenv("NEON_DATABASE_URL") else ""
+    base, key = database_config()
     return base, key
 
 

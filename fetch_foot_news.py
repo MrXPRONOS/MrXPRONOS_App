@@ -501,18 +501,19 @@ def persist_public_news_snapshot(records: list[dict]) -> bool:
     """Publie Infos Foot directement dans Neon (pas de fallback Supabase)."""
     if not records:
         return False
-    from scripts.neon_rest_compat import NeonRestSession
-    if not os.getenv("NEON_DATABASE_URL"):
-        logger.error("NEWS_NEON_SNAPSHOT_NO_DATABASE_URL")
+    from scripts.neon_rest_compat import NeonRestSession, database_config
+    base, key = database_config()
+    if not base:
+        logger.error("NEWS_DATABASE_UNAVAILABLE")
         return False
     now=datetime.now(timezone.utc).isoformat()
     payload={"id":"latest","payload":public_snapshot_records(records),
              "generated_at":now,"updated_at":now}
     try:
         response=NeonRestSession(requests.Session()).post(
-            "neon://private/rest/v1/actu_foot_news_snapshot",
+            base + "/rest/v1/actu_foot_news_snapshot",
             params={"on_conflict":"id"},
-            headers={"Prefer":"resolution=merge-duplicates,return=minimal"},
+            headers={"apikey":key,"Authorization":"Bearer "+key,"Prefer":"resolution=merge-duplicates,return=minimal"},
             json=payload,timeout=(5,15))
         response.raise_for_status()
         logger.info("NEWS_NEON_SNAPSHOT_OK %s",len(payload["payload"]))

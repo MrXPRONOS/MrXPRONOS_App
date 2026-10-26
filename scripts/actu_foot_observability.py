@@ -12,9 +12,9 @@ from datetime import datetime, timezone
 
 import requests
 try:
-    from scripts.neon_rest_compat import NeonRestSession
+    from scripts.neon_rest_compat import NeonRestSession, database_config
 except ModuleNotFoundError:
-    from neon_rest_compat import NeonRestSession
+    from neon_rest_compat import NeonRestSession, database_config
 
 
 def _parse_moment(value) -> datetime | None:
@@ -59,8 +59,7 @@ def _actionable_outbox_count(rows: list[dict], now: datetime | None = None) -> i
 
 def _outbox_pending(session: requests.Session) -> int:
     session = NeonRestSession(session)
-    base = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
-    key = "server" if os.getenv("NEON_DATABASE_URL") else ""
+    base, key = database_config()
     if not base or not key:
         return 0
     try:
@@ -95,8 +94,7 @@ def persist_run_metrics(
     session = NeonRestSession(session)
     if os.getenv("FOOTBALL_RUN_METRICS", "0") != "1":
         return
-    base = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
-    key = "server" if os.getenv("NEON_DATABASE_URL") else ""
+    base, key = database_config()
     if not base or not key:
         return
 

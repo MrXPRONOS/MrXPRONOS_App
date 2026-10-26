@@ -26,9 +26,9 @@ from urllib.parse import urlparse
 
 import requests
 try:
-    from scripts.neon_rest_compat import NeonRestSession
+    from scripts.neon_rest_compat import NeonRestSession, database_config
 except ModuleNotFoundError:
-    from neon_rest_compat import NeonRestSession
+    from neon_rest_compat import NeonRestSession, database_config
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "bsd"))
@@ -231,8 +231,7 @@ def fetch_neon_live(session: requests.Session, max_age_seconds: int = 360) -> li
     matches_live reste un fallback de compatibilité si la table fusionnée est
     momentanément vide ou indisponible.
     """
-    base = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
-    key = "server" if os.getenv("NEON_DATABASE_URL") else ""
+    base, key = database_config()
     if not base or not key:
         return []
     session = NeonRestSession(session)
@@ -355,8 +354,7 @@ def persist_canonical_live_events(
     if not signals:
         return []
     session = NeonRestSession(session)
-    base = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
-    key = "server" if os.getenv("NEON_DATABASE_URL") else ""
+    base, key = database_config()
     if not base or not key:
         if strict:
             raise RuntimeError("Timeline canonique requise mais Neon est indisponible")
@@ -450,8 +448,7 @@ def confirm_canonical_live_event(
     if not event_key:
         return False
     session = NeonRestSession(session)
-    base = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
-    key = "server" if os.getenv("NEON_DATABASE_URL") else ""
+    base, key = database_config()
     if not base or not key:
         if strict:
             raise RuntimeError("Confirmation canonique requise mais Neon est indisponible")
