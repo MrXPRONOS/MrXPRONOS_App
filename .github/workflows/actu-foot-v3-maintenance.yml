@@ -32,7 +32,7 @@ jobs:
     timeout-minutes: 18
     environment: actu-foot-v2-maintenance
     permissions:
-      contents: ${{ inputs.execute == true && 'write' || 'read' }}
+      contents: write
     env:
       GITHUB_REPOSITORY: ${{ github.repository }}
       GITHUB_TOKEN: ${{ github.token }}
