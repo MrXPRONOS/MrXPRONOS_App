@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/actu-foot-v2-backup.yml'
       - 'scripts/actu_foot_v2_operations.py'
+      - 'scripts/actu_foot_v2_oidc_backup.py'
   workflow_dispatch:
   schedule:
     - cron: '17 3 * * 0'
