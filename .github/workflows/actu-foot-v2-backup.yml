@@ -19,6 +19,9 @@ jobs:
       GITHUB_REPOSITORY: ${{ github.repository }}
       GITHUB_REF_NAME: main
       GITHUB_TOKEN: ${{ github.token }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_V2_KV_NAMESPACE_ID: ${{ secrets.CLOUDFLARE_V2_KV_NAMESPACE_ID }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -36,3 +39,11 @@ jobs:
           path: /tmp/actufoot-v2-backup/
           retention-days: 30
           if-no-files-found: error
+      - name: Independent ciphertext replication to Cloudflare KV
+        run: |
+          set -euo pipefail
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ] || [ -z "$CLOUDFLARE_V2_KV_NAMESPACE_ID" ]; then
+            echo "::error::Cloudflare backup secrets unavailable; independent disaster recovery not active."
+            exit 1
+          fi
+          python -m scripts.actu_foot_v2_cloudflare_backup --directory /tmp/actufoot-v2-backup --commit "${{ github.sha }}" --run-id "${{ github.run_id }}"
