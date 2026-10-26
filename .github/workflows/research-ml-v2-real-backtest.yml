@@ -28,7 +28,7 @@ jobs:
         run: python -m py_compile research/single_ml_v2_multisource.py research/single_ml_v2_multisource_compare.py research/single_ml_v2.py
       - name: Regression test for provider team-ID collision and five-way comparator
         run: |
-          PYTHONPATH=.:research python -m unittest research.test_single_ml_v2_multisource_identities research.test_single_ml_v2_multisource_compare -v
+          PYTHONPATH=.:research python -m unittest research.test_single_ml_v2_multisource_identities research.test_single_ml_v2_multisource_compare research.test_single_ml_v2_subset_summary -v
       - name: Historical walk-forward 2026-10-20 through 2026-10-22
         run: |
           set -euo pipefail
