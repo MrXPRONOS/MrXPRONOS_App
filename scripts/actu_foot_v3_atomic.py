@@ -81,7 +81,7 @@ class GitAtomicStore:
         body = response.json()
         if body.get("type") != "file" or body.get("encoding") != "base64":
             raise VaultError("Unexpected repository file type")
-        return base64.b64decode(body["content"], validate=True).decode("utf-8")
+        return base64.b64decode("".join(body["content"].split()), validate=True).decode("utf-8")
 
     def load_collection(self, collection: str, head_sha: str) -> FileState:
         if collection not in COLLECTIONS:
