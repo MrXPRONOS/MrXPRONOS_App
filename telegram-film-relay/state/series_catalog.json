@@ -1,7 +1,7 @@
 {
   "audit": {
     "category": "series_catalog",
-    "checked_at": "2026-10-26T13:12:18.950654+00:00",
+    "checked_at": "2026-10-26T22:45:06.461461+00:00",
     "not_yet_indexed": [
       {
         "episode": 8,
@@ -62,9 +62,69 @@
         "season": "2",
         "series": "ransom-canyon",
         "source_instances": 1
+      },
+      {
+        "episode": 1,
+        "season": "1",
+        "series": "nautilus",
+        "source_instances": 1
+      },
+      {
+        "episode": 2,
+        "season": "1",
+        "series": "nautilus",
+        "source_instances": 1
+      },
+      {
+        "episode": 3,
+        "season": "1",
+        "series": "nautilus",
+        "source_instances": 1
+      },
+      {
+        "episode": 4,
+        "season": "1",
+        "series": "nautilus",
+        "source_instances": 1
+      },
+      {
+        "episode": 5,
+        "season": "1",
+        "series": "nautilus",
+        "source_instances": 1
+      },
+      {
+        "episode": 6,
+        "season": "1",
+        "series": "nautilus",
+        "source_instances": 1
+      },
+      {
+        "episode": 7,
+        "season": "1",
+        "series": "nautilus",
+        "source_instances": 1
+      },
+      {
+        "episode": 8,
+        "season": "1",
+        "series": "nautilus",
+        "source_instances": 1
+      },
+      {
+        "episode": 9,
+        "season": "1",
+        "series": "nautilus",
+        "source_instances": 1
+      },
+      {
+        "episode": 10,
+        "season": "1",
+        "series": "nautilus",
+        "source_instances": 1
       }
     ],
-    "not_yet_indexed_total": 10,
+    "not_yet_indexed_total": 20,
     "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
     "numbering_gap_seasons": 1,
     "numbering_gaps": [
@@ -77,8 +137,8 @@
         "truncated": false
       }
     ],
-    "scanned_episode_candidates": 36,
-    "source_episode_numbers_observed": 36,
+    "scanned_episode_candidates": 45,
+    "source_episode_numbers_observed": 46,
     "source_numbering_gap_seasons": 1,
     "source_numbering_gaps": [
       {
@@ -92,7 +152,7 @@
       }
     ],
     "source_scan_complete": true,
-    "unnumbered_videos_skipped": 58
+    "unnumbered_videos_skipped": 56
   },
   "scans": {
     "-1001733930841": {
@@ -348,6 +408,40 @@
         ],
         "8": [
           "-1003990708673:24"
+        ]
+      }
+    },
+    "nautilus": {
+      "1": {
+        "1": [
+          "-1003990708673:171"
+        ],
+        "10": [
+          "-1003990708673:180"
+        ],
+        "2": [
+          "-1003990708673:172"
+        ],
+        "3": [
+          "-1003990708673:173"
+        ],
+        "4": [
+          "-1003990708673:174"
+        ],
+        "5": [
+          "-1003990708673:175"
+        ],
+        "6": [
+          "-1003990708673:176"
+        ],
+        "7": [
+          "-1003990708673:177"
+        ],
+        "8": [
+          "-1003990708673:178"
+        ],
+        "9": [
+          "-1003990708673:179"
         ]
       }
     },
