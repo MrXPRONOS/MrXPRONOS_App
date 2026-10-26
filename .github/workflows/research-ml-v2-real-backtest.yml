@@ -26,6 +26,9 @@ jobs:
         run: python -m pip install numpy scipy scikit-learn requests cryptography lightgbm==4.6.0 catboost==1.2.8
       - name: Verify all repository code is syntactically valid
         run: python -m py_compile research/single_ml_v2_multisource.py research/single_ml_v2_multisource_compare.py research/single_ml_v2.py
+      - name: Regression test for provider team-ID collision and five-way comparator
+        run: |
+          PYTHONPATH=.:research python -m unittest research.test_single_ml_v2_multisource_identities research.test_single_ml_v2_multisource_compare -v
       - name: Historical walk-forward 2026-10-20 through 2026-10-22
         run: |
           set -euo pipefail
