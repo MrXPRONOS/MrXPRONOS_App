@@ -58,6 +58,21 @@ class TopKTests(unittest.TestCase):
                 self.assertEqual(report["daily_selected_aggregates"][model]["20"][0]["hits"],4)
             _validate_period_report(report)
 
+    def test_csv_rounding_of_tiny_actual_probability_is_not_a_failed_match(self):
+        with tempfile.TemporaryDirectory() as temp:
+            from math import log
+            start,end=WINDOWS[0]
+            rows=fake_rows(start,end)
+            # The chosen score differs from the actual here. CSV export
+            # rounds tiny mass to 0, but its log loss is still finite.
+            rows[1]["actual_probability"]=0.
+            rows[1]["log_loss"]=-log(1e-15)
+            path=Path(temp)/"rounded.csv"
+            make_csv(rows,path)
+            result=from_predictions(path,start=start,end=end)
+            _validate_period_report(result)
+            self.assertEqual(result["daily_selected_aggregates"][MODELS[0]]["5"][0]["hits"],1)
+
     def test_reject_future_train(self):
         with tempfile.TemporaryDirectory() as temp:
             start,end=WINDOWS[0]
