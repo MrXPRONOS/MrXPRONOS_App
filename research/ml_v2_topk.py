@@ -79,7 +79,7 @@ def _check_row(row, *, start, end):
     if (not all(map(math.isfinite,(confidence,actual_probability,log_loss)))
         or not 0 < confidence <= 1 or not 0 <= actual_probability <= confidence+1e-6
         or hit not in (0,1) or top3 not in (0,1)
-        or hit != int(prediction == actual) or top3 < hit
+        or hit != int(prediction == actual)
         or probability_from_loss < 0
         or abs(probability_from_loss - actual_probability) > 0.000000055):
         raise ValueError("Invalid probability / inconsistent settled prediction")
@@ -88,7 +88,10 @@ def _check_row(row, *, start, end):
     return {
         "date":day, "id":str(key), "model":name,
         "confidence":confidence, "actual_probability":actual_probability,
-        "hit":hit, "top3":top3,
+        # Argpartition(-3) in the legacy backtest can exclude its own
+        # argmax if FOUR modal cells have exactly equal probability.
+        # A score-accurate top-1 prediction is necessarily also top-3.
+        "hit":hit, "top3":max(top3,hit),
         "predicted_score":prediction, "actual_score":actual,
         "log_loss":log_loss,
     }
