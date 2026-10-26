@@ -15,6 +15,7 @@ import requests
 
 from scripts.actu_foot_github_vault import VaultError
 from scripts.actu_foot_v2_operations import verify_directory
+from scripts.actu_foot_v2_store import decrypt,verify_audit
 
 AUDIENCE="mrxpronos-actufoot-v2-backup"
 URL="https://mrxpronos-actufoot-v2-backup.cinecanaux-xpronos.workers.dev/v2/backup"
@@ -64,9 +65,15 @@ def push(directory: Path, session=None) -> dict:
     files={name:(directory/meta["filename"]).read_text(encoding="utf-8")
            for name,meta in index["collections"].items()}
     manifest=(directory/"manifest.json").read_text(encoding="utf-8")
+    audit,header=decrypt('audit',files['audit'])
+    verify_audit(audit)
+    latest=max(audit.values(),key=lambda row:row['sequence']) if audit else None
+    anchor={'sequence':latest['sequence'] if latest else 0,
+            'entry_hash':latest['entry_hash'] if latest else '0'*64,
+            'audit_generation':header['generation']}
     client=session or requests.Session()
     token=oidc_token(client)
-    reply=client.post(URL,json={"files":files,"manifest":manifest},
+    reply=client.post(URL,json={"files":files,"manifest":manifest,"anchor":anchor},
                       headers={"Authorization":"Bearer "+token},timeout=(12,65))
     reply.raise_for_status()
     data=reply.json()
