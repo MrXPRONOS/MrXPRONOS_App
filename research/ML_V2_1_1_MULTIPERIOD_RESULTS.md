@@ -64,3 +64,30 @@ Le contrôleur de recherche enregistre désormais la vraie probabilité P(1–1)
 5. Les chiffres présents n'impliquent aucune garantie de réussite ou ROI de paris.
 
 **Isolation** : tous les changements sont dans `research/` et des workflows de recherche. Aucune modification du site, de Telegram, de Supabase/Neon ou de `main`.
+
+
+## Diagnostic approfondi : où se situe la surestimation du 1–1 ?
+
+**HistGB, quatre périodes réunies**, stratification par la vraie probabilité annoncée `P(1–1)` (les bins sont définis dans le code, pas choisis après les scores) :
+
+| Probabilité P(1–1) annoncée | Matchs | Moyenne prévue | Fréquence réelle |
+|---|---:|---:|---:|
+| 0 % à moins de 5 % | 1 276 | 3,72 % | 1,80 % |
+| 5 % à moins de 10 % | 10 299 | 8,18 % | 6,48 % |
+| 10 % à moins de 15 % | 17 563 | 11,82 % | 11,67 % |
+
+La **surestimation se concentre surtout dans les rencontres où P(1–1) est déjà faible**. Dans la tranche 10–15 %, la calibration empirique est beaucoup plus proche des probabilités. Ceci fournit une piste pour un recalibrage *conditionnel*, à tester sur des données ultérieures et non sur ces résultats.
+
+### Diagnostic de substitution du 1–1 par le second score
+
+Des seuils de faible écart de probabilité Top 1 – Top 2 ont été **fixés en avance** (0,005 ; 0,01 ; 0,02 en probabilité absolue). Une substitution uniquement si le Top 1 est 1–1 montre les changements de nombre de succès suivants, sur les quatre périodes :
+
+| Modèle | Écart ≤ 0,005 | Écart ≤ 0,01 | Écart ≤ 0,02 |
+|---|---:|---:|---:|
+| HistGB | **0** | **−59** | **−97** |
+| Hybride | +4 | −34 | −71 |
+| LightGBM | +8 | +28 | −96 |
+| CatBoost | +40 | +22 | −71 |
+| Direct | +24 | −41 | −69 |
+
+Ces écarts ne sont **pas des gains validés ni une stratégie retenue** : ils sont estimés sur le même jeu d'observation rétrospectif, sans intervalles par sous-groupe, et doivent être vérifiés sur un nouveau holdout préenregistré. **Surtout, forcer HistGB à éviter 1–1 peut dégrader nettement ses scores exacts**. Aucun changement de décision n'a été déployé.
