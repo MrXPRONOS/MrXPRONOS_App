@@ -70,11 +70,18 @@ def _check_row(row, *, start, end):
         if (len(pieces) != 2
             or any(not p.isdigit() or not 0 <= int(p) <= 10 for p in pieces)):
             raise ValueError("Invalid goal score")
+    # The source exporter rounds each floating value to 7 decimal places.
+    # A genuine tiny actual-score probability (<5e-8) becomes exactly 0.0
+    # in its CSV, while its original loss still encodes that probability.
+    # Compare exp(-loss) with the unrounded probability INTERVAL instead
+    # of taking log(0) or rejecting valid high-loss score observations.
+    probability_from_loss = math.exp(-log_loss) if math.isfinite(log_loss) and 0<=log_loss<=35 else -1.
     if (not all(map(math.isfinite,(confidence,actual_probability,log_loss)))
-        or not 0 < confidence <= 1 or not 0 < actual_probability <= confidence+1e-6
+        or not 0 < confidence <= 1 or not 0 <= actual_probability <= confidence+1e-6
         or hit not in (0,1) or top3 not in (0,1)
         or hit != int(prediction == actual) or top3 < hit
-        or abs(log_loss + math.log(max(actual_probability,1e-15))) > 0.0001):
+        or probability_from_loss < 0
+        or abs(probability_from_loss - actual_probability) > 0.000000055):
         raise ValueError("Invalid probability / inconsistent settled prediction")
     if row.get("quoted_odds") not in ("", "None", None):
         raise ValueError("Historical score odds unsupported in these research cohorts")
