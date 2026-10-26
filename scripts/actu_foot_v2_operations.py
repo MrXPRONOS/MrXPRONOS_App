@@ -70,16 +70,21 @@ def verify_directory(root: Path, *, require_records: bool = True) -> dict:
 
 def main():
     cli = argparse.ArgumentParser()
-    cli.add_argument("--operation", choices=("backup", "verify", "restore", "rotate"), required=True)
+    cli.add_argument("--operation", choices=("backup", "verify", "restore", "rotate", "recover-artifact"), required=True)
     cli.add_argument("--directory", default="/tmp/actufoot-v2-backup")
     cli.add_argument("--collection", choices=COLLECTIONS)
     cli.add_argument("--expected-sha", default="")
     cli.add_argument("--minimum-generation", type=int, default=0)
     cli.add_argument("--target-version", type=int, default=0)
     cli.add_argument("--confirm", default="")
+    cli.add_argument("--artifact-id", type=int, default=0)
     args = cli.parse_args()
     root = Path(args.directory)
-    if args.operation == "backup":
+    if args.operation == "recover-artifact":
+        from scripts.actu_foot_v2_artifact_recovery import fetch_artifact
+        result = fetch_artifact(args.artifact_id, root)
+        print("VERIFIED_ARTIFACT_READY", result["artifact_id"], len(result["collections"]))
+    elif args.operation == "backup":
         result = snapshot(root)
         print("ENCRYPTED_BACKUP_OK", len(result["collections"]))
     elif args.operation == "verify":
