@@ -79,9 +79,8 @@ jobs:
               python -m scripts.actu_foot_v2_operations --operation verify
               ;;
             restore)
-              test "$CONFIRM" = "RESTORE_ENCRYPTED_V2"
-              test -n "$EXPECTED_SHA"
-              python -m scripts.actu_foot_v2_operations --operation restore --collection "$COLLECTION" --expected-sha "$EXPECTED_SHA" --minimum-generation "$MIN_GENERATION" --confirm "$CONFIRM"
+              echo "::error::Remote restoration requires a verified backup input; intentionally disabled to avoid empty-directory restore."
+              exit 2
               ;;
             rotate)
               test "$CONFIRM" = "ROTATE_ENCRYPTED_V2"
