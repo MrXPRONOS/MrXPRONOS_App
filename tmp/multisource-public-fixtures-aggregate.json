@@ -6,7 +6,7 @@
   ],
   "sources": {
     "2026-10-26": {
-      "fixtures": 217,
+      "fixtures": 239,
       "provider_health": {
         "bsd": {
           "reported": 0,
@@ -27,8 +27,8 @@
           "error": ""
         },
         "sportscore": {
-          "reported": 186,
-          "valid": 186,
+          "reported": 200,
+          "valid": 200,
           "rejected": 0,
           "error": ""
         },
@@ -47,7 +47,7 @@
       }
     },
     "2026-10-27": {
-      "fixtures": 293,
+      "fixtures": 297,
       "provider_health": {
         "bsd": {
           "reported": 0,
@@ -88,7 +88,7 @@
       }
     },
     "2026-10-28": {
-      "fixtures": 383,
+      "fixtures": 381,
       "provider_health": {
         "bsd": {
           "reported": 0,
@@ -103,8 +103,8 @@
           "error": "not queried"
         },
         "espn": {
-          "reported": 181,
-          "valid": 181,
+          "reported": 180,
+          "valid": 180,
           "rejected": 0,
           "error": ""
         },
@@ -129,17 +129,18 @@
       }
     }
   },
-  "total_fixtures": 885,
+  "total_fixtures": 911,
   "sportscore_page_size_limit": 200,
-  "sportscore_days_at_page_limit": 2,
+  "sportscore_days_at_page_limit": 3,
   "sportscore_coverage_possibly_incomplete": true,
   "dedupe_key_includes_kickoff_and_both_club_names": true,
   "requests": {
     "site.api.espn.com": 3,
     "sportscore.com": 3,
-    "www.thesportsdb.com": 3
+    "www.thesportsdb.com": 3,
+    "api.openligadb.de": 4
   },
-  "requests_total": 9,
+  "requests_total": 13,
   "max_requests": 24,
   "no_production_writes": true
 }
