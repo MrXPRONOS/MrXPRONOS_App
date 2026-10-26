@@ -24,7 +24,7 @@ def snapshot(root: Path, *, branch: str = "main", strict: bool = True) -> dict:
             continue
         response.raise_for_status()
         metadata = response.json()
-        blob = base64.b64decode(metadata["content"], validate=True)
+        blob = base64.b64decode("".join(metadata["content"].split()), validate=True)
         records, header = decrypt(collection, blob.decode("utf-8"))
         if collection == "audit":
             verify_audit(records)
