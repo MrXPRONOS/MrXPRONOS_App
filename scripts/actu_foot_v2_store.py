@@ -22,7 +22,9 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
-from scripts.actu_foot_github_vault import GitHubVault, VaultError, VaultConflict
+from scripts.actu_foot_github_vault import VaultError, VaultConflict
+from urllib.parse import quote
+import requests
 
 COLLECTIONS = ("matches", "live_events", "publications", "news", "statistics", "settings", "audit")
 PREFIX = "assets/data/private/actufoot_v2"
@@ -160,12 +162,20 @@ class CollectionVault:
     def __init__(self, collection: str, *, repo: str | None = None,
                  branch: str | None = None, token: str | None = None, session=None):
         self.collection = validate_name(collection)
-        self.backend = GitHubVault(repo=repo, branch=branch, token=token,
-                                   path=collection_path(collection), session=session)
+        self.repo = repo or os.getenv("GITHUB_REPOSITORY", "")
+        self.branch = branch or os.getenv("GITHUB_REF_NAME", "main")
+        self.token = token or os.getenv("GH_VAULT_TOKEN") or os.getenv("GITHUB_TOKEN", "")
+        if len(self.repo.split("/")) != 2 or not self.branch or not self.token:
+            raise VaultError("Repository, branch and GitHub token required")
+        self.session = session or requests.Session()
+        self.url = "https://api.github.com/repos/" + self.repo + "/contents/" + quote(collection_path(collection), safe="/")
+        self.headers = {"Authorization": "Bearer " + self.token,
+                        "Accept": "application/vnd.github+json",
+                        "X-GitHub-Api-Version": "2022-11-28"}
 
     def read(self, *, allow_new: bool = False):
-        response = self.backend.session.get(self.backend.url, headers=self.backend.headers,
-                                            params={"ref": self.backend.branch}, timeout=20)
+        response = self.session.get(self.url, headers=self.headers,
+                                            params={"ref": self.branch}, timeout=20)
         if response.status_code == 404 and allow_new:
             return {}, None, {"generation": 0, "key_version": 1}
         response.raise_for_status()
@@ -179,11 +189,11 @@ class CollectionVault:
     def write(self, records: dict, *, expected_sha: str | None, generation: int,
               key_version: int = 1, message: str = "ops(actu-foot): update encrypted collection") -> str:
         envelope = encrypt(self.collection, records, generation=generation, key_version=key_version)
-        body = {"message": message, "branch": self.backend.branch,
+        body = {"message": message, "branch": self.branch,
                 "content": base64.b64encode(envelope.encode()).decode()}
         if expected_sha:
             body["sha"] = expected_sha
-        response = self.backend.session.put(self.backend.url, headers=self.backend.headers,
+        response = self.session.put(self.url, headers=self.headers,
                                             json=body, timeout=30)
         if response.status_code in (409, 422):
             raise VaultConflict("Concurrent collection update, reload before retry")
