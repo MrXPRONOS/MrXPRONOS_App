@@ -7,6 +7,8 @@ branch, audience and claims). No plaintext is transmitted.
 from __future__ import annotations
 import json
 import os
+import base64
+import time
 from pathlib import Path
 from urllib.parse import urlparse,parse_qsl,urlencode,urlunparse
 import requests
@@ -33,8 +35,27 @@ def oidc_token(session=None) -> str:
     value=resp.json().get("value")
     if not isinstance(value,str) or len(value.split("."))!=3:
         raise VaultError("Invalid OIDC token response")
+    # Emit only boolean claim checks; NEVER print OIDC token or JWT payload.
+    try:
+        segment=value.split(".")[1]
+        payload=json.loads(base64.urlsafe_b64decode(segment+"="*((-len(segment))%4)))
+        checks={
+            "issuer":payload.get("iss")=="https://token.actions.githubusercontent.com",
+            "audience":payload.get("aud")==AUDIENCE,
+            "repository":payload.get("repository")=="MrXPRONOS/MrXPRONOS_App",
+            "repository_id":payload.get("repository_id")=="1169480535",
+            "owner_id":payload.get("repository_owner_id")=="256667374",
+            "workflow_ref":payload.get("workflow_ref")=="MrXPRONOS/MrXPRONOS_App/.github/workflows/actu-foot-v2-backup.yml@refs/heads/main",
+            "ref":payload.get("ref")=="refs/heads/main",
+            "event":payload.get("event_name") in ("push","schedule","workflow_dispatch"),
+            "run_id":bool(str(payload.get("run_id","")).isdigit()),
+            "run_attempt":bool(str(payload.get("run_attempt","")).isdigit()),
+            "sha":bool(__import__("re").fullmatch(r"[0-9a-f]{40}",str(payload.get("sha",""))))
+        }
+        print("OIDC_PUBLIC_CLAIM_CHECKS",json.dumps(checks,sort_keys=True))
+    except Exception:
+        print("OIDC_CLAIM_PARSING_FAILED")
     return value
-
 
 def push(directory: Path, session=None) -> dict:
     index=verify_directory(directory)
