@@ -1,5 +1,404 @@
 [
   {
+    "id": "805531b3eee060de0d0f0b60",
+    "kind": "news",
+    "title": "FC Barcelone : la presse catalane désigne les coupables de la défaite face au Real Madrid",
+    "url": "https://www.footmercato.net/a420768003359884186-fc-barcelone-la-presse-catalane-designe-les-coupables-de-la-defaite-face-au-real-madrid",
+    "source_date": "2026-10-26T07:25:05+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c031e785162938095fd2fb87",
+    "kind": "news",
+    "title": "Ligue des champions CAF: le TP Mazembe ne verra pas la phase de groupe",
+    "url": "https://www.rfi.fr/fr/podcasts/journal-des-sports-afrique/20261026-ligue-des-champions-caf-le-tp-mazembe-ne-verra-pas-la-phase-de-groupe",
+    "source_date": "2026-10-26T06:52:08+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e12c0640e8fe5d20e0643f6a",
+    "kind": "news",
+    "title": "Barça : le choc avec la réalité",
+    "url": "https://m.maxifoot.fr/football/article-66378.htm",
+    "source_date": "2026-10-26T07:50:24+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "993c7c20fee4b5a85673081b",
+    "kind": "news",
+    "title": "Real Madrid : la réaction intrigante de Vinicius après la victoire contre le Barça",
+    "url": "https://www.onzemondial.com/liga/real-madrid-la-reaction-intrigante-de-vinicius-apres-la-victoire-contre-le-barca-1005078",
+    "source_date": "2026-10-26T07:28:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "587d77b938d7b87b141d6a39",
+    "kind": "news",
+    "title": "Real Madrid : quand Kylian Mbappé célèbre la victoire contre le Barça avec Noah Lunsi",
+    "url": "https://www.footmercato.net/a2154150590205274317-real-madrid-quand-kylian-mbappe-celebre-la-victoire-contre-le-barca-avec-noah-lunsi",
+    "source_date": "2026-10-26T07:25:15+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8dbf5c88ef525aac532bf66f",
+    "kind": "news",
+    "title": "Ligue 1 : PSG - OL : les compos probables",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-psg-ol-les-compos-probables-543581.html",
+    "source_date": "2026-10-26T07:22:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a250f58c86a28f2407d48b67",
+    "kind": "news",
+    "title": "Barça - Real Madrid : \"On était tranquille\", José Mourinho se vante après la victoire dans le Clasico",
+    "url": "https://www.onzemondial.com/liga/barca-real-madrid-on-etait-tranquilles-jose-mourinho-se-vante-apres-la-victoire-dans-le-clasico-1005072",
+    "source_date": "2026-10-26T07:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "26578705d6b8118fb4b94f05",
+    "kind": "news",
+    "title": "Man United : la réaction de Michael Carrick à la boulette de Leny Yoro",
+    "url": "https://www.footmercato.net/a7783960949556878245-mu-la-reaction-de-michael-carrick-a-la-boulette-de-leny-yoro",
+    "source_date": "2026-10-26T06:55:24+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "eec31ee8cec5f85ce0bed625",
+    "kind": "news",
+    "title": "Football: un doublé de Kylian Mbappé offre le clasico au Real Madrid",
+    "url": "https://www.rfi.fr/fr/podcasts/journal-des-sports/20261026-football-un-doubl%C3%A9-de-kylian-mbapp%C3%A9-offre-le-clasico-au-real-madrid",
+    "source_date": "2026-10-26T06:51:14+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d365d846a06d7eb839ab8f3b",
+    "kind": "news",
+    "title": "Ballon d’Or : les premiers indices tombent sur l’identité du vainqueur !",
+    "url": "https://www.footmercato.net/a1026284967032018777-ballon-dor-les-premiers-indices-tombent-sur-lidentite-du-vainqueur",
+    "source_date": "2026-10-26T06:46:21+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "fe5ab4abe2df9cde68a03350",
+    "kind": "news",
+    "title": "OL : \"Un retour de Endrick ? Il faudra peut-être recruter un 9\", Fonseca lance le mercato lyonnais",
+    "url": "https://www.onzemondial.com/ligue-1/ol-un-retour-d-endrick-il-faudra-peut-etre-recruter-un-9-cet-hiver-fonseca-lance-le-mercato-lyonnais-1004991",
+    "source_date": "2026-10-26T06:30:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4e7b8566ab9cb85d09ff8ab8",
+    "kind": "news",
+    "title": "Le Real Madrid remporte le Clasico face au FC Barcelone grâce à Kylian Mbappé",
+    "url": "https://www.france24.com/fr/%C3%A9missions/sports/20261026-le-real-madrid-remporte-clasico-face-fc-barcelone-gr%C3%A2ce-kylian-mbapp%C3%A9",
+    "source_date": "2026-10-26T06:29:39+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6e4dc595428e53a5083254b8",
+    "kind": "news",
+    "title": "Crystal Palace : un favori clair se dégage pour l’après-Sage",
+    "url": "https://www.footmercato.net/a4440945442461789490-crystal-palace-un-favori-clair-se-degage-pour-lapres-sage",
+    "source_date": "2026-10-26T06:17:58+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ded1370234a1732f09abfedb",
+    "kind": "news",
+    "title": "Ballon d’or 2026 : retour sur l’âge d’or du trophée entre 1996 et 2006",
+    "url": "https://www.sofoot.com/articles/ballon-dor-2026-retour-sur-lage-dor-du-trophee-entre-1996-et-2006",
+    "source_date": "2026-10-26T06:00:32+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cb279af92a158d4070507981",
+    "kind": "news",
+    "title": "Match ce soir : Le programme TV foot du jour (26/10/2026)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-match-ce-soir-le-programme-tv-foot-du-jour-26-10-2026-543580.html",
+    "source_date": "2026-10-26T06:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "22eea14d611d59a38278bd37",
+    "kind": "news",
+    "title": "OM : l'énorme vente de McCourt à 112 millions d'euros actée",
+    "url": "https://www.onzemondial.com/ligue-1/om-lenorme-vente-de-mccourt-a-112-millions-deuros-actee-1004964",
+    "source_date": "2026-10-26T06:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "944155ed790bee8081773758",
+    "kind": "news",
+    "title": "Trophée Kopa : Lamine Yamal en route pour le triplé?",
+    "url": "https://www.onzemondial.com/ligue-des-champions/trophee-kopa-lamine-yamal-en-immense-favori-1004971",
+    "source_date": "2026-10-26T05:30:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b5030e8a3ff9267bc8dc6674",
+    "kind": "news",
+    "title": "Ballon d’or : Qui était Sir Stanley Matthews, à qui la cérémonie rendra hommage ?",
+    "url": "https://www.sofoot.com/articles/ballon-dor-qui-etait-sir-stanley-matthews-a-qui-la-ceremonie-rendra-hommage",
+    "source_date": "2026-10-26T05:00:24+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e9bd4eca938fdb5c470cdfd5",
+    "kind": "news",
+    "title": "Ballon d'or 2026 : Kylian Mbappé, Lamine Yamal, Harry Kane... Les arguments des principaux favoris",
+    "url": "https://www.franceinfo.fr/sports/foot/ballon-d-or/ballon-d-or-2026-kylian-mbappe-lamine-yamal-harry-kane-les-arguments-des-principaux-favoris_8244049.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-10-26T05:00:02+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-26T07:53:18.404882+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "ff39d8487d5348991efc3d34",
     "kind": "article",
     "title": "Flamengo vs Atlético Mineiro : fiche match BSD V2",
@@ -82,7 +481,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2bd90dd75fb71ffbd180afc9",
@@ -103,7 +502,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "84186e6b7b356ba266713cc6",
@@ -187,7 +586,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5c07f5bce4d40e13f05892e0",
@@ -208,7 +607,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b04d067728e9894afa0cf9ca",
@@ -292,7 +691,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "12fe75093a65db36ec4e1350",
@@ -313,7 +712,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9c21e6722368254a4d4615b0",
@@ -334,7 +733,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "274daca69628b58dcbd8b750",
@@ -355,7 +754,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e8941844468633f0fc7b3996",
@@ -376,7 +775,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "bea3711191645702af5796b8",
@@ -397,7 +796,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8f6756e9a4da073ededfd6e3",
@@ -418,7 +817,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "209ea1983751ade343bfff2a",
@@ -439,7 +838,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8f502f433216428a46c519f9",
@@ -460,7 +859,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "72835c7368a2c1415d513933",
@@ -481,7 +880,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1e6515c4aaaa3b60aa09f0df",
@@ -502,7 +901,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9dc62571942c593de055c483",
@@ -523,7 +922,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "42bb3de650b49a16dff55529",
@@ -544,7 +943,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "857d24bfcd1740850ea65006",
@@ -565,7 +964,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "12b1c698f5616b0364ce2891",
@@ -586,7 +985,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6537dbec83d403b3c836acce",
