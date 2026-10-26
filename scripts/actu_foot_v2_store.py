@@ -186,7 +186,7 @@ class CollectionVault:
         doc = response.json()
         if doc.get("type") != "file" or doc.get("encoding") != "base64" or not doc.get("sha"):
             raise VaultError("Unexpected GitHub response")
-        envelope = base64.b64decode(doc["content"], validate=True).decode()
+        envelope = base64.b64decode("".join(doc["content"].split()), validate=True).decode()
         records, header = decrypt(self.collection, envelope)
         if self.collection == "audit":
             verify_audit(records)
