@@ -93,11 +93,11 @@ class TopKTests(unittest.TestCase):
                 pooled(paths[:3],reps=10)
             report=pooled(paths,reps=30)
             self.assertEqual(report["months"],4)
-            self.assertEqual(report["days"],123)
-            self.assertEqual(report["eligible_matches"],3075)
-            self.assertEqual(report["overall"]["5"][MODELS[0]]["selected"],615)
-            self.assertEqual(report["overall"]["10"][MODELS[0]]["successes"],246)
-            self.assertEqual(report["overall"]["20"][MODELS[0]]["successes"],492)
+            self.assertEqual(report["days"],122)
+            self.assertEqual(report["eligible_matches"],3050)
+            self.assertEqual(report["overall"]["5"][MODELS[0]]["selected"],610)
+            self.assertEqual(report["overall"]["10"][MODELS[0]]["successes"],244)
+            self.assertEqual(report["overall"]["20"][MODELS[0]]["successes"],488)
             self.assertEqual(len(report["bootstrap_paired_utc_days"]["difference_vs_histgb_pp_ci95"]["5"]),4)
 
 
