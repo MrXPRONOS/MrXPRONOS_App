@@ -1,10 +1,15 @@
 name: Actu Foot V2 - Encrypted backup verification
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/actu-foot-v2-backup.yml'
   workflow_dispatch:
   schedule:
     - cron: '17 3 * * 0'
 permissions:
   contents: read
+  id-token: write
 concurrency:
   group: actu-foot-v2-backup
   cancel-in-progress: false
@@ -36,3 +41,5 @@ jobs:
           path: /tmp/actufoot-v2-backup/
           retention-days: 30
           if-no-files-found: error
+      - name: Publish encrypted snapshot with GitHub OIDC
+        run: python -m scripts.actu_foot_v2_oidc_backup
