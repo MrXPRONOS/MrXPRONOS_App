@@ -86,6 +86,9 @@ jobs:
       PROD_FOOTBALL_NEWS_CHAT_ID: ${{ secrets.FOOTBALL_NEWS_CHAT_ID }}
       TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
       NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      ACTU_FOOT_BACKEND: supabase
       FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
       API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
       PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
@@ -193,7 +196,15 @@ jobs:
             test -n "$BSD_API_KEY"
           fi
           if [ "${{ steps.telegram_route.outputs.destination }}" != "dry-run" ]; then
-            test -n "$NEON_DATABASE_URL" || { echo "::error::NEON_DATABASE_URL manquant : aucun fallback Supabase"; exit 1; }
+            python - <<'PY'
+import sys
+sys.path.insert(0,"scripts")
+from neon_rest_compat import database_config
+base, key = database_config()
+if not base or not key:
+    raise SystemExit("::error::Actu Foot database credentials unavailable")
+print("ACTU_FOOT_BACKEND_READY", "Supabase" if base.startswith("https://") else "Neon")
+PY
           fi
           echo "PRODUCTION_SECRETS_OK mode=$RUN_MODE"
 
