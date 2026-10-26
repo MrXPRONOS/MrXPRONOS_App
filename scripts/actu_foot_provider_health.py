@@ -12,14 +12,13 @@ from typing import Any
 
 import requests
 try:
-    from scripts.neon_rest_compat import NeonRestSession
+    from scripts.neon_rest_compat import NeonRestSession, database_config
 except ModuleNotFoundError:
-    from neon_rest_compat import NeonRestSession
+    from neon_rest_compat import NeonRestSession, database_config
 
 
 def _config() -> tuple[str, str]:
-    base = "neon://private" if os.getenv("NEON_DATABASE_URL") else ""
-    key = "server" if os.getenv("NEON_DATABASE_URL") else ""
+    base, key = database_config()
     return base, key
 
 
