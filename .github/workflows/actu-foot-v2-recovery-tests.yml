@@ -1,0 +1,33 @@
+name: Actu Foot V2 - Recovery checks
+on:
+  pull_request:
+    paths:
+      - 'cloudflare/actufoot-v2-backup-worker.mjs'
+      - 'scripts/actu_foot_v2_cloudflare_recovery.py'
+      - 'scripts/actu_foot_v2_oidc_backup.py'
+      - '.github/workflows/actu-foot-v2-recovery-tests.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'cloudflare/actufoot-v2-backup-worker.mjs'
+      - 'scripts/actu_foot_v2_cloudflare_recovery.py'
+      - 'scripts/actu_foot_v2_oidc_backup.py'
+      - '.github/workflows/actu-foot-v2-recovery-tests.yml'
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python -m pip install 'cryptography>=43,<47' 'requests>=2.31,<3'
+      - run: python -m py_compile scripts/actu_foot_v2_cloudflare_recovery.py scripts/actu_foot_v2_oidc_backup.py
+      - run: python -m unittest tests_football_channel.test_actu_foot_v2_store tests_football_channel.test_actu_foot_v2_oidc_backup -v
+      - run: node --check cloudflare/actufoot-v2-backup-worker.mjs
