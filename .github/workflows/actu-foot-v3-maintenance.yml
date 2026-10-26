@@ -1,0 +1,62 @@
+name: Actu Foot V3 - Safe archive maintenance
+on:
+  workflow_dispatch:
+    inputs:
+      collection:
+        type: choice
+        required: true
+        options: [matches, live_events, news, statistics]
+      retention_days:
+        type: number
+        required: true
+        default: 90
+      execute:
+        type: boolean
+        default: false
+        required: true
+      confirmation:
+        type: string
+        required: false
+        description: "APPROVE_V3_ENCRYPTED_COMPACTION required when execute=true"
+  schedule:
+    - cron: '21 2 * * 1'
+permissions:
+  contents: read
+concurrency:
+  group: actufoot-v3-atomic-maintenance
+  cancel-in-progress: false
+jobs:
+  maintenance:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    environment: actu-foot-v2-maintenance
+    permissions:
+      contents: ${{ inputs.execute == true && 'write' || 'read' }}
+    env:
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      GITHUB_TOKEN: ${{ github.token }}
+      ACTU_FOOT_V2_KEY_B64_V1: ${{ secrets.ACTU_FOOT_V2_KEY_B64_V1 }}
+      ACTU_FOOT_V2_KEY_B64_V2: ${{ secrets.ACTU_FOOT_V2_KEY_B64_V2 }}
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      ACTU_FOOT_V2_ALLOW_LEGACY_KEY: '1'
+      COLLECTION: ${{ inputs.collection || 'matches' }}
+      DAYS: ${{ inputs.retention_days || 90 }}
+      EXECUTE: ${{ inputs.execute || false }}
+      CONFIRMATION: ${{ inputs.confirmation || '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'cryptography>=43,<47' 'requests>=2.31,<3'
+      - name: Preview or explicitly approved encrypted compaction
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$EXECUTE" = 'true' ]; then
+            test "$CONFIRMATION" = 'APPROVE_V3_ENCRYPTED_COMPACTION'
+            python -m scripts.actu_foot_v3_maintenance --collection "$COLLECTION" --retention-days "$DAYS" --execute --confirmation "$CONFIRMATION"
+          else
+            python -m scripts.actu_foot_v3_maintenance --collection "$COLLECTION" --retention-days "$DAYS"
+          fi
