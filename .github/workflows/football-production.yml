@@ -7,6 +7,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/football_channel.py'
+      - 'scripts/actu_foot_clasico_recovery.py'
       - 'scripts/football_followup.py'
       - 'scripts/actu_foot_observability.py'
       - 'scripts/neon_rest_compat.py'
@@ -256,6 +257,10 @@ PY
           key: football-${{ steps.telegram_route.outputs.destination }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
             football-${{ steps.telegram_route.outputs.destination }}-
+
+      - name: Rattrapage unique du Clásico confirmé avant le programme
+        if: ${{ steps.telegram_route.outputs.destination == 'production' && (inputs.mode || 'full') != 'lifecycle' }}
+        run: python -m scripts.actu_foot_clasico_recovery
 
       - name: Publier sur Telegram
         id: telegram_dispatch
