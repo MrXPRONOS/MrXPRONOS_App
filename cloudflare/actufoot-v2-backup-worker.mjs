@@ -31,7 +31,7 @@ async function authenticate(header) {
   if(claims.iss!==ISSUER || claims.aud!==AUDIENCE || claims.repository!==REPO
      || claims.repository_id!=="1169480535" || claims.repository_owner_id!=="256667374"
      || claims.workflow_ref!==WORKFLOW || claims.ref!=="refs/heads/main"
-     || !["schedule","workflow_dispatch"].includes(claims.event_name)
+     || !["schedule","workflow_dispatch","push"].includes(claims.event_name)
      || typeof claims.exp!=="number" || claims.exp<now-30 || claims.exp>now+900
      || typeof claims.iat!=="number" || claims.iat>now+60 || claims.iat<now-900
      || !/^\\d+$/.test(String(claims.run_id||""))
