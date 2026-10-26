@@ -1,0 +1,91 @@
+name: Actu Foot V2 - Controlled encrypted maintenance
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        type: choice
+        required: true
+        options:
+          - verify
+          - restore
+          - rotate
+      collection:
+        type: choice
+        required: true
+        options:
+          - matches
+          - live_events
+          - publications
+          - news
+          - statistics
+          - settings
+          - audit
+      confirmation:
+        description: 'RESTORE_ENCRYPTED_V2 or ROTATE_ENCRYPTED_V2 for writes'
+        type: string
+        required: false
+      expected_sha:
+        description: 'GitHub SHA for guarded restore'
+        type: string
+        required: false
+      minimum_generation:
+        type: number
+        default: 1
+        required: false
+      target_version:
+        type: number
+        default: 2
+        required: false
+permissions:
+  contents: read
+concurrency:
+  group: actu-foot-v2-maintenance
+  cancel-in-progress: false
+jobs:
+  maintenance:
+    environment: actu-foot-v2-maintenance
+    if: ${{ github.ref == 'refs/heads/main' }}
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ACTU_FOOT_V2_KEY_B64_V1: ${{ secrets.ACTU_FOOT_V2_KEY_B64_V1 }}
+      ACTU_FOOT_V2_KEY_B64_V2: ${{ secrets.ACTU_FOOT_V2_KEY_B64_V2 }}
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      ACTU_FOOT_V2_ALLOW_LEGACY_KEY: '1'
+      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      GITHUB_REF_NAME: main
+      OP: ${{ inputs.operation }}
+      COLLECTION: ${{ inputs.collection }}
+      CONFIRM: ${{ inputs.confirmation }}
+      EXPECTED_SHA: ${{ inputs.expected_sha }}
+      MIN_GENERATION: ${{ inputs.minimum_generation }}
+      NEW_VERSION: ${{ inputs.target_version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'cryptography>=43,<47' 'requests>=2.31,<3'
+      - name: Verify live state or execute explicitly guarded operation
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "$OP" in
+            verify)
+              python -m scripts.actu_foot_v2_operations --operation backup
+              python -m scripts.actu_foot_v2_operations --operation verify
+              ;;
+            restore)
+              test "$CONFIRM" = "RESTORE_ENCRYPTED_V2"
+              test -n "$EXPECTED_SHA"
+              python -m scripts.actu_foot_v2_operations --operation restore --collection "$COLLECTION" --expected-sha "$EXPECTED_SHA" --minimum-generation "$MIN_GENERATION" --confirm "$CONFIRM"
+              ;;
+            rotate)
+              test "$CONFIRM" = "ROTATE_ENCRYPTED_V2"
+              python -m scripts.actu_foot_v2_operations --operation rotate --collection "$COLLECTION" --target-version "$NEW_VERSION" --confirm "$CONFIRM"
+              ;;
+            *) exit 2 ;;
+          esac
