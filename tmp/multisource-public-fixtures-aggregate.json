@@ -1,53 +1,12 @@
 {
   "days": [
-    "2026-10-25",
     "2026-10-26",
-    "2026-10-27"
+    "2026-10-27",
+    "2026-10-28"
   ],
   "sources": {
-    "2026-10-25": {
-      "fixtures": 536,
-      "provider_health": {
-        "bsd": {
-          "reported": 0,
-          "valid": 0,
-          "rejected": 0,
-          "error": ""
-        },
-        "api_football": {
-          "reported": 0,
-          "valid": 0,
-          "rejected": 0,
-          "error": "not queried"
-        },
-        "espn": {
-          "reported": 336,
-          "valid": 336,
-          "rejected": 0,
-          "error": ""
-        },
-        "sportscore": {
-          "reported": 200,
-          "valid": 200,
-          "rejected": 0,
-          "error": ""
-        },
-        "thesportsdb": {
-          "reported": 3,
-          "valid": 3,
-          "rejected": 0,
-          "error": ""
-        },
-        "openligadb": {
-          "reported": 5,
-          "valid": 5,
-          "rejected": 0,
-          "error": ""
-        }
-      }
-    },
     "2026-10-26": {
-      "fixtures": 216,
+      "fixtures": 217,
       "provider_health": {
         "bsd": {
           "reported": 0,
@@ -68,8 +27,8 @@
           "error": ""
         },
         "sportscore": {
-          "reported": 185,
-          "valid": 185,
+          "reported": 186,
+          "valid": 186,
           "rejected": 0,
           "error": ""
         },
@@ -127,9 +86,50 @@
           "error": ""
         }
       }
+    },
+    "2026-10-28": {
+      "fixtures": 383,
+      "provider_health": {
+        "bsd": {
+          "reported": 0,
+          "valid": 0,
+          "rejected": 0,
+          "error": ""
+        },
+        "api_football": {
+          "reported": 0,
+          "valid": 0,
+          "rejected": 0,
+          "error": "not queried"
+        },
+        "espn": {
+          "reported": 181,
+          "valid": 181,
+          "rejected": 0,
+          "error": ""
+        },
+        "sportscore": {
+          "reported": 200,
+          "valid": 200,
+          "rejected": 0,
+          "error": ""
+        },
+        "thesportsdb": {
+          "reported": 3,
+          "valid": 3,
+          "rejected": 0,
+          "error": ""
+        },
+        "openligadb": {
+          "reported": 8,
+          "valid": 8,
+          "rejected": 0,
+          "error": ""
+        }
+      }
     }
   },
-  "total_fixtures": 1033,
+  "total_fixtures": 885,
   "sportscore_page_size_limit": 200,
   "sportscore_days_at_page_limit": 2,
   "sportscore_coverage_possibly_incomplete": true,
