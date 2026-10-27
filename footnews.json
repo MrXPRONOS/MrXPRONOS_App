@@ -1,93 +1,144 @@
 [
   {
-    "slug": "0133c09d30414f0b",
-    "title": "PSG : l’heure de Mika Godts est enfin arrivé !",
-    "summary": "Longtemps discret depuis son arrivée au PSG cet été, Mika Godts a enfin frappé un grand coup. Entré en jeu face à l’OL (2-0), l’ailier belge a débloqué la rencontre avec une passe décisive et son (…)",
-    "summary_short": "Longtemps discret depuis son arrivée au PSG cet été, Mika Godts a enfin frappé un grand coup. Entré en jeu face à l’OL (2-0), l’ailier belge a débloqué la rencontre avec une passe décisive et son (…)",
-    "content": "Longtemps discret depuis son arrivée au PSG cet été, Mika Godts a enfin frappé un grand coup. Entré en jeu face à l’OL (2-0), l’ailier belge a débloqué la rencontre avec une passe décisive et son (…)",
+    "slug": "e85f81be80e448e4",
+    "title": "Manchester United va devoir payer pour son futur coach",
+    "summary": "Actuellement seizième de Premier League avec seulement 7 points en 8 matches, Manchester United est en crise sur ce début de saison. Les Red Devils envisagent d’ailleurs de licencier leur coach (…)",
+    "summary_short": "Actuellement seizième de Premier League avec seulement 7 points en 8 matches, Manchester United est en crise sur ce début de saison. Les Red Devils envisagent d’ailleurs de licencier leur coach (…)",
+    "content": "Actuellement seizième de Premier League avec seulement 7 points en 8 matches, Manchester United est en crise sur ce début de saison. Les Red Devils envisagent d’ailleurs de licencier leur coach (…)",
     "paragraphs": [
-      "Longtemps discret depuis son arrivée au PSG cet été, Mika Godts a enfin frappé un grand coup. Entré en jeu face à l’OL (2-0), l’ailier belge a débloqué la rencontre avec une passe décisive et son (…)"
+      "Actuellement seizième de Premier League avec seulement 7 points en 8 matches, Manchester United est en crise sur ce début de saison. Les Red Devils envisagent d’ailleurs de licencier leur coach (…)"
     ],
     "key_points": [
-      "Longtemps discret depuis son arrivée au PSG cet été, Mika Godts a enfin frappé un grand coup.",
-      "Entré en jeu face à l’OL (2-0), l’ailier belge a débloqué la rencontre avec une passe décisive et son (…)"
+      "Actuellement seizième de Premier League avec seulement 7 points en 8 matches, Manchester United est en crise sur ce début de saison.",
+      "Les Red Devils envisagent d’ailleurs de licencier leur coach (…)"
     ],
-    "telegram_summary": "Longtemps discret depuis son arrivée au PSG cet été, Mika Godts a enfin frappé un grand coup. Entré en jeu face à l’OL (2-0), l’ailier belge a débloqué la rencontre avec une passe décisive et son (…)",
-    "link": "https://www.footmercato.net/a8990575431725419274-psg-lheure-de-mika-godts-est-enfin-arrive",
-    "source_url": "https://www.footmercato.net/a8990575431725419274-psg-lheure-de-mika-godts-est-enfin-arrive",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0133c09d30414f0b",
-    "published": "2026-10-27T06:07:00+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/godts-6ab4d9f714004.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/godts-6ab4d9f714004.jpg",
+    "telegram_summary": "Actuellement seizième de Premier League avec seulement 7 points en 8 matches, Manchester United est en crise sur ce début de saison. Les Red Devils envisagent d’ailleurs de licencier leur coach (…)",
+    "link": "https://www.footmercato.net/a7994534833937266511-manchester-united-va-devoir-payer-pour-son-futur-coach",
+    "source_url": "https://www.footmercato.net/a7994534833937266511-manchester-united-va-devoir-payer-pour-son-futur-coach",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e85f81be80e448e4",
+    "published": "2026-10-27T13:14:39+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/michael-carrick-2627-6adf109766062.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/michael-carrick-2627-6adf109766062.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "Foot Mercato",
     "source_priority": 92,
     "source_region": "international",
     "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Mercato",
-    "category_emoji": "🚨",
+    "category": "Matchs",
+    "category_emoji": "⚽",
     "editorial_score": 4,
-    "espn_verification": {},
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50247189",
+      "url": "https://www.espn.com/video/clip/_/id/50247189/who-blame-manchester-united",
+      "published": "2026-10-22T10:28:31Z",
+      "score": 0.286,
+      "matched_terms": [
+        "manchester",
+        "united"
+      ],
+      "topics": [],
+      "teams": [
+        "Manchester United"
+      ],
+      "athletes": [],
+      "leagues": [
+        "English Premier League",
+        "Soccer",
+        "UEFA Champions League"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-27T13:18:19.809364+00:00"
+    },
     "quality_sources": [
-      "Foot Mercato"
+      "Foot Mercato",
+      "ESPN"
     ],
-    "quality_score": 92
+    "quality_score": 100
   },
   {
-    "slug": "a8e5a8ed6cc899b1",
-    "title": "PSG : « Je suis sûr qu’il reviendra plus fort », le magnifique message d'un joueur du Barça à Kvaratskhelia",
-    "summary": "Touché par la grave blessure de Khvicha Kvaratskhelia, Gavi lui a adressé un message de soutien appuyé, tout en saluant la grande saison réalisée par l’ailier du PSG.",
-    "summary_short": "Touché par la grave blessure de Khvicha Kvaratskhelia, Gavi lui a adressé un message de soutien appuyé, tout en saluant la grande saison réalisée par l’ailier du PSG.",
-    "content": "Touché par la grave blessure de Khvicha Kvaratskhelia, Gavi lui a adressé un message de soutien appuyé, tout en saluant la grande saison réalisée par l’ailier du PSG.",
+    "slug": "c9cfc732563da43a",
+    "title": "La polémique chinoise de Kylian Mbappé peut faire perdre un pont d’or au Real Madrid et à LaLiga !",
+    "summary": "La polémique de Kylian Mbappé en Chine dépasse désormais le cadre personnel. Après la rupture de plusieurs contrats commerciaux et la possible suspension des matchs de Liga sur CCTV, le Real Madrid et (…)",
+    "summary_short": "La polémique de Kylian Mbappé en Chine dépasse désormais le cadre personnel. Après la rupture de plusieurs contrats commerciaux et la possible suspension des matchs de Liga sur CCTV, le Real Madrid et (…)",
+    "content": "La polémique de Kylian Mbappé en Chine dépasse désormais le cadre personnel. Après la rupture de plusieurs contrats commerciaux et la possible suspension des matchs de Liga sur CCTV, le Real Madrid et (…)",
     "paragraphs": [
-      "Touché par la grave blessure de Khvicha Kvaratskhelia, Gavi lui a adressé un message de soutien appuyé, tout en saluant la grande saison réalisée par l’ailier du PSG."
+      "La polémique de Kylian Mbappé en Chine dépasse désormais le cadre personnel. Après la rupture de plusieurs contrats commerciaux et la possible suspension des matchs de Liga sur CCTV, le Real Madrid et (…)"
     ],
     "key_points": [
-      "Touché par la grave blessure de Khvicha Kvaratskhelia, Gavi lui a adressé un message de soutien appuyé, tout en saluant la grande saison réalisée par l’ailier du PSG."
+      "La polémique de Kylian Mbappé en Chine dépasse désormais le cadre personnel.",
+      "Après la rupture de plusieurs contrats commerciaux et la possible suspension des matchs de Liga sur CCTV, le Real Madrid et (…)"
     ],
-    "telegram_summary": "Touché par la grave blessure de Khvicha Kvaratskhelia, Gavi lui a adressé un message de soutien appuyé, tout en saluant la grande saison réalisée par l’ailier du PSG.",
-    "link": "https://www.onzemondial.com/psg-je-suis-sur-quil-viendra-plus-fort-le-magnifique-message-dun-joueur-du-barca-a-kvaratskhelia1005237",
-    "source_url": "https://www.onzemondial.com/psg-je-suis-sur-quil-viendra-plus-fort-le-magnifique-message-dun-joueur-du-barca-a-kvaratskhelia1005237",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a8e5a8ed6cc899b1",
-    "published": "2026-10-27T06:00:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/10/photo_article/1005237/410071/1200-L-psg-je-suis-sr-quil-reviendra-plus-fort-le-magnifique-message-d-un-joueur-du-bara-kvaratskhelia.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1005237/410071/1200-L-psg-je-suis-sr-quil-reviendra-plus-fort-le-magnifique-message-d-un-joueur-du-bara-kvaratskhelia.jpg",
+    "telegram_summary": "La polémique de Kylian Mbappé en Chine dépasse désormais le cadre personnel. Après la rupture de plusieurs contrats commerciaux et la possible suspension des matchs de Liga sur CCTV, le Real Madrid et (…)",
+    "link": "https://www.footmercato.net/a2167695703188268161-la-polemique-chinoise-de-kylian-mbappe-peut-faire-perdre-un-pont-dor-au-real-madrid-et-a-laliga",
+    "source_url": "https://www.footmercato.net/a2167695703188268161-la-polemique-chinoise-de-kylian-mbappe-peut-faire-perdre-un-pont-dor-au-real-madrid-et-a-laliga",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c9cfc732563da43a",
+    "published": "2026-10-27T12:45:18+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dpaphotosten055214-1920x1080.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dpaphotosten055214-1920x1080.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
+    "source": "Foot Mercato",
+    "source_priority": 92,
     "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Blessures",
-    "category_emoji": "🚑",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Polémique",
+    "category_emoji": "🔥",
     "editorial_score": 4,
-    "espn_verification": {},
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50281913",
+      "url": "https://www.espn.com/video/clip/_/id/50281913/kylian-mbappe-double-wins-el-clasico-real-madrid",
+      "published": "2026-10-25T22:57:33Z",
+      "score": 0.286,
+      "matched_terms": [
+        "kylian",
+        "madrid",
+        "mbappe",
+        "real"
+      ],
+      "topics": [],
+      "teams": [
+        "Barcelona",
+        "Real Madrid"
+      ],
+      "athletes": [],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-27T13:18:19.809364+00:00"
+    },
     "quality_sources": [
-      "Onze Mondial"
+      "Foot Mercato",
+      "ESPN"
     ],
-    "quality_score": 80
+    "quality_score": 100
   },
   {
-    "slug": "3a39e0790dc9d875",
-    "title": "Plusieurs paris suspects sur le classement précis du Ballon d’Or !",
-    "summary": "Le Ballon d’Or 2026 est au cœur d’une nouvelle polémique. Quelques jours avant la cérémonie organisée ce lundi 26 octobre à Londres, le média UpsideMedia avait publié une enquête révélant des (…)",
-    "summary_short": "Le Ballon d’Or 2026 est au cœur d’une nouvelle polémique. Quelques jours avant la cérémonie organisée ce lundi 26 octobre à Londres, le média UpsideMedia avait publié une enquête révélant des (…)",
-    "content": "Le Ballon d’Or 2026 est au cœur d’une nouvelle polémique. Quelques jours avant la cérémonie organisée ce lundi 26 octobre à Londres, le média UpsideMedia avait publié une enquête révélant des (…)",
+    "slug": "2bcb1c9870d13b7c",
+    "title": "Kylian Mbappé envoie un message d’excuse aux Chinois !",
+    "summary": "Au cœur d’une immense polémique en Chine après avoir plaisanté au sujet de Mao Zedong, Kylian Mbappé est dans l’oeil du cyclone depuis ce matin. Boycotté en Chine et par plusieurs entreprises (…)",
+    "summary_short": "Au cœur d’une immense polémique en Chine après avoir plaisanté au sujet de Mao Zedong, Kylian Mbappé est dans l’oeil du cyclone depuis ce matin. Boycotté en Chine et par plusieurs entreprises (…)",
+    "content": "Au cœur d’une immense polémique en Chine après avoir plaisanté au sujet de Mao Zedong, Kylian Mbappé est dans l’oeil du cyclone depuis ce matin. Boycotté en Chine et par plusieurs entreprises (…)",
     "paragraphs": [
-      "Le Ballon d’Or 2026 est au cœur d’une nouvelle polémique. Quelques jours avant la cérémonie organisée ce lundi 26 octobre à Londres, le média UpsideMedia avait publié une enquête révélant des (…)"
+      "Au cœur d’une immense polémique en Chine après avoir plaisanté au sujet de Mao Zedong, Kylian Mbappé est dans l’oeil du cyclone depuis ce matin. Boycotté en Chine et par plusieurs entreprises (…)"
     ],
     "key_points": [
-      "Le Ballon d’Or 2026 est au cœur d’une nouvelle polémique.",
-      "Quelques jours avant la cérémonie organisée ce lundi 26 octobre à Londres, le média UpsideMedia avait publié une enquête révélant des (…)"
+      "Au cœur d’une immense polémique en Chine après avoir plaisanté au sujet de Mao Zedong, Kylian Mbappé est dans l’oeil du cyclone depuis ce matin.",
+      "Boycotté en Chine et par plusieurs entreprises (…)"
     ],
-    "telegram_summary": "Le Ballon d’Or 2026 est au cœur d’une nouvelle polémique. Quelques jours avant la cérémonie organisée ce lundi 26 octobre à Londres, le média UpsideMedia avait publié une enquête révélant des (…)",
-    "link": "https://www.footmercato.net/a6753211150283729584-plusieurs-paris-suspects-sur-le-classement-precis-du-ballon-dor",
-    "source_url": "https://www.footmercato.net/a6753211150283729584-plusieurs-paris-suspects-sur-le-classement-precis-du-ballon-dor",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3a39e0790dc9d875",
-    "published": "2026-10-27T01:03:11+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine422254-1920x1080.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine422254-1920x1080.jpg",
+    "telegram_summary": "Au cœur d’une immense polémique en Chine après avoir plaisanté au sujet de Mao Zedong, Kylian Mbappé est dans l’oeil du cyclone depuis ce matin. Boycotté en Chine et par plusieurs entreprises (…)",
+    "link": "https://www.footmercato.net/a1236262635804229970-kylian-mbappe-envoie-un-message-dexcuse-aux-chinois",
+    "source_url": "https://www.footmercato.net/a1236262635804229970-kylian-mbappe-envoie-un-message-dexcuse-aux-chinois",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2bcb1c9870d13b7c",
+    "published": "2026-10-27T11:56:56+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/kylian-mbappe-kritisch-1920x1080.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/kylian-mbappe-kritisch-1920x1080.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "Foot Mercato",
@@ -104,38 +155,176 @@
     "quality_score": 92
   },
   {
-    "slug": "2dff58e7bc25bc5f",
-    "title": "PSG : L'énorme soulagement de Mika Godts après son premier but libérateur sous les couleurs du PSG face à l'OL",
-    "summary": "Muet depuis son arrivée au PSG cet été, Mika Godts, l'ailier belge du club de la capitale, s'est offert son tout premier but ce lundi soir, lors de la victoire de son équipe face à l'OL (2-0).",
-    "summary_short": "Muet depuis son arrivée au PSG cet été, Mika Godts, l'ailier belge du club de la capitale, s'est offert son tout premier but ce lundi soir, lors de la victoire de son équipe face à l'OL (2-0).",
-    "content": "Muet depuis son arrivée au PSG cet été, Mika Godts, l'ailier belge du club de la capitale, s'est offert son tout premier but ce lundi soir, lors de la victoire de son équipe face à l'OL (2-0).",
+    "slug": "de8b6ebbe6e2de38",
+    "title": "Ligue 1 : Une nouvelle rencontre de la 9e journée de L1 décalée (officiel)",
+    "summary": "La LFP a annoncé, ce mardi midi, un nouveau changement dans la programmation de la 9e journée de Ligue 1.",
+    "summary_short": "La LFP a annoncé, ce mardi midi, un nouveau changement dans la programmation de la 9e journée de Ligue 1.",
+    "content": "La LFP a annoncé, ce mardi midi, un nouveau changement dans la programmation de la 9e journée de Ligue 1.",
     "paragraphs": [
-      "Muet depuis son arrivée au PSG cet été, Mika Godts, l'ailier belge du club de la capitale, s'est offert son tout premier but ce lundi soir, lors de la victoire de son équipe face à l'OL (2-0)."
+      "La LFP a annoncé, ce mardi midi, un nouveau changement dans la programmation de la 9e journée de Ligue 1."
     ],
     "key_points": [
-      "Muet depuis son arrivée au PSG cet été, Mika Godts, l'ailier belge du club de la capitale, s'est offert son tout premier but ce lundi soir, lors de la victoire de son équipe face à l'OL (2-0)."
+      "La LFP a annoncé, ce mardi midi, un nouveau changement dans la programmation de la 9e journée de Ligue 1."
     ],
-    "telegram_summary": "Muet depuis son arrivée au PSG cet été, Mika Godts, l'ailier belge du club de la capitale, s'est offert son tout premier but ce lundi soir, lors de la victoire de son équipe face à l'OL (2-0).",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-psg-l-enorme-soulagement-de-mika-godts-apres-son-premier-but-liberateur-sous-les-couleurs-du-psg-face-a-l-ol-543685.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-psg-l-enorme-soulagement-de-mika-godts-apres-son-premier-but-liberateur-sous-les-couleurs-du-psg-face-a-l-ol-543685.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2dff58e7bc25bc5f",
-    "published": "2026-10-26T22:20:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260903095301-9061.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260903095301-9061.jpg",
+    "telegram_summary": "La LFP a annoncé, ce mardi midi, un nouveau changement dans la programmation de la 9e journée de Ligue 1.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-une-nouvelle-rencontre-de-la-9e-journee-de-l1-decalee-officiel-543738.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-une-nouvelle-rencontre-de-la-9e-journee-de-l1-decalee-officiel-543738.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=de8b6ebbe6e2de38",
+    "published": "2026-10-27T11:45:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2025/une/l1-20250731221716-4188.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2025/une/l1-20250731221716-4188.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "MadeInFoot",
     "source_priority": 88,
     "source_region": "international",
     "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Mercato",
-    "category_emoji": "🚨",
+    "category": "Officiel",
+    "category_emoji": "✅",
     "editorial_score": 4,
     "espn_verification": {},
     "quality_sources": [
       "MadeInFoot"
     ],
     "quality_score": 88
+  },
+  {
+    "slug": "248fd870650e84be",
+    "title": "Javier Tebas tacle Kylian Mbappé et s’excuse envers la Chine",
+    "summary": "Kylian Mbappé se retrouve au cœur d’une polémique en Chine après la diffusion d’une vidéo dans laquelle il semble plaisanter au sujet de Mao Zedong, figure historique majeure du pays.",
+    "summary_short": "Kylian Mbappé se retrouve au cœur d’une polémique en Chine après la diffusion d’une vidéo dans laquelle il semble plaisanter au sujet de Mao Zedong, figure historique majeure du pays.",
+    "content": "Kylian Mbappé se retrouve au cœur d’une polémique en Chine après la diffusion d’une vidéo dans laquelle il semble plaisanter au sujet de Mao Zedong, figure historique majeure du pays. Cette séquence a (…)",
+    "paragraphs": [
+      "Kylian Mbappé se retrouve au cœur d’une polémique en Chine après la diffusion d’une vidéo dans laquelle il semble plaisanter au sujet de Mao Zedong, figure historique majeure du pays. Cette séquence a (…)"
+    ],
+    "key_points": [
+      "Kylian Mbappé se retrouve au cœur d’une polémique en Chine après la diffusion d’une vidéo dans laquelle il semble plaisanter au sujet de Mao Zedong, figure historique majeure du pays."
+    ],
+    "telegram_summary": "Kylian Mbappé se retrouve au cœur d’une polémique en Chine après la diffusion d’une vidéo dans laquelle il semble plaisanter au sujet de Mao Zedong, figure historique majeure du pays.",
+    "link": "https://www.footmercato.net/a4236059434655765226-javier-tebas-tacle-kylian-mbappe-et-sexcuse-envers-la-chine",
+    "source_url": "https://www.footmercato.net/a4236059434655765226-javier-tebas-tacle-kylian-mbappe-et-sexcuse-envers-la-chine",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=248fd870650e84be",
+    "published": "2026-10-27T11:22:04+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dpaphotosseven883080.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dpaphotosseven883080.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "5b3bb34df058a31a",
+    "title": "Portugal : Cristiano Ronaldo pré-sélectionné par Jorge Jesus pour la prochaine trêve",
+    "summary": "C’est pas le tout, mais y a un Ballon d’or 2027 à aller conquérir… Absent de la fameuse liste des…",
+    "summary_short": "C’est pas le tout, mais y a un Ballon d’or 2027 à aller conquérir… Absent de la fameuse liste des…",
+    "content": "C’est pas le tout, mais y a un Ballon d’or 2027 à aller conquérir… Absent de la fameuse liste des…",
+    "paragraphs": [
+      "C’est pas le tout, mais y a un Ballon d’or 2027 à aller conquérir… Absent de la fameuse liste des…"
+    ],
+    "key_points": [
+      "C’est pas le tout, mais y a un Ballon d’or 2027 à aller conquérir…"
+    ],
+    "telegram_summary": "C’est pas le tout, mais y a un Ballon d’or 2027 à aller conquérir… Absent de la fameuse liste des…",
+    "link": "https://www.sofoot.com/breves/portugal-cristiano-ronaldo-pre-selectionne-par-jorge-jesus-pour-la-prochaine-treve",
+    "source_url": "https://www.sofoot.com/breves/portugal-cristiano-ronaldo-pre-selectionne-par-jorge-jesus-pour-la-prochaine-treve",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5b3bb34df058a31a",
+    "published": "2026-10-27T10:44:59+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/27114949/14861578.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/27114949/14861578.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Convocations",
+    "category_emoji": "📋",
+    "editorial_score": 4,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50075485",
+      "url": "https://www.espn.com/soccer/story/_/id/50075485/cristiano-ronaldo-long-history-rows-portugal-manchester-united-real-madrid-juventus-coaches",
+      "published": "2026-10-06T20:21:46Z",
+      "score": 0.2,
+      "matched_terms": [
+        "cristiano",
+        "portugal",
+        "ronaldo"
+      ],
+      "topics": [
+        "blog - the toe poke"
+      ],
+      "teams": [
+        "Al Nassr",
+        "Juventus",
+        "Manchester United",
+        "Portugal",
+        "Real Madrid"
+      ],
+      "athletes": [
+        "Cristiano Ronaldo"
+      ],
+      "leagues": [
+        "English Premier League",
+        "Italian Serie A",
+        "Saudi Pro League",
+        "Soccer",
+        "Spanish LALIGA",
+        "UEFA Nations League"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-27T13:18:19.809364+00:00"
+    },
+    "quality_sources": [
+      "So Foot",
+      "ESPN"
+    ],
+    "quality_score": 86
+  },
+  {
+    "slug": "8f16ebe28b19f68a",
+    "title": "PODCAST. Parcoursup va disparaître, les nouvelles voix de Dragon Ball et Mbappé sans ballon : ça dit quoi ce 27 octobre",
+    "summary": "Ce mardi 27 octobre, le gouvernement a fait des annonces pour répondre aux revendications des lycéens, le casting historique de la version française de Dragon Ball s'inquiète d'être remplacé et c'est l'Anglais Harry Kane qui a remporté le Ballon d'Or 2026.",
+    "summary_short": "Ce mardi 27 octobre, le gouvernement a fait des annonces pour répondre aux revendications des lycéens, le casting historique de la version française de Dragon Ball s'inquiète d'être remplacé et c'est l'Anglais Harry Kane qui a remporté le Ballon d'Or 2026.",
+    "content": "Ce mardi 27 octobre, le gouvernement a fait des annonces pour répondre aux revendications des lycéens, le casting historique de la version française de Dragon Ball s'inquiète d'être remplacé et c'est l'Anglais Harry Kane qui a remporté le Ballon d'Or 2026.",
+    "paragraphs": [
+      "Ce mardi 27 octobre, le gouvernement a fait des annonces pour répondre aux revendications des lycéens, le casting historique de la version française de Dragon Ball s'inquiète d'être remplacé et c'est l'Anglais Harry Kane qui a remporté le Ballon d'Or 2026."
+    ],
+    "key_points": [
+      "Ce mardi 27 octobre, le gouvernement a fait des annonces pour répondre aux revendications des lycéens, le casting historique de la version française de Dragon Ball s'inquiète d'être remplacé et c'est l'Anglais Harry Kane qui a remporté le Ballon d'Or 2026."
+    ],
+    "telegram_summary": "Ce mardi 27 octobre, le gouvernement a fait des annonces pour répondre aux revendications des lycéens, le casting historique de la version française de Dragon Ball s'inquiète d'être remplacé et c'est l'Anglais Harry Kane qui a remporté le Ballon d'Or 2026.",
+    "link": "https://www.franceinfo.fr/replay-radio/ca-dit-quoi/podcast-parcoursup-va-disparaitre-les-nouvelles-voix-de-dragon-ball-et-mbappe-sans-ballon-ca-dit-quoi-ce-27-octobre_8246254.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_url": "https://www.franceinfo.fr/replay-radio/ca-dit-quoi/podcast-parcoursup-va-disparaitre-les-nouvelles-voix-de-dragon-ball-et-mbappe-sans-ballon-ca-dit-quoi-ce-27-octobre_8246254.html#xtor=RSS-3-%5Bgeneral%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8f16ebe28b19f68a",
+    "published": "2026-10-27T07:33:42+00:00",
+    "image": "https://www.franceinfo.fr/pictures/wJsj-tLLzO9ieviQ7h6TVn2thoE/0x0:1024x575/432x243/filters:format(jpg)/2025/02/24/000-33mu2t9-67bc98eec3a8b818449158.jpg",
+    "source_image": "https://www.franceinfo.fr/pictures/wJsj-tLLzO9ieviQ7h6TVn2thoE/0x0:1024x575/432x243/filters:format(jpg)/2025/02/24/000-33mu2t9-67bc98eec3a8b818449158.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Déclarations",
+    "category_emoji": "🗣️",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Franceinfo"
+    ],
+    "quality_score": 82
   },
   {
     "slug": "ab330e0d0ed09408",
@@ -244,89 +433,59 @@
     "quality_score": 90
   },
   {
-    "slug": "98d969f1660f22c2",
-    "title": "Harry Kane nommé Ballon d'Or 2026, Kylian Mbappé deuxième devant Lamine Yamal",
-    "summary": "Harry Kane a remporté le Ballon d’Or 2026, décerné pour la première fois à Londres. Il devient le 5e anglais à remporter le trophée, 25 ans après Michael Owen.",
-    "summary_short": "Harry Kane a remporté le Ballon d’Or 2026, décerné pour la première fois à Londres. Il devient le 5e anglais à remporter le trophée, 25 ans après Michael Owen.",
-    "content": "Harry Kane a remporté le Ballon d’Or 2026, décerné pour la première fois à Londres. Il devient le 5e anglais à remporter le trophée, 25 ans après Michael Owen.",
+    "slug": "4c7da4392130361d",
+    "title": "Ballon d'Or 2026 : \"C'était inutile\" ... Thierry Henry critiqué sur les réseaux sociaux pour sa performance",
+    "summary": "Thierry Henry a coanimé la cérémonie du Ballon d'Or ce lundi soir en compagnie de Kate Scott. Et sa performance n'a pas manqué d'être critiquée sur les réseaux sociaux.",
+    "summary_short": "Thierry Henry a coanimé la cérémonie du Ballon d'Or ce lundi soir en compagnie de Kate Scott. Et sa performance n'a pas manqué d'être critiquée sur les réseaux sociaux.",
+    "content": "Thierry Henry a coanimé la cérémonie du Ballon d'Or ce lundi soir en compagnie de Kate Scott. Et sa performance n'a pas manqué d'être critiquée sur les réseaux sociaux.",
     "paragraphs": [
-      "Harry Kane a remporté le Ballon d’Or 2026, décerné pour la première fois à Londres. Il devient le 5e anglais à remporter le trophée, 25 ans après Michael Owen."
+      "Thierry Henry a coanimé la cérémonie du Ballon d'Or ce lundi soir en compagnie de Kate Scott. Et sa performance n'a pas manqué d'être critiquée sur les réseaux sociaux."
     ],
     "key_points": [
-      "Harry Kane a remporté le Ballon d’Or 2026, décerné pour la première fois à Londres.",
-      "Il devient le 5e anglais à remporter le trophée, 25 ans après Michael Owen."
+      "Thierry Henry a coanimé la cérémonie du Ballon d'Or ce lundi soir en compagnie de Kate Scott.",
+      "Et sa performance n'a pas manqué d'être critiquée sur les réseaux sociaux."
     ],
-    "telegram_summary": "Harry Kane a remporté le Ballon d’Or 2026, décerné pour la première fois à Londres. Il devient le 5e anglais à remporter le trophée, 25 ans après Michael Owen.",
-    "link": "https://www.france24.com/fr/%C3%A9missions/sports/20261027-harry-kane-nomm%C3%A9-ballon-or-2026-kylian-mbapp%C3%A9-deuxi%C3%A8me-devant-lamine-yamal",
-    "source_url": "https://www.france24.com/fr/%C3%A9missions/sports/20261027-harry-kane-nomm%C3%A9-ballon-or-2026-kylian-mbapp%C3%A9-deuxi%C3%A8me-devant-lamine-yamal",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=98d969f1660f22c2",
-    "published": "2026-10-27T06:15:30+00:00",
-    "image": "https://s.france24.com/media/display/56e8f064-d1b0-11f1-ac06-4b25c96ec90e/w:1024/p:16x9/kane-1.jpg",
-    "source_image": "https://s.france24.com/media/display/56e8f064-d1b0-11f1-ac06-4b25c96ec90e/w:1024/p:16x9/kane-1.jpg",
+    "telegram_summary": "Thierry Henry a coanimé la cérémonie du Ballon d'Or ce lundi soir en compagnie de Kate Scott. Et sa performance n'a pas manqué d'être critiquée sur les réseaux sociaux.",
+    "link": "https://www.onzemondial.com/autres-championnats/ballon-dor-2026-cetait-inutile-thierry-henry-critique-sur-les-reseaux-sociaux-pour-sa-performance-1005357",
+    "source_url": "https://www.onzemondial.com/autres-championnats/ballon-dor-2026-cetait-inutile-thierry-henry-critique-sur-les-reseaux-sociaux-pour-sa-performance-1005357",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=4c7da4392130361d",
+    "published": "2026-10-27T13:02:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/10/photo_article/1005357/410100/1200-L-ballon-d-or-2026-c-tait-inutile-thierry-henry-critiqu-sur-les-rseaux-sociaux-pour-sa-performance.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1005357/410100/1200-L-ballon-d-or-2026-c-tait-inutile-thierry-henry-critiqu-sur-les-rseaux-sociaux-pour-sa-performance.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
+    "source": "Onze Mondial",
+    "source_priority": 80,
     "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Officiel",
-    "category_emoji": "✅",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50236983",
-      "url": "https://www.espn.com/soccer/story/_/id/50236983/harry-kane-2026-ballon-dor-kylian-mbappe-lamine-yamal",
-      "published": "2026-10-27T00:05:01Z",
-      "score": 0.5,
-      "matched_terms": [
-        "2026",
-        "ballon",
-        "harry",
-        "kane",
-        "kylian",
-        "lamine"
-      ],
-      "topics": [],
-      "teams": [
-        "Bayern Munich"
-      ],
-      "athletes": [
-        "Harry Kane"
-      ],
-      "leagues": [
-        "German Bundesliga",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-27T06:22:29.307295+00:00"
-    },
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Déclarations",
+    "category_emoji": "🗣️",
+    "editorial_score": 2,
+    "espn_verification": {},
     "quality_sources": [
-      "France 24",
-      "ESPN"
+      "Onze Mondial"
     ],
-    "quality_score": 91
+    "quality_score": 80
   },
   {
-    "slug": "1396634ebce6d95e",
-    "title": "Kylian Mbappé adore son meme de Mao Zedong",
-    "summary": "Prétendant au Ballon d’Or, Kylian Mbappé est présent ce lundi du côté de Londres pour la cérémonie. En attendant de savoir s’il sera sacré ou non, l’attaquant français ne manque pas de garder de (…)",
-    "summary_short": "Prétendant au Ballon d’Or, Kylian Mbappé est présent ce lundi du côté de Londres pour la cérémonie. En attendant de savoir s’il sera sacré ou non, l’attaquant français ne manque pas de garder de (…)",
-    "content": "Prétendant au Ballon d’Or, Kylian Mbappé est présent ce lundi du côté de Londres pour la cérémonie. En attendant de savoir s’il sera sacré ou non, l’attaquant français ne manque pas de garder de (…)",
+    "slug": "9fccc7690a3266a0",
+    "title": "Ballon d’Or : le petit frère de Lamine Yamal lui a volé la vedette",
+    "summary": "Alors que Lamine Yamal a vu le trophée lui échapper au profit de Harry Kane, son petit frère Keyne a attiré l’attention des journalistes lors de la cérémonie du Ballon d’Or 2026. Déjà remarqué l’an (…)",
+    "summary_short": "Alors que Lamine Yamal a vu le trophée lui échapper au profit de Harry Kane, son petit frère Keyne a attiré l’attention des journalistes lors de la cérémonie du Ballon d’Or 2026. Déjà remarqué l’an (…)",
+    "content": "Alors que Lamine Yamal a vu le trophée lui échapper au profit de Harry Kane, son petit frère Keyne a attiré l’attention des journalistes lors de la cérémonie du Ballon d’Or 2026. Déjà remarqué l’an (…)",
     "paragraphs": [
-      "Prétendant au Ballon d’Or, Kylian Mbappé est présent ce lundi du côté de Londres pour la cérémonie. En attendant de savoir s’il sera sacré ou non, l’attaquant français ne manque pas de garder de (…)"
+      "Alors que Lamine Yamal a vu le trophée lui échapper au profit de Harry Kane, son petit frère Keyne a attiré l’attention des journalistes lors de la cérémonie du Ballon d’Or 2026. Déjà remarqué l’an (…)"
     ],
     "key_points": [
-      "Prétendant au Ballon d’Or, Kylian Mbappé est présent ce lundi du côté de Londres pour la cérémonie.",
-      "En attendant de savoir s’il sera sacré ou non, l’attaquant français ne manque pas de garder de (…)"
+      "Alors que Lamine Yamal a vu le trophée lui échapper au profit de Harry Kane, son petit frère Keyne a attiré l’attention des journalistes lors de la cérémonie du Ballon d’Or 2026."
     ],
-    "telegram_summary": "Prétendant au Ballon d’Or, Kylian Mbappé est présent ce lundi du côté de Londres pour la cérémonie. En attendant de savoir s’il sera sacré ou non, l’attaquant français ne manque pas de garder de (…)",
-    "link": "https://www.footmercato.net/a5246523010412263760-kylian-mbappe-adore-son-meme-de-mao-zedong",
-    "source_url": "https://www.footmercato.net/a5246523010412263760-kylian-mbappe-adore-son-meme-de-mao-zedong",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1396634ebce6d95e",
-    "published": "2026-10-27T06:13:52+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/diomandembappe.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/diomandembappe.jpg",
+    "telegram_summary": "Alors que Lamine Yamal a vu le trophée lui échapper au profit de Harry Kane, son petit frère Keyne a attiré l’attention des journalistes lors de la cérémonie du Ballon d’Or 2026. Déjà remarqué l’an (…)",
+    "link": "https://www.footmercato.net/a2108111275282828689-ballon-dor-le-petit-frere-de-lamine-yamal-lui-a-vole-la-vedette",
+    "source_url": "https://www.footmercato.net/a2108111275282828689-ballon-dor-le-petit-frere-de-lamine-yamal-lui-a-vole-la-vedette",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9fccc7690a3266a0",
+    "published": "2026-10-27T12:55:55+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/lamine-yamal-et-son-pere.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/lamine-yamal-et-son-pere.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "Foot Mercato",
@@ -336,16 +495,497 @@
     "category": "Actualité",
     "category_emoji": "🚨",
     "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "57f6038b509efe8a",
+    "title": "Kylian Mbappé provoque une levée de boucliers en Chine après des propos sur Mao Zedong",
+    "summary": "Kylian Mbappé fait face à une levée de boucliers et l'annulation de contrats publicitaires en Chine après la diffusion en ligne d'une vidéo dans laquelle la star française de football semble plaisanter à propos de l'ancien dirigeant historique Mao Zedong.",
+    "summary_short": "Kylian Mbappé fait face à une levée de boucliers et l'annulation de contrats publicitaires en Chine après la diffusion en ligne d'une vidéo dans laquelle la star française de football semble plaisanter à propos de l'ancien dirigeant historique Mao Zedong.",
+    "content": "Kylian Mbappé fait face à une levée de boucliers et l'annulation de contrats publicitaires en Chine après la diffusion en ligne d'une vidéo dans laquelle la star française de football semble plaisanter à propos de l'ancien dirigeant historique Mao Zedong. La superstar française Kylian Mbappé a présenté mardi 27 octobre « ses excuses » et s'est dit « sincèrement désolé ».",
+    "paragraphs": [
+      "Kylian Mbappé fait face à une levée de boucliers et l'annulation de contrats publicitaires en Chine après la diffusion en ligne d'une vidéo dans laquelle la star française de football semble plaisanter à propos de l'ancien dirigeant historique Mao Zedong. La superstar française Kylian Mbappé a présenté mardi 27 octobre « ses excuses » et s'est dit « sincèrement désolé »."
+    ],
+    "key_points": [
+      "Kylian Mbappé fait face à une levée de boucliers et l'annulation de contrats publicitaires en Chine après la diffusion en ligne d'une vidéo dans laquelle la star française de football semble plaisanter à propos de l'ancien dirigeant historique Mao Zedong.",
+      "La superstar française Kylian Mbappé a présenté mardi 27 octobre « ses excuses » et s'est dit « sincèrement désolé »."
+    ],
+    "telegram_summary": "Kylian Mbappé fait face à une levée de boucliers et l'annulation de contrats publicitaires en Chine après la diffusion en ligne d'une vidéo dans laquelle la star française de football semble plaisanter à propos de l'ancien dirigeant historique Mao Zedong.",
+    "link": "https://www.rfi.fr/fr/sports/20261027-kylian-mbapp%C3%A9-provoque-une-lev%C3%A9e-de-boucliers-en-chine-apr%C3%A8s-des-propos-sur-mao-zedong",
+    "source_url": "https://www.rfi.fr/fr/sports/20261027-kylian-mbapp%C3%A9-provoque-une-lev%C3%A9e-de-boucliers-en-chine-apr%C3%A8s-des-propos-sur-mao-zedong",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=57f6038b509efe8a",
+    "published": "2026-10-27T12:50:58+00:00",
+    "image": "https://s.rfi.fr/media/display/fb4d70ea-69c7-11f1-b9f2-005056bf30b7/w:1024/p:16x9/kylian-mbappe-but-contre-senegal-mondial-2026.jpg",
+    "source_image": "https://s.rfi.fr/media/display/fb4d70ea-69c7-11f1-b9f2-005056bf30b7/w:1024/p:16x9/kylian-mbappe-but-contre-senegal-mondial-2026.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "RFI",
+    "source_priority": 86,
+    "source_region": "afrique",
+    "source_feed": "https://www.rfi.fr/fr/tag/football/rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "RFI"
+    ],
+    "quality_score": 86
+  },
+  {
+    "slug": "2a0c86442c43c8d4",
+    "title": "PSG : Luis Enrique espère un déclic pour Mika Godts après son but face à l'OL",
+    "summary": "Luis Enrique espère voir un déclic chez Mika Godts après son joli but face à l'OL.",
+    "summary_short": "Luis Enrique espère voir un déclic chez Mika Godts après son joli but face à l'OL.",
+    "content": "Luis Enrique espère voir un déclic chez Mika Godts après son joli but face à l'OL.",
+    "paragraphs": [
+      "Luis Enrique espère voir un déclic chez Mika Godts après son joli but face à l'OL."
+    ],
+    "key_points": [
+      "Luis Enrique espère voir un déclic chez Mika Godts après son joli but face à l'OL."
+    ],
+    "telegram_summary": "Luis Enrique espère voir un déclic chez Mika Godts après son joli but face à l'OL.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-psg-luis-enrique-espere-un-declic-pour-mika-godts-apres-son-but-face-a-l-ol-543747.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-psg-luis-enrique-espere-un-declic-pour-mika-godts-apres-son-but-face-a-l-ol-543747.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2a0c86442c43c8d4",
+    "published": "2026-10-27T12:50:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261027134832-3612.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261027134832-3612.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "254a78552d4b4399",
+    "title": "OM : Les nouvelles sont rassurantes pour Igor Paixão",
+    "summary": "Igor Paixão a le bras en écharpe pour favoriser la récupération de son épaule, douloureuse depuis le match face au Havre.",
+    "summary_short": "Igor Paixão a le bras en écharpe pour favoriser la récupération de son épaule, douloureuse depuis le match face au Havre.",
+    "content": "Igor Paixão a le bras en écharpe pour favoriser la récupération de son épaule, douloureuse depuis le match face au Havre.",
+    "paragraphs": [
+      "Igor Paixão a le bras en écharpe pour favoriser la récupération de son épaule, douloureuse depuis le match face au Havre."
+    ],
+    "key_points": [
+      "Igor Paixão a le bras en écharpe pour favoriser la récupération de son épaule, douloureuse depuis le match face au Havre."
+    ],
+    "telegram_summary": "Igor Paixão a le bras en écharpe pour favoriser la récupération de son épaule, douloureuse depuis le match face au Havre.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-om-les-nouvelles-sont-rassurantes-pour-igor-paixao-543746.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-om-les-nouvelles-sont-rassurantes-pour-igor-paixao-543746.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=254a78552d4b4399",
+    "published": "2026-10-27T12:32:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261025182725-7887.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261025182725-7887.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "ea2475fc4ecc6a9b",
+    "title": "Ligue 1 : le match entre l’OL et Angers décalé",
+    "summary": "En prévision de la troisième journée de mobilisation sociale prévue ce samedi 31 octobre partout en France, une troisième rencontre de Ligue 1 a été décalée à la demande des autorités.",
+    "summary_short": "En prévision de la troisième journée de mobilisation sociale prévue ce samedi 31 octobre partout en France, une troisième rencontre de Ligue 1 a été décalée à la demande des autorités.",
+    "content": "En prévision de la troisième journée de mobilisation sociale prévue ce samedi 31 octobre partout en France, une troisième rencontre de Ligue 1 a été décalée à la demande des autorités. Après (…)",
+    "paragraphs": [
+      "En prévision de la troisième journée de mobilisation sociale prévue ce samedi 31 octobre partout en France, une troisième rencontre de Ligue 1 a été décalée à la demande des autorités. Après (…)"
+    ],
+    "key_points": [
+      "En prévision de la troisième journée de mobilisation sociale prévue ce samedi 31 octobre partout en France, une troisième rencontre de Ligue 1 a été décalée à la demande des autorités."
+    ],
+    "telegram_summary": "En prévision de la troisième journée de mobilisation sociale prévue ce samedi 31 octobre partout en France, une troisième rencontre de Ligue 1 a été décalée à la demande des autorités.",
+    "link": "https://www.footmercato.net/a989933900364734066-ligue-1-le-match-entre-lol-et-angers-decale",
+    "source_url": "https://www.footmercato.net/a989933900364734066-ligue-1-le-match-entre-lol-et-angers-decale",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ea2475fc4ecc6a9b",
+    "published": "2026-10-27T12:27:00+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/ol-tolisso.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/ol-tolisso.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "e6a64cb93abf5dc0",
+    "title": "PSG : Mayulu bientôt Ballon d'Or, la réponse géniale du Titi après l'OL",
+    "summary": "Buteur hier avec le Paris Saint-Germain face à l'OL, Senny Mayulu a été interrogé sur un possible Ballon d'Or un jour dans sa carrière, et sa réponse est géniale.",
+    "summary_short": "Buteur hier avec le Paris Saint-Germain face à l'OL, Senny Mayulu a été interrogé sur un possible Ballon d'Or un jour dans sa carrière, et sa réponse est géniale.",
+    "content": "Buteur hier avec le Paris Saint-Germain face à l'OL, Senny Mayulu a été interrogé sur un possible Ballon d'Or un jour dans sa carrière, et sa réponse est géniale.",
+    "paragraphs": [
+      "Buteur hier avec le Paris Saint-Germain face à l'OL, Senny Mayulu a été interrogé sur un possible Ballon d'Or un jour dans sa carrière, et sa réponse est géniale."
+    ],
+    "key_points": [
+      "Buteur hier avec le Paris Saint-Germain face à l'OL, Senny Mayulu a été interrogé sur un possible Ballon d'Or un jour dans sa carrière, et sa réponse est géniale."
+    ],
+    "telegram_summary": "Buteur hier avec le Paris Saint-Germain face à l'OL, Senny Mayulu a été interrogé sur un possible Ballon d'Or un jour dans sa carrière, et sa réponse est géniale.",
+    "link": "https://www.onzemondial.com/ligue-1/psg-mayulu-bientot-ballon-dor-la-reponse-geniale-du-titi-apres-lol-1005344",
+    "source_url": "https://www.onzemondial.com/ligue-1/psg-mayulu-bientot-ballon-dor-la-reponse-geniale-du-titi-apres-lol-1005344",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e6a64cb93abf5dc0",
+    "published": "2026-10-27T12:24:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/10/photo_article/1005344/410097/1200-L-psg-mayulu-bientt-ballon-d-or-la-rponse-gniale-du-titi-aprs-l-ol.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1005344/410097/1200-L-psg-mayulu-bientt-ballon-d-or-la-rponse-gniale-du-titi-aprs-l-ol.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "44d3ccbbbc43e327",
+    "title": "Chine : Mbappé sort du silence après la controverse",
+    "summary": "Au coeur d'une controverse en Chine, suite à ses propos sur Mao Zedong, Kylian Mbappé a présenté ses excuses dans un c...",
+    "summary_short": "Au coeur d'une controverse en Chine, suite à ses propos sur Mao Zedong, Kylian Mbappé a présenté ses excuses dans un c...",
+    "content": "Au coeur d'une controverse en Chine, suite à ses propos sur Mao Zedong, Kylian Mbappé a présenté ses excuses dans un c...",
+    "paragraphs": [
+      "Au coeur d'une controverse en Chine, suite à ses propos sur Mao Zedong, Kylian Mbappé a présenté ses excuses dans un c..."
+    ],
+    "key_points": [
+      "Au coeur d'une controverse en Chine, suite à ses propos sur Mao Zedong, Kylian Mbappé a présenté ses excuses dans un c..."
+    ],
+    "telegram_summary": "Au coeur d'une controverse en Chine, suite à ses propos sur Mao Zedong, Kylian Mbappé a présenté ses excuses dans un c...",
+    "link": "https://m.maxifoot.fr/football/article-66393.htm",
+    "source_url": "https://m.maxifoot.fr/football/article-66393.htm",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=44d3ccbbbc43e327",
+    "published": "2026-10-27T12:22:39+00:00",
+    "image": "https://photo.maxifoot.fr/mbappe-real-madrid-671.jpg",
+    "source_image": "https://photo.maxifoot.fr/mbappe-real-madrid-671.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Maxifoot",
+    "source_priority": 78,
+    "source_region": "international",
+    "source_feed": "http://rss.maxifoot.com/football-general.xml",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Maxifoot"
+    ],
+    "quality_score": 78
+  },
+  {
+    "slug": "c857703f4574699b",
+    "title": "Ballon d'Or : le PSG s'est-il trompé dans sa stratégie ?",
+    "summary": "Malgré les succès collectifs du Paris Saint-Germain en 2025-2026, aucun joueur du club de la capitale n'a terminé dans le Top...",
+    "summary_short": "Malgré les succès collectifs du Paris Saint-Germain en 2025-2026, aucun joueur du club de la capitale n'a terminé dans le Top...",
+    "content": "Malgré les succès collectifs du Paris Saint-Germain en 2025-2026, aucun joueur du club de la capitale n'a terminé dans le Top...",
+    "paragraphs": [
+      "Malgré les succès collectifs du Paris Saint-Germain en 2025-2026, aucun joueur du club de la capitale n'a terminé dans le Top..."
+    ],
+    "key_points": [
+      "Malgré les succès collectifs du Paris Saint-Germain en 2025-2026, aucun joueur du club de la capitale n'a terminé dans le Top..."
+    ],
+    "telegram_summary": "Malgré les succès collectifs du Paris Saint-Germain en 2025-2026, aucun joueur du club de la capitale n'a terminé dans le Top...",
+    "link": "https://m.maxifoot.fr/football/article-66392.htm",
+    "source_url": "https://m.maxifoot.fr/football/article-66392.htm",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c857703f4574699b",
+    "published": "2026-10-27T12:17:29+00:00",
+    "image": "https://photo.maxifoot.fr/dembele-paris-sg-371.jpg",
+    "source_image": "https://photo.maxifoot.fr/dembele-paris-sg-371.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Maxifoot",
+    "source_priority": 78,
+    "source_region": "international",
+    "source_feed": "http://rss.maxifoot.com/football-general.xml",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Maxifoot"
+    ],
+    "quality_score": 78
+  },
+  {
+    "slug": "ffacfa25643f5480",
+    "title": "OM : L'attitude de Keyliane Abdallah face à la sanction de Bruno Genesio",
+    "summary": "Sanctionné par Bruno Genesio, Keyliane Abdallah veut prouver à l'entraîneur de l'OM qu'il mérite de retrouver l'équipe première.",
+    "summary_short": "Sanctionné par Bruno Genesio, Keyliane Abdallah veut prouver à l'entraîneur de l'OM qu'il mérite de retrouver l'équipe première.",
+    "content": "Sanctionné par Bruno Genesio, Keyliane Abdallah veut prouver à l'entraîneur de l'OM qu'il mérite de retrouver l'équipe première.",
+    "paragraphs": [
+      "Sanctionné par Bruno Genesio, Keyliane Abdallah veut prouver à l'entraîneur de l'OM qu'il mérite de retrouver l'équipe première."
+    ],
+    "key_points": [
+      "Sanctionné par Bruno Genesio, Keyliane Abdallah veut prouver à l'entraîneur de l'OM qu'il mérite de retrouver l'équipe première."
+    ],
+    "telegram_summary": "Sanctionné par Bruno Genesio, Keyliane Abdallah veut prouver à l'entraîneur de l'OM qu'il mérite de retrouver l'équipe première.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-om-l-attitude-de-keyliane-abdallah-face-a-la-sanction-de-bruno-genesio-543743.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-om-l-attitude-de-keyliane-abdallah-face-a-la-sanction-de-bruno-genesio-543743.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ffacfa25643f5480",
+    "published": "2026-10-27T12:10:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-europa/2026/une/c3-20261015224040-6413.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-europa/2026/une/c3-20261015224040-6413.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "8f730719391c29ef",
+    "title": "\"Ce propos était maladroit\" : Kylian Mbappé présente ses excuses à la Chine après avoir déclenché une polémique à cause d'une plaisanterie sur Mao Zedong",
+    "summary": "Après avoir perdu plusieurs partenariats et poussé le président de la Liga à s'excuser, la star du Real Madrid a publié un communiqué, lundi, au terme d'une matinée mouvementée.",
+    "summary_short": "Après avoir perdu plusieurs partenariats et poussé le président de la Liga à s'excuser, la star du Real Madrid a publié un communiqué, lundi, au terme d'une matinée mouvementée.",
+    "content": "Après avoir perdu plusieurs partenariats et poussé le président de la Liga à s'excuser, la star du Real Madrid a publié un communiqué, lundi, au terme d'une matinée mouvementée.",
+    "paragraphs": [
+      "Après avoir perdu plusieurs partenariats et poussé le président de la Liga à s'excuser, la star du Real Madrid a publié un communiqué, lundi, au terme d'une matinée mouvementée."
+    ],
+    "key_points": [
+      "Après avoir perdu plusieurs partenariats et poussé le président de la Liga à s'excuser, la star du Real Madrid a publié un communiqué, lundi, au terme d'une matinée mouvementée."
+    ],
+    "telegram_summary": "Après avoir perdu plusieurs partenariats et poussé le président de la Liga à s'excuser, la star du Real Madrid a publié un communiqué, lundi, au terme d'une matinée mouvementée.",
+    "link": "https://www.franceinfo.fr/sports/foot/kylian-mbappe/jce-propos-etait-maladroit-kylian-mbappe-presente-ses-excuses-a-la-chine-apres-avoir-declenche-une-polemique-a-cause-d-une-plaisanterie-sur-mao-zedong_8255830.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_url": "https://www.franceinfo.fr/sports/foot/kylian-mbappe/jce-propos-etait-maladroit-kylian-mbappe-presente-ses-excuses-a-la-chine-apres-avoir-declenche-une-polemique-a-cause-d-une-plaisanterie-sur-mao-zedong_8255830.html#xtor=RSS-3-%5Bgeneral%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8f730719391c29ef",
+    "published": "2026-10-27T12:08:48+00:00",
+    "image": "https://www.franceinfo.fr/pictures/Gfsb4kE9e_ATINvLoDjxiDHXZBg/0x0:5170x2908/432x243/filters:format(jpg)/2026/10/27/6ae092290828f513907229.jpg",
+    "source_image": "https://www.franceinfo.fr/pictures/Gfsb4kE9e_ATINvLoDjxiDHXZBg/0x0:5170x2908/432x243/filters:format(jpg)/2026/10/27/6ae092290828f513907229.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Franceinfo"
+    ],
+    "quality_score": 82
+  },
+  {
+    "slug": "fac2bac3f7efbeb8",
+    "title": "« Tu es un gagnant » : En 2019, Mourinho avait tout vu à propos de Kane",
+    "summary": "Joue la comme Serge Benamou. Rembobinons à l’époque où les masques faisaient partie de nos outfit…",
+    "summary_short": "Joue la comme Serge Benamou. Rembobinons à l’époque où les masques faisaient partie de nos outfit…",
+    "content": "Joue la comme Serge Benamou. Rembobinons à l’époque où les masques faisaient partie de nos outfit…",
+    "paragraphs": [
+      "Joue la comme Serge Benamou. Rembobinons à l’époque où les masques faisaient partie de nos outfit…"
+    ],
+    "key_points": [
+      "Rembobinons à l’époque où les masques faisaient partie de nos outfit…"
+    ],
+    "telegram_summary": "Joue la comme Serge Benamou. Rembobinons à l’époque où les masques faisaient partie de nos outfit…",
+    "link": "https://www.sofoot.com/breves/tu-es-un-gagnant-en-2019-mourinho-avait-tout-vu-a-propos-de-kane",
+    "source_url": "https://www.sofoot.com/breves/tu-es-un-gagnant-en-2019-mourinho-avait-tout-vu-a-propos-de-kane",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=fac2bac3f7efbeb8",
+    "published": "2026-10-27T12:05:14+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/27140735/3956531.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/27140735/3956531.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "463ede08ff1e4dc0",
+    "title": "Ballon d’Or : la gaffe d’un journaliste avec Michael Owen",
+    "summary": "Un journaliste a commis une belle gaffe sur le tapis rouge du Ballon d’Or en interrogeant Michael Owen, lauréat du trophée en 2001. Pensant visiblement que l’ancien attaquant anglais n’avait jamais (…)",
+    "summary_short": "Un journaliste a commis une belle gaffe sur le tapis rouge du Ballon d’Or en interrogeant Michael Owen, lauréat du trophée en 2001. Pensant visiblement que l’ancien attaquant anglais n’avait jamais (…)",
+    "content": "Un journaliste a commis une belle gaffe sur le tapis rouge du Ballon d’Or en interrogeant Michael Owen, lauréat du trophée en 2001. Pensant visiblement que l’ancien attaquant anglais n’avait jamais (…)",
+    "paragraphs": [
+      "Un journaliste a commis une belle gaffe sur le tapis rouge du Ballon d’Or en interrogeant Michael Owen, lauréat du trophée en 2001. Pensant visiblement que l’ancien attaquant anglais n’avait jamais (…)"
+    ],
+    "key_points": [
+      "Un journaliste a commis une belle gaffe sur le tapis rouge du Ballon d’Or en interrogeant Michael Owen, lauréat du trophée en 2001.",
+      "Pensant visiblement que l’ancien attaquant anglais n’avait jamais (…)"
+    ],
+    "telegram_summary": "Un journaliste a commis une belle gaffe sur le tapis rouge du Ballon d’Or en interrogeant Michael Owen, lauréat du trophée en 2001. Pensant visiblement que l’ancien attaquant anglais n’avait jamais (…)",
+    "link": "https://www.footmercato.net/a5434628872578311838-ballon-dor-la-gaffe-dun-journaliste-avec-michael-owen",
+    "source_url": "https://www.footmercato.net/a5434628872578311838-ballon-dor-la-gaffe-dun-journaliste-avec-michael-owen",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=463ede08ff1e4dc0",
+    "published": "2026-10-27T12:03:53+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxpaimagesthree499834.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxpaimagesthree499834.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "a5d4ed8885e6d583",
+    "title": "OM : la décision radicale de Genesio avec Moumbagna",
+    "summary": "Bruno Genesio, l'entraîneur de l'Olympique de Marseille, a pris une décision radicale concernant Faris Moumbagna. Le joueur de 26 ans n'a pas beaucoup joué cette saison...",
+    "summary_short": "Bruno Genesio, l'entraîneur de l'Olympique de Marseille, a pris une décision radicale concernant Faris Moumbagna. Le joueur de 26 ans n'a pas beaucoup joué cette saison...",
+    "content": "Bruno Genesio, l'entraîneur de l'Olympique de Marseille, a pris une décision radicale concernant Faris Moumbagna. Le joueur de 26 ans n'a pas beaucoup joué cette saison...",
+    "paragraphs": [
+      "Bruno Genesio, l'entraîneur de l'Olympique de Marseille, a pris une décision radicale concernant Faris Moumbagna. Le joueur de 26 ans n'a pas beaucoup joué cette saison..."
+    ],
+    "key_points": [
+      "Bruno Genesio, l'entraîneur de l'Olympique de Marseille, a pris une décision radicale concernant Faris Moumbagna.",
+      "Le joueur de 26 ans n'a pas beaucoup joué cette saison..."
+    ],
+    "telegram_summary": "Bruno Genesio, l'entraîneur de l'Olympique de Marseille, a pris une décision radicale concernant Faris Moumbagna. Le joueur de 26 ans n'a pas beaucoup joué cette saison...",
+    "link": "https://www.onzemondial.com/ligue-1/om-la-decision-radicale-de-genesio-avec-moumbagna-1005330",
+    "source_url": "https://www.onzemondial.com/ligue-1/om-la-decision-radicale-de-genesio-avec-moumbagna-1005330",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a5d4ed8885e6d583",
+    "published": "2026-10-27T12:00:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/10/photo_article/1005330/410093/1200-L-om-la-dcision-radicale-de-genesio-avec-moumbagna.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1005330/410093/1200-L-om-la-dcision-radicale-de-genesio-avec-moumbagna.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "239bfb79ec437b12",
+    "title": "Polémique Mbappé en Chine : Javier Tebas s’excuse auprès du gouvernement chinois après les déclarations de Mbappé sur Mao Zedong",
+    "summary": "Pour quelques contrats en plus. Soucieux de préserver la place de la Liga en Chine, Javier Tebas s’est exprimé ce…",
+    "summary_short": "Pour quelques contrats en plus. Soucieux de préserver la place de la Liga en Chine, Javier Tebas s’est exprimé ce…",
+    "content": "Pour quelques contrats en plus. Soucieux de préserver la place de la Liga en Chine, Javier Tebas s’est exprimé ce…",
+    "paragraphs": [
+      "Pour quelques contrats en plus. Soucieux de préserver la place de la Liga en Chine, Javier Tebas s’est exprimé ce…"
+    ],
+    "key_points": [
+      "Soucieux de préserver la place de la Liga en Chine, Javier Tebas s’est exprimé ce…"
+    ],
+    "telegram_summary": "Pour quelques contrats en plus. Soucieux de préserver la place de la Liga en Chine, Javier Tebas s’est exprimé ce…",
+    "link": "https://www.sofoot.com/breves/polemique-mbappe-en-chine-javier-tebas-sexcuse-aupres-du-gouvernement-chinois-apres-les-declarations-de-mbappe-sur-mao-zedong",
+    "source_url": "https://www.sofoot.com/breves/polemique-mbappe-en-chine-javier-tebas-sexcuse-aupres-du-gouvernement-chinois-apres-les-declarations-de-mbappe-sur-mao-zedong",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=239bfb79ec437b12",
+    "published": "2026-10-27T11:54:55+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/07/21173823/13832289.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/07/21173823/13832289.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
+    "slug": "1eb669b746dbb35e",
+    "title": "Real Madrid : Kylian Mbappé sort du silence après l'énorme polémique avec la Chine",
+    "summary": "Kylian Mbappé a pris la parole pour tenter de mettre fin aux polémiques liées à une phrase tirée d'une interview, évoquant un meme de lui en Mao Zedong.",
+    "summary_short": "Kylian Mbappé a pris la parole pour tenter de mettre fin aux polémiques liées à une phrase tirée d'une interview, évoquant un meme de lui en Mao Zedong.",
+    "content": "Kylian Mbappé a pris la parole pour tenter de mettre fin aux polémiques liées à une phrase tirée d'une interview, évoquant un meme de lui en Mao Zedong.",
+    "paragraphs": [
+      "Kylian Mbappé a pris la parole pour tenter de mettre fin aux polémiques liées à une phrase tirée d'une interview, évoquant un meme de lui en Mao Zedong."
+    ],
+    "key_points": [
+      "Kylian Mbappé a pris la parole pour tenter de mettre fin aux polémiques liées à une phrase tirée d'une interview, évoquant un meme de lui en Mao Zedong."
+    ],
+    "telegram_summary": "Kylian Mbappé a pris la parole pour tenter de mettre fin aux polémiques liées à une phrase tirée d'une interview, évoquant un meme de lui en Mao Zedong.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-real-madrid-kylian-mbappe-sort-du-silence-apres-l-enorme-polemique-avec-la-chine-543739.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-real-madrid-kylian-mbappe-sort-du-silence-apres-l-enorme-polemique-avec-la-chine-543739.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1eb669b746dbb35e",
+    "published": "2026-10-27T11:46:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/buzz/2026/une/buzz-20261008155705-8301.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/buzz/2026/une/buzz-20261008155705-8301.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 3,
     "espn_verification": {
       "provider": "ESPN",
       "source": "ESPN News API",
       "article_id": "50281913",
       "url": "https://www.espn.com/video/clip/_/id/50281913/kylian-mbappe-double-wins-el-clasico-real-madrid",
       "published": "2026-10-25T22:57:33Z",
-      "score": 0.2,
+      "score": 0.308,
       "matched_terms": [
         "kylian",
-        "mbappe"
+        "madrid",
+        "mbappe",
+        "real"
       ],
       "topics": [],
       "teams": [
@@ -358,1169 +998,175 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-27T06:22:29.307295+00:00"
+      "checked_at": "2026-10-27T13:18:19.809364+00:00"
     },
     "quality_sources": [
-      "Foot Mercato",
+      "MadeInFoot",
       "ESPN"
     ],
-    "quality_score": 100
+    "quality_score": 96
   },
   {
-    "slug": "e3234a68d610ee3f",
-    "title": "REPORTAGE. Avec le couronnement à domicile d'Harry Kane, la folie du Ballon d'or a enflammé Londres",
-    "summary": "Pour la première fois de l'histoire, la cérémonie du Ballon d'or était délocalisée à Londres, lundi, pour sa 70e édition.",
-    "summary_short": "Pour la première fois de l'histoire, la cérémonie du Ballon d'or était délocalisée à Londres, lundi, pour sa 70e édition.",
-    "content": "Pour la première fois de l'histoire, la cérémonie du Ballon d'or était délocalisée à Londres, lundi, pour sa 70e édition.",
+    "slug": "9ce866e7133dbf45",
+    "title": "OFFICIEL : OL - Angers décalé au 1er novembre",
+    "summary": "C'est officiel, la rencontre entre Lyon et Angers n'aura pas lieu samedi soir comme prévu mais le dimanche 1er novembre à 17h15.",
+    "summary_short": "C'est officiel, la rencontre entre Lyon et Angers n'aura pas lieu samedi soir comme prévu mais le dimanche 1er novembre à 17h15.",
+    "content": "C'est officiel, la rencontre entre Lyon et Angers n'aura pas lieu samedi soir comme prévu mais le dimanche 1er novembre à 17h15.",
     "paragraphs": [
-      "Pour la première fois de l'histoire, la cérémonie du Ballon d'or était délocalisée à Londres, lundi, pour sa 70e édition."
+      "C'est officiel, la rencontre entre Lyon et Angers n'aura pas lieu samedi soir comme prévu mais le dimanche 1er novembre à 17h15."
     ],
     "key_points": [
-      "Pour la première fois de l'histoire, la cérémonie du Ballon d'or était délocalisée à Londres, lundi, pour sa 70e édition."
+      "C'est officiel, la rencontre entre Lyon et Angers n'aura pas lieu samedi soir comme prévu mais le dimanche 1er novembre à 17h15."
     ],
-    "telegram_summary": "Pour la première fois de l'histoire, la cérémonie du Ballon d'or était délocalisée à Londres, lundi, pour sa 70e édition.",
-    "link": "https://www.franceinfo.fr/sports/foot/ballon-d-or/reportage-avec-le-couronnement-a-domicile-d-harry-kane-la-folie-du-ballon-d-or-a-enflamme-londres_8254720.html#xtor=RSS-3-%5Bgeneral%5D",
-    "source_url": "https://www.franceinfo.fr/sports/foot/ballon-d-or/reportage-avec-le-couronnement-a-domicile-d-harry-kane-la-folie-du-ballon-d-or-a-enflamme-londres_8254720.html#xtor=RSS-3-%5Bgeneral%5D",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e3234a68d610ee3f",
-    "published": "2026-10-27T06:00:02+00:00",
-    "image": "https://www.franceinfo.fr/pictures/lJFjasB1ik5EtmoTKOEuGeYZ6wY/0x32:1024x608/432x243/filters:format(jpg)/2026/10/27/6adff60a36164731475058.jpg",
-    "source_image": "https://www.franceinfo.fr/pictures/lJFjasB1ik5EtmoTKOEuGeYZ6wY/0x32:1024x608/432x243/filters:format(jpg)/2026/10/27/6adff60a36164731475058.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Franceinfo",
-    "source_priority": 82,
-    "source_region": "international",
-    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50291678",
-      "url": "https://www.espn.com/video/clip/_/id/50291678/why-harry-kane-was-rightful-winner-ballon-dor",
-      "published": "2026-10-26T23:08:43Z",
-      "score": 0.273,
-      "matched_terms": [
-        "ballon",
-        "harry",
-        "kane"
-      ],
-      "topics": [],
-      "teams": [
-        "Bayern Munich",
-        "England"
-      ],
-      "athletes": [
-        "Harry Kane"
-      ],
-      "leagues": [
-        "German Bundesliga",
-        "International Friendly",
-        "Soccer",
-        "UEFA Nations League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-27T06:22:29.307295+00:00"
-    },
-    "quality_sources": [
-      "Franceinfo",
-      "ESPN"
-    ],
-    "quality_score": 90
-  },
-  {
-    "slug": "18c4dfc0e432b017",
-    "title": "Match ce soir : Le programme TV foot du jour (27/10/2026)",
-    "summary": "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web.",
-    "summary_short": "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web.",
-    "content": "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web.",
-    "paragraphs": [
-      "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web."
-    ],
-    "key_points": [
-      "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web."
-    ],
-    "telegram_summary": "Retrouvez le programme télé complet des matchs de foot du jour en direct diffusés sur toutes les chaînes françaises de la TNT, du câble, du satellite et du web.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-match-ce-soir-le-programme-tv-foot-du-jour-27-10-2026-543705.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-match-ce-soir-le-programme-tv-foot-du-jour-27-10-2026-543705.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=18c4dfc0e432b017",
-    "published": "2026-10-27T06:00:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240123130427-5058.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240123130427-5058.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "cbf33524fa31da27",
-    "title": "Barça-Real Madrid : Camavinga visé par des projectiles, LaLiga prend une décision",
-    "summary": "LaLiga passe à l’action après les jets de projectiles visant Camavinga lors du Clasico, et le Barça pourrait en faire les frais.",
-    "summary_short": "LaLiga passe à l’action après les jets de projectiles visant Camavinga lors du Clasico, et le Barça pourrait en faire les frais.",
-    "content": "LaLiga passe à l’action après les jets de projectiles visant Camavinga lors du Clasico, et le Barça pourrait en faire les frais.",
-    "paragraphs": [
-      "LaLiga passe à l’action après les jets de projectiles visant Camavinga lors du Clasico, et le Barça pourrait en faire les frais."
-    ],
-    "key_points": [
-      "LaLiga passe à l’action après les jets de projectiles visant Camavinga lors du Clasico, et le Barça pourrait en faire les frais."
-    ],
-    "telegram_summary": "LaLiga passe à l’action après les jets de projectiles visant Camavinga lors du Clasico, et le Barça pourrait en faire les frais.",
-    "link": "https://www.onzemondial.com/liga/barca-real-madrid-camavinga-vise-par-des-projectiles-laliga-prend-une-decision-1005267",
-    "source_url": "https://www.onzemondial.com/liga/barca-real-madrid-camavinga-vise-par-des-projectiles-laliga-prend-une-decision-1005267",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=cbf33524fa31da27",
-    "published": "2026-10-27T05:33:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/10/photo_article/1005267/410078/1200-L-bara-real-madrid-camavinga-vis-par-des-projectiles-laliga-prend-une-dcision.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1005267/410078/1200-L-bara-real-madrid-camavinga-vis-par-des-projectiles-laliga-prend-une-dcision.jpg",
+    "telegram_summary": "C'est officiel, la rencontre entre Lyon et Angers n'aura pas lieu samedi soir comme prévu mais le dimanche 1er novembre à 17h15.",
+    "link": "https://www.onzemondial.com/ligue-1/officiel-ol-angers-decale-au-1er-novembre-1005393",
+    "source_url": "https://www.onzemondial.com/ligue-1/officiel-ol-angers-decale-au-1er-novembre-1005393",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9ce866e7133dbf45",
+    "published": "2026-10-27T11:45:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/10/photo_article/1005393/410109/1200-L-officiel-ol-angers-dcal-au-1er-novembre.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1005393/410109/1200-L-officiel-ol-angers-dcal-au-1er-novembre.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "Onze Mondial",
     "source_priority": 80,
     "source_region": "international",
     "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Officiel",
+    "category_emoji": "✅",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "ba03385a4b6a17d9",
+    "title": "\"Un profond respect pour le peuple chinois\", Mbappé sort du silence et s'excuse après la polémique",
+    "summary": "Kylian Mbappé a pris la parole concernant la polémique sur sa petite blague concernant son \"meme\" en Mao Zedong.",
+    "summary_short": "Kylian Mbappé a pris la parole concernant la polémique sur sa petite blague concernant son \"meme\" en Mao Zedong.",
+    "content": "Kylian Mbappé a pris la parole concernant la polémique sur sa petite blague concernant son \"meme\" en Mao Zedong.",
+    "paragraphs": [
+      "Kylian Mbappé a pris la parole concernant la polémique sur sa petite blague concernant son \"meme\" en Mao Zedong."
+    ],
+    "key_points": [
+      "Kylian Mbappé a pris la parole concernant la polémique sur sa petite blague concernant son \"meme\" en Mao Zedong."
+    ],
+    "telegram_summary": "Kylian Mbappé a pris la parole concernant la polémique sur sa petite blague concernant son \"meme\" en Mao Zedong.",
+    "link": "https://www.onzemondial.com/liga/un-profond-respect-pour-le-peuple-chinois-mbappe-sort-du-silence-et-sexcuse-apres-la-polemique-1005391",
+    "source_url": "https://www.onzemondial.com/liga/un-profond-respect-pour-le-peuple-chinois-mbappe-sort-du-silence-et-sexcuse-apres-la-polemique-1005391",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ba03385a4b6a17d9",
+    "published": "2026-10-27T11:44:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/10/photo_article/1005391/410108/1200-L-un-profond-respect-pour-le-peuple-chinois-mbapp-sort-du-silence-et-s-excuse-aprs-la-polmique.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1005391/410108/1200-L-un-profond-respect-pour-le-peuple-chinois-mbapp-sort-du-silence-et-s-excuse-aprs-la-polmique.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "fea904106cccc1c8",
+    "title": "PSG : la lumière est venue du banc",
+    "summary": "Longtemps tenu en échec, le Paris Saint-Germain a forcé la décision contre l'Olympique Lyonnais (2-0), lundi en Ligue 1, gr&a...",
+    "summary_short": "Longtemps tenu en échec, le Paris Saint-Germain a forcé la décision contre l'Olympique Lyonnais (2-0), lundi en Ligue 1, gr&a...",
+    "content": "Longtemps tenu en échec, le Paris Saint-Germain a forcé la décision contre l'Olympique Lyonnais (2-0), lundi en Ligue 1, gr&a...",
+    "paragraphs": [
+      "Longtemps tenu en échec, le Paris Saint-Germain a forcé la décision contre l'Olympique Lyonnais (2-0), lundi en Ligue 1, gr&a..."
+    ],
+    "key_points": [
+      "Longtemps tenu en échec, le Paris Saint-Germain a forcé la décision contre l'Olympique Lyonnais (2-0), lundi en Ligue 1, gr&a..."
+    ],
+    "telegram_summary": "Longtemps tenu en échec, le Paris Saint-Germain a forcé la décision contre l'Olympique Lyonnais (2-0), lundi en Ligue 1, gr&a...",
+    "link": "https://m.maxifoot.fr/football/article-66391.htm",
+    "source_url": "https://m.maxifoot.fr/football/article-66391.htm",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=fea904106cccc1c8",
+    "published": "2026-10-27T11:40:52+00:00",
+    "image": "https://photo.maxifoot.fr/mayulu-godts-paris-sg-1.jpg",
+    "source_image": "https://photo.maxifoot.fr/mayulu-godts-paris-sg-1.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Maxifoot",
+    "source_priority": 78,
+    "source_region": "international",
+    "source_feed": "http://rss.maxifoot.com/football-general.xml",
     "category": "Compétitions",
     "category_emoji": "🏆",
     "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50281290",
-      "url": "https://www.espn.com/video/clip/_/id/50281290/mbappe-brace-powers-real-madrid-win-barca",
-      "published": "2026-10-25T22:16:31Z",
-      "score": 0.25,
-      "matched_terms": [
-        "barca",
-        "madrid",
-        "real"
-      ],
-      "topics": [],
-      "teams": [
-        "Barcelona",
-        "Real Madrid"
-      ],
-      "athletes": [
-        "Andriy Lunin",
-        "Arda Güler",
-        "Kylian Mbappé",
-        "Lamine Yamal",
-        "Raphinha"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-27T06:22:29.307295+00:00"
-    },
-    "quality_sources": [
-      "Onze Mondial",
-      "ESPN"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "517759f60fff1d6d",
-    "title": "Ballon d’or 2026 : Alexia Putellas, FC Barcelone, Lamine Yamal, Luis de la Fuente, le sacre total du football espagnol",
-    "summary": "Et Viva España, encore une fois.",
-    "summary_short": "Et Viva España, encore une fois.",
-    "content": "Et Viva España, encore une fois.",
-    "paragraphs": [
-      "Et Viva España, encore une fois."
-    ],
-    "key_points": [],
-    "telegram_summary": "Et Viva España, encore une fois.",
-    "link": "https://www.sofoot.com/articles/ballon-dor-2026-alexia-putellas-fc-barcelone-lamine-yamal-luis-de-la-fuente-le-sacre-total-du-football-espagnol",
-    "source_url": "https://www.sofoot.com/articles/ballon-dor-2026-alexia-putellas-fc-barcelone-lamine-yamal-luis-de-la-fuente-le-sacre-total-du-football-espagnol",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=517759f60fff1d6d",
-    "published": "2026-10-27T05:00:36+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/27012459/ICONSPORT_377503_0113-1-scaled.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/27012459/ICONSPORT_377503_0113-1-scaled.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
     "espn_verification": {},
     "quality_sources": [
-      "So Foot"
+      "Maxifoot"
     ],
-    "quality_score": 77
+    "quality_score": 78
   },
   {
-    "slug": "ed8dd0d57ee4c808",
-    "title": "Ballon d’Or : la théorie complotiste d’un ancien du Real Madrid",
-    "summary": "Le Ballon d’Or de Kane ne fait pas que des heureux, et c’est logique. En Espagne, beaucoup auraient aimé voir gagner un joueur champion du monde cet été, ou, pour certains supporters madrilènes, (…)",
-    "summary_short": "Le Ballon d’Or de Kane ne fait pas que des heureux, et c’est logique. En Espagne, beaucoup auraient aimé voir gagner un joueur champion du monde cet été, ou, pour certains supporters madrilènes, (…)",
-    "content": "Le Ballon d’Or de Kane ne fait pas que des heureux, et c’est logique. En Espagne, beaucoup auraient aimé voir gagner un joueur champion du monde cet été, ou, pour certains supporters madrilènes, (…)",
+    "slug": "e4fca34d0120cbab",
+    "title": "PSG : La grosse pensée de Luis Enrique pour Khvicha Kvaratskhelia après la victoire face à Lyon",
+    "summary": "Luis Enrique a eu une grosse pensée pour Khvicha Kvaratskhelia après la victoire contre Lyon.",
+    "summary_short": "Luis Enrique a eu une grosse pensée pour Khvicha Kvaratskhelia après la victoire contre Lyon.",
+    "content": "Luis Enrique a eu une grosse pensée pour Khvicha Kvaratskhelia après la victoire contre Lyon.",
     "paragraphs": [
-      "Le Ballon d’Or de Kane ne fait pas que des heureux, et c’est logique. En Espagne, beaucoup auraient aimé voir gagner un joueur champion du monde cet été, ou, pour certains supporters madrilènes, (…)"
+      "Luis Enrique a eu une grosse pensée pour Khvicha Kvaratskhelia après la victoire contre Lyon."
     ],
     "key_points": [
-      "Le Ballon d’Or de Kane ne fait pas que des heureux, et c’est logique.",
-      "En Espagne, beaucoup auraient aimé voir gagner un joueur champion du monde cet été, ou, pour certains supporters madrilènes, (…)"
+      "Luis Enrique a eu une grosse pensée pour Khvicha Kvaratskhelia après la victoire contre Lyon."
     ],
-    "telegram_summary": "Le Ballon d’Or de Kane ne fait pas que des heureux, et c’est logique. En Espagne, beaucoup auraient aimé voir gagner un joueur champion du monde cet été, ou, pour certains supporters madrilènes, (…)",
-    "link": "https://www.footmercato.net/a5065538269625805983-ballon-dor-la-theorie-complotiste-dun-ancien-du-real-madrid",
-    "source_url": "https://www.footmercato.net/a5065538269625805983-ballon-dor-la-theorie-complotiste-dun-ancien-du-real-madrid",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ed8dd0d57ee4c808",
-    "published": "2026-10-27T00:49:45+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine422254-1920x1080.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine422254-1920x1080.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50286844",
-      "url": "https://www.espn.com/soccer/story/_/id/50286844/real-madrid-end-ballon-dor-boycott-kylian-mbappe-nominated",
-      "published": "2026-10-26T14:44:27Z",
-      "score": 0.273,
-      "matched_terms": [
-        "ballon",
-        "madrid",
-        "real"
-      ],
-      "topics": [],
-      "teams": [
-        "Real Madrid"
-      ],
-      "athletes": [
-        "Felicia Schröder",
-        "Kylian Mbappé"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-27T06:22:29.307295+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "02733c04fcf49272",
-    "title": "Ballon d’Or 2026 : France Football tacle le PSG",
-    "summary": "Alors que les joueurs du Paris Saint-Germain n’ont pas forcément terminé très haut dans le classement final du Ballon d’Or, le rédacteur en chef de France Football a fait quelques révélations.",
-    "summary_short": "Alors que les joueurs du Paris Saint-Germain n’ont pas forcément terminé très haut dans le classement final du Ballon d’Or, le rédacteur en chef de France Football a fait quelques révélations.",
-    "content": "Alors que les joueurs du Paris Saint-Germain n’ont pas forcément terminé très haut dans le classement final du Ballon d’Or, le rédacteur en chef de France Football a fait quelques révélations. Une (…)",
-    "paragraphs": [
-      "Alors que les joueurs du Paris Saint-Germain n’ont pas forcément terminé très haut dans le classement final du Ballon d’Or, le rédacteur en chef de France Football a fait quelques révélations. Une (…)"
-    ],
-    "key_points": [
-      "Alors que les joueurs du Paris Saint-Germain n’ont pas forcément terminé très haut dans le classement final du Ballon d’Or, le rédacteur en chef de France Football a fait quelques révélations."
-    ],
-    "telegram_summary": "Alors que les joueurs du Paris Saint-Germain n’ont pas forcément terminé très haut dans le classement final du Ballon d’Or, le rédacteur en chef de France Football a fait quelques révélations.",
-    "link": "https://www.footmercato.net/a5317410913306040778-ballon-dor-2026-france-football-tacle-le-psg",
-    "source_url": "https://www.footmercato.net/a5317410913306040778-ballon-dor-2026-france-football-tacle-le-psg",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=02733c04fcf49272",
-    "published": "2026-10-27T00:43:44+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine395206-1920x1080.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine395206-1920x1080.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50291642",
-      "url": "https://www.espn.com/video/clip/_/id/50291642/harry-kane-crowned-2026-men-ballon-dor-winner",
-      "published": "2026-10-27T00:09:40Z",
-      "score": 0.25,
-      "matched_terms": [
-        "2026",
-        "ballon"
-      ],
-      "topics": [],
-      "teams": [
-        "Bayern Munich",
-        "England"
-      ],
-      "athletes": [
-        "Harry Kane"
-      ],
-      "leagues": [
-        "German Bundesliga",
-        "International Friendly",
-        "Soccer",
-        "UEFA Nations League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-27T06:22:29.307295+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "ea7fa197eabc061d",
-    "title": "Ballon d’Or : le post de Kylian Mbappé après sa deuxième place",
-    "summary": "Une année de plus, pas de Ballon d’Or pour Kylian Mbappé. Mais cette fois, il n’est pas passé loin du tout, puisque comme l’a révélé le rédacteur en chef de France Football Vincent Garcia, il a (…)",
-    "summary_short": "Une année de plus, pas de Ballon d’Or pour Kylian Mbappé. Mais cette fois, il n’est pas passé loin du tout, puisque comme l’a révélé le rédacteur en chef de France Football Vincent Garcia, il a (…)",
-    "content": "Une année de plus, pas de Ballon d’Or pour Kylian Mbappé. Mais cette fois, il n’est pas passé loin du tout, puisque comme l’a révélé le rédacteur en chef de France Football Vincent Garcia, il a (…)",
-    "paragraphs": [
-      "Une année de plus, pas de Ballon d’Or pour Kylian Mbappé. Mais cette fois, il n’est pas passé loin du tout, puisque comme l’a révélé le rédacteur en chef de France Football Vincent Garcia, il a (…)"
-    ],
-    "key_points": [
-      "Une année de plus, pas de Ballon d’Or pour Kylian Mbappé.",
-      "Mais cette fois, il n’est pas passé loin du tout, puisque comme l’a révélé le rédacteur en chef de France Football Vincent Garcia, il a (…)"
-    ],
-    "telegram_summary": "Une année de plus, pas de Ballon d’Or pour Kylian Mbappé. Mais cette fois, il n’est pas passé loin du tout, puisque comme l’a révélé le rédacteur en chef de France Football Vincent Garcia, il a (…)",
-    "link": "https://www.footmercato.net/a1301546360570078013-ballon-dor-le-post-de-kylian-mbappe-apres-sa-deuxieme-place",
-    "source_url": "https://www.footmercato.net/a1301546360570078013-ballon-dor-le-post-de-kylian-mbappe-apres-sa-deuxieme-place",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ea7fa197eabc061d",
-    "published": "2026-10-27T00:28:45+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/mbappefrance.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/mbappefrance.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50286844",
-      "url": "https://www.espn.com/soccer/story/_/id/50286844/real-madrid-end-ballon-dor-boycott-kylian-mbappe-nominated",
-      "published": "2026-10-26T14:44:27Z",
-      "score": 0.25,
-      "matched_terms": [
-        "ballon",
-        "kylian",
-        "mbappe"
-      ],
-      "topics": [],
-      "teams": [
-        "Real Madrid"
-      ],
-      "athletes": [
-        "Felicia Schröder",
-        "Kylian Mbappé"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-27T06:22:29.307295+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "026b295b81374cb0",
-    "title": "Ballon d’Or : l’avis fort de Samir Nasri sur Harry Kane",
-    "summary": "Harry Kane est le Ballon d’Or 2026. Un choix qui fait parler, forcément, puisque Kylian Mbappé et Lamine Yamal avaient bon nombre d’admirateurs qui voulaient les voir soulever le Graal des (…)",
-    "summary_short": "Harry Kane est le Ballon d’Or 2026. Un choix qui fait parler, forcément, puisque Kylian Mbappé et Lamine Yamal avaient bon nombre d’admirateurs qui voulaient les voir soulever le Graal des (…)",
-    "content": "Harry Kane est le Ballon d’Or 2026. Un choix qui fait parler, forcément, puisque Kylian Mbappé et Lamine Yamal avaient bon nombre d’admirateurs qui voulaient les voir soulever le Graal des (…)",
-    "paragraphs": [
-      "Harry Kane est le Ballon d’Or 2026. Un choix qui fait parler, forcément, puisque Kylian Mbappé et Lamine Yamal avaient bon nombre d’admirateurs qui voulaient les voir soulever le Graal des (…)"
-    ],
-    "key_points": [
-      "Harry Kane est le Ballon d’Or 2026.",
-      "Un choix qui fait parler, forcément, puisque Kylian Mbappé et Lamine Yamal avaient bon nombre d’admirateurs qui voulaient les voir soulever le Graal des (…)"
-    ],
-    "telegram_summary": "Harry Kane est le Ballon d’Or 2026. Un choix qui fait parler, forcément, puisque Kylian Mbappé et Lamine Yamal avaient bon nombre d’admirateurs qui voulaient les voir soulever le Graal des (…)",
-    "link": "https://www.footmercato.net/a4577615513912315859-ballon-dor-lavis-fort-de-samir-nasri-sur-harry-kane",
-    "source_url": "https://www.footmercato.net/a4577615513912315859-ballon-dor-lavis-fort-de-samir-nasri-sur-harry-kane",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=026b295b81374cb0",
-    "published": "2026-10-27T00:19:38+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/harry-kane-2627-mit-dem-ballon-dor.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/harry-kane-2627-mit-dem-ballon-dor.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50291678",
-      "url": "https://www.espn.com/video/clip/_/id/50291678/why-harry-kane-was-rightful-winner-ballon-dor",
-      "published": "2026-10-26T23:08:43Z",
-      "score": 0.333,
-      "matched_terms": [
-        "ballon",
-        "harry",
-        "kane"
-      ],
-      "topics": [],
-      "teams": [
-        "Bayern Munich",
-        "England"
-      ],
-      "athletes": [
-        "Harry Kane"
-      ],
-      "leagues": [
-        "German Bundesliga",
-        "International Friendly",
-        "Soccer",
-        "UEFA Nations League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-27T06:22:29.307295+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "17070026750e51a4",
-    "title": "Ballon d’Or 2026 : Kylian Mbappé était à deux doigts de gagner !",
-    "summary": "Une saison de plus, Kylian Mbappé ne remporte pas le Ballon d’Or. Cette fois, le Bondynois a vu Harry Kane lui arracher le Graal. Mais il n’en était pas loin.« J’ai toujours eu l’idée que le Ballon (…)",
-    "summary_short": "Une saison de plus, Kylian Mbappé ne remporte pas le Ballon d’Or. Cette fois, le Bondynois a vu Harry Kane lui arracher le Graal. Mais il n’en était pas loin.« J’ai toujours eu l’idée que le Ballon (…)",
-    "content": "Une saison de plus, Kylian Mbappé ne remporte pas le Ballon d’Or. Cette fois, le Bondynois a vu Harry Kane lui arracher le Graal. Mais il n’en était pas loin.« J’ai toujours eu l’idée que le Ballon (…)",
-    "paragraphs": [
-      "Une saison de plus, Kylian Mbappé ne remporte pas le Ballon d’Or. Cette fois, le Bondynois a vu Harry Kane lui arracher le Graal. Mais il n’en était pas loin.« J’ai toujours eu l’idée que le Ballon (…)"
-    ],
-    "key_points": [
-      "Une saison de plus, Kylian Mbappé ne remporte pas le Ballon d’Or.",
-      "Cette fois, le Bondynois a vu Harry Kane lui arracher le Graal.",
-      "Mais il n’en était pas loin.« J’ai toujours eu l’idée que le Ballon (…)"
-    ],
-    "telegram_summary": "Une saison de plus, Kylian Mbappé ne remporte pas le Ballon d’Or. Cette fois, le Bondynois a vu Harry Kane lui arracher le Graal. Mais il n’en était pas loin.« J’ai toujours eu l’idée que le Ballon (…)",
-    "link": "https://www.footmercato.net/a6895060178762477017-ballon-dor-2026-kylian-mbappe-etait-a-deux-doigts-de-gagner",
-    "source_url": "https://www.footmercato.net/a6895060178762477017-ballon-dor-2026-kylian-mbappe-etait-a-deux-doigts-de-gagner",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=17070026750e51a4",
-    "published": "2026-10-27T00:11:53+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/mbappevinicius-6ad92d5967551.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/mbappevinicius-6ad92d5967551.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50236983",
-      "url": "https://www.espn.com/soccer/story/_/id/50236983/harry-kane-2026-ballon-dor-kylian-mbappe-lamine-yamal",
-      "published": "2026-10-27T00:05:01Z",
-      "score": 0.235,
-      "matched_terms": [
-        "2026",
-        "ballon",
-        "kylian",
-        "mbappe"
-      ],
-      "topics": [],
-      "teams": [
-        "Bayern Munich"
-      ],
-      "athletes": [
-        "Harry Kane"
-      ],
-      "leagues": [
-        "German Bundesliga",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-27T06:22:29.307295+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "d7bf75d785a8bbb2",
-    "title": "L’écart minuscule entre Harry Kane et Kylian Mbappé au classement du Ballon d’or",
-    "summary": "Le match pour la troisième place à la Coupe du monde aura été déterminant. Ni Harry Kane ni…",
-    "summary_short": "Le match pour la troisième place à la Coupe du monde aura été déterminant. Ni Harry Kane ni…",
-    "content": "Le match pour la troisième place à la Coupe du monde aura été déterminant. Ni Harry Kane ni…",
-    "paragraphs": [
-      "Le match pour la troisième place à la Coupe du monde aura été déterminant. Ni Harry Kane ni…"
-    ],
-    "key_points": [
-      "Le match pour la troisième place à la Coupe du monde aura été déterminant."
-    ],
-    "telegram_summary": "Le match pour la troisième place à la Coupe du monde aura été déterminant. Ni Harry Kane ni…",
-    "link": "https://www.sofoot.com/breves/lecart-minuscule-entre-harry-kane-et-kylian-mbappe-au-classement-du-ballon-dor",
-    "source_url": "https://www.sofoot.com/breves/lecart-minuscule-entre-harry-kane-et-kylian-mbappe-au-classement-du-ballon-dor",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d7bf75d785a8bbb2",
-    "published": "2026-10-27T00:03:11+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/27005236/14312660.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/27005236/14312660.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50236983",
-      "url": "https://www.espn.com/soccer/story/_/id/50236983/harry-kane-2026-ballon-dor-kylian-mbappe-lamine-yamal",
-      "published": "2026-10-27T00:05:01Z",
-      "score": 0.294,
-      "matched_terms": [
-        "ballon",
-        "harry",
-        "kane",
-        "kylian",
-        "mbappe"
-      ],
-      "topics": [],
-      "teams": [
-        "Bayern Munich"
-      ],
-      "athletes": [
-        "Harry Kane"
-      ],
-      "leagues": [
-        "German Bundesliga",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-27T06:22:29.307295+00:00"
-    },
-    "quality_sources": [
-      "So Foot",
-      "ESPN"
-    ],
-    "quality_score": 86
-  },
-  {
-    "slug": "622fc509f0a3c022",
-    "title": "PSG : Luis Enrique s’offre un nouveau record avec la victoire contre Lyon",
-    "summary": "Les Espagnols ne s’arrêtent plus. Alors que le PSG a raflé le prix de la meilleure équipe de la saison…",
-    "summary_short": "Les Espagnols ne s’arrêtent plus. Alors que le PSG a raflé le prix de la meilleure équipe de la saison…",
-    "content": "Les Espagnols ne s’arrêtent plus. Alors que le PSG a raflé le prix de la meilleure équipe de la saison…",
-    "paragraphs": [
-      "Les Espagnols ne s’arrêtent plus. Alors que le PSG a raflé le prix de la meilleure équipe de la saison…"
-    ],
-    "key_points": [
-      "Alors que le PSG a raflé le prix de la meilleure équipe de la saison…"
-    ],
-    "telegram_summary": "Les Espagnols ne s’arrêtent plus. Alors que le PSG a raflé le prix de la meilleure équipe de la saison…",
-    "link": "https://www.sofoot.com/breves/psg-luis-enrique-soffre-un-nouveau-record-avec-la-victoire-contre-lyon",
-    "source_url": "https://www.sofoot.com/breves/psg-luis-enrique-soffre-un-nouveau-record-avec-la-victoire-contre-lyon",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=622fc509f0a3c022",
-    "published": "2026-10-27T00:02:54+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/27005401/15113511.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/27005401/15113511.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "feeb5b663fc0f939",
-    "title": "Ballon d’or : Pourquoi la cérémonie a-t-elle été aussi longue ?",
-    "summary": "Dur, le décalage horaire ? Si la cérémonie du Ballon d’or a été aussi chiante longue, c’est en grande partie à…",
-    "summary_short": "Dur, le décalage horaire ? Si la cérémonie du Ballon d’or a été aussi chiante longue, c’est en grande partie à…",
-    "content": "Dur, le décalage horaire ? Si la cérémonie du Ballon d’or a été aussi chiante longue, c’est en grande partie à…",
-    "paragraphs": [
-      "Dur, le décalage horaire ? Si la cérémonie du Ballon d’or a été aussi chiante longue, c’est en grande partie à…"
-    ],
-    "key_points": [
-      "Si la cérémonie du Ballon d’or a été aussi chiante longue, c’est en grande partie à…"
-    ],
-    "telegram_summary": "Dur, le décalage horaire ? Si la cérémonie du Ballon d’or a été aussi chiante longue, c’est en grande partie à…",
-    "link": "https://www.sofoot.com/breves/ballon-dor-pourquoi-la-ceremonie-a-t-elle-ete-aussi-longue",
-    "source_url": "https://www.sofoot.com/breves/ballon-dor-pourquoi-la-ceremonie-a-t-elle-ete-aussi-longue",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=feeb5b663fc0f939",
-    "published": "2026-10-26T23:51:36+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/27004114/15114073.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/27004114/15114073.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "24486536d215a813",
-    "title": "Le PSG floué à la cérémonie du Ballon d’or ?",
-    "summary": "« Et Ousmane Ballon d’Or ! » Voilà un chant qui semble bien loin désormais, après que Harry Kane ait ramené…",
-    "summary_short": "« Et Ousmane Ballon d’Or ! » Voilà un chant qui semble bien loin désormais, après que Harry Kane ait ramené…",
-    "content": "« Et Ousmane Ballon d’Or ! » Voilà un chant qui semble bien loin désormais, après que Harry Kane ait ramené…",
-    "paragraphs": [
-      "« Et Ousmane Ballon d’Or ! » Voilà un chant qui semble bien loin désormais, après que Harry Kane ait ramené…"
-    ],
-    "key_points": [
-      "« Et Ousmane Ballon d’Or ! » Voilà un chant qui semble bien loin désormais, après que Harry Kane ait ramené…"
-    ],
-    "telegram_summary": "« Et Ousmane Ballon d’Or ! » Voilà un chant qui semble bien loin désormais, après que Harry Kane ait ramené…",
-    "link": "https://www.sofoot.com/breves/le-psg-floue-a-la-ceremonie-du-ballon-dor",
-    "source_url": "https://www.sofoot.com/breves/le-psg-floue-a-la-ceremonie-du-ballon-dor",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=24486536d215a813",
-    "published": "2026-10-26T23:34:27+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/27002519/15053246.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/27002519/15053246.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "120c9715250e98fb",
-    "title": "Ballon d'Or 2026 : l'énorme sourire d'Olise après le sacre de Kane",
-    "summary": "Michael Olise est passé de la déception à la joie en quelques secondes après le sacre de son coéquipier Harry Kane au Ballon d’Or 2026.",
-    "summary_short": "Michael Olise est passé de la déception à la joie en quelques secondes après le sacre de son coéquipier Harry Kane au Ballon d’Or 2026.",
-    "content": "Michael Olise est passé de la déception à la joie en quelques secondes après le sacre de son coéquipier Harry Kane au Ballon d’Or 2026.",
-    "paragraphs": [
-      "Michael Olise est passé de la déception à la joie en quelques secondes après le sacre de son coéquipier Harry Kane au Ballon d’Or 2026."
-    ],
-    "key_points": [
-      "Michael Olise est passé de la déception à la joie en quelques secondes après le sacre de son coéquipier Harry Kane au Ballon d’Or 2026."
-    ],
-    "telegram_summary": "Michael Olise est passé de la déception à la joie en quelques secondes après le sacre de son coéquipier Harry Kane au Ballon d’Or 2026.",
-    "link": "https://www.onzemondial.com/coupe-du-monde/ballon-dor-2026-lenorme-sourire-dolise-apres-le-sacre-de-kane-1005287",
-    "source_url": "https://www.onzemondial.com/coupe-du-monde/ballon-dor-2026-lenorme-sourire-dolise-apres-le-sacre-de-kane-1005287",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=120c9715250e98fb",
-    "published": "2026-10-26T23:31:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/10/photo_article/1005287/410084/1200-L-ballon-d-or-2026-l-norme-sourire-d-olise-aprs-le-sacre-de-kane.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1005287/410084/1200-L-ballon-d-or-2026-l-norme-sourire-d-olise-aprs-le-sacre-de-kane.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50291642",
-      "url": "https://www.espn.com/video/clip/_/id/50291642/harry-kane-crowned-2026-men-ballon-dor-winner",
-      "published": "2026-10-27T00:09:40Z",
-      "score": 0.273,
-      "matched_terms": [
-        "2026",
-        "ballon",
-        "kane"
-      ],
-      "topics": [],
-      "teams": [
-        "Bayern Munich",
-        "England"
-      ],
-      "athletes": [
-        "Harry Kane"
-      ],
-      "leagues": [
-        "German Bundesliga",
-        "International Friendly",
-        "Soccer",
-        "UEFA Nations League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-27T06:22:29.307295+00:00"
-    },
-    "quality_sources": [
-      "Onze Mondial",
-      "ESPN"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "5d1fa4433ebb8e13",
-    "title": "Le classement complet du Ballon d’Or 2026",
-    "summary": "Comme vous avez pu vous en rendre compte il y a quelques minutes, Harry Kane vient d’être sacré…",
-    "summary_short": "Comme vous avez pu vous en rendre compte il y a quelques minutes, Harry Kane vient d’être sacré…",
-    "content": "Comme vous avez pu vous en rendre compte il y a quelques minutes, Harry Kane vient d’être sacré…",
-    "paragraphs": [
-      "Comme vous avez pu vous en rendre compte il y a quelques minutes, Harry Kane vient d’être sacré…"
-    ],
-    "key_points": [
-      "Comme vous avez pu vous en rendre compte il y a quelques minutes, Harry Kane vient d’être sacré…"
-    ],
-    "telegram_summary": "Comme vous avez pu vous en rendre compte il y a quelques minutes, Harry Kane vient d’être sacré…",
-    "link": "https://www.sofoot.com/breves/le-classement-complet-du-ballon-dor-2026",
-    "source_url": "https://www.sofoot.com/breves/le-classement-complet-du-ballon-dor-2026",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5d1fa4433ebb8e13",
-    "published": "2026-10-26T23:22:35+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/27001703/15114052-scaled-e1793056942134.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/27001703/15114052-scaled-e1793056942134.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50291642",
-      "url": "https://www.espn.com/video/clip/_/id/50291642/harry-kane-crowned-2026-men-ballon-dor-winner",
-      "published": "2026-10-27T00:09:40Z",
-      "score": 0.25,
-      "matched_terms": [
-        "2026",
-        "ballon"
-      ],
-      "topics": [],
-      "teams": [
-        "Bayern Munich",
-        "England"
-      ],
-      "athletes": [
-        "Harry Kane"
-      ],
-      "leagues": [
-        "German Bundesliga",
-        "International Friendly",
-        "Soccer",
-        "UEFA Nations League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-27T06:22:29.307295+00:00"
-    },
-    "quality_sources": [
-      "So Foot",
-      "ESPN"
-    ],
-    "quality_score": 86
-  },
-  {
-    "slug": "eefcfcd1843de6cf",
-    "title": "Ballon d'Or: Harry Kane, le sacre d'un footballeur anti-star",
-    "summary": "Avec l'Anglais Harry Kane, le Ballon d'Or 2026 consacre un profil rare de serial-buteur travailleur et collectif, architecte du jeu et finisseur hors pair, un footballeur de 33 ans anti « bling-bling » qui a bien vieilli.",
-    "summary_short": "Avec l'Anglais Harry Kane, le Ballon d'Or 2026 consacre un profil rare de serial-buteur travailleur et collectif, architecte du jeu et finisseur hors pair, un footballeur de 33 ans anti « bling-bling » qui a bien vieilli.",
-    "content": "Avec l'Anglais Harry Kane, le Ballon d'Or 2026 consacre un profil rare de serial-buteur travailleur et collectif, architecte du jeu et finisseur hors pair, un footballeur de 33 ans anti « bling-bling » qui a bien vieilli.",
-    "paragraphs": [
-      "Avec l'Anglais Harry Kane, le Ballon d'Or 2026 consacre un profil rare de serial-buteur travailleur et collectif, architecte du jeu et finisseur hors pair, un footballeur de 33 ans anti « bling-bling » qui a bien vieilli."
-    ],
-    "key_points": [
-      "Avec l'Anglais Harry Kane, le Ballon d'Or 2026 consacre un profil rare de serial-buteur travailleur et collectif, architecte du jeu et finisseur hors pair, un footballeur de 33 ans anti « bling-bling » qui a bien vieilli."
-    ],
-    "telegram_summary": "Avec l'Anglais Harry Kane, le Ballon d'Or 2026 consacre un profil rare de serial-buteur travailleur et collectif, architecte du jeu et finisseur hors pair, un footballeur de 33 ans anti « bling-bling » qui a bien vieilli.",
-    "link": "https://www.rfi.fr/fr/sports/20261026-ballon-d-or-harry-kane-le-sacre-d-un-footballeur-anti-star",
-    "source_url": "https://www.rfi.fr/fr/sports/20261026-ballon-d-or-harry-kane-le-sacre-d-un-footballeur-anti-star",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=eefcfcd1843de6cf",
-    "published": "2026-10-26T23:15:32+00:00",
-    "image": "https://s.rfi.fr/media/display/786d09ac-d190-11f1-bfca-4b25c96ec90e/w:1024/p:16x9/2026-10-26T225506Z-1425220547-UP1EMAQ1RNT4K-RTRMADP-3-SOCCER-BALLON.jpg",
-    "source_image": "https://s.rfi.fr/media/display/786d09ac-d190-11f1-bfca-4b25c96ec90e/w:1024/p:16x9/2026-10-26T225506Z-1425220547-UP1EMAQ1RNT4K-RTRMADP-3-SOCCER-BALLON.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "RFI",
-    "source_priority": 86,
-    "source_region": "afrique",
-    "source_feed": "https://www.rfi.fr/fr/tag/football/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50291678",
-      "url": "https://www.espn.com/video/clip/_/id/50291678/why-harry-kane-was-rightful-winner-ballon-dor",
-      "published": "2026-10-26T23:08:43Z",
-      "score": 0.333,
-      "matched_terms": [
-        "ballon",
-        "harry",
-        "kane"
-      ],
-      "topics": [],
-      "teams": [
-        "Bayern Munich",
-        "England"
-      ],
-      "athletes": [
-        "Harry Kane"
-      ],
-      "leagues": [
-        "German Bundesliga",
-        "International Friendly",
-        "Soccer",
-        "UEFA Nations League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-27T06:22:29.307295+00:00"
-    },
-    "quality_sources": [
-      "RFI",
-      "ESPN"
-    ],
-    "quality_score": 94
-  },
-  {
-    "slug": "9a8b91ce2ade3a2f",
-    "title": "PSG : \"Cette victoire est pour lui\", le PSG dédie la victoire face à l'OL à Khvicha Kvaratskhelia",
-    "summary": "Vainqueur de l'OL ce lundi soir (2-0), le PSG a tenu à dédier ce succès à Khvicha Kvaratskhelia, longuement blessé.",
-    "summary_short": "Vainqueur de l'OL ce lundi soir (2-0), le PSG a tenu à dédier ce succès à Khvicha Kvaratskhelia, longuement blessé.",
-    "content": "Vainqueur de l'OL ce lundi soir (2-0), le PSG a tenu à dédier ce succès à Khvicha Kvaratskhelia, longuement blessé.",
-    "paragraphs": [
-      "Vainqueur de l'OL ce lundi soir (2-0), le PSG a tenu à dédier ce succès à Khvicha Kvaratskhelia, longuement blessé."
-    ],
-    "key_points": [
-      "Vainqueur de l'OL ce lundi soir (2-0), le PSG a tenu à dédier ce succès à Khvicha Kvaratskhelia, longuement blessé."
-    ],
-    "telegram_summary": "Vainqueur de l'OL ce lundi soir (2-0), le PSG a tenu à dédier ce succès à Khvicha Kvaratskhelia, longuement blessé.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-psg-cette-victoire-est-pour-lui-le-psg-dedie-la-victoire-face-a-l-ol-a-khvicha-kvaratskhelia-543691.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-psg-cette-victoire-est-pour-lui-le-psg-dedie-la-victoire-face-a-l-ol-a-khvicha-kvaratskhelia-543691.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9a8b91ce2ade3a2f",
-    "published": "2026-10-26T23:15:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260914113752-3782.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260914113752-3782.jpg",
+    "telegram_summary": "Luis Enrique a eu une grosse pensée pour Khvicha Kvaratskhelia après la victoire contre Lyon.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-psg-la-grosse-pensee-de-luis-enrique-pour-khvicha-kvaratskhelia-apres-la-victoire-face-a-lyon-543737.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-psg-la-grosse-pensee-de-luis-enrique-pour-khvicha-kvaratskhelia-apres-la-victoire-face-a-lyon-543737.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e4fca34d0120cbab",
+    "published": "2026-10-27T11:34:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20260427141901-9959.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20260427141901-9959.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "MadeInFoot",
     "source_priority": 88,
     "source_region": "international",
     "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Blessures",
-    "category_emoji": "🚑",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "3363a9e363ffb798",
-    "title": "Ballon d'Or 2026 : Olise, Dembélé, Fabian Ruiz, les grosses surprises du classement final !",
-    "summary": "Le classement du top 10 du Ballon d'Or 2026 a livré de grosses surprises !",
-    "summary_short": "Le classement du top 10 du Ballon d'Or 2026 a livré de grosses surprises !",
-    "content": "Le classement du top 10 du Ballon d'Or 2026 a livré de grosses surprises !",
-    "paragraphs": [
-      "Le classement du top 10 du Ballon d'Or 2026 a livré de grosses surprises !"
-    ],
-    "key_points": [
-      "Le classement du top 10 du Ballon d'Or 2026 a livré de grosses surprises !"
-    ],
-    "telegram_summary": "Le classement du top 10 du Ballon d'Or 2026 a livré de grosses surprises !",
-    "link": "https://www.onzemondial.com/ligue-1/ballon-dor-2026-olise-dembele-fabian-ruiz-les-grosses-surprises-du-classement-final-1005283",
-    "source_url": "https://www.onzemondial.com/ligue-1/ballon-dor-2026-olise-dembele-fabian-ruiz-les-grosses-surprises-du-classement-final-1005283",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3363a9e363ffb798",
-    "published": "2026-10-26T23:15:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/10/photo_article/1005283/410083/1200-L-ballon-d-or-2026-olise-dembl-fabian-ruiz-les-grosses-surprises-du-classement-final.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1005283/410083/1200-L-ballon-d-or-2026-olise-dembl-fabian-ruiz-les-grosses-surprises-du-classement-final.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
     "espn_verification": {
       "provider": "ESPN",
       "source": "ESPN News API",
-      "article_id": "49813236",
-      "url": "https://www.espn.com/soccer/story/_/id/49813236/bill-connelly-bold-soccer-predictions-michael-olise-ballon-dor-brentford-champions-league-tottenham",
-      "published": "2026-09-03T16:55:02Z",
-      "score": 0.2,
+      "article_id": "50279147",
+      "url": "https://www.espn.com/soccer/story/_/id/50279147/luis-enrique-khvicha-kvaratskhelia-back-stronger-psg-acl",
+      "published": "2026-10-25T19:37:47Z",
+      "score": 0.286,
       "matched_terms": [
-        "2026",
-        "ballon",
-        "olise"
+        "enrique",
+        "khvicha",
+        "kvaratskhelia",
+        "luis"
       ],
       "topics": [],
       "teams": [
-        "AS Roma",
-        "Alavés",
-        "Bayern Munich",
-        "Brentford",
-        "Brighton & Hove Albion",
-        "Crystal Palace",
-        "England",
-        "Fiorentina",
-        "Internazionale",
-        "Paris FC",
-        "RB Leipzig",
-        "Tottenham Hotspur"
+        "Paris Saint-Germain"
       ],
       "athletes": [
-        "Jack Hinshelwood",
-        "Michael Olise"
-      ],
-      "leagues": [
-        "English Premier League",
-        "French Ligue 1",
-        "German Bundesliga",
-        "Italian Serie A",
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-27T06:22:29.307295+00:00"
-    },
-    "quality_sources": [
-      "Onze Mondial",
-      "ESPN"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "00cf3f64c4bd2e91",
-    "title": "Le gros seum du Real Madrid après le sacre de Kane au Ballon d'Or",
-    "summary": "Le sacre de Harry Kane ne passe visiblement pas du côté du Real Madrid.",
-    "summary_short": "Le sacre de Harry Kane ne passe visiblement pas du côté du Real Madrid.",
-    "content": "Le sacre de Harry Kane ne passe visiblement pas du côté du Real Madrid.",
-    "paragraphs": [
-      "Le sacre de Harry Kane ne passe visiblement pas du côté du Real Madrid."
-    ],
-    "key_points": [
-      "Le sacre de Harry Kane ne passe visiblement pas du côté du Real Madrid."
-    ],
-    "telegram_summary": "Le sacre de Harry Kane ne passe visiblement pas du côté du Real Madrid.",
-    "link": "https://www.onzemondial.com/coupe-du-monde/le-gros-seum-du-real-madrid-apres-le-sacre-de-kane-au-ballon-dor-1005282",
-    "source_url": "https://www.onzemondial.com/coupe-du-monde/le-gros-seum-du-real-madrid-apres-le-sacre-de-kane-au-ballon-dor-1005282",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=00cf3f64c4bd2e91",
-    "published": "2026-10-26T23:08:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/10/photo_article/1005282/410082/1200-L-le-gros-seum-du-real-madrid-aprs-le-sacre-de-kane-au-ballon-d-or.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1005282/410082/1200-L-le-gros-seum-du-real-madrid-aprs-le-sacre-de-kane-au-ballon-d-or.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50286844",
-      "url": "https://www.espn.com/soccer/story/_/id/50286844/real-madrid-end-ballon-dor-boycott-kylian-mbappe-nominated",
-      "published": "2026-10-26T14:44:27Z",
-      "score": 0.231,
-      "matched_terms": [
-        "ballon",
-        "madrid",
-        "real"
-      ],
-      "topics": [],
-      "teams": [
-        "Real Madrid"
-      ],
-      "athletes": [
-        "Felicia Schröder",
-        "Kylian Mbappé"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-27T06:22:29.307295+00:00"
-    },
-    "quality_sources": [
-      "Onze Mondial",
-      "ESPN"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "bb65af77862cddb9",
-    "title": "Ballon d’or : Ousmane Dembélé déclare sa flamme aux « haters »",
-    "summary": "En toute délicatesse. Sacré club masculin de l’année ce lundi lors de la cérémonie du Ballon d’or, le PSG a…",
-    "summary_short": "En toute délicatesse. Sacré club masculin de l’année ce lundi lors de la cérémonie du Ballon d’or, le PSG a…",
-    "content": "En toute délicatesse. Sacré club masculin de l’année ce lundi lors de la cérémonie du Ballon d’or, le PSG a…",
-    "paragraphs": [
-      "En toute délicatesse. Sacré club masculin de l’année ce lundi lors de la cérémonie du Ballon d’or, le PSG a…"
-    ],
-    "key_points": [
-      "Sacré club masculin de l’année ce lundi lors de la cérémonie du Ballon d’or, le PSG a…"
-    ],
-    "telegram_summary": "En toute délicatesse. Sacré club masculin de l’année ce lundi lors de la cérémonie du Ballon d’or, le PSG a…",
-    "link": "https://www.sofoot.com/breves/ballon-dor-ousmane-dembele-declare-sa-flamme-aux-haters",
-    "source_url": "https://www.sofoot.com/breves/ballon-dor-ousmane-dembele-declare-sa-flamme-aux-haters",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=bb65af77862cddb9",
-    "published": "2026-10-26T23:07:30+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/26232059/15053203.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/26232059/15053203.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "49940582",
-      "url": "https://www.espn.com/soccer/story/_/id/49940582/ousmane-dembele-never-chosen-one-hard-work-earned-ballon-dor",
-      "published": "2026-09-14T15:47:32Z",
-      "score": 0.231,
-      "matched_terms": [
-        "ballon",
-        "dembele",
-        "ousmane"
-      ],
-      "topics": [
-        "news"
-      ],
-      "teams": [
-        "La Liga AFE",
-        "Paris Saint-Germain",
-        "Real Madrid"
-      ],
-      "athletes": [
-        "Kylian Mbappé",
-        "Ousmane Dembélé"
+        "Khvicha Kvaratskhelia"
       ],
       "leagues": [
         "French Ligue 1",
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-27T06:22:29.307295+00:00"
+      "checked_at": "2026-10-27T13:18:19.809364+00:00"
     },
     "quality_sources": [
-      "So Foot",
+      "MadeInFoot",
       "ESPN"
     ],
-    "quality_score": 86
-  },
-  {
-    "slug": "5d4ffca8ddd4afdf",
-    "title": "Ballon d'Or : le classement complet de l'édition 2026 !",
-    "summary": "Découvrez le classement complet de l'édition 2026 du Ballon d'Or au fur et à mesure de la soirée !",
-    "summary_short": "Découvrez le classement complet de l'édition 2026 du Ballon d'Or au fur et à mesure de la soirée !",
-    "content": "Découvrez le classement complet de l'édition 2026 du Ballon d'Or au fur et à mesure de la soirée !",
-    "paragraphs": [
-      "Découvrez le classement complet de l'édition 2026 du Ballon d'Or au fur et à mesure de la soirée !"
-    ],
-    "key_points": [
-      "Découvrez le classement complet de l'édition 2026 du Ballon d'Or au fur et à mesure de la soirée !"
-    ],
-    "telegram_summary": "Découvrez le classement complet de l'édition 2026 du Ballon d'Or au fur et à mesure de la soirée !",
-    "link": "https://www.onzemondial.com/ligue-des-champions/ballon-dor-le-classement-complet-de-ledition-2026-1005244",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/ballon-dor-le-classement-complet-de-ledition-2026-1005244",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5d4ffca8ddd4afdf",
-    "published": "2026-10-26T23:01:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/10/photo_article/1005244/410073/1200-L-ballon-d-or-le-classement-complet-de-l-dition-2026.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1005244/410073/1200-L-ballon-d-or-le-classement-complet-de-l-dition-2026.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50291642",
-      "url": "https://www.espn.com/video/clip/_/id/50291642/harry-kane-crowned-2026-men-ballon-dor-winner",
-      "published": "2026-10-27T00:09:40Z",
-      "score": 0.222,
-      "matched_terms": [
-        "2026",
-        "ballon"
-      ],
-      "topics": [],
-      "teams": [
-        "Bayern Munich",
-        "England"
-      ],
-      "athletes": [
-        "Harry Kane"
-      ],
-      "leagues": [
-        "German Bundesliga",
-        "International Friendly",
-        "Soccer",
-        "UEFA Nations League"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-27T06:22:29.307295+00:00"
-    },
-    "quality_sources": [
-      "Onze Mondial",
-      "ESPN"
-    ],
-    "quality_score": 88
+    "quality_score": 96
   }
 ]
