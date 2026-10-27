@@ -2,7 +2,7 @@
 import unittest
 from datetime import datetime, timezone
 from types import SimpleNamespace as NS
-from scripts.channel_audit import summarize_sample, recent_public_summary, aggregate_samples, source_options
+from scripts.channel_audit import summarize_sample, recent_public_summary, aggregate_samples, source_options, audit_overall_status
 
 
 def photo(title, n=1):
@@ -20,6 +20,21 @@ def video(filename, n=2, caption=""):
 
 
 class ChannelAuditTests(unittest.TestCase):
+    def test_overall_audit_requires_every_category(self):
+        names=["films","series","desir","comedie","anime"]
+        statuses={name:{"status":"ok"} for name in names}
+        self.assertEqual(audit_overall_status(statuses),"ok")
+        self.assertEqual(audit_overall_status({k:v for k,v in statuses.items() if k!="anime"}),"needs_attention")
+        statuses["series"]={"status":"needs_attention"}
+        self.assertEqual(audit_overall_status(statuses),"needs_attention")
+
+    def test_source_policy_handle_matching_is_case_insensitive(self):
+        cfg={"sources":["@Film_source"],"source_modes":["authorized_mkv"],
+             "source_pairings":[{"max_gap":1}]}
+        mode, opts=source_options(cfg,NS(username="FILM_SOURCE"),"films")
+        self.assertEqual(mode,"authorized_mkv")
+        self.assertEqual(opts["max_gap"],1)
+
     def test_source_rules_survive_filtered_or_reordered_sources(self):
         cfg={"sources":["@first_source","@second_source"],
              "source_modes":["standard","authorized_mkv"],
