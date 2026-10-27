@@ -38,6 +38,15 @@ class CycleHealthTests(unittest.TestCase):
         self.assertEqual(data["status"],"diagnostic_only")
         self.assertFalse(data["publication_requested"])
 
+    def test_workflow_manual_run_defaults_to_no_publication(self):
+        workflow=(Path(__file__).resolve().parents[2] /
+                  ".github/workflows/telegram-film-relay.yml").read_text(encoding="utf-8")
+        header=workflow.split("schedule:",1)[0]
+        self.assertIn("publish:", header)
+        self.assertIn("default: false", header)
+        self.assertIn("cinex-cycle-report",workflow)
+        self.assertIn("CINEX_OUTCOME_ANIME",workflow)
+
     def test_missing_receipt_files_are_unknown_not_zero(self):
         with tempfile.TemporaryDirectory() as directory:
             folder=Path(directory)
