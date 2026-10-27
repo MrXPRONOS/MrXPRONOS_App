@@ -36,6 +36,8 @@ jobs:
         run: python -m pip install --disable-pip-version-check 'telethon>=1.36,<2'
       - name: Compiler le script
         run: python -m py_compile scripts/telegram_channel_monitor_v2.py
+      - name: Vérifier le stockage GitHub sans publication
+        run: python -m unittest discover -s tests -p 'test_telegram_channel_monitor*.py' -v
       - name: Rapport de croissance Telegram privé
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
