@@ -7,11 +7,19 @@ on:
       - 'telegram-film-relay/film_relay/**'
       - 'telegram-film-relay/scripts/merge_state.py'
       - 'telegram-film-relay/tests/**'
+      - 'scripts/telegram_channel_monitor_v2.py'
+      - 'scripts/merge_channel_monitor.py'
+      - 'tests/test_telegram_channel_monitor*.py'
+      - '.github/workflows/telegram-channel-monitor-daily.yml'
       - '.github/workflows/telegram-film-tests.yml'
   pull_request:
     paths:
       - 'telegram-film-relay/film_relay/**'
       - 'telegram-film-relay/tests/**'
+      - 'scripts/telegram_channel_monitor_v2.py'
+      - 'scripts/merge_channel_monitor.py'
+      - 'tests/test_telegram_channel_monitor*.py'
+      - '.github/workflows/telegram-channel-monitor-daily.yml'
       - '.github/workflows/telegram-film-tests.yml'
   workflow_dispatch:
 
@@ -37,3 +45,5 @@ jobs:
         env:
           PYTHONPATH: .
         run: python -m unittest discover -s tests -v
+      - name: Valider le moniteur JSON GitHub sans Telegram
+        run: python -m unittest discover -s tests -p 'test_telegram_channel_monitor*.py' -v
