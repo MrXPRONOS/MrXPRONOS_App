@@ -36,6 +36,19 @@ class ChannelAuditTests(unittest.TestCase):
         self.assertEqual(result["pairs_verified"],0)
         self.assertGreaterEqual(result["unpaired_video_files"],1)
 
+    def test_orphan_video_not_in_quarantine_denominator(self):
+        result=summarize_sample([video("Orphan.Movie.mp4")],"desir")
+        self.assertEqual(result["pairs_found"],0)
+        self.assertEqual(result["quarantined_uncertain"],0)
+        self.assertEqual(result["unpaired_video_files"],1)
+
+    def test_protected_poster_not_counted_as_valid_pair(self):
+        image=photo("La Grande Aventure - film VF 2024")
+        image.noforwards=True
+        result=summarize_sample([image,video("La.Grande.Aventure.mp4")],"comedie")
+        self.assertEqual(result["pairs_found"],0)
+        self.assertEqual(result["pairs_verified"],0)
+
     def test_public_report_excludes_message_and_media_contents(self):
         item=photo("Secret personnel",5)
         summary=recent_public_summary([item])
