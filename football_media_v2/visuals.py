@@ -6,6 +6,7 @@ Media rights and factual match content are checked by upstream modules.
 """
 from __future__ import annotations
 from functools import lru_cache
+import base64
 from pathlib import Path
 import math
 import os
@@ -27,6 +28,16 @@ SAFE_X=46
 
 class MissingLicensedMedia(ValueError):
     """A real football photograph with reuse rights is mandatory."""
+
+def demo_visual_asset()->Path:
+    """Decode the non-publishable demo-only fictional image from its text resource."""
+    p=Path(__file__).resolve().parent/'assets'/'demo_synthetic_football.jpg'
+    if not p.exists():
+        encoded=p.with_suffix('.jpg.b64')
+        if not encoded.exists(): raise MissingLicensedMedia('Fichier démo introuvable')
+        raw=base64.b64decode(encoded.read_text('ascii'),validate=True)
+        p.write_bytes(raw)
+    return p
 
 @lru_cache(maxsize=128)
 def ft(sz:int,bold:bool=True):
