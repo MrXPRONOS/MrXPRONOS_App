@@ -22,7 +22,7 @@ import requests
 from .story import Scene,parse_match,select_match,match_scenes,parse_scorers,scorers_scenes,demo_match
 from .rights import cleared
 from .commons import get_photos
-from .visuals import W,H,FPS,scene_poster,scene_video,licensed_clip_video,concat_video,run,duration
+from .visuals import W,H,FPS,scene_poster,scene_video,licensed_clip_video,concat_video,run,duration,layout_for,MissingLicensedMedia
 from .audio import voice_edge,summary_narration,beat,soundtrack
 
 ROOT=Path(__file__).resolve().parent
@@ -79,10 +79,11 @@ def prepare_scenes(scenes:list[Scene],work:Path,voice_len:float|None,photos:list
     # Ensure narration ends before CTA, without creating ten-second static cards.
     total=sum(s.duration for s in scenes)
     scale=max(1., min(1.7, ((voice_len or 0)+1.2)/total))
+    if not photos: raise MissingLicensedMedia('Aucun visuel utilisable : ne pas générer un diaporama artificiel.')
     clips=[]; stops=[]; clock=0
     for i,scene in enumerate(scenes):
         png=work/f'frame_{i:02}.png';seg=work/f'clip_{i:02}.mp4'
-        media=(Path(photos[i%len(photos)]['file']) if photos and i%3!=1 else None)
+        media=Path(photos[i%len(photos)]['file'])
         scene_poster(scene,png,i,len(scenes),watermark=False,photo=media)
         seconds=round(scene.duration*scale,3)
         scene_video(png,seg,seconds,i)
@@ -95,7 +96,16 @@ def render_analysis(kind:str,data:dict,out:Path,demo:bool):
     narration=summary_narration(kind,data)
     voice,vtype=voice_edge(narration,out/'narration.mp3')
     # A demo without voice gets the soundtrack, but remains unpublishable.
-    photos=get_photos(out/'illustrations',maximum=4) if os.environ.get('FOOTBALL_USE_COMMONS','true').lower()=='true' and not demo else []
+    if demo:
+        # Original synthetic asset is only a fixture, NEVER acceptable for real publishing.
+        fixture=ROOT/'assets'/'demo_synthetic_football.jpg'
+        photos=[{'file':str(fixture),'title':'TEST VISUEL IA (SCÈNE FICTIVE)',
+                 'author':'Mr XPRONOS / démo', 'license':'DEMO ONLY', 'source':'none'}] if fixture.exists() else []
+    else:
+        photos=get_photos(out/'illustrations',maximum=6) if os.environ.get('FOOTBALL_USE_COMMONS','true').lower()=='true' else []
+        # Minimum three distinct photographs; we refuse slides, vectors and lookalike repeats.
+        if len(photos)<3 or len({hashlib.sha256(Path(p['file']).read_bytes()).hexdigest() for p in photos})<3:
+            raise MissingLicensedMedia('Au moins 3 photographies autorisées différentes sont nécessaires. Aucune publication.')
     seq,ends=prepare_scenes(scenes,out,duration(voice) if voice else None,photos=photos)
     video=out/'silent.mp4'
     concat_video(seq,video)
@@ -112,7 +122,9 @@ def render_analysis(kind:str,data:dict,out:Path,demo:bool):
              '-c:v','libx264','-preset','veryfast','-crf','23','-c:a','copy',str(demo_file)])
         final=demo_file
     score=qa_video(final,len(scenes),vtype,demo,True,True)
-    score['gates']['licensed_football_illustrations']=len(photos)>=2
+    score['gates']['licensed_football_illustrations']=not demo and len(photos)>=3
+    score['gates']['visual_layout_diversity']=len({layout_for(s.kind) for s in scenes})>=6
+    score['gates']['premium_photo_first']=len(photos)>0
     score['ready_to_publish']=all(score['gates'].values())
     if kind=='match':
         title=f"{data['home']} {data['a']}-{data['b']} {data['away']} | Le score qui fait réagir ⚽"
@@ -140,14 +152,21 @@ def render_highlights(entries:list[tuple[dict,Path]],out:Path,demo=False):
     end=Scene('cta','ET TOI ?', 'TON TOP 1 ?', 'RÉPONDS EN COMMENTAIRE',
               'Quel extrait méritait la première place ? Abonne-toi à Mister X Pronos.',3.)
     parts=[];cutpoints=[]
-    first=out/'intro.png';scene_poster(intro,first,0,count+2)
+    def capture_frame(source:Path,target:Path):
+        # Frame taken from a clip already cleared for derivative/commercial use.
+        run(['ffmpeg','-hide_banner','-loglevel','error','-y','-ss','0.3','-i',str(source),
+             '-frames:v','1','-vf','scale=1200:-2',str(target)])
+        return target
+    cover_photo=capture_frame(rights[0][1],out/'cover_licensed_frame.jpg')
+    first=out/'intro.png';scene_poster(intro,first,0,count+2,photo=cover_photo)
     opener=out/'intro.mp4';scene_video(first,opener,2.4,0);parts.append(opener)
     credits=[]
     for i,(lic,path) in enumerate(rights):
         flash=Scene('verdict',f'CLIP NUMÉRO {i+1}',lic.get('display_title','MOMENT FOOT').upper()[:30],
                     'SÉQUENCE PUBLIÉE AVEC AUTORISATION','',0.7)
         flashpng=out/f'flash_{i}.png';flashvideo=out/f'flash_{i}.mp4'
-        scene_poster(flash,flashpng,i+1,count+2)
+        flash_photo=capture_frame(path,out/f'licensed_still_{i}.jpg')
+        scene_poster(flash,flashpng,i+1,count+2,photo=flash_photo)
         scene_video(flashpng,flashvideo,0.7,i+1);parts.append(flashvideo)
         output=out/f'licensed_{i}.mp4'
         d=min(7.,duration(path))
@@ -155,7 +174,7 @@ def render_highlights(entries:list[tuple[dict,Path]],out:Path,demo=False):
         licensed_clip_video(path,output,d)
         parts.append(output)
         credits.append(f"{lic['rights_holder']} — {lic['permission_id']} — {lic['source_url']} — {lic['license']}")
-    last=out/'outro.png';scene_poster(end,last,count+1,count+2)
+    last=out/'outro.png';scene_poster(end,last,count+1,count+2,photo=cover_photo)
     finalpart=out/'outro.mp4';scene_video(last,finalpart,3,9);parts.append(finalpart)
     silent=out/'silent.mp4';concat_video(parts,silent)
     voice,vtype=voice_edge(intro.voice+' '+end.voice,out/'narration.mp3')
