@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Private channel reports: one collection/day, protected by a DB lease."""
-import asyncio,html,os,secrets,statistics
+"""Private Telegram channel monitoring using GitHub-versioned JSON only."""
+import asyncio,html,os,statistics,json
 from datetime import datetime,timedelta,timezone
-import requests
+from pathlib import Path
 from telethon import TelegramClient,errors
 from telethon.sessions import StringSession
 from telethon.tl.types import Channel
@@ -18,21 +18,93 @@ def n(x):
  except (TypeError,ValueError):return None
 def f(x):return "—" if x is None else f"{x:,.0f}".replace(","," ")
 def esc(x):return html.escape(str(x or ""),quote=True)
+STATE = Path(__file__).resolve().parents[1] / "telegram-film-relay" / "state" / "channel_monitor.json"
+METRICS = "telegram_channel_metrics_daily"
+OFFICIAL = "telegram_channel_official_stats"
+
 class DB:
- def __init__(self):
-  self.base=env("SUPABASE_URL").rstrip("/")+"/rest/v1/"
-  key=env("SUPABASE_SERVICE_ROLE_KEY")
-  self.s=requests.Session();self.s.headers.update({"apikey":key,"Authorization":"Bearer "+key,"Content-Type":"application/json"})
- def call(self,method,path,**kw):
-  r=self.s.request(method,self.base+path,timeout=30,**kw);r.raise_for_status()
-  return r.json() if r.content and r.text.strip() else None
- def rpc(self,name,**args):return self.call("POST","rpc/"+name,json=args)
- def read(self,table,**params):return self.call("GET",table,params=params) or []
+ """Local JSON-backed history committed by GitHub Actions, never an HTTP database."""
+ def __init__(self, path=None):
+  self.path=Path(path) if path is not None else STATE
+  if self.path.exists():
+   self.data=json.loads(self.path.read_text(encoding="utf-8"))
+  else:
+   self.data={"schema":1,"tables":{},"reports":{}}
+  if self.data.get("schema")!=1:raise RuntimeError("Unsupported channel monitor state schema")
+  self.data.setdefault("tables",{})
+  self.data.setdefault("reports",{})
+
+ def read(self,table,**params):
+  if table not in (METRICS,OFFICIAL):raise ValueError("Unknown GitHub state table: "+table)
+  rows=list(self.data["tables"].get(table,[]))
+  for key,criterion in params.items():
+   if key in ("select","order","limit"):continue
+   operator,sep,expected=str(criterion).partition(".")
+   if not sep or operator not in ("eq","lt","gte"):
+    raise ValueError("Unsupported local filter")
+   def matches(row):
+    actual=row.get(key)
+    if actual is None:return False
+    a,b=str(actual),str(expected)
+    return a==b if operator=="eq" else a<b if operator=="lt" else a>=b
+   rows=[r for r in rows if matches(r)]
+  order=params.get("order")
+  if order:
+   key,_,way=str(order).partition(".")
+   rows.sort(key=lambda row:str(row.get(key) or ""),reverse=way=="desc")
+  if params.get("limit"):rows=rows[:int(params["limit"])]
+  if params.get("select") and params["select"]!="*":
+   keys=str(params["select"]).split(",")
+   rows=[{k:v for k,v in item.items() if k in keys} for item in rows]
+  return rows
+
  def put(self,table,rows,conflict):
-  if rows:self.call("POST",table,params={"on_conflict":conflict},headers={"Prefer":"resolution=merge-duplicates,return=minimal"},json=rows)
- def history(self,id,day,window):
+  if not rows:return
+  # Post snapshots are only needed to render today's report, not for long-term
+  # subscriber trends. Avoid bloating the GitHub JSON with copied Telegram posts.
+  if table=="telegram_channel_post_snapshots":return
+  if table not in (METRICS,OFFICIAL):raise ValueError("Unknown GitHub state table: "+table)
+  keys=tuple(str(conflict).split(","))
+  entries={tuple(str(r.get(k)) for k in keys):r for r in self.data["tables"].get(table,[])}
+  for row in rows:
+   key=tuple(str(row.get(k)) for k in keys)
+   entries[key]={**entries.get(key,{}),**row}
+  self.data["tables"][table]=list(entries.values())
+
+ def history(self,identifier,day,window):
   start=(datetime.fromisoformat(day).date()-timedelta(days=window)).isoformat()
-  return self.read("telegram_channel_metrics_daily",select="observed_on,subscriber_count",channel_id="eq."+str(id),observed_on="gte."+start,order="observed_on.asc")
+  return self.read(METRICS,select="observed_on,subscriber_count",channel_id="eq."+str(identifier),
+                   observed_on="gte."+start,order="observed_on.asc")
+
+ def report(self,day):
+  return self.data["reports"].setdefault(day,{"status":"pending","parts":{}})
+
+ def mark_part(self,day,index,message_id):
+  self.report(day)["parts"][str(index)]=int(message_id)
+  self.save()
+
+ def mark_complete(self,day,parts,channels):
+  report=self.report(day)
+  if len(report["parts"])!=parts:raise RuntimeError("Incomplete Telegram report")
+  report["status"]="sent"
+  report["channels_count"]=channels
+  report["sent_at"]=datetime.now(UTC).isoformat()
+  self.save()
+
+ def save(self):
+  # Keep 40 days for 30-day growth; retain recent weekly official stats.
+  cutoff=(datetime.now(UTC)-timedelta(days=40)).date().isoformat()
+  recent=self.data["tables"].get(METRICS,[])
+  self.data["tables"][METRICS]=[r for r in recent if str(r.get("observed_on",""))>=cutoff]
+  cutoff_off=(datetime.now(UTC)-timedelta(days=120)).date().isoformat()
+  recent=self.data["tables"].get(OFFICIAL,[])
+  self.data["tables"][OFFICIAL]=[r for r in recent if str(r.get("week_start",""))>=cutoff_off]
+  self.data["reports"]={d:v for d,v in self.data["reports"].items() if d>=cutoff}
+  self.path.parent.mkdir(parents=True,exist_ok=True)
+  tmp=self.path.with_name(self.path.name+".tmp")
+  tmp.write_text(json.dumps(self.data,ensure_ascii=False,sort_keys=True,indent=2)+"\n",encoding="utf-8")
+  tmp.replace(self.path)
+
 def change(rows,now):
  if not rows or now is None or rows[0]["subscriber_count"] is None:return None
  return now-int(rows[0]["subscriber_count"])
@@ -143,25 +215,44 @@ def parts(rows,now):
  if len(current)+len(summary)>3800:result.append(current);current=head
  result.append(current+summary)
  return result
+MARKER_PREFIX = "#MRX_CANAL_"
+
+def marker(day,index,testing=False):
+ return MARKER_PREFIX + ("TEST_" if testing else "") + day.replace("-","") + "_" + f"{index:02d}"
+
+async def existing_parts(client,day,testing=False):
+ """Reconcile successful Telegram sends not yet committed to GitHub."""
+ prefix=MARKER_PREFIX+("TEST_" if testing else "")+day.replace("-","")+"_"
+ found={}
+ async for msg in client.iter_messages("me",limit=120):
+  body=str(getattr(msg,"raw_text","") or "")
+  for value in body.split():
+   if value.startswith(prefix) and value[len(prefix):].isdigit():
+    index=int(value[len(prefix):])
+    found.setdefault(str(index),int(msg.id))
+ return found
+
 async def main():
- now=datetime.now(UTC);day=now.date().isoformat();owner=secrets.token_hex(20)
+ now=datetime.now(UTC);day=now.date().isoformat()
  test_mode=os.getenv("TELEGRAM_MONITOR_TEST_MODE","").strip().lower() in ("true","1","yes")
  db=DB()
- if not test_mode:
-  prior_dispatch=db.read("telegram_channel_report_dispatch",select="status",report_on="eq."+day,limit="1")
-  if prior_dispatch:
-   print("SKIP_REPORT_ALREADY_RESERVED",day,prior_dispatch[0].get("status"))
-   return
- status=db.rpc("telegram_monitor_acquire",p_owner=owner,p_minutes=25)
- if status!="ok":print("SKIP_LEASE",status);return
- cooldown=0;failure=None;client=None
+ if not test_mode and db.report(day).get("status")=="sent":
+  print("SKIP_REPORT_ALREADY_SENT_GITHUB",day)
+  return
+ api=env("TG_API_ID")
+ if not api.isdecimal():raise RuntimeError("Bad Telegram API id")
+ session=(os.getenv("TG_SESSION_STRING") or os.getenv("TG_STRING_SESSION") or "").strip()
+ if not session:raise RuntimeError("Missing Telegram session")
+ client=TelegramClient(StringSession(session),int(api),env("TG_API_HASH"),
+   request_retries=0,connection_retries=2,flood_sleep_threshold=0,receive_updates=False)
  try:
-  api=env("TG_API_ID")
-  if not api.isdecimal():raise RuntimeError("Bad API id")
-  client=TelegramClient(StringSession(env("TG_SESSION_STRING")),int(api),env("TG_API_HASH"),
-    request_retries=0,connection_retries=2,flood_sleep_threshold=0,receive_updates=False)
   await client.connect()
   if not await client.is_user_authorized():raise RuntimeError("Telegram session not authorized")
+  remote_parts=await existing_parts(client,day,test_mode)
+  if not test_mode and remote_parts:
+   for index,msgid in remote_parts.items():
+    if index not in db.report(day)["parts"]:
+     db.mark_part(day,index,msgid)
   channels={}
   async for dialog in client.iter_dialogs():
    e=dialog.entity
@@ -179,29 +270,31 @@ async def main():
    except (errors.RPCError,ValueError) as e:print("CHANNEL_SKIPPED",ch.id,type(e).__name__)
    await asyncio.sleep(4)
   if not rows:raise RuntimeError("No channel collected")
-  print("SAVED_CHANNELS",len(rows))
-  if not test_mode:
-   if not db.rpc("telegram_monitor_reserve_report",p_on=day,p_owner=owner,p_count=len(rows)):
-    print("REPORT_ALREADY_RESERVED",day);return
-  sent=[]
-  for part in parts(rows,now):
+  db.save()
+  messages=parts(rows,now)
+  for index,body in enumerate(messages,1):
    if test_mode:
-    part="🧪 <b>TEST RÉEL V2 — MR XPRONOS</b>\n<i>Déclenchement manuel, distinct du bilan quotidien.</i>\n\n"+part
-   sent.append(await client.send_message("me",part,parse_mode="html",link_preview=False))
+    body="🧪 <b>TEST RÉEL V2 — MR XPRONOS</b>\n<i>Déclenchement manuel, distinct du bilan quotidien.</i>\n\n"+body
+   if str(index) in remote_parts or (not test_mode and str(index) in db.report(day)["parts"]):
+    print("RECONCILED_PRIVATE_PART",day,index)
+    continue
+   tag=marker(day,index,test_mode)
+   sent=await client.send_message("me",body+"\n\n<code>"+tag+"</code>",
+                     parse_mode="html",link_preview=False)
+   if not test_mode:
+    db.mark_part(day,index,sent.id)
+   print("PRIVATE_PART_SENT",day,index,int(sent.id))
    await asyncio.sleep(2)
   if test_mode:
-   print("PRIVATE_TEST_SENT",day,len(rows),"messages",len(sent))
+   print("PRIVATE_TEST_SENT",day,len(rows),"messages",len(messages))
   else:
-   db.call("PATCH","telegram_channel_report_dispatch",
-    params={"report_on":"eq."+day,"reservation_owner":"eq."+owner},
-    json={"status":"sent","message_id":sent[-1].id})
-   print("PRIVATE_REPORT_SENT",day,len(rows))
+   db.mark_complete(day,len(messages),len(rows))
+   print("PRIVATE_REPORT_SENT_GITHUB",day,len(rows),"messages",len(messages))
  except errors.FloodWaitError as e:
-  cooldown=min(604800,2*(max(60,n(e.seconds) or 60)+120));failure="FloodWaitError"
-  raise RuntimeError("Telegram requested cooldown; no retry") from e
- except Exception as e:
-  failure=type(e).__name__;raise
+  raise RuntimeError("Telegram requested FloodWait, no automatic retry") from e
  finally:
-  if client:await client.disconnect()
-  db.rpc("telegram_monitor_release",p_owner=owner,p_cooldown_seconds=cooldown,p_error=failure)
-if __name__=="__main__":asyncio.run(main())
+  db.save()
+  await client.disconnect()
+
+if __name__=="__main__":
+ asyncio.run(main())
