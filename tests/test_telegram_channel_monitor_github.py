@@ -99,6 +99,41 @@ class GitHubStorageTests(unittest.TestCase):
         self.assertIn("DRY_RUN_READ_ONLY",source)
         self.assertIn("if not dry_run:db.save()",source)
 
+    def test_dry_run_does_not_send_or_persist(self):
+        import asyncio
+        from types import SimpleNamespace as NS
+        from unittest.mock import AsyncMock, Mock, patch
+        client=Mock()
+        client.connect=AsyncMock()
+        client.is_user_authorized=AsyncMock(return_value=True)
+        client.disconnect=AsyncMock()
+        client.send_message=AsyncMock()
+        async def dialogs():
+            yield NS(entity=NS(id=17,broadcast=True,username="examplechannel",
+                               creator=True,admin_rights=None,title="Audit"))
+        client.iter_dialogs=dialogs
+        db=Mock()
+        fake_row={"title":"Audit","subscriber_count":10}
+        with patch.dict("os.environ",{"TELEGRAM_MONITOR_DRY_RUN":"true",
+                                     "TELEGRAM_MONITOR_TEST_MODE":"false"}), \
+             patch.object(m,"DB",return_value=db), \
+             patch.object(m,"TelegramClient",return_value=client), \
+             patch.object(m,"StringSession",return_value="session"), \
+             patch.object(m,"Channel",NS), \
+             patch.object(m,"env",side_effect=lambda key: "1234"), \
+             patch.object(m,"collect",new_callable=AsyncMock,return_value=fake_row), \
+             patch.object(m,"official",new_callable=AsyncMock):
+            asyncio.run(m.main())
+        db.save.assert_not_called()
+        client.send_message.assert_not_called()
+        client.disconnect.assert_awaited_once()
+
+    def test_dispatch_exposes_read_only_option_and_disables_git_push(self):
+        workflow=(ROOT / ".github/workflows/telegram-channel-monitor-daily.yml").read_text()
+        self.assertIn("TELEGRAM_MONITOR_DRY_RUN:",workflow)
+        self.assertIn("inputs.dry_run",workflow)
+        self.assertIn("if: ${{ always() && !(github.event_name == 'workflow_dispatch' && inputs.dry_run) }}",workflow)
+
     def test_marker_unique_and_recoverable(self):
         self.assertEqual(m.marker("2026-10-27",2),"#MRX_CANAL_20261027_02")
         self.assertNotEqual(m.marker("2026-10-27",2,True),
