@@ -31,28 +31,40 @@ LOG = logging.getLogger("cinex_channel_audit")
 
 
 def requested_channels():
+    """Always return five categories; config errors stay local and anonymous."""
     entries = []
-    classic = config_from(os.getenv("CHANNELS_CONFIG", "config/channels.json"))
-    entries.append(("films", {
-        "category": "films",
-        "sources": [s["channel"] for s in classic["sources"]
-                    if s.get("redistribution_authorized") is True],
-        "private": classic["private_channel"],
-        "public": classic["public_channel"],
-        "source_modes": [row.get("matching_mode", "standard") for row in classic["sources"]
-                         if row.get("redistribution_authorized") is True],
-        "source_pairings": [
-            {"min_minutes": int(row.get("min_video_minutes", 40)),
-             "min_megabytes": int(row.get("min_video_megabytes", 150)),
-             "max_gap": int(row.get("max_pair_message_gap", 2)),
-             "max_age_minutes": int(row.get("max_pair_age_minutes", 60)),
-             "min_caption_chars": int(row.get("min_caption_chars", 25))}
-            for row in classic["sources"]
-            if row.get("redistribution_authorized") is True],
-    }, os.getenv("CINEX_FILM_BOT_TOKEN") or os.getenv("CINEX_BOT_TOKEN", "")))
-    entries.append(("series", series_config(),
-                    os.getenv("CINEX_SERIES_BOT_TOKEN") or os.getenv("CINEX_BOT_TOKEN", "")))
-    entries.append(("desir", {
+    def add(name, build):
+        try:
+            cfg, token = build()
+            entries.append((name, cfg, token))
+        except Exception:
+            # Never include raw configuration values in the artifact.
+            entries.append((name, None, ""))
+
+    def films():
+        classic = config_from(os.getenv("CHANNELS_CONFIG", "config/channels.json"))
+        active = [row for row in classic["sources"]
+                  if row.get("redistribution_authorized") is True]
+        return ({
+            "category": "films",
+            "sources": [row["channel"] for row in active],
+            "private": classic["private_channel"],
+            "public": classic["public_channel"],
+            "source_modes": [row.get("matching_mode", "standard") for row in active],
+            "source_pairings": [
+                {"min_minutes": int(row.get("min_video_minutes", 40)),
+                 "min_megabytes": int(row.get("min_video_megabytes", 150)),
+                 "max_gap": int(row.get("max_pair_message_gap", 2)),
+                 "max_age_minutes": int(row.get("max_pair_age_minutes", 60)),
+                 "min_caption_chars": int(row.get("min_caption_chars", 25))}
+                for row in active],
+        }, os.getenv("CINEX_FILM_BOT_TOKEN") or os.getenv("CINEX_BOT_TOKEN", ""))
+
+    add("films", films)
+    add("series", lambda: (
+        series_config(),
+        os.getenv("CINEX_SERIES_BOT_TOKEN") or os.getenv("CINEX_BOT_TOKEN", "")))
+    add("desir", lambda: ({
         "category": "desir",
         "sources": source_list(os.getenv("DESIR_SOURCE_CHANNEL", "@Filmromatique"),
                                os.getenv("DESIR_EXTRA_SOURCE_CHANNEL", "@g_romanticfilm"),
@@ -61,8 +73,9 @@ def requested_channels():
         "public": os.getenv("DESIR_PUBLIC_CHANNEL", "@CineXDesirfr"),
     }, os.getenv("DESIR_BOT_TOKEN") or os.getenv("CINEX_CATEGORY_BOT_TOKEN", "")))
     for name in ("comedie", "anime"):
-        entries.append((name, category_config(name),
-                        os.getenv("CINEX_CATEGORY_BOT_TOKEN", "")))
+        add(name, lambda name=name: (
+            category_config(name),
+            os.getenv("CINEX_CATEGORY_BOT_TOKEN", "")))
     return entries
 
 
@@ -189,6 +202,10 @@ async def verify():
         if not await client.is_user_authorized():
             raise RuntimeError("La session personnelle Telegram n'est plus autorisée.")
         for name, cfg, token in requested_channels():
+            if cfg is None:
+                report["channels"][name] = {"status": "error",
+                                            "error_type": "ConfigurationError"}
+                continue
             try:
                 # Validates actual IDs, distinct destinations, real source handles.
                 sources, private, public, _, _, _ = await preflight(client, None, cfg)
