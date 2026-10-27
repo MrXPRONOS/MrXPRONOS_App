@@ -23,7 +23,7 @@ from film_relay.source_channels import source_list
 from film_relay.media_guard import valid_photo_message
 from film_relay.title_guard import title_assessment
 from film_relay.desir_matching import pair_items, is_supported_video
-from film_relay.matching import match_pairs, is_video
+from film_relay.matching import match_pairs, match_authorized_mkv_pairs, is_video, is_mkv_document
 from telethon import errors
 
 LOG = logging.getLogger("cinex_channel_audit")
@@ -38,6 +38,8 @@ def requested_channels():
                     if s.get("redistribution_authorized") is True],
         "private": classic["private_channel"],
         "public": classic["public_channel"],
+        "source_modes": [row.get("matching_mode", "standard") for row in classic["sources"]
+                         if row.get("redistribution_authorized") is True],
     }, os.getenv("CINEX_FILM_BOT_TOKEN") or os.getenv("CINEX_BOT_TOKEN", "")))
     entries.append(("series", series_config(),
                     os.getenv("CINEX_SERIES_BOT_TOKEN") or os.getenv("CINEX_BOT_TOKEN", "")))
@@ -55,13 +57,17 @@ def requested_channels():
     return entries
 
 
-def summarize_sample(messages, category):
+def summarize_sample(messages, category, matching_mode="standard"):
     """Anonymous read-only sample; not a complete publication history."""
     entries = list(messages)
+    episodic = category in ("series", "anime")
     is_category = category in ("desir", "comedie")
-    video = is_supported_video if is_category else is_video
-    paired = pair_items(entries) if is_category else match_pairs(entries)
+    mkv = category == "films" and matching_mode == "authorized_mkv"
+    video = is_supported_video if is_category else (is_mkv_document if mkv else is_video)
+    paired = ([] if episodic else pair_items(entries) if is_category else
+              match_authorized_mkv_pairs(entries) if mkv else match_pairs(entries))
     counts = {"sampled_messages": len(entries),
+              "pairing_evaluated": not episodic,
               "real_photos": sum(valid_photo_message(m) for m in entries),
               "web_previews": sum(
                   getattr(getattr(m, "media", None), "webpage", None) is not None
@@ -81,7 +87,11 @@ def summarize_sample(messages, category):
                "quarantined_mismatch" if result == "mismatch" else
                "quarantined_uncertain")
         counts[key] += 1
-    counts["unpaired_video_files"] = max(0, counts["video_files"] - sum(1 for item in paired if valid_photo_message(item.poster)))
+    # Episodes use a separate catalog matcher. Do not treat them as
+    # unmatched films or include them in the film-quarantine denominator.
+    counts["unpaired_video_files"] = (None if episodic else max(
+        0, counts["video_files"] - sum(1 for item in paired
+                                      if valid_photo_message(item.poster))))
     return counts
 
 
@@ -90,7 +100,16 @@ def aggregate_samples(samples):
     if not samples:
         return {}
     keys = list(samples[0])
-    return {key: sum(int(sample[key]) for sample in samples) for key in keys}
+    totals = {}
+    for key in keys:
+        values = [sample[key] for sample in samples]
+        if any(v is None for v in values):
+            totals[key] = None
+        elif all(isinstance(v, bool) for v in values):
+            totals[key] = all(values)
+        else:
+            totals[key] = sum(int(v) for v in values)
+    return totals
 
 
 def recent_public_summary(messages):
@@ -148,10 +167,12 @@ async def verify():
                 # sends, invitations or sensitive identifiers in the artifact.
                 samples = []
                 sample_errors = 0
-                for source in sources[:3]:
+                for index, source in enumerate(sources[:3]):
                     try:
                         source_messages = await client.get_messages(source, limit=80)
-                        samples.append(summarize_sample(source_messages, name))
+                        modes = cfg.get("source_modes", [])
+                        mode = modes[index] if index < len(modes) else "standard"
+                        samples.append(summarize_sample(source_messages, name, mode))
                     except errors.FloodWaitError:
                         raise
                     except Exception:
