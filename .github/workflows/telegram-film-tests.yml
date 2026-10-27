@@ -8,6 +8,8 @@ on:
       - 'telegram-film-relay/scripts/merge_state.py'
       - 'telegram-film-relay/tests/**'
       - 'telegram-film-relay/scripts/channel_audit.py'
+      - 'telegram-film-relay/scripts/catalog_snapshot_health.py'
+      - '.github/workflows/telegram-film-relay.yml'
       - '.github/workflows/cinex-channel-audit.yml'
       - 'scripts/telegram_channel_monitor_v2.py'
       - 'scripts/merge_channel_monitor.py'
@@ -19,6 +21,8 @@ on:
       - 'telegram-film-relay/film_relay/**'
       - 'telegram-film-relay/tests/**'
       - 'telegram-film-relay/scripts/channel_audit.py'
+      - 'telegram-film-relay/scripts/catalog_snapshot_health.py'
+      - '.github/workflows/telegram-film-relay.yml'
       - '.github/workflows/cinex-channel-audit.yml'
       - 'scripts/telegram_channel_monitor_v2.py'
       - 'scripts/merge_channel_monitor.py'
@@ -56,3 +60,11 @@ jobs:
         env:
           PYTHONPATH: .
         run: python -m unittest discover -s tests -p 'test_channel_audit.py' -v
+      - name: Produire une analyse des catalogues historiques sans Telegram
+        run: python telegram-film-relay/scripts/catalog_snapshot_health.py --output "$RUNNER_TEMP/cinex-catalog-snapshot.json"
+      - name: Archiver la synthèse historique Séries et Animés
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinex-catalog-snapshot
+          path: ${{ runner.temp }}/cinex-catalog-snapshot.json
+          retention-days: 30
