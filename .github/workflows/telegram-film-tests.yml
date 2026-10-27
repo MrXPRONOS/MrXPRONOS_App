@@ -8,6 +8,11 @@ on:
       - 'telegram-film-relay/scripts/merge_state.py'
       - 'telegram-film-relay/tests/**'
       - '.github/workflows/telegram-film-tests.yml'
+  pull_request:
+    paths:
+      - 'telegram-film-relay/film_relay/**'
+      - 'telegram-film-relay/tests/**'
+      - '.github/workflows/telegram-film-tests.yml'
   workflow_dispatch:
 
 permissions:
