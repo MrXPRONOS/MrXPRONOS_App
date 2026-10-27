@@ -79,6 +79,26 @@ class GitHubStorageTests(unittest.TestCase):
         self.assertEqual(merged["tables"][m.OFFICIAL], [])
         self.assertEqual(merged["reports"], {})
 
+    def test_report_parts_require_all_expected_indices(self):
+        with tempfile.TemporaryDirectory() as directory:
+            db=m.DB(pathlib.Path(directory) / "state.json")
+            day=datetime.now(timezone.utc).date().isoformat()
+            db.mark_part(day,2,900)
+            with self.assertRaisesRegex(RuntimeError,"Incomplete"):
+                db.mark_complete(day,1,1)
+
+    def test_same_day_metric_is_not_historical_growth(self):
+        day=datetime.now(timezone.utc).date().isoformat()
+        rows=[{"observed_on":day,"subscriber_count":120}]
+        self.assertIsNone(m.change(rows,120,day))
+        self.assertEqual(m.change([{"observed_on":"2026-01-01","subscriber_count":100}],120,day),20)
+
+    def test_read_only_mode_contains_no_sends_or_state_write(self):
+        source=(ROOT / "scripts/telegram_channel_monitor_v2.py").read_text()
+        self.assertIn("if dry_run:",source)
+        self.assertIn("DRY_RUN_READ_ONLY",source)
+        self.assertIn("if not dry_run:db.save()",source)
+
     def test_marker_unique_and_recoverable(self):
         self.assertEqual(m.marker("2026-10-27",2),"#MRX_CANAL_20261027_02")
         self.assertNotEqual(m.marker("2026-10-27",2,True),
