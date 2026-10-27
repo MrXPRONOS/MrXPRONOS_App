@@ -40,6 +40,22 @@ class SourceRightsConfigTests(unittest.TestCase):
         self.assertEqual(len(cfg["sources"]),1)
         self.assertTrue(cfg["sources"][0]["redistribution_authorized"])
 
+    def test_disablement_survives_environment_source_lists(self):
+        from film_relay.series_catalog import series_config
+        config=[{"channel":"@pleziyisliye1","redistribution_authorized":False,
+                 "source_disabled":True},
+                {"channel":"@filmcomplets","redistribution_authorized":True}]
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/"channels.json"
+            path.write_text(json.dumps({"sources":config,
+                "private_channel":"-1007777777777","public_channel":"@cinex_example"}))
+            with patch.dict(os.environ,{"CHANNELS_CONFIG":str(path),
+                     "SERIES_SOURCE_CHANNELS":"@pleziyisliye1 @filmcomplets",
+                     "SERIES_SOURCE_CHANNEL":"","TG_PRIVATE_CHANNEL":"",
+                     "TG_PUBLIC_CHANNEL":""}):
+                resolved=series_config()
+        self.assertEqual(resolved["sources"],["@filmcomplets"])
+
     def test_mixed_sources_only_authorize_explicit_entry(self):
         existing=[{"channel":"@licensed_films",
                    "redistribution_authorized":True}]
