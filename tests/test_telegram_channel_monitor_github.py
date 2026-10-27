@@ -115,7 +115,8 @@ class GitHubStorageTests(unittest.TestCase):
         db=Mock()
         fake_row={"title":"Audit","subscriber_count":10}
         with patch.dict("os.environ",{"TELEGRAM_MONITOR_DRY_RUN":"true",
-                                     "TELEGRAM_MONITOR_TEST_MODE":"false"}), \
+                                     "TELEGRAM_MONITOR_TEST_MODE":"false",
+                                     "TG_SESSION_STRING":"mock-session"}), \
              patch.object(m,"DB",return_value=db), \
              patch.object(m,"TelegramClient",return_value=client), \
              patch.object(m,"StringSession",return_value="session"), \
