@@ -1,68 +1,8 @@
 {
   "audit": {
     "category": "series_catalog",
-    "checked_at": "2026-10-26T22:45:06.461461+00:00",
+    "checked_at": "2026-10-27T05:13:11.817471+00:00",
     "not_yet_indexed": [
-      {
-        "episode": 8,
-        "season": "1",
-        "series": "ransom-canyon",
-        "source_instances": 1
-      },
-      {
-        "episode": 10,
-        "season": "1",
-        "series": "ransom-canyon",
-        "source_instances": 1
-      },
-      {
-        "episode": 1,
-        "season": "2",
-        "series": "ransom-canyon",
-        "source_instances": 1
-      },
-      {
-        "episode": 2,
-        "season": "2",
-        "series": "ransom-canyon",
-        "source_instances": 1
-      },
-      {
-        "episode": 3,
-        "season": "2",
-        "series": "ransom-canyon",
-        "source_instances": 1
-      },
-      {
-        "episode": 4,
-        "season": "2",
-        "series": "ransom-canyon",
-        "source_instances": 1
-      },
-      {
-        "episode": 5,
-        "season": "2",
-        "series": "ransom-canyon",
-        "source_instances": 1
-      },
-      {
-        "episode": 6,
-        "season": "2",
-        "series": "ransom-canyon",
-        "source_instances": 1
-      },
-      {
-        "episode": 7,
-        "season": "2",
-        "series": "ransom-canyon",
-        "source_instances": 1
-      },
-      {
-        "episode": 8,
-        "season": "2",
-        "series": "ransom-canyon",
-        "source_instances": 1
-      },
       {
         "episode": 1,
         "season": "1",
@@ -121,6 +61,66 @@
         "episode": 10,
         "season": "1",
         "series": "nautilus",
+        "source_instances": 1
+      },
+      {
+        "episode": 8,
+        "season": "1",
+        "series": "ransom-canyon",
+        "source_instances": 1
+      },
+      {
+        "episode": 10,
+        "season": "1",
+        "series": "ransom-canyon",
+        "source_instances": 1
+      },
+      {
+        "episode": 1,
+        "season": "2",
+        "series": "ransom-canyon",
+        "source_instances": 1
+      },
+      {
+        "episode": 2,
+        "season": "2",
+        "series": "ransom-canyon",
+        "source_instances": 1
+      },
+      {
+        "episode": 3,
+        "season": "2",
+        "series": "ransom-canyon",
+        "source_instances": 1
+      },
+      {
+        "episode": 4,
+        "season": "2",
+        "series": "ransom-canyon",
+        "source_instances": 1
+      },
+      {
+        "episode": 5,
+        "season": "2",
+        "series": "ransom-canyon",
+        "source_instances": 1
+      },
+      {
+        "episode": 6,
+        "season": "2",
+        "series": "ransom-canyon",
+        "source_instances": 1
+      },
+      {
+        "episode": 7,
+        "season": "2",
+        "series": "ransom-canyon",
+        "source_instances": 1
+      },
+      {
+        "episode": 8,
+        "season": "2",
+        "series": "ransom-canyon",
         "source_instances": 1
       }
     ],
