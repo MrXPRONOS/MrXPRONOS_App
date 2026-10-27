@@ -27,6 +27,22 @@ def merge(incoming, saved):
         if complete:
             merged["sent_at"] = old.get("sent_at") or new.get("sent_at")
         result["reports"][day] = merged
+    # Apply the same retention policy after merging concurrent snapshots.
+    # Otherwise every workflow retry can restore data removed by DB.save().
+    from datetime import datetime, timedelta, timezone
+    now = datetime.now(timezone.utc)
+    metric_cutoff = (now - timedelta(days=40)).date().isoformat()
+    weekly_cutoff = (now - timedelta(days=120)).date().isoformat()
+    result["tables"]["telegram_channel_metrics_daily"] = [
+        row for row in result["tables"]["telegram_channel_metrics_daily"]
+        if str(row.get("observed_on", "")) >= metric_cutoff
+    ]
+    result["tables"]["telegram_channel_official_stats"] = [
+        row for row in result["tables"]["telegram_channel_official_stats"]
+        if str(row.get("week_start", "")) >= weekly_cutoff
+    ]
+    result["reports"] = {day: report for day, report in result["reports"].items()
+                         if day >= metric_cutoff}
     return result
 
 
