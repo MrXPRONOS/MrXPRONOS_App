@@ -112,7 +112,7 @@ jobs:
           TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
           CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
           FILM_PUBLISH_ENABLED: 'true'
-          TG_RIGHTS_ATTESTED: 'true'
+          TG_RIGHTS_ATTESTED: ${{ vars.TG_RIGHTS_ATTESTED || 'false' }}
           CINEX_PROMOS_ENABLED: 'true'
           CINEX_SOURCE_CHANNELS: ${{ vars.CINEX_SOURCE_CHANNELS }}
           FILM_SOURCE_CHANNELS: ${{ vars.FILM_SOURCE_CHANNELS }}
