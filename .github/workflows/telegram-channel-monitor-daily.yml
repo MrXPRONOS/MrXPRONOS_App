@@ -6,6 +6,11 @@ on:
     - cron: '0 6 * * *'
   workflow_dispatch:
     inputs:
+      dry_run:
+        description: 'Audit lecture seule : aucun message Telegram et aucun historique modifié'
+        type: boolean
+        required: false
+        default: true
       live_test:
         description: 'Test réel V2 avec envoi privé, sans modifier le rapport quotidien'
         type: boolean
@@ -45,9 +50,10 @@ jobs:
           TG_SESSION_STRING: ${{ secrets.TG_SESSION_STRING }}
           PYTHONUNBUFFERED: '1'
           TELEGRAM_MONITOR_TEST_MODE: ${{ inputs.live_test || 'false' }}
+          TELEGRAM_MONITOR_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}
         run: python scripts/telegram_channel_monitor_v2.py
       - name: Sauvegarder historique JSON dans GitHub
-        if: always()
+        if: ${{ always() && !(github.event_name == 'workflow_dispatch' && inputs.dry_run) }}
         shell: bash
         run: |
           set -euo pipefail
