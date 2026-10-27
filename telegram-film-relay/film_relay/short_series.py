@@ -75,6 +75,10 @@ def short_complete_groups(groups, catalogue, maximum=12, diagnostics=None):
         if not found.issubset(available | already_stored):
             reject(key, "episodes_indisponibles")
             continue
+        # Missing artwork is a primary blocker regardless of caption evidence.
+        if not any(row.get("poster") is not None for row in unique.values()):
+            reject(key, "affiche_absente")
+            continue
         context = " ".join(
             str(getattr(row.get("poster"), "raw_text", "") or "") + " " +
             str(getattr(row.get("video"), "raw_text", "") or "")
