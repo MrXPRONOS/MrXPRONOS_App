@@ -80,6 +80,10 @@ def summarize_sample(messages, category, matching_mode="standard", pairing=None)
                  if category == "films" and not mkv else None)
     paired = ([] if episodic else pair_items(entries) if is_category else
               match_authorized_mkv_pairs(entries) if mkv else screening.pairs)
+    # The Désir/Comédie pairing routine also yields Item(None, video)
+    # for orphan videos. Those must not count as valid poster/video pairs or
+    # artificially inflate the quarantine denominator.
+    with_posters = [item for item in paired if valid_photo_message(item.poster)]
     counts = {"sampled_messages": len(entries),
               "rejected_structural": screening.rejected if screening else 0,
               "pairing_evaluated": not episodic,
@@ -89,11 +93,11 @@ def summarize_sample(messages, category, matching_mode="standard", pairing=None)
                   for m in entries),
               "protected_messages": sum(bool(getattr(m, "noforwards", False)) for m in entries),
               "video_files": sum(bool(video(m)) for m in entries),
-              "pairs_found": len(paired),
+              "pairs_found": len(with_posters),
               "pairs_verified": 0,
               "quarantined_uncertain": 0,
               "quarantined_mismatch": 0}
-    for item in paired:
+    for item in with_posters:
         poster = item.poster
         movie = item.video if is_category else item.movie
         result = (title_assessment(poster, movie) if valid_photo_message(poster)
@@ -105,8 +109,7 @@ def summarize_sample(messages, category, matching_mode="standard", pairing=None)
     # Episodes use a separate catalog matcher. Do not treat them as
     # unmatched films or include them in the film-quarantine denominator.
     counts["unpaired_video_files"] = (None if episodic else max(
-        0, counts["video_files"] - sum(1 for item in paired
-                                      if valid_photo_message(item.poster))))
+        0, counts["video_files"] - len(with_posters)))
     return counts
 
 
@@ -222,6 +225,9 @@ async def verify():
                                             "sample_errors": sample_errors}
                 LOG.info("Canaux %s : sources=%s, IDs cohérents, droits bot OK",
                          name, len(sources))
+            except errors.FloodWaitError:
+                # Respect Telegram limits; do not retry the other categories.
+                raise
             except Exception as exc:
                 # No private IDs or bot tokens in the report.
                 report["channels"][name] = {"status": "error",
@@ -237,7 +243,16 @@ async def verify():
 
 def main():
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
-    report = asyncio.run(verify())
+    try:
+        report = asyncio.run(verify())
+    except Exception as exc:
+        # Always leave a safe artifact explaining why live audit stopped;
+        # never serialize exception text, sessions, tokens or channel IDs.
+        report = {"status": "blocked", "error_type": type(exc).__name__,
+                  "scope": "technical_read_only",
+                  "redistribution_rights_verified": False,
+                  "publish_actions": 0, "channels": {}}
+        LOG.error("Audit interrompu : %s", type(exc).__name__)
     folder = Path("state")
     folder.mkdir(exist_ok=True)
     (folder / "channel_audit.json").write_text(
