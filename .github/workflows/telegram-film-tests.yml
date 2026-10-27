@@ -9,6 +9,7 @@ on:
       - 'telegram-film-relay/tests/**'
       - 'telegram-film-relay/scripts/channel_audit.py'
       - 'telegram-film-relay/scripts/catalog_snapshot_health.py'
+      - 'telegram-film-relay/scripts/scheduled_cycle_audit.py'
       - '.github/workflows/telegram-film-relay.yml'
       - '.github/workflows/cinex-channel-audit.yml'
       - 'scripts/telegram_channel_monitor_v2.py'
@@ -22,6 +23,7 @@ on:
       - 'telegram-film-relay/tests/**'
       - 'telegram-film-relay/scripts/channel_audit.py'
       - 'telegram-film-relay/scripts/catalog_snapshot_health.py'
+      - 'telegram-film-relay/scripts/scheduled_cycle_audit.py'
       - '.github/workflows/telegram-film-relay.yml'
       - '.github/workflows/cinex-channel-audit.yml'
       - 'scripts/telegram_channel_monitor_v2.py'
@@ -62,6 +64,16 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_channel_audit.py' -v
       - name: Produire une analyse des catalogues historiques sans Telegram
         run: python telegram-film-relay/scripts/catalog_snapshot_health.py --output "$RUNNER_TEMP/cinex-catalog-snapshot.json"
+      - name: Auditer les quatre cycles GitHub sans Telegram
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python telegram-film-relay/scripts/scheduled_cycle_audit.py --output "$RUNNER_TEMP/cinex-schedule-audit.json" --days 4
+      - name: Archiver la couverture des cycles
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinex-schedule-audit
+          path: ${{ runner.temp }}/cinex-schedule-audit.json
+          retention-days: 30
       - name: Archiver la synthèse historique Séries et Animés
         uses: actions/upload-artifact@v4
         with:
