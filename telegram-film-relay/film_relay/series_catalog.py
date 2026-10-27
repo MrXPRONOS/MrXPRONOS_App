@@ -76,14 +76,21 @@ def series_config() -> dict:
         os.getenv("SERIES_SOURCE_CHANNELS", ""),
         max_sources=12,
     )
-    if explicit:
-        names = explicit  # variables définies par le propriétaire
-    else:
-        names = [row["channel"] for row in cfg["sources"]
-                 if row.get("redistribution_authorized") is True]
-    disabled = {str(row["channel"]).casefold() for row in cfg["sources"]
-                if row.get("source_disabled") is True}
-    names = list(dict.fromkeys(name for name in names if name.casefold() not in disabled))
+    # A source listed in a GitHub variable is not proof of redistribution rights.
+    # Keep only explicitly allowed and active entries from channels.json.
+    authorized = {
+        str(row["channel"]).casefold(): row["channel"]
+        for row in cfg["sources"]
+        if row.get("redistribution_authorized") is True
+        and row.get("source_disabled") is not True
+    }
+    requested = explicit or list(authorized.values())
+    names = list(dict.fromkeys(
+        authorized[name.casefold()] for name in requested
+        if name.casefold() in authorized
+    ))
+    if explicit and len(names) < len(set(x.casefold() for x in explicit)):
+        LOG.warning("Une ou plusieurs sources Séries demandées ne sont pas autorisées ; ignorées.")
     if not names:
         raise ValueError("Aucune source SERIES autorisée dans les paramètres existants.")
     return {
