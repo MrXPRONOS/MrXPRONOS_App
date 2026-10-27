@@ -20,6 +20,20 @@ def video(filename, n=2, caption=""):
 
 
 class ChannelAuditTests(unittest.TestCase):
+    def test_audit_code_does_not_invoke_mutating_telegram_methods(self):
+        from pathlib import Path
+        import scripts.channel_audit as audit
+        source=Path(audit.__file__).read_text(encoding="utf-8")
+        for method in ("send_message(", "send_file(", "forward_messages(",
+                       "delete_messages(", "edit_message(", "join_channel("):
+            self.assertNotIn(method, source)
+
+    def test_audit_status_rejects_empty_and_unknown_categories(self):
+        self.assertEqual(audit_overall_status({}),"needs_attention")
+        names=["films","series","desir","comedie","anime","other"]
+        result={name:{"status":"ok"} for name in names}
+        self.assertEqual(audit_overall_status(result),"needs_attention")
+
     def test_invalid_category_configuration_keeps_other_entries(self):
         from unittest.mock import patch
         with patch("scripts.channel_audit.config_from",side_effect=ValueError("invalid")):
