@@ -227,7 +227,9 @@ async def verify():
                 # sends, invitations or sensitive identifiers in the artifact.
                 samples = []
                 sample_errors = 0
-                for source in sources[:3]:
+                for source in sources:
+                    if len(samples) >= 3:
+                        break
                     try:
                         mode, pairing = source_options(cfg, source, name)
                         source_messages = await client.get_messages(source, limit=80)
