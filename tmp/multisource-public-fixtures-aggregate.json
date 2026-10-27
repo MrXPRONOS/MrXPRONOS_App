@@ -47,7 +47,7 @@
       }
     },
     "2026-10-28": {
-      "fixtures": 381,
+      "fixtures": 380,
       "provider_health": {
         "bsd": {
           "reported": 0,
@@ -129,7 +129,7 @@
       }
     }
   },
-  "total_fixtures": 951,
+  "total_fixtures": 952,
   "sportscore_page_size_limit": 200,
   "sportscore_days_at_page_limit": 3,
   "sportscore_coverage_possibly_incomplete": true,
