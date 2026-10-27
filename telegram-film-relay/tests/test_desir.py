@@ -63,7 +63,7 @@ class DesirTests(unittest.TestCase):
             return b"photo-telegram"
         bot = NS(send_file=AsyncMock(return_value=NS(id=99)))
         user = NS(download_media=get_image)
-        poster=NS(media="photo")
+        poster=NS(photo=object(), media=NS(photo=object()), noforwards=False)
         item=NS(poster=poster)
         result = asyncio.run(post_public(
             bot, user, "@CineXDesirfr", item, "Mon Film",
