@@ -93,7 +93,12 @@ def parse_scorers(raw: dict, code='PL') -> dict | None:
         p=item.get('player') or {}; team=item.get('team') or {}
         name=_clean(p.get('name'),45); count=item.get('goals')
         if name and type(count) is int and 0<=count<=100:
-            data.append({'name':name,'goals':count,'team':_clean(team.get('name'),40)})
+            entry={'name':name,'goals':count,'team':_clean(team.get('name'),40)}
+            for metric in ('playedMatches','assists'):
+                value=item.get(metric)
+                if type(value) is int and 0<=value<=1000:
+                    entry[metric]=value
+            data.append(entry)
     if len(data)<3: return None
     data.sort(key=lambda x:(-x['goals'],x['name']))
     comp=_clean((raw.get('competition') or {}).get('name') or code)
