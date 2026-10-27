@@ -249,8 +249,8 @@ async def verify():
                 LOG.error("Canaux %s : vérification refusée (%s)", name, type(exc).__name__)
     finally:
         await client.disconnect()
-    report["status"] = ("ok" if report["channels"] and
-                        all(s["status"] == "ok" for s in report["channels"].values())
+    report["status"] = ("ok" if len(report["channels"]) == 5 and
+                        all(item["status"] == "ok" for item in report["channels"].values())
                         else "needs_attention")
     return report
 
