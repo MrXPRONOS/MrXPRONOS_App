@@ -28,3 +28,13 @@ Créer un média football vidéo que l'on a **réellement envie de regarder**, e
 
 - Les tests automatisés assurent la conformité *technique* ; les notes créatives restent des jugements humains documentés.
 - Se reporter au fichier `docs/FOOTBALL_MEDIA_PROGRESS.md` pour le lot actif, les preuves, les limites, la prochaine tâche et les résultats de la revue spectateur.
+
+## Lot 2 — Politique éditoriale persistante (2026-10-27)
+
+- Lire `docs/FOOTBALL_LOT2_EDITORIAL_GUIDE.md` avant de changer le scénario.
+- Une **piste RSS**, même diffusée par un média réputé, n'est jamais une preuve suffisante pour prononcer une affirmation en vidéo. Elle doit être documentée et revue avant de devenir un sujet publiable.
+- Un **score final ne révèle pas la chronologie des buts**. Ne jamais déduire un comeback, un but décisif, une tactique, un derby ou un record sans champs/sources supplémentaires.
+- Pour les dossiers documentés : conserver la liste des faits atomiques, les liens officiels associés à chaque plan, les variantes rejetées et le diagnostic de spectateur.
+- Les scores internes de sélection (sur 100) servent au **tri éditorial** et ne sont ni des prédictions de rétention, ni des notes de qualité de vidéo.
+- Tant que les lots 3–4 ne sont pas validés : `football_media_v2` reste en **brouillon**, la publication GitHub Actions et la sauvegarde post-publication sont verrouillées. Ne pas déverrouiller pour « tester ».
+- L'exemple Argentine–France 2022 est **historique**, vérifié sur FIFA.com, avec un visuel synthétique de démonstration sans droits sur les images de la FIFA. Il ne doit jamais être décrit comme une actualité de 2026 ou comme de véritables images de la finale.
