@@ -21,7 +21,7 @@ def release_year(text):
 
 def tokens(text):
     text = unicodedata.normalize("NFKD", str(text or "")).encode("ascii", "ignore").decode().lower()
-    text = re.sub(r"https?://\\S+|t\\.me/\\S+|@[a-z0-9_]+", " ", text)
+    text = re.sub(r"https?://\S+|t\.me/\S+|@[a-z0-9_]+", " ", text)
     text = re.sub(r"[^a-z0-9]+", " ", text)
     result = set()
     for word in text.split():
