@@ -50,6 +50,23 @@ class ChannelAuditTests(unittest.TestCase):
         self.assertIsNone(result["unpaired_video_files"])
         self.assertEqual(result["pairs_found"],0)
 
+    def test_standard_film_audit_applies_production_size_limit(self):
+        result=summarize_sample(
+            [photo("La Grande Aventure"),video("La.Grande.Aventure.mp4")],
+            "films")
+        self.assertEqual(result["pairs_found"],0)
+        self.assertEqual(result["pairs_verified"],0)
+        self.assertEqual(result["rejected_structural"],1)
+
+    def test_standard_film_audit_accepts_large_valid_movie(self):
+        image=photo("La Grande Aventure est un long film passionnant")
+        media=video("La.Grande.Aventure.mp4")
+        media.file.size=200_000_000
+        media.document.size=200_000_000
+        result=summarize_sample([image,media],"films")
+        self.assertEqual(result["pairs_found"],1)
+        self.assertEqual(result["pairs_verified"],1)
+
     def test_authorized_mkv_uses_its_distinct_pairing(self):
         media=video("Grand.Film.mkv")
         media.document.mime_type="video/x-matroska"
