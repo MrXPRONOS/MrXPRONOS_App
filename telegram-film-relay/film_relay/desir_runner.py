@@ -15,6 +15,7 @@ from pathlib import Path
 
 from .desir_matching import pair_items, film_title, item_key
 from .media_guard import valid_photo_message, require_photo
+from .title_guard import title_assessment
 from .matching import document_key
 from .runner import resolve_peer
 from .text import private_message_link
@@ -362,6 +363,10 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                 completed += 1
                 if completed >= limit:
                     break
+                continue
+            assessment = title_assessment(item.poster, item.video)
+            if assessment != "verified":
+                LOG.warning("Désir : affiche/vidéo en quarantaine (%s), vidéo=%s", assessment, item.video.id)
                 continue
             if getattr(item.video, "noforwards", False) or not valid_photo_message(item.poster):
                 LOG.warning("Média protégé : non publié.")
