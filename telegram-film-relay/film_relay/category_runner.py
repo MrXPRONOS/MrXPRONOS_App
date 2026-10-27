@@ -14,6 +14,7 @@ import re
 from datetime import datetime, timezone
 
 from .desir_matching import film_title, item_key, pair_items
+from .media_guard import valid_photo_message, require_photo
 from .desir_runner import (
     ReceiptState, DesirPromotionsState, finish_mirrors, forward_public_poster,
     post_public, preflight_mirror,
@@ -261,9 +262,8 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             key = item_key(source_id, item)
             if key in state.data["completed"]:
                 continue
-            if getattr(item.video, "noforwards", False) or (
-                item.poster is not None and getattr(item.poster, "noforwards", False)
-            ):
+            if getattr(item.video, "noforwards", False) or not valid_photo_message(item.poster):
+                LOG.warning("%s : paire ignorée, affiche Telegram non valide pour vidéo=%s", cfg["label"], item.video.id)
                 continue
             title = film_title(item).strip() or cfg["fallback"]
             if not publish:
@@ -293,7 +293,7 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
             if "video" not in staged:
                 if item.poster is not None and "poster" not in staged:
                     photo = await client.send_file(
-                        private, item.poster.media,
+                        private, require_photo(item.poster),
                         caption=rich_caption(title, private=True), parse_mode="html",
                     )
                     state.stage(key, "poster", photo.id)
