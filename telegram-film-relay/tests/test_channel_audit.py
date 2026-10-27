@@ -2,7 +2,7 @@
 import unittest
 from datetime import datetime, timezone
 from types import SimpleNamespace as NS
-from scripts.channel_audit import summarize_sample, recent_public_summary, aggregate_samples, source_options, audit_overall_status
+from scripts.channel_audit import summarize_sample, recent_public_summary, aggregate_samples, source_options, audit_overall_status, requested_channels
 
 
 def photo(title, n=1):
@@ -20,6 +20,20 @@ def video(filename, n=2, caption=""):
 
 
 class ChannelAuditTests(unittest.TestCase):
+    def test_invalid_category_configuration_keeps_other_entries(self):
+        from unittest.mock import patch
+        with patch("scripts.channel_audit.config_from",side_effect=ValueError("invalid")):
+            with patch("scripts.channel_audit.series_config",side_effect=ValueError("invalid")):
+                with patch("scripts.channel_audit.category_config",
+                           side_effect=ValueError("invalid")):
+                    entries=requested_channels()
+        self.assertEqual([name for name,_,_ in entries],
+                         ["films","series","desir","comedie","anime"])
+        self.assertIsNone(entries[0][1])
+        self.assertIsNone(entries[1][1])
+        self.assertIsNotNone(entries[2][1])
+        self.assertIsNone(entries[3][1])
+
     def test_overall_audit_requires_every_category(self):
         names=["films","series","desir","comedie","anime"]
         statuses={name:{"status":"ok"} for name in names}
