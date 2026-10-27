@@ -1,5 +1,616 @@
 [
   {
+    "id": "5ec44c7b5e0c432d9c9f7f95",
+    "kind": "article",
+    "title": "Kun Khalifat FC vs Inter Lagos FC : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-604591/",
+    "source_date": "2026-10-27T05:41:56.436474+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-604591-52c99366-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-604591-52c99366-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-604591-52c99366-social.jpg"
+  },
+  {
+    "id": "270420aad46814d01e9b8ab0",
+    "kind": "article",
+    "title": "River Plate vs Racing Club : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-223854/",
+    "source_date": "2026-10-27T05:41:56.436474+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-223854-d3152dc6-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-223854-d3152dc6-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-223854-d3152dc6-social.jpg"
+  },
+  {
+    "id": "23cabf0f9ab4512b10b49005",
+    "kind": "news",
+    "title": "« Messi aurait dû être top 3 » : la déclaration lunaire d’un journaliste argentin",
+    "url": "https://www.footmercato.net/a4174013574252471641-messi-aurait-du-etre-top-3-la-declaration-lunaire-dun-journaliste-argentin",
+    "source_date": "2026-10-27T00:00:06+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ba88275e4e6271098c8c6f29",
+    "kind": "news",
+    "title": "PSG : L'énorme soulagement de Mika Godts après son premier but libérateur sous les couleurs du PSG face à l'OL",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-psg-l-enorme-soulagement-de-mika-godts-apres-son-premier-but-liberateur-sous-les-couleurs-du-psg-face-a-l-ol-543685.html",
+    "source_date": "2026-10-26T22:20:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ecabc6b8d34b438cc7bad180",
+    "kind": "news",
+    "title": "OL : Fier de ses joueurs, Paulo Fonseca annonce toutefois de nouveaux pépins physiques après la défaite face au PSG",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ol-fier-de-ses-joueurs-paulo-fonseca-annonce-toutefois-de-nouveaux-pepins-physiques-apres-la-defaite-face-au-psg-543684.html",
+    "source_date": "2026-10-26T22:12:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "10e56abad7515974555de256",
+    "kind": "news",
+    "title": "Ballon d’Or : le post de Kylian Mbappé après sa deuxième place",
+    "url": "https://www.footmercato.net/a1301546360570078013-ballon-dor-le-post-de-kylian-mbappe-apres-sa-deuxieme-place",
+    "source_date": "2026-10-27T00:28:45+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "55ecc0c7f956cb8ee89fd50d",
+    "kind": "news",
+    "title": "Ballon d’Or : l’avis fort de Samir Nasri sur Harry Kane",
+    "url": "https://www.footmercato.net/a4577615513912315859-ballon-dor-lavis-fort-de-samir-nasri-sur-harry-kane",
+    "source_date": "2026-10-27T00:19:38+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7a7d41d17e3583ac759937f5",
+    "kind": "news",
+    "title": "Ballon d’Or 2026 : Kylian Mbappé était à deux doigts de gagner !",
+    "url": "https://www.footmercato.net/a6895060178762477017-ballon-dor-2026-kylian-mbappe-etait-a-deux-doigts-de-gagner",
+    "source_date": "2026-10-27T00:11:53+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c02a7d44861accac90649bf1",
+    "kind": "news",
+    "title": "L’écart minuscule entre Harry Kane et Kylian Mbappé au classement du Ballon d’or",
+    "url": "https://www.sofoot.com/breves/lecart-minuscule-entre-harry-kane-et-kylian-mbappe-au-classement-du-ballon-dor",
+    "source_date": "2026-10-27T00:03:11+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0307595f51f6a0d251a8fc0f",
+    "kind": "news",
+    "title": "PSG : Luis Enrique s’offre un nouveau record avec la victoire contre Lyon",
+    "url": "https://www.sofoot.com/breves/psg-luis-enrique-soffre-un-nouveau-record-avec-la-victoire-contre-lyon",
+    "source_date": "2026-10-27T00:02:54+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "545fe351b6b45403e4164fe0",
+    "kind": "news",
+    "title": "Ballon d’or : Pourquoi la cérémonie a-t-elle été aussi longue ?",
+    "url": "https://www.sofoot.com/breves/ballon-dor-pourquoi-la-ceremonie-a-t-elle-ete-aussi-longue",
+    "source_date": "2026-10-26T23:51:36+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5d96191385f8f4889c93f420",
+    "kind": "news",
+    "title": "Ballon d’Or : le Barça réagit après l’échec de Lamine Yamal",
+    "url": "https://www.footmercato.net/a5778889269518659136-ballon-dor-le-barca-reagit-apres-lechec-de-lamine-yamal",
+    "source_date": "2026-10-26T23:48:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cb4f7b774eb6580660bf68be",
+    "kind": "news",
+    "title": "Ballon d’Or : la réaction de Nasser al-Khelaïfi",
+    "url": "https://www.footmercato.net/a6727756419258469758-ballon-dor-la-reaction-de-nasser-al-khelaifi",
+    "source_date": "2026-10-26T23:35:17+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "009fc55172faf8ea27495df9",
+    "kind": "news",
+    "title": "Le PSG floué à la cérémonie du Ballon d’or ?",
+    "url": "https://www.sofoot.com/breves/le-psg-floue-a-la-ceremonie-du-ballon-dor",
+    "source_date": "2026-10-26T23:34:27+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9e3dd376c8315992a6d815d3",
+    "kind": "news",
+    "title": "Ballon d'Or 2026 : l'énorme sourire d'Olise après le sacre de Kane",
+    "url": "https://www.onzemondial.com/coupe-du-monde/ballon-dor-2026-lenorme-sourire-dolise-apres-le-sacre-de-kane-1005287",
+    "source_date": "2026-10-26T23:31:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9cb89363567241797555a2a5",
+    "kind": "news",
+    "title": "Ballon d’Or 2026 : les premiers mots très touchants d’Harry Kane",
+    "url": "https://www.footmercato.net/a3276048068626725500-ballon-dor-2026-les-premiers-mots-tres-touchants-dharry-kane",
+    "source_date": "2026-10-26T23:23:09+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ec027ec790f87b8adfca1b54",
+    "kind": "news",
+    "title": "Le classement complet du Ballon d’Or 2026",
+    "url": "https://www.sofoot.com/breves/le-classement-complet-du-ballon-dor-2026",
+    "source_date": "2026-10-26T23:22:35+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e93e2e4ad838de2d84783aeb",
+    "kind": "news",
+    "title": "Ballon d’Or : l’oncle de Lamine Yamal dézingue Harry Kane",
+    "url": "https://www.footmercato.net/a576487048887196559-ballon-dor-loncle-de-lamine-yamal-dezingue-harry-kane",
+    "source_date": "2026-10-26T23:18:18+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "202ab69f3e2afd28bfb77a52",
+    "kind": "news",
+    "title": "Ballon d'Or: Harry Kane, le sacre d'un footballeur anti-star",
+    "url": "https://www.rfi.fr/fr/sports/20261026-ballon-d-or-harry-kane-le-sacre-d-un-footballeur-anti-star",
+    "source_date": "2026-10-26T23:15:32+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9074c85b18a8a223be650396",
+    "kind": "news",
+    "title": "PSG : \"Cette victoire est pour lui\", le PSG dédie la victoire face à l'OL à Khvicha Kvaratskhelia",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-psg-cette-victoire-est-pour-lui-le-psg-dedie-la-victoire-face-a-l-ol-a-khvicha-kvaratskhelia-543691.html",
+    "source_date": "2026-10-26T23:15:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1d11c778ff5eadedd06f5cdf",
+    "kind": "news",
+    "title": "Ballon d'Or 2026 : Olise, Dembélé, Fabian Ruiz, les grosses surprises du classement final !",
+    "url": "https://www.onzemondial.com/ligue-1/ballon-dor-2026-olise-dembele-fabian-ruiz-les-grosses-surprises-du-classement-final-1005283",
+    "source_date": "2026-10-26T23:15:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2b75f9f23619fa3b41863f87",
+    "kind": "news",
+    "title": "Le gros seum du Real Madrid après le sacre de Kane au Ballon d'Or",
+    "url": "https://www.onzemondial.com/coupe-du-monde/le-gros-seum-du-real-madrid-apres-le-sacre-de-kane-au-ballon-dor-1005282",
+    "source_date": "2026-10-26T23:08:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "09f5a5e983bbb037f0d7cda9",
+    "kind": "news",
+    "title": "Ballon d’or : Ousmane Dembélé déclare sa flamme aux « haters »",
+    "url": "https://www.sofoot.com/breves/ballon-dor-ousmane-dembele-declare-sa-flamme-aux-haters",
+    "source_date": "2026-10-26T23:07:30+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1a8bf2910cbaf95ae6f8792f",
+    "kind": "news",
+    "title": "Ballon d'Or : le classement complet de l'édition 2026 !",
+    "url": "https://www.onzemondial.com/ligue-des-champions/ballon-dor-le-classement-complet-de-ledition-2026-1005244",
+    "source_date": "2026-10-26T23:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "be2d66405d0e634f7982cd9a",
+    "kind": "news",
+    "title": "Ballon d'Or 2026 : Le classement complet du Ballon d'Or 2026",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ballon-d-or-2026-le-classement-complet-du-ballon-d-or-2026-543665.html",
+    "source_date": "2026-10-26T22:57:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f55a07639f5f54dd172f434f",
+    "kind": "news",
+    "title": "Lamine Yamal, Kylian Mbappé et Harry Kane sont sur le podium du Ballon d’Or",
+    "url": "https://www.sofoot.com/breves/lamine-yamal-kylian-mbappe-et-harry-kane-sont-sur-le-podium-du-ballon-dor",
+    "source_date": "2026-10-26T22:56:56+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0c98832b5c2aa3c5a2900d54",
+    "kind": "news",
+    "title": "L'Anglais Harry Kane remporte le Ballon d'Or 2026, le premier de sa carrière",
+    "url": "https://www.france24.com/fr/sports/20261026-l-anglais-harry-kane-remporte-le-ballon-d-or-2026",
+    "source_date": "2026-10-26T22:56:45+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "fc845d8e2e4285278b1af2d5",
+    "kind": "news",
+    "title": "Ballon d'or 2026 : la consécration pour Harry Kane et Alexia Putellas... Découvrez le palmarès complet",
+    "url": "https://www.franceinfo.fr/sports/foot/direct-qui-sera-le-nouveau-ballon-d-or-suivez-avec-nous-la-ceremonie-a-londres_8254267.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-10-26T22:55:46+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b4c18c2b2b3c7f879804a218",
+    "kind": "news",
+    "title": "Ballon d'Or 2026 : Le classement de la 10ème à la 3ème place",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ballon-d-or-2026-le-classement-de-la-10eme-a-la-3eme-place-543669.html",
+    "source_date": "2026-10-26T22:55:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-27T05:41:56.748032+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "805531b3eee060de0d0f0b60",
     "kind": "news",
     "title": "FC Barcelone : la presse catalane désigne les coupables de la défaite face au Real Madrid",
@@ -18,7 +629,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c031e785162938095fd2fb87",
@@ -60,7 +671,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "993c7c20fee4b5a85673081b",
@@ -81,7 +692,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "587d77b938d7b87b141d6a39",
@@ -102,7 +713,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8dbf5c88ef525aac532bf66f",
@@ -123,7 +734,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a250f58c86a28f2407d48b67",
@@ -144,7 +755,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "26578705d6b8118fb4b94f05",
@@ -165,7 +776,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "eec31ee8cec5f85ce0bed625",
@@ -186,7 +797,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d365d846a06d7eb839ab8f3b",
@@ -207,7 +818,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "fe5ab4abe2df9cde68a03350",
@@ -228,7 +839,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4e7b8566ab9cb85d09ff8ab8",
@@ -249,7 +860,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6e4dc595428e53a5083254b8",
@@ -270,7 +881,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ded1370234a1732f09abfedb",
@@ -291,7 +902,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cb279af92a158d4070507981",
@@ -312,7 +923,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "22eea14d611d59a38278bd37",
@@ -333,7 +944,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "944155ed790bee8081773758",
@@ -354,7 +965,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b5030e8a3ff9267bc8dc6674",
@@ -375,7 +986,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e9bd4eca938fdb5c470cdfd5",
@@ -396,7 +1007,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ff39d8487d5348991efc3d34",
@@ -439,7 +1050,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2aa0af0e66dfbc6924ca8bc3",
@@ -460,7 +1071,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "288b749164b6938e68673cf3",
@@ -523,7 +1134,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "eb8e96f6d1434c4c9b3979c2",
@@ -544,7 +1155,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e3a71017b2323903c9163e82",
@@ -565,7 +1176,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "417159760bc8285ad4dba571",
@@ -670,7 +1281,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ab7549df4f2ab1b8a83a2b2c",
@@ -1135,7 +1746,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "741c59164118cebbc8b4efeb",
@@ -1198,7 +1809,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c904038d1fb191de3022a410",
@@ -1261,7 +1872,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0cd36c10ed1e4e3cdaf1892c",
