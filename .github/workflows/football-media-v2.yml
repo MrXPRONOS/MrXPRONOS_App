@@ -6,7 +6,7 @@ on:
       mode:
         description: 'Format (auto / match / scorers / highlights)'
         type: choice
-        options: [auto, match, scorers, highlights]
+        options: [auto, match, scorers, story, ranking, comparison, portrait, tactical, highlights]
         default: auto
         required: true
       demo:
@@ -59,6 +59,12 @@ jobs:
           pip install -r football_media_v2/requirements.txt
       - name: Unit tests and story validation
         run: python -m unittest discover -s tests -p 'test_football*.py' -v
+      - name: Fact-checked editorial example (source-linked, never auto-publish)
+        run: |
+          python -m football_media_v2.engine --mode story \
+            --storypack football_media_v2/editorial_packs/verified_examples.json \
+            --editorial-only --out football_media_v2_editorial_review
+
       - name: Restore processed IDs without touching main
         if: env.DEMO != 'true'
         run: python -m football_media_v2.remote_state load --file football_media_v2_state.json
@@ -80,11 +86,14 @@ jobs:
             football_media_v2_output/**/*.mp4
             football_media_v2_output/productions.json
             football_media_v2_output/**/*.png
+            football_media_v2_output/**/*.json
+            football_media_v2_output/**/*.txt
+            football_media_v2_editorial_review/**
           if-no-files-found: warn
           retention-days: 7
-      - name: "Strict publication: real, validated, neural voice only"
-        if: env.DEMO != 'true'
+      - name: "Publication verrouillée jusqu'à la validation du lot 4"
+        if: ${{ false }}
         run: python -m football_media_v2.publish
-      - name: Save delivered IDs ONLY if real publication was enabled
-        if: always() && env.DEMO != 'true' && env.FOOTBALL_MEDIA_V2_PUBLISH == 'true'
+      - name: Save delivered IDs (disabled until lot 4)
+        if: ${{ false }}
         run: python -m football_media_v2.remote_state save --file football_media_v2_state.json
