@@ -65,6 +65,20 @@ class GitHubStorageTests(unittest.TestCase):
         self.assertEqual(merged["reports"][today]["status"],"sent")
         self.assertEqual(merged["reports"][today]["parts"],{"1":90,"2":91})
 
+    def test_merge_does_not_restore_expired_snapshots(self):
+        from datetime import timedelta
+        today = datetime.now(timezone.utc).date()
+        old_day = (today - timedelta(days=80)).isoformat()
+        old_week = (today - timedelta(days=150)).isoformat()
+        old = {"schema": 1, "tables": {
+            m.METRICS: [{"channel_id": 7, "observed_on": old_day}],
+            m.OFFICIAL: [{"channel_id": 7, "week_start": old_week}]
+        }, "reports": {old_day: {"status": "sent", "parts": {"1": 5}}}}
+        merged = merge_mod.merge({"schema": 1}, old)
+        self.assertEqual(merged["tables"][m.METRICS], [])
+        self.assertEqual(merged["tables"][m.OFFICIAL], [])
+        self.assertEqual(merged["reports"], {})
+
     def test_marker_unique_and_recoverable(self):
         self.assertEqual(m.marker("2026-10-27",2),"#MRX_CANAL_20261027_02")
         self.assertNotEqual(m.marker("2026-10-27",2,True),
