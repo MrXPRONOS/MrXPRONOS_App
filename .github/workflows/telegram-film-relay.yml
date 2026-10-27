@@ -111,6 +111,7 @@ jobs:
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
           TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
           PYTHONPATH: .
+          CINEX_DISCOVERY_NOTIFY_SAVED: 'false'
         run: python -m film_relay.discovery
 
       # Promotions use a durable quota of 4 contents. Empty runs never advertise.
