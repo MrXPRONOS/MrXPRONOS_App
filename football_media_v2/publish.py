@@ -85,6 +85,14 @@ def main(argv=None):
                 seen.add(key)
                 if item['kind']=='highlights':
                     seen.update('licensed:'+p for p in item.get('used_permissions',[]))
+                if item.get('editorial_event_id') and item.get('editorial_fingerprint'):
+                    from datetime import datetime, timezone
+                    history=state.setdefault('editorial_history',[])
+                    history.append({'event_id':item['editorial_event_id'],
+                        'fingerprint':item['editorial_fingerprint'],
+                        'angle':item.get('editorial_angle',''),
+                        'published_at':datetime.now(timezone.utc).date().isoformat()})
+                    state['editorial_history']=history[-500:]
                 state['seen']=sorted(seen)[-2500:]
                 current.write_text(json.dumps(state,ensure_ascii=False,indent=2),encoding='utf8')
         except (RuntimeError,requests.RequestException,KeyError,ValueError) as exc:
