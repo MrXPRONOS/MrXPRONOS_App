@@ -348,7 +348,7 @@ async def execute() -> int:
         for src in cfg["sources"]:
             channel_name = str(src["channel"])
             # The example source is a placeholder, never a real input.
-            if channel_name == "@source_authorisee":
+            if channel_name == "@source_authorisee" or src.get("source_disabled") is True:
                 continue
             rights_ok = src.get("redistribution_authorized") is True
             if publish and not rights_ok:
