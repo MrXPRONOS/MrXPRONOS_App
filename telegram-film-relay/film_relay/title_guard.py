@@ -23,20 +23,29 @@ def title_line(message):
     lines = [line.strip() for line in raw.splitlines() if line.strip()]
     return lines[0] if lines else ""
 
+def _compatible(a, b):
+    """Require convincing agreement; a shared word is not enough."""
+    if a == b:
+        return True
+    common = len(a & b)
+    return common >= 2 and 3 * common >= 2 * max(len(a), len(b))
+
+
 def title_assessment(poster,video):
-    """Return verified, mismatch or uncertain. Fail closed on weak evidence."""
-    if poster is None or video is None:return "uncertain"
-    related = (getattr(getattr(video,"reply_to",None),"reply_to_msg_id",None)
-               == getattr(poster,"id",None) and getattr(poster,"id",None) is not None)
-    pg = getattr(poster,"grouped_id",None)
-    related = related or (pg is not None and pg==getattr(video,"grouped_id",None))
-    a=tokens(title_line(poster))
-    # A video caption is stronger than a filename; both are checked if meaningful.
-    evidence=[tokens(title_line(video)),tokens(filename_of(video))]
-    evidence=[b for b in evidence if b]
+    """Return verified, mismatch or uncertain. Fail closed on conflicting evidence."""
+    if poster is None or video is None:
+        return "uncertain"
+    related = (getattr(getattr(video, "reply_to", None), "reply_to_msg_id", None)
+               == getattr(poster, "id", None) and getattr(poster, "id", None) is not None)
+    pg = getattr(poster, "grouped_id", None)
+    related = related or (pg is not None and pg == getattr(video, "grouped_id", None))
+    a = tokens(title_line(poster))
+    # Both a meaningful caption AND a meaningful filename must agree with the
+    # poster. A matching caption must never override a contradictory filename.
+    evidence = [tokens(title_line(video)), tokens(filename_of(video))]
+    evidence = [b for b in evidence if b]
     if a and evidence:
-        for b in evidence:
-            if len(a & b)>=1 and (len(a & b)/min(len(a),len(b)))>=0.5:
-                return "verified"
-        return "mismatch" if not related else "uncertain"
+        if all(_compatible(a, b) for b in evidence):
+            return "verified"
+        return "uncertain" if related else "mismatch"
     return "verified" if related else "uncertain"
