@@ -30,6 +30,12 @@ def _compatible(a, b):
     """Require convincing agreement; a shared word is not enough."""
     if a == b:
         return True
+    # A sequel number is discriminating even when the other title words match.
+    # Require exactly the same short numeric markers on both sides.
+    numeric_a = {w for w in a if w.isdigit()}
+    numeric_b = {w for w in b if w.isdigit()}
+    if numeric_a != numeric_b:
+        return False
     common = len(a & b)
     return common >= 2 and 3 * common >= 2 * max(len(a), len(b))
 
