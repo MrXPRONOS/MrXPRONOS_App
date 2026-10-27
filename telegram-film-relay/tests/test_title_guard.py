@@ -68,6 +68,30 @@ class TitleGuardTests(unittest.TestCase):
         self.assertEqual(title_assessment(poster("Aventure Galactique 02"),
                                          movie("Aventure.Galactique.03.mkv")), "mismatch")
 
+    def test_roman_sequel_matches_digit(self):
+        self.assertEqual(title_assessment(poster("Aventure Galactique II"),
+                                         movie("Aventure.Galactique.2.mkv")), "verified")
+
+    def test_roman_sequel_mismatch(self):
+        self.assertEqual(title_assessment(poster("Aventure Galactique III"),
+                                         movie("Aventure.Galactique.2.mkv")), "mismatch")
+
+    def test_conflicting_remake_years_rejected(self):
+        self.assertEqual(title_assessment(poster("La Grande Aventure 1998"),
+                                         movie("La.Grande.Aventure.2022.mkv")), "mismatch")
+
+    def test_remake_years_matching(self):
+        self.assertEqual(title_assessment(poster("La Grande Aventure 2022"),
+                                         movie("La.Grande.Aventure.2022.mkv")), "verified")
+
+    def test_generic_heading_skips_to_title(self):
+        self.assertEqual(title_assessment(poster("FILM COMPLET VF\\nLa Grande Aventure"),
+                                         movie("La.Grande.Aventure.mkv")), "verified")
+
+    def test_urls_dont_create_evidence(self):
+        self.assertEqual(title_assessment(poster("https://t.me/justalink"),
+                                         movie("video.mp4")), "uncertain")
+
     def test_unmatched_media_cannot_be_published(self):
         self.assertEqual(title_assessment(None,movie("film.mp4")),"uncertain")
 
