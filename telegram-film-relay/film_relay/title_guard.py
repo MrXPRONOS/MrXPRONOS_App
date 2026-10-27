@@ -14,7 +14,7 @@ STOP = {"film","movie","video","vf","vostfr","french","fr","hd","full","complet"
 
 def tokens(text):
     text = unicodedata.normalize("NFKD", str(text or "")).encode("ascii","ignore").decode().lower()
-    text = re.sub(r"https?://\\S+|t\\.me/\\S+|@[a-z0-9_]+", " ", text)
+    text = re.sub(r"https?://\S+|t\.me/\S+|@[a-z0-9_]+", " ", text)
     text = re.sub(r"[^a-z0-9]+"," ",text)
     return {w for w in text.split() if len(w)>2 and w not in STOP and not w.isdigit()}
 
