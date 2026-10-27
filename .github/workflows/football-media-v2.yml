@@ -1,0 +1,99 @@
+name: Mr XPRONOS - Football Stories V2
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Format (auto / match / scorers / highlights)'
+        type: choice
+        options: [auto, match, scorers, story, ranking, comparison, portrait, tactical, highlights]
+        default: auto
+        required: true
+      demo:
+        description: 'Match fictif de démo, jamais publié'
+        type: boolean
+        default: true
+        required: true
+  schedule:
+    - cron: '13 12 * * *' # Heure de Lomé, UTC+0 : story principale
+    - cron: '17 19 * * 3,6' # Mercredi et samedi : clips déjà autorisés
+
+permissions:
+  contents: write # état uniquement sur branche football-media-v2-state
+
+concurrency:
+  group: mrx-football-stories-v2
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+      YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+      YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+      YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+      FOOTBALL_MEDIA_V2_PUBLISH: ${{ vars.FOOTBALL_MEDIA_V2_PUBLISH || 'false' }}
+      FOOTBALL_YOUTUBE_PRIVACY: ${{ vars.FOOTBALL_YOUTUBE_PRIVACY || 'private' }}
+      FOOTBALL_NETWORKS: ${{ vars.FOOTBALL_NETWORKS || 'telegram,youtube' }}
+      FOOTBALL_COMPETITION: ${{ vars.FOOTBALL_COMPETITION || 'PL' }}
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      GITHUB_BASE_BRANCH: ${{ github.event.repository.default_branch }}
+      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event.schedule == '17 19 * * 3,6' && 'highlights' || 'auto') }}
+      DEMO: ${{ github.event_name == 'workflow_dispatch' && inputs.demo && 'true' || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: football_media_v2/requirements.txt
+      - name: FFmpeg and fonts
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          pip install -r football_media_v2/requirements.txt
+      - name: Unit tests and story validation
+        run: python -m unittest discover -s tests -p 'test_football*.py' -v
+      - name: Fact-checked editorial example (source-linked, never auto-publish)
+        run: |
+          python -m football_media_v2.engine --mode story \
+            --storypack football_media_v2/editorial_packs/verified_examples.json \
+            --editorial-only --out football_media_v2_editorial_review
+
+      - name: Restore processed IDs without touching main
+        if: env.DEMO != 'true'
+        run: python -m football_media_v2.remote_state load --file football_media_v2_state.json
+      - name: Generate originals + quality checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$DEMO" == "true" ]]; then
+            python -m football_media_v2.engine --mode match --demo
+          else
+            python -m football_media_v2.engine --mode "$MODE"
+          fi
+      - name: Export renders and editorial evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: football-stories-v2-${{ github.run_id }}
+          path: |
+            football_media_v2_output/**/*.mp4
+            football_media_v2_output/productions.json
+            football_media_v2_output/**/*.png
+            football_media_v2_output/**/*.json
+            football_media_v2_output/**/*.txt
+            football_media_v2_editorial_review/**
+          if-no-files-found: warn
+          retention-days: 7
+      - name: "Publication verrouillée jusqu'à la validation du lot 4"
+        if: ${{ false }}
+        run: python -m football_media_v2.publish
+      - name: Save delivered IDs (disabled until lot 4)
+        if: ${{ false }}
+        run: python -m football_media_v2.remote_state save --file football_media_v2_state.json
