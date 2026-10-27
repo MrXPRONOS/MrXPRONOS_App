@@ -44,6 +44,26 @@ class ChannelAuditTests(unittest.TestCase):
         self.assertNotIn("id",summary)
         self.assertIn("last_post_at",summary)
 
+    def test_anime_catalog_not_counted_as_unmatched_film(self):
+        result=summarize_sample([video("Episode.01.mp4")],"anime")
+        self.assertFalse(result["pairing_evaluated"])
+        self.assertIsNone(result["unpaired_video_files"])
+        self.assertEqual(result["pairs_found"],0)
+
+    def test_authorized_mkv_uses_its_distinct_pairing(self):
+        media=video("Grand.Film.mkv")
+        media.document.mime_type="video/x-matroska"
+        result=summarize_sample([photo("Titre du film : Grand Film. Genre : aventure"),
+                                 media],"films","authorized_mkv")
+        self.assertTrue(result["pairing_evaluated"])
+        self.assertEqual(result["pairs_found"],1)
+
+    def test_episodic_aggregate_preserves_not_applicable(self):
+        a=summarize_sample([video("Episode.01.mp4")],"series")
+        total=aggregate_samples([a,a])
+        self.assertIsNone(total["unpaired_video_files"])
+        self.assertFalse(total["pairing_evaluated"])
+
     def test_samples_aggregate_without_ids(self):
         a=summarize_sample([photo("La Grande Aventure"),video("La.Grande.Aventure.mp4")],"films")
         totals=aggregate_samples([a,a])
