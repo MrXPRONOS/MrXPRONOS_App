@@ -143,6 +143,30 @@ def summarize_sample(messages, category, matching_mode="standard", pairing=None)
     return counts
 
 
+async def sample_sources(client, sources, cfg, category, *, limit=3):
+    """Read at most limit usable sources, recording failures without identifiers."""
+    if not isinstance(limit, int) or limit < 1:
+        raise ValueError("Sample limit must be a positive integer")
+    samples = []
+    failures = 0
+    attempts = 0
+    for source in sources:
+        if len(samples) >= limit:
+            break
+        attempts += 1
+        try:
+            mode, pairing = source_options(cfg, source, category)
+            messages = await client.get_messages(source, limit=80)
+            samples.append(summarize_sample(messages, category, mode, pairing))
+        except errors.FloodWaitError:
+            # Honor Telegram's explicit pause and stop; no silent retry.
+            raise
+        except Exception:
+            failures += 1
+    return {"samples": samples, "sample_errors": failures,
+            "source_attempts": attempts}
+
+
 def aggregate_samples(samples):
     """Keep only totals: no source IDs, captions, file names or invite links."""
     if not samples:
@@ -225,21 +249,10 @@ async def verify():
                     raise RuntimeError("Le bot n'a pas le droit de publier dans la destination.")
                 # Bounded sample of live Telegram metadata. No downloads,
                 # sends, invitations or sensitive identifiers in the artifact.
-                samples = []
-                sample_errors = 0
-                source_attempts = 0
-                for source in sources:
-                    if len(samples) >= 3:
-                        break
-                    source_attempts += 1
-                    try:
-                        mode, pairing = source_options(cfg, source, name)
-                        source_messages = await client.get_messages(source, limit=80)
-                        samples.append(summarize_sample(source_messages, name, mode, pairing))
-                    except errors.FloodWaitError:
-                        raise
-                    except Exception:
-                        sample_errors += 1
+                sampling = await sample_sources(client, sources, cfg, name)
+                samples = sampling["samples"]
+                sample_errors = sampling["sample_errors"]
+                source_attempts = sampling["source_attempts"]
                 public_summary = None
                 try:
                     public_messages = await client.get_messages(public, limit=20)
@@ -255,6 +268,8 @@ async def verify():
                                             "sources_validated": len(sources),
                                             "sources_unavailable": unavailable_sources,
                                             "sampling_limited": len(sources) > 3,
+                                            "sample_coverage": ("partial" if len(sources) > len(samples)
+                                                                else "complete"),
                                             "redistribution_rights_verified": False,
                                             "private_id_verified": True,
                                             "public_id_verified": True,
