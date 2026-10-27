@@ -81,7 +81,7 @@ def summarize_sample(messages, category):
                "quarantined_mismatch" if result == "mismatch" else
                "quarantined_uncertain")
         counts[key] += 1
-    counts["unpaired_video_files"] = max(0, counts["video_files"] - counts["pairs_found"])
+    counts["unpaired_video_files"] = max(0, counts["video_files"] - sum(1 for item in paired if valid_photo_message(item.poster)))
     return counts
 
 
