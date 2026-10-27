@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 
 from .desir_matching import film_title, item_key, pair_items
 from .media_guard import valid_photo_message, require_photo
+from .title_guard import title_assessment
 from .desir_runner import (
     ReceiptState, DesirPromotionsState, finish_mirrors, forward_public_poster,
     post_public, preflight_mirror,
@@ -264,6 +265,10 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                 continue
             if getattr(item.video, "noforwards", False) or not valid_photo_message(item.poster):
                 LOG.warning("%s : paire ignorée, affiche Telegram non valide pour vidéo=%s", cfg["label"], item.video.id)
+                continue
+            assessment = title_assessment(item.poster, item.video)
+            if assessment != "verified":
+                LOG.warning("%s : affiche/vidéo en quarantaine (%s), vidéo=%s", cfg["label"], assessment, item.video.id)
                 continue
             title = film_title(item).strip() or cfg["fallback"]
             if not publish:
