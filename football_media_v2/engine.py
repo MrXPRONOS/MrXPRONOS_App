@@ -22,7 +22,7 @@ import requests
 from .story import Scene,parse_match,select_match,match_scenes,parse_scorers,scorers_scenes,demo_match
 from .rights import cleared
 from .commons import get_photos
-from .visuals import W,H,FPS,scene_poster,scene_video,licensed_clip_video,concat_video,run,duration,layout_for,MissingLicensedMedia
+from .visuals import W,H,FPS,scene_poster,scene_video,licensed_clip_video,concat_video,run,duration,layout_for,MissingLicensedMedia,demo_visual_asset
 from .audio import voice_edge,summary_narration,beat,soundtrack
 
 ROOT=Path(__file__).resolve().parent
@@ -98,7 +98,7 @@ def render_analysis(kind:str,data:dict,out:Path,demo:bool):
     # A demo without voice gets the soundtrack, but remains unpublishable.
     if demo:
         # Original synthetic asset is only a fixture, NEVER acceptable for real publishing.
-        fixture=ROOT/'assets'/'demo_synthetic_football.jpg'
+        fixture=demo_visual_asset()
         photos=[{'file':str(fixture),'title':'TEST VISUEL IA (SCÈNE FICTIVE)',
                  'author':'Mr XPRONOS / démo', 'license':'DEMO ONLY', 'source':'none'}] if fixture.exists() else []
     else:
