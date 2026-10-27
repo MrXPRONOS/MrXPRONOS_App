@@ -9,10 +9,10 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: 'Publier les films et pubs (sinon diagnostic uniquement)'
+        description: 'Publication reelle Telegram : activer explicitement (non par defaut)'
         required: false
         type: boolean
-        default: true
+        default: false
   schedule:
     - cron: '17 */6 * * *'
 
