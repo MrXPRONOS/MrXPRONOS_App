@@ -66,6 +66,23 @@ def requested_channels():
     return entries
 
 
+def source_options(cfg, source, category):
+    """Match policies by resolved source handle, not its filtered list index."""
+    if category != "films":
+        return "standard", None
+    handle = str(getattr(source, "username", "") or "").casefold().lstrip("@")
+    matches = [idx for idx, name in enumerate(cfg["sources"])
+               if str(name).casefold().lstrip("@") == handle]
+    if len(matches) != 1:
+        raise ValueError("Cannot associate source with its configured matching policy")
+    idx = matches[0]
+    modes = cfg.get("source_modes", [])
+    options = cfg.get("source_pairings", [])
+    if idx >= len(modes) or idx >= len(options):
+        raise ValueError("Matching rules missing for configured source")
+    return modes[idx], options[idx]
+
+
 def summarize_sample(messages, category, matching_mode="standard", pairing=None):
     """Anonymous read-only sample; not a complete publication history."""
     entries = list(messages)
@@ -167,9 +184,7 @@ async def verify():
             try:
                 # Validates actual IDs, distinct destinations, real source handles.
                 sources, private, public, _, _, _ = await preflight(client, None, cfg)
-                if len(sources) != len(cfg["sources"]):
-                    raise RuntimeError(
-                        f"Sources accessibles {len(sources)}/{len(cfg['sources'])} ; vérifier les canaux.")
+                unavailable_sources = max(0, len(cfg["sources"]) - len(sources))
                 user = await client.get_me()
                 user_permissions = await client.get_permissions(private, user)
                 if not (getattr(user_permissions, "is_creator", False) or
@@ -187,13 +202,10 @@ async def verify():
                 # sends, invitations or sensitive identifiers in the artifact.
                 samples = []
                 sample_errors = 0
-                for index, source in enumerate(sources[:3]):
+                for source in sources[:3]:
                     try:
+                        mode, pairing = source_options(cfg, source, name)
                         source_messages = await client.get_messages(source, limit=80)
-                        modes = cfg.get("source_modes", [])
-                        mode = modes[index] if index < len(modes) else "standard"
-                        options = cfg.get("source_pairings", [])
-                        pairing = options[index] if index < len(options) else None
                         samples.append(summarize_sample(source_messages, name, mode, pairing))
                     except errors.FloodWaitError:
                         raise
@@ -207,10 +219,12 @@ async def verify():
                     raise
                 except Exception:
                     sample_errors += 1
-                sample_status = "ok" if not sample_errors and len(samples) == min(3, len(sources)) else "partial"
+                sample_status = ("ok" if not sample_errors and not unavailable_sources
+                                 and len(samples) == min(3, len(sources)) else "partial")
                 # The actual numeric IDs have already been cross-checked in preflight.
                 report["channels"][name] = {"status": "ok" if sample_status == "ok" else "needs_attention",
                                             "sources_validated": len(sources),
+                                            "sources_unavailable": unavailable_sources,
                                             "sampling_limited": len(sources) > 3,
                                             "redistribution_rights_verified": False,
                                             "private_id_verified": True,
