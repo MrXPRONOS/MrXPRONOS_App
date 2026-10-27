@@ -23,7 +23,8 @@ from film_relay.source_channels import source_list
 from film_relay.media_guard import valid_photo_message
 from film_relay.title_guard import title_assessment
 from film_relay.desir_matching import pair_items, is_supported_video
-from film_relay.matching import match_pairs, match_authorized_mkv_pairs, is_video, is_mkv_document
+from film_relay.matching import match_authorized_mkv_pairs, is_video, is_mkv_document
+from film_relay.verification import screen_pairs
 from telethon import errors
 
 LOG = logging.getLogger("cinex_channel_audit")
@@ -40,6 +41,14 @@ def requested_channels():
         "public": classic["public_channel"],
         "source_modes": [row.get("matching_mode", "standard") for row in classic["sources"]
                          if row.get("redistribution_authorized") is True],
+        "source_pairings": [
+            {"min_minutes": int(row.get("min_video_minutes", 40)),
+             "min_megabytes": int(row.get("min_video_megabytes", 150)),
+             "max_gap": int(row.get("max_pair_message_gap", 2)),
+             "max_age_minutes": int(row.get("max_pair_age_minutes", 60)),
+             "min_caption_chars": int(row.get("min_caption_chars", 25))}
+            for row in classic["sources"]
+            if row.get("redistribution_authorized") is True],
     }, os.getenv("CINEX_FILM_BOT_TOKEN") or os.getenv("CINEX_BOT_TOKEN", "")))
     entries.append(("series", series_config(),
                     os.getenv("CINEX_SERIES_BOT_TOKEN") or os.getenv("CINEX_BOT_TOKEN", "")))
@@ -57,16 +66,22 @@ def requested_channels():
     return entries
 
 
-def summarize_sample(messages, category, matching_mode="standard"):
+def summarize_sample(messages, category, matching_mode="standard", pairing=None):
     """Anonymous read-only sample; not a complete publication history."""
     entries = list(messages)
     episodic = category in ("series", "anime")
     is_category = category in ("desir", "comedie")
     mkv = category == "films" and matching_mode == "authorized_mkv"
     video = is_supported_video if is_category else (is_mkv_document if mkv else is_video)
+    # The classic film relay uses strict screen_pairs, not loose match_pairs.
+    # Keep the offline audit aligned with production minimum file sizes,
+    # durations, caption length, message-gap and time-window rules.
+    screening = (screen_pairs(entries, **(pairing or {}))
+                 if category == "films" and not mkv else None)
     paired = ([] if episodic else pair_items(entries) if is_category else
-              match_authorized_mkv_pairs(entries) if mkv else match_pairs(entries))
+              match_authorized_mkv_pairs(entries) if mkv else screening.pairs)
     counts = {"sampled_messages": len(entries),
+              "rejected_structural": screening.rejected if screening else 0,
               "pairing_evaluated": not episodic,
               "real_photos": sum(valid_photo_message(m) for m in entries),
               "web_previews": sum(
@@ -138,6 +153,8 @@ async def verify():
                             request_retries=0, connection_retries=2,
                             flood_sleep_threshold=0, receive_updates=False)
     report = {"checked_at": datetime.now(timezone.utc).isoformat(),
+              "scope": "technical_read_only",
+              "redistribution_rights_verified": False,
               "publish_actions": 0, "channels": {}}
     await client.connect()
     try:
@@ -172,7 +189,9 @@ async def verify():
                         source_messages = await client.get_messages(source, limit=80)
                         modes = cfg.get("source_modes", [])
                         mode = modes[index] if index < len(modes) else "standard"
-                        samples.append(summarize_sample(source_messages, name, mode))
+                        options = cfg.get("source_pairings", [])
+                        pairing = options[index] if index < len(options) else None
+                        samples.append(summarize_sample(source_messages, name, mode, pairing))
                     except errors.FloodWaitError:
                         raise
                     except Exception:
@@ -189,6 +208,8 @@ async def verify():
                 # The actual numeric IDs have already been cross-checked in preflight.
                 report["channels"][name] = {"status": "ok" if sample_status == "ok" else "needs_attention",
                                             "sources_validated": len(sources),
+                                            "sampling_limited": len(sources) > 3,
+                                            "redistribution_rights_verified": False,
                                             "private_id_verified": True,
                                             "public_id_verified": True,
                                             "user_can_post_private": True,
