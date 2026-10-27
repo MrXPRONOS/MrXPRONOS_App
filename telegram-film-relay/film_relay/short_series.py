@@ -20,7 +20,7 @@ def normalized_key(value):
     return re.sub(r"-(?:episode|ep)0*\d{1,3}$", "", raw)
 
 
-def short_complete_groups(groups, catalogue, maximum=12):
+def short_complete_groups(groups, catalogue, maximum=12, diagnostics=None):
     """No truncation: reject long or incomplete series BEFORE uploading anything.
 
     Historical source observations and prior private receipts count toward the
@@ -29,6 +29,11 @@ def short_complete_groups(groups, catalogue, maximum=12):
     its authentic source caption must announce a complete run or its total.
     """
     result = []
+    if diagnostics is not None:
+        diagnostics.clear()
+    def reject(key, reason):
+        if diagnostics is not None:
+            diagnostics[key] = reason
     inventory = catalogue.get("source_observed", {}) or {}
     stored = catalogue.get("series", {}) or {}
     for key, rows in groups.items():
@@ -49,12 +54,14 @@ def short_complete_groups(groups, catalogue, maximum=12):
             for season, numbers in entry.get("episodes", {}).items():
                 found.update((int(season), int(n)) for n in numbers)
         if not found or len(found) > maximum or any(n > maximum for _, n in found):
+            reject(key, "hors_limite_episodes")
             continue
         if any(
             {no for sn, no in found if sn == season}
             != set(range(1, max(no for sn, no in found if sn == season) + 1))
             for season in {sn for sn, _ in found}
         ):
+            reject(key, "numerotation_incomplete")
             continue
         # The full series must be available this run (or already stored).
         already_stored = {
@@ -66,6 +73,7 @@ def short_complete_groups(groups, catalogue, maximum=12):
             for n in numbers
         }
         if not found.issubset(available | already_stored):
+            reject(key, "episodes_indisponibles")
             continue
         context = " ".join(
             str(getattr(row.get("poster"), "raw_text", "") or "") + " " +
@@ -75,14 +83,17 @@ def short_complete_groups(groups, catalogue, maximum=12):
         totals = [int(x) for x in DECLARED_TOTAL.findall(context)]
         totals += [int(x) for x in DONE_COUNTER.findall(context)]
         if totals and (max(totals) > maximum or len(found) not in totals):
+            reject(key, "total_annonce_incompatible")
             continue
         sequential_twelve = (len(found) == maximum and
                              len({season for season, _ in found}) == 1)
         if not (sequential_twelve or END_OF_SERIES.search(context) or totals):
+            reject(key, "completude_non_confirmee")
             continue
         ordered = sorted(unique.values(), key=lambda r: (r["season"], r["episode"]))
         # A real series illustration is required; do not substitute a text card.
         if not any(row.get("poster") is not None for row in ordered):
+            reject(key, "affiche_absente")
             continue
         result.append((key, ordered))
     return result
