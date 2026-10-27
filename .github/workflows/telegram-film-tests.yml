@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'telegram-film-relay/film_relay/**'
+      - 'telegram-film-relay/config/**'
+      - 'telegram-film-relay/scripts/**'
       - 'telegram-film-relay/scripts/merge_state.py'
       - 'telegram-film-relay/tests/**'
       - 'telegram-film-relay/scripts/channel_audit.py'
@@ -20,6 +22,8 @@ on:
   pull_request:
     paths:
       - 'telegram-film-relay/film_relay/**'
+      - 'telegram-film-relay/config/**'
+      - 'telegram-film-relay/scripts/**'
       - 'telegram-film-relay/tests/**'
       - 'telegram-film-relay/scripts/channel_audit.py'
       - 'telegram-film-relay/scripts/catalog_snapshot_health.py'
@@ -57,11 +61,6 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Valider le moniteur JSON GitHub sans Telegram
         run: python -m unittest discover -s tests -p 'test_telegram_channel_monitor*.py' -v
-      - name: Valider l'audit des canaux en simulation sans Telegram
-        working-directory: telegram-film-relay
-        env:
-          PYTHONPATH: .
-        run: python -m unittest discover -s tests -p 'test_channel_audit.py' -v
       - name: Produire une analyse des catalogues historiques sans Telegram
         run: python telegram-film-relay/scripts/catalog_snapshot_health.py --output "$RUNNER_TEMP/cinex-catalog-snapshot.json"
       - name: Auditer les quatre cycles GitHub sans Telegram
