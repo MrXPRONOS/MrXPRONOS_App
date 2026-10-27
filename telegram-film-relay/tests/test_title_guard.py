@@ -52,6 +52,14 @@ class TitleGuardTests(unittest.TestCase):
                                          movie("Le Secret de la Foret.mkv")),
                          "mismatch")
 
+    def test_sequel_numbers_must_not_be_confused(self):
+        self.assertEqual(title_assessment(poster("Aventure Galactique 2"),
+                                         movie("Aventure.Galactique.3.mkv")), "mismatch")
+
+    def test_same_sequel_number_matches(self):
+        self.assertEqual(title_assessment(poster("Aventure Galactique 2"),
+                                         movie("Aventure.Galactique.2.2024.mkv")), "verified")
+
     def test_unmatched_media_cannot_be_published(self):
         self.assertEqual(title_assessment(None,movie("film.mp4")),"uncertain")
 
