@@ -12,10 +12,10 @@ def photo(title, n=1):
 
 
 def video(filename, n=2, caption=""):
-    doc=NS(mime_type="video/mp4",size=100_000_000,attributes=[])
+    doc=NS(mime_type="video/mp4",size=200_000_000,attributes=[])
     return NS(id=n, raw_text=caption, photo=None, media=NS(document=doc),
               noforwards=False, document=doc, video=doc, date=datetime.now(timezone.utc),
-              grouped_id=None, reply_to=None, file=NS(name=filename,size=100_000_000,
+              grouped_id=None, reply_to=None, file=NS(name=filename,size=200_000_000,
                                                       duration=3600))
 
 
@@ -51,9 +51,11 @@ class ChannelAuditTests(unittest.TestCase):
         self.assertEqual(result["pairs_found"],0)
 
     def test_standard_film_audit_applies_production_size_limit(self):
+        media=video("La.Grande.Aventure.mp4")
+        media.file.size=100_000_000
+        media.document.size=100_000_000
         result=summarize_sample(
-            [photo("La Grande Aventure"),video("La.Grande.Aventure.mp4")],
-            "films")
+            [photo("La Grande Aventure"),media],"films")
         self.assertEqual(result["pairs_found"],0)
         self.assertEqual(result["pairs_verified"],0)
         self.assertEqual(result["rejected_structural"],1)
