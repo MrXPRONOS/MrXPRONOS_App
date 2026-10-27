@@ -16,7 +16,10 @@ def tokens(text):
     text = unicodedata.normalize("NFKD", str(text or "")).encode("ascii","ignore").decode().lower()
     text = re.sub(r"https?://\S+|t\.me/\S+|@[a-z0-9_]+", " ", text)
     text = re.sub(r"[^a-z0-9]+"," ",text)
-    return {w for w in text.split() if len(w)>2 and w not in STOP and not w.isdigit()}
+    # Distinguish numbered sequels (e.g. film 2 vs film 3). Release years,
+    # handled separately, and technical tags such as 1080p are not film IDs.
+    return {w for w in text.split() if w not in STOP and
+            ((w.isdigit() and len(w) <= 2) or (len(w) > 2 and not w.isdigit()))}
 
 def title_line(message):
     raw = str(getattr(message,"raw_text","") or "")
