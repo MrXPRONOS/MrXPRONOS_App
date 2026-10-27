@@ -60,6 +60,14 @@ class TitleGuardTests(unittest.TestCase):
         self.assertEqual(title_assessment(poster("Aventure Galactique 2"),
                                          movie("Aventure.Galactique.2.2024.mkv")), "verified")
 
+    def test_zero_padded_sequel_matches(self):
+        self.assertEqual(title_assessment(poster("Aventure Galactique 02"),
+                                         movie("Aventure.Galactique.2.mkv")), "verified")
+
+    def test_zero_padded_different_sequel_rejected(self):
+        self.assertEqual(title_assessment(poster("Aventure Galactique 02"),
+                                         movie("Aventure.Galactique.03.mkv")), "mismatch")
+
     def test_unmatched_media_cannot_be_published(self):
         self.assertEqual(title_assessment(None,movie("film.mp4")),"uncertain")
 
