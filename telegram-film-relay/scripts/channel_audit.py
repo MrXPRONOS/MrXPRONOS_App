@@ -20,6 +20,11 @@ from film_relay.category_runner import category_config, preflight
 from film_relay.runner import config_from
 from film_relay.series_catalog import series_config
 from film_relay.source_channels import source_list
+from film_relay.media_guard import valid_photo_message
+from film_relay.title_guard import title_assessment
+from film_relay.desir_matching import pair_items, is_supported_video
+from film_relay.matching import match_pairs, is_video
+from telethon import errors
 
 LOG = logging.getLogger("cinex_channel_audit")
 
@@ -48,6 +53,59 @@ def requested_channels():
         entries.append((name, category_config(name),
                         os.getenv("CINEX_CATEGORY_BOT_TOKEN", "")))
     return entries
+
+
+def summarize_sample(messages, category):
+    """Anonymous read-only sample; not a complete publication history."""
+    entries = list(messages)
+    is_category = category in ("desir", "comedie")
+    video = is_supported_video if is_category else is_video
+    paired = pair_items(entries) if is_category else match_pairs(entries)
+    counts = {"sampled_messages": len(entries),
+              "real_photos": sum(valid_photo_message(m) for m in entries),
+              "web_previews": sum(
+                  getattr(getattr(m, "media", None), "webpage", None) is not None
+                  for m in entries),
+              "protected_messages": sum(bool(getattr(m, "noforwards", False)) for m in entries),
+              "video_files": sum(bool(video(m)) for m in entries),
+              "pairs_found": len(paired),
+              "pairs_verified": 0,
+              "quarantined_uncertain": 0,
+              "quarantined_mismatch": 0}
+    for item in paired:
+        poster = item.poster
+        movie = item.video if is_category else item.movie
+        result = (title_assessment(poster, movie) if valid_photo_message(poster)
+                  and not getattr(movie, "noforwards", False) else "uncertain")
+        key = ("pairs_verified" if result == "verified" else
+               "quarantined_mismatch" if result == "mismatch" else
+               "quarantined_uncertain")
+        counts[key] += 1
+    counts["unpaired_video_files"] = max(0, counts["video_files"] - counts["pairs_found"])
+    return counts
+
+
+def aggregate_samples(samples):
+    """Keep only totals: no source IDs, captions, file names or invite links."""
+    if not samples:
+        return {}
+    keys = list(samples[0])
+    return {key: sum(int(sample[key]) for sample in samples) for key in keys}
+
+
+def recent_public_summary(messages):
+    """Recent destination metadata, without message texts or private IDs."""
+    entries = [m for m in messages if getattr(m, "date", None) is not None
+               and getattr(m, "action", None) is None]
+    latest = max((m.date for m in entries), default=None)
+    return {"sampled_posts": len(entries),
+            "last_post_at": latest.isoformat() if latest else None,
+            "recent_real_photos": sum(valid_photo_message(m) for m in entries),
+            "recent_web_previews": sum(
+                getattr(getattr(m, "media", None), "webpage", None) is not None
+                for m in entries),
+            "recent_protected": sum(bool(getattr(m, "noforwards", False))
+                                    for m in entries)}
 
 
 async def verify():
@@ -86,13 +144,40 @@ async def verify():
                 perm = await bot.get_permissions(public, identity)
                 if not (perm.is_creator or (perm.is_admin and perm.post_messages)):
                     raise RuntimeError("Le bot n'a pas le droit de publier dans la destination.")
+                # Bounded sample of live Telegram metadata. No downloads,
+                # sends, invitations or sensitive identifiers in the artifact.
+                samples = []
+                sample_errors = 0
+                for source in sources[:3]:
+                    try:
+                        source_messages = await client.get_messages(source, limit=80)
+                        samples.append(summarize_sample(source_messages, name))
+                    except errors.FloodWaitError:
+                        raise
+                    except Exception:
+                        sample_errors += 1
+                public_summary = None
+                try:
+                    public_messages = await client.get_messages(public, limit=20)
+                    public_summary = recent_public_summary(public_messages)
+                except errors.FloodWaitError:
+                    raise
+                except Exception:
+                    sample_errors += 1
+                sample_status = "ok" if not sample_errors and len(samples) == min(3, len(sources)) else "partial"
                 # The actual numeric IDs have already been cross-checked in preflight.
-                report["channels"][name] = {"status": "ok",
+                report["channels"][name] = {"status": "ok" if sample_status == "ok" else "needs_attention",
                                             "sources_validated": len(sources),
                                             "private_id_verified": True,
                                             "public_id_verified": True,
                                             "user_can_post_private": True,
-                                            "bot_can_post": True}
+                                            "bot_can_post": True,
+                                            "source_sampled": len(samples),
+                                            "source_sampling_limit": 3,
+                                            "source_messages_per_source_limit": 80,
+                                            "source_matching_sample": aggregate_samples(samples),
+                                            "public_recent": public_summary,
+                                            "sample_errors": sample_errors}
                 LOG.info("Canaux %s : sources=%s, IDs cohérents, droits bot OK",
                          name, len(sources))
             except Exception as exc:
