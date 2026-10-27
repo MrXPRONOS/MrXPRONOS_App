@@ -1,49 +1,41 @@
-# Mr XPRONOS — Football Stories V2
+# Mr XPRONOS Football Stories — phase visuelle V3
 
-## Ce qui change après l'évaluation de la démo V1
+**État : premier lot terminé au niveau graphique, moteur complet NON prêt à publier.**
 
-Cette V2 ne se contente plus de quatre diapositives silencieuses. Elle comporte :
+Le projet de référence est désormais dans :
 
-- **9 à 10 plans courts** par histoire, avec animations de caméra, visuels football originaux (stade, terrain, ballon, joueur **symbolique**), titres cinétiques et questions pour inciter à réagir.
-- **Angle éditorial réel** : match qui finit avec beaucoup de buts, écart serré, classement factuel de buteurs issu de l'API, ou compilation de véritables clips autorisés.
-- **Voix française neuronale** via `edge-tts` sans clé payante (service externe susceptible de changer ou tomber en panne) et **bande-son originale** synthétisée en Python, sans musique protégée. L'absence de voix **bloque la publication**.
-- **Contrôle éditorial + technique** : refus des vidéos démo, des sources non vérifiées, des clips non autorisés, des vidéos sans vraie voix ou trop courtes/longues, des fichiers sans piste audio ou pas au format 9:16.
-- **Mémoire séparée** sur branche `football-media-v2-state`, restaurée avant création et sauvegardée uniquement après la publication activée et réussie.
-- **Aucune modification** apportée au générateur de coupons ni au workflow `.github/workflows/create-video.yml`.
+- [`AGENTS.md`](AGENTS.md) — consignes permanentes pour les futurs travaux et pour « continue ».
+- [`docs/FOOTBALL_MEDIA_ROADMAP.md`](docs/FOOTBALL_MEDIA_ROADMAP.md) — les **36 améliorations** réparties en quatre lots et leurs critères.
+- [`docs/FOOTBALL_MEDIA_PROGRESS.md`](docs/FOOTBALL_MEDIA_PROGRESS.md) — état réel, preuves, limites, prochaine action.
 
-## Démarrer sur GitHub
+## Lot 1 achevé — modifications visuelles 1 à 6
 
-1. Ajouter `football_media_v2/`, `tests/test_football_v2.py` et `.github/workflows/football-media-v2.yml` à la racine du dépôt.
-2. Fournir le secret GitHub `FOOTBALL_DATA_TOKEN` depuis [football-data.org](https://www.football-data.org/). Le plan gratuit peut limiter les championnats et l'accès au classement des buteurs : le moteur retombe sur une analyse de score **vérifié** si les buteurs ne sont pas disponibles.
-3. Ouvrir **GitHub → Actions → Mr XPRONOS - Football Stories V2 → Run workflow** et choisir `demo=true`, `mode=match` (par défaut). La démo montre **un score fictif, clairement marqué** et n'est jamais publiée.
-4. Télécharger les fichiers MP4 / PNG de l'artifact.
-5. Relancer `demo=false` quand le rendu éditorial est satisfaisant. Vérifier le fichier `productions.json` et `quality.gates`. La publication reste **désactivée**.
-6. Après vérification du contenu réel, ajouter les secrets officiels `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHANNEL_ID`, `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, `YOUTUBE_REFRESH_TOKEN` si absents, et définir `FOOTBALL_NETWORKS=telegram,youtube` (ou seulement un des deux).
-7. Pour activer, créer **GitHub Actions Variables** `FOOTBALL_MEDIA_V2_PUBLISH=true`. `FOOTBALL_YOUTUBE_PRIVACY=private` par défaut : ne passer à `public` qu'après vérifications. Une exécution programmée sans données vérifiables ne produit rien.
+- Retrait de toutes les silhouettes, petits ballons, terrains dessinés et illustrations procédurales de `football_media_v2/visuals.py`.
+- Photographie de football au format plein écran, cadrage photographique, dégradés sobres au lieu de cadres noirs encombrants.
+- Palette sobre et signature typographique Mr XPRONOS. **Pas de faux logo** en remplacement du logo officiel, non encore fourni.
+- Règles sur les marges et la hiérarchie des textes ; un titre trop long déclenche une erreur plutôt qu'une troncature silencieuse.
+- **9 compositions distinctes** prévues selon le rôle narratif : couverture, plan d'ambiance, duel, score, statistique, insight, révélation, preuve et conclusion (et une dixième pour classements).
+- Production réelle refusée sans **trois photos différentes au minimum**, publiables selon leurs licences. Les images génériques sont signalées comme photos d'illustration.
 
-Les cron sont à **12 h 13 UTC** et **19 h 17 UTC mercredi/samedi**, fuseau de Lomé. GitHub peut exécuter avec retard. Les cron ne démarrent automatiquement qu'après présence du workflow sur `main`.
+## Sécurité
 
-## Tests localement
+- Le fichier `football_media_v2/assets/demo_synthetic_football.jpg.b64` est un **asset IA fictif uniquement pour prévisualiser** la direction artistique, jamais une image de vrai match.
+- Le mode `--demo` décode l'asset localement si nécessaire et marque la vidéo « DÉMONSTRATION FICTIVE — NON PUBLIABLE ».
+- Aucun changement aux coupons, au script de leur création ni à leur workflow GitHub Actions.
+- La publication n'est pas activée ; l'absence de vraie voix, les visuels fictifs ou un contrôle qualité échoué bloquent le lancement sur les réseaux.
+
+## Tester
 
 ```bash
 pip install -r football_media_v2/requirements.txt
-python -m unittest discover -s tests -p 'test_football_v2.py' -v
+python -m unittest discover -s tests -p 'test_football*.py' -v
 FOOTBALL_DISABLE_TTS=1 python -m football_media_v2.engine --mode match --demo
 ```
 
-Requiert `ffmpeg`, `ffprobe`, polices `DejaVu Sans`. Le test local sans internet ne possède pas de voix neuronale : **prévisualisation seulement, non publiable**.
+Nécessite Python 3.11+, ffmpeg, ffprobe et `fonts-dejavu-core`. Le fichier JPEG est automatiquement reconstruit à partir du texte encodé dans le mode test. Sur GitHub, lancer le workflow **Mr XPRONOS - Football Stories V2** sur cette branche en choisissant `demo=true`, s'il est accessible via l'interface Actions. Les exécutions programmées ne sont pas activées par la seule existence de la branche.
 
-## Formats et limites
+## Diagnostic de spectateur
 
-- `--mode match` : histoire construite à partir du **score final uniquement** ; ne prétend pas connaître buteurs, chronologie, xG ou actions.
-- `--mode scorers` : Top 5 du championnat sélectionné (`FOOTBALL_COMPETITION=PL`, etc.), seulement si l'API le renvoie. Sinon fallback match validé.
-- `--mode highlights` : au moins deux **fichiers et preuves d'autorisation** dans `licensed_clips/manifest.json` et une vérification humaine explicite. L'algorithme ne télécharge aucun match sous droit sans permission.
-- `--mode auto` : classements certains jours, analyses les autres, repli sur données disponibles.
+Un plan isolé apparaît désormais plus professionnel ; les compositions sont lisibles et centrées sur le football. Mais **la démonstration actuelle n'est toujours pas une vidéo captivante** : même photo synthétique répétée, match fictif et accroches trop génériques. Ce défaut relève notamment du **lot 2 (sujets et storytelling, points 7–17)**, puis du lot 3 (sélection de médias réels, montage, voix).
 
-Les compositions ne simulent pas des buts réels et ne prétendent pas être des images des rencontres ; les visuels stylisés sont entièrement produits par le programme. Pour publier de **vrais buts de grands championnats**, il faudra des droits média et les clips correspondants. Les autorisations commerciales doivent être vérifiées au-delà d'un simple registre déclaratif.
-
-**Diffusion actuellement intégrée** : Telegram, YouTube uniquement. Pas de fausse affirmation sur Facebook/Instagram/TikTok : connecteurs futurs à réutiliser depuis les workflows du dépôt après vérification des permissions. Aucun raccourci pour contourner les quotas/audits des plateformes.
-
-## Sécurité de déploiement
-
-Ce module est installé via une branche/PR dédiée. La modification de `main` reste sous contrôle. Les secrets n'apparaissent jamais dans les artefacts. La publication ne peut démarrer qu'en ajoutant une variable explicite ; la qualité audio reste un prérequis.
+À la prochaine commande « continue », vérifier le journal d'avancement puis **commencer le lot 2 par l'amélioration n°7**, sans effacer les contrôles acquis au lot 1. Ne pas présenter le succès des tests comme une validation créative finale.
