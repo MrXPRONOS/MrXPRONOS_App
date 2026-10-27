@@ -227,9 +227,11 @@ async def verify():
                 # sends, invitations or sensitive identifiers in the artifact.
                 samples = []
                 sample_errors = 0
+                source_attempts = 0
                 for source in sources:
                     if len(samples) >= 3:
                         break
+                    source_attempts += 1
                     try:
                         mode, pairing = source_options(cfg, source, name)
                         source_messages = await client.get_messages(source, limit=80)
@@ -259,6 +261,7 @@ async def verify():
                                             "user_can_post_private": True,
                                             "bot_can_post": True,
                                             "source_sampled": len(samples),
+                                            "source_attempts": source_attempts,
                                             "source_sampling_limit": 3,
                                             "source_messages_per_source_limit": 80,
                                             "source_matching_sample": aggregate_samples(samples),
