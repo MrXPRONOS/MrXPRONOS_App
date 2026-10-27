@@ -4,11 +4,11 @@ import unittest
 from pathlib import Path
 from PIL import Image, ImageStat
 from football_media_v2.visuals import (W,H,scene_poster,layout_for,MissingLicensedMedia,
-                                        _wrap,ft,SAFE_X)
+                                        _wrap,ft,SAFE_X,demo_visual_asset)
 from football_media_v2.story import match_scenes,demo_match,Scene
 from football_media_v2.engine import prepare_scenes
 
-ASSET=Path(__file__).resolve().parents[1]/'football_media_v2/assets/demo_synthetic_football.jpg'
+ASSET=demo_visual_asset()
 
 class PremiumVisualTests(unittest.TestCase):
     def test_six_distinct_layouts_in_nine_shot_match(self):
