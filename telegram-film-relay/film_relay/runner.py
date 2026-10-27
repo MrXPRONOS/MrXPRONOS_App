@@ -7,6 +7,7 @@ import logging
 import os
 from pathlib import Path
 
+from .title_guard import title_assessment
 from .matching import (document_key, filename_of, is_poster, is_video, match_pairs,
                        match_authorized_mkv_pairs, description_of, description_entities_of)
 from .verification import screen_pairs
@@ -451,6 +452,10 @@ async def execute() -> int:
                         ):
                             LOG.info("Episode de série ignoré par Films classiques : traitement via le catalogue Séries.")
                             continue
+                    assessment = title_assessment(pair.poster, pair.movie)
+                    if assessment != "verified":
+                        LOG.warning("Films : affiche/vidéo en quarantaine (%s), film=%s", assessment, pair.movie.id)
+                        continue
                     if getattr(pair.poster, "noforwards", False) or getattr(pair.movie, "noforwards", False):
                         LOG.warning("Messages protégés : association %s/%s ignorée", pair.poster.id, pair.movie.id)
                         continue
