@@ -2,7 +2,7 @@
 import unittest
 from datetime import datetime, timezone
 from types import SimpleNamespace as NS
-from scripts.channel_audit import summarize_sample, recent_public_summary, aggregate_samples
+from scripts.channel_audit import summarize_sample, recent_public_summary, aggregate_samples, source_options
 
 
 def photo(title, n=1):
@@ -20,6 +20,25 @@ def video(filename, n=2, caption=""):
 
 
 class ChannelAuditTests(unittest.TestCase):
+    def test_source_rules_survive_filtered_or_reordered_sources(self):
+        cfg={"sources":["@first_source","@second_source"],
+             "source_modes":["standard","authorized_mkv"],
+             "source_pairings":[{"max_gap":2},{"max_gap":4}]}
+        mode, rules=source_options(cfg,NS(username="second_source"),"films")
+        self.assertEqual(mode,"authorized_mkv")
+        self.assertEqual(rules["max_gap"],4)
+
+    def test_unconfigured_source_never_borrows_rules(self):
+        cfg={"sources":["@first_source"],"source_modes":["standard"],
+             "source_pairings":[{}]}
+        with self.assertRaisesRegex(ValueError,"Cannot associate"):
+            source_options(cfg,NS(username="unknown_source"),"films")
+
+    def test_source_missing_rules_rejected(self):
+        cfg={"sources":["@first_source"],"source_modes":[],"source_pairings":[]}
+        with self.assertRaisesRegex(ValueError,"Matching rules"):
+            source_options(cfg,NS(username="first_source"),"films")
+
     def test_verified_pair(self):
         result=summarize_sample([photo("La Grande Aventure - film VF 2024"),video("La.Grande.Aventure.mp4")],"films")
         self.assertEqual(result["pairs_found"],1)
