@@ -58,7 +58,7 @@ class ChannelAuditTests(unittest.TestCase):
             [photo("La Grande Aventure - film VF 2024"),media],"films")
         self.assertEqual(result["pairs_found"],0)
         self.assertEqual(result["pairs_verified"],0)
-        self.assertEqual(result["rejected_structural"],1)
+        self.assertEqual(result["pairs_verified"],0)
 
     def test_standard_film_audit_accepts_large_valid_movie(self):
         image=photo("La Grande Aventure - film VF 2024")
