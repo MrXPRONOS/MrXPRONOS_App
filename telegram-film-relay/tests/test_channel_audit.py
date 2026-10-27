@@ -2,7 +2,7 @@
 import unittest
 from datetime import datetime, timezone
 from types import SimpleNamespace as NS
-from scripts.channel_audit import summarize_sample, recent_public_summary, aggregate_samples, source_options, audit_overall_status, requested_channels
+from scripts.channel_audit import summarize_sample, recent_public_summary, aggregate_samples, source_options, audit_overall_status, requested_channels, sample_sources
 
 
 def photo(title, n=1):
@@ -20,6 +20,38 @@ def video(filename, n=2, caption=""):
 
 
 class ChannelAuditTests(unittest.TestCase):
+    def test_sampling_falls_back_after_inaccessible_source(self):
+        import asyncio
+        from unittest.mock import AsyncMock
+        client=NS(get_messages=AsyncMock(side_effect=[
+            RuntimeError("unavailable"),
+            [photo("La Grande Aventure - film VF 2024"),video("La.Grande.Aventure.mp4")],
+            [video("Episode.01.mp4")],
+        ]))
+        sources=[NS(username="one"),NS(username="two"),NS(username="three")]
+        data=asyncio.run(sample_sources(client,sources,{},"desir",limit=2))
+        self.assertEqual(data["source_attempts"],3)
+        self.assertEqual(data["sample_errors"],1)
+        self.assertEqual(len(data["samples"]),2)
+        self.assertEqual(client.get_messages.await_count,3)
+
+    def test_sampling_caps_successes_and_never_reads_extra_source(self):
+        import asyncio
+        from unittest.mock import AsyncMock
+        client=NS(get_messages=AsyncMock(return_value=[]))
+        data=asyncio.run(sample_sources(client,[NS(username="one"),
+                  NS(username="two"),NS(username="three")],{},"anime",limit=2))
+        self.assertEqual(data["source_attempts"],2)
+        self.assertEqual(len(data["samples"]),2)
+        self.assertEqual(client.get_messages.await_count,2)
+
+    def test_sampling_rejects_invalid_limit(self):
+        import asyncio
+        from unittest.mock import AsyncMock
+        client=NS(get_messages=AsyncMock())
+        with self.assertRaises(ValueError):
+            asyncio.run(sample_sources(client,[],{},"films",limit=0))
+
     def test_audit_code_does_not_invoke_mutating_telegram_methods(self):
         from pathlib import Path
         import scripts.channel_audit as audit
