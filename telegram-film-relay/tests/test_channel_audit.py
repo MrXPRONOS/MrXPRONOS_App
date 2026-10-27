@@ -21,13 +21,13 @@ def video(filename, n=2, caption=""):
 
 class ChannelAuditTests(unittest.TestCase):
     def test_verified_pair(self):
-        result=summarize_sample([photo("La Grande Aventure"),video("La.Grande.Aventure.mp4")],"films")
+        result=summarize_sample([photo("La Grande Aventure - film VF 2024"),video("La.Grande.Aventure.mp4")],"films")
         self.assertEqual(result["pairs_found"],1)
         self.assertEqual(result["pairs_verified"],1)
         self.assertEqual(result["quarantined_mismatch"],0)
 
     def test_quarantines_wrong_title(self):
-        result=summarize_sample([photo("La Grande Aventure"),video("Voyage.Sur.Mars.mp4")],"films")
+        result=summarize_sample([photo("La Grande Aventure - film VF 2024"),video("Voyage.Sur.Mars.mp4")],"films")
         self.assertEqual(result["pairs_found"],1)
         self.assertEqual(result["quarantined_mismatch"],1)
 
@@ -55,13 +55,13 @@ class ChannelAuditTests(unittest.TestCase):
         media.file.size=100_000_000
         media.document.size=100_000_000
         result=summarize_sample(
-            [photo("La Grande Aventure"),media],"films")
+            [photo("La Grande Aventure - film VF 2024"),media],"films")
         self.assertEqual(result["pairs_found"],0)
         self.assertEqual(result["pairs_verified"],0)
         self.assertEqual(result["rejected_structural"],1)
 
     def test_standard_film_audit_accepts_large_valid_movie(self):
-        image=photo("La Grande Aventure est un long film passionnant")
+        image=photo("La Grande Aventure - film VF 2024")
         media=video("La.Grande.Aventure.mp4")
         media.file.size=200_000_000
         media.document.size=200_000_000
@@ -84,7 +84,7 @@ class ChannelAuditTests(unittest.TestCase):
         self.assertFalse(total["pairing_evaluated"])
 
     def test_samples_aggregate_without_ids(self):
-        a=summarize_sample([photo("La Grande Aventure"),video("La.Grande.Aventure.mp4")],"films")
+        a=summarize_sample([photo("La Grande Aventure - film VF 2024"),video("La.Grande.Aventure.mp4")],"films")
         totals=aggregate_samples([a,a])
         self.assertEqual(totals["pairs_verified"],2)
         self.assertNotIn("channel_id",str(totals))
