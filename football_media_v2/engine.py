@@ -20,6 +20,8 @@ import random
 import traceback
 import requests
 from .story import Scene,parse_match,select_match,match_scenes,parse_scorers,scorers_scenes,demo_match
+from .editorial import (discover_topics, select_topic, choose_script, editorial_report, load_storypacks, FORMAT_NAMES)
+from .news_leads import discover_news_leads
 from .rights import cleared
 from .commons import get_photos
 from .visuals import W,H,FPS,scene_poster,scene_video,licensed_clip_video,concat_video,run,duration,layout_for,MissingLicensedMedia,demo_visual_asset
@@ -90,10 +92,10 @@ def prepare_scenes(scenes:list[Scene],work:Path,voice_len:float|None,photos:list
         clips.append(seg); clock+=duration(seg);stops.append(clock)
     return clips,stops
 
-def render_analysis(kind:str,data:dict,out:Path,demo:bool):
+def render_analysis(kind:str,data:dict,out:Path,demo:bool,topic=None,draft=None,report=None):
     out.mkdir(parents=True,exist_ok=True)
-    scenes=match_scenes(data) if kind=='match' else scorers_scenes(data)
-    narration=summary_narration(kind,data)
+    scenes=draft.scenes if draft else (match_scenes(data) if kind=='match' else scorers_scenes(data))
+    narration=draft.voice if draft else summary_narration(kind,data)
     voice,vtype=voice_edge(narration,out/'narration.mp3')
     # A demo without voice gets the soundtrack, but remains unpublishable.
     if demo:
@@ -117,8 +119,9 @@ def render_analysis(kind:str,data:dict,out:Path,demo:bool):
         # watermarked demo scenes are included in the actual rendered video, not just metadata
         # stamp unequivocally at video level for safe sharing (no accidental fictional claims).
         demo_file=out/f'{kind}_watermarked.mp4'
+        waterlabel='VISUELS DEMO - NON PUBLIER' if report else 'TEST FICTIF - NE PAS PUBLIER'
         run(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(final),'-vf',
-             "drawbox=x=0:y=ih-115:w=iw:h=65:color=red@0.86:t=fill,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='TEST FICTIF - NE PAS PUBLIER':fontcolor=white:fontsize=24:x=(w-text_w)/2:y=h-95",
+             "drawbox=x=0:y=ih-115:w=iw:h=65:color=red@0.86:t=fill,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='"+waterlabel+"':fontcolor=white:fontsize=24:x=(w-text_w)/2:y=h-95", 
              '-c:v','libx264','-preset','veryfast','-crf','23','-c:a','copy',str(demo_file)])
         final=demo_file
     score=qa_video(final,len(scenes),vtype,demo,True,True)
@@ -126,6 +129,12 @@ def render_analysis(kind:str,data:dict,out:Path,demo:bool):
     score['gates']['visual_layout_diversity']=len({layout_for(s.kind) for s in scenes})>=6
     score['gates']['premium_photo_first']=len(photos)>0
     score['ready_to_publish']=all(score['gates'].values())
+    if report:
+        (out/'editorial_report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf8')
+        (out/'editorial_script.txt').write_text(narration+'\n',encoding='utf8')
+        # All lot-2 output is explicitly draft until a human reviews interest AND audio.
+        score['gates']['human_editorial_review']=False
+        score['ready_to_publish']=False
     if kind=='match':
         title=f"{data['home']} {data['a']}-{data['b']} {data['away']} | Le score qui fait réagir ⚽"
         key='match:'+data['id']
@@ -134,13 +143,21 @@ def render_analysis(kind:str,data:dict,out:Path,demo:bool):
         title=f"TOP BUTEURS : qui domine la {data['competition']} ?"
         key='scorers:'+data['code']+':'+hashlib.sha256(json.dumps(data['scorers'],sort_keys=True,ensure_ascii=False).encode()).hexdigest()[:16]
         source='Classement des buteurs issu de football-data.org : '+', '.join(f"{p['name']} {p['goals']}" for p in data['scorers'])
+    if topic:
+        title=topic.subject+' | Football Stories • Mr XPRONOS'
+        key=topic.state_key
+        source=('DOSSIER ÉDITORIAL : faits vérifiés manuellement, liens documentaires ci-dessous.\n'+
+                '\n'.join(f'{f.value} — {f.url}' for f in topic.facts))
     return {'file':str(final),'title':title[:100],
       'description':source+'\nImages d’illustration (ne représentent pas cette rencontre) :\n'+
           '\n'.join(f"{p['title']} — {p['author']} — {p['license']} — {p['source']}" for p in photos)+
           '\n#football #foot #mrxpronos #shorts','illustration_credits':photos,
       'kind':kind,'source':'football-data.org','demo':demo,'quality':score,'state_key':key,
       'storyboard':[{'kind':s.kind,'headline':s.headline,'seconds':s.duration} for s in scenes],
-      'voice_text':narration}
+      'voice_text':narration,'editorial_report_file':str(out/'editorial_report.json') if report else None,
+      'editorial_event_id':topic.event_id if topic else None,
+      'editorial_fingerprint':topic.fingerprint if topic else None,
+      'editorial_angle':topic.angle if topic else None}
 
 def render_highlights(entries:list[tuple[dict,Path]],out:Path,demo=False):
     out.mkdir(parents=True,exist_ok=True)
@@ -189,51 +206,93 @@ def render_highlights(entries:list[tuple[dict,Path]],out:Path,demo=False):
       'used_permissions':[x[0]['permission_id'] for x in rights]}
 
 
+def build_editorial(args, out:Path, history:dict, produced:list, today:dt.date):
+    """Topic selection runs BEFORE rendering. Never narrate bare scorelines as drama."""
+    matches=[];scorer_response=None
+    if args.mode in ('auto','match'):
+        matches=matches_today(today)
+    if args.mode in ('auto','scorers','ranking','comparison','portrait'):
+        code=os.getenv('FOOTBALL_COMPETITION','PL')
+        try:
+            token=os.environ.get('FOOTBALL_DATA_TOKEN','').strip()
+            if not token:raise RuntimeError('FOOTBALL_DATA_TOKEN absent')
+            response=requests.get(f'https://api.football-data.org/v4/competitions/{code.upper()}/scorers',
+                params={'limit':10},headers={'X-Auth-Token':token},timeout=30)
+            if response.status_code not in (403,404):
+                response.raise_for_status();scorer_response=response.json()
+        except (requests.RequestException,RuntimeError,ValueError) as exc:
+            print('[INFO] Classement buteurs indisponible :',str(exc)[:150])
+    packs=load_storypacks(Path(args.storypack)) if args.storypack else []
+    # RSS headlines are research leads only, NEVER converted to asserted facts.
+    # Skip offline demo and fixture tests. Workflow may opt out with RSS_DISCOVERY=0.
+    if args.mode=='auto' and not args.demo and os.getenv('FOOTBALL_RSS_DISCOVERY','1')=='1':
+        leads=discover_news_leads(today)
+        (out/'editorial_leads.json').write_text(json.dumps(leads,ensure_ascii=False,indent=2),encoding='utf8')
+        print('[RESEARCH]',len(leads),'pistes en attente de vérification, aucune narration automatique à partir des titres')
+    candidates=discover_topics(matches,scorer_response,packs,os.getenv('FOOTBALL_COMPETITION','PL'))
+    only={'match':['story'], 'story':['story'], 'scorers':['ranking'], 'ranking':['ranking'],
+          'comparison':['comparison'], 'portrait':['portrait'], 'tactical':['tactical']}
+    if args.mode in only:
+        candidates=[t for t in candidates if t.format in only[args.mode]]
+    # A direct '--mode match' never greenlights score-only narratives.
+    selected,decision_log=select_topic(candidates,history,today)
+    out.mkdir(parents=True,exist_ok=True)
+    (out/'editorial_decisions.json').write_text(json.dumps(decision_log,ensure_ascii=False,indent=2),encoding='utf8')
+    if not selected:
+        print('[INFO] Aucun sujet suffisamment factuel/intéressant ; publication abandonnée.')
+        return
+    script,variants=choose_script(selected)
+    report=editorial_report(selected,script,variants,decision_log)
+    (out/'editorial_report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf8')
+    (out/'editorial_script.txt').write_text(script.voice+'\n',encoding='utf8')
+    print('[EDITORIAL]',selected.format,selected.event_id,'score=',selected.score,
+          'script=',script.variant,'words=',len(script.voice.split()))
+    if args.editorial_only:
+        return
+    # The production-only visual/audio system is unchanged during lot 2.
+    # Images or missing voice will block the resulting video as before.
+    kind='scorers' if selected.format in ('ranking','comparison','portrait') else 'match'
+    if selected.format=='tactical':kind='match'
+    data=selected.data if kind=='match' else {'competition':selected.competition,
+       'scorers':selected.data.get('players',[]),'code':os.getenv('FOOTBALL_COMPETITION','PL')}
+    # render_analysis's legacy score-specific metadata expects match home/a/b.
+    if kind=='match':
+        data={**data,'home':data.get('home',selected.subject.split(' – ')[0]),
+              'away':data.get('away',selected.subject.split(' – ')[-1]),
+              'a':data.get('a',0),'b':data.get('b',0),'date':selected.event_date,
+              'competition':selected.competition,'id':selected.event_id}
+    produced.append(render_analysis(kind,data,out/selected.format,args.demo,
+                                     topic=selected,draft=script,report=report))
+
+
 def main(argv=None):
-    parser=argparse.ArgumentParser(description='Football Media Engine V2 : vidéos attractives, faits vérifiés')
-    parser.add_argument('--mode',choices=['auto','match','scorers','highlights'],default='auto')
-    parser.add_argument('--demo',action='store_true')
+    parser=argparse.ArgumentParser(description='Football Media Engine : selection editoriale sourcée')
+    parser.add_argument('--mode',choices=['auto','match','scorers','highlights','story','ranking','comparison','portrait','tactical'],default='auto')
+    parser.add_argument('--demo',action='store_true',help='Démo illustrative, jamais publiable')
+    parser.add_argument('--editorial-only',action='store_true',help='Scénario / preuves sans créer de vidéo')
+    parser.add_argument('--storypack',default='',help='Dossier éditorial revu, JSON validé')
     parser.add_argument('--out',default='football_media_v2_output')
     parser.add_argument('--state',default='football_media_v2_state.json')
     parser.add_argument('--platforms',default='youtube,telegram')
     args=parser.parse_args(argv)
-    if args.demo and args.mode=='highlights':
-        parser.error('Test de highlights : fournir des clips autorisés ; mode démo seulement pour les matchs fictifs')
+    if args.demo and args.mode=='highlights':parser.error('Les clips nécessitent de vraies autorisations')
     out=Path(args.out).resolve();out.mkdir(exist_ok=True,parents=True)
     state=Path(args.state)
     saved=json.loads(state.read_text('utf-8')) if state.exists() else {'seen':[]}
     seen=set(saved.get('seen',[]));produced=[]
     try:
-        mode='match' if args.demo else args.mode
-        if mode=='auto':
-            # Mix éditorial périodique ; fallback si statistiques non incluses dans le plan gratuit.
-            mode='scorers' if dt.date.today().weekday() in (1,4) else 'match'
-        if mode=='match':
-            data=demo_match() if args.demo else select_match(matches_today(dt.datetime.now(dt.timezone.utc).date()),seen)
-            if data:produced.append(render_analysis('match',data,out/'match',args.demo))
-        if mode=='scorers':
-            code=os.environ.get('FOOTBALL_COMPETITION','PL')
-            try: data=scorers_current(code)
-            except (requests.RequestException,ValueError) as exc:
-                print('[INFO] Buteurs indisponibles :',str(exc)[:160]);data=None
-            if data:
-                newkey='scorers:'+data['code']+':'+hashlib.sha256(json.dumps(data['scorers'],sort_keys=True,ensure_ascii=False).encode()).hexdigest()[:16]
-                if newkey not in seen:produced.append(render_analysis('scorers',data,out/'scorers',False))
-            if not produced:
-                # valid fallback: actual match data, not invented list
-                data=select_match(matches_today(dt.datetime.now(dt.timezone.utc).date()),seen)
-                if data:produced.append(render_analysis('match',data,out/'match',False))
-        if mode=='highlights':
+        if args.mode=='highlights':
             manifest=ROOT/'licensed_clips'/'manifest.json'
             entries=cleared(manifest,PROJECT,set(args.platforms.split(',')))
             entries=[(m,path) for m,path in entries if 'licensed:'+m['permission_id'] not in seen]
-            if len(entries)>=2:
+            if len(entries)>=2 and not args.editorial_only:
                 entry=render_highlights(entries,out/'highlights')
                 if entry:produced.append(entry)
-        if not produced:print('[INFO] Aucun contenu nouveau, factuel et autorisé ; pas de vidéo inventée.')
-    except (RuntimeError,requests.RequestException,ValueError,OSError) as exc:
-        print('[ERROR] Échec du moteur :',exc)
-        raise
+            else: print('[INFO] Clips autorisés insuffisants ou mode étude seulement.')
+        elif args.demo and not args.storypack and not args.editorial_only:
+            produced.append(render_analysis('match',demo_match(),out/'match',True))
+        else:
+            build_editorial(args,out,saved,produced,dt.datetime.now(dt.timezone.utc).date())
     finally:
         path=out/'productions.json'
         path.write_text(json.dumps(produced,ensure_ascii=False,indent=2),encoding='utf8')
