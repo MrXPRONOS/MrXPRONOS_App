@@ -35,9 +35,9 @@ def config_from(path: str) -> dict:
     sources = result.get("sources", [])
     if not isinstance(sources, list):
         raise ValueError("sources doit être une liste.")
-    # Discovery still suggests sources only; it NEVER authorizes them.
-    # Explicit owner-managed variables are different: the account owner has
-    # confirmed permission for channels they add to these lists.
+    # Sources supplied through environment variables are discovery inputs,
+    # not documentary evidence of permission to redistribute their contents.
+    # Only explicit, separately reviewed source entries may be marked approved.
     added = source_list(
         os.getenv("CINEX_SOURCE_CHANNELS", ""),
         os.getenv("FILM_SOURCE_CHANNELS", ""),
@@ -49,8 +49,8 @@ def config_from(path: str) -> dict:
         if username.casefold() not in known:
             sources.append({
                 "channel": username,
-                "redistribution_authorized": True,
-                "rights_basis": "Source inscrite explicitement par le propriétaire dans les variables GitHub.",
+                "redistribution_authorized": False,
+                "rights_basis": "Source détectée dans les variables GitHub : droits de redistribution à documenter.",
                 "matching_mode": "standard",
                 "archive_cycle": True,
             })
