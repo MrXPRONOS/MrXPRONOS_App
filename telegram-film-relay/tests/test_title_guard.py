@@ -42,6 +42,16 @@ class TitleGuardTests(unittest.TestCase):
         self.assertEqual(title_assessment(poster("",grouped_id=567),
                                           movie("film.mp4",grouped_id=567)),"verified")
 
+    def test_matching_caption_cannot_override_wrong_filename(self):
+        self.assertEqual(title_assessment(poster("La Grande Aventure"),
+                                         movie("Voyage.Sur.Mars.mkv", "La Grande Aventure")),
+                         "mismatch")
+
+    def test_one_shared_word_is_not_sufficient(self):
+        self.assertEqual(title_assessment(poster("Le Secret du Chateau"),
+                                         movie("Le Secret de la Foret.mkv")),
+                         "mismatch")
+
     def test_unmatched_media_cannot_be_published(self):
         self.assertEqual(title_assessment(None,movie("film.mp4")),"uncertain")
 
