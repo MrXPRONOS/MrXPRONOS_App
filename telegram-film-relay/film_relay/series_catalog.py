@@ -81,7 +81,9 @@ def series_config() -> dict:
     else:
         names = [row["channel"] for row in cfg["sources"]
                  if row.get("redistribution_authorized") is True]
-    names = list(dict.fromkeys(names))
+    disabled = {str(row["channel"]).casefold() for row in cfg["sources"]
+                if row.get("source_disabled") is True}
+    names = list(dict.fromkeys(name for name in names if name.casefold() not in disabled))
     if not names:
         raise ValueError("Aucune source SERIES autorisée dans les paramètres existants.")
     return {
