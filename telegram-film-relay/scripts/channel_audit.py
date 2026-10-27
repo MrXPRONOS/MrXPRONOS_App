@@ -147,6 +147,14 @@ def aggregate_samples(samples):
     return totals
 
 
+def audit_overall_status(channels):
+    """Do not declare a green audit if a category is missing or partial."""
+    required = {"films", "series", "desir", "comedie", "anime"}
+    return ("ok" if set(channels) == required and
+            all(item.get("status") == "ok" for item in channels.values())
+            else "needs_attention")
+
+
 def recent_public_summary(messages):
     """Recent destination metadata, without message texts or private IDs."""
     entries = [m for m in messages if getattr(m, "date", None) is not None
@@ -249,9 +257,7 @@ async def verify():
                 LOG.error("Canaux %s : vérification refusée (%s)", name, type(exc).__name__)
     finally:
         await client.disconnect()
-    report["status"] = ("ok" if len(report["channels"]) == 5 and
-                        all(item["status"] == "ok" for item in report["channels"].values())
-                        else "needs_attention")
+    report["status"] = audit_overall_status(report["channels"])
     return report
 
 
