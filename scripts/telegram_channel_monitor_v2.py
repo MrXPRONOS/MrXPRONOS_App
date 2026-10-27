@@ -85,7 +85,7 @@ class DB:
 
  def mark_complete(self,day,parts,channels):
   report=self.report(day)
-  if len(report["parts"])!=parts:raise RuntimeError("Incomplete Telegram report")
+  if set(report["parts"]) != {str(i) for i in range(1, parts+1)}:raise RuntimeError("Incomplete Telegram report")
   report["status"]="sent"
   report["channels_count"]=channels
   report["sent_at"]=datetime.now(UTC).isoformat()
@@ -105,7 +105,10 @@ class DB:
   tmp.write_text(json.dumps(self.data,ensure_ascii=False,sort_keys=True,indent=2)+"\n",encoding="utf-8")
   tmp.replace(self.path)
 
-def change(rows,now):
+def change(rows,now,reference_day=None):
+ # A same-day observation is not a historical comparison baseline.
+ if reference_day is not None:
+  rows=[r for r in rows if str(r.get("observed_on","")) < reference_day]
  if not rows or now is None or rows[0]["subscriber_count"] is None:return None
  return now-int(rows[0]["subscriber_count"])
 def react(msg):
@@ -128,10 +131,13 @@ async def collect(client,ch,db,day,now):
   posts.append(dict(channel_id=ch.id,post_id=m.id,observed_on=day,post_at=m.date.isoformat(),
    public_url=f"https://t.me/{ch.username}/{m.id}",views=n(getattr(m,"views",None)),
    forwards=n(getattr(m,"forwards",None)),reactions=react(m)))
-  if len(posts)>=10:break
+  if len(posts)>=30:break
  db.put("telegram_channel_post_snapshots",posts,"channel_id,post_id,observed_on")
- values=[p["views"] for p in posts if p["views"] is not None]
- mature=[p["views"] for p in posts if p["views"] is not None and datetime.fromisoformat(p["post_at"])<=now-timedelta(hours=24)]
+ # Engagement averages use the ten newest posts, while the activity counter
+ # draws on up to thirty. Counts from partial samples are lower bounds.
+ sample=posts[:10]
+ values=[p["views"] for p in sample if p["views"] is not None]
+ mature=[p["views"] for p in sample if p["views"] is not None and datetime.fromisoformat(p["post_at"])<=now-timedelta(hours=24)]
  last=posts[0] if posts else None
  prior=db.read("telegram_channel_metrics_daily",select="subscriber_count",channel_id="eq."+str(ch.id),
   observed_on="lt."+day,order="observed_on.desc",limit="1")
@@ -146,10 +152,11 @@ async def collect(client,ch,db,day,now):
   average_views_10=round(statistics.mean(values),2) if values else None,
   sampled_posts=len(values),mature_average_views=round(statistics.mean(mature),2) if mature else None,
   mature_sampled_posts=len(mature),
-  posts_7d=sum(datetime.fromisoformat(p["post_at"])>=now-timedelta(days=7) for p in posts))
+  posts_7d=sum(datetime.fromisoformat(p["post_at"])>=now-timedelta(days=7) for p in posts),
+  scanned_posts=len(posts))
  db.put("telegram_channel_metrics_daily",[row],"channel_id,observed_on")
- return dict(**row,delta=daily,week=change(db.history(ch.id,day,7),subscribers),
-  month=change(db.history(ch.id,day,30),subscribers),
+ return dict(**row,delta=daily,week=change(db.history(ch.id,day,7),subscribers,day),
+  month=change(db.history(ch.id,day,30),subscribers,day),
   top=sorted((p for p in posts if p["views"] is not None),key=lambda p:p["views"],reverse=True)[:3])
 def official_value(value):
  value=getattr(value,"current",value)
@@ -198,7 +205,7 @@ def card(r,i):
  f"📈 24h: <b>{direction}</b> · 7j: <b>{('+' if r['week']>0 else '')+f(r['week']) if r['week'] is not None else '—'}</b> · 30j: <b>{('+' if r['month']>0 else '')+f(r['month']) if r['month'] is not None else '—'}</b>\n"
  f"👁 <a href=\"{esc(recent)}\">Dernier post</a> : <b>{f(r['last_post_views'])}</b> vues\n"
  f"📊 <b>{f(r['average_views_10'])}</b> vues moyennes ({r['sampled_posts']} posts) · portée <b>{f(reach)} %</b>\n"
- f"⏳ 24h+ : <b>{f(r['mature_average_views'])}</b> vues moyennes · 📝 {r['posts_7d']} posts récents\n"
+ f"⏳ 24h+ : <b>{f(r['mature_average_views'])}</b> vues moyennes · 📝 ≥{r['posts_7d']} posts sur échantillon de {r.get('scanned_posts',10)}\n"
  f"{top}\n{alert}</blockquote>\n")
 def parts(rows,now):
  head=f"📊 <b>MR XPRONOS · BILAN DES CANAUX</b>\n<i>{now.strftime('%d/%m/%Y')} · Rapport privé à 06h (Togo)</i>\n"
@@ -235,8 +242,10 @@ async def existing_parts(client,day,testing=False):
 async def main():
  now=datetime.now(UTC);day=now.date().isoformat()
  test_mode=os.getenv("TELEGRAM_MONITOR_TEST_MODE","").strip().lower() in ("true","1","yes")
+ dry_run=os.getenv("TELEGRAM_MONITOR_DRY_RUN","").strip().lower() in ("true","1","yes")
+ if dry_run and test_mode:raise RuntimeError("Dry-run and private live test are mutually exclusive")
  db=DB()
- if not test_mode and db.report(day).get("status")=="sent":
+ if not dry_run and not test_mode and db.report(day).get("status")=="sent":
   print("SKIP_REPORT_ALREADY_SENT_GITHUB",day)
   return
  api=env("TG_API_ID")
@@ -248,7 +257,7 @@ async def main():
  try:
   await client.connect()
   if not await client.is_user_authorized():raise RuntimeError("Telegram session not authorized")
-  remote_parts=await existing_parts(client,day,test_mode)
+  remote_parts={} if dry_run else await existing_parts(client,day,test_mode)
   if not test_mode and remote_parts:
    for index,msgid in remote_parts.items():
     if index not in db.report(day)["parts"]:
@@ -270,6 +279,9 @@ async def main():
    except (errors.RPCError,ValueError) as e:print("CHANNEL_SKIPPED",ch.id,type(e).__name__)
    await asyncio.sleep(4)
   if not rows:raise RuntimeError("No channel collected")
+  if dry_run:
+   print("DRY_RUN_READ_ONLY",day,"administered_channels",len(channels),"collected",len(rows))
+   return
   db.save()
   messages=parts(rows,now)
   for index,body in enumerate(messages,1):
@@ -293,7 +305,7 @@ async def main():
  except errors.FloodWaitError as e:
   raise RuntimeError("Telegram requested FloodWait, no automatic retry") from e
  finally:
-  db.save()
+  if not dry_run:db.save()
   await client.disconnect()
 
 if __name__=="__main__":
