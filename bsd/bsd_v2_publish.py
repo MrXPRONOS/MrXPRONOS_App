@@ -285,22 +285,33 @@ def historical_publication_ids(ledger, feed):
     return previously
 
 
+from bsd_v2_publication_policy import (eligible_feed_match, eligible_model_choice, qualifying_confidence)
+
 def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
              odds_fetcher=None, max_odds_requests=25, btts_model=None, total_model=None, dc_model=None,
              historical_published_ids=None):
-    saved=eligible_previous(existing,now)
+    all_saved=eligible_previous(existing,now)
+    saved=all_saved
     # Ne pas perdre les pronostics déjà publiés : une sélection future reste
     # immuable pendant les exécutions quotidiennes (site ET Telegram).
     # On garde aussi les événements passés en attente de score BSD final.
     # Seuls les coupons invalides / marchés bannis sont supprimés.
     saved={key:row for key,row in saved.items()
-           if valid_standalone_prediction(row.get("prediction"),row.get("combo_only",False))}
+           if valid_standalone_prediction(row.get("prediction"),row.get("combo_only",False))
+           and eligible_feed_match(row)}
     index=V2History(history)
     stats=Counter()
     by_id={str(f["id"]):f for f in fixtures if isinstance(f,dict) and f.get("id") is not None}
     result=[]
     detailed=[]
-    retired=[]
+    # Do not rewrite the immutable ledger; record removals separately.
+    retired=[{
+        "id": row.get("id"), "source_event_id": row.get("source_event_id"),
+        "event_date": row.get("event_date"),
+        "selection_key": (row.get("prediction") or {}).get("selection_key"),
+        "retired_by_policy": True, "retired_at": now.isoformat(),
+        "reason": "category_or_confidence_below_79",
+    } for row in all_saved.values() if not eligible_feed_match(row)]
     # 1) Régler les anciens pronostics sans jamais modifier leur sélection.
     for event_id,row in saved.items():
         event=by_id.get(event_id)
@@ -369,7 +380,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
     result=kept
     # Tous les événements déjà exposés restent connus, y compris ceux retirés :
     # ne jamais substituer un autre marché après publication initiale.
-    known=set(saved)
+    known=set(all_saved)
     if historical_published_ids:
         for old_id in historical_published_ids:
             if not isinstance(old_id,(str,int)) or not str(old_id).isdecimal():
@@ -437,6 +448,11 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             "home_venue_matches": model_audit.get("home_venue_matches"),
             "away_venue_matches": model_audit.get("away_venue_matches"),
         }
+        # Apply the stricter user-selected publication rule BEFORE spending odds quota.
+        if not eligible_model_choice(prediction):
+            entry["reason"]="category_or_confidence_below_79"
+            stats[entry["reason"]]+=1
+            continue
         # Phase 2 : enrichir les choix figés par une cote BSD ou estimée.
         quotes={}
         if odds_fetcher and stats["odds_attempts"] < max_odds_requests:
@@ -536,6 +552,8 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                     continue
                 if candidate.get("passes_quality_policy") is not True:
                     continue
+                if not qualifying_confidence(candidate.get("probability")):
+                    continue
                 secondary=price_selected_market(candidate,quotes,now=now)
                 if secondary is None or secondary["odds"]<MIN_BSD_ODDS:
                     continue
@@ -566,7 +584,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                 btts_model=btts_model,total_model=total_model,dc_model=dc_model,
                 selection_adjustments=selection_penalties,
                 prospective_family_adjustments=prospective_family_penalties)
-            if combo_choice:
+            if combo_choice and eligible_model_choice(combo_choice):
                 leg=combo_choice["prediction"]
                 verified=low_quotes[leg["internal_market_code"]]
                 prediction["combo_selection"]={
@@ -585,7 +603,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         published_by_day[kickoff.date().isoformat()]+=1
         known.add(eid)
         stats["created"]+=1
-    result=[normalize_match(r) for r in result]
+    result=[normalize_match(r) for r in result if eligible_feed_match(r)]
     for row in result:
         row.update(image_fields(row))
     result.sort(key=lambda r:(str(r.get("event_date","")),str(r.get("id",""))))
