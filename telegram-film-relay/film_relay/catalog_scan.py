@@ -26,8 +26,8 @@ def _oldest(messages):
     return min((int(m.id) for m in messages), default=None)
 
 
-async def read_source_window(client, source, catalogue: dict, source_id: int):
-    """Always inspect recent posts plus ONE older history page per execution.
+async def read_source_window(client, source, catalogue: dict, source_id: int, *, archive_pages: int = 1):
+    """Inspect recent posts and a bounded number of older pages per execution.
 
     Cursor is returned as a pending plan and must NOT be committed until all
     numbered episodes of the archive page have been durably receipted.
@@ -46,21 +46,34 @@ async def read_source_window(client, source, catalogue: dict, source_id: int):
     if scan.get("complete") and not rescan:
         return recent, None
     cursor = _oldest(recent) if not scan.get("cursor") or rescan else int(scan["cursor"])
-    archive = [m async for m in client.iter_messages(source, limit=size, max_id=cursor)]
+    archive = []
+    complete = False
+    # Some 25-episode series contain text announcements between batches.
+    # A bounded multi-page window lets us assemble the whole batch without
+    # treating those announcements as episode breaks.
+    for _ in range(max(1, min(4, int(archive_pages)))):
+        page = [m async for m in client.iter_messages(source, limit=size, max_id=cursor)]
+        if not page:
+            complete = True
+            break
+        archive.extend(page)
+        cursor = _oldest(page)
+        if len(page) < size:
+            complete = True
+            break
     archive_ids = {int(m.id) for m in archive}
     if not archive:
         return recent, {"source_id": source_key, "archive_ids": set(),
                         "next_cursor": cursor, "complete": True, "count": 0, "allowed_ids": recent_ids}
 
-    # Older context precedes the archived page, preserving its earliest poster
-    # and season label when an episode happens to fall on the page boundary.
+    # Context preceding the oldest page preserves its opening title/season.
     lookbehind = [m async for m in client.iter_messages(
         source, limit=40, max_id=_oldest(archive))]
     combined = {int(m.id): m for m in (*recent, *archive, *lookbehind)}
     ordered = sorted(combined.values(), key=lambda msg: int(msg.id))
     plan = {"source_id": source_key, "archive_ids": archive_ids,
             "allowed_ids": recent_ids | archive_ids,
-            "next_cursor": _oldest(archive), "complete": len(archive) < size,
+            "next_cursor": _oldest(archive), "complete": complete,
             "count": len(archive), "recent_count": len(recent_ids)}
     LOG.info("scan source: récents=%s archives=%s contexte=%s fin=%s",
              len(recent_ids), len(archive), len(lookbehind), plan["complete"])
