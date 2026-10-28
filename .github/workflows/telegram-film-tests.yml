@@ -5,8 +5,35 @@ on:
     branches: [main]
     paths:
       - 'telegram-film-relay/film_relay/**'
+      - 'telegram-film-relay/config/**'
+      - 'telegram-film-relay/scripts/**'
       - 'telegram-film-relay/scripts/merge_state.py'
       - 'telegram-film-relay/tests/**'
+      - 'telegram-film-relay/scripts/channel_audit.py'
+      - 'telegram-film-relay/scripts/catalog_snapshot_health.py'
+      - 'telegram-film-relay/scripts/scheduled_cycle_audit.py'
+      - '.github/workflows/telegram-film-relay.yml'
+      - '.github/workflows/cinex-channel-audit.yml'
+      - 'scripts/telegram_channel_monitor_v2.py'
+      - 'scripts/merge_channel_monitor.py'
+      - 'tests/test_telegram_channel_monitor*.py'
+      - '.github/workflows/telegram-channel-monitor-daily.yml'
+      - '.github/workflows/telegram-film-tests.yml'
+  pull_request:
+    paths:
+      - 'telegram-film-relay/film_relay/**'
+      - 'telegram-film-relay/config/**'
+      - 'telegram-film-relay/scripts/**'
+      - 'telegram-film-relay/tests/**'
+      - 'telegram-film-relay/scripts/channel_audit.py'
+      - 'telegram-film-relay/scripts/catalog_snapshot_health.py'
+      - 'telegram-film-relay/scripts/scheduled_cycle_audit.py'
+      - '.github/workflows/telegram-film-relay.yml'
+      - '.github/workflows/cinex-channel-audit.yml'
+      - 'scripts/telegram_channel_monitor_v2.py'
+      - 'scripts/merge_channel_monitor.py'
+      - 'tests/test_telegram_channel_monitor*.py'
+      - '.github/workflows/telegram-channel-monitor-daily.yml'
       - '.github/workflows/telegram-film-tests.yml'
   workflow_dispatch:
 
@@ -32,3 +59,23 @@ jobs:
         env:
           PYTHONPATH: .
         run: python -m unittest discover -s tests -v
+      - name: Valider le moniteur JSON GitHub sans Telegram
+        run: python -m unittest discover -s tests -p 'test_telegram_channel_monitor*.py' -v
+      - name: Produire une analyse des catalogues historiques sans Telegram
+        run: python telegram-film-relay/scripts/catalog_snapshot_health.py --output "$RUNNER_TEMP/cinex-catalog-snapshot.json"
+      - name: Auditer les quatre cycles GitHub sans Telegram
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python telegram-film-relay/scripts/scheduled_cycle_audit.py --output "$RUNNER_TEMP/cinex-schedule-audit.json" --days 4
+      - name: Archiver la couverture des cycles
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinex-schedule-audit
+          path: ${{ runner.temp }}/cinex-schedule-audit.json
+          retention-days: 30
+      - name: Archiver la synthèse historique Séries et Animés
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinex-catalog-snapshot
+          path: ${{ runner.temp }}/cinex-catalog-snapshot.json
+          retention-days: 30
