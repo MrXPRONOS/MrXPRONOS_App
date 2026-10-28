@@ -330,7 +330,14 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         if publish:
             await backfill_private_covers(client, private, catalogue, groups, pause)
         # Select a whole short series BEFORE any Telegram uploads: no six-episode slices.
-        eligible = short_complete_groups(groups, catalogue, maximum=episode_cap)
+        eligibility_reasons = {}
+        eligible = short_complete_groups(groups, catalogue, maximum=episode_cap,
+                                         diagnostics=eligibility_reasons)
+        excluded_totals = {}
+        for reason in eligibility_reasons.values():
+            excluded_totals[reason] = excluded_totals.get(reason, 0) + 1
+        LOG.info("Éligibilité anime : groupes=%s, retenus=%s, exclus=%s",
+                 len(groups), len(eligible), excluded_totals)
         LOG.info("%s : %s séries complètes (1 à %s épisodes) admissibles",
                  "anime_catalog", len(eligible), episode_cap)
         for key, items in eligible:
