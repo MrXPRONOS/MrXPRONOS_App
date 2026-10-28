@@ -243,7 +243,20 @@ async def post_public(bot, user, public_peer, item, title, video_url: str,
         contents = await user.download_media(require_photo(item.poster), file=bytes)
         if not contents:
             raise RuntimeError("Affiche inaccessible, publication interrompue.")
-        image = io.BytesIO(contents)
+        # Telegram photos from source channels can be several megabytes.
+        # Bound the bot upload to keep the HTTPS sendPhoto call responsive.
+        # This changes only the transported copy, not the stored source media.
+        try:
+            from PIL import Image, ImageOps
+            with Image.open(io.BytesIO(contents)) as original:
+                picture = ImageOps.exif_transpose(original)
+                picture.thumbnail((1280, 1280), Image.Resampling.LANCZOS)
+                image = io.BytesIO()
+                picture.convert("RGB").save(image, format="JPEG",
+                                            quality=80, optimize=True)
+        except (OSError, ValueError):
+            # Keep compatibility with existing byte-based API and test fixtures.
+            image = io.BytesIO(contents)
         image.name = "cinex_desir.jpg"
         return await bot.send_file(public_peer, image, caption=caption,
                                    parse_mode="html", buttons=rows, force_document=False)
@@ -372,6 +385,16 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                 LOG.warning("Média protégé : non publié.")
                 continue
             staged = state.data["staged"].get(key, {})
+            if "video" in staged:
+                cache = await snapshot_telegram_posts(
+                    client, library, public_user, private_id,
+                    private_limit=110, public_limit=350
+                )
+                existing_public_id = cache.public_by_video.get(int(staged["video"]))
+                if existing_public_id:
+                    state.complete(key, int(staged["video"]), int(existing_public_id))
+                    LOG.warning("Désir : publication retrouvée après délai Telegram incertain, aucun doublon.")
+                    continue
             # Recover a completed private upload if the previous run crashed before commit.
             if "video" not in staged:
                 # Bound the recovery search and do it only when needed.
