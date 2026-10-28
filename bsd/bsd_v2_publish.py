@@ -285,7 +285,7 @@ def historical_publication_ids(ledger, feed):
     return previously
 
 
-from bsd_v2_publication_policy import (eligible_feed_match, eligible_model_choice, qualifying_confidence)
+from bsd_v2_publication_policy import (eligible_feed_match, eligible_feed_selection, eligible_model_choice, qualifying_confidence)
 
 def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
              odds_fetcher=None, max_odds_requests=25, btts_model=None, total_model=None, dc_model=None,
@@ -315,6 +315,15 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
     # 1) Régler les anciens pronostics sans jamais modifier leur sélection.
     for event_id,row in saved.items():
         event=by_id.get(event_id)
+        row=dict(row)
+        # Retain the original primary market, but suppress saved secondary
+        # picks and special combo picks that predate the new >=79% rule.
+        picks=row.get("predictions")
+        if isinstance(picks,list) and picks:
+            extras=[pick for pick in picks[1:2] if eligible_feed_selection(row,pick)]
+            row["predictions"]=[row["prediction"],*extras]
+        if row.get("combo_prediction") and not eligible_feed_selection(row,row["combo_prediction"]):
+            row.pop("combo_prediction",None)
         result.append(update_settlement(row,event) if event else row)
 
     # 2) Les résultats réellement publiés alimentent un suivi prospectif lent.
