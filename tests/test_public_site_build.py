@@ -25,10 +25,10 @@ class PublicBuildTest(TestCase):
 
     def test_match_article_public_copy_removes_engine_naming(self):
         sample = (
-            "FC A vs FC B : fiche match BSD V2\\n"
-            "## Signal calculé par le moteur BSD V2\\n"
-            "**Source des données :** BSD V2, identifiant 123.\\n"
-            "**Statut :** rencontre selon le dernier flux BSD disponible.\\n"
+            "FC A vs FC B : fiche match BSD V2\n"
+            "## Signal calculé par le moteur BSD V2\n"
+            "**Source des données :** BSD V2, identifiant 123.\n"
+            "**Statut :** rencontre selon le dernier flux BSD disponible.\n"
         )
         cleaned = module.clean_match_article_text(sample)
         self.assertNotIn("BSD", cleaned)
