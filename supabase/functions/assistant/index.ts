@@ -194,7 +194,7 @@ function cleanModelHtmlOutput(html: string): string {
   cleaned = cleaned.replace(/<p>\s*```\s*<\/p>$/i, "");
 
   // Never reveal implementation or infrastructure names in public LLM output.
-  if (/\\b(?:BSD[\\s_-]*V\\d+(?:\\.\\d+)?|Dixon[\\s-]*Coles|Poisson|PinnWire|OddsLink|MoviOdds|OddsHarvester|GoalDir|Supabase|Cloudflare|Neon|GitHub Actions|Qwen|Mistral|Hugging\\s*Face|Groq|cron-job\\.org|service[_-]?role|API[_-]?key)\\b/i.test(cleaned)) {
+  if (/\b(?:BSD[\s_-]*V\d+(?:\.\d+)?|Dixon[\s-]*Coles|Poisson|PinnWire|OddsLink|MoviOdds|OddsHarvester|GoalDir|Supabase|Cloudflare|Neon|GitHub Actions|Qwen|Mistral|Hugging\s*Face|Groq|cron-job\.org|service[_-]?role|API[_-]?key)\b/i.test(cleaned)) {
     return '<p>Nos pronostics sont issus d’analyses statistiques et de contrôles de qualité. Les détails techniques internes ne sont pas communiqués.</p><p>Les sélections Pro et VIP doivent avoir au moins 79 % de confiance estimée. Aucun pari n’est garanti.</p>';
   }
 
