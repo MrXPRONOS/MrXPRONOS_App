@@ -152,6 +152,59 @@ class RouterTests(unittest.TestCase):
         self.assertTrue(match_fixture({**ROW,"kickoff_utc":"2026-10-14T19:15:00Z"},EVENT))
         self.assertFalse(match_fixture({**ROW,"kickoff_utc":"2026-10-14T19:16:00Z"},EVENT))
 
+    def test_public_board_american_odds_and_market_identity(self):
+        from bsd_odds_fallback import from_oddslink_public, american_to_decimal
+        fixture={**ROW,"home_team":"Real Madrid","away_team":"FC Barcelona",
+          "bookmakers":[
+            {"key":"book_a","kind":"sportsbook","last_update":NOW.isoformat(),
+             "markets":{"h2h":[{"name":"Real Madrid","price":-200},{"name":"Draw","price":+220}],
+                        "totals":[{"name":"Over","point":2.5,"price":+105}]}},
+            {"key":"book_b","kind":"sportsbook","last_update":NOW.isoformat(),
+             "markets":{"h2h":[{"name":"Real Madrid","price":-150}]}},
+            {"key":"exchange","kind":"exchange","last_update":NOW.isoformat(),
+             "markets":{"h2h":[{"name":"Real Madrid","price":+900}]}}
+          ]}
+        self.assertEqual(american_to_decimal(-200),1.5)
+        self.assertEqual(american_to_decimal(150),2.5)
+        self.assertIsNone(american_to_decimal(1.85))
+        q=from_oddslink_public(fixture,NOW,"1X2_HOME_FT")
+        self.assertEqual(set(q),{"1X2_HOME_FT"})
+        self.assertAlmostEqual(q["1X2_HOME_FT"]["odds"],1+100/150,places=4)
+        self.assertEqual(q["1X2_HOME_FT"]["bookmaker"],"book_b")
+
+    def test_public_board_rejects_missing_quote_timestamp(self):
+        from bsd_odds_fallback import from_oddslink_public
+        fixture={"home_team":"Real Madrid","away_team":"FC Barcelona",
+          "bookmakers":[{"key":"book_a","kind":"sportsbook","last_update":None,
+          "markets":{"h2h":[{"name":"Real Madrid","price":-200}]}}]}
+        self.assertEqual(from_oddslink_public(fixture,NOW),{})
+
+    def test_public_board_fetch_router(self):
+        session=FakeSession([FakeResponse(200,{"fixtures":[{
+             "home_team":"Real Madrid","away_team":"FC Barcelona",
+             "commence_time":EVENT["event_date"],"in_play":False,
+             "bookmakers":[{"key":"book_a","kind":"sportsbook","last_update":NOW.isoformat(),
+             "markets":{"totals":[{"name":"Over","point":2.5,"price":-110}]}}]
+        }]})])
+        router=OddsRouter(lambda ev,at: ({},{}),session=session,order=("oddslink_public",))
+        q,diagnostic=router.fetch(EVENT,NOW,market_code="OU_2.5_OVER_FT")
+        self.assertAlmostEqual(q["OU_2.5_OVER_FT"]["odds"],1.90909,places=4)
+        self.assertEqual(diagnostic["provider"],"oddslink_public")
+
+    def test_external_first_default_order(self):
+        from bsd_odds_fallback import ORDER
+        self.assertEqual(ORDER[-1], "goaldir")
+        self.assertLess(ORDER.index("moviodds"), ORDER.index("goaldir"))
+
+    def test_oddslink_epl_feed_skipped_for_unknown_league(self):
+        session=FakeSession([])
+        router=OddsRouter(lambda event,at: ({},{}),session=session,order=("oddslink",))
+        with patch.dict(os.environ,{"ODDSLINK_API_KEY":"test-key"}):
+            result,diag=router.fetch(EVENT,NOW,market_code="1X2_HOME_FT")
+        self.assertEqual(result,{})
+        self.assertEqual(session.calls,0)
+        self.assertEqual(diag["verified_provider_count"],0)
+
     def test_all_unavailable_returns_empty_not_fake_quote(self):
         router=OddsRouter(lambda ev,at: ({},{}),order=("goaldir",))
         result,diag=router.fetch(EVENT,NOW)
