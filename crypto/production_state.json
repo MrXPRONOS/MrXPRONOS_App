@@ -62,6 +62,10 @@
       "message_id": 22,
       "number": 9
     },
+    "e0879b6d272e7d0775ce9166": {
+      "message_id": 70,
+      "number": 9
+    },
     "eaf3122a414d9a7dfd5dd3da": {
       "message_id": 47,
       "number": 9
@@ -437,6 +441,12 @@
       "number": 8,
       "sent_at": "2026-10-27T23:06:35.007922+00:00",
       "source": "Bitcoin Magazine"
+    },
+    "news:09:00142a0bd70eebb7f31c1884": {
+      "message_id": 70,
+      "number": 9,
+      "sent_at": "2026-10-28T14:23:52.510482+00:00",
+      "source": "NewsBTC"
     },
     "news:09:52858e96da29d4dcbe0d1fb3": {
       "message_id": 28,
