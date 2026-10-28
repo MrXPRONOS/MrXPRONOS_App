@@ -640,7 +640,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             # single card instead of inventing a duplicate during recovery.
             season_no = str(next(iter(season_numbers))) if len(season_numbers) == 1 else None
             season_posts = series.setdefault("season_public_ids", {})
-            if series.get("public_id"):
+            had_public_card = bool(series.get("public_id"))
+            if had_public_card:
                 # Map the original series card to its historical first season.
                 # Do not republish the old season merely because this mapping
                 # did not exist in a pre-update catalogue.
@@ -716,7 +717,7 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                     posted_cards += 1
                 season_posts[season_no] = int(public_season_id)
                 save_catalog(catalogue)
-            if season_no and season_no in season_posts:
+            if season_no and season_no in season_posts and had_public_card:
                 first_ep = int(series["episodes"][season_no][
                     str(min(row["episode"] for row in items))]["message_id"])
                 state.complete(f"anime-season:{key}:S{season_no}",
