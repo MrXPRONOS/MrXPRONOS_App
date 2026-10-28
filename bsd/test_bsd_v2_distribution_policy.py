@@ -68,10 +68,11 @@ class DistributionPolicyTests(unittest.TestCase):
         invalid_secondary["prediction"]["odds"]=1.31
         self.assertEqual(choose_leg(invalid_secondary)["prediction"]["selection_key"],"1X")
         # A pair of valid fixtures creates one combo; excluded fixtures never enter.
-        pairs=build_combos([valid, row(5,"simple",98), row(6,"pro",79)])
-        self.assertEqual(len(pairs),0 if not pairs else 1)
-        if pairs:
-            self.assertTrue(all(eligible_feed_match(leg) for leg in pairs[0]["legs"]))
+        second=row(6,"pro",79)
+        second["prediction"]["odds"]=1.30
+        pairs=build_combos([valid, row(5,"simple",98), second])
+        self.assertEqual(len(pairs),1)
+        self.assertTrue(all(eligible_feed_match(leg) for leg in pairs[0]["legs"]))
 
     def test_saved_simple_removed_without_renaming_immutable_prediction(self):
         fixture=row(1234,"simple",95)
