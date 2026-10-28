@@ -23,15 +23,15 @@ jobs:
         run: |
           sed "s|SUPABASE_URL|${{ secrets.SUPABASE_URL }}|g; s|SUPABASE_ANON_KEY|${{ secrets.SUPABASE_ANON_KEY }}|g" config.template.js > assets/js/config.js
 
-      - name: Generate admin config (optional)
-        run: |
-          if [ -n "${{ secrets.ADMIN_USER }}" ] && [ -n "${{ secrets.ADMIN_PASSWORD }}" ]; then
-            PASSWORD_HASH=$(echo -n "${{ secrets.ADMIN_PASSWORD }}" | openssl dgst -sha256 | awk '{print $2}')
-            sed "s|ADMIN_USER|${{ secrets.ADMIN_USER }}|g; s|ADMIN_PASSWORD_HASH|$PASSWORD_HASH|g" admin-config.template.js > assets/js/admin-config.js
-            echo "Admin config generated."
-          else
-            echo "Secrets ADMIN_USER and ADMIN_PASSWORD not set, skipping admin config generation."
-          fi
+      - name: Checkout previously published public media
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: _previous_pages
+          sparse-checkout: |
+            assets/images/footnews
+            assets/images/arty_football
+          sparse-checkout-cone-mode: true
 
       - name: Generate MX PWA icons
         run: |
@@ -48,14 +48,30 @@ jobs:
             git push origin HEAD:main || echo "::warning::PWA icons deployed but main synchronization failed"
           fi
 
-      # Re-publish after repairing a stale file/directory collision on gh-pages.
+      - name: Build and verify strictly public artifact
+        run: |
+          python scripts/build_public_site.py --out _public_site --previous _previous_pages
+          python - <<'PY'
+          from pathlib import Path
+          root=Path("_public_site")
+          assert (root/"index.html").exists()
+          assert (root/"pronos.html").exists()
+          assert (root/"data.json").exists()
+          for path in ("bsd", "supabase", "scripts", "tests", "node_modules", "model_meta.json", "assets/data/private"):
+              assert not (root/path).exists(), f"Unexpected internal file: {path}"
+          print("PUBLIC_ONLY_ARTIFACT_VALIDATED")
+          PY
+
+      # Replace stale root publishing: keep_files:true left internal code, docs and
+      # encrypted archive files publicly accessible on gh-pages.
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4.1.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
+          publish_dir: ./_public_site
           destination_dir: ./
-          keep_files: true
+          keep_files: false
       - name: Verify Infos Foot JSON reached gh-pages
         shell: bash
         env:
