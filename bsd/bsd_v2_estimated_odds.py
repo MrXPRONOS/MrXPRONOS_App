@@ -11,7 +11,7 @@ from math import isfinite
 from statistics import median
 
 ESTIMATED_SOURCE = "mrxpronos_model"
-VERIFIED_SOURCES = frozenset(("bsd_consensus", "bsd_bookmaker", "pinnwire", "oddslink", "moviodds", "oddsharvester"))
+VERIFIED_SOURCES = frozenset(("bsd_consensus", "bsd_bookmaker", "pinnwire", "oddslink", "moviodds", "oddsharvester", "oddslink_public"))
 DEFAULT_OVERROUND = 0.06
 MIN_STANDALONE_ODDS = 1.20
 
