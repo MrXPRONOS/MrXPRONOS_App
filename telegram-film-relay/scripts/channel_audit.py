@@ -38,8 +38,7 @@ def requested_channels():
                     os.getenv("CINEX_SERIES_BOT_TOKEN") or os.getenv("CINEX_BOT_TOKEN", "")))
     entries.append(("desir", {
         "category": "desir",
-        "sources": source_list(os.getenv("DESIR_SOURCE_CHANNEL", "@Filmromatique"),
-                               os.getenv("DESIR_EXTRA_SOURCE_CHANNEL", "@g_romanticfilm"),
+        "sources": source_list("@Filmromatique", "@g_romanticfilm",
                                os.getenv("DESIR_SOURCE_CHANNELS", "")),
         "private": os.getenv("DESIR_PRIVATE_CHANNEL", ""),
         "public": os.getenv("DESIR_PUBLIC_CHANNEL", "@CineXDesirfr"),
