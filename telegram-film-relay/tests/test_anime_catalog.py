@@ -103,7 +103,7 @@ class AnimeCatalogTests(unittest.TestCase):
 
     def test_existing_sources_remain_unchanged(self):
         cfg = category_config("anime", {
-            "ANIME_SOURCE_CHANNELS": "@orak_dessinanime,@AnotherAnimeSource",
+            "ANIME_SOURCE_CHANNEL": "@orak_dessinanime,@AnotherAnimeSource",
             "ANIME_PUBLIC_CHANNEL": "@CineXAnimeFR",
             "ANIME_PRIVATE_CHANNEL": "-100123456789",
         })

@@ -72,7 +72,6 @@ def series_config() -> dict:
     """
     cfg = config_from(os.getenv("CHANNELS_CONFIG", "config/channels.json"))
     explicit = source_list(
-        os.getenv("SERIES_SOURCE_CHANNEL", ""),
         os.getenv("SERIES_SOURCE_CHANNELS", ""),
         max_sources=12,
     )

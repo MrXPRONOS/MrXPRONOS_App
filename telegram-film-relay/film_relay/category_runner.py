@@ -46,12 +46,10 @@ def category_config(category: str, env: dict | None = None) -> dict:
         "comedie": ("@comexflex",),
         "anime": ("@orak_dessinanime",),
     }
-    # Backward compatible: existing singular variable + additional bulk list.
-    # Explicitly user-authorized baseline sources are always available.
+    # One owner-facing GitHub Variable per category. Keep the historical
+    # baseline available when the variable is not yet configured.
     sources = source_list(
-        *(default_sources.get(category, ())),
-        env.get(prefix + "_SOURCE_CHANNEL", ""),
-        env.get(prefix + "_SOURCE_CHANNELS", ""),
+        env.get(prefix + "_SOURCE_CHANNEL", "") or " ".join(default_sources.get(category, ())),
         max_sources=12,
     )
     # These three channels have explicitly declared roles. A stale/incorrect

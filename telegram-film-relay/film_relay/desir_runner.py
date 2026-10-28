@@ -267,15 +267,16 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
     from telethon import TelegramClient, utils
     from telethon.sessions import StringSession
     from telethon.errors import FloodWaitError, PeerFloodError
-    source = required("DESIR_SOURCE_CHANNEL", "@Filmromatique")
-    extra_source = required("DESIR_EXTRA_SOURCE_CHANNEL", "@g_romanticfilm")
+    # Preserve both historical sources; one variable supplies additional channels.
+    source = "@Filmromatique"
+    extra_source = "@g_romanticfilm"
     public = required("DESIR_PUBLIC_CHANNEL", "@CineXDesirfr")
     private = required("DESIR_PRIVATE_CHANNEL")
     mirror_name = required("DESIR_MIRROR_CHANNEL", "@Torrent9SeriesFilms")
     verify_destination(source, public, private)
     verify_destination(extra_source, public, private)
-    # Continue honoring the two historic variables, plus a single extensible
-    # DESIR_SOURCE_CHANNELS list added later by the owner.
+    # A single GitHub Variable controls additional sources without dropping
+    # the two historical sources already used by this category.
     sources = source_list(source, extra_source, os.getenv("DESIR_SOURCE_CHANNELS", ""))
     if any(name.casefold() == public.casefold() for name in sources):
         raise RuntimeError("Un canal source ne peut pas être le canal public Désir.")
