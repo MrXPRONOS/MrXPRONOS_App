@@ -150,6 +150,8 @@ def prepare_public_articles(destination: Path):
                 continue
             if row.get("type") != "match" or row.get("source") != "bsd":
                 continue
+            if isinstance(row.get("slug"), str) and row["slug"].startswith("bsd-match-"):
+                row["slug"] = "match-" + row["slug"][len("bsd-match-"):]
             for field in ("title", "excerpt", "meta_description", "keywords", "content"):
                 if isinstance(row.get(field), str):
                     row[field] = clean_match_article_text(row[field])
@@ -157,11 +159,21 @@ def prepare_public_articles(destination: Path):
                         "editorial_reasons", "editorial_role", "visual_variant", "visual_hash"):
                 row.pop(key, None)
         file.write_text(json.dumps(rows, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    # Preserve legacy redirects for old shared links, but use clean URLs for
+    # new links, canonical tags and sitemap entries.
     for html in destination.glob("articles/bsd-match-*/index.html"):
         old = html.read_text(encoding="utf-8")
         cleaned = clean_match_article_text(old)
-        if cleaned != old:
-            html.write_text(cleaned, encoding="utf-8")
+        cleaned = cleaned.replace("slug=bsd-match-", "slug=match-")
+        cleaned = cleaned.replace("/articles/bsd-match-", "/articles/match-")
+        html.write_text(cleaned, encoding="utf-8")
+        alias = html.parents[1] / html.parent.name.replace("bsd-match-", "match-") / "index.html"
+        alias.parent.mkdir(parents=True, exist_ok=True)
+        alias.write_text(cleaned, encoding="utf-8")
+    sitemap = destination / "sitemap.xml"
+    if sitemap.exists():
+        body = sitemap.read_text(encoding="utf-8")
+        sitemap.write_text(body.replace("/articles/bsd-match-", "/articles/match-"), encoding="utf-8")
 
 
 def refresh_public_script_versions(destination: Path):
