@@ -1,4 +1,4 @@
-"""CinéX Anime : un lot de série complète (1-25 épisodes) OU deux films par cycle.
+"""CinéX Anime : une saison complète (1-25 épisodes) + un film, ou deux films.
 
 La seule variable de sources est ANIME_SOURCE_CHANNEL. Tous les épisodes
 numérotés sont validés ensemble; un lot interrompu reste prioritaire et
@@ -26,7 +26,7 @@ from telethon.sessions import StringSession
 from .bot_http import BotHTTPClient, url_button
 from .editing import edit_message_if_changed
 from .catalog_scan import read_source_window, source_window_ids, finalize_scan, episode_audit
-from .short_series import short_complete_groups
+from .anime_policy import complete_anime_seasons, select_anime_season, anime_movie_slots
 from .category_runner import category_config, preflight
 from .desir_matching import is_supported_video
 from .desir_runner import ReceiptState, DesirPromotionsState
@@ -196,21 +196,16 @@ def is_anime_movie(item) -> bool:
 
 
 def pending_anime_series(eligible, catalogue):
-    """One series slot, prioritizing an interrupted upload before new titles."""
+    """Compatibility selector: only an entire matching active batch may resume."""
     active = catalogue.get("active_batch")
-    from .short_series import normalized_key
     if active:
+        planned = {entry["source_key"] for entry in active.get("episodes", [])}
         for key, rows in eligible:
-            if normalized_key(key) == normalized_key(active.get("key", "")):
+            if (key == active.get("key") and planned
+                    and {row["source_key"] for row in rows} == planned):
                 return (key, rows)
         return None
-    for key, rows in eligible:
-        existing = catalogue.get("series", {}).get(key, {})
-        seen = set(existing.get("source_items", {}))
-        if (any(row["source_key"] not in seen for row in rows)
-                or not existing.get("public_id")):
-            return (key, rows)
-    return None
+    return select_anime_season(eligible, catalogue)
 
 
 
@@ -321,6 +316,8 @@ def batch_descriptor(key, items):
     """Persist just Telegram IDs, never source videos, for crash recovery."""
     return {
         "key": key,
+        "season": (int(items[0]["season"]) if len({int(row["season"]) for row in items}) == 1
+                   else None),
         "count": len(items),
         "episodes": [
             {"source_key": row["source_key"],
@@ -471,9 +468,9 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         # No unrelated historical cover repairs during a locked series batch.
         # A full 1-25 episode run is validated before any new upload.
         eligibility_reasons = {}
-        eligible = short_complete_groups(
+        eligible = complete_anime_seasons(
             groups, catalogue, maximum=episode_cap,
-            diagnostics=eligibility_reasons, require_completion_evidence=True)
+            diagnostics=eligibility_reasons)
         excluded_totals = {}
         for reason in eligibility_reasons.values():
             excluded_totals[reason] = excluded_totals.get(reason, 0) + 1
@@ -482,7 +479,18 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         LOG.info("%s : %s séries complètes (1 à %s épisodes) admissibles",
                  "anime_catalog", len(eligible), episode_cap)
         active = catalogue.get("active_batch")
-        selected = pending_anime_series(eligible, catalogue)
+        if active:
+            # Resume exactly the batch pinned before a crash, even if the
+            # source window has moved or the old batch had multiple seasons.
+            expected = {str(row["source_key"]) for row in active.get("episodes", [])}
+            recovered = [row for row in all_candidates
+                         if row["source_key"] in expected]
+            selected = ((str(active["key"]), sorted(
+                recovered, key=lambda row: (row["season"], row["episode"])))
+                        if (len(expected) == len(recovered)
+                            and ready_full_batch(recovered, active)) else None)
+        else:
+            selected = pending_anime_series(eligible, catalogue)
         if active and selected is None:
             LOG.warning("Anime : série %s interrompue, épisodes introuvables ou "
                         "incomplets ; AUCUNE autre série ou film ne sera envoyé.",
@@ -502,7 +510,10 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             known_keys = set(existing.get("source_items", {}))
             pending = [x for x in sorted(items, key=lambda x: (x["season"], x["episode"]))
                        if x["source_key"] not in known_keys]
-            if not pending and existing.get("public_id") and all_episodes_uploaded(existing, items):
+            # A locked batch might already have all private episodes but still
+            # need its public season announcement after a crash.
+            if (not active and not pending and existing.get("public_id")
+                    and all_episodes_uploaded(existing, items)):
                 continue
             title = str(existing.get("title") or items[0]["title"])
             series_attempted = True
@@ -510,7 +521,7 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 LOG.warning("Anime %s : liste complète des épisodes indisponible ; "
                             "aucune publication, même en mode film, pour ce cycle.", title)
                 break
-            LOG.info("Anime : lot EXCLUSIF %s, %s épisodes prévalidés, %s à transférer",
+            LOG.info("Anime : saison EXCLUSIVE %s, %s épisodes prévalidés, %s à transférer",
                      title, len(items), len(pending))
             if not publish:
                 completed_series.add(key)
@@ -624,25 +635,37 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                                       parse_mode="html", link_preview=False)
             await asyncio.sleep(pause)
 
+            season_numbers = {int(row["season"]) for row in items}
+            # Legacy batches could include two seasons; keep their original
+            # single card instead of inventing a duplicate during recovery.
+            season_no = str(next(iter(season_numbers))) if len(season_numbers) == 1 else None
+            season_posts = series.setdefault("season_public_ids", {})
             if series.get("public_id"):
+                # Map the original series card to its historical first season.
+                # Do not republish the old season merely because this mapping
+                # did not exist in a pre-update catalogue.
+                if not season_posts:
+                    earlier = [str(s) for s in series.get("episodes", {})
+                               if str(s) != season_no]
+                    first_season = min(earlier, key=int) if earlier else season_no
+                    if first_season:
+                        season_posts[first_season] = int(series["public_id"])
                 await bot.edit_reply_markup(bot_public, series["public_id"],
                                             buttons=public_buttons(private_id, series))
                 LOG.info("Boutons de saisons mis à jour : %s", title)
             else:
-                # Recover an existing card after partial GitHub state failure.
+                # Recover the original series card after a partial state failure.
                 old_public = await find_marked(client, public, marker, limit=140)
                 if old_public:
-                    public_id = old_public
+                    public_id = int(old_public)
                 else:
                     original_poster = next((x["poster"] for x in items if x["poster"] is not None), None)
                     if original_poster is None:
                         LOG.warning("Aucune affiche authentique pour %s ; fiche publique différée.", title)
-                        completed_series.add(key)
                         continue
                     raw = await client.download_media(original_poster.media, file=bytes)
                     if not raw:
                         LOG.warning("Affiche introuvable pour %s ; publication différée.", title)
-                        completed_series.add(key)
                         continue
                     picture = io.BytesIO(raw)
                     picture.name = "cinex_anime.jpg"
@@ -657,10 +680,48 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                     public_id = int(post.id)
                     posted_cards += 1
                 series["public_id"] = public_id
+                if season_no:
+                    season_posts[season_no] = public_id
                 first_ep = next(iter(series["source_items"].values()), index_id)
                 state.complete("anime-series:" + key, int(first_ep), int(public_id))
                 save_catalog(catalogue)
                 LOG.info("Fiche publique CinéX Anime : %s -> %s", title, public_id)
+            # Each later season gets a distinct public announcement, not only
+            # an invisible button edit on the older season's original card.
+            if season_no and season_no not in season_posts:
+                season_marker = marker + "_S" + season_no
+                public_season_id = await find_marked(
+                    client, public, season_marker, limit=200)
+                if not public_season_id:
+                    original_poster = next(
+                        (row["poster"] for row in items if row.get("poster") is not None),
+                        None)
+                    if original_poster is None:
+                        raise RuntimeError("Affiche absente pour la nouvelle saison.")
+                    raw = await client.download_media(original_poster.media, file=bytes)
+                    if not raw:
+                        raise RuntimeError("Affiche introuvable pour la nouvelle saison.")
+                    picture = io.BytesIO(raw)
+                    picture.name = "cinex_anime_season.jpg"
+                    season_link = private_message_link(
+                        private_id, int(series["season_indices"][season_no]))
+                    caption = (f"🌸 <b>{escape(title)} — Saison {int(season_no)}</b>\n\n"
+                               "<i>Nouvelle saison complète disponible.</i>\n"
+                               f'📺 <a href="{season_link}">VOIR LES ÉPISODES</a>\n'
+                               f"{season_marker}")
+                    public_post = await bot.send_file(
+                        bot_public, picture, caption=caption, parse_mode="html",
+                        buttons=public_buttons(private_id, series), force_document=False)
+                    public_season_id = int(public_post.id)
+                    posted_cards += 1
+                season_posts[season_no] = int(public_season_id)
+                save_catalog(catalogue)
+            if season_no and season_no in season_posts:
+                first_ep = int(series["episodes"][season_no][
+                    str(min(row["episode"] for row in items))]["message_id"])
+                state.complete(f"anime-season:{key}:S{season_no}",
+                               first_ep, int(season_posts[season_no]))
+                save_catalog(catalogue)
             completed_series.add(key)
             catalogue["active_batch"] = None
             save_catalog(catalogue)
@@ -687,8 +748,12 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 LOG.info("Publicités Anime : %s", report)
         LOG.info("FIN : %s séries mises à jour, %s fiches nouvelles, %s épisodes privés",
                  len(completed_series), posted_cards, copied_episodes)
-        if publish and not series_attempted and not catalogue.get("active_batch"):
-            LOG.info("Anime : aucune nouvelle série complète ; recherche de deux films autonomes.")
+        film_slots = anime_movie_slots(
+            limit, finished_series=bool(completed_series),
+            active_batch=bool(catalogue.get("active_batch")))
+        if publish and film_slots and (not series_attempted or completed_series):
+            LOG.info("Anime : %s saison terminée ; %s film(s) prévu(s).",
+                     int(bool(completed_series)), film_slots)
             # Fully close the catalogue's Telegram connection before opening
             # the movie relay; it shares the same user session and state.
             if bot is not None:
@@ -696,7 +761,8 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
                 bot = None
             await client.disconnect()
             from .category_runner import run as publish_anime_movies
-            return await publish_anime_movies(category="anime", publish=True, limit=limit)
+            return await publish_anime_movies(category="anime", publish=True,
+                                             limit=film_slots)
         return 0
     except (FloodWaitError, PeerFloodError):
         LOG.error("Limitation Telegram : arrêt, aucune nouvelle tentative.")
