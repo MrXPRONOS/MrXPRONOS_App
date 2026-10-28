@@ -1,11 +1,11 @@
 {
   "schema": "bsd-v2-quality-report-1",
-  "generated_at": "2026-10-28T17:17:07.156027+00:00",
-  "total_ever_observed": 402,
-  "in_current_feed": 122,
+  "generated_at": "2026-10-28T17:36:57.218865+00:00",
+  "total_ever_observed": 403,
+  "in_current_feed": 123,
   "absent_from_current_feed": 280,
   "unexplained_absences": 43,
-  "unsettled": 27,
+  "unsettled": 28,
   "settled": 375,
   "primary": {
     "n": 375,
