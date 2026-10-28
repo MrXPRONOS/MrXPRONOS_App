@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from requests import Session
 
-ORDER = ("goaldir", "pinnwire", "oddslink", "moviodds", "oddsharvester")
+ORDER = ("moviodds", "pinnwire", "oddslink", "oddsharvester", "goaldir")
 MAX_COMPARABLE_QUOTE_AGE_SECONDS = 2 * 3600
 VERIFIED_QUOTE_ORIGINS = frozenset(ORDER)
 CODES = {"home": "1X2_HOME_FT", "draw": "1X2_DRAW_FT", "away": "1X2_AWAY_FT",
@@ -216,7 +216,7 @@ class OddsRouter:
                             break
                 elif name == "oddslink":
                     key = os.getenv("ODDSLINK_API_KEY", "")
-                    if not key: continue
+                    if not key or not any(x in str(event.get("league_name") or event.get("league") or "").casefold() for x in ("premier league", "england premier", "epl")): continue
                     data = self.get(name, "https://oddslink.app/v1/sports/soccer/odds?league=epl&oddsFormat=decimal",
                                     {"X-API-Key":key})
                     for row in data if isinstance(data,list) else []:
