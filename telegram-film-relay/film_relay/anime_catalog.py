@@ -494,11 +494,11 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
             if not pending and existing.get("public_id") and all_episodes_uploaded(existing, items):
                 continue
             title = str(existing.get("title") or items[0]["title"])
+            series_attempted = True
             if not ready_full_batch(items, active):
                 LOG.warning("Anime %s : liste complète des épisodes indisponible ; "
-                            "aucune publication commencée.", title)
+                            "aucune publication, même en mode film, pour ce cycle.", title)
                 break
-            series_attempted = True
             LOG.info("Anime : lot EXCLUSIF %s, %s épisodes prévalidés, %s à transférer",
                      title, len(items), len(pending))
             if not publish:
