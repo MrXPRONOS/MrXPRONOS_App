@@ -54,6 +54,10 @@
       "message_id": 66,
       "number": 8
     },
+    "92fa6cf8d56f62390b7ae7ad": {
+      "message_id": 73,
+      "number": 9
+    },
     "afcb26cb17e7c27f143251a5": {
       "message_id": 52,
       "number": 9
@@ -477,6 +481,12 @@
       "number": 9,
       "sent_at": "2026-10-25T22:01:14.454402+00:00",
       "source": "NewsBTC"
+    },
+    "news:09:84db441fc203335ef5dfe456": {
+      "message_id": 73,
+      "number": 9,
+      "sent_at": "2026-10-28T21:16:37.958251+00:00",
+      "source": "The Block"
     },
     "news:09:e0f3d809276d38630d429f64": {
       "message_id": 36,
