@@ -24,15 +24,20 @@ class SettlementPagesSafetyTests(unittest.TestCase):
         self.assertEqual(
             script.count("if: steps.settlement_commit.outputs.published == 'true'"), 2)
 
-    def test_exactly_three_staged_bsd_files(self):
+    def test_only_public_redacted_data_staged(self):
         script = self.workflow
-        for path in ("data.json", "bsd/publication_ledger.json",
-                     "bsd/quality_report.json"):
-            self.assertIn(f'cp {path} .bsd-settlement-site-refresh/{path}', script)
-        self.assertIn('assert files==expected', script)
+        self.assertIn("from scripts.build_public_site import public_copy", script)
+        self.assertIn("public=public_copy(source)", script)
+        self.assertIn('assert "diagnostics" not in public', script)
+        self.assertIn('assert "model_odds_observations" not in public', script)
+        self.assertIn('expected={"data.json"}', script)
+        self.assertIn('assert actual==expected', script)
         self.assertIn('publish_dir: ./.bsd-settlement-site-refresh', script)
         self.assertIn("keep_files: true", script)
-        self.assertNotIn("publish_dir: ./\n", script)
+        self.assertNotIn("publish_dir: ./\\n", script)
+        self.assertNotIn("cp bsd/publication_ledger.json", script)
+        self.assertNotIn("cp bsd/quality_report.json", script)
+
 
     def test_no_telegram_or_full_feed_generation(self):
         script = self.workflow

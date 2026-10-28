@@ -36,6 +36,66 @@ class PublicBuildTest(TestCase):
         self.assertNotIn("identifiant 123", cleaned)
         self.assertIn("analyse du match", cleaned)
 
+    def test_strict_public_feed_projects_only_product_fields(self):
+        raw = {
+            "source": "bsd",
+            "policy_version": "bsd-v2-policy-internal",
+            "model_version": "bsd-v2-isolated",
+            "diagnostics": {"private": True},
+            "performance_tracker": {"training_score": 99},
+            "retired_predictions": [{"internal": True}],
+            "generated_at": "2026-10-28T17:00:00Z",
+            "matches": [
+                {
+                    "id": "bsd:alpha", "home_team": "Alpha", "away_team": "Beta",
+                    "category": "pro", "final_score": 88,
+                    "badge": "BSD V2", "signal_tier": "PREMIUM",
+                    "policy_version": "bsd-v2", "publication_audit": {"debug": True},
+                    "recommendation_eligible": True, "is_finished": False,
+                    "prediction": {
+                        "label": "Over 2.5", "confidence": 81, "odds": 1.7,
+                        "selection_key": "OVER_25", "estimated_odds": False,
+                        "calibration_samples": 2000, "policy_version": "bsd-v2",
+                        "fair_odds": 1.2, "odds_source": "provider-private",
+                    },
+                },
+                {
+                    "id": "bsd:beta", "home_team": "Gamma", "away_team": "Delta",
+                    "category": "vip", "final_score": 93,
+                    "prediction": {"label": "1X", "confidence": 83, "odds": 1.4},
+                },
+            ],
+        }
+        public = module.public_copy(raw)
+        self.assertEqual(len(public["matches"]), 2)
+        self.assertEqual(public["matches"][1]["display_rank"], 1)
+        self.assertEqual(public["matches"][0]["display_rank"], 2)
+        self.assertEqual(public, module.public_copy(raw))
+        self.assertTrue(public["matches"][0]["id"].startswith("match-"))
+        self.assertNotIn("bsd", public["matches"][0]["id"])
+        serialized = json.dumps(public).lower()
+        for forbidden in ("bsd", "policy_version", "publication_audit",
+                          "signal_tier", "calibration_samples", "fair_odds",
+                          "performance_tracker", "retired_predictions",
+                          "final_score", "xpronos_score", "odds_source", "diagnostics"):
+            self.assertNotIn(forbidden, serialized, forbidden)
+        self.assertEqual(public["matches"][0]["prediction"]["confidence"], 81)
+        self.assertEqual(public["matches"][0]["prediction"]["odds"], 1.7)
+        self.assertFalse(public["matches"][0]["prediction"]["estimated_odds"])
+        self.assertTrue(public["matches"][0]["recommendation_eligible"])
+
+    def test_unlisted_future_model_fields_cannot_leak(self):
+        data = {"generated_at": "2026-10-28", "matches": [
+            {"id": "event-one", "category": "vip",
+             "internal_new_secret": "token", "future_model_hash": "private",
+             "prediction": {"type": "1X", "confidence": 88,
+                            "future_provider_token": "private-secret"}}
+        ]}
+        public = module.public_copy(data)
+        self.assertNotIn("internal_new_secret", public["matches"][0])
+        self.assertNotIn("future_model_hash", public["matches"][0])
+        self.assertNotIn("future_provider_token", public["matches"][0]["prediction"])
+
     def test_private_files_not_exported_and_predictions_kept(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)
@@ -50,6 +110,24 @@ class PublicBuildTest(TestCase):
             (root / "bsd/quality_report.json").write_text('{"private":true}')
             (root / "model_meta.json").write_text('{"trained_at":1}')
             (root / "footnews.json").write_text("[]", encoding="utf-8")
+            (root / "articles.json").write_text(json.dumps([{
+                "slug": "bsd-match-123", "type": "match", "source": "bsd",
+                "title": "Alpha vs Beta : fiche match BSD V2",
+                "content": "## Signal calculé par le moteur BSD V2",
+                "bsd_event_id": "123", "editorial_reasons": ["internal"]
+            }]), encoding="utf-8")
+            redirect = root / "articles/bsd-match-123/index.html"
+            redirect.parent.mkdir(parents=True)
+            redirect.write_text(
+                '<html><title>Alpha vs Beta : fiche match BSD V2</title>'
+                '<a href="/articles/bsd-match-123/">BSD V2</a>'
+                '<meta http-equiv="refresh" content="0;url=article.html?slug=bsd-match-123"></html>',
+                encoding="utf-8",
+            )
+            (root / "sitemap.xml").write_text(
+                '<loc>https://example.org/articles/bsd-match-123/</loc>', encoding="utf-8"
+            )
+
             data = {
                 "source": "bsd", "model_version": "bsd-v2-isolated",
                 "diagnostics": {"provider": "internal"},
@@ -86,3 +164,14 @@ class PublicBuildTest(TestCase):
             self.assertEqual(public["matches"][0]["prediction"]["odds"], 1.61)
             self.assertNotIn("odds_source", public["matches"][0]["prediction"])
             self.assertTrue(public["matches"][0]["recommendation_eligible"])
+            articles = json.loads((result / "articles.json").read_text(encoding="utf-8"))
+            self.assertEqual(articles[0]["slug"], "match-123")
+            self.assertEqual(articles[0]["title"], "Alpha vs Beta : analyse du match")
+            self.assertNotIn("bsd_event_id", articles[0])
+            self.assertNotIn("BSD", articles[0]["content"])
+            self.assertTrue((result / "articles/match-123/index.html").exists())
+            new_redirect = (result / "articles/match-123/index.html").read_text(encoding="utf-8")
+            self.assertIn("slug=match-123", new_redirect)
+            self.assertNotIn("BSD V2", new_redirect)
+            self.assertIn("articles/match-123", (result / "sitemap.xml").read_text(encoding="utf-8"))
+

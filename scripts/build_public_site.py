@@ -8,6 +8,7 @@ The original data.json and audit files remain unchanged in the main repository.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import shutil
@@ -53,18 +54,71 @@ TECHNICAL_TEXT = re.compile(
 )
 
 
+PUBLIC_MATCH_FIELDS = (
+    "date", "event_date", "home_team", "away_team", "home_logo",
+    "away_logo", "league_logo", "league", "category",
+    "recommendation_eligible", "status", "is_finished", "home_score",
+    "away_score", "verified_double", "combo_only",
+)
+PUBLIC_PICK_FIELDS = (
+    "type", "label", "market", "selection_key", "outcome", "line",
+    "confidence", "double_chance", "odds", "estimated_odds",
+    "recommendation_eligible",
+)
+
+
+def _public_pick(pick):
+    if not isinstance(pick, dict):
+        return {}
+    return {key: pick[key] for key in PUBLIC_PICK_FIELDS if key in pick}
+
+
 def public_copy(value):
-    """Remove diagnostic metadata without changing match or prediction fields."""
-    if isinstance(value, list):
-        return [public_copy(item) for item in value]
-    if isinstance(value, dict):
-        return {
-            k: public_copy(v) for k, v in value.items()
-            if k.lower() not in PRIVATE_DATA_KEYS
-            and not k.lower().startswith(("diagnostic_", "debug_", "model_", "provider_"))
-            and not k.lower().endswith(("_provider", "_diagnostics", "_source"))
-        }
-    return value
+    """Strictly project a generated feed into the visitor-facing product schema.
+
+    This is an allowlist, not a blacklist: newly added private data fields
+    cannot accidentally become public. The operational source is not mutated.
+    """
+    if not isinstance(value, dict) or not isinstance(value.get("matches"), list):
+        raise ValueError("A generated feed with a matches array is required")
+    # Only a rank is exported. Precise internal scoring and calibration stay
+    # with the engine; page ordering is preserved exactly.
+    matches = value["matches"]
+    ranked = sorted(
+        enumerate(matches),
+        key=lambda pair: (
+            -float(pair[1].get("final_score") or pair[1].get("xpronos_score") or 0),
+            pair[0],
+        ),
+    )
+    ranks = {original_index: order for order, (original_index, _) in enumerate(ranked, 1)}
+    public = []
+    for index, match in enumerate(matches):
+        if not isinstance(match, dict):
+            raise ValueError("Invalid match in generated feed")
+        selection = _public_pick(match.get("prediction"))
+        if not selection:
+            raise ValueError("Match without a public primary prediction")
+        item = {field: match[field] for field in PUBLIC_MATCH_FIELDS if field in match}
+        # Public IDs are stable and opaque; do not leak engine or provider IDs.
+        item["id"] = "match-" + hashlib.sha256(
+            str(match.get("id", "")).encode("utf-8")
+        ).hexdigest()[:16]
+        item["display_rank"] = ranks[index]
+        item["prediction"] = selection
+        if isinstance(match.get("predictions"), list) and match["predictions"]:
+            item["predictions"] = [_public_pick(pick) for pick in match["predictions"]]
+        public.append(item)
+    if len({match["id"] for match in public}) != len(public):
+        raise ValueError("Public match identifiers are not unique")
+    result = {"generated_at": value.get("generated_at"), "matches": public}
+    if isinstance(value.get("bookmakers"), list):
+        public_bookmaker_fields = {"name", "logo", "url", "desc", "bonus", "promo_code"}
+        result["bookmakers"] = [
+            {key: row[key] for key in public_bookmaker_fields if key in row}
+            for row in value["bookmakers"] if isinstance(row, dict)
+        ]
+    return result
 
 
 def clean_match_article_text(value: str) -> str:
@@ -81,7 +135,8 @@ def clean_match_article_text(value: str) -> str:
         "Ce pronostic est indicatif et ne garantit aucun résultat.",
     )
     text = re.sub(r"(?m)^\*\*Source des données :\*\* BSD V2, identifiant [^\n]*\n?", "", text)
-    text = re.sub(r"(?i)\b(?:BSD|PSD)(?:[\s_-]*V\d+(?:\.\d+)?)?\b", "Mr XPRONOS", text)
+    text = re.sub(r"(?i)\b(?:BSD|PSD)[\s_-]+V\d+(?:\.\d+)?\b", "Mr XPRONOS", text)
+    text = re.sub(r"(?i)\b(?:BSD|PSD)\b(?![-_/:])", "Mr XPRONOS", text)
     return text
 
 
@@ -96,6 +151,8 @@ def prepare_public_articles(destination: Path):
                 continue
             if row.get("type") != "match" or row.get("source") != "bsd":
                 continue
+            if isinstance(row.get("slug"), str) and row["slug"].startswith("bsd-match-"):
+                row["slug"] = "match-" + row["slug"][len("bsd-match-"):]
             for field in ("title", "excerpt", "meta_description", "keywords", "content"):
                 if isinstance(row.get(field), str):
                     row[field] = clean_match_article_text(row[field])
@@ -103,11 +160,21 @@ def prepare_public_articles(destination: Path):
                         "editorial_reasons", "editorial_role", "visual_variant", "visual_hash"):
                 row.pop(key, None)
         file.write_text(json.dumps(rows, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    # Preserve legacy redirects for old shared links, but use clean URLs for
+    # new links, canonical tags and sitemap entries.
     for html in destination.glob("articles/bsd-match-*/index.html"):
         old = html.read_text(encoding="utf-8")
         cleaned = clean_match_article_text(old)
-        if cleaned != old:
-            html.write_text(cleaned, encoding="utf-8")
+        cleaned = cleaned.replace("slug=bsd-match-", "slug=match-")
+        cleaned = cleaned.replace("/articles/bsd-match-", "/articles/match-")
+        html.write_text(cleaned, encoding="utf-8")
+        alias = html.parents[1] / html.parent.name.replace("bsd-match-", "match-") / "index.html"
+        alias.parent.mkdir(parents=True, exist_ok=True)
+        alias.write_text(cleaned, encoding="utf-8")
+    sitemap = destination / "sitemap.xml"
+    if sitemap.exists():
+        body = sitemap.read_text(encoding="utf-8")
+        sitemap.write_text(body.replace("/articles/bsd-match-", "/articles/match-"), encoding="utf-8")
 
 
 def refresh_public_script_versions(destination: Path):
