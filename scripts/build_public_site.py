@@ -135,7 +135,8 @@ def clean_match_article_text(value: str) -> str:
         "Ce pronostic est indicatif et ne garantit aucun résultat.",
     )
     text = re.sub(r"(?m)^\*\*Source des données :\*\* BSD V2, identifiant [^\n]*\n?", "", text)
-    text = re.sub(r"(?i)\b(?:BSD|PSD)(?:[\s_-]*V\d+(?:\.\d+)?)?\b", "Mr XPRONOS", text)
+    text = re.sub(r"(?i)\b(?:BSD|PSD)[\s_-]+V\d+(?:\.\d+)?\b", "Mr XPRONOS", text)
+    text = re.sub(r"(?i)\b(?:BSD|PSD)\b(?![-_/:])", "Mr XPRONOS", text)
     return text
 
 
