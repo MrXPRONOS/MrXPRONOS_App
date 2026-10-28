@@ -46,20 +46,15 @@ class CategoryRelayTests(unittest.TestCase):
         self.assertEqual(ani["sources"], ["@orak_dessinanime"])
 
     def test_old_anime_variable_with_comedy_channel_is_ignored(self):
-        cfg = category_config("anime", {
-            "ANIME_SOURCE_CHANNEL": "@comexflex",
-            "ANIME_SOURCE_CHANNELS": "@orak_dessinanime,@NewAnimeChannel",
-            "ANIME_PUBLIC_CHANNEL": "@CineXAnimeFR",
-            "ANIME_PRIVATE_CHANNEL": "-1001234567890",
-        })
-        self.assertEqual(cfg["sources"], [])
-        com = category_config("comedie", {
-            "COMEDIE_SOURCE_CHANNEL": "@orak_dessinanime",
-            "COMEDIE_SOURCE_CHANNELS": "@comexflex,@filmcomplets",
-            "COMEDIE_PUBLIC_CHANNEL": "@CineXComediefr",
-            "COMEDIE_PRIVATE_CHANNEL": "-1001234567890",
-        })
-        self.assertEqual(com["sources"], ["@comexflex"])
+        for category, source in (("anime", "@comexflex"),
+                                 ("comedie", "@orak_dessinanime")):
+            prefix = CATEGORIES[category]["prefix"]
+            with self.assertRaises(ValueError):
+                category_config(category, {
+                    prefix + "_SOURCE_CHANNEL": source,
+                    prefix + "_PUBLIC_CHANNEL": "@CineXDemoFR",
+                    prefix + "_PRIVATE_CHANNEL": "-1001234567890",
+                })
 
     def test_source_list_with_spaces_newlines_and_json(self):
         from film_relay.source_channels import source_list
