@@ -12,7 +12,7 @@ on:
         description: 'Publier les films et pubs (sinon diagnostic uniquement)'
         required: false
         type: boolean
-        default: true
+        default: false
   schedule:
     - cron: '17 */6 * * *'
 
