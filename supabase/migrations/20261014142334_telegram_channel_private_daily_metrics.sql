@@ -1,2 +1,0 @@
--- History marker: this migration was already applied to production before it was committed locally.
--- The current production schema is the source of truth for the Telegram private daily metrics tables.

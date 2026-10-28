@@ -1,1 +1,0 @@
-2026-10-21 16:29 UTC — Publish the latest verified Shorts production MP4 to Bluesky once after wiring automatic workflow_run.
