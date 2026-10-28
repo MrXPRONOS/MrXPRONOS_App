@@ -313,6 +313,89 @@ async def backfill_private_covers(client, private, catalogue, groups, pause):
         LOG.info("Fiche privée historique réparée pour %s : %s", key, recovered)
 
 
+def batch_descriptor(key, items):
+    """Persist just Telegram IDs, never source videos, for crash recovery."""
+    return {
+        "key": key,
+        "count": len(items),
+        "episodes": [
+            {"source_key": row["source_key"],
+             "season": int(row["season"]), "episode": int(row["episode"]),
+             "title": row["title"],
+             "poster_id": int(row["poster"].id) if row.get("poster") else None}
+            for row in items
+        ],
+    }
+
+
+async def recover_active_rows(client, sources, all_candidates, active):
+    """Retrieve a previously started batch by exact IDs if it left the scan window."""
+    if not active:
+        return all_candidates
+    peers = {str(utils.get_peer_id(peer)): peer for peer in sources}
+    seen = {row["source_key"] for row in all_candidates}
+    from .short_series import normalized_key
+    for expected in active.get("episodes", []):
+        source_key = str(expected.get("source_key", ""))
+        if source_key in seen or ":" not in source_key:
+            continue
+        source_id, message_id = source_key.rsplit(":", 1)
+        peer = peers.get(source_id)
+        if peer is None:
+            continue
+        message = await client.get_messages(peer, ids=int(message_id))
+        if message is None or not is_supported_video(message):
+            continue
+        poster = None
+        if expected.get("poster_id"):
+            poster = await client.get_messages(peer, ids=int(expected["poster_id"]))
+            if poster is not None and (not getattr(poster, "photo", None)
+                                       or getattr(poster, "noforwards", False)):
+                poster = None
+        all_candidates.append({
+            "source_key": source_key,
+            "series": active["key"],
+            "title": expected["title"],
+            "season": int(expected["season"]),
+            "episode": int(expected["episode"]),
+            "video": message, "poster": poster,
+            "timestamp": (message.date.timestamp()
+                          if isinstance(getattr(message, "date", None), datetime) else 0),
+        })
+        seen.add(source_key)
+        LOG.info("Reprise Anime : épisode %s retrouvé par son ID Telegram", source_key)
+    return all_candidates
+
+
+def ready_full_batch(items, expected=None):
+    """Validate all episode media before writing even the first private post."""
+    if not (1 <= len(items) <= 25):
+        return False
+    positions = {(int(row["season"]), int(row["episode"])) for row in items}
+    if len(positions) != len(items):
+        return False
+    if expected is not None:
+        planned = {(int(row["season"]), int(row["episode"]))
+                   for row in expected.get("episodes", [])}
+        if positions != planned:
+            return False
+    return (any(row.get("poster") is not None and
+                getattr(row["poster"], "photo", None) and
+                not getattr(row["poster"], "noforwards", False)
+                for row in items)
+            and all(is_supported_video(row["video"]) and
+                    getattr(row["video"], "media", None) is not None and
+                    getattr(row["video"], "document", None) is not None
+                    for row in items))
+
+
+def all_episodes_uploaded(series, items):
+    return all(
+        str(row["episode"]) in series.get("episodes", {}).get(str(row["season"]), {})
+        for row in items
+    )
+
+
 async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int:
     cfg = category_config("anime")  # sources historiques + variables inchangées
     session = (os.getenv("TG_STRING_SESSION") or os.getenv("TG_SESSION_STRING") or
