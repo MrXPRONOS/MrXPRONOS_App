@@ -23,6 +23,19 @@ class PublicBuildTest(TestCase):
                 unsafe.append(path.name)
         self.assertEqual([], unsafe, "Unsafe full-repository GitHub Pages publishing found")
 
+    def test_match_article_public_copy_removes_engine_naming(self):
+        sample = (
+            "FC A vs FC B : fiche match BSD V2\\n"
+            "## Signal calculé par le moteur BSD V2\\n"
+            "**Source des données :** BSD V2, identifiant 123.\\n"
+            "**Statut :** rencontre selon le dernier flux BSD disponible.\\n"
+        )
+        cleaned = module.clean_match_article_text(sample)
+        self.assertNotIn("BSD", cleaned)
+        self.assertNotIn("moteur", cleaned)
+        self.assertNotIn("identifiant 123", cleaned)
+        self.assertIn("analyse du match", cleaned)
+
     def test_private_files_not_exported_and_predictions_kept(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)
