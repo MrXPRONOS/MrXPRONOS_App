@@ -131,6 +131,18 @@
     return answer.includes('Aucun pronostic disponible');
   }
 
+  // Site-facing answers must not advertise removed categories or internal
+  // infrastructure. Server enforcement is separate; this also handles old local caches.
+  const INTERNAL_IMPL_TERMS = /\b(?:BSD[\s_-]*V\d+(?:\.\d+)?|Dixon[\s-]*Coles|Poisson|PinnWire|OddsLink|MoviOdds|OddsHarvester|GoalDir|Supabase|Cloudflare|Neon|GitHub Actions|Qwen|Mistral|Hugging\s*Face|Groq|cron-job\.org|service[_-]?role|API[_-]?key)\b/i;
+  const PUBLIC_ENGINE_NOTICE = '<p>Nos pronostics reposent sur des analyses statistiques et des contrôles de qualité. Les détails techniques internes ne sont pas publiés.</p><p>Consulte les pronostics Pro et VIP sur <a href="pronos.html">la page Pronostics</a>. Les paris comportent des risques.</p>';
+  function publicAssistantHtml(html) {
+    const raw = String(html || '');
+    if (INTERNAL_IMPL_TERMS.test(raw)) return PUBLIC_ENGINE_NOTICE;
+    return raw
+      .replace(/Simple\s*,\s*Pro\s*(?:et|,)\s*VIP/gi, 'Pro et VIP')
+      .replace(/\bcat[eé]gorie\s+Simple\b/gi, 'catégories Pro et VIP');
+  }
+
   function cleanAssistantHtmlResponse(html) {
     if (!html) return '';
 
@@ -144,7 +156,7 @@
     cleaned = cleaned.replace(/^<p>\s*```html\s*<\/p>/i, '');
     cleaned = cleaned.replace(/<p>\s*```\s*<\/p>$/i, '');
 
-    return cleaned.trim();
+    return publicAssistantHtml(cleaned.trim());
   }
 
   function sanitizeAssistantHtml(inputHtml) {
@@ -367,7 +379,7 @@
       {label:'🎯 Risques',value:'Pourquoi un pronostic peut échouer ?'}
     ]:path.includes('pronos.html')?[
       {label:'⚽ Pronostics',value:'Quels sont les pronostics du jour ?'},
-      {label:'📊 Score xPronos',value:'Comment lire le score xPronos ?'},
+      {label:'📊 Confiance',value:'Comment interpréter la confiance estimée ?'},
       {label:'📋 Marchés',value:'Comment comprendre les différents marchés ?'}
     ]:[
       {label:'📊 Pronostics du jour',value:'Quels sont les pronostics du jour ?'},
@@ -431,8 +443,7 @@
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Erreur ${response.status}: ${errorText}`);
+        throw new Error(`Assistant HTTP ${response.status}`);
       }
 
       const data = await response.json();
@@ -449,8 +460,7 @@
     } catch (error) {
       hideTyping();
       addMessage(
-        `<p><strong>Oups !</strong> Une erreur est survenue. Veuillez réessayer plus tard.</p>
-         <p><em>Erreur technique : ${String(error.message || error)}</em></p>`,
+        '<p><strong>Service momentanément indisponible.</strong> Réessaie dans quelques instants ou contacte le support si le problème persiste.</p>',
         'assistant',
         true,
         null,
