@@ -58,12 +58,17 @@ jobs:
           keep_files: true
       - name: Verify Infos Foot JSON reached gh-pages
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           test -s footnews.json
           for attempt in 1 2 3 4 5; do
-            git fetch origin gh-pages
-            if git show origin/gh-pages:footnews.json > /tmp/footnews-deployed.json 2>/dev/null; then
+            # pages deploy action may remove/reset local .git; use GitHub API,
+            # which works independently of the checkout state.
+            if gh api -H "Accept: application/vnd.github.raw+json" \
+                "/repos/${GITHUB_REPOSITORY}/contents/footnews.json?ref=gh-pages" \
+                > /tmp/footnews-deployed.json 2>/dev/null; then
               if cmp -s footnews.json /tmp/footnews-deployed.json; then
                 echo "ACTUFOOT_GITHUB_PAGES_DEPLOY_CONFIRMED"
                 python - <<'PY'
