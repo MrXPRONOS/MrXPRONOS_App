@@ -912,3 +912,40 @@
     display:none!important;
   }
 }
+
+/* Pro/VIP public mobile navigation (three equally sized tabs, no legacy empty slot).
+   Final override deliberately follows earlier mobile compact rules. */
+@media (max-width: 590px) {
+  .mx-pronos-page .pronostic-category-tabs {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-auto-flow: row !important;
+    gap: 0 !important;
+    width: 100% !important;
+    max-width: 100%;
+    overflow: hidden;
+    border: 1px solid #1a587c !important;
+    border-radius: 9px !important;
+  }
+  .mx-pronos-page .pronostic-category-tabs > .tab-btn {
+    display: flex !important;
+    grid-column: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100%;
+    margin: 0 !important;
+    box-sizing: border-box;
+    justify-content: center !important;
+    white-space: nowrap;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+  .mx-pronos-page .pronostic-category-tabs > .tab-btn:not(:last-child) {
+    border-right: 1px solid #1a587c !important;
+  }
+  .mx-pronos-page .pronostic-category-tabs > .tab-btn:focus-visible {
+    outline: 2px solid #ffe198;
+    outline-offset: -3px;
+    z-index: 1;
+  }
+}
