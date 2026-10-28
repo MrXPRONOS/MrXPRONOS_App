@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ROOT_FILES = {
     "robots.txt", "sitemap.xml", "CNAME", "favicon.ico", "manifest.json",
     "service-worker.js", "sw.js", "service_worker.js",
-    "admin-config.js", "supabase-client.js",
+    "supabase-client.js",
 }
 PUBLIC_JSON = {
     "data.json", "footnews.json", "historical_scores.json",
@@ -45,6 +45,7 @@ PRIVATE_DATA_KEYS = {
     "provider_snapshot", "debug", "debug_info", "internal_notes",
     "internal", "pipeline", "calibration", "model_details", "model_features",
     "raw_provider_quote", "provider_market_id", "provider_match_id",
+    "quality_report", "model_summary", "training_stats", "provider_health",
 }
 TECHNICAL_TEXT = re.compile(
     r"\\b(?:BSD|PSD)(?:[\\s_-]*V\\d+(?:\\.\\d+)?)?\\b"
@@ -64,6 +65,19 @@ def public_copy(value):
             and not k.lower().endswith(("_provider", "_diagnostics", "_source"))
         }
     return value
+
+
+def refresh_public_script_versions(destination: Path):
+    # Cached scripts otherwise keep showing outdated technical labels after deploy.
+    for html in destination.rglob("*.html"):
+        body = html.read_text(encoding="utf-8")
+        replacement = re.sub(
+            r"(assets/js/(?:main|assistant|admin-supervision)\\.js)(?:\\?v=[a-zA-Z0-9_.-]+)?",
+            r"\\1?v=20261028-public-ui-privacy3",
+            body,
+        )
+        if replacement != body:
+            html.write_text(replacement, encoding="utf-8")
 
 
 def copy_public_tree(source: Path, dest: Path):
@@ -106,6 +120,8 @@ def stage_site(destination: Path, previous: Path | None):
                     if not target.exists():
                         target.parent.mkdir(parents=True, exist_ok=True)
                         shutil.copy2(file, target)
+
+    refresh_public_script_versions(destination)
 
     public_feed = destination / "data.json"
     if public_feed.exists():
