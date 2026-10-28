@@ -20,13 +20,15 @@ def normalized_key(value):
     return re.sub(r"-(?:episode|ep)0*\d{1,3}$", "", raw)
 
 
-def short_complete_groups(groups, catalogue, maximum=12, diagnostics=None):
+def short_complete_groups(groups, catalogue, maximum=12, diagnostics=None, *, require_completion_evidence=False):
     """No truncation: reject long or incomplete series BEFORE uploading anything.
 
     Historical source observations and prior private receipts count toward the
     TOTAL number of episodes, including multiple seasons. A 1..12 run is
     sufficient to establish an entire 12-episode season; for a smaller series
     its authentic source caption must announce a complete run or its total.
+    For anime batches above the historical threshold, require an explicit
+    announcement rather than treating exactly 'maximum' episodes as proof.
     """
     result = []
     if diagnostics is not None:
@@ -91,7 +93,10 @@ def short_complete_groups(groups, catalogue, maximum=12, diagnostics=None):
             continue
         sequential_twelve = (len(found) == maximum and
                              len({season for season, _ in found}) == 1)
-        if not (sequential_twelve or END_OF_SERIES.search(context) or totals):
+        explicitly_complete = bool(END_OF_SERIES.search(context) or
+                                   (totals and len(found) in totals))
+        if not (explicitly_complete or
+                (sequential_twelve and not require_completion_evidence)):
             reject(key, "completude_non_confirmee")
             continue
         ordered = sorted(unique.values(), key=lambda r: (r["season"], r["episode"]))

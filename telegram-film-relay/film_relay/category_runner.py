@@ -200,6 +200,16 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
     from telethon.sessions import StringSession
     if limit not in (1, 2):
         raise ValueError("La limite par lancement est de 1 ou 2 publications.")
+    if category == "anime" and publish:
+        # Includes manual movie jobs: they may never interrupt a series batch
+        # awaiting recovery in the shared anime catalogue.
+        from .anime_catalog import read_catalog
+        active = read_catalog().get("active_batch")
+        if active:
+            LOG.error("Anime : la série %s attend sa reprise ; "
+                      "aucun film ne peut être envoyé entre ses épisodes.",
+                      active.get("key"))
+            return 3
     cfg = category_config(category)
     api_id = os.getenv("TG_API_ID", "").strip()
     api_hash = os.getenv("TG_API_HASH", "").strip()
@@ -253,6 +263,11 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                 ts = ts.replace(tzinfo=timezone.utc)
             return ts.timestamp()
         records.sort(key=order, reverse=True)
+        if category == "anime":
+            # In movie mode never confuse a numbered episode with a feature.
+            from .anime_catalog import is_anime_movie
+            records = [(source_id, item) for source_id, item in records
+                       if is_anime_movie(item)]
         LOG.info("%s : %s sources, %s messages examinés, %s vidéos candidates, mode=%s",
                  cfg["label"], len(source_peers), messages_read, len(records),
                  "PUBLICATION" if publish else "SIMULATION")

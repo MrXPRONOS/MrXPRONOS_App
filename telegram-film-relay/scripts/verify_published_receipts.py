@@ -47,8 +47,16 @@ async def check_new_posts(before):
                   if key not in before.get(name, {})}
            for name, rows in now.items()}
     checked = 0
+    checked_anime_episodes = 0
     failed = []
     details = {}
+    anime_catalog_path = ROOT / "state" / "anime_catalog.json"
+    anime_catalog = (json.loads(anime_catalog_path.read_text(encoding="utf-8"))
+                     if anime_catalog_path.exists() else {"series": {}})
+    # A crashed Anime batch must not appear successful just because no new
+    # public card was written: the next scheduled run has to resume it.
+    if anime_catalog.get("active_batch"):
+        failed.append("anime : série en cours non terminée ; reprise prioritaire requise.")
     creds = (os.getenv("TG_API_ID"), os.getenv("TG_API_HASH"),
              os.getenv("TG_SESSION_STRING") or os.getenv("TG_SESSION_STRING_FALLBACK"))
     if not all(creds):
@@ -86,13 +94,31 @@ async def check_new_posts(before):
                         raise ValueError("vidéo privée absente")
                     if not public_message or getattr(public_message, "action", None):
                         raise ValueError("publication publique absente")
+                    if name == "anime" and record_key.startswith("anime-series:"):
+                        title_key = record_key.split("anime-series:", 1)[1]
+                        entry = anime_catalog.get("series", {}).get(title_key, {})
+                        ids = [int(video["message_id"])
+                               for season in entry.get("episodes", {}).values()
+                               for video in season.values()]
+                        if not 1 <= len(ids) <= 25:
+                            raise ValueError("catalogue de série inachevé ou supérieur à 25 épisodes")
+                        messages = await client.get_messages(private, ids=ids)
+                        if not isinstance(messages, (list, tuple)):
+                            messages = [messages]
+                        if len(messages) != len(ids) or any(
+                            not message or not getattr(message, "media", None)
+                            for message in messages
+                        ):
+                            raise ValueError("au moins un épisode privé manque dans Telegram")
+                        checked_anime_episodes += len(ids)
                     verified += 1
                     checked += 1
                 except Exception as exc:
                     failed.append(f"{name}: reçu {record_key} non confirmé ({type(exc).__name__}: {exc})")
             details[name] = {"new": len(rows), "verified": verified}
     return {"status": "failed" if failed else ("verified" if checked else "no_new_posts"),
-            "verified_posts": checked, "categories": details, "errors": failed,
+            "verified_posts": checked, "verified_anime_episodes": checked_anime_episodes,
+            "categories": details, "errors": failed,
             "proof": "Telegram get_messages public et privé, sans nouveau message envoyé"}
 
 
@@ -116,6 +142,7 @@ def main():
             out.write("\n### CinéX : vérification réelle de Telegram\n")
             out.write(f"- Résultat : {result['status']}\n")
             out.write(f"- Publications nouvelles vérifiées : {result['verified_posts']}\n")
+            out.write(f"- Épisodes Anime réellement retrouvés : {result['verified_anime_episodes']}\n")
             for name, row in result["categories"].items():
                 out.write(f"- {name} : {row['verified']}/{row['new']} vérifiées\n")
             for error in result["errors"]:
