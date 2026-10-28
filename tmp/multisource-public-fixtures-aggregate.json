@@ -1,51 +1,10 @@
 {
   "days": [
-    "2026-10-27",
     "2026-10-28",
-    "2026-10-29"
+    "2026-10-29",
+    "2026-10-30"
   ],
   "sources": {
-    "2026-10-27": {
-      "fixtures": 298,
-      "provider_health": {
-        "bsd": {
-          "reported": 0,
-          "valid": 0,
-          "rejected": 0,
-          "error": ""
-        },
-        "api_football": {
-          "reported": 0,
-          "valid": 0,
-          "rejected": 0,
-          "error": "not queried"
-        },
-        "espn": {
-          "reported": 102,
-          "valid": 102,
-          "rejected": 0,
-          "error": ""
-        },
-        "sportscore": {
-          "reported": 200,
-          "valid": 200,
-          "rejected": 0,
-          "error": ""
-        },
-        "thesportsdb": {
-          "reported": 3,
-          "valid": 3,
-          "rejected": 0,
-          "error": ""
-        },
-        "openligadb": {
-          "reported": 8,
-          "valid": 8,
-          "rejected": 0,
-          "error": ""
-        }
-      }
-    },
     "2026-10-28": {
       "fixtures": 380,
       "provider_health": {
@@ -88,7 +47,7 @@
       }
     },
     "2026-10-29": {
-      "fixtures": 286,
+      "fixtures": 287,
       "provider_health": {
         "bsd": {
           "reported": 0,
@@ -127,9 +86,50 @@
           "error": ""
         }
       }
+    },
+    "2026-10-30": {
+      "fixtures": 335,
+      "provider_health": {
+        "bsd": {
+          "reported": 0,
+          "valid": 0,
+          "rejected": 0,
+          "error": ""
+        },
+        "api_football": {
+          "reported": 0,
+          "valid": 0,
+          "rejected": 0,
+          "error": "not queried"
+        },
+        "espn": {
+          "reported": 137,
+          "valid": 137,
+          "rejected": 0,
+          "error": ""
+        },
+        "sportscore": {
+          "reported": 200,
+          "valid": 200,
+          "rejected": 0,
+          "error": ""
+        },
+        "thesportsdb": {
+          "reported": 3,
+          "valid": 3,
+          "rejected": 0,
+          "error": ""
+        },
+        "openligadb": {
+          "reported": 3,
+          "valid": 3,
+          "rejected": 0,
+          "error": ""
+        }
+      }
     }
   },
-  "total_fixtures": 952,
+  "total_fixtures": 988,
   "sportscore_page_size_limit": 200,
   "sportscore_days_at_page_limit": 3,
   "sportscore_coverage_possibly_incomplete": true,
@@ -137,9 +137,10 @@
   "requests": {
     "site.api.espn.com": 3,
     "sportscore.com": 3,
-    "www.thesportsdb.com": 3
+    "www.thesportsdb.com": 3,
+    "api.openligadb.de": 4
   },
-  "requests_total": 9,
+  "requests_total": 13,
   "max_requests": 24,
   "no_production_writes": true
 }
