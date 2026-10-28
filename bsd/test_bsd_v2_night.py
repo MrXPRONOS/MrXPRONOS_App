@@ -94,7 +94,7 @@ class NightScheduleTests(unittest.TestCase):
         match=fixture(1,when(8,22),1.55)
         match["predictions"]=[match["prediction"],{
             "type":"Plus de 1.5 buts","selection_key":"OVER_15","odds":1.58,
-            "odds_source":"bsd_consensus","recommendation_eligible":True}]
+            "odds_source":"bsd_consensus","confidence":82.0,"recommendation_eligible":True}]
         self.assertEqual(len(expand_tickets(match)),2)
 
 if __name__=="__main__":
