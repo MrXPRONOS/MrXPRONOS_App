@@ -171,6 +171,8 @@ def to_site(p, fixture):
             "odds_method":pred.get("odds_method"),
             "overround_assumption":pred.get("overround_assumption"),
             "odds_updated_at":pred.get("odds_updated_at"),
+            "odds_timestamp_type":pred.get("odds_timestamp_type"),
+            "odds_bookmaker":pred.get("odds_bookmaker"),
             "signal_tier":p.get("signal_tier","OBSERVATION"),
             "recommendation_eligible":p.get("recommendation_eligible",False),
         },
@@ -448,6 +450,8 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                     entry["odds_comparison"]={
                         "verified_provider_count":_diagnostics.get("verified_provider_count",0),
                         "chosen_provider":_diagnostics.get("provider"),
+                        "provider_priority_rank":_diagnostics.get("provider_priority_rank"),
+                        "provider_selection_policy":_diagnostics.get("selection_policy"),
                         "compared_only_exact_selected_market":_diagnostics.get(
                             "quotes_compared_only_for_selected_market",False),
                     }
@@ -471,6 +475,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             "exact_market_quote_verified_source":(
                 isinstance(quoted,dict) and quoted.get("origin") in VERIFIED_ODDS_SOURCES),
             "exact_market_quote_source":quoted.get("origin") if isinstance(quoted,dict) else None,
+            "quote_timestamp_type":quoted.get("quote_timestamp_type") if isinstance(quoted,dict) else None,
             "other_market_quote_count":sum(1 for code in quotes if code!=target_code),
             "no_cross_market_substitution":True,
         }
@@ -672,7 +677,7 @@ def main():
     def bsd_odds_fetcher(event, captured):
         return fetch_event_odds(client,int(event["id"]),kickoff=fixture_datetime(event),
                                 captured_at=captured,bookmaker_slug="consensus")
-    odds_router = OddsRouter(bsd_odds_fetcher)
+    odds_router = OddsRouter(bsd_odds_fetcher, clock=lambda: datetime.now(timezone.utc))
     def odds_fetcher(event, captured):
         return odds_router.fetch(event, captured, market_code=event.get("_odds_target_market"))
     prior_ledger_file=Path(args.output).parent/"bsd"/"publication_ledger.json"
