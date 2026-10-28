@@ -30,6 +30,7 @@ from bsd_v2_estimated_odds import valid_standalone_prediction
 from scripts.football_match_source_router import aware_time
 from scripts.football_multisource_market_gate import _official_row_event_id
 from bsd_v2_publish import historical_publication_ids
+from bsd_v2_publication_policy import eligible_feed_match, eligible_feed_selection
 
 REQUIRED_PROOF=(
     "schedule_corroborated",
@@ -56,6 +57,8 @@ def _validate_qualified_row(row, *, now):
     kickoff=aware_time(row.get("event_date"))
     if kickoff is None or not (now < kickoff <= now+timedelta(days=2)):
         raise ValueError("Qualified candidate is outside native 48h publication window")
+    if not eligible_feed_match(row):
+        raise ValueError("Multisource candidate violates Pro/VIP minimum 79 policy")
     proof=row.get("multisource_verification")
     if not isinstance(proof,dict) or proof.get("mode")!="qualified_external_candidate":
         raise ValueError("Qualified candidate provenance missing")
@@ -67,7 +70,7 @@ def _validate_qualified_row(row, *, now):
     keys=set()
     markets=set()
     for pick in picks:
-        if not isinstance(pick,dict) or not valid_standalone_prediction(pick,row.get("combo_only",False)):
+        if not isinstance(pick,dict) or not eligible_feed_selection(row,pick) or not valid_standalone_prediction(pick,row.get("combo_only",False)):
             raise ValueError("Qualified candidate contains invalid prediction")
         if pick.get("odds_source")!="bsd_consensus" or pick.get("estimated_odds") is not False:
             raise ValueError("Qualified candidate requires real BSD consensus pricing")
