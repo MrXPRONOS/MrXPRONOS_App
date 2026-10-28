@@ -14,7 +14,7 @@ from bsd_v2_stakes import combination_stake,gain_potentiel
 
 COMBO_MIN_ODDS=1.20
 COMBO_MAX_ODDS=1.50
-SOURCES=frozenset(("bsd_consensus","bsd_bookmaker","mrxpronos_model"))
+SOURCES=frozenset(("bsd_consensus","bsd_bookmaker","pinnwire","oddslink","moviodds","oddsharvester","mrxpronos_model"))
 COMBO_REF_RE=re.compile(r"^[0-9a-f]{18}$")
 
 
