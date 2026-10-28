@@ -50,9 +50,16 @@ class RouterTests(unittest.TestCase):
     def test_pinnwire(self):
         event={"periods":{"num_0":{"money_line":{"home":1.82,"draw":3.4,"away":4.2},
                "totals":{"2.5":{"points":2.5,"over":1.8,"under":2.0}}}}}
-        out=from_pinnwire(event,NOW)
+        out=from_pinnwire(event,NOW,snapshot_generated_at=NOW.isoformat())
         self.assertEqual(out["1X2_HOME_FT"]["odds"],1.82)
         self.assertEqual(out["OU_2.5_OVER_FT"]["odds"],1.8)
+        self.assertEqual(out["1X2_HOME_FT"]["quote_timestamp_type"],"provider_snapshot")
+        self.assertFalse(out["1X2_HOME_FT"]["per_market_update_verified"])
+        self.assertEqual(from_pinnwire(event,NOW),{})
+        self.assertEqual(from_pinnwire(event,NOW,
+            snapshot_generated_at=(NOW-timedelta(minutes=5)).isoformat()),{})
+        self.assertEqual(from_pinnwire({**event,"event_type":"live"},NOW,
+            snapshot_generated_at=NOW.isoformat()),{})
 
     def test_oddslink_strict_market(self):
         fixture={"home_team":"Real Madrid","away_team":"Barcelona",
@@ -114,11 +121,48 @@ class RouterTests(unittest.TestCase):
         with patch.dict(os.environ,{"MOVIODDS_ENABLE":"1"}):
             router=OddsRouter(bsd,session=session,order=("goaldir","moviodds"))
             out,diag=router.fetch(EVENT,captured,market_code="1X2_HOME_FT")
-        self.assertEqual(out["1X2_HOME_FT"]["odds"],1.62)
-        self.assertEqual(diag["provider"],"moviodds")
-        self.assertEqual(diag["verified_provider_count"],2)
+        self.assertEqual(out["1X2_HOME_FT"]["odds"],1.33)
+        self.assertEqual(diag["provider"],"goaldir")
+        self.assertEqual(diag["verified_provider_count"],1)
         self.assertEqual(diag["exact_market_code"],"1X2_HOME_FT")
-        self.assertEqual(router.usage.get("moviodds"),1)
+        self.assertIsNone(router.usage.get("moviodds"))
+
+    def test_pinnwire_fresh_snapshot_precedes_lower_source(self):
+        from bsd_odds_fallback import SOURCE_TIERS
+        session=FakeSession([FakeResponse(200,{
+            "generated_at":NOW.isoformat(),
+            "events":[{
+                **ROW,"event_type":"prematch","is_have_odds":True,
+                "periods":{"num_0":{"money_line":{"home":1.52}}}
+            }]
+        })])
+        def bsd(event,when):
+            return {"1X2_HOME_FT":{"odds":2.9,"origin":"bsd_consensus",
+                      "updated_at":when.isoformat()}},{}
+        with patch.dict(os.environ,{"PINNWIRE_API_KEY":"test-key"}):
+            router=OddsRouter(bsd,session=session,order=("pinnwire","goaldir"))
+            q,diag=router.fetch(EVENT,NOW,"1X2_HOME_FT")
+        self.assertEqual(q["1X2_HOME_FT"]["odds"],1.52)
+        self.assertEqual(q["1X2_HOME_FT"]["quote_timestamp_type"],"provider_snapshot")
+        self.assertEqual(diag["provider"],"pinnwire")
+        self.assertEqual(diag["verified_provider_count"],1)
+        self.assertEqual(diag["provider_priority_rank"],SOURCE_TIERS["pinnwire"])
+        self.assertEqual(session.calls,1)
+
+    def test_stale_pinnwire_snapshot_falls_back(self):
+        stale=(NOW-timedelta(minutes=5)).isoformat()
+        session=FakeSession([FakeResponse(200,{
+            "generated_at":stale,
+            "events":[{**ROW,"event_type":"prematch",
+                       "periods":{"num_0":{"money_line":{"home":1.42}}}}]
+        })])
+        with patch.dict(os.environ,{"PINNWIRE_API_KEY":"test-key"}):
+            router=OddsRouter(lambda ev,at:({"1X2_HOME_FT":{
+                "odds":1.39,"origin":"bsd_consensus","updated_at":at.isoformat()}},{}),
+                session=session,order=("pinnwire","goaldir"))
+            q,diag=router.fetch(EVENT,NOW,"1X2_HOME_FT")
+        self.assertEqual(q["1X2_HOME_FT"]["odds"],1.39)
+        self.assertEqual(diag["provider"],"goaldir")
 
     def test_stale_higher_quote_cannot_override_fresh_bsd(self):
         stale=(NOW-timedelta(hours=3)).isoformat()
@@ -193,8 +237,8 @@ class RouterTests(unittest.TestCase):
 
     def test_external_first_default_order(self):
         from bsd_odds_fallback import ORDER
-        self.assertEqual(ORDER[-1], "goaldir")
-        self.assertLess(ORDER.index("moviodds"), ORDER.index("goaldir"))
+        self.assertEqual(ORDER, ("pinnwire", "oddslink", "oddslink_public",
+                                  "moviodds", "goaldir", "oddsharvester"))
 
     def test_oddslink_epl_feed_skipped_for_unknown_league(self):
         session=FakeSession([])
