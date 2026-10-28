@@ -20,6 +20,7 @@ def row(i, cat="pro", conf=79.0, *, extra=None):
     item = {"id": f"bsd:{i}", "source_event_id": i, "source": "bsd",
             "date": dt.date().isoformat(), "event_date": dt.isoformat(),
             "status": "notstarted", "category": cat,
+            "home_team": "Home", "away_team": "Away", "league": "Test League",
             "recommendation_eligible": True, "prediction": first}
     if extra is not None:
         item["predictions"] = [first, extra]
