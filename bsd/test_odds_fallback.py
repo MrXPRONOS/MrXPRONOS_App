@@ -149,6 +149,23 @@ class RouterTests(unittest.TestCase):
         self.assertEqual(diag["provider_priority_rank"],SOURCE_TIERS["pinnwire"])
         self.assertEqual(session.calls,1)
 
+    def test_slow_generation_uses_actual_request_clock(self):
+        later=NOW+timedelta(minutes=10)
+        session=FakeSession([FakeResponse(200,{
+            "generated_at":later.isoformat(),
+            "events":[{
+                **ROW,"event_type":"prematch","is_have_odds":True,
+                "periods":{"num_0":{"money_line":{"home":1.51}}}
+            }]
+        })])
+        with patch.dict(os.environ,{"PINNWIRE_API_KEY":"test-key"}):
+            router=OddsRouter(lambda ev,when: ({},{}),session=session,
+                order=("pinnwire",),clock=lambda:later)
+            quotes,diag=router.fetch(EVENT,NOW,"1X2_HOME_FT")
+        self.assertEqual(quotes["1X2_HOME_FT"]["odds"],1.51)
+        self.assertEqual(diag["provider"],"pinnwire")
+        self.assertEqual(quotes["1X2_HOME_FT"]["updated_at"],later.isoformat())
+
     def test_stale_pinnwire_snapshot_falls_back(self):
         stale=(NOW-timedelta(minutes=5)).isoformat()
         session=FakeSession([FakeResponse(200,{
