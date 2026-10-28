@@ -110,6 +110,24 @@ class PublicBuildTest(TestCase):
             (root / "bsd/quality_report.json").write_text('{"private":true}')
             (root / "model_meta.json").write_text('{"trained_at":1}')
             (root / "footnews.json").write_text("[]", encoding="utf-8")
+            (root / "articles.json").write_text(json.dumps([{
+                "slug": "bsd-match-123", "type": "match", "source": "bsd",
+                "title": "Alpha vs Beta : fiche match BSD V2",
+                "content": "## Signal calculé par le moteur BSD V2",
+                "bsd_event_id": "123", "editorial_reasons": ["internal"]
+            }]), encoding="utf-8")
+            redirect = root / "articles/bsd-match-123/index.html"
+            redirect.parent.mkdir(parents=True)
+            redirect.write_text(
+                '<html><title>Alpha vs Beta : fiche match BSD V2</title>'
+                '<a href="/articles/bsd-match-123/">BSD V2</a>'
+                '<meta http-equiv="refresh" content="0;url=article.html?slug=bsd-match-123"></html>',
+                encoding="utf-8",
+            )
+            (root / "sitemap.xml").write_text(
+                '<loc>https://example.org/articles/bsd-match-123/</loc>', encoding="utf-8"
+            )
+
             data = {
                 "source": "bsd", "model_version": "bsd-v2-isolated",
                 "diagnostics": {"provider": "internal"},
@@ -146,3 +164,14 @@ class PublicBuildTest(TestCase):
             self.assertEqual(public["matches"][0]["prediction"]["odds"], 1.61)
             self.assertNotIn("odds_source", public["matches"][0]["prediction"])
             self.assertTrue(public["matches"][0]["recommendation_eligible"])
+            articles = json.loads((result / "articles.json").read_text(encoding="utf-8"))
+            self.assertEqual(articles[0]["slug"], "match-123")
+            self.assertEqual(articles[0]["title"], "Alpha vs Beta : analyse du match")
+            self.assertNotIn("bsd_event_id", articles[0])
+            self.assertNotIn("BSD", articles[0]["content"])
+            self.assertTrue((result / "articles/match-123/index.html").exists())
+            new_redirect = (result / "articles/match-123/index.html").read_text(encoding="utf-8")
+            self.assertIn("slug=match-123", new_redirect)
+            self.assertNotIn("BSD V2", new_redirect)
+            self.assertIn("articles/match-123", (result / "sitemap.xml").read_text(encoding="utf-8"))
+
