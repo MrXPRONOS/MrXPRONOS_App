@@ -43,9 +43,13 @@ async def read_source_window(client, source, catalogue: dict, source_id: int, *,
                     "next_cursor": None, "complete": True, "count": 0, "allowed_ids": set()}
 
     rescan = os.getenv("CINEX_CATALOG_RESCAN", "").lower() in ("1", "true", "yes")
-    if scan.get("complete") and not rescan:
+    complete_before = bool(scan.get("complete")) and not rescan
+    if complete_before and archive_pages == 1:
         return recent, None
-    cursor = _oldest(recent) if not scan.get("cursor") or rescan else int(scan["cursor"])
+    # For large anime batches re-read a bounded historic window even when
+    # the archival scan previously finished, without moving its stored cursor.
+    cursor = (_oldest(recent) if complete_before or not scan.get("cursor") or rescan
+              else int(scan["cursor"]))
     archive = []
     complete = False
     # Some 25-episode series contain text announcements between batches.
@@ -77,7 +81,7 @@ async def read_source_window(client, source, catalogue: dict, source_id: int, *,
             "count": len(archive), "recent_count": len(recent_ids)}
     LOG.info("scan source: récents=%s archives=%s contexte=%s fin=%s",
              len(recent_ids), len(archive), len(lookbehind), plan["complete"])
-    return ordered, plan
+    return ordered, (None if complete_before else plan)
 
 
 def source_window_ids(messages, plan):
