@@ -21,7 +21,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          CINEX_TARGET_SHA: bff615fde0290827f3e4dccf005912fce0e730e9
+          CINEX_TARGET_SHA: 7375668fcbbf8a214cdff8f3b072aa9fe281a381
         run: |
           python telegram-film-relay/scripts/audit_real_run.py "$RUNNER_TEMP/cinex-real-run-audit.json"
           cat "$RUNNER_TEMP/cinex-real-run-audit.json"
