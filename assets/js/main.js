@@ -3,7 +3,7 @@ import { safeCmsUrl, isSafeCmsUrl } from "./cms-url-guard.mjs";
  * main.js - Mr XPRONOS
  * Version stable + SEO amélioré (slug articles + conseils + metas dynamiques)
  * + Cookies (mx_user_id)
- * + Accès libre aux pronostics Simple, Pro et VIP
+ * + Accès libre aux pronostics Pro et VIP (fiabilité >= 79 %)
  *
  * (VIP PAYANT SUPPRIMÉ)
  */
@@ -1435,7 +1435,17 @@ function getTeamLogoPath(teamName, isHome = true) {
   return `assets/images/${normalized}.webp`;
 }
 
-const CATEGORY_LABELS = { all: "Tous", simple: "Simple", pro: "Pro", vip: "VIP" };
+const CATEGORY_LABELS = { all: "Tous", pro: "Pro", vip: "VIP" };
+
+// Reject stale website caches just as the server and Telegram do.
+function bsdPublicEligible(match, selection = match?.prediction) {
+  const category = String(match?.category || "").trim().toLowerCase();
+  if (category !== "pro" && category !== "vip") return false;
+  const raw = Number(selection?.confidence);
+  if (!Number.isFinite(raw) || raw <= 0) return false;
+  const confidence = raw <= 1 ? raw * 100 : raw;
+  return confidence >= 79 && confidence <= 100;
+}
 
 function readInitialCategory() {
   const cat = String(new URLSearchParams(window.location.search).get("cat") || "").toLowerCase();
@@ -1448,7 +1458,7 @@ function readInitialCategory() {
 }
 
 // Par défaut, afficher tous les pronostics qualifiés du jour. Les onglets
-// Simple / Pro / VIP restent disponibles comme filtres explicites.
+// Pro / VIP uniquement, à partir de 79 % de confiance.
 function mostPopulatedCategory(counts) {
   return "all";
 }
@@ -1470,7 +1480,7 @@ function updateCategorySummary(shown, searchActive = false) {
   const node = document.getElementById("category-summary");
   if (!node) return;
 
-  const label = CATEGORY_LABELS[currentCategory] || "Simple";
+  const label = CATEGORY_LABELS[currentCategory] || "Tous";
   const target = getLocalDateString(currentDay);
   const parsed = new Date(target + "T12:00:00");
   const dayPrefix = { today: "Aujourd’hui", tomorrow: "Demain", yesterday: "Hier" }[currentDay] || "Ce jour";
@@ -1483,14 +1493,13 @@ function updateCategorySummary(shown, searchActive = false) {
   const description = document.getElementById("category-description");
   if (description) {
     const descriptions = {
-      all: "Tous les pronostics qualifiés du jour, sans masquer les catégories Simple, Pro ou VIP.",
-      simple: "Des pronostics fiables et accessibles pour tous. Analyses basées sur les statistiques et la forme actuelle des équipes.",
+      all: "Sélections Pro et VIP uniquement, avec un minimum de 79 % de confiance estimée.",
       pro: "Des sélections plus exigeantes, avec une lecture approfondie des données et des scénarios de match.",
       vip: "Nos sélections les plus strictes, retenues parmi les meilleures opportunités détectées par le système.",
     };
     description.textContent = searchActive
       ? `${shown} résultat${shown > 1 ? "s" : ""} correspondant à votre recherche.`
-      : (descriptions[currentCategory] || descriptions.simple);
+      : (descriptions[currentCategory] || descriptions.all);
   }
 }
 
@@ -1502,10 +1511,10 @@ function filterAndDisplay() {
   }
 
   const targetDate = getLocalDateString(currentDay);
-  const counts = { all: 0, simple: 0, pro: 0, vip: 0 };
+  const counts = { all: 0, pro: 0, vip: 0 };
   const currentDayMatches = allData.matches.filter((m) => {
     const category = String(m.category || "").trim().toLowerCase();
-    if (!(category in CATEGORY_LABELS) || category === "all" || m.combo_only || getMatchDate(m) !== targetDate) return false;
+    if (!bsdPublicEligible(m) || !(category in CATEGORY_LABELS) || category === "all" || m.combo_only || getMatchDate(m) !== targetDate) return false;
     if (m.source === "bsd" && !m.is_finished && m.recommendation_eligible !== true) return false;
     counts[category] += 1;
     counts.all += 1;
@@ -1536,7 +1545,7 @@ function applySearchFilter() {
       );
   updateCategorySummary(filtered.length, Boolean(term));
   if (!filtered.length) {
-    const label = CATEGORY_LABELS[currentCategory] || "Simple";
+    const label = CATEGORY_LABELS[currentCategory] || "Tous";
     const message = term
       ? `Aucun pronostic ${label} ne correspond à cette recherche.`
       : `Aucun pronostic ${label} disponible pour cette date.`;
@@ -1581,7 +1590,7 @@ function renderMatches(matches) {
   const standalone = matches.filter((match) => !match.combo_only).flatMap((match) => {
     const selections = Array.isArray(match.predictions) && match.predictions.length
       ? match.predictions.slice(0, 2) : [match.prediction || {}];
-    return selections.filter((pick) => match.source !== "bsd" || match.is_finished || (match.recommendation_eligible === true && pick.recommendation_eligible === true)).map((pick) => ({
+    return selections.filter((pick) => bsdPublicEligible(match, pick) && (match.is_finished || (match.recommendation_eligible === true && pick.recommendation_eligible === true))).map((pick) => ({
       ...match,
       id: String(match.id) + ":" + String(pick.selection_key || "primary"),
       prediction: pick,
@@ -1802,14 +1811,14 @@ async function displayHistory() {
   const historyMatches = allData.matches
     .filter((m) => {
       const d = getLocalDateFromEvent(m.event_date);
-      return !m.combo_only && d && d < todayStr;
+      return !m.combo_only && bsdPublicEligible(m) && d && d < todayStr;
     })
     .flatMap((m) => {
       const choices = Array.isArray(m.predictions) && m.predictions.length
         ? m.predictions.slice(0, 2)
         : [m.prediction || {}];
 
-      return choices.map((selection) => {
+      return choices.filter((selection) => bsdPublicEligible(m, selection)).map((selection) => {
         const scoreKnown =
           Number.isInteger(Number(m.home_score)) &&
           Number.isInteger(Number(m.away_score)) &&
@@ -3113,8 +3122,8 @@ function renderHomePickCard(m, { winner = false } = {}) {
   const pick = pred.type || pred.label || pred.double_chance || "N/A";
   const league = m.league || "Ligue";
   const time = formatMatchTime(m.event_date);
-  const category = String(m.category || "simple").toLowerCase();
-  const categoryLabel = category === "vip" ? "VIP" : category === "pro" ? "PRO" : "SIMPLE";
+  const category = String(m.category || "").toLowerCase();
+  const categoryLabel = category === "vip" ? "VIP" : "PRO";
 
   const homeDefault = "assets/images/home.webp";
   const awayDefault = "assets/images/away.webp";
@@ -3181,7 +3190,7 @@ function displayTopTodayCoupons() {
 
   const todayStr = getLocalDateString("today");
   const picks = allData.matches
-    .filter((m) => ["simple", "pro", "vip"].includes(String(m.category || "").toLowerCase()))
+    .filter((m) => bsdPublicEligible(m) && m.recommendation_eligible === true)
     .filter((m) => getLocalDateFromEvent(m.event_date) === todayStr)
     .filter((m) => !isFinishedMatch(m))
     .sort((a, b) => {
@@ -3204,7 +3213,7 @@ function displayLatestVerifiedHome() {
   }
 
   const verified = allData.matches
-    .filter((m) => isFinishedMatch(m) && m.verified_double)
+    .filter((m) => bsdPublicEligible(m) && isFinishedMatch(m) && m.verified_double)
     .sort((a, b) => new Date(b.event_date || 0) - new Date(a.event_date || 0))
     .slice(0, 3);
 
@@ -3493,7 +3502,7 @@ function setupPronosticPageListeners() {
 }
 
 async function handleCategoryChange() {
-  // Simple, Pro et VIP sont accessibles sans action de partage.
+  // Pro et VIP (79 % minimum) sont accessibles sans action de partage.
   filterAndDisplay();
 }
 

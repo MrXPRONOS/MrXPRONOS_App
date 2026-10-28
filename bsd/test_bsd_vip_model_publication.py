@@ -96,30 +96,33 @@ class VIPModelPublicationTests(unittest.TestCase):
             out["diagnostics"]["rejections"]["v21_model_confidence_or_price_below_floor"], 1
         )
 
-    def test_model_pro_at_77_7pct_can_publish_with_indicative_price(self):
+    def test_pro_below_79_is_rejected_before_odds_lookup(self):
         self.football["category"] = "pro"
-        self.football["prediction"]["probability"] = .785
+        self.football["prediction"]["probability"] = .7899
         self.football["prediction"]["conservative_probability"] = .777
-        self.football["prediction"]["fair_odds"] = round(1 / .785, 4)
+        self.football["prediction"]["fair_odds"] = round(1 / .7899, 4)
+        out = self.publish({})
+        self.assertEqual(out["matches"], [])
+        self.assertEqual(out["diagnostics"]["rejections"]["category_or_confidence_below_79"], 1)
+
+    def test_simple_is_rejected_even_when_confidence_is_high_and_real_price_exists(self):
+        self.football["category"] = "simple"
+        self.football["prediction"]["probability"] = .90
+        self.football["prediction"]["conservative_probability"] = .76
+        self.football["prediction"]["fair_odds"] = round(1 / .90, 4)
+        out = self.publish({"DC_1X_FT": {"odds": 1.41, "origin": "bsd_consensus"}})
+        self.assertEqual(out["matches"], [])
+        self.assertEqual(out["diagnostics"]["rejections"]["category_or_confidence_below_79"], 1)
+
+    def test_pro_at_exactly_79_still_needs_existing_price_and_value_guards(self):
+        self.football["category"] = "pro"
+        self.football["prediction"]["probability"] = .79
+        self.football["prediction"]["conservative_probability"] = .785
+        self.football["prediction"]["fair_odds"] = round(1 / .79, 4)
         out = self.publish({})
         self.assertEqual(len(out["matches"]), 1)
-        pick = out["matches"][0]
-        self.assertEqual(pick["category"], "pro")
-        self.assertEqual(pick["prediction"]["odds_source"], "mrxpronos_model")
-        self.assertTrue(pick["prediction"]["estimated_odds"])
-        self.assertGreaterEqual(pick["prediction"]["odds"], 1.20)
-
-    def test_simple_with_real_bsd_edge_can_publish_at_76_7pct(self):
-        self.football["category"] = "simple"
-        self.football["prediction"]["probability"] = .779
-        self.football["prediction"]["conservative_probability"] = .767
-        self.football["prediction"]["fair_odds"] = round(1 / .779, 4)
-        out = self.publish({"DC_1X_FT": {"odds": 1.41, "origin": "bsd_consensus"}})
-        self.assertEqual(len(out["matches"]), 1)
-        pick = out["matches"][0]
-        self.assertEqual(pick["category"], "simple")
-        self.assertEqual(pick["prediction"]["odds_source"], "bsd_consensus")
-        self.assertEqual(pick["signal_tier"], "QUALIFIE")
+        self.assertEqual(out["matches"][0]["category"], "pro")
+        self.assertEqual(out["matches"][0]["prediction"]["confidence"], 79.0)
 
     def test_bsd_real_odds_cannot_bypass_independent_value_gate(self):
         out = self.publish({"DC_1X_FT": {"odds": 1.20, "origin": "bsd_consensus"}})

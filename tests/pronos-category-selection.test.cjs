@@ -24,7 +24,7 @@ function pick(id, category, overrides = {}) {
 
 function browserFixture(matches, search = "") {
   const url = { hostname: "localhost", search, href: "http://localhost/pronos.html" + search };
-  const cats = ["all", "simple", "pro", "vip"];
+  const cats = ["all", "pro", "vip"];
   const tabs = cats.map(cat => ({
     dataset: { cat }, classList: { toggle() {} },
     setAttribute(name, value) { this[name] = value; },
@@ -71,56 +71,60 @@ function browserFixture(matches, search = "") {
   };
 }
 
-test("Tous is the default and shows every displayable category for today", () => {
+test("Tous only displays Pro and VIP with confidence >=79, even when a stale cache has Simple", () => {
   const browser = browserFixture([
-    pick(1, "simple"), pick(2, "pro"), pick(3, "pro"),
-    pick(4, "vip"), pick(5, "simple"),
+    pick(1, "simple"), pick(2, "pro"), pick(3, "pro", {
+      prediction: { selection_key: "1X", confidence: 78.9 }
+    }), pick(4, "vip"), pick(5, "simple"),
   ]);
   assert.equal(browser.selected, "all");
-  assert.equal(browser.tabs[0]["aria-selected"], "true");
-  assert.equal(browser.counts["count-all"].textContent, "5");
-  assert.equal(browser.counts["count-simple"].textContent, "2");
-  assert.equal(browser.counts["count-pro"].textContent, "2");
+  assert.equal(browser.tabs.length, 3);
+  assert.equal(browser.counts["count-all"].textContent, "2");
+  assert.equal(browser.counts["count-pro"].textContent, "1");
   assert.equal(browser.counts["count-vip"].textContent, "1");
-  assert.equal(browser.window.renderedIds.length, 5);
+  assert.deepEqual([...browser.window.renderedIds], ["bsd:2", "bsd:4"]);
 });
 
-test("Tous only counts displayable matches from the selected date", () => {
+test("Tous filters out combo-only, old-day, disabled and under-79 matches", () => {
   const browser = browserFixture([
-    pick(1, "simple"),
-    pick(2, "pro", { combo_only: true }),
+    pick(1, "simple"), pick(2, "pro", { combo_only: true }),
     pick(3, "vip", { date: "2020-01-01" }),
     pick(4, "vip", { recommendation_eligible: false }),
+    pick(5, "pro", { prediction: { confidence: 78.999 } }),
+    pick(6, "vip", { prediction: { confidence: 79 } }),
   ]);
-  assert.equal(browser.selected, "all");
   assert.equal(browser.counts["count-all"].textContent, "1");
-  assert.equal(browser.counts["count-vip"].textContent, "0");
+  assert.deepEqual([...browser.window.renderedIds], ["bsd:6"]);
 });
 
-test("a direct category link overrides the Tous default", () => {
+test("legacy direct ?cat=simple falls back to Tous and cannot expose Simple", () => {
   const browser = browserFixture([
-    pick(1, "pro"), pick(2, "pro"), pick(3, "vip"),
-  ], "?cat=vip");
+    pick(1, "simple"), pick(2, "pro"), pick(3, "vip"),
+  ], "?cat=simple");
+  assert.equal(browser.selected, "all");
+  assert.deepEqual([...browser.window.renderedIds], ["bsd:2", "bsd:3"]);
+});
+
+test("Pro and VIP deep links still work", () => {
+  const browser = browserFixture([pick(1, "pro"), pick(2, "pro"), pick(3, "vip")], "?cat=vip");
   assert.equal(browser.selected, "vip");
-  assert.equal(browser.window.renderedIds.length, 1);
+  assert.deepEqual([...browser.window.renderedIds], ["bsd:3"]);
 });
 
-test("manual category selection stays in effect after a data refresh", () => {
-  const initial = [pick(1, "pro"), pick(2, "pro"), pick(3, "simple")];
+test("a manual Pro choice survives feed refresh and Simple stays invisible", () => {
+  const initial = [pick(1, "pro"), pick(2, "vip"), pick(3, "simple")];
   const browser = browserFixture(initial);
-  assert.equal(browser.selected, "all");
-  browser.click("simple");
-  assert.equal(browser.selected, "simple");
-  browser.refresh([...initial, pick(4, "pro"), pick(5, "pro")]);
-  assert.equal(browser.selected, "simple");
+  browser.click("pro");
+  assert.equal(browser.selected, "pro");
+  browser.refresh([...initial, pick(4, "pro"), pick(5, "simple")]);
+  assert.equal(browser.selected, "pro");
   assert.equal(browser.tabs[1]["aria-selected"], "true");
-  assert.equal(browser.window.renderedIds.length, 1);
+  assert.deepEqual([...browser.window.renderedIds], ["bsd:1", "bsd:4"]);
 });
 
-test("Tous remains default after refreshed data until a manual tab choice", () => {
+test("Tous remains default after refresh", () => {
   const browser = browserFixture([pick(1, "pro"), pick(2, "simple")]);
-  assert.equal(browser.selected, "all");
   browser.refresh([pick(3, "vip"), pick(4, "vip"), pick(5, "simple")]);
   assert.equal(browser.selected, "all");
-  assert.equal(browser.window.renderedIds.length, 3);
+  assert.deepEqual([...browser.window.renderedIds], ["bsd:3", "bsd:4"]);
 });

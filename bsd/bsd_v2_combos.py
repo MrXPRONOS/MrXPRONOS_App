@@ -11,6 +11,7 @@ from math import isfinite
 import re
 from bsd_h2h import _utc
 from bsd_v2_stakes import combination_stake,gain_potentiel
+from bsd_v2_publication_policy import eligible_feed_match, eligible_feed_selection
 
 COMBO_MIN_ODDS=1.20
 COMBO_MAX_ODDS=1.50
@@ -117,7 +118,8 @@ def match_selections(match):
 def choose_leg(match):
     if not isinstance(match,dict) or match.get("source")!="bsd":return None
     if match.get("status") not in ("notstarted","upcoming"):return None
-    picks=[p for p in match_selections(match) if priced_prediction(p)]
+    if not eligible_feed_match(match):return None
+    picks=[p for p in match_selections(match) if priced_prediction(p) and eligible_feed_selection(match,p)]
     if not picks:return None
     # Highest calibrated confidence wins; price only breaks confidence ties.
     pick=max(picks,key=lambda p:(float(p.get("confidence") or 0),float(p["odds"]),

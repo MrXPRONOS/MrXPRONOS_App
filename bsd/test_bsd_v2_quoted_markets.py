@@ -78,7 +78,8 @@ class PricedSelectionTests(unittest.TestCase):
                 calibration=None,policy=None,rho=0,
                 odds_fetcher=lambda *a:({},{}),max_odds_requests=2)
         self.assertEqual(out["matches"],[])
-        self.assertTrue(any(out["diagnostics"]["rejections"].get(k, 0) == 1 for k in ("v21_observation_not_recommended", "v21_model_confidence_or_price_below_floor")))
+        self.assertTrue(any(out["diagnostics"]["rejections"].get(k, 0) == 1 for k in ("v21_observation_not_recommended", "v21_model_confidence_or_price_below_floor",
+                                                                                   "category_or_confidence_below_79")))
         self.assertEqual([x["id"] for x in due(out["matches"],self.now)],[])
 
     def test_rejected_real_price_keeps_model_calculation_only_in_watchlist(self):
@@ -142,7 +143,7 @@ class PricedSelectionTests(unittest.TestCase):
                     self.assertEqual(out["matches"],[])
                     self.assertTrue(any(out["diagnostics"]["rejections"].get(reason,0)==1 for reason in
                         ("v21_observation_not_recommended","v21_model_confidence_or_price_below_floor","v21_insufficient_real_price_edge",
-                         "conservative_probability_below_real_price_edge")))
+                         "conservative_probability_below_real_price_edge","category_or_confidence_below_79")))
                     continue
                 self.assertEqual(len(out["matches"]),1)
                 self.assertEqual(out["matches"][0]["prediction"]["selection_key"],"1X")
@@ -159,7 +160,7 @@ class PricedSelectionTests(unittest.TestCase):
             odds_fetcher=lambda *a:({},{}),max_odds_requests=2)
         self.assertEqual(out["matches"],[])
         self.assertEqual(len(out["retired_predictions"]),1)
-        self.assertEqual(out["retired_predictions"][0]["reason"],"v21_invalid_probability_or_price")
+        self.assertEqual(out["retired_predictions"][0]["reason"],"category_or_confidence_below_79")
 
     def test_market_selection_uses_verifiable_bsd_price(self):
         from bsd_v2_core import markets_from_matrix
