@@ -46,8 +46,7 @@ jobs:
       - name: Vérifier la configuration sans afficher les secrets
         env:
           PUBLIC: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
-          SOURCE: ${{ vars.COMEDIE_SOURCE_CHANNEL }}
-          SOURCE_LIST: ${{ vars.COMEDIE_SOURCE_CHANNELS || '@comexflex,@filmcomplets' }}
+          SOURCE: ${{ vars.COMEDIE_SOURCE_CHANNEL || '@comexflex' }}
           PRIVATE: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
           API_ID: ${{ secrets.TG_API_ID }}
           API_HASH: ${{ secrets.TG_API_HASH }}
@@ -57,7 +56,7 @@ jobs:
         run: |
           set -e
           if [[ -z "$SOURCE" && -z "$SOURCE_LIST" ]]; then
-            echo '::error::Configurer COMEDIE_SOURCE_CHANNEL ou COMEDIE_SOURCE_CHANNELS.'
+            echo '::error::Configurer COMEDIE_SOURCE_CHANNEL.'
             exit 1
           fi
           if [[ ! "$PUBLIC" =~ ^@[a-zA-Z0-9_]{5,32}$ ]]; then
@@ -80,7 +79,6 @@ jobs:
           TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
           CINEX_CATEGORY_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
           COMEDIE_SOURCE_CHANNEL: ${{ vars.COMEDIE_SOURCE_CHANNEL }}
-          COMEDIE_SOURCE_CHANNELS: ${{ vars.COMEDIE_SOURCE_CHANNELS || '@comexflex,@filmcomplets' }}
           COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
           COMEDIE_PRIVATE_CHANNEL: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
           COMEDIE_MIRROR_CHANNEL: '@Torrent9SeriesFilms'
