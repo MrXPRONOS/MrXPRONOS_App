@@ -30,6 +30,27 @@ def flag(name: str, default: bool = False) -> bool:
     return value.strip().lower() in ("true", "yes", "1", "on")
 
 
+def github_bool(name: str, fallback: bool) -> bool:
+    """Read explicit true/false values; blank means retain the JSON setting."""
+    value = os.getenv(name, "").strip().casefold()
+    if not value:
+        return bool(fallback)
+    if value in ("true", "1", "yes", "on"):
+        return True
+    if value in ("false", "0", "no", "off"):
+        return False
+    raise ValueError(f"{name} : utiliser true ou false.")
+
+
+def github_int(name: str, fallback: int, *, minimum: int = 0) -> int:
+    value = os.getenv(name, "").strip()
+    if not value:
+        return int(fallback)
+    if not value.isdecimal() or int(value) < minimum:
+        raise ValueError(f"{name} : entier supérieur ou égal à {minimum} attendu.")
+    return int(value)
+
+
 def config_from(path: str) -> dict:
     result = json.loads(Path(path).read_text(encoding="utf-8"))
     sources = result.get("sources", [])
@@ -58,6 +79,31 @@ def config_from(path: str) -> dict:
     if len(sources) > 16:
         raise ValueError("Maximum 16 sources CinéX classiques par lancement.")
     result["sources"] = sources
+    # GitHub Variables take precedence for technical settings.
+    # Keep owner-selected source order stable for indexed per-source options.
+    result["mirror_with_attribution"] = github_bool(
+        "CINEX_MIRROR_WITH_ATTRIBUTION",
+        result.get("mirror_with_attribution", True),
+    )
+    for key, var, minimum in (
+        ("bootstrap_messages", "CINEX_BOOTSTRAP_MESSAGES", 10),
+        ("max_messages_per_run", "CINEX_MAX_MESSAGES_PER_RUN", 10),
+        ("lookback_ids", "CINEX_LOOKBACK_IDS", 0),
+        ("max_posts_per_run", "CINEX_MAX_POSTS_PER_RUN", 1),
+        ("publication_pause_seconds", "CINEX_PUBLICATION_PAUSE_SECONDS", 0),
+        ("history_page_messages", "CINEX_HISTORY_PAGE_MESSAGES", 30),
+        ("history_overlap_messages", "CINEX_HISTORY_OVERLAP_MESSAGES", 3),
+    ):
+        result[key] = github_int(var, result.get(key, minimum), minimum=minimum)
+    for index, row in enumerate(sources, start=1):
+        row["archive_cycle"] = github_bool(
+            f"CINEX_SOURCE_{index}_ARCHIVE_CYCLE",
+            row.get("archive_cycle", False),
+        )
+        row["source_disabled"] = github_bool(
+            f"CINEX_SOURCE_{index}_DISABLED",
+            row.get("source_disabled", False),
+        )
     if not all(x.get("channel") for x in sources):
         raise ValueError("Chaque source doit fournir un champ channel.")
     if result.get("private_layout", "poster_and_video") not in ("poster_and_video", "title_only"):
