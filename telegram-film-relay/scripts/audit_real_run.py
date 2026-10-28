@@ -14,8 +14,8 @@ from urllib.request import Request, urlopen
 
 REPO = os.environ["GITHUB_REPOSITORY"]
 TOKEN = os.environ["GH_TOKEN"]
-TARGET = Path(sys.argv[1]).read_text(encoding="utf-8").strip()
-OUT = Path(sys.argv[2])
+TARGET = os.environ["CINEX_TARGET_SHA"].strip()
+OUT = Path(sys.argv[1])
 if not re.fullmatch(r"[0-9a-f]{40}", TARGET):
     raise ValueError("SHA cible GitHub invalide")
 
