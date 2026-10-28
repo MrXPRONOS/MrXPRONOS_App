@@ -94,14 +94,23 @@ async def check_new_posts(before):
                         raise ValueError("vidéo privée absente")
                     if not public_message or getattr(public_message, "action", None):
                         raise ValueError("publication publique absente")
-                    if name == "anime" and record_key.startswith("anime-series:"):
-                        title_key = record_key.split("anime-series:", 1)[1]
-                        entry = anime_catalog.get("series", {}).get(title_key, {})
+                    if name == "anime" and record_key.startswith(
+                            ("anime-series:", "anime-season:")):
+                        if record_key.startswith("anime-season:"):
+                            title_key, season_label = record_key[
+                                len("anime-season:"):].rsplit(":S", 1)
+                            season_map = anime_catalog.get("series", {}).get(
+                                title_key, {}).get("episodes", {}).get(
+                                    str(int(season_label)), {})
+                            seasons = [season_map]
+                        else:
+                            title_key = record_key.split("anime-series:", 1)[1]
+                            entry = anime_catalog.get("series", {}).get(title_key, {})
+                            seasons = list(entry.get("episodes", {}).values())
                         ids = [int(video["message_id"])
-                               for season in entry.get("episodes", {}).values()
-                               for video in season.values()]
+                               for season in seasons for video in season.values()]
                         if not 1 <= len(ids) <= 25:
-                            raise ValueError("catalogue de série inachevé ou supérieur à 25 épisodes")
+                            raise ValueError("saison anime incomplète ou supérieure à 25 épisodes")
                         messages = await client.get_messages(private, ids=ids)
                         if not isinstance(messages, (list, tuple)):
                             messages = [messages]
