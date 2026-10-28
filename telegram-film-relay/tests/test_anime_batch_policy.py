@@ -5,7 +5,7 @@ from types import SimpleNamespace as NS
 
 from film_relay.anime_catalog import (
     all_episodes_uploaded, batch_descriptor, classify, is_anime_movie,
-    pending_anime_series, ready_full_batch, recover_active_rows,
+    pending_anime_series, ready_full_batch, recover_active_rows, series_title,
 )
 from film_relay.short_series import short_complete_groups
 
@@ -88,6 +88,11 @@ class AnimeBatchPolicyTests(unittest.TestCase):
             raw_text="Voyage S01E03", file=NS(name="Voyage_E03.mkv", duration=1400)))
         self.assertTrue(is_anime_movie(movie))
         self.assertFalse(is_anime_movie(episode))
+
+    def test_posters_and_video_titles_keep_one_canonical_anime_name(self):
+        self.assertEqual(series_title("Mushishi Série complète, 25 épisodes"),
+                         series_title("Mushishi S01E03.mp4"))
+        self.assertEqual(series_title("Mushishi Série complète, 25 épisodes"), "Mushishi")
 
     def test_text_messages_between_episodes_do_not_split_the_series(self):
         now = datetime(2026, 10, 28, tzinfo=timezone.utc)
