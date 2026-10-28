@@ -1,11 +1,12 @@
 """Offline checks of one-message Telegram Saved Messages discovery summaries."""
 import asyncio
 import unittest
+from unittest.mock import patch
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 from film_relay.discovery import (notification_summary, notification_text,
-                                  notify_saved_messages, normalize_username)
+                                  notify_saved_messages, notify_if_enabled, normalize_username)
 from film_relay.desir_runner import verify_destination
 
 
@@ -14,6 +15,14 @@ def found(name, title, count):
 
 
 class DigestTests(unittest.TestCase):
+    def test_diagnostic_discovery_sends_no_saved_messages(self):
+        client = SimpleNamespace(send_message=AsyncMock())
+        with patch.dict("os.environ", {"CINEX_DISCOVERY_NOTIFY_SAVED": "false"}):
+            result = asyncio.run(notify_if_enabled(
+                client, [found("g_romanticfilm", "Films", 2)], set()))
+        self.assertEqual(result, ([], 0))
+        client.send_message.assert_not_awaited()
+
     def test_only_one_telegram_message_for_multiple_channels(self):
         first = found("film_romance_20", "Cinéma & Films", 3)
         second = found("g_romanticfilm", "Films <romantiques>", 12)

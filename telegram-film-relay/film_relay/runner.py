@@ -7,6 +7,7 @@ import logging
 import os
 from pathlib import Path
 
+from .title_guard import title_assessment
 from .matching import (document_key, filename_of, is_poster, is_video, match_pairs,
                        match_authorized_mkv_pairs, description_of, description_entities_of)
 from .verification import screen_pairs
@@ -29,14 +30,35 @@ def flag(name: str, default: bool = False) -> bool:
     return value.strip().lower() in ("true", "yes", "1", "on")
 
 
+def github_bool(name: str, fallback: bool) -> bool:
+    """Read explicit true/false values; blank means retain the JSON setting."""
+    value = os.getenv(name, "").strip().casefold()
+    if not value:
+        return bool(fallback)
+    if value in ("true", "1", "yes", "on"):
+        return True
+    if value in ("false", "0", "no", "off"):
+        return False
+    raise ValueError(f"{name} : utiliser true ou false.")
+
+
+def github_int(name: str, fallback: int, *, minimum: int = 0) -> int:
+    value = os.getenv(name, "").strip()
+    if not value:
+        return int(fallback)
+    if not value.isdecimal() or int(value) < minimum:
+        raise ValueError(f"{name} : entier supérieur ou égal à {minimum} attendu.")
+    return int(value)
+
+
 def config_from(path: str) -> dict:
     result = json.loads(Path(path).read_text(encoding="utf-8"))
     sources = result.get("sources", [])
     if not isinstance(sources, list):
         raise ValueError("sources doit être une liste.")
-    # Discovery still suggests sources only; it NEVER authorizes them.
-    # Explicit owner-managed variables are different: the account owner has
-    # confirmed permission for channels they add to these lists.
+    # Sources supplied through environment variables are discovery inputs,
+    # not documentary evidence of permission to redistribute their contents.
+    # Only explicit, separately reviewed source entries may be marked approved.
     added = source_list(
         os.getenv("CINEX_SOURCE_CHANNELS", ""),
         os.getenv("FILM_SOURCE_CHANNELS", ""),
@@ -48,8 +70,8 @@ def config_from(path: str) -> dict:
         if username.casefold() not in known:
             sources.append({
                 "channel": username,
-                "redistribution_authorized": True,
-                "rights_basis": "Source inscrite explicitement par le propriétaire dans les variables GitHub.",
+                "redistribution_authorized": False,
+                "rights_basis": "Source détectée dans les variables GitHub : droits de redistribution à documenter.",
                 "matching_mode": "standard",
                 "archive_cycle": True,
             })
@@ -57,6 +79,31 @@ def config_from(path: str) -> dict:
     if len(sources) > 16:
         raise ValueError("Maximum 16 sources CinéX classiques par lancement.")
     result["sources"] = sources
+    # GitHub Variables take precedence for technical settings.
+    # Keep owner-selected source order stable for indexed per-source options.
+    result["mirror_with_attribution"] = github_bool(
+        "CINEX_MIRROR_WITH_ATTRIBUTION",
+        result.get("mirror_with_attribution", True),
+    )
+    for key, var, minimum in (
+        ("bootstrap_messages", "CINEX_BOOTSTRAP_MESSAGES", 10),
+        ("max_messages_per_run", "CINEX_MAX_MESSAGES_PER_RUN", 10),
+        ("lookback_ids", "CINEX_LOOKBACK_IDS", 0),
+        ("max_posts_per_run", "CINEX_MAX_POSTS_PER_RUN", 1),
+        ("publication_pause_seconds", "CINEX_PUBLICATION_PAUSE_SECONDS", 0),
+        ("history_page_messages", "CINEX_HISTORY_PAGE_MESSAGES", 30),
+        ("history_overlap_messages", "CINEX_HISTORY_OVERLAP_MESSAGES", 3),
+    ):
+        result[key] = github_int(var, result.get(key, minimum), minimum=minimum)
+    for index, row in enumerate(sources, start=1):
+        row["archive_cycle"] = github_bool(
+            f"CINEX_SOURCE_{index}_ARCHIVE_CYCLE",
+            row.get("archive_cycle", False),
+        )
+        row["source_disabled"] = github_bool(
+            f"CINEX_SOURCE_{index}_DISABLED",
+            row.get("source_disabled", False),
+        )
     if not all(x.get("channel") for x in sources):
         raise ValueError("Chaque source doit fournir un champ channel.")
     if result.get("private_layout", "poster_and_video") not in ("poster_and_video", "title_only"):
@@ -347,7 +394,7 @@ async def execute() -> int:
         for src in cfg["sources"]:
             channel_name = str(src["channel"])
             # The example source is a placeholder, never a real input.
-            if channel_name == "@source_authorisee":
+            if channel_name == "@source_authorisee" or src.get("source_disabled") is True:
                 continue
             rights_ok = src.get("redistribution_authorized") is True
             if publish and not rights_ok:
@@ -451,6 +498,10 @@ async def execute() -> int:
                         ):
                             LOG.info("Episode de série ignoré par Films classiques : traitement via le catalogue Séries.")
                             continue
+                    assessment = title_assessment(pair.poster, pair.movie)
+                    if assessment != "verified":
+                        LOG.warning("Films : affiche/vidéo en quarantaine (%s), film=%s", assessment, pair.movie.id)
+                        continue
                     if getattr(pair.poster, "noforwards", False) or getattr(pair.movie, "noforwards", False):
                         LOG.warning("Messages protégés : association %s/%s ignorée", pair.poster.id, pair.movie.id)
                         continue

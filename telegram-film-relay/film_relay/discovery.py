@@ -271,6 +271,15 @@ async def notify_saved_messages(client, channels: list[dict], previously_notifie
     return usernames, 0
 
 
+async def notify_if_enabled(client, channels, previously_notified):
+    """Diagnostic-only dispatch must never send Telegram messages, even to 'me'."""
+    enabled = os.getenv("CINEX_DISCOVERY_NOTIFY_SAVED", "true").strip().lower()
+    if enabled in {"false", "0", "no"}:
+        LOG.info("Mode découverte en lecture seule : aucun message Telegram émis.")
+        return [], 0
+    return await notify_saved_messages(client, channels, previously_notified)
+
+
 async def execute() -> int:
     from telethon import TelegramClient
     from telethon.sessions import StringSession
@@ -295,7 +304,7 @@ async def execute() -> int:
             name.casefold() for name, channel in previous.items()
             if channel.get("notified_saved_messages_at")
         }
-        notified, notification_failures = await notify_saved_messages(client, results, sent_before)
+        notified, notification_failures = await notify_if_enabled(client, results, sent_before)
     finally:
         await client.disconnect()
 

@@ -34,7 +34,7 @@ def sample_messages(count=1):
                date=DATE + timedelta(minutes=i*10), file=None,
                entities=None, grouped_id=None, reply_to=None, noforwards=False),
             NS(id=k+1, photo=None, document=doc, video=doc, media=f'video-{i}',
-               raw_text='', date=DATE + timedelta(minutes=i*10+1),
+               raw_text=f'Excellente histoire numéro {i + 1}', date=DATE + timedelta(minutes=i*10+1),
                file=NS(name='movie.mp4', duration=7200, size=doc.size),
                entities=None, grouped_id=None, reply_to=None, noforwards=False),
         ]

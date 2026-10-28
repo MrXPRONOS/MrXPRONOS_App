@@ -16,6 +16,7 @@ class Torrent9SuspensionTests(unittest.TestCase):
         self.assertTrue(mirror_policy.torrent9_paused())
         data = json.loads(mirror_policy.POLICY.read_text(encoding="utf-8"))
         self.assertFalse(data["transfers_enabled"])
+        self.assertFalse(data["film_single_forward_enabled"])
 
     def test_environment_can_only_force_additional_pause(self):
         with tempfile.TemporaryDirectory() as d:
@@ -53,7 +54,7 @@ class Torrent9SuspensionTests(unittest.TestCase):
 
     def test_scoped_film_forward_does_not_unpause_other_categories(self):
         self.assertTrue(mirror_policy.torrent9_paused())
-        self.assertTrue(partnership_cycle.film_single_transfer_enabled())
+        self.assertFalse(partnership_cycle.film_single_transfer_enabled())
         with patch.dict(os.environ, {"CINEX_SINGLE_FILM_FORWARD_PAUSED": "true"}):
             self.assertFalse(partnership_cycle.film_single_transfer_enabled())
 

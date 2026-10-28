@@ -6,6 +6,11 @@ on:
     - cron: '0 6 * * *'
   workflow_dispatch:
     inputs:
+      dry_run:
+        description: 'Audit lecture seule : aucun message Telegram et aucun historique modifié'
+        type: boolean
+        required: false
+        default: true
       live_test:
         description: 'Test réel V2 avec envoi privé, sans modifier le rapport quotidien'
         type: boolean
@@ -13,7 +18,7 @@ on:
         default: false
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: mrx-telegram-personal-account
@@ -27,22 +32,54 @@ jobs:
       - name: Récupérer le code
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          persist-credentials: true
       - name: Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Installer les dépendances
-        run: python -m pip install --disable-pip-version-check 'telethon>=1.36,<2' 'requests>=2.31,<3'
+        run: python -m pip install --disable-pip-version-check 'telethon>=1.36,<2'
       - name: Compiler le script
         run: python -m py_compile scripts/telegram_channel_monitor_v2.py
+      - name: Vérifier le stockage GitHub sans publication
+        run: python -m unittest discover -s tests -p 'test_telegram_channel_monitor*.py' -v
       - name: Rapport de croissance Telegram privé
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
           TG_SESSION_STRING: ${{ secrets.TG_SESSION_STRING }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           PYTHONUNBUFFERED: '1'
           TELEGRAM_MONITOR_TEST_MODE: ${{ inputs.live_test || 'false' }}
+          TELEGRAM_MONITOR_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}
         run: python scripts/telegram_channel_monitor_v2.py
+      - name: Sauvegarder historique JSON dans GitHub
+        if: ${{ always() && !(github.event_name == 'workflow_dispatch' && inputs.dry_run) }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE=telegram-film-relay/state/channel_monitor.json
+          if [ ! -f "$FILE" ]; then
+            echo 'Pas de nouveau rapport JSON.'
+            exit 0
+          fi
+          cp "$FILE" "$RUNNER_TEMP/channel_monitor.json"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+            python scripts/merge_channel_monitor.py "$RUNNER_TEMP/channel_monitor.json" "$FILE"
+            git add "$FILE"
+            if git diff --cached --quiet; then
+              echo 'Rapport déjà sauvegardé.'
+              exit 0
+            fi
+            git commit -m 'state: Telegram channel monitor JSON [skip ci]'
+            if git push origin HEAD:main; then
+              echo 'Rapport Telegram sauvegardé dans GitHub.'
+              exit 0
+            fi
+            sleep 3
+          done
+          echo '::error::Impossible de sauvegarder le rapport GitHub.'
+          exit 1

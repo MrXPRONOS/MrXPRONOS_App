@@ -1,5 +1,5 @@
 {
   "transfers_enabled": false,
-  "film_single_forward_enabled": true,
-  "reason": "Les transferts automatiques multi-categories restent suspendus. Un seul film deja publie sur CineX principal peut etre transfere nativement vers @Torrent9SeriesFilms par execution du workflow."
+  "film_single_forward_enabled": false,
+  "reason": "Tous les transferts automatiques vers Torrent9, y compris le film unique du canal principal, sont suspendus jusqu'a reactivation explicite."
 }

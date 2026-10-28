@@ -25,14 +25,44 @@ def video(i, name, caption=""):
 
 class TVSeriesTests(unittest.TestCase):
     def test_series_source_uses_existing_authorized_sources(self):
-        with patch.dict(os.environ, {"TG_PRIVATE_CHANNEL":"-1001111111111",
-                                     "TG_PUBLIC_CHANNEL":"@CineXFilmsDemo",
-                                     "SERIES_SOURCE_CHANNELS":"@series_source1,@series_source2"},clear=False):
-            cfg=series_config()
+        import json
+        with TemporaryDirectory() as td:
+            config = Path(td) / "channels.json"
+            config.write_text(json.dumps({
+                "sources":[
+                    {"channel":"@series_source1","redistribution_authorized":True},
+                    {"channel":"@series_source2","redistribution_authorized":True},
+                ],
+                "private_channel":"-1001111111111",
+                "public_channel":"@CineXFilmsDemo",
+            }))
+            with patch.dict(os.environ, {"CHANNELS_CONFIG":str(config),
+                                         "TG_PRIVATE_CHANNEL":"-1001111111111",
+                                         "TG_PUBLIC_CHANNEL":"@CineXFilmsDemo",
+                                         "SERIES_SOURCE_CHANNELS":"@series_source1,@series_source2"},clear=False):
+                cfg=series_config()
         self.assertEqual(cfg["sources"], ["@series_source1","@series_source2"])
         self.assertEqual(cfg["private"],"-1001111111111")
         self.assertEqual(cfg["public"],"@CineXFilmsDemo")
-        self.assertEqual(cfg["mirror"],"@Torrent9SeriesFilms")
+
+    def test_series_rejects_unapproved_explicit_sources(self):
+        import json
+        with TemporaryDirectory() as td:
+            config = Path(td) / "channels.json"
+            config.write_text(json.dumps({
+                "sources":[
+                    {"channel":"@licensed_series","redistribution_authorized":True},
+                    {"channel":"@unapproved_series","redistribution_authorized":False},
+                ],
+                "private_channel":"-1001111111111",
+                "public_channel":"@CineXFilmsDemo",
+            }))
+            with patch.dict(os.environ, {"CHANNELS_CONFIG":str(config),
+                                         "TG_PRIVATE_CHANNEL":"-1001111111111",
+                                         "TG_PUBLIC_CHANNEL":"@CineXFilmsDemo",
+                                         "SERIES_SOURCE_CHANNELS":"@licensed_series,@unapproved_series"},clear=False):
+                cfg=series_config()
+        self.assertEqual(cfg["sources"], ["@licensed_series"])
 
     def test_s02_poster_is_not_s01(self):
         messages=[photo(200,"The Last of Us - S02"),video(201,"Episode_01.mkv"),

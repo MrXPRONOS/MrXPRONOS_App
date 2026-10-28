@@ -74,7 +74,7 @@ class CategoryRelayTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             source_list("@invalid!")
 
-    def test_classic_source_variables_are_authorized_owner_additions(self):
+    def test_classic_source_variables_are_discovery_only(self):
         import json
         from film_relay.runner import config_from
         from tempfile import TemporaryDirectory
@@ -95,8 +95,9 @@ class CategoryRelayTests(unittest.TestCase):
             self.assertEqual(names,
                              ["@pleziyisliye1", "@NewChannel_1", "@NewChannel_2",
                               "@SeriesSource_1"])
-            self.assertTrue(all(row["redistribution_authorized"]
-                                for row in config["sources"]))
+            self.assertTrue(config["sources"][0]["redistribution_authorized"])
+            self.assertTrue(all(not row["redistribution_authorized"]
+                                for row in config["sources"][1:]))
 
     def test_two_projects_have_unique_receipts_and_default_mirror(self):
         configs = []

@@ -9,10 +9,10 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: 'Publier les films et pubs (sinon diagnostic uniquement)'
+        description: 'Publication reelle Telegram : activer explicitement (non par defaut)'
         required: false
         type: boolean
-        default: true
+        default: false
   schedule:
     - cron: '17 */6 * * *'
 
@@ -26,7 +26,7 @@ concurrency:
 
 jobs:
   relay:
-    name: Decouverte et 4 catégories, 2 films chacune + publicités
+    name: CinéX - 5 catégories, sauvegarde et bilan
     runs-on: ubuntu-latest
     timeout-minutes: 105
     env:
@@ -72,34 +72,14 @@ jobs:
             exit 1
           }
           echo 'ready=true' >> "$GITHUB_OUTPUT"
+      - name: Relever les reçus au début du cycle
+        run: python telegram-film-relay/scripts/cycle_health.py --baseline "$RUNNER_TEMP/cinex-cycle-before.json"
+
       - name: Installer les dependances
         run: python -m pip install -r telegram-film-relay/requirements.txt
-      - name: Valider le code (sans publication)
+      - name: Vérifier seulement la syntaxe avant cycle
         working-directory: telegram-film-relay
-        env:
-          PYTHONPATH: .
-        run: |
-          python -m compileall -q film_relay scripts tests
-          python -m unittest discover -s tests -p 'test_bot_http.py' -v
-          python -m unittest discover -s tests -p 'test_torrent9_suspension.py' -v
-          python -m unittest discover -s tests -p 'test_desir.py' -q
-          python -m unittest discover -s tests -p 'test_category_relays.py' -q
-          python -m unittest discover -s tests -p 'test_anime_catalog.py' -v
-          python -m unittest discover -s tests -p 'test_catalog_scan.py' -v
-          python -m unittest discover -s tests -p 'test_catalogue_reliability.py' -v
-          python -m unittest discover -s tests -p 'test_series_catalog.py' -v
-          python -m unittest discover -s tests -p 'test_promotions.py' -q
-          python -m unittest discover -s tests -p 'test_mkv.py' -q
-          python -m unittest discover -s tests -p 'test_discovery_digest.py' -q
-          python - <<'PY'
-          from film_relay.promotions import render_poster
-          for i in range(3):
-              original=render_poster(i)
-              print(f"Publicité PNG vérifiée : {original.name}, {len(original.getvalue())} octets")
-          PY
-
-      # Discover channel suggestions; they are sent ONLY to personal Saved Messages.
-      # Nothing found by discovery is ever auto-added to film relay sources.
+        run: python -m compileall -q film_relay scripts
       - name: 1 - Decouverte de canaux et Messages enregistres
         if: ${{ github.event_name == 'workflow_dispatch' && !inputs.publish }}
         working-directory: telegram-film-relay
@@ -108,29 +88,14 @@ jobs:
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
           TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
           PYTHONPATH: .
+          CINEX_DISCOVERY_NOTIFY_SAVED: 'false'
         run: python -m film_relay.discovery
 
       # Promotions use a durable quota of 4 contents. Empty runs never advertise.
-      # Torrent9 and pre-content partnership adverts are currently paused.
+      # Torrent9 transfer and disabled partnership tasks have been removed.
       - name: Pause de securite avant publication
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         run: sleep 20
-
-      - name: "Partenariat AVANT films (désactivé)"
-        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_PARTNERSHIP_ENABLED == 'true' }}
-        working-directory: telegram-film-relay
-        env:
-          TG_API_ID: ${{ secrets.TG_API_ID }}
-          TG_API_HASH: ${{ secrets.TG_API_HASH }}
-          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
-          CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
-          TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
-          DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
-          COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
-          ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
-          TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
-          PYTHONPATH: .
-        run: python scripts/partnership_cycle.py --category films --phase before
 
       - name: 2 - Films CineX classiques (pub chaque 4 contenus)
         id: films
@@ -147,7 +112,47 @@ jobs:
           TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
           CINEX_FILM_FOLDER_URL: ${{ vars.CINEX_FILM_FOLDER_URL || 'https://t.me/addlist/ZmW4vfwcrMAwNzJk' }}
           FILM_PUBLISH_ENABLED: 'true'
-          TG_RIGHTS_ATTESTED: 'true'
+          TG_RIGHTS_ATTESTED: ${{ vars.TG_RIGHTS_ATTESTED || 'false' }}
+          CINEX_MIRROR_WITH_ATTRIBUTION: ${{ vars.CINEX_MIRROR_WITH_ATTRIBUTION }}
+          CINEX_BOOTSTRAP_MESSAGES: ${{ vars.CINEX_BOOTSTRAP_MESSAGES }}
+          CINEX_MAX_MESSAGES_PER_RUN: ${{ vars.CINEX_MAX_MESSAGES_PER_RUN }}
+          CINEX_LOOKBACK_IDS: ${{ vars.CINEX_LOOKBACK_IDS }}
+          CINEX_MAX_POSTS_PER_RUN: ${{ vars.CINEX_MAX_POSTS_PER_RUN }}
+          CINEX_PUBLICATION_PAUSE_SECONDS: ${{ vars.CINEX_PUBLICATION_PAUSE_SECONDS }}
+          CINEX_HISTORY_PAGE_MESSAGES: ${{ vars.CINEX_HISTORY_PAGE_MESSAGES }}
+          CINEX_HISTORY_OVERLAP_MESSAGES: ${{ vars.CINEX_HISTORY_OVERLAP_MESSAGES }}
+          CINEX_SOURCE_1_ARCHIVE_CYCLE: ${{ vars.CINEX_SOURCE_1_ARCHIVE_CYCLE }}
+          CINEX_SOURCE_1_DISABLED: ${{ vars.CINEX_SOURCE_1_DISABLED }}
+          CINEX_SOURCE_2_ARCHIVE_CYCLE: ${{ vars.CINEX_SOURCE_2_ARCHIVE_CYCLE }}
+          CINEX_SOURCE_2_DISABLED: ${{ vars.CINEX_SOURCE_2_DISABLED }}
+          CINEX_SOURCE_3_ARCHIVE_CYCLE: ${{ vars.CINEX_SOURCE_3_ARCHIVE_CYCLE }}
+          CINEX_SOURCE_3_DISABLED: ${{ vars.CINEX_SOURCE_3_DISABLED }}
+          CINEX_SOURCE_4_ARCHIVE_CYCLE: ${{ vars.CINEX_SOURCE_4_ARCHIVE_CYCLE }}
+          CINEX_SOURCE_4_DISABLED: ${{ vars.CINEX_SOURCE_4_DISABLED }}
+          CINEX_SOURCE_5_ARCHIVE_CYCLE: ${{ vars.CINEX_SOURCE_5_ARCHIVE_CYCLE }}
+          CINEX_SOURCE_5_DISABLED: ${{ vars.CINEX_SOURCE_5_DISABLED }}
+          CINEX_SOURCE_6_ARCHIVE_CYCLE: ${{ vars.CINEX_SOURCE_6_ARCHIVE_CYCLE }}
+          CINEX_SOURCE_6_DISABLED: ${{ vars.CINEX_SOURCE_6_DISABLED }}
+          CINEX_SOURCE_7_ARCHIVE_CYCLE: ${{ vars.CINEX_SOURCE_7_ARCHIVE_CYCLE }}
+          CINEX_SOURCE_7_DISABLED: ${{ vars.CINEX_SOURCE_7_DISABLED }}
+          CINEX_SOURCE_8_ARCHIVE_CYCLE: ${{ vars.CINEX_SOURCE_8_ARCHIVE_CYCLE }}
+          CINEX_SOURCE_8_DISABLED: ${{ vars.CINEX_SOURCE_8_DISABLED }}
+          CINEX_SOURCE_9_ARCHIVE_CYCLE: ${{ vars.CINEX_SOURCE_9_ARCHIVE_CYCLE }}
+          CINEX_SOURCE_9_DISABLED: ${{ vars.CINEX_SOURCE_9_DISABLED }}
+          CINEX_SOURCE_10_ARCHIVE_CYCLE: ${{ vars.CINEX_SOURCE_10_ARCHIVE_CYCLE }}
+          CINEX_SOURCE_10_DISABLED: ${{ vars.CINEX_SOURCE_10_DISABLED }}
+          CINEX_SOURCE_11_ARCHIVE_CYCLE: ${{ vars.CINEX_SOURCE_11_ARCHIVE_CYCLE }}
+          CINEX_SOURCE_11_DISABLED: ${{ vars.CINEX_SOURCE_11_DISABLED }}
+          CINEX_SOURCE_12_ARCHIVE_CYCLE: ${{ vars.CINEX_SOURCE_12_ARCHIVE_CYCLE }}
+          CINEX_SOURCE_12_DISABLED: ${{ vars.CINEX_SOURCE_12_DISABLED }}
+          CINEX_SOURCE_13_ARCHIVE_CYCLE: ${{ vars.CINEX_SOURCE_13_ARCHIVE_CYCLE }}
+          CINEX_SOURCE_13_DISABLED: ${{ vars.CINEX_SOURCE_13_DISABLED }}
+          CINEX_SOURCE_14_ARCHIVE_CYCLE: ${{ vars.CINEX_SOURCE_14_ARCHIVE_CYCLE }}
+          CINEX_SOURCE_14_DISABLED: ${{ vars.CINEX_SOURCE_14_DISABLED }}
+          CINEX_SOURCE_15_ARCHIVE_CYCLE: ${{ vars.CINEX_SOURCE_15_ARCHIVE_CYCLE }}
+          CINEX_SOURCE_15_DISABLED: ${{ vars.CINEX_SOURCE_15_DISABLED }}
+          CINEX_SOURCE_16_ARCHIVE_CYCLE: ${{ vars.CINEX_SOURCE_16_ARCHIVE_CYCLE }}
+          CINEX_SOURCE_16_DISABLED: ${{ vars.CINEX_SOURCE_16_DISABLED }}
           CINEX_PROMOS_ENABLED: 'true'
           CINEX_SOURCE_CHANNELS: ${{ vars.CINEX_SOURCE_CHANNELS }}
           FILM_SOURCE_CHANNELS: ${{ vars.FILM_SOURCE_CHANNELS }}
@@ -177,47 +182,9 @@ jobs:
           PYTHONPATH: .
         run: python -m film_relay.series_catalog --publish --limit 2 --episode-cap 12
 
-      - name: Pause de securite avant transfert du film CinéX
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
-        run: sleep 25
-
-      - name: "Un seul film CinéX transféré vers Torrent9 (avec attribution)"
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
-        working-directory: telegram-film-relay
-        env:
-          TG_API_ID: ${{ secrets.TG_API_ID }}
-          TG_API_HASH: ${{ secrets.TG_API_HASH }}
-          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
-          CINEX_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
-          TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
-          DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
-          COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
-          ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
-          TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
-          PYTHONPATH: .
-        run: python scripts/partnership_cycle.py --category films --phase after
-
-      # Separate source/destination and counter. Native forwards from CineX Desir
-      # retain attribution to that channel in @Torrent9SeriesFilms.
       - name: Intervalle de securite avant desir
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         run: sleep 45
-
-      - name: "Partenariat AVANT desir (désactivé)"
-        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_PARTNERSHIP_ENABLED == 'true' }}
-        working-directory: telegram-film-relay
-        env:
-          TG_API_ID: ${{ secrets.TG_API_ID }}
-          TG_API_HASH: ${{ secrets.TG_API_HASH }}
-          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
-          CINEX_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
-          TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
-          DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
-          COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
-          ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
-          TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
-          PYTHONPATH: .
-        run: python scripts/partnership_cycle.py --category desir --phase before
 
       - name: 3 - CineX Desir (pub chaque 4 contenus)
         id: desir
@@ -240,47 +207,9 @@ jobs:
           PYTHONPATH: .
         run: python -m film_relay.desir_runner --publish --limit 2 --newest
 
-      - name: Pause de securite avant transfert desir
-        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_TORRENT9_PAUSED != 'true' }}
-        run: sleep 25
-
-      - name: "Transfert ordonné APRÈS desir vers Torrent9"
-        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_TORRENT9_PAUSED != 'true' }}
-        working-directory: telegram-film-relay
-        env:
-          TG_API_ID: ${{ secrets.TG_API_ID }}
-          TG_API_HASH: ${{ secrets.TG_API_HASH }}
-          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
-          CINEX_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
-          TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
-          DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
-          COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
-          ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
-          TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
-          PYTHONPATH: .
-        run: python scripts/partnership_cycle.py --category desir --phase after
-
-      # Independent categories share one session lock and two-film caps.
-      # Source channels are owner-configured (singular and bulk variables).
       - name: Intervalle de securite avant comedie
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         run: sleep 45
-
-      - name: "Partenariat AVANT comedie (désactivé)"
-        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_PARTNERSHIP_ENABLED == 'true' }}
-        working-directory: telegram-film-relay
-        env:
-          TG_API_ID: ${{ secrets.TG_API_ID }}
-          TG_API_HASH: ${{ secrets.TG_API_HASH }}
-          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
-          CINEX_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
-          TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
-          DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
-          COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
-          ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
-          TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
-          PYTHONPATH: .
-        run: python scripts/partnership_cycle.py --category comedie --phase before
 
       - name: 4 - CineX Comedie (pub chaque 4 contenus)
         id: comedy
@@ -302,45 +231,9 @@ jobs:
           PYTHONPATH: .
         run: python -m film_relay.category_runner --category comedie --publish --limit 2
 
-      - name: Pause de securite avant transfert comedie
-        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_TORRENT9_PAUSED != 'true' }}
-        run: sleep 25
-
-      - name: "Transfert ordonné APRÈS comedie vers Torrent9"
-        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_TORRENT9_PAUSED != 'true' }}
-        working-directory: telegram-film-relay
-        env:
-          TG_API_ID: ${{ secrets.TG_API_ID }}
-          TG_API_HASH: ${{ secrets.TG_API_HASH }}
-          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
-          CINEX_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
-          TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
-          DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
-          COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
-          ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
-          TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
-          PYTHONPATH: .
-        run: python scripts/partnership_cycle.py --category comedie --phase after
-
       - name: Intervalle de securite avant anime
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
         run: sleep 45
-
-      - name: "Partenariat AVANT anime (désactivé)"
-        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_PARTNERSHIP_ENABLED == 'true' }}
-        working-directory: telegram-film-relay
-        env:
-          TG_API_ID: ${{ secrets.TG_API_ID }}
-          TG_API_HASH: ${{ secrets.TG_API_HASH }}
-          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
-          CINEX_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
-          TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
-          DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
-          COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
-          ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
-          TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
-          PYTHONPATH: .
-        run: python scripts/partnership_cycle.py --category anime --phase before
 
       - name: 5 - CineX Anime (pub chaque 4 contenus)
         id: anime
@@ -363,28 +256,26 @@ jobs:
           PYTHONPATH: .
         run: python -m film_relay.anime_catalog --publish --limit 2 --episode-cap 12
 
-      - name: Pause de securite avant transfert anime
-        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_TORRENT9_PAUSED != 'true' }}
-        run: sleep 25
-
-      - name: "Transfert ordonné APRÈS anime vers Torrent9"
-        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.publish) && env.CINEX_TORRENT9_PAUSED != 'true' }}
-        working-directory: telegram-film-relay
+      - name: Bilan de chaque catégorie sans publication
+        if: ${{ always() }}
         env:
-          TG_API_ID: ${{ secrets.TG_API_ID }}
-          TG_API_HASH: ${{ secrets.TG_API_HASH }}
-          TG_STRING_SESSION: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
-          CINEX_BOT_TOKEN: ${{ secrets.DESIR_BOT_TOKEN || secrets.FOOTBALL_NEWS_BOT_TOKEN || secrets.TELEGRAM_BOT_TOKEN }}
-          TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
-          DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
-          COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
-          ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
-          TG_MIRROR_CHANNEL: ${{ vars.TG_MIRROR_CHANNEL || '@Torrent9SeriesFilms' }}
-          PYTHONPATH: .
-        run: python scripts/partnership_cycle.py --category anime --phase after
+          CINEX_BASELINE_FILE: ${{ runner.temp }}/cinex-cycle-before.json
+          CINEX_OUTCOME_FILMS: ${{ steps.films.outcome }}
+          CINEX_OUTCOME_SERIES: ${{ steps.tvseries.outcome }}
+          CINEX_OUTCOME_DESIR: ${{ steps.desir.outcome }}
+          CINEX_OUTCOME_COMEDIE: ${{ steps.comedy.outcome }}
+          CINEX_OUTCOME_ANIME: ${{ steps.anime.outcome }}
+          CINEX_MANUAL_PUBLISH: ${{ inputs.publish || 'false' }}
+        run: python telegram-film-relay/scripts/cycle_health.py --report "$RUNNER_TEMP/cinex-cycle-report.json"
 
-      # Save ALL checkpoints even if one new category fails. Telegram uploads
-      # must not be repeated on the next scheduled run after a partial error.
+      - name: Sauvegarder l'artefact de bilan du cycle
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinex-cycle-report
+          path: ${{ runner.temp }}/cinex-cycle-report.json
+          retention-days: 30
+          if-no-files-found: warn
 
       - name: 6 - Sauvegarder les historiques Telegram, dont le catalogue Séries
         if: always() && steps.credentials.outputs.ready == 'true'
