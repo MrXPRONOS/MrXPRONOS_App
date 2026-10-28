@@ -6,7 +6,7 @@
   ],
   "sources": {
     "2026-10-28": {
-      "fixtures": 380,
+      "fixtures": 381,
       "provider_health": {
         "bsd": {
           "reported": 0,
@@ -47,7 +47,7 @@
       }
     },
     "2026-10-29": {
-      "fixtures": 287,
+      "fixtures": 286,
       "provider_health": {
         "bsd": {
           "reported": 0,
@@ -88,7 +88,7 @@
       }
     },
     "2026-10-30": {
-      "fixtures": 335,
+      "fixtures": 336,
       "provider_health": {
         "bsd": {
           "reported": 0,
@@ -129,7 +129,7 @@
       }
     }
   },
-  "total_fixtures": 988,
+  "total_fixtures": 989,
   "sportscore_page_size_limit": 200,
   "sportscore_days_at_page_limit": 3,
   "sportscore_coverage_possibly_incomplete": true,

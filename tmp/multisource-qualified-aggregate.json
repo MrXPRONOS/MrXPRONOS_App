@@ -1,14 +1,14 @@
 {
   "scope": "read_only_identity_evidence",
-  "external_total": 988,
+  "external_total": 989,
   "external_cc0_verified": 2,
   "external_independent_provider_verified": 1,
   "external_verified_total": 3,
-  "native_total": 183,
-  "native_unique_eligible": 181,
-  "native_invalid_records": 2,
+  "native_total": 185,
+  "native_unique_eligible": 156,
+  "native_invalid_records": 29,
   "native_invalid_breakdown": {
-    "native_not_prematch": 2
+    "native_not_prematch": 29
   },
   "one_to_one_native_event_links": 1,
   "unmatched_or_ambiguous_external": 2,
@@ -25,7 +25,7 @@
   "rejected_reasons": {
     "duplicated_native_id": 0,
     "external_ambiguous_native_matches": 0,
-    "external_not_independently_cc0_verified": 985,
+    "external_not_independently_cc0_verified": 986,
     "native_ambiguous_external_matches": 0
   },
   "read_only_native_consensus_price_audit": {
@@ -81,14 +81,14 @@
   },
   "candidate_official_league_metadata_ids": 1,
   "official_league_metadata_requested": 0,
-  "official_league_metadata_verified": 45,
+  "official_league_metadata_verified": 46,
   "official_league_directory_health": {
     "directory_competition_ids_unresolved": 0,
-    "directory_competition_ids_verified": 45,
+    "directory_competition_ids_verified": 46,
     "directory_conflicting_ids_quarantined": 0,
     "directory_pages_completed": 1,
     "directory_requests": 1,
-    "native_competition_ids_present": 45
+    "native_competition_ids_present": 46
   },
   "official_league_metadata_issues": {},
   "bsd_http_calls": 5,
