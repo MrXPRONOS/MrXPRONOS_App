@@ -113,7 +113,11 @@ def public_copy(value):
         raise ValueError("Public match identifiers are not unique")
     result = {"generated_at": value.get("generated_at"), "matches": public}
     if isinstance(value.get("bookmakers"), list):
-        result["bookmakers"] = value["bookmakers"]
+        public_bookmaker_fields = {"name", "logo", "url", "desc", "bonus", "promo_code"}
+        result["bookmakers"] = [
+            {key: row[key] for key in public_bookmaker_fields if key in row}
+            for row in value["bookmakers"] if isinstance(row, dict)
+        ]
     return result
 
 
