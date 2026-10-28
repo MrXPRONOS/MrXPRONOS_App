@@ -310,6 +310,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         "event_date": row.get("event_date"),
         "selection_key": (row.get("prediction") or {}).get("selection_key"),
         "retired_by_policy": True, "retired_at": now.isoformat(),
+        "retired_policy_version": POLICY_VERSION,
         "reason": "category_or_confidence_below_79",
     } for row in all_saved.values() if not eligible_feed_match(row)]
     # 1) Régler les anciens pronostics sans jamais modifier leur sélection.
