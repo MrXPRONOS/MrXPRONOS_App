@@ -889,6 +889,11 @@ function openShareWindow(url) {
 }
 
 // User-facing labels must not reveal private model/provider metadata.
+function publicDisplayRank(match) {
+  const rank = Number(match?.display_rank);
+  return Number.isFinite(rank) && rank > 0 ? rank : 1000000000;
+}
+
 function publicFootballLabel(value, fallback = "Pronostic") {
   const label = String(value ?? "").trim();
   if (!label) return fallback;
@@ -1503,7 +1508,7 @@ function filterAndDisplay() {
 
   filteredMatchesWithoutSearch = currentDayMatches
     .filter((m) => currentCategory === "all" || String(m.category || "").trim().toLowerCase() === currentCategory)
-    .sort((a, b) => Number(b.final_score || b.xpronos_score || 0) - Number(a.final_score || a.xpronos_score || 0));
+    .sort((a, b) => (publicDisplayRank(a) - publicDisplayRank(b)) || (normalizeConfidence(b.prediction?.confidence) - normalizeConfidence(a.prediction?.confidence)));
 
   applySearchFilter();
 }
@@ -3164,7 +3169,7 @@ function displayTopTodayCoupons() {
     .filter((m) => getLocalDateFromEvent(m.event_date) === todayStr)
     .filter((m) => !isFinishedMatch(m))
     .sort((a, b) => {
-      const scoreDiff = (Number(b.final_score) || 0) - (Number(a.final_score) || 0);
+      const scoreDiff = publicDisplayRank(a) - publicDisplayRank(b);
       if (scoreDiff) return scoreDiff;
       return normalizeConfidence(b.prediction?.confidence) - normalizeConfidence(a.prediction?.confidence);
     })
