@@ -321,7 +321,7 @@ jobs:
           PYTHONPATH: .
         run: python scripts/partnership_cycle.py --category anime --phase before
 
-      - name: 5 - CineX Anime (une série complète 1-25 épisodes OU deux films)
+      - name: 5 - CineX Anime (une saison complète 1-25 épisodes + un film, ou deux films)
         id: anime
         continue-on-error: true
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
