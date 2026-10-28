@@ -258,7 +258,7 @@ def from_harvester(item, captured):
 
 
 class OddsRouter:
-    def __init__(self, bsd_fetch, session=None, order=ORDER):
+    def __init__(self, bsd_fetch, session=None, order=ORDER, clock=None):
         self.bsd_fetch = bsd_fetch
         self.session = session or Session()
         self.order = tuple(order)
@@ -267,6 +267,9 @@ class OddsRouter:
         self.disabled = set()
         self.usage = {}
         self.events = []
+        # Tests use the supplied captured clock. Production supplies a
+        # real UTC clock so a long model-fit cannot invalidate new snapshots.
+        self.clock = clock
 
     def get(self, name, url, headers=None):
         if name in self.disabled: return None
@@ -290,6 +293,10 @@ class OddsRouter:
             return None
 
     def fetch(self, event, captured, market_code=None):
+        observed_at = self.clock() if self.clock is not None else captured
+        if observed_at.tzinfo is None:
+            raise ValueError("Odds observation clock must be timezone-aware")
+        observed_at = observed_at.astimezone(timezone.utc)
         # The football engine has already chosen market_code without odds.
         # Preserve historical first-source behavior for diagnostic callers
         # without a market, but compare independent REAL quotes for the
@@ -299,7 +306,7 @@ class OddsRouter:
             try:
                 rows = {}
                 if name == "goaldir":
-                    rows = self.bsd_fetch(event, captured)[0]
+                    rows = self.bsd_fetch(event, observed_at)[0]
                     # If the requested market is unavailable, try the next provider.
                 elif name == "pinnwire":
                     key = os.getenv("PINNWIRE_API_KEY", "")
@@ -311,7 +318,7 @@ class OddsRouter:
                         for row in data.get("events") or []:
                             if (isinstance(row,dict) and match_fixture(row, event)
                                     and row.get("event_type") in (None,"prematch")):
-                                rows = from_pinnwire(row, captured,
+                                rows = from_pinnwire(row, observed_at,
                                                       snapshot_generated_at=data.get("generated_at"))
                                 break
                 elif name == "oddslink_public":
@@ -322,7 +329,7 @@ class OddsRouter:
                         for row in data.get("fixtures") or []:
                             if (isinstance(row, dict) and row.get("in_play") is False
                                     and match_fixture(row, event)):
-                                rows = from_oddslink_public(row, captured, market_code)
+                                rows = from_oddslink_public(row, observed_at, market_code)
                                 break
                 elif name == "oddslink":
                     key = os.getenv("ODDSLINK_API_KEY", "")
@@ -331,14 +338,14 @@ class OddsRouter:
                                     {"X-API-Key":key})
                     for row in data if isinstance(data,list) else []:
                         if match_fixture(row, event):
-                            rows = from_oddslink(row, captured)
+                            rows = from_oddslink(row, observed_at)
                             break
                 elif name == "moviodds":
                     if os.getenv("MOVIODDS_ENABLE", "0") != "1": continue
                     data = self.get(name, "https://moviodds.com/odds?sport=soccer")
                     for row in (data or {}).get("matches", []):
                         if row.get("in_play") is False and match_fixture(row, event):
-                            rows = from_movi(row, captured)
+                            rows = from_movi(row, observed_at)
                             break
                 elif name == "oddsharvester":
                     path = os.getenv("ODDSHARVESTER_JSON", "")
@@ -349,7 +356,7 @@ class OddsRouter:
                         self.cache["oddsharvester"] = json.loads(snapshot.read_text(encoding="utf-8"))
                     for row in self.cache["oddsharvester"]:
                         if match_fixture(row, event):
-                            rows = from_harvester(row, captured)
+                            rows = from_harvester(row, observed_at)
                             break
                 if not rows or (market_code is not None and market_code not in rows):
                     continue
@@ -365,7 +372,7 @@ class OddsRouter:
                 # Never call a derived/untimed price a verified bookmaker quote.
                 # A two-hour maximum applies uniformly to all providers.
                 timed = selected.get("quote_timestamp_verified")
-                if timed is False or updated is None or not (0 <= (captured-updated).total_seconds() <= MAX_COMPARABLE_QUOTE_AGE_SECONDS):
+                if timed is False or updated is None or not (0 <= (observed_at-updated).total_seconds() <= MAX_COMPARABLE_QUOTE_AGE_SECONDS):
                     self.events.append((name,"stale_or_unverified_quote_time"))
                     continue
                 if selected.get("origin") not in VERIFIED_QUOTE_ORIGINS | frozenset(("bsd_consensus","bsd_bookmaker")) or price is None:
