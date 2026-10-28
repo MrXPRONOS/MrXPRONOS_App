@@ -8,6 +8,9 @@ from film_relay.anime_catalog import (
     pending_anime_series, ready_full_batch, recover_active_rows, series_title,
 )
 from film_relay.short_series import short_complete_groups
+from film_relay.anime_policy import (
+    complete_anime_seasons, select_anime_season, anime_movie_slots,
+)
 
 
 def sample_series(count, *, caption=None):
@@ -35,6 +38,76 @@ class AnimeBatchPolicyTests(unittest.TestCase):
         self.assertEqual(len(eligible), 1)
         self.assertEqual(len(eligible[0][1]), 25)
         self.assertTrue(ready_full_batch(eligible[0][1]))
+
+    def test_complete_season_accepts_1_12_13_15_20_and_25(self):
+        for count in (1, 12, 13, 15, 20, 25):
+            with self.subTest(episodes=count):
+                rows = sample_series(
+                    count, caption=f"Petite Serie complète {count} épisodes")
+                eligible = complete_anime_seasons(
+                    {"petite-serie": rows}, {}, maximum=25)
+                self.assertEqual(len(eligible), 1)
+                self.assertEqual(len(eligible[0][1]), count)
+
+    def test_saison_1_then_saison_2_without_resending_saison_1(self):
+        s1 = sample_series(
+            12, caption="Petite Serie saison 1 complète 12 épisodes")
+        s2 = sample_series(
+            15, caption="Petite Serie saison 2 complète 15 épisodes")
+        for row in s2:
+            row["season"] = 2
+            row["source_key"] = "S2:" + row["source_key"]
+        eligible = complete_anime_seasons(
+            {"petite-serie": s1 + s2}, {}, maximum=25)
+        self.assertEqual([(rows[0]["season"], len(rows)) for _, rows in eligible],
+                         [(1, 12), (2, 15)])
+        self.assertEqual(select_anime_season(
+            eligible, {"series": {}})[1][0]["season"], 1)
+        completed_s1 = {str(i): {"message_id": 1000+i}
+                        for i in range(1, 13)}
+        saved = {"series": {"petite-serie": {
+            "public_id": 555, "season_indices": {"1": 444},
+            "episodes": {"1": completed_s1}}}}
+        second = select_anime_season(eligible, saved)
+        self.assertEqual(second[1][0]["season"], 2)
+        self.assertEqual(len(second[1]), 15)
+
+    def test_26_episodes_in_s2_does_not_block_complete_s1(self):
+        s1 = sample_series(
+            13, caption="Petite Serie saison 1 complète 13 épisodes")
+        s2 = sample_series(
+            26, caption="Petite Serie saison 2 complète 26 épisodes")
+        for row in s2:
+            row["season"] = 2
+            row["source_key"] = "S2:" + row["source_key"]
+        eligible = complete_anime_seasons(
+            {"petite-serie": s1 + s2}, {}, maximum=25)
+        self.assertEqual([(rows[0]["season"], len(rows)) for _, rows in eligible],
+                         [(1, 13)])
+
+    def test_series_and_movie_slots_never_exceed_two(self):
+        self.assertEqual(anime_movie_slots(
+            2, finished_series=True, active_batch=False), 1)
+        self.assertEqual(anime_movie_slots(
+            2, finished_series=False, active_batch=False), 2)
+        self.assertEqual(anime_movie_slots(
+            2, finished_series=True, active_batch=True), 0)
+        self.assertEqual(anime_movie_slots(
+            2, finished_series=False, active_batch=True), 0)
+
+    def test_later_season_maintains_active_batch_identity(self):
+        s2 = sample_series(
+            20, caption="Petite Serie saison 2 complète 20 épisodes")
+        for row in s2:
+            row["season"] = 2
+        planned = batch_descriptor("petite-serie", s2)
+        self.assertEqual(planned["season"], 2)
+        self.assertEqual(
+            pending_anime_series(
+                [("petite-serie", s2)], {"active_batch": planned})[1],
+            s2)
+        self.assertIsNone(pending_anime_series(
+            [("other", s2)], {"active_batch": planned}))
 
     def test_26_episode_series_rejected_without_truncation(self):
         rows = sample_series(26, caption="Petite Serie complète 26 épisodes")
