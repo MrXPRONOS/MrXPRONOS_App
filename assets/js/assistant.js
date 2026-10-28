@@ -133,7 +133,7 @@
 
   // Site-facing answers must not advertise removed categories or internal
   // infrastructure. Server enforcement is separate; this also handles old local caches.
-  const INTERNAL_IMPL_TERMS = /\b(?:BSD[\s_-]*V\d+(?:\.\d+)?|Dixon[\s-]*Coles|Poisson|PinnWire|OddsLink|MoviOdds|OddsHarvester|GoalDir|Supabase|Cloudflare|Neon|GitHub Actions|Qwen|Mistral|Hugging\s*Face|Groq|cron-job\.org|service[_-]?role|API[_-]?key)\b/i;
+  const INTERNAL_IMPL_TERMS = /\b(?:(?:BSD|PSD)(?:[\s_-]*V\d+(?:\.\d+)?)?|V2(?:\.1)?|Dixon[\s-]*Coles|Poisson|PinnWire|OddsLink|MoviOdds|OddsHarvester|GoalDir|Supabase|Cloudflare|Neon|GitHub Actions|Qwen|Mistral|Hugging\s*Face|Groq|cron-job\.org|service[_-]?role|API[_-]?key|mrxpronos_model|bsd_consensus|bsd_bookmaker|odds_source|diagnostic(?:s)?|pipeline|snapshot|moteur|algorithme|syst[eè]me interne|mod[eè]le interne|provenance des cotes)\b/i;
   const PUBLIC_ENGINE_NOTICE = '<p>Nos pronostics reposent sur des analyses statistiques et des contrôles de qualité. Les détails techniques internes ne sont pas publiés.</p><p>Consulte les pronostics Pro et VIP sur <a href="pronos.html">la page Pronostics</a>. Les paris comportent des risques.</p>';
   function publicAssistantHtml(html) {
     const raw = String(html || '');

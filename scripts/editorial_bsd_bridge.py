@@ -390,30 +390,30 @@ def factual_article(match,now):
     slug="bsd-match-"+event_id
     league=clean(match.get("league"))[:95] if isinstance(match.get("league"),str) else ""
     local=dt.astimezone(TZ).strftime("%d/%m/%Y à %Hh%M")
-    description=f"{h} – {a} : affiche vérifiée dans le flux football BSD V2, le {local} (heure du Togo)."
-    lines=[f"# {h} – {a}","",f"**Date et heure :** {local} (GMT, Togo).",f"**Compétition :** {league or 'Non précisée dans les données BSD'}.",
-       f"**Source des données :** BSD V2, identifiant {clean(match.get('source_event_id') or match['id'])}.",""]
+    description=f"{h} – {a} : présentation de la rencontre du {local} (heure du Togo)."
+    lines=[f"# {h} – {a}","",f"**Date et heure :** {local} (GMT, Togo).",f"**Compétition :** {league or 'Non précisée'}.",
+       ""]
     home_score=match.get("home_score");away_score=match.get("away_score")
     status=clean(match.get("status")).lower()
     if status in {"finished","ft","full_time"} and isinstance(home_score,int) and isinstance(away_score,int):
-        lines.extend([f"**Score final BSD :** {h} {home_score} – {away_score} {a}.",""])
+        lines.extend([f"**Score final :** {h} {home_score} – {away_score} {a}.",""])
     else:
-        lines.extend(["**Statut :** rencontre programmée ou en cours selon le dernier flux BSD disponible.",""])
+        lines.extend(["**Statut :** rencontre programmée ou en cours selon les dernières informations disponibles.",""])
     pred=match.get("prediction")
     if isinstance(pred,dict) and pred.get("selection_key"):
         label=clean(pred.get("label") or pred.get("type"))
         if label:
-            lines.extend(["## Signal calculé par le moteur BSD V2",f"**Marché identifié :** {label}.",
-              "Il s'agit d'une estimation du modèle, pas d'un résultat certain. Vérifie l'état du match et les cotes au moment de consulter le site.",""])
+            lines.extend(["## Analyse de la rencontre",f"**Marché identifié :** {label}.",
+              "Le pronostic est indicatif et ne garantit aucun résultat. Vérifie l'état du match et les cotes au moment de consulter le site.",""])
     lines.extend(["## Consulter les données en direct",
         "Retrouve les éventuelles mises à jour sur la page Pronostics de Mr XPRONOS.",
         "",
         "**18+ — Les paris sportifs comportent un risque de perte.**"])
     return {
-      "slug":slug,"title":f"{h} vs {a} : fiche match BSD V2",
+      "slug":slug,"title":f"{h} vs {a} : analyse du match",
       "date":now.isoformat(),"author":"Mr XPRONOS","reading_time":1,
       "excerpt":description,"meta_description":description[:160],
-      "keywords":", ".join(filter(None,("football","BSD V2",league,h,a)))[:230],
+      "keywords":", ".join(filter(None,("football","analyse de match",league,h,a)))[:230],
       "content":"\n".join(lines),"active":True,"type":"match",
       "source":"bsd","match":f"{h} vs {a}","league":league,
       "bsd_event_id":str(match.get("source_event_id") or match["id"]),

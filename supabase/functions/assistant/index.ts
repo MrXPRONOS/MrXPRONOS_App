@@ -194,7 +194,7 @@ function cleanModelHtmlOutput(html: string): string {
   cleaned = cleaned.replace(/<p>\s*```\s*<\/p>$/i, "");
 
   // Never reveal implementation or infrastructure names in public LLM output.
-  if (/\b(?:BSD[\s_-]*V\d+(?:\.\d+)?|Dixon[\s-]*Coles|Poisson|PinnWire|OddsLink|MoviOdds|OddsHarvester|GoalDir|Supabase|Cloudflare|Neon|GitHub Actions|Qwen|Mistral|Hugging\s*Face|Groq|cron-job\.org|service[_-]?role|API[_-]?key)\b/i.test(cleaned)) {
+  if (/\b(?:(?:BSD|PSD)(?:[\s_-]*V\d+(?:\.\d+)?)?|V2(?:\.1)?|Dixon[\s-]*Coles|Poisson|PinnWire|OddsLink|MoviOdds|OddsHarvester|GoalDir|Supabase|Cloudflare|Neon|GitHub Actions|Qwen|Mistral|Hugging\s*Face|Groq|cron-job\.org|service[_-]?role|API[_-]?key|mrxpronos_model|bsd_consensus|bsd_bookmaker|odds_source|diagnostic(?:s)?|pipeline|snapshot|moteur|algorithme|syst[eè]me interne|mod[eè]le interne|provenance des cotes)\b/i.test(cleaned)) {
     return '<p>Nos pronostics sont issus d’analyses statistiques et de contrôles de qualité. Les détails techniques internes ne sont pas communiqués.</p><p>Les sélections Pro et VIP doivent avoir au moins 79 % de confiance estimée. Aucun pari n’est garanti.</p>';
   }
 
@@ -269,13 +269,11 @@ function renderPronosticsResponse(pronostics: any[]): string {
     const match = p.match || `${p.home_team || ""} vs ${p.away_team || ""}`.trim();
     const prediction = p.prediction || p.type || "";
     const cote = p.cote ?? "N/A";
-    const score = p.final_score ?? "";
     return `
       <tr>
         <td>${match}</td>
         <td>${prediction}</td>
         <td>${cote}</td>
-        <td>${score}</td>
       </tr>
     `.trim();
   }).join("");
@@ -289,7 +287,6 @@ function renderPronosticsResponse(pronostics: any[]): string {
           <th>Match</th>
           <th>Pronostic</th>
           <th>Cote</th>
-          <th>Score xPronos</th>
         </tr>
       </thead>
       <tbody>
@@ -493,7 +490,7 @@ async function saveAssistantCache(normalizedQuestion: string, question: string, 
 
 const FONCTIONNALITES = `
 1. Pronostics quotidiens : Pro et VIP uniquement, à partir de 79 % de confiance estimée.
-2. Analyses avancées : H2H, forme récente, score xPronos.
+2. Informations sur les matchs : confrontations et forme récente.
 3. PRONO LIVE : statistiques et signaux en direct.
 4. Consultation gratuite des catégories Pro et VIP.
 5. Assistant IA intégré.
@@ -962,7 +959,7 @@ serve(async (req) => {
       '<p>Les paris sportifs sont réservés aux adultes. Si tu as moins de 18 ans, ne mise pas d’argent. Tu peux consulter les actualités football sans parier.</p>',"safety");
     if(intent==="harm")return await answerNow(
       '<p>Ne cherche pas à récupérer des pertes en augmentant les mises. Arrête les paris pour le moment, protège ton budget et demande du soutien à une personne de confiance si tu en ressens le besoin.</p>',"safety");
-    if (/\b(?:moteur|algorithme|architecture interne|modele utilise|modèle utilisé|technologie utilisee|technologie utilisée|infrastructure|code source|fournisseur de cotes|api interne|backend)\b/i.test(question))
+    if (/\b(?:moteur|algorithme|architecture interne|modele utilise|modèle utilisé|technologie utilisee|technologie utilisée|infrastructure|code source|fournisseur de cotes|provenance des cotes|api interne|backend|bsd|psd|v2)\b/i.test(question))
       return await answerNow('<p>Mr XPRONOS utilise des analyses statistiques et des contrôles de qualité. Les détails internes de son infrastructure ne sont pas publics. Une confiance estimée ne garantit jamais un résultat.</p><p>'+publicLink("pronos.html","Consulter les pronostics")+'</p>',"site");
     if(intent==="access")return await answerNow(
       '<p>Sur le site Mr XPRONOS, les catégories <strong>Pro, VIP et le LIVE sont consultables gratuitement</strong>. Aucun abonnement VIP payant ni code n’est exigé pour ces pages. Le code <strong>XPVIP</strong> concerne les offres de partenaires lorsqu’il est accepté.</p><p>'+
