@@ -74,6 +74,24 @@ class DistributionPolicyTests(unittest.TestCase):
         self.assertEqual(len(pairs),1)
         self.assertTrue(all(eligible_feed_match(leg) for leg in pairs[0]["legs"]))
 
+    def test_saved_qualified_primary_drops_old_weak_extras(self):
+        fixture=row(5678,"pro",82)
+        fixture["prediction"]["odds"]=1.61
+        fixture["predictions"]=[fixture["prediction"], {
+            "selection_key":"UNDER_35","market":"goals","confidence":77.5,
+            "odds":1.66,"odds_source":"bsd_consensus"}]
+        fixture["combo_prediction"]={
+            "selection_key":"UNDER_35","confidence":78.3,
+            "odds":1.31,"odds_source":"bsd_consensus"}
+        # Feed without a live event retains the immutable primary market.
+        out=assemble({"source":"bsd","matches":[fixture]},[],[],
+                     now=NOW,calibration=None,policy=None,rho=0)
+        self.assertEqual(len(out["matches"]),1)
+        preserved=out["matches"][0]
+        self.assertEqual(preserved["prediction"]["selection_key"],"1X")
+        self.assertEqual(len(preserved["predictions"]),1)
+        self.assertNotIn("combo_prediction",preserved)
+
     def test_saved_simple_removed_without_renaming_immutable_prediction(self):
         fixture=row(1234,"simple",95)
         fixture["prediction"].update({"odds":1.61,"odds_source":"bsd_consensus"})
