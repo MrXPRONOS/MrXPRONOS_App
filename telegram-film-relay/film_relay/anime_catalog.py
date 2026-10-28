@@ -78,6 +78,11 @@ def series_title(text: str) -> str:
     value = first_title(text or "").strip()
     value = re.sub(r"(?i)^@[A-Za-z0-9_]{5,32}\s+(?:vf|fv)?\s*", "", value)
     value = CLEAN_CODES.sub(" ", value)
+    # Completeness labels belong to eligibility evidence, not to the anime
+    # identity: "Mushishi - 25 épisodes" and "Mushishi E03" are one title.
+    value = re.sub(r"(?i)\b(?:s[eé]rie|saison)\s+compl[eè]te\b", " ", value)
+    value = re.sub(r"(?i)\b\d{1,3}\s*(?:[eé]pisodes?|eps)\b", " ", value)
+    value = re.sub(r"(?i)\b(?:int[eé]grale|fin de (?:la )?s[eé]rie)\b", " ", value)
     value = SEASON_HEADER.sub(" ", value)
     value = re.sub(r"(?i)(?:\b(?:mp4|mkv)\b|^@[^\s]+\s+(?:vf|fv)\b)", " ", value)
     value = re.sub(r"(?i)\b(?:vf|vostfr|1080p|720p|dub|hd|complet)\b", " ", value)
