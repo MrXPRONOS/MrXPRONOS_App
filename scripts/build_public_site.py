@@ -48,8 +48,8 @@ PRIVATE_DATA_KEYS = {
     "quality_report", "model_summary", "training_stats", "provider_health",
 }
 TECHNICAL_TEXT = re.compile(
-    r"\\b(?:BSD|PSD)(?:[\\s_-]*V\\d+(?:\\.\\d+)?)?\\b"
-    r"|\\b(?:mrxpronos_model|bsd_consensus|bsd_bookmaker)\\b", re.I
+    r"\b(?:BSD|PSD)(?:[\s_-]*V\d+(?:\.\d+)?)?\b"
+    r"|\b(?:mrxpronos_model|bsd_consensus|bsd_bookmaker)\b", re.I
 )
 
 
@@ -72,8 +72,8 @@ def refresh_public_script_versions(destination: Path):
     for html in destination.rglob("*.html"):
         body = html.read_text(encoding="utf-8")
         replacement = re.sub(
-            r"(assets/js/(?:main|assistant|admin-supervision)\\.js)(?:\\?v=[a-zA-Z0-9_.-]+)?",
-            r"\\1?v=20261028-public-ui-privacy3",
+            r"(assets/js/(?:main|assistant|admin-supervision)\.js)(?:\?v=[a-zA-Z0-9_.-]+)?",
+            r"\1?v=20261028-public-ui-privacy3",
             body,
         )
         if replacement != body:
