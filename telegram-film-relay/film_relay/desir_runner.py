@@ -243,7 +243,20 @@ async def post_public(bot, user, public_peer, item, title, video_url: str,
         contents = await user.download_media(require_photo(item.poster), file=bytes)
         if not contents:
             raise RuntimeError("Affiche inaccessible, publication interrompue.")
-        image = io.BytesIO(contents)
+        # Telegram photos from source channels can be several megabytes.
+        # Bound the bot upload to keep the HTTPS sendPhoto call responsive.
+        # This changes only the transported copy, not the stored source media.
+        try:
+            from PIL import Image, ImageOps
+            with Image.open(io.BytesIO(contents)) as original:
+                picture = ImageOps.exif_transpose(original)
+                picture.thumbnail((1280, 1280), Image.Resampling.LANCZOS)
+                image = io.BytesIO()
+                picture.convert("RGB").save(image, format="JPEG",
+                                            quality=80, optimize=True)
+        except (OSError, ValueError):
+            # Keep compatibility with existing byte-based API and test fixtures.
+            image = io.BytesIO(contents)
         image.name = "cinex_desir.jpg"
         return await bot.send_file(public_peer, image, caption=caption,
                                    parse_mode="html", buttons=rows, force_document=False)
