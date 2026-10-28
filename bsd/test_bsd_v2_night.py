@@ -12,9 +12,10 @@ def fixture(num,dt,odd=1.35):
     return {"id":f"bsd:{num}","source":"bsd","source_event_id":num,
             "date":dt.date().isoformat(),"event_date":dt.isoformat(),
             "status":"notstarted","home_team":"A","away_team":"B",
+             "category":"pro",
             "recommendation_eligible":True,
             "prediction":{"type":"Double chance 1X","selection_key":"1X",
-                          "odds":odd,"odds_source":"bsd_consensus",
+                          "odds":odd,"odds_source":"bsd_consensus","confidence":84.0,
                            "recommendation_eligible":True}}
 
 class NightScheduleTests(unittest.TestCase):
