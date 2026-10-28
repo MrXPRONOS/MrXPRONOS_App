@@ -1545,7 +1545,7 @@ function applySearchFilter() {
       );
   updateCategorySummary(filtered.length, Boolean(term));
   if (!filtered.length) {
-    const label = CATEGORY_LABELS[currentCategory] || "Simple";
+    const label = CATEGORY_LABELS[currentCategory] || "Tous";
     const message = term
       ? `Aucun pronostic ${label} ne correspond à cette recherche.`
       : `Aucun pronostic ${label} disponible pour cette date.`;
@@ -3122,8 +3122,8 @@ function renderHomePickCard(m, { winner = false } = {}) {
   const pick = pred.type || pred.label || pred.double_chance || "N/A";
   const league = m.league || "Ligue";
   const time = formatMatchTime(m.event_date);
-  const category = String(m.category || "simple").toLowerCase();
-  const categoryLabel = category === "vip" ? "VIP" : category === "pro" ? "PRO" : "SIMPLE";
+  const category = String(m.category || "").toLowerCase();
+  const categoryLabel = category === "vip" ? "VIP" : "PRO";
 
   const homeDefault = "assets/images/home.webp";
   const awayDefault = "assets/images/away.webp";
@@ -3190,7 +3190,7 @@ function displayTopTodayCoupons() {
 
   const todayStr = getLocalDateString("today");
   const picks = allData.matches
-    .filter((m) => ["simple", "pro", "vip"].includes(String(m.category || "").toLowerCase()))
+    .filter((m) => bsdPublicEligible(m) && m.recommendation_eligible === true)
     .filter((m) => getLocalDateFromEvent(m.event_date) === todayStr)
     .filter((m) => !isFinishedMatch(m))
     .sort((a, b) => {
@@ -3213,7 +3213,7 @@ function displayLatestVerifiedHome() {
   }
 
   const verified = allData.matches
-    .filter((m) => isFinishedMatch(m) && m.verified_double)
+    .filter((m) => bsdPublicEligible(m) && isFinishedMatch(m) && m.verified_double)
     .sort((a, b) => new Date(b.event_date || 0) - new Date(a.event_date || 0))
     .slice(0, 3);
 
@@ -3502,7 +3502,7 @@ function setupPronosticPageListeners() {
 }
 
 async function handleCategoryChange() {
-  // Simple, Pro et VIP sont accessibles sans action de partage.
+  // Pro et VIP (79 % minimum) sont accessibles sans action de partage.
   filterAndDisplay();
 }
 
