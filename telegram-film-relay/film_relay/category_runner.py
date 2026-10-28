@@ -253,6 +253,11 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                 ts = ts.replace(tzinfo=timezone.utc)
             return ts.timestamp()
         records.sort(key=order, reverse=True)
+        if category == "anime":
+            # In movie mode never confuse a numbered episode with a feature.
+            from .anime_catalog import is_anime_movie
+            records = [(source_id, item) for source_id, item in records
+                       if is_anime_movie(item)]
         LOG.info("%s : %s sources, %s messages examinés, %s vidéos candidates, mode=%s",
                  cfg["label"], len(source_peers), messages_read, len(records),
                  "PUBLICATION" if publish else "SIMULATION")
