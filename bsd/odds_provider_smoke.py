@@ -39,6 +39,7 @@ def summarize(name, payload, now):
         valid = isinstance(payload, dict) and isinstance(payload.get(field), list)
         events = payload[field] if valid else []
     valid_prices = 0
+    verified_snapshot_prices = 0
     parsed_prices = 0
     fixtures_with_prices = 0
     for fixture in events[:250]:
@@ -46,7 +47,8 @@ def summarize(name, payload, now):
             continue
         if name in ("moviodds", "oddslink_public") and fixture.get("in_play") is True:
             continue
-        parsed = PARSERS[name](fixture, now)
+        parsed = (from_pinnwire(fixture, now, snapshot_generated_at=payload.get("generated_at"))
+                  if name == "pinnwire" else PARSERS[name](fixture, now))
         if not isinstance(parsed, dict):
             continue
         parsed_prices += len(parsed)
@@ -57,11 +59,21 @@ def summarize(name, payload, now):
                       and (stamp := utc(q.get("updated_at"))) is not None
                       and 0 <= (now-stamp).total_seconds() <= 7200)
         valid_prices += current
+        if name == "pinnwire":
+            verified_snapshot_prices += sum(
+                1 for q in parsed.values() if isinstance(q, dict)
+                and q.get("quote_timestamp_type") == "provider_snapshot"
+                and q.get("per_market_update_verified") is False
+                and (stamp := utc(q.get("source_snapshot_generated_at"))) is not None
+                and -30 <= (now-stamp).total_seconds() <= 120
+            )
         fixtures_with_prices += int(current > 0)
     return {"schema_valid": valid, "fixtures": len(events),
             "fixtures_scanned": min(250, len(events)),
             "parsed_prices": parsed_prices,
             "fresh_timestamped_prices": valid_prices,
+            "fresh_provider_snapshot_prices": verified_snapshot_prices,
+            "timestamp_basis": "provider_snapshot_not_per_market_update" if name == "pinnwire" else "provider_quote_update",
             "fixtures_with_fresh_prices": fixtures_with_prices}
 
 
@@ -109,7 +121,11 @@ def main():
                 continue
             headers = {"X-API-Key": key}
         results.append(probe(name, ENDPOINTS[name], headers))
+    # Ranking is configured in the actual production router. Reporting only:
+    # a successful HTTP request is not a promise of bookmaker execution.
+    from bsd_odds_fallback import SOURCE_TIERS
     for item in results:
+        item["priority_rank"] = SOURCE_TIERS.get(item["provider"])
         print("ODDS_PROVIDER_HEALTH=" + json.dumps(item, sort_keys=True))
     schema_ok = any(r.get("schema_valid") for r in results)
     prices_ok = any(r.get("fresh_timestamped_prices", 0) > 0 for r in results)

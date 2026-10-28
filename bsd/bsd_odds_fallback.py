@@ -13,7 +13,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from requests import Session
 
-ORDER = ("oddslink_public", "moviodds", "pinnwire", "oddslink", "oddsharvester", "goaldir")
+# Ranking based on provenance and CURRENT data validation, not a claim of
+# statistically proven betting accuracy. If the higher tier has no exact,
+# fresh quote, the next tier is tried. Model-calculated prices are handled
+# outside this list, only after all independent providers fail.
+ORDER = ("pinnwire", "oddslink", "oddslink_public", "moviodds", "goaldir", "oddsharvester")
+SOURCE_TIERS = {name: n + 1 for n, name in enumerate(ORDER)}
+MAX_PINNWIRE_SNAPSHOT_AGE_SECONDS = 120
 MAX_COMPARABLE_QUOTE_AGE_SECONDS = 2 * 3600
 VERIFIED_QUOTE_ORIGINS = frozenset(ORDER)
 CODES = {"home": "1X2_HOME_FT", "draw": "1X2_DRAW_FT", "away": "1X2_AWAY_FT",
@@ -77,18 +83,46 @@ def add(out, key, price, origin, captured, updated=None):
     if q: out[code] = q
 
 
-def from_pinnwire(item, captured):
+def from_pinnwire(item, captured, snapshot_generated_at=None):
+    """Price a PREMATCH PinnWire snapshot, not a fictitious per-market update.
+
+    PinnWire's kit feed timestamps the response at the ROOT (`generated_at`).
+    That is an observation timestamp, not the last time a specific outcome
+    changed. Without a fresh authentic snapshot, abstain.
+    """
     out = {}
+    snapshot = utc(snapshot_generated_at)
+    if snapshot is None or not -30 <= (captured-snapshot).total_seconds() <= MAX_PINNWIRE_SNAPSHOT_AGE_SECONDS:
+        return out
+    if item.get("event_type") not in ("prematch", None, ""):
+        return out
+    if item.get("is_have_odds") is False or item.get("status") in ("suspended", "closed", "cancelled"):
+        return out
     period = (item.get("periods") or {}).get("num_0") or {}
-    updated = item.get("last_odds_update") or None
+    # Do not fabricate a price-change time when only a snapshot time exists.
+    observed = min(snapshot, captured)
+    def record(key, value):
+        code = CODES.get(key)
+        q = quote(value, "pinnwire", captured, updated=observed.isoformat()) if code else None
+        if q:
+            q.update({
+                "bookmaker": "Pinnacle (via PinnWire)",
+                "quote_timestamp_type": "provider_snapshot",
+                "per_market_update_verified": False,
+                "source_snapshot_generated_at": snapshot.isoformat(),
+            })
+            out[code] = q
     line = period.get("money_line") or {}
     for k in ("home", "draw", "away"):
-        add(out, k, line.get(k), "pinnwire", captured, updated)
+        record(k, line.get(k))
     for entry in (period.get("totals") or {}).values():
         if not isinstance(entry, dict): continue
-        points = str(entry.get("points"))
+        try:
+            points = f"{float(entry['points']):.1f}"
+        except (ValueError, TypeError, KeyError):
+            continue
         for side in ("over", "under"):
-            add(out, f"{side}_{points}", entry.get(side), "pinnwire", captured, updated)
+            record(f"{side}_{points}", entry.get(side))
     return out
 
 
@@ -224,7 +258,7 @@ def from_harvester(item, captured):
 
 
 class OddsRouter:
-    def __init__(self, bsd_fetch, session=None, order=ORDER):
+    def __init__(self, bsd_fetch, session=None, order=ORDER, clock=None):
         self.bsd_fetch = bsd_fetch
         self.session = session or Session()
         self.order = tuple(order)
@@ -233,6 +267,9 @@ class OddsRouter:
         self.disabled = set()
         self.usage = {}
         self.events = []
+        # Tests use the supplied captured clock. Production supplies a
+        # real UTC clock so a long model-fit cannot invalidate new snapshots.
+        self.clock = clock
 
     def get(self, name, url, headers=None):
         if name in self.disabled: return None
@@ -256,17 +293,20 @@ class OddsRouter:
             return None
 
     def fetch(self, event, captured, market_code=None):
+        observed_at = self.clock() if self.clock is not None else captured
+        if observed_at.tzinfo is None:
+            raise ValueError("Odds observation clock must be timezone-aware")
+        observed_at = observed_at.astimezone(timezone.utc)
         # The football engine has already chosen market_code without odds.
         # Preserve historical first-source behavior for diagnostic callers
         # without a market, but compare independent REAL quotes for the
         # preselected market in production.
         comparable = []
-        sources_seen = []
         for name in self.order:
             try:
                 rows = {}
                 if name == "goaldir":
-                    rows = self.bsd_fetch(event, captured)[0]
+                    rows = self.bsd_fetch(event, observed_at)[0]
                     # If the requested market is unavailable, try the next provider.
                 elif name == "pinnwire":
                     key = os.getenv("PINNWIRE_API_KEY", "")
@@ -274,10 +314,13 @@ class OddsRouter:
                     if not key: continue
                     data = self.get(name, "https://pinnwire.com/kit/v1/prematch/fixtures?sport_id=1",
                                     {"x-api-key":key})
-                    for row in (data or {}).get("events", []):
-                        if match_fixture(row, event):
-                            rows = from_pinnwire(row, captured)
-                            break
+                    if isinstance(data, dict):
+                        for row in data.get("events") or []:
+                            if (isinstance(row,dict) and match_fixture(row, event)
+                                    and row.get("event_type") in (None,"prematch")):
+                                rows = from_pinnwire(row, observed_at,
+                                                      snapshot_generated_at=data.get("generated_at"))
+                                break
                 elif name == "oddslink_public":
                     # No credentials, no paid quota. The board covers only
                     # a rolling 36h upcoming window and a maximum of 60 games.
@@ -286,7 +329,7 @@ class OddsRouter:
                         for row in data.get("fixtures") or []:
                             if (isinstance(row, dict) and row.get("in_play") is False
                                     and match_fixture(row, event)):
-                                rows = from_oddslink_public(row, captured, market_code)
+                                rows = from_oddslink_public(row, observed_at, market_code)
                                 break
                 elif name == "oddslink":
                     key = os.getenv("ODDSLINK_API_KEY", "")
@@ -295,14 +338,14 @@ class OddsRouter:
                                     {"X-API-Key":key})
                     for row in data if isinstance(data,list) else []:
                         if match_fixture(row, event):
-                            rows = from_oddslink(row, captured)
+                            rows = from_oddslink(row, observed_at)
                             break
                 elif name == "moviodds":
                     if os.getenv("MOVIODDS_ENABLE", "0") != "1": continue
                     data = self.get(name, "https://moviodds.com/odds?sport=soccer")
                     for row in (data or {}).get("matches", []):
                         if row.get("in_play") is False and match_fixture(row, event):
-                            rows = from_movi(row, captured)
+                            rows = from_movi(row, observed_at)
                             break
                 elif name == "oddsharvester":
                     path = os.getenv("ODDSHARVESTER_JSON", "")
@@ -313,7 +356,7 @@ class OddsRouter:
                         self.cache["oddsharvester"] = json.loads(snapshot.read_text(encoding="utf-8"))
                     for row in self.cache["oddsharvester"]:
                         if match_fixture(row, event):
-                            rows = from_harvester(row, captured)
+                            rows = from_harvester(row, observed_at)
                             break
                 if not rows or (market_code is not None and market_code not in rows):
                     continue
@@ -329,32 +372,35 @@ class OddsRouter:
                 # Never call a derived/untimed price a verified bookmaker quote.
                 # A two-hour maximum applies uniformly to all providers.
                 timed = selected.get("quote_timestamp_verified")
-                if timed is False or updated is None or not (0 <= (captured-updated).total_seconds() <= MAX_COMPARABLE_QUOTE_AGE_SECONDS):
+                if timed is False or updated is None or not (0 <= (observed_at-updated).total_seconds() <= MAX_COMPARABLE_QUOTE_AGE_SECONDS):
                     self.events.append((name,"stale_or_unverified_quote_time"))
                     continue
                 if selected.get("origin") not in VERIFIED_QUOTE_ORIGINS | frozenset(("bsd_consensus","bsd_bookmaker")) or price is None:
                     self.events.append((name,"unverified_market_quote"))
                     continue
                 comparable.append((price, name, rows))
-                sources_seen.append(name)
-                self.events.append((name, "comparable"))
+                self.events.append((name, "validated_priority_quote"))
+                # Reliability-first: a newer-looking high price from a lower
+                # provenance tier must not outrank an exact, timely high-tier
+                # quote. Stop immediately to save API quota.
+                break
             except Exception as ex:
                 self.events.append((name, type(ex).__name__))
                 if name == "goaldir" and ("429" in str(ex) or "quota" in str(ex).lower()):
                     self.disabled.add(name)
                 continue
         if comparable:
-            # Higher VERIFIED executable/consensus price gives better
-            # conservative edge for the same immutable football selection.
-            # Tie-break by fixed provider order, never by different markets.
-            best = max(comparable,key=lambda entry:(entry[0],-self.order.index(entry[1])))
-            self.events.append((best[1], "selected_best_price"))
+            # First eligible quote in the explicit source-quality order.
+            best = comparable[0]
+            self.events.append((best[1], "selected_priority_source"))
             return best[2], {
                 "provider":best[1],"fallback_events":self.events[-15:],
                 "request_counts":dict(self.usage),
                 "exact_market_code":market_code,
                 "verified_provider_count":len(comparable),
                 "best_real_market_odds":best[0],
+                "provider_priority_rank":SOURCE_TIERS.get(best[1]),
+                "selection_policy":"fresh_exact_market_then_provider_priority",
                 "quotes_compared_only_for_selected_market":True,
             }
         return {}, {"provider":None, "fallback_events":self.events[-15:],
