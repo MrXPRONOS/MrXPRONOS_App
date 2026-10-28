@@ -65,36 +65,31 @@ jobs:
             echo "published=false" >> "$GITHUB_OUTPUT"
           fi
 
-      # A GITHUB_TOKEN-generated commit to main does NOT automatically trigger
-      # the ordinary on:push Pages workflow. Stage only the three BSD public
-      # files here; never overwrite website assets, config or Telegram state.
-      - name: Prepare settlement-only GitHub Pages update
+      # GITHUB_TOKEN main commits do not trigger the normal Pages workflow.
+      # Refresh only the redacted public feed; keep the audit ledger and
+      # quality report in the repository, never in GitHub Pages.
+      - name: Prepare safe settlement-only public feed
         if: steps.settlement_commit.outputs.published == 'true'
         run: |
           set -euo pipefail
-          mkdir -p .bsd-settlement-site-refresh/bsd
-          cp data.json .bsd-settlement-site-refresh/data.json
-          cp bsd/publication_ledger.json .bsd-settlement-site-refresh/bsd/publication_ledger.json
-          cp bsd/quality_report.json .bsd-settlement-site-refresh/bsd/quality_report.json
+          mkdir -p .bsd-settlement-site-refresh
           python - <<'PY'
           import json
           from pathlib import Path
-          base=Path(".bsd-settlement-site-refresh")
-          public=json.loads((base/"data.json").read_text(encoding="utf-8"))
-          ledger=json.loads((base/"bsd/publication_ledger.json").read_text(encoding="utf-8"))
-          quality=json.loads((base/"bsd/quality_report.json").read_text(encoding="utf-8"))
-          assert public["source"]=="bsd" and public["model_version"]=="bsd-v2-isolated"
-          assert ledger["schema"]=="bsd-v2-publication-ledger-1"
-          assert len(ledger["entries"])>=len(public["matches"])
-          assert quality["unexplained_absences"]==0
-          expected={
-              "data.json",
-              "bsd/publication_ledger.json",
-              "bsd/quality_report.json",
-          }
-          files={x.relative_to(base).as_posix() for x in base.rglob("*") if x.is_file()}
-          assert files==expected, "Settlement Pages staging must contain only three BSD files"
-          print("BSD_SETTLEMENT_SITE_REFRESH_OK",{"files":len(files),"matches":len(public["matches"])})
+          from scripts.build_public_site import public_copy
+          source=json.loads(Path("data.json").read_text(encoding="utf-8"))
+          assert source["source"]=="bsd" and source["model_version"]=="bsd-v2-isolated"
+          assert isinstance(source["matches"], list)
+          public=public_copy(source)
+          assert "diagnostics" not in public
+          assert "model_odds_observations" not in public
+          assert "source" not in public and "model_version" not in public
+          target=Path(".bsd-settlement-site-refresh/data.json")
+          target.write_text(json.dumps(public,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
+          expected={"data.json"}
+          actual={p.relative_to(target.parent).as_posix() for p in target.parent.rglob("*") if p.is_file()}
+          assert actual==expected, "Settlement staging must contain only redacted public data"
+          print("SAFE_SETTLEMENT_SITE_REFRESH_OK", len(public["matches"]))
           PY
 
       - name: Synchronize settlement-only data on GitHub Pages
