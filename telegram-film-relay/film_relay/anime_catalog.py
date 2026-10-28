@@ -337,8 +337,14 @@ async def recover_active_rows(client, sources, all_candidates, active):
     if not active:
         return all_candidates
     peers = {str(utils.get_peer_id(peer)): peer for peer in sources}
+    planned = {row["source_key"]: row for row in active.get("episodes", [])}
+    # Historical poster and episode captions can have different title forms.
+    # A resumed transfer must retain its original series grouping.
+    for row in all_candidates:
+        if row["source_key"] in planned:
+            row["series"] = active["key"]
+            row["title"] = planned[row["source_key"]]["title"]
     seen = {row["source_key"] for row in all_candidates}
-    from .short_series import normalized_key
     for expected in active.get("episodes", []):
         source_key = str(expected.get("source_key", ""))
         if source_key in seen or ":" not in source_key:
