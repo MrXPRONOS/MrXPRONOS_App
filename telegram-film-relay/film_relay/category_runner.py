@@ -279,6 +279,20 @@ async def run(*, category: str, publish: bool = False, limit: int = 1,
                     break
                 continue
             staged = state.data["staged"].get(key, {})
+            if "video" in staged:
+                # A Bot API sendPhoto timeout can happen after Telegram has
+                # accepted the public post. Re-read public messages before
+                # trying the public photo again; never resend a private video.
+                cache = await snapshot_telegram_posts(
+                    client, private, public, private_id,
+                    private_limit=110, public_limit=350,
+                )
+                prior_public = cache.public_by_video.get(int(staged["video"]))
+                if prior_public:
+                    state.complete(key, int(staged["video"]), int(prior_public))
+                    LOG.warning("%s : publication Telegram retrouvée après envoi incertain, aucun doublon.",
+                                cfg["label"])
+                    continue
             if "video" not in staged:
                 cache = await snapshot_telegram_posts(
                     client, private, public, private_id,
