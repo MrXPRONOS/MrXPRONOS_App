@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           set -e
-          if [[ -z "$SOURCE" && -z "$SOURCE_LIST" ]]; then
+          if [[ -z "$SOURCE" ]]; then
             echo '::error::Configurer COMEDIE_SOURCE_CHANNEL.'
             exit 1
           fi
