@@ -167,6 +167,49 @@ def classify(messages, source_id: int):
     return candidates
 
 
+MOVIE_LABEL = re.compile(r"(?i)\\b(?:film|movie|long[ -]?m[eé]trage)\\b")
+SERIES_LABEL = re.compile(r"(?i)\\b(?:s[eé]rie|saison|season|[eé]pisodes?|\\bep[ ._-]*\\d{1,3})\\b")
+
+
+def is_anime_movie(item) -> bool:
+    """Only standalone anime features, never a numbered series episode."""
+    video = item.video
+    filename = filename_of(video)
+    caption = str(getattr(video, "raw_text", "") or "")
+    poster_text = str(getattr(item.poster, "raw_text", "") or "")
+    details = " ".join((caption, filename, poster_text))
+    if episode_numbers(caption) or episode_numbers(filename):
+        return False
+    if SERIES_LABEL.search(details) or SEASON_HEADER.search(details):
+        return False
+    duration = getattr(getattr(video, "file", None), "duration", None)
+    try:
+        feature_length = float(duration or 0) >= 50 * 60
+    except (TypeError, ValueError):
+        feature_length = False
+    # An explicit film label also supports MKV files without duration metadata.
+    return bool(MOVIE_LABEL.search(details) or feature_length)
+
+
+def pending_anime_series(eligible, catalogue):
+    """One series slot, prioritizing an interrupted upload before new titles."""
+    active = catalogue.get("active_batch")
+    from .short_series import normalized_key
+    if active:
+        for key, rows in eligible:
+            if normalized_key(key) == normalized_key(active.get("key", "")):
+                return (key, rows)
+        return None
+    for key, rows in eligible:
+        existing = catalogue.get("series", {}).get(key, {})
+        seen = set(existing.get("source_items", {}))
+        if (any(row["source_key"] not in seen for row in rows)
+                or not existing.get("public_id")):
+            return (key, rows)
+    return None
+
+
+
 def season_text(title: str, season: int, episodes: dict) -> str:
     rows = [f"📚 <b>{escape(title)} — Saison {season}</b>", "",
             "<i>Choisis un épisode ci-dessous.</i>", ""]
