@@ -3,9 +3,11 @@ run-name: "Cotes HTTP | ${{ inputs.provider || 'all' }}"
 
 on:
   push:
-    branches: ['feature/football-odds-five-source-failover']
+    branches: [main, 'fix/bsd-real-odds-health-production-20261028']
     paths:
       - 'bsd/odds_provider_smoke.py'
+      - 'bsd/bsd_odds_fallback.py'
+      - 'bsd/bsd_v2_publish.py'
       - '.github/workflows/football-odds-smoke.yml'
   workflow_dispatch:
     inputs:
@@ -27,6 +29,7 @@ jobs:
       PINNWIRE_API_KEY: ${{ secrets.PINNWIRE_API_KEY }}
       ODDSLINK_API_KEY: ${{ secrets.ODDSLINK_API_KEY }}
       ODDS_SMOKE_PROVIDER: ${{ inputs.provider || 'all' }}
+      PINNWIRE_USE_DEMO: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
