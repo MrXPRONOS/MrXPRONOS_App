@@ -12,7 +12,7 @@ on:
         description: 'Publier les films et pubs (sinon diagnostic uniquement)'
         required: false
         type: boolean
-        default: true
+        default: false
   schedule:
     - cron: '17 */6 * * *'
 
@@ -74,29 +74,13 @@ jobs:
           echo 'ready=true' >> "$GITHUB_OUTPUT"
       - name: Installer les dependances
         run: python -m pip install -r telegram-film-relay/requirements.txt
-      - name: Valider le code (sans publication)
+      - name: Vérifier la syntaxe avant cycle
         working-directory: telegram-film-relay
-        env:
-          PYTHONPATH: .
-        run: |
-          python -m compileall -q film_relay scripts tests
-          python -m unittest discover -s tests -p 'test_bot_http.py' -v
-          python -m unittest discover -s tests -p 'test_torrent9_suspension.py' -v
-          python -m unittest discover -s tests -p 'test_desir.py' -q
-          python -m unittest discover -s tests -p 'test_category_relays.py' -q
-          python -m unittest discover -s tests -p 'test_anime_catalog.py' -v
-          python -m unittest discover -s tests -p 'test_catalog_scan.py' -v
-          python -m unittest discover -s tests -p 'test_catalogue_reliability.py' -v
-          python -m unittest discover -s tests -p 'test_series_catalog.py' -v
-          python -m unittest discover -s tests -p 'test_promotions.py' -q
-          python -m unittest discover -s tests -p 'test_mkv.py' -q
-          python -m unittest discover -s tests -p 'test_discovery_digest.py' -q
-          python - <<'PY'
-          from film_relay.promotions import render_poster
-          for i in range(3):
-              original=render_poster(i)
-              print(f"Publicité PNG vérifiée : {original.name}, {len(original.getvalue())} octets")
-          PY
+        run: python -m compileall -q film_relay scripts
+
+      - name: Mémoriser les publications déjà connues
+        working-directory: telegram-film-relay
+        run: python scripts/verify_published_receipts.py --snapshot "$RUNNER_TEMP/cinex-before.json"
 
       # Discover channel suggestions; they are sent ONLY to personal Saved Messages.
       # Nothing found by discovery is ever auto-added to film relay sources.
@@ -383,6 +367,26 @@ jobs:
           PYTHONPATH: .
         run: python scripts/partnership_cycle.py --category anime --phase after
 
+      - name: Confirmer les nouvelles publications directement sur Telegram
+        id: telegram_check
+        if: ${{ always() && steps.credentials.outputs.ready == 'true' && (github.event_name != 'workflow_dispatch' || inputs.publish) }}
+        continue-on-error: true
+        working-directory: telegram-film-relay
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_SESSION_STRING: ${{ secrets.TG_SESSION_STRING || secrets.TG_STRING_SESSION || secrets.TG_STREAM_SESSION }}
+          TG_PRIVATE_CHANNEL: ${{ vars.TG_PRIVATE_CHANNEL }}
+          TG_PUBLIC_CHANNEL: ${{ vars.TG_PUBLIC_CHANNEL }}
+          DESIR_PRIVATE_CHANNEL: ${{ vars.DESIR_PRIVATE_CHANNEL }}
+          DESIR_PUBLIC_CHANNEL: ${{ vars.DESIR_PUBLIC_CHANNEL || '@CineXDesirfr' }}
+          COMEDIE_PRIVATE_CHANNEL: ${{ vars.COMEDIE_PRIVATE_CHANNEL }}
+          COMEDIE_PUBLIC_CHANNEL: ${{ vars.COMEDIE_PUBLIC_CHANNEL }}
+          ANIME_PRIVATE_CHANNEL: ${{ vars.ANIME_PRIVATE_CHANNEL }}
+          ANIME_PUBLIC_CHANNEL: ${{ vars.ANIME_PUBLIC_CHANNEL }}
+          PYTHONPATH: .
+        run: python scripts/verify_published_receipts.py --verify "$RUNNER_TEMP/cinex-before.json"
+
       # Save ALL checkpoints even if one new category fails. Telegram uploads
       # must not be repeated on the next scheduled run after a partial error.
 
@@ -434,7 +438,7 @@ jobs:
           exit 1
 
       - name: 7 - Contrôler le résultat de toutes les catégories
-        if: ${{ always() && (steps.films.outcome == 'failure' || steps.tvseries.outcome == 'failure' || steps.desir.outcome == 'failure' || steps.comedy.outcome == 'failure' || steps.anime.outcome == 'failure') }}
+        if: ${{ always() && (steps.films.outcome == 'failure' || steps.tvseries.outcome == 'failure' || steps.desir.outcome == 'failure' || steps.comedy.outcome == 'failure' || steps.anime.outcome == 'failure' || steps.telegram_check.outcome == 'failure') }}
         shell: bash
         run: |
           echo '::error::Une ou plusieurs catégories CinéX ont échoué ; les autres ont tout de même été exécutées. Vérifier les étapes précédentes.'

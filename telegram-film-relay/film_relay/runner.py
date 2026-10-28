@@ -357,7 +357,15 @@ async def execute() -> int:
             if not publish and not rights_ok:
                 LOG.info("[SIMULATION] Source %s : analyse de format uniquement (droits non confirmés).", channel_name)
             try:
-                entity = await resolve_peer(client, channel_name)
+                try:
+                    entity = await resolve_peer(client, channel_name)
+                except ValueError as exc:
+                    # Telegram can revoke an old public username. Keep the
+                    # other working sources active; do not change permission data.
+                    if 'No user has' not in str(exc) and 'UsernameNotOccupied' not in str(exc):
+                        raise
+                    LOG.warning("Source %s introuvable sur Telegram : ignorée pour ce cycle.", channel_name)
+                    continue
                 if getattr(entity, "broadcast", True) is False:
                     LOG.warning("Source %s ignorée : ce n'est pas un canal de diffusion", channel_name)
                     continue
