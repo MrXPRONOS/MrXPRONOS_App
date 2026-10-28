@@ -1,0 +1,44 @@
+name: Public site privacy and packaging
+on:
+  pull_request:
+    paths:
+      - 'scripts/build_public_site.py'
+      - 'tests/test_public_site_build.py'
+      - '.github/workflows/deploy.yml'
+      - 'assets/js/main.js'
+      - 'assets/js/assistant.js'
+      - 'supabase/functions/assistant/index.ts'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/build_public_site.py'
+      - 'tests/test_public_site_build.py'
+      - '.github/workflows/deploy.yml'
+      - 'assets/js/main.js'
+      - 'assets/js/assistant.js'
+jobs:
+  safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify staging redaction and media retention
+        run: python -m unittest discover -s tests -p 'test_public_site_build.py' -v
+      - name: Verify public scripts remain valid
+        run: |
+          node --check assets/js/main.js
+          node --check assets/js/assistant.js
+      - name: Verify public artifact excludes back-end files
+        run: |
+          python scripts/build_public_site.py --out _public_site
+          test ! -e _public_site/bsd
+          test ! -e _public_site/supabase
+          test ! -e _public_site/model_meta.json
+          test ! -e _public_site/assets/data/private
+          test -s _public_site/data.json
+          test -s _public_site/footnews.json
