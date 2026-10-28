@@ -19,7 +19,7 @@ class PublicBuildTest(TestCase):
         unsafe = []
         for path in workflows:
             raw = path.read_text(encoding="utf-8")
-            if re.search(r"(?m)^\\s*publish_dir:\\s*\\./\\s*$", raw):
+            if re.search(r"(?m)^\s*publish_dir:\s*\./\s*$", raw):
                 unsafe.append(path.name)
         self.assertEqual([], unsafe, "Unsafe full-repository GitHub Pages publishing found")
 
