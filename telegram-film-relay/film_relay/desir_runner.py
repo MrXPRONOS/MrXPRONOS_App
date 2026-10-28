@@ -14,6 +14,8 @@ from html import escape
 from pathlib import Path
 
 from .desir_matching import pair_items, film_title, item_key
+from .media_guard import valid_photo_message, require_photo
+from .title_guard import title_assessment
 from .matching import document_key
 from .runner import resolve_peer
 from .text import private_message_link
@@ -234,17 +236,18 @@ async def post_public(bot, user, public_peer, item, title, video_url: str,
                f"🔗 <a href=\"{escape(video_url, quote=True)}\">REGARDER LE FILM</a>"
                f"\n\n🎞️ <a href=\"{escape(film_folder_url(), quote=True)}\">"
                "PLUS DE FILMS ? REJOINS NOTRE TEAM !</a>")
+    if not valid_photo_message(item.poster):
+        raise ValueError("Publication annulée : affiche Telegram réelle obligatoire.")
     if item.poster is not None:
         import io
-        contents = await user.download_media(item.poster.media, file=bytes)
+        contents = await user.download_media(require_photo(item.poster), file=bytes)
         if not contents:
             raise RuntimeError("Affiche inaccessible, publication interrompue.")
         image = io.BytesIO(contents)
         image.name = "cinex_desir.jpg"
         return await bot.send_file(public_peer, image, caption=caption,
                                    parse_mode="html", buttons=rows, force_document=False)
-    return await bot.send_message(public_peer, caption, parse_mode="html",
-                                  buttons=rows, link_preview=False)
+    raise ValueError("Publication annulée : affiche manquante.")
 
 
 async def execute(*, publish: bool, limit: int, newest: bool, require_publication: bool = False) -> int:
@@ -361,9 +364,11 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                 if completed >= limit:
                     break
                 continue
-            if getattr(item.video, "noforwards", False) or (
-                item.poster is not None and getattr(item.poster, "noforwards", False)
-            ):
+            assessment = title_assessment(item.poster, item.video)
+            if assessment != "verified":
+                LOG.warning("Désir : affiche/vidéo en quarantaine (%s), vidéo=%s", assessment, item.video.id)
+                continue
+            if getattr(item.video, "noforwards", False) or not valid_photo_message(item.poster):
                 LOG.warning("Média protégé : non publié.")
                 continue
             staged = state.data["staged"].get(key, {})
@@ -388,7 +393,7 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
             if "video" not in staged:
                 if item.poster is not None and "poster" not in staged:
                     image = await client.send_file(
-                        library, item.poster.media,
+                        library, require_photo(item.poster),
                         caption=rich_caption(title, private=True), parse_mode="html"
                     )
                     state.stage(key, "poster", image.id)

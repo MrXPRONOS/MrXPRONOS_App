@@ -12,7 +12,7 @@ on:
         description: 'Publier les films et pubs (sinon diagnostic uniquement)'
         required: false
         type: boolean
-        default: true
+        default: false
   schedule:
     - cron: '17 */6 * * *'
 
@@ -72,6 +72,9 @@ jobs:
             exit 1
           }
           echo 'ready=true' >> "$GITHUB_OUTPUT"
+      - name: Relever les reçus au début du cycle
+        run: python telegram-film-relay/scripts/cycle_health.py --baseline "$RUNNER_TEMP/cinex-cycle-before.json"
+
       - name: Installer les dependances
         run: python -m pip install -r telegram-film-relay/requirements.txt
       - name: Valider le code (sans publication)
@@ -385,6 +388,27 @@ jobs:
 
       # Save ALL checkpoints even if one new category fails. Telegram uploads
       # must not be repeated on the next scheduled run after a partial error.
+
+      - name: Bilan de chaque catégorie sans publication
+        if: ${{ always() }}
+        env:
+          CINEX_BASELINE_FILE: ${{ runner.temp }}/cinex-cycle-before.json
+          CINEX_OUTCOME_FILMS: ${{ steps.films.outcome }}
+          CINEX_OUTCOME_SERIES: ${{ steps.tvseries.outcome }}
+          CINEX_OUTCOME_DESIR: ${{ steps.desir.outcome }}
+          CINEX_OUTCOME_COMEDIE: ${{ steps.comedy.outcome }}
+          CINEX_OUTCOME_ANIME: ${{ steps.anime.outcome }}
+          CINEX_MANUAL_PUBLISH: ${{ inputs.publish || 'false' }}
+        run: python telegram-film-relay/scripts/cycle_health.py --report "$RUNNER_TEMP/cinex-cycle-report.json"
+
+      - name: Sauvegarder l'artefact de bilan du cycle
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinex-cycle-report
+          path: ${{ runner.temp }}/cinex-cycle-report.json
+          retention-days: 30
+          if-no-files-found: warn
 
       - name: 6 - Sauvegarder les historiques Telegram, dont le catalogue Séries
         if: always() && steps.credentials.outputs.ready == 'true'
