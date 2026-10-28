@@ -167,8 +167,8 @@ def classify(messages, source_id: int):
     return candidates
 
 
-MOVIE_LABEL = re.compile(r"(?i)\\b(?:film|movie|long[ -]?m[eé]trage)\\b")
-SERIES_LABEL = re.compile(r"(?i)\\b(?:s[eé]rie|saison|season|[eé]pisodes?|\\bep[ ._-]*\\d{1,3})\\b")
+MOVIE_LABEL = re.compile(r"(?i)\b(?:film|movie|long[ -]?m[eé]trage)\b")
+SERIES_LABEL = re.compile(r"(?i)\b(?:s[eé]rie|saison|season|[eé]pisodes?|\bep[ ._-]*\d{1,3})\b")
 
 
 def is_anime_movie(item) -> bool:
