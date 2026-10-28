@@ -13,6 +13,16 @@ SPEC.loader.exec_module(module)
 
 
 class PublicBuildTest(TestCase):
+    def test_no_workflow_publishes_repository_root(self):
+        workflows = (Path(__file__).resolve().parents[1] / ".github/workflows").glob("*.yml")
+        import re
+        unsafe = []
+        for path in workflows:
+            raw = path.read_text(encoding="utf-8")
+            if re.search(r"(?m)^\\s*publish_dir:\\s*\\./\\s*$", raw):
+                unsafe.append(path.name)
+        self.assertEqual([], unsafe, "Unsafe full-repository GitHub Pages publishing found")
+
     def test_private_files_not_exported_and_predictions_kept(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)
