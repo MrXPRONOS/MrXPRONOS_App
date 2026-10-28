@@ -67,6 +67,49 @@ def public_copy(value):
     return value
 
 
+def clean_match_article_text(value: str) -> str:
+    text = str(value)
+    # Legacy articles used private engine branding in titles, snippets and copy.
+    text = text.replace(" : fiche match BSD V2", " : analyse du match")
+    text = text.replace(" : affiche vérifiée dans le flux football BSD V2, le ", " : rencontre du ")
+    text = text.replace("## Signal calculé par le moteur BSD V2", "## Analyse de la rencontre")
+    text = text.replace("**Score final BSD :**", "**Score final :**")
+    text = text.replace("Non précisée dans les données BSD", "Non précisée")
+    text = text.replace("dernier flux BSD disponible", "dernier relevé disponible")
+    text = text.replace(
+        "Il s'agit d'une estimation du modèle, pas d'un résultat certain.",
+        "Ce pronostic est indicatif et ne garantit aucun résultat.",
+    )
+    text = re.sub(r"(?m)^\*\*Source des données :\*\* BSD V2, identifiant [^\n]*\n?", "", text)
+    text = re.sub(r"(?i)\b(?:BSD|PSD)(?:[\s_-]*V\d+(?:\.\d+)?)?\b", "Mr XPRONOS", text)
+    return text
+
+
+def prepare_public_articles(destination: Path):
+    file = destination / "articles.json"
+    if file.exists():
+        rows = json.loads(file.read_text(encoding="utf-8"))
+        if not isinstance(rows, list):
+            raise ValueError("Unexpected public article feed shape")
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            if row.get("type") != "match" or row.get("source") != "bsd":
+                continue
+            for field in ("title", "excerpt", "meta_description", "keywords", "content"):
+                if isinstance(row.get(field), str):
+                    row[field] = clean_match_article_text(row[field])
+            for key in ("source", "bsd_event_id", "bsd_match_date", "editorial_importance",
+                        "editorial_reasons", "editorial_role", "visual_variant", "visual_hash"):
+                row.pop(key, None)
+        file.write_text(json.dumps(rows, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    for html in destination.glob("articles/bsd-match-*/index.html"):
+        old = html.read_text(encoding="utf-8")
+        cleaned = clean_match_article_text(old)
+        if cleaned != old:
+            html.write_text(cleaned, encoding="utf-8")
+
+
 def refresh_public_script_versions(destination: Path):
     # Cached scripts otherwise keep showing outdated technical labels after deploy.
     for html in destination.rglob("*.html"):
@@ -121,6 +164,7 @@ def stage_site(destination: Path, previous: Path | None):
                         target.parent.mkdir(parents=True, exist_ok=True)
                         shutil.copy2(file, target)
 
+    prepare_public_articles(destination)
     refresh_public_script_versions(destination)
 
     public_feed = destination / "data.json"
