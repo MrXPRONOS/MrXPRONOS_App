@@ -335,7 +335,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-27T23:49:50.311493+00:00"
+      "checked_at": "2026-10-28T05:51:10.995299+00:00"
     },
     "quality_sources": [
       "France 24",
@@ -415,6 +415,74 @@
       "France 24"
     ],
     "quality_score": 83
+  },
+  {
+    "slug": "d7cd8b717add886b",
+    "title": "Transfert de Julian Alvarez, le Barça s’en tire avec une amende surréaliste !",
+    "summary": "Le Barça va devoir s'acquitter d'une amende ridicule pour avoir tenté de ravir Julian Alvarez à l'Atlético Madrid.",
+    "summary_short": "Le Barça va devoir s'acquitter d'une amende ridicule pour avoir tenté de ravir Julian Alvarez à l'Atlético Madrid.",
+    "content": "Le Barça va devoir s'acquitter d'une amende ridicule pour avoir tenté de ravir Julian Alvarez à l'Atlético Madrid.",
+    "paragraphs": [
+      "Le Barça va devoir s'acquitter d'une amende ridicule pour avoir tenté de ravir Julian Alvarez à l'Atlético Madrid."
+    ],
+    "key_points": [
+      "Le Barça va devoir s'acquitter d'une amende ridicule pour avoir tenté de ravir Julian Alvarez à l'Atlético Madrid."
+    ],
+    "telegram_summary": "Le Barça va devoir s'acquitter d'une amende ridicule pour avoir tenté de ravir Julian Alvarez à l'Atlético Madrid.",
+    "link": "https://www.onzemondial.com/liga/transfert-de-julian-alvarez-le-barca-sen-tire-avec-une-amende-surrealiste-1005444",
+    "source_url": "https://www.onzemondial.com/liga/transfert-de-julian-alvarez-le-barca-sen-tire-avec-une-amende-surrealiste-1005444",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d7cd8b717add886b",
+    "published": "2026-10-28T05:30:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/10/photo_article/1005444/410121/1200-L-transfert-de-julian-alvarez-le-bara-sen-tire-avec-une-amende-surraliste.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1005444/410121/1200-L-transfert-de-julian-alvarez-le-bara-sen-tire-avec-une-amende-surraliste.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "205b5daf901066c2",
+    "title": "Entretien avec l’ancien du FC Barcelone et de l’équipe de France Jérémy Mathieu : « J’ai broyé du noir pendant quatre ans »",
+    "summary": "Interview fleuve avec Jérémy Mathieu, un ex-déprimé à Aix en Provence.",
+    "summary_short": "Interview fleuve avec Jérémy Mathieu, un ex-déprimé à Aix en Provence.",
+    "content": "Interview fleuve avec Jérémy Mathieu, un ex-déprimé à Aix en Provence.",
+    "paragraphs": [
+      "Interview fleuve avec Jérémy Mathieu, un ex-déprimé à Aix en Provence."
+    ],
+    "key_points": [
+      "Interview fleuve avec Jérémy Mathieu, un ex-déprimé à Aix en Provence."
+    ],
+    "telegram_summary": "Interview fleuve avec Jérémy Mathieu, un ex-déprimé à Aix en Provence.",
+    "link": "https://www.sofoot.com/articles/entretien-avec-lancien-du-fc-barcelone-et-de-lequipe-de-france-jeremy-mathieu-jai-broye-du-noir-pendant-quatre-ans",
+    "source_url": "https://www.sofoot.com/articles/entretien-avec-lancien-du-fc-barcelone-et-de-lequipe-de-france-jeremy-mathieu-jai-broye-du-noir-pendant-quatre-ans",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=205b5daf901066c2",
+    "published": "2026-10-28T05:00:30+00:00",
+    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/22102756/ICONSPORT_095362_0001-scaled.jpg",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/22102756/ICONSPORT_095362_0001-scaled.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
   },
   {
     "slug": "14789a9e42b255b7",
@@ -605,7 +673,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-27T23:49:50.311493+00:00"
+      "checked_at": "2026-10-28T05:51:10.995299+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -708,7 +776,7 @@
         "English Premier League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-27T23:49:50.311493+00:00"
+      "checked_at": "2026-10-28T05:51:10.995299+00:00"
     },
     "quality_sources": [
       "So Foot",
@@ -797,7 +865,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-27T23:49:50.311493+00:00"
+      "checked_at": "2026-10-28T05:51:10.995299+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -854,7 +922,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-27T23:49:50.311493+00:00"
+      "checked_at": "2026-10-28T05:51:10.995299+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -913,7 +981,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-27T23:49:50.311493+00:00"
+      "checked_at": "2026-10-28T05:51:10.995299+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1011,7 +1079,7 @@
         "UEFA Nations League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-27T23:49:50.311493+00:00"
+      "checked_at": "2026-10-28T05:51:10.995299+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1146,7 +1214,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-27T23:49:50.311493+00:00"
+      "checked_at": "2026-10-28T05:51:10.995299+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1209,80 +1277,12 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-27T23:49:50.311493+00:00"
+      "checked_at": "2026-10-28T05:51:10.995299+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
       "ESPN"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "fde9bf8fece99376",
-    "title": "\"C'est un exemple dans notre sport\", la magnifique déclaration de Lloris à propos de Kane",
-    "summary": "Le gardien de but français est revenu sur le sacre au Ballon d'Or de son ancien coéquipier Harry Kane.",
-    "summary_short": "Le gardien de but français est revenu sur le sacre au Ballon d'Or de son ancien coéquipier Harry Kane.",
-    "content": "Le gardien de but français est revenu sur le sacre au Ballon d'Or de son ancien coéquipier Harry Kane.",
-    "paragraphs": [
-      "Le gardien de but français est revenu sur le sacre au Ballon d'Or de son ancien coéquipier Harry Kane."
-    ],
-    "key_points": [
-      "Le gardien de but français est revenu sur le sacre au Ballon d'Or de son ancien coéquipier Harry Kane."
-    ],
-    "telegram_summary": "Le gardien de but français est revenu sur le sacre au Ballon d'Or de son ancien coéquipier Harry Kane.",
-    "link": "https://www.onzemondial.com/premier-league/cest-un-exemple-dans-notre-sport-la-magnifique-declaration-de-lloris-a-propos-de-kane-2-1005498",
-    "source_url": "https://www.onzemondial.com/premier-league/cest-un-exemple-dans-notre-sport-la-magnifique-declaration-de-lloris-a-propos-de-kane-2-1005498",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=fde9bf8fece99376",
-    "published": "2026-10-27T21:16:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/10/photo_article/1005498/410135/1200-L-c-est-un-exemple-dans-notre-sport-la-magnifique-dclaration-de-lloris-propos-de-kane.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1005498/410135/1200-L-c-est-un-exemple-dans-notre-sport-la-magnifique-dclaration-de-lloris-propos-de-kane.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "15655ebfe75411b1",
-    "title": "Ballon d’Or : la réponse ferme du PSG à France Football",
-    "summary": "Critiqué par France Football pour ne pas vraiment avoir fait campagne au Ballon d’Or pour l’un de ses joueurs, le PSG a préféré mettre en avant son collectif plutôt de tout miser sur un élément en (…)",
-    "summary_short": "Critiqué par France Football pour ne pas vraiment avoir fait campagne au Ballon d’Or pour l’un de ses joueurs, le PSG a préféré mettre en avant son collectif plutôt de tout miser sur un élément en (…)",
-    "content": "Critiqué par France Football pour ne pas vraiment avoir fait campagne au Ballon d’Or pour l’un de ses joueurs, le PSG a préféré mettre en avant son collectif plutôt de tout miser sur un élément en (…)",
-    "paragraphs": [
-      "Critiqué par France Football pour ne pas vraiment avoir fait campagne au Ballon d’Or pour l’un de ses joueurs, le PSG a préféré mettre en avant son collectif plutôt de tout miser sur un élément en (…)"
-    ],
-    "key_points": [
-      "Critiqué par France Football pour ne pas vraiment avoir fait campagne au Ballon d’Or pour l’un de ses joueurs, le PSG a préféré mettre en avant son collectif plutôt de tout miser sur un élément en (…)"
-    ],
-    "telegram_summary": "Critiqué par France Football pour ne pas vraiment avoir fait campagne au Ballon d’Or pour l’un de ses joueurs, le PSG a préféré mettre en avant son collectif plutôt de tout miser sur un élément en (…)",
-    "link": "https://www.footmercato.net/a5647347076069578880-ballon-dor-la-reponse-ferme-du-psg-a-france-football",
-    "source_url": "https://www.footmercato.net/a5647347076069578880-ballon-dor-la-reponse-ferme-du-psg-a-france-football",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=15655ebfe75411b1",
-    "published": "2026-10-27T21:10:04+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo581209-1920x1080.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo581209-1920x1080.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   }
 ]
