@@ -39,9 +39,7 @@ def config_from(path: str) -> dict:
     # Explicit owner-managed variables are different: the account owner has
     # confirmed permission for channels they add to these lists.
     added = source_list(
-        os.getenv("CINEX_SOURCE_CHANNELS", ""),
         os.getenv("FILM_SOURCE_CHANNELS", ""),
-        os.getenv("SERIES_SOURCE_CHANNELS", ""),
         max_sources=12,
     )
     known = {str(x.get("channel", "")).casefold() for x in sources}
