@@ -152,6 +152,20 @@ class RouterTests(unittest.TestCase):
         self.assertTrue(match_fixture({**ROW,"kickoff_utc":"2026-10-14T19:15:00Z"},EVENT))
         self.assertFalse(match_fixture({**ROW,"kickoff_utc":"2026-10-14T19:16:00Z"},EVENT))
 
+    def test_external_first_default_order(self):
+        from bsd_odds_fallback import ORDER
+        self.assertEqual(ORDER[-1], "goaldir")
+        self.assertLess(ORDER.index("moviodds"), ORDER.index("goaldir"))
+
+    def test_oddslink_epl_feed_skipped_for_unknown_league(self):
+        session=FakeSession([])
+        router=OddsRouter(lambda event,at: ({},{}),session=session,order=("oddslink",))
+        with patch.dict(os.environ,{"ODDSLINK_API_KEY":"test-key"}):
+            result,diag=router.fetch(EVENT,NOW,market_code="1X2_HOME_FT")
+        self.assertEqual(result,{})
+        self.assertEqual(session.calls,0)
+        self.assertEqual(diag["verified_provider_count"],0)
+
     def test_all_unavailable_returns_empty_not_fake_quote(self):
         router=OddsRouter(lambda ev,at: ({},{}),order=("goaldir",))
         result,diag=router.fetch(EVENT,NOW)
