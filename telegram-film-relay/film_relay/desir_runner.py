@@ -385,6 +385,16 @@ async def execute(*, publish: bool, limit: int, newest: bool, require_publicatio
                 LOG.warning("Média protégé : non publié.")
                 continue
             staged = state.data["staged"].get(key, {})
+            if "video" in staged:
+                cache = await snapshot_telegram_posts(
+                    client, library, public_user, private_id,
+                    private_limit=110, public_limit=350
+                )
+                existing_public_id = cache.public_by_video.get(int(staged["video"]))
+                if existing_public_id:
+                    state.complete(key, int(staged["video"]), int(existing_public_id))
+                    LOG.warning("Désir : publication retrouvée après délai Telegram incertain, aucun doublon.")
+                    continue
             # Recover a completed private upload if the previous run crashed before commit.
             if "video" not in staged:
                 # Bound the recovery search and do it only when needed.
