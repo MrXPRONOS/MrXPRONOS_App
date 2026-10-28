@@ -142,6 +142,7 @@ def main():
             out.write("\n### CinéX : vérification réelle de Telegram\n")
             out.write(f"- Résultat : {result['status']}\n")
             out.write(f"- Publications nouvelles vérifiées : {result['verified_posts']}\n")
+            out.write(f"- Épisodes Anime réellement retrouvés : {result['verified_anime_episodes']}\n")
             for name, row in result["categories"].items():
                 out.write(f"- {name} : {row['verified']}/{row['new']} vérifiées\n")
             for error in result["errors"]:
