@@ -45,6 +45,24 @@ class HealthSmokeTests(unittest.TestCase):
                       board((AT-timedelta(hours=3)).isoformat()), AT)
         self.assertEqual(d["fresh_timestamped_prices"], 0)
 
+    def test_pinnwire_fresh_snapshot_not_quote_change(self):
+        payload={"generated_at":AT.isoformat(),"events":[{
+            "home":"Test Home","away":"Test Away",
+            "starts":"2026-10-29T18:00:00Z",
+            "event_type":"prematch","is_have_odds":True,
+            "periods":{"num_0":{"money_line":{"home":1.8,"draw":3.2,"away":4.4},
+                                  "totals":{"2.5":{"points":2.5,
+                                                  "over":1.9,"under":1.98}}}}
+        }]}
+        result=summarize("pinnwire",payload,AT)
+        self.assertEqual(result["fresh_timestamped_prices"],5)
+        self.assertEqual(result["fresh_provider_snapshot_prices"],5)
+        self.assertEqual(result["timestamp_basis"],
+                         "provider_snapshot_not_per_market_update")
+        stale=summarize("pinnwire",
+                        {**payload,"generated_at":(AT-timedelta(minutes=3)).isoformat()},AT)
+        self.assertEqual(stale["fresh_timestamped_prices"],0)
+
     def test_rejected_schema_is_not_a_connection_success(self):
         r = probe("oddslink_public", "https://example.test",
                   session=StubSession(StubResponse(200, {"bad": []})), now=AT)
