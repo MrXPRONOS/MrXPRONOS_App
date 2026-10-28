@@ -165,6 +165,8 @@ def price_selected_market(selection, quotes, *, now=None):
             "bookmaker_odds":price,"odds":price,
             "odds_source":source_quote["origin"],
             "odds_updated_at":source_quote.get("updated_at"),
+            "odds_timestamp_type":source_quote.get("quote_timestamp_type", "market_update"),
+            "odds_bookmaker":source_quote.get("bookmaker"),
             "estimated_odds":False,
             "odds_method":None,"overround_assumption":None,
         })
@@ -180,6 +182,8 @@ def price_selected_market(selection, quotes, *, now=None):
             "bookmaker_odds":estimate["odds"],"odds":estimate["odds"],
             "odds_source":ESTIMATED_SOURCE,
             "odds_updated_at":estimate["updated_at"],
+            "odds_timestamp_type":"model_calculation",
+            "odds_bookmaker":None,
             "estimated_odds":True,
             "odds_method":estimate["overround_reference"],
             "overround_assumption":estimate["overround_assumption"],
