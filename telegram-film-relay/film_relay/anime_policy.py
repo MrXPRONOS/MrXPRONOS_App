@@ -63,7 +63,8 @@ def select_anime_season(eligible, catalogue):
         if existing is None:
             existing = next((
                 value for value in stored.values()
-                if slug(series_title(str(value.get("title", "")))) == key
+                if series_title(str(value.get("title", "")))
+                and slug(series_title(str(value.get("title", "")))) == key
             ), {})
         season = str(rows[0]["season"])
         episode_receipts = existing.get("episodes", {}).get(season, {})
