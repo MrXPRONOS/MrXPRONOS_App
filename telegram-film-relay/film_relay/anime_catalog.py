@@ -1,9 +1,8 @@
-"""CinéX Anime : une fiche par série, épisodes privés, index par saison.
+"""CinéX Anime : un lot de série complète (1-25 épisodes) OU deux films par cycle.
 
-Sources inchangées : category_config("anime") utilise ANIME_SOURCE_CHANNEL(S)
-et sa source historique. Aucun épisode sans numéro explicite n'est deviné.
-Le canal public ne reçoit qu'une nouvelle fiche par anime ; les reprises
-actualisent les index privés et les boutons, sans republier d'affiche.
+La seule variable de sources est ANIME_SOURCE_CHANNEL. Tous les épisodes
+numérotés sont validés ensemble; un lot interrompu reste prioritaire et
+bloque les autres titres. Aucune fiche publique avant la fin du transfert.
 """
 from __future__ import annotations
 
@@ -433,7 +432,7 @@ async def publish_catalog(*, publish: bool, limit: int, episode_cap: int) -> int
         for source in sources:
             source_id = utils.get_peer_id(source)
             messages, plan = await read_source_window(
-                client, source, catalogue, source_id, archive_pages=3)
+                client, source, catalogue, source_id, archive_pages=4)
             allowed = source_window_ids(messages, plan)
             candidates = [row for row in classify(messages, source_id)
                           if int(row["video"].id) in allowed]
