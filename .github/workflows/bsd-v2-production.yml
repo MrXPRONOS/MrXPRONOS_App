@@ -81,6 +81,7 @@ jobs:
           PINNWIRE_API_KEY: ${{ secrets.PINNWIRE_API_KEY }}
           ODDSLINK_API_KEY: ${{ secrets.ODDSLINK_API_KEY }}
           MOVIODDS_ENABLE: '1'
+          PINNWIRE_USE_DEMO: '1'
           BSD_MULTISOURCE_CC0: '1'
         run: python bsd/bsd_v2_publish.py --max-requests 1400 --max-odds-events 1000
       - name: Build and apply fully-qualified multisource candidates
@@ -198,7 +199,7 @@ jobs:
               combo=match.get("combo_prediction")
               if combo:
                   assert type(combo["odds"]) in (int,float) and 1.01<=combo["odds"]<1.50
-                  assert combo["odds_source"] in ("bsd_consensus","bsd_bookmaker","pinnwire","oddslink","moviodds","oddsharvester")
+                  assert combo["odds_source"] in ("bsd_consensus","bsd_bookmaker","pinnwire","oddslink","oddslink_public","moviodds","oddsharvester")
                   assert combo["selection_key"]!="UNDER_45"
           print("BSD_V2_FEED_OK",len(data["matches"]))
           PY
