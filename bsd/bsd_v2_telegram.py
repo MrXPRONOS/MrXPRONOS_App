@@ -10,6 +10,7 @@ from pathlib import Path
 import requests
 from bsd_h2h import _utc
 from bsd_v2_estimated_odds import valid_standalone_prediction
+from bsd_v2_publication_policy import eligible_feed_match, eligible_feed_selection
 from bsd_v2_card import render as render_card
 from bsd_v2_captions import single_caption,combo_caption,PARSE_MODE
 from bsd_v2_combos import combo_ledger_ref
@@ -70,7 +71,7 @@ def prediction_action_buttons(pack=None):
 def due(matches,now,min_minutes=60,max_minutes=120):
     selected=[]
     for m in matches:
-        if not isinstance(m,dict) or m.get("source")!="bsd":continue
+        if not isinstance(m,dict) or m.get("source")!="bsd" or not eligible_feed_match(m):continue
         if is_night_match(m):continue
         if str(m.get("status","")).lower() not in ("notstarted","upcoming"):continue
         try:dt=_utc(str(m.get("event_date") or ""))
@@ -78,7 +79,7 @@ def due(matches,now,min_minutes=60,max_minutes=120):
         delta=(dt-now).total_seconds()/60
         if m.get("recommendation_eligible") is not True:continue
         picks=[m.get("prediction") or {},*((m.get("predictions") or [])[1:2])]
-        valid_price=any(p.get("recommendation_eligible") is True and valid_standalone_prediction(p,False) and p.get("odds",0)>1.50
+        valid_price=any(p.get("recommendation_eligible") is True and eligible_feed_selection(m,p) and valid_standalone_prediction(p,False) and p.get("odds",0)>1.50
                         for p in picks if isinstance(p,dict))
         if (min_minutes<=delta<max_minutes and valid_price
                 ):
@@ -102,6 +103,7 @@ def expand_tickets(match):
     for idx,p in enumerate(picks):
         odds=p.get("odds")
         if (match.get("recommendation_eligible") is not True or
+                not eligible_feed_selection(match,p) or
                 p.get("recommendation_eligible") is not True or
                 not valid_standalone_prediction(p,False) or p["odds"]<=1.50):
             continue
@@ -182,7 +184,7 @@ def process(data,now,*,session,token,chat_ids,ledger):
     """
     if data.get("source")!="bsd" or data.get("model_version")!="bsd-v2-isolated":
         raise ValueError("Production JSON is not BSD V2")
-    night_matches=matches_for_night(data["matches"],now)
+    night_matches=[m for m in matches_for_night(data["matches"],now) if eligible_feed_match(m)]
     night_mode=batch_date(now) is not None
     selections=[pick for m in due(data["matches"],now) for pick in expand_tickets(m)]
     selections += [pick for m in night_matches for pick in expand_tickets(m)]
@@ -250,7 +252,7 @@ def main():
         print("BSD_COMBO_DRY_RUN:",json.dumps([{"id":x["id"],"kickoff":x["event_date"]}
               for x in combos_due(data["matches"],now)]))
         print("BSD_NIGHT_DRY_RUN:",json.dumps([{"id":m["id"],"kickoff":m["event_date"]}
-              for m in matches_for_night(data["matches"],now)]))
+              for m in matches_for_night(data["matches"],now) if eligible_feed_match(m)]))
         return
     token=os.getenv("TELEGRAM_BOT_TOKEN")
     chat=os.getenv("TELEGRAM_CHAT_ID")
