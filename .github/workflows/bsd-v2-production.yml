@@ -122,6 +122,7 @@ jobs:
           python - <<'PY'
           import json
           from bsd.bsd_v2_estimated_odds import valid_standalone_prediction
+          from bsd.bsd_v2_publication_policy import eligible_feed_match, eligible_feed_selection
           data=json.load(open("data.json",encoding="utf-8"))
           assert data["source"]=="bsd" and data["model_version"]=="bsd-v2-isolated"
           assert isinstance(data["matches"],list)
@@ -183,6 +184,18 @@ jobs:
               valid_standalone_prediction(m["prediction"], m.get("combo_only",False))
               for m in data["matches"]
           ), "Invalid BSD or estimated priced selection in published feed"
+          # Distribution contract: no Simple, no confidence <79, including
+          # secondary selections and special combo predictions.
+          assert all(eligible_feed_match(m) and m.get("category") in ("pro","vip")
+                     for m in data["matches"]), "Simple or confidence <79 in public feed"
+          assert all(eligible_feed_selection(m,p)
+                     for m in data["matches"]
+                     for p in (m.get("predictions") or [m["prediction"]])), (
+                         "A secondary selection bypassed the Pro/VIP 79% publication gate")
+          assert all(not m.get("combo_prediction")
+                     or eligible_feed_selection(m,m["combo_prediction"])
+                     for m in data["matches"]), "Low-confidence combo selection found"
+          print("BSD_V2_PRO_VIP_MIN79_OK",len(data["matches"]))
           print("BSD_V2_PRICED_FEED_OK",len(data["matches"]))
           for match in data["matches"]:
               selections=match.get("predictions") or [match["prediction"]]

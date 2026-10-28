@@ -15,7 +15,7 @@
   share.addEventListener('click', async () => {
     const url = 'https://mrxpronos.github.io/MrXPRONOS_App/';
     const title = 'Mr XPRONOS — Pronostics football';
-    const text = 'Découvre les pronostics football Simple, Pro, VIP et Live sur Mr XPRONOS. Accès gratuit et sans partage obligatoire.';
+    const text = 'Découvre les pronostics football Pro, VIP et Live (à partir de 79 % de confiance) sur Mr XPRONOS. Accès gratuit et sans partage obligatoire.';
     if (navigator.share) {
       try { await navigator.share({ title, text, url }); } catch (error) {
         if (error && error.name !== 'AbortError') console.warn('Partage non disponible', error);

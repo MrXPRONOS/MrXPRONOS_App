@@ -20,13 +20,13 @@ def ledger(*ids):
 def row(ident=12345, selection="OVER_25", source="bsd_consensus", estimated=False):
     pick={
         "selection_key":selection,"market":"over_under","odds":1.81,
-        "confidence":78.0,"odds_source":source,"estimated_odds":estimated,
+        "confidence":80.0,"odds_source":source,"estimated_odds":estimated,
     }
     return {
         "id":f"bsd:{ident}","source_event_id":ident,"source":"bsd",
         "event_date":"2026-10-16T19:05:00+00:00","date":"2026-10-16",
         "home_team":"A","away_team":"B","league":"Premier League",
-        "combo_only":False,"prediction":pick,
+        "combo_only":False,"category":"pro","prediction":pick,
         "multisource_verification":{
             "mode":"qualified_external_candidate",
             "schedule_corroborated":True,
