@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from requests import Session
 
-ORDER = ("goaldir", "pinnwire", "oddslink", "moviodds", "oddsharvester")
+ORDER = ("oddslink_public", "moviodds", "pinnwire", "oddslink", "oddsharvester", "goaldir")
 MAX_COMPARABLE_QUOTE_AGE_SECONDS = 2 * 3600
 VERIFIED_QUOTE_ORIGINS = frozenset(ORDER)
 CODES = {"home": "1X2_HOME_FT", "draw": "1X2_DRAW_FT", "away": "1X2_AWAY_FT",
@@ -118,11 +118,75 @@ def from_oddslink(item, captured):
     return out
 
 
+
+def american_to_decimal(value):
+    """OddsLink free board publishes American odds, NEVER decimal odds."""
+    if type(value) is not int or abs(value) < 100 or abs(value) > 100000:
+        return None
+    return round(1 + value / 100 if value > 0 else 1 + 100 / abs(value), 5)
+
+
+def from_oddslink_public(item, captured, market_code=None):
+    """Parse only full-time h2h and goal totals from one public board fixture.
+
+    A book-level last_update must be supplied: board generated_at is NOT a
+    price timestamp. Do not use exchanges or prediction markets as bookmakers.
+    Select the highest independently timestamped price for the SAME market.
+    """
+    options = {}
+    for book in item.get("bookmakers") or []:
+        if not isinstance(book, dict) or book.get("kind") != "sportsbook":
+            continue
+        book_name = str(book.get("key") or "").strip()
+        last = utc(book.get("last_update"))
+        if not book_name or last is None or not 0 <= (captured - last).total_seconds() <= MAX_COMPARABLE_QUOTE_AGE_SECONDS:
+            continue
+        markets = book.get("markets") or {}
+        if not isinstance(markets, dict):
+            continue
+        for family in ("h2h", "totals"):
+            outcomes = markets.get(family)
+            if not isinstance(outcomes, list):
+                continue
+            for row in outcomes:
+                if not isinstance(row, dict):
+                    continue
+                label = clean(row.get("name"))
+                selection = None
+                if family == "h2h":
+                    if label in (clean(item.get("home_team")), "home"):
+                        selection = "home"
+                    elif label in (clean(item.get("away_team")), "away"):
+                        selection = "away"
+                    elif label in ("draw", "tie"):
+                        selection = "draw"
+                elif family == "totals" and label in ("over", "under"):
+                    try:
+                        point = float(row.get("point"))
+                    except (ValueError, TypeError):
+                        continue
+                    selection = f"{label}_{point:.1f}"
+                code = CODES.get(selection)
+                if code is None or (market_code is not None and code != market_code):
+                    continue
+                price = american_to_decimal(row.get("price"))
+                q = quote(price, "oddslink_public", captured, updated=last.isoformat())
+                if q is not None:
+                    q["bookmaker"] = book_name
+                    q["odds_format_original"] = "american"
+                    if code not in options or q["odds"] > options[code]["odds"]:
+                        options[code] = q
+    return options
+
+
 def from_movi(item, captured):
     out = {}
     for row in item.get("quotes") or []:
         if row.get("suspended") is True: continue
         group = clean(row.get("group_name"))
+        # Official MoviOdds also exposes group_id=40 instead of group_name.
+        if not group and str(row.get("group_id") or "") == "40":
+            group = "fulltimeresult"
         label = clean(row.get("label"))
         side = clean(row.get("side"))
         line = row.get("line")
@@ -214,9 +278,19 @@ class OddsRouter:
                         if match_fixture(row, event):
                             rows = from_pinnwire(row, captured)
                             break
+                elif name == "oddslink_public":
+                    # No credentials, no paid quota. The board covers only
+                    # a rolling 36h upcoming window and a maximum of 60 games.
+                    data = self.get(name, "https://oddslink.app/v1/public/board/soccer")
+                    if isinstance(data, dict):
+                        for row in data.get("fixtures") or []:
+                            if (isinstance(row, dict) and row.get("in_play") is False
+                                    and match_fixture(row, event)):
+                                rows = from_oddslink_public(row, captured, market_code)
+                                break
                 elif name == "oddslink":
                     key = os.getenv("ODDSLINK_API_KEY", "")
-                    if not key: continue
+                    if not key or not any(x in str(event.get("league_name") or event.get("league") or "").casefold() for x in ("premier league", "england premier", "epl")): continue
                     data = self.get(name, "https://oddslink.app/v1/sports/soccer/odds?league=epl&oddsFormat=decimal",
                                     {"X-API-Key":key})
                     for row in data if isinstance(data,list) else []:
