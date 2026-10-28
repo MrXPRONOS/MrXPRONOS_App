@@ -26,6 +26,30 @@ class SourceRightsConfigTests(unittest.TestCase):
             }):
                 return config_from(str(path))
 
+    def test_github_boolean_overrides_technical_json(self):
+        with patch.dict(os.environ, {
+            "CINEX_MIRROR_WITH_ATTRIBUTION": "false",
+            "CINEX_SOURCE_1_ARCHIVE_CYCLE": "false",
+            "CINEX_SOURCE_1_DISABLED": "true",
+            "CINEX_BOOTSTRAP_MESSAGES": "200",
+            "CINEX_SOURCE_CHANNELS": "",
+            "FILM_SOURCE_CHANNELS": "",
+            "SERIES_SOURCE_CHANNELS": "",
+        }):
+            cfg = self.load([
+                {"channel":"@source_one","archive_cycle":True,
+                 "redistribution_authorized":True}], "")
+        self.assertFalse(cfg["mirror_with_attribution"])
+        self.assertFalse(cfg["sources"][0]["archive_cycle"])
+        self.assertTrue(cfg["sources"][0]["source_disabled"])
+        self.assertEqual(cfg["bootstrap_messages"], 200)
+        self.assertTrue(cfg["sources"][0]["redistribution_authorized"])
+
+    def test_invalid_boolean_rejected(self):
+        with patch.dict(os.environ, {"CINEX_MIRROR_WITH_ATTRIBUTION":"perhaps"}):
+            with self.assertRaisesRegex(ValueError, "true ou false"):
+                self.load([], "")
+
     def test_new_environment_source_is_not_authorized(self):
         cfg=self.load([], "@suggested_films")
         self.assertEqual(len(cfg["sources"]), 1)
