@@ -1,0 +1,33 @@
+name: CineX - Lecture bilan publication réelle
+
+on:
+  pull_request:
+    paths:
+      - 'telegram-film-relay/scripts/audit_real_run.py'
+      - '.github/workflows/cinex-read-production-run.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Charger le script en lecture seule
+        uses: actions/checkout@v4
+      - name: Vérifier le cycle réel déjà déclenché
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          CINEX_TARGET_SHA: bff615fde0290827f3e4dccf005912fce0e730e9
+        run: |
+          python telegram-film-relay/scripts/audit_real_run.py "$RUNNER_TEMP/cinex-real-run-audit.json"
+          cat "$RUNNER_TEMP/cinex-real-run-audit.json"
+      - name: Conserver le bilan
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinex-real-run-audit
+          path: ${{ runner.temp }}/cinex-real-run-audit.json
+          if-no-files-found: error
