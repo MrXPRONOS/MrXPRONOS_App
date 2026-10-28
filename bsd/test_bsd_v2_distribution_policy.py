@@ -77,6 +77,8 @@ class DistributionPolicyTests(unittest.TestCase):
 
     def test_saved_qualified_primary_drops_old_weak_extras(self):
         fixture=row(5678,"pro",82)
+        fixture["event_date"]=(NOW+timedelta(hours=3)).isoformat()
+        fixture["date"]=NOW.date().isoformat()
         fixture["prediction"]["odds"]=1.61
         fixture["predictions"]=[fixture["prediction"], {
             "selection_key":"UNDER_35","market":"goals","confidence":77.5,
