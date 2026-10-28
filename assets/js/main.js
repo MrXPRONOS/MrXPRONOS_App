@@ -888,6 +888,15 @@ function openShareWindow(url) {
   window.open(url, "_blank", "noopener,noreferrer");
 }
 
+// User-facing labels must not reveal private model/provider metadata.
+function publicFootballLabel(value, fallback = "Pronostic") {
+  const label = String(value ?? "").trim();
+  if (!label) return fallback;
+  if (/\b(?:BSD|PSD)(?:[\s_-]*V\d+(?:\.\d+)?)?\b|\b(?:v2(?:\.1)?|mrxpronos_model|bsd_consensus|bsd_bookmaker|odds_source|pinnwire|oddslink|moviodds|goaldir|oddsharvester|debug|diagnostic|pipeline|snapshot)\b/i.test(label)) return fallback;
+  if (/\b(?:moteur (?:de |du )?|syst[eè]me (?:de |du )?|architecture (?:interne|technique)|provenance des cotes)\b/i.test(label)) return fallback;
+  return label;
+}
+
 function getPronosticShareDetails(match) {
   const prediction = match?.prediction || {};
   const label =
@@ -898,7 +907,7 @@ function getPronosticShareDetails(match) {
     prediction.prediction ||
     "Pronostic disponible";
   const confidence = normalizeConfidence(prediction.confidence);
-  return { label, confidence };
+  return { label: publicFootballLabel(label), confidence };
 }
 
 function buildPronosticShareMessage(match) {
@@ -1174,44 +1183,10 @@ async function fetchJsonWithCache(url, cacheKey, timeoutMs = 8000) {
   }
 }
 
-const NEON_PUBLIC_FEED_URL = "https://br-winter-truth-b9of9tss-mrxfeed.compute.c-7.eu-central-1.aws.neon.tech/data.json";
-
-// Flux BSD V2 sur Neon. Si Neon ne répond pas ou renvoie un snapshot ancien,
-// revenir au data.json publié par GitHub Actions sans bloquer le site.
+// The public site reads the redacted Pages feed. Detailed runtime feeds,
+// model metadata and provider diagnostics remain outside the browser.
 async function fetchPublishedPronostics() {
-  const previous = safeJsonParse(localStorage.getItem("cachedData"), null);
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 2400);
-  try {
-    const response = await fetch(NEON_PUBLIC_FEED_URL, {
-      signal: controller.signal,
-      cache: "no-store",
-      headers: { Accept: "application/json" },
-    });
-    if (!response.ok) throw new Error("Neon HTTP " + response.status);
-    const fresh = await response.json();
-    const ts = getPayloadTimestamp(fresh);
-    const current = Date.now();
-    if (
-      !isPronosticsPayload(fresh) ||
-      fresh.source !== "bsd" ||
-      fresh.model_version !== "bsd-v2-isolated" ||
-      fresh.matches.length === 0 ||
-      ts <= 0 ||
-      ts > current + 600000 ||
-      current - ts > 36 * 60 * 60 * 1000 ||
-      (isPronosticsPayload(previous) && getPayloadTimestamp(previous) > ts)
-    ) {
-      throw new Error("Neon feed invalid or superseded");
-    }
-    try { localStorage.setItem("cachedData", JSON.stringify(fresh)); } catch {}
-    return { data: fresh, fromCache: false, reason: "neon" };
-  } catch (error) {
-    console.warn("Neon feed unavailable; use static BSD V2 feed", error?.message || error);
-    return await fetchJsonWithCache(`data.json?t=${Date.now()}`, "cachedData", 8000);
-  } finally {
-    clearTimeout(timeout);
-  }
+  return fetchJsonWithCache(`data.json?t=${Date.now()}`, "cachedData", 8000);
 }
 
 async function loadData() {
@@ -1495,7 +1470,7 @@ function updateCategorySummary(shown, searchActive = false) {
     const descriptions = {
       all: "Sélections Pro et VIP uniquement, avec un minimum de 79 % de confiance estimée.",
       pro: "Des sélections plus exigeantes, avec une lecture approfondie des données et des scénarios de match.",
-      vip: "Nos sélections les plus strictes, retenues parmi les meilleures opportunités détectées par le système.",
+      vip: "Nos sélections les plus strictes, retenues après analyse des rencontres.",
     };
     description.textContent = searchActive
       ? `${shown} résultat${shown > 1 ? "s" : ""} correspondant à votre recherche.`
@@ -1515,7 +1490,7 @@ function filterAndDisplay() {
   const currentDayMatches = allData.matches.filter((m) => {
     const category = String(m.category || "").trim().toLowerCase();
     if (!bsdPublicEligible(m) || !(category in CATEGORY_LABELS) || category === "all" || m.combo_only || getMatchDate(m) !== targetDate) return false;
-    if (m.source === "bsd" && !m.is_finished && m.recommendation_eligible !== true) return false;
+    if (!m.is_finished && m.recommendation_eligible !== true) return false;
     counts[category] += 1;
     counts.all += 1;
     return true;
@@ -1575,7 +1550,7 @@ function renderMatches(matches) {
   const offlineBanner =
     usingCachedData && !navigator.onLine
       ? `<div style="background:#ffcc00; color:#000; text-align:center; padding:8px; font-weight:700; font-size:0.95rem; margin-bottom:12px;">
-          ■■ MODE HORS LIGNE — Pronostics chargés depuis le cache
+          Vous consultez les dernières données enregistrées.
         </div>`
       : "";
 
@@ -1602,7 +1577,7 @@ function renderMatches(matches) {
     return;
   }
   standalone.forEach((m) => {
-    const league = m.league || "Autres ligues";
+    const league = publicFootballLabel(m.league, "Autres ligues");
     if (!grouped[league]) grouped[league] = [];
     grouped[league].push(m);
   });
@@ -1631,7 +1606,7 @@ function renderMatches(matches) {
 
     grouped[league].forEach((m) => {
       const pred = m.prediction || {};
-      const doubleChance = escapeHtml(pred.type || pred.label || pred.double_chance || "N/A");
+      const doubleChance = escapeHtml(publicFootballLabel(pred.type || pred.label || pred.double_chance, "Pronostic"));
 
 
       let confidence = toFloatSafe(pred.confidence, 0) || 0;
@@ -1651,9 +1626,6 @@ function renderMatches(matches) {
       const verifiedDouble = eventDate === yesterdayStr && m.verified_double ? "checked" : "";
 
       const category = String(m.category || "").toLowerCase();
-      const signalTier = String(pred.signal_tier || m.signal_tier || "").toUpperCase();
-      const signalBadge = ["PREMIUM","QUALIFIE","OBSERVATION"].includes(signalTier)
-        ? `<span class="v21-signal-tier v21-tier-${signalTier.toLowerCase()}">${escapeHtml(signalTier === "QUALIFIE" ? "QUALIFIÉ" : signalTier)}</span>` : "";
       const premiumBadge = category === "pro" || category === "vip"
         ? `<span class="badge-premium">${category === "vip" ? "VIP" : "PRO"}</span>`
         : "";
@@ -1678,8 +1650,6 @@ function renderMatches(matches) {
           </div>`
         : `<div class="vs">VS</div>`;
 
-      const xpronosBadge = m.badge ? `<span class="xpronos-badge">${escapeHtml(m.badge)}</span>` : "";
-
       const matchDataForSharing = {
         home_team: m.home_team,
         away_team: m.away_team,
@@ -1695,7 +1665,7 @@ function renderMatches(matches) {
         ? pred.odds.toFixed(2).replace(".", ",")
         : "—";
       const marketLabel = escapeHtml(
-        pred.market_label || pred.market || pred.category_label || "Pronostic"
+        publicFootballLabel(pred.market_label || pred.market || pred.category_label, "Pronostic")
       );
 
       html += `
@@ -1741,7 +1711,7 @@ function renderMatches(matches) {
           </div>
 
           <div class="analysis-panel ticket ${winnerClass}">
-            <h4>Pronostic ${xpronosBadge} ${signalBadge}</h4>
+            <h4>Pronostic</h4>
             <p><strong>Pronostic :</strong> ${doubleChance}</p>
 
             <div class="prediction-market">
@@ -1750,7 +1720,7 @@ function renderMatches(matches) {
                 <strong class="prediction-market__value">${doubleChance}</strong>
               </div>
               <div class="prediction-market__odds">
-                <span>Cote</span>
+                <span>${pred.estimated_odds ? "Cote indicative" : "Cote"}</span>
                 <strong>${oddsValue}</strong>
               </div>
             </div>
@@ -1872,7 +1842,7 @@ async function displayHistory() {
 
     const homeLogo = escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true));
     const awayLogo = escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false));
-    const prediction = escapeHtml(pred.type || pred.label || pred.double_chance || "N/A");
+    const prediction = escapeHtml(publicFootballLabel(pred.type || pred.label || pred.double_chance, "Pronostic"));
     const odds = typeof pred.odds === "number"
       ? pred.odds.toFixed(2).replace(".", ",")
       : "—";
@@ -1894,7 +1864,7 @@ async function displayHistory() {
         <div class="history-competition">
           <div class="history-league">
             <span class="history-league-icon" aria-hidden="true">${getLeagueFlag(m.league || "")}</span>
-            <span>${escapeHtml(m.league || "Compétition")}</span>
+            <span>${escapeHtml(publicFootballLabel(m.league, "Compétition"))}</span>
           </div>
           <span class="history-date">${escapeHtml(formattedDate)}</span>
         </div>
@@ -3119,8 +3089,8 @@ function normalizeConfidence(conf) {
 function renderHomePickCard(m, { winner = false } = {}) {
   const pred = m.prediction || {};
   const conf = normalizeConfidence(pred.confidence);
-  const pick = pred.type || pred.label || pred.double_chance || "N/A";
-  const league = m.league || "Ligue";
+  const pick = publicFootballLabel(pred.type || pred.label || pred.double_chance, "Pronostic");
+  const league = publicFootballLabel(m.league, "Ligue");
   const time = formatMatchTime(m.event_date);
   const category = String(m.category || "").toLowerCase();
   const categoryLabel = category === "vip" ? "VIP" : "PRO";

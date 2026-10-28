@@ -25,6 +25,26 @@ async function aggregate(table,types,start){
  }));
  return Object.fromEntries(entries);
 }
+async function refreshPublicationQuality(){
+  if($("dashboard")?.style.display!=="block")return;
+  try{
+    const response=await fetch("data.json?t="+Date.now(),{cache:"no-store"});
+    if(!response.ok)throw Error("Flux public indisponible");
+    const data=await response.json();
+    if(!Array.isArray(data.matches))throw Error("Flux public invalide");
+    const matches=data.matches;
+    const category=m=>String(m.category||"").trim().toLowerCase();
+    const confidence=m=>{
+      const raw=Number(m.prediction?.confidence);
+      return m.prediction?.confidence==null||!Number.isFinite(raw)?NaN:(raw<=1?raw*100:raw);
+    };
+    output("publication-total",format(matches.length));
+    output("publication-pro",format(matches.filter(m=>category(m)==="pro").length));
+    output("publication-vip",format(matches.filter(m=>category(m)==="vip").length));
+    output("publication-invalid",format(matches.filter(m=>!["pro","vip"].includes(category(m))||!(confidence(m)>=79&&confidence(m)<=100)).length));
+    output("publication-updated","Dernière publication : "+date(data.generated_at||data.updated_at)+" · Données publiques, non un audit historique complet.");
+  }catch(error){output("publication-updated","Contrôle indisponible : "+String(error.message||error));}
+}
 async function fetchSnapshot(){
  if(pending||document.hidden)return;
  pending=true;$("refresh").disabled=true;
@@ -65,7 +85,8 @@ async function fetchSnapshot(){
   ]);
   output("freshness",h.live_merged_last?date(h.live_merged_last):"Aucune donnée");
   output("health-extra",format(h.blocked_signals)+" signaux bloqués · "+format(h.actu_foot_errors)+" erreurs actualités");
-  void refreshGitHubRuns();
+  void refreshPublicationQuality();
+   void refreshGitHubRuns();
   void refreshClientErrors();
   output("latency",format(Math.round(performance.now()-started))+" ms");
   output("updated","Mis à jour à "+new Date().toLocaleTimeString("fr-FR",{timeZone:"UTC"})+" UTC");
