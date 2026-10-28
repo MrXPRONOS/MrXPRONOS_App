@@ -36,6 +36,66 @@ class PublicBuildTest(TestCase):
         self.assertNotIn("identifiant 123", cleaned)
         self.assertIn("analyse du match", cleaned)
 
+    def test_strict_public_feed_projects_only_product_fields(self):
+        raw = {
+            "source": "bsd",
+            "policy_version": "bsd-v2-policy-internal",
+            "model_version": "bsd-v2-isolated",
+            "diagnostics": {"private": True},
+            "performance_tracker": {"training_score": 99},
+            "retired_predictions": [{"internal": True}],
+            "generated_at": "2026-10-28T17:00:00Z",
+            "matches": [
+                {
+                    "id": "bsd:alpha", "home_team": "Alpha", "away_team": "Beta",
+                    "category": "pro", "final_score": 88,
+                    "badge": "BSD V2", "signal_tier": "PREMIUM",
+                    "policy_version": "bsd-v2", "publication_audit": {"debug": True},
+                    "recommendation_eligible": True, "is_finished": False,
+                    "prediction": {
+                        "label": "Over 2.5", "confidence": 81, "odds": 1.7,
+                        "selection_key": "OVER_25", "estimated_odds": False,
+                        "calibration_samples": 2000, "policy_version": "bsd-v2",
+                        "fair_odds": 1.2, "odds_source": "provider-private",
+                    },
+                },
+                {
+                    "id": "bsd:beta", "home_team": "Gamma", "away_team": "Delta",
+                    "category": "vip", "final_score": 93,
+                    "prediction": {"label": "1X", "confidence": 83, "odds": 1.4},
+                },
+            ],
+        }
+        public = module.public_copy(raw)
+        self.assertEqual(len(public["matches"]), 2)
+        self.assertEqual(public["matches"][1]["display_rank"], 1)
+        self.assertEqual(public["matches"][0]["display_rank"], 2)
+        self.assertEqual(public, module.public_copy(raw))
+        self.assertTrue(public["matches"][0]["id"].startswith("match-"))
+        self.assertNotIn("bsd", public["matches"][0]["id"])
+        serialized = json.dumps(public).lower()
+        for forbidden in ("bsd", "policy_version", "publication_audit",
+                          "signal_tier", "calibration_samples", "fair_odds",
+                          "performance_tracker", "retired_predictions",
+                          "final_score", "xpronos_score", "odds_source", "diagnostics"):
+            self.assertNotIn(forbidden, serialized, forbidden)
+        self.assertEqual(public["matches"][0]["prediction"]["confidence"], 81)
+        self.assertEqual(public["matches"][0]["prediction"]["odds"], 1.7)
+        self.assertFalse(public["matches"][0]["prediction"]["estimated_odds"])
+        self.assertTrue(public["matches"][0]["recommendation_eligible"])
+
+    def test_unlisted_future_model_fields_cannot_leak(self):
+        data = {"generated_at": "2026-10-28", "matches": [
+            {"id": "event-one", "category": "vip",
+             "internal_new_secret": "token", "future_model_hash": "private",
+             "prediction": {"type": "1X", "confidence": 88,
+                            "future_provider_token": "private-secret"}}
+        ]}
+        public = module.public_copy(data)
+        self.assertNotIn("internal_new_secret", public["matches"][0])
+        self.assertNotIn("future_model_hash", public["matches"][0])
+        self.assertNotIn("future_provider_token", public["matches"][0]["prediction"])
+
     def test_private_files_not_exported_and_predictions_kept(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)
