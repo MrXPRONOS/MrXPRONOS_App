@@ -154,6 +154,25 @@ class PublicBuildTest(TestCase):
                 encoding="utf-8",
             )
             (root / "historical_scores.json").write_text("[]", encoding="utf-8")
+            (root / "bonus.json").write_text(json.dumps([{
+                "title": "Offre publique", "bookmaker": "Exemple", "link": "https://example.org/",
+                "admin_notes": "private", "api_provider": "hidden",
+            }, {"title": "Brouillon", "active": False}]), encoding="utf-8")
+            (root / "bookmakers.json").write_text(json.dumps([{
+                "name": "Partenaire", "url": "https://example.org/",
+                "api_token": "sensitive", "technical_logs": "hidden",
+            }]), encoding="utf-8")
+            (root / "infos.json").write_text(json.dumps([{
+                "title": "Annonce", "content": "Publique", "internal_metadata": "hidden",
+            }]), encoding="utf-8")
+            (root / "conseils.json").write_text(json.dumps([{
+                "title": "Conseil", "slug": "conseil", "content": "Public",
+                "backend_report": "hidden",
+            }]), encoding="utf-8")
+            (root / "testimonials.json").write_text(json.dumps([{
+                "name": "Exemple", "city": "Lomé", "rating": 4, "text": "Bonjour",
+                "tracking_cookie": "hidden",
+            }]), encoding="utf-8")
             (root / "articles.json").write_text(json.dumps([{
                 "slug": "public-article", "title": "Article public", "content": "Contenu",
                 "internal_notes": "private", "source_feed": "internal",
@@ -201,6 +220,18 @@ class PublicBuildTest(TestCase):
             self.assertNotIn("internal_notes", articles[0])
             self.assertNotIn("source_feed", articles[0])
             self.assertNotIn("editorial_score", articles[0])
+            for name, forbidden in (
+                ("bonus.json", "admin_notes"),
+                ("bookmakers.json", "api_token"),
+                ("infos.json", "internal_metadata"),
+                ("conseils.json", "backend_report"),
+                ("testimonials.json", "tracking_cookie"),
+            ):
+                public_rows = json.loads((output / name).read_text(encoding="utf-8"))
+                self.assertNotIn(forbidden, public_rows[0], name)
+            public_bonus = json.loads((output / "bonus.json").read_text(encoding="utf-8"))
+            self.assertEqual(len(public_bonus), 1)
+            self.assertEqual(public_bonus[0]["title"], "Offre publique")
             self.assertTrue((root / "admin.html").exists())
 
     def test_public_navigation_no_longer_promotes_paused_live(self):
