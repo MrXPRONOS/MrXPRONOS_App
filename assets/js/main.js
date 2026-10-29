@@ -1211,12 +1211,18 @@ async function loadPublicProofs() {
   } catch (_) { /* no public archive is not a proof */ }
   return publicProofsCache;
 }
-function publicProofNote(identity) {
+function publicProofNote(identity, pick) {
   const archive = publicProofsCache[String(identity)] || null;
   const date = archive && Date.parse(archive.recorded_at_utc);
   const kickoff = archive && Date.parse(archive.kickoff_utc);
   const url = archive?.github_history_url || '';
-  if (archive && Number.isFinite(date) && Number.isFinite(kickoff) &&
+  const initial = archive?.selection;
+  const unchanged = initial && pick &&
+    String(initial.selection_key) === String(pick.selection_key || 'primary') &&
+    String(initial.type || '') === String(pick.type || '') &&
+    Number(initial.confidence) === Number(pick.confidence) &&
+    Number(initial.odds) === Number(pick.odds);
+  if (unchanged && archive && Number.isFinite(date) && Number.isFinite(kickoff) &&
       date + 15 * 60 * 1000 < kickoff &&
       /^https:\/\/github\.com\/MrXPRONOS\/MrXPRONOS_App\/commits\/gh-pages\/proofs\/receipts\/[a-f0-9]{32}\.json$/.test(url)) {
     const when = new Date(date).toLocaleString('fr-FR', { timeZone: 'UTC', dateStyle: 'short', timeStyle: 'short' });
@@ -1770,7 +1776,7 @@ function renderMatches(matches) {
             </div>
 
             ${premiumBadge}
-            ${publicProofNote(m.id)}
+            ${publicProofNote(m.id, pred)}
             <button class="btn btn-secondary btn-share" data-match="${matchDataEncoded}"><span class="share-glyph" aria-hidden="true"><img src="assets/images/pronostics-premium/icon-share.webp?v=20261011-gen2" alt=""></span> Partager ce prono</button>
           </div>
         </div>
@@ -1911,7 +1917,12 @@ async function displayHistory() {
       : (m.history_finished ? "Marché non calculable" : "Score final indisponible");
     const reference = escapeHtml(String(m.id || "").slice(0, 35));
     const archive = publicProofs[String(m.id)] || null;
-    const beforeKickoff = archive &&
+    const unchangedPick = archive && archive.selection &&
+      String(archive.selection.selection_key) === String(pred.selection_key || 'primary') &&
+      String(archive.selection.type || '') === String(pred.type || '') &&
+      Number(archive.selection.confidence) === Number(pred.confidence) &&
+      Number(archive.selection.odds) === Number(pred.odds);
+    const beforeKickoff = unchangedPick && archive &&
       Date.parse(archive.recorded_at_utc) + 15 * 60 * 1000 < Date.parse(archive.kickoff_utc) &&
       /^proofs\/receipts\/[a-f0-9]{32}\.json$/.test(archive.receipt_url || '') &&
       /^https:\/\/github\.com\/MrXPRONOS\/MrXPRONOS_App\/commits\/gh-pages\/proofs\/receipts\/[a-f0-9]{32}\.json$/.test(archive.github_history_url || '');
