@@ -1890,8 +1890,8 @@ async function displayHistory() {
     const archive = publicProofs[String(m.id)] || null;
     const beforeKickoff = archive &&
       Date.parse(archive.recorded_at_utc) + 15 * 60 * 1000 < Date.parse(archive.kickoff_utc) &&
-      /^proofs\\/receipts\\/[a-f0-9]{32}\\.json$/.test(archive.receipt_url || '') &&
-      /^https:\\/\\/github\\.com\\/MrXPRONOS\\/MrXPRONOS_App\\/commits\\/gh-pages\\/proofs\\/receipts\\/[a-f0-9]{32}\\.json$/.test(archive.github_history_url || '');
+      /^proofs\/receipts\/[a-f0-9]{32}\.json$/.test(archive.receipt_url || '') &&
+      /^https:\/\/github\.com\/MrXPRONOS\/MrXPRONOS_App\/commits\/gh-pages\/proofs\/receipts\/[a-f0-9]{32}\.json$/.test(archive.github_history_url || '');
     const proofMarkup = beforeKickoff
       ? `<div class="mx-history-proof-link"><span>Capture archivée : ${escapeHtml(new Date(archive.recorded_at_utc).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short',timeZone:'UTC'}))} UTC</span><a href="${escapeAttribute(archive.github_history_url)}" target="_blank" rel="noopener noreferrer">Vérifier l'historique GitHub ↗</a></div>`
       : '<div class="mx-history-proof-link mx-history-proof-link--missing">Pas de preuve publique antérieure archivée</div>';
