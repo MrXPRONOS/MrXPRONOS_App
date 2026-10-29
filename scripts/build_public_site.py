@@ -241,32 +241,27 @@ def refresh_public_script_versions(destination: Path):
 
 
 def pause_public_features(destination: Path):
-    """Hide assistant and LIVE promotion in the published site, keeping source code intact.
-
-    Old bookmarks to live.html keep working, but the suspended page is noindex.
-    """
+    """Hide the visitor assistant and LIVE discovery without deleting source code."""
     for html in destination.rglob("*.html"):
         if not html.is_file():
             continue
         body = html.read_text(encoding="utf-8")
-        # Never load the assistant widget on visitor pages, even if a new page
-        # later accidentally restores the script tag. Administration is separate.
         if not html.name.startswith("admin"):
             body = re.sub(
-                r'(?im)^[ \\t]*<script\\b[^>]*\\bsrc=["\\\'](?:\\./)?assets/js/assistant\\.js(?:\\?[^"\\\']*)?["\\\'][^>]*>\\s*</script>\\s*',
+                r"""(?im)^[ \t]*<script\b[^>]*\bsrc=["'](?:\./)?assets/js/assistant\.js(?:\?[^"']*)?["'][^>]*>\s*</script>[ \t]*(?:\n|$)""",
                 "",
                 body,
             )
         if html == destination / "live.html" and 'name="robots"' not in body:
-            body = body.replace("<head>", '<head>\\n  <meta name="robots" content="noindex, nofollow">', 1)
+            body = body.replace("<head>", '<head>\n  <meta name="robots" content="noindex, nofollow">', 1)
         html.write_text(body, encoding="utf-8")
 
-    # An old generated sitemap must not revive hidden LIVE discovery.
+    # Do not let a stale sitemap expose the paused LIVE section again.
     sitemap = destination / "sitemap.xml"
     if sitemap.is_file():
         body = sitemap.read_text(encoding="utf-8")
         body = re.sub(
-            r"(?s)\\s*<url>\\s*<loc>[^<]*/prono-live/[^<]*</loc>.*?</url>",
+            r"(?s)\s*<url>\s*<loc>[^<]*/prono-live/[^<]*</loc>.*?</url>",
             "",
             body,
         )
