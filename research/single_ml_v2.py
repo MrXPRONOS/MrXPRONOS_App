@@ -34,6 +34,11 @@ from single_ml_v2_tune import (BASELINE, MLConfig, TUNE_VERSION, fit_histgb, sel
 from single_ml_v2_selection import (VERSION as SELECTOR_VERSION, SELECTABLE_MODELS, PastForecast, prediction_features, prematch_quality, fit_reliability, decide, report_selections)
 from single_ml_v2_hybrid import (HYBRID_VERSION, DEFAULT_DC_WEIGHT, PastHybridForecast, calibrate as calibrate_hybrid, blend as blend_hybrid, comparison_metrics as compare_hybrids)
 from single_ml_v2_opponents import (OpponentStrengthState, OPPONENT_FEATURE_NAMES, OPPONENT_VERSION)
+from single_ml_v3 import (VERSION as V3_VERSION, V3_MODELS,
+    HIST_NAME as V3_HIST, HYBRID_NAME as V3_HYBRID, DIRECT_NAME as V3_DIRECT,
+    fit_hist_v3, fit_direct_v3, hist_v3_grid, calibrate_eleven_cell,
+    eleven_multiplier, PastEleven, hybrid_v3_weight, hybrid_v3_grid,
+    direct_v3_grid, direct_v3_prior, freeze_blend)
 
 MAX_GOALS = 10
 GOALS = np.arange(MAX_GOALS + 1)
@@ -581,7 +586,7 @@ def score_odds_for(m, gh, ga):
 
 def summarize(stats):
     result = {}
-    for name in (*MODELS, "machine_learning_hybrid", "machine_learning_hybrid_fixed"):
+    for name in (*MODELS, "machine_learning_hybrid", "machine_learning_hybrid_fixed", *V3_MODELS):
         # Paired/ablation cohorts contain intentionally selected model keys.
         # Missing models are NOT_EVALUABLE, not a report-breaking KeyError.
         entries = stats.get(name, [])
@@ -608,7 +613,7 @@ def summarize(stats):
     return result
 
 
-def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None, auto_tune=True, tuning_interval_days=90, selection_coverage=.25):
+def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None, auto_tune=True, tuning_interval_days=90, selection_coverage=.25, v3_models=False):
     states = FormState()
     reliability_history = defaultdict(list)
     reliability_models = {k: None for k in SELECTABLE_MODELS}
@@ -622,6 +627,16 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
     last_tuned = None
     direct_training = []
     direct_model = None
+    v3_hist_model = None
+    v3_direct_model = None
+    v3_eleven_history = []
+    v3_hybrid_history = []
+    v3_direct_history = []
+    v3_last_calibration = None
+    v3_hist_factor = 1.
+    v3_hybrid_weight = DEFAULT_DC_WEIGHT
+    v3_direct_prior_weight = .20
+    v3_audit = []
     candidate_models = {name: None for name in CANDIDATES}
     pending_xg = defaultdict(list)
     recent_low = []
@@ -652,6 +667,22 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         for earlier in sorted(d for d in pending_xg if d<=day):
             for historical in pending_xg.pop(earlier):states.add_xg(historical, earlier)
         evaluating = begin <= day <= end
+        if v3_models and evaluating:
+            v3_hist_factor = eleven_multiplier(v3_eleven_history,asof=day)
+            if v3_last_calibration is None or (day-v3_last_calibration).days>=30:
+                v3_hybrid_weight, hybrid_v3_cal = hybrid_v3_weight(
+                    v3_hybrid_history,asof=day,previous=v3_hybrid_weight)
+                v3_direct_prior_weight, direct_v3_cal = direct_v3_prior(
+                    v3_direct_history,asof=day)
+                v3_audit.append({
+                    "asof":str(day),"hist_11_multiplier":v3_hist_factor,
+                    "hybrid_dc_weight":v3_hybrid_weight,
+                    "hybrid_prior_games":hybrid_v3_cal.training_games,
+                    "hybrid_calibrated":hybrid_v3_cal.calibrated,
+                    "direct_poisson_weight":v3_direct_prior_weight,
+                    "direct_prior_games":direct_v3_cal.training_games,
+                    "direct_calibrated":direct_v3_cal.calibrated})
+                v3_last_calibration=day
         if evaluating and (last_hybrid_calibration is None or (day-last_hybrid_calibration).days >= 30):
             hybrid_setting = calibrate_hybrid(hybrid_history, asof=day)
             hybrid_latest_weight = hybrid_setting.dc_weight
@@ -686,6 +717,12 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             else:
                 ml = train_ml(training, **(ml_parameters or {}))
             direct_model = train_direct_score(direct_training)
+            if v3_models:
+                v3_hist_model = fit_hist_v3(dated_training,asof=day,
+                                           feature_count=len(FEATURE_NAMES))
+                v3_direct_model = fit_direct_v3(direct_training)
+                print("RETRAIN_V3",day,"hist",v3_hist_model is not None,
+                      "direct",v3_direct_model is not None,flush=True)
             for candidate_name in CANDIDATES:
                 candidate_models[candidate_name] = fit_pair(candidate_name, training, feature_count=len(FEATURE_NAMES))
             dc_rho = estimate_dc_rho(recent_low[-9000:])
@@ -744,6 +781,20 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                 forecasts["machine_learning_hybrid_fixed"] = blend_hybrid(forecasts["machine_learning"], forecasts["dixon_coles"], DEFAULT_DC_WEIGHT)
             else:
                 audit["ml_not_enough_training"] += 1
+            v3_hist_raw = None
+            v3_direct_raw = None
+            if v3_models and v3_hist_model is not None:
+                v3_hist_raw = hist_v3_grid(v3_hist_model,f["vector"],p0,
+                            form_samples=f["form_samples"],p11_factor=1.)
+                v3_grid = calibrate_eleven_cell(v3_hist_raw,v3_hist_factor)
+                forecasts[V3_HIST] = v3_grid
+                forecasts[V3_HYBRID] = hybrid_v3_grid(
+                    v3_grid,forecasts["dixon_coles"],dc_weight=v3_hybrid_weight)
+            if v3_models and v3_direct_model is not None:
+                v3_direct_raw = direct_grid(v3_direct_model,f["vector"],p0)
+                forecasts[V3_DIRECT] = direct_v3_grid(
+                    v3_direct_model,f["vector"],p0,
+                    prior_weight=v3_direct_prior_weight)
             if direct_model is not None:
                 grid_direct = direct_grid(direct_model, f["vector"], p0)
                 if grid_direct is not None:
@@ -782,6 +833,13 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                     "threshold":gate["threshold"],"predicted_score":f"{gh0}:{ga0}",
                     "quality":quality})
                 frozen_today.append((target_name, prediction_features(grid_for_gate,quality),did_hit))
+            if v3_models:
+                if v3_hist_raw is not None:
+                    frozen_today.append(("__v3_eleven__",float(v3_hist_raw[1,1])))
+                    frozen_today.append(("__v3_hybrid__",forecasts[V3_HIST].copy(),
+                                         forecasts["dixon_coles"].copy()))
+                if v3_direct_raw is not None:
+                    frozen_today.append(("__v3_direct__",v3_direct_raw.copy(),p0.copy()))
             if ml is not None:
                 frozen_today.append(("__hybrid__", forecasts["machine_learning"].copy(),
                                      forecasts["dixon_coles"].copy()))
@@ -819,6 +877,15 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         for pending_row in pending:
             m, f = pending_row[:2]
             for frozen in (pending_row[2] if len(pending_row)>2 else []):
+                if frozen[0] == "__v3_eleven__":
+                    v3_eleven_history.append(PastEleven(m.day,m.key,frozen[1],int(m.hg==1 and m.ag==1)))
+                    continue
+                if frozen[0] == "__v3_hybrid__":
+                    v3_hybrid_history.append(freeze_blend(m.day,m.key,frozen[1],frozen[2],m.hg,m.ag))
+                    continue
+                if frozen[0] == "__v3_direct__":
+                    v3_direct_history.append(freeze_blend(m.day,m.key,frozen[1],frozen[2],m.hg,m.ag))
+                    continue
                 if frozen[0] == "__hybrid__":
                     hybrid_history.append(PastHybridForecast(m.day,m.key,frozen[1],frozen[2],m.hg,m.ag))
                     continue
@@ -891,6 +958,12 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         "form_quality_counts":dict(audit),
         "n_evaluation_matches": audit["evaluated_matches"],
         "selection_version":SELECTOR_VERSION,
+        "v3_experimental_enabled":bool(v3_models),
+        "v3_version":V3_VERSION if v3_models else None,
+        "v3_names":list(V3_MODELS) if v3_models else [],
+        "v3_calibration_audit":v3_audit if v3_models else [],
+        "v3_hist_11_prior_rows":len(v3_eleven_history) if v3_models else 0,
+        "v3_direct_train_rows":v3_direct_model.samples if v3_models and v3_direct_model is not None else 0,
         "hybrid_version":HYBRID_VERSION,
         "hybrid_independent_dixon_coles":True,
         "hybrid_calibration_history":hybrid_audit,
@@ -1018,6 +1091,8 @@ def main():
     ap.add_argument("--selection-coverage",type=float,choices=(.15,.25,.40,.60),default=.25)
     ap.add_argument("--tuning-interval-days",type=int,choices=(30,60,90,180),default=90)
     ap.add_argument("--self-test-only", action="store_true")
+    ap.add_argument("--experimental-v3", action="store_true",
+                    help="Run opt-in parallel HistGB/Hybrid/Direct V3 alongside untouched V2")
     args = ap.parse_args()
     self_test()
     if args.self_test_only:
@@ -1036,7 +1111,8 @@ def main():
              retrain_days=args.retrain_days, ml_parameters=params,
              auto_tune=not args.disable_auto_tune,
              tuning_interval_days=args.tuning_interval_days,
-             selection_coverage=args.selection_coverage)
+             selection_coverage=args.selection_coverage,
+             v3_models=args.experimental_v3)
 
 
 if __name__ == "__main__":
