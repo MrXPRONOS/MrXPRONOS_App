@@ -98,6 +98,14 @@ def main():
     }
     if parsed.get("home_team") != plan_row["home"] or parsed.get("away_team") != plan_row["away"]:
         raise RuntimeError("ACTUFOOT_SMOKE_LIVE_SUMMARY_TEAM_MISMATCH")
+    hdr = summary.get("header") if isinstance(summary.get("header"),dict) else {}
+    comp = (hdr.get("competitions") or [{}])[0]
+    print("ACTUFOOT_SMOKE_LIVE_SUMMARY_KEYS",list(summary.keys()))
+    print("ACTUFOOT_SMOKE_LIVE_DETAILS_COUNT",len(summary.get("details") or []))
+    print("ACTUFOOT_SMOKE_LIVE_HEADER_COMP_KEYS",list(comp.keys()))
+    print("ACTUFOOT_SMOKE_LIVE_HEADER_DETAILS_COUNT",len(comp.get("details") or []))
+    print("ACTUFOOT_SMOKE_LIVE_SCORING_PLAYS_COUNT",len(summary.get("scoringPlays") or []))
+    print("ACTUFOOT_SMOKE_LIVE_FIRST_DETAIL",str((summary.get("details") or [{}])[0])[:800])
     signals = live_signals(plan_row, parsed, summary, datetime.now(timezone.utc))
     print("ACTUFOOT_SMOKE_LIVE_MATCH", match["home_team"],match["away_team"],
           "status", parsed["state"], "score",
