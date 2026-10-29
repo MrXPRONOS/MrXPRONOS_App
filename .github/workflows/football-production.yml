@@ -22,7 +22,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: mrxpronos-football-production-${{ inputs.mode || 'full' }}
+  group: mrxpronos-football-production-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   publish:
@@ -61,22 +61,30 @@ jobs:
           DRY: ${{ inputs.dry_run || false }}
         run: |
           set -euo pipefail
+          # trigger_source est un champ libre (non authentifié) : il ne donne
+          # jamais le droit de passer en production ni d'ignorer dry_run.
           if [ "$GITHUB_EVENT_NAME" = "push" ]; then
             DEST=dry-run
-          elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && { [ "$SOURCE" = "cron-job.org" ] || [ "$SOURCE" = "cron-job.org-lifecycle" ]; }; then
-            DEST=production
+            DRY=true
+          fi
+          if [ "$DRY" = "true" ] || [ "$DRY" = "True" ]; then
+            DEST=dry-run
           fi
           case "$DEST" in
-            production) echo "FOOTBALL_NEWS_CHAT_ID=$PROD_FOOTBALL_NEWS_CHAT_ID" >> "$GITHUB_ENV";;
-            test) echo "FOOTBALL_NEWS_CHAT_ID=$TELEGRAM_TEST_CHAT_ID" >> "$GITHUB_ENV";;
-            dry-run) DRY=true; echo "FOOTBALL_NEWS_CHAT_ID=$TELEGRAM_TEST_CHAT_ID" >> "$GITHUB_ENV";;
+            production)
+              echo "FOOTBALL_NEWS_CHAT_ID=$PROD_FOOTBALL_NEWS_CHAT_ID" >> "$GITHUB_ENV"
+              echo "dryrun=false" >> "$GITHUB_OUTPUT"
+              ;;
+            test)
+              echo "FOOTBALL_NEWS_CHAT_ID=$TELEGRAM_TEST_CHAT_ID" >> "$GITHUB_ENV"
+              echo "dryrun=false" >> "$GITHUB_OUTPUT"
+              ;;
+            dry-run)
+              echo "FOOTBALL_NEWS_CHAT_ID=$TELEGRAM_TEST_CHAT_ID" >> "$GITHUB_ENV"
+              echo "dryrun=true" >> "$GITHUB_OUTPUT"
+              ;;
             *) exit 1;;
           esac
-          if [ "$DRY" = "true" ] && [ "$SOURCE" != "cron-job.org" ] && [ "$SOURCE" != "cron-job.org-lifecycle" ]; then
-            echo "dryrun=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "dryrun=false" >> "$GITHUB_OUTPUT"
-          fi
           echo "ACTUFOOT_DEST=$DEST"
       - name: Publier ou suivre les matchs retenus
         env:
