@@ -463,27 +463,28 @@ def lifecycle_cycle(now: datetime, sender: channel.Sender,
         plan, raw = get_plan(ledger, sender.chat, day)
         if not plan:
             continue
-        # Vérifier le canal avant toute réservation D1 d'événement.
-        sender.verify_discussion()
-        # Lecture groupée des événements : ne pas réinsérer des événements inchangés.
-        previous = ledger.query(
-            "SELECT ref_id,delivery_status FROM telegram_sent "
-            "WHERE kind=? AND ref_date=? AND ref_id LIKE ? LIMIT 400",
-            (EVENT_KIND, day, sender.chat + ":%"),
-        ).get("results") or []
-        known = {str(item["ref_id"]): item["delivery_status"] for item in previous}
-        for row in list(plan):
-            if checked >= MAX_CALLS_PER_CYCLE:
-                break
+        active = []
+        for row in plan:
             if row.get("done"):
                 continue
             started = channel.moment(row.get("event_date"))
             if not started:
                 raise RuntimeError("ACTUFOOT_SAVED_KICKOFF_INVALID " + str(row.get("id")))
-            if not timedelta(minutes=-75) <= now - started <= timedelta(hours=MAX_LIVE_HOURS):
-                if now - started > timedelta(hours=MAX_LIVE_HOURS):
-                    print("ACTUFOOT_UNCONFIRMED_FINAL_EXPIRED", row["id"])
-                continue
+            if timedelta(minutes=-75) <= now - started <= timedelta(hours=MAX_LIVE_HOURS):
+                active.append(row)
+            elif now - started > timedelta(hours=MAX_LIVE_HOURS):
+                print("ACTUFOOT_UNCONFIRMED_FINAL_EXPIRED", row["id"])
+        if not active:
+            continue
+        # Ne consulter ni Telegram ni les événements D1 quand aucun match n'est actif.
+        sender.verify_discussion()
+        previous = ledger.query(
+            "SELECT ref_id,delivery_status FROM telegram_sent "
+            "WHERE kind=? AND ref_date=? AND ref_id GLOB ? LIMIT 400",
+            (EVENT_KIND, day, sender.chat + ":*"),
+        ).get("results") or []
+        known = {str(item["ref_id"]): item["delivery_status"] for item in previous}
+        for row in active[:max(0, MAX_CALLS_PER_CYCLE - checked)]:
             checked += 1
             summary = fetch_espn_summary(sender.session, str(row["id"]), force=True)
             if not isinstance(summary, dict) or not summary:
