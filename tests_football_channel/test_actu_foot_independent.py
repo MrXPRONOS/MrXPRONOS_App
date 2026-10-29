@@ -140,6 +140,18 @@ class TestActuFootIndependent(unittest.TestCase):
         self.assertEqual(len(actual),1)
         self.assertEqual(actual[0]["minute_total"],48)
 
+    def test_real_soccer_goal_participants_yield_scorer(self):
+        details=[{"id":"goal-1","scoringPlay":True,
+                  "clock":{"displayValue":"39'"},
+                  "team":{"id":"100","displayName":"Juventus"},
+                  "participants":[{"athlete":{"id":"p-3","displayName":"Matilde Pavan"}}],
+                  "homeScore":0,"awayScore":1}]
+        raw={"header":{"competitions":[{"details":details}]}}
+        result=mod.extract_goals(mod.normalize_espn_summary(raw))
+        self.assertEqual(len(result),1)
+        self.assertEqual(result[0]["player"],"Matilde Pavan")
+        self.assertEqual(result[0]["minute_total"],39)
+
     def test_two_distinct_goals_and_final(self):
         info=live_info(hs=2)
         goals=[dict(id="goal1",minute_total=52,home_score=1,away_score=0),
