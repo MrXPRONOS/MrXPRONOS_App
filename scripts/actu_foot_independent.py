@@ -305,7 +305,18 @@ def normalize_espn_summary(summary: dict) -> dict:
     raw = competitions[0] if competitions and isinstance(competitions[0], dict) else {}
     details = raw.get("details")
     if isinstance(details, list) and details:
-        return dict(summary, details=details)
+        translated = []
+        for entry in details:
+            if not isinstance(entry, dict):
+                continue
+            normalized = dict(entry)
+            # ESPN soccer utilise "participants", alors que l'ancien
+            # extracteur lit "athletes". Conserver les athlètes réels.
+            if (not normalized.get("athletes")
+                    and isinstance(normalized.get("participants"), list)):
+                normalized["athletes"] = normalized["participants"]
+            translated.append(normalized)
+        return dict(summary, details=translated)
     return summary
 
 
