@@ -23,7 +23,7 @@ jobs:
           python -m py_compile research/single_ml_v2.py research/single_ml_v2_hybrid.py \
             research/single_ml_v2_direct.py research/single_ml_v3.py \
             research/single_ml_v2_multisource.py research/test_single_ml_v3.py
-      # Include REAL V3 HistGB/Direct training on synthetic earlier-day data; NO historical backtest.
+      # Include real V3 trainers AND prior-OOS hybrid/direct calibration on synthetic earlier dates; NO backtest.
       - name: Test newly implemented V3 features including actual pipeline (SYNTHETIC only)
         run: |
           set -euo pipefail
