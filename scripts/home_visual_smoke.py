@@ -50,7 +50,7 @@ def run_view(browser, width, height, label):
         raise AssertionError(f"{label}: expected 3 primary action cards, got {cards.count()}")
 
     hrefs = cards.evaluate_all("els => els.map(e => e.getAttribute('href'))")
-    expected = ["pronos.html", "live.html", "bonus.html"]
+    expected = ["pronos.html", "historique.html", "bonus.html"]
     if hrefs != expected:
         raise AssertionError(f"{label}: primary action links changed: {hrefs}")
 
