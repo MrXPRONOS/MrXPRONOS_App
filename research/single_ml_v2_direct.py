@@ -72,7 +72,8 @@ def train_direct_score(rows, *, min_samples=DEFAULT_MIN_SAMPLES,
                        max_rows=DEFAULT_MAX_ROWS,
                        max_goals=DEFAULT_MAX_GOALS, max_iter=60,
                        max_leaf_nodes=12, learning_rate=.045,
-                       l2_regularization=12., prior_weight=DEFAULT_PRIOR_WEIGHT):
+                       l2_regularization=12., prior_weight=DEFAULT_PRIOR_WEIGHT,
+                       class_weight_power=0.):
     """Rows MUST be (frozen prematch features, frozen prematch score grid,
     final home goals, final away goals), provided in chronological order.
 
@@ -85,6 +86,8 @@ def train_direct_score(rows, *, min_samples=DEFAULT_MIN_SAMPLES,
         raise ValueError("Invalid direct classifier training configuration")
     if not 0. <= prior_weight < 1.:
         raise ValueError("prior_weight must be between zero and one")
+    if not np.isfinite(class_weight_power) or not 0. <= class_weight_power <= .5:
+        raise ValueError("class_weight_power must be a mild finite value")
     # The bounded research history is strictly a trailing training window.
     from collections import deque
     subset = list(deque(rows, maxlen=max_rows))
@@ -109,7 +112,21 @@ def train_direct_score(rows, *, min_samples=DEFAULT_MIN_SAMPLES,
         learning_rate=learning_rate, l2_regularization=l2_regularization,
         early_stopping=False, random_state=20261024,
     )
-    clf.fit(np.asarray(vectors, dtype=np.float64), np.asarray(labels, dtype=int))
+    # V2 default (power=0) retains exactly its previous unweighted fit.
+    # V3 uses mild, clipped inverse-frequency weights on PREVIOUS-day labels
+    # only: this reduces common-score dominance without extreme rare-tail gains.
+    sample_weights=None
+    if class_weight_power:
+        counts_per_class={int(k):int(v) for k,v in zip(classes,counts)}
+        weighted=np.asarray([
+            (len(labels)/(len(classes)*counts_per_class[int(label)]))**class_weight_power
+            for label in labels],dtype=float)
+        sample_weights=np.clip(weighted,.6,2.0)
+        sample_weights=sample_weights/sample_weights.mean()
+        if not np.isfinite(sample_weights).all():
+            raise ValueError("Invalid balanced historical class weights")
+    clf.fit(np.asarray(vectors, dtype=np.float64),
+            np.asarray(labels, dtype=int),sample_weight=sample_weights)
     return DirectScoreFitted(
         estimator=clf, max_goals=max_goals, samples=len(subset),
         label_counts={int(k):int(v) for k, v in zip(classes, counts)},
