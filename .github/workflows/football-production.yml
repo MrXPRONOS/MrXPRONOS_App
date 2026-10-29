@@ -1,321 +1,95 @@
 name: Mr XPRONOS - Production Telegram football
 run-name: "Actu Foot (${{ inputs.trigger_source || github.event_name }})"
-
 on:
-  # Toute modification critique valide le workflow en dry-run.
   push:
     branches: [main]
-    paths:
-      - 'scripts/football_channel.py'
-      - 'scripts/actu_foot_clasico_recovery.py'
-      - 'scripts/football_followup.py'
-      - 'scripts/actu_foot_observability.py'
-      - 'scripts/neon_rest_compat.py'
-      - 'scripts/actu_foot_ranking.py'
-      - 'scripts/actu_foot_editorial_rankings.py'
-      - 'scripts/actu_foot_source_cache.py'
-      - 'scripts/actu_foot_provider_health.py'
-      - 'scripts/actu_foot_health_report.py'
-      - 'scripts/football_news_engine.py'
-      - 'scripts/football_match_lifecycle.py'
-      - 'scripts/football_stats_engine.py'
-      - 'scripts/football_community_engine.py'
-      - 'scripts/football_viral_engine.py'
-      - 'fetch_foot_news.py'
-      - 'scripts/template_cards.py'
-      - 'scripts/generic_football_banners.py'
-      - 'scripts/generic_football_content.py'
-      - 'assets/images/template_programme_matchs_du_jour.png'
-      - 'assets/images/template_avant_match.png'
-      - 'assets/images/template_resultat_final.png'
-      - 'assets/images/template_compositions_officielles.webp'
-      - 'assets/images/generic_football_banners/**'
-      - '.github/workflows/football-production.yml'
-      - 'assets/data/actufoot_programme_relaunch.txt'
+    paths: ['scripts/actu_foot_independent.py', '.github/workflows/football-production.yml']
   workflow_dispatch:
     inputs:
-      trigger_source:
-        description: "Origine du déclenchement"
-        required: false
-        default: "manual"
-        type: string
-      dry_run:
-        description: "Simulation seulement (aucun envoi Telegram)"
-        required: true
-        type: boolean
-        default: false
+      trigger_source: {required: false, default: manual, type: string}
+      dry_run: {required: true, default: false, type: boolean}
       destination:
-        description: "Destination d'un lancement manuel"
         required: true
+        default: test
         type: choice
-        default: "test"
-        options:
-          - "test"
-          - "dry-run"
-          - "production"
-      force:
-        description: "Ignorer exceptionnellement les fenêtres/quotas/historique"
-        required: true
-        type: boolean
-        default: false
+        options: [test, dry-run, production]
+      force: {required: true, default: false, type: boolean}
       mode:
-        description: "Mode de diffusion"
         required: true
+        default: full
         type: choice
-        default: "full"
-        options:
-          - "full"
-          - "lifecycle"
-
+        options: [full, lifecycle]
 permissions:
-  contents: write
-
+  contents: read
 concurrency:
-  # Le LIVE 2 min et les Infos Foot 5 min ne se bloquent pas mutuellement.
-  # Deux runs du même mode restent sérialisés pour protéger leur état local.
   group: mrxpronos-football-production-${{ inputs.mode || 'full' }}
   cancel-in-progress: false
-
 jobs:
   publish:
-    name: Diffusion editoriale
+    name: ActuFoot autonome sans Supabase ni Neon
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 8
     env:
-      BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
       FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
       PROD_FOOTBALL_NEWS_CHAT_ID: ${{ secrets.FOOTBALL_NEWS_CHAT_ID }}
       TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
-      NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      ACTU_FOOT_BACKEND: supabase
-      FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
-      API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
-      PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
-      PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
-      FOOTBALL_RSS_FEED: https://www.footmercato.net/flux-rss
-      FOOTBALL_BSD_REQUEST_BUDGET: '18'
-      FOOTBALL_ESPN_REQUEST_BUDGET: '36'
-      FOOTBALL_MULTI_SOURCE: '1'
-      FOOTBALL_FREE_MIN_MATCHES: '5'
-      BSD_PREFER_FREE_RECENT: '1'
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       FOOTBALL_REQUIRE_COMMENTS: '1'
-      FOOTBALL_SITE_NEWS_COMMIT_MIN_SECONDS: '1800'
+      FOOTBALL_ENABLE_SCORE_UPDATES: '0'
+      FOOTBALL_REMOTE_LEDGER: '0'
+      FOOTBALL_CANONICAL_EVENTS: '0'
+      FOOTBALL_RUN_METRICS: '0'
+      FOOTBALL_ESPN_REQUEST_BUDGET: '12'
       PYTHONUNBUFFERED: '1'
-      RUN_MODE: ${{ inputs.mode || 'full' }}
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Installer les dependances
-        shell: bash
+      - name: Installer les dépendances nécessaires
+        run: python -m pip install --disable-pip-version-check requests Pillow 'cryptography>=43,<47'
+      - name: Vérifier les scripts avant publication
         run: |
-          if [ "$RUN_MODE" = "lifecycle" ]; then
-            python -m pip install --disable-pip-version-check 'psycopg[binary]>=3.2,<4' requests Pillow
-          else
-            python -m pip install --disable-pip-version-check 'psycopg[binary]>=3.2,<4' requests Pillow feedparser imageio-ffmpeg
-          fi
-
-      - name: Router canal Telegram production ou test
-        id: telegram_route
+          python -m py_compile scripts/actu_foot_independent.py scripts/football_channel.py scripts/d1_publication_ledger.py
+          python -m unittest tests_football_channel.test_github_vault -q
+      - name: Configurer canal et sécurité
+        id: route
         shell: bash
         env:
-          EVENT_NAME: ${{ github.event_name }}
-          TRIGGER_SOURCE: ${{ inputs.trigger_source || '' }}
-          MANUAL_DESTINATION: ${{ inputs.destination || 'test' }}
-          HEAD_MESSAGE: ${{ github.event.head_commit.message || '' }}
+          SOURCE: ${{ inputs.trigger_source || '' }}
+          DEST: ${{ inputs.destination || 'test' }}
+          DRY: ${{ inputs.dry_run || false }}
         run: |
           set -euo pipefail
-          DESTINATION="$MANUAL_DESTINATION"
-
-          # Les vrais schedulers conservent toujours le canal de production.
-          # Un push portant explicitement le préfixe programme-relaunch est le
-          # seul push autorisé à publier en production, et uniquement le programme.
-          if [ "$EVENT_NAME" = "workflow_dispatch" ] && { [ "$TRIGGER_SOURCE" = "cron-job.org" ] || [ "$TRIGGER_SOURCE" = "cron-job.org-lifecycle" ]; }; then
-            DESTINATION="production"
-          elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_MESSAGE" == "ops(actu-foot): relaunch Matchs du jour now"* ]]; then
-            DESTINATION="production"
-            FOOTBALL_PROGRAMME_RELAUNCH_ONLY=1
-            echo "FOOTBALL_PROGRAMME_RELAUNCH_ONLY=1" >> "$GITHUB_ENV"
-          elif [ "$EVENT_NAME" = "push" ]; then
-            DESTINATION="dry-run"
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            DEST=dry-run
+          elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && { [ "$SOURCE" = "cron-job.org" ] || [ "$SOURCE" = "cron-job.org-lifecycle" ]; }; then
+            DEST=production
           fi
-
-          case "$DESTINATION" in
-            production)
-              test -n "$PROD_FOOTBALL_NEWS_CHAT_ID"
-              echo "FOOTBALL_NEWS_CHAT_ID=$PROD_FOOTBALL_NEWS_CHAT_ID" >> "$GITHUB_ENV"
-              echo "FOOTBALL_REMOTE_LEDGER=1" >> "$GITHUB_ENV"
-              echo "FOOTBALL_CANONICAL_EVENTS=1" >> "$GITHUB_ENV"
-              echo "FOOTBALL_RUN_METRICS=1" >> "$GITHUB_ENV"
-              STATE_PATH=".state/mrxpronos-football.json"
-              ;;
-            test)
-              if [ -z "$TELEGRAM_TEST_CHAT_ID" ]; then
-                echo "::error::TELEGRAM_TEST_CHAT_ID manquant. Le test n'est jamais redirigé vers le canal de production."
-                exit 1
-              fi
-              echo "FOOTBALL_NEWS_CHAT_ID=$TELEGRAM_TEST_CHAT_ID" >> "$GITHUB_ENV"
-              STATE_PATH=".state/mrxpronos-football-test.json"
-              ;;
-            dry-run)
-              # Aucun envoi : utiliser un état isolé pour éviter de toucher à la production.
-              STATE_PATH=".state/mrxpronos-football-dry-run.json"
-              ;;
-            *)
-              echo "::error::Destination Telegram inconnue: $DESTINATION"
-              exit 1
-              ;;
+          case "$DEST" in
+            production) echo "FOOTBALL_NEWS_CHAT_ID=$PROD_FOOTBALL_NEWS_CHAT_ID" >> "$GITHUB_ENV";;
+            test) echo "FOOTBALL_NEWS_CHAT_ID=$TELEGRAM_TEST_CHAT_ID" >> "$GITHUB_ENV";;
+            dry-run) DRY=true; echo "FOOTBALL_NEWS_CHAT_ID=$TELEGRAM_TEST_CHAT_ID" >> "$GITHUB_ENV";;
+            *) exit 1;;
           esac
-
-          echo "destination=$DESTINATION" >> "$GITHUB_OUTPUT"
-          if [ "${FOOTBALL_PROGRAMME_RELAUNCH_ONLY:-0}" = "1" ]; then
-            echo "programme_relaunch_only=true" >> "$GITHUB_OUTPUT"
+          if [ "$DRY" = "true" ] && [ "$SOURCE" != "cron-job.org" ] && [ "$SOURCE" != "cron-job.org-lifecycle" ]; then
+            echo "dryrun=true" >> "$GITHUB_OUTPUT"
           else
-            echo "programme_relaunch_only=false" >> "$GITHUB_OUTPUT"
+            echo "dryrun=false" >> "$GITHUB_OUTPUT"
           fi
-          echo "state_path=$STATE_PATH" >> "$GITHUB_OUTPUT"
-          echo "FOOTBALL_NEWS_STATE=$STATE_PATH" >> "$GITHUB_ENV"
-          echo "TELEGRAM_ROUTE destination=$DESTINATION state=$STATE_PATH"
-
-      - name: Verifier les secrets de production
+          echo "ACTUFOOT_DEST=$DEST"
+      - name: Publier ou suivre les matchs retenus
+        env:
+          MODE: ${{ inputs.mode || 'full' }}
+          DRYRUN: ${{ steps.route.outputs.dryrun }}
         shell: bash
         run: |
           set -euo pipefail
-          if [ "${{ steps.telegram_route.outputs.destination }}" != "dry-run" ]; then
+          if [ "$DRYRUN" != "true" ]; then
             test -n "$FOOTBALL_NEWS_BOT_TOKEN"
             test -n "$FOOTBALL_NEWS_CHAT_ID"
+            test -n "$CLOUDFLARE_API_TOKEN"
           fi
-          if [ "$RUN_MODE" != "lifecycle" ]; then
-            test -n "$BSD_API_KEY"
-          fi
-          if [ "${{ steps.telegram_route.outputs.destination }}" != "dry-run" ]; then
-            python -c 'import sys; sys.path.insert(0,"scripts"); from neon_rest_compat import database_config; base,key=database_config(); assert base and key, "Actu Foot backend unavailable"; print("ACTU_FOOT_BACKEND_READY", "Supabase" if base.startswith("https://") else "Neon")'
-          fi
-          echo "PRODUCTION_SECRETS_OK mode=$RUN_MODE"
-
-      - name: Verifier les 4 templates premium et 3 bannieres generiques
-        run: |
-          python - <<'PY'
-          import sys
-          from pathlib import Path
-          from PIL import Image
-
-          sys.path.insert(0, "scripts")
-          import generic_football_banners as banners
-
-          required = [
-              "template_programme_matchs_du_jour.png",
-              "template_avant_match.png",
-              "template_resultat_final.png",
-              "template_compositions_officielles.webp",
-          ]
-          for name in required:
-              path = Path("assets/images") / name
-              assert path.is_file(), path
-              with Image.open(path) as image:
-                  if name == "template_compositions_officielles.webp":
-                      assert image.size == (1374, 1145), (path, image.size)
-                  else:
-                      w, h = image.size
-                      assert w == h and w >= 900, (path, image.size)
-
-          for family in ("match", "club", "general"):
-              image = banners.template(family)
-              assert image.size == (1280, 500), (family, image.size)
-
-          print("PRODUCTION_TEMPLATES_OK", "4 premium + 3 generiques")
-          PY
-
-      - name: Actualiser le moteur News Football commun au site et à Telegram
-        if: ${{ (inputs.mode || 'full') != 'lifecycle' }}
-        env:
-          MAX_ARTICLES: '60'
-          MAX_ARTICLES_PER_FEED: '16'
-          MAX_NEWS_AGE_HOURS: '120'
-        run: python fetch_foot_news.py
-
-      - name: Restaurer historique anti-doublon
-        uses: actions/cache/restore@v4
-        with:
-          path: ${{ steps.telegram_route.outputs.state_path }}
-          key: football-${{ steps.telegram_route.outputs.destination }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: |
-            football-${{ steps.telegram_route.outputs.destination }}-
-
-      - name: Rattrapage unique du Clásico confirmé avant le programme
-        if: ${{ steps.telegram_route.outputs.destination == 'production' && (inputs.mode || 'full') != 'lifecycle' }}
-        run: python -m scripts.actu_foot_clasico_recovery
-
-      - name: Publier sur Telegram
-        id: telegram_dispatch
-        shell: bash
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          MANUAL_DRY_RUN: ${{ inputs.dry_run || 'false' }}
-          MANUAL_FORCE: ${{ inputs.force || 'false' }}
-          TRIGGER_SOURCE: ${{ inputs.trigger_source || '' }}
-          ROUTED_DESTINATION: ${{ steps.telegram_route.outputs.destination }}
-          HEAD_MESSAGE: ${{ github.event.head_commit.message || '' }}
-        run: |
-          set -euo pipefail
-          ARGS=()
-
-          # Les pushs restent toujours en simulation.
-          # Les deux tâches cron-job.org connues sont, elles, des exécutions de production.
-          # Le déclencheur *-test reste explicitement hors de cette liste.
-          CRON_PRODUCTION="false"
-          if [ "$EVENT_NAME" = "workflow_dispatch" ] && { [ "$TRIGGER_SOURCE" = "cron-job.org" ] || [ "$TRIGGER_SOURCE" = "cron-job.org-lifecycle" ]; }; then
-            CRON_PRODUCTION="true"
-          fi
-
-          if [ "$ROUTED_DESTINATION" = "dry-run" ]; then
-            ARGS+=(--dry-run)
-          elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_MESSAGE" != "ops(actu-foot): relaunch Matchs du jour now"* ]]; then
-            ARGS+=(--dry-run)
-          elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_DRY_RUN" = "true" ] && [ "$CRON_PRODUCTION" != "true" ]; then
-            ARGS+=(--dry-run)
-          fi
-
-          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_FORCE" = "true" ]; then
-            ARGS+=(--force)
-          fi
-
-          if [ "$RUN_MODE" = "lifecycle" ]; then
-            ARGS+=(--lifecycle-only)
-          fi
-
-          EFFECTIVE_DRY_RUN="false"
-          for arg in "${ARGS[@]}"; do
-            if [ "$arg" = "--dry-run" ]; then EFFECTIVE_DRY_RUN="true"; fi
-          done
-          echo "effective_dry_run=$EFFECTIVE_DRY_RUN" >> "$GITHUB_OUTPUT"
-          echo "ACTUFOOT_MODE event=$EVENT_NAME source=$TRIGGER_SOURCE mode=$RUN_MODE effective_dry_run=$EFFECTIVE_DRY_RUN"
-
-          python scripts/football_channel.py "${ARGS[@]}"
-
-      - name: Sauvegarder historique anti-doublon
-        if: ${{ always() && steps.telegram_dispatch.outputs.effective_dry_run == 'false' && (github.event_name == 'workflow_dispatch' || steps.telegram_route.outputs.programme_relaunch_only == 'true') }}
-        uses: actions/cache/save@v4
-        with:
-          path: ${{ steps.telegram_route.outputs.state_path }}
-          key: football-${{ steps.telegram_route.outputs.destination }}-${{ github.run_id }}-${{ github.run_attempt }}
-
-      - name: Tableau de santé Actu Foot
-        if: ${{ always() }}
-        continue-on-error: true
-        shell: bash
-        run: |
-          python scripts/actu_foot_health_report.py > /tmp/actu-foot-health.md
-          cat /tmp/actu-foot-health.md >> "$GITHUB_STEP_SUMMARY"
-
-      # Les Infos Foot sont déjà publiées par fetch_foot_news.py dans le snapshot
-      # Neon public en lecture seule. Aucun commit de données dynamiques sur main.
-
+          ARGS=(--mode "$MODE")
+          if [ "$DRYRUN" = "true" ]; then ARGS+=(--dry-run); fi
+          python scripts/actu_foot_independent.py "${ARGS[@]}"
