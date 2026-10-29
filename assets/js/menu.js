@@ -5,7 +5,7 @@
 
   const ICON_BASE = 'assets/images/mobile-premium/';
   const LOGO = 'assets/images/mrxpronos-horizontal-compact.webp?v=20261012-brand2';
-  const MOBILE_NAV_CSS = 'assets/css/mobile-nav-premium.css?v=20261012-mobile-nav3';
+  const MOBILE_NAV_CSS = 'assets/css/mobile-nav-premium.css?v=20261029-public-focus1';
   const ICON_REV = '?v=20261012-crisp-retina3';
 
   function ensureMobileNavStyles() {
@@ -20,11 +20,10 @@
   const menuItems = [
     { name: 'Accueil', icon: 'icon-home.webp', url: 'index.html' },
     { name: 'Pronostics', icon: 'icon-pronostics.webp', url: 'pronos.html', featured: 'coupons', badge: 'TOP' },
-    { name: 'LIVE', icon: 'icon-live.webp', url: 'live.html', vip: true, featured: 'vip', badge: 'LIVE' },
     { name: 'Historique', icon: 'icon-history.webp', url: 'historique.html' },
     { name: 'Blog', icon: 'icon-blog.webp', url: 'blog.html' },
-    { name: 'Conseils', icon: 'icon-conseils.webp', url: 'conseils.html' },
     { name: 'Infos sport', icon: 'icon-infos.webp', url: 'infos.html' },
+    { name: 'Conseils', icon: 'icon-conseils.webp', url: 'conseils.html' },
     { name: 'Bonus & Promo', icon: 'icon-bonus.webp', url: 'bonus.html' },
     { name: 'Contact', icon: 'icon-contact.webp', url: 'contact.html' }
   ];
@@ -32,7 +31,7 @@
   const bottomItems = [
     { name: 'Accueil', icon: 'icon-home.webp', url: 'index.html' },
     { name: 'Pronostics', icon: 'icon-pronostics.webp', url: 'pronos.html' },
-    { name: 'LIVE', icon: 'icon-live.webp', url: 'live.html', live: true },
+    { name: 'Historique', icon: 'icon-history.webp', url: 'historique.html' },
     { name: 'Bonus', icon: 'icon-bonus.webp', url: 'bonus.html' },
     { name: 'Menu', icon: 'icon-menu.webp', action: 'menu' }
   ];
@@ -153,7 +152,7 @@
     inner.className = 'inner';
 
     const section = currentSectionFile();
-    const primaryFiles = new Set(['index.html', 'pronos.html', 'live.html', 'bonus.html']);
+    const primaryFiles = new Set(['index.html', 'pronos.html', 'historique.html', 'bonus.html']);
     const secondaryPage = !primaryFiles.has(section);
 
     inner.innerHTML = bottomItems.map(item => {
