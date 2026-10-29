@@ -107,6 +107,27 @@ PUBLIC_ARTICLE_FIELDS = {
     "social_image", "story_image", "og_image", "ab_image_url", "category",
     "topic_id",
 }
+PUBLIC_FEED_FIELDS = {
+    "conseils.json": {
+        "slug", "title", "content", "excerpt", "meta_description", "date",
+        "published_at", "author", "reading_time", "keywords", "category",
+        "type", "image_url", "og_image", "ab_image_url", "active", "faq",
+        "visual_format", "description",
+    },
+    "bonus.json": {
+        "id", "title", "bookmaker", "description", "image", "code",
+        "footer", "link", "active", "start_date", "end_date",
+    },
+    "bookmakers.json": {
+        "id", "name", "logo", "url", "description", "desc", "bonus",
+        "promo_code", "active",
+    },
+    "infos.json": {
+        "id", "slug", "title", "content", "image_url", "date",
+        "published_at", "category", "tag", "active", "link",
+    },
+    "testimonials.json": {"name", "city", "text", "rating"},
+}
 
 
 def _public_pick(pick):
@@ -235,6 +256,23 @@ def prepare_public_news(destination: Path):
             continue
         result.append({key: value for key, value in row.items() if key in PUBLIC_NEWS_FIELDS})
     path.write_text(json.dumps(result, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+
+
+def prepare_public_feeds(destination: Path):
+    """CMS drafts and administrator fields must never be in the public JSON."""
+    for name, visible_fields in PUBLIC_FEED_FIELDS.items():
+        file = destination / name
+        if not file.exists():
+            continue
+        rows = json.loads(file.read_text(encoding="utf-8"))
+        if not isinstance(rows, list):
+            raise ValueError(f"Unexpected public feed shape: {name}")
+        cleaned = [
+            {key: value for key, value in row.items() if key in visible_fields}
+            for row in rows
+            if isinstance(row, dict) and row.get("active") is not False
+        ]
+        file.write_text(json.dumps(cleaned, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
 
 def prepare_public_articles(destination: Path):
@@ -374,6 +412,7 @@ def stage_site(destination: Path, previous: Path | None):
     prepare_public_editorial_media(destination)
     prepare_public_articles(destination)
     prepare_public_news(destination)
+    prepare_public_feeds(destination)
     refresh_public_script_versions(destination)
     pause_public_features(destination)
 
