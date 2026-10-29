@@ -58,6 +58,10 @@
       "message_id": 73,
       "number": 9
     },
+    "97abe2544859d093cd88785c": {
+      "message_id": 80,
+      "number": 9
+    },
     "afcb26cb17e7c27f143251a5": {
       "message_id": 52,
       "number": 9
@@ -523,6 +527,12 @@
       "number": 9,
       "sent_at": "2026-10-28T21:16:37.958251+00:00",
       "source": "The Block"
+    },
+    "news:09:8ccc29ee4f03edf40349c3e3": {
+      "message_id": 80,
+      "number": 9,
+      "sent_at": "2026-10-29T21:22:49.756216+00:00",
+      "source": "Cointelegraph"
     },
     "news:09:e0f3d809276d38630d429f64": {
       "message_id": 36,
