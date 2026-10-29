@@ -1301,7 +1301,7 @@ function renderBookmakers(bookmakers) {
         <img src="${escapeAttribute(b.logo || "assets/images/default-logo.webp")}" alt="${escapeAttribute(b.name || "Bookmaker")}" loading="lazy" decoding="async">
         <h3>${escapeHtml(b.name || "Bookmaker")}</h3>
         <p>${escapeHtml(b.desc || b.description || "Bonus exclusif bookmaker")}</p>
-        <a href="${escapeAttribute(safeCmsUrl(b.url || "#", "link", "#", window.location.href))}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">S'inscrire avec XPVIP</a>
+        <a href="${escapeAttribute(safeCmsUrl(b.url || "#", "link", "#", window.location.href))}" target="_blank" rel="noopener noreferrer sponsored" class="btn btn-primary mx-partner-cta">Consulter l'offre</a>
       `;
       DOM.bookmakersBonus.appendChild(div);
     });
@@ -3293,26 +3293,25 @@ function animateWins() {
 async function displayTestimonials() {
   if (!DOM.testimonials) return;
   try {
-    const resp = await fetch(`testimonials.json?t=${Date.now()}`, { cache: "no-cache" });
-    if (!resp.ok) throw new Error("Erreur");
-    const testimonials = await resp.json();
-    DOM.testimonials.innerHTML = testimonials
-      .map(
-        (t) => `
-      <div class="card">
-        <p>"${escapeHtml(t.text)}"</p>
-        <p style="margin-top:1rem; color:var(--or);">— ${escapeHtml(t.name)}</p>
-      </div>
-    `
-      )
-      .join("");
+    const response = await fetch('testimonials.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!response.ok) throw new Error('Témoignages indisponibles');
+    const rows = await response.json();
+    if (!Array.isArray(rows) || rows.length === 0) throw new Error('Aucun témoignage');
+    DOM.testimonials.innerHTML = rows.filter(t => t && t.text && t.name).map(t => {
+      const rating = Math.min(5, Math.max(0, Math.floor(Number(t.rating) || 0)));
+      const stars = '★'.repeat(rating) + '☆'.repeat(5-rating);
+      return '<article class="mx-testimonial-card">'
+        + '<div class="mx-testimonial-rating" aria-label="' + rating + ' étoiles sur 5">' + stars + '</div>'
+        + '<blockquote>“' + escapeHtml(String(t.text)) + '”</blockquote>'
+        + '<div class="mx-testimonial-author"><span class="mx-testimonial-avatar" aria-hidden="true">'
+        + escapeHtml(String(t.name).trim().charAt(0).toUpperCase()) + '</span>'
+        + '<div><strong>' + escapeHtml(String(t.name)) + '</strong>'
+        + '<span>' + escapeHtml(String(t.city || 'Communauté')) + '</span></div></div>'
+        + '</article>';
+    }).join('');
   } catch {
-    DOM.testimonials.innerHTML = `
-      <div class="card">
-        <p>"Grâce à Mr XPRONOS, j'ai mieux structuré mes paris."</p>
-        <p style="margin-top:1rem;color:var(--or);">— Client</p>
-      </div>
-    `;
+    // Never invent customer quotes just to fill a promotional section.
+    DOM.testimonials.innerHTML = '<p class="mx-extra-empty">Aucun retour de la communauté disponible pour le moment.</p>';
   }
 }
 
