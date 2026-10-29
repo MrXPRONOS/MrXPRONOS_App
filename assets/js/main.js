@@ -1759,6 +1759,20 @@ async function displayHistory() {
   if (!DOM.historyContainer) return;
   allData = await loadDataGeneric();
 
+  // Public receipts survive settlement and link to GitHub's dated file history.
+  let publicProofs = {};
+  try {
+    const proofResponse = await fetch('proofs/index.json?t=' + Date.now(), { cache: 'no-store' });
+    if (proofResponse.ok) {
+      const proofIndex = await proofResponse.json();
+      if (proofIndex?.schema === 'mx-public-proof-index-v1' && proofIndex?.receipts) {
+        publicProofs = proofIndex.receipts;
+      }
+    }
+  } catch (_) {
+    // A missing proof archive must never be interpreted as proof of publication.
+  }
+
   if (!allData || !Array.isArray(allData.matches)) {
     DOM.historyContainer.innerHTML = '<div class="no-events">Aucun résultat disponible.</div>';
     return;
@@ -1873,6 +1887,14 @@ async function displayHistory() {
       ? "Selon le score final"
       : (m.history_finished ? "Marché non calculable" : "Score final indisponible");
     const reference = escapeHtml(String(m.id || "").slice(0, 35));
+    const archive = publicProofs[String(m.id)] || null;
+    const beforeKickoff = archive &&
+      Date.parse(archive.recorded_at_utc) + 15 * 60 * 1000 < Date.parse(archive.kickoff_utc) &&
+      /^proofs\\/receipts\\/[a-f0-9]{32}\\.json$/.test(archive.receipt_url || '') &&
+      /^https:\\/\\/github\\.com\\/MrXPRONOS\\/MrXPRONOS_App\\/commits\\/gh-pages\\/proofs\\/receipts\\/[a-f0-9]{32}\\.json$/.test(archive.github_history_url || '');
+    const proofMarkup = beforeKickoff
+      ? `<div class="mx-history-proof-link"><span>Capture archivée : ${escapeHtml(new Date(archive.recorded_at_utc).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short',timeZone:'UTC'}))} UTC</span><a href="${escapeAttribute(archive.github_history_url)}" target="_blank" rel="noopener noreferrer">Vérifier l'historique GitHub ↗</a></div>`
+      : '<div class="mx-history-proof-link mx-history-proof-link--missing">Pas de preuve publique antérieure archivée</div>';
 
     html += `
       <article class="history-row">
@@ -1883,6 +1905,7 @@ async function displayHistory() {
           </div>
           <span class="history-date">${escapeHtml(formattedDate)}</span>
           <small class="history-reference" title="Identifiant public de suivi">Réf. ${reference}</small>
+          ${proofMarkup}
         </div>
 
         <div class="history-match">
