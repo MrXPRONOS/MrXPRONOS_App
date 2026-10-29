@@ -10,6 +10,12 @@ on:
       - 'live.html'
       - 'scripts/mobile_nav_premium_smoke.py'
       - '.github/workflows/mobile-nav-premium-smoke.yml'
+  pull_request:
+    paths:
+      - 'assets/js/menu.js'
+      - 'assets/css/mobile-nav-premium.css'
+      - 'scripts/mobile_nav_premium_smoke.py'
+      - '.github/workflows/mobile-nav-premium-smoke.yml'
   workflow_dispatch:
 
 permissions:
