@@ -1,606 +1,606 @@
 {
   "audit": {
     "category": "anime_catalog",
-    "checked_at": "2026-10-28T23:00:23.565535+00:00",
+    "checked_at": "2026-10-29T06:15:06.108212+00:00",
     "not_yet_indexed": [
       {
         "episode": 2,
         "season": "1",
-        "series": "animes-canal-presque-maries",
-        "source_instances": 1
+        "series": "a-certain-dark-item",
+        "source_instances": 2
       },
       {
         "episode": 3,
         "season": "1",
-        "series": "animes-canal-presque-maries",
-        "source_instances": 1
-      },
-      {
-        "episode": 4,
-        "season": "1",
-        "series": "animes-canal-presque-maries",
-        "source_instances": 1
-      },
-      {
-        "episode": 5,
-        "season": "1",
-        "series": "animes-canal-presque-maries",
-        "source_instances": 1
-      },
-      {
-        "episode": 259,
-        "season": "1",
-        "series": "boruto-animes-canal",
-        "source_instances": 1
-      },
-      {
-        "episode": 1,
-        "season": "1",
-        "series": "eden",
-        "source_instances": 1
-      },
-      {
-        "episode": 2,
-        "season": "1",
-        "series": "eden",
-        "source_instances": 1
-      },
-      {
-        "episode": 3,
-        "season": "1",
-        "series": "eden",
-        "source_instances": 1
-      },
-      {
-        "episode": 4,
-        "season": "1",
-        "series": "eden",
-        "source_instances": 1
-      },
-      {
-        "episode": 1,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 2,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 3,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 4,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 5,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 6,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 7,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 8,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 9,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 10,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 11,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
+        "series": "a-certain-dark-item",
+        "source_instances": 4
       },
       {
         "episode": 12,
         "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 13,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 14,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 15,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 16,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 17,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 18,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 19,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 20,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 21,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 22,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 23,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 24,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 25,
-        "season": "1",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 1,
-        "season": "2",
-        "series": "kimetsu-no-yaiba",
+        "series": "a-livid-ladys-guide-to-getting-even-how-i-crushed-my-ho",
         "source_instances": 1
       },
       {
         "episode": 2,
         "season": "2",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
+        "series": "a-returner-s-magic-should-be-special",
+        "source_instances": 2
       },
       {
         "episode": 3,
         "season": "2",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 4,
-        "season": "2",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 5,
-        "season": "2",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 6,
-        "season": "2",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 7,
-        "season": "2",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 8,
-        "season": "2",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 9,
-        "season": "2",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 10,
-        "season": "2",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 11,
-        "season": "2",
-        "series": "kimetsu-no-yaiba",
-        "source_instances": 1
-      },
-      {
-        "episode": 1,
-        "season": "4",
-        "series": "kingdom",
-        "source_instances": 1
-      },
-      {
-        "episode": 2,
-        "season": "4",
-        "series": "kingdom",
-        "source_instances": 1
-      },
-      {
-        "episode": 3,
-        "season": "4",
-        "series": "kingdom",
+        "series": "a-returner-s-magic-should-be-special",
         "source_instances": 2
       },
       {
         "episode": 4,
-        "season": "4",
-        "series": "kingdom",
+        "season": "2",
+        "series": "a-returner-s-magic-should-be-special",
+        "source_instances": 2
+      },
+      {
+        "episode": 3,
+        "season": "1",
+        "series": "a-returner-s-magic-should-be-special-2nd-season",
+        "source_instances": 1
+      },
+      {
+        "episode": 4,
+        "season": "1",
+        "series": "a-returner-s-magic-should-be-special-2nd-season",
+        "source_instances": 1
+      },
+      {
+        "episode": 3,
+        "season": "2",
+        "series": "a-returner-s-magic-should-be-special-2nd-season",
+        "source_instances": 1
+      },
+      {
+        "episode": 4,
+        "season": "2",
+        "series": "a-returner-s-magic-should-be-special-2nd-season",
+        "source_instances": 4
+      },
+      {
+        "episode": 4,
+        "season": "1",
+        "series": "a-tale-of-the-secret-saint",
         "source_instances": 1
       },
       {
         "episode": 5,
-        "season": "4",
-        "series": "kingdom",
+        "season": "1",
+        "series": "a-tale-of-the-secret-saint",
+        "source_instances": 4
+      },
+      {
+        "episode": 4,
+        "season": "2",
+        "series": "a-wild-last-boss-appeared",
+        "source_instances": 2
+      },
+      {
+        "episode": 5,
+        "season": "2",
+        "series": "a-wild-last-boss-appeared",
+        "source_instances": 5
+      },
+      {
+        "episode": 1,
+        "season": "1",
+        "series": "a-wild-last-boss-appeared-2",
+        "source_instances": 1
+      },
+      {
+        "episode": 16,
+        "season": "2",
+        "series": "ace-of-diamond-act-ii",
+        "source_instances": 4
+      },
+      {
+        "episode": 1,
+        "season": "2",
+        "series": "ace-of-the-diamond-act-ii-partie-2",
+        "source_instances": 1
+      },
+      {
+        "episode": 2,
+        "season": "2",
+        "series": "ace-of-the-diamond-act-ii-partie-2",
+        "source_instances": 2
+      },
+      {
+        "episode": 1,
+        "season": "1",
+        "series": "animeisekaic",
+        "source_instances": 2
+      },
+      {
+        "episode": 2,
+        "season": "1",
+        "series": "animeisekaic",
+        "source_instances": 2
+      },
+      {
+        "episode": 3,
+        "season": "1",
+        "series": "animeisekaic",
+        "source_instances": 2
+      },
+      {
+        "episode": 4,
+        "season": "1",
+        "series": "animeisekaic",
+        "source_instances": 2
+      },
+      {
+        "episode": 5,
+        "season": "1",
+        "series": "animeisekaic",
+        "source_instances": 2
+      },
+      {
+        "episode": 1,
+        "season": "1",
+        "series": "animeisekaic-beast-tamer",
+        "source_instances": 1
+      },
+      {
+        "episode": 2,
+        "season": "1",
+        "series": "animeisekaic-beast-tamer",
+        "source_instances": 1
+      },
+      {
+        "episode": 3,
+        "season": "1",
+        "series": "animeisekaic-beast-tamer",
+        "source_instances": 1
+      },
+      {
+        "episode": 4,
+        "season": "1",
+        "series": "animeisekaic-beast-tamer",
+        "source_instances": 1
+      },
+      {
+        "episode": 5,
+        "season": "1",
+        "series": "animeisekaic-beast-tamer",
         "source_instances": 1
       },
       {
         "episode": 6,
-        "season": "4",
-        "series": "kingdom",
+        "season": "1",
+        "series": "animeisekaic-beast-tamer",
         "source_instances": 1
       },
       {
         "episode": 7,
-        "season": "4",
-        "series": "kingdom",
+        "season": "1",
+        "series": "animeisekaic-beast-tamer",
         "source_instances": 1
       },
       {
         "episode": 8,
-        "season": "4",
-        "series": "kingdom",
+        "season": "1",
+        "series": "animeisekaic-beast-tamer",
         "source_instances": 1
       },
       {
         "episode": 9,
-        "season": "4",
-        "series": "kingdom",
+        "season": "1",
+        "series": "animeisekaic-beast-tamer",
         "source_instances": 1
       },
       {
         "episode": 10,
-        "season": "4",
-        "series": "kingdom",
+        "season": "1",
+        "series": "animeisekaic-beast-tamer",
         "source_instances": 1
       },
       {
         "episode": 11,
-        "season": "4",
-        "series": "kingdom",
+        "season": "1",
+        "series": "animeisekaic-beast-tamer",
         "source_instances": 1
       },
       {
         "episode": 12,
-        "season": "4",
-        "series": "kingdom",
+        "season": "1",
+        "series": "animeisekaic-beast-tamer",
         "source_instances": 1
       },
       {
         "episode": 13,
-        "season": "4",
-        "series": "kingdom",
-        "source_instances": 1
-      },
-      {
-        "episode": 14,
-        "season": "4",
-        "series": "kingdom",
-        "source_instances": 1
-      },
-      {
-        "episode": 15,
-        "season": "4",
-        "series": "kingdom",
-        "source_instances": 1
-      },
-      {
-        "episode": 17,
-        "season": "4",
-        "series": "kingdom",
-        "source_instances": 1
-      },
-      {
-        "episode": 18,
-        "season": "4",
-        "series": "kingdom",
-        "source_instances": 1
-      },
-      {
-        "episode": 19,
-        "season": "4",
-        "series": "kingdom",
-        "source_instances": 1
-      },
-      {
-        "episode": 20,
-        "season": "4",
-        "series": "kingdom",
-        "source_instances": 1
-      },
-      {
-        "episode": 21,
-        "season": "4",
-        "series": "kingdom",
-        "source_instances": 1
-      },
-      {
-        "episode": 22,
-        "season": "4",
-        "series": "kingdom",
-        "source_instances": 1
-      },
-      {
-        "episode": 23,
-        "season": "4",
-        "series": "kingdom",
-        "source_instances": 1
-      },
-      {
-        "episode": 24,
-        "season": "4",
-        "series": "kingdom",
-        "source_instances": 1
-      },
-      {
-        "episode": 25,
-        "season": "4",
-        "series": "kingdom",
-        "source_instances": 1
-      },
-      {
-        "episode": 26,
-        "season": "4",
-        "series": "kingdom",
+        "season": "1",
+        "series": "animeisekaic-beast-tamer-fin",
         "source_instances": 1
       },
       {
         "episode": 1,
         "season": "1",
-        "series": "mangas-fv-castlevania",
+        "series": "animeisekaic-daemons-of-the-shadow-realm-convertie",
         "source_instances": 1
       },
       {
         "episode": 2,
         "season": "1",
-        "series": "mangas-fv-castlevania",
+        "series": "animeisekaic-daemons-of-the-shadow-realm-convertie",
         "source_instances": 1
       },
       {
         "episode": 3,
         "season": "1",
-        "series": "mangas-fv-castlevania",
+        "series": "animeisekaic-daemons-of-the-shadow-realm-convertie",
         "source_instances": 1
       },
       {
         "episode": 4,
         "season": "1",
-        "series": "mangas-fv-castlevania",
+        "series": "animeisekaic-daemons-of-the-shadow-realm-convertie",
         "source_instances": 1
       },
       {
         "episode": 5,
         "season": "1",
-        "series": "mangas-fv-castlevania",
-        "source_instances": 1
-      },
-      {
-        "episode": 6,
-        "season": "1",
-        "series": "mangas-fv-castlevania",
-        "source_instances": 1
-      },
-      {
-        "episode": 7,
-        "season": "1",
-        "series": "mangas-fv-castlevania",
-        "source_instances": 1
-      },
-      {
-        "episode": 8,
-        "season": "1",
-        "series": "mangas-fv-castlevania",
-        "source_instances": 1
-      },
-      {
-        "episode": 1,
-        "season": "1",
-        "series": "mangas-fv-death-parade-ep01",
-        "source_instances": 1
-      },
-      {
-        "episode": 2,
-        "season": "1",
-        "series": "mangas-fv-death-parade-ep02",
+        "series": "animeisekaic-daemons-of-the-shadow-realm-convertie",
         "source_instances": 1
       },
       {
         "episode": 3,
         "season": "1",
-        "series": "mangas-fv-death-parade-ep03",
-        "source_instances": 1
-      },
-      {
-        "episode": 4,
-        "season": "1",
-        "series": "mangas-fv-death-parade-ep04",
-        "source_instances": 1
-      },
-      {
-        "episode": 11,
-        "season": "1",
-        "series": "mangas-fv-death-parade-ep11",
-        "source_instances": 1
-      },
-      {
-        "episode": 12,
-        "season": "1",
-        "series": "mangas-fv-death-parade-ep12",
+        "series": "animeisekaic-daemons-of-the-shadow-realm-convertie-2",
         "source_instances": 1
       },
       {
         "episode": 1,
         "season": "1",
-        "series": "mangas-fv-kill-blue-ep01",
+        "series": "animeisekaic-daemons-of-the-shadow-realm-non-convertie",
         "source_instances": 1
       },
       {
         "episode": 2,
         "season": "1",
-        "series": "mangas-fv-kill-blue-ep02",
-        "source_instances": 1
-      },
-      {
-        "episode": 3,
-        "season": "1",
-        "series": "mangas-fv-kill-blue-ep03",
+        "series": "animeisekaic-daemons-of-the-shadow-realm-non-convertie",
         "source_instances": 1
       },
       {
         "episode": 4,
         "season": "1",
-        "series": "mangas-fv-kill-blue-ep04",
+        "series": "animeisekaic-daemons-of-the-shadow-realm-non-convertie",
         "source_instances": 1
       },
       {
         "episode": 5,
         "season": "1",
-        "series": "mangas-fv-kill-blue-ep05",
-        "source_instances": 1
-      },
-      {
-        "episode": 6,
-        "season": "1",
-        "series": "mangas-fv-kill-blue-ep06",
-        "source_instances": 1
-      },
-      {
-        "episode": 7,
-        "season": "1",
-        "series": "mangas-fv-kill-blue-ep07",
+        "series": "animeisekaic-daemons-of-the-shadow-realm-non-convertie",
         "source_instances": 1
       },
       {
         "episode": 8,
         "season": "1",
-        "series": "mangas-fv-kill-blue-ep08",
+        "series": "animeisekaic-easygoing-territory-defense-by-the-optimis",
         "source_instances": 1
       },
       {
         "episode": 9,
         "season": "1",
-        "series": "mangas-fv-kill-blue-ep09",
+        "series": "animeisekaic-easygoing-territory-defense-by-the-optimis",
         "source_instances": 1
       },
       {
         "episode": 10,
         "season": "1",
-        "series": "mangas-fv-kill-blue-ep10",
-        "source_instances": 1
+        "series": "animeisekaic-easygoing-territory-defense-by-the-optimis",
+        "source_instances": 2
       },
       {
         "episode": 11,
         "season": "1",
-        "series": "mangas-fv-kill-blue-ep11",
-        "source_instances": 1
-      },
-      {
-        "episode": 12,
-        "season": "1",
-        "series": "mangas-fv-kill-blue-ep12-fin",
+        "series": "animeisekaic-easygoing-territory-defense-by-the-optimis",
         "source_instances": 1
       },
       {
         "episode": 1,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-convertie",
+        "source_instances": 1
+      },
+      {
+        "episode": 2,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-convertie",
+        "source_instances": 1
+      },
+      {
+        "episode": 3,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-convertie",
+        "source_instances": 1
+      },
+      {
+        "episode": 4,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-convertie",
+        "source_instances": 1
+      },
+      {
+        "episode": 5,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-convertie",
+        "source_instances": 1
+      },
+      {
+        "episode": 6,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-convertie",
+        "source_instances": 1
+      },
+      {
+        "episode": 7,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-convertie",
+        "source_instances": 1
+      },
+      {
+        "episode": 8,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-convertie",
+        "source_instances": 1
+      },
+      {
+        "episode": 9,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-convertie",
+        "source_instances": 1
+      },
+      {
+        "episode": 10,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-convertie",
+        "source_instances": 1
+      },
+      {
+        "episode": 1,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-non-converti",
+        "source_instances": 1
+      },
+      {
+        "episode": 2,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-non-converti",
+        "source_instances": 1
+      },
+      {
+        "episode": 3,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-non-converti",
+        "source_instances": 1
+      },
+      {
+        "episode": 4,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-non-converti",
+        "source_instances": 1
+      },
+      {
+        "episode": 5,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-non-converti",
+        "source_instances": 1
+      },
+      {
+        "episode": 6,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-non-converti",
+        "source_instances": 1
+      },
+      {
+        "episode": 7,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-non-converti",
+        "source_instances": 1
+      },
+      {
+        "episode": 8,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-non-converti",
+        "source_instances": 1
+      },
+      {
+        "episode": 9,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-non-converti",
+        "source_instances": 1
+      },
+      {
+        "episode": 10,
+        "season": "2",
+        "series": "animeisekaic-farming-life-in-another-world-non-converti",
+        "source_instances": 2
+      },
+      {
+        "episode": 1,
         "season": "1",
-        "series": "mangas-fv-tomb-raider-king-ep01",
+        "series": "animeisekaic-gaikotsu-kishi-sama",
         "source_instances": 1
       },
       {
         "episode": 2,
         "season": "1",
-        "series": "mangas-fv-tomb-raider-king-ep02",
+        "series": "animeisekaic-gaikotsu-kishi-sama",
         "source_instances": 1
       },
       {
         "episode": 3,
         "season": "1",
-        "series": "mangas-fv-tomb-raider-king-ep03",
+        "series": "animeisekaic-gaikotsu-kishi-sama",
         "source_instances": 1
       },
       {
         "episode": 4,
         "season": "1",
-        "series": "mangas-fv-tomb-raider-king-ep04",
+        "series": "animeisekaic-gaikotsu-kishi-sama",
+        "source_instances": 1
+      },
+      {
+        "episode": 5,
+        "season": "1",
+        "series": "animeisekaic-gaikotsu-kishi-sama",
+        "source_instances": 1
+      },
+      {
+        "episode": 6,
+        "season": "1",
+        "series": "animeisekaic-gaikotsu-kishi-sama",
+        "source_instances": 1
+      },
+      {
+        "episode": 7,
+        "season": "1",
+        "series": "animeisekaic-gaikotsu-kishi-sama",
+        "source_instances": 1
+      },
+      {
+        "episode": 8,
+        "season": "1",
+        "series": "animeisekaic-gaikotsu-kishi-sama",
+        "source_instances": 1
+      },
+      {
+        "episode": 9,
+        "season": "1",
+        "series": "animeisekaic-gaikotsu-kishi-sama",
+        "source_instances": 1
+      },
+      {
+        "episode": 10,
+        "season": "1",
+        "series": "animeisekaic-gaikotsu-kishi-sama",
+        "source_instances": 1
+      },
+      {
+        "episode": 11,
+        "season": "1",
+        "series": "animeisekaic-gaikotsu-kishi-sama",
+        "source_instances": 1
+      },
+      {
+        "episode": 12,
+        "season": "1",
+        "series": "animeisekaic-gaikotsu-kishi-sama-fin",
+        "source_instances": 1
+      },
+      {
+        "episode": 1,
+        "season": "1",
+        "series": "animeisekaic-goblin-slayer",
+        "source_instances": 1
+      },
+      {
+        "episode": 2,
+        "season": "1",
+        "series": "animeisekaic-goblin-slayer",
+        "source_instances": 1
+      },
+      {
+        "episode": 3,
+        "season": "1",
+        "series": "animeisekaic-goblin-slayer",
+        "source_instances": 1
+      },
+      {
+        "episode": 4,
+        "season": "1",
+        "series": "animeisekaic-goblin-slayer",
+        "source_instances": 1
+      },
+      {
+        "episode": 5,
+        "season": "1",
+        "series": "animeisekaic-goblin-slayer",
+        "source_instances": 1
+      },
+      {
+        "episode": 6,
+        "season": "1",
+        "series": "animeisekaic-goblin-slayer",
+        "source_instances": 1
+      },
+      {
+        "episode": 7,
+        "season": "1",
+        "series": "animeisekaic-goblin-slayer",
+        "source_instances": 1
+      },
+      {
+        "episode": 8,
+        "season": "1",
+        "series": "animeisekaic-goblin-slayer",
+        "source_instances": 1
+      },
+      {
+        "episode": 9,
+        "season": "1",
+        "series": "animeisekaic-goblin-slayer",
+        "source_instances": 1
+      },
+      {
+        "episode": 10,
+        "season": "1",
+        "series": "animeisekaic-goblin-slayer",
+        "source_instances": 1
+      },
+      {
+        "episode": 11,
+        "season": "1",
+        "series": "animeisekaic-goblin-slayer",
+        "source_instances": 1
+      },
+      {
+        "episode": 12,
+        "season": "1",
+        "series": "animeisekaic-goblin-slayer-fin",
+        "source_instances": 1
+      },
+      {
+        "episode": 1,
+        "season": "1",
+        "series": "animeisekaic-konosuba-trilogie",
+        "source_instances": 1
+      },
+      {
+        "episode": 2,
+        "season": "1",
+        "series": "animeisekaic-konosuba-trilogie",
+        "source_instances": 1
+      },
+      {
+        "episode": 3,
+        "season": "1",
+        "series": "animeisekaic-konosuba-trilogie",
+        "source_instances": 1
+      },
+      {
+        "episode": 4,
+        "season": "1",
+        "series": "animeisekaic-konosuba-trilogie",
+        "source_instances": 1
+      },
+      {
+        "episode": 5,
+        "season": "1",
+        "series": "animeisekaic-konosuba-trilogie",
+        "source_instances": 1
+      },
+      {
+        "episode": 6,
+        "season": "1",
+        "series": "animeisekaic-konosuba-trilogie",
         "source_instances": 1
       }
     ],
@@ -650,164 +650,16 @@
         "truncated": false
       }
     ],
-    "scanned_episode_candidates": 2481,
+    "scanned_episode_candidates": 2479,
     "source_episode_numbers_observed": 1988,
     "source_numbering_gap_seasons": 55,
     "source_numbering_gaps": [
       {
         "not_observed_between_known": [
-          16
-        ],
-        "season": "4",
-        "series": "kingdom",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          10
-        ],
-        "season": "4",
-        "series": "mangas-fv-wakfu",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          5
-        ],
-        "season": "2",
-        "series": "one-punch-man",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          5,
-          6
-        ],
-        "season": "1",
-        "series": "spyfamily",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          13,
-          14
-        ],
-        "season": "1",
-        "series": "red-river",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          6,
-          10
-        ],
-        "season": "1",
-        "series": "tomb-raider-king-non-convertie",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          7,
-          8
-        ],
-        "season": "1",
-        "series": "tomb-raider-king",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
           3
         ],
         "season": "1",
-        "series": "uncle-s-obsession-with-cute-things",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          3
-        ],
-        "season": "1",
-        "series": "even-the-student-council-has-its-holes",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          6,
-          7,
-          9,
-          10
-        ],
-        "season": "2",
-        "series": "the-elusive-samurai-2",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          4,
-          6
-        ],
-        "season": "1",
-        "series": "black-torch",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          22,
-          23
-        ],
-        "season": "4",
-        "series": "tensei-shitara-slime-datta-ken-4",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          10,
-          11
-        ],
-        "season": "2",
-        "series": "otomege-sekai-wa-mob-ni-kibishii-sekai-desu-2",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          7
-        ],
-        "season": "1",
-        "series": "the-dinner-table-detective-non-convertie-anime-sama-vf-",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          5,
-          6
-        ],
-        "season": "1",
-        "series": "the-dinner-table-detective-non-convertie",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          3,
-          7
-        ],
-        "season": "4",
-        "series": "animeisekaic-re-zero-starting-life-in-another-world-non",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          7
-        ],
-        "season": "4",
-        "series": "animeisekaic-re-zero-starting-life-in-another-world-con",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          5
-        ],
-        "season": "4",
-        "series": "animeisekaic-moi-quand-je-me-reincarne-en-slime-non-con",
+        "series": "animeisekaic-daemons-of-the-shadow-realm-non-convertie",
         "truncated": false
       },
       {
@@ -820,222 +672,27 @@
       },
       {
         "not_observed_between_known": [
-          3
-        ],
-        "season": "1",
-        "series": "animeisekaic-daemons-of-the-shadow-realm-non-convertie",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          4,
-          6,
-          8,
-          9
-        ],
-        "season": "1",
-        "series": "dark-moon-the-blood-altar-non-convertie-anime-sama-vf-h",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          5,
-          7
-        ],
-        "season": "1",
-        "series": "dark-moon-the-blood-altar-non-convertie",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          11
-        ],
-        "season": "3",
-        "series": "jujutsu-kaisen",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
           5
         ],
-        "season": "1",
-        "series": "wistoria-wand-and-sword",
+        "season": "4",
+        "series": "animeisekaic-moi-quand-je-me-reincarne-en-slime-non-con",
         "truncated": false
       },
       {
         "not_observed_between_known": [
-          5,
-          6,
-          7,
-          8,
-          9,
-          10
-        ],
-        "season": "3",
-        "series": "jujutsu-kaisen-convertie",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          10
-        ],
-        "season": "3",
-        "series": "jujutsu-kaisen-non-convertie",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          4,
-          7,
-          8,
-          9
-        ],
-        "season": "3",
-        "series": "jujutsu-kaisen-converti",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          5,
-          6,
-          7,
-          8,
-          9,
-          10,
-          12,
-          13,
-          14,
-          15,
-          16
-        ],
-        "season": "1",
-        "series": "sakamoto-days-p02",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          3,
-          8,
-          9,
-          12,
-          13,
-          14,
-          15,
-          16,
-          17
-        ],
-        "season": "1",
-        "series": "sakamoto-days-convertie",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          7,
-          12,
-          13,
-          14,
-          16,
-          17
-        ],
-        "season": "1",
-        "series": "sakamoto-days",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          11,
-          12,
-          13,
-          14,
-          15,
-          16,
-          17
-        ],
-        "season": "1",
-        "series": "sakamoto-days-non-convertie",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          5,
-          12,
-          13,
-          14
-        ],
-        "season": "2",
-        "series": "les-carnets-de-l-apothicaire",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          5,
-          12,
-          13,
-          14
-        ],
-        "season": "2",
-        "series": "les-carnets-de-l-apothicaire-convertie",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          11
+          7
         ],
         "season": "4",
-        "series": "dr-stone-mangastm",
+        "series": "animeisekaic-re-zero-starting-life-in-another-world-con",
         "truncated": false
       },
       {
         "not_observed_between_known": [
-          2,
           3,
-          4,
-          5,
           7
         ],
-        "season": "2",
-        "series": "solo-leveling-mangastm",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          2,
-          3,
-          4,
-          5,
-          7
-        ],
-        "season": "2",
-        "series": "solo-leveling-convertie-mangastm",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          11,
-          12
-        ],
-        "season": "3",
-        "series": "re-zero-starting-life-in-another-world-convertie-mangas",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          11,
-          12
-        ],
-        "season": "3",
-        "series": "re-zero-starting-life-in-another-world-mangastm",
-        "truncated": false
-      },
-      {
-        "not_observed_between_known": [
-          4,
-          5,
-          6,
-          7
-        ],
-        "season": "1",
-        "series": "sakamoto-days-converti",
+        "season": "4",
+        "series": "animeisekaic-re-zero-starting-life-in-another-world-non",
         "truncated": false
       },
       {
@@ -1076,10 +733,11 @@
       },
       {
         "not_observed_between_known": [
-          2
+          4,
+          6
         ],
-        "season": "4",
-        "series": "dr-stone-convertie-mangas-japanimation",
+        "season": "1",
+        "series": "black-torch",
         "truncated": false
       },
       {
@@ -1101,10 +759,167 @@
       },
       {
         "not_observed_between_known": [
+          5,
+          7
+        ],
+        "season": "1",
+        "series": "dark-moon-the-blood-altar-non-convertie",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          4,
+          6,
+          8,
+          9
+        ],
+        "season": "1",
+        "series": "dark-moon-the-blood-altar-non-convertie-anime-sama-vf-h",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
           3
         ],
         "season": "4",
         "series": "demon-slayer-convertie",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          2
+        ],
+        "season": "4",
+        "series": "dr-stone-convertie-mangas-japanimation",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          11
+        ],
+        "season": "4",
+        "series": "dr-stone-mangastm",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          3
+        ],
+        "season": "1",
+        "series": "even-the-student-council-has-its-holes",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          2,
+          3,
+          5,
+          11
+        ],
+        "season": "1",
+        "series": "high-school-dxd",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          11
+        ],
+        "season": "3",
+        "series": "jujutsu-kaisen",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          4,
+          7,
+          8,
+          9
+        ],
+        "season": "3",
+        "series": "jujutsu-kaisen-converti",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "season": "3",
+        "series": "jujutsu-kaisen-convertie",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          10
+        ],
+        "season": "3",
+        "series": "jujutsu-kaisen-non-convertie",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          16
+        ],
+        "season": "4",
+        "series": "kingdom",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          5,
+          12,
+          13,
+          14
+        ],
+        "season": "2",
+        "series": "les-carnets-de-l-apothicaire",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          5,
+          12,
+          13,
+          14
+        ],
+        "season": "2",
+        "series": "les-carnets-de-l-apothicaire-convertie",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          10
+        ],
+        "season": "4",
+        "series": "mangas-fv-wakfu",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          5,
+          6,
+          7,
+          11,
+          12
+        ],
+        "season": "3",
+        "series": "nanatsu-no-taizai",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          3,
+          4,
+          8,
+          9,
+          10
+        ],
+        "season": "3",
+        "series": "nanatsunotaizai-seven-deadly-sins",
         "truncated": false
       },
       {
@@ -1121,11 +936,46 @@
       },
       {
         "not_observed_between_known": [
-          3,
-          22
+          5
+        ],
+        "season": "2",
+        "series": "one-punch-man",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          10,
+          11
+        ],
+        "season": "2",
+        "series": "otomege-sekai-wa-mob-ni-kibishii-sekai-desu-2",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          11,
+          12
+        ],
+        "season": "3",
+        "series": "re-zero-starting-life-in-another-world-convertie-mangas",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          11,
+          12
+        ],
+        "season": "3",
+        "series": "re-zero-starting-life-in-another-world-mangastm",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          13,
+          14
         ],
         "season": "1",
-        "series": "saintseiyathelostcanvas",
+        "series": "red-river",
         "truncated": false
       },
       {
@@ -1158,13 +1008,64 @@
       {
         "not_observed_between_known": [
           3,
+          22
+        ],
+        "season": "1",
+        "series": "saintseiyathelostcanvas",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          7,
+          12,
+          13,
+          14,
+          16,
+          17
+        ],
+        "season": "1",
+        "series": "sakamoto-days",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
           4,
+          5,
+          6,
+          7
+        ],
+        "season": "1",
+        "series": "sakamoto-days-converti",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          3,
           8,
           9,
-          10
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
         ],
-        "season": "3",
-        "series": "nanatsunotaizai-seven-deadly-sins",
+        "season": "1",
+        "series": "sakamoto-days-convertie",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "season": "1",
+        "series": "sakamoto-days-non-convertie",
         "truncated": false
       },
       {
@@ -1172,11 +1073,87 @@
           5,
           6,
           7,
-          11,
-          12
+          8,
+          9,
+          10,
+          12,
+          13,
+          14,
+          15,
+          16
         ],
-        "season": "3",
-        "series": "nanatsu-no-taizai",
+        "season": "1",
+        "series": "sakamoto-days-p02",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          2,
+          3,
+          4,
+          5,
+          7
+        ],
+        "season": "2",
+        "series": "solo-leveling-convertie-mangastm",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          2,
+          3,
+          4,
+          5,
+          7
+        ],
+        "season": "2",
+        "series": "solo-leveling-mangastm",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          5,
+          6
+        ],
+        "season": "1",
+        "series": "spyfamily",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          22,
+          23
+        ],
+        "season": "4",
+        "series": "tensei-shitara-slime-datta-ken-4",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          5,
+          6
+        ],
+        "season": "1",
+        "series": "the-dinner-table-detective-non-convertie",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          7
+        ],
+        "season": "1",
+        "series": "the-dinner-table-detective-non-convertie-anime-sama-vf-",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          6,
+          7,
+          9,
+          10
+        ],
+        "season": "2",
+        "series": "the-elusive-samurai-2",
         "truncated": false
       },
       {
@@ -1193,13 +1170,20 @@
       },
       {
         "not_observed_between_known": [
-          2,
-          3,
-          5,
-          11
+          7,
+          8
         ],
         "season": "1",
-        "series": "high-school-dxd",
+        "series": "tomb-raider-king",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          6,
+          10
+        ],
+        "season": "1",
+        "series": "tomb-raider-king-non-convertie",
         "truncated": false
       },
       {
@@ -1209,6 +1193,22 @@
         ],
         "season": "1",
         "series": "tpn-the-promised-neverland-japanime-archive",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          3
+        ],
+        "season": "1",
+        "series": "uncle-s-obsession-with-cute-things",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
+          5
+        ],
+        "season": "1",
+        "series": "wistoria-wand-and-sword",
         "truncated": false
       }
     ],
