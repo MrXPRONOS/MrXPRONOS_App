@@ -1041,3 +1041,10 @@
   .mx-history-page .history-reference{margin:3px 0 0 31px;max-width:calc(100% - 31px);font-size:8px}
   .mx-history-page .mx-history-method{padding:10px 12px;font-size:11px}
 }
+
+/* Audit trail for archived selections: clear but not a fake independent seal. */
+.mx-history-page .mx-history-proof-link{display:flex;flex-direction:column;gap:4px;margin:6px 0 0 37px;font-size:9px;line-height:1.45;color:#b7d6e7}
+.mx-history-page .mx-history-proof-link a{color:#ffe092;text-decoration:underline;text-underline-offset:3px;font-weight:700;overflow-wrap:anywhere}
+.mx-history-page .mx-history-proof-link a:hover{color:#fff3c7}
+.mx-history-page .mx-history-proof-link--missing{color:#98aebe;font-style:italic}
+@media(max-width:700px){.mx-history-page .mx-history-proof-link{margin:4px 0 0 31px;font-size:8px}}
