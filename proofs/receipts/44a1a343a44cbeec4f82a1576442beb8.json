@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-4ee8743d5af68b07:UNDER_35",
+    "recorded_at_utc": "2026-10-29T21:23:54+00:00",
+    "kickoff_utc": "2026-10-31T20:00:00+00:00",
+    "fixture": {
+      "home_team": "Deportivo Riestra",
+      "away_team": "CA Talleres",
+      "league": "Argentinian Primera Division"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 82.8,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "1685c9e012c67600af3c529d180d29da7ae96e82393e82065f233417b59fd151"
+}

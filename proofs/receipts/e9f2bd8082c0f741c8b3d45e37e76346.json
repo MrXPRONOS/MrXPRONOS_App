@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-b91422b6c29c7499:UNDER_35",
+    "recorded_at_utc": "2026-10-29T21:23:54+00:00",
+    "kickoff_utc": "2026-10-31T20:00:00+00:00",
+    "fixture": {
+      "home_team": "Fath Union Sport",
+      "away_team": "Hassania d'Agadir",
+      "league": "Botola Pro"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.3,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "285c50ee7fd50e1665963f961cd3f00fbbd5f843753b791db3b6d2e848384dd5"
+}
