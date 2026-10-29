@@ -3,7 +3,7 @@ run-name: "Actu Foot (${{ inputs.trigger_source || github.event_name }})"
 on:
   push:
     branches: [main]
-    paths: ['scripts/actu_foot_independent.py', 'tests_football_channel/test_actu_foot_independent.py', '.github/workflows/football-production.yml']
+    paths: ['scripts/actu_foot_independent.py', 'scripts/actu_foot_online_smoke.py', 'tests_football_channel/test_actu_foot_independent.py', '.github/workflows/football-production.yml']
   workflow_dispatch:
     inputs:
       trigger_source: {required: false, default: manual, type: string}
