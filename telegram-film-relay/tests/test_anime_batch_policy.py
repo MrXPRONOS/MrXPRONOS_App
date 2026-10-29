@@ -167,6 +167,17 @@ class AnimeBatchPolicyTests(unittest.TestCase):
                          series_title("Mushishi S01E03.mp4"))
         self.assertEqual(series_title("Mushishi Série complète, 25 épisodes"), "Mushishi")
 
+    def test_complete_season_poster_matches_episode_title(self):
+        for poster in (
+            "Mushishi Saison 2 complète 13 épisodes",
+            "Mushishi S02 complète 13 épisodes",
+            "Mushishi Saison 1 complète 12 épisodes",
+        ):
+            with self.subTest(poster=poster):
+                self.assertEqual(series_title(poster), "Mushishi")
+                self.assertEqual(series_title(poster),
+                                 series_title("Mushishi S02E03.mp4"))
+
     def test_text_messages_between_episodes_do_not_split_the_series(self):
         now = datetime(2026, 10, 28, tzinfo=timezone.utc)
         cover = NS(id=10, photo=True, document=None, raw_text="Mushishi Série complète 5 épisodes",
