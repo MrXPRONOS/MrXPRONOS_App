@@ -14,40 +14,10 @@ def run_mobile(browser,width,height,label):
     ctx=browser.new_context(viewport={"width":width,"height":height},service_workers="block")
     page=ctx.new_page()
     page.goto("http://127.0.0.1:8000/index.html",wait_until="domcontentloaded",timeout=60000)
-    page.locator(".assistant-button").wait_for(state="visible",timeout=12000)
     page.wait_for_timeout(500)
+    if page.locator(".assistant-button").count():
+        raise AssertionError(f"{label}: paused assistant launcher must remain hidden")
     assert_no_overflow(page,label)
-
-    # Latest assistant improvements must be genuinely mobile, not desktop-only.
-    page.locator(".assistant-button").click()
-    panel=page.locator(".assistant-window")
-    panel.wait_for(state="visible",timeout=3000)
-    page.wait_for_timeout(250)
-
-    input_el=page.locator("#assistant-input")
-    font_size=float(input_el.evaluate("(el)=>parseFloat(getComputedStyle(el).fontSize)"))
-    if font_size < 16:
-        raise AssertionError(f"{label}: assistant input must be >=16px to avoid iOS focus zoom, got {font_size}")
-
-    pseudo=page.locator("#assistant-send").evaluate("(el)=>getComputedStyle(el,'::after').content")
-    if "↑" not in pseudo:
-        raise AssertionError(f"{label}: compact mobile send arrow missing: {pseudo}")
-
-    quick=page.locator(".quick-actions")
-    if quick.evaluate("(el)=>getComputedStyle(el).overflowX") not in ("auto","scroll"):
-        raise AssertionError(f"{label}: assistant quick actions should scroll horizontally")
-    if quick.locator(".btn").count() < 3:
-        raise AssertionError(f"{label}: assistant quick actions missing")
-
-    if width <= 345:
-        extra=page.locator(".assistant-status-extra")
-        if extra.count() != 1:
-            raise AssertionError(f"{label}: compact assistant status markup missing")
-        if extra.evaluate("(el)=>getComputedStyle(el).display") != "none":
-            raise AssertionError(f"{label}: extra assistant status should hide on very small mobile")
-
-    page.locator(".assistant-close").click()
-    page.locator(".assistant-button").wait_for(state="visible",timeout=2000)
 
     # Generic modal must inherit the latest premium mobile treatment.
     page.evaluate("""() => {
@@ -82,9 +52,6 @@ def run_mobile(browser,width,height,label):
     if overflow != "hidden":
         raise AssertionError(f"{label}: page should lock scroll behind modal, got {overflow}")
 
-    launcher=page.locator(".assistant-button")
-    if launcher.evaluate("(el)=>getComputedStyle(el).pointerEvents") != "none":
-        raise AssertionError(f"{label}: assistant launcher must not intercept modal taps")
 
     page.screenshot(path=str(OUT/f"mobile-parity-{width}.png"),full_page=True)
     modal.locator(".close").click()
@@ -105,7 +72,7 @@ def run_mobile(browser,width,height,label):
     page.locator("#close-ios-guide").click()
 
     assert_no_overflow(page,label)
-    print(f"PASS {label}: {width}x{height}, latest assistant/popup mobile parity OK")
+    print(f"PASS {label}: {width}x{height}, popup mobile parity OK")
     ctx.close()
 
 def verify_live_mobile_css(browser):
@@ -123,5 +90,5 @@ with sync_playwright() as p:
     browser=p.chromium.launch(headless=True)
     run_mobile(browser,390,844,"mobile")
     run_mobile(browser,320,720,"small-mobile")
-    verify_live_mobile_css(browser)
+    # LIVE is paused in the public navigation; keep its independent tests separate.
     browser.close()
