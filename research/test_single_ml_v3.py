@@ -117,6 +117,43 @@ class ModelV3Tests(unittest.TestCase):
         merged=v3.hybrid_v3_grid(prior,another,dc_weight=.25)
         self.assertAlmostEqual(float(merged.sum()),1.,places=10)
 
+    def test_real_v3_histgb_fit_on_prior_dated_synthetic_matches(self):
+        first=date(2026,1,1)
+        records=[]
+        for i in range(365):
+            vec=np.zeros(len(ml.FEATURE_NAMES))
+            vec[0]=.8+(i%7)*.08
+            vec[1]=1.1+(i%9)*.06
+            vec[7]=i%5
+            records.append((vec,i%4,(i//3)%4,first+timedelta(days=i//20)))
+        asof=date(2026,2,10)
+        models=v3.fit_hist_v3(records,asof=asof,feature_count=len(ml.FEATURE_NAMES))
+        self.assertEqual(len(models),2)
+        predictions=[float(m.predict(records[-1][0][None,:])[0]) for m in models]
+        self.assertTrue(all(np.isfinite(predictions)))
+        self.assertTrue(all(x>0 for x in predictions))
+        with self.assertRaisesRegex(ValueError,"Current/future"):
+            v3.fit_hist_v3(records,asof=records[-1][3],
+                           feature_count=len(ml.FEATURE_NAMES))
+
+    def test_real_v3_direct_fits_large_synthetic_prior_cohort(self):
+        base=ml.poisson_grid(1.2,1.)
+        records=[]
+        for i in range(850):
+            vec=np.zeros(len(ml.FEATURE_NAMES))
+            vec[0]=(i%9)/9.
+            vec[5]=(i%7)/7.
+            vec[16]=i%4
+            records.append((vec,base,1 if i%5 else 2,1 if i%5 else 0))
+        fitted=v3.fit_direct_v3(records)
+        self.assertIsNotNone(fitted)
+        self.assertEqual(fitted.samples,850)
+        self.assertEqual(fitted.prior_weight,0.)
+        p=v3.direct_v3_grid(fitted,records[-1][0],base,prior_weight=.2)
+        self.assertEqual(p.shape,(11,11))
+        self.assertAlmostEqual(float(p.sum()),1.,places=9)
+        self.assertTrue(np.isfinite(p).all())
+
     def test_opt_in_pipeline_writes_three_v3_forecast_rows_and_prior_history(self):
         d0=date(2026,1,1)
         games=[]
