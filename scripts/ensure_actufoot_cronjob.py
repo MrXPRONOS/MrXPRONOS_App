@@ -96,6 +96,7 @@ def dispatch_body(mode, trigger):
             "dry_run": False,
             "force": False,
             "mode": mode,
+            "destination": "production",
         },
     }, separators=(",", ":"))
 
@@ -214,6 +215,7 @@ if os.environ.get("ACTUFOOT_TEST_DISPATCH", "").strip() == "1":
             "dry_run": True,
             "force": False,
             "mode": "lifecycle",
+            "destination": "dry-run",
         },
     }).encode("utf-8")
     test_headers = {str(k): str(v) for k, v in source_headers.items()}
