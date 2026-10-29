@@ -69,7 +69,7 @@ def main():
         print("ACTUFOOT_SMOKE_NO_ELIGIBLE_UPCOMING_PRIORITY_FIXTURES")
     # Contrôle réel du cycle LIVE sur une rencontre effectivement démarrée.
     # Aucun envoi Telegram, aucune ligne D1 ni récupération multi-fournisseur.
-    from scripts.actu_foot_independent import live_signals, event_priority
+    from scripts.actu_foot_independent import live_signals, event_priority, normalize_espn_summary
     from scripts.football_match_lifecycle import (
         fetch_espn_summary, parse_espn_summary_match,
     )
@@ -104,8 +104,10 @@ def main():
     print("ACTUFOOT_SMOKE_LIVE_DETAILS_COUNT",len(summary.get("details") or []))
     print("ACTUFOOT_SMOKE_LIVE_HEADER_COMP_KEYS",list(comp.keys()))
     print("ACTUFOOT_SMOKE_LIVE_HEADER_DETAILS_COUNT",len(comp.get("details") or []))
+    print("ACTUFOOT_SMOKE_LIVE_HEADER_FIRST_DETAIL",str((comp.get("details") or [{}])[0])[:600])
     print("ACTUFOOT_SMOKE_LIVE_SCORING_PLAYS_COUNT",len(summary.get("scoringPlays") or []))
     print("ACTUFOOT_SMOKE_LIVE_FIRST_DETAIL",str((summary.get("details") or [{}])[0])[:800])
+    summary = normalize_espn_summary(summary)
     signals = live_signals(plan_row, parsed, summary, datetime.now(timezone.utc))
     print("ACTUFOOT_SMOKE_LIVE_MATCH", match["home_team"],match["away_team"],
           "status", parsed["state"], "score",
