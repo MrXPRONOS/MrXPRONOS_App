@@ -51,7 +51,7 @@ jobs:
       - name: Vérifier les scripts avant publication
         run: |
           python -m py_compile scripts/actu_foot_independent.py scripts/football_channel.py scripts/d1_publication_ledger.py
-          python -m unittest tests_football_channel.test_github_vault -q
+          python -m unittest tests_football_channel.test_github_vault tests_football_channel.test_actu_foot_independent -q
       - name: Configurer canal et sécurité
         id: route
         shell: bash
