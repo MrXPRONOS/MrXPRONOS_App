@@ -31,6 +31,7 @@ jobs:
           sparse-checkout: |
             assets/images/footnews
             assets/images/arty_football
+            proofs
           sparse-checkout-cone-mode: true
 
       - name: Generate MX PWA icons
