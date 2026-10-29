@@ -137,3 +137,20 @@
   .mx-bookmakers-page h1{font-size:24px!important}
   .mx-bookmakers-page .card{min-height:96px!important}
 }
+
+/* Contrasté en toute circonstance : les anciens styles globaux .btn/a ne masquent plus le CTA. */
+.mx-bookmakers-page a.join,
+.mx-bookmakers-page a.join:visited,
+.mx-bookmakers-page a.join:hover,
+.mx-bookmakers-page .copy-btn{
+  color:#08121b!important;
+  -webkit-text-fill-color:#08121b!important;
+  font-weight:850!important;
+  text-shadow:none!important;
+}
+.mx-bookmakers-page a.join{background:linear-gradient(135deg,#ffe49b,#edb744)!important;border:1px solid #eac06b;box-shadow:inset 0 1px rgba(255,255,255,.45);transition:transform .2s,box-shadow .2s!important}
+.mx-bookmakers-page a.join:hover{background:linear-gradient(135deg,#ffefbb,#f8ca66)!important;box-shadow:0 5px 18px rgba(231,177,68,.2);transform:translateY(-2px)}
+.mx-bookmakers-page a.join:focus-visible,.mx-bookmakers-page .copy-btn:focus-visible{outline:3px solid #6fcefa;outline-offset:3px}
+.mx-bookmakers-page .card{transition:border-color .2s,transform .2s,box-shadow .2s;border-color:#275675!important}
+.mx-bookmakers-page .card:hover{border-color:#d8ad56!important;box-shadow:0 12px 30px rgba(0,0,0,.28);transform:translateY(-2px)}
+@media(hover:none){.mx-bookmakers-page .card:hover{transform:none}}
