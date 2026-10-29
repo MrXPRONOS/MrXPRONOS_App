@@ -1341,7 +1341,7 @@ function renderBookmakers(bookmakers) {
         <img src="${escapeAttribute(b.logo || "assets/images/default-logo.webp")}" alt="${escapeAttribute(b.name || "Bookmaker")}" loading="lazy" decoding="async">
         <h3>${escapeHtml(b.name || "Bookmaker")}</h3>
         <p>${escapeHtml(b.desc || b.description || "Bonus exclusif bookmaker")}</p>
-        <a href="${escapeAttribute(safeCmsUrl(b.url || "#", "link", "#", window.location.href))}" target="_blank" rel="noopener noreferrer sponsored" class="btn btn-primary mx-partner-cta">Consulter l'offre</a>
+        <a href="${escapeAttribute(safeCmsUrl(b.url || "#", "link", "#", window.location.href))}" target="_blank" rel="noopener noreferrer sponsored" class="btn btn-primary mx-partner-cta">Profiter de l'offre</a>
       `;
       DOM.bookmakersBonus.appendChild(div);
     });
@@ -1465,6 +1465,19 @@ function bsdPublicEligible(match, selection = match?.prediction) {
   if (!Number.isFinite(raw) || raw <= 0) return false;
   const confidence = raw <= 1 ? raw * 100 : raw;
   return confidence >= 79 && confidence <= 100;
+}
+
+function readInitialDay() {
+  const day = String(new URLSearchParams(window.location.search).get("day") || "").toLowerCase();
+  return ["today", "tomorrow", "yesterday"].includes(day) ? day : "today";
+}
+
+function syncDayButtons() {
+  qsa(".day-filters .day-btn").forEach((btn) => {
+    const active = btn.dataset.day === currentDay;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-pressed", String(active));
+  });
 }
 
 function readInitialCategory() {
@@ -3172,7 +3185,9 @@ function renderHomePickCard(m, { winner = false } = {}) {
   const awayDefault = "assets/images/away.webp";
   const homeLogo = escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true));
   const awayLogo = escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false));
-  const href = winner ? "historique.html" : "pronos.html";
+  const tomorrow = !winner && getMatchDate(m) === getLocalDateString("tomorrow");
+  const timeLabel = winner ? time : `${tomorrow ? "Demain" : "Aujourd’hui"} · ${time}`;
+  const href = winner ? "historique.html" : `pronos.html?day=${tomorrow ? "tomorrow" : "today"}`;
 
   return `
     <a class="pick-card ${winner ? "pick-card--winner" : ""}" href="${href}" aria-label="${winner ? "Voir ce résultat dans l’historique" : "Voir cette sélection dans les pronostics"}">
@@ -3181,7 +3196,7 @@ function renderHomePickCard(m, { winner = false } = {}) {
 
       <div class="pick-head">
         <div class="pick-league" title="${escapeAttribute(league)}">${escapeHtml(league)}</div>
-        <div class="pick-time">${escapeHtml(time)}</div>
+        <div class="pick-time">${escapeHtml(timeLabel)}</div>
       </div>
 
       <div class="pick-teams">
@@ -3232,20 +3247,25 @@ function displayTopTodayCoupons() {
   }
 
   const todayStr = getLocalDateString("today");
-  const picks = allData.matches
-    .filter((m) => bsdPublicEligible(m) && m.recommendation_eligible === true)
-    .filter((m) => getLocalDateFromEvent(m.event_date) === todayStr)
-    .filter((m) => !isFinishedMatch(m))
-    .sort((a, b) => {
-      const scoreDiff = publicDisplayRank(a) - publicDisplayRank(b);
-      if (scoreDiff) return scoreDiff;
-      return normalizeConfidence(b.prediction?.confidence) - normalizeConfidence(a.prediction?.confidence);
-    })
-    .slice(0, 3);
+  const tomorrowStr = getLocalDateString("tomorrow");
+  const eligible = allData.matches.filter((m) =>
+    bsdPublicEligible(m) && m.recommendation_eligible === true && !m.combo_only && !isFinishedMatch(m)
+  );
+  const byPriority = (a, b) =>
+    (publicDisplayRank(a) - publicDisplayRank(b)) ||
+    (normalizeConfidence(b.prediction?.confidence) - normalizeConfidence(a.prediction?.confidence));
+
+  // Conserver d'abord les sélections du jour. Remplir les places restantes
+  // avec celles de demain, sans mélanger les dates ni modifier les critères BSD.
+  const todayPicks = eligible.filter((m) => getMatchDate(m) === todayStr).sort(byPriority).slice(0, 3);
+  const tomorrowPicks = todayPicks.length < 3
+    ? eligible.filter((m) => getMatchDate(m) === tomorrowStr).sort(byPriority).slice(0, 3 - todayPicks.length)
+    : [];
+  const picks = [...todayPicks, ...tomorrowPicks];
 
   DOM.topTodayPicks.innerHTML = picks.length
     ? picks.map((m) => renderHomePickCard(m, { winner: false })).join("")
-    : `<div class="no-events">Aucune sélection publiée aujourd’hui.</div>`;
+    : '<div class="no-events">Aucune sélection disponible aujourd’hui ou demain.</div>';
 }
 
 function displayLatestVerifiedHome() {
@@ -3519,9 +3539,11 @@ function setupPronosticPageListeners() {
 
   qsa(".day-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      qsa(".day-btn").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
       currentDay = btn.dataset.day;
+      const url = new URL(window.location.href);
+      url.searchParams.set("day", currentDay);
+      window.history.replaceState(null, "", url.toString());
+      syncDayButtons();
       filterAndDisplay();
     });
   });
@@ -3570,7 +3592,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const page = detectPage();
   if (page === "pronos") {
     currentCategory = readInitialCategory();
+    currentDay = readInitialDay();
     syncCategoryTabs();
+    syncDayButtons();
   }
 
   try {
