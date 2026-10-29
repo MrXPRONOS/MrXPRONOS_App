@@ -78,7 +78,7 @@ class CalibratedHybrid:
 
 def calibrate(history, *, asof, min_matches=MIN_CALIBRATION_MATCHES,
               min_days=MIN_CALIBRATION_DAYS, max_games=MAX_CALIBRATION_MATCHES,
-              half_life_days=HALF_LIFE_DAYS):
+              half_life_days=HALF_LIFE_DAYS, base_weight=DEFAULT_DC_WEIGHT):
     """Optimize only past OUT-OF-SAMPLE predictions. No historical label reuse.
 
     Chronological records are validated, including same-day result isolation.
@@ -86,6 +86,8 @@ def calibrate(history, *, asof, min_matches=MIN_CALIBRATION_MATCHES,
     """
     if not isinstance(asof, date):
         raise ValueError("Hybrid needs as-of UTC date")
+    if not np.isfinite(base_weight) or not 0 <= base_weight <= 1:
+        raise ValueError("Invalid frozen baseline mixing weight")
     if min_matches < 1 or min_days < 1 or max_games < min_matches or half_life_days < 1:
         raise ValueError("Invalid calibration configuration")
     previous = list(history)
@@ -104,7 +106,7 @@ def calibrate(history, *, asof, min_matches=MIN_CALIBRATION_MATCHES,
     recent = previous[-max_games:]
     days = len({r.day for r in recent})
     if len(recent) < min_matches or days < min_days:
-        return CalibratedHybrid(DEFAULT_DC_WEIGHT, False, asof, len(recent),
+        return CalibratedHybrid(base_weight, False, asof, len(recent),
                                 days, (), "insufficient_prior_out_of_sample_forecasts")
     y_ml = np.array([r.ml_grid[r.home_goals, r.away_goals] for r in recent])
     y_dc = np.array([r.dc_grid[r.home_goals, r.away_goals] for r in recent])
@@ -121,12 +123,12 @@ def calibrate(history, *, asof, min_matches=MIN_CALIBRATION_MATCHES,
         score = float(np.dot(importance, -np.log(np.maximum(actual_probs, 1e-15))))
         # Shrink the learned weight gently toward the predeclared baseline.
         # The penalty vanishes with more independent settled forecasts.
-        penalty = (2. / (len(recent)+20.)) * (weight-DEFAULT_DC_WEIGHT)**2
+        penalty = (2. / (len(recent)+20.)) * (weight-base_weight)**2
         candidates.append({"dc_weight":weight,"past_log_loss":round(score,8),
                            "regularized_objective":round(score+penalty,8)})
     selected = min(candidates, key=lambda v:
                    (v["regularized_objective"],
-                    abs(v["dc_weight"]-DEFAULT_DC_WEIGHT),v["dc_weight"]))
+                    abs(v["dc_weight"]-base_weight),v["dc_weight"]))
     return CalibratedHybrid(float(selected["dc_weight"]), True, asof,
                             len(recent), days, tuple(candidates),
                             "optimized_only_from_earlier_oos_fulltime_outcomes")
