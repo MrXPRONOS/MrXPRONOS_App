@@ -905,7 +905,6 @@ def internal_links_section(bookmaker: dict) -> str:
 ## Liens utiles
 - Pronostics du jour : {BASE_SITE_URL}pronos.html
 - Bonus & promotions : {BASE_SITE_URL}bonus.html
-- Accès LIVE VIP : {BASE_SITE_URL}live.html
 
 ## Bonus recommandé
 Teste **{bm_name}** avec le code promo **{CODE_PROMO}** :
