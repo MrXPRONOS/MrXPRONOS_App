@@ -69,7 +69,7 @@ def selected_fixtures(events: list[dict], now: datetime) -> tuple:
     ]
     # Programme existant : cartes, logos, mentions, gabarit et filtres conservés.
     # Son ranking est synchronisé avec event_priority par actu_foot_ranking.py.
-    post = channel.programme(upcoming, local_date, as_of=now)
+    # Tri indépendant : grand club puis phase finale puis compétition.\n    channel._live_rank_key = event_priority\n    post = channel.programme(upcoming, local_date, as_of=now)
     if post is None:
         return None, []
     expected = (post.verification or {}).get("fixtures") or []
@@ -202,12 +202,12 @@ def live_signals(row: dict, info: dict, summary: dict, now: datetime) -> list[di
         "plan_role": "match_du_jour" if row.get("rank") == 1 else "fil_rouge",
     }
     signals = []
-    if kind == "in" and minute <= 12:
+    if kind == "in" and 0 <= minute <= 12:
         signals.append(dict(common, kind="kickoff", key="kickoff:" + source_id))
     if "halftime" in detail or "half time" in detail or "mi-temps" in detail:
         signals.append(dict(common, kind="mi_temps", key="mi_temps:" + source_id))
     # ESPN détaille chaque but; un changement du simple score ne suffit pas.
-    if kind in ("in", "post") and score:
+    if kind == "in" and score:
         for goal in extract_goals(summary):
             goal_min = goal.get("minute_total")
             if goal_min is None:
