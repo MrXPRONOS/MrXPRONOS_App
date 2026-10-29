@@ -320,6 +320,38 @@ class TestActuFootIndependent(unittest.TestCase):
         self.assertEqual(updated[0]["pending_score"],"1-0")
         self.assertEqual(json.loads(updated_raw)[0]["pending_score"],"1-0")
 
+    def test_all_restored_event_kinds_build_telegram_publications(self):
+        from scripts import football_channel as channel
+        base = {
+            "home":"Arsenal","away":"Chelsea","league":"Premier League",
+            "score":"1-0","minute":55,"source":"ESPN","key":"smoke:12345",
+            "home_logo":"https://example.org/h.png",
+            "away_logo":"https://example.org/a.png",
+            "espn_event_id":"12345",
+            "shootout_scores":[5,4],
+            "lineups":{"home":["H"+str(i) for i in range(11)],
+                       "away":["A"+str(i) for i in range(11)]},
+        }
+        categories=(
+            "kickoff","goal","mi_temps","debut_2e_mi_temps",
+            "temps_additionnel","prolongation","mi_temps_prolongation",
+            "carton_rouge","carton_jaune","remplacement",
+            "composition","changement_composition","tirs_au_but",
+            "tir_au_but_marque","tir_au_but_manque","fin_tirs_au_but",
+            "score_update"
+        )
+        import os
+        with patch.dict(os.environ,{"FOOTBALL_ENABLE_SCORE_UPDATES":"1"}):
+            for category in categories:
+                signal=dict(base,kind=category)
+                with self.subTest(category=category):
+                    self.assertIsNotNone(channel.lifecycle_publication(signal),
+                                         category)
+        self.assertIsNotNone(channel.followed_final_publication(
+            dict(base,kind="resultat_final")))
+        self.assertIsNotNone(channel.followed_interruption_publication(
+            dict(base,kind="suivi_interrompu",status="suspended")))
+
     def test_no_live_api_when_no_plan(self):
         ledger=MagicMock()
         ledger.query.return_value={"results":[]}
