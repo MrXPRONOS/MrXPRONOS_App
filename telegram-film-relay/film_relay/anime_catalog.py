@@ -77,6 +77,12 @@ def episode_numbers(text: str):
 def series_title(text: str) -> str:
     value = first_title(text or "").strip()
     value = re.sub(r"(?i)^@[A-Za-z0-9_]{5,32}\s+(?:vf|fv)?\s*", "", value)
+    # Strip the complete-season label BEFORE removing the season number.
+    # Otherwise "Mushishi Saison 2 complète" becomes "Mushishi complète",
+    # while "Mushishi S02E03" becomes "Mushishi": two false series.
+    value = re.sub(
+        r"(?i)\bs(?:aison|eason)?[\s._-]*0*\d{1,2}[\s:._-]+compl[eè]te\b",
+        " ", value)
     value = CLEAN_CODES.sub(" ", value)
     # Completeness labels belong to eligibility evidence, not to the anime
     # identity: "Mushishi - 25 épisodes" and "Mushishi E03" are one title.
