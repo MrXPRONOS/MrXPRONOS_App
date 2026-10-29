@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v110-proof-receipts-visible-20261029';
+const VERSION = 'v111-public-visitor-only-20261029';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -33,7 +33,6 @@ const STATIC_ASSETS = [
     './assets/css/conseils-premium.css',
     './assets/css/infos-premium.css',
     './assets/css/bonus-premium.css',
-    './assets/css/live-premium.css',
     './assets/css/contact-premium.css',
     './assets/css/article-detail-premium.css',
     './assets/css/conseil-detail-premium.css',
@@ -68,7 +67,6 @@ const STATIC_ASSETS = [
     './assets/images/infos-premium/hero-infos.webp',
     './assets/images/mobile-premium/icon-home.webp',
     './assets/images/mobile-premium/icon-pronostics.webp',
-    './assets/images/mobile-premium/icon-live.webp',
     './assets/images/mobile-premium/icon-history.webp',
     './assets/images/mobile-premium/icon-blog.webp',
     './assets/images/mobile-premium/icon-conseils.webp',
@@ -77,7 +75,6 @@ const STATIC_ASSETS = [
     './assets/images/mobile-premium/icon-contact.webp',
     './assets/images/mobile-premium/icon-menu.webp',
     './assets/images/pronostics-premium/card-stadium.webp',
-    './assets/images/pronostics-premium/icon-simple.webp',
     './assets/images/pronostics-premium/icon-pro.webp',
     './assets/images/pronostics-premium/icon-vip.webp',
     './assets/images/pronostics-premium/icon-share.webp',
@@ -85,18 +82,8 @@ const STATIC_ASSETS = [
     './assets/images/pronostics-premium/icon-calendar.webp',
     './assets/images/pronostics-premium/icon-chevron.webp',
     './assets/images/pronostics-premium/icon-ball.webp',
-    './assets/images/live-premium/hero-live.webp',
-    './assets/images/live-premium/hero-stadium.webp',
     './assets/images/live-premium/player-back.webp',
     './assets/images/home-premium/hero-player.webp',
-    './assets/images/live-premium/icon-stopwatch.webp',
-    './assets/images/live-premium/icon-ball.webp',
-    './assets/images/live-premium/icon-corner.webp',
-    './assets/images/live-premium/icon-cards.webp',
-    './assets/images/live-premium/icon-whistle.webp',
-    './assets/images/live-premium/icon-target.webp',
-    './assets/images/live-premium/icon-pie.webp',
-    './assets/images/live-premium/icon-bars.webp',
     './assets/images/mrxpronos-horizontal.webp',
     './assets/images/mrxpronos-horizontal-compact.webp',
     './assets/images/mrxpronos-mark.webp',
