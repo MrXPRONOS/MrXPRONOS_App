@@ -1,0 +1,80 @@
+name: ML V3 - TopK comparator completion and 65000 synthetic match capacity audit
+on:
+  push:
+    branches: [research/single-ml-v2-20261024]
+    paths:
+      - '.github/workflows/research-ml-v3-completion-audit.yml'
+permissions:
+  contents: read
+jobs:
+  v3-comparator-and-v2-regression:
+    name: 8-model TopK selection and V2/V3 no-leak regression (synthetic)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install exact research model versions
+        run: python -m pip install numpy scipy scikit-learn requests cryptography lightgbm==4.6.0 catboost==1.2.8
+      - name: Compile research comparators and model sources
+        run: |
+          python -m py_compile research/ml_v3_topk_compare.py \
+            research/ml_v2_topk.py research/ml_v3_capacity_65000.py \
+            research/single_ml_v3.py research/single_ml_v2.py
+      - name: Verify eight-model common fixtures, TopK daily outcomes, bootstrap
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python -m unittest \
+            research.test_ml_v3_topk_compare research.test_single_ml_v3 \
+            research.test_ml_v2_topk research.test_single_ml_v2_direct \
+            research.test_single_ml_v2_hybrid -v
+      - name: No historical backtest or production changes in completion audit
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path(".github/workflows/research-ml-v3-topk-backtest-manual.yml").read_text()
+          assert "workflow_dispatch:" in p and "schedule:" not in p
+          assert "  push:" not in p
+          c=Path("research/ml_v3_topk_compare.py").read_text()
+          assert "machine_learning_v3_direct" not in c or "V3_MODELS" in c
+          assert "V3_MODELS" in c and "PAIRINGS" in c
+          assert "--experimental-v3" in p
+          print("TOPK_V2_V3_COMPLETE; MANUAL HISTORICAL BACKTEST NOT EXECUTED")
+          PY
+
+  synthetic-65k-capacity:
+    name: Actual 65000-row synthetic HistGB and Direct V3 fitting + peak memory
+    needs: [v3-comparator-and-v2-regression]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      OPENBLAS_NUM_THREADS: '2'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install real HistGB and Direct V3 training dependencies
+        run: python -m pip install numpy scipy scikit-learn
+      - name: Fit full frozen V3 configurations on EXACTLY 65 000 synthetic earlier-date matches
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v env PYTHONPATH=.:research \
+            python research/ml_v3_capacity_65000.py \
+              --out /tmp/ml-v3-synthetic-capacity-65000.json
+      - name: Upload only aggregated training and resource metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: ml-v3-65000-synthetic-capacity-audit
+          path: /tmp/ml-v3-synthetic-capacity-65000.json
+          if-no-files-found: error
+          retention-days: 30
