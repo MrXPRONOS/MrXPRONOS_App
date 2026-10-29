@@ -240,6 +240,34 @@ def refresh_public_script_versions(destination: Path):
             html.write_text(replacement, encoding="utf-8")
 
 
+def pause_public_features(destination: Path):
+    """Hide the visitor assistant and LIVE discovery without deleting source code."""
+    for html in destination.rglob("*.html"):
+        if not html.is_file():
+            continue
+        body = html.read_text(encoding="utf-8")
+        if not html.name.startswith("admin"):
+            body = re.sub(
+                r"""(?i)<script\b[^>]*\bsrc=["'](?:\./)?assets/js/assistant\.js(?:\?[^"']*)?["'][^>]*>\s*</script>""",
+                "",
+                body,
+            )
+        if html == destination / "live.html" and 'name="robots"' not in body:
+            body = body.replace("<head>", '<head>\n  <meta name="robots" content="noindex, nofollow">', 1)
+        html.write_text(body, encoding="utf-8")
+
+    # Do not let a stale sitemap expose the paused LIVE section again.
+    sitemap = destination / "sitemap.xml"
+    if sitemap.is_file():
+        body = sitemap.read_text(encoding="utf-8")
+        body = re.sub(
+            r"(?s)\s*<url>\s*<loc>[^<]*/prono-live/[^<]*</loc>.*?</url>",
+            "",
+            body,
+        )
+        sitemap.write_text(body, encoding="utf-8")
+
+
 def copy_public_tree(source: Path, dest: Path):
     if not source.exists():
         return
@@ -284,6 +312,7 @@ def stage_site(destination: Path, previous: Path | None):
     prepare_public_editorial_media(destination)
     prepare_public_articles(destination)
     refresh_public_script_versions(destination)
+    pause_public_features(destination)
 
     public_feed = destination / "data.json"
     if public_feed.exists():

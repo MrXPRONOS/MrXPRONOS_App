@@ -9,19 +9,19 @@ OUT.mkdir(parents=True, exist_ok=True)
 DATA = {
   "matches": [
     {
-      "id":"h1","event_date":"2026-10-09T19:00:00Z","league":"Premier League",
+      "id":"h1","category":"pro","prediction":{"selection_key":"1","type":"Victoire Arsenal","confidence":84,"odds":1.72},"event_date":"2026-10-09T19:00:00Z","league":"Premier League",
       "home_team":"Arsenal","away_team":"Chelsea","home_score":2,"away_score":1,
       "is_finished":True,"combo_only":False,
       "predictions":[{"selection_key":"1","type":"Victoire Arsenal","confidence":0.84,"odds":1.72}]
     },
     {
-      "id":"h2","event_date":"2026-10-08T18:30:00Z","league":"LaLiga",
+      "id":"h2","category":"pro","prediction":{"selection_key":"1","type":"Victoire Real Madrid","confidence":80,"odds":1.94},"event_date":"2026-10-08T18:30:00Z","league":"LaLiga",
       "home_team":"Real Madrid","away_team":"Barcelona","home_score":0,"away_score":1,
       "is_finished":True,"combo_only":False,
-      "predictions":[{"selection_key":"1","type":"Victoire Real Madrid","confidence":0.77,"odds":1.94}]
+      "predictions":[{"selection_key":"1","type":"Victoire Real Madrid","confidence":0.80,"odds":1.94}]
     },
     {
-      "id":"h3","event_date":"2026-10-07T20:00:00Z","league":"Ligue 1",
+      "id":"h3","category":"vip","prediction":{"selection_key":"1X","type":"Double chance 1X","confidence":81,"odds":1.42},"event_date":"2026-10-07T20:00:00Z","league":"Ligue 1",
       "home_team":"PSG","away_team":"Monaco","home_score":1,"away_score":1,
       "is_finished":True,"combo_only":False,
       "predictions":[{"selection_key":"1X","type":"Double chance 1X","confidence":0.81,"odds":1.42}]

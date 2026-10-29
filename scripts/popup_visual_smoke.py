@@ -149,5 +149,6 @@ with sync_playwright() as p:
     run_index_case(browser,390,844,"mobile")
     run_index_case(browser,320,720,"small-mobile")
     run_bookmakers_case(browser)
-    assert_live_sources(browser)
+    # LIVE is deliberately paused in the public navigation; its dedicated test is deferred.
+    # assert_live_sources(browser)
     browser.close()
