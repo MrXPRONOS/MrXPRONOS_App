@@ -261,17 +261,61 @@ def programme_cycle(now: datetime, sender: channel.Sender, ledger: D1Ledger | No
     print("ACTUFOOT_PROGRAMME_SENT", today, len(selected), "message_id", message_id)
 
 
+
+def signal_identity(row: dict, category: str, item: dict) -> str:
+    """ID ESPN ou empreinte déterministe des données factuelles."""
+    raw_id = str(item.get("id") or "").strip()
+    if raw_id:
+        return f"{category}:{row['id']}:{raw_id}"
+    components = (
+        item.get("minute_text") or item.get("minute_total") or item.get("minute"),
+        item.get("player"), item.get("team_id"), item.get("team"),
+        item.get("type"), item.get("entrant"), item.get("sortant"),
+        item.get("home_score"), item.get("away_score"),
+        item.get("outcome"), item.get("label"),
+    )
+    import hashlib
+    fingerprint = hashlib.sha256(
+        json.dumps(components, ensure_ascii=False, default=str).encode("utf-8")
+    ).hexdigest()[:20]
+    return f"{category}:{row['id']}:{fingerprint}"
+
+
 def live_signals(row: dict, info: dict, summary: dict, now: datetime) -> list[dict]:
-    """Uniquement les événements vérifiables depuis le résumé de ce match."""
-    source_id = row["id"]
-    minute = int(info.get("minute") or 0)
+    """Événements vérifiés depuis UN résumé ESPN par match retenu.
+
+    L'historique envoyé, jamais le score courant, empêche les doublons :
+    les buts survenus durant une interruption restent récupérables jusqu'à
+    la fin du match. Les événements sans source explicite sont ignorés.
+    """
+    source_id = str(row["id"])
+    raw = info.get("raw") if isinstance(info.get("raw"), dict) else {}
+    competitions = raw.get("competitions") if isinstance(raw.get("competitions"), list) else []
+    comp = competitions[0] if competitions and isinstance(competitions[0], dict) else {}
+    status = comp.get("status") if isinstance(comp.get("status"), dict) else raw.get("status")
+    status = status if isinstance(status, dict) else {}
+    minute_text = str(status.get("displayClock") or status.get("clock") or "")
+    minute = _minute_total(minute_text)
+    if minute is None:
+        minute = int(info.get("minute") or 0)
+    period = int(info.get("period") or 0)
     hs, aws = info.get("home_score"), info.get("away_score")
     score = f"{hs}-{aws}" if hs is not None and aws is not None else ""
-    kind = str(info.get("state") or "").lower()
+    state = str(info.get("state") or "").lower()
     detail = str(info.get("status_detail") or "").lower()
+    live = state == "in"
+    finished = state in ("post", "finished")
+    is_half = any(x in detail for x in ("halftime", "half time", "half-time", "mi-temps", "ht -", " ht"))
+    shootout_h = info.get("home_shootout_score")
+    shootout_a = info.get("away_shootout_score")
+    shootout_scores = ([shootout_h, shootout_a]
+                       if shootout_h is not None and shootout_a is not None else [])
+    shootout = ("shootout" in detail or "penalty shoot" in detail
+                or "tirs au but" in detail or period >= 5 or bool(shootout_scores))
     common = {
         "home": row["home"], "away": row["away"], "league": row["league"],
-        "source": "ESPN", "minute": minute, "score": score,
+        "source": "ESPN", "minute": minute, "minute_text": minute_text,
+        "score": score,
         "home_logo": row.get("home_logo") or info.get("home_logo") or "",
         "away_logo": row.get("away_logo") or info.get("away_logo") or "",
         "espn_event_id": source_id, "espn_url": espn_match_url(source_id),
@@ -280,40 +324,126 @@ def live_signals(row: dict, info: dict, summary: dict, now: datetime) -> list[di
         "plan_role": "match_du_jour" if row.get("rank") == 1 else "fil_rouge",
     }
     signals = []
-    if kind == "in" and 0 <= minute <= 12:
-        signals.append(dict(common, kind="kickoff", key="kickoff:" + source_id))
-    if "halftime" in detail or "half time" in detail or "mi-temps" in detail:
-        signals.append(dict(common, kind="mi_temps", key="mi_temps:" + source_id))
-    # ESPN détaille chaque but; un changement du simple score ne suffit pas.
-    if kind == "in" and score:
+    def add(kind: str, key: str, **kwargs):
+        signals.append(dict(common, kind=kind, key=key, **kwargs))
+
+    if live and 0 <= minute <= 12:
+        add("kickoff", "kickoff:" + source_id)
+    if is_half and period in (0, 1, 2):
+        add("mi_temps", "mi_temps:" + source_id)
+    if is_half and period >= 3:
+        add("mi_temps_prolongation", "mi_temps_prolongation:" + source_id)
+    if live and period == 2 and 45 <= minute <= 59:
+        add("debut_2e_mi_temps", "debut_2e_mi_temps:" + source_id)
+    if live and minute >= 90 and period <= 2 and not shootout:
+        add("temps_additionnel", "temps_additionnel:" + source_id)
+    if live and period in (3, 4):
+        add("prolongation", "prolongation:" + source_id)
+
+    # Sources chronologiques officielles, sans score synthétique inventé.
+    if live or finished or is_half:
         for goal in extract_goals(summary):
+            if not isinstance(goal, dict):
+                continue
             goal_min = goal.get("minute_total")
             if goal_min is None:
                 goal_min = goal.get("minute")
-            if goal_min is None or minute <= 0 or not -2 <= minute - int(goal_min) <= 14:
+            if goal_min is None:
                 continue
-            identity = str(goal.get("id") or "").strip()
-            if not identity:
-                identity = ":".join((str(goal.get("minute_total")),str(goal.get("player")),
-                                     str(goal.get("team_id")),str(goal.get("home_score")),
-                                     str(goal.get("away_score"))))
-            signals.append(dict(common, kind="goal", goal=goal,
-                                minute=goal_min,
-                                score=(f"{goal['home_score']}-{goal['away_score']}"
-                                       if goal.get("home_score") is not None and goal.get("away_score") is not None
-                                       else score),
-                                key="goal:" + source_id + ":" + identity))
-    if kind in ("post", "finished") and score:
-        signals.append(dict(common, kind="resultat_final", key="resultat:" + source_id,
-                            match_data=extract_match_enrichment(summary),
-                            day=now.astimezone(channel.TZ).strftime("%d/%m/%Y")))
+            gh, ga = goal.get("home_score"), goal.get("away_score")
+            add("goal", signal_identity(row, "goal", goal),
+                goal=goal, minute=goal_min, minute_text=goal.get("minute_text") or "",
+                score=f"{gh}-{ga}" if gh is not None and ga is not None else score)
+        for card in extract_cards(summary):
+            if not isinstance(card, dict):
+                continue
+            category = "carton_rouge" if card.get("type") == "red" else "carton_jaune"
+            add(category, signal_identity(row, category, card),
+                player=card.get("player") or "",
+                minute=card.get("minute"), minute_text=card.get("minute_text") or "")
+        for change in extract_substitutions(summary):
+            if not isinstance(change, dict):
+                continue
+            add("remplacement", signal_identity(row, "remplacement", change),
+                entrant=change.get("entrant") or "", sortant=change.get("sortant") or "",
+                players=change.get("players") or [], minute=change.get("minute"),
+                minute_text=change.get("minute_text") or "")
+
+        lineups = extract_lineups(summary)
+        if len(lineups.get("home") or []) == 11 and len(lineups.get("away") or []) == 11:
+            old_home = row.get("lineup_home") or []
+            old_away = row.get("lineup_away") or []
+            if not old_home or not old_away:
+                add("composition", "composition:" + source_id,
+                    lineups=lineups, lineup_home_hash="",
+                    lineup_away_hash="")
+            else:
+                for side in ("home", "away"):
+                    old = old_home if side == "home" else old_away
+                    new = lineups[side]
+                    if old == new:
+                        continue
+                    new_only = [player for player in new if player not in old]
+                    left = [player for player in old if player not in new]
+                    add("changement_composition",
+                        signal_identity(row, "changement_composition",
+                                        {"team": side, "entrant": new_only,
+                                         "sortant": left, "label": "|".join(new)}),
+                        side=side, club=row[side], entrant=new_only[0] if new_only else "",
+                        sortant=left[0] if left else "",
+                        players=new, lineups=lineups)
+
+    if (live and shootout) or (finished and shootout_scores):
+        add("tirs_au_but", "tirs_au_but:" + source_id,
+            shootout_scores=shootout_scores)
+    if live or finished:
+        for kick in extract_shootout_kicks(summary):
+            if not isinstance(kick, dict) or kick.get("outcome") not in ("made", "missed"):
+                continue
+            category = ("tir_au_but_marque" if kick["outcome"] == "made"
+                        else "tir_au_but_manque")
+            kh, ka = kick.get("home_shootout_score"), kick.get("away_shootout_score")
+            add(category, signal_identity(row, category, kick),
+                player=kick.get("player") or "", team=kick.get("team") or "",
+                shootout_scores=[kh, ka] if kh is not None and ka is not None
+                else shootout_scores, minute=kick.get("minute"))
+    if finished and shootout_scores:
+        add("fin_tirs_au_but", "fin_tirs_au_but:" + source_id,
+            shootout_scores=shootout_scores)
     if any(x in detail for x in ("postpon", "cancel", "abandon", "suspend")):
-        signals.append(dict(common, kind="suivi_interrompu",
-                            key="suivi_interrompu:" + source_id, status=detail))
+        add("suivi_interrompu", "suivi_interrompu:" + source_id, status=detail)
+    elif finished and score:
+        add("resultat_final", "resultat:" + source_id,
+            shootout_scores=shootout_scores,
+            match_data=extract_match_enrichment(summary),
+            day=now.astimezone(channel.TZ).strftime("%d/%m/%Y"))
     return signals
 
 
-def lifecycle_cycle(now: datetime, sender: channel.Sender, ledger: D1Ledger | None, dry_run: bool):
+def save_lineups(ledger: D1Ledger, chat: str, day: str, old_raw: str,
+                 fixtures: list[dict], event_id: str, lineups: dict):
+    updated = [
+        dict(row, lineup_home=list(lineups.get("home") or []),
+             lineup_away=list(lineups.get("away") or []))
+        if str(row.get("id")) == event_id else row
+        for row in fixtures
+    ]
+    if updated == fixtures:
+        return old_raw, fixtures
+    raw = json.dumps(updated, ensure_ascii=False, separators=(",", ":"))
+    result = ledger.query(
+        "UPDATE telegram_sent SET selection_snapshot=? "
+        "WHERE kind=? AND ref_id=? AND ref_date=? "
+        "AND delivery_status='sent' AND selection_snapshot=?",
+        (raw, PROGRAMME_KIND, chat, day, old_raw),
+    )
+    if (result.get("meta") or {}).get("changes") != 1:
+        raise RuntimeError("ACTUFOOT_LINEUPS_CONCURRENT_UPDATE")
+    return raw, updated
+
+
+def lifecycle_cycle(now: datetime, sender: channel.Sender,
+                    ledger: D1Ledger | None, dry_run: bool):
     if dry_run:
         print("ACTUFOOT_LIVE_DRY_RUN_NO_DB_OR_TELEGRAM")
         return
@@ -324,39 +454,78 @@ def lifecycle_cycle(now: datetime, sender: channel.Sender, ledger: D1Ledger | No
         plan, raw = get_plan(ledger, sender.chat, day)
         if not plan:
             continue
-        for row in plan:
+        # Lecture groupée des événements : ne pas réinsérer des événements inchangés.
+        previous = ledger.query(
+            "SELECT ref_id,delivery_status FROM telegram_sent "
+            "WHERE kind=? AND ref_date=? AND ref_id LIKE ? LIMIT 400",
+            (EVENT_KIND, day, sender.chat + ":%"),
+        ).get("results") or []
+        known = {str(item["ref_id"]): item["delivery_status"] for item in previous}
+        for row in list(plan):
             if checked >= MAX_CALLS_PER_CYCLE:
-                return
+                break
             if row.get("done"):
                 continue
             started = channel.moment(row.get("event_date"))
-            if not started or not timedelta(minutes=-8) <= now - started <= timedelta(hours=4):
+            if not started:
+                raise RuntimeError("ACTUFOOT_SAVED_KICKOFF_INVALID " + str(row.get("id")))
+            if not timedelta(minutes=-75) <= now - started <= timedelta(hours=MAX_LIVE_HOURS):
+                if now - started > timedelta(hours=MAX_LIVE_HOURS):
+                    print("ACTUFOOT_UNCONFIRMED_FINAL_EXPIRED", row["id"])
                 continue
             checked += 1
             summary = fetch_espn_summary(sender.session, str(row["id"]), force=True)
+            if not isinstance(summary, dict) or not summary:
+                raise RuntimeError("ACTUFOOT_ESPN_SUMMARY_UNAVAILABLE " + str(row["id"]))
             info = parse_espn_summary_match(summary)
             if not info or str(info.get("id") or "") != str(row["id"]):
-                print("ACTUFOOT_SUMMARY_NOT_CONFIRMED", row["id"])
-                continue
-            if channel.team(info, "home").casefold() != row["home"].casefold() or channel.team(info, "away").casefold() != row["away"].casefold():
-                print("ACTUFOOT_SUMMARY_TEAMS_MISMATCH", row["id"])
-                continue
+                raise RuntimeError("ACTUFOOT_ESPN_SUMMARY_ID_MISMATCH " + str(row["id"]))
+            if (channel.team(info, "home").casefold() != row["home"].casefold()
+                    or channel.team(info, "away").casefold() != row["away"].casefold()):
+                raise RuntimeError("ACTUFOOT_ESPN_TEAMS_MISMATCH " + str(row["id"]))
             signals = live_signals(row, info, summary, now)
-            finished = False
+            final_ok = False
+            interruption_ok = False
+            lineups_ok = False
             for signal in signals:
-                signal_id = signal["key"]
-                if signal["kind"] == "resultat_final":
-                    post = channel.followed_final_publication(signal)
-                    finished = True
-                elif signal["kind"] == "suivi_interrompu":
-                    post = channel.followed_interruption_publication(signal)
-                    finished = True
+                ref = signal["key"]
+                key = sender.chat + ":" + ref
+                if key in known:
+                    if known[key] != "sent":
+                        raise RuntimeError("ACTUFOOT_UNCERTAIN_DELIVERY " + ref)
+                    was_sent = True
                 else:
-                    post = channel.lifecycle_publication(signal)
-                confirmed_message(ledger, sender, day, signal_id, post, dry_run=False)
-            if finished and raw is not None:
-                # Une fois le résultat confirmé, plus aucun appel ESPN pour ce match.
-                raw, plan = mark_finished(ledger, sender.chat, day, raw, plan, row["id"])
+                    if signal["kind"] == "resultat_final":
+                        post = channel.followed_final_publication(signal)
+                    elif signal["kind"] == "suivi_interrompu":
+                        post = channel.followed_interruption_publication(signal)
+                    else:
+                        post = channel.lifecycle_publication(signal)
+                    if post is None:
+                        continue
+                    was_sent = confirmed_message(
+                        ledger, sender, day, ref, post, dry_run=False
+                    )
+                    if was_sent:
+                        known[key] = "sent"
+                if was_sent and signal["kind"] == "resultat_final":
+                    final_ok = True
+                if was_sent and signal["kind"] == "suivi_interrompu":
+                    interruption_ok = True
+                if was_sent and signal["kind"] in ("composition", "changement_composition"):
+                    lineups_ok = True
+            # Le plan reste récupérable après une panne d'envoi ou de D1.
+            if lineups_ok:
+                current_lineups = extract_lineups(summary)
+                if len(current_lineups.get("home") or []) == 11 and len(current_lineups.get("away") or []) == 11:
+                    raw, plan = save_lineups(
+                        ledger, sender.chat, day, raw, plan, str(row["id"]),
+                        current_lineups,
+                    )
+            if (final_ok or interruption_ok) and raw is not None:
+                raw, plan = mark_finished(
+                    ledger, sender.chat, day, raw, plan, str(row["id"])
+                )
     print("ACTUFOOT_LIVE_MONITORED", checked)
 
 
