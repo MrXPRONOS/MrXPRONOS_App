@@ -476,6 +476,87 @@ def live_signals(row: dict, info: dict, summary: dict, now: datetime) -> list[di
     return signals
 
 
+def score_transition(row: dict, info: dict, now: datetime,
+                     has_detailed_goal: bool) -> tuple[dict, dict | None]:
+    """Détecte un score nouveau en n'enregistrant que les changements.
+
+    En absence d'événement de but ESPN, deux lectures séparées d'au moins
+    90 secondes confirment l'évolution. Aucun buteur n'est inventé.
+    """
+    home_score, away_score = info.get("home_score"), info.get("away_score")
+    if not isinstance(home_score, int) or not isinstance(away_score, int):
+        return {}, None
+    current = f"{home_score}-{away_score}"
+    previous = str(row.get("confirmed_score") or "")
+    pending = str(row.get("pending_score") or "")
+    state = str(info.get("state") or "").lower()
+    if not previous:
+        return {"confirmed_score": current}, None
+    if current == previous:
+        if pending:
+            return {"pending_score": "", "pending_at": ""}, None
+        return {}, None
+    if state in ("post", "finished") or has_detailed_goal:
+        return {"confirmed_score": current, "pending_score": "",
+                "pending_at": ""}, None
+    if pending != current:
+        return {"pending_score": current, "pending_at": now.isoformat()}, None
+    try:
+        first_seen = datetime.fromisoformat(str(row.get("pending_at") or ""))
+    except ValueError:
+        return {"pending_at": now.isoformat()}, None
+    if first_seen.tzinfo is None:
+        first_seen = first_seen.replace(tzinfo=timezone.utc)
+    if (now - first_seen).total_seconds() < 90:
+        return {}, None
+    try:
+        old_h, old_a = (int(value) for value in previous.split("-"))
+    except (TypeError, ValueError):
+        return {"confirmed_score": current, "pending_score": "",
+                "pending_at": ""}, None
+    delta = (home_score - old_h) + (away_score - old_a)
+    is_one_goal = delta == 1 and home_score >= old_h and away_score >= old_a
+    category = "goal" if is_one_goal else "score_update"
+    event_id = str(row["id"])
+    signal = {
+        "kind": category,
+        "key": f"{category}-score-confirmed:{event_id}:{current}",
+        "home": row["home"], "away": row["away"],
+        "league": row.get("league") or "Football",
+        "score": current,
+        "minute": info.get("minute"),
+        "source": "ESPN",
+        "goal": {},  # Pas de buteur fictif, seulement le score vérifié.
+        "home_logo": row.get("home_logo") or info.get("home_logo") or "",
+        "away_logo": row.get("away_logo") or info.get("away_logo") or "",
+        "espn_event_id": event_id, "espn_url": espn_match_url(event_id),
+        "follow_ref": event_id, "fixture_key": event_id,
+        "plan_rank": row.get("rank") or 99,
+    }
+    return {"confirmed_score": current, "pending_score": "",
+            "pending_at": "", "fallback_score": current}, signal
+
+
+def save_score_state(ledger: D1Ledger, chat: str, day: str, old_raw: str,
+                     fixtures: list[dict], event_id: str, fields: dict):
+    if not fields:
+        return old_raw, fixtures
+    updated = [dict(item, **fields) if str(item.get("id")) == event_id
+               else item for item in fixtures]
+    if updated == fixtures:
+        return old_raw, fixtures
+    raw = json.dumps(updated, ensure_ascii=False, separators=(",", ":"))
+    result = ledger.query(
+        "UPDATE telegram_sent SET selection_snapshot=? "
+        "WHERE kind=? AND ref_id=? AND ref_date=? "
+        "AND delivery_status='sent' AND selection_snapshot=?",
+        (raw, PROGRAMME_KIND, chat, day, old_raw),
+    )
+    if (result.get("meta") or {}).get("changes") != 1:
+        raise RuntimeError("ACTUFOOT_SCORE_CONCURRENT_UPDATE")
+    return raw, updated
+
+
 def save_lineups(ledger: D1Ledger, chat: str, day: str, old_raw: str,
                  fixtures: list[dict], event_id: str, lineups: dict):
     updated = [
@@ -544,12 +625,27 @@ def lifecycle_cycle(now: datetime, sender: channel.Sender,
                     or channel.team(info, "away").casefold() != row["away"].casefold()):
                 raise RuntimeError("ACTUFOOT_ESPN_TEAMS_MISMATCH " + str(row["id"]))
             signals = live_signals(row, info, summary, now)
+            has_goal = any(
+                signal["kind"] == "goal"
+                and signal.get("score") == f"{info.get('home_score')}-{info.get('away_score')}"
+                for signal in signals
+            )
+            score_fields, fallback = score_transition(row, info, now, has_goal)
+            if fallback is not None:
+                signals.append(fallback)
+            fallback_ok = fallback is None
             final_ok = False
             interruption_ok = False
             lineups_ok = False
             for signal in signals:
                 ref = signal["key"]
                 key = sender.chat + ":" + ref
+                # Ne pas réannoncer un but détaillé déjà signalé par un
+                # changement de score confirmé pendant une panne ESPN.
+                if (signal["kind"] == "goal" and signal is not fallback
+                        and row.get("fallback_score")
+                        and signal.get("score") == row.get("fallback_score")):
+                    continue
                 if key in known:
                     if known[key] != "sent":
                         raise RuntimeError("ACTUFOOT_UNCERTAIN_DELIVERY " + ref)
@@ -562,12 +658,16 @@ def lifecycle_cycle(now: datetime, sender: channel.Sender,
                     else:
                         post = channel.lifecycle_publication(signal)
                     if post is None:
+                        if signal is fallback:
+                            raise RuntimeError("ACTUFOOT_FALLBACK_NO_PUBLICATION")
                         continue
                     was_sent = confirmed_message(
                         ledger, sender, day, ref, post, dry_run=False
                     )
                     if was_sent:
                         known[key] = "sent"
+                if was_sent and signal is fallback:
+                    fallback_ok = True
                 if was_sent and signal["kind"] == "resultat_final":
                     final_ok = True
                 if was_sent and signal["kind"] == "suivi_interrompu":
@@ -582,6 +682,11 @@ def lifecycle_cycle(now: datetime, sender: channel.Sender,
                         ledger, sender.chat, day, raw, plan, str(row["id"]),
                         current_lineups,
                     )
+            if score_fields and fallback_ok and raw is not None:
+                raw, plan = save_score_state(
+                    ledger, sender.chat, day, raw, plan,
+                    str(row["id"]), score_fields,
+                )
             if (final_ok or interruption_ok) and raw is not None:
                 raw, plan = mark_finished(
                     ledger, sender.chat, day, raw, plan, str(row["id"])
@@ -598,6 +703,7 @@ def main():
     os.environ["FOOTBALL_REMOTE_LEDGER"] = "0"
     os.environ["FOOTBALL_CANONICAL_EVENTS"] = "0"
     os.environ["FOOTBALL_RUN_METRICS"] = "0"
+    os.environ["FOOTBALL_ENABLE_SCORE_UPDATES"] = "1"
     now = datetime.now(timezone.utc)
     sender = channel.Sender(dry_run=args.dry_run)
     ledger = None if args.dry_run else D1Ledger()
