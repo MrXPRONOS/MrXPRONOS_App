@@ -1228,7 +1228,7 @@ function publicProofNote(identity, pick) {
     const when = new Date(date).toLocaleString('fr-FR', { timeZone: 'UTC', dateStyle: 'short', timeStyle: 'short' });
     return '<div class="mx-prono-proof">Archive datée ' + escapeHtml(when) +
       ' UTC · <a target="_blank" rel="noopener noreferrer" href="' + escapeAttribute(url) +
-      '">Vérifier dans GitHub ↗</a></div>';
+      '">Voir la preuve ↗</a></div>';
   }
   return '<div class="mx-prono-proof mx-prono-proof--absent">Publication antérieure non attestée</div>';
 }
@@ -1928,7 +1928,6 @@ async function displayHistory() {
     const resultDetail = m.history_evaluated
       ? "Selon le score final"
       : (m.history_finished ? "Marché non calculable" : "Score final indisponible");
-    const reference = escapeHtml(String(m.id || "").slice(0, 35));
     const archive = publicProofs[String(m.id)] || null;
     const unchangedPick = archive && archive.selection &&
       String(archive.selection.selection_key) === String(pred.selection_key || 'primary') &&
@@ -1940,7 +1939,7 @@ async function displayHistory() {
       /^proofs\/receipts\/[a-f0-9]{32}\.json$/.test(archive.receipt_url || '') &&
       /^https:\/\/github\.com\/MrXPRONOS\/MrXPRONOS_App\/commits\/gh-pages\/proofs\/receipts\/[a-f0-9]{32}\.json$/.test(archive.github_history_url || '');
     const proofMarkup = beforeKickoff
-      ? `<div class="mx-history-proof-link"><span>Capture archivée : ${escapeHtml(new Date(archive.recorded_at_utc).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short',timeZone:'UTC'}))} UTC</span><a href="${escapeAttribute(archive.github_history_url)}" target="_blank" rel="noopener noreferrer">Vérifier l'historique GitHub ↗</a></div>`
+      ? `<div class="mx-history-proof-link"><span>Capture archivée : ${escapeHtml(new Date(archive.recorded_at_utc).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short',timeZone:'UTC'}))} UTC</span><a href="${escapeAttribute(archive.github_history_url)}" target="_blank" rel="noopener noreferrer">Consulter la preuve ↗</a></div>`
       : '<div class="mx-history-proof-link mx-history-proof-link--missing">Pas de preuve publique antérieure archivée</div>';
 
     html += `
@@ -1951,7 +1950,6 @@ async function displayHistory() {
             <span>${escapeHtml(publicFootballLabel(m.league, "Compétition"))}</span>
           </div>
           <span class="history-date">${escapeHtml(formattedDate)}</span>
-          <small class="history-reference" title="Identifiant public de suivi">Réf. ${reference}</small>
           ${proofMarkup}
         </div>
 
@@ -2703,11 +2701,6 @@ function renderFootNewsCards() {
     const featured = position === 0;
     const titleHtml = featured ? featuredNewsTitleHtml(title) : escapeHtml(title);
     const fallback = "assets/images/infos-premium/hero-infos.webp";
-    const espnVerification = item.espn_verification && typeof item.espn_verification === "object"
-      ? item.espn_verification : null;
-    const espnUrl = String(espnVerification?.url || "");
-    const espnCorroborated = espnUrl.startsWith("https://www.espn.com/");
-
     return `
       <article class="news-premium-card${featured ? " featured" : ""}" role="button" tabindex="0"
         data-news-category="${escapeAttribute(category)}"
@@ -2720,7 +2713,7 @@ function renderFootNewsCards() {
           <span class="news-category"><img src="${categoryIcon}" alt="" aria-hidden="true">${escapeHtml(category)}</span>
         </div>
         <div class="news-premium-body">
-          <div class="news-date"><img src="assets/images/infos-premium/icon-infos-clock.webp" alt="" aria-hidden="true"><span>${escapeHtml(date)}${espnCorroborated ? " • Vérification croisée ESPN" : ""}</span></div>
+          <div class="news-date"><img src="assets/images/infos-premium/icon-infos-clock.webp" alt="" aria-hidden="true"><span>${escapeHtml(date)}</span></div>
           <h3>${titleHtml}</h3>
           <p>${escapeHtml(summary)}${String(item.summary_short || item.summary || "").length > summary.length ? "…" : ""}</p>
           <span class="news-card-cta">${item.manual ? "Voir le contenu" : "Lire la suite"} <span aria-hidden="true">›</span></span>
@@ -2775,24 +2768,12 @@ async function displayFootNews() {
   try {
     let rssNews = [];
 
-    // Source principale: snapshot statique publié sur GitHub Pages.
-    // Évite les limitations Neon / Supabase pendant leur indisponibilité.
+    // Feed public only; no direct connection to private data providers.
     try {
       const resp = await fetch(`footnews.json?t=${Date.now()}`, { cache: "no-cache" });
       rssNews = resp.ok ? await resp.json() : [];
     } catch (snapshotError) {
       console.warn("Actualités GitHub Pages indisponibles", snapshotError?.message || "Erreur");
-    }
-
-    // Neon reste un recours de lecture seulement si le JSON public manque.
-    // Ne pas remplacer un flux Git frais par un snapshot Neon périmé.
-    if (!rssNews.length) {
-      try {
-        const {loadNeonFootNews}=await import("./actu-foot-neon.js");
-        rssNews=await loadNeonFootNews();
-      } catch (neonError) {
-        console.warn("Source de secours Neon indisponible", neonError?.message || "Erreur");
-      }
     }
 
     const manualInfos = Array.isArray(window.publishedInfos) ? window.publishedInfos : [];
@@ -2867,14 +2848,6 @@ window.showNewsDetail = function (index) {
         + points.map((point) => "<li>" + escapeHtml(String(point)) + "</li>").join("")
         + "</ul></section>"
       : "";
-    const espnVerification = news.espn_verification && typeof news.espn_verification === "object"
-      ? news.espn_verification : null;
-    const espnUrl = String(espnVerification?.url || "");
-    const espnCheckHtml = espnUrl.startsWith("https://www.espn.com/")
-      ? "<p class=\"news-detail-attribution\">✅ Vérification croisée : une publication ESPN portant sur les mêmes éléments a été repérée automatiquement. "
-        + "<a href=\"" + escapeAttribute(safeCmsUrl(espnUrl, "link", "#", window.location.href)) + "\" target=\"_blank\" rel=\"noopener noreferrer\">Vérifier sur ESPN ↗</a></p>"
-      : "";
-
     contentEl.innerHTML =
       "<div class=\"news-detail-meta\">"
       + "<span>" + escapeHtml(category) + "</span>"
@@ -2884,7 +2857,6 @@ window.showNewsDetail = function (index) {
       + (lead ? "<blockquote class=\"news-detail-lead\">" + escapeHtml(lead) + "</blockquote>" : "")
       + pointsHtml
       + "<section class=\"news-detail-body\">" + paragraphHtml + "</section>"
-      + espnCheckHtml
       + "<p class=\"news-detail-attribution\">Cette synthèse reprend uniquement les informations fournies par la source citée. Consultez l’article original pour le contexte éditorial complet.</p>";
   }
 
@@ -3053,7 +3025,7 @@ function renderBonusGrid(bookmakers) {
         <h3>${escapeHtml(b.name || "Bookmaker")}</h3>
         <p>${escapeHtml(b.desc || b.description || "Bonus exclusif bookmaker")}</p>
         <div class="bonus-actions">
-          <a href="${escapeAttribute(safeCmsUrl(b.url || "#", "link", "#", window.location.href))}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Voir l'offre</a>
+          <a href="${escapeAttribute(safeCmsUrl(b.url || "#", "link", "#", window.location.href))}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Profiter de l'offre</a>
           <button class="btn btn-secondary" type="button" onclick="openBonusModal(${i})">Détails</button>
         </div>
       </div>
@@ -3570,16 +3542,6 @@ async function handleCategoryChange() {
   filterAndDisplay();
 }
 
-function ensureSportScoreAttribution() {
-  if (document.querySelector('a[data-sportscore-attribution="1"]')) return;
-  const footer = document.querySelector(".mx-footer-bottom, .mx-live-footer__bottom, footer .container, footer");
-  if (!footer) return;
-  const node = document.createElement("span");
-  node.className = "sportscore-attribution";
-  node.innerHTML = 'Données complémentaires · <a data-sportscore-attribution="1" href="https://sportscore.com/" target="_blank" rel="noopener">Powered by SportScore</a>';
-  footer.appendChild(node);
-}
-
 /* =======================================================
  INIT APP
 ======================================================= */
@@ -3587,7 +3549,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   initDOM();
   setupGlobalButtons();
   initPromoCopy();
-  ensureSportScoreAttribution();
 
   const page = detectPage();
   if (page === "pronos") {
@@ -3713,7 +3674,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           DOM.matches.innerHTML = `
             <div class="error">
               Impossible d’afficher les pronostics.<br>
-              <small>${escapeHtml(dataError?.message || error?.message || "Erreur inconnue")}</small>
+              <small>Réessayez dans quelques instants.</small>
             </div>
           `;
         }
