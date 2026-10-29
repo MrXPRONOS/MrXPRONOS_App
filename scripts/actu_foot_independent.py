@@ -342,8 +342,17 @@ def live_signals(row: dict, info: dict, summary: dict, now: datetime) -> list[di
 
     # Sources chronologiques officielles, sans score synthétique inventé.
     if live or finished or is_half:
+        # Les tirs convertis pendant une séance de TAB ne sont pas des buts
+        # du score réglementaire : ils sont traités séparément ci-dessous.
+        shootout_event_ids = {
+            str(item.get("id"))
+            for item in extract_shootout_kicks(summary)
+            if item.get("id")
+        }
         for goal in extract_goals(summary):
             if not isinstance(goal, dict):
+                continue
+            if str(goal.get("id") or "") in shootout_event_ids:
                 continue
             goal_min = goal.get("minute_total")
             if goal_min is None:
@@ -454,6 +463,8 @@ def lifecycle_cycle(now: datetime, sender: channel.Sender,
         plan, raw = get_plan(ledger, sender.chat, day)
         if not plan:
             continue
+        # Vérifier le canal avant toute réservation D1 d'événement.
+        sender.verify_discussion()
         # Lecture groupée des événements : ne pas réinsérer des événements inchangés.
         previous = ledger.query(
             "SELECT ref_id,delivery_status FROM telegram_sent "
