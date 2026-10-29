@@ -154,6 +154,7 @@ def check_ml_loader(rows, *, loader=load_matches):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--validate-only", action="store_true")
+    parser.add_argument("--experimental-v3", action="store_true", help="Research-only V3 models in parallel with V2")
     parser.add_argument("--start", default="2026-10-01")
     parser.add_argument("--end", default="2026-10-24")
     parser.add_argument("--out", default="/tmp/ml-v2-multisource-backtest")
@@ -174,7 +175,7 @@ def main():
         raise ValueError("Invalid retrospective backtest interval")
     # Explicitly bounded research smoke run; long training must be planned separately.
     backtest(matches, start, end, args.out, max_eval=args.max_eval,
-             retrain_days=30, auto_tune=False)
+             retrain_days=30, auto_tune=False, v3_models=args.experimental_v3)
 
 
 if __name__ == "__main__":
