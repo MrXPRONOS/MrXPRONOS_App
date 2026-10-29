@@ -1760,7 +1760,7 @@ async function displayHistory() {
   allData = await loadDataGeneric();
 
   if (!allData || !Array.isArray(allData.matches)) {
-    DOM.historyContainer.innerHTML = '<div class="no-events">Aucun historique disponible.</div>';
+    DOM.historyContainer.innerHTML = '<div class="no-events">Aucun résultat disponible.</div>';
     return;
   }
 
@@ -1768,7 +1768,7 @@ async function displayHistory() {
   const outcomeForBsdPick = (pick, home, away) => {
     const key = String(pick?.selection_key || "");
     const h = Number(home), a = Number(away);
-    if (!Number.isInteger(h) || !Number.isInteger(a) || h < 0 || a < 0) return false;
+    if (!Number.isInteger(h) || !Number.isInteger(a) || h < 0 || a < 0) return null;
     if (key === "1") return h > a;
     if (key === "X") return h === a;
     if (key === "2") return a > h;
@@ -1778,7 +1778,7 @@ async function displayHistory() {
     if (key === "BTTS_YES") return h > 0 && a > 0;
     if (key === "BTTS_NO") return h === 0 || a === 0;
     const goals = key.match(/^(OVER|UNDER)_(15|25|35|45)$/);
-    if (!goals) return false;
+    if (!goals) return null;
     const line = Number(goals[2]) / 10;
     return goals[1] === "OVER" ? h + a > line : h + a < line;
   };
@@ -1795,19 +1795,23 @@ async function displayHistory() {
 
       return choices.filter((selection) => bsdPublicEligible(m, selection)).map((selection) => {
         const scoreKnown =
+          m.home_score !== null && m.home_score !== undefined &&
+          m.away_score !== null && m.away_score !== undefined &&
           Number.isInteger(Number(m.home_score)) &&
           Number.isInteger(Number(m.away_score)) &&
           Number(m.home_score) >= 0 &&
           Number(m.away_score) >= 0;
         const finished = Boolean(m.is_finished && scoreKnown);
+        const verdict = finished
+          ? outcomeForBsdPick(selection, m.home_score, m.away_score)
+          : null;
         return {
           ...m,
           id: String(m.id) + ":" + String(selection.selection_key || "primary"),
           prediction: selection,
           history_finished: finished,
-          verified_double: finished
-            ? outcomeForBsdPick(selection, m.home_score, m.away_score)
-            : false,
+          history_evaluated: verdict !== null,
+          verified_double: verdict,
         };
       });
     })
@@ -1818,9 +1822,9 @@ async function displayHistory() {
     return;
   }
 
-  const finished = historyMatches.filter((m) => m.history_finished);
-  const winCount = finished.filter((m) => m.verified_double).length;
-  const successRate = finished.length ? Math.round((winCount / finished.length) * 100) : 0;
+  const evaluated = historyMatches.filter((m) => m.history_evaluated);
+  const winCount = evaluated.filter((m) => m.verified_double === true).length;
+  const successRate = evaluated.length ? Math.round((winCount / evaluated.length) * 100) : 0;
 
   const totalNode = document.getElementById("history-total-count");
   const winNode = document.getElementById("history-win-count");
@@ -1828,8 +1832,10 @@ async function displayHistory() {
   const rateRing = document.getElementById("history-rate-ring");
   if (totalNode) totalNode.textContent = String(historyMatches.length);
   if (winNode) winNode.textContent = String(winCount);
-  if (rateNode) rateNode.textContent = finished.length ? `${successRate}%` : "—";
+  if (rateNode) rateNode.textContent = evaluated.length ? `${successRate}%` : "—";
   if (rateRing) rateRing.style.setProperty("--rate", String(successRate));
+  const denominatorNode = document.getElementById("history-evaluated-label");
+  if (denominatorNode) denominatorNode.textContent = `${evaluated.length} sélection${evaluated.length > 1 ? "s" : ""} évaluée${evaluated.length > 1 ? "s" : ""}`;
 
   let html = "";
 
@@ -1854,15 +1860,19 @@ async function displayHistory() {
     const filledStars = Math.min(5, Math.max(0, Math.round(confidence / 20)));
     const stars = "★".repeat(filledStars) + "☆".repeat(5 - filledStars);
 
-    const resultClass = !m.history_finished
+    const resultClass = !m.history_evaluated
       ? "pending"
       : (m.verified_double ? "won" : "lost");
-    const resultLabel = !m.history_finished
-      ? "En attente"
+    const resultLabel = !m.history_evaluated
+      ? "À ÉVALUER"
       : (m.verified_double ? "GAGNÉ" : "PERDU");
-    const resultIcon = !m.history_finished
+    const resultIcon = !m.history_evaluated
       ? "•"
       : (m.verified_double ? "✓" : "×");
+    const resultDetail = m.history_evaluated
+      ? "Selon le score final"
+      : (m.history_finished ? "Marché non calculable" : "Score final indisponible");
+    const reference = escapeHtml(String(m.id || "").slice(0, 35));
 
     html += `
       <article class="history-row">
@@ -1872,6 +1882,7 @@ async function displayHistory() {
             <span>${escapeHtml(publicFootballLabel(m.league, "Compétition"))}</span>
           </div>
           <span class="history-date">${escapeHtml(formattedDate)}</span>
+          <small class="history-reference" title="Identifiant public de suivi">Réf. ${reference}</small>
         </div>
 
         <div class="history-match">
@@ -1882,7 +1893,7 @@ async function displayHistory() {
           </div>
           <div class="history-score">
             <strong>${m.home_score ?? "—"} - ${m.away_score ?? "—"}</strong>
-            <span>Score final</span>
+            <span>${m.history_finished ? "Score final" : "Score non confirmé"}</span>
           </div>
           <div class="history-team">
             <img src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" loading="lazy"
@@ -1898,14 +1909,14 @@ async function displayHistory() {
         </div>
 
         <div class="history-confidence">
-          <small>Fiabilité</small>
+          <small>Confiance estimée</small>
           <span class="history-stars" aria-label="${filledStars} étoiles sur 5">${stars}</span>
           <strong>${confidence}%</strong>
         </div>
 
         <div class="history-result">
           <div class="history-result-badge ${resultClass}"><span aria-hidden="true">${resultIcon}</span> ${resultLabel}</div>
-          <small>${m.history_finished ? "Terminé" : "Non vérifié"}</small>
+          <small>${resultDetail}</small>
         </div>
       </article>
     `;
