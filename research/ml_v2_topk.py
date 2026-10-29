@@ -41,10 +41,10 @@ def _safe_output(path):
     return p
 
 
-def _check_row(row, *, start, end):
+def _check_row(row, *, start, end, allowed_models=MODELS):
     name = row.get("model")
     day = row.get("date", "")
-    if name not in MODELS or day < start or day > end:
+    if name not in allowed_models or day < start or day > end:
         return None
     try:
         d = date.fromisoformat(day)
