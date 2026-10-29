@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import uuid
 from datetime import datetime, date, timedelta, timezone
@@ -24,17 +25,20 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from scripts.d1_publication_ledger import D1Ledger
 from scripts.football_match_lifecycle import (
     fetch_espn_day, fetch_espn_summary, parse_espn_summary_match,
-    extract_goals, extract_match_enrichment, espn_match_url,
+    extract_goals, extract_cards, extract_substitutions,
+    extract_shootout_kicks, extract_lineups, extract_match_enrichment,
+    espn_match_url, _minute_total,
 )
 from scripts import football_channel as channel
 
-PLAN_KIND = "actufoot_independent_plan_v1"
 PROGRAMME_KIND = "actufoot_independent_programme_v1"
 EVENT_KIND = "actufoot_independent_event_v1"
 MAX_TRACKED = 4
 MAX_CALLS_PER_CYCLE = 4
 PROGRAMME_START = (6, 45)  # Africa/Lome
 PROGRAMME_END = (7, 45)
+MAX_LIVE_HOURS = 5
+DEFINITIVE_REJECTION_CODES = {400, 401, 403, 404, 429}
 
 
 def day_key(now: datetime) -> str:
@@ -59,10 +63,42 @@ def event_priority(event: dict) -> tuple:
     )
 
 
+def enrich_espn_fixtures(events: list[dict]) -> list[dict]:
+    """Réutiliser uniquement les métadonnées officielles déjà dans le scoreboard.
+
+    Aucun second fournisseur ni API dédiée par compétition.
+    Ne jamais inventer le tour ou la compétition en l'absence de métadonnées.
+    """
+    enriched = []
+    for source in events:
+        event = dict(source)
+        raw = event.get("raw") if isinstance(event.get("raw"), dict) else {}
+        competitions = raw.get("competitions") if isinstance(raw.get("competitions"), list) else []
+        competition = competitions[0] if competitions and isinstance(competitions[0], dict) else {}
+        for key, possible in (
+            ("round_name", (competition.get("altGameNote"), competition.get("note"),
+                            raw.get("altGameNote"), raw.get("note"))),
+            ("stage", (competition.get("stage"), competition.get("round"),
+                       raw.get("stage"), raw.get("round"))),
+            ("league_name", (event.get("league"), competition.get("league"),
+                             raw.get("league"))),
+        ):
+            if event.get(key):
+                continue
+            for value in possible:
+                if isinstance(value, dict):
+                    value = value.get("displayName") or value.get("name") or value.get("shortName")
+                if isinstance(value, str) and value.strip():
+                    event[key] = value.strip()
+                    break
+        enriched.append(event)
+    return enriched
+
+
 def selected_fixtures(events: list[dict], now: datetime) -> tuple:
     local_date = now.astimezone(channel.TZ).date()
     upcoming = [
-        e for e in events
+        e for e in enrich_espn_fixtures(events)
         if channel.kick(e) is not None
         and channel.kick(e).astimezone(channel.TZ).date() == local_date
         and channel.kick(e) > now
@@ -100,43 +136,59 @@ def selected_fixtures(events: list[dict], now: datetime) -> tuple:
 
 
 def get_plan(ledger: D1Ledger, chat: str, day: str) -> tuple[list[dict], str | None]:
+    """Seul un programme Telegram confirmé autorise le suivi LIVE."""
     rows = ledger.query(
-        "SELECT selection_snapshot FROM telegram_sent WHERE kind=? AND ref_id=? "
-        "AND ref_date=? AND delivery_status='sent' LIMIT 1",
-        (PLAN_KIND, chat, day),
+        "SELECT selection_snapshot FROM telegram_sent "
+        "WHERE kind=? AND ref_id=? AND ref_date=? "
+        "AND delivery_status='sent' LIMIT 1",
+        (PROGRAMME_KIND, chat, day),
     ).get("results") or []
     if not rows:
         return [], None
     raw = rows[0].get("selection_snapshot")
-    payload = json.loads(raw)
+    if not raw:
+        raise RuntimeError("ACTUFOOT_SENT_PROGRAMME_WITHOUT_PLAN")
+    try:
+        payload = json.loads(raw)
+    except (ValueError, TypeError) as exc:
+        raise RuntimeError("ACTUFOOT_INVALID_SAVED_PLAN") from exc
     if not isinstance(payload, list):
-        raise RuntimeError("ActuFoot programme D1 invalide")
+        raise RuntimeError("ACTUFOOT_INVALID_SAVED_PLAN")
     return [p for p in payload[:MAX_TRACKED] if isinstance(p, dict)], raw
 
 
-def save_plan(ledger: D1Ledger, chat: str, day: str, fixtures: list[dict]):
-    raw = json.dumps(fixtures[:MAX_TRACKED], ensure_ascii=False, separators=(",", ":"))
-    ledger.query(
+def reserve_programme(ledger: D1Ledger, chat: str, day: str, fixtures: list[dict]) -> bool:
+    """Une seule transaction D1 : réserver ET enregistrer le plan avant Telegram."""
+    if not fixtures:
+        raise RuntimeError("ACTUFOOT_EMPTY_PLAN")
+    snapshot = json.dumps(fixtures[:MAX_TRACKED], ensure_ascii=False, separators=(",", ":"))
+    result = ledger.query(
         "INSERT OR IGNORE INTO telegram_sent "
         "(id,kind,ref_id,ref_date,sent_at,validation_sent,delivery_status,selection_snapshot) "
-        "VALUES (?,?,?,?,?,0,'sent',?)",
-        (str(uuid.uuid4()), PLAN_KIND, chat, day,
-         datetime.now(timezone.utc).isoformat(), raw),
+        "VALUES (?,?,?,?,?,0,'reserved',?)",
+        (str(uuid.uuid4()), PROGRAMME_KIND, chat, day,
+         datetime.now(timezone.utc).isoformat(), snapshot),
     )
+    changes = (result.get("meta") or {}).get("changes")
+    if changes not in (0, 1):
+        raise RuntimeError("ACTUFOOT_PROGRAMME_CLAIM_NOT_CONFIRMED")
+    return changes == 1
 
 
-def mark_finished(ledger: D1Ledger, chat: str, day: str, old_raw: str, fixtures: list[dict], event_id: str):
+def mark_finished(ledger: D1Ledger, chat: str, day: str, old_raw: str,
+                  fixtures: list[dict], event_id: str):
     updated = [dict(row, done=True) if str(row.get("id")) == event_id else row for row in fixtures]
     if updated == fixtures:
         return old_raw, fixtures
     raw = json.dumps(updated, ensure_ascii=False, separators=(",", ":"))
     result = ledger.query(
         "UPDATE telegram_sent SET selection_snapshot=? "
-        "WHERE kind=? AND ref_id=? AND ref_date=? AND selection_snapshot=?",
-        (raw, PLAN_KIND, chat, day, old_raw),
+        "WHERE kind=? AND ref_id=? AND ref_date=? AND delivery_status='sent' "
+        "AND selection_snapshot=?",
+        (raw, PROGRAMME_KIND, chat, day, old_raw),
     )
     if (result.get("meta") or {}).get("changes") != 1:
-        raise RuntimeError("Etat ActuFoot modifié concurremment; aucun écrasement")
+        raise RuntimeError("ACTUFOOT_PLAN_CONCURRENT_UPDATE")
     return raw, updated
 
 
@@ -149,26 +201,43 @@ def confirmed_message(ledger: D1Ledger, sender: channel.Sender,
         return False
     key = sender.chat + ":" + ref
     if not ledger.claim(EVENT_KIND, key, day):
-        return False
-    # La réservation D1 est conservée si la réponse Telegram est incertaine :
-    # aucun doublon automatique, aucune publication sans déduplication.
-    message_id = sender.send(post)
+        rows = ledger.rows(EVENT_KIND, day, ref_id=key)
+        if rows and rows[0].get("delivery_status") == "sent":
+            return True
+        # Ne jamais considérer une réservation incertaine comme un envoi réussi.
+        raise RuntimeError("ACTUFOOT_EVENT_UNCERTAIN_DELIVERY " + ref)
+    try:
+        message_id = sender.send(post)
+    except requests.HTTPError as exc:
+        code = exc.response.status_code if exc.response is not None else None
+        if code in DEFINITIVE_REJECTION_CODES:
+            ledger.release(EVENT_KIND, key, day)
+        raise
+    # L'état 'reserved' reste intact en cas de timeout ou de réponse ambiguë.
     ledger.mark(EVENT_KIND, key, day, message_id=message_id)
     print("ACTUFOOT_SENT", post.category, ref, "message_id", message_id)
     return True
 
 
-def programme_cycle(now: datetime, sender: channel.Sender, ledger: D1Ledger | None, dry_run: bool):
+def programme_cycle(now: datetime, sender: channel.Sender, ledger: D1Ledger | None,
+                    dry_run: bool):
     if not within_programme_window(now):
         print("ACTUFOOT_PROGRAMME_OUTSIDE_WINDOW")
         return
     today = day_key(now)
     if not dry_run:
-        plan, _ = get_plan(ledger, sender.chat, today)
-        if plan or ledger.rows(PROGRAMME_KIND, today, ref_id=sender.chat):
-            print("ACTUFOOT_PROGRAMME_ALREADY_HANDLED", today)
-            return
+        rows = ledger.rows(PROGRAMME_KIND, today, ref_id=sender.chat)
+        if rows:
+            if rows[0].get("delivery_status") == "sent":
+                plan, _ = get_plan(ledger, sender.chat, today)
+                if not plan:
+                    raise RuntimeError("ACTUFOOT_PROGRAMME_SENT_EMPTY_PLAN")
+                print("ACTUFOOT_PROGRAMME_ALREADY_HANDLED", today, len(plan))
+                return
+            raise RuntimeError("ACTUFOOT_PROGRAMME_UNCERTAIN_DELIVERY " + today)
     events = fetch_espn_day(sender.session, now.astimezone(channel.TZ).date(), force=True)
+    if not events:
+        raise RuntimeError("ACTUFOOT_ESPN_DAY_EMPTY_OR_UNAVAILABLE " + today)
     post, selected = selected_fixtures(events, now)
     if not post or not selected:
         print("ACTUFOOT_NO_VERIFIED_PRIORITY_MATCHES", len(events))
@@ -177,12 +246,18 @@ def programme_cycle(now: datetime, sender: channel.Sender, ledger: D1Ledger | No
         print("ACTUFOOT_PROGRAMME_DRY_RUN", [(e["home"], e["away"]) for e in selected])
         sender.send(post)
         return
-    if not ledger.claim(PROGRAMME_KIND, sender.chat, today):
-        print("ACTUFOOT_PROGRAMME_RESERVED", today)
-        return
-    message_id = sender.send(post)
+    # Tester les autorisations du bot AVANT de réserver le programme.
+    sender.verify_discussion()
+    if not reserve_programme(ledger, sender.chat, today, selected):
+        raise RuntimeError("ACTUFOOT_PROGRAMME_CONCURRENT_RESERVATION")
+    try:
+        message_id = sender.send(post)
+    except requests.HTTPError as exc:
+        code = exc.response.status_code if exc.response is not None else None
+        if code in DEFINITIVE_REJECTION_CODES:
+            ledger.release(PROGRAMME_KIND, sender.chat, today)
+        raise
     ledger.mark(PROGRAMME_KIND, sender.chat, today, message_id=message_id)
-    save_plan(ledger, sender.chat, today, selected)
     print("ACTUFOOT_PROGRAMME_SENT", today, len(selected), "message_id", message_id)
 
 
