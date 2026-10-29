@@ -1,5 +1,510 @@
 [
   {
+    "id": "eef134d2879123be0d850d64",
+    "kind": "article",
+    "title": "AC Milan vs Bologna : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-210137/",
+    "source_date": "2026-10-29T05:41:49.617176+00:00",
+    "visual_variant": "v1",
+    "image": "assets/images/editorial/match-bsd-match-210137-c35800c4-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-210137-c35800c4-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-210137-c35800c4-social.jpg"
+  },
+  {
+    "id": "18a37662a9f228f4ebbc94ba",
+    "kind": "news",
+    "title": "Le Barça tremble pour Raphinha",
+    "url": "https://www.footmercato.net/a2264017073819465288-le-barca-tremble-pour-raphinha",
+    "source_date": "2026-10-28T22:43:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c9eeaf48c0d7d54180c8068b",
+    "kind": "news",
+    "title": "Sénégal : Jakobs arrête la sélection (officiel)",
+    "url": "https://www.maxifoot.fr/senegal/jakobs-arrete-la-selection-officiel-foot-466656.htm",
+    "source_date": "2026-10-28T22:31:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "abc84b977f276d05c556b18e",
+    "kind": "news",
+    "title": "League Cup : Chelsea s’incline aux tirs au but contre Liverpool, Bournemouth écrase Aston Villa",
+    "url": "https://www.footmercato.net/a7938976214173283465-league-cup-chelsea-sincline-aux-tirs-au-but-contre-liverpool-bournemouth-ecrase-aston-villa",
+    "source_date": "2026-10-28T22:13:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0a3edaafde82927a980e95ef",
+    "kind": "news",
+    "title": "LdC (F) : l’OL Lyonnes en colle 6 à l’Inter Milan, triplé pour Vicki Becho",
+    "url": "https://www.footmercato.net/a5678833585947877027-ldc-f-lol-lyonnes-en-colle-6-a-linter-milan-triple-pour-vicki-becho",
+    "source_date": "2026-10-28T21:57:03+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3230be959de9ab8bc46833ae",
+    "kind": "news",
+    "title": "RC Lens : un cadre absent plusieurs semaines, énorme coup dur avant le derby !",
+    "url": "https://www.onzemondial.com/ligue-1/rc-lens-un-cadre-absent-plusieurs-semaines-enorme-coup-dur-avant-le-derby-1005659",
+    "source_date": "2026-10-28T21:02:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7f7e8afe1034ab90ac7f8a0d",
+    "kind": "news",
+    "title": "Mercato : malgré son départ du Real, Carvajal a tenté de détourner Rodri du Barça",
+    "url": "https://www.onzemondial.com/liga/mercato-malgre-son-depart-du-real-carvajal-a-tente-de-detourner-rodri-du-barca-1005611",
+    "source_date": "2026-10-28T19:27:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4bb42fa26e46e765ad1f4dba",
+    "kind": "news",
+    "title": "Retour sur le tirage au sort de la phase de groupes de la Ligue des Champions CAF",
+    "url": "https://www.rfi.fr/fr/podcasts/radio-foot-internationale/20261028-retour-sur-le-tirage-au-sort-de-la-phase-de-groupes-de-la-ligue-des-champions-caf",
+    "source_date": "2026-10-28T17:36:26+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6277da9bedde20d3390e6601",
+    "kind": "news",
+    "title": "Coupe de la Confédération CAF: le tirage au sort de la phase de groupes avec l’USM Alger, tenant du titre",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261028-coupe-de-la-conf%C3%A9d%C3%A9ration-caf-le-tirage-au-sort-de-la-phase-de-groupes-avec-l-usm-alger-tenant-du-titre",
+    "source_date": "2026-10-28T15:21:36+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "90b6360ac1bf352d0a27cf40",
+    "kind": "news",
+    "title": "Ligue des Champions CAF : les groupes sont désormais connus, sans les Mamelodi Sundowns, tenants du titre",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261028-ligue-des-champions-caf-les-groupes-sont-d%C3%A9sormais-connus-sans-les-mamelodi-sundowns-tenants-du-titre",
+    "source_date": "2026-10-28T14:43:46+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "60aa564649a508ef592421ff",
+    "kind": "news",
+    "title": "Jérôme Rothen se paie Pierre Sage",
+    "url": "https://www.footmercato.net/a2394352703268147488-jerome-rothen-se-paie-pierre-sage",
+    "source_date": "2026-10-28T23:23:01+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3d683a973e722b92d8463433",
+    "kind": "news",
+    "title": "France : Arthur Desmas prend sa retraite pour des problèmes de commotions cérébrales",
+    "url": "https://www.sofoot.com/breves/france-arthur-desmas-prend-sa-retraite-pour-des-problemes-de-commotions-cerebrales",
+    "source_date": "2026-10-28T22:57:24+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d1fe1f94450f89fdc916170a",
+    "kind": "news",
+    "title": "« C’est une bête »… Une légende du Real Madrid encense Mbappé",
+    "url": "https://www.onzemondial.com/cest-une-bete-une-legende-du-real-madrid-encense-mbappe-1005649",
+    "source_date": "2026-10-28T22:54:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cedc8c00cf505079fbf8cecb",
+    "kind": "news",
+    "title": "Monaco : le geste génial du club pour des enfants contre Lille",
+    "url": "https://www.onzemondial.com/monaco-le-post-genial-du-club-pour-des-enfants-contre-lille-1005644",
+    "source_date": "2026-10-28T22:28:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9c194bdf83e4ca6750049f33",
+    "kind": "news",
+    "title": "OM : Frank McCourt annonce un projet majeur qui dépasse largement le football",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-frank-mccourt-annonce-un-projet-majeur-qui-depasse-largement-le-football-543883.html",
+    "source_date": "2026-10-28T22:22:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7cee2720dadd23997e40a61b",
+    "kind": "news",
+    "title": "League Cup – Liverpool fait craquer Chelsea, plombé par ses anciens de Ligue 1",
+    "url": "https://www.sofoot.com/breves/league-cup-liverpool-fait-craquer-chelsea-plombe-par-ses-anciens-de-ligue-1",
+    "source_date": "2026-10-28T22:14:19+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "49221a08e466fd91eabbe6ed",
+    "kind": "news",
+    "title": "OM : énorme nouvelle, Adidas fait son retour plus tôt que prévu !",
+    "url": "https://www.onzemondial.com/ligue-1/om-enorme-nouvelle-adidas-fait-son-retour-plus-tot-que-prevu-1005673",
+    "source_date": "2026-10-28T22:02:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b8e1404d20d5c70db3071b71",
+    "kind": "news",
+    "title": "Ajax : après son transfert raté au Real Madrid, Abdellah Ouazane affole l’Eredivisie",
+    "url": "https://www.footmercato.net/a3277011515032164728-ajax-apres-son-transfert-rate-au-real-madrid-abdellah-ouazane-affole-leredivisie",
+    "source_date": "2026-10-28T21:58:44+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5ad3c45274cf58a72e22717f",
+    "kind": "news",
+    "title": "Ligue des champions féminine : avec un triplé de Vicki Becho, OL Lyonnes ne laisse aucune chance à l’Inter Milan",
+    "url": "https://www.sofoot.com/breves/ligue-des-champions-feminine-avec-un-triple-de-vicky-becho-ol-lyonnes-ne-laisse-aucune-chance-a-linter-milan",
+    "source_date": "2026-10-28T21:56:04+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f141e67da5bd30c6c558f70a",
+    "kind": "news",
+    "title": "WCL : L'OL Lyonnes signe une démonstration face à l'Inter Milan et occupe la première place",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-wcl-l-ol-lyonnes-signe-une-demonstration-face-a-l-inter-milan-et-occupe-la-premiere-place-543881.html",
+    "source_date": "2026-10-28T21:54:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c44e69820ced597e7c24a79c",
+    "kind": "news",
+    "title": "Serie A : Rien ne va plus à la Juve, Naples tranquille face à Monza",
+    "url": "https://www.sofoot.com/breves/serie-a-rien-ne-va-plus-a-la-juve-naples-tranquille-face-a-monza",
+    "source_date": "2026-10-28T21:45:41+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "139417ac591148209c1104ee",
+    "kind": "news",
+    "title": "Coupe d’Allemagne : le Bayern écrase Magdebourg grâce à un immense Michael Olise",
+    "url": "https://www.footmercato.net/a852026996256429444-coupe-dallemagne-le-bayern-ecrase-magdebourg-grace-a-un-immense-michael-olise",
+    "source_date": "2026-10-28T21:44:30+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "75d3986d2ff5265ca1d734c3",
+    "kind": "news",
+    "title": "Serie A : le Genoa s’amuse avec la Juventus, Naples écrase Monza",
+    "url": "https://www.footmercato.net/a2016550885073017298-serie-a-le-genoa-samuse-avec-la-juventus-naples-ecrase-monza",
+    "source_date": "2026-10-28T21:42:29+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "14bb21641bdca0b1098fdc93",
+    "kind": "news",
+    "title": "Coupe d’Allemagne : le Bayern roule sur Magdebourg avec un grand Michael Olise",
+    "url": "https://www.sofoot.com/breves/coupe-dallemagne-le-bayern-roule-sur-magdebourg-avec-un-grand-michael-olise",
+    "source_date": "2026-10-28T21:39:12+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-29T05:41:49.858828+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "cc690372d50e5f56010c33ba",
     "kind": "news",
     "title": "Jérmy Mathieu explique pourquoi il a travaillé chez Intersport",
@@ -18,7 +523,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "76953e5ea431665a128bd73f",
@@ -39,7 +544,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "78038c06cd9f6a4ded7a56d5",
@@ -60,7 +565,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1a48015d7d24ed1c3b9ff6a1",
@@ -81,7 +586,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a8a05c24b5947368c7a83512",
@@ -123,7 +628,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "494b0677f572d75a217bbaa6",
@@ -144,7 +649,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "011fe79459bb4d6655bd7915",
@@ -165,7 +670,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "272ceb5cdbb88649b23f3279",
@@ -186,7 +691,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9168001325e50bb7b257ad3f",
@@ -207,7 +712,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8754deabe688c48e68b9ee4e",
@@ -228,7 +733,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "29198958fb50d6e9becb8b50",
@@ -249,7 +754,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "035d1979bce512f495ffd5a6",
@@ -270,7 +775,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d02dcfc8010ca3fbc0757668",
@@ -291,7 +796,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9491cd1b18c985c648931883",
@@ -312,7 +817,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "da3248eb061028a3cdf1146b",
@@ -333,7 +838,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "35e2c7196ecef6e7384a6e95",
@@ -354,7 +859,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e0f78ab6b549a270aef15891",
@@ -375,7 +880,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f95a23a12c3038ca41d7a448",
@@ -396,7 +901,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "74d967d2be6fae7156e3f6b6",
@@ -417,7 +922,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4ab95df5c399f1aef17a4781",
@@ -438,7 +943,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "16e0895a88b60527d6407305",
@@ -459,7 +964,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cb28f25cf761cd4c893a0887",
@@ -480,7 +985,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7e2bdf3204ee5c8a1f8093e4",
@@ -501,7 +1006,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c2eeb3510c022f3468017ee2",
