@@ -19,6 +19,7 @@ from pathlib import Path
 import requests
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 from scripts.d1_publication_ledger import D1Ledger
 from scripts.football_match_lifecycle import (
