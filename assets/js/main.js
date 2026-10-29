@@ -1194,6 +1194,39 @@ async function fetchPublishedPronostics() {
   return fetchJsonWithCache(`data.json?t=${Date.now()}`, "cachedData", 8000);
 }
 
+// Proofs are written only by the public Pages build, never inferred from match dates.
+let publicProofsCache = {};
+let publicProofsLoaded = false;
+async function loadPublicProofs() {
+  if (publicProofsLoaded) return publicProofsCache;
+  publicProofsLoaded = true;
+  try {
+    const response = await fetch('proofs/index.json?t=' + Date.now(), { cache: 'no-store' });
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.schema === 'mx-public-proof-index-v1' && data.receipts) {
+        publicProofsCache = data.receipts;
+      }
+    }
+  } catch (_) { /* no public archive is not a proof */ }
+  return publicProofsCache;
+}
+function publicProofNote(identity) {
+  const archive = publicProofsCache[String(identity)] || null;
+  const date = archive && Date.parse(archive.recorded_at_utc);
+  const kickoff = archive && Date.parse(archive.kickoff_utc);
+  const url = archive?.github_history_url || '';
+  if (archive && Number.isFinite(date) && Number.isFinite(kickoff) &&
+      date + 15 * 60 * 1000 < kickoff &&
+      /^https:\/\/github\.com\/MrXPRONOS\/MrXPRONOS_App\/commits\/gh-pages\/proofs\/receipts\/[a-f0-9]{32}\.json$/.test(url)) {
+    const when = new Date(date).toLocaleString('fr-FR', { timeZone: 'UTC', dateStyle: 'short', timeStyle: 'short' });
+    return '<div class="mx-prono-proof">Archive datée ' + escapeHtml(when) +
+      ' UTC · <a target="_blank" rel="noopener noreferrer" href="' + escapeAttribute(url) +
+      '">Vérifier dans GitHub ↗</a></div>';
+  }
+  return '<div class="mx-prono-proof mx-prono-proof--absent">Publication antérieure non attestée</div>';
+}
+
 async function loadData() {
   const { data, fromCache } = await fetchPublishedPronostics();
   usingCachedData = fromCache;
@@ -1205,6 +1238,7 @@ async function loadData() {
   }
 
   renderBookmakers(allData.bookmakers);
+  await loadPublicProofs();
   filterAndDisplay();
   updatePronosticsSuccessRate();
 }
@@ -1736,6 +1770,7 @@ function renderMatches(matches) {
             </div>
 
             ${premiumBadge}
+            ${publicProofNote(m.id)}
             <button class="btn btn-secondary btn-share" data-match="${matchDataEncoded}"><span class="share-glyph" aria-hidden="true"><img src="assets/images/pronostics-premium/icon-share.webp?v=20261011-gen2" alt=""></span> Partager ce prono</button>
           </div>
         </div>
@@ -1759,19 +1794,7 @@ async function displayHistory() {
   if (!DOM.historyContainer) return;
   allData = await loadDataGeneric();
 
-  // Public receipts survive settlement and link to GitHub's dated file history.
-  let publicProofs = {};
-  try {
-    const proofResponse = await fetch('proofs/index.json?t=' + Date.now(), { cache: 'no-store' });
-    if (proofResponse.ok) {
-      const proofIndex = await proofResponse.json();
-      if (proofIndex?.schema === 'mx-public-proof-index-v1' && proofIndex?.receipts) {
-        publicProofs = proofIndex.receipts;
-      }
-    }
-  } catch (_) {
-    // A missing proof archive must never be interpreted as proof of publication.
-  }
+  const publicProofs = await loadPublicProofs();
 
   if (!allData || !Array.isArray(allData.matches)) {
     DOM.historyContainer.innerHTML = '<div class="no-events">Aucun résultat disponible.</div>';
