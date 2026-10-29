@@ -237,7 +237,7 @@ def refresh_public_script_versions(destination: Path):
         import os
         version = re.sub(r"[^0-9a-f]", "", os.environ.get("GITHUB_SHA", ""))[:12] or "local"
         replacement = re.sub(
-            r"(assets/(?:js|css)/[a-zA-Z0-9_.-]+\\.(?:js|css))(?:\\?v=[a-zA-Z0-9_.-]+)?",
+            r"(assets/(?:js|css)/[a-zA-Z0-9_.-]+\.(?:js|css))(?:\?v=[a-zA-Z0-9_.-]+)?",
             lambda m: m.group(1) + "?v=" + version,
             body,
         )
