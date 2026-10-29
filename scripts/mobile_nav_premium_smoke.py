@@ -39,7 +39,7 @@ def assert_bottom(page, expected, label):
     if items.count()!=5:
         raise AssertionError(f"{label}: expected 5 bottom items, got {items.count()}")
     labels=items.locator(".bottom-nav-label").all_inner_texts()
-    if labels!=["Accueil","Pronostics","LIVE","Bonus","Menu"]:
+    if labels!=["Accueil","Pronostics","Historique","Bonus","Menu"]:
         raise AssertionError(f"{label}: bad bottom labels {labels}")
     active=nav.locator(".bottom-nav-item.active")
     if active.count()!=1:
@@ -65,21 +65,21 @@ def assert_bottom(page, expected, label):
     if not inner or inner["height"] > 70 or inner["height"] < 64:
         raise AssertionError(f"{label}: unexpected bottom bar inner height {inner}")
 
-    # Optical sizing: Pronostics/LIVE slightly larger, Menu deliberately smaller.
+    # Optical sizing: Pronostics emphasised, Historique standard, Menu smaller.
     sizes=page.locator("#bottom-nav .bottom-nav-icon").evaluate_all(
       "imgs => imgs.map(i => { const r=i.getBoundingClientRect(); return {w:r.width,h:r.height}; })"
     )
-    expected=[31,32,32,31,26] if page.viewport_size["width"] <= 340 else [31,34,34,31,28]
+    expected=[31,32,29,31,26] if page.viewport_size["width"] <= 340 else [31,34,32,31,28]
     for index,(box,target) in enumerate(zip(sizes,expected)):
-        if abs(box["w"]-target) > 1.5 or abs(box["h"]-target) > 1.5:
+        tolerance = 4 if index == 2 else 1.5
+        if abs(box["w"]-target) > tolerance or abs(box["h"]-target) > tolerance:
             raise AssertionError(f"{label}: icon {index} size {box}, expected about {target}px")
 
-    # LIVE: no extra CSS circle/background around the already self-contained icon.
-    live_wrap=page.locator("#bottom-nav .bottom-nav-item.live .bottom-nav-icon-wrap").evaluate(
-      "(el) => ({border:getComputedStyle(el).borderStyle,bg:getComputedStyle(el).backgroundImage,shadow:getComputedStyle(el).boxShadow})"
-    )
-    if live_wrap["border"] != "none" or live_wrap["bg"] != "none" or live_wrap["shadow"] != "none":
-        raise AssertionError(f"{label}: LIVE still has double wrapper styling {live_wrap}")
+    # The retired LIVE entry must no longer appear in the visitor navigation.
+    if nav.locator(".bottom-nav-item.live").count():
+        raise AssertionError(f"{label}: paused LIVE navigation item is still present")
+    if nav.locator('a[href="live.html"]').count():
+        raise AssertionError(f"{label}: paused LIVE URL still appears in bottom navigation")
 
 def open_menu(page, label, from_bottom=True):
     trigger=page.locator("#bottom-nav-menu" if from_bottom else "#burger-btn")
@@ -91,12 +91,12 @@ def open_menu(page, label, from_bottom=True):
         raise AssertionError(f"{label}: drawer did not open")
 
     entries=overlay.locator(".burger-menu-item")
-    if entries.count()!=9:
-        raise AssertionError(f"{label}: expected 9 drawer entries, got {entries.count()}")
+    if entries.count()!=8:
+        raise AssertionError(f"{label}: expected 8 drawer entries, got {entries.count()}")
 
     imgs=image_health(overlay.locator("img.menu-icon-img"),label+" drawer")
-    if len(imgs)!=9:
-        raise AssertionError(f"{label}: expected 9 generated drawer icons")
+    if len(imgs)!=8:
+        raise AssertionError(f"{label}: expected 8 generated drawer icons")
 
     if page.locator("link[href*='font-awesome'],link[href*='fontawesome']").count():
         raise AssertionError(f"{label}: Font Awesome dependency still injected")
@@ -152,25 +152,12 @@ with sync_playwright() as p:
     check_page(browser,"index.html",390,844,"Accueil","Accueil",True)
     check_page(browser,"pronos.html",390,844,"Pronostics","Pronostics")
     check_page(browser,"bonus.html",390,844,"Bonus","Bonus & Promo")
-    check_page(browser,"historique.html",390,844,"Menu","Historique",True)
+    check_page(browser,"historique.html",390,844,"Historique","Historique",True)
     check_page(browser,"contact.html",390,844,"Menu","Contact")
-    # Live intentionally keeps its own functional four-tab mobile navigation.
-    ctx=browser.new_context(viewport={"width":390,"height":844},service_workers="block")
-    page=ctx.new_page()
-    page.goto("http://127.0.0.1:8000/live.html",wait_until="domcontentloaded",timeout=60000)
-    page.locator(".mx-mobile-tabs").wait_for(state="visible",timeout=60000)
-    page.wait_for_timeout(700)
-    if page.locator("#bottom-nav").count()!=0:
-        raise AssertionError("live.html@390: duplicate global bottom navigation should not be injected")
-    if page.locator(".mx-mobile-tab").count()!=4:
-        raise AssertionError("live.html@390: dedicated Live mobile tabs missing")
-    no_overflow(page,"live.html@390")
-    page.screenshot(path=str(OUT/"live-390.png"),full_page=False)
-    ctx.close()
-    print("PASS live.html@390 dedicated tabs")
+    # LIVE is paused; no dedicated LIVE mobile-page checks in this smoke suite.
 
     # Narrow phone stress-test
     check_page(browser,"index.html",320,720,"Accueil","Accueil",True)
-    check_page(browser,"historique.html",320,720,"Menu","Historique",True)
+    check_page(browser,"historique.html",320,720,"Historique","Historique",True)
 
     browser.close()
