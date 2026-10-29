@@ -67,6 +67,44 @@ def main():
             print("ACTUFOOT_SMOKE_PROGRAMME_RENDERED", target.stat().st_size)
     else:
         print("ACTUFOOT_SMOKE_NO_ELIGIBLE_UPCOMING_PRIORITY_FIXTURES")
+    # Contrôle réel du cycle LIVE sur une rencontre effectivement démarrée.
+    # Aucun envoi Telegram, aucune ligne D1 ni récupération multi-fournisseur.
+    from scripts.actu_foot_independent import live_signals, event_priority
+    from scripts.football_match_lifecycle import (
+        fetch_espn_summary, parse_espn_summary_match,
+    )
+    started = sorted(
+        [e for e in enriched if str(e.get("state") or "") in ("in", "post")],
+        key=event_priority, reverse=True,
+    )
+    if not started:
+        print("ACTUFOOT_SMOKE_NO_LIVE_OR_FINISHED_MATCH_ON_DATE")
+        return
+    match = started[0]
+    summary = fetch_espn_summary(session, str(match["id"]), force=True)
+    if not summary:
+        raise RuntimeError("ACTUFOOT_SMOKE_LIVE_SUMMARY_UNAVAILABLE")
+    parsed = parse_espn_summary_match(summary)
+    if not parsed or str(parsed.get("id")) != str(match["id"]):
+        raise RuntimeError("ACTUFOOT_SMOKE_LIVE_SUMMARY_ID_MISMATCH")
+    plan_row = {
+        "id": str(match["id"]),
+        "home": match["home_team"], "away": match["away_team"],
+        "league": match.get("league_name") or "",
+        "event_date": match.get("event_date"),
+        "home_logo": match.get("home_logo") or "",
+        "away_logo": match.get("away_logo") or "",
+        "rank": 1,
+    }
+    if parsed.get("home_team") != plan_row["home"] or parsed.get("away_team") != plan_row["away"]:
+        raise RuntimeError("ACTUFOOT_SMOKE_LIVE_SUMMARY_TEAM_MISMATCH")
+    signals = live_signals(plan_row, parsed, summary, datetime.now(timezone.utc))
+    print("ACTUFOOT_SMOKE_LIVE_MATCH", match["home_team"],match["away_team"],
+          "status", parsed["state"], "score",
+          parsed.get("home_score"), parsed.get("away_score"))
+    print("ACTUFOOT_SMOKE_LIVE_EVENTS",
+          [signal.get("kind") for signal in signals][:20])
+
 
 
 if __name__ == "__main__":
