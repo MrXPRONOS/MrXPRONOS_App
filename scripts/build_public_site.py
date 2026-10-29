@@ -236,7 +236,7 @@ def refresh_public_script_versions(destination: Path):
             r"\1?v=20261028-public-ui-privacy3",
             body,
         )
-        if replacement != body:
+        if replacement != html.read_text(encoding="utf-8"):
             html.write_text(replacement, encoding="utf-8")
 
 
