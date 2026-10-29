@@ -251,6 +251,63 @@ class TestActuFootIndependent(unittest.TestCase):
             mod.confirmed_message(ledger,sender,"2026-10-29","goal:x",MagicMock(),dry_run=False)
         ledger.release.assert_not_called()
 
+    def test_first_score_is_baseline_not_ghost_goal(self):
+        fields, signal=mod.score_transition(row(),live_info(hs=0,aws=0),NOW,False)
+        self.assertEqual(fields["confirmed_score"],"0-0")
+        self.assertIsNone(signal)
+
+    def test_one_changed_score_creates_pending_only(self):
+        fixture=row()
+        fixture["confirmed_score"]="0-0"
+        fields,signal=mod.score_transition(fixture,live_info(hs=1,aws=0),NOW,False)
+        self.assertEqual(fields["pending_score"],"1-0")
+        self.assertIsNone(signal)
+
+    def test_two_confirmed_checks_emit_goal_without_scorer(self):
+        fixture=row()
+        fixture.update(confirmed_score="0-0", pending_score="1-0",
+                       pending_at=NOW.isoformat())
+        fields,signal=mod.score_transition(
+            fixture,live_info(hs=1,aws=0),NOW+timedelta(minutes=2),False)
+        self.assertEqual(fields["confirmed_score"],"1-0")
+        self.assertEqual(signal["kind"],"goal")
+        self.assertEqual(signal["goal"],{})
+
+    def test_score_correction_emits_score_not_false_goal(self):
+        fixture=row()
+        fixture.update(confirmed_score="2-1", pending_score="1-1",
+                       pending_at=NOW.isoformat())
+        fields,signal=mod.score_transition(
+            fixture,live_info(hs=1,aws=1),NOW+timedelta(minutes=2),False)
+        self.assertEqual(signal["kind"],"score_update")
+        self.assertEqual(fields["confirmed_score"],"1-1")
+
+    def test_detailed_goal_skips_score_fallback(self):
+        fixture=row()
+        fixture.update(confirmed_score="0-0")
+        fields,signal=mod.score_transition(fixture,live_info(hs=1,aws=0),NOW,True)
+        self.assertEqual(fields["confirmed_score"],"1-0")
+        self.assertIsNone(signal)
+
+    def test_unchanged_score_creates_no_d1_writes(self):
+        fixture=row()
+        fixture.update(confirmed_score="1-0")
+        fields,signal=mod.score_transition(fixture,live_info(hs=1,aws=0),NOW,False)
+        self.assertEqual(fields,{})
+        self.assertIsNone(signal)
+
+    def test_score_state_cas_write(self):
+        fixture=row()
+        fixture["confirmed_score"]="0-0"
+        ledger=MagicMock()
+        ledger.query.return_value={"meta":{"changes":1}}
+        original=[fixture]
+        raw=json.dumps(original)
+        updated_raw, updated=mod.save_score_state(
+            ledger,"@test","2026-10-29",raw,original,"12345",{"pending_score":"1-0"})
+        self.assertEqual(updated[0]["pending_score"],"1-0")
+        self.assertEqual(json.loads(updated_raw)[0]["pending_score"],"1-0")
+
     def test_no_live_api_when_no_plan(self):
         ledger=MagicMock()
         ledger.query.return_value={"results":[]}
