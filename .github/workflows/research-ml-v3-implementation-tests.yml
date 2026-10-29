@@ -1,0 +1,54 @@
+name: Research ML V3 - implementation verification ONLY, NO historical backtest
+on:
+  push:
+    branches: [research/single-ml-v2-20261024]
+    paths: ['.github/workflows/research-ml-v3-implementation-tests.yml']
+permissions:
+  contents: read
+jobs:
+  v3-implementation-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install deterministic research test dependencies
+        run: python -m pip install numpy scipy scikit-learn requests cryptography lightgbm==4.6.0 catboost==1.2.8
+      - name: Compile all changed model modules and V3 research bridge
+        run: |
+          python -m py_compile research/single_ml_v2.py research/single_ml_v2_hybrid.py \
+            research/single_ml_v2_direct.py research/single_ml_v3.py \
+            research/single_ml_v2_multisource.py research/test_single_ml_v3.py
+      - name: Test newly implemented V3 features including actual pipeline (SYNTHETIC only)
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python -m unittest research.test_single_ml_v3 -v
+      - name: Check historical V2 non-regression without running new backtest
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python -m unittest \
+            research.test_single_ml_v2_direct \
+            research.test_single_ml_v2_hybrid \
+            research.test_single_ml_v2 \
+            research.test_single_ml_v2_subset_summary \
+            research.test_ml_v2_topk \
+            research.test_ml_v2_consensus_topk -v
+      - name: Assert V3 model outputs are opt-in and no production file was changed in this trigger
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          v3=Path("research/single_ml_v3.py").read_text()
+          runner=Path("research/single_ml_v2.py").read_text()
+          bridge=Path("research/single_ml_v2_multisource.py").read_text()
+          assert all(key in v3 for key in ("hist_v3_grid","hybrid_v3_grid",
+                        "direct_v3_grid","eleven_multiplier","DIRECT_CONFIG"))
+          assert "v3_models=False" in runner
+          assert "v3_models=args.experimental_v3" in runner
+          assert "v3_models=args.experimental_v3" in bridge
+          assert "research.test_single_ml_v3" not in Path(".github/workflows/research-ml-v2-topk-months.yml").read_text()
+          print("V3_CODE_WIRED_AND_OPT_IN_ONLY; NO NEW HISTORICAL BACKTEST STARTED")
+          PY
