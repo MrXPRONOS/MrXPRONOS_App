@@ -22,7 +22,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: mrxpronos-football-production-${{ github.ref }}
+  group: mrxpronos-football-production-${{ github.event_name == 'push' && 'ci' || (inputs.mode || 'full') }}
   cancel-in-progress: false
 jobs:
   publish:
