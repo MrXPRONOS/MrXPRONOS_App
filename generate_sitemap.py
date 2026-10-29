@@ -19,25 +19,13 @@ BASE_URL = "https://mrxpronos.github.io/MrXPRONOS_App/"
 
 STATIC_PAGES = {
     "": {"priority": "1.0", "freq": "daily"},
-    "pronos.html": {"priority": "0.9", "freq": "daily"},
-    "historique.html": {"priority": "0.8", "freq": "weekly"},
-    "blog.html": {"priority": "0.8", "freq": "daily"},
-    "conseils.html": {"priority": "0.7", "freq": "daily"},
-    "infos.html": {"priority": "0.6", "freq": "daily"},
-    "bonus.html": {"priority": "0.6", "freq": "monthly"},
-    "contact.html": {"priority": "0.5", "freq": "yearly"},
-    "prono-live/": {"priority": "0.95", "freq": "hourly"},
-    "prono-live/guide-prono-live.html": {"priority": "0.75", "freq": "monthly"},
-    "prono-live/guide-corners-live.html": {"priority": "0.75", "freq": "monthly"},
-    "prono-live/over-corners-live.html": {"priority": "0.75", "freq": "monthly"},
-    "prono-live/tirs-match-live.html": {"priority": "0.75", "freq": "monthly"},
-    "prono-live/erreurs-paris-live.html": {"priority": "0.75", "freq": "monthly"},
-    "prono-live/bankroll-paris-live.html": {"priority": "0.75", "freq": "monthly"},
-    "prono-live/bookmaker-fiable-togo.html": {"priority": "0.75", "freq": "monthly"},
-    "prono-live/faq-prono-live.html": {"priority": "0.75", "freq": "monthly"},
-    "prono-live/statut.html": {"priority": "0.5", "freq": "daily"},
-    "prono-live/jeu-responsable.html": {"priority": "0.5", "freq": "monthly"},
-    "prono-live/a-propos.html": {"priority": "0.5", "freq": "monthly"},
+    "pronos.html": {"priority": "0.95", "freq": "daily"},
+    "historique.html": {"priority": "0.85", "freq": "daily"},
+    "blog.html": {"priority": "0.80", "freq": "daily"},
+    "infos.html": {"priority": "0.75", "freq": "daily"},
+    "conseils.html": {"priority": "0.70", "freq": "weekly"},
+    "bonus.html": {"priority": "0.65", "freq": "weekly"},
+    "contact.html": {"priority": "0.45", "freq": "yearly"},
 }
 
 def safe_lastmod(date_str: str, fallback: str) -> str:
@@ -80,6 +68,9 @@ def append_articles(urls, today):
             continue
 
         slug = (article.get("slug") or "").strip()
+        # Les anciens identifiants internes ne doivent pas revenir dans le sitemap.
+        if slug.startswith("bsd-match-"):
+            slug = "match-" + slug[len("bsd-match-"):]
         if not slug:
             continue
 
@@ -87,7 +78,7 @@ def append_articles(urls, today):
 
         urls.append({
             "loc": f"{BASE_URL}articles/{slug}/",
-            "priority": "0.6",
+            "priority": "0.70",
             "freq": "monthly",
             "lastmod": lastmod
         })
@@ -111,7 +102,7 @@ def append_conseils(urls, today):
 
         urls.append({
             "loc": f"{BASE_URL}conseils/{slug}/",
-            "priority": "0.55",
+            "priority": "0.60",
             "freq": "monthly",
             "lastmod": lastmod
         })
