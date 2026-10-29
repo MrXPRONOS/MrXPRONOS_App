@@ -80,19 +80,19 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          test -s footnews.json
+          test -s _public_site/footnews.json
           for attempt in 1 2 3 4 5; do
             # pages deploy action may remove/reset local .git; use GitHub API,
             # which works independently of the checkout state.
             if gh api -H "Accept: application/vnd.github.raw+json" \
                 "/repos/${GITHUB_REPOSITORY}/contents/footnews.json?ref=gh-pages" \
                 > /tmp/footnews-deployed.json 2>/dev/null; then
-              if cmp -s footnews.json /tmp/footnews-deployed.json; then
+              if cmp -s _public_site/footnews.json /tmp/footnews-deployed.json; then
                 echo "ACTUFOOT_GITHUB_PAGES_DEPLOY_CONFIRMED"
                 python - <<'PY'
           import json
           from pathlib import Path
-          p=Path("footnews.json")
+          p=Path("_public_site/footnews.json")
           items=json.loads(p.read_text(encoding="utf-8"))
           assert isinstance(items,list) and len(items)>0
           print("ACTUFOOT_PUBLIC_ARTICLES",len(items))
