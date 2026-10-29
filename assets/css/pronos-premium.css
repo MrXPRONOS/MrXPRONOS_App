@@ -949,3 +949,9 @@
     z-index: 1;
   }
 }
+
+/* Archives de publication sous les marchés, sans promesse de victoire. */
+.mx-prono-proof{margin:7px 0 8px;color:#bed4e5;font-size:10px;line-height:1.45}
+.mx-prono-proof a{color:#ffdc81;font-weight:750;text-decoration:underline;text-underline-offset:2px}
+.mx-prono-proof a:focus-visible{outline:2px solid #ffdc81;outline-offset:2px}
+.mx-prono-proof--absent{color:#98afbd;font-style:italic}
