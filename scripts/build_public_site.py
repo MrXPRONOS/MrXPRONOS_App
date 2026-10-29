@@ -248,7 +248,7 @@ def pause_public_features(destination: Path):
         body = html.read_text(encoding="utf-8")
         if not html.name.startswith("admin"):
             body = re.sub(
-                r"""(?im)^[ \t]*<script\b[^>]*\bsrc=["'](?:\./)?assets/js/assistant\.js(?:\?[^"']*)?["'][^>]*>\s*</script>[ \t]*(?:\n|$)""",
+                r"""(?i)<script\b[^>]*\bsrc=["'](?:\./)?assets/js/assistant\.js(?:\?[^"']*)?["'][^>]*>\s*</script>""",
                 "",
                 body,
             )
