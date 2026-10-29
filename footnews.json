@@ -123,7 +123,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-28T23:17:21.226138+00:00"
+      "checked_at": "2026-10-29T02:32:55.398548+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -539,7 +539,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-28T23:17:21.226138+00:00"
+      "checked_at": "2026-10-29T02:32:55.398548+00:00"
     },
     "quality_sources": [
       "France 24",
@@ -619,6 +619,41 @@
       "France 24"
     ],
     "quality_score": 83
+  },
+  {
+    "slug": "d8fa7ecaeed82734",
+    "title": "Jérôme Rothen se paie Pierre Sage",
+    "summary": "Quinzième de Premier League la saison passée, Crystal Palace a fait le pari d’enrôler Pierre Sage comme nouveau coach. L’ancien entraîneur de Lens a choisi de ne rester qu’un an en Artois avant de (…)",
+    "summary_short": "Quinzième de Premier League la saison passée, Crystal Palace a fait le pari d’enrôler Pierre Sage comme nouveau coach. L’ancien entraîneur de Lens a choisi de ne rester qu’un an en Artois avant de (…)",
+    "content": "Quinzième de Premier League la saison passée, Crystal Palace a fait le pari d’enrôler Pierre Sage comme nouveau coach. L’ancien entraîneur de Lens a choisi de ne rester qu’un an en Artois avant de (…)",
+    "paragraphs": [
+      "Quinzième de Premier League la saison passée, Crystal Palace a fait le pari d’enrôler Pierre Sage comme nouveau coach. L’ancien entraîneur de Lens a choisi de ne rester qu’un an en Artois avant de (…)"
+    ],
+    "key_points": [
+      "Quinzième de Premier League la saison passée, Crystal Palace a fait le pari d’enrôler Pierre Sage comme nouveau coach.",
+      "L’ancien entraîneur de Lens a choisi de ne rester qu’un an en Artois avant de (…)"
+    ],
+    "telegram_summary": "Quinzième de Premier League la saison passée, Crystal Palace a fait le pari d’enrôler Pierre Sage comme nouveau coach. L’ancien entraîneur de Lens a choisi de ne rester qu’un an en Artois avant de (…)",
+    "link": "https://www.footmercato.net/a2394352703268147488-jerome-rothen-se-paie-pierre-sage",
+    "source_url": "https://www.footmercato.net/a2394352703268147488-jerome-rothen-se-paie-pierre-sage",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d8fa7ecaeed82734",
+    "published": "2026-10-28T23:23:01+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/pierre-sage-lens.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/pierre-sage-lens.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
   },
   {
     "slug": "1ad52fe783280882",
@@ -711,7 +746,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-28T23:17:21.226138+00:00"
+      "checked_at": "2026-10-29T02:32:55.398548+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1074,40 +1109,6 @@
     "published": "2026-10-28T21:39:12+00:00",
     "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/28215325/ICONSPORT_377636_0050-scaled.jpg",
     "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/28215325/ICONSPORT_377636_0050-scaled.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "So Foot",
-    "source_priority": 77,
-    "source_region": "international",
-    "source_feed": "https://www.sofoot.com/rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 1,
-    "espn_verification": {},
-    "quality_sources": [
-      "So Foot"
-    ],
-    "quality_score": 77
-  },
-  {
-    "slug": "1ca7de93e3a059a6",
-    "title": "League Cup : Manchester City passe par un trou de souris contre Brighton",
-    "summary": "Manchester City 2-2 (4-3 T.A.B.) Brighton",
-    "summary_short": "Manchester City 2-2 (4-3 T.A.B.) Brighton",
-    "content": "Manchester City 2-2 (4-3 T.A.B.) Brighton",
-    "paragraphs": [
-      "Manchester City 2-2 (4-3 T.A.B.) Brighton"
-    ],
-    "key_points": [
-      "Manchester City 2-2 (4-3 T.A.B.) Brighton"
-    ],
-    "telegram_summary": "Manchester City 2-2 (4-3 T.A.B.) Brighton",
-    "link": "https://www.sofoot.com/breves/league-cup-manchester-city-passe-par-un-trou-de-souris-contre-brighton",
-    "source_url": "https://www.sofoot.com/breves/league-cup-manchester-city-passe-par-un-trou-de-souris-contre-brighton",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1ca7de93e3a059a6",
-    "published": "2026-10-28T21:37:45+00:00",
-    "image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/28220820/ICONSPORT_377625_0056-scaled.jpg",
-    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/28220820/ICONSPORT_377625_0056-scaled.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "So Foot",
