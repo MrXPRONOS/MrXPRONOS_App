@@ -31,6 +31,18 @@ def main():
     ranked = [x for x in enriched if x.get("home_team") and x.get("away_team")]
     if not ranked:
         raise RuntimeError("ACTUFOOT_SMOKE_INVALID_ESPN_FIXTURES")
+    from scripts import football_match_lifecycle as espn
+    stamp = today.strftime("%Y%m%d")
+    cached = espn._ESPN_CACHE.get("scoreboard:" + stamp)
+    payload = cached[1] if cached else {}
+    first = events[0]
+    first_raw = first.get("raw") or {}
+    first_comp = (first_raw.get("competitions") or [{}])[0]
+    print("ACTUFOOT_SMOKE_SCOREBOARD_KEYS",list(payload.keys()))
+    print("ACTUFOOT_SMOKE_LEAGUES_SUMMARY", str(payload.get("leagues") or "")[:1000])
+    print("ACTUFOOT_SMOKE_SAMPLE_KEYS",list(first_raw.keys()),list(first_comp.keys()))
+    print("ACTUFOOT_SMOKE_SAMPLE_STAGE", str(first_comp.get("altGameNote") or first_comp.get("note") or first_raw.get("stage") or "")[:90])
+    print("ACTUFOOT_SMOKE_TOP4",[(e["home"],e["away"],e["league"]) for e in tracked] if "tracked" in locals() else [])
     print("ACTUFOOT_SMOKE_ESPN_FIXTURES", len(events))
     print("ACTUFOOT_SMOKE_LEAGUE_METADATA",
           sum(bool(e.get("league_name") and e["league_name"] not in ("Football","Soccer"))
