@@ -117,6 +117,28 @@ class ModelV3Tests(unittest.TestCase):
         merged=v3.hybrid_v3_grid(prior,another,dc_weight=.25)
         self.assertAlmostEqual(float(merged.sum()),1.,places=10)
 
+    def test_both_v3_blend_calibrators_use_sufficient_prior_oos_history(self):
+        # 150 genuinely prior-day frozen probability grids over 25 dates.
+        first=date(2026,1,1)
+        a=ml.poisson_grid(1.0,1.0)
+        b=ml.poisson_grid(2.1,.55)
+        earlier=[v3.freeze_blend(first+timedelta(days=i//6),
+                   f"settled-{i}",a,b,0,0) for i in range(150)]
+        asof=date(2026,2,1)
+        hw,hs=v3.hybrid_v3_weight(earlier,asof=asof,previous=.35)
+        dw,ds=v3.direct_v3_prior(earlier,asof=asof)
+        self.assertTrue(hs.calibrated)
+        self.assertTrue(ds.calibrated)
+        self.assertEqual(hs.training_games,150)
+        self.assertGreaterEqual(hs.training_days,12)
+        self.assertGreaterEqual(hw,.10)
+        self.assertLessEqual(hw,.65)
+        self.assertGreaterEqual(dw,.05)
+        self.assertLessEqual(dw,.65)
+        # The fallback and calibrated weights use ONLY pre-asof observations.
+        with self.assertRaisesRegex(ValueError,"Future/current-day"):
+            v3.direct_v3_prior(earlier,asof=earlier[-1].day)
+
     def test_real_v3_histgb_fit_on_prior_dated_synthetic_matches(self):
         first=date(2026,1,1)
         records=[]
