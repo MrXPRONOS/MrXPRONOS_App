@@ -46,9 +46,9 @@
 
 ## 5 — Restant partiel / hors périmètre de cette étape
 
-1. **Comparateur Top 5/10/20 V3** : le comparateur V2 existant référence actuellement les noms des cinq modèles V2. Il faudra ajouter les trois nouvelles séries V3, vérifier des listes quotidiennes de taille identique et préenregistrer les périodes **avant le futur backtest**. **Statut : partiel**, malgré la production effective des trois sorties V3 par le moteur.
+1. **Comparateur Top 5/10/20 V3 — TERMINÉ** : `research/ml_v3_topk_compare.py` compare les **cinq V2 + trois V3**, refuse les journées manquantes, impose les **mêmes fixtures et vrais scores** pour huit modèles, sélectionne séparément les Top 5/10/20 par confiance *avant* lecture des résultats, vérifie les sélections emboîtées, compte les journées avec ≥1/2/3 bons pronostics et calcule des intervalles bootstrap appariés par journée / sensibilité 7 jours. Quatre mois préfixés (mai et août 2025, mai et août 2026), génération des seuls agrégats anonymisés. **Tests passés** ; le vrai backtest n'a pas été lancé.
 2. **Optimisation des hyperparamètres et des poids** : valeurs V3 fixées en amont, mais non optimisées par sélection emboîtée sur une fenêtre distincte. **Statut : non réalisé volontairement**, pour limiter le risque d'overfitting pré-backtest.
-3. **Validation des volumes réels (65 000 matchs), comportement en mémoire et temps d'exécution sur toutes les périodes** : **partiel**, une exécution synthétique à plus petite échelle n'est pas un audit de performance du runner.
+3. **Capacité d'entraînement sur 65 000 exemples — TERMINÉE SUR SYNTHÉTIQUE, charge réelle à confirmer** : les deux vraies configurations V3 ont été entraînées sur 65 000 rencontres **synthétiques**, avec les **160 caractéristiques** et une classification directe à **37 classes**. HistGB V3 71,20 s, classification directe V3 108,36 s, pic RSS 551,42 Mio (runner GitHub Linux), validations des grilles 11×11. Le test est reproduisible via `research/ml_v3_capacity_65000.py` et `.github/workflows/research-ml-v3-completion-audit.yml`. Il démontre la capacité technique à cette charge sur ces données ; les durées réelles par mois, le coût d'un rejeu historique complet et la performance hors échantillon restent non vérifiés tant que le backtest séparé n'a pas été exécuté.
 4. **Ajout d'xG historiques authentifiés, de cotes score exact et de nouvelles sources identitaires** : **non réalisé**, car non présents dans les archives certifiées actuellement disponibles.
 5. **Preuve d'amélioration / estimation du ROI** : **non réalisée** avant le prochain backtest, et aucune cote de score exact historique vérifiée pour le ROI.
 6. **Déploiement** : **non réalisé et non autorisé**. Aucun changement du site, des signaux Telegram, de `main`, Supabase ni de la production.
@@ -57,4 +57,15 @@
 
 La suite sera de préparer un **backtest historique comparatif V2 contre V3** et Top 5 / Top 10 / Top 20, sur des mois préenregistrés et qui n'ont pas servi aux paramètres V3. Résultats quotidiens >=1, >=2, >=3 ; taux, calibration, taux de jours couverts, intervalles bootstrap appariés. À lancer seulement sur demande ultérieure de l'utilisateur.
 
-**Preuve GitHub Actions de l'audit final** : [tests V3 sans historique](https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/40957051935). Le workflow de vérification mis à jour permet de relire les exécutions successives.
+**Preuves GitHub Actions finales** : [42 tests d'intégration V3/V2 antérieurs](https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/40957279863) ; [37 tests TopK V2/V3 + entraînements à 65 000 matchs synthétiques, tous réussis](https://github.com/MrXPRONOS/MrXPRONOS_App/actions/runs/40958575020). Aucun nouveau backtest historique, aucun déploiement.
+
+
+## 6 — Complément : état final de ce qui était « partiel »
+
+| Point | Avant | Après cette étape | Preuves |
+|---|---|---|---|
+| Comparateur V2 versus V3 quotidien Top 5/10/20 | Partiel | **Code terminé et validé**, huit modèles, trois cohortes imbriquées et bootstrap par journée | 37 tests automatiques, 4 mois gelés |
+| Validation d'un entraînement de 65 000 exemples pour les deux moteurs V3 | Partiel | **Test de capacité réussi** sur 65 000 matchs synthétiques, 160 caractéristiques, classifieur 37 classes | 71,20 s HistGB + 108,36 s Direct ; 551,42 Mio RSS |
+| Backtest de gains réels | Non lancé volontairement | **Toujours non lancé** : test distinct prévu après l'audit | Workflow manuel seulement |
+
+Code prêt : `research/ml_v3_topk_compare.py`, `research/ml_v3_capacity_65000.py`, et `.github/workflows/research-ml-v3-topk-backtest-manual.yml`. Ce dernier n'a **aucun déclenchement push ou schedule** ; il doit être activé volontairement lors de l'étude suivante. Les mois enregistrés sont mai/août 2025 et mai/août 2026, quatre mois qui n'ont pas été choisis d'après des résultats V3. La capacité sur matchs **réels** ne peut être certifiée que pendant l'essai historique : ne pas confondre ce contrôle technique synthétique et une validation hors échantillon.
