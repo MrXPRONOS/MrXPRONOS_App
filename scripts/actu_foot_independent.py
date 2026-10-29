@@ -70,7 +70,9 @@ def selected_fixtures(events: list[dict], now: datetime) -> tuple:
     ]
     # Programme existant : cartes, logos, mentions, gabarit et filtres conservés.
     # Son ranking est synchronisé avec event_priority par actu_foot_ranking.py.
-    # Tri indépendant : grand club puis phase finale puis compétition.\n    channel._live_rank_key = event_priority\n    post = channel.programme(upcoming, local_date, as_of=now)
+    # Tri indépendant : grand club puis phase finale puis compétition.
+    channel._live_rank_key = event_priority
+    post = channel.programme(upcoming, local_date, as_of=now)
     if post is None:
         return None, []
     expected = (post.verification or {}).get("fixtures") or []
