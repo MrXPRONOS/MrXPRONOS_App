@@ -42,7 +42,6 @@ def main():
     print("ACTUFOOT_SMOKE_LEAGUES_SUMMARY", str(payload.get("leagues") or "")[:1000])
     print("ACTUFOOT_SMOKE_SAMPLE_KEYS",list(first_raw.keys()),list(first_comp.keys()))
     print("ACTUFOOT_SMOKE_SAMPLE_STAGE", str(first_comp.get("altGameNote") or first_comp.get("note") or first_raw.get("stage") or "")[:90])
-    print("ACTUFOOT_SMOKE_TOP4",[(e["home"],e["away"],e["league"]) for e in tracked] if "tracked" in locals() else [])
     print("ACTUFOOT_SMOKE_ESPN_FIXTURES", len(events))
     print("ACTUFOOT_SMOKE_LEAGUE_METADATA",
           sum(bool(e.get("league_name") and e["league_name"] not in ("Football","Soccer"))
@@ -54,6 +53,7 @@ def main():
     publication, tracked = selected_fixtures(events, morning)
     print("ACTUFOOT_SMOKE_PROGRAMME",
           bool(publication), "tracked", len(tracked))
+    print("ACTUFOOT_SMOKE_TOP4", [(e["home"],e["away"],e["league"]) for e in tracked])
     if publication:
         if not tracked:
             raise RuntimeError("ACTUFOOT_SMOKE_PROGRAMME_WITHOUT_TRACKABLE_FIXTURES")
