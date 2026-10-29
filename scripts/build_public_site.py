@@ -8,6 +8,7 @@ The original data.json and audit files remain unchanged in the main repository.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import hashlib
 import math
 import json
@@ -231,9 +232,13 @@ def refresh_public_script_versions(destination: Path):
         body = html.read_text(encoding="utf-8")
         # Generated article metadata and redirects must use clean image URLs.
         body = body.replace(PUBLIC_IMAGE_LEGACY_PREFIX, PUBLIC_IMAGE_PREFIX)
+        # GitHub Pages assets used to carry a fixed old query version.
+        # Pin the browser-visible version to the current source revision.
+        import os
+        version = re.sub(r"[^0-9a-f]", "", os.environ.get("GITHUB_SHA", ""))[:12] or "local"
         replacement = re.sub(
-            r"(assets/js/(?:main|assistant|admin-supervision)\.js)(?:\?v=[a-zA-Z0-9_.-]+)?",
-            r"\1?v=20261028-public-ui-privacy3",
+            r"(assets/(?:js|css)/[a-zA-Z0-9_.-]+\\.(?:js|css))(?:\\?v=[a-zA-Z0-9_.-]+)?",
+            lambda m: m.group(1) + "?v=" + version,
             body,
         )
         if replacement != html.read_text(encoding="utf-8"):
@@ -322,6 +327,15 @@ def stage_site(destination: Path, previous: Path | None):
         # Keep the operational feed intact on main; publish a redacted view.
         safe_data = public_copy(data)
         public_feed.write_text(json.dumps(safe_data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        # Separate pre-kickoff snapshots from settlement data. Receipts are
+        # immutable public files; their GitHub commit history is the audit trail.
+        module_path = Path(__file__).resolve().parent / "public_proof_receipts.py"
+        spec = importlib.util.spec_from_file_location("public_proof_receipts", module_path)
+        proof_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(proof_module)
+        count = proof_module.build_proofs(destination, previous, safe_data)
+        print("PUBLIC_PREDICTION_RECEIPTS", count)
+
 
     for forbidden in (
         "bsd", "supabase", ".github", "scripts", "tests", "docs", "config",
