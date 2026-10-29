@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from datetime import date,timedelta
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import numpy as np
@@ -130,7 +131,7 @@ class ModelV3Tests(unittest.TestCase):
         models=[DummyGoalModel(1.25),DummyGoalModel(.95)]
         with tempfile.TemporaryDirectory() as temp:
             with (patch.object(ml,"fit_hist_v3",return_value=models),
-                  patch.object(ml,"fit_direct_v3",return_value=object()),
+                  patch.object(ml,"fit_direct_v3",return_value=SimpleNamespace(samples=0)),
                   patch.object(ml,"direct_grid",return_value=p),
                   patch.object(ml,"direct_v3_grid",return_value=p)):
                 ml.backtest(games,d0+timedelta(days=1),d0+timedelta(days=2),
