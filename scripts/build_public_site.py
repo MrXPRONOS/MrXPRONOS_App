@@ -17,20 +17,42 @@ import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# Publish only routes, data and assets consumed by visitors. No owner CMS,
+# social OAuth callbacks, paused LIVE pages, telemetry, experimental scripts or
+# internal content-generation prompts in the GitHub Pages artifact.
+PUBLIC_HTML = {
+    "index.html", "pronos.html", "historique.html", "blog.html",
+    "bonus.html", "bookmakers.html", "conseils.html", "infos.html",
+    "contact.html", "article.html", "conseil.html", "offline.html",
+}
 ROOT_FILES = {
     "robots.txt", "sitemap.xml", "CNAME", "favicon.ico", "manifest.json",
-    "service-worker.js", "sw.js", "service_worker.js",
-    "supabase-client.js",
+    "service-worker.js", "googlebf35e152c3bdd841.html",
 }
 PUBLIC_JSON = {
-    "data.json", "footnews.json", "historical_scores.json",
-    "articles.json", "infos.json", "bonus.json", "bookmakers.json",
-    "conseils.json", "testimonials.json", "evergreen_topics.json",
+    "data.json", "footnews.json", "articles.json", "infos.json",
+    "bonus.json", "bookmakers.json", "conseils.json", "testimonials.json",
+}
+PUBLIC_JS = {
+    "main.js", "cms-url-guard.mjs", "pwa.js", "menu.js",
+    "back-to-top.js", "home-premium.js", "loading-ui.js",
+    "bonus-catalogue.js", "bonus-offers.js",
+    # Browser push notifications and opt-in services currently use a
+    # Supabase publishable (not privileged/service-role) key.
+    "config.js",
+}
+PUBLIC_CSS = {
+    "style.css", "loading-ui.css", "home-premium.css",
+    "home-polish.css", "pronos-premium.css", "history-premium.css",
+    "blog-premium.css", "conseils-premium.css", "infos-premium.css",
+    "bonus-premium.css", "bookmakers-premium.css", "contact-premium.css",
+    "article-detail-premium.css", "conseil-detail-premium.css",
+    "mobile-nav-premium.css", "brand-signatures.css",
 }
 PUBLIC_DIRS = (
     "assets/css", "assets/js", "assets/images", "assets/fonts",
     "assets/icons", "assets/media", "assets/videos", "assets/video",
-    "articles", "conseils", "telegram-guides", "prono-live/assets",
+    "articles", "conseils",
 )
 LEGACY_MEDIA = (
     "assets/images/footnews", "assets/images/arty_football",
@@ -71,6 +93,20 @@ PUBLIC_PICK_FIELDS = (
     "confidence", "double_chance", "odds", "estimated_odds",
     "recommendation_eligible",
 )
+# User-facing fields only. Scraper diagnostics, provider snapshots, quality
+# scores, Telegram draft captions and internal verification reports stay private.
+PUBLIC_NEWS_FIELDS = {
+    "slug", "title", "summary", "summary_short", "content", "paragraphs",
+    "key_points", "published", "source", "link", "source_url", "site_url",
+    "image", "source_image", "category", "category_emoji",
+}
+PUBLIC_ARTICLE_FIELDS = {
+    "slug", "title", "date", "author", "reading_time", "excerpt",
+    "meta_description", "keywords", "content", "active", "type", "match",
+    "league", "home_logo", "away_logo", "visual_format", "image_url",
+    "social_image", "story_image", "og_image", "ab_image_url", "category",
+    "topic_id",
+}
 
 
 def _public_pick(pick):
@@ -184,16 +220,35 @@ def prepare_public_editorial_media(destination: Path):
             shutil.copy2(original, alias)
 
 
+def prepare_public_news(destination: Path):
+    path = destination / "footnews.json"
+    if not path.exists():
+        return
+    rows = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(rows, list):
+        raise ValueError("Public news must be a list")
+    result = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        if not isinstance(row.get("title"), str) or not row["title"].strip():
+            continue
+        result.append({key: value for key, value in row.items() if key in PUBLIC_NEWS_FIELDS})
+    path.write_text(json.dumps(result, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+
+
 def prepare_public_articles(destination: Path):
     file = destination / "articles.json"
     if file.exists():
         rows = json.loads(file.read_text(encoding="utf-8"))
         if not isinstance(rows, list):
             raise ValueError("Unexpected public article feed shape")
-        for row in rows:
-            if not isinstance(row, dict):
+        published = []
+        for raw in rows:
+            if not isinstance(raw, dict) or raw.get("active") is False:
                 continue
-            if row.get("type") != "match" or row.get("source") != "bsd":
+            row = {key: value for key, value in raw.items() if key in PUBLIC_ARTICLE_FIELDS}
+            if not isinstance(row.get("title"), str) or not row["title"].strip():
                 continue
             if isinstance(row.get("slug"), str) and row["slug"].startswith("bsd-match-"):
                 row["slug"] = "match-" + row["slug"][len("bsd-match-"):]
@@ -205,10 +260,8 @@ def prepare_public_articles(destination: Path):
                     row[image_field] = row[image_field].replace(
                         PUBLIC_IMAGE_LEGACY_PREFIX, PUBLIC_IMAGE_PREFIX
                     )
-            for key in ("source", "bsd_event_id", "bsd_match_date", "editorial_importance",
-                        "editorial_reasons", "editorial_role", "visual_variant", "visual_hash"):
-                row.pop(key, None)
-        file.write_text(json.dumps(rows, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+            published.append(row)
+        file.write_text(json.dumps(published, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     # Preserve legacy redirects for old shared links, but use clean URLs for
     # new links, canonical tags and sitemap entries.
     for html in destination.glob("articles/bsd-match-*/index.html"):
@@ -253,7 +306,7 @@ def pause_public_features(destination: Path):
         body = html.read_text(encoding="utf-8")
         if not html.name.startswith("admin"):
             body = re.sub(
-                r"""(?i)<script\b[^>]*\bsrc=["'](?:\./)?assets/js/assistant\.js(?:\?[^"']*)?["'][^>]*>\s*</script>""",
+                r"""(?i)<script\b[^>]*\bsrc=["'](?:\./)?assets/js/(?:assistant|web-vitals-monitor)\.js(?:\?[^"']*)?["'][^>]*>\s*</script>""",
                 "",
                 body,
             )
@@ -281,6 +334,10 @@ def copy_public_tree(source: Path, dest: Path):
             continue
         if path.suffix.lower() not in ALLOWED_ASSET_EXTS:
             continue
+        if source.name == "js" and path.name not in PUBLIC_JS:
+            continue
+        if source.name == "css" and path.name not in PUBLIC_CSS:
+            continue
         if any(part.startswith(".") or part in {"private", "__pycache__", "node_modules", "tmp"} for part in path.relative_to(source).parts):
             continue
         output = dest / path.relative_to(source)
@@ -296,7 +353,7 @@ def stage_site(destination: Path, previous: Path | None):
     for item in ROOT.iterdir():
         if not item.is_file():
             continue
-        if (item.suffix.lower() == ".html" and item.name != "live-scrape-test.html") or item.name in ROOT_FILES or item.name in PUBLIC_JSON:
+        if item.name in PUBLIC_HTML or item.name in ROOT_FILES or item.name in PUBLIC_JSON:
             shutil.copy2(item, destination / item.name)
     for section in PUBLIC_DIRS:
         copy_public_tree(ROOT / section, destination / section)
@@ -316,6 +373,7 @@ def stage_site(destination: Path, previous: Path | None):
 
     prepare_public_editorial_media(destination)
     prepare_public_articles(destination)
+    prepare_public_news(destination)
     refresh_public_script_versions(destination)
     pause_public_features(destination)
 
@@ -341,6 +399,14 @@ def stage_site(destination: Path, previous: Path | None):
         "bsd", "supabase", ".github", "scripts", "tests", "docs", "config",
         "node_modules", "model_meta.json", "data_backup.json", "logo_cache.json",
         "assets/data/private", "admin-config.template.js", "package-lock.json",
+        "admin.html", "admin-dashboard.html", "admin-supervision.html",
+        "admin-vip.html", "telegram-analytics.html", "threads-callback.html",
+        "tiktok-callback.html", "live.html", "live-suspended.html",
+        "prono-live", "evergreen_topics.json", "historical_scores.json",
+        "assets/js/assistant.js", "assets/js/admin-real.js",
+        "assets/js/admin-supervision.js", "assets/js/live.precompiled.js",
+        "assets/js/actu-foot-neon.js", "assets/js/web-vitals-monitor.js",
+        "assets/css/admin-premium.css", "assets/css/live-premium.css",
     ):
         if (destination / forbidden).exists():
             raise ValueError(f"Private path leaked to public artifact: {forbidden}")
