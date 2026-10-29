@@ -25,6 +25,12 @@ DATA = {
       "home_team":"PSG","away_team":"Monaco","home_score":1,"away_score":1,
       "is_finished":True,"combo_only":False,
       "predictions":[{"selection_key":"1X","type":"Double chance 1X","confidence":0.81,"odds":1.42}]
+    },
+    {
+      "id":"h4","category":"pro","prediction":{"selection_key":"CORNERS_OVER_85","type":"Plus de 8,5 corners","confidence":83,"odds":1.75},"event_date":"2026-10-06T18:00:00Z","league":"Ligue 1",
+      "home_team":"Lille","away_team":"Lyon","home_score":2,"away_score":1,
+      "is_finished":True,"combo_only":False,
+      "predictions":[{"selection_key":"CORNERS_OVER_85","type":"Plus de 8,5 corners","confidence":0.83,"odds":1.75}]
     }
   ]
 }
@@ -132,6 +138,15 @@ def run_view(browser, width, height, label):
     total_text = page.locator("#history-total-count").inner_text().strip()
     wins_text = page.locator("#history-win-count").inner_text().strip()
     rate_text = page.locator("#history-success-rate").inner_text().strip()
+    # A corners market cannot be determined from the football score alone.
+    # It must remain unresolved and must not be counted as a loss.
+    if total_text != "4" or wins_text != "2" or rate_text != "67%":
+        raise AssertionError(f"{label}: evaluated-only performance wrong: {total_text=} {wins_text=} {rate_text=}")
+    unresolved=page.locator(".history-result-badge.pending")
+    if unresolved.count()!=1 or "ÉVALUER" not in unresolved.first.inner_text():
+        raise AssertionError(f"{label}: unscorable corner market must remain 'À évaluer'")
+    if page.locator("#history-evaluated-label").inner_text().strip() != "3 sélections évaluées":
+        raise AssertionError(f"{label}: denominator should disclose evaluated selections")
     if not total_text.isdigit() or int(total_text) < 1:
         raise AssertionError(f"{label}: invalid total counter {total_text!r}")
     if not wins_text.isdigit() or int(wins_text) < 0:

@@ -39,7 +39,7 @@ def assert_bottom(page, expected, label):
     if items.count()!=5:
         raise AssertionError(f"{label}: expected 5 bottom items, got {items.count()}")
     labels=items.locator(".bottom-nav-label").all_inner_texts()
-    if labels!=["Accueil","Pronostics","Historique","Bonus","Menu"]:
+    if labels!=["Accueil","Pronostics","Résultats","Bonus","Menu"]:
         raise AssertionError(f"{label}: bad bottom labels {labels}")
     active=nav.locator(".bottom-nav-item.active")
     if active.count()!=1:
@@ -152,12 +152,12 @@ with sync_playwright() as p:
     check_page(browser,"index.html",390,844,"Accueil","Accueil",True)
     check_page(browser,"pronos.html",390,844,"Pronostics","Pronostics")
     check_page(browser,"bonus.html",390,844,"Bonus","Bonus & Promo")
-    check_page(browser,"historique.html",390,844,"Historique","Historique",True)
+    check_page(browser,"historique.html",390,844,"Résultats","Résultats",True)
     check_page(browser,"contact.html",390,844,"Menu","Contact")
     # LIVE is paused; no dedicated LIVE mobile-page checks in this smoke suite.
 
     # Narrow phone stress-test
     check_page(browser,"index.html",320,720,"Accueil","Accueil",True)
-    check_page(browser,"historique.html",320,720,"Historique","Historique",True)
+    check_page(browser,"historique.html",320,720,"Résultats","Résultats",True)
 
     browser.close()
