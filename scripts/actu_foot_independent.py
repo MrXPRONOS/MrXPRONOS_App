@@ -64,10 +64,11 @@ def event_priority(event: dict) -> tuple:
 
 
 def enrich_espn_fixtures(events: list[dict]) -> list[dict]:
-    """Réutiliser uniquement les métadonnées officielles déjà dans le scoreboard.
+    """Récupère le championnat + tour depuis altGameNote ESPN.
 
-    Aucun second fournisseur ni API dédiée par compétition.
-    Ne jamais inventer le tour ou la compétition en l'absence de métadonnées.
+    Le scoreboard /soccer/all ne fournit PAS league.name (vérifié sur
+    108 rencontres réelles); altGameNote comporte par exemple
+    'Carabao Cup, Fourth Round'. Aucune requête supplémentaire.
     """
     enriched = []
     for source in events:
@@ -75,19 +76,45 @@ def enrich_espn_fixtures(events: list[dict]) -> list[dict]:
         raw = event.get("raw") if isinstance(event.get("raw"), dict) else {}
         competitions = raw.get("competitions") if isinstance(raw.get("competitions"), list) else []
         competition = competitions[0] if competitions and isinstance(competitions[0], dict) else {}
-        for key, possible in (
-            ("round_name", (competition.get("altGameNote"), competition.get("note"),
-                            raw.get("altGameNote"), raw.get("note"))),
-            ("stage", (competition.get("stage"), competition.get("round"),
-                       raw.get("stage"), raw.get("round"))),
-            ("league_name", (event.get("league"), competition.get("league"),
-                             raw.get("league"))),
-        ):
+        note = str(
+            competition.get("altGameNote") or competition.get("note")
+            or raw.get("altGameNote") or raw.get("note") or ""
+        ).strip()
+        league_name = str(event.get("league_name") or "").strip()
+        stage_name = str(event.get("round_name") or "").strip()
+        if not league_name:
+            for candidate in (event.get("league"), competition.get("league"),
+                              raw.get("league")):
+                if isinstance(candidate, dict):
+                    candidate = (candidate.get("displayName") or candidate.get("name")
+                                 or candidate.get("shortName"))
+                if isinstance(candidate, str) and candidate.strip():
+                    league_name = candidate.strip()
+                    break
+        if note and "," in note:
+            competition_label, round_label = (part.strip()
+                                              for part in note.split(",", 1))
+            if competition_label and not league_name:
+                league_name = competition_label
+            if round_label and not stage_name:
+                stage_name = round_label
+        elif note:
+            if not league_name and channel.editorial_competition_rank(note) is not None:
+                league_name = note
+            elif not stage_name:
+                stage_name = note
+        if league_name:
+            event["league_name"] = league_name
+        if stage_name:
+            event["round_name"] = stage_name
+        for key in ("stage",):
             if event.get(key):
                 continue
-            for value in possible:
+            for value in (competition.get(key), competition.get("round"),
+                          raw.get(key), raw.get("round")):
                 if isinstance(value, dict):
-                    value = value.get("displayName") or value.get("name") or value.get("shortName")
+                    value = (value.get("displayName") or value.get("name")
+                             or value.get("shortName"))
                 if isinstance(value, str) and value.strip():
                     event[key] = value.strip()
                     break
