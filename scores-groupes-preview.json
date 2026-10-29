@@ -1,0 +1,10 @@
+{
+  "format": "mrx-1xbet-grouped-preview-v1",
+  "experimental": true,
+  "published": false,
+  "bookmaker": "1xbet",
+  "market": "Correct Score - Group Bet",
+  "quotes_policy": "only verified fixture-specific pre-match bookmaker snapshots; otherwise unavailable",
+  "updated_at": null,
+  "matches": []
+}
