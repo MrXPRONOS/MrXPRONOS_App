@@ -23,7 +23,7 @@ jobs:
           python -m py_compile research/single_ml_v2.py research/single_ml_v2_hybrid.py \
             research/single_ml_v2_direct.py research/single_ml_v3.py \
             research/single_ml_v2_multisource.py research/test_single_ml_v3.py
-      # Synthetic fitted-model metadata mock aligned to real DirectScoreFitted.samples.
+      # Include REAL V3 HistGB/Direct training on synthetic earlier-day data; NO historical backtest.
       - name: Test newly implemented V3 features including actual pipeline (SYNTHETIC only)
         run: |
           set -euo pipefail
