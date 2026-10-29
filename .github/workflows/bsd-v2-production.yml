@@ -275,7 +275,11 @@ jobs:
           sparse-checkout: |
             assets/images/footnews
             assets/images/arty_football
+            proofs
           sparse-checkout-cone-mode: true
+
+      - name: Verify immutable public receipt archive
+        run: python -m unittest discover -s tests -p 'test_public_proof_receipts.py' -v
 
       - name: Prepare public-only GitHub Pages artifact
         run: python scripts/build_public_site.py --out _public_site --previous _previous_pages

@@ -1194,6 +1194,45 @@ async function fetchPublishedPronostics() {
   return fetchJsonWithCache(`data.json?t=${Date.now()}`, "cachedData", 8000);
 }
 
+// Proofs are written only by the public Pages build, never inferred from match dates.
+let publicProofsCache = {};
+let publicProofsLoaded = false;
+async function loadPublicProofs() {
+  if (publicProofsLoaded) return publicProofsCache;
+  publicProofsLoaded = true;
+  try {
+    const response = await fetch('proofs/index.json?t=' + Date.now(), { cache: 'no-store' });
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.schema === 'mx-public-proof-index-v1' && data.receipts) {
+        publicProofsCache = data.receipts;
+      }
+    }
+  } catch (_) { /* no public archive is not a proof */ }
+  return publicProofsCache;
+}
+function publicProofNote(identity, pick) {
+  const archive = publicProofsCache[String(identity)] || null;
+  const date = archive && Date.parse(archive.recorded_at_utc);
+  const kickoff = archive && Date.parse(archive.kickoff_utc);
+  const url = archive?.github_history_url || '';
+  const initial = archive?.selection;
+  const unchanged = initial && pick &&
+    String(initial.selection_key) === String(pick.selection_key || 'primary') &&
+    String(initial.type || '') === String(pick.type || '') &&
+    Number(initial.confidence) === Number(pick.confidence) &&
+    Number(initial.odds) === Number(pick.odds);
+  if (unchanged && archive && Number.isFinite(date) && Number.isFinite(kickoff) &&
+      date + 15 * 60 * 1000 < kickoff &&
+      /^https:\/\/github\.com\/MrXPRONOS\/MrXPRONOS_App\/commits\/gh-pages\/proofs\/receipts\/[a-f0-9]{32}\.json$/.test(url)) {
+    const when = new Date(date).toLocaleString('fr-FR', { timeZone: 'UTC', dateStyle: 'short', timeStyle: 'short' });
+    return '<div class="mx-prono-proof">Archive datée ' + escapeHtml(when) +
+      ' UTC · <a target="_blank" rel="noopener noreferrer" href="' + escapeAttribute(url) +
+      '">Vérifier dans GitHub ↗</a></div>';
+  }
+  return '<div class="mx-prono-proof mx-prono-proof--absent">Publication antérieure non attestée</div>';
+}
+
 async function loadData() {
   const { data, fromCache } = await fetchPublishedPronostics();
   usingCachedData = fromCache;
@@ -1205,6 +1244,7 @@ async function loadData() {
   }
 
   renderBookmakers(allData.bookmakers);
+  await loadPublicProofs();
   filterAndDisplay();
   updatePronosticsSuccessRate();
 }
@@ -1301,7 +1341,7 @@ function renderBookmakers(bookmakers) {
         <img src="${escapeAttribute(b.logo || "assets/images/default-logo.webp")}" alt="${escapeAttribute(b.name || "Bookmaker")}" loading="lazy" decoding="async">
         <h3>${escapeHtml(b.name || "Bookmaker")}</h3>
         <p>${escapeHtml(b.desc || b.description || "Bonus exclusif bookmaker")}</p>
-        <a href="${escapeAttribute(safeCmsUrl(b.url || "#", "link", "#", window.location.href))}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">S'inscrire avec XPVIP</a>
+        <a href="${escapeAttribute(safeCmsUrl(b.url || "#", "link", "#", window.location.href))}" target="_blank" rel="noopener noreferrer sponsored" class="btn btn-primary mx-partner-cta">Consulter l'offre</a>
       `;
       DOM.bookmakersBonus.appendChild(div);
     });
@@ -1736,6 +1776,7 @@ function renderMatches(matches) {
             </div>
 
             ${premiumBadge}
+            ${publicProofNote(m.id, pred)}
             <button class="btn btn-secondary btn-share" data-match="${matchDataEncoded}"><span class="share-glyph" aria-hidden="true"><img src="assets/images/pronostics-premium/icon-share.webp?v=20261011-gen2" alt=""></span> Partager ce prono</button>
           </div>
         </div>
@@ -1758,6 +1799,8 @@ function renderMatches(matches) {
 async function displayHistory() {
   if (!DOM.historyContainer) return;
   allData = await loadDataGeneric();
+
+  const publicProofs = await loadPublicProofs();
 
   if (!allData || !Array.isArray(allData.matches)) {
     DOM.historyContainer.innerHTML = '<div class="no-events">Aucun résultat disponible.</div>';
@@ -1873,6 +1916,19 @@ async function displayHistory() {
       ? "Selon le score final"
       : (m.history_finished ? "Marché non calculable" : "Score final indisponible");
     const reference = escapeHtml(String(m.id || "").slice(0, 35));
+    const archive = publicProofs[String(m.id)] || null;
+    const unchangedPick = archive && archive.selection &&
+      String(archive.selection.selection_key) === String(pred.selection_key || 'primary') &&
+      String(archive.selection.type || '') === String(pred.type || '') &&
+      Number(archive.selection.confidence) === Number(pred.confidence) &&
+      Number(archive.selection.odds) === Number(pred.odds);
+    const beforeKickoff = unchangedPick && archive &&
+      Date.parse(archive.recorded_at_utc) + 15 * 60 * 1000 < Date.parse(archive.kickoff_utc) &&
+      /^proofs\/receipts\/[a-f0-9]{32}\.json$/.test(archive.receipt_url || '') &&
+      /^https:\/\/github\.com\/MrXPRONOS\/MrXPRONOS_App\/commits\/gh-pages\/proofs\/receipts\/[a-f0-9]{32}\.json$/.test(archive.github_history_url || '');
+    const proofMarkup = beforeKickoff
+      ? `<div class="mx-history-proof-link"><span>Capture archivée : ${escapeHtml(new Date(archive.recorded_at_utc).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short',timeZone:'UTC'}))} UTC</span><a href="${escapeAttribute(archive.github_history_url)}" target="_blank" rel="noopener noreferrer">Vérifier l'historique GitHub ↗</a></div>`
+      : '<div class="mx-history-proof-link mx-history-proof-link--missing">Pas de preuve publique antérieure archivée</div>';
 
     html += `
       <article class="history-row">
@@ -1883,6 +1939,7 @@ async function displayHistory() {
           </div>
           <span class="history-date">${escapeHtml(formattedDate)}</span>
           <small class="history-reference" title="Identifiant public de suivi">Réf. ${reference}</small>
+          ${proofMarkup}
         </div>
 
         <div class="history-match">
@@ -3293,26 +3350,25 @@ function animateWins() {
 async function displayTestimonials() {
   if (!DOM.testimonials) return;
   try {
-    const resp = await fetch(`testimonials.json?t=${Date.now()}`, { cache: "no-cache" });
-    if (!resp.ok) throw new Error("Erreur");
-    const testimonials = await resp.json();
-    DOM.testimonials.innerHTML = testimonials
-      .map(
-        (t) => `
-      <div class="card">
-        <p>"${escapeHtml(t.text)}"</p>
-        <p style="margin-top:1rem; color:var(--or);">— ${escapeHtml(t.name)}</p>
-      </div>
-    `
-      )
-      .join("");
+    const response = await fetch('testimonials.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!response.ok) throw new Error('Témoignages indisponibles');
+    const rows = await response.json();
+    if (!Array.isArray(rows) || rows.length === 0) throw new Error('Aucun témoignage');
+    DOM.testimonials.innerHTML = rows.filter(t => t && t.text && t.name).map(t => {
+      const rating = Math.min(5, Math.max(0, Math.floor(Number(t.rating) || 0)));
+      const stars = '★'.repeat(rating) + '☆'.repeat(5-rating);
+      return '<article class="mx-testimonial-card">'
+        + '<div class="mx-testimonial-rating" aria-label="' + rating + ' étoiles sur 5">' + stars + '</div>'
+        + '<blockquote>“' + escapeHtml(String(t.text)) + '”</blockquote>'
+        + '<div class="mx-testimonial-author"><span class="mx-testimonial-avatar" aria-hidden="true">'
+        + escapeHtml(String(t.name).trim().charAt(0).toUpperCase()) + '</span>'
+        + '<div><strong>' + escapeHtml(String(t.name)) + '</strong>'
+        + '<span>' + escapeHtml(String(t.city || 'Communauté')) + '</span></div></div>'
+        + '</article>';
+    }).join('');
   } catch {
-    DOM.testimonials.innerHTML = `
-      <div class="card">
-        <p>"Grâce à Mr XPRONOS, j'ai mieux structuré mes paris."</p>
-        <p style="margin-top:1rem;color:var(--or);">— Client</p>
-      </div>
-    `;
+    // Never invent customer quotes just to fill a promotional section.
+    DOM.testimonials.innerHTML = '<p class="mx-extra-empty">Aucun retour de la communauté disponible pour le moment.</p>';
   }
 }
 

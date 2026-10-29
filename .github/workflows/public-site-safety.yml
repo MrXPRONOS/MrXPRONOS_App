@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'scripts/build_public_site.py'
+      - 'scripts/public_proof_receipts.py'
+      - 'tests/test_public_proof_receipts.py'
       - 'tests/test_public_site_build.py'
       - '.github/workflows/deploy.yml'
       - 'assets/js/main.js'
@@ -12,6 +14,8 @@ on:
     branches: [main]
     paths:
       - 'scripts/build_public_site.py'
+      - 'scripts/public_proof_receipts.py'
+      - 'tests/test_public_proof_receipts.py'
       - 'tests/test_public_site_build.py'
       - '.github/workflows/deploy.yml'
       - 'assets/js/main.js'
@@ -29,6 +33,8 @@ jobs:
           node-version: '22'
       - name: Verify staging redaction and media retention
         run: python -m unittest discover -s tests -p 'test_public_site_build.py' -v
+      - name: Verify public publication receipts
+        run: python -m unittest discover -s tests -p 'test_public_proof_receipts.py' -v
       - name: Verify public scripts remain valid
         run: |
           node --check assets/js/main.js

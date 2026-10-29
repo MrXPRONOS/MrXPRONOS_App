@@ -11,7 +11,7 @@
         btn.id = 'back-to-top';
         btn.setAttribute('aria-label', 'Retour en haut');
         btn.type = 'button';
-        btn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 20V4M5 11l7-7 7 7"/></svg>';
         document.body.appendChild(btn);
 
         btn.addEventListener('click', function () {
