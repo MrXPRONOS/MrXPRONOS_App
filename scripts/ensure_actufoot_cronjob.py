@@ -144,6 +144,7 @@ def ensure(title, minutes, mode, trigger):
         "dry_run": False,
         "force": False,
         "mode": mode,
+        "destination": "production",
     }
     assert details.get("enabled") is True
     assert details.get("requestMethod") == 1
