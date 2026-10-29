@@ -82,6 +82,62 @@ class PublicBuildTest(TestCase):
             self.assertIn("match-123-tag-og.webp", meta)
             self.assertNotIn("match-bsd-match-", meta)
 
+    def test_paused_live_and_assistant_are_hidden_without_removing_sources(self):
+        with TemporaryDirectory() as temp:
+            root = Path(temp)
+            for name in ("index.html", "pronos.html"):
+                (root / name).write_text(
+                    '<html><head></head><body><script defer src="assets/js/assistant.js?v=old"></script></body></html>',
+                    encoding="utf-8",
+                )
+            live = root / "live.html"
+            live.write_text("<html><head></head><body>LIVE engine intact</body></html>", encoding="utf-8")
+            old_live_source = live.read_text(encoding="utf-8")
+            js = root / "assets/js"
+            js.mkdir(parents=True)
+            (js / "main.js").write_text("console.log('site');", encoding="utf-8")
+            (js / "assistant.js").write_text("console.log('widget is preserved');", encoding="utf-8")
+            (root / "footnews.json").write_text("[]", encoding="utf-8")
+            (root / "data.json").write_text(json.dumps({"matches": [
+                {"id": "id-1", "category": "vip", "prediction": {"confidence": 79, "odds": 1.5}}
+            ]}), encoding="utf-8")
+            (root / "sitemap.xml").write_text(
+                '<urlset><url><loc>https://example.com/prono-live/</loc></url>'
+                '<url><loc>https://example.com/pronos.html</loc></url></urlset>',
+                encoding="utf-8",
+            )
+            old_root = module.ROOT
+            try:
+                module.ROOT = root
+                module.stage_site(root / "_public_site", None)
+            finally:
+                module.ROOT = old_root
+            output = root / "_public_site"
+            self.assertNotIn("assistant.js", (output / "index.html").read_text())
+            self.assertNotIn("assistant.js", (output / "pronos.html").read_text())
+            self.assertTrue((output / "assets/js/assistant.js").exists())
+            self.assertIn("noindex, nofollow", (output / "live.html").read_text())
+            self.assertEqual(live.read_text(encoding="utf-8"), old_live_source)
+            sitemap = (output / "sitemap.xml").read_text()
+            self.assertNotIn("prono-live/", sitemap)
+            self.assertIn("pronos.html", sitemap)
+
+    def test_public_navigation_no_longer_promotes_paused_live(self):
+        root = Path(__file__).resolve().parents[1]
+        index = (root / "index.html").read_text(encoding="utf-8")
+        mobile = (root / "assets/js/menu.js").read_text(encoding="utf-8")
+        share = (root / "assets/js/home-premium.js").read_text(encoding="utf-8")
+        sitemap = (root / "sitemap.xml").read_text(encoding="utf-8")
+        generator = (root / "generate_sitemap.py").read_text(encoding="utf-8")
+        for source in (index, mobile, share):
+            self.assertNotIn('href="live.html"', source)
+            self.assertNotIn('url: \'live.html\'', source)
+            self.assertNotIn("nos sélections LIVE", source)
+        self.assertNotIn("prono-live/", sitemap)
+        self.assertNotIn('"prono-live/":', generator)
+        self.assertIn('href="historique.html"', index)
+        self.assertIn("icon-history.webp", mobile)
+
     def test_no_workflow_publishes_repository_root(self):
         workflows = (Path(__file__).resolve().parents[1] / ".github/workflows").glob("*.yml")
         import re
