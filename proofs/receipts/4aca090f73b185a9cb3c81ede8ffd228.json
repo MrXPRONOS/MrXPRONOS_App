@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-de8a971c01fdf111:UNDER_35",
+    "recorded_at_utc": "2026-10-29T19:35:49+00:00",
+    "kickoff_utc": "2026-10-30T14:50:00+00:00",
+    "fixture": {
+      "home_team": "Diriyah",
+      "away_team": "Neom SC",
+      "league": "Saudi Professional League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 80.3,
+      "odds": 1.345,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "7309215b35c2e90b3e244905333e59f5efa98b4ada47868c8f228a0091fa01cf"
+}

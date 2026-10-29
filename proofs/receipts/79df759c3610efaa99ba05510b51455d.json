@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-a0d04ea8926bbde6:1X",
+    "recorded_at_utc": "2026-10-29T19:35:49+00:00",
+    "kickoff_utc": "2026-10-30T20:00:00+00:00",
+    "fixture": {
+      "home_team": "AD Fafe",
+      "away_team": "Paços de Ferreira",
+      "league": "Liga 3"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 80.5,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "80b524766eada30794977026f86c8473f932b58794c82cc054b1ecfcede70a8e"
+}

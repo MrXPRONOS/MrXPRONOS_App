@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-cbb311617e392c13:UNDER_35",
+    "recorded_at_utc": "2026-10-29T19:35:49+00:00",
+    "kickoff_utc": "2026-10-31T18:00:00+00:00",
+    "fixture": {
+      "home_team": "Wydad Casablanca",
+      "away_team": "Moghreb Atlético Tetuán",
+      "league": "Botola Pro"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.3,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "68ae81be9bb9a80da65392ce3c66a9646186e61d54c5afa0cc27b712639ef62b"
+}

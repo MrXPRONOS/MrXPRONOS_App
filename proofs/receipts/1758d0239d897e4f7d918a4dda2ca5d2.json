@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-7f0361913875de42:1X",
+    "recorded_at_utc": "2026-10-29T19:35:49+00:00",
+    "kickoff_utc": "2026-10-31T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Brentford",
+      "away_team": "Nottingham Forest",
+      "league": "Premier League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 82.5,
+      "odds": 1.296,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "965b296b68218cc90004a6575f6773e9f2f22909e3278a09f98086b5ce03d2c1"
+}

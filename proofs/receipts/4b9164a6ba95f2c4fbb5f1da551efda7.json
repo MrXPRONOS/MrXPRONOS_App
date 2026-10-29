@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-946ddeabcb4136e7:1X",
+    "recorded_at_utc": "2026-10-29T19:35:49+00:00",
+    "kickoff_utc": "2026-10-31T18:00:00+00:00",
+    "fixture": {
+      "home_team": "New York City FC",
+      "away_team": "CF Montréal",
+      "league": "United States Major League Soccer"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 80.6,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "75291137fafc6fb27002e710d9de9f5f18d155228c6cd8a4e5b6eb1b58499810"
+}

@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v109-public-pro-vip-only-20261029';
+const VERSION = 'v110-proof-receipts-visible-20261029';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -288,6 +288,13 @@ self.addEventListener('fetch', (event) => {
 
     if (DYNAMIC_JSON.some(file => path.endsWith(file.replace('./', '')))) {
         event.respondWith(strategies.networkFirst(request));
+        return;
+    }
+
+    if (request.destination === 'style' || request.destination === 'script' ||
+        path.endsWith('/service-worker.js')) {
+        // Always prefer the latest deployed source, not a stale asset cache.
+        event.respondWith(strategies.networkFirstStatic(request));
         return;
     }
 

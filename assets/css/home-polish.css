@@ -1182,3 +1182,29 @@
 @media(max-width:480px){
   .mx-premium-home .mx-hero-actions .mx-pill{font-size:10px!important}
 }
+
+/* Sections permanentes, sans bouton « Voir plus ». */
+.mx-premium-home .mx-extra-details{overflow:visible;border-color:#173b50;background:linear-gradient(145deg,#071723,#04121d)}
+.mx-premium-home .mx-extra-grid{align-items:start;gap:16px;padding:16px}
+.mx-premium-home .mx-extra-block{background:linear-gradient(155deg,#092030,#051521);border:1px solid rgba(62,120,156,.48);border-radius:14px;padding:17px;box-shadow:0 9px 28px rgba(0,0,0,.14)}
+.mx-premium-home .mx-extra-block h2{margin:0 0 7px;color:#f7d88d;font-size:clamp(15px,1.5vw,19px)}
+.mx-premium-home .mx-extra-intro{font-size:11px;line-height:1.55;color:#b0c3d1;margin:0 0 15px}
+.mx-premium-home .mx-extra-block .bookmakers-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mx-premium-home .mx-extra-block .bookmaker-card{background:#081a29;border:1px solid #285374;padding:13px;border-radius:12px;box-shadow:none;transition:transform .2s,border-color .2s}
+.mx-premium-home .mx-extra-block .bookmaker-card:hover{border-color:#e1b659;transform:translateY(-2px)}
+.mx-premium-home .mx-extra-block .bookmaker-card h3{font-size:13px}
+.mx-premium-home .mx-extra-block .bookmaker-card p{font-size:11px;line-height:1.4}
+.mx-premium-home .mx-extra-block .bookmaker-card .mx-partner-cta,
+.mx-premium-home .mx-extra-block .bookmaker-card .mx-partner-cta:visited{display:flex;align-items:center;justify-content:center;min-height:40px;background:linear-gradient(120deg,#ffe69b,#e7b34d)!important;color:#07121a!important;border:1px solid #f5d687;font-weight:850;text-decoration:none!important;border-radius:9px}
+.mx-premium-home .mx-extra-block .bookmaker-card .mx-partner-cta:hover{background:#fff0ba!important}
+.mx-premium-home .mx-extra-block .mx-testimonials{display:grid;grid-template-columns:1fr;gap:10px}
+.mx-premium-home .mx-testimonial-card{padding:14px;border-radius:12px;border:1px solid #244b68;background:#071a29;min-width:0}
+.mx-premium-home .mx-testimonial-rating{color:#ffcf71;letter-spacing:2px;font-size:12px}
+.mx-premium-home .mx-testimonial-card blockquote{margin:7px 0 12px;font-size:12px;line-height:1.6;color:#e1eaf2;font-style:normal}
+.mx-premium-home .mx-testimonial-author{display:flex;align-items:center;gap:9px}
+.mx-premium-home .mx-testimonial-avatar{width:30px;height:30px;display:grid;place-items:center;flex-shrink:0;border-radius:9px;background:#1b3d56;color:#f7d88d;font-weight:800}
+.mx-premium-home .mx-testimonial-author strong{display:block;color:#f6f8ff;font-size:11px}
+.mx-premium-home .mx-testimonial-author div>span{display:block;color:#9db4c5;font-size:10px}
+.mx-premium-home .mx-extra-empty{color:#a4bdcd;font-size:12px}
+@media(max-width:850px){.mx-premium-home .mx-extra-grid{grid-template-columns:1fr;padding:12px}.mx-premium-home .mx-extra-block .bookmakers-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:400px){.mx-premium-home .mx-extra-block .bookmakers-grid{grid-template-columns:1fr}.mx-premium-home .mx-extra-block{padding:12px}}

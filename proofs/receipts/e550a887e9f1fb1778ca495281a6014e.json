@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-45208e8b1af60da9:UNDER_35",
+    "recorded_at_utc": "2026-10-29T19:35:49+00:00",
+    "kickoff_utc": "2026-10-31T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Salford City",
+      "away_team": "Exeter City",
+      "league": "English Football League Two"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 80.6,
+      "odds": 1.398,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "d614debad5184bde8ed57802e9e3f18155ed2ee9c4f5ed3c9971d8a76dcbcfaa"
+}

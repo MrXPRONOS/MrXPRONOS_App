@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-1533707076b02f3f:UNDER_35",
+    "recorded_at_utc": "2026-10-29T19:35:49+00:00",
+    "kickoff_utc": "2026-10-30T14:00:00+00:00",
+    "fixture": {
+      "home_team": "Niger Tornadoes",
+      "away_team": "Barau FC",
+      "league": "Nigeria Premier League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 81.8,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "3852a7788c755343babff58bd94f70bf6d612d59bdb5f3440c04026c733aa1b5"
+}

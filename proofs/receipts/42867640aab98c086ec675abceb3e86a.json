@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-91586e5731c95dc4:1X",
+    "recorded_at_utc": "2026-10-29T19:35:49+00:00",
+    "kickoff_utc": "2026-10-31T18:00:00+00:00",
+    "fixture": {
+      "home_team": "SL Benfica B",
+      "away_team": "Chaves",
+      "league": "Liga Portugal 2"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 81.3,
+      "odds": 1.378,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "c0624c69d0a6ed1ee810cf5d25cd17c97ca5a6ef54c9f3b7a85771e93a7e72f2"
+}

@@ -38,7 +38,7 @@ canvas{max-height:360px} .positive{color:#42d69a}.negative{color:#ff8891}
 <p id="status" class="muted" role="status"></p>
 </section></main>
 <script type="module">
-import {supabaseUrl,supabaseAnonKey} from './assets/js/config.js';
+import {supabaseUrl,supabaseAnonKey} from './assets/js/config.js?v=6e377885783c';
 const sb=window.supabase.createClient(supabaseUrl,supabaseAnonKey);
 const $=id=>document.getElementById(id);
 let rows=[],chart=null,selected=[];

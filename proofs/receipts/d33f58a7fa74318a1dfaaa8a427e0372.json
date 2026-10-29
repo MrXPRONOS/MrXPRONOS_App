@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-3b8277a45960a291:UNDER_35",
+    "recorded_at_utc": "2026-10-29T19:35:49+00:00",
+    "kickoff_utc": "2026-10-31T12:30:00+00:00",
+    "fixture": {
+      "home_team": "Bradford City",
+      "away_team": "Huddersfield Town",
+      "league": "English Football League One"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.0,
+      "odds": 1.352,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "239c12927b5ae15a202f3fca89be3689369e3b039d6c2f709bfdcc2313e17ec5"
+}

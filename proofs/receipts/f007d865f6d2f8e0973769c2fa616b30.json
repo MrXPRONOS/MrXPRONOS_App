@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-e410a631f2e3e800:UNDER_35",
+    "recorded_at_utc": "2026-10-29T19:35:49+00:00",
+    "kickoff_utc": "2026-10-30T22:00:00+00:00",
+    "fixture": {
+      "home_team": "Huracán",
+      "away_team": "Tigre",
+      "league": "Argentinian Primera Division"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 81.9,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "a16f7620dadd35373dcd23323c87acf7f431f0e0583ae8903370448a22813460"
+}
