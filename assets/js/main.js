@@ -1228,7 +1228,7 @@ function publicProofNote(identity, pick) {
     const when = new Date(date).toLocaleString('fr-FR', { timeZone: 'UTC', dateStyle: 'short', timeStyle: 'short' });
     return '<div class="mx-prono-proof">Archive datée ' + escapeHtml(when) +
       ' UTC · <a target="_blank" rel="noopener noreferrer" href="' + escapeAttribute(url) +
-      '">Vérifier dans GitHub ↗</a></div>';
+      '">Voir la preuve ↗</a></div>';
   }
   return '<div class="mx-prono-proof mx-prono-proof--absent">Publication antérieure non attestée</div>';
 }
@@ -1928,7 +1928,6 @@ async function displayHistory() {
     const resultDetail = m.history_evaluated
       ? "Selon le score final"
       : (m.history_finished ? "Marché non calculable" : "Score final indisponible");
-    const reference = escapeHtml(String(m.id || "").slice(0, 35));
     const archive = publicProofs[String(m.id)] || null;
     const unchangedPick = archive && archive.selection &&
       String(archive.selection.selection_key) === String(pred.selection_key || 'primary') &&
@@ -1940,7 +1939,7 @@ async function displayHistory() {
       /^proofs\/receipts\/[a-f0-9]{32}\.json$/.test(archive.receipt_url || '') &&
       /^https:\/\/github\.com\/MrXPRONOS\/MrXPRONOS_App\/commits\/gh-pages\/proofs\/receipts\/[a-f0-9]{32}\.json$/.test(archive.github_history_url || '');
     const proofMarkup = beforeKickoff
-      ? `<div class="mx-history-proof-link"><span>Capture archivée : ${escapeHtml(new Date(archive.recorded_at_utc).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short',timeZone:'UTC'}))} UTC</span><a href="${escapeAttribute(archive.github_history_url)}" target="_blank" rel="noopener noreferrer">Vérifier l'historique GitHub ↗</a></div>`
+      ? `<div class="mx-history-proof-link"><span>Capture archivée : ${escapeHtml(new Date(archive.recorded_at_utc).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short',timeZone:'UTC'}))} UTC</span><a href="${escapeAttribute(archive.github_history_url)}" target="_blank" rel="noopener noreferrer">Consulter la preuve ↗</a></div>`
       : '<div class="mx-history-proof-link mx-history-proof-link--missing">Pas de preuve publique antérieure archivée</div>';
 
     html += `
@@ -1951,7 +1950,6 @@ async function displayHistory() {
             <span>${escapeHtml(publicFootballLabel(m.league, "Compétition"))}</span>
           </div>
           <span class="history-date">${escapeHtml(formattedDate)}</span>
-          <small class="history-reference" title="Identifiant public de suivi">Réf. ${reference}</small>
           ${proofMarkup}
         </div>
 
@@ -2770,8 +2768,7 @@ async function displayFootNews() {
   try {
     let rssNews = [];
 
-    // Source principale: snapshot statique publié sur GitHub Pages.
-    // Évite les limitations Neon / Supabase pendant leur indisponibilité.
+    // Feed public only; no direct connection to private data providers.
     try {
       const resp = await fetch(`footnews.json?t=${Date.now()}`, { cache: "no-cache" });
       rssNews = resp.ok ? await resp.json() : [];
@@ -3028,7 +3025,7 @@ function renderBonusGrid(bookmakers) {
         <h3>${escapeHtml(b.name || "Bookmaker")}</h3>
         <p>${escapeHtml(b.desc || b.description || "Bonus exclusif bookmaker")}</p>
         <div class="bonus-actions">
-          <a href="${escapeAttribute(safeCmsUrl(b.url || "#", "link", "#", window.location.href))}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Voir l'offre</a>
+          <a href="${escapeAttribute(safeCmsUrl(b.url || "#", "link", "#", window.location.href))}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Profiter de l'offre</a>
           <button class="btn btn-secondary" type="button" onclick="openBonusModal(${i})">Détails</button>
         </div>
       </div>
