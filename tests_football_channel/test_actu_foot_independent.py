@@ -130,6 +130,16 @@ class TestActuFootIndependent(unittest.TestCase):
         self.assertEqual(sender.send.call_count,1)
         ledger.mark.assert_called_once_with(mod.PROGRAMME_KIND,"@channel","2026-10-29",message_id=77)
 
+    def test_real_espn_nested_details_are_normalized(self):
+        goal = {"id":"1122","type":{"text":"Goal"},"scoringPlay":True,
+                "clock":{"displayValue":"45+3"},"homeScore":1,"awayScore":0}
+        payload = {"header":{"competitions":[{"details":[goal]}]}}
+        fixed = mod.normalize_espn_summary(payload)
+        self.assertEqual(fixed["details"],[goal])
+        actual = mod.extract_goals(fixed)
+        self.assertEqual(len(actual),1)
+        self.assertEqual(actual[0]["minute_total"],48)
+
     def test_two_distinct_goals_and_final(self):
         info=live_info(hs=2)
         goals=[dict(id="goal1",minute_total=52,home_score=1,away_score=0),
