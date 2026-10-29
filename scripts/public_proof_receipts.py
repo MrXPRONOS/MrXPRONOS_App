@@ -148,6 +148,7 @@ def build_proofs(destination: Path, previous: Path | None, public_data: dict, no
             "recorded_at_utc": recorded,
             "kickoff_utc": proof["snapshot"]["kickoff_utc"],
             "sha256": proof["sha256"],
+            "selection": proof["snapshot"]["selection"],
             "receipt_url": f"proofs/receipts/{file.name}",
             "github_history_url": f"https://github.com/{REPO}/commits/gh-pages/proofs/receipts/{file.name}",
         }
