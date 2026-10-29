@@ -114,6 +114,20 @@ def main():
           parsed.get("home_score"), parsed.get("away_score"))
     print("ACTUFOOT_SMOKE_LIVE_EVENTS",
           [signal.get("kind") for signal in signals][:20])
+    goals = [signal for signal in signals if signal.get("kind") == "goal"]
+    if goals:
+        from scripts import football_channel as channel
+        from football_cards import render_card
+        publication = channel.lifecycle_publication(goals[0])
+        if publication is None or not publication.card:
+            raise RuntimeError("ACTUFOOT_SMOKE_LIVE_GOAL_PUBLICATION_INVALID")
+        with TemporaryDirectory(prefix="actufoot-goal-smoke-") as temp:
+            target = Path(temp) / "goal.png"
+            render_card(publication.category, publication.card, target)
+            with Image.open(target) as visual:
+                visual.verify()
+            print("ACTUFOOT_SMOKE_GOAL_RENDERED",target.stat().st_size)
+
 
 
 
