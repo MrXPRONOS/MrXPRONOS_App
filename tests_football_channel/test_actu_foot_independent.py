@@ -53,6 +53,22 @@ class TestActuFootIndependent(unittest.TestCase):
         self.assertEqual(enriched["league_name"],"Champions League")
         self.assertGreater(mod.channel.high_stakes_bonus(enriched),150)
 
+    def test_league_and_round_from_real_espn_note(self):
+        event=fixture("Oxford United","Portsmouth")
+        event["league_name"]=""
+        event["raw"]={"competitions":[{"altGameNote":"Carabao Cup, Fourth Round"}]}
+        result=mod.enrich_espn_fixtures([event])[0]
+        self.assertEqual(result["league_name"],"Carabao Cup")
+        self.assertEqual(result["round_name"],"Fourth Round")
+
+    def test_final_from_real_espn_note(self):
+        event=fixture("Oxford United","Portsmouth")
+        event["league_name"]=""
+        event["raw"]={"competitions":[{"altGameNote":"FA Cup, Final"}]}
+        result=mod.enrich_espn_fixtures([event])[0]
+        self.assertEqual(result["league_name"],"FA Cup")
+        self.assertGreater(mod.channel.high_stakes_bonus(result),300)
+
     def test_programme_verifiable_and_priority(self):
         events=[fixture("Oxford United","Portsmouth",101),
                 fixture("Real Madrid","Getafe",102),
