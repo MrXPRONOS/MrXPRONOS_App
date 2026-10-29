@@ -289,6 +289,26 @@ def programme_cycle(now: datetime, sender: channel.Sender, ledger: D1Ledger | No
 
 
 
+def normalize_espn_summary(summary: dict) -> dict:
+    """ESPN soccer range généralement les actions dans header.competitions[].details.
+
+    Vérifié en production : le résumé réel possède une liste 'details' dans
+    header.competitions[0], mais pas de champ details à la racine.
+    Réutilise les extracteurs existants sans second appel API.
+    """
+    if not isinstance(summary, dict):
+        return {}
+    if isinstance(summary.get("details"), list) and summary["details"]:
+        return summary
+    header = summary.get("header") if isinstance(summary.get("header"), dict) else {}
+    competitions = header.get("competitions") if isinstance(header.get("competitions"), list) else []
+    raw = competitions[0] if competitions and isinstance(competitions[0], dict) else {}
+    details = raw.get("details")
+    if isinstance(details, list) and details:
+        return dict(summary, details=details)
+    return summary
+
+
 def signal_identity(row: dict, category: str, item: dict) -> str:
     """ID ESPN ou empreinte déterministe des données factuelles."""
     raw_id = str(item.get("id") or "").strip()
@@ -516,6 +536,7 @@ def lifecycle_cycle(now: datetime, sender: channel.Sender,
             summary = fetch_espn_summary(sender.session, str(row["id"]), force=True)
             if not isinstance(summary, dict) or not summary:
                 raise RuntimeError("ACTUFOOT_ESPN_SUMMARY_UNAVAILABLE " + str(row["id"]))
+            summary = normalize_espn_summary(summary)
             info = parse_espn_summary_match(summary)
             if not info or str(info.get("id") or "") != str(row["id"]):
                 raise RuntimeError("ACTUFOOT_ESPN_SUMMARY_ID_MISMATCH " + str(row["id"]))
