@@ -13,6 +13,75 @@ SPEC.loader.exec_module(module)
 
 
 class PublicBuildTest(TestCase):
+    def test_reject_invalid_public_matches_and_all_selections(self):
+        valid = {
+            "id": "alpha", "category": "pro",
+            "recommendation_eligible": True,
+            "prediction": {"confidence": 85, "odds": 1.5},
+            "predictions": [{"confidence": 79, "odds": 1.4}],
+        }
+        scenarios = (
+            {"category": "simple"},
+            {"category": "other"},
+            {"recommendation_eligible": False},
+            {"prediction": {"confidence": 78.9}},
+            {"prediction": {"confidence": 101}},
+            {"prediction": {"confidence": float("nan")}},
+            {"predictions": [{"confidence": 78.5}]},
+            {"predictions": [{"confidence": 81, "recommendation_eligible": False}]},
+        )
+        for patch in scenarios:
+            with self.subTest(patch=str(patch)):
+                match = {**valid, **patch}
+                with self.assertRaises(ValueError):
+                    module.public_copy({"generated_at": "2026-10-29", "matches": [match]})
+        self.assertEqual(
+            module.public_copy({"matches": [valid]})["matches"][0]["category"], "pro"
+        )
+
+    def test_public_editorial_image_aliases_keep_legacy_links(self):
+        with TemporaryDirectory() as temp:
+            root = Path(temp)
+            for name in ("index.html", "pronos.html", "live.html"):
+                (root / name).write_text("<html>Public</html>", encoding="utf-8")
+            original = root / "assets/images/editorial/match-bsd-match-123-tag-og.webp"
+            original.parent.mkdir(parents=True, exist_ok=True)
+            original.write_bytes(b"image data")
+            (root / "assets/js").mkdir(parents=True)
+            (root / "assets/js/main.js").write_text("console.log(1)")
+            (root / "footnews.json").write_text("[]")
+            (root / "data.json").write_text(json.dumps({"matches": [{
+                "id": "alpha", "category": "pro",
+                "prediction": {"confidence": 82, "odds": 1.6}
+            }]}))
+            (root / "articles.json").write_text(json.dumps([{
+                "slug": "bsd-match-123", "type": "match", "source": "bsd",
+                "title": "Alpha vs Beta : fiche match BSD V2",
+                "image_url": str(original.relative_to(root)),
+                "og_image": str(original.relative_to(root)),
+            }]))
+            html = root / "articles/bsd-match-123/index.html"
+            html.parent.mkdir(parents=True)
+            html.write_text('<meta property="og:image" content="' +
+                            str(original.relative_to(root)) +
+                            '"><a href="article.html?slug=bsd-match-123">BSD V2</a>')
+            former = module.ROOT
+            try:
+                module.ROOT = root
+                module.stage_site(root / "_public_site", None)
+            finally:
+                module.ROOT = former
+            output = root / "_public_site"
+            alias = output / "assets/images/editorial/match-123-tag-og.webp"
+            self.assertEqual(alias.read_bytes(), b"image data")
+            self.assertTrue((output / original.relative_to(root)).is_file())
+            published = json.loads((output / "articles.json").read_text())
+            self.assertEqual(published[0]["image_url"], str(alias.relative_to(output)))
+            self.assertEqual(published[0]["og_image"], str(alias.relative_to(output)))
+            meta = (output / "articles/match-123/index.html").read_text()
+            self.assertIn("match-123-tag-og.webp", meta)
+            self.assertNotIn("match-bsd-match-", meta)
+
     def test_no_workflow_publishes_repository_root(self):
         workflows = (Path(__file__).resolve().parents[1] / ".github/workflows").glob("*.yml")
         import re

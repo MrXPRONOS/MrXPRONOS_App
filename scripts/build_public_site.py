@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import math
 import json
 import re
 import shutil
@@ -54,6 +55,10 @@ TECHNICAL_TEXT = re.compile(
 )
 
 
+PUBLIC_MIN_CONFIDENCE = 79.0
+PUBLIC_IMAGE_LEGACY_PREFIX = "match-bsd-match-"
+PUBLIC_IMAGE_PREFIX = "match-"
+
 PUBLIC_MATCH_FIELDS = (
     "date", "event_date", "home_team", "away_team", "home_logo",
     "away_logo", "league_logo", "league", "category",
@@ -71,6 +76,19 @@ def _public_pick(pick):
     if not isinstance(pick, dict):
         return {}
     return {key: pick[key] for key in PUBLIC_PICK_FIELDS if key in pick}
+
+
+def validate_public_prediction(pick):
+    """Fail closed when a primary, secondary or combined selection is below policy."""
+    if not isinstance(pick, dict):
+        raise ValueError("Invalid public selection")
+    confidence = pick.get("confidence")
+    if (isinstance(confidence, bool) or not isinstance(confidence, (int, float))
+            or not math.isfinite(confidence)
+            or not PUBLIC_MIN_CONFIDENCE <= confidence <= 100):
+        raise ValueError("Public selection violates the 79 percent confidence policy")
+    if pick.get("recommendation_eligible") is False:
+        raise ValueError("Ineligible selection cannot be published")
 
 
 def public_copy(value):
@@ -96,6 +114,16 @@ def public_copy(value):
     for index, match in enumerate(matches):
         if not isinstance(match, dict):
             raise ValueError("Invalid match in generated feed")
+        if match.get("category") not in ("pro", "vip"):
+            raise ValueError("Public match must be Pro or VIP")
+        if match.get("recommendation_eligible") is False:
+            raise ValueError("Ineligible match cannot be published")
+        validate_public_prediction(match.get("prediction"))
+        if match.get("predictions") is not None:
+            if not isinstance(match["predictions"], list):
+                raise ValueError("Invalid secondary selection list")
+            for secondary in match["predictions"]:
+                validate_public_prediction(secondary)
         selection = _public_pick(match.get("prediction"))
         if not selection:
             raise ValueError("Match without a public primary prediction")
@@ -140,6 +168,21 @@ def clean_match_article_text(value: str) -> str:
     return text
 
 
+def prepare_public_editorial_media(destination: Path):
+    """Provide clean public media aliases without breaking previously shared image URLs."""
+    editorial = destination / "assets/images/editorial"
+    if not editorial.is_dir():
+        return
+    for original in editorial.glob(PUBLIC_IMAGE_LEGACY_PREFIX + "*"):
+        if not original.is_file() or original.is_symlink():
+            continue
+        alias = original.with_name(original.name.replace(
+            PUBLIC_IMAGE_LEGACY_PREFIX, PUBLIC_IMAGE_PREFIX, 1
+        ))
+        if not alias.exists():
+            shutil.copy2(original, alias)
+
+
 def prepare_public_articles(destination: Path):
     file = destination / "articles.json"
     if file.exists():
@@ -156,6 +199,11 @@ def prepare_public_articles(destination: Path):
             for field in ("title", "excerpt", "meta_description", "keywords", "content"):
                 if isinstance(row.get(field), str):
                     row[field] = clean_match_article_text(row[field])
+            for image_field in ("image_url", "social_image", "story_image", "og_image", "ab_image_url"):
+                if isinstance(row.get(image_field), str):
+                    row[image_field] = row[image_field].replace(
+                        PUBLIC_IMAGE_LEGACY_PREFIX, PUBLIC_IMAGE_PREFIX
+                    )
             for key in ("source", "bsd_event_id", "bsd_match_date", "editorial_importance",
                         "editorial_reasons", "editorial_role", "visual_variant", "visual_hash"):
                 row.pop(key, None)
@@ -181,12 +229,14 @@ def refresh_public_script_versions(destination: Path):
     # Cached scripts otherwise keep showing outdated technical labels after deploy.
     for html in destination.rglob("*.html"):
         body = html.read_text(encoding="utf-8")
+        # Generated article metadata and redirects must use clean image URLs.
+        body = body.replace(PUBLIC_IMAGE_LEGACY_PREFIX, PUBLIC_IMAGE_PREFIX)
         replacement = re.sub(
             r"(assets/js/(?:main|assistant|admin-supervision)\.js)(?:\?v=[a-zA-Z0-9_.-]+)?",
             r"\1?v=20261028-public-ui-privacy3",
             body,
         )
-        if replacement != body:
+        if replacement != html.read_text(encoding="utf-8"):
             html.write_text(replacement, encoding="utf-8")
 
 
@@ -231,6 +281,7 @@ def stage_site(destination: Path, previous: Path | None):
                         target.parent.mkdir(parents=True, exist_ok=True)
                         shutil.copy2(file, target)
 
+    prepare_public_editorial_media(destination)
     prepare_public_articles(destination)
     refresh_public_script_versions(destination)
 
