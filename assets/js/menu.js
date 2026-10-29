@@ -20,7 +20,7 @@
   const menuItems = [
     { name: 'Accueil', icon: 'icon-home.webp', url: 'index.html' },
     { name: 'Pronostics', icon: 'icon-pronostics.webp', url: 'pronos.html', featured: 'coupons', badge: 'TOP' },
-    { name: 'Historique', icon: 'icon-history.webp', url: 'historique.html' },
+    { name: 'Résultats', icon: 'icon-history.webp', url: 'historique.html' },
     { name: 'Blog', icon: 'icon-blog.webp', url: 'blog.html' },
     { name: 'Infos sport', icon: 'icon-infos.webp', url: 'infos.html' },
     { name: 'Conseils', icon: 'icon-conseils.webp', url: 'conseils.html' },
@@ -31,7 +31,7 @@
   const bottomItems = [
     { name: 'Accueil', icon: 'icon-home.webp', url: 'index.html' },
     { name: 'Pronostics', icon: 'icon-pronostics.webp', url: 'pronos.html' },
-    { name: 'Historique', icon: 'icon-history.webp', url: 'historique.html' },
+    { name: 'Résultats', icon: 'icon-history.webp', url: 'historique.html' },
     { name: 'Bonus', icon: 'icon-bonus.webp', url: 'bonus.html' },
     { name: 'Menu', icon: 'icon-menu.webp', action: 'menu' }
   ];
