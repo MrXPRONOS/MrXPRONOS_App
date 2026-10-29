@@ -115,12 +115,93 @@ class PublicBuildTest(TestCase):
             output = root / "_public_site"
             self.assertNotIn("assistant.js", (output / "index.html").read_text())
             self.assertNotIn("assistant.js", (output / "pronos.html").read_text())
-            self.assertTrue((output / "assets/js/assistant.js").exists())
-            self.assertIn("noindex, nofollow", (output / "live.html").read_text())
+            self.assertFalse((output / "assets/js/assistant.js").exists())
+            self.assertFalse((output / "live.html").exists())
             self.assertEqual(live.read_text(encoding="utf-8"), old_live_source)
             sitemap = (output / "sitemap.xml").read_text()
             self.assertNotIn("prono-live/", sitemap)
             self.assertIn("pronos.html", sitemap)
+
+    def test_public_artifact_excludes_admin_telemetry_and_generator_prompts(self):
+        with TemporaryDirectory() as temp:
+            root = Path(temp)
+            for name in ("index.html", "pronos.html", "admin.html",
+                         "admin-supervision.html", "telegram-analytics.html",
+                         "live.html", "threads-callback.html"):
+                (root / name).write_text(
+                    '<html><script src="assets/js/web-vitals-monitor.js?v=old"></script></html>',
+                    encoding="utf-8",
+                )
+            js = root / "assets/js"
+            css = root / "assets/css"
+            js.mkdir(parents=True)
+            css.mkdir(parents=True)
+            for name in ("main.js", "cms-url-guard.mjs", "assistant.js",
+                         "actu-foot-neon.js", "admin-real.js", "web-vitals-monitor.js"):
+                (js / name).write_text("console.log('source unchanged')", encoding="utf-8")
+            for name in ("style.css", "admin-premium.css", "live-premium.css"):
+                (css / name).write_text("body { color: white }", encoding="utf-8")
+            (root / "footnews.json").write_text(json.dumps([{
+                "title": "Football", "summary": "Une actualité", "source": "Journal sportif",
+                "source_url": "https://example.org/football",
+                "espn_verification": {"url": "https://www.espn.com/"},
+                "quality_sources": [{"provider": "internal", "token": "hidden"}],
+                "source_feed": "internal", "editorial_score": 99, "telegram_summary": "draft",
+                "provider": {"private": "secret"}, "raw_data": {"secret": True},
+            }]), encoding="utf-8")
+            (root / "evergreen_topics.json").write_text(
+                json.dumps({"topics": [{"angle": "INTERNAL GENERATOR PROMPT"}]}),
+                encoding="utf-8",
+            )
+            (root / "historical_scores.json").write_text("[]", encoding="utf-8")
+            (root / "articles.json").write_text(json.dumps([{
+                "slug": "public-article", "title": "Article public", "content": "Contenu",
+                "internal_notes": "private", "source_feed": "internal",
+                "editorial_score": 42, "author": "Mr XPRONOS",
+            }, {
+                "slug": "draft", "title": "Brouillon caché", "active": False,
+                "internal_notes": "private",
+            }]), encoding="utf-8")
+            (root / "data.json").write_text(json.dumps({"matches": [{
+                "id": "match-1", "category": "pro",
+                "prediction": {"type": "1X", "confidence": 82},
+            }]}), encoding="utf-8")
+            old_root = module.ROOT
+            try:
+                module.ROOT = root
+                module.stage_site(root / "_public_site", None)
+            finally:
+                module.ROOT = old_root
+            output = root / "_public_site"
+            for name in ("admin.html", "admin-supervision.html", "telegram-analytics.html",
+                         "live.html", "threads-callback.html", "evergreen_topics.json",
+                         "historical_scores.json"):
+                self.assertFalse((output / name).exists(), name)
+            for name in ("assistant.js", "actu-foot-neon.js", "admin-real.js",
+                         "web-vitals-monitor.js"):
+                self.assertFalse((output / "assets/js" / name).exists(), name)
+            self.assertTrue((output / "assets/js/cms-url-guard.mjs").exists())
+            self.assertTrue((output / "assets/css/style.css").exists())
+            self.assertFalse((output / "assets/css/admin-premium.css").exists())
+            self.assertFalse((output / "assets/css/live-premium.css").exists())
+            self.assertNotIn("web-vitals-monitor.js",
+                             (output / "index.html").read_text(encoding="utf-8"))
+            self.assertEqual((root / "evergreen_topics.json").read_text(encoding="utf-8"),
+                             json.dumps({"topics": [{"angle": "INTERNAL GENERATOR PROMPT"}]}))
+            news = json.loads((output / "footnews.json").read_text(encoding="utf-8"))[0]
+            self.assertEqual(news["source"], "Journal sportif")
+            self.assertEqual(news["source_url"], "https://example.org/football")
+            for private_key in ("espn_verification", "quality_sources", "source_feed",
+                                "editorial_score", "telegram_summary", "provider",
+                                "raw_data"):
+                self.assertNotIn(private_key, news)
+            articles = json.loads((output / "articles.json").read_text(encoding="utf-8"))
+            self.assertEqual(len(articles), 1)
+            self.assertEqual(articles[0]["title"], "Article public")
+            self.assertNotIn("internal_notes", articles[0])
+            self.assertNotIn("source_feed", articles[0])
+            self.assertNotIn("editorial_score", articles[0])
+            self.assertTrue((root / "admin.html").exists())
 
     def test_public_navigation_no_longer_promotes_paused_live(self):
         root = Path(__file__).resolve().parents[1]
@@ -276,7 +357,7 @@ class PublicBuildTest(TestCase):
                 module.ROOT = original_root
             result = root / "_public_site"
             self.assertTrue((result / "index.html").exists())
-            self.assertTrue((result / "live.html").exists())
+            self.assertFalse((result / "live.html").exists())
             self.assertTrue((result / "assets/images/footnews/legacy.webp").exists())
             self.assertFalse((result / "bsd").exists())
             self.assertFalse((result / "model_meta.json").exists())
