@@ -1,7 +1,9 @@
 """Public navigation and factual football analysis redesign regressions."""
 import importlib.util
+import json
 import re
 import unittest
+from tempfile import TemporaryDirectory
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -125,6 +127,56 @@ class EditorialNavigationTests(unittest.TestCase):
             current, datetime(2026, 10, 30, 17, tzinfo=timezone.utc), history=[])
         self.assertIn("moins de trois résultats vérifiés", missing["content"])
         self.assertIn("Moins de deux confrontations", missing["content"])
+
+    def test_old_verified_fixture_is_enriched_without_rewriting_identity(self):
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "bsd").mkdir()
+            previous = {
+                "slug": "bsd-match-1234", "type": "match", "source": "bsd",
+                "bsd_event_id": "1234", "date": "2026-09-30T12:00:00Z",
+                "title": "Togo vs Ghana : analyse du match", "league": "Coupe test",
+                "image_url": "assets/images/editorial/original.webp",
+                "content": "# Togo – Ghana\\n**Marché identifié :** 1X.",
+            }
+            fixture = {
+                "id": 1234, "status": "finished",
+                "event_date": "2026-10-01T18:00:00+00:00",
+                "home_team": {"id": 12, "name": "Togo"},
+                "away_team": {"id": 13, "name": "Ghana"},
+                "home_score": 1, "away_score": 0,
+            }
+            past = [
+                {"id": 1, "status": "finished",
+                 "event_date": "2026-09-25T12:00:00+00:00",
+                 "home_team_id": "12", "away_team_id": "13",
+                 "home_score": "2", "away_score": "0"},
+                {"id": 2, "status": "finished",
+                 "event_date": "2026-09-12T12:00:00+00:00",
+                 "home_team_id": 13, "away_team_id": 12,
+                 "home_score": 1, "away_score": 1},
+                {"id": 3, "status": "finished",
+                 "event_date": "2026-09-01T12:00:00+00:00",
+                 "home_team_id": 12, "away_team_id": 99,
+                 "home_score": 3, "away_score": 1},
+            ]
+            (root / "bsd/all_matches_bsd.json").write_text(
+                json.dumps([fixture] + past), encoding="utf-8")
+            (root / "articles.json").write_text(json.dumps([previous]), encoding="utf-8")
+            (root / "data.json").write_text(json.dumps({
+                "source": "bsd", "model_version": "bsd-v2-isolated", "matches": []
+            }), encoding="utf-8")
+            report = editorial.run(root=root, now=datetime(
+                2026, 10, 30, 18, tzinfo=timezone.utc))
+            self.assertEqual(report["enriched_existing"], 1)
+            rows = json.loads((root / "articles.json").read_text(encoding="utf-8"))
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(rows[0]["slug"], previous["slug"])
+            self.assertEqual(rows[0]["date"], previous["date"])
+            self.assertEqual(rows[0]["image_url"], previous["image_url"])
+            self.assertIn("Sur 2 confrontations terminées vérifiées", rows[0]["content"])
+            self.assertIn("2 victoire(s)", rows[0]["content"])
+            self.assertNotIn("Sélection Pro/VIP publiée", rows[0]["content"])
 
     def test_old_articles_get_honest_structure_without_prematch_backdating(self):
         article = {
