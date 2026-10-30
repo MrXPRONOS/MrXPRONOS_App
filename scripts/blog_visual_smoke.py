@@ -105,9 +105,13 @@ def run_view(browser, width, height, label):
       "icon-blog-news.webp", "icon-blog-analysis.webp", "icon-blog-tips.webp",
       "icon-blog-competitions.webp", "icon-blog-search.webp", "icon-blog-category.webp"
     ]
-    image_health = page.locator("img[src*='blog-premium/']").evaluate_all("""imgs => imgs.map(img => ({
-      src: img.getAttribute('src'), ok: img.complete && img.naturalWidth > 0,
-      width: img.naturalWidth, height: img.naturalHeight
+    # Browsers intentionally defer loading off-screen images (loading="lazy").
+    # Request their decode explicitly before asserting whether an asset is broken.
+    image_health = page.locator("img[src*='blog-premium/']").evaluate_all("""async imgs => await Promise.all(imgs.map(async img => {
+      img.loading = 'eager';
+      try { await img.decode(); } catch (_) {}
+      return {src: img.getAttribute('src'), ok: img.complete && img.naturalWidth > 0,
+        width: img.naturalWidth, height: img.naturalHeight};
     }))""")
     broken=[item for item in image_health if not item["ok"]]
     if broken:
