@@ -83,8 +83,19 @@ def check_standard(browser, path, active_label, width, height):
     active=page.locator(".mx-desktop-nav a.active")
     if active.count()!=1:
         raise AssertionError(f"{label}: expected exactly one active nav item")
-    if active.inner_text().strip()!=active_label:
-        raise AssertionError(f"{label}: active nav {active.inner_text()!r}, expected {active_label!r}")
+    # An active destination under <details> is deliberately collapsed by default.
+    # Read its DOM text, not inner_text() (which is empty while hidden).
+    active_text = (active.text_content() or "").strip()
+    if active_text != active_label:
+        raise AssertionError(f"{label}: active nav {active_text!r}, expected {active_label!r}")
+    if active_label in ("Conseils", "Bonus & Promo", "Contact") and width > 900:
+        more = page.locator(".mx-nav-more")
+        if more.count()!=1:
+            raise AssertionError(f"{label}: missing Plus menu")
+        more.locator("summary").click()
+        if not active.is_visible():
+            raise AssertionError(f"{label}: active link inaccessible in Plus menu")
+        more.locator("summary").click()
 
     promo=page.locator(".mx-code-button")
     if promo.count()!=1:
