@@ -499,6 +499,8 @@ def factual_article(match,now,history=None):
     confidence=(pred or {}).get("confidence") if isinstance(pred,dict) else None
     eligible=(match.get("category") in {"pro","vip"} and
         match.get("recommendation_eligible") is True and not final and
+        dt>now.astimezone(timezone.utc) and not match.get("combo_only") and
+        not match.get("retired_by_policy") and
         isinstance(pred,dict) and pred.get("recommendation_eligible") is not False and
         bool(pred.get("selection_key")) and
         isinstance(confidence,(int,float)) and not isinstance(confidence,bool) and
