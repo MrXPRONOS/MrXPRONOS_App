@@ -236,7 +236,9 @@
 
     // Live possède déjà ses contrôles mobiles dédiés. Le menu reste accessible
     // via la barre inférieure, sans ajouter un quatrième bouton dans son header.
-    if (header && !document.body.classList.contains('mx-live-page')) {
+    // The bottom Menu is the single mobile trigger on visitor pages.
+    // Keep a header fallback only when a bottom navigation cannot be created.
+    if (header && !bottomNav && !document.body.classList.contains('mx-live-page')) {
       burgerBtn = createBurgerButton();
       if (!burgerBtn.isConnected) {
         const actions = header.querySelector('.header-actions');
