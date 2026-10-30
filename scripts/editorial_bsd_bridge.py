@@ -68,6 +68,29 @@ def badge_url(match,side):
 def clean(value):
     return re.sub(r"\s+"," ",str(value or "")).strip()
 
+def _archive_team_id(item, side):
+    team=item.get(side+"_team")
+    raw=item.get(side+"_team_id")
+    if raw is None and isinstance(team,dict):
+        raw=team.get("id")
+    try:
+        value=int(raw)
+        return value if value>0 and str(raw).strip().isascii() and str(raw).strip().isdigit() else None
+    except (ValueError,TypeError):
+        return None
+
+
+def _archive_score(value):
+    if isinstance(value,bool):
+        return None
+    if isinstance(value,int):
+        return value if 0<=value<=30 else None
+    if isinstance(value,str) and value.strip().isascii() and value.strip().isdigit():
+        score=int(value.strip())
+        return score if 0<=score<=30 else None
+    return None
+
+
 def _past_verified_results(match, history, now):
     """Anonymized, read-only sporting context from completed archive fixtures.
 
@@ -79,11 +102,8 @@ def _past_verified_results(match, history, now):
     if cutoff is None or not isinstance(history,list):
         return {"home": [], "away": [], "meetings": []}
     cutoff = min(cutoff, now.astimezone(timezone.utc))
-    try:
-        home_id, away_id = int(match["home_team_id"]), int(match["away_team_id"])
-    except (KeyError, ValueError, TypeError):
-        return {"home": [], "away": [], "meetings": []}
-    if home_id <= 0 or away_id <= 0 or home_id == away_id:
+    home_id, away_id = _archive_team_id(match,"home"), _archive_team_id(match,"away")
+    if not home_id or not away_id or home_id == away_id:
         return {"home": [], "away": [], "meetings": []}
     collected={"home": [], "away": [], "meetings": []}
     seen=set()
@@ -93,18 +113,12 @@ def _past_verified_results(match, history, now):
         raw_id=item.get("id")
         if raw_id is None or str(raw_id) in seen:
             continue
-        try:
-            hid=int(item["home_team_id"])
-            aid=int(item["away_team_id"])
-            score_h=item["home_score"]
-            score_a=item["away_score"]
-            if (not isinstance(score_h,int) or isinstance(score_h,bool)
-                or not isinstance(score_a,int) or isinstance(score_a,bool)
-                or score_h<0 or score_a<0):
-                continue
-            played=kickoff(item)
-        except (KeyError, ValueError, TypeError):
+        hid,aid=_archive_team_id(item,"home"),_archive_team_id(item,"away")
+        score_h=_archive_score(item.get("home_score"))
+        score_a=_archive_score(item.get("away_score"))
+        if hid is None or aid is None or score_h is None or score_a is None:
             continue
+        played=kickoff(item)
         if played is None or played>=cutoff:
             continue
         if (cutoff-played).days > 3*366:
@@ -487,11 +501,8 @@ def factual_article(match,now,history=None):
         isinstance(away_score,int) and not isinstance(away_score,bool))
     history_rows=_past_verified_results(match,history,now)
     can_compare=bool(history_rows["home"] or history_rows["away"])
-    try:
-        home_id=int(match.get("home_team_id") or 0)
-        away_id=int(match.get("away_team_id") or 0)
-    except (ValueError,TypeError):
-        home_id=away_id=0
+    home_id=_archive_team_id(match,"home") or 0
+    away_id=_archive_team_id(match,"away") or 0
     form_home=_form_sentence(h,home_id,history_rows["home"])
     form_away=_form_sentence(a,away_id,history_rows["away"])
     h2h_line=_h2h_sentence(h,a,home_id,history_rows["meetings"])
