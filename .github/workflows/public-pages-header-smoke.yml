@@ -19,6 +19,21 @@ on:
       - 'assets/css/**'
       - 'scripts/public_pages_header_smoke.py'
       - '.github/workflows/public-pages-header-smoke.yml'
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'pronos.html'
+      - 'historique.html'
+      - 'blog.html'
+      - 'conseils.html'
+      - 'conseil.html'
+      - 'article.html'
+      - 'infos.html'
+      - 'bonus.html'
+      - 'contact.html'
+      - 'bookmakers.html'
+      - 'assets/css/**'
+      - 'scripts/public_pages_header_smoke.py'
   workflow_dispatch:
 
 permissions:

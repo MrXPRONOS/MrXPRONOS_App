@@ -226,6 +226,65 @@ def clean_match_article_text(value: str) -> str:
     return text
 
 
+def structure_legacy_match_article(article: dict) -> str:
+    """Improve presentation of historic match briefs without inventing evidence.
+
+    The source article predates the structured editorial format; any market
+    mentioned is described as a historical mention, not as a verified pick.
+    """
+    original = clean_match_article_text(article.get("content") or "")
+    if "## 1. Présentation de la rencontre" in original:
+        return original
+    title = str(article.get("match") or article.get("title") or "Rencontre de football")
+    league = str(article.get("league") or "Compétition non précisée")
+    def original_fact(pattern: str) -> str:
+        match = re.search(pattern, original, flags=re.I | re.M)
+        return match.group(1).strip() if match else ""
+    when = original_fact(r"\*\*Date et heure\s*:\*\*\s*([^\n]+)")
+    score = original_fact(r"\*\*Score final\s*:\*\*\s*([^\n]+)")
+    old_market = original_fact(r"\*\*Marché identifié\s*:\*\*\s*([^\n]+)")
+    parts = [
+        "## 1. Présentation de la rencontre",
+        f"**Match :** {title}.",
+        f"**Compétition :** {league}.",
+        f"**Date et heure :** {when}" if when else
+            "La date précise du match n'est pas indiquée dans cette fiche.",
+        "",
+        "## 2. Contexte et enjeux",
+        "Cette affiche s'inscrit dans la compétition citée ci-dessus. "
+        "Les enjeux de classement ou de qualification ne sont pas documentés ici.",
+        "",
+        "## 3. Forme récente",
+        "Les résultats récents vérifiés de chaque équipe ne figurent pas dans cette fiche.",
+        "",
+        "## 4. Confrontations directes",
+        "Aucun historique de confrontations fiable n'a été conservé dans cette fiche.",
+        "",
+        "## 5. Statistiques clés",
+        f"**Score final indiqué dans la fiche initiale :** {score}" if score else
+            "Cette fiche ne comporte pas de score final confirmé.",
+        "Les statistiques de tirs, de corners et de possession ne sont pas suffisamment étayées.",
+        "",
+        "## 6. Points de vigilance",
+        "Les conclusions fondées sur la forme récente ou les confrontations "
+        "seraient spéculatives sans données complémentaires vérifiées.",
+        "",
+        "## 7. Notre lecture",
+        "Cette présentation reprend uniquement les faits conservés dans "
+        "la fiche initiale : rencontre, compétition, date et score lorsqu'ils sont renseignés.",
+        "",
+        "## 8. Pronostic associé",
+        (f"**Marché mentionné dans la fiche d'origine :** {old_market} "
+         "Cette mention ne prouve pas qu'un pronostic a été publié avant le coup d'envoi."
+         if old_market else
+         "Aucun pronostic pré-match vérifiable n'est présenté dans cette fiche."),
+        "Vérifiez les résultats et les preuves de publication dans la rubrique Résultats.",
+        "",
+        "**18+ — Les paris sportifs comportent un risque de perte.**",
+    ]
+    return "\n".join(parts)
+
+
 def prepare_public_editorial_media(destination: Path):
     """Provide clean public media aliases without breaking previously shared image URLs."""
     editorial = destination / "assets/images/editorial"
@@ -293,6 +352,9 @@ def prepare_public_articles(destination: Path):
             for field in ("title", "excerpt", "meta_description", "keywords", "content"):
                 if isinstance(row.get(field), str):
                     row[field] = clean_match_article_text(row[field])
+            if row.get("type") == "match":
+                row["content"] = structure_legacy_match_article(row)
+                row["reading_time"] = max(1, (len(row["content"].split()) + 199) // 200)
             for image_field in ("image_url", "social_image", "story_image", "og_image", "ab_image_url"):
                 if isinstance(row.get(image_field), str):
                     row[image_field] = row[image_field].replace(

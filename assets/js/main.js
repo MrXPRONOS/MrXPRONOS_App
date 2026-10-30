@@ -2162,24 +2162,14 @@ window.closeArticleModal = function () {
 };
 
 function blogArticleCategory(article = {}) {
-  const haystack = [
-    article.title,
-    article.keywords,
-    article.type,
-    article.topic_id,
-    article.category,
-  ].filter(Boolean).join(" ").toLowerCase();
-
-  if (/transfert|mercato|recrutement|signature|prêt|pret/.test(haystack)) return "Transferts";
-  if (/règlement|reglement|règle|regle|var|arbitrage|fair.?play/.test(haystack)) return "Règlement";
-  if (/calendrier|programme|programmation|horaire|journée|journee/.test(haystack)) return "Calendrier";
-  if (/championnat|compétition|competition|coupe|ligue|tournoi/.test(haystack)) return "Compétitions";
-  if (/actualité|actualite|news|annonce|officiel|breaking/.test(haystack)) return "Actualités";
-  if (/erreur|début|debut|conseil|guide|psychologie|astuce/.test(haystack)) return "Conseils";
-  if (/tendance|saison|forme|serie|série/.test(haystack)) return "Tendances";
-  if (/statistique|xg|donnée|donnee|décrypt|decrypt|analyse|tactique/.test(haystack)) return "Analyses";
-  if (/bankroll|gestion|mise|discipline|budget|stratégie|strategie/.test(haystack)) return "Conseils";
-  return "Analyses";
+  const kind = String(article.type || "").toLowerCase();
+  const specified = String(article.category || "").toLowerCase();
+  if (kind === "match" || specified === "matchs") return "Matchs";
+  if (/comp[eé]tition|championnat|tournoi|coupe|calendrier/.test(specified)) return "Compétitions";
+  if (/d[eé]cryptage|analyse|tactique/.test(specified)) return "Décryptages";
+  const title = String(article.title || "").toLowerCase();
+  if (/histoire d'une comp[eé]tition|format d'une coupe|fonctionnement d'un championnat/.test(title)) return "Compétitions";
+  return "Décryptages";
 }
 
 function blogCategoryIcon(category = "") {
@@ -2187,6 +2177,8 @@ function blogCategoryIcon(category = "") {
   const icons = {
     "Actualités": "icon-blog-news.webp",
     "Analyses": "icon-blog-analysis.webp",
+    "Matchs": "icon-blog-analysis.webp",
+    "Décryptages": "icon-blog-tips.webp",
     "Conseils": "icon-blog-tips.webp",
     "Tendances": "icon-blog-trending.webp",
     "Calendrier": "icon-blog-schedule.webp",
@@ -2197,92 +2189,150 @@ function blogCategoryIcon(category = "") {
   return base + (icons[category] || "icon-blog-category.webp");
 }
 
-const blogViewState = { category: "Tous", query: "" };
+
+const blogViewState = { category: "Tous", query: "", sort: "recent", visible: 9 };
+
+function sortBlogArticles(rows) {
+  const sorted = [...rows];
+  if (blogViewState.sort === "competition") {
+    sorted.sort((a, b) => String(a.article.league || a.article.category || "").localeCompare(
+      String(b.article.league || b.article.category || ""), "fr"
+    ) || new Date(b.article.date || 0) - new Date(a.article.date || 0));
+  } else {
+    const direction = blogViewState.sort === "oldest" ? 1 : -1;
+    sorted.sort((a, b) => direction * (new Date(a.article.date || 0) - new Date(b.article.date || 0)));
+  }
+  return sorted;
+}
+
+function renderBlogFeatured() {
+  const node = document.getElementById("blog-featured");
+  if (!node) return "";
+  const all = Array.isArray(window.articlesData) ? window.articlesData : [];
+  const show = blogViewState.category === "Tous" && !blogViewState.query.trim()
+    && blogViewState.sort === "recent" && all.length > 1;
+  if (!show) { node.hidden = true; node.innerHTML = ""; return ""; }
+  const article = [...all].sort((a,b) =>
+    new Date(b.date || b.published_at || 0) - new Date(a.date || a.published_at || 0))[0];
+  const slug = String(article.slug || "");
+  if (!slug) { node.hidden = true; return ""; }
+  const title = stripMarkdown(article.title || "Analyse du match");
+  const league = publicFootballLabel(article.league || "Football", "Football");
+  const excerpt = stripMarkdown(article.excerpt || article.meta_description || "").slice(0, 230);
+  const image = String(article.image_url || "assets/images/blog-premium/hero-blog.webp");
+  const href = "article.html?slug=" + encodeURIComponent(slug);
+  node.innerHTML = '<a class="mx-featured-analysis-card" href="' + escapeAttribute(href) + '">'
+    + '<img src="' + escapeAttribute(image) + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'assets/images/blog-premium/hero-blog.webp\';">'
+    + '<div class="mx-featured-analysis-copy"><span class="mx-featured-label">À LA UNE · ANALYSE DU MATCH</span>'
+    + '<span class="mx-featured-league">' + escapeHtml(league) + '</span>'
+    + '<h2>' + escapeHtml(title) + '</h2><p>' + escapeHtml(excerpt) + '</p>'
+    + '<span class="mx-featured-action">Lire l’analyse complète <span aria-hidden="true">→</span></span></div></a>';
+  node.hidden = false;
+  return slug;
+}
 
 function renderBlogPremiumCards() {
   if (!DOM.blogList) return;
-  const allArticles = Array.isArray(window.articlesData) ? window.articlesData : [];
-  const query = blogViewState.query.trim().toLowerCase();
-
-  const visible = allArticles
-    .map((article, originalIndex) => ({ article, originalIndex }))
+  const all = Array.isArray(window.articlesData) ? window.articlesData : [];
+  const query = blogViewState.query.trim().toLocaleLowerCase("fr");
+  const pinnedSlug = renderBlogFeatured();
+  const matches = sortBlogArticles(all.map((article, originalIndex) => ({ article, originalIndex }))
     .filter(({ article }) => {
+      if (pinnedSlug && article.slug === pinnedSlug) return false;
       const category = blogArticleCategory(article);
       if (blogViewState.category !== "Tous" && category !== blogViewState.category) return false;
       if (!query) return true;
-      const haystack = [
-        article.title,
-        article.meta_description,
-        article.excerpt,
-        article.content,
-        article.keywords,
-        category,
-      ].filter(Boolean).join(" ").toLowerCase();
-      return haystack.includes(query);
-    });
-
+      return [article.title, article.excerpt, article.meta_description, article.league,
+        article.match, article.content, article.keywords, category]
+        .filter(Boolean).join(" ").toLocaleLowerCase("fr").includes(query);
+    }));
+  const shown = matches.slice(0, blogViewState.visible);
   const countNode = document.getElementById("blog-visible-count");
-  if (countNode) countNode.textContent = `${visible.length} article${visible.length > 1 ? "s" : ""}`;
-
-  DOM.blogList.innerHTML =
-    visible.map(({ article, originalIndex }) => {
-      const title = stripMarkdown(article.title || "Article");
-      const excerpt = stripMarkdown(
-        article.meta_description || article.excerpt || article.content || ""
-      ).replace(title, "").trim().slice(0, 175);
-      const category = blogArticleCategory(article);
-      const date = formatBlogDate(article.date || article.published_at);
-      const categoryIcon = blogCategoryIcon(category);
-      const image = editorialAbCover("article",article) || "assets/images/blog-premium/hero-blog.webp";
-      const abVariant = editorialAbVariant("article",article);
-
-      return `
-        <article class="blog-premium-card" role="button" tabindex="0"
-          data-blog-category="${escapeAttribute(category)}"
-          data-ab-kind="article" data-ab-slug="${escapeAttribute(article.slug || "")}" data-ab-variant="${abVariant}"
-          aria-label="Lire l'article ${escapeAttribute(title)}"
-          onclick="showArticleDetail(${originalIndex})"
-          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showArticleDetail(${originalIndex})}">
-          <div class="blog-card-media">
-            <img src="${escapeAttribute(image)}" alt="${escapeAttribute(title)}" loading="lazy"
-              onerror="this.onerror=null;this.src='assets/images/blog-premium/hero-blog.webp';">
-            <span class="blog-card-category"><img src="${categoryIcon}" alt="" aria-hidden="true">${escapeHtml(category)}</span>
-            <span class="blog-card-date">${escapeHtml(date)}</span>
-          </div>
-          <div class="blog-card-body">
-            <div class="blog-card-meta"><img src="${categoryIcon}" alt="" aria-hidden="true"><span>${escapeHtml(category)}</span></div>
-            <h3>${escapeHtml(title)}</h3>
-            <p>${escapeHtml(excerpt)}${excerpt.length >= 175 ? "…" : ""}</p>
-            <span class="blog-card-cta">Lire l'article <span aria-hidden="true">›</span></span>
-          </div>
-        </article>
-      `;
-    }).join("") ||
-    '<div class="no-events">Aucun article ne correspond à votre recherche.</div>';
+  if (countNode) {
+    const total = matches.length + (pinnedSlug ? 1 : 0);
+    countNode.textContent = total + (total > 1 ? " analyses" : " analyse");
+  }
+  const loadMore = document.getElementById("blog-load-more");
+  if (loadMore) {
+    loadMore.hidden = matches.length <= blogViewState.visible;
+    loadMore.textContent = "Afficher plus d’analyses (" + Math.max(0, matches.length - blogViewState.visible) + ")";
+  }
+  DOM.blogList.innerHTML = shown.map(({ article, originalIndex }) => {
+    const title = stripMarkdown(article.title || "Analyse de football");
+    const excerpt = stripMarkdown(article.meta_description || article.excerpt || article.content || "")
+      .replace(title, "").trim().slice(0, 155);
+    const category = blogArticleCategory(article);
+    const date = formatBlogDate(article.date || article.published_at);
+    const icon = blogCategoryIcon(category);
+    const image = editorialAbCover("article", article) || "assets/images/blog-premium/hero-blog.webp";
+    const variant = editorialAbVariant("article", article);
+    const league = publicFootballLabel(article.league || "Football", "Football");
+    const href = article.slug ? "article.html?slug=" + encodeURIComponent(article.slug)
+      : "article.html?article=" + originalIndex;
+    return '<article class="blog-premium-card" role="button" tabindex="0"'
+      + ' data-blog-category="' + escapeAttribute(category) + '"'
+      + ' data-ab-kind="article" data-ab-slug="' + escapeAttribute(article.slug || "") + '"'
+      + ' data-ab-variant="' + escapeAttribute(variant) + '"'
+      + ' aria-label="Lire l’analyse ' + escapeAttribute(title) + '"'
+      + ' onclick="showArticleDetail(' + originalIndex + ')"'
+      + ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();showArticleDetail(' + originalIndex + ')}">'
+      + '<div class="blog-card-media"><img src="' + escapeAttribute(image) + '" alt="' + escapeAttribute(title)
+      + '" loading="lazy" onerror="this.onerror=null;this.src=\'assets/images/blog-premium/hero-blog.webp\';">'
+      + '<span class="blog-card-category"><img src="' + icon + '" alt="" aria-hidden="true">' + escapeHtml(category) + '</span>'
+      + '<span class="blog-card-date">' + escapeHtml(date) + '</span></div>'
+      + '<div class="blog-card-body"><span class="mx-blog-league">' + escapeHtml(league) + '</span>'
+      + '<h3>' + escapeHtml(title) + '</h3><p>' + escapeHtml(excerpt) + (excerpt.length >= 155 ? "…" : "") + '</p>'
+      + '<a class="blog-card-cta" href="' + escapeAttribute(href) + '" onclick="event.stopPropagation()">'
+      + 'Lire l’analyse <span aria-hidden="true">›</span></a></div></article>';
+  }).join("") || '<div class="no-events">Aucune analyse ne correspond à votre recherche.</div>';
   observeEditorialAbCards(DOM.blogList);
 }
 
 function setupBlogPremiumControls() {
   const search = document.getElementById("blog-search");
   const filters = Array.from(document.querySelectorAll("[data-blog-filter]"));
-
+  const sorter = document.getElementById("blog-sort");
+  const more = document.getElementById("blog-load-more");
+  const categories = new Set((window.articlesData || []).map(blogArticleCategory));
+  filters.forEach((button) => {
+    const category = button.dataset.blogFilter || "Tous";
+    button.hidden = category !== "Tous" && !categories.has(category);
+    if (button.dataset.blogReady === "1") return;
+    button.dataset.blogReady = "1";
+    button.addEventListener("click", () => {
+      blogViewState.category = category;
+      blogViewState.visible = 9;
+      filters.forEach((node) => {
+        node.classList.toggle("is-active", node === button);
+        node.setAttribute("aria-pressed", String(node === button));
+      });
+      renderBlogPremiumCards();
+    });
+    button.setAttribute("aria-pressed", String(category === "Tous"));
+  });
   if (search && search.dataset.blogReady !== "1") {
     search.dataset.blogReady = "1";
     search.addEventListener("input", () => {
       blogViewState.query = search.value || "";
+      blogViewState.visible = 9;
       renderBlogPremiumCards();
     });
   }
-
-  filters.forEach((button) => {
-    if (button.dataset.blogReady === "1") return;
-    button.dataset.blogReady = "1";
-    button.addEventListener("click", () => {
-      blogViewState.category = button.dataset.blogFilter || "Tous";
-      filters.forEach((node) => node.classList.toggle("is-active", node === button));
+  if (sorter && sorter.dataset.blogReady !== "1") {
+    sorter.dataset.blogReady = "1";
+    sorter.addEventListener("change", () => {
+      blogViewState.sort = sorter.value || "recent";
+      blogViewState.visible = 9;
       renderBlogPremiumCards();
     });
-  });
+  }
+  if (more && more.dataset.blogReady !== "1") {
+    more.dataset.blogReady = "1";
+    more.addEventListener("click", () => {
+      blogViewState.visible += 9;
+      renderBlogPremiumCards();
+    });
+  }
 }
 
 function formatBlogDate(value) {
@@ -2419,13 +2469,39 @@ async function displayBlogPost() {
   const title = stripMarkdown(article.title || "Article");
   const contentHtml = renderSafeRichContent(article.content || "");
 
-  DOM.blogPost.innerHTML = `
-    <article class="card article-page-card">
-      <img src="${escapeAttribute(article.image_url || "assets/images/default-logo.png")}" alt="${escapeAttribute(title)}" class="news-image" loading="lazy">
-      <h1>${escapeHtml(title)}</h1>
-      <div class="article-content">${contentHtml}</div>
-    </article>
-  `;
+  const related = allArticles
+    .filter((candidate) => candidate !== article && candidate.slug && candidate.active !== false)
+    .sort((a, b) =>
+      Number(Boolean(article.league && b.league === article.league))
+      - Number(Boolean(article.league && a.league === article.league))
+      || new Date(b.date || 0) - new Date(a.date || 0))
+    .slice(0, 3);
+  const relatedHtml = related.map((candidate) => {
+    const href = "article.html?slug=" + encodeURIComponent(candidate.slug);
+    return '<a href="' + escapeAttribute(href) + '" class="mx-related-card">'
+      + '<strong>' + escapeHtml(stripMarkdown(candidate.title || "Autre analyse")) + '</strong>'
+      + '<small>' + escapeHtml(publicFootballLabel(candidate.league || "Football", "Football")) + '</small></a>';
+  }).join("");
+  const published = formatBlogDate(article.date || article.published_at);
+  const league = publicFootballLabel(article.league || "Football", "Football");
+  const readingTime = Math.max(1, Number(article.reading_time) || Math.ceil(
+    stripMarkdown(article.content || "").split(/\s+/).filter(Boolean).length / 210));
+  DOM.blogPost.innerHTML =
+    '<nav class="mx-reader-breadcrumb" aria-label="Fil de navigation"><a href="index.html">Accueil</a>'
+    + '<span aria-hidden="true">›</span><a href="blog.html">Analyses</a>'
+    + '<span aria-hidden="true">›</span><span aria-current="page">Lecture</span></nav>'
+    + '<article class="card article-page-card mx-reader-article">'
+    + '<div class="mx-reader-meta"><span>' + escapeHtml(league) + '</span>'
+    + '<span>' + escapeHtml(published) + '</span>'
+    + '<span>' + readingTime + ' min de lecture</span></div>'
+    + '<h1>' + escapeHtml(title) + '</h1>'
+    + '<img src="' + escapeAttribute(article.image_url || "assets/images/default-logo.webp")
+    + '" alt="' + escapeAttribute(title) + '" class="news-image" loading="lazy">'
+    + '<div class="article-content">' + contentHtml + '</div>'
+    + '<div class="mx-reader-disclaimer">Cette analyse est informative et ne constitue pas une promesse de gain. Les paris comportent un risque de perte.</div>'
+    + '</article>'
+    + (relatedHtml ? '<section class="mx-related-section" aria-label="Analyses similaires">'
+      + '<h2>À lire également</h2><div class="mx-related-grid">' + relatedHtml + '</div></section>' : '');
 
   updateArticleSeo(article, article.slug || slug || "");
   const titleMeta = document.getElementById("article-title");
@@ -2579,13 +2655,23 @@ async function displayConseilPost() {
   const title = stripMarkdown(conseil.title || "Conseil");
   const contentHtml = renderSafeRichContent(conseil.content || "");
 
-  DOM.conseilPost.innerHTML = `
-    <article class="card article-page-card">
-      <img src="${escapeAttribute(conseil.image_url || "assets/images/default-logo.png")}" alt="${escapeAttribute(title)}" class="news-image" loading="lazy">
-      <h1>${escapeHtml(title)}</h1>
-      <div class="article-content">${contentHtml}</div>
-    </article>
-  `;
+  const published = formatBlogDate(conseil.date || conseil.published_at);
+  const relatedGuides = conseils.filter((candidate) => candidate !== conseil && candidate.slug)
+    .slice(0, 3).map((candidate) => '<a class="mx-related-card" href="conseil.html?slug='
+      + encodeURIComponent(candidate.slug) + '"><strong>' + escapeHtml(
+        stripMarkdown(candidate.title || "Autre conseil")) + '</strong></a>').join("");
+  DOM.conseilPost.innerHTML =
+    '<nav class="mx-reader-breadcrumb" aria-label="Fil de navigation"><a href="index.html">Accueil</a>'
+    + '<span aria-hidden="true">›</span><a href="conseils.html">Conseils</a>'
+    + '<span aria-hidden="true">›</span><span aria-current="page">Lecture</span></nav>'
+    + '<article class="card article-page-card mx-reader-article"><div class="mx-reader-meta">'
+    + '<span>Guide pratique</span>' + (published ? '<span>' + escapeHtml(published) + '</span>' : '') + '</div>'
+    + '<h1>' + escapeHtml(title) + '</h1>'
+    + '<img src="' + escapeAttribute(conseil.image_url || "assets/images/default-logo.webp")
+    + '" alt="' + escapeAttribute(title) + '" class="news-image" loading="lazy">'
+    + '<div class="article-content">' + contentHtml + '</div></article>'
+    + (relatedGuides ? '<section class="mx-related-section"><h2>Autres guides</h2>'
+      + '<div class="mx-related-grid">' + relatedGuides + '</div></section>' : '');
 
   updateConseilSeo(conseil, conseil.slug || slug || "");
 }

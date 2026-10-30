@@ -68,6 +68,106 @@ def badge_url(match,side):
 def clean(value):
     return re.sub(r"\s+"," ",str(value or "")).strip()
 
+def _archive_team_id(item, side):
+    team=item.get(side+"_team")
+    raw=item.get(side+"_team_id")
+    if raw is None and isinstance(team,dict):
+        raw=team.get("id")
+    try:
+        value=int(raw)
+        return value if value>0 and str(raw).strip().isascii() and str(raw).strip().isdigit() else None
+    except (ValueError,TypeError):
+        return None
+
+
+def _archive_score(value):
+    if isinstance(value,bool):
+        return None
+    if isinstance(value,int):
+        return value if 0<=value<=30 else None
+    if isinstance(value,str) and value.strip().isascii() and value.strip().isdigit():
+        score=int(value.strip())
+        return score if 0<=score<=30 else None
+    return None
+
+
+def _past_verified_results(match, history, now):
+    """Anonymized, read-only sporting context from completed archive fixtures.
+
+    Never count matches at/after target kickoff or at/after generation time;
+    always match teams by original numeric identifiers, not by club names.
+    This is sporting context, NOT historical publication proof.
+    """
+    cutoff = kickoff(match)
+    if cutoff is None or not isinstance(history,list):
+        return {"home": [], "away": [], "meetings": []}
+    cutoff = min(cutoff, now.astimezone(timezone.utc))
+    home_id, away_id = _archive_team_id(match,"home"), _archive_team_id(match,"away")
+    if not home_id or not away_id or home_id == away_id:
+        return {"home": [], "away": [], "meetings": []}
+    collected={"home": [], "away": [], "meetings": []}
+    seen=set()
+    for item in history:
+        if not isinstance(item,dict) or clean(item.get("status")).lower() != "finished":
+            continue
+        raw_id=item.get("id")
+        if raw_id is None or str(raw_id) in seen:
+            continue
+        hid,aid=_archive_team_id(item,"home"),_archive_team_id(item,"away")
+        score_h=_archive_score(item.get("home_score"))
+        score_a=_archive_score(item.get("away_score"))
+        if hid is None or aid is None or score_h is None or score_a is None:
+            continue
+        played=kickoff(item)
+        if played is None or played>=cutoff:
+            continue
+        if (cutoff-played).days > 3*366:
+            continue
+        seen.add(str(raw_id))
+        summary=(played,hid,aid,score_h,score_a)
+        if {hid,aid}=={home_id,away_id}:
+            collected["meetings"].append(summary)
+        if (cutoff-played).days <= 366:
+            if home_id in (hid,aid):collected["home"].append(summary)
+            if away_id in (hid,aid):collected["away"].append(summary)
+    for field in collected:
+        collected[field].sort(key=lambda row: row[0], reverse=True)
+    return collected
+
+
+def _form_sentence(team_name, team_id, rows):
+    rows=rows[:5]
+    if len(rows)<3:
+        return f"{team_name} : moins de trois résultats vérifiés disponibles sur la dernière année."
+    wins=draws=losses=goals_for=goals_against=0
+    for _,hid,aid,hs,aws in rows:
+        gf,ga=(hs,aws) if hid==team_id else (aws,hs)
+        goals_for+=gf
+        goals_against+=ga
+        if gf>ga:wins+=1
+        elif gf<ga:losses+=1
+        else:draws+=1
+    return (f"{team_name} — {len(rows)} derniers matchs vérifiés disponibles : "
+        f"{wins} victoire(s), {draws} nul(s), {losses} défaite(s), "
+        f"{goals_for} but(s) marqué(s), {goals_against} encaissé(s).")
+
+
+def _h2h_sentence(home_name, away_name, home_id, rows):
+    rows=rows[:10]
+    if len(rows)<2:
+        return "Moins de deux confrontations directes confirmées sur les trois dernières années."
+    hwin=draw=awin=0
+    for _,hid,aid,hs,aws in rows:
+        hg,ag=(hs,aws) if hid==home_id else (aws,hs)
+        if hg>ag:hwin+=1
+        elif hg<ag:awin+=1
+        else:draw+=1
+    return (f"Sur {len(rows)} confrontations terminées vérifiées : "
+        f"{home_name} {hwin} victoire(s), {draw} match(s) nul(s), "
+        f"{away_name} {awin} victoire(s).")
+
+
+
 # -----------------------------------------------------------------------
 # Sélection éditoriale des GRANDES AFFICHES
 # -----------------------------------------------------------------------
@@ -382,7 +482,7 @@ def select_matches(dataset,now,limit=5):
         selected.append(enriched)
     return selected
 
-def factual_article(match,now):
+def factual_article(match,now,history=None):
     h,a=name(match,"home"),name(match,"away")
     dt=kickoff(match)
     assert dt is not None
@@ -391,30 +491,87 @@ def factual_article(match,now):
     league=clean(match.get("league"))[:95] if isinstance(match.get("league"),str) else ""
     local=dt.astimezone(TZ).strftime("%d/%m/%Y à %Hh%M")
     description=f"{h} – {a} : présentation de la rencontre du {local} (heure du Togo)."
-    lines=[f"# {h} – {a}","",f"**Date et heure :** {local} (GMT, Togo).",f"**Compétition :** {league or 'Non précisée'}.",
-       ""]
-    home_score=match.get("home_score");away_score=match.get("away_score")
+    # All assertions below are derived from the dated match feed. Do not turn
+    # a generated overview into invented standings, H2H or form statistics.
+    home_score=match.get("home_score")
+    away_score=match.get("away_score")
     status=clean(match.get("status")).lower()
-    if status in {"finished","ft","full_time"} and isinstance(home_score,int) and isinstance(away_score,int):
-        lines.extend([f"**Score final :** {h} {home_score} – {away_score} {a}.",""])
-    else:
-        lines.extend(["**Statut :** rencontre programmée ou en cours selon les dernières informations disponibles.",""])
+    final=status in {"finished","ft","full_time"} and (
+        isinstance(home_score,int) and not isinstance(home_score,bool) and
+        isinstance(away_score,int) and not isinstance(away_score,bool))
+    history_rows=_past_verified_results(match,history,now)
+    can_compare=bool(history_rows["home"] or history_rows["away"])
+    home_id=_archive_team_id(match,"home") or 0
+    away_id=_archive_team_id(match,"away") or 0
+    form_home=_form_sentence(h,home_id,history_rows["home"])
+    form_away=_form_sentence(a,away_id,history_rows["away"])
+    h2h_line=_h2h_sentence(h,a,home_id,history_rows["meetings"])
     pred=match.get("prediction")
-    if isinstance(pred,dict) and pred.get("selection_key"):
-        label=clean(pred.get("label") or pred.get("type"))
-        if label:
-            lines.extend(["## Analyse de la rencontre",f"**Marché identifié :** {label}.",
-              "Le pronostic est indicatif et ne garantit aucun résultat. Vérifie l'état du match et les cotes au moment de consulter le site.",""])
-    lines.extend(["## Consulter les données en direct",
-        "Retrouve les éventuelles mises à jour sur la page Pronostics de Mr XPRONOS.",
-        "",
-        "**18+ — Les paris sportifs comportent un risque de perte.**"])
+    confidence=(pred or {}).get("confidence") if isinstance(pred,dict) else None
+    eligible=(match.get("category") in {"pro","vip"} and
+        match.get("recommendation_eligible") is True and not final and
+        dt>now.astimezone(timezone.utc) and not match.get("combo_only") and
+        not match.get("retired_by_policy") and
+        isinstance(pred,dict) and pred.get("recommendation_eligible") is not False and
+        bool(pred.get("selection_key")) and
+        isinstance(confidence,(int,float)) and not isinstance(confidence,bool) and
+        79 <= confidence <= 100)
+    label=clean(pred.get("label") or pred.get("type")) if isinstance(pred,dict) else ""
+    lines=[
+       f"# {h} – {a}", "",
+       "## 1. Présentation de la rencontre",
+       f"**Date et heure :** {local} (GMT, Togo).",
+       f"**Compétition :** {league or 'Non précisée'}.",
+       f"**Équipes :** {h} et {a}.", "",
+       "## 2. Contexte et enjeux",
+       f"Cette rencontre oppose {h} à {a}" + (f" en {league}." if league else "."),
+       "Le classement, la qualification et les enjeux précis ne sont pas confirmés dans les informations disponibles pour cette fiche.", "",
+       "## 3. Forme récente",
+       form_home, form_away,
+       "Bilan établi uniquement à partir des matchs terminés et identifiés avant cette rencontre ; il ne représente pas forcément la totalité de la saison.", "",
+       "## 4. Confrontations directes",
+       h2h_line,
+       "La synthèse prend uniquement en compte les rencontres terminées antérieures à cette affiche.", "",
+       "## 5. Statistiques disponibles",
+    ]
+    if final:
+        lines.append(f"**Résultat final confirmé :** {h} {home_score} – {away_score} {a}.")
+    else:
+        lines.append("Le score final n'est pas encore disponible ou n'est pas confirmé.")
+    lines.extend([
+       "Les chiffres de tirs, de possession, d'occasions et de corners ne sont pas publiés sans confirmation.", "",
+       "## 6. Points de vigilance",
+       ("Les échantillons de forme ou de confrontations peuvent être incomplets ; "
+        "leur taille est indiquée dans cette analyse. "
+        "Ils ne suffisent pas à garantir l'issue du match." if can_compare else
+        "L'absence de statistiques fiables sur la forme et les confrontations limite toute conclusion sportive forte."),
+       "Les cotes et les compositions peuvent évoluer : il faut vérifier les informations au moment de la rencontre.", "",
+       "## 7. Notre lecture",
+       ("Cette analyse tient également compte des résultats historiques vérifiés présentés ci-dessus, "
+        "sans en déduire de certitude sportive." if can_compare else
+        "Les éléments confirmés sont l'affiche, la compétition lorsqu'elle est renseignée, la date et, le cas échéant, le score final."),
+       "Sans données supplémentaires vérifiées, il serait trompeur de présenter une équipe comme favorite sur des critères chiffrés.", "",
+       "## 8. Pronostic associé",
+    ])
+    if eligible and label:
+        lines.append(f"**Sélection Pro/VIP publiée dans le flux courant :** {label} (confiance estimée {confidence:g} %).")
+        lines.append("Ce pourcentage est une estimation, pas une garantie. Consultez la page Pronostics pour vérifier la sélection disponible.")
+    elif final:
+        lines.append("Le match est terminé. Consultez la page Résultats pour connaître les sélections évaluées et leurs preuves lorsqu'elles existent.")
+    else:
+        lines.append("Aucune sélection Pro/VIP admissible n'est présentée pour cette rencontre dans cette fiche.")
+    lines.extend([
+       "", "Cette présentation est informative : elle ne constitue ni une promesse de gain ni une validation rétroactive d'un pronostic.",
+       "**18+ — Les paris sportifs comportent un risque de perte.**"
+    ])
+    body="\n".join(lines)
+    reading_time=max(1,(len(body.split())+199)//200)
     return {
       "slug":slug,"title":f"{h} vs {a} : analyse du match",
-      "date":now.isoformat(),"author":"Mr XPRONOS","reading_time":1,
+      "date":now.isoformat(),"author":"Mr XPRONOS","reading_time":reading_time,
       "excerpt":description,"meta_description":description[:160],
       "keywords":", ".join(filter(None,("football","analyse de match",league,h,a)))[:230],
-      "content":"\n".join(lines),"active":True,"type":"match",
+      "content":body,"active":True,"type":"match",
       "source":"bsd","match":f"{h} vs {a}","league":league,
       "bsd_event_id":str(match.get("source_event_id") or match["id"]),
       "bsd_match_date":dt.isoformat(),
@@ -436,12 +593,23 @@ def run(root=ROOT,now=None,limit=5,dry_run=False):
         if not isinstance(current,list):raise ValueError("articles.json n'est pas une liste")
     except (ValueError,OSError) as exc:
         result["error"]=type(exc).__name__;print("BSD_EDITORIAL_BRIDGE",json.dumps(result));return result
+    # Decrypted results exist only in the private BSD production job.
+    # The editorial-only standalone job remains functional without them.
+    private_history=root/"bsd/all_matches_bsd.json"
+    history=[]
+    if private_history.is_file():
+        try:
+            loaded=json.loads(private_history.read_text(encoding="utf-8"))
+            if isinstance(loaded,list):
+                history=loaded
+        except (OSError,ValueError):
+            history=[]
     selected=select_matches(dataset,now,limit)
     result["selected"]=len(selected)
     existing={str(x.get("slug")):x for x in current if isinstance(x,dict)}
     additions=[]
     for event in selected:
-        article=factual_article(event,now)
+        article=factual_article(event,now,history=history)
         if article["home_logo"] and article["away_logo"]:result["badge_pairs"]+=1
         slug=article["slug"]
         previous=existing.get(slug)
@@ -451,10 +619,38 @@ def run(root=ROOT,now=None,limit=5,dry_run=False):
             previous.update({k:v for k,v in article.items() if k not in ("date",)})
             result["updated"]+=1
         else: result["skipped"]+=1
+    # Enrich only legacy BSD match briefs whose canonical fixture exists in
+    # the private historic archive. Preserve old slugs, publication dates,
+    # editorial images and every non-BSD article.
+    result["enriched_existing"]=0
+    if history:
+        archive={str(row.get("id")):row for row in history
+                 if isinstance(row,dict) and row.get("id") is not None}
+        for previous in current:
+            if not (isinstance(previous,dict) and previous.get("source")=="bsd"
+                    and previous.get("type")=="match"):
+                continue
+            if "## 1. Présentation de la rencontre" in str(previous.get("content") or ""):
+                continue
+            event_id=str(previous.get("bsd_event_id") or "").removeprefix("bsd:")
+            fixture=archive.get(event_id)
+            if not isinstance(fixture,dict) or clean(fixture.get("status")).lower()!="finished":
+                continue
+            fixture=dict(fixture)
+            if not kickoff(fixture) or kickoff(fixture)>now:
+                continue
+            if not name(fixture,"home") or not name(fixture,"away"):
+                continue
+            fixture["league"]=previous.get("league") or fixture.get("league") or ""
+            rebuilt=factual_article(fixture,now,history=history)
+            if rebuilt["content"] != previous.get("content"):
+                previous["content"]=rebuilt["content"]
+                previous["reading_time"]=rebuilt["reading_time"]
+                result["enriched_existing"]+=1
     if not dry_run:
         # Le contenu original (non BSD) ne sera jamais supprimé.
         all_articles=additions+current
-        if additions or result["updated"]:
+        if additions or result["updated"] or result["enriched_existing"]:
             articles_path.write_text(json.dumps(all_articles,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
         dest=root/"assets/data/bsd_editorial_bridge_report.json"
         dest.parent.mkdir(parents=True,exist_ok=True)

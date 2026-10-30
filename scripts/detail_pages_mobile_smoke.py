@@ -57,13 +57,20 @@ def check_detail(browser,path,root,width,height,label):
 
     if width<=700:
         ih=image.bounding_box()["height"]
-        if ih>115:
-            raise AssertionError(f"{label}: detail image too tall {ih}")
+        max_image_height = 235 if width >= 390 else 190
+        if ih > max_image_height:
+            raise AssertionError(f"{label}: article image too tall {ih} > {max_image_height}")
 
     content=card.locator(".article-content")
     if width<=700:
         content_top=content.evaluate("(el)=>el.getBoundingClientRect().top")
-        max_content_top=315 if width>=390 else 300
+        max_content_top=690 if width>=390 else 620
+        breadcrumb = page.locator(".mx-reader-breadcrumb")
+        if breadcrumb.count()!=1 or not breadcrumb.is_visible():
+            raise AssertionError(f"{label}: breadcrumb missing")
+        font = content.evaluate("(el)=>parseFloat(getComputedStyle(el).fontSize)")
+        if font < 14:
+            raise AssertionError(f"{label}: article body text too small ({font}px)")
         if content_top>max_content_top:
             raise AssertionError(f"{label}: reading content starts too low ({content_top}px > {max_content_top}px)")
     if len(content.inner_text().strip())<20:

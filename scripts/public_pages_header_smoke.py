@@ -28,12 +28,12 @@ CONSEIL = {
 STANDARD = [
   ("index.html", "Accueil"),
   ("pronos.html", "Pronostics"),
-  ("historique.html", "Historique"),
-  ("blog.html", "Blog"),
+  ("historique.html", "Résultats"),
+  ("blog.html", "Analyses"),
   ("conseils.html", "Conseils"),
   ("conseil.html?slug=conseil-premium-test", "Conseils"),
-  ("article.html?slug=analyse-premium-test", "Blog"),
-  ("infos.html", "Infos sport"),
+  ("article.html?slug=analyse-premium-test", "Analyses"),
+  ("infos.html", "Infos Foot"),
   ("bonus.html", "Bonus & Promo"),
   ("contact.html", "Contact"),
   ("bookmakers.html", "Bonus & Promo"),
@@ -83,8 +83,19 @@ def check_standard(browser, path, active_label, width, height):
     active=page.locator(".mx-desktop-nav a.active")
     if active.count()!=1:
         raise AssertionError(f"{label}: expected exactly one active nav item")
-    if active.inner_text().strip()!=active_label:
-        raise AssertionError(f"{label}: active nav {active.inner_text()!r}, expected {active_label!r}")
+    # An active destination under <details> is deliberately collapsed by default.
+    # Read its DOM text, not inner_text() (which is empty while hidden).
+    active_text = (active.text_content() or "").strip()
+    if active_text != active_label:
+        raise AssertionError(f"{label}: active nav {active_text!r}, expected {active_label!r}")
+    if active_label in ("Conseils", "Bonus & Promo", "Contact") and width > 900:
+        more = page.locator(".mx-nav-more")
+        if more.count()!=1:
+            raise AssertionError(f"{label}: missing Plus menu")
+        more.locator("summary").click()
+        if not active.is_visible():
+            raise AssertionError(f"{label}: active link inaccessible in Plus menu")
+        more.locator("summary").click()
 
     promo=page.locator(".mx-code-button")
     if promo.count()!=1:
@@ -99,11 +110,11 @@ def check_standard(browser, path, active_label, width, height):
             raise AssertionError(f"{label}: logo overlaps promo button")
 
     if width<=900:
-        # menu.js injects the burger after DOM load.
-        burger=page.locator("#burger-btn")
-        burger.wait_for(state="visible", timeout=5000)
-        if not burger.is_visible():
-            raise AssertionError(f"{label}: burger not visible on mobile")
+        # The five-item bottom bar contains the only mobile Menu trigger.
+        menu=page.locator("#bottom-nav-menu")
+        menu.wait_for(state="visible", timeout=5000)
+        if page.locator("#burger-btn").count():
+            raise AssertionError(f"{label}: duplicated mobile header menu")
     else:
         if not nav.is_visible():
             raise AssertionError(f"{label}: desktop nav not visible")
