@@ -78,7 +78,7 @@ class EditorialNavigationTests(unittest.TestCase):
             self.assertRegex(article["content"], r"(?m)^## " + str(i) + r"\.")
         self.assertIn("82 %", article["content"])
         self.assertNotIn("Tirs cadrés : 9", article["content"])
-        self.assertIn("ne sont pas suffisamment documentés", article["content"])
+        self.assertIn("moins de trois résultats vérifiés", article["content"])
 
         match["prediction"]["confidence"] = 78
         article = editorial.factual_article(match, datetime(2026, 10, 30, tzinfo=timezone.utc))
@@ -120,7 +120,8 @@ class EditorialNavigationTests(unittest.TestCase):
         self.assertIn("Ghana — 3 derniers matchs vérifiés disponibles", content)
         self.assertIn("Sur 2 confrontations terminées vérifiées", content)
         self.assertNotIn("9 but(s)", content)
-        self.assertNotIn("5 but(s)", content)
+        self.assertIn("Ghana — 3 derniers matchs vérifiés disponibles", content)
+        self.assertIn("5 but(s) marqué(s)", content)
         self.assertNotIn("Sélection Pro/VIP publiée", content)
         # An absent archive must never lead to invented figures.
         missing = editorial.factual_article(
