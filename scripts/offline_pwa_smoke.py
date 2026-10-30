@@ -98,10 +98,19 @@ def run_case(browser, width, height, label):
     if page.locator("#offline-title").count():
         raise AssertionError(f"{label}: pronos query URL incorrectly fell back to offline.html")
 
-    page.wait_for_timeout(900)
     cards = page.locator(".match-card")
-    if cards.count() < 1:
-        raise AssertionError(f"{label}: cached pronostic data was not rendered offline")
+    try:
+        cards.first.wait_for(state="visible", timeout=12000)
+    except Exception as exc:
+        rendered = page.locator("#matches, #match-list, .no-events").all_inner_texts()
+        raise AssertionError(
+            f"{label}: cached VIP pronostic not rendered offline; "
+            f"visible placeholders={rendered[:4]!r}"
+        ) from exc
+    if "Gold United" not in page.locator("body").inner_text():
+        raise AssertionError(f"{label}: offline rendering did not use locally stored VIP match")
+    if any("Blue FC" in text for text in page.locator(".match-card").all_inner_texts()):
+        raise AssertionError(f"{label}: obsolete Simple fixture leaked to offline pronostics")
 
     assert_no_overflow(page, label + "-pronos")
 

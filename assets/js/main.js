@@ -1142,6 +1142,12 @@ function getPayloadTimestamp(value) {
 
 async function fetchJsonWithCache(url, cacheKey, timeoutMs = 8000) {
   const cachedData = safeJsonParse(localStorage.getItem(cacheKey), null);
+  // Offline data already saved on this device must be rendered immediately,
+  // instead of waiting for the network/service-worker timeout.
+  if (!navigator.onLine && cachedData &&
+      (cacheKey !== "cachedData" || isPronosticsPayload(cachedData))) {
+    return { data: cachedData, fromCache: true, reason: "offline-local-cache" };
+  }
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -1244,9 +1250,13 @@ async function loadData() {
   }
 
   renderBookmakers(allData.bookmakers);
-  await loadPublicProofs();
+  // Match cards do not depend on proof-index network availability. Render them
+  // right away even offline; refresh proof markers when the archive arrives.
   filterAndDisplay();
   updatePronosticsSuccessRate();
+  void loadPublicProofs().then(() => {
+    if (DOM.matches && allData === data) filterAndDisplay();
+  });
 }
 
 async function loadDataGeneric() {
