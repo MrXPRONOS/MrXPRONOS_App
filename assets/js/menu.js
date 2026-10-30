@@ -18,14 +18,14 @@
   }
 
   const menuItems = [
-    { name: 'Accueil', icon: 'icon-home.webp', url: 'index.html' },
-    { name: 'Pronostics', icon: 'icon-pronostics.webp', url: 'pronos.html', featured: 'coupons', badge: 'TOP' },
-    { name: 'Résultats', icon: 'icon-history.webp', url: 'historique.html' },
-    { name: 'Blog', icon: 'icon-blog.webp', url: 'blog.html' },
-    { name: 'Infos sport', icon: 'icon-infos.webp', url: 'infos.html' },
-    { name: 'Conseils', icon: 'icon-conseils.webp', url: 'conseils.html' },
-    { name: 'Bonus & Promo', icon: 'icon-bonus.webp', url: 'bonus.html' },
-    { name: 'Contact', icon: 'icon-contact.webp', url: 'contact.html' }
+    { name: 'Accueil', icon: 'icon-home.webp', url: 'index.html', group: 'Football' },
+    { name: 'Pronostics', icon: 'icon-pronostics.webp', url: 'pronos.html', group: 'Football' },
+    { name: 'Résultats', icon: 'icon-history.webp', url: 'historique.html', group: 'Football' },
+    { name: 'Analyses', icon: 'icon-blog.webp', url: 'blog.html', group: 'Football' },
+    { name: 'Infos Foot', icon: 'icon-infos.webp', url: 'infos.html', group: 'Football' },
+    { name: 'Conseils', icon: 'icon-conseils.webp', url: 'conseils.html', group: 'Découvrir' },
+    { name: 'Bonus & Promo', icon: 'icon-bonus.webp', url: 'bonus.html', group: 'Découvrir' },
+    { name: 'Contact', icon: 'icon-contact.webp', url: 'contact.html', group: 'Informations' }
   ];
 
   const bottomItems = [
@@ -94,28 +94,24 @@
         <div class="burger-menu-content">
           <div class="burger-menu-intro">
             <span>Navigation</span>
-            <strong>Tout Mr XPRONOS</strong>
+            <strong>Choisir une rubrique</strong>
           </div>
 
           <div class="burger-menu-grid">
-            ${menuItems.map(item => {
-              const featuredClass = item.featured ? `featured featured-${item.featured}` : '';
-              const activeClass = isCurrentPage(item.url) ? 'active' : '';
-              const badge = item.badge ? `<span class="menu-badge">${item.badge}</span>` : '';
-              const liveDot = item.featured === 'vip' ? '<span class="menu-live-dot" aria-hidden="true"></span>' : '';
-
-              return `
-                <a class="burger-menu-item ${activeClass} ${featuredClass}"
-                   href="${item.url}"
-                   ${activeClass ? 'aria-current="page"' : ''}
-                   data-vip="${item.vip ? 'true' : 'false'}">
-                  ${liveDot}
-                  ${badge}
-                  <span class="menu-icon">${iconMarkup(item.icon, 'menu-icon-img')}</span>
-                  <span class="menu-label">${item.name}</span>
-                </a>
-              `;
-            }).join('')}
+            ${['Football', 'Découvrir', 'Informations'].map(group => `
+              <section class="burger-menu-group" aria-label="${group}">
+                <h3 class="burger-menu-group-title">${group}</h3>
+                <div class="burger-menu-group-items">
+                  ${menuItems.filter(item => item.group === group).map(item => {
+                    const activeClass = isCurrentPage(item.url) ? 'active' : '';
+                    return `<a class="burger-menu-item ${activeClass}" href="${item.url}" ${activeClass ? 'aria-current="page"' : ''}>
+                      <span class="menu-icon">${iconMarkup(item.icon, 'menu-icon-img')}</span>
+                      <span class="menu-label">${item.name}</span>
+                    </a>`;
+                  }).join('')}
+                </div>
+              </section>
+            `).join('')}
           </div>
 
           <div class="burger-menu-foot">
