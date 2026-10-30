@@ -701,3 +701,10 @@
   .mx-blog-page .mx-blog-list-head h2{font-size:22px!important}
   .mx-blog-page .mx-blog-count{font-size:11px!important}
 }
+
+@media(max-width:700px){
+  .mx-blog-page .blog-card-body p{display:block!important}
+  .mx-blog-page .mx-blog-list-head{align-items:flex-start;gap:12px;flex-wrap:wrap}
+  .mx-blog-page .mx-blog-list-head .mx-blog-toolbar{width:100%}
+  .mx-blog-page .blog-card-media{height:clamp(180px,48vw,225px)!important}
+}
