@@ -88,6 +88,44 @@ class EditorialNavigationTests(unittest.TestCase):
         self.assertIn("2 – 1", article["content"])
         self.assertNotIn("Sélection Pro/VIP publiée", article["content"])
 
+    def test_private_history_enriches_form_and_h2h_without_future_leakage(self):
+        current = {
+            "id": "bsd:200", "source": "bsd",
+            "event_date": "2026-10-30T18:00:00+00:00",
+            "home_team": "Togo", "away_team": "Ghana",
+            "home_team_id": 12, "away_team_id": 13,
+            "league": "Coupe test", "status": "scheduled",
+        }
+        results = [
+            {"id": "one", "status": "finished", "event_date": "2026-10-20T15:00:00Z",
+             "home_team_id": 12, "away_team_id": 13, "home_score": 2, "away_score": 1},
+            {"id": "two", "status": "finished", "event_date": "2026-10-11T15:00:00Z",
+             "home_team_id": 13, "away_team_id": 12, "home_score": 1, "away_score": 1},
+            {"id": "three", "status": "finished", "event_date": "2026-09-25T15:00:00Z",
+             "home_team_id": 12, "away_team_id": 99, "home_score": 1, "away_score": 0},
+            {"id": "four", "status": "finished", "event_date": "2026-09-21T15:00:00Z",
+             "home_team_id": 13, "away_team_id": 88, "home_score": 3, "away_score": 0},
+            {"id": "future", "status": "finished", "event_date": "2026-11-02T15:00:00Z",
+             "home_team_id": 12, "away_team_id": 13, "home_score": 9, "away_score": 9},
+            {"id": "unverified", "status": "scheduled", "event_date": "2026-10-21T15:00:00Z",
+             "home_team_id": 12, "away_team_id": 13, "home_score": 5, "away_score": 0},
+        ]
+        generated = editorial.factual_article(
+            current, datetime(2026, 10, 30, 17, tzinfo=timezone.utc), history=results)
+        content = generated["content"]
+        self.assertIn("Togo — 3 derniers matchs vérifiés disponibles", content)
+        self.assertIn("2 victoire(s), 1 nul(s), 0 défaite(s)", content)
+        self.assertIn("Ghana — 3 derniers matchs vérifiés disponibles", content)
+        self.assertIn("Sur 2 confrontations terminées vérifiées", content)
+        self.assertNotIn("9 but(s)", content)
+        self.assertNotIn("5 but(s)", content)
+        self.assertNotIn("Sélection Pro/VIP publiée", content)
+        # An absent archive must never lead to invented figures.
+        missing = editorial.factual_article(
+            current, datetime(2026, 10, 30, 17, tzinfo=timezone.utc), history=[])
+        self.assertIn("moins de trois résultats vérifiés", missing["content"])
+        self.assertIn("Moins de deux confrontations", missing["content"])
+
     def test_old_articles_get_honest_structure_without_prematch_backdating(self):
         article = {
             "type": "match", "match": "Togo vs Ghana", "league": "Coupe test",
