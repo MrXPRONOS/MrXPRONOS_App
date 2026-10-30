@@ -2177,6 +2177,8 @@ function blogCategoryIcon(category = "") {
   const icons = {
     "Actualités": "icon-blog-news.webp",
     "Analyses": "icon-blog-analysis.webp",
+    "Matchs": "icon-blog-analysis.webp",
+    "Décryptages": "icon-blog-tips.webp",
     "Conseils": "icon-blog-tips.webp",
     "Tendances": "icon-blog-trending.webp",
     "Calendrier": "icon-blog-schedule.webp",
@@ -2467,13 +2469,39 @@ async function displayBlogPost() {
   const title = stripMarkdown(article.title || "Article");
   const contentHtml = renderSafeRichContent(article.content || "");
 
-  DOM.blogPost.innerHTML = `
-    <article class="card article-page-card">
-      <img src="${escapeAttribute(article.image_url || "assets/images/default-logo.png")}" alt="${escapeAttribute(title)}" class="news-image" loading="lazy">
-      <h1>${escapeHtml(title)}</h1>
-      <div class="article-content">${contentHtml}</div>
-    </article>
-  `;
+  const related = allArticles
+    .filter((candidate) => candidate !== article && candidate.slug && candidate.active !== false)
+    .sort((a, b) =>
+      Number(Boolean(article.league && b.league === article.league))
+      - Number(Boolean(article.league && a.league === article.league))
+      || new Date(b.date || 0) - new Date(a.date || 0))
+    .slice(0, 3);
+  const relatedHtml = related.map((candidate) => {
+    const href = "article.html?slug=" + encodeURIComponent(candidate.slug);
+    return '<a href="' + escapeAttribute(href) + '" class="mx-related-card">'
+      + '<strong>' + escapeHtml(stripMarkdown(candidate.title || "Autre analyse")) + '</strong>'
+      + '<small>' + escapeHtml(publicFootballLabel(candidate.league || "Football", "Football")) + '</small></a>';
+  }).join("");
+  const published = formatBlogDate(article.date || article.published_at);
+  const league = publicFootballLabel(article.league || "Football", "Football");
+  const readingTime = Math.max(1, Number(article.reading_time) || Math.ceil(
+    stripMarkdown(article.content || "").split(/\s+/).filter(Boolean).length / 210));
+  DOM.blogPost.innerHTML =
+    '<nav class="mx-reader-breadcrumb" aria-label="Fil de navigation"><a href="index.html">Accueil</a>'
+    + '<span aria-hidden="true">›</span><a href="blog.html">Analyses</a>'
+    + '<span aria-hidden="true">›</span><span aria-current="page">Lecture</span></nav>'
+    + '<article class="card article-page-card mx-reader-article">'
+    + '<div class="mx-reader-meta"><span>' + escapeHtml(league) + '</span>'
+    + '<span>' + escapeHtml(published) + '</span>'
+    + '<span>' + readingTime + ' min de lecture</span></div>'
+    + '<h1>' + escapeHtml(title) + '</h1>'
+    + '<img src="' + escapeAttribute(article.image_url || "assets/images/default-logo.webp")
+    + '" alt="' + escapeAttribute(title) + '" class="news-image" loading="lazy">'
+    + '<div class="article-content">' + contentHtml + '</div>'
+    + '<div class="mx-reader-disclaimer">Cette analyse est informative et ne constitue pas une promesse de gain. Les paris comportent un risque de perte.</div>'
+    + '</article>'
+    + (relatedHtml ? '<section class="mx-related-section" aria-label="Analyses similaires">'
+      + '<h2>À lire également</h2><div class="mx-related-grid">' + relatedHtml + '</div></section>' : '');
 
   updateArticleSeo(article, article.slug || slug || "");
   const titleMeta = document.getElementById("article-title");
@@ -2627,13 +2655,23 @@ async function displayConseilPost() {
   const title = stripMarkdown(conseil.title || "Conseil");
   const contentHtml = renderSafeRichContent(conseil.content || "");
 
-  DOM.conseilPost.innerHTML = `
-    <article class="card article-page-card">
-      <img src="${escapeAttribute(conseil.image_url || "assets/images/default-logo.png")}" alt="${escapeAttribute(title)}" class="news-image" loading="lazy">
-      <h1>${escapeHtml(title)}</h1>
-      <div class="article-content">${contentHtml}</div>
-    </article>
-  `;
+  const published = formatBlogDate(conseil.date || conseil.published_at);
+  const relatedGuides = conseils.filter((candidate) => candidate !== conseil && candidate.slug)
+    .slice(0, 3).map((candidate) => '<a class="mx-related-card" href="conseil.html?slug='
+      + encodeURIComponent(candidate.slug) + '"><strong>' + escapeHtml(
+        stripMarkdown(candidate.title || "Autre conseil")) + '</strong></a>').join("");
+  DOM.conseilPost.innerHTML =
+    '<nav class="mx-reader-breadcrumb" aria-label="Fil de navigation"><a href="index.html">Accueil</a>'
+    + '<span aria-hidden="true">›</span><a href="conseils.html">Conseils</a>'
+    + '<span aria-hidden="true">›</span><span aria-current="page">Lecture</span></nav>'
+    + '<article class="card article-page-card mx-reader-article"><div class="mx-reader-meta">'
+    + '<span>Guide pratique</span>' + (published ? '<span>' + escapeHtml(published) + '</span>' : '') + '</div>'
+    + '<h1>' + escapeHtml(title) + '</h1>'
+    + '<img src="' + escapeAttribute(conseil.image_url || "assets/images/default-logo.webp")
+    + '" alt="' + escapeAttribute(title) + '" class="news-image" loading="lazy">'
+    + '<div class="article-content">' + contentHtml + '</div></article>'
+    + (relatedGuides ? '<section class="mx-related-section"><h2>Autres guides</h2>'
+      + '<div class="mx-related-grid">' + relatedGuides + '</div></section>' : '');
 
   updateConseilSeo(conseil, conseil.slug || slug || "");
 }
