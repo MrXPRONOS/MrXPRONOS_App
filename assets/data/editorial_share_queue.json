@@ -1,5 +1,595 @@
 [
   {
+    "id": "9c00a3ac9f3090695095143f",
+    "kind": "article",
+    "title": "SL Benfica B vs Chaves : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-375070/",
+    "source_date": "2026-10-30T05:41:57.080743+00:00",
+    "visual_variant": "v2",
+    "image": "assets/images/editorial/match-bsd-match-375070-65bea481-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-375070-65bea481-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-375070-65bea481-social.jpg"
+  },
+  {
+    "id": "bf85cd0808ee1556a77f5806",
+    "kind": "article",
+    "title": "Wydad Casablanca vs Moghreb Atlético Tetuán : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-642977/",
+    "source_date": "2026-10-30T05:41:57.080743+00:00",
+    "visual_variant": "v1",
+    "image": "assets/images/editorial/match-bsd-match-642977-47cf0c75-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-642977-47cf0c75-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-642977-47cf0c75-social.jpg"
+  },
+  {
+    "id": "e857252266f966ef070ad3b3",
+    "kind": "news",
+    "title": "Mercato : une porte se ferme déjà pour Haaland en cas de départ de Manchester City",
+    "url": "https://www.onzemondial.com/transferts/mercato-une-porte-se-ferme-deja-pour-haaland-en-cas-de-depart-de-manchester-city-1005852",
+    "source_date": "2026-10-29T23:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "701352e40e932c45f7eb7c37",
+    "kind": "news",
+    "title": "Mbappé : pourquoi ses excuses ne suffisent toujours pas à apaiser la colère en Chine",
+    "url": "https://www.footmercato.net/a9072759980279917540-mbappe-pourquoi-ses-excuses-ne-suffisent-toujours-pas-a-apaiser-la-colere-en-chine",
+    "source_date": "2026-10-29T23:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a0027cfd0e2595544f0cb8de",
+    "kind": "news",
+    "title": "Mercato : un nouveau cas à la Vinicius pour Xabi Alonso à Chelsea ?",
+    "url": "https://www.onzemondial.com/transferts/mercato-un-nouveau-cas-a-la-vinicius-pour-xabi-alonso-a-chelsea-1005848",
+    "source_date": "2026-10-29T22:29:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0cb708e10e50eeb947b74221",
+    "kind": "news",
+    "title": "Bayern : comment Harry Kane est devenu un leader",
+    "url": "https://www.footmercato.net/a7901371252512097832-bayern-comment-harry-kane-est-devenu-un-leader",
+    "source_date": "2026-10-29T21:50:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "df3c6b1cc854015f13e5c177",
+    "kind": "news",
+    "title": "Mercato PSG : Le Paris Saint-Germain avance sur la prolongation d'un crack et la signature d'une jeune pépite",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-psg-le-paris-saint-germain-avance-sur-la-prolongation-d-un-crack-et-la-signature-d-une-jeune-pepite-543985.html",
+    "source_date": "2026-10-29T21:46:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a4980673e1b5f73784b18bcf",
+    "kind": "news",
+    "title": "PSG : Achraf Hakimi a voyagé en Grèce pour aller au soutien d'un coéquipier",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-psg-achraf-hakimi-a-voyage-en-grece-pour-aller-au-soutien-d-un-coequipier-543980.html",
+    "source_date": "2026-10-29T20:50:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b0a9c5af6a6c0c69ec2ac5cb",
+    "kind": "news",
+    "title": "OL : Pas d'inquiétude apparente pour Corentin Tolisso après son alerte face au PSG",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ol-pas-d-inquietude-apparente-pour-corentin-tolisso-apres-son-alerte-face-au-psg-543977.html",
+    "source_date": "2026-10-29T20:15:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1b72ac675e49d1929212471d",
+    "kind": "news",
+    "title": "Ligue 1: l'international marocain Sofiane Diop veut s'offrir un meilleur avenir avec l’OGC Nice",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261029-ligue-1-l-international-marocain-sofiane-diop-veut-s-offrir-un-meilleur-avenir-avec-l-ogc-nice",
+    "source_date": "2026-10-29T12:51:26+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7bd37d3a0426fc84835e905f",
+    "kind": "news",
+    "title": "La police américaine a-t-elle vraiment été appelée parce qu'un petit garçon jouait \"trop bien\" au foot ?",
+    "url": "https://www.franceinfo.fr/sports/foot/la-police-americaine-a-t-elle-vraiment-ete-appelee-parce-qu-un-petit-garcon-jouait-trop-bien-au-foot_8257712.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-10-29T11:02:08+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "45fadeb1ad56e6861a55fe63",
+    "kind": "news",
+    "title": "League Cup : Liverpool élimine Chelsea au bout du suspense",
+    "url": "https://www.france24.com/fr/%C3%A9missions/sports/20261029-league-cup-liverpool-%C3%A9limine-chelsea-au-bout-du-suspense",
+    "source_date": "2026-10-29T07:31:43+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "bfe5051acf8129a4928db212",
+    "kind": "news",
+    "title": "En Arabie saoudite, Cristiano Ronaldo inscrit un triplé avec Al Nassr contre Al Kholood",
+    "url": "https://www.sofoot.com/breves/en-arabie-saoudite-cristiano-ronaldo-inscrit-un-triple-avec-al-nassr-contre-al-kholood",
+    "source_date": "2026-10-30T00:00:33+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6047dbf0c95bd69dc0cb422b",
+    "kind": "news",
+    "title": "Grâce à sa victoire contre Newcastle, Everton affrontera le tombeur d’Arsenal Fleetwood en quart de finale de la League Cup",
+    "url": "https://www.sofoot.com/breves/grace-a-sa-victoire-contre-newcastle-everton-affrontera-le-tombeur-darsenal-en-quart-de-finale-de-la-coupe-de-la-ligue",
+    "source_date": "2026-10-29T22:49:58+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0e2b5392a6d5d00b1fa30d2f",
+    "kind": "news",
+    "title": "Brésil : la réponse d’Ancelotti sur le temps de jeu d’Estevão et Endrick",
+    "url": "https://www.footmercato.net/a1191079283731788602-bresil-la-reponse-dancelotti-sur-le-temps-de-jeu-destevao-et-endrick",
+    "source_date": "2026-10-29T22:45:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "10ee68f92beecc91fd2ee0b2",
+    "kind": "news",
+    "title": "League Cup : Everton rejoint Fleetwood, tombeur d’Arsenal",
+    "url": "https://www.footmercato.net/a4410910778892859526-league-cup-everton-rejoint-fleetwood-tombeur-darsenal",
+    "source_date": "2026-10-29T22:25:42+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c0aa0174b8880ef466da71ed",
+    "kind": "news",
+    "title": "Ligue 3 : Amiens et Thionville se quittent bons amis",
+    "url": "https://www.sofoot.com/breves/ligue-3-amiens-et-thionville-se-quittent-bons-amis",
+    "source_date": "2026-10-29T22:23:56+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "98b67a196e9142fecc8c95e3",
+    "kind": "news",
+    "title": "LdC (F) : le PSG accroche Manchester City",
+    "url": "https://www.footmercato.net/a6998686967818800560-ldc-f-le-psg-accroche-manchester-city",
+    "source_date": "2026-10-29T22:16:59+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9300dc50084faec2a866fa57",
+    "kind": "news",
+    "title": "Ligue des champions féminine : le PSG tient en échec Manchester City",
+    "url": "https://www.sofoot.com/breves/ligue-des-champions-feminine-le-psg-tient-en-echec-manchester-city",
+    "source_date": "2026-10-29T22:04:36+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "15d824d98e193724529b8757",
+    "kind": "news",
+    "title": "Stade Rennais : deux gros forfaits se profilent avant le déplacement à Nice !",
+    "url": "https://www.onzemondial.com/ligue-1/stade-rennais-deux-gros-forfaits-se-profilent-avant-le-deplacement-a-nice-1005828",
+    "source_date": "2026-10-29T22:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cc53a22a01029909aa1a5152",
+    "kind": "news",
+    "title": "Du top 30 au Ballon d’Or à la deuxième division, la douloureuse chute de Donny van de Beek",
+    "url": "https://www.footmercato.net/a8187625557694605319-du-top-30-au-ballon-dor-a-la-deuxieme-division-la-douloureuse-chute-de-donny-van-de-beek",
+    "source_date": "2026-10-29T22:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2d03f47fc8ff26777cead34c",
+    "kind": "news",
+    "title": "OM : Igor Paixão reçoit une nouvelle positive avant la réception du TFC",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-igor-paixao-recoit-une-nouvelle-positive-avant-la-reception-du-tfc-543987.html",
+    "source_date": "2026-10-29T21:59:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "93f102fa077f37e2e576edb6",
+    "kind": "news",
+    "title": "Trent Alexander-Arnold ne veut pas quitter le Real Madrid",
+    "url": "https://www.footmercato.net/a6875488880549973030-trent-alexander-arnold-ne-veut-pas-quitter-le-real-madrid",
+    "source_date": "2026-10-29T21:58:49+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "32c0924d2147f1a678934226",
+    "kind": "news",
+    "title": "WCL : Le PSG F et Manchester City F se quittent dos à dos après une fin de match animée (résumé)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-wcl-le-psg-f-et-manchester-city-f-se-quittent-dos-a-dos-apres-une-fin-de-match-animee-resume-543986.html",
+    "source_date": "2026-10-29T21:55:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e157d5247f2ac9cfc8d67811",
+    "kind": "news",
+    "title": "Le comité de pilotage de la LFP valide l’appel d’offres d’un lot avec l’ensemble des matchs pour les droits TV de la Ligue 1",
+    "url": "https://www.sofoot.com/breves/un-lot-unique-pour-les-droits-tv-de-la-ligue-1",
+    "source_date": "2026-10-29T21:42:15+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7f4e8258d92f73311426862e",
+    "kind": "news",
+    "title": "Deux Titis du PSG en discussion pour prolonger",
+    "url": "https://www.footmercato.net/a6194443928046295454-deux-titis-du-psg-en-discussion-pour-prolonger",
+    "source_date": "2026-10-29T21:39:41+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "60ef982c784929fae3c47bfb",
+    "kind": "news",
+    "title": "Mercato : le PSG hors course, deux clubs désormais favoris pour Maza ?",
+    "url": "https://www.onzemondial.com/transferts/mercato-le-psg-hors-course-deux-clubs-desormais-favoris-pour-maza-1005841",
+    "source_date": "2026-10-29T21:28:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2478646b7b898d9fe692d693",
+    "kind": "news",
+    "title": "L'AC Milan et l'Inter annoncent le Generali Stadium, successeur du mythique San Siro",
+    "url": "https://www.onzemondial.com/serie-a/lac-milan-et-linter-annoncent-le-generali-stadium-successeur-du-mythique-san-siro-1005898",
+    "source_date": "2026-10-29T21:17:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T05:41:57.397604+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "eef134d2879123be0d850d64",
     "kind": "article",
     "title": "AC Milan vs Bologna : analyse du match",
@@ -40,7 +630,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c9eeaf48c0d7d54180c8068b",
@@ -61,7 +651,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "abc84b977f276d05c556b18e",
@@ -82,7 +672,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0a3edaafde82927a980e95ef",
@@ -103,7 +693,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3230be959de9ab8bc46833ae",
@@ -124,7 +714,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7f7e8afe1034ab90ac7f8a0d",
@@ -145,7 +735,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4bb42fa26e46e765ad1f4dba",
@@ -229,7 +819,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3d683a973e722b92d8463433",
@@ -250,7 +840,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d1fe1f94450f89fdc916170a",
@@ -271,7 +861,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cedc8c00cf505079fbf8cecb",
@@ -292,7 +882,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9c194bdf83e4ca6750049f33",
@@ -313,7 +903,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7cee2720dadd23997e40a61b",
@@ -334,7 +924,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "49221a08e466fd91eabbe6ed",
@@ -355,7 +945,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b8e1404d20d5c70db3071b71",
@@ -376,7 +966,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5ad3c45274cf58a72e22717f",
@@ -397,7 +987,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f141e67da5bd30c6c558f70a",
@@ -418,7 +1008,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c44e69820ced597e7c24a79c",
@@ -439,7 +1029,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "139417ac591148209c1104ee",
@@ -460,7 +1050,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "75d3986d2ff5265ca1d734c3",
@@ -481,7 +1071,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "14bb21641bdca0b1098fdc93",
@@ -502,7 +1092,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cc690372d50e5f56010c33ba",
@@ -1220,7 +1810,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "928d1e89f43aa9bc6a400417",
@@ -1241,7 +1831,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "60bb5953181a62973ea20ac4",
@@ -1262,7 +1852,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0f297eee4efc9ba6a483ce89",
@@ -1283,7 +1873,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "89e70187eadc673b91d42859",
@@ -1304,7 +1894,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "aec105ea149d0766d154b993",
@@ -1325,7 +1915,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b3d07ac2f3592a622e3cca8f",
