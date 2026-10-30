@@ -125,13 +125,8 @@ def check_page(browser,path,width,height,expected_bottom,expected_drawer=None,sc
     close_menu(page)
 
     if path=="index.html":
-        burger=page.locator("#burger-btn")
-        burger.wait_for(state="visible",timeout=5000)
-        bimg=image_health(burger.locator("img.mx-burger-icon"),label+" burger")
-        if len(bimg)!=1 or "icon-menu.webp" not in bimg[0]["src"]:
-            raise AssertionError(f"{label}: generated hamburger icon missing")
-        open_menu(page,label,from_bottom=False)
-        close_menu(page)
+        if page.locator("#burger-btn").count():
+            raise AssertionError(f"{label}: redundant header menu when bottom navigation is available")
 
     if path=="live.html":
         if page.locator("#burger-btn").count()!=0:
