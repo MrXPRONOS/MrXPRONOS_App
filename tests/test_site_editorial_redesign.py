@@ -73,7 +73,7 @@ class EditorialNavigationTests(unittest.TestCase):
         }
         article = editorial.factual_article(match, datetime(2026, 10, 30, tzinfo=timezone.utc))
         for i in range(1, 9):
-            self.assertRegex(article["content"], r"(?m)^## " + str(i) + r"\\.")
+            self.assertRegex(article["content"], r"(?m)^## " + str(i) + r"\.")
         self.assertIn("82 %", article["content"])
         self.assertNotIn("Tirs cadrés : 9", article["content"])
         self.assertIn("ne sont pas suffisamment documentés", article["content"])
