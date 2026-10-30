@@ -99,11 +99,11 @@ def check_standard(browser, path, active_label, width, height):
             raise AssertionError(f"{label}: logo overlaps promo button")
 
     if width<=900:
-        # menu.js injects the burger after DOM load.
-        burger=page.locator("#burger-btn")
-        burger.wait_for(state="visible", timeout=5000)
-        if not burger.is_visible():
-            raise AssertionError(f"{label}: burger not visible on mobile")
+        # The five-item bottom bar contains the only mobile Menu trigger.
+        menu=page.locator("#bottom-nav-menu")
+        menu.wait_for(state="visible", timeout=5000)
+        if page.locator("#burger-btn").count():
+            raise AssertionError(f"{label}: duplicated mobile header menu")
     else:
         if not nav.is_visible():
             raise AssertionError(f"{label}: desktop nav not visible")
