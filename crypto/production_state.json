@@ -1,10 +1,15 @@
 {
   "alert_last_published": {
     "BNB": "2026-10-29T21:59:23.816087+00:00",
+    "SOL": "2026-10-30T15:19:21.094674+00:00",
     "XRP": "2026-10-22T18:53:02.488374+00:00"
   },
   "alert_last_published_signal": {
     "BNB": {
+      "direction": "down",
+      "level": 5
+    },
+    "SOL": {
       "direction": "down",
       "level": 5
     },
@@ -32,14 +37,14 @@
     },
     "XRP": {
       "direction": "down",
-      "level": 5
+      "level": 0
     }
   },
   "alert_rearmed": {
     "BNB": false,
     "BTC": true,
     "ETH": true,
-    "SOL": true,
+    "SOL": false,
     "XRP": true
   },
   "news_fingerprints": {
@@ -115,6 +120,12 @@
       "message_id": 81,
       "number": 4,
       "sent_at": "2026-10-29T21:59:23.816087+00:00",
+      "source": "CoinPaprika"
+    },
+    "alert:04:2026-10-30:SOL:down:5": {
+      "message_id": 88,
+      "number": 4,
+      "sent_at": "2026-10-30T15:19:21.094674+00:00",
       "source": "CoinPaprika"
     },
     "daily:01:2026-10-19:evening": {
