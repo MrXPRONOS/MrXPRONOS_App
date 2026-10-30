@@ -434,3 +434,13 @@ body.menu-open .burger-drawer *{pointer-events:auto}
     height:22px!important;
   }
 }
+
+
+/* Visitor navigation: semantic groups, predictable two-column mobile menu */
+.burger-menu-grid{display:flex!important;flex-direction:column!important;gap:16px!important}
+.burger-menu-group{margin:0;min-width:0}
+.burger-menu-group-title{margin:0 0 8px;color:#f4c773;font-size:12px;font-weight:800;letter-spacing:.055em;text-transform:uppercase}
+.burger-menu-group-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.burger-menu-group-items .burger-menu-item{min-width:0;min-height:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.burger-menu-group-items .burger-menu-item .menu-label{overflow-wrap:anywhere;font-size:12px;line-height:1.32}
+@media(max-width:375px){.burger-menu-group-items{gap:7px}.burger-menu-group-items .burger-menu-item{min-height:78px}}
