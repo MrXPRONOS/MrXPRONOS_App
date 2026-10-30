@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-11f8871f52ba1c46:UNDER_35",
+    "recorded_at_utc": "2026-10-30T00:14:10+00:00",
+    "kickoff_utc": "2026-10-31T22:30:00+00:00",
+    "fixture": {
+      "home_team": "Náutico",
+      "away_team": "Avaí",
+      "league": "Brazilian Serie B"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 80.4,
+      "odds": 1.312,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "9cb533b94ab1cc398b6048f6a3e9b0dc90ce52a4b7d420a0c84e16042f615ffe"
+}
