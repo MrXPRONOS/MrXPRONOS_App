@@ -1,9 +1,10 @@
 {
   "source": "bsd-v2-isolated",
   "selected": 5,
-  "created": 2,
-  "updated": 1,
-  "skipped": 2,
+  "created": 0,
+  "updated": 5,
+  "skipped": 0,
   "badge_pairs": 5,
-  "dry_run": false
+  "dry_run": false,
+  "enriched_existing": 22
 }

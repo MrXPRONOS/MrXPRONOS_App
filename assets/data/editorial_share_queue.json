@@ -1,5 +1,551 @@
 [
   {
+    "id": "67aca3c9eb5b8b9f137d72df",
+    "kind": "news",
+    "title": "Angers SCO : Une mauvaise nouvelle se profile avant d'affronter l'OL",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-angers-sco-une-mauvaise-nouvelle-se-profile-avant-d-affronter-l-ol-544059.html",
+    "source_date": "2026-10-30T15:32:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "01252376653bde393aed9000",
+    "kind": "news",
+    "title": "OM : Bruno Genesio met en lumière la transformation d'Himad Abdelli",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-bruno-genesio-met-en-lumiere-la-transformation-d-himad-abdelli-544051.html",
+    "source_date": "2026-10-30T14:34:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "40e41d05c848d522a4fa3beb",
+    "kind": "news",
+    "title": "OL : Khalis Merah balance son principal objectif personnel pour cette saison avec l'OL",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ol-khalis-merah-balance-son-principal-objectif-personnel-pour-cette-saison-avec-l-ol-544043.html",
+    "source_date": "2026-10-30T14:15:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9962fdb43a67bcb179f4da49",
+    "kind": "news",
+    "title": "AC Milan : Christian Pulišić prolonge jusqu’en 2031",
+    "url": "https://www.footmercato.net/a5541281380054695052-ac-milan-christian-pulisic-prolonge-jusquen-2031",
+    "source_date": "2026-10-30T14:11:57+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "fedf0ff753ebb2e26495d4c8",
+    "kind": "news",
+    "title": "OM : Bruno Genesio explique pourquoi il a épargné Angel Gomes",
+    "url": "https://www.footmercato.net/a4104047863044213141-om-bruno-genesio-explique-pourquoi-il-a-epargne-angel-gomes",
+    "source_date": "2026-10-30T14:02:25+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "16b82382a4f761e6259fe26d",
+    "kind": "news",
+    "title": "Un nouveau forfait pour Zinédine Zidane et les Bleus",
+    "url": "https://www.footmercato.net/a3200110316515764896-un-nouveau-forfait-pour-zinedine-zidane-et-les-bleus",
+    "source_date": "2026-10-30T13:45:04+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "fff033fd8ed1885757677a96",
+    "kind": "news",
+    "title": "La CAF décide un retour à une CAN tous les deux ans",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261030-la-caf-d%C3%A9cide-un-retour-%C3%A0-une-can-tous-les-deux-ans",
+    "source_date": "2026-10-30T10:17:26+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "183e7390cad29140a1e19795",
+    "kind": "news",
+    "title": "Football : la Coupe d'Afrique des nations se jouera bien tous les deux ans",
+    "url": "https://www.france24.com/fr/sports/20261030-football-la-coupe-d-afrique-des-nations-se-jouera-bien-tous-les-deux-ans",
+    "source_date": "2026-10-30T08:36:10+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "524382d3f7dfaf06ea4f97aa",
+    "kind": "news",
+    "title": "Football : la CAF rétropédale, la CAN reste biennale",
+    "url": "https://www.rfi.fr/fr/podcasts/journal-des-sports-afrique/20261030-football-la-caf-r%C3%A9trop%C3%A9dale-la-can-reste-biennale",
+    "source_date": "2026-10-30T05:54:20+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6bf9c5e3048121b49c67431b",
+    "kind": "news",
+    "title": "OM : Emerson Palmieri dévoile ce qui distingue Roberto De Zerbi de Bruno Genesio",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-emerson-palmieri-devoile-ce-qui-distingue-roberto-de-zerbi-de-bruno-genesio-544062.html",
+    "source_date": "2026-10-30T15:57:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1d067a1c408b665d376581c9",
+    "kind": "news",
+    "title": "OM : les nouvelles révélations dingues d’Ali Zarrak sur Jean-Pierre Papin",
+    "url": "https://www.footmercato.net/a2521430807158970065-om-les-nouvelles-revelations-dingues-dali-zarrak-sur-jean-pierre-papin",
+    "source_date": "2026-10-30T15:43:54+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7d0cc0083f14c267094cf783",
+    "kind": "news",
+    "title": "Coupe du monde U15 : la France s'incline face à l'Ouganda, l'Espagne sacrée !",
+    "url": "https://www.onzemondial.com/coupe-du-monde/coupe-du-monde-u15-la-france-sincline-face-a-louganda-lespagne-sacree-1006043",
+    "source_date": "2026-10-30T15:40:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9f1add9c8d570c41a6b7082a",
+    "kind": "news",
+    "title": "PSG : Ferran Torres, des passages à vide qui inquiètent, une fâcheuse habitude à corriger",
+    "url": "https://www.onzemondial.com/ligue-1/psg-ferran-torres-des-passages-a-vide-qui-inquietent-une-facheuse-habitude-a-corriger-1005980",
+    "source_date": "2026-10-30T15:32:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "150e232fe4f792ca95ed0dd8",
+    "kind": "news",
+    "title": "Ballon d'Or 2026 : Hansi Flick : \"Lamine Yamal a réagi comme un champion\"",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ballon-d-or-2026-hansi-flick-lamine-yamal-a-reagi-comme-un-champion-544058.html",
+    "source_date": "2026-10-30T15:30:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d7417630f919d28c79a08b26",
+    "kind": "news",
+    "title": "Chelsea : Xabi Alonso lâche ses vérités sur le cas Estêvão",
+    "url": "https://www.footmercato.net/a6724938865637704364-chelsea-xabi-alonso-lache-ses-verites-sur-le-cas-estevao",
+    "source_date": "2026-10-30T15:20:39+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8f988d2e7998ae474ec34fc8",
+    "kind": "news",
+    "title": "Ballon d’Or : Daniel Riolo réclame une mise au point de France Football",
+    "url": "https://www.footmercato.net/a3727540783871971-ballon-dor-daniel-riolo-reclame-une-mise-au-point-de-france-football",
+    "source_date": "2026-10-30T15:11:39+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "971aa9e2796a5796e26af35f",
+    "kind": "news",
+    "title": "« Je fais abstraction », un crack de Ligue 2 remballe le PSG !",
+    "url": "https://www.onzemondial.com/ligue-2/je-fais-abstraction-un-crack-de-ligue-2-remballe-le-psg-1006017",
+    "source_date": "2026-10-30T15:02:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a260daa5d32093022be8634a",
+    "kind": "news",
+    "title": "OM : Emerson félicite Igor Paixão",
+    "url": "https://www.footmercato.net/a6500249453167143057-om-emerson-felicite-igor-paixao",
+    "source_date": "2026-10-30T14:37:54+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8eae031ce2668ff1eac394ed",
+    "kind": "news",
+    "title": "Florian Thauvin, le Lensois qui fait mieux que Messi et Neymar",
+    "url": "https://www.onzemondial.com/coupe-de-france/florian-thauvin--le-lensois-qui-fait-mieux-que-messi-et-neymar-1006034",
+    "source_date": "2026-10-30T14:25:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "919571690b41c164ca05c936",
+    "kind": "news",
+    "title": "15 buts en 14 matchs, Cristiano Ronaldo peut-il encore atteindre les 1000 réalisations avant la fin de l'année ?",
+    "url": "https://www.onzemondial.com/autres-championnats/15-buts-en-14-matchs-cristiano-ronaldo-peut-il-encore-atteindre-les-1000-buts-avant-la-fin-de-lannee-1006010",
+    "source_date": "2026-10-30T14:25:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2918763beb20fa37b0dbbf10",
+    "kind": "news",
+    "title": "FC Barcelone : Hansi Flick n’est pas enchanté par la sélection de Raphinha",
+    "url": "https://www.sofoot.com/breves/fc-barcelone-hansi-flick-nest-pas-enchante-par-la-selection-de-raphinha",
+    "source_date": "2026-10-30T14:22:20+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b82dc29c05b9e7dd59bd524b",
+    "kind": "news",
+    "title": "AS Monaco : Filipe Luis sait très bien à quoi s'attendre face au Paris FC !",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-as-monaco-filipe-luis-sait-tres-bien-a-quoi-s-attendre-face-au-paris-fc-544042.html",
+    "source_date": "2026-10-30T14:14:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e250f14d8f7637e94ceaf3e2",
+    "kind": "news",
+    "title": "Football : la Coupe d'Afrique des Nations aura de nouveau lieu tous les deux ans, confirme la CAF",
+    "url": "https://www.franceinfo.fr/sports/foot/can/football-la-coupe-d-afrique-des-nations-aura-de-nouveau-lieu-tous-les-deux-ans-confirme-la-caf_8260535.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-10-30T14:13:35+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cbe70e3d88b31c1b25e5a476",
+    "kind": "news",
+    "title": "OM : Bruno Genesio justifie sa sanction pour Keyliane Abdallah et explique son indulgence envers Angel Gomes et Neal Maupay",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-bruno-genesio-justifie-sa-sanction-pour-keyliane-abdallah-et-explique-son-indulgence-envers-angel-gomes-et-neal-maupay-544041.html",
+    "source_date": "2026-10-30T14:05:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1f4668fb54b7aece3c922f6a",
+    "kind": "news",
+    "title": "Mercato, Renato Sanches : « je veux faire un retour en force »",
+    "url": "https://www.footmercato.net/a2016325100168618763-mercato-renato-sanches-je-veux-faire-un-retour-en-force",
+    "source_date": "2026-10-30T14:01:55+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5ea765889813cf8c1a5ed4bd",
+    "kind": "news",
+    "title": "Équipe de France : après Koné, un autre cadre des Bleus déclare forfait !",
+    "url": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-apres-kone-un-autre-cadre-des-bleus-declare-forfait-1006031",
+    "source_date": "2026-10-30T13:57:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-30T20:42:26.555833+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "9c00a3ac9f3090695095143f",
     "kind": "article",
     "title": "SL Benfica B vs Chaves : analyse du match",
@@ -62,7 +608,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "701352e40e932c45f7eb7c37",
@@ -83,7 +629,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a0027cfd0e2595544f0cb8de",
@@ -104,7 +650,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0cb708e10e50eeb947b74221",
@@ -125,7 +671,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "df3c6b1cc854015f13e5c177",
@@ -146,7 +692,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a4980673e1b5f73784b18bcf",
@@ -167,7 +713,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b0a9c5af6a6c0c69ec2ac5cb",
@@ -188,7 +734,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1b72ac675e49d1929212471d",
@@ -272,7 +818,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6047dbf0c95bd69dc0cb422b",
@@ -293,7 +839,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0e2b5392a6d5d00b1fa30d2f",
@@ -314,7 +860,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "10ee68f92beecc91fd2ee0b2",
@@ -335,7 +881,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c0aa0174b8880ef466da71ed",
@@ -356,7 +902,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "98b67a196e9142fecc8c95e3",
@@ -377,7 +923,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9300dc50084faec2a866fa57",
@@ -398,7 +944,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "15d824d98e193724529b8757",
@@ -419,7 +965,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cc53a22a01029909aa1a5152",
@@ -440,7 +986,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2d03f47fc8ff26777cead34c",
@@ -461,7 +1007,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "93f102fa077f37e2e576edb6",
@@ -482,7 +1028,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "32c0924d2147f1a678934226",
@@ -503,7 +1049,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e157d5247f2ac9cfc8d67811",
@@ -524,7 +1070,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7f4e8258d92f73311426862e",
@@ -545,7 +1091,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "60ef982c784929fae3c47bfb",
@@ -566,7 +1112,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2478646b7b898d9fe692d693",
@@ -587,7 +1133,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "eef134d2879123be0d850d64",
@@ -777,7 +1323,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "90b6360ac1bf352d0a27cf40",
@@ -798,7 +1344,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "60aa564649a508ef592421ff",
@@ -1197,7 +1743,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a570292adc58d674815d9f5e",
