@@ -619,10 +619,38 @@ def run(root=ROOT,now=None,limit=5,dry_run=False):
             previous.update({k:v for k,v in article.items() if k not in ("date",)})
             result["updated"]+=1
         else: result["skipped"]+=1
+    # Enrich only legacy BSD match briefs whose canonical fixture exists in
+    # the private historic archive. Preserve old slugs, publication dates,
+    # editorial images and every non-BSD article.
+    result["enriched_existing"]=0
+    if history:
+        archive={str(row.get("id")):row for row in history
+                 if isinstance(row,dict) and row.get("id") is not None}
+        for previous in current:
+            if not (isinstance(previous,dict) and previous.get("source")=="bsd"
+                    and previous.get("type")=="match"):
+                continue
+            if "## 1. Présentation de la rencontre" in str(previous.get("content") or ""):
+                continue
+            event_id=str(previous.get("bsd_event_id") or "").removeprefix("bsd:")
+            fixture=archive.get(event_id)
+            if not isinstance(fixture,dict) or clean(fixture.get("status")).lower()!="finished":
+                continue
+            fixture=dict(fixture)
+            if not kickoff(fixture) or kickoff(fixture)>now:
+                continue
+            if not name(fixture,"home") or not name(fixture,"away"):
+                continue
+            fixture["league"]=previous.get("league") or fixture.get("league") or ""
+            rebuilt=factual_article(fixture,now,history=history)
+            if rebuilt["content"] != previous.get("content"):
+                previous["content"]=rebuilt["content"]
+                previous["reading_time"]=rebuilt["reading_time"]
+                result["enriched_existing"]+=1
     if not dry_run:
         # Le contenu original (non BSD) ne sera jamais supprimé.
         all_articles=additions+current
-        if additions or result["updated"]:
+        if additions or result["updated"] or result["enriched_existing"]:
             articles_path.write_text(json.dumps(all_articles,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
         dest=root/"assets/data/bsd_editorial_bridge_report.json"
         dest.parent.mkdir(parents=True,exist_ok=True)
