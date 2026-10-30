@@ -21,7 +21,7 @@
   "alert_levels": {
     "BNB": {
       "direction": "down",
-      "level": 5
+      "level": 0
     },
     "BTC": {
       "direction": "down",
@@ -33,7 +33,7 @@
     },
     "SOL": {
       "direction": "down",
-      "level": 5
+      "level": 0
     },
     "XRP": {
       "direction": "down",
@@ -41,10 +41,10 @@
     }
   },
   "alert_rearmed": {
-    "BNB": false,
+    "BNB": true,
     "BTC": true,
     "ETH": true,
-    "SOL": false,
+    "SOL": true,
     "XRP": true
   },
   "news_fingerprints": {
