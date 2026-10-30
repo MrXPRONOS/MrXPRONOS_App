@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog - Mr XPRONOS | Analyses et conseils paris sportifs</title>
+    <title>Analyses &amp; Décryptages - Mr XPRONOS</title>
     <meta name="description" content="Retrouvez tous nos articles, analyses et conseils pour vos paris sportifs. Stratégies, pronostics et actualités football.">
     <meta name="robots" content="index, follow">
 
@@ -83,13 +83,13 @@
                 <div class="mx-blog-copy">
                     <img class="mx-blog-hero-mark" src="assets/images/mrxpronos-mark.svg?v=20261011-approved-mx1" alt="" aria-hidden="true">
                     <span class="mx-blog-eyebrow"><i aria-hidden="true"></i> MR XPRONOS · ÉDITORIAL FOOTBALL</span>
-                    <h1 id="blog-title">BLOG</h1>
-                    <h2>ACTUALITÉS <span>&amp; ANALYSES</span></h2>
-                    <p>Toute l'actualité du football, des analyses, des conseils et des tendances pour mieux comprendre le jeu et mieux préparer vos paris.</p>
+                    <h1 id="blog-title">ANALYSES</h1>
+                    <h2>&amp; <span>DÉCRYPTAGES</span></h2>
+                    <p>Comprendre les matchs, les compétitions et les enjeux du football grâce à des analyses claires. Les actualités sont dans Infos Foot.</p>
                     <div class="mx-blog-hero-pillars" aria-label="Thèmes principaux du blog">
-                        <span><img src="assets/images/blog-premium/icon-blog-news.webp" alt="" aria-hidden="true"><b>Actualités</b><small>Football</small></span>
+                        <span><img src="assets/images/blog-premium/icon-blog-news.webp" alt="" aria-hidden="true"><b>Matchs</b><small>À suivre</small></span>
                         <span><img src="assets/images/blog-premium/icon-blog-analysis.webp" alt="" aria-hidden="true"><b>Analyses</b><small>Expertes</small></span>
-                        <span><img src="assets/images/blog-premium/icon-blog-tips.webp" alt="" aria-hidden="true"><b>Conseils</b><small>&amp; astuces</small></span>
+                        <span><img src="assets/images/blog-premium/icon-blog-tips.webp" alt="" aria-hidden="true"><b>Contexte</b><small>Sportif</small></span>
                     </div>
                 </div>
                 <img class="mx-brand-player mx-brand-player--editorial" src="assets/images/live-premium/player-back.webp" alt="" aria-hidden="true" decoding="async">
@@ -100,6 +100,8 @@
         <div class="container mx-blog-content">
             <div id="vip-locked-overlay" class="vip-locked-overlay" style="display:none;"></div>
             <div id="blog-horizontal-list" class="horizontal-scroll" aria-hidden="true"></div>
+
+            <section id="blog-featured" class="mx-analysis-featured" aria-label="Analyse à la une" hidden></section>
 
             <section class="mx-blog-explorer" aria-labelledby="blog-explorer-title">
                 <div class="mx-blog-explorer-head">
@@ -113,16 +115,11 @@
                     </label>
                 </div>
 
-                <div class="mx-blog-filters" role="group" aria-label="Filtrer les articles par catégorie">
-                    <button class="mx-blog-filter is-active" type="button" data-blog-filter="Tous"><img src="assets/images/blog-premium/icon-blog-category.webp" alt="">Tous</button>
-                    <button class="mx-blog-filter" type="button" data-blog-filter="Actualités"><img src="assets/images/blog-premium/icon-blog-news.webp" alt="">Actualités</button>
-                    <button class="mx-blog-filter" type="button" data-blog-filter="Analyses"><img src="assets/images/blog-premium/icon-blog-analysis.webp" alt="">Analyses</button>
-                    <button class="mx-blog-filter" type="button" data-blog-filter="Conseils"><img src="assets/images/blog-premium/icon-blog-tips.webp" alt="">Conseils</button>
-                    <button class="mx-blog-filter" type="button" data-blog-filter="Tendances"><img src="assets/images/blog-premium/icon-blog-trending.webp" alt="">Tendances</button>
-                    <button class="mx-blog-filter" type="button" data-blog-filter="Calendrier"><img src="assets/images/blog-premium/icon-blog-schedule.webp" alt="">Calendrier</button>
-                    <button class="mx-blog-filter" type="button" data-blog-filter="Transferts"><img src="assets/images/blog-premium/icon-blog-transfers.webp" alt="">Transferts</button>
+                <div class="mx-blog-filters" role="group" aria-label="Filtrer les analyses par catégorie">
+                    <button class="mx-blog-filter is-active" type="button" data-blog-filter="Tous"><img src="assets/images/blog-premium/icon-blog-category.webp" alt="">Toutes</button>
+                    <button class="mx-blog-filter" type="button" data-blog-filter="Matchs"><img src="assets/images/blog-premium/icon-blog-analysis.webp" alt="">Matchs</button>
                     <button class="mx-blog-filter" type="button" data-blog-filter="Compétitions"><img src="assets/images/blog-premium/icon-blog-competitions.webp" alt="">Compétitions</button>
-                    <button class="mx-blog-filter" type="button" data-blog-filter="Règlement"><img src="assets/images/blog-premium/icon-blog-rules.webp" alt="">Règlement</button>
+                    <button class="mx-blog-filter" type="button" data-blog-filter="Décryptages"><img src="assets/images/blog-premium/icon-blog-tips.webp" alt="">Décryptages</button>
                 </div>
             </section>
 
@@ -131,10 +128,11 @@
                     <span class="mx-blog-section-kicker"><img src="assets/images/blog-premium/icon-blog-news.webp" alt="" aria-hidden="true"> À LA UNE</span>
                     <h2>Derniers articles</h2>
                 </div>
-                <span id="blog-visible-count" class="mx-blog-count" aria-live="polite">0 article</span>
+                <div class="mx-blog-toolbar"><label for="blog-sort">Trier par</label><select id="blog-sort" aria-label="Trier les analyses"><option value="recent">Plus récentes</option><option value="oldest">Plus anciennes</option><option value="competition">Compétition (A–Z)</option></select><span id="blog-visible-count" class="mx-blog-count" aria-live="polite">0 analyse</span></div>
             </div>
 
             <div id="blog-list" class="blog-grid" aria-live="polite"><section class="mx-load-group mx-load-group--blog" role="status" aria-label="Préparation des articles"><div class="mx-load-heading"><span class="mx-load-pulse" aria-hidden="true"></span><span>Préparation des articles…</span></div><div class="mx-load-grid mx-load-grid--blog" aria-hidden="true"><div class="mx-load-card mx-load-editorial " aria-hidden="true"><span class="mx-load-block mx-load-image" style="width:100%"></span><div class="mx-load-editorial-body"><div class="mx-load-row mx-load-spread"><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:33%"></span><span class="mx-load-block mx-load-line mx-load-line--sm" style="width:25%"></span></div><span class="mx-load-block mx-load-line mx-load-line--lg" style="width:83%"></span><span class="mx-load-block mx-load-line" style="width:100%"></span><span class="mx-load-block mx-load-line" style="width:70%"></span><div class="mx-load-separator"></div><div class="mx-load-footer"><span class="mx-load-block mx-load-line" style="width:45%"></span><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:22%"></span></div></div></div><div class="mx-load-card mx-load-editorial " aria-hidden="true"><span class="mx-load-block mx-load-image" style="width:100%"></span><div class="mx-load-editorial-body"><div class="mx-load-row mx-load-spread"><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:33%"></span><span class="mx-load-block mx-load-line mx-load-line--sm" style="width:25%"></span></div><span class="mx-load-block mx-load-line mx-load-line--lg" style="width:83%"></span><span class="mx-load-block mx-load-line" style="width:100%"></span><span class="mx-load-block mx-load-line" style="width:70%"></span><div class="mx-load-separator"></div><div class="mx-load-footer"><span class="mx-load-block mx-load-line" style="width:45%"></span><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:22%"></span></div></div></div><div class="mx-load-card mx-load-editorial " aria-hidden="true"><span class="mx-load-block mx-load-image" style="width:100%"></span><div class="mx-load-editorial-body"><div class="mx-load-row mx-load-spread"><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:33%"></span><span class="mx-load-block mx-load-line mx-load-line--sm" style="width:25%"></span></div><span class="mx-load-block mx-load-line mx-load-line--lg" style="width:83%"></span><span class="mx-load-block mx-load-line" style="width:100%"></span><span class="mx-load-block mx-load-line" style="width:70%"></span><div class="mx-load-separator"></div><div class="mx-load-footer"><span class="mx-load-block mx-load-line" style="width:45%"></span><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:22%"></span></div></div></div></div></section></div>
+            <div class="mx-blog-more"><button type="button" id="blog-load-more" class="btn btn-secondary" hidden>Afficher plus d’analyses</button></div>
         </div>
     </main>
 
