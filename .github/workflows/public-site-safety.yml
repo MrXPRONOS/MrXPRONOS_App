@@ -6,6 +6,9 @@ on:
       - 'scripts/public_proof_receipts.py'
       - 'tests/test_public_proof_receipts.py'
       - 'tests/test_public_site_build.py'
+      - 'tests/test_site_editorial_redesign.py'
+      - 'scripts/editorial_bsd_bridge.py'
+      - 'assets/js/menu.js'
       - '.github/workflows/deploy.yml'
       - 'assets/js/main.js'
       - 'assets/js/assistant.js'
@@ -17,6 +20,9 @@ on:
       - 'scripts/public_proof_receipts.py'
       - 'tests/test_public_proof_receipts.py'
       - 'tests/test_public_site_build.py'
+      - 'tests/test_site_editorial_redesign.py'
+      - 'scripts/editorial_bsd_bridge.py'
+      - 'assets/js/menu.js'
       - '.github/workflows/deploy.yml'
       - 'assets/js/main.js'
       - 'assets/js/assistant.js'
@@ -33,11 +39,14 @@ jobs:
           node-version: '22'
       - name: Verify staging redaction and media retention
         run: python -m unittest discover -s tests -p 'test_public_site_build.py' -v
+      - name: Verify visitor layout and factual analyses
+        run: python -m unittest discover -s tests -p 'test_site_editorial_redesign.py' -v
       - name: Verify public publication receipts
         run: python -m unittest discover -s tests -p 'test_public_proof_receipts.py' -v
       - name: Verify public scripts remain valid
         run: |
           node --check assets/js/main.js
+          node --check assets/js/menu.js
           node --check assets/js/assistant.js
       - name: Verify public artifact excludes back-end files
         run: |
