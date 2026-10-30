@@ -97,6 +97,8 @@ def check_standard(browser, path, active_label, width, height):
             raise AssertionError(f"{label}: active link inaccessible in Plus menu")
         more.locator("summary").click()
 
+    if page.locator(".mx-desktop-nav a[href='live.html']").count():
+        raise AssertionError(f"{label}: paused LIVE leaked into visitor navigation")
     promo=page.locator(".mx-code-button")
     if promo.count()!=1:
         raise AssertionError(f"{label}: promo button missing")
@@ -132,38 +134,11 @@ def check_standard(browser, path, active_label, width, height):
     context.close()
     print("PASS",label)
 
-def check_live(browser,width,height):
-    label=f"live.html@{width}"
-    context=browser.new_context(viewport={"width":width,"height":height}, service_workers="block")
-    page=context.new_page()
-    page.route("**/live*", lambda route: route.continue_())
-    page.goto("http://127.0.0.1:8000/live.html", wait_until="domcontentloaded", timeout=60000)
-    page.locator(".mx-live-header").wait_for(state="visible", timeout=60000)
-    page.wait_for_timeout(1200)
-    no_overflow(page,label)
-    h=round(page.locator(".mx-live-header__inner").bounding_box()["height"])
-    expected=76 if width>900 else 65
-    if abs(h-expected)>1:
-        raise AssertionError(f"{label}: live header inner height {h}, expected {expected}")
-    logo=page.locator(".mx-live-brand img")
-    if logo.count()!=1 or not logo.evaluate("(i)=>i.complete && i.naturalWidth>0"):
-        raise AssertionError(f"{label}: live logo missing/broken")
-    if width <= 390:
-        page.screenshot(path=str(OUT/f"live-{width}.png"), full_page=False)
-
-    if width<=900:
-        if page.locator(".mx-mobile-only").count()<2:
-            raise AssertionError(f"{label}: live mobile controls missing")
-    else:
-        if not page.locator(".mx-live-desktop-nav").is_visible():
-            raise AssertionError(f"{label}: live desktop nav missing")
-    context.close()
-    print("PASS",label)
-
 with sync_playwright() as p:
     browser=p.chromium.launch(headless=True)
     for width,height in [(1024,900),(390,844),(320,720)]:
         for path,label in STANDARD:
             check_standard(browser,path,label,width,height)
-        check_live(browser,width,height)
+        # LIVE is deliberately paused and excluded from public Pages.
+        # It is not part of the visitor header/navigation contract.
     browser.close()
