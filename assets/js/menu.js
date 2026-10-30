@@ -224,6 +224,8 @@
   }
 
   function createMenu() {
+    const footerYear = document.getElementById('mx-current-year');
+    if (footerYear) footerYear.textContent = String(new Date().getFullYear());
     ensureMobileNavStyles();
     const overlay = createBurgerOverlay();
     const bottomNav = createBottomNav();
