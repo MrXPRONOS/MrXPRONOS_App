@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-d0d9755283d65036:UNDER_35",
+    "recorded_at_utc": "2026-10-30T17:09:42+00:00",
+    "kickoff_utc": "2026-11-01T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Kano Pillars",
+      "away_team": "Nasarawa United",
+      "league": "Nigeria Premier Football League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 80.9,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "855e135751a1b684e81bcc4c22f43396ad6ea67463f0274de0b19332d39ec753"
+}

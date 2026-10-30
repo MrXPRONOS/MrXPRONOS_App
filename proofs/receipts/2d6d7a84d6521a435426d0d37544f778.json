@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-5dd3c6ad79cde6f0:UNDER_35",
+    "recorded_at_utc": "2026-10-30T17:09:42+00:00",
+    "kickoff_utc": "2026-11-01T13:30:00+00:00",
+    "fixture": {
+      "home_team": "Espérance Sportive De Tunis",
+      "away_team": "US Monastir",
+      "league": "Tunisian Ligue Professionnelle 1"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 81.5,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "8b4f89af9439744b18bd31a83c00db49ad516f559751597a5a36022461e3ab8c"
+}

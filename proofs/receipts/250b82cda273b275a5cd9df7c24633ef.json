@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-80dd506f25e21ac1:1X",
+    "recorded_at_utc": "2026-10-30T17:09:42+00:00",
+    "kickoff_utc": "2026-11-01T12:00:00+00:00",
+    "fixture": {
+      "home_team": "Mladá Boleslav",
+      "away_team": "FC Hradec Králové",
+      "league": "Czech First League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 80.2,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "6478489819d12b5e371beeb600c4484ea21695ce9ea7f0ef36d6b3ac20d19dd9"
+}

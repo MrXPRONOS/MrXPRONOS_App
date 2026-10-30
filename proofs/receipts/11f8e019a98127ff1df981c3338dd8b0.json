@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-96ba6596e1d1a49e:UNDER_35",
+    "recorded_at_utc": "2026-10-30T17:09:42+00:00",
+    "kickoff_utc": "2026-11-01T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Plateau United",
+      "away_team": "Warri Wolves FC",
+      "league": "Nigeria Premier Football League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 80.0,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "31666382d3d363afbcf0c58e0ead3f9cbe1566be84541a175d6501f9fb2d040f"
+}

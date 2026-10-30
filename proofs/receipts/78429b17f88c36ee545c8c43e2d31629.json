@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-9d5ad589b7e813ce:1X",
+    "recorded_at_utc": "2026-10-30T17:09:42+00:00",
+    "kickoff_utc": "2026-10-31T19:00:00+00:00",
+    "fixture": {
+      "home_team": "St.Louis City",
+      "away_team": "San Diego FC",
+      "league": "MLS"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 81.3,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "cef850b0864d16dd70a894f45e6eb0d937d763b113f5094ee284a4a796f1de37"
+}

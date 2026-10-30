@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-db6f0f49c00e6abc:X2",
+    "recorded_at_utc": "2026-10-30T17:09:42+00:00",
+    "kickoff_utc": "2026-11-01T11:30:00+00:00",
+    "fixture": {
+      "home_team": "FC Badalona Women",
+      "away_team": "Fútbol Club Barcelona",
+      "league": "Liga F"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "X2",
+      "type": "X2",
+      "confidence": 82.3,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "a549cffb53a8f90eff6c4035d83db4d7fd19ca79633084007c2a30d517b91669"
+}

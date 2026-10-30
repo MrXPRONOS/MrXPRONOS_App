@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-5d3fe028bd4cab69:UNDER_35",
+    "recorded_at_utc": "2026-10-30T17:09:42+00:00",
+    "kickoff_utc": "2026-11-01T13:00:00+00:00",
+    "fixture": {
+      "home_team": "Malmö FF",
+      "away_team": "Hammarby IF",
+      "league": "Allsvenskan"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 80.0,
+      "odds": 1.54,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "89a16d2afbe66b7df9383424794cb78334f96304b9e55b567e234aa42978cf22"
+}

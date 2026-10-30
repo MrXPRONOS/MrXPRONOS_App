@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-15aceba861f03d91:1X",
+    "recorded_at_utc": "2026-10-30T17:09:42+00:00",
+    "kickoff_utc": "2026-11-01T15:00:00+00:00",
+    "fixture": {
+      "home_team": "O Elvas CAD",
+      "away_team": "Associação Naval 1893",
+      "league": "Campeonato de Portugal"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 82.5,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "b44493aa2e93d3742b54d989e33c7a709f1d4374d0985efe7520ad7c7004c4f5"
+}
