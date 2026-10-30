@@ -109,7 +109,7 @@ def run_case(browser, width, height, label):
         ) from exc
     if "Gold United" not in page.locator("body").inner_text():
         raise AssertionError(f"{label}: offline rendering did not use locally stored VIP match")
-    if "Blue FC" in page.locator(".match-card").all_inner_texts():
+    if any("Blue FC" in text for text in page.locator(".match-card").all_inner_texts()):
         raise AssertionError(f"{label}: obsolete Simple fixture leaked to offline pronostics")
 
     assert_no_overflow(page, label + "-pronos")
