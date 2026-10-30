@@ -391,30 +391,71 @@ def factual_article(match,now):
     league=clean(match.get("league"))[:95] if isinstance(match.get("league"),str) else ""
     local=dt.astimezone(TZ).strftime("%d/%m/%Y à %Hh%M")
     description=f"{h} – {a} : présentation de la rencontre du {local} (heure du Togo)."
-    lines=[f"# {h} – {a}","",f"**Date et heure :** {local} (GMT, Togo).",f"**Compétition :** {league or 'Non précisée'}.",
-       ""]
-    home_score=match.get("home_score");away_score=match.get("away_score")
+    # All assertions below are derived from the dated match feed. Do not turn
+    # a generated overview into invented standings, H2H or form statistics.
+    home_score=match.get("home_score")
+    away_score=match.get("away_score")
     status=clean(match.get("status")).lower()
-    if status in {"finished","ft","full_time"} and isinstance(home_score,int) and isinstance(away_score,int):
-        lines.extend([f"**Score final :** {h} {home_score} – {away_score} {a}.",""])
-    else:
-        lines.extend(["**Statut :** rencontre programmée ou en cours selon les dernières informations disponibles.",""])
+    final=status in {"finished","ft","full_time"} and (
+        isinstance(home_score,int) and not isinstance(home_score,bool) and
+        isinstance(away_score,int) and not isinstance(away_score,bool))
     pred=match.get("prediction")
-    if isinstance(pred,dict) and pred.get("selection_key"):
-        label=clean(pred.get("label") or pred.get("type"))
-        if label:
-            lines.extend(["## Analyse de la rencontre",f"**Marché identifié :** {label}.",
-              "Le pronostic est indicatif et ne garantit aucun résultat. Vérifie l'état du match et les cotes au moment de consulter le site.",""])
-    lines.extend(["## Consulter les données en direct",
-        "Retrouve les éventuelles mises à jour sur la page Pronostics de Mr XPRONOS.",
-        "",
-        "**18+ — Les paris sportifs comportent un risque de perte.**"])
+    confidence=(pred or {}).get("confidence") if isinstance(pred,dict) else None
+    eligible=(match.get("category") in {"pro","vip"} and
+        match.get("recommendation_eligible") is True and not final and
+        isinstance(pred,dict) and pred.get("recommendation_eligible") is not False and
+        bool(pred.get("selection_key")) and
+        isinstance(confidence,(int,float)) and not isinstance(confidence,bool) and
+        79 <= confidence <= 100)
+    label=clean(pred.get("label") or pred.get("type")) if isinstance(pred,dict) else ""
+    lines=[
+       f"# {h} – {a}", "",
+       "## 1. Présentation de la rencontre",
+       f"**Date et heure :** {local} (GMT, Togo).",
+       f"**Compétition :** {league or 'Non précisée'}.",
+       f"**Équipes :** {h} et {a}.", "",
+       "## 2. Contexte et enjeux",
+       f"Cette rencontre oppose {h} à {a}" + (f" en {league}." if league else "."),
+       "Le classement, la qualification et les enjeux précis ne sont pas confirmés dans les informations disponibles pour cette fiche.", "",
+       "## 3. Forme récente",
+       "Les résultats récents des deux équipes ne sont pas suffisamment documentés ici pour établir une tendance fiable.", "",
+       "## 4. Confrontations directes",
+       "Aucun historique de confrontations vérifié n'est disponible dans les données utilisées pour cette fiche.", "",
+       "## 5. Statistiques disponibles",
+    ]
+    if final:
+        lines.append(f"**Résultat final confirmé :** {h} {home_score} – {away_score} {a}.")
+    else:
+        lines.append("Le score final n'est pas encore disponible ou n'est pas confirmé.")
+    lines.extend([
+       "Les chiffres de tirs, de possession, d'occasions et de corners ne sont pas publiés sans confirmation.", "",
+       "## 6. Points de vigilance",
+       "L'absence de statistiques fiables sur la forme et les confrontations limite toute conclusion sportive forte.",
+       "Les cotes et les compositions peuvent évoluer : il faut vérifier les informations au moment de la rencontre.", "",
+       "## 7. Notre lecture",
+       "Les éléments confirmés sont l'affiche, la compétition lorsqu'elle est renseignée, la date et, le cas échéant, le score final.",
+       "Sans données supplémentaires vérifiées, il serait trompeur de présenter une équipe comme favorite sur des critères chiffrés.", "",
+       "## 8. Pronostic associé",
+    ])
+    if eligible and label:
+        lines.append(f"**Sélection Pro/VIP publiée dans le flux courant :** {label} (confiance estimée {confidence:g} %).")
+        lines.append("Ce pourcentage est une estimation, pas une garantie. Consultez la page Pronostics pour vérifier la sélection disponible.")
+    elif final:
+        lines.append("Le match est terminé. Consultez la page Résultats pour connaître les sélections évaluées et leurs preuves lorsqu'elles existent.")
+    else:
+        lines.append("Aucune sélection Pro/VIP admissible n'est présentée pour cette rencontre dans cette fiche.")
+    lines.extend([
+       "", "Cette présentation est informative : elle ne constitue ni une promesse de gain ni une validation rétroactive d'un pronostic.",
+       "**18+ — Les paris sportifs comportent un risque de perte.**"
+    ])
+    body="\n".join(lines)
+    reading_time=max(1,(len(body.split())+199)//200)
     return {
       "slug":slug,"title":f"{h} vs {a} : analyse du match",
-      "date":now.isoformat(),"author":"Mr XPRONOS","reading_time":1,
+      "date":now.isoformat(),"author":"Mr XPRONOS","reading_time":reading_time,
       "excerpt":description,"meta_description":description[:160],
       "keywords":", ".join(filter(None,("football","analyse de match",league,h,a)))[:230],
-      "content":"\n".join(lines),"active":True,"type":"match",
+      "content":body,"active":True,"type":"match",
       "source":"bsd","match":f"{h} vs {a}","league":league,
       "bsd_event_id":str(match.get("source_event_id") or match["id"]),
       "bsd_match_date":dt.isoformat(),
