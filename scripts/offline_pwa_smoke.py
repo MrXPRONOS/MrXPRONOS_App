@@ -16,7 +16,10 @@ CACHE_DATA = {
             "league": "Test League",
             "category": "vip",
             "status": "scheduled",
-            "prediction": {"type": "Plus de 1,5 but", "confidence": 82},
+            "source": "bsd",
+            "recommendation_eligible": True,
+            "prediction": {"type": "Plus de 1,5 but", "selection_key": "OVER_15",
+                           "confidence": 82, "recommendation_eligible": True},
         },
         {
             "id": "offline-2",
@@ -61,8 +64,12 @@ def run_case(browser, width, height, label):
     page.goto(BASE + "/missing-offline-probe.html", wait_until="domcontentloaded", timeout=60000)
     page.wait_for_selector("#offline-title", timeout=10000)
     assert "hors ligne" in page.locator("#offline-title").inner_text().lower()
-    assert page.locator("#cache-count").inner_text().strip() == "2"
-    assert page.locator(".cached-match").count() == 2
+    assert page.locator("#cache-count").inner_text().strip() == "1"
+    assert page.locator(".cached-match").count() == 1
+    if "Gold United" not in page.locator(".cached-match").first.inner_text():
+        raise AssertionError(f"{label}: eligible VIP selection missing")
+    if "Blue FC" in page.locator("#cached-list").inner_text():
+        raise AssertionError(f"{label}: retired Simple selection leaked offline")
 
     logo = page.locator(".brand img")
     if not logo.evaluate("(img) => img.complete && img.naturalWidth > 0"):

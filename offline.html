@@ -206,6 +206,22 @@
         });
       }
 
+      function publicOfflineEligible(match) {
+        if (!match || typeof match !== "object") return false;
+        const category = String(match.category || "").toLowerCase().trim();
+        if (category !== "pro" && category !== "vip") return false;
+        if (match.combo_only === true) return false;
+        const pick = match.prediction ||
+          (Array.isArray(match.predictions) ? match.predictions[0] : null);
+        const raw = Number(pick && pick.confidence);
+        if (!Number.isFinite(raw) || raw <= 0) return false;
+        const confidence = raw <= 1 ? raw * 100 : raw;
+        if (confidence < 79 || confidence > 100) return false;
+        const finished = match.is_finished === true ||
+          ["finished", "ft", "full_time"].includes(String(match.status || "").toLowerCase());
+        return finished || match.recommendation_eligible === true;
+      }
+
       function readCache() {
         let data = null;
         try {
@@ -214,7 +230,8 @@
           data = null;
         }
 
-        const matches = Array.isArray(data && data.matches) ? data.matches : [];
+        const matches = Array.isArray(data && data.matches)
+          ? data.matches.filter(publicOfflineEligible) : [];
         els.count.textContent = String(matches.length);
         els.date.textContent = formatDate(data && (data.generated_at || data.updated_at));
 
