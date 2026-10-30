@@ -91,8 +91,8 @@ class EditorialNavigationTests(unittest.TestCase):
     def test_old_articles_get_honest_structure_without_prematch_backdating(self):
         article = {
             "type": "match", "match": "Togo vs Ghana", "league": "Coupe test",
-            "content": "# Togo – Ghana\\n\\n**Date et heure :** 30/10/2026 à 18h00.\\n"
-                       "**Marché identifié :** 1X.\\n**Score final :** Togo 2 – 1 Ghana.",
+            "content": "# Togo – Ghana\n\n**Date et heure :** 30/10/2026 à 18h00.\n"
+                       "**Marché identifié :** 1X.\n**Score final :** Togo 2 – 1 Ghana.",
         }
         text = builder.structure_legacy_match_article(article)
         for i in range(1, 9):
