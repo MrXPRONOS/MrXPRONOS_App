@@ -2,200 +2,212 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/</loc>
-    <lastmod>2026-10-29</lastmod>
+    <lastmod>2026-10-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/pronos.html</loc>
-    <lastmod>2026-10-29</lastmod>
+    <lastmod>2026-10-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/historique.html</loc>
-    <lastmod>2026-10-29</lastmod>
+    <lastmod>2026-10-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/blog.html</loc>
-    <lastmod>2026-10-29</lastmod>
+    <lastmod>2026-10-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/infos.html</loc>
-    <lastmod>2026-10-29</lastmod>
+    <lastmod>2026-10-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseils.html</loc>
-    <lastmod>2026-10-29</lastmod>
+    <lastmod>2026-10-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/bonus.html</loc>
-    <lastmod>2026-10-29</lastmod>
+    <lastmod>2026-10-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.65</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/contact.html</loc>
-    <lastmod>2026-10-29</lastmod>
+    <lastmod>2026-10-30</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.45</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-375070/</loc>
+    <lastmod>2026-10-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-642977/</loc>
+    <lastmod>2026-10-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-210137/</loc>
     <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-5379/</loc>
     <lastmod>2026-10-28</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-7315/</loc>
     <lastmod>2026-10-28</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-606225/</loc>
     <lastmod>2026-10-28</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-606028/</loc>
     <lastmod>2026-10-28</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-604591/</loc>
     <lastmod>2026-10-27</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-223854/</loc>
     <lastmod>2026-10-27</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-7307/</loc>
     <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-209607/</loc>
     <lastmod>2026-10-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-213611/</loc>
     <lastmod>2026-10-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-210500/</loc>
     <lastmod>2026-10-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-603737/</loc>
     <lastmod>2026-10-24</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-5369/</loc>
     <lastmod>2026-10-24</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-603663/</loc>
     <lastmod>2026-10-22</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-604437/</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-601027/</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-601207/</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-601195/</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-601110/</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-605005/</loc>
     <lastmod>2026-10-20</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-603727/</loc>
     <lastmod>2026-10-19</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-209600/</loc>
     <lastmod>2026-10-19</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-223816/</loc>
     <lastmod>2026-10-19</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-215282/</loc>
     <lastmod>2026-10-19</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/articles/match-604582/</loc>
     <lastmod>2026-10-19</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.70</priority>
   </url>
 </urlset>
