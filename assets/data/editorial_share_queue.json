@@ -1,5 +1,553 @@
 [
   {
+    "id": "6723ae7cd6102be8a5fb9a27",
+    "kind": "article",
+    "title": "Espérance Sportive De Tunis vs US Monastir : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-606243/",
+    "source_date": "2026-10-31T05:42:51.412470+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-606243-ec4cc9c0-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-606243-ec4cc9c0-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-606243-ec4cc9c0-social.jpg"
+  },
+  {
+    "id": "374e49e278e2107aab2cebeb",
+    "kind": "article",
+    "title": "FC Badalona Women vs Fútbol Club Barcelona : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-215294/",
+    "source_date": "2026-10-31T05:42:51.412470+00:00",
+    "visual_variant": "v2",
+    "image": "assets/images/editorial/match-bsd-match-215294-becbc2e8-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-215294-becbc2e8-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-215294-becbc2e8-social.jpg"
+  },
+  {
+    "id": "b0346d7a5502d997f7c4492c",
+    "kind": "news",
+    "title": "Ligue 1 : Golovin déclare sa flamme à Monaco, énorme coup dur pour Le Mans face à Troyes",
+    "url": "https://www.onzemondial.com/ligue-1/ligue-1-golovin-declare-sa-flamme-a-moncao-enorme-coup-dur-pour-le-mans-face-a-troyes-1006059",
+    "source_date": "2026-10-30T22:33:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0fb57fc8543ae95c965c9d58",
+    "kind": "news",
+    "title": "RC Lens : \"S'excuser et la fermer\", les mots forts de Yannick Cahuzac après le \"non-match\" du RC Lens face au LOSC",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-s-excuser-et-la-fermer-les-mots-forts-de-yannick-cahuzac-apres-le-non-match-du-rc-lens-face-au-losc-544106.html",
+    "source_date": "2026-10-30T22:30:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e2ac27ca4725aa15904999ed",
+    "kind": "news",
+    "title": "Lille-Lens : \"S'excuser auprès de nos supporters\", Cahuzac lucide après la défaite dans le derby",
+    "url": "https://www.onzemondial.com/ligue-1/lille-lens-sexcuser-aupres-de-nos-supporters-cahuzac-lucide-apres-la-defaite-dans-le-derby-1006107",
+    "source_date": "2026-10-30T22:22:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "908f24df1a83a884282c687f",
+    "kind": "news",
+    "title": "RC Lens : \"Il a manqué un peu de tout\", Florian Sotoca déplore les lacunes lensoises après la défaite dans le derby face au LOSC",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-il-a-manque-un-peu-de-tout-florian-sotoca-deplore-les-lacunes-lensoises-apres-la-defaite-dans-le-derby-face-au-losc-544105.html",
+    "source_date": "2026-10-30T22:20:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "eaa51406783d054c39f2432d",
+    "kind": "news",
+    "title": "La CAF rétropédale : la CAN se jouera de nouveau tous les deux ans",
+    "url": "https://www.france24.com/fr/%C3%A9missions/caf%C3%A9-des-sports/20261030-caf-r%C3%A9trop%C3%A9dale-can-se-jouera-de-nouveau-tous-deux-ans",
+    "source_date": "2026-10-30T20:27:23+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "90a98d62f407883129a14e5d",
+    "kind": "news",
+    "title": "Comment la polémique autour de Kylian Mbappé sur Mao Zedong est censurée par les IA chinoises",
+    "url": "https://www.france24.com/fr/asie-pacifique/20261030-comment-pol%C3%A9mique-autour-kylian-mbapp%C3%A9-mao-zedong-censur%C3%A9e-ia-chinoises",
+    "source_date": "2026-10-30T16:48:03+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "40aea6ac15836243bc9b631a",
+    "kind": "news",
+    "title": "Ballon d’or : Le classement des trois journalistes qui n’ont pas mis Kylian Mbappé dans leur top 10",
+    "url": "https://www.sofoot.com/breves/ballon-dor-le-classement-des-trois-journalistes-qui-nont-pas-mis-kylian-mbappe-dans-leur-top-10",
+    "source_date": "2026-10-30T23:11:20+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ed3ca5c56636b51255a3f043",
+    "kind": "news",
+    "title": "Un ancien cadre de la sélection belge condamné par la justice ?",
+    "url": "https://www.onzemondial.com/serie-a/un-ancien-cadre-de-la-selection-belge-condamne-par-la-justice-1006066",
+    "source_date": "2026-10-30T23:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "23c23d1e9b1821db17e9dd00",
+    "kind": "news",
+    "title": "« 26 matchs de merde » : Facundo Medina fracasse son aventure à l’OM",
+    "url": "https://www.footmercato.net/a2065488472712706358-26-matchs-de-merde-facundo-medina-fracasse-son-aventure-a-lom",
+    "source_date": "2026-10-30T23:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d5a07dafa97b06a153fcf63a",
+    "kind": "news",
+    "title": "Mercato OL : Paulo Fonseca serait la priorité du Sporting CP, qui voudrait l'attirer dès le mois de novembre !",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-ol-paulo-fonseca-serait-la-priorite-du-sporting-cp-qui-voudrait-l-attirer-des-le-mois-de-novembre-544113.html",
+    "source_date": "2026-10-30T23:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cbc04023f4b22faf91e90b17",
+    "kind": "news",
+    "title": "Lille-Lens : \"No Pain, No Gain\", Giroud en Roi du Nord",
+    "url": "https://www.onzemondial.com/ligue-1/-1006103",
+    "source_date": "2026-10-30T22:57:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a523593326253314c132b0ac",
+    "kind": "news",
+    "title": "Olivier Giroud après le derby remporté par Lille contre Lens : « Ce n’est pas parce que j’ai dit que c’était probablement ma dernière année qu’il ne faut pas compter sur moi »",
+    "url": "https://www.sofoot.com/breves/olivier-giroud-apres-le-derby-remporte-par-lille-contre-lens-ce-nest-pas-parce-que-jai-dit-que-cetait-probablement-ma-derniere-annee-quil-ne-faut-pas-compter-sur-moi",
+    "source_date": "2026-10-30T22:53:49+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "17a1a68483c10ed62548879c",
+    "kind": "news",
+    "title": "LOSC : Olivier Giroud réagit à son but victorieux dans le derby face au RC Lens et envoie un message à Davide Ancelotti",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-losc-olivier-giroud-reagit-a-son-but-victorieux-dans-le-derby-face-au-rc-lens-et-envoie-un-message-a-davide-ancelotti-544112.html",
+    "source_date": "2026-10-30T22:46:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2902f5027ae15371ae579ca1",
+    "kind": "news",
+    "title": "LOSC : Davide Ancelotti souligne la mentalité \"exemplaire\" d'Olivier Giroud, buteur victorieux dans le derby face au RC Lens",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-losc-davide-ancelotti-souligne-la-mentalite-exemplaire-d-olivier-giroud-buteur-victorieux-dans-le-derby-face-au-rc-lens-544111.html",
+    "source_date": "2026-10-30T22:40:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "da38fd410a15ec9c9f6ca11c",
+    "kind": "news",
+    "title": "OL : le Sporting CP entre en discussions avec Paulo Fonseca !",
+    "url": "https://www.footmercato.net/a7093992196713549182-ol-le-sporting-cp-entre-en-discussions-avec-paulo-fonseca",
+    "source_date": "2026-10-30T22:30:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c8438e0f5aa7a6b154997a1e",
+    "kind": "news",
+    "title": "LOSC : La victoire dans le derby, Olivier Giroud... les mots forts de Romain Perraud après le succès face au RC Lens",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-losc-la-victoire-dans-le-derby-olivier-giroud-les-mots-forts-de-romain-perraud-apres-le-succes-face-au-rc-lens-544110.html",
+    "source_date": "2026-10-30T22:30:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ceedcc7c6675c1a6cff81672",
+    "kind": "news",
+    "title": "LOSC : le but libérateur d’Olivier Giroud contre Lens",
+    "url": "https://www.footmercato.net/a5232387753300927255-losc-le-but-liberateur-dolivier-giroud-contre-lens",
+    "source_date": "2026-10-30T22:20:34+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cb5bb12bb0faa26ad318d94c",
+    "kind": "news",
+    "title": "Ligue 1 : Luis Enrique dépasse Laurent Blanc et devient l’entraîneur le plus victorieux de l’histoire du PSG",
+    "url": "https://www.sofoot.com/breves/ligue-1-luis-enrique-depasse-laurent-blanc-et-devient-lentraineur-le-plus-victorieux-de-lhistoire-du-psg",
+    "source_date": "2026-10-30T22:15:11+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b397ea9fd9c58520add49957",
+    "kind": "news",
+    "title": "LOSC : Nabil Bentaleb sur un nuage après la victoire dans le derby du Nord face au RC Lens",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-losc-nabil-bentaleb-sur-un-nuage-apres-la-victoire-dans-le-derby-du-nord-face-au-rc-lens-544104.html",
+    "source_date": "2026-10-30T22:05:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4ec970f362cd9c6164e0a111",
+    "kind": "news",
+    "title": "Giroud offre le derby au LOSC ! - Débrief et NOTES des joueurs (Lille 1-0 Lens)",
+    "url": "https://m.maxifoot.fr/football/article-66424.htm",
+    "source_date": "2026-10-30T22:03:43+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8585eca6ec8d5197c807fef3",
+    "kind": "news",
+    "title": "Ligue 1 : Olivier Giroud offre le derby à Lille sur le fil contre Lens",
+    "url": "https://www.sofoot.com/articles/ligue-1-olivier-giroud-offre-le-derby-a-lille-sur-le-fil-contre-lens",
+    "source_date": "2026-10-30T21:59:50+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b0bb53cfd2f55f6050b2ab05",
+    "kind": "news",
+    "title": "Ligue 1 : grâce à l’inusable Olivier Giroud, le LOSC s’offre le derby contre Lens",
+    "url": "https://www.footmercato.net/a1542013203263122196-ligue-1-grace-a-linusable-olivier-giroud-le-losc-soffre-le-derby-contre-lens",
+    "source_date": "2026-10-30T21:57:39+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "baf6b3d375d8dbf581875b03",
+    "kind": "news",
+    "title": "Ligue 1 : Les notes de LOSC - RC Lens : Olivier Giroud offre la victoire à Lille dans le derby du Nord !",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-les-notes-de-losc-rc-lens-olivier-giroud-offre-la-victoire-a-lille-dans-le-derby-du-nord-544098.html",
+    "source_date": "2026-10-30T21:56:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f402d7057df6e0d457c30f25",
+    "kind": "news",
+    "title": "Lille-Lens : Giroud offre le derby aux Dogues",
+    "url": "https://www.onzemondial.com/ligue-1/lille-lens-giroud-offre-le-derby-aux-dogues-1006100",
+    "source_date": "2026-10-30T21:48:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-31T05:42:55.577042+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "67aca3c9eb5b8b9f137d72df",
     "kind": "news",
     "title": "Angers SCO : Une mauvaise nouvelle se profile avant d'affronter l'OL",
@@ -18,7 +566,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "01252376653bde393aed9000",
@@ -39,7 +587,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "40e41d05c848d522a4fa3beb",
@@ -60,7 +608,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9962fdb43a67bcb179f4da49",
@@ -81,7 +629,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "fedf0ff753ebb2e26495d4c8",
@@ -102,7 +650,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "16b82382a4f761e6259fe26d",
@@ -123,7 +671,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "fff033fd8ed1885757677a96",
@@ -207,7 +755,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1d067a1c408b665d376581c9",
@@ -228,7 +776,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7d0cc0083f14c267094cf783",
@@ -249,7 +797,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9f1add9c8d570c41a6b7082a",
@@ -270,7 +818,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "150e232fe4f792ca95ed0dd8",
@@ -291,7 +839,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d7417630f919d28c79a08b26",
@@ -312,7 +860,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8f988d2e7998ae474ec34fc8",
@@ -333,7 +881,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "971aa9e2796a5796e26af35f",
@@ -354,7 +902,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a260daa5d32093022be8634a",
@@ -375,7 +923,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8eae031ce2668ff1eac394ed",
@@ -396,7 +944,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "919571690b41c164ca05c936",
@@ -417,7 +965,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2918763beb20fa37b0dbbf10",
@@ -438,7 +986,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b82dc29c05b9e7dd59bd524b",
@@ -459,7 +1007,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e250f14d8f7637e94ceaf3e2",
@@ -480,7 +1028,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cbe70e3d88b31c1b25e5a476",
@@ -501,7 +1049,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1f4668fb54b7aece3c922f6a",
@@ -522,7 +1070,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5ea765889813cf8c1a5ed4bd",
@@ -543,7 +1091,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9c00a3ac9f3090695095143f",
@@ -1302,7 +1850,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6277da9bedde20d3390e6601",
