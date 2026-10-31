@@ -745,11 +745,15 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                 frozen_dated_training=dated_training
                 frozen_recent_low=recent_low
             if auto_tune:
-                ml = fit_histgb(frozen_dated_training, config=selected_config,
+                # The unchanged V2 tuning path still operates normally when
+                # the separate frozen-fit research mode is disabled.
+                ml = fit_histgb(dated_training, config=selected_config,
                                 asof=day, feature_count=len(FEATURE_NAMES))
             else:
                 ml = train_ml(frozen_training, **(ml_parameters or {}))
-            direct_model = train_direct_score(frozen_direct_training)
+            direct_model = (train_direct_score(direct_training)
+                            if frozen_fit_cutoff is None
+                            else train_direct_score(frozen_direct_training))
             if v3_models:
                 v3_hist_model = fit_hist_v3(frozen_dated_training,asof=day,
                                            feature_count=len(FEATURE_NAMES))
