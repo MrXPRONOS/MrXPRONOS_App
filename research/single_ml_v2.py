@@ -800,11 +800,17 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             forecasts = {
                 "poisson": p0,
                 "dixon_coles": dixon_coles(f["h"], f["a"], dc_rho),
-                "bivariate_poisson": bivariate_grid(f["h"], f["a"], league_shared_covariance(league_residuals[m.league], shared*min(f["h"], f["a"]))),
-                "bayesian_gamma": bayesian_grid(f, seed),
-                "monte_carlo": monte_carlo_grid(f["h"], f["a"], seed+1),
             }
-            if f["xgh"] is not None and f["xga"] is not None:
+            # The frozen 2026 holdout compares ONLY 5 V2 + 3 V3:
+            # bypass costly Monte Carlo/Bayesian/bivariate diagnostics which
+            # cannot affect any of the eight ML probability grids or rankings.
+            if frozen_fit_cutoff is None:
+                forecasts.update({
+                    "bivariate_poisson": bivariate_grid(f["h"], f["a"], league_shared_covariance(league_residuals[m.league], shared*min(f["h"], f["a"]))),
+                    "bayesian_gamma": bayesian_grid(f, seed),
+                    "monte_carlo": monte_carlo_grid(f["h"], f["a"], seed+1),
+                })
+            if frozen_fit_cutoff is None and f["xgh"] is not None and f["xga"] is not None:
                 forecasts["xg_poisson"] = poisson_grid(f["xgh"], f["xga"])
             else:
                 audit["xg_model_missing_prior_xg"] += 1
@@ -843,16 +849,17 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                     forecasts[CANDIDATE_MODEL_NAMES[candidate_name]] = predict_grid(fitted, f["vector"], poisson_grid)
                 else:
                     audit[f"{candidate_name}_not_enough_training"] += 1
-            market = market_grid(p0, m.odds)
-            if market is not None:
-                forecasts["market_adjusted"] = market
-            else:
-                audit["market_model_missing_verified_odds"] += 1
+            if frozen_fit_cutoff is None:
+                market = market_grid(p0, m.odds)
+                if market is not None:
+                    forecasts["market_adjusted"] = market
+                else:
+                    audit["market_model_missing_verified_odds"] += 1
             # Capture predictions BEFORE observing full-time labels; labels are
             # appended to reliability history only after all same-day forecasts.
             quality=prematch_quality(f["form_samples"])
             frozen_today=[]
-            for target_name in SELECTABLE_MODELS:
+            for target_name in (SELECTABLE_MODELS if frozen_fit_cutoff is None else ()):
                 grid_for_gate=forecasts.get(target_name)
                 if grid_for_gate is None:
                     selection_rows[target_name].append({"date":str(day),"id":m.key,
@@ -870,14 +877,14 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                     "threshold":gate["threshold"],"predicted_score":f"{gh0}:{ga0}",
                     "quality":quality})
                 frozen_today.append((target_name, prediction_features(grid_for_gate,quality),did_hit))
-            if v3_models:
+            if v3_models and frozen_fit_cutoff is None:
                 if v3_hist_raw is not None:
                     frozen_today.append(("__v3_eleven__",float(v3_hist_raw[1,1])))
                     frozen_today.append(("__v3_hybrid__",forecasts[V3_HIST].copy(),
                                          forecasts["dixon_coles"].copy()))
                 if v3_direct_raw is not None:
                     frozen_today.append(("__v3_direct__",v3_direct_raw.copy(),p0.copy()))
-            if ml is not None:
+            if ml is not None and frozen_fit_cutoff is None:
                 frozen_today.append(("__hybrid__", forecasts["machine_learning"].copy(),
                                      forecasts["dixon_coles"].copy()))
             pending[-1] = (m,f,frozen_today)
