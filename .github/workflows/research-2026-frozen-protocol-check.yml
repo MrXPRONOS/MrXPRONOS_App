@@ -1,0 +1,44 @@
+name: Research 2026 strict 2024-2025 freeze - tests before benchmark
+on:
+  push:
+    branches: [research/single-ml-v2-20261024]
+    paths: ['.github/workflows/research-2026-frozen-protocol-check.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen research dependencies
+        run: python -m pip install numpy scipy scikit-learn requests cryptography lightgbm==4.6.0 catboost==1.2.8
+      - name: Compile strict 2026 frozen comparators
+        run: |
+          python -m py_compile research/single_ml_v2.py research/single_ml_v2_multisource.py \
+            research/ml_v3_topk_2026_frozen.py research/test_ml_v3_topk_2026_frozen.py
+      - name: Frozen 2024-2025 fit and 2026 TopK holdout unit tests
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python -m unittest \
+            research.test_ml_v3_topk_2026_frozen research.test_single_ml_v3 \
+            research.test_ml_v3_topk_compare research.test_single_ml_v2_direct \
+            research.test_single_ml_v2_hybrid -v
+      - name: Confirm 2026 training cutoff and ten month registry
+        run: |
+          PYTHONPATH=.:research python - <<'PY'
+          from ml_v3_topk_2026_frozen import WINDOWS, MODELS
+          from single_ml_v3 import V3_MODELS
+          from single_ml_v2 import backtest
+          import inspect
+          assert len(WINDOWS)==10 and WINDOWS[0][0]=="2026-01-01"
+          assert WINDOWS[-1][1]=="2026-10-24" and len(MODELS)==8
+          assert "frozen_fit_cutoff" in inspect.signature(backtest).parameters
+          assert all(x in MODELS for x in V3_MODELS)
+          print("2024_2025_FROZEN_COEFFICIENTS_2026_HOLDOUT_READY")
+          PY
