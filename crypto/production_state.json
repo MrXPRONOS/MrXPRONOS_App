@@ -20,7 +20,7 @@
   },
   "alert_levels": {
     "BNB": {
-      "direction": "up",
+      "direction": "down",
       "level": 0
     },
     "BTC": {
@@ -32,11 +32,11 @@
       "level": 0
     },
     "SOL": {
-      "direction": "up",
+      "direction": "down",
       "level": 0
     },
     "XRP": {
-      "direction": "up",
+      "direction": "down",
       "level": 0
     }
   },
