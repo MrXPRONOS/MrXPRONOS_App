@@ -613,7 +613,15 @@ def summarize(stats):
     return result
 
 
-def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None, auto_tune=True, tuning_interval_days=90, selection_coverage=.25, v3_models=False):
+def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None, auto_tune=True, tuning_interval_days=90, selection_coverage=.25, v3_models=False, frozen_fit_cutoff=None):
+    # Strict holdout: 2026 labels may update NEXT-DAY form features only.
+    # No 2026 target can enter ML fitting, DC coefficient estimation, selector
+    # fitting, hybrid/DC or direct-prior calibration.
+    if frozen_fit_cutoff is not None:
+        if (not isinstance(frozen_fit_cutoff, date)
+            or frozen_fit_cutoff != date(2025,12,31)
+            or begin <= frozen_fit_cutoff or auto_tune):
+            raise ValueError("Frozen-fit research mode requires 2025-12-31 cutoff, a later evaluation window, and disabled tuning")
     states = FormState()
     reliability_history = defaultdict(list)
     reliability_models = {k: None for k in SELECTABLE_MODELS}
@@ -659,6 +667,8 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
     last_evaluated = None
     last_history_day = None
     model_fit_history_day = None
+    frozen_training_samples = None
+    frozen_last_fit_date = None
     for day, grouped in groupby(matches, lambda m: m.day):
         daily = list(grouped)
         if day > end:
@@ -667,7 +677,7 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         for earlier in sorted(d for d in pending_xg if d<=day):
             for historical in pending_xg.pop(earlier):states.add_xg(historical, earlier)
         evaluating = begin <= day <= end
-        if v3_models and evaluating:
+        if v3_models and evaluating and frozen_fit_cutoff is None:
             v3_hist_factor = eleven_multiplier(v3_eleven_history,asof=day)
             if v3_last_calibration is None or (day-v3_last_calibration).days>=30:
                 v3_hybrid_weight, hybrid_v3_cal = hybrid_v3_weight(
@@ -683,7 +693,7 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                     "direct_prior_games":direct_v3_cal.training_games,
                     "direct_calibrated":direct_v3_cal.calibrated})
                 v3_last_calibration=day
-        if evaluating and (last_hybrid_calibration is None or (day-last_hybrid_calibration).days >= 30):
+        if evaluating and (frozen_fit_cutoff is None or last_hybrid_calibration is None) and (last_hybrid_calibration is None or (day-last_hybrid_calibration).days >= 30):
             hybrid_setting = calibrate_hybrid(hybrid_history, asof=day)
             hybrid_latest_weight = hybrid_setting.dc_weight
             hybrid_audit.append({"asof":str(day),"calibrated":hybrid_setting.calibrated,
@@ -691,7 +701,7 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                 "training_days":hybrid_setting.training_days,
                 "reason":hybrid_setting.note,"candidates":list(hybrid_setting.candidate_metrics)})
             last_hybrid_calibration = day
-        if evaluating and (last_selector_refit is None or (day-last_selector_refit).days >= 30):
+        if frozen_fit_cutoff is None and evaluating and (last_selector_refit is None or (day-last_selector_refit).days >= 30):
             for target_name in SELECTABLE_MODELS:
                 fitted = fit_reliability(reliability_history[target_name], asof=day,
                                          target_coverage=selection_coverage)
@@ -710,25 +720,48 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             print("NESTED_TUNING", day, tuning["status"],
                   "selected", tuning["selected"], flush=True)
         cadence = selected_config.retrain_days if auto_tune else retrain_days
-        if evaluating and (last_retrain is None or (day-last_retrain).days >= cadence):
+        if evaluating and (last_retrain is None or (
+                frozen_fit_cutoff is None and (day-last_retrain).days >= cadence)):
+            if frozen_fit_cutoff is not None:
+                # The chronological training arrays contain older 2026 games
+                # for team-form tracking, but NO such results reach any fit.
+                pre_rows=sum(r[3] <= frozen_fit_cutoff for r in dated_training)
+                if pre_rows < 350:
+                    raise ValueError("Insufficient pre-2026 training samples")
+                frozen_dated_training=dated_training[:pre_rows]
+                if (any(r[3]>frozen_fit_cutoff for r in frozen_dated_training)
+                    or len(frozen_dated_training)!=pre_rows):
+                    raise ValueError("2026 outcome leaked into ML fitting")
+                frozen_training=training[:pre_rows]
+                frozen_direct_training=direct_training[:pre_rows]
+                frozen_recent_low=recent_low[:pre_rows]
+                frozen_last_fit_date=frozen_dated_training[-1][3]
+                if frozen_last_fit_date>frozen_fit_cutoff:
+                    raise ValueError("Invalid pre-2026 coefficient cutoff")
+                frozen_training_samples=pre_rows
+            else:
+                frozen_training=training
+                frozen_direct_training=direct_training
+                frozen_dated_training=dated_training
+                frozen_recent_low=recent_low
             if auto_tune:
-                ml = fit_histgb(dated_training, config=selected_config,
+                ml = fit_histgb(frozen_dated_training, config=selected_config,
                                 asof=day, feature_count=len(FEATURE_NAMES))
             else:
-                ml = train_ml(training, **(ml_parameters or {}))
-            direct_model = train_direct_score(direct_training)
+                ml = train_ml(frozen_training, **(ml_parameters or {}))
+            direct_model = train_direct_score(frozen_direct_training)
             if v3_models:
-                v3_hist_model = fit_hist_v3(dated_training,asof=day,
+                v3_hist_model = fit_hist_v3(frozen_dated_training,asof=day,
                                            feature_count=len(FEATURE_NAMES))
-                v3_direct_model = fit_direct_v3(direct_training)
+                v3_direct_model = fit_direct_v3(frozen_direct_training)
                 print("RETRAIN_V3",day,"hist",v3_hist_model is not None,
                       "direct",v3_direct_model is not None,flush=True)
             for candidate_name in CANDIDATES:
-                candidate_models[candidate_name] = fit_pair(candidate_name, training, feature_count=len(FEATURE_NAMES))
-            dc_rho = estimate_dc_rho(recent_low[-9000:])
-            shared = estimate_shared(recent_low)
+                candidate_models[candidate_name] = fit_pair(candidate_name, frozen_training, feature_count=len(FEATURE_NAMES))
+            dc_rho = estimate_dc_rho(frozen_recent_low[-9000:])
+            shared = estimate_shared(frozen_recent_low)
             last_retrain = day
-            model_fit_history_day = last_history_day
+            model_fit_history_day = frozen_last_fit_date if frozen_fit_cutoff is not None else last_history_day
             print("RETRAIN", day, "train_rows", len(training),
                   "rho", round(dc_rho, 4), "shared", round(shared, 4),
                   "ml", ml is not None, "direct", direct_model is not None,
@@ -948,7 +981,12 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         "period_start": str(begin), "period_end": str(end),
         "first_actual_match_date": str(first_evaluated) if first_evaluated else None,
         "last_actual_match_date": str(last_evaluated) if last_evaluated else None,
-        "no_leakage_policy": "Strictly previous UTC calendar dates for ALL models",
+        "no_leakage_policy": "Frozen pre-2026 model fitting, past-day 2026 team form only" if frozen_fit_cutoff is not None else "Strictly previous UTC calendar dates for ALL models",
+        "frozen_pre2026_fit":frozen_fit_cutoff is not None,
+        "frozen_fit_cutoff":str(frozen_fit_cutoff) if frozen_fit_cutoff is not None else None,
+        "frozen_fit_sample_count":frozen_training_samples,
+        "frozen_fit_latest_utc_date":str(frozen_last_fit_date) if frozen_last_fit_date is not None else None,
+        "no_2026_labels_for_coefficients":frozen_fit_cutoff is not None,
         "form_schema_version":FORM_SCHEMA_VERSION,
         "ml_feature_count":len(FEATURE_NAMES),
         "ml_feature_names":list(FEATURE_NAMES),
@@ -1091,6 +1129,8 @@ def main():
     ap.add_argument("--selection-coverage",type=float,choices=(.15,.25,.40,.60),default=.25)
     ap.add_argument("--tuning-interval-days",type=int,choices=(30,60,90,180),default=90)
     ap.add_argument("--self-test-only", action="store_true")
+    ap.add_argument("--frozen-fit-through-2025", action="store_true",
+                    help="Fit all eight ML/DC coefficients only from 2024-2025 and never re-fit during 2026")
     ap.add_argument("--experimental-v3", action="store_true",
                     help="Run opt-in parallel HistGB/Hybrid/Direct V3 alongside untouched V2")
     args = ap.parse_args()
@@ -1112,7 +1152,8 @@ def main():
              auto_tune=not args.disable_auto_tune,
              tuning_interval_days=args.tuning_interval_days,
              selection_coverage=args.selection_coverage,
-             v3_models=args.experimental_v3)
+             v3_models=args.experimental_v3,
+             frozen_fit_cutoff=date(2025,12,31) if args.frozen_fit_through_2025 else None)
 
 
 if __name__ == "__main__":
