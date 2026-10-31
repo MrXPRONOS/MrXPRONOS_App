@@ -101,7 +101,7 @@ class Strict2026HoldoutTests(unittest.TestCase):
             self.assertTrue(report["no_2026_labels_for_coefficients"])
             self.assertEqual(report["frozen_fit_sample_count"],390)
             self.assertEqual(report["frozen_fit_latest_utc_date"],"2025-10-26")
-            self.assertEqual(len(observed_fit_lengths),4) # HistGB, direct, two competitors + V3 direct? actually count
+            self.assertEqual(len(observed_fit_lengths),5) # HistGB V2, Direct V2, LightGBM, CatBoost, Direct V3
             self.assertEqual(len(report["hybrid_calibration_history"]),1)
             self.assertEqual(len(report["v3_calibration_audit"]),0)
 
