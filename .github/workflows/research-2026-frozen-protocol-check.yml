@@ -1,4 +1,4 @@
-name: Research 2026 strict 2024-2025 freeze - tests before benchmark
+name: Research 2026 strict 2024-2025 freeze - all regression and leakage checks
 on:
   push:
     branches: [research/single-ml-v2-20261024]
