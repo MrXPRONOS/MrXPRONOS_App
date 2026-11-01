@@ -1,5 +1,552 @@
 [
   {
+    "id": "bcda7e1945a4e4a1013ac624",
+    "kind": "article",
+    "title": "Brentford vs Nottingham Forest : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-209617/",
+    "source_date": "2026-11-01T05:41:54.217360+00:00",
+    "visual_variant": "v2",
+    "image": "assets/images/editorial/match-bsd-match-209617-61039fe9-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-209617-61039fe9-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-209617-61039fe9-social.jpg"
+  },
+  {
+    "id": "b353ae03be0c3b3666bbc5e3",
+    "kind": "news",
+    "title": "L’OL est ouvert au départ de Paulo Fonseca vers le Sporting Portugal !",
+    "url": "https://www.footmercato.net/a524218563301334828-lol-est-ouvert-au-depart-de-paulo-fonseca-vers-le-sporting-portugal",
+    "source_date": "2026-10-31T22:32:33+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5a461771ac7f16fce125e7d3",
+    "kind": "news",
+    "title": "Le Barça se relève des défaites contre le PSG et le Real en explosant Alavés",
+    "url": "https://www.onzemondial.com/liga/le-barca-se-releve-des-defaites-contre-le-psg-et-le-real-en-explosant-alaves-1006285",
+    "source_date": "2026-10-31T21:59:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "95845a6176f900a4a22d61f9",
+    "kind": "news",
+    "title": "Liga : le FC Barcelone retrouve le sourire en atomisant Alavés",
+    "url": "https://www.footmercato.net/a6354681107500499378-liga-le-fc-barcelone-retrouve-le-sourire-en-atomisant-alaves",
+    "source_date": "2026-10-31T21:58:21+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5183c3b6aaa5e5a850e60d0c",
+    "kind": "news",
+    "title": "Serie A : l’AC Milan fait chuter l’Inter pour la première fois de la saison",
+    "url": "https://www.footmercato.net/a4034384261766025158-serie-a-lac-milan-fait-chuter-linter-pour-la-premiere-fois-de-la-saison",
+    "source_date": "2026-10-31T21:47:01+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0a99331355788793030c0fd2",
+    "kind": "news",
+    "title": "OL : Rémi Himbert déclare forfait au dernier moment pour le match face à Angers SCO",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ol-remi-himbert-declare-forfait-au-dernier-moment-pour-le-match-face-a-angers-sco-544206.html",
+    "source_date": "2026-10-31T21:45:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6416c24dbcf9d7d02e5c67f2",
+    "kind": "news",
+    "title": "Ligue 1 : Troyes s’impose logiquement face au Mans et sort de la zone rouge",
+    "url": "https://www.footmercato.net/a7840656137906127225-ligue-1-troyes-simpose-logiquement-face-au-mans-et-sort-de-la-zone-rouge",
+    "source_date": "2026-10-31T21:40:29+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d7f6174ee11ec0002c00bb3c",
+    "kind": "news",
+    "title": "Bayern Munich : Michael Olise se blesse à quelques jours de la liste de Zinédine Zidane !",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-bayern-munich-michael-olise-se-blesse-a-quelques-jours-de-la-liste-de-zinedine-zidane-544196.html",
+    "source_date": "2026-10-31T20:20:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "75df025b5bcd30ac46322f9b",
+    "kind": "news",
+    "title": "Mercato Le Havre AC : Les départs de Jean-Michel Roussier et Didier Digard actés, un nouvel entraîneur nommé (officiel)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-le-havre-ac-les-departs-de-jean-michel-roussier-et-didier-digard-actes-un-nouvel-entraineur-nomme-officiel-544192.html",
+    "source_date": "2026-10-31T19:58:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ffc46b340cb7bdf8ba25a982",
+    "kind": "news",
+    "title": "Nice beaucoup plus ambitieux cette saison en Ligue 1 ? Pantaloni prévient !",
+    "url": "https://www.onzemondial.com/ligue-1/nice-beaucoup-plus-ambitieux-cette-saison-en-ligue-1-pantaloni-previent-1006242",
+    "source_date": "2026-10-31T23:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cd1f5641e58ec0a2b69c8500",
+    "kind": "news",
+    "title": "Première Ligue : L’OL Lyonnes colle une manita à Montpellier, Toulouse remporte le match des promus face à Saint-Malo",
+    "url": "https://www.sofoot.com/breves/premiere-ligue-lol-lyonnes-colle-une-manita-a-montpellier-toulouse-remporte-le-match-des-promus-face-a-saint-malo",
+    "source_date": "2026-10-31T23:00:42+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5ee1f0001c854a0b56bde30e",
+    "kind": "news",
+    "title": "L'OL aurait pris sa décision pour Fonseca, deux noms déjà sur la table pour le remplacer ?",
+    "url": "https://www.onzemondial.com/ligue-1/lol-aurait-pris-sa-decision-pour-fonseca-deux-noms-deja-sur-la-table-pour-le-remplacer-1006287",
+    "source_date": "2026-10-31T22:51:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ac091ab8fd0ef467fca8dcfc",
+    "kind": "news",
+    "title": "Bayern Munich : Max Eberl très inquiet pour Saibari et Gnabry, plus rassurant pour Olise",
+    "url": "https://www.footmercato.net/a2775163112076377708-bayern-munich-max-eberl-tres-inquiet-pour-saibari-et-gnabry-plus-rassurant-pour-olise",
+    "source_date": "2026-10-31T22:47:24+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "80a4e686a0a407eb823ea6a6",
+    "kind": "news",
+    "title": "Mercato OL : Paulo Fonseca pourrait claquer la porte dans quelques jours, Thiago Motta se positionne !",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-ol-paulo-fonseca-pourrait-claquer-la-porte-dans-quelques-jours-thiago-motta-se-positionne-544212.html",
+    "source_date": "2026-10-31T22:42:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c6ed21c7a4b1872a223aae2a",
+    "kind": "news",
+    "title": "Ligue 1 : Les discussions sont bien engagées entre le Sporting CP et Paulo Fonseca, l’entraîneur de l’Olympique lyonnais",
+    "url": "https://www.sofoot.com/breves/ligue-1-les-discussions-sont-bien-engagees-entre-le-sporting-cp-et-paulo-fonseca-lentraineur-de-lolympique-lyonnais",
+    "source_date": "2026-10-31T22:41:20+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8a70859f75496b53eae505c4",
+    "kind": "news",
+    "title": "Bayern Munich : Vincent Kompany interdit de parler football avec ses adjoints",
+    "url": "https://www.footmercato.net/a1426745668048350732-bayern-munich-vincent-kompany-interdit-de-parler-football-avec-ses-adjoints",
+    "source_date": "2026-10-31T22:36:34+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1a6d5260d94b0f28a1e8cbc8",
+    "kind": "news",
+    "title": "Paris FC - Monaco : la rencontre s'annonce riche en émotions, grosse annonce du PFC",
+    "url": "https://www.onzemondial.com/ligue-1/paris-fc-monaco-la-rencontre-sannonce-riche-en-emotions-grosse-annonce-du-pfc-1006238",
+    "source_date": "2026-10-31T22:31:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "64e458879743cab70ba49dba",
+    "kind": "news",
+    "title": "Real Madrid : Éder Militão cambriolé pendant le Clasico, plus de 350 000 euros dérobés",
+    "url": "https://www.footmercato.net/a6120093487851824896-real-madrid-eder-militao-cambriole-pendant-le-clasico-plus-de-350-000-euros-derobes",
+    "source_date": "2026-10-31T22:15:21+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cd7fd0e8ef972648b52ee0ab",
+    "kind": "news",
+    "title": "Liga : Le FC Barcelone roule sur Alavés et reprend la première place du classement à l’Atlético",
+    "url": "https://www.sofoot.com/breves/liga-le-fc-barcelone-roule-sur-alaves-et-reprend-la-premiere-place-du-classement-a-latletico",
+    "source_date": "2026-10-31T22:14:26+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4efcd3804cd93b478aac3214",
+    "kind": "news",
+    "title": "Les supporters de Brest interdits de déplacement à Lorient, le SB29 sort du silence !",
+    "url": "https://www.onzemondial.com/ligue-1/les-supporters-de-brest-interdits-de-deplacement-a-lorient-le-sb29-sort-du-silence-1006233",
+    "source_date": "2026-10-31T22:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0dc2c8970c52641d39d142f9",
+    "kind": "news",
+    "title": "Serie A : L’AC Milan s’impose contre le voisin de l’Inter dans le derby de la Madonnina et se relance",
+    "url": "https://www.sofoot.com/breves/serie-a-lac-milan-simpose-contre-le-voisin-de-linter-dans-le-derby-de-la-madonnina-et-se-relance",
+    "source_date": "2026-10-31T21:48:31+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3804f80ef603f5b97b0ab8be",
+    "kind": "news",
+    "title": "Serie A : Rabiot buteur, l'AC Milan s'offre le derby contre l'Inter",
+    "url": "https://www.onzemondial.com/serie-a/serie-a-rabiot-buteur-lac-milan-soffre-le-derby-contre-linter-1006282",
+    "source_date": "2026-10-31T21:48:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "984e065bcbf4bf38a2e76314",
+    "kind": "news",
+    "title": "Ligue 1 : Troyes renoue avec la victoire face au Mans et frappe fort en bas de tableau",
+    "url": "https://www.onzemondial.com/ligue-1/ligue-1-troyes-renoue-avec-la-victoire-face-au-mans-et-frappe-fort-en-bas-de-tableau-1006281",
+    "source_date": "2026-10-31T21:43:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5c540bf5c24ab35a8a5a766f",
+    "kind": "news",
+    "title": "Ligue 1 : Troyes s’offre un succès précieux face au Mans, sort de la zone de relégation et renoue enfin avec la victoire à domicile dans l’élite du football hexagonal",
+    "url": "https://www.sofoot.com/breves/ligue-1-troyes-soffre-un-succes-precieux-face-au-mans-sort-de-la-zone-de-relegation-et-renoue-enfin-avec-la-victoire-dans-lelite-du-football-hexagonal",
+    "source_date": "2026-10-31T21:41:16+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d76084a6fadccf26f525f5bf",
+    "kind": "news",
+    "title": "Ligue 1 : L'ESTAC Troyes remporte le match des promus face au Mans FC et sort de la zone rouge (résumé)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-l-estac-troyes-remporte-le-match-des-promus-face-au-mans-fc-et-sort-de-la-zone-rouge-resume-544204.html",
+    "source_date": "2026-10-31T21:40:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cda75bcac64e473fb6bffdda",
+    "kind": "news",
+    "title": "OM : un cadre de l'effectif l'annonce, la pépite Valero va flamber",
+    "url": "https://www.onzemondial.com/ligue-1/om-un-cadre-de-leffectif-lannonce-la-pepite-valero-va-flamber-1006231",
+    "source_date": "2026-10-31T21:32:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-01T05:41:57.547068+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "6723ae7cd6102be8a5fb9a27",
     "kind": "article",
     "title": "Espérance Sportive De Tunis vs US Monastir : analyse du match",
@@ -62,7 +609,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0fb57fc8543ae95c965c9d58",
@@ -83,7 +630,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e2ac27ca4725aa15904999ed",
@@ -104,7 +651,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "908f24df1a83a884282c687f",
@@ -125,7 +672,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "eaa51406783d054c39f2432d",
@@ -188,7 +735,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ed3ca5c56636b51255a3f043",
@@ -209,7 +756,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "23c23d1e9b1821db17e9dd00",
@@ -230,7 +777,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d5a07dafa97b06a153fcf63a",
@@ -251,7 +798,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cbc04023f4b22faf91e90b17",
@@ -272,7 +819,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a523593326253314c132b0ac",
@@ -293,7 +840,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "17a1a68483c10ed62548879c",
@@ -314,7 +861,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2902f5027ae15371ae579ca1",
@@ -335,7 +882,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "da38fd410a15ec9c9f6ca11c",
@@ -356,7 +903,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c8438e0f5aa7a6b154997a1e",
@@ -377,7 +924,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ceedcc7c6675c1a6cff81672",
@@ -398,7 +945,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cb5bb12bb0faa26ad318d94c",
@@ -419,7 +966,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b397ea9fd9c58520add49957",
@@ -440,7 +987,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4ec970f362cd9c6164e0a111",
@@ -461,7 +1008,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8585eca6ec8d5197c807fef3",
@@ -482,7 +1029,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b0bb53cfd2f55f6050b2ab05",
@@ -503,7 +1050,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "baf6b3d375d8dbf581875b03",
@@ -524,7 +1071,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f402d7057df6e0d457c30f25",
@@ -545,7 +1092,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "67aca3c9eb5b8b9f137d72df",
@@ -1303,7 +1850,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7bd37d3a0426fc84835e905f",
@@ -1324,7 +1871,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "45fadeb1ad56e6861a55fe63",
@@ -1345,7 +1892,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "bfe5051acf8129a4928db212",
