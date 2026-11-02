@@ -169,9 +169,17 @@ def run(*, client, index, fixtures, now, horizon_hours, max_fixtures, max_model_
     # The production router deliberately stops at the first valid provider;
     # this diagnostic does NOT change that production behavior.
     def bsd_fetch(event, captured):
-        return fetch_event_odds(client,int(event["id"]),
-                                kickoff=fixture_datetime(event),captured_at=captured,
-                                bookmaker_slug="consensus")
+        quotes, diagnostics = fetch_event_odds(
+            client,int(event["id"]),kickoff=fixture_datetime(event),
+            captured_at=captured,bookmaker_slug="consensus")
+        # The BSD parser already verified the authentic per-market updated_at
+        # against this precise fetch timestamp, but does not serialize capture.
+        # Preserve capture provenance before the common provider validator.
+        for item in quotes.values():
+            item["captured_at"]=captured.isoformat()
+            item["quote_timestamp_verified"]=True
+            item["quote_timestamp_type"]="market_update"
+        return quotes, diagnostics
     routers={
         provider:OddsRouter(bsd_fetch,order=(provider,),
                             clock=lambda: datetime.now(timezone.utc))
