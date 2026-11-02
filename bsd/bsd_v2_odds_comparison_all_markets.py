@@ -27,6 +27,7 @@ from bsd_v2_all_market_price_audit import (
     CATALOG_KEYS,OLD_KEYS,fit_new_market_calibration,all_markets_for_fixture,
 )
 from bsd_v2_odds_comparison import valid_independent_quote,choose_upcoming,SOURCE_NAMES
+from bsd_v2_market_no_vig import no_vig_probability
 
 SUPPORTED_NATIVE_CODES=frozenset(CODES.values())
 
@@ -177,6 +178,17 @@ def evaluate(fixtures,index,client,*,now,horizon_hours,max_fixtures,
                           'model_pricing_method':m.get('odds_method'),
                           'model_probability':m.get('probability'),**gap,
                           'provider':name}
+                adjusted,why=no_vig_probability(code,source_quotes[name],captured=when,kickoff=kickoff)
+                if adjusted is not None:
+                    enriched['external_no_vig_probability_pct']=round(100*adjusted['no_vig_probability'],3)
+                    enriched['external_market_overround_pct']=round(100*adjusted['overround'],3)
+                    enriched['model_probability_pct']=round(100*m['probability'],3) if m.get('probability') is not None else None
+                    if m.get('probability') is not None:
+                        enriched['no_vig_probability_gap_pp']=round(
+                            100*(m['probability']-adjusted['no_vig_probability']),3)
+                    coverage['pairs_with_fair_external_probability']+=1
+                else:
+                    enriched['no_vig_unavailable_reason']=why
                 pairs.append(enriched)
                 row['provider_results'][name]={'status':'compared','external_odds':gap['external_price'],
                     'difference':gap['absolute_difference'],'relative_pct':gap['relative_difference_pct'],
@@ -209,6 +221,13 @@ def evaluate(fixtures,index,client,*,now,horizon_hours,max_fixtures,
                    **dict(coverage),'market_rows':len(market_rows),
                    'provider_pairs':len(pairs)},
        'overall':aggregate(pairs),
+       'no_vig_summary':{
+           'pairs_with_complete_market':sum('no_vig_probability_gap_pp' in p for p in pairs),
+           'mean_absolute_probability_gap_pp':round(
+               mean(abs(p['no_vig_probability_gap_pp']) for p in pairs
+                    if 'no_vig_probability_gap_pp' in p),3)
+               if any('no_vig_probability_gap_pp' in p for p in pairs) else None,
+       },
        'by_market':per_market,
        'by_source':per_source,
        'rejections':dict(rejects),
@@ -224,7 +243,7 @@ def evaluate(fixtures,index,client,*,now,horizon_hours,max_fixtures,
          'Diagnostic prices below site minimum odds 1.20 are observational and cannot be described as published model odds.',
          'DNB refund-aware price is experimental conditional on a non-draw and not separately calibrated.',
          'If 2024 half-time scores are absent, no first-half probability or model odds are fabricated.',
-         'External bookmaker implied probabilities include margin and are not de-vigged; a gap does not itself prove calibration quality.',
+         'Raw implied probabilities include margin; no-vig probabilities are calculated only for complete same-book groups.',
          'For true predictive quality compare outcome frequencies/Brier against quoted implied probabilities after matches are finished.',
          'Supplier quotes are only contemporary snapshots; old pre-match prices cannot be reconstructed from a live endpoint.',
          'No changes to production market choice, website feed, or Telegram.',
