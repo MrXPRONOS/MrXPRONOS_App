@@ -79,7 +79,7 @@ jobs:
           assert r['model_quote_origin']=='mrxpronos_model'
           assert r['coverage']['source_pairs_total']==len(r['pairs'])
           assert len({p['event_id'] for p in r['pairs']})==r['coverage']['distinct_fixtures_with_pairs']
-          assert all(p['market_code'] and p['odds_source'] if False else True for p in r['pairs'])
+          assert all(p['market_code'] and p['provider_source']!='mrxpronos_model' for p in r['pairs'])
           assert all(p['model_odds_source']=='mrxpronos_model' for p in r['pairs'])
           print('BSD_ODDS_INDEPENDENT_COMPARISON_VALIDATED',{
               'pairs':len(r['pairs']),
