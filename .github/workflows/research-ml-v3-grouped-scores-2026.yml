@@ -93,7 +93,7 @@ jobs:
         run: |
           PYTHONPATH=.:research python research/ml_v3_grouped_scores.py pool \
             --inputs /tmp/v3-periods/mlv3-group-2026-*/daily_hybrid_v3_group_aggregate.json \
-            --out /tmp/mlv3-group-2026-final.json --resamples 4000
+            --out /tmp/mlv3-group-2026-final.json
       - uses: actions/upload-artifact@v4
         with:
           name: mlv3-group-2026-full-year-available-results
