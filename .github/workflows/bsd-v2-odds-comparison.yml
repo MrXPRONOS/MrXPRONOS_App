@@ -24,6 +24,8 @@ on:
       - 'bsd/bsd_v2_odds_comparison_all_markets.py'
       - 'bsd/bsd_v2_odds_all_markets_report.py'
       - 'bsd/test_bsd_v2_all_market_price_audit.py'
+      - 'bsd/bsd_v2_market_no_vig.py'
+      - 'bsd/test_bsd_v2_market_no_vig.py'
       - 'bsd/test_bsd_v2_odds_comparison.py'
       - '.github/workflows/bsd-v2-odds-comparison.yml'
   schedule:
@@ -49,9 +51,10 @@ jobs:
         run: python -m pip install requests cryptography
       - name: Verifier syntaxe et tests du comparateur
         run: |
-          python -m compileall -q bsd/bsd_v2_odds_comparison.py bsd/bsd_v2_odds_comparison_report.py bsd/bsd_v2_market_expansion.py bsd/bsd_v2_all_market_price_audit.py bsd/bsd_v2_odds_comparison_all_markets.py bsd/bsd_v2_odds_all_markets_report.py
+          python -m compileall -q bsd/bsd_v2_odds_comparison.py bsd/bsd_v2_odds_comparison_report.py bsd/bsd_v2_market_expansion.py bsd/bsd_v2_all_market_price_audit.py bsd/bsd_v2_odds_comparison_all_markets.py bsd/bsd_v2_odds_all_markets_report.py bsd/bsd_v2_market_no_vig.py
           python -m unittest discover -s bsd -p 'test_bsd_v2_odds_comparison.py' -v
           python -m unittest discover -s bsd -p 'test_bsd_v2_all_market_price_audit.py' -v
+          python -m unittest discover -s bsd -p 'test_bsd_v2_market_no_vig.py' -v
       - name: Restaurer historique BSD chiffre
         env:
           BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
