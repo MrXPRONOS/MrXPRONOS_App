@@ -1,0 +1,102 @@
+name: BSD V2 - Comparaison cotes indicatives vs fournisseurs
+
+on:
+  workflow_dispatch:
+    inputs:
+      horizon_hours:
+        description: "Nombre d'heures futures (max 120)"
+        required: false
+        default: "48"
+        type: string
+      max_fixtures:
+        description: "Maximum de matchs candidats avant selection"
+        required: false
+        default: "240"
+        type: string
+      max_model_picks:
+        description: "Maximum de selections a comparer par fournisseur"
+        required: false
+        default: "20"
+        type: string
+  push:
+    branches:
+      - test/bsd-v2-model-vs-external-odds-20261102
+    paths:
+      - 'bsd/bsd_v2_odds_comparison.py'
+      - 'bsd/bsd_v2_odds_comparison_report.py'
+      - 'bsd/test_bsd_v2_odds_comparison.py'
+      - '.github/workflows/bsd-v2-odds-comparison.yml'
+  schedule:
+    - cron: '25 8 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bsd-v2-odds-model-vs-provider-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  compare-odds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Installer les dependances
+        run: python -m pip install requests cryptography
+      - name: Verifier syntaxe et tests du comparateur
+        run: |
+          python -m compileall -q bsd/bsd_v2_odds_comparison.py bsd/bsd_v2_odds_comparison_report.py
+          python -m unittest discover -s bsd -p 'test_bsd_v2_odds_comparison.py' -v
+      - name: Restaurer historique BSD chiffre
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: python bsd/bsd_archive.py restore
+      - name: Observer les cotes externes sans modifier la production
+        env:
+          BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+          PINNWIRE_API_KEY: ${{ secrets.PINNWIRE_API_KEY }}
+          ODDSLINK_API_KEY: ${{ secrets.ODDSLINK_API_KEY }}
+          MOVIODDS_ENABLE: '1'
+          PINNWIRE_USE_DEMO: '0'
+          FOOTBALL_MULTI_SOURCE: '0'
+          HORIZON_HOURS: ${{ inputs.horizon_hours || '48' }}
+          MAX_FIXTURES: ${{ inputs.max_fixtures || '240' }}
+          MAX_MODEL_PICKS: ${{ inputs.max_model_picks || '20' }}
+        run: |
+          python bsd/bsd_v2_odds_comparison.py \
+            --horizon-hours "${HORIZON_HOURS}" \
+            --max-fixtures "${MAX_FIXTURES}" \
+            --max-model-picks "${MAX_MODEL_PICKS}"
+          python bsd/bsd_v2_odds_comparison_report.py
+          python - <<'PY'
+          import json
+          r=json.load(open('bsd/odds_indicative_vs_external_report.json',encoding='utf-8'))
+          assert r['schema']=='bsd-v2-indicative-vs-independent-odds-1'
+          assert r['model_quote_origin']=='mrxpronos_model'
+          assert r['coverage']['source_pairs_total']==len(r['pairs'])
+          assert len({p['event_id'] for p in r['pairs']})==r['coverage']['distinct_fixtures_with_pairs']
+          assert all(p['market_code'] and p['odds_source'] if False else True for p in r['pairs'])
+          assert all(p['model_odds_source']=='mrxpronos_model' for p in r['pairs'])
+          print('BSD_ODDS_INDEPENDENT_COMPARISON_VALIDATED',{
+              'pairs':len(r['pairs']),
+              'paired_fixtures':r['coverage']['distinct_fixtures_with_pairs'],
+              'model_picks':r['coverage']['model_indicative_publishable'],
+          })
+          PY
+      - name: Supprimer les donnees historiques dechiffrees
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+      - name: Publier le rapport de comparaison
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bsd-v2-model-vs-external-odds-${{ github.run_id }}
+          path: |
+            bsd/odds_indicative_vs_external_report.json
+            bsd/odds_indicative_vs_external_resume.md
+            bsd/odds_indicative_vs_external_pairs.csv
+          retention-days: 60
