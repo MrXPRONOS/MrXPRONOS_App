@@ -17,7 +17,7 @@ from statistics import median,mean
 from bsd_api import BSDClient
 from bsd_archive import MATCHES_FILE,_read_json
 from bsd_odds_fallback import OddsRouter,ORDER,CODES,MAX_COMPARABLE_QUOTE_AGE_SECONDS,utc
-from bsd_v2_odds import fetch_event_odds
+from bsd_v2_odds import fetch_event_odds,MARKETS
 from bsd_v2_core import V2History,fit_rho_2024,fixture_datetime
 from bsd_v2_over_under import fit_total_model
 from bsd_v2_btts import fit_btts_model
@@ -28,8 +28,22 @@ from bsd_v2_all_market_price_audit import (
 )
 from bsd_v2_odds_comparison import valid_independent_quote,choose_upcoming,SOURCE_NAMES
 from bsd_v2_market_no_vig import no_vig_probability
+from bsd_v2_odds_research_adapters import fetch_research_all, NEW_CODES
 
-SUPPORTED_NATIVE_CODES=frozenset(CODES.values())
+SUPPORTED_NATIVE_CODES=frozenset(CODES.values()) | frozenset(MARKETS) | NEW_CODES
+BASE_CODES=frozenset(CODES.values())
+RESULT_CODES=frozenset(('1X2_HOME_FT','1X2_DRAW_FT','1X2_AWAY_FT'))
+TOTAL_CODES=frozenset(c for c in BASE_CODES if c.startswith('OU_'))
+PUBLIC_SPREAD_CODES=frozenset(('ASIAN_HANDICAP_HOME_+1.5_FT',
+   'ASIAN_HANDICAP_AWAY_+1.5_FT','DRAW_NO_BET_HOME_FT','DRAW_NO_BET_AWAY_FT'))
+PROVIDER_SUPPORTED_CODES={
+    'pinnwire':BASE_CODES | NEW_CODES,
+    'goaldir':frozenset(MARKETS),
+    'oddslink_public':RESULT_CODES | TOTAL_CODES | PUBLIC_SPREAD_CODES,
+    'oddslink':RESULT_CODES | TOTAL_CODES,
+    'moviodds':BASE_CODES,
+    'oddsharvester':RESULT_CODES,
+}
 
 def independent_rows(client,event,captured):
     """Only a real BSD quote, preserving original updated_at and captured_at."""
@@ -122,10 +136,10 @@ def evaluate(fixtures,index,client,*,now,horizon_hours,max_fixtures,
                 source_quotes[name]={};source_issues[name]='fixture_started'
                 continue
             try:
-                quotes,diag=router.fetch(event,when,market_code=None)
+                quotes,diagnostic=fetch_research_all(router,event,when,name)
                 source_quotes[name]=quotes if isinstance(quotes,dict) else {}
                 if not quotes:
-                    source_issues[name]='source_unavailable_or_no_matching_fixture'
+                    source_issues[name]=diagnostic or 'source_unavailable_or_no_matching_fixture'
                 else:
                     source_issues[name]='returned_quote_data'
             except Exception as exc:
@@ -151,7 +165,7 @@ def evaluate(fixtures,index,client,*,now,horizon_hours,max_fixtures,
             for name in sources:
                 external=source_quotes[name].get(code) if code else None
                 if external is None:
-                    if code not in SUPPORTED_NATIVE_CODES:
+                    if code not in PROVIDER_SUPPORTED_CODES.get(name,frozenset()):
                         status='adapter_market_not_implemented'
                     else:
                         status=source_issues.get(name,'source_missing')
@@ -239,7 +253,8 @@ def evaluate(fixtures,index,client,*,now,horizon_hours,max_fixtures,
                          'policy':policy_info},
        'limitations':[
          'Every scheduled fixture receives all 25 market slots even when model data is unavailable.',
-         'Only markets returned by existing provider adapters can be compared; absent adapter never means no bookmaker offers market.',
+         'Research adapters read PinnWire spreads/teams/halftime and OddsLink public spreads, without changing production adapters.',
+         'An unavailable source or unsupported market must never be reported as evidence a bookmaker does not offer that market.',
          'Diagnostic prices below site minimum odds 1.20 are observational and cannot be described as published model odds.',
          'DNB refund-aware price is experimental conditional on a non-draw and not separately calibrated.',
          'If 2024 half-time scores are absent, no first-half probability or model odds are fabricated.',
