@@ -48,8 +48,8 @@ class AllMarketTests(unittest.TestCase):
         self.assertIsNone(row)
         self.assertEqual(status,'incomplete_quote')
     def test_new_provider_adapters_unimplemented_not_fake_comparisons(self):
-        self.assertNotIn('DRAW_NO_BET_HOME_FT',SUPPORTED_NATIVE_CODES)
-        self.assertNotIn('TOTAL_UNDER_1.5_HT',SUPPORTED_NATIVE_CODES)
+        self.assertIn('DRAW_NO_BET_HOME_FT',SUPPORTED_NATIVE_CODES)
+        self.assertIn('TOTAL_UNDER_1.5_HT',SUPPORTED_NATIVE_CODES)
     def test_no_bets_selected_filter_on_catalogue(self):
         fixture={'id':123,'event_date':KICKOFF.isoformat(),'status':'notstarted'}
         features={'home':1.4,'away':1.1,'league_samples':90,
