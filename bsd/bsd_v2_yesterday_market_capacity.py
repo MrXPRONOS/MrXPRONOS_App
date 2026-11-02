@@ -16,14 +16,14 @@ from pathlib import Path
 from bsd_archive import MATCHES_FILE,_read_json
 from bsd_v2_core import (
  V2History,estimate_goals,score_matrix,fit_rho_2024,fixture_datetime,
- predict_v2,classify_quality_category,markets_from_matrix,
+ predict_v2,classify_quality_category,markets_from_matrix,outcome_scores,
 )
 from bsd_v2_btts import fit_btts_model
 from bsd_v2_over_under import fit_total_model
 from bsd_v2_double_chance import fit_model
 from bsd_v2_policies import fit_policy
 from bsd_v2_publication_policy import eligible_model_choice
-from bsd_v2_market_expansion import candidates,half_time_share
+from bsd_v2_market_expansion import candidates,half_time_share,outcome
 from bsd_v2_all_markets_backtest import ExperimentalCalibrator
 from bsd_v2_published_paired_backtest import annual_market_training
 
@@ -101,6 +101,13 @@ def main():
  archive=_read_json(MATCHES_FILE,None)
  if not isinstance(archive,list) or not archive:pa.error('restore encrypted archive first')
  data,source=fetch_fixtures(day,archive)
+ archived_by_id={}
+ for archived in archive:
+  if not fvalid(archived):continue
+  try:
+   if fixture_datetime(archived).date()==day:
+    archived_by_id[str(archived['id'])]=archived
+  except (ValueError,TypeError,OverflowError):continue
  day_rows={}
  for m in data:
   if not fvalid(m):continue
@@ -123,6 +130,7 @@ def main():
  counted=Counter()
  new_by_key=Counter(); old_by_key=Counter()
  examples=[]; oldexamples=[]
+ selection_results=[]; settlement_counts=Counter()
  for fixture in sorted(day_rows.values(),key=lambda x:(x['event_date'],str(x['id']))):
   counted['total_fixtures']+=1
   f=dict(fixture,status='notstarted',home_score=None,away_score=None)
@@ -166,11 +174,65 @@ def main():
    conservative,p,key,cat=selections[0]
    counted['additional_model_eligible']+=1
    new_by_key[key]+=1
+   current_scores=outcome_scores(fixture)
+   archived=archived_by_id.get(str(fixture['id']))
+   archived_scores=outcome_scores(archived) if archived is not None else None
+   score_source=None
+   if current_scores is not None and archived_scores is not None and current_scores!=archived_scores:
+    settlement_counts['conflicting_api_archive_scores']+=1
+    final_scores=None
+   elif current_scores is not None:
+    final_scores=current_scores
+    score_source='bsd_api_finished'
+   elif archived_scores is not None:
+    final_scores=archived_scores
+    score_source='bsd_archive_finished'
+   else:final_scores=None
+   observed_win=None
+   if final_scores is not None:
+    observed_win=outcome(key,final_scores[0],final_scores[1])
+    settlement_counts['settled']+=1
+    settlement_counts['won' if observed_win==1 else 'lost']+=1
+    settlement_counts['market_'+key+'_settled']+=1
+    settlement_counts['market_'+key+('_won' if observed_win==1 else '_lost')]+=1
+   else:
+    settlement_counts['unsettled_or_score_conflict']+=1
+    settlement_counts['market_'+key+'_unsettled']+=1
+   selection_results.append({'id':str(fixture['id']),
+     'kickoff':fixture['event_date'],'home':fixture.get('home_team'),'away':fixture.get('away_team'),
+     'market':key,'probability':round(p,6),'conservative_probability':round(conservative,6),
+     'status':'win' if observed_win==1 else 'loss' if observed_win==0 else 'unsettled',
+     'score':list(final_scores) if final_scores is not None else None,'score_source':score_source})
    if len(examples)<35:examples.append({'id':fixture['id'],'date':fixture['event_date'],
       'home':fixture.get('home_team'),'away':fixture.get('away_team'),
       'market':key,'probability':round(p,4),'conservative':round(conservative,4),
       'category':cat,'prior_model_reason':reason})
   else:counted['new_none_qualified']+=1
+ def ratio(wins,total):
+  return round(wins/total,6) if total else None
+ summary={'selected':len(selection_results),
+          'settled':settlement_counts['settled'],
+          'won':settlement_counts['won'],
+          'lost':settlement_counts['lost'],
+          'unsettled':settlement_counts['unsettled_or_score_conflict'],
+          'observed_win_rate':ratio(settlement_counts['won'],settlement_counts['settled']),
+          'selected_fixture_win_rate':ratio(settlement_counts['won'],len(selection_results)),
+          'mean_predicted_probability_on_settled':ratio(
+           sum(v['probability'] for v in selection_results if v['status']!='unsettled'),
+           settlement_counts['settled']),
+          'by_market':{
+           k:{'selected':new_by_key[k],
+              'settled':settlement_counts['market_'+k+'_settled'],
+              'won':settlement_counts['market_'+k+'_won'],
+              'lost':settlement_counts['market_'+k+'_lost'],
+              'unsettled':settlement_counts['market_'+k+'_unsettled'],
+              'win_rate':ratio(settlement_counts['market_'+k+'_won'],
+                               settlement_counts['market_'+k+'_settled'])}
+           for k in sorted(new_by_key)}}
+ assert len(selection_results)==counted['additional_model_eligible']
+ assert len(selection_results)==sum(new_by_key.values())
+ assert summary['settled']+summary['unsettled']==len(selection_results)
+ assert summary['won']+summary['lost']==summary['settled']
  result={'date':day.isoformat(),'simulation':'research, no-odds, before-kickoff no published claims',
   'source':source,'archive_history_count':len(index.global_games),
   'snapshot_site':snapshot,
@@ -178,6 +240,7 @@ def main():
   'first_observed_ledger_sources':dict(Counter((x.get('original_pick') or {}).get('odds_source') for x in ledger_day)),
   'counts':dict(counted),'baseline_market_counts':dict(old_by_key),
   'added_market_counts':dict(new_by_key),'added_examples':examples,
+  'actual_outcomes':summary,'selected_fixture_outcomes':selection_results,
   'old_examples':oldexamples,
   'new_validation':validation,'new_training_games':new_training,'ht_model':ht_fit,
   'interpretation':[
@@ -192,6 +255,6 @@ def main():
  output.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
  print('BSD_NOV1_ADDITIONAL_CAPACITY',json.dumps({'source':source,'counts':dict(counted),
    'existing_snapshot':snapshot.get('site_match_count'),'ledger':len(ledger_day),
-   'new_markets':dict(new_by_key),'validation':validation},ensure_ascii=False))
+   'new_markets':dict(new_by_key),'realized':summary,'validation':validation},ensure_ascii=False))
 
 if __name__=='__main__': main()
