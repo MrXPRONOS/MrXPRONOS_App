@@ -59,7 +59,7 @@ def fetch_fixtures(day,archive):
  info["api_attempted"]=True
  try:
   from bsd_api import BSDClient
-  client=BSDClient(max_requests=45,enable_free_sources=False)
+  client=BSDClient(max_requests=45)
   page=client.list_events(day,day,max_pages=40,ttl=0)
   info.update(api_complete=bool(page.complete),api_total=page.total_reported,api_fetched=len(page.events))
   if not page.complete:
