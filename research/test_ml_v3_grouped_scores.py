@@ -66,7 +66,7 @@ class GroupedV3Tests(unittest.TestCase):
             validate_month(r)
             self.assertEqual(len(r["daily"]["5"]),31)
             first=r["daily"]["5"][0]
-            self.assertEqual(first["exact_hits_full_k"],1) # 1-1 only
+            self.assertEqual(first["exact_hits_full_k"],2) # 1-1 and ungrouped 0-4
             self.assertEqual(first["grouped_hits"],3) # 1-0, 1-1, 0-2
             self.assertEqual(first["abstentions"],1) # score 0-4
             self.assertEqual(first["result_1x2_hits_full_k"],4)
