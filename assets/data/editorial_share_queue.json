@@ -1,5 +1,635 @@
 [
   {
+    "id": "5b47ecc385ba424d9e25c5db",
+    "kind": "news",
+    "title": "OL : le Sporting veut Fonseca avant mercredi",
+    "url": "https://www.footmercato.net/a7792710185742003607-ol-le-sporting-veut-fonseca-avant-mercredi",
+    "source_date": "2026-11-01T23:12:50+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "dfeeb818a547c480e607efed",
+    "kind": "news",
+    "title": "«Il y a un traumatisme» : l’avertissement de Bruno Genesio malgré la série de victoires de l’OM",
+    "url": "https://www.footmercato.net/a9083668168061589673-il-y-a-un-traumatisme-lavertissement-de-bruno-genesio-malgre-la-serie-de-quatre-victoires",
+    "source_date": "2026-11-01T23:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "672b01dc288f5d1532837582",
+    "kind": "news",
+    "title": "OM - Toulouse : les notes du match",
+    "url": "https://www.footmercato.net/a5780519428730181152-om-toulouse-les-notes-du-match",
+    "source_date": "2026-11-01T21:56:22+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e925322c76085bafa30e5825",
+    "kind": "news",
+    "title": "ENQUÊTE. Entre Gianni Infantino et Donald Trump, une amitié riche en dollars",
+    "url": "https://www.franceinfo.fr/enquetes-franceinfo/enquete-entre-gianni-infantino-et-donald-trump-une-amitie-riche-en-dollars_8260802.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-01T06:34:16+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0bd926cad1b772fa98a83f63",
+    "kind": "news",
+    "title": "OM : Le magnifique hommage de Bruno Genesio envers Amine Harit et sa prestation XXL",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-le-magnifique-hommage-de-bruno-genesio-envers-amine-harit-et-sa-prestation-xxl-544315.html",
+    "source_date": "2026-11-01T23:24:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2c6589957cc3682b857cc2cf",
+    "kind": "news",
+    "title": "OM : Bruno Genesio donne des nouvelles d'Emerson après sa sortie sur blessure",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-bruno-genesio-donne-des-nouvelles-d-emerson-apres-sa-sortie-sur-blessure-544310.html",
+    "source_date": "2026-11-01T22:56:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "83e79058a09d80b1e791fce9",
+    "kind": "news",
+    "title": "OM : Genesio félicite Paixão pour sa réaction",
+    "url": "https://www.footmercato.net/a5023342894709324150-om-genesio-felicite-paixao-pour-sa-reaction",
+    "source_date": "2026-11-01T22:55:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "de76fba32a32d116bba561cb",
+    "kind": "news",
+    "title": "Portugal : Le Sporting confirme le départ de son entraîneur, en attendant Fonseca ?",
+    "url": "https://www.sofoot.com/breves/portugal-le-sporting-confirme-le-depart-de-son-entraineur-en-attendant-fonseca",
+    "source_date": "2026-11-01T22:52:09+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "45e2d122d4f83f346c328b5e",
+    "kind": "news",
+    "title": "OM : l’hommage de Genesio à Harit",
+    "url": "https://www.footmercato.net/a7202670781862353208-om-lhommage-de-genesio-a-harit",
+    "source_date": "2026-11-01T22:33:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "dbf22cbdf5c3379d2182ec00",
+    "kind": "news",
+    "title": "OM : La satisfaction d'Amine Gouiri après son but et le 4e succès de suite en Ligue 1 de l'OM face au TFC (vidéo)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-la-satisfaction-d-amine-gouiri-apres-son-but-et-le-4e-succes-de-suite-en-ligue-1-de-l-om-face-au-tfc-video-544309.html",
+    "source_date": "2026-11-01T22:30:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d651aa3c2158c6ba7f52dd1c",
+    "kind": "news",
+    "title": "\"Je ne veux plus parler à personne !\", Griezmann avoue snober la presse française depuis deux ans",
+    "url": "https://www.onzemondial.com/equipe-de-france/je-ne-veux-plus-parler-a-personne-griezmann-avoue-snober-la-presse-francaise-depuis-deux-ans-1006370",
+    "source_date": "2026-11-01T22:30:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "321da0ca36796752027a49e8",
+    "kind": "news",
+    "title": "Bruno Genesio après la victoire de l’OM contre Toulouse : « Je craignais beaucoup ce match »",
+    "url": "https://www.sofoot.com/breves/bruno-genesio-apres-la-victoire-de-lom-contre-toulouse-je-craignais-beaucoup-ce-match",
+    "source_date": "2026-11-01T22:28:26+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2140e9a9a24e4310483260f7",
+    "kind": "news",
+    "title": "Argentine : Boca Juniors remporte un Superclasico tendu contre River Plate et se rapproche du titre",
+    "url": "https://www.sofoot.com/breves/argentine-boca-juniors-remporte-un-superclasico-tendu-contre-river-plate-et-se-rapproche-du-titre",
+    "source_date": "2026-11-01T22:26:54+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "24b9d626cd7fa8b57393af6c",
+    "kind": "news",
+    "title": "OM-Toulouse : \"Il y a un traumatisme présent\", Genesio veut chasser les démons du passé",
+    "url": "https://www.onzemondial.com/ligue-1/om-toulouse-il-y-a-un-traumatisme-present-genesio-veut-chasser-les-demons-du-passe-1006458",
+    "source_date": "2026-11-01T22:24:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "56681832b3fc301f8a177a84",
+    "kind": "news",
+    "title": "L’OL a déjà trouvé un successeur à Paulo Fonseca !",
+    "url": "https://www.footmercato.net/a6356060030312627193-lol-a-deja-trouve-un-successeur-a-paulo-fonseca",
+    "source_date": "2026-11-01T22:23:55+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d7929728db0828fa2b84a530",
+    "kind": "news",
+    "title": "Liga : l’Athletic Bilbao terrasse la Real Sociedad dans le derby basque",
+    "url": "https://www.footmercato.net/a8591663163554261145-liga-lathletic-bilbao-terrasse-la-real-sociedad-dans-le-derby-basque",
+    "source_date": "2026-11-01T22:20:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d1935b8309ee2d1c5c43ee71",
+    "kind": "news",
+    "title": "OM : Amine Gouiri met en lumière sa complicité technique avec Amine Harit après le succès face au TFC",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-amine-gouiri-met-en-lumiere-sa-complicite-technique-avec-amine-harit-apres-le-succes-face-au-tfc-544306.html",
+    "source_date": "2026-11-01T22:19:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0dfd99831589156de7eee5d4",
+    "kind": "news",
+    "title": "Mercato OL : Un ancien adjoint de Pep Guardiola émerge pour remplacer Paulo Fonseca",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-ol-un-ancien-adjoint-de-pep-guardiola-emerge-pour-remplacer-paulo-fonseca-544305.html",
+    "source_date": "2026-11-01T22:11:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ed00b9a08675b5c75ad14e99",
+    "kind": "news",
+    "title": "OM : l'anecdote de Gouiri sur Paixao et la célébration TikTok des Marseillais",
+    "url": "https://www.onzemondial.com/ligue-1/om-lanecdote-de-gouiri-sur-paixao-et-la-celebration-tiktok-des-marseillais-1006475",
+    "source_date": "2026-11-01T22:06:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6a0d67de9d102212f53de102",
+    "kind": "news",
+    "title": "OM : Gouiri adore sa connexion avec Harit",
+    "url": "https://www.footmercato.net/a7886356708865575871-om-amine-gouiri-adore-sa-connexion-avec-amine-harit",
+    "source_date": "2026-11-01T22:03:54+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b2758ffe527f25abe9f851d4",
+    "kind": "news",
+    "title": "OM-Toulouse : \"Du caractère, de la personnalité\", Gouiri dévoile la recette du renouveau",
+    "url": "https://www.onzemondial.com/ligue-1/om-toulouse-du-caractere-de-la-personnalite-gouiri-devoile-la-recette-du-renouveau-1006471",
+    "source_date": "2026-11-01T22:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2791738e166ec038f0ec4e75",
+    "kind": "news",
+    "title": "Ligue 1 : Les notes du match OM-Toulouse",
+    "url": "https://www.sofoot.com/articles/ligue-1-les-notes-du-match-om-toulouse",
+    "source_date": "2026-11-01T21:57:12+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8409782cc65a935a6f469e96",
+    "kind": "news",
+    "title": "OM : La réaction à chaud d'Amine Harit après la victoire face au TFC",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-la-reaction-a-chaud-d-amine-harit-apres-la-victoire-face-au-tfc-544301.html",
+    "source_date": "2026-11-01T21:55:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f6b736353d90a7cd1e350944",
+    "kind": "news",
+    "title": "OM-Toulouse : \"Se battre tous ensemble\", la réaction pleine d'orgueil d'Harit après la victoire",
+    "url": "https://www.onzemondial.com/ligue-1/om-toulouse-se-battre-tous-ensemble-la-reaction-pleine-d-orgueil-d-harit-apres-la-victoire-1006462",
+    "source_date": "2026-11-01T21:49:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6489833fb205a810ff194b26",
+    "kind": "news",
+    "title": "Serie A : La Juventus refroidit Naples et s’accroche au wagon européen",
+    "url": "https://www.sofoot.com/breves/serie-a-la-juventus-refroidit-naples-et-saccroche-au-wagon-europeen",
+    "source_date": "2026-11-01T21:42:11+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6bc8c6a110726e88b41de25a",
+    "kind": "news",
+    "title": "Ligue 1 : L’OM jette un mauvais sort à Toulouse et signe une quatrième victoire consécutive",
+    "url": "https://www.sofoot.com/articles/ligue-1-lom-jette-un-mauvais-sort-a-toulouse-et-signe-une-quatrieme-victoire-consecutive",
+    "source_date": "2026-11-01T21:41:31+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6a144081ded62621ba95c7d2",
+    "kind": "news",
+    "title": "Inspiré puis malmené, l'OM signe une quatrième victoire de rang en Ligue 1 face à Toulouse",
+    "url": "https://www.franceinfo.fr/sports/foot/om/inspire-puis-malmene-l-om-signe-une-quatrieme-victoire-de-rang-en-ligue-1-face-a-toulouse_8263235.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-01T21:41:26+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "323489ed13983499bf7f8e30",
+    "kind": "news",
+    "title": "L'OM enchaîne contre Toulouse et grimpe à la 6e place !",
+    "url": "https://www.onzemondial.com/ligue-1/lom-enchaine-contre-toulouse-et-grimpe-a-la-6e-place-1006466",
+    "source_date": "2026-11-01T21:41:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "18ff4811581feba608aa9e28",
+    "kind": "news",
+    "title": "Ligue 1 : Les notes de OM - TFC : Marseille enchaîne un 4e succès de suite et continue sa folle remontée au classement !",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-les-notes-de-om-tfc-marseille-enchaine-un-4e-succes-de-suite-et-continue-sa-folle-remontee-au-classement-544298.html",
+    "source_date": "2026-11-01T21:40:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3f5a3a02a1c634833af182c8",
+    "kind": "news",
+    "title": "De Strasbourg à l'AC Milan, le début de saison totalement dingue de Diego Moreira",
+    "url": "https://www.onzemondial.com/serie-a/de-strasbourg-a-lac-milan-le-debut-de-saison-totalement-dingue-de-diego-moreira-1006346",
+    "source_date": "2026-11-01T21:28:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-02T05:42:12.275993+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "bcda7e1945a4e4a1013ac624",
     "kind": "article",
     "title": "Brentford vs Nottingham Forest : analyse du match",
@@ -40,7 +670,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5a461771ac7f16fce125e7d3",
@@ -61,7 +691,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "95845a6176f900a4a22d61f9",
@@ -82,7 +712,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5183c3b6aaa5e5a850e60d0c",
@@ -103,7 +733,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0a99331355788793030c0fd2",
@@ -124,7 +754,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6416c24dbcf9d7d02e5c67f2",
@@ -145,7 +775,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d7f6174ee11ec0002c00bb3c",
@@ -166,7 +796,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "75df025b5bcd30ac46322f9b",
@@ -187,7 +817,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ffc46b340cb7bdf8ba25a982",
@@ -208,7 +838,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cd1f5641e58ec0a2b69c8500",
@@ -229,7 +859,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5ee1f0001c854a0b56bde30e",
@@ -250,7 +880,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ac091ab8fd0ef467fca8dcfc",
@@ -271,7 +901,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "80a4e686a0a407eb823ea6a6",
@@ -292,7 +922,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c6ed21c7a4b1872a223aae2a",
@@ -313,7 +943,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8a70859f75496b53eae505c4",
@@ -334,7 +964,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1a6d5260d94b0f28a1e8cbc8",
@@ -355,7 +985,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "64e458879743cab70ba49dba",
@@ -376,7 +1006,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cd7fd0e8ef972648b52ee0ab",
@@ -397,7 +1027,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4efcd3804cd93b478aac3214",
@@ -418,7 +1048,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0dc2c8970c52641d39d142f9",
@@ -439,7 +1069,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3804f80ef603f5b97b0ab8be",
@@ -460,7 +1090,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "984e065bcbf4bf38a2e76314",
@@ -481,7 +1111,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5c540bf5c24ab35a8a5a766f",
@@ -502,7 +1132,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d76084a6fadccf26f525f5bf",
@@ -523,7 +1153,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cda75bcac64e473fb6bffdda",
@@ -544,7 +1174,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6723ae7cd6102be8a5fb9a27",
@@ -693,7 +1323,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "90a98d62f407883129a14e5d",
@@ -714,7 +1344,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "40aea6ac15836243bc9b631a",
@@ -1239,7 +1869,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "183e7390cad29140a1e19795",
@@ -1260,7 +1890,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "524382d3f7dfaf06ea4f97aa",
@@ -1281,7 +1911,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6bf9c5e3048121b49c67431b",
