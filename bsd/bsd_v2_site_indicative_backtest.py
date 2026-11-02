@@ -27,9 +27,9 @@ from bsd_v2_published_paired_backtest import annual_market_training
 from bsd_v2_market_expansion import half_time_share
 from bsd_v2_indicative_replay import model_only_publication,experimental_model_prediction
 
-def selected_new_candidates(f,index,rho,cal,validation,ht_share):
+def selected_new_candidates(f,index,rho,cal,validation,ht_share,quality_policy):
     feat,why=estimate_goals(f,index)
-    if feat is None:return []
+    if feat is None or quality_policy.check_fixture(feat):return []
     rows=[]
     mat=score_matrix(feat['home'],feat['away'],rho)
     for candidate in candidates(mat,home_xg=feat['home'],away_xg=feat['away'],halftime_share=ht_share):
@@ -106,7 +106,7 @@ def run(day,archive,fixtures,api_source):
         prev_ok=bool(prev and eligible_model_choice(prev))
         prev_priced,prev_reason=model_only_publication(prev,now=clock) if prev else (None,reason)
         if prev_priced is None:reject_base[prev_reason]+=1
-        new=selected_new_candidates(fake,index,rho,expcal,validation,ht_share)
+        new=selected_new_candidates(fake,index,rho,expcal,validation,ht_share,policy)
         if new:raw_new['at_least_one']+=1
         # A future combined-native engine must rank before pricing.
         # Legacy first choice is retained if more reliable than new proposals,
