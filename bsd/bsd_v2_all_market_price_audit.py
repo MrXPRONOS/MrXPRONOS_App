@@ -81,12 +81,13 @@ def _model_price(key,code,p,conservative,*,now=None):
                 'publishable_as_indicative_price':True},'ok'
     # The site's default 6% overround is preserved, without its publishability
     # min price or confidence gate; this is NOT exactly the production quote.
-    diag=1/(p*(1+DEFAULT_OVERROUND))
+    margin=min(DEFAULT_OVERROUND,max(0.,1/(1.20*p)-1))
+    diag=1/(p*(1+margin))
     if not isfinite(diag) or not 1.01<=diag<=100:
         return None,'diagnostic_price_outside_range'
     return {'odds':round(diag,3),'fair_odds':round(1/p,4),
             'odds_method':'research_same_formula_without_publication_gates',
-            'overround':DEFAULT_OVERROUND,'reference':'hypothese_6pct',
+            'overround':round(margin,5),'reference':'hypothese_6pct',
             'publishable_as_indicative_price':False},'research_only'
 
 def all_markets_for_fixture(event,index,*,rho,calibration,totals,btts,dc,
