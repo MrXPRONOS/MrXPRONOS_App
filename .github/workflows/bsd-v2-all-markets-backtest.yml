@@ -1,5 +1,10 @@
 name: BSD V2 - Backtest tous les marches (recherche)
 on:
+  push:
+    branches:
+      - analyse/bsd-v2-sept-marches-backtest-20261102
+    paths:
+      - '.github/workflows/bsd-v2-all-markets-backtest.yml'
   workflow_dispatch:
     inputs:
       max_matches:
@@ -11,7 +16,7 @@ permissions:
 jobs:
   research:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
