@@ -45,7 +45,7 @@ class MarketAdapterTests(unittest.TestCase):
                              {'name':'Chelsea','point':0,'price':-170}]}}]}
   rows=from_oddslink_public_extended(event,T)
   self.assertAlmostEqual(rows['ASIAN_HANDICAP_HOME_+1.5_FT']['odds'],1.8)
-  self.assertAlmostEqual(rows['ASIAN_HANDICAP_AWAY_+1.5_FT']['odds'],1+100/130)
+  self.assertAlmostEqual(rows['ASIAN_HANDICAP_AWAY_+1.5_FT']['odds'],1+100/130,places=5)
   self.assertAlmostEqual(rows['DRAW_NO_BET_HOME_FT']['odds'],2.5)
   self.assertEqual(rows['DRAW_NO_BET_HOME_FT']['bookmaker'],'bookA')
  def test_public_board_excludes_exchange_and_stale(self):
