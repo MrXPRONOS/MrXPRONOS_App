@@ -1,0 +1,52 @@
+name: BSD V2 - Backtest tous les marches (recherche)
+on:
+  workflow_dispatch:
+    inputs:
+      max_matches:
+        description: "0 = historique entier (2024-2026)"
+        default: "0"
+        required: false
+permissions:
+  contents: read
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: python -m pip install requests cryptography
+      - name: Tests unitaires sans donnees externes
+        run: |
+          python -m compileall -q bsd/bsd_v2_market_expansion.py bsd/bsd_v2_all_markets_backtest.py
+          python -m unittest discover -s bsd -p 'test_bsd_v2_market_expansion.py' -v
+      - name: Restaurer archive privee
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: python bsd/bsd_archive.py restore
+      - name: Historique complet et comparaison du ledger
+        env:
+          MAX_MATCHES: ${{ inputs.max_matches || '0' }}
+        run: |
+          python bsd/bsd_v2_all_markets_backtest.py --max-matches "$MAX_MATCHES"
+          python - <<'PY'
+          import json
+          r=json.load(open('bsd/v2_all_markets_backtest_report.json'))
+          assert r['archive_finished']>0
+          assert set(r['years'])=={'2024','2025','2026'}
+          assert 'DNB_HOME' in r['years']['2026']['markets']
+          assert 'UNDER_35' in r['years']['2026']['markets']
+          print('REPORT_CHECK_OK')
+          PY
+      - name: Supprimer donnees d'archive dechiffrees
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+      - name: Rapports agreges uniquement
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bsd-v2-all-markets-backtest
+          path: bsd/v2_all_markets_backtest_report.json
+          retention-days: 30
