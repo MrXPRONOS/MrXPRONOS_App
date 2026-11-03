@@ -58,6 +58,30 @@ class NativeV3DailyTests(unittest.TestCase):
         self.assertTrue(all("home_score" not in r and "actual_score" not in r for r in future))
         self.assertTrue(all(r["kickoff_utc"]>ASOF.isoformat().replace("+00:00","Z") for r in future))
 
+    def test_real_league_id_lookup_when_upcoming_source_omits_competition(self):
+        event_row=event(41,"2026-11-03T20:00:00Z",status="notstarted",home_score=None,away_score=None)
+        event_row["league"]=None
+        event_row["league_name"]=None
+        event_row["league_id"]=507
+        client=MagicMock()
+        client.list_events.return_value=SimpleNamespace(events=[event_row],
+                       complete=True,total_reported=1,pages_fetched=1)
+        client.get_json.return_value={"results":[{"id":507,"name":"Verified league name"}]}
+        res=fixtures_today(client,asof=ASOF,known_leagues={})
+        self.assertEqual(len(res),1)
+        self.assertEqual(res[0]["league"],"Verified league name")
+        self.assertEqual(res[0]["id"],"bsd-upcoming:41")
+        self.assertNotIn("home_score",res[0])
+
+    def test_stale_league_id_cannot_be_invented_from_team_name(self):
+        event_row=event(42,"2026-11-03T20:00:00Z",status="notstarted",home_score=None,away_score=None)
+        event_row["league"]=None
+        event_row["league_id"]=None
+        client=MagicMock()
+        client.list_events.return_value=SimpleNamespace(events=[event_row],
+                       complete=True,total_reported=1,pages_fetched=1)
+        self.assertEqual(fixtures_today(client,asof=ASOF,known_leagues={}),[])
+
     def test_refuse_incomplete_source(self):
         client=MagicMock()
         client.list_events.return_value=SimpleNamespace(events=[],complete=False,total_reported=500,pages_fetched=1)
