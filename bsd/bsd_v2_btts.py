@@ -174,6 +174,28 @@ def btts_candidates(event, index, candidates, model=None):
             if c.key in ("BTTS_YES","BTTS_NO") else c for c in candidates]
 
 
+
+def btts_quality_rejection(expected, model, poisson_p, specialized_p):
+    """Pre-price BTTS veto for new production selections only.
+
+    This is not an 80% guarantee; it prevents misleading confidence from a
+    sparse-history Poisson fallback and requires home/away evidence.
+    """
+    if model is None or not (model.blend>0 or model.team_blend>0 or model.league_blend>0):
+        return "btts_no_active_specialist"
+    if min(expected["home_recent_matches"], expected["away_recent_matches"]) < 8:
+        return "btts_insufficient_team_form"
+    if min(expected["home_venue_matches"], expected["away_venue_matches"]) < 3:
+        return "btts_insufficient_venue_form"
+    if expected["league_samples"] < 40:
+        return "btts_insufficient_league_form"
+    if expected["max_last_match_age_days"] > 60:
+        return "btts_stale_form"
+    if abs(specialized_p-poisson_p) > .15:
+        return "btts_models_disagree"
+    return None
+
+
 def _train_logistic(rows, epochs=220):
     # Deterministic full-batch gradient descent with mild L2 penalty.
     weights = [0.0]*FEATURE_COUNT
