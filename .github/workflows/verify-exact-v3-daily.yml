@@ -1,0 +1,23 @@
+name: Verify daily Hybrid V3 exact score pipeline
+on:
+  push:
+    branches: [feature/onglet-scores-exacts-20261103]
+    paths: ['.github/workflows/verify-exact-v3-daily.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate daily forecast publisher
+        run: |
+          python -m py_compile scripts/run_exact_scores_v3_daily.py scripts/publish_exact_scores.py
+          python -m unittest discover -s tests -p 'test_exact_scores_tab.py' -v
+          python -m unittest discover -s tests -p 'test_exact_scores_daily_v3.py' -v
+          node --check assets/js/scores-exacts.js
