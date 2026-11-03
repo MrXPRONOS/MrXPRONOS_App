@@ -1,5 +1,6 @@
 https://mrxpronos.github.io/MrXPRONOS_App/
 https://mrxpronos.github.io/MrXPRONOS_App/pronos.html
+https://mrxpronos.github.io/MrXPRONOS_App/scores-exacts.html
 https://mrxpronos.github.io/MrXPRONOS_App/historique.html
 https://mrxpronos.github.io/MrXPRONOS_App/blog.html
 https://mrxpronos.github.io/MrXPRONOS_App/infos.html
