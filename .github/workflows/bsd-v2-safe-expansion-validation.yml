@@ -1,0 +1,53 @@
+name: BSD V2 - Safe Market Expansion Tests
+on:
+  push:
+    branches:
+      - feature/bsd-v2-safe-fallback-new-markets-20261103
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: python -m pip install requests cryptography pillow
+      - run: python -m compileall -q bsd
+      - run: python -m unittest discover -s bsd -p 'test_*.py' -v
+      - run: node --check assets/js/main.js
+      - run: node --test tests/pronos-category-selection.test.cjs
+      - name: Restore private historical training data
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: python bsd/bsd_archive.py restore
+      - name: Check market approval from pre-2026 data
+        run: python bsd/bsd_v2_safe_expansion_check.py
+      - name: Simulate site generation without deployment
+        env:
+          BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+          MOVIODDS_ENABLE: '0'
+          PINNWIRE_USE_DEMO: '0'
+          BSD_MULTISOURCE_CC0: '0'
+        run: |
+          mkdir -p tmp/expansion-dryrun/bsd
+          cp data.json tmp/expansion-dryrun/data.json
+          cp bsd/publication_ledger.json tmp/expansion-dryrun/bsd/publication_ledger.json
+          python bsd/bsd_v2_publish.py --output tmp/expansion-dryrun/data.json --max-requests 900 --max-odds-events 5
+          python - <<'PY'
+          import json
+          from bsd.bsd_v2_publication_policy import eligible_feed_match
+          from bsd.bsd_v2_estimated_odds import valid_standalone_prediction
+          doc=json.load(open('tmp/expansion-dryrun/data.json'))
+          assert all(eligible_feed_match(row) for row in doc['matches'])
+          assert all(valid_standalone_prediction(row['prediction']) for row in doc['matches'])
+          assert all(row['prediction']['selection_key'] not in ('DNB_HOME','DNB_AWAY','HT_UNDER_15') for row in doc['matches'])
+          assert all(row.get('do_not_send_to_telegram') for row in doc.get('low_odds_model_observations',[]))
+          print('BSD_SAFE_EXPANSION_DRY_RUN',len(doc['matches']),doc['diagnostics']['new_markets']['enabled_for_publication'])
+          PY
+      - name: Clean history
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json

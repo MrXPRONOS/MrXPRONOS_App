@@ -21,6 +21,8 @@ VERIFIED_SOURCES = frozenset(("bsd_consensus", "bsd_bookmaker"))
 MIN_CATEGORY_SAMPLE = 100
 MIN_CALIBRATION_SAMPLE = 30
 KEYS = {row.key: row for row in candidates_from_goals(1.3, 1.1)}
+from bsd_v2_new_market_model import settlement_candidates
+KEYS.update(settlement_candidates())
 
 
 def _utc(value):
