@@ -1576,8 +1576,65 @@ function filterAndDisplay() {
   applySearchFilter();
 }
 
+// This is NOT the site Pro/VIP selection list. Keep model-derived analysis
+// quotes completely separate from recommendations, public success stats,
+// share controls, historical ledger receipts and Telegram.
+function renderMarketRangeAnalyses() {
+  const node = document.getElementById("market-range-analyses-container");
+  if (!node) return;
+  const day = getLocalDateString(currentDay);
+  const search = String(searchTerm || "").trim().toLocaleLowerCase("fr");
+  const entries = Array.isArray(allData?.market_odds_analyses)
+    ? allData.market_odds_analyses : [];
+  const valid = entries.filter((item) => {
+    if (!item || item.analysis_only !== true ||
+        item.recommendation_eligible !== false ||
+        item.do_not_send_to_telegram !== true ||
+        item.estimated_odds !== true ||
+        item.odds_source !== "mrxpronos_model" ||
+        item.not_an_executable_bookmaker_quote !== true) return false;
+    const odds = Number(item.odds);
+    const probability = Number(item.model_probability);
+    const kickoff = Date.parse(item.event_date || "");
+    if (!Number.isFinite(odds) || odds < 1.40 || odds > 2.00 ||
+        !Number.isFinite(probability) || probability <= 0 || probability >= 1 ||
+        !Number.isFinite(kickoff) || kickoff <= Date.now() ||
+        getLocalDateFromEvent(item.event_date) !== day) return false;
+    if (!search) return true;
+    return [item.home_team, item.away_team, item.league, item.market_label]
+      .some((value) => String(value || "").toLocaleLowerCase("fr").includes(search));
+  }).slice(0, 32);
+
+  if (!valid.length) {
+    node.innerHTML = '<p class="mx-market-range-empty">Aucune analyse à cote théorique 1,40–2,00 disponible pour cette date et ces critères.</p>';
+    return;
+  }
+  node.innerHTML = valid.map((item) => {
+    const odds = Number(item.odds).toFixed(2).replace(".", ",");
+    const probability = (Number(item.model_probability) * 100).toFixed(1).replace(".", ",");
+    const label = escapeHtml(item.market_label || item.selection_key || "Marché");
+    const home = escapeHtml(item.home_team || "Domicile");
+    const away = escapeHtml(item.away_team || "Extérieur");
+    const league = escapeHtml(item.league || "Football");
+    const kickoff = new Date(item.event_date).toLocaleTimeString("fr-FR", {
+      hour: "2-digit", minute: "2-digit",
+    });
+    return '<article class="mx-market-range-card">'
+      + '<div class="mx-market-range-meta"><span>' + league + '</span><time>' + escapeHtml(kickoff) + '</time></div>'
+      + '<h3>' + home + ' <span>–</span> ' + away + '</h3>'
+      + '<p class="mx-market-range-pick">' + label + '</p>'
+      + '<div class="mx-market-range-data">'
+      + '<div><small>Probabilité calculée</small><strong>' + probability + ' %</strong></div>'
+      + '<div><small>Cote modèle indicative</small><strong>' + odds + '</strong></div>'
+      + '</div>'
+      + '<p class="mx-market-range-caveat">Analyse uniquement · Pas une cote proposée par un bookmaker</p>'
+      + '</article>';
+  }).join("");
+}
+
 function applySearchFilter() {
   if (!DOM.matches) return;
+  renderMarketRangeAnalyses();
   const term = searchTerm.toLowerCase().trim();
   const filtered = !term
     ? filteredMatchesWithoutSearch
