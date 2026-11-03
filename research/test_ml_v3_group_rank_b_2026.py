@@ -127,6 +127,7 @@ class TestGroupMassRankingB(unittest.TestCase):
                 load_pairs(p,wrong,start=a,end=b)
             rows[0]["model_fit_latest_day"] = records(a,b).__next__()["model_fit_latest_day"]
             rows[0]["modal_probability"]=".99"
+            rows[0]["group_probability"]=".99"  # Keep mass>=modal; isolate mismatch check
             wrong2=Path(tmp)/"not_modal.csv"
             with wrong2.open("w",encoding="utf8",newline="") as fh:
                 w=csv.DictWriter(fh,fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)
