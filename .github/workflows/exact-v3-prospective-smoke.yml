@@ -1,0 +1,67 @@
+name: Research smoke - genuine Hybrid V3 future Top5
+on:
+  push:
+    branches: [feature/onglet-scores-exacts-20261103]
+    paths: ['.github/workflows/exact-v3-prospective-smoke.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mrx-hybrid-v3-prospective-smoke
+  cancel-in-progress: false
+jobs:
+  real-prospective-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    env:
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
+      SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
+      SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
+      SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
+      SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
+      OPENBLAS_NUM_THREADS: '2'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: site
+      - uses: actions/checkout@v4
+        with:
+          ref: research/single-ml-v2-20261024
+          path: model
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install genuine research model dependencies
+        run: python -m pip install numpy scipy scikit-learn requests cryptography lightgbm==4.6.0 catboost==1.2.8
+      - name: Validate offline guards before connecting to any football provider
+        run: |
+          python -m unittest discover -s site/tests -p 'test_exact_scores_tab.py' -q
+          python -m unittest discover -s site/tests -p 'test_exact_scores_daily_v3.py' -q
+          test -n "$ML_V2_HISTORY_KEY_B64"
+      - name: Evaluate real provider fixtures with genuine prospective Hybrid V3
+        run: |
+          python site/scripts/run_exact_scores_v3_daily.py \
+            --site-root site --model-root model --out site/scores-exacts.json
+      - name: Validate public feed format and current publication date
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from datetime import datetime,timezone
+          report=json.loads(Path("site/scores-exacts.json").read_text())
+          assert report["schema_version"]=="mrx-exact-top5-v1"
+          assert report["date"]==datetime.now(timezone.utc).date().isoformat()
+          assert 0<=len(report["simple"])<=5 and 0<=len(report["grouped"])<=5
+          assert report["status"] in ("published","unavailable")
+          print("LIVE_V3_PREMATCH_SMOKE_OK",report["status"],len(report["simple"]),len(report["grouped"]))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: genuine-v3-top5-review-${{ github.run_id }}
+          path: site/scores-exacts.json
+          retention-days: 7
+          if-no-files-found: error
