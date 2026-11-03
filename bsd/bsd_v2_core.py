@@ -460,6 +460,29 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
         "estimated_value": choice["expected_value"],
         "calibration_samples": choice["calibration_samples"],
     }
+    # Expose the trained challengers as SHADOW diagnostics even when the
+    # validation-gated coefficients are zero. Never let an unvalidated score
+    # override the published market or its confidence.
+    btts_shadow=None
+    if btts_model is not None and quality_policy is not None:
+        from bsd_v2_btts_team import team_scoring_probabilities
+        team_shadow=team_scoring_probabilities(
+            event,index,model=getattr(btts_model,"team_model",None))
+        league_shadow=getattr(btts_model,"league_model",None)
+        btts_shadow={
+            "team_model_trained":getattr(btts_model,"team_model",None) is not None,
+            "league_model_trained":league_shadow is not None,
+            "team_blend_active":getattr(btts_model,"team_blend",0.),
+            "league_blend_active":getattr(btts_model,"league_blend",0.),
+            "home_scores_probability":round(team_shadow["home_scores"],6) if team_shadow else None,
+            "away_scores_probability":round(team_shadow["away_scores"],6) if team_shadow else None,
+            "home_blank_probability":round(team_shadow["home_blank"],6) if team_shadow else None,
+            "away_blank_probability":round(team_shadow["away_blank"],6) if team_shadow else None,
+            "team_joint_btts_probability":round(team_shadow["btts_yes"],6) if team_shadow else None,
+            "league_shrunken_residual":round(league_shadow.deviation(event),6)
+                if league_shadow is not None else None,
+            "publication_decision_source":"validated_primary_btts_probability_only",
+        }
     data = {
         "id": "bsd:" + str(event["id"]), "provider": "BSD",
         "source_event_id": event["id"],
@@ -482,6 +505,7 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
             "home_venue_matches": expected["home_venue_matches"],
             "away_venue_matches": expected["away_venue_matches"],
             "total_model_agreement": total_model_agreement,
+            "btts_challenger_shadow": btts_shadow,
             "policy_version": POLICY_VERSION,
         },
         "ranked_candidates": [{"key":row["candidate"].key,

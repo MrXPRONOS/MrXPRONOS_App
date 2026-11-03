@@ -6,6 +6,7 @@ ne pas inférer la rentabilité d'un backtest sans prix pré-match.
 """
 from __future__ import annotations
 import argparse,json
+from dataclasses import replace
 from datetime import date
 from collections import Counter,defaultdict
 from pathlib import Path
@@ -31,12 +32,14 @@ def _statistics(rows):
 
 
 def audit(index,model,calibration,rho,*,year=2026,max_matches=2000,
-          baseline_calibration=None,quality_policy=None,start_date=None,end_date=None):
+          baseline_calibration=None,quality_policy=None,start_date=None,end_date=None,
+          prior_model=None,prior_calibration=None):
     by_group=defaultdict(list)
     by_league=defaultdict(list)
     baseline=defaultdict(list)
     baseline_calibrated=defaultdict(list)
     probability_buckets=defaultdict(list)
+    prior_probabilities=[]
     counters=Counter()
     selected=[]
     for _stamp, match in index.global_games:
@@ -74,6 +77,9 @@ def audit(index,model,calibration,rho,*,year=2026,max_matches=2000,
                 continue
         scores=outcome_scores(match)
         win_yes=int(scores[0]>0 and scores[1]>0)
+        if prior_model is not None and prior_calibration is not None:
+            prior={c.key:c for c in btts_candidates(match,index,list(original.values()),prior_model)}
+            prior_probabilities.append((prior_calibration.score(prior['BTTS_YES'])[1],win_yes))
         syes=calibration.score(updated['BTTS_YES'])[1]
         sno=calibration.score(updated['BTTS_NO'])[1]
         winner='BTTS_YES' if syes>=sno else 'BTTS_NO'
@@ -114,6 +120,7 @@ def audit(index,model,calibration,rho,*,year=2026,max_matches=2000,
         "preprice_only":True,
         "same_btts_eligibility_as_production":quality_policy is not None,
         "does_not_simulate_competing_markets_or_odds":True,
+        "ablation_without_team_league":_statistics(prior_probabilities) if prior_probabilities else None,
         "skips":{k:v for k,v in counters.items() if k.startswith("skipped_")},
         "specialized_calibrated":{k:_statistics(v) for k,v in by_group.items()},
         "poisson_dixon_coles_baseline":{k:_statistics(v) for k,v in baseline.items()},
@@ -150,8 +157,13 @@ def main():
     model,training=fit_btts_model(index,rho=rho)
     cal,policy,periods=fit_policy(index,rho=rho,btts_model=model)
     baseline_cal,_,_=fit_policy(index,rho=rho,btts_model=None)
+    prior_model=prior_cal=None
+    if model.team_blend>0 or model.league_blend>0:
+        prior_model=replace(model,team_blend=0.,league_blend=0.)
+        prior_cal,_,_=fit_policy(index,rho=rho,btts_model=prior_model)
     result={"model":"btts-specialized-v1","fit":training,"calibration":periods,
             "test":audit(index,model,cal,rho,max_matches=args.max_test,
+                         prior_model=prior_model,prior_calibration=prior_cal,
                          quality_policy=None if args.legacy_no_quality_filter else policy,
                          start_date=start_date,end_date=end_date,
                          baseline_calibration=baseline_cal)}

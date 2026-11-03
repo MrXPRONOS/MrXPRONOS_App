@@ -1,0 +1,90 @@
+name: BTTS V2 - Team and League Challengers Acceptance
+on:
+  push:
+    branches:
+      - improve/btts-team-league-calibration-20261103
+    paths:
+      - .github/workflows/btts-v2-team-league-acceptance.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - 'bsd/bsd_v2_core.py'
+      - 'bsd/bsd_v2_btts_backtest.py'
+      - 'bsd/bsd_v2_btts.py'
+      - 'bsd/bsd_v2_btts_team.py'
+      - 'bsd/bsd_v2_btts_league.py'
+      - 'bsd/test_bsd_v2_btts.py'
+permissions:
+  contents: read
+concurrency:
+  group: btts-v2-team-league-acceptance
+  cancel-in-progress: false
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      PYTHONPATH: bsd
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Dependencies
+        run: python -m pip install requests cryptography pillow
+      - name: Python syntax
+        run: python -m compileall -q bsd
+      - name: BTTS model and time-leakage unit tests
+        run: python -m unittest discover -s bsd -p 'test_bsd_v2_btts.py' -v
+      - name: Entire BSD regression suite
+        run: python -m unittest discover -s bsd -p 'test_*.py' -v
+      - name: Restore private historical archive (read only)
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: python bsd/bsd_archive.py restore
+      - name: Strict out-of-sample Jan-Nov 2026 backtest
+        run: |
+          python bsd/bsd_v2_btts_backtest.py --max-test 30000 \
+            --start-date 2026-01-01 --end-date 2026-11-02 \
+            --output bsd/btts_team_league_2026_comparison.json
+      - name: Inspect independent validation gates and 2026 Brier
+        run: |
+          python - <<'PY'
+          import json
+          doc=json.load(open('bsd/btts_team_league_2026_comparison.json'))
+          fit=doc['fit']; test=doc['test']
+          assert fit['trained']>=100 and fit['validated']>=50
+          assert fit['team_scoring_training']>=100
+          assert test['specialist_only'] and test['strict_quality_enabled']
+          assert test['eligible']>500
+          assert fit['independent_guard_period']=='2025-09 to 2025-12'
+          for label in ('team','league'):
+              if fit[label+'_activated']:
+                  assert fit[label+'_blend']>0
+                  assert fit[label+'_holdout_2025_brier']['challenger'] < fit[label+'_holdout_2025_brier']['baseline']
+          ablation=test.get('ablation_without_team_league')
+          if fit['team_activated'] or fit['league_activated']:
+              assert ablation and ablation['n']==test['eligible'], ablation
+              assert test['specialized_calibrated']['BTTS_YES']['brier'] <= ablation['brier'] + .0005, (
+                  'New challengers materially degrade 2026 holdout', ablation, test['specialized_calibrated']['BTTS_YES'])
+          brier=test['specialized_calibrated']['BTTS_YES']['brier']
+          baseline=test['baseline_calibrated']['BTTS_YES']['brier']
+          print('BSD_BTTS_TEAM_LEAGUE_ACCEPTANCE='+json.dumps({
+              'trained':fit['trained'],'team_training':fit['team_scoring_training'],
+              'team_blend':fit['team_blend'],'league_blend':fit['league_blend'],
+              'team_activated':fit['team_activated'],'league_activated':fit['league_activated'],
+              'team_2025':fit['team_holdout_2025_brier'],
+              'league_2025':fit['league_holdout_2025_brier'],
+              'brier_specialized_2026':brier,'brier_poisson_2026':baseline,
+              'brier_previous_specialist_matched_2026':(ablation or {}).get('brier'),
+              'eligible_2026':test['eligible'],
+              'confidence_thresholds':test['by_minimum_confidence'],
+          },ensure_ascii=False))
+          PY
+      - name: Publish audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: btts-team-league-challengers-2026
+          path: bsd/btts_team_league_2026_comparison.json
+          retention-days: 14
+          if-no-files-found: error

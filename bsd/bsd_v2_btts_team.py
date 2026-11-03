@@ -1,71 +1,144 @@
-"""Estimation BTTS par la probabilite de marquer de CHAQUE equipe.
+"""Modele BTTS par la probabilite que chaque equipe marque.
 
-Pas de xG inventes: seules les frequences avant coup d'envoi sont utilisees.
-Utilise en challenger; son melange est choisi sur une validation chronologique.
+Les deux evenements (domicile marque, visiteur marque) sont appris
+separement sur les scores de 2024. Toutes les features sont disponibles
+avant le coup d'envoi et la composante reste un challenger valide hors
+echantillon avant activation. Aucun xG ni blessure ne sont inventes.
 """
 from __future__ import annotations
+
+from dataclasses import dataclass
+from math import exp, log
 
 from bsd_h2h import _team_id
 from bsd_v2_core import fixture_datetime, league_key, outcome_scores
 from bsd_v2_btts import _rates
 
+FEATURE_NAMES = (
+    "intercept", "own_score", "opponent_concedes",
+    "own_venue_scores", "opponent_venue_concedes", "league_scores",
+    "venue_support",
+)
+
 
 def _clip(p):
-    return max(.03, min(.97, p))
+    return max(.025, min(.975, float(p)))
 
 
-def team_scoring_probabilities(event, index, *, min_team=5):
-    """Returns P(home scores), P(away scores), P(BTTS) or None.
+def _sigmoid(x):
+    return 1. / (1. + exp(-max(-25., min(25., x))))
 
-    League and venue rates are shrunk to recent global team form to avoid
-    overfitting to tiny home/away samples. Everything is point-in-time.
-    """
-    home_id = _team_id(event, "home")
-    away_id = _team_id(event, "away")
-    if not home_id or not away_id or home_id == away_id:
+
+def _league_rates(event, index, at):
+    games = index.league(league_key(event), at, limit=300)
+    n = len(games)
+    goals_h = sum(outcome_scores(g)[0] > 0 for g in games)
+    goals_a = sum(outcome_scores(g)[1] > 0 for g in games)
+    # Shrink toward historically typical scoring frequencies.
+    return ((goals_h + 50*.75)/(n+50),
+            (goals_a + 50*.69)/(n+50), n)
+
+
+def scoring_features(event, index, *, min_team=5):
+    """Pre-match feature rows for home and away scoring indicators."""
+    hid, aid = _team_id(event, "home"), _team_id(event, "away")
+    if not hid or not aid or hid == aid:
         return None
     at = fixture_datetime(event)
-    home_recent = index.team(home_id, at, limit=14)
-    away_recent = index.team(away_id, at, limit=14)
-    if min(len(home_recent), len(away_recent)) < min_team:
+    hg, ag = index.team(hid, at, limit=14), index.team(aid, at, limit=14)
+    if min(len(hg), len(ag)) < min_team:
         return None
-    home_venue = index.team(home_id, at, limit=12, venue="home")
-    away_venue = index.team(away_id, at, limit=12, venue="away")
+    hv = index.team(hid, at, limit=12, venue="home")
+    av = index.team(aid, at, limit=12, venue="away")
+    hgf, hga, _ = _rates(hg, hid, at)
+    agf, aga, _ = _rates(ag, aid, at)
+    hvgf, hvga, hw = _rates(hv, hid, at, venue="home")
+    avgf, avga, aw = _rates(av, aid, at, venue="away")
+    wh, wa = hw/(hw+6.), aw/(aw+6.)
+    hvgf = wh*hvgf+(1-wh)*hgf
+    hvga = wh*hvga+(1-wh)*hga
+    avgf = wa*avgf+(1-wa)*agf
+    avga = wa*avga+(1-wa)*aga
+    lh, la, ln = _league_rates(event, index, at)
+    home = (1., hgf-.7, aga-.7, hvgf-.7, avga-.7, lh-.7, min(hw,8.)/8.-.5)
+    away = (1., agf-.7, hga-.7, avgf-.7, hvga-.7, la-.7, min(aw,8.)/8.-.5)
+    return home, away, {"home_venue_matches":len(hv),
+                        "away_venue_matches":len(av),
+                        "league_matches":ln}
 
-    h_score, h_concede, _ = _rates(home_recent, home_id, at)
-    a_score, a_concede, _ = _rates(away_recent, away_id, at)
-    hv_score, hv_concede, hn = _rates(home_venue, home_id, at)
-    av_score, av_concede, an = _rates(away_venue, away_id, at)
-    home_w = hn / (hn + 8.)
-    away_w = an / (an + 8.)
-    hv_score = home_w * hv_score + (1 - home_w) * h_score
-    hv_concede = home_w * hv_concede + (1 - home_w) * h_concede
-    av_score = away_w * av_score + (1 - away_w) * a_score
-    av_concede = away_w * av_concede + (1 - away_w) * a_concede
 
-    # Opponent's clean-sheet rate matters. In particular, whether the
-    # away side can score against THIS home defence.
-    home_p = .35*h_score + .25*hv_score + .20*a_concede + .20*av_concede
-    away_p = .35*a_score + .25*av_score + .20*h_concede + .20*hv_concede
+def _fit_logistic(rows, prior):
+    """L2 penalised independent binary scoring regression, stdlib only."""
+    if not rows:
+        return ()
+    p = min(.95, max(.05, prior))
+    w = [log(p/(1-p))] + [0.]*(len(FEATURE_NAMES)-1)
+    for epoch in range(230):
+        grad = [0.]*len(w)
+        for x,y in rows:
+            delta = _sigmoid(sum(a*b for a,b in zip(w,x)))-y
+            for j in range(len(w)):
+                grad[j] += delta*x[j]
+        rate = 2.0/(1.+epoch/160.)
+        for j in range(len(w)):
+            penalty = .0025*w[j] if j else 0.
+            w[j] -= rate*(grad[j]/len(rows)+penalty)
+            w[j] = max(-7., min(7., w[j]))
+    return tuple(w)
 
-    league_games = index.league(league_key(event), at, limit=300)
-    if league_games:
-        home_hits = sum(outcome_scores(g)[0] > 0 for g in league_games)
-        away_hits = sum(outcome_scores(g)[1] > 0 for g in league_games)
-        l_home = (home_hits + 40*.72)/(len(league_games)+40)
-        l_away = (away_hits + 40*.68)/(len(league_games)+40)
-        league_w = min(.20, len(league_games)/(len(league_games)+180)*.25)
-        home_p = (1-league_w)*home_p + league_w*l_home
-        away_p = (1-league_w)*away_p + league_w*l_away
 
-    home_p, away_p = _clip(home_p), _clip(away_p)
-    return {
-        "home_scores": home_p,
-        "away_scores": away_p,
-        "home_blank": 1-home_p,
-        "away_blank": 1-away_p,
-        "btts_yes": _clip(home_p*away_p),
-        "home_venue_matches": len(home_venue),
-        "away_venue_matches": len(away_venue),
-        "league_matches": len(league_games),
-    }
+@dataclass(frozen=True)
+class TeamScoringModel:
+    home_weights: tuple
+    away_weights: tuple
+    trained_games: int
+    training_year: int = 2024
+
+    def predict(self, home_features, away_features):
+        if len(home_features)!=len(self.home_weights) or len(away_features)!=len(self.away_weights):
+            raise ValueError("Team-scoring feature length changed")
+        return (_clip(_sigmoid(sum(a*b for a,b in zip(self.home_weights, home_features)))),
+                _clip(_sigmoid(sum(a*b for a,b in zip(self.away_weights, away_features)))))
+
+
+def fit_team_scoring_model(index, fixtures, *, max_training=3600):
+    """Fit exclusively on supplied 2024 Jan-Aug finished fixtures."""
+    rows_h, rows_a = [], []
+    selected = sorted(fixtures,key=lambda e:(e["event_date"],str(e["id"])))
+    if len(selected)>max_training:
+        selected=[selected[int(i*len(selected)/max_training)] for i in range(max_training)]
+    for event in selected:
+        at=fixture_datetime(event)
+        if at.year!=2024 or at.month>8:
+            raise ValueError("Team scoring training must stay in 2024 Jan-Aug")
+        pair = scoring_features(event,index)
+        scores = outcome_scores(event)
+        if pair is None or scores is None:
+            continue
+        fh, fa, _ = pair
+        rows_h.append((fh, int(scores[0]>0)))
+        rows_a.append((fa, int(scores[1]>0)))
+    if len(rows_h)<100:
+        return None
+    return TeamScoringModel(_fit_logistic(rows_h, .75),
+                            _fit_logistic(rows_a, .69), len(rows_h))
+
+
+def team_scoring_probabilities(event,index,*,model=None,min_team=5):
+    """Side-specific scoring probabilities and their independent product.
+
+    The model is trained on past games; the caller selects its mixture on
+    the 2024 holdout and verifies it against an untouched 2025 holdout.
+    """
+    pair=scoring_features(event,index,min_team=min_team)
+    if pair is None:return None
+    home,away,meta=pair
+    if model is None:
+        # Safe deterministic fallback for tests / shadow diagnostics.
+        hp=_clip(.75 + .9*home[1]+.4*home[2]+.3*home[5])
+        ap=_clip(.69 + .9*away[1]+.4*away[2]+.3*away[5])
+    else:
+        hp,ap=model.predict(home,away)
+    return {"home_scores":hp,"away_scores":ap,
+            "home_blank":1-hp,"away_blank":1-ap,
+            "btts_yes":_clip(hp*ap),**meta}
