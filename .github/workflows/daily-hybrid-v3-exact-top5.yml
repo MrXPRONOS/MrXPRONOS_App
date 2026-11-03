@@ -20,6 +20,7 @@ on:
 
 permissions:
   contents: write
+  actions: write # needed to dispatch the Pages deploy workflow after bot data commit
 
 concurrency:
   group: mrx-daily-hybrid-v3-exact-publisher-prod-one-writer
