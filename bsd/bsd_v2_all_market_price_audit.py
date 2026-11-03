@@ -2,7 +2,9 @@
 
 16 existing FT outcomes + 9 experimental outcomes (seven new families).
 This is an observation catalogue, never a bet recommendation or publication.
-Prices below 1.20 and less than 70% MUST remain visible for calibration audit.
+For research, compute indicative odds only for 0.10 <= p <= 0.99, regardless
+of publication eligibility. Outside this probability range, retain a marked
+observation without an indicative price.
 """
 from __future__ import annotations
 
@@ -20,6 +22,8 @@ from bsd_v2_market_expansion import candidates as new_candidates, ALL_KEYS,half_
 
 OLD_KEYS=tuple(c.key for c in candidates_from_goals(1.4,1.2))
 CATALOG_KEYS=OLD_KEYS+ALL_KEYS
+MIN_RESEARCH_PROBABILITY=0.10
+MAX_RESEARCH_PROBABILITY=0.99
 assert len(OLD_KEYS)==16 and len(ALL_KEYS)==9 and len(set(CATALOG_KEYS))==25
 
 class ExperimentalCalibrator:
@@ -67,9 +71,11 @@ def _model_price(key,code,p,conservative,*,now=None):
     (p<70%, odds<1.20, unsupported market). That MUST NOT remove a market from
     a price-quality study. Such price is clearly tagged research_only.
     """
-    if p is None or type(p) not in (int,float) or not isfinite(p) or not 0<p<1:
+    if p is None or type(p) not in (int,float) or not isfinite(p):
         return None,'probability_unavailable'
     p=float(p)
+    if not MIN_RESEARCH_PROBABILITY <= p <= MAX_RESEARCH_PROBABILITY:
+        return None,'outside_research_probability_range'
     if conservative is not None and 0<conservative<=p:
         native=estimated_quote({'key':key,'market_code':code,'probability':p,
               'conservative_probability':conservative},{},now=now)
