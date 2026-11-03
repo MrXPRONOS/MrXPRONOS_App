@@ -17,6 +17,20 @@ def run_view(browser, width, height, label):
     page.on("pageerror", lambda exc: errors.append(str(exc)))
 
     page.goto("http://127.0.0.1:8000/index.html", wait_until="domcontentloaded", timeout=60000)
+    # The public-focused home page intentionally does not load assistant.js.
+    # Verify the retired launcher does not resurface; keep the full geometry
+    # test below if an explicit future release re-enables the assistant script.
+    if page.locator('script[src*="assets/js/assistant.js"]').count() == 0:
+        page.wait_for_timeout(350)
+        no_overflow(page, label)
+        if page.locator(".assistant-button, .assistant-window").count():
+            raise AssertionError(f"{label}: assistant controls injected while disabled")
+        if errors:
+            raise AssertionError(f"{label}: JavaScript errors on assistant-free home: {errors[:3]}")
+        page.screenshot(path=str(OUT / f"assistant-disabled-{width}.png"), full_page=False)
+        ctx.close()
+        print(f"PASS {label}: assistant intentionally absent from current public home")
+        return
     button = page.locator(".assistant-button")
     button.wait_for(state="visible", timeout=15000)
     page.wait_for_timeout(350)
