@@ -17,6 +17,7 @@ import os
 import re
 import sys
 import tempfile
+import time
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -325,13 +326,83 @@ def produce(site_root,model_root,*,out_path=None,now=None):
         os.chdir(previous)
 
 
+def fast_produce(site_root, model_root, *, out_path=None, now=None):
+    """Lightweight true inference: never load 2024-2026 corpus or train models."""
+    start = time.monotonic()
+    site_root = Path(site_root).resolve()
+    target = resolve_public_target(site_root, out_path)
+    model_root = install_research_modules(Path(model_root))
+    old_cwd = Path.cwd()
+    try:
+        os.chdir(model_root)
+        from sportdata_api import fetch_games, get_api_keys
+        from single_ml_v2_git import key_from_environment
+        from single_ml_v2_data import utc_dt
+        from single_ml_v3_checkpoint import load_checkpoint, forecast_from_checkpoint
+        sys.path.insert(0, str(site_root / "scripts"))
+        from publish_exact_scores import build_feed
+        if not get_api_keys():
+            raise RuntimeError("No SportData API key; refusing unauthenticated picks")
+        key = key_from_environment()
+        now = now or datetime.now(timezone.utc)
+        if now.tzinfo is None or now.utcoffset() != timedelta(0):
+            raise ValueError("Only explicit UTC supported")
+        yesterday = now.date() - timedelta(days=1)
+        path = site_root / "research/score_v3_model_checkpoints" / (str(yesterday) + ".enc")
+        checkpoint = load_checkpoint(path, key, expected_day=yesterday)
+        print("V3_FAST_TIMING", json.dumps({
+            "stage": "verify_and_load_trained_checkpoint",
+            "seconds": round(time.monotonic()-start, 2)}), flush=True)
+        step = time.monotonic()
+        source = fetch_games(now.date(), now.date()+timedelta(days=1),
+                             timeout=45, show_odds=False)
+        if not source.ok:
+            raise RuntimeError("Prospective SportData match source unavailable")
+        fixtures = future_fixtures(source, now, converter=utc_dt,
+                                  include_tomorrow=True)
+        print("V3_FAST_TIMING", json.dumps({
+            "stage": "fetch_verified_future_fixtures",
+            "seconds": round(time.monotonic()-step, 2),
+            "matches": len(fixtures)}), flush=True)
+        if not fixtures:
+            raise RuntimeError("No future fixtures to score; preserving previous published feed")
+        step = time.monotonic()
+        prospective = forecast_from_checkpoint(checkpoint, fixtures)
+        feed = build_feed(prospective, generated_at=prospective["generated_at"],
+                          target_date=now.date())
+        next_feed = build_feed(prospective, generated_at=prospective["generated_at"],
+                               target_date=now.date()+timedelta(days=1))
+        for row in (feed, next_feed):
+            if row["status"] == "published" and not row["simple"]:
+                raise RuntimeError("Published feed is missing score selections")
+        feed = save_verified_day(site_root, feed)
+        next_feed = save_verified_day(site_root, next_feed)
+        atomic_json(target, feed)
+        print("V3_FAST_TIMING", json.dumps({
+            "stage": "score_grid_rank_and_save",
+            "seconds": round(time.monotonic()-step, 2)}), flush=True)
+        print("V3_FAST_PUBLICATION_READY", json.dumps({
+            "today": feed["date"], "status": feed["status"],
+            "simple": len(feed["simple"]), "grouped": len(feed["grouped"]),
+            "tomorrow": next_feed["date"], "tomorrow_status": next_feed["status"],
+            "elapsed_seconds": round(time.monotonic()-start, 2),
+            "trained_checkpoint_day": str(yesterday),
+            "no_model_training": True}), flush=True)
+        return feed
+    finally:
+        os.chdir(old_cwd)
+
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("--site-root",default=".")
     p.add_argument("--model-root",required=True)
     p.add_argument("--out",default=None)
+    p.add_argument("--fast-inference", action="store_true",
+                   help="Require authenticated pre-trained V3 checkpoint; never run a backtest")
     args=p.parse_args()
-    produce(args.site_root,args.model_root,out_path=args.out)
+    runner = fast_produce if args.fast_inference else produce
+    runner(args.site_root,args.model_root,out_path=args.out)
 
 
 if __name__=="__main__":
