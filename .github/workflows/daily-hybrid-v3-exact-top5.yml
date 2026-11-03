@@ -13,6 +13,8 @@ on:
     paths:
       - '.github/workflows/daily-hybrid-v3-exact-top5.yml'
       - 'scripts/forecast_hybrid_v3_daily.py'
+      - 'scripts/resolve_bsd_leagues.py'
+      - 'tests/test_resolve_bsd_leagues.py'
       - 'scripts/publish_exact_scores.py'
       - 'tests/test_exact_v3_daily.py'
 
@@ -60,6 +62,7 @@ jobs:
         run: |
           python -m py_compile scripts/forecast_hybrid_v3_daily.py scripts/publish_exact_scores.py
           python -m unittest discover -s tests -p 'test_exact_v3_daily.py' -v
+          python -m unittest discover -s tests -p 'test_resolve_bsd_leagues.py' -v
           python -m unittest discover -s tests -p 'test_exact_scores_tab.py' -v
           node --check assets/js/scores-exacts.js
       - name: Require all secrets before accessing any forecast input
