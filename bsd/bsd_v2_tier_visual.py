@@ -31,7 +31,8 @@ def _line(draw,value,x,y,*,size=38,bold=False,color=WHITE,width=930,align="left"
     font=_font(size,bold)
     while _width(draw,text,font)>width and len(text)>3:
         text=text[:-2].rstrip("…")+"…"
-    x=int(x - (_width(draw,text,font)/2 if align=="center" else 0))
+    x=int(x - (_width(draw,text,font)/2 if align=="center"
+               else _width(draw,text,font) if align=="right" else 0))
     draw.text((x,y),text,font=font,fill=color)
     return text
 
@@ -62,7 +63,7 @@ def _base(tier,height=HEIGHT):
     d.rounded_rectangle((82,88,998,147),radius=16,fill="#123F5F")
     _line(d,"MR XPRONOS",112,96,size=33,bold=True,color=WHITE)
     _line(d,"FOOTBALL · AVANT-MATCH",965,106,size=21,color=SKY,
-          width=420,align="right" if False else "left")
+          width=420,align="right")
     d.line((100,291,980,291),fill="#326180",width=2)
     d.line((100,height-165,980,height-165),fill="#326180",width=2)
     return canvas,d
