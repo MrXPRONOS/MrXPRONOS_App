@@ -672,6 +672,28 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         if isinstance(row.get("market",{}).get("odds"),(int,float))
         and 1.01<=row["market"]["odds"]<MIN_BSD_ODDS
     ]
+    # Preserve the rejected high-confidence first market as a separate,
+    # non-actionable observation even when the site has published a different
+    # qualified fallback market on the same fixture.
+    for audit in detailed:
+        if not (audit.get("pricing_fallback") or {}).get("selected"):
+            continue
+        ref=model_reference_for_observation(audit.get("preprice"),now=now)
+        if ref is None or not 1.01<=ref["odds"]<MIN_BSD_ODDS:
+            continue
+        low_odds_observations.append({
+            "id":"bsd:"+str(audit["event_id"])+":unpublished_first_choice",
+            "source_event_id":str(audit["event_id"]),
+            "home_team":audit.get("home_team"),
+            "away_team":audit.get("away_team"),
+            "event_date":audit.get("event_date"),
+            "market":ref,
+            "rejected_reason":"first_choice_model_price_below_120",
+            "replaced_by_qualified_market":audit["pricing_fallback"]["selected"],
+            "publication_status":"not_published",
+            "prediction_eligible":False,
+            "do_not_send_to_telegram":True,
+        })
     # Observations never alter the append-only publication ledger.
     # Un flux BSD vide est préférable au maintien de pronostics SportData périmés.
     output={
