@@ -195,11 +195,17 @@ def atomic_json(path,payload):
     tmp.replace(path)
 
 
+def resolve_public_target(site_root, out_path):
+    """Freeze output path before changing cwd to the independent research checkout."""
+    root = Path(site_root).resolve()
+    return Path(out_path).resolve() if out_path else root / "scores-exacts.json"
+
+
 def produce(site_root,model_root,*,out_path=None,now=None):
     site_root=Path(site_root).resolve()
     # Resolve the output against the caller CWD BEFORE switching into the model checkout.
     # Previously --out site/scores-exacts.json resolved under model/site and never reached main.
-    resolved_target=resolved_target
+    resolved_target=resolve_public_target(site_root, out_path)
     model_root=install_research_modules(Path(model_root))
     previous=Path.cwd()
     try:
@@ -224,7 +230,7 @@ def produce(site_root,model_root,*,out_path=None,now=None):
         if yesterday<BASE_CUTOFF:
             raise ValueError("Cannot run before frozen certified history cutoff")
 
-        target=Path(out_path).resolve() if out_path else site_root/"scores-exacts.json"
+        target=resolved_target
         daily_dir=site_root/DAILY_HISTORY_SUBDIR
         # First fetch today's true supplier fixtures. If the source is down,
         # do not overwrite with a deceptively successful or empty publication.
