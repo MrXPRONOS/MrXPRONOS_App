@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-c22e6a1090f6c71b:AWAY_OVER_05",
+    "recorded_at_utc": "2026-11-03T18:39:37+00:00",
+    "kickoff_utc": "2026-11-05T17:45:00+00:00",
+    "fixture": {
+      "home_team": "AC Milan",
+      "away_team": "Ferencváros TC",
+      "league": "UEFA Europa League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AWAY_OVER_05",
+      "type": "Extérieur : au moins 1 but",
+      "confidence": 81.5,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "533f41831c45a236e962db75be89a21d40cdb33512a25b73903a0a9bfe89a274"
+}

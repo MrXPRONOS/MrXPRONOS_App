@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-5f669436b0d098c1:HOME_OVER_05",
+    "recorded_at_utc": "2026-11-03T18:39:37+00:00",
+    "kickoff_utc": "2026-11-05T17:45:00+00:00",
+    "fixture": {
+      "home_team": "Atalanta",
+      "away_team": "FC Kairat Almaty",
+      "league": "UEFA Europa Conference League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "HOME_OVER_05",
+      "type": "Domicile : au moins 1 but",
+      "confidence": 81.2,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "a8f0edd5bd8f2361ee6df518ce326d16b14a82d270e0d411dfd42f23c7374ce1"
+}

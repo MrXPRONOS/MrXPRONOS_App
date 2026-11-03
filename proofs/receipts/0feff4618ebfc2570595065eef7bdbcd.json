@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-a9d898145977018d:HOME_OVER_05",
+    "recorded_at_utc": "2026-11-03T18:39:37+00:00",
+    "kickoff_utc": "2026-11-05T17:45:00+00:00",
+    "fixture": {
+      "home_team": "Real Sociedad",
+      "away_team": "Olympique Lyonnais",
+      "league": "UEFA Europa League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "HOME_OVER_05",
+      "type": "Domicile : au moins 1 but",
+      "confidence": 81.1,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "9999bc19fa778f0ea4f2e14f62ba1e3b1b3c61a6b00f14a2f3b36fd822a7f3fa"
+}

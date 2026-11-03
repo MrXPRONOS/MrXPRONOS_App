@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-16fcc5067032b3c0:AWAY_OVER_05",
+    "recorded_at_utc": "2026-11-03T18:39:37+00:00",
+    "kickoff_utc": "2026-11-05T17:45:00+00:00",
+    "fixture": {
+      "home_team": "FC Midtjylland",
+      "away_team": "AFC Ajax",
+      "league": "UEFA Europa Conference League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AWAY_OVER_05",
+      "type": "Extérieur : au moins 1 but",
+      "confidence": 81.6,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "55a9c032803d509a5ae92d07595baacef996f3851f971e293c48a63ba6597001"
+}

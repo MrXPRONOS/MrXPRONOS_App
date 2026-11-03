@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-cc8be1a4c66b4824:AH_HOME_PLUS_15",
+    "recorded_at_utc": "2026-11-03T18:39:37+00:00",
+    "kickoff_utc": "2026-11-05T17:45:00+00:00",
+    "fixture": {
+      "home_team": "NEC Nijmegen",
+      "away_team": "Omonia Nicosia",
+      "league": "UEFA Europa League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AH_HOME_PLUS_15",
+      "type": "Handicap domicile +1,5",
+      "confidence": 80.7,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "28bbe1e0943eaf347aae88597ae0ba2ee9803393d4e1624b1a14fa290ff27faa"
+}

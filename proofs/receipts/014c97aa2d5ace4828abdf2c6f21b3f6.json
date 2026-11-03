@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-a94c21fa8c36f92f:AWAY_OVER_05",
+    "recorded_at_utc": "2026-11-03T18:39:37+00:00",
+    "kickoff_utc": "2026-11-05T17:45:00+00:00",
+    "fixture": {
+      "home_team": "FC Thun",
+      "away_team": "Heart of Midlothian",
+      "league": "UEFA Europa Conference League"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "AWAY_OVER_05",
+      "type": "Extérieur : au moins 1 but",
+      "confidence": 82.6,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "b10f16d8e3bf10d28e3add26f9c39fc70d7815f046647f4bed2f2758f4d4ad6d"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-705b330f2ef28f5e:AH_AWAY_PLUS_15",
+    "recorded_at_utc": "2026-11-03T18:39:37+00:00",
+    "kickoff_utc": "2026-11-05T17:45:00+00:00",
+    "fixture": {
+      "home_team": "AC Sparta Praha",
+      "away_team": "Bournemouth",
+      "league": "UEFA Europa League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AH_AWAY_PLUS_15",
+      "type": "Handicap extérieur +1,5",
+      "confidence": 82.0,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "1d68f580cc987919028f2db463e01f9d44abb140ebf683a3c1ec9e7466217530"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-73397b45066d18cd:AH_HOME_PLUS_15",
+    "recorded_at_utc": "2026-11-03T18:39:37+00:00",
+    "kickoff_utc": "2026-11-05T17:45:00+00:00",
+    "fixture": {
+      "home_team": "Kuopion Palloseura",
+      "away_team": "KAA Gent",
+      "league": "UEFA Europa Conference League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AH_HOME_PLUS_15",
+      "type": "Handicap domicile +1,5",
+      "confidence": 80.2,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "9c386ed16e99c62625056dd3c58f0e92d41b01257f4a5c0c3e84465b90fa57ae"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-4f9bb3517440c1d3:AH_HOME_PLUS_15",
+    "recorded_at_utc": "2026-11-03T18:39:37+00:00",
+    "kickoff_utc": "2026-11-05T17:45:00+00:00",
+    "fixture": {
+      "home_team": "Crystal Palace",
+      "away_team": "TSG Hoffenheim",
+      "league": "UEFA Europa League"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "AH_HOME_PLUS_15",
+      "type": "Handicap domicile +1,5",
+      "confidence": 82.0,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "16b6f11343325b82300611dbcf8509f3830f00f2fa44ecbf332c88094e76f051"
+}

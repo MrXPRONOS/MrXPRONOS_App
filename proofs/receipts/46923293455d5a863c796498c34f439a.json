@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-16c2f287ffdcd614:AH_AWAY_PLUS_15",
+    "recorded_at_utc": "2026-11-03T18:39:37+00:00",
+    "kickoff_utc": "2026-11-05T17:45:00+00:00",
+    "fixture": {
+      "home_team": "RSC Anderlecht",
+      "away_team": "Red Bull Salzburg",
+      "league": "UEFA Europa League"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "AH_AWAY_PLUS_15",
+      "type": "Handicap extérieur +1,5",
+      "confidence": 83.3,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "aa12013f17f12031dbf801cf6a134f8edf9a4b3afe6de115a414729564f8152f"
+}

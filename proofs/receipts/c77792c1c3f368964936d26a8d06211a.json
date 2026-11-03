@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-b20d66edce0ce1ce:AWAY_OVER_05",
+    "recorded_at_utc": "2026-11-03T18:39:37+00:00",
+    "kickoff_utc": "2026-11-05T17:45:00+00:00",
+    "fixture": {
+      "home_team": "Lillestrøm SK",
+      "away_team": "FC Viktoria Plzeň",
+      "league": "UEFA Europa League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AWAY_OVER_05",
+      "type": "Extérieur : au moins 1 but",
+      "confidence": 81.8,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "f1b85f3daeb26f02c3256ed878161a14d1465ac583f93be799297dbe7b214661"
+}
