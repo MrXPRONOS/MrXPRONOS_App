@@ -74,6 +74,7 @@ class TestLiveV3(unittest.TestCase):
     def test_no_target_labels_passed_to_hybrid_v3(self):
         class FakeState:
             last_ingested_day=date(2026,11,2)
+            opponent_state=SimpleNamespace(provider_names={})
             def features(self,fixture):
                 self.recorded=fixture
                 assert not hasattr(fixture,"hg") and not hasattr(fixture,"ag")
@@ -97,6 +98,19 @@ class TestLiveV3(unittest.TestCase):
         self.assertEqual(audit,{"frozen":True})
         for forbidden in ("actual_score","home_score","away_score","hit","result"):
             self.assertNotIn(forbidden,results[0])
+
+    def test_conflicting_real_provider_identity_becomes_safe_local(self):
+        from scripts.forecast_hybrid_v3_daily import safe_target_identity
+        fixture,_=extract_fixture(match(),now=NOW)
+        state=SimpleNamespace(provider_names={
+            ("global-provider-id", "bsd_12"):"differenthistoricalclub"
+        })
+        fixed,changed=safe_target_identity(fixture,state)
+        self.assertEqual(changed,1)
+        self.assertIsNone(fixed.home_id)
+        self.assertEqual(fixed.away_id,"bsd_24")
+        self.assertEqual(fixed.home,fixture.home)
+        self.assertEqual(fixed.away,fixture.away)
 
     def test_mismatched_fixture_or_future_time_is_rejected(self):
         with self.assertRaisesRegex(ValueError,"[Tt]imezone"):
