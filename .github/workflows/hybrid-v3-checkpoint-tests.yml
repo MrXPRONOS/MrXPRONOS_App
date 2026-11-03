@@ -8,6 +8,8 @@ on:
       - 'research/test_single_ml_v3_checkpoint.py'
       - 'research/test_single_ml_v3_parity.py'
       - '.github/workflows/hybrid-v3-checkpoint-tests.yml'
+  pull_request:
+    branches: [research/single-ml-v2-20261024]
   workflow_dispatch:
 permissions:
   contents: read
