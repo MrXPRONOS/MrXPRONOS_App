@@ -24,6 +24,7 @@ PUBLISHABLE_KEYS=frozenset({
 })
 RESEARCH_ONLY_KEYS=frozenset(ALL_KEYS)-PUBLISHABLE_KEYS
 MIN_VALIDATION_OBSERVATIONS=100
+MIN_HIGH_CONF_VALIDATION_OBSERVATIONS=35
 MAX_HOLDOUT_OPTIMISM=.06
 MARKET_META={
     "HOME_OVER_05":("team_goals","home_over_05","over","Équipe à domicile marque au moins 1 but",0.5),
@@ -115,7 +116,7 @@ def fit_extra_market_model(index,*,rho,max_training=2800,max_validation=1500):
             label=outcome(candidate.key,*scores)
             calibrated.observe(base,label)
         trained+=1
-    rows=defaultdict(lambda:{"n":0,"wins":0,"sum_p":0.})
+    rows=defaultdict(lambda:{"n":0,"wins":0,"sum_p":0.,"high_n":0,"high_wins":0,"high_sum_p":0.})
     validated=0
     for e in validate:
         feat,reason=estimate_goals(e,index)
@@ -131,6 +132,10 @@ def fit_extra_market_model(index,*,rho,max_training=2800,max_validation=1500):
             bucket["n"]+=1
             bucket["wins"]+=int(observed)
             bucket["sum_p"]+=p
+            if p>=.79:
+                bucket["high_n"]+=1
+                bucket["high_wins"]+=int(observed)
+                bucket["high_sum_p"]+=p
         validated+=1
     accepted=set()
     report={}
@@ -139,12 +144,20 @@ def fit_extra_market_model(index,*,rho,max_training=2800,max_validation=1500):
         n=row["n"]
         optimism=(row["sum_p"]-row["wins"])/n if n else None
         # Reject overconfidence even if the old overall 2026 test looks good.
+        high_n=row["high_n"]
+        high_optimism=(row["high_sum_p"]-row["high_wins"])/high_n if high_n else None
         passed=(n>=MIN_VALIDATION_OBSERVATIONS and
-                optimism is not None and optimism<=MAX_HOLDOUT_OPTIMISM)
+                optimism is not None and optimism<=MAX_HOLDOUT_OPTIMISM and
+                high_n>=MIN_HIGH_CONF_VALIDATION_OBSERVATIONS and
+                high_optimism is not None and high_optimism<=MAX_HOLDOUT_OPTIMISM)
         report[key]={"holdout_n":n,
                      "holdout_hit_rate":round(row["wins"]/n,6) if n else None,
                      "holdout_average_probability":round(row["sum_p"]/n,6) if n else None,
                      "holdout_optimism":round(optimism,6) if optimism is not None else None,
+                     "high_confidence_n":high_n,
+                     "high_confidence_hit_rate":round(row["high_wins"]/high_n,6) if high_n else None,
+                     "high_confidence_mean_forecast":round(row["high_sum_p"]/high_n,6) if high_n else None,
+                     "high_confidence_optimism":round(high_optimism,6) if high_optimism is not None else None,
                      "approved_for_publication":passed}
         if passed:accepted.add(key)
     ht_share,ht_info=half_time_share(
@@ -153,6 +166,7 @@ def fit_extra_market_model(index,*,rho,max_training=2800,max_validation=1500):
           "train_2025_jan_aug_games":trained,
           "validation_2025_sep_dec_games":validated,
           "approval_threshold":{"min_n":MIN_VALIDATION_OBSERVATIONS,
+                                "high_confidence_min_n":MIN_HIGH_CONF_VALIDATION_OBSERVATIONS,
                                 "max_optimism":MAX_HOLDOUT_OPTIMISM},
           "per_market":report,
           "period_scores":ht_info,
