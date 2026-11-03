@@ -39,6 +39,65 @@ class PublicBuildTest(TestCase):
             module.public_copy({"matches": [valid]})["matches"][0]["category"], "pro"
         )
 
+    def test_market_range_analyses_public_allowlist_and_pro_vip_isolation(self):
+        analysis = {
+            "id":"bsd-market-analysis:123:BTTS_YES",
+            "source_event_id":"123",
+            "event_date":"2026-11-03T17:45:00+00:00",
+            "date":"2026-11-03",
+            "home_team":"Alpha","away_team":"Beta",
+            "league":"Ligue A",
+            "selection_key":"BTTS_YES",
+            "market_label":"Les deux équipes marquent : Oui",
+            "model_probability":.60,
+            "odds":1.572,
+            "odds_source":"mrxpronos_model",
+            "overround_assumption":.06,
+            "price_method":"probability_calibrated_plus_fixed_6pct",
+            "analysis_only":True,
+            "recommendation_eligible":False,
+            "prediction_eligible":False,
+            "do_not_send_to_telegram":True,
+            "estimated_odds":True,
+            "not_an_executable_bookmaker_quote":True,
+            "training_matches":[{"secret":"not public"}],
+            "raw_provider_quote":{"api_key":"never publish"},
+        }
+        regular={"id":"bsd:1","category":"pro",
+                 "recommendation_eligible":True,
+                 "prediction":{"confidence":80,"odds":1.20}}
+        raw={"matches":[regular],"market_odds_analyses":[analysis],
+             "diagnostics":{"key":"hidden"}}
+        safe=module.public_copy(raw)
+        self.assertEqual(len(safe["matches"]),1)
+        self.assertEqual(safe["matches"][0]["category"],"pro")
+        self.assertEqual(safe["matches"][0]["prediction"]["confidence"],80)
+        self.assertEqual(len(safe["market_odds_analyses"]),1)
+        row=safe["market_odds_analyses"][0]
+        self.assertEqual(row["odds"],1.572)
+        self.assertEqual(row["price_type"],"model_indicative")
+        self.assertEqual(row["model_probability"],.6)
+        self.assertFalse(row["recommendation_eligible"])
+        self.assertTrue(row["do_not_send_to_telegram"])
+        self.assertTrue(row["not_an_executable_bookmaker_quote"])
+        self.assertTrue(row["id"].startswith("analysis-"))
+        for private in ("source_event_id","odds_source","price_method",
+                        "training_matches","raw_provider_quote","calibration_samples",
+                        "market_code","diagnostics"):
+            self.assertNotIn(private,row)
+        self.assertNotIn("diagnostics",safe)
+        self.assertNotIn("market_odds_analyses",module.public_copy({"matches":[regular]}))
+        for patch in ({"odds":1.8},{"odds":1.20},{"model_probability":.79},
+                      {"analysis_only":False},{"recommendation_eligible":True},
+                      {"do_not_send_to_telegram":False},
+                      {"odds_source":"bsd_consensus"}):
+            with self.subTest(patch=patch):
+                with self.assertRaises(ValueError):
+                    module.public_copy({
+                        "matches":[regular],
+                        "market_odds_analyses":[{**analysis,**patch}],
+                    })
+
     def test_public_editorial_image_aliases_keep_legacy_links(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)

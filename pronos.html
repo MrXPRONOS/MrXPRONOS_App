@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=20261013-pronostic-share1">
+    <link rel="stylesheet" href="assets/css/style.css?v=20261103-market-range-v1">
     <link rel="stylesheet" href="assets/css/pronos-premium.css?v=20261028-mobile-three-tabs2">
     <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png?v=20261011-approved-mx1"><link rel="stylesheet" href="assets/css/loading-ui.css?v=20261012-4">
@@ -115,6 +115,25 @@
         <div id="matches-container" class="matches-grid" role="tabpanel" aria-labelledby="tab-all" tabindex="0" aria-live="polite">
             <section class="mx-load-group mx-load-group--matches" role="status" aria-label="Analyse des pronostics"><div class="mx-load-heading"><span class="mx-load-pulse" aria-hidden="true"></span><span>Analyse des pronostics en cours…</span></div><div class="mx-load-grid mx-load-grid--matches" aria-hidden="true"><div class="mx-load-card " aria-hidden="true"><div class="mx-load-row mx-load-spread"><span class="mx-load-block mx-load-line mx-load-line--sm" style="width:42%"></span><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:72px"></span></div><div class="mx-load-teamrow"><div class="mx-load-team"><span class="mx-load-block mx-load-logo" style="width:38px"></span><span class="mx-load-block mx-load-line" style="width:68%"></span></div><div class="mx-load-versus"><span class="mx-load-block mx-load-line mx-load-line--lg mx-load-block--gold" style="width:40px"></span></div><div class="mx-load-team"><span class="mx-load-block mx-load-logo" style="width:38px"></span><span class="mx-load-block mx-load-line" style="width:68%"></span></div></div><div class="mx-load-separator"></div><div class="mx-load-footer"><span class="mx-load-block mx-load-line" style="width:44%"></span><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:80px"></span></div></div><div class="mx-load-card " aria-hidden="true"><div class="mx-load-row mx-load-spread"><span class="mx-load-block mx-load-line mx-load-line--sm" style="width:42%"></span><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:72px"></span></div><div class="mx-load-teamrow"><div class="mx-load-team"><span class="mx-load-block mx-load-logo" style="width:38px"></span><span class="mx-load-block mx-load-line" style="width:68%"></span></div><div class="mx-load-versus"><span class="mx-load-block mx-load-line mx-load-line--lg mx-load-block--gold" style="width:40px"></span></div><div class="mx-load-team"><span class="mx-load-block mx-load-logo" style="width:38px"></span><span class="mx-load-block mx-load-line" style="width:68%"></span></div></div><div class="mx-load-separator"></div><div class="mx-load-footer"><span class="mx-load-block mx-load-line" style="width:44%"></span><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:80px"></span></div></div><div class="mx-load-card " aria-hidden="true"><div class="mx-load-row mx-load-spread"><span class="mx-load-block mx-load-line mx-load-line--sm" style="width:42%"></span><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:72px"></span></div><div class="mx-load-teamrow"><div class="mx-load-team"><span class="mx-load-block mx-load-logo" style="width:38px"></span><span class="mx-load-block mx-load-line" style="width:68%"></span></div><div class="mx-load-versus"><span class="mx-load-block mx-load-line mx-load-line--lg mx-load-block--gold" style="width:40px"></span></div><div class="mx-load-team"><span class="mx-load-block mx-load-logo" style="width:38px"></span><span class="mx-load-block mx-load-line" style="width:68%"></span></div></div><div class="mx-load-separator"></div><div class="mx-load-footer"><span class="mx-load-block mx-load-line" style="width:44%"></span><span class="mx-load-block mx-load-line mx-load-line--pill mx-load-block--gold" style="width:80px"></span></div></div></div></section>
         </div>
+
+        <section class="mx-market-range-section" aria-labelledby="market-range-heading">
+            <div class="mx-market-range-header">
+                <div>
+                    <span class="mx-market-range-eyebrow">ANALYSES DE MARCHÉS · INDICATIF</span>
+                    <h2 id="market-range-heading">Cotes théoriques de <span>1,40 à 2,00</span></h2>
+                </div>
+                <p>Explorez les probabilités calculées pour différents marchés, dont BTTS Oui et Non.
+                   Ces cotes sont des <strong>estimations du modèle</strong> et non des offres de bookmakers.
+                   Cette rubrique n'est pas une recommandation Pro/VIP et n'entre pas dans nos statistiques de pronostics publiés.</p>
+            </div>
+            <div id="market-range-analyses-container" class="mx-market-range-grid" aria-live="polite">
+                <p class="mx-market-range-empty">Chargement des analyses indicatives…</p>
+            </div>
+            <p class="mx-market-range-footnote">
+                Probabilités calibrées avec des données historiques ; marge hypothétique fixe de 6 %, sans relèvement artificiel des cotes.
+                Une cote théorique ne garantit ni disponibilité chez un bookmaker ni rentabilité.
+            </p>
+        </section>
         </div>
     </main>
 
@@ -170,7 +189,7 @@
         });
       }
     </script>
-    <script type="module" src="assets/js/main.js?v=20261029-home-upcoming1"></script>
+    <script type="module" src="assets/js/main.js?v=20261103-market-range-v1"></script>
     <script defer src="assets/js/pwa.js?v=20260806-pronos-fix"></script>
 
 
