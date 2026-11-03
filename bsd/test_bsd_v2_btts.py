@@ -161,5 +161,66 @@ class BTTSTests(unittest.TestCase):
                             for row in audit))
 
 
+    def test_train_side_scoring_model_2024_only(self):
+        from bsd_v2_btts_team import fit_team_scoring_model, team_scoring_probabilities
+        start=datetime(2024,1,1,tzinfo=timezone.utc)
+        history=[]
+        for i in range(160):
+            history.append({"id":1500+i,
+                "event_date":(start+timedelta(days=i)).isoformat(),
+                "status":"finished","home_team_id":11 if i%2 else 22,
+                "away_team_id":22 if i%2 else 11,
+                "home_score":0 if i%6==0 else 1,
+                "away_score":0 if i%5==0 else 2,"league_id":9})
+        index=V2History(history)
+        model=fit_team_scoring_model(index,history)
+        self.assertIsNotNone(model)
+        self.assertGreaterEqual(model.trained_games,100)
+        fixture={"id":9999,"event_date":(start+timedelta(days=170)).isoformat(),
+                 "status":"notstarted","home_team_id":11,"away_team_id":22,"league_id":9}
+        probs=team_scoring_probabilities(fixture,index,model=model)
+        self.assertGreater(probs["home_scores"],0)
+        self.assertLess(probs["away_scores"],1)
+        self.assertAlmostEqual(probs["home_scores"]+probs["home_blank"],1.0)
+        self.assertAlmostEqual(probs["away_scores"]+probs["away_blank"],1.0)
+        self.assertAlmostEqual(probs["btts_yes"],
+                               probs["home_scores"]*probs["away_scores"])
+        future=dict(fixture,status="finished",home_score=12,away_score=12)
+        altered=team_scoring_probabilities(fixture,V2History(history+[future]),model=model)
+        self.assertEqual(probs,altered)
+        with self.assertRaises(ValueError):
+            fit_team_scoring_model(index,[dict(history[-1],
+                  event_date=datetime(2026,3,2,tzinfo=timezone.utc).isoformat())]*110)
+
+    def test_league_residual_shrinkage_and_temporal_guard(self):
+        from bsd_v2_btts_league import fit_league_residual_model
+        start=datetime(2025,1,1,tzinfo=timezone.utc)
+        rows=[]
+        for i in range(42):
+            fixture={"id":10000+i,"event_date":(start+timedelta(days=i)).isoformat(),
+                    "league_id":47}
+            rows.append((fixture,.45,1))
+        model=fit_league_residual_model(rows,shrinkage=100,min_samples=20)
+        self.assertEqual(model.trained_fixtures,42)
+        self.assertGreater(model.deviation(rows[-1][0]),0)
+        self.assertLessEqual(model.deviation(rows[-1][0]),.10)
+        self.assertEqual(model.deviation(dict(rows[-1][0],league_id=93)),0.)
+        with self.assertRaises(ValueError):
+            fit_league_residual_model([(dict(rows[0][0],event_date="2026-05-01T00:00:00Z"),.4,1)])
+
+    def test_league_effect_is_additive_and_only_btts_changes(self):
+        from bsd_v2_btts_league import LeagueBTTSModel
+        league=LeagueBTTSModel({"id:9":.06},{"id:9":50},50)
+        model=BTTSModel((.5,)+(0.,)*(FEATURE_COUNT-1),1.,150,100,
+                        0.,1.,None,league)
+        baseline=markets_from_matrix(score_matrix(1.4,1.2))
+        without=BTTSModel((.5,)+(0.,)*(FEATURE_COUNT-1),1.,150,100)
+        base={c.key:c for c in btts_candidates(self.match,V2History(self.history),baseline,without)}
+        adjusted={c.key:c for c in btts_candidates(self.match,V2History(self.history),baseline,model)}
+        self.assertAlmostEqual(adjusted["BTTS_YES"].probability-base["BTTS_YES"].probability,.06,places=4)
+        self.assertAlmostEqual(adjusted["BTTS_YES"].probability+adjusted["BTTS_NO"].probability,1.)
+        self.assertEqual(adjusted["OVER_25"],base["OVER_25"])
+
+
 if __name__=="__main__":
     unittest.main()
