@@ -69,9 +69,9 @@ def main():
         if output:
             with open(output, "a", encoding="utf-8") as fh: fh.write("video_sent=false\n")
         return 0
-    label = "Sélection du jour"
+    label = "Ultra Safe du jour"
     caption = (
-        f"⚽ Pronostics Mr XPRONOS — {target}\n"
+        f"⚽ Ultra Safe du jour · Mr XPRONOS — {target}\n"
         f"{label} · {manifest.get('count')} sélection(s)\n"
         "18+ · Joue responsablement."
     )
@@ -80,7 +80,7 @@ def main():
     # canaux réutiliseront exactement le même clavier.
     keyboard = {
         "inline_keyboard": [
-            [{"text": "🎯 Coupons du jour", "url": "https://t.me/mrxpronosfr"}],
+            [{"text": "🎯 Ultra Safe du jour", "url": "https://t.me/mrxpronosfr"}],
             [{"text": "⚽ Actualités Foot", "url": "https://t.me/actufoot_mrxp"}],
             [{"text": "🎬 Films, animés et séries", "url": "https://t.me/addlist/ZmW4vfwcrMAwNzJk"}],
         ]
