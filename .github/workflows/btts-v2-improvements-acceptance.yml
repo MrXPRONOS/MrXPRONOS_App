@@ -1,0 +1,67 @@
+name: BTTS V2 Improvements - Acceptance 2026
+on:
+  push:
+    branches:
+      - improve/bsd-v2-btts-quality-20261103
+    paths:
+      - .github/workflows/btts-v2-improvements-acceptance.yml
+permissions:
+  contents: read
+concurrency:
+  group: btts-v2-improvements-acceptance
+  cancel-in-progress: false
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PYTHONPATH: bsd
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install requirements
+        run: python -m pip install requests cryptography pillow
+      - name: Run specialist BTTS regression tests
+        run: python -m unittest discover -s bsd -p 'test_bsd_v2_btts.py' -v
+      - name: Run cross-market V2 regression tests
+        run: python -m unittest discover -s bsd -p 'test_bsd_v2.py' -v
+      - name: Restore historical dataset securely
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: python bsd/bsd_archive.py restore
+      - name: Backtest entire completed 2026 with production parity
+        run: |
+          python bsd/bsd_v2_btts_backtest.py \
+            --max-test 30000 --start-date 2026-01-01 --end-date 2026-11-02 \
+            --output bsd/v2_btts_backtest_strict_2026.json
+      - name: Validate report, both sides and baseline comparison
+        run: |
+          python - <<'PY'
+          import json
+          data=json.load(open('bsd/v2_btts_backtest_strict_2026.json'))
+          t=data['test']
+          assert t['eligible'] > 500, t
+          assert t['strict_quality_enabled'] and t['specialist_only'], t
+          assert t['same_btts_eligibility_as_production'], t
+          for side in ('BTTS_YES','BTTS_NO'):
+              a=t['specialized_calibrated'][side]
+              b=t['baseline_calibrated'][side]
+              assert a['n'] == b['n'] == t['eligible'], (side,a,b)
+          print('BSD_BTTS_ACCEPTANCE',json.dumps({
+              'eligible':t['eligible'],'checked':t['checked'],
+              'skips':t['skips'],'classification_accuracy':t['classification_accuracy'],
+              'thresholds':t['by_minimum_confidence'],
+              'specialized':t['specialized_calibrated'],
+              'baseline':t['baseline_calibrated'],
+              'fit':data['fit'],
+          },ensure_ascii=False))
+          PY
+      - name: Upload strict audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: btts-v2-strict-2026-acceptance-report
+          path: bsd/v2_btts_backtest_strict_2026.json
+          retention-days: 14
+          if-no-files-found: error

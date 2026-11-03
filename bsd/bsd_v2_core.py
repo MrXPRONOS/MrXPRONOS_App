@@ -389,8 +389,19 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
             # Keep other markets eligible; never force a volatile total-goals pick.
             candidates=[c for c in candidates if c.family!="goals"]
     if btts_model is not None:
-        from bsd_v2_btts import btts_candidates
-        candidates = btts_candidates(event,index,candidates,btts_model)
+        from bsd_v2_btts import btts_candidates, btts_quality_rejection
+        baseline_btts=next((c.probability for c in candidates if c.key=="BTTS_YES"),None)
+        candidates=btts_candidates(event,index,candidates,btts_model)
+        specialized_btts=next((c.probability for c in candidates if c.key=="BTTS_YES"),None)
+        # The policy protects actual publication, while research backtests can
+        # still inspect the raw probabilities (with explicit labeling).
+        if quality_policy is not None and baseline_btts is not None and specialized_btts is not None:
+            btts_veto=btts_quality_rejection(expected,btts_model,baseline_btts,specialized_btts)
+            if btts_veto:
+                candidates=[c for c in candidates if c.family!="btts"]
+                if market_audit is not None:
+                    for key in ("BTTS_YES","BTTS_NO"):
+                        market_audit.append({"key":key,"family":"btts","result":btts_veto})
     if dc_model is not None:
         from bsd_v2_double_chance import adjust_candidates as dc_candidates, uncertain as dc_uncertain, score_probs
         baseline_result=score_probs(candidates)
