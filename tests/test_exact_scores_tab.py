@@ -143,9 +143,18 @@ class TestTop5Publisher(unittest.TestCase):
         self.assertIn("B_GROUP_MASS", (ROOT/"scripts/publish_exact_scores.py").read_text())
         self.assertIn("cache: 'no-store'",js)
         self.assertIn("Date.parse(p.kickoff_utc) <= produced",js)
-        self.assertEqual(stub["status"],"unavailable")
-        self.assertEqual(stub["simple"],[])
-        self.assertEqual(stub["grouped"],[])
+        self.assertIn(stub["status"],("unavailable","published"))
+        if stub["status"]=="unavailable":
+            self.assertEqual(stub["simple"],[])
+            self.assertEqual(stub["grouped"],[])
+        else:
+            self.assertEqual(stub["origin"],"prospective_prematch")
+            self.assertEqual(stub["schema_version"],SCHEMA)
+            self.assertEqual(stub["model"],MODEL)
+            self.assertLessEqual(len(stub["simple"]),5)
+            self.assertLessEqual(len(stub["grouped"]),5)
+            self.assertGreater(len(stub["simple"]),0)
+            self.assertNotIn("actual_score",json.dumps(stub))
 
 if __name__ == "__main__":
     unittest.main()
