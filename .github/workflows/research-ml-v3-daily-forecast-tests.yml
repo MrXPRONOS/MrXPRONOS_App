@@ -2,7 +2,11 @@ name: Native Hybrid V3 daily forecast - strict tests
 on:
   push:
     branches: [research/single-ml-v2-20261024]
-    paths: ['.github/workflows/research-ml-v3-daily-forecast-tests.yml']
+    paths:
+      - '.github/workflows/research-ml-v3-daily-forecast-tests.yml'
+      - 'research/ml_v3_daily_forecast.py'
+      - 'research/test_ml_v3_daily_forecast.py'
+      - 'research/single_ml_v2.py'
   workflow_dispatch:
 permissions:
   contents: read
