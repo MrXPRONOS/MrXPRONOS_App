@@ -12,7 +12,7 @@ from pathlib import Path
 from bsd_archive import MATCHES_FILE,_read_json
 from bsd_backtest import wilson_interval
 from bsd_v2_core import V2History,fit_rho_2024,estimate_goals,score_matrix,markets_from_matrix,fixture_datetime,outcome_scores,league_key
-from bsd_v2_btts import fit_btts_model,btts_candidates,btts_features
+from bsd_v2_btts import fit_btts_model,btts_candidates,btts_features,btts_quality_rejection
 from bsd_v2_policies import fit_policy
 from bsd_v2_evaluate import get_sample
 
@@ -60,11 +60,18 @@ def audit(index,model,calibration,rho,*,year=2026,max_matches=2000,
                 counters['skipped_'+reject]+=1
                 continue
         # Ne pas attribuer au classifieur specialise un repli Poisson faute de donnees.
-        if model.blend<=0 or btts_features(match,index) is None:
+        if (not any((model.blend>0,model.team_blend>0,model.league_blend>0))
+                or btts_features(match,index) is None):
             counters['skipped_no_active_btts_specialist']+=1
             continue
         original={c.key:c for c in markets_from_matrix(score_matrix(expected["home"],expected["away"],rho))}
         updated={c.key:c for c in btts_candidates(match,index,list(original.values()),model)}
+        if quality_policy is not None:
+            veto=btts_quality_rejection(expected,model,original['BTTS_YES'].probability,
+                                         updated['BTTS_YES'].probability)
+            if veto:
+                counters['skipped_'+veto]+=1
+                continue
         scores=outcome_scores(match)
         win_yes=int(scores[0]>0 and scores[1]>0)
         syes=calibration.score(updated['BTTS_YES'])[1]
@@ -105,6 +112,8 @@ def audit(index,model,calibration,rho,*,year=2026,max_matches=2000,
                                 if counters['confidence_'+str(k)+'_n'] else None)}
             for k in (50,55,60,65,70,75,79,80)},
         "preprice_only":True,
+        "same_btts_eligibility_as_production":quality_policy is not None,
+        "does_not_simulate_competing_markets_or_odds":True,
         "skips":{k:v for k,v in counters.items() if k.startswith("skipped_")},
         "specialized_calibrated":{k:_statistics(v) for k,v in by_group.items()},
         "poisson_dixon_coles_baseline":{k:_statistics(v) for k,v in baseline.items()},
