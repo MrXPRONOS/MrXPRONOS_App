@@ -159,6 +159,7 @@ def build_market_range_analyses(fixtures,index,*,now,rho,calibration,quality_pol
                 stats["fixtures_with_analyses"]+=1
         except (ValueError,TypeError,OverflowError,KeyError) as exc:
             stats["invalid_fixture_or_model"]+=1
+            stats["invalid_"+type(exc).__name__]+=1
             continue
     rows=[r for day in sorted(by_day) for r in by_day[day]]
     stats["analyses_count"]=len(rows)
