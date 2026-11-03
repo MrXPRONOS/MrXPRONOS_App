@@ -1,0 +1,67 @@
+name: DIAGNOSTIC - exact scores future fixture fields (aggregate only)
+on:
+  push:
+    branches: [feature/onglet-scores-exacts-20261103]
+    paths: ['.github/workflows/exact-v3-fixture-diagnostic.yml']
+permissions:
+  contents: read
+jobs:
+  bsd-fixture-shape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install requests cryptography
+      - name: Diagnose upcoming BSD event shape safely (aggregate counts, NO team names)
+        env:
+          BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+          FOOTBALL_MULTI_SOURCE: '0'
+          PYTHONPATH: 'bsd:.'
+        run: |
+          python - <<'PY'
+          from bsd_api import BSDClient
+          from datetime import datetime,timezone,timedelta
+          from collections import Counter
+          from bsd_h2h import _utc
+          from importlib.machinery import SourceFileLoader
+          import json
+          c=BSDClient(max_requests=10)
+          now=datetime.now(timezone.utc)
+          page=c.list_events(now.date(),now.date(),max_pages=10,ttl=0)
+          statuses=Counter()
+          futurestatuses=Counter()
+          types=Counter()
+          futurefields=Counter()
+          futuren=0
+          for e in page.events:
+              s=str(e.get('status') or '<none>').strip().lower()
+              statuses[s]+=1
+              try:k=_utc(str(e.get('event_date') or ''))
+              except (ValueError,TypeError):types['bad_date']+=1;continue
+              if k<=now+timedelta(minutes=10) or k.date()!=now.date():
+                  continue
+              futuren+=1
+              futurestatuses[s]+=1
+              for fld in ['home_team','away_team','league','league_name','competition_name','tournament_name','home_score','away_score','is_finished']:
+                  value=e.get(fld)
+                  if isinstance(value,dict):
+                      vtype='object_name' if isinstance(value.get('name'),str) and value['name'].strip() else 'object_noname'
+                  elif value is None:vtype='null'
+                  elif isinstance(value,str):vtype='text' if value.strip() else 'empty_text'
+                  else:vtype=type(value).__name__
+                  futurefields[fld+'_'+vtype]+=1
+          print("BSD_EXACT_FUTURE_FIELD_DIAGNOSTIC",json.dumps({
+              'complete':page.complete,'reported':page.total_reported,
+              'fetched':len(page.events),'future':futuren,
+              'statuses_total':dict(statuses),
+              'statuses_future':dict(futurestatuses),
+              'future_field_types':dict(futurefields),
+              'http_requests':c.requests_made
+          },sort_keys=True),flush=True)
+          assert page.complete
+          PY
