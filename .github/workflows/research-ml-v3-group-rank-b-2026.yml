@@ -1,0 +1,104 @@
+name: ML V3 Hybrid - group probability Rank B vs A full 2026 research (partial Oct)
+# User approved research experiment B 2026-11-03; no production deployment.
+# PREDECLARED: research/ML_V3_GROUP_RANK_B_2026_PROTOCOL.md
+# January to September 2026 FULL primary, Oct 1-24 PARTIAL secondary.
+# One replay generates BOTH A and B selections on the same Hybrid V3 fixtures.
+on:
+  push:
+    branches: [research/single-ml-v2-20261024]
+    paths: ['.github/workflows/research-ml-v3-group-rank-b-2026.yml']
+permissions:
+  contents: read
+concurrency:
+  group: research-ml-v3-groupmass-ranking-b-2026-one-shot
+  cancel-in-progress: false
+jobs:
+  paired-period:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - {label: jan2026, start: '2026-01-01', end: '2026-01-31'}
+          - {label: feb2026, start: '2026-02-01', end: '2026-02-28'}
+          - {label: mar2026, start: '2026-03-01', end: '2026-03-31'}
+          - {label: apr2026, start: '2026-04-01', end: '2026-04-30'}
+          - {label: may2026, start: '2026-05-01', end: '2026-05-31'}
+          - {label: jun2026, start: '2026-06-01', end: '2026-06-30'}
+          - {label: jul2026, start: '2026-07-01', end: '2026-07-31'}
+          - {label: aug2026, start: '2026-08-01', end: '2026-08-31'}
+          - {label: sep2026, start: '2026-09-01', end: '2026-09-30'}
+          - {label: octpartial2026, start: '2026-10-01', end: '2026-10-24'}
+    env:
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      OPENBLAS_NUM_THREADS: '2'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen ML models and certified history dependencies
+        run: python -m pip install numpy scipy scikit-learn requests cryptography lightgbm==4.6.0 catboost==1.2.8
+      - name: Validate new pure prematch group-mass ranking and historical guards
+        run: PYTHONPATH=.:research python -m unittest research.test_ml_v3_group_rank_b_2026 -q
+      - name: Generate chronological paired Hybrid V3 predictions and PREMATCH group-mass only
+        run: |
+          set -euo pipefail
+          PYTHONPATH=.:research python research/single_ml_v2_multisource.py \
+            --start "${{ matrix.start }}" --end "${{ matrix.end }}" \
+            --max-eval 0 --experimental-v3 --export-v3-group-mass \
+            --out "/tmp/rank-b-2026-${{ matrix.label }}" \
+            > "/tmp/rank-b-2026-${{ matrix.label }}-training.log" 2>&1 || {
+              tail -70 "/tmp/rank-b-2026-${{ matrix.label }}-training.log"
+              exit 1
+            }
+          grep 'PREMATCH_V3_GROUP_MASS_EXPORT' "/tmp/rank-b-2026-${{ matrix.label }}-training.log"
+      - name: Compare Top1,2,3,5 A modal confidence vs B group total mass without outcome leakage
+        run: |
+          PYTHONPATH=.:research python research/ml_v3_group_rank_b_2026.py month \
+            --predictions "/tmp/rank-b-2026-${{ matrix.label }}/all_predictions.csv" \
+            --masses "/tmp/rank-b-2026-${{ matrix.label }}/hybrid_v3_group_mass.csv" \
+            --start "${{ matrix.start }}" --end "${{ matrix.end }}" \
+            --out "/tmp/rank-b-2026-${{ matrix.label }}/rank_b_month.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mrx-group-rank-b-2026-${{ matrix.label }}
+          path: /tmp/rank-b-2026-${{ matrix.label }}/rank_b_month.json
+          if-no-files-found: error
+          retention-days: 30
+  pooled-comparison:
+    needs: [paired-period]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy scipy scikit-learn
+      - name: Repeat research B validation on pooled cohort
+        run: PYTHONPATH=.:research python -m unittest research.test_ml_v3_group_rank_b_2026 -q
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: mrx-group-rank-b-2026-*
+          path: /tmp/rank-b-periods
+      - name: Pool nine full months and separate October; require A historical baseline exact match
+        run: |
+          PYTHONPATH=.:research python research/ml_v3_group_rank_b_2026.py pool \
+            --inputs /tmp/rank-b-periods/mrx-group-rank-b-2026-*/rank_b_month.json \
+            --out /tmp/ml-v3-group-rank-b-2026-final.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mrx-group-rank-b-2026-paired-verified-final
+          path: /tmp/ml-v3-group-rank-b-2026-final.json
+          if-no-files-found: error
+          retention-days: 30
