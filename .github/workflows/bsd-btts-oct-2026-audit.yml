@@ -139,6 +139,54 @@ jobs:
              "This evaluates probabilities for all eligible games, not only actually published BTTS selections"
            ]
           }
+          def wilson(wins, n):
+              if n == 0:
+                  return None
+              z = 1.96
+              p = wins / n
+              denom = 1 + z*z/n
+              center = (p + z*z/(2*n))/denom
+              delta = z*math.sqrt(p*(1-p)/n + z*z/(4*n*n))/denom
+              return [round(center-delta,4), round(center+delta,4)]
+          def selective(rows_yes, rows_no, field, threshold):
+              picks = []
+              for yes, no in zip(rows_yes,rows_no):
+                  p_yes, p_no = yes[field], no[field]
+                  side = "BTTS_YES" if p_yes >= p_no else "BTTS_NO"
+                  p = max(p_yes,p_no)
+                  if p >= threshold:
+                      hit = yes["outcome"] if side == "BTTS_YES" else no["outcome"]
+                      picks.append((side,hit,p))
+              n = len(picks)
+              total = len(rows_yes)
+              wins = sum(p[1] for p in picks)
+              side_counts={}
+              for side in ("BTTS_YES","BTTS_NO"):
+                  values=[p for p in picks if p[0]==side]
+                  if values:
+                      count=len(values); w=sum(p[1] for p in values)
+                      side_counts[side]={"n":count,"wins":w,"hit_rate":round(w/count,4),
+                           "wilson_95":wilson(w,count)}
+              return {"threshold":threshold,"selected":n,"coverage":round(n/total,4) if total else 0,
+                    "wins":wins,"hit_rate":round(wins/n,4) if n else None,
+                    "wilson_95":wilson(wins,n),
+                    "mean_confidence":round(sum(p[2] for p in picks)/n,4) if n else None,
+                    "by_side":side_counts}
+          report["selective_thresholds"]={
+           field:[selective(results["BTTS_YES"],results["BTTS_NO"],field,threshold)
+                  for threshold in (.50,.55,.60,.65,.70,.75,.80,.85,.90)]
+           for field in ("raw","baseline_calibrated","specialized_calibrated")}
+          report["yes_no_calibration_consistency"]={
+           field:round(sum(abs(y[field]+n[field]-1) for y,n in
+                 zip(results["BTTS_YES"],results["BTTS_NO"]))/len(results["BTTS_YES"]),6)
+                 if results["BTTS_YES"] else None
+           for field in ("raw","baseline_calibrated","specialized_calibrated")}
+          print("BSD_BTTS_SELECTIVE_OCT_2026="+json.dumps({
+           "period":report["period"],"eligible":report["eligible"],
+           "selective_thresholds":report["selective_thresholds"],
+           "yes_no_calibration_consistency":report["yes_no_calibration_consistency"]
+          },ensure_ascii=False))
+
           if report["eligible"] == 0:
               raise RuntimeError("No BTTS eligible matches in October; archive coverage insufficient")
           out=Path("bsd/btts_backtest_2026_10.json")
