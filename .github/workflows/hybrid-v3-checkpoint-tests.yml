@@ -1,0 +1,29 @@
+name: Hybrid V3 optimized checkpoint research tests
+on:
+  push:
+    branches: [optimize/hybrid-v3-checkpoint-research-20261103]
+    paths:
+      - 'research/single_ml_v2.py'
+      - 'research/single_ml_v3_checkpoint.py'
+      - 'research/test_single_ml_v3_checkpoint.py'
+      - '.github/workflows/hybrid-v3-checkpoint-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  checkpoint-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install numerical model dependencies
+        run: python -m pip install numpy scipy scikit-learn cryptography lightgbm==4.6.0 catboost==1.2.8
+      - name: Check syntax of changed research modules
+        run: python -m py_compile research/single_ml_v2.py research/single_ml_v3_checkpoint.py research/test_single_ml_v3_checkpoint.py
+      - name: Run checkpoint authentication and serialization tests
+        env:
+          PYTHONPATH: research
+        run: python -m unittest research/test_single_ml_v3_checkpoint.py -v
