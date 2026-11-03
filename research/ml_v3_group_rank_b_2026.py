@@ -297,7 +297,7 @@ def pooled_confidence(days, k, *, samples=BOOTSTRAPS):
     }
 
 
-def pool(paths):
+def pool(paths, *, enforce_frozen_a=True):
     if len(paths) != len(WINDOWS):
         raise ValueError("Exactly ten historical periods expected")
     periods = {}
@@ -323,10 +323,11 @@ def pool(paths):
     # Hard fail if A no longer reproduces our already verified same-configuration
     # Jan-Sep research counts: ensures new export and feature code did not
     # silently change previously reported baseline.
-    for k, expected in FIXED_PRIMARY_A.items():
-        observed = (p[str(k)]["A_MODAL"]["exact_hits"], p[str(k)]["A_MODAL"]["grouped_hits"])
-        if observed != expected:
-            raise ValueError(f"Baseline A mismatch for Top {k}: {observed} != {expected}")
+    if enforce_frozen_a:
+        for k, expected in FIXED_PRIMARY_A.items():
+            observed = (p[str(k)]["A_MODAL"]["exact_hits"], p[str(k)]["A_MODAL"]["grouped_hits"])
+            if observed != expected:
+                raise ValueError(f"Baseline A mismatch for Top {k}: {observed} != {expected}")
     return {
         "version": VERSION, "research_only": True,
         "source_cutoff": "2026-10-24", "primary_period": "Jan-Sep 2026 (273 full days)",
