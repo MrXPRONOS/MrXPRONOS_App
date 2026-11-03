@@ -38,7 +38,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: site
-          fetch-depth: 0
+          fetch-depth: 20
       - uses: actions/checkout@v4
         with:
           ref: research/single-ml-v2-20261024
