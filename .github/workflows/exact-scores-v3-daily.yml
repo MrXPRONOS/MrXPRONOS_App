@@ -11,7 +11,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: mrx-daily-exact-v3-one-publisher
+  group: mrx-daily-hybrid-v3-exact-publisher-one-writer
   cancel-in-progress: false
 jobs:
   genuine-hybrid-v3-top5:
@@ -76,7 +76,7 @@ jobs:
         if: steps.freshness.outputs.skip != 'true'
         run: |
           set -euo pipefail
-          PYTHONPATH="$PYTHONPATH" python -m unittest v3-engine/research/test_ml_v3_daily_forecast.py -v
+          PYTHONPATH="$PYTHONPATH" python -m unittest discover -s v3-engine/research -p 'test_ml_v3_daily_forecast.py' -v
           python -m unittest discover -s tests -p 'test_exact_scores_tab.py' -v
           python -m py_compile v3-engine/research/single_ml_v2.py v3-engine/research/ml_v3_daily_forecast.py
           node --check assets/js/scores-exacts.js
