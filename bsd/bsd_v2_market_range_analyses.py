@@ -1,9 +1,10 @@
-"""Read-only BSD V2 market analyses with honest INDICATIVE prices 1.40-2.00.
+"""Read-only BSD V2 market analyses with honest INDICATIVE prices >1.30 through 2.00.
 
 This stream is NOT the Pro/VIP publication feed:
 - no relaxed Pro/VIP gates;
 - no fake bookmaker price or value claim;
-- never passed to Telegram, recommendation feed or immutable pick ledger;
+- never passed to the legacy Telegram recommendation feed or immutable ledger;
+- dedicated informational broadcasts require an explicit opt-in and separate ledger;
 - all model inputs pre-kickoff and calibrated on 2024-2025 only.
 """
 from __future__ import annotations
@@ -18,12 +19,13 @@ from bsd_v2_core import (
 from bsd_v2_btts import btts_candidates
 from bsd_v2_estimated_odds import DEFAULT_OVERROUND,ESTIMATED_SOURCE
 from bsd_v2_labels import market_label
+from bsd_v2_public_tiers import tier_for_price,SAFE,COTES15
 from bsd_v2_over_under import adjust_candidates as adjust_totals,uncertainty as total_uncertainty
 from bsd_v2_double_chance import (
     adjust_candidates as adjust_dc,uncertain as dc_uncertain,score_probs
 )
 
-MIN_ANALYSIS_ODDS = 1.40
+MIN_ANALYSIS_ODDS = 1.30
 MAX_ANALYSIS_ODDS = 2.00
 MAX_PER_FIXTURE = 2
 MAX_PER_DAY = 40
@@ -36,7 +38,7 @@ def honest_indicative_price(p,margin=DEFAULT_OVERROUND):
     if not 0<=margin<=.2:
         return None
     price=round(1/(float(p)*(1+margin)),3)
-    return price if MIN_ANALYSIS_ODDS<=price<=MAX_ANALYSIS_ODDS else None
+    return price if MIN_ANALYSIS_ODDS<price<=MAX_ANALYSIS_ODDS else None
 
 def _considered_candidates(fixture,index,rho,features,calibration,btts_model,
                             total_model,dc_model):
@@ -141,6 +143,8 @@ def build_market_range_analyses(fixtures,index,*,now,rho,calibration,quality_pol
                     "calibration_samples":n,
                     "fair_odds":round(1/p,4),
                     "odds":price,
+                    "display_tier":tier_for_price(price),
+                    "analysis_telegram_opt_in":True,
                     "odds_source":ESTIMATED_SOURCE,
                     "estimated_odds":True,
                     "overround_assumption":DEFAULT_OVERROUND,
