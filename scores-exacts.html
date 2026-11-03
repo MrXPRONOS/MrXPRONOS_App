@@ -19,7 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/pronos-premium.css">
-  <link rel="stylesheet" href="assets/css/scores-exacts.css?v=20261103-v1">
+  <link rel="stylesheet" href="assets/css/scores-exacts.css?v=20261103-v2-days">
   <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png">
 </head>
 <body class="mx-pronos-page mx-scores-page">
@@ -58,7 +58,7 @@
     <div class="container">
       <span class="mx-scores-kicker"><span class="mx-scores-kicker-dot" aria-hidden="true"></span> ANALYSE FOOTBALL · HYBRIDE V3</span>
       <h1 id="scores-title">Scores exacts <span>Top 5</span></h1>
-      <p>Deux classements indépendants, calculés avant le début des matchs. Un score précis pour les simples, trois scores possibles pour les paris groupés.</p>
+      <p>Deux classements indépendants avant les matchs : scores simples et groupes de trois scores, pour hier, aujourd’hui et demain. Les pronostics passés restent consultables comme archives.</p>
       <div class="mx-scores-hero-meta">
         <span class="mx-scores-date" id="scores-date">Sélections du jour</span>
         <span class="mx-scores-updated" id="scores-updated">Dernière publication : non disponible</span>
@@ -66,6 +66,11 @@
     </div>
   </section>
   <div class="container mx-scores-content">
+    <nav class="mx-scores-days" aria-label="Choisir la journée des scores exacts">
+      <button type="button" class="mx-scores-day" data-scores-day="-1" aria-pressed="false">Hier</button>
+      <button type="button" class="mx-scores-day is-active" data-scores-day="0" aria-pressed="true">Aujourd’hui</button>
+      <button type="button" class="mx-scores-day" data-scores-day="1" aria-pressed="false">Demain</button>
+    </nav>
     <div id="scores-status" class="mx-scores-status" role="status" aria-live="polite">
       Recherche des sélections validées du jour…
     </div>
@@ -141,7 +146,7 @@
   </div>
 </footer>
 <script defer src="assets/js/menu.js"></script>
-<script defer src="assets/js/scores-exacts.js?v=20261103-v1"></script>
+<script defer src="assets/js/scores-exacts.js?v=20261103-v2-days"></script>
 <script defer src="assets/js/back-to-top.js"></script>
 <script defer src="assets/js/pwa.js"></script>
 </body>
