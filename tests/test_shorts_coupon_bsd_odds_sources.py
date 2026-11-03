@@ -14,7 +14,7 @@ def example(source,estimated=False):
         "source":"bsd","id":"bsd:1234","status":"notstarted",
         "is_finished":False,"category":"vip","recommendation_eligible":True,
         "event_date":(NOW+timedelta(hours=2)).isoformat(),
-        "prediction":{"selection_key":"UNDER_35","odds":1.38,
+        "prediction":{"selection_key":"UNDER_35","odds":1.38,"confidence":83.0,
             "odds_source":source,"estimated_odds":estimated,
             "recommendation_eligible":True}
     }
