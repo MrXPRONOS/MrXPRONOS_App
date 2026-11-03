@@ -85,6 +85,27 @@ class TestTop5Publisher(unittest.TestCase):
         # Ties resolve deterministically by fixture ID.
         self.assertEqual(feed["simple"][0]["id"],"fixture-00")
 
+    def test_utc_tomorrow_uses_actual_next_day_fixtures_only(self):
+        source = self.setup_source()
+        tomorrow = "2026-11-04T20:00:00Z"
+        for rec in source["fixtures"]:
+            rec["kickoff_utc"] = tomorrow
+        feed = build_feed(source, generated_at=NOW, target_date=datetime(2026,11,4).date())
+        self.assertEqual(feed["status"], "published")
+        self.assertEqual(feed["date"], "2026-11-04")
+        self.assertEqual(feed["generated_at"], NOW)
+        self.assertEqual(len(feed["simple"]), 5)
+        self.assertEqual(len(feed["grouped"]), 5)
+        self.assertTrue(all(p["kickoff_utc"]==tomorrow for p in feed["simple"]))
+        today = build_feed(source, generated_at=NOW)
+        self.assertEqual(today["status"], "unavailable")
+        self.assertEqual(today["simple"], [])
+        with self.assertRaisesRegex(ValueError, "Only the current and next"):
+            build_feed(source, generated_at=NOW, target_date=datetime(2026,11,5).date())
+        source["fixtures"][0]["actual_score"] = "1:0"
+        with self.assertRaisesRegex(ValueError, "Results"):
+            build_feed(source, generated_at=NOW, target_date=datetime(2026,11,4).date())
+
     def test_group_ranking_can_differ_from_modal_ranking(self):
         source=self.setup_source()
         a=source["fixtures"][0]["grid"]
@@ -137,6 +158,10 @@ class TestTop5Publisher(unittest.TestCase):
         stub=json.loads((ROOT/"scores-exacts.json").read_text(encoding="utf8"))
         self.assertIn('id="scores-simple-list"',html)
         self.assertIn('id="scores-grouped-list"',html)
+        self.assertIn('data-scores-day="-1"',html)
+        self.assertIn('data-scores-day="0"',html)
+        self.assertIn('data-scores-day="1"',html)
+        self.assertIn("scores-exacts-daily/",js)
         self.assertIn("Top 5",html)
         self.assertIn("scores-exacts.html",menu)
         self.assertIn("A_MODAL", (ROOT/"scripts/publish_exact_scores.py").read_text())
