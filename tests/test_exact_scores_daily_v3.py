@@ -8,7 +8,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from scripts.run_exact_scores_v3_daily import (
-    BASE_CUTOFF, DAILY_HISTORY_SUBDIR, future_fixtures, historical_daily_rows, sportdata_source_identity
+    BASE_CUTOFF, DAILY_HISTORY_SUBDIR, future_fixtures, historical_daily_rows, sportdata_source_identity, save_verified_day
 )
 
 
@@ -59,6 +59,32 @@ class TestExactDailyPipeline(unittest.TestCase):
         self.assertEqual(set(choices[0]),{"id","league","home","away","kickoff_utc"})
         self.assertNotIn("home_score",json.dumps(choices))
         self.assertNotIn("actual_score",json.dumps(choices))
+
+    def test_two_day_source_retains_only_verified_future_utc_targets(self):
+        now=utc_dt("2026-11-03T15:00:00Z")
+        rows=[
+            event(11,now="2026-11-03T20:00:00Z"),
+            event(12,now="2026-11-04T16:00:00Z"),
+            event(13,now="2026-11-05T20:00:00Z"),
+            event(14,now="2026-11-03T14:00:00Z")
+        ]
+        got=future_fixtures(response(rows),now,converter=utc_dt,include_tomorrow=True)
+        self.assertEqual([p["id"] for p in got],["sportsapipro:11","sportsapipro:12"])
+        self.assertTrue(all("score" not in json.dumps(p) for p in got))
+
+    def test_late_empty_recalculation_preserves_real_prematch_archive(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp)
+            today="2026-11-03"
+            real={"schema_version":"mrx-exact-top5-v1",
+                  "model":"machine_learning_v3_hybrid","status":"published",
+                  "date":today,"generated_at":"2026-11-03T06:00:00Z",
+                  "origin":"prospective_prematch","simple":[{"id":"verified"}],"grouped":[]}
+            self.assertEqual(save_verified_day(root,real),real)
+            no_games=dict(real,status="unavailable",simple=[],grouped=[])
+            self.assertEqual(save_verified_day(root,no_games),real)
+            stored=json.loads((root/"scores-exacts-daily"/(today+".json")).read_text())
+            self.assertEqual(stored,real)
 
     def test_provider_error_never_turns_into_fake_fixtures(self):
         with self.assertRaisesRegex(RuntimeError,"unavailable"):
