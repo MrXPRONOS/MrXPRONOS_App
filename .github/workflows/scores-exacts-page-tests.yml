@@ -1,0 +1,57 @@
+name: Scores exacts Top5 - safe page and prematch feed tests
+on:
+  push:
+    branches: [feature/onglet-scores-exacts-20261103]
+    paths: ['.github/workflows/scores-exacts-page-tests.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-page-and-feed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compile and validate genuine prospective score feed publisher
+        run: |
+          python -m py_compile scripts/publish_exact_scores.py tests/test_exact_scores_tab.py
+          python -m unittest discover -s tests -p 'test_exact_scores_tab.py' -v
+      - name: JavaScript syntax and HTML navigation checks
+        run: |
+          node --check assets/js/scores-exacts.js
+          node --check assets/js/menu.js
+          node --check service-worker.js
+          python - <<'PY'
+          import json
+          from html.parser import HTMLParser
+          from pathlib import Path
+          class Checker(HTMLParser):
+              def __init__(self):
+                  super().__init__();self.ids=set();self.links=set()
+              def handle_starttag(self,tag,attrs):
+                  d=dict(attrs)
+                  if "id" in d:
+                      assert d["id"] not in self.ids, f"duplicate id: {d['id']}"
+                      self.ids.add(d["id"])
+                  if tag=="a" and "href" in d:self.links.add(d["href"])
+          h=Checker();h.feed(Path("scores-exacts.html").read_text())
+          for key in ("scores-simple-list","scores-grouped-list","scores-status","scores-date"):
+              assert key in h.ids, key
+          for page in ("index.html","pronos.html","scores-exacts.html"):
+              assert "scores-exacts.html" in Path(page).read_text()
+          assert "scores-exacts.html" in h.links
+          sw=Path("service-worker.js").read_text()
+          assert "'./scores-exacts.json'" in sw and "'./scores-exacts.html'" in sw
+          p=json.loads(Path("scores-exacts.json").read_text())
+          assert p["status"]=="unavailable" and p["simple"]==[] and p["grouped"]==[]
+          assert len(h.ids)==len(set(h.ids))
+          print("EXACT_SCORE_TAB_HTML_NAV_AND_NO_FAKE_FEED_OK")
+          PY
