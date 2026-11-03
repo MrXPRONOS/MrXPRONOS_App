@@ -19,15 +19,6 @@ FIXED_LABELS = {
     "12": "12",
     "BTTS_YES": "Les deux équipes marquent : Oui",
     "BTTS_NO": "Les deux équipes marquent : Non",
-    "HOME_OVER_05": "Domicile : au moins 1 but",
-    "AWAY_OVER_05": "Extérieur : au moins 1 but",
-    "HOME_UNDER_15": "Domicile : moins de 1,5 but",
-    "AWAY_UNDER_15": "Extérieur : moins de 1,5 but",
-    "AH_HOME_PLUS_15": "Handicap domicile +1,5",
-    "AH_AWAY_PLUS_15": "Handicap extérieur +1,5",
-    "DNB_HOME": "Domicile, remboursé si nul (analyse)",
-    "DNB_AWAY": "Extérieur, remboursé si nul (analyse)",
-    "HT_UNDER_15": "Mi-temps : moins de 1,5 but (analyse)",
 }
 
 TOTAL_RE = re.compile(r"^(OVER|UNDER)_(15|25|35|45)$")

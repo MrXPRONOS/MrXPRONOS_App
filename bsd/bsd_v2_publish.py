@@ -20,8 +20,6 @@ from bsd_v2_btts import fit_btts_model
 from bsd_v2_over_under import fit_total_model
 from bsd_v2_double_chance import fit_model as fit_dc_model
 from bsd_v2_odds import fetch_event_odds
-from bsd_v2_new_market_model import fit_extra_market_model, settlement_candidates
-from bsd_v2_pricing_fallback import try_next_qualified_market
 from bsd_odds_fallback import OddsRouter
 from bsd_v2_estimated_odds import (ESTIMATED_SOURCE, valid_standalone_prediction,
     price_selected_market, model_reference_for_observation)
@@ -242,7 +240,6 @@ def update_settlement(row,event):
     if _utc(event["event_date"])!=_utc(row["event_date"]):return row
     key=row["prediction"].get("selection_key")
     candidates={x.key:x for x in candidates_from_goals(1.3,1.1)}
-    candidates.update(settlement_candidates())
     if key not in candidates:return row
     correct=bool(realized(candidates[key],h,a))
     row=dict(row)
@@ -292,7 +289,7 @@ from bsd_v2_publication_policy import (eligible_feed_match, eligible_feed_select
 
 def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
              odds_fetcher=None, max_odds_requests=25, btts_model=None, total_model=None, dc_model=None,
-             historical_published_ids=None, extra_market_model=None):
+             historical_published_ids=None):
     all_saved=eligible_previous(existing,now)
     saved=all_saved
     # Ne pas perdre les pronostics déjà publiés : une sélection future reste
@@ -358,8 +355,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             excluded_keys=EXCLUDED_SELECTIONS,btts_model=btts_model,total_model=total_model,
             dc_model=dc_model,selection_adjustments=selection_penalties,
             prospective_family_adjustments=prospective_family_penalties,
-            selection_conservative_minimums={"OVER_15":V21_MIN_OVER15_CONSERVATIVE},
-            extra_market_model=extra_market_model)
+            selection_conservative_minimums={"OVER_15":V21_MIN_OVER15_CONSERVATIVE})
         original_key=(row.get("prediction") or {}).get("selection_key")
         # Legacy future picks cannot bypass the new V2.1 publication policy.
         legacy_pred=row.get("prediction") or {}
@@ -442,8 +438,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             btts_model=btts_model,total_model=total_model,dc_model=dc_model,
             market_audit=market_audit,selection_adjustments=selection_penalties,
             prospective_family_adjustments=prospective_family_penalties,
-            selection_conservative_minimums={"OVER_15":V21_MIN_OVER15_CONSERVATIVE},
-            extra_market_model=extra_market_model)
+            selection_conservative_minimums={"OVER_15":V21_MIN_OVER15_CONSERVATIVE})
         if prediction is None:
             entry["reason"]=reason
             stats[reason]+=1
@@ -511,31 +506,13 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             "no_cross_market_substitution":True,
         }
         chosen=price_selected_market(prediction["prediction"],quotes,now=now)
-        # A high-confidence first choice can be below the 1.20 minimum.
-        # Try NEXT football-ranked, quality-approved options only; never
-        # increase odds, weaken the 79% gate, or fabricate a bookmaker quote.
-        if chosen is None or chosen.get("bookmaker_odds",0)<MIN_BSD_ODDS:
-            fallback,category,attempts=try_next_qualified_market(
-                prediction,quotes,now=now,tracker=performance_tracker,
-                league_market={k.rsplit("|",1)[-1]:v for k,v in league_market_performance.items()
-                               if k.startswith(str(league_name(f) or "")+"|")})
-            entry["pricing_fallback"]={"from_key":selected_football_market.get("key"),
-                                        "candidates_examined":attempts,
-                                        "selected":fallback.get("key") if fallback else None}
-            if fallback is not None:
-                prediction["category"]=category
-                chosen=fallback
-                stats["fallback_priced_qualified"]+=1
-            else:
-                stats["fallback_no_qualified_market"]+=1
         if chosen is None:
             entry["reason"]="chosen_market_unpriceable"
             stats[entry["reason"]]+=1
             continue
-        # The price may veto one football-qualified market; the pre-ranked
-        # fallback can change to another ALREADY-qualified market, not use
-        # bookmaker quotes to invent football quality. Estimated odds remain
-        # non-independent and explicitly marked as such.
+        # Une cote BSD réelle intervient uniquement comme VETO après que le
+        # marché est figé par le football. Elle ne peut jamais sélectionner
+        # un autre pari. Les prix modèle restent explicitement non indépendants.
         entry["pricing"] = {
             "odds_source": chosen.get("odds_source"),
             "odds": chosen.get("bookmaker_odds"),
@@ -563,8 +540,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         combo_only=False
         prediction["prediction"]=chosen
         prediction["publication_audit"]={
-            "selection_reason":"ranked_qualified_fallback_after_price_veto" if
-                entry.get("pricing_fallback",{}).get("selected") else "highest_reliability_after_quality_and_guardrails",
+            "selection_reason":"highest_reliability_after_quality_and_guardrails",
             "post_price_value_guard":value_guard,
             "policy_version":POLICY_VERSION,
         }
@@ -593,7 +569,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                     continue
                 secondary_bucket=league_market_performance.get(str(league_name(f) or "")+"|"+str(secondary.get("key") or ""))
                 secondary_ok,_=v21_accept_priced(secondary,performance_tracker,secondary_bucket)
-                if not secondary_ok or not post_price_value_guard(secondary)["passed"]:
+                if not secondary_ok:
                     continue
                 # Cette sélection secondaire a passé exactement les mêmes contrôles
                 # de qualité/prix V2.1 que la sélection principale. La marquer
@@ -617,8 +593,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                 allow_combo_prices=True,excluded_keys=EXCLUDED_SELECTIONS,
                 btts_model=btts_model,total_model=total_model,dc_model=dc_model,
                 selection_adjustments=selection_penalties,
-                prospective_family_adjustments=prospective_family_penalties,
-                extra_market_model=extra_market_model)
+                prospective_family_adjustments=prospective_family_penalties)
             if combo_choice and eligible_model_choice(combo_choice):
                 leg=combo_choice["prediction"]
                 verified=low_quotes[leg["internal_market_code"]]
@@ -665,48 +640,17 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             "prediction_eligible":False,
             "do_not_send_to_telegram":True,
         })
-    # Track low-indicative observations separately for further review.
-    # This is NOT a new public recommendation category.
-    low_odds_observations=[
-        row for row in model_observations
-        if isinstance(row.get("market",{}).get("odds"),(int,float))
-        and 1.01<=row["market"]["odds"]<MIN_BSD_ODDS
-    ]
-    # Preserve the rejected high-confidence first market as a separate,
-    # non-actionable observation even when the site has published a different
-    # qualified fallback market on the same fixture.
-    for audit in detailed:
-        if not (audit.get("pricing_fallback") or {}).get("selected"):
-            continue
-        ref=model_reference_for_observation(audit.get("preprice"),now=now)
-        if ref is None or not 1.01<=ref["odds"]<MIN_BSD_ODDS:
-            continue
-        low_odds_observations.append({
-            "id":"bsd:"+str(audit["event_id"])+":unpublished_first_choice",
-            "source_event_id":str(audit["event_id"]),
-            "home_team":audit.get("home_team"),
-            "away_team":audit.get("away_team"),
-            "event_date":audit.get("event_date"),
-            "market":ref,
-            "rejected_reason":"first_choice_model_price_below_120",
-            "replaced_by_qualified_market":audit["pricing_fallback"]["selected"],
-            "publication_status":"not_published",
-            "prediction_eligible":False,
-            "do_not_send_to_telegram":True,
-        })
     # Observations never alter the append-only publication ledger.
     # Un flux BSD vide est préférable au maintien de pronostics SportData périmés.
     output={
         "source":"bsd","model_version":"bsd-v2-isolated",
         "generated_at":now.isoformat(),"policy_version":POLICY_VERSION,"matches":result,
         "model_odds_observations":model_observations,
-        "low_odds_model_observations":low_odds_observations,
         "retired_predictions":retired,
         "performance_tracker":performance_tracker,
         "bookmakers":existing.get("bookmakers",[]) if isinstance(existing,dict) else [],
         "diagnostics":{"total":len(result),
                        "model_odds_observations_count":len(model_observations),
-                       "low_odds_model_observations_count":len(low_odds_observations),
                        "rejections":dict(stats),
                        "fixture_details":detailed,
                        "vip_funnel":summarize_vip_funnel(detailed,result),
@@ -758,7 +702,6 @@ def main():
     total_model,total_info=fit_total_model(index,rho=rho)
     dc_model,dc_info=fit_dc_model(index,rho=rho)
     cal,policy,diag=fit_policy(index,rho=rho,btts_model=btts_model,total_model=total_model,dc_model=dc_model)
-    extra_market_model=fit_extra_market_model(index,rho=rho)
     def bsd_odds_fetcher(event, captured):
         return fetch_event_odds(client,int(event["id"]),kickoff=fixture_datetime(event),
                                 captured_at=captured,bookmaker_slug="consensus")
@@ -771,12 +714,8 @@ def main():
     output=assemble(existing,fixtures,historic,now=now,calibration=cal,policy=policy,
                     rho=rho,odds_fetcher=odds_fetcher,max_odds_requests=args.max_odds_events,
                     btts_model=btts_model,total_model=total_model,dc_model=dc_model,
-                    historical_published_ids=historical_ids,
-                    extra_market_model=extra_market_model)
+                    historical_published_ids=historical_ids)
     output["diagnostics"]["immutable_previous_events_excluded"]=len(historical_ids)
-    # Retour aux seules catégories Pro/VIP : aucun flux Safe / 1,50+.
-    # Ne modifie pas les pronostics précédemment publiés ni le ledger immuable.
-    output.pop("market_odds_analyses", None)
     leagues_resolved=resolve_league_names(client,fixtures,output,existing)
     output["diagnostics"]["leagues_resolved"]=leagues_resolved
     # Production-safe multisource ACTIVITY: independent calendar confirmation
@@ -804,8 +743,7 @@ def main():
     output["diagnostics"].update({"api_calls":client.requests_made,
                                   "quality_validation":diag,"rho":rho,
                                   "btts_training":btts_info,"totals_training":total_info,"double_chance_training":dc_info,
-                                  "market_family_penalties":policy.family_uncertainty_adjustments(),
-                                  "new_markets":extra_market_model.to_dict()})
+                                  "market_family_penalties":policy.family_uncertainty_adjustments()})
     dest=Path(args.output)
     dest.parent.mkdir(parents=True,exist_ok=True)
     temp=dest.with_suffix(".tmp")

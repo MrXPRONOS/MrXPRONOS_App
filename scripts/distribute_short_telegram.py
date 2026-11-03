@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Relay the SAME production Shorts video with inline URL buttons to owned Telegram
-public channels; forward the Ultra Safe du jour original natively to Torrent9.
+public channels; forward the Coupons du jour original natively to Torrent9.
 
 Never touches films/private libraries or the existing suspended film->Torrent9
 mirrors. Uses an atomic per-chat Cloudflare D1 claim and does not retry an ambiguous
@@ -72,7 +72,7 @@ def load() -> tuple[dict, dict]:
             raise ValueError("Canal en double dans la configuration")
         seen.add(name.casefold())
     if primary.casefold() not in seen:
-        raise ValueError("Canal Ultra Safe absent des destinations")
+        raise ValueError("Canal Coupons du jour absent des destinations")
     expected = config["buttons"]
     buttons = receipt["keyboard"]["inline_keyboard"]
     if len(buttons) != 3 or any(len(row) != 1 for row in buttons):
@@ -169,7 +169,7 @@ async def user_forward(primary: str, original_id: int, torrent: str) -> int:
         from_peer = await client.get_entity(primary)
         to_peer = await client.get_entity(torrent)
         if getattr(from_peer, "noforwards", False):
-            raise RuntimeError("Le canal Ultra Safe protège les messages contre le transfert")
+            raise RuntimeError("Le canal Coupons du jour protège les messages contre le transfert")
         me = await client.get_me()
         rights = await client.get_permissions(to_peer, me)
         can_post = bool(getattr(rights, "is_creator", False) or (

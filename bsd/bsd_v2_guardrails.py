@@ -27,8 +27,6 @@ FAMILY_PRICE_EDGE = {
     "btts": .022,
     "goals": .022,
     "result": .025,
-    "team_goals": .022,
-    "asian_handicap": .025,
 }
 
 # Pas de changement du système simple/pro demandé ici. On renforce uniquement
@@ -54,10 +52,6 @@ def market_family(value):
         market = str(value or "")
         key = ""
     low = market.casefold()
-    if low in ("team_goals","home_over_05","away_over_05","home_under_15","away_under_15") or key in ("HOME_OVER_05","AWAY_OVER_05","HOME_UNDER_15","AWAY_UNDER_15"):
-        return "team_goals"
-    if low in ("asian_handicap","ah_home_plus_15","ah_away_plus_15") or key in ("AH_HOME_PLUS_15","AH_AWAY_PLUS_15"):
-        return "asian_handicap"
     if low == "double_chance" or key in ("1X", "X2", "12"):
         return "double_chance"
     if low == "btts" or key.startswith("BTTS_"):

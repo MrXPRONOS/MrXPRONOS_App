@@ -81,14 +81,14 @@ class NightScheduleTests(unittest.TestCase):
             report=process(data,when(8,20,5),session=Session(),token="token",
                 chat_ids=["-100123"],ledger=ledger)
         self.assertEqual(report["night_matches"],3)
-        self.assertEqual(report["night_picks_sent"],3)
+        self.assertEqual(report["night_picks_sent"],0)
         self.assertEqual(report["night_combos_sent"],1)
-        self.assertEqual(len(posted),4)
+        self.assertEqual(len(posted),1)
         self.assertTrue(all(item[2] for item in posted))
-        self.assertEqual(len(ledger.claims),4)
-        self.assertEqual(len(ledger.acks),4)
-        self.assertEqual(ledger.acks[-1][0],"bsd_v2_combo_hourly")
-        self.assertEqual(ledger.acks[-1][-1],2)
+        self.assertEqual(len(ledger.claims),1)
+        self.assertEqual(len(ledger.acks),1)
+        self.assertEqual(ledger.acks[0][0],"bsd_v2_combo_hourly")
+        self.assertEqual(ledger.acks[0][-1],2)
 
     def test_independent_tickets_keep_distinct_ids(self):
         match=fixture(1,when(8,22),1.55)

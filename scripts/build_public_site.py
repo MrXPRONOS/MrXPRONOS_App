@@ -14,7 +14,6 @@ import math
 import json
 import re
 import shutil
-from math import isfinite
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # social OAuth callbacks, paused LIVE pages, telemetry, experimental scripts or
 # internal content-generation prompts in the GitHub Pages artifact.
 PUBLIC_HTML = {
-    "index.html", "pronos.html", "scores-exacts.html", "historique.html", "blog.html",
+    "index.html", "pronos.html", "historique.html", "blog.html",
     "bonus.html", "bookmakers.html", "conseils.html", "infos.html",
     "contact.html", "article.html", "conseil.html", "offline.html",
 }
@@ -31,11 +30,11 @@ ROOT_FILES = {
     "service-worker.js", "googlebf35e152c3bdd841.html",
 }
 PUBLIC_JSON = {
-    "data.json", "scores-exacts.json", "footnews.json", "articles.json", "infos.json",
+    "data.json", "footnews.json", "articles.json", "infos.json",
     "bonus.json", "bookmakers.json", "conseils.json", "testimonials.json",
 }
 PUBLIC_JS = {
-    "main.js", "cms-url-guard.mjs", "pwa.js", "menu.js", "scores-exacts.js",
+    "main.js", "cms-url-guard.mjs", "pwa.js", "menu.js",
     "back-to-top.js", "home-premium.js", "loading-ui.js",
     "bonus-catalogue.js", "bonus-offers.js",
     # Browser push notifications and opt-in services currently use a
@@ -43,7 +42,7 @@ PUBLIC_JS = {
     "config.js",
 }
 PUBLIC_CSS = {
-    "style.css", "loading-ui.css", "home-premium.css", "scores-exacts.css",
+    "style.css", "loading-ui.css", "home-premium.css",
     "home-polish.css", "pronos-premium.css", "history-premium.css",
     "blog-premium.css", "conseils-premium.css", "infos-premium.css",
     "bonus-premium.css", "bookmakers-premium.css", "contact-premium.css",
@@ -150,67 +149,6 @@ def validate_public_prediction(pick):
         raise ValueError("Ineligible selection cannot be published")
 
 
-def _public_market_analysis(item):
-    """Allowlist an *informational* 1.40-2.00 model price, never a pick.
-
-    Never include source event ID, providers, training features, model
-    internals, confidence-as-ProVIP, or any native bookmaker quote claim.
-    Fail closed if the internal source violates the calculation/provenance.
-    """
-    if not isinstance(item,dict):
-        raise ValueError("Invalid market analysis")
-    # Old data.json snapshots may precede the three-tier migration.
-    # Assign the VISITOR tier strictly from an honest model-only price.
-    # Legacy observations are never made Telegram-opted-in by this projection.
-    legacy=("display_tier" not in item and "analysis_telegram_opt_in" not in item)
-    expected=("safe" if type(item.get("odds")) in (float,int)
-              and 1.30<item["odds"]<=1.50 else "cotes15")
-    tier=expected if legacy else item.get("display_tier")
-    if not (tier in ("safe","cotes15") and
-            (legacy or item.get("analysis_telegram_opt_in") is True) and
-            item.get("analysis_only") is True and
-            item.get("recommendation_eligible") is False and
-            item.get("prediction_eligible") is False and
-            item.get("do_not_send_to_telegram") is True and
-            item.get("estimated_odds") is True and
-            item.get("not_an_executable_bookmaker_quote") is True and
-            item.get("odds_source")=="mrxpronos_model" and
-            item.get("price_method")=="probability_calibrated_plus_fixed_6pct" and
-            item.get("overround_assumption")==.06):
-        raise ValueError("Market analysis must remain model-only and non-recommended")
-    p=item.get("model_probability")
-    odds=item.get("odds")
-    if (type(p) not in (float,int) or type(odds) not in (float,int)
-            or not math.isfinite(p) or not math.isfinite(odds)
-            or not 0<p<1 or not 1.30<odds<=2.00
-            or abs(odds-round(1/(p*1.06),3))>.0011):
-        raise ValueError("Invalid or fabricated market-analysis odds")
-    public_fields=(
-        "date","event_date","home_team","away_team","league",
-        "selection_key","market_label",
-    )
-    result={key:item[key] for key in public_fields if key in item}
-    if (tier == "safe" and not 1.30<odds<=1.50 or
-        tier == "cotes15" and not 1.50<odds<=2.00):
-        raise ValueError("Market analysis tier and price disagree")
-    if not all(isinstance(result.get(k),str) and result[k].strip()
-               for k in ("event_date","home_team","away_team","selection_key","market_label")):
-        raise ValueError("Market analysis identity incomplete")
-    result.update({
-        "id":"analysis-"+hashlib.sha256(str(item.get("id","")).encode()).hexdigest()[:16],
-        "model_probability":round(p,6),
-        "odds":float(odds),
-        "price_type":"model_indicative",
-        "display_tier":tier,
-        "estimated_odds":True,
-        "analysis_only":True,
-        "recommendation_eligible":False,
-        "do_not_send_to_telegram":True,
-        "not_an_executable_bookmaker_quote":True,
-    })
-    return result
-
-
 def public_copy(value):
     """Strictly project a generated feed into the visitor-facing product schema.
 
@@ -260,16 +198,6 @@ def public_copy(value):
     if len({match["id"] for match in public}) != len(public):
         raise ValueError("Public match identifiers are not unique")
     result = {"generated_at": value.get("generated_at"), "matches": public}
-    if "market_odds_analyses" in value:
-        observations=value["market_odds_analyses"]
-        if not isinstance(observations,list) or len(observations)>240:
-            raise ValueError("Invalid public market-analysis collection")
-        result["market_odds_analyses"]=[
-            _public_market_analysis(item) for item in observations
-        ]
-        ids=[x["id"] for x in result["market_odds_analyses"]]
-        if len(ids)!=len(set(ids)):
-            raise ValueError("Duplicate market-analysis IDs in published data")
     if isinstance(value.get("bookmakers"), list):
         public_bookmaker_fields = {"name", "logo", "url", "desc", "bonus", "promo_code"}
         result["bookmakers"] = [
@@ -549,68 +477,6 @@ def stage_site(destination: Path, previous: Path | None):
     prepare_public_feeds(destination)
     refresh_public_script_versions(destination)
     pause_public_features(destination)
-
-    # Only public, date-bound Top5 selections may enter GitHub Pages.
-    # Never copy decrypted archives, posterior grids, observed results or
-    # provider credentials into this separate public JSON route.
-    exact_file = destination / "scores-exacts.json"
-    if exact_file.is_file():
-        score_doc = json.loads(exact_file.read_text(encoding="utf-8"))
-        expected_root = {"schema_version","model","status","date","generated_at",
-                         "origin","selection_simple","selection_grouped",
-                         "group_definition","simple","grouped","reason"}
-        if (not isinstance(score_doc,dict) or
-                set(score_doc) - expected_root or
-                score_doc.get("schema_version")!="mrx-exact-top5-v1" or
-                score_doc.get("model")!="machine_learning_v3_hybrid" or
-                score_doc.get("status") not in ("published","unavailable") or
-                not isinstance(score_doc.get("simple"),list) or
-                not isinstance(score_doc.get("grouped"),list) or
-                len(score_doc["simple"])>5 or len(score_doc["grouped"])>5):
-            raise ValueError("Refusing to deploy invalid exact-score Top5 feed")
-        base_keys={"id","home","away","league","kickoff_utc","score","probability"}
-        for mode in ("simple","grouped"):
-            used=set()
-            for pick in score_doc[mode]:
-                extra={"group","group_scores"} if mode=="grouped" else set()
-                if not isinstance(pick,dict) or set(pick)!=base_keys | extra:
-                    raise ValueError("Invalid public Top5 pick fields")
-                if (not isinstance(pick.get("id"),str) or not pick["id"]
-                        or pick["id"] in used):
-                    raise ValueError("Duplicated public Top5 fixture ID")
-                used.add(pick["id"])
-                if (not isinstance(pick.get("probability"),(int,float))
-                        or not math.isfinite(pick["probability"])
-                        or not 0<pick["probability"]<=1):
-                    raise ValueError("Bad published forecast probability")
-                if (not re.fullmatch(r"(?:10|[0-9]):(?:10|[0-9])",str(pick.get("score")))):
-                    raise ValueError("Invalid published score label")
-                for field in ("home","away","league","kickoff_utc"):
-                    if not isinstance(pick.get(field),str) or not pick[field]:
-                        raise ValueError("Missing public match data")
-                if mode=="grouped":
-                    groups={"H_LOW":["1:0","2:0","2:1"],"H_HIGH":["3:0","3:1","3:2"],
-                            "A_LOW":["0:1","0:2","1:2"],"A_HIGH":["0:3","1:3","2:3"],
-                            "DRAW_LOW":["0:0","1:1","2:2"]}
-                    if (pick.get("group") not in groups or
-                            pick["group_scores"]!=groups[pick["group"]] or
-                            pick["score"] not in groups[pick["group"]]):
-                        raise ValueError("Unverified group replacement")
-        if score_doc["status"]=="unavailable" and (score_doc["simple"] or score_doc["grouped"]):
-            raise ValueError("Unavailable Top5 feed cannot contain invented fixtures")
-        if score_doc["status"]=="published":
-            from datetime import datetime,timezone
-            generated=datetime.fromisoformat(str(score_doc.get("generated_at","")).replace("Z","+00:00"))
-            if (generated.tzinfo is None or generated.utcoffset().total_seconds()!=0 or
-                    score_doc.get("date")!=generated.date().isoformat()):
-                raise ValueError("Published Top5 must be prematch dated")
-            for mode in ("simple","grouped"):
-                for pick in score_doc[mode]:
-                    kickoff=datetime.fromisoformat(pick["kickoff_utc"].replace("Z","+00:00"))
-                    if kickoff<=generated or kickoff.date()!=generated.date():
-                        raise ValueError("Top5 produced after kickoff or on wrong date")
-        print("PUBLIC_EXACT_TOP5_FEED_VERIFIED",score_doc["status"],
-              len(score_doc["simple"]),len(score_doc["grouped"]))
 
     public_feed = destination / "data.json"
     if public_feed.exists():

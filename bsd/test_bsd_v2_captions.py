@@ -29,12 +29,12 @@ class CaptionTests(unittest.TestCase):
         match=fixture()
         day=single_caption(match)
         night=single_caption(match,night=True)
-        self.assertIn("ULTRA SAFE DU JOUR",day)
+        self.assertIn("🔥 Coupon du jour",day)
         self.assertNotIn("☀️",day)
-        self.assertNotIn("ULTRA SAFE DE LA NUIT",day)
-        self.assertIn("ULTRA SAFE DE LA NUIT",night)
+        self.assertNotIn("Coupons nuit",day)
+        self.assertIn("Coupons nuit",night)
         for caption in (day,night):
-            self.assertNotIn("💰 Mise :",caption)
+            self.assertIn("💰 Mise :",caption)
             self.assertNotIn("Mise indicative",caption)
             self.assertIn("<b>",caption)
             self.assertIn("<i>",caption)
@@ -52,8 +52,8 @@ class CaptionTests(unittest.TestCase):
         combo={"legs":[one,two],"combined_odds":2.046,"event_date":one["event_date"]}
         for night in (False,True):
             caption=combo_caption(combo,night=night)
-            self.assertNotIn("250 000 F CFA",caption)
-            self.assertNotIn("💰 Mise :",caption)
+            self.assertIn("250 000 F CFA",caption)
+            self.assertIn("💰 Mise :",caption)
             self.assertNotIn("Mise indicative",caption)
             self.assertIn("2,05",caption)
             self.assertIn("Deportivo",caption)
@@ -108,7 +108,7 @@ class CaptionTests(unittest.TestCase):
     def test_winning_caption_not_claiming_real_cash(self):
         match={**fixture(),"home_score":2,"away_score":0}
         caption=gain_caption(match)
-        self.assertIn("ULTRA SAFE RÉUSSI",caption)
+        self.assertIn("PRONOSTIC GAGNANT",caption)
         self.assertIn("2–0",caption)
         self.assertIn("<blockquote>",caption)
         self.assertIn("Pronostic réussi",caption)
@@ -137,7 +137,7 @@ class CaptionTests(unittest.TestCase):
         self.assertEqual(buttons[0][1],{
             "text":"PARIEZ SUR MELBET",
             "url":partners["melbet"]["url"],"style":"primary"})
-        self.assertEqual(buttons[1][0]["text"],"Voir les catégories ⚽")
+        self.assertEqual(buttons[1][0]["text"],"Voir plus de coupons 🔥")
         self.assertNotIn("style",action_buttons()["inline_keyboard"][0][0])
 
     def test_prediction_send_paths_only_use_colored_buttons(self):

@@ -100,7 +100,7 @@ class CardAndSettlement(unittest.TestCase):
         from bsd_v2_telegram import action_buttons
         buttons=action_buttons()["inline_keyboard"]
         self.assertEqual([x[0]["text"] for x in buttons],
-             ["Voir les catégories ⚽","S’inscrire ou réinitialiser son compte 🎯"])
+             ["Voir plus de coupons 🔥","S’inscrire ou réinitialiser son compte 🎯"])
         self.assertEqual(buttons[1][0]["url"],
              "https://mrxpronos.github.io/MrXPRONOS_App/bookmakers.html")
 

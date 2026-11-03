@@ -11,7 +11,7 @@ from html import escape
 from math import isfinite
 
 from bsd_h2h import _utc
-from bsd_v2_public_tiers import public_category_title,ULTRA
+from bsd_v2_stakes import single_stake, combination_stake, money
 from bsd_v2_labels import market_label
 
 PARSE_MODE = "HTML"
@@ -63,9 +63,10 @@ def single_caption(match, *, night=False):
     """A separate, consistently styled caption for each individual selection."""
     pick=match.get("prediction") or {}
     price=pick.get("odds")
+    stake=single_stake(price)
     source_label="Cote estimée" if pick.get("odds_source")=="mrxpronos_model" else "Cote"
-    label=public_category_title(ULTRA,night=night)
-    intro=("<i>Notre sélection football de la nuit.</i>"
+    label="🌙 Coupons nuit" if night else "🔥 Coupon du jour"
+    intro=("<i>Les sélections de la nuit, de 21h à 05h.</i>"
            if night else "<i>Notre sélection football avant-match.</i>")
     return "\n".join((
         f"<b>{label} · MR XPRONOS</b>",
@@ -75,7 +76,7 @@ def single_caption(match, *, night=False):
         "<blockquote>"
         f"🎯 {_selection(match)}\n"
         f"📊 {source_label} : <b>{_quote(price)}</b>\n"
-        "<i>Prévision football, résultat non garanti.</i>"
+        f"💰 Mise : <b>{money(stake)}</b>"
         "</blockquote>",
         f"🕒 <i>{_kickoff(match.get('event_date'))}</i>",
         "",
@@ -96,7 +97,7 @@ def combo_caption(combo, *, night=False):
     if len(legs)!=2:
         raise ValueError("Un combiné Telegram doit contenir exactement deux matchs")
     estimated=_combo_has_estimated_price(legs)
-    headline=public_category_title(ULTRA,night=night)+" · COMBINÉ"
+    headline="🌙 Coupons nuit · Combiné" if night else "🎟️ Combiné du jour"
     start=[f"<b>{headline} · MR XPRONOS</b>",
            "<i>Deux rencontres · deux sélections.</i>", ""]
     details=[]
@@ -112,6 +113,7 @@ def combo_caption(combo, *, night=False):
     return "\n".join(start+[
         "<blockquote>"+"\n".join(details)+"</blockquote>",
         f"📊 {'Cote combinée estimée' if estimated else 'Cote combinée'} : <b>{total}</b>",
+        f"💰 Mise : <b>{money(combination_stake())}</b>",
         f"🕒 <i>Premier match : {_kickoff(combo.get('event_date'))}</i>",
         *(["<i>Estimation du modèle, non proposée par un bookmaker. Vérifier les cotes réelles.</i>"] if estimated else []),
         "",
@@ -136,7 +138,7 @@ def combo_gain_caption(combo):
             f"🎯 {_selection(leg)} · 🏁 <b>{score}</b>",
         ))
     return "\n".join((
-        "<b>✅ ULTRA SAFE VALIDÉ · MR XPRONOS</b>",
+        "<b>✅ COUPON VALIDÉ · MR XPRONOS</b>",
         "<i>Les deux sélections ont été vérifiées et validées.</i>",
         "",
         "<blockquote>"+"\n".join(details)+"</blockquote>",
@@ -153,7 +155,7 @@ def gain_caption(match):
            if type(match.get("home_score")) is int and
               type(match.get("away_score")) is int else "Score à confirmer")
     return "\n".join((
-        "<b>✅ ULTRA SAFE RÉUSSI · MR XPRONOS</b>",
+        "<b>✅ PRONOSTIC GAGNANT · MR XPRONOS</b>",
         "<i>Résultat vérifié après la rencontre.</i>",
         "",
         f"<b>⚽ {_fixture(match)}</b>",

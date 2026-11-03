@@ -25,12 +25,9 @@ class Candidate:
     family: str
     probability: float
     line: Optional[float] = None
-    explicit_market_code: Optional[str] = None
 
     @property
     def market_code(self) -> str:
-        if self.explicit_market_code:
-            return self.explicit_market_code
         if self.family == "goals":
             return "OU_%.1f_%s_FT" % (self.line, self.outcome.upper())
         if self.family == "result":
@@ -93,16 +90,6 @@ def realized(candidate: Candidate, home_goals: int, away_goals: int) -> int:
     if key == "12": return int(home_goals != away_goals)
     if key == "BTTS_YES": return int(home_goals > 0 and away_goals > 0)
     if key == "BTTS_NO": return int(home_goals == 0 or away_goals == 0)
-    if key == "HOME_OVER_05": return int(home_goals >= 1)
-    if key == "AWAY_OVER_05": return int(away_goals >= 1)
-    if key == "HOME_UNDER_15": return int(home_goals <= 1)
-    if key == "AWAY_UNDER_15": return int(away_goals <= 1)
-    if key == "AH_HOME_PLUS_15": return int(home_goals + 1.5 > away_goals)
-    if key == "AH_AWAY_PLUS_15": return int(away_goals + 1.5 > home_goals)
-    # DNB requires three-way settlement (win/loss/refund), and first-half
-    # markets require verified HT scores. Never settle either as an FT binary.
-    if key in ("DNB_HOME","DNB_AWAY","HT_UNDER_15"):
-        raise ValueError("Refund/period market requires separate non-binary settlement")
     if key.startswith("OVER_"): return int(home_goals + away_goals > candidate.line)
     if key.startswith("UNDER_"): return int(home_goals + away_goals < candidate.line)
     raise ValueError("Marché non reconnu : " + key)
