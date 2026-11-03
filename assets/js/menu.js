@@ -20,6 +20,7 @@
   const menuItems = [
     { name: 'Accueil', icon: 'icon-home.webp', url: 'index.html', group: 'Football' },
     { name: 'Pronostics', icon: 'icon-pronostics.webp', url: 'pronos.html', group: 'Football' },
+    { name: 'Scores exacts', icon: 'icon-pronostics.webp', url: 'scores-exacts.html', group: 'Football' },
     { name: 'Résultats', icon: 'icon-history.webp', url: 'historique.html', group: 'Football' },
     { name: 'Analyses', icon: 'icon-blog.webp', url: 'blog.html', group: 'Football' },
     { name: 'Infos Foot', icon: 'icon-infos.webp', url: 'infos.html', group: 'Football' },
@@ -32,7 +33,7 @@
     { name: 'Accueil', icon: 'icon-home.webp', url: 'index.html' },
     { name: 'Pronostics', icon: 'icon-pronostics.webp', url: 'pronos.html' },
     { name: 'Résultats', icon: 'icon-history.webp', url: 'historique.html' },
-    { name: 'Bonus', icon: 'icon-bonus.webp', url: 'bonus.html' },
+    { name: 'Score exact', icon: 'icon-pronostics.webp', url: 'scores-exacts.html' },
     { name: 'Menu', icon: 'icon-menu.webp', action: 'menu' }
   ];
 
@@ -148,7 +149,7 @@
     inner.className = 'inner';
 
     const section = currentSectionFile();
-    const primaryFiles = new Set(['index.html', 'pronos.html', 'historique.html', 'bonus.html']);
+    const primaryFiles = new Set(['index.html', 'pronos.html', 'historique.html', 'scores-exacts.html', 'bonus.html']);
     const secondaryPage = !primaryFiles.has(section);
 
     inner.innerHTML = bottomItems.map(item => {
@@ -227,6 +228,20 @@
     const footerYear = document.getElementById('mx-current-year');
     if (footerYear) footerYear.textContent = String(new Date().getFullYear());
     ensureMobileNavStyles();
+    // Add this navigation entry once on other public pages.
+    const nav = document.querySelector('nav.mx-primary-nav, nav.mx-desktop-nav');
+    if (nav && !nav.querySelector('a[href="scores-exacts.html"]')) {
+      const link = document.createElement('a');
+      link.href = 'scores-exacts.html';
+      link.textContent = 'Scores exacts';
+      if (isCurrentPage('scores-exacts.html')) {
+        link.classList.add('active');
+        link.setAttribute('aria-current', 'page');
+      }
+      const after = nav.querySelector('a[href="pronos.html"]');
+      if (after) after.insertAdjacentElement('afterend', link);
+      else nav.appendChild(link);
+    }
     const overlay = createBurgerOverlay();
     const bottomNav = createBottomNav();
     const bottomMenu = bottomNav?.querySelector('#bottom-nav-menu');
