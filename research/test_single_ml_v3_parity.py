@@ -47,13 +47,12 @@ class HybridV3Parity(unittest.TestCase):
         # production-only elimination of unrelated fits and scoring.
         def v3_fit(*args, **kwargs):
             return (FixedPredictor(1.5), FixedPredictor(1.05))
-        with tempfile.TemporaryDirectory() as tmp, (
-            patch.object(ml, "fit_hist_v3", side_effect=v3_fit),
-            patch.object(ml, "train_ml", return_value=None),
-            patch.object(ml, "train_direct_score", return_value=None),
-            patch.object(ml, "fit_direct_v3", return_value=None),
-            patch.object(ml, "fit_pair", return_value=None)
-        ):
+        with (tempfile.TemporaryDirectory() as tmp,
+              patch.object(ml, "fit_hist_v3", side_effect=v3_fit),
+              patch.object(ml, "train_ml", return_value=None),
+              patch.object(ml, "train_direct_score", return_value=None),
+              patch.object(ml, "fit_direct_v3", return_value=None),
+              patch.object(ml, "fit_pair", return_value=None)):
             original = Path(tmp) / "original"
             optimized = Path(tmp) / "optimized"
             kwargs = dict(max_eval=0, auto_tune=False, retrain_days=30,
