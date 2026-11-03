@@ -128,6 +128,8 @@ class BTTSModel:
     validation_count: int = 0
     team_blend: float = 0.0
     league_blend: float = 0.0
+    team_model: object = None
+    league_model: object = None
 
     def predict_specialized(self, features):
         if features is None:
@@ -146,18 +148,24 @@ class BTTSModel:
         combined = (1.0-self.blend)*baseline_probability + self.blend*p
         if self.team_blend>0:
             from bsd_v2_btts_team import team_scoring_probabilities
-            team = team_scoring_probabilities(event,index)
+            team = team_scoring_probabilities(event,index,model=self.team_model)
             if team is not None:
                 combined=(1.0-self.team_blend)*combined + self.team_blend*team['btts_yes']
         if self.league_blend>0:
             from bsd_v2_btts_league import league_btts_deviation
-            combined+=self.league_blend*league_btts_deviation(event,index)
+            deviation=(self.league_model.deviation(event) if self.league_model is not None
+                       else league_btts_deviation(event,index))
+            combined+=self.league_blend*deviation
         return _clamp(combined)
 
     def to_dict(self):
         return {"version":"btts-model-1","weights":list(self.weights),
                 "blend":self.blend,"team_blend":self.team_blend,
                 "league_blend":self.league_blend,
+                "team_model":({"trained_games":self.team_model.trained_games,
+                  "home_weights":list(self.team_model.home_weights),
+                  "away_weights":list(self.team_model.away_weights)} if self.team_model else None),
+                "league_model":self.league_model.to_dict() if self.league_model else None,
                 "train_count":self.train_count,
                 "validation_count":self.validation_count}
 
@@ -216,87 +224,193 @@ def _train_logistic(rows, epochs=220):
 
 
 def fit_btts_model(index, *, rho=0.0, max_training=3600, max_validation=900):
-    """2024 time-split fit and validation; V2 keeps Poisson if BTTS model worse."""
+    """Two-stage BTTS with independent team scorer and league calibration.
+
+    Supervised BTTS/side-goal fit: Jan-Aug 2024.
+    Mixture choice: Sep-Dec 2024.
+    League residual fit: Jan-Jun 2025.
+    League coefficient selection: Jul-Aug 2025.
+    Independent acceptance: Sep-Dec 2025 (also used as existing quality fold).
+    Final untouched test: all of 2026. NEVER fit to 2026 outcomes.
+    """
+    from bsd_v2_btts_team import fit_team_scoring_model, team_scoring_probabilities
+    from bsd_v2_btts_league import fit_league_residual_model
+
     training, validation = [], []
-    for _timestamp,event in index.global_games:
+    for _stamp,event in index.global_games:
+        at=fixture_datetime(event)
+        if at.year!=2024:
+            continue
         try:
-            at = fixture_datetime(event)
-            if at.year != 2024:
-                continue
-            feat = btts_features(event,index)
-            if feat is None:
-                continue
-            scores = outcome_scores(event)
-            y = int(scores[0]>0 and scores[1]>0)
+            feat=btts_features(event,index)
+            if feat is None:continue
+            scored=outcome_scores(event)
+            if scored is None:continue
+            row=(at,event,feat,int(scored[0]>0 and scored[1]>0))
             if at.month<=8:
-                training.append((at,feat,y))
+                training.append(row)
             else:
-                validation.append((at,event,feat,y))
+                validation.append(row)
         except (TypeError,ValueError,KeyError):
             continue
-    training.sort(key=lambda t:t[0])
-    validation.sort(key=lambda t:t[0])
-    available_train,available_validation=len(training),len(validation)
-    def sample(items, n):
-        if len(items) <= n:
-            return items
-        return [items[int(i*len(items)/n)] for i in range(n)]
+
+    def sample(items,n):
+        ordered=sorted(items,key=lambda item:(item[0],str(item[1]["id"])))
+        if len(ordered)<=n:return ordered
+        return [ordered[int(i*len(ordered)/n)] for i in range(n)]
+
+    available_training,available_validation=len(training),len(validation)
     training=sample(training,max_training)
     validation=sample(validation,max_validation)
-    weights=_train_logistic([(features,y) for _,features,y in training])
-    provisional=BTTSModel(weights,1.0,len(training),len(validation))
-    observed=[]
-    for _at,event,features,y in validation:
+    weights=_train_logistic([(feat,y) for _at,_event,feat,y in training])
+    team_model=fit_team_scoring_model(index,[event for _at,event,_feat,_y in training])
+    provisional=BTTSModel(weights,1.0,len(training),len(validation),team_model=team_model)
+
+    def fixture_forecast(event,features=None):
         expected,reason=estimate_goals(event,index)
         if expected is None:
-            continue
-        p0=next(c.probability for c in markets_from_matrix(
-            score_matrix(expected["home"],expected["away"],rho)) if c.key=="BTTS_YES")
-        p1=provisional.predict_specialized(features)
-        from bsd_v2_btts_team import team_scoring_probabilities
-        team=team_scoring_probabilities(event,index)
-        from bsd_v2_btts_league import league_btts_deviation
-        deviation=league_btts_deviation(event,index)
-        observed.append((p0,p1,y,team['btts_yes'] if team else None,deviation))
-    def loss(blend, team_blend=0.0, league_blend=0.0):
-        total=0.0
-        for p0,p1,y,pteam,deviation in observed:
-            mixed=(1-blend)*p0 + blend*p1
-            if pteam is not None:
-                mixed=(1-team_blend)*mixed + team_blend*pteam
-            mixed=_clamp(mixed+league_blend*deviation)
-            total+=(mixed-y)**2
-        return total/len(observed)
-    if len(training)<100 or len(observed)<50:
-        chosen=0.0
-        chosen_team=0.0
-        chosen_league=0.0
-        stats={"reason":"insufficient_2024_training_or_validation"}
+            return None
+        original=markets_from_matrix(score_matrix(expected["home"],expected["away"],rho))
+        p0=next(c.probability for c in original if c.key=="BTTS_YES")
+        feats=features if features is not None else btts_features(event,index)
+        if feats is None:
+            return None
+        p1=provisional.predict_specialized(feats)
+        side=team_scoring_probabilities(event,index,model=team_model)
+        if side is None:
+            return None
+        return p0,p1,side["btts_yes"]
+
+    observed=[]
+    for _at,event,features,y in validation:
+        forecast=fixture_forecast(event,features)
+        if forecast is not None:
+            observed.append((*forecast,y))
+
+    def mixed(p0,p1,pt,blend,team_blend):
+        value=(1-blend)*p0+blend*p1
+        return _clamp((1-team_blend)*value+team_blend*pt)
+
+    def score(rows,blend,team_blend,league_model=None,league_blend=0.):
+        if not rows:return float("inf")
+        total=0.
+        for event,p0,p1,pt,y in rows:
+            p=mixed(p0,p1,pt,blend,team_blend)
+            if league_model is not None and league_blend:
+                p=_clamp(p+league_blend*league_model.deviation(event))
+            total+=(p-y)**2
+        return total/len(rows)
+
+    rows_2024=[(None,*r) for r in observed]
+    enough_training=len(training)>=100 and len(rows_2024)>=50
+    chosen=chosen_team=chosen_league=0.
+    league_model=None
+    stages={"team_candidate_brier":None,"league_candidate_brier":None,
+            "team_holdout_2025_brier":None,"league_holdout_2025_brier":None,
+            "team_activated":False,"league_activated":False}
+
+    if enough_training:
+        blends=(0.,.25,.5,.75,1.)
+        best_blend=min(blends,key=lambda b:score(rows_2024,b,0.))
+        if score(rows_2024,best_blend,0.)<=score(rows_2024,0.,0.)-.001:
+            chosen=best_blend
+
+        # Model 1: independent home/away goal-scoring probabilities.
+        # 2024 chooses the candidate. A separate late-2025 fold can veto it.
+        team_grid=(0.,.15,.30,.45,.60,.75,1.)
+        team_option=min(team_grid,key=lambda b:score(rows_2024,chosen,b))
+        if (team_option>0 and
+            score(rows_2024,chosen,team_option)<=score(rows_2024,chosen,0.)-.0003):
+            chosen_team=team_option
+        stages["team_candidate_brier"]={
+            "baseline":round(score(rows_2024,chosen,0.),6),
+            "challenger":round(score(rows_2024,chosen,team_option),6),
+            "proposed_blend":team_option}
+
+        # 2025 is split into distinct, chronologically fixed folds.
+        folds={"league_train":[], "league_tune":[], "final_holdout":[]}
+        for _stamp,event in index.global_games:
+            at=fixture_datetime(event)
+            if at.year!=2025:continue
+            if at.month<=6:
+                key="league_train"
+            elif at.month<=8:
+                key="league_tune"
+            else:
+                key="final_holdout"
+            folds[key].append((at,event))
+        cap={"league_train":1500,"league_tune":550,"final_holdout":1000}
+        for name in folds:
+            rows=[]
+            for _at,event in sample([(at,e,None,None) for at,e in folds[name]],cap[name]):
+                try:
+                    forecast=fixture_forecast(event)
+                    scores=outcome_scores(event)
+                    if forecast is None or scores is None:continue
+                    y=int(scores[0]>0 and scores[1]>0)
+                    rows.append((event,*forecast,y))
+                except (KeyError,TypeError,ValueError,OverflowError):
+                    continue
+            folds[name]=rows
+
+        holdout=folds["final_holdout"]
+        stages["holdout_2025_observations"]=len(holdout)
+        if chosen_team and len(holdout)>=250:
+            base=score(holdout,chosen,0.)
+            trial=score(holdout,chosen,chosen_team)
+            stages["team_holdout_2025_brier"]={
+                "baseline":round(base,6),"challenger":round(trial,6)}
+            if trial>base-.0001:
+                chosen_team=0.
+        elif chosen_team:
+            chosen_team=0.
+
+        # Model 2: empirical-Bayes correction of systematic per-league errors.
+        # The correction is fit only on Jan-Jun 2025, not on 2026 fixtures.
+        learn_rows=[(event,mixed(p0,p1,pt,chosen,chosen_team),y)
+                    for event,p0,p1,pt,y in folds["league_train"]]
+        league_model=fit_league_residual_model(learn_rows)
+        tune=folds["league_tune"]
+        gamma_grid=(0.,.25,.5,.75,1.)
+        if len(tune)>=150 and len(holdout)>=250:
+            best_gamma=min(gamma_grid,key=lambda g:score(
+                tune,chosen,chosen_team,league_model,g))
+            base_tune=score(tune,chosen,chosen_team)
+            trial_tune=score(tune,chosen,chosen_team,league_model,best_gamma)
+            base_hold=score(holdout,chosen,chosen_team)
+            trial_hold=score(holdout,chosen,chosen_team,league_model,best_gamma)
+            stages["league_candidate_brier"]={
+                "baseline":round(base_tune,6),
+                "challenger":round(trial_tune,6),
+                "proposed_blend":best_gamma}
+            stages["league_holdout_2025_brier"]={
+                "baseline":round(base_hold,6),
+                "challenger":round(trial_hold,6)}
+            if (best_gamma>0 and trial_tune<=base_tune-.0001
+                and trial_hold<=base_hold-.0001):
+                chosen_league=best_gamma
+        stages["league_offsets"]=league_model.to_dict()
     else:
-        candidates=(0.0,.25,.50,.75,1.0)
-        best=min(candidates,key=loss)
-        chosen=best if loss(best) <= loss(0.0)-.001 else 0.0
-        team_candidates=(0.0,.25,.50,.75,1.0)
-        best_team=min(team_candidates,key=lambda b:loss(chosen,b))
-        # A challenger is deployed only if it beats the selected original
-        # model by a material margin on the untouched 2024 validation fold.
-        chosen_team=best_team if loss(chosen,best_team)<=loss(chosen)-.002 else 0.0
-        league_candidates=(0.0,.25,.50,.75,1.0)
-        best_league=min(league_candidates,key=lambda b:loss(chosen,chosen_team,b))
-        chosen_league=(best_league if loss(chosen,chosen_team,best_league)
-                       <=loss(chosen,chosen_team)-.0015 else 0.0)
-        stats={"poisson_validation_brier":round(loss(0.0),6),
-               "specialized_validation_brier":round(loss(1.0),6),
-               "chosen_validation_brier":round(loss(chosen,chosen_team,chosen_league),6),
-               "original_validation_brier":round(loss(chosen),6),
-               "team_blend":chosen_team,"league_blend":chosen_league,
-               "validation_observations":len(observed)}
-    return BTTSModel(weights,chosen,len(training),len(observed),chosen_team,chosen_league),{
+        stages["reason"]="insufficient_2024_training_or_validation"
+
+    stages["team_activated"]=chosen_team>0
+    stages["league_activated"]=chosen_league>0
+    diag={
         "training_period":"2024-01 to 2024-08",
         "validation_period":"2024-09 to 2024-12",
+        "league_fit_period":"2025-01 to 2025-06",
+        "league_tune_period":"2025-07 to 2025-08",
+        "independent_guard_period":"2025-09 to 2025-12",
         "trained":len(training),"validated":len(observed),
-        "available_training":available_train,
+        "available_training":available_training,
         "available_validation":available_validation,
         "train_vs_validation_leakage":False,
-        "blend":chosen,**stats,
+        "blend":chosen,"team_blend":chosen_team,"league_blend":chosen_league,
+        "poisson_validation_brier":round(score(rows_2024,0.,0.),6) if observed else None,
+        "specialized_validation_brier":round(score(rows_2024,1.,0.),6) if observed else None,
+        "selected_validation_brier":round(score(rows_2024,chosen,chosen_team),6) if observed else None,
+        "team_scoring_training":team_model.trained_games if team_model else 0,
+        **stages
     }
+    return BTTSModel(weights,chosen,len(training),len(observed),chosen_team,
+                     chosen_league,team_model,league_model),diag
