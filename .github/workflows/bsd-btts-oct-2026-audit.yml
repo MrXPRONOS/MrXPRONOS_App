@@ -29,6 +29,7 @@ jobs:
         run: python bsd/bsd_archive.py restore
       - name: Evaluate BTTS October 2026 versus calibrated baseline
         run: |
+          python - <<'PY'
           import json, math
           from collections import Counter, defaultdict
           from datetime import date
@@ -148,6 +149,7 @@ jobs:
             "skips","rho","btts_training","btts_yes","btts_no","by_week","limitations")}
           print("BSD_BTTS_OCT_2026_REPORT="+json.dumps(short,ensure_ascii=False))
           print("BACKTEST_OUTPUT="+str(out))
+          PY
       - name: Upload audit report
         uses: actions/upload-artifact@v4
         with:
