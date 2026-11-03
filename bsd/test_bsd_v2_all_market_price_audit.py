@@ -24,6 +24,25 @@ class AllMarketTests(unittest.TestCase):
         self.assertEqual(len(ALL_KEYS),9)
         self.assertEqual(len(CATALOG_KEYS),25)
         self.assertEqual(len(set(CATALOG_KEYS)),25)
+    def test_research_probability_bounds_10_to_99_percent_inclusive(self):
+        for p in (0.10, 0.24, 0.69, 0.70, 0.85, 0.99):
+            with self.subTest(p=p):
+                result,status=_model_price('1','1X2_HOME_FT',p,max(0.,p-.02),now=NOW)
+                self.assertIsNotNone(result)
+                self.assertTrue(1.01<=result['odds']<=100)
+                self.assertIn(status,('ok','research_only'))
+        for p in (0.0, 0.099, -0.2, 0.9901, 1.0):
+            with self.subTest(p=p):
+                result,status=_model_price('1','1X2_HOME_FT',p,max(0.,p-.02),now=NOW)
+                self.assertIsNone(result)
+                self.assertEqual(status,'outside_research_probability_range')
+
+    def test_ten_percent_odds_with_six_percent_margin(self):
+        quote,status=_model_price('1','1X2_HOME_FT',.10,.08,now=NOW)
+        self.assertEqual(status,'research_only')
+        self.assertAlmostEqual(quote['odds'],round(1/(.10*1.06),3))
+        self.assertEqual(quote['overround'],.06)
+
     def test_low_model_probability_retains_research_price(self):
         price,status=_model_price('X','1X2_DRAW_FT',.24,.22,now=NOW)
         self.assertEqual(status,'research_only')
