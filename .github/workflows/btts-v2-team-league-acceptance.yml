@@ -8,6 +8,8 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - 'bsd/bsd_v2_core.py'
+      - 'bsd/bsd_v2_btts_backtest.py'
       - 'bsd/bsd_v2_btts.py'
       - 'bsd/bsd_v2_btts_team.py'
       - 'bsd/bsd_v2_btts_league.py'
