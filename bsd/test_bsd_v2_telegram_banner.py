@@ -65,12 +65,16 @@ class TelegramBannerTests(unittest.TestCase):
             with Image.open(result) as image:
                 self.assertGreater(image.height,220)
 
-    def test_telegram_send_paths_apply_the_banner(self):
+    def test_outgoing_tier_cards_do_not_mix_a_coupon_and_promo_banner(self):
         import inspect
         from bsd_v2_telegram import send_one, send_combo
-        from bsd_v2_verify_telegram import post_gain
-        for send in (send_one,send_combo,post_gain):
-            self.assertIn("attach_banner(",inspect.getsource(send))
+        from bsd_v2_verify_telegram import post_gain,post_combo_gain
+        for send in (send_one,send_combo,post_gain,post_combo_gain):
+            source=inspect.getsource(send)
+            self.assertNotIn("attach_banner(",source)
+            self.assertIn("post_photo(",source)
+        # The banner utility is still available for unrelated legacy posts,
+        # but never appends advertising to the new clean Ultra Safe visuals.
 
 if __name__=="__main__":
     unittest.main()
