@@ -1,0 +1,157 @@
+name: BSD V2 BTTS October 2026 read-only backtest
+on:
+  push:
+    branches:
+      - audit/btts-oct-2026
+    paths:
+      - .github/workflows/bsd-btts-oct-2026-audit.yml
+permissions:
+  contents: read
+concurrency:
+  group: bsd-btts-oct-2026-audit
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PYTHONPATH: bsd
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install historical model requirements
+        run: python -m pip install requests cryptography pillow
+      - name: Restore private BSD historical archive read-only
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: python bsd/bsd_archive.py restore
+      - name: Evaluate BTTS October 2026 versus calibrated baseline
+        run: |
+          import json, math
+          from collections import Counter, defaultdict
+          from datetime import date
+          from pathlib import Path
+          from bsd_archive import MATCHES_FILE, _read_json
+          from bsd_v2_core import (
+              V2History, fit_rho_2024, estimate_goals, score_matrix,
+              markets_from_matrix, fixture_datetime, outcome_scores, league_key
+          )
+          from bsd_v2_btts import fit_btts_model, btts_candidates
+          from bsd_v2_policies import fit_policy
+          
+          START, END = date(2026,10,1), date(2026,10,31)
+          data = _read_json(MATCHES_FILE, None)
+          if not isinstance(data, list) or len(data) < 100:
+              raise RuntimeError("BSD archive unavailable or insufficient")
+          
+          index = V2History(data)
+          rho, rho_info = fit_rho_2024(index)
+          model, model_info = fit_btts_model(index, rho=rho)
+          cal, policy, periods = fit_policy(index, rho=rho, btts_model=model)
+          baseline_cal, _, _ = fit_policy(index, rho=rho, btts_model=None)
+          results = defaultdict(list)
+          by_league = defaultdict(list)
+          by_week = defaultdict(list)
+          skipped = Counter()
+          days = Counter()
+          finished = 0
+          min_day = max_day = None
+          
+          for _, event in index.global_games:
+              try:
+                  match_day = fixture_datetime(event).date()
+                  if not (START <= match_day <= END):
+                      continue
+                  scores = outcome_scores(event)
+                  if scores is None:
+                      skipped["unsettled"] += 1
+                      continue
+                  finished += 1
+                  min_day = min(min_day, match_day) if min_day else match_day
+                  max_day = max(max_day, match_day) if max_day else match_day
+                  expected, reason = estimate_goals(event, index)
+                  if expected is None:
+                      skipped[reason] += 1
+                      continue
+                  original = {c.key:c for c in markets_from_matrix(
+                      score_matrix(expected["home"], expected["away"], rho))}
+                  specialized = {c.key:c for c in btts_candidates(
+                      event, index, list(original.values()), model)}
+                  y = int(scores[0] > 0 and scores[1] > 0)
+                  lg = league_key(event) or "unknown"
+                  week = f"{(match_day.day-1)//7*7+1:02d}-{min(31,((match_day.day-1)//7+1)*7):02d}"
+                  days[match_day.isoformat()] += 1
+                  for name, target in (("BTTS_YES",y), ("BTTS_NO",1-y)):
+                      raw = original[name].probability
+                      old_cal = baseline_cal.score(original[name])[1]
+                      new_cal = cal.score(specialized[name])[1]
+                      row = {"outcome":target, "raw":raw, "baseline_calibrated":old_cal,
+                             "specialized_calibrated":new_cal}
+                      results[name].append(row)
+                      if name == "BTTS_YES":
+                          by_league[lg].append(row)
+                          by_week[week].append(row)
+              except (KeyError, TypeError, ValueError, ZeroDivisionError, OverflowError) as exc:
+                  skipped[type(exc).__name__] += 1
+          
+          def metrics(rows, key):
+              n = len(rows)
+              if n == 0:
+                  return {"n":0}
+              p = [min(.999999,max(.000001,float(x[key]))) for x in rows]
+              ys = [x["outcome"] for x in rows]
+              return {"n":n,
+                 "btts_true":sum(ys),
+                 "observed_rate":round(sum(ys)/n,6),
+                 "mean_forecast":round(sum(p)/n,6),
+                 "calibration_gap":round((sum(p)-sum(ys))/n,6),
+                 "brier":round(sum((a-b)**2 for a,b in zip(p,ys))/n,6),
+                 "log_loss":round(-sum(b*math.log(a)+(1-b)*math.log(1-a) for a,b in zip(p,ys))/n,6),
+                 "accuracy_at_50pct":round(sum((a >= .5)==bool(b) for a,b in zip(p,ys))/n,6)}
+          def group_stats(rows):
+              return {k:metrics(rows,k) for k in
+                 ("raw","baseline_calibrated","specialized_calibrated")}
+          report={
+           "period":"2026-10-01..2026-10-31",
+           "generated_with":"bsd-v2-current-main-code-in-branch-audit",
+           "method":"holdout month: fit 2024, calibrate 2025, test all eligible matches October 2026; historical index point-in-time",
+           "source_matches":len(data),
+           "october_finished_matches_in_history":finished,
+           "eligible":len(results["BTTS_YES"]),
+           "october_first_seen":min_day.isoformat() if min_day else None,
+           "october_last_seen":max_day.isoformat() if max_day else None,
+           "days_with_eligible_matches":len(days),
+           "skips":dict(skipped),
+           "rho":rho,
+           "btts_training":model_info,
+           "calibration_periods":periods,
+           "btts_yes":group_stats(results["BTTS_YES"]),
+           "btts_no":group_stats(results["BTTS_NO"]),
+           "by_week":{week:group_stats(rows) for week,rows in sorted(by_week.items())},
+           "by_league_at_least_20":{k:group_stats(v) for k,v in
+              sorted(by_league.items(),key=lambda x:-len(x[1])) if len(v)>=20},
+           "limitations":[
+             "Retrospective archived match results may include later corrections",
+             "Not a historical betting returns test; contemporary BTTS odds unavailable",
+             "This evaluates probabilities for all eligible games, not only actually published BTTS selections"
+           ]
+          }
+          if report["eligible"] == 0:
+              raise RuntimeError("No BTTS eligible matches in October; archive coverage insufficient")
+          out=Path("bsd/btts_backtest_2026_10.json")
+          out.write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          short={k:report[k] for k in
+           ("period","source_matches","october_finished_matches_in_history","eligible",
+            "october_first_seen","october_last_seen","days_with_eligible_matches",
+            "skips","rho","btts_training","btts_yes","btts_no","by_week","limitations")}
+          print("BSD_BTTS_OCT_2026_REPORT="+json.dumps(short,ensure_ascii=False))
+          print("BACKTEST_OUTPUT="+str(out))
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bsd-btts-oct-2026-audit-report
+          path: bsd/btts_backtest_2026_10.json
+          retention-days: 14
+          if-no-files-found: error
