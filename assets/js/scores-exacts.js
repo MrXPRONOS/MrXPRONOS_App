@@ -211,5 +211,13 @@
     }
   }));
 
+  // Refresh when a visitor returns to this tab or keeps the app open.
+  // Never reuse yesterday's published Top5 after UTC midnight.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) load();
+  });
+  window.setInterval(() => {
+    if (!document.hidden) load();
+  }, 15 * 60 * 1000);
   load();
 })();
