@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # social OAuth callbacks, paused LIVE pages, telemetry, experimental scripts or
 # internal content-generation prompts in the GitHub Pages artifact.
 PUBLIC_HTML = {
-    "index.html", "pronos.html", "historique.html", "blog.html",
+    "index.html", "pronos.html", "scores-exacts.html", "historique.html", "blog.html",
     "bonus.html", "bookmakers.html", "conseils.html", "infos.html",
     "contact.html", "article.html", "conseil.html", "offline.html",
 }
@@ -30,11 +30,11 @@ ROOT_FILES = {
     "service-worker.js", "googlebf35e152c3bdd841.html",
 }
 PUBLIC_JSON = {
-    "data.json", "footnews.json", "articles.json", "infos.json",
+    "data.json", "scores-exacts.json", "footnews.json", "articles.json", "infos.json",
     "bonus.json", "bookmakers.json", "conseils.json", "testimonials.json",
 }
 PUBLIC_JS = {
-    "main.js", "cms-url-guard.mjs", "pwa.js", "menu.js",
+    "main.js", "cms-url-guard.mjs", "pwa.js", "menu.js", "scores-exacts.js",
     "back-to-top.js", "home-premium.js", "loading-ui.js",
     "bonus-catalogue.js", "bonus-offers.js",
     # Browser push notifications and opt-in services currently use a
@@ -42,7 +42,7 @@ PUBLIC_JS = {
     "config.js",
 }
 PUBLIC_CSS = {
-    "style.css", "loading-ui.css", "home-premium.css",
+    "style.css", "loading-ui.css", "home-premium.css", "scores-exacts.css",
     "home-polish.css", "pronos-premium.css", "history-premium.css",
     "blog-premium.css", "conseils-premium.css", "infos-premium.css",
     "bonus-premium.css", "bookmakers-premium.css", "contact-premium.css",
@@ -535,6 +535,68 @@ def stage_site(destination: Path, previous: Path | None):
     prepare_public_feeds(destination)
     refresh_public_script_versions(destination)
     pause_public_features(destination)
+
+    # Only public, date-bound Top5 selections may enter GitHub Pages.
+    # Never copy decrypted archives, posterior grids, observed results or
+    # provider credentials into this separate public JSON route.
+    exact_file = destination / "scores-exacts.json"
+    if exact_file.is_file():
+        score_doc = json.loads(exact_file.read_text(encoding="utf-8"))
+        expected_root = {"schema_version","model","status","date","generated_at",
+                         "origin","selection_simple","selection_grouped",
+                         "group_definition","simple","grouped","reason"}
+        if (not isinstance(score_doc,dict) or
+                set(score_doc) - expected_root or
+                score_doc.get("schema_version")!="mrx-exact-top5-v1" or
+                score_doc.get("model")!="machine_learning_v3_hybrid" or
+                score_doc.get("status") not in ("published","unavailable") or
+                not isinstance(score_doc.get("simple"),list) or
+                not isinstance(score_doc.get("grouped"),list) or
+                len(score_doc["simple"])>5 or len(score_doc["grouped"])>5):
+            raise ValueError("Refusing to deploy invalid exact-score Top5 feed")
+        base_keys={"id","home","away","league","kickoff_utc","score","probability"}
+        for mode in ("simple","grouped"):
+            used=set()
+            for pick in score_doc[mode]:
+                extra={"group","group_scores"} if mode=="grouped" else set()
+                if not isinstance(pick,dict) or set(pick)!=base_keys | extra:
+                    raise ValueError("Invalid public Top5 pick fields")
+                if (not isinstance(pick.get("id"),str) or not pick["id"]
+                        or pick["id"] in used):
+                    raise ValueError("Duplicated public Top5 fixture ID")
+                used.add(pick["id"])
+                if (not isinstance(pick.get("probability"),(int,float))
+                        or not math.isfinite(pick["probability"])
+                        or not 0<pick["probability"]<=1):
+                    raise ValueError("Bad published forecast probability")
+                if (not re.fullmatch(r"(?:10|[0-9]):(?:10|[0-9])",str(pick.get("score")))):
+                    raise ValueError("Invalid published score label")
+                for field in ("home","away","league","kickoff_utc"):
+                    if not isinstance(pick.get(field),str) or not pick[field]:
+                        raise ValueError("Missing public match data")
+                if mode=="grouped":
+                    groups={"H_LOW":["1:0","2:0","2:1"],"H_HIGH":["3:0","3:1","3:2"],
+                            "A_LOW":["0:1","0:2","1:2"],"A_HIGH":["0:3","1:3","2:3"],
+                            "DRAW_LOW":["0:0","1:1","2:2"]}
+                    if (pick.get("group") not in groups or
+                            pick["group_scores"]!=groups[pick["group"]] or
+                            pick["score"] not in groups[pick["group"]]):
+                        raise ValueError("Unverified group replacement")
+        if score_doc["status"]=="unavailable" and (score_doc["simple"] or score_doc["grouped"]):
+            raise ValueError("Unavailable Top5 feed cannot contain invented fixtures")
+        if score_doc["status"]=="published":
+            from datetime import datetime,timezone
+            generated=datetime.fromisoformat(str(score_doc.get("generated_at","")).replace("Z","+00:00"))
+            if (generated.tzinfo is None or generated.utcoffset().total_seconds()!=0 or
+                    score_doc.get("date")!=generated.date().isoformat()):
+                raise ValueError("Published Top5 must be prematch dated")
+            for mode in ("simple","grouped"):
+                for pick in score_doc[mode]:
+                    kickoff=datetime.fromisoformat(pick["kickoff_utc"].replace("Z","+00:00"))
+                    if kickoff<=generated or kickoff.date()!=generated.date():
+                        raise ValueError("Top5 produced after kickoff or on wrong date")
+        print("PUBLIC_EXACT_TOP5_FEED_VERIFIED",score_doc["status"],
+              len(score_doc["simple"]),len(score_doc["grouped"]))
 
     public_feed = destination / "data.json"
     if public_feed.exists():
