@@ -60,7 +60,7 @@ class AnalysisTelegramTests(unittest.TestCase):
             text=caption(item)
             self.assertIn(title,text)
             self.assertIn('Cote théorique',text)
-            self.assertIn('non proposée par un bookmaker',text)
+            self.assertIn("n'est pas proposée par un bookmaker",text)
             self.assertIn('&amp; &lt;',text)
             for forbidden in ('API_KEY','mrxpronos_model','BSD','mise','gains potentiels',
                               'calibration_samples','source_event_id','telegram_opt_in'):
