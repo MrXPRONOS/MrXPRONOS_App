@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-7dfb6fb478caa961:AH_AWAY_PLUS_15",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-03T17:45:00+00:00",
+    "fixture": {
+      "home_team": "Shakhtar Donetsk",
+      "away_team": "Sporting CP",
+      "league": "UEFA Champions League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AH_AWAY_PLUS_15",
+      "type": "Handicap extérieur +1,5",
+      "confidence": 81.4,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "7e1cfbb5d14b25532b2c77883560cdad6394152394cb66edb6392efef37f39bb"
+}

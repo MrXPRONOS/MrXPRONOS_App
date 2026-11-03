@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-efc370793f6ea6a0:1X",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-04T20:00:00+00:00",
+    "fixture": {
+      "home_team": "FC Porto",
+      "away_team": "SSC Napoli",
+      "league": "Champions League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 82.5,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "a41576dc6f412b987fd71c0caf21cc0047338a1c492701dac16a872f73a3ad6d"
+}

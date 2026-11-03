@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-7a742eaf9169becb:HOME_OVER_05",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-04T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Enugu Rangers International",
+      "away_team": "Bendel Insurance FC",
+      "league": "Nigeria Premier League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "HOME_OVER_05",
+      "type": "Domicile : au moins 1 but",
+      "confidence": 82.0,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "caf680d3455600c44d13cbc886c0712527281b7f9f7adafda5ac484bfe4bb95b"
+}

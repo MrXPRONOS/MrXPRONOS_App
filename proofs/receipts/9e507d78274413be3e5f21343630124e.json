@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-69b4b19825eea83e:AWAY_OVER_05",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-04T17:45:00+00:00",
+    "fixture": {
+      "home_team": "AEK Athens",
+      "away_team": "Real Madrid",
+      "league": "UEFA Champions League"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "AWAY_OVER_05",
+      "type": "Extérieur : au moins 1 but",
+      "confidence": 81.0,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "41599b275ce04c3f3bfe552edf1993eb046f8fbe51d8f52839b06a0ca6030d57"
+}

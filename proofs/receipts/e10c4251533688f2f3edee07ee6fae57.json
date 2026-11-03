@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-0edf3d0216a1ddf0:AH_AWAY_PLUS_15",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-03T19:45:00+00:00",
+    "fixture": {
+      "home_team": "Northampton Town",
+      "away_team": "Oldham Athletic",
+      "league": "League Two"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AH_AWAY_PLUS_15",
+      "type": "Handicap extérieur +1,5",
+      "confidence": 79.8,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "164bf18dea43a0dba605e6d0d59b175f3fa9d8ca14c2e558d1c391db0d77c57b"
+}

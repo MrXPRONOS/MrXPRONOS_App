@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-743dcaf58599ed9b:AH_HOME_PLUS_15",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-03T19:45:00+00:00",
+    "fixture": {
+      "home_team": "Blackburn Rovers",
+      "away_team": "Stoke City",
+      "league": "ENL Cup"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "AH_HOME_PLUS_15",
+      "type": "Handicap domicile +1,5",
+      "confidence": 82.5,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "6ce1af75dd7148d16b7e1e2f76863eb79ab2dc9ffe743a1209a8fd1fb0ac9d6a"
+}

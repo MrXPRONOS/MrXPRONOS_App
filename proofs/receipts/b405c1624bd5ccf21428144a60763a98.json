@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-0aba8d321a078db5:HOME_OVER_05",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-03T20:00:00+00:00",
+    "fixture": {
+      "home_team": "Villarreal",
+      "away_team": "Paris Saint-Germain",
+      "league": "UEFA Youth League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "HOME_OVER_05",
+      "type": "Domicile : au moins 1 but",
+      "confidence": 80.1,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "db189b8bf7568325994ab43f2d0c2e7952e315e6f77d641bb398b8cdcbcdda28"
+}

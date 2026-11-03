@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-bbfc8a9f78e9a59d:AWAY_OVER_05",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-04T19:45:00+00:00",
+    "fixture": {
+      "home_team": "Wrexham",
+      "away_team": "Middlesbrough",
+      "league": "Championship"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "AWAY_OVER_05",
+      "type": "Extérieur : au moins 1 but",
+      "confidence": 83.3,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "50b8723ed7c8c3d4fdee0c8780fc29e0edf0532bda23ebafd26d13507c4f4dfc"
+}

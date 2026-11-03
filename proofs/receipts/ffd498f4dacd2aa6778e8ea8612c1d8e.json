@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-86908824cb60ca86:AH_HOME_PLUS_15",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-05T00:30:00+00:00",
+    "fixture": {
+      "home_team": "Botafogo",
+      "away_team": "Atlético Mineiro",
+      "league": "Brazilian Serie A"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AH_HOME_PLUS_15",
+      "type": "Handicap domicile +1,5",
+      "confidence": 80.5,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "8ee9164c74fc886af8e556c05f5019647b2e844fe413baef20a8d7e680109416"
+}

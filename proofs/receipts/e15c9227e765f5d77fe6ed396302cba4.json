@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-2d4361745e25bc69:AWAY_OVER_05",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-03T19:45:00+00:00",
+    "fixture": {
+      "home_team": "Derby County",
+      "away_team": "Norwich City",
+      "league": "ENL Cup"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AWAY_OVER_05",
+      "type": "Extérieur : au moins 1 but",
+      "confidence": 81.5,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "7b728bf735d1957685e4b33e099dbb09b0da8538c21972122923a3e1a03cf507"
+}

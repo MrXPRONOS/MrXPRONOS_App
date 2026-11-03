@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-8daa9fb9a8cc1676:AWAY_OVER_05",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-03T20:00:00+00:00",
+    "fixture": {
+      "home_team": "FC Barcelona",
+      "away_team": "Aston Villa",
+      "league": "UEFA Youth League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AWAY_OVER_05",
+      "type": "Extérieur : au moins 1 but",
+      "confidence": 82.3,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "0657281014e798ec555e7753b8812337a9ea78ee222cd35236d546c93f584fde"
+}

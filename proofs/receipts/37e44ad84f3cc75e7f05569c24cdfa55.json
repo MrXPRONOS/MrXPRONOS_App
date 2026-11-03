@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-928aed15cb0e7689:AH_AWAY_PLUS_15",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-03T19:45:00+00:00",
+    "fixture": {
+      "home_team": "Portsmouth",
+      "away_team": "Swansea City",
+      "league": "Championship"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AH_AWAY_PLUS_15",
+      "type": "Handicap extérieur +1,5",
+      "confidence": 82.2,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "c573c6611c0f84ca0382cd0aa42c13ba09a9b7a92e6cd3d471a178a415fbb6e5"
+}

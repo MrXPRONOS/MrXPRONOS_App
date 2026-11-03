@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-b376e1ee6ad8f997:AWAY_OVER_05",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-03T19:45:00+00:00",
+    "fixture": {
+      "home_team": "Preston North End",
+      "away_team": "Sheffield United",
+      "league": "Championship"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AWAY_OVER_05",
+      "type": "Extérieur : au moins 1 but",
+      "confidence": 79.5,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "3b88e6af82304bbc40f4c06de0104935c2aaef4c535df68e70fc9fa48e8abdfa"
+}

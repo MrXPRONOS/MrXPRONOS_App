@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-a440231af80d30ba:AH_AWAY_PLUS_15",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-04T23:30:00+00:00",
+    "fixture": {
+      "home_team": "Cúcuta Deportivo",
+      "away_team": "Independiente Santa Fe",
+      "league": "Categoría Primera A"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "AH_AWAY_PLUS_15",
+      "type": "Handicap extérieur +1,5",
+      "confidence": 82.4,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "45cc0928451076f22e5e677d71613987d2c2e5692150d751eb8263e0cdbd9a9e"
+}

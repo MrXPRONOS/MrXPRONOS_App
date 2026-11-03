@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-2fccf543140a8ed8:AH_HOME_PLUS_15",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-04T17:45:00+00:00",
+    "fixture": {
+      "home_team": "Fenerbahçe",
+      "away_team": "Liverpool FC",
+      "league": "UEFA Champions League"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "AH_HOME_PLUS_15",
+      "type": "Handicap domicile +1,5",
+      "confidence": 83.2,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "b921603a1782734f0da7a520e8925ab22e6d57b4e36af5a1e0a88903be2c7ef6"
+}

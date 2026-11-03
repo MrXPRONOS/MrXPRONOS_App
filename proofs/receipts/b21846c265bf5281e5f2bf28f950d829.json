@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-899ac5195c2ce311:AWAY_OVER_05",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-03T20:00:00+00:00",
+    "fixture": {
+      "home_team": "Feyenoord",
+      "away_team": "Inter",
+      "league": "Champions League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AWAY_OVER_05",
+      "type": "Extérieur : au moins 1 but",
+      "confidence": 80.9,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "e5213faf5e00f2a0d340016ff0185a010568795d06e7ee05bf4f411abdc81035"
+}

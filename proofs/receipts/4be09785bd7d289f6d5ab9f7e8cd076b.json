@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-b6d135b9a2eb95bc:AWAY_OVER_05",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-04T20:00:00+00:00",
+    "fixture": {
+      "home_team": "RC Lens",
+      "away_team": "Como",
+      "league": "Champions League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AWAY_OVER_05",
+      "type": "Extérieur : au moins 1 but",
+      "confidence": 81.9,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "9f148f0c6048dacd5422cec27f79c86f0140e288a878083b49c687141d36eb97"
+}

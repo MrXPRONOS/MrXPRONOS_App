@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-eda81757fbcf917d:HOME_OVER_05",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-03T18:00:00+00:00",
+    "fixture": {
+      "home_team": "IK Sirius",
+      "away_team": "Halmstads BK",
+      "league": "Sweden Allsvenskan"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "HOME_OVER_05",
+      "type": "Domicile : au moins 1 but",
+      "confidence": 79.6,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "6fc1a5762536b1012367cf643566dbffa96d6ee07e6f1d0674a91dff75f2bc4f"
+}

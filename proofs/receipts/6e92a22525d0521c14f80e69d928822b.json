@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-01ca988037ecd0fe:HOME_OVER_05",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-03T20:00:00+00:00",
+    "fixture": {
+      "home_team": "Atlético Madrid",
+      "away_team": "FC Bayern München",
+      "league": "UEFA Youth League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "HOME_OVER_05",
+      "type": "Domicile : au moins 1 but",
+      "confidence": 81.8,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "a2d57d869ac41a641a6a0e1c856a2066e77efc5980dc12f40f709c70b90701d5"
+}

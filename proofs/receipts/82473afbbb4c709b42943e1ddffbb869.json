@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-97d8b3a7f1ef5840:AWAY_UNDER_15",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-04T22:30:00+00:00",
+    "fixture": {
+      "home_team": "Flamengo",
+      "away_team": "Grêmio",
+      "league": "Brazilian Serie A"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AWAY_UNDER_15",
+      "type": "Extérieur : moins de 1,5 but",
+      "confidence": 80.8,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "5aafce1036d7abe819698b9998b9ca88eb152043ce854884ca076c8ff2fb6306"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-5185a88863702284:AH_HOME_PLUS_15",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-03T19:45:00+00:00",
+    "fixture": {
+      "home_team": "Watford",
+      "away_team": "Lincoln City",
+      "league": "Championship"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "AH_HOME_PLUS_15",
+      "type": "Handicap domicile +1,5",
+      "confidence": 82.6,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "8fbb42105681c35b8b3f70a3c96c5bb1144106dcdaf0ff95a9ff41af511cf9a6"
+}

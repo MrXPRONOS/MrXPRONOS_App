@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-124664033cf7932c:AH_AWAY_PLUS_15",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-04T19:45:00+00:00",
+    "fixture": {
+      "home_team": "Oxford United",
+      "away_team": "Reading",
+      "league": "League One"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AH_AWAY_PLUS_15",
+      "type": "Handicap extérieur +1,5",
+      "confidence": 82.0,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "d818ee3c722d74cb503a7a38d186b27db448b34eff101bd983a785cbd760afb6"
+}

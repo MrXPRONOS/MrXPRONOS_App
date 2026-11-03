@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-4273c146148e771d:AWAY_OVER_05",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-03T19:45:00+00:00",
+    "fixture": {
+      "home_team": "Charlton Athletic",
+      "away_team": "Bolton Wanderers",
+      "league": "English Football League Championship"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AWAY_OVER_05",
+      "type": "Extérieur : au moins 1 but",
+      "confidence": 79.2,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "d9e848e34b5feffffcf8703b4d8156eaa12b538333c1936cb39c96da9debf653"
+}

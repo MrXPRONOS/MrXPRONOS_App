@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-8aef49832b8a971a:HOME_OVER_05",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-04T19:45:00+00:00",
+    "fixture": {
+      "home_team": "Cardiff City",
+      "away_team": "West Ham United",
+      "league": "Championship"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "HOME_OVER_05",
+      "type": "Domicile : au moins 1 but",
+      "confidence": 79.4,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "f8e25050478d171f05e7e7eeb9f12354136757eeb418d90b739b2639b1ebd2eb"
+}

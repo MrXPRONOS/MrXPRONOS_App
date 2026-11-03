@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-8b8480c29cb175c6:AH_AWAY_PLUS_15",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-04T19:00:00+00:00",
+    "fixture": {
+      "home_team": "Royal Francs Borains",
+      "away_team": "FCV Dender",
+      "league": "Challenger Pro League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AH_AWAY_PLUS_15",
+      "type": "Handicap extérieur +1,5",
+      "confidence": 80.2,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "9338709eba22aaec2c857f99b04254be62d3298b590ec179cff85f558306808a"
+}

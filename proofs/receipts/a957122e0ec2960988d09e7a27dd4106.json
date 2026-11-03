@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-d24d21d903e8fdac:HOME_OVER_05",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-03T20:00:00+00:00",
+    "fixture": {
+      "home_team": "Bodø/Glimt",
+      "away_team": "LOSC Lille",
+      "league": "Champions League"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "HOME_OVER_05",
+      "type": "Domicile : au moins 1 but",
+      "confidence": 83.2,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "176541dcfe49fa7e4b1b2b226f607bf2f1c10112c4639daf3be27729d150e99c"
+}

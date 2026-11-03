@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-69b4b19825eea83e:AH_HOME_PLUS_15",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-04T17:45:00+00:00",
+    "fixture": {
+      "home_team": "AEK Athens",
+      "away_team": "Real Madrid",
+      "league": "UEFA Champions League"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "AH_HOME_PLUS_15",
+      "type": "Handicap domicile +1,5",
+      "confidence": 82.5,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "247fc38e3d9b9fdb9e4ccf560f79092211457f1041a079181b5059898abc2097"
+}

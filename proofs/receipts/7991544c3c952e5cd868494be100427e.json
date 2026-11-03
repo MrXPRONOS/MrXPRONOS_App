@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-f7682e7ba38e259f:AWAY_OVER_05",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-03T17:45:00+00:00",
+    "fixture": {
+      "home_team": "Galatasaray",
+      "away_team": "VfB Stuttgart",
+      "league": "UEFA Champions League"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "AWAY_OVER_05",
+      "type": "Extérieur : au moins 1 but",
+      "confidence": 82.9,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "6031375be6f5bf894cecc5dd509a75f00668590bce92418477b7fd743b3a3203"
+}

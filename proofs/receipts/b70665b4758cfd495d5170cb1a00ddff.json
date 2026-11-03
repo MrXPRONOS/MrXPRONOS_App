@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-82450737c4a6f51d:UNDER_35",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-04T20:00:00+00:00",
+    "fixture": {
+      "home_team": "AS FAR Rabat",
+      "away_team": "Raja Club Athletic",
+      "league": "Botola Pro"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.7,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "efd60f1dd3c225018e3889f3d0d7509a00f6dcc534aa59f6ae97ab320995356a"
+}

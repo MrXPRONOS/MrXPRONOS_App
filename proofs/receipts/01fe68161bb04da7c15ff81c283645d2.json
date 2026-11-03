@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-7a742eaf9169becb:AH_AWAY_PLUS_15",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-04T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Enugu Rangers International",
+      "away_team": "Bendel Insurance FC",
+      "league": "Nigeria Premier League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "AH_AWAY_PLUS_15",
+      "type": "Handicap extérieur +1,5",
+      "confidence": 79.6,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "7413d9b3ab56f6f83045692526b806309912d4f84f8cb279d43196b0f20b29b7"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-c5cb79ac8dbb1d65:UNDER_35",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-03T20:30:00+00:00",
+    "fixture": {
+      "home_team": "Deportivo Pereira",
+      "away_team": "Deportes Tolima",
+      "league": "Categoría Primera A"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.1,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "919350721c75629a36ea2ef5f311fe14aedfb0466c673daf70e4cfa2cedd5574"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-f7682e7ba38e259f:AH_AWAY_PLUS_15",
+    "recorded_at_utc": "2026-11-03T01:35:26+00:00",
+    "kickoff_utc": "2026-11-03T17:45:00+00:00",
+    "fixture": {
+      "home_team": "Galatasaray",
+      "away_team": "VfB Stuttgart",
+      "league": "UEFA Champions League"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "AH_AWAY_PLUS_15",
+      "type": "Handicap extérieur +1,5",
+      "confidence": 83.1,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "e41efba8ad1466932688929c5e2c9a0409decddcfb870827a18e2ce34f23a0ee"
+}
