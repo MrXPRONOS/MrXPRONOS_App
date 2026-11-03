@@ -142,6 +142,20 @@ def run_view(browser, width, height, name):
     page.on("console", lambda msg: console_errors.append(msg.text) if msg.type == "error" else None)
 
     page.goto("http://127.0.0.1:8000/live.html", wait_until="domcontentloaded", timeout=60000)
+    # The LIVE betting page is explicitly suspended in production.
+    # Validate the actual suspension UX; retain legacy LIVE assertions below
+    # so they still apply when the redirect is intentionally removed.
+    page.wait_for_url("**/live-suspended.html", timeout=12000) if page.url.endswith("/live-suspended.html") else None
+    if page.url.endswith("/live-suspended.html"):
+        page.get_by_role("heading", name="Pronostics LIVE temporairement hors service").wait_for(state="visible")
+        page.get_by_role("link", name="Retour à l’accueil").wait_for(state="visible")
+        if page.locator(".mx-live-row").count():
+            raise AssertionError(f"{name}: LIVE predictions rendered despite suspension")
+        assert_no_overflow(page, f"{name}/suspended")
+        page.screenshot(path=str(OUT / f"live-suspended-{width}.png"), full_page=True)
+        page.close()
+        print(f"PASS {name}: LIVE suspension page verified")
+        return
     try:
         page.locator(".mx-live-row").first.wait_for(state="visible", timeout=15000)
     except Exception:
