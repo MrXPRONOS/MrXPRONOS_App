@@ -72,7 +72,13 @@ jobs:
           sw=Path("service-worker.js").read_text()
           assert "'./scores-exacts.json'" in sw and "'./scores-exacts.html'" in sw
           p=json.loads(Path("scores-exacts.json").read_text())
-          assert p["status"]=="unavailable" and p["simple"]==[] and p["grouped"]==[]
+          assert p["status"] in ("unavailable","published")
+          assert len(p["simple"])<=5 and len(p["grouped"])<=5
+          if p["status"]=="unavailable":
+              assert p["simple"]==[] and p["grouped"]==[]
+          else:
+              assert p["origin"]=="prospective_prematch" and p["model"]=="machine_learning_v3_hybrid"
+              assert p["simple"]
           assert len(h.ids)==len(set(h.ids))
           print("EXACT_SCORE_TAB_HTML_NAV_AND_NO_FAKE_FEED_OK")
           PY
