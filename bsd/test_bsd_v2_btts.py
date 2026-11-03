@@ -222,5 +222,25 @@ class BTTSTests(unittest.TestCase):
         self.assertEqual(adjusted["OVER_25"],base["OVER_25"])
 
 
+    def test_challengers_shadow_does_not_override_validated_market(self):
+        from bsd_v2_btts_league import LeagueBTTSModel
+        class Quality:
+            def check_fixture(self,expected): return None
+            def check_market(self,choice): return None
+            def family_uncertainty_adjustments(self): return {}
+        model=BTTSModel((.5,)+(0.,)*(FEATURE_COUNT-1),1.,150,100,
+                        0.,0.,None,LeagueBTTSModel({"id:9":.03},{"id:9":60},60))
+        prediction,reason=predict_v2(self.match,V2History(self.history),
+                btts_model=model,quality_policy=Quality())
+        self.assertEqual(reason,"ok")
+        shadow=prediction["model_audit"]["btts_challenger_shadow"]
+        self.assertEqual(shadow["league_blend_active"],0.)
+        self.assertEqual(shadow["team_blend_active"],0.)
+        self.assertTrue(shadow["league_model_trained"])
+        self.assertAlmostEqual(shadow["league_shrunken_residual"],.03)
+        self.assertIsNotNone(shadow["away_blank_probability"])
+        self.assertNotIn(prediction["prediction"]["key"],("BTTS_YES","BTTS_NO"))
+
+
 if __name__=="__main__":
     unittest.main()
