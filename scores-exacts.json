@@ -1,10 +1,135 @@
 {
   "schema_version": "mrx-exact-top5-v1",
   "model": "machine_learning_v3_hybrid",
-  "status": "unavailable",
-  "date": null,
-  "generated_at": null,
-  "simple": [],
-  "grouped": [],
-  "reason": "Aucune prévision quotidienne Hybride V3 authentifiée et publiée pour cette date."
+  "status": "published",
+  "date": "2026-11-03",
+  "generated_at": "2026-11-03T22:15:57Z",
+  "origin": "prospective_prematch",
+  "selection_simple": "A_MODAL",
+  "selection_grouped": "B_GROUP_MASS",
+  "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
+  "simple": [
+    {
+      "id": "sportsapipro:4731931",
+      "league": "Liga BetPlay - Clausura",
+      "home": "Deportivo Pasto",
+      "away": "Jaguares de Córdoba",
+      "kickoff_utc": "2026-11-03T23:20:00Z",
+      "score": "1:0",
+      "probability": 0.12665005
+    },
+    {
+      "id": "sportsapipro:4882916",
+      "league": "Liga FUTVE - Quadrangulars",
+      "home": "Deportivo Tachira",
+      "away": "Puerto Cabello",
+      "kickoff_utc": "2026-11-03T23:30:00Z",
+      "score": "1:1",
+      "probability": 0.11755139
+    },
+    {
+      "id": "sportsapipro:4875855",
+      "league": "Copa Paceña - Quarter Finals",
+      "home": "Club Aurora",
+      "away": "Independiente Petrolero",
+      "kickoff_utc": "2026-11-03T23:00:00Z",
+      "score": "1:1",
+      "probability": 0.11305367
+    },
+    {
+      "id": "sportsapipro:4632608",
+      "league": "Brasileirão Série A",
+      "home": "Chapecoense",
+      "away": "Mirassol",
+      "kickoff_utc": "2026-11-03T22:30:00Z",
+      "score": "1:1",
+      "probability": 0.11254717
+    },
+    {
+      "id": "sportsapipro:4764230",
+      "league": "Copa de Primera - Clausura",
+      "home": "Club Nacional",
+      "away": "CS San Lorenzo",
+      "kickoff_utc": "2026-11-03T22:30:00Z",
+      "score": "1:1",
+      "probability": 0.10350818
+    }
+  ],
+  "grouped": [
+    {
+      "id": "sportsapipro:4731931",
+      "league": "Liga BetPlay - Clausura",
+      "home": "Deportivo Pasto",
+      "away": "Jaguares de Córdoba",
+      "kickoff_utc": "2026-11-03T23:20:00Z",
+      "score": "1:0",
+      "probability": 0.30758518,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4882916",
+      "league": "Liga FUTVE - Quadrangulars",
+      "home": "Deportivo Tachira",
+      "away": "Puerto Cabello",
+      "kickoff_utc": "2026-11-03T23:30:00Z",
+      "score": "1:1",
+      "probability": 0.23714693,
+      "group": "DRAW_LOW",
+      "group_scores": [
+        "0:0",
+        "1:1",
+        "2:2"
+      ]
+    },
+    {
+      "id": "sportsapipro:4875855",
+      "league": "Copa Paceña - Quarter Finals",
+      "home": "Club Aurora",
+      "away": "Independiente Petrolero",
+      "kickoff_utc": "2026-11-03T23:00:00Z",
+      "score": "1:1",
+      "probability": 0.22897966,
+      "group": "DRAW_LOW",
+      "group_scores": [
+        "0:0",
+        "1:1",
+        "2:2"
+      ]
+    },
+    {
+      "id": "sportsapipro:4632608",
+      "league": "Brasileirão Série A",
+      "home": "Chapecoense",
+      "away": "Mirassol",
+      "kickoff_utc": "2026-11-03T22:30:00Z",
+      "score": "1:1",
+      "probability": 0.22893002,
+      "group": "DRAW_LOW",
+      "group_scores": [
+        "0:0",
+        "1:1",
+        "2:2"
+      ]
+    },
+    {
+      "id": "sportsapipro:4764230",
+      "league": "Copa de Primera - Clausura",
+      "home": "Club Nacional",
+      "away": "CS San Lorenzo",
+      "kickoff_utc": "2026-11-03T22:30:00Z",
+      "score": "1:1",
+      "probability": 0.21193904,
+      "group": "DRAW_LOW",
+      "group_scores": [
+        "0:0",
+        "1:1",
+        "2:2"
+      ]
+    }
+  ]
 }
