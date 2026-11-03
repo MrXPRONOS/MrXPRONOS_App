@@ -159,8 +159,15 @@ def _public_market_analysis(item):
     """
     if not isinstance(item,dict):
         raise ValueError("Invalid market analysis")
-    if not (item.get("display_tier") in ("safe","cotes15") and
-            item.get("analysis_telegram_opt_in") is True and
+    # Old data.json snapshots may precede the three-tier migration.
+    # Assign the VISITOR tier strictly from an honest model-only price.
+    # Legacy observations are never made Telegram-opted-in by this projection.
+    legacy=("display_tier" not in item and "analysis_telegram_opt_in" not in item)
+    expected=("safe" if type(item.get("odds")) in (float,int)
+              and 1.30<item["odds"]<=1.50 else "cotes15")
+    tier=expected if legacy else item.get("display_tier")
+    if not (tier in ("safe","cotes15") and
+            (legacy or item.get("analysis_telegram_opt_in") is True) and
             item.get("analysis_only") is True and
             item.get("recommendation_eligible") is False and
             item.get("prediction_eligible") is False and
@@ -183,8 +190,8 @@ def _public_market_analysis(item):
         "selection_key","market_label",
     )
     result={key:item[key] for key in public_fields if key in item}
-    if (item["display_tier"] == "safe" and not 1.30<odds<=1.50 or
-        item["display_tier"] == "cotes15" and not 1.50<odds<=2.00):
+    if (tier == "safe" and not 1.30<odds<=1.50 or
+        tier == "cotes15" and not 1.50<odds<=2.00):
         raise ValueError("Market analysis tier and price disagree")
     if not all(isinstance(result.get(k),str) and result[k].strip()
                for k in ("event_date","home_team","away_team","selection_key","market_label")):
@@ -194,7 +201,7 @@ def _public_market_analysis(item):
         "model_probability":round(p,6),
         "odds":float(odds),
         "price_type":"model_indicative",
-        "display_tier":item["display_tier"],
+        "display_tier":tier,
         "estimated_odds":True,
         "analysis_only":True,
         "recommendation_eligible":False,
