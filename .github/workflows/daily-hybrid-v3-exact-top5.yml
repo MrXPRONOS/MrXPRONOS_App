@@ -113,6 +113,7 @@ jobs:
           }),flush=True)
           PY
       - name: Publish immutable daily JSON ONLY on main; feature branch remains dry-run
+        id: publish
         run: |
           set -euo pipefail
           if [ "${GITHUB_REF}" != 'refs/heads/main' ]; then
@@ -130,6 +131,10 @@ jobs:
           date=datetime.now(timezone.utc).date().isoformat()
           if result["date"]!=date:
               raise RuntimeError("The daily job crossed midnight: fail closed")
+          if (result.get("status")!="published" or len(result.get("simple",[]))!=5
+                  or len(result.get("grouped",[]))!=5):
+              print("EXACT_TOP5_NOT_FULLY_VERIFIED_NO_PUBLICATION",date,flush=True)
+              raise SystemExit(0)
           if out.exists():
               existing=json.loads(out.read_text(encoding="utf8"))
               if existing.get("date")==date and existing.get("status")=="published":
@@ -146,6 +151,12 @@ jobs:
           git add -- scores-exacts.json
           git commit -m "data(exact-scores): publish pre-match Hybrid V3 Top5 [skip ci]"
           git push origin HEAD:main
+          echo "published=true" >> "$GITHUB_OUTPUT"
+      - name: Deploy updated public Top5 after bot-authored data commit
+        if: github.ref == 'refs/heads/main' && steps.publish.outputs.published == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main
       - name: Always purge private forecasts and decrypted history
         if: always()
         run: |
