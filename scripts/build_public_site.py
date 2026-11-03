@@ -459,6 +459,11 @@ def copy_public_exact_scores(destination: Path):
             raise ValueError("Unexpected exact-score daily JSON filename")
         doc = json.loads(file.read_text(encoding="utf8"))
         day = file.stem
+        allowed_doc = {"schema_version","model","status","date","generated_at","origin",
+                       "selection_simple","selection_grouped","group_definition",
+                       "simple","grouped","reason"}
+        if not isinstance(doc,dict) or set(doc)-allowed_doc:
+            raise ValueError("Private exact-score feed fields cannot enter Pages")
         if (not isinstance(doc,dict) or doc.get("schema_version") != "mrx-exact-top5-v1"
                 or doc.get("model") != "machine_learning_v3_hybrid"
                 or doc.get("status") not in ("published","unavailable")
