@@ -997,8 +997,10 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                 kickoff = _dt.fromisoformat(str(start).replace("Z","+00:00"))
             except (TypeError,ValueError) as exc:
                 raise ValueError("Invalid future fixture kickoff") from exc
+            # Future targets are strictly limited to today or tomorrow UTC and
+            # have no observed results or same-day features in the fit.
             if (kickoff.tzinfo is None or kickoff.utcoffset().total_seconds()!=0 or
-                    kickoff.date()!=asof.date() or kickoff<=asof):
+                    kickoff.date() not in (asof.date(), asof.date()+timedelta(days=1)) or kickoff<=asof):
                 continue
             if not isinstance(ident,str) or not ident or ident in ids:
                 raise ValueError("Missing or repeated prospective fixture")
@@ -1009,7 +1011,7 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                 raise ValueError("Invalid verified fixture identities")
             # 0:0 placeholders are NEVER read by FormState.features and never
             # sent to add_day or included in any model fitting/settlement.
-            candidate = Match(ident,asof.date(),league,home,away,0,0)
+            candidate = Match(ident,kickoff.date(),league,home,away,0,0)
             features = states.features(candidate)
             base = poisson_grid(features["h"],features["a"])
             dc = dixon_coles(features["h"],features["a"],dc_rho)
