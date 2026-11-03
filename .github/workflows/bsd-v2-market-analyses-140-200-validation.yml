@@ -24,6 +24,7 @@ jobs:
         run: |
           python -m compileall -q bsd
           python -m unittest discover -s bsd -p 'test_*.py' -v
+          python -m unittest discover -s tests -p 'test_public_site_build.py' -v
           node --check assets/js/main.js
           node --test tests/pronos-category-selection.test.cjs
       - name: Restore private BSD archive for read-only simulation
