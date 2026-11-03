@@ -69,10 +69,11 @@ def estimated_quote(candidate_row, quotes, *, now=None):
         return None
     margin, origin = reference_overround(quotes)
     fair = 1.0 / p
-    # Cote calculée pour le marché CHOISI, sans sélectionner un autre pari.
-    # Réduire la marge si 6 % ferait tomber une issue très probable sous 1.01.
-    # Ne jamais relever artificiellement un prix au-dessus de sa cote équitable.
-    margin = min(margin, max(0.0, (1.0 / (1.20 * p)) - 1.0))
+    # Cote calculée pour le marché CHOISI avec la marge observée / annoncée.
+    # IMPORTANT: ne jamais réduire la marge pour fabriquer artificiellement
+    # une cote exactement égale au minimum de publication (1.20). Quand
+    # l'estimation honnête est sous le seuil, ce choix est non publiable :
+    # le moteur pourra chercher un autre marché déjà qualifié.
     price = round(1.0 / (p * (1.0 + margin)), 3)
     if not (MIN_STANDALONE_ODDS <= price <= 100 and price <= fair):
         return None

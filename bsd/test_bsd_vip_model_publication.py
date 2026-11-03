@@ -61,30 +61,25 @@ class VIPModelPublicationTests(unittest.TestCase):
                 max_odds_requests=1,
             )
 
-    def test_qualified_vip_uses_model_when_bsd_missing(self):
+    def test_qualified_vip_no_longer_fabricates_120_without_real_quote(self):
         out = self.publish({})
-        self.assertEqual(len(out["matches"]), 1)
-        match = out["matches"][0]
-        self.assertEqual(match["category"], "vip")
-        self.assertTrue(match["recommendation_eligible"])
-        self.assertEqual(match["signal_tier"], "INDICATIF")
-        self.assertEqual(match["prediction"]["odds_source"], "mrxpronos_model")
-        self.assertTrue(match["prediction"]["estimated_odds"])
-        self.assertGreaterEqual(match["prediction"]["odds"], 1.20)
-        self.assertEqual(out["diagnostics"]["vip_funnel"]["newly_published_by_category"]["vip"], 1)
+        self.assertEqual(out["matches"], [])
+        self.assertEqual(out["diagnostics"]["rejections"]["chosen_market_unpriceable"], 1)
+        self.assertEqual(out["diagnostics"]["vip_funnel"]["newly_published_by_category"]["vip"], 0)
+        self.assertEqual(len(out["model_odds_observations"]), 1)
+        self.assertLess(out["model_odds_observations"][0]["market"]["odds"], 1.20)
+        self.assertTrue(out["model_odds_observations"][0]["do_not_send_to_telegram"])
 
-    def test_model_pro_at_80pct_can_publish_without_changing_vip_classification(self):
+    def test_model_pro_at_815pct_does_not_bypass_price_floor(self):
         self.football["category"] = "pro"
         self.football["prediction"]["probability"] = .815
         self.football["prediction"]["conservative_probability"] = .805
         self.football["prediction"]["fair_odds"] = round(1 / .815, 4)
         out = self.publish({})
-        self.assertEqual(len(out["matches"]), 1)
-        self.assertEqual(out["matches"][0]["category"], "pro")
-        self.assertEqual(out["matches"][0]["prediction"]["odds_source"], "mrxpronos_model")
-        self.assertEqual(out["matches"][0]["signal_tier"], "INDICATIF")
+        self.assertEqual(out["matches"], [])
         self.assertEqual(out["diagnostics"]["vip_funnel"]["newly_published_by_category"]["vip"], 0)
-        self.assertEqual(out["diagnostics"]["vip_funnel"]["newly_published_by_category"]["pro"], 1)
+        self.assertEqual(out["diagnostics"]["vip_funnel"]["newly_published_by_category"]["pro"], 0)
+        self.assertEqual(out["diagnostics"]["rejections"]["chosen_market_unpriceable"], 1)
 
     def test_model_below_775pct_is_rejected(self):
         self.football["category"] = "pro"
@@ -92,9 +87,7 @@ class VIPModelPublicationTests(unittest.TestCase):
         self.football["prediction"]["conservative_probability"] = .774
         out = self.publish({})
         self.assertEqual(out["matches"], [])
-        self.assertEqual(
-            out["diagnostics"]["rejections"]["v21_model_confidence_or_price_below_floor"], 1
-        )
+        self.assertEqual(out["diagnostics"]["rejections"]["chosen_market_unpriceable"], 1)
 
     def test_pro_below_79_is_rejected_before_odds_lookup(self):
         self.football["category"] = "pro"
@@ -120,9 +113,15 @@ class VIPModelPublicationTests(unittest.TestCase):
         self.football["prediction"]["conservative_probability"] = .785
         self.football["prediction"]["fair_odds"] = round(1 / .79, 4)
         out = self.publish({})
+        self.assertEqual(out["matches"], [])
+        self.assertEqual(out["diagnostics"]["rejections"]["chosen_market_unpriceable"], 1)
+        # Independently quoted markets remain eligible when the existing
+        # conservative-probability / external-value gates are satisfied.
+        out = self.publish({"DC_1X_FT": {"odds": 1.36, "origin": "bsd_consensus"}})
         self.assertEqual(len(out["matches"]), 1)
         self.assertEqual(out["matches"][0]["category"], "pro")
         self.assertEqual(out["matches"][0]["prediction"]["confidence"], 79.0)
+        self.assertFalse(out["matches"][0]["prediction"]["estimated_odds"])
 
     def test_bsd_real_odds_cannot_bypass_independent_value_gate(self):
         out = self.publish({"DC_1X_FT": {"odds": 1.20, "origin": "bsd_consensus"}})

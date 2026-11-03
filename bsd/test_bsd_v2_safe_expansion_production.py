@@ -58,13 +58,24 @@ class ProductionNewMarkets(unittest.TestCase):
     def test_fallback_from_unpriceable_90pct_to_prequalified_80pct(self):
         primary=item('1X',.90,.88)
         second=item('UNDER_25',.80,.785,market='over_under_25',code='OU_2.5_UNDER_FT')
+        # Under the default 6% model margin, a qualified 80% model quote
+        # is below 1.20. A verified real offer can still pass as fallback.
+        verified={'OU_2.5_UNDER_FT':{'odds':1.36,'origin':'bsd_consensus',
+                                    'updated_at':NOW.isoformat()}}
         chosen,category,log=try_next_qualified_market(
-            raw_prediction(primary,[primary,second]),{},now=NOW)
+            raw_prediction(primary,[primary,second]),verified,now=NOW)
         self.assertIsNotNone(chosen)
         self.assertEqual(chosen['key'],'UNDER_25')
-        self.assertEqual(chosen['odds_source'],'mrxpronos_model')
-        self.assertGreaterEqual(chosen['odds'],1.20)
+        self.assertEqual(chosen['odds_source'],'bsd_consensus')
+        self.assertEqual(chosen['odds'],1.36)
         self.assertIn(category,('pro','vip'))
+    def test_fallback_cannot_fabricate_minimum_model_quote(self):
+        primary=item('1X',.90,.88)
+        second=item('UNDER_25',.80,.785,market='over_under_25',code='OU_2.5_UNDER_FT')
+        chosen,category,log=try_next_qualified_market(
+            raw_prediction(primary,[primary,second]),{},now=NOW)
+        self.assertIsNone(chosen)
+        self.assertTrue(any(x['reason']=='no_publishable_quote' for x in log))
     def test_fallback_cannot_publish_weak_or_unqualified_pick(self):
         primary=item('1X',.95,.93)
         low=item('UNDER_25',.78,.75,market='over_under_25',code='OU_2.5_UNDER_FT')
