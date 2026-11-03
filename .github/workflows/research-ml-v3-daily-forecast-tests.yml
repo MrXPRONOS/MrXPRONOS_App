@@ -39,6 +39,6 @@ jobs:
           assert 'future.get("kickoff_utc")' in source
           assert 'd >= asof.date()' in future
           assert 'v3_models=True,prospective_fixtures=future' in future
-          assert 'certified_rows(key)' in future
+          assert 'certified_rows(key,root=' in future
           print("NATIVE_HYBRID_V3_PROSPECTIVE_CODE_GUARDS_OK")
           PY
