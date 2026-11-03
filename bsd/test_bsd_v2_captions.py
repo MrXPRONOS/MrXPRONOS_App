@@ -53,7 +53,7 @@ class CaptionTests(unittest.TestCase):
         for night in (False,True):
             caption=combo_caption(combo,night=night)
             self.assertNotIn("250 000 F CFA",caption)
-            self.assertIn("💰 Mise :",caption)
+            self.assertNotIn("💰 Mise :",caption)
             self.assertNotIn("Mise indicative",caption)
             self.assertIn("2,05",caption)
             self.assertIn("Deportivo",caption)
