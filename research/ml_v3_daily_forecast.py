@@ -52,6 +52,98 @@ def competition(row):
     return value.strip() if isinstance(value,str) and value.strip() else ""
 
 
+def league_id(row):
+    """Only native provider league ID, never guessed from team labels."""
+    value = row.get("league_id")
+    if value is None and isinstance(row.get("league"), dict):
+        value = row["league"].get("id")
+    try:
+        num = int(value)
+    except (TypeError, ValueError):
+        return None
+    return num if 0 < num <= 100000000 else None
+
+
+def validated_league_name(row):
+    label = competition(row)
+    if not label and isinstance(row.get("name"), str):
+        label = row["name"].strip()
+    if label and label.casefold() not in ("soccer","football","unknown","tbd"):
+        return label
+    return ""
+
+
+def archived_league_names(events):
+    """Map unique real league IDs to their prior BSD provider verified names."""
+    from collections import defaultdict
+    names=defaultdict(set)
+    for event in events:
+        if isinstance(event,dict):
+            ident=league_id(event)
+            league=validated_league_name(event)
+            if ident and league:
+                names[ident].add(league)
+    return {ident:next(iter(values)) for ident,values in names.items() if len(values)==1}
+
+
+def resolve_league_ids(client, events, archive_names):
+    """Retrieve real BSD competition names if scheduled rows omit them.
+
+    Try authenticated archive evidence, catalog and official league detail.
+    Do not invent a name, silently join unrelated league IDs or use results.
+    """
+    names=dict(archive_names)
+    unknown={
+        league_id(row)
+        for row in events if isinstance(row,dict) and not validated_league_name(row)
+    }
+    unknown.discard(None)
+    pending=unknown-set(names)
+    catalog_requests=0
+    for offset in range(0,800,100):
+        if not pending:
+            break
+        try:
+            page=client.get_json("/leagues/",{"limit":100,"offset":offset},ttl=3600)
+        except Exception:
+            break
+        catalog_requests+=1
+        rows=page if isinstance(page,list) else page.get("results",[]) if isinstance(page,dict) else []
+        if not isinstance(rows,list):
+            break
+        for item in rows:
+            if not isinstance(item,dict):
+                continue
+            try:
+                ident=int(item.get("id"))
+            except (TypeError,ValueError):
+                continue
+            label=validated_league_name(item)
+            if ident in pending and label:
+                names[ident]=label
+                pending.discard(ident)
+        if len(rows)<100:
+            break
+    details=0
+    for ident in sorted(pending):
+        try:
+            item=client.get_json(f"/leagues/{ident}/",ttl=3600)
+            details+=1
+        except Exception:
+            continue
+        if isinstance(item,dict):
+            label=validated_league_name(item)
+            if label:
+                names[ident]=label
+    print("V3_BSD_LEAGUE_RESOLUTION",json.dumps({
+        "unknown_ids":len(unknown),"resolved":sum(x in names for x in unknown),
+        "unresolved":sum(x not in names for x in unknown),
+        "catalog_calls":catalog_requests,"detail_calls":details,
+        "no_guessed_leagues":True,
+    }),flush=True)
+    return names
+
+
 def archive_tail(events, *, asof):
     """Normalize only SETTLED post-cutoff BSD fixtures; reject same-day labels."""
     if not isinstance(events,list):
@@ -96,14 +188,15 @@ def archive_tail(events, *, asof):
     return rows
 
 
-def fixtures_today(client, *, asof):
+def fixtures_today(client, *, asof, known_leagues=None):
     """Read BSD scheduled football fixtures with FULL pagination and valid UTC times."""
     day = asof.date()
     page=client.list_events(day,day,max_pages=25,page_size=200,ttl=0)
     if not page.complete:
         raise ValueError("Incomplete BSD scheduled match pagination; do not publish guesses")
+    verified_names=resolve_league_ids(client,page.events,known_leagues or {})
     found={}
-    counts={"total":len(page.events),"future":0,"excluded":0}
+    counts={"total":len(page.events),"future":0,"excluded":0,"missing_league_after_resolution":0}
     for event in page.events:
         if not isinstance(event,dict) or event.get("id") is None:
             counts["excluded"]+=1
@@ -119,7 +212,9 @@ def fixtures_today(client, *, asof):
         if start.date()!=day or start <= asof + timedelta(minutes=5):
             counts["excluded"]+=1
             continue
-        home,away,league=label(event,"home"),label(event,"away"),competition(event)
+        home,away=label(event,"home"),label(event,"away")
+        league=validated_league_name(event) or verified_names.get(league_id(event),"")
+        if not league:counts["missing_league_after_resolution"]+=1
         if not (home and away and league and home!=away):
             counts["excluded"]+=1
             continue
@@ -152,18 +247,18 @@ def load_verified_recent(*, asof):
     if stamp>asof+timedelta(minutes=5) or (asof-stamp)>timedelta(hours=52):
         raise ValueError("Production BSD archive older than 52 hours; fail closed")
     events=json.loads(MATCHES_FILE.read_text(encoding="utf8"))
-    return archive_tail(events,asof=asof)
+    return archive_tail(events,asof=asof), archived_league_names(events)
 
 
 def generate_daily(*, out, max_bsd_requests=40):
     asof=datetime.now(timezone.utc)
     if asof.date() <= CUTOFF:
         raise ValueError("Prospective generation requires date after frozen 2026 archive")
-    recent=load_verified_recent(asof=asof)
+    recent,known_leagues=load_verified_recent(asof=asof)
     # Fetch today before training, then revalidate exact kickoff against
     # ACTUAL publication time after expensive retrospective V3 fitting.
     client=BSDClient(max_requests=max_bsd_requests)
-    future=fixtures_today(client,asof=asof)
+    future=fixtures_today(client,asof=asof,known_leagues=known_leagues)
     if not future:
         raise ValueError("BSD source returned no genuinely upcoming fixtures; no publication")
     key=key_from_environment()
