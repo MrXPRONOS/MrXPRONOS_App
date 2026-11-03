@@ -1,4 +1,4 @@
-name: Research ML V3 Group-Mass Rank B vs A - fast synthetic validation
+name: Research ML V3 Group-Mass Rank B vs A - fast synthetic validation (fixed code)
 on:
   push:
     branches: [research/single-ml-v2-20261024]
