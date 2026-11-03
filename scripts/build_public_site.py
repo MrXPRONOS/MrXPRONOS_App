@@ -15,6 +15,7 @@ import json
 import re
 import shutil
 from pathlib import Path
+from datetime import datetime, date, timedelta, timezone
 
 ROOT = Path(__file__).resolve().parents[1]
 # Publish only routes, data and assets consumed by visitors. No owner CMS,
@@ -24,6 +25,7 @@ PUBLIC_HTML = {
     "index.html", "pronos.html", "historique.html", "blog.html",
     "bonus.html", "bookmakers.html", "conseils.html", "infos.html",
     "contact.html", "article.html", "conseil.html", "offline.html",
+    "scores-exacts.html",
 }
 ROOT_FILES = {
     "robots.txt", "sitemap.xml", "CNAME", "favicon.ico", "manifest.json",
@@ -32,6 +34,7 @@ ROOT_FILES = {
 PUBLIC_JSON = {
     "data.json", "footnews.json", "articles.json", "infos.json",
     "bonus.json", "bookmakers.json", "conseils.json", "testimonials.json",
+    "scores-exacts.json",
 }
 PUBLIC_JS = {
     "main.js", "cms-url-guard.mjs", "pwa.js", "menu.js",
@@ -39,7 +42,7 @@ PUBLIC_JS = {
     "bonus-catalogue.js", "bonus-offers.js",
     # Browser push notifications and opt-in services currently use a
     # Supabase publishable (not privileged/service-role) key.
-    "config.js",
+    "config.js", "scores-exacts.js",
 }
 PUBLIC_CSS = {
     "style.css", "loading-ui.css", "home-premium.css",
@@ -47,7 +50,7 @@ PUBLIC_CSS = {
     "blog-premium.css", "conseils-premium.css", "infos-premium.css",
     "bonus-premium.css", "bookmakers-premium.css", "contact-premium.css",
     "article-detail-premium.css", "conseil-detail-premium.css",
-    "mobile-nav-premium.css", "brand-signatures.css",
+    "mobile-nav-premium.css", "brand-signatures.css", "scores-exacts.css",
 }
 PUBLIC_DIRS = (
     "assets/css", "assets/js", "assets/images", "assets/fonts",
@@ -445,6 +448,67 @@ def copy_public_tree(source: Path, dest: Path):
         shutil.copy2(path, output)
 
 
+def copy_public_exact_scores(destination: Path):
+    """Allowlist and validate public-only daily prematch Top5 score receipts."""
+    source = ROOT / "scores-exacts-daily"
+    if not source.is_dir():
+        return
+    out = destination / "scores-exacts-daily"
+    for file in sorted(source.glob("*.json")):
+        if not re.fullmatch(r"\\d{4}-\\d{2}-\\d{2}\\.json", file.name):
+            raise ValueError("Unexpected exact-score daily JSON filename")
+        doc = json.loads(file.read_text(encoding="utf8"))
+        day = file.stem
+        if (not isinstance(doc,dict) or doc.get("schema_version") != "mrx-exact-top5-v1"
+                or doc.get("model") != "machine_learning_v3_hybrid"
+                or doc.get("status") not in ("published","unavailable")
+                or doc.get("date") != day):
+            raise ValueError("Invalid public exact-score daily feed")
+        simple, grouped = doc.get("simple"), doc.get("grouped")
+        if (not isinstance(simple,list) or not isinstance(grouped,list)
+                or len(simple)>5 or len(grouped)>5):
+            raise ValueError("Invalid public exact-score Top5 lengths")
+        if doc["status"]=="unavailable" and (simple or grouped):
+            raise ValueError("Unavailable day cannot include invented picks")
+        if doc["status"]=="published" and not simple:
+            raise ValueError("Published day must include actual simple predictions")
+        if doc["status"]=="published" and doc.get("origin")!="prospective_prematch":
+            raise ValueError("Published day lacks real prospective provenance")
+        generated = doc.get("generated_at")
+        if generated is not None:
+            if not isinstance(generated,str) or not generated.endswith("Z"):
+                raise ValueError("Invalid exact-score generation timestamp")
+            generated_dt = datetime.fromisoformat(generated.replace("Z","+00:00"))
+            day_date = date.fromisoformat(day)
+            if generated_dt.date() not in (day_date,day_date-timedelta(days=1)):
+                raise ValueError("Exact-score receipt was not generated today or preceding UTC day")
+        else:
+            if doc["status"]=="published":
+                raise ValueError("Published scores require original generation time")
+            generated_dt = None
+        for kind, records in (("simple",simple),("grouped",grouped)):
+            ids=set()
+            for pick in records:
+                if not isinstance(pick,dict) or set(pick) - {
+                    "id","league","home","away","kickoff_utc","score","probability","group","group_scores"
+                }:
+                    raise ValueError("Private exact-score fields cannot enter Pages")
+                if (not isinstance(pick.get("id"),str) or pick["id"] in ids
+                        or not isinstance(pick.get("kickoff_utc"),str)
+                        or not pick["kickoff_utc"].endswith("Z")
+                        or generated_dt is None):
+                    raise ValueError("Unverified exact-score item")
+                kickoff=datetime.fromisoformat(pick["kickoff_utc"].replace("Z","+00:00"))
+                if kickoff.date().isoformat()!=day or kickoff<=generated_dt:
+                    raise ValueError("A score prediction was not prospectively generated")
+                ids.add(pick["id"])
+                if kind=="grouped" and (not isinstance(pick.get("group_scores"),list)
+                        or len(pick["group_scores"])!=3):
+                    raise ValueError("Invalid grouped exact-score definition")
+        out.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(file,out/file.name)
+
+
 def stage_site(destination: Path, previous: Path | None):
     if destination.exists():
         shutil.rmtree(destination)
@@ -470,6 +534,8 @@ def stage_site(destination: Path, previous: Path | None):
                     if not target.exists():
                         target.parent.mkdir(parents=True, exist_ok=True)
                         shutil.copy2(file, target)
+
+    copy_public_exact_scores(destination)
 
     prepare_public_editorial_media(destination)
     prepare_public_articles(destination)
