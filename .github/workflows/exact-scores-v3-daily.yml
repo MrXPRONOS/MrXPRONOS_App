@@ -1,15 +1,8 @@
 name: Publish daily Hybrid V3 Top5
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/exact-scores-v3-daily.yml'
-      - 'scripts/run_exact_scores_v3_daily.py'
-      - 'scripts/prepare_hybrid_v3_checkpoint.py'
-      - 'scripts/publish_exact_scores.py'
-      - 'scripts/build_public_site.py'
-      - 'assets/js/scores-exacts.js'
-      - 'scores-exacts.html'
+  workflow_run:
+    workflows: [Prepare authenticated Hybrid V3 checkpoint]
+    types: [completed]
   schedule:
     - cron: '17 5,12 * * *'
   workflow_dispatch:
@@ -21,6 +14,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   generate:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
