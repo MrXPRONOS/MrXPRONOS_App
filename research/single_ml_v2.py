@@ -613,7 +613,7 @@ def summarize(stats):
     return result
 
 
-def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None, auto_tune=True, tuning_interval_days=90, selection_coverage=.25, v3_models=False, frozen_fit_cutoff=None, export_v3_group_mass=False):
+def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None, auto_tune=True, tuning_interval_days=90, selection_coverage=.25, v3_models=False, frozen_fit_cutoff=None, export_v3_group_mass=False, prospective_fixtures=None):
     # Strict holdout: 2026 labels may update NEXT-DAY form features only.
     # No 2026 target can enter ML fitting, DC coefficient estimation, selector
     # fitting, hybrid/DC or direct-prior calibration.
@@ -966,6 +966,87 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         last_history_day = day
         if evaluating and (day.day == 1 or day == end):
             print("PROGRESS", day, "scored", played, flush=True)
+    # Prospective V3 publication is opt-in: NEVER append these fixtures to
+    # chronological training, and NEVER consume their scores/results.
+    # This intentionally reuses the ACTUAL fitted Hybrid V3 and FormState
+    # produced above, not an approximation or an independent reimplementation.
+    if prospective_fixtures is not None:
+        if not v3_models or v3_hist_model is None or frozen_fit_cutoff is not None:
+            raise ValueError("Prospective generation requires a trained, unfrozen Hybrid V3")
+        from datetime import datetime as _dt, timezone as _tz
+        asof = _dt.now(_tz.utc).replace(microsecond=0)
+        if not last_history_day or not model_fit_history_day or last_history_day >= asof.date():
+            raise ValueError("Prematch historical and fit dates must be prior to publication")
+        if (asof.date() - last_history_day).days > 3:
+            raise ValueError("Refusing to publish from stale football history")
+        p11factor = eleven_multiplier(v3_eleven_history, asof=asof.date())
+        # Refit the hybrid weight only from settled earlier-day OOS forecasts.
+        weight, setting = hybrid_v3_weight(v3_hybrid_history, asof=asof.date(),
+                                            previous=v3_hybrid_weight)
+        published = []
+        ids = set()
+        for future in prospective_fixtures:
+            if not isinstance(future,dict):
+                raise ValueError("Future fixture needs a metadata-only mapping")
+            forbidden = {"actual_score","home_score","away_score","hit","result","is_finished","final_score","win","grid"}
+            if forbidden.intersection(future):
+                raise ValueError("Result, grid and target fields forbidden in prospective fixture input")
+            ident = future.get("id")
+            start = future.get("kickoff_utc")
+            try:
+                kickoff = _dt.fromisoformat(str(start).replace("Z","+00:00"))
+            except (TypeError,ValueError) as exc:
+                raise ValueError("Invalid future fixture kickoff") from exc
+            if (kickoff.tzinfo is None or kickoff.utcoffset().total_seconds()!=0 or
+                    kickoff.date()!=asof.date() or kickoff<=asof):
+                continue
+            if not isinstance(ident,str) or not ident or ident in ids:
+                raise ValueError("Missing or repeated prospective fixture")
+            ids.add(ident)
+            league, home, away = (future.get(x) for x in ("league","home","away"))
+            if (not all(isinstance(x,str) and x.strip() for x in (league,home,away))
+                    or home == away):
+                raise ValueError("Invalid verified fixture identities")
+            # 0:0 placeholders are NEVER read by FormState.features and never
+            # sent to add_day or included in any model fitting/settlement.
+            candidate = Match(ident,asof.date(),league,home,away,0,0)
+            features = states.features(candidate)
+            base = poisson_grid(features["h"],features["a"])
+            dc = dixon_coles(features["h"],features["a"],dc_rho)
+            hist = hist_v3_grid(v3_hist_model,features["vector"],base,
+                                form_samples=features["form_samples"],p11_factor=1.)
+            if hist is None:
+                raise ValueError("Untrained actual HistGB V3 model")
+            corrected = calibrate_eleven_cell(hist,p11factor)
+            hybrid = hybrid_v3_grid(corrected,dc,dc_weight=weight)
+            if not np.isfinite(hybrid).all() or hybrid.shape!=(11,11):
+                raise ValueError("Invalid prospective V3 11x11 score grid")
+            published.append({
+                "id":ident,"model":V3_HYBRID,
+                "league":league,"home":home,"away":away,
+                "kickoff_utc":kickoff.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "model_fit_latest_day":str(model_fit_history_day),
+                "history_latest_day":str(last_history_day),
+                "grid":hybrid.tolist(),
+            })
+        prospect = {
+            "origin":"prospective_prematch",
+            "model":V3_HYBRID,
+            "generated_at":asof.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "fixtures":published,
+        }
+        # Private temporary, no historical outcomes, odds or labels exported.
+        prospective_path = Path(out) / "v3_prospective_raw.json"
+        prospective_path.parent.mkdir(parents=True,exist_ok=True)
+        prospective_path.write_text(json.dumps(prospect,ensure_ascii=False),encoding="utf8")
+        print("HYBRID_V3_GENUINE_PROSPECTIVE",json.dumps({
+            "date":str(asof.date()),"fixtures":len(published),
+            "latest_history":str(last_history_day),
+            "latest_model_fit":str(model_fit_history_day),
+            "hybrid_dc_weight":round(weight,5),
+            "historical_oos_training_games":setting.training_games,
+            "no_future_settlement":True,
+        }),flush=True)
     summary = summarize(results)
     hybrid_paired = compare_hybrids(results, ("machine_learning","dixon_coles","machine_learning_hybrid_fixed","machine_learning_hybrid"))
     selected_report=report_selections(selection_rows,total_matches=audit["evaluated_matches"],
