@@ -1,5 +1,8 @@
 name: Publish daily Hybrid V3 Top5
 on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/exact-scores-v3-daily.yml']
   schedule:
     - cron: '17 5,12 * * *'
   workflow_dispatch:
