@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 330
     env:
+      PYTHONPATH: site
       ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
       SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
       SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
