@@ -20,7 +20,7 @@ from bsd_v2_btts import fit_btts_model
 from bsd_v2_over_under import fit_total_model
 from bsd_v2_double_chance import fit_model as fit_dc_model
 from bsd_v2_odds import fetch_event_odds
-from bsd_v2_new_market_model import fit_extra_market_model
+from bsd_v2_new_market_model import fit_extra_market_model, settlement_candidates
 from bsd_v2_pricing_fallback import try_next_qualified_market
 from bsd_odds_fallback import OddsRouter
 from bsd_v2_estimated_odds import (ESTIMATED_SOURCE, valid_standalone_prediction,
@@ -242,6 +242,7 @@ def update_settlement(row,event):
     if _utc(event["event_date"])!=_utc(row["event_date"]):return row
     key=row["prediction"].get("selection_key")
     candidates={x.key:x for x in candidates_from_goals(1.3,1.1)}
+    candidates.update(settlement_candidates())
     if key not in candidates:return row
     correct=bool(realized(candidates[key],h,a))
     row=dict(row)
