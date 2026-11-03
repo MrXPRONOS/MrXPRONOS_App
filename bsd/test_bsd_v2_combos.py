@@ -38,8 +38,8 @@ class CombosTests(unittest.TestCase):
         b=match(52,105,1.50)
         a["prediction"].update({"odds_source":"mrxpronos_model","estimated_odds":True})
         b["prediction"].update({"odds_source":"mrxpronos_model","estimated_odds":True})
-        self.assertEqual(due([a,b],NOW),[])
-        self.assertEqual(expand_tickets(a),[])
+        self.assertEqual([x["id"] for x in due([a,b],NOW)],["bsd:51","bsd:52"])
+        self.assertEqual(len(expand_tickets(a)),1)
         coupons=build_combos([a,b])
         self.assertEqual(len(coupons),1)
         self.assertEqual([leg["id"] for leg in coupons[0]["legs"]],["bsd:51","bsd:52"])
@@ -56,7 +56,7 @@ class CombosTests(unittest.TestCase):
         from bsd_v2_telegram import due
         a=match(51,90,1.51)
         b=match(52,105,1.40)
-        self.assertEqual([m["id"] for m in due([a,b],NOW)],["bsd:51"])
+        self.assertEqual([m["id"] for m in due([a,b],NOW)],["bsd:51","bsd:52"])
         self.assertEqual(len(expand_tickets(a)),1)
         self.assertEqual(build_combos([a,b]),[])
 
