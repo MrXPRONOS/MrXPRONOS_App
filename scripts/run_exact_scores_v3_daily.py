@@ -129,7 +129,7 @@ def historical_daily_rows(history_dir, last_day, *, fetcher, normalizer, sealer,
     return all_rows,daily_counts
 
 
-def future_fixtures(response,now,*,converter):
+def future_fixtures(response,now,*,converter,include_tomorrow=False):
     """Retain only real supplier-declared UTC futures; never accept final scores."""
     if not response.ok:
         raise RuntimeError("Today's SportData fixture source is unavailable")
@@ -142,7 +142,7 @@ def future_fixtures(response,now,*,converter):
         kickoff=converter(raw.get("startTime"))
         if kickoff is None or kickoff.tzinfo is None:
             continue
-        if kickoff.date()!=now.date() or kickoff<=now+timedelta(minutes=10):
+        if kickoff.date() not in ({now.date(), now.date()+timedelta(days=1)} if include_tomorrow else {now.date()}) or kickoff<=now+timedelta(minutes=10):
             continue
         if str(raw.get("statusGroup"))=="4":
             continue
@@ -169,6 +169,24 @@ def future_fixtures(response,now,*,converter):
     return fixtures
 
 
+def save_verified_day(site_root, payload):
+    """Persist only provider-derived day snapshots for yesterday/today/tomorrow UI.
+
+    Never replace an already published day with an unavailable late-day rerun.
+    The same date's latest successful, prematch-generated Top5 remains visible
+    as an archive after kickoff, never as an available betting opportunity.
+    """
+    day = date.fromisoformat(payload["date"])
+    archive = site_root / "scores-exacts-daily" / (day.isoformat()+".json")
+    if archive.exists() and payload["status"] == "unavailable":
+        previous = json.loads(archive.read_text(encoding="utf8"))
+        if (previous.get("status") == "published" and previous.get("date") == day.isoformat()
+                and previous.get("model") == "machine_learning_v3_hybrid"):
+            return previous
+    atomic_json(archive, payload)
+    return payload
+
+
 def atomic_json(path,payload):
     path=Path(path)
     path.parent.mkdir(parents=True,exist_ok=True)
@@ -179,6 +197,9 @@ def atomic_json(path,payload):
 
 def produce(site_root,model_root,*,out_path=None,now=None):
     site_root=Path(site_root).resolve()
+    # Resolve the output against the caller CWD BEFORE switching into the model checkout.
+    # Previously --out site/scores-exacts.json resolved under model/site and never reached main.
+    resolved_target=resolved_target
     model_root=install_research_modules(Path(model_root))
     previous=Path.cwd()
     try:
@@ -207,10 +228,10 @@ def produce(site_root,model_root,*,out_path=None,now=None):
         daily_dir=site_root/DAILY_HISTORY_SUBDIR
         # First fetch today's true supplier fixtures. If the source is down,
         # do not overwrite with a deceptively successful or empty publication.
-        future_result=fetch_games(now.date(),now.date(),timeout=45,show_odds=False)
+        future_result=fetch_games(now.date(),now.date()+timedelta(days=1),timeout=45,show_odds=False)
         if not future_result.ok:
             raise RuntimeError("Today's fixture provider failed — no publication")
-        fixtures=future_fixtures(future_result,now,converter=utc_dt)
+        fixtures=future_fixtures(future_result,now,converter=utc_dt,include_tomorrow=True)
         print("V3_DAILY_FUTURE_FIXTURES",len(fixtures),"from",len(future_result.games),"provider observations",flush=True)
         if not fixtures:
             # No future games genuinely found, do not spend model training
@@ -223,9 +244,12 @@ def produce(site_root,model_root,*,out_path=None,now=None):
                 "simple":[],"grouped":[],
                 "reason":"No verified upcoming football fixtures from SportData as of publication",
             }
-            atomic_json(target,empty)
+            today = save_verified_day(site_root,empty)
+            tomorrow_empty = dict(empty, date=(now.date()+timedelta(days=1)).isoformat())
+            save_verified_day(site_root,tomorrow_empty)
+            atomic_json(target,today)
             print("V3_DAILY_NO_UPCOMING_GAMES",flush=True)
-            return empty
+            return today
 
         # Authentication failure for the old corpus or ANY day since its
         # cutoff blocks a future forecast. Strictly prior-day, no result leak.
@@ -266,10 +290,21 @@ def produce(site_root,model_root,*,out_path=None,now=None):
             prospective=json.loads(raw.read_text(encoding="utf8"))
             # The original publisher verifies modal score and group mass from
             # these original V3 grid cells, with no 2026 backtest labels.
-            feed=build_feed(prospective,generated_at=prospective["generated_at"])
-        if feed["status"]=="published" and not feed["simple"]:
-            raise RuntimeError("Invalid empty published Top5 list")
+            feed=build_feed(prospective,generated_at=prospective["generated_at"],
+                            target_date=now.date())
+            next_feed=build_feed(prospective,generated_at=prospective["generated_at"],
+                                 target_date=now.date()+timedelta(days=1))
+        for entry in (feed,next_feed):
+            if entry["status"]=="published" and not entry["simple"]:
+                raise RuntimeError("Invalid empty published Top5 list")
+        feed=save_verified_day(site_root,feed)
+        next_feed=save_verified_day(site_root,next_feed)
         atomic_json(target,feed)
+        print("V3_DAILY_NEXTDAY_TOP5",json.dumps({
+            "date":next_feed["date"],"status":next_feed["status"],
+            "simple":len(next_feed["simple"]),"grouped":len(next_feed["grouped"]),
+            "generated_at":next_feed["generated_at"]
+        },sort_keys=True),flush=True)
         print("V3_DAILY_TOP5_READY",json.dumps({
             "asof":feed["generated_at"],"status":feed["status"],
             "simple":len(feed["simple"]),"grouped":len(feed["grouped"]),
