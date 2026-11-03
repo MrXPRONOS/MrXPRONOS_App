@@ -1,0 +1,164 @@
+name: Mr XPRONOS - genuine V3 daily Top5 exact scores (A + B)
+# Schedules only run from MAIN after the reviewed PR is merged.
+# On this feature branch the push-triggered run is DRY-RUN ONLY.
+on:
+  schedule:
+    - cron: '23 5,11 * * *'
+  workflow_dispatch:
+  push:
+    branches: [feature/onglet-scores-exacts-20261103]
+    paths: ['.github/workflows/exact-scores-v3-daily.yml']
+permissions:
+  contents: write
+concurrency:
+  group: mrx-daily-exact-v3-one-publisher
+  cancel-in-progress: false
+jobs:
+  genuine-hybrid-v3-top5:
+    if: github.repository == 'MrXPRONOS/MrXPRONOS_App'
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+      BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      PYTHONPATH: '.:bsd:v3-engine/research'
+      OPENBLAS_NUM_THREADS: '2'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - name: Checkout site and public publisher
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+      - name: Checkout exactly the audited native Hybrid V3 training engine
+        uses: actions/checkout@v4
+        with:
+          repository: MrXPRONOS/MrXPRONOS_App
+          ref: 110b8543c8d44a24e8484290078f41d34bd7b93b
+          path: v3-engine
+          persist-credentials: false
+      - name: Validate authentic engine source and required secured inputs
+        run: |
+          set -euo pipefail
+          test -n "$BSD_HISTORY_KEY" && test -n "$BSD_API_KEY" && test -n "$ML_V2_HISTORY_KEY_B64"
+          test -s bsd/all_matches_bsd.enc.json
+          test -s v3-engine/research/single_ml_v2.py
+          test -s v3-engine/research/ml_v3_daily_forecast.py
+          test -s v3-engine/research/encrypted_football/manifest.enc
+          test -s scripts/publish_exact_scores.py
+      - name: Only one immutable first Top5 publication each UTC day
+        id: freshness
+        run: |
+          python - <<'PY'
+          import json,os
+          from datetime import datetime,timezone
+          from pathlib import Path
+          p=Path("scores-exacts.json")
+          doc=json.loads(p.read_text(encoding="utf8")) if p.exists() else {}
+          yes=doc.get("status")=="published" and doc.get("date")==datetime.now(timezone.utc).date().isoformat()
+          if yes and os.environ.get("GITHUB_REF")=="refs/heads/main":
+              with open(os.environ["GITHUB_OUTPUT"],"a") as h:h.write("skip=true\n")
+              print("TOP5_ALREADY_PUBLISHED_TODAY",doc.get("date"))
+          else:
+              with open(os.environ["GITHUB_OUTPUT"],"a") as h:h.write("skip=false\n")
+          PY
+      - uses: actions/setup-python@v5
+        if: steps.freshness.outputs.skip != 'true'
+        with:
+          python-version: '3.12'
+      - name: Install EXACT V3 frozen scientific dependencies
+        if: steps.freshness.outputs.skip != 'true'
+        run: python -m pip install numpy scipy scikit-learn requests cryptography lightgbm==4.6.0 catboost==1.2.8
+      - name: Run strict real Hybrid V3 preview and website unit tests
+        if: steps.freshness.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          PYTHONPATH="$PYTHONPATH" python -m unittest v3-engine/research/test_ml_v3_daily_forecast.py -v
+          python -m unittest discover -s tests -p 'test_exact_scores_tab.py' -v
+          python -m py_compile v3-engine/research/single_ml_v2.py v3-engine/research/ml_v3_daily_forecast.py
+          node --check assets/js/scores-exacts.js
+      - name: Restore production encrypted 2024-2026 BSD archive locally
+        if: steps.freshness.outputs.skip != 'true'
+        run: |
+          umask 077
+          python bsd/bsd_archive.py restore
+          test -s bsd/all_matches_bsd.json
+          test -s bsd/backfill_state.json
+      - name: Train actual Hybrid V3 on certified history and create future 11x11 matrices
+        if: steps.freshness.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/mrx-v3-daily
+          if ! python v3-engine/research/ml_v3_daily_forecast.py --out /tmp/mrx-v3-daily --max-bsd-requests 40 > /tmp/mrx-v3-daily/private-train.log 2>&1; then
+            echo "::error::Actual daily Hybrid V3 forecasting failed; refusing site update"
+            grep -E '^(V3_RECENT_BSD_AUDIT|V3_BSD_SCHEDULE_AUDIT|RETRAIN_V3|HYBRID_V3_GENUINE_PROSPECTIVE|DAILY_HYBRID_V3_READY|.*(ValueError|RuntimeError|MemoryError):)' /tmp/mrx-v3-daily/private-train.log | tail -25 || true
+            exit 1
+          fi
+          grep '^HYBRID_V3_GENUINE_PROSPECTIVE ' /tmp/mrx-v3-daily/private-train.log
+          grep '^DAILY_HYBRID_V3_READY ' /tmp/mrx-v3-daily/private-train.log
+          test -s /tmp/mrx-v3-daily/v3_prospective_raw.json
+      - name: Create PUBLIC Top5 using A score-modal and B fixed three-score group mass
+        if: steps.freshness.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          python scripts/publish_exact_scores.py --input /tmp/mrx-v3-daily/v3_prospective_raw.json --out scores-exacts.json
+          python - <<'PY'
+          import json
+          from datetime import datetime,timezone
+          p=json.load(open("scores-exacts.json",encoding="utf8"))
+          today=datetime.now(timezone.utc).date().isoformat()
+          assert p["date"]==today and p["status"]=="published", "No valid daily pre-match predictions"
+          assert len(p["simple"])==5 and len(p["grouped"])==5, "Insufficient verified future fixtures for both Top5"
+          assert p["selection_simple"]=="A_MODAL" and p["selection_grouped"]=="B_GROUP_MASS"
+          assert p["origin"]=="prospective_prematch"
+          forbidden=("actual_score","home_score","away_score","roi","quoted_odds","grid")
+          assert all(x not in json.dumps(p) for x in forbidden), "Private model/result fields leaked"
+          print("VERIFIED_GENUINE_V3_TOP5",today,"simple",len(p["simple"]),"grouped",len(p["grouped"]))
+          PY
+      - name: Publish exact scores ONLY on main, never while previewing branch
+        if: github.ref == 'refs/heads/main' && steps.freshness.outputs.skip != 'true'
+        id: publish
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch --no-tags origin main
+          git show origin/main:scores-exacts.json > /tmp/mrx-v3-current-feed.json
+          if python - <<'PY'
+          import json,datetime
+          from pathlib import Path
+          p=json.loads(Path("/tmp/mrx-v3-current-feed.json").read_text())
+          today=datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+          raise SystemExit(0 if p.get("status")=="published" and p.get("date")==today else 1)
+          PY
+          then
+            echo "Another worker already published a verified Top5 today; refusing overwrite"
+            exit 0
+          fi
+          git add -- scores-exacts.json
+          git diff --cached --quiet && exit 0
+          git commit -m "data(v3): publish verified daily Top5 exact and grouped scores"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "published=true" >> "$GITHUB_OUTPUT"
+      - name: Trigger public Pages deployment after bot-authored data commit
+        if: github.ref == 'refs/heads/main' && steps.publish.outputs.published == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main
+      - name: Store only redacted public Top5 publication as artifact
+        if: success() && steps.freshness.outputs.skip != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mrx-verified-hybrid-v3-top5-${{ github.run_id }}
+          path: scores-exacts.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Delete decrypted history, raw probability grids and intermediate logs
+        if: always()
+        run: |
+          rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+          rm -rf /tmp/mrx-v3-daily
