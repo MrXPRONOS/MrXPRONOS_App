@@ -342,7 +342,7 @@ def fit_btts_model(index, *, rho=0.0, max_training=3600, max_validation=900):
         cap={"league_train":1500,"league_tune":550,"final_holdout":1000}
         for name in folds:
             rows=[]
-            for _at,event in sample([(at,e,None,None) for at,e in folds[name]],cap[name]):
+            for _at,event,_unused1,_unused2 in sample([(at,e,None,None) for at,e in folds[name]],cap[name]):
                 try:
                     forecast=fixture_forecast(event)
                     scores=outcome_scores(event)
