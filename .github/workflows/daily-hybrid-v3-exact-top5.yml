@@ -74,6 +74,8 @@ jobs:
           git fetch --no-tags origin main
           git show origin/main:bsd/all_matches_bsd.enc.json > bsd/all_matches_bsd.enc.json
           python bsd/bsd_archive.py restore
+          # Do not keep a modified encrypted archive in the website Git worktree.
+          git restore -- bsd/all_matches_bsd.enc.json
       - name: Make authentic LIVE prospective Hybrid V3 11x11 forecast grids
         run: |
           set -euo pipefail
