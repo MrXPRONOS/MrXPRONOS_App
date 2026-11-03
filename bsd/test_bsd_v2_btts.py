@@ -108,5 +108,58 @@ class BTTSTests(unittest.TestCase):
         self.assertGreaterEqual(pred["prediction"]["bookmaker_odds"],1.20)
 
 
+    def test_two_team_scoring_challenger_is_complementary_and_point_in_time(self):
+        from bsd_v2_btts_team import team_scoring_probabilities
+        index=V2History(self.history)
+        data=team_scoring_probabilities(self.match,index)
+        self.assertIsNotNone(data)
+        self.assertGreater(data["home_scores"],0)
+        self.assertLess(data["home_scores"],1)
+        self.assertGreater(data["away_scores"],0)
+        self.assertLess(data["away_scores"],1)
+        self.assertAlmostEqual(data["away_scores"]+data["away_blank"],1.)
+        future=dict(self.match,status="finished",home_score=9,away_score=9)
+        second=team_scoring_probabilities(self.match,V2History(self.history+[future]))
+        self.assertEqual(data,second)
+
+    def test_league_deviation_needs_historical_evidence(self):
+        from bsd_v2_btts_league import league_btts_deviation
+        empty=V2History([])
+        self.assertEqual(league_btts_deviation(self.match,empty),0.)
+        self.assertEqual(league_btts_deviation(self.match,V2History(self.history)),0.)
+
+    def test_btts_abstains_on_sparse_or_fallback_history(self):
+        from bsd_v2_btts import btts_quality_rejection
+        okay={"home_recent_matches":12,"away_recent_matches":12,
+            "home_venue_matches":5,"away_venue_matches":5,
+            "league_samples":100,"max_last_match_age_days":5}
+        active=BTTSModel((0.,)*FEATURE_COUNT,.75,100,70)
+        fallback=BTTSModel((0.,)*FEATURE_COUNT,0.,100,70)
+        self.assertEqual(btts_quality_rejection(okay,fallback,.56,.56),"btts_no_active_specialist")
+        self.assertIsNone(btts_quality_rejection(okay,active,.56,.60))
+        self.assertEqual(btts_quality_rejection(dict(okay,away_venue_matches=2),active,.56,.60),
+            "btts_insufficient_venue_form")
+        self.assertEqual(btts_quality_rejection(dict(okay,away_recent_matches=4),active,.56,.60),
+            "btts_insufficient_team_form")
+        self.assertEqual(btts_quality_rejection(okay,active,.40,.70),"btts_models_disagree")
+
+    def test_quality_policy_excludes_btts_without_enough_league_matches(self):
+        from bsd_v2_core import predict_v2
+        class AlwaysPermit:
+            def check_fixture(self,features):return None
+            def check_market(self,choice):return None
+            def family_uncertainty_adjustments(self):return {}
+        baseline=markets_from_matrix(score_matrix(1.4,1.2))
+        yes=next(c for c in baseline if c.key=="BTTS_YES")
+        model=BTTSModel((1.8,)+(0.,)*(FEATURE_COUNT-1),1.0,150,100)
+        audit=[]
+        result,reason=predict_v2(self.match,V2History(self.history),quality_policy=AlwaysPermit(),
+           btts_model=model,odds_by_market={yes.market_code:1.65},
+           require_odds=True,market_audit=audit)
+        self.assertIsNone(result)
+        self.assertTrue(any(row.get("result")=="btts_insufficient_league_form"
+                            for row in audit))
+
+
 if __name__=="__main__":
     unittest.main()
