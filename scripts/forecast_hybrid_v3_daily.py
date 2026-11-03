@@ -12,7 +12,7 @@ import json
 import os
 import sys
 from collections import Counter, defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, datetime, timedelta, timezone
 from itertools import groupby
 from pathlib import Path
@@ -27,6 +27,7 @@ from single_ml_v2_git import key_from_environment
 from single_ml_v2 import (FormState, Match, load_matches, FEATURE_NAMES,
                           poisson_grid, dixon_coles, estimate_dc_rho)
 from single_ml_v2_tune import _validate_rows
+from single_ml_v2_opponents import canonical_name
 from single_ml_v2_hybrid import DEFAULT_DC_WEIGHT
 from single_ml_v3 import (HYBRID_NAME, VERSION as V3_VERSION,
                           fit_hist_v3, hist_v3_grid, hybrid_v3_grid)
@@ -276,6 +277,27 @@ def training_and_state(certified, recent, *, asof):
     }
 
 
+def safe_target_identity(fixture, opponent_state):
+    """Downgrade conflicting *prospective* provider IDs to league-local identity.
+
+    This is the same no-fuzzy, no-leakage fallback used for historically
+    ambiguous source IDs, and never changes the historical fitted model.
+    """
+    names = opponent_state.provider_names
+    updates = {}
+    for side in ("home", "away"):
+        val = getattr(fixture, side + "_id")
+        if val is None:
+            continue
+        prior = names.get(("global-provider-id", val))
+        if prior is not None and prior != canonical_name(getattr(fixture, side)):
+            updates[side + "_id"] = None
+    if fixture.home_id is not None and fixture.home_id == fixture.away_id:
+        updates["home_id"] = None
+        updates["away_id"] = None
+    return replace(fixture, **updates) if updates else fixture, len(updates)
+
+
 def forecast_day(*, now, source_rows, recent_rows, events):
     """Pure prediction function: no network, results or output writes."""
     if now.tzinfo is None:
@@ -293,7 +315,10 @@ def forecast_day(*, now, source_rows, recent_rows, events):
             raise ValueError("Duplicate current match event ID")
         fixtures[fixture.key] = (fixture,kickoff)
     records=[]
+    name_conflicts_downgraded = 0
     for fixture,kickoff in sorted(fixtures.values(),key=lambda r:(r[1],r[0].key)):
+        fixture, downgraded = safe_target_identity(fixture, state.opponent_state)
+        name_conflicts_downgraded += downgraded
         f=state.features(fixture)
         p0=poisson_grid(f["h"],f["a"])
         dc=dixon_coles(f["h"],f["a"],rho)
@@ -310,6 +335,7 @@ def forecast_day(*, now, source_rows, recent_rows, events):
             "model_fit_latest_day":str(fit_day),
             "grid":final.tolist(),
         })
+    info["future_club_ids_downgraded_to_local"] = name_conflicts_downgraded
     return records, info
 
 
