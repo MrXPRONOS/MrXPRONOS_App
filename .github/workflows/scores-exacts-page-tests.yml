@@ -2,7 +2,28 @@ name: Scores exacts Top5 - safe page and prematch feed tests
 on:
   push:
     branches: [feature/onglet-scores-exacts-20261103]
-    paths: ['.github/workflows/scores-exacts-page-tests.yml']
+    paths:
+      - '.github/workflows/scores-exacts-page-tests.yml'
+      - 'scores-exacts.html'
+      - 'scores-exacts.json'
+      - 'assets/js/scores-exacts.js'
+      - 'assets/css/scores-exacts.css'
+      - 'assets/js/menu.js'
+      - 'scripts/publish_exact_scores.py'
+      - 'tests/test_exact_scores_tab.py'
+      - 'manifest.json'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scores-exacts.html'
+      - 'scores-exacts.json'
+      - 'assets/js/scores-exacts.js'
+      - 'assets/css/scores-exacts.css'
+      - 'assets/js/menu.js'
+      - 'scripts/publish_exact_scores.py'
+      - 'tests/test_exact_scores_tab.py'
+      - 'service-worker.js'
+      - 'manifest.json'
   workflow_dispatch:
 permissions:
   contents: read
