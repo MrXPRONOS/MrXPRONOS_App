@@ -193,7 +193,7 @@ def _train_logistic(rows, epochs=220):
     return tuple(weights)
 
 
-def fit_btts_model(index, *, rho=0.0, max_training=1800, max_validation=450):
+def fit_btts_model(index, *, rho=0.0, max_training=3600, max_validation=900):
     """2024 time-split fit and validation; V2 keeps Poisson if BTTS model worse."""
     training, validation = [], []
     for _timestamp,event in index.global_games:
@@ -214,6 +214,7 @@ def fit_btts_model(index, *, rho=0.0, max_training=1800, max_validation=450):
             continue
     training.sort(key=lambda t:t[0])
     validation.sort(key=lambda t:t[0])
+    available_train,available_validation=len(training),len(validation)
     def sample(items, n):
         if len(items) <= n:
             return items
@@ -272,5 +273,8 @@ def fit_btts_model(index, *, rho=0.0, max_training=1800, max_validation=450):
         "training_period":"2024-01 to 2024-08",
         "validation_period":"2024-09 to 2024-12",
         "trained":len(training),"validated":len(observed),
+        "available_training":available_train,
+        "available_validation":available_validation,
+        "train_vs_validation_leakage":False,
         "blend":chosen,**stats,
     }
