@@ -159,10 +159,10 @@ def main():
     args = parser.parse_args()
     src = json.loads(args.input.read_text(encoding="utf8"))
     now = datetime.now(timezone.utc)
-    generated_at = args.asof or now.replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    generated_at = args.asof or src.get("generated_at")
     timestamp = parse_utc(generated_at)
-    if timestamp > now.replace(microsecond=0) and not args.asof:
-        raise ValueError("Future publication time")
+    if not args.asof and (timestamp > now or timestamp.date() != now.date()):
+        raise ValueError("Only forecasts generated today in UTC may be published")
     result = build_feed(src, generated_at=generated_at)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     tmp = args.out.with_suffix(args.out.suffix + ".tmp")
