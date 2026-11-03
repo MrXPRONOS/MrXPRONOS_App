@@ -18,7 +18,8 @@ class StubCalibrator:
     def score(self,c):return (.0,c.probability,100)
 def make_c(key,family,probability):
     return Candidate(key,key.lower(),"yes" if key.endswith("YES") else "over",
-                     key.replace("_"," "),family,probability,None)
+                     key.replace("_"," "),family,probability,
+                     2.5 if key=="OVER_25" else 3.5 if key=="UNDER_35" else None)
 
 class IndicativeAnalysisTests(unittest.TestCase):
     def test_honest_60_percent_price_is_not_120(self):
