@@ -11,7 +11,7 @@ import requests
 from bsd_h2h import _utc
 from bsd_v2_estimated_odds import valid_standalone_prediction
 from bsd_v2_publication_policy import eligible_feed_match, eligible_feed_selection
-from bsd_v2_card import render as render_card
+from bsd_v2_tier_visual import render_ultra as render_card
 from bsd_v2_captions import single_caption,combo_caption,PARSE_MODE
 from bsd_v2_combos import combo_ledger_ref
 from bsd_v2_night import is_night_match,matches_for_night,batch_date
@@ -27,7 +27,7 @@ BOOKMAKERS_URL="https://mrxpronos.github.io/MrXPRONOS_App/bookmakers.html"
 
 def action_buttons():
     return {"inline_keyboard":[
-        [{"text":"Voir plus de coupons 🔥","url":URL}],
+        [{"text":"Voir les catégories ⚽","url":URL}],
         [{"text":"S’inscrire ou réinitialiser son compte 🎯","url":BOOKMAKERS_URL}],
     ]}
 
@@ -79,7 +79,7 @@ def due(matches,now,min_minutes=60,max_minutes=120):
         delta=(dt-now).total_seconds()/60
         if m.get("recommendation_eligible") is not True:continue
         picks=[m.get("prediction") or {},*((m.get("predictions") or [])[1:2])]
-        valid_price=any(p.get("recommendation_eligible") is True and eligible_feed_selection(m,p) and valid_standalone_prediction(p,False) and p.get("odds",0)>1.50
+        valid_price=any(p.get("recommendation_eligible") is True and eligible_feed_selection(m,p) and valid_standalone_prediction(p,False) and p.get("odds",0)>=1.20
                         for p in picks if isinstance(p,dict))
         if (min_minutes<=delta<max_minutes and valid_price
                 ):
@@ -105,7 +105,7 @@ def expand_tickets(match):
         if (match.get("recommendation_eligible") is not True or
                 not eligible_feed_selection(match,p) or
                 p.get("recommendation_eligible") is not True or
-                not valid_standalone_prediction(p,False) or p["odds"]<=1.50):
+                not valid_standalone_prediction(p,False) or p["odds"]<1.20):
             continue
         variant={**match,"prediction":p}
         if idx:
@@ -153,11 +153,8 @@ def send_one(session,token,chat_id,match,*,night=False):
     from tempfile import TemporaryDirectory
     with TemporaryDirectory() as directory:
         image=render_card(match,Path(directory)/"coupon.png")
-        from bsd_v2_telegram_banner import attach_banner
         pack=partner_pack()
-        image=attach_banner(image,pack=pack)
-        tier=str((match.get("prediction") or {}).get("signal_tier") or match.get("signal_tier") or "QUALIFIE")
-        caption=("🏅 " + tier + "\n" + single_caption(match,night=night))
+        caption=single_caption(match,night=night)
         markup=prediction_action_buttons(pack)
         return post_photo(session,token,chat_id,image,caption,markup,timeout=60)
 
@@ -170,9 +167,7 @@ def send_combo(session,token,chat,combo,*,night=False):
     from bsd_v2_combo_card import render_combo
     with TemporaryDirectory() as directory:
         photo=render_combo(combo,Path(directory)/"combine.png",session=session)
-        from bsd_v2_telegram_banner import attach_banner
         pack=partner_pack()
-        photo=attach_banner(photo,pack=pack)
         caption=combo_caption(combo,night=night)
         return post_photo(session,token,chat,photo,caption,prediction_action_buttons(pack),timeout=60)
 
