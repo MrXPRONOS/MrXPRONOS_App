@@ -1141,7 +1141,7 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         print("PREMATCH_V3_GROUP_MASS_EXPORT",json.dumps({
             "rows":len(v3_group_mass_rows), "labels_in_feature_csv":False,
             "file":str(Path(out)/"hybrid_v3_group_mass.csv")}),flush=True)
-    print("FINAL_BACKTEST_RESULTS", json.dumps(report, ensure_ascii=False)
+    print("FINAL_BACKTEST_RESULTS", json.dumps(report, ensure_ascii=False), flush=True)
     return summary
 
 
