@@ -6,7 +6,7 @@ from scripts.resolve_bsd_leagues import resolve_league_labels, event_label, leag
 
 
 def future(ident, *, name=None):
-    return {"id":int(ident)*100, "status":"notstarted",
+    return {"id":int(ident)*100 if ident is not None else 100, "status":"notstarted",
             "league_id":ident,"league_name":name,
             "home_team":"Example FC","away_team":"Away United",
             "event_date":"2026-11-03T21:00:00Z"}
