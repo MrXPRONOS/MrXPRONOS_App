@@ -37,7 +37,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: MrXPRONOS/MrXPRONOS_App
-          ref: 110b8543c8d44a24e8484290078f41d34bd7b93b
+          ref: 4fc2e1c685100e788236e8a44955cb8cef3c4080
           path: v3-engine
           persist-credentials: false
       - name: Validate authentic engine source and required secured inputs
