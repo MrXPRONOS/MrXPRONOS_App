@@ -277,6 +277,8 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
             "btts":(.016,.022,.018,.022),
             "goals":(.014,.020,.018,.022),
             "result":(.012,.025,.020,.025),
+            "team_goals":(.014,.020,.018,.022),
+            "asian_handicap":(.012,.022,.018,.025),
         }
         base, league_penalty, form_penalty, edge = profiles.get(c.family, profiles["result"])
         uncertainty = (base + (league_penalty if league_samples < 30 else 0)
@@ -343,7 +345,7 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
                btts_model=None, total_model=None, dc_model=None,
                market_audit=None, allow_combo_prices=False,
                selection_adjustments=None, prospective_family_adjustments=None,
-                selection_conservative_minimums=None):
+                selection_conservative_minimums=None, extra_market_model=None):
     if str(event.get("status") or "").lower() not in ("notstarted", "upcoming"):
         return None, "not_upcoming"
     if event.get("id") is None:
@@ -361,7 +363,8 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
         rejection = quality_policy.check_fixture(expected)
         if rejection:
             return None, rejection
-    candidates = markets_from_matrix(score_matrix(expected["home"], expected["away"], rho))
+    match_scores=score_matrix(expected["home"], expected["away"], rho)
+    candidates = markets_from_matrix(match_scores)
     total_model_agreement = None
     if total_model is not None:
         from bsd_v2_over_under import adjust_candidates, uncertainty
@@ -400,6 +403,10 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
                                  getattr(calibration,"outcome_calibration",None))
         if risk:
             candidates=[c for c in candidates if c.family!="double_chance"]
+    # Chronologically fitted, separately validated full-time markets only.
+    # DNB (refund) and HT (missing period scores) never enter public ranking.
+    if extra_market_model is not None:
+        candidates.extend(extra_market_model.candidates(event,expected,match_scores))
     choice, all_options = choose_market(
         candidates, calibration=calibration, odds_by_market=odds_by_market,
         mode=mode, league_samples=expected["league_samples"],
@@ -411,7 +418,7 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
             family: (quality_policy.family_uncertainty_adjustments().get(family,0.)
                      if quality_policy is not None and hasattr(quality_policy,"family_uncertainty_adjustments") else 0.)
                     + (prospective_family_adjustments or {}).get(family,0.)
-            for family in ("double_chance","btts","goals","result")
+            for family in ("double_chance","btts","goals","result","team_goals","asian_handicap")
         },
         selection_adjustments=selection_adjustments,
         family_minimums=MIN_CONSERVATIVE_BY_FAMILY,
