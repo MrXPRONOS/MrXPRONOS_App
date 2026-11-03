@@ -179,6 +179,22 @@
     }
   }
 
+  // Keep the shared header promo button usable without loading the full
+  // pronostics engine or fetching unrelated production data.
+  const promo = document.querySelector('.mx-code-button');
+  promo?.addEventListener('click', async () => {
+    const value = promo.querySelector('strong')?.textContent?.trim() || 'XPVIP';
+    if (!value || !navigator.clipboard?.writeText) return;
+    try {
+      await navigator.clipboard.writeText(value);
+      const original = promo.getAttribute('aria-label') || 'Code promo XPVIP';
+      promo.setAttribute('aria-label', 'Code promo copié');
+      window.setTimeout(() => promo.setAttribute('aria-label', original), 1600);
+    } catch (_) {
+      // The code remains visibly readable if clipboard access is blocked.
+    }
+  });
+
   const buttons = Array.from(document.querySelectorAll('[data-scores-mode]'));
   const panels = Array.from(document.querySelectorAll('[data-scores-panel]'));
   buttons.forEach(btn => btn.addEventListener('click', () => {
