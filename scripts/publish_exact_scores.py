@@ -10,7 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
-from datetime import datetime, timezone, date
+from datetime import datetime, timezone, date, timedelta
 from pathlib import Path
 
 SCHEMA = "mrx-exact-top5-v1"
@@ -77,7 +77,8 @@ def grid_summary(grid):
     return score, modal, group, group_mass
 
 
-def validated_forecast(raw, generated):
+def validated_forecast(raw, generated, target_date=None):
+    target_date = target_date or generated.date()
     if not isinstance(raw, dict) or FORBIDDEN.intersection(raw):
         raise ValueError("Results/postmatch fields are NOT allowed in the prematch feed")
     if raw.get("model") != MODEL:
@@ -92,7 +93,7 @@ def validated_forecast(raw, generated):
         raise ValueError("Invalid fixture identity or team labels")
     kickoff_raw = raw.get("kickoff_utc")
     kickoff = parse_utc(kickoff_raw)
-    if kickoff.date() != generated.date() or kickoff <= generated:
+    if kickoff.date() != target_date or kickoff <= generated:
         return None  # Started/earlier fixtures never appear as new picks.
     day_before(raw.get("model_fit_latest_day"), generated)
     day_before(raw.get("history_latest_day"), generated)
@@ -107,8 +108,11 @@ def validated_forecast(raw, generated):
     return simple, grouped, prob, group_mass
 
 
-def build_feed(source, *, generated_at):
+def build_feed(source, *, generated_at, target_date=None):
     when = parse_utc(generated_at)
+    target_date = target_date or when.date()
+    if target_date not in (when.date(), when.date()+timedelta(days=1)):
+        raise ValueError("Only the current and next UTC date may be forecast prospectively")
     if not isinstance(source, dict) or source.get("model") != MODEL:
         raise ValueError("Input must declare exact Hybrid V3 model")
     # Prevent rebranding a settled or synthetic archive as a prospective feed.
@@ -128,7 +132,7 @@ def build_feed(source, *, generated_at):
         if raw.get("id") in ids:
             raise ValueError("Duplicate fixture id")
         ids.add(raw.get("id"))
-        row = validated_forecast(raw, when)
+        row = validated_forecast(raw, when, target_date=target_date)
         if row is None:
             continue
         simple, grouped, score_prob, group_prob = row
@@ -140,7 +144,7 @@ def build_feed(source, *, generated_at):
     return {
         "schema_version": SCHEMA, "model": MODEL,
         "status": "published" if top_a or top_b else "unavailable",
-        "date": when.date().isoformat(), "generated_at": generated_at,
+        "date": target_date.isoformat(), "generated_at": generated_at,
         "origin": "prospective_prematch",
         "selection_simple": "A_MODAL",
         "selection_grouped": "B_GROUP_MASS",
