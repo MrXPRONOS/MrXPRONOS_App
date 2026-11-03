@@ -16,6 +16,7 @@
   if (!status || !simpleRoot || !groupedRoot) return;
 
   const todayUTC = () => new Date().toISOString().slice(0, 10);
+  const utcDay = (offset = 0) => new Date(Date.parse(todayUTC() + 'T00:00:00Z') + offset * 86400000).toISOString().slice(0, 10);
   const isScore = (s) => typeof s === 'string' && /^(?:10|[0-9]):(?:10|[0-9])$/.test(s);
   const text = (value) => String(value == null ? '' : value);
   const pct = (p) => (100 * p).toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' %';
@@ -68,14 +69,15 @@
     return p.group === undefined && p.group_scores === undefined;
   }
 
-  function validate(payload) {
-    if (!payload || payload.status === 'unavailable') return { available: false, message: 'Aucune sélection Hybride V3 vérifiée n’a encore été publiée pour aujourd’hui.' };
+  function validate(payload, requestedDay) {
+    if (!payload || payload.status === 'unavailable') return { available: false, message: 'Aucune sélection Hybride V3 vérifiée publiée pour le ' + niceDate(requestedDay) + '.' };
     if (payload.schema_version !== VERSION || payload.model !== MODEL || payload.status !== 'published')
       return { available: false, message: 'Format des prévisions non reconnu. Publication indisponible.' };
-    const today = todayUTC();
+    const today = requestedDay;
     if (!validDate(payload.date) || payload.date !== today)
-      return { available: false, message: 'Aucune sélection publiée pour aujourd’hui. Les anciennes prévisions ne sont pas réutilisées.' };
-    if (!isoTime(payload.generated_at) || payload.generated_at.slice(0, 10) !== today ||
+      return { available: false, message: 'La date du fichier ne correspond pas à la journée sélectionnée.' };
+    const prior = new Date(Date.parse(today + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10);
+    if (!isoTime(payload.generated_at) || ![today, prior].includes(payload.generated_at.slice(0, 10)) ||
         Date.parse(payload.generated_at) > Date.now() + 60000)
       return { available: false, message: 'La date de génération des pronostics n’est pas valide.' };
     if (!Array.isArray(payload.simple) || !Array.isArray(payload.grouped) ||
@@ -110,6 +112,11 @@
       make('time', 'mx-score-time', clock(p.kickoff_utc) + ' UTC')
     );
     top.lastChild.dateTime = p.kickoff_utc;
+    const kickoffPassed = Date.parse(p.kickoff_utc) <= Date.now();
+    if (kickoffPassed) {
+      top.lastChild.classList.add('is-started');
+      top.append(make('span', 'mx-score-foot-label is-archive', 'Coup d’envoi passé'));
+    }
     const match = make('div', 'mx-score-match');
     const middle = make('div', 'mx-score-score');
     middle.append(
@@ -149,46 +156,77 @@
     picks.forEach((p, i) => root.append(card(p, i + 1, mode)));
   }
 
+
   let activePayload = null;
-  function renderUpcoming(p) {
-    // Even if the page stays open during the day, do not keep showing games
-    // after kickoff as if the pick were still available.
-    const now = Date.now();
-    const simple = p.simple.filter(item => Date.parse(item.kickoff_utc) > now);
-    const grouped = p.grouped.filter(item => Date.parse(item.kickoff_utc) > now);
-    paint(simpleRoot, simple, 'simple');
-    paint(groupedRoot, grouped, 'grouped');
-    document.getElementById('simple-count').textContent = simple.length + ' / 5';
-    document.getElementById('grouped-count').textContent = grouped.length + ' / 5';
-    document.getElementById('scores-updated').textContent = 'Généré le ' + niceDate(p.date) + ' à ' + clock(p.generated_at) + ' UTC';
-    setStatus(simple.length || grouped.length
-      ? 'Sélections pré-match vérifiées · ' + simple.length + ' score(s) simple(s), ' + grouped.length + ' groupe(s) avant coup d’envoi.'
-      : 'Tous les matchs de cette publication ont commencé. Aucune nouvelle sélection disponible.',
-      simple.length || grouped.length ? 'ready' : 'unavailable');
+  let selectedOffset = 0;
+  let requestSerial = 0;
+  const dayButtons = Array.from(document.querySelectorAll('[data-scores-day]'));
+
+  function renderDay(p) {
+    // Past published predictions remain visible as dated archives,
+    // never presented as currently bettable after kickoff.
+    const started = [...p.simple, ...p.grouped].filter(item => Date.parse(item.kickoff_utc) <= Date.now()).length;
+    paint(simpleRoot, p.simple, 'simple');
+    paint(groupedRoot, p.grouped, 'grouped');
+    document.getElementById('simple-count').textContent = p.simple.length + ' / 5';
+    document.getElementById('grouped-count').textContent = p.grouped.length + ' / 5';
+    document.getElementById('scores-updated').textContent =
+      'Généré le ' + niceDate(p.generated_at.slice(0, 10)) + ' à ' + clock(p.generated_at) + ' UTC';
+    const historical = selectedOffset < 0 || started > 0;
+    const state = historical ? 'archive' : 'ready';
+    const label = selectedOffset < 0 ? 'Archive de pronostics pré-match' :
+      selectedOffset > 0 ? 'Prévisions prospectives pour demain' : 'Sélections pré-match du jour';
+    setStatus(label + ' · ' + p.simple.length + ' score(s) simple(s), ' +
+      p.grouped.length + ' groupe(s).' +
+      (historical ? ' Les matchs dont le coup d’envoi est passé ne sont plus à parier.' : ''),
+      state);
   }
 
   async function load() {
-    document.getElementById('scores-date').textContent = 'Sélections du ' + niceDate(todayUTC());
+    const ownRequest = ++requestSerial;
+    const requestedDay = utcDay(selectedOffset);
+    document.getElementById('scores-date').textContent = 'Sélections du ' + niceDate(requestedDay);
     try {
-      const res = await fetch('scores-exacts.json?t=' + Date.now(), {
+      const res = await fetch('scores-exacts-daily/' + requestedDay + '.json?t=' + Date.now(), {
         cache: 'no-store', headers: { Accept: 'application/json' }
       });
-      if (!res.ok) throw new Error('Impossible de charger le flux');
-      const result = validate(await res.json());
+      if (ownRequest !== requestSerial) return;
+      if (!res.ok) throw new Error('Missing verified daily archive');
+      const result = validate(await res.json(), requestedDay);
+      if (ownRequest !== requestSerial) return;
       if (!result.available) {
+        activePayload = null;
         setStatus(result.message, 'unavailable');
-        renderEmpty(simpleRoot, 'Top 5 scores simples indisponible pour le moment.');
-        renderEmpty(groupedRoot, 'Top 5 paris groupés indisponible pour le moment.');
+        renderEmpty(simpleRoot, 'Aucun Top 5 simple vérifié pour cette date.');
+        renderEmpty(groupedRoot, 'Aucun Top 5 groupé vérifié pour cette date.');
+        document.getElementById('simple-count').textContent = '0 / 5';
+        document.getElementById('grouped-count').textContent = '0 / 5';
         return;
       }
       activePayload = result.payload;
-      renderUpcoming(activePayload);
+      renderDay(activePayload);
     } catch (_) {
-      setStatus('Sélections indisponibles : impossible de vérifier les données du jour. Réessayez plus tard.', 'unavailable');
-      renderEmpty(simpleRoot, 'Aucun pronostic vérifié actuellement disponible.');
-      renderEmpty(groupedRoot, 'Aucun pronostic groupé vérifié actuellement disponible.');
+      if (ownRequest !== requestSerial) return;
+      activePayload = null;
+      setStatus('Pas de publication vérifiée pour le ' + niceDate(requestedDay) + '.', 'unavailable');
+      renderEmpty(simpleRoot, 'Les scores exacts ne sont pas encore disponibles pour cette journée.');
+      renderEmpty(groupedRoot, 'Les paris groupés ne sont pas encore disponibles pour cette journée.');
+      document.getElementById('simple-count').textContent = '0 / 5';
+      document.getElementById('grouped-count').textContent = '0 / 5';
     }
   }
+
+  dayButtons.forEach(btn => btn.addEventListener('click', () => {
+    selectedOffset = Number(btn.dataset.scoresDay);
+    dayButtons.forEach(b => {
+      const active = b === btn;
+      b.classList.toggle('is-active', active);
+      b.setAttribute('aria-pressed', String(active));
+    });
+    activePayload = null;
+    setStatus('Vérification des pronostics de cette journée…', 'loading');
+    load();
+  }));
 
   // Keep the shared header promo button usable without loading the full
   // pronostics engine or fetching unrelated production data.
@@ -222,18 +260,19 @@
     }
   }));
 
-  // Refresh when a visitor returns to this tab or keeps the app open.
-  // Never reuse yesterday's published Top5 after UTC midnight.
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) load();
-  });
+  // Refresh each selected calendar date when returning to the site.
+  // At midnight, relative tabs roll forward, without treating old scores as new.
+  let lastDay = todayUTC();
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
   window.setInterval(() => {
-    if (!document.hidden) load();
-  }, 15 * 60 * 1000);
-  load();
-  window.setInterval(() => {
-    if (activePayload && activePayload.date === todayUTC()) renderUpcoming(activePayload);
-    else if (!document.hidden) load();
+    if (document.hidden) return;
+    if (todayUTC() !== lastDay) {
+      lastDay = todayUTC();
+      load();
+    } else if (activePayload) {
+      renderDay(activePayload);
+    }
   }, 60000);
   window.setInterval(() => { if (!document.hidden) load(); }, 15 * 60000);
+  load();
 })();
