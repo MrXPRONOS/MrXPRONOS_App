@@ -99,7 +99,7 @@ class TestLiveV3(unittest.TestCase):
             self.assertNotIn(forbidden,results[0])
 
     def test_mismatched_fixture_or_future_time_is_rejected(self):
-        with self.assertRaisesRegex(ValueError,"timezone"):
+        with self.assertRaisesRegex(ValueError,"[Tt]imezone"):
             parse_iso("2026-11-03T18:00:00")
         self.assertIsNone(extract_fixture(match(status="inprogress"),now=NOW))
         self.assertIsNone(namespace_id("0007"))
