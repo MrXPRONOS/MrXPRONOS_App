@@ -167,7 +167,8 @@ def generate_daily(*, out, max_bsd_requests=40):
     if not future:
         raise ValueError("BSD source returned no genuinely upcoming fixtures; no publication")
     key=key_from_environment()
-    source=certified_rows(key)
+    audit_root=Path(__file__).resolve().parent
+    source=certified_rows(key,root=audit_root/"encrypted_football",audit_root=audit_root)
     historical=check_ml_loader(source)
     source.clear()
     del source
