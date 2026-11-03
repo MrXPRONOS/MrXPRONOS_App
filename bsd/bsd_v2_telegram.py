@@ -166,7 +166,7 @@ def send_combo(session,token,chat,combo,*,night=False):
     from tempfile import TemporaryDirectory
     from bsd_v2_combo_card import render_combo
     with TemporaryDirectory() as directory:
-        photo=render_combo(combo,Path(directory)/"combine.png",session=session)
+        photo=render_combo(combo,Path(directory)/"combine.png")
         pack=partner_pack()
         caption=combo_caption(combo,night=night)
         return post_photo(session,token,chat,photo,caption,prediction_action_buttons(pack),timeout=60)
