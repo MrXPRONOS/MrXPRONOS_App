@@ -126,6 +126,7 @@ class BTTSModel:
     blend: float = 0.0
     train_count: int = 0
     validation_count: int = 0
+    team_blend: float = 0.0
 
     def predict_specialized(self, features):
         if features is None:
@@ -135,17 +136,24 @@ class BTTSModel:
         return _clamp(_sigmoid(sum(w*x for w,x in zip(self.weights,features))))
 
     def predict(self, event, index, baseline_probability):
-        if self.blend<=0:
+        if self.blend<=0 and self.team_blend<=0:
             return baseline_probability
         features = btts_features(event,index)
         p = self.predict_specialized(features)
         if p is None:
             return baseline_probability
-        return _clamp((1.0-self.blend)*baseline_probability + self.blend*p)
+        combined = (1.0-self.blend)*baseline_probability + self.blend*p
+        if self.team_blend>0:
+            from bsd_v2_btts_team import team_scoring_probabilities
+            team = team_scoring_probabilities(event,index)
+            if team is not None:
+                combined=(1.0-self.team_blend)*combined + self.team_blend*team['btts_yes']
+        return _clamp(combined)
 
     def to_dict(self):
         return {"version":"btts-model-1","weights":list(self.weights),
-                "blend":self.blend,"train_count":self.train_count,
+                "blend":self.blend,"team_blend":self.team_blend,
+                "train_count":self.train_count,
                 "validation_count":self.validation_count}
 
 
@@ -217,21 +225,37 @@ def fit_btts_model(index, *, rho=0.0, max_training=1800, max_validation=450):
         p0=next(c.probability for c in markets_from_matrix(
             score_matrix(expected["home"],expected["away"],rho)) if c.key=="BTTS_YES")
         p1=provisional.predict_specialized(features)
-        observed.append((p0,p1,y))
-    def loss(blend):
-        return sum(((1-blend)*p0+blend*p1-y)**2 for p0,p1,y in observed)/len(observed)
+        from bsd_v2_btts_team import team_scoring_probabilities
+        team=team_scoring_probabilities(event,index)
+        observed.append((p0,p1,y,team['btts_yes'] if team else None))
+    def loss(blend, team_blend=0.0):
+        total=0.0
+        for p0,p1,y,pteam in observed:
+            mixed=(1-blend)*p0 + blend*p1
+            if pteam is not None:
+                mixed=(1-team_blend)*mixed + team_blend*pteam
+            total+=(mixed-y)**2
+        return total/len(observed)
     if len(training)<100 or len(observed)<50:
         chosen=0.0
+        chosen_team=0.0
         stats={"reason":"insufficient_2024_training_or_validation"}
     else:
         candidates=(0.0,.25,.50,.75,1.0)
         best=min(candidates,key=loss)
         chosen=best if loss(best) <= loss(0.0)-.001 else 0.0
+        team_candidates=(0.0,.25,.50,.75,1.0)
+        best_team=min(team_candidates,key=lambda b:loss(chosen,b))
+        # A challenger is deployed only if it beats the selected original
+        # model by a material margin on the untouched 2024 validation fold.
+        chosen_team=best_team if loss(chosen,best_team)<=loss(chosen)-.002 else 0.0
         stats={"poisson_validation_brier":round(loss(0.0),6),
                "specialized_validation_brier":round(loss(1.0),6),
-               "chosen_validation_brier":round(loss(chosen),6),
+               "chosen_validation_brier":round(loss(chosen,chosen_team),6),
+               "original_validation_brier":round(loss(chosen),6),
+               "team_blend":chosen_team,
                "validation_observations":len(observed)}
-    return BTTSModel(weights,chosen,len(training),len(observed)),{
+    return BTTSModel(weights,chosen,len(training),len(observed),chosen_team),{
         "training_period":"2024-01 to 2024-08",
         "validation_period":"2024-09 to 2024-12",
         "trained":len(training),"validated":len(observed),
