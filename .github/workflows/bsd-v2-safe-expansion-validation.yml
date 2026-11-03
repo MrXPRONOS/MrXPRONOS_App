@@ -36,7 +36,7 @@ jobs:
           mkdir -p tmp/expansion-dryrun/bsd
           cp data.json tmp/expansion-dryrun/data.json
           cp bsd/publication_ledger.json tmp/expansion-dryrun/bsd/publication_ledger.json
-          python bsd/bsd_v2_publish.py --output tmp/expansion-dryrun/data.json --max-requests 900 --max-odds-events 80
+          python bsd/bsd_v2_publish.py --output tmp/expansion-dryrun/data.json --max-requests 900 --max-odds-events 5
           python - <<'PY'
           import json
           from bsd.bsd_v2_publication_policy import eligible_feed_match
