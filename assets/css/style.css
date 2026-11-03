@@ -3735,3 +3735,20 @@ body.mx-overlay-open{
 .mx-market-range-footnote{margin:18px 0 0;font-size:.8rem;line-height:1.6;color:#acc4d2}
 @media(max-width:920px){.mx-market-range-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.mx-market-range-section{margin:26px 0 35px;padding:17px 13px;border-radius:15px}.mx-market-range-grid{grid-template-columns:1fr}.mx-market-range-card{padding:15px}.mx-market-range-header{gap:10px}}
+
+/* Mr XPRONOS: four-category unified football hierarchy (November 2026). */
+.pronostic-category-tabs{display:flex;gap:9px;flex-wrap:wrap;align-items:stretch}
+.pronostic-category-tabs .tab-btn{flex:1 1 170px;min-width:0;display:flex;align-items:center;justify-content:center;gap:9px;white-space:nowrap;border-radius:14px;transition:background-color .2s,border-color .2s,box-shadow .2s,transform .2s}
+.pronostic-category-tabs .tab-btn.active{box-shadow:0 6px 22px rgba(24,100,155,.18)}
+.pronostic-category-tabs .tab-btn:focus-visible{outline:3px solid #5ab8ff;outline-offset:3px}
+.pronostic-category-tabs .tab-count{font-variant-numeric:tabular-nums}
+#matches-container[hidden],.mx-market-range-section[hidden]{display:none!important}
+.mx-market-range-section{scroll-margin-top:95px}
+.mx-market-range-card{position:relative;border:1px solid rgba(114,168,205,.32);transition:border-color .18s,transform .18s,box-shadow .18s}
+.mx-market-range-card:hover{border-color:#78b7df;transform:translateY(-2px);box-shadow:0 14px 26px rgba(0,0,0,.19)}
+.mx-range-tier{align-self:flex-start;display:inline-flex;align-items:center;font-size:.74rem;letter-spacing:.08em;font-weight:800;color:#d8eefb;background:rgba(34,143,219,.20);border:1px solid rgba(92,185,244,.46);padding:5px 10px;border-radius:999px}
+.mx-market-range-card--cotes15 .mx-range-tier{background:rgba(240,131,53,.13);border-color:rgba(242,163,88,.42);color:#ffce9e}
+.mx-market-range-header>p{max-width:700px}
+.badge-premium{letter-spacing:.02em}
+@media(max-width:760px){.pronostic-category-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.pronostic-category-tabs .tab-btn{width:100%;min-width:0;white-space:normal;flex:none;min-height:54px;padding:8px 9px;line-height:1.23}.pronostic-category-tabs .category-icon{flex-shrink:0}.mx-market-range-section{margin-top:16px}}
+@media(max-width:400px){.pronostic-category-tabs .tab-btn{font-size:.85rem;gap:5px}.pronostic-category-tabs .category-label{font-size:.83rem}.pronostic-category-tabs .tab-count{font-size:.79rem}}
