@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import tempfile
 from datetime import date, datetime, timedelta, timezone
@@ -24,6 +25,22 @@ DAILY_HISTORY_SUBDIR = Path("research/score_v3_encrypted_daily")
 MODEL_REF = "research/single-ml-v2-20261024"
 MAX_DAYS_BACKFILL_PER_RUN = 60
 MIN_CERTIFIED_MATCHES_PER_DAY = 1
+
+def sportdata_source_identity(value):
+    """Match the research model's strict, provider-scoped ID vocabulary.
+
+    The audited archive's safe_source_identities() uses this same prefix for
+    sportsapipro_v1_allscores. An invalid/missing provider identifier falls back
+    to local-league identity instead of an unsafe cross-club join.
+    """
+    if value is None or isinstance(value, bool):
+        return None
+    raw = str(value).strip()
+    if (not raw or raw.casefold() in {"none", "null", "unknown", "0"}
+            or not re.fullmatch(r"[A-Za-z0-9_-]+", raw)):
+        return None
+    return "src_sportsapipro_v1_allscores_" + raw
+
 REPLAY_WARMUP_DAYS = 65
 
 
@@ -102,12 +119,9 @@ def historical_daily_rows(history_dir, last_day, *, fetcher, normalizer, sealer,
                 raise RuntimeError("Repeated football fixture across completed days")
             seen.add(key_id)
             record["id"]=key_id
-            record["source_home_team_id"] = ("sportsapipro:" + str(record["source_home_team_id"])
-                     if record.get("source_home_team_id") is not None else None)
-            record["source_away_team_id"] = ("sportsapipro:" + str(record["source_away_team_id"])
-                     if record.get("source_away_team_id") is not None else None)
-            record["source_competition_id"] = ("sportsapipro:" + str(record["source_competition_id"])
-                     if record.get("source_competition_id") is not None else None)
+            record["source_home_team_id"] = sportdata_source_identity(record.get("source_home_team_id"))
+            record["source_away_team_id"] = sportdata_source_identity(record.get("source_away_team_id"))
+            record["source_competition_id"] = sportdata_source_identity(record.get("source_competition_id"))
             all_rows.append(record)
         daily_counts.append({"date":str(day),"rows":len(rows),"source":origin})
         if verbose:

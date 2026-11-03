@@ -955,3 +955,22 @@
 .mx-prono-proof a{color:#ffdc81;font-weight:750;text-decoration:underline;text-underline-offset:2px}
 .mx-prono-proof a:focus-visible{outline:2px solid #ffdc81;outline-offset:2px}
 .mx-prono-proof--absent{color:#98afbd;font-style:italic}
+
+
+/* Compact mobile density after the scores-exacts bottom tab was introduced:
+   the desktop editorial CTA remains, while mobile reaches Pro/VIP picks sooner. */
+@media (max-width: 590px) {
+  .mx-pronos-page > main > .container > p:has(a[href="scores-exacts.html"]) { display: none !important; }
+  .mx-pronos-page .mx-pronos-hero,
+  .mx-pronos-page .mx-pronos-hero-inner {
+    height: 108px !important;
+    min-height: 108px !important;
+  }
+}
+@media (max-width: 345px) {
+  .mx-pronos-page .mx-pronos-hero,
+  .mx-pronos-page .mx-pronos-hero-inner {
+    height: 100px !important;
+    min-height: 100px !important;
+  }
+}

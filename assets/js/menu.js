@@ -149,7 +149,7 @@
     inner.className = 'inner';
 
     const section = currentSectionFile();
-    const primaryFiles = new Set(['index.html', 'pronos.html', 'historique.html', 'scores-exacts.html', 'bonus.html']);
+    const primaryFiles = new Set(['index.html', 'pronos.html', 'historique.html', 'scores-exacts.html']);
     const secondaryPage = !primaryFiles.has(section);
 
     inner.innerHTML = bottomItems.map(item => {

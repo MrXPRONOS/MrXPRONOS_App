@@ -39,7 +39,7 @@ def assert_bottom(page, expected, label):
     if items.count()!=5:
         raise AssertionError(f"{label}: expected 5 bottom items, got {items.count()}")
     labels=items.locator(".bottom-nav-label").all_inner_texts()
-    if labels!=["Accueil","Pronostics","Résultats","Bonus","Menu"]:
+    if labels!=["Accueil","Pronostics","Résultats","Score exact","Menu"]:
         raise AssertionError(f"{label}: bad bottom labels {labels}")
     active=nav.locator(".bottom-nav-item.active")
     if active.count()!=1:
@@ -91,12 +91,12 @@ def open_menu(page, label, from_bottom=True):
         raise AssertionError(f"{label}: drawer did not open")
 
     entries=overlay.locator(".burger-menu-item")
-    if entries.count()!=8:
-        raise AssertionError(f"{label}: expected 8 drawer entries, got {entries.count()}")
+    if entries.count()!=9:
+        raise AssertionError(f"{label}: expected 9 drawer entries, got {entries.count()}")
 
     imgs=image_health(overlay.locator("img.menu-icon-img"),label+" drawer")
-    if len(imgs)!=8:
-        raise AssertionError(f"{label}: expected 8 generated drawer icons")
+    if len(imgs)!=9:
+        raise AssertionError(f"{label}: expected 9 generated drawer icons")
 
     if page.locator("link[href*='font-awesome'],link[href*='fontawesome']").count():
         raise AssertionError(f"{label}: Font Awesome dependency still injected")
@@ -146,7 +146,7 @@ with sync_playwright() as p:
     # Standard 390px states
     check_page(browser,"index.html",390,844,"Accueil","Accueil",True)
     check_page(browser,"pronos.html",390,844,"Pronostics","Pronostics")
-    check_page(browser,"bonus.html",390,844,"Bonus","Bonus & Promo")
+    check_page(browser,"bonus.html",390,844,"Menu","Bonus & Promo")
     check_page(browser,"historique.html",390,844,"Résultats","Résultats",True)
     check_page(browser,"contact.html",390,844,"Menu","Contact")
     # LIVE is paused; no dedicated LIVE mobile-page checks in this smoke suite.

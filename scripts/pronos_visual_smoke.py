@@ -34,8 +34,7 @@ def main():
                     tabs: document.querySelectorAll('.pronostic-category-tabs .tab-btn').length
                 })""")
                 print(width, measurements)
-                # New public policy: all three tabs must fill the switcher equally,
-                # with visible dividers and no dormant fourth category.
+                # Public policy since Nov 3: only Pro and VIP, balanced side by side.
                 tab_layout = page.locator(".pronostic-category-tabs").evaluate("""node => {
                     const tabs = Array.from(node.querySelectorAll(':scope > .tab-btn'));
                     const rect = node.getBoundingClientRect();
@@ -50,17 +49,17 @@ def main():
                         borderRight: tabs.map(el => getComputedStyle(el).borderRightWidth)
                     };
                 }""")
-                if tab_layout["categories"] != ["all", "pro", "vip"]:
+                if tab_layout["categories"] != ["pro", "vip"]:
                     failures.append(f"{width}px: wrong public categories {tab_layout['categories']}")
-                if len(tab_layout["widths"]) == 3:
+                if len(tab_layout["widths"]) == 2:
                     if max(tab_layout["widths"]) - min(tab_layout["widths"]) > 2:
                         failures.append(f"{width}px: unequal tabs {tab_layout['widths']}")
                     if abs(tab_layout["starts"][0] - tab_layout["containerLeft"]) > 3 or abs(tab_layout["right"][-1] - tab_layout["containerRight"]) > 3:
                         failures.append(f"{width}px: unused horizontal space beside tabs")
-                    if any(float(b.replace("px", "")) < 1 for b in tab_layout["borderRight"][:2]):
+                    if any(float(b.replace("px", "")) < 1 for b in tab_layout["borderRight"][:1]):
                         failures.append(f"{width}px: missing tab separators")
                 else:
-                    failures.append(f"{width}px: expected 3 public tabs")
+                    failures.append(f"{width}px: expected 2 public tabs")
                 if measurements["full"] > measurements["viewport"] + 2:
                     failures.append(f"{width}px: horizontal overflow {measurements['full']} > {measurements['viewport']}")
                 if measurements["cards"] == 0 and page.locator("#matches-container .no-events, #matches-container .error").count() == 0:
@@ -102,10 +101,10 @@ def main():
                     nav_items = page.locator("#bottom-nav .bottom-nav-item")
                     if nav_items.count() != 5:
                         failures.append(f"{width}px: expected 5 mobile nav items, got {nav_items.count()}")
-                if not measurements["logo"] or not measurements["heading"] or measurements["tabs"] != 3:
+                if not measurements["logo"] or not measurements["heading"] or measurements["tabs"] != 2:
                     failures.append(f"{width}px: missing essential component")
                 if width == 390:
-                    for category in ("all", "pro", "vip"):
+                    for category in ("pro", "vip"):
                         tab = page.locator(f'[data-cat="{category}"]')
                         tab.click()
                         if "active" not in (tab.get_attribute("class") or ""):
