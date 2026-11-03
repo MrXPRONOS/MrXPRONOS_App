@@ -2,7 +2,7 @@
 
 **Branche** : `feature/onglet-scores-exacts-20261103`, créée à partir de `main`, sans fusion automatique. 
 **Page** : `scores-exacts.html` (desktop/mobile). **Flux** : `scores-exacts.json`.
-**Statut** : UI et publication de données **prêtes pour intégration** ; le flux public reste explicitement `unavailable` tant qu'aucun vrai prédicteur V3 prospective n'est branché. Ne pas fabriquer des matchs et ne pas rebaptiser les sorties de backtest 2026 en pronostics du jour.
+**Statut** : le prévisionniste prospectif natif V3, le connecteur BSD, le publisher Top5 et le workflow GitHub Actions sont codés sur cette branche. Ils ne seront actifs sur le site public qu'après validation d'un vrai dry-run, fusion de la PR #279 et premier déploiement. Le flux initial reste volontairement `unavailable` : aucun match inventé.
 
 ## Méthode retenue
 
@@ -15,9 +15,9 @@ Pour chaque match à venir, le même modèle `machine_learning_v3_hybrid` calcul
 
 ## Raccordement avec un prévisionniste V3 réellement prospectif
 
-Le système **actuel de production `generate_data.py` n'est pas** le prévisionniste expérimental Hybrid V3 et ne peut pas alimenter directement cette rubrique sans changer de modèle. Les backtests `research/ml_v3_group_rank_b_2026.py` portent sur des matchs terminés : leur lecture seule ne fournit **pas** de prévisions réelles des matchs de demain ou d'aujourd'hui.
+Le moteur Pro/VIP `generate_data.py` n'est **pas modifié**. Le pipeline privé `.github/workflows/daily-hybrid-v3-exact-top5.yml` charge la version auditée du V3 depuis le commit de recherche gelé `f0c700b2448923fadd6fc6f260da34d0576f3e1f` et entraîne le modèle à partir des historiques chiffrés certifiés. L'entraînement des coefficients est **figé au 31/12/2025** (variante de validation gelée) ; les statistiques d'équipes restent mises à jour à partir des matchs BSD terminés jusqu'à la veille. Cette variante n'est pas identique au backtest B avec réentraînements progressifs sur 2026 ; ne pas transférer automatiquement ses taux de réussite au trafic réel. Le nom de championnat absent des événements futurs est résolu à partir de leur identifiant BSD via archive/catalogue/detail vérifié, jamais par supposition.
 
-Le futur prévisionniste doit livrer un fichier JSON privé pré-match (exemple de structure **non destiné à être publié**) :
+Le moteur `scripts/forecast_hybrid_v3_daily.py` génère un fichier JSON privé pré-match avec le schéma suivant (illustration **non destinée à être publiée**) :
 
 ```json
 {
@@ -76,4 +76,4 @@ node --check assets/js/scores-exacts.js
 node --check assets/js/menu.js
 ```
 
-Le workflow CI `.github/workflows/scores-exacts-page-tests.yml` exécute ces contrôles lors de l'ajout de l'onglet. La publication en production et l'activation d'une mise à jour quotidienne automatique requièrent **la mise en place explicite du véritable prévisionniste V3 prospectif et son audit**, puis la fusion de la PR. Aucun autre pronostic ou canal Telegram n'est modifié par ce lot.
+Le workflow CI `.github/workflows/scores-exacts-page-tests.yml` vérifie le contrat du flux. Le workflow quotidien `.github/workflows/daily-hybrid-v3-exact-top5.yml` prévoit **00 h 22 et 11 h 42 UTC**, plus un lancement lors de son introduction sur la branche `main`. Sur la branche de travail, il effectue uniquement des dry-runs sans publication. En production, il refuse de publier des résultats périmés, des marchés non vérifiés ou moins de cinq sélections dans chaque Top. Une seule publication du jour est conservée (pas de remplacement opportuniste après résultat). L'écriture du JSON public déclenche explicitement `deploy.yml` car les commits du bot ne déclenchent pas automatiquement les autres workflows. Aucun canal Telegram ni générateur Pro/VIP n'est modifié.
