@@ -44,6 +44,21 @@ def to_candidate(option):
     return Candidate(option.key,market,side,label,family,
                      float(option.probability),line,option.market_code)
 
+def settlement_candidates():
+    """Use the SAME canonical market identities for feed and immutable ledger."""
+    return {
+        key:Candidate(key,m[1],m[2],m[3],m[0],.5,m[4],
+                      {
+                          "HOME_OVER_05":"HOME_TEAM_OVER_0.5_FT",
+                          "AWAY_OVER_05":"AWAY_TEAM_OVER_0.5_FT",
+                          "HOME_UNDER_15":"HOME_TEAM_UNDER_1.5_FT",
+                          "AWAY_UNDER_15":"AWAY_TEAM_UNDER_1.5_FT",
+                          "AH_HOME_PLUS_15":"ASIAN_HANDICAP_HOME_+1.5_FT",
+                          "AH_AWAY_PLUS_15":"ASIAN_HANDICAP_AWAY_+1.5_FT",
+                      }[key])
+        for key,m in MARKET_META.items()
+    }
+
 def _sample(rows,cap):
     rows.sort(key=lambda item:(str(item.get("event_date")),str(item.get("id"))))
     if len(rows)>cap:
