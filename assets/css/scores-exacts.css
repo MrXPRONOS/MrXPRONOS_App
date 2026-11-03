@@ -88,3 +88,13 @@
   .mx-score-score strong{font-size:23px}
 }
 @media(prefers-reduced-motion:reduce){.mx-scores-page *{scroll-behavior:auto!important;transition:none!important}}
+
+
+/* Yesterday / Today / Tomorrow controls mirror the Pro/VIP day filters. */
+.mx-scores-days{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:17px}
+.mx-scores-day{min-width:0;min-height:45px;padding:10px 13px;border:1px solid #31566b;border-radius:11px;background:#071c2a;color:#d2e1e9;cursor:pointer;font-size:13px;font-weight:750;transition:background .18s,border-color .18s}
+.mx-scores-day:hover{background:#143349;border-color:#7aadc1}
+.mx-scores-day.is-active{background:#e6b95b;color:#071522;border-color:#f4d28d}
+.mx-score-time.is-started{border-color:#67583c;color:#dbcbaf}
+.mx-score-foot-label.is-archive{color:#e4c384}
+@media(max-width:740px){.mx-scores-days{gap:5px;margin-bottom:12px}.mx-scores-day{font-size:11px;padding:8px 5px;min-height:40px}}
