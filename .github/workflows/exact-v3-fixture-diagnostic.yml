@@ -47,7 +47,7 @@ jobs:
                   continue
               futuren+=1
               futurestatuses[s]+=1
-              for fld in ['home_team','away_team','league','league_name','competition_name','tournament_name','home_score','away_score','is_finished']:
+              for fld in ['home_team','away_team','league','league_id','competition_id','tournament_id','league_name','competition_name','tournament_name','home_score','away_score','is_finished']:
                   value=e.get(fld)
                   if isinstance(value,dict):
                       vtype='object_name' if isinstance(value.get('name'),str) and value['name'].strip() else 'object_noname'
