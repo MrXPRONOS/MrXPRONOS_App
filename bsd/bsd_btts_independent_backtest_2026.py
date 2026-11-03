@@ -118,29 +118,44 @@ def run(history, *, start="2026-01-01",end="2026-11-03",max_matches=0):
         if len(lookup)!=2:
             diag["ranked_btts_incomplete"]+=1
             continue
-        fixture_only={k:v for k,v in e.items() if k not in (
-            "home_score","away_score","ht_home_score","ht_away_score",
-            "home_ht_score","away_ht_score","half_time_home_score","half_time_away_score")}
-        fixture_only["status"]="notstarted"
-        production,prod_reason=predict_v2(
-            fixture_only,index,calibration=cal,rho=rho,
-            clock=fixture_datetime(e)-timedelta(seconds=1),
-            quality_policy=policy,btts_model=btts_model,
-            total_model=totals_model,dc_model=dc_model,
-            excluded_keys={"12","UNDER_45"},
-            selection_conservative_minimums={"OVER_15":V21_MIN_OVER15_CONSERVATIVE},
-            extra_market_model=extra_model,
-        )
-        if production is None:
-            diag["production_no_choice_"+str(prod_reason)]+=1
-            ranked_keys=[]
-            winner_key=None
-        else:
-            ranked_keys=[r["key"] for r in production["ranked_candidates"]
-                         if r.get("passes_quality_policy") is True]
-            winner_key=(production.get("prediction") or {}).get("key")
-            diag["production_has_primary"]+=1
         quality_pass=fixture_policy_reason is None
+        # Full all-market production reranking is only informative when at
+        # least one BTTS side could pass the user-selected 79% gate. This
+        # avoids expensive irrelevant reranking for thousands of weak BTTS
+        # fixtures, without changing ANY BTTS predictions or outcomes.
+        eligible_btts_precheck=quality_pass and any(
+            policy.check_market(lookup[k]) is None and
+            eligible_model_choice({
+                "category": classify_quality_category(
+                    lookup[k]["ranking_confidence"],feat),
+                "prediction":{"probability":lookup[k]["calibrated_probability"]}})
+            for k in KEYS)
+        ranked_keys=[]
+        winner_key=None
+        if eligible_btts_precheck:
+            diag["full_production_rerank_for_qualified_btts"]+=1
+            fixture_only={k:v for k,v in e.items() if k not in (
+                "home_score","away_score","ht_home_score","ht_away_score",
+                "home_ht_score","away_ht_score","half_time_home_score","half_time_away_score")}
+            fixture_only["status"]="notstarted"
+            production,prod_reason=predict_v2(
+                fixture_only,index,calibration=cal,rho=rho,
+                clock=fixture_datetime(e)-timedelta(seconds=1),
+                quality_policy=policy,btts_model=btts_model,
+                total_model=totals_model,dc_model=dc_model,
+                excluded_keys={"12","UNDER_45"},
+                selection_conservative_minimums={"OVER_15":V21_MIN_OVER15_CONSERVATIVE},
+                extra_market_model=extra_model,
+            )
+            if production is None:
+                diag["production_no_choice_"+str(prod_reason)]+=1
+            else:
+                ranked_keys=[r["key"] for r in production["ranked_candidates"]
+                             if r.get("passes_quality_policy") is True]
+                winner_key=(production.get("prediction") or {}).get("key")
+                diag["production_has_primary_on_eligible_btts_fixture"]+=1
+        else:
+            diag["production_rerank_skipped_no_eligible_btts"]+=1
         if quality_pass:
             diag["fixture_quality_passed"]+=1
         else:
@@ -232,9 +247,9 @@ def run(history, *, start="2026-01-01",end="2026-11-03",max_matches=0):
         "eligible_btts_not_top_primary":sum(not x["production_primary"] for x in eligible),
         "eligible_btts_not_in_qualified_ranked":sum(
             not x["in_production_ranked_quality_options"] for x in eligible),
-        "all_btts_primary_count":sum(x["production_primary"] for x in per_match),
-        "all_btts_in_top3":sum(
-            x["production_rank"] is not None and x["production_rank"]<=3 for x in per_match),
+        "primary_count_among_btts_79_candidate_fixtures":sum(
+            x["production_primary"] for x in eligible),
+        "btss_rank_evaluated_only_when_eligible_79":True,
     }
     return report,per_match
 
