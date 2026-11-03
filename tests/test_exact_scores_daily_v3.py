@@ -8,7 +8,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from scripts.run_exact_scores_v3_daily import (
-    BASE_CUTOFF, DAILY_HISTORY_SUBDIR, future_fixtures, historical_daily_rows
+    BASE_CUTOFF, DAILY_HISTORY_SUBDIR, future_fixtures, historical_daily_rows, sportdata_source_identity
 )
 
 
@@ -64,6 +64,31 @@ class TestExactDailyPipeline(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError,"unavailable"):
             future_fixtures(response([],ok=False),utc_dt("2026-11-03T15:00:00Z"),converter=utc_dt)
         self.assertEqual(future_fixtures(response([]),utc_dt("2026-11-03T15:00:00Z"),converter=utc_dt),[])
+
+    def test_daily_provider_identifiers_are_research_safe_and_scoped(self):
+        # The frozen 2024-2026 archive is normalized by
+        # safe_source_identities() in single_ml_v2_multisource.py.
+        # The incremental SportData rows must share that exact namespace.
+        self.assertEqual(sportdata_source_identity(40), "src_sportsapipro_v1_allscores_40")
+        self.assertEqual(sportdata_source_identity("59"), "src_sportsapipro_v1_allscores_59")
+        for invalid in (None, True, "", "unknown", "0", "source:40", "  "):
+            self.assertIsNone(sportdata_source_identity(invalid))
+        with tempfile.TemporaryDirectory() as tmp:
+            d = BASE_CUTOFF + timedelta(days=1)
+            rows, _ = historical_daily_rows(
+                Path(tmp), d,
+                fetcher=lambda *_args, **_kw: response([match(d, 40)]),
+                normalizer=lambda day, result: {
+                    "day": str(day), "verified": True,
+                    "certified_football_count": len(result.games),
+                    "matches": result.games,
+                },
+                sealer=lambda obj, *_args: json.dumps(obj).encode(),
+                opener=lambda *_args: None, key=b"test", verbose=False,
+            )
+            self.assertEqual(rows[0]["source_home_team_id"], "src_sportsapipro_v1_allscores_1")
+            self.assertEqual(rows[0]["source_away_team_id"], "src_sportsapipro_v1_allscores_2")
+            self.assertEqual(rows[0]["source_competition_id"], "src_sportsapipro_v1_allscores_3")
 
     def test_daily_authenticated_cache_before_fetching_network(self):
         with tempfile.TemporaryDirectory() as tmp:
