@@ -1,6 +1,7 @@
 """Pure no-network tests for daily SportData -> genuine V3 publication orchestration."""
 from __future__ import annotations
 import json
+import os
 import tempfile
 import unittest
 from datetime import datetime,date,timedelta,timezone
@@ -8,7 +9,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from scripts.run_exact_scores_v3_daily import (
-    BASE_CUTOFF, DAILY_HISTORY_SUBDIR, future_fixtures, historical_daily_rows, sportdata_source_identity, save_verified_day
+    BASE_CUTOFF, DAILY_HISTORY_SUBDIR, future_fixtures, historical_daily_rows, sportdata_source_identity, save_verified_day, resolve_public_target
 )
 
 
@@ -43,6 +44,26 @@ def match(day,i):
 
 
 class TestExactDailyPipeline(unittest.TestCase):
+    def test_public_output_path_is_stable_when_model_changes_cwd(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            site = root / "site"
+            model = root / "model"
+            site.mkdir()
+            model.mkdir()
+            original = Path.cwd()
+            try:
+                os.chdir(root)
+                named = resolve_public_target(site, "site/scores-exacts.json")
+                default = resolve_public_target(site, None)
+                os.chdir(model)
+                self.assertEqual(named, site / "scores-exacts.json")
+                self.assertEqual(default, site / "scores-exacts.json")
+                self.assertEqual(named.parent, site)
+                self.assertNotEqual(named.parent, model)
+            finally:
+                os.chdir(original)
+
     def test_upcoming_only_certified_utc_day(self):
         now=utc_dt("2026-11-03T15:00:00Z")
         records=[
