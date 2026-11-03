@@ -77,3 +77,17 @@ node --check assets/js/menu.js
 ```
 
 Le workflow CI `.github/workflows/scores-exacts-page-tests.yml` vérifie le contrat du flux. Le workflow quotidien `.github/workflows/daily-hybrid-v3-exact-top5.yml` prévoit **00 h 22 et 11 h 42 UTC**, plus un lancement lors de son introduction sur la branche `main`. Sur la branche de travail, il effectue uniquement des dry-runs sans publication. En production, il refuse de publier des résultats périmés, des marchés non vérifiés ou moins de cinq sélections dans chaque Top. Une seule publication du jour est conservée (pas de remplacement opportuniste après résultat). L'écriture du JSON public déclenche explicitement `deploy.yml` car les commits du bot ne déclenchent pas automatiquement les autres workflows. Aucun canal Telegram ni générateur Pro/VIP n'est modifié.
+
+## Génération quotidienne réelle — raccordement V3
+
+- Automate : `.github/workflows/exact-scores-v3-daily.yml`, prévu chaque jour à **05:17** et **12:17 UTC**, plus exécution initiale après fusion sur `main`.
+- Source de matchs futurs : véritable SportData `fetch_games(today,today)`, filtrage strict `sportId=1` et `kickoff_utc` après l'heure de production. Aucune rencontre terminée ni score réel n'entre dans les candidats.
+- Archives antérieures : moteur de recherche authentifié `research/single-ml-v2-20261024`, période scellée 2024–24 octobre 2026, clé `ML_V2_HISTORY_KEY_B64` déjà utilisée pour les backtests.
+- Jours supplémentaires : contrôles SportsAPIPro sur tous les jours terminés depuis le 25 octobre 2026 ; chaque jour est conservé uniquement comme un fichier chiffré AES-GCM dans `research/score_v3_encrypted_daily/YYYY-MM-DD.enc`. Aucune donnée de résultat en clair n'est commitée.
+- Le véritable code modèle `research/single_ml_v2.py` se charge de l'entraînement, de la calibration sur journées déjà jouées, puis calcule `v3_prospective_raw.json` avant résultat. L'enveloppe brute (matrices 11×11) demeure éphémère dans le runner et n'est **jamais committée**.
+- `scripts/run_exact_scores_v3_daily.py` orchestre ces étapes et appelle `scripts/publish_exact_scores.py` pour les Top 5 A et B ; seul `scores-exacts.json` est publié avec les fichiers de sauvegarde chiffrés.
+- Authentification : GitHub secrets `SPORTDATA_API_KEY_1..5` et `ML_V2_HISTORY_KEY_B64`. Sans fournisseur réel, couverture du jour terminé vérifiée ou modèle V3 entraîné, l'automate **échoue sans publier de faux pronostics**.
+- Les artefacts et commits de la branche feature ne sont pas mis en production. Les véritables commits quotidiens ne sont autorisés que sur `main`.
+- Tests : `tests/test_exact_scores_daily_v3.py`, `tests/test_exact_scores_tab.py`, validation JS et exécution de recherche `.github/workflows/exact-v3-prospective-smoke.yml`.
+
+**Qualité et limites** : le nouveau pipeline utilise la même famille Hybrid V3 et la règle de classement A/B validées en recherche, mais il ne reprend pas les scores des anciennes rencontres. Aucun taux de réussite ou ROI de 2026 n'est une garantie future. Les groupes de trois scores ne sont pas des marchés bookmaker confirmés. Un flux `unavailable` est volontairement affiché s'il n'existe pas de sélection pré-match vérifiée.
