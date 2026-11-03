@@ -1,0 +1,32 @@
+name: V3 fast inference safety tests
+on:
+  push:
+    branches: [perf/hybrid-v3-inference-20261103]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/run_exact_scores_v3_daily.py'
+      - 'scripts/prepare_hybrid_v3_checkpoint.py'
+      - 'tests/test_exact_v3_fast_inference.py'
+      - '.github/workflows/exact-scores-v3-daily.yml'
+      - '.github/workflows/prepare-hybrid-v3-checkpoint.yml'
+      - '.github/workflows/hybrid-v3-fast-tests.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile new production scripts and safety tests
+        run: python -m py_compile scripts/run_exact_scores_v3_daily.py scripts/prepare_hybrid_v3_checkpoint.py tests/test_exact_v3_fast_inference.py
+      - name: Verify no model retraining occurs in score generation
+        run: python -m unittest discover -s tests -p 'test_exact_v3_fast_inference.py' -v
+      - name: Existing score publication regressions
+        run: |
+          python -m unittest discover -s tests -p 'test_exact_scores_daily_v3.py' -v
+          python -m unittest discover -s tests -p 'test_exact_scores_tab.py' -v
