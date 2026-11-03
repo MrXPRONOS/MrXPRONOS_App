@@ -614,10 +614,12 @@ def summarize(stats):
 
 
 def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None, auto_tune=True, tuning_interval_days=90, selection_coverage=.25, v3_models=False, frozen_fit_cutoff=None, export_v3_group_mass=False, prospective_fixtures=None, production_v3_only=False,
-             checkpoint_path=None, checkpoint_key=None):
+             checkpoint_path=None, checkpoint_key=None, no_11_study=False):
     # Strict holdout: 2026 labels may update NEXT-DAY form features only.
     if production_v3_only and (not v3_models or auto_tune or frozen_fit_cutoff is not None):
         raise ValueError('Optimized production mode requires native unfrozen V3, no tuning')
+    if no_11_study and not (production_v3_only and v3_models and not auto_tune and frozen_fit_cutoff is None):
+        raise ValueError('The 1:1 research study requires chronological native Hybrid V3 only')
     if checkpoint_path is not None and (not production_v3_only or checkpoint_key is None):
         raise ValueError('Only authenticated native V3 production builds may emit checkpoints')
     # No 2026 target can enter ML fitting, DC coefficient estimation, selector
@@ -633,6 +635,7 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
     # when building or ranking candidate group probabilities.
     from ml_v3_group_probability import grid_group_mass
     v3_group_mass_rows = []
+    no_11_rows = [] if no_11_study else None
     states = FormState()
     reliability_history = defaultdict(list)
     reliability_models = {k: None for k in SELECTABLE_MODELS}
@@ -812,6 +815,22 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                         ('__v3_eleven__', float(raw_v3[1,1])),
                         ('__v3_hybrid__', hist_v3.copy(), dc.copy()),
                     ])
+                    if no_11_study:
+                        # All probabilities/selection are determined BEFORE
+                        # the finished score is used solely to evaluate accuracy.
+                        hybrid_for_study = hybrid_v3_grid(hist_v3, dc, dc_weight=v3_hybrid_weight)
+                        p_flat = hybrid_for_study.ravel()
+                        best_index = int(np.argmax(p_flat))
+                        runner_pool = p_flat.copy()
+                        runner_pool[1 * (MAX_GOALS + 1) + 1] = -1.0
+                        runner_index = int(np.argmax(runner_pool))
+                        best_h, best_a = divmod(best_index, MAX_GOALS + 1)
+                        alt_h, alt_a = divmod(runner_index, MAX_GOALS + 1)
+                        no_11_rows.append((
+                            m.day.isoformat(), best_h, best_a, alt_h, alt_a,
+                            m.hg, m.ag, float(p_flat[best_index]),
+                            float(p_flat[runner_index])
+                        ))
                 continue
             if first_evaluated is None:
                 first_evaluated = day
@@ -1089,6 +1108,15 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             "no_future_settlement":True,
         }),flush=True)
     if production_v3_only:
+        if no_11_study:
+            # Return private tuples only to the in-memory analysis caller.
+            # The workflow exports aggregated statistics, NEVER match-level rows.
+            return {
+                'status': 'v3_no_11_study_complete',
+                'history_day': str(last_history_day),
+                'observations': no_11_rows,
+                'version': '20261103_no_11_v1',
+            }
         return {'status': 'optimized_v3_completed', 'history_day': str(last_history_day)}
     summary = summarize(results)
     hybrid_paired = compare_hybrids(results, ("machine_learning","dixon_coles","machine_learning_hybrid_fixed","machine_learning_hybrid"))
