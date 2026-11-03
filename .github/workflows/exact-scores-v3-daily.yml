@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 concurrency:
   group: mrx-v3-daily-prospective-publication
   cancel-in-progress: false
@@ -48,6 +49,7 @@ jobs:
         run: |
           python site/scripts/run_exact_scores_v3_daily.py --site-root site --model-root model --out site/scores-exacts.json
       - name: Publish valid score feed and encrypted daily archive
+        id: publish
         if: github.ref == 'refs/heads/main'
         working-directory: site
         run: |
@@ -61,3 +63,9 @@ jobs:
           git commit -m "data: validated Hybrid V3 pre-match Top5 [skip ci]"
           git pull --rebase origin main
           git push origin HEAD:main
+          echo "published=true" >> "$GITHUB_OUTPUT"
+      - name: Deploy public GitHub Pages artifact after verified Top5 update
+        if: github.ref == 'refs/heads/main' && steps.publish.outputs.published == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main
