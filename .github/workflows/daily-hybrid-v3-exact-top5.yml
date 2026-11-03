@@ -2,13 +2,14 @@ name: MrXPRONOS - Hybrid V3 daily Top5 exact + grouped publication
 
 # The scheduled job runs ONLY from the default branch after PR merge.
 # Feature-branch push is a private dry-run: it NEVER publishes daily picks.
+# The merge that adds this workflow to main also triggers the first real publish.
 on:
   schedule:
     - cron: '22 0 * * *'
     - cron: '42 11 * * *'
   workflow_dispatch:
   push:
-    branches: [feature/onglet-scores-exacts-20261103]
+    branches: [main, feature/onglet-scores-exacts-20261103]
     paths:
       - '.github/workflows/daily-hybrid-v3-exact-top5.yml'
       - 'scripts/forecast_hybrid_v3_daily.py'
