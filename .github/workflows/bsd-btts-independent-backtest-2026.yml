@@ -1,0 +1,92 @@
+name: BSD V2 - Backtest indépendant BTTS Oui / Non 2026
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_matches:
+        description: "0 = toutes les rencontres terminées 2026 ; positif = limite pour debug"
+        default: "0"
+        required: false
+        type: string
+  push:
+    branches:
+      - research/btts-indep-backtest-20261103
+    paths:
+      - 'bsd/bsd_btts_independent_backtest_2026.py'
+      - 'bsd/test_btts_independent_backtest_2026.py'
+      - '.github/workflows/bsd-btts-independent-backtest-2026.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bsd-btts-independent-2026-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backtest:
+    name: Backtest point-in-time sans publication
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install Python runtime
+        run: python -m pip install requests cryptography
+      - name: Syntax and unit tests
+        run: |
+          python -m compileall -q bsd
+          python -m unittest discover -s bsd -p 'test_btts_independent_backtest_2026.py' -v
+      - name: Restore encrypted BSD historical data
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: |
+          python bsd/bsd_archive.py restore
+      - name: BTTS Yes and No independently on finished 2026 events
+        env:
+          MAX_MATCHES: ${{ inputs.max_matches || '0' }}
+        run: |
+          python bsd/bsd_btts_independent_backtest_2026.py \
+            --start 2026-01-01 \
+            --end 2026-11-03 \
+            --max-matches "${MAX_MATCHES}" \
+            --prefix bsd/btts_independent_2026
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('bsd/btts_independent_2026.json').read_text(encoding='utf8'))
+          metrics=report['metrics']
+          assert report['schema']=='btts-independent-2026-out-of-sample-1'
+          assert report['period']['analyzed_fixtures']>0
+          assert set(metrics['by_side'])=={'BTTS_YES','BTTS_NO'}
+          assert all(info['all_with_model']['n']>0 for info in metrics['by_side'].values())
+          assert all(info['all_with_model']['wins']+info['all_with_model']['losses']==info['all_with_model']['n']
+                     for info in metrics['by_side'].values())
+          assert all(info['football_eligible_79']['n']<=info['quality_passed']['n']<=info['all_with_model']['n']
+                     for info in metrics['by_side'].values())
+          assert all(info['football_eligible_79_and_model_price_above_120']['n']
+                     <=info['football_eligible_79']['n']
+                     for info in metrics['by_side'].values())
+          assert not report['period']['truncated'], "Publication du résultat complet uniquement, aucune réduction d'échantillon"
+          print('BSD_BTTS_BACKTEST_VALID', {
+              'fixtures':report['period']['analyzed_fixtures'],
+              'yes_79':metrics['by_side']['BTTS_YES']['football_eligible_79']['n'],
+              'no_79':metrics['by_side']['BTTS_NO']['football_eligible_79']['n'],
+              'btts_79_primary':metrics['rank_competition']['eligible_btts_also_primary_before_pricing']})
+          PY
+      - name: Clear decrypted archive files
+        if: always()
+        run: |
+          rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+      - name: Upload aggregate reports only
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: btts-oui-non-backtest-2026-${{ github.run_id }}
+          path: |
+            bsd/btts_independent_2026.json
+            bsd/btts_independent_2026.md
+            bsd/btts_independent_2026.csv
+          retention-days: 45
