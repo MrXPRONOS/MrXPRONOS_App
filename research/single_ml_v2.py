@@ -613,8 +613,13 @@ def summarize(stats):
     return result
 
 
-def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None, auto_tune=True, tuning_interval_days=90, selection_coverage=.25, v3_models=False, frozen_fit_cutoff=None, export_v3_group_mass=False, prospective_fixtures=None):
+def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None, auto_tune=True, tuning_interval_days=90, selection_coverage=.25, v3_models=False, frozen_fit_cutoff=None, export_v3_group_mass=False, prospective_fixtures=None, production_v3_only=False,
+             checkpoint_path=None, checkpoint_key=None):
     # Strict holdout: 2026 labels may update NEXT-DAY form features only.
+    if production_v3_only and (not v3_models or auto_tune or frozen_fit_cutoff is not None):
+        raise ValueError('Optimized production mode requires native unfrozen V3, no tuning')
+    if checkpoint_path is not None and (not production_v3_only or checkpoint_key is None):
+        raise ValueError('Only authenticated native V3 production builds may emit checkpoints')
     # No 2026 target can enter ML fitting, DC coefficient estimation, selector
     # fitting, hybrid/DC or direct-prior calibration.
     if frozen_fit_cutoff is not None:
@@ -699,7 +704,7 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                     "direct_prior_games":direct_v3_cal.training_games,
                     "direct_calibrated":direct_v3_cal.calibrated})
                 v3_last_calibration=day
-        if evaluating and (frozen_fit_cutoff is None or last_hybrid_calibration is None) and (last_hybrid_calibration is None or (day-last_hybrid_calibration).days >= 30):
+        if not production_v3_only and evaluating and (frozen_fit_cutoff is None or last_hybrid_calibration is None) and (last_hybrid_calibration is None or (day-last_hybrid_calibration).days >= 30):
             hybrid_setting = calibrate_hybrid(hybrid_history, asof=day)
             hybrid_latest_weight = hybrid_setting.dc_weight
             hybrid_audit.append({"asof":str(day),"calibrated":hybrid_setting.calibrated,
@@ -707,7 +712,7 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                 "training_days":hybrid_setting.training_days,
                 "reason":hybrid_setting.note,"candidates":list(hybrid_setting.candidate_metrics)})
             last_hybrid_calibration = day
-        if frozen_fit_cutoff is None and evaluating and (last_selector_refit is None or (day-last_selector_refit).days >= 30):
+        if not production_v3_only and frozen_fit_cutoff is None and evaluating and (last_selector_refit is None or (day-last_selector_refit).days >= 30):
             for target_name in SELECTABLE_MODELS:
                 fitted = fit_reliability(reliability_history[target_name], asof=day,
                                          target_coverage=selection_coverage)
@@ -750,29 +755,41 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                 frozen_direct_training=direct_training
                 frozen_dated_training=dated_training
                 frozen_recent_low=recent_low
-            if auto_tune:
+            if production_v3_only:
+                # Hybrid V3's only trained learner is the historical HistGB pair.
+                # Direct V2/V3, LightGBM and CatBoost do not enter its grid.
+                v3_hist_model = fit_hist_v3(frozen_dated_training, asof=day,
+                                            feature_count=len(FEATURE_NAMES))
+                dc_rho = estimate_dc_rho(frozen_recent_low[-9000:])
+                last_retrain = day
+                model_fit_history_day = last_history_day
+                print('RETRAIN_V3_PRODUCTION_ONLY', day, 'hist', v3_hist_model is not None,
+                      'train_rows', len(training), flush=True)
+            elif auto_tune:
                 # The unchanged V2 tuning path still operates normally when
                 # the separate frozen-fit research mode is disabled.
                 ml = fit_histgb(dated_training, config=selected_config,
                                 asof=day, feature_count=len(FEATURE_NAMES))
             else:
                 ml = train_ml(frozen_training, **(ml_parameters or {}))
-            direct_model = (train_direct_score(direct_training)
+            if not production_v3_only:
+                direct_model = (train_direct_score(direct_training)
                             if frozen_fit_cutoff is None
                             else train_direct_score(frozen_direct_training))
-            if v3_models:
+            if v3_models and not production_v3_only:
                 v3_hist_model = fit_hist_v3(frozen_dated_training,asof=day,
                                            feature_count=len(FEATURE_NAMES))
                 v3_direct_model = fit_direct_v3(frozen_direct_training)
                 print("RETRAIN_V3",day,"hist",v3_hist_model is not None,
                       "direct",v3_direct_model is not None,flush=True)
-            for candidate_name in CANDIDATES:
-                candidate_models[candidate_name] = fit_pair(candidate_name, frozen_training, feature_count=len(FEATURE_NAMES))
-            dc_rho = estimate_dc_rho(frozen_recent_low[-9000:])
-            shared = estimate_shared(frozen_recent_low)
-            last_retrain = day
-            model_fit_history_day = frozen_last_fit_date if frozen_fit_cutoff is not None else last_history_day
-            print("RETRAIN", day, "train_rows", len(training),
+            if not production_v3_only:
+                for candidate_name in CANDIDATES:
+                    candidate_models[candidate_name] = fit_pair(candidate_name, frozen_training, feature_count=len(FEATURE_NAMES))
+                dc_rho = estimate_dc_rho(frozen_recent_low[-9000:])
+                shared = estimate_shared(frozen_recent_low)
+                last_retrain = day
+                model_fit_history_day = frozen_last_fit_date if frozen_fit_cutoff is not None else last_history_day
+                print("RETRAIN", day, "train_rows", len(training),
                   "rho", round(dc_rho, 4), "shared", round(shared, 4),
                   "ml", ml is not None, "direct", direct_model is not None,
                   "candidates", {k: v is not None for k,v in candidate_models.items()}, flush=True)
@@ -784,6 +801,18 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             if not evaluating or (max_eval and played >= max_eval):
                 continue
             played += 1
+            if production_v3_only:
+                p0 = poisson_grid(f['h'], f['a'])
+                dc = dixon_coles(f['h'], f['a'], dc_rho)
+                if v3_hist_model is not None:
+                    raw_v3 = hist_v3_grid(v3_hist_model, f['vector'], p0,
+                        form_samples=f['form_samples'], p11_factor=1.)
+                    hist_v3 = calibrate_eleven_cell(raw_v3, v3_hist_factor)
+                    pending[-1] = (m, f, [
+                        ('__v3_eleven__', float(raw_v3[1,1])),
+                        ('__v3_hybrid__', hist_v3.copy(), dc.copy()),
+                    ])
+                continue
             if first_evaluated is None:
                 first_evaluated = day
             last_evaluated = day
@@ -966,6 +995,16 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
         last_history_day = day
         if evaluating and (day.day == 1 or day == end):
             print("PROGRESS", day, "scored", played, flush=True)
+    if checkpoint_path is not None:
+        from single_ml_v3_checkpoint import save_checkpoint
+        save_checkpoint(checkpoint_path, checkpoint_key,
+            state=states, hist_model=v3_hist_model,
+            eleven_history=v3_eleven_history, hybrid_history=v3_hybrid_history,
+            hybrid_weight=v3_hybrid_weight, dc_rho=dc_rho,
+            history_day=last_history_day, fit_day=model_fit_history_day)
+        print('V3_AUTHENTICATED_CHECKPOINT', str(last_history_day), flush=True)
+        if prospective_fixtures is None:
+            return {'status': 'checkpoint_saved', 'history_day': str(last_history_day)}
     # Prospective V3 publication is opt-in: NEVER append these fixtures to
     # chronological training, and NEVER consume their scores/results.
     # This intentionally reuses the ACTUAL fitted Hybrid V3 and FormState
@@ -1049,6 +1088,8 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             "historical_oos_training_games":setting.training_games,
             "no_future_settlement":True,
         }),flush=True)
+    if production_v3_only:
+        return {'status': 'optimized_v3_completed', 'history_day': str(last_history_day)}
     summary = summarize(results)
     hybrid_paired = compare_hybrids(results, ("machine_learning","dixon_coles","machine_learning_hybrid_fixed","machine_learning_hybrid"))
     selected_report=report_selections(selection_rows,total_matches=audit["evaluated_matches"],
