@@ -65,7 +65,7 @@ def prediction_action_buttons(pack=None):
             {"text":"PARIEZ SUR "+keys[0].upper(),"url":first_url,"style":"primary"},
             {"text":"PARIEZ SUR "+keys[1].upper(),"url":second_url,"style":"primary"},
         ],
-        [{"text":"Voir plus de coupons 🔥","url":URL}],
+        [{"text":"Voir les catégories ⚽","url":URL}],
     ]}
 
 def due(matches,now,min_minutes=60,max_minutes=120):
