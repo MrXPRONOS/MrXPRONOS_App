@@ -130,6 +130,8 @@ class BTTSModel:
     league_blend: float = 0.0
     team_model: object = None
     league_model: object = None
+    zero_blend: float = 0.0
+    zero_model: object = None
 
     def predict_specialized(self, features):
         if features is None:
@@ -139,7 +141,7 @@ class BTTSModel:
         return _clamp(_sigmoid(sum(w*x for w,x in zip(self.weights,features))))
 
     def predict(self, event, index, baseline_probability):
-        if self.blend<=0 and self.team_blend<=0 and self.league_blend<=0:
+        if self.blend<=0 and self.team_blend<=0 and self.league_blend<=0 and self.zero_blend<=0:
             return baseline_probability
         features = btts_features(event,index)
         p = self.predict_specialized(features)
@@ -156,12 +158,18 @@ class BTTSModel:
             deviation=(self.league_model.deviation(event) if self.league_model is not None
                        else league_btts_deviation(event,index))
             combined+=self.league_blend*deviation
+        if self.zero_blend>0 and self.zero_model is not None:
+            zero=self.zero_model.predict(event,index)
+            if zero is not None:
+                combined=(1.0-self.zero_blend)*combined+self.zero_blend*zero['btts_yes']
         return _clamp(combined)
 
     def to_dict(self):
         return {"version":"btts-model-1","weights":list(self.weights),
                 "blend":self.blend,"team_blend":self.team_blend,
                 "league_blend":self.league_blend,
+                "zero_blend":self.zero_blend,
+                "zero_model":self.zero_model.to_dict() if self.zero_model else None,
                 "team_model":({"trained_games":self.team_model.trained_games,
                   "home_weights":list(self.team_model.home_weights),
                   "away_weights":list(self.team_model.away_weights)} if self.team_model else None),
@@ -189,7 +197,7 @@ def btts_quality_rejection(expected, model, poisson_p, specialized_p):
     This is not an 80% guarantee; it prevents misleading confidence from a
     sparse-history Poisson fallback and requires home/away evidence.
     """
-    if model is None or not (model.blend>0 or model.team_blend>0 or model.league_blend>0):
+    if model is None or not (model.blend>0 or model.team_blend>0 or model.league_blend>0 or model.zero_blend>0):
         return "btts_no_active_specialist"
     if min(expected["home_recent_matches"], expected["away_recent_matches"]) < 8:
         return "btts_insufficient_team_form"
@@ -235,6 +243,7 @@ def fit_btts_model(index, *, rho=0.0, max_training=3600, max_validation=900):
     """
     from bsd_v2_btts_team import fit_team_scoring_model, team_scoring_probabilities
     from bsd_v2_btts_league import fit_league_residual_model
+    from bsd_v2_btts_zero import fit_zero_goal_model
 
     training, validation = [], []
     for _stamp,event in index.global_games:
@@ -264,6 +273,7 @@ def fit_btts_model(index, *, rho=0.0, max_training=3600, max_validation=900):
     validation=sample(validation,max_validation)
     weights=_train_logistic([(feat,y) for _at,_event,feat,y in training])
     team_model=fit_team_scoring_model(index,[event for _at,event,_feat,_y in training])
+    zero_model=fit_zero_goal_model(index,[event for _at,event,_feat,_y in training])
     provisional=BTTSModel(weights,1.0,len(training),len(validation),team_model=team_model)
 
     def fixture_forecast(event,features=None):
@@ -303,9 +313,11 @@ def fit_btts_model(index, *, rho=0.0, max_training=3600, max_validation=900):
 
     rows_2024=[(None,*r) for r in observed]
     enough_training=len(training)>=100 and len(rows_2024)>=50
-    chosen=chosen_team=chosen_league=0.
+    chosen=chosen_team=chosen_league=chosen_zero=0.
     league_model=None
     stages={"team_candidate_brier":None,"league_candidate_brier":None,
+             "zero_2024_validation":None,"zero_2025_holdout":None,
+             "zero_activated":False,
             "team_holdout_2025_brier":None,"league_holdout_2025_brier":None,
             "team_activated":False,"league_activated":False}
 
@@ -390,9 +402,55 @@ def fit_btts_model(index, *, rho=0.0, max_training=3600, max_validation=900):
                 and trial_hold<=base_hold-.0001):
                 chosen_league=best_gamma
         stages["league_offsets"]=league_model.to_dict()
+
+        # Independent scoreless-hazard candidate trained only in Jan-Aug 2024.
+        # 2024 Q4 selects its blend; late 2025 vetoes false improvement.
+        def zero_rows(source, include_league):
+            values=[]
+            if zero_model is None:return values
+            for event,p0,p1,pt,y in source:
+                p_base=mixed(p0,p1,pt,chosen,chosen_team)
+                if include_league and chosen_league and league_model is not None:
+                    p_base=_clamp(p_base+chosen_league*league_model.deviation(event))
+                predicted=zero_model.predict(event,index)
+                p_zero=predicted["btts_yes"] if predicted else p_base
+                values.append((p_base,p_zero,y))
+            return values
+
+        zero_val=[]
+        for _at,event,feat,y in validation:
+            base=fixture_forecast(event,feat)
+            if base is not None:
+                zero_val.append((event,*base,y))
+        zero_train_rows=zero_rows(zero_val,False)
+        zero_hold_rows=zero_rows(holdout,True)
+
+        def zero_brier(rows,coef):
+            return (sum(((1-coef)*p0+coef*pz-y)**2 for p0,pz,y in rows)/len(rows)
+                    if rows else float("inf"))
+
+        if (len(zero_train_rows)>=100 and len(zero_hold_rows)>=250
+                and zero_model is not None):
+            zero_grid=(0.,.1,.2,.3,.4,.5,.65,.8,1.)
+            best_zero=min(zero_grid,key=lambda alpha:zero_brier(zero_train_rows,alpha))
+            base_train=zero_brier(zero_train_rows,0.)
+            trial_train=zero_brier(zero_train_rows,best_zero)
+            base_hold=zero_brier(zero_hold_rows,0.)
+            trial_hold=zero_brier(zero_hold_rows,best_zero)
+            stages["zero_2024_validation"]={
+                "n":len(zero_train_rows),"baseline":round(base_train,6),
+                "candidate":round(trial_train,6),"proposed_blend":best_zero}
+            stages["zero_2025_holdout"]={
+                "n":len(zero_hold_rows),"baseline":round(base_hold,6),
+                "candidate":round(trial_hold,6)}
+            if (best_zero>0 and trial_train<=base_train-.00020
+                    and trial_hold<=base_hold-.00015):
+                chosen_zero=best_zero
+        stages["zero_model_training"]=zero_model.training_matches if zero_model else 0
     else:
         stages["reason"]="insufficient_2024_training_or_validation"
 
+    stages["zero_activated"]=chosen_zero>0
     stages["team_activated"]=chosen_team>0
     stages["league_activated"]=chosen_league>0
     diag={
@@ -406,6 +464,7 @@ def fit_btts_model(index, *, rho=0.0, max_training=3600, max_validation=900):
         "available_validation":available_validation,
         "train_vs_validation_leakage":False,
         "blend":chosen,"team_blend":chosen_team,"league_blend":chosen_league,
+        "zero_blend":chosen_zero,
         "poisson_validation_brier":round(score(rows_2024,0.,0.),6) if observed else None,
         "specialized_validation_brier":round(score(rows_2024,1.,0.),6) if observed else None,
         "selected_validation_brier":round(score(rows_2024,chosen,chosen_team),6) if observed else None,
@@ -413,4 +472,4 @@ def fit_btts_model(index, *, rho=0.0, max_training=3600, max_validation=900):
         **stages
     }
     return BTTSModel(weights,chosen,len(training),len(observed),chosen_team,
-                     chosen_league,team_model,league_model),diag
+                     chosen_league,team_model,league_model,chosen_zero,zero_model),diag

@@ -242,5 +242,91 @@ class BTTSTests(unittest.TestCase):
         self.assertNotIn(prediction["prediction"]["key"],("BTTS_YES","BTTS_NO"))
 
 
+    def test_zero_goal_features_capture_blank_streak_and_no_future_leak(self):
+        from bsd_v2_btts_zero import zero_goal_features,FEATURE_NAMES
+        index=V2History(self.history)
+        features=zero_goal_features(self.match,index)
+        self.assertIsNotNone(features)
+        self.assertEqual(len(features[0][1]),len(FEATURE_NAMES))
+        self.assertGreater(features[0][0],0)
+        self.assertLess(features[1][0],1)
+        future=dict(self.match,status="finished",home_score=0,away_score=0)
+        newer=zero_goal_features(self.match,V2History(self.history+[future]))
+        self.assertEqual(features,newer)
+        past=list(self.history)
+        for e in past[-4:]:
+            if e["home_team_id"]==22:
+                e["home_score"]=0
+            else:
+                e["away_score"]=0
+        new_features=zero_goal_features(self.match,V2History(past))
+        self.assertNotEqual(features,new_features)
+
+    def test_zero_goal_model_trains_two_scoreless_labels_strictly_2024(self):
+        from bsd_v2_btts_zero import fit_zero_goal_model,ZeroGoalModel
+        start=datetime(2024,1,1,tzinfo=timezone.utc)
+        history=[]
+        for i in range(205):
+            history.append({
+                "id":8000+i,"event_date":(start+timedelta(days=i)).isoformat(),
+                "status":"finished","home_team_id":11 if i%2 else 22,
+                "away_team_id":22 if i%2 else 11,
+                "home_score":0 if i%5==0 else 2,
+                "away_score":0 if i%3==0 else 1,"league_id":9})
+        model=fit_zero_goal_model(V2History(history),history)
+        self.assertIsInstance(model,ZeroGoalModel)
+        self.assertGreaterEqual(model.training_matches,100)
+        fixture={"id":99999,"status":"notstarted",
+                 "event_date":(start+timedelta(days=210)).isoformat(),
+                 "home_team_id":11,"away_team_id":22,"league_id":9}
+        predicted=model.predict(fixture,V2History(history))
+        self.assertIsNotNone(predicted)
+        self.assertAlmostEqual(predicted["home_blank"]+predicted["home_scores"],1.)
+        self.assertAlmostEqual(predicted["away_blank"]+predicted["away_scores"],1.)
+        self.assertAlmostEqual(predicted["btts_yes"],
+            predicted["home_scores"]*predicted["away_scores"])
+        with self.assertRaises(ValueError):
+            fit_zero_goal_model(V2History(history),[
+                dict(history[2],event_date="2026-04-01T12:00:00+00:00")])
+
+    def test_zero_goal_blend_only_adjusts_btts_and_preserves_complements(self):
+        from bsd_v2_btts_zero import ZeroGoalModel,FEATURE_NAMES
+        n=len(FEATURE_NAMES)
+        zmodel=ZeroGoalModel((0.,)*n,(0.,)*n,200)
+        model=BTTSModel((0.,)*FEATURE_COUNT,0.,100,50,
+                        zero_blend=.5,zero_model=zmodel)
+        base=markets_from_matrix(score_matrix(1.6,1.2))
+        changed=btts_candidates(self.match,V2History(self.history),base,model)
+        before={c.key:c for c in base}
+        after={c.key:c for c in changed}
+        self.assertAlmostEqual(after["BTTS_YES"].probability+
+                               after["BTTS_NO"].probability,1.)
+        for key in before:
+            if not key.startswith("BTTS_"):
+                self.assertEqual(before[key],after[key])
+        future=dict(self.match,status="finished",home_score=10,away_score=10)
+        second=btts_candidates(self.match,V2History(self.history+[future]),base,model)
+        self.assertEqual(changed,second)
+
+    def test_zero_goal_model_shadow_is_read_only_with_real_weights(self):
+        from bsd_v2_btts_zero import ZeroGoalModel,FEATURE_NAMES
+        class Quality:
+            def check_fixture(self,e):return None
+            def check_market(self,c):return None
+            def family_uncertainty_adjustments(self):return {}
+        zmodel=ZeroGoalModel((0.,)*len(FEATURE_NAMES),
+                             (0.,)*len(FEATURE_NAMES),123)
+        model=BTTSModel((.4,)+(0.,)*(FEATURE_COUNT-1),1.,100,50,
+                        zero_model=zmodel)
+        pred,why=predict_v2(self.match,V2History(self.history),
+                            btts_model=model,quality_policy=Quality())
+        self.assertEqual(why,"ok")
+        shadow=pred["model_audit"]["btts_challenger_shadow"]
+        self.assertTrue(shadow["zero_model_trained"])
+        self.assertEqual(shadow["zero_blend_active"],0.)
+        self.assertIsNotNone(shadow["zero_model_home_blank"])
+        self.assertIsNotNone(shadow["zero_model_away_blank"])
+
+
 if __name__=="__main__":
     unittest.main()

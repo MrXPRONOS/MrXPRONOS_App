@@ -1,0 +1,88 @@
+name: BSD V2 Zero-Goal Hurdle - Acceptance 2026
+on:
+  push:
+    branches:
+      - improve/btts-zero-goal-hurdle-20261103
+    paths:
+      - .github/workflows/btts-v2-zero-goal-acceptance.yml
+permissions:
+  contents: read
+concurrency:
+  group: btts-v2-zero-goal-acceptance
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PYTHONPATH: bsd
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install runtime dependencies
+        run: python -m pip install requests cryptography pillow
+      - name: Compile code
+        run: python -m compileall -q bsd
+      - name: Run BTTS zero-goal model tests
+        run: python -m unittest discover -s bsd -p 'test_bsd_v2_btts.py' -v
+      - name: Run complete BSD regression suite
+        run: python -m unittest discover -s bsd -p 'test_*.py' -v
+      - name: Restore encrypted historical fixture archive read-only
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: python bsd/bsd_archive.py restore
+      - name: Backtest 2026 on strictly eligible fixtures
+        run: |
+          python bsd/bsd_v2_btts_backtest.py --max-test 30000 \
+            --start-date 2026-01-01 --end-date 2026-11-02 \
+            --output bsd/btts_zero_goal_2026_audit.json
+      - name: Verify zero-goal risk against Poisson baseline
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open('bsd/btts_zero_goal_2026_audit.json'))
+          f=d['fit']
+          t=d['test']
+          zero=t['zero_model_shadow']
+          assert f['zero_model_training']>=100, f
+          assert t['eligible']>=500, t['eligible']
+          assert t['strict_quality_enabled'] and t['specialist_only']
+          assert zero['home_blank']['n']>500 and zero['away_blank']['n']>500
+          assert zero['home_blank']['n']==zero['home_blank_poisson']['n']
+          assert zero['away_blank']['n']==zero['away_blank_poisson']['n']
+          if f['zero_activated']:
+              assert f['zero_blend']>0
+              assert (f['zero_2024_validation']['candidate'] <
+                      f['zero_2024_validation']['baseline'])
+              assert (f['zero_2025_holdout']['candidate'] <
+                      f['zero_2025_holdout']['baseline'])
+              old=t['ablation_without_team_league_zero']
+              assert old and old['n']==t['eligible']
+              assert t['specialized_calibrated']['BTTS_YES']['brier'] <= old['brier']+.0005, (old,t)
+          print('BSD_BTTS_ZERO_GOAL_AUDIT='+json.dumps({
+              'training_matches':f['zero_model_training'],
+              'zero_blend':f['zero_blend'],
+              'zero_activated':f['zero_activated'],
+              'validation_2024':f['zero_2024_validation'],
+              'holdout_2025':f['zero_2025_holdout'],
+              'eligible_2026':t['eligible'],
+              'zero_home':zero['home_blank'],
+              'zero_home_poisson':zero['home_blank_poisson'],
+              'zero_away':zero['away_blank'],
+              'zero_away_poisson':zero['away_blank_poisson'],
+              'btts_zero_uncalibrated':zero['btts_yes_uncalibrated'],
+              'btts_specialized_calibrated':t['specialized_calibrated']['BTTS_YES'],
+              'btts_poisson_calibrated':t['baseline_calibrated']['BTTS_YES'],
+              'prior_specialist':t['ablation_without_team_league_zero'],
+              'thresholds':t['by_minimum_confidence'],
+          },ensure_ascii=False))
+          PY
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: btts-zero-goal-2026-audit
+          path: bsd/btts_zero_goal_2026_audit.json
+          if-no-files-found: error
+          retention-days: 14

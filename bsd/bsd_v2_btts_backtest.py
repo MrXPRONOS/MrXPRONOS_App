@@ -6,6 +6,7 @@ ne pas inférer la rentabilité d'un backtest sans prix pré-match.
 """
 from __future__ import annotations
 import argparse,json
+from math import exp
 from dataclasses import replace
 from datetime import date
 from collections import Counter,defaultdict
@@ -40,6 +41,9 @@ def audit(index,model,calibration,rho,*,year=2026,max_matches=2000,
     baseline_calibrated=defaultdict(list)
     probability_buckets=defaultdict(list)
     prior_probabilities=[]
+    zero_home,zero_away=[],[]
+    poisson_zero_home,poisson_zero_away=[],[]
+    zero_joint=[]
     counters=Counter()
     selected=[]
     for _stamp, match in index.global_games:
@@ -77,6 +81,14 @@ def audit(index,model,calibration,rho,*,year=2026,max_matches=2000,
                 continue
         scores=outcome_scores(match)
         win_yes=int(scores[0]>0 and scores[1]>0)
+        if getattr(model,"zero_model",None) is not None:
+            zero=model.zero_model.predict(match,index,expected)
+            if zero is not None:
+                zero_home.append((zero["home_blank"],int(scores[0]==0)))
+                zero_away.append((zero["away_blank"],int(scores[1]==0)))
+                poisson_zero_home.append((exp(-expected["home"]),int(scores[0]==0)))
+                poisson_zero_away.append((exp(-expected["away"]),int(scores[1]==0)))
+                zero_joint.append((zero["btts_yes"],win_yes))
         if prior_model is not None and prior_calibration is not None:
             prior={c.key:c for c in btts_candidates(match,index,list(original.values()),prior_model)}
             prior_probabilities.append((prior_calibration.score(prior['BTTS_YES'])[1],win_yes))
@@ -120,7 +132,14 @@ def audit(index,model,calibration,rho,*,year=2026,max_matches=2000,
         "preprice_only":True,
         "same_btts_eligibility_as_production":quality_policy is not None,
         "does_not_simulate_competing_markets_or_odds":True,
-        "ablation_without_team_league":_statistics(prior_probabilities) if prior_probabilities else None,
+        "ablation_without_team_league_zero":_statistics(prior_probabilities) if prior_probabilities else None,
+        "zero_model_shadow":{
+            "home_blank":_statistics(zero_home),
+            "away_blank":_statistics(zero_away),
+            "home_blank_poisson":_statistics(poisson_zero_home),
+            "away_blank_poisson":_statistics(poisson_zero_away),
+            "btts_yes_uncalibrated":_statistics(zero_joint),
+        },
         "skips":{k:v for k,v in counters.items() if k.startswith("skipped_")},
         "specialized_calibrated":{k:_statistics(v) for k,v in by_group.items()},
         "poisson_dixon_coles_baseline":{k:_statistics(v) for k,v in baseline.items()},
@@ -158,8 +177,8 @@ def main():
     cal,policy,periods=fit_policy(index,rho=rho,btts_model=model)
     baseline_cal,_,_=fit_policy(index,rho=rho,btts_model=None)
     prior_model=prior_cal=None
-    if model.team_blend>0 or model.league_blend>0:
-        prior_model=replace(model,team_blend=0.,league_blend=0.)
+    if model.team_blend>0 or model.league_blend>0 or model.zero_blend>0:
+        prior_model=replace(model,team_blend=0.,league_blend=0.,zero_blend=0.)
         prior_cal,_,_=fit_policy(index,rho=rho,btts_model=prior_model)
     result={"model":"btts-specialized-v1","fit":training,"calibration":periods,
             "test":audit(index,model,cal,rho,max_matches=args.max_test,

@@ -469,9 +469,18 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
         team_shadow=team_scoring_probabilities(
             event,index,model=getattr(btts_model,"team_model",None))
         league_shadow=getattr(btts_model,"league_model",None)
+        zero_model=getattr(btts_model,"zero_model",None)
+        zero_shadow=(zero_model.predict(event,index,expected) if zero_model else None)
         btts_shadow={
             "team_model_trained":getattr(btts_model,"team_model",None) is not None,
             "league_model_trained":league_shadow is not None,
+            "zero_model_trained":zero_model is not None,
+            "zero_blend_active":getattr(btts_model,"zero_blend",0.),
+            "zero_model_home_blank":round(zero_shadow["home_blank"],6) if zero_shadow else None,
+            "zero_model_away_blank":round(zero_shadow["away_blank"],6) if zero_shadow else None,
+            "zero_model_btts_yes":round(zero_shadow["btts_yes"],6) if zero_shadow else None,
+            "zero_model_home_baseline":round(zero_shadow["baseline_home_blank"],6) if zero_shadow else None,
+            "zero_model_away_baseline":round(zero_shadow["baseline_away_blank"],6) if zero_shadow else None,
             "team_blend_active":getattr(btts_model,"team_blend",0.),
             "league_blend_active":getattr(btts_model,"league_blend",0.),
             "home_scores_probability":round(team_shadow["home_scores"],6) if team_shadow else None,
