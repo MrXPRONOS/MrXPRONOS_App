@@ -20,6 +20,7 @@ from pathlib import Path
 # The production runner sets PYTHONPATH to vetted, isolated research source.
 import numpy as np
 from bsd_api import BSDClient
+from scripts.resolve_bsd_leagues import resolve_league_labels
 from bsd_archive import MATCHES_FILE
 from single_ml_v2_multisource import certified_rows, safe_source_identities
 from single_ml_v2_git import key_from_environment
@@ -341,7 +342,8 @@ def main():
     future=client.list_events(now.date(),now.date(),max_pages=20,ttl=0)
     if not future.complete:
         raise RuntimeError("Today's fixture list is incomplete: refusing to publish incomplete Top5")
-    records,details=forecast_day(now=now,source_rows=certified,recent_rows=recent,events=future.events)
+    verified_events,league_audit=resolve_league_labels(future.events,current,client)
+    records,details=forecast_day(now=now,source_rows=certified,recent_rows=recent,events=verified_events)
     published=datetime.now(timezone.utc).replace(microsecond=0)
     # Recheck every timestamp after potentially slow model-fitting, and do not
     # use the earlier job-start clock to certify a late forecast.
@@ -359,7 +361,8 @@ def main():
     print("HYBRID_V3_PROSPECTIVE",json.dumps({
         "date":now.date().isoformat(),"authentic_prematch":True,
         "fixture_count":len(future.events),"eligible_grid_count":len(records),
-        "fixture_screening":fixture_eligibility_diagnostics(future.events,now=published),
+        "fixture_screening":fixture_eligibility_diagnostics(verified_events,now=published),
+        "official_league_resolution":league_audit,
         "http_calls":client.requests_made,"history":freshness,
         "engine":details,"output":str(args.out),
         "post_match_outcomes":False,"changed_prod_pro_vip":False
