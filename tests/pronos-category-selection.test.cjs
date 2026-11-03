@@ -38,6 +38,16 @@ function browserFixture(matches, search = "") {
   const rangeNode = { innerHTML: "", closest() { return rangeSection; } };
   const doc = {
     querySelector() { return null; },
+    createElement() {
+      return {
+        innerHTML: "",
+        set textContent(value) {
+          this.innerHTML = String(value)
+            .replaceAll("&", "&amp;").replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+        }
+      };
+    },
     querySelectorAll(selector) {
       return selector === ".pronostic-category-tabs .tab-btn" ? tabs : [];
     },
