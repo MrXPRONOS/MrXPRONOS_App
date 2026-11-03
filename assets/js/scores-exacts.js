@@ -149,6 +149,24 @@
     picks.forEach((p, i) => root.append(card(p, i + 1, mode)));
   }
 
+  let activePayload = null;
+  function renderUpcoming(p) {
+    // Even if the page stays open during the day, do not keep showing games
+    // after kickoff as if the pick were still available.
+    const now = Date.now();
+    const simple = p.simple.filter(item => Date.parse(item.kickoff_utc) > now);
+    const grouped = p.grouped.filter(item => Date.parse(item.kickoff_utc) > now);
+    paint(simpleRoot, simple, 'simple');
+    paint(groupedRoot, grouped, 'grouped');
+    document.getElementById('simple-count').textContent = simple.length + ' / 5';
+    document.getElementById('grouped-count').textContent = grouped.length + ' / 5';
+    document.getElementById('scores-updated').textContent = 'Généré le ' + niceDate(p.date) + ' à ' + clock(p.generated_at) + ' UTC';
+    setStatus(simple.length || grouped.length
+      ? 'Sélections pré-match vérifiées · ' + simple.length + ' score(s) simple(s), ' + grouped.length + ' groupe(s) avant coup d’envoi.'
+      : 'Tous les matchs de cette publication ont commencé. Aucune nouvelle sélection disponible.',
+      simple.length || grouped.length ? 'ready' : 'unavailable');
+  }
+
   async function load() {
     document.getElementById('scores-date').textContent = 'Sélections du ' + niceDate(todayUTC());
     try {
@@ -163,15 +181,8 @@
         renderEmpty(groupedRoot, 'Top 5 paris groupés indisponible pour le moment.');
         return;
       }
-      const p = result.payload;
-      paint(simpleRoot, p.simple, 'simple');
-      paint(groupedRoot, p.grouped, 'grouped');
-      document.getElementById('simple-count').textContent = p.simple.length + ' / 5';
-      document.getElementById('grouped-count').textContent = p.grouped.length + ' / 5';
-      document.getElementById('scores-updated').textContent = 'Généré le ' + niceDate(p.date) + ' à ' + clock(p.generated_at) + ' UTC';
-      setStatus(p.simple.length || p.grouped.length
-        ? 'Sélections pré-match chargées · ' + p.simple.length + ' score(s) simple(s), ' + p.grouped.length + ' groupe(s).'
-        : 'Aucun match éligible n’a été retenu pour cette journée.', p.simple.length || p.grouped.length ? 'ready' : 'unavailable');
+      activePayload = result.payload;
+      renderUpcoming(activePayload);
     } catch (_) {
       setStatus('Sélections indisponibles : impossible de vérifier les données du jour. Réessayez plus tard.', 'unavailable');
       renderEmpty(simpleRoot, 'Aucun pronostic vérifié actuellement disponible.');
@@ -220,4 +231,9 @@
     if (!document.hidden) load();
   }, 15 * 60 * 1000);
   load();
+  window.setInterval(() => {
+    if (activePayload && activePayload.date === todayUTC()) renderUpcoming(activePayload);
+    else if (!document.hidden) load();
+  }, 60000);
+  window.setInterval(() => { if (!document.hidden) load(); }, 15 * 60000);
 })();
