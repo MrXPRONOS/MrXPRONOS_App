@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 jobs:
   chromium-admin-navigation:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 12
     permissions:
       contents: read
