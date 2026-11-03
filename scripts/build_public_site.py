@@ -14,6 +14,7 @@ import math
 import json
 import re
 import shutil
+from math import isfinite
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -158,7 +159,9 @@ def _public_market_analysis(item):
     """
     if not isinstance(item,dict):
         raise ValueError("Invalid market analysis")
-    if not (item.get("analysis_only") is True and
+    if not (item.get("display_tier") in ("safe","cotes15") and
+            item.get("analysis_telegram_opt_in") is True and
+            item.get("analysis_only") is True and
             item.get("recommendation_eligible") is False and
             item.get("prediction_eligible") is False and
             item.get("do_not_send_to_telegram") is True and
@@ -172,7 +175,7 @@ def _public_market_analysis(item):
     odds=item.get("odds")
     if (type(p) not in (float,int) or type(odds) not in (float,int)
             or not math.isfinite(p) or not math.isfinite(odds)
-            or not 0<p<1 or not 1.40<=odds<=2.00
+            or not 0<p<1 or not 1.30<odds<=2.00
             or abs(odds-round(1/(p*1.06),3))>.0011):
         raise ValueError("Invalid or fabricated market-analysis odds")
     public_fields=(
@@ -180,6 +183,9 @@ def _public_market_analysis(item):
         "selection_key","market_label",
     )
     result={key:item[key] for key in public_fields if key in item}
+    if (item["display_tier"] == "safe" and not 1.30<odds<=1.50 or
+        item["display_tier"] == "cotes15" and not 1.50<odds<=2.00):
+        raise ValueError("Market analysis tier and price disagree")
     if not all(isinstance(result.get(k),str) and result[k].strip()
                for k in ("event_date","home_team","away_team","selection_key","market_label")):
         raise ValueError("Market analysis identity incomplete")
@@ -188,6 +194,7 @@ def _public_market_analysis(item):
         "model_probability":round(p,6),
         "odds":float(odds),
         "price_type":"model_indicative",
+        "display_tier":item["display_tier"],
         "estimated_odds":True,
         "analysis_only":True,
         "recommendation_eligible":False,
