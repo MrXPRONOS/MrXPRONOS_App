@@ -20,3 +20,12 @@ jobs:
       - run: python -m unittest discover -s bsd -p 'test_*.py' -v
       - run: node --check assets/js/main.js
       - run: node --test tests/pronos-category-selection.test.cjs
+      - name: Restore private historical training data
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: python bsd/bsd_archive.py restore
+      - name: Check market approval from pre-2026 data
+        run: python bsd/bsd_v2_safe_expansion_check.py
+      - name: Clean history
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
