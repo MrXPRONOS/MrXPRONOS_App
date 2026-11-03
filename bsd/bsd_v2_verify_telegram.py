@@ -27,8 +27,8 @@ import requests
 from bsd_api import BSDClient
 from bsd_h2h import _utc, _valid_score
 from bsd_markets import candidates_from_goals, realized
-from bsd_v2_card import render as render_card
-from bsd_v2_combo_card import render_combo
+from bsd_v2_tier_visual import render_ultra_result as render_card
+from bsd_v2_tier_visual import render_ultra_combo as render_combo
 from bsd_v2_captions import gain_caption, combo_gain_caption
 from bsd_v2_combos import (
     build_combos, combo_id_for_legs, parse_combo_ledger_ref,
@@ -155,7 +155,7 @@ def combo_verdict(combo,events):
 
 def post_gain(session,token,chat,match):
     with tempfile.TemporaryDirectory() as directory:
-        image=render_card(match,Path(directory)/"gain.png",win=True)
+        image=render_card(match,Path(directory)/"gain.png")
         from bsd_v2_telegram_banner import attach_banner
         image=attach_banner(image)
         return post_photo(session,token,chat,image,gain_caption(match),
