@@ -1,0 +1,40 @@
+name: Native Hybrid V3 daily forecast - strict tests
+on:
+  push:
+    branches: [research/single-ml-v2-20261024]
+    paths: ['.github/workflows/research-ml-v3-daily-forecast-tests.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  genuine-v3-daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install actual ML dependencies
+        run: python -m pip install numpy scipy scikit-learn cryptography requests
+      - name: Check research-native V3 daily generator
+        run: |
+          python -m py_compile research/single_ml_v2.py research/ml_v3_daily_forecast.py research/test_ml_v3_daily_forecast.py
+          PYTHONPATH=.:research:bsd python -m unittest research.test_ml_v3_daily_forecast -v
+      - name: Enforce no future or postmatch input in genuine V3 path
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          source=Path("research/single_ml_v2.py").read_text()
+          future=Path("research/ml_v3_daily_forecast.py").read_text()
+          assert 'prospective_fixtures' in source
+          assert 'states.features(candidate)' in source
+          assert 'states.add_day(daily)' in source
+          assert 'future.get("kickoff_utc")' in source
+          assert 'd >= asof.date()' in future
+          assert 'v3_models=True,prospective_fixtures=future' in future
+          assert 'certified_rows(key)' in future
+          print("NATIVE_HYBRID_V3_PROSPECTIVE_CODE_GUARDS_OK")
+          PY
