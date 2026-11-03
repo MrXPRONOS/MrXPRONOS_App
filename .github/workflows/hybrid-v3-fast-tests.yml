@@ -22,6 +22,21 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Checkout optimized V3 research candidate for parity validation
+        uses: actions/checkout@v4
+        with:
+          ref: optimize/hybrid-v3-checkpoint-research-20261103
+          path: model
+          persist-credentials: false
+      - name: Install numerical dependencies for native V3 parity tests
+        run: python -m pip install numpy scipy scikit-learn cryptography
+      - name: Check authenticated checkpoint and original-V3 grid parity
+        env:
+          PYTHONPATH: model/research:model
+        run: |
+          python -m py_compile model/research/single_ml_v2.py model/research/single_ml_v3_checkpoint.py model/research/test_single_ml_v3_checkpoint.py model/research/test_single_ml_v3_parity.py
+          python -m unittest discover -s model/research -p 'test_single_ml_v3_checkpoint.py' -v
+          python -m unittest discover -s model/research -p 'test_single_ml_v3_parity.py' -v
       - name: Compile new production scripts and safety tests
         run: python -m py_compile scripts/run_exact_scores_v3_daily.py scripts/prepare_hybrid_v3_checkpoint.py tests/test_exact_v3_fast_inference.py
       - name: Verify no model retraining occurs in score generation
