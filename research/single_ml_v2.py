@@ -613,7 +613,7 @@ def summarize(stats):
     return result
 
 
-def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None, auto_tune=True, tuning_interval_days=90, selection_coverage=.25, v3_models=False, frozen_fit_cutoff=None):
+def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None, auto_tune=True, tuning_interval_days=90, selection_coverage=.25, v3_models=False, frozen_fit_cutoff=None, export_v3_group_mass=False):
     # Strict holdout: 2026 labels may update NEXT-DAY form features only.
     # No 2026 target can enter ML fitting, DC coefficient estimation, selector
     # fitting, hybrid/DC or direct-prior calibration.
@@ -622,6 +622,12 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             or frozen_fit_cutoff != date(2025,12,31)
             or begin <= frozen_fit_cutoff or auto_tune):
             raise ValueError("Frozen-fit research mode requires 2025-12-31 cutoff, a later evaluation window, and disabled tuning")
+    if export_v3_group_mass and not v3_models:
+        raise ValueError("Group-mass export requires explicit research-only V3")
+    # Compute/export only PREMATCH probabilities; never use actual outcomes
+    # when building or ranking candidate group probabilities.
+    from ml_v3_group_probability import grid_group_mass
+    v3_group_mass_rows = []
     states = FormState()
     reliability_history = defaultdict(list)
     reliability_models = {k: None for k in SELECTABLE_MODELS}
@@ -901,6 +907,18 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                 runner_idx = int(np.argmax(competing))
                 runner_h, runner_a = divmod(runner_idx, MAX_GOALS+1)
                 runner_prob = float(competing[runner_idx])
+                if export_v3_group_mass and name == V3_HYBRID:
+                    pred_score = f"{i}:{j}"
+                    mass = grid_group_mass(grid, pred_score)
+                    v3_group_mass_rows.append({
+                        "date": str(m.day), "id": m.key,
+                        "predicted_score": pred_score,
+                        "modal_probability": mass["modal_probability"],
+                        "group": mass["group"],
+                        "group_probability": mass["group_probability"],
+                        "history_latest_day": str(last_history_day) if last_history_day else "",
+                        "model_fit_latest_day": str(model_fit_history_day) if model_fit_history_day else "",
+                    })
                 row = {
                     "history_latest_day":str(last_history_day) if last_history_day else "",
                     "model_fit_latest_day":str(model_fit_history_day) if model_fit_history_day and name.startswith("machine_learning") else "",
@@ -1101,7 +1119,29 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             wr.writerows(detail)
         else:
             fh.write("no_predictions\n")
-    print("FINAL_BACKTEST_RESULTS", json.dumps(report, ensure_ascii=False), flush=True)
+    if export_v3_group_mass:
+        if not v3_group_mass_rows:
+            raise ValueError("No Hybrid V3 prematch probability grids to export")
+        # Only recorded probabilities/provenance here; NO actual result labels.
+        with open(Path(out)/"hybrid_v3_group_mass.csv", "w", newline="", encoding="utf8") as fh:
+            cols=("date","id","predicted_score","modal_probability","group",
+                  "group_probability","history_latest_day","model_fit_latest_day")
+            wr=csv.DictWriter(fh,fieldnames=list(cols))
+            wr.writeheader()
+            wr.writerows(v3_group_mass_rows)
+        report["files"].append("hybrid_v3_group_mass.csv")
+        report["v3_group_mass_feature"]={
+            "rows":len(v3_group_mass_rows),
+            "prediction_only":True,
+            "settlement_labels_in_export":False,
+            "group_definitions":"Frozen 3-score research proxy; not verified official 1xBet markets",
+        }
+        with open(Path(out)/"summary.json", "w", encoding="utf8") as fh:
+            json.dump(report, fh, ensure_ascii=False, indent=2)
+        print("PREMATCH_V3_GROUP_MASS_EXPORT",json.dumps({
+            "rows":len(v3_group_mass_rows), "labels_in_feature_csv":False,
+            "file":str(Path(out)/"hybrid_v3_group_mass.csv")}),flush=True)
+    print("FINAL_BACKTEST_RESULTS", json.dumps(report, ensure_ascii=False)
     return summary
 
 
@@ -1144,6 +1184,8 @@ def main():
                     help="Fit all eight ML/DC coefficients only from 2024-2025 and never re-fit during 2026")
     ap.add_argument("--experimental-v3", action="store_true",
                     help="Run opt-in parallel HistGB/Hybrid/Direct V3 alongside untouched V2")
+    ap.add_argument("--export-v3-group-mass", action="store_true",
+                    help="Research-only export of original modal-score proxy group probability")
     args = ap.parse_args()
     self_test()
     if args.self_test_only:
@@ -1164,7 +1206,8 @@ def main():
              tuning_interval_days=args.tuning_interval_days,
              selection_coverage=args.selection_coverage,
              v3_models=args.experimental_v3,
-             frozen_fit_cutoff=date(2025,12,31) if args.frozen_fit_through_2025 else None)
+             frozen_fit_cutoff=date(2025,12,31) if args.frozen_fit_through_2025 else None,
+             export_v3_group_mass=args.export_v3_group_mass)
 
 
 if __name__ == "__main__":
