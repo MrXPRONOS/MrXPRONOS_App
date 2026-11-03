@@ -1,0 +1,53 @@
+name: BTTS - Statistiques 2026 indépendantes et rapides
+on:
+  push:
+    branches: [research/btts-statistics-20261103]
+    paths:
+      - 'bsd/bsd_btts_statistical_holdout_2026.py'
+      - '.github/workflows/bsd-btts-statistical-2026.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  btts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: python -m pip install requests cryptography
+      - run: python -m compileall -q bsd/bsd_btts_statistical_holdout_2026.py
+      - name: Restore private encrypted 2024-2026 historical match archive
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: python bsd/bsd_archive.py restore
+      - name: Evaluate both BTTS sides using strictly historical features
+        run: |
+          python bsd/bsd_btts_statistical_holdout_2026.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('bsd/btts_statistical_holdout_2026.json').read_text())
+          assert r['coverage']['modeled_fixtures']>0
+          for key in ('BTTS_YES','BTTS_NO'):
+              d=r['by_market'][key]
+              assert d['all']['n']>=d['quality']['n']>=d['qualified79']['n']
+              assert d['qualified79']['wins']<=d['qualified79']['n']
+              assert set(d['thresholds'])=={'50','55','60','65','70','75','79','80','85','90'}
+          print('BSD_BTTS_STATISTICAL_2026_VERIFIED',r['coverage'])
+          PY
+      - name: Clear decrypted historical files
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+      - name: Export aggregate result only
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: btts-statistics-full-year-2026-${{ github.run_id }}
+          path: |
+            bsd/btts_statistical_holdout_2026.json
+            bsd/btts_statistical_holdout_2026.md
+            bsd/btts_statistical_holdout_2026.csv
+          retention-days: 30
