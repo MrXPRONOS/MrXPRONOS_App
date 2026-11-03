@@ -156,18 +156,13 @@ def combo_verdict(combo,events):
 def post_gain(session,token,chat,match):
     with tempfile.TemporaryDirectory() as directory:
         image=render_card(match,Path(directory)/"gain.png")
-        from bsd_v2_telegram_banner import attach_banner
-        image=attach_banner(image)
         return post_photo(session,token,chat,image,gain_caption(match),
                           action_buttons(),timeout=60)
 
 
 def post_combo_gain(session,token,chat,combo):
     with tempfile.TemporaryDirectory() as directory:
-        image=render_combo(combo,Path(directory)/"combo-gain.png",
-                           session=session,win=True)
-        from bsd_v2_telegram_banner import attach_banner
-        image=attach_banner(image)
+        image=render_combo(combo,Path(directory)/"combo-gain.png",winning=True)
         return post_photo(session,token,chat,image,combo_gain_caption(combo),
                           action_buttons(),timeout=60)
 
