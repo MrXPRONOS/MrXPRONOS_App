@@ -25,7 +25,15 @@
     ],
     "editorial_role": "match_du_jour",
     "home_logo": "https://sports.bzzoiro.com/img/team/134/?bg=transparent",
-    "away_logo": "https://sports.bzzoiro.com/img/team/1/?bg=transparent"
+    "away_logo": "https://sports.bzzoiro.com/img/team/1/?bg=transparent",
+    "visual_variant": "v1",
+    "visual_hash": "5db40101",
+    "visual_format": "webp",
+    "image_url": "assets/images/editorial/match-bsd-match-601089-5db40101-og.webp",
+    "social_image": "assets/images/editorial/match-bsd-match-601089-5db40101-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-601089-5db40101-story.webp",
+    "og_image": "assets/images/editorial/match-bsd-match-601089-5db40101-og.webp",
+    "ab_image_url": "assets/images/editorial/match-bsd-match-601089-5db40101-ab.webp"
   },
   {
     "slug": "bsd-match-601034",
@@ -53,7 +61,15 @@
     ],
     "editorial_role": "grande_affiche",
     "home_logo": "https://sports.bzzoiro.com/img/team/54/?bg=transparent",
-    "away_logo": "https://sports.bzzoiro.com/img/team/79/?bg=transparent"
+    "away_logo": "https://sports.bzzoiro.com/img/team/79/?bg=transparent",
+    "visual_variant": "v3",
+    "visual_hash": "da68118f",
+    "visual_format": "webp",
+    "image_url": "assets/images/editorial/match-bsd-match-601034-da68118f-og.webp",
+    "social_image": "assets/images/editorial/match-bsd-match-601034-da68118f-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-601034-da68118f-story.webp",
+    "og_image": "assets/images/editorial/match-bsd-match-601034-da68118f-og.webp",
+    "ab_image_url": "assets/images/editorial/match-bsd-match-601034-da68118f-ab.webp"
   },
   {
     "slug": "bsd-match-7328",
@@ -81,7 +97,15 @@
     ],
     "editorial_role": "grande_affiche",
     "home_logo": "https://sports.bzzoiro.com/img/team/160/?bg=transparent",
-    "away_logo": "https://sports.bzzoiro.com/img/team/154/?bg=transparent"
+    "away_logo": "https://sports.bzzoiro.com/img/team/154/?bg=transparent",
+    "visual_variant": "v2",
+    "visual_hash": "308ee3c5",
+    "visual_format": "webp",
+    "image_url": "assets/images/editorial/match-bsd-match-7328-308ee3c5-og.webp",
+    "social_image": "assets/images/editorial/match-bsd-match-7328-308ee3c5-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-7328-308ee3c5-story.webp",
+    "og_image": "assets/images/editorial/match-bsd-match-7328-308ee3c5-og.webp",
+    "ab_image_url": "assets/images/editorial/match-bsd-match-7328-308ee3c5-ab.webp"
   },
   {
     "slug": "bsd-match-7332",
@@ -109,7 +133,15 @@
     ],
     "editorial_role": "grande_affiche",
     "home_logo": "https://sports.bzzoiro.com/img/team/158/?bg=transparent",
-    "away_logo": "https://sports.bzzoiro.com/img/team/167/?bg=transparent"
+    "away_logo": "https://sports.bzzoiro.com/img/team/167/?bg=transparent",
+    "visual_variant": "v2",
+    "visual_hash": "57613b5b",
+    "visual_format": "webp",
+    "image_url": "assets/images/editorial/match-bsd-match-7332-57613b5b-og.webp",
+    "social_image": "assets/images/editorial/match-bsd-match-7332-57613b5b-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-7332-57613b5b-story.webp",
+    "og_image": "assets/images/editorial/match-bsd-match-7332-57613b5b-og.webp",
+    "ab_image_url": "assets/images/editorial/match-bsd-match-7332-57613b5b-ab.webp"
   },
   {
     "slug": "bsd-match-601072",
@@ -137,7 +169,15 @@
     ],
     "editorial_role": "grande_affiche",
     "home_logo": "https://sports.bzzoiro.com/img/team/35/?bg=transparent",
-    "away_logo": "https://sports.bzzoiro.com/img/team/62/?bg=transparent"
+    "away_logo": "https://sports.bzzoiro.com/img/team/62/?bg=transparent",
+    "visual_variant": "v3",
+    "visual_hash": "36c6c161",
+    "visual_format": "webp",
+    "image_url": "assets/images/editorial/match-bsd-match-601072-36c6c161-og.webp",
+    "social_image": "assets/images/editorial/match-bsd-match-601072-36c6c161-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-601072-36c6c161-story.webp",
+    "og_image": "assets/images/editorial/match-bsd-match-601072-36c6c161-og.webp",
+    "ab_image_url": "assets/images/editorial/match-bsd-match-601072-36c6c161-ab.webp"
   },
   {
     "slug": "bsd-match-209617",
