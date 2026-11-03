@@ -139,3 +139,60 @@ def render_analysis(row,path):
     dest=Path(path);dest.parent.mkdir(parents=True,exist_ok=True)
     image.save(dest,"PNG",optimize=True)
     return dest
+
+
+def render_ultra_combo(combo,path,*,winning=False):
+    """Two verified Ultra Safe selections; no fictitious payments."""
+    legs=combo.get("legs") or []
+    if len(legs)!=2:raise ValueError("Two legs required")
+    if any((leg.get("category") not in ("pro","vip") or
+            (leg.get("prediction") or {}).get("odds") is None) for leg in legs):
+        raise ValueError("Combined Ultra Safe ticket must use real eligible matches")
+    canvas,d=_base(ULTRA,height=1490)
+    _line(d,"ULTRA SAFE DU JOUR",540,184,size=52,bold=True,color=SKY,align="center")
+    _line(d,"DEUX RENCONTRES · DEUX SÉLECTIONS",540,253,size=23,
+          color=MUTED,align="center")
+    for i,leg in enumerate(legs):
+        y=339+i*357
+        d.rounded_rectangle((105,y,975,y+314),radius=23,fill="#143B56")
+        pick=leg.get("prediction") or {}
+        _line(d,f"{i+1:02d} · {leg.get('league') or 'Football'}",133,y+23,
+              size=23,color=SKY)
+        _line(d,leg.get("home_team"),540,y+73,size=35,bold=True,align="center",width=760)
+        _line(d,"VS",540,y+120,size=24,bold=True,color=AMBER,align="center")
+        _line(d,leg.get("away_team"),540,y+160,size=35,bold=True,align="center",width=760)
+        _line(d,pick.get("label") or pick.get("type") or pick.get("selection_key"),
+              135,y+237,size=27,color=WHITE,width=575)
+        _line(d,_price(pick["odds"]),901,y+220,size=45,bold=True,
+              align="right",color=AMBER)
+    _line(d,"COTE COMBINÉE ESTIMÉE" if any((x.get("prediction") or {}).get("estimated_odds")
+              for x in legs) else "COTE COMBINÉE",130,1082,size=25,color=MUTED)
+    _line(d,_price(float(combo.get("combined_odds"))),886,1060,size=49,
+          color=AMBER,bold=True,align="right")
+    _line(d,"RÉSULTAT VÉRIFIÉ" if winning else "PRÉVISIONS AVANT-MATCH",
+          540,1194,size=26,bold=True,color=SKY,align="center")
+    _line(d,"Résultat non garanti · Aucune mise ni gain attesté",
+          540,1289,size=22,color=MUTED,align="center")
+    _line(d,"18+ · Jouez avec modération",540,1432,size=22,color=MUTED,align="center")
+    dest=Path(path);dest.parent.mkdir(parents=True,exist_ok=True)
+    canvas.save(dest,"PNG",optimize=True)
+    return dest
+
+def render_ultra_result(match,path):
+    """Verified outcome visual, independent of legacy staking/ticket renderer."""
+    pick=match.get("prediction") or {}
+    prob=pick.get("confidence")
+    if type(prob) not in (float,int) or not 0<float(prob)<=100:
+        prob=None
+    image=_card(ULTRA,
+        home=match.get("home_team"),away=match.get("away_team"),
+        league=match.get("league"),event_date=match.get("event_date"),
+        selection=pick.get("label") or pick.get("type") or pick.get("selection_key"),
+        odds=pick.get("odds"),probability=prob,
+        outcome="model" if pick.get("estimated_odds") else "verified")
+    d=ImageDraw.Draw(image)
+    d.rounded_rectangle((690,308,969,367),radius=17,fill="#13714A")
+    _line(d,"RÉSULTAT VÉRIFIÉ",829,323,size=22,bold=True,align="center")
+    dest=Path(path);dest.parent.mkdir(parents=True,exist_ok=True)
+    image.save(dest,"PNG",optimize=True)
+    return dest
