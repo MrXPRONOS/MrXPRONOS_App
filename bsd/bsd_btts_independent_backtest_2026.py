@@ -294,11 +294,26 @@ def main():
     p.parent.mkdir(parents=True,exist_ok=True)
     p.with_suffix(".json").write_text(json.dumps(report,indent=2,ensure_ascii=False)+"\n",encoding="utf8")
     p.with_suffix(".md").write_text(markdown(report),encoding="utf8")
-    keys=list(rows[0]) if rows else ("id","date","market","probability","won")
+    # Publish ONLY aggregate threshold summaries. Historical score archives
+    # remain private: individual completed games never leave the CI runner.
+    keys=("market","threshold","scope","n","wins","losses","hit_rate",
+          "mean_forecast","calibration_gap_pp","brier","wilson95",
+          "mean_no_floor_model_odds")
     with p.with_suffix(".csv").open("w",newline="",encoding="utf8") as f:
         w=csv.DictWriter(f,fieldnames=keys)
         w.writeheader()
-        w.writerows(rows)
+        for market in KEYS:
+            info=report["metrics"]["by_side"][market]
+            for label,rollup in (("all","all_with_model"),("quality","quality_passed"),
+                                 ("production_79","football_eligible_79")):
+                val=info[rollup]
+                w.writerow({**{k:val.get(k) for k in keys if k in val},
+                            "market":market,"threshold":("79%" if label=="production_79" else "none"),
+                            "scope":label})
+            for threshold,scopes in info["threshold_sensitivity"].items():
+                for scope,metric in scopes.items():
+                    w.writerow({**{k:metric.get(k) for k in keys if k in metric},
+                                "market":market,"threshold":threshold,"scope":scope})
     print("BSD_BTTS_INDEPENDENT_SUMMARY",json.dumps({
        "period":report["period"],
        "by_side":{key:{
