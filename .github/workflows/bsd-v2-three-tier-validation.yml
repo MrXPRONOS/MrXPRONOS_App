@@ -1,0 +1,100 @@
+name: BSD V2 - Trois categories Site Telegram
+on:
+  push:
+    branches: [feature/trois-categories-safe-telegram-site-20261103]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: bsd-3tiers-validation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install Python
+        run: python -m pip install requests cryptography pillow numpy
+      - name: Syntax and all BSD engine tests
+        run: |
+          python -m compileall -q bsd
+          python -m unittest discover -s bsd -p 'test_*.py' -v
+      - name: Public site safety and recent social video tests
+        run: |
+          python -m unittest discover -s tests -p 'test_public_site_build.py' -v
+          python -m unittest discover -s tests -p 'test_shorts_coupon_bsd_odds_sources.py' -v
+      - name: Site JS, category behavior and accessibility validation
+        run: |
+          node --check assets/js/main.js
+          node --test tests/pronos-category-selection.test.cjs
+      - name: Build browser package with old previous-day data
+        run: |
+          python scripts/build_public_site.py --out _public_site_tiers
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('_public_site_tiers/data.json').read_text())
+          if 'market_odds_analyses' in d:
+              for row in d['market_odds_analyses']:
+                  assert row['display_tier'] in ('safe','cotes15')
+                  assert row['analysis_only'] is True
+                  assert row['recommendation_eligible'] is False
+                  assert row['do_not_send_to_telegram'] is True
+          assert Path('_public_site_tiers/pronos.html').read_text().count('data-cat="cotes15"')==1
+          assert 'function getValidPublicMarketAnalyses()' in Path('_public_site_tiers/assets/js/main.js').read_text()
+          print('PUBLIC_3TIERS_PACKAGE_SAFE',len(d.get('matches',[])),len(d.get('market_odds_analyses',[])))
+          PY
+      - name: Restore encrypted history for actual 2026 forecasts
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: python bsd/bsd_archive.py restore
+      - name: Real historical 1.30–2.00 tiered selection simulation
+        run: |
+          python - <<'PY'
+          import sys,json
+          from pathlib import Path
+          from datetime import datetime,timezone
+          sys.path.insert(0,'bsd')
+          from bsd_archive import MATCHES_FILE,_read_json
+          from bsd_v2_core import V2History,fit_rho_2024
+          from bsd_v2_btts import fit_btts_model
+          from bsd_v2_over_under import fit_total_model
+          from bsd_v2_double_chance import fit_model as fit_dc_model
+          from bsd_v2_policies import fit_policy
+          from bsd_v2_market_range_analyses import build_market_range_analyses
+          from bsd_v2_public_tiers import tier_for_record,SAFE,COTES15
+          data=json.loads(Path('data.json').read_text())
+          fixtures=[{**m,'id':m['source_event_id'],'status':'notstarted'}
+                    for m in data.get('matches',[])
+                    if m.get('source_event_id')]
+          index=V2History(_read_json(MATCHES_FILE,[]))
+          rho,_=fit_rho_2024(index)
+          btts,_=fit_btts_model(index,rho=rho)
+          total,_=fit_total_model(index,rho=rho)
+          dc,_=fit_dc_model(index,rho=rho)
+          cal,policy,_=fit_policy(index,rho=rho,btts_model=btts,total_model=total,dc_model=dc)
+          rows,stats=build_market_range_analyses(
+            fixtures,index,now=datetime(2026,11,3,13,40,tzinfo=timezone.utc),
+            rho=rho,calibration=cal,quality_policy=policy,
+            btts_model=btts,total_model=total,dc_model=dc)
+          counts={tier:sum(tier_for_record(x)==tier for x in rows) for tier in (SAFE,COTES15)}
+          assert all(x['analysis_telegram_opt_in'] and x['do_not_send_to_telegram'] for x in rows)
+          assert counts[SAFE]>0 and counts[COTES15]>0, "Missing class must not be published"
+          result={'matches':len(fixtures),'analyses':len(rows),'counts':counts,'stats':stats}
+          print('BSD_3TIER_HISTORICAL_DRYRUN',json.dumps(result,ensure_ascii=False))
+          Path('bsd/three_tier_dryrun.json').write_text(json.dumps(result,indent=2)+'\n')
+          PY
+      - name: Remove decrypted history
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+      - name: Upload anonymous tier counts only
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bsd-three-tiers-safe-${{ github.run_id }}
+          path: bsd/three_tier_dryrun.json
+          retention-days: 15

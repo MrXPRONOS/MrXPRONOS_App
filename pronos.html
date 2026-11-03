@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=20261103-market-range-v1">
+    <link rel="stylesheet" href="assets/css/style.css?v=20261103-safe-categories-v2">
     <link rel="stylesheet" href="assets/css/pronos-premium.css?v=20261028-mobile-three-tabs2">
     <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png?v=20261011-approved-mx1"><link rel="stylesheet" href="assets/css/loading-ui.css?v=20261012-4">
@@ -66,7 +66,7 @@
                 <div class="mx-pronos-hero-copy">
                     <span class="pronos-eyebrow">PRONOSTICS FOOTBALL</span>
                     <h1 id="pronos-page-title">Nos pronostics <span>football</span></h1>
-                    <p>Des analyses claires, des pronostics sélectionnés et des conseils chaque jour sur les plus grands championnats. Pro et VIP uniquement, à partir de 79 % de confiance estimée.</p>
+                    <p>Trois lectures du football : Ultra Safe pour les sélections à confiance élevée, Safe pour les analyses à cote 1,30–1,50 et Cotes 1,50+ pour les autres scénarios. Les cotes indicatives ne sont pas des offres de bookmakers.</p>
                 </div>
                 <img class="mx-brand-player mx-brand-player--pronos" src="assets/images/live-premium/player-back.webp" alt="" aria-hidden="true" decoding="async">
                 <p class="mx-pronos-quote">Analyse. Discipline. Résultat.</p>
@@ -80,16 +80,19 @@
                     <button id="tab-all" class="tab-btn active" data-cat="all" role="tab" type="button" aria-selected="true" aria-controls="matches-container" tabindex="0">
                         <span class="category-icon" aria-hidden="true"><img src="assets/images/pronostics-premium/icon-ball.webp?v=20261011-gen2" alt=""></span><span class="category-label">Tous</span><span class="tab-count" id="count-all">0</span>
                     </button>
-                    <button id="tab-pro" class="tab-btn" data-cat="pro" role="tab" type="button" aria-selected="false" aria-controls="matches-container" tabindex="-1">
-                        <span class="category-icon" aria-hidden="true"><img src="assets/images/pronostics-premium/icon-pro.webp?v=20261011-gen2" alt=""></span><span class="category-label">Pro</span><span class="tab-count" id="count-pro">0</span>
+                    <button id="tab-ultra" class="tab-btn" data-cat="ultra" role="tab" type="button" aria-selected="false" aria-controls="matches-container" tabindex="-1">
+                        <span class="category-icon" aria-hidden="true"><img src="assets/images/pronostics-premium/icon-vip.webp?v=20261011-gen2" alt=""></span><span class="category-label">Ultra Safe</span><span class="tab-count" id="count-ultra">0</span>
                     </button>
-                    <button id="tab-vip" class="tab-btn" data-cat="vip" role="tab" type="button" aria-selected="false" aria-controls="matches-container" tabindex="-1">
-                        <span class="category-icon" aria-hidden="true"><img src="assets/images/pronostics-premium/icon-vip.webp?v=20261011-gen2" alt=""></span><span class="category-label">VIP</span><span class="tab-count" id="count-vip">0</span>
+                    <button id="tab-safe" class="tab-btn" data-cat="safe" role="tab" type="button" aria-selected="false" aria-controls="matches-container" tabindex="-1">
+                        <span class="category-icon" aria-hidden="true"><img src="assets/images/pronostics-premium/icon-pro.webp?v=20261011-gen2" alt=""></span><span class="category-label">Safe</span><span class="tab-count" id="count-safe">0</span>
+                    </button>
+                    <button id="tab-cotes15" class="tab-btn" data-cat="cotes15" role="tab" type="button" aria-selected="false" aria-controls="matches-container" tabindex="-1">
+                        <span class="category-icon" aria-hidden="true"><img src="assets/images/pronostics-premium/icon-ball.webp?v=20261011-gen2" alt=""></span><span class="category-label">Cotes 1,50+</span><span class="tab-count" id="count-cotes15">0</span>
                     </button>
                 </div>
                 <div class="category-copy">
-                    <p class="category-summary" id="category-summary" role="status" aria-live="polite">Pronostics Pro et VIP — aujourd’hui</p>
-                    <p class="category-description" id="category-description">Sélections Pro et VIP uniquement, avec un minimum de 79 % de confiance estimée.</p>
+                    <p class="category-summary" id="category-summary" role="status" aria-live="polite">Toutes les analyses football — aujourd’hui</p>
+                    <p class="category-description" id="category-description">Ultra Safe : 79 % de confiance minimum. Safe et Cotes 1,50+ : cotes théoriques, sans garantie de résultat.</p>
                 </div>
             </section>
 
@@ -119,18 +122,18 @@
         <section class="mx-market-range-section" aria-labelledby="market-range-heading">
             <div class="mx-market-range-header">
                 <div>
-                    <span class="mx-market-range-eyebrow">ANALYSES DE MARCHÉS · INDICATIF</span>
-                    <h2 id="market-range-heading">Cotes théoriques de <span>1,40 à 2,00</span></h2>
+                    <span class="mx-market-range-eyebrow">SAFE & COTES 1,50+ · ANALYSES INDICATIVES</span>
+                    <h2 id="market-range-heading">Cotes théoriques de <span>1,30 à 2,00</span></h2>
                 </div>
                 <p>Explorez les probabilités calculées pour différents marchés, dont BTTS Oui et Non.
                    Ces cotes sont des <strong>estimations du modèle</strong> et non des offres de bookmakers.
-                   Cette rubrique n'est pas une recommandation Pro/VIP et n'entre pas dans nos statistiques de pronostics publiés.</p>
+                   Les analyses Safe et Cotes 1,50+ ne sont pas des pronostics Ultra Safe et n'entrent pas dans les statistiques des sélections publiées.</p>
             </div>
             <div id="market-range-analyses-container" class="mx-market-range-grid" aria-live="polite">
                 <p class="mx-market-range-empty">Chargement des analyses indicatives…</p>
             </div>
             <p class="mx-market-range-footnote">
-                Probabilités calibrées avec des données historiques ; marge hypothétique fixe de 6 %, sans relèvement artificiel des cotes.
+                Probabilités estimées avant-match. Les cotes indicatives ne correspondent pas à une offre réelle de bookmaker.
                 Une cote théorique ne garantit ni disponibilité chez un bookmaker ni rentabilité.
             </p>
         </section>
@@ -189,7 +192,7 @@
         });
       }
     </script>
-    <script type="module" src="assets/js/main.js?v=20261103-market-range-v1"></script>
+    <script type="module" src="assets/js/main.js?v=20261103-safe-categories-v2"></script>
     <script defer src="assets/js/pwa.js?v=20260806-pronos-fix"></script>
 
 

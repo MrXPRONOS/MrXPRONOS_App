@@ -1465,7 +1465,7 @@ function getTeamLogoPath(teamName, isHome = true) {
   return `assets/images/${normalized}.webp`;
 }
 
-const CATEGORY_LABELS = { all: "Tous", pro: "Pro", vip: "VIP" };
+const CATEGORY_LABELS = { all: "Tous", ultra: "Ultra Safe", safe: "Safe", cotes15: "Cotes 1,50+" };
 
 // Reject stale website caches just as the server and Telegram do.
 function bsdPublicEligible(match, selection = match?.prediction) {
@@ -1493,9 +1493,13 @@ function syncDayButtons() {
 function readInitialCategory() {
   const cat = String(new URLSearchParams(window.location.search).get("cat") || "").toLowerCase();
   if (CATEGORY_LABELS[cat]) {
-    // Respecter les liens directs du type pronos.html?cat=vip.
     autoSelectCategoryByCount = false;
     return cat;
+  }
+  // Deep links formerly targeting Pro/VIP now resolve to their renamed tier.
+  if (cat === "pro" || cat === "vip") {
+    autoSelectCategoryByCount = false;
+    return "ultra";
   }
   return "all";
 }
@@ -1536,9 +1540,10 @@ function updateCategorySummary(shown, searchActive = false) {
   const description = document.getElementById("category-description");
   if (description) {
     const descriptions = {
-      all: "Sélections Pro et VIP uniquement, avec un minimum de 79 % de confiance estimée.",
-      pro: "Des sélections plus exigeantes, avec une lecture approfondie des données et des scénarios de match.",
-      vip: "Nos sélections les plus strictes, retenues après analyse des rencontres.",
+      all: "Ultra Safe, Safe et Cotes 1,50+ : trois lectures distinctes des matchs.",
+      ultra: "Sélections auparavant Pro et VIP : confiance estimée de 79 % minimum. Pas de garantie de résultat.",
+      safe: "Analyses à cote théorique strictement supérieure à 1,30 et jusqu'à 1,50. Ce ne sont pas des offres de bookmaker.",
+      cotes15: "Analyses à cote théorique supérieure à 1,50, jusqu'à 2,00. Probabilité plus faible et risque plus élevé.",
     };
     description.textContent = searchActive
       ? `${shown} résultat${shown > 1 ? "s" : ""} correspondant à votre recherche.`
@@ -1554,23 +1559,25 @@ function filterAndDisplay() {
   }
 
   const targetDate = getLocalDateString(currentDay);
-  const counts = { all: 0, pro: 0, vip: 0 };
+  const counts = { all: 0, ultra: 0, safe: 0, cotes15: 0 };
   const currentDayMatches = allData.matches.filter((m) => {
-    const category = String(m.category || "").trim().toLowerCase();
-    if (!bsdPublicEligible(m) || !(category in CATEGORY_LABELS) || category === "all" || m.combo_only || getMatchDate(m) !== targetDate) return false;
+    if (!bsdPublicEligible(m) || m.combo_only || getMatchDate(m) !== targetDate) return false;
     if (!m.is_finished && m.recommendation_eligible !== true) return false;
-    counts[category] += 1;
+    counts.ultra += 1;
     counts.all += 1;
     return true;
   });
+  for (const analysis of getValidPublicMarketAnalyses()) {
+    counts[analysis.display_tier] += 1;
+    counts.all += 1;
+  }
 
   if (autoSelectCategoryByCount) {
     currentCategory = mostPopulatedCategory(counts);
   }
   syncCategoryTabs(counts);
 
-  filteredMatchesWithoutSearch = currentDayMatches
-    .filter((m) => currentCategory === "all" || String(m.category || "").trim().toLowerCase() === currentCategory)
+  filteredMatchesWithoutSearch = (currentCategory === "all" || currentCategory === "ultra" ? currentDayMatches : [])
     .sort((a, b) => (publicDisplayRank(a) - publicDisplayRank(b)) || (normalizeConfidence(b.prediction?.confidence) - normalizeConfidence(a.prediction?.confidence)));
 
   applySearchFilter();
@@ -1579,38 +1586,56 @@ function filterAndDisplay() {
 // This is NOT the site Pro/VIP selection list. Keep model-derived analysis
 // quotes completely separate from recommendations, public success stats,
 // share controls, historical ledger receipts and Telegram.
+function getValidPublicMarketAnalyses() {
+  const day = getLocalDateString(currentDay);
+  const search = String(searchTerm || "").trim().toLocaleLowerCase("fr");
+  return (Array.isArray(allData?.market_odds_analyses) ? allData.market_odds_analyses : [])
+    .filter((item) => {
+      if (!item || item.analysis_only !== true ||
+          item.recommendation_eligible !== false ||
+          item.do_not_send_to_telegram !== true ||
+          item.estimated_odds !== true ||
+          item.price_type !== "model_indicative" ||
+          item.not_an_executable_bookmaker_quote !== true ||
+          !["safe", "cotes15"].includes(item.display_tier)) return false;
+      const odds = Number(item.odds);
+      const p = Number(item.model_probability);
+      if (!Number.isFinite(odds) || !Number.isFinite(p) || !(p > 0 && p < 1) ||
+          !(odds > 1.30 && odds <= 2.00) ||
+          (item.display_tier === "safe" ? odds > 1.50 : odds <= 1.50) ||
+          Math.abs(odds - Math.round(1 / (p * 1.06) * 1000) / 1000) > 0.002 ||
+          getLocalDateFromEvent(item.event_date) !== day) return false;
+      const timestamp = Date.parse(item.event_date || "");
+      if (!Number.isFinite(timestamp) || timestamp <= Date.now()) return false;
+      if (!search) return true;
+      return [item.home_team, item.away_team, item.league, item.market_label]
+        .some((v) => String(v || "").toLocaleLowerCase("fr").includes(search));
+    });
+}
+
 function renderMarketRangeAnalyses() {
   const node = document.getElementById("market-range-analyses-container");
   if (!node) return;
-  const day = getLocalDateString(currentDay);
   const search = String(searchTerm || "").trim().toLocaleLowerCase("fr");
-  const entries = Array.isArray(allData?.market_odds_analyses)
-    ? allData.market_odds_analyses : [];
-  const valid = entries.filter((item) => {
-    if (!item || item.analysis_only !== true ||
-        item.recommendation_eligible !== false ||
-        item.do_not_send_to_telegram !== true ||
-        item.estimated_odds !== true ||
-        item.price_type !== "model_indicative" ||
-        item.not_an_executable_bookmaker_quote !== true) return false;
-    const odds = Number(item.odds);
-    const probability = Number(item.model_probability);
-    const kickoff = Date.parse(item.event_date || "");
-    if (!Number.isFinite(odds) || odds < 1.40 || odds > 2.00 ||
-        !Number.isFinite(probability) || probability <= 0 || probability >= 1 ||
-        !Number.isFinite(kickoff) || kickoff <= Date.now() ||
-        getLocalDateFromEvent(item.event_date) !== day) return false;
+  const shell = node.closest(".mx-market-range-section");
+  if (shell) shell.hidden = currentCategory === "ultra";
+  if (currentCategory === "ultra") return;
+  const valid = getValidPublicMarketAnalyses().filter((item) => {
+    if (currentCategory !== "all" && item.display_tier !== currentCategory) return false;
     if (!search) return true;
     return [item.home_team, item.away_team, item.league, item.market_label]
       .some((value) => String(value || "").toLocaleLowerCase("fr").includes(search));
-  }).slice(0, 32);
+  }).slice(0, 40);
 
   if (!valid.length) {
     node.innerHTML = '<p class="mx-market-range-empty">Aucune analyse à cote théorique 1,40–2,00 disponible pour cette date et ces critères.</p>';
     return;
   }
   node.innerHTML = valid.map((item) => {
-    const odds = Number(item.odds).toFixed(2).replace(".", ",");
+    const value = Number(item.odds);
+    // Never display 1,50 for a value that is STRICTLY > 1,50.
+    const odds = value > 1.5 && value < 1.505 || value > 1.30 && value < 1.305
+      ? value.toFixed(3).replace(".", ",") : value.toFixed(2).replace(".", ",");
     const probability = (Number(item.model_probability) * 100).toFixed(1).replace(".", ",");
     const label = escapeHtml(item.market_label || item.selection_key || "Marché");
     const home = escapeHtml(item.home_team || "Domicile");
@@ -1619,13 +1644,15 @@ function renderMarketRangeAnalyses() {
     const kickoff = new Date(item.event_date).toLocaleTimeString("fr-FR", {
       hour: "2-digit", minute: "2-digit",
     });
-    return '<article class="mx-market-range-card">'
+    const tier = item.display_tier === "safe" ? "SAFE" : "COTES 1,50+";
+    return '<article class="mx-market-range-card mx-market-range-card--' + item.display_tier + '">'
       + '<div class="mx-market-range-meta"><span>' + league + '</span><time>' + escapeHtml(kickoff) + '</time></div>'
+      + '<span class="mx-range-tier">' + tier + '</span>'
       + '<h3>' + home + ' <span>–</span> ' + away + '</h3>'
       + '<p class="mx-market-range-pick">' + label + '</p>'
       + '<div class="mx-market-range-data">'
-      + '<div><small>Probabilité calculée</small><strong>' + probability + ' %</strong></div>'
-      + '<div><small>Cote modèle indicative</small><strong>' + odds + '</strong></div>'
+      + '<div><small>Probabilité estimée</small><strong>' + probability + ' %</strong></div>'
+      + '<div><small>Cote indicative</small><strong>' + odds + '</strong></div>'
       + '</div>'
       + '<p class="mx-market-range-caveat">Analyse uniquement · Pas une cote proposée par un bookmaker</p>'
       + '</article>';
@@ -1635,6 +1662,13 @@ function renderMarketRangeAnalyses() {
 function applySearchFilter() {
   if (!DOM.matches) return;
   renderMarketRangeAnalyses();
+  const showUltra = currentCategory === "all" || currentCategory === "ultra";
+  DOM.matches.hidden = !showUltra;
+  if (!showUltra) {
+    const selected = getValidPublicMarketAnalyses().filter((row) => row.display_tier === currentCategory);
+    updateCategorySummary(selected.length, Boolean(searchTerm.trim()));
+    return;
+  }
   const term = searchTerm.toLowerCase().trim();
   const filtered = !term
     ? filteredMatchesWithoutSearch
@@ -1643,13 +1677,15 @@ function applySearchFilter() {
         String(m.away_team || "").toLowerCase().includes(term) ||
         String(m.league || "").toLowerCase().includes(term)
       );
-  updateCategorySummary(filtered.length, Boolean(term));
+  const extraCount = currentCategory === "all" ? getValidPublicMarketAnalyses().length : 0;
+  updateCategorySummary(filtered.length + extraCount, Boolean(term));
   if (!filtered.length) {
     const label = CATEGORY_LABELS[currentCategory] || "Tous";
     const message = term
       ? `Aucun pronostic ${label} ne correspond à cette recherche.`
       : `Aucun pronostic ${label} disponible pour cette date.`;
-    DOM.matches.innerHTML = `<div class="no-events">${message}</div>`;
+    DOM.matches.innerHTML = extraCount
+      ? "" : `<div class="no-events">${message}</div>`;
     return;
   }
   renderMatches(filtered);
@@ -1752,8 +1788,7 @@ function renderMatches(matches) {
 
       const category = String(m.category || "").toLowerCase();
       const premiumBadge = category === "pro" || category === "vip"
-        ? `<span class="badge-premium">${category === "vip" ? "VIP" : "PRO"}</span>`
-        : "";
+        ? '<span class="badge-premium">ULTRA SAFE</span>' : "";
 
       const homeDefault = "assets/images/home.webp";
       const awayDefault = "assets/images/away.webp";

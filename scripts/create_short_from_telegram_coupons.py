@@ -29,9 +29,8 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "bsd"))
 
 from bsd.bsd_h2h import _utc
-from bsd.bsd_v2_card import render as render_telegram_coupon
+from bsd.bsd_v2_tier_visual import render_ultra as render_telegram_coupon
 from bsd.bsd_v2_estimated_odds import valid_standalone_prediction
-from bsd.bsd_v2_telegram_banner import attach_banner
 from bsd.bsd_v2_telegram import partner_pack
 from shorts_video_fx import LOOP_TAIL_SECONDS, card_zoom, scene_duration, synthesize_soundtrack
 
@@ -91,9 +90,9 @@ def _valid_match(match, now: datetime, *, require_future=True):
     if match.get("recommendation_eligible") is not True:
         return False
 
-    # No category discrimination: SIMPLE, PRO and VIP are all eligible.
+    # Only previously approved Pro/VIP are allowed under the Ultra Safe label.
     category = str(match.get("category") or "").strip().casefold()
-    if category not in {"simple", "pro", "vip"}:
+    if category not in {"pro", "vip"}:
         return False
 
     dt = _event_dt(match)
@@ -119,6 +118,9 @@ def _valid_match(match, now: datetime, *, require_future=True):
     # All verified BSD V2 odds providers are eligible. Preserve the existing
     # source/estimated flag checks and never admit a model observation
     # or an unverified price as if it were a bookmaker coupon.
+    confidence=pick.get("confidence")
+    if type(confidence) not in (float,int) or not 79<=float(confidence)<=100:
+        return False
     if not valid_standalone_prediction(pick):
         return False
     return True
@@ -202,8 +204,7 @@ def generate_exact_cards(matches, out_dir: Path, now: datetime):
     cards = []
     for index, match in enumerate(matches, 1):
         path = out_dir / f"coupon_{index:02d}.png"
-        render_telegram_coupon(match, path, now=now, session=requests.Session())
-        attach_banner(path, pack=pack)
+        render_telegram_coupon(match, path)
         cards.append(path)
         print("EXACT_TELEGRAM_COUPON", index, path)
     return cards, pack
@@ -275,7 +276,7 @@ def _overlay_png(index: int, total: int, out: Path):
             canvas.alpha_composite(logo, (48, 26))
         except Exception:
             pass
-    title = "PRONOS DU JOUR"
+    title = "ULTRA SAFE DU JOUR"
     hf = _font(26, True)
     hb = draw.textbbox((0, 0), title, font=hf)
     safe_right = 900
@@ -300,7 +301,7 @@ def _overlay_png(index: int, total: int, out: Path):
         [(icon_x + 13, icon_y + 24), (icon_x + 39, icon_y + 13), (icon_x + 29, icon_y + 38)],
         fill=(255, 255, 255, 255),
     )
-    draw.text((158, 1413), "PLUS DE PRONOSTICS", font=_font(22, False),
+    draw.text((158, 1413), "VOIR ULTRA SAFE", font=_font(22, False),
               fill=(193, 210, 226, 245))
     draw.text((158, 1444), "@mr_xpronos", font=_font(31, True),
               fill=(247, 251, 255, 255))

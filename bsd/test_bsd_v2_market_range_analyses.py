@@ -26,7 +26,8 @@ class IndicativeAnalysisTests(unittest.TestCase):
         self.assertEqual(honest_indicative_price(.60),1.572)
         self.assertEqual(honest_indicative_price(.50),1.887)
         self.assertIsNone(honest_indicative_price(.80))
-        self.assertIsNone(honest_indicative_price(.70))
+        self.assertEqual(honest_indicative_price(.70),1.348)
+        self.assertIsNone(honest_indicative_price(.73))
     def test_bounds_invalid_and_no_invented_price(self):
         for p in (None,0.,1.,-1.,float("nan"),float("inf"),.2,.99):
             with self.subTest(p=p):
@@ -55,7 +56,9 @@ class IndicativeAnalysisTests(unittest.TestCase):
         self.assertEqual(len({r["market_family"] for r in rows}),2)
         self.assertEqual(stats["analyses_count"],2)
         for r in rows:
-            self.assertTrue(MIN_ANALYSIS_ODDS<=r["odds"]<=MAX_ANALYSIS_ODDS)
+            self.assertTrue(MIN_ANALYSIS_ODDS<r["odds"]<=MAX_ANALYSIS_ODDS)
+            self.assertIn(r["display_tier"],("safe","cotes15"))
+            self.assertTrue(r["analysis_telegram_opt_in"])
             self.assertEqual(r["odds_source"],"mrxpronos_model")
             self.assertEqual(r["overround_assumption"],.06)
             self.assertTrue(r["analysis_only"])

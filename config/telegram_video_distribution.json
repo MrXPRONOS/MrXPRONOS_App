@@ -2,7 +2,7 @@
   "primary": "@mrxpronosfr",
   "buttons": [
     {
-      "text": "🎯 Coupons du jour",
+      "text": "🎯 Ultra Safe du jour",
       "url": "https://t.me/mrxpronosfr"
     },
     {
@@ -16,7 +16,7 @@
   ],
   "destinations": [
     {
-      "label": "Coupons simples / Coupons du jour",
+      "label": "Ultra Safe / Pronostics du jour",
       "chat": "@mrxpronosfr"
     },
     {

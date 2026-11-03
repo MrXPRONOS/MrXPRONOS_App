@@ -54,6 +54,8 @@ class PublicBuildTest(TestCase):
             "odds_source":"mrxpronos_model",
             "overround_assumption":.06,
             "price_method":"probability_calibrated_plus_fixed_6pct",
+            "display_tier":"cotes15",
+            "analysis_telegram_opt_in":True,
             "analysis_only":True,
             "recommendation_eligible":False,
             "prediction_eligible":False,
@@ -76,6 +78,7 @@ class PublicBuildTest(TestCase):
         row=safe["market_odds_analyses"][0]
         self.assertEqual(row["odds"],1.572)
         self.assertEqual(row["price_type"],"model_indicative")
+        self.assertEqual(row["display_tier"],"cotes15")
         self.assertEqual(row["model_probability"],.6)
         self.assertFalse(row["recommendation_eligible"])
         self.assertTrue(row["do_not_send_to_telegram"])
@@ -83,14 +86,15 @@ class PublicBuildTest(TestCase):
         self.assertTrue(row["id"].startswith("analysis-"))
         for private in ("source_event_id","odds_source","price_method",
                         "training_matches","raw_provider_quote","calibration_samples",
-                        "market_code","diagnostics"):
+                        "market_code","diagnostics","analysis_telegram_opt_in"):
             self.assertNotIn(private,row)
         self.assertNotIn("diagnostics",safe)
         self.assertNotIn("market_odds_analyses",module.public_copy({"matches":[regular]}))
         for patch in ({"odds":1.8},{"odds":1.20},{"model_probability":.79},
                       {"analysis_only":False},{"recommendation_eligible":True},
                       {"do_not_send_to_telegram":False},
-                      {"odds_source":"bsd_consensus"}):
+                      {"odds_source":"bsd_consensus"},
+                      {"display_tier":"safe"},{"analysis_telegram_opt_in":False}):
             with self.subTest(patch=patch):
                 with self.assertRaises(ValueError):
                     module.public_copy({
