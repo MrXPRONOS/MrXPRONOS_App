@@ -205,11 +205,11 @@ jobs:
           TARGET="$(python -c 'import json; print(json.load(open("telegram_out/production_short/manifest.json"))["target"])')"
           COUNT="$(python -c 'import json; print(json.load(open("telegram_out/production_short/manifest.json"))["count"])')"
           if [ "$SLOT" = "evening" ]; then
-            LABEL="Première vague des pronostics de demain"
+            LABEL="Ultra Safe de demain"
           else
-            LABEL="Pronostics du jour"
+            LABEL="Ultra Safe du jour"
           fi
-          python scripts/post_shorts_video.py             --require-all             --video "$VIDEO_FILE"             --platforms "$POST_PLATFORMS"             --title "Pronostics $TARGET - Mr XPRONOS"             --description "$LABEL. $COUNT sélections. 18+ et joue responsablement."             --caption "$LABEL ⚽\n$COUNT sélections Mr XPRONOS.\n18+ • Joue responsablement.\n\n#football #pronostic #pronosdujour #mrxpronos"
+          python scripts/post_shorts_video.py             --require-all             --video "$VIDEO_FILE"             --platforms "$POST_PLATFORMS"             --title "Ultra Safe du jour - Mr XPRONOS ($TARGET)"             --description "$LABEL. $COUNT sélections Ultra Safe, confiance estimée au moins 79 %. Résultat non garanti. 18+."             --caption "$LABEL ⚽\n$COUNT sélections Mr XPRONOS.\n18+ • Joue responsablement.\n\n#football #ultrasafe #pronostic #mrxpronos"
 
       - name: Verify all requested social platform publishing results
         id: social_verify
