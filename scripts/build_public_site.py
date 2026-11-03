@@ -149,6 +149,54 @@ def validate_public_prediction(pick):
         raise ValueError("Ineligible selection cannot be published")
 
 
+def _public_market_analysis(item):
+    """Allowlist an *informational* 1.40-2.00 model price, never a pick.
+
+    Never include source event ID, providers, training features, model
+    internals, confidence-as-ProVIP, or any native bookmaker quote claim.
+    Fail closed if the internal source violates the calculation/provenance.
+    """
+    if not isinstance(item,dict):
+        raise ValueError("Invalid market analysis")
+    if not (item.get("analysis_only") is True and
+            item.get("recommendation_eligible") is False and
+            item.get("prediction_eligible") is False and
+            item.get("do_not_send_to_telegram") is True and
+            item.get("estimated_odds") is True and
+            item.get("not_an_executable_bookmaker_quote") is True and
+            item.get("odds_source")=="mrxpronos_model" and
+            item.get("price_method")=="probability_calibrated_plus_fixed_6pct" and
+            item.get("overround_assumption")==.06):
+        raise ValueError("Market analysis must remain model-only and non-recommended")
+    p=item.get("model_probability")
+    odds=item.get("odds")
+    if (type(p) not in (float,int) or type(odds) not in (float,int)
+            or not math.isfinite(p) or not math.isfinite(odds)
+            or not 0<p<1 or not 1.40<=odds<=2.00
+            or abs(odds-round(1/(p*1.06),3))>.0011):
+        raise ValueError("Invalid or fabricated market-analysis odds")
+    public_fields=(
+        "date","event_date","home_team","away_team","league",
+        "selection_key","market_label",
+    )
+    result={key:item[key] for key in public_fields if key in item}
+    if not all(isinstance(result.get(k),str) and result[k].strip()
+               for k in ("event_date","home_team","away_team","selection_key","market_label")):
+        raise ValueError("Market analysis identity incomplete")
+    result.update({
+        "id":"analysis-"+hashlib.sha256(str(item.get("id","")).encode()).hexdigest()[:16],
+        "model_probability":round(p,6),
+        "odds":float(odds),
+        "price_type":"model_indicative",
+        "estimated_odds":True,
+        "analysis_only":True,
+        "recommendation_eligible":False,
+        "do_not_send_to_telegram":True,
+        "not_an_executable_bookmaker_quote":True,
+    })
+    return result
+
+
 def public_copy(value):
     """Strictly project a generated feed into the visitor-facing product schema.
 
@@ -198,6 +246,16 @@ def public_copy(value):
     if len({match["id"] for match in public}) != len(public):
         raise ValueError("Public match identifiers are not unique")
     result = {"generated_at": value.get("generated_at"), "matches": public}
+    if "market_odds_analyses" in value:
+        observations=value["market_odds_analyses"]
+        if not isinstance(observations,list) or len(observations)>240:
+            raise ValueError("Invalid public market-analysis collection")
+        result["market_odds_analyses"]=[
+            _public_market_analysis(item) for item in observations
+        ]
+        ids=[x["id"] for x in result["market_odds_analyses"]]
+        if len(ids)!=len(set(ids)):
+            raise ValueError("Duplicate market-analysis IDs in published data")
     if isinstance(value.get("bookmakers"), list):
         public_bookmaker_fields = {"name", "logo", "url", "desc", "bonus", "promo_code"}
         result["bookmakers"] = [
