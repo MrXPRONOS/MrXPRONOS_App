@@ -1,5 +1,10 @@
 name: Prepare authenticated Hybrid V3 checkpoint
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/prepare-hybrid-v3-checkpoint.yml'
+      - 'scripts/prepare_hybrid_v3_checkpoint.py'
   schedule:
     - cron: '17 2 * * *'
   workflow_dispatch:
