@@ -9,7 +9,11 @@ on:
   workflow_dispatch:
   push:
     branches: [feature/onglet-scores-exacts-20261103]
-    paths: ['.github/workflows/daily-hybrid-v3-exact-top5.yml']
+    paths:
+      - '.github/workflows/daily-hybrid-v3-exact-top5.yml'
+      - 'scripts/forecast_hybrid_v3_daily.py'
+      - 'scripts/publish_exact_scores.py'
+      - 'tests/test_exact_v3_daily.py'
 
 permissions:
   contents: write
