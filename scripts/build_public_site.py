@@ -455,7 +455,7 @@ def copy_public_exact_scores(destination: Path):
         return
     out = destination / "scores-exacts-daily"
     for file in sorted(source.glob("*.json")):
-        if not re.fullmatch(r"\\d{4}-\\d{2}-\\d{2}\\.json", file.name):
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}\.json", file.name):
             raise ValueError("Unexpected exact-score daily JSON filename")
         doc = json.loads(file.read_text(encoding="utf8"))
         day = file.stem
