@@ -6,6 +6,9 @@ on:
       - '.github/workflows/exact-scores-v3-daily.yml'
       - 'scripts/run_exact_scores_v3_daily.py'
       - 'scripts/publish_exact_scores.py'
+      - 'scripts/build_public_site.py'
+      - 'assets/js/scores-exacts.js'
+      - 'scores-exacts.html'
   schedule:
     - cron: '17 5,12 * * *'
   workflow_dispatch:
@@ -51,6 +54,9 @@ jobs:
       - name: Calculate real pre-match V3 Top5 selections
         run: |
           python site/scripts/run_exact_scores_v3_daily.py --site-root site --model-root model --out site/scores-exacts.json
+          test -s site/scores-exacts.json
+          test -s site/scores-exacts-daily/$(date -u +%F).json
+          test -s site/scores-exacts-daily/$(date -u -d tomorrow +%F).json
       - name: Publish valid score feed and encrypted daily archive
         id: publish
         if: github.ref == 'refs/heads/main'
@@ -58,7 +64,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add scores-exacts.json
+          git add scores-exacts.json scores-exacts-daily/*.json
           if test -d research/score_v3_encrypted_daily; then
             git add research/score_v3_encrypted_daily/*.enc
           fi
@@ -69,6 +75,7 @@ jobs:
           echo "published=true" >> "$GITHUB_OUTPUT"
       - name: Deploy public GitHub Pages artifact after verified Top5 update
         if: github.ref == 'refs/heads/main' && steps.publish.outputs.published == 'true'
+        working-directory: site
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run deploy.yml --ref main
+        run: gh workflow run deploy.yml --ref main -R "$GITHUB_REPOSITORY"

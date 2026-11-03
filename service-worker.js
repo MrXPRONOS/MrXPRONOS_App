@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v113-exact-score-tab-20261103';
+const VERSION = 'v114-exact-score-days-20261103';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -276,6 +276,11 @@ self.addEventListener('fetch', (event) => {
     if (url.origin !== self.location.origin) return;
 
     const path = url.pathname;
+
+    if (/\/scores-exacts-daily\/\d{4}-\d{2}-\d{2}\.json$/.test(path)) {
+        event.respondWith(strategies.networkFirst(request));
+        return;
+    }
 
     if (DYNAMIC_JSON.some(file => path.endsWith(file.replace('./', '')))) {
         event.respondWith(strategies.networkFirst(request));
