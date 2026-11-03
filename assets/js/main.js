@@ -1591,7 +1591,7 @@ function renderMarketRangeAnalyses() {
         item.recommendation_eligible !== false ||
         item.do_not_send_to_telegram !== true ||
         item.estimated_odds !== true ||
-        item.odds_source !== "mrxpronos_model" ||
+        item.price_type !== "model_indicative" ||
         item.not_an_executable_bookmaker_quote !== true) return false;
     const odds = Number(item.odds);
     const probability = Number(item.model_probability);
