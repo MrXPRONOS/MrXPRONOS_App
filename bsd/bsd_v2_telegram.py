@@ -164,7 +164,7 @@ def combo_ledger_match(combo):
 
 def send_combo(session,token,chat,combo,*,night=False):
     from tempfile import TemporaryDirectory
-    from bsd_v2_combo_card import render_combo
+    from bsd_v2_tier_visual import render_ultra_combo as render_combo
     with TemporaryDirectory() as directory:
         photo=render_combo(combo,Path(directory)/"combine.png")
         pack=partner_pack()
