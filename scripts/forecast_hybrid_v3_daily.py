@@ -120,6 +120,41 @@ def extract_fixture(event, *, now):
     return fixture, stamp
 
 
+def fixture_eligibility_diagnostics(events, *, now):
+    """Aggregate diagnostic only: does NOT expose exact fixture IDs or scores."""
+    statuses=Counter()
+    metrics=Counter()
+    for e in events:
+        if not isinstance(e,dict):
+            metrics["not_an_object"]+=1
+            continue
+        status=str(e.get("status") or "").strip().lower()
+        statuses[status or "<missing>"]+=1
+        try:
+            stamp=parse_iso(e.get("event_date"))
+        except (TypeError,ValueError,OverflowError):
+            metrics["bad_kickoff"]+=1
+            continue
+        if stamp.date() != now.date():
+            metrics["wrong_day"]+=1
+            continue
+        if stamp <= now+MINIMUM_LEAD:
+            metrics["already_started_or_too_close"]+=1
+            continue
+        metrics["future_20min"]+=1
+        if status not in STATUS_UPCOMING:
+            metrics["future_unknown_status"]+=1
+        if not competition(e):
+            metrics["future_missing_competition_name"]+=1
+        if not proper_name(e.get("home_team")) or not proper_name(e.get("away_team")):
+            metrics["future_missing_team_name"]+=1
+        if e.get("home_score") is not None or e.get("away_score") is not None:
+            metrics["future_score_not_null"]+=1
+        if extract_fixture(e,now=now) is not None:
+            metrics["eligible"]+=1
+    return {"statuses":dict(statuses),"counts":dict(metrics)}
+
+
 def recent_bsd_match(raw, *, target):
     """Only official past finished fixtures; no guessed/in-progress score."""
     if not isinstance(raw, dict) or str(raw.get("status") or "").lower().strip() != "finished":
@@ -324,6 +359,7 @@ def main():
     print("HYBRID_V3_PROSPECTIVE",json.dumps({
         "date":now.date().isoformat(),"authentic_prematch":True,
         "fixture_count":len(future.events),"eligible_grid_count":len(records),
+        "fixture_screening":fixture_eligibility_diagnostics(future.events,now=published),
         "http_calls":client.requests_made,"history":freshness,
         "engine":details,"output":str(args.out),
         "post_match_outcomes":False,"changed_prod_pro_vip":False
