@@ -60,6 +60,11 @@ jobs:
               if fit[label+'_activated']:
                   assert fit[label+'_blend']>0
                   assert fit[label+'_holdout_2025_brier']['challenger'] < fit[label+'_holdout_2025_brier']['baseline']
+          ablation=test.get('ablation_without_team_league')
+          if fit['team_activated'] or fit['league_activated']:
+              assert ablation and ablation['n']==test['eligible'], ablation
+              assert test['specialized_calibrated']['BTTS_YES']['brier'] <= ablation['brier'] + .0005, (
+                  'New challengers materially degrade 2026 holdout', ablation, test['specialized_calibrated']['BTTS_YES'])
           brier=test['specialized_calibrated']['BTTS_YES']['brier']
           baseline=test['baseline_calibrated']['BTTS_YES']['brier']
           print('BSD_BTTS_TEAM_LEAGUE_ACCEPTANCE='+json.dumps({
@@ -69,6 +74,7 @@ jobs:
               'team_2025':fit['team_holdout_2025_brier'],
               'league_2025':fit['league_holdout_2025_brier'],
               'brier_specialized_2026':brier,'brier_poisson_2026':baseline,
+              'brier_previous_specialist_matched_2026':(ablation or {}).get('brier'),
               'eligible_2026':test['eligible'],
               'confidence_thresholds':test['by_minimum_confidence'],
           },ensure_ascii=False))
