@@ -22,7 +22,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: mrx-daily-hybrid-v3-exact-publisher-one-writer
+  group: mrx-daily-hybrid-v3-exact-publisher-prod-one-writer
   cancel-in-progress: false
 
 jobs:
