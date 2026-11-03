@@ -24,7 +24,8 @@ from bsd_v2_btts import fit_btts_model
 from bsd_v2_double_chance import fit_model
 from bsd_v2_policies import fit_policy
 from bsd_v2_all_market_price_audit import (
-    CATALOG_KEYS,OLD_KEYS,fit_new_market_calibration,all_markets_for_fixture,
+    CATALOG_KEYS,OLD_KEYS,MIN_RESEARCH_PROBABILITY,MAX_RESEARCH_PROBABILITY,
+    fit_new_market_calibration,all_markets_for_fixture,
 )
 from bsd_v2_odds_comparison import valid_independent_quote,choose_upcoming,SOURCE_NAMES
 from bsd_v2_market_no_vig import no_vig_probability
@@ -156,7 +157,9 @@ def evaluate(fixtures,index,client,*,now,horizon_hours,max_fixtures,
                  'provider_results':{}}
             if m.get('indicative_odds') is None:
                 coverage['missing_model_price']+=1
-                by_market_status[key]['model_price_unavailable']+=1
+                by_market_status[key][m.get('pricing_status') or m.get('status') or 'model_price_unavailable']+=1
+                if m.get('pricing_status')=='outside_research_probability_range':
+                    coverage['outside_research_probability_range']+=1
             else:
                 coverage['model_price_available']+=1
             if code not in SUPPORTED_NATIVE_CODES:
@@ -229,6 +232,9 @@ def evaluate(fixtures,index,client,*,now,horizon_hours,max_fixtures,
        'target':'All available upcoming fixtures x all 25 backtest markets, regardless of primary BSD V2 choice or publication thresholds',
        'period':'full_time_except_explicit_ht_under_1.5',
        'catalog':list(CATALOG_KEYS),
+       'research_probability_range':{'min_inclusive':MIN_RESEARCH_PROBABILITY,
+                                     'max_inclusive':MAX_RESEARCH_PROBABILITY},
+       'production_pricing_rules_modified':False,
        'coverage':{'fixture_candidates_in_horizon':available,
                    'selected_for_scan':len(selected),
                    'truncated_due_to_max_fixtures':available>len(selected),
@@ -255,6 +261,7 @@ def evaluate(fixtures,index,client,*,now,horizon_hours,max_fixtures,
          'Every scheduled fixture receives all 25 market slots even when model data is unavailable.',
          'Research adapters read PinnWire spreads/teams/halftime and OddsLink public spreads, without changing production adapters.',
          'An unavailable source or unsupported market must never be reported as evidence a bookmaker does not offer that market.',
+         'Indicative prices are calculated only for 0.10 <= p <= 0.99; all 25 market slots remain reported.',
          'Diagnostic prices below site minimum odds 1.20 are observational and cannot be described as published model odds.',
          'DNB refund-aware price is experimental conditional on a non-draw and not separately calibrated.',
          'If 2024 half-time scores are absent, no first-half probability or model odds are fabricated.',
