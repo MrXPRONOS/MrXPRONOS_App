@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v112-editorial-navigation-20261030';
+const VERSION = 'v113-exact-score-tab-20261103';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -12,6 +12,7 @@ const STATIC_ASSETS = [
     './',
     './index.html',
     './pronos.html',
+    './scores-exacts.html',
     './historique.html',
     './blog.html',
     './conseils.html',
@@ -28,6 +29,7 @@ const STATIC_ASSETS = [
     './assets/css/home-premium.css',
     './assets/css/home-polish.css',
     './assets/css/pronos-premium.css',
+    './assets/css/scores-exacts.css',
     './assets/css/history-premium.css',
     './assets/css/blog-premium.css',
     './assets/css/conseils-premium.css',
@@ -44,6 +46,7 @@ const STATIC_ASSETS = [
     './assets/js/home-premium.js',
     './assets/js/pwa.js',
     './assets/js/menu.js',
+    './assets/js/scores-exacts.js',
     './assets/js/back-to-top.js',
     './assets/images/default-logo.webp',
     './assets/images/1xbet.webp',
@@ -104,6 +107,7 @@ const STATIC_ASSETS = [
 
 const DYNAMIC_JSON = [
     './data.json',
+    './scores-exacts.json',
     './articles.json',
     './conseils.json',
     './bonus.json',

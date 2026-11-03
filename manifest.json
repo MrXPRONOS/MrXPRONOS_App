@@ -80,6 +80,18 @@
       ]
     },
     {
+      "name": "Top 5 Scores exacts",
+      "short_name": "Scores exacts",
+      "description": "Voir les scores simples et les paris groupés du jour",
+      "url": "./scores-exacts.html",
+      "icons": [
+        {
+          "src": "assets/images/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
       "name": "Historique",
       "short_name": "Historique",
       "description": "Voir l'historique des pronostics",
@@ -92,5 +104,5 @@
       ]
     }
   ],
-  "version": "2026.10.12.brand-regenerated-3"
+  "version": "2026.11.03.exact-score-tab-1"
 }
