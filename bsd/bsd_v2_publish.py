@@ -21,7 +21,6 @@ from bsd_v2_over_under import fit_total_model
 from bsd_v2_double_chance import fit_model as fit_dc_model
 from bsd_v2_odds import fetch_event_odds
 from bsd_v2_new_market_model import fit_extra_market_model, settlement_candidates
-from bsd_v2_market_range_analyses import build_market_range_analyses
 from bsd_v2_pricing_fallback import try_next_qualified_market
 from bsd_odds_fallback import OddsRouter
 from bsd_v2_estimated_odds import (ESTIMATED_SOURCE, valid_standalone_prediction,
@@ -775,19 +774,9 @@ def main():
                     historical_published_ids=historical_ids,
                     extra_market_model=extra_market_model)
     output["diagnostics"]["immutable_previous_events_excluded"]=len(historical_ids)
-    # An explicitly non-recommendation stream, completely detached from
-    # matches, immutable ledger, Pro/VIP publication and Telegram.
-    # This never modifies any existing selection or price.
-    analyses,analyses_stats=build_market_range_analyses(
-        fixtures,index,now=now,rho=rho,calibration=cal,quality_policy=policy,
-        btts_model=btts_model,total_model=total_model,dc_model=dc_model)
-    assert all(row["analysis_only"] is True and
-               row["recommendation_eligible"] is False and
-               row["do_not_send_to_telegram"] is True and
-               1.40<=row["odds"]<=2.00 and
-               row["odds_source"]==ESTIMATED_SOURCE for row in analyses)
-    output["market_odds_analyses"]=analyses
-    output["diagnostics"]["market_odds_analyses"]=analyses_stats
+    # Retour aux seules catégories Pro/VIP : aucun flux Safe / 1,50+.
+    # Ne modifie pas les pronostics précédemment publiés ni le ledger immuable.
+    output.pop("market_odds_analyses", None)
     leagues_resolved=resolve_league_names(client,fixtures,output,existing)
     output["diagnostics"]["leagues_resolved"]=leagues_resolved
     # Production-safe multisource ACTIVITY: independent calendar confirmation
