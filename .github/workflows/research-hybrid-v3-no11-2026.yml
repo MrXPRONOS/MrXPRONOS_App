@@ -7,6 +7,13 @@ on:
       - 'research/single_ml_v2.py'
       - 'research/backtest_hybrid_v3_no11_2026.py'
       - 'research/test_hybrid_v3_no11_2026.py'
+  pull_request:
+    branches: [research/single-ml-v2-20261024]
+    paths:
+      - '.github/workflows/research-hybrid-v3-no11-2026.yml'
+      - 'research/single_ml_v2.py'
+      - 'research/backtest_hybrid_v3_no11_2026.py'
+      - 'research/test_hybrid_v3_no11_2026.py'
   workflow_dispatch:
 permissions:
   contents: read
