@@ -24,6 +24,7 @@ sys.path.insert(0, str(ROOT / "bsd"))
 
 from bsd.bsd_api import BSDClient
 from bsd.bsd_v2_verify_telegram import _leg_verdict
+from scripts.d1_publication_ledger import D1Ledger, D1LedgerError
 from scripts.create_validation_shorts_from_telegram import (
     _snapshots,
     build_video,
@@ -34,60 +35,81 @@ UTC = timezone.utc
 KIND = "shorts_video_coupon"
 
 
-def sb_headers(key: str):
-    return {
-        "apikey": key,
-        "Authorization": "Bearer " + key,
-        "Content-Type": "application/json",
-    }
-
-
 def canonical_ref(ref: str):
     text = str(ref or "")
     slot, sep, remainder = text.partition(":")
-    if not sep or slot not in {"evening", "morning"}:
+    if not sep or slot not in {"evening", "morning"} or not remainder.startswith("bsd:"):
         return None, None
-    ident = remainder
-    if not ident.startswith("bsd:"):
-        return None, None
-    return slot, ident
+    return slot, remainder
 
 
-def pending_rows(session, base, key):
-    since = (datetime.now(UTC).date() - timedelta(days=4)).isoformat()
-    r = session.get(
-        base.rstrip("/") + "/rest/v1/telegram_sent",
-        headers=sb_headers(key),
-        params={
-            "select": "id,ref_id,ref_date,validation_sent",
-            "kind": "eq." + KIND,
-            "validation_sent": "eq.false",
-            "ref_date": "gte." + since,
-            "order": "ref_date.asc,id.asc",
-            "limit": "200",
-        },
-        timeout=30,
-    )
-    r.raise_for_status()
-    return r.json() or []
+def pending_rows(ledger, since_days=14, limit=200):
+    """Only successfully delivered source clips are eligible for settlement."""
+    since = (datetime.now(UTC).date() - timedelta(days=since_days)).isoformat()
+    result = ledger.query(
+        "SELECT id,ref_id,ref_date,validation_sent FROM telegram_sent "
+        "WHERE kind=? AND delivery_status='sent' "
+        "AND ref_date>=? ORDER BY ref_date DESC,id ASC LIMIT ?",
+        (KIND, since, limit))
+    rows = result.get("results")
+    if not isinstance(rows, list):
+        raise D1LedgerError("D1 pending batch query returned malformed rows")
+    return rows
 
 
-def mark_rows(session, base, key, row_ids):
+def mark_rows(ledger, row_ids, *, status):
+    """Close only the previously inspected rows; never touch unrelated kinds."""
     for row_id in row_ids:
-        r = session.patch(
-            base.rstrip("/") + "/rest/v1/telegram_sent",
-            headers=sb_headers(key),
-            params={"id": "eq." + str(row_id), "kind": "eq." + KIND},
-            json={"validation_sent": True},
-            timeout=30,
-        )
-        r.raise_for_status()
+        result = ledger.query(
+            "UPDATE telegram_sent SET validation_sent=1,settlement_status=? "
+            "WHERE id=? AND kind=? AND delivery_status='sent' AND validation_sent=0",
+            (status, str(row_id), KIND))
+        if (result.get("meta") or {}).get("changes") not in (0, 1):
+            raise D1LedgerError("D1 batch settlement returned invalid update count")
+
+
+VALIDATION_KIND = "shorts_video_validation"
+
+
+def validation_identity(slot, target):
+    return VALIDATION_KIND, slot + ":" + target, target
+
+
+def validation_state(ledger, slot, target):
+    kind, ref, day = validation_identity(slot, target)
+    rows = ledger.rows(kind, day, ref_id=ref)
+    if not rows:
+        return None
+    return str(rows[0].get("delivery_status") or "reserved")
+
+
+SOCIAL_PLATFORMS = ("facebook", "youtube", "instagram", "threads", "bluesky")
+
+
+def social_complete(ledger, slot, target):
+    """Skip already fully distributed groups, while retrying missing providers."""
+    rows = ledger.query(
+        "SELECT kind,delivery_status,validation_details FROM telegram_sent "
+        "WHERE ref_id=? AND ref_date=? AND kind IN (?,?,?,?,?)",
+        (slot + ":" + target, target,
+         *("shorts_validation_social_" + p for p in SOCIAL_PLATFORMS))).get("results") or []
+    done = set()
+    for row in rows:
+        if row.get("delivery_status") != "sent":
+            continue
+        try:
+            detail = json.loads(row.get("validation_details") or "{}")
+        except (ValueError, TypeError):
+            detail = {}
+        if detail.get("id"):
+            done.add(row.get("kind"))
+    return len(done) == len(SOCIAL_PLATFORMS)
 
 
 def restore_matches(feed_path: Path, wanted_ids):
     wanted = set(wanted_ids)
     found = {}
-    for snapshot in _snapshots(feed_path, max_commits=120):
+    for snapshot in _snapshots(feed_path, max_commits=350):
         for match in snapshot.get("matches") or []:
             if not isinstance(match, dict):
                 continue
@@ -151,23 +173,24 @@ def main():
     ap.add_argument("--no-send", action="store_true")
     args = ap.parse_args()
 
-    base = (os.getenv("SUPABASE_URL") or "").strip()
-    key = (os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or "").strip()
     token = (os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
     chat = (os.getenv("TELEGRAM_CHAT_ID") or "").strip()
-    if not base or not key:
-        raise RuntimeError("Secrets Supabase manquants")
     if not args.no_send and (not token or not chat):
         raise RuntimeError("Secrets Telegram production manquants")
 
     session = requests.Session()
-    rows = pending_rows(session, base, key)
+    ledger = D1Ledger()
+    rows = pending_rows(ledger)
     groups = defaultdict(list)
     for row in rows:
         slot, ident = canonical_ref(row.get("ref_id"))
         if not slot or not ident:
             continue
         groups[(slot, str(row.get("ref_date") or ""))].append({**row, "match_id": ident})
+
+    # Resolve historical frozen definitions once, not once per group.
+    all_ids = {row["match_id"] for group in groups.values() for row in group}
+    historical_definitions = restore_matches(Path(args.feed), all_ids) if all_ids else {}
 
     work_root = Path(args.work_dir)
     work_root.mkdir(parents=True, exist_ok=True)
@@ -179,9 +202,25 @@ def main():
         "silent_closed": 0,
     }
 
-    for (slot, target), group_rows in sorted(groups.items(), key=lambda x: (x[0][1], x[0][0])):
+    # Process newest settled batches first; cap video work to avoid Actions timeouts.
+    videos_built = 0
+    for (slot, target), group_rows in sorted(groups.items(), key=lambda x: (x[0][1], x[0][0]), reverse=True):
+        if videos_built >= 2:
+            report["groups"].append({"slot": slot, "target": target, "status": "deferred_capacity"})
+            continue
+        existing_state = validation_state(ledger, slot, target)
+        if existing_state == "sent" and social_complete(ledger, slot, target):
+            report["groups"].append({"slot": slot, "target": target, "status": "all_platforms_confirmed"})
+            continue
+        if existing_state is None and all(bool(row.get("validation_sent")) for row in group_rows):
+            continue
+        if existing_state == "reserved":
+            # Ambiguous external delivery: never post a duplicate to Telegram.
+            report["groups"].append({"slot": slot, "target": target, "status": "reserved_review_required"})
+            continue
         wanted = [row["match_id"] for row in group_rows]
-        definitions = restore_matches(Path(args.feed), wanted)
+        definitions = {ident: historical_definitions[ident]
+                       for ident in wanted if ident in historical_definitions}
         missing = [ident for ident in wanted if ident not in definitions]
         if missing:
             report["groups"].append({
@@ -223,7 +262,7 @@ def main():
 
         if losses > 1 or not winners:
             if not args.no_send:
-                mark_rows(session, base, key, row_ids)
+                mark_rows(ledger, row_ids, status="closed_silent")
             report["silent_closed"] += 1
             report["groups"].append({
                 "slot": slot, "target": target, "status": "closed_silent",
@@ -245,10 +284,17 @@ def main():
             total_original=total, losses=losses,
         )
 
+        videos_built += 1
         message_id = None
         if not args.no_send:
-            message_id = send_video(session, token, chat, video, target, slot, summary)
-            mark_rows(session, base, key, row_ids)
+            identity = validation_identity(slot, target)
+            if existing_state != "sent":
+                if not ledger.claim(*identity):
+                    raise D1LedgerError("Batch validation claimed concurrently; delivery blocked")
+                # A failed/uncertain Telegram API response keeps the reservation.
+                message_id = send_video(session, token, chat, video, target, slot, summary)
+                ledger.mark(*identity, message_id=message_id)
+            mark_rows(ledger, row_ids, status="validated")
 
         item = {
             "slot": slot, "target": target, "status": "published" if not args.no_send else "ready",

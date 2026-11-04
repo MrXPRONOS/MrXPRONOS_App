@@ -32,9 +32,7 @@ jobs:
       BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       META_APP_ID: ${{ secrets.META_APP_ID }}
       META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
       META_LONG_LIVED_USER_TOKEN: ${{ secrets.META_LONG_LIVED_USER_TOKEN }}
@@ -63,7 +61,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
-          fetch-depth: 120
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -84,6 +82,7 @@ jobs:
         run: |
           python -m py_compile scripts/shorts_video_fx.py
           python -m py_compile scripts/create_validation_shorts_from_telegram.py
+          python -m py_compile scripts/d1_publication_ledger.py
           python -m py_compile scripts/settle_short_production_batches.py
           python -m py_compile scripts/post_shorts_video.py
           python -m py_compile scripts/verify_social_publications.py
@@ -116,7 +115,7 @@ jobs:
           INDEX=0
           while IFS=$'\t' read -r VIDEO TARGET SUMMARY; do
             [ -n "$VIDEO" ] || continue
-            python scripts/post_shorts_video.py               --require-all --video "$VIDEO"               --platforms "$POST_PLATFORMS"               --title "Résultats $TARGET - Mr XPRONOS"               --description "$SUMMARY. Résultats vérifiés. 18+ et joue responsablement."               --caption "Résultats Mr XPRONOS ✅\n$SUMMARY\n18+ • Joue responsablement.\n\n#football #pronostic #resultats #mrxpronos" || FAILED=1
+            python scripts/post_shorts_video.py               --validation-ref "$VALIDATION_REF" --require-all --video "$VIDEO"               --platforms "$POST_PLATFORMS"               --title "Résultats $TARGET - Mr XPRONOS"               --description "$SUMMARY. Résultats vérifiés. 18+ et joue responsablement."               --caption "Résultats Mr XPRONOS ✅\n$SUMMARY\n18+ • Joue responsablement.\n\n#football #pronostic #resultats #mrxpronos" || FAILED=1
             INDEX=$((INDEX+1))
             if [ -s social_post_results.json ]; then
               cp social_post_results.json "telegram_out/production_validation/social_post_results_$INDEX.json"
