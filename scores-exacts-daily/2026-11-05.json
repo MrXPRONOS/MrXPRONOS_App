@@ -3,7 +3,7 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-05",
-  "generated_at": "2026-11-04T09:25:51Z",
+  "generated_at": "2026-11-04T13:05:12Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
@@ -44,15 +44,6 @@
       "kickoff_utc": "2026-11-05T17:45:00Z",
       "score": "2:1",
       "probability": 0.09468218
-    },
-    {
-      "id": "sportsapipro:4889613",
-      "league": "Division 4 - Regular Season",
-      "home": "Beitar Haifa",
-      "away": "Hapoel Bnei Arara",
-      "kickoff_utc": "2026-11-05T18:30:00Z",
-      "score": "1:2",
-      "probability": 0.0835385
     }
   ],
   "grouped": [
@@ -114,21 +105,6 @@
         "1:0",
         "2:0",
         "2:1"
-      ]
-    },
-    {
-      "id": "sportsapipro:4889613",
-      "league": "Division 4 - Regular Season",
-      "home": "Beitar Haifa",
-      "away": "Hapoel Bnei Arara",
-      "kickoff_utc": "2026-11-05T18:30:00Z",
-      "score": "1:2",
-      "probability": 0.18457636,
-      "group": "A_LOW",
-      "group_scores": [
-        "0:1",
-        "0:2",
-        "1:2"
       ]
     }
   ]
