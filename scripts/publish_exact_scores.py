@@ -108,8 +108,11 @@ def validated_forecast(raw, generated, target_date=None):
     base = {"id": ident, "league": league, "home": home, "away": away,
             "kickoff_utc": kickoff_raw, "score": score}
     simple = dict(base, probability=round(prob, 8))
+    # A three-score group containing 1:1 must not sneak the excluded score
+    # back into the public feed, even when its original modal is 0:0 or 2:2.
     grouped = (dict(base, probability=round(group_mass, 8),
-                    group=group, group_scores=list(GROUPS[group])) if group else None)
+                    group=group, group_scores=list(GROUPS[group]))
+               if group and not EXCLUDED_MODAL_SCORES.intersection(GROUPS[group]) else None)
     return simple, grouped, prob, group_mass
 
 
