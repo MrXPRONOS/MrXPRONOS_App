@@ -92,7 +92,15 @@
         ids.add(p.id);
       }
     }
-    return { available: true, payload };
+    // Production 1:1 suppression also applies to previously archived daily
+    // receipts. Keep their historical JSON intact, but never show the banned
+    // exact score or any three-score group containing it on the live website.
+    const filtered = {
+      ...payload,
+      simple: payload.simple.filter(p => p.score !== '1:1'),
+      grouped: payload.grouped.filter(p => p.score !== '1:1' && !p.group_scores.includes('1:1'))
+    };
+    return { available: true, payload: filtered };
   }
 
   function team(name) {

@@ -24,6 +24,9 @@ GROUPS = {
 }
 SCORE_GROUP = {score: group for group, scores in GROUPS.items() for score in scores}
 assert len(SCORE_GROUP) == 15
+# Research-tested scenario 1: EXCLUDE whole fixtures whose original modal score
+# is 1:1; never promote an alternative or alter the 11x11 forecast grid.
+EXCLUDED_MODAL_SCORES = frozenset({"1:1"})
 
 FORBIDDEN = {"actual_score", "home_score", "away_score", "hit", "win", "result",
              "settled", "is_finished", "final_score", "actual_probability"}
@@ -100,11 +103,16 @@ def validated_forecast(raw, generated, target_date=None):
     score, prob, group, group_mass = grid_summary(raw.get("grid"))
     if "predicted_score" in raw and raw["predicted_score"] != score:
         raise ValueError("Original model modal score does not match the raw grid")
+    if score in EXCLUDED_MODAL_SCORES:
+        return None  # Discard this match from both Top5, without substituting a score.
     base = {"id": ident, "league": league, "home": home, "away": away,
             "kickoff_utc": kickoff_raw, "score": score}
     simple = dict(base, probability=round(prob, 8))
+    # A three-score group containing 1:1 must not sneak the excluded score
+    # back into the public feed, even when its original modal is 0:0 or 2:2.
     grouped = (dict(base, probability=round(group_mass, 8),
-                    group=group, group_scores=list(GROUPS[group])) if group else None)
+                    group=group, group_scores=list(GROUPS[group]))
+               if group and not EXCLUDED_MODAL_SCORES.intersection(GROUPS[group]) else None)
     return simple, grouped, prob, group_mass
 
 

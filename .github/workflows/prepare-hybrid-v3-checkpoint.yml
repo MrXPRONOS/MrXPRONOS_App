@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/prepare-hybrid-v3-checkpoint.yml'
       - 'scripts/prepare_hybrid_v3_checkpoint.py'
+      - 'scripts/publish_exact_scores.py'
   schedule:
     - cron: '17 2 * * *'
   workflow_dispatch:
