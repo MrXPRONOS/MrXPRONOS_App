@@ -48,7 +48,7 @@ def pending_rows(ledger, since_days=14, limit=200):
     since = (datetime.now(UTC).date() - timedelta(days=since_days)).isoformat()
     result = ledger.query(
         "SELECT id,ref_id,ref_date,validation_sent FROM telegram_sent "
-        "WHERE kind=? AND delivery_status='sent' AND validation_sent=0 "
+        "WHERE kind=? AND delivery_status='sent' "
         "AND ref_date>=? ORDER BY ref_date DESC,id ASC LIMIT ?",
         (KIND, since, limit))
     rows = result.get("results")
@@ -81,6 +81,29 @@ def validation_state(ledger, slot, target):
     if not rows:
         return None
     return str(rows[0].get("delivery_status") or "reserved")
+
+
+SOCIAL_PLATFORMS = ("facebook", "youtube", "instagram", "threads", "bluesky")
+
+
+def social_complete(ledger, slot, target):
+    """Skip already fully distributed groups, while retrying missing providers."""
+    rows = ledger.query(
+        "SELECT kind,delivery_status,validation_details FROM telegram_sent "
+        "WHERE ref_id=? AND ref_date=? AND kind IN (?,?,?,?,?)",
+        (slot + ":" + target, target,
+         *("shorts_validation_social_" + p for p in SOCIAL_PLATFORMS))).get("results") or []
+    done = set()
+    for row in rows:
+        if row.get("delivery_status") != "sent":
+            continue
+        try:
+            detail = json.loads(row.get("validation_details") or "{}")
+        except (ValueError, TypeError):
+            detail = {}
+        if detail.get("id"):
+            done.add(row.get("kind"))
+    return len(done) == len(SOCIAL_PLATFORMS)
 
 
 def restore_matches(feed_path: Path, wanted_ids):
@@ -182,6 +205,11 @@ def main():
             report["groups"].append({"slot": slot, "target": target, "status": "deferred_capacity"})
             continue
         existing_state = validation_state(ledger, slot, target)
+        if existing_state == "sent" and social_complete(ledger, slot, target):
+            report["groups"].append({"slot": slot, "target": target, "status": "all_platforms_confirmed"})
+            continue
+        if existing_state is None and all(bool(row.get("validation_sent")) for row in group_rows):
+            continue
         if existing_state == "reserved":
             # Ambiguous external delivery: never post a duplicate to Telegram.
             report["groups"].append({"slot": slot, "target": target, "status": "reserved_review_required"})
