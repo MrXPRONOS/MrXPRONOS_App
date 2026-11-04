@@ -1,0 +1,104 @@
+name: Research Hybrid V3 October 2026 daily best per exact score
+on:
+  push:
+    branches: [research/v3-oct2026-daily-best-per-score]
+    paths:
+      - '.github/workflows/research-v3-oct2026-daily-best-score.yml'
+      - 'research/single_ml_v2.py'
+      - 'research/backtest_v3_october_daily_score_leaders.py'
+      - 'research/test_v3_october_score_leaders.py'
+  pull_request:
+    branches: [research/hybrid-v3-no-11-20261103]
+    paths:
+      - '.github/workflows/research-v3-oct2026-daily-best-score.yml'
+      - 'research/single_ml_v2.py'
+      - 'research/backtest_v3_october_daily_score_leaders.py'
+      - 'research/test_v3_october_score_leaders.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: research-v3-october-2026-daily-score-leaders
+  cancel-in-progress: false
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      ML_V2_HISTORY_KEY_B64: ${{ secrets.ML_V2_HISTORY_KEY_B64 }}
+      SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
+      SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
+      SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
+      SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
+      SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
+      OPENBLAS_NUM_THREADS: '2'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONUNBUFFERED: '1'
+      PYTHONPATH: model/research:model:site/scripts
+    steps:
+      - name: Read certified encrypted daily evidence without modifying production
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: site
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Checkout isolated October 2026 score study
+        uses: actions/checkout@v4
+        with:
+          ref: research/v3-oct2026-daily-best-per-score
+          path: model
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install authentic Hybrid V3 numerical dependencies only
+        run: python -m pip install --disable-pip-version-check numpy scipy scikit-learn cryptography requests
+      - name: Verify research syntax, fixtures and month-wide metrics offline
+        run: |
+          python -m py_compile model/research/single_ml_v2.py model/research/backtest_v3_october_daily_score_leaders.py model/research/test_v3_october_score_leaders.py
+          python -m unittest discover -s model/research -p 'test_v3_october_score_leaders.py' -v
+          test -n "$ML_V2_HISTORY_KEY_B64"
+      - name: Backtest original native Hybrid V3: all October days, 121 scores per day
+        run: |
+          mkdir -p /tmp/mrx-v3-october
+          python model/research/backtest_v3_october_daily_score_leaders.py \
+            --site-root site --model-root model \
+            --output-dir /tmp/mrx-v3-october
+      - name: Validate report, probability provenance and completeness
+        run: |
+          python - <<'PY'
+          import csv,json
+          from pathlib import Path
+          base=Path("/tmp/mrx-v3-october")
+          j=json.loads((base/"october-2026-score-leaders-summary.json").read_text())
+          assert j["evaluation_start"]=="2026-10-01"
+          assert j["evaluation_end"]=="2026-10-31"
+          assert j["days_with_completed_history"]==31
+          assert j["score_categories"]==121
+          assert j["by_score"]["1:1"]["days_selected"]==31
+          assert j["by_score"]["1:0"]["days_selected"]==31
+          assert j["by_score"]["3:1"]["days_selected"]==31
+          assert j["verified_settled_football_matches_evaluated"]>10000
+          rows=list(csv.DictReader((base/"october-2026-score-leaders-daily.csv").open()))
+          assert len(rows)==j["total_selections_across_independent_scores"]
+          assert len(rows)>=31*20
+          assert sum(int(r["hit"]) for r in rows)==j["total_hits_across_independent_scores"]
+          assert len({(r["day"],r["score"]) for r in rows})==len(rows)
+          assert all(r["day"].startswith("2026-10-") for r in rows)
+          assert all(r["actual_score"] and r["match_id"] for r in rows)
+          assert all(r["model_fit_latest_day"]<r["day"] and r["history_latest_day"]<r["day"] for r in rows)
+          print("OCTOBER_V3_ALL_SCORES_VERIFIED",len(rows),j["total_hits_across_independent_scores"])
+          PY
+      - name: Upload private research tables only; no GitHub Pages publication
+        uses: actions/upload-artifact@v4
+        with:
+          name: v3-october-2026-daily-best-exact-scores-${{ github.run_id }}
+          path: |
+            /tmp/mrx-v3-october/october-2026-score-leaders-summary.json
+            /tmp/mrx-v3-october/october-2026-score-leaders-daily.csv
+            /tmp/mrx-v3-october/october-2026-score-leaders-ranking.csv
+          retention-days: 30
+          if-no-files-found: error
