@@ -614,12 +614,21 @@ def summarize(stats):
 
 
 def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameters=None, auto_tune=True, tuning_interval_days=90, selection_coverage=.25, v3_models=False, frozen_fit_cutoff=None, export_v3_group_mass=False, prospective_fixtures=None, production_v3_only=False,
-             checkpoint_path=None, checkpoint_key=None, no_11_study=False):
+             checkpoint_path=None, checkpoint_key=None, no_11_study=False,
+             daily_score_study_start=None, daily_score_study_end=None):
     # Strict holdout: 2026 labels may update NEXT-DAY form features only.
     if production_v3_only and (not v3_models or auto_tune or frozen_fit_cutoff is not None):
         raise ValueError('Optimized production mode requires native unfrozen V3, no tuning')
     if no_11_study and not (production_v3_only and v3_models and not auto_tune and frozen_fit_cutoff is None):
         raise ValueError('The 1:1 research study requires chronological native Hybrid V3 only')
+    score_study = daily_score_study_start is not None or daily_score_study_end is not None
+    if score_study:
+        if not (production_v3_only and v3_models and not auto_tune and frozen_fit_cutoff is None):
+            raise ValueError('Daily per-score research requires chronological original Hybrid V3')
+        if not (isinstance(daily_score_study_start, date) and
+                isinstance(daily_score_study_end, date) and
+                begin <= daily_score_study_start <= daily_score_study_end <= end):
+            raise ValueError('Score study window must be a fully evaluated historical period')
     if checkpoint_path is not None and (not production_v3_only or checkpoint_key is None):
         raise ValueError('Only authenticated native V3 production builds may emit checkpoints')
     # No 2026 target can enter ML fitting, DC coefficient estimation, selector
@@ -636,6 +645,10 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
     from ml_v3_group_probability import grid_group_mass
     v3_group_mass_rows = []
     no_11_rows = [] if no_11_study else None
+    # In-memory ONLY. Each score/day has its own highest-probability fixture.
+    # Selection is based strictly on a pre-result V3 grid; outcomes are read
+    # solely when the winners are converted into an evaluation report.
+    score_day_leaders = {} if score_study else None
     states = FormState()
     reliability_history = defaultdict(list)
     reliability_models = {k: None for k in SELECTABLE_MODELS}
@@ -815,22 +828,40 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                         ('__v3_eleven__', float(raw_v3[1,1])),
                         ('__v3_hybrid__', hist_v3.copy(), dc.copy()),
                     ])
-                    if no_11_study:
-                        # All probabilities/selection are determined BEFORE
-                        # the finished score is used solely to evaluate accuracy.
+                    if no_11_study or (score_study and
+                            daily_score_study_start <= day <= daily_score_study_end):
+                        # The exact native Hybrid V3 grid, BEFORE scores settle.
                         hybrid_for_study = hybrid_v3_grid(hist_v3, dc, dc_weight=v3_hybrid_weight)
                         p_flat = hybrid_for_study.ravel()
                         best_index = int(np.argmax(p_flat))
-                        runner_pool = p_flat.copy()
-                        runner_pool[1 * (MAX_GOALS + 1) + 1] = -1.0
-                        runner_index = int(np.argmax(runner_pool))
-                        best_h, best_a = divmod(best_index, MAX_GOALS + 1)
-                        alt_h, alt_a = divmod(runner_index, MAX_GOALS + 1)
-                        no_11_rows.append((
-                            m.day.isoformat(), best_h, best_a, alt_h, alt_a,
-                            m.hg, m.ag, float(p_flat[best_index]),
-                            float(p_flat[runner_index])
-                        ))
+                        if no_11_study:
+                            runner_pool = p_flat.copy()
+                            runner_pool[1 * (MAX_GOALS + 1) + 1] = -1.0
+                            runner_index = int(np.argmax(runner_pool))
+                            best_h, best_a = divmod(best_index, MAX_GOALS + 1)
+                            alt_h, alt_a = divmod(runner_index, MAX_GOALS + 1)
+                            no_11_rows.append((
+                                m.day.isoformat(), best_h, best_a, alt_h, alt_a,
+                                m.hg, m.ag, float(p_flat[best_index]),
+                                float(p_flat[runner_index])
+                            ))
+                        if score_study and daily_score_study_start <= day <= daily_score_study_end:
+                            # Independent ranking for every one of the 121 exact
+                            # scores, regardless of which score is the match modal.
+                            # Ties resolve by provider-namespaced ID, never outcome.
+                            day_str = m.day.isoformat()
+                            for idx, prob_value in enumerate(p_flat):
+                                prob = float(prob_value)
+                                if not (0. < prob <= 1.):
+                                    continue
+                                key = (day_str, idx)
+                                prior = score_day_leaders.get(key)
+                                if (prior is None or prob > prior[0] or
+                                        (prob == prior[0] and m.key < prior[1])):
+                                    score_day_leaders[key] = (
+                                        prob, m.key, m, best_index,
+                                        model_fit_history_day, last_history_day
+                                    )
                 continue
             if first_evaluated is None:
                 first_evaluated = day
@@ -1108,6 +1139,35 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
             "no_future_settlement":True,
         }),flush=True)
     if production_v3_only:
+        if score_study:
+            picks = []
+            for (day_string, idx), (prob, match_key, match, modal_idx,
+                                     fitted_day, prior_day) in sorted(score_day_leaders.items()):
+                score_h, score_a = divmod(idx, MAX_GOALS + 1)
+                modal_h, modal_a = divmod(modal_idx, MAX_GOALS + 1)
+                if not (prior_day and fitted_day and prior_day < match.day and
+                        fitted_day < match.day):
+                    raise ValueError('Selected score unexpectedly uses same-day or future results')
+                picks.append({
+                    'day': day_string,
+                    'score': f'{score_h}:{score_a}',
+                    'probability': prob,
+                    'match_id': match_key,
+                    'league': match.league,
+                    'home': match.home, 'away': match.away,
+                    'actual_score': f'{match.hg}:{match.ag}',
+                    'hit': int((score_h, score_a) == (match.hg, match.ag)),
+                    'modal_score': f'{modal_h}:{modal_a}',
+                    'history_latest_day': str(prior_day),
+                    'model_fit_latest_day': str(fitted_day),
+                })
+            return {
+                'status': 'v3_daily_score_research_complete',
+                'history_day': str(last_history_day),
+                'evaluated_matches': played,
+                'score_daily_leaders': picks,
+                'version': '2026_october_score_leaders_v1',
+            }
         if no_11_study:
             # Return private tuples only to the in-memory analysis caller.
             # The workflow exports aggregated statistics, NEVER match-level rows.
