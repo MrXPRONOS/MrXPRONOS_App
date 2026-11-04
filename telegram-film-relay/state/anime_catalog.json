@@ -1,7 +1,7 @@
 {
   "audit": {
     "category": "anime_catalog",
-    "checked_at": "2026-11-04T06:49:00.997843+00:00",
+    "checked_at": "2026-11-04T20:06:43.327405+00:00",
     "not_yet_indexed": [
       {
         "episode": 2,
@@ -65,6 +65,12 @@
       },
       {
         "episode": 4,
+        "season": "2",
+        "series": "a-returner-s-magic-should-be-special-2nd-season",
+        "source_instances": 4
+      },
+      {
+        "episode": 5,
         "season": "2",
         "series": "a-returner-s-magic-should-be-special-2nd-season",
         "source_instances": 4
@@ -596,15 +602,9 @@
         "season": "1",
         "series": "animeisekaic-konosuba-trilogie",
         "source_instances": 1
-      },
-      {
-        "episode": 2,
-        "season": "1",
-        "series": "animeisekaic-konosuba-trilogie",
-        "source_instances": 1
       }
     ],
-    "not_yet_indexed_total": 2235,
+    "not_yet_indexed_total": 2243,
     "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
     "numbering_gap_seasons": 1,
     "numbering_gaps": [
@@ -650,9 +650,9 @@
         "truncated": false
       }
     ],
-    "scanned_episode_candidates": 2573,
-    "source_episode_numbers_observed": 2334,
-    "source_numbering_gap_seasons": 61,
+    "scanned_episode_candidates": 2567,
+    "source_episode_numbers_observed": 2342,
+    "source_numbering_gap_seasons": 62,
     "source_numbering_gaps": [
       {
         "not_observed_between_known": [
@@ -1212,6 +1212,14 @@
       },
       {
         "not_observed_between_known": [
+          5
+        ],
+        "season": "8",
+        "series": "the-prince-of-tennis-ii-u-17-world-cup-final-selection",
+        "truncated": false
+      },
+      {
+        "not_observed_between_known": [
           18,
           19,
           20,
@@ -1267,7 +1275,7 @@
       }
     ],
     "source_scan_complete": true,
-    "unnumbered_videos_skipped": 386
+    "unnumbered_videos_skipped": 387
   },
   "scans": {
     "-1001787980027": {
@@ -2044,6 +2052,12 @@
           "-1002069851953:64709",
           "-1002069851953:64711",
           "-1002069851953:64712"
+        ],
+        "5": [
+          "-1002069851953:65301",
+          "-1002069851953:65298",
+          "-1002069851953:65299",
+          "-1002069851953:65300"
         ]
       }
     },
@@ -3311,6 +3325,11 @@
           "-1002069851953:64700",
           "-1002069851953:64701",
           "-1002069851953:64702"
+        ],
+        "5": [
+          "-1002069851953:65290",
+          "-1002069851953:65291",
+          "-1002069851953:65292"
         ]
       }
     },
@@ -5669,6 +5688,11 @@
           "-1002294192868:11227",
           "-1002069851953:64680",
           "-1002069851953:64681"
+        ],
+        "5": [
+          "-1002069851953:65268",
+          "-1002069851953:65269",
+          "-1002069851953:65270"
         ]
       }
     },
@@ -9623,6 +9647,11 @@
           "-1002294192868:11233",
           "-1002069851953:64686",
           "-1002069851953:64687"
+        ],
+        "6": [
+          "-1002069851953:65277",
+          "-1002069851953:65275",
+          "-1002069851953:65276"
         ]
       }
     },
@@ -9988,6 +10017,11 @@
           "-1002294192868:11215",
           "-1002069851953:64664",
           "-1002069851953:64665"
+        ],
+        "5": [
+          "-1002069851953:65250",
+          "-1002069851953:65251",
+          "-1002069851953:65252"
         ]
       }
     },
@@ -10101,6 +10135,11 @@
           "-1002294192868:11207",
           "-1002069851953:64658",
           "-1002069851953:64659"
+        ],
+        "5": [
+          "-1002069851953:65243",
+          "-1002069851953:65244",
+          "-1002069851953:65245"
         ]
       }
     },
@@ -10719,6 +10758,12 @@
           "-1002069851953:64673",
           "-1002069851953:64674",
           "-1002069851953:64675"
+        ],
+        "5": [
+          "-1002069851953:65259",
+          "-1002069851953:65260",
+          "-1002069851953:65261",
+          "-1002069851953:65262"
         ]
       }
     },
@@ -10935,6 +10980,11 @@
           "-1002069851953:64101",
           "-1002069851953:64102",
           "-1002069851953:64103"
+        ],
+        "6": [
+          "-1002069851953:65283",
+          "-1002069851953:65284",
+          "-1002069851953:65285"
         ]
       }
     },
