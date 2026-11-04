@@ -1,0 +1,92 @@
+name: BSD V2 Four BTTS Models - Complete 2026 Acceptance
+on:
+  push:
+    branches: [feature/btts-four-models-20261104]
+    paths:
+      - '.github/workflows/bsd-btts-four-2026-acceptance.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'bsd/bsd_v2_btts*.py'
+      - 'bsd/test_bsd_v2_btts_four.py'
+permissions:
+  contents: read
+concurrency:
+  group: btts-four-models-audit
+  cancel-in-progress: false
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      PYTHONPATH: bsd
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install LightGBM and other BSD runtime dependencies
+        run: python -m pip install requests cryptography pillow 'lightgbm>=4.4,<5' scikit-learn
+      - name: Compile entire BSD application
+        run: python -m compileall -q bsd
+      - name: Test all four real BTTS model implementations
+        run: python -m unittest discover -s bsd -p 'test_bsd_v2_btts_four.py' -v
+      - name: Run full BSD regression suite
+        run: python -m unittest discover -s bsd -p 'test_*.py' -v
+      - name: Restore private historical data only in runner
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: python bsd/bsd_archive.py restore
+      - name: Backtest 2026 with production BTTS quality filters
+        run: |
+          python bsd/bsd_v2_btts_backtest.py --max-test 30000 \
+            --start-date 2026-01-01 --end-date 2026-11-02 \
+            --output bsd/btts_four_models_2026_audit.json
+      - name: Validate four models, chronological split and independent ensemble gate
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open('bsd/btts_four_models_2026_audit.json'))
+          fit=d['fit']['four_model_suite']
+          t=d['test']
+          assert t['eligible']>=500 and t['specialist_only'] and t['strict_quality_enabled']
+          assert fit['lightgbm_training']>=300, fit
+          assert fit['bivariate_training']>=200, fit
+          assert fit['zip_training']>=200, fit
+          assert fit['selection_count']>=200 and fit['confirmation_count']>=250, fit
+          for family in ('lightgbm','bivariate','zero_inflated'):
+              row=t['four_model_shadow'].get(family)
+              assert row and row['n']>=500 and 0<row['brier']<1, (family,row)
+          weights=fit['selected_weights']
+          assert abs(sum(weights.values())-1)<1e-6
+          assert all(v>=0 for v in weights.values())
+          if fit['activated']:
+              assert fit['proposed_selection_brier']<fit['baseline_selection_brier']
+              assert fit['proposed_confirmation_brier']<fit['baseline_confirmation_brier']
+              prior=t['ablation_without_team_league_zero']
+              assert prior and prior['n']==t['eligible']
+              assert t['specialized_calibrated']['BTTS_YES']['brier'] <= prior['brier']+.0005, (
+                   'Regression on independent 2026 holdout',prior,t['specialized_calibrated']['BTTS_YES'])
+          print('BSD_BTTS_FOUR_MODEL_AUDIT='+json.dumps({
+            'trained':{k:fit[k] for k in ('lightgbm_training','bivariate_training','zip_training')},
+            'selected_weights':weights,'ensemble_activated':fit['activated'],
+            'activation_reason':fit['reason'],
+            'selection_2024':fit['baseline_selection_brier'],
+            'confirmation_2025':fit['baseline_confirmation_brier'],
+            'challengers_2026':t['four_model_shadow'],
+            'eligible_2026':t['eligible'],
+            'btts_specialist_2026':t['specialized_calibrated']['BTTS_YES'],
+            'poisson_calibrated_2026':t['baseline_calibrated']['BTTS_YES'],
+            'prior_specialist_2026':t['ablation_without_team_league_zero'],
+            'thresholds':t['by_minimum_confidence'],
+          },ensure_ascii=False))
+          PY
+      - name: Upload full retrospective quality comparison
+        uses: actions/upload-artifact@v4
+        with:
+          name: btts-four-models-2026-comparison
+          path: bsd/btts_four_models_2026_audit.json
+          retention-days: 14
+          if-no-files-found: error
