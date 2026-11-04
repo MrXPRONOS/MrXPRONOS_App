@@ -1,1 +1,2 @@
 2026-10-17 smoke-check-pending-batches v2 date-fix
+2026-11-04 D1 production validation repair smoke run PR-299
