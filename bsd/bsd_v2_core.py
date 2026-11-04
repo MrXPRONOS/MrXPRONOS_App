@@ -411,6 +411,13 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
                                  getattr(calibration,"outcome_calibration",None))
         if risk:
             candidates=[c for c in candidates if c.family!="double_chance"]
+    # Mandatory last head-to-head result gate for BTTS only.
+    # Prevents BTTS publication if the newest settled meeting did not
+    # win the exact YES/NO side. Other markets remain eligible.
+    from bsd_v2_btts_h2h import filter_candidates_by_last_h2h
+    candidates, btts_last_h2h = filter_candidates_by_last_h2h(
+        event, index, candidates, market_audit=market_audit)
+
     choice, all_options = choose_market(
         candidates, calibration=calibration, odds_by_market=odds_by_market,
         mode=mode, league_samples=expected["league_samples"],
@@ -521,6 +528,8 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
             "away_venue_matches": expected["away_venue_matches"],
             "total_model_agreement": total_model_agreement,
             "btts_challenger_shadow": btts_shadow,
+            "btts_last_h2h": btts_last_h2h,
+            "btts_last_h2h_rule": "strict_last_completed_meeting",
             "policy_version": POLICY_VERSION,
         },
         "ranked_candidates": [{"key":row["candidate"].key,
