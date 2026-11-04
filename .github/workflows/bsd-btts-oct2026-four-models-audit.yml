@@ -1,0 +1,92 @@
+name: BSD V2 BTTS - Backtest Octobre 2026 (4 modeles)
+on:
+  push:
+    branches:
+      - audit/btts-four-models-oct2026-20261104
+    paths:
+      - .github/workflows/bsd-btts-oct2026-four-models-audit.yml
+permissions:
+  contents: read
+concurrency:
+  group: btts-four-models-oct2026
+  cancel-in-progress: false
+jobs:
+  october:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      PYTHONPATH: bsd
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install actual BSD model dependencies
+        run: python -m pip install requests cryptography pillow 'lightgbm>=4.4,<5' scikit-learn
+      - name: Compile python and run BTTS model tests
+        run: |
+          python -m compileall -q bsd
+          python -m unittest discover -s bsd -p 'test_bsd_v2_btts_four.py' -v
+          python -m unittest discover -s bsd -p 'test_bsd_v2_btts.py' -v
+      - name: Restore private BSD match history in runner only
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: python bsd/bsd_archive.py restore
+      - name: Backtest 01-31 October 2026, no 2026 fitting
+        run: |
+          python bsd/bsd_v2_btts_backtest.py \
+            --max-test 30000 \
+            --start-date 2026-10-01 \
+            --end-date 2026-10-31 \
+            --output bsd/btts_four_models_october_2026.json
+      - name: Verify October period and summarize four candidates
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open('bsd/btts_four_models_october_2026.json',encoding='utf-8'))
+          t=d['test']; f=d['fit']['four_model_suite']
+          assert t['start_date']=='2026-10-01' and t['end_date']=='2026-10-31', t
+          assert t['strict_quality_enabled'] is True and t['specialist_only'] is True, t
+          assert t['eligible']>0, 'No eligible October 2026 BTTS fixtures; cannot claim success rate'
+          assert t['population_finished']>=t['checked']>=t['eligible']>0
+          for key in ('lightgbm','bivariate','zero_inflated'):
+              v=t['four_model_shadow'].get(key)
+              assert v and v['n']==t['eligible'], (key,v)
+          assert abs(sum(f['selected_weights'].values())-1)<1e-8
+          current=t['specialized_calibrated']['BTTS_YES']
+          poisson=t['baseline_calibrated']['BTTS_YES']
+          assert current['n']==poisson['n']==t['eligible']
+          models={'bsd_specialise_calibre':current,'poisson_dc_calibre':poisson}
+          models.update(t['four_model_shadow'])
+          comparative={k:{
+              'n':v['n'],
+              'brier':v['brier'],
+              'delta_brier_vs_bsd':round(v['brier']-current['brier'],5),
+              'mean_p_btts_yes':v['average_predicted']
+          } for k,v in models.items()}
+          report={
+              'period':'2026-10-01..2026-10-31',
+              'finished_in_archive':t['population_finished'],
+              'checked':t['checked'],'eligible':t['eligible'],
+              'rejection_reasons':t['skips'],
+              'models':comparative,
+              'activation':{'active':f['activated'],'weights':f['selected_weights']},
+              'selection_hit_rate_by_min_confidence':t['by_minimum_confidence'],
+              'actual_yes_base_rate':current['hit_rate'],
+              'limitations':'Preprice classification only, not published picks; no ROI without archived odds.'
+          }
+          print('BSD_BTTS_OCTOBER_2026_RESULTS='+json.dumps(report,ensure_ascii=False))
+          open('bsd/btts_four_models_october_2026_summary.json','w',encoding='utf8').write(
+              json.dumps(report,ensure_ascii=False,indent=2))
+          PY
+      - name: Upload October audit and summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: btts-four-models-oct2026-results
+          path: |
+            bsd/btts_four_models_october_2026.json
+            bsd/btts_four_models_october_2026_summary.json
+          retention-days: 14
+          if-no-files-found: error
