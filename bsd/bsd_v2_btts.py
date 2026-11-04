@@ -132,6 +132,7 @@ class BTTSModel:
     league_model: object = None
     zero_blend: float = 0.0
     zero_model: object = None
+    ensemble_model: object = None
 
     def predict_specialized(self, features):
         if features is None:
@@ -141,7 +142,8 @@ class BTTSModel:
         return _clamp(_sigmoid(sum(w*x for w,x in zip(self.weights,features))))
 
     def predict(self, event, index, baseline_probability):
-        if self.blend<=0 and self.team_blend<=0 and self.league_blend<=0 and self.zero_blend<=0:
+        if (self.blend<=0 and self.team_blend<=0 and self.league_blend<=0 and self.zero_blend<=0
+                and (self.ensemble_model is None or self.ensemble_model.weights[0]>=1.)):
             return baseline_probability
         features = btts_features(event,index)
         p = self.predict_specialized(features)
@@ -162,6 +164,8 @@ class BTTSModel:
             zero=self.zero_model.predict(event,index)
             if zero is not None:
                 combined=(1.0-self.zero_blend)*combined+self.zero_blend*zero['btts_yes']
+        if self.ensemble_model is not None and self.ensemble_model.weights[0]<1.:
+            combined=self.ensemble_model.predict(event,index,combined)
         return _clamp(combined)
 
     def to_dict(self):
@@ -170,6 +174,7 @@ class BTTSModel:
                 "league_blend":self.league_blend,
                 "zero_blend":self.zero_blend,
                 "zero_model":self.zero_model.to_dict() if self.zero_model else None,
+                "ensemble_model":self.ensemble_model.to_dict() if self.ensemble_model else None,
                 "team_model":({"trained_games":self.team_model.trained_games,
                   "home_weights":list(self.team_model.home_weights),
                   "away_weights":list(self.team_model.away_weights)} if self.team_model else None),
@@ -197,7 +202,8 @@ def btts_quality_rejection(expected, model, poisson_p, specialized_p):
     This is not an 80% guarantee; it prevents misleading confidence from a
     sparse-history Poisson fallback and requires home/away evidence.
     """
-    if model is None or not (model.blend>0 or model.team_blend>0 or model.league_blend>0 or model.zero_blend>0):
+    if model is None or not (model.blend>0 or model.team_blend>0 or model.league_blend>0 or model.zero_blend>0 or
+            (model.ensemble_model is not None and model.ensemble_model.weights[0]<1.)):
         return "btts_no_active_specialist"
     if min(expected["home_recent_matches"], expected["away_recent_matches"]) < 8:
         return "btts_insufficient_team_form"
@@ -244,6 +250,7 @@ def fit_btts_model(index, *, rho=0.0, max_training=3600, max_validation=900):
     from bsd_v2_btts_team import fit_team_scoring_model, team_scoring_probabilities
     from bsd_v2_btts_league import fit_league_residual_model
     from bsd_v2_btts_zero import fit_zero_goal_model
+    from bsd_v2_btts_ensemble import fit_ensemble
 
     training, validation = [], []
     for _stamp,event in index.global_games:
@@ -450,6 +457,18 @@ def fit_btts_model(index, *, rho=0.0, max_training=3600, max_validation=900):
     else:
         stages["reason"]="insufficient_2024_training_or_validation"
 
+    # Fit all challengers with 2024-only training, and independently verify
+    # any ensemble improvement in late 2025. No 2026 result can tune weights.
+    baseline_model=BTTSModel(weights,chosen,len(training),len(observed),
+                             chosen_team,chosen_league,team_model,league_model,
+                             chosen_zero,zero_model)
+    ensemble,ensemble_info=fit_ensemble(
+        index,
+        [event for _at,event,_feat,_y in training],
+        [event for _at,event,_feat,_y in validation],
+        [event for event,*_unused in folds["final_holdout"]] if enough_training else [],
+        baseline_model,rho=rho)
+    stages["four_model_suite"]=ensemble_info
     stages["zero_activated"]=chosen_zero>0
     stages["team_activated"]=chosen_team>0
     stages["league_activated"]=chosen_league>0
@@ -472,4 +491,5 @@ def fit_btts_model(index, *, rho=0.0, max_training=3600, max_validation=900):
         **stages
     }
     return BTTSModel(weights,chosen,len(training),len(observed),chosen_team,
-                     chosen_league,team_model,league_model,chosen_zero,zero_model),diag
+                     chosen_league,team_model,league_model,chosen_zero,zero_model,
+                     ensemble),diag
