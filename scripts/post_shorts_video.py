@@ -612,6 +612,8 @@ def parse_platforms(raw: str) -> List[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Publier la vidéo Mr XPRONOS sur les réseaux sociaux")
+    parser.add_argument("--validation-ref", default=None,
+                        help="Identité slot:YYYY-MM-DD des Shorts de validation pour D1 anti-doublon")
     parser.add_argument("--video", default="daily_pronos_shorts.mp4", help="Chemin du fichier MP4")
     parser.add_argument("--platforms", default=env("POST_PLATFORMS", "facebook,youtube,instagram,threads,bluesky"))
     parser.add_argument("--caption", default=None, help="Texte/caption à publier")
@@ -664,10 +666,68 @@ def main() -> int:
     }
 
     def attempt(platform: str) -> PublishResult:
+        if not args.validation_ref:
+            try:
+                return dispatch[platform]()
+            except Exception as e:
+                return PublishResult(platform, False, f"Exception: {type(e).__name__}: {e}")
+
+        # Validation clips require a persistent per-platform receipt in D1.
+        from scripts.d1_publication_ledger import D1Ledger
+        ledger = D1Ledger()
+        kind = "shorts_validation_social_" + platform
+        ref = args.validation_ref
         try:
-            return dispatch[platform]()
+            slot, day = ref.split(":", 1)
+            if slot not in ("morning", "evening"):
+                raise ValueError("Invalid validation slot")
+            datetime.fromisoformat(day).date()
+            if len(day) != 10:
+                raise ValueError("Invalid validation date")
+            rows = ledger.query(
+                "SELECT delivery_status,validation_details FROM telegram_sent "
+                "WHERE kind=? AND ref_id=? AND ref_date=? LIMIT 1",
+                (kind, ref, day)).get("results") or []
+            if rows:
+                status = rows[0].get("delivery_status")
+                if status == "sent":
+                    try:
+                        receipt = json.loads(rows[0].get("validation_details") or "{}")
+                    except (ValueError, TypeError):
+                        receipt = {}
+                    if receipt.get("id"):
+                        return PublishResult(platform, True, "Publication deja confirmee dans D1", receipt)
+                return PublishResult(platform, False,
+                    "Envoi reserve ou recu incomplet; verification manuelle requise pour eviter un doublon")
+            if not ledger.claim(kind, ref, day):
+                return PublishResult(platform, False, "Reservation D1 concurrente; aucun nouvel envoi")
+            try:
+                result = dispatch[platform]()
+            except Exception as e:
+                # The external action may have happened before its response failed.
+                return PublishResult(platform, False, f"Envoi incertain: {type(e).__name__}")
+            receipt = result.data if isinstance(result.data, dict) else {}
+            provider_id = receipt.get("id")
+            if result.ok and provider_id:
+                committed = ledger.query(
+                    "UPDATE telegram_sent SET delivery_status='sent',published_at=?,"
+                    "validation_details=? WHERE kind=? AND ref_id=? AND ref_date=? "
+                    "AND delivery_status='reserved'",
+                    (datetime.now(timezone.utc).isoformat(),
+                     json.dumps({"id": str(provider_id)}, ensure_ascii=False),
+                     kind, ref, day))
+                if (committed.get("meta") or {}).get("changes") != 1:
+                    return PublishResult(platform, False,
+                        "Publication externe reussie, confirmation D1 incertaine: verification manuelle")
+                return result
+            # Only unequivocal pre-upload authentication errors may release a claim.
+            if platform == "youtube" and ("invalid_grant" in result.message.lower()
+                    or "token has been expired or revoked" in result.message.lower()):
+                ledger.release(kind, ref, day)
+            return result
         except Exception as e:
-            return PublishResult(platform, False, f"Exception: {type(e).__name__}: {e}")
+            return PublishResult(platform, False,
+                "D1 validation ledger: " + type(e).__name__ + " (envoi bloque par securite)")
 
     results: List[PublishResult] = []
     if args.strict:
