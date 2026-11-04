@@ -2,41 +2,68 @@
   "schema_version": "mrx-exact-top5-v1",
   "model": "machine_learning_v3_hybrid",
   "status": "published",
-  "date": "2026-11-03",
-  "generated_at": "2026-11-03T22:56:35Z",
+  "date": "2026-11-04",
+  "generated_at": "2026-11-04T02:56:36Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
   "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
   "simple": [
     {
-      "id": "sportsapipro:4731931",
-      "league": "Liga BetPlay - Clausura",
-      "home": "Deportivo Pasto",
-      "away": "Jaguares de Córdoba",
-      "kickoff_utc": "2026-11-03T23:20:00Z",
+      "id": "sportsapipro:4882494",
+      "league": "Botola Pro",
+      "home": "AS Far Rabat",
+      "away": "Raja Casablanca",
+      "kickoff_utc": "2026-11-04T20:00:00Z",
       "score": "1:0",
-      "probability": 0.12665005
+      "probability": 0.14031212
     },
     {
-      "id": "sportsapipro:4882916",
-      "league": "Liga FUTVE - Quadrangulars",
-      "home": "Deportivo Tachira",
-      "away": "Puerto Cabello",
-      "kickoff_utc": "2026-11-03T23:30:00Z",
-      "score": "1:1",
-      "probability": 0.11755139
+      "id": "sportsapipro:4866419",
+      "league": "Liga Nacional - Apertura - Center Group",
+      "home": "Olancho",
+      "away": "Lobos UPN",
+      "kickoff_utc": "2026-11-04T21:00:00Z",
+      "score": "2:1",
+      "probability": 0.09300868
+    },
+    {
+      "id": "sportsapipro:4828435",
+      "league": "UEFA Champions League",
+      "home": "Borussia Dortmund",
+      "away": "Real Betis",
+      "kickoff_utc": "2026-11-04T20:00:00Z",
+      "score": "2:1",
+      "probability": 0.09296363
+    },
+    {
+      "id": "sportsapipro:4829870",
+      "league": "UEFA Youth League",
+      "home": "Viking U19",
+      "away": "Sabah Baku FK U19",
+      "kickoff_utc": "2026-11-04T12:00:00Z",
+      "score": "2:1",
+      "probability": 0.09255819
+    },
+    {
+      "id": "sportsapipro:4889262",
+      "league": "Liga 3",
+      "home": "Valle Sagrado FC",
+      "away": "ASA FC",
+      "kickoff_utc": "2026-11-04T20:00:00Z",
+      "score": "2:1",
+      "probability": 0.08982838
     }
   ],
   "grouped": [
     {
-      "id": "sportsapipro:4731931",
-      "league": "Liga BetPlay - Clausura",
-      "home": "Deportivo Pasto",
-      "away": "Jaguares de Córdoba",
-      "kickoff_utc": "2026-11-03T23:20:00Z",
+      "id": "sportsapipro:4882494",
+      "league": "Botola Pro",
+      "home": "AS Far Rabat",
+      "away": "Raja Casablanca",
+      "kickoff_utc": "2026-11-04T20:00:00Z",
       "score": "1:0",
-      "probability": 0.30758518,
+      "probability": 0.33890978,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -45,18 +72,63 @@
       ]
     },
     {
-      "id": "sportsapipro:4882916",
-      "league": "Liga FUTVE - Quadrangulars",
-      "home": "Deportivo Tachira",
-      "away": "Puerto Cabello",
-      "kickoff_utc": "2026-11-03T23:30:00Z",
-      "score": "1:1",
-      "probability": 0.23714693,
-      "group": "DRAW_LOW",
+      "id": "sportsapipro:4866419",
+      "league": "Liga Nacional - Apertura - Center Group",
+      "home": "Olancho",
+      "away": "Lobos UPN",
+      "kickoff_utc": "2026-11-04T21:00:00Z",
+      "score": "2:1",
+      "probability": 0.23744381,
+      "group": "H_LOW",
       "group_scores": [
-        "0:0",
-        "1:1",
-        "2:2"
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4828435",
+      "league": "UEFA Champions League",
+      "home": "Borussia Dortmund",
+      "away": "Real Betis",
+      "kickoff_utc": "2026-11-04T20:00:00Z",
+      "score": "2:1",
+      "probability": 0.23493202,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4829870",
+      "league": "UEFA Youth League",
+      "home": "Viking U19",
+      "away": "Sabah Baku FK U19",
+      "kickoff_utc": "2026-11-04T12:00:00Z",
+      "score": "2:1",
+      "probability": 0.22309415,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4843652",
+      "league": "UEFA Youth League",
+      "home": "Dinamo Zagreb U19",
+      "away": "Qarabag U19",
+      "kickoff_utc": "2026-11-04T12:00:00Z",
+      "score": "2:1",
+      "probability": 0.21279581,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
       ]
     }
   ]
