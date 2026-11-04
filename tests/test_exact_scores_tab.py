@@ -114,6 +114,42 @@ class TestTop5Publisher(unittest.TestCase):
         self.assertNotIn(draw["id"], {p["id"] for p in feed["grouped"]})
         self.assertTrue(all("1:1" not in p["group_scores"] for p in feed["grouped"]))
 
+    def test_1_1_removed_before_top5_fills_ranks_with_next_eligible_games(self):
+        # Eight modal 1:1 fixtures have first priority by ID. If we selected
+        # Top5 before filtering they would consume the places and yield zero
+        # picks; a pre-filter must instead fill all five from later fixtures.
+        source = self.setup_source()
+        excluded = [make_one(i, "DRAW_LOW") for i in range(8)]
+        eligible = [make_one(i, "H_LOW") for i in range(8, 15)]
+        # Make 1:1 forecasts strictly stronger than the remaining scores;
+        # filtering must happen before the modal ranking, not after its Top5.
+        for row in excluded:
+            matrix = row["grid"]
+            matrix[1][1] += .04
+            matrix[10][10] -= .04
+            self.assertEqual(grid_summary(matrix)[0], "1:1")
+        source["fixtures"] = excluded + eligible
+        feed = build_feed(source, generated_at=NOW)
+        self.assertEqual(feed["status"], "published")
+        self.assertEqual(len(feed["simple"]), 5)
+        self.assertEqual(len(feed["grouped"]), 5)
+        expected = {f"fixture-{i:02d}" for i in range(8, 13)}
+        self.assertEqual({row["id"] for row in feed["simple"]}, expected)
+        self.assertEqual({row["id"] for row in feed["grouped"]}, expected)
+        self.assertTrue(all(p["score"] != "1:1" for p in feed["simple"] + feed["grouped"]))
+        self.assertTrue(all("1:1" not in p["group_scores"] for p in feed["grouped"]))
+
+    def test_filter_before_top5_still_obeys_hard_ceiling_when_fewer_eligible(self):
+        source = self.setup_source()
+        source["fixtures"] = (
+            [make_one(i, "DRAW_LOW") for i in range(8)]
+            + [make_one(i, "H_LOW") for i in range(8, 10)]
+        )
+        result = build_feed(source, generated_at=NOW)
+        self.assertEqual(len(result["simple"]), 2)
+        self.assertEqual(len(result["grouped"]), 2)
+        self.assertEqual({r["id"] for r in result["simple"]}, {"fixture-08", "fixture-09"})
+
     def test_all_11_modal_yields_unavailable_not_fabricated_alternative(self):
         source = self.setup_source()
         source["fixtures"] = [make_one(i, "DRAW_LOW") for i in range(7)]
