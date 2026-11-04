@@ -1,0 +1,31 @@
+name: Shorts D1 Validation Regression
+on:
+  pull_request:
+    paths:
+      - "scripts/settle_short_production_batches.py"
+      - "scripts/post_shorts_video.py"
+      - "scripts/d1_publication_ledger.py"
+      - "tests/test_shorts_d1_validation.py"
+      - ".github/workflows/shorts-coupons-production-validation.yml"
+      - ".github/workflows/shorts-validation-ci.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check Python syntax
+        run: |
+          python -m py_compile scripts/d1_publication_ledger.py scripts/settle_short_production_batches.py scripts/post_shorts_video.py
+          python -m py_compile tests/test_shorts_d1_validation.py
+      - name: Install test dependencies
+        run: |
+          pip install "numpy<2" requests pillow moviepy==1.0.3
+      - name: Run D1 regression tests (no external services)
+        run: python -m unittest discover -s tests -p 'test_shorts_d1_validation.py' -v
