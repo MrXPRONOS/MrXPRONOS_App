@@ -673,7 +673,7 @@ def main() -> int:
                 return PublishResult(platform, False, f"Exception: {type(e).__name__}: {e}")
 
         # Validation clips require a persistent per-platform receipt in D1.
-        from scripts.d1_publication_ledger import D1Ledger
+        from d1_publication_ledger import D1Ledger
         ledger = D1Ledger()
         kind = "shorts_validation_social_" + platform
         ref = args.validation_ref
