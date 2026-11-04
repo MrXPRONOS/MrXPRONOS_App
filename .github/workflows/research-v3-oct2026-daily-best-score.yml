@@ -61,7 +61,7 @@ jobs:
           python -m py_compile model/research/single_ml_v2.py model/research/backtest_v3_october_daily_score_leaders.py model/research/test_v3_october_score_leaders.py
           python -m unittest discover -s model/research -p 'test_v3_october_score_leaders.py' -v
           test -n "$ML_V2_HISTORY_KEY_B64"
-      - name: Backtest original native Hybrid V3: all October days, 121 scores per day
+      - name: "Backtest native Hybrid V3 for 121 exact scores on every October day"
         run: |
           mkdir -p /tmp/mrx-v3-october
           python model/research/backtest_v3_october_daily_score_leaders.py \
