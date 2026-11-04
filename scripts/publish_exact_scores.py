@@ -132,8 +132,10 @@ def build_feed(source, *, generated_at, target_date=None):
     if not isinstance(fixtures, list):
         raise ValueError("A real list of prospective fixtures is required")
     ids = set()
-    simple_candidates = []
-    group_candidates = []
+    # PHASE 1 — Check every prospective fixture, then filter ALL 1:1 modal
+    # matches before computing any Top5 ranking. Never take Top5 first and
+    # remove 1:1 afterwards (that would leave valid replacements unranked).
+    eligible = []
     for raw in fixtures:
         if not isinstance(raw, dict):
             raise ValueError("Invalid fixture record")
@@ -141,12 +143,17 @@ def build_feed(source, *, generated_at, target_date=None):
             raise ValueError("Duplicate fixture id")
         ids.add(raw.get("id"))
         row = validated_forecast(raw, when, target_date=target_date)
-        if row is None:
-            continue
-        simple, grouped, score_prob, group_prob = row
-        simple_candidates.append((simple, score_prob))
-        if grouped is not None:
-            group_candidates.append((grouped, group_prob, score_prob))
+        if row is not None:
+            eligible.append(row)
+
+    # PHASE 2 — Independently rank all remaining eligible matches for A and B.
+    # Drawing candidates from the full filtered pool keeps both lists filled
+    # up to five when at least five eligible choices actually exist.
+    simple_candidates = [(simple, score_prob)
+                         for simple, grouped, score_prob, group_prob in eligible]
+    group_candidates = [(grouped, group_prob, score_prob)
+                        for simple, grouped, score_prob, group_prob in eligible
+                        if grouped is not None]
     top_a = sorted(simple_candidates, key=lambda p: (-p[1], p[0]["id"]))[:5]
     top_b = sorted(group_candidates, key=lambda p: (-p[1], -p[2], p[0]["id"]))[:5]
     return {
