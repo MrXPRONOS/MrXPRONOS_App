@@ -15,6 +15,7 @@ from bsd_archive import MATCHES_FILE,_read_json
 from bsd_backtest import wilson_interval
 from bsd_v2_core import V2History,fit_rho_2024,estimate_goals,score_matrix,markets_from_matrix,fixture_datetime,outcome_scores,league_key
 from bsd_v2_btts import fit_btts_model,btts_candidates,btts_features,btts_quality_rejection
+from bsd_v2_btts_h2h import btts_h2h_decision
 from bsd_v2_policies import fit_policy
 from bsd_v2_evaluate import get_sample
 
@@ -83,6 +84,23 @@ def audit(index,model,calibration,rho,*,year=2026,max_matches=2000,
                 continue
         scores=outcome_scores(match)
         win_yes=int(scores[0]>0 and scores[1]>0)
+        # Record the unchanged pre-H2H reference on precisely the same
+        # quality-eligible cohort. Apply the new gate only after this record.
+        pre_yes=calibration.score(updated["BTTS_YES"])[1]
+        pre_no=calibration.score(updated["BTTS_NO"])[1]
+        preferred="BTTS_YES" if pre_yes>=pre_no else "BTTS_NO"
+        pre_confidence=max(pre_yes,pre_no)
+        pre_hit=win_yes if preferred=="BTTS_YES" else 1-win_yes
+        counters["before_h2h_n"]+=1
+        counters["before_h2h_wins"]+=pre_hit
+        for threshold in (50,55,60,65,70,75,79,80):
+            if pre_confidence>=threshold/100:
+                counters["pre_h2h_"+str(threshold)+"_n"]+=1
+                counters["pre_h2h_"+str(threshold)+"_wins"]+=pre_hit
+        passed,h2h_reason,_meeting=btts_h2h_decision(match,index,preferred)
+        if not passed:
+            counters["skipped_"+h2h_reason]+=1
+            continue
         ensemble=getattr(model,"ensemble_model",None)
         if ensemble is not None:
             candidates=ensemble.candidate_probs(match,index,expected)
@@ -139,8 +157,26 @@ def audit(index,model,calibration,rho,*,year=2026,max_matches=2000,
                                 if counters['confidence_'+str(k)+'_n'] else None)}
             for k in (50,55,60,65,70,75,79,80)},
         "preprice_only":True,
+        "last_h2h_strict_filter_enabled":True,
+        "pre_last_h2h_selection":{
+            "eligible":counters["before_h2h_n"],
+            "wins":counters["before_h2h_wins"],
+            "hit_rate":(round(counters["before_h2h_wins"]/counters["before_h2h_n"],4)
+                        if counters["before_h2h_n"] else None),
+            "thresholds":{
+                str(threshold):{
+                    "n":counters["pre_h2h_"+str(threshold)+"_n"],
+                    "wins":counters["pre_h2h_"+str(threshold)+"_wins"],
+                    "hit_rate":(
+                        round(counters["pre_h2h_"+str(threshold)+"_wins"]/
+                              counters["pre_h2h_"+str(threshold)+"_n"],4)
+                        if counters["pre_h2h_"+str(threshold)+"_n"] else None)
+                } for threshold in (50,55,60,65,70,75,79,80)
+            },
+        },
         "same_btts_eligibility_as_production":quality_policy is not None,
         "does_not_simulate_competing_markets_or_odds":True,
+        "h2h_side": "highest_calibrated_btts_yes_or_no",
         "ablation_without_team_league_zero":_statistics(prior_probabilities) if prior_probabilities else None,
         "four_model_shadow":{k:_statistics(v) for k,v in four_models.items()},
         "four_ensemble_weights":model.ensemble_model.to_dict()["weights"] if model.ensemble_model else None,
