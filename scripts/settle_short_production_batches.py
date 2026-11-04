@@ -188,6 +188,10 @@ def main():
             continue
         groups[(slot, str(row.get("ref_date") or ""))].append({**row, "match_id": ident})
 
+    # Resolve historical frozen definitions once, not once per group.
+    all_ids = {row["match_id"] for group in groups.values() for row in group}
+    historical_definitions = restore_matches(Path(args.feed), all_ids) if all_ids else {}
+
     work_root = Path(args.work_dir)
     work_root.mkdir(parents=True, exist_ok=True)
     report = {
@@ -215,7 +219,8 @@ def main():
             report["groups"].append({"slot": slot, "target": target, "status": "reserved_review_required"})
             continue
         wanted = [row["match_id"] for row in group_rows]
-        definitions = restore_matches(Path(args.feed), wanted)
+        definitions = {ident: historical_definitions[ident]
+                       for ident in wanted if ident in historical_definitions}
         missing = [ident for ident in wanted if ident not in definitions]
         if missing:
             report["groups"].append({
