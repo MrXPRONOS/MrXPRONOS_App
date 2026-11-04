@@ -846,22 +846,24 @@ def backtest(matches, begin, end, out, max_eval=0, retrain_days=30, ml_parameter
                                 float(p_flat[runner_index])
                             ))
                         if score_study and daily_score_study_start <= day <= daily_score_study_end:
-                            # Independent ranking for every one of the 121 exact
-                            # scores, regardless of which score is the match modal.
-                            # Ties resolve by provider-namespaced ID, never outcome.
+                            # Corrected interpretation: ONE match per day for
+                            # EACH SCORE THAT IS ACTUALLY THE MODEL'S MODAL
+                            # FORECAST for at least one eligible fixture.
+                            # Never force an exotic grid cell's best runner-up.
+                            # The same fixture has exactly one modal score.
                             day_str = m.day.isoformat()
-                            for idx, prob_value in enumerate(p_flat):
-                                prob = float(prob_value)
-                                if not (0. < prob <= 1.):
-                                    continue
-                                key = (day_str, idx)
-                                prior = score_day_leaders.get(key)
-                                if (prior is None or prob > prior[0] or
-                                        (prob == prior[0] and m.key < prior[1])):
-                                    score_day_leaders[key] = (
-                                        prob, m.key, m, best_index,
-                                        model_fit_history_day, last_history_day
-                                    )
+                            idx = best_index
+                            prob = float(p_flat[idx])
+                            if not (0. < prob <= 1.):
+                                raise ValueError('Invalid original modal V3 probability')
+                            key = (day_str, idx)
+                            prior = score_day_leaders.get(key)
+                            if (prior is None or prob > prior[0] or
+                                    (prob == prior[0] and m.key < prior[1])):
+                                score_day_leaders[key] = (
+                                    prob, m.key, m, best_index,
+                                    model_fit_history_day, last_history_day
+                                )
                 continue
             if first_evaluated is None:
                 first_evaluated = day
