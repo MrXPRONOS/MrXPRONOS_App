@@ -126,7 +126,7 @@ class TestTop5Publisher(unittest.TestCase):
         for row in excluded:
             matrix = row["grid"]
             matrix[1][1] += .04
-            matrix[10][10] -= .04
+            matrix[0][0] -= .04
             self.assertEqual(grid_summary(matrix)[0], "1:1")
         source["fixtures"] = excluded + eligible
         feed = build_feed(source, generated_at=NOW)
