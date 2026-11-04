@@ -1,5 +1,530 @@
 [
   {
+    "id": "7dbe39dceb89931291420306",
+    "kind": "news",
+    "title": "Ligue des champions : le PSG en démonstration face à Villarreal, Lille décroche son premier point à Bodo/Glimt... Revivez les matchs de mardi soir",
+    "url": "https://www.franceinfo.fr/sports/directs/direct-ligue-des-champions-villarreal-psg-bodo-glimt-lille-suivez-la-quatrieme-journee-de-la-phase-de-ligue-avec-nous_8264123.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-03T23:28:02+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7229701885151eaefb08fb6a",
+    "kind": "news",
+    "title": "Ligue des Champions : la réaction désespérée de Villarreal",
+    "url": "https://www.footmercato.net/a2153243146948137266-ligue-des-champions-la-reaction-desesperee-de-villarreal",
+    "source_date": "2026-11-03T23:10:05+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "42d41955eabdab0017e895e8",
+    "kind": "news",
+    "title": "Barça : Rodri s’est encore blessé !",
+    "url": "https://www.footmercato.net/a5684791207259093955-barca-rodri-sest-encore-blesse",
+    "source_date": "2026-11-03T22:40:53+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7fb11389afbe8dbb9edabb9d",
+    "kind": "news",
+    "title": "Ligue des Champions, LOSC : Davide Ancelotti y croit toujours",
+    "url": "https://www.footmercato.net/a5902114471009617616-ligue-des-champions-davide-ancelotti-y-croit-toujours",
+    "source_date": "2026-11-03T22:25:54+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1cf9cfd4b867fc5a954936bd",
+    "kind": "news",
+    "title": "Lille ramène un triste match nul de Bodo/Glimt et inscrit son premier point en Ligue des champions",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/lille-ramene-un-triste-match-nul-de-bodo-glimt-et-inscrit-son-premier-point-en-ligue-des-champions_8266607.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-03T22:08:38+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4d9d50287a06da34ab56b263",
+    "kind": "news",
+    "title": "Que risque Jesús Owono, international équato-guinéen, à l'origine du choc fatal face à Jesús de Miguel?",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261103-que-risque-jes%C3%BAs-owono-international-%C3%A9quato-guin%C3%A9en-%C3%A0-l-origine-du-choc-fatal-face-%C3%A0-jes%C3%BAs-de-miguel",
+    "source_date": "2026-11-03T17:21:09+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f941709271be3c11cc87615d",
+    "kind": "news",
+    "title": "\"J'ai pris un pantalon de ski\" : avant le match face au FK Bodø/Glimt en Ligue des champions, les supporters lillois découvrent les conditions glaciales en Norvège",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/j-ai-pris-un-pantalon-de-ski-avant-le-match-face-au-fk-bod-glimt-en-ligue-des-champions-les-supporters-de-lillois-decouvrent-les-conditions-glaciales-en-norvege_8265644.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-03T11:35:04+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e40e50555ed811fb07c77901",
+    "kind": "news",
+    "title": "Ligue des champions : le PSG affronte Villarreal pour rester en tête",
+    "url": "https://www.france24.com/fr/%C3%A9missions/sports/20261103-ligue-des-champions-le-psg-affronte-villarreal-pour-rester-en-t%C3%AAte",
+    "source_date": "2026-11-03T07:33:10+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ae64f2253391227d1993678a",
+    "kind": "news",
+    "title": "Ligue des champions : Fabián Ruiz et João Neves refusent de céder à l’euphorie après la démonstration du PSG à Villarreal",
+    "url": "https://www.sofoot.com/breves/ligue-des-champions-fabian-ruiz-et-joao-neves-refusent-de-ceder-a-leuphorie-apres-la-demonstration-du-psg-a-villarreal",
+    "source_date": "2026-11-03T23:27:09+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "55334f4b7a9f3479a8cc6fb5",
+    "kind": "news",
+    "title": "Ligue des Champions, PSG : Luis Enrique est embarrassé pour Villarreal",
+    "url": "https://www.footmercato.net/a2819382066701603935-ligue-des-champions-psg-luis-enrique-est-embarrasse-pour-villarreal",
+    "source_date": "2026-11-03T23:22:01+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "75e1b6bd03b54f0a5aafb3bf",
+    "kind": "news",
+    "title": "La folle série du PSG en Ligue des champions",
+    "url": "https://www.sofoot.com/breves/la-folle-serie-du-psg-en-ligue-des-champions",
+    "source_date": "2026-11-03T23:12:31+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b06107d28723a6bbd38cfcdc",
+    "kind": "news",
+    "title": "C1 – Malgré le nul face Bodø/Glimt, Benjamin André reste optimiste pour la qualification pour les play-offs de la Ligue des champions",
+    "url": "https://www.sofoot.com/breves/c1-malgre-le-nul-face-bodo-glimt-benjamin-andre-reste-optimiste-pour-la-qualification-pour-les-play-offs-de-la-ligue-des-champions",
+    "source_date": "2026-11-03T23:01:18+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5c826812d94fe6ece1c7f988",
+    "kind": "news",
+    "title": "AS Rome : Leonardo Balerdi plombe l'AS Rome avec une erreur monumentale face à Manchester United (vidéo)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-as-rome-leonardo-balerdi-plombe-l-as-rome-avec-une-erreur-monumentale-face-a-manchester-united-video-544582.html",
+    "source_date": "2026-11-03T22:59:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9b223f977d6ad1eaf87cb947",
+    "kind": "news",
+    "title": "Ligue des Champions, PSG : Lucas Hernandez et la concurrence avec Nuno Mendes",
+    "url": "https://www.footmercato.net/a1695653221923887624-ligue-des-champions-psg-lucas-hernandez-et-la-concurrence-avec-nuno-mendes",
+    "source_date": "2026-11-03T22:57:34+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "26c10e85b370122ce7a7d2e5",
+    "kind": "news",
+    "title": "Ex-OM : le raté lunaire de Balerdi qui plombe la Roma face à Manchester United",
+    "url": "https://www.onzemondial.com/ligue-des-champions/ex-om-le-rate-lunaire-de-balerdi-qui-plombe-la-roma-face-a-manchester-united-1006867",
+    "source_date": "2026-11-03T22:46:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2b59436f49a4adf9f58bc936",
+    "kind": "news",
+    "title": "Mort de Jesús de Miguel : l'Espagne et le monde du football en deuil après la disparition brutale du joueur de Tenerife, percuté en plein match",
+    "url": "https://www.franceinfo.fr/sports/foot/mort-de-jesus-de-miguel-l-espagne-et-le-monde-du-football-en-deuil-apres-la-disparition-brutale-du-joueur-de-tenerife-percute-en-plein-match_8266592.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-03T22:44:46+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b812d238f318e6527f306443",
+    "kind": "news",
+    "title": "Ligue des champions : Luis Enrique savoure après la démonstration du PSG à Villarreal",
+    "url": "https://www.sofoot.com/breves/ligue-des-champions-luis-enrique-savoure-apres-la-demonstration-du-psg-a-villarreal",
+    "source_date": "2026-11-03T22:44:41+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "279c790081d7023269da8640",
+    "kind": "news",
+    "title": "Ligue des Champions : la réaction pleine d’émotion de Bruno Fernandes",
+    "url": "https://www.footmercato.net/a7601721413003147526-ligue-des-champions-la-reaction-pleine-demotion-de-bruno-fernandes",
+    "source_date": "2026-11-03T22:43:33+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "fed6eba0c2196e87083eb77c",
+    "kind": "news",
+    "title": "Barça : le message émouvant de Raphinha en hommage à Jesús de Miguel",
+    "url": "https://www.footmercato.net/a3627217880624042483-barca-le-message-emouvant-de-raphinha-en-hommage-a-jesus-de-miguel",
+    "source_date": "2026-11-03T22:42:57+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c4804e7ebf537322cb6e8a67",
+    "kind": "news",
+    "title": "PSG : João Neves fait une déclaration pleine d'ambition après l'énorme succès contre Villarreal",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-psg-joao-neves-fait-une-declaration-pleine-d-ambition-apres-l-enorme-succes-contre-villarreal-544579.html",
+    "source_date": "2026-11-03T22:41:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e428902ecf01e6473c7764b8",
+    "kind": "news",
+    "title": "Villarreal-PSG : 4 buts en 8 minutes, Fabian Ruiz dévoile les dessous de cet instant fou",
+    "url": "https://www.onzemondial.com/ligue-des-champions/villarreal-psg-4-buts-en-8-minutes-fabian-ruiz-devoile-les-dessous-de-cet-instant-fou-1006777",
+    "source_date": "2026-11-03T22:40:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "16b77ea04865fc0d69805906",
+    "kind": "news",
+    "title": "Ligue des champions – L’Inter surclasse Feyenoord, LASK enterre Bratislava",
+    "url": "https://www.sofoot.com/breves/ligue-des-champions-linter-surclasse-feyenoord-lask-enterre-bratislava",
+    "source_date": "2026-11-03T22:35:30+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "28d7c5f7b7f3be689a4d71d8",
+    "kind": "news",
+    "title": "Ligue des Champions : la presse espagnole choquée par le PSG !",
+    "url": "https://www.footmercato.net/a4444300058868048292-ligue-des-champions-la-presse-espagnole-choquee-par-le-psg",
+    "source_date": "2026-11-03T22:33:24+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7e2c9aadf8694732d6b7929a",
+    "kind": "news",
+    "title": "Fabián Ruiz, Désiré Doué, Maghnes Akliouche… Les notes de Villarreal-PSG en Ligue des champions",
+    "url": "https://www.sofoot.com/articles/fabian-ruiz-desire-doue-maghnes-akliouche-les-notes-de-villarreal-psg-en-ligue-des-champions",
+    "source_date": "2026-11-03T22:30:14+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "124a2d8cd24c702d2a672f19",
+    "kind": "news",
+    "title": "LOSC : Davide Ancelotti croit toujours à la qualification malgré la situation délicate du club",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-losc-davide-ancelotti-croit-toujours-a-la-qualification-malgre-la-situation-delicate-du-club-544572.html",
+    "source_date": "2026-11-03T22:27:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-04T05:41:58.487287+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "2af7e547548a586372ede8d1",
     "kind": "article",
     "title": "Fenerbahçe vs Liverpool FC : analyse du match",
@@ -128,7 +653,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "595517f71657d2492c14c33b",
@@ -149,7 +674,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c4a18fb905899cdcaf9cfe56",
@@ -170,7 +695,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c2528bdf19f286bee644c184",
@@ -191,7 +716,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f280bfdb7491232353154185",
@@ -212,7 +737,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ce51e806ed3700b2007a206f",
@@ -233,7 +758,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "472bea31d6941cf17d978420",
@@ -359,7 +884,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "64901bf4c9af155fa8517b46",
@@ -380,7 +905,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a7776a4162033356cb983fae",
@@ -401,7 +926,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "fb72af356bf017141c00a84c",
@@ -422,7 +947,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "264a0199f97a3565d71fdc5d",
@@ -443,7 +968,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "adf6fdc4ccda6c26c8fb8b26",
@@ -464,7 +989,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3fd2d65656c3fe20afe13d4c",
@@ -485,7 +1010,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "661157ca6155006ca86353d7",
@@ -506,7 +1031,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "17452f088738a8151ba1a3f2",
@@ -527,7 +1052,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0af05cafb982f04205cb16e1",
@@ -548,7 +1073,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1a01eeaff9aae7dc334fa58e",
@@ -569,7 +1094,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6b3dddb35c7fc0686f98ebac",
@@ -590,7 +1115,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e15d7c4f188327ae52b55ad1",
@@ -611,7 +1136,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "30ac8409b023b9019e893ed5",
@@ -632,7 +1157,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "85afa8a761696fa09c69a06b",
@@ -653,7 +1178,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8d3e9d90e7830952b4c8d723",
@@ -674,7 +1199,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1befb093c9add173332ea676",
@@ -695,7 +1220,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f60f53b4166016c3db050cad",
@@ -716,7 +1241,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5b47ecc385ba424d9e25c5db",
@@ -800,7 +1325,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "0bd926cad1b772fa98a83f63",
