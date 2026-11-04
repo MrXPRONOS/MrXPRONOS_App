@@ -44,6 +44,7 @@ def audit(index,model,calibration,rho,*,year=2026,max_matches=2000,
     zero_home,zero_away=[],[]
     poisson_zero_home,poisson_zero_away=[],[]
     zero_joint=[]
+    four_models=defaultdict(list)
     counters=Counter()
     selected=[]
     for _stamp, match in index.global_games:
@@ -67,7 +68,8 @@ def audit(index,model,calibration,rho,*,year=2026,max_matches=2000,
                 counters['skipped_'+reject]+=1
                 continue
         # Ne pas attribuer au classifieur specialise un repli Poisson faute de donnees.
-        if (not any((model.blend>0,model.team_blend>0,model.league_blend>0))
+        if (not any((model.blend>0,model.team_blend>0,model.league_blend>0,model.zero_blend>0,
+                     model.ensemble_model is not None and model.ensemble_model.weights[0]<1.))
                 or btts_features(match,index) is None):
             counters['skipped_no_active_btts_specialist']+=1
             continue
@@ -81,6 +83,13 @@ def audit(index,model,calibration,rho,*,year=2026,max_matches=2000,
                 continue
         scores=outcome_scores(match)
         win_yes=int(scores[0]>0 and scores[1]>0)
+        ensemble=getattr(model,"ensemble_model",None)
+        if ensemble is not None:
+            candidates=ensemble.candidate_probs(match,index,expected)
+            if candidates:
+                for family,prob in candidates.items():
+                    if prob is not None:
+                        four_models[family].append((prob,win_yes))
         if getattr(model,"zero_model",None) is not None:
             zero=model.zero_model.predict(match,index,expected)
             if zero is not None:
@@ -133,6 +142,8 @@ def audit(index,model,calibration,rho,*,year=2026,max_matches=2000,
         "same_btts_eligibility_as_production":quality_policy is not None,
         "does_not_simulate_competing_markets_or_odds":True,
         "ablation_without_team_league_zero":_statistics(prior_probabilities) if prior_probabilities else None,
+        "four_model_shadow":{k:_statistics(v) for k,v in four_models.items()},
+        "four_ensemble_weights":model.ensemble_model.to_dict()["weights"] if model.ensemble_model else None,
         "zero_model_shadow":{
             "home_blank":_statistics(zero_home),
             "away_blank":_statistics(zero_away),
@@ -177,8 +188,9 @@ def main():
     cal,policy,periods=fit_policy(index,rho=rho,btts_model=model)
     baseline_cal,_,_=fit_policy(index,rho=rho,btts_model=None)
     prior_model=prior_cal=None
-    if model.team_blend>0 or model.league_blend>0 or model.zero_blend>0:
-        prior_model=replace(model,team_blend=0.,league_blend=0.,zero_blend=0.)
+    ensemble_active=(model.ensemble_model is not None and model.ensemble_model.weights[0]<1.)
+    if model.team_blend>0 or model.league_blend>0 or model.zero_blend>0 or ensemble_active:
+        prior_model=replace(model,team_blend=0.,league_blend=0.,zero_blend=0.,ensemble_model=None)
         prior_cal,_,_=fit_policy(index,rho=rho,btts_model=prior_model)
     result={"model":"btts-specialized-v1","fit":training,"calibration":periods,
             "test":audit(index,model,cal,rho,max_matches=args.max_test,
