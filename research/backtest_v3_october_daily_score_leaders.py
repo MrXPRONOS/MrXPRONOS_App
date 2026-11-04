@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Real Oct 2026 daily *best match for each exact score* Hybrid V3 study.
 
-For each calendar day and score 0:0 through 10:10, pick exactly one fixture
-with the highest genuine chronological, pre-result Hybrid V3 probability of
-that score. Different scores may independently choose the same match.
+For each calendar day, group fixtures by their actual ORIGINAL modal V3
+score, then pick the highest-probability match from each score group.
+Scores the model never predicts as its top score are not forced. One match
+cannot represent more than one score group on the same day.
 Only then compare each selected probability to the actual settled score.
 
 No modification to production or the encrypted historical corpus. No ROI.
@@ -51,6 +52,8 @@ def summarize(rows, *, count_all_matches):
             raise ValueError("Selection from outside full calendar month")
         if row["score"] not in SCORES:
             raise ValueError("Out-of-range exact score")
+        if row["score"] != row["modal_score"]:
+            raise ValueError("Research must only select genuine first-ranked V3 scores")
         if row["hit"] != int(row["score"] == row["actual_score"]):
             raise ValueError("Inconsistent selected-score settlement")
         if (not 0 < row["probability"] <= 1 or
@@ -66,8 +69,11 @@ def summarize(rows, *, count_all_matches):
     expected_days = [(START + timedelta(days=x)).isoformat() for x in range((END-START).days+1)]
     if set(per_day) != set(expected_days):
         raise ValueError("Missing an authenticated October UTC day")
-    # Most 11x11 scores should be present all 31 days; a completely zero-
-    # probability score legitimately has no daily selection.
+    for day, picks in per_day.items():
+        if len({r["match_id"] for r in picks}) != len(picks):
+            raise ValueError("Same fixture reused for two distinct score predictions")
+    # Theoretical 11x11 scores are included in the ranking as 0-selection
+    # categories when they were NEVER the leading forecast on any match.
     summary = {}
     for score in SCORES:
         group = per_score[score]
@@ -98,18 +104,20 @@ def summarize(rows, *, count_all_matches):
         score))
     all_hits = sum(x["hits"] for x in summary.values())
     return {
-        "version": "v3_oct2026_top_per_exact_score_v1",
+        "version": "v3_oct2026_modal_top_per_exact_score_v2",
         "model": MODEL,
         "evaluation_start": START.isoformat(),
         "evaluation_end": END.isoformat(),
-        "selection_rule": "each_utc_day_independently_maximize_original_prematch_probability_for_each_exact_score",
-        "score_domain": "0:0_through_10:10_all_121_cells",
-        "one_match_may_be_selected_for_multiple_scores": True,
+        "selection_rule": "for_each_day_and_genuinely_modal_v3_score_select_highest_probability_match_in_that_score_group",
+        "score_domain": "0:0_through_10:10_possible_but_only_observed_modal_scores_selected",
+        "one_match_may_be_selected_for_multiple_scores": False,
+        "scores_actually_predicted_as_modal_in_month": sum(bool(per_score[k]) for k in SCORES),
         "score_1_1_included_in_research": True,
         "no_production_policy_changed": True,
         "verified_settled_football_matches_evaluated": count_all_matches,
         "days_with_completed_history": len(expected_days),
-        "score_categories": len(SCORES),
+        "score_categories_theoretical": len(SCORES),
+        "score_categories": sum(bool(per_score[k]) for k in SCORES),
         "total_selections_across_independent_scores": len(rows),
         "total_hits_across_independent_scores": all_hits,
         "overall_hits_over_selections_percent": percent(all_hits, len(rows)),
@@ -218,7 +226,8 @@ def run(site_root, model_root, output_dir):
         print("OCTOBER_V3_SCORE_STUDY_RESULT", json.dumps({
             "days": report["days_with_completed_history"],
             "matches_evaluated": report["verified_settled_football_matches_evaluated"],
-            "selected": len(leaders), "hits": report["total_hits_across_independent_scores"],
+            "selected": len(leaders), "modal_score_types": report["score_categories"],
+            "hits": report["total_hits_across_independent_scores"],
             "sample": sample, "elapsed_seconds": report["elapsed_seconds"],
         },ensure_ascii=False),flush=True)
         return report

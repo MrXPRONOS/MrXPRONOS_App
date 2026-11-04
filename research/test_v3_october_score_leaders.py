@@ -16,7 +16,7 @@ def synthetic(day, score, *, probability, actual, model_previous=True):
         "league": "Only a local synthetic fixture",
         "home": "A", "away": "B",
         "probability": probability,
-        "modal_score": score if score == "1:1" else "1:1",
+        "modal_score": score,
         "actual_score": actual,
         "hit": int(score == actual),
         "history_latest_day": str(previous if model_previous else day),
@@ -40,7 +40,9 @@ class DailyBestScoreStudyTests(unittest.TestCase):
             ])
         x = summarize(rows, count_all_matches=2000)
         self.assertEqual(x["days_with_completed_history"],31)
-        self.assertEqual(x["score_categories"],121)
+        self.assertEqual(x["score_categories"],3)
+        self.assertEqual(x["score_categories_theoretical"],121)
+        self.assertEqual(x["one_match_may_be_selected_for_multiple_scores"],False)
         self.assertEqual(x["total_selections_across_independent_scores"],93)
         self.assertEqual(x["total_hits_across_independent_scores"],17)
         self.assertEqual(x["by_score"]["1:1"]["hits"],5)
@@ -82,6 +84,12 @@ class DailyBestScoreStudyTests(unittest.TestCase):
                 for i in range(31)]
         rows[1]["hit"]=1
         with self.assertRaisesRegex(ValueError,"Inconsistent"):
+            summarize(rows, count_all_matches=100)
+
+    def test_reject_nonmodal_target_score(self):
+        rows = [synthetic(START+timedelta(days=i), "1:0", probability=.12,actual="1:1") for i in range(31)]
+        rows[0]["modal_score"] = "1:1"
+        with self.assertRaisesRegex(ValueError,"genuine first-ranked"):
             summarize(rows, count_all_matches=100)
 
     def test_invalid_zero_probability_rejected(self):
