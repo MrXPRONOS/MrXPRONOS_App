@@ -3,132 +3,132 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-04",
-  "generated_at": "2026-11-03T22:56:35Z",
+  "generated_at": "2026-11-04T02:56:36Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
   "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
   "simple": [
     {
-      "id": "sportsapipro:4883431",
-      "league": "Egypt League Cup",
-      "home": "Zed FC",
-      "away": "El Geish",
-      "kickoff_utc": "2026-11-04T15:00:00Z",
-      "score": "1:1",
-      "probability": 0.12551045
+      "id": "sportsapipro:4882494",
+      "league": "Botola Pro",
+      "home": "AS Far Rabat",
+      "away": "Raja Casablanca",
+      "kickoff_utc": "2026-11-04T20:00:00Z",
+      "score": "1:0",
+      "probability": 0.14031212
     },
     {
-      "id": "sportsapipro:4886044",
-      "league": "Primera B - Quadrangular",
-      "home": "Real Cartagena",
-      "away": "Deportes Quindio",
-      "kickoff_utc": "2026-11-04T01:30:00Z",
-      "score": "1:1",
-      "probability": 0.12454477
+      "id": "sportsapipro:4866419",
+      "league": "Liga Nacional - Apertura - Center Group",
+      "home": "Olancho",
+      "away": "Lobos UPN",
+      "kickoff_utc": "2026-11-04T21:00:00Z",
+      "score": "2:1",
+      "probability": 0.09300868
     },
     {
-      "id": "sportsapipro:4816625",
-      "league": "Q League",
-      "home": "Al-Bidda",
-      "away": "Muaither",
-      "kickoff_utc": "2026-11-04T16:30:00Z",
-      "score": "1:1",
-      "probability": 0.12448729
+      "id": "sportsapipro:4828435",
+      "league": "UEFA Champions League",
+      "home": "Borussia Dortmund",
+      "away": "Real Betis",
+      "kickoff_utc": "2026-11-04T20:00:00Z",
+      "score": "2:1",
+      "probability": 0.09296363
     },
     {
-      "id": "sportsapipro:4886382",
-      "league": "NPFL - Regular Season",
-      "home": "Enugu Rangers",
-      "away": "Bendel Insurance Fc",
-      "kickoff_utc": "2026-11-04T15:00:00Z",
-      "score": "1:1",
-      "probability": 0.12387972
+      "id": "sportsapipro:4829870",
+      "league": "UEFA Youth League",
+      "home": "Viking U19",
+      "away": "Sabah Baku FK U19",
+      "kickoff_utc": "2026-11-04T12:00:00Z",
+      "score": "2:1",
+      "probability": 0.09255819
     },
     {
-      "id": "sportsapipro:4823376",
-      "league": "Premier League - Regular Season",
-      "home": "KCC Kampala",
-      "away": "Maroons",
-      "kickoff_utc": "2026-11-04T13:00:00Z",
-      "score": "1:1",
-      "probability": 0.12380806
+      "id": "sportsapipro:4889262",
+      "league": "Liga 3",
+      "home": "Valle Sagrado FC",
+      "away": "ASA FC",
+      "kickoff_utc": "2026-11-04T20:00:00Z",
+      "score": "2:1",
+      "probability": 0.08982838
     }
   ],
   "grouped": [
     {
-      "id": "sportsapipro:4823376",
-      "league": "Premier League - Regular Season",
-      "home": "KCC Kampala",
-      "away": "Maroons",
-      "kickoff_utc": "2026-11-04T13:00:00Z",
-      "score": "1:1",
-      "probability": 0.25453794,
-      "group": "DRAW_LOW",
+      "id": "sportsapipro:4882494",
+      "league": "Botola Pro",
+      "home": "AS Far Rabat",
+      "away": "Raja Casablanca",
+      "kickoff_utc": "2026-11-04T20:00:00Z",
+      "score": "1:0",
+      "probability": 0.33890978,
+      "group": "H_LOW",
       "group_scores": [
-        "0:0",
-        "1:1",
-        "2:2"
+        "1:0",
+        "2:0",
+        "2:1"
       ]
     },
     {
-      "id": "sportsapipro:4883431",
-      "league": "Egypt League Cup",
-      "home": "Zed FC",
-      "away": "El Geish",
-      "kickoff_utc": "2026-11-04T15:00:00Z",
-      "score": "1:1",
-      "probability": 0.25307918,
-      "group": "DRAW_LOW",
+      "id": "sportsapipro:4866419",
+      "league": "Liga Nacional - Apertura - Center Group",
+      "home": "Olancho",
+      "away": "Lobos UPN",
+      "kickoff_utc": "2026-11-04T21:00:00Z",
+      "score": "2:1",
+      "probability": 0.23744381,
+      "group": "H_LOW",
       "group_scores": [
-        "0:0",
-        "1:1",
-        "2:2"
+        "1:0",
+        "2:0",
+        "2:1"
       ]
     },
     {
-      "id": "sportsapipro:4816625",
-      "league": "Q League",
-      "home": "Al-Bidda",
-      "away": "Muaither",
-      "kickoff_utc": "2026-11-04T16:30:00Z",
-      "score": "1:1",
-      "probability": 0.251848,
-      "group": "DRAW_LOW",
+      "id": "sportsapipro:4828435",
+      "league": "UEFA Champions League",
+      "home": "Borussia Dortmund",
+      "away": "Real Betis",
+      "kickoff_utc": "2026-11-04T20:00:00Z",
+      "score": "2:1",
+      "probability": 0.23493202,
+      "group": "H_LOW",
       "group_scores": [
-        "0:0",
-        "1:1",
-        "2:2"
+        "1:0",
+        "2:0",
+        "2:1"
       ]
     },
     {
-      "id": "sportsapipro:4886044",
-      "league": "Primera B - Quadrangular",
-      "home": "Real Cartagena",
-      "away": "Deportes Quindio",
-      "kickoff_utc": "2026-11-04T01:30:00Z",
-      "score": "1:1",
-      "probability": 0.25164063,
-      "group": "DRAW_LOW",
+      "id": "sportsapipro:4829870",
+      "league": "UEFA Youth League",
+      "home": "Viking U19",
+      "away": "Sabah Baku FK U19",
+      "kickoff_utc": "2026-11-04T12:00:00Z",
+      "score": "2:1",
+      "probability": 0.22309415,
+      "group": "H_LOW",
       "group_scores": [
-        "0:0",
-        "1:1",
-        "2:2"
+        "1:0",
+        "2:0",
+        "2:1"
       ]
     },
     {
-      "id": "sportsapipro:4874568",
-      "league": "Liga Unitel Girabola",
-      "home": "Primeiro De Agosto",
-      "away": "Wiliete Sc",
-      "kickoff_utc": "2026-11-04T14:30:00Z",
-      "score": "1:1",
-      "probability": 0.25144928,
-      "group": "DRAW_LOW",
+      "id": "sportsapipro:4843652",
+      "league": "UEFA Youth League",
+      "home": "Dinamo Zagreb U19",
+      "away": "Qarabag U19",
+      "kickoff_utc": "2026-11-04T12:00:00Z",
+      "score": "2:1",
+      "probability": 0.21279581,
+      "group": "H_LOW",
       "group_scores": [
-        "0:0",
-        "1:1",
-        "2:2"
+        "1:0",
+        "2:0",
+        "2:1"
       ]
     }
   ]

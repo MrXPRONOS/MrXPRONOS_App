@@ -1,0 +1,135 @@
+{
+  "schema_version": "mrx-exact-top5-v1",
+  "model": "machine_learning_v3_hybrid",
+  "status": "published",
+  "date": "2026-11-05",
+  "generated_at": "2026-11-04T02:56:36Z",
+  "origin": "prospective_prematch",
+  "selection_simple": "A_MODAL",
+  "selection_grouped": "B_GROUP_MASS",
+  "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
+  "simple": [
+    {
+      "id": "sportsapipro:4887265",
+      "league": "Ligue 1",
+      "home": "ISCA",
+      "away": "ASEC Mimosas",
+      "kickoff_utc": "2026-11-05T18:00:00Z",
+      "score": "1:0",
+      "probability": 0.13571197
+    },
+    {
+      "id": "sportsapipro:4889375",
+      "league": "Ligue 1",
+      "home": "Teungueth",
+      "away": "Us Ouakam",
+      "kickoff_utc": "2026-11-05T16:30:00Z",
+      "score": "1:0",
+      "probability": 0.12360557
+    },
+    {
+      "id": "sportsapipro:4883528",
+      "league": "Ligue 1",
+      "home": "Bouaké Fc",
+      "away": "CO Korhogo",
+      "kickoff_utc": "2026-11-05T15:30:00Z",
+      "score": "1:0",
+      "probability": 0.12255245
+    },
+    {
+      "id": "sportsapipro:4828709",
+      "league": "UEFA Europa League",
+      "home": "Anderlecht",
+      "away": "Red Bull Salzburg",
+      "kickoff_utc": "2026-11-05T17:45:00Z",
+      "score": "2:1",
+      "probability": 0.09468218
+    },
+    {
+      "id": "sportsapipro:4889613",
+      "league": "Division 4 - Regular Season",
+      "home": "Beitar Haifa",
+      "away": "Hapoel Bnei Arara",
+      "kickoff_utc": "2026-11-05T18:30:00Z",
+      "score": "1:2",
+      "probability": 0.0835385
+    }
+  ],
+  "grouped": [
+    {
+      "id": "sportsapipro:4889375",
+      "league": "Ligue 1",
+      "home": "Teungueth",
+      "away": "Us Ouakam",
+      "kickoff_utc": "2026-11-05T16:30:00Z",
+      "score": "1:0",
+      "probability": 0.31185314,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4883528",
+      "league": "Ligue 1",
+      "home": "Bouaké Fc",
+      "away": "CO Korhogo",
+      "kickoff_utc": "2026-11-05T15:30:00Z",
+      "score": "1:0",
+      "probability": 0.30962829,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4887265",
+      "league": "Ligue 1",
+      "home": "ISCA",
+      "away": "ASEC Mimosas",
+      "kickoff_utc": "2026-11-05T18:00:00Z",
+      "score": "1:0",
+      "probability": 0.29543036,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4828709",
+      "league": "UEFA Europa League",
+      "home": "Anderlecht",
+      "away": "Red Bull Salzburg",
+      "kickoff_utc": "2026-11-05T17:45:00Z",
+      "score": "2:1",
+      "probability": 0.24246173,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4889613",
+      "league": "Division 4 - Regular Season",
+      "home": "Beitar Haifa",
+      "away": "Hapoel Bnei Arara",
+      "kickoff_utc": "2026-11-05T18:30:00Z",
+      "score": "1:2",
+      "probability": 0.18457636,
+      "group": "A_LOW",
+      "group_scores": [
+        "0:1",
+        "0:2",
+        "1:2"
+      ]
+    }
+  ]
+}
