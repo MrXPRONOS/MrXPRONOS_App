@@ -471,10 +471,16 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
         league_shadow=getattr(btts_model,"league_model",None)
         zero_model=getattr(btts_model,"zero_model",None)
         zero_shadow=(zero_model.predict(event,index,expected) if zero_model else None)
+        four_ensemble=getattr(btts_model,"ensemble_model",None)
+        four_predictions=(four_ensemble.candidate_probs(event,index,expected)
+                          if four_ensemble is not None else None)
         btts_shadow={
             "team_model_trained":getattr(btts_model,"team_model",None) is not None,
             "league_model_trained":league_shadow is not None,
             "zero_model_trained":zero_model is not None,
+            "four_models_trained":four_ensemble is not None,
+            "four_ensemble_weights":four_ensemble.to_dict()["weights"] if four_ensemble else None,
+            "four_models_shadow":four_predictions,
             "zero_blend_active":getattr(btts_model,"zero_blend",0.),
             "zero_model_home_blank":round(zero_shadow["home_blank"],6) if zero_shadow else None,
             "zero_model_away_blank":round(zero_shadow["away_blank"],6) if zero_shadow else None,
