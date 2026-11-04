@@ -83,7 +83,44 @@ class TestTop5Publisher(unittest.TestCase):
         self.assertNotIn("actual_score",json.dumps(feed))
         self.assertTrue(all(p["group_scores"]==list(GROUPS[p["group"]]) for p in feed["grouped"]))
         # Ties resolve deterministically by fixture ID.
-        self.assertEqual(feed["simple"][0]["id"],"fixture-00")
+        self.assertEqual(feed["simple"][0]["id"],"fixture-01")
+        self.assertTrue(all(p["score"] != "1:1" for p in feed["simple"] + feed["grouped"]))
+        self.assertTrue(all("1:1" not in p["group_scores"] for p in feed["grouped"]))
+
+    def test_exclude_entire_1_1_fixture_no_substitution(self):
+        source = self.setup_source()
+        one = source["fixtures"][0]
+        # The original 1:1 modal is not converted to the next-best 0:0.
+        score, prob, group, group_mass = grid_summary(one["grid"])
+        self.assertEqual(score, "1:1")
+        feed = build_feed(source, generated_at=NOW)
+        excluded = one["id"]
+        self.assertNotIn(excluded, {r["id"] for r in feed["simple"]})
+        self.assertNotIn(excluded, {r["id"] for r in feed["grouped"]})
+        self.assertTrue(all(p["score"] != "1:1" for p in feed["simple"]))
+        self.assertTrue(all("1:1" not in p["group_scores"] for p in feed["grouped"]))
+        self.assertEqual(feed["selection_simple"], "A_MODAL")
+
+    def test_draw_group_with_non_11_modal_does_not_publish_group(self):
+        source = self.setup_source()
+        draw = source["fixtures"][0]
+        matrix = draw["grid"]
+        # Swap modal cells 1:1 and 0:0 to make 0:0 the top score
+        # while preserving a valid, unchanged probability distribution.
+        matrix[1][1], matrix[0][0] = matrix[0][0], matrix[1][1]
+        self.assertEqual(grid_summary(matrix)[0], "0:0")
+        feed = build_feed(source, generated_at=NOW)
+        self.assertIn(draw["id"], {p["id"] for p in feed["simple"]})
+        self.assertNotIn(draw["id"], {p["id"] for p in feed["grouped"]})
+        self.assertTrue(all("1:1" not in p["group_scores"] for p in feed["grouped"]))
+
+    def test_all_11_modal_yields_unavailable_not_fabricated_alternative(self):
+        source = self.setup_source()
+        source["fixtures"] = [make_one(i, "DRAW_LOW") for i in range(7)]
+        feed = build_feed(source, generated_at=NOW)
+        self.assertEqual(feed["status"], "unavailable")
+        self.assertEqual(feed["simple"], [])
+        self.assertEqual(feed["grouped"], [])
 
     def test_utc_tomorrow_uses_actual_next_day_fixtures_only(self):
         source = self.setup_source()
