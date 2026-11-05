@@ -117,6 +117,7 @@ def wait_for_processed_video(session, token, did, filename, video, *, max_wait=T
 def publish_processed_video(client, login_result, video, filename, caption, alt, *, session=None):
     """Create a Bluesky post only once the transcoding service confirms playback data."""
     from atproto import models
+    from atproto_client.models.blob_ref import BlobRef
 
     session = session or requests.Session()
     did = str(login_result.did)
@@ -137,7 +138,7 @@ def publish_processed_video(client, login_result, video, filename, caption, alt,
         raise BlueskyVideoError("Autorisation video inter-service non obtenue")
 
     blob = wait_for_processed_video(session, service_token, did, filename, video)
-    processed = models.BlobRef.model_validate(blob)
+    processed = BlobRef.model_validate(blob)
     aspect = models.AppBskyEmbedDefs.AspectRatio(width=1080, height=1920)
     embed = models.AppBskyEmbedVideo.Main(video=processed, alt=alt[:900], aspect_ratio=aspect)
     response = client.send_post(text=caption[:280], embed=embed, langs=["fr"])
