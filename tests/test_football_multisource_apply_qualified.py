@@ -54,6 +54,61 @@ class QualifiedApplyTests(unittest.TestCase):
         self.assertEqual(len(feed["matches"]),1)
         self.assertEqual(feed["matches"][0]["source_event_id"],12345)
 
+    def test_qualified_native_row_retires_same_event_observation_without_touching_others(self):
+        """Regression: a newly qualified BSD match must not duplicate its old watchlist ID."""
+        qualified=row(ident=12345)
+        obsolete={
+            "id":"bsd:12345","publication_status":"not_published",
+            "prediction_eligible":False,"do_not_send_to_telegram":True,
+            "market":{"odds_source":"mrxpronos_model","estimated_odds":True,
+                      "recommendation_eligible":False},
+        }
+        unrelated={**deepcopy(obsolete),"id":"bsd:23456"}
+        feed={"source":"bsd","matches":[],"diagnostics":{"model_odds_observations_count":2},
+              "model_odds_observations":[obsolete,unrelated]}
+        report=apply(feed,[qualified],now=NOW,publication_ledger=ledger())
+        self.assertEqual(report,{"staged":1,"added":1,"duplicates":0})
+        self.assertEqual(feed["matches"],[qualified])
+        self.assertEqual(feed["model_odds_observations"],[unrelated])
+        self.assertEqual(feed["diagnostics"]["model_odds_observations_count"],1)
+        self.assertEqual(feed["diagnostics"]["multisource_generation"]["superseded_model_observations"],1)
+        self.assertTrue(set(m["id"] for m in feed["matches"]).isdisjoint(
+            o["id"] for o in feed["model_odds_observations"]))
+        self.assertEqual(feed["matches"][0]["prediction"]["odds_source"],"bsd_consensus")
+
+    def test_model_observations_unchanged_when_no_real_candidate_was_added(self):
+        obs={"id":"bsd:23456","publication_status":"not_published",
+             "prediction_eligible":False,"do_not_send_to_telegram":True,
+             "market":{"odds_source":"mrxpronos_model","estimated_odds":True,
+                       "recommendation_eligible":False}}
+        feed={"source":"bsd","matches":[],"diagnostics":{},
+              "model_odds_observations":[obs]}
+        apply(feed,[],now=NOW,publication_ledger=ledger())
+        self.assertEqual(feed["model_odds_observations"],[obs])
+        self.assertEqual(feed["diagnostics"]["model_odds_observations_count"],1)
+        self.assertEqual(feed["diagnostics"]["multisource_generation"]["superseded_model_observations"],0)
+
+    def test_bad_candidate_never_changes_model_observations(self):
+        original={
+            "source":"bsd","matches":[],
+            "model_odds_observations":[{"id":"bsd:12345","market":{"estimated_odds":True}}],
+            "diagnostics":{"model_odds_observations_count":1},
+        }
+        feed=deepcopy(original)
+        invalid=row()
+        invalid["prediction"]["estimated_odds"]=True
+        with self.assertRaises(ValueError):
+            apply(feed,[invalid],now=NOW,publication_ledger=ledger())
+        self.assertEqual(feed,original)
+
+    def test_malformed_observation_blocks_all_changes(self):
+        original={"source":"bsd","matches":[],"model_odds_observations":[None],
+                  "diagnostics":{}}
+        feed=deepcopy(original)
+        with self.assertRaisesRegex(ValueError,"Invalid model odds observations"):
+            apply(feed,[row()],now=NOW,publication_ledger=ledger())
+        self.assertEqual(feed,original)
+
     def test_same_existing_selection_is_idempotent(self):
         candidate=row()
         existing=deepcopy(candidate)

@@ -16,6 +16,7 @@ on:
       - 'scripts/football_daily_multisource_shadow.py'
       - 'scripts/football_multisource_market_gate.py'
       - 'scripts/football_multisource_apply_qualified.py'
+      - 'scripts/football_multisource_apply_qualified.py'
       - 'assets/js/main.js'
       - '.github/workflows/bsd-v2-production.yml'
   workflow_dispatch:

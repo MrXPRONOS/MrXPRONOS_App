@@ -211,6 +211,32 @@ def apply(feed, accepted, *, now, publication_ledger, aggregate_report=None):
         "thresholds_lowered":False,
         "telegram_sent_by_this_step":False,
     }
+    # An eligible native BSD match may have been an unpublished model-odds
+    # observation earlier in this SAME generation. Once that exact match
+    # receives a verified real consensus price, it cannot remain in the
+    # non-published observation watchlist: the final feed requires IDs in
+    # matches and model_odds_observations to be disjoint.
+    #
+    # Only discard the superseded observation by official BSD event ID.
+    # Never turn indicative prices into executable quotes or modify picks.
+    existing_observations=feed.get("model_odds_observations")
+    if existing_observations is not None:
+        if not isinstance(existing_observations,list) or any(
+            not isinstance(observation,dict) for observation in existing_observations
+        ):
+            raise ValueError("Invalid model odds observations in BSD feed")
+        published_ids={str(match["id"]) for match in feed["matches"]}
+        published_ids.update(str(match["id"]) for match in additions)
+        remaining_observations=[
+            observation for observation in existing_observations
+            if str(observation.get("id")) not in published_ids
+        ]
+        superseded_observations=len(existing_observations)-len(remaining_observations)
+        diagnostics["model_odds_observations_count"]=len(remaining_observations)
+    else:
+        remaining_observations=None
+        superseded_observations=0
+    diagnostics["multisource_generation"]["superseded_model_observations"]=superseded_observations
     if coverage is not None:
         diagnostics["multisource_generation"]["coverage"]=coverage
         # Explain zero additions without weakening identity, price or value gates.
@@ -225,6 +251,8 @@ def apply(feed, accepted, *, now, publication_ledger, aggregate_report=None):
         diagnostics["multisource_generation"]["league_names_from_authenticated_bsd_directory"]=True
         diagnostics["multisource_generation"]["unverified_external_matches_never_published"]=True
     feed["matches"].extend(additions)
+    if remaining_observations is not None:
+        feed["model_odds_observations"]=remaining_observations
     feed["diagnostics"]=diagnostics
     return {"staged":len(accepted),"added":len(added),"duplicates":duplicates}
 
