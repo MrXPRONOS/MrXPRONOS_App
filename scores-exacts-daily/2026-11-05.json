@@ -3,7 +3,7 @@
   "model": "machine_learning_v3_hybrid",
   "status": "published",
   "date": "2026-11-05",
-  "generated_at": "2026-11-04T13:05:12Z",
+  "generated_at": "2026-11-05T09:41:20Z",
   "origin": "prospective_prematch",
   "selection_simple": "A_MODAL",
   "selection_grouped": "B_GROUP_MASS",
@@ -16,7 +16,7 @@
       "away": "ASEC Mimosas",
       "kickoff_utc": "2026-11-05T18:00:00Z",
       "score": "1:0",
-      "probability": 0.13571197
+      "probability": 0.13721915
     },
     {
       "id": "sportsapipro:4889375",
@@ -25,7 +25,7 @@
       "away": "Us Ouakam",
       "kickoff_utc": "2026-11-05T16:30:00Z",
       "score": "1:0",
-      "probability": 0.12360557
+      "probability": 0.1244213
     },
     {
       "id": "sportsapipro:4883528",
@@ -34,7 +34,16 @@
       "away": "CO Korhogo",
       "kickoff_utc": "2026-11-05T15:30:00Z",
       "score": "1:0",
-      "probability": 0.12255245
+      "probability": 0.12394334
+    },
+    {
+      "id": "sportsapipro:4828698",
+      "league": "UEFA Europa League",
+      "home": "Benfica",
+      "away": "Lech Poznan",
+      "kickoff_utc": "2026-11-05T20:00:00Z",
+      "score": "2:1",
+      "probability": 0.09668915
     },
     {
       "id": "sportsapipro:4828709",
@@ -43,7 +52,7 @@
       "away": "Red Bull Salzburg",
       "kickoff_utc": "2026-11-05T17:45:00Z",
       "score": "2:1",
-      "probability": 0.09468218
+      "probability": 0.09471986
     }
   ],
   "grouped": [
@@ -54,7 +63,7 @@
       "away": "Us Ouakam",
       "kickoff_utc": "2026-11-05T16:30:00Z",
       "score": "1:0",
-      "probability": 0.31185314,
+      "probability": 0.31359321,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -69,7 +78,7 @@
       "away": "CO Korhogo",
       "kickoff_utc": "2026-11-05T15:30:00Z",
       "score": "1:0",
-      "probability": 0.30962829,
+      "probability": 0.3124692,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -84,7 +93,22 @@
       "away": "ASEC Mimosas",
       "kickoff_utc": "2026-11-05T18:00:00Z",
       "score": "1:0",
-      "probability": 0.29543036,
+      "probability": 0.29823203,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4828698",
+      "league": "UEFA Europa League",
+      "home": "Benfica",
+      "away": "Lech Poznan",
+      "kickoff_utc": "2026-11-05T20:00:00Z",
+      "score": "2:1",
+      "probability": 0.24801623,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
@@ -99,7 +123,7 @@
       "away": "Red Bull Salzburg",
       "kickoff_utc": "2026-11-05T17:45:00Z",
       "score": "2:1",
-      "probability": 0.24246173,
+      "probability": 0.24282747,
       "group": "H_LOW",
       "group_scores": [
         "1:0",
