@@ -1,0 +1,135 @@
+{
+  "schema_version": "mrx-exact-top5-v1",
+  "model": "machine_learning_v3_hybrid",
+  "status": "published",
+  "date": "2026-11-06",
+  "generated_at": "2026-11-05T09:41:20Z",
+  "origin": "prospective_prematch",
+  "selection_simple": "A_MODAL",
+  "selection_grouped": "B_GROUP_MASS",
+  "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
+  "simple": [
+    {
+      "id": "sportsapipro:4860895",
+      "league": "NPFL - Regular Season",
+      "home": "Kun Khalifat",
+      "away": "Kano Pillars",
+      "kickoff_utc": "2026-11-06T17:00:00Z",
+      "score": "1:0",
+      "probability": 0.14008421
+    },
+    {
+      "id": "sportsapipro:4795559",
+      "league": "First Division",
+      "home": "Zulfi Club",
+      "away": "Jeddah Club",
+      "kickoff_utc": "2026-11-06T14:55:00Z",
+      "score": "1:0",
+      "probability": 0.11132646
+    },
+    {
+      "id": "sportsapipro:4848174",
+      "league": "Division 3",
+      "home": "Ironi Nir Ramat HaSharon",
+      "away": "Hapoel Herzliya",
+      "kickoff_utc": "2026-11-06T11:30:00Z",
+      "score": "2:0",
+      "probability": 0.10221741
+    },
+    {
+      "id": "sportsapipro:4883333",
+      "league": "Premier League - Group Stage",
+      "home": "Al Ahli Tripoli",
+      "away": "Al Shomooa SC",
+      "kickoff_utc": "2026-11-06T17:00:00Z",
+      "score": "2:0",
+      "probability": 0.10000484
+    },
+    {
+      "id": "sportsapipro:4789074",
+      "league": "Liga MX Femenil - Apertura",
+      "home": "Queretaro (W)",
+      "away": "Toluca (W)",
+      "kickoff_utc": "2026-11-06T01:06:00Z",
+      "score": "1:2",
+      "probability": 0.09029064
+    }
+  ],
+  "grouped": [
+    {
+      "id": "sportsapipro:4795559",
+      "league": "First Division",
+      "home": "Zulfi Club",
+      "away": "Jeddah Club",
+      "kickoff_utc": "2026-11-06T14:55:00Z",
+      "score": "1:0",
+      "probability": 0.31285188,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4860895",
+      "league": "NPFL - Regular Season",
+      "home": "Kun Khalifat",
+      "away": "Kano Pillars",
+      "kickoff_utc": "2026-11-06T17:00:00Z",
+      "score": "1:0",
+      "probability": 0.31266177,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4883333",
+      "league": "Premier League - Group Stage",
+      "home": "Al Ahli Tripoli",
+      "away": "Al Shomooa SC",
+      "kickoff_utc": "2026-11-06T17:00:00Z",
+      "score": "2:0",
+      "probability": 0.29047529,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4848174",
+      "league": "Division 3",
+      "home": "Ironi Nir Ramat HaSharon",
+      "away": "Hapoel Herzliya",
+      "kickoff_utc": "2026-11-06T11:30:00Z",
+      "score": "2:0",
+      "probability": 0.28819089,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4789074",
+      "league": "Liga MX Femenil - Apertura",
+      "home": "Queretaro (W)",
+      "away": "Toluca (W)",
+      "kickoff_utc": "2026-11-06T01:06:00Z",
+      "score": "1:2",
+      "probability": 0.22235763,
+      "group": "A_LOW",
+      "group_scores": [
+        "0:1",
+        "0:2",
+        "1:2"
+      ]
+    }
+  ]
+}
