@@ -14,6 +14,7 @@ from pathlib import Path
 
 import requests
 from d1_publication_ledger import D1Ledger
+from bluesky_video_processed import publish_processed_video
 
 
 TABLE = "telegram_sent"
@@ -108,7 +109,7 @@ def main() -> int:
 
     from atproto import Client
     client = Client()
-    client.login(handle, password)  # Authenticate before any dedup claim.
+    login_result = client.login(handle, password)  # Authenticate before any dedup claim.
 
     ident = ("bsd_v2_bluesky_video", handle + ":shorts:" + args.source_run_id, item["target"])
     ledger = D1Ledger()
@@ -121,11 +122,10 @@ def main() -> int:
     try:
         video = args.video.read_bytes()
         upload_started = True
-        # The high-level SDK adds the video embed and uploads the video bytes.
-        response = client.send_video(
-            text=caption, video=video,
-            video_alt=f"Vidéo Mr XPRONOS : {item['count']} pronostics football du {item['target']}",
-            langs=["fr"],
+        # Publish only once the Bluesky video service provides a processed blob.
+        response = publish_processed_video(
+            client, login_result, video, args.video.name, caption,
+            f"Vidéo Mr XPRONOS : {item['count']} pronostics football du {item['target']}",
         )
     except Exception:
         # Once the upload began a timeout can be ambiguous; retain the claim to
