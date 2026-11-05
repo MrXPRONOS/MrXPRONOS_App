@@ -553,10 +553,11 @@ def post_bluesky_video(video_path: Path, caption: str, title: str) -> PublishRes
     ident = ("bsd_v2_bluesky_video", handle + ":sha256:" + sha256, ref_date)
 
     from atproto import Client
+    from bluesky_video_processed import publish_processed_video
     from d1_publication_ledger import D1Ledger
 
     client = Client()
-    client.login(handle, password)  # Verify auth BEFORE creating a dedup reservation.
+    login_result = client.login(handle, password)  # Verify auth BEFORE creating a dedup reservation.
     ledger = D1Ledger()
     if not ledger.claim(*ident):
         # The existing claim could represent a prior successful upload OR an
@@ -569,11 +570,9 @@ def post_bluesky_video(video_path: Path, caption: str, title: str) -> PublishRes
     try:
         text = caption.replace("\\n", "\n").strip()[:280]
         upload_started = True
-        response = client.send_video(
-            text=text,
-            video=data,
-            video_alt=(title or "Vidéo de football Mr XPRONOS")[:900],
-            langs=["fr"],
+        response = publish_processed_video(
+            client, login_result, data, video_path.name,
+            text, (title or "Vidéo de football Mr XPRONOS")[:900],
         )
         uri = str(response.uri)
         if not uri.startswith("at://"):
