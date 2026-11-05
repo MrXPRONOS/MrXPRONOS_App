@@ -62,7 +62,8 @@ class VideoProcessingTest(unittest.TestCase):
 
     def test_sdk_embeds_processed_blob(self):
         from atproto import models
-        parsed=models.BlobRef.model_validate(BLOB)
+        from atproto_client.models.blob_ref import BlobRef
+        parsed=BlobRef.model_validate(BLOB)
         embed=models.AppBskyEmbedVideo.Main(
             video=parsed, alt="MR XPRONOS",
             aspect_ratio=models.AppBskyEmbedDefs.AspectRatio(width=1080,height=1920))
