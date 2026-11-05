@@ -60,6 +60,14 @@ class VideoProcessingTest(unittest.TestCase):
             publish_processed_video(client,login,b"x"*130000,"file.mp4","caption","alt",session=api)
         client.send_post.assert_not_called()
 
+    def test_sdk_embeds_processed_blob(self):
+        from atproto import models
+        parsed=models.BlobRef.model_validate(BLOB)
+        embed=models.AppBskyEmbedVideo.Main(
+            video=parsed, alt="MR XPRONOS",
+            aspect_ratio=models.AppBskyEmbedDefs.AspectRatio(width=1080,height=1920))
+        self.assertIsNotNone(embed.video)
+
     def test_invalid_video_never_uploads(self):
         api=Mock()
         with self.assertRaises(BlueskyVideoError):
