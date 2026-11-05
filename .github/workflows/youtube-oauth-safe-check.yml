@@ -1,6 +1,9 @@
 name: YouTube OAuth - Safe Credential Check
 
 on:
+  schedule:
+    # 07:17 UTC = 07:17 in Togo; checks validity without uploading anything.
+    - cron: '17 7 * * *'
   workflow_dispatch:
   push:
     branches: [main]
