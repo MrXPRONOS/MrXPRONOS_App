@@ -1,1 +1,2 @@
 2026-11-05 credential verification after YouTube Desktop OAuth reconnection; no video upload
+2026-11-05 OAuth refresh after application publication: test new GitHub secret only; no video upload
