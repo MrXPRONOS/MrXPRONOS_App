@@ -31,28 +31,28 @@
       },
       "source_types": {
         "Foot Mercato": 8,
-        "France 24": 3,
-        "Franceinfo": 4,
-        "MadeInFoot": 3,
-        "Onze Mondial": 2,
-        "RFI": 2,
-        "RFI Afrique Foot": 2,
-        "So Foot": 6
+        "France 24": 2,
+        "Franceinfo": 3,
+        "MadeInFoot": 7,
+        "Maxifoot": 1,
+        "Onze Mondial": 7,
+        "RFI Afrique Foot": 1,
+        "So Foot": 1
       },
       "with_social_image": 0
     }
   },
   "delivery": {
-    "items": 886,
+    "items": 914,
     "active_items": 65,
-    "retired_items": 821,
+    "retired_items": 849,
     "platform_states": {
-      "facebook:not_requested": 886,
-      "instagram:not_requested": 886,
-      "telegram:not_requested": 886,
-      "threads:not_requested": 886,
-      "tiktok:not_requested": 886,
-      "youtube:not_requested": 886
+      "facebook:not_requested": 914,
+      "instagram:not_requested": 914,
+      "telegram:not_requested": 914,
+      "threads:not_requested": 914,
+      "tiktok:not_requested": 914,
+      "youtube:not_requested": 914
     }
   },
   "assets": {

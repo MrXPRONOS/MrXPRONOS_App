@@ -1,5 +1,593 @@
 [
   {
+    "id": "1c62c7b44dbd208fd6c45532",
+    "kind": "news",
+    "title": "\"Ce n'est pas une défaite, c'est une leçon\"... Le RC Lens sonné et humilié après sa débâcle historique en Ligue des champions contre Côme",
+    "url": "https://www.franceinfo.fr/sports/foot/rc-lens/ce-n-est-pas-une-defaite-c-est-une-lecon-le-rc-lens-sonne-et-humilie-apres-sa-debacle-historique-en-ligue-des-champions-contre-come_8268518.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-04T22:52:47+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "955840972b69b2b1b5f9816d",
+    "kind": "news",
+    "title": "Ligue des Champions : le PSG porte la Ligue 1 depuis 2020/2021",
+    "url": "https://www.footmercato.net/a3886776433677555345-ligue-des-champions-le-psg-porte-la-ligue-1-depuis-2020-2021",
+    "source_date": "2026-11-04T22:46:04+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "630786a78dd7a2d3749def9e",
+    "kind": "news",
+    "title": "Ligue des Champions : le classement de la 4e journée après les matches de mercredi",
+    "url": "https://www.footmercato.net/a2935912667627686802-ligue-des-champions-le-classement-de-la-4e-journee-apres-les-matches-de-mercredi",
+    "source_date": "2026-11-04T22:22:37+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f8b311ba7c7b61c4922a473c",
+    "kind": "news",
+    "title": "Tenu en échec à domicile par l'Olympiakos, le Stade rennais reste invaincu en Ligue Europa",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-europa/tenu-en-echec-a-domicile-par-l-olympiakos-le-stade-rennais-reste-invaincu-en-ligue-europa_8268098.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-04T17:23:31+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4939feeada910a2656a30bb8",
+    "kind": "news",
+    "title": "Côme : Fàbregas ne dort pas s’il pense au PSG",
+    "url": "https://www.footmercato.net/a4069456724744704235-come-fabregas-ne-dort-pas-sil-pense-au-psg-de-luis-enrique",
+    "source_date": "2026-11-04T23:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "396520244528addbde51052a",
+    "kind": "news",
+    "title": "PSG : Doué adore la Ligue des champions, Benzema égalé",
+    "url": "https://www.onzemondial.com/ligue-des-champions/psg-doue-adore-la-ligue-des-champions-benzema-egale-1006988",
+    "source_date": "2026-11-04T22:59:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c7a13bc71172d708a6106e66",
+    "kind": "news",
+    "title": "Les joueurs du RC Lens sont totalement K.O après l’humiliation contre Côme",
+    "url": "https://www.footmercato.net/a8892701818486467507-les-joueurs-du-rc-lens-sont-totalement-k-o-apres-lhumiliation-contre-come",
+    "source_date": "2026-11-04T22:55:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cfb733ee58cba2bffa6b1552",
+    "kind": "news",
+    "title": "Côme : Nico Paz ne cache pas les ambitions italiennes en Ligue des Champions",
+    "url": "https://www.footmercato.net/a494112055448100630-come-nico-paz-ne-cache-pas-les-ambitions-italiennes-en-ligue-des-champions",
+    "source_date": "2026-11-04T22:51:30+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "95f6c7e6f420b9a1b42c4919",
+    "kind": "news",
+    "title": "Ballon d’Or : Thibaut Courtois enrage pour Kylian Mbappé",
+    "url": "https://www.footmercato.net/a2860278602432950589-ballon-dor-thibaut-courtois-enrage-pour-kylian-mbappe",
+    "source_date": "2026-11-04T22:47:26+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2f9830c81f6d1425f71e1860",
+    "kind": "news",
+    "title": "RC Lens : la réaction tant attendue de Yannick Cahuzac après la gifle contre Côme",
+    "url": "https://www.footmercato.net/a4172456335088850440-rc-lens-la-reaction-tant-attendue-de-yannick-cahuzac-apres-la-gifle-contre-come",
+    "source_date": "2026-11-04T22:41:24+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5b012108741803df77267f6e",
+    "kind": "news",
+    "title": "RC Lens : Yannick Cahuzac évoque un profond sentiment d'humiliation après la déroute historique en LDC",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-yannick-cahuzac-evoque-un-profond-sentiment-d-humiliation-apres-la-deroute-historique-en-ldc-544720.html",
+    "source_date": "2026-11-04T22:41:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "92de3caf6363046cb5f4eb71",
+    "kind": "news",
+    "title": "Ligue des champions : le RC Lens étrillé par Côme à domicile",
+    "url": "https://www.france24.com/fr/sports/20261104-ligue-champions-rc-lens-etrille-par-come-domicile-football-nico-paz-defaite",
+    "source_date": "2026-11-04T22:37:24+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f5887a2956b8050cbd1ed5a6",
+    "kind": "news",
+    "title": "Daniel Riolo massacre le foot français après l’humiliation de Lens",
+    "url": "https://www.footmercato.net/a3805040386816601970-daniel-riolo-massacre-le-foot-francais-apres-lhumiliation-de-lens",
+    "source_date": "2026-11-04T22:34:07+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5ef01214030e2925ac922882",
+    "kind": "news",
+    "title": "RC Lens : Ruben Aguilar décrit un vestiaire dévasté après l'humiliation historique en Ligue des Champions",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-ruben-aguilar-decrit-un-vestiaire-devaste-apres-l-humiliation-historique-en-ligue-des-champions-544719.html",
+    "source_date": "2026-11-04T22:33:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "bda365f30dcb47ee92aa398b",
+    "kind": "news",
+    "title": "Les 8 infos sur la soirée de Ligue des Champions : la spéciale Real, Jacquet se rate, City s'arrache malgré Donnarumma...",
+    "url": "https://m.maxifoot.fr/football/article-66474.htm",
+    "source_date": "2026-11-04T22:32:27+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f6086a890d64e64776e690d6",
+    "kind": "news",
+    "title": "Lens - Côme : les tristes chiffres historiques de l'humiliation lensoise, du jamais vu depuis 86 ans",
+    "url": "https://www.onzemondial.com/ligue-des-champions/lens-come-les-tristes-chiffres-historiques-de-lhumiliation-lensoise-du-jamais-vu-depuis-86-ans-1007127",
+    "source_date": "2026-11-04T22:32:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d25b036a4cb791563fef8923",
+    "kind": "news",
+    "title": "Ligue des champions : La nuit où la France a été (violemment) frappée par le charme de Côme",
+    "url": "https://www.sofoot.com/articles/ligue-des-champions-la-nuit-ou-la-france-a-ete-violemment-frappee-par-le-charme-de-come",
+    "source_date": "2026-11-04T22:30:25+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "c4838755e2f8e63a0398f706",
+    "kind": "news",
+    "title": "LDC : Les chiffres complètement dingues de la débâcle historique du RC Lens",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-les-chiffres-completement-dingues-de-la-debacle-historique-du-rc-lens-544713.html",
+    "source_date": "2026-11-04T22:23:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "b1c4d2c5700b16e1a6420111",
+    "kind": "news",
+    "title": "Lens - Côme : au bord des larmes, Cuisance \"demande pardon\" aux supporters après la déroute",
+    "url": "https://www.onzemondial.com/ligue-des-champions/lens-come-au-bord-des-larmes-cuisance-demande-pardon-aux-supporters-apres-la-deroute-1007122",
+    "source_date": "2026-11-04T22:18:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8ff97a2e9e968d2871a6c325",
+    "kind": "news",
+    "title": "RC Lens : Michaël Cuisance complètement abattu après l'humiliation historique contre Côme",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-michael-cuisance-completement-abattu-apres-l-humiliation-historique-contre-come-544712.html",
+    "source_date": "2026-11-04T22:09:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a72a10c5285a505e427a9a49",
+    "kind": "news",
+    "title": "Lens - Côme : Nico Paz en démonstration, Baidoo et Skoras calamiteux... les tops et les flops de cette humiliation historique",
+    "url": "https://www.onzemondial.com/ligue-des-champions/lens-come-nico-paz-en-demonstration-baidoo-et-skoras-calamiteux-les-tops-et-les-flops-de-cette-humiliation-historique-1007113",
+    "source_date": "2026-11-04T22:02:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ac5be963f58e324fdbba3a10",
+    "kind": "news",
+    "title": "LDC : Arsenal se rapproche du PSG, Manchester City s'impose au bout du suspense... le récap' des matchs de 21h",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-arsenal-se-rapproche-du-psg-manchester-city-s-impose-au-bout-du-suspense-le-recap-des-matchs-de-21h-544711.html",
+    "source_date": "2026-11-04T22:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d058a0ae224cfd01bebe539d",
+    "kind": "news",
+    "title": "Lens - Côme : humiliés, les Lensois essuient la pire défaite de l'histoire du football français en Coupe d'Europe",
+    "url": "https://www.onzemondial.com/ligue-des-champions/lens-come-humilies-les-lensois-essuient-la-pire-defaite-de-lhistoire-du-football-francais-en-coupe-deurope-1007119",
+    "source_date": "2026-11-04T21:58:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "bd9ec41f75ed3952b012b15d",
+    "kind": "news",
+    "title": "Humilié par Côme, le RC Lens encaisse la plus large défaite d'un club français en Ligue des champions",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/humilie-par-come-le-rc-lens-encaisse-la-plus-large-defaite-d-un-club-francais-en-ligue-des-champions_8268452.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-04T21:57:53+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6402079eddb826440f2f38a6",
+    "kind": "news",
+    "title": "LDC : Les notes de RC Lens - Côme : les Sang-et-Or se ridiculisent avec une défaite humiliante et historique (1-9)",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-les-notes-de-rc-lens-come-les-sang-et-or-se-ridiculisent-avec-une-defaite-humiliante-et-historique-1-9-544709.html",
+    "source_date": "2026-11-04T21:56:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6b2df19b51317139f2668bd0",
+    "kind": "news",
+    "title": "Ligue des champions : le classement de la phase de Ligue",
+    "url": "https://www.onzemondial.com/ligue-des-champions/ligue-des-champions-le-classement-de-la-phase-de-ligue-999325",
+    "source_date": "2026-11-04T21:55:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "652b2d7d582a413fdda53896",
+    "kind": "news",
+    "title": "RC Lens : Humiliation historique, triste record et supporters qui quittent Bollaert... une soirée cauchemardesque en LDC",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-humiliation-historique-triste-record-et-supporters-qui-quittent-bollaert-une-soiree-cauchemardesque-en-ldc-544708.html",
+    "source_date": "2026-11-04T21:43:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7538b699425a09520f1a6803",
+    "kind": "news",
+    "title": "Mercato : le LOSC prêt à foncer sur une pépite sud-africaine, grosse concurrence en vue",
+    "url": "https://www.onzemondial.com/ligue-1/mercato-le-losc-pret-a-foncer-sur-une-pepite-sud-africaine-grosse-concurrence-en-vue-1006985",
+    "source_date": "2026-11-04T21:27:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-05T05:42:06.162430+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "7dbe39dceb89931291420306",
     "kind": "news",
     "title": "Ligue des champions : le PSG en démonstration face à Villarreal, Lille décroche son premier point à Bodo/Glimt... Revivez les matchs de mardi soir",
@@ -18,7 +606,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7229701885151eaefb08fb6a",
@@ -39,7 +627,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "42d41955eabdab0017e895e8",
@@ -60,7 +648,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7fb11389afbe8dbb9edabb9d",
@@ -81,7 +669,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1cf9cfd4b867fc5a954936bd",
@@ -102,7 +690,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4d9d50287a06da34ab56b263",
@@ -144,7 +732,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e40e50555ed811fb07c77901",
@@ -186,7 +774,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "55334f4b7a9f3479a8cc6fb5",
@@ -207,7 +795,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "75e1b6bd03b54f0a5aafb3bf",
@@ -228,7 +816,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b06107d28723a6bbd38cfcdc",
@@ -249,7 +837,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5c826812d94fe6ece1c7f988",
@@ -270,7 +858,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9b223f977d6ad1eaf87cb947",
@@ -291,7 +879,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "26c10e85b370122ce7a7d2e5",
@@ -312,7 +900,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2b59436f49a4adf9f58bc936",
@@ -333,7 +921,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b812d238f318e6527f306443",
@@ -354,7 +942,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "279c790081d7023269da8640",
@@ -375,7 +963,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "fed6eba0c2196e87083eb77c",
@@ -396,7 +984,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c4804e7ebf537322cb6e8a67",
@@ -417,7 +1005,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e428902ecf01e6473c7764b8",
@@ -438,7 +1026,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "16b77ea04865fc0d69805906",
@@ -459,7 +1047,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "28d7c5f7b7f3be689a4d71d8",
@@ -480,7 +1068,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7e2c9aadf8694732d6b7929a",
@@ -501,7 +1089,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "124a2d8cd24c702d2a672f19",
@@ -522,7 +1110,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2af7e547548a586372ede8d1",
@@ -779,7 +1367,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "926557e09b7076b17190a007",
@@ -800,7 +1388,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b5d9f44ef06b2255139739d5",
@@ -821,7 +1409,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "17e4f9cb1f935b2a20e07461",
@@ -842,7 +1430,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "87d33cf9ebb31cf649412222",
@@ -863,7 +1451,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3a2bbdfb3ca5a07a21a2d9fb",
