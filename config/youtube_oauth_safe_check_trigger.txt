@@ -1,0 +1,1 @@
+2026-11-05 credential verification after YouTube Desktop OAuth reconnection; no video upload
