@@ -2,6 +2,10 @@ name: YouTube OAuth - Safe Credential Check
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/youtube_oauth_safe_check_trigger.txt"
 
 permissions:
   contents: read
