@@ -212,7 +212,7 @@ class TestV3BTTSQualityGate(unittest.TestCase):
         gate=BTTSQualityGate(SimpleNamespace(),100)
         index=V2History([])
         event=match(700,NOW+timedelta(hours=2))
-        with patch("bsd_v3.guardrails.btts_h2h_decision",
+        with patch("bsd_v2_btts_h2h.btts_h2h_decision",
                    side_effect=[(True,"pass",None),(True,"pass",None)]), \
              patch("bsd_v3.btts_quality.team_scoring_probabilities",
                    return_value={"home_scores":.80,"away_scores":.68}), \
