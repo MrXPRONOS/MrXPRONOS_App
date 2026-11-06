@@ -615,3 +615,4 @@ function init(){
   void load();
 }
 init();
+void import("./daily-audience.mjs").then(module=>module.start()).catch(()=>{});
