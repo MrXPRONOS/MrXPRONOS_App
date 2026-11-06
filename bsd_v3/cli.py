@@ -66,6 +66,8 @@ def main(argv=None):
     result["diagnostics"]["bsd_api_http_calls"]=client.requests_made
     result["diagnostics"]["bsd_api_cache_hits"]=client.cache_hits
     atomic_json(args.output,result)
+    from .registry import record_snapshot
+    result["diagnostics"]["immutable_records_created"]=record_snapshot(result)
     print("BSD_V3_SHADOW",json.dumps({"fixtures":len(fixtures),
                                      "analyzed":result["diagnostics"]["analyzed"],
                                      "http_calls":client.requests_made,
