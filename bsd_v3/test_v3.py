@@ -56,9 +56,10 @@ class TestV3(unittest.TestCase):
     def test_public_policy_79_percent(self):
         row={"key":"1","family":"result","probability":.79,
              "conservative_probability":.74}
-        self.assertFalse(public_candidate(row,{"level":"full"}))
+        quality={"level":"full","league_games":45,"recent_games":10,"venue_games":4}
+        self.assertFalse(public_candidate(row,quality))
         row["conservative_probability"]=.78
-        self.assertTrue(public_candidate(row,{"level":"full"}))
+        self.assertTrue(public_candidate(row,quality))
 
     def test_two_selections_must_be_different_families(self):
         matrix,cs=coherent_candidates({"home":1.3,"away":1.1})
