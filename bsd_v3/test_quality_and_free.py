@@ -174,5 +174,53 @@ class TestH2HSafety(unittest.TestCase):
         self.assertEqual(guards["BTTS_YES"],"btts_last_h2h_missing")
         self.assertEqual(guards["BTTS_NO"],"btts_last_h2h_missing")
 
+
+class TestV3BTTSQualityGate(unittest.TestCase):
+    def test_btts_yes_requires_both_sides_and_high_btts_league(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from bsd_v3.btts_quality import BTTSQualityGate,evaluate_btts_yes_quality
+        gate=BTTSQualityGate(SimpleNamespace(),100)
+        with patch("bsd_v3.btts_quality.team_scoring_probabilities",
+                   return_value={"home_scores":.76,"away_scores":.72}), \
+             patch("bsd_v3.btts_quality.btts_features",
+                   return_value=(1,0,0,0,0,0,0,0,0,.10,0)):
+            passed,evidence=evaluate_btts_yes_quality({},None,gate)
+        self.assertTrue(passed)
+        self.assertEqual(evidence["league_btts_probability"],.60)
+        with patch("bsd_v3.btts_quality.team_scoring_probabilities",
+                   return_value={"home_scores":.76,"away_scores":.69}), \
+             patch("bsd_v3.btts_quality.btts_features",
+                   return_value=(1,0,0,0,0,0,0,0,0,.10,0)):
+            passed,evidence=evaluate_btts_yes_quality({},None,gate)
+        self.assertFalse(passed)
+        self.assertEqual(evidence["reason"],"btts_v3_side_score_below_70")
+        with patch("bsd_v3.btts_quality.team_scoring_probabilities",
+                   return_value={"home_scores":.76,"away_scores":.72}), \
+             patch("bsd_v3.btts_quality.btts_features",
+                   return_value=(1,0,0,0,0,0,0,0,0,.07,0)):
+            passed,evidence=evaluate_btts_yes_quality({},None,gate)
+        self.assertFalse(passed)
+        self.assertEqual(evidence["reason"],"btts_v3_league_btts_below_58")
+
+    def test_v3_btts_veto_only_blocks_yes_not_no(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from bsd_v3.btts_quality import BTTSQualityGate
+        from bsd_v3.guardrails import family_guards
+        gate=BTTSQualityGate(SimpleNamespace(),100)
+        index=V2History([])
+        event=match(700,NOW+timedelta(hours=2))
+        with patch("bsd_v3.guardrails.btts_h2h_decision",
+                   side_effect=[(True,"pass",None),(True,"pass",None)]), \
+             patch("bsd_v3.btts_quality.team_scoring_probabilities",
+                   return_value={"home_scores":.80,"away_scores":.68}), \
+             patch("bsd_v3.btts_quality.btts_features",
+                   return_value=(1,0,0,0,0,0,0,0,0,.12,0)):
+            guards,evidence=family_guards(event,index,score_matrix(1.4,1.2),{},
+                                          btts_quality_gate=gate)
+        self.assertEqual(guards["BTTS_YES"],"btts_v3_side_score_below_70")
+        self.assertNotIn("BTTS_NO",guards)
+
 if __name__=="__main__":
     unittest.main()
