@@ -6,7 +6,7 @@ No learning or publication ever occurs in the monitor.
 from __future__ import annotations
 from collections import defaultdict
 from math import log,sqrt
-from .registry import verify_registry
+from .registry import verify_registry,canonical_forecasts
 
 def wilson_interval(wins,n,z=1.96):
     if not n:return None
@@ -52,7 +52,8 @@ def _finalize(bucket,min_samples=100,max_gap=.06):
 
 def monitor(path,*,min_samples=100,max_gap=.06):
     entries=verify_registry(path)
-    forecasts={x["id"]:x["payload"] for x in entries if x["type"]=="forecast"}
+    canonical=canonical_forecasts(entries)
+    forecasts={x["id"]:x["payload"] for x in canonical.values()}
     sections={name:defaultdict(_empty) for name in
               ("market","family","league_market","probability_band",
                "pro_vip_shadow","value_shadow")}

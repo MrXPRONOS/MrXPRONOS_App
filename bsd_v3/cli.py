@@ -31,14 +31,15 @@ def atomic_json(path,payload):
 
 def settle_existing_registry(history, *, now, client, registry_path, max_days=7):
     """Find final events in existing BSD history, then query recent missing days."""
-    from .registry import verify_registry
+    from .registry import verify_registry,canonical_forecasts
     from .settlement import settle_registry,performance_report
     registry=allowed_artifact(registry_path)
     entries=verify_registry(registry)
     if not entries:
         return {"new_settlements":0,"status":"no_prior_records","report":{}}
     completed={row["id"] for row in entries if row["type"]=="settlement"}
-    pending=[r for r in entries if r["type"]=="forecast" and r["id"] not in completed]
+    canonical=list(canonical_forecasts(entries).values())
+    pending=[r for r in canonical if r["id"] not in completed]
     by_id={str(item["id"]):item for item in history
            if isinstance(item,dict) and item.get("id") is not None and
            str(item.get("status") or "").lower()=="finished"}

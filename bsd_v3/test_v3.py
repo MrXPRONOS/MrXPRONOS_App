@@ -237,5 +237,38 @@ class TestV3(unittest.TestCase):
         self.assertEqual(choices["pro_vip_shadow"],["1X"])
         self.assertEqual(choices["preferred_pro_vip_shadow"],[])
 
+
+    def test_repeated_fixture_snapshots_are_audit_only_not_double_counted(self):
+        import tempfile
+        from pathlib import Path
+        from bsd_v3.registry import append_once,canonical_forecasts,verify_registry
+        from bsd_v3.settlement import settle_registry,performance_report
+        root=Path.cwd()/"bsd_v3"/"artifacts"
+        root.mkdir(parents=True,exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=root) as temp:
+            path=Path(temp)/"ledger.jsonl"
+            kickoff=datetime(2026,11,7,5,tzinfo=UTC)
+            base={"event_id":"777","kickoff_utc":kickoff.isoformat(),
+                  "generated_at_utc":"2026-11-06T20:00:00+00:00",
+                  "model":"bsd-v3-shadow-0.1",
+                  "candidates":[{"key":"1","probability":.81,"family":"result","quote":None}],
+                  "selections":{"pro_vip_shadow":["1"],"value_shadow":[]}}
+            later=dict(base,generated_at_utc="2026-11-06T21:00:00+00:00",
+                       candidates=[{"key":"1","probability":.85,"family":"result","quote":None}])
+            append_once(path,"forecast","old-run-a:777",base)
+            append_once(path,"forecast","old-run-b:777",later)
+            entries=verify_registry(path)
+            self.assertEqual(len(entries),2)
+            self.assertEqual(len(canonical_forecasts(entries)),1)
+            final=event(777,1,2,kickoff,status="finished",hs=2,aws=0)
+            result=settle_registry(path,[final],now=kickoff+timedelta(hours=6))
+            self.assertEqual(result["new_settlements"],1)
+            report=performance_report(path)
+            self.assertEqual(report["forecasts"],1)
+            self.assertEqual(report["settlements"],1)
+            self.assertEqual(report["by_market"]["1"]["n"],1)
+            self.assertAlmostEqual(report["by_market"]["1"]["mean_predicted"],.81)
+
+
 if __name__=="__main__":
     unittest.main()
