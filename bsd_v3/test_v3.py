@@ -92,5 +92,40 @@ class TestV3(unittest.TestCase):
         self.assertTrue(report["experimental"])
         self.assertFalse(report["published"])
 
+
+    def test_immutable_forecast_and_prospective_settlement(self):
+        import tempfile
+        from pathlib import Path
+        from bsd_v3.registry import append_once,verify_registry
+        from bsd_v3.settlement import settle_registry,performance_report
+        base=Path.cwd()/"bsd_v3"/"artifacts"
+        base.mkdir(parents=True,exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=base) as temp:
+            path=Path(temp)/"records.jsonl"
+            start=datetime(2026,11,6,10,tzinfo=UTC)
+            candidate={"key":"OVER_15","probability":.75,
+                       "quote":{"verified":True,"executable":True,"odds":1.65}}
+            record={"event_id":"500","kickoff_utc":start.isoformat(),
+                    "candidates":[candidate],"model":"bsd-v3-shadow-0.1",
+                    "selections":{}}
+            _,added=append_once(path,"forecast","2026-11-06:500",record)
+            self.assertTrue(added)
+            _,added=append_once(path,"forecast","2026-11-06:500",record)
+            self.assertFalse(added)
+            with self.assertRaises(ValueError):
+                append_once(path,"forecast","2026-11-06:500",dict(record,event_id="501"))
+            final=event(500,1,2,start,status="finished",hs=2,aws=1)
+            report=settle_registry(path,[final],now=start+timedelta(hours=6))
+            self.assertEqual(report["new_settlements"],1)
+            self.assertEqual(len(verify_registry(path)),2)
+            self.assertEqual(settle_registry(path,[final],now=start+timedelta(hours=6))["new_settlements"],0)
+            stats=performance_report(path)
+            self.assertEqual(stats["by_market"]["OVER_15"]["priced_n"],1)
+            self.assertAlmostEqual(stats["by_market"]["OVER_15"]["roi_verified_named_bookmaker"],.65)
+            lines=path.read_text(encoding="utf-8").splitlines()
+            path.write_text(lines[0].replace("500","501",1)+"\n"+lines[1]+"\n",encoding="utf-8")
+            with self.assertRaises(ValueError):
+                verify_registry(path)
+
 if __name__=="__main__":
     unittest.main()
