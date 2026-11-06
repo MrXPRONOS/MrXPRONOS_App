@@ -38,7 +38,7 @@ class Phase4Contracts(unittest.TestCase):
         self.assertIn('acquisition-attribution.mjs',self.load("assets/js/pwa.js"))
 
     def test_migration_limits_all_public_data_reads(self):
-        sql=self.load("supabase/migrations/20261106223900_audience_analytics_phase4.sql").lower()
+        sql=self.load("supabase/migrations/20261106215236_audience_analytics_phase4.sql").lower()
         self.assertIn("enable row level security",sql)
         self.assertIn("revoke all on table public.analytics_acquisition_events_v1",sql)
         self.assertIn("grant execute on function public.track_acquisition_v1",sql)
