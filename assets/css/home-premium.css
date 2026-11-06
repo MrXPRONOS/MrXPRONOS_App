@@ -295,3 +295,22 @@
   .mx-premium-home .logo img{height:50px;max-height:50px}
   .mx-premium-home .mx-code-label{display:none}
 }
+
+/* Phase 2 — install card: visible, optional, distinct from betting prompts. */
+.mx-install-panel{position:relative;display:flex;align-items:center;gap:17px;padding:19px 22px;margin:16px 0 0;border:1px solid rgba(232,189,112,.55);border-radius:16px;background:linear-gradient(108deg,#0e2a3e 0%,#112536 53%,#172c31 100%);box-shadow:0 9px 28px #0003;color:#fff}
+.mx-install-panel[hidden]{display:none!important}
+.mx-install-panel-brand{flex:none;width:72px;height:72px;display:grid;place-items:center;border-radius:16px;border:1px solid #4a6676;background:#091929}
+.mx-install-panel-brand img{width:64px;height:64px;object-fit:contain}
+.mx-install-panel-copy{flex:1;min-width:0}
+.mx-install-panel-kicker{font-size:10px;font-weight:800;letter-spacing:.115em;color:#eec476}
+.mx-install-panel h2{font-size:clamp(19px,2.2vw,26px);letter-spacing:-.025em;margin:3px 0 5px;color:#fff;line-height:1.15}
+.mx-install-panel p{font-size:13px;color:#dce6ed;line-height:1.55;margin:0 0 7px;max-width:670px}
+.mx-install-panel-footnote{font-size:11px;color:#b9cfda}
+.mx-install-panel-action{display:grid;justify-items:center;gap:7px;flex:none}
+.mx-install-panel-button{background:#e5b968;color:#091b2c;border:1px solid #ffdb98;border-radius:12px;padding:12px 17px;min-height:46px;min-width:193px;display:inline-flex;align-items:center;justify-content:center;gap:9px;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 3px 15px #0005}
+.mx-install-panel-button:hover{background:#f4cf88}
+.mx-install-panel-button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.mx-install-panel-action>span{font-size:10px;color:#cbd9df;text-align:center}
+.mx-install-panel:not([hidden])+.mx-feature-grid{margin-top:15px!important}
+@media(max-width:800px){.mx-install-panel{flex-wrap:wrap;gap:12px;padding:16px}.mx-install-panel-brand{width:58px;height:58px}.mx-install-panel-brand img{width:52px;height:52px}.mx-install-panel-copy{flex:1 1 calc(100% - 78px)}.mx-install-panel-action{width:100%;justify-items:stretch}.mx-install-panel-button{width:100%}}
+@media(max-width:450px){.mx-install-panel{margin:9px 0 0;padding:13px;border-radius:12px}.mx-install-panel h2{font-size:20px}.mx-install-panel p{font-size:12px}.mx-install-panel-kicker{font-size:9px}.mx-install-panel-footnote{font-size:10px}}
