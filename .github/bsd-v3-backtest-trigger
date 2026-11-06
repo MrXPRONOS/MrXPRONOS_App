@@ -1,0 +1,5 @@
+BSD V3 monthly backtest trigger
+requested_at_utc=2026-11-06T21:24:00Z
+period=2026-10
+policy=current_main
+source=chat_request
