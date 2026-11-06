@@ -1,0 +1,35 @@
+name: Envoi des alertes favorites quotidiennes
+
+on:
+  schedule:
+    # Une execution chaque heure UTC; le serveur applique l'heure locale choisie.
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrx-favorite-digest-hourly
+  cancel-in-progress: false
+
+jobs:
+  send:
+    if: github.repository == 'MrXPRONOS/MrXPRONOS_App'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Dispatch opt-in football favorites only
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "CRON_SECRET manquant : aucun envoi effectue." >&2
+            exit 1
+          fi
+          curl --fail-with-body --silent --show-error --retry 2 --max-time 100 \
+            -X POST \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json" \
+            -d '{"action":"dispatch"}' \
+            "https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/daily-favorite-alerts"
