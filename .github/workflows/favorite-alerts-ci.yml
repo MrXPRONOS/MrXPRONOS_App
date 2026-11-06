@@ -1,0 +1,44 @@
+name: Phase 3 Favorite Alerts validation
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/daily-favorite-alerts/**'
+      - 'supabase/migrations/*daily_favorite_alerts_v1.sql'
+      - 'assets/js/daily-favorite-alerts.mjs'
+      - 'assets/js/daily-hub.mjs'
+      - 'assets/css/daily-hub.css'
+      - 'aujourdhui.html'
+      - 'confidentialite.html'
+      - 'service-worker.js'
+      - 'scripts/build_public_site.py'
+      - 'tests/favorite-alerts.test.mjs'
+      - 'tests/test_favorite_alerts.py'
+      - '.github/workflows/daily-favorite-alerts.yml'
+      - '.github/workflows/favorite-alerts-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/daily-favorite-alerts/**'
+      - 'assets/js/daily-favorite-alerts.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax, including Deno JS-compatible edge entrypoint
+        run: |
+          node --check assets/js/daily-favorite-alerts.mjs
+          node --check supabase/functions/daily-favorite-alerts/logic.mjs
+          cp supabase/functions/daily-favorite-alerts/index.ts /tmp/mrx-daily-favorites-edge.mjs
+          node --check /tmp/mrx-daily-favorites-edge.mjs
+          node --check assets/js/daily-hub.mjs
+      - name: Unit tests: opt-in preference logic, timezone, daily matches and news
+        run: node --test tests/favorite-alerts.test.mjs
+      - name: Integration tests: gated access and public artifact
+        run: python -m unittest discover -s tests -p 'test_favorite_alerts.py' -v
