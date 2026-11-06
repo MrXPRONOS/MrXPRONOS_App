@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-7c9860a98c2e90d4:1X",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-08T11:00:00+00:00",
+    "fixture": {
+      "home_team": "GD Alcochetense",
+      "away_team": "JD Lajense",
+      "league": "Campeonato de Portugal"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 83.3,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "c05790d1dc40d0b6c56aa6f3dfb0c1953e311f43cb919c47d04f1e810070c3a0"
+}

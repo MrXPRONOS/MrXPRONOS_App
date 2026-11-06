@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-5e2725190a7f2e23:1X",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-08T14:00:00+00:00",
+    "fixture": {
+      "home_team": "SK Slavia Praha",
+      "away_team": "SK Artis Brno",
+      "league": "Chance Národní Liga"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 80.7,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "bc29dd66013154fbe4f1e3c5745252a4e528b54432582552a39e9d10ec6bace2"
+}

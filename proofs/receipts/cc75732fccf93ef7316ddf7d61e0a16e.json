@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-dd5d6ae328d0abe0:1X",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-08T07:30:00+00:00",
+    "fixture": {
+      "home_team": "Shandong Taishan",
+      "away_team": "Chengdu Rongcheng",
+      "league": "Chinese Football Super League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 80.5,
+      "odds": 1.41,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "c4e64222bcf2a1729b01dac6fef3007b7f1a59b00885aa94d237461258c12469"
+}

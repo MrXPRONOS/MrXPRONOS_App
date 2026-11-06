@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-693107a9b0f07825:1X",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-06T19:00:00+00:00",
+    "fixture": {
+      "home_team": "Nancy",
+      "away_team": "Sochaux",
+      "league": "Ligue 2"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 82.0,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "ffdd652f042848ca6ae9839107b1dd4c04eccc6de4ef4849006446c422945516"
+}

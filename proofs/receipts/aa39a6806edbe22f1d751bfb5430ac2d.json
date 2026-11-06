@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-ef04c8ff311d4de4:1X",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-07T06:00:00+00:00",
+    "fixture": {
+      "home_team": "FC Tokyo",
+      "away_team": "Kashima Antlers",
+      "league": "Japanese J1 League"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 85.9,
+      "odds": 1.286,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "fadc7cf15fcb1dafcebfcd20aeecb8b8e6fd85e57c9a7952727eebe601b31bde"
+}

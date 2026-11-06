@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-5beeddfea1241b68:1X",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-07T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Dover Athletic",
+      "away_team": "Wealdstone",
+      "league": "FA Cup"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 81.2,
+      "odds": 1.852,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "a154129dec72be9cd213f775ad4ffcdde56c95ff70858510802a0f2ccc545072"
+}

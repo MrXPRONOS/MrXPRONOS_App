@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-ab9830552480866e:UNDER_35",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-07T20:30:00+00:00",
+    "fixture": {
+      "home_team": "Boca Juniors",
+      "away_team": "Defensa y Justicia",
+      "league": "Argentinian Primera Division"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.3,
+      "odds": 1.36,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "9d2384f5426d4813361aaebfc10c67be678134b7e1658326728f59184ed3f8c4"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-53abac92aaa0af4d:1X",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-07T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Guiseley AFC",
+      "away_team": "Sutton United",
+      "league": "FA Cup"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 81.8,
+      "odds": 1.786,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "e1b0042f792931dff8578e44d89f9a877a4697f755f29b8e2cb02ee1be946e90"
+}

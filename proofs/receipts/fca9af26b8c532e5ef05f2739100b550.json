@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-a0c40396cecdb5a5:1X",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-08T13:30:00+00:00",
+    "fixture": {
+      "home_team": "TSV Hartberg",
+      "away_team": "SCR Altach",
+      "league": "Austrian Bundesliga"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 79.9,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "2ed7c282470cff63efc313c76bbd74996ddcc604a30bfe44481739810945d16d"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-1b1c110dfef2c36e:1X",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-07T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Crewe Alexandra",
+      "away_team": "AFC Wimbledon",
+      "league": "FA Cup"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 80.2,
+      "odds": 1.404,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "c831e2208d5767612df7cca249f6e9ddb34f928bfa0d4ac9a98c429e62b24227"
+}

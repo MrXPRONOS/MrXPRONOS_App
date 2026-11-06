@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-31653e33bcba4766:1X",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-07T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Boreham Wood",
+      "away_team": "Wigan Athletic",
+      "league": "FA Cup"
+    },
+    "category": "vip",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 93.0,
+      "odds": 1.208,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "f3a4c21a37ffc30ed67576c1e4e0a28ac6b912aeaa6e2149bd96f65e10eddb79"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-dc010e8878b59e1f:1X",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-07T12:30:00+00:00",
+    "fixture": {
+      "home_team": "Leeds United",
+      "away_team": "Tottenham Hotspur",
+      "league": "premier league"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 82.9,
+      "odds": 1.482,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "a901d8804d92eaa58f77824b93ecdbcec07bdd57e61654fbff1a84e4db3234e8"
+}

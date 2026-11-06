@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-b82f427fcbcbd79b:1X",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-07T21:00:00+00:00",
+    "fixture": {
+      "home_team": "Philadelphia Union",
+      "away_team": "Toronto FC",
+      "league": "MLS"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 82.7,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "2bb7be56e0c2eb01aa78b4a44a8575b93737908ea2dd51965a4088055371e884"
+}

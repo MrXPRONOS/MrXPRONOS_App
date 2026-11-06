@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-85762c2301d793f8:1X",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-06T19:00:00+00:00",
+    "fixture": {
+      "home_team": "Montpellier",
+      "away_team": "Metz",
+      "league": "Ligue 2"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 82.9,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "ed602146f91e14f97dc3c0a89fa93de72053560ed7c1d3f6b453dfa00d9dea87"
+}

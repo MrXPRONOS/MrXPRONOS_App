@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-184276d493668f55:UNDER_35",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-07T21:05:00+00:00",
+    "fixture": {
+      "home_team": "Once Caldas",
+      "away_team": "Rionegro Águilas Doradas",
+      "league": "Categoría Primera A"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 81.3,
+      "odds": 1.302,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "cf817e2ade1830ee8aaf33493057d4dc56734826bf122178aee808f5644dd2ec"
+}

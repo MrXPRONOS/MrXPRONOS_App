@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-62f5a2b3bc12890d:UNDER_35",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-07T13:30:00+00:00",
+    "fixture": {
+      "home_team": "Etoile Sportive Du Sahel",
+      "away_team": "CS Sfaxien",
+      "league": "Tunisian Ligue Professionnelle 1"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 81.1,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "6c6fefabdac4fc7b5b42c4e9b32b5033352625a064649d19fe023aad635a4339"
+}

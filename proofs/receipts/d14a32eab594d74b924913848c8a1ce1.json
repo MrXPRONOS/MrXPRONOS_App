@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-7aa90ab4adc4d492:UNDER_35",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-07T14:00:00+00:00",
+    "fixture": {
+      "home_team": "FC Slovan Liberec",
+      "away_team": "Bohemians Praha 1905",
+      "league": "Czech First League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 80.7,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "126fe12a538c22faf3b1fce222f60826bef814f5eccb3348beb5fd605d9da82c"
+}

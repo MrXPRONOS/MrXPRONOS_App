@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-1f90317229b6929b:UNDER_35",
+    "recorded_at_utc": "2026-11-06T14:38:36+00:00",
+    "kickoff_utc": "2026-11-08T01:00:00+00:00",
+    "fixture": {
+      "home_team": "Instituto De Córdoba",
+      "away_team": "Newell's Old Boys",
+      "league": "Argentine Division 1"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.8,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "98ed94adfb0bd4a8b8edc574a9dce962109b179bc4e78884ea81e8852f848fdd"
+}
