@@ -1,0 +1,30 @@
+name: Dixon-Coles - diagnostic rho et score 1-1 (Octobre 2026)
+on:
+  push:
+    paths:
+      - 'dixon-coles/scripts/diagnose_rho_2026.py'
+      - '.github/workflows/dixon-coles-rho-diagnostics.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            dixon-coles
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test]'
+        working-directory: dixon-coles
+      - name: Diagnostic train 2025-26 / test octobre
+        working-directory: dixon-coles
+        run: python scripts/diagnose_rho_2026.py --csv examples/pl_2026_10_results.csv --output results/rho_october_diagnostic.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dixon-coles-rho-diagnostic
+          path: dixon-coles/results/rho_october_diagnostic.json
