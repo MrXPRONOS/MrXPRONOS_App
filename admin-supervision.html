@@ -84,6 +84,20 @@
       <p class="section-note" id="publication-updated">Vérification des données publiées…</p>
     </section>
 
+    <section id="analytics-v2" class="panel" aria-labelledby="analytics-v2-title" style="margin:14px 0">
+      <h2 id="analytics-v2-title">Qualité de l'audience — phase 1</h2>
+      <p class="section-note">Sessions V2 depuis l'activation du collecteur. Les anciennes données ne sont pas converties en sessions fictives. Navigateurs et appareils ne sont pas des personnes vérifiées.</p>
+      <div class="metric-grid">
+        <div class="metric"><div class="name">Sessions V2</div><div class="val" id="v2-sessions">–</div></div>
+        <div class="metric"><div class="name">Navigateurs V2</div><div class="val" id="v2-visitors">–</div></div>
+        <div class="metric"><div class="name">Pages V2</div><div class="val" id="v2-pages">–</div></div>
+        <div class="metric"><div class="name">Sessions engagées</div><div class="val" id="v2-engaged">–</div></div>
+      </div>
+      <p class="section-note" id="v2-diagnostics">Diagnostic en cours…</p>
+      <details><summary>Minutes à fort volume à examiner</summary>
+        <div class="scroll"><table class="rows"><thead><tr><th>Minute UTC</th><th>Visites brutes</th><th>Identifiants</th></tr></thead><tbody id="v2-suspect-rows"></tbody></table></div>
+      </details>
+    </section>
     <details class="audit-disclosure"><summary>Comprendre les statistiques de visiteurs</summary><div id="analytics-audit">Les visites restent des identifiants de navigateur, pas des personnes confirmées. Les pics de tests identifiés sont exclus des statistiques estimées.</div></details>
     <section id="overview"><div class="section-head"><div><div class="section-kicker">01 / LES INDICATEURS</div><h2>Vue générale</h2></div><p>Suivi estimé, hors périodes suspectes de tests</p></div><div class="metric-grid" aria-live="polite">
       <div class="metric"><div class="metric-top"><div class="name">Erreurs navigateur</div><span class="metric-icon" aria-hidden="true">!</span></div><div class="val" id="errors-total">–</div><small id="errors-detail">Mesures anonymisées (échantillon)</small></div>
