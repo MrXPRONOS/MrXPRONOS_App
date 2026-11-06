@@ -810,6 +810,9 @@ const MX_SESSION_TIMEOUT_MS = 30 * 60 * 1000;
 const MX_SESSION_KEY = "mx_analytics_session_v2";
 const MX_VISIT_EVENT_KEY = "mx_analytics_events_v2";
 let mxTelemetryQueue = [];
+function mxSaveTelemetryV2() {
+  try { sessionStorage.setItem(MX_VISIT_EVENT_KEY, JSON.stringify(mxTelemetryQueue.slice(0, 30))); } catch {}
+}
 let mxTelemetryFlushing = false;
 let mxTelemetryEngagementTimer = null;
 let mxTelemetryPageRecorded = false;
@@ -855,6 +858,8 @@ function mxQueueSessionEvent(kind, page = location.pathname) {
     p_device: mxDeviceV2(),
     p_display_mode: (window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true) ? "standalone" : "browser"
   });
+  mxTelemetryQueue = mxTelemetryQueue.slice(-30);
+  mxSaveTelemetryV2();
   void mxFlushTelemetryV2();
 }
 async function mxFlushTelemetryV2() {
@@ -866,6 +871,7 @@ async function mxFlushTelemetryV2() {
       const { data, error } = await supabase.rpc("track_visitor_session_v2", item);
       if (error || data !== true) break;
       mxTelemetryQueue.shift();
+      mxSaveTelemetryV2();
     }
   } catch (error) {
     console.debug("Télémétrie V2 indisponible :", error);
@@ -874,6 +880,13 @@ async function mxFlushTelemetryV2() {
 function mxStartAnalyticsV2() {
   if (mxTelemetryPageRecorded) return;
   mxTelemetryPageRecorded = true;
+  try {
+    const stored = JSON.parse(sessionStorage.getItem(MX_VISIT_EVENT_KEY) || "[]");
+    if (Array.isArray(stored)) mxTelemetryQueue = stored.filter(item =>
+      item && item.p_event_id && item.p_session_id && item.p_user_id && item.p_page &&
+      ["page_view","engaged"].includes(item.p_kind)).slice(-30);
+  } catch { mxTelemetryQueue = []; }
+  void mxFlushTelemetryV2();
   mxQueueSessionEvent("page_view");
   const markEngaged = () => {
     if (!document.hidden) mxQueueSessionEvent("engaged");
