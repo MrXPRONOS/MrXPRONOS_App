@@ -1,21 +1,32 @@
-name: BSD V3 - free manual shadow (unpublished)
+name: BSD V3 - free isolated research (manual only)
 
 on:
   workflow_dispatch:
     inputs:
       mode:
-        description: shadow or evaluate
+        description: 'shadow, evaluate or settle; none publishes to site/Telegram'
         required: true
         type: choice
         default: shadow
-        options: [shadow, evaluate]
+        options: [shadow, evaluate, settle]
       max_odds_events:
-        description: Maximum match quotes fetched (0 disables odds)
+        description: 'Free BSD quote calls (0 to disable)'
         required: false
         default: '15'
+      public_board:
+        description: 'Use free, timestamped sportsbook board as optional odds fallback'
+        required: false
+        type: boolean
+        default: false
+      challenger_models:
+        description: 'Train and gate specialized models (extra CPU, no paid API)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: bsd-v3-experimental
@@ -24,39 +35,66 @@ concurrency:
 jobs:
   shadow:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - name: Free dependencies only
+      - name: Free Python dependencies
         run: python -m pip install requests cryptography
-      - name: Offline regression
+      - name: Offline V3 safety tests
         run: |
           python -m compileall -q bsd_v3
           python -m unittest discover -s bsd_v3 -p 'test_*.py' -v
-      - name: Restore existing encrypted match history
+      - name: Restore latest successful V3 diagnostic artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p bsd_v3/artifacts
+          ids=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/bsd-v3-shadow.yml/runs?status=success&branch=${GITHUB_REF_NAME}&per_page=10" --jq '.workflow_runs[].id' || true)
+          for run_id in $ids; do
+            if gh run download "$run_id" --name "bsd-v3-experimental-$run_id" --dir bsd_v3/artifacts; then
+              echo "V3_LEDGER_RESTORED_FROM_RUN=$run_id"
+              break
+            fi
+          done
+          if test -f bsd_v3/artifacts/prediction_log.jsonl; then
+            python -c 'from bsd_v3.registry import verify_registry; print("V3_LEDGER_VERIFIED",len(verify_registry("bsd_v3/artifacts/prediction_log.jsonl")))'
+          fi
+      - name: Restore existing encrypted BSD history
         env:
           BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
         run: python bsd/bsd_archive.py restore
-      - name: BSD V3 shadow without publication
+      - name: New unpublished V3 predictions
         if: inputs.mode == 'shadow'
         env:
           BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
           MAX_ODDS: ${{ inputs.max_odds_events }}
-        run: python -m bsd_v3.cli --mode shadow --max-requests 90 --max-odds-events "${MAX_ODDS:-15}" --output bsd_v3/artifacts/shadow.json
-      - name: BSD V3 retrospective diagnostics
+          PUBLIC_BOARD: ${{ inputs.public_board }}
+          CHALLENGERS: ${{ inputs.challenger_models }}
+        run: |
+          flags=""
+          if [ "$PUBLIC_BOARD" = "true" ]; then flags="$flags --free-public-board"; fi
+          if [ "$CHALLENGERS" = "true" ]; then flags="$flags --challengers"; fi
+          python -m bsd_v3.cli --mode shadow --max-requests 90 --max-odds-events "${MAX_ODDS:-15}" $flags --output bsd_v3/artifacts/shadow.json
+      - name: Retrospective holdout diagnostics
         if: inputs.mode == 'evaluate'
         run: python -m bsd_v3.cli --mode evaluate --output bsd_v3/artifacts/evaluation.json
-      - name: Ensure shadow is not publicly published
+      - name: Settle immutable V3 observations (no publication)
+        if: inputs.mode == 'settle'
+        env:
+          BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+        run: python -m bsd_v3.cli --mode settle --max-requests 90 --output bsd_v3/artifacts/settlement.json
+      - name: Assert V3 cannot publish
         if: inputs.mode == 'shadow'
         run: |
-          python -c 'import json; x=json.load(open("bsd_v3/artifacts/shadow.json")); assert x["published"] is False and x["experimental"] is True and x["no_site_write"] and x["no_telegram"]; print("BSD_V3_SHADOW_OK")'
-      - name: Remove decrypted private history
+          python -c 'import json; x=json.load(open("bsd_v3/artifacts/shadow.json")); assert x["published"] is False and x["experimental"] is True and x["no_site_write"] and x["no_telegram"]; print("BSD_V3_UNPUBLISHED")'
+      - name: Remove cleartext private history
         if: always()
         run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
-      - name: Keep only V3 diagnostic artifact
+      - name: Preserve non-private research records only
         if: success()
         uses: actions/upload-artifact@v4
         with:
