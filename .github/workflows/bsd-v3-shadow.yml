@@ -61,6 +61,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bsd-v3-experimental-${{ github.run_id }}
-          path: bsd_v3/artifacts/*.json
+          path: bsd_v3/artifacts/*
           retention-days: 90
           if-no-files-found: error
