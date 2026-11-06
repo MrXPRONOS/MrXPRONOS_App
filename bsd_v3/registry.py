@@ -79,7 +79,10 @@ def record_snapshot(snapshot,path="bsd_v3/artifacts/prediction_log.jsonl"):
             "snapshot_sha256":fingerprint,"event_id":eid,
             "kickoff_utc":entry["kickoff_utc"],
             "generated_at_utc":entry["generated_at_utc"],
-            "model":entry["model"],"candidates":entry["candidates"],
+            "model":entry["model"],
+            "league_key":(entry.get("estimated_goals") or {}).get("league_key"),
+            "fixture_quality":entry.get("fixture_quality"),
+            "candidates":entry["candidates"],
             "selections":entry["selections"]})
         count+=int(added)
     return count
