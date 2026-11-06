@@ -21,6 +21,7 @@ from .service import predict, backtest, sync_seasons, sync_openfootball_seasons
 from .demo import load_demo
 from .calibration import tune_xi, DEFAULT_CANDIDATES
 from .model_selection import select_model
+from .score_signal import calibrate_score_signals
 
 
 class SyncRequest(BaseModel):
@@ -88,6 +89,18 @@ class CalibrateXiRequest(BaseModel):
     min_folds: int = Field(default=3,ge=1,le=40)
     regularization: float = Field(default=0.15,ge=0,le=10)
     candidates: list[float] = Field(default_factory=lambda:list(DEFAULT_CANDIDATES),min_length=2,max_length=16)
+
+
+class CalibrateScoreSignalRequest(BaseModel):
+    competition: str = 'of:ENG-PL'
+    eval_start: str = '2025-08-01'
+    eval_end: str = '2026-06-01'
+    xi: float = Field(default=0.0065,ge=0,le=0.3)
+    min_games: int = Field(default=400,ge=12,le=10000)
+    min_team: int = Field(default=5,ge=1,le=100)
+    min_scored: int = Field(default=200,ge=100,le=5000)
+    confidence_quantile: float = Field(default=0.8,ge=0.5,le=0.98)
+    min_gap_percentage_points: float = Field(default=1.0,ge=0,le=10)
 
 
 class CalibrateModelRequest(BaseModel):
@@ -258,6 +271,25 @@ def create_app(store: Store | None=None) -> FastAPI:
                            min_scored=values.min_scored,min_folds=values.min_folds,
                            regularization=values.regularization,
                            candidates=tuple(values.candidates))
+        except ValueError as exc:
+            raise HTTPException(400,str(exc)) from exc
+
+    @app.get('/api/score-signal/calibration')
+    def score_signal_status(competition: str):
+        report=db.latest_score_signal_calibration(competition)
+        return {'available':report is not None,'calibration':report}
+
+    @app.post('/api/score-signal/calibrate')
+    def score_signal_calibrate(request: Request,values: CalibrateScoreSignalRequest):
+        _require_local_or_token(request)
+        try:
+            report=calibrate_score_signals(db.matches(values.competition,finished=True),
+                eval_start=values.eval_start,eval_end=values.eval_end,
+                xi=values.xi,min_games=values.min_games,min_team=values.min_team,
+                min_scored=values.min_scored,confidence_quantile=values.confidence_quantile,
+                min_gap_percentage_points=values.min_gap_percentage_points)
+            db.save_score_signal_calibration(report)
+            return report
         except ValueError as exc:
             raise HTTPException(400,str(exc)) from exc
 

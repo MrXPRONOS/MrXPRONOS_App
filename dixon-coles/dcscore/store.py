@@ -97,6 +97,14 @@ class Store:
             );
             CREATE INDEX IF NOT EXISTS ix_model_selection_competition
               ON model_selection_calibrations(competition,id DESC);
+            CREATE TABLE IF NOT EXISTS score_signal_calibrations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                competition TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                report_json TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS ix_score_signal_competition
+                ON score_signal_calibrations(competition,id DESC);
             CREATE TABLE IF NOT EXISTS xi_calibrations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 competition TEXT NOT NULL,
@@ -334,12 +342,62 @@ class Store:
             if row["status"]=="FINISHED":
                 actual=f"{row['home_goals']}-{row['away_goals']}"
                 correct=(row["home_goals"]==best["home"] and row["away_goals"]==best["away"])
+            signal=data.get('exact_score_signal')
+            if isinstance(signal,dict):
+                recommended_score=signal.get('recommended_score') if signal.get('status')=='single_score' else None
+                signal_status=signal.get('status','abstain')
+            else:
+                # Existing predictions made before this feature must keep their
+                # original meaning; do not retroactively label them as abstentions.
+                recommended_score=best['score']
+                signal_status='legacy_mode'
+            signal_correct=(actual==recommended_score) if actual and recommended_score else None
             out.append({"id":row["prediction_id"],"created_at":row["created_at"],
                         "cutoff":row["cutoff"],"prediction":data,"actual_score":actual,
-                        "correct":correct,"result_provenance":row["result_provenance"],
+                        "correct":correct,"signal_correct":signal_correct,
+                        "signal_status":signal_status,"recommended_score":recommended_score,
+                        "result_provenance":row["result_provenance"],
                         "neutral_venue":bool(row["neutral_venue"]),
                         "result_is_independently_verified":False})
         return out
+
+    def save_score_signal_calibration(self, report: dict) -> int:
+        """Append-only real-world confidence calibration; never rewrite past rules."""
+        if not isinstance(report,dict) or report.get('n_scored',0)<100:
+            raise ValueError('Au moins 100 matchs évalués sont requis pour calibrer la confiance.')
+        if not report.get('no_future_leakage') or not report.get('source_signature_before_eval_end'):
+            raise ValueError('Preuve de chronologie et provenance manquante.')
+        if not isinstance(report.get('models'),dict) or not set(('poisson','dixon_coles')).issubset(report['models']):
+            raise ValueError('Seuils historiques Poisson et Dixon-Coles requis.')
+        for m in ('poisson','dixon_coles'):
+            row=report['models'][m]
+            if not (0 < float(row['min_top_probability']) < 1
+                    and 0 <= float(row['min_gap_percentage_points']) <= 100):
+                raise ValueError('Seuil de recommandation invalide.')
+        data=json.dumps(report,ensure_ascii=False,sort_keys=True,allow_nan=False)
+        with self.connection() as db:
+            r=db.execute("""INSERT INTO score_signal_calibrations(competition,created_at,report_json)
+                             VALUES(?,?,?)""",(report['competition'],iso_date(datetime.now(timezone.utc)),data))
+            return int(r.lastrowid)
+
+    def latest_score_signal_calibration(self, competition: str) -> dict | None:
+        with self.connection() as db:
+            row=db.execute("""SELECT id,report_json FROM score_signal_calibrations
+                    WHERE competition=? ORDER BY id DESC LIMIT 1""",(competition,)).fetchone()
+        if row:
+            report=json.loads(row['report_json'])
+            report['calibration_id']=row['id']
+            return report
+        if competition=='of:ENG-PL':
+            packaged=Path(__file__).parent/'calibrations'/'eng-premier-league-score-signal.json'
+            if packaged.is_file():
+                report=json.loads(packaged.read_text(encoding='utf-8'))
+                if (report.get('competition')==competition and report.get('n_scored',0)>=100
+                    and report.get('no_future_leakage')
+                    and set(('poisson','dixon_coles')).issubset(report.get('models',{}))):
+                    report['calibration_id']='validated_packaged_score_signal'
+                    return report
+        return None
 
     def save_xi_calibration(self, report: dict) -> int:
         """Store the exact calibration report (append-only, reproducible)."""

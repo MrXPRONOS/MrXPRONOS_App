@@ -68,15 +68,28 @@ async function refreshXi(){
       ?`Modèle validé : ${model.calibration.selected_model==='poisson'?'Poisson indépendant':'Dixon-Coles'} · ${model.calibration.n_scored} matchs, ${model.calibration.n_blocks} mois évalués · log loss DC ${num(model.calibration.mean_dc_log_loss,4)} / Poisson ${num(model.calibration.mean_poisson_log_loss,4)}.`
       :'Aucun choix historique validé : le mode automatique utilisera Dixon-Coles original.';
   }catch(err){$('modelChoiceStatus').textContent='Sélection comparative indisponible : '+String(err.message||err);}
+  try{
+    const sr=await api('/api/score-signal/calibration?competition='+encodeURIComponent(currentCompetition));
+    const p=sr.calibration;
+    $('signalPolicyStatus').textContent=sr.available
+      ?`Seuils historiques (${p.n_scored} matchs) : Poisson ${pct(p.models.poisson.min_top_probability)} et Dixon-Coles ${pct(p.models.dixon_coles.min_top_probability)} pour le score principal ; écart min. ${num(p.models.poisson.min_gap_percentage_points,1)} point. Hors seuil : pas de score unique recommandé.`
+      :'Pas encore de calibration : les scores seront classés sans conseiller un score exact unique.';
+  }catch(err){$('signalPolicyStatus').textContent='Calibration du filtre non disponible : '+String(err.message||err);}
 }
 
 function renderResult(d){
   const best=d.top_scores[0];
+  const signal=d.exact_score_signal||{status:'abstain',highest_probability_score:best.score};
+  const shownScore=signal.status==='single_score'?safe(signal.recommended_score):'—';
+  const recommendationLabel=signal.status==='single_score'
+    ?'Score unique retenu (confiance filtrée) · '+pct(best.probability)
+    :'Aucun score unique recommandé · premier mode '+safe(best.score)+' ('+pct(best.probability)+')';
   const bars=d.top_scores.map((s,i)=>`<div class="probrow"><span class="score">${safe(s.score)}</span><div class="track"><div style="width:${Math.min(100,s.probability*100/Math.max(.001,d.top_scores[0].probability))}%"></div></div><span class="prob">${pct(s.probability)}</span></div>`).join("");
   $("result").innerHTML=`${d.mode.startsWith('DEMO')?'<div class="alert warning">Attention : clubs, résultats et prédiction entièrement fictifs. Ne pas utiliser pour miser.</div>':''}
-  <div class="results-hero"><div><div class="team">${safe(d.home_team)}</div><div class="sub">Domicile</div></div><div><div class="score">${safe(best.score)}</div><div class="sub">Score le plus probable · ${pct(best.probability)}</div></div><div><div class="team">${safe(d.away_team)}</div><div class="sub">Extérieur</div></div></div>
+  <div class="results-hero"><div><div class="team">${safe(d.home_team)}</div><div class="sub">Domicile</div></div><div><div class="score">${shownScore}</div><div class="sub">${recommendationLabel}</div></div><div><div class="team">${safe(d.away_team)}</div><div class="sub">Extérieur</div></div></div>
   <div class="stats"><div class="stat"><div class="label">Buts attendus domicile</div><div class="number">${num(d.expected_home_goals,3)}</div></div><div class="stat"><div class="label">Buts attendus extérieur</div><div class="number">${num(d.expected_away_goals,3)}</div></div><div class="stat"><div class="label">Correction ρ</div><div class="number">${num(d.rho,4)}</div></div></div>
-  <h4>Top 5 des scores</h4>${bars}<h4>Probabilités 1 N 2</h4><div class="stats"><div class="stat"><div class="label">Victoire domicile</div><div class="number">${pct(d.one_x_two.home)}</div></div><div class="stat"><div class="label">Match nul</div><div class="number">${pct(d.one_x_two.draw)}</div></div><div class="stat"><div class="label">Victoire extérieur</div><div class="number">${pct(d.one_x_two.away)}</div></div></div>
+  ${signal.status==='abstain' ? `<div class="alert warning"><strong>Pas de pronostic exact unique :</strong> ${safe(signal.reason)} Le score ${safe(best.score)} reste mathématiquement premier, il n'est pas remplacé artificiellement.</div>` : `<div class="alert">Signal conditionnel : ${safe(signal.reason)}</div>`}
+  <h4>Top 5 des scores (classement probabiliste inchangé)</h4>${bars}<h4>Probabilités 1 N 2</h4><div class="stats"><div class="stat"><div class="label">Victoire domicile</div><div class="number">${pct(d.one_x_two.home)}</div></div><div class="stat"><div class="label">Match nul</div><div class="number">${pct(d.one_x_two.draw)}</div></div><div class="stat"><div class="label">Victoire extérieur</div><div class="number">${pct(d.one_x_two.away)}</div></div></div>
   <div class="fine">Modèle utilisé : <strong>${safe(d.model_selected==='poisson'?'Poisson indépendant (repli prudent)':'Dixon-Coles')}</strong> · ${safe(d.model_selection_calibration?'Choisi sur '+d.model_selection_calibration.validation_n+' matchs historiques, avant la prédiction.':'Aucune comparaison historique disponible.')}.</div>
   ${d.top_scores_nearly_tied?`<div class="alert warning">Score principal peu distinct : écart avec le deuxième score de ${num(d.score_top1_gap_percentage_points,2)} point de probabilité. Les autres scores restent plausibles.</div>`:''}
   <div class="fine">1–1 : ${pct(d.score_1_1_probability)} ; sans correction de rho : ${pct(d.score_1_1_without_rho)} ; effet de rho : ${num(d.rho_effect_on_p_1_1_percent,2)} %.</div>
@@ -95,13 +108,16 @@ function renderBacktest(r){
 async function loadHistory(){
   let rows=await api("/api/predictions");
   const outcome = x => {
-    if(x.correct!==null)return (x.correct?'✓':'✕')+' · '+safe(x.result_provenance||'provenance inconnue');
+    if(x.actual_score!==null){
+      if(x.recommended_score===null)return 'Abstention · '+safe(x.result_provenance||'provenance inconnue');
+      return (x.signal_correct?'✓':'✕')+' · '+safe(x.result_provenance||'provenance inconnue');
+    }
     if(x.prediction.source==='manual' && new Date(x.prediction.kickoff)<=new Date()){
       return `<div class="manual-score"><input class="final-home" type="number" min="0" max="99" placeholder="D" aria-label="Buts domicile"/><span>–</span><input class="final-away" type="number" min="0" max="99" placeholder="E" aria-label="Buts extérieur"/><button class="btn-ghost" data-final-id="${safe(x.prediction.match_id)}">Saisir</button></div>`;
     }
     return '—';
   };
-  $("history").innerHTML=rows.length?`<div class="tablewrap"><table><thead><tr><th>Date analyse</th><th>Match</th><th>Prédit</th><th>Prob.</th><th>Réel</th><th>Vérification</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${safe(when(x.created_at))}</td><td>${safe(x.prediction.home_team)} – ${safe(x.prediction.away_team)}</td><td>${safe(x.prediction.top_scores[0].score)}</td><td>${pct(x.prediction.top_scores[0].probability)}</td><td>${safe(x.actual_score??'En attente')}</td><td>${outcome(x)}</td></tr>`).join("")}</tbody></table></div>`:"<p class='help'>Aucune prédiction enregistrée.</p>";
+  $("history").innerHTML=rows.length?`<div class="tablewrap"><table><thead><tr><th>Date analyse</th><th>Match</th><th>Prédit</th><th>Prob.</th><th>Réel</th><th>Vérification</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${safe(when(x.created_at))}</td><td>${safe(x.prediction.home_team)} – ${safe(x.prediction.away_team)}</td><td>${safe(x.recommended_score || 'Aucun score unique')}${x.signal_status==='legacy_mode'?' (ancienne prédiction)':''}</td><td>${pct(x.prediction.top_scores[0].probability)}</td><td>${safe(x.actual_score??'En attente')}</td><td>${outcome(x)}</td></tr>`).join("")}</tbody></table></div>`:"<p class='help'>Aucune prédiction enregistrée.</p>";
   $("history").querySelectorAll("[data-final-id]").forEach(button=>button.addEventListener("click",async()=>{
     const row=button.closest('tr');
     const h=row.querySelector('.final-home').value;
@@ -131,6 +147,14 @@ document.addEventListener("DOMContentLoaded",()=>{
       min_scored:100,min_folds:3,regularization:0.15}});
     $("xiReport").textContent=`Valeur optimale ξ=${num(r.selected_xi,4)} · ${r.n_scored} scores réels sur ${r.n_folds} blocs · Log loss optimisée ${num(r.selected_mean_log_loss,4)} contre ${num(r.historical_mean_log_loss,4)} pour ξ=0,0065.`;
     await refreshXi();notice('Optimisation réelle terminée et enregistrée dans SQLite.');
+  }));
+  $('signalCalibrateBtn').addEventListener('click',()=>busy('signalCalibrateBtn',async()=>{
+    if(!currentCompetition)throw new Error('Sélectionner une compétition.');
+    const r=await api('/api/score-signal/calibrate',{method:'POST',body:{
+      competition:currentCompetition,eval_start:$('xiStart').value,eval_end:$('xiEnd').value,
+      min_games:400,min_team:5,min_scored:200,confidence_quantile:0.8,min_gap_percentage_points:1.0}});
+    notice('Filtre calibré sur '+r.n_scored+' matchs : recommandations Poisson '+r.models.poisson.n_signals+', Dixon-Coles '+r.models.dixon_coles.n_signals+'.');
+    await refreshXi();
   }));
   $("kickoff").value=new Date(Date.now()+86400000).toLocaleString("sv-SE").slice(0,16).replace(" ","T");
   $("competition").addEventListener("change",()=>busy("refreshBtn",loadCompetition));

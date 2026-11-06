@@ -12,6 +12,7 @@ from .store import Store
 from .sources import download_fd_season
 from .openfootball import download_openfootball_season, COMPETITION as OPENFOOTBALL_COMPETITION
 from .calibration import data_signature
+from .score_signal import assess_score_signal
 
 
 class ServiceError(ValueError):
@@ -67,6 +68,15 @@ def predict(store: Store, match_id: str, *, xi: float | None=None,
     model=fit(rows,as_of=clock,xi=used_xi,min_games=min_games,regularization=regularization,
               rho_fixed=0.0 if selected=='poisson' else None)
     result=forecast(model,target.home_id,target.away_id,neutral_venue=target.neutral_venue)
+    # A modal exact score (often 1-1) is NOT necessarily a strong single-score
+    # recommendation. Keep all mathematical probabilities intact, but abstain
+    # when prior out-of-time calibration does not justify a standalone signal.
+    signal_policy=store.latest_score_signal_calibration(target.competition)
+    if signal_policy is not None:
+        if (signal_policy['validation_end_exclusive'] > clock.date().isoformat()
+                or utc_datetime(signal_policy['generated_at']) > clock):
+            raise ServiceError('Filtre de confiance calibré dans le futur : prédiction refusée.')
+    result['exact_score_signal']=assess_score_signal(result,signal_policy,model=selected)
     result['model_selected']=selected
     result['model_selection_mode']=model_mode
     result['model_selection_calibration']=({

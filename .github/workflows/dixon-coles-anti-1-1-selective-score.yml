@@ -1,0 +1,65 @@
+name: Dixon-Coles - anti 1-1, filtre de confiance sur vrais matchs
+
+on:
+  push:
+    paths:
+      - 'dixon-coles/dcscore/score_signal.py'
+      - 'dixon-coles/scripts/calibrate_score_signals_2026.py'
+      - 'dixon-coles/tests/test_score_signal.py'
+      - '.github/workflows/dixon-coles-anti-1-1-selective-score.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  confidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: dixon-coles
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            dixon-coles
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer le programme et les outils de test
+        run: python -m pip install -e '.[test]'
+      - name: Vérifier que les probabilités ne sont pas manipulées
+        run: python -m pytest -q tests/test_score_signal.py
+      - name: Calibrer sur 2025-26 puis comparer octobre 2026 sans fuite temporelle
+        run: |
+          python scripts/calibrate_score_signals_2026.py \
+            --csv examples/pl_2026_10_results.csv \
+            --calibration-out dcscore/calibrations/eng-premier-league-score-signal.json \
+            --holdout-out results/backtest_october_2026_selective.json
+      - name: Contrôler la provenance et les décomptes
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.loads(Path('dcscore/calibrations/eng-premier-league-score-signal.json').read_text())
+          r=json.loads(Path('results/backtest_october_2026_selective.json').read_text())
+          assert c['n_scored']==374 and c['n_folds']==10 and c['no_future_leakage']
+          assert c['validation_end_exclusive']=='2026-06-01'
+          assert all(z['last_training_match']<z['start'] for z in c['folds'])
+          assert r['n_october']==38 and r['probabilities_unchanged']
+          assert r['calibration_validation_end']=='2026-06-01'
+          assert 'posthoc' in r['posthoc_disclaimer'].lower() or 'rétrospectif' in r['posthoc_disclaimer'].lower()
+          for name in ('dixon_coles','poisson'):
+            s=r['summary'][name]
+            assert s['single_score_recommendations']+s['abstentions']==38
+            assert s['recommended_1_1_count']<=s['mode_1_1_count']
+            assert c['models'][name]['n_eligible']==374
+          print('AUDIT FILTER VALIDATED',r['summary'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dixon-coles-anti-1-1-calibration
+          path: |
+            dixon-coles/dcscore/calibrations/eng-premier-league-score-signal.json
+            dixon-coles/results/backtest_october_2026_selective.json
