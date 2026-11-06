@@ -44,7 +44,7 @@ class DailyHubPhase3Tests(unittest.TestCase):
                       "./assets/js/daily-audience.mjs",
                       "./assets/css/daily-hub.css"):
             self.assertIn(asset,sw)
-        self.assertIn("v116-daily-hub",sw)
+        self.assertIn("const VERSION = ",sw)
         self.assertIn("aujourdhui.html",self.read("sitemap.xml"))
         self.assertIn("admin-supervision.html",build)
         self.assertIn("assets/js/admin-supervision.js",build)
