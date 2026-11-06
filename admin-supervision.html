@@ -98,6 +98,33 @@
         <div class="scroll"><table class="rows"><thead><tr><th>Minute UTC</th><th>Visites brutes</th><th>Identifiants</th></tr></thead><tbody id="v2-suspect-rows"></tbody></table></div>
       </details>
     </section>
+    <section id="pwa-install-funnel" class="panel" aria-labelledby="pwa-install-title" style="margin:14px 0">
+      <h2 id="pwa-install-title">Installation de l'application — phase 2</h2>
+      <p class="section-note">Parcours mesuré à compter de la mise en service. Les nombres correspondent à des identifiants de navigateur distincts, pas à des personnes ni à des installations vérifiées.</p>
+      <div class="metric-grid">
+        <div class="metric"><div class="name">CTA vus</div><div class="val" id="pwa-impressions">–</div><small>Bloc ou bouton visible à l'écran</small></div>
+        <div class="metric"><div class="name">Clics pour installer</div><div class="val" id="pwa-clicks">–</div><small>Comprend les demandes de guide manuel</small></div>
+        <div class="metric"><div class="name">Acceptations natives</div><div class="val" id="pwa-accepted">–</div><small>Ne confirme pas l'installation</small></div>
+        <div class="metric"><div class="name">Signal appinstalled</div><div class="val" id="pwa-appinstalled">–</div><small>Événement navigateur, non universel</small></div>
+        <div class="metric"><div class="name">Ouvertures en mode app</div><div class="val" id="pwa-standalone">–</div><small>Mesurées dans l'app ouverte</small></div>
+        <div class="metric"><div class="name">Guides affichés</div><div class="val" id="pwa-guides">–</div><small>iOS, Android, navigateur intégré</small></div>
+      </div>
+      <div class="double">
+        <div><h3>Par appareil</h3><div class="scroll"><table class="rows">
+          <thead><tr><th>Plateforme</th><th>CTA vus</th><th>Clics</th><th>Acceptés</th><th>Installés*</th><th>Mode app</th></tr></thead>
+          <tbody id="pwa-platformrows"></tbody>
+        </table></div></div>
+        <div><h3>Emplacement des boutons</h3><div class="scroll"><table class="rows">
+          <thead><tr><th>Emplacement</th><th>CTA vus</th><th>Clics</th><th>Guides</th></tr></thead>
+          <tbody id="pwa-surfacerows"></tbody>
+        </table></div></div>
+      </div>
+      <details style="margin-top:14px"><summary>Évolution quotidienne du parcours</summary><div class="scroll"><table class="rows">
+        <thead><tr><th>Jour UTC</th><th>CTA vus</th><th>Clics</th><th>Acceptés</th><th>Installés*</th><th>Mode app</th></tr></thead>
+        <tbody id="pwa-dailyrows"></tbody>
+      </table></div></details>
+      <p id="pwa-install-note" class="section-note">* L'événement « appinstalled » est un signal déclaré par le navigateur, principalement Chromium. Les ajouts iOS ne sont pas directement observables ; l'ouverture autonome est un signal distinct et les comptes entre navigateurs peuvent différer.</p>
+    </section>
     <details class="audit-disclosure"><summary>Comprendre les statistiques de visiteurs</summary><div id="analytics-audit">Les visites restent des identifiants de navigateur, pas des personnes confirmées. Les pics de tests identifiés sont exclus des statistiques estimées.</div></details>
     <section id="overview"><div class="section-head"><div><div class="section-kicker">01 / LES INDICATEURS</div><h2>Vue générale</h2></div><p>Suivi estimé, hors périodes suspectes de tests</p></div><div class="metric-grid" aria-live="polite">
       <div class="metric"><div class="metric-top"><div class="name">Erreurs navigateur</div><span class="metric-icon" aria-hidden="true">!</span></div><div class="val" id="errors-total">–</div><small id="errors-detail">Mesures anonymisées (échantillon)</small></div>
