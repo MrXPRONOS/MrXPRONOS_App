@@ -83,6 +83,8 @@ def main(argv=None):
     ap.add_argument("--registry",default="bsd_v3/artifacts/prediction_log.jsonl")
     ap.add_argument("--output",default="bsd_v3/artifacts/latest_shadow.json")
     args=ap.parse_args(argv)
+    if args.bookmaker!="consensus":
+        ap.error("BSD V3 is free-only; named BSD bookmaker subscriptions are disabled")
     if (not 1<=args.days<=3 or not 0<=args.max_odds_events<=100
             or not 1<=args.max_requests<=300 or not 50<=args.max_test_matches<=2000):
         ap.error("Invalid free-request bounds")
