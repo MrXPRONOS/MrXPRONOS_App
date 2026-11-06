@@ -130,12 +130,18 @@ def main(argv=None):
     quote_router=FreeMultiMarketOdds(client,bookmaker_slug=args.bookmaker,
                                      enable_public_board=args.free_public_board,
                                      policy=policy)
+    from .monitor import monitor
+    prospective=monitor(args.registry)
     result=run_shadow(fixtures,history,now=now,
                       quote_fetcher=quote_router if policy.max_odds_events else None,
-                      policy=policy,enable_challengers=args.challengers)
+                      policy=policy,enable_challengers=args.challengers,
+                      blocked_keys=frozenset(prospective["disabled_keys"]))
     result["diagnostics"]["bsd_api_http_calls"]=client.requests_made
     result["diagnostics"]["bsd_api_cache_hits"]=client.cache_hits
     result["diagnostics"]["quote_router"]=quote_router.stats
+    result["diagnostics"]["prospective_monitor_summary"]={
+        "settled_market_outcomes":prospective["market_outcomes"],
+        "disabled_keys":prospective["disabled_keys"]}
     fingerprint_body={key:value for key,value in result.items()
                       if key!="fingerprint_sha256"}
     result["fingerprint_sha256"]=hashlib.sha256(
