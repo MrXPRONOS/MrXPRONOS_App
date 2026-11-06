@@ -258,7 +258,7 @@ Voir le [rapport de correction et de validation](SIX_ISSUES_AUDIT.md).
    football-data.org avec jeton personnel. Chaque prédiction indique la date
    du dernier résultat, le nombre de données par provenance et un avertissement
    si la dernière rencontre connue a plus de 21 jours. Le workflow dédié
-   valide la chaîne réelle de téléchargement et exécute 160 backtests sur une
+   valide la chaîne réelle de téléchargement et exécute 500 backtests sur une
    base temporaire isolée. La fraîcheur dépend du fournisseur.
 4. **Backtest complet** : 1 à 3 000 rencontres, réentraînement avant chaque
    mois testé, modèle Poisson **entraîné indépendamment** avec `ρ=0`, mêmes
