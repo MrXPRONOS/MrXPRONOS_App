@@ -11,6 +11,8 @@ def retrospective(history,*,year=2026,max_matches=1500):
     index=V2History(history)
     rho,_=fit_rho_2024(index)
     cal=fit_calibration(index,rho)
+    from .goal_strength import fit_goal_strength
+    goal_model=fit_goal_strength(index,rho,calibration=cal)
     events=sorted((m for _,m in index.global_games if fixture_datetime(m).year==year),
                   key=lambda e:(fixture_datetime(e),str(e.get("id"))))[:max_matches]
     by_key=defaultdict(lambda:{"n":0,"wins":0,"baseline_brier":0.,"v3_brier":0.,
@@ -23,7 +25,9 @@ def retrospective(history,*,year=2026,max_matches=1500):
             continue
         base=score_matrix(features["home"],features["away"],rho)
         original=markets_from_matrix(base)
-        upgraded=markets_from_matrix(cal.apply(base))
+        v3goals=goal_model.apply(e,index,features)
+        upgraded=markets_from_matrix(cal.apply(
+            score_matrix(v3goals["home"],v3goals["away"],rho)))
         prove_coherence(upgraded)
         actual=outcome_scores(e)
         for a,b in zip(original,upgraded):
@@ -47,7 +51,9 @@ def retrospective(history,*,year=2026,max_matches=1500):
                       "v3_logloss":round(v["v3_logloss"]/n,6)}
     return {"format":"bsd-v3-retrospective-v1","year":year,"checked":len(events),
             "analyzed":total["analyzed"],"skipped":total["skipped"],
-            "v3_calibration":cal.metadata(),"markets":markets,"real_quote_roi":None,
+            "v3_calibration":cal.metadata(),
+            "v3_goal_strength":goal_model.metadata(),
+            "markets":markets,"real_quote_roi":None,
             "warning":"Retrospective analysis, not independent prospective proof. "
                       "This year may already have influenced design decisions. "
                       "No historic bookmaker snapshots; ROI intentionally unavailable."}
