@@ -208,6 +208,7 @@ class TestV3BTTSQualityGate(unittest.TestCase):
         from unittest.mock import patch
         from bsd_v3.btts_quality import BTTSQualityGate
         from bsd_v3.guardrails import family_guards
+        from bsd_v3.legacy import V2History
         gate=BTTSQualityGate(SimpleNamespace(),100)
         index=V2History([])
         event=match(700,NOW+timedelta(hours=2))
