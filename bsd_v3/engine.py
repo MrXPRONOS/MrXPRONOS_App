@@ -19,6 +19,8 @@ def train_runtime(history, *, calibration=True, challenger=False):
     index=V2History(clean)
     rho,rho_report=fit_rho_2024(index)
     cal=fit_calibration(index,rho) if calibration else None
+    from .goal_strength import fit_goal_strength
+    goal_model=fit_goal_strength(index,rho,calibration=cal)
     challenger_models={}
     challenger_info={}
     challenger_weights={}
@@ -27,9 +29,15 @@ def train_runtime(history, *, calibration=True, challenger=False):
         challenger_models,challenger_info=fit_models(index,rho)
         challenger_weights,gates=fit_gate(index,rho,challenger_models)
         challenger_info={"pretrained_2024":challenger_info,
-                         "gating_2025":gates,"active_weights":challenger_weights}
+                         "gating_2025":gates,"active_weights":dict(challenger_weights)}
+        if goal_model.alpha and any(challenger_weights.values()):
+            challenger_weights={family:0. for family in challenger_weights}
+            challenger_info["joint_activation_suppressed"]=(
+                "Both models passed separate gates; co-activation needs a joint "
+                "chronological validation before any combination.")
     return {"index":index,"rho":rho,"rho_validation":rho_report,
-            "calibration":cal,"challengers":challenger_models,
+            "calibration":cal,"goal_strength":goal_model,
+            "challengers":challenger_models,
             "challenger_weights":challenger_weights,
             "history_quality":history_quality,
             "challenger_training":challenger_info}
@@ -78,6 +86,10 @@ def evaluate_fixture(event,runtime,*,now,raw_quotes=None,quote_meta=None,
     if quality["level"]=="rejected":
         return {"event_id":str(event["id"]),"status":"rejected",
                 "reason":quality["reason"],"fixture_quality":quality}
+    baseline_goals={"home":expected["home"],"away":expected["away"]}
+    goal_model=runtime.get("goal_strength")
+    if goal_model is not None and goal_model.alpha:
+        expected=goal_model.apply(event,runtime["index"],expected)
     base=score_matrix(expected["home"],expected["away"],runtime["rho"])
     cal=runtime.get("calibration")
     score=cal.apply(base) if cal is not None else base
@@ -96,6 +108,8 @@ def evaluate_fixture(event,runtime,*,now,raw_quotes=None,quote_meta=None,
     return {"event_id":str(event["id"]),"kickoff_utc":kickoff.isoformat(),
             "generated_at_utc":now.isoformat(),"status":"analyzed",
             "fixture_quality":quality,"estimated_goals":expected,
+            "baseline_goals":baseline_goals,
+            "goal_strength_active":bool(goal_model and goal_model.alpha),
             "model":VERSION,"calibration_active":bool(cal and cal.active),
             "candidates":rows,"selections":decisions,
             "quote_diagnostics":{"provided":len(raw_quotes or {}),"accepted":len(verified),
@@ -142,6 +156,8 @@ def run_shadow(fixtures,history,*,now,quote_fetcher=None,
               "published":False,"no_site_write":True,"no_telegram":True,
               "model_status":"observation_unapproved",
               "calibration":runtime["calibration"].metadata() if runtime["calibration"] else None,
+              "goal_strength":runtime["goal_strength"].metadata()
+                  if runtime.get("goal_strength") is not None else None,
               "rho":runtime["rho"],"challenger_training":runtime["challenger_training"],
               "history_quality":runtime.get("history_quality"),
               "prospective_disabled_markets":sorted(blocked_keys),
