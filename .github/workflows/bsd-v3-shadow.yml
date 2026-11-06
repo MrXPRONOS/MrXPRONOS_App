@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'shadow, evaluate or settle; none publishes to site/Telegram'
+        description: 'shadow, evaluate, compare or settle; no public publication'
         required: true
         type: choice
         default: shadow
-        options: [shadow, evaluate, settle]
+        options: [shadow, evaluate, compare, settle]
       max_odds_events:
         description: 'Free BSD quote calls (0 to disable)'
         required: false
@@ -82,6 +82,14 @@ jobs:
       - name: Retrospective holdout diagnostics
         if: inputs.mode == 'evaluate'
         run: python -m bsd_v3.cli --mode evaluate --output bsd_v3/artifacts/evaluation.json
+      - name: Paired V2-vs-V3 retrospective comparison
+        if: inputs.mode == 'compare'
+        env:
+          CHALLENGERS: ${{ inputs.challenger_models }}
+        run: |
+          flags=""
+          if [ "$CHALLENGERS" = "true" ]; then flags="--challengers"; fi
+          python -m bsd_v3.cli --mode compare --max-test-matches 700 $flags --output bsd_v3/artifacts/comparison.json
       - name: Settle immutable V3 observations (no publication)
         if: inputs.mode == 'settle'
         env:
