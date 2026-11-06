@@ -8,7 +8,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from math import fsum
-from .legacy import estimate_goals, fixture_datetime, outcome_scores, realized
+from .legacy import estimate_goals, fixture_datetime, outcome_scores, realized, markets_from_matrix
 from .probabilities import coherent_candidates, normalized, tilt_result, tilt_event, prove_coherence
 
 @dataclass
@@ -23,7 +23,7 @@ class V3Calibration:
     def apply(self, matrix):
         if not self.active or not self.corrections:
             return normalized(matrix)
-        _matrix, base = matrix, __import__("bsd_v3.legacy", fromlist=["markets_from_matrix"]).markets_from_matrix(matrix)
+        base = markets_from_matrix(matrix)
         probs = {c.key: c.probability for c in base}
         target = [max(.0001, probs[k] + self.corrections.get(k, 0.))
                   for k in ("1", "X", "2")]
@@ -94,11 +94,9 @@ def fit_calibration(index, rho, *, train_limit=2500, validation_limit=1000,
         matrix, baseline = values
         h,a = outcome_scores(event)
         b = _brier(baseline,h,a)
-        candidate = __import__("bsd_v3.legacy", fromlist=["markets_from_matrix"]).markets_from_matrix(model.apply.__func__(model,matrix)
-                 if False else matrix)  # reference unchanged before validation
-        model.active = True
+         model.active = True
         try:
-            calibrated = __import__("bsd_v3.legacy", fromlist=["markets_from_matrix"]).markets_from_matrix(model.apply(matrix))
+            calibrated = markets_from_matrix(model.apply(matrix))
             prove_coherence(calibrated)
             c = _brier(calibrated,h,a)
         finally:
