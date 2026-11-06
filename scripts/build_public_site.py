@@ -23,7 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # internal content-generation prompts in the GitHub Pages artifact.
 PUBLIC_HTML = {
     "index.html", "pronos.html", "historique.html", "blog.html",
-    "confidentialite.html",
+    "confidentialite.html", "statistiques-installation.html",
     "bonus.html", "bookmakers.html", "conseils.html", "infos.html",
     "contact.html", "article.html", "conseil.html", "offline.html",
     "scores-exacts.html",
@@ -44,6 +44,7 @@ PUBLIC_JS = {
     # Browser push notifications and opt-in services currently use a
     # Supabase publishable (not privileged/service-role) key.
     "config.js", "scores-exacts.js", "pwa-telemetry.mjs",
+    "installation-analytics.mjs",
 }
 PUBLIC_CSS = {
     "style.css", "loading-ui.css", "home-premium.css",
