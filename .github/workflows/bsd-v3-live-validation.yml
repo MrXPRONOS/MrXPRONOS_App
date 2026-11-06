@@ -1,0 +1,121 @@
+name: BSD V3 - Real historical, free odds and prospective capture
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'bsd_v3/**'
+      - '.github/workflows/bsd-v3-live-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bsd-v3-real-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  research:
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'feat/bsd-v3-shadow-engine')
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+      BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install free Python dependencies
+        run: python -m pip install requests cryptography
+      - name: Check BSD keys are configured, not their values
+        run: |
+          if [ -z "${BSD_HISTORY_KEY:-}" ]; then echo 'BLOCKED: BSD_HISTORY_KEY missing'; exit 1; fi
+          if [ -z "${BSD_API_KEY:-}" ]; then echo 'BLOCKED: BSD_API_KEY missing'; exit 1; fi
+          echo 'BSD V3 private-data prerequisites present'
+      - name: Restore existing encrypted private match history
+        run: python bsd/bsd_archive.py restore
+      - name: Report historical dataset integrity (no raw data exported)
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from bsd_v3.quality import audit_history
+          history=json.loads(Path("bsd/all_matches_bsd.json").read_text())
+          clean,info=audit_history(history)
+          years={}
+          for e in clean:
+              year=str(e.get("event_date",""))[:4]
+              years[year]=years.get(year,0)+1
+          report={"format":"bsd-v3-history-real-validation-v1",
+                  "history_quality":info,"games_by_year":years}
+          Path("bsd_v3/artifacts").mkdir(parents=True,exist_ok=True)
+          Path("bsd_v3/artifacts/private_history_report.json").write_text(
+              json.dumps(report,indent=2),encoding="utf-8")
+          print("BSD_V3_REAL_HISTORY",json.dumps(report))
+          PY
+      - name: Compare V2 and V3 on actual private history
+        run: |
+          python -m bsd_v3.cli --mode compare --max-test-matches 100 --output bsd_v3/artifacts/real_compare.json
+      - name: Evaluate V3 on actual archived 2026 games
+        run: |
+          python -m bsd_v3.cli --mode evaluate --max-test-matches 100 --output bsd_v3/artifacts/real_evaluate.json
+      - name: Capture genuinely pre-match V3 observations and current free odds
+        run: |
+          python -m bsd_v3.cli --mode shadow --days 2 --max-requests 100 --max-odds-events 25 --free-public-board --output bsd_v3/artifacts/real_shadow.json
+      - name: Settle only genuinely completed observations if available
+        run: |
+          python -m bsd_v3.cli --mode settle --max-requests 40 --output bsd_v3/artifacts/real_settlement.json
+      - name: Summarize independent real-data evidence
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("bsd_v3/artifacts")
+          history=json.loads((p/"private_history_report.json").read_text())
+          comparison=json.loads((p/"real_compare.json").read_text())
+          forecast=json.loads((p/"real_shadow.json").read_text())
+          settle=json.loads((p/"real_settlement.json").read_text())
+          events=[m for m in forecast["matches"] if m.get("status")=="analyzed"]
+          quotes=sum(m.get("quote_diagnostics",{}).get("accepted",0) for m in events)
+          def values(key):
+              return sum(1 for e in events for row in e.get("candidates",[])
+                         if row.get("decision",{}).get(key))
+          report={"format":"bsd-v3-real-check-summary-v1",
+                  "historical_matches":history["history_quality"]["accepted"],
+                  "historical_by_year":history["games_by_year"],
+                  "v2_v3_paired_matches":comparison["coverage"].get("paired_fixtures",0),
+                  "forecast_games_analyzed":len(events),
+                  "candidate_markets":sum(len(e.get("candidates",[])) for e in events),
+                  "free_quotes_accepted":quotes,
+                  "pro_vip_shadow_candidates":values("pro_vip_shadow"),
+                  "value_shadow_candidates":values("value_shadow"),
+                  "bsd_api_requests":forecast["diagnostics"].get("bsd_api_http_calls"),
+                  "free_board_requests":forecast["diagnostics"].get("quote_router",{}).get("public_board_requests"),
+                  "new_real_settlements":settle.get("new_settlements",0),
+                  "note":"No real-money wager and no guaranteed accessible bookmaker price."}
+          (p/"real_summary.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
+          print("BSD_V3_REAL_SUMMARY",json.dumps(report))
+          PY
+      - name: Remove decrypted history (always)
+        if: always()
+        run: |
+          rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+      - name: Upload ONLY V3 research reports, never secret or decrypted archive
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bsd-v3-real-${{ github.run_id }}
+          path: |
+            bsd_v3/artifacts/private_history_report.json
+            bsd_v3/artifacts/real_compare.json
+            bsd_v3/artifacts/real_evaluate.json
+            bsd_v3/artifacts/real_shadow.json
+            bsd_v3/artifacts/real_settlement.json
+            bsd_v3/artifacts/real_summary.json
+            bsd_v3/artifacts/prediction_log.jsonl
+          retention-days: 90
+          if-no-files-found: error
