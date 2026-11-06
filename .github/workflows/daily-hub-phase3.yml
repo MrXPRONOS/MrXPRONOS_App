@@ -1,0 +1,43 @@
+name: Phase 3 Daily Hub validation
+on:
+  pull_request:
+    paths:
+      - 'aujourdhui.html'
+      - 'assets/js/daily-*.mjs'
+      - 'assets/css/daily-hub.css'
+      - 'index.html'
+      - 'assets/js/menu.js'
+      - 'manifest.json'
+      - 'service-worker.js'
+      - 'scripts/build_public_site.py'
+      - 'confidentialite.html'
+      - 'sitemap.xml'
+      - 'tests/daily-hub.test.mjs'
+      - 'tests/test_daily_hub_phase3.py'
+      - '.github/workflows/daily-hub-phase3.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'aujourdhui.html'
+      - 'assets/js/daily-*.mjs'
+      - 'tests/daily-hub.test.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-daily:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JavaScript syntax
+        run: |
+          node --check assets/js/daily-utils.mjs
+          node --check assets/js/daily-hub.mjs
+          node --check assets/js/daily-audience.mjs
+          node --check assets/js/menu.js
+          node --check service-worker.js
+          python -m py_compile scripts/build_public_site.py
+      - name: Unit-test real public feed calculations
+        run: node --test tests/daily-hub.test.mjs
+      - name: Validate public integration and privacy
+        run: python -m unittest discover -s tests -p 'test_daily_hub_phase3.py' -v
