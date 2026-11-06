@@ -1,0 +1,120 @@
+name: BSD V3 - Prospective observation and settlement
+
+on:
+  schedule:
+    - cron: '17 2,14 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: bsd-v3-prospective
+  cancel-in-progress: false
+
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+      BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install free dependencies
+        run: python -m pip install requests cryptography
+      - name: Verify BSD V3 offline before any private-data action
+        run: |
+          python -m compileall -q bsd_v3
+          python -m unittest discover -s bsd_v3 -p 'test_*.py' -v
+      - name: Restore latest immutable V3 registry
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p bsd_v3/artifacts
+          run_id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/bsd-v3-prospective.yml/runs?status=success&per_page=1" --jq '.workflow_runs[0].id // empty')
+          if test -n "$run_id"; then
+            gh run download "$run_id" --name "bsd-v3-prospective-$run_id" --dir bsd_v3/artifacts
+            echo "REGISTRY_SOURCE=prospective:$run_id"
+          else
+            seed_id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/bsd-v3-live-validation.yml/runs?status=success&per_page=1" --jq '.workflow_runs[0].id // empty')
+            if test -n "$seed_id"; then
+              gh run download "$seed_id" --name "bsd-v3-real-$seed_id" --dir bsd_v3/artifacts
+              echo "REGISTRY_SOURCE=real-validation:$seed_id"
+            else
+              echo "REGISTRY_SOURCE=empty"
+            fi
+          fi
+          if test -f bsd_v3/artifacts/prediction_log.jsonl; then
+            python -c 'from bsd_v3.registry import verify_registry; print("REGISTRY_ENTRIES",len(verify_registry("bsd_v3/artifacts/prediction_log.jsonl")))'
+          fi
+      - name: Restore encrypted BSD history
+        run: python bsd/bsd_archive.py restore
+      - name: Settle previous genuine pre-match observations
+        run: |
+          python -m bsd_v3.cli --mode settle --max-requests 60 --output bsd_v3/artifacts/latest_settlement.json
+      - name: Record next 48 hours of genuinely pre-match observations
+        run: |
+          python -m bsd_v3.cli --mode shadow --days 2 --max-requests 100 --max-odds-events 25 --free-public-board --output bsd_v3/artifacts/latest_shadow.json
+      - name: Produce prospective monitoring report
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from bsd_v3.monitor import monitor
+          p=Path("bsd_v3/artifacts")
+          report=monitor(p/"prediction_log.jsonl")
+          (p/"latest_monitor.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
+          settlement=json.loads((p/"latest_settlement.json").read_text())
+          shadow=json.loads((p/"latest_shadow.json").read_text())
+          summary={
+              "format":"bsd-v3-prospective-summary-v1",
+              "new_settlements":settlement.get("new_settlements",0),
+              "pending_forecasts":settlement.get("pending_forecasts",0),
+              "recorded_forecasts":report.get("forecasts",0),
+              "settled_market_outcomes":report.get("market_outcomes",0),
+              "disabled_keys":report.get("disabled_keys",[]),
+              "new_matches_analyzed":shadow.get("diagnostics",{}).get("analyzed",0),
+              "free_quotes_accepted":shadow.get("diagnostics",{}).get("quote_router",{}).get("accepted_quotes",0),
+              "named_bookmaker_quotes":sum(
+                  1 for m in shadow.get("matches",[]) for row in m.get("candidates",[])
+                  if (row.get("quote") or {}).get("named_bookmaker_quote") is True
+              ),
+              "public_publication":False,
+              "real_money_bets":False,
+          }
+          (p/"prospective_summary.json").write_text(json.dumps(summary,indent=2),encoding="utf-8")
+          print("BSD_V3_PROSPECTIVE_SUMMARY",json.dumps(summary))
+          PY
+      - name: Assert no public output
+        run: |
+          python - <<'PY'
+          import json
+          x=json.load(open("bsd_v3/artifacts/latest_shadow.json"))
+          assert x["published"] is False
+          assert x["no_site_write"] is True
+          assert x["no_telegram"] is True
+          print("BSD_V3_PROSPECTIVE_UNPUBLISHED")
+          PY
+      - name: Remove decrypted private history
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+      - name: Persist only research artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bsd-v3-prospective-${{ github.run_id }}
+          path: |
+            bsd_v3/artifacts/prediction_log.jsonl
+            bsd_v3/artifacts/latest_settlement.json
+            bsd_v3/artifacts/latest_shadow.json
+            bsd_v3/artifacts/latest_monitor.json
+            bsd_v3/artifacts/prospective_summary.json
+          retention-days: 90
+          if-no-files-found: error

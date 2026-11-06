@@ -1,0 +1,44 @@
+name: BSD V3 - isolated offline CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'bsd_v3/**'
+      - '.github/workflows/bsd-v3-ci.yml'
+      - '.github/workflows/bsd-v3-shadow.yml'
+      - '.github/workflows/bsd-v3-prospective.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bsd-v3-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install free dependencies
+        run: python -m pip install requests cryptography
+      - name: Validate Python syntax
+        run: python -m compileall -q bsd_v3
+      - name: Run isolated V3 tests
+        run: python -m unittest discover -s bsd_v3 -p 'test_*.py' -v
+      - name: Existing V2 baseline and odds regressions
+        run: |
+          python -m unittest discover -s bsd -p 'test_bsd_v2.py' -v
+          python -m unittest discover -s bsd -p 'test_bsd_v2_guardrails.py' -v
+          python -m unittest discover -s bsd -p 'test_odds_fallback.py' -v
+      - name: Verify V2 production paths untouched
+        run: |
+          test ! -e bsd_v3/data.json
+          test ! -e bsd_v3/publication_ledger.json
+          test ! -e bsd_v3/all_matches_bsd.json

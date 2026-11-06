@@ -1,0 +1,183 @@
+"""BSD V3 research engine: existing free BSD data, never public publishing."""
+from __future__ import annotations
+import hashlib
+import json
+from collections import Counter
+from .legacy import (V2History, estimate_goals, fixture_datetime, fit_rho_2024,
+                     markets_from_matrix, score_matrix)
+from .calibration import fit_calibration
+from .probabilities import prove_coherence
+from .policy import V3Policy, classify_fixture, utc_datetime
+from .quotes import validate_market_quotes
+from .selection import serialize_candidates, select_candidates
+
+VERSION = "bsd-v3-shadow-0.1"
+
+def train_runtime(history, *, calibration=True, challenger=False):
+    from .quality import audit_history
+    clean,history_quality=audit_history(history)
+    index=V2History(clean)
+    rho,rho_report=fit_rho_2024(index)
+    cal=fit_calibration(index,rho) if calibration else None
+    from .goal_strength import fit_goal_strength
+    goal_model=fit_goal_strength(index,rho,calibration=cal)
+    challenger_models={}
+    challenger_info={}
+    challenger_weights={}
+    if challenger:
+        from .ensemble import fit_models,fit_gate
+        challenger_models,challenger_info=fit_models(index,rho)
+        challenger_weights,gates=fit_gate(index,rho,challenger_models)
+        challenger_info={"pretrained_2024":challenger_info,
+                         "gating_2025":gates,"active_weights":dict(challenger_weights)}
+        if goal_model.alpha and any(challenger_weights.values()):
+            challenger_weights={family:0. for family in challenger_weights}
+            challenger_info["joint_activation_suppressed"]=(
+                "Both models passed separate gates; co-activation needs a joint "
+                "chronological validation before any combination.")
+    return {"index":index,"rho":rho,"rho_validation":rho_report,
+            "calibration":cal,"goal_strength":goal_model,
+            "challengers":challenger_models,
+            "challenger_weights":challenger_weights,
+            "history_quality":history_quality,
+            "challenger_training":challenger_info}
+
+def challenger_shadow(event,index,matrix,runtime):
+    models=runtime.get("challengers") or {}
+    if not models:
+        return {}
+    baseline=markets_from_matrix(matrix)
+    output={}
+    for name in ("goals","result","btts"):
+        model=models.get(name)
+        if model is None:
+            continue
+        try:
+            if name=="goals":
+                from bsd_v2_over_under import adjust_candidates
+                changed=adjust_candidates(event,index,baseline,model)
+            elif name=="result":
+                from bsd_v2_double_chance import adjust_candidates
+                changed=adjust_candidates(event,index,baseline,model)
+            else:
+                from bsd_v2_btts import btts_candidates
+                changed=btts_candidates(event,index,baseline,model)
+            valid_families=("result","double_chance") if name=="result" else (name,)
+            output[name]={c.key:round(c.probability,6) for c in changed if c.family in valid_families}
+        except (ValueError,TypeError,KeyError,ArithmeticError) as e:
+            output[name+"_error"]=type(e).__name__
+    return output
+
+def evaluate_fixture(event,runtime,*,now,raw_quotes=None,quote_meta=None,
+                     policy=V3Policy(),blocked_keys=frozenset()):
+    now=utc_datetime(now)
+    if not isinstance(event,dict) or event.get("id") is None:
+        return {"reason":"missing_id","status":"rejected"}
+    try:
+        kickoff=fixture_datetime(event)
+    except (TypeError,ValueError,OverflowError):
+        return {"event_id":str(event["id"]),"status":"rejected","reason":"invalid_kickoff"}
+    if str(event.get("status") or "").lower() not in ("notstarted","upcoming") or kickoff<=now:
+        return {"event_id":str(event["id"]),"status":"rejected","reason":"not_upcoming"}
+    expected,reason=estimate_goals(event,runtime["index"])
+    if expected is None:
+        return {"event_id":str(event["id"]),"status":"rejected","reason":reason}
+    quality=classify_fixture(expected,policy)
+    if quality["level"]=="rejected":
+        return {"event_id":str(event["id"]),"status":"rejected",
+                "reason":quality["reason"],"fixture_quality":quality}
+    baseline_goals={"home":expected["home"],"away":expected["away"]}
+    goal_model=runtime.get("goal_strength")
+    if goal_model is not None and goal_model.alpha:
+        expected=goal_model.apply(event,runtime["index"],expected)
+    base=score_matrix(expected["home"],expected["away"],runtime["rho"])
+    from .guardrails import family_guards
+    market_guards,guardrail_evidence=family_guards(
+        event,runtime["index"],base,runtime.get("challengers"))
+    cal=runtime.get("calibration")
+    score=cal.apply(base) if cal is not None else base
+    if runtime.get("challenger_weights") and any(runtime["challenger_weights"].values()):
+        from .ensemble import projected_matrix
+        score=projected_matrix(event,runtime["index"],score,
+                               runtime["challengers"],runtime["challenger_weights"])
+    candidates=markets_from_matrix(score)
+    prove_coherence(candidates)
+    verified,rejected=validate_market_quotes(raw_quotes or {},candidates,
+                                             now=now,kickoff=kickoff,policy=policy)
+    rows=serialize_candidates(candidates,expected,quality,verified,policy=policy,
+                              calibrator=cal,calibration_active=bool(cal and cal.active),
+                              blocked_keys=blocked_keys,market_guards=market_guards)
+    decisions=select_candidates(rows,score,policy)
+    return {"event_id":str(event["id"]),"kickoff_utc":kickoff.isoformat(),
+            "generated_at_utc":now.isoformat(),"status":"analyzed",
+            "fixture_quality":quality,"estimated_goals":expected,
+            "baseline_goals":baseline_goals,
+            "goal_strength_active":bool(goal_model and goal_model.alpha),
+            "market_guards":market_guards,
+            "market_guard_evidence":guardrail_evidence,
+            "model":VERSION,"calibration_active":bool(cal and cal.active),
+            "candidates":rows,"selections":decisions,
+            "quote_diagnostics":{"provided":len(raw_quotes or {}),"accepted":len(verified),
+                                 "rejected":rejected,"source":quote_meta or {}},
+            "challengers":challenger_shadow(event,runtime["index"],base,runtime),
+            "published":False,"experimental":True}
+
+def run_shadow(fixtures,history,*,now,quote_fetcher=None,
+               policy=V3Policy(),max_odds_events=None,
+               enable_challengers=False,blocked_keys=frozenset(),clock=None):
+    now=utc_datetime(now)
+    from .quality import clean_fixture_batch
+    clean_fixtures,fixture_integrity=clean_fixture_batch(fixtures,now=now)
+    runtime=train_runtime(history,challenger=enable_challengers)
+    used=0
+    results=[]
+    reasons=Counter()
+    max_events=policy.max_odds_events if max_odds_events is None else max_odds_events
+    if not 0<=max_events<=100:
+        raise ValueError("Invalid odds request cap")
+    for event in clean_fixtures:
+        event_now=utc_datetime(clock()) if clock is not None else now
+        quotes={}
+        quote_meta={}
+        provisional=evaluate_fixture(event,runtime,now=event_now,policy=policy,
+                                     blocked_keys=blocked_keys)
+        if provisional["status"]!="analyzed":
+            reasons[provisional["reason"]]+=1
+            results.append(provisional)
+            continue
+        if quote_fetcher and used<max_events:
+            used+=1
+            try:
+                quotes,quote_meta=quote_fetcher(event,event_now)
+            except (ValueError,RuntimeError,KeyError,TypeError) as exc:
+                quote_meta={"error":type(exc).__name__}
+                reasons["quote_fetch_error"]+=1
+        # Network calls and model calculations may cross kickoff. Recheck
+        # against the wall clock after the quote has actually returned.
+        final_now=utc_datetime(clock()) if clock is not None else event_now
+        analyzed=evaluate_fixture(event,runtime,now=final_now,raw_quotes=quotes,
+                                 quote_meta=quote_meta,policy=policy,
+                                 blocked_keys=blocked_keys)
+        if analyzed["status"]=="rejected":
+            reasons[analyzed["reason"]]+=1
+        else:
+            reasons["analyzed"]+=1
+        results.append(analyzed)
+    document={"format":"bsd-v3-shadow-v1","version":VERSION,
+              "generated_at_utc":now.isoformat(),"experimental":True,
+              "published":False,"no_site_write":True,"no_telegram":True,
+              "model_status":"observation_unapproved",
+              "calibration":runtime["calibration"].metadata() if runtime["calibration"] else None,
+              "goal_strength":runtime["goal_strength"].metadata()
+                  if runtime.get("goal_strength") is not None else None,
+              "rho":runtime["rho"],"challenger_training":runtime["challenger_training"],
+              "history_quality":runtime.get("history_quality"),
+              "prospective_disabled_markets":sorted(blocked_keys),
+              "fixture_integrity":fixture_integrity,
+              "diagnostics":{"fixtures_received":len(fixtures),
+                             "fixtures":len(clean_fixtures),"analyzed":reasons["analyzed"],
+                             "odds_events_queried":used,"outcomes":dict(reasons)},
+              "matches":results}
+    document["fingerprint_sha256"]=hashlib.sha256(
+        json.dumps(document,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode("utf-8")).hexdigest()
+    return document
