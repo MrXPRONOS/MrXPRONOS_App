@@ -101,8 +101,8 @@ def main():
             with page.expect_download() as download_info:
                 page.locator("#export").click()
             assert download_info.value.suggested_filename.endswith(".csv")
-            assert page.locator("body").evaluate(
-                "document.documentElement.scrollWidth <= window.innerWidth+3"
+            assert page.evaluate(
+                "() => document.documentElement.scrollWidth <= window.innerWidth + 3"
             ),"Horizontal page overflow at %d" % width
             ctx.close()
         browser.close()
