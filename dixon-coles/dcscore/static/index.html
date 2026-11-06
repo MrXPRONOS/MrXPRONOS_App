@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark"><title>Dixon-Coles | Analyse indépendante</title>
+<link rel="stylesheet" href="/assets/style.css"/>
+</head><body>
+<header class="top"><div class="wrap headline"><div class="brand"><div class="brand-icon">DC</div><div><h1>Dixon-Coles</h1><div class="tag">PRÉDICTION DE SCORES EXACTS · PROJET INDÉPENDANT</div></div></div><span class="status" id="status">Chargement...</span></div></header>
+<main class="wrap">
+<div class="intro"><h2>Un match. Une analyse. Des probabilités vérifiables.</h2><p>Modèle Dixon-Coles indépendant basé sur les résultats historiques, sans réutilisation d'anciens codes. Un score le plus probable n'est jamais garanti.</p></div>
+<div id="notice" role="status" aria-live="polite"></div>
+<section class="card"><div class="section-title"><span class="num">01</span><div><h3>Constituer l'historique</h3><p>Importer des résultats réels, utiliser une API ou charger une démonstration fictive.</p></div></div>
+<div class="columns"><div class="panel"><h4>API football-data.org v4</h4><div class="fields"><label>Code de championnat<input id="apiCode" value="PL" maxlength="8" placeholder="PL, FL1, PD, BL1..."></label><label>Saisons de début (séparées par virgules)<input id="apiSeasons" value="2024,2025,2026"></label></div><button id="syncBtn" class="btn-primary">Synchroniser les saisons</button><p class="help">Clé à définir côté serveur : <code>FOOTBALL_DATA_TOKEN</code>. Accès aux saisons selon ton abonnement.</p></div>
+<div class="panel"><h4>Importer tes résultats CSV</h4><label>Fichier CSV en UTF-8<input type="file" id="csvFile" accept=".csv,text/csv"></label><label>Compétition par défaut<input id="csvLeague" value="CUSTOM" placeholder="PL"></label><button id="importBtn" class="btn-secondary">Importer les résultats</button><p class="help">Colonnes : date, home_team, away_team, home_goals, away_goals, competition. Compatible aussi Date, HomeTeam, AwayTeam, FTHG, FTAG, Div.</p></div></div>
+<div class="demo"><div><strong>Mode démonstration</strong><div class="help">Crée des clubs et scores 100 % fictifs, pour tester le moteur sans clé.</div></div><button id="demoBtn" class="btn-ghost">Charger la démo</button></div>
+</section>
+<section class="card"><div class="section-title"><span class="num">02</span><div><h3>Choisir le match</h3><p>Un seul match précis est analysé à chaque lancement.</p></div></div>
+<div class="row-select"><label>Base de championnat<select id="competition"><option value="">Aucune compétition importée</option></select></label><button id="refreshBtn" class="btn-ghost">Actualiser</button></div>
+<div class="columns match-layout"><div class="panel"><div class="line"><h4>Rencontres à venir</h4><span class="mini" id="fixtureCount"></span></div><div id="fixtures" class="fixtures"><p class="help">Importe des données pour afficher les rencontres.</p></div></div>
+<div class="panel"><h4>Ou créer une rencontre à analyser</h4><label>Équipe à domicile<select id="homeTeam"><option value="">Choisir</option></select></label><label>Équipe à l'extérieur<select id="awayTeam"><option value="">Choisir</option></select></label><label>Date et heure du coup d'envoi (heure de ton appareil)<input type="datetime-local" id="kickoff"></label><button id="manualBtn" class="btn-secondary">Ajouter la rencontre</button><p class="help">Les équipes doivent déjà appartenir à un historique importé.</p></div></div>
+<div id="selectedMatch" class="selection">Aucun match sélectionné.</div>
+<div class="settings"><label>Décroissance ξ / demi-semaine<input type="number" id="xi" min="0" max="0.3" step="0.0005" value="0.0065"></label><label>Minimum de matchs historiques<input type="number" id="minGames" min="12" max="10000" value="80"></label><label>Minimum par équipe<input type="number" id="minTeam" min="1" max="100" value="5"></label><label>Régularisation<input type="number" id="reg" min="0" max="10" step="0.05" value="0.15"></label></div>
+<button id="predictBtn" class="btn-primary btn-wide" disabled>Analyser ce match</button>
+</section>
+<section class="card" id="resultSection" hidden><div class="section-title"><span class="num">03</span><div><h3>Résultat Dixon-Coles</h3><p>Probabilités avant match, calculées à partir du nouvel historique.</p></div></div><div id="result"></div></section>
+<section class="card"><div class="section-title"><span class="num">04</span><div><h3>Tester la méthode</h3><p>Backtest chronologique, sans utiliser les résultats futurs dans l'entraînement.</p></div></div><div class="bar"><label>Nombre de matchs évalués<input type="number" id="samples" value="12" min="1" max="30"></label><button id="backtestBtn" class="btn-secondary">Lancer le backtest</button></div><div id="backtest"></div></section>
+<section class="card"><div class="section-title"><span class="num">05</span><div><h3>Journal des prédictions</h3><p>Les analyses sont conservées en SQLite et comparées aux scores finaux lorsqu'ils sont disponibles. Les résultats saisis manuellement ne sont pas vérifiés par une API.</p></div></div><button id="historyBtn" class="btn-ghost">Actualiser l'historique</button><div id="history"></div></section>
+<footer>Conçu de zéro · Loi de Poisson corrigée par Dixon-Coles · 18+ · Analyse statistique, sans garantie de résultat.</footer>
+</main><script src="/assets/app.js" defer></script></body></html>
