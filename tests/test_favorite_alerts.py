@@ -16,7 +16,7 @@ class FavoriteAlertsAcceptance(unittest.TestCase):
         self.assertIn('activate.addEventListener("click"',front)
         self.assertIn('stop.addEventListener("click"',front)
         self.assertIn('Notification.requestPermission()',front)
-        self.assertIn('action:"save"',front)
+        self.assertIn('request("save",subscription',front)
         self.assertIn('new Event("mx-favorites-updated")',daily)
         self.assertIn('"./daily-favorite-alerts.mjs"',daily)
         self.assertIn('export async function disable',front)
