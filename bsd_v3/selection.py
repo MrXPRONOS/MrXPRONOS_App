@@ -61,7 +61,9 @@ def covariance_correlation(score_matrix, first, second):
 
 def select_candidates(rows, score_matrix, policy=V3Policy()):
     """No requirement to fill two places. Distinct families and capped correlation."""
-    reliable=sorted((r for r in rows if r["decision"]["pro_vip_shadow"]),
+    reliable=sorted((r for r in rows
+                     if r["decision"]["pro_vip_shadow"]
+                     and r.get("market_probability_lift",0)>0),
                     key=lambda r:(-r.get("market_signal_score",-999.),
                                   -r["conservative_probability"],r["key"]))
     value=sorted((r for r in rows if r["decision"]["value_shadow"]),
