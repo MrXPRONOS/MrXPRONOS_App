@@ -35,7 +35,7 @@ class FavoriteAlertsAcceptance(unittest.TestCase):
         self.assertIn('import { cleanFavorites, localClock, selectRelevant }',edge)
 
     def test_sql_private_schema_table_and_cron_scheduler(self):
-        sql=self.read("supabase/migrations/20261106223500_daily_favorite_alerts_v1.sql")
+        sql=self.read("supabase/migrations/20261106212424_daily_favorite_alerts_v1.sql")
         workflow=self.read(".github/workflows/daily-favorite-alerts.yml")
         self.assertIn("enable row level security",sql)
         self.assertIn("revoke all on public.daily_favorite_alerts_v1",sql)
