@@ -16,7 +16,7 @@ const STORAGE = {
 const state = {
   matches:[], news:[], exact:null, favorites: {teams:[],leagues:[]},
   filter:"all", diff:null, sourceOK:{data:false,news:false,exact:false},
-  loading:false, generatedAt:null
+  loading:false, generatedAt:null, previousWhen:null
 };
 const fmtTime = value => {
   const d=new Date(value);
@@ -374,8 +374,7 @@ function renderChanges(){
     $("daily-previous-visit").textContent="Première consultation";
     return;
   }
-  const baseline=safeRead(STORAGE.baseline);
-  $("daily-previous-visit").textContent=baseline?.when?"Après votre passage du "+fmtTime(baseline.when):"Comparaison locale";
+  $("daily-previous-visit").textContent=state.previousWhen?"Après votre passage du "+fmtTime(state.previousWhen):"Comparaison locale";
   const pairs=[
     [diff.newMatches,"Nouvelles sélections ajoutées au flux","match"],
     [diff.updatedMatches,"Matchs dont le statut ou le score a changé","match"],
@@ -449,7 +448,7 @@ function pushStatus(){
     return;
   }
   label.textContent="Autorisation actuelle du navigateur : "+(
-    Notification.permission==="granted"?"accordée":"Notification.permission"==="denied"?"refusée":"non demandée")+
+    Notification.permission==="granted"?"accordée":Notification.permission==="denied"?"refusée":"non demandée")+
     ". Les envois restent généraux et ne suivent pas vos favoris.";
 }
 async function optInPush(){
@@ -584,6 +583,7 @@ async function load(){
     if(!dataOK)current.matches=previous?.matches||{};
     if(!newsOK)current.news=previous?.news||[];
     state.diff=changesSince(previous,current,state.matches,state.news);
+    state.previousWhen=previous?.when || null;
     if(!sessionBaseline){
       try{sessionStorage.setItem(STORAGE.session,JSON.stringify(previous||{firstVisit:true}));}catch{}
       // Pas de baseline sur une requête entièrement échouée.
