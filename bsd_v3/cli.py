@@ -2,6 +2,7 @@
 from __future__ import annotations
 import argparse
 import json
+import hashlib
 from datetime import datetime,timedelta,timezone
 from pathlib import Path
 from .engine import run_shadow
@@ -65,13 +66,18 @@ def main(argv=None):
                       policy=policy,enable_challengers=args.challengers)
     result["diagnostics"]["bsd_api_http_calls"]=client.requests_made
     result["diagnostics"]["bsd_api_cache_hits"]=client.cache_hits
+    fingerprint_body={key:value for key,value in result.items()
+                      if key!="fingerprint_sha256"}
+    result["fingerprint_sha256"]=hashlib.sha256(
+        json.dumps(fingerprint_body,sort_keys=True,ensure_ascii=False).encode("utf-8")).hexdigest()
     atomic_json(args.output,result)
     from .registry import record_snapshot
-    result["diagnostics"]["immutable_records_created"]=record_snapshot(result)
+    records_created=record_snapshot(result)
     print("BSD_V3_SHADOW",json.dumps({"fixtures":len(fixtures),
                                      "analyzed":result["diagnostics"]["analyzed"],
                                      "http_calls":client.requests_made,
                                      "no_publication":True,
+                                     "records_created":records_created,
                                      "fingerprint":result["fingerprint_sha256"]}))
     return 0
 
