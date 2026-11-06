@@ -91,6 +91,9 @@ def evaluate_fixture(event,runtime,*,now,raw_quotes=None,quote_meta=None,
     if goal_model is not None and goal_model.alpha:
         expected=goal_model.apply(event,runtime["index"],expected)
     base=score_matrix(expected["home"],expected["away"],runtime["rho"])
+    from .guardrails import family_guards
+    market_guards,guardrail_evidence=family_guards(
+        event,runtime["index"],base,runtime.get("challengers"))
     cal=runtime.get("calibration")
     score=cal.apply(base) if cal is not None else base
     if runtime.get("challenger_weights") and any(runtime["challenger_weights"].values()):
@@ -103,13 +106,15 @@ def evaluate_fixture(event,runtime,*,now,raw_quotes=None,quote_meta=None,
                                              now=now,kickoff=kickoff,policy=policy)
     rows=serialize_candidates(candidates,expected,quality,verified,policy=policy,
                               calibrator=cal,calibration_active=bool(cal and cal.active),
-                              blocked_keys=blocked_keys)
+                              blocked_keys=blocked_keys,market_guards=market_guards)
     decisions=select_candidates(rows,score,policy)
     return {"event_id":str(event["id"]),"kickoff_utc":kickoff.isoformat(),
             "generated_at_utc":now.isoformat(),"status":"analyzed",
             "fixture_quality":quality,"estimated_goals":expected,
             "baseline_goals":baseline_goals,
             "goal_strength_active":bool(goal_model and goal_model.alpha),
+            "market_guards":market_guards,
+            "market_guard_evidence":guardrail_evidence,
             "model":VERSION,"calibration_active":bool(cal and cal.active),
             "candidates":rows,"selections":decisions,
             "quote_diagnostics":{"provided":len(raw_quotes or {}),"accepted":len(verified),
