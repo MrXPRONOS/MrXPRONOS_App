@@ -8,6 +8,8 @@ on:
       - 'assets/js/main.js'
       - 'assets/css/home-premium.css'
       - 'index.html'
+      - 'statistiques-installation.html'
+      - 'assets/js/installation-analytics.mjs'
       - 'admin-supervision.html'
       - 'assets/js/admin-supervision.js'
       - 'manifest.json'
@@ -37,6 +39,7 @@ jobs:
         run: |
           node --check assets/js/pwa.js
           node --check assets/js/pwa-telemetry.mjs
+          node --check assets/js/installation-analytics.mjs
           node --check assets/js/main.js
           node --check assets/js/admin-supervision.js
       - name: Validate PWA install integration
