@@ -53,13 +53,29 @@ class TestV3(unittest.TestCase):
         self.assertEqual(validate_quote(dict(raw,updated_at=(now-timedelta(hours=3)).isoformat()),
                                         now=now,kickoff=now+timedelta(hours=3))[1],"stale_quote")
 
-    def test_public_policy_79_percent(self):
-        row={"key":"1","family":"result","probability":.79,
-             "conservative_probability":.74}
+    def test_preferred_markets_have_specific_reliability_floors(self):
         quality={"level":"full","league_games":45,"recent_games":10,"venue_games":4}
-        self.assertFalse(public_candidate(row,quality))
-        row["conservative_probability"]=.78
-        self.assertTrue(public_candidate(row,quality))
+        home={"key":"1","family":"result","probability":.69,
+              "conservative_probability":.67}
+        self.assertFalse(public_candidate(home,quality))
+        home.update(probability=.70,conservative_probability=.68)
+        self.assertTrue(public_candidate(home,quality))
+        away={"key":"2","family":"result","probability":.70,
+              "conservative_probability":.68}
+        self.assertTrue(public_candidate(away,quality))
+        btts={"key":"BTTS_YES","family":"btts","probability":.70,
+              "conservative_probability":.68}
+        self.assertTrue(public_candidate(btts,quality))
+        over={"key":"OVER_15","family":"goals","probability":.82,
+              "conservative_probability":.80}
+        self.assertTrue(public_candidate(over,quality))
+        over["conservative_probability"]=.79
+        self.assertFalse(public_candidate(over,quality))
+        fallback={"key":"1X","family":"double_chance","probability":.79,
+                  "conservative_probability":.774}
+        self.assertFalse(public_candidate(fallback,quality))
+        fallback["conservative_probability"]=.775
+        self.assertTrue(public_candidate(fallback,quality))
 
     def test_two_selections_must_be_different_families(self):
         matrix,cs=coherent_candidates({"home":1.3,"away":1.1})
@@ -269,6 +285,31 @@ class TestV3(unittest.TestCase):
             self.assertEqual(report["by_market"]["1"]["n"],1)
             self.assertAlmostEqual(report["by_market"]["1"]["mean_predicted"],.81)
 
+
+
+    def test_reliability_circuit_does_not_require_a_quote_or_value(self):
+        quality={"level":"full","league_games":90,"recent_games":12,"venue_games":6}
+        row={"key":"1","family":"result","probability":.76,
+             "conservative_probability":.73}
+        decision=label_candidate(row,quality,None)
+        self.assertTrue(decision["pro_vip_shadow"])
+        self.assertFalse(decision["priced_reliability_shadow"])
+        self.assertFalse(decision["value_shadow"])
+        self.assertIsNone(decision["ev"])
+
+    def test_consensus_price_can_confirm_edge_but_value_stays_nonexecutable(self):
+        now=datetime(2026,11,6,12,tzinfo=UTC)
+        raw={"odds":1.60,"bookmaker":"consensus","origin":"bsd_consensus",
+             "captured_at":(now-timedelta(minutes=10)).isoformat(),
+             "updated_at":(now-timedelta(minutes=15)).isoformat()}
+        quote,_=validate_quote(raw,now=now,kickoff=now+timedelta(hours=3))
+        quality={"level":"full","league_games":90,"recent_games":12,"venue_games":6}
+        row={"key":"1","family":"result","probability":.76,
+             "conservative_probability":.73}
+        decision=label_candidate(row,quality,quote)
+        self.assertTrue(decision["pro_vip_shadow"])
+        self.assertTrue(decision["priced_reliability_shadow"])
+        self.assertFalse(decision["value_shadow"])
 
 if __name__=="__main__":
     unittest.main()
