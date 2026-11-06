@@ -62,11 +62,16 @@ def compare_all_markets(history, *, year=2026,max_matches=700,
     rho,_=fit_rho_2024(index)
     models,v2_cal,v2_policy,v2_diag=build_models(index,rho)
     v3_cal=fit_calibration(index,rho)
+    from .goal_strength import fit_goal_strength
+    goal_model=fit_goal_strength(index,rho,calibration=v3_cal)
     weights={}
     gates={}
     if challengers:
         from .ensemble import fit_gate
         weights,gates=fit_gate(index,rho,models)
+        if goal_model.alpha and any(weights.values()):
+            weights={key:0. for key in weights}
+            gates["joint_activation_suppressed"]=True
     events=sorted((e for _,e in index.global_games if fixture_datetime(e).year==year),
                   key=lambda e:(fixture_datetime(e),str(e.get("id"))))
     if len(events)>max_matches:
@@ -85,7 +90,9 @@ def compare_all_markets(history, *, year=2026,max_matches=700,
         kickoff=fixture_datetime(event)
         historical=dict(event,status="notstarted",home_score=None,away_score=None)
         base=score_matrix(expected["home"],expected["away"],rho)
-        v3_matrix=v3_cal.apply(base)
+        adjusted=goal_model.apply(event,index,expected)
+        v3_matrix=v3_cal.apply(
+            score_matrix(adjusted["home"],adjusted["away"],rho))
         if any(weights.values()):
             from .ensemble import projected_matrix
             v3_matrix=projected_matrix(event,index,v3_matrix,models,weights)
@@ -154,6 +161,7 @@ def compare_all_markets(history, *, year=2026,max_matches=700,
                 "v2":{k[1]:n for k,n in matched_picks.items() if k[0]=="v2"},
                 "v3":{k[1]:n for k,n in matched_picks.items() if k[0]=="v3"}},
             "v3_calibration":v3_cal.metadata(),
+            "v3_goal_strength":goal_model.metadata(),
             "v3_challenger_weights":weights,
             "v3_challenger_gates":gates,
             "v2_calibration":v2_diag,
