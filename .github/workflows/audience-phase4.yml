@@ -14,6 +14,7 @@ on:
       - 'supabase/migrations/*audience_analytics_phase4.sql'
       - 'tests/audience-attribution.test.mjs'
       - 'tests/test_audience_phase4.py'
+      - 'scripts/audience_phase4_browser_smoke.py'
       - '.github/workflows/audience-phase4.yml'
   push:
     branches: [main]
@@ -43,3 +44,22 @@ jobs:
         run: node --test tests/audience-attribution.test.mjs
       - name: Integration checks for private analytics
         run: python -m unittest discover -s tests -p 'test_audience_phase4.py' -v
+
+  browser-acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install supported Chromium Playwright
+        run: |
+          pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Start public site locally
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 > /tmp/audience-phase4-http.log 2>&1 &
+          sleep 2
+      - name: Verify admin gate, mobile layout, cohorts, tabs and CSV
+        run: python scripts/audience_phase4_browser_smoke.py
