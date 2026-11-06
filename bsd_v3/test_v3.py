@@ -216,7 +216,7 @@ class TestV3(unittest.TestCase):
             "OVER_15":{"rate":.70,"n":5000},
         }}
         rows=[]
-        for key,p in (("1",.80),("BTTS_YES",.82),("OVER_15",.88)):
+        for key,p in (("1",.80),("BTTS_YES",.86),("OVER_15",.88)):
             cand=by[key]
             row={"key":cand.key,"family":cand.family,"market":cand.market,
                  "line":cand.line,"probability":p,"conservative_probability":p,
