@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v116-daily-hub-20261106';
+const VERSION = 'v117-favorite-alerts-20261106';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -50,6 +50,7 @@ const STATIC_ASSETS = [
     './assets/js/daily-hub.mjs',
     './assets/js/daily-utils.mjs',
     './assets/js/daily-audience.mjs',
+    './assets/js/daily-favorite-alerts.mjs',
     './assets/js/pwa-telemetry.mjs',
     './assets/js/menu.js',
     './assets/js/scores-exacts.js',
