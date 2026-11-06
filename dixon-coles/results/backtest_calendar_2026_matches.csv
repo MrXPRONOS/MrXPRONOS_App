@@ -1,0 +1,276 @@
+date,month,match,actual,model_selected,dc_mode,dc_p,dc_top1_hit,poisson_mode,poisson_p,poisson_top1_hit,auto_recommended,auto_recommendation_hit,auto_mode_1_1,auto_log_loss
+2026-01-01,2026-01,Liverpool FC - Leeds United FC,0-0,poisson,2-1,0.087613,0,2-1,0.087653,0,,,0,3.868270
+2026-01-01,2026-01,Crystal Palace FC - Fulham FC,1-1,poisson,1-1,0.126339,1,1-1,0.124890,1,1-1,1,1,2.080323
+2026-01-01,2026-01,Brentford FC - Tottenham Hotspur FC,0-0,poisson,1-1,0.098992,0,1-1,0.097802,0,,,1,3.343659
+2026-01-01,2026-01,Sunderland AFC - Manchester City FC,0-0,poisson,0-1,0.149889,0,0-1,0.151435,0,0-1,0,0,2.181764
+2026-01-03,2026-01,Aston Villa FC - Nottingham Forest FC,3-1,poisson,1-1,0.111353,0,1-1,0.110000,0,,,1,2.837108
+2026-01-03,2026-01,Brighton & Hove Albion FC - Burnley FC,2-0,poisson,2-1,0.098641,0,2-1,0.098669,0,,,0,2.319887
+2026-01-03,2026-01,Wolverhampton Wanderers FC - West Ham United FC,3-0,poisson,1-1,0.121602,0,1-1,0.120087,0,,,1,3.593403
+2026-01-03,2026-01,AFC Bournemouth - Arsenal FC,2-3,poisson,0-1,0.111871,0,0-1,0.112979,0,,,0,3.543138
+2026-01-04,2026-01,Leeds United FC - Manchester United FC,1-1,poisson,1-1,0.105368,1,1-1,0.104173,1,,,1,2.261707
+2026-01-04,2026-01,Newcastle United FC - Crystal Palace FC,2-0,poisson,1-1,0.117527,0,1-1,0.116268,0,,,1,2.423329
+2026-01-04,2026-01,Everton FC - Brentford FC,2-4,poisson,1-1,0.133864,0,1-1,0.132327,0,1-1,0,1,5.301057
+2026-01-04,2026-01,Tottenham Hotspur FC - Sunderland AFC,1-1,poisson,1-1,0.134006,1,1-1,0.132426,1,1-1,1,1,2.021729
+2026-01-04,2026-01,Fulham FC - Liverpool FC,2-2,poisson,1-1,0.103915,0,1-1,0.102627,0,,,1,2.782168
+2026-01-04,2026-01,Manchester City FC - Chelsea FC,1-1,poisson,1-1,0.099639,1,2-1,0.099508,0,,,0,2.317799
+2026-01-06,2026-01,West Ham United FC - Nottingham Forest FC,1-2,poisson,1-1,0.122185,0,1-1,0.120657,0,,,1,2.500078
+2026-01-07,2026-01,AFC Bournemouth - Tottenham Hotspur FC,3-2,poisson,1-1,0.101511,0,1-1,0.100260,0,,,1,3.264948
+2026-01-07,2026-01,Fulham FC - Chelsea FC,2-1,poisson,1-1,0.119323,0,1-1,0.117931,0,,,1,2.564149
+2026-01-07,2026-01,Brentford FC - Sunderland AFC,3-0,poisson,1-1,0.135611,0,1-1,0.134047,0,,,1,3.575015
+2026-01-07,2026-01,Manchester City FC - Brighton & Hove Albion FC,1-1,poisson,2-0,0.096164,0,2-0,0.096274,0,,,0,2.550638
+2026-01-07,2026-01,Crystal Palace FC - Aston Villa FC,0-0,poisson,1-1,0.127247,0,1-1,0.125816,0,1-1,0,1,2.589221
+2026-01-07,2026-01,Everton FC - Wolverhampton Wanderers FC,1-1,poisson,1-0,0.156220,0,1-0,0.157527,0,1-0,0,0,2.085493
+2026-01-07,2026-01,Newcastle United FC - Leeds United FC,4-3,poisson,2-1,0.095585,0,2-1,0.095635,0,,,0,4.609705
+2026-01-07,2026-01,Burnley FC - Manchester United FC,2-2,poisson,1-1,0.114263,0,1-1,0.112916,0,,,1,2.888562
+2026-01-08,2026-01,Arsenal FC - Liverpool FC,0-0,poisson,1-1,0.111638,0,1-1,0.110268,0,,,1,2.856603
+2026-01-17,2026-01,Manchester United FC - Manchester City FC,2-0,poisson,1-1,0.100334,0,1-2,0.099267,0,,,0,3.621604
+2026-01-17,2026-01,Liverpool FC - Burnley FC,1-1,poisson,2-0,0.103970,0,2-0,0.103914,0,,,0,2.801499
+2026-01-17,2026-01,Chelsea FC - Brentford FC,2-0,poisson,1-1,0.108495,0,1-1,0.107341,0,,,1,2.535479
+2026-01-17,2026-01,Tottenham Hotspur FC - West Ham United FC,1-2,poisson,2-1,0.096864,0,2-1,0.096824,0,,,0,2.881811
+2026-01-17,2026-01,Leeds United FC - Fulham FC,1-0,poisson,1-1,0.106422,0,1-1,0.105195,0,,,1,2.751709
+2026-01-17,2026-01,Sunderland AFC - Crystal Palace FC,2-1,poisson,1-0,0.163756,0,1-0,0.165397,0,1-0,0,0,2.638532
+2026-01-17,2026-01,Nottingham Forest FC - Arsenal FC,0-0,poisson,0-1,0.133234,0,0-1,0.134169,0,0-1,0,0,2.605305
+2026-01-18,2026-01,Wolverhampton Wanderers FC - Newcastle United FC,0-0,poisson,1-1,0.106146,0,1-1,0.104895,0,,,1,2.941405
+2026-01-18,2026-01,Aston Villa FC - Everton FC,0-1,poisson,1-0,0.142042,0,1-0,0.143477,0,1-0,0,0,2.424076
+2026-01-19,2026-01,Brighton & Hove Albion FC - AFC Bournemouth,1-1,poisson,1-1,0.102819,1,1-1,0.101767,1,,,1,2.285071
+2026-01-24,2026-01,West Ham United FC - Sunderland AFC,3-1,poisson,0-1,0.142879,0,0-1,0.144358,0,0-1,0,0,4.001668
+2026-01-24,2026-01,Fulham FC - Brighton & Hove Albion FC,2-1,poisson,1-1,0.111989,0,1-1,0.110742,0,,,1,2.436679
+2026-01-24,2026-01,Manchester City FC - Wolverhampton Wanderers FC,2-0,poisson,2-0,0.119185,1,2-0,0.119029,1,,,0,2.128390
+2026-01-24,2026-01,Burnley FC - Tottenham Hotspur FC,2-2,poisson,1-1,0.101588,0,1-1,0.100327,0,,,1,2.806567
+2026-01-24,2026-01,AFC Bournemouth - Liverpool FC,3-2,poisson,1-1,0.096584,0,1-2,0.095557,0,,,0,3.592036
+2026-01-25,2026-01,Brentford FC - Nottingham Forest FC,0-2,poisson,1-1,0.112504,0,1-1,0.111147,0,,,1,3.308755
+2026-01-25,2026-01,Crystal Palace FC - Chelsea FC,1-3,poisson,1-1,0.128367,0,1-1,0.126958,0,1-1,0,1,3.275361
+2026-01-25,2026-01,Newcastle United FC - Aston Villa FC,0-2,poisson,1-1,0.111185,0,1-1,0.109914,0,,,1,3.128451
+2026-01-25,2026-01,Arsenal FC - Manchester United FC,2-3,poisson,2-0,0.124761,0,2-0,0.124606,0,,,0,4.646399
+2026-01-26,2026-01,Everton FC - Leeds United FC,1-1,poisson,1-1,0.126250,1,1-1,0.124834,1,,,1,2.080774
+2026-01-31,2026-01,Leeds United FC - Arsenal FC,0-4,poisson,0-2,0.109947,0,0-2,0.109905,0,,,0,3.063958
+2026-01-31,2026-01,Brighton & Hove Albion FC - Everton FC,1-1,poisson,1-1,0.129010,1,1-0,0.128898,0,,,0,2.059193
+2026-01-31,2026-01,Wolverhampton Wanderers FC - AFC Bournemouth,0-2,poisson,1-1,0.117431,0,1-1,0.116023,0,,,1,2.607471
+2026-01-31,2026-01,Chelsea FC - West Ham United FC,3-2,poisson,2-0,0.101708,0,2-0,0.101669,0,,,0,3.370955
+2026-01-31,2026-01,Liverpool FC - Newcastle United FC,4-1,poisson,1-1,0.096827,0,1-1,0.095754,0,,,1,3.451402
+2026-02-01,2026-02,Manchester United FC - Fulham FC,3-2,poisson,1-1,0.124382,0,1-1,0.114514,0,,,1,3.452273
+2026-02-01,2026-02,Nottingham Forest FC - Crystal Palace FC,1-1,poisson,1-1,0.140959,1,1-1,0.130750,1,1-1,1,1,2.034470
+2026-02-01,2026-02,Aston Villa FC - Brentford FC,0-1,poisson,1-1,0.117421,0,1-1,0.109237,0,,,1,2.768241
+2026-02-01,2026-02,Tottenham Hotspur FC - Manchester City FC,2-2,poisson,1-1,0.102259,0,1-2,0.097877,0,,,0,2.843829
+2026-02-02,2026-02,Sunderland AFC - Burnley FC,3-0,poisson,1-0,0.149109,0,1-0,0.159036,0,1-0,0,0,2.877785
+2026-02-06,2026-02,Leeds United FC - Nottingham Forest FC,3-1,poisson,1-1,0.125864,0,1-1,0.116730,0,,,1,3.189465
+2026-02-07,2026-02,Manchester United FC - Tottenham Hotspur FC,2-0,poisson,1-1,0.111482,0,1-1,0.102610,0,,,1,2.766692
+2026-02-07,2026-02,Burnley FC - West Ham United FC,0-2,poisson,1-1,0.123297,0,1-1,0.113932,0,,,1,2.837227
+2026-02-07,2026-02,Fulham FC - Everton FC,1-2,poisson,1-1,0.141566,0,1-0,0.136269,0,,,0,2.766200
+2026-02-07,2026-02,Wolverhampton Wanderers FC - Chelsea FC,1-3,poisson,1-1,0.118130,0,0-1,0.114465,0,,,0,2.831811
+2026-02-07,2026-02,AFC Bournemouth - Aston Villa FC,1-1,poisson,1-1,0.119888,1,1-1,0.111018,1,,,1,2.198063
+2026-02-07,2026-02,Arsenal FC - Sunderland AFC,3-0,poisson,1-0,0.172787,0,1-0,0.181618,0,1-0,0,0,2.564596
+2026-02-07,2026-02,Newcastle United FC - Brentford FC,2-3,poisson,1-1,0.109596,0,1-1,0.102374,0,,,1,3.554359
+2026-02-08,2026-02,Brighton & Hove Albion FC - Crystal Palace FC,0-1,poisson,1-1,0.129344,0,1-1,0.120767,0,,,1,2.536649
+2026-02-08,2026-02,Liverpool FC - Manchester City FC,1-2,poisson,1-1,0.118301,0,1-1,0.109748,0,,,1,2.434684
+2026-02-10,2026-02,Tottenham Hotspur FC - Newcastle United FC,1-2,poisson,1-1,0.107553,0,1-1,0.099669,0,,,1,2.483461
+2026-02-10,2026-02,Everton FC - AFC Bournemouth,1-2,poisson,1-1,0.140835,0,1-1,0.130497,0,1-1,0,1,2.592356
+2026-02-10,2026-02,Chelsea FC - Leeds United FC,2-2,poisson,2-1,0.097869,0,2-1,0.098038,0,,,0,2.973936
+2026-02-10,2026-02,West Ham United FC - Manchester United FC,1-1,poisson,1-1,0.117855,1,1-1,0.108580,1,,,1,2.220268
+2026-02-11,2026-02,Aston Villa FC - Brighton & Hove Albion FC,1-0,poisson,1-1,0.118028,0,1-1,0.109863,0,,,1,2.420044
+2026-02-11,2026-02,Manchester City FC - Fulham FC,3-0,poisson,2-0,0.111026,0,2-0,0.110249,0,,,0,2.497630
+2026-02-11,2026-02,Nottingham Forest FC - Wolverhampton Wanderers FC,0-0,poisson,1-1,0.128684,0,1-0,0.125719,0,,,0,2.539184
+2026-02-11,2026-02,Crystal Palace FC - Burnley FC,2-3,poisson,1-1,0.121168,0,1-0,0.123951,0,1-0,0,0,4.312227
+2026-02-11,2026-02,Sunderland AFC - Liverpool FC,0-1,poisson,1-1,0.138074,0,0-1,0.132154,1,,,0,2.023790
+2026-02-12,2026-02,Brentford FC - Arsenal FC,1-1,poisson,1-1,0.118842,1,1-1,0.110512,1,,,1,2.202628
+2026-02-18,2026-02,Wolverhampton Wanderers FC - Arsenal FC,2-2,poisson,0-2,0.138692,0,0-2,0.138007,0,,,0,3.466978
+2026-02-21,2026-02,Brentford FC - Brighton & Hove Albion FC,0-2,poisson,1-1,0.113730,0,1-1,0.106376,0,,,1,3.120109
+2026-02-21,2026-02,Aston Villa FC - Leeds United FC,1-1,poisson,1-1,0.099530,1,2-1,0.098839,0,,,0,2.378866
+2026-02-21,2026-02,Chelsea FC - Burnley FC,1-1,poisson,2-0,0.114127,0,2-0,0.113972,0,,,0,2.482176
+2026-02-21,2026-02,West Ham United FC - AFC Bournemouth,0-0,poisson,1-1,0.111683,0,1-1,0.103184,0,,,1,3.222398
+2026-02-21,2026-02,Manchester City FC - Newcastle United FC,2-1,poisson,1-1,0.099814,0,2-1,0.099044,1,,,0,2.312189
+2026-02-22,2026-02,Sunderland AFC - Fulham FC,1-3,poisson,1-1,0.144489,0,1-0,0.136138,0,,,0,3.832665
+2026-02-22,2026-02,Crystal Palace FC - Wolverhampton Wanderers FC,1-0,poisson,1-1,0.127130,0,1-0,0.135833,1,1-0,1,0,1.996329
+2026-02-22,2026-02,Nottingham Forest FC - Liverpool FC,0-1,poisson,1-1,0.118029,0,1-1,0.109109,0,,,1,2.350179
+2026-02-22,2026-02,Tottenham Hotspur FC - Arsenal FC,1-4,poisson,1-1,0.111583,0,1-1,0.103226,0,,,1,3.483643
+2026-02-23,2026-02,Everton FC - Manchester United FC,0-1,poisson,1-1,0.143742,0,1-1,0.133095,0,1-1,0,1,2.143667
+2026-02-27,2026-02,Wolverhampton Wanderers FC - Aston Villa FC,2-0,poisson,1-1,0.123337,0,0-1,0.115012,0,,,0,3.402229
+2026-02-28,2026-02,AFC Bournemouth - Sunderland AFC,1-1,poisson,1-1,0.141793,1,1-1,0.131593,1,,,1,2.028044
+2026-02-28,2026-02,Newcastle United FC - Everton FC,2-3,poisson,1-1,0.131888,0,1-0,0.133480,0,1-0,0,0,4.351522
+2026-02-28,2026-02,Burnley FC - Brentford FC,3-4,poisson,1-1,0.115429,0,1-1,0.107403,0,,,1,5.075513
+2026-02-28,2026-02,Liverpool FC - West Ham United FC,5-2,poisson,2-0,0.092798,0,2-0,0.092456,0,,,0,4.292956
+2026-02-28,2026-02,Leeds United FC - Manchester City FC,0-1,poisson,1-2,0.096862,0,0-2,0.096969,0,,,0,2.492840
+2026-03-01,2026-03,Brighton & Hove Albion FC - Nottingham Forest FC,2-1,poisson,1-1,0.127624,0,1-1,0.118465,0,,,1,2.355051
+2026-03-01,2026-03,Manchester United FC - Crystal Palace FC,2-1,poisson,1-1,0.133014,0,1-1,0.123504,0,1-1,0,1,2.394423
+2026-03-01,2026-03,Fulham FC - Tottenham Hotspur FC,2-1,poisson,1-1,0.110247,0,1-1,0.101569,0,,,1,2.417705
+2026-03-01,2026-03,Arsenal FC - Chelsea FC,2-1,poisson,1-1,0.115532,0,1-0,0.115060,0,,,0,2.316121
+2026-03-03,2026-03,Leeds United FC - Sunderland AFC,0-1,poisson,1-1,0.141250,0,1-1,0.131462,0,1-1,0,1,2.226967
+2026-03-03,2026-03,Everton FC - Burnley FC,2-0,poisson,1-1,0.128704,0,1-0,0.135045,0,1-0,0,0,2.249397
+2026-03-03,2026-03,AFC Bournemouth - Brentford FC,0-0,poisson,1-1,0.112940,0,1-1,0.105476,0,,,1,3.169815
+2026-03-03,2026-03,Wolverhampton Wanderers FC - Liverpool FC,2-1,poisson,0-2,0.105448,0,0-2,0.104940,0,,,0,3.094905
+2026-03-04,2026-03,Aston Villa FC - Chelsea FC,1-4,poisson,1-1,0.131193,0,1-1,0.121752,0,,,1,4.423841
+2026-03-04,2026-03,Brighton & Hove Albion FC - Arsenal FC,0-1,poisson,1-1,0.118862,0,0-1,0.112779,1,,,0,2.182321
+2026-03-04,2026-03,Fulham FC - West Ham United FC,0-1,poisson,1-1,0.110781,0,1-1,0.102377,0,,,1,2.920698
+2026-03-04,2026-03,Manchester City FC - Nottingham Forest FC,2-2,poisson,2-0,0.129645,0,2-0,0.129100,0,2-0,0,0,3.369776
+2026-03-04,2026-03,Newcastle United FC - Manchester United FC,2-1,poisson,1-1,0.113834,0,1-1,0.105668,0,,,1,2.374078
+2026-03-05,2026-03,Tottenham Hotspur FC - Crystal Palace FC,1-3,poisson,1-1,0.125989,0,1-1,0.117013,0,,,1,3.444007
+2026-03-14,2026-03,Burnley FC - AFC Bournemouth,0-0,poisson,1-1,0.112689,0,1-1,0.104993,0,,,1,3.112274
+2026-03-14,2026-03,Sunderland AFC - Brighton & Hove Albion FC,0-1,poisson,1-1,0.143713,0,1-1,0.133671,0,1-1,0,1,2.115850
+2026-03-14,2026-03,Chelsea FC - Newcastle United FC,0-1,poisson,1-1,0.112934,0,1-1,0.105469,0,,,1,2.823149
+2026-03-14,2026-03,Arsenal FC - Everton FC,2-0,poisson,1-0,0.155233,0,1-0,0.161959,0,1-0,0,0,1.925163
+2026-03-14,2026-03,West Ham United FC - Manchester City FC,1-1,poisson,0-2,0.105495,0,0-2,0.105157,0,,,0,2.474731
+2026-03-15,2026-03,Nottingham Forest FC - Fulham FC,0-0,poisson,1-1,0.134177,0,1-1,0.124079,0,1-1,0,1,2.648492
+2026-03-15,2026-03,Crystal Palace FC - Leeds United FC,0-0,poisson,1-1,0.127243,0,1-1,0.118766,0,,,1,2.729400
+2026-03-15,2026-03,Manchester United FC - Aston Villa FC,3-1,poisson,1-1,0.131379,0,1-1,0.121509,0,,,1,3.216837
+2026-03-15,2026-03,Liverpool FC - Tottenham Hotspur FC,1-1,poisson,2-1,0.094446,0,2-1,0.094345,0,,,0,2.540298
+2026-03-16,2026-03,Brentford FC - Wolverhampton Wanderers FC,2-2,poisson,1-1,0.108909,0,1-0,0.103632,0,,,0,3.023513
+2026-03-20,2026-03,AFC Bournemouth - Manchester United FC,2-2,poisson,1-1,0.120553,0,1-1,0.111875,0,,,1,2.764974
+2026-03-21,2026-03,Brighton & Hove Albion FC - Liverpool FC,2-1,poisson,1-1,0.112931,0,1-1,0.105379,0,,,1,2.642369
+2026-03-21,2026-03,Fulham FC - Burnley FC,3-1,poisson,1-1,0.103264,0,2-1,0.099102,0,,,0,2.680375
+2026-03-21,2026-03,Everton FC - Chelsea FC,3-0,poisson,1-1,0.140367,0,1-1,0.130385,0,,,1,4.061365
+2026-03-21,2026-03,Leeds United FC - Brentford FC,0-0,poisson,1-1,0.109868,0,1-1,0.102741,0,,,1,3.231224
+2026-03-22,2026-03,Newcastle United FC - Sunderland AFC,1-2,poisson,1-1,0.132530,0,1-0,0.129903,0,,,0,2.838476
+2026-03-22,2026-03,Tottenham Hotspur FC - Nottingham Forest FC,0-3,poisson,1-1,0.121479,0,1-1,0.112167,0,,,1,4.088352
+2026-03-22,2026-03,Aston Villa FC - West Ham United FC,2-0,poisson,1-1,0.109516,0,1-1,0.101619,0,,,1,2.330296
+2026-04-10,2026-04,West Ham United FC - Wolverhampton Wanderers FC,4-0,poisson,1-1,0.129357,0,1-1,0.118915,0,,,1,4.150915
+2026-04-11,2026-04,Arsenal FC - AFC Bournemouth,1-2,poisson,2-0,0.122558,0,2-0,0.122823,0,,,0,3.385608
+2026-04-11,2026-04,Brentford FC - Everton FC,2-2,poisson,1-1,0.138445,0,1-1,0.127754,0,,,1,3.095656
+2026-04-11,2026-04,Burnley FC - Brighton & Hove Albion FC,0-2,poisson,1-1,0.115670,0,1-1,0.107120,0,,,1,2.429957
+2026-04-11,2026-04,Liverpool FC - Fulham FC,2-0,poisson,1-1,0.101418,0,2-1,0.098627,0,,,0,2.428287
+2026-04-12,2026-04,Nottingham Forest FC - Aston Villa FC,1-1,poisson,1-1,0.138359,1,1-1,0.127287,1,1-1,1,1,2.061311
+2026-04-12,2026-04,Sunderland AFC - Tottenham Hotspur FC,1-0,poisson,1-1,0.140423,0,1-1,0.129198,0,1-1,0,1,2.145404
+2026-04-12,2026-04,Crystal Palace FC - Newcastle United FC,2-1,poisson,1-1,0.131699,0,1-1,0.121941,0,,,1,2.525581
+2026-04-12,2026-04,Chelsea FC - Manchester City FC,0-3,poisson,1-1,0.122266,0,1-1,0.112644,0,,,1,3.162991
+2026-04-13,2026-04,Manchester United FC - Leeds United FC,1-2,poisson,1-1,0.114885,0,1-1,0.106243,0,,,1,2.811834
+2026-04-18,2026-04,Brentford FC - Fulham FC,0-0,poisson,1-1,0.119808,0,1-1,0.110724,0,,,1,2.983105
+2026-04-18,2026-04,Newcastle United FC - AFC Bournemouth,1-2,poisson,1-1,0.109235,0,1-1,0.101546,0,,,1,2.729157
+2026-04-18,2026-04,Leeds United FC - Wolverhampton Wanderers FC,3-0,poisson,1-1,0.129922,0,1-1,0.120204,0,,,1,3.129569
+2026-04-18,2026-04,Tottenham Hotspur FC - Brighton & Hove Albion FC,2-2,poisson,1-1,0.114427,0,1-1,0.105293,0,,,1,2.712514
+2026-04-18,2026-04,Chelsea FC - Manchester United FC,0-1,poisson,1-1,0.117735,0,1-1,0.108181,0,,,1,2.789671
+2026-04-19,2026-04,Everton FC - Liverpool FC,1-2,poisson,1-1,0.134832,0,1-1,0.124232,0,,,1,2.393403
+2026-04-19,2026-04,Nottingham Forest FC - Burnley FC,4-1,poisson,1-1,0.120719,0,1-0,0.115704,0,,,0,3.681649
+2026-04-19,2026-04,Aston Villa FC - Sunderland AFC,4-3,poisson,1-1,0.141601,0,1-0,0.148064,0,1-0,0,0,6.569482
+2026-04-19,2026-04,Manchester City FC - Arsenal FC,2-1,poisson,1-1,0.137575,0,1-1,0.126578,0,1-1,0,1,2.487328
+2026-04-20,2026-04,Crystal Palace FC - West Ham United FC,0-0,poisson,1-1,0.128775,0,1-1,0.118979,0,,,1,2.643136
+2026-04-21,2026-04,Brighton & Hove Albion FC - Chelsea FC,3-0,poisson,1-1,0.125183,0,1-1,0.115573,0,,,1,3.608226
+2026-04-22,2026-04,AFC Bournemouth - Leeds United FC,2-2,poisson,1-1,0.119699,0,1-1,0.111698,0,,,1,2.855823
+2026-04-22,2026-04,Burnley FC - Manchester City FC,0-1,poisson,0-2,0.114391,0,0-2,0.114514,0,,,0,2.393071
+2026-04-24,2026-04,Sunderland AFC - Nottingham Forest FC,0-5,poisson,0-0,0.150879,0,1-0,0.151825,0,1-0,0,0,7.401400
+2026-04-25,2026-04,Fulham FC - Aston Villa FC,1-0,poisson,1-1,0.130648,0,1-1,0.119824,0,,,1,2.451035
+2026-04-25,2026-04,Liverpool FC - Crystal Palace FC,3-1,poisson,1-1,0.113892,0,1-0,0.107402,0,,,0,2.777918
+2026-04-25,2026-04,Wolverhampton Wanderers FC - Tottenham Hotspur FC,0-1,poisson,1-1,0.122591,0,1-1,0.112420,0,,,1,2.490661
+2026-04-25,2026-04,West Ham United FC - Everton FC,2-1,poisson,1-1,0.142617,0,1-1,0.131324,0,1-1,0,1,2.600565
+2026-04-25,2026-04,Arsenal FC - Newcastle United FC,1-0,poisson,2-0,0.107941,0,2-0,0.107655,0,,,0,2.268452
+2026-04-27,2026-04,Manchester United FC - Brentford FC,2-1,poisson,1-1,0.118533,0,1-1,0.109512,0,,,1,2.397229
+2026-05-01,2026-05,Leeds United FC - Burnley FC,3-1,poisson,1-1,0.107996,0,1-1,0.101511,0,,,1,2.733005
+2026-05-02,2026-05,Brentford FC - West Ham United FC,3-0,poisson,1-1,0.110136,0,1-1,0.103460,0,,,1,2.964318
+2026-05-02,2026-05,Wolverhampton Wanderers FC - Sunderland AFC,1-1,poisson,1-1,0.143096,1,1-1,0.133459,1,,,1,2.013960
+2026-05-02,2026-05,Newcastle United FC - Brighton & Hove Albion FC,3-1,poisson,1-1,0.117426,0,1-1,0.109794,0,,,1,2.997731
+2026-05-02,2026-05,Arsenal FC - Fulham FC,3-0,poisson,2-0,0.127690,0,2-0,0.126983,0,,,0,2.457273
+2026-05-03,2026-05,AFC Bournemouth - Crystal Palace FC,3-0,poisson,1-1,0.132905,0,1-1,0.124726,0,1-1,0,1,3.312268
+2026-05-03,2026-05,Manchester United FC - Liverpool FC,3-2,poisson,1-1,0.114015,0,1-1,0.105943,0,,,1,3.507950
+2026-05-03,2026-05,Aston Villa FC - Tottenham Hotspur FC,1-2,poisson,1-1,0.110812,0,1-1,0.102707,0,,,1,2.713282
+2026-05-04,2026-05,Chelsea FC - Nottingham Forest FC,1-3,poisson,1-1,0.124357,0,1-1,0.115826,0,,,1,3.711342
+2026-05-04,2026-05,Everton FC - Manchester City FC,3-3,poisson,0-1,0.135142,0,0-1,0.142752,0,0-1,0,0,5.199916
+2026-05-09,2026-05,Liverpool FC - Chelsea FC,1-1,poisson,1-1,0.107141,1,1-1,0.099957,1,,,1,2.303017
+2026-05-09,2026-05,Brighton & Hove Albion FC - Wolverhampton Wanderers FC,3-0,poisson,2-0,0.112798,0,1-0,0.115497,0,,,0,2.614883
+2026-05-09,2026-05,Fulham FC - AFC Bournemouth,0-1,poisson,1-1,0.126179,0,1-1,0.117962,0,,,1,2.548721
+2026-05-09,2026-05,Sunderland AFC - Manchester United FC,0-0,poisson,1-1,0.139145,0,1-1,0.129449,0,1-1,0,1,2.425360
+2026-05-09,2026-05,Manchester City FC - Brentford FC,3-0,poisson,2-0,0.106303,0,2-0,0.106876,0,,,0,2.539502
+2026-05-10,2026-05,Burnley FC - Aston Villa FC,2-2,poisson,1-1,0.113873,0,1-1,0.106320,0,,,1,2.967249
+2026-05-10,2026-05,Nottingham Forest FC - Newcastle United FC,1-1,poisson,1-1,0.125743,1,1-1,0.117265,1,,,1,2.143317
+2026-05-10,2026-05,Crystal Palace FC - Everton FC,2-2,poisson,1-1,0.143570,0,1-0,0.142535,0,,,0,3.333143
+2026-05-10,2026-05,West Ham United FC - Arsenal FC,0-1,poisson,0-2,0.116322,0,0-2,0.115800,0,,,0,2.177707
+2026-05-11,2026-05,Tottenham Hotspur FC - Leeds United FC,1-1,poisson,1-1,0.111177,1,1-1,0.103960,1,,,1,2.263749
+2026-05-13,2026-05,Manchester City FC - Crystal Palace FC,3-0,poisson,2-0,0.128059,0,1-0,0.128589,0,,,0,2.458477
+2026-05-15,2026-05,Aston Villa FC - Liverpool FC,4-2,poisson,1-1,0.117318,0,1-1,0.109150,0,,,1,4.609115
+2026-05-17,2026-05,Manchester United FC - Nottingham Forest FC,3-2,poisson,1-1,0.127148,0,1-1,0.118169,0,,,1,3.545578
+2026-05-17,2026-05,Brentford FC - Crystal Palace FC,2-2,poisson,1-1,0.131360,0,1-1,0.123420,0,1-1,0,1,2.974854
+2026-05-17,2026-05,Wolverhampton Wanderers FC - Fulham FC,1-1,poisson,1-1,0.133028,1,1-1,0.123849,1,,,1,2.088689
+2026-05-17,2026-05,Everton FC - Sunderland AFC,1-3,poisson,0-0,0.148401,0,1-0,0.155507,0,1-0,0,0,4.129139
+2026-05-17,2026-05,Leeds United FC - Brighton & Hove Albion FC,1-0,poisson,1-1,0.123734,0,1-1,0.116168,0,,,1,2.571526
+2026-05-17,2026-05,Newcastle United FC - West Ham United FC,3-1,poisson,1-1,0.102520,0,2-1,0.098169,0,,,0,2.701106
+2026-05-18,2026-05,Arsenal FC - Burnley FC,1-0,poisson,2-0,0.134441,0,2-0,0.134305,0,,,0,2.343056
+2026-05-19,2026-05,AFC Bournemouth - Manchester City FC,1-1,poisson,1-1,0.109440,1,1-1,0.102600,1,,,1,2.276916
+2026-05-19,2026-05,Chelsea FC - Tottenham Hotspur FC,2-1,poisson,1-1,0.105028,0,1-1,0.097511,0,,,1,2.339098
+2026-05-24,2026-05,Manchester City FC - Aston Villa FC,1-2,poisson,2-0,0.108718,0,2-0,0.108286,0,,,0,3.125848
+2026-05-24,2026-05,Brighton & Hove Albion FC - Manchester United FC,0-3,poisson,1-1,0.123054,0,1-1,0.114488,0,,,1,3.886571
+2026-05-24,2026-05,West Ham United FC - Leeds United FC,3-0,poisson,1-1,0.121396,0,1-1,0.113898,0,,,1,3.494047
+2026-05-24,2026-05,Crystal Palace FC - Arsenal FC,1-2,poisson,0-1,0.136459,0,0-1,0.145318,0,0-1,0,0,2.377791
+2026-05-24,2026-05,Burnley FC - Wolverhampton Wanderers FC,1-1,poisson,1-1,0.135147,1,1-1,0.125982,1,1-1,1,1,2.071617
+2026-05-24,2026-05,Sunderland AFC - Chelsea FC,2-1,poisson,1-1,0.137667,0,1-1,0.128213,0,,,1,2.672073
+2026-05-24,2026-05,Liverpool FC - Brentford FC,1-1,poisson,1-1,0.098722,1,2-1,0.097916,0,,,0,2.375191
+2026-05-24,2026-05,Fulham FC - Newcastle United FC,2-0,poisson,1-1,0.123498,0,1-1,0.115085,0,,,1,2.871328
+2026-05-24,2026-05,Nottingham Forest FC - AFC Bournemouth,1-1,poisson,1-1,0.128241,1,1-1,0.119958,1,,,1,2.120614
+2026-05-24,2026-05,Tottenham Hotspur FC - Everton FC,1-0,poisson,1-1,0.134558,0,1-1,0.125083,0,1-1,0,1,2.256412
+2026-08-22,2026-08,Nottingham Forest FC - Leeds United FC,0-1,poisson,1-1,0.128476,0,1-1,0.118850,0,,,1,2.584103
+2026-08-22,2026-08,Everton FC - Crystal Palace FC,2-0,poisson,1-1,0.143596,0,1-1,0.132677,0,,,1,2.529692
+2026-08-22,2026-08,Ipswich Town FC - Sunderland AFC,2-1,poisson,1-1,0.128805,0,0-1,0.130774,0,0-1,0,0,2.909733
+2026-08-22,2026-08,Brentford FC - Tottenham Hotspur FC,3-0,poisson,1-1,0.110476,0,1-1,0.102278,0,,,1,3.146828
+2026-08-23,2026-08,Manchester City FC - AFC Bournemouth,2-1,poisson,2-0,0.107369,0,2-0,0.107629,0,,,0,2.320639
+2026-08-23,2026-08,Brighton & Hove Albion FC - Aston Villa FC,4-0,poisson,1-1,0.125983,0,1-1,0.116059,0,,,1,4.352530
+2026-08-23,2026-08,Newcastle United FC - Liverpool FC,2-2,poisson,1-1,0.107768,0,1-1,0.099619,0,,,1,2.682376
+2026-08-24,2026-08,Fulham FC - Chelsea FC,2-3,poisson,1-1,0.131967,0,1-1,0.121552,0,,,1,3.648483
+2026-08-28,2026-08,Crystal Palace FC - Manchester City FC,1-4,poisson,1-1,0.117807,0,0-1,0.119904,0,,,0,3.636128
+2026-08-29,2026-08,Liverpool FC - Nottingham Forest FC,2-2,poisson,1-1,0.106986,0,2-1,0.099064,0,,,0,2.905525
+2026-08-29,2026-08,AFC Bournemouth - Everton FC,1-1,poisson,1-1,0.135442,1,1-1,0.125122,1,,,1,2.078465
+2026-08-29,2026-08,Tottenham Hotspur FC - Newcastle United FC,0-2,poisson,1-1,0.110866,0,1-1,0.101933,0,,,1,2.928161
+2026-08-30,2026-08,Leeds United FC - Brentford FC,1-1,poisson,1-1,0.124574,1,1-1,0.116187,1,,,1,2.152551
+2026-08-30,2026-08,Sunderland AFC - Fulham FC,1-0,poisson,1-1,0.143789,0,1-1,0.132765,0,,,1,2.078850
+2026-08-30,2026-08,Chelsea FC - Brighton & Hove Albion FC,4-3,poisson,1-1,0.123107,0,1-1,0.113728,0,,,1,5.192469
+2026-08-30,2026-08,Manchester United FC - Ipswich Town FC,5-2,poisson,2-0,0.111550,0,2-0,0.110629,0,,,0,4.514169
+2026-08-31,2026-08,Aston Villa FC - Arsenal FC,0-1,poisson,1-1,0.127635,0,0-1,0.119397,1,,,0,2.125303
+2026-09-04,2026-09,Ipswich Town FC - Liverpool FC,0-2,poisson,1-2,0.087286,0,1-2,0.087495,0,,,0,2.522905
+2026-09-05,2026-09,Newcastle United FC - AFC Bournemouth,2-2,poisson,1-1,0.115797,0,1-1,0.108313,0,,,1,2.807379
+2026-09-05,2026-09,Fulham FC - Crystal Palace FC,2-3,poisson,1-1,0.135407,0,1-1,0.126101,0,,,1,4.064232
+2026-09-05,2026-09,Brentford FC - Sunderland AFC,1-1,poisson,1-1,0.133564,1,1-0,0.127993,0,,,0,2.083326
+2026-09-05,2026-09,Nottingham Forest FC - Tottenham Hotspur FC,0-0,poisson,1-1,0.122507,0,1-1,0.113437,0,,,1,2.893084
+2026-09-05,2026-09,Brighton & Hove Albion FC - Leeds United FC,1-1,poisson,1-1,0.119456,1,1-1,0.111343,1,,,1,2.195136
+2026-09-06,2026-09,Everton FC - Manchester United FC,2-2,poisson,1-1,0.136945,0,1-1,0.127233,0,1-1,0,1,2.972729
+2026-09-06,2026-09,Arsenal FC - Chelsea FC,2-1,poisson,2-0,0.117072,0,1-0,0.116552,0,,,0,2.320293
+2026-09-12,2026-09,AFC Bournemouth - Brentford FC,2-2,poisson,1-1,0.123112,0,1-1,0.115635,0,,,1,2.815085
+2026-09-12,2026-09,Liverpool FC - Fulham FC,0-0,poisson,1-1,0.103304,0,2-1,0.099191,0,,,0,3.141191
+2026-09-12,2026-09,Crystal Palace FC - Ipswich Town FC,2-3,poisson,2-0,0.100527,0,2-0,0.100578,0,,,0,4.128020
+2026-09-12,2026-09,Aston Villa FC - Nottingham Forest FC,1-2,poisson,1-1,0.127950,0,1-1,0.118769,0,,,1,2.663799
+2026-09-12,2026-09,Tottenham Hotspur FC - Everton FC,0-0,poisson,1-1,0.135180,0,1-1,0.125424,0,1-1,0,1,2.584026
+2026-09-12,2026-09,Sunderland AFC - Arsenal FC,0-2,poisson,0-1,0.161245,0,0-1,0.168810,0,0-1,0,0,2.065126
+2026-09-13,2026-09,Manchester United FC - Manchester City FC,0-1,poisson,1-1,0.113439,0,1-1,0.105351,0,,,1,2.439122
+2026-09-14,2026-09,Leeds United FC - Newcastle United FC,4-1,poisson,1-1,0.124255,0,1-1,0.116022,0,,,1,4.421482
+2026-09-18,2026-09,Brentford FC - Chelsea FC,3-0,poisson,1-1,0.116710,0,1-1,0.109331,0,,,1,3.417779
+2026-09-19,2026-09,Tottenham Hotspur FC - Aston Villa FC,2-3,poisson,1-1,0.119041,0,1-1,0.110131,0,,,1,3.413117
+2026-09-19,2026-09,Everton FC - Ipswich Town FC,1-0,poisson,2-0,0.113089,0,2-0,0.112374,0,,,0,2.212151
+2026-09-19,2026-09,Brighton & Hove Albion FC - Arsenal FC,3-0,poisson,1-1,0.124877,0,0-1,0.120783,0,,,0,4.513561
+2026-09-20,2026-09,Leeds United FC - Crystal Palace FC,0-0,poisson,1-1,0.135074,0,1-1,0.126294,0,1-1,0,1,2.514922
+2026-09-20,2026-09,Manchester City FC - Sunderland AFC,5-3,poisson,2-0,0.136059,0,2-0,0.136114,0,,,0,6.898525
+2026-09-20,2026-09,AFC Bournemouth - Liverpool FC,0-1,poisson,1-1,0.112912,0,1-1,0.105651,0,,,1,2.619271
+2026-09-20,2026-09,Fulham FC - Manchester United FC,1-1,poisson,1-1,0.127741,1,1-1,0.118475,1,,,1,2.133052
+2026-10-10,2026-10,Manchester United FC - Tottenham Hotspur FC,1-1,poisson,1-1,0.110584,1,1-1,0.101004,1,,,1,2.292597
+2026-10-10,2026-10,Chelsea FC - AFC Bournemouth,5-1,poisson,1-1,0.116271,0,1-1,0.107031,0,,,1,4.787161
+2026-10-10,2026-10,Ipswich Town FC - Fulham FC,2-1,poisson,1-1,0.118495,0,1-1,0.108516,0,,,1,2.764513
+2026-10-10,2026-10,Aston Villa FC - Brentford FC,2-2,poisson,1-1,0.123502,0,1-1,0.113816,0,,,1,2.795304
+2026-10-10,2026-10,Sunderland AFC - Brighton & Hove Albion FC,0-2,poisson,1-1,0.134497,0,1-1,0.123543,0,1-1,0,1,2.605120
+2026-10-10,2026-10,Arsenal FC - Leeds United FC,2-1,poisson,2-0,0.134350,0,1-0,0.136691,0,,,0,2.362674
+2026-10-11,2026-10,Hull City AFC - Everton FC,2-2,poisson,0-0,0.180284,0,1-0,0.193264,0,1-0,0,0,3.824225
+2026-10-11,2026-10,Liverpool FC - Manchester City FC,0-3,poisson,1-1,0.118946,0,1-1,0.109027,0,,,1,3.345454
+2026-10-11,2026-10,Crystal Palace FC - Nottingham Forest FC,3-1,poisson,1-1,0.140678,0,1-1,0.129612,0,1-1,0,1,3.387638
+2026-10-12,2026-10,Coventry City FC - Newcastle United FC,4-1,poisson,0-1,0.194422,0,0-1,0.196519,0,0-1,0,0,8.377159
+2026-10-17,2026-10,Brentford FC - Liverpool FC,1-2,poisson,1-1,0.117739,0,1-1,0.108950,0,,,1,2.427087
+2026-10-17,2026-10,Fulham FC - Hull City AFC,1-0,poisson,0-0,0.156337,0,0-1,0.156545,0,,,0,2.062069
+2026-10-17,2026-10,Manchester City FC - Ipswich Town FC,3-2,poisson,3-0,0.108528,0,3-0,0.107466,0,,,0,3.643439
+2026-10-17,2026-10,Everton FC - Chelsea FC,0-2,poisson,1-1,0.138409,0,1-1,0.126971,0,1-1,0,1,2.720910
+2026-10-17,2026-10,Newcastle United FC - Aston Villa FC,0-1,poisson,1-1,0.114795,0,1-1,0.105129,0,,,1,2.815166
+2026-10-18,2026-10,Nottingham Forest FC - Arsenal FC,0-1,poisson,0-1,0.133739,1,0-1,0.142405,1,0-1,1,0,1.949081
+2026-10-18,2026-10,Brighton & Hove Albion FC - Crystal Palace FC,5-0,poisson,1-1,0.117824,0,1-1,0.108752,0,,,1,4.680114
+2026-10-18,2026-10,AFC Bournemouth - Sunderland AFC,2-0,poisson,1-1,0.133633,0,1-1,0.122727,0,,,1,2.424231
+2026-10-18,2026-10,Leeds United FC - Manchester United FC,1-1,poisson,1-1,0.129990,1,1-1,0.119498,1,,,1,2.124456
+2026-10-19,2026-10,Tottenham Hotspur FC - Coventry City FC,3-1,poisson,1-0,0.202386,0,1-0,0.203837,0,1-0,0,0,3.178751
+2026-10-23,2026-10,Ipswich Town FC - Nottingham Forest FC,1-1,poisson,1-1,0.118581,1,1-1,0.108637,1,,,1,2.219741
+2026-10-24,2026-10,Arsenal FC - Everton FC,2-0,poisson,1-0,0.157856,0,1-0,0.165298,0,1-0,0,0,1.936720
+2026-10-24,2026-10,Chelsea FC - Tottenham Hotspur FC,0-2,poisson,1-1,0.105678,0,1-1,0.096817,0,,,1,3.479995
+2026-10-24,2026-10,Aston Villa FC - Manchester City FC,2-1,poisson,1-1,0.115295,0,1-1,0.105603,0,,,1,2.807877
+2026-10-24,2026-10,Coventry City FC - Fulham FC,0-1,poisson,0-1,0.229070,1,0-1,0.232687,1,0-1,1,0,1.458061
+2026-10-25,2026-10,Crystal Palace FC - Newcastle United FC,0-2,poisson,1-1,0.125288,0,1-1,0.115879,0,,,1,2.715533
+2026-10-25,2026-10,Hull City AFC - Brentford FC,1-1,poisson,1-1,0.142060,1,1-0,0.151721,0,1-0,0,0,2.033355
+2026-10-25,2026-10,Manchester United FC - AFC Bournemouth,0-3,poisson,1-1,0.120919,0,1-1,0.110985,0,,,1,4.019133
+2026-10-25,2026-10,Sunderland AFC - Leeds United FC,0-0,poisson,1-1,0.142153,0,1-1,0.130843,0,1-1,0,1,2.381275
+2026-10-25,2026-10,Liverpool FC - Brighton & Hove Albion FC,2-0,poisson,1-1,0.109270,0,1-1,0.100753,0,,,1,2.605318
+2026-10-31,2026-10,Manchester City FC - Brighton & Hove Albion FC,0-1,poisson,1-1,0.099786,0,2-1,0.098898,0,,,0,3.154808
+2026-10-31,2026-10,Aston Villa FC - Fulham FC,1-1,poisson,1-1,0.128798,1,1-1,0.118033,1,,,1,2.136792
+2026-10-31,2026-10,Brentford FC - Nottingham Forest FC,2-0,poisson,1-1,0.128760,0,1-1,0.118685,0,,,1,2.486205
+2026-10-31,2026-10,Chelsea FC - Manchester United FC,2-0,poisson,1-1,0.114092,0,1-1,0.104260,0,,,1,2.781782
+2026-10-31,2026-10,Hull City AFC - Ipswich Town FC,2-2,poisson,2-0,0.146325,0,1-0,0.149713,0,,,0,3.598541
+2026-10-31,2026-10,Tottenham Hotspur FC - Crystal Palace FC,2-0,poisson,1-1,0.128985,0,1-1,0.119020,0,,,1,2.620447
+2026-10-31,2026-10,Coventry City FC - Sunderland AFC,3-1,poisson,0-1,0.237719,0,0-1,0.242135,0,0-1,0,0,6.061429
+2026-10-31,2026-10,AFC Bournemouth - Leeds United FC,2-0,poisson,1-1,0.130116,0,1-1,0.120050,0,,,1,2.545509
+2026-11-01,2026-11,Liverpool FC - Arsenal FC,0-1,poisson,1-1,0.134031,0,1-1,0.124198,0,1-1,0,1,2.222457
+2026-11-02,2026-11,Newcastle United FC - Everton FC,0-1,poisson,1-1,0.129024,0,1-1,0.119463,0,,,1,2.583043
