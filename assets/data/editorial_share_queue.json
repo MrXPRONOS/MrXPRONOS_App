@@ -1,5 +1,657 @@
 [
   {
+    "id": "989064de937f6aaabecef3c2",
+    "kind": "article",
+    "title": "RB Leipzig vs Manchester City : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-601087/",
+    "source_date": "2026-11-06T05:41:49.663019+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-601087-a12edcfd-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-601087-a12edcfd-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-601087-a12edcfd-social.jpg"
+  },
+  {
+    "id": "6a2cea3f9f463eff417b9a89",
+    "kind": "news",
+    "title": "L'OM s'impose sur la pelouse du Bayer Leverkusen et débloque enfin son compteur en Ligue Europa",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-europa/l-om-s-impose-sur-la-pelouse-du-bayer-leverkusen-et-debloque-enfin-son-compteur-en-ligue-europa_8269892.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-05T23:11:38+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "01e47d60aed78e040407766c",
+    "kind": "news",
+    "title": "Le Maroc se fait encore chiper une pépite par Klopp et l’Allemagne",
+    "url": "https://www.onzemondial.com/euro/le-maroc-se-fait-encore-chiper-une-pepite-par-klopp-et-lallemagne-1007272",
+    "source_date": "2026-11-05T23:01:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "5b9f4e1d0dac0d90307866ba",
+    "kind": "news",
+    "title": "OM : Bruno Genesio égale Guy Roux",
+    "url": "https://www.footmercato.net/a5842832235030615160-om-bruno-genesio-egale-guy-roux",
+    "source_date": "2026-11-05T22:58:41+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4abea0b624ea97b7571e7efd",
+    "kind": "news",
+    "title": "OL : Jorge Maciel dithyrambique envers Corentin Tolisso et Khalis Merah après le nul face à la Real Sociedad",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ol-jorge-maciel-dithyrambique-envers-corentin-tolisso-et-khalis-merah-apres-le-nul-face-a-la-real-sociedad-544841.html",
+    "source_date": "2026-11-05T22:50:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2504dd0715b9721deed0eb2d",
+    "kind": "news",
+    "title": "Leverkusen - OM : l'immense fierté de Genesio après la victoire",
+    "url": "https://www.onzemondial.com/europa-league/leverkusen-om-l-immense-fierte-de-genesio-apres-la-victoire-1007314",
+    "source_date": "2026-11-05T22:40:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f135a6acd5389b97cfc15336",
+    "kind": "news",
+    "title": "OM : Amine Gouiri raconte son bijou face au Bayer Leverkusen et parle de \"match référence\" pour l'OM",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-amine-gouiri-raconte-son-bijou-face-au-bayer-leverkusen-et-parle-de-match-reference-pour-l-om-544833.html",
+    "source_date": "2026-11-05T22:10:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7eb58a4519ca04766d8ed136",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027: la liste de l'Algérie dévoilée par le sélectionneur Brahim Hemdani",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261105-%C3%A9liminatoires-can-2027-la-liste-de-l-alg%C3%A9rie-d%C3%A9voil%C3%A9e-par-le-s%C3%A9lectionneur-brahim-hemdani",
+    "source_date": "2026-11-05T15:45:18+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ec26e61d3f6afe94cc5e7cc1",
+    "kind": "news",
+    "title": "Présidence de la Fifa: le Japonais Kozo Tashima annonce une candidature contre Gianni Infantino",
+    "url": "https://www.rfi.fr/fr/sports/20261105-pr%C3%A9sidence-de-la-fifa-le-japonais-kozo-tashima-annonce-une-candidature-contre-gianni-infantino",
+    "source_date": "2026-11-05T14:50:59+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0b93de997eb0d2befe021a89",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027: Patrick Vieira annonce la liste du Sénégal sans Sadio Mané",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261105-%C3%A9limintoires-can-2027-patrick-vieira-annonce-la-liste-du-s%C3%A9n%C3%A9gal-sans-sadio-man%C3%A9",
+    "source_date": "2026-11-05T14:10:08+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1bdfdab3214626041b759df8",
+    "kind": "news",
+    "title": "“C’est une humiliation” : le coach de Lens réagit à la lourde défaite face à Côme",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/c-est-une-humiliation-le-coach-de-lens-reagit-a-la-lourde-defaite-face-a-come_8269259.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-05T12:02:21+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "6ae4da274131645d1b5a9ab3",
+    "kind": "news",
+    "title": "Football: la superstar portugaise Cristiano Ronaldo annonce sa retraite internationale",
+    "url": "https://www.rfi.fr/fr/sports/20261105-football-la-superstar-portugaise-cristiano-ronaldo-annonce-sa-retraite-internationale",
+    "source_date": "2026-11-05T10:43:48+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9bbdebef72153b667b8e1262",
+    "kind": "news",
+    "title": "\"Le Portugal sera toujours en moi\" : Cristiano Ronaldo annonce sa retraite internationale",
+    "url": "https://www.france24.com/fr/sports/20261105-football-cristiano-ronaldo-retraite-internationale",
+    "source_date": "2026-11-05T10:37:26+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "43dada624e0d693c37df7cf5",
+    "kind": "news",
+    "title": "CAF Awards 2026: tous les nommés dans les différentes catégories",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261105-caf-awards-2026-tous-les-nomm%C3%A9s-dans-les-diff%C3%A9rentes-cat%C3%A9gories",
+    "source_date": "2026-11-05T10:20:45+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "a0087870ea857600eb2c68d4",
+    "kind": "news",
+    "title": "Ligue des champions : Lens subit une défaite historique face à Côme",
+    "url": "https://www.france24.com/fr/%C3%A9missions/sports/20261105-ligue-champions-lens-subit-d%C3%A9faite-historique-face-c%C3%B4me-football-real-madrid-europa-joj-dakar-tennis",
+    "source_date": "2026-11-05T06:46:07+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "8db375c24edaaaf12dda07dd",
+    "kind": "news",
+    "title": "OM : Bruno Genesio égale le record exceptionnel d'une légende du football français après l'exploit contre Leverkusen",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-bruno-genesio-egale-le-record-exceptionnel-d-une-legende-du-football-francais-apres-l-exploit-contre-leverkusen-544849.html",
+    "source_date": "2026-11-05T23:16:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ae1d8c8b460a16b9ace932d6",
+    "kind": "news",
+    "title": "Jesus Owono connaîtra sa sanction la semaine prochaine",
+    "url": "https://www.footmercato.net/a6545071567558632177-jesus-owono-connaitra-sa-sanction-la-semaine-prochaine",
+    "source_date": "2026-11-05T23:12:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "62457e7f5b1fdeb86f4a51fd",
+    "kind": "news",
+    "title": "Vainqueur de Nordsjaelland, l'AS Monaco signe une troisième victoire en Ligue Conférence",
+    "url": "https://www.franceinfo.fr/sports/foot/as-monaco/vainqueur-de-nordsjaelland-l-as-monaco-signe-une-troisieme-victoire-en-ligue-conference_8269958.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-05T23:08:53+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7b8938fbcd6d2369d0291403",
+    "kind": "news",
+    "title": "Ligue Conférence : le classement de la phase de Ligue",
+    "url": "https://www.onzemondial.com/europa-league-conference/ligue-conference-le-classement-de-la-phase-de-ligue-1002903",
+    "source_date": "2026-11-05T22:56:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "973c1e3c88b8e0b20e1a4501",
+    "kind": "news",
+    "title": "Ligue Europa : le classement de la phase de Ligue",
+    "url": "https://www.onzemondial.com/europa-league/ligue-europa-le-classement-de-la-phase-de-ligue-1000063",
+    "source_date": "2026-11-05T22:52:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f2d9d3132c7789251d7ad896",
+    "kind": "news",
+    "title": "OM : Le magnifique hommage de Ghislain Printant envers Bruno Genesio après l'exploit de l'OM contre le Bayer Leverkusen",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-le-magnifique-hommage-de-ghislain-printant-envers-bruno-genesio-apres-l-exploit-de-l-om-contre-le-bayer-leverkusen-544842.html",
+    "source_date": "2026-11-05T22:51:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e5ef4bfcaa0ff5aff51059a0",
+    "kind": "news",
+    "title": "OL : Tolisso ne cache pas sa déception après le départ de Fonseca",
+    "url": "https://www.onzemondial.com/ligue-1/ol-tolisso-ne-cache-pas-sa-deception-apres-le-depart-de-fonseca-1007356",
+    "source_date": "2026-11-05T22:48:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "12c60c959f2ac3b337d2a303",
+    "kind": "news",
+    "title": "OM : Bruno Genesio réagit à la première victoire en Ligue Europa",
+    "url": "https://www.footmercato.net/a6091305349082141018-om-bruno-genesio-reagit-a-la-premiere-victoire-en-ligue-europa",
+    "source_date": "2026-11-05T22:45:35+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4daf73c0c95efecccaa2b683",
+    "kind": "news",
+    "title": "OM : Bruno Genesio ne cache pas sa fierté après la première victoire de Marseille en Ligue Europa",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-om-bruno-genesio-ne-cache-pas-sa-fierte-apres-la-premiere-victoire-de-marseille-en-ligue-europa-544840.html",
+    "source_date": "2026-11-05T22:41:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "9eb9376879e232bd91f57369",
+    "kind": "news",
+    "title": "RC Lens : Jean-Louis Leca sort du silence après le \"fiasco\" face à Côme et annonce maintenir Yannick Cahuzac",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-jean-louis-leca-sort-du-silence-apres-le-fiasco-face-a-come-et-annonce-maintenir-yannick-cahuzac-544838.html",
+    "source_date": "2026-11-05T22:35:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "81e199b5590b27723778437e",
+    "kind": "news",
+    "title": "Lens - Côme : Leca sort du silence et défend Cahuzac après l'humiliation",
+    "url": "https://www.onzemondial.com/ligue-des-champions/lens-come-leca-sort-du-silence-et-defend-cahuzac-apres-lhumiliation-1007352",
+    "source_date": "2026-11-05T22:35:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d408037704cc0a0aa2d6e11f",
+    "kind": "news",
+    "title": "AS Monaco : Mathys Detourbet savoure son premier but et fait de belles confidences sur Folarin Balogun",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-as-monaco-mathys-detourbet-savoure-son-premier-but-et-fait-de-belles-confidences-sur-folarin-balogun-544839.html",
+    "source_date": "2026-11-05T22:35:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cf4062140f6ce144ca956dbb",
+    "kind": "news",
+    "title": "Ligue Europa : le classement après la 4e journée",
+    "url": "https://www.footmercato.net/a5175209704262221074-ligue-europa-le-classement-apres-la-4e-journee",
+    "source_date": "2026-11-05T22:34:28+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "7c08969495b536f81512a186",
+    "kind": "news",
+    "title": "Leverkusen - OM : \"La soirée parfaite\" ... Gouiri aux anges après le succès marseillais",
+    "url": "https://www.onzemondial.com/europa-league/leverkusen-om-la-soiree-parfaite-gouiri-aux-anges-apres-le-succes-marseillais-1007348",
+    "source_date": "2026-11-05T22:27:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e7aa816a55e667b7e16592f8",
+    "kind": "news",
+    "title": "C4 : Monaco poursuit son sans-faute face à Nordsjælland",
+    "url": "https://www.footmercato.net/a4705581932045509818-c4-monaco-poursuit-son-sans-faute-face-a-nordsjaelland",
+    "source_date": "2026-11-05T22:21:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "558175709376ee2bae422f3b",
+    "kind": "news",
+    "title": "OM : la réaction à chaud du héros Amine Gouiri",
+    "url": "https://www.footmercato.net/a7669702944867748179-om-la-reaction-a-chaud-du-heros-amine-gouiri",
+    "source_date": "2026-11-05T22:16:06+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-06T05:41:52.015835+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "1c62c7b44dbd208fd6c45532",
     "kind": "news",
     "title": "\"Ce n'est pas une défaite, c'est une leçon\"... Le RC Lens sonné et humilié après sa débâcle historique en Ligue des champions contre Côme",
@@ -18,7 +670,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "955840972b69b2b1b5f9816d",
@@ -39,7 +691,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "630786a78dd7a2d3749def9e",
@@ -60,7 +712,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f8b311ba7c7b61c4922a473c",
@@ -81,7 +733,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4939feeada910a2656a30bb8",
@@ -102,7 +754,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "396520244528addbde51052a",
@@ -123,7 +775,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c7a13bc71172d708a6106e66",
@@ -144,7 +796,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cfb733ee58cba2bffa6b1552",
@@ -165,7 +817,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "95f6c7e6f420b9a1b42c4919",
@@ -186,7 +838,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2f9830c81f6d1425f71e1860",
@@ -207,7 +859,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5b012108741803df77267f6e",
@@ -228,7 +880,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "92de3caf6363046cb5f4eb71",
@@ -249,7 +901,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f5887a2956b8050cbd1ed5a6",
@@ -270,7 +922,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5ef01214030e2925ac922882",
@@ -291,7 +943,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "bda365f30dcb47ee92aa398b",
@@ -312,7 +964,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f6086a890d64e64776e690d6",
@@ -333,7 +985,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d25b036a4cb791563fef8923",
@@ -354,7 +1006,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c4838755e2f8e63a0398f706",
@@ -375,7 +1027,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "b1c4d2c5700b16e1a6420111",
@@ -396,7 +1048,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "8ff97a2e9e968d2871a6c325",
@@ -417,7 +1069,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "a72a10c5285a505e427a9a49",
@@ -438,7 +1090,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ac5be963f58e324fdbba3a10",
@@ -459,7 +1111,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d058a0ae224cfd01bebe539d",
@@ -480,7 +1132,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "bd9ec41f75ed3952b012b15d",
@@ -501,7 +1153,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6402079eddb826440f2f38a6",
@@ -522,7 +1174,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6b2df19b51317139f2668bd0",
@@ -543,7 +1195,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "652b2d7d582a413fdda53896",
@@ -564,7 +1216,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7538b699425a09520f1a6803",
@@ -585,7 +1237,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7dbe39dceb89931291420306",
@@ -711,7 +1363,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f941709271be3c11cc87615d",
@@ -753,7 +1405,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ae64f2253391227d1993678a",
