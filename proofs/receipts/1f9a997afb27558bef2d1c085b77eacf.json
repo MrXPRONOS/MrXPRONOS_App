@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-ca337828082e209d:1X",
+    "recorded_at_utc": "2026-11-06T18:06:07+00:00",
+    "kickoff_utc": "2026-11-08T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Enugu Rangers International",
+      "away_team": "Kwara United",
+      "league": "Nigeria Premier League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 80.9,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "181342f0aede729da29f764f9ae1320a9b35b00691a52c7d94941a111d082a79"
+}

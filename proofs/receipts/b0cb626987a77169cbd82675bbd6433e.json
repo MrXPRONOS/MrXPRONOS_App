@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-0c3d1a250d48b9e1:UNDER_35",
+    "recorded_at_utc": "2026-11-06T18:06:07+00:00",
+    "kickoff_utc": "2026-11-06T18:45:00+00:00",
+    "fixture": {
+      "home_team": "AVS - Futebol SAD",
+      "away_team": "Vizela",
+      "league": "Liga Portugal 2"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 81.0,
+      "odds": 1.292,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "5d2229d9d1187e7b1e040d1e249ff6e2a2749b2450c21aae3091c499162954e8"
+}

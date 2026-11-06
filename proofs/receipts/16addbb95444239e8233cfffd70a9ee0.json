@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-7851e2846ae9e275:UNDER_35",
+    "recorded_at_utc": "2026-11-06T18:06:07+00:00",
+    "kickoff_utc": "2026-11-08T16:15:00+00:00",
+    "fixture": {
+      "home_team": "Carrarese",
+      "away_team": "Sampdoria",
+      "league": "Italian Serie B"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.1,
+      "odds": 1.326,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "3db01f8fedbd56a642dd591d3a192298e9944180bb86ee0e6d9edf8cbe8f18d8"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-8572197b02e12755:UNDER_35",
+    "recorded_at_utc": "2026-11-06T18:06:07+00:00",
+    "kickoff_utc": "2026-11-08T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Warri Wolves FC",
+      "away_team": "Katsina United",
+      "league": "Nigeria Premier League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 81.2,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "91bec4a435da59f01b67bbc927911ea7a52946c06e011188512226368088755d"
+}

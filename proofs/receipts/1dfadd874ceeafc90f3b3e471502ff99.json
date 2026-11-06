@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-8a17e9f238975d44:1X",
+    "recorded_at_utc": "2026-11-06T18:06:07+00:00",
+    "kickoff_utc": "2026-11-08T15:00:00+00:00",
+    "fixture": {
+      "home_team": "AD Camacha",
+      "away_team": "CD Cinfães",
+      "league": "Campeonato de Portugal"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 82.1,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "9e573de97dc388944a782331663b78b872d677d95531a526944c9bd1b795e65c"
+}

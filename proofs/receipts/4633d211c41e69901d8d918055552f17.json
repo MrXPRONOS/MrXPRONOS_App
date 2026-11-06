@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-cdc29fffad770fee:UNDER_35",
+    "recorded_at_utc": "2026-11-06T18:06:07+00:00",
+    "kickoff_utc": "2026-11-08T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Bendel Insurance FC",
+      "away_team": "Niger Tornadoes",
+      "league": "Nigeria Premier League"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 80.4,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "afc7603755ba9cfa884f2983b99cd57980db1ff1d6263f26b178f6415cac4a70"
+}

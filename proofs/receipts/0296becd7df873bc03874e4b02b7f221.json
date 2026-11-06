@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-488d397aac22615f:1X",
+    "recorded_at_utc": "2026-11-06T18:06:07+00:00",
+    "kickoff_utc": "2026-11-08T16:00:00+00:00",
+    "fixture": {
+      "home_team": "Viking FK",
+      "away_team": "KFUM Oslo",
+      "league": "Eliteserien"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "1X",
+      "type": "1X",
+      "confidence": 81.7,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "6393e42be251983e0478f65f78a1362120de4456fce72f4b1fa95a836d697645"
+}

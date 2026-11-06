@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-6d750e5767c71571:UNDER_35",
+    "recorded_at_utc": "2026-11-06T18:06:07+00:00",
+    "kickoff_utc": "2026-11-08T15:00:00+00:00",
+    "fixture": {
+      "home_team": "Florgrade FC",
+      "away_team": "AD Ovarense",
+      "league": "Campeonato de Portugal"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 79.7,
+      "odds": 1.2,
+      "estimated_odds": true
+    }
+  },
+  "sha256": "5f2f4dc1a27e2596e5ddc86475008c125c53d64ec31eabe153f64e66ba7edd2a"
+}
