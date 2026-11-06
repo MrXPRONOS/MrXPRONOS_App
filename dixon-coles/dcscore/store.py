@@ -61,6 +61,16 @@ class Store:
                 FOREIGN KEY(match_id) REFERENCES matches(id)
             );
             CREATE INDEX IF NOT EXISTS ix_predictions_created ON predictions(created_at DESC);
+            CREATE TABLE IF NOT EXISTS xi_calibrations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                competition TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                selected_xi REAL NOT NULL,
+                source_signature TEXT NOT NULL,
+                report_json TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS ix_xi_competition_date
+            ON xi_calibrations (competition, id DESC);
             """)
 
     def upsert_matches(self, matches: list[Match]) -> int:
@@ -187,3 +197,42 @@ class Store:
                         "cutoff":row["cutoff"],"prediction":data,"actual_score":actual,
                         "correct":correct})
         return out
+
+    def save_xi_calibration(self, report: dict) -> int:
+        """Store the exact calibration report (append-only, reproducible)."""
+        if not isinstance(report,dict) or report.get("n_scored",0)<1:
+            raise ValueError("Rapport de calibration incomplet.")
+        competition=report["competition"]
+        xi=report["selected_xi"]
+        if type(xi) not in (int,float) or not 0<=xi<=0.3:
+            raise ValueError("xi calibré invalide.")
+        payload=json.dumps(report,ensure_ascii=False,allow_nan=False,sort_keys=True)
+        with self.connection() as db:
+            cursor=db.execute("""INSERT INTO xi_calibrations
+                    (competition,created_at,selected_xi,source_signature,report_json)
+                    VALUES(?,?,?,?,?)""",
+                    (competition,iso_date(datetime.now(timezone.utc)),xi,
+                     report["data_signature_sha256"],payload))
+            return cursor.lastrowid
+
+    def latest_xi_calibration(self, competition: str) -> dict | None:
+        with self.connection() as db:
+            row=db.execute("""SELECT id,report_json FROM xi_calibrations
+                           WHERE competition=? ORDER BY id DESC LIMIT 1""",
+                           (competition,)).fetchone()
+        if row:
+            result=json.loads(row["report_json"])
+            result["calibration_id"]=row["id"]
+            return result
+        # A committed, audited real-data calibration is available to a fresh
+        # install even before the user creates a local SQLite calibration row.
+        packaged=Path(__file__).parent / "calibrations" / "eng-premier-league.json"
+        if competition=="of:ENG-PL" and packaged.is_file():
+            result=json.loads(packaged.read_text(encoding="utf-8"))
+            if (result.get("competition")==competition
+                    and result.get("data_source")==["openfootball/football.json"]
+                    and result.get("n_scored",0)>=100
+                    and 0<=result.get("selected_xi",-1)<=0.3):
+                result["calibration_id"]="validated_packaged_report"
+                return result
+        return None

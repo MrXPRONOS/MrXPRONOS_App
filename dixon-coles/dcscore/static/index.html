@@ -11,6 +11,10 @@
 <section class="card"><div class="section-title"><span class="num">01</span><div><h3>Constituer l'historique</h3><p>Importer des résultats réels, utiliser une API ou charger une démonstration fictive.</p></div></div>
 <div class="columns"><div class="panel"><h4>API football-data.org v4</h4><div class="fields"><label>Code de championnat<input id="apiCode" value="PL" maxlength="8" placeholder="PL, FL1, PD, BL1..."></label><label>Saisons de début (séparées par virgules)<input id="apiSeasons" value="2024,2025,2026"></label></div><button id="syncBtn" class="btn-primary">Synchroniser les saisons</button><p class="help">Clé à définir côté serveur : <code>FOOTBALL_DATA_TOKEN</code>. Accès aux saisons selon ton abonnement.</p></div>
 <div class="panel"><h4>Importer tes résultats CSV</h4><label>Fichier CSV en UTF-8<input type="file" id="csvFile" accept=".csv,text/csv"></label><label>Compétition par défaut<input id="csvLeague" value="CUSTOM" placeholder="PL"></label><button id="importBtn" class="btn-secondary">Importer les résultats</button><p class="help">Colonnes : date, home_team, away_team, home_goals, away_goals, competition. Compatible aussi Date, HomeTeam, AwayTeam, FTHG, FTAG, Div.</p></div></div>
+<div class="panel" style="margin-top:14px"><h4>Données réelles OpenFootball — sans clé API</h4>
+<label>Saisons Premier League<input id="ofSeasons" value="2021-22,2022-23,2023-24,2024-25,2025-26,2026-27"></label>
+<button id="ofSyncBtn" class="btn-secondary">Importer les résultats réels (CC0)</button>
+<p class="help">Source : <a href="https://github.com/openfootball/football.json" target="_blank" rel="noopener">OpenFootball / football.json</a> (licence CC0). Les résultats manquants ne sont pas inventés. L'actualisation de cette source peut être décalée.</p></div>
 <div class="demo"><div><strong>Mode démonstration</strong><div class="help">Crée des clubs et scores 100 % fictifs, pour tester le moteur sans clé.</div></div><button id="demoBtn" class="btn-ghost">Charger la démo</button></div>
 </section>
 <section class="card"><div class="section-title"><span class="num">02</span><div><h3>Choisir le match</h3><p>Un seul match précis est analysé à chaque lancement.</p></div></div>
@@ -18,7 +22,14 @@
 <div class="columns match-layout"><div class="panel"><div class="line"><h4>Rencontres à venir</h4><span class="mini" id="fixtureCount"></span></div><div id="fixtures" class="fixtures"><p class="help">Importe des données pour afficher les rencontres.</p></div></div>
 <div class="panel"><h4>Ou créer une rencontre à analyser</h4><label>Équipe à domicile<select id="homeTeam"><option value="">Choisir</option></select></label><label>Équipe à l'extérieur<select id="awayTeam"><option value="">Choisir</option></select></label><label>Date et heure du coup d'envoi (heure de ton appareil)<input type="datetime-local" id="kickoff"></label><button id="manualBtn" class="btn-secondary">Ajouter la rencontre</button><p class="help">Les équipes doivent déjà appartenir à un historique importé.</p></div></div>
 <div id="selectedMatch" class="selection">Aucun match sélectionné.</div>
-<div class="settings"><label>Décroissance ξ / demi-semaine<input type="number" id="xi" min="0" max="0.3" step="0.0005" value="0.0065"></label><label>Minimum de matchs historiques<input type="number" id="minGames" min="12" max="10000" value="80"></label><label>Minimum par équipe<input type="number" id="minTeam" min="1" max="100" value="5"></label><label>Régularisation<input type="number" id="reg" min="0" max="10" step="0.05" value="0.15"></label></div>
+<div class="panel" style="margin-bottom:18px"><h4>Optimisation de ξ sur les matchs réels</h4>
+<div id="xiStatus" class="help">Choisir une compétition pour vérifier sa calibration.</div>
+<div class="fields"><label>Début de validation<input type="date" id="xiStart" value="2024-08-01"></label>
+<label>Fin exclusive de validation<input type="date" id="xiEnd" value="2025-06-01"></label></div>
+<label>Durée d'un bloc de validation (mois)<input type="number" id="xiBlock" value="2" min="1" max="6"></label>
+<button id="calibrateBtn" class="btn-secondary">Optimiser ξ avec des scores réels</button>
+<div id="xiReport" class="help">Chaque candidat est évalué sans accès aux résultats de sa période de test ; la métrique est la log-vraisemblance du score exact.</div></div>
+<div class="settings"><label>Mode de sélection du ξ<select id="xiMode"><option value="auto">Automatique (optimisé si disponible)</option><option value="manual">Valeur manuelle</option></select></label><label>Valeur manuelle ξ / demi-semaine<input type="number" id="xi" min="0" max="0.3" step="0.0005" value="0.0065" disabled></label><label>Minimum de matchs historiques<input type="number" id="minGames" min="12" max="10000" value="80"></label><label>Minimum par équipe<input type="number" id="minTeam" min="1" max="100" value="5"></label><label>Régularisation<input type="number" id="reg" min="0" max="10" step="0.05" value="0.15"></label></div>
 <button id="predictBtn" class="btn-primary btn-wide" disabled>Analyser ce match</button>
 </section>
 <section class="card" id="resultSection" hidden><div class="section-title"><span class="num">03</span><div><h3>Résultat Dixon-Coles</h3><p>Probabilités avant match, calculées à partir du nouvel historique.</p></div></div><div id="result"></div></section>

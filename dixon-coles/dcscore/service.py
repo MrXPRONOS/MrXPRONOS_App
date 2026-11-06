@@ -10,6 +10,8 @@ from .domain import Match, iso_date, utc_datetime
 from .model import fit, forecast, p_score, ModelError
 from .store import Store
 from .sources import download_fd_season
+from .openfootball import download_openfootball_season, COMPETITION as OPENFOOTBALL_COMPETITION
+from .calibration import data_signature
 
 
 class ServiceError(ValueError):
@@ -27,7 +29,7 @@ def _enough_team_history(rows: list[Match], home_id: str, away_id: str, minimum:
             raise ServiceError(f"Historique insuffisant pour {team_id} : {count} matchs (minimum {minimum}).")
 
 
-def predict(store: Store, match_id: str, *, xi: float=0.0065,
+def predict(store: Store, match_id: str, *, xi: float | None=None,
             min_games: int=80, min_team: int=5,regularization: float=0.15,
             save: bool=True, now: datetime | None=None) -> dict:
     target=store.get_match(match_id)
@@ -40,8 +42,30 @@ def predict(store: Store, match_id: str, *, xi: float=0.0065,
         raise ServiceError("La rencontre a déjà débuté, la prédiction pré-match est désactivée.")
     rows=_training_rows(store,target.competition,clock)
     _enough_team_history(rows,target.home_id,target.away_id,min_team)
-    model=fit(rows,as_of=clock,xi=xi,min_games=min_games,regularization=regularization)
+    calibration=store.latest_xi_calibration(target.competition)
+    if xi is None and calibration is not None:
+        calib_date=utc_datetime(calibration["generated_at"])
+        if calib_date > clock:
+            raise ServiceError("Calibration produite après la date d'analyse : risque de fuite temporelle.")
+        used_xi=calibration["selected_xi"]
+        origin="optimized_real_data"
+    elif xi is None:
+        used_xi=0.0065
+        origin="historical_default_not_optimized"
+    else:
+        used_xi=xi
+        origin="manual_override"
+    model=fit(rows,as_of=clock,xi=used_xi,min_games=min_games,regularization=regularization)
     result=forecast(model,target.home_id,target.away_id)
+    result["xi_source"]=origin
+    result["xi_calibration"]=(
+        {"calibration_id":calibration["calibration_id"],
+         "selected_xi":calibration["selected_xi"],
+         "validation_matches":calibration["n_scored"],
+         "validation_mean_log_loss":calibration["selected_mean_log_loss"],
+         "validated_through":calibration["validation_end_exclusive"],
+         "stale_data":data_signature(rows)!=calibration["data_signature_sha256"]}
+        if calibration is not None and origin=="optimized_real_data" else None)
     result.update({"match_id":target.id,"competition":target.competition,
                    "home_team":target.home_name,"away_team":target.away_name,
                    "kickoff":iso_date(target.kickoff),"generated_at":iso_date(clock),
@@ -122,3 +146,21 @@ def backtest(store: Store,competition: str, *, n_samples: int=12,
             "mean_poisson_baseline_log_loss":float(np.mean([r["poisson_same_intensities_log_loss"] for r in detailed])),
             "baseline_note":"Poisson utilise les mêmes intensités apprises par Dixon-Coles, rho=0 : comparaison de la correction, pas un recalibrage indépendant.",
             "detailed":detailed,"skipped":skipped[:30]}
+
+
+def sync_openfootball_seasons(store: Store, seasons: list[str], *, as_of: datetime | None = None) -> dict:
+    """Import CC0 public real scores, not data from previous Mr XPRONOS systems."""
+    if not seasons or len(set(seasons))>8:
+        raise ServiceError("Une à huit saisons OpenFootball sont requises.")
+    result=[]
+    total=0
+    for season in sorted(set(seasons)):
+        try:
+            rows,meta=download_openfootball_season(season,as_of=as_of)
+            total+=store.upsert_matches(rows)
+            result.append({"ok":True,**meta})
+        except ValueError as exc:
+            result.append({"ok":False,"season":season,"error":str(exc)})
+    return {"competition":OPENFOOTBALL_COMPETITION,"source":"openfootball/football.json",
+            "license":"CC0-1.0","imported_or_updated":total,"seasons":result,
+            "all_successful":all(x["ok"] for x in result)}

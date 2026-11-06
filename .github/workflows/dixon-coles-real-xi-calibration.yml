@@ -1,0 +1,100 @@
+name: Dixon-Coles - optimisation xi sur donnees reelles
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'dixon-coles/dcscore/calibration.py'
+      - 'dixon-coles/dcscore/openfootball.py'
+      - 'dixon-coles/dcscore/model.py'
+      - 'dixon-coles/dcscore/cli.py'
+      - '.github/workflows/dixon-coles-real-xi-calibration.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dixon-coles-real-xi-calibration
+  cancel-in-progress: false
+
+jobs:
+  calibrate:
+    name: Calibration xi PL - donnees CC0 reelles
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: dixon-coles
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: 'dixon-coles/pyproject.toml'
+      - name: Installer le moteur independant
+        run: python -m pip install -e '.[test]'
+      - name: Telecharger des scores reels CC0, sans ancienne base du projet
+        env:
+          DCSCORE_DB: ${{ runner.temp }}/dc_xi_calibration.db
+        run: |
+          python -m dcscore.cli sync-openfootball --seasons 2021-22 2022-23 2023-24 2024-25 2025-26 2026-27 > /tmp/xi_data_sources.json
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/xi_data_sources.json'))
+          for s in d['seasons']:
+              print('SOURCE',s['season'],'FINISHED',s.get('finished'), 'SHA256',s.get('sha256'), 'OK',s['ok'], 'URL',s.get('url'))
+          assert d['all_successful'], 'Une saison n\'a pas pu etre telechargee'
+          assert sum(s['finished'] for s in d['seasons']) >= 1650, 'Historique reel insuffisant'
+          PY
+      - name: Optimiser xi sur 2024-25 et tester hors echantillon 2025-26
+        env:
+          DCSCORE_DB: ${{ runner.temp }}/dc_xi_calibration.db
+        run: |
+          python -m dcscore.cli calibrate-xi \
+            --competition of:ENG-PL \
+            --start 2024-08-01 --end 2025-06-01 \
+            --block-months 2 --min-games 500 --min-team 5 \
+            --min-folds 4 --min-scored 160 --regularization 0.15 \
+            --candidates 0 0.0015 0.003 0.0065 0.01 0.016 0.025 0.04 \
+            --holdout-start 2025-08-01 --holdout-end 2026-06-01 \
+            --output dcscore/calibrations/eng-premier-league.json
+      - name: Garantir provenance reelle et separation de la periode de test
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          p=pathlib.Path('dcscore/calibrations/eng-premier-league.json')
+          d=json.loads(p.read_text())
+          assert d['competition']=='of:ENG-PL'
+          assert d['data_source']==['openfootball/football.json']
+          assert d['n_scored']>=160 and d['n_folds']>=4
+          assert d['validation_end_exclusive']=='2025-06-01'
+          assert d['holdout_not_used_for_selection']['test_start']=='2025-08-01'
+          assert d['holdout_not_used_for_selection']['n_tested']>=100
+          assert d['selected_xi'] in [r['xi'] for r in d['candidate_results']]
+          assert all(r['n_scored']==d['n_scored'] for r in d['candidate_results'])
+          print('CALIBRATION VALIDEE - Xi selectionne:',d['selected_xi'])
+          print('MATCHS VALIDATION:',d['n_scored'])
+          print('LOG LOSS VALIDATION:',d['selected_mean_log_loss'])
+          print('LOG LOSS XI HISTORIQUE:',d['historical_mean_log_loss'])
+          print('MATCHS HOLDOUT:',d['holdout_not_used_for_selection']['n_tested'])
+          print('LOG LOSS HOLDOUT:',d['holdout_not_used_for_selection']['mean_log_loss'])
+          PY
+      - name: Publier le rapport valide dans le sous-module Dixon-Coles
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add dcscore/calibrations/eng-premier-league.json
+          if git diff --cached --quiet; then
+            echo 'Rapport identique, pas de nouveau commit.'
+          else
+            git commit -m 'data(dixon-coles): publish validated real-data xi calibration [skip ci]'
+            git push origin HEAD:main
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dixon-coles-real-xi-calibration
+          path: dixon-coles/dcscore/calibrations/eng-premier-league.json
+          if-no-files-found: warn
+          retention-days: 90

@@ -29,7 +29,8 @@ async function reload(){
 async function loadCompetition(){
   currentCompetition=$("competition").value;
   selectedId=null;$("predictBtn").disabled=true;$("selectedMatch").textContent="Aucun match sélectionné.";
-  if(!currentCompetition){$("fixtures").textContent="Aucune compétition importée.";return;}
+  if(!currentCompetition){$("fixtures").textContent="Aucune compétition importée.";$("xiStatus").textContent="Choisir une compétition.";return;}
+  await refreshXi();
   const [fixtures,teams]=await Promise.all([
     api("/api/matches?competition="+encodeURIComponent(currentCompetition)),
     api("/api/teams?competition="+encodeURIComponent(currentCompetition))]);
@@ -47,7 +48,19 @@ function selectMatch(id){
   $("selectedMatch").innerHTML=`Match sélectionné : <strong>${safe(match.home_name)} – ${safe(match.away_name)}</strong> · ${safe(when(match.kickoff))}${match.source==='demo'?' · <strong>DÉMONSTRATION FICTIVE</strong>':''}`;
   document.querySelectorAll(".fixture").forEach(el=>el.classList.toggle("active",el.dataset.match===id));
 }
-function opts(){return {xi:Number($("xi").value),min_games:Number($("minGames").value),min_team:Number($("minTeam").value),regularization:Number($("reg").value)};}
+function opts(forBacktest=false){return {
+  xi:($('xiMode').value==='manual' || forBacktest)?Number($("xi").value):null,
+  min_games:Number($("minGames").value),min_team:Number($("minTeam").value),
+  regularization:Number($("reg").value)};
+}
+async function refreshXi(){
+  if(!currentCompetition)return;
+  const r=await api('/api/xi/calibration?competition='+encodeURIComponent(currentCompetition));
+  $('xiStatus').textContent=r.available
+    ?`ξ optimisé : ${num(r.calibration.selected_xi,4)} · ${r.calibration.n_scored} matchs de validation · ${r.calibration.n_folds} blocs · données : ${r.calibration.data_source.join(', ')}`
+    :'Aucune valeur ξ optimisée. En mode automatique, le coefficient historique 0,0065 sera utilisé avec un avertissement.';
+}
+
 function renderResult(d){
   const best=d.top_scores[0];
   const bars=d.top_scores.map((s,i)=>`<div class="probrow"><span class="score">${safe(s.score)}</span><div class="track"><div style="width:${Math.min(100,s.probability*100/Math.max(.001,d.top_scores[0].probability))}%"></div></div><span class="prob">${pct(s.probability)}</span></div>`).join("");
@@ -55,6 +68,8 @@ function renderResult(d){
   <div class="results-hero"><div><div class="team">${safe(d.home_team)}</div><div class="sub">Domicile</div></div><div><div class="score">${safe(best.score)}</div><div class="sub">Score le plus probable · ${pct(best.probability)}</div></div><div><div class="team">${safe(d.away_team)}</div><div class="sub">Extérieur</div></div></div>
   <div class="stats"><div class="stat"><div class="label">Buts attendus domicile</div><div class="number">${num(d.expected_home_goals,3)}</div></div><div class="stat"><div class="label">Buts attendus extérieur</div><div class="number">${num(d.expected_away_goals,3)}</div></div><div class="stat"><div class="label">Correction ρ</div><div class="number">${num(d.rho,4)}</div></div></div>
   <h4>Top 5 des scores</h4>${bars}<h4>Probabilités 1 N 2</h4><div class="stats"><div class="stat"><div class="label">Victoire domicile</div><div class="number">${pct(d.one_x_two.home)}</div></div><div class="stat"><div class="label">Match nul</div><div class="number">${pct(d.one_x_two.draw)}</div></div><div class="stat"><div class="label">Victoire extérieur</div><div class="number">${pct(d.one_x_two.away)}</div></div></div>
+  <div class="fine">Paramètre ξ : ${num(d.xi_per_half_week,4)} / demi-semaine · Origine : ${safe(d.xi_source)}${d.xi_calibration?` · Validé sur ${d.xi_calibration.validation_matches} matchs · Historique mis à jour depuis la calibration : ${d.xi_calibration.stale_data?'oui':'non'}`:''}.</div>
+  ${d.xi_source==='historical_default_not_optimized'?'<div class="alert warning">ξ=0,0065 est une valeur historique non optimisée pour cette compétition.</div>':''}
   <div class="fine">Analyse : ${safe(when(d.generated_at))} · ${d.training.matches} matchs historiques · ${d.training.teams} équipes · historique allant du ${safe(d.training.first_game.slice(0,10))} au ${safe(d.training.last_game.slice(0,10))}. Probabilité en dehors de la grille calculée : ${pct(d.probability_uncovered)}. Aucune garantie de score.</div>`;
   $("resultSection").hidden=false;$("resultSection").scrollIntoView({behavior:"smooth",block:"start"});
 }
@@ -85,6 +100,23 @@ async function loadHistory(){
 }
 
 document.addEventListener("DOMContentLoaded",()=>{
+  $("xiMode").addEventListener("change",()=>{$("xi").disabled=$("xiMode").value!=="manual";});
+  $("ofSyncBtn").addEventListener("click",()=>busy("ofSyncBtn",async()=>{
+    const seasons=$("ofSeasons").value.split(",").map(x=>x.trim()).filter(Boolean);
+    const r=await api('/api/sync-openfootball',{method:'POST',body:{seasons}});
+    if(!r.all_successful)notice('Import OpenFootball partiel : '+JSON.stringify(r.seasons),'warning');
+    else notice('Résultats réels importés : '+r.imported_or_updated+' lignes.','info');
+    await reload();$("competition").value=r.competition;await loadCompetition();
+  }));
+  $("calibrateBtn").addEventListener("click",()=>busy("calibrateBtn",async()=>{
+    if(!currentCompetition)throw Error('Sélectionner une compétition réelle.');
+    const r=await api('/api/xi/calibrate',{method:'POST',body:{
+      competition:currentCompetition,eval_start:$("xiStart").value,eval_end:$("xiEnd").value,
+      block_months:Number($("xiBlock").value),min_games:400,min_team:5,
+      min_scored:100,min_folds:3,regularization:0.15}});
+    $("xiReport").textContent=`Valeur optimale ξ=${num(r.selected_xi,4)} · ${r.n_scored} scores réels sur ${r.n_folds} blocs · Log loss optimisée ${num(r.selected_mean_log_loss,4)} contre ${num(r.historical_mean_log_loss,4)} pour ξ=0,0065.`;
+    await refreshXi();notice('Optimisation réelle terminée et enregistrée dans SQLite.');
+  }));
   $("kickoff").value=new Date(Date.now()+86400000).toLocaleString("sv-SE").slice(0,16).replace(" ","T");
   $("competition").addEventListener("change",()=>busy("refreshBtn",loadCompetition));
   $("refreshBtn").addEventListener("click",()=>busy("refreshBtn",reload));

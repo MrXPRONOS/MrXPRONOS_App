@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dcscore-independent"
-version = "1.0.0"
+version = "1.1.0"
 description = "Independent Dixon-Coles exact-score prediction engine"
 requires-python = ">=3.10"
 dependencies = [
@@ -22,7 +22,7 @@ dcscore = "dcscore.cli:main"
 include = ["dcscore*"]
 
 [tool.setuptools.package-data]
-dcscore = ["static/*"]
+dcscore = ["static/*", "calibrations/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,6 +1,6 @@
 # Dixon-Coles — nouveau projet totalement indépendant
 
-Version 1.0.0 — **aucun code ni fichier repris d'un autre système Mr XPRONOS**. Ce sous-projet est autonome au sein du dépôt MrXPRONOS_App, avec sa propre base SQLite, son moteur et son interface.
+Version 1.0.0 — **aucun code ni fichier repris d'un autre système Mr XPRONOS**. Le dépôt est autonome, avec sa propre base SQLite, son moteur et son interface.
 
 ## Fonctionnalités livrées
 
@@ -15,16 +15,15 @@ Version 1.0.0 — **aucun code ni fichier repris d'un autre système Mr XPRONOS*
 - Historique immuable des prévisions avec comparaison automatique aux résultats synchronisés. Possibilité de saisir un résultat pour un match créé manuellement, marqué non vérifié.
 - Backtest walk-forward : chaque match test est prédit après réentraînement sur les matchs d'avant sa date (aucune rencontre du même jour dans l'apprentissage), avec Top 1, Top 3 et log loss.
 - CLI et interface web responsive, génération explicite d'une base DEMO entièrement fictive.
-- Tests automatisés et workflow GitHub Actions dédié au sous-projet, déclenché uniquement lorsque ses fichiers changent.
+- Tests automatisés et workflow GitHub Actions prêt pour un **nouveau dépôt**.
 
 ## Installation (Windows, Fedora, Linux, macOS)
 
-Prérequis : **Python 3.10+**. Depuis la racine du dépôt GitHub, entrer d’abord dans `dixon-coles/`, puis lancer :
+Prérequis : **Python 3.10+**. Depuis le dossier de ce projet, lancer :
 
 ### Windows PowerShell
 
 ```powershell
-cd dixon-coles
 py -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install -e ".[test]"
@@ -36,7 +35,6 @@ Si PowerShell bloque l'activation, utiliser directement `.venv\Scripts\python.ex
 ### Fedora / Linux / macOS
 
 ```bash
-cd dixon-coles
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e '.[test]'
@@ -151,7 +149,7 @@ L'étude originale ne prescrit pas l'ensemble des sécurités informatiques ni l
 
 Le backtest reconstruit le modèle avant la date de chaque match et calcule : exact Top 1, Top 3, log loss et comparaison à Poisson avec les **mêmes intensités** (rho=0). Il ne prouve pas une supériorité sur les bookmakers ni une rentabilité financière. Les données manuelles ne constituent pas une vérification externe.
 
-Pour une évaluation sérieuse, utiliser des centaines de matchs, contrôler les saisons et éviter le choix des paramètres sur la période finale de test. Le coefficient `ξ=0.0065` provient de l'étude originale mais n'a pas été optimisé ici pour tes championnats.
+Pour une évaluation sérieuse, utiliser des centaines de matchs, contrôler les saisons et éviter le choix des paramètres sur la période finale de test. Le coefficient `ξ=0.0065` est la référence historique ; une optimisation réelle est désormais disponible et sa provenance est explicitement indiquée.
 
 ## Vérifier l'installation
 
@@ -184,10 +182,54 @@ dcscore/
   domain.py     Validation des rencontres
   static/       Interface web autonome
 tests/          Tests automatiques
-../.github/workflows/dixon-coles-independent-tests.yml   CI autonome du sous-projet
+.github/        Workflow de tests pour un nouveau dépôt
 ```
 
 
-## Placement dans MrXPRONOS_App
+## Nouveau : optimisation automatique de ξ sur résultats réels
 
-Ce sous-projet vit exclusivement sous `dixon-coles/` (sauf son workflow CI unique dans `.github/workflows/`). Il ne modifie aucun fichier des anciens algorithmes, aucune page du site principal, ni aucun secret GitHub. Il ne démarre pas automatiquement sur GitHub Pages : le serveur FastAPI s’exécute localement, ou sur un hébergement Python configuré séparément.
+**Fonctionnalité disponible depuis la V1.1.** Le coefficient de décroissance `ξ`
+peut être optimisé sur des scores réellement observés, au lieu de toujours
+reprendre la valeur historique `0.0065`.
+
+Source de démonstration réelle autorisée : les résultats **CC0**
+[OpenFootball / football.json](https://github.com/openfootball/football.json),
+accessibles sans clé API. Le logiciel importe ses saisons dans la compétition
+`of:ENG-PL`. Les autres sources `fd:*` et `csv:*` restent prises en charge pour
+calibrer leur championnat, sans croiser leurs bases ni réutiliser les anciens
+moteurs du projet principal.
+
+**Dans l'interface :** « Importer les résultats réels (CC0) », puis sélectionner
+`of:ENG-PL` et « Optimiser ξ avec des scores réels ». Ensuite le mode
+« Automatique » de la prédiction applique la dernière calibration enregistrée.
+
+**Depuis la console :**
+
+```bash
+python -m dcscore.cli sync-openfootball --seasons 2021-22 2022-23 2023-24 2024-25 2025-26 2026-27
+python -m dcscore.cli calibrate-xi --competition of:ENG-PL \
+  --start 2024-08-01 --end 2025-06-01 \
+  --block-months 2 --min-games 500 --min-team 5 \
+  --min-folds 4 --min-scored 160 \
+  --holdout-start 2025-08-01 --holdout-end 2026-06-01 \
+  --output dcscore/calibrations/eng-premier-league.json
+```
+
+Pour une prédiction, l'argument `--xi` est désormais **facultatif** : sans
+argument, `dcscore` applique d'abord le coefficient optimisé pour la
+compétition. S'il n'existe pas, le programme indique clairement qu'il utilise
+le coefficient historique **non optimisé**, `0.0065`.
+
+Le rapport contient les performances **hors entraînement** des huit valeurs
+candidates, le nombre de matchs évalués, les dates de validation, les
+empreintes des données et un test final sur une saison postérieure, jamais
+employée pour sélectionner le coefficient. Les prédictions portent leurs
+métadonnées de calibration, notamment `xi_source` et `stale_data`.
+
+Le workflow GitHub Actions dédié lance ce protocole sur le vrai championnat
+et publie la valeur validée dans `dcscore/calibrations/` : elle peut donc être
+utilisée même avec une base SQLite nouvellement créée. Le rapport publié
+n'est pas une garantie de rentabilité ni de prédiction exacte.
+
+**Voir le protocole intégral, ses contraintes et son périmètre :**
+[Xi Calibration](XI_CALIBRATION.md).

@@ -9,8 +9,9 @@ import uvicorn
 
 from .store import Store
 from .sources import parse_csv
-from .service import predict,backtest,sync_seasons
+from .service import predict,backtest,sync_seasons,sync_openfootball_seasons
 from .demo import load_demo
+from .calibration import tune_xi, holdout_evaluation, DEFAULT_CANDIDATES
 
 
 def main(argv: list[str] | None=None):
@@ -26,9 +27,25 @@ def main(argv: list[str] | None=None):
     sync=commands.add_parser("sync",help="Récupère les saisons via football-data.org v4")
     sync.add_argument("--code",required=True,help="Exemple: PL, FL1, PD, BL1, SA")
     sync.add_argument("--seasons",type=int,nargs="+",required=True)
+    of=commands.add_parser("sync-openfootball", help="Importe les résultats réels CC0 Premier League (sans clé API)")
+    of.add_argument("--seasons",nargs="+",required=True,help="Exemple : 2022-23 2023-24 2024-25 2025-26")
+    cal=commands.add_parser("calibrate-xi",help="Optimise ξ sur des résultats réels (validation chronologique)")
+    cal.add_argument("--competition",default="of:ENG-PL")
+    cal.add_argument("--start",required=True,help="Début de validation AAAA-MM-01")
+    cal.add_argument("--end",required=True,help="Fin exclusive de validation AAAA-MM-01")
+    cal.add_argument("--block-months",type=int,default=2)
+    cal.add_argument("--min-games",type=int,default=400)
+    cal.add_argument("--min-team",type=int,default=5)
+    cal.add_argument("--min-folds",type=int,default=3)
+    cal.add_argument("--min-scored",type=int,default=100)
+    cal.add_argument("--regularization",type=float,default=0.15)
+    cal.add_argument("--candidates",nargs="+",type=float,default=list(DEFAULT_CANDIDATES))
+    cal.add_argument("--output",help="Enregistrer le rapport JSON complet")
+    cal.add_argument("--holdout-start",help="Évaluation FINALE indépendante (AAAA-MM-01)")
+    cal.add_argument("--holdout-end",help="Fin exclusive du holdout (AAAA-MM-01)")
     pred=commands.add_parser("predict",help="Analyse un match futur déjà sélectionné")
     pred.add_argument("match_id")
-    pred.add_argument("--xi",type=float,default=0.0065)
+    pred.add_argument("--xi",type=float,default=None,help="Override manuel. Par défaut : xi calibré s’il existe.")
     pred.add_argument("--min-games",type=int,default=80)
     back=commands.add_parser("backtest",help="Backtest chronologique")
     back.add_argument("--competition",required=True)
@@ -55,6 +72,35 @@ def main(argv: list[str] | None=None):
                     "competitions":sorted({m.competition for m in rows})}
         elif args.command=="sync":
             result=sync_seasons(db,args.code,args.seasons)
+        elif args.command=="sync-openfootball":
+            result=sync_openfootball_seasons(db,args.seasons)
+        elif args.command=="calibrate-xi":
+            result=tune_xi(db,args.competition,eval_start=args.start,eval_end=args.end,
+                           candidates=tuple(args.candidates),block_months=args.block_months,
+                           min_games=args.min_games,min_team=args.min_team,
+                           min_folds=args.min_folds,min_scored=args.min_scored,
+                           regularization=args.regularization)
+            if args.holdout_start or args.holdout_end:
+                if not args.holdout_start or not args.holdout_end:
+                    raise ValueError("Les deux dates de holdout sont nécessaires.")
+                if args.holdout_start < args.end:
+                    raise ValueError("Le holdout doit commencer après la calibration.")
+                result["holdout_not_used_for_selection"]=holdout_evaluation(
+                    db.matches(args.competition,finished=True),xi=result["selected_xi"],
+                    eval_start=args.holdout_start,eval_end=args.holdout_end,
+                    min_games=args.min_games,min_team=args.min_team,
+                    regularization=args.regularization)
+            if args.output:
+                from pathlib import Path
+                path=Path(args.output)
+                path.parent.mkdir(parents=True,exist_ok=True)
+                path.write_text(json.dumps(result,ensure_ascii=False,indent=2,allow_nan=False)+"\n",encoding="utf-8")
+                result={"competition":result["competition"],"selected_xi":result["selected_xi"],
+                        "n_scored":result["n_scored"],"n_folds":result["n_folds"],
+                        "selected_mean_log_loss":result["selected_mean_log_loss"],
+                        "historical_mean_log_loss":result["historical_mean_log_loss"],
+                        "holdout":result.get("holdout_not_used_for_selection"),
+                        "saved_report":str(path)}
         elif args.command=="predict":
             result=predict(db,args.match_id,xi=args.xi,min_games=args.min_games)
         elif args.command=="backtest":

@@ -1,18 +1,21 @@
 """HTTP API + local web interface for one selected prematch at a time."""
 from __future__ import annotations
 from datetime import datetime, timezone
+import os
+import hmac
 from pathlib import Path
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Request
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from .domain import Match, utc_datetime
 from .store import Store
 from .sources import parse_csv, api_enabled
-from .service import predict, backtest, sync_seasons
+from .service import predict, backtest, sync_seasons, sync_openfootball_seasons
 from .demo import load_demo
+from .calibration import tune_xi, DEFAULT_CANDIDATES
 
 
 class SyncRequest(BaseModel):
@@ -35,7 +38,7 @@ class FinalScoreRequest(BaseModel):
 
 class PredictRequest(BaseModel):
     match_id: str
-    xi: float = Field(default=0.0065,ge=0,le=0.3)
+    xi: float | None = Field(default=None,ge=0,le=0.3)
     min_games: int = Field(default=80,ge=12,le=10000)
     min_team: int = Field(default=5,ge=1,le=100)
     regularization: float = Field(default=0.15,ge=0,le=10)
@@ -48,6 +51,35 @@ class BacktestRequest(BaseModel):
     min_team: int = Field(default=5,ge=1,le=100)
     xi: float = Field(default=0.0065,ge=0,le=0.3)
     regularization: float = Field(default=0.15,ge=0,le=10)
+
+
+
+class OpenfootballSyncRequest(BaseModel):
+    seasons: list[str] = Field(min_length=1,max_length=8)
+
+
+class CalibrateXiRequest(BaseModel):
+    competition: str = "of:ENG-PL"
+    eval_start: str = "2024-08-01"
+    eval_end: str = "2025-06-01"
+    block_months: int = Field(default=2,ge=1,le=6)
+    min_games: int = Field(default=400,ge=12,le=10000)
+    min_team: int = Field(default=5,ge=1,le=100)
+    min_scored: int = Field(default=100,ge=1,le=5000)
+    min_folds: int = Field(default=3,ge=1,le=40)
+    regularization: float = Field(default=0.15,ge=0,le=10)
+    candidates: list[float] = Field(default_factory=lambda:list(DEFAULT_CANDIDATES),min_length=2,max_length=16)
+
+
+def _require_local_or_token(request: Request) -> None:
+    """Costly calibration and downloads are not anonymously public."""
+    ip=(request.client.host if request.client else "")
+    if ip in ("127.0.0.1","::1","testclient"):
+        return
+    expected=os.environ.get("DCSCORE_ADMIN_TOKEN","")
+    actual=request.headers.get("X-DCSCORE-ADMIN-TOKEN","")
+    if not expected or not hmac.compare_digest(expected,actual):
+        raise HTTPException(403,"Opération réservée à l'administrateur local.")
 
 
 def create_app(store: Store | None=None) -> FastAPI:
@@ -111,6 +143,32 @@ def create_app(store: Store | None=None) -> FastAPI:
         if not result["rows_imported_or_updated"]:
             raise HTTPException(400,detail=result)
         return result
+
+    @app.post("/api/sync-openfootball")
+    def sync_public(request: Request, values: OpenfootballSyncRequest):
+        _require_local_or_token(request)
+        result=sync_openfootball_seasons(db,values.seasons)
+        if not result["imported_or_updated"]:
+            raise HTTPException(400,detail=result)
+        return result
+
+    @app.get("/api/xi/calibration")
+    def xi_calibration(competition: str):
+        saved=db.latest_xi_calibration(competition)
+        return {"available":saved is not None,"calibration":saved}
+
+    @app.post("/api/xi/calibrate")
+    def xi_calibrate(request: Request, values: CalibrateXiRequest):
+        _require_local_or_token(request)
+        try:
+            return tune_xi(db,values.competition,eval_start=values.eval_start,
+                           eval_end=values.eval_end,block_months=values.block_months,
+                           min_games=values.min_games,min_team=values.min_team,
+                           min_scored=values.min_scored,min_folds=values.min_folds,
+                           regularization=values.regularization,
+                           candidates=tuple(values.candidates))
+        except ValueError as exc:
+            raise HTTPException(400,str(exc)) from exc
 
     @app.post("/api/fixtures/manual")
     def manual(request: ManualRequest):
