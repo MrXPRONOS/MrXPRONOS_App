@@ -1,0 +1,66 @@
+name: BSD V3 - free manual shadow (unpublished)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: shadow or evaluate
+        required: true
+        type: choice
+        default: shadow
+        options: [shadow, evaluate]
+      max_odds_events:
+        description: Maximum match quotes fetched (0 disables odds)
+        required: false
+        default: '15'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bsd-v3-experimental
+  cancel-in-progress: false
+
+jobs:
+  shadow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Free dependencies only
+        run: python -m pip install requests cryptography
+      - name: Offline regression
+        run: |
+          python -m compileall -q bsd_v3
+          python -m unittest discover -s bsd_v3 -p 'test_*.py' -v
+      - name: Restore existing encrypted match history
+        env:
+          BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+        run: python bsd/bsd_archive.py restore
+      - name: BSD V3 shadow without publication
+        if: inputs.mode == 'shadow'
+        env:
+          BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+          MAX_ODDS: ${{ inputs.max_odds_events }}
+        run: python -m bsd_v3.cli --mode shadow --max-requests 90 --max-odds-events "${MAX_ODDS:-15}" --output bsd_v3/artifacts/shadow.json
+      - name: BSD V3 retrospective diagnostics
+        if: inputs.mode == 'evaluate'
+        run: python -m bsd_v3.cli --mode evaluate --output bsd_v3/artifacts/evaluation.json
+      - name: Ensure shadow is not publicly published
+        if: inputs.mode == 'shadow'
+        run: |
+          python -c 'import json; x=json.load(open("bsd_v3/artifacts/shadow.json")); assert x["published"] is False and x["experimental"] is True and x["no_site_write"] and x["no_telegram"]; print("BSD_V3_SHADOW_OK")'
+      - name: Remove decrypted private history
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+      - name: Keep only V3 diagnostic artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bsd-v3-experimental-${{ github.run_id }}
+          path: bsd_v3/artifacts/*.json
+          retention-days: 90
+          if-no-files-found: error
