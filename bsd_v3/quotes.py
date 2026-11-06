@@ -36,13 +36,17 @@ def validate_quote(raw, *, now, kickoff, policy=V3Policy()):
     bookmaker=str(raw.get("bookmaker") or "").strip()
     if not bookmaker:
         return None, "missing_provider"
-    # Only a named bookmaker may eventually be used as evidence of a
-    # bookmaker offer. Free BSD consensus remains a non-executable benchmark.
-    executable=raw["origin"]=="bsd_bookmaker" and bookmaker.lower()!="consensus"
+    # Named, timestamped sportsbook offers can be studied economically.
+    # This does NOT establish that a user in Togo can place the wager.
+    named=(raw["origin"] in ("bsd_bookmaker","oddslink_public","pinnwire")
+           and bookmaker.lower() not in ("consensus","oddslink_public","pinnwire","bsd"))
+    executable=named
     return {"odds":float(price), "bookmaker":bookmaker,
             "origin":raw["origin"],"captured_at":captured.isoformat(),
             "updated_at":updated.isoformat(),"verified":True,
-            "executable":executable,"benchmark_only":not executable}, "ok"
+            "executable":executable,"named_bookmaker_quote":named,
+            "availability_confirmed":False,
+            "benchmark_only":not named}, "ok"
 
 def validate_market_quotes(quotes, candidates, *, now, kickoff, policy=V3Policy()):
     codes={c.market_code for c in candidates}
