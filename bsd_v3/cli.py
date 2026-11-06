@@ -69,9 +69,10 @@ def settle_existing_registry(history, *, now, client, registry_path, max_days=7)
 
 def main(argv=None):
     ap=argparse.ArgumentParser(description="BSD V3 FREE isolated experimental engine")
-    ap.add_argument("--mode",choices=["shadow","evaluate","settle"],default="shadow")
+    ap.add_argument("--mode",choices=["shadow","evaluate","compare","settle"],default="shadow")
     ap.add_argument("--history",default="bsd/all_matches_bsd.json")
     ap.add_argument("--days",type=int,default=1)
+    ap.add_argument("--max-test-matches",type=int,default=700)
     ap.add_argument("--max-odds-events",type=int,default=15)
     ap.add_argument("--max-requests",type=int,default=90)
     ap.add_argument("--bookmaker",default="consensus")
@@ -82,7 +83,8 @@ def main(argv=None):
     ap.add_argument("--registry",default="bsd_v3/artifacts/prediction_log.jsonl")
     ap.add_argument("--output",default="bsd_v3/artifacts/latest_shadow.json")
     args=ap.parse_args(argv)
-    if not 1<=args.days<=3 or not 0<=args.max_odds_events<=100 or not 1<=args.max_requests<=300:
+    if (not 1<=args.days<=3 or not 0<=args.max_odds_events<=100
+            or not 1<=args.max_requests<=300 or not 50<=args.max_test_matches<=2000):
         ap.error("Invalid free-request bounds")
     allowed_artifact(args.output)
     allowed_artifact(args.registry)
@@ -91,6 +93,14 @@ def main(argv=None):
     if not isinstance(history,list) or not history:
         ap.error("Existing encrypted BSD history must be restored first")
     now=datetime.now(timezone.utc)
+    if args.mode=="compare":
+        from .comparison import compare_all_markets
+        report=compare_all_markets(history,max_matches=args.max_test_matches,
+                                   challengers=args.challengers)
+        atomic_json(args.output,report)
+        print("BSD_V3_PAIRED_COMPARE",json.dumps({
+            "examined":report["fixtures_examined"],"coverage":report["coverage"]}))
+        return 0
     if args.mode=="evaluate":
         report=retrospective(history)
         atomic_json(args.output,report)
