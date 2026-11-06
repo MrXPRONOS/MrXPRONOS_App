@@ -66,6 +66,10 @@ def record_snapshot(snapshot,path="bsd_v3/artifacts/prediction_log.jsonl"):
     if snapshot.get("format")!="bsd-v3-shadow-v1" or snapshot.get("published") is not False:
         raise ValueError("Only unpublished V3 shadow snapshots can be preserved")
     fingerprint=snapshot.get("fingerprint_sha256")
+    contents={k:v for k,v in snapshot.items() if k!="fingerprint_sha256"}
+    expected=hashlib.sha256(_canonical(contents).encode("utf-8")).hexdigest()
+    if fingerprint!=expected:
+        raise ValueError("Snapshot fingerprint mismatch; refuse immutable capture")
     count=0
     for entry in snapshot.get("matches",[]):
         if entry.get("status")!="analyzed":continue
