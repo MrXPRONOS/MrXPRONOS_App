@@ -8,6 +8,7 @@ on:
       - 'bsd_v3/**'
       - '.github/workflows/bsd-v3-ci.yml'
       - '.github/workflows/bsd-v3-shadow.yml'
+      - '.github/workflows/bsd-v3-prospective.yml'
 
 permissions:
   contents: read
