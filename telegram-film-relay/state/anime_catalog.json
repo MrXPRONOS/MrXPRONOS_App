@@ -1,7 +1,7 @@
 {
   "audit": {
     "category": "anime_catalog",
-    "checked_at": "2026-11-05T20:17:11.010214+00:00",
+    "checked_at": "2026-11-06T07:11:02.896492+00:00",
     "not_yet_indexed": [
       {
         "episode": 2,
@@ -604,7 +604,7 @@
         "source_instances": 1
       }
     ],
-    "not_yet_indexed_total": 2258,
+    "not_yet_indexed_total": 2259,
     "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
     "numbering_gap_seasons": 1,
     "numbering_gaps": [
@@ -650,8 +650,8 @@
         "truncated": false
       }
     ],
-    "scanned_episode_candidates": 2577,
-    "source_episode_numbers_observed": 2357,
+    "scanned_episode_candidates": 2579,
+    "source_episode_numbers_observed": 2358,
     "source_numbering_gap_seasons": 62,
     "source_numbering_gaps": [
       {
@@ -1275,7 +1275,7 @@
       }
     ],
     "source_scan_complete": true,
-    "unnumbered_videos_skipped": 387
+    "unnumbered_videos_skipped": 388
   },
   "scans": {
     "-1001787980027": {
@@ -3242,6 +3242,15 @@
         "5": [
           "-1002069851953:65012",
           "-1002069851953:65013"
+        ]
+      }
+    },
+    "aoki-densho-welsh-shedar": {
+      "1": {
+        "1": [
+          "-1002069851953:65354",
+          "-1002069851953:65355",
+          "-1002069851953:65356"
         ]
       }
     },
