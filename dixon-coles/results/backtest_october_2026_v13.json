@@ -1,0 +1,1328 @@
+{
+  "automatic_model_choice": {
+    "selected_model_from_pre_october_validation": "poisson",
+    "validation_start": "2025-08-01",
+    "validation_end_exclusive": "2026-06-01",
+    "validation_matches": 374,
+    "mean_exact_score_log_loss": 3.0423597144123593,
+    "top1_hit_rate": 0.15789473684210525,
+    "top3_hit_rate": 0.23684210526315788,
+    "top1_one_one_count": 25,
+    "note": "Règle calibrée uniquement sur la saison 2025–26. La méthode a été ajoutée rétrospectivement après octobre : ce résultat ne constitue pas un essai prospectif."
+  },
+  "period_start_inclusive": "2026-10-01T00:00:00+00:00",
+  "period_end_exclusive": "2026-11-01T00:00:00+00:00",
+  "competition": "of:ENG-PL",
+  "model": "Dixon-Coles V1.2",
+  "xi": 0.0065,
+  "test_method": "one monthly refit 2026-10-01; no October final scores in training",
+  "data_notes": "Fixture dates only; exact kickoffs not available in CSV. Times represented as 00:00Z, but training stops at 2026-10-01.",
+  "train_historic_count": 1950,
+  "sources": {
+    "training": [
+      {
+        "season": "2021-22",
+        "url": "https://raw.githubusercontent.com/openfootball/football.json/master/2021-22/en.1.json",
+        "sha256": "fbdfd426fa18fa2f8630b77de87c082734da495ac4668d6d72f29f76b73b9564",
+        "total_rows": 380,
+        "finished": 380,
+        "source": "openfootball/football.json",
+        "license": "CC0-1.0",
+        "loaded_past_results": 380
+      },
+      {
+        "season": "2022-23",
+        "url": "https://raw.githubusercontent.com/openfootball/football.json/master/2022-23/en.1.json",
+        "sha256": "8d09f0f9846981626cdfec48903e1f21e7c79aabe6f92535c9e092e8e79b808b",
+        "total_rows": 380,
+        "finished": 380,
+        "source": "openfootball/football.json",
+        "license": "CC0-1.0",
+        "loaded_past_results": 380
+      },
+      {
+        "season": "2023-24",
+        "url": "https://raw.githubusercontent.com/openfootball/football.json/master/2023-24/en.1.json",
+        "sha256": "03e13eafbf78dfe00d7e89dd3bf6643986eb6e8fd86c7664aeb8c5bc0bed88d0",
+        "total_rows": 380,
+        "finished": 380,
+        "source": "openfootball/football.json",
+        "license": "CC0-1.0",
+        "loaded_past_results": 380
+      },
+      {
+        "season": "2024-25",
+        "url": "https://raw.githubusercontent.com/openfootball/football.json/master/2024-25/en.1.json",
+        "sha256": "c3d18f552d83382cd4b6b21127adbbfe38e7f8618ddc979fb5404f2df07d0a75",
+        "total_rows": 380,
+        "finished": 380,
+        "source": "openfootball/football.json",
+        "license": "CC0-1.0",
+        "loaded_past_results": 380
+      },
+      {
+        "season": "2025-26",
+        "url": "https://raw.githubusercontent.com/openfootball/football.json/master/2025-26/en.1.json",
+        "sha256": "d6070bdf731546ccf97767f062e8af4bd26dd309dee69f6092025bf9c78f43c1",
+        "total_rows": 380,
+        "finished": 380,
+        "source": "openfootball/football.json",
+        "license": "CC0-1.0",
+        "loaded_past_results": 380
+      },
+      {
+        "season": "2026-27",
+        "url": "https://raw.githubusercontent.com/openfootball/football.json/master/2026-27/en.1.json",
+        "sha256": "bb91f0ab3e8359df163bb9ec98549bfed85e200dd4c32f3bd606b5890d932dd2",
+        "total_rows": 380,
+        "finished": 50,
+        "source": "openfootball/football.json",
+        "license": "CC0-1.0",
+        "loaded_past_results": 50
+      }
+    ],
+    "october_results": {
+      "url": "https://statsnext.com/premier-league/matches/2026-10",
+      "crosscheck_url": "https://bbcinsight.pages.dev/sport/football/premier-league/scores-fixtures/2026-10?filter=results",
+      "license": "third party match facts, not certified",
+      "csv_sha256": "1fe45ae371864cfb8302cfd09082642414f250c5a35a187ec7a47b364014e8b1",
+      "n_matches": 38
+    }
+  },
+  "metrics": {
+    "competition": "of:ENG-PL",
+    "n_evaluated": 38,
+    "n_requested": 38,
+    "n_skipped": 0,
+    "n_folds": 1,
+    "folds": [
+      {
+        "start": "2026-10-01T00:00:00Z",
+        "train_matches": 1950,
+        "last_training_match": "2026-09-20T15:30:00Z",
+        "matches_targeted": 38
+      }
+    ],
+    "top1_hit_rate": 0.18421052631578946,
+    "top3_hit_rate": 0.2894736842105263,
+    "mean_top1_probability": 0.13700417236762333,
+    "mean_dc_log_loss": 3.047955605323292,
+    "mean_poisson_independent_log_loss": 3.0423597144123593,
+    "mean_poisson_same_intensities_log_loss": 3.0467594620508693,
+    "poisson_top1_hit_rate": 0.15789473684210525,
+    "dc_top1_score_1_1_count": 27,
+    "poisson_top1_score_1_1_count": 25,
+    "mean_poisson_baseline_log_loss": 3.0423597144123593,
+    "mean_one_x_two_brier": 0.6363714792677599,
+    "top1_confidence_buckets": [
+      {
+        "n": 7,
+        "mean_confidence": 0.10896205767295528,
+        "observed_top1_frequency": 0.14285714285714285
+      },
+      {
+        "n": 8,
+        "mean_confidence": 0.11800878103146828,
+        "observed_top1_frequency": 0.125
+      },
+      {
+        "n": 7,
+        "mean_confidence": 0.12791963824894984,
+        "observed_top1_frequency": 0.2857142857142857
+      },
+      {
+        "n": 8,
+        "mean_confidence": 0.13743971575292196,
+        "observed_top1_frequency": 0.25
+      },
+      {
+        "n": 8,
+        "mean_confidence": 0.18804983803015374,
+        "observed_top1_frequency": 0.125
+      }
+    ],
+    "baseline_note": "Poisson est réentraîné indépendamment avec rho fixé à zéro ; mêmes rencontres et mêmes coupures chronologiques que Dixon-Coles.",
+    "granularity": "Réentraînement au premier jour de chaque mois de test ; aucun résultat du mois en cours utilisé.",
+    "detailed": [
+      {
+        "match_id": "oct2026:310faecc461f4901b8cfac4f",
+        "match": "Manchester United FC - Tottenham Hotspur FC",
+        "kickoff": "2026-10-10T00:00:00Z",
+        "actual": "1-1",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "2-1",
+          "2-0"
+        ],
+        "top_one_probability": 0.11058428840294748,
+        "top1_hit": true,
+        "top3_hit": true,
+        "dc_log_loss": 2.2019772578246077,
+        "poisson_independent_log_loss": 2.2925966459292964,
+        "poisson_same_intensities_log_loss": 2.28671606375569,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "poisson_top_one_probability": 0.10100384981073934,
+        "best_score_margin_pp": 1.322249479602465,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.9097523252669355,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:5c81b6835b11bff659e02690",
+        "match": "Chelsea FC - AFC Bournemouth",
+        "kickoff": "2026-10-10T00:00:00Z",
+        "actual": "5-1",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-2"
+        ],
+        "top_one_probability": 0.11627074646188772,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 4.782115820449779,
+        "poisson_independent_log_loss": 4.7871606974895125,
+        "poisson_same_intensities_log_loss": 4.782115820449779,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "poisson_top_one_probability": 0.10703101002351824,
+        "best_score_margin_pp": 2.2718259668710052,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.4313719162565831,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:97a3d16852385fccad3fd345",
+        "match": "Ipswich Town FC - Fulham FC",
+        "kickoff": "2026-10-10T00:00:00Z",
+        "actual": "2-1",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "1-2",
+          "0-1"
+        ],
+        "top_one_probability": 0.11849523590177347,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 2.7719280829912214,
+        "poisson_independent_log_loss": 2.7645125630947422,
+        "poisson_same_intensities_log_loss": 2.7719280829912214,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "1-2",
+          "0-1"
+        ],
+        "poisson_top_one_probability": 0.10851588201672857,
+        "best_score_margin_pp": 2.1091079420702346,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.9138475340393523,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:d35c5974d23de886c529db2c",
+        "match": "Aston Villa FC - Brentford FC",
+        "kickoff": "2026-10-10T00:00:00Z",
+        "actual": "2-2",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-2"
+        ],
+        "top_one_probability": 0.1235021231696365,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 2.79190054782729,
+        "poisson_independent_log_loss": 2.7953036761956205,
+        "poisson_same_intensities_log_loss": 2.79190054782729,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "poisson_top_one_probability": 0.11381559113574986,
+        "best_score_margin_pp": 3.427000048044067,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.8158921898035311,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:ddbb193cdf9b42dbf6fe9453",
+        "match": "Sunderland AFC - Brighton & Hove Albion FC",
+        "kickoff": "2026-10-10T00:00:00Z",
+        "actual": "0-2",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "0-1",
+          "1-2"
+        ],
+        "top_one_probability": 0.13449675863379343,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 2.612739307052332,
+        "poisson_independent_log_loss": 2.605120326891347,
+        "poisson_same_intensities_log_loss": 2.612739307052332,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "0-1",
+          "1-2"
+        ],
+        "poisson_top_one_probability": 0.1235425519121871,
+        "best_score_margin_pp": 4.288310886408708,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.5198467666495903,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:f89482dfc91f074d2e489ce7",
+        "match": "Arsenal FC - Leeds United FC",
+        "kickoff": "2026-10-10T00:00:00Z",
+        "actual": "2-1",
+        "best": "2-0",
+        "top_three": [
+          "2-0",
+          "1-0",
+          "1-1"
+        ],
+        "top_one_probability": 0.13434992763506318,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 2.363784781942132,
+        "poisson_independent_log_loss": 2.3626737516355725,
+        "poisson_same_intensities_log_loss": 2.363784781942132,
+        "poisson_best_score": "1-0",
+        "poisson_top_three": [
+          "1-0",
+          "2-0",
+          "1-1"
+        ],
+        "poisson_top_one_probability": 0.13669117361691593,
+        "best_score_margin_pp": 0.6050017985368195,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.17500751274679097,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:41edefe617eeecbade5b884b",
+        "match": "Hull City AFC - Everton FC",
+        "kickoff": "2026-10-11T00:00:00Z",
+        "actual": "2-2",
+        "best": "0-0",
+        "top_three": [
+          "0-0",
+          "1-0",
+          "1-1"
+        ],
+        "top_one_probability": 0.18028410881692558,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 3.7880022672143223,
+        "poisson_independent_log_loss": 3.8242253169281786,
+        "poisson_same_intensities_log_loss": 3.7880022672143223,
+        "poisson_best_score": "1-0",
+        "poisson_top_three": [
+          "1-0",
+          "0-0",
+          "1-1"
+        ],
+        "poisson_top_one_probability": 0.1932635422126245,
+        "best_score_margin_pp": 0.040364768017955854,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.6878127406764877,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:79cc8d5320ccf46ac2ca0dff",
+        "match": "Liverpool FC - Manchester City FC",
+        "kickoff": "2026-10-11T00:00:00Z",
+        "actual": "0-3",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "1-2",
+          "2-1"
+        ],
+        "top_one_probability": 0.11894622770142685,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 3.3433012248370324,
+        "poisson_independent_log_loss": 3.3454539547498596,
+        "poisson_same_intensities_log_loss": 3.3433012248370324,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "1-2",
+          "0-1"
+        ],
+        "poisson_top_one_probability": 0.10902747025801385,
+        "best_score_margin_pp": 2.8791850907035856,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.4984032675135595,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:bae78269fef4c5aa6cb57d2c",
+        "match": "Crystal Palace FC - Nottingham Forest FC",
+        "kickoff": "2026-10-11T00:00:00Z",
+        "actual": "3-1",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "0-0",
+          "1-0"
+        ],
+        "top_one_probability": 0.14067767883948562,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 3.3727368894007834,
+        "poisson_independent_log_loss": 3.387638451511454,
+        "poisson_same_intensities_log_loss": 3.3727368894007834,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "1-0",
+          "0-1"
+        ],
+        "poisson_top_one_probability": 0.12961212665968092,
+        "best_score_margin_pp": 4.3491372204758765,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.5992092938110528,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:b2e7849b996d542b7a644fa2",
+        "match": "Coventry City FC - Newcastle United FC",
+        "kickoff": "2026-10-12T00:00:00Z",
+        "actual": "4-1",
+        "best": "0-1",
+        "top_three": [
+          "0-1",
+          "0-2",
+          "0-0"
+        ],
+        "top_one_probability": 0.19442199953960318,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 8.459982637003064,
+        "poisson_independent_log_loss": 8.377158865410639,
+        "poisson_same_intensities_log_loss": 8.459982637003064,
+        "poisson_best_score": "0-1",
+        "poisson_top_three": [
+          "0-1",
+          "0-2",
+          "0-0"
+        ],
+        "poisson_top_one_probability": 0.1965193585385184,
+        "best_score_margin_pp": 1.5077298543533373,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 1.4178954216516582,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:06e6fb06adf54accb88ebd3a",
+        "match": "Brentford FC - Liverpool FC",
+        "kickoff": "2026-10-17T00:00:00Z",
+        "actual": "1-2",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "1-2",
+          "2-1"
+        ],
+        "top_one_probability": 0.11773914877983936,
+        "top1_hit": false,
+        "top3_hit": true,
+        "dc_log_loss": 2.4246265122887958,
+        "poisson_independent_log_loss": 2.42708705874626,
+        "poisson_same_intensities_log_loss": 2.4246265122887958,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "1-2",
+          "2-1"
+        ],
+        "poisson_top_one_probability": 0.10895010301216858,
+        "best_score_margin_pp": 2.922797807576881,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.5236229427394852,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:20115988aad49994b50e64d0",
+        "match": "Fulham FC - Hull City AFC",
+        "kickoff": "2026-10-17T00:00:00Z",
+        "actual": "1-0",
+        "best": "0-0",
+        "top_three": [
+          "0-0",
+          "1-1",
+          "0-1"
+        ],
+        "top_one_probability": 0.15633659144680861,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 2.1798055856594183,
+        "poisson_independent_log_loss": 2.062069188690259,
+        "poisson_same_intensities_log_loss": 2.0803802942669676,
+        "poisson_best_score": "0-1",
+        "poisson_top_three": [
+          "0-1",
+          "0-0",
+          "1-1"
+        ],
+        "poisson_top_one_probability": 0.15654536224376636,
+        "best_score_margin_pp": 1.0865513405530047,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.7845743218652832,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:534a5826080a9b70a08dcc1b",
+        "match": "Manchester City FC - Ipswich Town FC",
+        "kickoff": "2026-10-17T00:00:00Z",
+        "actual": "3-2",
+        "best": "3-0",
+        "top_three": [
+          "3-0",
+          "4-0",
+          "2-0"
+        ],
+        "top_one_probability": 0.10852774762398577,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 3.6624939919671986,
+        "poisson_independent_log_loss": 3.643438911101946,
+        "poisson_same_intensities_log_loss": 3.6624939919671986,
+        "poisson_best_score": "3-0",
+        "poisson_top_three": [
+          "3-0",
+          "4-0",
+          "2-0"
+        ],
+        "poisson_top_one_probability": 0.10746637431174555,
+        "best_score_margin_pp": 1.365980380973686,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.02385404419057414,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:70e4fa83c3e5cfbb7da90520",
+        "match": "Everton FC - Chelsea FC",
+        "kickoff": "2026-10-17T00:00:00Z",
+        "actual": "0-2",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "0-1",
+          "0-0"
+        ],
+        "top_one_probability": 0.13840850907074503,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 2.719805687992824,
+        "poisson_independent_log_loss": 2.720910395193462,
+        "poisson_same_intensities_log_loss": 2.719805687992824,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "0-1",
+          "1-0"
+        ],
+        "poisson_top_one_probability": 0.12697143916256343,
+        "best_score_margin_pp": 4.770990741044677,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.604923152216929,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:98f353b062bd68e8124d1ce4",
+        "match": "Newcastle United FC - Aston Villa FC",
+        "kickoff": "2026-10-17T00:00:00Z",
+        "actual": "0-1",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-2"
+        ],
+        "top_one_probability": 0.11479491501811685,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 2.9763589113059656,
+        "poisson_independent_log_loss": 2.8151661887224018,
+        "poisson_same_intensities_log_loss": 2.808341196398994,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "poisson_top_one_probability": 0.10512883319909977,
+        "best_score_margin_pp": 2.256767772440882,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.76308481248875,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:2f71c68897da698cd1a70c50",
+        "match": "Nottingham Forest FC - Arsenal FC",
+        "kickoff": "2026-10-18T00:00:00Z",
+        "actual": "0-1",
+        "best": "0-1",
+        "top_three": [
+          "0-1",
+          "1-1",
+          "0-2"
+        ],
+        "top_one_probability": 0.13373936444398501,
+        "top1_hit": true,
+        "top3_hit": true,
+        "dc_log_loss": 2.0118624145435717,
+        "poisson_independent_log_loss": 1.949081439006682,
+        "poisson_same_intensities_log_loss": 1.9374926146357194,
+        "poisson_best_score": "0-1",
+        "poisson_top_three": [
+          "0-1",
+          "1-1",
+          "0-2"
+        ],
+        "poisson_top_one_probability": 0.14240481903959545,
+        "best_score_margin_pp": 0.6654546274747486,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.3096864232560654,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:da96e425b3d3398e122ba238",
+        "match": "Brighton & Hove Albion FC - Crystal Palace FC",
+        "kickoff": "2026-10-18T00:00:00Z",
+        "actual": "5-0",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "2-1",
+          "2-0"
+        ],
+        "top_one_probability": 0.11782351609256086,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 4.678178061053902,
+        "poisson_independent_log_loss": 4.680113985235945,
+        "poisson_same_intensities_log_loss": 4.678178061053902,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "1-0",
+          "2-1"
+        ],
+        "poisson_top_one_probability": 0.10875161500651141,
+        "best_score_margin_pp": 1.9303265206342597,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.31687460840302417,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:e8256cd91cc3401e9706b535",
+        "match": "AFC Bournemouth - Sunderland AFC",
+        "kickoff": "2026-10-18T00:00:00Z",
+        "actual": "2-0",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "1-0",
+          "2-1"
+        ],
+        "top_one_probability": 0.13363263276839946,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 2.43250303413915,
+        "poisson_independent_log_loss": 2.4242313695745987,
+        "poisson_same_intensities_log_loss": 2.43250303413915,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "1-0",
+          "2-1"
+        ],
+        "poisson_top_one_probability": 0.12272746393489785,
+        "best_score_margin_pp": 2.7765398706963524,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.42823876273869976,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:f8486d23c24d45622ee5cd61",
+        "match": "Leeds United FC - Manchester United FC",
+        "kickoff": "2026-10-18T00:00:00Z",
+        "actual": "1-1",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "1-2",
+          "2-1"
+        ],
+        "top_one_probability": 0.1299895907340534,
+        "top1_hit": true,
+        "top3_hit": true,
+        "dc_log_loss": 2.040300903008943,
+        "poisson_independent_log_loss": 2.1244556235067904,
+        "poisson_same_intensities_log_loss": 2.125039708940025,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "0-1",
+          "1-0"
+        ],
+        "poisson_top_one_probability": 0.1194980024670972,
+        "best_score_margin_pp": 4.5960778440970245,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.7900269183082514,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:7fd801c1f3f6d524fce27ebb",
+        "match": "Tottenham Hotspur FC - Coventry City FC",
+        "kickoff": "2026-10-19T00:00:00Z",
+        "actual": "3-1",
+        "best": "1-0",
+        "top_three": [
+          "1-0",
+          "2-0",
+          "0-0"
+        ],
+        "top_one_probability": 0.20238646587191253,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 3.2206391294478847,
+        "poisson_independent_log_loss": 3.1787514012045985,
+        "poisson_same_intensities_log_loss": 3.2206391294478847,
+        "poisson_best_score": "1-0",
+        "poisson_top_three": [
+          "1-0",
+          "2-0",
+          "0-0"
+        ],
+        "poisson_top_one_probability": 0.20383747931580148,
+        "best_score_margin_pp": 1.8198800762829315,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.136672504455006,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:1b79bb8bbda618d33a46293e",
+        "match": "Ipswich Town FC - Nottingham Forest FC",
+        "kickoff": "2026-10-23T00:00:00Z",
+        "actual": "1-1",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "1-2",
+          "0-1"
+        ],
+        "top_one_probability": 0.1185809899399148,
+        "top1_hit": true,
+        "top3_hit": true,
+        "dc_log_loss": 2.1321590924504052,
+        "poisson_independent_log_loss": 2.219740870099299,
+        "poisson_same_intensities_log_loss": 2.2168978983814873,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "1-2",
+          "0-1"
+        ],
+        "poisson_top_one_probability": 0.1086372563393168,
+        "best_score_margin_pp": 2.0622628885470022,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.8875985625331201,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:0b9251abb5546845486af58a",
+        "match": "Arsenal FC - Everton FC",
+        "kickoff": "2026-10-24T00:00:00Z",
+        "actual": "2-0",
+        "best": "1-0",
+        "top_three": [
+          "1-0",
+          "2-0",
+          "1-1"
+        ],
+        "top_one_probability": 0.1578560563524086,
+        "top1_hit": false,
+        "top3_hit": true,
+        "dc_log_loss": 1.9312434024156844,
+        "poisson_independent_log_loss": 1.9367195059310334,
+        "poisson_same_intensities_log_loss": 1.9312434024156844,
+        "poisson_best_score": "1-0",
+        "poisson_top_three": [
+          "1-0",
+          "2-0",
+          "1-1"
+        ],
+        "poisson_top_one_probability": 0.16529784555897575,
+        "best_score_margin_pp": 1.2888223332747029,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.2030999684890234,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:5c498704d362854e84871479",
+        "match": "Chelsea FC - Tottenham Hotspur FC",
+        "kickoff": "2026-10-24T00:00:00Z",
+        "actual": "0-2",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "2-1",
+          "2-0"
+        ],
+        "top_one_probability": 0.10567834551880038,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 3.476545553704768,
+        "poisson_independent_log_loss": 3.479994636172143,
+        "poisson_same_intensities_log_loss": 3.476545553704768,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "poisson_top_one_probability": 0.09681732195658066,
+        "best_score_margin_pp": 0.9084428690872365,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.9278350908425823,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:802d94302989ec68bae52d32",
+        "match": "Aston Villa FC - Manchester City FC",
+        "kickoff": "2026-10-24T00:00:00Z",
+        "actual": "2-1",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "1-2",
+          "0-2"
+        ],
+        "top_one_probability": 0.115295323974444,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 2.8128794524253427,
+        "poisson_independent_log_loss": 2.8078772925678237,
+        "poisson_same_intensities_log_loss": 2.8128794524253427,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "1-2",
+          "0-1"
+        ],
+        "poisson_top_one_probability": 0.10560304748447694,
+        "best_score_margin_pp": 1.7081950397465602,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.9501953761976066,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:c66cd3704fe829eb3bfca391",
+        "match": "Coventry City FC - Fulham FC",
+        "kickoff": "2026-10-24T00:00:00Z",
+        "actual": "0-1",
+        "best": "0-1",
+        "top_three": [
+          "0-1",
+          "0-0",
+          "0-2"
+        ],
+        "top_one_probability": 0.2290699602264909,
+        "top1_hit": true,
+        "top3_hit": true,
+        "dc_log_loss": 1.47372781891204,
+        "poisson_independent_log_loss": 1.4580608932556607,
+        "poisson_same_intensities_log_loss": 1.439146232569329,
+        "poisson_best_score": "0-1",
+        "poisson_top_three": [
+          "0-1",
+          "0-0",
+          "0-2"
+        ],
+        "poisson_top_one_probability": 0.23268704255859038,
+        "best_score_margin_pp": 4.773058996233054,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.24568303523485224,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:02b0ec463cea5f2a56c10081",
+        "match": "Crystal Palace FC - Newcastle United FC",
+        "kickoff": "2026-10-25T00:00:00Z",
+        "actual": "0-2",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "1-2",
+          "2-1"
+        ],
+        "top_one_probability": 0.12528800017046057,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 2.724348026874297,
+        "poisson_independent_log_loss": 2.7155333995889563,
+        "poisson_same_intensities_log_loss": 2.724348026874297,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "1-2",
+          "0-1"
+        ],
+        "poisson_top_one_probability": 0.11587866714319425,
+        "best_score_margin_pp": 3.631617646236575,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.5259052461505791,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:3400f9aaa2257d1529b2691f",
+        "match": "Hull City AFC - Brentford FC",
+        "kickoff": "2026-10-25T00:00:00Z",
+        "actual": "1-1",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "1-0",
+          "0-0"
+        ],
+        "top_one_probability": 0.14205981708866647,
+        "top1_hit": true,
+        "top3_hit": true,
+        "dc_log_loss": 1.9515070629772435,
+        "poisson_independent_log_loss": 2.0333553342486614,
+        "poisson_same_intensities_log_loss": 2.036245868908326,
+        "poisson_best_score": "1-0",
+        "poisson_top_three": [
+          "1-0",
+          "1-1",
+          "0-0"
+        ],
+        "poisson_top_one_probability": 0.15172074050403864,
+        "best_score_margin_pp": 0.5792373686446223,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.7280495468532009,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:3feb781d3fd9cda15553582a",
+        "match": "Manchester United FC - AFC Bournemouth",
+        "kickoff": "2026-10-25T00:00:00Z",
+        "actual": "0-3",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "top_one_probability": 0.12091905939989919,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 4.017491950991679,
+        "poisson_independent_log_loss": 4.019132768853021,
+        "poisson_same_intensities_log_loss": 4.017491950991679,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "poisson_top_one_probability": 0.11098482541759236,
+        "best_score_margin_pp": 2.720365086165634,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.7948244339364547,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:65100e12f857ab5cd7fa4dc1",
+        "match": "Sunderland AFC - Leeds United FC",
+        "kickoff": "2026-10-25T00:00:00Z",
+        "actual": "0-0",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "0-0",
+          "1-0"
+        ],
+        "top_one_probability": 0.1421530375432375,
+        "top1_hit": false,
+        "top3_hit": true,
+        "dc_log_loss": 2.2730809178834575,
+        "poisson_independent_log_loss": 2.381274833156377,
+        "poisson_same_intensities_log_loss": 2.3920202524453096,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "1-0",
+          "0-1"
+        ],
+        "poisson_top_one_probability": 0.13084322246235294,
+        "best_score_margin_pp": 3.915866398404641,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.73629786840734,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:d6f3418da3c18632b116740d",
+        "match": "Liverpool FC - Brighton & Hove Albion FC",
+        "kickoff": "2026-10-25T00:00:00Z",
+        "actual": "2-0",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "2-1",
+          "2-0"
+        ],
+        "top_one_probability": 0.10927036428805549,
+        "top1_hit": false,
+        "top3_hit": true,
+        "dc_log_loss": 2.6020907895192553,
+        "poisson_independent_log_loss": 2.6053182222211153,
+        "poisson_same_intensities_log_loss": 2.6020907895192553,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "poisson_top_one_probability": 0.10075306531744188,
+        "best_score_margin_pp": 1.3426219508559738,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.3610547590904225,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:12dd674bba9ed97894ad3124",
+        "match": "Manchester City FC - Brighton & Hove Albion FC",
+        "kickoff": "2026-10-31T00:00:00Z",
+        "actual": "0-1",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "2-1",
+          "2-0"
+        ],
+        "top_one_probability": 0.0997864904170533,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 3.370066144871386,
+        "poisson_independent_log_loss": 3.154807827100263,
+        "poisson_same_intensities_log_loss": 3.15837372885205,
+        "poisson_best_score": "2-1",
+        "poisson_top_three": [
+          "2-1",
+          "2-0",
+          "1-1"
+        ],
+        "poisson_top_one_probability": 0.0988981935712108,
+        "best_score_margin_pp": 0.0891431930698891,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 1.1266397813631948,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:58729193bdfebd52ad62a6ce",
+        "match": "Aston Villa FC - Fulham FC",
+        "kickoff": "2026-10-31T00:00:00Z",
+        "actual": "1-1",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "1-0",
+          "2-1"
+        ],
+        "top_one_probability": 0.1287977090231392,
+        "top1_hit": true,
+        "top3_hit": true,
+        "dc_log_loss": 2.0495122525575047,
+        "poisson_independent_log_loss": 2.1367916617591773,
+        "poisson_same_intensities_log_loss": 2.1342510584885868,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "1-0",
+          "2-1"
+        ],
+        "poisson_top_one_probability": 0.1180329257381685,
+        "best_score_margin_pp": 3.4508816022456936,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.8210122396368509,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:708fe495659d4aa46e3da39d",
+        "match": "Brentford FC - Nottingham Forest FC",
+        "kickoff": "2026-10-31T00:00:00Z",
+        "actual": "2-0",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "top_one_probability": 0.1287595046346607,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 2.487492391897676,
+        "poisson_independent_log_loss": 2.4862049692842154,
+        "poisson_same_intensities_log_loss": 2.487492391897676,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "1-0",
+          "2-1"
+        ],
+        "poisson_top_one_probability": 0.11868502003451098,
+        "best_score_margin_pp": 3.466985397978009,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.4224333685664107,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:7d8707f0b3264aa696663aac",
+        "match": "Chelsea FC - Manchester United FC",
+        "kickoff": "2026-10-31T00:00:00Z",
+        "actual": "2-0",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-2"
+        ],
+        "top_one_probability": 0.11409225244172755,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 2.776915228809391,
+        "poisson_independent_log_loss": 2.7817821052025065,
+        "poisson_same_intensities_log_loss": 2.776915228809391,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "2-1",
+          "1-2"
+        ],
+        "poisson_top_one_probability": 0.10426029774346122,
+        "best_score_margin_pp": 2.395993834101741,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.4857864836319173,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:906d94aa18f9069e412011b4",
+        "match": "Hull City AFC - Ipswich Town FC",
+        "kickoff": "2026-10-31T00:00:00Z",
+        "actual": "2-2",
+        "best": "2-0",
+        "top_three": [
+          "2-0",
+          "1-0",
+          "1-1"
+        ],
+        "top_one_probability": 0.14632450813908598,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 3.5870966275186538,
+        "poisson_independent_log_loss": 3.5985407642906067,
+        "poisson_same_intensities_log_loss": 3.5870966275186538,
+        "poisson_best_score": "1-0",
+        "poisson_top_three": [
+          "1-0",
+          "2-0",
+          "3-0"
+        ],
+        "poisson_top_one_probability": 0.14971251827037016,
+        "best_score_margin_pp": 0.8033637043352554,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 1.1130134774663432,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:bbee307d46148182350a96bc",
+        "match": "Tottenham Hotspur FC - Crystal Palace FC",
+        "kickoff": "2026-10-31T00:00:00Z",
+        "actual": "2-0",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "top_one_probability": 0.12898459477533558,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 2.630186497729127,
+        "poisson_independent_log_loss": 2.6204468093176936,
+        "poisson_same_intensities_log_loss": 2.630186497729127,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "1-0",
+          "2-1"
+        ],
+        "poisson_top_one_probability": 0.11901990412720002,
+        "best_score_margin_pp": 3.8374818026911006,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.49521068608081803,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:c2a6637a99ba8d9b574f35f7",
+        "match": "Coventry City FC - Sunderland AFC",
+        "kickoff": "2026-10-31T00:00:00Z",
+        "actual": "3-1",
+        "best": "0-1",
+        "top_three": [
+          "0-1",
+          "0-0",
+          "0-2"
+        ],
+        "top_one_probability": 0.2377190138479945,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 6.1362971935372554,
+        "poisson_independent_log_loss": 6.061428582388743,
+        "poisson_same_intensities_log_loss": 6.1362971935372554,
+        "poisson_best_score": "0-1",
+        "poisson_top_three": [
+          "0-1",
+          "0-0",
+          "0-2"
+        ],
+        "poisson_top_one_probability": 0.24213524169115663,
+        "best_score_margin_pp": 3.36130099616701,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 1.2442392980831989,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      },
+      {
+        "match_id": "oct2026:d89fc203a2208aee55204540",
+        "match": "AFC Bournemouth - Leeds United FC",
+        "kickoff": "2026-10-31T00:00:00Z",
+        "actual": "2-0",
+        "best": "1-1",
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "top_one_probability": 0.1301159452353628,
+        "top1_hit": false,
+        "top3_hit": false,
+        "dc_log_loss": 2.5546295492597277,
+        "poisson_independent_log_loss": 2.545508861413186,
+        "poisson_same_intensities_log_loss": 2.5546295492597277,
+        "poisson_best_score": "1-1",
+        "poisson_top_three": [
+          "1-1",
+          "1-0",
+          "2-1"
+        ],
+        "poisson_top_one_probability": 0.12004957887816076,
+        "best_score_margin_pp": 3.797872288245116,
+        "rho_effect_on_p_1_1_percent": 8.843273739202818,
+        "one_x_two_brier": 0.4626395305333597,
+        "training_matches": 1950,
+        "result_provenance": "provider_reported",
+        "neutral_venue": false
+      }
+    ],
+    "skipped": []
+  }
+}
