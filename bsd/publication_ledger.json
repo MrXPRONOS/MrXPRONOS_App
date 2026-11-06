@@ -1,6 +1,6 @@
 {
   "schema": "bsd-v2-publication-ledger-1",
-  "updated_at": "2026-11-03T18:39:19.305485+00:00",
+  "updated_at": "2026-11-06T14:38:19.285932+00:00",
   "entries": [
     {
       "key": "7282|2026-10-08T22:30:00+00:00",
@@ -11792,7 +11792,7 @@
         "status": "pending"
       },
       "last_observed_in_feed_at": "2026-10-30T17:09:31.535819+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "224187|2026-10-20T18:45:00+00:00",
@@ -11815,7 +11815,7 @@
         "odds_verified": true
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 2,
@@ -11823,7 +11823,8 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00",
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "224687|2026-10-20T18:45:00+00:00",
@@ -11855,7 +11856,7 @@
           "odds_verified": true
         }
       ],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 3,
@@ -11865,7 +11866,8 @@
           true
         ]
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00",
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "224184|2026-10-20T18:45:00+00:00",
@@ -11888,7 +11890,7 @@
         "odds_verified": false
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 4,
@@ -11896,7 +11898,8 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00",
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "224683|2026-10-20T18:45:00+00:00",
@@ -11919,7 +11922,7 @@
         "odds_verified": false
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 2,
@@ -11927,7 +11930,8 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00",
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "601110|2026-10-20T19:00:00+00:00",
@@ -11950,7 +11954,7 @@
         "odds_verified": false
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 4,
@@ -11958,7 +11962,8 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00",
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "604921|2026-10-20T23:30:00+00:00",
@@ -11986,7 +11991,7 @@
         "status": "pending"
       },
       "last_observed_in_feed_at": "2026-10-28T14:59:26.014928+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "606258|2026-10-21T01:30:00+00:00",
@@ -12018,7 +12023,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-10-28T14:59:26.014928+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "212285|2026-10-21T10:00:00+00:00",
@@ -12041,7 +12046,7 @@
         "odds_verified": false
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 0,
@@ -12049,7 +12054,8 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00",
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "601027|2026-10-21T19:00:00+00:00",
@@ -12072,7 +12078,7 @@
         "odds_verified": false
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 4,
@@ -12080,7 +12086,8 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00",
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "642945|2026-10-21T20:00:00+00:00",
@@ -12108,7 +12115,7 @@
         "status": "pending"
       },
       "last_observed_in_feed_at": "2026-10-21T12:20:54.322455+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "604437|2026-10-22T00:30:00+00:00",
@@ -12131,7 +12138,7 @@
         "odds_verified": false
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 0,
@@ -12139,7 +12146,8 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00",
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "606257|2026-10-22T01:20:00+00:00",
@@ -12162,7 +12170,7 @@
         "odds_verified": false
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 2,
@@ -12170,7 +12178,8 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00",
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "224182|2026-10-20T18:45:00+00:00",
@@ -12202,7 +12211,7 @@
         "secondary_won": []
       },
       "last_observed_in_feed_at": "2026-10-28T14:59:26.014928+00:00",
-      "withdrawal_reason": "unexplained_absence_needs_review"
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "224684|2026-10-20T18:45:00+00:00",
@@ -12225,7 +12234,7 @@
         "odds_verified": false
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 0,
@@ -12233,7 +12242,8 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00",
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "224689|2026-10-20T19:00:00+00:00",
@@ -12256,7 +12266,7 @@
         "odds_verified": false
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 1,
@@ -12264,7 +12274,8 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00",
+      "withdrawal_reason": "outside_public_history_window"
     },
     {
       "key": "601243|2026-10-22T16:45:00+00:00",
@@ -12287,7 +12298,7 @@
         "odds_verified": true
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 1,
@@ -12295,7 +12306,8 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00",
+      "withdrawal_reason": "unexplained_absence_needs_review"
     },
     {
       "key": "601195|2026-10-22T19:00:00+00:00",
@@ -12318,7 +12330,7 @@
         "odds_verified": true
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 2,
@@ -12326,7 +12338,8 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00",
+      "withdrawal_reason": "unexplained_absence_needs_review"
     },
     {
       "key": "601207|2026-10-22T19:00:00+00:00",
@@ -12390,7 +12403,7 @@
           "odds_verified": false
         }
       ],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 0,
@@ -12400,7 +12413,8 @@
           true
         ]
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00",
+      "withdrawal_reason": "unexplained_absence_needs_review"
     },
     {
       "key": "606241|2026-10-23T13:30:00+00:00",
@@ -12423,7 +12437,7 @@
         "odds_verified": false
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 1,
@@ -12431,7 +12445,8 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00",
+      "withdrawal_reason": "unexplained_absence_needs_review"
     },
     {
       "key": "601224|2026-10-22T16:45:00+00:00",
@@ -12454,7 +12469,7 @@
         "odds_verified": false
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 4,
@@ -12462,7 +12477,8 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00",
+      "withdrawal_reason": "unexplained_absence_needs_review"
     },
     {
       "key": "222858|2026-10-22T18:00:00+00:00",
@@ -12513,7 +12529,7 @@
         "odds_verified": false
       },
       "secondary_picks": [],
-      "feed_state": "active",
+      "feed_state": "absent_from_current_feed",
       "settlement": {
         "status": "finished",
         "home_score": 2,
@@ -12521,7 +12537,8 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00",
+      "withdrawal_reason": "unexplained_absence_needs_review"
     },
     {
       "key": "216024|2026-10-23T17:00:00+00:00",
@@ -12552,7 +12569,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "46503|2026-10-23T17:00:00+00:00",
@@ -12583,7 +12600,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "603663|2026-10-23T18:00:00+00:00",
@@ -12614,7 +12631,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "603736|2026-10-23T18:00:00+00:00",
@@ -12677,7 +12694,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "10202|2026-10-24T00:00:00+00:00",
@@ -12708,7 +12725,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "223857|2026-10-24T00:15:00+00:00",
@@ -12739,7 +12756,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "215284|2026-10-24T10:00:00+00:00",
@@ -12770,7 +12787,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "605673|2026-10-24T13:00:00+00:00",
@@ -12801,7 +12818,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "588260|2026-10-24T14:00:00+00:00",
@@ -12828,7 +12845,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "604225|2026-10-24T14:00:00+00:00",
@@ -12887,7 +12904,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "605007|2026-10-24T17:00:00+00:00",
@@ -12950,7 +12967,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "642968|2026-10-24T18:00:00+00:00",
@@ -12992,7 +13009,7 @@
           false
         ]
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "5369|2026-10-24T23:30:00+00:00",
@@ -13023,7 +13040,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "224696|2026-10-24T14:00:00+00:00",
@@ -13054,7 +13071,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "223855|2026-10-25T00:30:00+00:00",
@@ -13085,7 +13102,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "220877|2026-10-25T11:00:00+00:00",
@@ -13116,7 +13133,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "604222|2026-10-25T14:30:00+00:00",
@@ -13179,7 +13196,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "603075|2026-10-25T15:00:00+00:00",
@@ -13274,7 +13291,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "604590|2026-10-25T15:00:00+00:00",
@@ -13305,7 +13322,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "604591|2026-10-25T15:00:00+00:00",
@@ -13368,7 +13385,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "606140|2026-10-25T17:00:00+00:00",
@@ -13431,7 +13448,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "220263|2026-10-24T23:05:00+00:00",
@@ -13462,7 +13479,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "604587|2026-10-25T15:00:00+00:00",
@@ -13493,7 +13510,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "223854|2026-10-25T22:15:00+00:00",
@@ -13524,7 +13541,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "209607|2026-10-24T16:30:00+00:00",
@@ -13555,7 +13572,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "213611|2026-10-24T19:00:00+00:00",
@@ -13586,7 +13603,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "214877|2026-10-24T19:00:00+00:00",
@@ -13617,7 +13634,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "7309|2026-10-24T19:30:00+00:00",
@@ -13648,7 +13665,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "10201|2026-10-24T21:30:00+00:00",
@@ -13679,7 +13696,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "220267|2026-10-25T01:15:00+00:00",
@@ -13721,7 +13738,7 @@
           true
         ]
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "212294|2026-10-25T06:00:00+00:00",
@@ -13752,7 +13769,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "375056|2026-10-25T11:00:00+00:00",
@@ -13783,7 +13800,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "210500|2026-10-25T14:00:00+00:00",
@@ -13814,7 +13831,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "219793|2026-10-25T14:00:00+00:00",
@@ -13877,7 +13894,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "212790|2026-10-25T15:00:00+00:00",
@@ -13908,7 +13925,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "210507|2026-10-25T16:15:00+00:00",
@@ -13939,7 +13956,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "212791|2026-10-25T17:30:00+00:00",
@@ -13970,7 +13987,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "214878|2026-10-25T17:30:00+00:00",
@@ -14001,7 +14018,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "207419|2026-10-25T18:15:00+00:00",
@@ -14032,7 +14049,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "215553|2026-10-25T20:30:00+00:00",
@@ -14063,7 +14080,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "220270|2026-10-25T23:10:00+00:00",
@@ -14094,7 +14111,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "211621|2026-10-26T01:05:00+00:00",
@@ -14121,7 +14138,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "220271|2026-10-26T01:15:00+00:00",
@@ -14184,7 +14201,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "224702|2026-10-26T20:00:00+00:00",
@@ -14247,7 +14264,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "10199|2026-10-26T23:30:00+00:00",
@@ -14278,7 +14295,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "605680|2026-10-27T18:00:00+00:00",
@@ -14309,7 +14326,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "605681|2026-10-27T19:00:00+00:00",
@@ -14340,7 +14357,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "588274|2026-10-27T19:45:00+00:00",
@@ -14371,7 +14388,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "223844|2026-10-27T22:00:00+00:00",
@@ -14402,7 +14419,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601989|2026-10-28T16:00:00+00:00",
@@ -14433,7 +14450,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "46506|2026-10-28T18:00:00+00:00",
@@ -14496,7 +14513,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "5379|2026-10-28T23:30:00+00:00",
@@ -14527,7 +14544,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "5389|2026-10-29T00:30:00+00:00",
@@ -14558,7 +14575,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "7315|2026-10-29T00:30:00+00:00",
@@ -14589,7 +14606,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "7321|2026-10-29T00:30:00+00:00",
@@ -14620,7 +14637,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "604464|2026-10-29T11:30:00+00:00",
@@ -14651,7 +14668,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "606225|2026-10-29T13:30:00+00:00",
@@ -14682,7 +14699,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "642974|2026-10-29T17:00:00+00:00",
@@ -14713,7 +14730,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "606028|2026-10-29T18:00:00+00:00",
@@ -14776,7 +14793,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "605688|2026-10-28T19:00:00+00:00",
@@ -14839,7 +14856,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "210137|2026-10-28T17:30:00+00:00",
@@ -14870,7 +14887,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "220887|2026-10-30T20:00:00+00:00",
@@ -14901,7 +14918,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "223882|2026-10-30T22:00:00+00:00",
@@ -14932,7 +14949,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "224202|2026-10-31T12:30:00+00:00",
@@ -14963,7 +14980,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "209617|2026-10-31T15:00:00+00:00",
@@ -14994,7 +15011,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "224711|2026-10-31T15:00:00+00:00",
@@ -15025,7 +15042,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "375070|2026-10-31T18:00:00+00:00",
@@ -15056,7 +15073,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "5397|2026-10-31T18:00:00+00:00",
@@ -15087,7 +15104,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "642977|2026-10-31T18:00:00+00:00",
@@ -15118,7 +15135,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "223879|2026-10-31T20:00:00+00:00",
@@ -15149,7 +15166,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "642978|2026-10-31T20:00:00+00:00",
@@ -15180,7 +15197,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "10212|2026-10-31T22:30:00+00:00",
@@ -15211,7 +15228,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "5403|2026-10-31T19:00:00+00:00",
@@ -15242,7 +15259,7 @@
         "primary_won": false,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "215294|2026-11-01T11:30:00+00:00",
@@ -15273,7 +15290,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "605299|2026-11-01T12:00:00+00:00",
@@ -15304,7 +15321,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "46517|2026-11-01T13:00:00+00:00",
@@ -15335,7 +15352,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "606243|2026-11-01T13:30:00+00:00",
@@ -15362,7 +15379,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "606244|2026-11-01T13:30:00+00:00",
@@ -15389,7 +15406,7 @@
       "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "603121|2026-11-01T15:00:00+00:00",
@@ -15420,7 +15437,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "604596|2026-11-01T15:00:00+00:00",
@@ -15451,7 +15468,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "604601|2026-11-01T15:00:00+00:00",
@@ -15482,7 +15499,7 @@
         "primary_won": true,
         "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601140|2026-11-03T17:45:00+00:00",
@@ -15516,9 +15533,15 @@
       ],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": [
+          null
+        ]
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601163|2026-11-03T17:45:00+00:00",
@@ -15543,9 +15566,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 1,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "46516|2026-11-03T18:00:00+00:00",
@@ -15570,9 +15597,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "214131|2026-11-03T19:45:00+00:00",
@@ -15597,9 +15628,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 2,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "214132|2026-11-03T19:45:00+00:00",
@@ -15624,9 +15659,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 4,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "214133|2026-11-03T19:45:00+00:00",
@@ -15651,9 +15690,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 3,
+        "away_score": 1,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "214134|2026-11-03T19:45:00+00:00",
@@ -15678,9 +15721,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 3,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "214135|2026-11-03T19:45:00+00:00",
@@ -15714,9 +15761,15 @@
       ],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 1,
+        "primary_won": null,
+        "secondary_won": [
+          true
+        ]
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "214136|2026-11-03T19:45:00+00:00",
@@ -15741,9 +15794,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "214140|2026-11-03T19:45:00+00:00",
@@ -15768,9 +15825,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 1,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "606251|2026-11-03T19:45:00+00:00",
@@ -15804,9 +15865,15 @@
       ],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 1,
+        "primary_won": true,
+        "secondary_won": [
+          null
+        ]
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "214137|2026-11-03T20:00:00+00:00",
@@ -15831,9 +15898,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 1,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601025|2026-11-03T20:00:00+00:00",
@@ -15858,9 +15929,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 3,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601034|2026-11-03T20:00:00+00:00",
@@ -15894,9 +15969,15 @@
       ],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 2,
+        "primary_won": null,
+        "secondary_won": [
+          null
+        ]
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601093|2026-11-03T20:00:00+00:00",
@@ -15921,9 +16002,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 6,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601097|2026-11-03T20:00:00+00:00",
@@ -15948,9 +16033,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 3,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601117|2026-11-03T20:00:00+00:00",
@@ -15975,9 +16064,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "642987|2026-11-03T20:30:00+00:00",
@@ -16002,9 +16095,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 3,
+        "primary_won": false,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "7329|2026-11-04T00:30:00+00:00",
@@ -16029,9 +16126,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "642953|2026-11-04T15:00:00+00:00",
@@ -16065,9 +16166,15 @@
       ],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": [
+          null
+        ]
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601089|2026-11-04T17:45:00+00:00",
@@ -16101,9 +16208,15 @@
       ],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 3,
+        "away_score": 2,
+        "primary_won": null,
+        "secondary_won": [
+          null
+        ]
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601098|2026-11-04T17:45:00+00:00",
@@ -16137,9 +16250,15 @@
       ],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 3,
+        "primary_won": null,
+        "secondary_won": [
+          null
+        ]
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "643010|2026-11-04T19:00:00+00:00",
@@ -16164,9 +16283,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "214139|2026-11-04T19:45:00+00:00",
@@ -16191,9 +16314,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 3,
+        "away_score": 3,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "214141|2026-11-04T19:45:00+00:00",
@@ -16218,9 +16345,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "602321|2026-11-04T19:45:00+00:00",
@@ -16245,9 +16376,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601072|2026-11-04T20:00:00+00:00",
@@ -16272,9 +16407,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 4,
+        "away_score": 1,
+        "primary_won": true,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601087|2026-11-04T20:00:00+00:00",
@@ -16299,9 +16438,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 3,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601127|2026-11-04T20:00:00+00:00",
@@ -16326,9 +16469,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 9,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "642966|2026-11-04T20:00:00+00:00",
@@ -16353,9 +16500,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 2,
+        "primary_won": true,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "7324|2026-11-04T22:30:00+00:00",
@@ -16380,9 +16531,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 3,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "7328|2026-11-04T22:30:00+00:00",
@@ -16416,9 +16571,15 @@
       ],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 3,
+        "away_score": 1,
+        "primary_won": null,
+        "secondary_won": [
+          null
+        ]
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "649889|2026-11-04T23:30:00+00:00",
@@ -16443,9 +16604,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "7325|2026-11-05T00:30:00+00:00",
@@ -16470,9 +16635,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "7332|2026-11-05T00:30:00+00:00",
@@ -16497,9 +16666,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "222882|2026-11-05T13:25:00+00:00",
@@ -16536,7 +16709,7 @@
         "status": "pending"
       },
       "last_observed_in_feed_at": "2026-11-03T15:41:20.365317+00:00",
-      "withdrawal_reason": "not_upcoming"
+      "withdrawal_reason": "unexplained_absence_needs_review"
     },
     {
       "key": "601174|2026-11-05T17:45:00+00:00",
@@ -16561,9 +16734,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 2,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601179|2026-11-05T17:45:00+00:00",
@@ -16588,9 +16765,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 3,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601212|2026-11-05T17:45:00+00:00",
@@ -16624,9 +16805,15 @@
       ],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 1,
+        "primary_won": null,
+        "secondary_won": [
+          null
+        ]
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601247|2026-11-05T17:45:00+00:00",
@@ -16651,9 +16838,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601250|2026-11-05T17:45:00+00:00",
@@ -16678,9 +16869,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 1,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601255|2026-11-05T17:45:00+00:00",
@@ -16705,9 +16900,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 3,
+        "away_score": 1,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601282|2026-11-05T17:45:00+00:00",
@@ -16741,9 +16940,15 @@
       ],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": [
+          null
+        ]
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601285|2026-11-05T17:45:00+00:00",
@@ -16768,9 +16973,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 1,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601320|2026-11-05T17:45:00+00:00",
@@ -16795,9 +17004,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601327|2026-11-05T17:45:00+00:00",
@@ -16822,9 +17035,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 1,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601347|2026-11-05T17:45:00+00:00",
@@ -16858,9 +17075,15 @@
       ],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 6,
+        "primary_won": null,
+        "secondary_won": [
+          null
+        ]
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601354|2026-11-05T17:45:00+00:00",
@@ -16894,9 +17117,15 @@
       ],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 3,
+        "away_score": 1,
+        "primary_won": null,
+        "secondary_won": [
+          null
+        ]
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601391|2026-11-05T17:45:00+00:00",
@@ -16921,9 +17150,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601393|2026-11-05T17:45:00+00:00",
@@ -16948,9 +17181,13 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
-        "status": "pending"
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": []
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     },
     {
       "key": "601423|2026-11-05T17:45:00+00:00",
@@ -16975,15 +17212,622 @@
       "secondary_picks": [],
       "feed_state": "active",
       "settlement": {
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 0,
+        "primary_won": null,
+        "secondary_won": []
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "580572|2026-11-06T19:00:00+00:00",
+      "id": "bsd:580572",
+      "source_event_id": "580572",
+      "event_date": "2026-11-06T19:00:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "Montpellier",
+      "away_team": "Metz",
+      "league": "Ligue 2",
+      "category_original": "pro",
+      "signal_tier_original": "INDICATIF",
+      "original_pick": {
+        "selection_key": "1X",
+        "market": "double_chance",
+        "confidence": 0.8290000000000001,
+        "odds": 1.2,
+        "odds_source": "mrxpronos_model",
+        "odds_verified": false
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
         "status": "pending"
       },
-      "last_observed_in_feed_at": "2026-11-03T18:39:19.305485+00:00"
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "580573|2026-11-06T19:00:00+00:00",
+      "id": "bsd:580573",
+      "source_event_id": "580573",
+      "event_date": "2026-11-06T19:00:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "Nancy",
+      "away_team": "Sochaux",
+      "league": "Ligue 2",
+      "category_original": "pro",
+      "signal_tier_original": "INDICATIF",
+      "original_pick": {
+        "selection_key": "1X",
+        "market": "double_chance",
+        "confidence": 0.82,
+        "odds": 1.2,
+        "odds_source": "mrxpronos_model",
+        "odds_verified": false
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "212322|2026-11-07T05:00:00+00:00",
+      "id": "bsd:212322",
+      "source_event_id": "212322",
+      "event_date": "2026-11-07T05:00:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "Yokohama F. Marinos",
+      "away_team": "Fagiano Okayama",
+      "league": "Japanese J1 League",
+      "category_original": "pro",
+      "signal_tier_original": "QUALIFIE",
+      "original_pick": {
+        "selection_key": "1X",
+        "market": "double_chance",
+        "confidence": 0.7959999999999999,
+        "odds": 1.426,
+        "odds_source": "bsd_consensus",
+        "odds_verified": true
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "212315|2026-11-07T06:00:00+00:00",
+      "id": "bsd:212315",
+      "source_event_id": "212315",
+      "event_date": "2026-11-07T06:00:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "FC Tokyo",
+      "away_team": "Kashima Antlers",
+      "league": "Japanese J1 League",
+      "category_original": "vip",
+      "signal_tier_original": "PREMIUM",
+      "original_pick": {
+        "selection_key": "1X",
+        "market": "double_chance",
+        "confidence": 0.8590000000000001,
+        "odds": 1.286,
+        "odds_source": "bsd_consensus",
+        "odds_verified": true
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "649890|2026-11-07T13:30:00+00:00",
+      "id": "bsd:649890",
+      "source_event_id": "649890",
+      "event_date": "2026-11-07T13:30:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "Espérance Sportive De Tunis",
+      "away_team": "US Monastir",
+      "league": "Tunisian Ligue Professionnelle 1",
+      "category_original": "pro",
+      "signal_tier_original": "INDICATIF",
+      "original_pick": {
+        "selection_key": "UNDER_35",
+        "market": "over_under_35",
+        "confidence": 0.8140000000000001,
+        "odds": 1.2,
+        "odds_source": "mrxpronos_model",
+        "odds_verified": false
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "649892|2026-11-07T13:30:00+00:00",
+      "id": "bsd:649892",
+      "source_event_id": "649892",
+      "event_date": "2026-11-07T13:30:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "Etoile Sportive Du Sahel",
+      "away_team": "CS Sfaxien",
+      "league": "Tunisian Ligue Professionnelle 1",
+      "category_original": "pro",
+      "signal_tier_original": "INDICATIF",
+      "original_pick": {
+        "selection_key": "UNDER_35",
+        "market": "over_under_35",
+        "confidence": 0.8109999999999999,
+        "odds": 1.2,
+        "odds_source": "mrxpronos_model",
+        "odds_verified": false
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "605303|2026-11-07T14:00:00+00:00",
+      "id": "bsd:605303",
+      "source_event_id": "605303",
+      "event_date": "2026-11-07T14:00:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "FC Slovan Liberec",
+      "away_team": "Bohemians Praha 1905",
+      "league": "Czech First League",
+      "category_original": "pro",
+      "signal_tier_original": "INDICATIF",
+      "original_pick": {
+        "selection_key": "UNDER_35",
+        "market": "over_under_35",
+        "confidence": 0.807,
+        "odds": 1.2,
+        "odds_source": "mrxpronos_model",
+        "odds_verified": false
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "604603|2026-11-07T15:00:00+00:00",
+      "id": "bsd:604603",
+      "source_event_id": "604603",
+      "event_date": "2026-11-07T15:00:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "Sporting Lagos FC",
+      "away_team": "Rivers United",
+      "league": "Nigeria Premier Football League",
+      "category_original": "pro",
+      "signal_tier_original": "INDICATIF",
+      "original_pick": {
+        "selection_key": "UNDER_35",
+        "market": "over_under_35",
+        "confidence": 0.7929999999999999,
+        "odds": 1.2,
+        "odds_source": "mrxpronos_model",
+        "odds_verified": false
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "642917|2026-11-07T15:00:00+00:00",
+      "id": "bsd:642917",
+      "source_event_id": "642917",
+      "event_date": "2026-11-07T15:00:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "Boreham Wood",
+      "away_team": "Wigan Athletic",
+      "league": "FA Cup",
+      "category_original": "vip",
+      "signal_tier_original": "PREMIUM",
+      "original_pick": {
+        "selection_key": "1X",
+        "market": "double_chance",
+        "confidence": 0.93,
+        "odds": 1.208,
+        "odds_source": "bsd_consensus",
+        "odds_verified": true
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "642926|2026-11-07T15:00:00+00:00",
+      "id": "bsd:642926",
+      "source_event_id": "642926",
+      "event_date": "2026-11-07T15:00:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "Crewe Alexandra",
+      "away_team": "AFC Wimbledon",
+      "league": "FA Cup",
+      "category_original": "pro",
+      "signal_tier_original": "QUALIFIE",
+      "original_pick": {
+        "selection_key": "1X",
+        "market": "double_chance",
+        "confidence": 0.802,
+        "odds": 1.404,
+        "odds_source": "bsd_consensus",
+        "odds_verified": true
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "642939|2026-11-07T15:00:00+00:00",
+      "id": "bsd:642939",
+      "source_event_id": "642939",
+      "event_date": "2026-11-07T15:00:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "Guiseley AFC",
+      "away_team": "Sutton United",
+      "league": "FA Cup",
+      "category_original": "pro",
+      "signal_tier_original": "QUALIFIE",
+      "original_pick": {
+        "selection_key": "1X",
+        "market": "double_chance",
+        "confidence": 0.818,
+        "odds": 1.786,
+        "odds_source": "bsd_consensus",
+        "odds_verified": true
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "642940|2026-11-07T15:00:00+00:00",
+      "id": "bsd:642940",
+      "source_event_id": "642940",
+      "event_date": "2026-11-07T15:00:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "Dover Athletic",
+      "away_team": "Wealdstone",
+      "league": "FA Cup",
+      "category_original": "pro",
+      "signal_tier_original": "QUALIFIE",
+      "original_pick": {
+        "selection_key": "1X",
+        "market": "double_chance",
+        "confidence": 0.812,
+        "odds": 1.852,
+        "odds_source": "bsd_consensus",
+        "odds_verified": true
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "580574|2026-11-07T19:00:00+00:00",
+      "id": "bsd:580574",
+      "source_event_id": "580574",
+      "event_date": "2026-11-07T19:00:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "Pau FC",
+      "away_team": "Nantes",
+      "league": "Ligue 2",
+      "category_original": "pro",
+      "signal_tier_original": "PREMIUM",
+      "original_pick": {
+        "selection_key": "1X",
+        "market": "double_chance",
+        "confidence": 0.8290000000000001,
+        "odds": 1.552,
+        "odds_source": "bsd_consensus",
+        "odds_verified": true
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "223907|2026-11-07T20:30:00+00:00",
+      "id": "bsd:223907",
+      "source_event_id": "223907",
+      "event_date": "2026-11-07T20:30:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "Boca Juniors",
+      "away_team": "Defensa y Justicia",
+      "league": "Argentinian Primera Division",
+      "category_original": "pro",
+      "signal_tier_original": "QUALIFIE",
+      "original_pick": {
+        "selection_key": "UNDER_35",
+        "market": "over_under_35",
+        "confidence": 0.7929999999999999,
+        "odds": 1.36,
+        "odds_source": "pinnwire",
+        "odds_verified": false
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "5410|2026-11-07T21:00:00+00:00",
+      "id": "bsd:5410",
+      "source_event_id": "5410",
+      "event_date": "2026-11-07T21:00:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "Philadelphia Union",
+      "away_team": "Toronto FC",
+      "league": "MLS",
+      "category_original": "pro",
+      "signal_tier_original": "INDICATIF",
+      "original_pick": {
+        "selection_key": "1X",
+        "market": "double_chance",
+        "confidence": 0.8270000000000001,
+        "odds": 1.2,
+        "odds_source": "mrxpronos_model",
+        "odds_verified": false
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "642946|2026-11-07T21:05:00+00:00",
+      "id": "bsd:642946",
+      "source_event_id": "642946",
+      "event_date": "2026-11-07T21:05:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "Once Caldas",
+      "away_team": "Rionegro Águilas Doradas",
+      "league": "Categoría Primera A",
+      "category_original": "pro",
+      "signal_tier_original": "QUALIFIE",
+      "original_pick": {
+        "selection_key": "UNDER_35",
+        "market": "over_under_35",
+        "confidence": 0.813,
+        "odds": 1.302,
+        "odds_source": "bsd_consensus",
+        "odds_verified": true
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "223914|2026-11-08T01:00:00+00:00",
+      "id": "bsd:223914",
+      "source_event_id": "223914",
+      "event_date": "2026-11-08T01:00:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "Instituto De Córdoba",
+      "away_team": "Newell's Old Boys",
+      "league": "Argentine Division 1",
+      "category_original": "pro",
+      "signal_tier_original": "INDICATIF",
+      "original_pick": {
+        "selection_key": "UNDER_35",
+        "market": "over_under_35",
+        "confidence": 0.7979999999999999,
+        "odds": 1.2,
+        "odds_source": "mrxpronos_model",
+        "odds_verified": false
+      },
+      "secondary_picks": [
+        {
+          "selection_key": "1X",
+          "market": "double_chance",
+          "confidence": 0.799,
+          "odds": 1.2,
+          "odds_source": "mrxpronos_model",
+          "odds_verified": false
+        }
+      ],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "205920|2026-11-08T07:30:00+00:00",
+      "id": "bsd:205920",
+      "source_event_id": "205920",
+      "event_date": "2026-11-08T07:30:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "Shandong Taishan",
+      "away_team": "Chengdu Rongcheng",
+      "league": "Chinese Football Super League",
+      "category_original": "pro",
+      "signal_tier_original": "QUALIFIE",
+      "original_pick": {
+        "selection_key": "1X",
+        "market": "double_chance",
+        "confidence": 0.805,
+        "odds": 1.41,
+        "odds_source": "bsd_consensus",
+        "odds_verified": true
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "603152|2026-11-08T11:00:00+00:00",
+      "id": "bsd:603152",
+      "source_event_id": "603152",
+      "event_date": "2026-11-08T11:00:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "GD Alcochetense",
+      "away_team": "JD Lajense",
+      "league": "Campeonato de Portugal",
+      "category_original": "pro",
+      "signal_tier_original": "INDICATIF",
+      "original_pick": {
+        "selection_key": "1X",
+        "market": "double_chance",
+        "confidence": 0.833,
+        "odds": 1.2,
+        "odds_source": "mrxpronos_model",
+        "odds_verified": false
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "603812|2026-11-08T13:30:00+00:00",
+      "id": "bsd:603812",
+      "source_event_id": "603812",
+      "event_date": "2026-11-08T13:30:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "TSV Hartberg",
+      "away_team": "SCR Altach",
+      "league": "Austrian Bundesliga",
+      "category_original": "pro",
+      "signal_tier_original": "INDICATIF",
+      "original_pick": {
+        "selection_key": "1X",
+        "market": "double_chance",
+        "confidence": 0.799,
+        "odds": 1.2,
+        "odds_source": "mrxpronos_model",
+        "odds_verified": false
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "605309|2026-11-08T14:00:00+00:00",
+      "id": "bsd:605309",
+      "source_event_id": "605309",
+      "event_date": "2026-11-08T14:00:00+00:00",
+      "first_observed_at": "2026-11-06T14:26:34.630858+00:00",
+      "origin": "site_feed",
+      "home_team": "SK Slavia Praha",
+      "away_team": "SK Artis Brno",
+      "league": "Chance Národní Liga",
+      "category_original": "pro",
+      "signal_tier_original": "INDICATIF",
+      "original_pick": {
+        "selection_key": "1X",
+        "market": "double_chance",
+        "confidence": 0.807,
+        "odds": 1.2,
+        "odds_source": "mrxpronos_model",
+        "odds_verified": false
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
+    },
+    {
+      "key": "209631|2026-11-07T12:30:00+00:00",
+      "id": "bsd:209631",
+      "source_event_id": "209631",
+      "event_date": "2026-11-07T12:30:00+00:00",
+      "first_observed_at": "2026-11-06T14:38:19.285932+00:00",
+      "origin": "site_feed",
+      "home_team": "Leeds United",
+      "away_team": "Tottenham Hotspur",
+      "league": "premier league",
+      "category_original": "pro",
+      "signal_tier_original": "PREMIUM",
+      "original_pick": {
+        "selection_key": "1X",
+        "market": "double_chance",
+        "confidence": 0.8290000000000001,
+        "odds": 1.482,
+        "odds_source": "bsd_consensus",
+        "odds_verified": true
+      },
+      "secondary_picks": [],
+      "feed_state": "active",
+      "settlement": {
+        "status": "pending"
+      },
+      "last_observed_in_feed_at": "2026-11-06T14:38:19.285932+00:00"
     }
   ],
   "last_run": {
-    "new": 0,
+    "new": 1,
     "new_settlements": 0,
-    "active": 148,
-    "total": 474
+    "active": 153,
+    "total": 496
   }
 }
