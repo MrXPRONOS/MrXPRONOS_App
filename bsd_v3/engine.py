@@ -60,7 +60,8 @@ def challenger_shadow(event,index,matrix,runtime):
             output[name+"_error"]=type(e).__name__
     return output
 
-def evaluate_fixture(event,runtime,*,now,raw_quotes=None,quote_meta=None,policy=V3Policy()):
+def evaluate_fixture(event,runtime,*,now,raw_quotes=None,quote_meta=None,
+                     policy=V3Policy(),blocked_keys=frozenset()):
     now=utc_datetime(now)
     if not isinstance(event,dict) or event.get("id") is None:
         return {"reason":"missing_id","status":"rejected"}
@@ -89,7 +90,8 @@ def evaluate_fixture(event,runtime,*,now,raw_quotes=None,quote_meta=None,policy=
     verified,rejected=validate_market_quotes(raw_quotes or {},candidates,
                                              now=now,kickoff=kickoff,policy=policy)
     rows=serialize_candidates(candidates,expected,quality,verified,policy=policy,
-                              calibrator=cal,calibration_active=bool(cal and cal.active))
+                              calibrator=cal,calibration_active=bool(cal and cal.active),
+                              blocked_keys=blocked_keys)
     decisions=select_candidates(rows,score,policy)
     return {"event_id":str(event["id"]),"kickoff_utc":kickoff.isoformat(),
             "generated_at_utc":now.isoformat(),"status":"analyzed",
@@ -103,7 +105,7 @@ def evaluate_fixture(event,runtime,*,now,raw_quotes=None,quote_meta=None,policy=
 
 def run_shadow(fixtures,history,*,now,quote_fetcher=None,
                policy=V3Policy(),max_odds_events=None,
-               enable_challengers=False):
+               enable_challengers=False,blocked_keys=frozenset()):
     now=utc_datetime(now)
     from .quality import clean_fixture_batch
     clean_fixtures,fixture_integrity=clean_fixture_batch(fixtures,now=now)
@@ -117,7 +119,8 @@ def run_shadow(fixtures,history,*,now,quote_fetcher=None,
     for event in clean_fixtures:
         quotes={}
         quote_meta={}
-        provisional=evaluate_fixture(event,runtime,now=now,policy=policy)
+        provisional=evaluate_fixture(event,runtime,now=now,policy=policy,
+                                     blocked_keys=blocked_keys)
         if provisional["status"]!="analyzed":
             reasons[provisional["reason"]]+=1
             results.append(provisional)
@@ -130,7 +133,8 @@ def run_shadow(fixtures,history,*,now,quote_fetcher=None,
                 quote_meta={"error":type(exc).__name__}
                 reasons["quote_fetch_error"]+=1
         analyzed=evaluate_fixture(event,runtime,now=now,raw_quotes=quotes,
-                                 quote_meta=quote_meta,policy=policy)
+                                 quote_meta=quote_meta,policy=policy,
+                                 blocked_keys=blocked_keys)
         results.append(analyzed)
         reasons["analyzed"]+=1
     document={"format":"bsd-v3-shadow-v1","version":VERSION,
@@ -140,6 +144,7 @@ def run_shadow(fixtures,history,*,now,quote_fetcher=None,
               "calibration":runtime["calibration"].metadata() if runtime["calibration"] else None,
               "rho":runtime["rho"],"challenger_training":runtime["challenger_training"],
               "history_quality":runtime.get("history_quality"),
+              "prospective_disabled_markets":sorted(blocked_keys),
               "fixture_integrity":fixture_integrity,
               "diagnostics":{"fixtures_received":len(fixtures),
                              "fixtures":len(clean_fixtures),"analyzed":reasons["analyzed"],
