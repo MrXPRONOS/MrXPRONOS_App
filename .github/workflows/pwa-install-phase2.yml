@@ -1,0 +1,46 @@
+name: Phase 2 PWA install tests
+
+on:
+  pull_request:
+    paths:
+      - 'assets/js/pwa.js'
+      - 'assets/js/pwa-telemetry.mjs'
+      - 'assets/js/main.js'
+      - 'assets/css/home-premium.css'
+      - 'index.html'
+      - 'statistiques-installation.html'
+      - 'assets/js/installation-analytics.mjs'
+      - 'admin-supervision.html'
+      - 'assets/js/admin-supervision.js'
+      - 'manifest.json'
+      - 'service-worker.js'
+      - 'confidentialite.html'
+      - 'scripts/build_public_site.py'
+      - 'supabase/migrations/*pwa_install_funnel_v2.sql'
+      - 'tests/test_pwa_install_phase2.py'
+      - '.github/workflows/pwa-install-phase2.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'assets/js/pwa.js'
+      - 'assets/js/pwa-telemetry.mjs'
+      - 'tests/test_pwa_install_phase2.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pwa-install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate browser JavaScript syntax
+        run: |
+          node --check assets/js/pwa.js
+          node --check assets/js/pwa-telemetry.mjs
+          node --check assets/js/installation-analytics.mjs
+          node --check assets/js/main.js
+          node --check assets/js/admin-supervision.js
+      - name: Validate PWA install integration
+        run: python -m unittest discover -s tests -p test_pwa_install_phase2.py -v

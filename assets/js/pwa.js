@@ -1,409 +1,468 @@
 /**
- * pwa.js - Gestion PWA complète (version unifiée)
- * - Bouton "Installer l'app" en bas du header
- * - La ligne disparaît quand le bouton est caché
+ * Mr XPRONOS — Installation PWA, phase 2.
+ * Les boutons restent facultatifs et accessibles, même sans beforeinstallprompt.
+ * Les événements sont déclaratifs : aucune installation iOS ne peut être prouvée
+ * par le navigateur web d'origine. Aucune inscription n'est exigée.
  */
 (function () {
   "use strict";
 
-  // ========================================================
-  // CONFIGURATION
-  // ========================================================
-  const CONFIG = (() => {
-    const isGitHubPages = location.hostname.includes("github.io");
-    const path = location.pathname;
-
-    let base = "/";
-
-    if (isGitHubPages) {
-      const match = path.match(/^\/([^/]+)\//);
-      if (match) base = `/${match[1]}/`;
-    } else if (path.includes("/MrXPRONOS_App/")) {
-      base = "/MrXPRONOS_App/";
-    }
-
-    return {
-      swPath: `${base}service-worker.js`,
-      scope: base,
-      isGitHubPages,
-    };
-  })();
-
-  // ========================================================
-  // LOGGER
-  // ========================================================
-  const isDev =
-    location.hostname === "localhost" || location.hostname === "127.0.0.1";
-
-  function pwaLog(msg) {
-    if (isDev) console.log("[PWA]", msg);
-  }
-  function pwaWarn(msg) {
-    if (isDev) console.warn("[PWA]", msg);
-  }
-  function pwaError(msg) {
-    console.error("[PWA]", msg);
-  }
-
-  // ========================================================
-  // ÉTAT GLOBAL
-  // ========================================================
-  window.__MRXPWA__ = {
-    registration: null,
-    deferredPrompt: null,
-    isInstalled: false,
-    installAvailable: false,
-    updateAvailable: false,
-    platform: null,
+  const base = location.hostname.includes("github.io")
+    ? (location.pathname.match(/^\/([^/]+)\//) || [null, ""])[1]
+    : location.pathname.includes("/MrXPRONOS_App/") ? "MrXPRONOS_App" : "";
+  const scope = "/" + (base ? base + "/" : "");
+  const eventKey = "mx_pwa_install_events_v2";
+  const welcomeKey = "mx_pwa_welcome_v2";
+  const state = window.__MRXPWA__ = {
+    registration: null, deferredPrompt: null, isInstalled: false,
+    installAvailable: false, updateAvailable: false, platform: null
   };
+  let modal = null;
+  let previousFocus = null;
+  let installing = false;
+  const impressions = new Set();
+  const isDev = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 
-  // ========================================================
-  // UTILS
-  // ========================================================
   function getPlatform() {
-    const ua = navigator.userAgent.toLowerCase();
-    const platform = (navigator.platform || "").toLowerCase();
-
-    const isIOS =
-      /iphone|ipad|ipod/.test(ua) ||
-      (platform === "macintel" && navigator.maxTouchPoints > 1);
-
-    const isStandalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      window.navigator.standalone === true ||
-      localStorage.getItem("mx_pwa_installed") === "true";
-
+    const ua = (navigator.userAgent || "").toLowerCase();
+    const touchMac = (navigator.platform || "").toLowerCase() === "macintel" &&
+      navigator.maxTouchPoints > 1;
+    const isIOS = /iphone|ipad|ipod/.test(ua) || touchMac;
+    const isAndroid = /android/.test(ua);
+    const inApp = /instagram|fban|fbav|fb_iab|messenger|whatsapp|telegram|snapchat|tiktok|line\//.test(ua) ||
+      (isAndroid && /;\s?wv[);]/.test(ua));
+    let standalone = navigator.standalone === true;
+    try { standalone = standalone || window.matchMedia("(display-mode: standalone)").matches; } catch (_) {}
     return {
-      isIOS,
-      isAndroid: /android/.test(ua),
-      isStandalone,
-      isSafari: /^((?!chrome|android).)*safari/i.test(ua),
-      isChrome: /chrome/.test(ua) && !/edge|edg/.test(ua),
-      isFirefox: /firefox/.test(ua),
-      isMobile: /mobile|android|iphone|ipad|ipod/i.test(ua),
+      isIOS, isAndroid, isMobile: isIOS || isAndroid || /mobile/.test(ua),
+      inApp, isStandalone: standalone,
+      isSafari: /safari/.test(ua) && !/crios|fxios|edgios|chrome|android/.test(ua),
+      isFirefox: /firefox|fxios/.test(ua),
+      isEdge: /edg\//.test(ua),
+      isSamsung: /samsungbrowser/.test(ua)
     };
   }
 
-  function updateGlobalState(partial) {
-    Object.assign(window.__MRXPWA__, partial);
-    window.dispatchEvent(
-      new CustomEvent("mrx-pwa-state-change", { detail: window.__MRXPWA__ })
-    );
-    updateInstallButton();
+  function track(stage, surface) {
+    if (isDev || typeof crypto === "undefined" || typeof crypto.randomUUID !== "function") return;
+    try {
+      const p = getPlatform();
+      const items = JSON.parse(sessionStorage.getItem(eventKey) || "[]");
+      const list = Array.isArray(items) ? items : [];
+      list.push({
+        event_id: crypto.randomUUID(), stage: stage, surface: surface || "system",
+        platform: p.isIOS ? "ios" : p.isAndroid ? "android" : "desktop",
+        context: p.isStandalone ? "standalone" : p.inApp ? "in_app" : "browser"
+      });
+      sessionStorage.setItem(eventKey, JSON.stringify(list.slice(-40)));
+      void import("./pwa-telemetry.mjs").then(function (module) { return module.flush(); }).catch(function () {});
+    } catch (_) { /* analytics must never block the product */ }
   }
 
-  // ========================================================
-  // UI : ligne install en bas du header
-  // ========================================================
+  function updateState(partial) {
+    Object.assign(state, partial);
+    state.platform = getPlatform();
+    updateInstallButtons();
+    window.dispatchEvent(new CustomEvent("mrx-pwa-state-change", { detail: state }));
+  }
+
   function getOrCreateInstallRow() {
     const header = document.querySelector("header");
     if (!header) return null;
-
     let row = header.querySelector(".header-install-row");
     if (!row) {
       row = document.createElement("div");
       row.className = "header-install-row";
-
       const inner = document.createElement("div");
       inner.className = "container";
       row.appendChild(inner);
-
       header.appendChild(row);
     }
     return row;
   }
 
-  function moveInstallButtonToHeaderBottom() {
-    const btn = document.getElementById("install-app");
-    const row = getOrCreateInstallRow();
-    if (!btn || !row) return;
-
-    const innerContainer = row.querySelector(".container");
-    if (innerContainer && btn.parentElement !== innerContainer) {
-      innerContainer.appendChild(btn);
+  function updateInstallButtons() {
+    const p = getPlatform();
+    const hidden = p.isStandalone || state.isInstalled;
+    const headerButton = document.getElementById("install-app");
+    const row = headerButton && getOrCreateInstallRow();
+    if (headerButton && row) {
+      const inner = row.querySelector(".container");
+      if (inner && headerButton.parentElement !== inner) inner.appendChild(headerButton);
+      headerButton.style.display = hidden ? "none" : "inline-flex";
+      headerButton.disabled = hidden;
+      row.classList.toggle("show", !hidden);
+      headerButton.classList.add("btn-primary");
+      Array.from(headerButton.childNodes).filter(function (node) { return node.nodeType === 3; }).forEach(function (node) { node.remove(); });
+      const label = headerButton.querySelector(".mx-install-text") ||
+        headerButton.querySelector(".mx-install-label") || document.createElement("span");
+      if (!label.parentElement) {
+        label.className = "mx-install-label";
+        headerButton.appendChild(label);
+      }
+      label.textContent = p.inApp ? "Comment installer l'app" :
+        p.isIOS ? "Ajouter à l’écran d’accueil" : "Installer l'application";
+      headerButton.setAttribute("aria-label", label.textContent);
     }
-  }
-
-  function showInstallRow() {
-    const row = getOrCreateInstallRow();
-    if (!row) return;
-    row.classList.add("show");
-  }
-
-  function hideInstallRow() {
-    const header = document.querySelector("header");
-    const row = header?.querySelector(".header-install-row");
-    if (!row) return;
-    row.classList.remove("show");
-  }
-
-  function bindInstallButton() {
-    const btn = document.getElementById("install-app");
-    if (!btn) return;
-
-    // évite double bind
-    if (btn.dataset.bound === "1") return;
-    btn.dataset.bound = "1";
-
-    btn.addEventListener("click", () => {
-      promptInstall();
+    const card = document.getElementById("mx-install-panel");
+    if (card) card.hidden = hidden;
+    document.querySelectorAll("[data-mx-install-trigger]").forEach(function (button) {
+      button.hidden = hidden;
+      button.disabled = hidden;
+      const label = button.querySelector("[data-mx-install-label]");
+      if (label) label.textContent = p.inApp ? "Comment installer" :
+        p.isIOS ? "Ajouter à l’écran d’accueil" : "Installer gratuitement";
     });
   }
 
-  function updateInstallButton() {
-    const installBtn = document.getElementById("install-app");
-    if (!installBtn) return;
-
-    const platform = getPlatform();
-
-    // Affichage :
-    // - iOS : on l'affiche (guide "Ajouter à l'écran d'accueil")
-    // - Android/desktop : seulement si installAvailable est true
-    const shouldShow =
-      !platform.isStandalone &&
-      (window.__MRXPWA__.installAvailable || platform.isIOS);
-
-    if (shouldShow) {
-      moveInstallButtonToHeaderBottom();
-      showInstallRow();
-
-      installBtn.style.display = "inline-flex";
-      installBtn.classList.add("btn-primary");
-      installBtn.classList.remove("btn-secondary");
-      installBtn.textContent = platform.isIOS
-        ? "Ajouter à l’écran d’accueil"
-        : "Installer l'app";
-    } else {
-      // ✅ cache bouton + cache la ligne (plus d'espace vide)
-      installBtn.style.display = "none";
-      hideInstallRow();
+  function markImpressions() {
+    if (getPlatform().isStandalone || state.isInstalled) return;
+    const targets = [];
+    const header = document.getElementById("install-app");
+    if (header && header.style.display !== "none") targets.push([header, "header"]);
+    const panel = document.getElementById("mx-install-panel");
+    if (panel && !panel.hidden) targets.push([panel, "home"]);
+    if (typeof IntersectionObserver === "undefined") {
+      targets.forEach(function (pair) {
+        if (!impressions.has(pair[1])) {
+          impressions.add(pair[1]); track("cta_visible", pair[1]);
+        }
+      });
+      return;
     }
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        const source = entry.target.id === "mx-install-panel" ? "home" : "header";
+        if (entry.isIntersecting && !impressions.has(source)) {
+          impressions.add(source);
+          track("cta_visible", source);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.25 });
+    targets.forEach(function (pair) { observer.observe(pair[0]); });
+  }
+
+  function ensureModal() {
+    if (modal) return modal;
+    modal = document.createElement("div");
+    modal.id = "mx-install-help";
+    modal.className = "mx-install-help";
+    modal.hidden = true;
+    modal.innerHTML =
+      '<div class="mx-install-help-backdrop" data-mx-guide-close></div>' +
+      '<section class="mx-install-help-dialog" role="dialog" aria-modal="true" aria-labelledby="mx-install-guide-title" aria-describedby="mx-install-guide-text">' +
+      '<button type="button" class="mx-install-help-x" data-mx-guide-close aria-label="Fermer le guide">×</button>' +
+      '<span class="mx-install-help-kicker">INSTALLER MR XPRONOS</span>' +
+      '<h2 id="mx-install-guide-title"></h2>' +
+      '<p id="mx-install-guide-text"></p>' +
+      '<ol id="mx-install-guide-steps"></ol>' +
+      '<p class="mx-install-help-note">L’installation est facultative. Les analyses et résultats restent accessibles sur le site.</p>' +
+      '<div class="mx-install-help-actions">' +
+      '<button type="button" id="mx-copy-install-link">Copier le lien du site</button>' +
+      '<button type="button" id="mx-close-install-guide" data-mx-guide-close>Compris</button>' +
+      '</div></section>';
+    document.body.appendChild(modal);
+    modal.querySelectorAll("[data-mx-guide-close]").forEach(function (el) {
+      el.addEventListener("click", closeGuide);
+    });
+    modal.querySelector("#mx-copy-install-link").addEventListener("click", async function (event) {
+      const button = event.currentTarget;
+      try {
+        if (!navigator.clipboard || !navigator.clipboard.writeText) throw Error("Clipboard unavailable");
+        await navigator.clipboard.writeText(new URL(scope, location.origin).href);
+        button.textContent = "Lien copié !";
+      } catch (_) {
+        button.textContent = "Copiez l’adresse depuis votre navigateur";
+      }
+    });
+    modal.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") { event.preventDefault(); closeGuide(); }
+      if (event.key !== "Tab") return;
+      const all = Array.from(modal.querySelectorAll("button:not([disabled])"));
+      if (!all.length) return;
+      if (event.shiftKey && document.activeElement === all[0]) {
+        event.preventDefault(); all[all.length - 1].focus();
+      } else if (!event.shiftKey && document.activeElement === all[all.length - 1]) {
+        event.preventDefault(); all[0].focus();
+      }
+    });
+    return modal;
+  }
+
+  function guideContent() {
+    const p = getPlatform();
+    if (p.inApp) {
+      return {
+        title: "Ouvrez le site dans votre navigateur",
+        body: "Les navigateurs intégrés à WhatsApp, Instagram et d’autres applications ne proposent pas toujours l’installation.",
+        steps: [
+          "Ouvrez le menu ⋮ ou ⋯ de cette fenêtre.",
+          p.isIOS ? "Choisissez « Ouvrir dans Safari » (ou dans votre navigateur habituel)." :
+            "Choisissez « Ouvrir dans Chrome » ou « Ouvrir dans le navigateur ».",
+          "Dans ce navigateur, revenez sur Mr XPRONOS et utilisez le menu d’installation."
+        ]
+      };
+    }
+    if (p.isIOS) {
+      return {
+        title: "Ajouter Mr XPRONOS sur votre iPhone",
+        body: "Sur iPhone et iPad, l’ajout s’effectue manuellement dans le menu de partage du navigateur.",
+        steps: [
+          "Appuyez sur Partager (icône carré avec flèche) dans Safari, Chrome ou un navigateur compatible.",
+          "Faites défiler et sélectionnez « Sur l’écran d’accueil » ou « Ajouter à l’écran d’accueil ».",
+          "Confirmez avec « Ajouter ». Si proposé, laissez « Ouvrir comme app web » activé."
+        ]
+      };
+    }
+    if (p.isAndroid) {
+      return {
+        title: "Installer Mr XPRONOS sur Android",
+        body: "L’installation dépend du navigateur et des fonctionnalités de votre appareil.",
+        steps: [
+          "Ouvrez Mr XPRONOS dans Chrome ou votre navigateur habituel.",
+          "Touchez ⋮ puis « Installer l’application » ou « Ajouter à l’écran d’accueil ».",
+          "Confirmez. Si seule une icône de raccourci est proposée, elle ouvrira le site dans le navigateur."
+        ]
+      };
+    }
+    if (p.isSafari) {
+      return {
+        title: "Ajouter Mr XPRONOS sur Mac",
+        body: "Sur les versions récentes de Safari pour Mac, utilisez le menu du navigateur.",
+        steps: ["Ouvrez le menu Fichier.", "Sélectionnez « Ajouter au Dock » si cette option est présente.", "Confirmez l’ajout."]
+      };
+    }
+    return {
+      title: "Installer Mr XPRONOS sur ordinateur",
+      body: "L’installation dépend de votre navigateur. Si l’option n’apparaît pas, le site reste pleinement accessible en ligne.",
+      steps: [
+        "Dans Chrome ou Edge, cherchez l’icône d’installation près de la barre d’adresse.",
+        "Sinon, ouvrez le menu ⋮ ou ⋯ puis cherchez « Installer » ou « Applications ».",
+        "Confirmez. Certains navigateurs, notamment Firefox sur ordinateur, ne proposent pas d’installation PWA native."
+      ]
+    };
+  }
+
+  function showGuide(source) {
+    const content = guideContent();
+    const overlay = ensureModal();
+    previousFocus = document.activeElement;
+    overlay.querySelector("#mx-install-guide-title").textContent = content.title;
+    overlay.querySelector("#mx-install-guide-text").textContent = content.body;
+    const list = overlay.querySelector("#mx-install-guide-steps");
+    list.replaceChildren();
+    content.steps.forEach(function (step) {
+      const li = document.createElement("li");
+      li.textContent = step;
+      list.appendChild(li);
+    });
+    overlay.querySelector("#mx-copy-install-link").textContent = "Copier le lien du site";
+    overlay.hidden = false;
+    document.body.classList.add("mx-install-guide-open");
+    track("guide_open", source || "guide");
+    overlay.querySelector(".mx-install-help-x").focus();
+  }
+
+  function closeGuide() {
+    if (!modal || modal.hidden) return;
+    modal.hidden = true;
+    document.body.classList.remove("mx-install-guide-open");
+    track("guide_closed", "guide");
+    if (previousFocus && previousFocus.isConnected && typeof previousFocus.focus === "function") {
+      previousFocus.focus();
+    }
+  }
+
+  function showInstalledToast() {
+    const toast = document.createElement("div");
+    toast.className = "mx-pwa-toast";
+    toast.setAttribute("role", "status");
+    toast.textContent = "Mr XPRONOS a été installé. Retrouvez son icône sur votre appareil.";
+    document.body.appendChild(toast);
+    setTimeout(function () { toast.remove(); }, 5000);
   }
 
   function showUpdateToast() {
-    const lastToast = localStorage.getItem("mx_update_toast");
-    if (lastToast && Date.now() - parseInt(lastToast, 10) < 3600000) return;
-
-    localStorage.setItem("mx_update_toast", Date.now().toString());
-
-    const toast = document.createElement("div");
-    toast.className = "mx-toast mx-toast--update";
-    toast.setAttribute("role", "button");
-    toast.setAttribute("tabindex", "0");
-    toast.textContent = "Nouvelle version disponible · Touchez pour actualiser";
-    const reload = () => window.location.reload();
-    toast.onclick = reload;
-    toast.onkeydown = (event) => {
-      if (event.key === "Enter" || event.key === " ") reload();
-    };
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 8000);
-  }
-
-  function showInstallSuccessToast() {
-    const toast = document.createElement("div");
-    toast.className = "mx-toast mx-toast--success";
-    toast.setAttribute("role", "status");
-    toast.setAttribute("aria-live", "polite");
-    toast.textContent = "Mr XPRONOS est installé sur votre appareil.";
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 5000);
-  }
-
-  // ========================================================
-  // SERVICE WORKER
-  // ========================================================
-  async function registerServiceWorker() {
-    if (!("serviceWorker" in navigator)) {
-      pwaWarn("Service Worker non supporté");
-      return null;
-    }
-
     try {
-      pwaLog("Enregistrement SW: " + CONFIG.swPath);
+      const last = Number(localStorage.getItem("mx_update_toast") || 0);
+      if (Date.now() - last < 3600000) return;
+      localStorage.setItem("mx_update_toast", String(Date.now()));
+    } catch (_) {}
+    const toast = document.createElement("button");
+    toast.type = "button";
+    toast.className = "mx-pwa-toast";
+    toast.textContent = "Nouvelle version disponible — actualiser";
+    toast.addEventListener("click", function () { location.reload(); });
+    document.body.appendChild(toast);
+    setTimeout(function () { toast.remove(); }, 9000);
+  }
 
-      const registration = await navigator.serviceWorker.register(CONFIG.swPath, {
-        scope: CONFIG.scope,
-        updateViaCache: "imports",
+  async function promptInstall(source) {
+    source = ["header","home","guide"].includes(source) ? source : "header";
+    const p = getPlatform();
+    if (p.isStandalone || state.isInstalled || installing) return false;
+    track("cta_click", source);
+    if (p.inApp || p.isIOS || !state.deferredPrompt) {
+      showGuide(source);
+      return false;
+    }
+    const prompt = state.deferredPrompt;
+    installing = true;
+    updateState({ deferredPrompt: null, installAvailable: false });
+    try {
+      track("prompt_shown", source);
+      await prompt.prompt();
+      const result = await prompt.userChoice;
+      if (result && result.outcome === "accepted") {
+        track("prompt_accepted", source);
+        return true; // Acceptation du dialogue ≠ installation confirmée.
+      }
+      track("prompt_dismissed", source);
+      return false;
+    } catch (_) {
+      showGuide(source);
+      return false;
+    } finally {
+      installing = false;
+    }
+  }
+
+  function showWelcome() {
+    const p = getPlatform();
+    if (!p.isStandalone) return;
+    track("standalone_open", "system");
+    try {
+      if (localStorage.getItem(welcomeKey)) return;
+      localStorage.setItem(welcomeKey, "1");
+    } catch (_) { return; }
+    const welcome = document.createElement("section");
+    welcome.className = "mx-pwa-welcome";
+    welcome.setAttribute("aria-label", "Bienvenue dans l'application");
+    welcome.innerHTML =
+      '<div><strong>Bienvenue sur Mr XPRONOS !</strong><p>Votre accès direct aux pronostics, analyses football et résultats.</p></div>' +
+      '<div class="mx-pwa-welcome-actions"><a href="pronos.html">Voir les pronostics</a><a href="historique.html">Voir les résultats</a>' +
+      '<button type="button">Continuer ici</button></div>';
+    welcome.querySelector("button").addEventListener("click", function () { welcome.remove(); });
+    const main = document.querySelector("main");
+    if (main) main.insertAdjacentElement("afterbegin", welcome);
+    else document.body.prepend(welcome);
+    track("welcome_visible", "system");
+  }
+
+  function bindButtons() {
+    document.querySelectorAll("#install-app,[data-mx-install-trigger]").forEach(function (button) {
+      if (button.dataset.mxInstallBound) return;
+      button.dataset.mxInstallBound = "1";
+      button.addEventListener("click", function () {
+        void promptInstall(button.dataset.mxInstallSurface || (button.id === "install-app" ? "header" : "home"));
       });
+    });
+  }
 
-      pwaLog("SW enregistré: " + registration.scope);
-      updateGlobalState({ registration });
-
-      registration.addEventListener("updatefound", () => {
-        const newWorker = registration.installing;
-        if (!newWorker) return;
-
-        pwaLog("Nouvelle version SW détectée");
-        newWorker.addEventListener("statechange", () => {
-          if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-            pwaLog("Mise à jour disponible");
-            updateGlobalState({ updateAvailable: true });
+  async function registerServiceWorker() {
+    if (!("serviceWorker" in navigator)) return;
+    try {
+      const reg = await navigator.serviceWorker.register(scope + "service-worker.js", {
+        scope: scope, updateViaCache: "imports"
+      });
+      updateState({ registration: reg });
+      reg.addEventListener("updatefound", function () {
+        const worker = reg.installing;
+        if (!worker) return;
+        worker.addEventListener("statechange", function () {
+          if (worker.state === "installed" && navigator.serviceWorker.controller) {
+            updateState({ updateAvailable: true });
             showUpdateToast();
           }
         });
       });
-
-      return registration;
-    } catch (err) {
-      pwaError("Erreur SW: " + err.message);
-      return null;
+    } catch (error) {
+      if (isDev) console.warn("PWA : enregistrement du Service Worker impossible", error);
     }
   }
 
-  // ========================================================
-  // INSTALL PROMPT
-  // ========================================================
-  function setupInstallPromptHandling() {
-    const platform = getPlatform();
-    updateGlobalState({ platform });
-
-    if (platform.isStandalone) {
-      pwaLog("App déjà installée");
-      updateGlobalState({ isInstalled: true, installAvailable: false });
-      return;
-    }
-
-    if (platform.isIOS) {
-      pwaLog("iOS - installation via menu partage");
-      updateGlobalState({ installAvailable: false });
-      return;
-    }
-
-    window.addEventListener("beforeinstallprompt", (e) => {
-      pwaLog("beforeinstallprompt capturé");
-      e.preventDefault();
-
-      updateGlobalState({
-        deferredPrompt: e,
-        installAvailable: true,
-      });
+  function installListeners() {
+    window.addEventListener("beforeinstallprompt", function (event) {
+      event.preventDefault();
+      if (getPlatform().isStandalone) return;
+      track("prompt_ready", "system");
+      updateState({ deferredPrompt: event, installAvailable: true });
     });
-
-    window.addEventListener("appinstalled", () => {
-      pwaLog("App installée avec succès");
-      localStorage.setItem("mx_pwa_installed", "true");
-
-      updateGlobalState({
-        deferredPrompt: null,
-        isInstalled: true,
-        installAvailable: false,
-      });
-
-      showInstallSuccessToast();
-      // updateInstallButton() est rappelé via updateGlobalState -> donc la ligne disparaît
+    window.addEventListener("appinstalled", function () {
+      track("appinstalled", "system");
+      // L'ancien flag mx_pwa_installed n'est pas fiable après désinstallation.
+      try { localStorage.removeItem("mx_pwa_installed"); } catch (_) {}
+      updateState({ deferredPrompt: null, installAvailable: false, isInstalled: true });
+      showInstalledToast();
     });
-
-    // sécurité
-    setTimeout(() => {
-      const p = getPlatform();
-      if (!window.__MRXPWA__.installAvailable && !p.isStandalone && !p.isIOS) {
-        pwaLog("Aucune installation disponible");
-        updateGlobalState({ installAvailable: false });
-      }
-    }, 5000);
+    try { localStorage.removeItem("mx_pwa_installed"); } catch (_) {}
   }
 
-  async function promptInstall() {
-    const state = window.__MRXPWA__;
-    const platform = getPlatform();
-
-    if (platform.isIOS) {
-      const guidePopup = document.getElementById("ios-guide-popup");
-      if (guidePopup) {
-        guidePopup.style.display = "flex";
-      } else {
-        alert(
-          'Pour installer sur iPhone :\n1. Touchez "Partager"\n2. "Sur l\'écran d\'accueil"\n3. "Ajouter"'
-        );
-      }
-      return false;
-    }
-
-    if (!state.deferredPrompt) {
-      pwaWarn("Aucune installation disponible");
-      return false;
-    }
-
-    try {
-      state.deferredPrompt.prompt();
-      const result = await state.deferredPrompt.userChoice;
-
-      pwaLog("Résultat installation: " + result?.outcome);
-
-      updateGlobalState({
-        deferredPrompt: null,
-        installAvailable: false,
-      });
-
-      return result?.outcome === "accepted";
-    } catch (err) {
-      pwaError("Erreur install: " + err.message);
-      return false;
-    }
-  }
-
-  // ========================================================
-  // STYLES
-  // ========================================================
   function addStyles() {
-    if (document.getElementById("pwa-styles")) return;
-
+    if (document.getElementById("mx-install-styles")) return;
     const style = document.createElement("style");
-    style.id = "pwa-styles";
-    style.textContent = `
-      #install-app { transition: all 0.25s ease; }
-      #install-app:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(212,175,55,0.35); }
-    `;
+    style.id = "mx-install-styles";
+    style.textContent = [
+      ".mx-install-help[hidden],.mx-pwa-welcome[hidden],#mx-install-panel[hidden],[data-mx-install-trigger][hidden]{display:none!important}",
+      ".mx-install-guide-open{overflow:hidden}",
+      ".mx-install-help{position:fixed;inset:0;z-index:5000;display:grid;place-items:center;padding:18px}",
+      ".mx-install-help-backdrop{position:absolute;inset:0;background:rgba(0,5,13,.83)}",
+      ".mx-install-help-dialog{position:relative;z-index:1;width:min(100%,470px);max-height:90dvh;overflow:auto;padding:24px;border:1px solid #b89655;border-radius:17px;background:#0c1a29;color:#f5f5f5;box-shadow:0 20px 80px #000b;line-height:1.55}",
+      ".mx-install-help-kicker{font-size:11px;color:#e7bc64;letter-spacing:1.4px;font-weight:750}",
+      ".mx-install-help-dialog h2{font-size:23px;line-height:1.2;margin:12px 25px 12px 0;color:#fff}",
+      ".mx-install-help-dialog p{font-size:14px;color:#ced6df}",
+      ".mx-install-help-dialog ol{padding-left:22px;display:grid;gap:12px;margin:18px 0}",
+      ".mx-install-help-dialog li{font-size:14px;color:#f3f5f8}",
+      ".mx-install-help-note{border-top:1px solid #354558;padding-top:12px;font-size:12px!important}",
+      ".mx-install-help-x{position:absolute;right:14px;top:12px;font-size:26px;line-height:1;color:#fff;border:0;background:transparent;cursor:pointer;padding:4px 8px}",
+      ".mx-install-help-actions{display:flex;gap:9px;flex-wrap:wrap}",
+      ".mx-install-help-actions button,.mx-pwa-welcome-actions a,.mx-pwa-welcome-actions button{border:1px solid #cda35d;background:#b89555;color:#0a1724;border-radius:9px;padding:10px 12px;font-weight:750;font-size:13px;cursor:pointer;text-decoration:none}",
+      ".mx-install-help-actions button:first-child,.mx-pwa-welcome-actions a:nth-child(2),.mx-pwa-welcome-actions button{background:#182f42;color:#f2f5f6;border-color:#486079}",
+      ".mx-pwa-toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:5001;background:#142b3b;border:1px solid #caa864;color:#fff;border-radius:11px;padding:13px 18px;max-width:min(92%,430px);box-shadow:0 8px 30px #0008}",
+      ".mx-pwa-welcome{margin:15px auto;padding:17px;background:linear-gradient(110deg,#0b2438,#162c38);color:#fff;border:1px solid #bd9c62;border-radius:13px;max-width:1120px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:13px}",
+      ".mx-pwa-welcome strong{color:#f1cc81;font-size:17px}.mx-pwa-welcome p{margin:5px 0;font-size:13px;color:#e3e9ee}",
+      ".mx-pwa-welcome-actions{display:flex;flex-wrap:wrap;gap:8px}",
+      "@media(max-width:470px){.mx-install-help-dialog{padding:18px}.mx-install-help-dialog h2{font-size:20px}.mx-pwa-welcome{margin:10px}.mx-pwa-welcome-actions{width:100%}}",
+      "@media(prefers-reduced-motion:reduce){.mx-pwa-toast{transition:none}}"
+    ].join("\n");
     document.head.appendChild(style);
   }
 
-  // ========================================================
-  // INITIALISATION
-  // ========================================================
   function init() {
-    pwaLog("Initialisation PWA...");
-    pwaLog("Config: " + JSON.stringify(CONFIG));
-
     addStyles();
-
-    // On prépare le bouton
-    bindInstallButton();
-
-    updateGlobalState({ platform: getPlatform() });
-
-    registerServiceWorker();
-    setupInstallPromptHandling();
-
-    // update SW périodique si page visible
-    setInterval(() => {
-      if (document.visibilityState === "visible") {
-        window.__MRXPWA__?.registration?.update().catch(() => {});
+    bindButtons();
+    updateState({ platform: getPlatform(), isInstalled: getPlatform().isStandalone });
+    markImpressions();
+    if (getPlatform().isStandalone) showWelcome();
+    void registerServiceWorker();
+    setInterval(function () {
+      if (document.visibilityState === "visible" && state.registration) {
+        state.registration.update().catch(function () {});
       }
     }, 3600000);
-
-    // init état bouton + ligne
-    updateInstallButton();
-
-    pwaLog("PWA initialisé");
   }
 
-  // ========================================================
-  // API PUBLIQUE
-  // ========================================================
+  // Écoute les événements du navigateur le plus tôt possible (avant DOMContentLoaded).
+  installListeners();
+  try {
+    if (JSON.parse(sessionStorage.getItem(eventKey) || "[]").length) {
+      void import("./pwa-telemetry.mjs").then(function (module) { return module.flush(); }).catch(function () {});
+    }
+  } catch (_) {}
+  window.addEventListener("online", function () {
+    void import("./pwa-telemetry.mjs").then(function (module) { return module.flush(); }).catch(function () {});
+  });
+
   window.MrXPWA = {
-    getState: () => window.__MRXPWA__,
-    getPlatform,
-    promptInstall,
-    isInstallable: () => window.__MRXPWA__.installAvailable,
-    isInstalled: () => getPlatform().isStandalone,
+    getState: function () { return state; },
+    getPlatform: getPlatform,
+    promptInstall: promptInstall,
+    isInstallable: function () { return state.installAvailable; },
+    isInstalled: function () { return getPlatform().isStandalone || state.isInstalled; },
+    openGuide: showGuide
   };
-
   window.promptPWAInstall = promptInstall;
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
 })();

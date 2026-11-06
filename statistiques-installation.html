@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Installation de l'app — statistiques privées | Mr XPRONOS</title>
+<link rel="icon" href="assets/images/mrxpronos-mark.svg" type="image/svg+xml">
+<style>
+:root{color-scheme:dark;font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}body{background:#071321;color:#e8eff7;margin:0}
+a{color:#ebc37a}a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #f2ca84;outline-offset:2px}
+header{background:#0e2232;border-bottom:1px solid #314d64;padding:15px max(18px,calc((100% - 1140px)/2));display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+header b{color:#f2c46e;font-size:20px}header a{font-size:13px}main{max-width:1140px;padding:24px 18px 60px;margin:auto}
+h1{font-size:clamp(23px,3.5vw,34px);margin:4px 0 10px}h2{font-size:19px;margin:0 0 10px}
+p{color:#b5c8d5;margin:0 0 15px}button,input,select{font:inherit;border-radius:9px;padding:10px 12px}
+button{background:#e7bb6b;color:#081826;border:0;font-weight:700;cursor:pointer}button:disabled{opacity:.55}
+input,select{background:#102a3d;color:#fff;border:1px solid #54748b}
+label{display:block;font-size:13px;margin-bottom:5px;color:#c1d2e2}
+form{max-width:430px;background:#122635;border:1px solid #36546a;border-radius:13px;padding:23px;margin:30px auto}
+form input{display:block;width:100%;margin:0 0 13px}form button{width:100%}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:18px 0}
+.card,section.panel{background:#122635;border:1px solid #36546a;border-radius:13px;padding:17px}
+.card span{display:block;color:#b0c4d1;font-size:13px}.card strong{display:block;font-size:30px;color:#fff;margin-top:6px}
+.toolbar{display:flex;gap:11px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.tables{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:16px 0}
+.scroll{overflow:auto}table{width:100%;border-collapse:collapse;min-width:400px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid #36546a}th{color:#b6c6d4;font-size:12px}
+.note{font-size:12px;color:#b7c9d5}#status{min-height:20px}#dashboard[hidden],#login-panel[hidden],#logout[hidden]{display:none!important}
+@media(max-width:790px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.tables{grid-template-columns:1fr}}
+@media(max-width:450px){.cards{grid-template-columns:1fr 1fr}.card strong{font-size:26px}.card{padding:12px}main{padding:16px 12px}table{min-width:350px}}
+</style>
+</head>
+<body>
+<header><b>Mr XPRONOS <span style="color:#dce6ef">/ Installation</span></b><nav><a href="index.html">Voir le site</a> <button id="logout" type="button" hidden>Se déconnecter</button></nav></header>
+<main>
+  <h1>Parcours d'installation de l'application</h1>
+  <p class="note">Espace protégé : les statistiques sont fournies uniquement par une fonction Supabase réservée aux administrateurs. Cette page ne contient aucune clé privée.</p>
+  <div id="status" role="status" aria-live="polite">Vérification de l'accès…</div>
+  <form id="login-panel" hidden>
+    <h2>Connexion administrateur</h2>
+    <label for="email">Adresse e-mail</label><input id="email" type="email" autocomplete="username" required>
+    <label for="password">Mot de passe</label><input id="password" type="password" autocomplete="current-password" required>
+    <button type="submit" id="login-button">Se connecter</button>
+    <p class="note">L'accès n'est autorisé qu'aux membres actifs de l'administration.</p>
+  </form>
+  <div id="dashboard" hidden>
+    <div class="toolbar">
+      <label for="period">Période <select id="period"><option value="1">Aujourd'hui (UTC)</option><option value="7">7 derniers jours</option><option value="30" selected>30 derniers jours</option><option value="90">90 derniers jours</option></select></label>
+      <button id="refresh" type="button">Actualiser</button>
+    </div>
+    <div class="cards">
+      <div class="card"><span>Boutons visibles</span><strong id="metric-visible">–</strong></div>
+      <div class="card"><span>Clics d'installation</span><strong id="metric-click">–</strong></div>
+      <div class="card"><span>Acceptations du navigateur</span><strong id="metric-accepted">–</strong></div>
+      <div class="card"><span>Événements appinstalled</span><strong id="metric-appinstalled">–</strong></div>
+      <div class="card"><span>Ouvertures en mode app</span><strong id="metric-standalone">–</strong></div>
+      <div class="card"><span>Guides d'installation</span><strong id="metric-guide">–</strong></div>
+    </div>
+    <div class="tables">
+      <section class="panel"><h2>Par appareil</h2><div class="scroll"><table><thead><tr><th>Appareil</th><th>CTA vus</th><th>Clics</th><th>Acceptés</th><th>Installés*</th><th>Mode app</th></tr></thead><tbody id="platforms"></tbody></table></div></section>
+      <section class="panel"><h2>Par emplacement</h2><div class="scroll"><table><thead><tr><th>Emplacement</th><th>CTA vus</th><th>Clics</th><th>Guides</th></tr></thead><tbody id="surfaces"></tbody></table></div></section>
+    </div>
+    <section class="panel"><h2>Évolution quotidienne</h2><div class="scroll"><table><thead><tr><th>Jour UTC</th><th>CTA vus</th><th>Clics</th><th>Acceptés</th><th>Installés*</th><th>Mode app</th></tr></thead><tbody id="daily"></tbody></table></div></section>
+    <p class="note" style="margin-top:14px">* « appinstalled » est un événement du navigateur, non une preuve universelle d'installation. Sur iPhone, un ajout manuel peut ne produire aucun événement : les ouvertures en mode application sont mesurées séparément. Les chiffres dénombrent des identifiants de navigateur pseudonymisés, pas des personnes physiques. Le parcours est volontaire et gratuit.</p>
+  </div>
+</main>
+<script type="module" src="assets/js/installation-analytics.mjs"></script>
+</body>
+</html>

@@ -3777,6 +3777,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         await registerUniqueUser();
         await initOnlineUsers();
         mxStartAnalyticsV2(); // Replaces legacy daily event; server enforces one visitor/day.
+
         if ("Notification" in window && Notification.permission === "granted") {
           subscribeToPush(false);
         }
@@ -3784,7 +3785,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.warn("Services secondaires non disponibles :", secondaryError);
       }
     })();
-    showIosGuideIfNeeded();
+    // Installation uniquement à la demande : plus de popup automatique sur iPhone.
 
     switch (page) {
       case "pronos":
