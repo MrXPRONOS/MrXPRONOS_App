@@ -87,6 +87,16 @@ class Store:
                 FOREIGN KEY(match_id) REFERENCES matches(id)
             );
             CREATE INDEX IF NOT EXISTS ix_venue_audit_match ON venue_audit(match_id,id DESC);
+            CREATE TABLE IF NOT EXISTS model_selection_calibrations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                competition TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                selected_model TEXT NOT NULL,
+                source_signature TEXT NOT NULL,
+                report_json TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS ix_model_selection_competition
+              ON model_selection_calibrations(competition,id DESC);
             CREATE TABLE IF NOT EXISTS xi_calibrations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 competition TEXT NOT NULL,
@@ -367,5 +377,41 @@ class Store:
                     and result.get("n_scored",0)>=100
                     and 0<=result.get("selected_xi",-1)<=0.3):
                 result["calibration_id"]="validated_packaged_report"
+                return result
+        return None
+
+    def save_model_selection(self, report: dict) -> int:
+        """Append-only calibrated winner, never chosen using future target scores."""
+        if not isinstance(report,dict) or report.get('n_scored',0)<100:
+            raise ValueError('Comparaison statistique non validée (minimum 100 résultats).')
+        if report.get('selected_model') not in ('poisson','dixon_coles'):
+            raise ValueError('Modèle de repli non reconnu.')
+        if not report.get('no_future_leakage') or not report.get('source_signature_before_eval_end'):
+            raise ValueError('Provenance ou contrôles temporels manquants.')
+        competition=report['competition']
+        body=json.dumps(report,ensure_ascii=False,sort_keys=True,allow_nan=False)
+        with self.connection() as db:
+            cursor=db.execute("""INSERT INTO model_selection_calibrations
+                    (competition,created_at,selected_model,source_signature,report_json)
+                    VALUES (?,?,?,?,?)""", (competition,iso_date(datetime.now(timezone.utc)),
+                    report['selected_model'],report['source_signature_before_eval_end'],body))
+            return int(cursor.lastrowid)
+
+    def latest_model_selection(self, competition: str) -> dict | None:
+        with self.connection() as db:
+            row=db.execute("""SELECT id, report_json FROM model_selection_calibrations
+                    WHERE competition=? ORDER BY id DESC LIMIT 1""",(competition,)).fetchone()
+        if row is not None:
+            result=json.loads(row['report_json'])
+            result['calibration_id']=row['id']
+            return result
+        packaged=Path(__file__).parent/'calibrations'/'eng-premier-league-model-selection.json'
+        if competition=='of:ENG-PL' and packaged.is_file():
+            result=json.loads(packaged.read_text(encoding='utf-8'))
+            if (result.get('competition')==competition
+                    and result.get('selected_model') in ('poisson','dixon_coles')
+                    and result.get('n_scored',0)>=100
+                    and result.get('no_future_leakage')):
+                result['calibration_id']='validated_packaged_model_selection'
                 return result
         return None

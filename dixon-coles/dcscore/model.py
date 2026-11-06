@@ -223,7 +223,17 @@ def forecast(model: DCModel, home_id: str, away_id: str, *, top_n: int=5, neutra
            for i in range(cap+1) for j in range(cap+1)]
     probs.sort(key=lambda r:(-r["probability"],r["home"],r["away"]))
     p1x2=one_x_two(lam,mu,model.rho)
+    # A modal 1-1 is NOT an assertion that a draw has high probability.
+    # Expose both p(1-1) and the separation from the runner-up score.
+    score_gap_pp=100.0*(probs[0]['probability']-probs[1]['probability'])
+    p11=float(matrix[1,1])
+    p11_poisson_at_dc_means=float(poisson.pmf(1,lam)*poisson.pmf(1,mu))
     return {
+        'score_top1_gap_percentage_points':score_gap_pp,
+        'top_scores_nearly_tied':score_gap_pp<1.0,
+        'score_1_1_probability':p11,
+        'score_1_1_without_rho':p11_poisson_at_dc_means,
+        'rho_effect_on_p_1_1_percent':100.0*(p11/p11_poisson_at_dc_means-1),
         "expected_home_goals":lam, "expected_away_goals":mu,
         "home_attack":model.alpha[home_id],"home_defensive_weakness":model.beta[home_id],
         "away_attack":model.alpha[away_id],"away_defensive_weakness":model.beta[away_id],

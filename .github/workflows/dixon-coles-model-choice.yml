@@ -1,0 +1,67 @@
+name: Dixon-Coles - choix prudent du modele sur 374 resultats reels
+
+on:
+  push:
+    paths:
+      - 'dixon-coles/dcscore/model_selection.py'
+      - 'dixon-coles/tests/test_model_selection.py'
+      - '.github/workflows/dixon-coles-model-choice.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  model-choice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: dixon-coles
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            dixon-coles
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer le programme et les tests
+        run: python -m pip install -e '.[test]'
+      - name: Vérifier les nouvelles protections
+        run: python -m pytest -q tests/test_model_selection.py
+      - name: Télécharger les résultats publics, non issus de l'ancien projet
+        run: |
+          python -m dcscore.cli --db /tmp/dc_rho_validation.sqlite sync-openfootball --seasons 2021-22 2022-23 2023-24 2024-25 2025-26
+      - name: Choisir sur 2025-26 sans jamais consulter octobre 2026
+        run: |
+          python -m dcscore.cli --db /tmp/dc_rho_validation.sqlite calibrate-model-choice \
+            --competition of:ENG-PL --start 2025-08-01 --end 2026-06-01 \
+            --xi 0.0065 --min-games 500 --min-team 5 --min-scored 300 \
+            --min-practical-gain 0.005 \
+            --output dcscore/calibrations/eng-premier-league-model-selection.json
+      - name: Vérifier preuve de sélection et provenance chronologique
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('dcscore/calibrations/eng-premier-league-model-selection.json')
+          d=json.loads(p.read_text())
+          assert d['competition']=='of:ENG-PL'
+          assert d['n_scored']==374 and d['n_blocks']==10
+          assert d['validation_start']=='2025-08-01' and d['validation_end_exclusive']=='2026-06-01'
+          assert d['no_future_leakage'] and d['min_practical_gain']==0.005
+          assert all(f['latest_training_result']<f['start'] for f in d['folds'])
+          assert all(f['end_exclusive']<='2026-06-01T00:00:00Z' for f in d['folds'])
+          assert len(d['source_signature_before_eval_end'])==64
+          print('SELECTED_MODEL',d['selected_model'])
+          print('VALIDATION_MATCHES',d['n_scored'])
+          print('LOGLOSS_DC',d['mean_dc_log_loss'])
+          print('LOGLOSS_POISSON',d['mean_poisson_log_loss'])
+          print('DC_GAIN_CI95',d['ci95_paired_gain_for_dc'])
+          print('LOGLOSS_GAIN_THRESHOLD',d['min_practical_gain'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dixon-coles-model-choice-calibration
+          path: dixon-coles/dcscore/calibrations/eng-premier-league-model-selection.json

@@ -30,7 +30,7 @@ def _enough_team_history(rows: list[Match], home_id: str, away_id: str, minimum:
 
 
 def predict(store: Store, match_id: str, *, xi: float | None=None,
-            min_games: int=80, min_team: int=5,regularization: float=0.15,
+            model_mode: str='auto', min_games: int=80, min_team: int=5,regularization: float=0.15,
             save: bool=True, now: datetime | None=None) -> dict:
     target=store.get_match(match_id)
     if not target:
@@ -55,8 +55,29 @@ def predict(store: Store, match_id: str, *, xi: float | None=None,
     else:
         used_xi=xi
         origin="manual_override"
-    model=fit(rows,as_of=clock,xi=used_xi,min_games=min_games,regularization=regularization)
+    if model_mode not in ('auto','dixon_coles','poisson'):
+        raise ServiceError('Mode invalide : auto, dixon_coles ou poisson.')
+    selection=store.latest_model_selection(target.competition) if model_mode=='auto' else None
+    # A published calibration must have ended before the intended prediction.
+    if selection is not None and datetime.strptime(selection['validation_end_exclusive'],'%Y-%m-%d').replace(tzinfo=timezone.utc)>clock:
+        raise ServiceError('La sélection des modèles provient du futur : prédiction refusée.')
+    selected=selection['selected_model'] if selection else ('dixon_coles' if model_mode=='auto' else model_mode)
+    model=fit(rows,as_of=clock,xi=used_xi,min_games=min_games,regularization=regularization,
+              rho_fixed=0.0 if selected=='poisson' else None)
     result=forecast(model,target.home_id,target.away_id,neutral_venue=target.neutral_venue)
+    result['model_selected']=selected
+    result['model_selection_mode']=model_mode
+    result['model_selection_calibration']=({
+        'validation_start':selection['validation_start'],
+        'validation_end_exclusive':selection['validation_end_exclusive'],
+        'validation_n':selection['n_scored'],
+        'dc_log_loss':selection['mean_dc_log_loss'],
+        'poisson_log_loss':selection['mean_poisson_log_loss'],
+        'gain_ci95':selection['ci95_paired_gain_for_dc'],
+        'reason':selection['decision'],
+    } if selection is not None else None)
+    if selection is None and model_mode=='auto':
+        result['model_selection_warning']='Aucune calibration comparative : Dixon-Coles appliqué par défaut.'
     result["data_quality"]={
         "last_finished_game":iso_date(rows[-1].kickoff) if rows else None,
         "days_since_latest_result":round((clock-rows[-1].kickoff).total_seconds()/86400,1) if rows else None,
@@ -168,6 +189,8 @@ def backtest(store: Store, competition: str, *, n_samples: int=100,
                               dc.rho,target.home_goals,target.away_goals)
                 poisson=p_score(benchmark["expected_home_goals"],benchmark["expected_away_goals"],
                                 0.,target.home_goals,target.away_goals)
+                same_means_poisson=p_score(result['expected_home_goals'],result['expected_away_goals'],
+                                           0.,target.home_goals,target.away_goals)
                 actual=f"{target.home_goals}-{target.away_goals}"
                 actual_1x2=("home" if target.home_goals>target.away_goals else
                             "away" if target.home_goals<target.away_goals else "draw")
@@ -183,7 +206,11 @@ def backtest(store: Store, competition: str, *, n_samples: int=100,
                     "top3_hit":any(actual==r["score"] for r in result["top_scores"]),
                     "dc_log_loss":-log(max(exact,1e-300)),
                     "poisson_independent_log_loss":-log(max(poisson,1e-300)),
-                    "poisson_same_intensities_log_loss":-log(max(poisson,1e-300)),
+                    "poisson_same_intensities_log_loss":-log(max(same_means_poisson,1e-300)),
+                    "poisson_best_score":benchmark['top_scores'][0]['score'],
+                    "poisson_top_one_probability":benchmark['top_scores'][0]['probability'],
+                    "best_score_margin_pp":result['score_top1_gap_percentage_points'],
+                    "rho_effect_on_p_1_1_percent":result['rho_effect_on_p_1_1_percent'],
                     "one_x_two_brier":brier,
                     "training_matches":len(history),
                     "result_provenance":target.result_provenance,
@@ -201,6 +228,10 @@ def backtest(store: Store, competition: str, *, n_samples: int=100,
         "mean_top1_probability":float(np.mean([r["top_one_probability"] for r in detailed])),
         "mean_dc_log_loss":float(np.mean([r["dc_log_loss"] for r in detailed])),
         "mean_poisson_independent_log_loss":bmark,
+        "mean_poisson_same_intensities_log_loss":float(np.mean([r['poisson_same_intensities_log_loss'] for r in detailed])),
+        "poisson_top1_hit_rate":sum(r['poisson_best_score']==r['actual'] for r in detailed)/len(detailed),
+        "dc_top1_score_1_1_count":sum(r['best']=='1-1' for r in detailed),
+        "poisson_top1_score_1_1_count":sum(r['poisson_best_score']=='1-1' for r in detailed),
         "mean_poisson_baseline_log_loss":bmark,
         "mean_one_x_two_brier":float(np.mean([r["one_x_two_brier"] for r in detailed])),
         "top1_confidence_buckets":_confidence_buckets(detailed),

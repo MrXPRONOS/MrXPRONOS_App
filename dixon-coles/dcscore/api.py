@@ -20,6 +20,7 @@ from .sources import parse_csv, api_enabled
 from .service import predict, backtest, sync_seasons, sync_openfootball_seasons
 from .demo import load_demo
 from .calibration import tune_xi, DEFAULT_CANDIDATES
+from .model_selection import select_model
 
 
 class SyncRequest(BaseModel):
@@ -43,6 +44,7 @@ class FinalScoreRequest(BaseModel):
 
 class PredictRequest(BaseModel):
     match_id: str
+    model_mode: str = Field(default='auto',pattern=r'^(auto|dixon_coles|poisson)$')
     xi: float | None = Field(default=None,ge=0,le=0.3)
     min_games: int = Field(default=80,ge=12,le=10000)
     min_team: int = Field(default=5,ge=1,le=100)
@@ -86,6 +88,17 @@ class CalibrateXiRequest(BaseModel):
     min_folds: int = Field(default=3,ge=1,le=40)
     regularization: float = Field(default=0.15,ge=0,le=10)
     candidates: list[float] = Field(default_factory=lambda:list(DEFAULT_CANDIDATES),min_length=2,max_length=16)
+
+
+class CalibrateModelRequest(BaseModel):
+    competition: str = 'of:ENG-PL'
+    eval_start: str = '2025-08-01'
+    eval_end: str = '2026-06-01'
+    xi: float = Field(default=0.0065,ge=0,le=0.3)
+    min_games: int = Field(default=400,ge=12,le=10000)
+    min_team: int = Field(default=5,ge=1,le=100)
+    min_scored: int = Field(default=150,ge=100,le=5000)
+    min_practical_gain: float = Field(default=0.005,ge=0,le=0.1)
 
 
 def _public_mode() -> bool:
@@ -248,6 +261,24 @@ def create_app(store: Store | None=None) -> FastAPI:
         except ValueError as exc:
             raise HTTPException(400,str(exc)) from exc
 
+    @app.get('/api/model-selection')
+    def model_selection_status(competition: str):
+        report=db.latest_model_selection(competition)
+        return {'available':report is not None,'calibration':report}
+
+    @app.post('/api/model-selection/calibrate')
+    def calibrate_model(request: Request,values: CalibrateModelRequest):
+        _require_local_or_token(request)
+        try:
+            report=select_model(db.matches(values.competition,finished=True),
+                eval_start=values.eval_start,eval_end=values.eval_end,
+                xi=values.xi,min_games=values.min_games,min_team=values.min_team,
+                min_scored=values.min_scored,min_practical_gain=values.min_practical_gain)
+            db.save_model_selection(report)
+            return report
+        except ValueError as exc:
+            raise HTTPException(400,str(exc)) from exc
+
     @app.get("/api/results/audit")
     def audit_result(match_id: str):
         return db.result_history(match_id)
@@ -299,6 +330,7 @@ def create_app(store: Store | None=None) -> FastAPI:
     def prediction(request: PredictRequest):
         try:
             return predict(db,request.match_id,xi=request.xi,min_games=request.min_games,
+                           model_mode=request.model_mode,
                            min_team=request.min_team,regularization=request.regularization)
         except ValueError as exc:
             raise HTTPException(400,str(exc)) from exc

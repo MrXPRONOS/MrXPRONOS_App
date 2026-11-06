@@ -12,6 +12,7 @@ from .sources import parse_csv
 from .service import predict,backtest,sync_seasons,sync_openfootball_seasons
 from .demo import load_demo
 from .calibration import tune_xi, holdout_evaluation, DEFAULT_CANDIDATES
+from .model_selection import select_model
 
 
 def main(argv: list[str] | None=None):
@@ -43,8 +44,20 @@ def main(argv: list[str] | None=None):
     cal.add_argument("--output",help="Enregistrer le rapport JSON complet")
     cal.add_argument("--holdout-start",help="Évaluation FINALE indépendante (AAAA-MM-01)")
     cal.add_argument("--holdout-end",help="Fin exclusive du holdout (AAAA-MM-01)")
+    selection=commands.add_parser('calibrate-model-choice',
+        help='Compare Poisson et Dixon-Coles sans accès aux scores futurs')
+    selection.add_argument('--competition',default='of:ENG-PL')
+    selection.add_argument('--start',required=True)
+    selection.add_argument('--end',required=True)
+    selection.add_argument('--xi',type=float,default=0.0065)
+    selection.add_argument('--min-games',type=int,default=400)
+    selection.add_argument('--min-team',type=int,default=5)
+    selection.add_argument('--min-scored',type=int,default=150)
+    selection.add_argument('--min-practical-gain',type=float,default=0.005)
+    selection.add_argument('--output',help='Exporter le rapport JSON')
     pred=commands.add_parser("predict",help="Analyse un match futur déjà sélectionné")
     pred.add_argument("match_id")
+    pred.add_argument('--model-mode',choices=('auto','dixon_coles','poisson'),default='auto')
     pred.add_argument("--xi",type=float,default=None,help="Override manuel. Par défaut : xi calibré s’il existe.")
     pred.add_argument("--min-games",type=int,default=80)
     back=commands.add_parser("backtest",help="Backtest chronologique")
@@ -112,8 +125,19 @@ def main(argv: list[str] | None=None):
                         "historical_mean_log_loss":result["historical_mean_log_loss"],
                         "holdout":result.get("holdout_not_used_for_selection"),
                         "saved_report":str(path)}
+        elif args.command=='calibrate-model-choice':
+            result=select_model(db.matches(args.competition,finished=True),
+               eval_start=args.start,eval_end=args.end,xi=args.xi,
+               min_games=args.min_games,min_team=args.min_team,
+               min_scored=args.min_scored,min_practical_gain=args.min_practical_gain)
+            db.save_model_selection(result)
+            if args.output:
+                from pathlib import Path
+                path=Path(args.output)
+                path.parent.mkdir(parents=True,exist_ok=True)
+                path.write_text(json.dumps(result,ensure_ascii=False,indent=2,allow_nan=False)+'\n',encoding='utf-8')
         elif args.command=="predict":
-            result=predict(db,args.match_id,xi=args.xi,min_games=args.min_games)
+            result=predict(db,args.match_id,xi=args.xi,model_mode=args.model_mode,min_games=args.min_games)
         elif args.command=="backtest":
             result=backtest(db,args.competition,n_samples=args.samples,xi=args.xi,min_games=args.min_games)
         elif args.command=="demo":

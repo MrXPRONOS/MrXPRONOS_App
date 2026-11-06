@@ -53,7 +53,8 @@ function selectMatch(id){
 function opts(forBacktest=false){return {
   xi:($('xiMode').value==='manual' || forBacktest)?Number($("xi").value):null,
   min_games:Number($("minGames").value),min_team:Number($("minTeam").value),
-  regularization:Number($("reg").value)};
+  regularization:Number($("reg").value),
+  ...(!forBacktest?{model_mode:$("modelMode").value}:{})};
 }
 async function refreshXi(){
   if(!currentCompetition)return;
@@ -61,6 +62,12 @@ async function refreshXi(){
   $('xiStatus').textContent=r.available
     ?`ξ optimisé : ${num(r.calibration.selected_xi,4)} · ${r.calibration.n_scored} matchs de validation · ${r.calibration.n_folds} blocs · données : ${r.calibration.data_source.join(', ')}`
     :'Aucune valeur ξ optimisée. En mode automatique, le coefficient historique 0,0065 sera utilisé avec un avertissement.';
+  try{
+    const model=await api('/api/model-selection?competition='+encodeURIComponent(currentCompetition));
+    $('modelChoiceStatus').textContent=model.available
+      ?`Modèle validé : ${model.calibration.selected_model==='poisson'?'Poisson indépendant':'Dixon-Coles'} · ${model.calibration.n_scored} matchs, ${model.calibration.n_blocks} mois évalués · log loss DC ${num(model.calibration.mean_dc_log_loss,4)} / Poisson ${num(model.calibration.mean_poisson_log_loss,4)}.`
+      :'Aucun choix historique validé : le mode automatique utilisera Dixon-Coles original.';
+  }catch(err){$('modelChoiceStatus').textContent='Sélection comparative indisponible : '+String(err.message||err);}
 }
 
 function renderResult(d){
@@ -70,6 +77,9 @@ function renderResult(d){
   <div class="results-hero"><div><div class="team">${safe(d.home_team)}</div><div class="sub">Domicile</div></div><div><div class="score">${safe(best.score)}</div><div class="sub">Score le plus probable · ${pct(best.probability)}</div></div><div><div class="team">${safe(d.away_team)}</div><div class="sub">Extérieur</div></div></div>
   <div class="stats"><div class="stat"><div class="label">Buts attendus domicile</div><div class="number">${num(d.expected_home_goals,3)}</div></div><div class="stat"><div class="label">Buts attendus extérieur</div><div class="number">${num(d.expected_away_goals,3)}</div></div><div class="stat"><div class="label">Correction ρ</div><div class="number">${num(d.rho,4)}</div></div></div>
   <h4>Top 5 des scores</h4>${bars}<h4>Probabilités 1 N 2</h4><div class="stats"><div class="stat"><div class="label">Victoire domicile</div><div class="number">${pct(d.one_x_two.home)}</div></div><div class="stat"><div class="label">Match nul</div><div class="number">${pct(d.one_x_two.draw)}</div></div><div class="stat"><div class="label">Victoire extérieur</div><div class="number">${pct(d.one_x_two.away)}</div></div></div>
+  <div class="fine">Modèle utilisé : <strong>${safe(d.model_selected==='poisson'?'Poisson indépendant (repli prudent)':'Dixon-Coles')}</strong> · ${safe(d.model_selection_calibration?'Choisi sur '+d.model_selection_calibration.validation_n+' matchs historiques, avant la prédiction.':'Aucune comparaison historique disponible.')}.</div>
+  ${d.top_scores_nearly_tied?`<div class="alert warning">Score principal peu distinct : écart avec le deuxième score de ${num(d.score_top1_gap_percentage_points,2)} point de probabilité. Les autres scores restent plausibles.</div>`:''}
+  <div class="fine">1–1 : ${pct(d.score_1_1_probability)} ; sans correction de rho : ${pct(d.score_1_1_without_rho)} ; effet de rho : ${num(d.rho_effect_on_p_1_1_percent,2)} %.</div>
   ${d.data_quality?.stale_results?'<div class="alert warning">Résultats historiques non actualisés depuis plus de 21 jours : vérifier la fraîcheur de la source avant tout usage réel.</div>':''}
   <div class="fine">Dernier résultat du championnat : ${safe(d.data_quality?.last_finished_game||'inconnu')} · provenance : ${safe(Object.entries(d.data_quality?.result_provenances||{}).map(([name,count])=>name+'='+count).join(', '))}.</div>
   <div class="fine">Terrain : ${d.neutral_venue?'neutre (avantage domicile désactivé)':'domicile'}</div>
@@ -80,7 +90,7 @@ function renderResult(d){
 }
 function renderBacktest(r){
   const details=r.detailed.slice(0,200).map(d=>`<tr><td>${safe(d.match)}</td><td>${safe(d.actual)}</td><td>${safe(d.best)}</td><td>${d.top1_hit?'✓':'–'}</td><td>${num(d.dc_log_loss,3)}</td></tr>`).join("");
-  $("backtest").innerHTML=`<div class="stats"><div class="stat"><div class="label">Tests valides</div><div class="number">${r.n_evaluated}</div></div><div class="stat"><div class="label">Score exact Top 1</div><div class="number">${pct(r.top1_hit_rate)}</div></div><div class="stat"><div class="label">Score exact Top 3</div><div class="number">${pct(r.top3_hit_rate)}</div></div></div><div class="fine">Log loss Dixon-Coles : ${num(r.mean_dc_log_loss,3)} · Poisson entraîné indépendamment : ${num(r.mean_poisson_independent_log_loss,3)} · Brier 1N2 : ${num(r.mean_one_x_two_brier,3)} · ${r.n_folds} mois/blocs. Prévisions vérifiées sur des matchs passés non vus lors de leur entraînement. ${r.n_skipped} tests écartés.</div><div class="tablewrap"><table><thead><tr><th>Match</th><th>Réel</th><th>Prévu</th><th>Correct</th><th>Log loss</th></tr></thead><tbody>${details}</tbody></table></div>`;
+  $("backtest").innerHTML=`<div class="stats"><div class="stat"><div class="label">Tests valides</div><div class="number">${r.n_evaluated}</div></div><div class="stat"><div class="label">Score exact Top 1</div><div class="number">${pct(r.top1_hit_rate)}</div></div><div class="stat"><div class="label">Score exact Top 3</div><div class="number">${pct(r.top3_hit_rate)}</div></div></div><div class="fine">Log loss Dixon-Coles : ${num(r.mean_dc_log_loss,3)} · Poisson entraîné indépendamment : ${num(r.mean_poisson_independent_log_loss,3)} · Poisson avec intensités DC : ${num(r.mean_poisson_same_intensities_log_loss,3)} · 1–1 en Top 1 : DC ${r.dc_top1_score_1_1_count}, Poisson ${r.poisson_top1_score_1_1_count} · Brier 1N2 : ${num(r.mean_one_x_two_brier,3)} · ${r.n_folds} mois/blocs. Prévisions vérifiées sur des matchs passés non vus lors de leur entraînement. ${r.n_skipped} tests écartés.</div><div class="tablewrap"><table><thead><tr><th>Match</th><th>Réel</th><th>Prévu</th><th>Correct</th><th>Log loss</th></tr></thead><tbody>${details}</tbody></table></div>`;
 }
 async function loadHistory(){
   let rows=await api("/api/predictions");
