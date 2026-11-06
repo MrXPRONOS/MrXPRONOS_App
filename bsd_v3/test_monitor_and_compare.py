@@ -118,5 +118,44 @@ class GoalStrengthGateTests(unittest.TestCase):
         second=goal_strength(test_event,revised,raw,.12)
         self.assertEqual(first,second)
 
+
+class MonthlyPolicyBacktestTests(unittest.TestCase):
+    def test_exact_month_replays_only_closed_matches_and_scores_current_policy(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from bsd_v3.monthly_backtest import monthly_policy_backtest
+        oct1=fixture(5001,1,2,datetime(2026,10,5,tzinfo=UTC),2,0)
+        oct2=fixture(5002,3,4,datetime(2026,10,6,tzinfo=UTC),1,1)
+        sep=fixture(4999,1,2,datetime(2026,9,30,tzinfo=UTC),3,1)
+        fake_index=SimpleNamespace(global_games=[
+            (datetime(2026,9,30,tzinfo=UTC),sep),
+            (datetime(2026,10,5,tzinfo=UTC),oct1),
+            (datetime(2026,10,6,tzinfo=UTC),oct2),
+        ])
+        runtime={"index":fake_index,"calibration":None,"goal_strength":None}
+        def fake_eval(event,runtime,now,policy):
+            if str(event["id"])=="5001":
+                rows=[
+                    {"key":"1","probability":.76,"conservative_probability":.73},
+                    {"key":"OVER_15","probability":.86,"conservative_probability":.83},
+                ]
+                picks=["1","OVER_15"]
+            else:
+                rows=[{"key":"BTTS_YES","probability":.74,
+                       "conservative_probability":.71}]
+                picks=["BTTS_YES"]
+            return {"status":"analyzed","candidates":rows,
+                    "selections":{"pro_vip_shadow":picks}}
+        with patch("bsd_v3.monthly_backtest.train_runtime",return_value=runtime), \
+             patch("bsd_v3.monthly_backtest.evaluate_fixture",side_effect=fake_eval):
+            report=monthly_policy_backtest([sep,oct1,oct2],year=2026,month=10)
+        self.assertEqual(report["fixtures_in_archive"],2)
+        self.assertEqual(report["counts"]["fixtures_with_pick"],2)
+        self.assertEqual(report["counts"]["selections"],3)
+        self.assertEqual(report["counts"]["preferred_selections"],3)
+        self.assertEqual(report["primary_by_market"]["1"]["wins"],1)
+        self.assertEqual(report["primary_by_market"]["BTTS_YES"]["wins"],1)
+        self.assertIsNone(report["real_bookmaker_roi"])
+
 if __name__=="__main__":
     unittest.main()
