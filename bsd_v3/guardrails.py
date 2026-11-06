@@ -24,7 +24,7 @@ def family_guards(event,index,baseline,models=None,*,btts_quality_gate=None):
     from .btts_quality import evaluate_btts_yes_quality
     passed_v3,v3_btts=evaluate_btts_yes_quality(event,index,btts_quality_gate)
     evidence.setdefault("BTTS_YES",{})["v3_side_league_gate"]=v3_btts
-    if not passed_v3:
+    if not passed_v3 and "BTTS_YES" not in guards:
         guards["BTTS_YES"]=v3_btts["reason"]
 
     # The specialized V2 BTTS reliability gate is historically more restrictive
