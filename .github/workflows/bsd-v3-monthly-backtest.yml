@@ -1,6 +1,13 @@
 name: BSD V3 - Monthly policy backtest
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'bsd_v3/btts_quality.py'
+      - 'bsd_v3/guardrails.py'
+      - 'bsd_v3/engine.py'
+      - '.github/workflows/bsd-v3-monthly-backtest.yml'
   workflow_dispatch:
     inputs:
       year:
