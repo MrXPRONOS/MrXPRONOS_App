@@ -42,7 +42,7 @@ class PwaInstallPhase2Tests(unittest.TestCase):
     def test_telemetry_is_idempotent_and_private(self):
         pwa = (ROOT / "assets/js/pwa.js").read_text(encoding="utf-8")
         client = (ROOT / "assets/js/pwa-telemetry.mjs").read_text(encoding="utf-8")
-        migration = (ROOT / "supabase/migrations/20261106212000_pwa_install_funnel_v2.sql").read_text(encoding="utf-8")
+        migration = (ROOT / "supabase/migrations/20261106202916_pwa_install_funnel_v2.sql").read_text(encoding="utf-8")
         self.assertIn("mx_pwa_install_events_v2", pwa)
         self.assertIn("mx_pwa_install_events_v2", client)
         self.assertIn("track_pwa_install_event_v2", client)
