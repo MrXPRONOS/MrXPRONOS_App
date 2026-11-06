@@ -2,11 +2,12 @@
 from __future__ import annotations
 from math import fsum, sqrt
 from .policy import V3Policy, FAMILY_EDGE, classify_fixture, uncertainty_adjustment, label_candidate
+from .market_priors import attach_market_merit
 
 
 def serialize_candidates(candidates, features, quality, quotes, *, policy=V3Policy(),
                          calibrator=None, calibration_active=False,
-                         blocked_keys=frozenset(),market_guards=None):
+                         blocked_keys=frozenset(),market_guards=None,market_priors=None):
     """Retain all sixteen candidate markets, regardless of thresholds or prices."""
     out=[]
     for c in candidates:
@@ -20,6 +21,7 @@ def serialize_candidates(candidates, features, quality, quotes, *, policy=V3Poli
              "calibration_samples":samples}
         quote=quotes.get(c.market_code)
         row["quote"]=quote
+        row=attach_market_merit(row,market_priors)
         row["decision"]=label_candidate(row,quality,quote,policy)
         if c.key in (market_guards or {}):
             row["decision"]["pro_vip_shadow"]=False
@@ -60,7 +62,8 @@ def covariance_correlation(score_matrix, first, second):
 def select_candidates(rows, score_matrix, policy=V3Policy()):
     """No requirement to fill two places. Distinct families and capped correlation."""
     reliable=sorted((r for r in rows if r["decision"]["pro_vip_shadow"]),
-                    key=lambda r:(-r["conservative_probability"],r["key"]))
+                    key=lambda r:(-r.get("market_signal_score",-999.),
+                                  -r["conservative_probability"],r["key"]))
     value=sorted((r for r in rows if r["decision"]["value_shadow"]),
                  key=lambda r:(-r["decision"]["ev"]["conservative_ev"],r["key"]))
     selected=[]
