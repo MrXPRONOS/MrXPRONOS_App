@@ -29,6 +29,30 @@ class TestBsdV2ProductionWorkflowSafety(unittest.TestCase):
         self.assertIn("if git push origin HEAD:main; then", self.text)
         self.assertIn('if [ "$pushed" -ne 1 ]; then', self.text)
 
+    def test_public_rebase_handles_dirty_runtime_without_committing_it(self):
+        publish = self.text.split("      - name: Validate feed and commit website data", 1)[1]
+        publish = publish.split("      - name: Upload per-match price and rejection diagnostics", 1)[0]
+        commit = publish.index('git commit -m "data(bsd): publish V2 football picks and verified results"')
+        stash = publish.index('git stash push --quiet -m "bsd-generation-runtime-')
+        rebase = publish.index("git pull --rebase origin main")
+        push = publish.index("git push origin HEAD:main")
+        restore = publish.index("git stash pop --quiet")
+        self.assertLess(commit, stash)
+        self.assertLess(stash, rebase)
+        self.assertLess(rebase, push)
+        self.assertLess(push, restore)
+        self.assertIn('if ! git diff --quiet; then', publish)
+        self.assertNotIn('git stash push -u', publish)
+        self.assertNotIn('git add -A', publish)
+        self.assertNotIn('git add .', publish)
+
+    def test_failure_diagnostic_rebase_handles_dirty_runtime(self):
+        failure = self.text.split("      - name: Record failed BSD production phase", 1)[1]
+        self.assertIn('git stash push --quiet -m "bsd-failure-runtime-', failure)
+        self.assertIn('git stash pop --quiet', failure)
+        self.assertLess(failure.index('git stash push --quiet'),
+                        failure.index('git pull --rebase origin main'))
+
     def test_validation_precedes_commit_and_push(self):
         validation = self.text.index('assert data["source"]=="bsd"')
         commit = self.text.index('git commit -m "data(bsd): publish V2 football picks and verified results"')
