@@ -21,3 +21,19 @@ Avant octobre, sur 374 rencontres entre août 2025 et mai 2026, la log loss éta
 Le changement **ne garantit pas** que Poisson ou Dixon-Coles soit systématiquement meilleur dans une prochaine période. Le gain de log loss constaté en octobre n'est **pas un objectif d'optimisation rétrospective**. La procédure de sélection est conçue pour réduire les risques de surapprentissage et éviter de présenter la correction rho comme une amélioration universelle.
 
 Les sources sont celles déjà citées dans `dixon-coles/results/backtest_october_2026.md` et dans le rapport de calibration OpenFootball, avec données antérieures au 1er octobre 2026. Les mois d'octobre ne sont pas utilisés dans le choix du modèle.
+
+## Sélection réelle sur 374 résultats antérieurs à octobre
+
+Exécution GitHub Actions du 6 novembre 2026 : 374 matchs, dix blocs mensuels,
+log loss DC 2,89554574, Poisson indépendant 2,89688379. Gain moyen DC :
++0,00133805 (positif = meilleur pour DC). Intervalle bootstrap des gains,
+avec rééchantillonnage par mois : **[-0,00149512 ; +0,00401859]**.
+L'effet est inférieur au seuil pratique de 0,005 et la borne basse est négative.
+**Modèle retenu en mode automatique : Poisson indépendant.** Ce choix n'est
+ni une preuve que Poisson soit supérieur universellement, ni une transformation
+de Dixon-Coles en Poisson sans l'indiquer. Le moteur DC original reste accessible.
+
+Le rapport validé est archivé dans `dcscore/calibrations/eng-premier-league-model-selection.json`.
+La nouvelle comparaison hors échantillon sur octobre est présentée comme un
+**test rétrospectif d'une règle définie après octobre**, et non comme une
+prédiction réellement publiée le 1er octobre.

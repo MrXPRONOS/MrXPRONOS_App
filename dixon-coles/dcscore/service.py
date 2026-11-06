@@ -59,7 +59,9 @@ def predict(store: Store, match_id: str, *, xi: float | None=None,
         raise ServiceError('Mode invalide : auto, dixon_coles ou poisson.')
     selection=store.latest_model_selection(target.competition) if model_mode=='auto' else None
     # A published calibration must have ended before the intended prediction.
-    if selection is not None and datetime.strptime(selection['validation_end_exclusive'],'%Y-%m-%d').replace(tzinfo=timezone.utc)>clock:
+    if selection is not None and (
+        datetime.strptime(selection['validation_end_exclusive'],'%Y-%m-%d').replace(tzinfo=timezone.utc)>clock
+        or (selection.get('generated_at') and utc_datetime(selection['generated_at'])>clock)):
         raise ServiceError('La sélection des modèles provient du futur : prédiction refusée.')
     selected=selection['selected_model'] if selection else ('dixon_coles' if model_mode=='auto' else model_mode)
     model=fit(rows,as_of=clock,xi=used_xi,min_games=min_games,regularization=regularization,
@@ -208,6 +210,7 @@ def backtest(store: Store, competition: str, *, n_samples: int=100,
                     "poisson_independent_log_loss":-log(max(poisson,1e-300)),
                     "poisson_same_intensities_log_loss":-log(max(same_means_poisson,1e-300)),
                     "poisson_best_score":benchmark['top_scores'][0]['score'],
+                    "poisson_top_three":[x['score'] for x in benchmark['top_scores']],
                     "poisson_top_one_probability":benchmark['top_scores'][0]['probability'],
                     "best_score_margin_pp":result['score_top1_gap_percentage_points'],
                     "rho_effect_on_p_1_1_percent":result['rho_effect_on_p_1_1_percent'],

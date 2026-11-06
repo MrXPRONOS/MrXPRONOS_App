@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "competition": "of:ENG-PL",
+  "source_names": [
+    "openfootball/football.json"
+  ],
+  "source_signature_before_eval_end": "b771e795b7325f32fa1203801b41247e3269dc29d4847f9c4332423ce6613056",
+  "validation_start": "2025-08-01",
+  "validation_end_exclusive": "2026-06-01",
+  "generated_at": "2026-11-06T21:02:48Z",
+  "xi": 0.0065,
+  "regularization": 0.15,
+  "min_games": 500,
+  "min_team_games": 5,
+  "n_scored": 374,
+  "n_blocks": 10,
+  "mean_dc_log_loss": 2.8955457379618936,
+  "mean_poisson_log_loss": 2.8968837879527403,
+  "mean_gain_for_dc": 0.0013380499908466348,
+  "ci95_paired_gain_for_dc": [
+    -0.0014951219562520314,
+    0.004018593383668311
+  ],
+  "bootstrap_unit": "monthly training/test block",
+  "bootstrap_repeats": 2500,
+  "min_practical_gain": 0.005,
+  "selected_model": "poisson",
+  "decision": "Choisir Dixon-Coles seulement si son gain est statistiquement défendable et supérieur au seuil utile ; sinon, modèle Poisson réentraîné séparément.",
+  "no_future_leakage": true,
+  "folds": [
+    {
+      "start": "2025-08-01T00:00:00Z",
+      "end_exclusive": "2025-09-01T00:00:00Z",
+      "n_scored": 27,
+      "trained_before": "2025-08-01T00:00:00Z",
+      "latest_training_result": "2025-05-25T15:00:00Z",
+      "mean_dc_log_loss": 3.0651173496138067,
+      "mean_poisson_log_loss": 3.0653106693710734,
+      "mean_gain_for_dc": 0.0001933197572661494
+    },
+    {
+      "start": "2025-09-01T00:00:00Z",
+      "end_exclusive": "2025-10-01T00:00:00Z",
+      "n_scored": 27,
+      "trained_before": "2025-09-01T00:00:00Z",
+      "latest_training_result": "2025-08-31T18:00:00Z",
+      "mean_dc_log_loss": 2.6957895410506802,
+      "mean_poisson_log_loss": 2.6970775022367497,
+      "mean_gain_for_dc": 0.001287961186068866
+    },
+    {
+      "start": "2025-10-01T00:00:00Z",
+      "end_exclusive": "2025-11-01T00:00:00Z",
+      "n_scored": 30,
+      "trained_before": "2025-10-01T00:00:00Z",
+      "latest_training_result": "2025-09-29T19:00:00Z",
+      "mean_dc_log_loss": 2.799768197801724,
+      "mean_poisson_log_loss": 2.7961494809507186,
+      "mean_gain_for_dc": -0.00361871685100487
+    },
+    {
+      "start": "2025-11-01T00:00:00Z",
+      "end_exclusive": "2025-12-01T00:00:00Z",
+      "n_scored": 40,
+      "trained_before": "2025-11-01T00:00:00Z",
+      "latest_training_result": "2025-10-26T16:30:00Z",
+      "mean_dc_log_loss": 2.9182523360617956,
+      "mean_poisson_log_loss": 2.917929544437415,
+      "mean_gain_for_dc": -0.00032279162438064724
+    },
+    {
+      "start": "2025-12-01T00:00:00Z",
+      "end_exclusive": "2026-01-01T00:00:00Z",
+      "n_scored": 56,
+      "trained_before": "2025-12-01T00:00:00Z",
+      "latest_training_result": "2025-11-30T16:30:00Z",
+      "mean_dc_log_loss": 2.948526064592785,
+      "mean_poisson_log_loss": 2.9486751844730636,
+      "mean_gain_for_dc": 0.0001491198802782661
+    },
+    {
+      "start": "2026-01-01T00:00:00Z",
+      "end_exclusive": "2026-02-01T00:00:00Z",
+      "n_scored": 49,
+      "trained_before": "2026-01-01T00:00:00Z",
+      "latest_training_result": "2025-12-30T20:15:00Z",
+      "mean_dc_log_loss": 2.9298080093056247,
+      "mean_poisson_log_loss": 2.934785230953302,
+      "mean_gain_for_dc": 0.004977221647677133
+    },
+    {
+      "start": "2026-02-01T00:00:00Z",
+      "end_exclusive": "2026-03-01T00:00:00Z",
+      "n_scored": 42,
+      "trained_before": "2026-02-01T00:00:00Z",
+      "latest_training_result": "2026-01-31T20:00:00Z",
+      "mean_dc_log_loss": 2.865241356881358,
+      "mean_poisson_log_loss": 2.8655779169767897,
+      "mean_gain_for_dc": 0.0003365600954315928
+    },
+    {
+      "start": "2026-03-01T00:00:00Z",
+      "end_exclusive": "2026-04-01T00:00:00Z",
+      "n_scored": 32,
+      "trained_before": "2026-03-01T00:00:00Z",
+      "latest_training_result": "2026-02-28T17:30:00Z",
+      "mean_dc_log_loss": 2.8089151416856524,
+      "mean_poisson_log_loss": 2.818318488202077,
+      "mean_gain_for_dc": 0.009403346516424299
+    },
+    {
+      "start": "2026-04-01T00:00:00Z",
+      "end_exclusive": "2026-05-01T00:00:00Z",
+      "n_scored": 30,
+      "trained_before": "2026-04-01T00:00:00Z",
+      "latest_training_result": "2026-03-22T14:15:00Z",
+      "mean_dc_log_loss": 3.0608371198649764,
+      "mean_poisson_log_loss": 3.052030046360352,
+      "mean_gain_for_dc": -0.008807073504624795
+    },
+    {
+      "start": "2026-05-01T00:00:00Z",
+      "end_exclusive": "2026-06-01T00:00:00Z",
+      "n_scored": 41,
+      "trained_before": "2026-05-01T00:00:00Z",
+      "latest_training_result": "2026-04-27T19:00:00Z",
+      "mean_dc_log_loss": 2.827753497102555,
+      "mean_poisson_log_loss": 2.834554577594874,
+      "mean_gain_for_dc": 0.006801080492319295
+    }
+  ],
+  "note": "Règle de prudence calibrée hors échantillon. Aucun gain sur une période future n’est garanti."
+}

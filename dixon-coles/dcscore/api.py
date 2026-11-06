@@ -140,7 +140,7 @@ def create_app(store: Store | None=None) -> FastAPI:
     db = store or Store()
     if _public_mode():
         _required_public_token()
-    app=FastAPI(title="Dixon-Coles — système indépendant",version="1.2.0",
+    app=FastAPI(title="Dixon-Coles — système indépendant",version="1.3.0",
                 docs_url=None if _public_mode() else "/docs",
                 redoc_url=None if _public_mode() else "/redoc",
                 openapi_url=None if _public_mode() else "/openapi.json")
@@ -192,7 +192,7 @@ def create_app(store: Store | None=None) -> FastAPI:
 
     @app.get("/api/health")
     def health():
-        return {"ok":True,"version":"1.2.0","api_key_configured":api_enabled(),
+        return {"ok":True,"version":"1.3.0","api_key_configured":api_enabled(),
                 "competitions":len(db.competitions()),
                 "note":"Aucun code ni modèle hérité des autres systèmes.","public_mode":_public_mode()}
 

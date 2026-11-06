@@ -124,7 +124,35 @@ def main(argv=None) -> int:
            fold['last_training_match'] >= '2026-10-01T00:00:00Z'
            for fold in result['folds']):
         raise RuntimeError("Fuite temporelle : une rencontre d'octobre aurait été utilisée à l'entraînement")
+    # Model choice is calibrated on August 2025 - May 2026 only, not on
+    # the 38 October results. The retrospective rule was implemented after
+    # October and must NOT be misrepresented as a live October forecast.
+    choice=store.latest_model_selection(COMPETITION)
+    if choice is None:
+        raise RuntimeError("Rapport de sélection pré-octobre absent : ne pas choisir le modèle a posteriori.")
+    if choice['validation_end_exclusive']>START.date().isoformat():
+        raise RuntimeError("Choix de modèle contaminé par la période testée.")
+    if choice['selected_model'] not in ('dixon_coles','poisson'):
+        raise RuntimeError("Modèle choisi invalide.")
+    method=choice['selected_model']
+    loss_key='dc_log_loss' if method=='dixon_coles' else 'poisson_independent_log_loss'
+    score_key='best' if method=='dixon_coles' else 'poisson_best_score'
+    top3_key='top_three' if method=='dixon_coles' else 'poisson_top_three'
+    auto={
+        'selected_model_from_pre_october_validation':method,
+        'validation_start':choice['validation_start'],
+        'validation_end_exclusive':choice['validation_end_exclusive'],
+        'validation_matches':choice['n_scored'],
+        'mean_exact_score_log_loss':sum(x[loss_key] for x in result['detailed'])/len(result['detailed']),
+        'top1_hit_rate':sum(x['actual']==x[score_key] for x in result['detailed'])/len(result['detailed']),
+        'top3_hit_rate':sum(x['actual'] in x[top3_key] for x in result['detailed'])/len(result['detailed']),
+        'top1_one_one_count':sum(x[score_key]=='1-1' for x in result['detailed']),
+        'note':('Règle calibrée uniquement sur la saison 2025–26. '
+                'La méthode a été ajoutée rétrospectivement après octobre : '
+                'ce résultat ne constitue pas un essai prospectif.'),
+    }
     report = {
+        'automatic_model_choice':auto,
         "period_start_inclusive": START.isoformat(),
         "period_end_exclusive": END.isoformat(),
         "competition": COMPETITION,
@@ -154,6 +182,10 @@ def main(argv=None) -> int:
     print(f"Matchs évalués: {result['n_evaluated']}/{EXPECTED} ; ignorés: {result['n_skipped']}")
     print(f"Top 1: {result['top1_hit_rate']:.4%}  | Top 3: {result['top3_hit_rate']:.4%}")
     print(f"Log loss DC: {result['mean_dc_log_loss']:.6f} | Poisson indépendant: {result['mean_poisson_independent_log_loss']:.6f}")
+    print(f"Log loss Poisson aux mêmes intensités DC: {result['mean_poisson_same_intensities_log_loss']:.6f}")
+    print(f"Mode de repli automatique pré-octobre: {auto['selected_model_from_pre_october_validation']}")
+    print(f"Log loss automatique octobre: {auto['mean_exact_score_log_loss']:.6f}")
+    print(f"Top1 automatique: {auto['top1_hit_rate']:.4%} ; Top3: {auto['top3_hit_rate']:.4%} ; Mode 1-1: {auto['top1_one_one_count']}/38")
     print(f"Brier 1N2: {result['mean_one_x_two_brier']:.6f}")
     print(f"Rapport détaillé: {dest}")
     return 0

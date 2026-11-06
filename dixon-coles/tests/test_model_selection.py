@@ -118,3 +118,14 @@ def test_model_choice_api_endpoint_and_override(demo_store):
         assert mode.json()['rho']==0
         bad=client.post('/api/predict',json={'match_id':'demo:tomorrow','model_mode':'secret_model'})
         assert bad.status_code==422
+
+
+def test_packaged_real_selection_is_available_and_older_than_october(tmp_path):
+    db=Store(str(tmp_path/'calib.sqlite'))
+    r=db.latest_model_selection('of:ENG-PL')
+    assert r is not None
+    assert r['competition']=='of:ENG-PL' and r['n_scored']==374
+    assert r['validation_end_exclusive']=='2026-06-01'
+    assert r['source_names']==['openfootball/football.json']
+    assert r['selected_model']=='poisson'
+    assert r['ci95_paired_gain_for_dc'][0]<0<r['ci95_paired_gain_for_dc'][1]
