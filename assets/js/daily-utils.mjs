@@ -100,6 +100,7 @@ export function upcoming(matches, today, favorites, onlyFavorites = false, limit
   return (Array.isArray(matches) ? matches : [])
     .filter(m => eligible(m) && m.recommendation_eligible === true &&
       !isFinished(m) &&
+      !["settlement_pending","postponed","cancelled","canceled"].includes(String(m.status||"").toLowerCase()) &&
       [today, nextDay(today)].includes(matchDay(m)) &&
       (!onlyFavorites || favoriteMatch(m, favorites)))
     .sort((a,b) => {
