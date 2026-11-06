@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_HTML = {
     "index.html", "pronos.html", "historique.html", "blog.html",
     "aujourdhui.html",
-    "confidentialite.html", "statistiques-installation.html",
+    "confidentialite.html", "statistiques-installation.html", "statistiques-audience.html",
     "bonus.html", "bookmakers.html", "conseils.html", "infos.html",
     "contact.html", "article.html", "conseil.html", "offline.html",
     "scores-exacts.html",
@@ -47,6 +47,7 @@ PUBLIC_JS = {
     "config.js", "scores-exacts.js", "pwa-telemetry.mjs",
     "installation-analytics.mjs",
     "daily-hub.mjs", "daily-utils.mjs", "daily-audience.mjs", "daily-favorite-alerts.mjs",
+    "acquisition-attribution.mjs", "audience-dashboard.mjs",
 }
 PUBLIC_CSS = {
     "style.css", "loading-ui.css", "home-premium.css",
@@ -55,6 +56,7 @@ PUBLIC_CSS = {
     "bonus-premium.css", "bookmakers-premium.css", "contact-premium.css",
     "article-detail-premium.css", "conseil-detail-premium.css",
     "mobile-nav-premium.css", "brand-signatures.css", "scores-exacts.css", "daily-hub.css",
+    "audience-analytics.css",
 }
 PUBLIC_DIRS = (
     "assets/css", "assets/js", "assets/images", "assets/fonts",
