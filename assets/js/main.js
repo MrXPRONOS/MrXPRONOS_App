@@ -888,16 +888,27 @@ function mxStartAnalyticsV2() {
   } catch { mxTelemetryQueue = []; }
   void mxFlushTelemetryV2();
   mxQueueSessionEvent("page_view");
-  const markEngaged = () => {
-    if (!document.hidden) mxQueueSessionEvent("engaged");
+  // Engagement uniquement après 15 s de présence visible, non 15 s en arrière-plan.
+  let visibleSince = document.hidden ? 0 : Date.now();
+  let engagedSent = false;
+  const onVisibility = () => {
+    if (engagedSent) return;
+    if (mxTelemetryEngagementTimer) window.clearTimeout(mxTelemetryEngagementTimer);
+    if (document.hidden) {
+      visibleSince = 0;
+      return;
+    }
+    visibleSince = Date.now();
+    mxTelemetryEngagementTimer = window.setTimeout(() => {
+      if (!document.hidden && Date.now() - visibleSince >= 14500) {
+        engagedSent = true;
+        mxQueueSessionEvent("engaged");
+        document.removeEventListener("visibilitychange", onVisibility);
+      }
+    }, 15000);
   };
-  if (document.hidden) {
-    document.addEventListener("visibilitychange", function visibleOnce() {
-      if (document.hidden) return;
-      document.removeEventListener("visibilitychange", visibleOnce);
-      mxTelemetryEngagementTimer = window.setTimeout(markEngaged, 15000);
-    });
-  } else mxTelemetryEngagementTimer = window.setTimeout(markEngaged, 15000);
+  document.addEventListener("visibilitychange", onVisibility);
+  if (!document.hidden) onVisibility();
   window.addEventListener("pageshow", (e) => { if (e.persisted) mxQueueSessionEvent("page_view"); });
   window.addEventListener("online", () => void mxFlushTelemetryV2());
   document.addEventListener("visibilitychange", () => {
