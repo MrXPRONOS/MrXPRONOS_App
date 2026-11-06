@@ -436,6 +436,8 @@
     markImpressions();
     if (getPlatform().isStandalone) showWelcome();
     void registerServiceWorker();
+    // Phase 4 : un seul contact d’acquisition par onglet, sans adresse référente brute.
+    void import("./acquisition-attribution.mjs").then(module=>module.start()).catch(()=>{});
     setInterval(function () {
       if (document.visibilityState === "visible" && state.registration) {
         state.registration.update().catch(function () {});
