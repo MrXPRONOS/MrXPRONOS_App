@@ -1,40 +1,94 @@
-# BSD V3 - isolated experimental engine (free only)
+# BSD V3 — moteur football expérimental indépendant
 
-STATUS: DEVELOPMENT/SHADOW. BSD V2 is unchanged and remains the only public engine.
+## État
 
-## Components
-- legacy.py: read-only bridge to the existing BSD history and models.
-- policy.py: fixture quality, 79 percent public prequalification, conservative risk controls.
-- probabilities.py: coherent joint goals matrix for 1X2, totals, BTTS, double chance.
-- calibration.py: train Jan-Aug 2025, gate Sep-Dec 2025. Reverts to baseline if not validated.
-- quotes.py: dated and verified quotes; free consensus is a NON-EXECUTABLE benchmark.
-- selection.py: multi-family candidates and joint-matrix correlation gate.
-- engine.py: all candidate market diagnostics, never publishes.
-- evaluation.py: retrospective analysis without fake historical odds/ROI.
-- cli.py: existing free BSD API and encrypted historical archive.
-- registry.py: immutable per-run JSONL hash chain of forecasts.
-- settlement.py: separate later settlement events and prospective per-market performance; no fake ROI.
-- test_v3.py: offline tests with no API keys.
+**Développement implémenté sur la branche `feat/bsd-v3-shadow-engine` / PR #303.**
+BSD V2 reste le seul moteur publié. BSD V3 n'écrit jamais dans `data.json`,
+`bsd/publication_ledger.json`, GitHub Pages ni Telegram.
 
-## Commands (repository root)
-    python -m pip install requests cryptography
-    python bsd/bsd_archive.py restore
-    python -m bsd_v3.cli --mode shadow --days 1 --max-odds-events 15
-    python -m bsd_v3.cli --mode evaluate --output bsd_v3/artifacts/evaluation.json
-    python -m unittest discover -s bsd_v3 -p 'test_*.py' -v
+**Utilisation gratuite uniquement :** historique BSD chiffré existant, clé BSD
+existante, modules internes, et éventuellement tableau OddsLink public.
+La souscription à une API de bookmaker BSD n'est pas utilisée.
+La disponibilité des bookmakers publics et des quotas n'est pas garantie.
 
-On GitHub Actions, use BSD_HISTORY_KEY and BSD_API_KEY already configured.
-Never commit the decrypted BSD history or upload it as an artifact.
-Delete bsd/all_matches_bsd.json and bsd/backfill_state.json after each run.
+## Architecture en service (code)
 
-## Safety
-No access to data.json, V2 publishing ledger, site deployment, or Telegram.
-Shadow classifications are NOT permission to publish or evidence of guaranteed returns.
-Only a verified named bookmaker quote could qualify for actionable Value Shadow;
-BSD free consensus is for research and cannot prove a realizable betting price.
-All generated output must live under bsd_v3/artifacts/. The workflow retains JSON/JSONL artifacts for 90 days; it does not merge historical runs automatically.
+| Module | Fonction |
+|---|---|
+| `legacy.py` | Accès en lecture seule au moteur temporel BSD V2 |
+| `quality.py` | Validation des données/identifiants, suppression des doublons incohérents, données futures interdites |
+| `policy.py` | Seuil public 79 % et historique Pro/VIP, protections de confiance et exclusions |
+| `goal_strength.py` | Nouveau modèle Elo → buts attendus, entraînement Jan–Août 2025, garde Sep–Déc 2025 |
+| `ensemble.py` | Modèles spécialisés 1X2/Over/BTTS entraînés en 2024, combinaison cohérente validée en 2025 |
+| `calibration.py` | Calibration des probabilités par projection de la distribution jointe et validation 2025 |
+| `probabilities.py` | Matrice des scores et probabilités compatibles 1X2/BTTS/Over/Under/DC |
+| `guardrails.py` | Préservation explicite des protections BTTS/H2H et désaccords de modèles |
+| `free_odds.py` | Cotes multi-marchés avec BSD consensus gratuit + tableau public optionnel |
+| `quotes.py` | Validation du marché exact, du bookmaker, des horaires et de la provenance |
+| `selection.py` | Circuit Pro/VIP shadow, Value Shadow, deux familles distinctes et corrélation |
+| `registry.py` | Prévisions figées, empreintes SHA256, journal prospectif chaîné |
+| `settlement.py` | Enregistrement des résultats sans remplacer la prévision |
+| `monitor.py` | Brier/log-loss, calibration par marché, coupe-circuit sur résultats prospectifs |
+| `comparison.py` | Comparaison appariée des modèles V2/V3 sur mêmes matchs avant cotes |
+| `evaluation.py` | Évaluation rétrospective V3 et baseline sans ROI artificiel |
+| `engine.py` | Orchestration de V3, contrôle qualité, diagnostics et choix expérimentaux |
+| `cli.py` | Exécution `shadow`, `evaluate`, `compare`, `settle` ; écriture V3 exclusivement |
+| `test_*.py` | Tests hors réseau des règles et des invariants |
 
-## Remaining work
-Independent prospective validation, proof of better forecasting performance,
-reliable freely available named bookmaker odds, operational integration,
-all 140-item feature acceptance checks, and public activation are NOT complete.
+## Exécution
+
+Depuis la racine du dépôt, après installation de `requests` et `cryptography` :
+
+1. Sur un environnement privé disposant de `BSD_HISTORY_KEY`, exécuter
+   `python bsd/bsd_archive.py restore` pour obtenir l'historique chiffré.
+2. Pour tester la syntaxe et le fonctionnement hors réseau :
+   `python -m unittest discover -s bsd_v3 -p 'test_*.py' -v`.
+3. Prévision expérimentale gratuite :
+   `python -m bsd_v3.cli --mode shadow --days 1 --max-odds-events 15 --output bsd_v3/artifacts/shadow.json`.
+4. Pour activer le tableau public **gratuit** de cotes, ajouter
+   `--free-public-board`. L'indisponibilité de ce tableau est tolérée.
+5. Pour entraîner et valider les modèles spécialisés, ajouter `--challengers`.
+   Les modèles sans gain validé restent inactifs.
+6. Backtest rétrospectif :
+   `python -m bsd_v3.cli --mode evaluate --output bsd_v3/artifacts/evaluation.json`.
+7. Comparaison V2 contre V3 :
+   `python -m bsd_v3.cli --mode compare --max-test-matches 700 --output bsd_v3/artifacts/comparison.json`.
+8. Règlement prospectif des prévisions précédemment enregistrées :
+   `python -m bsd_v3.cli --mode settle --output bsd_v3/artifacts/settlement.json`.
+9. Effacer les fichiers temporaires historiques en clair :
+   `rm -f bsd/all_matches_bsd.json bsd/backfill_state.json`.
+
+Le workflow manuel `.github/workflows/bsd-v3-shadow.yml` fournit les quatre modes
+**une fois le fichier présent sur la branche par défaut GitHub**. Il possède
+uniquement `contents: read` et `actions: read`, et ne peut ni pousser dans Git
+ni publier des messages Telegram.
+
+Les artéfacts GitHub Actions peuvent reprendre le dernier registre. GitHub
+retient ici les fichiers **90 jours** ; le suivi peut se perdre après une
+interruption plus longue, sauf archivage externe. Les fichiers historiques
+décryptés ne sont jamais inclus dans les artéfacts.
+
+## Risque et fiabilité
+
+- L'éligibilité à 79 % de probabilité estimée **n'est pas un taux de réussite garanti**.
+- Le consensus BSD est une cote observée indicative et non une mise exécutable.
+- Le tableau public peut contenir des offres de bookmakers nommés, mais la
+  disponibilité au Togo, la limite de mise et l'acceptation ne sont pas vérifiées.
+- Le ROI du moniteur est un **rendement théorique sur cotes historiques observées**,
+  pas de véritables paris enregistrés, ni un rendement net.
+- L'observation historique 2026 a déjà influencé les conceptions précédentes ;
+  elle n'est pas un échantillon totalement inédit.
+- Les règles V2 pour BTTS sont enregistrées par marché et empêchent une
+  recommandation expérimentale publique en cas d'échec, tout en permettant
+  de mesurer les marchés ignorés dans Value Shadow.
+- Le choix de nouveaux modèles et la qualification des cotes sont falsifiables ;
+  un modèle qui échoue au test chronologique reste désactivé.
+- **Aucun mécanisme ne publie V3**. Fusionner le code n'est pas équivalent à
+  activer V3 sur le site ou Telegram.
+
+## Statut de réception
+
+La présence du code et les tests unitaires ne prouvent pas une meilleure
+prédiction, la validité de la couverture de données réelles ni le retour sur
+investissement. Voir `IMPLEMENTATION_STATUS.md` pour les items achevés en code
+et les éléments encore bloqués par la validation sur matchs prospectifs.
