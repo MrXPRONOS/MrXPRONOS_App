@@ -67,6 +67,20 @@ class PwaInstallPhase2Tests(unittest.TestCase):
         self.assertIn("./assets/js/pwa-telemetry.mjs", sw)
         self.assertIn("v115-install-funnel", sw)
 
+    def test_public_metrics_login_is_protected_without_admin_bundle(self):
+        html = (ROOT / "statistiques-installation.html").read_text(encoding="utf-8")
+        js = (ROOT / "assets/js/installation-analytics.mjs").read_text(encoding="utf-8")
+        build = (ROOT / "scripts/build_public_site.py").read_text(encoding="utf-8")
+        self.assertIn('name="robots" content="noindex,nofollow,noarchive"', html)
+        self.assertIn('id="dashboard" hidden', html)
+        self.assertIn('id="login-panel" hidden', html)
+        self.assertIn('sb.rpc("is_admin")', js)
+        self.assertIn('sb.rpc("admin_pwa_install_funnel_v2"', js)
+        self.assertIn('createClient(supabaseUrl, supabaseAnonKey)', js)
+        self.assertNotIn("service_role", js)
+        self.assertIn('"statistiques-installation.html"', build)
+        self.assertIn('"installation-analytics.mjs"', build)
+
     def test_admin_report_and_privacy_disclosure(self):
         dashboard = (ROOT / "admin-supervision.html").read_text(encoding="utf-8")
         script = (ROOT / "assets/js/admin-supervision.js").read_text(encoding="utf-8")
