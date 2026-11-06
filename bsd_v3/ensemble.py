@@ -84,12 +84,15 @@ def fit_gate(index,rho,models,*,max_train=500,max_validation=300,
                 actual=outcome_scores(event)
                 base=score_matrix(estimated["home"],estimated["away"],rho)
                 try:
+                    event_losses={}
                     for weight in WEIGHTS:
                         prediction=projected_matrix(event,index,base,models,{family:weight})
                         relevant=[c for c in markets_from_matrix(prediction)
                                   if c.family==family]
-                        totals[weight]+=fsum((c.probability-realized(c,*actual))**2
-                                             for c in relevant)/len(relevant)
+                        event_losses[weight]=fsum(
+                            (c.probability-realized(c,*actual))**2 for c in relevant)/len(relevant)
+                    for weight in WEIGHTS:
+                        totals[weight]+=event_losses[weight]
                     count+=1
                 except (ValueError,TypeError,KeyError,ArithmeticError):
                     failures+=1
@@ -110,6 +113,7 @@ def fit_gate(index,rho,models,*,max_train=500,max_validation=300,
                              "validated":accepted,
                              "base_validation_brier":va["brier"][0.],
                              "challenger_validation_brier":va["brier"].get(chosen),
+                             "holdout_independence_note":"Some V2 BTTS components also use 2025 validation internally; independent prospective confirmation still required.",
                              "train_period":"2025-01 to 2025-08",
                              "validation_period":"2025-09 to 2025-12"}
     return active,diagnostics
