@@ -86,7 +86,7 @@ def main():
             page.locator("#dashboard").wait_for(state="visible",timeout=15000)
             page.get_by_text("22",exact=True).first.wait_for(timeout=5000)
             assert page.locator("#kpi-sessions").inner_text()=="22"
-            assert page.locator("#ret-j1").inner_text()=="33,3 %"
+            assert page.locator("#ret-j1").inner_text().replace("\u00a0"," ").replace("\u202f"," ")=="33,3 %"
             assert page.locator("#ret-j7").inner_text()=="—"
             assert page.locator("#kpi-pageviews").inner_text()=="47"
             assert page.locator("#data-note").is_visible()
