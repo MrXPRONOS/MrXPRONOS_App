@@ -73,6 +73,27 @@ jobs:
               json.dumps(out,indent=2),encoding="utf-8")
           print("BSD_V3_BTTS_SPECIALIST_OCT2026",json.dumps(out))
           PY
+      - name: Chronological BTTS side-scoring filter experiment
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from bsd_archive import _read_json
+          from bsd_v3.btts_filter_experiment import experiment
+          history=_read_json(Path("bsd/all_matches_bsd.json"),None)
+          report=experiment(history)
+          Path("bsd_v3/artifacts/btts_filter_experiment.json").write_text(
+              json.dumps(report,indent=2),encoding="utf-8")
+          print("BSD_V3_BTTS_FILTER_EXPERIMENT",json.dumps({
+              "chosen":report["chosen_on_train"],
+              "accepted":report["accepted_on_validation"],
+              "active":report["active_policy"],
+              "october_base":report["october_base"],
+              "october_filtered":report["october_filtered"],
+              "delta":report["october_quality_delta"],
+              "coverage_pct":report["coverage_october_pct"],
+          }))
+          PY
       - name: Remove decrypted history
         if: always()
         run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
@@ -84,5 +105,6 @@ jobs:
           path: |
             bsd_v3/artifacts/btts_specialist_oct2026.json
             bsd_v3/artifacts/btts_specialist_oct2026_summary.json
+            bsd_v3/artifacts/btts_filter_experiment.json
           retention-days: 30
           if-no-files-found: error
