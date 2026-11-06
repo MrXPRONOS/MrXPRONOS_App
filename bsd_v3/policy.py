@@ -57,7 +57,9 @@ def classify_fixture(features, policy=V3Policy()):
             and venues >= policy.min_full_venue_games)
     return {"level": "full" if full else "limited",
             "reason": "sufficient" if full else "limited_venue_or_league",
-            "league_games": features["league_samples"], "venue_games": venues}
+            "league_games": features["league_samples"], "venue_games": venues,
+            "recent_games": min(features["home_recent_matches"],
+                                features["away_recent_matches"])}
 
 
 def uncertainty_adjustment(features, quality, calibration_samples=0):
@@ -72,8 +74,23 @@ def uncertainty_adjustment(features, quality, calibration_samples=0):
     return min(.15, delta)
 
 
+def quality_tier(row, quality):
+    """Mirror V2 Pro/VIP history requirements before considering odds."""
+    if not isinstance(quality, dict) or quality.get("level") != "full":
+        return "simple"
+    recent = quality.get("recent_games", 0)
+    league = quality.get("league_games", 0)
+    venue = quality.get("venue_games", 0)
+    p = row.get("conservative_probability", 0)
+    if p >= .81 and league >= 80 and recent >= 12 and venue >= 5:
+        return "vip"
+    if p >= .77 and league >= 40 and recent >= 10:
+        return "pro"
+    return "simple"
+
+
 def public_candidate(row, quality, policy=V3Policy()):
-    if row["key"] in PUBLIC_EXCLUSIONS or quality["level"] != "full":
+    if row["key"] in PUBLIC_EXCLUSIONS or quality_tier(row, quality) == "simple":
         return False
     if row["probability"] < policy.min_public_probability:
         return False
@@ -106,9 +123,11 @@ def label_candidate(row, quality, quote, policy=V3Policy()):
     price_ok = bool(ev and ev["conservative_ev"] >= FAMILY_EDGE[row["family"]]
                     and row["conservative_probability"] >=
                     ev["implied_probability"] + FAMILY_EDGE[row["family"]])
-    value = bool(ev and quote and quote.get("executable") is True
+    value = bool(row["key"] not in PUBLIC_EXCLUSIONS and ev and quote
+                 and quote.get("executable") is True
                  and ev["conservative_ev"] >= policy.min_shadow_value_ev)
     return {"pro_vip_shadow": public and price_ok,
+            "quality_tier":quality_tier(row,quality),
             "value_shadow": value,
             "quote_benchmark_only":bool(quote and quote.get("benchmark_only")),
             "ev": ev,
