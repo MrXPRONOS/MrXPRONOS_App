@@ -1,7 +1,7 @@
 {
-  "name": "Mr XPRONOS - Pronostics sportifs VIP",
+  "name": "Mr XPRONOS — Football, analyses et résultats",
   "short_name": "Mr XPRONOS",
-  "description": "Pronostics sportifs, analyses, conseils et code promo XPVIP",
+  "description": "Retrouvez les pronostics football, les analyses et les résultats publiés par Mr XPRONOS.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#020a11",
@@ -104,5 +104,10 @@
       ]
     }
   ],
-  "version": "2026.11.03.exact-score-tab-1"
+  "version": "2026.11.03.exact-score-tab-1",
+  "id": "./",
+  "categories": [
+    "sports",
+    "news"
+  ]
 }
