@@ -83,7 +83,13 @@
     <p>Les abonnés aux notifications générales ne sont pas inscrits automatiquement à ces alertes ciblées. Lorsque des publications correspondant aux favoris sont disponibles, le système peut envoyer jusqu'à un récapitulatif par jour autour de l'heure choisie. Les notifications ne garantissent ni l'actualité instantanée ni le résultat d'une rencontre.</p>
     <p>Le bouton « Arrêter mes alertes personnalisées » supprime les préférences ciblées conservées sur le serveur pour cet abonnement. Supprimer tous les favoris sur l'appareil entraîne également une demande de désactivation ; si cette demande échoue faute de connexion, réessayez lorsque vous serez en ligne. Désactiver toutes les notifications dans le navigateur empêche aussi leur réception.</p>
 
-    <h2>10. Modifications</h2>
+    <h2>10. Mesure des canaux d’acquisition et de la fidélisation</h2>
+    <p>Pour comprendre quels canaux conduisent aux contenus Mr XPRONOS, le navigateur classe localement la première provenance observée selon des catégories comme Google, Facebook, Instagram, WhatsApp, Telegram, lien référent ou accès direct. Il peut également transmettre un identifiant court de campagne provenant des paramètres <code>utm_campaign</code>. Les URL référentes complètes, les termes de recherche, les adresses IP et les identifiants publicitaires ne sont pas stockés dans ce suivi spécifique.</p>
+    <p>Les événements attribués sont associés à l'identifiant de navigateur déjà pseudonymisé côté serveur et enregistrés dans Supabase. Un identifiant peut être conservé pour le premier et le dernier canal observés, ainsi que les dates de passage et la catégorie de campagne. Les tableaux de bord présentent uniquement des données agrégées aux administrateurs autorisés.</p>
+    <p>Les statistiques DAU/WAU/MAU et les taux de retour à J+1, J+7 et J+30 reposent sur les journées observées depuis l'activation de ce collecteur, sans déduire des données historiques manquantes. La provenance déclarée par un lien peut être approximative ou modifiable. Le stockage temporaire de session peut permettre de renvoyer un événement après une coupure réseau ; l'effacement des données du navigateur réinitialise l'identifiant local.</p>
+    <p>Ces mesures aident à améliorer les contenus et l'expérience de navigation ; elles ne sont pas utilisées pour imposer des paris, ni pour garantir des gains. Pour toute question relative à l'utilisation ou la suppression des données, utilisez la <a href="contact.html">page de contact</a>.</p>
+
+    <h2>11. Modifications</h2>
     <p>Cette politique peut être mise à jour pour refléter les changements du site ou des outils de publication. La date de mise à jour figurera en haut de cette page.</p>
   </main>
   <footer><div class="wrap"><span>© 2026 Mr XPRONOS · 18+ · Jouez responsablement.</span><nav><a href="index.html">Accueil</a><a href="contact.html">Contact</a><a href="confidentialite.html">Confidentialité</a></nav></div></footer>
