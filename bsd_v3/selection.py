@@ -6,7 +6,7 @@ from .policy import V3Policy, FAMILY_EDGE, classify_fixture, uncertainty_adjustm
 
 def serialize_candidates(candidates, features, quality, quotes, *, policy=V3Policy(),
                          calibrator=None, calibration_active=False,
-                         blocked_keys=frozenset()):
+                         blocked_keys=frozenset(),market_guards=None):
     """Retain all sixteen candidate markets, regardless of thresholds or prices."""
     out=[]
     for c in candidates:
@@ -21,6 +21,10 @@ def serialize_candidates(candidates, features, quality, quotes, *, policy=V3Poli
         quote=quotes.get(c.market_code)
         row["quote"]=quote
         row["decision"]=label_candidate(row,quality,quote,policy)
+        if c.key in (market_guards or {}):
+            row["decision"]["pro_vip_shadow"]=False
+            row["decision"]["public_preprice"]=False
+            row["decision"]["legacy_guard_reason"]=market_guards[c.key]
         if c.key in blocked_keys:
             row["decision"]["pro_vip_shadow"]=False
             row["decision"]["value_shadow"]=False
