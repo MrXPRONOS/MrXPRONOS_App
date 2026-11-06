@@ -42,7 +42,7 @@ def run(page, mobile=False):
     expect(page.locator("#view-title")).to_have_text("Vue générale")
     expect(page.locator("#tab-overview")).to_be_visible()
     assert page.locator("#supervisionFrame").get_attribute("src").endswith("embedded=1")
-    assert page.locator(".nav-item").count() == 11
+    assert page.locator(".nav-item.tab").count() == 11  # New analytics link is not a tab
     assert page.locator('[data-tab="media"]').count() == 1
 
     if mobile:
