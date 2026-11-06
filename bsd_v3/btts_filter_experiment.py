@@ -20,6 +20,10 @@ POLICIES={
     "two_sides_65": lambda r: r["min_side_score"]>=.65,
     "two_sides_68": lambda r: r["min_side_score"]>=.68,
     "two_sides_70": lambda r: r["min_side_score"]>=.70,
+    "two_sides_72": lambda r: r["min_side_score"]>=.72,
+    "two_sides_74": lambda r: r["min_side_score"]>=.74,
+    "two_sides_76": lambda r: r["min_side_score"]>=.76,
+    "two_sides_78": lambda r: r["min_side_score"]>=.78,
     "side68_spec55": lambda r: r["min_side_score"]>=.68 and r["specialist_p"]>=.55,
     "side70_spec55": lambda r: r["min_side_score"]>=.70 and r["specialist_p"]>=.55,
     "side68_blank35": lambda r: r["min_side_score"]>=.68 and r["max_blank"]<=.35,
@@ -32,6 +36,23 @@ POLICIES={
                                    and r["max_blank"]<=.35 and r["league_btts"]>=.52),
     "agreement": lambda r: (r["min_side_score"]>=.68 and r["specialist_p"]>=.55
                              and r["model_gap"]<=.12),
+    "side70_league55": lambda r: r["min_side_score"]>=.70 and r["league_btts"]>=.55,
+    "side72_league55": lambda r: r["min_side_score"]>=.72 and r["league_btts"]>=.55,
+    "side74_league55": lambda r: r["min_side_score"]>=.74 and r["league_btts"]>=.55,
+    "side70_league58": lambda r: r["min_side_score"]>=.70 and r["league_btts"]>=.58,
+    "side72_spec58": lambda r: r["min_side_score"]>=.72 and r["specialist_p"]>=.58,
+    "side74_spec58": lambda r: r["min_side_score"]>=.74 and r["specialist_p"]>=.58,
+    "side72_blank28": lambda r: r["min_side_score"]>=.72 and r["max_blank"]<=.28,
+    "side74_blank28": lambda r: r["min_side_score"]>=.74 and r["max_blank"]<=.28,
+    "side72_lambda90": lambda r: r["min_side_score"]>=.72 and r["min_lambda"]>=.90,
+    "side74_lambda100": lambda r: r["min_side_score"]>=.74 and r["min_lambda"]>=1.00,
+    "strict_recent_a": lambda r: (r["min_side_score"]>=.72 and r["league_btts"]>=.55
+                                  and r["specialist_p"]>=.58 and r["max_blank"]<=.30),
+    "strict_recent_b": lambda r: (r["min_side_score"]>=.74 and r["league_btts"]>=.55
+                                  and r["specialist_p"]>=.58 and r["max_blank"]<=.28),
+    "strict_recent_c": lambda r: (r["min_side_score"]>=.76 and r["league_btts"]>=.58
+                                  and r["specialist_p"]>=.60 and r["max_blank"]<=.26),
+
 }
 
 def _stats(rows):
@@ -112,28 +133,31 @@ def experiment(history):
         tables[period]={name:_stats([r for r in rows if rule(r)])
                         for name,rule in POLICIES.items()}
     train=tables["train"]
-    candidates=[name for name,stat in train.items()
-                if name!="base" and stat["n"]>=50 and stat["hit_rate"] is not None]
+    validation=tables["validation"]
+    # Rolling selection: recent Jul-Sep form selects the gate, while Jan-Jun
+    # is only a safety veto. October is never consulted.
+    candidates=[
+        name for name,stat in validation.items()
+        if name!="base" and stat["n"]>=40 and stat["hit_rate"] is not None
+        and train[name]["n"]>=40 and train[name]["hit_rate"] is not None
+        and train[name]["hit_rate"]>=train["base"]["hit_rate"]-.05
+    ]
     if not candidates:
         chosen="base"
     else:
-        # Threshold selection is made without looking at validation or October.
-        chosen=max(candidates,key=lambda name:(train[name]["wilson_low"],
-                                               train[name]["n"]))
-    validation=tables["validation"]
+        chosen=max(candidates,key=lambda name:(validation[name]["wilson_low"],
+                                               validation[name]["hit_rate"],
+                                               validation[name]["n"]))
     accepted=(chosen!="base"
-              and validation[chosen]["n"]>=25
-              and validation[chosen]["hit_rate"] is not None
-              and validation["base"]["hit_rate"] is not None
               and validation[chosen]["hit_rate"]>=validation["base"]["hit_rate"]+.02)
     active=chosen if accepted else "base"
     return {
         "format":"bsd-v3-btts-filter-experiment-v1",
-        "selection_period":"2026-01 through 2026-06",
-        "validation_period":"2026-07 through 2026-09",
+        "stability_period":"2026-01 through 2026-06",
+        "selection_period":"2026-07 through 2026-09",
         "test_period":"2026-10",
         "fixed_policies":list(POLICIES),
-        "chosen_on_train":chosen,
+        "chosen_on_recent_selection":chosen,
         "accepted_on_validation":accepted,
         "active_policy":active,
         "tables":tables,
