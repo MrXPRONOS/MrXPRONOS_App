@@ -46,7 +46,7 @@ PUBLIC_JS = {
     # Supabase publishable (not privileged/service-role) key.
     "config.js", "scores-exacts.js", "pwa-telemetry.mjs",
     "installation-analytics.mjs",
-    "daily-hub.mjs", "daily-utils.mjs",
+    "daily-hub.mjs", "daily-utils.mjs", "daily-audience.mjs",
 }
 PUBLIC_CSS = {
     "style.css", "loading-ui.css", "home-premium.css",
