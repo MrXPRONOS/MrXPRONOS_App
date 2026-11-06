@@ -135,5 +135,5 @@ def run_shadow(fixtures,history,*,now,quote_fetcher=None,
                              "odds_events_queried":used,"outcomes":dict(reasons)},
               "matches":results}
     document["fingerprint_sha256"]=hashlib.sha256(
-        json.dumps(document,sort_keys=True,ensure_ascii=False).encode("utf-8")).hexdigest()
+        json.dumps(document,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode("utf-8")).hexdigest()
     return document
