@@ -107,8 +107,9 @@ def run_index_case(browser, width, height, label):
     pwa_text=ctx.request.get("http://127.0.0.1:8000/assets/js/pwa.js").text()
     if "mx-push-card" not in main_text or "mx-toast mx-toast--" not in main_text:
         raise AssertionError(f"{label}: main.js premium popup classes missing")
-    if "mx-toast mx-toast--update" not in pwa_text or "mx-toast mx-toast--success" not in pwa_text:
-        raise AssertionError(f"{label}: pwa.js premium toast classes missing")
+    if ("mx-pwa-toast" not in pwa_text or "showInstalledToast" not in pwa_text
+            or "showUpdateToast" not in pwa_text):
+        raise AssertionError(f"{label}: current PWA install/update toasts are missing")
 
     no_horizontal_overflow(page,label)
     print(f"PASS {label}: {width}x{height}, modal/iOS/toast/win/push popup system OK")
