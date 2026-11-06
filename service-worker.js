@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v115-install-funnel-20261106';
+const VERSION = 'v116-daily-hub-20261106';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -11,6 +11,7 @@ const log = IS_DEV ? console.log.bind(console) : () => {};
 const STATIC_ASSETS = [
     './',
     './index.html',
+    './aujourdhui.html',
     './pronos.html',
     './scores-exacts.html',
     './historique.html',
@@ -27,6 +28,7 @@ const STATIC_ASSETS = [
     './assets/css/style.css',
     './assets/css/loading-ui.css',
     './assets/css/home-premium.css',
+    './assets/css/daily-hub.css',
     './assets/css/home-polish.css',
     './assets/css/pronos-premium.css',
     './assets/css/scores-exacts.css',
@@ -45,6 +47,8 @@ const STATIC_ASSETS = [
     './assets/js/loading-ui.js',
     './assets/js/home-premium.js',
     './assets/js/pwa.js',
+    './assets/js/daily-hub.mjs',
+    './assets/js/daily-utils.mjs',
     './assets/js/pwa-telemetry.mjs',
     './assets/js/menu.js',
     './assets/js/scores-exacts.js',
