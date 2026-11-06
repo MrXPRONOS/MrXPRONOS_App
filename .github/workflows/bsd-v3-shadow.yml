@@ -53,13 +53,13 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p bsd_v3/artifacts
-          ids=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/bsd-v3-shadow.yml/runs?status=success&branch=${GITHUB_REF_NAME}&per_page=10" --jq '.workflow_runs[].id' || true)
-          for run_id in $ids; do
-            if gh run download "$run_id" --name "bsd-v3-experimental-$run_id" --dir bsd_v3/artifacts; then
-              echo "V3_LEDGER_RESTORED_FROM_RUN=$run_id"
-              break
-            fi
-          done
+          run_id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/bsd-v3-shadow.yml/runs?status=success&branch=${GITHUB_REF_NAME}&per_page=1" --jq '.workflow_runs[0].id // empty')
+          if test -n "$run_id"; then
+            gh run download "$run_id" --name "bsd-v3-experimental-$run_id" --dir bsd_v3/artifacts
+            echo "V3_LEDGER_RESTORED_FROM_RUN=$run_id"
+          else
+            echo "V3_INITIAL_EMPTY_LEDGER"
+          fi
           if test -f bsd_v3/artifacts/prediction_log.jsonl; then
             python -c 'from bsd_v3.registry import verify_registry; print("V3_LEDGER_VERIFIED",len(verify_registry("bsd_v3/artifacts/prediction_log.jsonl")))'
           fi
