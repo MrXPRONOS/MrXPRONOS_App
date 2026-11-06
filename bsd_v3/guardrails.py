@@ -7,7 +7,7 @@ whether the rule is over-conservative. No publication is permitted.
 from __future__ import annotations
 from .legacy import markets_from_matrix
 
-def family_guards(event,index,baseline,models=None):
+def family_guards(event,index,baseline,models=None,*,btts_quality_gate=None):
     models=models or {}
     guards={}
     evidence={}
@@ -18,6 +18,15 @@ def family_guards(event,index,baseline,models=None):
                        "v2_last_h2h_event_id":previous.get("event_id") if previous else None}
         if not passed:
             guards[key]=reason
+    # V3 BTTS YES gate: the market represents TWO scoring events, so both
+    # sides must independently be strong enough and the competition must
+    # historically support BTTS. This veto was selected before the October test.
+    from .btts_quality import evaluate_btts_yes_quality
+    passed_v3,v3_btts=evaluate_btts_yes_quality(event,index,btts_quality_gate)
+    evidence.setdefault("BTTS_YES",{})["v3_side_league_gate"]=v3_btts
+    if not passed_v3 and "BTTS_YES" not in guards:
+        guards["BTTS_YES"]=v3_btts["reason"]
+
     # The specialized V2 BTTS reliability gate is historically more restrictive
     # than a simple Poisson probability. Preserve that prior to any public
     # migration, but allow independent research on candidates it rejects.
