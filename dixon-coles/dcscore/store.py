@@ -126,6 +126,7 @@ class Store:
         if len({m.id for m in matches}) != len(matches):
             raise ValueError("Identifiants de rencontre répétés dans le même import.")
         with self.connection() as db:
+            db.execute("BEGIN IMMEDIATE")  # lock before read/check/write; no stale concurrent SELECT
             for m in matches:
                 existing=db.execute("SELECT * FROM matches WHERE id=?",(m.id,)).fetchone()
                 if existing:
@@ -170,6 +171,7 @@ class Store:
         if not actor.strip() or len(actor)>80:
             raise ValueError("Acteur de correction invalide.")
         with self.connection() as db:
+            db.execute("BEGIN IMMEDIATE")
             old=db.execute("SELECT * FROM matches WHERE id=?",(match_id,)).fetchone()
             if old is None or old["status"]!="FINISHED":
                 raise ValueError("La correction concerne uniquement un résultat final enregistré.")
@@ -196,6 +198,7 @@ class Store:
         if len(reason.strip()) < 12 or len(reason)>500:
             raise ValueError("Justification de modification du terrain obligatoire.")
         with self.connection() as db:
+            db.execute("BEGIN IMMEDIATE")
             old=db.execute("SELECT * FROM matches WHERE id=?",(match_id,)).fetchone()
             if not old:
                 raise ValueError("Match introuvable.")
