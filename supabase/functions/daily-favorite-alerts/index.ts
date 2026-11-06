@@ -85,7 +85,7 @@ async function manage(req, body) {
   const action = String(body.action || "");
   if (action === "status") {
     const { data, error } = await sb.from(TABLE).select(
-      "enabled,favorites,hour_local,timezone_offset_minutes"
+      "enabled,favorites,hour_local,timezone_offset_minutes,timezone_name"
     ).eq("endpoint", endpoint).maybeSingle();
     if (error) return json(req, { error: "Statut indisponible" }, 500);
     return json(req, {
@@ -95,9 +95,7 @@ async function manage(req, body) {
     });
   }
   if (action === "disable") {
-    const { error } = await sb.from(TABLE).update({
-      enabled: false, updated_at: new Date().toISOString()
-    }).eq("endpoint", endpoint);
+    const { error } = await sb.from(TABLE).delete().eq("endpoint", endpoint);
     if (error) return json(req, { error: "Désactivation impossible" }, 500);
     return json(req, { enabled: false });
   }
@@ -109,11 +107,15 @@ async function manage(req, body) {
     return json(req, { error: "Choisissez au moins une équipe ou une compétition." }, 400);
   const hour = Number(body.hour_local);
   const offset = Number(body.timezone_offset_minutes);
+  const timezoneName = String(body.timezone_name || 'UTC').slice(0,64);
+  try { new Intl.DateTimeFormat('en-US',{timeZone:timezoneName}).format(new Date()); }
+  catch { return json(req,{error:'Fuseau horaire invalide'},400); }
   if (!Number.isInteger(hour) || hour < 7 || hour > 21 ||
       !Number.isInteger(offset) || offset < -840 || offset > 720)
     return json(req, { error: "Heure ou fuseau horaire invalide" }, 400);
   const row = {
     endpoint, favorites, hour_local: hour, timezone_offset_minutes: offset,
+    timezone_name: timezoneName,
     updated_at: new Date().toISOString(), enabled: true
   };
   const { error } = await sb.from(TABLE).upsert(row, { onConflict: "endpoint" });
@@ -122,7 +124,20 @@ async function manage(req, body) {
     favorite_count: favorites.teams.length + favorites.leagues.length });
 }
 
-function localClock(now, offset) {
+function localClock(now, offset, timezoneName) {
+  if (timezoneName) {
+    try {
+      const format = new Intl.DateTimeFormat("en-US",{
+        timeZone:timezoneName,year:"numeric",month:"2-digit",day:"2-digit",
+        hour:"2-digit",hourCycle:"h23"
+      });
+      const parts = Object.fromEntries(format.formatToParts(now)
+        .filter(p => ["year","month","day","hour"].includes(p.type))
+        .map(p => [p.type,p.value]));
+      if (parts.year && parts.month && parts.day && parts.hour)
+        return {day:parts.year+"-"+parts.month+"-"+parts.day,hour:Number(parts.hour)};
+    } catch { /* Stored offsets are retained as a fallback. */ }
+  }
   const local = new Date(now.getTime() - Number(offset) * 60000);
   return { day: local.toISOString().slice(0, 10), hour: local.getUTCHours() };
 }
@@ -187,13 +202,13 @@ async function deliver(req) {
 
   const sb = db();
   const { data, error } = await sb.from(TABLE)
-    .select("endpoint,favorites,hour_local,timezone_offset_minutes,last_sent_local_day")
+    .select("endpoint,favorites,hour_local,timezone_offset_minutes,timezone_name,last_sent_local_day")
     .eq("enabled", true).limit(1000);
   if (error) return json(req, { error: "Préférences indisponibles" }, 500);
 
   const now = new Date();
   const due = (data || []).filter(p => {
-    const local = localClock(now, p.timezone_offset_minutes);
+    const local = localClock(now, p.timezone_offset_minutes, p.timezone_name);
     return local.hour === p.hour_local && p.last_sent_local_day !== local.day;
   });
   if (!due.length) return json(req, { due: 0, sent: 0, skipped: 0, failed: 0 });
@@ -210,7 +225,7 @@ async function deliver(req) {
   webpush.setVapidDetails(subject, publicKey, privateKey);
   let sent = 0, skipped = 0, failed = 0;
   for (const preference of due.slice(0, MAX_MESSAGES_PER_RUN)) {
-    const localDay = localClock(now, preference.timezone_offset_minutes).day;
+    const localDay = localClock(now, preference.timezone_offset_minutes, preference.timezone_name).day;
     const relevant = selectRelevant(snapshot.matches, news, preference.favorites, localDay);
     if (!relevant.matchesToday.length && !relevant.newsToday.length) { skipped++; continue; }
 
