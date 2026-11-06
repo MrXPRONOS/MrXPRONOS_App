@@ -1,0 +1,77 @@
+name: Dixon-Coles - backtest de l'année civile 2026
+
+on:
+  push:
+    paths:
+      - 'dixon-coles/scripts/backtest_calendar_2026.py'
+      - 'dixon-coles/examples/pl_2026_11_verified_results.csv'
+      - 'dixon-coles/examples/pl_2026_10_results.csv'
+      - 'dixon-coles/tests/test_annual_2026.py'
+      - 'dixon-coles/dcscore/service.py'
+      - '.github/workflows/dixon-coles-calendar-2026-backtest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  calendar-2026:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: dixon-coles
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            dixon-coles
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les dépendances
+        run: python -m pip install -e '.[test]'
+      - name: Tester les contrôles de calendrier et d'intégrité
+        run: python -m pytest -q tests/test_annual_2026.py
+      - name: Backtest annuel 2026 sur scores réels, sans fuite temporelle
+        run: |
+          python scripts/backtest_calendar_2026.py \
+            --db instance/annual-2026-$(date +%s).sqlite3 \
+            --october-csv examples/pl_2026_10_results.csv \
+            --november-csv examples/pl_2026_11_verified_results.csv \
+            --output results/backtest_calendar_2026.json \
+            --csv-out results/backtest_calendar_2026_matches.csv \
+            --markdown-out results/backtest_calendar_2026.md
+      - name: Auditer toutes les périodes et les sorties
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,csv
+          r=json.loads(Path('results/backtest_calendar_2026.json').read_text())
+          assert r['target_matches']==284
+          assert r['evaluated_matches']+r['excluded_matches']==284
+          assert r['no_future_training'] is True
+          assert r['selected_model_before_2026'] in ('poisson','dixon_coles')
+          assert r['model_selection_pre_2026']['validation_end_exclusive'] < '2026-01-01'
+          assert r['signal_filter_pre_2026']['validation_end_exclusive'] < '2026-01-01'
+          assert len(r['months'])==9
+          assert sum(x['total_finished'] for x in r['months'])==284
+          assert all(f['last_training_match']<f['start'] for f in r['folds'])
+          assert all('2026-01-01'<=m['date']<'2026-11-06' for m in r['matches'])
+          assert all(m['automatic']['recommended_score'] is None or m['automatic']['recommended_score']==m['automatic']['mode_score'] for m in r['matches'])
+          assert all(m['automatic']['recommended_score'] is None or m['automatic']['mode_score']==m['automatic']['top_three'][0] for m in r['matches'])
+          assert r['summary']['automatic']['n']==r['evaluated_matches']
+          with Path('results/backtest_calendar_2026_matches.csv').open(newline='') as f:
+            assert len(list(csv.DictReader(f)))==r['evaluated_matches']
+          print('CALENDAR_2026_AUDIT_VALIDATED 284 target matches')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dixon-coles-calendar-2026-results
+          if-no-files-found: warn
+          retention-days: 90
+          path: |
+            dixon-coles/results/backtest_calendar_2026.json
+            dixon-coles/results/backtest_calendar_2026_matches.csv
+            dixon-coles/results/backtest_calendar_2026.md

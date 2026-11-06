@@ -222,6 +222,12 @@ def backtest(store: Store, competition: str, *, n_samples: int=100,
                     "poisson_best_score":benchmark['top_scores'][0]['score'],
                     "poisson_top_three":[x['score'] for x in benchmark['top_scores']],
                     "poisson_top_one_probability":benchmark['top_scores'][0]['probability'],
+                    # Full Top 3 probabilities let an independently calibrated
+                    # selective-signal rule evaluate both models faithfully.
+                    # Never manufacture an alternate Top 1 score.
+                    "dc_top_scores":result['top_scores'],
+                    "poisson_top_scores":benchmark['top_scores'],
+                    "poisson_best_score_margin_pp":benchmark['score_top1_gap_percentage_points'],
                     "best_score_margin_pp":result['score_top1_gap_percentage_points'],
                     "rho_effect_on_p_1_1_percent":result['rho_effect_on_p_1_1_percent'],
                     "one_x_two_brier":brier,
