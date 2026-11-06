@@ -106,9 +106,11 @@ def label_candidate(row, quality, quote, policy=V3Policy()):
     price_ok = bool(ev and ev["conservative_ev"] >= FAMILY_EDGE[row["family"]]
                     and row["conservative_probability"] >=
                     ev["implied_probability"] + FAMILY_EDGE[row["family"]])
-    value = bool(ev and ev["conservative_ev"] >= policy.min_shadow_value_ev)
+    value = bool(ev and quote and quote.get("executable") is True
+                 and ev["conservative_ev"] >= policy.min_shadow_value_ev)
     return {"pro_vip_shadow": public and price_ok,
             "value_shadow": value,
+            "quote_benchmark_only":bool(quote and quote.get("benchmark_only")),
             "ev": ev,
             "public_preprice": public,
             "quote_verified": bool(quote and quote.get("verified"))}
