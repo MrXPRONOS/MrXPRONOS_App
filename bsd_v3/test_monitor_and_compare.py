@@ -89,5 +89,34 @@ class RetrospectiveComparisonTests(unittest.TestCase):
         for name,stat in report["markets"].items():
             self.assertAlmostEqual(stat["v2_brier"],stat["v3_brier"],places=3)
 
+
+class GoalStrengthGateTests(unittest.TestCase):
+    def test_2026_results_do_not_change_2025_gate(self):
+        from bsd_v3.goal_strength import fit_goal_strength,goal_strength
+        base=datetime(2025,1,1,tzinfo=UTC)
+        train=[fixture(i+1,1 if i%2 else 2,2 if i%2 else 1,
+                       base+timedelta(days=i*3),i%4,(i+1)%3)
+               for i in range(60)]
+        valid=[fixture(200+i,1 if i%2 else 2,2 if i%2 else 1,
+                       datetime(2025,9,1,tzinfo=UTC)+timedelta(days=i*3),
+                       (i+1)%3,i%3)
+               for i in range(25)]
+        original=V2History(train+valid)
+        extra=[fixture(800+i,1 if i%2 else 2,2 if i%2 else 1,
+                       datetime(2026,3,1,tzinfo=UTC)+timedelta(days=i),
+                       18 if i%2 else 0,0 if i%2 else 18)
+               for i in range(10)]
+        revised=V2History(train+valid+extra)
+        before=fit_goal_strength(original,0.,min_train=20,min_validation=10)
+        after=fit_goal_strength(revised,0.,min_train=20,min_validation=10)
+        self.assertEqual(before.metadata(),after.metadata())
+        self.assertGreater(before.validated,0)
+        self.assertIn(before.alpha,(0.,.06,.12,.18,.24))
+        test_event=fixture(901,1,2,datetime(2025,11,22,tzinfo=UTC),1,1)
+        raw={"home":1.4,"away":1.1}
+        first=goal_strength(test_event,original,raw,.12)
+        second=goal_strength(test_event,revised,raw,.12)
+        self.assertEqual(first,second)
+
 if __name__=="__main__":
     unittest.main()
