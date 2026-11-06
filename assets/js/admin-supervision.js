@@ -89,6 +89,7 @@ async function fetchSnapshot(){
    void refreshGitHubRuns();
   void refreshClientErrors();
   void refreshVisitorQualityV2();
+  void refreshPwaInstallFunnel();
   output("latency",format(Math.round(performance.now()-started))+" ms");
   output("updated","Mis à jour à "+new Date().toLocaleTimeString("fr-FR",{timeZone:"UTC"})+" UTC");
   notice("");
@@ -120,6 +121,36 @@ async function refreshVisitorQualityV2(){
   }catch(error){
     output("v2-diagnostics","Collecte V2 indisponible : "+String(error?.message||error));
   }
+}
+async function refreshPwaInstallFunnel(){
+  if(!$("pwa-install-note"))return;
+  try{
+    const {data,error}=await sb.rpc("admin_pwa_install_funnel_v2",{p_days:Number($("period").value)});
+    if(error)throw error;
+    const result=data||{},e=result.events||{};
+    const show=(id,n)=>output(id,format(n));
+    show("pwa-impressions",e.cta_visible);
+    show("pwa-clicks",e.cta_click);
+    show("pwa-accepted",e.prompt_accepted);
+    show("pwa-appinstalled",e.appinstalled);
+    show("pwa-standalone",e.standalone_open);
+    show("pwa-guides",e.guide_open);
+    renderTable("pwa-platformrows",Array.isArray(result.platforms)?result.platforms:[],[
+      r=>safe(r.platform),r=>format(r.cta_visible),r=>format(r.cta_click),
+      r=>format(r.prompt_accepted),r=>format(r.appinstalled),r=>format(r.standalone_open)
+    ]);
+    renderTable("pwa-surfacerows",Array.isArray(result.surfaces)?result.surfaces:[],[
+      r=>safe(r.surface),r=>format(r.cta_visible),r=>format(r.cta_click),r=>format(r.guide_open)
+    ]);
+    renderTable("pwa-dailyrows",Array.isArray(result.daily)?result.daily:[],[
+      r=>safe(r.day),r=>format(r.visible),r=>format(r.clicks),
+      r=>format(r.prompt_accepted),r=>format(r.appinstalled),r=>format(r.standalone_open)
+    ]);
+    output("pwa-install-note",
+      "Source : événements côté navigateur, comptés par identifiant pseudonymisé distinct. " +
+      "Acceptation ≠ installation confirmée. appinstalled est inégalement pris en charge, " +
+      "notamment sur iOS ; l'ouverture standalone est un signal séparé.");
+  }catch(err){output("pwa-install-note","Statistiques d'installation indisponibles : "+String(err?.message||err));}
 }
 function percent(w,l){const n=Number(w||0)+Number(l||0);return n?(100*Number(w||0)/n).toFixed(1)+" %":"–"}
 function renderTable(id,rows,columns){
