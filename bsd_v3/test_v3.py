@@ -185,5 +185,57 @@ class TestV3(unittest.TestCase):
                                          ensure_ascii=False).encode("utf-8")).hexdigest()
         self.assertEqual(result["fingerprint_sha256"],expected)
 
+
+    def test_preferred_markets_beat_nonpreferred_when_both_are_qualified(self):
+        from bsd_v3.market_priors import attach_market_merit
+        matrix,cs=coherent_candidates({"home":1.45,"away":1.05})
+        by={x.key:x for x in cs}
+        priors={"markets":{
+            "1":{"rate":.46,"n":5000},
+            "1X":{"rate":.73,"n":5000},
+            "UNDER_35":{"rate":.71,"n":5000},
+        }}
+        rows=[]
+        for key,p in (("1",.80),("1X",.92),("UNDER_35",.90)):
+            cand=by[key]
+            row={"key":cand.key,"family":cand.family,"market":cand.market,
+                 "line":cand.line,"probability":p,"conservative_probability":p,
+                 "decision":{"pro_vip_shadow":True,"value_shadow":False,"ev":None}}
+            rows.append(attach_market_merit(row,priors))
+        choices=select_candidates(rows,matrix,V3Policy(max_joint_correlation=.99))
+        self.assertEqual(choices["pro_vip_shadow"][0],"1")
+        self.assertEqual(choices["preferred_pro_vip_shadow"],["1"])
+
+    def test_strongest_signal_wins_inside_preferred_group(self):
+        from bsd_v3.market_priors import attach_market_merit
+        matrix,cs=coherent_candidates({"home":1.45,"away":1.15})
+        by={x.key:x for x in cs}
+        priors={"markets":{
+            "1":{"rate":.46,"n":5000},
+            "BTTS_YES":{"rate":.50,"n":5000},
+            "OVER_15":{"rate":.70,"n":5000},
+        }}
+        rows=[]
+        for key,p in (("1",.80),("BTTS_YES",.86),("OVER_15",.88)):
+            cand=by[key]
+            row={"key":cand.key,"family":cand.family,"market":cand.market,
+                 "line":cand.line,"probability":p,"conservative_probability":p,
+                 "decision":{"pro_vip_shadow":True,"value_shadow":False,"ev":None}}
+            rows.append(attach_market_merit(row,priors))
+        choices=select_candidates(rows,matrix,V3Policy(max_joint_correlation=.99))
+        self.assertEqual(choices["pro_vip_shadow"][0],"BTTS_YES")
+
+    def test_nonpreferred_market_remains_fallback_when_no_priority_market_qualifies(self):
+        from bsd_v3.market_priors import attach_market_merit
+        matrix,cs=coherent_candidates({"home":1.2,"away":1.0})
+        cand=next(x for x in cs if x.key=="1X")
+        row={"key":cand.key,"family":cand.family,"market":cand.market,
+             "line":cand.line,"probability":.88,"conservative_probability":.86,
+             "decision":{"pro_vip_shadow":True,"value_shadow":False,"ev":None}}
+        row=attach_market_merit(row,{"markets":{"1X":{"rate":.72,"n":5000}}})
+        choices=select_candidates([row],matrix,V3Policy(max_joint_correlation=.99))
+        self.assertEqual(choices["pro_vip_shadow"],["1X"])
+        self.assertEqual(choices["preferred_pro_vip_shadow"],[])
+
 if __name__=="__main__":
     unittest.main()
