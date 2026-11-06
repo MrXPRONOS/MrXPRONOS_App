@@ -19,6 +19,8 @@ def train_runtime(history, *, calibration=True, challenger=False):
     index=V2History(clean)
     rho,rho_report=fit_rho_2024(index)
     cal=fit_calibration(index,rho) if calibration else None
+    from .market_priors import fit_market_priors
+    market_priors=fit_market_priors(index)
     from .goal_strength import fit_goal_strength
     goal_model=fit_goal_strength(index,rho,calibration=cal)
     challenger_models={}
@@ -36,7 +38,8 @@ def train_runtime(history, *, calibration=True, challenger=False):
                 "Both models passed separate gates; co-activation needs a joint "
                 "chronological validation before any combination.")
     return {"index":index,"rho":rho,"rho_validation":rho_report,
-            "calibration":cal,"goal_strength":goal_model,
+            "calibration":cal,"market_priors":market_priors,
+            "goal_strength":goal_model,
             "challengers":challenger_models,
             "challenger_weights":challenger_weights,
             "history_quality":history_quality,
@@ -106,7 +109,8 @@ def evaluate_fixture(event,runtime,*,now,raw_quotes=None,quote_meta=None,
                                              now=now,kickoff=kickoff,policy=policy)
     rows=serialize_candidates(candidates,expected,quality,verified,policy=policy,
                               calibrator=cal,calibration_active=bool(cal and cal.active),
-                              blocked_keys=blocked_keys,market_guards=market_guards)
+                              blocked_keys=blocked_keys,market_guards=market_guards,
+                              market_priors=runtime.get("market_priors"))
     decisions=select_candidates(rows,score,policy)
     return {"event_id":str(event["id"]),"kickoff_utc":kickoff.isoformat(),
             "generated_at_utc":now.isoformat(),"status":"analyzed",
@@ -170,6 +174,7 @@ def run_shadow(fixtures,history,*,now,quote_fetcher=None,
               "calibration":runtime["calibration"].metadata() if runtime["calibration"] else None,
               "goal_strength":runtime["goal_strength"].metadata()
                   if runtime.get("goal_strength") is not None else None,
+              "market_priors":runtime.get("market_priors"),
               "rho":runtime["rho"],"challenger_training":runtime["challenger_training"],
               "history_quality":runtime.get("history_quality"),
               "prospective_disabled_markets":sorted(blocked_keys),
