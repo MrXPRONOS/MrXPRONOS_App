@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
-from .domain import Match, utc_datetime, iso_date
+from .domain import Match, utc_datetime, iso_date, inferred_provenance
 
 
 def default_db_path() -> str:
@@ -49,7 +49,9 @@ class Store:
                 away_goals INTEGER,
                 season TEXT NOT NULL DEFAULT '',
                 source TEXT NOT NULL,
-                updated_at TEXT NOT NULL
+                updated_at TEXT NOT NULL,
+                neutral_venue INTEGER NOT NULL DEFAULT 0,
+                result_provenance TEXT
             );
             CREATE INDEX IF NOT EXISTS ix_matches_league_date ON matches(competition,kickoff);
             CREATE INDEX IF NOT EXISTS ix_matches_status ON matches(status);
@@ -61,6 +63,30 @@ class Store:
                 FOREIGN KEY(match_id) REFERENCES matches(id)
             );
             CREATE INDEX IF NOT EXISTS ix_predictions_created ON predictions(created_at DESC);
+            CREATE TABLE IF NOT EXISTS result_audit (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                match_id TEXT NOT NULL,
+                changed_at TEXT NOT NULL,
+                previous_score TEXT NOT NULL,
+                new_score TEXT NOT NULL,
+                previous_provenance TEXT NOT NULL,
+                new_provenance TEXT NOT NULL,
+                actor TEXT NOT NULL,
+                reason TEXT NOT NULL,
+                FOREIGN KEY(match_id) REFERENCES matches(id)
+            );
+            CREATE INDEX IF NOT EXISTS ix_result_audit_match ON result_audit(match_id,id DESC);
+            CREATE TABLE IF NOT EXISTS venue_audit (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                match_id TEXT NOT NULL,
+                changed_at TEXT NOT NULL,
+                old_neutral INTEGER NOT NULL,
+                new_neutral INTEGER NOT NULL,
+                actor TEXT NOT NULL,
+                reason TEXT NOT NULL,
+                FOREIGN KEY(match_id) REFERENCES matches(id)
+            );
+            CREATE INDEX IF NOT EXISTS ix_venue_audit_match ON venue_audit(match_id,id DESC);
             CREATE TABLE IF NOT EXISTS xi_calibrations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 competition TEXT NOT NULL,
@@ -72,30 +98,130 @@ class Store:
             CREATE INDEX IF NOT EXISTS ix_xi_competition_date
             ON xi_calibrations (competition, id DESC);
             """)
+            # Existing installations have the v1 matches schema. Safe, idempotent
+            # additions preserve all previous predictions and finalized games.
+            columns={r["name"] for r in db.execute("PRAGMA table_info(matches)")}
+            if "neutral_venue" not in columns:
+                db.execute("ALTER TABLE matches ADD COLUMN neutral_venue INTEGER NOT NULL DEFAULT 0")
+            if "result_provenance" not in columns:
+                db.execute("ALTER TABLE matches ADD COLUMN result_provenance TEXT")
+            # Recover precise categories for old rows without labeling them verified.
+            db.execute("""UPDATE matches SET result_provenance=CASE source
+                WHEN 'demo' THEN 'synthetic_demo'
+                WHEN 'football-data.org' THEN 'provider_reported'
+                WHEN 'openfootball/football.json' THEN 'community_reported'
+                WHEN 'csv' THEN 'csv_import'
+                ELSE 'manual_entry' END
+                WHERE status='FINISHED' AND result_provenance IS NULL""")
 
     def upsert_matches(self, matches: list[Match]) -> int:
+        """Atomic safe ingest. Never silently erase or alter a final score.
+
+        An incoming scheduled fixture cannot downgrade a finished game. An
+        incompatible second final score is rejected as a source conflict;
+        operators must explicitly call correct_final_result with a reason.
+        All rows in one import are validated before any database commit.
+        """
         when = iso_date(datetime.now(timezone.utc))
-        # Validate all before writing any rows.
-        data = [(
-            m.id, m.competition, iso_date(m.kickoff), m.home_id, m.away_id,
-            m.home_name, m.away_name, m.status, m.home_goals, m.away_goals,
-            m.season, m.source, when
-        ) for m in matches]
+        if len({m.id for m in matches}) != len(matches):
+            raise ValueError("Identifiants de rencontre répétés dans le même import.")
         with self.connection() as db:
-            db.executemany("""
-                INSERT INTO matches
-                (id,competition,kickoff,home_id,away_id,home_name,away_name,
-                 status,home_goals,away_goals,season,source,updated_at)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
-                ON CONFLICT(id) DO UPDATE SET
-                    competition=excluded.competition, kickoff=excluded.kickoff,
-                    home_id=excluded.home_id, away_id=excluded.away_id,
-                    home_name=excluded.home_name, away_name=excluded.away_name,
-                    status=excluded.status, home_goals=excluded.home_goals,
-                    away_goals=excluded.away_goals, season=excluded.season,
-                    source=excluded.source, updated_at=excluded.updated_at
-            """, data)
-        return len(data)
+            for m in matches:
+                existing=db.execute("SELECT * FROM matches WHERE id=?",(m.id,)).fetchone()
+                if existing:
+                    if (existing["competition"], existing["home_id"], existing["away_id"]) != (
+                            m.competition,m.home_id,m.away_id):
+                        raise ValueError(f"Conflit d'identité pour {m.id} : compétition/équipes différentes.")
+                    if existing["status"]=="FINISHED":
+                        if m.status!="FINISHED":
+                            # No downgrade, including score, time, venue, provenance.
+                            continue
+                        if (existing["home_goals"], existing["away_goals"]) != (
+                                m.home_goals, m.away_goals):
+                            raise ValueError(f"Conflit de scores finaux pour {m.id} : correction explicite exigée.")
+                        # Same final: do not reset an explicit audited correction,
+                        # previous venue/time or a manually confirmed source.
+                        continue
+                db.execute("""INSERT INTO matches
+                    (id,competition,kickoff,home_id,away_id,home_name,away_name,
+                     status,home_goals,away_goals,season,source,updated_at,neutral_venue,result_provenance)
+                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    ON CONFLICT(id) DO UPDATE SET
+                    kickoff=excluded.kickoff,
+                    home_name=excluded.home_name,away_name=excluded.away_name,
+                    status=excluded.status,home_goals=excluded.home_goals,
+                    away_goals=excluded.away_goals,season=excluded.season,
+                    source=excluded.source,updated_at=excluded.updated_at,
+                    neutral_venue=excluded.neutral_venue,
+                    result_provenance=excluded.result_provenance""",
+                    (m.id,m.competition,iso_date(m.kickoff),m.home_id,m.away_id,
+                     m.home_name,m.away_name,m.status,m.home_goals,m.away_goals,
+                     m.season,m.source,when,int(m.neutral_venue),m.result_provenance))
+        return len(matches)
+
+    def correct_final_result(self, match_id: str, home_goals: int, away_goals: int,
+                             *, reason: str, actor: str = "administrator") -> Match:
+        """Deliberate correction with an append-only, transactional audit record."""
+        if (type(home_goals) is not int or type(away_goals) is not int or
+                home_goals<0 or away_goals<0):
+            raise ValueError("Les nouveaux scores doivent être des entiers positifs ou nuls.")
+        if len(reason.strip())<12 or len(reason)>500:
+            raise ValueError("Une justification explicite entre 12 et 500 caractères est obligatoire.")
+        if not actor.strip() or len(actor)>80:
+            raise ValueError("Acteur de correction invalide.")
+        with self.connection() as db:
+            old=db.execute("SELECT * FROM matches WHERE id=?",(match_id,)).fetchone()
+            if old is None or old["status"]!="FINISHED":
+                raise ValueError("La correction concerne uniquement un résultat final enregistré.")
+            if (old["home_goals"],old["away_goals"]) == (home_goals,away_goals):
+                raise ValueError("Le nouveau résultat est identique à l'ancien.")
+            now=iso_date(datetime.now(timezone.utc))
+            db.execute("""INSERT INTO result_audit
+                (match_id,changed_at,previous_score,new_score,previous_provenance,
+                 new_provenance,actor,reason) VALUES (?,?,?,?,?,?,?,?)""",
+                (match_id,now,f"{old['home_goals']}-{old['away_goals']}",
+                 f"{home_goals}-{away_goals}",old["result_provenance"] or
+                 inferred_provenance(old["source"]),"manual_correction",actor,reason.strip()))
+            db.execute("""UPDATE matches SET home_goals=?,away_goals=?,
+                       result_provenance='manual_correction',updated_at=? WHERE id=?""",
+                       (home_goals,away_goals,now,match_id))
+            result=db.execute("SELECT * FROM matches WHERE id=?",(match_id,)).fetchone()
+        return self.from_row(result)
+
+    def set_neutral_venue(self, match_id: str, neutral_venue: bool, *,
+                          reason: str, actor: str="administrator") -> Match:
+        """Explicitly correct venue data after import; never rewrite silently."""
+        if type(neutral_venue) is not bool:
+            raise ValueError("Terrain neutre : booléen exigé.")
+        if len(reason.strip()) < 12 or len(reason)>500:
+            raise ValueError("Justification de modification du terrain obligatoire.")
+        with self.connection() as db:
+            old=db.execute("SELECT * FROM matches WHERE id=?",(match_id,)).fetchone()
+            if not old:
+                raise ValueError("Match introuvable.")
+            if bool(old["neutral_venue"])==neutral_venue:
+                raise ValueError("Le terrain neutre ne change pas.")
+            when=iso_date(datetime.now(timezone.utc))
+            db.execute("""INSERT INTO venue_audit
+                (match_id,changed_at,old_neutral,new_neutral,actor,reason)
+                VALUES(?,?,?,?,?,?)""",
+                (match_id,when,old["neutral_venue"],int(neutral_venue),actor,reason.strip()))
+            db.execute("UPDATE matches SET neutral_venue=?,updated_at=? WHERE id=?",
+                       (int(neutral_venue),when,match_id))
+            result=db.execute("SELECT * FROM matches WHERE id=?",(match_id,)).fetchone()
+        return self.from_row(result)
+
+    def venue_history(self, match_id: str) -> list[dict]:
+        with self.connection() as db:
+            rows=db.execute("SELECT * FROM venue_audit WHERE match_id=? ORDER BY id",
+                            (match_id,)).fetchall()
+        return [dict(r) for r in rows]
+
+    def result_history(self, match_id: str) -> list[dict]:
+        with self.connection() as db:
+            rows=db.execute("SELECT * FROM result_audit WHERE match_id=? ORDER BY id ASC",
+                            (match_id,)).fetchall()
+        return [dict(r) for r in rows]
 
     @staticmethod
     def from_row(row):
@@ -104,7 +230,9 @@ class Store:
             home_id=row["home_id"], away_id=row["away_id"],
             home_name=row["home_name"], away_name=row["away_name"],
             status=row["status"], home_goals=row["home_goals"],
-            away_goals=row["away_goals"], season=row["season"], source=row["source"]
+            away_goals=row["away_goals"], season=row["season"], source=row["source"],
+            neutral_venue=bool(row["neutral_venue"]),
+            result_provenance=row["result_provenance"]
         )
 
     def get_match(self, match_id: str) -> Match | None:
@@ -181,7 +309,7 @@ class Store:
     def predictions(self, limit: int = 100) -> list[dict]:
         with self.connection() as db:
             rows = db.execute("""SELECT p.id AS prediction_id,p.created_at,p.cutoff,p.result_json,
-            m.status,m.home_goals,m.away_goals FROM predictions p
+            m.status,m.home_goals,m.away_goals,m.result_provenance,m.neutral_venue FROM predictions p
             INNER JOIN matches m ON m.id=p.match_id
             ORDER BY p.created_at DESC,p.rowid DESC LIMIT ?""", (min(max(int(limit),1),500),)).fetchall()
         out=[]
@@ -195,7 +323,9 @@ class Store:
                 correct=(row["home_goals"]==best["home"] and row["away_goals"]==best["away"])
             out.append({"id":row["prediction_id"],"created_at":row["created_at"],
                         "cutoff":row["cutoff"],"prediction":data,"actual_score":actual,
-                        "correct":correct})
+                        "correct":correct,"result_provenance":row["result_provenance"],
+                        "neutral_venue":bool(row["neutral_venue"]),
+                        "result_is_independently_verified":False})
         return out
 
     def save_xi_calibration(self, report: dict) -> int:

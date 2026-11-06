@@ -56,7 +56,15 @@ def predict(store: Store, match_id: str, *, xi: float | None=None,
         used_xi=xi
         origin="manual_override"
     model=fit(rows,as_of=clock,xi=used_xi,min_games=min_games,regularization=regularization)
-    result=forecast(model,target.home_id,target.away_id)
+    result=forecast(model,target.home_id,target.away_id,neutral_venue=target.neutral_venue)
+    result["data_quality"]={
+        "last_finished_game":iso_date(rows[-1].kickoff) if rows else None,
+        "days_since_latest_result":round((clock-rows[-1].kickoff).total_seconds()/86400,1) if rows else None,
+        "stale_results":(clock-rows[-1].kickoff).total_seconds()>21*86400 if rows else True,
+        "result_provenances":{p:sum(m.result_provenance==p for m in rows)
+                              for p in sorted({m.result_provenance for m in rows})},
+        "neutral_venue_games":sum(m.neutral_venue for m in rows),
+        "note":"Les fournisseurs déclarent les scores, mais leur exactitude n'est pas certifiée indépendamment."}
     result["xi_source"]=origin
     result["xi_calibration"]=(
         {"calibration_id":calibration["calibration_id"],
@@ -69,7 +77,7 @@ def predict(store: Store, match_id: str, *, xi: float | None=None,
     result.update({"match_id":target.id,"competition":target.competition,
                    "home_team":target.home_name,"away_team":target.away_name,
                    "kickoff":iso_date(target.kickoff),"generated_at":iso_date(clock),
-                   "source":target.source,"mode":"real" if target.source!="demo" else "DEMO / FICTIF"})
+                   "source":target.source,"neutral_venue":target.neutral_venue,"mode":"real" if target.source!="demo" else "DEMO / FICTIF"})
     if save:
         result["prediction_id"]=store.save_prediction(target.id,clock,result)
     return result
@@ -89,63 +97,116 @@ def sync_seasons(store: Store,code: str,seasons: list[int]) -> dict:
             "seasons":results,"all_successful":all(x["success"] for x in results)}
 
 
-def backtest(store: Store,competition: str, *, n_samples: int=12,
-             min_games: int=80,min_team: int=5,xi: float=0.0065,
-             regularization:float=0.15) -> dict:
-    """Truly out-of-sample chronological refits before each target date.
+def _confidence_buckets(rows: list[dict], n_bins: int=5) -> list[dict]:
+    """Equal-frequency bins diagnose calibration of chosen top-one score."""
+    if not rows:
+        return []
+    ordered=sorted(rows,key=lambda r:r["top_one_probability"])
+    output=[]
+    for i in range(n_bins):
+        part=ordered[i*len(rows)//n_bins:(i+1)*len(rows)//n_bins]
+        if part:
+            output.append({"n":len(part),
+                           "mean_confidence":float(np.mean([x["top_one_probability"] for x in part])),
+                           "observed_top1_frequency":float(np.mean([x["top1_hit"] for x in part]))})
+    return output
 
-    Targets are selected among the newest eligible played games. A game on the
-    same date never enters the training set at its kickoff or later.
+
+def backtest(store: Store, competition: str, *, n_samples: int=100,
+             min_games: int=80, min_team: int=5, xi: float=0.0065,
+             regularization: float=0.15) -> dict:
+    """Walk-forward monthly refits, same dated fixtures for independent models.
+
+    No outcomes from the target month or any later month enter its training.
+    Dixon-Coles and Poisson have SEPARATE MLE estimates (rho fixed to zero
+    during the Poisson optimization). Unlike the old version, this is not a
+    comparison using identical fitted attack/defense rates.
     """
-    all_matches=store.matches(competition,finished=True)
+    if not 1<=n_samples<=3000:
+        raise ServiceError("Échantillon entre 1 et 3000 matchs requis.")
+    if not 0<=xi<=0.3:
+        raise ServiceError("ξ hors limites.")
+    all_matches=sorted(store.matches(competition,finished=True),key=lambda m:(m.kickoff,m.id))
     if len(all_matches)<min_games+1:
         raise ServiceError("Pas assez de matchs historiques pour effectuer un backtest.")
-    if not 1<=n_samples<=30:
-        raise ServiceError("Échantillon entre 1 et 30 matchs requis.")
-    # Exclude same calendar day (even for matches with no actual kick-off time).
     dates=[m.kickoff.date() for m in all_matches]
-    possible=[m for m in all_matches if sum(d < m.kickoff.date() for d in dates)>=min_games]
-    selected=list(reversed(possible))
-    detailed=[]
-    skipped=[]
-    for target in selected:
-        if len(detailed)>=n_samples:
-            break
-        cutoff=datetime.combine(target.kickoff.date(),datetime.min.time(),tzinfo=timezone.utc)
-        historical=[m for m in all_matches if m.kickoff < cutoff]
+    # Eligibility checks are performed on the month training boundary below.
+    # Starting with only completed historical outcomes, never inspect results
+    # of the validation month while fitting its parameters.
+    possible=[m for m in all_matches if sum(d<m.kickoff.date() for d in dates)>=min_games]
+    targets=list(reversed(possible))[:n_samples]
+    targets.sort(key=lambda m:(m.kickoff,m.id))
+    buckets={}
+    for m in targets:
+        boundary=datetime(m.kickoff.year,m.kickoff.month,1,tzinfo=timezone.utc)
+        buckets.setdefault(boundary,[]).append(m)
+    detailed=[];skipped=[];folds=[]
+    for cutoff,batch in sorted(buckets.items()):
+        history=[m for m in all_matches if m.kickoff<cutoff]
+        if len(history)<min_games:
+            skipped.extend({"match_id":m.id,"reason":"Historique mensuel insuffisant."} for m in batch)
+            continue
         try:
-            _enough_team_history(historical,target.home_id,target.away_id,min_team)
-            model=fit(historical,as_of=cutoff,xi=xi,min_games=min_games,
-                      regularization=regularization,maxiter=450)
-            result=forecast(model,target.home_id,target.away_id,top_n=3)
-            exact=p_score(result["expected_home_goals"],result["expected_away_goals"],
-                          result["rho"],target.home_goals,target.away_goals)
-            poisson_baseline=p_score(result["expected_home_goals"],result["expected_away_goals"],
-                                     0.,target.home_goals,target.away_goals)
-            actual=f"{target.home_goals}-{target.away_goals}"
-            detailed.append({"match_id":target.id,"match":f"{target.home_name} - {target.away_name}",
-                            "kickoff":iso_date(target.kickoff),"actual":actual,
-                            "best":result["top_scores"][0]["score"],
-                            "top_three":[r["score"] for r in result["top_scores"]],
-                            "top_one_probability":result["top_scores"][0]["probability"],
-                            "top1_hit":actual==result["top_scores"][0]["score"],
-                            "top3_hit":actual in [s["score"] for s in result["top_scores"]],
-                            "dc_log_loss":-log(max(exact,1e-300)),
-                            "poisson_same_intensities_log_loss":-log(max(poisson_baseline,1e-300)),
-                            "training_matches":len(historical)})
+            dc=fit(history,as_of=cutoff,xi=xi,min_games=min_games,
+                   regularization=regularization,maxiter=450)
+            independent=fit(history,as_of=cutoff,xi=xi,min_games=min_games,
+                            regularization=regularization,maxiter=450,rho_fixed=0.)
+            folds.append({"start":iso_date(cutoff),"train_matches":len(history),
+                          "last_training_match":iso_date(max(m.kickoff for m in history)),
+                          "matches_targeted":len(batch)})
         except (ModelError,ServiceError,ValueError) as exc:
-            skipped.append({"match_id":target.id,"reason":str(exc)})
+            skipped.extend({"match_id":m.id,"reason":str(exc)} for m in batch)
+            continue
+        for target in batch:
+            try:
+                _enough_team_history(history,target.home_id,target.away_id,min_team)
+                result=forecast(dc,target.home_id,target.away_id,top_n=3,
+                                neutral_venue=target.neutral_venue)
+                benchmark=forecast(independent,target.home_id,target.away_id,top_n=3,
+                                   neutral_venue=target.neutral_venue)
+                exact=p_score(result["expected_home_goals"],result["expected_away_goals"],
+                              dc.rho,target.home_goals,target.away_goals)
+                poisson=p_score(benchmark["expected_home_goals"],benchmark["expected_away_goals"],
+                                0.,target.home_goals,target.away_goals)
+                actual=f"{target.home_goals}-{target.away_goals}"
+                actual_1x2=("home" if target.home_goals>target.away_goals else
+                            "away" if target.home_goals<target.away_goals else "draw")
+                brier=sum((result["one_x_two"][key]-int(key==actual_1x2))**2
+                          for key in ("home","draw","away"))
+                detailed.append({"match_id":target.id,
+                    "match":f"{target.home_name} - {target.away_name}",
+                    "kickoff":iso_date(target.kickoff),"actual":actual,
+                    "best":result["top_scores"][0]["score"],
+                    "top_three":[r["score"] for r in result["top_scores"]],
+                    "top_one_probability":result["top_scores"][0]["probability"],
+                    "top1_hit":actual==result["top_scores"][0]["score"],
+                    "top3_hit":any(actual==r["score"] for r in result["top_scores"]),
+                    "dc_log_loss":-log(max(exact,1e-300)),
+                    "poisson_independent_log_loss":-log(max(poisson,1e-300)),
+                    "poisson_same_intensities_log_loss":-log(max(poisson,1e-300)),
+                    "one_x_two_brier":brier,
+                    "training_matches":len(history),
+                    "result_provenance":target.result_provenance,
+                    "neutral_venue":target.neutral_venue})
+            except (ModelError,ServiceError,ValueError) as exc:
+                skipped.append({"match_id":target.id,"reason":str(exc)})
     if not detailed:
         raise ServiceError("Aucun backtest valide : données manquantes ou convergence impossible.")
-    detailed.sort(key=lambda r:r["kickoff"])
+    detailed.sort(key=lambda r:(r["kickoff"],r["match_id"]))
+    bmark=float(np.mean([r["poisson_independent_log_loss"] for r in detailed]))
     return {"competition":competition,"n_evaluated":len(detailed),
-            "n_skipped":len(skipped),"top1_hit_rate":sum(r["top1_hit"] for r in detailed)/len(detailed),
-            "top3_hit_rate":sum(r["top3_hit"] for r in detailed)/len(detailed),
-            "mean_top1_probability":float(np.mean([r["top_one_probability"] for r in detailed])),
-            "mean_dc_log_loss":float(np.mean([r["dc_log_loss"] for r in detailed])),
-            "mean_poisson_baseline_log_loss":float(np.mean([r["poisson_same_intensities_log_loss"] for r in detailed])),
-            "baseline_note":"Poisson utilise les mêmes intensités apprises par Dixon-Coles, rho=0 : comparaison de la correction, pas un recalibrage indépendant.",
-            "detailed":detailed,"skipped":skipped[:30]}
+        "n_requested":n_samples,"n_skipped":len(skipped),"n_folds":len(folds),
+        "folds":folds,"top1_hit_rate":sum(r["top1_hit"] for r in detailed)/len(detailed),
+        "top3_hit_rate":sum(r["top3_hit"] for r in detailed)/len(detailed),
+        "mean_top1_probability":float(np.mean([r["top_one_probability"] for r in detailed])),
+        "mean_dc_log_loss":float(np.mean([r["dc_log_loss"] for r in detailed])),
+        "mean_poisson_independent_log_loss":bmark,
+        "mean_poisson_baseline_log_loss":bmark,
+        "mean_one_x_two_brier":float(np.mean([r["one_x_two_brier"] for r in detailed])),
+        "top1_confidence_buckets":_confidence_buckets(detailed),
+        "baseline_note":"Poisson est réentraîné indépendamment avec rho fixé à zéro ; mêmes rencontres et mêmes coupures chronologiques que Dixon-Coles.",
+        "granularity":"Réentraînement au premier jour de chaque mois de test ; aucun résultat du mois en cours utilisé.",
+        "detailed":detailed,"skipped":skipped}
 
 
 def sync_openfootball_seasons(store: Store, seasons: list[str], *, as_of: datetime | None = None) -> dict:

@@ -1,6 +1,6 @@
 # Dixon-Coles — nouveau projet totalement indépendant
 
-Version 1.0.0 — **aucun code ni fichier repris d'un autre système Mr XPRONOS**. Le dépôt est autonome, avec sa propre base SQLite, son moteur et son interface.
+Version 1.2.0 — **aucun code ni fichier repris d'un autre système Mr XPRONOS**. Le dépôt est autonome, avec sa propre base SQLite, son moteur et son interface.
 
 ## Fonctionnalités livrées
 
@@ -147,7 +147,7 @@ L'étude originale ne prescrit pas l'ensemble des sécurités informatiques ni l
 
 ## Evaluation honnête
 
-Le backtest reconstruit le modèle avant la date de chaque match et calcule : exact Top 1, Top 3, log loss et comparaison à Poisson avec les **mêmes intensités** (rho=0). Il ne prouve pas une supériorité sur les bookmakers ni une rentabilité financière. Les données manuelles ne constituent pas une vérification externe.
+Le backtest reconstruit le modèle avant la date de chaque match et calcule : exact Top 1, Top 3, log loss et comparaison à Poisson avec un modèle Poisson **réentraîné indépendamment** (rho=0). Il ne prouve pas une supériorité sur les bookmakers ni une rentabilité financière. Les données manuelles ne constituent pas une vérification externe.
 
 Pour une évaluation sérieuse, utiliser des centaines de matchs, contrôler les saisons et éviter le choix des paramètres sur la période finale de test. Le coefficient `ξ=0.0065` est la référence historique ; une optimisation réelle est désormais disponible et sa provenance est explicitement indiquée.
 
@@ -163,7 +163,7 @@ Les tests ne nécessitent aucun réseau et incluent un serveur FastAPI de test a
 
 - Aucun accès au dépôt GitHub d'origine, aucune réutilisation de code, aucun secret importé de cet ancien projet.
 - Ne jamais placer une clé API dans le navigateur, GitHub ou un CSV ; la clé est lue sur le serveur via une variable d'environnement.
-- Le serveur est prévu pour un **usage local privé**. Il n'intègre **pas** l'authentification et le contrôle d'accès nécessaires pour l'exposer publiquement sur Internet.
+- Le serveur fonctionne en **usage local privé** par défaut. La V1.2 intègre une authentification obligatoire en mode public, mais un reverse proxy HTTPS et des protections d’hébergement sont nécessaires avant toute exposition sur Internet.
 - En cas d'erreur d'API, de mauvaise convergence, de manque d'historique, d'équipe inconnue ou de match commencé, il refuse explicitement la prévision plutôt que d'inventer des chiffres.
 - Le code n'exécute pas de tâches automatiques quotidiennes et ne publie aucune prédiction sur les réseaux. Les synchronisations sont manuelles, à la demande.
 - La prise en compte des blessures, xG, cotes et composition d'équipe ne fait **pas** partie du Dixon-Coles d'origine et n'est volontairement pas intégrée dans cette version.
@@ -233,3 +233,61 @@ n'est pas une garantie de rentabilité ni de prédiction exacte.
 
 **Voir le protocole intégral, ses contraintes et son périmètre :**
 [Xi Calibration](XI_CALIBRATION.md).
+
+## V1.2 — correction des six problèmes de l'audit (6 novembre 2026)
+
+Voir le [rapport de correction et de validation](SIX_ISSUES_AUDIT.md).
+
+1. **Résultats terminés protégés** : import atomique, interdiction de rétrograder
+   un résultat final ou de changer silencieusement son score. Une correction
+   voulue passe par `Store.correct_final_result(..., reason="...")` ou par
+   `POST /api/results/correct`, avec un journal append-only interrogé par
+   `GET /api/results/audit?match_id=...`. Une modification contradictoire
+   provenant d'un fournisseur interrompt l'import au lieu d'écraser la base.
+2. **Sécurité HTTP** : le mode local reste limité à `127.0.0.1` ; une liaison
+   externe exige `DCSCORE_PUBLIC_MODE=1` et un `DCSCORE_ADMIN_TOKEN` aléatoire
+   de 32 caractères minimum. En mode public, toutes les routes `/api/*` sauf
+   la santé exigent `Authorization: Bearer <jeton>`, y compris les lectures.
+   Protection des origines intersites, limitation de débit en mémoire, en-têtes
+   anti-cache et anti-clickjacking, documentation API désactivée publiquement.
+   Le navigateur accepte le jeton dans un champ de mot de passe, **sans le
+   stocker**. Hébergement sous HTTPS avec proxy et limitation de débit amont
+   requis pour une véritable exploitation Internet ; ce code n'est pas un
+   service hébergé à lui seul.
+3. **Données réelles** : synchronisation OpenFootball CC0 sans clé API ou
+   football-data.org avec jeton personnel. Chaque prédiction indique la date
+   du dernier résultat, le nombre de données par provenance et un avertissement
+   si la dernière rencontre connue a plus de 21 jours. Le workflow dédié
+   valide la chaîne réelle de téléchargement et exécute 160 backtests sur une
+   base temporaire isolée. La fraîcheur dépend du fournisseur.
+4. **Backtest complet** : 1 à 3 000 rencontres, réentraînement avant chaque
+   mois testé, modèle Poisson **entraîné indépendamment** avec `ρ=0`, mêmes
+   matchs et mêmes dates de coupure. Log loss, taux Top 1/Top 3, Brier 1N2,
+   blocs et diagramme de calibration par tranches de confiance.
+5. **Optimisation réelle de `ξ`** : conservation du rapport validé sur les
+   résultats réels de Premier League (374 rencontres de validation et 374 en
+   holdout), automatiquement chargé depuis `calibrations/`. Aucun gain
+   supplémentaire n'est revendiqué : le meilleur coefficient était `0,0065`.
+6. **Provenance et terrain neutre** : champ `result_provenance` attaché à chaque
+   résultat (fournisseur, communauté, CSV, manuel, correction, fictif), conservé
+   dans le journal des prédictions. Champ booléen `neutral_venue` importable via
+   CSV (`oui/non`), créable dans l'interface ou dans le domaine Python, et rectifiable
+   via `POST /api/fixtures/neutral` (justification et journal de changement). Pour un
+   terrain neutre **explicitement identifié**, le facteur domicile `γ` vaut 1
+   dans le calcul ; les rencontres neutres historiques utilisent aussi `γ=1`
+   dans l'entraînement. Les données qui ne précisent pas le lieu neutre ne
+   permettent pas de le deviner.
+
+### Utiliser le serveur sur Internet
+
+```bash
+export DCSCORE_ADMIN_TOKEN="$(python -c 'import secrets;print(secrets.token_urlsafe(48))')"
+export DCSCORE_PUBLIC_MODE=1
+python -m dcscore.cli serve --host 0.0.0.0 --port 8088
+```
+
+**Ne jamais** exposer directement le port non chiffré à Internet : placer
+ce service derrière un proxy HTTPS authentifié, un pare-feu, un contrôle
+anti-abus et un stockage persistant. Conserver le jeton en dehors du dépôt.
+Le serveur ne fournit pas de déploiement cloud automatique et ne peut pas
+prouver qu'un score donné par une source externe est effectivement exact.

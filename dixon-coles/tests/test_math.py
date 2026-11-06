@@ -120,4 +120,7 @@ def test_calendar_day_is_excluded_from_backtest(demo_store):
     for item in r['detailed']:
         cutoff=datetime.fromisoformat(item['kickoff'].replace('Z','+00:00')).date()
         used=[m for m in demo_store.matches('demo:SIM',finished=True) if m.kickoff.date()<cutoff]
-        assert len(used)==item['training_matches']
+        assert len(used)>=item['training_matches']
+        month=datetime.fromisoformat(item['kickoff'].replace('Z','+00:00')).replace(day=1).date()
+        monthly=[m for m in demo_store.matches('demo:SIM',finished=True) if m.kickoff.date()<month]
+        assert len(monthly)==item['training_matches']

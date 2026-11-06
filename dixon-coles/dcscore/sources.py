@@ -47,6 +47,15 @@ def _slug(text: str) -> str:
     return re.sub(r"\s+", " ", text.strip()).casefold()
 
 
+def _neutral(value: str) -> bool:
+    v=value.strip().lower()
+    if v in ("", "0", "false", "no", "non", "n"):
+        return False
+    if v in ("1", "true", "yes", "oui", "y"):
+        return True
+    raise SourceError("Terrain neutre : valeur attendue oui/non ou true/false.")
+
+
 def parse_csv(body: bytes, *, default_competition: str="CUSTOM") -> list[Match]:
     if len(body)>15_000_000:
         raise SourceError("CSV trop volumineux (15 Mo maximum).")
@@ -89,6 +98,7 @@ def parse_csv(body: bytes, *, default_competition: str="CUSTOM") -> list[Match]:
             else:
                 hg,ag=None,None
                 status="SCHEDULED"
+            neutral=_neutral(_value(row,"neutral_venue","neutral","is_neutral"))
             extid = _value(row,"match_id","id")
             fingerprint=f"{competition}|{date.isoformat()}|{_slug(home)}|{_slug(away)}"
             uid="csv:"+hashlib.sha256((f"{competition}|{extid}" if extid else fingerprint).encode()).hexdigest()[:24]
@@ -99,7 +109,8 @@ def parse_csv(body: bytes, *, default_competition: str="CUSTOM") -> list[Match]:
                         kickoff=date,home_id=f"csv:{competition}:{_slug(_value(row,'home_id') or home)}",
                         away_id=f"csv:{competition}:{_slug(_value(row,'away_id') or away)}",
                         home_name=home,away_name=away,home_goals=hg,away_goals=ag,
-                        status=status,season=_value(row,"season","Season"),source="csv"))
+                        status=status,season=_value(row,"season","Season"),source="csv",
+                        neutral_venue=neutral))
         except (ValueError, TypeError) as exc:
             raise SourceError(f"Ligne {lineno} : {exc}") from exc
     if not output:

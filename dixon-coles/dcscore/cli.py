@@ -49,7 +49,7 @@ def main(argv: list[str] | None=None):
     pred.add_argument("--min-games",type=int,default=80)
     back=commands.add_parser("backtest",help="Backtest chronologique")
     back.add_argument("--competition",required=True)
-    back.add_argument("--samples",type=int,default=12)
+    back.add_argument("--samples",type=int,default=100)
     back.add_argument("--xi",type=float,default=0.0065)
     back.add_argument("--min-games",type=int,default=80)
     commands.add_parser("demo",help="Génère des résultats fictifs (explicitement DEMO)")
@@ -61,6 +61,17 @@ def main(argv: list[str] | None=None):
         import os
         os.environ["DCSCORE_DB"]=args.db
     if args.command=="serve":
+        from .api import _required_public_token
+        import os
+        if args.host not in ("127.0.0.1", "::1", "localhost"):
+            if os.getenv("DCSCORE_PUBLIC_MODE") != "1":
+                print("ERREUR : DCSCORE_PUBLIC_MODE=1 est requis pour écouter hors localhost.",file=sys.stderr)
+                return 1
+            try:
+                _required_public_token()
+            except RuntimeError as exc:
+                print(f"ERREUR : {exc}",file=sys.stderr)
+                return 1
         uvicorn.run("dcscore.api:create_app",host=args.host,port=args.port,factory=True)
         return 0
     db=Store()

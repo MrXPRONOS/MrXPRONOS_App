@@ -3,6 +3,10 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import os
 import hmac
+import time
+from threading import Lock
+from urllib.parse import urlsplit
+from collections import defaultdict, deque
 from pathlib import Path
 from uuid import uuid4
 
@@ -28,6 +32,7 @@ class ManualRequest(BaseModel):
     home_id: str
     away_id: str
     kickoff: str
+    neutral_venue: bool = False
 
 
 class FinalScoreRequest(BaseModel):
@@ -46,12 +51,24 @@ class PredictRequest(BaseModel):
 
 class BacktestRequest(BaseModel):
     competition: str
-    n_samples: int = Field(default=12,ge=1,le=30)
+    n_samples: int = Field(default=12,ge=1,le=3000)
     min_games: int = Field(default=80,ge=12,le=10000)
     min_team: int = Field(default=5,ge=1,le=100)
     xi: float = Field(default=0.0065,ge=0,le=0.3)
     regularization: float = Field(default=0.15,ge=0,le=10)
 
+
+class NeutralVenueRequest(BaseModel):
+    match_id: str
+    neutral_venue: bool
+    reason: str = Field(min_length=12,max_length=500)
+
+
+class CorrectScoreRequest(BaseModel):
+    match_id: str
+    home_goals: int = Field(ge=0,le=99)
+    away_goals: int = Field(ge=0,le=99)
+    reason: str = Field(min_length=12,max_length=500)
 
 
 class OpenfootballSyncRequest(BaseModel):
@@ -71,20 +88,81 @@ class CalibrateXiRequest(BaseModel):
     candidates: list[float] = Field(default_factory=lambda:list(DEFAULT_CANDIDATES),min_length=2,max_length=16)
 
 
-def _require_local_or_token(request: Request) -> None:
-    """Costly calibration and downloads are not anonymously public."""
-    ip=(request.client.host if request.client else "")
-    if ip in ("127.0.0.1","::1","testclient"):
-        return
-    expected=os.environ.get("DCSCORE_ADMIN_TOKEN","")
-    actual=request.headers.get("X-DCSCORE-ADMIN-TOKEN","")
-    if not expected or not hmac.compare_digest(expected,actual):
-        raise HTTPException(403,"Opération réservée à l'administrateur local.")
+def _public_mode() -> bool:
+    return os.getenv("DCSCORE_PUBLIC_MODE", "0").strip() == "1"
 
+
+def _required_public_token() -> str:
+    token=os.getenv("DCSCORE_ADMIN_TOKEN", "")
+    if len(token)<32:
+        raise RuntimeError("Mode public : DCSCORE_ADMIN_TOKEN aléatoire de 32 caractères minimum requis.")
+    return token
+
+
+def _require_local_or_token(request: Request) -> None:
+    """Fail closed for remote clients; in public mode even local/proxy must auth."""
+    ip=request.client.host if request.client else ""
+    if not _public_mode() and ip in ("127.0.0.1", "::1", "testclient"):
+        return
+    expected=_required_public_token() if _public_mode() else os.getenv("DCSCORE_ADMIN_TOKEN", "")
+    authorization=request.headers.get("authorization", "")
+    actual=(authorization[7:] if authorization.startswith("Bearer ") else
+            request.headers.get("x-dcscore-admin-token", ""))
+    if not expected or not hmac.compare_digest(expected,actual):
+        raise HTTPException(401,"Authentification administrateur requise.",headers={"WWW-Authenticate":"Bearer"})
+
+
+def _origin_guard(request: Request) -> None:
+    if request.method not in ("POST","PUT","PATCH","DELETE"):
+        return
+    if request.headers.get("sec-fetch-site", "") == "cross-site":
+        raise HTTPException(403,"Requête intersite refusée.")
+    origin=request.headers.get("origin")
+    if origin:
+        parsed=urlsplit(origin)
+        if parsed.scheme not in ("http","https") or parsed.netloc.lower()!=request.headers.get("host","").lower():
+            raise HTTPException(403,"Origine différente du serveur : requête refusée.")
 
 def create_app(store: Store | None=None) -> FastAPI:
     db = store or Store()
-    app=FastAPI(title="Dixon-Coles — système indépendant",version="1.0.0")
+    if _public_mode():
+        _required_public_token()
+    app=FastAPI(title="Dixon-Coles — système indépendant",version="1.2.0",
+                docs_url=None if _public_mode() else "/docs",
+                redoc_url=None if _public_mode() else "/redoc",
+                openapi_url=None if _public_mode() else "/openapi.json")
+    # Simple in-process bound on expensive remote POSTs; deploy with an
+    # upstream rate limiter too when multiple workers are used.
+    rate_lock=Lock()
+    rate_events: dict[str,deque[float]]=defaultdict(deque)
+
+    @app.middleware("http")
+    async def security_middleware(request: Request, call_next):
+        if request.url.path.startswith("/api/") and request.url.path!="/api/health":
+            try:
+                _origin_guard(request)
+                _require_local_or_token(request)
+                if request.method!="GET" and (_public_mode() or
+                        (request.client and request.client.host not in ("127.0.0.1","::1","testclient"))):
+                    ip=request.client.host if request.client else "unknown"
+                    moment=time.monotonic()
+                    with rate_lock:
+                        records=rate_events[ip]
+                        while records and moment-records[0]>=60:
+                            records.popleft()
+                        if len(records)>=40:
+                            raise HTTPException(429,"Limite de 40 opérations par minute atteinte.")
+                        records.append(moment)
+            except HTTPException as exc:
+                from fastapi.responses import JSONResponse
+                return JSONResponse({"detail":exc.detail},status_code=exc.status_code,headers=exc.headers)
+        response=await call_next(request)
+        response.headers["X-Content-Type-Options"]="nosniff"
+        response.headers["Referrer-Policy"]="same-origin"
+        response.headers["X-Frame-Options"]="DENY"
+        if request.url.path.startswith("/api/"):
+            response.headers["Cache-Control"]="no-store"
+        return response
     static=Path(__file__).parent / "static"
 
     @app.get("/")
@@ -101,9 +179,9 @@ def create_app(store: Store | None=None) -> FastAPI:
 
     @app.get("/api/health")
     def health():
-        return {"ok":True,"version":"1.0.0","api_key_configured":api_enabled(),
+        return {"ok":True,"version":"1.2.0","api_key_configured":api_enabled(),
                 "competitions":len(db.competitions()),
-                "note":"Aucun code ni modèle hérité des autres systèmes."}
+                "note":"Aucun code ni modèle hérité des autres systèmes.","public_mode":_public_mode()}
 
     @app.get("/api/competitions")
     def competitions():
@@ -170,6 +248,27 @@ def create_app(store: Store | None=None) -> FastAPI:
         except ValueError as exc:
             raise HTTPException(400,str(exc)) from exc
 
+    @app.get("/api/results/audit")
+    def audit_result(match_id: str):
+        return db.result_history(match_id)
+
+    @app.post("/api/results/correct")
+    def correct_result(values: CorrectScoreRequest):
+        try:
+            result=db.correct_final_result(values.match_id,values.home_goals,values.away_goals,
+                                           reason=values.reason)
+            return {"match":result.as_json(),"audit":db.result_history(values.match_id)}
+        except ValueError as exc:
+            raise HTTPException(400,str(exc)) from exc
+
+    @app.post("/api/fixtures/neutral")
+    def update_venue(values: NeutralVenueRequest):
+        try:
+            result=db.set_neutral_venue(values.match_id,values.neutral_venue,reason=values.reason)
+            return {"match":result.as_json(),"venue_audit":db.venue_history(values.match_id)}
+        except ValueError as exc:
+            raise HTTPException(400,str(exc)) from exc
+
     @app.post("/api/fixtures/manual")
     def manual(request: ManualRequest):
         try:
@@ -183,7 +282,7 @@ def create_app(store: Store | None=None) -> FastAPI:
             fixture=Match(id="manual:"+uuid4().hex,competition=request.competition,
                           kickoff=dt,home_id=request.home_id,away_id=request.away_id,
                           home_name=possible[request.home_id],away_name=possible[request.away_id],
-                          source=source)
+                          source=source,neutral_venue=request.neutral_venue)
             db.upsert_matches([fixture])
             return fixture.as_json()
         except ValueError as exc:

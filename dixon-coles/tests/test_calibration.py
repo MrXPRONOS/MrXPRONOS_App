@@ -133,7 +133,7 @@ def test_api_xi_report_and_admin_gate(teststore,monkeypatch):
                     'path':'/api/xi/calibrate','headers':[],'client':('8.8.8.8',12345)})
     with pytest.raises(HTTPException) as exc:
         _require_local_or_token(remote)
-    assert exc.value.status_code==403
+    assert exc.value.status_code==401
     monkeypatch.setenv('DCSCORE_ADMIN_TOKEN','dummy-password')
     remote_ok=Request({'type':'http','http_version':'1.1','method':'POST',
                        'path':'/api/xi/calibrate',
