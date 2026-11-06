@@ -7,7 +7,7 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 46,
+          "matching_pairs": 13,
           "patterns": [
             "photo_text_video",
             "standalone_mkv"
@@ -15,9 +15,9 @@
           "redistribution_rights": "non_verifies",
           "rejected_pairs": 0,
           "sample_post_ids": [
-            9045,
-            8996,
-            8997
+            11287,
+            11293,
+            11301
           ],
           "sampled_messages": 55,
           "source_status": "pending_rights",
@@ -26,10 +26,10 @@
             "min_video_megabytes": 30,
             "min_video_minutes": 10
           },
-          "title": "🇫🇷 𝐐𝐔𝐀𝐋𝐈𝐓𝐘 𝐎𝐅 𝐕𝐅 𝐀𝐍𝐈𝐌𝐄𝐒🍙☀️",
+          "title": "OTAKU ANIME VOSTFR 🇯🇵",
           "transfer_restricted": false,
-          "url": "https://t.me/Quality_VF",
-          "username": "Quality_VF",
+          "url": "https://t.me/OTAKU_ANIM_VOSTFR",
+          "username": "OTAKU_ANIM_VOSTFR",
           "verification_method": "public_message_structure"
         },
         {
@@ -37,47 +37,18 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 52,
-          "patterns": [
-            "standalone_mkv"
-          ],
-          "redistribution_rights": "non_verifies",
-          "rejected_pairs": 0,
-          "sample_post_ids": [
-            91223,
-            91224,
-            91225
-          ],
-          "sampled_messages": 55,
-          "source_status": "pending_rights",
-          "strict_filters": {
-            "min_verified_pairs": 2,
-            "min_video_megabytes": 30,
-            "min_video_minutes": 10
-          },
-          "title": "Anime et Serie Animation VF",
-          "transfer_restricted": false,
-          "url": "https://t.me/Anime_VF",
-          "username": "Anime_VF",
-          "verification_method": "public_message_structure"
-        },
-        {
-          "category": "anime",
-          "format": "photo_texte_puis_video",
-          "format_verified": true,
-          "joined_by_tool": false,
-          "matching_pairs": 7,
+          "matching_pairs": 31,
           "patterns": [
             "photo_caption_video",
             "photo_text_video",
             "standalone_mkv"
           ],
           "redistribution_rights": "non_verifies",
-          "rejected_pairs": 1,
+          "rejected_pairs": 0,
           "sample_post_ids": [
-            383,
-            397,
-            403
+            408,
+            414,
+            436
           ],
           "sampled_messages": 55,
           "source_status": "pending_rights",
@@ -86,23 +57,23 @@
             "min_video_megabytes": 30,
             "min_video_minutes": 10
           },
-          "title": "Anime Canal Vf👍✨",
+          "title": "Animé World VF/Vostfr",
           "transfer_restricted": false,
-          "url": "https://t.me/anime2_vf",
-          "username": "anime2_vf",
+          "url": "https://t.me/AnimeWvostfr",
+          "username": "AnimeWvostfr",
           "verification_method": "public_message_structure"
         }
       ],
       "statistics": {
         "attempted": 4,
         "checked": 4,
-        "found": 16,
-        "next_candidate_offset": 8,
+        "found": 15,
+        "next_candidate_offset": 12,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
         "rate_limited": false,
-        "strict_rejected": 1
+        "strict_rejected": 2
       }
     },
     "comedie": {
@@ -111,7 +82,7 @@
         "attempted": 4,
         "checked": 4,
         "found": 8,
-        "next_candidate_offset": 6,
+        "next_candidate_offset": 2,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
@@ -126,28 +97,29 @@
           "format": "photo_texte_puis_video",
           "format_verified": true,
           "joined_by_tool": false,
-          "matching_pairs": 8,
+          "matching_pairs": 5,
           "patterns": [
-            "photo_caption_video"
+            "photo_text_video",
+            "standalone_mkv"
           ],
           "redistribution_rights": "non_verifies",
-          "rejected_pairs": 0,
+          "rejected_pairs": 1,
           "sample_post_ids": [
-            258,
-            260,
-            262
+            3,
+            6,
+            7
           ],
-          "sampled_messages": 21,
+          "sampled_messages": 18,
           "source_status": "pending_rights",
           "strict_filters": {
             "min_verified_pairs": 2,
             "min_video_megabytes": 150,
             "min_video_minutes": 40
           },
-          "title": "💖💖FILMS ROMANTIQUES💖💖",
+          "title": "College romance 1,2(Cinemax Original)",
           "transfer_restricted": false,
-          "url": "https://t.me/filmsromatique",
-          "username": "filmsromatique",
+          "url": "https://t.me/Collegeromanceallseason",
+          "username": "Collegeromanceallseason",
           "verification_method": "public_message_structure"
         }
       ],
@@ -155,7 +127,7 @@
         "attempted": 4,
         "checked": 4,
         "found": 14,
-        "next_candidate_offset": 7,
+        "next_candidate_offset": 11,
         "not_readable": 0,
         "protected": 0,
         "queries": 3,
@@ -167,77 +139,44 @@
       "channels": [
         {
           "category": "films",
-          "format": "photo_texte_puis_video",
-          "format_verified": true,
+          "format": "non_verifie",
+          "format_verified": false,
           "joined_by_tool": false,
-          "matching_pairs": 19,
+          "matching_pairs": 1,
           "patterns": [
-            "photo_caption_video",
-            "standalone_mkv"
+            "photo_text_video"
           ],
           "redistribution_rights": "non_verifies",
-          "rejected_pairs": 3,
-          "sample_post_ids": [
-            2716,
-            2718,
-            2720
-          ],
+          "rejected_pairs": 1,
+          "sample_post_ids": [],
           "sampled_messages": 55,
-          "source_status": "pending_rights",
+          "source_status": "pending_review",
           "strict_filters": {
             "min_verified_pairs": 2,
             "min_video_megabytes": 150,
             "min_video_minutes": 40
           },
-          "title": "FILMS, SÉRIES & DESSIN ANIMÉ COMPLET VF🎥",
+          "title": "Film mangas série complet vf",
           "transfer_restricted": false,
-          "url": "https://t.me/annimechannel53jjh",
-          "username": "annimechannel53jjh",
-          "verification_method": "public_message_structure"
+          "url": "https://t.me/FILMMANGASSERIE",
+          "username": "FILMMANGASSERIE",
+          "verification_method": "strict_caption_video"
         }
       ],
       "statistics": {
         "attempted": 4,
         "checked": 4,
-        "found": 15,
-        "next_candidate_offset": 1,
+        "found": 16,
+        "next_candidate_offset": 5,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
         "rate_limited": false,
-        "strict_rejected": 3
+        "strict_rejected": 4
       }
     },
     "series": {
       "channels": [
-        {
-          "category": "series",
-          "format": "photo_texte_puis_video",
-          "format_verified": true,
-          "joined_by_tool": false,
-          "matching_pairs": 2,
-          "patterns": [
-            "photo_caption_video"
-          ],
-          "redistribution_rights": "non_verifies",
-          "rejected_pairs": 0,
-          "sample_post_ids": [
-            3,
-            27
-          ],
-          "sampled_messages": 45,
-          "source_status": "pending_rights",
-          "strict_filters": {
-            "min_verified_pairs": 2,
-            "min_video_megabytes": 70,
-            "min_video_minutes": 20
-          },
-          "title": "Made in Abyss - Saison 2 | Made in Abyss [Vostfr]",
-          "transfer_restricted": false,
-          "url": "https://t.me/MadeInAbyss_Series",
-          "username": "MadeInAbyss_Series",
-          "verification_method": "public_message_structure"
-        },
         {
           "category": "series",
           "format": "non_verifie",
@@ -249,28 +188,55 @@
           ],
           "redistribution_rights": "non_verifies",
           "rejected_pairs": 0,
-          "sample_post_ids": [
-            15
-          ],
-          "sampled_messages": 20,
+          "sample_post_ids": [],
+          "sampled_messages": 26,
           "source_status": "pending_review",
           "strict_filters": {
             "min_verified_pairs": 2,
             "min_video_megabytes": 70,
             "min_video_minutes": 20
           },
-          "title": "amateur de séries turques en vostfr",
+          "title": "ZEE_MAGIC VIDÉOS",
           "transfer_restricted": false,
-          "url": "https://t.me/series_turques",
-          "username": "series_turques",
+          "url": "https://t.me/SERIE_VOSTFR",
+          "username": "SERIE_VOSTFR",
           "verification_method": "strict_caption_video"
+        },
+        {
+          "category": "series",
+          "format": "photo_texte_puis_video",
+          "format_verified": true,
+          "joined_by_tool": false,
+          "matching_pairs": 22,
+          "patterns": [
+            "photo_caption_video"
+          ],
+          "redistribution_rights": "non_verifies",
+          "rejected_pairs": 18,
+          "sample_post_ids": [
+            303,
+            308,
+            311
+          ],
+          "sampled_messages": 55,
+          "source_status": "pending_rights",
+          "strict_filters": {
+            "min_verified_pairs": 2,
+            "min_video_megabytes": 70,
+            "min_video_minutes": 20
+          },
+          "title": "Séries et Films TV. VF🇫🇷",
+          "transfer_restricted": false,
+          "url": "https://t.me/Film_et_serie_TV",
+          "username": "Film_et_serie_TV",
+          "verification_method": "public_message_structure"
         }
       ],
       "statistics": {
         "attempted": 4,
         "checked": 4,
         "found": 15,
-        "next_candidate_offset": 14,
+        "next_candidate_offset": 3,
         "not_readable": 0,
         "protected": 0,
         "queries": 2,
@@ -331,13 +297,13 @@
     "vfnolly",
     "voir_drama_tv"
   ],
-  "last_notification_day": "2026-11-05",
-  "last_scan": "2026-11-05T15:51:59.119774+00:00",
+  "last_notification_day": "2026-11-06",
+  "last_scan": "2026-11-06T15:27:00.792523+00:00",
   "offsets": {
-    "anime": 8,
-    "comedie": 6,
-    "desir": 7,
-    "films": 1,
-    "series": 14
+    "anime": 12,
+    "comedie": 2,
+    "desir": 11,
+    "films": 5,
+    "series": 3
   }
 }
