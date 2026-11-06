@@ -127,5 +127,33 @@ class TestV3(unittest.TestCase):
             with self.assertRaises(ValueError):
                 verify_registry(path)
 
+
+    def test_shadow_fingerprint_is_verified_before_archiving(self):
+        import tempfile,hashlib,json
+        from pathlib import Path
+        from bsd_v3.registry import record_snapshot,verify_registry
+        folder=Path.cwd()/"bsd_v3"/"artifacts"
+        folder.mkdir(parents=True,exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=folder) as temp:
+            dest=Path(temp)/"shadow.jsonl"
+            payload={"format":"bsd-v3-shadow-v1","published":False,
+                     "generated_at_utc":"2026-11-06T12:00:00+00:00",
+                     "matches":[{"event_id":"300","status":"analyzed",
+                                 "kickoff_utc":"2026-11-06T16:00:00+00:00",
+                                 "generated_at_utc":"2026-11-06T12:00:00+00:00",
+                                 "model":"bsd-v3-shadow-0.1",
+                                 "candidates":[],"selections":{}}]}
+            raw=json.dumps(payload,sort_keys=True,separators=(",",":"),ensure_ascii=False)
+            payload["fingerprint_sha256"]=hashlib.sha256(raw.encode("utf-8")).hexdigest()
+            self.assertEqual(record_snapshot(payload,path=dest),1)
+            self.assertEqual(record_snapshot(payload,path=dest),0)
+            self.assertEqual(len(verify_registry(dest)),1)
+            modified=dict(payload,published=True)
+            with self.assertRaises(ValueError):
+                record_snapshot(modified,path=dest)
+            modified=dict(payload,model="unrecorded-change")
+            with self.assertRaises(ValueError):
+                record_snapshot(modified,path=dest)
+
 if __name__=="__main__":
     unittest.main()
