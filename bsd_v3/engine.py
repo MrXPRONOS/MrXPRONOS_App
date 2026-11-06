@@ -124,7 +124,7 @@ def evaluate_fixture(event,runtime,*,now,raw_quotes=None,quote_meta=None,
 
 def run_shadow(fixtures,history,*,now,quote_fetcher=None,
                policy=V3Policy(),max_odds_events=None,
-               enable_challengers=False,blocked_keys=frozenset()):
+               enable_challengers=False,blocked_keys=frozenset(),clock=None):
     now=utc_datetime(now)
     from .quality import clean_fixture_batch
     clean_fixtures,fixture_integrity=clean_fixture_batch(fixtures,now=now)
@@ -136,9 +136,10 @@ def run_shadow(fixtures,history,*,now,quote_fetcher=None,
     if not 0<=max_events<=100:
         raise ValueError("Invalid odds request cap")
     for event in clean_fixtures:
+        event_now=utc_datetime(clock()) if clock is not None else now
         quotes={}
         quote_meta={}
-        provisional=evaluate_fixture(event,runtime,now=now,policy=policy,
+        provisional=evaluate_fixture(event,runtime,now=event_now,policy=policy,
                                      blocked_keys=blocked_keys)
         if provisional["status"]!="analyzed":
             reasons[provisional["reason"]]+=1
@@ -147,15 +148,21 @@ def run_shadow(fixtures,history,*,now,quote_fetcher=None,
         if quote_fetcher and used<max_events:
             used+=1
             try:
-                quotes,quote_meta=quote_fetcher(event,now)
+                quotes,quote_meta=quote_fetcher(event,event_now)
             except (ValueError,RuntimeError,KeyError,TypeError) as exc:
                 quote_meta={"error":type(exc).__name__}
                 reasons["quote_fetch_error"]+=1
-        analyzed=evaluate_fixture(event,runtime,now=now,raw_quotes=quotes,
+        # Network calls and model calculations may cross kickoff. Recheck
+        # against the wall clock after the quote has actually returned.
+        final_now=utc_datetime(clock()) if clock is not None else event_now
+        analyzed=evaluate_fixture(event,runtime,now=final_now,raw_quotes=quotes,
                                  quote_meta=quote_meta,policy=policy,
                                  blocked_keys=blocked_keys)
+        if analyzed["status"]=="rejected":
+            reasons[analyzed["reason"]]+=1
+        else:
+            reasons["analyzed"]+=1
         results.append(analyzed)
-        reasons["analyzed"]+=1
     document={"format":"bsd-v3-shadow-v1","version":VERSION,
               "generated_at_utc":now.isoformat(),"experimental":True,
               "published":False,"no_site_write":True,"no_telegram":True,
