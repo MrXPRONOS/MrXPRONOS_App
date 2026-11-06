@@ -49,6 +49,7 @@ const STATIC_ASSETS = [
     './assets/js/pwa.js',
     './assets/js/daily-hub.mjs',
     './assets/js/daily-utils.mjs',
+    './assets/js/daily-audience.mjs',
     './assets/js/pwa-telemetry.mjs',
     './assets/js/menu.js',
     './assets/js/scores-exacts.js',
