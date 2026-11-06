@@ -154,6 +154,27 @@
       </article>
     </section>
 
+    <section class="mx-daily-panel mx-daily-favorite-alerts" aria-labelledby="favorite-alerts-title">
+      <span class="mx-daily-eyebrow">NOUVEAUTÉS DE VOS FAVORIS</span>
+      <h2 id="favorite-alerts-title">Mes alertes football personnalisées</h2>
+      <p>Recevez, seulement si vous le choisissez, un résumé de vos équipes et compétitions favorites lorsqu’un match ou un nouvel article les concerne. <strong>Maximum une notification par jour</strong>, entre 7 h et 21 h, et aucune notification si aucune nouveauté pertinente n'est publiée.</p>
+      <p class="mx-daily-footnote">Contrairement aux notifications générales, ces alertes utilisent les favoris que vous confirmez ici. Le serveur conserve ces noms et les informations nécessaires à l'abonnement push. Vous pouvez modifier ou arrêter les alertes à tout moment.</p>
+      <div class="mx-daily-alert-controls">
+        <label for="daily-favorite-alert-hour">Heure de réception (heure locale de cet appareil)</label>
+        <select id="daily-favorite-alert-hour" aria-describedby="daily-favorite-alert-note">
+          <option value="7">07:00</option><option value="8">08:00</option><option value="9" selected>09:00</option>
+          <option value="10">10:00</option><option value="11">11:00</option><option value="12">12:00</option>
+          <option value="13">13:00</option><option value="14">14:00</option><option value="15">15:00</option>
+          <option value="16">16:00</option><option value="17">17:00</option><option value="18">18:00</option>
+          <option value="19">19:00</option><option value="20">20:00</option><option value="21">21:00</option>
+        </select>
+        <button id="daily-favorite-alert-enable" type="button">Activer ou mettre à jour mes alertes</button>
+        <button id="daily-favorite-alert-disable" class="mx-daily-quiet" type="button">Arrêter mes alertes personnalisées</button>
+      </div>
+      <p id="daily-favorite-alert-status" class="mx-daily-footnote" role="status" aria-live="polite">Alertes désactivées par défaut. Choisissez d'abord une équipe ou une compétition favorite.</p>
+      <p class="mx-daily-footnote" id="daily-favorite-alert-note">L’envoi dépend de la disponibilité du service push et de la publication de données à jour. Le calendrier facultatif ci-dessus reste une alternative.</p>
+    </section>
+
     <section class="mx-daily-share-panel" aria-label="Partager le récapitulatif">
       <div><h2>Le football, avec du recul.</h2><p>Partagez librement votre récapitulatif — sans promesse de gain ni obligation de parier.</p></div>
       <button type="button" id="daily-share">Partager le résumé du jour</button>

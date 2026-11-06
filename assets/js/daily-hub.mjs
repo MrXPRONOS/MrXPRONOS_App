@@ -129,6 +129,7 @@ function favoriteButton(kind,name){
     }
     state.favorites=toggleFavorite(state.favorites,kind,name);
     safeWrite(STORAGE.favorites,state.favorites);
+    window.dispatchEvent(new Event("mx-favorites-updated"));
     statusMessage("daily-favorite-message",
       (before?"Retiré des favoris : ":"Ajouté aux favoris : ")+name);
     renderFavorites();
@@ -214,6 +215,7 @@ function renderFavorites(){
       remove.addEventListener("click",()=>{
         state.favorites=toggleFavorite(state.favorites,kind,text);
         safeWrite(STORAGE.favorites,state.favorites);
+    window.dispatchEvent(new Event("mx-favorites-updated"));
         renderFavorites();renderFixtures();renderNews();
       });
       tag.append(remove);output.push(tag);
@@ -245,6 +247,7 @@ function addFavorite(event){
   }
   state.favorites=toggleFavorite(state.favorites,kind,canonical);
   safeWrite(STORAGE.favorites,state.favorites);
+    window.dispatchEvent(new Event("mx-favorites-updated"));
   $("daily-favorite-name").value="";
   statusMessage("daily-favorite-message","Favori enregistré : "+canonical);
   renderFavorites();renderFixtures();renderNews();
@@ -502,6 +505,8 @@ async function optOutPush(){
       statusMessage("daily-push-status","Aucun abonnement push actif sur cet appareil.");
       return;
     }
+    // Unsubscribing affects general and favorite notifications on this device.
+    try { await import("./daily-favorite-alerts.mjs").then(m=>m.disable({quiet:true})); } catch {}
     const ok=await sub.unsubscribe();
     statusMessage("daily-push-status",ok
       ?"Abonnement push désactivé sur cet appareil. Votre autorisation générale reste réglable dans le navigateur."
@@ -544,6 +549,7 @@ function bindUI(){
   $("daily-clear-favorites").addEventListener("click",()=>{
     state.favorites={teams:[],leagues:[]};
     safeWrite(STORAGE.favorites,state.favorites);
+    window.dispatchEvent(new Event("mx-favorites-updated"));
     renderFavorites();renderFixtures();renderNews();
     statusMessage("daily-favorite-message","Vos favoris ont été supprimés sur cet appareil.");
   });
@@ -617,3 +623,4 @@ function init(){
 }
 init();
 void import("./daily-audience.mjs").then(module=>module.start()).catch(()=>{});
+void import("./daily-favorite-alerts.mjs").then(module=>module.init()).catch(()=>{});

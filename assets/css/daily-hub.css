@@ -121,3 +121,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 @media(max-width:760px){.mx-daily-header-inner{flex-wrap:wrap;padding:7px 0}.mx-daily-nav{order:3;width:100%;overflow-x:auto;flex-wrap:nowrap;white-space:nowrap;padding:6px 0 11px}.mx-daily-intro{flex-direction:column;align-items:stretch}.mx-daily-intro-actions{display:flex;flex-wrap:wrap}.mx-daily-grid-two{grid-template-columns:1fr}.mx-daily-section-top{flex-wrap:wrap}.mx-daily-container{width:calc(100% - 26px)}}
 @media(max-width:510px){.mx-daily-intro{margin-top:11px;padding:18px}.mx-daily-intro h1{font-size:33px}.mx-daily-intro p{font-size:12px}.mx-daily-cards,.mx-daily-news-grid{grid-template-columns:1fr}.mx-daily-panel{padding:15px}.mx-daily-section-top h2{font-size:23px}.mx-daily-mini-summary span{font-size:11px}.mx-daily-fav-form select{width:100%}.mx-daily-fav-form input{width:100%;flex:auto}.mx-daily-fav-form button{flex:1}.mx-daily-performance{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.mx-daily-stat{min-width:0;padding:12px}.mx-daily-stat strong{font-size:25px}.mx-daily-reminder-row button{width:100%}.mx-daily-push-actions button{flex:1}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+
+/* Personalized opt-in summary: separate from the general push service. */
+.mx-daily-favorite-alerts{border-color:#80714b;background:linear-gradient(113deg,#132b3d,#142d31)}
+.mx-daily-favorite-alerts h2{font-size:clamp(21px,2.8vw,28px);margin:7px 0 12px}
+.mx-daily-favorite-alerts>p{max-width:900px;margin:10px 0;color:#d1dfe9;font-size:13px}
+.mx-daily-alert-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:17px 0}
+.mx-daily-alert-controls label{flex-basis:100%;color:#d8e7f0;font-size:13px;font-weight:700}
+.mx-daily-alert-controls select{background:#092235;color:#f5f8fc;border:1px solid #5b7c8e;border-radius:9px;padding:11px;min-width:125px}
+.mx-daily-alert-controls button{border:1px solid #e6bd73;border-radius:9px;background:#eac377;color:#071928;padding:11px 14px;font-weight:800;font-size:13px}
+.mx-daily-alert-controls .mx-daily-quiet{background:transparent!important;color:#f1f5f8!important;border-color:#607e90!important}
+.mx-daily-alert-controls button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@media(max-width:500px){.mx-daily-alert-controls select,.mx-daily-alert-controls button{width:100%}}

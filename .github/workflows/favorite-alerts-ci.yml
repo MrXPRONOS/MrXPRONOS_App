@@ -1,0 +1,53 @@
+name: Phase 3 Favorite Alerts validation
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/daily-favorite-alerts/**'
+      - 'supabase/migrations/*daily_favorite_alerts_v1.sql'
+      - 'assets/js/daily-favorite-alerts.mjs'
+      - 'assets/js/daily-hub.mjs'
+      - 'assets/css/daily-hub.css'
+      - 'aujourdhui.html'
+      - 'confidentialite.html'
+      - 'service-worker.js'
+      - 'scripts/build_public_site.py'
+      - 'tests/favorite-alerts.test.mjs'
+      - 'tests/test_favorite_alerts.py'
+      - '.github/workflows/daily-favorite-alerts.yml'
+      - '.github/workflows/favorite-alerts-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/daily-favorite-alerts/**'
+      - 'assets/js/daily-favorite-alerts.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax, including Deno JS-compatible edge entrypoint
+        run: |
+          node --check assets/js/daily-favorite-alerts.mjs
+          node --check supabase/functions/daily-favorite-alerts/logic.mjs
+          cp supabase/functions/daily-favorite-alerts/index.ts /tmp/mrx-daily-favorites-edge.mjs
+          node --check /tmp/mrx-daily-favorites-edge.mjs
+          node --check assets/js/daily-hub.mjs
+      - name: 'Unit tests: opt-in preference logic, timezone, daily matches and news'
+        run: node --test tests/favorite-alerts.test.mjs
+      - name: 'Integration tests: gated access and public artifact'
+        run: python -m unittest discover -s tests -p 'test_favorite_alerts.py' -v
+
+      - name: 'Verify deployed endpoint access gates without secrets'
+        if: github.repository == 'MrXPRONOS/MrXPRONOS_App'
+        run: |
+          endpoint='https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/daily-favorite-alerts'
+          denied=$(curl --silent --show-error --max-time 20 -o /tmp/fav-no-cron.json -w '%{http_code}' -X POST             -H 'Content-Type: application/json' -d '{"action":"dispatch"}' "$endpoint")
+          test "$denied" = '401' || { echo "Missing cron authorization was not rejected ($denied)"; exit 1; }
+          denied=$(curl --silent --show-error --max-time 20 -o /tmp/fav-no-proof.json -w '%{http_code}' -X POST             -H 'Content-Type: application/json' -d '{"action":"status"}' "$endpoint")
+          test "$denied" = '403' || { echo "Missing subscription proof was not rejected ($denied)"; exit 1; }

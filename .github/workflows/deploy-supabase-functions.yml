@@ -70,6 +70,12 @@ jobs:
         run: |
           supabase functions deploy telegram-membership --project-ref nhwafcpndlufzzxexikh --no-verify-jwt
 
+      - name: Deploy daily favorite alerts (subscription proof + protected cron)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase functions deploy daily-favorite-alerts --project-ref nhwafcpndlufzzxexikh --no-verify-jwt
+
       - name: Deploy publish (JWT required)
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
