@@ -21,7 +21,12 @@ jobs:
       run:
         working-directory: dixon-coles
     steps:
+      # Le dépôt principal est volumineux ; seuls les fichiers Dixon-Coles sont utiles.
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            dixon-coles
+          sparse-checkout-cone-mode: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
