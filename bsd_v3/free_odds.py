@@ -61,10 +61,14 @@ class FreeMultiMarketOdds:
         now=utc_datetime(now)
         kickoff=utc_datetime(event["event_date"])
         # A single BSD call/page set supplies all goal/result/DC/BTTS markets.
-        quotes,meta=fetch_event_odds(self.bsd_client,int(event["id"]),kickoff=kickoff,
-                                     captured_at=now,bookmaker_slug=self.bookmaker_slug,
-                                     max_age_hours=2)
         self.stats["bsd_events"]+=1
+        try:
+            quotes,meta=fetch_event_odds(self.bsd_client,int(event["id"]),kickoff=kickoff,
+                                         captured_at=now,bookmaker_slug=self.bookmaker_slug,
+                                         max_age_hours=2)
+        except (ValueError,RuntimeError,KeyError,TypeError) as exc:
+            quotes,meta={},{"bsd_error":type(exc).__name__}
+            # Preserve free public-board fallback when BSD odds are missing.
         offers={}
         for code,price in quotes.items():
             verified,reason=validate_quote(price,now=now,kickoff=kickoff,
