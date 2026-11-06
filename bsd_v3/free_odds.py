@@ -15,6 +15,8 @@ class FreeMultiMarketOdds:
     def __init__(self, bsd_client, *, bookmaker_slug="consensus",
                  enable_public_board=False, session=None,
                  timeout=10, policy=V3Policy()):
+        if bookmaker_slug != "consensus":
+            raise ValueError("BSD V3 FREE mode accepts consensus only, not a paid bookmaker slug")
         self.bsd_client=bsd_client
         self.bookmaker_slug=bookmaker_slug
         self.enable_public_board=enable_public_board
