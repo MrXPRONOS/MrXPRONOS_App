@@ -47,15 +47,15 @@ jobs:
           assert all(s['source']=='openfootball/football.json' for s in d['seasons'])
           print('Résultats réels importés :',finished)
           PY
-      - name: Tester 160 rencontres réelles et la base Poisson réentraînée
+      - name: Tester 500 rencontres réelles et la base Poisson réentraînée
         env:
           DCSCORE_DB: ${{ runner.temp }}/real_backtest_v12.sqlite
         run: |
-          python -m dcscore.cli backtest --competition of:ENG-PL --samples 160 --min-games 500 > real_backtest.json
+          python -m dcscore.cli backtest --competition of:ENG-PL --samples 500 --min-games 500 > real_backtest.json
           python - <<'PY'
           import json,math
           d=json.load(open('real_backtest.json'))
-          assert d['n_evaluated']>=120,d
+          assert d['n_evaluated']>=350,d
           assert d['n_folds']>=3,d
           assert 'réentraîné indépendamment' in d['baseline_note']
           assert all(f['last_training_match']<f['start'] for f in d['folds'])
