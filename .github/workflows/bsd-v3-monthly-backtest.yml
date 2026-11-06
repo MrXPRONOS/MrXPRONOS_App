@@ -1,0 +1,86 @@
+name: BSD V3 - Monthly policy backtest
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: Backtest year
+        required: true
+        default: '2026'
+      month:
+        description: Backtest month (1-12)
+        required: true
+        default: '10'
+  push:
+    branches: [main]
+    paths:
+      - '.github/bsd-v3-backtest-trigger'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bsd-v3-monthly-backtest
+  cancel-in-progress: true
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install free dependencies
+        run: python -m pip install requests cryptography
+      - name: Verify offline tests
+        run: |
+          python -m compileall -q bsd_v3
+          python -m unittest discover -s bsd_v3 -p 'test_*.py' -v
+      - name: Check private history key exists
+        run: |
+          if [ -z "${BSD_HISTORY_KEY:-}" ]; then
+            echo 'BSD_HISTORY_KEY missing'
+            exit 1
+          fi
+      - name: Restore encrypted private BSD history
+        run: python bsd/bsd_archive.py restore
+      - name: Run exact closed-month policy backtest
+        env:
+          INPUT_YEAR: ${{ github.event.inputs.year || '2026' }}
+          INPUT_MONTH: ${{ github.event.inputs.month || '10' }}
+        run: |
+          python -m bsd_v3.cli \
+            --mode backtest-month \
+            --test-year "$INPUT_YEAR" \
+            --test-month "$INPUT_MONTH" \
+            --output bsd_v3/artifacts/monthly_backtest.json
+      - name: Print compact result
+        run: |
+          python - <<'PY'
+          import json
+          x=json.load(open("bsd_v3/artifacts/monthly_backtest.json"))
+          print("BSD_V3_MONTHLY_RESULT",json.dumps({
+              "period":x["period"],
+              "fixtures":x["fixtures_in_archive"],
+              "counts":x["counts"],
+              "primary_picks":x["primary_picks"],
+              "preferred_markets":x["preferred_markets"],
+              "fallback_markets":x["fallback_markets"],
+          }))
+          PY
+      - name: Remove decrypted private history
+        if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+      - name: Upload aggregate backtest only
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bsd-v3-monthly-backtest-${{ github.run_id }}
+          path: bsd_v3/artifacts/monthly_backtest.json
+          retention-days: 90
+          if-no-files-found: error
