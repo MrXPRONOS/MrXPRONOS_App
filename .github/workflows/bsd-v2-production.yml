@@ -225,9 +225,23 @@ jobs:
           git add data.json articles.json bsd/publication_ledger.json bsd/quality_report.json
           if ! git diff --cached --quiet; then
             git commit -m "data(bsd): publish V2 football picks and verified results"
+            # Git rebase refuses to run on a dirty working tree. BSD generation
+            # also changes tracked runtime diagnostics that are intentionally NOT
+            # included in the public commit. Stash only tracked post-commit changes,
+            # never untracked private history, then restore them for later steps.
+            runtime_stashed=false
+            if ! git diff --quiet; then
+              git stash push --quiet -m "bsd-generation-runtime-${GITHUB_RUN_ID}"
+              runtime_stashed=true
+              echo "BSD_RUNTIME_STASHED: tracked unpublished runtime changes"
+            fi
             pushed=0
             for attempt in 1 2 3 4 5; do
-              git pull --rebase origin main
+              if ! git pull --rebase origin main; then
+                git rebase --abort || true
+                echo "::error::Cannot rebase BSD public data against current main"
+                break
+              fi
               if git push origin HEAD:main; then
                 pushed=1
                 break
@@ -235,6 +249,10 @@ jobs:
               echo "Push concurrent rejeté (tentative ${attempt}/5), nouveau rebase avant retry"
               sleep $((attempt * 2))
             done
+            if [ "$runtime_stashed" = true ]; then
+              # Upload-artifact still needs the original rejection diagnostics.
+              git stash pop --quiet || echo "::warning::BSD runtime files could not be fully restored; public data push result is authoritative"
+            fi
             if [ "$pushed" -ne 1 ]; then
               echo "Impossible de publier les données BSD V2 après 5 tentatives" >&2
               exit 1
@@ -325,11 +343,24 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add ops/bsd-v2-last-failure.json
           git commit -m "ops(bsd): record failing production phase [skip ci]" || exit 0
+          # Preserve tracked private runtime state locally without committing it.
+          runtime_stashed=false
+          if ! git diff --quiet; then
+            git stash push --quiet -m "bsd-failure-runtime-${GITHUB_RUN_ID}"
+            runtime_stashed=true
+          fi
           for attempt in 1 2 3; do
-            git pull --rebase origin main
+            if ! git pull --rebase origin main; then
+              git rebase --abort || true
+              echo "::warning::Could not synchronize BSD failure diagnostics"
+              break
+            fi
             if git push origin HEAD:main; then
               echo "Failure phase report pushed to ops/bsd-v2-last-failure.json"
               break
             fi
             sleep "$attempt"
           done
+          if [ "$runtime_stashed" = true ]; then
+            git stash pop --quiet || echo "::warning::Failed to restore BSD failure runtime state"
+          fi
