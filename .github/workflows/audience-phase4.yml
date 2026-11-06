@@ -1,0 +1,45 @@
+name: Phase 4 Audience Analytics
+
+on:
+  pull_request:
+    paths:
+      - 'statistiques-audience.html'
+      - 'assets/js/audience-dashboard.mjs'
+      - 'assets/js/acquisition-attribution.mjs'
+      - 'assets/css/audience-analytics.css'
+      - 'assets/js/pwa.js'
+      - 'scripts/build_public_site.py'
+      - 'service-worker.js'
+      - 'confidentialite.html'
+      - 'supabase/migrations/*audience_analytics_phase4.sql'
+      - 'tests/audience-attribution.test.mjs'
+      - 'tests/test_audience_phase4.py'
+      - '.github/workflows/audience-phase4.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'statistiques-audience.html'
+      - 'assets/js/audience-dashboard.mjs'
+      - 'assets/js/acquisition-attribution.mjs'
+      - 'tests/audience-attribution.test.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analytics-phase4:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JavaScript syntax and packaging
+        run: |
+          node --check assets/js/acquisition-attribution.mjs
+          node --check assets/js/audience-dashboard.mjs
+          node --check assets/js/pwa.js
+          node --check service-worker.js
+          python -m py_compile scripts/build_public_site.py
+      - name: Unit tests for acquisition classification
+        run: node --test tests/audience-attribution.test.mjs
+      - name: Integration checks for private analytics
+        run: python -m unittest discover -s tests -p 'test_audience_phase4.py' -v
