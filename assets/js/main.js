@@ -805,6 +805,93 @@ async function recordEditorialAttribution(page) {
   });
 }
 
+// Télémétrie V2 — sessions de navigateur anonymisées, sans IP ni fingerprint.
+const MX_SESSION_TIMEOUT_MS = 30 * 60 * 1000;
+const MX_SESSION_KEY = "mx_analytics_session_v2";
+const MX_VISIT_EVENT_KEY = "mx_analytics_events_v2";
+let mxTelemetryQueue = [];
+let mxTelemetryFlushing = false;
+let mxTelemetryEngagementTimer = null;
+let mxTelemetryPageRecorded = false;
+
+function mxNewUUID() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+  // Navigateur ancien : ne pas inventer d'ID prévisible pour un suivi serveur.
+  return null;
+}
+function mxGetSessionV2() {
+  const now = Date.now();
+  let existing = null;
+  try { existing = JSON.parse(sessionStorage.getItem(MX_SESSION_KEY) || "null"); } catch {}
+  if (existing && typeof existing.id === "string" &&
+      /^[a-f0-9-]{36}$/i.test(existing.id) &&
+      Number.isFinite(existing.last) && now - existing.last < MX_SESSION_TIMEOUT_MS &&
+      now >= existing.last) {
+    existing.last = now;
+    try { sessionStorage.setItem(MX_SESSION_KEY, JSON.stringify(existing)); } catch {}
+    return existing.id;
+  }
+  const id = mxNewUUID();
+  if (!id) return null;
+  try { sessionStorage.setItem(MX_SESSION_KEY, JSON.stringify({ id, last: now })); } catch {}
+  return id;
+}
+function mxDeviceV2() {
+  const ua = navigator.userAgent || "";
+  if (/ipad|tablet/i.test(ua) || (/android/i.test(ua) && !/mobile/i.test(ua))) return "tablet";
+  if (/mobile|android|iphone|ipod/i.test(ua)) return "mobile";
+  return "desktop";
+}
+function mxQueueSessionEvent(kind, page = location.pathname) {
+  if (isLocalTestEnvironment() || !supabaseAvailable || !supabase || document.visibilityState === "prerender") return;
+  const sessionId = mxGetSessionV2();
+  const eventId = mxNewUUID();
+  if (!sessionId || !eventId) return;
+  const cleanPage = String(page || "/").replace(/[^a-zA-Z0-9_./-]/g, "").slice(0, 140);
+  if (!cleanPage.startsWith("/") || cleanPage.includes("..")) return;
+  mxTelemetryQueue.push({
+    p_session_id: sessionId, p_event_id: eventId,
+    p_user_id: getUserId(), p_kind: kind, p_page: cleanPage,
+    p_device: mxDeviceV2(),
+    p_display_mode: (window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true) ? "standalone" : "browser"
+  });
+  void mxFlushTelemetryV2();
+}
+async function mxFlushTelemetryV2() {
+  if (mxTelemetryFlushing || !mxTelemetryQueue.length || !supabaseAvailable || !supabase) return;
+  mxTelemetryFlushing = true;
+  try {
+    while (mxTelemetryQueue.length) {
+      const item = mxTelemetryQueue[0];
+      const { data, error } = await supabase.rpc("track_visitor_session_v2", item);
+      if (error || data !== true) break;
+      mxTelemetryQueue.shift();
+    }
+  } catch (error) {
+    console.debug("Télémétrie V2 indisponible :", error);
+  } finally { mxTelemetryFlushing = false; }
+}
+function mxStartAnalyticsV2() {
+  if (mxTelemetryPageRecorded) return;
+  mxTelemetryPageRecorded = true;
+  mxQueueSessionEvent("page_view");
+  const markEngaged = () => {
+    if (!document.hidden) mxQueueSessionEvent("engaged");
+  };
+  if (document.hidden) {
+    document.addEventListener("visibilitychange", function visibleOnce() {
+      if (document.hidden) return;
+      document.removeEventListener("visibilitychange", visibleOnce);
+      mxTelemetryEngagementTimer = window.setTimeout(markEngaged, 15000);
+    });
+  } else mxTelemetryEngagementTimer = window.setTimeout(markEngaged, 15000);
+  window.addEventListener("pageshow", (e) => { if (e.persisted) mxQueueSessionEvent("page_view"); });
+  window.addEventListener("online", () => void mxFlushTelemetryV2());
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) void mxFlushTelemetryV2();
+  });
+}
+
 function countVisitOncePerDay() {
   if (isLocalTestEnvironment()) return;
   const todayKey = getTodayString();
@@ -3665,7 +3752,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         subscribeToCounters();
         await registerUniqueUser();
         await initOnlineUsers();
-        countVisitOncePerDay();
+        mxStartAnalyticsV2(); // Replaces legacy daily event; server enforces one visitor/day.
         if ("Notification" in window && Notification.permission === "granted") {
           subscribeToPush(false);
         }
