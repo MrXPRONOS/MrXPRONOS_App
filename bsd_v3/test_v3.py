@@ -155,5 +155,35 @@ class TestV3(unittest.TestCase):
             with self.assertRaises(ValueError):
                 record_snapshot(modified,path=dest)
 
+
+    def test_complete_shadow_cycle_without_network(self):
+        import hashlib,json
+        from unittest.mock import patch
+        from bsd_v3.engine import run_shadow
+        start=datetime(2025,8,1,tzinfo=UTC)
+        history=[event(i+1,1 if i%2==0 else 2,2 if i%2==0 else 1,
+                       start+timedelta(days=i*2),hs=i%4,aws=(i+1)%3)
+                 for i in range(40)]
+        fixture=event(9001,1,2,datetime(2025,11,15,tzinfo=UTC),status="notstarted")
+        runtime={"index":V2History(history),"rho":0.,"calibration":None,
+                 "challengers":{},"challenger_training":{}}
+        now=datetime(2025,11,14,tzinfo=UTC)
+        quote={"odds":1.8,"origin":"bsd_consensus","bookmaker":"consensus",
+               "captured_at":now.isoformat(),
+               "updated_at":(now-timedelta(minutes=10)).isoformat()}
+        def free_quotes(f, t):
+            return {"OU_1.5_OVER_FT":quote},{"provider":"bsd-consensus"}
+        with patch("bsd_v3.engine.train_runtime",return_value=runtime):
+            result=run_shadow([fixture],history,now=now,quote_fetcher=free_quotes)
+        self.assertEqual(result["format"],"bsd-v3-shadow-v1")
+        self.assertEqual(result["diagnostics"]["odds_events_queried"],1)
+        self.assertFalse(result["published"])
+        self.assertEqual(len(result["matches"][0]["candidates"]),16)
+        self.assertGreaterEqual(result["matches"][0]["quote_diagnostics"]["accepted"],1)
+        original={k:v for k,v in result.items() if k!="fingerprint_sha256"}
+        expected=hashlib.sha256(json.dumps(original,sort_keys=True,separators=(",",":"),
+                                         ensure_ascii=False).encode("utf-8")).hexdigest()
+        self.assertEqual(result["fingerprint_sha256"],expected)
+
 if __name__=="__main__":
     unittest.main()
