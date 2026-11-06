@@ -288,7 +288,8 @@ function renderResults(){
     stat(number(p.total),"Sélections évaluées (30 j)"),
     stat(number(p.won),"Validées gagnantes"),
     stat(number(p.notValidated),"Non validées"),
-    stat(p.rate==null?"—":p.rate.toLocaleString("fr-FR")+" %","Taux de validation observé")
+    stat(p.rate==null?"—":p.rate.toLocaleString("fr-FR")+" %","Taux de validation observé"),
+    stat(p.confidenceAverage==null?"—":p.confidenceAverage.toLocaleString("fr-FR")+" %","Confiance moyenne annoncée (estimée)")
   );
   const list=$("daily-results-list");
   if(!state.sourceOK.data){
