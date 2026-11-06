@@ -31,6 +31,11 @@ jobs:
         run: python -m compileall -q bsd_v3
       - name: Run isolated V3 tests
         run: python -m unittest discover -s bsd_v3 -p 'test_*.py' -v
+      - name: Existing V2 baseline and odds regressions
+        run: |
+          python -m unittest discover -s bsd -p 'test_bsd_v2.py' -v
+          python -m unittest discover -s bsd -p 'test_bsd_v2_guardrails.py' -v
+          python -m unittest discover -s bsd -p 'test_odds_fallback.py' -v
       - name: Verify V2 production paths untouched
         run: |
           test ! -e bsd_v3/data.json
