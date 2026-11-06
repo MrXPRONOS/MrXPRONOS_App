@@ -140,5 +140,39 @@ class TestSpecialistProjection(unittest.TestCase):
         self.assertAlmostEqual(sum(changed.values()),1.,places=10)
         self.assertNotAlmostEqual(changed[(1,0)],base[(1,0)],places=5)
 
+
+class TestH2HSafety(unittest.TestCase):
+    def test_btts_legacy_filter_audited_without_discarding_market(self):
+        from bsd_v3.legacy import V2History
+        from bsd_v3.guardrails import family_guards
+        from bsd_v3.selection import serialize_candidates
+        old=match(11,NOW-timedelta(days=5),status="finished",home_score=0,away_score=1)
+        index=V2History([old])
+        upcoming=match(22,NOW+timedelta(hours=4))
+        base=score_matrix(1.3,1.2)
+        guards,evidence=family_guards(upcoming,index,base,{})
+        self.assertEqual(guards["BTTS_YES"],"btts_last_h2h_lost")
+        self.assertNotIn("BTTS_NO",guards)
+        q={"odds":3.5,"verified":True,"executable":True,
+           "benchmark_only":False,"bookmaker":"named_book"}
+        candidates=markets_from_matrix(base)
+        rows=serialize_candidates(candidates,
+            {"home_recent_matches":12,"away_recent_matches":12,
+             "home_venue_matches":6,"away_venue_matches":6,"league_samples":100},
+            {"level":"full","league_games":100,"venue_games":6,"recent_games":12},
+            {"BTTS_YES_FT":q},market_guards=guards)
+        yes=next(r for r in rows if r["key"]=="BTTS_YES")
+        self.assertEqual(yes["decision"]["legacy_guard_reason"],"btts_last_h2h_lost")
+        self.assertFalse(yes["decision"]["pro_vip_shadow"])
+        self.assertEqual(len(rows),16)
+
+    def test_missing_head_to_head_keeps_btts_research_candidate(self):
+        from bsd_v3.legacy import V2History
+        from bsd_v3.guardrails import family_guards
+        guards,evidence=family_guards(match(44,NOW+timedelta(hours=2)),
+                                      V2History([]),score_matrix(1.4,1.2),{})
+        self.assertEqual(guards["BTTS_YES"],"btts_last_h2h_missing")
+        self.assertEqual(guards["BTTS_NO"],"btts_last_h2h_missing")
+
 if __name__=="__main__":
     unittest.main()
