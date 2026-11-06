@@ -70,10 +70,12 @@ def settle_existing_registry(history, *, now, client, registry_path, max_days=7)
 
 def main(argv=None):
     ap=argparse.ArgumentParser(description="BSD V3 FREE isolated experimental engine")
-    ap.add_argument("--mode",choices=["shadow","evaluate","compare","settle"],default="shadow")
+    ap.add_argument("--mode",choices=["shadow","evaluate","compare","backtest-month","settle"],default="shadow")
     ap.add_argument("--history",default="bsd/all_matches_bsd.json")
     ap.add_argument("--days",type=int,default=1)
     ap.add_argument("--max-test-matches",type=int,default=700)
+    ap.add_argument("--test-year",type=int,default=2026)
+    ap.add_argument("--test-month",type=int,default=10)
     ap.add_argument("--max-odds-events",type=int,default=15)
     ap.add_argument("--max-requests",type=int,default=90)
     ap.add_argument("--bookmaker",default="consensus")
@@ -96,6 +98,19 @@ def main(argv=None):
     if not isinstance(history,list) or not history:
         ap.error("Existing encrypted BSD history must be restored first")
     now=datetime.now(timezone.utc)
+    if args.mode=="backtest-month":
+        if not 2000<=args.test_year<=2100 or not 1<=args.test_month<=12:
+            ap.error("Invalid backtest month")
+        from .monthly_backtest import monthly_policy_backtest
+        report=monthly_policy_backtest(history,year=args.test_year,month=args.test_month,
+                                       enable_challengers=args.challengers)
+        atomic_json(args.output,report)
+        print("BSD_V3_MONTHLY_BACKTEST",json.dumps({
+            "period":report["period"],
+            "fixtures":report["fixtures_in_archive"],
+            "counts":report["counts"],
+            "primary_picks":report["primary_picks"]}))
+        return 0
     if args.mode=="compare":
         from .comparison import compare_all_markets
         report=compare_all_markets(history,max_matches=args.max_test_matches,
