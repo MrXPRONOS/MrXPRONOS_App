@@ -30,15 +30,17 @@ export function isFinished(match) {
 }
 
 export function eligible(match) {
+  const conf = displayConfidence(match);
   return Boolean(match && typeof match === "object" &&
-    match.recommendation_eligible === true &&
-    match.combo_only !== true &&
-    ["pro", "vip"].includes(String(match.category || "").toLowerCase()) &&
-    match.prediction && typeof match.prediction === "object");
+    ["pro", "vip"].includes(String(match.category || "").trim().toLowerCase()) &&
+    match.combo_only !== true && match.prediction &&
+    conf !== null && conf >= 79 && conf <= 100);
 }
 
 export function matchDay(match) {
-  return localDay(match?.event_date || match?.date);
+  const publishedDay = String(match?.date ?? "").slice(0,10);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(publishedDay)) return publishedDay;
+  return localDay(match?.event_date);
 }
 
 export function displayConfidence(match) {
@@ -96,7 +98,8 @@ export function toggleFavorite(favorites, kind, name) {
 
 export function upcoming(matches, today, favorites, onlyFavorites = false, limit = 60) {
   return (Array.isArray(matches) ? matches : [])
-    .filter(m => eligible(m) && !isFinished(m) &&
+    .filter(m => eligible(m) && m.recommendation_eligible === true &&
+      !isFinished(m) &&
       [today, nextDay(today)].includes(matchDay(m)) &&
       (!onlyFavorites || favoriteMatch(m, favorites)))
     .sort((a,b) => {
