@@ -80,7 +80,7 @@ jobs:
           print('MATCHS HOLDOUT:',d['holdout_not_used_for_selection']['n_tested'])
           print('LOG LOSS HOLDOUT:',d['holdout_not_used_for_selection']['mean_log_loss'])
           PY
-      - name: Publier le rapport valide dans le sous-module Dixon-Coles
+      - name: Publier le rapport valide, sans écraser les changements concurrents
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -89,7 +89,27 @@ jobs:
             echo 'Rapport identique, pas de nouveau commit.'
           else
             git commit -m 'data(dixon-coles): publish validated real-data xi calibration [skip ci]'
-            git push origin HEAD:main
+            export PUBLISH_COMMIT=$(git rev-parse HEAD)
+            # Other Mr XPRONOS workflows can update main during long fits.
+            # Cherry-pick only our report on the latest main; never force-push,
+            # never overwrite unrelated automated commits.
+            for attempt in 1 2 3 4 5 6 7 8; do
+              git fetch origin main
+              git checkout -B xi-publish origin/main
+              if git show origin/main:dixon-coles/dcscore/calibrations/eng-premier-league.json 2>/dev/null | cmp -s - dcscore/calibrations/eng-premier-league.json; then
+                echo 'Rapport deja publie par un autre processus.'
+                exit 0
+              fi
+              git cherry-pick "$PUBLISH_COMMIT"
+              if git push origin HEAD:main; then
+                echo 'Calibration reelle publiee avec succes.'
+                exit 0
+              fi
+              echo "Publication concurrente detectee, nouvelle tentative $attempt/8"
+              sleep 3
+            done
+            echo 'Echec publication apres huit tentatives' >&2
+            exit 1
           fi
       - uses: actions/upload-artifact@v4
         if: always()

@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "competition": "of:ENG-PL",
+  "data_source": [
+    "openfootball/football.json"
+  ],
+  "data_signature_sha256": "27733b9b822f2e5280c2ec8aa852eacc84119cf73e65849a92d6c702d7c84b9b",
+  "data_latest_result": "2026-09-20T15:30:00Z",
+  "generated_at": "2026-11-06T19:52:12Z",
+  "validation_start": "2024-08-01",
+  "validation_end_exclusive": "2025-06-01",
+  "block_months": 2,
+  "min_games": 500,
+  "min_team_games": 5,
+  "regularization": 0.15,
+  "n_all_results": 1950,
+  "n_folds": 5,
+  "n_scored": 374,
+  "selected_xi": 0.0065,
+  "objective": "mean held-out exact-score negative log likelihood",
+  "selected_mean_log_loss": 2.982810256350448,
+  "historical_xi": 0.0065,
+  "historical_mean_log_loss": 2.982810256350448,
+  "improvement_vs_historical": 0.0,
+  "candidate_results": [
+    {
+      "xi": 0.0,
+      "n_scored": 374,
+      "mean_exact_score_log_loss": 3.0000635007950027,
+      "top1_hit_rate": 0.10695187165775401,
+      "top3_hit_rate": 0.3074866310160428
+    },
+    {
+      "xi": 0.0015,
+      "n_scored": 374,
+      "mean_exact_score_log_loss": 2.99351098365171,
+      "top1_hit_rate": 0.10695187165775401,
+      "top3_hit_rate": 0.3074866310160428
+    },
+    {
+      "xi": 0.003,
+      "n_scored": 374,
+      "mean_exact_score_log_loss": 2.9885311529396446,
+      "top1_hit_rate": 0.10695187165775401,
+      "top3_hit_rate": 0.3181818181818182
+    },
+    {
+      "xi": 0.0065,
+      "n_scored": 374,
+      "mean_exact_score_log_loss": 2.982810256350448,
+      "top1_hit_rate": 0.10962566844919786,
+      "top3_hit_rate": 0.3181818181818182
+    },
+    {
+      "xi": 0.01,
+      "n_scored": 374,
+      "mean_exact_score_log_loss": 2.9840052895181843,
+      "top1_hit_rate": 0.11497326203208556,
+      "top3_hit_rate": 0.3181818181818182
+    },
+    {
+      "xi": 0.016,
+      "n_scored": 374,
+      "mean_exact_score_log_loss": 2.995426092905179,
+      "top1_hit_rate": 0.12032085561497326,
+      "top3_hit_rate": 0.31283422459893045
+    },
+    {
+      "xi": 0.025,
+      "n_scored": 374,
+      "mean_exact_score_log_loss": 3.0189181865051107,
+      "top1_hit_rate": 0.12834224598930483,
+      "top3_hit_rate": 0.32085561497326204
+    },
+    {
+      "xi": 0.04,
+      "n_scored": 374,
+      "mean_exact_score_log_loss": 3.056523788925289,
+      "top1_hit_rate": 0.12834224598930483,
+      "top3_hit_rate": 0.30213903743315507
+    }
+  ],
+  "folds": [
+    {
+      "train_before": "2024-08-01T00:00:00Z",
+      "test_before": "2024-10-01T00:00:00Z",
+      "train_matches": 1140,
+      "scored_matches": 54,
+      "latest_training_match": "2024-05-19T15:00:00Z"
+    },
+    {
+      "train_before": "2024-10-01T00:00:00Z",
+      "test_before": "2024-12-01T00:00:00Z",
+      "train_matches": 1200,
+      "scored_matches": 66,
+      "latest_training_match": "2024-09-30T19:00:00Z"
+    },
+    {
+      "train_before": "2024-12-01T00:00:00Z",
+      "test_before": "2025-02-01T00:00:00Z",
+      "train_matches": 1266,
+      "scored_matches": 103,
+      "latest_training_match": "2024-11-30T17:30:00Z"
+    },
+    {
+      "train_before": "2025-02-01T00:00:00Z",
+      "test_before": "2025-04-01T00:00:00Z",
+      "train_matches": 1369,
+      "scored_matches": 60,
+      "latest_training_match": "2025-01-26T19:00:00Z"
+    },
+    {
+      "train_before": "2025-04-01T00:00:00Z",
+      "test_before": "2025-06-01T00:00:00Z",
+      "train_matches": 1429,
+      "scored_matches": 91,
+      "latest_training_match": "2025-03-16T19:00:00Z"
+    }
+  ],
+  "notes": [
+    "Calibration fondée sur les résultats observés, sans match fictif.",
+    "Chaque bloc ne s'entraîne que sur les résultats des blocs précédents.",
+    "Même ensemble de matchs test pour toutes les valeurs de xi.",
+    "La grille est optimisée sur cette fenêtre : les gains dans cette fenêtre ne sont PAS des performances hors-échantillon finales."
+  ],
+  "holdout_not_used_for_selection": {
+    "selected_xi": 0.0065,
+    "test_start": "2025-08-01",
+    "test_end_exclusive": "2026-06-01",
+    "n_tested": 374,
+    "n_blocks": 10,
+    "mean_log_loss": 2.895546376836569,
+    "top1_hit_rate": 0.11764705882352941,
+    "top3_hit_rate": 0.3048128342245989,
+    "blocks": [
+      {
+        "start": "2025-08-01T00:00:00Z",
+        "end": "2025-09-01T00:00:00Z",
+        "matches": 27
+      },
+      {
+        "start": "2025-09-01T00:00:00Z",
+        "end": "2025-10-01T00:00:00Z",
+        "matches": 27
+      },
+      {
+        "start": "2025-10-01T00:00:00Z",
+        "end": "2025-11-01T00:00:00Z",
+        "matches": 30
+      },
+      {
+        "start": "2025-11-01T00:00:00Z",
+        "end": "2025-12-01T00:00:00Z",
+        "matches": 40
+      },
+      {
+        "start": "2025-12-01T00:00:00Z",
+        "end": "2026-01-01T00:00:00Z",
+        "matches": 56
+      },
+      {
+        "start": "2026-01-01T00:00:00Z",
+        "end": "2026-02-01T00:00:00Z",
+        "matches": 49
+      },
+      {
+        "start": "2026-02-01T00:00:00Z",
+        "end": "2026-03-01T00:00:00Z",
+        "matches": 42
+      },
+      {
+        "start": "2026-03-01T00:00:00Z",
+        "end": "2026-04-01T00:00:00Z",
+        "matches": 32
+      },
+      {
+        "start": "2026-04-01T00:00:00Z",
+        "end": "2026-05-01T00:00:00Z",
+        "matches": 30
+      },
+      {
+        "start": "2026-05-01T00:00:00Z",
+        "end": "2026-06-01T00:00:00Z",
+        "matches": 41
+      }
+    ],
+    "note": "Évaluation sur période ultérieure à la calibration, non utilisée pour choisir xi."
+  }
+}

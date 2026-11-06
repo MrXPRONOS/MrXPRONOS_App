@@ -45,3 +45,25 @@ Le workflow [`.github/workflows/dixon-coles-real-xi-calibration.yml`](../.github
 - L'archive OpenFootball peut être incomplète ou en retard sur le championnat en cours ; les matchs sans score final sont exclus, jamais complétés automatiquement. L'affichage « données en retard » ne doit pas être confondu avec un échec mathématique.
 - L'interface de calibration et l'import sont destinés à l'application **locale**. Les nouveaux endpoints d'administration refusent les clients non locaux sans `DCSCORE_ADMIN_TOKEN`. Cela ne sécurise pas automatiquement tous les endpoints hérités de la V1 : ne pas exposer l'application sur Internet sans contrôle d'accès global.
 - Les cotes et la rentabilité des paris ne sont pas évaluées par cette optimisation : elle mesure des **probabilités de scores exacts**.
+
+
+## Résultat concret du premier calcul GitHub Actions — 6 novembre 2026
+
+Le premier calcul exécuté sur des **résultats réels** (et non la démo) a
+sélectionné **ξ = 0,0065 par demi-semaine**, parmi les huit valeurs de la grille.
+Sur la période de validation 2024-25 : **374 matchs** en 5 blocs, log loss
+moyenne **2,982810**. Sur la saison de test indépendante 2025-26 :
+**374 matchs** en 10 blocs, log loss moyenne **2,895546**, Top 1 **11,76 %**
+et Top 3 **30,48 %**. Toutes ces valeurs figurent dans le rapport JSON
+versionné `dcscore/calibrations/eng-premier-league.json`, avec les scores des
+huit candidats, la source, les empreintes des données et les dates des blocs.
+
+**Attention :** cette calibration **n'a pas amélioré** la référence historique
+`0,0065` : c'est précisément le même coefficient qui a gagné sur l'échantillon
+choisi. Ce fait n'est pas une erreur ; la grille et la méthode de sélection
+sont appliquées même quand aucune autre valeur ne fait mieux. Les performances
+de test ne garantissent ni scores exacts, ni rentabilité de mises.
+
+Au moment de ce calcul, l'archive OpenFootball contenait des résultats 2026-27
+jusqu'au **20 septembre 2026** ; elle n'était donc pas totalement à jour pour
+novembre 2026. Les informations postérieures ne sont jamais inventées.

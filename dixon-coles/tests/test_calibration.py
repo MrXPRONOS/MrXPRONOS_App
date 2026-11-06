@@ -124,7 +124,9 @@ def test_api_xi_report_and_admin_gate(teststore,monkeypatch):
     from dcscore.api import create_app, _require_local_or_token
     with TestClient(create_app(teststore)) as c:
         resp=c.get('/api/xi/calibration',params={'competition':'of:ENG-PL'})
-        assert resp.status_code==200 and resp.json()['available'] is False
+        assert resp.status_code==200
+        assert resp.json()['available'] is True
+        assert resp.json()['calibration']['selected_xi']==0.0065
         resp=c.post('/api/xi/calibrate',json={'competition':'of:ENG-PL'})
         assert resp.status_code==400
     remote=Request({'type':'http','http_version':'1.1','method':'POST',
