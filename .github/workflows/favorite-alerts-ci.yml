@@ -38,7 +38,7 @@ jobs:
           cp supabase/functions/daily-favorite-alerts/index.ts /tmp/mrx-daily-favorites-edge.mjs
           node --check /tmp/mrx-daily-favorites-edge.mjs
           node --check assets/js/daily-hub.mjs
-      - name: Unit tests: opt-in preference logic, timezone, daily matches and news
+      - name: 'Unit tests: opt-in preference logic, timezone, daily matches and news'
         run: node --test tests/favorite-alerts.test.mjs
-      - name: Integration tests: gated access and public artifact
+      - name: 'Integration tests: gated access and public artifact'
         run: python -m unittest discover -s tests -p 'test_favorite_alerts.py' -v
