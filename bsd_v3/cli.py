@@ -69,7 +69,7 @@ def main(argv=None):
     fingerprint_body={key:value for key,value in result.items()
                       if key!="fingerprint_sha256"}
     result["fingerprint_sha256"]=hashlib.sha256(
-        json.dumps(fingerprint_body,sort_keys=True,ensure_ascii=False).encode("utf-8")).hexdigest()
+        json.dumps(fingerprint_body,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode("utf-8")).hexdigest()
     atomic_json(args.output,result)
     from .registry import record_snapshot
     records_created=record_snapshot(result)
