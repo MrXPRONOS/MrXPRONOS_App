@@ -1,0 +1,1421 @@
+{
+  "schema_version": 1,
+  "period_start": "2026-10-01",
+  "period_end_exclusive": "2026-11-01",
+  "n_october": 38,
+  "training_matches": 1950,
+  "calibration_validation_end": "2026-06-01",
+  "posthoc_disclaimer": "Le filtre a été imaginé après octobre ; ces chiffres sont un audit rétrospectif, pas des paris annoncés avant matchs.",
+  "probabilities_unchanged": true,
+  "training_sources": [
+    {
+      "season": "2021-22",
+      "url": "https://raw.githubusercontent.com/openfootball/football.json/master/2021-22/en.1.json",
+      "sha256": "fbdfd426fa18fa2f8630b77de87c082734da495ac4668d6d72f29f76b73b9564",
+      "total_rows": 380,
+      "finished": 380,
+      "source": "openfootball/football.json",
+      "license": "CC0-1.0"
+    },
+    {
+      "season": "2022-23",
+      "url": "https://raw.githubusercontent.com/openfootball/football.json/master/2022-23/en.1.json",
+      "sha256": "8d09f0f9846981626cdfec48903e1f21e7c79aabe6f92535c9e092e8e79b808b",
+      "total_rows": 380,
+      "finished": 380,
+      "source": "openfootball/football.json",
+      "license": "CC0-1.0"
+    },
+    {
+      "season": "2023-24",
+      "url": "https://raw.githubusercontent.com/openfootball/football.json/master/2023-24/en.1.json",
+      "sha256": "03e13eafbf78dfe00d7e89dd3bf6643986eb6e8fd86c7664aeb8c5bc0bed88d0",
+      "total_rows": 380,
+      "finished": 380,
+      "source": "openfootball/football.json",
+      "license": "CC0-1.0"
+    },
+    {
+      "season": "2024-25",
+      "url": "https://raw.githubusercontent.com/openfootball/football.json/master/2024-25/en.1.json",
+      "sha256": "c3d18f552d83382cd4b6b21127adbbfe38e7f8618ddc979fb5404f2df07d0a75",
+      "total_rows": 380,
+      "finished": 380,
+      "source": "openfootball/football.json",
+      "license": "CC0-1.0"
+    },
+    {
+      "season": "2025-26",
+      "url": "https://raw.githubusercontent.com/openfootball/football.json/master/2025-26/en.1.json",
+      "sha256": "d6070bdf731546ccf97767f062e8af4bd26dd309dee69f6092025bf9c78f43c1",
+      "total_rows": 380,
+      "finished": 380,
+      "source": "openfootball/football.json",
+      "license": "CC0-1.0"
+    },
+    {
+      "season": "2026-27",
+      "url": "https://raw.githubusercontent.com/openfootball/football.json/master/2026-27/en.1.json",
+      "sha256": "bb91f0ab3e8359df163bb9ec98549bfed85e200dd4c32f3bd606b5890d932dd2",
+      "total_rows": 380,
+      "finished": 50,
+      "source": "openfootball/football.json",
+      "license": "CC0-1.0"
+    }
+  ],
+  "october_csv_sha256": "1fe45ae371864cfb8302cfd09082642414f250c5a35a187ec7a47b364014e8b1",
+  "summary": {
+    "dixon_coles": {
+      "mode_1_1_count": 27,
+      "single_score_recommendations": 11,
+      "abstentions": 27,
+      "recommended_1_1_count": 5,
+      "mode_top1_hits": 7,
+      "single_score_hits": 1,
+      "conditional_hit_rate": 0.09090909090909091,
+      "mean_log_loss": 3.0479556053232923
+    },
+    "poisson": {
+      "mode_1_1_count": 25,
+      "single_score_recommendations": 10,
+      "abstentions": 28,
+      "recommended_1_1_count": 2,
+      "mode_top1_hits": 6,
+      "single_score_hits": 2,
+      "conditional_hit_rate": 0.2,
+      "mean_log_loss": 3.0423597144123593
+    }
+  },
+  "details": [
+    {
+      "date": "2026-10-10",
+      "match": "Arsenal FC - Leeds United FC",
+      "actual": "2-1",
+      "dixon_coles": {
+        "mode_score": "2-0",
+        "mode_probability": 0.13434992763506318,
+        "gap_pp": 0.6050017985368195,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "2-0",
+          "1-0",
+          "1-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.363784781942132
+      },
+      "poisson": {
+        "mode_score": "1-0",
+        "mode_probability": 0.13669117361691593,
+        "gap_pp": 0.27313279057459006,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-0",
+          "2-0",
+          "1-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.3626737516355725
+      }
+    },
+    {
+      "date": "2026-10-10",
+      "match": "Aston Villa FC - Brentford FC",
+      "actual": "2-2",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.1235021231696365,
+        "gap_pp": 3.427000048044067,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-2"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.79190054782729
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.11381559113574986,
+        "gap_pp": 2.4605761311752072,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.7953036761956205
+      }
+    },
+    {
+      "date": "2026-10-10",
+      "match": "Chelsea FC - AFC Bournemouth",
+      "actual": "5-1",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.11627074646188772,
+        "gap_pp": 2.2718259668710052,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-2"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 4.782115820449779
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.10703101002351824,
+        "gap_pp": 1.3460679201104524,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 4.7871606974895125
+      }
+    },
+    {
+      "date": "2026-10-10",
+      "match": "Ipswich Town FC - Fulham FC",
+      "actual": "2-1",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.11849523590177347,
+        "gap_pp": 2.1091079420702346,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-2",
+          "0-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.7719280829912214
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.10851588201672857,
+        "gap_pp": 1.1231819018858544,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-2",
+          "0-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.7645125630947422
+      }
+    },
+    {
+      "date": "2026-10-10",
+      "match": "Sunderland AFC - Brighton & Hove Albion FC",
+      "actual": "0-2",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.13449675863379343,
+        "gap_pp": 4.288310886408708,
+        "signal_status": "single_score",
+        "recommended_score": "1-1",
+        "top_three": [
+          "1-1",
+          "0-1",
+          "1-2"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 2.612739307052332
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.1235425519121871,
+        "gap_pp": 2.0509636474012676,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "0-1",
+          "1-2"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.605120326891347
+      }
+    },
+    {
+      "date": "2026-10-10",
+      "match": "Manchester United FC - Tottenham Hotspur FC",
+      "actual": "1-1",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.11058428840294748,
+        "gap_pp": 1.322249479602465,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "2-0"
+        ],
+        "top1_hit": true,
+        "signal_hit": null,
+        "log_loss": 2.2019772578246077
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.10100384981073934,
+        "gap_pp": 0.3685954254437518,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "top1_hit": true,
+        "signal_hit": null,
+        "log_loss": 2.2925966459292964
+      }
+    },
+    {
+      "date": "2026-10-11",
+      "match": "Crystal Palace FC - Nottingham Forest FC",
+      "actual": "3-1",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.14067767883948562,
+        "gap_pp": 4.3491372204758765,
+        "signal_status": "single_score",
+        "recommended_score": "1-1",
+        "top_three": [
+          "1-1",
+          "0-0",
+          "1-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 3.3727368894007834
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.12961212665968092,
+        "gap_pp": 2.0794507887140323,
+        "signal_status": "single_score",
+        "recommended_score": "1-1",
+        "top_three": [
+          "1-1",
+          "1-0",
+          "0-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 3.387638451511454
+      }
+    },
+    {
+      "date": "2026-10-11",
+      "match": "Hull City AFC - Everton FC",
+      "actual": "2-2",
+      "dixon_coles": {
+        "mode_score": "0-0",
+        "mode_probability": 0.18028410881692558,
+        "gap_pp": 0.040364768017955854,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "0-0",
+          "1-0",
+          "1-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 3.7880022672143223
+      },
+      "poisson": {
+        "mode_score": "1-0",
+        "mode_probability": 0.1932635422126245,
+        "gap_pp": 1.9166538850617338,
+        "signal_status": "single_score",
+        "recommended_score": "1-0",
+        "top_three": [
+          "1-0",
+          "0-0",
+          "1-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 3.8242253169281786
+      }
+    },
+    {
+      "date": "2026-10-11",
+      "match": "Liverpool FC - Manchester City FC",
+      "actual": "0-3",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.11894622770142685,
+        "gap_pp": 2.8791850907035856,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-2",
+          "2-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 3.3433012248370324
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.10902747025801385,
+        "gap_pp": 1.8935155391516911,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-2",
+          "0-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 3.3454539547498596
+      }
+    },
+    {
+      "date": "2026-10-12",
+      "match": "Coventry City FC - Newcastle United FC",
+      "actual": "4-1",
+      "dixon_coles": {
+        "mode_score": "0-1",
+        "mode_probability": 0.19442199953960318,
+        "gap_pp": 1.5077298543533373,
+        "signal_status": "single_score",
+        "recommended_score": "0-1",
+        "top_three": [
+          "0-1",
+          "0-2",
+          "0-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 8.459982637003064
+      },
+      "poisson": {
+        "mode_score": "0-1",
+        "mode_probability": 0.1965193585385184,
+        "gap_pp": 1.8470354604548933,
+        "signal_status": "single_score",
+        "recommended_score": "0-1",
+        "top_three": [
+          "0-1",
+          "0-2",
+          "0-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 8.377158865410639
+      }
+    },
+    {
+      "date": "2026-10-17",
+      "match": "Everton FC - Chelsea FC",
+      "actual": "0-2",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.13840850907074503,
+        "gap_pp": 4.770990741044677,
+        "signal_status": "single_score",
+        "recommended_score": "1-1",
+        "top_three": [
+          "1-1",
+          "0-1",
+          "0-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 2.719805687992824
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.12697143916256343,
+        "gap_pp": 2.544103846599005,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "0-1",
+          "1-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.720910395193462
+      }
+    },
+    {
+      "date": "2026-10-17",
+      "match": "Brentford FC - Liverpool FC",
+      "actual": "1-2",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.11773914877983936,
+        "gap_pp": 2.922797807576881,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-2",
+          "2-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.4246265122887958
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.10895010301216858,
+        "gap_pp": 2.065645043914341,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-2",
+          "2-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.42708705874626
+      }
+    },
+    {
+      "date": "2026-10-17",
+      "match": "Fulham FC - Hull City AFC",
+      "actual": "1-0",
+      "dixon_coles": {
+        "mode_score": "0-0",
+        "mode_probability": 0.15633659144680861,
+        "gap_pp": 1.0865513405530047,
+        "signal_status": "single_score",
+        "recommended_score": "0-0",
+        "top_three": [
+          "0-0",
+          "1-1",
+          "0-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 2.1798055856594183
+      },
+      "poisson": {
+        "mode_score": "0-1",
+        "mode_probability": 0.15654536224376636,
+        "gap_pp": 0.746972601865617,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "0-1",
+          "0-0",
+          "1-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.062069188690259
+      }
+    },
+    {
+      "date": "2026-10-17",
+      "match": "Manchester City FC - Ipswich Town FC",
+      "actual": "3-2",
+      "dixon_coles": {
+        "mode_score": "3-0",
+        "mode_probability": 0.10852774762398577,
+        "gap_pp": 1.365980380973686,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "3-0",
+          "4-0",
+          "2-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 3.6624939919671986
+      },
+      "poisson": {
+        "mode_score": "3-0",
+        "mode_probability": 0.10746637431174555,
+        "gap_pp": 1.3559666072195664,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "3-0",
+          "4-0",
+          "2-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 3.643438911101946
+      }
+    },
+    {
+      "date": "2026-10-17",
+      "match": "Newcastle United FC - Aston Villa FC",
+      "actual": "0-1",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.11479491501811685,
+        "gap_pp": 2.256767772440882,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-2"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.9763589113059656
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.10512883319909977,
+        "gap_pp": 1.2866414773897619,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.8151661887224018
+      }
+    },
+    {
+      "date": "2026-10-18",
+      "match": "AFC Bournemouth - Sunderland AFC",
+      "actual": "2-0",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.13363263276839946,
+        "gap_pp": 2.7765398706963524,
+        "signal_status": "single_score",
+        "recommended_score": "1-1",
+        "top_three": [
+          "1-1",
+          "1-0",
+          "2-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 2.43250303413915
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.12272746393489785,
+        "gap_pp": 0.5204469101007053,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-0",
+          "2-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.4242313695745987
+      }
+    },
+    {
+      "date": "2026-10-18",
+      "match": "Brighton & Hove Albion FC - Crystal Palace FC",
+      "actual": "5-0",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.11782351609256086,
+        "gap_pp": 1.9303265206342597,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "2-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 4.678178061053902
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.10875161500651141,
+        "gap_pp": 0.5379190006828655,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-0",
+          "2-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 4.680113985235945
+      }
+    },
+    {
+      "date": "2026-10-18",
+      "match": "Leeds United FC - Manchester United FC",
+      "actual": "1-1",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.1299895907340534,
+        "gap_pp": 4.5960778440970245,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-2",
+          "2-1"
+        ],
+        "top1_hit": true,
+        "signal_hit": null,
+        "log_loss": 2.040300903008943
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.1194980024670972,
+        "gap_pp": 3.310466353504464,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "0-1",
+          "1-0"
+        ],
+        "top1_hit": true,
+        "signal_hit": null,
+        "log_loss": 2.1244556235067904
+      }
+    },
+    {
+      "date": "2026-10-18",
+      "match": "Nottingham Forest FC - Arsenal FC",
+      "actual": "0-1",
+      "dixon_coles": {
+        "mode_score": "0-1",
+        "mode_probability": 0.13373936444398501,
+        "gap_pp": 0.6654546274747486,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "0-1",
+          "1-1",
+          "0-2"
+        ],
+        "top1_hit": true,
+        "signal_hit": null,
+        "log_loss": 2.0118624145435717
+      },
+      "poisson": {
+        "mode_score": "0-1",
+        "mode_probability": 0.14240481903959545,
+        "gap_pp": 2.5278499539482038,
+        "signal_status": "single_score",
+        "recommended_score": "0-1",
+        "top_three": [
+          "0-1",
+          "1-1",
+          "0-2"
+        ],
+        "top1_hit": true,
+        "signal_hit": true,
+        "log_loss": 1.949081439006682
+      }
+    },
+    {
+      "date": "2026-10-19",
+      "match": "Tottenham Hotspur FC - Coventry City FC",
+      "actual": "3-1",
+      "dixon_coles": {
+        "mode_score": "1-0",
+        "mode_probability": 0.20238646587191253,
+        "gap_pp": 1.8198800762829315,
+        "signal_status": "single_score",
+        "recommended_score": "1-0",
+        "top_three": [
+          "1-0",
+          "2-0",
+          "0-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 3.2206391294478847
+      },
+      "poisson": {
+        "mode_score": "1-0",
+        "mode_probability": 0.20383747931580148,
+        "gap_pp": 2.0634749054492083,
+        "signal_status": "single_score",
+        "recommended_score": "1-0",
+        "top_three": [
+          "1-0",
+          "2-0",
+          "0-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 3.1787514012045985
+      }
+    },
+    {
+      "date": "2026-10-23",
+      "match": "Ipswich Town FC - Nottingham Forest FC",
+      "actual": "1-1",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.1185809899399148,
+        "gap_pp": 2.0622628885470022,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-2",
+          "0-1"
+        ],
+        "top1_hit": true,
+        "signal_hit": null,
+        "log_loss": 2.1321590924504052
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.1086372563393168,
+        "gap_pp": 1.0752845912462006,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-2",
+          "0-1"
+        ],
+        "top1_hit": true,
+        "signal_hit": null,
+        "log_loss": 2.219740870099299
+      }
+    },
+    {
+      "date": "2026-10-24",
+      "match": "Aston Villa FC - Manchester City FC",
+      "actual": "2-1",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.115295323974444,
+        "gap_pp": 1.7081950397465602,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-2",
+          "0-2"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.8128794524253427
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.10560304748447694,
+        "gap_pp": 0.7466886361968696,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-2",
+          "0-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.8078772925678237
+      }
+    },
+    {
+      "date": "2026-10-24",
+      "match": "Arsenal FC - Everton FC",
+      "actual": "2-0",
+      "dixon_coles": {
+        "mode_score": "1-0",
+        "mode_probability": 0.1578560563524086,
+        "gap_pp": 1.2888223332747029,
+        "signal_status": "single_score",
+        "recommended_score": "1-0",
+        "top_three": [
+          "1-0",
+          "2-0",
+          "1-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 1.9312434024156844
+      },
+      "poisson": {
+        "mode_score": "1-0",
+        "mode_probability": 0.16529784555897575,
+        "gap_pp": 2.1121701734920952,
+        "signal_status": "single_score",
+        "recommended_score": "1-0",
+        "top_three": [
+          "1-0",
+          "2-0",
+          "1-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 1.9367195059310334
+      }
+    },
+    {
+      "date": "2026-10-24",
+      "match": "Coventry City FC - Fulham FC",
+      "actual": "0-1",
+      "dixon_coles": {
+        "mode_score": "0-1",
+        "mode_probability": 0.2290699602264909,
+        "gap_pp": 4.773058996233054,
+        "signal_status": "single_score",
+        "recommended_score": "0-1",
+        "top_three": [
+          "0-1",
+          "0-0",
+          "0-2"
+        ],
+        "top1_hit": true,
+        "signal_hit": true,
+        "log_loss": 1.47372781891204
+      },
+      "poisson": {
+        "mode_score": "0-1",
+        "mode_probability": 0.23268704255859038,
+        "gap_pp": 6.629190055243406,
+        "signal_status": "single_score",
+        "recommended_score": "0-1",
+        "top_three": [
+          "0-1",
+          "0-0",
+          "0-2"
+        ],
+        "top1_hit": true,
+        "signal_hit": true,
+        "log_loss": 1.4580608932556607
+      }
+    },
+    {
+      "date": "2026-10-24",
+      "match": "Chelsea FC - Tottenham Hotspur FC",
+      "actual": "0-2",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.10567834551880038,
+        "gap_pp": 0.9084428690872365,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "2-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 3.476545553704768
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.09681732195658066,
+        "gap_pp": 0.026734043403872643,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 3.479994636172143
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "match": "Crystal Palace FC - Newcastle United FC",
+      "actual": "0-2",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.12528800017046057,
+        "gap_pp": 3.631617646236575,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-2",
+          "2-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.724348026874297
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.11587866714319425,
+        "gap_pp": 2.6904031503729167,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-2",
+          "0-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.7155333995889563
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "match": "Hull City AFC - Brentford FC",
+      "actual": "1-1",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.14205981708866647,
+        "gap_pp": 0.5792373686446223,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-0",
+          "0-0"
+        ],
+        "top1_hit": true,
+        "signal_hit": null,
+        "log_loss": 1.9515070629772435
+      },
+      "poisson": {
+        "mode_score": "1-0",
+        "mode_probability": 0.15172074050403864,
+        "gap_pp": 2.082515544865757,
+        "signal_status": "single_score",
+        "recommended_score": "1-0",
+        "top_three": [
+          "1-0",
+          "1-1",
+          "0-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 2.0333553342486614
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "match": "Liverpool FC - Brighton & Hove Albion FC",
+      "actual": "2-0",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.10927036428805549,
+        "gap_pp": 1.3426219508559738,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "2-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.6020907895192553
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.10075306531744188,
+        "gap_pp": 0.5012056200421791,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.6053182222211153
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "match": "Manchester United FC - AFC Bournemouth",
+      "actual": "0-3",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.12091905939989919,
+        "gap_pp": 2.720365086165634,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 4.017491950991679
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.11098482541759236,
+        "gap_pp": 1.7239893826585528,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 4.019132768853021
+      }
+    },
+    {
+      "date": "2026-10-25",
+      "match": "Sunderland AFC - Leeds United FC",
+      "actual": "0-0",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.1421530375432375,
+        "gap_pp": 3.915866398404641,
+        "signal_status": "single_score",
+        "recommended_score": "1-1",
+        "top_three": [
+          "1-1",
+          "0-0",
+          "1-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 2.2730809178834575
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.13084322246235294,
+        "gap_pp": 1.6588363277242641,
+        "signal_status": "single_score",
+        "recommended_score": "1-1",
+        "top_three": [
+          "1-1",
+          "1-0",
+          "0-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 2.381274833156377
+      }
+    },
+    {
+      "date": "2026-10-31",
+      "match": "Chelsea FC - Manchester United FC",
+      "actual": "2-0",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.11409225244172755,
+        "gap_pp": 2.395993834101741,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-2"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.776915228809391
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.10426029774346122,
+        "gap_pp": 1.4182566011201978,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-2"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.7817821052025065
+      }
+    },
+    {
+      "date": "2026-10-31",
+      "match": "AFC Bournemouth - Leeds United FC",
+      "actual": "2-0",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.1301159452353628,
+        "gap_pp": 3.797872288245116,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.5546295492597277
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.12004957887816076,
+        "gap_pp": 1.7811691344633216,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-0",
+          "2-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.545508861413186
+      }
+    },
+    {
+      "date": "2026-10-31",
+      "match": "Brentford FC - Nottingham Forest FC",
+      "actual": "2-0",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.1287595046346607,
+        "gap_pp": 3.466985397978009,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.487492391897676
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.11868502003451098,
+        "gap_pp": 1.353135574400982,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-0",
+          "2-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.4862049692842154
+      }
+    },
+    {
+      "date": "2026-10-31",
+      "match": "Coventry City FC - Sunderland AFC",
+      "actual": "3-1",
+      "dixon_coles": {
+        "mode_score": "0-1",
+        "mode_probability": 0.2377190138479945,
+        "gap_pp": 3.36130099616701,
+        "signal_status": "single_score",
+        "recommended_score": "0-1",
+        "top_three": [
+          "0-1",
+          "0-0",
+          "0-2"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 6.1362971935372554
+      },
+      "poisson": {
+        "mode_score": "0-1",
+        "mode_probability": 0.24213524169115663,
+        "gap_pp": 5.197973200669198,
+        "signal_status": "single_score",
+        "recommended_score": "0-1",
+        "top_three": [
+          "0-1",
+          "0-0",
+          "0-2"
+        ],
+        "top1_hit": false,
+        "signal_hit": false,
+        "log_loss": 6.061428582388743
+      }
+    },
+    {
+      "date": "2026-10-31",
+      "match": "Hull City AFC - Ipswich Town FC",
+      "actual": "2-2",
+      "dixon_coles": {
+        "mode_score": "2-0",
+        "mode_probability": 0.14632450813908598,
+        "gap_pp": 0.8033637043352554,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "2-0",
+          "1-0",
+          "1-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 3.5870966275186538
+      },
+      "poisson": {
+        "mode_score": "1-0",
+        "mode_probability": 0.14971251827037016,
+        "gap_pp": 0.2717332397362715,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-0",
+          "2-0",
+          "3-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 3.5985407642906067
+      }
+    },
+    {
+      "date": "2026-10-31",
+      "match": "Manchester City FC - Brighton & Hove Albion FC",
+      "actual": "0-1",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.0997864904170533,
+        "gap_pp": 0.0891431930698891,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "2-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 3.370066144871386
+      },
+      "poisson": {
+        "mode_score": "2-1",
+        "mode_probability": 0.0988981935712108,
+        "gap_pp": 0.4687379447098794,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "2-1",
+          "2-0",
+          "1-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 3.154807827100263
+      }
+    },
+    {
+      "date": "2026-10-31",
+      "match": "Tottenham Hotspur FC - Crystal Palace FC",
+      "actual": "2-0",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.12898459477533558,
+        "gap_pp": 3.8374818026911006,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "2-1",
+          "1-0"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.630186497729127
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.11901990412720002,
+        "gap_pp": 2.348149777679377,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-0",
+          "2-1"
+        ],
+        "top1_hit": false,
+        "signal_hit": null,
+        "log_loss": 2.6204468093176936
+      }
+    },
+    {
+      "date": "2026-10-31",
+      "match": "Aston Villa FC - Fulham FC",
+      "actual": "1-1",
+      "dixon_coles": {
+        "mode_score": "1-1",
+        "mode_probability": 0.1287977090231392,
+        "gap_pp": 3.4508816022456936,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-0",
+          "2-1"
+        ],
+        "top1_hit": true,
+        "signal_hit": null,
+        "log_loss": 2.0495122525575047
+      },
+      "poisson": {
+        "mode_score": "1-1",
+        "mode_probability": 0.1180329257381685,
+        "gap_pp": 1.4169053625085692,
+        "signal_status": "abstain",
+        "recommended_score": null,
+        "top_three": [
+          "1-1",
+          "1-0",
+          "2-1"
+        ],
+        "top1_hit": true,
+        "signal_hit": null,
+        "log_loss": 2.1367916617591773
+      }
+    }
+  ]
+}

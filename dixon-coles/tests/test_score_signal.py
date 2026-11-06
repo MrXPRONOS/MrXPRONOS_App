@@ -132,3 +132,16 @@ def test_calibration_api_requires_real_data(demo_store):
         bad=client.post('/api/score-signal/calibrate',json={
             'competition':'demo:SIM','eval_start':'2025-01-01','eval_end':'2025-08-01'})
         assert bad.status_code==400
+
+
+def test_validated_real_threshold_is_packaged_and_from_before_october(tmp_path):
+    from dcscore.store import Store
+    r=Store(str(tmp_path/'fresh.sqlite')).latest_score_signal_calibration('of:ENG-PL')
+    assert r is not None
+    assert r['validation_start']=='2025-08-01'
+    assert r['validation_end_exclusive']=='2026-06-01'
+    assert r['n_scored']==374
+    assert r['no_future_leakage']
+    assert r['models']['poisson']['min_top_probability']==pytest.approx(0.12747374667029648)
+    assert r['models']['dixon_coles']['min_top_probability']==pytest.approx(0.13063660854654618)
+    assert r['source_names']==['openfootball/football.json']

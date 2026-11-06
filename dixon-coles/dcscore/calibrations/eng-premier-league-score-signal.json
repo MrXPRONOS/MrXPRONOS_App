@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "competition": "of:ENG-PL",
+  "source_names": [
+    "openfootball/football.json"
+  ],
+  "source_signature_before_eval_end": "b771e795b7325f32fa1203801b41247e3269dc29d4847f9c4332423ce6613056",
+  "validation_start": "2025-08-01",
+  "validation_end_exclusive": "2026-06-01",
+  "generated_at": "2026-11-06T21:31:35Z",
+  "no_future_leakage": true,
+  "n_scored": 374,
+  "n_folds": 10,
+  "confidence_quantile": 0.8,
+  "models": {
+    "dixon_coles": {
+      "min_top_probability": 0.13063660854654618,
+      "min_gap_percentage_points": 1.0,
+      "n_eligible": 374,
+      "n_signals": 55,
+      "coverage": 0.14705882352941177,
+      "top1_hit_rate_all": 0.11764705882352941,
+      "top1_hit_rate_signals": 0.14545454545454545,
+      "one_one_mode_all": 264,
+      "one_one_recommended": 36
+    },
+    "poisson": {
+      "min_top_probability": 0.12747374667029648,
+      "min_gap_percentage_points": 1.0,
+      "n_eligible": 374,
+      "n_signals": 47,
+      "coverage": 0.12566844919786097,
+      "top1_hit_rate_all": 0.12032085561497326,
+      "top1_hit_rate_signals": 0.1276595744680851,
+      "one_one_mode_all": 230,
+      "one_one_recommended": 16
+    }
+  },
+  "folds": [
+    {
+      "start": "2025-08-01T00:00:00Z",
+      "end_exclusive": "2025-09-01T00:00:00Z",
+      "n_matches": 27,
+      "last_training_match": "2025-05-25T15:00:00Z"
+    },
+    {
+      "start": "2025-09-01T00:00:00Z",
+      "end_exclusive": "2025-10-01T00:00:00Z",
+      "n_matches": 27,
+      "last_training_match": "2025-08-31T18:00:00Z"
+    },
+    {
+      "start": "2025-10-01T00:00:00Z",
+      "end_exclusive": "2025-11-01T00:00:00Z",
+      "n_matches": 30,
+      "last_training_match": "2025-09-29T19:00:00Z"
+    },
+    {
+      "start": "2025-11-01T00:00:00Z",
+      "end_exclusive": "2025-12-01T00:00:00Z",
+      "n_matches": 40,
+      "last_training_match": "2025-10-26T16:30:00Z"
+    },
+    {
+      "start": "2025-12-01T00:00:00Z",
+      "end_exclusive": "2026-01-01T00:00:00Z",
+      "n_matches": 56,
+      "last_training_match": "2025-11-30T16:30:00Z"
+    },
+    {
+      "start": "2026-01-01T00:00:00Z",
+      "end_exclusive": "2026-02-01T00:00:00Z",
+      "n_matches": 49,
+      "last_training_match": "2025-12-30T20:15:00Z"
+    },
+    {
+      "start": "2026-02-01T00:00:00Z",
+      "end_exclusive": "2026-03-01T00:00:00Z",
+      "n_matches": 42,
+      "last_training_match": "2026-01-31T20:00:00Z"
+    },
+    {
+      "start": "2026-03-01T00:00:00Z",
+      "end_exclusive": "2026-04-01T00:00:00Z",
+      "n_matches": 32,
+      "last_training_match": "2026-02-28T17:30:00Z"
+    },
+    {
+      "start": "2026-04-01T00:00:00Z",
+      "end_exclusive": "2026-05-01T00:00:00Z",
+      "n_matches": 30,
+      "last_training_match": "2026-03-22T14:15:00Z"
+    },
+    {
+      "start": "2026-05-01T00:00:00Z",
+      "end_exclusive": "2026-06-01T00:00:00Z",
+      "n_matches": 41,
+      "last_training_match": "2026-04-27T19:00:00Z"
+    }
+  ],
+  "decision": "Filtre de confiance : uniquement le quintile supérieur des modes historiques et écart >= 1 point. Sinon aucune recommandation unique ; Top 3 inchangé.",
+  "limitations": "Aucune amélioration de précision garantie. Le filtre diminue le nombre de recommandations, ne change pas les probabilités ni la log loss."
+}
