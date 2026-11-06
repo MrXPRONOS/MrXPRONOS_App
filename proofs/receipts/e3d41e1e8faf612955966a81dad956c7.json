@@ -1,0 +1,22 @@
+{
+  "schema": "mx-public-proof-v1",
+  "snapshot": {
+    "id": "match-9fe5359691fda8d7:UNDER_35",
+    "recorded_at_utc": "2026-11-06T20:23:52+00:00",
+    "kickoff_utc": "2026-11-08T19:00:00+00:00",
+    "fixture": {
+      "home_team": "Independiente Santa Fe",
+      "away_team": "Deportivo Pasto",
+      "league": "Categoría Primera A"
+    },
+    "category": "pro",
+    "selection": {
+      "selection_key": "UNDER_35",
+      "type": "Total buts : Under 3,5",
+      "confidence": 80.7,
+      "odds": 1.319,
+      "estimated_odds": false
+    }
+  },
+  "sha256": "ac1370ca4dac6cdec22026c6d6a6749e47727078a2706c4ec211c49c88a1466f"
+}
