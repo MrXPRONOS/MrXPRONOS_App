@@ -131,7 +131,8 @@ async function save() {
     const subscription=await registerSubscription();
     const result=await request("save",subscription,{
       favorites:f, hour_local:selected,
-      timezone_offset_minutes:new Date().getTimezoneOffset()
+      timezone_offset_minutes:new Date().getTimezoneOffset(),
+      timezone_name:Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
     });
     enabled=result.enabled===true;
     savedFavorites=JSON.stringify(f);
