@@ -2,11 +2,15 @@
 from __future__ import annotations
 from math import fsum, sqrt
 from .policy import V3Policy, FAMILY_EDGE, classify_fixture, uncertainty_adjustment, label_candidate
+from .market_priors import attach_market_merit
+
+PREFERRED_KEYS = frozenset({"1", "2", "BTTS_YES", "OVER_15"})
+PREFERRED_TIE_ORDER = {"1": 0, "2": 1, "BTTS_YES": 2, "OVER_15": 3}
 
 
 def serialize_candidates(candidates, features, quality, quotes, *, policy=V3Policy(),
                          calibrator=None, calibration_active=False,
-                         blocked_keys=frozenset(),market_guards=None):
+                         blocked_keys=frozenset(),market_guards=None,market_priors=None):
     """Retain all sixteen candidate markets, regardless of thresholds or prices."""
     out=[]
     for c in candidates:
@@ -20,6 +24,8 @@ def serialize_candidates(candidates, features, quality, quotes, *, policy=V3Poli
              "calibration_samples":samples}
         quote=quotes.get(c.market_code)
         row["quote"]=quote
+        row=attach_market_merit(row,market_priors)
+        row["preferred_market"]=c.key in PREFERRED_KEYS
         row["decision"]=label_candidate(row,quality,quote,policy)
         if c.key in (market_guards or {}):
             row["decision"]["pro_vip_shadow"]=False
@@ -59,8 +65,18 @@ def covariance_correlation(score_matrix, first, second):
 
 def select_candidates(rows, score_matrix, policy=V3Policy()):
     """No requirement to fill two places. Distinct families and capped correlation."""
-    reliable=sorted((r for r in rows if r["decision"]["pro_vip_shadow"]),
-                    key=lambda r:(-r["conservative_probability"],r["key"]))
+    reliable=sorted(
+        (r for r in rows
+         if r["decision"]["pro_vip_shadow"]
+         and r.get("market_probability_lift",0)>0),
+        key=lambda r:(
+            0 if r["key"] in PREFERRED_KEYS else 1,
+            -r.get("market_signal_score",-999.),
+            PREFERRED_TIE_ORDER.get(r["key"],99),
+            -r["conservative_probability"],
+            r["key"],
+        )
+    )
     value=sorted((r for r in rows if r["decision"]["value_shadow"]),
                  key=lambda r:(-r["decision"]["ev"]["conservative_ev"],r["key"]))
     selected=[]
@@ -74,5 +90,7 @@ def select_candidates(rows, score_matrix, policy=V3Policy()):
         if len(selected)==policy.max_selections:
             break
     return {"pro_vip_shadow": [r["key"] for r in selected],
+            "preferred_pro_vip_shadow": [r["key"] for r in selected if r["key"] in PREFERRED_KEYS],
             "value_shadow": [r["key"] for r in value],
+            "priority_policy": ["1","2","BTTS_YES","OVER_15"],
             "no_publication": True}
