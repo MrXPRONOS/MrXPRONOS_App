@@ -8,6 +8,12 @@ from math import isfinite
 PUBLIC_EXCLUSIONS = frozenset({"UNDER_45", "12"})
 FAMILIES = frozenset({"result", "double_chance", "goals", "btts"})
 FAMILY_EDGE = {"result": .025, "double_chance": .018, "goals": .022, "btts": .022}
+PREFERRED_PUBLIC_THRESHOLDS = {
+    "1": (.70, .68),
+    "2": (.70, .68),
+    "BTTS_YES": (.70, .68),
+    "OVER_15": (.82, .80),
+}
 
 
 @dataclass(frozen=True)
@@ -75,16 +81,15 @@ def uncertainty_adjustment(features, quality, calibration_samples=0):
 
 
 def quality_tier(row, quality):
-    """Mirror V2 Pro/VIP history requirements before considering odds."""
+    """Data-coverage tier only; probability belongs to market policy, not data quality."""
     if not isinstance(quality, dict) or quality.get("level") != "full":
         return "simple"
     recent = quality.get("recent_games", 0)
     league = quality.get("league_games", 0)
     venue = quality.get("venue_games", 0)
-    p = row.get("conservative_probability", 0)
-    if p >= .81 and league >= 80 and recent >= 12 and venue >= 5:
+    if league >= 80 and recent >= 12 and venue >= 5:
         return "vip"
-    if p >= .77 and league >= 40 and recent >= 10:
+    if league >= 40 and recent >= 10:
         return "pro"
     return "simple"
 
@@ -92,11 +97,12 @@ def quality_tier(row, quality):
 def public_candidate(row, quality, policy=V3Policy()):
     if row["key"] in PUBLIC_EXCLUSIONS or quality_tier(row, quality) == "simple":
         return False
-    if row["probability"] < policy.min_public_probability:
+    raw_floor, conservative_floor = PREFERRED_PUBLIC_THRESHOLDS.get(
+        row["key"], (policy.min_public_probability, policy.min_public_conservative)
+    )
+    if row["probability"] < raw_floor:
         return False
-    if row["conservative_probability"] < policy.min_public_conservative:
-        return False
-    if row["key"] == "OVER_15" and row["conservative_probability"] < policy.min_over15_conservative:
+    if row["conservative_probability"] < conservative_floor:
         return False
     return True
 
@@ -126,7 +132,8 @@ def label_candidate(row, quality, quote, policy=V3Policy()):
     value = bool(row["key"] not in PUBLIC_EXCLUSIONS and ev and quote
                  and quote.get("executable") is True
                  and ev["conservative_ev"] >= policy.min_shadow_value_ev)
-    return {"pro_vip_shadow": public and price_ok,
+    return {"pro_vip_shadow": public,
+            "priced_reliability_shadow": public and price_ok,
             "quality_tier":quality_tier(row,quality),
             "value_shadow": value,
             "quote_benchmark_only":bool(quote and quote.get("benchmark_only")),
