@@ -104,7 +104,7 @@ def main(argv=None):
             "examined":report["fixtures_examined"],"coverage":report["coverage"]}))
         return 0
     if args.mode=="evaluate":
-        report=retrospective(history)
+        report=retrospective(history,max_matches=args.max_test_matches)
         atomic_json(args.output,report)
         print("BSD_V3_EVALUATION",json.dumps({"analyzed":report["analyzed"],
                                               "calibration":report["v3_calibration"]}))
@@ -137,7 +137,8 @@ def main(argv=None):
     result=run_shadow(fixtures,history,now=now,
                       quote_fetcher=quote_router if policy.max_odds_events else None,
                       policy=policy,enable_challengers=args.challengers,
-                      blocked_keys=frozenset(prospective["disabled_keys"]))
+                      blocked_keys=frozenset(prospective["disabled_keys"]),
+                      clock=lambda:datetime.now(timezone.utc))
     result["diagnostics"]["bsd_api_http_calls"]=client.requests_made
     result["diagnostics"]["bsd_api_cache_hits"]=client.cache_hits
     result["diagnostics"]["quote_router"]=quote_router.stats
