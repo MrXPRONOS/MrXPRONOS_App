@@ -44,7 +44,7 @@
   }
 
   function track(stage, surface) {
-    if (isDev || !crypto || typeof crypto.randomUUID !== "function") return;
+    if (isDev || typeof crypto === "undefined" || typeof crypto.randomUUID !== "function") return;
     try {
       const p = getPlatform();
       const items = JSON.parse(sessionStorage.getItem(eventKey) || "[]");
@@ -55,7 +55,7 @@
         context: p.isStandalone ? "standalone" : p.inApp ? "in_app" : "browser"
       });
       sessionStorage.setItem(eventKey, JSON.stringify(list.slice(-40)));
-      window.dispatchEvent(new CustomEvent("mx-pwa-event"));
+      void import("./pwa-telemetry.mjs").then(function (module) { return module.flush(); }).catch(function () {});
     } catch (_) { /* analytics must never block the product */ }
   }
 
@@ -93,6 +93,7 @@
       headerButton.disabled = hidden;
       row.classList.toggle("show", !hidden);
       headerButton.classList.add("btn-primary");
+      Array.from(headerButton.childNodes).filter(function (node) { return node.nodeType === 3; }).forEach(function (node) { node.remove(); });
       const label = headerButton.querySelector(".mx-install-text") ||
         headerButton.querySelector(".mx-install-label") || document.createElement("span");
       if (!label.parentElement) {
@@ -430,7 +431,6 @@
 
   function init() {
     addStyles();
-    installListeners();
     bindButtons();
     updateState({ platform: getPlatform(), isInstalled: getPlatform().isStandalone });
     markImpressions();
@@ -442,6 +442,17 @@
       }
     }, 3600000);
   }
+
+  // Écoute les événements du navigateur le plus tôt possible (avant DOMContentLoaded).
+  installListeners();
+  try {
+    if (JSON.parse(sessionStorage.getItem(eventKey) || "[]").length) {
+      void import("./pwa-telemetry.mjs").then(function (module) { return module.flush(); }).catch(function () {});
+    }
+  } catch (_) {}
+  window.addEventListener("online", function () {
+    void import("./pwa-telemetry.mjs").then(function (module) { return module.flush(); }).catch(function () {});
+  });
 
   window.MrXPWA = {
     getState: function () { return state; },
