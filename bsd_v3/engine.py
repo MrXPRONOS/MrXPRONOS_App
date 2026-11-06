@@ -23,6 +23,8 @@ def train_runtime(history, *, calibration=True, challenger=False):
     market_priors=fit_market_priors(index)
     from .goal_strength import fit_goal_strength
     goal_model=fit_goal_strength(index,rho,calibration=cal)
+    from .btts_quality import fit_btts_quality_gate
+    btts_quality_gate=fit_btts_quality_gate(index)
     challenger_models={}
     challenger_info={}
     challenger_weights={}
@@ -40,6 +42,7 @@ def train_runtime(history, *, calibration=True, challenger=False):
     return {"index":index,"rho":rho,"rho_validation":rho_report,
             "calibration":cal,"market_priors":market_priors,
             "goal_strength":goal_model,
+            "btts_quality_gate":btts_quality_gate,
             "challengers":challenger_models,
             "challenger_weights":challenger_weights,
             "history_quality":history_quality,
@@ -96,7 +99,8 @@ def evaluate_fixture(event,runtime,*,now,raw_quotes=None,quote_meta=None,
     base=score_matrix(expected["home"],expected["away"],runtime["rho"])
     from .guardrails import family_guards
     market_guards,guardrail_evidence=family_guards(
-        event,runtime["index"],base,runtime.get("challengers"))
+        event,runtime["index"],base,runtime.get("challengers"),
+        btts_quality_gate=runtime.get("btts_quality_gate"))
     cal=runtime.get("calibration")
     score=cal.apply(base) if cal is not None else base
     if runtime.get("challenger_weights") and any(runtime["challenger_weights"].values()):
@@ -175,6 +179,8 @@ def run_shadow(fixtures,history,*,now,quote_fetcher=None,
               "goal_strength":runtime["goal_strength"].metadata()
                   if runtime.get("goal_strength") is not None else None,
               "market_priors":runtime.get("market_priors"),
+              "btts_quality_gate":runtime["btts_quality_gate"].metadata()
+                  if runtime.get("btts_quality_gate") is not None else None,
               "rho":runtime["rho"],"challenger_training":runtime["challenger_training"],
               "history_quality":runtime.get("history_quality"),
               "prospective_disabled_markets":sorted(blocked_keys),
