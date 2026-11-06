@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#061624">
+  <meta name="description" content="Le rendez-vous football quotidien de Mr XPRONOS : sélections publiées, résultats gagnants et non validés, actualités et équipes favorites.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://mrxpronos.github.io/MrXPRONOS_App/aujourdhui.html">
+  <link rel="icon" href="assets/images/favicon.webp">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="assets/css/daily-hub.css?v=161001a71a5c">
+  <title>Aujourd'hui — Football, analyses et résultats | Mr XPRONOS</title>
+</head>
+<body class="mx-daily-body">
+  <a class="mx-skip" href="#daily-main">Aller au contenu</a>
+  <header class="mx-daily-header">
+    <div class="mx-daily-container mx-daily-header-inner">
+      <a class="mx-daily-brand" href="index.html" aria-label="Accueil Mr XPRONOS">
+        <img src="assets/images/mrxpronos-horizontal.webp" alt="Mr XPRONOS" width="148" height="64">
+      </a>
+      <nav class="mx-daily-nav" aria-label="Navigation principale">
+        <a class="active" href="aujourdhui.html" aria-current="page">Aujourd'hui</a>
+        <a href="pronos.html">Pronostics</a>
+        <a href="scores-exacts.html">Scores exacts</a>
+        <a href="historique.html">Résultats</a>
+        <a href="infos.html">Infos Foot</a>
+      </nav>
+      <button type="button" id="install-app" class="mx-daily-install" style="display:none"><span class="mx-install-text">Installer l'app</span></button>
+    </div>
+  </header>
+
+  <main id="daily-main" class="mx-daily-container">
+    <section class="mx-daily-intro" aria-labelledby="daily-title">
+      <div>
+        <span class="mx-daily-eyebrow">LE RENDEZ-VOUS FOOTBALL</span>
+        <h1 id="daily-title">Aujourd'hui <span>avec Mr XPRONOS.</span></h1>
+        <p>Retrouvez les sélections publiées, les résultats évalués, vos équipes favorites et l'essentiel de l'actualité. Les données sont datées et les résultats non validés restent visibles.</p>
+        <div class="mx-daily-intro-meta"><span id="daily-date">—</span><span id="daily-last-updated">Chargement des données…</span></div>
+      </div>
+      <div class="mx-daily-intro-actions">
+        <button type="button" id="daily-refresh">↻ Actualiser</button>
+        <a href="pronos.html">Tous les pronostics</a>
+      </div>
+    </section>
+
+    <div id="daily-error" class="mx-daily-error" role="status" aria-live="polite" hidden></div>
+
+    <section id="daily-changes" class="mx-daily-panel mx-daily-changes" aria-labelledby="changes-title">
+      <div class="mx-daily-section-top">
+        <div><span class="mx-daily-eyebrow">DEPUIS VOTRE DERNIÈRE VISITE</span><h2 id="changes-title">Ce qui a changé</h2></div>
+        <span id="daily-previous-visit" class="mx-daily-muted"></span>
+      </div>
+      <div id="daily-changes-content" class="mx-daily-change-items" aria-live="polite">
+        <p class="mx-daily-muted">Comparaison de vos consultations précédentes…</p>
+      </div>
+    </section>
+
+    <section class="mx-daily-section" aria-labelledby="daily-fixtures-title">
+      <div class="mx-daily-section-top">
+        <div><span class="mx-daily-eyebrow">LES MATCHS PUBLIÉS</span><h2 id="daily-fixtures-title">Aujourd'hui et demain</h2>
+        <p>Les sélections affichées viennent du flux public de Mr XPRONOS. Aucun résultat n'est garanti.</p></div>
+        <div class="mx-daily-filter" role="group" aria-label="Filtrer les sélections">
+          <button type="button" data-daily-filter="all" aria-pressed="true">Toutes</button>
+          <button type="button" data-daily-filter="favorites" aria-pressed="false">Mes favoris</button>
+        </div>
+      </div>
+      <div class="mx-daily-mini-summary" id="daily-mini-summary" aria-live="polite"></div>
+      <div id="daily-fixtures" class="mx-daily-cards" aria-live="polite"><p class="mx-daily-muted">Chargement des sélections…</p></div>
+      <a class="mx-daily-more" href="pronos.html">Consulter toutes les sélections publiées <span aria-hidden="true">→</span></a>
+    </section>
+
+    <section class="mx-daily-section mx-daily-grid-two" aria-label="Personnalisation et scores exacts">
+      <article class="mx-daily-panel" id="daily-favorites" aria-labelledby="favorites-title">
+        <div class="mx-daily-section-top">
+          <div><span class="mx-daily-eyebrow">PERSONNALISEZ VOTRE ACCUEIL</span><h2 id="favorites-title">Mes équipes et ligues</h2></div>
+        </div>
+        <p>Ajoutez vos équipes ou compétitions pour retrouver les sélections et les articles qui les concernent. Ces choix restent sur cet appareil.</p>
+        <form id="daily-add-favorite" class="mx-daily-fav-form">
+          <label for="daily-favorite-kind">Type</label>
+          <select id="daily-favorite-kind"><option value="teams">Équipe</option><option value="leagues">Compétition</option></select>
+          <label for="daily-favorite-name">Nom</label>
+          <input id="daily-favorite-name" maxlength="90" autocomplete="off" list="daily-favorite-options" placeholder="Rechercher une équipe" required>
+          <datalist id="daily-favorite-options"></datalist>
+          <button type="submit">Ajouter</button>
+        </form>
+        <p id="daily-favorite-message" class="mx-daily-muted" role="status"></p>
+        <div id="daily-favorite-tags" class="mx-daily-tags" aria-live="polite"></div>
+        <button class="mx-daily-quiet" type="button" id="daily-clear-favorites">Effacer mes favoris</button>
+      </article>
+      <article class="mx-daily-panel" aria-labelledby="scores-today-title">
+        <div class="mx-daily-section-top"><div><span class="mx-daily-eyebrow">MODÈLE DE SCORES EXACTS</span><h2 id="scores-today-title">Propositions du jour</h2></div></div>
+        <p id="daily-exact-meta" class="mx-daily-muted">Chargement des propositions…</p>
+        <div id="daily-exact-scores" class="mx-daily-score-list"></div>
+        <a class="mx-daily-more" href="scores-exacts.html">Comprendre les scores exacts <span aria-hidden="true">→</span></a>
+        <p class="mx-daily-footnote">Propositions statistiques pré-match, non des scores obtenus ni une garantie de gain.</p>
+      </article>
+    </section>
+
+    <section class="mx-daily-section" aria-labelledby="results-title">
+      <div class="mx-daily-section-top">
+        <div><span class="mx-daily-eyebrow">TRANSPARENCE</span><h2 id="results-title">Les résultats réellement évalués</h2>
+        <p>La réussite affichée est issue du marqueur de validation du flux public. Les sélections non validées sont comptabilisées et montrées.</p></div>
+        <a class="mx-daily-more" href="historique.html">Historique complet <span aria-hidden="true">→</span></a>
+      </div>
+      <div id="daily-performance" class="mx-daily-performance" aria-live="polite"></div>
+      <div class="mx-daily-grid-two">
+        <div class="mx-daily-panel">
+          <h3>Derniers matchs terminés</h3>
+          <div id="daily-results-list" class="mx-daily-results-list"></div>
+        </div>
+        <div class="mx-daily-panel">
+          <h3>Par catégorie — 30 derniers jours</h3>
+          <div id="daily-category-performance"></div>
+          <p class="mx-daily-footnote">Échantillon limité à la période conservée dans le flux public. Les taux ne prédisent pas les résultats futurs.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mx-daily-section" aria-labelledby="daily-news-title">
+      <div class="mx-daily-section-top">
+        <div><span class="mx-daily-eyebrow">ACTUALITÉS FOOTBALL</span><h2 id="daily-news-title">Les dernières informations</h2>
+        <p>Articles classés par date de publication, avec priorité à vos favoris lorsqu'un rapprochement fiable est disponible.</p></div>
+        <a class="mx-daily-more" href="infos.html">Toutes les actualités <span aria-hidden="true">→</span></a>
+      </div>
+      <div id="daily-news" class="mx-daily-news-grid" aria-live="polite"></div>
+    </section>
+
+    <section class="mx-daily-section mx-daily-grid-two" aria-label="Conseils et rappel quotidien">
+      <article class="mx-daily-panel" aria-labelledby="education-title">
+        <span class="mx-daily-eyebrow">APPRENDRE À LIRE LE FOOTBALL</span>
+        <h2 id="education-title">La minute analyse</h2>
+        <h3 id="daily-tip-title">—</h3>
+        <p id="daily-tip-body" class="mx-daily-tip-body"></p>
+        <a class="mx-daily-more" href="conseils.html">Découvrir les conseils football <span aria-hidden="true">→</span></a>
+      </article>
+      <article class="mx-daily-panel" aria-labelledby="daily-reminder-title">
+        <span class="mx-daily-eyebrow">FACULTATIF</span>
+        <h2 id="daily-reminder-title">Mon rendez-vous quotidien</h2>
+        <p>Choisissez une heure sur cet appareil et ajoutez un rappel récurrent à votre calendrier. Vous restez libre de le modifier ou de le supprimer.</p>
+        <div class="mx-daily-reminder-row">
+          <label for="daily-reminder-time">Heure locale</label>
+          <input type="time" id="daily-reminder-time" value="08:00">
+          <button type="button" id="daily-reminder-download">Ajouter au calendrier</button>
+        </div>
+        <p id="daily-reminder-status" class="mx-daily-footnote" role="status">Le calendrier vous demandera de confirmer l'ajout du rappel.</p>
+        <hr>
+        <p>Vous pouvez également autoriser les <strong>notifications générales</strong> déjà proposées par Mr XPRONOS. Elles ne sont pas ciblées selon vos favoris.</p>
+        <div class="mx-daily-push-actions">
+          <button id="daily-push-enable" type="button">Activer les notifications générales</button>
+          <button id="daily-push-disable" type="button" class="mx-daily-quiet">Désactiver sur cet appareil</button>
+        </div>
+        <p id="daily-push-status" class="mx-daily-footnote" role="status"></p>
+      </article>
+    </section>
+
+    <section class="mx-daily-share-panel" aria-label="Partager le récapitulatif">
+      <div><h2>Le football, avec du recul.</h2><p>Partagez librement votre récapitulatif — sans promesse de gain ni obligation de parier.</p></div>
+      <button type="button" id="daily-share">Partager le résumé du jour</button>
+    </section>
+  </main>
+  <footer class="mx-daily-footer"><div class="mx-daily-container">
+    <span>© 2026 Mr XPRONOS · 18+ · Jouez responsablement. Aucun pronostic ne garantit un gain.</span>
+    <nav aria-label="Liens de pied de page"><a href="index.html">Accueil</a><a href="pronos.html">Pronostics</a><a href="historique.html">Résultats</a><a href="confidentialite.html">Confidentialité</a></nav>
+  </div></footer>
+  <script defer src="assets/js/pwa.js?v=161001a71a5c"></script>
+  <script type="module" src="assets/js/daily-hub.mjs"></script>
+</body>
+</html>

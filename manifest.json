@@ -68,6 +68,18 @@
   ],
   "shortcuts": [
     {
+      "name": "Aujourd'hui — Football",
+      "short_name": "Aujourd'hui",
+      "description": "Mes favoris, sélections et résultats football du jour",
+      "url": "./aujourdhui.html",
+      "icons": [
+        {
+          "src": "assets/images/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
       "name": "Pronostics du jour",
       "short_name": "Pronostics",
       "description": "Voir les pronostics du jour",
@@ -104,7 +116,7 @@
       ]
     }
   ],
-  "version": "2026.11.03.exact-score-tab-1",
+  "version": "2026.11.06.daily-hub-v1",
   "id": "./",
   "categories": [
     "sports",

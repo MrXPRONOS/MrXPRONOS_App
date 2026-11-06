@@ -19,6 +19,7 @@
 
   const menuItems = [
     { name: 'Accueil', icon: 'icon-home.webp', url: 'index.html', group: 'Football' },
+    { name: 'Aujourd’hui', icon: 'icon-home.webp', url: 'aujourdhui.html', group: 'Football' },
     { name: 'Pronostics', icon: 'icon-pronostics.webp', url: 'pronos.html', group: 'Football' },
     { name: 'Scores exacts', icon: 'icon-pronostics.webp', url: 'scores-exacts.html', group: 'Football' },
     { name: 'Résultats', icon: 'icon-history.webp', url: 'historique.html', group: 'Football' },
