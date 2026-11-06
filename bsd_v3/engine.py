@@ -14,22 +14,24 @@ from .selection import serialize_candidates, select_candidates
 VERSION = "bsd-v3-shadow-0.1"
 
 def train_runtime(history, *, calibration=True, challenger=False):
-    index=V2History(history)
+    from .quality import audit_history
+    clean,history_quality=audit_history(history)
+    index=V2History(clean)
     rho,rho_report=fit_rho_2024(index)
     cal=fit_calibration(index,rho) if calibration else None
     challenger_models={}
     challenger_info={}
+    challenger_weights={}
     if challenger:
-        from bsd_v2_over_under import fit_total_model
-        from bsd_v2_double_chance import fit_model as fit_result_model
-        from bsd_v2_btts import fit_btts_model
-        for name,fn in (("goals",fit_total_model),("result",fit_result_model),
-                        ("btts",fit_btts_model)):
-            model,diagnostics=fn(index,rho=rho)
-            challenger_models[name]=model
-            challenger_info[name]=diagnostics
+        from .ensemble import fit_models,fit_gate
+        challenger_models,challenger_info=fit_models(index,rho)
+        challenger_weights,gates=fit_gate(index,rho,challenger_models)
+        challenger_info={"pretrained_2024":challenger_info,
+                         "gating_2025":gates,"active_weights":challenger_weights}
     return {"index":index,"rho":rho,"rho_validation":rho_report,
             "calibration":cal,"challengers":challenger_models,
+            "challenger_weights":challenger_weights,
+            "history_quality":history_quality,
             "challenger_training":challenger_info}
 
 def challenger_shadow(event,index,matrix,runtime):
@@ -78,6 +80,10 @@ def evaluate_fixture(event,runtime,*,now,raw_quotes=None,quote_meta=None,policy=
     base=score_matrix(expected["home"],expected["away"],runtime["rho"])
     cal=runtime.get("calibration")
     score=cal.apply(base) if cal is not None else base
+    if runtime.get("challenger_weights") and any(runtime["challenger_weights"].values()):
+        from .ensemble import projected_matrix
+        score=projected_matrix(event,runtime["index"],score,
+                               runtime["challengers"],runtime["challenger_weights"])
     candidates=markets_from_matrix(score)
     prove_coherence(candidates)
     verified,rejected=validate_market_quotes(raw_quotes or {},candidates,
@@ -99,6 +105,8 @@ def run_shadow(fixtures,history,*,now,quote_fetcher=None,
                policy=V3Policy(),max_odds_events=None,
                enable_challengers=False):
     now=utc_datetime(now)
+    from .quality import clean_fixture_batch
+    clean_fixtures,fixture_integrity=clean_fixture_batch(fixtures,now=now)
     runtime=train_runtime(history,challenger=enable_challengers)
     used=0
     results=[]
@@ -106,7 +114,7 @@ def run_shadow(fixtures,history,*,now,quote_fetcher=None,
     max_events=policy.max_odds_events if max_odds_events is None else max_odds_events
     if not 0<=max_events<=100:
         raise ValueError("Invalid odds request cap")
-    for event in fixtures:
+    for event in clean_fixtures:
         quotes={}
         quote_meta={}
         provisional=evaluate_fixture(event,runtime,now=now,policy=policy)
@@ -131,7 +139,10 @@ def run_shadow(fixtures,history,*,now,quote_fetcher=None,
               "model_status":"observation_unapproved",
               "calibration":runtime["calibration"].metadata() if runtime["calibration"] else None,
               "rho":runtime["rho"],"challenger_training":runtime["challenger_training"],
-              "diagnostics":{"fixtures":len(fixtures),"analyzed":reasons["analyzed"],
+              "history_quality":runtime.get("history_quality"),
+              "fixture_integrity":fixture_integrity,
+              "diagnostics":{"fixtures_received":len(fixtures),
+                             "fixtures":len(clean_fixtures),"analyzed":reasons["analyzed"],
                              "odds_events_queried":used,"outcomes":dict(reasons)},
               "matches":results}
     document["fingerprint_sha256"]=hashlib.sha256(
