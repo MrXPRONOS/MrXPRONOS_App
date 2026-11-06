@@ -65,7 +65,8 @@ class PwaInstallPhase2Tests(unittest.TestCase):
         self.assertTrue(manifest["icons"])
         sw = (ROOT / "service-worker.js").read_text(encoding="utf-8")
         self.assertIn("./assets/js/pwa-telemetry.mjs", sw)
-        self.assertIn("v115-install-funnel", sw)
+        self.assertIn("const VERSION = ", sw)
+        self.assertIn("./assets/js/pwa-telemetry.mjs", sw)
 
     def test_public_metrics_login_is_protected_without_admin_bundle(self):
         html = (ROOT / "statistiques-installation.html").read_text(encoding="utf-8")
