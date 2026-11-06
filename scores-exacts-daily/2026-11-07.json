@@ -1,0 +1,87 @@
+{
+  "schema_version": "mrx-exact-top5-v1",
+  "model": "machine_learning_v3_hybrid",
+  "status": "published",
+  "date": "2026-11-07",
+  "generated_at": "2026-11-06T09:34:43Z",
+  "origin": "prospective_prematch",
+  "selection_simple": "A_MODAL",
+  "selection_grouped": "B_GROUP_MASS",
+  "group_definition": "research_only_three_score_proxy_not_verified_bookmaker_market",
+  "simple": [
+    {
+      "id": "sportsapipro:4826270",
+      "league": "Premier A - Group A",
+      "home": "Santiago",
+      "away": "Halcones Negros",
+      "kickoff_utc": "2026-11-07T00:00:00Z",
+      "score": "2:1",
+      "probability": 0.09669242
+    },
+    {
+      "id": "sportsapipro:4773235",
+      "league": "Liga Panameña - Apertura - Western Conference",
+      "home": "CD Plaza Amador",
+      "away": "Sporting San Miguelito",
+      "kickoff_utc": "2026-11-07T01:30:00Z",
+      "score": "2:1",
+      "probability": 0.09582842
+    },
+    {
+      "id": "sportsapipro:4826271",
+      "league": "Premier A - Group A",
+      "home": "ACF Zapotlanejo",
+      "away": "Real Refineros",
+      "kickoff_utc": "2026-11-07T01:00:00Z",
+      "score": "2:1",
+      "probability": 0.09557207
+    }
+  ],
+  "grouped": [
+    {
+      "id": "sportsapipro:4826270",
+      "league": "Premier A - Group A",
+      "home": "Santiago",
+      "away": "Halcones Negros",
+      "kickoff_utc": "2026-11-07T00:00:00Z",
+      "score": "2:1",
+      "probability": 0.25694872,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4826271",
+      "league": "Premier A - Group A",
+      "home": "ACF Zapotlanejo",
+      "away": "Real Refineros",
+      "kickoff_utc": "2026-11-07T01:00:00Z",
+      "score": "2:1",
+      "probability": 0.249833,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    },
+    {
+      "id": "sportsapipro:4773235",
+      "league": "Liga Panameña - Apertura - Western Conference",
+      "home": "CD Plaza Amador",
+      "away": "Sporting San Miguelito",
+      "kickoff_utc": "2026-11-07T01:30:00Z",
+      "score": "2:1",
+      "probability": 0.24505365,
+      "group": "H_LOW",
+      "group_scores": [
+        "1:0",
+        "2:0",
+        "2:1"
+      ]
+    }
+  ]
+}
