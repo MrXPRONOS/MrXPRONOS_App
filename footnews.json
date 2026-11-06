@@ -1,363 +1,106 @@
 [
   {
-    "slug": "028d6efee705c058",
-    "title": "Real Madrid : La Chine ouvre la porte à une réconciliation après les propos de Kylian Mbappé sur Mao Zedong",
-    "summary": "Ce vendredi, Yao Jing, l'ambassadeur chinois en Espagne, a annoncé que son gouvernement était \"en contact\" avec le Real Madrid et la Liga pour tenter d'apaiser la situation après les propos de Kylian…",
-    "summary_short": "Ce vendredi, Yao Jing, l'ambassadeur chinois en Espagne, a annoncé que son gouvernement était \"en contact\" avec le Real Madrid et la Liga pour tenter d'apaiser la situation après les propos de Kylian…",
-    "content": "Ce vendredi, Yao Jing, l'ambassadeur chinois en Espagne, a annoncé que son gouvernement était \"en contact\" avec le Real Madrid et la Liga pour tenter d'apaiser la situation après les propos de Kylian…",
+    "slug": "a1fa16b562922cdd",
+    "title": "Cristiano Ronaldo et le Portugal, c'est fini !",
+    "summary": "Après son départ du rassemblement juste après le match contre la Norvège, Cristiano Ronaldo a finalement décidé de prendre sa retraite internationale. Son bilan avec la sélection portugaise : 234 sélections et 146 buts.",
+    "summary_short": "Après son départ du rassemblement juste après le match contre la Norvège, Cristiano Ronaldo a finalement décidé de prendre sa retraite internationale. Son bilan avec la sélection portugaise : 234 sélections et 146 buts.",
+    "content": "Après son départ du rassemblement juste après le match contre la Norvège, Cristiano Ronaldo a finalement décidé de prendre sa retraite internationale. Son bilan avec la sélection portugaise : 234 sélections et 146 buts. Était-il temps pour CR7 de quitter la Seleção ? Désormais, l'objectif pour la légende portugaise est d'atteindre la barre des 1 000 buts inscrits.",
     "paragraphs": [
-      "Ce vendredi, Yao Jing, l'ambassadeur chinois en Espagne, a annoncé que son gouvernement était \"en contact\" avec le Real Madrid et la Liga pour tenter d'apaiser la situation après les propos de Kylian…"
+      "Après son départ du rassemblement juste après le match contre la Norvège, Cristiano Ronaldo a finalement décidé de prendre sa retraite internationale. Son bilan avec la sélection portugaise : 234 sélections et 146 buts. Était-il temps pour CR7 de quitter la Seleção ?",
+      "Désormais, l'objectif pour la légende portugaise est d'atteindre la barre des 1 000 buts inscrits."
     ],
     "key_points": [
-      "Ce vendredi, Yao Jing, l'ambassadeur chinois en Espagne, a annoncé que son gouvernement était \"en contact\" avec le Real Madrid et la Liga pour tenter d'apaiser la situation après les propos de Kylian…"
+      "Après son départ du rassemblement juste après le match contre la Norvège, Cristiano Ronaldo a finalement décidé de prendre sa retraite internationale.",
+      "Son bilan avec la sélection portugaise : 234 sélections et 146 buts.",
+      "Était-il temps pour CR7 de quitter la Seleção ?",
+      "Désormais, l'objectif pour la légende portugaise est d'atteindre la barre des 1 000 buts inscrits."
     ],
-    "telegram_summary": "Ce vendredi, Yao Jing, l'ambassadeur chinois en Espagne, a annoncé que son gouvernement était \"en contact\" avec le Real Madrid et la Liga pour tenter d'apaiser la situation après les propos de Kylian…",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-real-madrid-la-chine-ouvre-la-porte-a-une-reconciliation-apres-les-propos-de-kylian-mbappe-sur-mao-zedong-544916.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-real-madrid-la-chine-ouvre-la-porte-a-une-reconciliation-apres-les-propos-de-kylian-mbappe-sur-mao-zedong-544916.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=028d6efee705c058",
-    "published": "2026-11-06T15:50:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/liga/2026/une/liga-20261008083832-4009.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/liga/2026/une/liga-20261008083832-4009.jpg",
+    "telegram_summary": "Après son départ du rassemblement juste après le match contre la Norvège, Cristiano Ronaldo a finalement décidé de prendre sa retraite internationale. Son bilan avec la sélection portugaise : 234 sélections et 146 buts.",
+    "link": "https://www.france24.com/fr/%C3%A9missions/caf%C3%A9-des-sports/20261106-cristiano-ronaldo-portugal-fini",
+    "source_url": "https://www.france24.com/fr/%C3%A9missions/caf%C3%A9-des-sports/20261106-cristiano-ronaldo-portugal-fini",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=a1fa16b562922cdd",
+    "published": "2026-11-06T21:30:03+00:00",
+    "image": "https://s.france24.com/media/display/eb290686-daf7-11ee-957c-005056bfb2b6/w:1280/p:16x9/FR-CAFE%20DES%20SPORTS_16-9-4K.jpg",
+    "source_image": "https://s.france24.com/media/display/eb290686-daf7-11ee-957c-005056bfb2b6/w:1280/p:16x9/FR-CAFE%20DES%20SPORTS_16-9-4K.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
+    "source": "France 24",
+    "source_priority": 83,
     "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Officiel",
-    "category_emoji": "✅",
+    "source_feed": "https://www.france24.com/fr/tag/football/rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
     "editorial_score": 4,
     "espn_verification": {
       "provider": "ESPN",
       "source": "ESPN News API",
-      "article_id": "50286844",
-      "url": "https://www.espn.com/soccer/story/_/id/50286844/real-madrid-end-ballon-dor-boycott-kylian-mbappe-nominated",
-      "published": "2026-10-26T14:44:27Z",
-      "score": 0.267,
+      "article_id": "50075485",
+      "url": "https://www.espn.com/soccer/story/_/id/50075485/cristiano-ronaldo-long-history-rows-portugal-manchester-united-real-madrid-juventus-coaches",
+      "published": "2026-11-05T16:21:16Z",
+      "score": 0.273,
       "matched_terms": [
-        "kylian",
-        "madrid",
-        "mbappe",
-        "real"
+        "cristiano",
+        "portugal",
+        "ronaldo"
       ],
-      "topics": [],
+      "topics": [
+        "blog - the toe poke"
+      ],
       "teams": [
+        "Al Nassr",
+        "Juventus",
+        "Manchester United",
+        "Portugal",
         "Real Madrid"
       ],
       "athletes": [
-        "Felicia Schröder",
-        "Kylian Mbappé"
+        "Cristiano Ronaldo"
       ],
       "leagues": [
+        "English Premier League",
+        "Italian Serie A",
+        "Saudi Pro League",
         "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-06T15:59:09.358303+00:00"
-    },
-    "quality_sources": [
-      "MadeInFoot",
-      "ESPN"
-    ],
-    "quality_score": 96
-  },
-  {
-    "slug": "9077554c0f4d83dc",
-    "title": "Équipe de France : Lucas Da Cunha raconte comment Zinedine Zidane l’a mis en confiance",
-    "summary": "Lucas Da Cunha n’a pas oublié l’accueil que lui a réservé Zinedine Zidane lors de son arrivée en équipe de France. Longtemps resté loin des projecteurs, le milieu de terrain de 25 ans a franchi un cap (…)",
-    "summary_short": "Lucas Da Cunha n’a pas oublié l’accueil que lui a réservé Zinedine Zidane lors de son arrivée en équipe de France. Longtemps resté loin des projecteurs, le milieu de terrain de 25 ans a franchi un cap (…)",
-    "content": "Lucas Da Cunha n’a pas oublié l’accueil que lui a réservé Zinedine Zidane lors de son arrivée en équipe de France. Longtemps resté loin des projecteurs, le milieu de terrain de 25 ans a franchi un cap (…)",
-    "paragraphs": [
-      "Lucas Da Cunha n’a pas oublié l’accueil que lui a réservé Zinedine Zidane lors de son arrivée en équipe de France. Longtemps resté loin des projecteurs, le milieu de terrain de 25 ans a franchi un cap (…)"
-    ],
-    "key_points": [
-      "Lucas Da Cunha n’a pas oublié l’accueil que lui a réservé Zinedine Zidane lors de son arrivée en équipe de France.",
-      "Longtemps resté loin des projecteurs, le milieu de terrain de 25 ans a franchi un cap (…)"
-    ],
-    "telegram_summary": "Lucas Da Cunha n’a pas oublié l’accueil que lui a réservé Zinedine Zidane lors de son arrivée en équipe de France. Longtemps resté loin des projecteurs, le milieu de terrain de 25 ans a franchi un cap (…)",
-    "link": "https://www.footmercato.net/a2377687788693935556-equipe-de-france-lucas-da-cunha-raconte-comment-zinedine-zidane-la-mis-en-confiance",
-    "source_url": "https://www.footmercato.net/a2377687788693935556-equipe-de-france-lucas-da-cunha-raconte-comment-zinedine-zidane-la-mis-en-confiance",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9077554c0f4d83dc",
-    "published": "2026-11-06T15:48:35+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/da-cunha2.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/da-cunha2.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "5780ca2d0be9ac77",
-    "title": "RC Lens : Jonathan Gradit et Florian Sotoca ont recadré plusieurs joueurs après le désastre face au Como 1907",
-    "summary": "Jonathan Gradit, le défenseur central du RC Lens, s'est présenté en conférence de presse ce vendredi 6 novembre, 48 heures après le naufrage face à Côme (1-9), en Ligue des Champions.",
-    "summary_short": "Jonathan Gradit, le défenseur central du RC Lens, s'est présenté en conférence de presse ce vendredi 6 novembre, 48 heures après le naufrage face à Côme (1-9), en Ligue des Champions.",
-    "content": "Jonathan Gradit, le défenseur central du RC Lens, s'est présenté en conférence de presse ce vendredi 6 novembre, 48 heures après le naufrage face à Côme (1-9), en Ligue des Champions.",
-    "paragraphs": [
-      "Jonathan Gradit, le défenseur central du RC Lens, s'est présenté en conférence de presse ce vendredi 6 novembre, 48 heures après le naufrage face à Côme (1-9), en Ligue des Champions."
-    ],
-    "key_points": [
-      "Jonathan Gradit, le défenseur central du RC Lens, s'est présenté en conférence de presse ce vendredi 6 novembre, 48 heures après le naufrage face à Côme (1-9), en Ligue des Champions."
-    ],
-    "telegram_summary": "Jonathan Gradit, le défenseur central du RC Lens, s'est présenté en conférence de presse ce vendredi 6 novembre, 48 heures après le naufrage face à Côme (1-9), en Ligue des Champions.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-jonathan-gradit-et-florian-sotoca-ont-recadre-plusieurs-joueurs-apres-le-desastre-face-au-como-1907-544910.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-jonathan-gradit-et-florian-sotoca-ont-recadre-plusieurs-joueurs-apres-le-desastre-face-au-como-1907-544910.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5780ca2d0be9ac77",
-    "published": "2026-11-06T15:25:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2023/une/l1-20231023161828-1930.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2023/une/l1-20231023161828-1930.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "10354a31804ded2e",
-    "title": "Tottenham a négocié une clause inattendue pour récupérer Harry Kane",
-    "summary": "Malgré la prolongation de contrat d’Harry Kane jusqu’en 2029 avec le Bayern Munich, Tottenham n’a pas totalement renoncé à l’idée de retrouver son ancien buteur. Selon les informations de Telegraph (…)",
-    "summary_short": "Malgré la prolongation de contrat d’Harry Kane jusqu’en 2029 avec le Bayern Munich, Tottenham n’a pas totalement renoncé à l’idée de retrouver son ancien buteur. Selon les informations de Telegraph (…)",
-    "content": "Malgré la prolongation de contrat d’Harry Kane jusqu’en 2029 avec le Bayern Munich, Tottenham n’a pas totalement renoncé à l’idée de retrouver son ancien buteur. Selon les informations de Telegraph (…)",
-    "paragraphs": [
-      "Malgré la prolongation de contrat d’Harry Kane jusqu’en 2029 avec le Bayern Munich, Tottenham n’a pas totalement renoncé à l’idée de retrouver son ancien buteur. Selon les informations de Telegraph (…)"
-    ],
-    "key_points": [
-      "Malgré la prolongation de contrat d’Harry Kane jusqu’en 2029 avec le Bayern Munich, Tottenham n’a pas totalement renoncé à l’idée de retrouver son ancien buteur.",
-      "Selon les informations de Telegraph (…)"
-    ],
-    "telegram_summary": "Malgré la prolongation de contrat d’Harry Kane jusqu’en 2029 avec le Bayern Munich, Tottenham n’a pas totalement renoncé à l’idée de retrouver son ancien buteur. Selon les informations de Telegraph (…)",
-    "link": "https://www.footmercato.net/a1826415694072241659-tottenham-a-negocie-une-clause-inattendue-pour-recuperer-harry-kane",
-    "source_url": "https://www.footmercato.net/a1826415694072241659-tottenham-a-negocie-une-clause-inattendue-pour-recuperer-harry-kane",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=10354a31804ded2e",
-    "published": "2026-11-06T15:20:49+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/kane-2.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/kane-2.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 5,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50291678",
-      "url": "https://www.espn.com/video/clip/_/id/50291678/why-harry-kane-was-rightful-winner-ballon-dor",
-      "published": "2026-10-26T23:08:43Z",
-      "score": 0.2,
-      "matched_terms": [
-        "harry",
-        "kane"
-      ],
-      "topics": [],
-      "teams": [
-        "Bayern Munich",
-        "England"
-      ],
-      "athletes": [
-        "Harry Kane"
-      ],
-      "leagues": [
-        "German Bundesliga",
-        "International Friendly",
-        "Soccer",
+        "Spanish LALIGA",
         "UEFA Nations League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-06T15:59:09.358303+00:00"
+      "checked_at": "2026-11-06T21:34:28.126055+00:00"
     },
     "quality_sources": [
-      "Foot Mercato",
+      "France 24",
       "ESPN"
     ],
-    "quality_score": 100
+    "quality_score": 91
   },
   {
-    "slug": "06b88742734e30cb",
-    "title": "Lens : le mea culpa de Cahuzac",
-    "summary": "Deux jours après la lourde défaite face à Côme (1-9) en Ligue des Champions, Yannick Cahuzac s'est présenté face à la presse ce vendredi. Encore marqué par cette débâcle historique, l'entraîneur lensois a reconnu les défaillances de son équipe, mais aussi ses propres erreurs....",
-    "summary_short": "Deux jours après la lourde défaite face à Côme (1-9) en Ligue des Champions, Yannick Cahuzac s'est présenté face à la presse ce vendredi. Encore marqué par cette débâcle historique, l'entraîneur lensois a reconnu les défaillances de son équipe, mais aussi ses propres erreurs....",
-    "content": "Deux jours après la lourde défaite face à Côme (1-9) en Ligue des Champions, Yannick Cahuzac s'est présenté face à la presse ce vendredi. Encore marqué par cette débâcle historique, l'entraîneur lensois a reconnu les défaillances de son équipe, mais aussi ses propres erreurs....",
+    "slug": "510d5b4ef73de8cd",
+    "title": "Strasbourg : la grosse colère de Martial Godo après sa sortie",
+    "summary": "Rien ne se déroule comme prévu pour Strasbourg à Toulouse. En déplacement au Stadium ce vendredi pour la 10e journée de Ligue 1, les Alsaciens sont dominés et pour le moment battus par le Téfécé. (…)",
+    "summary_short": "Rien ne se déroule comme prévu pour Strasbourg à Toulouse. En déplacement au Stadium ce vendredi pour la 10e journée de Ligue 1, les Alsaciens sont dominés et pour le moment battus par le Téfécé. (…)",
+    "content": "Rien ne se déroule comme prévu pour Strasbourg à Toulouse. En déplacement au Stadium ce vendredi pour la 10e journée de Ligue 1, les Alsaciens sont dominés et pour le moment battus par le Téfécé. (…)",
     "paragraphs": [
-      "Deux jours après la lourde défaite face à Côme (1-9) en Ligue des Champions, Yannick Cahuzac s'est présenté face à la presse ce vendredi. Encore marqué par cette débâcle historique, l'entraîneur lensois a reconnu les défaillances de son équipe, mais aussi ses propres erreurs...."
+      "Rien ne se déroule comme prévu pour Strasbourg à Toulouse. En déplacement au Stadium ce vendredi pour la 10e journée de Ligue 1, les Alsaciens sont dominés et pour le moment battus par le Téfécé. (…)"
     ],
     "key_points": [
-      "Deux jours après la lourde défaite face à Côme (1-9) en Ligue des Champions, Yannick Cahuzac s'est présenté face à la presse ce vendredi.",
-      "Encore marqué par cette débâcle historique, l'entraîneur lensois a reconnu les défaillances de son équipe, mais aussi ses propres erreurs...."
+      "Rien ne se déroule comme prévu pour Strasbourg à Toulouse.",
+      "En déplacement au Stadium ce vendredi pour la 10e journée de Ligue 1, les Alsaciens sont dominés et pour le moment battus par le Téfécé. (…)"
     ],
-    "telegram_summary": "Deux jours après la lourde défaite face à Côme (1-9) en Ligue des Champions, Yannick Cahuzac s'est présenté face à la presse ce vendredi. Encore marqué par cette débâcle historique, l'entraîneur lensois a reconnu les défaillances de son équipe, mais aussi ses propres erreurs....",
-    "link": "https://m.maxifoot.fr/football/article-66492.htm",
-    "source_url": "https://m.maxifoot.fr/football/article-66492.htm",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=06b88742734e30cb",
-    "published": "2026-11-06T15:11:09+00:00",
-    "image": "https://photo.maxifoot.fr/cahuzac-11.jpg",
-    "source_image": "https://photo.maxifoot.fr/cahuzac-11.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Maxifoot",
-    "source_priority": 78,
-    "source_region": "international",
-    "source_feed": "http://rss.maxifoot.com/football-general.xml",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Maxifoot"
-    ],
-    "quality_score": 78
-  },
-  {
-    "slug": "7ba5d0ccc2f75f54",
-    "title": "Mercato : Quand Franck Haise disait non à trois clubs de Premier League en raison... de son niveau d'anglais",
-    "summary": "Lors d'un entretien accordé à So Foot, Franck Haise, l'entraîneur du Stade Rennais passé par le RC Lens, a avoué avoir été approché par trois clubs de Premier League lors de ses belles années dans le…",
-    "summary_short": "Lors d'un entretien accordé à So Foot, Franck Haise, l'entraîneur du Stade Rennais passé par le RC Lens, a avoué avoir été approché par trois clubs de Premier League lors de ses belles années dans le…",
-    "content": "Lors d'un entretien accordé à So Foot, Franck Haise, l'entraîneur du Stade Rennais passé par le RC Lens, a avoué avoir été approché par trois clubs de Premier League lors de ses belles années dans le…",
-    "paragraphs": [
-      "Lors d'un entretien accordé à So Foot, Franck Haise, l'entraîneur du Stade Rennais passé par le RC Lens, a avoué avoir été approché par trois clubs de Premier League lors de ses belles années dans le…"
-    ],
-    "key_points": [
-      "Lors d'un entretien accordé à So Foot, Franck Haise, l'entraîneur du Stade Rennais passé par le RC Lens, a avoué avoir été approché par trois clubs de Premier League lors de ses belles années dans le…"
-    ],
-    "telegram_summary": "Lors d'un entretien accordé à So Foot, Franck Haise, l'entraîneur du Stade Rennais passé par le RC Lens, a avoué avoir été approché par trois clubs de Premier League lors de ses belles années dans le…",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-mercato-quand-franck-haise-disait-non-a-trois-clubs-de-premier-league-en-raison-de-son-niveau-d-anglais-544908.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-mercato-quand-franck-haise-disait-non-a-trois-clubs-de-premier-league-en-raison-de-son-niveau-d-anglais-544908.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7ba5d0ccc2f75f54",
-    "published": "2026-11-06T15:05:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260308111233-2178.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260308111233-2178.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "1e552027928c963d",
-    "title": "Franck Haise avoue apprendre l'anglais depuis plus de deux ans, un départ en Premier League se précise ?",
-    "summary": "Alors qu'il a déjà repoussé plusieurs approches de clubs anglais, Franck Haise a révélé travailler son anglais depuis près de 1 000 jours, une confidence qui relance forcément les interrogations sur ses ambitions à l'étranger.",
-    "summary_short": "Alors qu'il a déjà repoussé plusieurs approches de clubs anglais, Franck Haise a révélé travailler son anglais depuis près de 1 000 jours, une confidence qui relance forcément les interrogations sur ses ambitions à l'étranger.",
-    "content": "Alors qu'il a déjà repoussé plusieurs approches de clubs anglais, Franck Haise a révélé travailler son anglais depuis près de 1 000 jours, une confidence qui relance forcément les interrogations sur ses ambitions à l'étranger.",
-    "paragraphs": [
-      "Alors qu'il a déjà repoussé plusieurs approches de clubs anglais, Franck Haise a révélé travailler son anglais depuis près de 1 000 jours, une confidence qui relance forcément les interrogations sur ses ambitions à l'étranger."
-    ],
-    "key_points": [
-      "Alors qu'il a déjà repoussé plusieurs approches de clubs anglais, Franck Haise a révélé travailler son anglais depuis près de 1 000 jours, une confidence qui relance forcément les interrogations sur ses ambitions à l'étranger."
-    ],
-    "telegram_summary": "Alors qu'il a déjà repoussé plusieurs approches de clubs anglais, Franck Haise a révélé travailler son anglais depuis près de 1 000 jours, une confidence qui relance forcément les interrogations sur ses ambitions à l'étranger.",
-    "link": "https://www.onzemondial.com/franck-haise-avoue-apprendre-langlais-depuis-plus-de-deux-ans-un-depart-en-premier-league-se-precise-1007420",
-    "source_url": "https://www.onzemondial.com/franck-haise-avoue-apprendre-langlais-depuis-plus-de-deux-ans-un-depart-en-premier-league-se-precise-1007420",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1e552027928c963d",
-    "published": "2026-11-06T15:01:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1007420/410633/1200-L-franck-haise-avoue-apprendre-l-anglais-depuis-plus-de-deux-ans-un-dpart-en-premier-league-se-prcise.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1007420/410633/1200-L-franck-haise-avoue-apprendre-l-anglais-depuis-plus-de-deux-ans-un-dpart-en-premier-league-se-prcise.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "6ff6020046c28cee",
-    "title": "RC Lens : \"J'ai manqué de lucidité\", Yannick Cahuzac assume ses erreurs après la débâcle face au Como 1907",
-    "summary": "De passage en conférence de presse ce vendredi 6 novembre, à deux jours de la réception de l'OM (J10 Ligue 1), Yannick Cahuzac, l'entraîneur des Sang-et-Or, a très logiquement été cuisiné sur la…",
-    "summary_short": "De passage en conférence de presse ce vendredi 6 novembre, à deux jours de la réception de l'OM (J10 Ligue 1), Yannick Cahuzac, l'entraîneur des Sang-et-Or, a très logiquement été cuisiné sur la…",
-    "content": "De passage en conférence de presse ce vendredi 6 novembre, à deux jours de la réception de l'OM (J10 Ligue 1), Yannick Cahuzac, l'entraîneur des Sang-et-Or, a très logiquement été cuisiné sur la…",
-    "paragraphs": [
-      "De passage en conférence de presse ce vendredi 6 novembre, à deux jours de la réception de l'OM (J10 Ligue 1), Yannick Cahuzac, l'entraîneur des Sang-et-Or, a très logiquement été cuisiné sur la…"
-    ],
-    "key_points": [
-      "De passage en conférence de presse ce vendredi 6 novembre, à deux jours de la réception de l'OM (J10 Ligue 1), Yannick Cahuzac, l'entraîneur des Sang-et-Or, a très logiquement été cuisiné sur la…"
-    ],
-    "telegram_summary": "De passage en conférence de presse ce vendredi 6 novembre, à deux jours de la réception de l'OM (J10 Ligue 1), Yannick Cahuzac, l'entraîneur des Sang-et-Or, a très logiquement été cuisiné sur la…",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-j-ai-manque-de-lucidite-yannick-cahuzac-assume-ses-erreurs-apres-la-debacle-face-au-como-1907-544905.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-rc-lens-j-ai-manque-de-lucidite-yannick-cahuzac-assume-ses-erreurs-apres-la-debacle-face-au-como-1907-544905.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=6ff6020046c28cee",
-    "published": "2026-11-06T14:45:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260917150451-4026.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260917150451-4026.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "94e5b956af76790b",
-    "title": "RC Lens : Yannick Cahuzac vide son sac après la déroute contre Côme",
-    "summary": "Après la claque reçue face à Côme en Ligue des Champions (1-9), le RC Lens s’apprête à affronter l’OM ce dimanche en Ligue 1. Avant cette rencontre difficile et suite au communiqué violent des (…)",
-    "summary_short": "Après la claque reçue face à Côme en Ligue des Champions (1-9), le RC Lens s’apprête à affronter l’OM ce dimanche en Ligue 1. Avant cette rencontre difficile et suite au communiqué violent des (…)",
-    "content": "Après la claque reçue face à Côme en Ligue des Champions (1-9), le RC Lens s’apprête à affronter l’OM ce dimanche en Ligue 1. Avant cette rencontre difficile et suite au communiqué violent des (…)",
-    "paragraphs": [
-      "Après la claque reçue face à Côme en Ligue des Champions (1-9), le RC Lens s’apprête à affronter l’OM ce dimanche en Ligue 1. Avant cette rencontre difficile et suite au communiqué violent des (…)"
-    ],
-    "key_points": [
-      "Après la claque reçue face à Côme en Ligue des Champions (1-9), le RC Lens s’apprête à affronter l’OM ce dimanche en Ligue 1.",
-      "Avant cette rencontre difficile et suite au communiqué violent des (…)"
-    ],
-    "telegram_summary": "Après la claque reçue face à Côme en Ligue des Champions (1-9), le RC Lens s’apprête à affronter l’OM ce dimanche en Ligue 1. Avant cette rencontre difficile et suite au communiqué violent des (…)",
-    "link": "https://www.footmercato.net/a4249079067279279805-rc-lens-yannick-cahuzac-vide-son-sac-apres-la-deroute-contre-come",
-    "source_url": "https://www.footmercato.net/a4249079067279279805-rc-lens-yannick-cahuzac-vide-son-sac-apres-la-deroute-contre-come",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=94e5b956af76790b",
-    "published": "2026-11-06T14:41:30+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/cahu.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/cahu.jpg",
+    "telegram_summary": "Rien ne se déroule comme prévu pour Strasbourg à Toulouse. En déplacement au Stadium ce vendredi pour la 10e journée de Ligue 1, les Alsaciens sont dominés et pour le moment battus par le Téfécé. (…)",
+    "link": "https://www.footmercato.net/a6537177104249886205-strasbourg-la-grosse-colere-de-martial-godo-apres-sa-sortie",
+    "source_url": "https://www.footmercato.net/a6537177104249886205-strasbourg-la-grosse-colere-de-martial-godo-apres-sa-sortie",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=510d5b4ef73de8cd",
+    "published": "2026-11-06T21:28:10+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo507287.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo507287.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "Foot Mercato",
     "source_priority": 92,
     "source_region": "international",
     "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Officiel",
-    "category_emoji": "✅",
+    "category": "Polémique",
+    "category_emoji": "🔥",
     "editorial_score": 4,
     "espn_verification": {},
     "quality_sources": [
@@ -366,33 +109,103 @@
     "quality_score": 92
   },
   {
-    "slug": "fd9f3e52920f2cbe",
-    "title": "Saïmon Bouabré forfait avec les Espoirs",
-    "summary": "Mauvaise nouvelle pour Saïmon Bouabré. Le milieu offensif d’Al-Hilal va devoir observer une période d’indisponibilité estimée entre trois et quatre semaines, selon les informations de L’Équipe.",
-    "summary_short": "Mauvaise nouvelle pour Saïmon Bouabré. Le milieu offensif d’Al-Hilal va devoir observer une période d’indisponibilité estimée entre trois et quatre semaines, selon les informations de L’Équipe.",
-    "content": "Mauvaise nouvelle pour Saïmon Bouabré. Le milieu offensif d’Al-Hilal va devoir observer une période d’indisponibilité estimée entre trois et quatre semaines, selon les informations de L’Équipe. Touché (…)",
+    "slug": "c2cf86e82d086d2d",
+    "title": "FIFA : Arsène Wenger prêt à combattre Gianni Infantino ?",
+    "summary": "Alors que Gianni Infantino brigue un nouveau mandat à la tête de l’instance mondiale, malgré ses récentes polémiques, le nom d’Arsène Wenger revient avec insistance pour lui faire face lors de (…)",
+    "summary_short": "Alors que Gianni Infantino brigue un nouveau mandat à la tête de l’instance mondiale, malgré ses récentes polémiques, le nom d’Arsène Wenger revient avec insistance pour lui faire face lors de (…)",
+    "content": "Alors que Gianni Infantino brigue un nouveau mandat à la tête de l’instance mondiale, malgré ses récentes polémiques, le nom d’Arsène Wenger revient avec insistance pour lui faire face lors de (…)",
     "paragraphs": [
-      "Mauvaise nouvelle pour Saïmon Bouabré. Le milieu offensif d’Al-Hilal va devoir observer une période d’indisponibilité estimée entre trois et quatre semaines, selon les informations de L’Équipe. Touché (…)"
+      "Alors que Gianni Infantino brigue un nouveau mandat à la tête de l’instance mondiale, malgré ses récentes polémiques, le nom d’Arsène Wenger revient avec insistance pour lui faire face lors de (…)"
     ],
     "key_points": [
-      "Mauvaise nouvelle pour Saïmon Bouabré.",
-      "Le milieu offensif d’Al-Hilal va devoir observer une période d’indisponibilité estimée entre trois et quatre semaines, selon les informations de L’Équipe."
+      "Alors que Gianni Infantino brigue un nouveau mandat à la tête de l’instance mondiale, malgré ses récentes polémiques, le nom d’Arsène Wenger revient avec insistance pour lui faire face lors de (…)"
     ],
-    "telegram_summary": "Mauvaise nouvelle pour Saïmon Bouabré. Le milieu offensif d’Al-Hilal va devoir observer une période d’indisponibilité estimée entre trois et quatre semaines, selon les informations de L’Équipe.",
-    "link": "https://www.footmercato.net/a1823053950808967623-saimon-bouabre-forfait-avec-les-espoirs",
-    "source_url": "https://www.footmercato.net/a1823053950808967623-saimon-bouabre-forfait-avec-les-espoirs",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=fd9f3e52920f2cbe",
-    "published": "2026-11-06T14:29:47+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/design-sans-titre-2023-11-15t145234-794.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/design-sans-titre-2023-11-15t145234-794.jpg",
+    "telegram_summary": "Alors que Gianni Infantino brigue un nouveau mandat à la tête de l’instance mondiale, malgré ses récentes polémiques, le nom d’Arsène Wenger revient avec insistance pour lui faire face lors de (…)",
+    "link": "https://www.footmercato.net/a7815990001635008653-fifa-arsene-wenger-pret-a-combattre-gianni-infantino",
+    "source_url": "https://www.footmercato.net/a7815990001635008653-fifa-arsene-wenger-pret-a-combattre-gianni-infantino",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c2cf86e82d086d2d",
+    "published": "2026-11-06T21:25:00+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxpaimagesfour430587-1920x1080.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxpaimagesfour430587-1920x1080.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "Foot Mercato",
     "source_priority": 92,
     "source_region": "international",
     "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Blessures",
-    "category_emoji": "🚑",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "34dad54ac881b99d",
+    "title": "Ligue 2 : Nancy enchaîne contre Sochaux et passe 2e, Montpellier et Reims chutent",
+    "summary": "Nancy confirme son début de saison exceptionnel. Les joueurs d’Oswald Tanchot ont enchaîné une 6e victoire de suite en Ligue 2 ce vendredi face à Sochaux (1-0). Le tout, en étant réduits à 10 pendant (…)",
+    "summary_short": "Nancy confirme son début de saison exceptionnel. Les joueurs d’Oswald Tanchot ont enchaîné une 6e victoire de suite en Ligue 2 ce vendredi face à Sochaux (1-0). Le tout, en étant réduits à 10 pendant (…)",
+    "content": "Nancy confirme son début de saison exceptionnel. Les joueurs d’Oswald Tanchot ont enchaîné une 6e victoire de suite en Ligue 2 ce vendredi face à Sochaux (1-0). Le tout, en étant réduits à 10 pendant (…)",
+    "paragraphs": [
+      "Nancy confirme son début de saison exceptionnel. Les joueurs d’Oswald Tanchot ont enchaîné une 6e victoire de suite en Ligue 2 ce vendredi face à Sochaux (1-0). Le tout, en étant réduits à 10 pendant (…)"
+    ],
+    "key_points": [
+      "Nancy confirme son début de saison exceptionnel.",
+      "Les joueurs d’Oswald Tanchot ont enchaîné une 6e victoire de suite en Ligue 2 ce vendredi face à Sochaux (1-0).",
+      "Le tout, en étant réduits à 10 pendant (…)"
+    ],
+    "telegram_summary": "Nancy confirme son début de saison exceptionnel. Les joueurs d’Oswald Tanchot ont enchaîné une 6e victoire de suite en Ligue 2 ce vendredi face à Sochaux (1-0). Le tout, en étant réduits à 10 pendant (…)",
+    "link": "https://www.footmercato.net/a2341368697026576678-ligue-2-nancy-bat-sochaux-et-passe-2e-montpellier-et-reims-chutent",
+    "source_url": "https://www.footmercato.net/a2341368697026576678-ligue-2-nancy-bat-sochaux-et-passe-2e-montpellier-et-reims-chutent",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=34dad54ac881b99d",
+    "published": "2026-11-06T20:59:29+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo197446.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo197446.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "1ef449f7178e214c",
+    "title": "Mauro Icardi est dans le viseur d’un cador de Serie A",
+    "summary": "Libre depuis son départ de Galatasaray en juin dernier, Mauro Icardi pourrait retrouver le championnat italien dès le prochain mercato hivernal. Selon les informations de TyC Sports, l’attaquant (…)",
+    "summary_short": "Libre depuis son départ de Galatasaray en juin dernier, Mauro Icardi pourrait retrouver le championnat italien dès le prochain mercato hivernal. Selon les informations de TyC Sports, l’attaquant (…)",
+    "content": "Libre depuis son départ de Galatasaray en juin dernier, Mauro Icardi pourrait retrouver le championnat italien dès le prochain mercato hivernal. Selon les informations de TyC Sports, l’attaquant (…)",
+    "paragraphs": [
+      "Libre depuis son départ de Galatasaray en juin dernier, Mauro Icardi pourrait retrouver le championnat italien dès le prochain mercato hivernal. Selon les informations de TyC Sports, l’attaquant (…)"
+    ],
+    "key_points": [
+      "Libre depuis son départ de Galatasaray en juin dernier, Mauro Icardi pourrait retrouver le championnat italien dès le prochain mercato hivernal.",
+      "Selon les informations de TyC Sports, l’attaquant (…)"
+    ],
+    "telegram_summary": "Libre depuis son départ de Galatasaray en juin dernier, Mauro Icardi pourrait retrouver le championnat italien dès le prochain mercato hivernal. Selon les informations de TyC Sports, l’attaquant (…)",
+    "link": "https://www.footmercato.net/a671187128334237731-mauro-icardi-est-dans-le-viseur-dun-cador-de-serie-a",
+    "source_url": "https://www.footmercato.net/a671187128334237731-mauro-icardi-est-dans-le-viseur-dun-cador-de-serie-a",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1ef449f7178e214c",
+    "published": "2026-11-06T20:30:00+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/mauro-icardi-2526-6aaa66ad0f947.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/mauro-icardi-2526-6aaa66ad0f947.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
     "editorial_score": 5,
     "espn_verification": {},
     "quality_sources": [
@@ -401,67 +214,33 @@
     "quality_score": 92
   },
   {
-    "slug": "8d57f96ca90b0e9a",
-    "title": "« J'aurais aimé être titulaire », Mikautadze sort du silence après la débâcle subie au PSG",
-    "summary": "Remplaçant au coup d'envoi face au PSG, Georges Mikautadze n'a pas caché sa frustration après la lourde défaite de Villarreal (0-6) et a envoyé un message clair à son entraîneur.",
-    "summary_short": "Remplaçant au coup d'envoi face au PSG, Georges Mikautadze n'a pas caché sa frustration après la lourde défaite de Villarreal (0-6) et a envoyé un message clair à son entraîneur.",
-    "content": "Remplaçant au coup d'envoi face au PSG, Georges Mikautadze n'a pas caché sa frustration après la lourde défaite de Villarreal (0-6) et a envoyé un message clair à son entraîneur.",
+    "slug": "e010a4f9a11c773e",
+    "title": "Arsenal : mais où est passé Martin Zubimendi ?",
+    "summary": "Pièce maîtresse d’Arsenal lors de son sacre en Premier League la saison dernière, Martin Zubimendi a complètement disparu du onze de départ de Mikel Arteta. Entre une concurrence renforcée et (…)",
+    "summary_short": "Pièce maîtresse d’Arsenal lors de son sacre en Premier League la saison dernière, Martin Zubimendi a complètement disparu du onze de départ de Mikel Arteta. Entre une concurrence renforcée et (…)",
+    "content": "Pièce maîtresse d’Arsenal lors de son sacre en Premier League la saison dernière, Martin Zubimendi a complètement disparu du onze de départ de Mikel Arteta. Entre une concurrence renforcée et (…)",
     "paragraphs": [
-      "Remplaçant au coup d'envoi face au PSG, Georges Mikautadze n'a pas caché sa frustration après la lourde défaite de Villarreal (0-6) et a envoyé un message clair à son entraîneur."
+      "Pièce maîtresse d’Arsenal lors de son sacre en Premier League la saison dernière, Martin Zubimendi a complètement disparu du onze de départ de Mikel Arteta. Entre une concurrence renforcée et (…)"
     ],
     "key_points": [
-      "Remplaçant au coup d'envoi face au PSG, Georges Mikautadze n'a pas caché sa frustration après la lourde défaite de Villarreal (0-6) et a envoyé un message clair à son entraîneur."
+      "Pièce maîtresse d’Arsenal lors de son sacre en Premier League la saison dernière, Martin Zubimendi a complètement disparu du onze de départ de Mikel Arteta.",
+      "Entre une concurrence renforcée et (…)"
     ],
-    "telegram_summary": "Remplaçant au coup d'envoi face au PSG, Georges Mikautadze n'a pas caché sa frustration après la lourde défaite de Villarreal (0-6) et a envoyé un message clair à son entraîneur.",
-    "link": "https://www.onzemondial.com/ligue-des-champions/jaurais-aime-etre-titulaire-mikautadze-sort-du-silence-apres-la-debacle-subie-au-psg-1007407",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/jaurais-aime-etre-titulaire-mikautadze-sort-du-silence-apres-la-debacle-subie-au-psg-1007407",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8d57f96ca90b0e9a",
-    "published": "2026-11-06T14:27:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1007407/410627/1200-L--j-aurais-aim-tre-titulaire-mikautadze-sort-du-silence-aprs-la-dbcle-subie-au-psg.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1007407/410627/1200-L--j-aurais-aim-tre-titulaire-mikautadze-sort-du-silence-aprs-la-dbcle-subie-au-psg.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "5a3779d852dfbe51",
-    "title": "Coupe du Monde 2030 : un candidat espagnol menace la FIFA au sujet du Maroc",
-    "summary": "Décidément, tout ce qui touche à la FIFA est compliqué ces derniers temps. Hormis les scandales liés au sulfureux Gianni Infantino, c’est maintenant au tour de la prochaine Coupe du Monde, organisée (…)",
-    "summary_short": "Décidément, tout ce qui touche à la FIFA est compliqué ces derniers temps. Hormis les scandales liés au sulfureux Gianni Infantino, c’est maintenant au tour de la prochaine Coupe du Monde, organisée (…)",
-    "content": "Décidément, tout ce qui touche à la FIFA est compliqué ces derniers temps. Hormis les scandales liés au sulfureux Gianni Infantino, c’est maintenant au tour de la prochaine Coupe du Monde, organisée (…)",
-    "paragraphs": [
-      "Décidément, tout ce qui touche à la FIFA est compliqué ces derniers temps. Hormis les scandales liés au sulfureux Gianni Infantino, c’est maintenant au tour de la prochaine Coupe du Monde, organisée (…)"
-    ],
-    "key_points": [
-      "Décidément, tout ce qui touche à la FIFA est compliqué ces derniers temps.",
-      "Hormis les scandales liés au sulfureux Gianni Infantino, c’est maintenant au tour de la prochaine Coupe du Monde, organisée (…)"
-    ],
-    "telegram_summary": "Décidément, tout ce qui touche à la FIFA est compliqué ces derniers temps. Hormis les scandales liés au sulfureux Gianni Infantino, c’est maintenant au tour de la prochaine Coupe du Monde, organisée (…)",
-    "link": "https://www.footmercato.net/a5805690866543609319-coupe-du-monde-2030-un-candidat-espagnol-menace-la-fifa-au-sujet-du-maroc",
-    "source_url": "https://www.footmercato.net/a5805690866543609319-coupe-du-monde-2030-un-candidat-espagnol-menace-la-fifa-au-sujet-du-maroc",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5a3779d852dfbe51",
-    "published": "2026-11-06T14:26:53+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epaliveeight606811.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epaliveeight606811.jpg",
+    "telegram_summary": "Pièce maîtresse d’Arsenal lors de son sacre en Premier League la saison dernière, Martin Zubimendi a complètement disparu du onze de départ de Mikel Arteta. Entre une concurrence renforcée et (…)",
+    "link": "https://www.footmercato.net/a1984608325835747508-arsenal-mais-ou-est-passe-martin-zubimendi",
+    "source_url": "https://www.footmercato.net/a1984608325835747508-arsenal-mais-ou-est-passe-martin-zubimendi",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e010a4f9a11c773e",
+    "published": "2026-11-06T20:00:00+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/martin-zubimendi-2627.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/martin-zubimendi-2627.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "Foot Mercato",
     "source_priority": 92,
     "source_region": "international",
     "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Blessures",
-    "category_emoji": "🚑",
+    "category": "Mercato",
+    "category_emoji": "🚨",
     "editorial_score": 4,
     "espn_verification": {},
     "quality_sources": [
@@ -470,26 +249,26 @@
     "quality_score": 92
   },
   {
-    "slug": "9f1eb2f7f4b686b3",
-    "title": "Portugal : Jorge Jesus ne se sent pas responsable de la retraite de Ronaldo",
-    "summary": "Au lendemain de l'annonce de la retraite internationale de Cristiano Ronaldo, le sélectionneur Jorge Jesus a annoncé la liste des jo...",
-    "summary_short": "Au lendemain de l'annonce de la retraite internationale de Cristiano Ronaldo, le sélectionneur Jorge Jesus a annoncé la liste des jo...",
-    "content": "Au lendemain de l'annonce de la retraite internationale de Cristiano Ronaldo, le sélectionneur Jorge Jesus a annoncé la liste des jo...",
+    "slug": "951e264665c7a6c5",
+    "title": "EdF : Zidane envoie un message à Kroupi",
+    "summary": "Privé d'Ousmane Dembélé, Estéban Lepaul et Maghnes Akliouche, tous blessés, le sélectionneur de l'équipe de France Zinédine Zidane a convoqué, pour la......",
+    "summary_short": "Privé d'Ousmane Dembélé, Estéban Lepaul et Maghnes Akliouche, tous blessés, le sélectionneur de l'équipe de France Zinédine Zidane a convoqué, pour la......",
+    "content": "Privé d'Ousmane Dembélé, Estéban Lepaul et Maghnes Akliouche, tous blessés, le sélectionneur de l'équipe de France Zinédine Zidane a convoqué, pour la......",
     "paragraphs": [
-      "Au lendemain de l'annonce de la retraite internationale de Cristiano Ronaldo, le sélectionneur Jorge Jesus a annoncé la liste des jo..."
+      "Privé d'Ousmane Dembélé, Estéban Lepaul et Maghnes Akliouche, tous blessés, le sélectionneur de l'équipe de France Zinédine Zidane a convoqué, pour la......"
     ],
     "key_points": [
-      "Au lendemain de l'annonce de la retraite internationale de Cristiano Ronaldo, le sélectionneur Jorge Jesus a annoncé la liste des jo..."
+      "Privé d'Ousmane Dembélé, Estéban Lepaul et Maghnes Akliouche, tous blessés, le sélectionneur de l'équipe de France Zinédine Zidane a convoqué, pour la......"
     ],
-    "telegram_summary": "Au lendemain de l'annonce de la retraite internationale de Cristiano Ronaldo, le sélectionneur Jorge Jesus a annoncé la liste des jo...",
-    "link": "https://m.maxifoot.fr/football/article-66491.htm",
-    "source_url": "https://m.maxifoot.fr/football/article-66491.htm",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9f1eb2f7f4b686b3",
-    "published": "2026-11-06T14:21:01+00:00",
-    "image": "https://photo.maxifoot.fr/jorge-jesus-21.jpg",
-    "source_image": "https://photo.maxifoot.fr/jorge-jesus-21.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
+    "telegram_summary": "Privé d'Ousmane Dembélé, Estéban Lepaul et Maghnes Akliouche, tous blessés, le sélectionneur de l'équipe de France Zinédine Zidane a convoqué, pour la......",
+    "link": "https://www.maxifoot.fr/france/zidane-envoie-un-message-a-kroupi-foot-467231.htm",
+    "source_url": "https://www.maxifoot.fr/france/zidane-envoie-un-message-a-kroupi-foot-467231.htm",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=951e264665c7a6c5",
+    "published": "2026-11-06T19:42:48+00:00",
+    "image": "https://news.maxifoot.fr/amp/467231.webp",
+    "source_image": "https://news.maxifoot.fr/amp/467231.webp",
+    "image_origin": "generated_fallback",
+    "image_layout": "general-banner",
     "source": "Maxifoot",
     "source_priority": 78,
     "source_region": "international",
@@ -504,97 +283,212 @@
     "quality_score": 78
   },
   {
-    "slug": "33c85512bcba6592",
-    "title": "Real Madrid : le groupe convoqué pour le déplacement à Valence",
-    "summary": "Le Real Madrid devra composer avec quatre absences pour son déplacement sur la pelouse de Valence, ce samedi soir (21h), dans le cadre de la 12e journée de Liga. José Mourinho ne pourra pas compter (…)",
-    "summary_short": "Le Real Madrid devra composer avec quatre absences pour son déplacement sur la pelouse de Valence, ce samedi soir (21h), dans le cadre de la 12e journée de Liga. José Mourinho ne pourra pas compter (…)",
-    "content": "Le Real Madrid devra composer avec quatre absences pour son déplacement sur la pelouse de Valence, ce samedi soir (21h), dans le cadre de la 12e journée de Liga. José Mourinho ne pourra pas compter (…)",
+    "slug": "015ee5a2525da9b5",
+    "title": "Ligue 1 : les nommés pour le trophée UNFP du joueur du mois d’octobre",
+    "summary": "L’UNFP a annoncé ce vendredi les trois joueurs nommés pour le trophée du meilleur joueur du mois d’octobre en Ligue 1. Meilleur passeur de l’élite avec sept offrandes, Florian Thauvin (RC Lens) est (…)",
+    "summary_short": "L’UNFP a annoncé ce vendredi les trois joueurs nommés pour le trophée du meilleur joueur du mois d’octobre en Ligue 1. Meilleur passeur de l’élite avec sept offrandes, Florian Thauvin (RC Lens) est (…)",
+    "content": "L’UNFP a annoncé ce vendredi les trois joueurs nommés pour le trophée du meilleur joueur du mois d’octobre en Ligue 1. Meilleur passeur de l’élite avec sept offrandes, Florian Thauvin (RC Lens) est (…)",
     "paragraphs": [
-      "Le Real Madrid devra composer avec quatre absences pour son déplacement sur la pelouse de Valence, ce samedi soir (21h), dans le cadre de la 12e journée de Liga. José Mourinho ne pourra pas compter (…)"
+      "L’UNFP a annoncé ce vendredi les trois joueurs nommés pour le trophée du meilleur joueur du mois d’octobre en Ligue 1. Meilleur passeur de l’élite avec sept offrandes, Florian Thauvin (RC Lens) est (…)"
     ],
     "key_points": [
-      "Le Real Madrid devra composer avec quatre absences pour son déplacement sur la pelouse de Valence, ce samedi soir (21h), dans le cadre de la 12e journée de Liga.",
-      "José Mourinho ne pourra pas compter (…)"
+      "L’UNFP a annoncé ce vendredi les trois joueurs nommés pour le trophée du meilleur joueur du mois d’octobre en Ligue 1.",
+      "Meilleur passeur de l’élite avec sept offrandes, Florian Thauvin (RC Lens) est (…)"
     ],
-    "telegram_summary": "Le Real Madrid devra composer avec quatre absences pour son déplacement sur la pelouse de Valence, ce samedi soir (21h), dans le cadre de la 12e journée de Liga. José Mourinho ne pourra pas compter (…)",
-    "link": "https://www.footmercato.net/a7404512974788099023-real-madrid-le-groupe-convoque-pour-le-deplacement-a-valence",
-    "source_url": "https://www.footmercato.net/a7404512974788099023-real-madrid-le-groupe-convoque-pour-le-deplacement-a-valence",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=33c85512bcba6592",
-    "published": "2026-11-06T14:04:10+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/kylian-mbappe-2627-7.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/kylian-mbappe-2627-7.jpg",
+    "telegram_summary": "L’UNFP a annoncé ce vendredi les trois joueurs nommés pour le trophée du meilleur joueur du mois d’octobre en Ligue 1. Meilleur passeur de l’élite avec sept offrandes, Florian Thauvin (RC Lens) est (…)",
+    "link": "https://www.footmercato.net/a3959561452227530744-ligue-1-les-nommes-pour-le-trophee-unfp-du-joueur-du-mois-doctobre",
+    "source_url": "https://www.footmercato.net/a3959561452227530744-ligue-1-les-nommes-pour-le-trophee-unfp-du-joueur-du-mois-doctobre",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=015ee5a2525da9b5",
+    "published": "2026-11-06T19:41:29+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo774941-1920x1080.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo774941-1920x1080.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "Foot Mercato",
     "source_priority": 92,
     "source_region": "international",
     "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Officiel",
+    "category_emoji": "✅",
+    "editorial_score": 5,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "3a23e9c5089408ae",
+    "title": "Portugal : Jorge Jesus assure ne pas avoir été prévenu de la retraite internationale de Cristiano Ronaldo",
+    "summary": "En marge du dévoilement de la liste des joueurs convoqués pour le prochain rassemblement du Portugal, le sélectionneur de la Seleção, Jorge Jesus, s'est exprimé au sujet de l'annonce de la retraite…",
+    "summary_short": "En marge du dévoilement de la liste des joueurs convoqués pour le prochain rassemblement du Portugal, le sélectionneur de la Seleção, Jorge Jesus, s'est exprimé au sujet de l'annonce de la retraite…",
+    "content": "En marge du dévoilement de la liste des joueurs convoqués pour le prochain rassemblement du Portugal, le sélectionneur de la Seleção, Jorge Jesus, s'est exprimé au sujet de l'annonce de la retraite…",
+    "paragraphs": [
+      "En marge du dévoilement de la liste des joueurs convoqués pour le prochain rassemblement du Portugal, le sélectionneur de la Seleção, Jorge Jesus, s'est exprimé au sujet de l'annonce de la retraite…"
+    ],
+    "key_points": [
+      "En marge du dévoilement de la liste des joueurs convoqués pour le prochain rassemblement du Portugal, le sélectionneur de la Seleção, Jorge Jesus, s'est exprimé au sujet de l'annonce de la retraite…"
+    ],
+    "telegram_summary": "En marge du dévoilement de la liste des joueurs convoqués pour le prochain rassemblement du Portugal, le sélectionneur de la Seleção, Jorge Jesus, s'est exprimé au sujet de l'annonce de la retraite…",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-portugal-jorge-jesus-assure-ne-pas-avoir-ete-prevenu-de-la-retraite-internationale-de-cristiano-ronaldo-544939.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-portugal-jorge-jesus-assure-ne-pas-avoir-ete-prevenu-de-la-retraite-internationale-de-cristiano-ronaldo-544939.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3a23e9c5089408ae",
+    "published": "2026-11-06T18:05:00+00:00",
+    "image": "https://s1.dmcdn.net/v/ghVbE1gxXF5CNgy-2/x480",
+    "source_image": "https://s1.dmcdn.net/v/ghVbE1gxXF5CNgy-2/x480",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Convocations",
+    "category_emoji": "📋",
+    "editorial_score": 5,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "26f1c7e98a329792",
+    "title": "Nouvelle liste des Bleus : Mbappé et Tchouaméni de retour, première convocation pour Pablo Pagis",
+    "summary": "Zinédine Zidane a dévoilé, vendredi, la nouvelle liste de joueurs de l'Équipe de France qui disputeront les matchs pour accéder aux quarts de final de la Ligue des nations, face à la Turquie et l'Italie.",
+    "summary_short": "Zinédine Zidane a dévoilé, vendredi, la nouvelle liste de joueurs de l'Équipe de France qui disputeront les matchs pour accéder aux quarts de final de la Ligue des nations, face à la Turquie et l'Italie.",
+    "content": "Zinédine Zidane a dévoilé, vendredi, la nouvelle liste de joueurs de l'Équipe de France qui disputeront les matchs pour accéder aux quarts de final de la Ligue des nations, face à la Turquie et l'Italie. On y retrouve notamment Kylian Mbappé et Aurélien Tchouaméni, remis de leurs blessures. Pablo Pagis, attaquant du Paris FC, a été convoqué pour la première fois.",
+    "paragraphs": [
+      "Zinédine Zidane a dévoilé, vendredi, la nouvelle liste de joueurs de l'Équipe de France qui disputeront les matchs pour accéder aux quarts de final de la Ligue des nations, face à la Turquie et l'Italie. On y retrouve notamment Kylian Mbappé et Aurélien Tchouaméni, remis de leurs blessures. Pablo Pagis, attaquant du Paris FC, a été convoqué pour la première fois."
+    ],
+    "key_points": [
+      "Zinédine Zidane a dévoilé, vendredi, la nouvelle liste de joueurs de l'Équipe de France qui disputeront les matchs pour accéder aux quarts de final de la Ligue des nations, face à la Turquie et l'Italie.",
+      "On y retrouve notamment Kylian Mbappé et Aurélien Tchouaméni, remis de leurs blessures.",
+      "Pablo Pagis, attaquant du Paris FC, a été convoqué pour la première fois."
+    ],
+    "telegram_summary": "Zinédine Zidane a dévoilé, vendredi, la nouvelle liste de joueurs de l'Équipe de France qui disputeront les matchs pour accéder aux quarts de final de la Ligue des nations, face à la Turquie et l'Italie.",
+    "link": "https://www.france24.com/fr/sports/20261106-nouvelle-liste-bleus-mbapp%C3%A9-tchouam%C3%A9ni-retour-premi%C3%A8re-convocation-pour-pablo-pagis",
+    "source_url": "https://www.france24.com/fr/sports/20261106-nouvelle-liste-bleus-mbapp%C3%A9-tchouam%C3%A9ni-retour-premi%C3%A8re-convocation-pour-pablo-pagis",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=26f1c7e98a329792",
+    "published": "2026-11-06T17:40:53+00:00",
+    "image": "https://s.france24.com/media/display/3c40a64e-da07-11f1-9c67-bf1914cabd52/w:1024/p:16x9/AP24167597321938.jpg",
+    "source_image": "https://s.france24.com/media/display/3c40a64e-da07-11f1-9c67-bf1914cabd52/w:1024/p:16x9/AP24167597321938.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "France 24",
+    "source_priority": 83,
+    "source_region": "international",
+    "source_feed": "https://www.france24.com/fr/tag/football/rss",
+    "category": "Convocations",
+    "category_emoji": "📋",
+    "editorial_score": 5,
+    "espn_verification": {},
+    "quality_sources": [
+      "France 24"
+    ],
+    "quality_score": 83
+  },
+  {
+    "slug": "52389c4c198859d5",
+    "title": "Football: retour en Bleus pour Mbappé, Tchouaméni, Konaté et Thuram, première convocation pour Pablo Pagis",
+    "summary": "Le capitaine Kylian Mbappé, le milieu Aurélien Tchouaméni et le défenseur Ibrahima Konaté, remis de leurs blessures, ainsi que l'attaquant Marcus Thuram effectuent leur retour en équipe de France, selon la liste divulguée vendredi par le sélectionneur Zinédine Zidane, l'attaquant Pablo Pagis étant convoqué pour la première fois.",
+    "summary_short": "Le capitaine Kylian Mbappé, le milieu Aurélien Tchouaméni et le défenseur Ibrahima Konaté, remis de leurs blessures, ainsi que l'attaquant Marcus Thuram effectuent leur retour en équipe de France, selon la liste divulguée vendredi par le sélectionneur Zinédine Zidane, l'attaquant Pablo Pagis étant convoqué pour la première fois.",
+    "content": "Le capitaine Kylian Mbappé, le milieu Aurélien Tchouaméni et le défenseur Ibrahima Konaté, remis de leurs blessures, ainsi que l'attaquant Marcus Thuram effectuent leur retour en équipe de France, selon la liste divulguée vendredi par le sélectionneur Zinédine Zidane, l'attaquant Pablo Pagis étant convoqué pour la première fois.",
+    "paragraphs": [
+      "Le capitaine Kylian Mbappé, le milieu Aurélien Tchouaméni et le défenseur Ibrahima Konaté, remis de leurs blessures, ainsi que l'attaquant Marcus Thuram effectuent leur retour en équipe de France, selon la liste divulguée vendredi par le sélectionneur Zinédine Zidane, l'attaquant Pablo Pagis étant convoqué pour la première fois."
+    ],
+    "key_points": [
+      "Le capitaine Kylian Mbappé, le milieu Aurélien Tchouaméni et le défenseur Ibrahima Konaté, remis de leurs blessures, ainsi que l'attaquant Marcus Thuram effectuent leur retour en équipe de France, selon la liste divulguée vendredi par le sélectionneur Zinédine"
+    ],
+    "telegram_summary": "Le capitaine Kylian Mbappé, le milieu Aurélien Tchouaméni et le défenseur Ibrahima Konaté, remis de leurs blessures, ainsi que l'attaquant Marcus Thuram effectuent leur retour en équipe de France, selon la liste divulguée vendredi par le sélectionneur Zinédine Zidane, l'attaquant Pablo Pagis étant convoqué pour la première fois.",
+    "link": "https://www.rfi.fr/fr/sports/20261106-football-retour-en-bleus-pour-mbapp%C3%A9-tchouam%C3%A9ni-konat%C3%A9-et-thuram-premi%C3%A8re-convocation-pour-pablo-pagis",
+    "source_url": "https://www.rfi.fr/fr/sports/20261106-football-retour-en-bleus-pour-mbapp%C3%A9-tchouam%C3%A9ni-konat%C3%A9-et-thuram-premi%C3%A8re-convocation-pour-pablo-pagis",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=52389c4c198859d5",
+    "published": "2026-11-06T17:30:10+00:00",
+    "image": "https://s.rfi.fr/media/display/b6d368ba-da07-11f1-9910-1beafce15fea/w:1024/p:16x9/1096e71e29d7bdbd992921591f3eb188b3804bb8.jpg",
+    "source_image": "https://s.rfi.fr/media/display/b6d368ba-da07-11f1-9910-1beafce15fea/w:1024/p:16x9/1096e71e29d7bdbd992921591f3eb188b3804bb8.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "RFI",
+    "source_priority": 86,
+    "source_region": "afrique",
+    "source_feed": "https://www.rfi.fr/fr/tag/football/rss",
+    "category": "Convocations",
+    "category_emoji": "📋",
+    "editorial_score": 5,
+    "espn_verification": {},
+    "quality_sources": [
+      "RFI"
+    ],
+    "quality_score": 86
+  },
+  {
+    "slug": "37525639ebf73bcd",
+    "title": "Aurélien Tchouameni de retour, la surprise Pablo Pagis... Découvrez la liste de Zinédine Zidane pour affronter l'Italie et la Turquie en Ligue des nations",
+    "summary": "Le nouveau sélectionneur a annoncé, vendredi, les 23 joueurs convoqués pour ce rassemblement de deux matchs de Ligue des nations, la semaine prochaine.",
+    "summary_short": "Le nouveau sélectionneur a annoncé, vendredi, les 23 joueurs convoqués pour ce rassemblement de deux matchs de Ligue des nations, la semaine prochaine.",
+    "content": "Le nouveau sélectionneur a annoncé, vendredi, les 23 joueurs convoqués pour ce rassemblement de deux matchs de Ligue des nations, la semaine prochaine.",
+    "paragraphs": [
+      "Le nouveau sélectionneur a annoncé, vendredi, les 23 joueurs convoqués pour ce rassemblement de deux matchs de Ligue des nations, la semaine prochaine."
+    ],
+    "key_points": [
+      "Le nouveau sélectionneur a annoncé, vendredi, les 23 joueurs convoqués pour ce rassemblement de deux matchs de Ligue des nations, la semaine prochaine."
+    ],
+    "telegram_summary": "Le nouveau sélectionneur a annoncé, vendredi, les 23 joueurs convoqués pour ce rassemblement de deux matchs de Ligue des nations, la semaine prochaine.",
+    "link": "https://www.franceinfo.fr/sports/foot/equipe-de-france/aurelien-tchouameni-de-retour-la-surprise-pablo-pagis-decouvrez-la-liste-de-zinedine-zidane-pour-affronter-l-italie-et-la-turquie-en-ligue-des-nations_8270909.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_url": "https://www.franceinfo.fr/sports/foot/equipe-de-france/aurelien-tchouameni-de-retour-la-surprise-pablo-pagis-decouvrez-la-liste-de-zinedine-zidane-pour-affronter-l-italie-et-la-turquie-en-ligue-des-nations_8270909.html#xtor=RSS-3-%5Bgeneral%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=37525639ebf73bcd",
+    "published": "2026-11-06T17:17:08+00:00",
+    "image": "https://www.franceinfo.fr/pictures/BCSDR67PFJlpqth-ym4x4Fk2C-Q/0x0:2420x1361/432x243/filters:format(jpg)/2026/11/06/6aeddc4fbcd41704752084.jpg",
+    "source_image": "https://www.franceinfo.fr/pictures/BCSDR67PFJlpqth-ym4x4Fk2C-Q/0x0:2420x1361/432x243/filters:format(jpg)/2026/11/06/6aeddc4fbcd41704752084.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
     "category": "Convocations",
     "category_emoji": "📋",
     "editorial_score": 4,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50287482",
-      "url": "https://www.espn.com/video/clip/_/id/50287482/real-madrid-won-el-clasico-all-merit",
-      "published": "2026-10-26T14:33:14Z",
-      "score": 0.222,
-      "matched_terms": [
-        "madrid",
-        "real"
-      ],
-      "topics": [],
-      "teams": [
-        "Barcelona",
-        "Real Madrid"
-      ],
-      "athletes": [],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-06T15:59:09.358303+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "1e9c6fe818eede1c",
-    "title": "PSG : « C'est le match le plus difficile de la semaine », Luis Enrique met en garde ses joueurs avant Troyes",
-    "summary": "Avant la réception de Troyes ce samedi à 21h05, Luis Enrique s'est présenté en conférence de presse pour répondre aux questions de journalisme.",
-    "summary_short": "Avant la réception de Troyes ce samedi à 21h05, Luis Enrique s'est présenté en conférence de presse pour répondre aux questions de journalisme.",
-    "content": "Avant la réception de Troyes ce samedi à 21h05, Luis Enrique s'est présenté en conférence de presse pour répondre aux questions de journalisme.",
-    "paragraphs": [
-      "Avant la réception de Troyes ce samedi à 21h05, Luis Enrique s'est présenté en conférence de presse pour répondre aux questions de journalisme."
-    ],
-    "key_points": [
-      "Avant la réception de Troyes ce samedi à 21h05, Luis Enrique s'est présenté en conférence de presse pour répondre aux questions de journalisme."
-    ],
-    "telegram_summary": "Avant la réception de Troyes ce samedi à 21h05, Luis Enrique s'est présenté en conférence de presse pour répondre aux questions de journalisme.",
-    "link": "https://www.onzemondial.com/ligue-1/psg-cest-le-match-le-plus-difficile-de-la-semaine-luis-enrique-met-en-garde-ses-joueurs-avant-troyes-1007428",
-    "source_url": "https://www.onzemondial.com/ligue-1/psg-cest-le-match-le-plus-difficile-de-la-semaine-luis-enrique-met-en-garde-ses-joueurs-avant-troyes-1007428",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1e9c6fe818eede1c",
-    "published": "2026-11-06T13:02:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1007428/410634/1200-L-psg-c-est-le-match-le-plus-difficile-de-la-semaine-luis-enrique-met-en-garde-ses-joueurs-avant-troyes.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1007428/410634/1200-L-psg-c-est-le-match-le-plus-difficile-de-la-semaine-luis-enrique-met-en-garde-ses-joueurs-avant-troyes.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 4,
     "espn_verification": {},
     "quality_sources": [
-      "Onze Mondial"
+      "Franceinfo"
     ],
-    "quality_score": 80
+    "quality_score": 82
+  },
+  {
+    "slug": "1714ef2bc21e1c86",
+    "title": "Éliminatoires CAN 2027: le Guinéen Serhou Guirassy est forfait",
+    "summary": "La Guinée devra faire sans son buteur vedette, Serhou Guirassy manquera la double confrontation face à l’Érythrée lors des 3e et 4e journées des éliminatoires de la CAN 2027. Touché à la cuisse avec le Borussia Dortmund, l’attaquant est éloigné des terrains pour une période estimée entre quatre et six semaines.",
+    "summary_short": "La Guinée devra faire sans son buteur vedette, Serhou Guirassy manquera la double confrontation face à l’Érythrée lors des 3e et 4e journées des éliminatoires de la CAN 2027. Touché à la cuisse avec le Borussia Dortmund, l’attaquant est éloigné des terrains pour une période estimée entre quatre et six semaines.",
+    "content": "La Guinée devra faire sans son buteur vedette, Serhou Guirassy manquera la double confrontation face à l’Érythrée lors des 3e et 4e journées des éliminatoires de la CAN 2027. Touché à la cuisse avec le Borussia Dortmund, l’attaquant est éloigné des terrains pour une période estimée entre quatre et six semaines.",
+    "paragraphs": [
+      "La Guinée devra faire sans son buteur vedette, Serhou Guirassy manquera la double confrontation face à l’Érythrée lors des 3e et 4e journées des éliminatoires de la CAN 2027. Touché à la cuisse avec le Borussia Dortmund, l’attaquant est éloigné des terrains pour une période estimée entre quatre et six semaines."
+    ],
+    "key_points": [
+      "La Guinée devra faire sans son buteur vedette, Serhou Guirassy manquera la double confrontation face à l’Érythrée lors des 3e et 4e journées des éliminatoires de la CAN 2027.",
+      "Touché à la cuisse avec le Borussia Dortmund, l’attaquant est éloigné des terrains pour une période estimée entre quatre et six semaines."
+    ],
+    "telegram_summary": "La Guinée devra faire sans son buteur vedette, Serhou Guirassy manquera la double confrontation face à l’Érythrée lors des 3e et 4e journées des éliminatoires de la CAN 2027. Touché à la cuisse avec le Borussia Dortmund, l’attaquant est éloigné des terrains pour une période estimée entre quatre et six semaines.",
+    "link": "https://www.rfi.fr/fr/afrique-foot/20261106-%C3%A9liminatoires-can-2027-le-guin%C3%A9en-serhou-guirassy-est-forfait",
+    "source_url": "https://www.rfi.fr/fr/afrique-foot/20261106-%C3%A9liminatoires-can-2027-le-guin%C3%A9en-serhou-guirassy-est-forfait",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1714ef2bc21e1c86",
+    "published": "2026-11-06T16:02:40+00:00",
+    "image": "https://s.rfi.fr/media/display/60b0d0fe-88c3-11ef-90fd-005056a90284/w:1024/p:16x9/GettyImages-1971328877.jpg",
+    "source_image": "https://s.rfi.fr/media/display/60b0d0fe-88c3-11ef-90fd-005056a90284/w:1024/p:16x9/GettyImages-1971328877.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "RFI Afrique Foot",
+    "source_priority": 90,
+    "source_region": "afrique",
+    "source_feed": "https://www.rfi.fr/fr/afrique-foot/rss",
+    "category": "Blessures",
+    "category_emoji": "🚑",
+    "editorial_score": 5,
+    "espn_verification": {},
+    "quality_sources": [
+      "RFI Afrique Foot"
+    ],
+    "quality_score": 90
   },
   {
     "slug": "548b84e3bc0752e8",
@@ -712,7 +606,7 @@
         "WORLD FOOTBALL CHALLENGE"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-06T15:59:09.358303+00:00"
+      "checked_at": "2026-11-06T21:34:28.126055+00:00"
     },
     "quality_sources": [
       "France 24",
@@ -859,41 +753,6 @@
     "quality_score": 90
   },
   {
-    "slug": "72df5067bc1d7eb8",
-    "title": "“C’est une humiliation” : le coach de Lens réagit à la lourde défaite face à Côme",
-    "summary": "Humilié par Côme, le RC Lens encaisse la plus large défaite d’un club français en Ligue des champions. Ils ont concédé leur troisième revers de rang en Ligue des champions, mercredi 4 novembre.",
-    "summary_short": "Humilié par Côme, le RC Lens encaisse la plus large défaite d’un club français en Ligue des champions. Ils ont concédé leur troisième revers de rang en Ligue des champions, mercredi 4 novembre.",
-    "content": "Humilié par Côme, le RC Lens encaisse la plus large défaite d’un club français en Ligue des champions. Ils ont concédé leur troisième revers de rang en Ligue des champions, mercredi 4 novembre.",
-    "paragraphs": [
-      "Humilié par Côme, le RC Lens encaisse la plus large défaite d’un club français en Ligue des champions. Ils ont concédé leur troisième revers de rang en Ligue des champions, mercredi 4 novembre."
-    ],
-    "key_points": [
-      "Humilié par Côme, le RC Lens encaisse la plus large défaite d’un club français en Ligue des champions.",
-      "Ils ont concédé leur troisième revers de rang en Ligue des champions, mercredi 4 novembre."
-    ],
-    "telegram_summary": "Humilié par Côme, le RC Lens encaisse la plus large défaite d’un club français en Ligue des champions. Ils ont concédé leur troisième revers de rang en Ligue des champions, mercredi 4 novembre.",
-    "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/c-est-une-humiliation-le-coach-de-lens-reagit-a-la-lourde-defaite-face-a-come_8269259.html#xtor=RSS-3-%5Bgeneral%5D",
-    "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/c-est-une-humiliation-le-coach-de-lens-reagit-a-la-lourde-defaite-face-a-come_8269259.html#xtor=RSS-3-%5Bgeneral%5D",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=72df5067bc1d7eb8",
-    "published": "2026-11-05T12:02:21+00:00",
-    "image": "https://www.franceinfo.fr/pictures/rpJbNf7A9E01O2uvtmEB0_MvDg8/0x0:1080x1920/fit-in/432x243/filters:upscale():fill(blur):format(jpg)/2026/11/05/6aec6d527de3b355764177.jpg",
-    "source_image": "https://www.franceinfo.fr/pictures/rpJbNf7A9E01O2uvtmEB0_MvDg8/0x0:1080x1920/fit-in/432x243/filters:upscale():fill(blur):format(jpg)/2026/11/05/6aec6d527de3b355764177.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Franceinfo",
-    "source_priority": 82,
-    "source_region": "international",
-    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Franceinfo"
-    ],
-    "quality_score": 82
-  },
-  {
     "slug": "0bf6755077918660",
     "title": "Football: la superstar portugaise Cristiano Ronaldo annonce sa retraite internationale",
     "summary": "Le Portugais Cristiano Ronaldo, 41 ans, a annoncé ce 5 novembre 2026 sa retraite internationale sur son compte Instagram, plusieurs semaines après un psychodrame où il avait quitté le rassemblement de l'équipe nationale après un conflit avec son sélectionneur.",
@@ -991,7 +850,7 @@
         "UEFA Nations League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-06T15:59:09.358303+00:00"
+      "checked_at": "2026-11-06T21:34:28.126055+00:00"
     },
     "quality_sources": [
       "France 24",
@@ -1071,93 +930,24 @@
     "quality_score": 83
   },
   {
-    "slug": "9b8a4c9a30e681c5",
-    "title": "France Espoirs : Baticle privé d'un joueur de plus",
-    "summary": "Le sélectionneur de l'Équipe de France ne pourra pas compter sur Saïmon Bouabré qui s'est blessé pour plusieurs semaines.",
-    "summary_short": "Le sélectionneur de l'Équipe de France ne pourra pas compter sur Saïmon Bouabré qui s'est blessé pour plusieurs semaines.",
-    "content": "Le sélectionneur de l'Équipe de France ne pourra pas compter sur Saïmon Bouabré qui s'est blessé pour plusieurs semaines.",
+    "slug": "de21cbb8ffbdabed",
+    "title": "« Il ne faut pas le chercher : » Amine Gouiri lève le voile sur la personnalité de Bruno Genesio",
+    "summary": "Proche de Bruno Genesio qu’il a connu lors de ses années de formation à Lyon, Amine Gouiri est sans doute le mieux placé à l’OM pour évoquer la personnalité et le tempérament de son entraîneur.",
+    "summary_short": "Proche de Bruno Genesio qu’il a connu lors de ses années de formation à Lyon, Amine Gouiri est sans doute le mieux placé à l’OM pour évoquer la personnalité et le tempérament de son entraîneur.",
+    "content": "Proche de Bruno Genesio qu’il a connu lors de ses années de formation à Lyon, Amine Gouiri est sans doute le mieux placé à l’OM pour évoquer la personnalité et le tempérament de son entraîneur. Dans (…)",
     "paragraphs": [
-      "Le sélectionneur de l'Équipe de France ne pourra pas compter sur Saïmon Bouabré qui s'est blessé pour plusieurs semaines."
+      "Proche de Bruno Genesio qu’il a connu lors de ses années de formation à Lyon, Amine Gouiri est sans doute le mieux placé à l’OM pour évoquer la personnalité et le tempérament de son entraîneur. Dans (…)"
     ],
     "key_points": [
-      "Le sélectionneur de l'Équipe de France ne pourra pas compter sur Saïmon Bouabré qui s'est blessé pour plusieurs semaines."
+      "Proche de Bruno Genesio qu’il a connu lors de ses années de formation à Lyon, Amine Gouiri est sans doute le mieux placé à l’OM pour évoquer la personnalité et le tempérament de son entraîneur."
     ],
-    "telegram_summary": "Le sélectionneur de l'Équipe de France ne pourra pas compter sur Saïmon Bouabré qui s'est blessé pour plusieurs semaines.",
-    "link": "https://www.onzemondial.com/equipe-de-france/france-espoirs-baticle-prive-dun-joueur-de-plus-1007469",
-    "source_url": "https://www.onzemondial.com/equipe-de-france/france-espoirs-baticle-prive-dun-joueur-de-plus-1007469",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9b8a4c9a30e681c5",
-    "published": "2026-11-06T15:18:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1007469/410644/1200-L-france-espoirs-baticle-priv-d-un-joueur-de-plus.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1007469/410644/1200-L-france-espoirs-baticle-priv-d-un-joueur-de-plus.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Convocations",
-    "category_emoji": "📋",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "12fa6abc8da529e0",
-    "title": "Arsenal : Bukayo Saka absent plusieurs semaines",
-    "summary": "Gros coup dur pour Arsenal. Sorti dès la 10e minute lors du choc de Ligue des champions face au Bayern Munich (2-2), Bukayo Saka va manquer plusieurs semaines de compétition. L’ailier anglais souffre (…)",
-    "summary_short": "Gros coup dur pour Arsenal. Sorti dès la 10e minute lors du choc de Ligue des champions face au Bayern Munich (2-2), Bukayo Saka va manquer plusieurs semaines de compétition. L’ailier anglais souffre (…)",
-    "content": "Gros coup dur pour Arsenal. Sorti dès la 10e minute lors du choc de Ligue des champions face au Bayern Munich (2-2), Bukayo Saka va manquer plusieurs semaines de compétition. L’ailier anglais souffre (…)",
-    "paragraphs": [
-      "Gros coup dur pour Arsenal. Sorti dès la 10e minute lors du choc de Ligue des champions face au Bayern Munich (2-2), Bukayo Saka va manquer plusieurs semaines de compétition. L’ailier anglais souffre (…)"
-    ],
-    "key_points": [
-      "Sorti dès la 10e minute lors du choc de Ligue des champions face au Bayern Munich (2-2), Bukayo Saka va manquer plusieurs semaines de compétition."
-    ],
-    "telegram_summary": "Gros coup dur pour Arsenal. Sorti dès la 10e minute lors du choc de Ligue des champions face au Bayern Munich (2-2), Bukayo Saka va manquer plusieurs semaines de compétition. L’ailier anglais souffre (…)",
-    "link": "https://www.footmercato.net/a7922683101543968372-arsenal-bukayo-saka-absent-plusieurs-semaines",
-    "source_url": "https://www.footmercato.net/a7922683101543968372-arsenal-bukayo-saka-absent-plusieurs-semaines",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=12fa6abc8da529e0",
-    "published": "2026-11-06T14:50:40+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/bukayo-saka-2425-im-arsenal-einsatz.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/bukayo-saka-2425-im-arsenal-einsatz.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "b7e12543ec0b9cde",
-    "title": "Décès de Jesús de Miguel : les proches de Jesús Owono menacés de mort",
-    "summary": "La mort de Jesús Miguel a profondément bouleversé Jesús Owono. Le gardien du FC Andorre, impliqué dans le choc fatal avec l’attaquant, traverse une période particulièrement difficile, au point d’avoir (…)",
-    "summary_short": "La mort de Jesús Miguel a profondément bouleversé Jesús Owono. Le gardien du FC Andorre, impliqué dans le choc fatal avec l’attaquant, traverse une période particulièrement difficile, au point d’avoir (…)",
-    "content": "La mort de Jesús Miguel a profondément bouleversé Jesús Owono. Le gardien du FC Andorre, impliqué dans le choc fatal avec l’attaquant, traverse une période particulièrement difficile, au point d’avoir (…)",
-    "paragraphs": [
-      "La mort de Jesús Miguel a profondément bouleversé Jesús Owono. Le gardien du FC Andorre, impliqué dans le choc fatal avec l’attaquant, traverse une période particulièrement difficile, au point d’avoir (…)"
-    ],
-    "key_points": [
-      "La mort de Jesús Miguel a profondément bouleversé Jesús Owono.",
-      "Le gardien du FC Andorre, impliqué dans le choc fatal avec l’attaquant, traverse une période particulièrement difficile, au point d’avoir (…)"
-    ],
-    "telegram_summary": "La mort de Jesús Miguel a profondément bouleversé Jesús Owono. Le gardien du FC Andorre, impliqué dans le choc fatal avec l’attaquant, traverse une période particulièrement difficile, au point d’avoir (…)",
-    "link": "https://www.footmercato.net/a5375021480903864891-deces-de-jesus-de-miguel-les-proches-de-jesus-owono-menaces-de-mort",
-    "source_url": "https://www.footmercato.net/a5375021480903864891-deces-de-jesus-de-miguel-les-proches-de-jesus-owono-menaces-de-mort",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b7e12543ec0b9cde",
-    "published": "2026-11-06T14:45:16+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/owono.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/owono.jpg",
+    "telegram_summary": "Proche de Bruno Genesio qu’il a connu lors de ses années de formation à Lyon, Amine Gouiri est sans doute le mieux placé à l’OM pour évoquer la personnalité et le tempérament de son entraîneur.",
+    "link": "https://www.footmercato.net/a4688965115494847810-il-ne-faut-pas-le-chercher-amine-gouiri-leve-le-voile-sur-la-personnalite-de-bruno-genesio",
+    "source_url": "https://www.footmercato.net/a4688965115494847810-il-ne-faut-pas-le-chercher-amine-gouiri-leve-le-voile-sur-la-personnalite-de-bruno-genesio",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=de21cbb8ffbdabed",
+    "published": "2026-11-06T21:24:07+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/genesio-6ad1440998560.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/genesio-6ad1440998560.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "Foot Mercato",
@@ -1174,37 +964,208 @@
     "quality_score": 92
   },
   {
-    "slug": "0658b10a3e16b816",
-    "title": "PSG : Luis Enrique met en garde ses joueurs avant le match \"le plus difficile de la semaine\" face à l'ESTAC Troyes",
-    "summary": "Luis Enrique, l'entraîneur du PSG, s'est exprimé sur le match à venir face à l'ESTAC Troyes (J10 L1).",
-    "summary_short": "Luis Enrique, l'entraîneur du PSG, s'est exprimé sur le match à venir face à l'ESTAC Troyes (J10 L1).",
-    "content": "Luis Enrique, l'entraîneur du PSG, s'est exprimé sur le match à venir face à l'ESTAC Troyes (J10 L1).",
+    "slug": "28963aff43d40c9e",
+    "title": "Équipe de France : Pagis, Camavinga, Doué… le Stade Rennais à l'honneur dans la liste de Zidane",
+    "summary": "Avec sept joueurs passés par son centre de formation dans la liste de Zinédine Zidane, le Stade Rennais a de quoi être fier, même si aucun n'évolue aujourd'hui sous ses couleurs.",
+    "summary_short": "Avec sept joueurs passés par son centre de formation dans la liste de Zinédine Zidane, le Stade Rennais a de quoi être fier, même si aucun n'évolue aujourd'hui sous ses couleurs.",
+    "content": "Avec sept joueurs passés par son centre de formation dans la liste de Zinédine Zidane, le Stade Rennais a de quoi être fier, même si aucun n'évolue aujourd'hui sous ses couleurs.",
     "paragraphs": [
-      "Luis Enrique, l'entraîneur du PSG, s'est exprimé sur le match à venir face à l'ESTAC Troyes (J10 L1)."
+      "Avec sept joueurs passés par son centre de formation dans la liste de Zinédine Zidane, le Stade Rennais a de quoi être fier, même si aucun n'évolue aujourd'hui sous ses couleurs."
     ],
     "key_points": [
-      "Luis Enrique, l'entraîneur du PSG, s'est exprimé sur le match à venir face à l'ESTAC Troyes (J10 L1)."
+      "Avec sept joueurs passés par son centre de formation dans la liste de Zinédine Zidane, le Stade Rennais a de quoi être fier, même si aucun n'évolue aujourd'hui sous ses couleurs."
     ],
-    "telegram_summary": "Luis Enrique, l'entraîneur du PSG, s'est exprimé sur le match à venir face à l'ESTAC Troyes (J10 L1).",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-psg-luis-enrique-met-en-garde-ses-joueurs-avant-le-match-le-plus-difficile-de-la-semaine-face-a-l-estac-troyes-544904.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-psg-luis-enrique-met-en-garde-ses-joueurs-avant-le-match-le-plus-difficile-de-la-semaine-face-a-l-estac-troyes-544904.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0658b10a3e16b816",
-    "published": "2026-11-06T14:38:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261026164230-6803.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261026164230-6803.jpg",
+    "telegram_summary": "Avec sept joueurs passés par son centre de formation dans la liste de Zinédine Zidane, le Stade Rennais a de quoi être fier, même si aucun n'évolue aujourd'hui sous ses couleurs.",
+    "link": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-pagis-camavinga-doue-le-stade-rennais-a-lhonneur-dans-la-liste-de-zidane-1007509",
+    "source_url": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-pagis-camavinga-doue-le-stade-rennais-a-lhonneur-dans-la-liste-de-zidane-1007509",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=28963aff43d40c9e",
+    "published": "2026-11-06T21:02:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1007509/410653/1200-L-quipe-de-france-pagis-camavinga-dou-le-stade-rennais-l-honneur-dans-la-liste-de-zidane.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1007509/410653/1200-L-quipe-de-france-pagis-camavinga-dou-le-stade-rennais-l-honneur-dans-la-liste-de-zidane.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Convocations",
+    "category_emoji": "📋",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "04617066c4fbbb61",
+    "title": "Ligue 2 : L'AS Nancy-Lorraine met la pression à l'ASSE, le Stade de Reims chute pour la première fois de la saison... le récap de la soirée",
+    "summary": "Le résumé des rencontres comptant pour la 12e journée de Ligue 2, disputées ce vendredi soir.",
+    "summary_short": "Le résumé des rencontres comptant pour la 12e journée de Ligue 2, disputées ce vendredi soir.",
+    "content": "Le résumé des rencontres comptant pour la 12e journée de Ligue 2, disputées ce vendredi soir.",
+    "paragraphs": [
+      "Le résumé des rencontres comptant pour la 12e journée de Ligue 2, disputées ce vendredi soir."
+    ],
+    "key_points": [
+      "Le résumé des rencontres comptant pour la 12e journée de Ligue 2, disputées ce vendredi soir."
+    ],
+    "telegram_summary": "Le résumé des rencontres comptant pour la 12e journée de Ligue 2, disputées ce vendredi soir.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-2-l-as-nancy-lorraine-met-la-pression-a-l-asse-le-stade-de-reims-chute-pour-la-premiere-fois-de-la-saison-le-recap-de-la-soiree-544956.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-2-l-as-nancy-lorraine-met-la-pression-a-l-asse-le-stade-de-reims-chute-pour-la-premiere-fois-de-la-saison-le-recap-de-la-soiree-544956.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=04617066c4fbbb61",
+    "published": "2026-11-06T20:57:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-2/2025/une/l2-20250104084946-1681.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-2/2025/une/l2-20250104084946-1681.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "MadeInFoot",
     "source_priority": 88,
     "source_region": "international",
     "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
     "espn_verification": {},
     "quality_sources": [
       "MadeInFoot"
     ],
     "quality_score": 88
+  },
+  {
+    "slug": "5244cf92a4eaa1c9",
+    "title": "Ligue 2 : Les notes de MHSC - FC Metz : les Grenats frappent un grand coup et mettent fin à la belle série montpelliéraine",
+    "summary": "Le FC Metz l'a emporté sur la pelouse du MHSC (2-3), ce vendredi 6 novembre, pour le compte de la 12e journée de Ligue 2.",
+    "summary_short": "Le FC Metz l'a emporté sur la pelouse du MHSC (2-3), ce vendredi 6 novembre, pour le compte de la 12e journée de Ligue 2.",
+    "content": "Le FC Metz l'a emporté sur la pelouse du MHSC (2-3), ce vendredi 6 novembre, pour le compte de la 12e journée de Ligue 2.",
+    "paragraphs": [
+      "Le FC Metz l'a emporté sur la pelouse du MHSC (2-3), ce vendredi 6 novembre, pour le compte de la 12e journée de Ligue 2."
+    ],
+    "key_points": [
+      "Le FC Metz l'a emporté sur la pelouse du MHSC (2-3), ce vendredi 6 novembre, pour le compte de la 12e journée de Ligue 2."
+    ],
+    "telegram_summary": "Le FC Metz l'a emporté sur la pelouse du MHSC (2-3), ce vendredi 6 novembre, pour le compte de la 12e journée de Ligue 2.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-2-les-notes-de-mhsc-fc-metz-les-grenats-frappent-un-grand-coup-et-mettent-fin-a-la-belle-serie-montpellieraine-544955.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-2-les-notes-de-mhsc-fc-metz-les-grenats-frappent-un-grand-coup-et-mettent-fin-a-la-belle-serie-montpellieraine-544955.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5244cf92a4eaa1c9",
+    "published": "2026-11-06T20:54:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-2/2026/une/l2-20261106212900-9471.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-2/2026/une/l2-20261106212900-9471.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "af5aa6aa4c11da00",
+    "title": "Ligue 2 : Nancy ne s'arrête plus, Montpellier s'incline... les résultats du multiplex",
+    "summary": "La douzième journée de Ligue 2 démarrait ce soir avec notamment le choc entre Montpellier et Metz, deux des plus gros budgets du championnat.",
+    "summary_short": "La douzième journée de Ligue 2 démarrait ce soir avec notamment le choc entre Montpellier et Metz, deux des plus gros budgets du championnat.",
+    "content": "La douzième journée de Ligue 2 démarrait ce soir avec notamment le choc entre Montpellier et Metz, deux des plus gros budgets du championnat.",
+    "paragraphs": [
+      "La douzième journée de Ligue 2 démarrait ce soir avec notamment le choc entre Montpellier et Metz, deux des plus gros budgets du championnat."
+    ],
+    "key_points": [
+      "La douzième journée de Ligue 2 démarrait ce soir avec notamment le choc entre Montpellier et Metz, deux des plus gros budgets du championnat."
+    ],
+    "telegram_summary": "La douzième journée de Ligue 2 démarrait ce soir avec notamment le choc entre Montpellier et Metz, deux des plus gros budgets du championnat.",
+    "link": "https://www.onzemondial.com/ligue-2/ligue-2-nancy-ne-sarrete-plus-montpellier-sincline-les-resultats-du-multiplex-1007532",
+    "source_url": "https://www.onzemondial.com/ligue-2/ligue-2-nancy-ne-sarrete-plus-montpellier-sincline-les-resultats-du-multiplex-1007532",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=af5aa6aa4c11da00",
+    "published": "2026-11-06T20:36:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1007532/410660/1200-L-ligue-2-nancy-ne-s-arrte-plus-montpellier-s-incline-les-rsultats-du-multiplex.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1007532/410660/1200-L-ligue-2-nancy-ne-s-arrte-plus-montpellier-s-incline-les-rsultats-du-multiplex.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "37f79a42bbce5a0d",
+    "title": "Manchester United : nouvelle galère pour Carrick, un cadre absent plusieurs semaines",
+    "summary": "Malgré la victoire face à la Roma (3-2), Michael Carrick doit composer avec un nouveau coup dur, Carlos Baleba étant absent plusieurs semaines.",
+    "summary_short": "Malgré la victoire face à la Roma (3-2), Michael Carrick doit composer avec un nouveau coup dur, Carlos Baleba étant absent plusieurs semaines.",
+    "content": "Malgré la victoire face à la Roma (3-2), Michael Carrick doit composer avec un nouveau coup dur, Carlos Baleba étant absent plusieurs semaines.",
+    "paragraphs": [
+      "Malgré la victoire face à la Roma (3-2), Michael Carrick doit composer avec un nouveau coup dur, Carlos Baleba étant absent plusieurs semaines."
+    ],
+    "key_points": [
+      "Malgré la victoire face à la Roma (3-2), Michael Carrick doit composer avec un nouveau coup dur, Carlos Baleba étant absent plusieurs semaines."
+    ],
+    "telegram_summary": "Malgré la victoire face à la Roma (3-2), Michael Carrick doit composer avec un nouveau coup dur, Carlos Baleba étant absent plusieurs semaines.",
+    "link": "https://www.onzemondial.com/manchester-united-nouvelle-galere-pour-carrick-un-cadre-absent-plusieurs-semaines-1007488",
+    "source_url": "https://www.onzemondial.com/manchester-united-nouvelle-galere-pour-carrick-un-cadre-absent-plusieurs-semaines-1007488",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=37f79a42bbce5a0d",
+    "published": "2026-11-06T20:29:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1007488/410650/1200-L-manchester-united-nouvelle-galre-pour-carrick-un-cadre-absent-plusieurs-semaines.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1007488/410650/1200-L-manchester-united-nouvelle-galre-pour-carrick-un-cadre-absent-plusieurs-semaines.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "dd49dc8d91d8c44e",
+    "title": "Le Havre étudie la piste Mipo Odubeko",
+    "summary": "Le Havre étudie la piste de Mipo Odubeko pour renforcer son secteur offensif lors du prochain mercato hivernal, selon nos informations. Actuellement à Shelbourne, 4ᵉ du championnat irlandais, (…)",
+    "summary_short": "Le Havre étudie la piste de Mipo Odubeko pour renforcer son secteur offensif lors du prochain mercato hivernal, selon nos informations. Actuellement à Shelbourne, 4ᵉ du championnat irlandais, (…)",
+    "content": "Le Havre étudie la piste de Mipo Odubeko pour renforcer son secteur offensif lors du prochain mercato hivernal, selon nos informations. Actuellement à Shelbourne, 4ᵉ du championnat irlandais, (…)",
+    "paragraphs": [
+      "Le Havre étudie la piste de Mipo Odubeko pour renforcer son secteur offensif lors du prochain mercato hivernal, selon nos informations. Actuellement à Shelbourne, 4ᵉ du championnat irlandais, (…)"
+    ],
+    "key_points": [
+      "Le Havre étudie la piste de Mipo Odubeko pour renforcer son secteur offensif lors du prochain mercato hivernal, selon nos informations.",
+      "Actuellement à Shelbourne, 4ᵉ du championnat irlandais, (…)"
+    ],
+    "telegram_summary": "Le Havre étudie la piste de Mipo Odubeko pour renforcer son secteur offensif lors du prochain mercato hivernal, selon nos informations. Actuellement à Shelbourne, 4ᵉ du championnat irlandais, (…)",
+    "link": "https://www.footmercato.net/a7302056126977354990-le-havre-etudie-la-piste-mipo-odubeko",
+    "source_url": "https://www.footmercato.net/a7302056126977354990-le-havre-etudie-la-piste-mipo-odubeko",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=dd49dc8d91d8c44e",
+    "published": "2026-11-06T20:05:41+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxpaimagesfour288015-1920x1080.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxpaimagesfour288015-1920x1080.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
   }
 ]
