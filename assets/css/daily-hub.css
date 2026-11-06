@@ -1,0 +1,123 @@
+/* Mr XPRONOS - Espace Aujourd'hui ; responsive, autonome et accessible. */
+:root{color-scheme:dark;--mx-bg:#06101b;--mx-panel:#102231;--mx-panel2:#152b3a;--mx-gold:#f1c57c;--mx-text:#edf3f8;--mx-muted:#a9bdc9;--mx-line:#2a4659;--mx-green:#85ddaa;--mx-red:#f3a7a7;font-family:"Segoe UI",system-ui,-apple-system,Arial,sans-serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--mx-bg);color:var(--mx-text);font:15px/1.55 "Segoe UI",system-ui,sans-serif}
+a{color:var(--mx-gold);text-decoration:none}a:hover{text-decoration:underline}
+button,input,select{font:inherit}button{cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #f8d9a2;outline-offset:3px}
+[hidden]{display:none!important}
+.mx-daily-container{width:min(1180px,calc(100% - 36px));margin:auto}
+.mx-skip{position:absolute;left:-999px;top:0;background:#fff;color:#06101b;padding:12px;z-index:3000}
+.mx-skip:focus{left:10px}
+.mx-daily-header{border-bottom:1px solid #254154;background:#091927;position:relative;z-index:20}
+.mx-daily-header-inner{display:flex;align-items:center;gap:18px;justify-content:space-between;min-height:78px}
+.mx-daily-brand{flex:none;display:flex;align-items:center}
+.mx-daily-brand img{max-width:148px;width:100%;height:58px;object-fit:contain}
+.mx-daily-nav{display:flex;gap:clamp(8px,1.3vw,18px);align-items:center;flex-wrap:wrap}
+.mx-daily-nav a{font-weight:700;font-size:13px;color:#dce9f0}
+.mx-daily-nav a.active{color:var(--mx-gold)}
+.mx-daily-install,.header-install-row button{background:var(--mx-gold);border:1px solid #f9dfa7;border-radius:9px;padding:10px 13px;color:#091721;font-weight:800;font-size:12px}
+.header-install-row{display:none;padding:5px 0 13px}
+.header-install-row.show{display:block}
+.header-install-row .container{width:min(1180px,calc(100% - 36px));margin:auto;display:flex;justify-content:center}
+.mx-daily-intro{margin-top:22px;background:linear-gradient(105deg,#102a3c,#0c2333 67%,#192c34);border:1px solid #476078;border-radius:18px;padding:clamp(22px,3vw,35px);display:flex;justify-content:space-between;align-items:center;gap:16px}
+.mx-daily-eyebrow{font-size:11px;text-transform:uppercase;font-weight:850;letter-spacing:.12em;color:var(--mx-gold)}
+.mx-daily-intro h1{font-size:clamp(30px,4vw,52px);letter-spacing:-.04em;line-height:1.13;margin:9px 0 15px}
+.mx-daily-intro h1 span{color:var(--mx-gold)}
+.mx-daily-intro p{max-width:720px;margin:0;color:#dae6ec;font-size:14px}
+.mx-daily-intro-meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:17px;font-size:12px;color:#c4d0dc}
+.mx-daily-intro-meta span{border:1px solid #395a70;border-radius:40px;padding:5px 10px}
+.mx-daily-intro-actions{min-width:160px;display:grid;gap:10px}
+.mx-daily-intro-actions a,.mx-daily-intro-actions button,.mx-daily-share-panel button,.mx-daily-reminder-row button,.mx-daily-push-actions button{border:1px solid var(--mx-gold);border-radius:10px;padding:10px 13px;background:var(--mx-gold);color:#091b26;text-align:center;font-weight:800;font-size:13px}
+.mx-daily-intro-actions a{background:transparent;color:#ffe0a5}
+.mx-daily-section,.mx-daily-panel{margin:21px 0}
+.mx-daily-panel{background:var(--mx-panel);border:1px solid var(--mx-line);border-radius:15px;padding:clamp(16px,2.5vw,23px);min-width:0}
+.mx-daily-changes{border-color:#856d43;background:linear-gradient(115deg,#1a2e39,#172735)}
+.mx-daily-section-top{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;margin-bottom:16px}
+.mx-daily-section-top h2,.mx-daily-panel h2{font-size:clamp(21px,2.6vw,30px);line-height:1.2;letter-spacing:-.025em;margin:4px 0 5px}
+.mx-daily-section-top p,.mx-daily-panel>p{font-size:13px;line-height:1.55;color:var(--mx-muted);margin:0}
+.mx-daily-muted{color:var(--mx-muted);font-size:13px}
+.mx-daily-error{padding:13px 16px;background:#4c2626;border:1px solid #ae6b6b;color:#ffe0e0;border-radius:10px;margin-top:15px}
+.mx-daily-change-items{display:flex;flex-direction:column;gap:9px}
+.mx-daily-change-line{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px}
+.mx-daily-change-line strong{color:#fff;font-size:16px}
+.mx-daily-change-list{display:flex;flex-wrap:wrap;gap:7px;margin:5px 0}
+.mx-daily-change-list a,.mx-daily-change-list span{border:1px solid #4e6779;background:#142b3c;color:#dae8f5;padding:5px 10px;border-radius:30px;font-size:12px}
+.mx-daily-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.mx-daily-match-card{border:1px solid var(--mx-line);background:var(--mx-panel);border-radius:13px;padding:15px;min-width:0}
+.mx-daily-match-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;color:#b0c5d3;font-size:12px}
+.mx-daily-chip{background:#294454;color:#ffda95;border:1px solid #4b626e;border-radius:25px;padding:3px 8px;font-size:10px;font-weight:800}
+.mx-daily-match-card h3{font-size:17px;line-height:1.3;margin:13px 0 6px;color:#fff;overflow-wrap:anywhere}
+.mx-daily-match-card p{font-size:12px;color:#b5c6d3;margin:5px 0}
+.mx-daily-prediction{margin:12px 0;padding:10px 11px;background:#182f40;border-radius:9px;color:#f2e1c1;display:flex;justify-content:space-between;gap:9px;font-size:13px}
+.mx-daily-fav-buttons{display:flex;gap:5px;flex-wrap:wrap;margin-top:12px}
+.mx-daily-fav-buttons button{border:1px solid #567184;background:#182f41;color:#dce5ee;padding:5px 8px;border-radius:24px;font-size:11px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mx-daily-fav-buttons button[aria-pressed="true"]{background:#5c492d;border-color:#bd9851;color:#ffe0a1}
+.mx-daily-card-link{display:inline-block;font-weight:750;font-size:12px;margin-top:11px}
+.mx-daily-more{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:750;margin-top:13px}
+.mx-daily-mini-summary{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.mx-daily-mini-summary span{font-size:12px;border:1px solid #39596e;background:#0f293c;padding:7px 11px;border-radius:30px;color:#e2eff6}
+.mx-daily-filter{display:flex;flex-wrap:wrap;gap:7px}
+.mx-daily-filter button{padding:8px 11px;border:1px solid #537082;background:#193141;color:#fff;border-radius:8px;font-size:12px;font-weight:750}
+.mx-daily-filter button[aria-pressed="true"]{background:#e3b96f;border-color:#e3b96f;color:#0e2130}
+.mx-daily-grid-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.mx-daily-grid-two>.mx-daily-panel{margin:0}
+.mx-daily-grid-two .mx-daily-section-top h2{font-size:23px}
+.mx-daily-fav-form{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin:15px 0}
+.mx-daily-fav-form label{font-size:12px;color:#c0d1dc;width:100%}
+.mx-daily-fav-form label[for="daily-favorite-name"]{display:none}
+.mx-daily-fav-form select,.mx-daily-fav-form input,.mx-daily-reminder-row input{background:#092235;color:#f4f8fa;border:1px solid #50718a;border-radius:9px;padding:10px}
+.mx-daily-fav-form select{width:135px}
+.mx-daily-fav-form input{flex:1;min-width:120px}
+.mx-daily-fav-form button{padding:11px 13px;background:#eac67d;color:#061a29;border:0;border-radius:9px;font-weight:800}
+.mx-daily-tags{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}
+.mx-daily-tag{display:inline-flex;align-items:center;gap:6px;border-radius:25px;background:#1f3b4d;border:1px solid #587386;color:#e0e9f0;padding:5px 9px;font-size:12px}
+.mx-daily-tag button{font-size:16px;background:none;border:0;color:#ffd2c8;cursor:pointer;line-height:1;padding:0 2px}
+.mx-daily-quiet{background:transparent!important;border:1px solid #668297!important;color:#e9eff3!important;padding:7px 11px;border-radius:9px;font-size:12px}
+.mx-daily-score-list{display:grid;gap:9px}
+.mx-daily-score-row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #304f61;padding:7px 0;align-items:center}
+.mx-daily-score-row strong{color:#fff;font-size:13px}
+.mx-daily-score-row span{color:#e9c17a;font-size:13px;white-space:nowrap}
+.mx-daily-score-row small{display:block;color:#afc5d1;font-size:11px}
+.mx-daily-footnote{color:#abc1cf!important;font-size:12px!important;margin-top:12px!important}
+.mx-daily-performance{display:flex;gap:11px;flex-wrap:wrap;margin:0 0 16px}
+.mx-daily-stat{flex:1;min-width:140px;border:1px solid #355468;background:#122b3b;border-radius:12px;padding:14px}
+.mx-daily-stat strong{display:block;font-size:27px;color:#fff}
+.mx-daily-stat span{font-size:12px;color:#bbcad6}
+.mx-daily-results-list{display:grid;gap:8px}
+.mx-daily-result{border-bottom:1px solid #2e4d5e;display:flex;justify-content:space-between;gap:10px;padding:8px 0;align-items:flex-start}
+.mx-daily-result div{font-size:13px}
+.mx-daily-result small{font-size:11px;color:#a7bdcc;display:block}
+.mx-daily-result strong{font-size:13px}
+.mx-daily-status{display:block;flex:none;padding:4px 8px;border-radius:7px;font-weight:700;font-size:11px;background:#343f46;color:#fff}
+.mx-daily-status.win{color:#d5ffe6;background:#27513e}
+.mx-daily-status.not_validated{color:#ffe0dc;background:#653737}
+.mx-daily-result-summary{font-size:13px;color:#c2d2dd;margin:10px 0}
+.mx-daily-table{width:100%;border-collapse:collapse;font-size:13px}
+.mx-daily-table th,.mx-daily-table td{text-align:left;padding:10px 7px;border-bottom:1px solid #2f4c5e}
+.mx-daily-table th{color:#bed0dc;font-size:12px}
+.mx-daily-news-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.mx-daily-news-card{border:1px solid #2e5064;border-radius:12px;padding:16px;background:#112738;display:flex;flex-direction:column;min-width:0}
+.mx-daily-news-card span{color:#c3d0db;font-size:11px}
+.mx-daily-news-card h3{font-size:16px;line-height:1.35;color:#f4f7fa;margin:9px 0 8px}
+.mx-daily-news-card p{font-size:12px;line-height:1.5;color:#b7cbd6;margin:0 0 12px;flex:1}
+.mx-daily-news-card a{font-size:12px;font-weight:750}
+.mx-daily-news-card .mx-daily-chip{align-self:flex-start;background:#2c4c3b;color:#c2efcc}
+.mx-daily-tip-body{font-size:14px;color:#d4e2ec!important}
+.mx-daily-panel>h3{font-size:17px;margin:0 0 9px}
+.mx-daily-reminder-row{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:14px 0}
+.mx-daily-reminder-row label{font-size:12px;color:#c4d6e3}
+.mx-daily-push-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.mx-daily-share-panel{margin:20px 0 32px;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;background:#172d3b;border:1px solid #a68a54;padding:20px 24px;border-radius:15px}
+.mx-daily-share-panel h2{font-size:23px;margin:0 0 5px}
+.mx-daily-share-panel p{font-size:13px;color:#c2d1dc;margin:0}
+.mx-daily-footer{background:#071826;border-top:1px solid #24455b;padding:22px 0;color:#b2c5d0;font-size:12px}
+.mx-daily-footer .mx-daily-container{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.mx-daily-footer nav{display:flex;gap:14px;flex-wrap:wrap}
+.mx-daily-section p,.mx-daily-panel p{overflow-wrap:anywhere}
+@media(max-width:1000px){.mx-daily-cards,.mx-daily-news-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mx-daily-nav{gap:9px}.mx-daily-brand img{width:110px}}
+@media(max-width:760px){.mx-daily-header-inner{flex-wrap:wrap;padding:7px 0}.mx-daily-nav{order:3;width:100%;overflow-x:auto;flex-wrap:nowrap;white-space:nowrap;padding:6px 0 11px}.mx-daily-intro{flex-direction:column;align-items:stretch}.mx-daily-intro-actions{display:flex;flex-wrap:wrap}.mx-daily-grid-two{grid-template-columns:1fr}.mx-daily-section-top{flex-wrap:wrap}.mx-daily-container{width:calc(100% - 26px)}}
+@media(max-width:510px){.mx-daily-intro{margin-top:11px;padding:18px}.mx-daily-intro h1{font-size:33px}.mx-daily-intro p{font-size:12px}.mx-daily-cards,.mx-daily-news-grid{grid-template-columns:1fr}.mx-daily-panel{padding:15px}.mx-daily-section-top h2{font-size:23px}.mx-daily-mini-summary span{font-size:11px}.mx-daily-fav-form select{width:100%}.mx-daily-fav-form input{width:100%;flex:auto}.mx-daily-fav-form button{flex:1}.mx-daily-performance{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.mx-daily-stat{min-width:0;padding:12px}.mx-daily-stat strong{font-size:25px}.mx-daily-reminder-row button{width:100%}.mx-daily-push-actions button{flex:1}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
