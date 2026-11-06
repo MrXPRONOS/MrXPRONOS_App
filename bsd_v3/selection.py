@@ -29,10 +29,12 @@ def serialize_candidates(candidates, features, quality, quotes, *, policy=V3Poli
         row["decision"]=label_candidate(row,quality,quote,policy)
         if c.key in (market_guards or {}):
             row["decision"]["pro_vip_shadow"]=False
+            row["decision"]["priced_reliability_shadow"]=False
             row["decision"]["public_preprice"]=False
             row["decision"]["legacy_guard_reason"]=market_guards[c.key]
         if c.key in blocked_keys:
             row["decision"]["pro_vip_shadow"]=False
+            row["decision"]["priced_reliability_shadow"]=False
             row["decision"]["value_shadow"]=False
             row["decision"]["disabled_reason"]="prospective_calibration_drift"
         out.append(row)
