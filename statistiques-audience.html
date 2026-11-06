@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="theme-color" content="#071624">
+  <title>Audience & fidélisation — Mr XPRONOS</title>
+  <link rel="icon" href="assets/images/favicon.webp">
+  <link rel="stylesheet" href="assets/css/audience-analytics.css">
+</head>
+<body>
+  <a class="skip" href="#main">Passer au contenu principal</a>
+  <header class="top">
+    <a class="brand" href="index.html" aria-label="Retour au site Mr XPRONOS"><span class="brand-icon">MX</span> MR <strong>XPRONOS</strong><small>ANALYTICS</small></a>
+    <nav class="top-links" aria-label="Navigation administration">
+      <a href="statistiques-installation.html">Installation PWA</a>
+      <a href="index.html">Voir le site</a>
+      <button type="button" id="logout" hidden>Déconnexion</button>
+    </nav>
+  </header>
+  <main id="main" class="container">
+    <section class="intro">
+      <div><span class="eyebrow">PILOTAGE · PHASE 4</span><h1>Audience et fidélisation<span class="accent">.</span></h1>
+        <p>Mesures réelles de Mr XPRONOS : audience, retours, installations et canaux d’arrivée. Aucune estimation n’est présentée comme une personne identifiée.</p>
+      </div>
+      <span class="security"><span aria-hidden="true">●</span> Accès réservé aux administrateurs</span>
+    </section>
+    <p id="status" role="status" aria-live="polite" class="status">Vérification de l’accès…</p>
+    <form id="auth-form" class="login card" hidden>
+      <h2>Connexion administrateur</h2>
+      <label for="email">Adresse e-mail</label>
+      <input id="email" type="email" autocomplete="username" required>
+      <label for="password">Mot de passe</label>
+      <input id="password" type="password" autocomplete="current-password" required>
+      <button id="login" type="submit" class="primary">Accéder aux statistiques</button>
+      <p>Les données sont accessibles uniquement aux comptes administrateurs autorisés.</p>
+    </form>
+    <div id="dashboard" hidden>
+      <div class="toolbar card">
+        <label for="period">Période d'observation
+          <select id="period">
+            <option value="1">Aujourd’hui (UTC)</option>
+            <option value="7">7 derniers jours</option>
+            <option value="30" selected>30 derniers jours</option>
+            <option value="90">90 derniers jours</option>
+          </select>
+        </label>
+        <div class="buttons">
+          <button id="refresh" type="button" class="primary">↻ Actualiser</button>
+          <button id="export" type="button">Exporter les agrégats CSV</button>
+        </div>
+      </div>
+      <p id="data-note" class="data-note" role="status">Les données V2 commencent à leur activation. L'ancien trafic n'est pas reconstitué.</p>
+      <div class="tabs" role="tablist" aria-label="Catégories de statistiques">
+        <button type="button" role="tab" id="tab-audience" aria-controls="panel-audience" aria-selected="true" tabindex="0" data-tab="audience">Audience</button>
+        <button type="button" role="tab" id="tab-retention" aria-controls="panel-retention" aria-selected="false" tabindex="-1" data-tab="retention">Fidélisation</button>
+        <button type="button" role="tab" id="tab-installation" aria-controls="panel-installation" aria-selected="false" tabindex="-1" data-tab="installation">Installation</button>
+        <button type="button" role="tab" id="tab-acquisition" aria-controls="panel-acquisition" aria-selected="false" tabindex="-1" data-tab="acquisition">Acquisition</button>
+      </div>
+
+      <section id="panel-audience" role="tabpanel" aria-labelledby="tab-audience" tabindex="0" class="tab-panel">
+        <div class="panel-intro"><h2>Audience réelle observée</h2><p>DAU, WAU et MAU comptent des identifiants de navigateur pseudonymisés distincts sur 1, 7 et 30 jours UTC, indépendamment du filtre de période.</p></div>
+        <div class="cards">
+          <article class="card kpi"><span>DAU · Aujourd'hui</span><strong id="kpi-dau">—</strong><small>Navigateurs actifs aujourd’hui (UTC)</small></article>
+          <article class="card kpi"><span>WAU · 7 jours</span><strong id="kpi-wau">—</strong><small>Navigateurs actifs sur 7 jours</small></article>
+          <article class="card kpi"><span>MAU · 30 jours</span><strong id="kpi-mau">—</strong><small>Navigateurs actifs sur 30 jours</small></article>
+          <article class="card kpi"><span>Navigateurs sur la période</span><strong id="kpi-visitors">—</strong><small>Identifiants V2, pas des personnes</small></article>
+          <article class="card kpi"><span>Sessions</span><strong id="kpi-sessions">—</strong><small>Sessions V2 enregistrées</small></article>
+          <article class="card kpi"><span>Pages vues</span><strong id="kpi-pageviews">—</strong><small>Vues des sessions V2</small></article>
+          <article class="card kpi"><span>Sessions engagées</span><strong id="kpi-engaged">—</strong><small id="kpi-engaged-detail">Au moins 15 s visibles</small></article>
+          <article class="card kpi"><span>Sessions en mode app</span><strong id="kpi-standalone">—</strong><small>Ouverture en mode autonome</small></article>
+        </div>
+        <div class="chart-panel card">
+          <div class="card-heading"><h3>Évolution du trafic</h3><div class="chart-choices">
+            <button type="button" data-chart="visitors" aria-pressed="true">Visiteurs</button>
+            <button type="button" data-chart="sessions" aria-pressed="false">Sessions</button>
+            <button type="button" data-chart="page_views" aria-pressed="false">Pages</button>
+          </div></div>
+          <div id="traffic-chart" class="bar-chart" role="img" aria-label="Statistiques journalières"></div>
+          <div class="table-scroll"><table><thead><tr><th>Jour UTC</th><th>Navigateurs</th><th>Sessions</th><th>Pages</th><th>Engagées</th></tr></thead><tbody id="daily-rows"></tbody></table></div>
+        </div>
+        <div class="card">
+          <h3>Pages les plus consultées</h3>
+          <div class="table-scroll"><table><thead><tr><th>Page</th><th>Vues mesurées</th></tr></thead><tbody id="page-rows"></tbody></table></div>
+        </div>
+      </section>
+
+      <section id="panel-retention" role="tabpanel" aria-labelledby="tab-retention" tabindex="0" class="tab-panel" hidden>
+        <div class="panel-intro"><h2>Fidélisation et cohortes</h2><p>Retour au jour exact après la première visite mesurée. Seules les cohortes ayant eu suffisamment de temps pour revenir figurent au dénominateur.</p></div>
+        <div class="cards retention-cards">
+          <article class="card kpi"><span>Retour à J+1</span><strong id="ret-j1">—</strong><small id="ret-j1-detail">Cohorte non évaluable</small></article>
+          <article class="card kpi"><span>Retour à J+7</span><strong id="ret-j7">—</strong><small id="ret-j7-detail">Cohorte non évaluable</small></article>
+          <article class="card kpi"><span>Retour à J+30</span><strong id="ret-j30">—</strong><small id="ret-j30-detail">Cohorte non évaluable</small></article>
+          <article class="card kpi"><span>Navigateurs vus ≥ 2 jours</span><strong id="ret-returning">—</strong><small>Dans la fenêtre, pas un taux de rétention de cohorte</small></article>
+        </div>
+        <div class="card info"><h3>Comment lire ces taux ?</h3>
+          <p>« J+7 » correspond aux navigateurs revenus <strong>exactement le septième jour</strong> après leur première visite observée, et non à ceux revenus à n'importe quel moment de la semaine. Un résultat « — » signifie qu'il manque une cohorte arrivée à maturité, pas un taux de 0 %.</p>
+          <p>La première visite est celle observée depuis l’activation V2 ; un même visiteur peut changer d’identifiant lorsqu’il efface ses données ou change d’appareil.</p>
+        </div>
+      </section>
+
+      <section id="panel-installation" role="tabpanel" aria-labelledby="tab-installation" tabindex="0" class="tab-panel" hidden>
+        <div class="panel-intro"><h2>Parcours d’installation</h2><p>Les étapes sont déclarées par les navigateurs et ne forment pas nécessairement une séquence complète. L’acceptation d’une proposition n’est pas une preuve d’installation.</p></div>
+        <div class="cards">
+          <article class="card kpi"><span>CTA vus</span><strong id="ins-visible">—</strong><small>Affichages visibles dédupliqués</small></article>
+          <article class="card kpi"><span>Clics d'installation</span><strong id="ins-clicks">—</strong><small id="ins-rate">Taux de clics indisponible</small></article>
+          <article class="card kpi"><span>Propositions acceptées</span><strong id="ins-accepted">—</strong><small>Seulement si le navigateur émet l’événement</small></article>
+          <article class="card kpi"><span>Signaux appinstalled</span><strong id="ins-installed">—</strong><small>Pas universel, notamment sur iOS</small></article>
+          <article class="card kpi"><span>Ouvertures en mode app</span><strong id="ins-standalone">—</strong><small>Signal différent de l'installation confirmée</small></article>
+          <article class="card kpi"><span>Guides ouverts</span><strong id="ins-guides">—</strong><small>Installation manuelle</small></article>
+        </div>
+        <div class="grid-two">
+          <div class="card"><h3>Selon l’appareil</h3>
+            <div class="table-scroll"><table><thead><tr><th>Appareil</th><th>CTA</th><th>Clics</th><th>Mode app</th></tr></thead><tbody id="platform-rows"></tbody></table></div>
+          </div>
+          <div class="card"><h3>Selon l’emplacement</h3>
+            <div class="table-scroll"><table><thead><tr><th>Emplacement</th><th>CTA</th><th>Clics</th></tr></thead><tbody id="surface-rows"></tbody></table></div>
+          </div>
+        </div>
+        <p class="note">Le funnel utilise des <strong>identifiants uniques par étape</strong>, pas un nombre de personnes ayant installé l’app. <a href="statistiques-installation.html">Voir le rapport d’installation détaillé</a>.</p>
+      </section>
+
+      <section id="panel-acquisition" role="tabpanel" aria-labelledby="tab-acquisition" tabindex="0" class="tab-panel" hidden>
+        <div class="panel-intro"><h2>D’où viennent les visiteurs ?</h2>
+          <p>Attribution au <strong>premier contact observé</strong>, déterminée par les paramètres UTM ou le domaine référent classé localement. Aucun référent complet, adresse IP ou donnée individuelle n’est conservé dans cette collecte.</p>
+        </div>
+        <div class="grid-two">
+          <div class="card"><h3>Canaux d’acquisition</h3>
+            <div class="table-scroll"><table><thead><tr><th>Canal</th><th>Navigateurs</th><th>Clics app</th><th>Mode app</th></tr></thead><tbody id="source-rows"></tbody></table></div>
+          </div>
+          <div class="card"><h3>Campagnes UTM</h3>
+            <div class="table-scroll"><table><thead><tr><th>Campagne</th><th>Canal</th><th>Navigateurs</th></tr></thead><tbody id="campaign-rows"></tbody></table></div>
+          </div>
+        </div>
+        <div class="card info">
+          <h3>Mesurer une campagne</h3>
+          <p>Utilisez par exemple <code>?utm_source=whatsapp&amp;utm_campaign=pronos_novembre</code> ou <code>?utm_source=instagram&amp;utm_campaign=story_1</code> sur une URL de Mr XPRONOS.</p>
+          <p>Un lien sans source identifiable est classé « direct ». « Non attribué » signifie que la visite V2 a été mesurée mais pas l’acquisition. Les paramètres déclarés sont indicatifs et peuvent être modifiés par les utilisateurs.</p>
+        </div>
+      </section>
+
+      <section class="card quality">
+        <div class="card-heading"><h2>Qualité des données</h2><span class="eyebrow">TRANSPARENCE</span></div>
+        <div class="quality-list">
+          <p id="quality-sessions">Sessions V2 : —</p>
+          <p id="quality-gaps">Jours sans événement V2 : —</p>
+          <p id="quality-legacy">Visites historiques : —</p>
+          <p id="quality-suspects">Pics de trafic historique : —</p>
+          <p id="quality-attribution">Premiers contacts attribués : —</p>
+        </div>
+        <p class="note">Les pics suspects des anciens journaux sont affichés à part. Ils ne sont pas intégrés aux sessions V2 ni convertis en visites fictives. Une journée sans mesure n’est pas la preuve qu’aucun visiteur n’était présent.</p>
+      </section>
+    </div>
+  </main>
+  <footer><div class="container">Mr XPRONOS — statistiques internes · Accès administrateur · Pas d'identification de personnes.</div></footer>
+  <script type="module" src="assets/js/audience-dashboard.mjs"></script>
+</body>
+</html>
