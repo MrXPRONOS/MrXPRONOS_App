@@ -185,5 +185,37 @@ class TestV3(unittest.TestCase):
                                          ensure_ascii=False).encode("utf-8")).hexdigest()
         self.assertEqual(result["fingerprint_sha256"],expected)
 
+
+    def test_market_neutral_ranking_does_not_favor_broad_markets_by_raw_probability(self):
+        from bsd_v3.market_priors import attach_market_merit
+        matrix,cs=coherent_candidates({"home":1.35,"away":1.15})
+        by={x.key:x for x in cs}
+        priors={"markets":{
+            "1X":{"rate":.74,"n":1000},
+            "BTTS_YES":{"rate":.50,"n":1000},
+        }}
+        rows=[]
+        for key,p in (("1X",.90),("BTTS_YES",.80)):
+            c=by[key]
+            row={"key":c.key,"family":c.family,"market":c.market,"line":c.line,
+                 "probability":p,"conservative_probability":p,
+                 "decision":{"pro_vip_shadow":True,"value_shadow":False,"ev":None}}
+            rows.append(attach_market_merit(row,priors))
+        # 1X has the higher raw probability, but BTTS has a much stronger
+        # uplift over its own historical base rate and should be featured first.
+        chosen=select_candidates(rows,matrix,V3Policy(max_joint_correlation=.99))
+        self.assertEqual(chosen["pro_vip_shadow"][0],"BTTS_YES")
+
+    def test_broad_market_below_own_base_rate_is_not_featured(self):
+        from bsd_v3.market_priors import attach_market_merit
+        matrix,cs=coherent_candidates({"home":1.35,"away":1.15})
+        c=next(x for x in cs if x.key=="1X")
+        row={"key":c.key,"family":c.family,"market":c.market,"line":c.line,
+             "probability":.80,"conservative_probability":.78,
+             "decision":{"pro_vip_shadow":True,"value_shadow":False,"ev":None}}
+        row=attach_market_merit(row,{"markets":{"1X":{"rate":.81,"n":1000}}})
+        chosen=select_candidates([row],matrix,V3Policy(max_joint_correlation=.99))
+        self.assertEqual(chosen["pro_vip_shadow"],[])
+
 if __name__=="__main__":
     unittest.main()
