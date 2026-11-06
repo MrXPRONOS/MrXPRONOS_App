@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v117-favorite-alerts-20261106';
+const VERSION = 'v118-audience-analytics-20261106';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -47,6 +47,7 @@ const STATIC_ASSETS = [
     './assets/js/loading-ui.js',
     './assets/js/home-premium.js',
     './assets/js/pwa.js',
+    './assets/js/acquisition-attribution.mjs',
     './assets/js/daily-hub.mjs',
     './assets/js/daily-utils.mjs',
     './assets/js/daily-audience.mjs',
