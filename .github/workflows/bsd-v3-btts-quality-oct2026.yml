@@ -85,7 +85,7 @@ jobs:
           Path("bsd_v3/artifacts/btts_filter_experiment.json").write_text(
               json.dumps(report,indent=2),encoding="utf-8")
           print("BSD_V3_BTTS_FILTER_EXPERIMENT",json.dumps({
-              "chosen":report["chosen_on_train"],
+              "chosen":report["chosen_on_recent_selection"],
               "accepted":report["accepted_on_validation"],
               "active":report["active_policy"],
               "october_base":report["october_base"],
