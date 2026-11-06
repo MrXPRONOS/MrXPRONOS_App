@@ -94,7 +94,7 @@ def fit_calibration(index, rho, *, train_limit=2500, validation_limit=1000,
         matrix, baseline = values
         h,a = outcome_scores(event)
         b = _brier(baseline,h,a)
-         model.active = True
+        model.active = True
         try:
             calibrated = markets_from_matrix(model.apply(matrix))
             prove_coherence(calibrated)
