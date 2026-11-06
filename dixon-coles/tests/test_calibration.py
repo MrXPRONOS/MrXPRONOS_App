@@ -80,7 +80,8 @@ def _public_payload():
     return {'name':'English Premier League 2024/25','matches':[
         {'date':'2024-08-16','time':'20:00','team1':'Manchester United FC','team2':'Fulham FC','score':{'ft':[1,0]}},
         {'date':'2025-05-25','time':'16:00','team1':'Fulham FC','team2':'Manchester United FC','score':{'ft':[2,2]}},
-        {'date':'2025-05-26','time':'16:00','team1':'Fulham FC','team2':'Leeds United FC'},
+        {'date':'2025-05-26','time':'16:00','team1':'Fulham FC','team2':'Leeds United FC','score':[0,0]},
+        {'date':'2025-05-27','time':'16:00','team1':'Manchester United FC','team2':'Leeds United FC'},
         {'date':'2027-05-26','time':'16:00','team1':'Manchester United FC','team2':'Leeds United FC','score':{'ft':[1,1]}},
     ]}
 
@@ -88,13 +89,14 @@ def _public_payload():
 def test_public_domain_source_parsed_timezone_and_future_gate():
     d=parse_openfootball_season(_public_payload(),'2024-25',
        as_of=datetime(2026,11,6,tzinfo=timezone.utc))
-    assert len(d)==3  # Future result cannot enter history.
-    assert sum(m.status=='FINISHED' for m in d)==2
+    assert len(d)==4  # Future result cannot enter history.
+    assert sum(m.status=='FINISHED' for m in d)==3
+    assert any(m.status=="FINISHED" and m.home_goals==m.away_goals==0 for m in d)
     assert d[0].source=='openfootball/football.json'
     assert d[0].competition=='of:ENG-PL'
     assert d[0].kickoff.isoformat()=='2024-08-16T19:00:00+00:00' # BST
     assert d[0].home_id==d[1].away_id
-    assert d[2].status=='SCHEDULED'
+    assert d[3].status=='SCHEDULED'
 
 
 def test_download_source_sha256_and_parse(monkeypatch):
@@ -110,7 +112,7 @@ def test_download_source_sha256_and_parse(monkeypatch):
             return FakeResponse()
     items,meta=download_openfootball_season('2024-25',session=FakeSession(),
        as_of=datetime(2026,11,6,tzinfo=timezone.utc))
-    assert len(items)==3
+    assert len(items)==4
     assert meta['sha256']==hashlib.sha256(encoded).hexdigest()
     assert meta['license']=='CC0-1.0'
 

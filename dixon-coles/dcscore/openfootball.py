@@ -77,7 +77,19 @@ def parse_openfootball_season(payload: dict, season: str, *, as_of: datetime | N
         if hid==aid:
             raise SourceError("Match avec équipes identiques.")
         kick=_kickoff(record)
-        ft=(record.get("score") or {}).get("ft")
+        raw_score=record.get("score")
+        # Upstream encodes most results as {"ft": [home,away]}, but genuine
+        # 0-0 draws are sometimes the bare list [0,0] (2025-26, 2026-27).
+        # Both representations are full-time results. Missing scores remain
+        # non-finished fixtures: do not confuse {} / [] / null with a 0-0.
+        if raw_score is None or raw_score == {} or raw_score == []:
+            ft=None
+        elif isinstance(raw_score,dict):
+            ft=raw_score.get("ft")
+        elif isinstance(raw_score,list):
+            ft=raw_score
+        else:
+            raise SourceError(f"Structure de score invalide (rencontre #{ix+1}).")
         has_result=(isinstance(ft,list) and len(ft)==2 and all(type(x) is int and x>=0 for x in ft))
         if ft is not None and not has_result:
             raise SourceError(f"Score final mal formé (rencontre #{ix+1}).")
