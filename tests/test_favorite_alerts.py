@@ -38,7 +38,7 @@ class FavoriteAlertsAcceptance(unittest.TestCase):
         sql=self.read("supabase/migrations/20261106212424_daily_favorite_alerts_v1.sql")
         workflow=self.read(".github/workflows/daily-favorite-alerts.yml")
         self.assertIn("enable row level security",sql)
-        self.assertIn("revoke all on public.daily_favorite_alerts_v1",sql)
+        self.assertIn("revoke all on table public.daily_favorite_alerts_v1",sql)
         self.assertIn("references public.push_subscriptions(endpoint) on delete cascade",sql)
         self.assertIn("timezone_name",sql)
         self.assertIn("CRON_SECRET",workflow)
