@@ -67,7 +67,7 @@ def fit_goal_strength(index,rho,*,calibration=None,max_train=800,
     train=[e for e in matches if fixture_datetime(e).month<=8][:max_train]
     validation=[e for e in matches if fixture_datetime(e).month>=9][:max_validation]
     snapshots={}
-    for subset,events in (("train",train),("validation",validation)):
+    for split_name,events in (("train",train),("validation",validation)):
         total={alpha:0. for alpha in ALPHAS}
         groups={alpha:{family:0. for family in FAMILIES} for alpha in ALPHAS}
         count=0
@@ -85,9 +85,9 @@ def fit_goal_strength(index,rho,*,calibration=None,max_train=800,
                     candidates=markets_from_matrix(matrix)
                     family_loss={}
                     for family in FAMILIES:
-                        subset=[c for c in candidates if c.family==family]
+                        family_rows=[c for c in candidates if c.family==family]
                         family_loss[family]=fsum(
-                            (c.probability-realized(c,*scores))**2 for c in subset)/len(subset)
+                            (c.probability-realized(c,*scores))**2 for c in family_rows)/len(family_rows)
                     snapshots_for_event[alpha]=family_loss
                 for alpha,by_family in snapshots_for_event.items():
                     for family,error in by_family.items():
@@ -96,7 +96,7 @@ def fit_goal_strength(index,rho,*,calibration=None,max_train=800,
                 count+=1
             except (ValueError,TypeError,ArithmeticError):
                 continue
-        snapshots[subset]={"count":count,"losses":{
+        snapshots[split_name]={"count":count,"losses":{
             alpha:total[alpha]/count if count else None for alpha in ALPHAS},
             "family":{alpha:{family:groups[alpha][family]/count if count else None
                              for family in FAMILIES} for alpha in ALPHAS}}
