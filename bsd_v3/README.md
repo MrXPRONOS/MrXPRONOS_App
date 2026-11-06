@@ -12,6 +12,8 @@ STATUS: DEVELOPMENT/SHADOW. BSD V2 is unchanged and remains the only public engi
 - engine.py: all candidate market diagnostics, never publishes.
 - evaluation.py: retrospective analysis without fake historical odds/ROI.
 - cli.py: existing free BSD API and encrypted historical archive.
+- registry.py: immutable per-run JSONL hash chain of forecasts.
+- settlement.py: separate later settlement events and prospective per-market performance; no fake ROI.
 - test_v3.py: offline tests with no API keys.
 
 ## Commands (repository root)
@@ -30,7 +32,7 @@ No access to data.json, V2 publishing ledger, site deployment, or Telegram.
 Shadow classifications are NOT permission to publish or evidence of guaranteed returns.
 Only a verified named bookmaker quote could qualify for actionable Value Shadow;
 BSD free consensus is for research and cannot prove a realizable betting price.
-All generated output must live under bsd_v3/artifacts/.
+All generated output must live under bsd_v3/artifacts/. The workflow retains JSON/JSONL artifacts for 90 days; it does not merge historical runs automatically.
 
 ## Remaining work
 Independent prospective validation, proof of better forecasting performance,
