@@ -88,10 +88,38 @@ async function fetchSnapshot(){
   void refreshPublicationQuality();
    void refreshGitHubRuns();
   void refreshClientErrors();
+  void refreshVisitorQualityV2();
   output("latency",format(Math.round(performance.now()-started))+" ms");
   output("updated","Mis à jour à "+new Date().toLocaleTimeString("fr-FR",{timeZone:"UTC"})+" UTC");
   notice("");
  }catch(e){notice("Supervision indisponible : "+(e?.message||String(e)));}finally{pending=false;$("refresh").disabled=false}
+}
+async function refreshVisitorQualityV2(){
+  const el=$("v2-diagnostics");
+  if(!el)return;
+  try{
+    const {data,error}=await sb.rpc("admin_visitor_quality_v2",{p_days:Number($("period").value)});
+    if(error)throw error;
+    const v=data||{},s=v.session_v2||{},d=v.visitor_days_v2||{},legacy=v.legacy||{};
+    output("v2-sessions",format(s.sessions));
+    output("v2-visitors",format(s.visitor_ids));
+    output("v2-pages",format(s.page_views));
+    output("v2-engaged",format(s.engaged_sessions));
+    const gaps=Array.isArray(v.days_without_recorded_visits)?v.days_without_recorded_visits:[];
+    output("v2-diagnostics","Anciens événements bruts : "+format(legacy.raw_visit_events)+
+      " · Fenêtre CI déjà exclue dans l'ancien tableau : "+format(legacy.historic_ci_window_visits)+
+      " visites · Visiteurs V2 vus sur au moins 2 jours : "+format(d.returning_visitor_ids)+
+      " · Jours sans visite enregistrée : "+(gaps.length?gaps.join(", "):"aucun")+
+      ". Une absence de télémétrie ne démontre pas une absence de visiteurs.");
+    const suspect=Array.isArray(v.suspect_high_rate_minutes_review_only)?v.suspect_high_rate_minutes_review_only:[];
+    renderTable("v2-suspect-rows",suspect,[
+      row=>safe(date(row.minute)),
+      row=>format(row.visits),
+      row=>format(row.ids)
+    ]);
+  }catch(error){
+    output("v2-diagnostics","Collecte V2 indisponible : "+String(error?.message||error));
+  }
 }
 function percent(w,l){const n=Number(w||0)+Number(l||0);return n?(100*Number(w||0)/n).toFixed(1)+" %":"–"}
 function renderTable(id,rows,columns){
