@@ -2,7 +2,7 @@
 from __future__ import annotations
 import unittest
 from datetime import datetime,timedelta,timezone
-from . import __version__  # package import must remain side-effect free
+from bsd_v3 import __version__  # package import must remain side-effect free
 from bsd_v3.quality import audit_event,clean_fixture_batch,audit_history
 from bsd_v3.legacy import score_matrix,markets_from_matrix
 from bsd_v3.ensemble import projected_matrix
