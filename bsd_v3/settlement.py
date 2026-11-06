@@ -9,7 +9,7 @@ from datetime import timedelta
 from math import sqrt
 from .legacy import outcome_scores, fixture_datetime, realized
 from .policy import utc_datetime
-from .registry import append_once,verify_registry
+from .registry import append_once,verify_registry,canonical_forecasts
 from bsd_v3.legacy import markets_from_matrix,score_matrix
 
 _MARKETS={c.key:c for c in markets_from_matrix(score_matrix(1.4,1.2))}
@@ -49,8 +49,8 @@ def settle_registry(path,final_events,*,now):
             if isinstance(event,dict) and event.get("id") is not None}
     created=0
     skipped={}
-    for entry in verify_registry(path):
-        if entry["type"]!="forecast":continue
+    entries=verify_registry(path)
+    for entry in canonical_forecasts(entries).values():
         forecast=entry["payload"]
         event=events.get(forecast["event_id"])
         if event is None:
@@ -67,7 +67,8 @@ def settle_registry(path,final_events,*,now):
 
 def performance_report(path):
     entries=verify_registry(path)
-    forecasts={x["id"]:x["payload"] for x in entries if x["type"]=="forecast"}
+    canonical=canonical_forecasts(entries)
+    forecasts={x["id"]:x["payload"] for x in canonical.values()}
     by_market=defaultdict(lambda:{"n":0,"wins":0,"sum_p":0.,"brier":0.,
                                    "roi_units":0.,"roi_n":0})
     for entry in entries:
@@ -99,6 +100,6 @@ def performance_report(path):
                      "priced_n":v["roi_n"]}
     return {"format":"bsd-v3-prospective-evaluation-v1",
             "forecasts":len(forecasts),
-            "settlements":sum(x["type"]=="settlement" for x in entries),
+            "settlements":sum(x["type"]=="settlement" and x["id"] in forecasts for x in entries),
             "by_market":result,
             "warning":"Observational recorded quotes; not a confirmed bet or net of transaction costs."}
