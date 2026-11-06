@@ -916,6 +916,46 @@ function mxStartAnalyticsV2() {
   });
 }
 
+// Installation PWA : reprend les événements mis en attente par pwa.js.
+// Indépendant de la disponibilité de beforeinstallprompt, et sans accès aux secrets.
+let mxPwaInstallFlushing = false;
+async function mxFlushPwaInstallEvents() {
+  if (mxPwaInstallFlushing || !supabaseAvailable || !supabase || isLocalTestEnvironment()) return;
+  mxPwaInstallFlushing = true;
+  try {
+    for (let n = 0; n < 40; n += 1) {
+      let events = [];
+      try { events = JSON.parse(sessionStorage.getItem("mx_pwa_install_events_v2") || "[]"); } catch {}
+      if (!Array.isArray(events) || !events.length) break;
+      const event = events[0];
+      if (!event || !/^[a-f0-9-]{36}$/i.test(event.event_id || "")) {
+        sessionStorage.setItem("mx_pwa_install_events_v2", JSON.stringify(events.slice(1)));
+        continue;
+      }
+      const { data, error } = await supabase.rpc("track_pwa_install_event_v2", {
+        p_event_id: event.event_id,
+        p_user_id: getUserId(),
+        p_stage: event.stage,
+        p_platform: event.platform,
+        p_surface: event.surface,
+        p_context: event.context
+      });
+      if (error || data !== true) break;
+      // Un nouvel événement a pu être ajouté pendant la requête ; ne jamais l'écraser.
+      try {
+        const current = JSON.parse(sessionStorage.getItem("mx_pwa_install_events_v2") || "[]");
+        if (!Array.isArray(current)) break;
+        sessionStorage.setItem("mx_pwa_install_events_v2",
+          JSON.stringify(current.filter(item => item?.event_id !== event.event_id)));
+      } catch { break; }
+    }
+  } catch (_) {
+    // Les interactions avec le site fonctionnent même si Supabase est indisponible.
+  } finally { mxPwaInstallFlushing = false; }
+}
+window.addEventListener("mx-pwa-event", () => { void mxFlushPwaInstallEvents(); });
+window.addEventListener("online", () => { void mxFlushPwaInstallEvents(); });
+
 function countVisitOncePerDay() {
   if (isLocalTestEnvironment()) return;
   const todayKey = getTodayString();
@@ -3777,6 +3817,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         await registerUniqueUser();
         await initOnlineUsers();
         mxStartAnalyticsV2(); // Replaces legacy daily event; server enforces one visitor/day.
+        void mxFlushPwaInstallEvents();
         if ("Notification" in window && Notification.permission === "granted") {
           subscribeToPush(false);
         }
@@ -3784,7 +3825,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.warn("Services secondaires non disponibles :", secondaryError);
       }
     })();
-    showIosGuideIfNeeded();
+    // Installation uniquement à la demande : plus de popup automatique sur iPhone.
 
     switch (page) {
       case "pronos":
