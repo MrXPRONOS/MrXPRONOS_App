@@ -67,7 +67,9 @@ def page_for(browser, allowed: bool, width: int):
     )
     page=context.new_page()
     page.route("https://esm.sh/**", lambda route: route.fulfill(
-        status=200, content_type="application/javascript", body=MOCK))
+        status=200, content_type="application/javascript", body=MOCK,
+        headers={"Access-Control-Allow-Origin":"*",
+                 "Cross-Origin-Resource-Policy":"cross-origin"}))
     return context,page
 
 def main():
