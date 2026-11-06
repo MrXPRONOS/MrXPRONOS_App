@@ -40,6 +40,33 @@ def verify_registry(path):
         rows.append(row)
     return rows
 
+def forecast_event_key(payload):
+    """Stable fixture identity used to prevent repeated observations of one match."""
+    if not isinstance(payload,dict):
+        raise ValueError("Forecast payload must be an object")
+    event_id=str(payload.get("event_id") or "").strip()
+    kickoff=str(payload.get("kickoff_utc") or "").strip()
+    if not event_id or not kickoff:
+        raise ValueError("Forecast requires event_id and kickoff_utc")
+    return event_id+"|"+kickoff
+
+
+def canonical_forecasts(entries):
+    """Return the earliest immutable pre-match forecast for each fixture.
+
+    Old ledgers may contain repeated snapshots of the same event from multiple
+    workflow runs. They remain in the hash chain for auditability but never
+    count twice for settlement or performance.
+    """
+    canonical={}
+    for row in entries:
+        if row.get("type")!="forecast":
+            continue
+        key=forecast_event_key(row.get("payload"))
+        canonical.setdefault(key,row)
+    return canonical
+
+
 def append_once(path,kind,identity,payload):
     if kind not in ("forecast","settlement") or not isinstance(identity,str) or not identity:
         raise ValueError("Unsupported immutable record type or ID")
@@ -71,11 +98,12 @@ def record_snapshot(snapshot,path="bsd_v3/artifacts/prediction_log.jsonl"):
     if fingerprint!=expected:
         raise ValueError("Snapshot fingerprint mismatch; refuse immutable capture")
     count=0
+    existing_entries=verify_registry(path)
+    existing_fixtures=set(canonical_forecasts(existing_entries))
     for entry in snapshot.get("matches",[]):
         if entry.get("status")!="analyzed":continue
         eid=str(entry["event_id"])
-        identity=str(snapshot["generated_at_utc"])+":"+eid
-        saved,added=append_once(path,"forecast",identity,{
+        payload={
             "snapshot_sha256":fingerprint,"event_id":eid,
             "kickoff_utc":entry["kickoff_utc"],
             "generated_at_utc":entry["generated_at_utc"],
@@ -83,6 +111,17 @@ def record_snapshot(snapshot,path="bsd_v3/artifacts/prediction_log.jsonl"):
             "league_key":(entry.get("estimated_goals") or {}).get("league_key"),
             "fixture_quality":entry.get("fixture_quality"),
             "candidates":entry["candidates"],
-            "selections":entry["selections"]})
+            "selections":entry["selections"]}
+        fixture_key=forecast_event_key(payload)
+        if fixture_key in existing_fixtures:
+            continue
+        identity=fixture_key
+        saved,added=append_once(path,"forecast",identity,payload)
+        if added:
+            existing_fixtures.add(fixture_key)
         count+=int(added)
     return count
+
+# legacy text replaced below
+
+
