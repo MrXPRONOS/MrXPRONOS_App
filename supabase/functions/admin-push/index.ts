@@ -71,8 +71,10 @@ Deno.serve(async(req)=>{
      .update({status:"sent",summary,completed_at:new Date().toISOString(),updated_at:new Date().toISOString()})
      .eq("id",c.id).eq("status","processing");
    if(doneErr)throw doneErr;
-   await service.from("audit_log").insert({action:"admin_push_sent",
-     actor_user_id:claimed.created_by,details:{campaign_id:c.id,...summary}}).catch(()=>{});
+   try{
+     await service.from("audit_log").insert({action:"admin_push_sent",
+       actor_user_id:claimed.created_by,details:{campaign_id:c.id,...summary}});
+   }catch{ /* Audit failure must never cause a notification to be resent. */ }
    return {id:c.id,status:"sent",summary};
   }catch(e){
    const reason=String((e as Error)?.message||e).slice(0,500);
