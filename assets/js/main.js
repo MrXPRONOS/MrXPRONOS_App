@@ -1658,7 +1658,7 @@ function updateCategorySummary(shown, searchActive = false) {
 function filterAndDisplay() {
   if (!DOM.matches) return;
   if (!allData || !Array.isArray(allData.matches)) {
-    DOM.matches.innerHTML = '<div class="no-events">Aucune donnée de pronostics disponible.</div>';
+    DOM.matches.innerHTML = '<div class="no-events">Pronostics indisponibles. <a href="historique.html">Voir les résultats →</a></div>';
     return;
   }
   const targetDate = getLocalDateString(currentDay);
@@ -1696,7 +1696,7 @@ function applySearchFilter() {
     const message = term
       ? `Aucun pronostic ${label} ne correspond à cette recherche.`
       : `Aucun pronostic ${label} disponible pour cette date.`;
-    DOM.matches.innerHTML = `<div class="no-events">${message}</div>`;
+    DOM.matches.innerHTML = `<div class="no-events">${message} <a href="historique.html">Voir les résultats →</a></div>`;
     return;
   }
   renderMatches(filtered);
@@ -1727,7 +1727,7 @@ function renderMatches(matches) {
       : "";
 
   if (!matches || matches.length === 0) {
-    DOM.matches.innerHTML = `${offlineBanner}<div class="no-events">Aucun match.</div>`;
+    DOM.matches.innerHTML = `${offlineBanner}<div class="no-events">Aucun match. <a href="historique.html">Voir les résultats →</a></div>`;
     return;
   }
 
@@ -1745,7 +1745,7 @@ function renderMatches(matches) {
     }));
   });
   if (standalone.length === 0) {
-    DOM.matches.innerHTML = `${offlineBanner}<div class="no-events">Aucune sélection admissible disponible pour le moment.</div>`;
+    DOM.matches.innerHTML = `${offlineBanner}<div class="no-events">Pas de sélection pour le moment. <a href="historique.html">Voir les résultats →</a></div>`;
     return;
   }
   standalone.forEach((m) => {
@@ -3343,7 +3343,7 @@ function normalizeConfidence(conf) {
  * - logos avec fallback onerror
  * - infos alignées + badge
  */
-function renderHomePickCard(m, { winner = false } = {}) {
+function renderHomePickCard(m, { winner = false, lost = false } = {}) {
   const pred = m.prediction || {};
   const conf = normalizeConfidence(pred.confidence);
   const pick = publicFootballLabel(pred.type || pred.label || pred.double_chance, "Pronostic");
@@ -3361,8 +3361,8 @@ function renderHomePickCard(m, { winner = false } = {}) {
   const href = winner ? "historique.html" : `pronos.html?day=${tomorrow ? "tomorrow" : "today"}`;
 
   return `
-    <a class="pick-card ${winner ? "pick-card--winner" : ""}" href="${href}" aria-label="${winner ? "Voir ce résultat dans l’historique" : "Voir cette sélection dans les pronostics"}">
-      <div class="pick-badge">${winner ? "GAGNÉ" : "SÉLECTION"}</div>
+    <a class="pick-card ${winner ? (lost ? "pick-card--lost" : "pick-card--winner") : ""}" href="${href}" aria-label="${winner ? "Voir ce résultat dans l’historique" : "Voir cette sélection dans les pronostics"}">
+      <div class="pick-badge">${winner ? (lost ? "PERDU" : "GAGNÉ") : "SÉLECTION"}</div>
       <div class="pick-category pick-category--${escapeAttribute(category)}">${categoryLabel}</div>
 
       <div class="pick-head">
@@ -3413,7 +3413,7 @@ function renderHomePickCard(m, { winner = false } = {}) {
 function displayTopTodayCoupons() {
   if (!DOM.topTodayPicks) return;
   if (!Array.isArray(allData?.matches)) {
-    DOM.topTodayPicks.innerHTML = '<div class="no-events">Sélections momentanément indisponibles.</div>';
+    DOM.topTodayPicks.innerHTML = '<div class="no-events">Sélections indisponibles. <a href="pronos.html">Voir les pronostics →</a></div>';
     return;
   }
 
@@ -3436,24 +3436,48 @@ function displayTopTodayCoupons() {
 
   DOM.topTodayPicks.innerHTML = picks.length
     ? picks.map((m) => renderHomePickCard(m, { winner: false })).join("")
-    : '<div class="no-events">Aucune sélection disponible aujourd’hui ou demain.</div>';
+    : '<div class="no-events">Pas de sélection aujourd’hui. <a href="pronos.html">Voir les pronostics →</a></div>';
+}
+
+// Résultats affichés : aucune perte masquée, verdict calculé sur les données finales.
+function homePublicOutcome(m) {
+  const key = String(m?.prediction?.selection_key || "");
+  const h = Number(m?.home_score), a = Number(m?.away_score);
+  if (!Number.isInteger(h) || !Number.isInteger(a) || h < 0 || a < 0) return null;
+  if (key === "1") return h > a;
+  if (key === "X") return h === a;
+  if (key === "2") return a > h;
+  if (key === "1X") return h >= a;
+  if (key === "X2") return a >= h;
+  if (key === "12") return h !== a;
+  if (key === "BTTS_YES") return h > 0 && a > 0;
+  if (key === "BTTS_NO") return h === 0 || a === 0;
+  const goals = key.match(/^(OVER|UNDER)_(15|25|35|45)$/);
+  if (!goals) return null;
+  const line = Number(goals[2]) / 10;
+  return goals[1] === "OVER" ? h + a > line : h + a < line;
+}
+
+function homeEvaluatedMatches() {
+  if (!Array.isArray(allData?.matches)) return [];
+  return allData.matches
+    .filter((m) => !m.combo_only && bsdPublicEligible(m) && isFinishedMatch(m))
+    .map((m) => ({ ...m, home_outcome: homePublicOutcome(m) }))
+    .filter((m) => m.home_outcome !== null);
 }
 
 function displayLatestVerifiedHome() {
   if (!DOM.verifiedPicks) return;
   if (!Array.isArray(allData?.matches)) {
-    DOM.verifiedPicks.innerHTML = '<div class="no-events">Résultats momentanément indisponibles.</div>';
+    DOM.verifiedPicks.innerHTML = '<div class="no-events">Résultats indisponibles. <a href="historique.html">Voir l’historique →</a></div>';
     return;
   }
-
-  const verified = allData.matches
-    .filter((m) => bsdPublicEligible(m) && isFinishedMatch(m) && m.verified_double)
+  const recent = homeEvaluatedMatches()
     .sort((a, b) => new Date(b.event_date || 0) - new Date(a.event_date || 0))
     .slice(0, 3);
-
-  DOM.verifiedPicks.innerHTML = verified.length
-    ? verified.map((m) => renderHomePickCard(m, { winner: true })).join("")
-    : `<div class="no-events">Aucun résultat gagnant récent.</div>`;
+  DOM.verifiedPicks.innerHTML = recent.length
+    ? recent.map((m) => renderHomePickCard(m, { winner: true, lost: m.home_outcome === false })).join("")
+    : '<div class="no-events">Pas de résultat récent. <a href="historique.html">Voir l’historique →</a></div>';
 }
 
 // Backward compatibility (si un ancien index existe encore)
@@ -3522,20 +3546,10 @@ function startWinsSlider() {
 }
 
 function animateWins() {
-  if (!DOM.winsCount || !allData?.matches) return;
-  const target = allData.matches.filter((m) => isFinishedMatch(m) && m.verified_double).length;
-
-  if (target <= 0) {
-    DOM.winsCount.textContent = "0";
-    return;
-  }
-
-  let count = 0;
-  const interval = setInterval(() => {
-    count++;
-    DOM.winsCount.textContent = String(count);
-    if (count >= target) clearInterval(interval);
-  }, 20);
+  if (!DOM.winsCount) return;
+  const evaluated = homeEvaluatedMatches();
+  const winners = evaluated.filter((m) => m.home_outcome === true).length;
+  DOM.winsCount.textContent = evaluated.length ? `${winners}/${evaluated.length}` : "—";
 }
 
 async function displayTestimonials() {
@@ -3588,19 +3602,12 @@ function startWinNotifications() {
 }
 
 function updateHomeSuccessRate() {
-  if (!DOM.successFill || !DOM.successPercent || !allData?.matches) return;
-
-  const finished = allData.matches.filter(isFinishedMatch);
-  if (finished.length === 0) {
-    DOM.successFill.style.width = "0%";
-    DOM.successPercent.textContent = "0%";
-    return;
-  }
-
-  const successful = finished.filter((m) => m.verified_double).length;
-  const percent = Math.round((successful / finished.length) * 100);
+  if (!DOM.successFill || !DOM.successPercent) return;
+  const evaluated = homeEvaluatedMatches();
+  const successful = evaluated.filter((m) => m.home_outcome === true).length;
+  const percent = evaluated.length ? Math.round(successful / evaluated.length * 100) : 0;
   DOM.successFill.style.width = percent + "%";
-  DOM.successPercent.textContent = percent + "%";
+  DOM.successPercent.textContent = evaluated.length ? percent + "%" : "—";
 }
 
 function updatePronosticsSuccessRate() {
