@@ -62,7 +62,9 @@ test("remote link verifier denies internal and unsafe targets",()=>{
 test("cron provider integration never exposes bearer keys or request query parameters",()=>{
  const source=read('supabase/functions/admin-cron-read/index.ts');
  assert.match(source,/CRON_JOB_ORG_API_KEY/);
- assert.match(source,/url\.hostname\.toLowerCase\(\)\+url\.pathname/);
+ assert.match(source,/targetFingerprint/);
+ assert.match(source,/hostname\.toLowerCase/);
+ assert.doesNotMatch(source,/hostname\.toLowerCase\(\)\+url\.pathname/);
  assert.match(source,/Authorization/);
  assert.match(source,/cache/);
  assert.doesNotMatch(source,/job\.extendedData/);
