@@ -3,6 +3,13 @@ on:
   pull_request:
     paths:
       - 'supabase/functions/admin-push/**'
+      - 'supabase/functions/admin-cron-read/**'
+      - 'supabase/functions/admin-incident-watch/**'
+      - 'supabase/functions/admin-link-check/**'
+      - 'assets/js/admin-cron-register.mjs'
+      - 'assets/js/admin-unified-highlights.mjs'
+      - 'assets/js/admin-data-freshness.mjs'
+      - 'tests/admin-final-integrations.test.mjs'
       - 'supabase/functions/admin-list-subscribers/**'
       - 'supabase/functions/push-notifications/**'
       - 'supabase/functions/admin-media-publish/**'
@@ -31,9 +38,15 @@ jobs:
           deno check --node-modules-dir=auto supabase/functions/admin-push/index.ts \
             supabase/functions/admin-list-subscribers/index.ts \
             supabase/functions/admin-media-publish/index.ts \
-            supabase/functions/push-notifications/index.ts
+            supabase/functions/push-notifications/index.ts \
+            supabase/functions/admin-cron-read/index.ts \
+            supabase/functions/admin-incident-watch/index.ts \
+            supabase/functions/admin-link-check/index.ts
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       - name: Run application contracts
-        run: node --test tests/admin-phase2-contracts.test.mjs
+        run: |
+          node --test tests/admin-phase2-contracts.test.mjs tests/admin-final-integrations.test.mjs
+          node --check scripts/admin_incident_watch.mjs
+          node --check assets/js/admin-real.js
