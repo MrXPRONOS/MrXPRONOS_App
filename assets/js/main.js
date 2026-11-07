@@ -1086,12 +1086,12 @@ function ensurePronosticSharePopup() {
       <div class="pronostic-share-preview">
         <div class="pronostic-share-teams">
           <div class="pronostic-share-team">
-            <img id="pronostic-share-home-logo" src="assets/images/home.webp" alt="" loading="lazy">
+            <img id="pronostic-share-home-logo" alt="" loading="lazy" decoding="async">
             <span id="pronostic-share-home">Équipe domicile</span>
           </div>
           <span class="pronostic-share-vs">VS</span>
           <div class="pronostic-share-team pronostic-share-team--away">
-            <img id="pronostic-share-away-logo" src="assets/images/away.webp" alt="" loading="lazy">
+            <img id="pronostic-share-away-logo" alt="" loading="lazy" decoding="async">
             <span id="pronostic-share-away">Équipe extérieure</span>
           </div>
         </div>
@@ -1173,21 +1173,21 @@ function showPronosticSharePopup(match) {
   if (awayEl) awayEl.textContent = match.away_team || "Extérieur";
 
   if (homeLogo) {
-    homeLogo.src = match.home_logo || "assets/images/home.webp";
-    homeLogo.alt = match.home_team || "Équipe domicile";
     homeLogo.onerror = () => {
       homeLogo.onerror = null;
       homeLogo.src = "assets/images/home.webp";
     };
+    homeLogo.src = match.home_logo || getTeamLogoPath(match.home_team, true);
+    homeLogo.alt = match.home_team || "Équipe domicile";
   }
 
   if (awayLogo) {
-    awayLogo.src = match.away_logo || "assets/images/away.webp";
-    awayLogo.alt = match.away_team || "Équipe extérieure";
     awayLogo.onerror = () => {
       awayLogo.onerror = null;
       awayLogo.src = "assets/images/away.webp";
     };
+    awayLogo.src = match.away_logo || getTeamLogoPath(match.away_team, false);
+    awayLogo.alt = match.away_team || "Équipe extérieure";
   }
 
   if (pickEl) pickEl.textContent = label;
@@ -1824,6 +1824,10 @@ function renderMatches(matches) {
       const matchDataForSharing = {
         home_team: m.home_team,
         away_team: m.away_team,
+        // Keep exactly the same team logo sources as the visible match card.
+        // Previously these were omitted: the share preview always used home.webp/away.webp.
+        home_logo: m.home_logo || getTeamLogoPath(m.home_team, true),
+        away_logo: m.away_logo || getTeamLogoPath(m.away_team, false),
         prediction: {
           double_chance: pred.double_chance,
           type: pred.type || pred.label || pred.double_chance,
