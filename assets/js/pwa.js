@@ -100,8 +100,8 @@
         label.className = "mx-install-label";
         headerButton.appendChild(label);
       }
-      label.textContent = p.inApp ? "Comment installer l'app" :
-        p.isIOS ? "Ajouter à l’écran d’accueil" : "Installer l'application";
+      label.textContent = p.inApp ? "Comment installer" :
+        p.isIOS ? "Ajouter à l’accueil" : "Installer";
       headerButton.setAttribute("aria-label", label.textContent);
     }
     const card = document.getElementById("mx-install-panel");
@@ -111,7 +111,7 @@
       button.disabled = hidden;
       const label = button.querySelector("[data-mx-install-label]");
       if (label) label.textContent = p.inApp ? "Comment installer" :
-        p.isIOS ? "Ajouter à l’écran d’accueil" : "Installer gratuitement";
+        p.isIOS ? "Ajouter à l’accueil" : "Installer";
     });
   }
 
