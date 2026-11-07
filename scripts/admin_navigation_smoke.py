@@ -43,7 +43,7 @@ def run(page, mobile=False):
     expect(page.locator("#view-title")).to_have_text("Vue générale")
     expect(page.locator("#tab-overview")).to_be_visible()
     expect(page.locator("#admin-overview-summary")).to_be_visible()
-    expect(page.locator(".admin-overview-kpis .admin-kpi")).to_have_count(5)
+    expect(page.locator("#admin-overview-summary > .admin-overview-kpis > .admin-kpi")).to_have_count(5)
     assert not page.locator("#supervisionFrame").get_attribute("src"), "Details frame must load on demand"
     page.locator("#admin-detailed-supervision summary").click()
     expect(page.locator("#admin-detailed-supervision")).to_have_attribute("open", "")
