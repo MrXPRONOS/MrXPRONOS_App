@@ -6,6 +6,8 @@ on:
     paths:
       - 'bsd_v3/btts_no_experiment.py'
       - 'bsd_v3/btts_no_zero_experiment.py'
+      - 'bsd_v3/btts_no_model.py'
+      - 'bsd_v3/btts_no_model_experiment.py'
       - '.github/workflows/bsd-v3-btts-no-priority.yml'
   workflow_dispatch:
 
@@ -34,27 +36,28 @@ jobs:
       - run: python -m compileall -q bsd bsd_v3
       - name: Restore encrypted private history
         run: python bsd/bsd_archive.py restore
-      - name: Run zero-goal BTTS NO experiment
+      - name: Run direct BTTS NO classifier acceptance
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
           from bsd_archive import _read_json
-          from bsd_v3.btts_no_zero_experiment import experiment
+          from bsd_v3.btts_no_model_experiment import experiment
           history=_read_json(Path("bsd/all_matches_bsd.json"),None)
           report=experiment(history)
           Path("bsd_v3/artifacts").mkdir(parents=True,exist_ok=True)
           Path("bsd_v3/artifacts/btts_no_experiment.json").write_text(
               json.dumps(report,indent=2),encoding="utf-8")
-          chosen=report["active_policy"]
-          print("BSD_V3_BTTS_NO_ZERO_EXPERIMENT",json.dumps({
-              "chosen":report["chosen_on_recent_selection"],
-              "accepted":report["accepted"],
-              "active":chosen,
+          active=report["active_policy"]
+          print("BSD_V3_BTTS_NO_DIRECT_MODEL",json.dumps({
+              "chosen":report["chosen_on_2025_h1"],
+              "accepted":report["accepted_on_2025_h2"],
+              "active":active,
               "population":report["population"],
-              "stability":report["tables"]["train"].get(chosen) if chosen else None,
-              "validation":report["tables"]["validation"].get(chosen) if chosen else None,
-              "october":report["october_filtered"],
+              "select":report["tables"]["select"].get(active) if active else None,
+              "validate":report["tables"]["validate"].get(active) if active else None,
+              "test_2026":report["test_result"],
+              "model":report["model"],
           }))
           PY
       - if: always()
