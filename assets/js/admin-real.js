@@ -62,6 +62,41 @@ function safeIdEq(a, b) {
   return String(a) === String(b);
 }
 
+// Keep original publication timestamps even when editing previously published CMS rows.
+function preservedPublicationDate(rows,saveId,status) {
+  const previous=(rows||[]).find(item=>safeIdEq(item.id,saveId));
+  return status==="published" ? (previous?.published_at || new Date().toISOString())
+    : (previous?.published_at || null);
+}
+
+// Avoid repeating large form fields above each article list.
+function organizeCmsEditor(root) {
+  const card=root?.querySelector(":scope > .card");
+  const title=card?.querySelector(":scope > h3");
+  const listHeading=card?.querySelector(":scope > h4");
+  if(!title||!listHeading)return;
+  const group=document.createElement("div");
+  group.className="admin-cms-editor-fields";
+  while(title.nextElementSibling && title.nextElementSibling!==listHeading) {
+    group.appendChild(title.nextElementSibling);
+  }
+  title.after(group);
+  const toggle=document.createElement("button");
+  toggle.type="button";
+  toggle.className="btn btn-secondary admin-cms-editor-toggle";
+  toggle.textContent="Créer / modifier un contenu";
+  toggle.setAttribute("aria-expanded","false");
+  group.hidden=true;
+  title.after(toggle);
+  const show=(visible)=>{
+    group.hidden=!visible;
+    toggle.setAttribute("aria-expanded",String(visible));
+    toggle.textContent=visible?"Masquer le formulaire":"Créer / modifier un contenu";
+  };
+  toggle.addEventListener("click",()=>show(group.hidden));
+  return {show};
+}
+
 // -----------------------------
 // LAZY LOAD : charge la tab 1 fois
 // -----------------------------
@@ -620,13 +655,14 @@ async function renderCmsArticles() {
         ${rows.map(a => `
           <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-id="${escapeHtml(a.id)}">
             <div style="font-weight:900">${escapeHtml(a.title)}</div>
-            <div class="muted">${escapeHtml(a.slug)} • ${escapeHtml(a.status)} • active=${a.active !== false}</div>
+            <div class="muted">${escapeHtml(a.slug)} • ${escapeHtml(a.status)} • ${a.active !== false ? "Actif" : "Désactivé"}</div>
           </div>
         `).join("")}
       </div>
     </div>
   `;
 
+  const articleEditorLayout=organizeCmsEditor(root);
   const cmsEditor = mountCmsBlockEditor({sb,textarea:$("a_content"),kind:"articles"});
   mountCmsMediaFieldPicker(sb,$("a_image"));
 
@@ -643,6 +679,7 @@ async function renderCmsArticles() {
     $("a_status").value = a.status || "draft";
     $("a_active").value = (a.active !== false) ? "true" : "false";
     $("a_save").dataset.id = a.id;
+    articleEditorLayout?.show(true);
     void versions.load(a.id);
   };
 
@@ -672,7 +709,7 @@ async function renderCmsArticles() {
       status: $("a_status").value,
       active: $("a_active").value === "true",
       updated_at: new Date().toISOString(),
-      published_at: $("a_status").value === "published" ? new Date().toISOString() : null
+      published_at: preservedPublicationDate(rows, $("a_save").dataset.id, $("a_status").value)
     };
     if (!row.slug || !row.title || !row.content) return alert("Slug/Titre/Contenu requis.");
 
@@ -761,13 +798,14 @@ async function renderCmsConseils() {
         ${rows.map(c => `
           <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-id="${escapeHtml(c.id)}">
             <div style="font-weight:900">${escapeHtml(c.title)}</div>
-            <div class="muted">${escapeHtml(c.slug)} • ${escapeHtml(c.status)} • active=${c.active !== false}</div>
+            <div class="muted">${escapeHtml(c.slug)} • ${escapeHtml(c.status)} • ${c.active !== false ? "Actif" : "Désactivé"}</div>
           </div>
         `).join("")}
       </div>
     </div>
   `;
 
+  const conseilsEditorLayout=organizeCmsEditor(root);
   const cmsEditor = mountCmsBlockEditor({sb,textarea:$("c_content"),kind:"conseils"});
   mountCmsMediaFieldPicker(sb,$("c_image"));
 
@@ -784,6 +822,7 @@ async function renderCmsConseils() {
     $("c_status").value = c.status || "draft";
     $("c_active").value = (c.active !== false) ? "true" : "false";
     $("c_save").dataset.id = c.id;
+    conseilsEditorLayout?.show(true);
     void versions.load(c.id);
   };
 
@@ -812,7 +851,7 @@ async function renderCmsConseils() {
       status: $("c_status").value,
       active: $("c_active").value === "true",
       updated_at: new Date().toISOString(),
-      published_at: $("c_status").value === "published" ? new Date().toISOString() : null
+      published_at: preservedPublicationDate(rows, $("c_save").dataset.id, $("c_status").value)
     };
     if (!row.slug || !row.title || !row.content) return alert("Slug/Titre/Contenu requis.");
 
@@ -880,7 +919,7 @@ async function renderBonus() {
         ${bonusRows.map(b => `
           <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-bonus-id="${escapeHtml(b.id)}">
             <div style="font-weight:900">${escapeHtml(b.title)}</div>
-            <div class="muted">${escapeHtml(b.bookmaker)} • ${escapeHtml(b.status)} • active=${b.active !== false}</div>
+            <div class="muted">${escapeHtml(b.bookmaker)} • ${escapeHtml(b.status)} • ${b.active !== false ? "Actif" : "Désactivé"}</div>
           </div>
         `).join("")}
       </div>
@@ -911,7 +950,7 @@ async function renderBonus() {
         ${bookRows.map(b => `
           <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-book-id="${escapeHtml(b.id)}">
             <div style="font-weight:900">${escapeHtml(b.name)}</div>
-            <div class="muted">${escapeHtml(b.status)} • active=${b.active !== false}</div>
+            <div class="muted">${escapeHtml(b.status)} • ${b.active !== false ? "Actif" : "Désactivé"}</div>
           </div>
         `).join("")}
       </div>
@@ -979,7 +1018,7 @@ async function renderBonus() {
       status: $("b_status").value,
       active: $("b_active").value === "true",
       updated_at: new Date().toISOString(),
-      published_at: $("b_status").value === "published" ? new Date().toISOString() : null
+      published_at: preservedPublicationDate(bonusRows, $("b_save").dataset.id, $("b_status").value)
     };
     if (!row.bookmaker || !row.title || !row.description) return alert("Bookmaker/Titre/Description requis.");
 
@@ -1004,7 +1043,7 @@ async function renderBonus() {
       status: $("bk_status").value,
       active: $("bk_active").value === "true",
       updated_at: new Date().toISOString(),
-      published_at: $("bk_status").value === "published" ? new Date().toISOString() : null
+      published_at: preservedPublicationDate(bookRows, $("bk_save").dataset.id, $("bk_status").value)
     };
     if (!row.name) return alert("Nom requis.");
 
@@ -1055,12 +1094,13 @@ async function renderInfos() {
       ${rows.map(i => `
         <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-id="${escapeHtml(i.id)}">
           <div style="font-weight:900">${escapeHtml(i.title)}</div>
-          <div class="muted">${escapeHtml(i.status)} • active=${i.active !== false}</div>
+          <div class="muted">${escapeHtml(i.status)} • ${i.active !== false ? "Actif" : "Désactivé"}</div>
         </div>
       `).join("")}
     </div>
   `;
 
+  const infosEditorLayout=organizeCmsEditor(root);
   const cmsEditor = mountCmsBlockEditor({sb,textarea:$("i_content"),kind:"infos"});
   mountCmsMediaFieldPicker(sb,$("i_image"));
 
@@ -1074,6 +1114,7 @@ async function renderInfos() {
     $("i_status").value = i.status || "draft";
     $("i_active").value = (i.active !== false) ? "true" : "false";
     $("i_save").dataset.id = i.id;
+    infosEditorLayout?.show(true);
     void versions.load(i.id);
   };
 
@@ -1099,7 +1140,7 @@ async function renderInfos() {
       status: $("i_status").value,
       active: $("i_active").value === "true",
       updated_at: new Date().toISOString(),
-      published_at: $("i_status").value === "published" ? new Date().toISOString() : null
+      published_at: preservedPublicationDate(rows, $("i_save").dataset.id, $("i_status").value)
     };
     if (!row.title || !row.content) return alert("Titre/Contenu requis.");
 
