@@ -3,6 +3,7 @@
  * Aucune donnée individuelle n'est demandée par ce client.
  */
 import { supabaseUrl,supabaseAnonKey } from "./config.js";
+import {adminSnapshotLabel} from "./admin-data-freshness.mjs";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.4";
 const sb=createClient(supabaseUrl,supabaseAnonKey);
 const $=id=>document.getElementById(id);
@@ -170,8 +171,8 @@ async function refresh(){
     currentExperiments=ab.error?null:(ab.data||{});
     renderAll(current,currentPwa);
     renderExperiments(currentExperiments,ab.error);
-    setStatus("Actualisé le "+new Date().toLocaleString("fr-FR")+
-      " · Fenêtre UTC : "+current.start_day+" → "+current.end_day);
+    setStatus(adminSnapshotLabel("Audience",new Date(),{windowText:
+      "fenêtre UTC "+current.start_day+" → "+current.end_day}));
   }catch(error){
     setStatus("Mesures indisponibles : "+string(error?.message||error),true);
   }finally{
