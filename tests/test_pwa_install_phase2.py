@@ -24,7 +24,12 @@ class PwaInstallPhase2Tests(unittest.TestCase):
         home = (ROOT / "index.html").read_text(encoding="utf-8")
         self.assertIn('id="mx-install-panel"', home)
         self.assertIn('data-mx-install-surface="home"', home)
-        self.assertIn("Installation facultative", home)
+        # Le bandeau reste court ; son affichage et le lancement PWA
+        # doivent rester facultatifs sans exiger une mention visible longue.
+        self.assertRegex(home, r'<section id="mx-install-panel"[^>]*\bhidden\b')
+        pwa = (ROOT / "assets/js/pwa.js").read_text(encoding="utf-8")
+        self.assertIn('if (card) card.hidden = hidden', pwa)
+        self.assertIn('button.disabled = hidden', pwa)
 
     def test_prompt_is_directly_user_initiated_and_ios_not_forced(self):
         pwa = (ROOT / "assets/js/pwa.js").read_text(encoding="utf-8")

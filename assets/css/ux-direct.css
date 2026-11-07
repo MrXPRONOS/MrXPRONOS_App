@@ -195,7 +195,7 @@
   }
   .mx-premium-home .mx-feature-card h2 { font-size:12px!important; }
   .mx-premium-home .mx-data-updated { font-size:11px!important; }
-  .mx-pronos-page .mx-announcement { flex-wrap:wrap; gap:8px; padding:11px 12px; font-size:12px; }
+  .mx-pronos-page .mx-announcement { flex-wrap:wrap; gap:6px; margin:8px 0 5px; padding:8px 10px; font-size:12px; }
   .mx-pronos-page .mx-announcement-action { margin-left:auto; }
   .mx-pronos-page .day-filters .day-btn { min-height:44px!important; font-size:12px!important; }
   .mx-pronos-page .pronostic-category-tabs .tab-btn { min-height:48px!important; font-size:12px!important; }
@@ -256,4 +256,104 @@ body:not(.mx-daily-body) .mx-primary-nav .mx-nav-more-panel a {
     font-size:12px!important;
   }
   .mx-pronos-page .pronostic-category-tabs .tab-count{font-size:10px!important;}
+}
+
+/* Installation PWA: bannière brève, pas de paragraphe superflu. */
+.mx-premium-home .mx-install-panel {
+  display:flex;
+  flex-wrap:nowrap;
+  align-items:center;
+  gap:13px;
+  padding:12px 16px;
+  min-height:76px;
+  margin:12px 0 0;
+  border-radius:13px;
+}
+.mx-premium-home .mx-install-panel-brand {
+  width:52px;
+  height:52px;
+  border-radius:11px;
+}
+.mx-premium-home .mx-install-panel-brand img {
+  width:44px;
+  height:44px;
+}
+.mx-premium-home .mx-install-panel h2 {
+  margin:0 0 3px;
+  font-size:19px;
+  line-height:1.12;
+  letter-spacing:-.02em;
+}
+.mx-premium-home .mx-install-panel p {
+  margin:0;
+  font-size:12px;
+  line-height:1.35;
+}
+.mx-premium-home .mx-install-panel-action {
+  width:auto;
+  flex:none;
+  justify-items:stretch;
+  gap:0;
+}
+.mx-premium-home .mx-install-panel-button {
+  width:auto;
+  min-width:118px;
+  min-height:42px;
+  padding:9px 14px;
+  border-radius:9px;
+  font-size:13px;
+  gap:7px;
+}
+.mx-premium-home .header-install-row,
+body .header-install-row {padding:5px 0 7px;}
+.mx-premium-home .header-install-row #install-app,
+body .header-install-row #install-app {
+  width:auto;
+  min-width:110px;
+  max-width:100%;
+  min-height:36px;
+  padding:7px 14px;
+  font-size:12px;
+}
+@media(max-width:700px) {
+  .mx-premium-home .mx-install-panel {
+    gap:10px!important;
+    padding:10px!important;
+    min-height:62px!important;
+    flex-wrap:nowrap!important;
+  }
+  .mx-premium-home .mx-install-panel-brand {
+    flex:0 0 40px!important;
+    width:40px!important;
+    height:40px!important;
+  }
+  .mx-premium-home .mx-install-panel-brand img {
+    width:35px!important;
+    height:35px!important;
+  }
+  .mx-premium-home .mx-install-panel-copy {
+    flex:1 1 auto!important;
+    min-width:0!important;
+  }
+  .mx-premium-home .mx-install-panel h2 {
+    font-size:15px!important;
+    line-height:1.14!important;
+    margin:0!important;
+  }
+  .mx-premium-home .mx-install-panel p {display:none!important;}
+  .mx-premium-home .mx-install-panel-action {
+    width:auto!important;
+    justify-items:end!important;
+  }
+  .mx-premium-home .mx-install-panel-button {
+    min-width:0!important;
+    width:auto!important;
+    min-height:40px!important;
+    padding:8px 10px!important;
+    font-size:12px!important;
+  }
+}
+@media(max-width:350px) {
+  .mx-premium-home .mx-install-panel-brand {display:none!important;}
+  .mx-premium-home .mx-install-panel h2 {font-size:14px!important;}
 }
