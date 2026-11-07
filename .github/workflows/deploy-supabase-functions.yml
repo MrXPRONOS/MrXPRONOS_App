@@ -81,3 +81,23 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
           supabase functions deploy publish --project-ref nhwafcpndlufzzxexikh
+
+      - name: Deploy admin-push (admin JWT or protected cron)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase functions deploy admin-push --project-ref nhwafcpndlufzzxexikh --no-verify-jwt
+
+      - name: Deploy admin-list-subscribers (internal admin auth)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase functions deploy admin-list-subscribers --project-ref nhwafcpndlufzzxexikh --no-verify-jwt
+
+      - name: Deploy push-notifications (cron-only)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase functions deploy push-notifications --project-ref nhwafcpndlufzzxexikh --no-verify-jwt
+
+      - name: Deploy admin-media-publish (JWT required)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase functions deploy admin-media-publish --project-ref nhwafcpndlufzzxexikh
