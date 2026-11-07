@@ -201,7 +201,7 @@ begin
 
   with dates as (
     select generate_series((v_start at time zone 'UTC')::date,
-      (now() at time zone 'UTC')::date,interval '1 day')::date day
+      (now() at time zone 'UTC')::date,interval '1 day')::date as day
   )
   select coalesce(jsonb_agg(jsonb_build_object(
     'day',d.day::text,'experiment',f.experiment_id,'variant',v.variant,
