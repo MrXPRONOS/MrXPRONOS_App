@@ -1,3 +1,4 @@
+import {adminSnapshotLabel} from "./admin-data-freshness.mjs";
 // Unified admin summary. Data are read on demand and always labelled with their
 // source/refresh time; the specialist pages remain available for detailed investigations.
 export async function loadAdminHighlights(sb){
@@ -66,8 +67,7 @@ export function createAdminHighlightWidget(root){
    block.append(meter,label);chart.append(block);
   }
   const missing=Object.keys(data).filter(k=>data[k]===null);
-  caption.textContent="Actualisé "+new Date().toLocaleTimeString("fr-FR")+
-   " · Sources : Supabase (données estimées et déclaratives)"+
+  caption.textContent=adminSnapshotLabel("Supabase",new Date(),{windowText:"données estimées et déclaratives"})+
    (missing.length?" · Indisponibles : "+missing.join(", "):"");
  }
  return {draw};
