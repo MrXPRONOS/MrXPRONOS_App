@@ -1,6 +1,7 @@
 import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
 import { mountIncidentCenter } from "./admin-incidents.mjs";
 import { mountCronJobRegister,readCronJobs } from "./admin-cron-register.mjs";
+import { createAdminHighlightWidget,loadAdminHighlights } from "./admin-unified-highlights.mjs";
 import { mountAdminUsers } from "./admin-users.mjs";
 import { inspectCmsEditorial } from "./cms-quality.mjs";
 import { mountCmsServerSearch } from "./cms-server-search.mjs";
@@ -136,6 +137,8 @@ async function renderAdminOverview() {
     a.textContent=label+" ↗";links.appendChild(a);
   }
   root.appendChild(links);
+  const extra=document.createElement("div");root.append(extra);
+  const extraWidget=createAdminHighlightWidget(extra);
   const metric=(label,value)=>{
     const card=document.createElement("div");card.className="admin-kpi";
     const title=document.createElement("small");title.textContent=label;
@@ -178,6 +181,9 @@ async function renderAdminOverview() {
       }
       health.appendChild(list);
       state.textContent="Mis à jour à "+new Date().toLocaleTimeString("fr-FR",{timeZone:"UTC"})+" UTC · Données estimées";
+      void loadAdminHighlights(sb).then(result=>extraWidget?.draw(result)).catch(err=>{
+        extra.textContent="Indicateurs complémentaires indisponibles : "+String(err?.message||err);
+      });
     }catch(err){
       state.textContent="Supervision indisponible : "+String(err?.message||err)+". Réessaie ou consulte la supervision détaillée.";
     }finally{refresh.disabled=false;}
