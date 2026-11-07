@@ -625,6 +625,7 @@ async function renderCmsArticles() {
   root.innerHTML = `
     <div class="card">
       <h3 style="margin:0 0 10px;color:#D4AF37">Articles</h3>
+      <p class="muted">Cette liste contient les publications éditoriales du CMS. Les analyses générées automatiquement sont conservées dans GitHub et ne sont pas écrasées lors de la publication.</p>
 
       <div class="row">
         <div><label>Slug</label><input id="a_slug"></div>
@@ -1490,7 +1491,7 @@ async function publishNow() {
       panel.textContent="Publication annulée : aucun commit créé.";
       return;
     }
-    let acknowledge_empty;
+    let acknowledge_empty, acknowledge_removals;
     if(preview.emptied_files?.length){
       const files=preview.emptied_files.join(", ");
       if(window.prompt("Attention : les fichiers suivants vont être vidés : "+files+
@@ -1500,12 +1501,23 @@ async function publishNow() {
       }
       acknowledge_empty="PUBLIER VIDE";
     }
+    if(preview.removed_files?.length) {
+      const summary=preview.removed_files.map(path=>
+        path+" : "+(preview.removed_counts?.[path]||0)+" contenu(s) supprimé(s)").join("\n");
+      if(window.prompt("Des contenus existants vont être supprimés :\n"+summary+
+        "\nPour confirmer, tape exactement PUBLIER SUPPRESSIONS")!=="PUBLIER SUPPRESSIONS") {
+        panel.textContent="Publication annulée : les suppressions n'ont pas été autorisées.";
+        return;
+      }
+      acknowledge_removals="PUBLIER SUPPRESSIONS";
+    }
     panel.textContent="Publication préparée : création du commit GitHub…";
     const data=await cmsAdminRequest("publish",{
       expected_head:preview.current_head,
       preflight_expires:preview.preflight_expires,
       preflight_signature:preview.preflight_signature,
-      acknowledge_empty
+      acknowledge_empty,
+      acknowledge_removals
     });
     if(data.skipped){
       panel.textContent="Aucun changement à publier : aucun commit créé.";
