@@ -30,9 +30,9 @@ test("Admin overview uses native cards and optional iframe",()=>{
 test("Push requires explicit audience, preview and in-flight lock",()=>{
   assert.match(admin,/Choisir les destinataires/);
   assert.match(admin,/id="push_preview"/);
-  assert.match(admin,/sendingPush = true/);
-  assert.match(admin,/sendingPush = false/);
-  assert.match(admin,/push_send"\)\.disabled = true/);
+  assert.match(admin,/sendingPush=value/);
+  assert.match(admin,/lock\(true\)/);
+  assert.match(admin,/lock\(false\)/);
 });
 test("CMS editing preserves original publication date and keeps generated posts",()=>{
   assert.match(admin,/function preservedPublicationDate/);
