@@ -291,11 +291,12 @@
     } catch (_) {}
     const toast = document.createElement("button");
     toast.type = "button";
-    toast.className = "mx-pwa-toast";
-    toast.textContent = "Nouvelle version disponible — actualiser";
+    toast.className = "mx-pwa-toast mx-pwa-toast--update";
+    toast.textContent = "Mise à jour · Actualiser ↻";
+    toast.setAttribute("aria-label", "Nouvelle version disponible, actualiser Mr XPRONOS");
     toast.addEventListener("click", function () { location.reload(); });
     document.body.appendChild(toast);
-    setTimeout(function () { toast.remove(); }, 9000);
+    setTimeout(function () { toast.remove(); }, 5500);
   }
 
   async function promptInstall(source) {
@@ -420,6 +421,8 @@
       ".mx-install-help-actions button,.mx-pwa-welcome-actions a,.mx-pwa-welcome-actions button{border:1px solid #cda35d;background:#b89555;color:#0a1724;border-radius:9px;padding:10px 12px;font-weight:750;font-size:13px;cursor:pointer;text-decoration:none}",
       ".mx-install-help-actions button:first-child,.mx-pwa-welcome-actions a:nth-child(2),.mx-pwa-welcome-actions button{background:#182f42;color:#f2f5f6;border-color:#486079}",
       ".mx-pwa-toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:5001;background:#142b3b;border:1px solid #caa864;color:#fff;border-radius:11px;padding:13px 18px;max-width:min(92%,430px);box-shadow:0 8px 30px #0008}",
+      ".mx-pwa-toast--update{display:inline-flex;align-items:center;justify-content:center;width:max-content;max-width:calc(100vw - 24px);min-height:38px;padding:8px 12px;font:700 12px/1.3 Manrope,'Segoe UI',sans-serif;white-space:nowrap;cursor:pointer}",
+      "@media(max-width:700px){.mx-pwa-toast--update{left:auto;right:10px;bottom:calc(75px + env(safe-area-inset-bottom,0px));transform:none;max-width:calc(100vw - 20px);border-radius:10px;box-shadow:0 4px 15px #0008}}",
       ".mx-pwa-welcome{margin:15px auto;padding:17px;background:linear-gradient(110deg,#0b2438,#162c38);color:#fff;border:1px solid #bd9c62;border-radius:13px;max-width:1120px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:13px}",
       ".mx-pwa-welcome strong{color:#f1cc81;font-size:17px}.mx-pwa-welcome p{margin:5px 0;font-size:13px;color:#e3e9ee}",
       ".mx-pwa-welcome-actions{display:flex;flex-wrap:wrap;gap:8px}",
