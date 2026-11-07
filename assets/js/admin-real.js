@@ -679,6 +679,27 @@ async function renderPronosticsReadOnly() {
   await refresh();
 }
 
+// Bounded, server-side paginated CMS retrieval replaces the old 50-row cap.
+// The UI reports when the safety limit is reached instead of silently omitting content.
+async function loadCmsRows(table) {
+  const all=[],size=200,maximum=2000;
+  for(let offset=0;offset<maximum;offset+=size){
+    const {data,error}=await sb.from(table).select("*")
+      .order("updated_at",{ascending:false}).range(offset,offset+size-1);
+    if(error)return {data:all,error,truncated:false};
+    const page=Array.isArray(data)?data:[];
+    all.push(...page);
+    if(page.length<size)return {data:all,error:null,truncated:false};
+  }
+  return {data:all,error:null,truncated:true};
+}
+function warnCmsTruncated(root,truncated){
+  if(!truncated)return;
+  const warning=document.createElement("p");warning.className="muted";warning.setAttribute("role","status");
+  warning.textContent="Plus de 2 000 contenus : seuls les derniers enregistrements sont affichés. Prévoir une recherche serveur pour explorer toute l'archive.";
+  root.querySelector(".card")?.appendChild(warning);
+}
+
 // -----------------------------
 // CMS ARTICLES
 // -----------------------------
@@ -687,7 +708,7 @@ async function renderCmsArticles() {
   if (!root) return;
   root.innerHTML = premiumAdminLoading("admin", 3);
 
-  const { data, error } = await sb.from("cms_articles").select("*").order("updated_at",{ascending:false}).limit(50);
+  const { data, error, truncated } = await loadCmsRows("cms_articles");
   if (error) { root.innerHTML = `<div class="muted">Erreur: ${escapeHtml(error.message)}</div>`; return; }
 
   const rows = data || [];
@@ -733,6 +754,7 @@ async function renderCmsArticles() {
     </div>
   `;
 
+  warnCmsTruncated(root,truncated);
   const articleEditorLayout=organizeCmsEditor(root);
   const cmsEditor = mountCmsBlockEditor({sb,textarea:$("a_content"),kind:"articles"});
   mountCmsMediaFieldPicker(sb,$("a_image"));
@@ -830,7 +852,7 @@ async function renderCmsConseils() {
   if (!root) return;
   root.innerHTML = premiumAdminLoading("admin", 3);
 
-  const { data, error } = await sb.from("cms_conseils").select("*").order("updated_at",{ascending:false}).limit(50);
+  const { data, error, truncated } = await loadCmsRows("cms_conseils");
   if (error) { root.innerHTML = `<div class="muted">Erreur: ${escapeHtml(error.message)}</div>`; return; }
 
   const rows = data || [];
@@ -876,6 +898,7 @@ async function renderCmsConseils() {
     </div>
   `;
 
+  warnCmsTruncated(root,truncated);
   const conseilsEditorLayout=organizeCmsEditor(root);
   const cmsEditor = mountCmsBlockEditor({sb,textarea:$("c_content"),kind:"conseils"});
   mountCmsMediaFieldPicker(sb,$("c_image"));
@@ -948,8 +971,8 @@ async function renderBonus() {
   root.innerHTML = premiumAdminLoading("admin", 3);
 
   const [{ data: bonus, error: e1 }, { data: books, error: e2 }] = await Promise.all([
-    sb.from("cms_bonus").select("*").order("updated_at",{ascending:false}).limit(50),
-    sb.from("cms_bookmakers").select("*").order("updated_at",{ascending:false}).limit(50)
+    loadCmsRows("cms_bonus"),
+    loadCmsRows("cms_bookmakers")
   ]);
   if (e1 || e2) {
     root.innerHTML = `<div class="muted">Erreur: ${escapeHtml((e1||e2).message)}</div>`;
@@ -1139,7 +1162,7 @@ async function renderInfos() {
   if (!root) return;
 
   root.innerHTML = premiumAdminLoading("admin", 3);
-  const { data, error } = await sb.from("cms_infos").select("*").order("updated_at",{ascending:false}).limit(50);
+  const { data, error, truncated } = await loadCmsRows("cms_infos");
   if (error) { root.innerHTML = `<div class="muted">Erreur: ${escapeHtml(error.message)}</div>`; return; }
 
   const rows = data || [];
@@ -1171,6 +1194,7 @@ async function renderInfos() {
     </div>
   `;
 
+  warnCmsTruncated(root,truncated);
   const infosEditorLayout=organizeCmsEditor(root);
   const cmsEditor = mountCmsBlockEditor({sb,textarea:$("i_content"),kind:"infos"});
   mountCmsMediaFieldPicker(sb,$("i_image"));
