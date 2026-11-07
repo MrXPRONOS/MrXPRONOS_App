@@ -97,11 +97,81 @@ function organizeCmsEditor(root) {
   return {show};
 }
 
+async function renderAdminOverview() {
+  const root = $("admin-overview-summary");
+  if(!root)return;
+  root.replaceChildren();
+  const toolbar=document.createElement("div");toolbar.className="admin-section-heading";
+  const h=document.createElement("h3");h.textContent="Pilotage en un coup d'œil";
+  const refresh=document.createElement("button");refresh.type="button";refresh.className="btn btn-secondary";
+  refresh.textContent="↻ Actualiser";
+  toolbar.append(h,refresh);root.appendChild(toolbar);
+  const state=document.createElement("p");state.className="muted";state.setAttribute("role","status");
+  state.textContent="Lecture des indicateurs en cours…";root.appendChild(state);
+  const grid=document.createElement("div");grid.className="admin-overview-kpis";root.appendChild(grid);
+  const health=document.createElement("div");health.className="admin-overview-health";root.appendChild(health);
+  const links=document.createElement("nav");links.className="admin-overview-links";
+  links.setAttribute("aria-label","Voir les statistiques spécialisées");
+  for(const [label,url] of [["Audience","statistiques-audience.html"],["Installation","statistiques-installation.html"],["Supervision complète","admin-supervision.html"]]){
+    const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";
+    a.textContent=label+" ↗";links.appendChild(a);
+  }
+  root.appendChild(links);
+  const metric=(label,value)=>{
+    const card=document.createElement("div");card.className="admin-kpi";
+    const title=document.createElement("small");title.textContent=label;
+    const main=document.createElement("strong");main.textContent=value;
+    card.append(main,title);grid.appendChild(card);
+  };
+  const age=(value)=>{
+    if(!value)return null;
+    const elapsed=(Date.now()-Date.parse(value))/60000;
+    return Number.isFinite(elapsed)?Math.max(0,Math.round(elapsed)):null;
+  };
+  const populate=async()=>{
+    state.textContent="Actualisation…";refresh.disabled=true;
+    try{
+      const {data,error}=await sb.rpc("admin_monitor_snapshot",{p_days:7});
+      if(error)throw error;
+      grid.replaceChildren();health.replaceChildren();
+      const m=data||{},analytics=m.analytics||{},live=m.live||{},telegram=m.telegram||{},push=m.push||{};
+      metric("Visites estimées · 7 j",Number(analytics.visits||0).toLocaleString("fr-FR"));
+      metric("Signaux LIVE · 7 j",Number(live.total||0).toLocaleString("fr-FR"));
+      const resolved=Number(live.wins||0)+Number(live.losses||0);
+      metric("Réussite vérifiée",resolved?(100*Number(live.wins||0)/resolved).toFixed(1)+" %":"—");
+      metric("Publications Telegram",Number(telegram.total||0).toLocaleString("fr-FR"));
+      metric("Abonnements Push",Number(push.subscriptions||0).toLocaleString("fr-FR"));
+      const title=document.createElement("h3");title.textContent="Fraîcheur des services";health.appendChild(title);
+      const list=document.createElement("div");list.className="admin-health-cards";
+      for(const [name,time,threshold] of [
+        ["Scraping LIVE",m.health?.live_scrape_last,5],
+        ["Fusion des données",m.health?.live_merged_last,5],
+        ["Dernier signal LIVE",m.health?.latest_live_prediction,180],
+        ["Actualités Football",m.health?.last_actu_foot_run,120]
+      ]) {
+        const mins=age(time),entry=document.createElement("div");
+        entry.className="admin-health-card";
+        const label=document.createElement("b");label.textContent=name;
+        const status=document.createElement("span");
+        status.className="admin-health-"+(mins==null?"unknown":mins>threshold?"late":"good");
+        status.textContent=mins==null?"Donnée indisponible":mins>threshold?"Retard · "+mins+" min":"À jour · "+mins+" min";
+        entry.append(label,status);list.appendChild(entry);
+      }
+      health.appendChild(list);
+      state.textContent="Mis à jour à "+new Date().toLocaleTimeString("fr-FR",{timeZone:"UTC"})+" UTC · Données estimées";
+    }catch(err){
+      state.textContent="Supervision indisponible : "+String(err?.message||err)+". Réessaie ou consulte la supervision détaillée.";
+    }finally{refresh.disabled=false;}
+  };
+  refresh.addEventListener("click",()=>void populate());
+  await populate();
+}
+
 // -----------------------------
 // LAZY LOAD : charge la tab 1 fois
 // -----------------------------
 const TAB_LOADERS = {
-  overview: async () => {},
+  overview: renderAdminOverview,
   pronostics: renderPronosticsReadOnly,
   push: renderPushAdmin,
   articles: renderCmsArticles,
