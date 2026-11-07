@@ -1358,13 +1358,18 @@ async function renderHealth() {
   button.textContent="↻ Actualiser";header.append(h,button);
   const note=document.createElement("p");note.className="muted";note.setAttribute("role","status");
   const info=document.createElement("p");info.className="muted";
-  info.textContent="Ce tableau ne contient que les tâches enregistrées dans cron_runs. Les workflows GitHub et les tâches cron-job.org doivent être vérifiés séparément.";
+  info.textContent="Sources : Supabase cron_runs et GitHub Actions. Les tâches cron-job.org ne sont pas connectées et restent hors de ce registre.";
   const url=document.createElement("a");url.href="https://github.com/MrXPRONOS/MrXPRONOS_App/actions";
   url.target="_blank";url.rel="noopener noreferrer";url.textContent="Consulter GitHub Actions ↗";
   const table=document.createElement("table");
   table.innerHTML="<thead><tr><th>Tâche</th><th>Dernière exécution</th><th>État</th><th>Détails</th></tr></thead>";
   const body=document.createElement("tbody");table.appendChild(body);
-  panel.append(header,info,url,note,table);root.appendChild(panel);
+  const ghTitle=document.createElement("h4");ghTitle.textContent="Dernières exécutions GitHub Actions";
+  const ghStatus=document.createElement("p");ghStatus.className="muted";
+  const ghTable=document.createElement("table");
+  ghTable.innerHTML="<thead><tr><th>Workflow</th><th>Exécution</th><th>État</th><th>Déclencheur</th></tr></thead>";
+  const ghBody=document.createElement("tbody");ghTable.append(ghBody);
+  panel.append(header,info,url,note,table,ghTitle,ghStatus,ghTable);root.appendChild(panel);
   const load=async()=>{
     button.disabled=true;note.textContent="Actualisation des tâches…";
     try{
@@ -1388,7 +1393,46 @@ async function renderHealth() {
         const pre=document.createElement("pre");pre.textContent=JSON.stringify(entry.meta||{},null,2);
         details.append(summary,pre);td.append(details);tr.append(td);body.append(tr);
       }
-      note.textContent=(data?.length||0)+" tâche(s) enregistrée(s). Ce nombre ne couvre pas toutes les automatisations.";
+      note.textContent=(data?.length||0)+" tâche(s) Supabase enregistrée(s) · "+new Date().toLocaleTimeString("fr-FR")+".";
+      ghStatus.textContent="Chargement GitHub Actions…";
+      try{
+        const response=await fetch("https://api.github.com/repos/MrXPRONOS/MrXPRONOS_App/actions/runs?branch=main&per_page=70",
+          {headers:{"Accept":"application/vnd.github+json"},cache:"no-store"});
+        if(!response.ok)throw Error("GitHub HTTP "+response.status);
+        const payload=await response.json(),runs=payload.workflow_runs||[];
+        ghBody.replaceChildren();
+        const groups=new Map();
+        for(const run of runs){
+          if(!groups.has(run.name))groups.set(run.name,[]);
+          groups.get(run.name).push(run);
+        }
+        for(const [name,entries] of groups){
+          const latest=entries[0];
+          const duplicates=entries.some((r,i)=>entries.some((other,j)=>i!==j
+            && r.id!==other.id&&r.event===other.event&&r.head_sha===other.head_sha
+            && r.run_attempt===other.run_attempt
+            && Math.abs(Date.parse(r.created_at)-Date.parse(other.created_at))<90000));
+          const tr=document.createElement("tr");
+          const title=document.createElement("td");
+          const link=document.createElement("a");
+          link.href=latest.html_url;link.target="_blank";link.rel="noopener noreferrer";
+          link.textContent=name;
+          title.append(link);
+          const time=document.createElement("td");
+          time.textContent=latest.created_at?new Date(latest.created_at).toLocaleString("fr-FR"):"—";
+          const state=document.createElement("td");
+          state.textContent=(latest.conclusion||latest.status||"inconnu")+
+            (duplicates?" · Déclenchement doublé possible":"");
+          const event=document.createElement("td");
+          event.textContent=latest.event||"—";
+          tr.append(title,time,state,event);ghBody.append(tr);
+        }
+        ghStatus.textContent=groups.size+" workflows représentés parmi "+runs.length+
+          " exécutions récentes (échantillon GitHub, pas historique exhaustif).";
+      }catch(err){
+        ghStatus.textContent="GitHub indisponible : "+String(err?.message||err)+
+          ". Les dernières informations Supabase restent consultables.";
+      }
     }catch(e){note.textContent="Supervision des tâches indisponible : "+String(e?.message||e);}
     finally{button.disabled=false;}
   };
