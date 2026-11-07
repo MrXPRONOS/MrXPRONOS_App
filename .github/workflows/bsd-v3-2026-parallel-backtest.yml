@@ -1,0 +1,134 @@
+name: BSD V3 - 2026 parallel monthly backtest
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/bsd-v3-2026-parallel-backtest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  month:
+    strategy:
+      fail-fast: false
+      matrix:
+        month: [1,2,3,4,5,6,7,8,9,10,11]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      PYTHONPATH: bsd
+      BSD_HISTORY_KEY: ${{ secrets.BSD_HISTORY_KEY }}
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: python -m pip install requests cryptography pillow
+      - run: python bsd/bsd_archive.py restore
+      - name: Backtest month
+        env:
+          MONTH: ${{ matrix.month }}
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          from bsd_archive import _read_json
+          from bsd_v3.monthly_backtest import monthly_policy_backtest
+          m=int(os.environ["MONTH"])
+          history=_read_json(Path("bsd/all_matches_bsd.json"),None)
+          report=monthly_policy_backtest(history,year=2026,month=m)
+          out=Path(f"month-{m:02d}.json")
+          out.write_text(json.dumps(report,indent=2),encoding="utf-8")
+          print("MONTH_RESULT",m,json.dumps({
+              "fixtures":report["fixtures_in_archive"],
+              "counts":report["counts"],
+              "primary":report["primary_picks"],
+              "over25":report.get("over25_priority_shadow"),
+          }))
+          PY
+      - if: always()
+        run: rm -f bsd/all_matches_bsd.json bsd/backfill_state.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bsd-v3-month-${{ matrix.month }}
+          path: month-*.json
+          retention-days: 30
+
+  aggregate:
+    needs: month
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: bsd-v3-month-*
+          path: months
+          merge-multiple: true
+      - name: Aggregate 2026 YTD
+        run: |
+          python - <<'PY'
+          import json,glob
+          def blank():
+              return {"n":0,"wins":0,"sum_p":0.0,"brier_sum":0.0,"logloss_sum":0.0}
+          def add(dst,s):
+              n=s.get("n",0) or 0
+              if not n:return
+              dst["n"]+=n
+              dst["wins"]+=s.get("wins",0) or 0
+              dst["sum_p"]+=(s.get("mean_probability") or 0)*n
+              dst["brier_sum"]+=(s.get("brier") or 0)*n
+              dst["logloss_sum"]+=(s.get("logloss") or 0)*n
+          def finish(x):
+              n=x["n"]
+              return {"n":n,"wins":x["wins"],
+                      "hit_rate":round(x["wins"]/n,5) if n else None,
+                      "mean_probability":round(x["sum_p"]/n,5) if n else None,
+                      "brier":round(x["brier_sum"]/n,6) if n else None,
+                      "logloss":round(x["logloss_sum"]/n,6) if n else None}
+          months={}
+          primary=blank();alls=blank();over25=blank()
+          markets={};primary_markets={}
+          totals={"fixtures":0,"analyzed":0,"fixtures_with_pick":0,"selections":0}
+          for path in sorted(glob.glob("months/month-*.json")):
+              d=json.load(open(path))
+              key=f"2026-{int(d['month']):02d}"
+              months[key]={
+                  "fixtures":d["fixtures_in_archive"],
+                  "counts":d["counts"],
+                  "primary":d["primary_picks"],
+                  "over25":d.get("over25_priority_shadow"),
+              }
+              totals["fixtures"]+=d["fixtures_in_archive"]
+              for k in ("analyzed","fixtures_with_pick","selections"):
+                  totals[k]+=d["counts"].get(k,0)
+              add(primary,d["primary_picks"]);add(alls,d["all_selections"])
+              add(over25,d.get("over25_priority_shadow") or {})
+              for k,v in d["by_market"].items():
+                  markets.setdefault(k,blank());add(markets[k],v)
+              for k,v in d["primary_by_market"].items():
+                  primary_markets.setdefault(k,blank());add(primary_markets[k],v)
+          out={
+              "format":"bsd-v3-2026-parallel-aggregate-v1",
+              "period":"2026-01-01 through available finished matches on 2026-11-07",
+              "totals":totals,
+              "primary_picks":finish(primary),
+              "all_selections":finish(alls),
+              "over25_priority_shadow":finish(over25),
+              "by_market":{k:finish(v) for k,v in sorted(markets.items())},
+              "primary_by_market":{k:finish(v) for k,v in sorted(primary_markets.items())},
+              "by_month":months,
+              "real_bookmaker_roi":None,
+              "warning":"Retrospective current-policy backtest. November policy is applied backward; no historical bookmaker ROI."
+          }
+          open("ytd_2026_parallel.json","w").write(json.dumps(out,indent=2))
+          print("YTD_PARALLEL",json.dumps(out))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bsd-v3-ytd-2026-parallel-${{ github.run_id }}
+          path: ytd_2026_parallel.json
+          retention-days: 90
