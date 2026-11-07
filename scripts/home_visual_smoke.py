@@ -117,8 +117,61 @@ def run_view(browser, width, height, label):
                     raise AssertionError(f"{label}: {group_name} home card too tall: {heights}")
 
         proof_h = proofbar.evaluate("(el)=>el.getBoundingClientRect().height")
-        if proof_h > 100:
-            raise AssertionError(f"{label}: performance proof bar too tall ({proof_h}px)")
+        if proof_h > 58:
+            raise AssertionError(f"{label}: compact proof bar too tall ({proof_h}px)")
+
+        # Test the compact layout with THREE full-height cards even when the
+        # live feed is empty: no misleading match/test data is published.
+        geometry = page.evaluate("""() => {
+            const rails = [...document.querySelectorAll('.mx-home-picks')];
+            const original = rails.map((el) => el.innerHTML);
+            const sample = `<a class="pick-card" href="pronos.html">
+              <div class="pick-badge">SÉLECTION</div><div class="pick-category">PRO</div>
+              <div class="pick-head"><span class="pick-league">Premier League</span><span class="pick-time">Aujourd'hui</span></div>
+              <div class="pick-teams">
+                <div class="pick-team"><img class="pick-logo" alt="" src="assets/images/default-logo.webp"><span class="pick-team-name">Arsenal</span></div>
+                <div class="pick-vs"><strong>VS</strong><small>18:00</small></div>
+                <div class="pick-team pick-team--right"><img class="pick-logo" alt="" src="assets/images/default-logo.webp"><span class="pick-team-name">Chelsea</span></div>
+              </div>
+              <div class="pick-highlight"><span>Pronostic</span><strong>Plus de 1,5 but</strong></div>
+              <div class="pick-confidence"><span>Confiance</span><div class="pick-confidence-bar"><i style="width:84%"></i></div><b>84%</b></div>
+            </a>`;
+            const result = [];
+            try {
+              rails.forEach((rail) => {
+                if (rail.querySelectorAll('.pick-card').length < 2) {
+                  rail.innerHTML = sample.repeat(3);
+                }
+                const cards = [...rail.querySelectorAll('.pick-card')];
+                const railRect = rail.getBoundingClientRect();
+                const second = cards[1].getBoundingClientRect();
+                result.push({
+                  railWidth: railRect.width, cardWidth: cards[0].getBoundingClientRect().width,
+                  cardHeight: cards[0].getBoundingClientRect().height,
+                  visibleSecond: Math.max(0, Math.min(railRect.right, second.right) - Math.max(railRect.left, second.left)),
+                  secondWidth: second.width,
+                  scrollWidth: rail.scrollWidth,
+                  clientWidth: rail.clientWidth
+                });
+              });
+              const proof = document.querySelector('.mx-home-proofbar').getBoundingClientRect();
+              const nav = document.querySelector('#bottom-nav').getBoundingClientRect();
+              return {rails:result, proofBottom:proof.bottom, navTop:nav.top, viewport:innerHeight,
+                      hero:document.querySelector('.mx-hero').getBoundingClientRect().height};
+            } finally {
+              rails.forEach((rail,i)=>rail.innerHTML=original[i]);
+            }
+        }""")
+        print(f"COMPACT {label}: {geometry}", flush=True)
+        for index, rail in enumerate(geometry["rails"]):
+            if rail["cardHeight"] > 112:
+                raise AssertionError(f"{label}: rail {index} cards remain too tall: {rail}")
+            if rail["secondWidth"] and rail["visibleSecond"]/rail["secondWidth"] < 0.50:
+                raise AssertionError(f"{label}: rail {index} needs a larger peek of the next coupon: {rail}")
+            if rail["scrollWidth"] <= rail["clientWidth"]:
+                raise AssertionError(f"{label}: rail {index} must remain horizontally scrollable")
+        if geometry["proofBottom"] > min(geometry["viewport"],geometry["navTop"]-5):
+            raise AssertionError(f"{label}: win rate requires vertical scrolling: {geometry}")
 
         support_desc = page.locator(".mx-support p")
         if support_desc.count() and support_desc.is_visible():
