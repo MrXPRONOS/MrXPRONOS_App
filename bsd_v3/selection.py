@@ -4,8 +4,8 @@ from math import fsum, sqrt
 from .policy import V3Policy, FAMILY_EDGE, classify_fixture, uncertainty_adjustment, label_candidate
 from .market_priors import attach_market_merit
 
-PREFERRED_KEYS = frozenset({"1", "2", "BTTS_YES", "OVER_15"})
-PREFERRED_TIE_ORDER = {"1": 0, "2": 1, "BTTS_YES": 2, "OVER_15": 3}
+PREFERRED_KEYS = frozenset({"1", "2", "BTTS_YES", "OVER_15", "OVER_25"})
+PREFERRED_TIE_ORDER = {"1": 0, "2": 1, "OVER_25": 2, "BTTS_YES": 3, "OVER_15": 4}
 
 
 def serialize_candidates(candidates, features, quality, quotes, *, policy=V3Policy(),
@@ -73,6 +73,9 @@ def select_candidates(rows, score_matrix, policy=V3Policy()):
          and r.get("market_probability_lift",0)>0),
         key=lambda r:(
             0 if r["key"] in PREFERRED_KEYS else 1,
+            # Within the goals family, a qualified Over 2.5 is considered
+            # before Over 1.5. Other preferred families remain signal-ranked.
+            0 if r["key"]=="OVER_25" or r["family"]!="goals" else 1,
             -r.get("market_signal_score",-999.),
             PREFERRED_TIE_ORDER.get(r["key"],99),
             -r["conservative_probability"],
@@ -94,5 +97,5 @@ def select_candidates(rows, score_matrix, policy=V3Policy()):
     return {"pro_vip_shadow": [r["key"] for r in selected],
             "preferred_pro_vip_shadow": [r["key"] for r in selected if r["key"] in PREFERRED_KEYS],
             "value_shadow": [r["key"] for r in value],
-            "priority_policy": ["1","2","BTTS_YES","OVER_15"],
+            "priority_policy": ["1","2","OVER_25","BTTS_YES","OVER_15"],
             "no_publication": True}
