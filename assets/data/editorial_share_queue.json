@@ -1,5 +1,577 @@
 [
   {
+    "id": "635bbca26c2f1cd528a8106a",
+    "kind": "article",
+    "title": "Espérance Sportive De Tunis vs US Monastir : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-649890/",
+    "source_date": "2026-11-07T03:20:28.131515+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-649890-926fb91c-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-649890-926fb91c-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-649890-926fb91c-social.jpg"
+  },
+  {
+    "id": "79e3d49192d59b2053867b92",
+    "kind": "article",
+    "title": "Boca Juniors vs Defensa y Justicia : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-223907/",
+    "source_date": "2026-11-07T00:18:48.721232+00:00",
+    "visual_variant": "v1",
+    "image": "assets/images/editorial/match-bsd-match-223907-99ee0186-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-223907-99ee0186-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-223907-99ee0186-social.jpg"
+  },
+  {
+    "id": "0c45e86775784e253e340dea",
+    "kind": "article",
+    "title": "FC Midtjylland vs AFC Ajax : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-601347/",
+    "source_date": "2026-11-06T20:23:34.947447+00:00",
+    "visual_variant": "v2",
+    "image": "assets/images/editorial/match-bsd-match-601347-bdff9e35-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-601347-bdff9e35-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-601347-bdff9e35-social.jpg"
+  },
+  {
+    "id": "f956631db0635c4ad82c91b0",
+    "kind": "article",
+    "title": "Real Sociedad vs Olympique Lyonnais : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-601285/",
+    "source_date": "2026-11-06T20:23:34.947447+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-601285-f37d43a2-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-601285-f37d43a2-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-601285-f37d43a2-social.jpg"
+  },
+  {
+    "id": "27378467081369d891c1858f",
+    "kind": "article",
+    "title": "AC Milan vs Ferencváros TC : analyse du match",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-601174/",
+    "source_date": "2026-11-06T18:05:53.215468+00:00",
+    "visual_variant": "v2",
+    "image": "assets/images/editorial/match-bsd-match-601174-c8d10e7c-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-601174-c8d10e7c-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-601174-c8d10e7c-social.jpg"
+  },
+  {
+    "id": "b52188137cdcb1d8e20ff3de",
+    "kind": "news",
+    "title": "Équipe de France : la déclaration d'amour de Zidane envers Doué",
+    "url": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-la-declaration-damour-de-zidane-envers-doue-1007526",
+    "source_date": "2026-11-06T22:31:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "96623259275611e1941ea5bb",
+    "kind": "news",
+    "title": "La sortie forte de Tiémoué Bakayoko sur le PSG",
+    "url": "https://www.footmercato.net/a933324266739134727-la-sortie-forte-de-tiemoue-bakayoko-sur-le-psg",
+    "source_date": "2026-11-06T22:08:47+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "15f0867ca7065e0fb2232391",
+    "kind": "news",
+    "title": "Les confidences du nouveau président du HAC sur la crise",
+    "url": "https://www.footmercato.net/a8201240469994683831-les-confidences-du-nouveau-president-du-hac-sur-la-crise",
+    "source_date": "2026-11-06T21:58:11+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "ec79c6f2110b9e03929c99a1",
+    "kind": "news",
+    "title": "Ligue 1 : Toulouse s’impose avec la manière contre Strasbourg",
+    "url": "https://www.footmercato.net/a945492059473630290-ligue-1-toulouse-simpose-avec-la-maniere-contre-strasbourg",
+    "source_date": "2026-11-06T21:40:32+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "59dd69f9f97ed66e426efb63",
+    "kind": "news",
+    "title": "Les Violets se relancent - Débrief et NOTES des joueurs (TFC 3-1 RCSA)",
+    "url": "https://m.maxifoot.fr/football/article-66495.htm",
+    "source_date": "2026-11-06T21:34:39+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "1209e6afcc278f8149ffeb98",
+    "kind": "news",
+    "title": "Cristiano Ronaldo et le Portugal, c'est fini !",
+    "url": "https://www.france24.com/fr/%C3%A9missions/caf%C3%A9-des-sports/20261106-cristiano-ronaldo-portugal-fini",
+    "source_date": "2026-11-06T21:30:03+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "220618cacba331d8c74fdd81",
+    "kind": "news",
+    "title": "Strasbourg : la grosse colère de Martial Godo après sa sortie",
+    "url": "https://www.footmercato.net/a6537177104249886205-strasbourg-la-grosse-colere-de-martial-godo-apres-sa-sortie",
+    "source_date": "2026-11-06T21:28:10+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "0cbd6bc7fcfd6dfbf5cb3ce2",
+    "kind": "news",
+    "title": "FIFA : Arsène Wenger prêt à combattre Gianni Infantino ?",
+    "url": "https://www.footmercato.net/a7815990001635008653-fifa-arsene-wenger-pret-a-combattre-gianni-infantino",
+    "source_date": "2026-11-06T21:25:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "4c5b8e4edb232099905c7e43",
+    "kind": "news",
+    "title": "Portugal : Jorge Jesus assure ne pas avoir été prévenu de la retraite internationale de Cristiano Ronaldo",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-portugal-jorge-jesus-assure-ne-pas-avoir-ete-prevenu-de-la-retraite-internationale-de-cristiano-ronaldo-544939.html",
+    "source_date": "2026-11-06T18:05:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "31a6055f7d360f97445e450b",
+    "kind": "news",
+    "title": "Nouvelle liste des Bleus : Mbappé et Tchouaméni de retour, première convocation pour Pablo Pagis",
+    "url": "https://www.france24.com/fr/sports/20261106-nouvelle-liste-bleus-mbapp%C3%A9-tchouam%C3%A9ni-retour-premi%C3%A8re-convocation-pour-pablo-pagis",
+    "source_date": "2026-11-06T17:40:53+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "d9d1b4e280a6db8c6b293761",
+    "kind": "news",
+    "title": "Football: retour en Bleus pour Mbappé, Tchouaméni, Konaté et Thuram, première convocation pour Pablo Pagis",
+    "url": "https://www.rfi.fr/fr/sports/20261106-football-retour-en-bleus-pour-mbapp%C3%A9-tchouam%C3%A9ni-konat%C3%A9-et-thuram-premi%C3%A8re-convocation-pour-pablo-pagis",
+    "source_date": "2026-11-06T17:30:10+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "520fc5e018819f85ef4f1d2c",
+    "kind": "news",
+    "title": "Aurélien Tchouameni de retour, la surprise Pablo Pagis... Découvrez la liste de Zinédine Zidane pour affronter l'Italie et la Turquie en Ligue des nations",
+    "url": "https://www.franceinfo.fr/sports/foot/equipe-de-france/aurelien-tchouameni-de-retour-la-surprise-pablo-pagis-decouvrez-la-liste-de-zinedine-zidane-pour-affronter-l-italie-et-la-turquie-en-ligue-des-nations_8270909.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-06T17:17:08+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "561c42dfddc3dcac0a18470a",
+    "kind": "news",
+    "title": "Éliminatoires CAN 2027: le Guinéen Serhou Guirassy est forfait",
+    "url": "https://www.rfi.fr/fr/afrique-foot/20261106-%C3%A9liminatoires-can-2027-le-guin%C3%A9en-serhou-guirassy-est-forfait",
+    "source_date": "2026-11-06T16:02:40+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "2c0d5e62dbf693db07b8f853",
+    "kind": "news",
+    "title": "Avec Mbappé mais sans Dembélé, à quoi faut-il s'attendre pour la deuxième liste de Zinédine Zidane à la tête des Bleus ?",
+    "url": "https://www.franceinfo.fr/sports/foot/equipe-de-france/avec-mbappe-mais-sans-dembele-a-quoi-faut-il-s-attendre-pour-la-deuxieme-liste-de-zinedine-zidane-a-la-tete-des-bleus_8269550.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-11-06T11:55:02+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "134d0028d57b5f93ab59b17e",
+    "kind": "news",
+    "title": "Cristiano Ronaldo met un terme à sa carrière internationale",
+    "url": "https://www.france24.com/fr/%C3%A9missions/sports/20261106-cristiano-ronaldo-met-un-terme-%C3%A0-sa-carri%C3%A8re-internationale",
+    "source_date": "2026-11-06T07:15:14+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "f30727091c545fcbde1ef09b",
+    "kind": "news",
+    "title": "Barcelone : Marcus Rashford voit Lamine Yamal remporter sept Ballons d’Or",
+    "url": "https://www.footmercato.net/a2898346246132968042-barcelone-marcus-rashford-voit-lamine-yamal-remporter-sept-ballons-dor",
+    "source_date": "2026-11-06T22:59:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e0e259dc790d4871d8944c51",
+    "kind": "news",
+    "title": "Polémique Mbappé : protocole de paix entre la Liga et la Chine ?",
+    "url": "https://www.onzemondial.com/liga/polemique-mbappe-protocole-de-paix-entre-la-liga-et-la-chine-1007535",
+    "source_date": "2026-11-06T22:59:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "cdc95beb516243c20db1dfa6",
+    "kind": "news",
+    "title": "C’est la crise à Strasbourg !",
+    "url": "https://www.footmercato.net/a8491532920384003702-strasbourg-cest-la-crise-a-strasbourg",
+    "source_date": "2026-11-06T22:40:50+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "758d95e1ea04ba92ef4f5840",
+    "kind": "news",
+    "title": "Real Madrid : José Mourinho donne son avis sur Atlético-FC Barcelone",
+    "url": "https://www.footmercato.net/a3305752867294927220-real-madrid-jose-mourinho-donne-son-avis-sur-atletico-fc-barcelone",
+    "source_date": "2026-11-06T22:32:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "be2a34169a701271487ec996",
+    "kind": "news",
+    "title": "Équipe de France : la réaction géniale de Pablo Pagis à l'annonce de sa première convocation",
+    "url": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-la-reaction-geniale-de-pablo-pagis-a-lannonce-de-sa-premiere-convocation-1007517",
+    "source_date": "2026-11-06T21:59:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "648f8473ac6be54636cb83f9",
+    "kind": "news",
+    "title": "Ligue 1 : Les notes de TFC - RC Strasbourg : réaliste, Toulouse se relève et fait replonger Strasbourg",
+    "url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-les-notes-de-tfc-rc-strasbourg-realiste-toulouse-se-releve-et-fait-replonger-strasbourg-544959.html",
+    "source_date": "2026-11-06T21:38:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "931a8b3cc92c708e8561e9c1",
+    "kind": "news",
+    "title": "Ligue 1 : Toulouse sort du brouillard face à Strasbourg",
+    "url": "https://www.onzemondial.com/ligue-1/ligue-1-toulouse-sort-du-brouillard-face-a-strasbourg-1007539",
+    "source_date": "2026-11-06T21:25:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-11-07T05:42:06.113786+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "989064de937f6aaabecef3c2",
     "kind": "article",
     "title": "RB Leipzig vs Manchester City : analyse du match",
@@ -61,7 +633,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "5b9f4e1d0dac0d90307866ba",
@@ -82,7 +654,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4abea0b624ea97b7571e7efd",
@@ -103,7 +675,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "2504dd0715b9721deed0eb2d",
@@ -124,7 +696,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f135a6acd5389b97cfc15336",
@@ -145,7 +717,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7eb58a4519ca04766d8ed136",
@@ -229,7 +801,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "6ae4da274131645d1b5a9ab3",
@@ -334,7 +906,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "ae1d8c8b460a16b9ace932d6",
@@ -355,7 +927,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "62457e7f5b1fdeb86f4a51fd",
@@ -376,7 +948,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7b8938fbcd6d2369d0291403",
@@ -397,7 +969,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "973c1e3c88b8e0b20e1a4501",
@@ -418,7 +990,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "f2d9d3132c7789251d7ad896",
@@ -439,7 +1011,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e5ef4bfcaa0ff5aff51059a0",
@@ -460,7 +1032,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "12c60c959f2ac3b337d2a303",
@@ -481,7 +1053,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "4daf73c0c95efecccaa2b683",
@@ -502,7 +1074,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "9eb9376879e232bd91f57369",
@@ -523,7 +1095,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "81e199b5590b27723778437e",
@@ -544,7 +1116,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "d408037704cc0a0aa2d6e11f",
@@ -565,7 +1137,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "cf4062140f6ce144ca956dbb",
@@ -586,7 +1158,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "7c08969495b536f81512a186",
@@ -607,7 +1179,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "e7aa816a55e667b7e16592f8",
@@ -628,7 +1200,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "558175709376ee2bae422f3b",
@@ -649,7 +1221,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "1c62c7b44dbd208fd6c45532",

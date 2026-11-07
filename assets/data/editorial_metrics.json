@@ -1,18 +1,18 @@
 {
   "contents": {
     "articles.json": {
-      "count": 36,
-      "unique_titles": 36,
-      "with_editorial_image": 36,
+      "count": 41,
+      "unique_titles": 40,
+      "with_editorial_image": 41,
       "visual_variants": {
-        "v1": 12,
-        "v2": 14,
-        "v3": 10
+        "v1": 13,
+        "v2": 16,
+        "v3": 12
       },
       "source_types": {
-        "bsd": 36
+        "bsd": 41
       },
-      "with_social_image": 36
+      "with_social_image": 41
     },
     "conseils.json": {
       "count": 0,
@@ -30,36 +30,37 @@
         "legacy": 30
       },
       "source_types": {
-        "Foot Mercato": 6,
-        "France 24": 2,
+        "Foot Mercato": 8,
+        "France 24": 5,
         "Franceinfo": 3,
-        "MadeInFoot": 7,
-        "Onze Mondial": 7,
-        "RFI": 2,
-        "RFI Afrique Foot": 3
+        "MadeInFoot": 2,
+        "Maxifoot": 1,
+        "Onze Mondial": 4,
+        "RFI": 3,
+        "RFI Afrique Foot": 4
       },
       "with_social_image": 0
     }
   },
   "delivery": {
-    "items": 945,
-    "active_items": 66,
-    "retired_items": 879,
+    "items": 972,
+    "active_items": 71,
+    "retired_items": 901,
     "platform_states": {
-      "facebook:not_requested": 945,
-      "instagram:not_requested": 945,
-      "telegram:not_requested": 945,
-      "threads:not_requested": 945,
-      "tiktok:not_requested": 945,
-      "youtube:not_requested": 945
+      "facebook:not_requested": 972,
+      "instagram:not_requested": 972,
+      "telegram:not_requested": 972,
+      "threads:not_requested": 972,
+      "tiktok:not_requested": 972,
+      "youtube:not_requested": 972
     }
   },
   "assets": {
-    "files": 1669,
-    "size_mb": 92.54,
+    "files": 1694,
+    "size_mb": 94.14,
     "by_format": {
-      ".jpg": 74,
-      ".webp": 1595
+      ".jpg": 79,
+      ".webp": 1615
     }
   },
   "real_clicks": null,
