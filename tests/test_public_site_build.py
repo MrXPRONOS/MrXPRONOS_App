@@ -13,6 +13,25 @@ SPEC.loader.exec_module(module)
 
 
 class PublicBuildTest(TestCase):
+    def test_public_visual_css_is_included_in_deployment(self):
+        # Includes the shared styles introduced before the compact homepage.
+        styles = ("ux-direct.css", "daily-ux.css",
+                  "site-typography.css", "home-compact.css")
+        for name in styles:
+            with self.subTest(name=name):
+                self.assertIn(name, module.PUBLIC_CSS)
+        with TemporaryDirectory() as temp:
+            css_source = Path(temp) / "source" / "css"
+            css_output = Path(temp) / "dest" / "css"
+            css_source.mkdir(parents=True)
+            for name in styles:
+                (css_source / name).write_text("/* public style */", encoding="utf-8")
+            (css_source / "admin-private.css").write_text("/* private */", encoding="utf-8")
+            module.copy_public_tree(css_source, css_output)
+            for name in styles:
+                self.assertTrue((css_output / name).is_file(), name)
+            self.assertFalse((css_output / "admin-private.css").exists())
+
     def test_reject_invalid_public_matches_and_all_selections(self):
         valid = {
             "id": "alpha", "category": "pro",
