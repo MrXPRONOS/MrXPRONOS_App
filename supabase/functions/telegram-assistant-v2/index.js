@@ -227,7 +227,59 @@ export async function handleUpdate(update) {
   await logMessage(key,'assistant',answer);
   await markHandled(id);
 }
-export async function handleRequest(req) {
+export 
+/**
+ * Configure the new assistant Telegram bot entirely from Supabase Dashboard > Edge Functions > Test.
+ * POST {"action":"setup_webhook"} with header x-mx-setup-secret = Supabase webhook secret.
+ * Do not log or echo tokens.
+ */
+async function telegramSetup(req) {
+  const secret = env('MX_ASSISTANT_TELEGRAM_WEBHOOK_SECRET');
+  const supplied = req.headers.get('x-mx-setup-secret') || '';
+  if (!secret || !/^[A-Za-z0-9_-]{32,256}$/.test(secret) || supplied !== secret)
+    return json({error:'setup_unauthorized'},401);
+  if (!botToken() || !supabaseUrl()) return json({error:'bot_not_configured'},503);
+  let body;
+  try {body=await req.json();}catch{return json({error:'invalid_json'},400);}
+  if(!body || !['setup_webhook','webhook_status'].includes(body.action))
+    return json({error:'unknown_setup_action'},400);
+  try {
+    const identity=await tg('getMe',{});
+    if(body.action==='setup_webhook') {
+      const target=`${supabaseUrl()}/functions/v1/telegram-assistant-v2`;
+      const installed=await tg('setWebhook',{
+        url:target,
+        secret_token:secret,
+        allowed_updates:['message','business_message'],
+        drop_pending_updates:false,
+        max_connections:10
+      });
+      if(installed!==true) return json({error:'set_webhook_not_confirmed'},502);
+      try {
+        await tg('setMyCommands',{commands:[
+          {command:'start',description:'Découvrir Mr XPRONOS'},
+          {command:'pronos',description:'Pronostics et coupons publiés'},
+          {command:'scores',description:'Scores exacts publiés'},
+          {command:'canaux',description:'Canaux et liens officiels'},
+          {command:'resultats',description:'Historique des résultats'}
+        ]});
+      }catch(e){console.warn('optional_commands_setup_failed',String(e));}
+    }
+    const info=await tg('getWebhookInfo',{});
+    return json({ok:true,action:body.action,
+      bot:{id:identity?.id,username:identity?.username},
+      webhook:{url:info?.url||'',pending_update_count:info?.pending_update_count||0,
+        last_error_message:info?.last_error_message||null,allowed_updates:info?.allowed_updates||[]},
+      configured:{nvidia:!!env('MX_ASSISTANT_NVIDIA_KEY'),admin:!!adminId(),channel:!!channelUrl()}
+    });
+  }catch(e){
+    console.error('telegram_assistant_setup_failed',String(e));
+    return json({error:'telegram_setup_failed',detail:String(e).slice(0,180)},502);
+  }
+}
+
+async function handleRequest(req) {
+  if(req.method==='POST' && req.headers.has('x-mx-setup-secret')) return telegramSetup(req);
   if(req.method==='GET') return json({service:'mr-xpronos-telegram-assistant-v2',mode:'staging',configured:{telegram:!!botToken(),nvidia:!!env('MX_ASSISTANT_NVIDIA_KEY'),admin:Number.isSafeInteger(adminId())&&adminId()>0,webhook_secret:!!env('MX_ASSISTANT_TELEGRAM_WEBHOOK_SECRET'),channel:!!channelUrl(),database:!!supabaseUrl()&&!!supabaseKey()}});
   if(req.method!=='POST') return json({error:'method_not_allowed'},405);
   const secret=env('MX_ASSISTANT_TELEGRAM_WEBHOOK_SECRET');
