@@ -149,33 +149,57 @@ def run_view(browser, width, height, label):
                 const cards = [...rail.querySelectorAll('.pick-card')];
                 const railRect = rail.getBoundingClientRect();
                 const second = cards[1].getBoundingClientRect();
+                const first = cards[0];
+                const rect = (sel) => first.querySelector(sel).getBoundingClientRect();
+                const cardRect = first.getBoundingClientRect();
+                const badgeBottom = rect('.pick-badge').bottom;
+                const leagueTop = rect('.pick-head').top;
+                const teamsBottom = rect('.pick-teams').bottom;
+                const pickTop = rect('.pick-highlight').top;
+                const pickBottom = rect('.pick-highlight').bottom;
+                const confidenceTop = rect('.pick-confidence').top;
+                const confidenceBottom = rect('.pick-confidence').bottom;
                 result.push({
-                  railWidth: railRect.width, cardWidth: cards[0].getBoundingClientRect().width,
-                  cardHeight: cards[0].getBoundingClientRect().height,
+                  railWidth: railRect.width, cardWidth: cardRect.width,
+                  cardHeight: cardRect.height,
                   visibleSecond: Math.max(0, Math.min(railRect.right, second.right) - Math.max(railRect.left, second.left)),
-                  secondWidth: second.width,
-                  scrollWidth: rail.scrollWidth,
-                  clientWidth: rail.clientWidth
+                  secondWidth: second.width, scrollWidth: rail.scrollWidth, clientWidth: rail.clientWidth,
+                  badgeGap: leagueTop - badgeBottom,
+                  pickGap: pickTop - teamsBottom,
+                  confidenceGap: confidenceTop - pickBottom,
+                  bottomSpace: cardRect.bottom - confidenceBottom
                 });
               });
               const proof = document.querySelector('.mx-home-proofbar').getBoundingClientRect();
               const nav = document.querySelector('#bottom-nav').getBoundingClientRect();
+              const hero = document.querySelector('.mx-hero').getBoundingClientRect();
+              const signature = document.querySelector('.mx-hero-quote').getBoundingClientRect();
+              const cta = document.querySelector('.mx-hero-actions').getBoundingClientRect();
+              const intersects = !(signature.bottom <= cta.top || signature.top >= cta.bottom ||
+                                   signature.right <= cta.left || signature.left >= cta.right);
               return {rails:result, proofBottom:proof.bottom, navTop:nav.top, viewport:innerHeight,
-                      scrollY:scrollY, hero:document.querySelector('.mx-hero').getBoundingClientRect().height};
+                      scrollY:scrollY, hero:hero.height,
+                      signatureVisible:getComputedStyle(document.querySelector('.mx-hero-quote')).display !== 'none',
+                      signatureInside:signature.bottom <= hero.bottom && signature.top >= hero.top,
+                      signatureOverlapsAction:intersects};
             } finally {
               rails.forEach((rail,i)=>rail.innerHTML=original[i]);
             }
         }""")
         print(f"COMPACT {label}: {geometry}", flush=True)
         for index, rail in enumerate(geometry["rails"]):
-            if rail["cardHeight"] > 112:
-                raise AssertionError(f"{label}: rail {index} cards remain too tall: {rail}")
-            if rail["secondWidth"] and rail["visibleSecond"]/rail["secondWidth"] < 0.50:
-                raise AssertionError(f"{label}: rail {index} needs a larger peek of the next coupon: {rail}")
+            if not 126 <= rail["cardHeight"] <= 134:
+                raise AssertionError(f"{label}: rail {index} cards should stay readable without becoming tall: {rail}")
+            if rail["secondWidth"] and rail["visibleSecond"]/rail["secondWidth"] < 0.32:
+                raise AssertionError(f"{label}: rail {index} should reveal the next coupon: {rail}")
+            if rail["badgeGap"] < 1 or rail["pickGap"] < 3 or rail["confidenceGap"] < 1 or rail["bottomSpace"] < 2:
+                raise AssertionError(f"{label}: rail {index} has cramped/overlapping card elements: {rail}")
             if rail["scrollWidth"] <= rail["clientWidth"]:
                 raise AssertionError(f"{label}: rail {index} must remain horizontally scrollable")
         if geometry["proofBottom"] > min(geometry["viewport"],geometry["navTop"]-5):
             raise AssertionError(f"{label}: win rate requires vertical scrolling: {geometry}")
+        if not geometry["signatureVisible"] or not geometry["signatureInside"] or geometry["signatureOverlapsAction"]:
+            raise AssertionError(f"{label}: original brand signature missing or overlaps CTA: {geometry}")
 
         support_desc = page.locator(".mx-support p")
         if support_desc.count() and support_desc.is_visible():
