@@ -1,0 +1,32 @@
+name: Dispatch scheduled admin Push
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mrxpronos-admin-push-queue
+  cancel-in-progress: false
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Verify cron secret configured
+        env:
+          PUSH_CRON: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$PUSH_CRON" ]; then
+            echo "::error::CRON_SECRET absent des secrets GitHub Actions. Configure la même valeur que le CRON_SECRET de Supabase."
+            exit 1
+          fi
+      - name: Dispatch due campaigns (queue is idempotent)
+        env:
+          PUSH_CRON: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error --max-time 330 --retry 2 --retry-delay 5 \
+            -X POST "https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/admin-push" \
+            -H "Authorization: Bearer $PUSH_CRON" \
+            -H "Content-Type: application/json" \
+            --data '{"operation":"dispatch"}'
