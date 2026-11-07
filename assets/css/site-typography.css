@@ -60,3 +60,12 @@ html body :is(button, a, input, select, textarea) {
     font-size: 13px !important;
   }
 }
+
+/* Les anciennes fenetres modales imposaient Montserrat en !important. */
+html body :is(.modal-content, .popup-content, .ios-guide-content) {
+  font-family: var(--mx-font-body) !important;
+}
+html body :is(.modal-content, .popup-content, .ios-guide-content)
+  :is(h1, h2, h3, h4) {
+  font-family: var(--mx-font-display) !important;
+}
