@@ -24,7 +24,7 @@ window.supabase = {
         signInWithPassword: async () => ({error:null}),
         signOut: async () => ({error:null})
       },
-      rpc: async (name) => ({data: name === "is_admin" ? true : {}, error:null}),
+      rpc: async (name) => ({data: ["is_admin","admin_can"].includes(name) ? true : {}, error:null}),
       from: () => chain
     };
   }
