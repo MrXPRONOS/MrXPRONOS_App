@@ -48,11 +48,12 @@ jobs:
           print("BSD_V3_OVER25_EXPERIMENT",json.dumps({
               "chosen":report["chosen_on_recent_selection"],
               "accepted":report["accepted"],
-              "active":report["active_threshold"],
-              "active_conservative":report["active_conservative_threshold"],
-              "october":report["october"],
-              "validation":report["tables"]["validation"][report["active_threshold"]],
-              "stability":report["tables"]["train"][report["active_threshold"]],
+              "active":report["active_policy"],
+              "october_base":report["october_base"],
+              "october_filtered":report["october_filtered"],
+              "validation":report["tables"]["validation"][report["active_policy"]],
+              "stability":report["tables"]["train"][report["active_policy"]],
+              "total_model_fit":report["total_model_fit"],
           }))
           PY
       - name: Remove decrypted history
