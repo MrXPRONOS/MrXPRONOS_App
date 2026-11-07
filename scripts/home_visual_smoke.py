@@ -120,6 +120,10 @@ def run_view(browser, width, height, label):
         if proof_h > 58:
             raise AssertionError(f"{label}: compact proof bar too tall ({proof_h}px)")
 
+        # Mesurer depuis le vrai haut de page, et non apres le clic sur les
+        # panneaux secondaires qui peut faire defiler la page automatiquement.
+        page.evaluate("window.scrollTo({top:0,left:0,behavior:'instant'})")
+        page.wait_for_timeout(200)
         # Test the compact layout with THREE full-height cards even when the
         # live feed is empty: no misleading match/test data is published.
         geometry = page.evaluate("""() => {
@@ -157,7 +161,7 @@ def run_view(browser, width, height, label):
               const proof = document.querySelector('.mx-home-proofbar').getBoundingClientRect();
               const nav = document.querySelector('#bottom-nav').getBoundingClientRect();
               return {rails:result, proofBottom:proof.bottom, navTop:nav.top, viewport:innerHeight,
-                      hero:document.querySelector('.mx-hero').getBoundingClientRect().height};
+                      scrollY:scrollY, hero:document.querySelector('.mx-hero').getBoundingClientRect().height};
             } finally {
               rails.forEach((rail,i)=>rail.innerHTML=original[i]);
             }
