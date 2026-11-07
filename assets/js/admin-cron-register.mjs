@@ -2,7 +2,7 @@ const humanStatus={0:"Non exécutée",1:"Réussie",2:"DNS en échec",3:"Connexio
  4:"HTTP en échec",5:"Délai dépassé",6:"Réponse trop volumineuse",7:"URL invalide",8:"Erreur interne",9:"Échec inconnu"};
 function fingerprint(job){
  const schedule=job.schedule||{};
- return [job.endpoint||"",schedule.timezone||"UTC",
+ return [job.endpoint_fingerprint||job.endpoint||"",schedule.timezone||"UTC",
   ...["hours","minutes","wdays"].map(k=>JSON.stringify(schedule[k]||[]))].join("|");
 }
 export function detectCronDuplicateConfigs(jobs){
