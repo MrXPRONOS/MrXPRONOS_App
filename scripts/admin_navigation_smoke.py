@@ -12,6 +12,7 @@ window.supabase = {
       select: () => chain,
       order: () => chain,
       limit: () => Promise.resolve(records),
+      range: () => Promise.resolve(records),
       eq: () => chain,
       single: () => Promise.resolve({data: {}, error: null}),
       then: (resolve) => Promise.resolve(records).then(resolve)
@@ -41,7 +42,13 @@ def run(page, mobile=False):
     expect(page.locator("#app")).to_be_visible(timeout=15000)
     expect(page.locator("#view-title")).to_have_text("Vue générale")
     expect(page.locator("#tab-overview")).to_be_visible()
-    assert page.locator("#supervisionFrame").get_attribute("src").endswith("embedded=1")
+    expect(page.locator("#admin-overview-summary")).to_be_visible()
+    expect(page.locator(".admin-overview-kpis .admin-kpi")).to_have_count(5)
+    assert not page.locator("#supervisionFrame").get_attribute("src"), "Details frame must load on demand"
+    page.locator("#admin-detailed-supervision summary").click()
+    expect(page.locator("#admin-detailed-supervision")).to_have_attribute("open", "")
+    expect(page.locator("#supervisionFrame")).to_have_attribute("src", "admin-supervision.html?embedded=1")
+    page.locator("#admin-detailed-supervision summary").click()
     assert page.locator(".nav-item.tab").count() == 11  # New analytics link is not a tab
     assert page.locator('[data-tab="media"]').count() == 1
 
@@ -54,6 +61,10 @@ def run(page, mobile=False):
     expect(page.locator("#tab-overview")).to_be_hidden()
     expect(page.locator("#tab-push")).to_be_visible()
     expect(page.locator("#push_title")).to_be_visible()
+    expect(page.locator("#push_audience")).to_have_value("")
+    expect(page.locator("#push_preview")).to_be_visible()
+    page.locator("#push_preview").click()
+    expect(page.locator("#push_status")).to_contain_text("Choisis les destinataires")
     expect(page.locator("#btnPublish")).to_be_hidden()
     assert page.url.endswith("#push")
     if mobile:
@@ -64,6 +75,10 @@ def run(page, mobile=False):
     expect(page.locator("#tab-push")).to_be_hidden()
     expect(page.locator("#btnPublish")).to_be_visible()
     expect(page.locator("#view-title")).to_have_text("Articles")
+    expect(page.locator(".admin-cms-editor-toggle")).to_be_visible()
+    assert page.locator(".admin-cms-editor-fields").get_attribute("hidden") is not None
+    page.locator(".admin-cms-editor-toggle").click()
+    expect(page.locator("#a_title")).to_be_visible()
     if mobile:
         page.locator("#sidebar-open").click()
         page.keyboard.press("Escape")

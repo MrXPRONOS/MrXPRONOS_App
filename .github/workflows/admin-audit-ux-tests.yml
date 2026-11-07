@@ -1,0 +1,30 @@
+name: Admin audit UX and publication safeguards
+on:
+  pull_request:
+    paths:
+      - admin.html
+      - assets/js/admin-real.js
+      - assets/js/admin-shell.js
+      - assets/css/admin-shell.css
+      - scripts/admin_navigation_smoke.py
+      - supabase/functions/publish/**
+      - tests/admin-audit-ux-contract.test.mjs
+      - tests/admin-publish-preflight.test.mjs
+      - .github/workflows/admin-audit-ux-tests.yml
+  workflow_dispatch:
+jobs:
+  admin-ux-and-publish-contracts:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check CMS deletion safety, admin navigation and publishing
+        run: |
+          node --test tests/admin-audit-ux-contract.test.mjs tests/admin-publish-preflight.test.mjs
+          node tests/admin-publish-tracking.test.cjs
+          node tests/admin-supervision.test.cjs

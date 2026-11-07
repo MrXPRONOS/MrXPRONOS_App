@@ -62,11 +62,119 @@ function safeIdEq(a, b) {
   return String(a) === String(b);
 }
 
+// Keep original publication timestamps even when editing previously published CMS rows.
+function preservedPublicationDate(rows,saveId,status) {
+  const previous=(rows||[]).find(item=>safeIdEq(item.id,saveId));
+  return status==="published" ? (previous?.published_at || new Date().toISOString())
+    : (previous?.published_at || null);
+}
+
+// Avoid repeating large form fields above each article list.
+function organizeCmsEditor(root) {
+  const card=root?.querySelector(":scope > .card");
+  const title=card?.querySelector(":scope > h3");
+  const listHeading=card?.querySelector(":scope > h4");
+  if(!title||!listHeading)return;
+  const group=document.createElement("div");
+  group.className="admin-cms-editor-fields";
+  // Keep a short contextual note visible above the collapsed editor.
+  const description=title.nextElementSibling?.matches("p.muted")?title.nextElementSibling:null;
+  const anchor=description||title;
+  while(anchor.nextElementSibling && anchor.nextElementSibling!==listHeading) {
+    group.appendChild(anchor.nextElementSibling);
+  }
+  anchor.after(group);
+  const toggle=document.createElement("button");
+  toggle.type="button";
+  toggle.className="btn btn-secondary admin-cms-editor-toggle";
+  toggle.textContent="Créer / modifier un contenu";
+  toggle.setAttribute("aria-expanded","false");
+  group.hidden=true;
+  anchor.after(toggle);
+  const show=(visible)=>{
+    group.hidden=!visible;
+    toggle.setAttribute("aria-expanded",String(visible));
+    toggle.textContent=visible?"Masquer le formulaire":"Créer / modifier un contenu";
+  };
+  toggle.addEventListener("click",()=>show(group.hidden));
+  return {show};
+}
+
+async function renderAdminOverview() {
+  const root = $("admin-overview-summary");
+  if(!root)return;
+  root.replaceChildren();
+  const toolbar=document.createElement("div");toolbar.className="admin-section-heading";
+  const h=document.createElement("h3");h.textContent="Pilotage en un coup d'œil";
+  const refresh=document.createElement("button");refresh.type="button";refresh.className="btn btn-secondary";
+  refresh.textContent="↻ Actualiser";
+  toolbar.append(h,refresh);root.appendChild(toolbar);
+  const state=document.createElement("p");state.className="muted";state.setAttribute("role","status");
+  state.textContent="Lecture des indicateurs en cours…";root.appendChild(state);
+  const grid=document.createElement("div");grid.className="admin-overview-kpis";root.appendChild(grid);
+  const health=document.createElement("div");health.className="admin-overview-health";root.appendChild(health);
+  const links=document.createElement("nav");links.className="admin-overview-links";
+  links.setAttribute("aria-label","Voir les statistiques spécialisées");
+  for(const [label,url] of [["Audience","statistiques-audience.html"],["Installation","statistiques-installation.html"],["Supervision complète","admin-supervision.html"]]){
+    const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";
+    a.textContent=label+" ↗";links.appendChild(a);
+  }
+  root.appendChild(links);
+  const metric=(label,value)=>{
+    const card=document.createElement("div");card.className="admin-kpi";
+    const title=document.createElement("small");title.textContent=label;
+    const main=document.createElement("strong");main.textContent=value;
+    card.append(main,title);grid.appendChild(card);
+  };
+  const age=(value)=>{
+    if(!value)return null;
+    const elapsed=(Date.now()-Date.parse(value))/60000;
+    return Number.isFinite(elapsed)?Math.max(0,Math.round(elapsed)):null;
+  };
+  const populate=async()=>{
+    state.textContent="Actualisation…";refresh.disabled=true;
+    try{
+      const {data,error}=await sb.rpc("admin_monitor_snapshot",{p_days:7});
+      if(error)throw error;
+      grid.replaceChildren();health.replaceChildren();
+      const m=data||{},analytics=m.analytics||{},live=m.live||{},telegram=m.telegram||{},push=m.push||{};
+      metric("Visites estimées · 7 j",Number(analytics.visits||0).toLocaleString("fr-FR"));
+      metric("Signaux LIVE · 7 j",Number(live.total||0).toLocaleString("fr-FR"));
+      const resolved=Number(live.wins||0)+Number(live.losses||0);
+      metric("Réussite vérifiée",resolved?(100*Number(live.wins||0)/resolved).toFixed(1)+" %":"—");
+      metric("Publications Telegram",Number(telegram.total||0).toLocaleString("fr-FR"));
+      metric("Abonnements Push",Number(push.subscriptions||0).toLocaleString("fr-FR"));
+      const title=document.createElement("h3");title.textContent="Fraîcheur des services";health.appendChild(title);
+      const list=document.createElement("div");list.className="admin-health-cards";
+      for(const [name,time,threshold] of [
+        ["Scraping LIVE",m.health?.live_scrape_last,5],
+        ["Fusion des données",m.health?.live_merged_last,5],
+        ["Dernier signal LIVE",m.health?.latest_live_prediction,180],
+        ["Actualités Football",m.health?.last_actu_foot_run,120]
+      ]) {
+        const mins=age(time),entry=document.createElement("div");
+        entry.className="admin-health-card";
+        const label=document.createElement("b");label.textContent=name;
+        const status=document.createElement("span");
+        status.className="admin-health-"+(mins==null?"unknown":mins>threshold?"late":"good");
+        status.textContent=mins==null?"Donnée indisponible":mins>threshold?"Retard · "+mins+" min":"À jour · "+mins+" min";
+        entry.append(label,status);list.appendChild(entry);
+      }
+      health.appendChild(list);
+      state.textContent="Mis à jour à "+new Date().toLocaleTimeString("fr-FR",{timeZone:"UTC"})+" UTC · Données estimées";
+    }catch(err){
+      state.textContent="Supervision indisponible : "+String(err?.message||err)+". Réessaie ou consulte la supervision détaillée.";
+    }finally{refresh.disabled=false;}
+  };
+  refresh.addEventListener("click",()=>void populate());
+  await populate();
+}
+
 // -----------------------------
 // LAZY LOAD : charge la tab 1 fois
 // -----------------------------
 const TAB_LOADERS = {
-  overview: async () => {},
+  overview: renderAdminOverview,
   pronostics: renderPronosticsReadOnly,
   push: renderPushAdmin,
   articles: renderCmsArticles,
@@ -82,9 +190,26 @@ const TAB_LOADERS = {
 async function loadTabIfNeeded(name) {
   if (loadedTabs.has(name)) return;
   const loader = TAB_LOADERS[name];
-  if (typeof loader === "function") {
+  if (typeof loader !== "function") return;
+  try {
     await loader();
     loadedTabs.add(name);
+  } catch (error) {
+    const target = $("tab-" + name);
+    if (target) {
+      target.replaceChildren();
+      const notice = document.createElement("div");
+      notice.className = "card";
+      notice.setAttribute("role", "alert");
+      notice.textContent = "Impossible de charger cette rubrique : " + String(error?.message || error);
+      const retry = document.createElement("button");
+      retry.type = "button";
+      retry.className = "btn btn-secondary";
+      retry.textContent = "Réessayer";
+      retry.addEventListener("click", () => void loadTabIfNeeded(name));
+      notice.appendChild(retry);
+      target.appendChild(notice);
+    }
   }
 }
 
@@ -133,8 +258,9 @@ async function renderPushAdmin() {
         <div>
           <label>Audience</label>
           <select id="push_audience">
+            <option value="">Choisir les destinataires…</option>
+            <option value="user">Un abonné précis</option>
             <option value="all">Tous les abonnés</option>
-            <option value="user">Un utilisateur (user_id)</option>
           </select>
         </div>
 
@@ -163,11 +289,12 @@ async function renderPushAdmin() {
         </div>
         <div>
           <label>&nbsp;</label>
+          <button id="push_preview" type="button" class="btn btn-secondary">Prévisualiser</button>
           <button id="push_send" class="btn btn-primary" style="width:100%;">Envoyer</button>
         </div>
       </div>
 
-      <div id="push_status" class="muted" style="margin-top:10px"></div>
+      <div id="push_status" class="muted" role="status" aria-live="polite" style="margin-top:10px;white-space:pre-line"></div>
       <div id="push_results" style="margin-top:10px"></div>
     </div>
 
@@ -262,7 +389,25 @@ async function renderPushAdmin() {
   refreshAudience();
 
   // Envoi push
+  let sendingPush = false;
+  const pushPreview = () => {
+    const mode = audienceSel.value;
+    const title = $("push_title").value.trim();
+    const body = $("push_body").value.trim();
+    if (!mode || !title || !body) {
+      setStatus("Choisis les destinataires, un titre et un message.");
+      return false;
+    }
+    if (mode === "user" && !userInput.value.trim()) {
+      setStatus("Choisis un abonné dans la liste ou saisis son identifiant.");
+      return false;
+    }
+    setStatus("Aperçu · " + (mode === "all" ? "Tous les abonnés" : userInput.value.trim()) + "\n" + title + "\n" + body);
+    return true;
+  };
+  $("push_preview").addEventListener("click", () => { pushPreview(); });
   $("push_send").addEventListener("click", async () => {
+    if (sendingPush || !pushPreview()) return;
     const mode = audienceSel.value;
     const title = $("push_title").value.trim();
     const body = $("push_body").value.trim();
@@ -270,7 +415,7 @@ async function renderPushAdmin() {
     const tag = $("push_tag").value.trim();
     const user_id = mode === "user" ? userInput.value.trim() : "";
 
-    if (!title || !body) return alert("Titre et message requis.");
+    if (!title || !body || !mode) return setStatus("Audience, titre et message requis.");
     if (mode === "user" && !user_id) return alert("User ID requis pour l'envoi ciblé.");
 
     const confirmMsg =
@@ -280,6 +425,8 @@ async function renderPushAdmin() {
 
     if (!confirm(confirmMsg)) return;
 
+    sendingPush = true;
+    $("push_send").disabled = true;
     try {
       setStatus("Envoi en cours...");
       const payload = {
@@ -290,11 +437,13 @@ async function renderPushAdmin() {
         user_id: mode === "user" ? user_id : null,
       };
       const data = await callAdminPush(payload);
-      setStatus("Envoyé.");
+      setStatus("Envoi terminé : consulte le bilan ci-dessous.");
       renderResults(data);
     } catch (e) {
-      setStatus("");
-      alert(e?.message || String(e));
+      setStatus("Échec d'envoi : " + String(e?.message || e));
+    } finally {
+      sendingPush = false;
+      $("push_send").disabled = false;
     }
   });
 
@@ -427,85 +576,131 @@ async function renderStats() {
 async function renderPronosticsReadOnly() {
   const root = $("tab-pronostics");
   if (!root) return;
-
   root.innerHTML = `
-    <div class="card">
-      <h3 style="margin:0 0 10px;color:#D4AF37">Pronostics (lecture seule)</h3>
-      <div class="row">
-        <div>
-          <label>Jour</label>
-          <select id="pDay">
-            <option value="today">Aujourd’hui</option>
-            <option value="tomorrow">Demain</option>
-            <option value="yesterday">Hier</option>
-          </select>
-        </div>
-        <div>
-          <label>Catégorie</label>
-          <select id="pCat">
-            <option value="simple">Simple</option>
-            <option value="pro">Pro</option>
-            <option value="vip">VIP</option>
-          </select>
-        </div>
+    <div class="card admin-pronostics-panel">
+      <div class="admin-section-heading">
+        <div><h3>Pronostics Pro & VIP</h3><p class="muted">Flux public · consultation et diagnostic, sans modifier les résultats</p></div>
+        <button type="button" class="btn btn-secondary" id="pRefresh">↻ Actualiser</button>
       </div>
-      <label>Recherche</label>
-      <input id="pSearch" placeholder="équipe / ligue...">
-      <div id="pList" style="margin-top:10px">${premiumAdminLoading("matches", 2)}</div>
-    </div>
-  `;
-
-  const data = await fetch(`data.json?t=${Date.now()}`, { cache:"no-cache" })
-    .then(r => r.json())
-    .catch(() => null);
-
-  const matches = Array.isArray(data?.matches) ? data.matches : [];
-
-  const getDateStr = (day) => {
+      <div class="admin-filter-row">
+        <div><label for="pDay">Date</label><select id="pDay">
+          <option value="today">Aujourd'hui</option><option value="tomorrow">Demain</option>
+          <option value="yesterday">Hier</option>
+        </select></div>
+        <div><label for="pCat">Catégorie</label><select id="pCat">
+          <option value="pro">Pro</option><option value="vip">VIP</option>
+        </select></div>
+        <div><label for="pSearch">Recherche</label><input id="pSearch" type="search" placeholder="Équipe ou compétition"></div>
+      </div>
+      <div id="pStatus" class="muted" role="status" aria-live="polite">Chargement des pronostics…</div>
+      <div id="pList"></div>
+    </div>`;
+  let matches = [];
+  let loadFailed = false;
+  const dayKey = (day) => {
     const d = new Date();
     d.setUTCHours(0,0,0,0);
-    if (day==="tomorrow") d.setUTCDate(d.getUTCDate()+1);
-    if (day==="yesterday") d.setUTCDate(d.getUTCDate()-1);
-    const y = d.getUTCFullYear();
-    const m = String(d.getUTCMonth()+1).padStart(2,"0");
-    const dd = String(d.getUTCDate()).padStart(2,"0");
-    return `${y}-${m}-${dd}`;
+    d.setUTCDate(d.getUTCDate() + (day === "tomorrow" ? 1 : day === "yesterday" ? -1 : 0));
+    return d.toISOString().slice(0,10);
   };
-
-  function render() {
-    const day = $("pDay").value;
-    const cat = $("pCat").value;
-    const q = ($("pSearch").value||"").toLowerCase().trim();
-    const targetDate = getDateStr(day);
-
-    const list = matches.filter(m => {
-      const eventDate = (m.event_date||"").slice(0,10);
-      if (eventDate !== targetDate) return false;
-      if ((m.category||"") !== cat) return false;
-      if (!q) return true;
-      const s = `${m.home_team||""} ${m.away_team||""} ${m.league||""}`.toLowerCase();
-      return s.includes(q);
+  const safeLogo = (value) => {
+    if (!value) return "";
+    try {
+      const target = new URL(String(value),document.baseURI);
+      return (target.protocol === "https:" || target.origin === location.origin)
+        ? target.href : "";
+    } catch { return ""; }
+  };
+  const scoreOf = (m) => {
+    const h = m.home_score ?? m.score?.home ?? m.score?.home_score;
+    const a = m.away_score ?? m.score?.away ?? m.score?.away_score;
+    return h != null && a != null ? `${h}-${a}` : "—";
+  };
+  const labelStatus = (m) => {
+    const raw = String(m.status || m.result || "").toLowerCase();
+    if (["won","win","gagné","gagne","success"].includes(raw)) return "Gagné";
+    if (["lost","loss","perdu","failed"].includes(raw)) return "Perdu";
+    if (["void","cancelled","annulé"].includes(raw)) return "Annulé";
+    if (m.is_finished) return "Terminé · à vérifier";
+    return "En attente";
+  };
+  const render = () => {
+    const date = dayKey($("pDay").value);
+    const category = $("pCat").value;
+    const search = $("pSearch").value.toLocaleLowerCase("fr").trim();
+    const selected = matches.filter(m => {
+      const when = String(m.event_date || m.date || m.kickoff || "").slice(0,10);
+      const searchable = [m.home_team,m.away_team,m.league].join(" ").toLocaleLowerCase("fr");
+      return when === date && String(m.category||"").toLowerCase() === category
+        && (!search || searchable.includes(search));
     });
+    $("pStatus").textContent = loadFailed ? "Flux indisponible : vérifie la publication de data.json."
+      : selected.length ? `${selected.length} rencontre(s) · ${category.toUpperCase()} · ${date}`
+      : `Aucun pronostic ${category.toUpperCase()} pour le ${date}.`;
+    if (loadFailed || !selected.length) {
+      $("pList").replaceChildren();
+      return;
+    }
+    const head = '<div class="admin-pronostics-table-scroll"><table><thead><tr><th>Match / compétition</th><th>Pronostic</th><th>Confiance</th><th>Score</th><th>État</th></tr></thead><tbody>';
+    const rows = selected.map(m => {
+      const logo = (name,url) => {
+        const src = safeLogo(url);
+        return src ? `<img class="admin-team-logo" src="${escapeHtml(src)}" alt="${escapeHtml(name)}" loading="lazy" onerror="this.hidden=true">` : "";
+      };
+      const pred = m.prediction || (Array.isArray(m.predictions) ? m.predictions[0] : {}) || {};
+      const market = pred.market_label || pred.bet_type || pred.type || pred.double_chance || pred.pick || "—";
+      const confidenceRaw = Number(pred.confidence);
+      const confidence = pred.confidence == null || !Number.isFinite(confidenceRaw)
+        ? "—" : `${(confidenceRaw <= 1 ? confidenceRaw*100 : confidenceRaw).toFixed(0)} %`;
+      const when = m.event_date || m.kickoff || "";
+      const localDate = when && !Number.isNaN(Date.parse(when)) ? new Date(when).toLocaleString("fr-FR",{timeZone:"UTC",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})+" UTC" : "—";
+      return `<tr>
+        <td><div class="admin-team-pair">${logo(m.home_team,m.home_logo)}<b>${escapeHtml(m.home_team||"Équipe A")}</b><span>–</span><b>${escapeHtml(m.away_team||"Équipe B")}</b>${logo(m.away_team,m.away_logo)}</div>
+          <small class="muted">${escapeHtml(m.league||"")} · ${escapeHtml(localDate)}</small></td>
+        <td>${escapeHtml(market)}</td><td>${escapeHtml(confidence)}</td>
+        <td>${escapeHtml(scoreOf(m))}</td><td>${escapeHtml(labelStatus(m))}</td></tr>`;
+    }).join("");
+    $("pList").innerHTML = head + rows + "</tbody></table></div>";
+  };
+  const refresh = async () => {
+    $("pStatus").textContent = "Actualisation du flux…";
+    try {
+      const response = await fetch(`data.json?t=${Date.now()}`,{cache:"no-store"});
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      if (!Array.isArray(data?.matches)) throw new Error("Format du flux incorrect");
+      matches = data.matches;
+      loadFailed = false;
+    } catch {
+      loadFailed = true;
+      matches = [];
+    }
+    render();
+  };
+  for (const id of ["pDay","pCat","pSearch"]) $(id).addEventListener("input",render);
+  $("pRefresh").addEventListener("click",()=>void refresh());
+  await refresh();
+}
 
-    $("pList").innerHTML = list.length ? `
-      <table>
-        <thead><tr><th>Match</th><th>DC</th><th>Conf</th><th>Status</th></tr></thead>
-        <tbody>
-          ${list.map(m => `
-            <tr>
-              <td>${escapeHtml(m.home_team)} vs ${escapeHtml(m.away_team)}<div class="muted">${escapeHtml(m.league||"")}</div></td>
-              <td>${escapeHtml(m.prediction?.double_chance||"-")}</td>
-              <td>${escapeHtml(m.prediction?.confidence||0)}%</td>
-              <td>${escapeHtml(m.status||"")}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    ` : `<div class="muted">Aucun résultat.</div>`;
+// Bounded, server-side paginated CMS retrieval replaces the old 50-row cap.
+// The UI reports when the safety limit is reached instead of silently omitting content.
+async function loadCmsRows(table) {
+  const all=[],size=200,maximum=2000;
+  for(let offset=0;offset<maximum;offset+=size){
+    const {data,error}=await sb.from(table).select("*")
+      .order("updated_at",{ascending:false}).range(offset,offset+size-1);
+    if(error)return {data:all,error,truncated:false};
+    const page=Array.isArray(data)?data:[];
+    all.push(...page);
+    if(page.length<size)return {data:all,error:null,truncated:false};
   }
-
-  ["pDay","pCat","pSearch"].forEach(id => $(id).addEventListener("input", render));
-  render();
+  return {data:all,error:null,truncated:true};
+}
+function warnCmsTruncated(root,truncated){
+  if(!truncated)return;
+  const warning=document.createElement("p");warning.className="muted";warning.setAttribute("role","status");
+  warning.textContent="Plus de 2 000 contenus : seuls les derniers enregistrements sont affichés. Prévoir une recherche serveur pour explorer toute l'archive.";
+  root.querySelector(".card")?.appendChild(warning);
 }
 
 // -----------------------------
@@ -516,7 +711,7 @@ async function renderCmsArticles() {
   if (!root) return;
   root.innerHTML = premiumAdminLoading("admin", 3);
 
-  const { data, error } = await sb.from("cms_articles").select("*").order("updated_at",{ascending:false}).limit(50);
+  const { data, error, truncated } = await loadCmsRows("cms_articles");
   if (error) { root.innerHTML = `<div class="muted">Erreur: ${escapeHtml(error.message)}</div>`; return; }
 
   const rows = data || [];
@@ -524,6 +719,7 @@ async function renderCmsArticles() {
   root.innerHTML = `
     <div class="card">
       <h3 style="margin:0 0 10px;color:#D4AF37">Articles</h3>
+      <p class="muted">Cette liste contient les publications éditoriales du CMS. Les analyses générées automatiquement sont conservées dans GitHub et ne sont pas écrasées lors de la publication.</p>
 
       <div class="row">
         <div><label>Slug</label><input id="a_slug"></div>
@@ -540,10 +736,10 @@ async function renderCmsArticles() {
 
       <div class="row">
         <div><label>Status</label>
-          <select id="a_status"><option value="draft">draft</option><option value="published">published</option></select>
+          <select id="a_status"><option value="draft">Brouillon</option><option value="published">Publié</option></select>
         </div>
         <div><label>Actif</label>
-          <select id="a_active"><option value="true">true</option><option value="false">false</option></select>
+          <select id="a_active"><option value="true">Actif</option><option value="false">Désactivé</option></select>
         </div>
       </div>
 
@@ -554,13 +750,15 @@ async function renderCmsArticles() {
         ${rows.map(a => `
           <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-id="${escapeHtml(a.id)}">
             <div style="font-weight:900">${escapeHtml(a.title)}</div>
-            <div class="muted">${escapeHtml(a.slug)} • ${escapeHtml(a.status)} • active=${a.active !== false}</div>
+            <div class="muted">${escapeHtml(a.slug)} • ${escapeHtml(a.status)} • ${a.active !== false ? "Actif" : "Désactivé"}</div>
           </div>
         `).join("")}
       </div>
     </div>
   `;
 
+  warnCmsTruncated(root,truncated);
+  const articleEditorLayout=organizeCmsEditor(root);
   const cmsEditor = mountCmsBlockEditor({sb,textarea:$("a_content"),kind:"articles"});
   mountCmsMediaFieldPicker(sb,$("a_image"));
 
@@ -577,6 +775,7 @@ async function renderCmsArticles() {
     $("a_status").value = a.status || "draft";
     $("a_active").value = (a.active !== false) ? "true" : "false";
     $("a_save").dataset.id = a.id;
+    articleEditorLayout?.show(true);
     void versions.load(a.id);
   };
 
@@ -606,7 +805,7 @@ async function renderCmsArticles() {
       status: $("a_status").value,
       active: $("a_active").value === "true",
       updated_at: new Date().toISOString(),
-      published_at: $("a_status").value === "published" ? new Date().toISOString() : null
+      published_at: preservedPublicationDate(rows, $("a_save").dataset.id, $("a_status").value)
     };
     if (!row.slug || !row.title || !row.content) return alert("Slug/Titre/Contenu requis.");
 
@@ -656,7 +855,7 @@ async function renderCmsConseils() {
   if (!root) return;
   root.innerHTML = premiumAdminLoading("admin", 3);
 
-  const { data, error } = await sb.from("cms_conseils").select("*").order("updated_at",{ascending:false}).limit(50);
+  const { data, error, truncated } = await loadCmsRows("cms_conseils");
   if (error) { root.innerHTML = `<div class="muted">Erreur: ${escapeHtml(error.message)}</div>`; return; }
 
   const rows = data || [];
@@ -681,10 +880,10 @@ async function renderCmsConseils() {
 
       <div class="row">
         <div><label>Status</label>
-          <select id="c_status"><option value="draft">draft</option><option value="published">published</option></select>
+          <select id="c_status"><option value="draft">Brouillon</option><option value="published">Publié</option></select>
         </div>
         <div><label>Actif</label>
-          <select id="c_active"><option value="true">true</option><option value="false">false</option></select>
+          <select id="c_active"><option value="true">Actif</option><option value="false">Désactivé</option></select>
         </div>
       </div>
 
@@ -695,13 +894,15 @@ async function renderCmsConseils() {
         ${rows.map(c => `
           <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-id="${escapeHtml(c.id)}">
             <div style="font-weight:900">${escapeHtml(c.title)}</div>
-            <div class="muted">${escapeHtml(c.slug)} • ${escapeHtml(c.status)} • active=${c.active !== false}</div>
+            <div class="muted">${escapeHtml(c.slug)} • ${escapeHtml(c.status)} • ${c.active !== false ? "Actif" : "Désactivé"}</div>
           </div>
         `).join("")}
       </div>
     </div>
   `;
 
+  warnCmsTruncated(root,truncated);
+  const conseilsEditorLayout=organizeCmsEditor(root);
   const cmsEditor = mountCmsBlockEditor({sb,textarea:$("c_content"),kind:"conseils"});
   mountCmsMediaFieldPicker(sb,$("c_image"));
 
@@ -718,6 +919,7 @@ async function renderCmsConseils() {
     $("c_status").value = c.status || "draft";
     $("c_active").value = (c.active !== false) ? "true" : "false";
     $("c_save").dataset.id = c.id;
+    conseilsEditorLayout?.show(true);
     void versions.load(c.id);
   };
 
@@ -746,7 +948,7 @@ async function renderCmsConseils() {
       status: $("c_status").value,
       active: $("c_active").value === "true",
       updated_at: new Date().toISOString(),
-      published_at: $("c_status").value === "published" ? new Date().toISOString() : null
+      published_at: preservedPublicationDate(rows, $("c_save").dataset.id, $("c_status").value)
     };
     if (!row.slug || !row.title || !row.content) return alert("Slug/Titre/Contenu requis.");
 
@@ -772,8 +974,8 @@ async function renderBonus() {
   root.innerHTML = premiumAdminLoading("admin", 3);
 
   const [{ data: bonus, error: e1 }, { data: books, error: e2 }] = await Promise.all([
-    sb.from("cms_bonus").select("*").order("updated_at",{ascending:false}).limit(50),
-    sb.from("cms_bookmakers").select("*").order("updated_at",{ascending:false}).limit(50)
+    loadCmsRows("cms_bonus"),
+    loadCmsRows("cms_bookmakers")
   ]);
   if (e1 || e2) {
     root.innerHTML = `<div class="muted">Erreur: ${escapeHtml((e1||e2).message)}</div>`;
@@ -798,7 +1000,7 @@ async function renderBonus() {
       <div class="row">
         <div><label>Footer</label><input id="b_footer"></div>
         <div><label>Status</label>
-          <select id="b_status"><option value="draft">draft</option><option value="published">published</option></select>
+          <select id="b_status"><option value="draft">Brouillon</option><option value="published">Publié</option></select>
         </div>
       </div>
       <div class="row">
@@ -806,7 +1008,7 @@ async function renderBonus() {
         <div><label>Date fin</label><input id="b_end" type="date"></div>
       </div>
       <label>Actif</label>
-      <select id="b_active"><option value="true">true</option><option value="false">false</option></select>
+      <select id="b_active"><option value="true">Actif</option><option value="false">Désactivé</option></select>
       <button id="b_save" class="btn btn-primary" style="margin-top:10px">Enregistrer bonus</button>
 
       <h4 style="margin:18px 0 8px;color:#D4AF37">Liste bonus</h4>
@@ -814,7 +1016,7 @@ async function renderBonus() {
         ${bonusRows.map(b => `
           <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-bonus-id="${escapeHtml(b.id)}">
             <div style="font-weight:900">${escapeHtml(b.title)}</div>
-            <div class="muted">${escapeHtml(b.bookmaker)} • ${escapeHtml(b.status)} • active=${b.active !== false}</div>
+            <div class="muted">${escapeHtml(b.bookmaker)} • ${escapeHtml(b.status)} • ${b.active !== false ? "Actif" : "Désactivé"}</div>
           </div>
         `).join("")}
       </div>
@@ -831,10 +1033,10 @@ async function renderBonus() {
 
       <div class="row">
         <div><label>Status</label>
-          <select id="bk_status"><option value="published">published</option><option value="draft">draft</option></select>
+          <select id="bk_status"><option value="published">Publié</option><option value="draft">Brouillon</option></select>
         </div>
         <div><label>Actif</label>
-          <select id="bk_active"><option value="true">true</option><option value="false">false</option></select>
+          <select id="bk_active"><option value="true">Actif</option><option value="false">Désactivé</option></select>
         </div>
       </div>
 
@@ -845,7 +1047,7 @@ async function renderBonus() {
         ${bookRows.map(b => `
           <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-book-id="${escapeHtml(b.id)}">
             <div style="font-weight:900">${escapeHtml(b.name)}</div>
-            <div class="muted">${escapeHtml(b.status)} • active=${b.active !== false}</div>
+            <div class="muted">${escapeHtml(b.status)} • ${b.active !== false ? "Actif" : "Désactivé"}</div>
           </div>
         `).join("")}
       </div>
@@ -913,7 +1115,7 @@ async function renderBonus() {
       status: $("b_status").value,
       active: $("b_active").value === "true",
       updated_at: new Date().toISOString(),
-      published_at: $("b_status").value === "published" ? new Date().toISOString() : null
+      published_at: preservedPublicationDate(bonusRows, $("b_save").dataset.id, $("b_status").value)
     };
     if (!row.bookmaker || !row.title || !row.description) return alert("Bookmaker/Titre/Description requis.");
 
@@ -938,7 +1140,7 @@ async function renderBonus() {
       status: $("bk_status").value,
       active: $("bk_active").value === "true",
       updated_at: new Date().toISOString(),
-      published_at: $("bk_status").value === "published" ? new Date().toISOString() : null
+      published_at: preservedPublicationDate(bookRows, $("bk_save").dataset.id, $("bk_status").value)
     };
     if (!row.name) return alert("Nom requis.");
 
@@ -963,7 +1165,7 @@ async function renderInfos() {
   if (!root) return;
 
   root.innerHTML = premiumAdminLoading("admin", 3);
-  const { data, error } = await sb.from("cms_infos").select("*").order("updated_at",{ascending:false}).limit(50);
+  const { data, error, truncated } = await loadCmsRows("cms_infos");
   if (error) { root.innerHTML = `<div class="muted">Erreur: ${escapeHtml(error.message)}</div>`; return; }
 
   const rows = data || [];
@@ -977,10 +1179,10 @@ async function renderInfos() {
       <label>Contenu</label><textarea id="i_content" rows="6"></textarea>
       <div class="row">
         <div><label>Status</label>
-          <select id="i_status"><option value="draft">draft</option><option value="published">published</option></select>
+          <select id="i_status"><option value="draft">Brouillon</option><option value="published">Publié</option></select>
         </div>
         <div><label>Actif</label>
-          <select id="i_active"><option value="true">true</option><option value="false">false</option></select>
+          <select id="i_active"><option value="true">Actif</option><option value="false">Désactivé</option></select>
         </div>
       </div>
       <button id="i_save" class="btn btn-primary" style="margin-top:10px">Enregistrer</button>
@@ -989,12 +1191,14 @@ async function renderInfos() {
       ${rows.map(i => `
         <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-id="${escapeHtml(i.id)}">
           <div style="font-weight:900">${escapeHtml(i.title)}</div>
-          <div class="muted">${escapeHtml(i.status)} • active=${i.active !== false}</div>
+          <div class="muted">${escapeHtml(i.status)} • ${i.active !== false ? "Actif" : "Désactivé"}</div>
         </div>
       `).join("")}
     </div>
   `;
 
+  warnCmsTruncated(root,truncated);
+  const infosEditorLayout=organizeCmsEditor(root);
   const cmsEditor = mountCmsBlockEditor({sb,textarea:$("i_content"),kind:"infos"});
   mountCmsMediaFieldPicker(sb,$("i_image"));
 
@@ -1008,6 +1212,7 @@ async function renderInfos() {
     $("i_status").value = i.status || "draft";
     $("i_active").value = (i.active !== false) ? "true" : "false";
     $("i_save").dataset.id = i.id;
+    infosEditorLayout?.show(true);
     void versions.load(i.id);
   };
 
@@ -1033,7 +1238,7 @@ async function renderInfos() {
       status: $("i_status").value,
       active: $("i_active").value === "true",
       updated_at: new Date().toISOString(),
-      published_at: $("i_status").value === "published" ? new Date().toISOString() : null
+      published_at: preservedPublicationDate(rows, $("i_save").dataset.id, $("i_status").value)
     };
     if (!row.title || !row.content) return alert("Titre/Contenu requis.");
 
@@ -1084,14 +1289,15 @@ async function renderVip() {
 
   root.innerHTML = `
     <div class="card">
-      <h3 style="margin:0 0 10px;color:#D4AF37">VIP (reset expiration)</h3>
+      <h3 style="margin:0 0 10px;color:#D4AF37">Accès VIP historiques</h3>
+      <p class="muted">Gestion des codes et dates d'accès enregistrés dans Supabase. Les catégories de pronostics Pro et VIP affichées sur le site fonctionnent indépendamment de ce registre.</p>
 
       <div class="row">
         <div><label>User ID (MX-xxxx)</label><input id="v_user" placeholder="MX-..."></div>
         <div><label>IP (optionnel)</label><input id="v_ip" placeholder="1.2.3.4"></div>
       </div>
 
-      <label>Durée (jours)</label><input id="v_days" type="number" min="1" value="30">
+      <label>Durée (jours)</label><input id="v_days" type="number" min="1" max="365" value="30">
 
       <button id="v_reset" class="btn btn-primary" style="margin-top:10px">Créer / Réinitialiser VIP</button>
 
@@ -1117,35 +1323,39 @@ async function renderVip() {
   $("v_reset").addEventListener("click", async () => {
     const uid = $("v_user").value.trim();
     const ip = $("v_ip").value.trim();
-    const days = parseInt($("v_days").value, 10) || 30;
-    if (!uid) return alert("User ID requis");
-
-    const { data, error } = await sb.rpc("admin_reset_vip", {
-      p_user_id: uid,
-      p_ip: ip,
-      p_duration_days: days
-    });
-
-    if (error) return alert(error.message);
-
-    const row = Array.isArray(data) ? data[0] : data;
-    alert(`VIP OK. Code: ${row?.code} / Expire: ${row?.expires_at}`);
-    loadedTabs.delete("vip");
-    await renderVip();
-    loadedTabs.add("vip");
+    const days = Number($("v_days").value);
+    if (!uid) return alert("Identifiant utilisateur requis.");
+    if (!Number.isInteger(days) || days<1 || days>365)
+      return alert("Durée invalide : choisis entre 1 et 365 jours.");
+    if (!confirm("Créer ou réinitialiser cet accès VIP ?\n\nCompte : "+uid+"\nDurée : "+days+" jours")) return;
+    const btn=$("v_reset");btn.disabled=true;
+    try{
+      const { data, error } = await sb.rpc("admin_reset_vip", {
+        p_user_id: uid,p_ip: ip,p_duration_days: days
+      });
+      if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : data;
+      alert(`Accès VIP confirmé. Code : ${row?.code} / Expiration : ${row?.expires_at}`);
+      loadedTabs.delete("vip");
+      await renderVip();
+      loadedTabs.add("vip");
+    }catch(err){alert("Impossible de modifier l'accès VIP : "+String(err?.message||err));}
+    finally{if(btn.isConnected)btn.disabled=false;}
   });
 
   root.querySelectorAll("[data-revoke]").forEach(btn => {
     btn.addEventListener("click", async () => {
       const uid = btn.getAttribute("data-revoke");
-      if (!confirm("Désactiver VIP ?")) return;
-
-      const { error } = await sb.rpc("admin_revoke_vip", { p_user_id: uid });
-      if (error) return alert(error.message);
-
-      loadedTabs.delete("vip");
-      await renderVip();
-      loadedTabs.add("vip");
+      if (!confirm("Désactiver l'accès VIP du compte "+uid+" ?")) return;
+      btn.disabled=true;
+      try{
+        const { error } = await sb.rpc("admin_revoke_vip", { p_user_id: uid });
+        if (error) throw error;
+        loadedTabs.delete("vip");
+        await renderVip();
+        loadedTabs.add("vip");
+      }catch(err){alert("Désactivation impossible : "+String(err?.message||err));}
+      finally{if(btn.isConnected)btn.disabled=false;}
     });
   });
 }
@@ -1154,92 +1364,127 @@ async function renderVip() {
 // HEALTH
 // -----------------------------
 async function renderHealth() {
-  const root = $("tab-health");
-  if (!root) return;
-
-  const { data, error } = await sb.from("cron_runs").select("*").order("last_run_at",{ascending:false});
-  if (error) { root.innerHTML = `<div class="muted">${escapeHtml(error.message)}</div>`; return; }
-
-  const rows = (data || []).map(r => {
-    const meta = r.meta || {};
-    const summary =
-      r.name === "live_refresh"
-        ? `matches=${meta.matches_live ?? 0}, created=${meta.predictions_created ?? 0}, updated=${meta.predictions_updated ?? 0}`
-        : `validated=${meta.validated ?? 0}, skipped=${meta.skipped ?? 0}`;
-
-    return `
-      <tr>
-        <td>${escapeHtml(r.name)}</td>
-        <td>${r.last_run_at ? new Date(r.last_run_at).toLocaleString("fr-FR") : "-"}</td>
-        <td>${r.last_ok ? "oui" : "non"}</td>
-        <td>
-          <div class="muted">${escapeHtml(summary)}</div>
-          <button class="btn btn-secondary" data-meta='${encodeURIComponent(JSON.stringify(meta))}'>Voir</button>
-        </td>
-      </tr>
-    `;
-  }).join("");
-
-  root.innerHTML = `
-    <div class="card">
-      <h3 style="margin:0 0 10px;color:#D4AF37">Santé CRON</h3>
-      <table>
-        <thead><tr><th>Nom</th><th>Dernière exécution</th><th>OK</th><th>Meta</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-
-      <div id="metaModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); padding:20px; z-index:9999;">
-        <div style="max-width:900px; margin:0 auto; background:#1A1A1A; border:1px solid #D4AF37; border-radius:16px; padding:16px;">
-          <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
-            <div style="font-weight:900; color:#D4AF37">Meta</div>
-            <button id="closeMeta" class="btn btn-secondary">Fermer</button>
-          </div>
-          <pre id="metaContent" style="margin-top:12px; max-height:70vh; overflow:auto; white-space:pre-wrap; color:#ddd;"></pre>
-        </div>
-      </div>
-    </div>
-  `;
-
-  const modal = $("metaModal");
-  const pre = $("metaContent");
-  $("closeMeta").onclick = () => (modal.style.display = "none");
-
-  root.querySelectorAll("[data-meta]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const meta = JSON.parse(decodeURIComponent(btn.getAttribute("data-meta")));
-      pre.textContent = JSON.stringify(meta, null, 2);
-      modal.style.display = "block";
-    });
-  });
+  const root=$("tab-health");if(!root)return;
+  root.replaceChildren();
+  const panel=document.createElement("section");panel.className="card";
+  const header=document.createElement("div");header.className="admin-section-heading";
+  const h=document.createElement("h3");h.textContent="Automatisations · dernier état connu";
+  const button=document.createElement("button");button.type="button";button.className="btn btn-secondary";
+  button.textContent="↻ Actualiser";header.append(h,button);
+  const note=document.createElement("p");note.className="muted";note.setAttribute("role","status");
+  const info=document.createElement("p");info.className="muted";
+  info.textContent="Ce tableau ne contient que les tâches enregistrées dans cron_runs. Les workflows GitHub et les tâches cron-job.org doivent être vérifiés séparément.";
+  const url=document.createElement("a");url.href="https://github.com/MrXPRONOS/MrXPRONOS_App/actions";
+  url.target="_blank";url.rel="noopener noreferrer";url.textContent="Consulter GitHub Actions ↗";
+  const table=document.createElement("table");
+  table.innerHTML="<thead><tr><th>Tâche</th><th>Dernière exécution</th><th>État</th><th>Détails</th></tr></thead>";
+  const body=document.createElement("tbody");table.appendChild(body);
+  panel.append(header,info,url,note,table);root.appendChild(panel);
+  const load=async()=>{
+    button.disabled=true;note.textContent="Actualisation des tâches…";
+    try{
+      const {data,error}=await sb.from("cron_runs").select("name,last_run_at,last_ok,meta")
+        .order("last_run_at",{ascending:false}).limit(500);
+      if(error)throw error;
+      body.replaceChildren();
+      for(const entry of data||[]){
+        const tr=document.createElement("tr");
+        const mk=value=>{const td=document.createElement("td");td.textContent=String(value??"—");tr.appendChild(td);return td};
+        mk(entry.name);
+        mk(entry.last_run_at?new Date(entry.last_run_at).toLocaleString("fr-FR"):"Jamais");
+        const minutes=entry.last_run_at?(Date.now()-Date.parse(entry.last_run_at))/60000:null;
+        const interval=Number(entry.meta?.expected_interval_minutes||0);
+        const overdue=Number.isFinite(minutes)&&interval>0&&minutes>interval*2;
+        const label=entry.last_ok===false?"Dernière exécution en échec":
+          entry.last_ok===true?(overdue?"Retard à vérifier":"Dernière exécution réussie"):"État inconnu";
+        mk(label+(minutes!=null&&Number.isFinite(minutes)?" · "+Math.max(0,Math.round(minutes))+" min":""));
+        const td=document.createElement("td");const details=document.createElement("details");
+        const summary=document.createElement("summary");summary.textContent="Détails";
+        const pre=document.createElement("pre");pre.textContent=JSON.stringify(entry.meta||{},null,2);
+        details.append(summary,pre);td.append(details);tr.append(td);body.append(tr);
+      }
+      note.textContent=(data?.length||0)+" tâche(s) enregistrée(s). Ce nombre ne couvre pas toutes les automatisations.";
+    }catch(e){note.textContent="Supervision des tâches indisponible : "+String(e?.message||e);}
+    finally{button.disabled=false;}
+  };
+  button.addEventListener("click",()=>void load());
+  await load();
 }
 
 // -----------------------------
 // AUDIT
 // -----------------------------
-async function renderAudit() {
-  const root = $("tab-audit");
-  if (!root) return;
-
-  const { data, error } = await sb.from("audit_log").select("*").order("created_at",{ascending:false}).limit(50);
-  if (error) { root.innerHTML = `<div class="muted">${escapeHtml(error.message)}</div>`; return; }
-
-  root.innerHTML = `
-    <div class="card">
-      <h3 style="margin:0 0 10px;color:#D4AF37">Audit log</h3>
-      <table>
-        <thead><tr><th>Date</th><th>Action</th><th>Détails</th></tr></thead>
-        <tbody>
-          ${(data||[]).map(a => `
-            <tr>
-              <td>${new Date(a.created_at).toLocaleString("fr-FR")}</td>
-              <td>${escapeHtml(a.action)}</td>
-              <td><pre style="white-space:pre-wrap" class="muted">${escapeHtml(JSON.stringify(a.details||{}, null, 2))}</pre></td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    </div>
-  `;
+async function renderAudit(){
+  const root=$("tab-audit");if(!root)return;
+  root.replaceChildren();
+  const panel=document.createElement("section");panel.className="card";
+  const head=document.createElement("div");head.className="admin-section-heading";
+  const title=document.createElement("h3");title.textContent="Journal d'audit";
+  const exportButton=document.createElement("button");exportButton.type="button";
+  exportButton.className="btn btn-secondary";exportButton.textContent="Exporter CSV";
+  head.append(title,exportButton);
+  const search=document.createElement("input");search.type="search";
+  search.setAttribute("aria-label","Rechercher les actions du journal");
+  search.placeholder="Rechercher une action ou un administrateur…";
+  const status=document.createElement("p");status.className="muted";status.setAttribute("role","status");
+  const wrap=document.createElement("div");wrap.className="admin-pronostics-table-scroll";
+  const table=document.createElement("table");table.className="admin-audit-table";
+  const thead=document.createElement("thead");thead.innerHTML="<tr><th>Date</th><th>Administrateur</th><th>Action</th><th>Détails</th></tr>";
+  const tbody=document.createElement("tbody");table.append(thead,tbody);wrap.append(table);
+  const more=document.createElement("button");more.type="button";more.className="btn btn-secondary";
+  more.textContent="Charger 100 événements supplémentaires";
+  panel.append(head,search,status,wrap,more);root.appendChild(panel);
+  let rows=[],offset=0,done=false,busy=false;
+  const apply=()=>{
+    tbody.replaceChildren();
+    const q=search.value.trim().toLocaleLowerCase("fr");
+    const filtered=rows.filter(row=>
+      [row.action,row.actor_user_id,JSON.stringify(row.details||{})]
+        .some(value=>String(value||"").toLocaleLowerCase("fr").includes(q)));
+    for(const row of filtered){
+      const tr=document.createElement("tr");
+      const cell=(value)=>{
+        const td=document.createElement("td");td.textContent=String(value??"—");
+        tr.appendChild(td);return td;
+      };
+      cell(row.created_at?new Date(row.created_at).toLocaleString("fr-FR"):"—");
+      cell(row.actor_user_id||"Système");
+      cell(row.action||"—");
+      const detail=document.createElement("td");
+      const summary=document.createElement("details");
+      const trigger=document.createElement("summary");trigger.textContent="Voir";
+      const pre=document.createElement("pre");pre.textContent=JSON.stringify(row.details||{},null,2);
+      summary.append(trigger,pre);detail.append(summary);tr.append(detail);tbody.append(tr);
+    }
+    status.textContent=`${filtered.length} affiché(s) sur ${rows.length} événement(s) chargé(s).`
+      +(done?" Fin de l'historique.":" Charger la suite pour explorer les anciens événements.");
+  };
+  const load=async()=>{
+    if(busy||done)return;
+    busy=true;more.disabled=true;
+    try{
+      const {data,error}=await sb.from("audit_log")
+        .select("created_at,action,details,actor_user_id")
+        .order("created_at",{ascending:false}).range(offset,offset+99);
+      if(error)throw error;
+      const page=data||[];rows.push(...page);offset+=page.length;done=page.length<100;
+      apply();
+    }catch(e){status.textContent="Lecture du journal impossible : "+String(e?.message||e);}
+    finally{busy=false;more.disabled=false;more.hidden=done;}
+  };
+  search.addEventListener("input",apply);
+  more.addEventListener("click",()=>void load());
+  exportButton.addEventListener("click",()=>{
+    const escapeCsv=value=>'"'+String(value??"").replaceAll('"','""')+'"';
+    const lines=[["Date","Administrateur","Action","Détails"].map(escapeCsv).join(","),
+      ...rows.map(x=>[x.created_at,x.actor_user_id,x.action,JSON.stringify(x.details||{})].map(escapeCsv).join(","))];
+    const blob=new Blob(["\ufeff"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");a.href=url;a.download="mrxpronos-audit-"+new Date().toISOString().slice(0,10)+".csv";
+    a.click();URL.revokeObjectURL(url);
+    status.textContent="Export CSV : "+rows.length+" événement(s) chargé(s).";
+  });
+  await load();
 }
 
 // -----------------------------
@@ -1383,7 +1628,7 @@ async function publishNow() {
       panel.textContent="Publication annulée : aucun commit créé.";
       return;
     }
-    let acknowledge_empty;
+    let acknowledge_empty, acknowledge_removals;
     if(preview.emptied_files?.length){
       const files=preview.emptied_files.join(", ");
       if(window.prompt("Attention : les fichiers suivants vont être vidés : "+files+
@@ -1393,12 +1638,23 @@ async function publishNow() {
       }
       acknowledge_empty="PUBLIER VIDE";
     }
+    if(preview.removed_files?.length) {
+      const summary=preview.removed_files.map(path=>
+        path+" : "+(preview.removed_counts?.[path]||0)+" contenu(s) supprimé(s)").join("\n");
+      if(window.prompt("Des contenus existants vont être supprimés :\n"+summary+
+        "\nPour confirmer, tape exactement PUBLIER SUPPRESSIONS")!=="PUBLIER SUPPRESSIONS") {
+        panel.textContent="Publication annulée : les suppressions n'ont pas été autorisées.";
+        return;
+      }
+      acknowledge_removals="PUBLIER SUPPRESSIONS";
+    }
     panel.textContent="Publication préparée : création du commit GitHub…";
     const data=await cmsAdminRequest("publish",{
       expected_head:preview.current_head,
       preflight_expires:preview.preflight_expires,
       preflight_signature:preview.preflight_signature,
-      acknowledge_empty
+      acknowledge_empty,
+      acknowledge_removals
     });
     if(data.skipped){
       panel.textContent="Aucun changement à publier : aucun commit créé.";

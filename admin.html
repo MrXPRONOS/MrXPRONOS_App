@@ -8,7 +8,7 @@
   <title>Mr XPRONOS — Administration</title>
   <link rel="icon" href="assets/images/favicon.webp">
   <link rel="stylesheet" href="assets/css/admin-premium.css?v=20261018-future2">
-  <link rel="stylesheet" href="assets/css/admin-shell.css?v=20261018-unified1">
+  <link rel="stylesheet" href="assets/css/admin-shell.css?v=20261107-admin-audit1">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="assets/css/admin-cms-editor.css?v=20261019-2a">
 </head>
@@ -85,14 +85,18 @@
         </div>
         <div class="topbar-actions">
           <span class="admin-user" id="who" aria-label="Compte connecté"></span>
-          <button id="btnPublish" type="button" class="admin-btn primary" hidden><svg class="nav-icon" aria-hidden="true"><use href="#icon-send"></use></svg><span>Publier les contenus</span></button>
-          <button id="btnLogout" type="button" class="admin-btn outline"><svg class="nav-icon" aria-hidden="true"><use href="#icon-logout"></use></svg><span>Déconnexion</span></button>
+          <button id="btnPublish" type="button" class="admin-btn primary" aria-label="Publier les contenus" title="Publier les contenus" hidden><svg class="nav-icon" aria-hidden="true"><use href="#icon-send"></use></svg><span>Publier les contenus</span></button>
+          <button id="btnLogout" type="button" class="admin-btn outline" aria-label="Déconnexion" title="Déconnexion"><svg class="nav-icon" aria-hidden="true"><use href="#icon-logout"></use></svg><span>Déconnexion</span></button>
         </div>
       </header>
       <main id="screen-stack" class="workspace-content">
         <p id="view-description" class="view-description">Vue centralisée des visiteurs, signaux et performances.</p>
         <section id="tab-overview" class="admin-screen active-screen" aria-label="Vue générale">
-          <iframe id="supervisionFrame" title="Supervision en temps réel" data-src="admin-supervision.html?embedded=1" loading="lazy" referrerpolicy="same-origin"></iframe>
+          <div id="admin-overview-summary" role="region" aria-label="Résumé opérationnel"></div>
+          <details id="admin-detailed-supervision" class="admin-supervision-details">
+            <summary>Supervision détaillée et diagnostics</summary>
+            <iframe id="supervisionFrame" title="Supervision en temps réel" data-src="admin-supervision.html?embedded=1" loading="lazy" referrerpolicy="same-origin"></iframe>
+          </details>
         </section>
         <section id="tab-pronostics" class="admin-screen" hidden aria-label="Pronostics"></section>
       <section id="tab-push" class="admin-screen" hidden aria-label="Notifications Push"></section>
@@ -108,7 +112,7 @@
       <footer class="workspace-footer">Mr XPRONOS · Console d'administration <span>© 2026</span></footer>
     </div>
   </div>
-  <script type="module" src="assets/js/admin-shell.js?v=20261019-cms2a"></script>
-  <script type="module" src="assets/js/admin-real.js?v=20261019-cms2a"></script>
+  <script type="module" src="assets/js/admin-shell.js?v=20261107-admin-audit1"></script>
+  <script type="module" src="assets/js/admin-real.js?v=20261107-admin-audit1"></script>
 </body>
 </html>

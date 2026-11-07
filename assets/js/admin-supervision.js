@@ -8,7 +8,7 @@ const date=s=>s?new Date(s).toLocaleString("fr-FR",{timeZone:"UTC",day:"2-digit"
 const output=(id,value)=>{if($(id))$(id).textContent=value};
 const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function notice(message){$("error").innerHTML=message?'<div class="notice error">'+safe(message)+'</div>':""}
-function connection(status){output("socket-state",status);$("socket-dot").className="status-dot "+(status==="En direct"?"good":"bad")}
+function connection(status){output("socket-state",status);$("socket-dot").className="status-dot "+(status==="Présence connectée"?"good":"bad")}
 function windowStart(){
  const n=Number($("period").value);const d=new Date();
  if(n===1){d.setUTCHours(0,0,0,0)}else d.setTime(Date.now()-n*86400000);
@@ -181,7 +181,7 @@ async function startDashboard(){
   lastRealtime=Date.now();
  });
  channel.subscribe(status=>{
-  if(status==="SUBSCRIBED"){connection("En direct");channel.track({online_at:new Date().toISOString(),admin_dashboard:true});}
+  if(status==="SUBSCRIBED"){connection("Présence connectée");channel.track({online_at:new Date().toISOString(),admin_dashboard:true});}
   else if(["CHANNEL_ERROR","TIMED_OUT","CLOSED"].includes(status))connection("Repli 60 s");
  });
  await fetchSnapshot();
@@ -227,8 +227,13 @@ async function refreshGitHubRuns(){
    const k=r.path||r.name;
    const old=groups.get(k)||[];old.push(r);groups.set(k,old);
   }
+  // A duplicate candidate must match the workflow, trigger type and source commit.
+  // Close timestamps alone are insufficient (e.g. legitimate manual re-runs).
   const suspects=[...groups.entries()].filter(([k,rs])=>
-   rs.some((r,i)=>rs.some((s,j)=>i!==j && Math.abs(Date.parse(r.created_at)-Date.parse(s.created_at))<90000))
+    rs.some((r,i)=>rs.some((s,j)=>i!==j
+      && r.event===s.event && r.head_sha===s.head_sha
+      && r.id!==s.id
+      && Math.abs(Date.parse(r.created_at)-Date.parse(s.created_at))<90000))
   ).map(([k])=>k);
   output("github-alerts",suspects.length?suspects.length+" workflows potentiellement lancés en double (fenêtre 90 s)":"Aucun doublon proche détecté parmi les 50 dernières exécutions");
   renderTable("githubrows",runs.slice(0,14),[

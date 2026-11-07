@@ -19,7 +19,12 @@ export async function initAdminMfaControl(sb,container){
       const title=document.createElement("h3");title.textContent="Sécurité administrateur — Double authentification";
       const info=document.createElement("p");info.style.whiteSpace="pre-line";
       const done=document.createElement("button");done.type="button";done.textContent="Fermer";
-      done.onclick=()=>overlay.remove();box.append(title,info,done);
+      const close=()=>{overlay.remove();button.focus();};
+      done.onclick=close;
+      overlay.addEventListener("keydown",event=>{
+        if(event.key==="Escape"){event.preventDefault();close();}
+      });
+      box.append(title,info,done);
       if(status.currentLevel==="aal2")info.textContent="MFA vérifié pour cette session.";
       else{
         let factorId;
@@ -53,6 +58,7 @@ export async function initAdminMfaControl(sb,container){
         box.insertBefore(field,done);box.insertBefore(verify,done);
       }
       overlay.appendChild(box);document.body.appendChild(overlay);
+      (box.querySelector('input')||done).focus();
     }catch(err){
       window.alert("MFA indisponible : "+String(err?.message||"erreur"));
       overlay?.remove();
