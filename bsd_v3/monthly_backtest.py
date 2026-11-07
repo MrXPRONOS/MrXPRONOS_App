@@ -12,7 +12,7 @@ from .legacy import fixture_datetime,outcome_scores,markets_from_matrix,score_ma
 from .policy import V3Policy
 
 _MARKETS={c.key:c for c in markets_from_matrix(score_matrix(1.4,1.2))}
-PREFERRED=frozenset({"1","2","BTTS_YES","OVER_15"})
+PREFERRED=frozenset({"1","2","BTTS_YES","OVER_15","OVER_25"})
 
 def _wilson(wins,n,z=1.96):
     if not n:return None
