@@ -55,7 +55,7 @@ export async function mountIncidentCenter(sb,root){
   busy=true;$("incident-more").disabled=true;notice("Chargement…");
   try{
    const {data,error}=await sb.from("admin_incidents")
-     .select("id,source,summary,severity,status,created_at")
+     .select("id,source,summary,severity,status,created_at,last_seen_at,detail,escalation_level,escalated_at")
      .order("created_at",{ascending:false}).range(offset,offset+99);
    if(error)throw error;
    rows.push(...data||[]);offset+=(data||[]).length;more=(data||[]).length===100;
@@ -68,9 +68,20 @@ export async function mountIncidentCenter(sb,root){
   const filter=$("incident-filter").value;
   for(const row of rows.filter(x=>filter==="all"||x.status===filter)){
    const tr=document.createElement("tr");
-   for(const content of [row.source,row.summary,statusNames[row.status]||row.status,
+   for(const content of [row.source,row.summary,
+     (statusNames[row.status]||row.status)+(row.escalation_level>0?" · Escaladé":""),
      row.created_at?new Date(row.created_at).toLocaleString("fr-FR"):"—"]){
     const td=document.createElement("td");td.textContent=String(content);tr.append(td);
+   }
+   if(row.detail?.action){
+    const details=document.createElement("details");
+    const summary=document.createElement("summary");summary.textContent="Diagnostic";
+    const advice=document.createElement("p");advice.textContent=String(row.detail.action);
+    const observed=document.createElement("small");
+    observed.textContent=row.last_seen_at?
+      "Dernière observation : "+new Date(row.last_seen_at).toLocaleString("fr-FR"):"";
+    details.append(summary,advice,observed);
+    tr.children[1].append(details);
    }
    const action=document.createElement("td");
    if(row.status!=="resolved"){
