@@ -40,6 +40,14 @@ def run_view(browser, width, height, label):
         raise AssertionError(f"{label}: too many highlighted daily selections ({top_cards.count()})")
     if verified_cards.count() > 3:
         raise AssertionError(f"{label}: too many verified result cards ({verified_cards.count()})")
+    # L'accueil est une vitrine des derniers gagnants ; l'historique reste complet.
+    if page.locator("#verified-picks .pick-card--lost").count():
+        raise AssertionError(f"{label}: losing predictions leaked into the winner showcase")
+    badges = verified_cards.locator(".pick-badge").all_text_contents()
+    if any(badge.strip() != "GAGNÉ" for badge in badges):
+        raise AssertionError(f"{label}: home result not marked as a winner: {badges}")
+    if page.locator("#mx-hero-title").evaluate("(el)=>getComputedStyle(el).textTransform") != "uppercase":
+        raise AssertionError(f"{label}: homepage main title is not uppercase")
 
     proofbar = page.locator(".mx-home-proofbar")
     if proofbar.count() != 1 or not proofbar.is_visible():
