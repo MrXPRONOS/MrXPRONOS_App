@@ -223,5 +223,33 @@ class TestV3BTTSQualityGate(unittest.TestCase):
         self.assertEqual(guards["BTTS_YES"],"btts_v3_side_score_below_70")
         self.assertNotIn("BTTS_NO",guards)
 
+
+class TestV3Over25QualityGate(unittest.TestCase):
+    def test_over25_requires_strong_league_environment(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from bsd_v3.guardrails import family_guards
+        event=match(800,NOW+timedelta(hours=2))
+        index=SimpleNamespace()
+        with patch("bsd_v2_btts_h2h.btts_h2h_decision",
+                   side_effect=[(True,"pass",None),(True,"pass",None)]), \
+             patch("bsd_v3.btts_quality.evaluate_btts_yes_quality",
+                   return_value=(True,{"reason":"pass"})), \
+             patch("bsd_v2_over_under.features",
+                   return_value={"league_over_rates":{2.5:.61}}):
+            guards,evidence=family_guards(event,index,score_matrix(1.5,1.2),{},
+                                          btts_quality_gate=None)
+        self.assertNotIn("OVER_25",guards)
+        self.assertEqual(evidence["OVER_25"]["reason"],"pass")
+        with patch("bsd_v2_btts_h2h.btts_h2h_decision",
+                   side_effect=[(True,"pass",None),(True,"pass",None)]), \
+             patch("bsd_v3.btts_quality.evaluate_btts_yes_quality",
+                   return_value=(True,{"reason":"pass"})), \
+             patch("bsd_v2_over_under.features",
+                   return_value={"league_over_rates":{2.5:.57}}):
+            guards,evidence=family_guards(event,index,score_matrix(1.5,1.2),{},
+                                          btts_quality_gate=None)
+        self.assertEqual(guards["OVER_25"],"over25_league_rate_below_58")
+
 if __name__=="__main__":
     unittest.main()
