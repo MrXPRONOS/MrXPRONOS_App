@@ -209,3 +209,35 @@
 @media(prefers-reduced-motion:reduce){
   .mx-premium-home .pick-card{transition:none}
 }
+
+/* Composants communs : etats vides, navigation et interactions. */
+body:not(.mx-daily-body) .no-events {
+  padding: 22px 18px;
+  line-height: 1.55;
+  border: 1px dashed #355b70;
+  border-radius: 12px;
+  background: #081b28;
+  color: #d0e1eb;
+  text-align: center;
+  font-size: 14px;
+}
+body:not(.mx-daily-body) .no-events a {
+  color: #f6d48b;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+body:not(.mx-daily-body) .mx-primary-nav a:focus-visible,
+body:not(.mx-daily-body) .mx-nav-more summary:focus-visible,
+body:not(.mx-daily-body) button:focus-visible {
+  outline: 3px solid #ffe1a2;
+  outline-offset: 3px;
+}
+body:not(.mx-daily-body) .mx-primary-nav .mx-nav-more-panel a {
+  min-height: 39px;
+  display: flex;
+  align-items: center;
+}
+@media(max-width:590px) {
+  body:not(.mx-daily-body) .no-events { font-size: 13px; padding: 20px 13px; }
+}
