@@ -56,7 +56,8 @@ PUBLIC_CSS = {
     "bonus-premium.css", "bookmakers-premium.css", "contact-premium.css",
     "article-detail-premium.css", "conseil-detail-premium.css",
     "mobile-nav-premium.css", "brand-signatures.css", "scores-exacts.css", "daily-hub.css",
-    "audience-analytics.css",
+    "audience-analytics.css", "ux-direct.css", "daily-ux.css",
+    "site-typography.css", "home-compact.css",
 }
 PUBLIC_DIRS = (
     "assets/css", "assets/js", "assets/images", "assets/fonts",
