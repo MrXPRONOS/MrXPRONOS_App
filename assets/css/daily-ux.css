@@ -1,0 +1,52 @@
+/* Aujourd'hui : priorite aux matchs, options a la demande. */
+.mx-daily-optional {
+  margin: 13px 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #365267;
+}
+.mx-daily-optional>summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 16px 19px;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #f6d594;
+  font-size: 17px;
+  font-weight: 800;
+}
+.mx-daily-optional>summary::-webkit-details-marker { display:none; }
+.mx-daily-optional>summary:after {
+  content: "⌄";
+  font-size: 20px;
+  transition: transform .2s ease;
+}
+.mx-daily-optional[open]>summary:after { transform:rotate(180deg); }
+.mx-daily-optional[open]>summary {
+  border-bottom: 1px solid #34536a;
+  margin-bottom: 12px;
+}
+.mx-daily-optional>summary~* {
+  margin-left: 18px;
+  margin-right: 18px;
+}
+.mx-daily-optional>summary~*:last-child { margin-bottom: 18px; }
+.mx-daily-optional>summary:focus-visible { outline:3px solid #fff0ba;outline-offset:-4px; }
+.mx-daily-optional>.mx-daily-eyebrow {display:none;}
+.mx-daily-intro p { max-width:540px; }
+.mx-daily-intro-actions a { background:var(--mx-gold);color:#091721; }
+.mx-daily-intro-actions button {background:transparent;color:#ffe0a5;}
+.mx-daily-section-top p {max-width:570px;}
+.mx-daily-favorite-alerts>p { max-width:900px; }
+@media(max-width:760px){
+  .mx-daily-intro {gap:12px;}
+  .mx-daily-intro h1{margin-bottom:11px;}
+  .mx-daily-intro-actions a,.mx-daily-intro-actions button {min-height:44px;}
+  .mx-daily-optional>summary{font-size:15px;padding:14px;}
+  .mx-daily-optional>summary~* {margin-left:14px;margin-right:14px;}
+  .mx-daily-section-top h2 {font-size:23px;}
+  .mx-daily-card-link,.mx-daily-more{font-size:13px;}
+}
