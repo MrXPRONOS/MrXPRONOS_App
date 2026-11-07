@@ -1,7 +1,7 @@
 {
   "audit": {
     "category": "anime_catalog",
-    "checked_at": "2026-11-07T06:21:14.534650+00:00",
+    "checked_at": "2026-11-07T13:26:50.619548+00:00",
     "not_yet_indexed": [
       {
         "episode": 2,
@@ -95,6 +95,12 @@
       },
       {
         "episode": 6,
+        "season": "1",
+        "series": "a-tale-of-the-secret-saint",
+        "source_instances": 4
+      },
+      {
+        "episode": 7,
         "season": "1",
         "series": "a-tale-of-the-secret-saint",
         "source_instances": 4
@@ -596,15 +602,9 @@
         "season": "1",
         "series": "animeisekaic-goblin-slayer",
         "source_instances": 1
-      },
-      {
-        "episode": 12,
-        "season": "1",
-        "series": "animeisekaic-goblin-slayer-fin",
-        "source_instances": 1
       }
     ],
-    "not_yet_indexed_total": 2277,
+    "not_yet_indexed_total": 2280,
     "note": "Les trous de numérotation sont des indices, pas la preuve que la source a omis un épisode.",
     "numbering_gap_seasons": 1,
     "numbering_gaps": [
@@ -650,8 +650,8 @@
         "truncated": false
       }
     ],
-    "scanned_episode_candidates": 2592,
-    "source_episode_numbers_observed": 2376,
+    "scanned_episode_candidates": 2589,
+    "source_episode_numbers_observed": 2379,
     "source_numbering_gap_seasons": 62,
     "source_numbering_gaps": [
       {
@@ -2082,6 +2082,12 @@
           "-1002069851953:64913",
           "-1002069851953:64914",
           "-1002069851953:64915"
+        ],
+        "7": [
+          "-1002069851953:65443",
+          "-1002069851953:65444",
+          "-1002069851953:65445",
+          "-1002069851953:65446"
         ]
       }
     },
@@ -9839,6 +9845,13 @@
           "-1002069851953:64906",
           "-1002069851953:64907",
           "-1002069851953:64908"
+        ],
+        "6": [
+          "-1002069851953:65434",
+          "-1002069851953:65435",
+          "-1002069851953:65436",
+          "-1002069851953:65437",
+          "-1002069851953:65438"
         ]
       }
     },
@@ -11179,6 +11192,11 @@
           "-1002069851953:64891",
           "-1002069851953:64892",
           "-1002069851953:64893"
+        ],
+        "5": [
+          "-1002069851953:65427",
+          "-1002069851953:65425",
+          "-1002069851953:65426"
         ]
       }
     },
