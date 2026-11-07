@@ -13,7 +13,7 @@ const percent=(numerator,denominator)=>Number(denominator)>0
 const string=v=>String(v??"");
 const stat=(id,n)=>{$(id).textContent=num(n);};
 const label=(id,v)=>{$(id).textContent=string(v);};
-let authorised=false,busy=false,current=null,currentPwa=null,chartKey="visitors",selected="audience";
+let authorised=false,busy=false,current=null,currentPwa=null,currentExperiments=null,chartKey="visitors",selected="audience";
 const stages=[
   ["cta_visible","ins-visible"],["cta_click","ins-clicks"],["prompt_accepted","ins-accepted"],
   ["appinstalled","ins-installed"],["standalone_open","ins-standalone"],["guide_open","ins-guides"]
@@ -147,7 +147,7 @@ async function refreshAuth(){
   $("logout").hidden=!authorised;
   if(authorised){setStatus("Accès administrateur autorisé.");await refresh();}
   else{
-    current=null;currentPwa=null;
+    current=null;currentPwa=null;currentExperiments=null;
     setStatus("Identifiez-vous avec un compte administrateur autorisé.");
   }
 }
@@ -159,14 +159,17 @@ async function refresh(){
     const days=Number($("period").value);
     if(![1,7,30,90].includes(days))throw Error("Période invalide");
     // Les deux RPC imposent is_admin côté serveur. Aucun accès direct aux tables.
-    const [main,pwa]=await Promise.all([
+    const [main,pwa,ab]=await Promise.all([
       sb.rpc("admin_audience_dashboard_v1",{p_days:days}),
-      sb.rpc("admin_pwa_install_funnel_v2",{p_days:days})
+      sb.rpc("admin_pwa_install_funnel_v2",{p_days:days}),
+      sb.rpc("admin_experiment_report_v1",{p_days:days})
     ]);
     if(main.error)throw main.error;
     if(pwa.error)throw pwa.error;
     current=main.data||{};currentPwa=pwa.data||{};
+    currentExperiments=ab.error?null:(ab.data||{});
     renderAll(current,currentPwa);
+    renderExperiments(currentExperiments,ab.error);
     setStatus("Actualisé le "+new Date().toLocaleString("fr-FR")+
       " · Fenêtre UTC : "+current.start_day+" → "+current.end_day);
   }catch(error){
@@ -177,14 +180,14 @@ async function refresh(){
   }
 }
 function switchTab(id,focus=false) {
-  if(!["audience","retention","installation","acquisition"].includes(id))return;
+  if(!["audience","retention","installation","acquisition","experiments"].includes(id))return;
   selected=id;
   document.querySelectorAll("[data-tab]").forEach(b=>{
     const active=b.dataset.tab===id;
     b.setAttribute("aria-selected",String(active));b.tabIndex=active?0:-1;
     if(active&&focus)b.focus();
   });
-  for(const tab of ["audience","retention","installation","acquisition"]){
+  for(const tab of ["audience","retention","installation","acquisition","experiments"]){
     $("panel-"+tab).hidden=tab!==id;
   }
 }
@@ -215,6 +218,13 @@ function exportAggregates(){
       add("channel_"+v.channel,key,v[key]);
   });
   (d.campaigns||[]).forEach(v=>add("campaign_"+v.channel,v.campaign,v.visitors));
+  for(const e of currentExperiments?.experiments||[]){
+    for(const v of e.variants||[]){
+      const prefix="experiment_"+e.id+"_"+v.variant;
+      for(const field of ["exposed","converted","matured_exposed","matured_converted"])
+        add(prefix,field,v[field]);
+    }
+  }
   const text="\uFEFF"+rows.map(r=>r.map(csvCell).join(",")).join("\r\n")+"\r\n";
   const blob=new Blob([text],{type:"text/csv;charset=utf-8"});
   const url=URL.createObjectURL(blob);
@@ -223,6 +233,112 @@ function exportAggregates(){
   document.body.append(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
+
+/** Two experiments with mature seven-day denominators and conservative decisions. */
+function wilson(success,total){
+  const n=Number(total||0),k=Number(success||0);
+  if(!Number.isFinite(n)||!Number.isFinite(k)||n<=0||k<0||k>n)return null;
+  const z=1.96,p=k/n,z2=z*z,den=1+z2/n;
+  const mid=(p+z2/(2*n))/den;
+  const half=z/den*Math.sqrt(p*(1-p)/n+z2/(4*n*n));
+  return [Math.max(0,mid-half),Math.min(1,mid+half)];
+}
+function experimentRows(report){
+  const rows=[];
+  for(const e of report?.experiments||[]){
+    for(const v of e.variants||[]){
+      const bounds=wilson(v.matured_converted,v.matured_exposed);
+      rows.push({
+        id:e.id,variant:v.variant,exposed:v.exposed,converted:v.converted,
+        matured_exposed:v.matured_exposed,matured_converted:v.matured_converted,
+        rate:percent(v.matured_converted,v.matured_exposed),
+        interval:bounds?(bounds[0]*100).toLocaleString("fr-FR",{maximumFractionDigits:1})+
+          "–"+(bounds[1]*100).toLocaleString("fr-FR",{maximumFractionDigits:1})+" %":"—"
+      });
+    }
+  }
+  return rows;
+}
+function renderExperimentDaily(report){
+  const kind=$("experiment-trend-kind").value;
+  const day=new Map();
+  for(const entry of report?.daily||[]){
+    if(entry.experiment!==kind)continue;
+    let row=day.get(entry.day);
+    if(!row){row={day:entry.day,a:0,b:0,a_click:0,b_click:0};day.set(entry.day,row);}
+    if(entry.variant==="a"){row.a=entry.exposed;row.a_click=entry.converted;}
+    if(entry.variant==="b"){row.b=entry.exposed;row.b_click=entry.converted;}
+  }
+  table("experiment-daily",[...day.values()].sort((a,b)=>b.day.localeCompare(a.day)),
+    ["day","a","b","a_click","b_click"]);
+}
+async function toggleExperiment(experimentId,enabled){
+  if(!authorised||busy)return;
+  const verb=enabled?"Suspendre":"Activer";
+  if(!window.confirm(verb+" l'expérience "+experimentId+
+    " ? Les résultats ne seront pas automatiquement transformés en décisions."))return;
+  const buttons=$("experiment-cards").querySelectorAll("button");
+  buttons.forEach(b=>{b.disabled=true;});
+  label("experiments-status",verb+" l’expérience…");
+  try{
+    const {data,error}=await sb.rpc("admin_set_experiment_v1",{
+      p_experiment:experimentId,p_enabled:!enabled
+    });
+    if(error||data?.enabled!==!enabled)throw error||Error("État non confirmé");
+    await refresh();
+  }catch(error){
+    label("experiments-status","Modification refusée : "+string(error?.message||error));
+  }finally{buttons.forEach(b=>{b.disabled=false;});}
+}
+function renderExperiments(report,error=null){
+  const list=$("experiment-cards");
+  list.replaceChildren();
+  if(error||!report){
+    label("experiments-status","Statistiques d'expériences indisponibles : "+
+      string(error?.message||"service indisponible"));
+    table("experiment-results",[],["id","variant"]);
+    table("experiment-daily",[],["day"]);
+    return;
+  }
+  const experiments=Array.isArray(report.experiments)?report.experiments:[];
+  label("experiments-status",
+    experiments.length+" expérience(s) configurée(s) · Attribution stable 50/50 · "+
+    "Fenêtre : "+report.period_days+" jour(s) · Résultats mûrs après sept jours");
+  for(const experiment of experiments){
+    const card=document.createElement("article");
+    card.className="card";
+    const title=document.createElement("h3");
+    title.textContent=experiment.label||experiment.id;
+    const state=document.createElement("p");
+    state.className="note";
+    state.textContent="Objectif : "+(experiment.goal==="favorite_added"?
+      "ajout de favori confirmé":"clic sur le bouton du panneau d’installation")+
+      " · "+(experiment.enabled?"ACTIVE":"EN PAUSE");
+    const a=(experiment.variants||[]).find(v=>v.variant==="a")||{};
+    const b=(experiment.variants||[]).find(v=>v.variant==="b")||{};
+    const note=document.createElement("p");
+    note.className="note";
+    if(Number(a.matured_exposed||0)<200||Number(b.matured_exposed||0)<200){
+      note.textContent="Échantillon insuffisant pour une revue : "+
+        num(a.matured_exposed)+" / "+num(b.matured_exposed)+
+        " expositions mûres (objectif indicatif : 200 dans chaque groupe).";
+    }else{
+      note.textContent="Seuil indicatif atteint. Revue humaine nécessaire ; "+
+        "ne concluez pas sur ce seul écran à une différence significative.";
+    }
+    const button=document.createElement("button");
+    button.type="button";
+    button.className="experiment-action";
+    button.textContent=experiment.enabled?"Suspendre cette expérience":"Activer cette expérience";
+    button.setAttribute("aria-label",button.textContent+" : "+experiment.label);
+    button.addEventListener("click",()=>{void toggleExperiment(experiment.id,experiment.enabled);});
+    card.append(title,state,note,button);list.append(card);
+  }
+  table("experiment-results",experimentRows(report),
+    ["id","variant","exposed","converted","matured_exposed","matured_converted","rate","interval"]);
+  renderExperimentDaily(report);
+}
+
 $("auth-form").addEventListener("submit",async event=>{
   event.preventDefault();
   const b=$("login");b.disabled=true;setStatus("Connexion en cours…");
@@ -240,19 +356,20 @@ $("auth-form").addEventListener("submit",async event=>{
   finally{b.disabled=false;}
 });
 $("logout").addEventListener("click",async()=>{
-  await sb.auth.signOut();current=null;currentPwa=null;authorised=false;
+  await sb.auth.signOut();current=null;currentPwa=null;currentExperiments=null;authorised=false;
   await refreshAuth();
 });
 $("refresh").addEventListener("click",()=>{void refresh();});
 $("period").addEventListener("change",()=>{void refresh();});
 $("export").addEventListener("click",exportAggregates);
+$("experiment-trend-kind").addEventListener("change",()=>renderExperimentDaily(currentExperiments));
 document.querySelectorAll("[data-chart]").forEach(b=>
   b.addEventListener("click",()=>{chartKey=b.dataset.chart;if(current)showChart(current.daily);}));
 document.querySelectorAll("[data-tab]").forEach(b=>{
   b.addEventListener("click",()=>switchTab(b.dataset.tab));
   b.addEventListener("keydown",event=>{
     if(!["ArrowRight","ArrowLeft","Home","End"].includes(event.key))return;
-    const all=["audience","retention","installation","acquisition"];
+    const all=["audience","retention","installation","acquisition","experiments"];
     let i=all.indexOf(selected);
     if(event.key==="Home")i=0;
     else if(event.key==="End")i=all.length-1;
