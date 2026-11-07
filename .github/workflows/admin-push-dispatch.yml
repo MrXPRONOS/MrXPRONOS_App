@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  id-token: write
 concurrency:
   group: mrxpronos-admin-push-queue
   cancel-in-progress: false
@@ -13,20 +14,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
-      - name: Verify cron secret configured
-        env:
-          PUSH_CRON: ${{ secrets.CRON_SECRET }}
+      - name: Get short-lived GitHub OIDC token for this exact workflow
+        id: identity
         run: |
-          if [ -z "$PUSH_CRON" ]; then
-            echo "::error::CRON_SECRET absent des secrets GitHub Actions. Configure la même valeur que le CRON_SECRET de Supabase."
-            exit 1
-          fi
-      - name: Dispatch due campaigns (queue is idempotent)
+          TOKEN_URL="${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=mrxpronos-admin-push"
+          TOKEN_JSON="$(curl --fail-with-body --silent --show-error --max-time 20 \
+            -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" "$TOKEN_URL")"
+          TOKEN="$(printf '%s' "$TOKEN_JSON" | node -e 'let v="";process.stdin.on("data",x=>v+=x).on("end",()=>{let o=JSON.parse(v);if(!o.value)process.exit(1);process.stdout.write(o.value)})')"
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
+      - name: Dispatch due campaigns (server verifies GitHub JWT signature and workflow identity)
         env:
-          PUSH_CRON: ${{ secrets.CRON_SECRET }}
+          PUSH_TOKEN: ${{ steps.identity.outputs.token }}
         run: |
-          curl --fail-with-body --silent --show-error --max-time 330 --retry 2 --retry-delay 5 \
+          curl --fail-with-body --silent --show-error --max-time 330 \
             -X POST "https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/admin-push" \
-            -H "Authorization: Bearer $PUSH_CRON" \
+            -H "Authorization: Bearer $PUSH_TOKEN" \
             -H "Content-Type: application/json" \
             --data '{"operation":"dispatch"}'
