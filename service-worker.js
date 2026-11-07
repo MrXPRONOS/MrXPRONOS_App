@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v121-home-winners-uppercase-promo-20261107';
+const VERSION = 'v122-home-compact-stats-20261107';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -30,6 +30,7 @@ const STATIC_ASSETS = [
     './assets/css/home-premium.css',
     './assets/css/daily-hub.css',
     './assets/css/home-polish.css',
+    './assets/css/home-compact.css',
     './assets/css/ux-direct.css',
     './assets/css/daily-ux.css',
     './assets/css/site-typography.css',
