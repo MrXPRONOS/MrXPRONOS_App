@@ -1,0 +1,34 @@
+name: Dispatch scheduled admin Push
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: mrxpronos-admin-push-queue
+  cancel-in-progress: false
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Get short-lived GitHub OIDC token for this exact workflow
+        id: identity
+        run: |
+          TOKEN_URL="${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=mrxpronos-admin-push"
+          TOKEN_JSON="$(curl --fail-with-body --silent --show-error --max-time 20 \
+            -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" "$TOKEN_URL")"
+          TOKEN="$(printf '%s' "$TOKEN_JSON" | node -e 'let v="";process.stdin.on("data",x=>v+=x).on("end",()=>{let o=JSON.parse(v);if(!o.value)process.exit(1);process.stdout.write(o.value)})')"
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
+      - name: Dispatch due campaigns (server verifies GitHub JWT signature and workflow identity)
+        env:
+          PUSH_TOKEN: ${{ steps.identity.outputs.token }}
+        run: |
+          curl --fail-with-body --silent --show-error --max-time 330 \
+            -X POST "https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/admin-push" \
+            -H "Authorization: Bearer $PUSH_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"operation":"dispatch"}'

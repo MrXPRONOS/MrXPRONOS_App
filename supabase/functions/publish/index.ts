@@ -43,7 +43,7 @@ function toBase64Utf8(s: string) {
   return btoa(binary);
 }
 
-async function requireAdmin(req: Request) {
+async function requireAdmin(req: Request, permission: "read" | "cms" | "owner" = "cms") {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error("Server misconfigured: missing Supabase env");
   }
@@ -83,7 +83,7 @@ async function requireAdmin(req: Request) {
   // Vérification admin par table
   const { data: adminRow, error: adminErr } = await sb
     .from("admin_users")
-    .select("user_id, active")
+    .select("user_id, active, access_role")
     .eq("user_id", uid)
     .maybeSingle();
 
@@ -94,6 +94,10 @@ async function requireAdmin(req: Request) {
     throw err;
   }
 
+  const role=String(adminRow.access_role||"owner");
+  if((permission==="owner"&&role!=="owner") ||
+    (permission==="cms"&&!["owner","editor"].includes(role)))
+    throw Object.assign(new Error("Droits insuffisants pour cette opération"),{code:403});
   return uid;
 }
 
@@ -246,8 +250,11 @@ serve(async (req) => {
   try {
     if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
-    const actorUid = await requireAdmin(req);
     const requestBody = await req.json().catch(() => ({}));
+    const op=String(requestBody?.operation||"publish");
+    const permission=["status","history","preview_restore"].includes(op)?"read":
+      op==="restore"?"owner":"cms";
+    const actorUid=await requireAdmin(req,permission);
     if (requestBody?.operation === "status") {
       const sha=String(requestBody?.commit||"").trim();
       if(!/^[0-9a-f]{40}$/i.test(sha)) return json({error:"Commit GitHub invalide"},400);

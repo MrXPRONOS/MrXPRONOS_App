@@ -1,6 +1,7 @@
 // A block authoring layer that keeps the existing Markdown CMS field as its source of truth.
 import {mountCmsMediaPicker} from "./cms-media-library.mjs";
 import {isSafeCmsUrl} from "./cms-url-guard.mjs";
+import {createServerDraftStore} from "./admin-draft-sync.mjs";
 const TYPES=["paragraph","heading","subheading","bullets","quote","image","video","link","table","raw"];
 const LABELS={paragraph:"Paragraphe",heading:"Titre H2",subheading:"Sous-titre H3",
  bullets:"Liste",quote:"Citation",image:"Image",video:"Vidéo",link:"Lien",table:"Tableau",raw:"Source brute"};
@@ -74,7 +75,16 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
   let blocks=parseCmsMarkdown(textarea.value),documentKey=String(identity);
   let dragging=-1,selectedBlock=-1,editGeneration=0;
   let saveTimer=null;
+  let serverQueue=Promise.resolve();
+  const serverStore=createServerDraftStore(sb,{kind,getIdentity:()=>documentKey,
+    onStatus:message=>{status.textContent=message+" (non publié)";}});
   const draftKey=()=>`mx:cms:v2:${kind}:${documentKey}`;
+  const queueDraftRead=key=>{
+    serverQueue=serverQueue.catch(()=>{}).then(()=>serverStore.read(key)).catch(error=>{
+      if(documentKey===key)status.textContent="Brouillons serveur indisponibles : "+String(error?.message||error);
+    });
+  };
+  queueDraftRead(documentKey);
   const commit=()=>{
     textarea.value=serializeCmsBlocks(blocks);
     // Do not emit a synthetic input event here: source mode already listens for input.
@@ -82,11 +92,24 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
     status.textContent="Modifications non enregistrées";
     clearTimeout(saveTimer);
     saveTimer=setTimeout(()=>{
+      const content=textarea.value,expectedKey=documentKey;
+      if(content.length>150000){status.textContent="Brouillon trop long";return;}
+      let localSaved=false;
       try{
-        if(textarea.value.length>150000)return;
-        localStorage.setItem(draftKey(),JSON.stringify({at:Date.now(),content:textarea.value}));
-        status.textContent="Brouillon local sauvegardé (non publié)";
-      }catch {status.textContent="Stockage local indisponible";}
+        localStorage.setItem(draftKey(),JSON.stringify({at:Date.now(),content}));
+        localSaved=true;
+      }catch{ /* Private browsers may deny localStorage; still sync to server. */ }
+      status.textContent=(localSaved?"Brouillon local enregistré":"Stockage local indisponible")+
+        " · Synchronisation serveur…";
+      serverQueue=serverQueue.catch(()=>{}).then(async()=>{
+        if(documentKey!==expectedKey)return;
+        try{await serverStore.save(content,expectedKey);}
+        catch(e){
+          if(documentKey===expectedKey)
+            status.textContent=(localSaved?"Brouillon local conservé":"Brouillon non synchronisé")+
+              " · Erreur serveur : "+String(e?.message||e);
+        }
+      });
     },1200);
   };
   const elementFor=(block,i)=>{
@@ -136,24 +159,58 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
   function render(){
     list.replaceChildren(...blocks.map((b,i)=>elementFor(b,i)));
   }
-  function refreshPreview(){
-    preview.replaceChildren(node("h3","Prévisualisation — brouillon local"));
+  // Sandbox preview with the same CSS as the public article detail page.
+  // No scripts, forms, or network-origin privileges are granted to authored HTML.
+  let previewMobile=true;
+  const previewToolbar=node("div","","mx-preview-toolbar");
+  const mobileButton=node("button","Mobile 390 px","btn btn-secondary");
+  const desktopButton=node("button","Ordinateur","btn btn-secondary");
+  for(const button of [mobileButton,desktopButton])button.type="button";
+  const frame=node("iframe");frame.title="Aperçu de l'article (non publié)";
+  frame.setAttribute("sandbox","");
+  frame.setAttribute("referrerpolicy","no-referrer");
+  frame.style.cssText="display:block;width:min(100%,390px);height:640px;max-width:100%;margin:12px auto;border:1px solid #526474;border-radius:10px;background:#0d1722";
+  previewToolbar.append(mobileButton,desktopButton);
+  preview.append(previewToolbar,frame);
+  const htmlText=value=>text(value).replace(/[&<>"']/g,char=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[char]));
+  function safePreviewHtml(){
+    const parts=[];
     for(const b of blocks){
-      const v=text(b.value);
-      if(b.type==="image"&&isSafeCmsUrl(b.url,"image")){
-        const img=node("img");img.src=b.url;img.alt=b.alt||"";
-        img.style.maxWidth="100%";preview.appendChild(img);
-      }else if(b.type==="video"&&isSafeCmsUrl(b.url,"image")){
-        const media=node("video");media.controls=true;media.preload="metadata";media.src=b.url;
-        media.style.maxWidth="100%";preview.appendChild(media);
-      }else if(b.type==="link"&&isSafeCmsUrl(b.url,"link")){
-        const a=node("a",v||b.url);a.href=b.url;a.target="_blank";a.rel="noopener noreferrer";preview.appendChild(a);
-      }else{
-        const tag=b.type==="heading"?"h2":b.type==="subheading"?"h3":b.type==="quote"?"blockquote":"p";
-        const element=node(tag,v);element.style.whiteSpace="pre-wrap";preview.appendChild(element);
-      }
+      const value=htmlText(b.value||"");
+      const lines=value.split("\n").join("<br>");
+      if(b.type==="heading")parts.push("<h2>"+lines+"</h2>");
+      else if(b.type==="subheading")parts.push("<h3>"+lines+"</h3>");
+      else if(b.type==="quote")parts.push("<blockquote>"+lines+"</blockquote>");
+      else if(b.type==="bullets")parts.push("<ul>"+value.split("\n").map(v=>"<li>"+v+"</li>").join("")+"</ul>");
+      else if(b.type==="image"&&isSafeCmsUrl(b.url,"image")){
+        parts.push('<figure><img loading="lazy" alt="'+htmlText(b.alt)+'" src="'+htmlText(b.url)+'"><figcaption>'+htmlText(b.alt)+'</figcaption></figure>');
+      } else if(b.type==="video"&&isSafeCmsUrl(b.url,"image")){
+        parts.push('<video controls preload="none" playsinline src="'+htmlText(b.url)+'"></video>');
+      } else if(b.type==="link"&&isSafeCmsUrl(b.url,"link"))
+        parts.push('<p><a href="'+htmlText(b.url)+'">'+(lines||htmlText(b.url))+'</a></p>');
+      else parts.push("<p>"+lines+"</p>");
     }
+    return parts.join("\n");
   }
+  function refreshPreview(){
+    const base=htmlText(new URL(".",location.href).href);
+    const contents=safePreviewHtml();
+    frame.style.width=previewMobile?"min(100%,390px)":"100%";
+    frame.srcdoc='<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+      +'<base href="'+base+'"><link rel="stylesheet" href="assets/css/style.css">'
+      +'<link rel="stylesheet" href="assets/css/article-detail-premium.css">'
+      +'<link rel="stylesheet" href="assets/css/site-typography.css">'
+      +'<style>body{background:#0b1520;color:#edf1f7;padding:20px;margin:0}'
+      +'article{max-width:820px;margin:auto;overflow-wrap:anywhere}img,video{max-width:100%;height:auto}'
+      +'p{line-height:1.7}blockquote{border-left:3px solid #ddb96f;padding:12px;margin:8px 0}'
+      +'</style></head><body class="mx-article-detail-page"><article>'
+      +'<p style="color:#dfbc7d;font-weight:700">Mr XPRONOS · Aperçu non publié</p>'
+      +contents+'</article></body></html>';
+  }
+  mobileButton.onclick=()=>{previewMobile=true;refreshPreview();};
+  desktopButton.onclick=()=>{previewMobile=false;refreshPreview();};
   add.onclick=()=>{
     blocks.push({type:addType.value,value:"",url:"",alt:""});
     render();commit();list.lastElementChild?.querySelector("textarea,input")?.focus();
@@ -165,13 +222,16 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
     sourceBtn.textContent=textarea.hidden?"Mode source":"Revenir aux blocs";
     if(textarea.hidden){blocks=parseCmsMarkdown(textarea.value);render();}
   };
-  recover.onclick=()=>{
+  recover.onclick=async()=>{
     try{
-      const draft=JSON.parse(localStorage.getItem(draftKey())||"null");
-      if(!draft?.content){status.textContent="Aucun brouillon local";return;}
-      if(!window.confirm("Remplacer le texte actuellement saisi par le brouillon local ?"))return;
-      textarea.value=draft.content;blocks=parseCmsMarkdown(draft.content);render();status.textContent="Brouillon restauré";
-    }catch {status.textContent="Brouillon impossible à relire";}
+      const server=await serverStore.read();
+      const local=JSON.parse(localStorage.getItem(draftKey())||"null");
+      const draft=server?.content!=null?server:local;
+      if(!draft?.content){status.textContent="Aucun brouillon disponible";return;}
+      if(!window.confirm("Restaurer le brouillon sauvegardé "+(server?"sur le serveur":"localement")+" ?"))return;
+      textarea.value=draft.content;blocks=parseCmsMarkdown(draft.content);render();
+      status.textContent="Brouillon restauré · Modifications non publiées";
+    }catch(e){status.textContent="Impossible de récupérer le brouillon serveur : "+String(e?.message||e);}
   };
   textarea.addEventListener("input",()=>{if(!textarea.hidden){blocks=parseCmsMarkdown(textarea.value);commit();}});
   mountCmsMediaPicker(sb,library,media=>{
@@ -184,7 +244,10 @@ export function mountCmsBlockEditor({sb,textarea,kind,identity="new"}){
     setMarkdown(markdown,id="new"){
       documentKey=String(id||"new");clearTimeout(saveTimer);
       textarea.value=text(markdown);blocks=parseCmsMarkdown(textarea.value);render();
-      status.textContent="";
+      status.textContent="Brouillons synchronisés si la connexion serveur est disponible";
+      // Read revision before first save; a parallel tab will cause a conflict
+      // instead of silently replacing a more recent draft.
+      queueDraftRead(documentKey);
     },
     getMarkdown(){return textarea.hidden?serializeCmsBlocks(blocks):textarea.value;},
     destroy(){clearTimeout(saveTimer);editor.remove();}

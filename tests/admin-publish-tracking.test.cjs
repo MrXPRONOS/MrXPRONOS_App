@@ -4,7 +4,7 @@ const server=fs.readFileSync("supabase/functions/publish/index.ts","utf8");
 const admin=fs.readFileSync("assets/js/admin-real.js","utf8");
 const includes=(content,items)=>items.forEach(x=>assert(content.includes(x),"Missing contract: "+x));
 includes(server,[
-  'await requireAdmin(req)',
+  'await requireAdmin(req,permission)',
   'requestBody?.operation === "status"',
   'requestBody?.operation==="history"',
   'requestBody?.operation==="preview_restore"',

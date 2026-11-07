@@ -45,7 +45,8 @@ function fakeDb(fail=false){
  const uploads=[],deleted=[];
  const bucket={upload:async(path,body,opts)=>{uploads.push({path,opts});return{error:null};},
  remove:async paths=>{deleted.push(...paths);return {error:null};},
- getPublicUrl:path=>({data:{publicUrl:"https://cdn.example.org/"+path}})};
+ getPublicUrl:path=>({data:{publicUrl:"https://cdn.example.org/"+path}}),
+ createSignedUrl:async path=>({data:{signedUrl:"https://cdn.example.org/signed/"+path},error:null})};
  const sb={
  auth:{getUser:async()=>({data:{user:{id:"11111111-1111-4111-8111-111111111111"}},error:null})},
  storage:{from:()=>bucket},

@@ -24,7 +24,7 @@ window.supabase = {
         signInWithPassword: async () => ({error:null}),
         signOut: async () => ({error:null})
       },
-      rpc: async (name) => ({data: name === "is_admin" ? true : {}, error:null}),
+      rpc: async (name) => ({data: ["is_admin","admin_can"].includes(name) ? true : {}, error:null}),
       from: () => chain
     };
   }
@@ -49,7 +49,7 @@ def run(page, mobile=False):
     expect(page.locator("#admin-detailed-supervision")).to_have_attribute("open", "")
     expect(page.locator("#supervisionFrame")).to_have_attribute("src", "admin-supervision.html?embedded=1")
     page.locator("#admin-detailed-supervision summary").click()
-    assert page.locator(".nav-item.tab").count() == 11  # New analytics link is not a tab
+    assert page.locator(".nav-item.tab").count() == 13  # Incidents + Administrateurs
     assert page.locator('[data-tab="media"]').count() == 1
 
     if mobile:

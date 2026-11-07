@@ -30,3 +30,17 @@ verify_jwt = false
 # Administrative CMS: always require an authenticated JWT.
 [functions.publish]
 verify_jwt = true
+
+# Admin dispatch uses explicit CRON_SECRET for scheduled tasks and checks
+# user JWT + admin_can('push') on manual actions. Legacy verify_jwt=false retained.
+[functions.admin-push]
+verify_jwt = false
+
+[functions.admin-list-subscribers]
+verify_jwt = false
+
+[functions.push-notifications]
+verify_jwt = false
+
+[functions.admin-media-publish]
+verify_jwt = true

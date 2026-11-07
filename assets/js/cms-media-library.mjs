@@ -1,6 +1,7 @@
 // Mr XPRONOS — Admin-only media library. Public URLs are display-only.
 import { isSafeCmsUrl } from "./cms-url-guard.mjs";
 const BUCKET="cms-media";
+const PRIVATE_BUCKET="cms-drafts";
 export const MIME_EXT=Object.freeze({
   "image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/gif":"gif",
   "video/mp4":"mp4","video/webm":"webm"
@@ -58,7 +59,7 @@ export async function uploadCmsFile(sb,file,alt="",caption=""){
     {file,thumbnail:null,width:null,height:null};
   const mime=transformed.mime||check.mime,ext=transformed.ext||check.ext;
   const id=crypto.randomUUID(),path=`cms/${user.id}/${id}.${ext}`;
-  const bucket=sb.storage.from(BUCKET);
+  const bucket=sb.storage.from(PRIVATE_BUCKET);
   const opts={contentType:mime,upsert:false,cacheControl:"3600"};
   const {error:upErr}=await bucket.upload(path,transformed.file,opts);
   if(upErr)throw Error("Upload refusé : "+upErr.message);
@@ -70,14 +71,15 @@ export async function uploadCmsFile(sb,file,alt="",caption=""){
         {contentType:"image/webp",upsert:false,cacheControl:"3600"});
       if(thumbErr)throw thumbErr;
     }
-    const row={storage_path:path,kind:check.kind,mime_type:mime,
+    const row={bucket_id:PRIVATE_BUCKET,storage_path:path,kind:check.kind,mime_type:mime,
       original_name:String(file.name||"media").slice(0,240),file_size:transformed.file.size,
       width:transformed.width||null,height:transformed.height||null,
       alt_text:String(alt).slice(0,300),caption:String(caption).slice(0,1000),thumbnail_path:thumbPath};
     const {data,error}=await sb.from("cms_media").insert(row).select("*").single();
     if(error)throw new Error(error.message||String(error));
-    return {...data,url:bucket.getPublicUrl(path).data.publicUrl,
-      thumbUrl:thumbPath?bucket.getPublicUrl(thumbPath).data.publicUrl:null};
+    const {data:signed,error:signedErr}=await bucket.createSignedUrl(path,900);
+    if(signedErr)throw signedErr;
+    return {...data,is_private:true,url:signed.signedUrl,thumbUrl:null};
   }catch(error){
     // Prevent orphaned public files when metadata insertion fails.
     await bucket.remove([path,...(thumbPath?[thumbPath]:[])]).catch(()=>{});
@@ -88,14 +90,31 @@ export async function listCmsMedia(sb,{offset=0,pageSize=48}={}){
   if(!Number.isInteger(offset)||offset<0||!Number.isInteger(pageSize)||pageSize<1||pageSize>100)
     throw Error("Pagination média invalide");
   const {data,error}=await sb.from("cms_media").select(
-    "id,kind,storage_path,mime_type,alt_text,caption,thumbnail_path,created_at,original_name"
+    "id,bucket_id,kind,storage_path,mime_type,alt_text,caption,thumbnail_path,created_at,original_name"
   ).order("created_at",{ascending:false}).range(offset,offset+pageSize-1);
   if(error)throw error;
-  const bucket=sb.storage.from(BUCKET);
-  return (data||[]).map(row=>({
-    ...row,url:bucket.getPublicUrl(row.storage_path).data.publicUrl,
-    thumbUrl:row.thumbnail_path?bucket.getPublicUrl(row.thumbnail_path).data.publicUrl:null
+  return await Promise.all((data||[]).map(async row=>{
+    const privateMedia=row.bucket_id===PRIVATE_BUCKET;
+    const bucket=sb.storage.from(privateMedia?PRIVATE_BUCKET:BUCKET);
+    if(privateMedia){
+      const {data:signed,error:signErr}=await bucket.createSignedUrl(row.storage_path,900);
+      if(signErr)throw signErr;
+      const thumb=row.thumbnail_path?await bucket.createSignedUrl(row.thumbnail_path,900):null;
+      return {...row,is_private:true,url:signed.signedUrl,
+        thumbUrl:thumb?.data?.signedUrl||signed.signedUrl};
+    }
+    return {...row,is_private:false,url:bucket.getPublicUrl(row.storage_path).data.publicUrl,
+      thumbUrl:row.thumbnail_path?bucket.getPublicUrl(row.thumbnail_path).data.publicUrl:null};
   }));
+}
+
+export async function publishCmsMedia(sb,id){
+  const {data,error}=await sb.functions.invoke("admin-media-publish",{
+    body:{media_id:id}
+  });
+  if(error)throw Error(error.message||String(error));
+  if(!data?.success||!data?.url)throw Error(data?.error||"Publication média non confirmée");
+  return data;
 }
 
 export function filterCmsMedia(items,{search="",kind="all"}={}){
@@ -138,14 +157,31 @@ export function mountCmsMediaPicker(sb,container,onSelect,{defaultKind="all"}={}
     const filtered=filterCmsMedia(loaded,{search:search.value,kind:kind.value});
     grid.replaceChildren();
     for(const m of filtered){
+      const wrapper=el("div","","mx-media-item-wrap");
       const item=el("button","","mx-media-item");item.type="button";
       if(m.kind==="image"&&isSafeCmsUrl(m.thumbUrl||m.url,"image")){
         const img=document.createElement("img");img.src=m.thumbUrl||m.url;
         img.alt=m.alt_text||m.original_name;img.loading="lazy";item.appendChild(img);
       }else item.appendChild(el("span","Vidéo"));
       item.appendChild(el("span",m.caption||m.original_name));
-      item.addEventListener("click",()=>onSelect?.(m));
-      grid.appendChild(item);
+      item.appendChild(el("small",m.is_private?"Brouillon privé":"Publié"));
+      item.addEventListener("click",()=>{
+        if(m.is_private){status.textContent="Publie d'abord ce média pour obtenir une URL permanente.";return;}
+        onSelect?.(m);
+      });
+      wrapper.append(item);
+      if(m.is_private){
+        const publish=el("button","Publier ce média","btn btn-secondary");
+        publish.type="button";
+        publish.addEventListener("click",async()=>{
+          if(!confirm("Rendre ce média public et utilisable dans les articles ?"))return;
+          publish.disabled=true;status.textContent="Publication du média…";
+          try{await publishCmsMedia(sb,m.id);await reload();}
+          catch(error){status.textContent="Publication refusée : "+error.message;publish.disabled=false;}
+        });
+        wrapper.append(publish);
+      }
+      grid.appendChild(wrapper);
     }
     status.textContent=`${filtered.length} résultat(s) parmi ${loaded.length} média(s) chargés. ${hasMore?"D’autres médias peuvent être chargés.":"Fin des médias disponibles."}`;
     more.hidden=!hasMore;
@@ -181,7 +217,7 @@ export function mountCmsMediaPicker(sb,container,onSelect,{defaultKind="all"}={}
     upload.disabled=true;status.textContent="Vérification et import du média…";
     try{
       const m=await uploadCmsFile(sb,file.files?.[0],alt.value,caption.value);
-      file.value="";await reload();onSelect?.(m);
+      file.value="";await reload();status.textContent="Média importé en brouillon privé. Clique sur Publier ce média avant utilisation.";
     }catch(error){status.textContent="Échec : "+error.message;}
     finally{upload.disabled=false;}
   });
