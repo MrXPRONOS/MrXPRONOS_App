@@ -1086,12 +1086,12 @@ function ensurePronosticSharePopup() {
       <div class="pronostic-share-preview">
         <div class="pronostic-share-teams">
           <div class="pronostic-share-team">
-            <img id="pronostic-share-home-logo" src="assets/images/home.webp" alt="" loading="lazy">
+            <img id="pronostic-share-home-logo" alt="" loading="lazy" decoding="async">
             <span id="pronostic-share-home">Équipe domicile</span>
           </div>
           <span class="pronostic-share-vs">VS</span>
           <div class="pronostic-share-team pronostic-share-team--away">
-            <img id="pronostic-share-away-logo" src="assets/images/away.webp" alt="" loading="lazy">
+            <img id="pronostic-share-away-logo" alt="" loading="lazy" decoding="async">
             <span id="pronostic-share-away">Équipe extérieure</span>
           </div>
         </div>
