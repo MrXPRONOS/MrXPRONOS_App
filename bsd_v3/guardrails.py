@@ -47,6 +47,14 @@ def family_guards(event,index,baseline,models=None,*,btts_quality_gate=None):
             evidence[key]["v2_specialist_reason"]=why or "pass"
             if why:
                 guards[key]=why
+    # V3 Over 2.5 gate: a preferred Over 2.5 requires a competition
+    # whose point-in-time Over 2.5 rate is at least 58%.
+    from .over25_quality import evaluate_over25_quality
+    passed_over25,over25_evidence=evaluate_over25_quality(event,index)
+    evidence["OVER_25"]={"v3_over25_gate":over25_evidence}
+    if not passed_over25:
+        guards["OVER_25"]=over25_evidence["reason"]
+
     total=models.get("goals")
     if total is not None:
         from bsd_v2_over_under import adjust_candidates

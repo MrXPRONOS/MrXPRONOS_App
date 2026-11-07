@@ -311,5 +311,25 @@ class TestV3(unittest.TestCase):
         self.assertTrue(decision["priced_reliability_shadow"])
         self.assertFalse(decision["value_shadow"])
 
+
+    def test_over25_is_preferred_to_over15_when_both_goals_markets_qualify(self):
+        from bsd_v3.market_priors import attach_market_merit
+        matrix,cs=coherent_candidates({"home":1.9,"away":1.4})
+        by={x.key:x for x in cs}
+        priors={"markets":{
+            "OVER_15":{"rate":.74,"n":5000},
+            "OVER_25":{"rate":.55,"n":5000},
+        }}
+        rows=[]
+        for key,p in (("OVER_15",.90),("OVER_25",.74)):
+            cand=by[key]
+            row={"key":cand.key,"family":cand.family,"market":cand.market,
+                 "line":cand.line,"probability":p,"conservative_probability":p,
+                 "decision":{"pro_vip_shadow":True,"value_shadow":False,"ev":None}}
+            rows.append(attach_market_merit(row,priors))
+        choices=select_candidates(rows,matrix,V3Policy(max_joint_correlation=.99))
+        self.assertEqual(choices["pro_vip_shadow"],["OVER_25"])
+        self.assertEqual(choices["preferred_pro_vip_shadow"],["OVER_25"])
+
 if __name__=="__main__":
     unittest.main()
