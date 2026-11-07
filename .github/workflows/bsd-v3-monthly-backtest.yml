@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'bsd_v3/btts_quality.py'
+      - 'bsd_v3/over25_quality.py'
+      - 'bsd_v3/policy.py'
+      - 'bsd_v3/selection.py'
       - 'bsd_v3/guardrails.py'
       - 'bsd_v3/engine.py'
       - '.github/workflows/bsd-v3-monthly-backtest.yml'
