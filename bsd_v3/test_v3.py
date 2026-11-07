@@ -311,5 +311,35 @@ class TestV3(unittest.TestCase):
         self.assertTrue(decision["priced_reliability_shadow"])
         self.assertFalse(decision["value_shadow"])
 
+
+    def test_over25_has_secondary_preferred_threshold(self):
+        quality={"level":"full","league_games":90,"recent_games":12,"venue_games":6}
+        row={"key":"OVER_25","family":"goals","probability":.70,
+             "conservative_probability":.68}
+        self.assertTrue(public_candidate(row,quality))
+        row["conservative_probability"]=.679
+        self.assertFalse(public_candidate(row,quality))
+
+    def test_over25_has_dedicated_priority_channel_without_displacing_main_pick(self):
+        from bsd_v3.market_priors import attach_market_merit
+        matrix,cs=coherent_candidates({"home":1.7,"away":1.4})
+        by={x.key:x for x in cs}
+        priors={"markets":{
+            "OVER_15":{"rate":.75,"n":5000},
+            "OVER_25":{"rate":.55,"n":5000},
+            "1X":{"rate":.72,"n":5000},
+        }}
+        rows=[]
+        for key,p in (("OVER_15",.84),("OVER_25",.76),("1X",.91)):
+            cand=by[key]
+            row={"key":cand.key,"family":cand.family,"market":cand.market,
+                 "line":cand.line,"probability":p,"conservative_probability":p,
+                 "decision":{"pro_vip_shadow":True,"value_shadow":False,"ev":None}}
+            rows.append(attach_market_merit(row,priors))
+        choices=select_candidates(rows,matrix,V3Policy(max_joint_correlation=.99))
+        self.assertEqual(choices["pro_vip_shadow"][0],"OVER_15")
+        self.assertNotIn("OVER_25",choices["pro_vip_shadow"])
+        self.assertEqual(choices["over25_priority_shadow"],["OVER_25"])
+
 if __name__=="__main__":
     unittest.main()

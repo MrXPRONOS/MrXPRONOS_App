@@ -7,6 +7,9 @@ on:
       - 'bsd_v3/btts_quality.py'
       - 'bsd_v3/guardrails.py'
       - 'bsd_v3/engine.py'
+      - 'bsd_v3/policy.py'
+      - 'bsd_v3/selection.py'
+      - 'bsd_v3/guardrails.py'
       - '.github/workflows/bsd-v3-monthly-backtest.yml'
   workflow_dispatch:
     inputs:

@@ -47,6 +47,28 @@ def family_guards(event,index,baseline,models=None,*,btts_quality_gate=None):
             evidence[key]["v2_specialist_reason"]=why or "pass"
             if why:
                 guards[key]=why
+    # Over 2.5 secondary-priority quality gate. Historical testing showed
+    # that lowering the probability threshold alone was insufficient; require
+    # a competition with at least 58% pre-match Over 2.5 rate as well.
+    try:
+        from bsd_v2_over_under import features as total_features
+        over_feat=total_features(event,index)
+        if over_feat is None:
+            evidence["OVER_25"]={"reason":"over25_quality_features_missing"}
+            guards["OVER_25"]="over25_quality_features_missing"
+        else:
+            league_over=float(over_feat["league_over_rates"][2.5])
+            evidence["OVER_25"]={
+                "league_over25_probability":round(league_over,6),
+                "min_league_over25_required":.58,
+                "reason":"pass" if league_over>=.58 else "over25_league_rate_below_58",
+            }
+            if league_over<.58:
+                guards["OVER_25"]="over25_league_rate_below_58"
+    except (ValueError,TypeError,KeyError,ArithmeticError) as exc:
+        evidence["OVER_25"]={"reason":"over25_quality_error_"+type(exc).__name__}
+        guards["OVER_25"]="over25_quality_error_"+type(exc).__name__
+
     total=models.get("goals")
     if total is not None:
         from bsd_v2_over_under import adjust_candidates

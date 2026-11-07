@@ -5,6 +5,7 @@ from .policy import V3Policy, FAMILY_EDGE, classify_fixture, uncertainty_adjustm
 from .market_priors import attach_market_merit
 
 PREFERRED_KEYS = frozenset({"1", "2", "BTTS_YES", "OVER_15"})
+OVER25_PRIORITY_KEY = "OVER_25"
 PREFERRED_TIE_ORDER = {"1": 0, "2": 1, "BTTS_YES": 2, "OVER_15": 3}
 
 
@@ -25,7 +26,9 @@ def serialize_candidates(candidates, features, quality, quotes, *, policy=V3Poli
         quote=quotes.get(c.market_code)
         row["quote"]=quote
         row=attach_market_merit(row,market_priors)
-        row["preferred_market"]=c.key in PREFERRED_KEYS
+        row["preferred_market"]=c.key in PREFERRED_KEYS or c.key==OVER25_PRIORITY_KEY
+        row["priority_level"]="primary" if c.key in PREFERRED_KEYS else (
+            "over25_dedicated" if c.key==OVER25_PRIORITY_KEY else "fallback")
         row["decision"]=label_candidate(row,quality,quote,policy)
         if c.key in (market_guards or {}):
             row["decision"]["pro_vip_shadow"]=False
@@ -91,8 +94,14 @@ def select_candidates(rows, score_matrix, policy=V3Policy()):
         selected.append(candidate)
         if len(selected)==policy.max_selections:
             break
+    over25=[r["key"] for r in rows
+            if r["key"]==OVER25_PRIORITY_KEY
+            and r["decision"]["pro_vip_shadow"]
+            and r.get("market_probability_lift",0)>0]
     return {"pro_vip_shadow": [r["key"] for r in selected],
             "preferred_pro_vip_shadow": [r["key"] for r in selected if r["key"] in PREFERRED_KEYS],
+            "over25_priority_shadow": over25[:1],
             "value_shadow": [r["key"] for r in value],
-            "priority_policy": ["1","2","BTTS_YES","OVER_15"],
+            "priority_policy": {"primary":["1","2","BTTS_YES","OVER_15"],
+                                "dedicated_over25":["OVER_25"]},
             "no_publication": True}
