@@ -1,6 +1,6 @@
 {
   "period_days": 30,
-  "generated_at": "2026-10-21T06:17:39.300592+00:00",
+  "generated_at": "2026-11-07T06:17:40.562790+00:00",
   "data_origin": "Supabase analytics events; anonymous attributed page reads",
   "attributed_visits": 1,
   "promo_copy_actions": 0,
@@ -121,6 +121,42 @@
     },
     {
       "kind": "article",
+      "slug": "bsd-match-601034",
+      "variant": "a",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-601034",
+      "variant": "b",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-601089",
+      "variant": "a",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-601089",
+      "variant": "b",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
       "slug": "bsd-match-602615",
       "variant": "a",
       "impressions": 0,
@@ -189,6 +225,24 @@
       "impressions": 1,
       "opens": 0,
       "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-7328",
+      "variant": "a",
+      "impressions": 1,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "bsd-match-7328",
+      "variant": "b",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
       "status": "insufficient_data"
     },
     {
