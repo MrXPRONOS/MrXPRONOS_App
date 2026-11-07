@@ -82,9 +82,26 @@ const TAB_LOADERS = {
 async function loadTabIfNeeded(name) {
   if (loadedTabs.has(name)) return;
   const loader = TAB_LOADERS[name];
-  if (typeof loader === "function") {
+  if (typeof loader !== "function") return;
+  try {
     await loader();
     loadedTabs.add(name);
+  } catch (error) {
+    const target = $("tab-" + name);
+    if (target) {
+      target.replaceChildren();
+      const notice = document.createElement("div");
+      notice.className = "card";
+      notice.setAttribute("role", "alert");
+      notice.textContent = "Impossible de charger cette rubrique : " + String(error?.message || error);
+      const retry = document.createElement("button");
+      retry.type = "button";
+      retry.className = "btn btn-secondary";
+      retry.textContent = "Réessayer";
+      retry.addEventListener("click", () => void loadTabIfNeeded(name));
+      notice.appendChild(retry);
+      target.appendChild(notice);
+    }
   }
 }
 
@@ -133,8 +150,9 @@ async function renderPushAdmin() {
         <div>
           <label>Audience</label>
           <select id="push_audience">
+            <option value="">Choisir les destinataires…</option>
+            <option value="user">Un abonné précis</option>
             <option value="all">Tous les abonnés</option>
-            <option value="user">Un utilisateur (user_id)</option>
           </select>
         </div>
 
@@ -163,11 +181,12 @@ async function renderPushAdmin() {
         </div>
         <div>
           <label>&nbsp;</label>
+          <button id="push_preview" type="button" class="btn btn-secondary">Prévisualiser</button>
           <button id="push_send" class="btn btn-primary" style="width:100%;">Envoyer</button>
         </div>
       </div>
 
-      <div id="push_status" class="muted" style="margin-top:10px"></div>
+      <div id="push_status" class="muted" role="status" aria-live="polite" style="margin-top:10px;white-space:pre-line"></div>
       <div id="push_results" style="margin-top:10px"></div>
     </div>
 
@@ -262,7 +281,25 @@ async function renderPushAdmin() {
   refreshAudience();
 
   // Envoi push
+  let sendingPush = false;
+  const pushPreview = () => {
+    const mode = audienceSel.value;
+    const title = $("push_title").value.trim();
+    const body = $("push_body").value.trim();
+    if (!mode || !title || !body) {
+      setStatus("Choisis les destinataires, un titre et un message.");
+      return false;
+    }
+    if (mode === "user" && !userInput.value.trim()) {
+      setStatus("Choisis un abonné dans la liste ou saisis son identifiant.");
+      return false;
+    }
+    setStatus("Aperçu · " + (mode === "all" ? "Tous les abonnés" : userInput.value.trim()) + "\n" + title + "\n" + body);
+    return true;
+  };
+  $("push_preview").addEventListener("click", () => { pushPreview(); });
   $("push_send").addEventListener("click", async () => {
+    if (sendingPush || !pushPreview()) return;
     const mode = audienceSel.value;
     const title = $("push_title").value.trim();
     const body = $("push_body").value.trim();
@@ -270,7 +307,7 @@ async function renderPushAdmin() {
     const tag = $("push_tag").value.trim();
     const user_id = mode === "user" ? userInput.value.trim() : "";
 
-    if (!title || !body) return alert("Titre et message requis.");
+    if (!title || !body || !mode) return setStatus("Audience, titre et message requis.");
     if (mode === "user" && !user_id) return alert("User ID requis pour l'envoi ciblé.");
 
     const confirmMsg =
@@ -280,6 +317,8 @@ async function renderPushAdmin() {
 
     if (!confirm(confirmMsg)) return;
 
+    sendingPush = true;
+    $("push_send").disabled = true;
     try {
       setStatus("Envoi en cours...");
       const payload = {
@@ -290,11 +329,13 @@ async function renderPushAdmin() {
         user_id: mode === "user" ? user_id : null,
       };
       const data = await callAdminPush(payload);
-      setStatus("Envoyé.");
+      setStatus("Envoi terminé : consulte le bilan ci-dessous.");
       renderResults(data);
     } catch (e) {
-      setStatus("");
-      alert(e?.message || String(e));
+      setStatus("Échec d'envoi : " + String(e?.message || e));
+    } finally {
+      sendingPush = false;
+      $("push_send").disabled = false;
     }
   });
 
@@ -540,10 +581,10 @@ async function renderCmsArticles() {
 
       <div class="row">
         <div><label>Status</label>
-          <select id="a_status"><option value="draft">draft</option><option value="published">published</option></select>
+          <select id="a_status"><option value="draft">Brouillon</option><option value="published">Publié</option></select>
         </div>
         <div><label>Actif</label>
-          <select id="a_active"><option value="true">true</option><option value="false">false</option></select>
+          <select id="a_active"><option value="true">Actif</option><option value="false">Désactivé</option></select>
         </div>
       </div>
 
@@ -681,10 +722,10 @@ async function renderCmsConseils() {
 
       <div class="row">
         <div><label>Status</label>
-          <select id="c_status"><option value="draft">draft</option><option value="published">published</option></select>
+          <select id="c_status"><option value="draft">Brouillon</option><option value="published">Publié</option></select>
         </div>
         <div><label>Actif</label>
-          <select id="c_active"><option value="true">true</option><option value="false">false</option></select>
+          <select id="c_active"><option value="true">Actif</option><option value="false">Désactivé</option></select>
         </div>
       </div>
 
@@ -798,7 +839,7 @@ async function renderBonus() {
       <div class="row">
         <div><label>Footer</label><input id="b_footer"></div>
         <div><label>Status</label>
-          <select id="b_status"><option value="draft">draft</option><option value="published">published</option></select>
+          <select id="b_status"><option value="draft">Brouillon</option><option value="published">Publié</option></select>
         </div>
       </div>
       <div class="row">
@@ -806,7 +847,7 @@ async function renderBonus() {
         <div><label>Date fin</label><input id="b_end" type="date"></div>
       </div>
       <label>Actif</label>
-      <select id="b_active"><option value="true">true</option><option value="false">false</option></select>
+      <select id="b_active"><option value="true">Actif</option><option value="false">Désactivé</option></select>
       <button id="b_save" class="btn btn-primary" style="margin-top:10px">Enregistrer bonus</button>
 
       <h4 style="margin:18px 0 8px;color:#D4AF37">Liste bonus</h4>
@@ -831,10 +872,10 @@ async function renderBonus() {
 
       <div class="row">
         <div><label>Status</label>
-          <select id="bk_status"><option value="published">published</option><option value="draft">draft</option></select>
+          <select id="bk_status"><option value="published">Publié</option><option value="draft">Brouillon</option></select>
         </div>
         <div><label>Actif</label>
-          <select id="bk_active"><option value="true">true</option><option value="false">false</option></select>
+          <select id="bk_active"><option value="true">Actif</option><option value="false">Désactivé</option></select>
         </div>
       </div>
 
@@ -977,10 +1018,10 @@ async function renderInfos() {
       <label>Contenu</label><textarea id="i_content" rows="6"></textarea>
       <div class="row">
         <div><label>Status</label>
-          <select id="i_status"><option value="draft">draft</option><option value="published">published</option></select>
+          <select id="i_status"><option value="draft">Brouillon</option><option value="published">Publié</option></select>
         </div>
         <div><label>Actif</label>
-          <select id="i_active"><option value="true">true</option><option value="false">false</option></select>
+          <select id="i_active"><option value="true">Actif</option><option value="false">Désactivé</option></select>
         </div>
       </div>
       <button id="i_save" class="btn btn-primary" style="margin-top:10px">Enregistrer</button>
