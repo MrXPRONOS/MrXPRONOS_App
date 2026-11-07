@@ -341,5 +341,34 @@ class TestV3(unittest.TestCase):
         self.assertNotIn("OVER_25",choices["pro_vip_shadow"])
         self.assertEqual(choices["over25_priority_shadow"],["OVER_25"])
 
+
+    def test_btts_no_keeps_high_confidence_floor(self):
+        quality={"level":"full","league_games":90,"recent_games":12,"venue_games":6}
+        row={"key":"BTTS_NO","family":"btts","probability":.79,
+             "conservative_probability":.775}
+        self.assertTrue(public_candidate(row,quality))
+        row["conservative_probability"]=.7749
+        self.assertFalse(public_candidate(row,quality))
+
+    def test_high_confidence_btts_no_is_preferred_and_dedicated(self):
+        from bsd_v3.market_priors import attach_market_merit
+        matrix,cs=coherent_candidates({"home":.65,"away":.55})
+        by={x.key:x for x in cs}
+        priors={"markets":{
+            "BTTS_NO":{"rate":.52,"n":5000},
+            "1X":{"rate":.72,"n":5000},
+        }}
+        rows=[]
+        for key,p in (("BTTS_NO",.82),("1X",.91)):
+            cand=by[key]
+            row={"key":cand.key,"family":cand.family,"market":cand.market,
+                 "line":cand.line,"probability":p,"conservative_probability":p,
+                 "decision":{"pro_vip_shadow":True,"value_shadow":False,"ev":None}}
+            rows.append(attach_market_merit(row,priors))
+        choices=select_candidates(rows,matrix,V3Policy(max_joint_correlation=.99))
+        self.assertEqual(choices["pro_vip_shadow"][0],"BTTS_NO")
+        self.assertEqual(choices["btts_no_priority_shadow"],["BTTS_NO"])
+        self.assertIn("BTTS_NO",choices["preferred_pro_vip_shadow"])
+
 if __name__=="__main__":
     unittest.main()
