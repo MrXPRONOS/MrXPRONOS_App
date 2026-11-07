@@ -55,3 +55,14 @@ footer{background:#0b1f2e;border-top:1px solid #2a4355;color:#adbfca;font-size:1
 @media(max-width:950px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-two{grid-template-columns:1fr}}
 @media(max-width:560px){.container{padding:0 12px}.intro{margin:13px 0;display:block}.security{display:inline-block;margin-top:12px}.toolbar{align-items:stretch;flex-direction:column}.buttons button{flex:1}.tabs button{font-size:12px;padding:8px 11px}.card{padding:13px}.kpi{min-height:118px}.kpi strong{font-size:27px}.quality-list{grid-template-columns:1fr}.top{padding:12px}.brand{font-size:15px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+/* Phase 5 — accessible experiment controls, no winner badges or pressure graphics. */
+.experiment-action{border:1px solid #e4c286;background:#e4c286;color:#092032;border-radius:9px;padding:10px 14px;font-weight:800;cursor:pointer}
+.experiment-action:focus-visible{outline:3px solid white;outline-offset:3px}
+.experiment-action:disabled{opacity:.5;cursor:not-allowed}
+#experiment-cards .card{min-height:160px}
+#experiment-cards .card h3{font-size:18px;margin:0 0 9px}
+#experiment-cards .card .note{line-height:1.55;margin:9px 0}
+#panel-experiments .card{margin:12px 0}
+#panel-experiments .card-heading label{display:flex;gap:10px;align-items:center}
+#panel-experiments .card-heading select{font-size:12px;padding:8px}

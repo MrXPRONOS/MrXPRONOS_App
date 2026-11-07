@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#071624">
   <title>Audience & fidélisation — Mr XPRONOS</title>
   <link rel="icon" href="assets/images/favicon.webp">
-  <link rel="stylesheet" href="assets/css/audience-analytics.css?v=0b81ad8d55f0">
+  <link rel="stylesheet" href="assets/css/audience-analytics.css?v=a1fd3e1900df">
 </head>
 <body>
   <a class="skip" href="#main">Passer au contenu principal</a>
@@ -58,6 +58,7 @@
         <button type="button" role="tab" id="tab-retention" aria-controls="panel-retention" aria-selected="false" tabindex="-1" data-tab="retention">Fidélisation</button>
         <button type="button" role="tab" id="tab-installation" aria-controls="panel-installation" aria-selected="false" tabindex="-1" data-tab="installation">Installation</button>
         <button type="button" role="tab" id="tab-acquisition" aria-controls="panel-acquisition" aria-selected="false" tabindex="-1" data-tab="acquisition">Acquisition</button>
+        <button type="button" role="tab" id="tab-experiments" aria-controls="panel-experiments" aria-selected="false" tabindex="-1" data-tab="experiments">Expériences A/B</button>
       </div>
 
       <section id="panel-audience" role="tabpanel" aria-labelledby="tab-audience" tabindex="0" class="tab-panel">
@@ -138,6 +139,38 @@
           <h3>Mesurer une campagne</h3>
           <p>Utilisez par exemple <code>?utm_source=whatsapp&amp;utm_campaign=pronos_novembre</code> ou <code>?utm_source=instagram&amp;utm_campaign=story_1</code> sur une URL de Mr XPRONOS.</p>
           <p>Un lien sans source identifiable est classé « direct ». « Non attribué » signifie que la visite V2 a été mesurée mais pas l’acquisition. Les paramètres déclarés sont indicatifs et peuvent être modifiés par les utilisateurs.</p>
+        </div>
+      </section>
+
+      <section id="panel-experiments" role="tabpanel" aria-labelledby="tab-experiments" tabindex="0" class="tab-panel" hidden>
+        <div class="panel-intro">
+          <h2>Expériences et optimisation</h2>
+          <p>Deux tests A/B 50/50 attribués par Supabase : texte du panneau d’installation et présentation du formulaire de favoris. Les fonctionnalités restent identiques, et aucun visiteur n’est obligé d’installer l’application.</p>
+        </div>
+        <p id="experiments-status" class="data-note" role="status">Lecture des expériences en cours…</p>
+        <div id="experiment-cards" class="grid-two" aria-label="Contrôle des expériences"></div>
+        <div class="card">
+          <div class="card-heading"><h3>Résultats par variante</h3><span class="eyebrow">CONVERSIONS ATTRIBUÉES</span></div>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Expérience</th><th>Variante</th><th>Expositions</th><th>Conversions*</th><th>Expositions mûres</th><th>Conversions mûres</th><th>Taux à 7 jours</th><th>Intervalle descriptif à 95 %</th></tr></thead>
+            <tbody id="experiment-results"></tbody>
+          </table></div>
+          <p class="note">* Conversions constatées, encore provisoires pendant les sept premiers jours. Le taux principal utilise uniquement les expositions arrivées à maturité après sept jours. Les événements répétés sont dédupliqués par identifiant pseudonymisé. L’intervalle de Wilson est descriptif : il ne constitue pas une preuve de causalité ou de significativité avec des analyses répétées.</p>
+        </div>
+        <div class="card">
+          <div class="card-heading"><h3>Évolution des expériences</h3><label for="experiment-trend-kind" class="note">Expérience
+            <select id="experiment-trend-kind"><option value="install_value_v1">Installation</option><option value="favorites_guidance_v1">Favoris</option></select>
+          </label></div>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Jour UTC</th><th>Variante A · vues</th><th>Variante B · vues</th><th>Variante A · actions</th><th>Variante B · actions</th></tr></thead>
+            <tbody id="experiment-daily"></tbody>
+          </table></div>
+        </div>
+        <div class="card info">
+          <h3>Garde-fous avant de choisir une variante</h3>
+          <p>Minimum indicatif : 200 expositions mûres <strong>par variante</strong>, sept jours complets d’observation et vérification des événements manquants ou suspects. Une comparaison répétée avant une taille d’échantillon prévue peut produire des faux positifs. Le tableau de bord ne désigne ni ne déploie automatiquement de gagnant.</p>
+          <p>L’activation et la pause sont réservées aux administrateurs ; chaque changement est journalisé côté serveur. La pause bloque de nouvelles expositions mais laisse aboutir les conversions déjà commencées pendant sept jours. Si une expérience présente une anomalie, utilisez « Suspendre ».</p>
+          <p>Deux variantes de texte doivent rester informatives et honnêtes : ni urgence artificielle, ni promesse de résultat, ni pression pour parier.</p>
         </div>
       </section>
 
