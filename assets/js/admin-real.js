@@ -442,6 +442,54 @@ async function renderPushAdmin(){
           const summary=document.createElement("small");
           summary.textContent=Number(row.summary.sent||0)+" envoyées / "+Number(row.summary.failed||0)+" échecs";
           td.append(summary);
+          if(row.summary.logs_incomplete)td.append(document.createTextNode(" · Journal incomplet"));
+        }
+        if(row.status==="sent"){
+          const details=document.createElement("button");details.type="button";
+          details.className="btn btn-secondary";details.textContent="Appareils";
+          details.addEventListener("click",async()=>{
+            details.disabled=true;
+            const wrap=document.createElement("div");wrap.className="admin-push-device-log";
+            wrap.setAttribute("role","region");wrap.setAttribute("aria-label","Détail par appareil");
+            try{
+              const result=await api({operation:"details",id:row.id});
+              const items=result.devices||[];
+              if(!items.length){wrap.textContent="Aucun détail par appareil enregistré.";td.append(wrap);return;}
+              const heading=document.createElement("p");
+              heading.textContent=items.length+" appareil(s) documenté(s). Les adresses sont masquées.";
+              wrap.append(heading);
+              for(const device of items){
+                const item=document.createElement("div");item.className="admin-device-row";
+                const info=document.createElement("span");
+                info.textContent="#"+String(device.digest).slice(0,12)+" · "+
+                  String(device.result||"indéterminé")+
+                  (device.http_status?" · HTTP "+device.http_status:"")+
+                  (device.error_message?" · "+device.error_message:"");
+                item.append(info);
+                if(device.result==="failed"&&[429,502,503,504].includes(Number(device.http_status))){
+                  const retry=document.createElement("button");retry.className="btn btn-secondary";
+                  retry.type="button";retry.textContent="Réessayer uniquement cet appareil";
+                  retry.addEventListener("click",async()=>{
+                    if(prompt("Réessai ciblé : une notification peut être reçue en retard.\n"
+                      +"Pour confirmer, saisis RENVOYER APPAREIL")!=="RENVOYER APPAREIL")return;
+                    retry.disabled=true;
+                    try{
+                      const result=await api({operation:"retry_failed",id:row.id,
+                        endpoint_digest:device.digest,request_id:crypto.randomUUID(),
+                        acknowledge:"RENVOYER APPAREIL"});
+                      retry.textContent=result.reused?"Réessai déjà créé":"Réessai enregistré";
+                      setStatus("Réessai ciblé : "+String(result.status||"reçu")+".");
+                      await reloadHistory();
+                    }catch(err){setStatus("Réessai impossible : "+String(err?.message||err));retry.disabled=false;}
+                  });
+                  item.append(retry);
+                }
+                wrap.append(item);
+              }
+              td.append(wrap);
+            }catch(err){setStatus("Diagnostic indisponible : "+String(err?.message||err));}
+            finally{details.disabled=false;details.hidden=true;}
+          });td.append(details);
         }
         tr.append(td);body.append(tr);
       }
