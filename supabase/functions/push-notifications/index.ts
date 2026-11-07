@@ -62,6 +62,14 @@ serve(async (req) => {
     const msg = String(body?.body ?? "").trim();
     const url = (String(body?.url ?? "").trim() || "./pronos.html");
     const tag = (String(body?.tag ?? "").trim() || "admin");
+    const targetDigest = String(body?.endpoint_digest||"").trim().toLowerCase();
+    if (targetDigest && !/^[a-f0-9]{64}$/.test(targetDigest))
+      return json(req,{error:"Empreinte de destinataire invalide"},400);
+    const hashEndpoint=async(endpoint:string)=>{
+      const bytes=new TextEncoder().encode(endpoint);
+      const hash=await crypto.subtle.digest("SHA-256",bytes);
+      return Array.from(new Uint8Array(hash)).map(x=>x.toString(16).padStart(2,"0")).join("");
+    };
 
     if (!title || !msg) return json(req, { error: "Champs requis: title, body" }, 400);
 
@@ -88,6 +96,7 @@ serve(async (req) => {
     const results: any[] = [];
     for (const sub of subs || []) {
       const endpoint = sub.endpoint;
+      if (targetDigest && await hashEndpoint(endpoint)!==targetDigest)continue;
       let keys: any = sub.keys;
 
       // Si keys stocké en string par erreur, tenter parse
@@ -117,6 +126,8 @@ serve(async (req) => {
       }
     }
 
+    if(targetDigest&&!results.length)return json(req,{
+      error:"Appareil ciblé non trouvé (abonnement peut-être révoqué)"},404);
     return json(req, { success: true, results }, 200);
   } catch (e) {
     return json(req, { error: String((e as any)?.message ?? e) }, 500);

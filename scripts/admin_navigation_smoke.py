@@ -43,7 +43,7 @@ def run(page, mobile=False):
     expect(page.locator("#view-title")).to_have_text("Vue générale")
     expect(page.locator("#tab-overview")).to_be_visible()
     expect(page.locator("#admin-overview-summary")).to_be_visible()
-    expect(page.locator(".admin-overview-kpis .admin-kpi")).to_have_count(5)
+    expect(page.locator("#admin-overview-summary > .admin-overview-kpis > .admin-kpi")).to_have_count(5)
     assert not page.locator("#supervisionFrame").get_attribute("src"), "Details frame must load on demand"
     page.locator("#admin-detailed-supervision summary").click()
     expect(page.locator("#admin-detailed-supervision")).to_have_attribute("open", "")
@@ -79,6 +79,15 @@ def run(page, mobile=False):
     assert page.locator(".admin-cms-editor-fields").get_attribute("hidden") is not None
     page.locator(".admin-cms-editor-toggle").click()
     expect(page.locator("#a_title")).to_be_visible()
+    # The draft uses the public reader structure, with a sandboxed preview.
+    page.locator(".mx-block-editor .mx-block-toolbar button", has_text="Prévisualiser").click()
+    preview = page.locator(".mx-block-preview iframe")
+    expect(preview).to_have_attribute("sandbox", "")
+    reader = page.frame_locator(".mx-block-preview iframe").locator("article.mx-reader-article")
+    expect(reader).to_be_visible()
+    public_css = page.frame_locator(".mx-block-preview iframe").locator(
+        'link[href="assets/css/article-detail-premium.css"]')
+    expect(public_css).to_have_count(1)
     if mobile:
         page.locator("#sidebar-open").click()
         page.keyboard.press("Escape")

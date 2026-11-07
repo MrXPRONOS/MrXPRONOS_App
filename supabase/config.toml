@@ -44,3 +44,14 @@ verify_jwt = false
 
 [functions.admin-media-publish]
 verify_jwt = true
+
+
+[functions.admin-cron-read]
+verify_jwt = true
+
+[functions.admin-link-check]
+verify_jwt = true
+
+# GitHub OIDC is verified inside this Edge Function, not by Supabase Auth.
+[functions.admin-incident-watch]
+verify_jwt = false

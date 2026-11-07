@@ -1,5 +1,8 @@
 import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
 import { mountIncidentCenter } from "./admin-incidents.mjs";
+import { mountCronJobRegister,readCronJobs } from "./admin-cron-register.mjs";
+import { createAdminHighlightWidget,loadAdminHighlights } from "./admin-unified-highlights.mjs";
+import {adminSnapshotLabel} from "./admin-data-freshness.mjs";
 import { mountAdminUsers } from "./admin-users.mjs";
 import { inspectCmsEditorial } from "./cms-quality.mjs";
 import { mountCmsServerSearch } from "./cms-server-search.mjs";
@@ -70,11 +73,40 @@ function safeIdEq(a, b) {
 }
 
 // Keep original publication timestamps even when editing previously published CMS rows.
-function confirmCmsQuality(kind,row,rows){
+async function confirmCmsQuality(kind,row,rows){
   const {errors,warnings}=inspectCmsEditorial(kind,row,rows);
-  if(errors.length){alert("Enregistrement refusé :\n"+errors.join("\n"));return false;}
-  if(warnings.length&&!confirm("Avertissements de publication :\n"+warnings.join("\n")+"\n\nEnregistrer malgré ces avertissements ?"))
-    return false;
+  if(row.status==="published"&&["articles","conseils","infos","bonus","bookmakers"].includes(kind)){
+    const parts=[row.image_url,row.og_image,row.website,row.url,row.affiliate_url];
+    const text=String(row.content||"");
+    const matches=text.match(/https?:\/\/[^\s<>\[\]()"'\x60]+/g)||[];
+    const urls=[...new Set([...parts,...matches].filter(x=>typeof x==="string"&&/^https?:\/\//.test(x))
+      .map(x=>x.replace(/[.,;!?]+$/,"")))];
+    if(urls.length>36)warnings.push("Plus de 36 liens : vérifier les liens restants.");
+    const session=(await sb.auth.getSession()).data.session;
+    if(!session?.access_token)errors.push("Session expirée : contrôle des liens impossible.");
+    else for(let i=0;i<Math.min(urls.length,36);i+=12){
+      try{
+        const response=await fetch(supabaseUrl+"/functions/v1/admin-link-check",{
+          method:"POST",headers:{"Authorization":"Bearer "+session.access_token,
+            apikey:supabaseAnonKey,"Content-Type":"application/json"},
+          body:JSON.stringify({urls:urls.slice(i,i+12)})
+        });
+        const checked=await response.json().catch(()=>({}));
+        if(!response.ok)throw Error(checked.error||"HTTP "+response.status);
+        for(const link of checked.results||[]){
+          if(link.status==="broken")
+            errors.push("Lien introuvable (HTTP "+link.http_status+") : "+link.url);
+          else if(["unsafe_or_unresolvable","warning","invalid"].includes(link.status))
+            warnings.push("Lien à vérifier : "+link.url);
+        }
+      }catch(e){warnings.push("Contrôle des liens indisponible : "+String(e?.message||e));}
+    }
+  }
+  if(errors.length){alert("Enregistrement refusé :\n"+errors.slice(0,8).join("\n"));return false;}
+  if(warnings.length&&!confirm("À vérifier avant publication :\n"+
+    warnings.slice(0,6).join("\n")+
+    (warnings.length>6?"\n… et "+(warnings.length-6)+" autres":"")+
+    "\n\nEnregistrer malgré ces avertissements ?"))return false;
   return true;
 }
 
@@ -135,6 +167,8 @@ async function renderAdminOverview() {
     a.textContent=label+" ↗";links.appendChild(a);
   }
   root.appendChild(links);
+  const extra=document.createElement("div");root.append(extra);
+  const extraWidget=createAdminHighlightWidget(extra);
   const metric=(label,value)=>{
     const card=document.createElement("div");card.className="admin-kpi";
     const title=document.createElement("small");title.textContent=label;
@@ -176,7 +210,10 @@ async function renderAdminOverview() {
         entry.append(label,status);list.appendChild(entry);
       }
       health.appendChild(list);
-      state.textContent="Mis à jour à "+new Date().toLocaleTimeString("fr-FR",{timeZone:"UTC"})+" UTC · Données estimées";
+      state.textContent=adminSnapshotLabel("Supabase",new Date(),{windowText:"données estimées"});
+      void loadAdminHighlights(sb).then(result=>extraWidget?.draw(result)).catch(err=>{
+        extra.textContent="Indicateurs complémentaires indisponibles : "+String(err?.message||err);
+      });
     }catch(err){
       state.textContent="Supervision indisponible : "+String(err?.message||err)+". Réessaie ou consulte la supervision détaillée.";
     }finally{refresh.disabled=false;}
@@ -441,6 +478,54 @@ async function renderPushAdmin(){
           const summary=document.createElement("small");
           summary.textContent=Number(row.summary.sent||0)+" envoyées / "+Number(row.summary.failed||0)+" échecs";
           td.append(summary);
+          if(row.summary.logs_incomplete)td.append(document.createTextNode(" · Journal incomplet"));
+        }
+        if(row.status==="sent"){
+          const details=document.createElement("button");details.type="button";
+          details.className="btn btn-secondary";details.textContent="Appareils";
+          details.addEventListener("click",async()=>{
+            details.disabled=true;
+            const wrap=document.createElement("div");wrap.className="admin-push-device-log";
+            wrap.setAttribute("role","region");wrap.setAttribute("aria-label","Détail par appareil");
+            try{
+              const result=await api({operation:"details",id:row.id});
+              const items=result.devices||[];
+              if(!items.length){wrap.textContent="Aucun détail par appareil enregistré.";td.append(wrap);return;}
+              const heading=document.createElement("p");
+              heading.textContent=items.length+" appareil(s) documenté(s). Les adresses sont masquées.";
+              wrap.append(heading);
+              for(const device of items){
+                const item=document.createElement("div");item.className="admin-device-row";
+                const info=document.createElement("span");
+                info.textContent="#"+String(device.digest).slice(0,12)+" · "+
+                  String(device.result||"indéterminé")+
+                  (device.http_status?" · HTTP "+device.http_status:"")+
+                  (device.error_message?" · "+device.error_message:"");
+                item.append(info);
+                if(device.result==="failed"&&[429,502,503,504].includes(Number(device.http_status))){
+                  const retry=document.createElement("button");retry.className="btn btn-secondary";
+                  retry.type="button";retry.textContent="Réessayer uniquement cet appareil";
+                  retry.addEventListener("click",async()=>{
+                    if(prompt("Réessai ciblé : une notification peut être reçue en retard.\n"
+                      +"Pour confirmer, saisis RENVOYER APPAREIL")!=="RENVOYER APPAREIL")return;
+                    retry.disabled=true;
+                    try{
+                      const result=await api({operation:"retry_failed",id:row.id,
+                        endpoint_digest:device.digest,request_id:crypto.randomUUID(),
+                        acknowledge:"RENVOYER APPAREIL"});
+                      retry.textContent=result.reused?"Réessai déjà créé":"Réessai enregistré";
+                      setStatus("Réessai ciblé : "+String(result.status||"reçu")+".");
+                      await reloadHistory();
+                    }catch(err){setStatus("Réessai impossible : "+String(err?.message||err));retry.disabled=false;}
+                  });
+                  item.append(retry);
+                }
+                wrap.append(item);
+              }
+              td.append(wrap);
+            }catch(err){setStatus("Diagnostic indisponible : "+String(err?.message||err));}
+            finally{details.disabled=false;details.hidden=true;}
+          });td.append(details);
         }
         tr.append(td);body.append(tr);
       }
@@ -817,7 +902,7 @@ async function renderCmsArticles() {
     const id = $("a_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
-    if(!confirmCmsQuality("articles",payload,rows))return;
+    if(!(await confirmCmsQuality("articles",payload,rows)))return;
     const { error } = await sb.from("cms_articles").upsert(payload);
     if (error) return alert(error.message);
 
@@ -965,7 +1050,7 @@ async function renderCmsConseils() {
     const id = $("c_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
-    if(!confirmCmsQuality("conseils",payload,rows))return;
+    if(!(await confirmCmsQuality("conseils",payload,rows)))return;
     const { error } = await sb.from("cms_conseils").upsert(payload);
     if (error) return alert(error.message);
 
@@ -1141,7 +1226,7 @@ async function renderBonus() {
     const id = $("b_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
-    if(!confirmCmsQuality("bonus",payload,bonusRows))return;
+    if(!(await confirmCmsQuality("bonus",payload,bonusRows)))return;
     const { error } = await sb.from("cms_bonus").upsert(payload);
     if (error) return alert(error.message);
 
@@ -1167,7 +1252,7 @@ async function renderBonus() {
     const id = $("bk_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
-    if(!confirmCmsQuality("bookmakers",payload,bookRows))return;
+    if(!(await confirmCmsQuality("bookmakers",payload,bookRows)))return;
     const { error } = await sb.from("cms_bookmakers").upsert(payload);
     if (error) return alert(error.message);
 
@@ -1270,7 +1355,7 @@ async function renderInfos() {
     const id = $("i_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
-    if(!confirmCmsQuality("infos",payload,rows))return;
+    if(!(await confirmCmsQuality("infos",payload,rows)))return;
     const { error } = await sb.from("cms_infos").upsert(payload);
     if (error) return alert(error.message);
 
@@ -1411,6 +1496,10 @@ async function renderHealth() {
   ghTable.innerHTML="<thead><tr><th>Workflow</th><th>Exécution</th><th>État</th><th>Déclencheur</th></tr></thead>";
   const ghBody=document.createElement("tbody");ghTable.append(ghBody);
   panel.append(header,info,url,note,table,ghTitle,ghStatus,ghTable);root.appendChild(panel);
+  const externalCronRoot=document.createElement("div");root.append(externalCronRoot);
+  mountCronJobRegister(sb,externalCronRoot,{
+    supabaseUrl,anonKey:supabaseAnonKey
+  });
   const load=async()=>{
     button.disabled=true;note.textContent="Actualisation des tâches…";
     try{

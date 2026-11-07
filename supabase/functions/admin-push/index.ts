@@ -13,8 +13,33 @@ function headers(req:Request){
 function json(req:Request,value:unknown,status=200){
   return new Response(JSON.stringify(value),{status,headers:{"Content-Type":"application/json",...headers(req)}});
 }
-type Campaign={id:string;request_id:string;title:string;body:string;url:string|null;tag:string|null;recipient_user_id:string|null;status:string;scheduled_at:string};
+type Campaign={id:string;request_id:string;title:string;body:string;url:string|null;tag:string|null;recipient_user_id:string|null;status:string;scheduled_at:string;endpoint_digest?:string|null;retry_of?:string|null};
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const endpointHash=/^[a-f0-9]{64}$/;
+async function sha256(raw:string){
+ const bytes=new TextEncoder().encode(raw);
+ const digest=await crypto.subtle.digest("SHA-256",bytes);
+ return Array.from(new Uint8Array(digest)).map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+async function persistDeliveryLogs(service:any,campaignId:string,payload:any){
+ const items=Array.isArray(payload?.results)?payload.results:[];
+ const rows=await Promise.all(items.filter((x:any)=>typeof x?.endpoint==="string"&&x.endpoint)
+   .map(async (item:any)=>({
+     campaign_id:campaignId,endpoint_digest:await sha256(item.endpoint),
+     result:item.status==="sent"?"sent":item.status==="failed"?"failed":
+       item.status==="deleted_410"?"expired":"skipped",
+     http_status:Number.isInteger(Number(item.statusCode))&&Number(item.statusCode)>0
+       ? Number(item.statusCode):null,
+     error_message:item.status==="failed"?String(item.error||"").slice(0,200):null
+   })));
+ for(let i=0;i<rows.length;i+=100){
+  const {error}=await service.from("admin_push_delivery_logs")
+   .upsert(rows.slice(i,i+100),{onConflict:"campaign_id,endpoint_digest"});
+  if(error)throw error;
+ }
+ return rows.length;
+}
+
 function summarize(data:any){
  const rows=Array.isArray(data?.results)?data.results:[];
  const counts={sent:0,failed:0,expired:0,skipped:0,total:rows.length};
@@ -77,11 +102,16 @@ Deno.serve(async(req)=>{
    const res=await fetch(url+"/functions/v1/push-notifications",{
     method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${cronSecret}`},
     body:JSON.stringify({title:claimed.title,body:claimed.body,
-     user_id:claimed.recipient_user_id||null,url:claimed.url||null,tag:claimed.tag||null})
+     user_id:claimed.recipient_user_id||null,url:claimed.url||null,tag:claimed.tag||null,
+     endpoint_digest:claimed.endpoint_digest||null})
    });
    const payload=await res.json().catch(()=>({}));
    if(!res.ok)throw Error(String(payload?.error||"Envoi Push refusé"));
-   const summary=summarize(payload);
+   const summary:Record<string,number|boolean>=summarize(payload);
+   // Device-level logging is best-effort: an audit failure must never mark
+   // a delivered campaign as undelivered, which could provoke a double send.
+   try{summary.logged=await persistDeliveryLogs(service,c.id,payload);}
+   catch(error){console.warn("Push delivery diagnostics unavailable",String(error));summary.logs_incomplete=true;}
    const {error:doneErr}=await service.from("admin_push_campaigns")
      .update({status:"sent",summary,completed_at:new Date().toISOString(),updated_at:new Date().toISOString()})
      .eq("id",c.id).eq("status","processing");
@@ -111,10 +141,57 @@ Deno.serve(async(req)=>{
   }
   if(operation==="history"){
    const {data,error}=await service.from("admin_push_campaigns")
-     .select("id,request_id,status,scheduled_at,title,recipient_user_id,summary,error,created_at")
+     .select("id,request_id,status,scheduled_at,title,recipient_user_id,summary,error,created_at,retry_of")
      .order("created_at",{ascending:false}).limit(100);
    if(error)throw error;
    return json(req,{success:true,campaigns:data||[]});
+  }
+  if(operation==="details"){
+   const campaign=String(body.id||"");
+   if(!uuid.test(campaign))return json(req,{error:"Campagne invalide"},400);
+   const {data,error}=await service.from("admin_push_delivery_logs")
+    .select("endpoint_digest,result,http_status,error_message,observed_at")
+    .eq("campaign_id",campaign).order("observed_at",{ascending:false}).limit(500);
+   if(error)throw error;
+   return json(req,{success:true,id:campaign,devices:(data||[]).map((x:any)=>({
+     digest:x.endpoint_digest,result:x.result,http_status:x.http_status,
+     error_message:x.error_message,observed_at:x.observed_at
+   }))});
+  }
+  if(operation==="retry_failed"){
+   const campaign=String(body.id||"");
+   const digest=String(body.endpoint_digest||"").toLowerCase();
+   const requestId=String(body.request_id||"");
+   if(!uuid.test(campaign)||!endpointHash.test(digest)||!uuid.test(requestId))
+     return json(req,{error:"Identifiants invalides"},400);
+   if(body.acknowledge!=="RENVOYER APPAREIL")
+     return json(req,{error:"Confirmation explicite obligatoire"},409);
+   const {data:previous,error:parentErr}=await service.from("admin_push_campaigns")
+    .select("id,title,body,url,tag,recipient_user_id,status")
+    .eq("id",campaign).maybeSingle();
+   if(parentErr)throw parentErr;
+   if(!previous||previous.status!=="sent")return json(req,{error:"Campagne source non terminée"},409);
+   const {data:failed,error:deliveryErr}=await service.from("admin_push_delivery_logs")
+    .select("result,http_status").eq("campaign_id",campaign).eq("endpoint_digest",digest).maybeSingle();
+   if(deliveryErr)throw deliveryErr;
+   // Only a recorded, definite HTTP refusal may be attempted again.
+   if(!failed||failed.result!=="failed"||![429,502,503,504].includes(failed.http_status))
+     return json(req,{error:"Réessai interdit : échec non confirmé ou résultat incertain"},409);
+   const {data:existing}=await service.from("admin_push_campaigns")
+    .select("id,status,summary").eq("request_id",requestId).maybeSingle();
+   if(existing)return json(req,{success:true,reused:true,...existing});
+   const {data:created,error:insertError}=await service.from("admin_push_campaigns").insert({
+    request_id:requestId,created_by:actorId,title:previous.title,body:previous.body,
+    url:previous.url,tag:previous.tag,recipient_user_id:previous.recipient_user_id,
+    retry_of:campaign,endpoint_digest:digest,status:"queued",scheduled_at:new Date().toISOString()
+   }).select("*").single();
+   if(insertError){
+     const {data:already}=await service.from("admin_push_campaigns")
+       .select("id,status,summary").eq("retry_of",campaign).eq("endpoint_digest",digest).maybeSingle();
+     if(already)return json(req,{success:true,reused:true,...already});
+     throw insertError;
+   }
+   return json(req,{success:true,...await deliver(created)});
   }
   if(operation==="cancel"){
    if(!uuid.test(String(body.id||"")))return json(req,{error:"ID invalide"},400);

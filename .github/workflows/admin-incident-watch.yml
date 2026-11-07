@@ -1,0 +1,25 @@
+name: Admin incidents — automatic monitoring
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+concurrency:
+  group: mrxpronos-admin-incident-watch
+  cancel-in-progress: false
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Observe workflows, evaluate and escalate incidents
+        run: node scripts/admin_incident_watch.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

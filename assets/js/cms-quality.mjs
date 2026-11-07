@@ -27,6 +27,13 @@ export function inspectCmsEditorial(kind,row,existing=[]){
     /\/storage\/v1\/object\/public\/cms-drafts\//.test(rich))
   errors.push("Publie les médias privés avant d'utiliser leurs liens dans un contenu.");
  if(published){
+  if(kind==="articles"){
+   if(title.length<24||title.length>85)
+    warnings.push("Titre à raccourcir ou préciser pour les moteurs de recherche.");
+   const meta=clean(row.meta_description);
+   if(meta&&(meta.length<70||meta.length>180))
+    warnings.push("Description SEO : privilégier 70 à 180 caractères.");
+  }
   if(["articles","conseils","infos"].includes(kind)&&!content)
    errors.push("Le contenu publié est vide.");
   if(kind==="articles"&&!clean(row.meta_description))
