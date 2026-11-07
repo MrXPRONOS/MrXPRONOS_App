@@ -1,5 +1,6 @@
 import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
 import { mountIncidentCenter } from "./admin-incidents.mjs";
+import { mountAdminUsers } from "./admin-users.mjs";
 import { inspectCmsEditorial } from "./cms-quality.mjs";
 import { mountCmsServerSearch } from "./cms-server-search.mjs";
 import { mountCmsBlockEditor } from "./cms-block-editor.mjs";
@@ -26,12 +27,12 @@ const premiumAdminLoading = (kind = "admin", count = 3) =>
   window.MXLoading?.render?.(kind, count) || '<div class="muted">Chargement…</div>';
 
 
-const TAB_NAMES = ["overview","pronostics","push","articles","conseils","bonus","infos","media","vip","health","incidents","audit"];
+const TAB_NAMES = ["overview","pronostics","push","articles","conseils","bonus","infos","media","vip","health","incidents","users","audit"];
 const loadedTabs = new Set();
 let publishBusy = false;
 let adminPermissions={read:true,cms:false,push:false,media:false,vip:false,users:false};
 const tabPermission={articles:"cms",conseils:"cms",bonus:"cms",infos:"cms",
-  media:"media",push:"push",vip:"vip"};
+  media:"media",push:"push",vip:"vip",users:"users"};
 
 function tabs() {
   return Array.from(document.querySelectorAll(".tab"));
@@ -200,6 +201,7 @@ const TAB_LOADERS = {
   health: renderHealth,
   audit: renderAudit,
   incidents: async () => mountIncidentCenter(sb,$("tab-incidents")),
+  users: async () => mountAdminUsers(sb,$("tab-users")),
 };
 
 async function loadTabIfNeeded(name) {
