@@ -29,6 +29,9 @@ const premiumAdminLoading = (kind = "admin", count = 3) =>
 const TAB_NAMES = ["overview","pronostics","push","articles","conseils","bonus","infos","media","vip","health","incidents","audit"];
 const loadedTabs = new Set();
 let publishBusy = false;
+let adminPermissions={read:true,cms:false,push:false,media:false,vip:false,users:false};
+const tabPermission={articles:"cms",conseils:"cms",bonus:"cms",infos:"cms",
+  media:"media",push:"push",vip:"vip"};
 
 function tabs() {
   return Array.from(document.querySelectorAll(".tab"));
@@ -227,6 +230,10 @@ async function loadTabIfNeeded(name) {
 
 async function showTab(name) {
   if (!TAB_NAMES.includes(name)) name="overview";
+  if(tabPermission[name]&&!adminPermissions[tabPermission[name]]) {
+    alert("Ton rôle n'autorise pas cette rubrique.");
+    return;
+  }
   showOnlyTab(name);
   window.dispatchEvent(new CustomEvent("mx:admin-tab",{detail:{name}}));
   const target="#"+name;
@@ -1757,10 +1764,27 @@ async function afterLogin() {
     return;
   }
 
+  const values=await Promise.all(["read","cms","push","media","vip","users"].map(async permission=>{
+    try{
+      const {data,error}=await sb.rpc("admin_can",{p_permission:permission});
+      return [permission,!error&&data===true];
+    }catch{return [permission,false];}
+  }));
+  adminPermissions=Object.fromEntries(values);
+  if(!adminPermissions.read){
+    await sb.auth.signOut();
+    setLoginMsg("Droits de lecture refusés.");
+    return;
+  }
+  for(const item of document.querySelectorAll(".nav-item.tab[data-tab]")){
+    const permission=tabPermission[item.dataset.tab];
+    item.hidden=!!permission&&!adminPermissions[permission];
+  }
   $("loginCard").style.display = "none";
   $("app").style.display = "block";
-  cmsInstallHistory();
-  await initAdminMfaControl(sb, $("btnLogout")?.parentElement);
+  if(adminPermissions.cms)cmsInstallHistory();
+  if(adminPermissions.users||adminPermissions.cms||adminPermissions.push)
+    await initAdminMfaControl(sb, $("btnLogout")?.parentElement);
 
   const user = (await sb.auth.getUser()).data.user;
   $("who").textContent = user?.email || user?.id || "";
