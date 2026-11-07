@@ -23,8 +23,8 @@ async function sha256(raw:string){
 }
 async function persistDeliveryLogs(service:any,campaignId:string,payload:any){
  const items=Array.isArray(payload?.results)?payload.results:[];
- const rows=await Promise.all(items.filter(x=>typeof x?.endpoint==="string"&&x.endpoint)
-   .map(async item=>({
+ const rows=await Promise.all(items.filter((x:any)=>typeof x?.endpoint==="string"&&x.endpoint)
+   .map(async (item:any)=>({
      campaign_id:campaignId,endpoint_digest:await sha256(item.endpoint),
      result:item.status==="sent"?"sent":item.status==="failed"?"failed":
        item.status==="deleted_410"?"expired":"skipped",
