@@ -1,6 +1,6 @@
 # Mr XPRONOS — suivi des améliorations de l'administration
 
-Audit du 7 novembre 2026. Cette feuille de route distingue **implémentation dans la PR** et **mise en production**. Une modification de code n'est pas considérée comme déployée tant que son environnement d'hébergement n'a pas été confirmé.
+Audit du 7 novembre 2026. Cette feuille de route distingue **correction dans le code**, **déploiement des services** et **accès protégé à la console**. La PR #332 a été fusionnée (04f8e1abc), et les déploiements GitHub Pages / Supabase ont réussi le 7 novembre 2026. La console privée n'est toutefois pas hébergée dans un environnement sécurisé accessible aux administrateurs.
 
 Légende : **C** = correction implémentée sur la branche avec contrôle automatique ; **P** = correction partielle ; **À faire** = non implémentée ; **Bloqué** = condition préalable nécessaire.
 
@@ -51,6 +51,20 @@ Ces statuts décrivent le **code implémenté et testé dans la PR #332**, pas u
 | 25 | Centre d'incidents avec actions proposées | P | Centre d'incidents : gravité, prise en charge, résolution, audit ; détection automatique et escalades à ajouter. |
 | 26 | Rechercher, paginer et exporter le journal d'audit | C | Pagination par 100, filtres locaux, détails et CSV des données chargées. |
 | 27 | Distinguer temps réel et actualisation périodique | P | Présence connectée distincte de la fraîcheur ; vues historiques à harmoniser. |
+
+## Vérification production — 7 novembre 2026
+
+- **19/27 corrections fonctionnelles complètes dans le code, 8/27 encore partielles** (voir tableau).
+- PR #332 : 11 workflows de tests réussis sur 11, dont compilation Deno et contrôles navigateur.
+- GitHub Actions : **Deploy Supabase Functions** #42363363291 : réussite.
+- GitHub Actions : **Deploy to GitHub Pages** #42363363300 : réussite.
+- Supabase : 3 tables d'administration, la fonction de rôles, la recherche CMS serveur, le bucket privé et le déclencheur anti-suppression du dernier propriétaire sont présents.
+- Edge Functions actives : admin-push v19, admin-list-subscribers v15, push-notifications v30, admin-media-publish v1, publish v29.
+- Vérification des privilèges : les rôles anonymes ne peuvent exécuter ni admin_can ni admin_cms_search.
+- La file de notifications était vide lors de la recette : **aucun envoi de campagne Push de test** n'a été réalisé ; l'envoi réel, le déclenchement GitHub OIDC et le traitement des erreurs restent à tester en conditions contrôlées.
+- Un compte propriétaire reste actif. Aucun facteur MFA vérifié : **ne pas imposer AAL2** avant son enrôlement.
+- Audit de sécurité Supabase : la protection contre les mots de passe compromis n'est toujours pas activée. <https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection>
+- Les statuts C ne prouvent pas que la console principale est ouverte : **l'hébergement protégé et sa validation restent bloquants**.
 
 ## Contrôles
 
