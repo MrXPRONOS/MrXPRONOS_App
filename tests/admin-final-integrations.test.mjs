@@ -101,4 +101,9 @@ test("public preview embeds the site's real reader classes and CSS",()=>{
  assert.match(preview,/mx-article-detail-main/);
  assert.match(preview,/assets\/css\/article-detail-premium\.css/);
  assert.match(preview,/sandbox/);
+ assert.match(preview,/renderSafeCmsMarkdown/);
+ const identical=read('assets/js/admin-public-markdown.mjs');
+ assert.match(identical,/function sanitizeHtml/);
+ assert.match(identical,/window\.marked\.parse/);
+ assert.match(read('admin.html'),/marked\/marked\.min\.js/);
 });
