@@ -1,5 +1,6 @@
 import { initAdminMfaControl } from "./admin-mfa-ui.mjs";
 import { mountIncidentCenter } from "./admin-incidents.mjs";
+import { inspectCmsEditorial } from "./cms-quality.mjs";
 import { mountCmsBlockEditor } from "./cms-block-editor.mjs";
 import { mountCmsRevisionPanel } from "./cms-revisions.mjs";
 import { createCmsDraftCopy } from "./cms-duplicate.mjs";
@@ -64,6 +65,14 @@ function safeIdEq(a, b) {
 }
 
 // Keep original publication timestamps even when editing previously published CMS rows.
+function confirmCmsQuality(kind,row,rows){
+  const {errors,warnings}=inspectCmsEditorial(kind,row,rows);
+  if(errors.length){alert("Enregistrement refusé :\n"+errors.join("\n"));return false;}
+  if(warnings.length&&!confirm("Avertissements de publication :\n"+warnings.join("\n")+"\n\nEnregistrer malgré ces avertissements ?"))
+    return false;
+  return true;
+}
+
 function preservedPublicationDate(rows,saveId,status) {
   const previous=(rows||[]).find(item=>safeIdEq(item.id,saveId));
   return status==="published" ? (previous?.published_at || new Date().toISOString())
@@ -773,6 +782,7 @@ async function renderCmsArticles() {
     const id = $("a_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
+    if(!confirmCmsQuality("articles",payload,rows))return;
     const { error } = await sb.from("cms_articles").upsert(payload);
     if (error) return alert(error.message);
 
@@ -916,6 +926,7 @@ async function renderCmsConseils() {
     const id = $("c_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
+    if(!confirmCmsQuality("conseils",payload,rows))return;
     const { error } = await sb.from("cms_conseils").upsert(payload);
     if (error) return alert(error.message);
 
@@ -1083,6 +1094,7 @@ async function renderBonus() {
     const id = $("b_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
+    if(!confirmCmsQuality("bonus",payload,bonusRows))return;
     const { error } = await sb.from("cms_bonus").upsert(payload);
     if (error) return alert(error.message);
 
@@ -1108,6 +1120,7 @@ async function renderBonus() {
     const id = $("bk_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
+    if(!confirmCmsQuality("bookmakers",payload,bookRows))return;
     const { error } = await sb.from("cms_bookmakers").upsert(payload);
     if (error) return alert(error.message);
 
@@ -1206,6 +1219,7 @@ async function renderInfos() {
     const id = $("i_save").dataset.id;
     const payload = id ? { ...row, id } : row;
 
+    if(!confirmCmsQuality("infos",payload,rows))return;
     const { error } = await sb.from("cms_infos").upsert(payload);
     if (error) return alert(error.message);
 
