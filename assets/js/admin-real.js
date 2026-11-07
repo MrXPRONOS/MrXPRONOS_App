@@ -1332,63 +1332,51 @@ async function renderVip() {
 // HEALTH
 // -----------------------------
 async function renderHealth() {
-  const root = $("tab-health");
-  if (!root) return;
-
-  const { data, error } = await sb.from("cron_runs").select("*").order("last_run_at",{ascending:false});
-  if (error) { root.innerHTML = `<div class="muted">${escapeHtml(error.message)}</div>`; return; }
-
-  const rows = (data || []).map(r => {
-    const meta = r.meta || {};
-    const summary =
-      r.name === "live_refresh"
-        ? `matches=${meta.matches_live ?? 0}, created=${meta.predictions_created ?? 0}, updated=${meta.predictions_updated ?? 0}`
-        : `validated=${meta.validated ?? 0}, skipped=${meta.skipped ?? 0}`;
-
-    return `
-      <tr>
-        <td>${escapeHtml(r.name)}</td>
-        <td>${r.last_run_at ? new Date(r.last_run_at).toLocaleString("fr-FR") : "-"}</td>
-        <td>${r.last_ok ? "oui" : "non"}</td>
-        <td>
-          <div class="muted">${escapeHtml(summary)}</div>
-          <button class="btn btn-secondary" data-meta='${encodeURIComponent(JSON.stringify(meta))}'>Voir</button>
-        </td>
-      </tr>
-    `;
-  }).join("");
-
-  root.innerHTML = `
-    <div class="card">
-      <h3 style="margin:0 0 10px;color:#D4AF37">Santé CRON</h3>
-      <table>
-        <thead><tr><th>Nom</th><th>Dernière exécution</th><th>OK</th><th>Meta</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-
-      <div id="metaModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); padding:20px; z-index:9999;">
-        <div style="max-width:900px; margin:0 auto; background:#1A1A1A; border:1px solid #D4AF37; border-radius:16px; padding:16px;">
-          <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
-            <div style="font-weight:900; color:#D4AF37">Meta</div>
-            <button id="closeMeta" class="btn btn-secondary">Fermer</button>
-          </div>
-          <pre id="metaContent" style="margin-top:12px; max-height:70vh; overflow:auto; white-space:pre-wrap; color:#ddd;"></pre>
-        </div>
-      </div>
-    </div>
-  `;
-
-  const modal = $("metaModal");
-  const pre = $("metaContent");
-  $("closeMeta").onclick = () => (modal.style.display = "none");
-
-  root.querySelectorAll("[data-meta]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const meta = JSON.parse(decodeURIComponent(btn.getAttribute("data-meta")));
-      pre.textContent = JSON.stringify(meta, null, 2);
-      modal.style.display = "block";
-    });
-  });
+  const root=$("tab-health");if(!root)return;
+  root.replaceChildren();
+  const panel=document.createElement("section");panel.className="card";
+  const header=document.createElement("div");header.className="admin-section-heading";
+  const h=document.createElement("h3");h.textContent="Automatisations · dernier état connu";
+  const button=document.createElement("button");button.type="button";button.className="btn btn-secondary";
+  button.textContent="↻ Actualiser";header.append(h,button);
+  const note=document.createElement("p");note.className="muted";note.setAttribute("role","status");
+  const info=document.createElement("p");info.className="muted";
+  info.textContent="Ce tableau ne contient que les tâches enregistrées dans cron_runs. Les workflows GitHub et les tâches cron-job.org doivent être vérifiés séparément.";
+  const url=document.createElement("a");url.href="https://github.com/MrXPRONOS/MrXPRONOS_App/actions";
+  url.target="_blank";url.rel="noopener noreferrer";url.textContent="Consulter GitHub Actions ↗";
+  const table=document.createElement("table");
+  table.innerHTML="<thead><tr><th>Tâche</th><th>Dernière exécution</th><th>État</th><th>Détails</th></tr></thead>";
+  const body=document.createElement("tbody");table.appendChild(body);
+  panel.append(header,info,url,note,table);root.appendChild(panel);
+  const load=async()=>{
+    button.disabled=true;note.textContent="Actualisation des tâches…";
+    try{
+      const {data,error}=await sb.from("cron_runs").select("name,last_run_at,last_ok,meta")
+        .order("last_run_at",{ascending:false}).limit(500);
+      if(error)throw error;
+      body.replaceChildren();
+      for(const entry of data||[]){
+        const tr=document.createElement("tr");
+        const mk=value=>{const td=document.createElement("td");td.textContent=String(value??"—");tr.appendChild(td);return td};
+        mk(entry.name);
+        mk(entry.last_run_at?new Date(entry.last_run_at).toLocaleString("fr-FR"):"Jamais");
+        const minutes=entry.last_run_at?(Date.now()-Date.parse(entry.last_run_at))/60000:null;
+        const interval=Number(entry.meta?.expected_interval_minutes||0);
+        const overdue=Number.isFinite(minutes)&&interval>0&&minutes>interval*2;
+        const label=entry.last_ok===false?"Dernière exécution en échec":
+          entry.last_ok===true?(overdue?"Retard à vérifier":"Dernière exécution réussie"):"État inconnu";
+        mk(label+(minutes!=null&&Number.isFinite(minutes)?" · "+Math.max(0,Math.round(minutes))+" min":""));
+        const td=document.createElement("td");const details=document.createElement("details");
+        const summary=document.createElement("summary");summary.textContent="Détails";
+        const pre=document.createElement("pre");pre.textContent=JSON.stringify(entry.meta||{},null,2);
+        details.append(summary,pre);td.append(details);tr.append(td);body.append(tr);
+      }
+      note.textContent=(data?.length||0)+" tâche(s) enregistrée(s). Ce nombre ne couvre pas toutes les automatisations.";
+    }catch(e){note.textContent="Supervision des tâches indisponible : "+String(e?.message||e);}
+    finally{button.disabled=false;}
+  };
+  button.addEventListener("click",()=>void load());
+  await load();
 }
 
 // -----------------------------
