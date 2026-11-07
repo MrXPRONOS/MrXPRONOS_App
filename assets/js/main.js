@@ -3439,7 +3439,7 @@ function displayTopTodayCoupons() {
     : '<div class="no-events">Pas de sélection aujourd’hui. <a href="pronos.html">Voir les pronostics →</a></div>';
 }
 
-// Résultats affichés : aucune perte masquée, verdict calculé sur les données finales.
+// Les statistiques portent sur toutes les sélections évaluées ; l'accueil montre uniquement les gagnants.
 function homePublicOutcome(m) {
   const key = String(m?.prediction?.selection_key || "");
   const h = Number(m?.home_score), a = Number(m?.away_score);
@@ -3484,11 +3484,12 @@ function displayLatestVerifiedHome() {
     return;
   }
   const recent = homeEvaluatedMatches()
+    .filter((m) => m.home_outcome === true)
     .sort((a, b) => new Date(b.event_date || 0) - new Date(a.event_date || 0))
     .slice(0, 3);
   DOM.verifiedPicks.innerHTML = recent.length
-    ? recent.map((m) => renderHomePickCard(m, { winner: true, lost: m.home_outcome === false })).join("")
-    : '<div class="no-events">Pas de résultat récent. <a href="historique.html">Voir l’historique →</a></div>';
+    ? recent.map((m) => renderHomePickCard(m, { winner: true })).join("")
+    : '<div class="no-events">Aucun résultat gagnant récent. <a href="historique.html">Voir l’historique →</a></div>';
 }
 
 // Backward compatibility (si un ancien index existe encore)
