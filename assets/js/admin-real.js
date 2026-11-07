@@ -1394,30 +1394,77 @@ async function renderHealth() {
 // -----------------------------
 // AUDIT
 // -----------------------------
-async function renderAudit() {
-  const root = $("tab-audit");
-  if (!root) return;
-
-  const { data, error } = await sb.from("audit_log").select("*").order("created_at",{ascending:false}).limit(50);
-  if (error) { root.innerHTML = `<div class="muted">${escapeHtml(error.message)}</div>`; return; }
-
-  root.innerHTML = `
-    <div class="card">
-      <h3 style="margin:0 0 10px;color:#D4AF37">Audit log</h3>
-      <table>
-        <thead><tr><th>Date</th><th>Action</th><th>Détails</th></tr></thead>
-        <tbody>
-          ${(data||[]).map(a => `
-            <tr>
-              <td>${new Date(a.created_at).toLocaleString("fr-FR")}</td>
-              <td>${escapeHtml(a.action)}</td>
-              <td><pre style="white-space:pre-wrap" class="muted">${escapeHtml(JSON.stringify(a.details||{}, null, 2))}</pre></td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    </div>
-  `;
+async function renderAudit(){
+  const root=$("tab-audit");if(!root)return;
+  root.replaceChildren();
+  const panel=document.createElement("section");panel.className="card";
+  const head=document.createElement("div");head.className="admin-section-heading";
+  const title=document.createElement("h3");title.textContent="Journal d'audit";
+  const exportButton=document.createElement("button");exportButton.type="button";
+  exportButton.className="btn btn-secondary";exportButton.textContent="Exporter CSV";
+  head.append(title,exportButton);
+  const search=document.createElement("input");search.type="search";
+  search.setAttribute("aria-label","Rechercher les actions du journal");
+  search.placeholder="Rechercher une action ou un administrateur…";
+  const status=document.createElement("p");status.className="muted";status.setAttribute("role","status");
+  const wrap=document.createElement("div");wrap.className="admin-pronostics-table-scroll";
+  const table=document.createElement("table");table.className="admin-audit-table";
+  const thead=document.createElement("thead");thead.innerHTML="<tr><th>Date</th><th>Administrateur</th><th>Action</th><th>Détails</th></tr>";
+  const tbody=document.createElement("tbody");table.append(thead,tbody);wrap.append(table);
+  const more=document.createElement("button");more.type="button";more.className="btn btn-secondary";
+  more.textContent="Charger 100 événements supplémentaires";
+  panel.append(head,search,status,wrap,more);root.appendChild(panel);
+  let rows=[],offset=0,done=false,busy=false;
+  const apply=()=>{
+    tbody.replaceChildren();
+    const q=search.value.trim().toLocaleLowerCase("fr");
+    const filtered=rows.filter(row=>
+      [row.action,row.actor_user_id,JSON.stringify(row.details||{})]
+        .some(value=>String(value||"").toLocaleLowerCase("fr").includes(q)));
+    for(const row of filtered){
+      const tr=document.createElement("tr");
+      const cell=(value)=>{
+        const td=document.createElement("td");td.textContent=String(value??"—");
+        tr.appendChild(td);return td;
+      };
+      cell(row.created_at?new Date(row.created_at).toLocaleString("fr-FR"):"—");
+      cell(row.actor_user_id||"Système");
+      cell(row.action||"—");
+      const detail=document.createElement("td");
+      const summary=document.createElement("details");
+      const trigger=document.createElement("summary");trigger.textContent="Voir";
+      const pre=document.createElement("pre");pre.textContent=JSON.stringify(row.details||{},null,2);
+      summary.append(trigger,pre);detail.append(summary);tr.append(detail);tbody.append(tr);
+    }
+    status.textContent=`${filtered.length} affiché(s) sur ${rows.length} événement(s) chargé(s).`
+      +(done?" Fin de l'historique.":" Charger la suite pour explorer les anciens événements.");
+  };
+  const load=async()=>{
+    if(busy||done)return;
+    busy=true;more.disabled=true;
+    try{
+      const {data,error}=await sb.from("audit_log")
+        .select("created_at,action,details,actor_user_id")
+        .order("created_at",{ascending:false}).range(offset,offset+99);
+      if(error)throw error;
+      const page=data||[];rows.push(...page);offset+=page.length;done=page.length<100;
+      apply();
+    }catch(e){status.textContent="Lecture du journal impossible : "+String(e?.message||e);}
+    finally{busy=false;more.disabled=false;more.hidden=done;}
+  };
+  search.addEventListener("input",apply);
+  more.addEventListener("click",()=>void load());
+  exportButton.addEventListener("click",()=>{
+    const escapeCsv=value=>'"'+String(value??"").replaceAll('"','""')+'"';
+    const lines=[["Date","Administrateur","Action","Détails"].map(escapeCsv).join(","),
+      ...rows.map(x=>[x.created_at,x.actor_user_id,x.action,JSON.stringify(x.details||{})].map(escapeCsv).join(","))];
+    const blob=new Blob(["\ufeff"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");a.href=url;a.download="mrxpronos-audit-"+new Date().toISOString().slice(0,10)+".csv";
+    a.click();URL.revokeObjectURL(url);
+    status.textContent="Export CSV : "+rows.length+" événement(s) chargé(s).";
+  });
+  await load();
 }
 
 // -----------------------------
