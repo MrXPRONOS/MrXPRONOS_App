@@ -25,12 +25,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="assets/images/mrxpronos-horizontal.webp">
-  <link rel="stylesheet" href="assets/css/style.css?v=a1fd3e1900df">
-  <link rel="stylesheet" href="assets/css/home-premium.css?v=a1fd3e1900df">
-  <link rel="stylesheet" href="assets/css/home-polish.css?v=a1fd3e1900df">
+  <link rel="stylesheet" href="assets/css/style.css?v=5a401be58680">
+  <link rel="stylesheet" href="assets/css/home-premium.css?v=5a401be58680">
+  <link rel="stylesheet" href="assets/css/home-polish.css?v=5a401be58680">
   <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<link rel="stylesheet" href="assets/css/loading-ui.css?v=a1fd3e1900df">
-  <link rel="stylesheet" href="assets/css/brand-signatures.css?v=a1fd3e1900df">
+<link rel="stylesheet" href="assets/css/loading-ui.css?v=5a401be58680">
+  <link rel="stylesheet" href="assets/css/brand-signatures.css?v=5a401be58680">
+  <link rel="stylesheet" href="assets/css/ux-direct.css?v=5a401be58680">
 </head>
 <body class="mx-premium-home">
   <header class="mx-site-header" id="top">
@@ -40,14 +41,14 @@
         <a href="index.html" class="active" aria-current="page">Accueil</a>
         <a href="aujourdhui.html">Aujourd’hui</a>
         <a href="pronos.html">Pronostics</a>
-        <a href="scores-exacts.html">Scores exacts</a>
         <a href="historique.html">Résultats</a>
         <a href="blog.html">Analyses</a>
-        <a href="infos.html">Infos Foot</a>
         <details class="mx-nav-more">
           <summary>Plus <span aria-hidden="true">⌄</span></summary>
-          <div class="mx-nav-more-panel"><a href="conseils.html">Conseils</a>
-          <a href="bonus.html">Bonus & Promo</a>
+          <div class="mx-nav-more-panel"><a href="scores-exacts.html">Scores exacts</a>
+          <a href="infos.html">Infos Foot</a>
+          <a href="conseils.html">Conseils</a>
+          <a href="bonus.html">Bonus &amp; Promo</a>
           <a href="contact.html">Contact</a></div>
         </details>
       </nav>
@@ -65,12 +66,10 @@
         <div class="mx-hero-copy">
           <div class="mx-eyebrow">PRONOSTICS FOOTBALL</div>
           <h1 id="mx-hero-title">Des pronostics analysés <span>pour les vrais passionnés.</span></h1>
-          <p>Retrouvez chaque jour nos pronostics Pro et VIP, dès 79 % de confiance estimée. Consultez les résultats passés, nos analyses et les actualités du football.</p>
+          <p>Pronostics Pro et VIP dès 79 % de confiance estimée. Résultats et analyses en un clic.</p>
           <div class="mx-hero-actions">
-            <a class="mx-pill mx-pill-primary" href="aujourdhui.html" aria-label="Découvrir le rendez-vous football du jour">📅 Aujourd’hui <span aria-hidden="true">→</span></a>
-            <a class="mx-pill mx-pill-outline" href="pronos.html"><img src="assets/images/home-premium/icons/document_pronostics.svg" width="20" height="20" alt="" aria-hidden="true"> Tous les pronostics <span aria-hidden="true">→</span></a>
-            <a class="mx-pill mx-pill-outline" href="scores-exacts.html">Top 5 scores exacts <span aria-hidden="true">→</span></a>
-            <a class="mx-pill mx-pill-outline" href="historique.html"><img src="assets/images/home-premium/icons/statistiques_h2h.svg" width="20" height="20" alt="" aria-hidden="true"> Voir les preuves <span aria-hidden="true">→</span></a>
+            <a class="mx-pill mx-pill-primary" href="pronos.html">Voir les pronostics du jour <span aria-hidden="true">→</span></a>
+            <a class="mx-pill mx-pill-outline" href="historique.html">Voir les résultats <span aria-hidden="true">→</span></a>
           </div>
         </div>
         <img class="mx-hero-player" src="assets/images/home-premium/hero-player.webp" alt="Joueur de football Mr XPRONOS en maillot noir et or, vu de dos" width="840" height="1120" fetchpriority="high">
@@ -79,49 +78,12 @@
     </section>
 
     <div class="container mx-home-sections">
-      <section id="mx-install-panel" class="mx-install-panel" aria-labelledby="mx-install-panel-title" hidden>
-        <div class="mx-install-panel-brand" aria-hidden="true">
-          <img src="assets/images/icon-96x96.png" width="64" height="64" alt="">
-        </div>
-        <div class="mx-install-panel-copy">
-          <span class="mx-install-panel-kicker">MR XPRONOS · SUR VOTRE ÉCRAN D’ACCUEIL</span>
-          <h2 id="mx-install-panel-title">Votre football, en un seul geste.</h2>
-          <p>Accédez plus facilement aux pronostics du jour, aux analyses et aux résultats depuis l’icône Mr XPRONOS sur votre appareil.</p>
-          <span class="mx-install-panel-footnote">Gratuit · Sans compte obligatoire · Installation facultative</span>
-        </div>
-        <div class="mx-install-panel-action">
-          <button type="button" class="mx-install-panel-button" data-mx-install-trigger data-mx-install-surface="home">
-            <span aria-hidden="true">↘</span><span data-mx-install-label>Installer gratuitement</span>
-          </button>
-          <span>Le site reste accessible sans installation.</span>
-        </div>
-      </section>
-      <section class="mx-feature-grid" aria-label="Choisissez votre parcours">
-        <a class="mx-feature-card mx-feature-coupons" href="pronos.html">
-          <div class="mx-feature-icon"><img src="assets/images/home-premium/icons/premium-calendar.webp" alt="" width="55" height="55" loading="lazy"></div>
-          <h2>Nos trois catégories <span aria-hidden="true">↗</span></h2>
-          <p>Découvrez les pronostics Pro et VIP du jour, accessibles librement.</p>
-        </a>
-        <a class="mx-feature-card mx-feature-history" href="historique.html">
-          <div class="mx-feature-icon"><img src="assets/images/home-premium/icons/statistiques_h2h.svg" alt="" width="55" height="55" loading="lazy"></div>
-          <h2>Nos résultats <span aria-hidden="true">↗</span></h2>
-          <p>Consultez les résultats des pronostics publiés, gagnés comme perdus.</p>
-        </a>
-        <a class="mx-feature-card mx-feature-bonus" href="bonus.html">
-          <div class="mx-feature-icon"><img src="assets/images/home-premium/icons/premium-gift.webp" alt="" width="55" height="55" loading="lazy"></div>
-          <h2>Bonus &amp; Promo <span aria-hidden="true">↗</span></h2>
-          <p>Profitez des offres de nos partenaires et retrouvez le code promo XPVIP.</p>
-        </a>
-      </section>
-      <div id="data-updated" class="mx-data-updated" aria-live="polite"><img src="assets/images/home-premium/icons/horloge_mise_a_jour.svg" width="17" height="17" alt="" aria-hidden="true"><span>Dernière mise à jour : en attente des données</span></div>
-      <div class="mx-hidden-stats" hidden><span id="total-users-count"></span><span id="online-users-count"></span><span id="total-shares-count"></span></div>
-
-<section class="mx-home-showcase" aria-label="Sélections et résultats récents">
+      <section class="mx-home-showcase" aria-label="Sélections et résultats récents">
         <section class="mx-home-showcase-block mx-home-showcase-block--today">
           <div class="mx-home-showcase-head">
             <div>
-              <span class="mx-home-showcase-kicker">PROCHAINS PRONOSTICS</span>
-              <h2>Sélections à venir</h2>
+              <span class="mx-home-showcase-kicker">PRONOSTICS</span>
+              <h2>À venir</h2>
             </div>
             <a href="pronos.html">Voir tous <span aria-hidden="true">→</span></a>
           </div>
@@ -135,8 +97,8 @@
         <section class="mx-home-showcase-block mx-home-showcase-block--verified">
           <div class="mx-home-showcase-head">
             <div>
-              <span class="mx-home-showcase-kicker mx-home-showcase-kicker--green">RÉSULTATS RÉCENTS</span>
-              <h2>Derniers résultats évalués</h2>
+              <span class="mx-home-showcase-kicker mx-home-showcase-kicker--green">RÉSULTATS</span>
+              <h2>Derniers résultats</h2>
             </div>
             <a href="historique.html">Résultats <span aria-hidden="true">→</span></a>
           </div>
@@ -154,7 +116,7 @@
           </div>
           <div class="mx-home-proof-stat">
             <span id="wins-count">0</span>
-            <small>gagnants</small>
+            <small>gagnés / évalués</small>
           </div>
           <div class="mx-home-proof-stat mx-home-proof-stat--rate">
             <span id="success-percent">0%</span>
@@ -164,9 +126,46 @@
         </section>
       </section>
 
+      <section class="mx-feature-grid" aria-label="Choisissez votre parcours">
+        <a class="mx-feature-card mx-feature-coupons" href="pronos.html">
+          <div class="mx-feature-icon"><img src="assets/images/home-premium/icons/premium-calendar.webp" alt="" width="55" height="55" loading="lazy"></div>
+          <h2>Nos pronostics <span aria-hidden="true">↗</span></h2>
+          <p>Pro et VIP du jour.</p>
+        </a>
+        <a class="mx-feature-card mx-feature-history" href="historique.html">
+          <div class="mx-feature-icon"><img src="assets/images/home-premium/icons/statistiques_h2h.svg" alt="" width="55" height="55" loading="lazy"></div>
+          <h2>Résultats <span aria-hidden="true">↗</span></h2>
+          <p>Gagnés et perdus.</p>
+        </a>
+        <a class="mx-feature-card mx-feature-bonus mx-feature-analyses" href="blog.html">
+          <div class="mx-feature-icon"><img src="assets/images/home-premium/icons/analyse_trophee.svg" alt="" width="55" height="55" loading="lazy"></div>
+          <h2>Analyses <span aria-hidden="true">↗</span></h2>
+          <p>Décryptages et conseils.</p>
+        </a>
+      </section>
+      <section id="mx-install-panel" class="mx-install-panel" aria-labelledby="mx-install-panel-title" hidden>
+        <div class="mx-install-panel-brand" aria-hidden="true">
+          <img src="assets/images/icon-96x96.png" width="64" height="64" alt="">
+        </div>
+        <div class="mx-install-panel-copy">
+          <span class="mx-install-panel-kicker">MR XPRONOS · SUR VOTRE ÉCRAN D’ACCUEIL</span>
+          <h2 id="mx-install-panel-title">Votre football, en un seul geste.</h2>
+          <p>Accédez plus facilement aux pronostics du jour, aux analyses et aux résultats depuis l’icône Mr XPRONOS sur votre appareil.</p>
+          <span class="mx-install-panel-footnote">Gratuit · Sans compte obligatoire · Installation facultative</span>
+        </div>
+        <div class="mx-install-panel-action">
+          <button type="button" class="mx-install-panel-button" data-mx-install-trigger data-mx-install-surface="home">
+            <span aria-hidden="true">↘</span><span data-mx-install-label>Installer gratuitement</span>
+          </button>
+          <span>Le site reste accessible sans installation.</span>
+        </div>
+      </section>
+      <div id="data-updated" class="mx-data-updated" aria-live="polite"><img src="assets/images/home-premium/icons/horloge_mise_a_jour.svg" width="17" height="17" alt="" aria-hidden="true"><span>Dernière mise à jour : en attente des données</span></div>
+      <div class="mx-hidden-stats" hidden><span id="total-users-count"></span><span id="online-users-count"></span><span id="total-shares-count"></span></div>
 
-      <details class="mx-info-panel mx-how mx-home-detail" data-mobile-collapsible open aria-labelledby="how-title">
-        <summary class="mx-panel-heading mx-home-detail-summary"><img src="assets/images/home-premium/icons/engrenage.svg" width="48" height="48" alt="" loading="lazy"><div><h2 id="how-title">Comment ça marche ?</h2><p>Accédez à nos pronostics en quelques clics, sans aucune contrainte de partage.</p></div><span class="mx-home-detail-chevron" aria-hidden="true">⌄</span></summary>
+
+      <details class="mx-info-panel mx-how mx-home-detail" data-mobile-collapsible aria-labelledby="how-title">
+        <summary class="mx-panel-heading mx-home-detail-summary"><img src="assets/images/home-premium/icons/engrenage.svg" width="48" height="48" alt="" loading="lazy"><div><h2 id="how-title">Comment ça marche ?</h2><p>Pronostics gratuits, en quelques clics.</p></div><span class="mx-home-detail-chevron" aria-hidden="true">⌄</span></summary>
         <div class="mx-home-detail-body">
           <div class="mx-how-grid">
             <div class="mx-how-step"><div class="mx-step-heading"><span class="mx-step-num">1</span><img src="assets/images/home-premium/icons/document_pronostics.svg" alt="" width="34" height="34" loading="lazy"></div><h3>Choisissez vos pronostics</h3><p>Accédez librement à nos coupons Pro et VIP, dès 79 % de confiance estimée.</p></div>
@@ -176,8 +175,8 @@
         </div>
       </details>
 
-      <details class="mx-info-panel mx-why mx-home-detail" data-mobile-collapsible open aria-labelledby="why-title">
-        <summary class="mx-panel-heading mx-home-detail-summary"><img src="assets/images/home-premium/icons/analyse_trophee.svg" width="48" height="48" alt="" loading="lazy"><div><h2 id="why-title">Pourquoi nous choisir ?</h2><p>Une approche structurée et transparente pour mieux lire les matchs et les pronostics.</p></div><span class="mx-home-detail-chevron" aria-hidden="true">⌄</span></summary>
+      <details class="mx-info-panel mx-why mx-home-detail" data-mobile-collapsible aria-labelledby="why-title">
+        <summary class="mx-panel-heading mx-home-detail-summary"><img src="assets/images/home-premium/icons/analyse_trophee.svg" width="48" height="48" alt="" loading="lazy"><div><h2 id="why-title">Pourquoi nous choisir ?</h2><p>Nos points forts.</p></div><span class="mx-home-detail-chevron" aria-hidden="true">⌄</span></summary>
         <div class="mx-home-detail-body">
           <div class="mx-reasons-grid">
             <article class="mx-reason"><div class="mx-reason-icon"><img src="assets/images/home-premium/icons/statistiques_h2h.svg" alt="" width="34" height="34" loading="lazy"></div><div><h3>Analyses H2H approfondies</h3><p>Des analyses basées sur les statistiques, les confrontations directes et la forme des équipes.</p></div></article>
@@ -195,8 +194,8 @@
 
       <section class="mx-extra-details" id="more-content" aria-label="Bonus partenaires et témoignages">
         <div class="mx-extra-grid">
-          <section class="mx-extra-block mx-extra-block--bookmakers"><h2>Offres de nos partenaires</h2><p class="mx-extra-intro">Comparez les partenaires et leurs conditions avant de vous inscrire. 18+ · Jouez responsablement.</p><div id="bookmakers-bonus" class="bookmakers-grid"></div></section>
-          <section class="mx-extra-block mx-extra-block--testimonials"><h2>Paroles de la communauté</h2><p class="mx-extra-intro">Retours partagés, non vérifiés de manière indépendante.</p><div id="testimonials-container" class="mx-testimonials"></div></section>
+          <section class="mx-extra-block mx-extra-block--bookmakers"><h2>Offres de nos partenaires</h2><div id="bookmakers-bonus" class="bookmakers-grid"></div></section>
+          <section class="mx-extra-block mx-extra-block--testimonials"><h2>Témoignages</h2><div id="testimonials-container" class="mx-testimonials"></div></section>
         </div>
       </section>
     </div>
@@ -233,14 +232,14 @@
   <div id="conseil-modal" class="modal" role="dialog" aria-modal="true" onclick="closeConseilModal()"><div class="modal-content" onclick="event.stopPropagation()"><button class="close" type="button" aria-label="Fermer" onclick="closeConseilModal()">&times;</button><img id="conseil-modal-image" src="" alt="" class="modal-image" loading="lazy"><h3 id="conseil-modal-title"></h3><div id="conseil-modal-content"></div></div></div>
   <div id="news-modal" class="modal" role="dialog" aria-modal="true" onclick="closeNewsModal()"><div class="modal-content" onclick="event.stopPropagation()"><button class="close" type="button" aria-label="Fermer" onclick="closeNewsModal()">&times;</button><img id="news-modal-image" src="" alt="" class="modal-image" loading="lazy"><h3 id="news-modal-title"></h3><div id="news-modal-content"></div><a id="news-modal-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Lire sur le site source</a></div></div>
   <div id="win-popup" class="win-popup"></div>
-  <script type="module" src="assets/js/main.js?v=a1fd3e1900df"></script>
-  <script defer src="assets/js/pwa.js?v=a1fd3e1900df"></script>
+  <script type="module" src="assets/js/main.js?v=5a401be58680"></script>
+  <script defer src="assets/js/pwa.js?v=5a401be58680"></script>
 
 
-  <script defer src="assets/js/menu.js?v=a1fd3e1900df"></script>
-  <script defer src="assets/js/back-to-top.js?v=a1fd3e1900df"></script>
-  <script defer src="assets/js/home-premium.js?v=a1fd3e1900df"></script>
-<script defer src="assets/js/loading-ui.js?v=a1fd3e1900df"></script>
+  <script defer src="assets/js/menu.js?v=5a401be58680"></script>
+  <script defer src="assets/js/back-to-top.js?v=5a401be58680"></script>
+  <script defer src="assets/js/home-premium.js?v=5a401be58680"></script>
+<script defer src="assets/js/loading-ui.js?v=5a401be58680"></script>
   
 </body>
 </html>
