@@ -1,32 +1,303 @@
 [
   {
-    "slug": "6e8f0ad63cd07d46",
-    "title": "Équipe de France : la déclaration d'amour de Zidane envers Doué",
-    "summary": "Le sélectionneur de l'Équipe de France a encensé les qualités et l'envie de progresser de Désiré Doué à l'occasion de la conférence de presse durant laquelle il annonçait sa liste pour la prochaine fenêtre internationale.",
-    "summary_short": "Le sélectionneur de l'Équipe de France a encensé les qualités et l'envie de progresser de Désiré Doué à l'occasion de la conférence de presse durant laquelle il annonçait sa liste pour la prochaine fenêtre internationale.",
-    "content": "Le sélectionneur de l'Équipe de France a encensé les qualités et l'envie de progresser de Désiré Doué à l'occasion de la conférence de presse durant laquelle il annonçait sa liste pour la prochaine fenêtre internationale.",
+    "slug": "b8504b72e7dddd52",
+    "title": "Coventry : Frank Lampard hurle au scandale après la défaite contre Everton",
+    "summary": "La rencontre entre Everton et Coventry a été marquée par une succession de décisions arbitrales qui ont provoqué la colère de Frank Lampard. Malgré la défaite de son équipe, l’entraîneur anglais (…)",
+    "summary_short": "La rencontre entre Everton et Coventry a été marquée par une succession de décisions arbitrales qui ont provoqué la colère de Frank Lampard. Malgré la défaite de son équipe, l’entraîneur anglais (…)",
+    "content": "La rencontre entre Everton et Coventry a été marquée par une succession de décisions arbitrales qui ont provoqué la colère de Frank Lampard. Malgré la défaite de son équipe, l’entraîneur anglais (…)",
     "paragraphs": [
-      "Le sélectionneur de l'Équipe de France a encensé les qualités et l'envie de progresser de Désiré Doué à l'occasion de la conférence de presse durant laquelle il annonçait sa liste pour la prochaine fenêtre internationale."
+      "La rencontre entre Everton et Coventry a été marquée par une succession de décisions arbitrales qui ont provoqué la colère de Frank Lampard. Malgré la défaite de son équipe, l’entraîneur anglais (…)"
     ],
     "key_points": [
-      "Le sélectionneur de l'Équipe de France a encensé les qualités et l'envie de progresser de Désiré Doué à l'occasion de la conférence de presse durant laquelle il annonçait sa liste pour la prochaine fenêtre internationale."
+      "La rencontre entre Everton et Coventry a été marquée par une succession de décisions arbitrales qui ont provoqué la colère de Frank Lampard.",
+      "Malgré la défaite de son équipe, l’entraîneur anglais (…)"
     ],
-    "telegram_summary": "Le sélectionneur de l'Équipe de France a encensé les qualités et l'envie de progresser de Désiré Doué à l'occasion de la conférence de presse durant laquelle il annonçait sa liste pour la prochaine fenêtre internationale.",
-    "link": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-la-declaration-damour-de-zidane-envers-doue-1007526",
-    "source_url": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-la-declaration-damour-de-zidane-envers-doue-1007526",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=6e8f0ad63cd07d46",
-    "published": "2026-11-06T22:31:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1007526/410659/1200-L-quipe-de-france-la-dclaration-d-amour-de-zidane-envers-dou.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1007526/410659/1200-L-quipe-de-france-la-dclaration-d-amour-de-zidane-envers-dou.jpg",
+    "telegram_summary": "La rencontre entre Everton et Coventry a été marquée par une succession de décisions arbitrales qui ont provoqué la colère de Frank Lampard. Malgré la défaite de son équipe, l’entraîneur anglais (…)",
+    "link": "https://www.footmercato.net/a5078759166190415562-coventry-frank-lampard-hurle-au-scandale-apres-la-defaite-contre-everton",
+    "source_url": "https://www.footmercato.net/a5078759166190415562-coventry-frank-lampard-hurle-au-scandale-apres-la-defaite-contre-everton",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=b8504b72e7dddd52",
+    "published": "2026-11-07T08:30:23+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/lampard-everton.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/lampard-everton.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 5,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50402775",
+      "url": "https://www.espn.com/soccer/story/_/id/50402775/frank-lampard-coventry-city-everton-referee-penalty",
+      "published": "2026-11-07T00:03:32Z",
+      "score": 0.308,
+      "matched_terms": [
+        "coventry",
+        "everton",
+        "frank",
+        "lampard"
+      ],
+      "topics": [],
+      "teams": [
+        "Coventry City",
+        "Everton"
+      ],
+      "athletes": [],
+      "leagues": [
+        "English Premier League",
+        "Soccer"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-11-07T08:53:16.271075+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
+    "slug": "f12b91e83e1a1e60",
+    "title": "Valence-Real Madrid : les compositions probables de cette prestigieuse affiche comptant pour la 12ème journée de Liga",
+    "summary": "La 12ème journée de Liga propose ce samedi soir une rencontre entre deux formations aux dynamiques bien différentes. Le Real Madrid se rend sur la pelouse de Mestalla pour y défier Valence, avec l'objectif de poursuivre sa belle série et ainsi de mettre la pression sur le FC Barcelone.",
+    "summary_short": "La 12ème journée de Liga propose ce samedi soir une rencontre entre deux formations aux dynamiques bien différentes. Le Real Madrid se rend sur la pelouse de Mestalla pour y défier Valence, avec l'objectif de poursuivre sa belle série et ainsi de mettre la pression sur le FC Barcelone.",
+    "content": "La 12ème journée de Liga propose ce samedi soir une rencontre entre deux formations aux dynamiques bien différentes. Le Real Madrid se rend sur la pelouse de Mestalla pour y défier Valence, avec l'objectif de poursuivre sa belle série et ainsi de mettre la pression sur le FC Barcelone. En face, les Valenciens, actuellement en grande difficulté au classement, auront fort à faire. Un point sur les compositions probables.",
+    "paragraphs": [
+      "La 12ème journée de Liga propose ce samedi soir une rencontre entre deux formations aux dynamiques bien différentes. Le Real Madrid se rend sur la pelouse de Mestalla pour y défier Valence, avec l'objectif de poursuivre sa belle série et ainsi de mettre la pression sur le FC Barcelone. En face, les Valenciens, actuellement en grande difficulté au classement, auront fort à faire.",
+      "Un point sur les compositions probables."
+    ],
+    "key_points": [
+      "La 12ème journée de Liga propose ce samedi soir une rencontre entre deux formations aux dynamiques bien différentes.",
+      "Le Real Madrid se rend sur la pelouse de Mestalla pour y défier Valence, avec l'objectif de poursuivre sa belle série et ainsi de mettre la pression sur le FC Barcelone.",
+      "En face, les Valenciens, actuellement en grande difficulté au classement, auront fort à faire.",
+      "Un point sur les compositions probables."
+    ],
+    "telegram_summary": "La 12ème journée de Liga propose ce samedi soir une rencontre entre deux formations aux dynamiques bien différentes. Le Real Madrid se rend sur la pelouse de Mestalla pour y défier Valence, avec l'objectif de poursuivre sa belle série et ainsi de mettre la pression sur le FC Barcelone.",
+    "link": "https://www.onzemondial.com/liga/valence-real-madrid-les-compositions-probables-de-cette-prestigieuse-affiche-comptant-pour-la-12eme-journee-de-liga-1007474",
+    "source_url": "https://www.onzemondial.com/liga/valence-real-madrid-les-compositions-probables-de-cette-prestigieuse-affiche-comptant-pour-la-12eme-journee-de-liga-1007474",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=f12b91e83e1a1e60",
+    "published": "2026-11-07T08:30:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1007474/410646/1200-L-valence-real-madrid-les-compositions-probables-de-cette-prestigieuse-affiche-comptant-pour-la-12me-journe-de-liga.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1007474/410646/1200-L-valence-real-madrid-les-compositions-probables-de-cette-prestigieuse-affiche-comptant-pour-la-12me-journe-de-liga.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "Onze Mondial",
     "source_priority": 80,
     "source_region": "international",
     "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
+    "slug": "17a043ecd31fc88c",
+    "title": "Barça : intérêt confirmé pour un taulier de Liga",
+    "summary": "Tout indique que le FC Barcelone va renforcer sa défense cet hiver. Hansi Flick a d’ailleurs récemment confirmé, en conférence de presse, que le champion d’Espagne allait être attentif à toute (…)",
+    "summary_short": "Tout indique que le FC Barcelone va renforcer sa défense cet hiver. Hansi Flick a d’ailleurs récemment confirmé, en conférence de presse, que le champion d’Espagne allait être attentif à toute (…)",
+    "content": "Tout indique que le FC Barcelone va renforcer sa défense cet hiver. Hansi Flick a d’ailleurs récemment confirmé, en conférence de presse, que le champion d’Espagne allait être attentif à toute (…)",
+    "paragraphs": [
+      "Tout indique que le FC Barcelone va renforcer sa défense cet hiver. Hansi Flick a d’ailleurs récemment confirmé, en conférence de presse, que le champion d’Espagne allait être attentif à toute (…)"
+    ],
+    "key_points": [
+      "Tout indique que le FC Barcelone va renforcer sa défense cet hiver.",
+      "Hansi Flick a d’ailleurs récemment confirmé, en conférence de presse, que le champion d’Espagne allait être attentif à toute (…)"
+    ],
+    "telegram_summary": "Tout indique que le FC Barcelone va renforcer sa défense cet hiver. Hansi Flick a d’ailleurs récemment confirmé, en conférence de presse, que le champion d’Espagne allait être attentif à toute (…)",
+    "link": "https://www.footmercato.net/a6305548049193644306-barca-interet-confirme-pour-un-taulier-de-liga",
+    "source_url": "https://www.footmercato.net/a6305548049193644306-barca-interet-confirme-pour-un-taulier-de-liga",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=17a043ecd31fc88c",
+    "published": "2026-11-07T07:57:22+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/lamineyamalflick.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/lamineyamalflick.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
     "category": "Déclarations",
     "category_emoji": "🗣️",
-    "editorial_score": 5,
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "57e910a45424c4f7",
+    "title": "Ligue 1 : AJ Auxerre - Paris FC : les compos probables",
+    "summary": "Découvrez ci-dessous les compositions probables du match entre l'AJ Auxerre et le Paris FC (J10 L1).",
+    "summary_short": "Découvrez ci-dessous les compositions probables du match entre l'AJ Auxerre et le Paris FC (J10 L1).",
+    "content": "Découvrez ci-dessous les compositions probables du match entre l'AJ Auxerre et le Paris FC (J10 L1).",
+    "paragraphs": [
+      "Découvrez ci-dessous les compositions probables du match entre l'AJ Auxerre et le Paris FC (J10 L1)."
+    ],
+    "key_points": [
+      "Découvrez ci-dessous les compositions probables du match entre l'AJ Auxerre et le Paris FC (J10 L1)."
+    ],
+    "telegram_summary": "Découvrez ci-dessous les compositions probables du match entre l'AJ Auxerre et le Paris FC (J10 L1).",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-aj-auxerre-paris-fc-les-compos-probables-544972.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-aj-auxerre-paris-fc-les-compos-probables-544972.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=57e910a45424c4f7",
+    "published": "2026-11-07T07:45:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260913093044-8281.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260913093044-8281.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "8d14410b1f6fb15e",
+    "title": "Ligue 2 : Pau FC - FC Nantes : les compos probables",
+    "summary": "Découvrez ci-dessous les compositions d'équipes du match entre Pau FC et le FC Nantes (J12 L2).",
+    "summary_short": "Découvrez ci-dessous les compositions d'équipes du match entre Pau FC et le FC Nantes (J12 L2).",
+    "content": "Découvrez ci-dessous les compositions d'équipes du match entre Pau FC et le FC Nantes (J12 L2).",
+    "paragraphs": [
+      "Découvrez ci-dessous les compositions d'équipes du match entre Pau FC et le FC Nantes (J12 L2)."
+    ],
+    "key_points": [
+      "Découvrez ci-dessous les compositions d'équipes du match entre Pau FC et le FC Nantes (J12 L2)."
+    ],
+    "telegram_summary": "Découvrez ci-dessous les compositions d'équipes du match entre Pau FC et le FC Nantes (J12 L2).",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-2-pau-fc-fc-nantes-les-compos-probables-544971.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-2-pau-fc-fc-nantes-les-compos-probables-544971.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8d14410b1f6fb15e",
+    "published": "2026-11-07T07:35:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260322224040-2098.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260322224040-2098.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "470e06a6b5e4781b",
+    "title": "Ligue 2 : ASSE - Stade Levallois : les compos probables",
+    "summary": "Découvrez ci-dessous les compositions probables du match entre l'ASSE et le Stade Lavallois (J12 L2).",
+    "summary_short": "Découvrez ci-dessous les compositions probables du match entre l'ASSE et le Stade Lavallois (J12 L2).",
+    "content": "Découvrez ci-dessous les compositions probables du match entre l'ASSE et le Stade Lavallois (J12 L2).",
+    "paragraphs": [
+      "Découvrez ci-dessous les compositions probables du match entre l'ASSE et le Stade Lavallois (J12 L2)."
+    ],
+    "key_points": [
+      "Découvrez ci-dessous les compositions probables du match entre l'ASSE et le Stade Lavallois (J12 L2)."
+    ],
+    "telegram_summary": "Découvrez ci-dessous les compositions probables du match entre l'ASSE et le Stade Lavallois (J12 L2).",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-2-asse-stade-levallois-les-compos-probables-544970.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-2-asse-stade-levallois-les-compos-probables-544970.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=470e06a6b5e4781b",
+    "published": "2026-11-07T07:20:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-2/2026/une/l2-20260221214244-7245.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-2/2026/une/l2-20260221214244-7245.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "cfbb2c1f33deb8ac",
+    "title": "Ligue 1 : PSG - ESTAC Troyes : les compos probables",
+    "summary": "Découvrez ci-dessous les compositions probables du match entre le PSG et l'ESTAC Troyes (J10 L1).",
+    "summary_short": "Découvrez ci-dessous les compositions probables du match entre le PSG et l'ESTAC Troyes (J10 L1).",
+    "content": "Découvrez ci-dessous les compositions probables du match entre le PSG et l'ESTAC Troyes (J10 L1).",
+    "paragraphs": [
+      "Découvrez ci-dessous les compositions probables du match entre le PSG et l'ESTAC Troyes (J10 L1)."
+    ],
+    "key_points": [
+      "Découvrez ci-dessous les compositions probables du match entre le PSG et l'ESTAC Troyes (J10 L1)."
+    ],
+    "telegram_summary": "Découvrez ci-dessous les compositions probables du match entre le PSG et l'ESTAC Troyes (J10 L1).",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-psg-estac-troyes-les-compos-probables-544969.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-psg-estac-troyes-les-compos-probables-544969.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=cfbb2c1f33deb8ac",
+    "published": "2026-11-07T07:10:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20261103213438-5012.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-des-champions/2026/une/ldc-20261103213438-5012.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "4e51cfe2d03354b5",
+    "title": "Ex-PSG : Gonçalo Ramos, un Pistolero qui n'a plus de munitions",
+    "summary": "Titularisé face à Ferencváros (0-2), Gonçalo Ramos a une nouvelle fois traversé la rencontre sans trouver le chemin des filets. Depuis son arrivée à l'AC Milan, le Pistolero peine à retrouver son efficacité et son rendement commence sérieusement à interroger.",
+    "summary_short": "Titularisé face à Ferencváros (0-2), Gonçalo Ramos a une nouvelle fois traversé la rencontre sans trouver le chemin des filets. Depuis son arrivée à l'AC Milan, le Pistolero peine à retrouver son efficacité et son rendement commence sérieusement à interroger.",
+    "content": "Titularisé face à Ferencváros (0-2), Gonçalo Ramos a une nouvelle fois traversé la rencontre sans trouver le chemin des filets. Depuis son arrivée à l'AC Milan, le Pistolero peine à retrouver son efficacité et son rendement commence sérieusement à interroger.",
+    "paragraphs": [
+      "Titularisé face à Ferencváros (0-2), Gonçalo Ramos a une nouvelle fois traversé la rencontre sans trouver le chemin des filets. Depuis son arrivée à l'AC Milan, le Pistolero peine à retrouver son efficacité et son rendement commence sérieusement à interroger."
+    ],
+    "key_points": [
+      "Titularisé face à Ferencváros (0-2), Gonçalo Ramos a une nouvelle fois traversé la rencontre sans trouver le chemin des filets.",
+      "Depuis son arrivée à l'AC Milan, le Pistolero peine à retrouver son efficacité et son rendement commence sérieusement à interroger."
+    ],
+    "telegram_summary": "Titularisé face à Ferencváros (0-2), Gonçalo Ramos a une nouvelle fois traversé la rencontre sans trouver le chemin des filets. Depuis son arrivée à l'AC Milan, le Pistolero peine à retrouver son efficacité et son rendement commence sérieusement à interroger.",
+    "link": "https://www.onzemondial.com/ex-psg-goncalo-ramos-un-pistolero-qui-na-plus-de-munitions-1007461",
+    "source_url": "https://www.onzemondial.com/ex-psg-goncalo-ramos-un-pistolero-qui-na-plus-de-munitions-1007461",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=4e51cfe2d03354b5",
+    "published": "2026-11-07T06:03:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1007461/410645/1200-L-ex-psg-gonalo-ramos-un-pistolero-qui-n-a-plus-de-munitions.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1007461/410645/1200-L-ex-psg-gonalo-ramos-un-pistolero-qui-n-a-plus-de-munitions.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 4,
     "espn_verification": {},
     "quality_sources": [
       "Onze Mondial"
@@ -67,110 +338,6 @@
       "Foot Mercato"
     ],
     "quality_score": 92
-  },
-  {
-    "slug": "0bdef5dd556517be",
-    "title": "Les confidences du nouveau président du HAC sur la crise",
-    "summary": "Le Havre a vécu une semaine particulièrement agitée, révélatrice des profondes tensions qui traversaient les coulisses du club normand. Tout a commencé après la lourde défaite face au Paris (…)",
-    "summary_short": "Le Havre a vécu une semaine particulièrement agitée, révélatrice des profondes tensions qui traversaient les coulisses du club normand. Tout a commencé après la lourde défaite face au Paris (…)",
-    "content": "Le Havre a vécu une semaine particulièrement agitée, révélatrice des profondes tensions qui traversaient les coulisses du club normand. Tout a commencé après la lourde défaite face au Paris (…)",
-    "paragraphs": [
-      "Le Havre a vécu une semaine particulièrement agitée, révélatrice des profondes tensions qui traversaient les coulisses du club normand. Tout a commencé après la lourde défaite face au Paris (…)"
-    ],
-    "key_points": [
-      "Le Havre a vécu une semaine particulièrement agitée, révélatrice des profondes tensions qui traversaient les coulisses du club normand.",
-      "Tout a commencé après la lourde défaite face au Paris (…)"
-    ],
-    "telegram_summary": "Le Havre a vécu une semaine particulièrement agitée, révélatrice des profondes tensions qui traversaient les coulisses du club normand. Tout a commencé après la lourde défaite face au Paris (…)",
-    "link": "https://www.footmercato.net/a8201240469994683831-les-confidences-du-nouveau-president-du-hac-sur-la-crise",
-    "source_url": "https://www.footmercato.net/a8201240469994683831-les-confidences-du-nouveau-president-du-hac-sur-la-crise",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0bdef5dd556517be",
-    "published": "2026-11-06T21:58:11+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/le-havre-65b765c46747a.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/le-havre-65b765c46747a.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "591efcb12660922c",
-    "title": "Ligue 1 : Toulouse s’impose avec la manière contre Strasbourg",
-    "summary": "Moins d’une semaine après sa défaite à Marseille, Toulouse a retrouvé confiance en s’imposant contre Strasbourg (3-1), à domicile, pour le compte de la 10e journée de Ligue 1.La 10e journée de Ligue 1 (…)",
-    "summary_short": "Moins d’une semaine après sa défaite à Marseille, Toulouse a retrouvé confiance en s’imposant contre Strasbourg (3-1), à domicile, pour le compte de la 10e journée de Ligue 1.La 10e journée de Ligue 1 (…)",
-    "content": "Moins d’une semaine après sa défaite à Marseille, Toulouse a retrouvé confiance en s’imposant contre Strasbourg (3-1), à domicile, pour le compte de la 10e journée de Ligue 1.La 10e journée de Ligue 1 (…)",
-    "paragraphs": [
-      "Moins d’une semaine après sa défaite à Marseille, Toulouse a retrouvé confiance en s’imposant contre Strasbourg (3-1), à domicile, pour le compte de la 10e journée de Ligue 1.La 10e journée de Ligue 1 (…)"
-    ],
-    "key_points": [
-      "Moins d’une semaine après sa défaite à Marseille, Toulouse a retrouvé confiance en s’imposant contre Strasbourg (3-1), à domicile, pour le compte de la 10e journée de Ligue 1.La 10e journée de Ligue 1 (…)"
-    ],
-    "telegram_summary": "Moins d’une semaine après sa défaite à Marseille, Toulouse a retrouvé confiance en s’imposant contre Strasbourg (3-1), à domicile, pour le compte de la 10e journée de Ligue 1.La 10e journée de Ligue 1 (…)",
-    "link": "https://www.footmercato.net/a945492059473630290-ligue-1-toulouse-simpose-avec-la-maniere-contre-strasbourg",
-    "source_url": "https://www.footmercato.net/a945492059473630290-ligue-1-toulouse-simpose-avec-la-maniere-contre-strasbourg",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=591efcb12660922c",
-    "published": "2026-11-06T21:40:32+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo791035.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo791035.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "92a0a75178886b8d",
-    "title": "Les Violets se relancent - Débrief et NOTES des joueurs (TFC 3-1 RCSA)",
-    "summary": "Après la défaite à Marseille (0-2) la semaine dernière, Toulouse a renoué avec la victoire contre Strasbourg (3-1) ce vendredi lors de la 12e journée de Ligue 1. Le TFC grimpe provisoirement au 10e rang du classement....",
-    "summary_short": "Après la défaite à Marseille (0-2) la semaine dernière, Toulouse a renoué avec la victoire contre Strasbourg (3-1) ce vendredi lors de la 12e journée de Ligue 1. Le TFC grimpe provisoirement au 10e rang du classement....",
-    "content": "Après la défaite à Marseille (0-2) la semaine dernière, Toulouse a renoué avec la victoire contre Strasbourg (3-1) ce vendredi lors de la 12e journée de Ligue 1. Le TFC grimpe provisoirement au 10e rang du classement....",
-    "paragraphs": [
-      "Après la défaite à Marseille (0-2) la semaine dernière, Toulouse a renoué avec la victoire contre Strasbourg (3-1) ce vendredi lors de la 12e journée de Ligue 1. Le TFC grimpe provisoirement au 10e rang du classement...."
-    ],
-    "key_points": [
-      "Après la défaite à Marseille (0-2) la semaine dernière, Toulouse a renoué avec la victoire contre Strasbourg (3-1) ce vendredi lors de la 12e journée de Ligue 1.",
-      "Le TFC grimpe provisoirement au 10e rang du classement...."
-    ],
-    "telegram_summary": "Après la défaite à Marseille (0-2) la semaine dernière, Toulouse a renoué avec la victoire contre Strasbourg (3-1) ce vendredi lors de la 12e journée de Ligue 1. Le TFC grimpe provisoirement au 10e rang du classement....",
-    "link": "https://m.maxifoot.fr/football/article-66495.htm",
-    "source_url": "https://m.maxifoot.fr/football/article-66495.htm",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=92a0a75178886b8d",
-    "published": "2026-11-06T21:34:39+00:00",
-    "image": "https://photo.maxifoot.fr/jorgensen-toulouse-1.jpg",
-    "source_image": "https://photo.maxifoot.fr/jorgensen-toulouse-1.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Maxifoot",
-    "source_priority": 78,
-    "source_region": "international",
-    "source_feed": "http://rss.maxifoot.com/football-general.xml",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "Maxifoot"
-    ],
-    "quality_score": 78
   },
   {
     "slug": "a1fa16b562922cdd",
@@ -238,116 +405,13 @@
         "UEFA Nations League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-07T01:59:22.239065+00:00"
+      "checked_at": "2026-11-07T08:53:16.271075+00:00"
     },
     "quality_sources": [
       "France 24",
       "ESPN"
     ],
     "quality_score": 91
-  },
-  {
-    "slug": "510d5b4ef73de8cd",
-    "title": "Strasbourg : la grosse colère de Martial Godo après sa sortie",
-    "summary": "Rien ne se déroule comme prévu pour Strasbourg à Toulouse. En déplacement au Stadium ce vendredi pour la 10e journée de Ligue 1, les Alsaciens sont dominés et pour le moment battus par le Téfécé. (…)",
-    "summary_short": "Rien ne se déroule comme prévu pour Strasbourg à Toulouse. En déplacement au Stadium ce vendredi pour la 10e journée de Ligue 1, les Alsaciens sont dominés et pour le moment battus par le Téfécé. (…)",
-    "content": "Rien ne se déroule comme prévu pour Strasbourg à Toulouse. En déplacement au Stadium ce vendredi pour la 10e journée de Ligue 1, les Alsaciens sont dominés et pour le moment battus par le Téfécé. (…)",
-    "paragraphs": [
-      "Rien ne se déroule comme prévu pour Strasbourg à Toulouse. En déplacement au Stadium ce vendredi pour la 10e journée de Ligue 1, les Alsaciens sont dominés et pour le moment battus par le Téfécé. (…)"
-    ],
-    "key_points": [
-      "Rien ne se déroule comme prévu pour Strasbourg à Toulouse.",
-      "En déplacement au Stadium ce vendredi pour la 10e journée de Ligue 1, les Alsaciens sont dominés et pour le moment battus par le Téfécé. (…)"
-    ],
-    "telegram_summary": "Rien ne se déroule comme prévu pour Strasbourg à Toulouse. En déplacement au Stadium ce vendredi pour la 10e journée de Ligue 1, les Alsaciens sont dominés et pour le moment battus par le Téfécé. (…)",
-    "link": "https://www.footmercato.net/a6537177104249886205-strasbourg-la-grosse-colere-de-martial-godo-apres-sa-sortie",
-    "source_url": "https://www.footmercato.net/a6537177104249886205-strasbourg-la-grosse-colere-de-martial-godo-apres-sa-sortie",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=510d5b4ef73de8cd",
-    "published": "2026-11-06T21:28:10+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo507287.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo507287.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Polémique",
-    "category_emoji": "🔥",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "c2cf86e82d086d2d",
-    "title": "FIFA : Arsène Wenger prêt à combattre Gianni Infantino ?",
-    "summary": "Alors que Gianni Infantino brigue un nouveau mandat à la tête de l’instance mondiale, malgré ses récentes polémiques, le nom d’Arsène Wenger revient avec insistance pour lui faire face lors de (…)",
-    "summary_short": "Alors que Gianni Infantino brigue un nouveau mandat à la tête de l’instance mondiale, malgré ses récentes polémiques, le nom d’Arsène Wenger revient avec insistance pour lui faire face lors de (…)",
-    "content": "Alors que Gianni Infantino brigue un nouveau mandat à la tête de l’instance mondiale, malgré ses récentes polémiques, le nom d’Arsène Wenger revient avec insistance pour lui faire face lors de (…)",
-    "paragraphs": [
-      "Alors que Gianni Infantino brigue un nouveau mandat à la tête de l’instance mondiale, malgré ses récentes polémiques, le nom d’Arsène Wenger revient avec insistance pour lui faire face lors de (…)"
-    ],
-    "key_points": [
-      "Alors que Gianni Infantino brigue un nouveau mandat à la tête de l’instance mondiale, malgré ses récentes polémiques, le nom d’Arsène Wenger revient avec insistance pour lui faire face lors de (…)"
-    ],
-    "telegram_summary": "Alors que Gianni Infantino brigue un nouveau mandat à la tête de l’instance mondiale, malgré ses récentes polémiques, le nom d’Arsène Wenger revient avec insistance pour lui faire face lors de (…)",
-    "link": "https://www.footmercato.net/a7815990001635008653-fifa-arsene-wenger-pret-a-combattre-gianni-infantino",
-    "source_url": "https://www.footmercato.net/a7815990001635008653-fifa-arsene-wenger-pret-a-combattre-gianni-infantino",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c2cf86e82d086d2d",
-    "published": "2026-11-06T21:25:00+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxpaimagesfour430587-1920x1080.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxpaimagesfour430587-1920x1080.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Polémique",
-    "category_emoji": "🔥",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "3a23e9c5089408ae",
-    "title": "Portugal : Jorge Jesus assure ne pas avoir été prévenu de la retraite internationale de Cristiano Ronaldo",
-    "summary": "En marge du dévoilement de la liste des joueurs convoqués pour le prochain rassemblement du Portugal, le sélectionneur de la Seleção, Jorge Jesus, s'est exprimé au sujet de l'annonce de la retraite…",
-    "summary_short": "En marge du dévoilement de la liste des joueurs convoqués pour le prochain rassemblement du Portugal, le sélectionneur de la Seleção, Jorge Jesus, s'est exprimé au sujet de l'annonce de la retraite…",
-    "content": "En marge du dévoilement de la liste des joueurs convoqués pour le prochain rassemblement du Portugal, le sélectionneur de la Seleção, Jorge Jesus, s'est exprimé au sujet de l'annonce de la retraite…",
-    "paragraphs": [
-      "En marge du dévoilement de la liste des joueurs convoqués pour le prochain rassemblement du Portugal, le sélectionneur de la Seleção, Jorge Jesus, s'est exprimé au sujet de l'annonce de la retraite…"
-    ],
-    "key_points": [
-      "En marge du dévoilement de la liste des joueurs convoqués pour le prochain rassemblement du Portugal, le sélectionneur de la Seleção, Jorge Jesus, s'est exprimé au sujet de l'annonce de la retraite…"
-    ],
-    "telegram_summary": "En marge du dévoilement de la liste des joueurs convoqués pour le prochain rassemblement du Portugal, le sélectionneur de la Seleção, Jorge Jesus, s'est exprimé au sujet de l'annonce de la retraite…",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-portugal-jorge-jesus-assure-ne-pas-avoir-ete-prevenu-de-la-retraite-internationale-de-cristiano-ronaldo-544939.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-portugal-jorge-jesus-assure-ne-pas-avoir-ete-prevenu-de-la-retraite-internationale-de-cristiano-ronaldo-544939.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3a23e9c5089408ae",
-    "published": "2026-11-06T18:05:00+00:00",
-    "image": "https://s1.dmcdn.net/v/ghVbE1gxXF5CNgy-2/x480",
-    "source_image": "https://s1.dmcdn.net/v/ghVbE1gxXF5CNgy-2/x480",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Convocations",
-    "category_emoji": "📋",
-    "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
   },
   {
     "slug": "26f1c7e98a329792",
@@ -604,7 +668,7 @@
         "WORLD FOOTBALL CHALLENGE"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-07T01:59:22.239065+00:00"
+      "checked_at": "2026-11-07T08:53:16.271075+00:00"
     },
     "quality_sources": [
       "France 24",
@@ -848,7 +912,7 @@
         "UEFA Nations League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-11-07T01:59:22.239065+00:00"
+      "checked_at": "2026-11-07T08:53:16.271075+00:00"
     },
     "quality_sources": [
       "France 24",
@@ -893,265 +957,66 @@
     "quality_score": 90
   },
   {
-    "slug": "e09083fec519de98",
-    "title": "Ligue des champions : Lens subit une défaite historique face à Côme",
-    "summary": "Le RC Lens a subi la plus lourde défaite de l'histoire du football français en Coupe d'Europe, en s'inclinant à domicile face à Côme (9-1) en Ligue des champions. Déjà battus par Bruges (0-3) et le Sporting (0-2), les Sang et Or enchaînent un troisième revers européen consécutif.",
-    "summary_short": "Le RC Lens a subi la plus lourde défaite de l'histoire du football français en Coupe d'Europe, en s'inclinant à domicile face à Côme (9-1) en Ligue des champions. Déjà battus par Bruges (0-3) et le Sporting (0-2), les Sang et Or enchaînent un troisième revers européen consécutif.",
-    "content": "Le RC Lens a subi la plus lourde défaite de l'histoire du football français en Coupe d'Europe, en s'inclinant à domicile face à Côme (9-1) en Ligue des champions. Déjà battus par Bruges (0-3) et le Sporting (0-2), les Sang et Or enchaînent un troisième revers européen consécutif.",
+    "slug": "3e34ab4e8192acaf",
+    "title": "PSG : Tiémoué Bakayoko dévoile pourquoi les clubs européens ne regardent plus Paris de la même manière",
+    "summary": "Dans les colonnes de L'Équipe, Tiémoué Bakayoko s'est exprimé sur le PSG.",
+    "summary_short": "Dans les colonnes de L'Équipe, Tiémoué Bakayoko s'est exprimé sur le PSG.",
+    "content": "Dans les colonnes de L'Équipe, Tiémoué Bakayoko s'est exprimé sur le PSG.",
     "paragraphs": [
-      "Le RC Lens a subi la plus lourde défaite de l'histoire du football français en Coupe d'Europe, en s'inclinant à domicile face à Côme (9-1) en Ligue des champions. Déjà battus par Bruges (0-3) et le Sporting (0-2), les Sang et Or enchaînent un troisième revers européen consécutif."
+      "Dans les colonnes de L'Équipe, Tiémoué Bakayoko s'est exprimé sur le PSG."
     ],
     "key_points": [
-      "Le RC Lens a subi la plus lourde défaite de l'histoire du football français en Coupe d'Europe, en s'inclinant à domicile face à Côme (9-1) en Ligue des champions.",
-      "Déjà battus par Bruges (0-3) et le Sporting (0-2), les Sang et Or enchaînent un troisième revers européen consécutif."
+      "Dans les colonnes de L'Équipe, Tiémoué Bakayoko s'est exprimé sur le PSG."
     ],
-    "telegram_summary": "Le RC Lens a subi la plus lourde défaite de l'histoire du football français en Coupe d'Europe, en s'inclinant à domicile face à Côme (9-1) en Ligue des champions. Déjà battus par Bruges (0-3) et le Sporting (0-2), les Sang et Or enchaînent un troisième revers européen consécutif.",
-    "link": "https://www.france24.com/fr/%C3%A9missions/sports/20261105-ligue-champions-lens-subit-d%C3%A9faite-historique-face-c%C3%B4me-football-real-madrid-europa-joj-dakar-tennis",
-    "source_url": "https://www.france24.com/fr/%C3%A9missions/sports/20261105-ligue-champions-lens-subit-d%C3%A9faite-historique-face-c%C3%B4me-football-real-madrid-europa-joj-dakar-tennis",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e09083fec519de98",
-    "published": "2026-11-05T06:46:07+00:00",
-    "image": "https://s.france24.com/media/display/3f65db44-d8d8-11f1-abb9-695cb59fade5/w:1024/p:16x9/lens-1.jpg",
-    "source_image": "https://s.france24.com/media/display/3f65db44-d8d8-11f1-abb9-695cb59fade5/w:1024/p:16x9/lens-1.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "France 24",
-    "source_priority": 83,
-    "source_region": "international",
-    "source_feed": "https://www.france24.com/fr/tag/football/rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "France 24"
-    ],
-    "quality_score": 83
-  },
-  {
-    "slug": "c6cd399689da5a85",
-    "title": "Barcelone : Marcus Rashford voit Lamine Yamal remporter sept Ballons d’Or",
-    "summary": "Marcus Rashford ne tarit pas d’éloges sur Lamine Yamal. De retour à Manchester United après son passage au FC Barcelone, l’attaquant anglais a confié à plusieurs supporters des Red Devils toute (…)",
-    "summary_short": "Marcus Rashford ne tarit pas d’éloges sur Lamine Yamal. De retour à Manchester United après son passage au FC Barcelone, l’attaquant anglais a confié à plusieurs supporters des Red Devils toute (…)",
-    "content": "Marcus Rashford ne tarit pas d’éloges sur Lamine Yamal. De retour à Manchester United après son passage au FC Barcelone, l’attaquant anglais a confié à plusieurs supporters des Red Devils toute (…)",
-    "paragraphs": [
-      "Marcus Rashford ne tarit pas d’éloges sur Lamine Yamal. De retour à Manchester United après son passage au FC Barcelone, l’attaquant anglais a confié à plusieurs supporters des Red Devils toute (…)"
-    ],
-    "key_points": [
-      "Marcus Rashford ne tarit pas d’éloges sur Lamine Yamal.",
-      "De retour à Manchester United après son passage au FC Barcelone, l’attaquant anglais a confié à plusieurs supporters des Red Devils toute (…)"
-    ],
-    "telegram_summary": "Marcus Rashford ne tarit pas d’éloges sur Lamine Yamal. De retour à Manchester United après son passage au FC Barcelone, l’attaquant anglais a confié à plusieurs supporters des Red Devils toute (…)",
-    "link": "https://www.footmercato.net/a2898346246132968042-barcelone-marcus-rashford-voit-lamine-yamal-remporter-sept-ballons-dor",
-    "source_url": "https://www.footmercato.net/a2898346246132968042-barcelone-marcus-rashford-voit-lamine-yamal-remporter-sept-ballons-dor",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=c6cd399689da5a85",
-    "published": "2026-11-06T22:59:00+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/fc-barcelona-69b2c3405fc24.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/fc-barcelona-69b2c3405fc24.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Déclarations",
-    "category_emoji": "🗣️",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "25c6d8560a341ba2",
-    "title": "Polémique Mbappé : protocole de paix entre la Liga et la Chine ?",
-    "summary": "La Liga a fait face à une crise diplomatique avec son diffuseur chinois suite à la diffusion d'une vidéo où Mbappé se moquait d'un mème de lui-même transformé en Mao Zedong.",
-    "summary_short": "La Liga a fait face à une crise diplomatique avec son diffuseur chinois suite à la diffusion d'une vidéo où Mbappé se moquait d'un mème de lui-même transformé en Mao Zedong.",
-    "content": "La Liga a fait face à une crise diplomatique avec son diffuseur chinois suite à la diffusion d'une vidéo où Mbappé se moquait d'un mème de lui-même transformé en Mao Zedong.",
-    "paragraphs": [
-      "La Liga a fait face à une crise diplomatique avec son diffuseur chinois suite à la diffusion d'une vidéo où Mbappé se moquait d'un mème de lui-même transformé en Mao Zedong."
-    ],
-    "key_points": [
-      "La Liga a fait face à une crise diplomatique avec son diffuseur chinois suite à la diffusion d'une vidéo où Mbappé se moquait d'un mème de lui-même transformé en Mao Zedong."
-    ],
-    "telegram_summary": "La Liga a fait face à une crise diplomatique avec son diffuseur chinois suite à la diffusion d'une vidéo où Mbappé se moquait d'un mème de lui-même transformé en Mao Zedong.",
-    "link": "https://www.onzemondial.com/liga/polemique-mbappe-protocole-de-paix-entre-la-liga-et-la-chine-1007535",
-    "source_url": "https://www.onzemondial.com/liga/polemique-mbappe-protocole-de-paix-entre-la-liga-et-la-chine-1007535",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=25c6d8560a341ba2",
-    "published": "2026-11-06T22:59:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1007535/410661/1200-L-polmique-mbapp-protocole-de-paix-entre-la-liga-et-la-chine.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1007535/410661/1200-L-polmique-mbapp-protocole-de-paix-entre-la-liga-et-la-chine.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Polémique",
-    "category_emoji": "🔥",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "f1f77f5cb03a1763",
-    "title": "C’est la crise à Strasbourg !",
-    "summary": "Strasbourg n’y arrive toujours pas. Battu pour la sixième fois de la saison en championnat, le Racing peine à trouver de la régularité sous les ordres d’Hugo Oliveira. Entre résultats décevants, (…)",
-    "summary_short": "Strasbourg n’y arrive toujours pas. Battu pour la sixième fois de la saison en championnat, le Racing peine à trouver de la régularité sous les ordres d’Hugo Oliveira. Entre résultats décevants, (…)",
-    "content": "Strasbourg n’y arrive toujours pas. Battu pour la sixième fois de la saison en championnat, le Racing peine à trouver de la régularité sous les ordres d’Hugo Oliveira. Entre résultats décevants, (…)",
-    "paragraphs": [
-      "Strasbourg n’y arrive toujours pas. Battu pour la sixième fois de la saison en championnat, le Racing peine à trouver de la régularité sous les ordres d’Hugo Oliveira. Entre résultats décevants, (…)"
-    ],
-    "key_points": [
-      "Strasbourg n’y arrive toujours pas.",
-      "Battu pour la sixième fois de la saison en championnat, le Racing peine à trouver de la régularité sous les ordres d’Hugo Oliveira."
-    ],
-    "telegram_summary": "Strasbourg n’y arrive toujours pas. Battu pour la sixième fois de la saison en championnat, le Racing peine à trouver de la régularité sous les ordres d’Hugo Oliveira. Entre résultats décevants, (…)",
-    "link": "https://www.footmercato.net/a8491532920384003702-strasbourg-cest-la-crise-a-strasbourg",
-    "source_url": "https://www.footmercato.net/a8491532920384003702-strasbourg-cest-la-crise-a-strasbourg",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=f1f77f5cb03a1763",
-    "published": "2026-11-06T22:40:50+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo791045.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo791045.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "3e4583b71d36ac33",
-    "title": "Real Madrid : José Mourinho donne son avis sur Atlético-FC Barcelone",
-    "summary": "Dimanche soir (21h), l’Atlético de Madrid et le FC Barcelone ont rendez-vous pour l’un des grands chocs de la Liga. Le Real aura déjà joué la veille sur le terrain de Valence et a l’occasion de (…)",
-    "summary_short": "Dimanche soir (21h), l’Atlético de Madrid et le FC Barcelone ont rendez-vous pour l’un des grands chocs de la Liga. Le Real aura déjà joué la veille sur le terrain de Valence et a l’occasion de (…)",
-    "content": "Dimanche soir (21h), l’Atlético de Madrid et le FC Barcelone ont rendez-vous pour l’un des grands chocs de la Liga. Le Real aura déjà joué la veille sur le terrain de Valence et a l’occasion de (…)",
-    "paragraphs": [
-      "Dimanche soir (21h), l’Atlético de Madrid et le FC Barcelone ont rendez-vous pour l’un des grands chocs de la Liga. Le Real aura déjà joué la veille sur le terrain de Valence et a l’occasion de (…)"
-    ],
-    "key_points": [
-      "Dimanche soir (21h), l’Atlético de Madrid et le FC Barcelone ont rendez-vous pour l’un des grands chocs de la Liga.",
-      "Le Real aura déjà joué la veille sur le terrain de Valence et a l’occasion de (…)"
-    ],
-    "telegram_summary": "Dimanche soir (21h), l’Atlético de Madrid et le FC Barcelone ont rendez-vous pour l’un des grands chocs de la Liga. Le Real aura déjà joué la veille sur le terrain de Valence et a l’occasion de (…)",
-    "link": "https://www.footmercato.net/a3305752867294927220-real-madrid-jose-mourinho-donne-son-avis-sur-atletico-fc-barcelone",
-    "source_url": "https://www.footmercato.net/a3305752867294927220-real-madrid-jose-mourinho-donne-son-avis-sur-atletico-fc-barcelone",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3e4583b71d36ac33",
-    "published": "2026-11-06T22:32:00+00:00",
-    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/jose-mourinho-2627-6ad9c03fa892b.jpg",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/jose-mourinho-2627-6ad9c03fa892b.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50287482",
-      "url": "https://www.espn.com/video/clip/_/id/50287482/real-madrid-won-el-clasico-all-merit",
-      "published": "2026-10-26T14:33:14Z",
-      "score": 0.3,
-      "matched_terms": [
-        "madrid",
-        "mourinho",
-        "real"
-      ],
-      "topics": [],
-      "teams": [
-        "Barcelona",
-        "Real Madrid"
-      ],
-      "athletes": [],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-11-07T01:59:22.239065+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "7b075990e8c32ed8",
-    "title": "Équipe de France : la réaction géniale de Pablo Pagis à l'annonce de sa première convocation",
-    "summary": "L'attaquant du Paris FC va connaître sa première à Clairefontaine et n'a pas manqué de célébrer ça avec ses coéquipiers.",
-    "summary_short": "L'attaquant du Paris FC va connaître sa première à Clairefontaine et n'a pas manqué de célébrer ça avec ses coéquipiers.",
-    "content": "L'attaquant du Paris FC va connaître sa première à Clairefontaine et n'a pas manqué de célébrer ça avec ses coéquipiers.",
-    "paragraphs": [
-      "L'attaquant du Paris FC va connaître sa première à Clairefontaine et n'a pas manqué de célébrer ça avec ses coéquipiers."
-    ],
-    "key_points": [
-      "L'attaquant du Paris FC va connaître sa première à Clairefontaine et n'a pas manqué de célébrer ça avec ses coéquipiers."
-    ],
-    "telegram_summary": "L'attaquant du Paris FC va connaître sa première à Clairefontaine et n'a pas manqué de célébrer ça avec ses coéquipiers.",
-    "link": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-la-reaction-geniale-de-pablo-pagis-a-lannonce-de-sa-premiere-convocation-1007517",
-    "source_url": "https://www.onzemondial.com/equipe-de-france/equipe-de-france-la-reaction-geniale-de-pablo-pagis-a-lannonce-de-sa-premiere-convocation-1007517",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7b075990e8c32ed8",
-    "published": "2026-11-06T21:59:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1007517/410657/1200-L-quipe-de-france-la-raction-gniale-de-pablo-pagis-l-annonce-de-sa-premire-convocation.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1007517/410657/1200-L-quipe-de-france-la-raction-gniale-de-pablo-pagis-l-annonce-de-sa-premire-convocation.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Convocations",
-    "category_emoji": "📋",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
-    "slug": "d56f8e05fd77c88f",
-    "title": "Ligue 1 : Les notes de TFC - RC Strasbourg : réaliste, Toulouse se relève et fait replonger Strasbourg",
-    "summary": "Le TFC l'a emporté face au RC Strasbourg (3-1), ce vendredi 6 novembre, en ouverture de la 10e journée de Ligue 1.",
-    "summary_short": "Le TFC l'a emporté face au RC Strasbourg (3-1), ce vendredi 6 novembre, en ouverture de la 10e journée de Ligue 1.",
-    "content": "Le TFC l'a emporté face au RC Strasbourg (3-1), ce vendredi 6 novembre, en ouverture de la 10e journée de Ligue 1.",
-    "paragraphs": [
-      "Le TFC l'a emporté face au RC Strasbourg (3-1), ce vendredi 6 novembre, en ouverture de la 10e journée de Ligue 1."
-    ],
-    "key_points": [
-      "Le TFC l'a emporté face au RC Strasbourg (3-1), ce vendredi 6 novembre, en ouverture de la 10e journée de Ligue 1."
-    ],
-    "telegram_summary": "Le TFC l'a emporté face au RC Strasbourg (3-1), ce vendredi 6 novembre, en ouverture de la 10e journée de Ligue 1.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-les-notes-de-tfc-rc-strasbourg-realiste-toulouse-se-releve-et-fait-replonger-strasbourg-544959.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-les-notes-de-tfc-rc-strasbourg-realiste-toulouse-se-releve-et-fait-replonger-strasbourg-544959.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d56f8e05fd77c88f",
-    "published": "2026-11-06T21:38:00+00:00",
-    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261106222836-1067.jpg",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20261106222836-1067.jpg",
+    "telegram_summary": "Dans les colonnes de L'Équipe, Tiémoué Bakayoko s'est exprimé sur le PSG.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-psg-tiemoue-bakayoko-devoile-pourquoi-les-clubs-europeens-ne-regardent-plus-paris-de-la-meme-maniere-544978.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-psg-tiemoue-bakayoko-devoile-pourquoi-les-clubs-europeens-ne-regardent-plus-paris-de-la-meme-maniere-544978.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3e34ab4e8192acaf",
+    "published": "2026-11-07T08:39:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240512220634-5090.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240512220634-5090.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "MadeInFoot",
     "source_priority": 88,
     "source_region": "international",
     "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "8ba974d64be65898",
+    "title": "Ligue 1 : Les cotes et pronostics de RC Lens - OM : notre analyse complète",
+    "summary": "Découvrez les cotes Unibet pour le match de la dixième journée de Ligue 1 entre le RC Lens et l'Olympique de Marseille.",
+    "summary_short": "Découvrez les cotes Unibet pour le match de la dixième journée de Ligue 1 entre le RC Lens et l'Olympique de Marseille.",
+    "content": "Découvrez les cotes Unibet pour le match de la dixième journée de Ligue 1 entre le RC Lens et l'Olympique de Marseille.",
+    "paragraphs": [
+      "Découvrez les cotes Unibet pour le match de la dixième journée de Ligue 1 entre le RC Lens et l'Olympique de Marseille."
+    ],
+    "key_points": [
+      "Découvrez les cotes Unibet pour le match de la dixième journée de Ligue 1 entre le RC Lens et l'Olympique de Marseille."
+    ],
+    "telegram_summary": "Découvrez les cotes Unibet pour le match de la dixième journée de Ligue 1 entre le RC Lens et l'Olympique de Marseille.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-les-cotes-et-pronostics-de-rc-lens-om-notre-analyse-complete-544882.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-les-cotes-et-pronostics-de-rc-lens-om-notre-analyse-complete-544882.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=8ba974d64be65898",
+    "published": "2026-11-07T08:30:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260821222243-8197.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260821222243-8197.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
     "editorial_score": 2,
     "espn_verification": {},
     "quality_sources": [
@@ -1160,33 +1025,170 @@
     "quality_score": 88
   },
   {
-    "slug": "5927517e4aad7714",
-    "title": "Ligue 1 : Toulouse sort du brouillard face à Strasbourg",
-    "summary": "Les Toulousains se sont imposés (3-1) lors du match d'ouverture de la 10ème journée de Ligue 1 qui les opposait à Strasbourg.",
-    "summary_short": "Les Toulousains se sont imposés (3-1) lors du match d'ouverture de la 10ème journée de Ligue 1 qui les opposait à Strasbourg.",
-    "content": "Les Toulousains se sont imposés (3-1) lors du match d'ouverture de la 10ème journée de Ligue 1 qui les opposait à Strasbourg.",
+    "slug": "7051f84b88a3a1b3",
+    "title": "Équipe de France : les dessous de la liste de Zinedine Zidane",
+    "summary": "Zinedine Zidane a fait part de sa nouvelle liste pour le prochain rassemblement de l’équipe de France. On connait la raison de certains choix.Zinedine Zidane a dévoilé hier sa 2e liste depuis qu’il a (…)",
+    "summary_short": "Zinedine Zidane a fait part de sa nouvelle liste pour le prochain rassemblement de l’équipe de France. On connait la raison de certains choix.Zinedine Zidane a dévoilé hier sa 2e liste depuis qu’il a (…)",
+    "content": "Zinedine Zidane a fait part de sa nouvelle liste pour le prochain rassemblement de l’équipe de France. On connait la raison de certains choix.Zinedine Zidane a dévoilé hier sa 2e liste depuis qu’il a (…)",
     "paragraphs": [
-      "Les Toulousains se sont imposés (3-1) lors du match d'ouverture de la 10ème journée de Ligue 1 qui les opposait à Strasbourg."
+      "Zinedine Zidane a fait part de sa nouvelle liste pour le prochain rassemblement de l’équipe de France. On connait la raison de certains choix.Zinedine Zidane a dévoilé hier sa 2e liste depuis qu’il a (…)"
     ],
     "key_points": [
-      "Les Toulousains se sont imposés (3-1) lors du match d'ouverture de la 10ème journée de Ligue 1 qui les opposait à Strasbourg."
+      "Zinedine Zidane a fait part de sa nouvelle liste pour le prochain rassemblement de l’équipe de France.",
+      "On connait la raison de certains choix.Zinedine Zidane a dévoilé hier sa 2e liste depuis qu’il a (…)"
     ],
-    "telegram_summary": "Les Toulousains se sont imposés (3-1) lors du match d'ouverture de la 10ème journée de Ligue 1 qui les opposait à Strasbourg.",
-    "link": "https://www.onzemondial.com/ligue-1/ligue-1-toulouse-sort-du-brouillard-face-a-strasbourg-1007539",
-    "source_url": "https://www.onzemondial.com/ligue-1/ligue-1-toulouse-sort-du-brouillard-face-a-strasbourg-1007539",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5927517e4aad7714",
-    "published": "2026-11-06T21:25:00+00:00",
-    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1007539/410662/1200-L-ligue-1-toulouse-sort-du-brouillard-face-strasbourg.jpg",
-    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1007539/410662/1200-L-ligue-1-toulouse-sort-du-brouillard-face-strasbourg.jpg",
+    "telegram_summary": "Zinedine Zidane a fait part de sa nouvelle liste pour le prochain rassemblement de l’équipe de France. On connait la raison de certains choix.Zinedine Zidane a dévoilé hier sa 2e liste depuis qu’il a (…)",
+    "link": "https://www.footmercato.net/a352376894142224112-equipe-de-france-les-dessous-de-la-liste-de-zinedine-zidane",
+    "source_url": "https://www.footmercato.net/a352376894142224112-equipe-de-france-les-dessous-de-la-liste-de-zinedine-zidane",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7051f84b88a3a1b3",
+    "published": "2026-11-07T08:27:39+00:00",
+    "image": "https://assets-fr.imgfoot.com/media/cache/1200x675/zz-6aeee071e14c2.jpg",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/zz-6aeee071e14c2.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Convocations",
+    "category_emoji": "📋",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "10e22b396f792ce7",
+    "title": "Équipe de France : Emmanuel Petit lance un nouvel avertissement à Kylian Mbappé après les tensions chez les Bleus",
+    "summary": "Emmanuel Petit s'est encore exprimé sur les ondes de RMC.",
+    "summary_short": "Emmanuel Petit s'est encore exprimé sur les ondes de RMC.",
+    "content": "Emmanuel Petit s'est encore exprimé sur les ondes de RMC.",
+    "paragraphs": [
+      "Emmanuel Petit s'est encore exprimé sur les ondes de RMC."
+    ],
+    "key_points": [
+      "Emmanuel Petit s'est encore exprimé sur les ondes de RMC."
+    ],
+    "telegram_summary": "Emmanuel Petit s'est encore exprimé sur les ondes de RMC.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-equipe-de-france-emmanuel-petit-lance-un-nouvel-avertissement-a-kylian-mbappe-apres-les-tensions-chez-les-bleus-544974.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-equipe-de-france-emmanuel-petit-lance-un-nouvel-avertissement-a-kylian-mbappe-apres-les-tensions-chez-les-bleus-544974.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=10e22b396f792ce7",
+    "published": "2026-11-07T08:22:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/coupe-du-monde/2026/une/cdm-20260714224656-6141.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/coupe-du-monde/2026/une/cdm-20260714224656-6141.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Polémique",
+    "category_emoji": "🔥",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "2a1cd7d254a3cdf0",
+    "title": "Ligue 1 : Les trois joueurs nommés pour le trophée UNFP du mois d'octobre sont connus",
+    "summary": "L'UNFP a dévoilé sa liste des trois joueurs qui sont en lice pour le titre de meilleur joueur du mois d’octobre en Ligue 1.",
+    "summary_short": "L'UNFP a dévoilé sa liste des trois joueurs qui sont en lice pour le titre de meilleur joueur du mois d’octobre en Ligue 1.",
+    "content": "L'UNFP a dévoilé sa liste des trois joueurs qui sont en lice pour le titre de meilleur joueur du mois d’octobre en Ligue 1.",
+    "paragraphs": [
+      "L'UNFP a dévoilé sa liste des trois joueurs qui sont en lice pour le titre de meilleur joueur du mois d’octobre en Ligue 1."
+    ],
+    "key_points": [
+      "L'UNFP a dévoilé sa liste des trois joueurs qui sont en lice pour le titre de meilleur joueur du mois d’octobre en Ligue 1."
+    ],
+    "telegram_summary": "L'UNFP a dévoilé sa liste des trois joueurs qui sont en lice pour le titre de meilleur joueur du mois d’octobre en Ligue 1.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-les-trois-joueurs-nommes-pour-le-trophee-unfp-du-mois-d-octobre-sont-connus-544973.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-les-trois-joueurs-nommes-pour-le-trophee-unfp-du-mois-d-octobre-sont-connus-544973.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2a1cd7d254a3cdf0",
+    "published": "2026-11-07T08:06:00+00:00",
+    "image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240819111445-7287.jpg",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240819111445-7287.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Officiel",
+    "category_emoji": "✅",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "98f77391ee254844",
+    "title": "Equipe de France : Mbappé veut marquer son territoire",
+    "summary": "De retour en équipe de France après son forfait pendant le dernier rassemblement, Kylian Mbappé ne revient pas dans le même...",
+    "summary_short": "De retour en équipe de France après son forfait pendant le dernier rassemblement, Kylian Mbappé ne revient pas dans le même...",
+    "content": "De retour en équipe de France après son forfait pendant le dernier rassemblement, Kylian Mbappé ne revient pas dans le même...",
+    "paragraphs": [
+      "De retour en équipe de France après son forfait pendant le dernier rassemblement, Kylian Mbappé ne revient pas dans le même..."
+    ],
+    "key_points": [
+      "De retour en équipe de France après son forfait pendant le dernier rassemblement, Kylian Mbappé ne revient pas dans le même..."
+    ],
+    "telegram_summary": "De retour en équipe de France après son forfait pendant le dernier rassemblement, Kylian Mbappé ne revient pas dans le même...",
+    "link": "https://m.maxifoot.fr/football/article-66496.htm",
+    "source_url": "https://m.maxifoot.fr/football/article-66496.htm",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=98f77391ee254844",
+    "published": "2026-11-07T08:01:33+00:00",
+    "image": "https://photo.maxifoot.fr/mbappe-zidane-france-1.jpg",
+    "source_image": "https://photo.maxifoot.fr/mbappe-zidane-france-1.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Maxifoot",
+    "source_priority": 78,
+    "source_region": "international",
+    "source_feed": "http://rss.maxifoot.com/football-general.xml",
+    "category": "Blessures",
+    "category_emoji": "🚑",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "Maxifoot"
+    ],
+    "quality_score": 78
+  },
+  {
+    "slug": "9c2b5fca0abf363d",
+    "title": "OL : le remplaçant de Fonseca est tout proche de signer !",
+    "summary": "Après plusieurs jours de négociations, le remplaçant de Paulo Fonseca à l'OL devrait arriver.",
+    "summary_short": "Après plusieurs jours de négociations, le remplaçant de Paulo Fonseca à l'OL devrait arriver.",
+    "content": "Après plusieurs jours de négociations, le remplaçant de Paulo Fonseca à l'OL devrait arriver.",
+    "paragraphs": [
+      "Après plusieurs jours de négociations, le remplaçant de Paulo Fonseca à l'OL devrait arriver."
+    ],
+    "key_points": [
+      "Après plusieurs jours de négociations, le remplaçant de Paulo Fonseca à l'OL devrait arriver."
+    ],
+    "telegram_summary": "Après plusieurs jours de négociations, le remplaçant de Paulo Fonseca à l'OL devrait arriver.",
+    "link": "https://www.onzemondial.com/ligue-1/ol-le-remplacant-de-fonseca-est-tout-proche-de-signer-1007550",
+    "source_url": "https://www.onzemondial.com/ligue-1/ol-le-remplacant-de-fonseca-est-tout-proche-de-signer-1007550",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9c2b5fca0abf363d",
+    "published": "2026-11-07T08:01:00+00:00",
+    "image": "https://static.onzemondial.com/8/2026/11/photo_article/1007550/410666/1200-L-ol-le-remplaant-de-fonseca-est-tout-proche-de-signer.jpg",
+    "source_image": "https://static.onzemondial.com/8/2026/11/photo_article/1007550/410666/1200-L-ol-le-remplaant-de-fonseca-est-tout-proche-de-signer.jpg",
     "image_origin": "source",
     "image_layout": "smart-crop",
     "source": "Onze Mondial",
     "source_priority": 80,
     "source_region": "international",
     "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 3,
     "espn_verification": {},
     "quality_sources": [
       "Onze Mondial"
